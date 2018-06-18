@@ -1,6 +1,7 @@
 package com.redislabs.recharge;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -24,7 +25,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
+import org.springframework.util.ResourceUtils;
 
 import com.redislabs.recharge.config.Delimited;
 import com.redislabs.recharge.config.File;
@@ -77,7 +80,7 @@ public class BatchConfiguration {
 						config.getFile().getPath());
 				return null;
 			}
-			Resource resource = new FileSystemResource(config.getFile().getPath());
+			Resource resource = getResource(config.getFile().getPath());
 			if (Boolean.TRUE.equals(gzip)) {
 				resource = new GZIPResource(resource);
 			}
@@ -93,6 +96,13 @@ public class BatchConfiguration {
 			}
 		}
 		return reader;
+	}
+
+	private Resource getResource(String path) throws MalformedURLException {
+		if (ResourceUtils.isUrl(path)) {
+			return new UrlResource(path);
+		}
+		return new FileSystemResource(path);
 	}
 
 	private void setRedisKeyFields(FlatFile flatFile) {
