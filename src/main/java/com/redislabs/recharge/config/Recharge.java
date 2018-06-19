@@ -1,23 +1,31 @@
 package com.redislabs.recharge.config;
 
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@ConfigurationProperties
+@ConfigurationProperties(prefix = "")
+@EnableAutoConfiguration
 public class Recharge {
 
 	private File file = new File();
-
-	private boolean redisearch;
-
-	private String redisearchIndex;
 
 	private Integer maxThreads;
 
 	private int batchSize = 50;
 
-	private Redis redis = new Redis();
+	private Key key = new Key();
+
+	private RediSearch redisearch = new RediSearch();
+
+	public RediSearch getRedisearch() {
+		return redisearch;
+	}
+
+	public void setRedisearch(RediSearch rediSearch) {
+		this.redisearch = rediSearch;
+	}
 
 	public File getFile() {
 		return file;
@@ -27,28 +35,12 @@ public class Recharge {
 		this.file = file;
 	}
 
-	public Redis getRedis() {
-		return redis;
+	public Key getKey() {
+		return key;
 	}
 
-	public void setRedis(Redis redis) {
-		this.redis = redis;
-	}
-
-	public boolean isRedisearch() {
-		return redisearch;
-	}
-
-	public void setRedisearch(boolean redisearch) {
-		this.redisearch = redisearch;
-	}
-
-	public String getRedisearchIndex() {
-		return redisearchIndex;
-	}
-
-	public void setRedisearchIndex(String redisearchIndex) {
-		this.redisearchIndex = redisearchIndex;
+	public void setKey(Key redis) {
+		this.key = redis;
 	}
 
 	public Integer getMaxThreads() {

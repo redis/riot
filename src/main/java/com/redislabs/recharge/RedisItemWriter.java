@@ -33,9 +33,9 @@ public class RedisItemWriter extends ItemStreamSupport implements ItemWriter<Map
 
 	@Override
 	public void open(ExecutionContext executionContext) {
-		this.keySeparator = config.getRedis().getKeySeparator();
-		this.keyPrefix = config.getRedis().getKeyPrefix() + keySeparator;
-		this.keyFields = config.getRedis().getKeyFields();
+		this.keySeparator = config.getKey().getSeparator();
+		this.keyPrefix = config.getKey().getPrefix() + keySeparator;
+		this.keyFields = config.getKey().getFields();
 	}
 
 	@Override

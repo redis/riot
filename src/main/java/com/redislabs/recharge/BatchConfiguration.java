@@ -2,6 +2,7 @@ package com.redislabs.recharge;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -16,10 +17,12 @@ import org.springframework.batch.core.configuration.annotation.StepBuilderFactor
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.item.ItemReader;
+import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder.DelimitedBuilder;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder.FixedLengthBuilder;
 import org.springframework.batch.item.file.transform.Range;
+import org.springframework.batch.item.support.CompositeItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -55,7 +58,10 @@ public class BatchConfiguration {
 	private Recharge config;
 
 	@Autowired
-	private RedisItemWriter writer;
+	private RediSearchItemWriter rediSearchWriter;
+
+	@Autowired
+	private RedisItemWriter redisWriter;
 
 	@Bean
 	public ItemReader<Map<String, String>> reader() throws IOException {
@@ -84,8 +90,8 @@ public class BatchConfiguration {
 			if (Boolean.TRUE.equals(gzip)) {
 				resource = new GZIPResource(resource);
 			}
-			if (config.getRedis().getKeyPrefix() == null) {
-				config.getRedis().setKeyPrefix(getBaseFilename(resource));
+			if (config.getKey().getPrefix() == null) {
+				config.getKey().setPrefix(getBaseFilename(resource));
 			}
 			setRedisKeyFields(config.getFile().getFlat());
 			switch (type) {
@@ -106,8 +112,8 @@ public class BatchConfiguration {
 	}
 
 	private void setRedisKeyFields(FlatFile flatFile) {
-		if (config.getRedis().getKeyFields() == null) {
-			config.getRedis().setKeyFields(new String[] { flatFile.getFieldNames()[0] });
+		if (config.getKey().getFields() == null) {
+			config.getKey().setFields(new String[] { flatFile.getFieldNames()[0] });
 		}
 	}
 
@@ -210,12 +216,23 @@ public class BatchConfiguration {
 	@Bean
 	public Step releaseLoadStep() throws IOException {
 		SimpleStepBuilder<Map<String, String>, Map<String, String>> builder = stepBuilderFactory.get("releaseLoadStep")
-				.<Map<String, String>, Map<String, String>>chunk(config.getBatchSize()).reader(reader()).writer(writer);
+				.<Map<String, String>, Map<String, String>>chunk(config.getBatchSize()).reader(reader())
+				.writer(writer());
 		if (config.getMaxThreads() != null) {
 			SimpleAsyncTaskExecutor taskExecutor = new SimpleAsyncTaskExecutor();
 			taskExecutor.setConcurrencyLimit(config.getMaxThreads());
 			builder.taskExecutor(taskExecutor);
 		}
 		return builder.build();
+	}
+
+	public ItemWriter<Map<String, String>> writer() {
+		if (config.getRedisearch().isEnabled()) {
+			rediSearchWriter.open();
+			CompositeItemWriter<Map<String, String>> writer = new CompositeItemWriter<Map<String, String>>();
+			writer.setDelegates(Arrays.asList(redisWriter, rediSearchWriter));
+			return writer;
+		}
+		return redisWriter;
 	}
 }
