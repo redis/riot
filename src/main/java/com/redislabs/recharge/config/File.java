@@ -9,6 +9,14 @@ public class File {
 	private Xml xml = new Xml();
 	private FlatFile flat = new FlatFile();
 
+	public String getPath() {
+		return path;
+	}
+
+	public void setPath(String path) {
+		this.path = path;
+	}
+
 	public FlatFile getFlat() {
 		return flat;
 	}
@@ -47,14 +55,6 @@ public class File {
 
 	public void setXml(Xml xml) {
 		this.xml = xml;
-	}
-
-	public String getPath() {
-		return path;
-	}
-
-	public void setPath(String path) {
-		this.path = path;
 	}
 
 }

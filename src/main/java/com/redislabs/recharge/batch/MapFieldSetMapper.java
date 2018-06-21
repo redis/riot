@@ -1,4 +1,4 @@
-package com.redislabs.recharge.flatfile;
+package com.redislabs.recharge.batch;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

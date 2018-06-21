@@ -1,4 +1,4 @@
-package com.redislabs.recharge;
+package com.redislabs.recharge.batch;
 
 import java.util.List;
 import java.util.Map;
@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 import com.redislabs.recharge.config.Recharge;
 
 @Component
-public class RedisItemWriter extends ItemStreamSupport implements ItemWriter<Map<String, String>> {
+public class RedisWriter extends ItemStreamSupport implements ItemWriter<Map<String, String>> {
 
 	@Autowired
 	private Recharge config;

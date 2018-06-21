@@ -4,7 +4,6 @@ public class FlatFile {
 
 	private Integer linesToSkip;
 	private String[] fieldNames;
-	private Integer maxItemCount;
 	private Delimited delimited = new Delimited();
 	private FixedLength fixedLength = new FixedLength();
 
@@ -22,14 +21,6 @@ public class FlatFile {
 
 	public void setDelimited(Delimited delimited) {
 		this.delimited = delimited;
-	}
-
-	public Integer getMaxItemCount() {
-		return maxItemCount;
-	}
-
-	public void setMaxItemCount(Integer maxItemCount) {
-		this.maxItemCount = maxItemCount;
 	}
 
 	public Integer getLinesToSkip() {

@@ -11,6 +11,8 @@ public class Recharge {
 
 	private File file = new File();
 
+	private Generator generator = new Generator();
+
 	private Integer maxThreads;
 
 	private int batchSize = 50;
@@ -18,6 +20,24 @@ public class Recharge {
 	private Key key = new Key();
 
 	private RediSearch redisearch = new RediSearch();
+
+	private Integer maxItemCount;
+
+	public Integer getMaxItemCount() {
+		return maxItemCount;
+	}
+
+	public void setMaxItemCount(Integer maxItemCount) {
+		this.maxItemCount = maxItemCount;
+	}
+
+	public Generator getGenerator() {
+		return generator;
+	}
+
+	public void setGenerator(Generator generator) {
+		this.generator = generator;
+	}
 
 	public RediSearch getRedisearch() {
 		return redisearch;

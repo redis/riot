@@ -1,4 +1,4 @@
-package com.redislabs.recharge;
+package com.redislabs.recharge.file;
 
 import java.io.IOException;
 import java.util.zip.GZIPInputStream;

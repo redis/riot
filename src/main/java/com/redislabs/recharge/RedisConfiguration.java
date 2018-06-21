@@ -7,7 +7,7 @@ import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
 @EnableAutoConfiguration
-public class RedisConfig {
+public class RedisConfiguration {
 
 	@Bean
 	public RedisConnectionFactory connectionFactory() {

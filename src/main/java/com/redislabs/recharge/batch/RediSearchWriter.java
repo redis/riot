@@ -1,4 +1,4 @@
-package com.redislabs.recharge;
+package com.redislabs.recharge.batch;
 
 import java.util.HashMap;
 import java.util.List;
@@ -20,9 +20,9 @@ import io.redisearch.client.ClusterClient;
 import redis.clients.jedis.exceptions.JedisDataException;
 
 @Component
-public class RediSearchItemWriter extends ItemStreamSupport implements ItemWriter<Map<String, String>> {
+public class RediSearchWriter extends ItemStreamSupport implements ItemWriter<Map<String, String>> {
 
-	private Logger log = LoggerFactory.getLogger(RediSearchItemWriter.class);
+	private Logger log = LoggerFactory.getLogger(RediSearchWriter.class);
 
 	@Autowired
 	private Recharge config;
@@ -65,7 +65,10 @@ public class RediSearchItemWriter extends ItemStreamSupport implements ItemWrite
 			try {
 				client.addDocument(key, 1.0, fields, true, false, null);
 			} catch (JedisDataException e) {
-				log.error("Could not add document", e);
+				if ("Document already in index".equals(e.getMessage())) {
+					log.debug(e.getMessage());
+				}
+				log.error("Could not add document: {}", e.getMessage());
 			}
 		}
 	}
