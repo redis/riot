@@ -35,14 +35,11 @@ public class LoadJobConfiguration {
 	Job job(JobBuilderFactory jbf, StepBuilderFactory sbf, LoadFileStep fileStep, LoadGeneratorStep generatorStep)
 			throws Exception {
 		if (config.getGenerator().getType() != null) {
-			config.getRedisearch().setIndex("recordIdx");
-			config.getKey().setPrefix("record");
-			config.getKey().setFields("id");
 			RecordItemReader reader = generatorStep.recordReader();
 			RecordItemWriter writer = generatorStep.recordWriter();
 			return job(jbf, sbf, reader, writer);
 		}
-		if (config.getFile().getPath() != null && config.getFile().getPath().length() > 0) {
+		if (config.getFile().isEnabled()) {
 			FlatFileItemReader<Map<String, String>> reader = fileStep.fileReader();
 			ItemWriter<Map<String, String>> writer = fileStep.writer();
 			return job(jbf, sbf, reader, writer);

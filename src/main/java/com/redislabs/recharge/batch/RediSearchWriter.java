@@ -15,8 +15,10 @@ import org.springframework.stereotype.Component;
 import com.redislabs.recharge.config.Recharge;
 import com.redislabs.recharge.config.RediSearch;
 
+import io.redisearch.Schema;
 import io.redisearch.client.Client;
 import io.redisearch.client.ClusterClient;
+import io.redisearch.client.Client.IndexOptions;
 import redis.clients.jedis.exceptions.JedisDataException;
 
 @Component
@@ -53,6 +55,10 @@ public class RediSearchWriter extends ItemStreamSupport implements ItemWriter<Ma
 		}
 		return new Client(redisearch.getIndex(), redisearch.getHost(), redisearch.getPort(), redisearch.getTimeout(),
 				redisearch.getPoolSize());
+	}
+
+	public void createIndex(Schema schema, IndexOptions options) {
+		client.createIndex(schema, options);
 	}
 
 	@Override

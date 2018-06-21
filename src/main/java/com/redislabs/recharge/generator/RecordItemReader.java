@@ -19,6 +19,7 @@ public class RecordItemReader extends AbstractItemCountingItemStreamItemReader<R
 		setName(ClassUtils.getShortName(RecordItemReader.class));
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	protected Record doRead() throws Exception {
 		Faker faker = provider.getFaker();
@@ -28,6 +29,7 @@ public class RecordItemReader extends AbstractItemCountingItemStreamItemReader<R
 		record.setFirstName(name.firstName());
 		record.setLastName(name.lastName());
 		record.setState(address.stateAbbr());
+		record.setYear(faker.date().birthday().getYear());
 		return record;
 	}
 

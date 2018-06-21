@@ -57,4 +57,8 @@ public class File {
 		this.xml = xml;
 	}
 
+	public boolean isEnabled() {
+		return path != null && path.length() > 0;
+	}
+
 }
