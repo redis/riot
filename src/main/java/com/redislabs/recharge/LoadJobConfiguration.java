@@ -35,6 +35,9 @@ public class LoadJobConfiguration {
 	Job job(JobBuilderFactory jbf, StepBuilderFactory sbf, LoadFileStep fileStep, LoadGeneratorStep generatorStep)
 			throws Exception {
 		if (config.getGenerator().getType() != null) {
+			config.getRedisearch().setIndex("recordIdx");
+			config.getKey().setPrefix("record");
+			config.getKey().setFields("id");
 			RecordItemReader reader = generatorStep.recordReader();
 			RecordItemWriter writer = generatorStep.recordWriter();
 			return job(jbf, sbf, reader, writer);

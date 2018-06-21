@@ -4,8 +4,6 @@ import redis.clients.jedis.Protocol;
 
 public class RediSearch {
 
-	private boolean enabled;
-
 	private String index;
 
 	private boolean cluster;
@@ -78,11 +76,7 @@ public class RediSearch {
 	}
 
 	public boolean isEnabled() {
-		return enabled;
-	}
-
-	public void setEnabled(boolean enabled) {
-		this.enabled = enabled;
+		return index != null && index.length() > 0;
 	}
 
 	public String getIndex() {

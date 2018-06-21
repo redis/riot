@@ -40,10 +40,9 @@ public class RediSearchWriter extends ItemStreamSupport implements ItemWriter<Ma
 		this.keySeparator = config.getKey().getSeparator();
 		this.keyPrefix = config.getKey().getPrefix() + keySeparator;
 		this.keyFields = config.getKey().getFields();
-	}
-
-	public void open() {
-		this.client = getClient();
+		if (config.getRedisearch().isEnabled()) {
+			this.client = getClient();
+		}
 	}
 
 	private Client getClient() {
@@ -61,19 +60,27 @@ public class RediSearchWriter extends ItemStreamSupport implements ItemWriter<Ma
 		for (Map<String, String> item : items) {
 			Map<String, Object> fields = new HashMap<String, Object>();
 			fields.putAll(item);
-			String key = getKey(item);
-			try {
-				client.addDocument(key, 1.0, fields, true, false, null);
-			} catch (JedisDataException e) {
-				if ("Document already in index".equals(e.getMessage())) {
-					log.debug(e.getMessage());
-				}
-				log.error("Could not add document: {}", e.getMessage());
-			}
+			write(fields);
 		}
 	}
 
-	private String getKey(Map<String, String> item) {
+	private void write(Map<String, Object> fields) {
+		String key = getKey(fields);
+		addDocument(key, fields);
+	}
+
+	public void addDocument(String key, Map<String, Object> fields) {
+		try {
+			client.addDocument(key, 1.0, fields, true, false, null);
+		} catch (JedisDataException e) {
+			if ("Document already in index".equals(e.getMessage())) {
+				log.debug(e.getMessage());
+			}
+			log.error("Could not add document: {}", e.getMessage());
+		}
+	}
+
+	private String getKey(Map<String, Object> item) {
 		String key = keyPrefix;
 		for (int i = 0; i < keyFields.length - 1; i++) {
 			key += item.get(keyFields[i]) + keySeparator;

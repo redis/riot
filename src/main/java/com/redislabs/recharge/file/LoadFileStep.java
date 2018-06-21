@@ -181,8 +181,7 @@ public class LoadFileStep {
 	}
 
 	public ItemWriter<Map<String, String>> writer() {
-		if (config.getRedisearch().getIndex() != null) {
-			rediSearchWriter.open();
+		if (config.getRedisearch().isEnabled()) {
 			CompositeItemWriter<Map<String, String>> writer = new CompositeItemWriter<Map<String, String>>();
 			writer.setDelegates(Arrays.asList(redisWriter, rediSearchWriter));
 			return writer;

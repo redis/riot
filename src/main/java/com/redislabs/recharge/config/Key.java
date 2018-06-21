@@ -28,7 +28,7 @@ public class Key {
 		return fields;
 	}
 
-	public void setFields(String[] keyFields) {
+	public void setFields(String... keyFields) {
 		this.fields = keyFields;
 	}
 }
