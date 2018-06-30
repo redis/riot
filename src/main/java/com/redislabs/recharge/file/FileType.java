@@ -1,4 +1,4 @@
-package com.redislabs.recharge.config;
+package com.redislabs.recharge.file;
 
 public enum FileType {
 

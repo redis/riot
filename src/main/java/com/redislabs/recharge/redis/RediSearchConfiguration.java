@@ -1,8 +1,13 @@
-package com.redislabs.recharge.config;
+package com.redislabs.recharge.redis;
 
-import redis.clients.jedis.Protocol;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Configuration;
 
-public class RediSearch {
+@Configuration
+@ConfigurationProperties(prefix = "redisearch")
+@EnableAutoConfiguration
+public class RediSearchConfiguration {
 
 	private String index;
 
@@ -11,7 +16,7 @@ public class RediSearch {
 	/**
 	 * RediSearch server host.
 	 */
-	private String host = Protocol.DEFAULT_HOST;
+	private String host;
 
 	/**
 	 * Login password of the RediSearch server.
@@ -21,25 +26,33 @@ public class RediSearch {
 	/**
 	 * RediSearch server port.
 	 */
-	private int port = Protocol.DEFAULT_PORT;
+	private Integer port;
 
-	private int timeout = Protocol.DEFAULT_TIMEOUT;
+	private Integer timeout;
 
-	private int poolSize = 100;
+	private Integer poolSize = 100;
 
-	public int getPoolSize() {
+	public Integer getPort() {
+		return port;
+	}
+
+	public void setPort(Integer port) {
+		this.port = port;
+	}
+
+	public Integer getPoolSize() {
 		return poolSize;
 	}
 
-	public void setPoolSize(int poolSize) {
+	public void setPoolSize(Integer poolSize) {
 		this.poolSize = poolSize;
 	}
 
-	public int getTimeout() {
+	public Integer getTimeout() {
 		return timeout;
 	}
 
-	public void setTimeout(int timeout) {
+	public void setTimeout(Integer timeout) {
 		this.timeout = timeout;
 	}
 
@@ -65,14 +78,6 @@ public class RediSearch {
 
 	public void setPassword(String password) {
 		this.password = password;
-	}
-
-	public int getPort() {
-		return this.port;
-	}
-
-	public void setPort(int port) {
-		this.port = port;
 	}
 
 	public boolean isEnabled() {

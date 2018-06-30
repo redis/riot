@@ -1,6 +1,6 @@
-package com.redislabs.recharge.batch;
+package com.redislabs.recharge.file;
 
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.batch.item.file.mapping.FieldSetMapper;
@@ -11,11 +11,12 @@ public class MapFieldSetMapper implements FieldSetMapper<Map<String, String>> {
 
 	@Override
 	public Map<String, String> mapFieldSet(FieldSet fieldSet) throws BindException {
-		Map<String, String> map = new LinkedHashMap<>();
+		Map<String, String> map = new HashMap<>();
 		String[] names = fieldSet.getNames();
-		String[] values = fieldSet.getValues();
-		for (int index = 0; index < values.length; index++) {
-			map.put(names[index], values[index]);
+		for (int index = 0; index < names.length; index++) {
+			String name = names[index];
+			String value = fieldSet.readString(index);
+			map.put(name, value);
 		}
 		return map;
 	}

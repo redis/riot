@@ -1,6 +1,13 @@
 package com.redislabs.recharge.config;
 
-public class Key {
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+@ConfigurationProperties(prefix = "key")
+@EnableAutoConfiguration
+public class KeyConfiguration {
 
 	private String prefix;
 

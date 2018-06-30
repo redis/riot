@@ -1,6 +1,6 @@
-package com.redislabs.recharge.config;
+package com.redislabs.recharge.file;
 
-public class FixedLength {
+public class FixedLengthConfiguration {
 
 	private String[] ranges;
 	private Boolean strict;

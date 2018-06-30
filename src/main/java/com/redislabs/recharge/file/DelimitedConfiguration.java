@@ -1,6 +1,6 @@
-package com.redislabs.recharge.config;
+package com.redislabs.recharge.file;
 
-public class Delimited {
+public class DelimitedConfiguration {
 
 	private String delimiter;
 	private Integer[] includedFields;
