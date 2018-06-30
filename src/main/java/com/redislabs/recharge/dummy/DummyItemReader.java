@@ -4,12 +4,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
+import org.springframework.util.ClassUtils;
 
 public class DummyItemReader extends AbstractItemCountingItemStreamItemReader<Map<String, String>> {
 
 	public static final String FIELD = "field";
 
 	private long index;
+
+	public DummyItemReader() {
+		setName(ClassUtils.getShortName(DummyItemReader.class));
+	}
 
 	@Override
 	protected Map<String, String> doRead() throws Exception {
