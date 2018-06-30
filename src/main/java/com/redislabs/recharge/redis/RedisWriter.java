@@ -11,8 +11,6 @@ import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
-import com.redislabs.recharge.HashItem;
-
 @Component
 public class RedisWriter extends AbstractItemStreamItemWriter<HashItem> {
 

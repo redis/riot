@@ -3,11 +3,12 @@ package com.redislabs.recharge.generator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 
-import com.redislabs.recharge.MapItemProcessor;
-import com.redislabs.recharge.config.KeyConfiguration;
+import com.redislabs.recharge.batch.KeyConfiguration;
+import com.redislabs.recharge.batch.MapItemProcessor;
+import com.redislabs.recharge.batch.StepProvider;
 
 @Configuration
-public class LoadGeneratorStep {
+public class LoadGeneratorStep implements StepProvider {
 
 	@Autowired
 	private FakeItemReader reader;
@@ -18,11 +19,11 @@ public class LoadGeneratorStep {
 	@Autowired
 	private GeneratorConfiguration config;
 
-	public FakeItemReader reader() {
+	public FakeItemReader getReader() {
 		return reader;
 	}
 
-	public MapItemProcessor processor() {
+	public MapItemProcessor getProcessor() {
 		return new MapItemProcessor(keyConfig.getPrefix(), getKeyFields(), keyConfig.getSeparator());
 	}
 

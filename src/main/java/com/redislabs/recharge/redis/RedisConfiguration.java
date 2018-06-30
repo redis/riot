@@ -1,4 +1,4 @@
-package com.redislabs.recharge;
+package com.redislabs.recharge.redis;
 
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -7,7 +7,7 @@ import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
 @EnableAutoConfiguration
-public class SpringDataRedisConfiguration {
+public class RedisConfiguration {
 
 	@Bean
 	public RedisConnectionFactory connectionFactory() {

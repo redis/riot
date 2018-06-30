@@ -17,12 +17,13 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.util.ResourceUtils;
 
-import com.redislabs.recharge.MapItemProcessor;
 import com.redislabs.recharge.RechargeException;
-import com.redislabs.recharge.config.KeyConfiguration;
+import com.redislabs.recharge.batch.KeyConfiguration;
+import com.redislabs.recharge.batch.MapItemProcessor;
+import com.redislabs.recharge.batch.StepProvider;
 
 @Configuration
-public class LoadFileStep {
+public class LoadFileStep implements StepProvider {
 
 	@Autowired
 	private FileConfiguration config;
@@ -30,7 +31,7 @@ public class LoadFileStep {
 	@Autowired
 	private KeyConfiguration keyConfig;
 
-	public FlatFileItemReader<Map<String, String>> reader() throws Exception {
+	public FlatFileItemReader<Map<String, String>> getReader() throws Exception {
 		FileType type = config.getType();
 		if (type == null) {
 			throw new RechargeException("Could not determine type of file " + config.getPath());
@@ -84,7 +85,7 @@ public class LoadFileStep {
 		return builder;
 	}
 
-	public MapItemProcessor processor() {
+	public MapItemProcessor getProcessor() {
 		String[] fieldNames = config.getFlat().getFieldNames();
 		String keyPrefix = keyConfig.getPrefix();
 		if (keyPrefix == null) {

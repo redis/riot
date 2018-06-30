@@ -1,4 +1,4 @@
-package com.redislabs.recharge;
+package com.redislabs.recharge.redis;
 
 import java.util.Map;
 

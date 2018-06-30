@@ -10,8 +10,6 @@ import org.springframework.batch.item.support.AbstractItemStreamItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.redislabs.recharge.HashItem;
-
 import io.redisearch.Schema;
 import io.redisearch.client.Client;
 import io.redisearch.client.Client.IndexOptions;

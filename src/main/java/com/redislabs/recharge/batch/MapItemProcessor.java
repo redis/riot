@@ -1,8 +1,10 @@
-package com.redislabs.recharge;
+package com.redislabs.recharge.batch;
 
 import java.util.Map;
 
 import org.springframework.batch.item.ItemProcessor;
+
+import com.redislabs.recharge.redis.HashItem;
 
 public class MapItemProcessor implements ItemProcessor<Map<String, String>, HashItem> {
 

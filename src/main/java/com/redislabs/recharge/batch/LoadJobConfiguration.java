@@ -1,16 +1,14 @@
-package com.redislabs.recharge;
+package com.redislabs.recharge.batch;
 
 import java.util.Arrays;
 import java.util.Map;
 
 import org.springframework.batch.core.Job;
-import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.step.builder.SimpleStepBuilder;
-import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
 import org.springframework.batch.item.support.CompositeItemWriter;
@@ -19,13 +17,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 
-import com.redislabs.recharge.config.BatchConfiguration;
-import com.redislabs.recharge.config.RechargeConfiguration;
+import com.redislabs.recharge.dummy.DummyStep;
+import com.redislabs.recharge.dummy.DummyItemWriter;
 import com.redislabs.recharge.file.FileConfiguration;
 import com.redislabs.recharge.file.LoadFileStep;
 import com.redislabs.recharge.generator.GeneratorConfiguration;
 import com.redislabs.recharge.generator.LoadGeneratorStep;
-import com.redislabs.recharge.noop.NoOpWriter;
+import com.redislabs.recharge.redis.HashItem;
 import com.redislabs.recharge.redis.RediSearchConfiguration;
 import com.redislabs.recharge.redis.RediSearchWriter;
 import com.redislabs.recharge.redis.RedisWriter;
@@ -55,21 +53,48 @@ public class LoadJobConfiguration {
 	@Autowired
 	private RediSearchWriter rediSearchWriter;
 
+	@Autowired
+	private LoadGeneratorStep generatorStep;
+
+	@Autowired
+	private LoadFileStep fileStep;
+
+	@Autowired
+	private DummyStep dummyStep;
+
 	@Bean
-	Job job(JobBuilderFactory jbf, StepBuilderFactory sbf, LoadFileStep fileStep, LoadGeneratorStep generatorStep)
-			throws Exception {
+	Job job(JobBuilderFactory jbf, StepBuilderFactory sbf) throws Exception {
+		SimpleStepBuilder<Map<String, String>, HashItem> stepBuilder = sbf.get("load-step")
+				.<Map<String, String>, HashItem>chunk(batchConfig.getSize());
+		if (batchConfig.getMaxThreads() != null) {
+			SimpleAsyncTaskExecutor taskExecutor = new SimpleAsyncTaskExecutor();
+			taskExecutor.setConcurrencyLimit(batchConfig.getMaxThreads());
+			stepBuilder.taskExecutor(taskExecutor);
+		}
+		StepProvider stepProvider = getStepProvider();
+		AbstractItemCountingItemStreamItemReader<Map<String, String>> reader = stepProvider.getReader();
+		if (config.getMaxItemCount() != null) {
+			reader.setMaxItemCount(config.getMaxItemCount());
+		}
+		stepBuilder.reader(reader);
+		stepBuilder.processor(stepProvider.getProcessor());
+		stepBuilder.writer(writer());
+		return jbf.get("load").incrementer(new RunIdIncrementer()).start(stepBuilder.build()).build();
+	}
+
+	private StepProvider getStepProvider() {
 		if (generatorConfig.isEnabled()) {
-			return job(jbf, sbf, generatorStep.reader(), generatorStep.processor());
+			return generatorStep;
 		}
 		if (fileConfig.isEnabled()) {
-			return job(jbf, sbf, fileStep.reader(), fileStep.processor());
+			return fileStep;
 		}
-		return null;
+		return dummyStep;
 	}
 
 	private ItemWriter<HashItem> writer() {
 		if (config.isNoOp()) {
-			return new NoOpWriter();
+			return new DummyItemWriter();
 		}
 		if (rediSearchConfig.isEnabled()) {
 			CompositeItemWriter<HashItem> writer = new CompositeItemWriter<HashItem>();
@@ -77,24 +102,6 @@ public class LoadJobConfiguration {
 			return writer;
 		}
 		return redisWriter;
-	}
-
-	private Job job(JobBuilderFactory jbf, StepBuilderFactory sbf,
-			AbstractItemCountingItemStreamItemReader<Map<String, String>> reader,
-			ItemProcessor<Map<String, String>, HashItem> processor) {
-		if (config.getMaxItemCount() != null) {
-			reader.setMaxItemCount(config.getMaxItemCount());
-		}
-		SimpleStepBuilder<Map<String, String>, HashItem> stepBuilder = sbf.get("load-step")
-				.<Map<String, String>, HashItem>chunk(batchConfig.getChunkSize()).reader(reader).processor(processor)
-				.writer(writer());
-		if (batchConfig.getMaxThreads() != null) {
-			SimpleAsyncTaskExecutor taskExecutor = new SimpleAsyncTaskExecutor();
-			taskExecutor.setConcurrencyLimit(batchConfig.getMaxThreads());
-			stepBuilder.taskExecutor(taskExecutor);
-		}
-		Step step = stepBuilder.build();
-		return jbf.get("load").incrementer(new RunIdIncrementer()).start(step).build();
 	}
 
 }
