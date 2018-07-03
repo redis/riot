@@ -1,4 +1,4 @@
-package com.redislabs.recharge.batch;
+package com.redislabs.recharge;
 
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -9,12 +9,23 @@ import org.springframework.context.annotation.Configuration;
 @EnableAutoConfiguration
 public class RechargeConfiguration {
 
+	private Connector connector;
+	private int maxThreads = 1;
+	private int chunkSize = 50;
 	private String host;
 	private int port;
 	private int timeout;
 	private int poolSize;
 	private Integer maxItemCount;
 	private boolean noOp;
+
+	public Connector getConnector() {
+		return connector;
+	}
+
+	public void setConnector(Connector connector) {
+		this.connector = connector;
+	}
 
 	public boolean isNoOp() {
 		return noOp;
@@ -63,4 +74,21 @@ public class RechargeConfiguration {
 	public void setPort(int port) {
 		this.port = port;
 	}
+
+	public int getMaxThreads() {
+		return maxThreads;
+	}
+
+	public void setMaxThreads(int maxThreads) {
+		this.maxThreads = maxThreads;
+	}
+
+	public int getChunkSize() {
+		return chunkSize;
+	}
+
+	public void setChunkSize(int chunkSize) {
+		this.chunkSize = chunkSize;
+	}
+
 }

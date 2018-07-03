@@ -1,4 +1,4 @@
-package com.redislabs.recharge.batch;
+package com.redislabs.recharge;
 
 import java.util.Map;
 

@@ -5,30 +5,12 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@ConfigurationProperties(prefix = "file.flat")
+@ConfigurationProperties(prefix = "")
 @EnableAutoConfiguration
 public class FlatFileConfiguration {
 
 	private Integer linesToSkip;
 	private String[] fieldNames;
-	private DelimitedConfiguration delimited = new DelimitedConfiguration();
-	private FixedLengthConfiguration fixedLength = new FixedLengthConfiguration();
-
-	public FixedLengthConfiguration getFixedLength() {
-		return fixedLength;
-	}
-
-	public void setFixedLength(FixedLengthConfiguration fixedLength) {
-		this.fixedLength = fixedLength;
-	}
-
-	public DelimitedConfiguration getDelimited() {
-		return delimited;
-	}
-
-	public void setDelimited(DelimitedConfiguration delimited) {
-		this.delimited = delimited;
-	}
 
 	public Integer getLinesToSkip() {
 		return linesToSkip;

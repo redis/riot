@@ -1,5 +1,12 @@
-package com.redislabs.recharge.file;
+package com.redislabs.recharge.file.fixedlength;
 
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+@ConfigurationProperties(prefix = "")
+@EnableAutoConfiguration
 public class FixedLengthConfiguration {
 
 	private String[] ranges;

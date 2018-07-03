@@ -2,19 +2,19 @@ package com.redislabs.recharge.dummy;
 
 import org.springframework.context.annotation.Configuration;
 
-import com.redislabs.recharge.batch.StepProvider;
-
 @Configuration
-public class DummyStep implements StepProvider {
+public class DummyStep {
 
-	@Override
-	public DummyItemReader getReader() throws Exception {
+	public DummyItemReader reader() {
 		return new DummyItemReader();
 	}
 
-	@Override
-	public DummyItemProcessor getProcessor() {
+	public DummyItemProcessor processor() {
 		return new DummyItemProcessor();
+	}
+
+	public DummyItemWriter writer() {
+		return new DummyItemWriter();
 	}
 
 }
