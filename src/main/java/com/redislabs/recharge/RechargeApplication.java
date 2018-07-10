@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersInvalidException;
@@ -49,11 +47,12 @@ import com.redislabs.recharge.redis.RediSearchWriter;
 import com.redislabs.recharge.redis.SetWriter;
 import com.redislabs.recharge.redis.ZSetWriter;
 
+import lombok.extern.slf4j.Slf4j;
+
 @SpringBootApplication
 @EnableBatchProcessing
+@Slf4j
 public class RechargeApplication implements ApplicationRunner {
-
-	private Logger log = LoggerFactory.getLogger(RechargeApplication.class);
 
 	public static void main(String[] args) {
 		SpringApplication.run(RechargeApplication.class, args);

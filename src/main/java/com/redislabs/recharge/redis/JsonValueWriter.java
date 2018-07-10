@@ -2,8 +2,6 @@ package com.redislabs.recharge.redis;
 
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.connection.StringRedisConnection;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
@@ -11,14 +9,16 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.redislabs.recharge.config.KeyConfiguration;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class JsonValueWriter extends AbstractTemplateWriter {
-	
+
+	private ObjectMapper mapper = new ObjectMapper();
+
 	public JsonValueWriter(KeyConfiguration keyConfig, StringRedisTemplate template) {
 		super(keyConfig, template);
 	}
-
-	private Logger log = LoggerFactory.getLogger(JsonValueWriter.class);
-	private ObjectMapper mapper = new ObjectMapper();
 
 	@Override
 	protected void write(StringRedisConnection conn, Map<String, Object> map) {

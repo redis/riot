@@ -3,13 +3,12 @@ package com.redislabs.recharge.dummy;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.support.AbstractItemStreamItemWriter;
 
-public class DummyItemWriter extends AbstractItemStreamItemWriter<Map<String, Object>> {
+import lombok.extern.slf4j.Slf4j;
 
-	private Logger log = LoggerFactory.getLogger(DummyItemWriter.class);
+@Slf4j
+public class DummyItemWriter extends AbstractItemStreamItemWriter<Map<String, Object>> {
 
 	private int currentItemCount = 0;
 

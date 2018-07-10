@@ -21,8 +21,6 @@ import java.io.InputStream;
 import javax.json.Json;
 import javax.json.stream.JsonParser;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.batch.item.file.ResourceAwareItemReaderItemStream;
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
 import org.springframework.beans.factory.InitializingBean;
@@ -32,10 +30,12 @@ import org.springframework.util.ClassUtils;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class JsonStreamItemReader<T> extends AbstractItemCountingItemStreamItemReader<T>
 		implements ResourceAwareItemReaderItemStream<T>, InitializingBean {
 
-	private static final Log logger = LogFactory.getLog(JsonStreamItemReader.class);
 	private boolean strict = true;
 	private boolean noInput;
 
@@ -184,14 +184,14 @@ public class JsonStreamItemReader<T> extends AbstractItemCountingItemStreamItemR
 			if (strict) {
 				throw new IllegalStateException("Input resource must exist (reader is in 'strict' mode)");
 			}
-			logger.warn("Input resource does not exist " + resource.getDescription());
+			log.warn("Input resource does not exist {}", resource.getDescription());
 			return;
 		}
 		if (!resource.isReadable()) {
 			if (strict) {
 				throw new IllegalStateException("Input resource must be readable (reader is in 'strict' mode)");
 			}
-			logger.warn("Input resource is not readable " + resource.getDescription());
+			log.warn("Input resource is not readable: {}", resource.getDescription());
 			return;
 		}
 
