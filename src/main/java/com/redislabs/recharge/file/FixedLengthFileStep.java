@@ -7,16 +7,17 @@ import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder.Fix
 import org.springframework.batch.item.file.transform.Range;
 import org.springframework.stereotype.Component;
 
-import com.redislabs.recharge.config.FixedLengthConfiguration;
-import com.redislabs.recharge.config.FlatFileConfiguration;
+import com.redislabs.recharge.RechargeConfiguration.FileConfiguration;
+import com.redislabs.recharge.RechargeConfiguration.FixedLengthConfiguration;
+import com.redislabs.recharge.RechargeConfiguration.FlatFileConfiguration;
 
 @Component
 public class FixedLengthFileStep extends AbstractFlatFileStep {
 
 	@Override
-	protected void configure(FlatFileItemReaderBuilder<Map<String, Object>> builder,
-			FlatFileConfiguration flatFileConfig) {
-		FixedLengthConfiguration config = flatFileConfig.getFixedLength();
+	protected FlatFileConfiguration configure(FlatFileItemReaderBuilder<Map<String, Object>> builder,
+			FileConfiguration fileConfig) {
+		FixedLengthConfiguration config = fileConfig.getFixedLength();
 		FixedLengthBuilder<Map<String, Object>> fixedLengthBuilder = builder.fixedLength();
 		if (config.getRanges() != null) {
 			fixedLengthBuilder.columns(getRanges(config.getRanges()));
@@ -24,9 +25,10 @@ public class FixedLengthFileStep extends AbstractFlatFileStep {
 		if (config.getStrict() != null) {
 			fixedLengthBuilder.strict(config.getStrict());
 		}
-		if (getFieldNames() != null) {
-			fixedLengthBuilder.names(getFieldNames());
+		if (config.getFields() != null) {
+			fixedLengthBuilder.names(config.getFields());
 		}
+		return config;
 	}
 
 	private Range[] getRanges(String[] strings) {

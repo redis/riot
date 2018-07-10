@@ -8,8 +8,9 @@ import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 
-import com.redislabs.recharge.config.FlatFileConfiguration;
-import com.redislabs.recharge.config.RechargeConfiguration;
+import com.redislabs.recharge.RechargeConfiguration;
+import com.redislabs.recharge.RechargeConfiguration.FileConfiguration;
+import com.redislabs.recharge.RechargeConfiguration.FlatFileConfiguration;
 
 public abstract class AbstractFlatFileStep {
 
@@ -24,16 +25,16 @@ public abstract class AbstractFlatFileStep {
 			config.getKey().setPrefix(getBaseFilename(resource));
 		}
 		builder.resource(resource);
-		if (config.getFile().getFlat().getLinesToSkip() != null) {
-			builder.linesToSkip(config.getFile().getFlat().getLinesToSkip());
-		}
 		if (config.getFile().getEncoding() != null) {
 			builder.encoding(config.getFile().getEncoding());
 		}
 		builder.strict(true);
 		builder.saveState(false);
 		builder.fieldSetMapper(new MapFieldSetMapper());
-		configure(builder, config.getFile().getFlat());
+		FlatFileConfiguration flatFileConfig = configure(builder, config.getFile());
+		if (flatFileConfig.getLinesToSkip() != null) {
+			builder.linesToSkip(flatFileConfig.getLinesToSkip());
+		}
 		return builder.build();
 	}
 
@@ -46,11 +47,7 @@ public abstract class AbstractFlatFileStep {
 		return filename.substring(0, pos);
 	}
 
-	protected String[] getFieldNames() {
-		return config.getFile().getFlat().getFields();
-	}
-
-	abstract protected void configure(FlatFileItemReaderBuilder<Map<String, Object>> builder,
-			FlatFileConfiguration config);
+	abstract protected FlatFileConfiguration configure(FlatFileItemReaderBuilder<Map<String, Object>> builder,
+			FileConfiguration fileConfig);
 
 }

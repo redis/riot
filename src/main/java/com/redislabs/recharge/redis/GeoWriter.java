@@ -8,8 +8,8 @@ import org.springframework.data.geo.Point;
 import org.springframework.data.redis.connection.StringRedisConnection;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
-import com.redislabs.recharge.config.GeoConfiguration;
-import com.redislabs.recharge.config.KeyConfiguration;
+import com.redislabs.recharge.RechargeConfiguration.GeoConfiguration;
+import com.redislabs.recharge.RechargeConfiguration.KeyConfiguration;
 
 public class GeoWriter extends AbstractCollectionWriter {
 

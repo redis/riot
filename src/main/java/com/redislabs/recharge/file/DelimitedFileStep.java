@@ -6,17 +6,18 @@ import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder.DelimitedBuilder;
 import org.springframework.context.annotation.Configuration;
 
-import com.redislabs.recharge.config.DelimitedConfiguration;
-import com.redislabs.recharge.config.FlatFileConfiguration;
+import com.redislabs.recharge.RechargeConfiguration.DelimitedConfiguration;
+import com.redislabs.recharge.RechargeConfiguration.FileConfiguration;
+import com.redislabs.recharge.RechargeConfiguration.FlatFileConfiguration;
 
 @Configuration
 public class DelimitedFileStep extends AbstractFlatFileStep {
 
 	@Override
-	protected void configure(FlatFileItemReaderBuilder<Map<String, Object>> readerBuilder,
-			FlatFileConfiguration flatFileConfig) {
-		DelimitedConfiguration config = flatFileConfig.getDelimited();
-		DelimitedBuilder<Map<String, Object>> delimitedBuilder = readerBuilder.delimited();
+	protected FlatFileConfiguration configure(FlatFileItemReaderBuilder<Map<String, Object>> builder,
+			FileConfiguration fileConfig) {
+		DelimitedConfiguration config = fileConfig.getDelimited();
+		DelimitedBuilder<Map<String, Object>> delimitedBuilder = builder.delimited();
 		if (config.getDelimiter() != null) {
 			delimitedBuilder.delimiter(config.getDelimiter());
 		}
@@ -26,9 +27,10 @@ public class DelimitedFileStep extends AbstractFlatFileStep {
 		if (config.getQuoteCharacter() != null) {
 			delimitedBuilder.quoteCharacter(config.getQuoteCharacter());
 		}
-		if (getFieldNames() != null) {
-			delimitedBuilder.names(getFieldNames());
+		if (config.getFields() != null) {
+			delimitedBuilder.names(config.getFields());
 		}
+		return config;
 	}
 
 }

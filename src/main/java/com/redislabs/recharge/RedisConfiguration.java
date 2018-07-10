@@ -1,4 +1,4 @@
-package com.redislabs.recharge.config;
+package com.redislabs.recharge;
 
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;

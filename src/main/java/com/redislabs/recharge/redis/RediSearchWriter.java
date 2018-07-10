@@ -6,8 +6,8 @@ import java.util.Map;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
 
-import com.redislabs.recharge.config.KeyConfiguration;
-import com.redislabs.recharge.config.RediSearchConfiguration;
+import com.redislabs.recharge.RechargeConfiguration.KeyConfiguration;
+import com.redislabs.recharge.RechargeConfiguration.RediSearchConfiguration;
 
 import io.redisearch.Schema;
 import io.redisearch.client.Client;

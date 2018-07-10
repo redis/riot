@@ -5,8 +5,8 @@ import java.util.Map;
 import org.springframework.data.redis.connection.StringRedisConnection;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
-import com.redislabs.recharge.config.KeyConfiguration;
-import com.redislabs.recharge.config.ListConfiguration;
+import com.redislabs.recharge.RechargeConfiguration.KeyConfiguration;
+import com.redislabs.recharge.RechargeConfiguration.ListConfiguration;
 
 public class ListWriter extends AbstractCollectionWriter {
 

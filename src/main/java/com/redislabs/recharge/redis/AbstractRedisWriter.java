@@ -4,7 +4,7 @@ import java.util.Map;
 
 import org.springframework.batch.item.support.AbstractItemStreamItemWriter;
 
-import com.redislabs.recharge.config.KeyConfiguration;
+import com.redislabs.recharge.RechargeConfiguration.KeyConfiguration;
 
 public abstract class AbstractRedisWriter extends AbstractItemStreamItemWriter<Map<String, Object>> {
 

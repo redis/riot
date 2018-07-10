@@ -32,8 +32,10 @@ import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
-import com.redislabs.recharge.config.DataType;
-import com.redislabs.recharge.config.RechargeConfiguration;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import com.redislabs.recharge.RechargeConfiguration.DataType;
 import com.redislabs.recharge.dummy.DummyStep;
 import com.redislabs.recharge.file.DelimitedFileStep;
 import com.redislabs.recharge.file.FixedLengthFileStep;
@@ -41,10 +43,10 @@ import com.redislabs.recharge.generator.GeneratorStep;
 import com.redislabs.recharge.redis.AbstractRedisWriter;
 import com.redislabs.recharge.redis.GeoWriter;
 import com.redislabs.recharge.redis.HashWriter;
-import com.redislabs.recharge.redis.JsonValueWriter;
 import com.redislabs.recharge.redis.ListWriter;
 import com.redislabs.recharge.redis.RediSearchWriter;
 import com.redislabs.recharge.redis.SetWriter;
+import com.redislabs.recharge.redis.StringWriter;
 import com.redislabs.recharge.redis.ZSetWriter;
 
 import lombok.extern.slf4j.Slf4j;
@@ -142,7 +144,7 @@ public class RechargeApplication implements ApplicationRunner {
 	private AbstractRedisWriter getWriter(DataType dataType) {
 		switch (dataType) {
 		case String:
-			return new JsonValueWriter(config.getKey(), redisTemplate);
+			return new StringWriter(getObjectWriter(), config.getKey(), redisTemplate);
 		case List:
 			return new ListWriter(config.getKey(), redisTemplate, config.getList());
 		case Set:
@@ -155,6 +157,15 @@ public class RechargeApplication implements ApplicationRunner {
 			return new RediSearchWriter(config.getKey(), config.getRedisearch(), redisConfig);
 		default:
 			return new HashWriter(config.getKey(), redisTemplate);
+		}
+	}
+
+	private ObjectWriter getObjectWriter() {
+		switch (config.getString().getFormat()) {
+		case Xml:
+			return new XmlMapper().writer().withRootName(config.getXml().getRootName());
+		default:
+			return new ObjectMapper().writer();
 		}
 	}
 

@@ -9,7 +9,7 @@ import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.data.redis.connection.StringRedisConnection;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
-import com.redislabs.recharge.config.KeyConfiguration;
+import com.redislabs.recharge.RechargeConfiguration.KeyConfiguration;
 
 public class HashWriter extends AbstractTemplateWriter {
 

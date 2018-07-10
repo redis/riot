@@ -7,8 +7,8 @@ import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.data.redis.connection.StringRedisConnection;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
-import com.redislabs.recharge.config.KeyConfiguration;
-import com.redislabs.recharge.config.ZSetConfiguration;
+import com.redislabs.recharge.RechargeConfiguration.KeyConfiguration;
+import com.redislabs.recharge.RechargeConfiguration.ZSetConfiguration;
 
 public class ZSetWriter extends AbstractCollectionWriter {
 

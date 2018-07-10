@@ -6,7 +6,7 @@ import org.ruaux.pojofaker.Faker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 
-import com.redislabs.recharge.config.RechargeConfiguration;
+import com.redislabs.recharge.RechargeConfiguration;
 
 @Configuration
 public class GeneratorStep {
