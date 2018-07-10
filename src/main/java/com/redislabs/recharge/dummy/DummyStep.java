@@ -9,10 +9,6 @@ public class DummyStep {
 		return new DummyItemReader();
 	}
 
-	public DummyItemProcessor processor() {
-		return new DummyItemProcessor();
-	}
-
 	public DummyItemWriter writer() {
 		return new DummyItemWriter();
 	}

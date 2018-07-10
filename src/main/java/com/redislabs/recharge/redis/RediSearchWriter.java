@@ -3,28 +3,31 @@ package com.redislabs.recharge.redis;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ExecutionContext;
-import org.springframework.batch.item.support.AbstractItemStreamItemWriter;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
+
+import com.redislabs.recharge.config.KeyConfiguration;
+import com.redislabs.recharge.config.RediSearchConfiguration;
 
 import io.redisearch.Schema;
 import io.redisearch.client.Client;
 import io.redisearch.client.Client.IndexOptions;
 import io.redisearch.client.ClusterClient;
+import lombok.extern.slf4j.Slf4j;
 import redis.clients.jedis.exceptions.JedisDataException;
 
-@Component
-public class RediSearchWriter extends AbstractItemStreamItemWriter<HashItem> {
+@Slf4j
+public class RediSearchWriter extends AbstractRedisWriter {
 
-	private Logger log = LoggerFactory.getLogger(RediSearchWriter.class);
-
-	@Autowired
 	private RediSearchConfiguration config;
-
+	private RedisProperties redisConfig;
 	private Client client;
+
+	public RediSearchWriter(KeyConfiguration keyConfig, RediSearchConfiguration config, RedisProperties redisConfig) {
+		super(keyConfig);
+		this.config = config;
+		this.redisConfig = redisConfig;
+	}
 
 	@Override
 	public void open(ExecutionContext executionContext) {
@@ -40,14 +43,14 @@ public class RediSearchWriter extends AbstractItemStreamItemWriter<HashItem> {
 
 	private String getHost() {
 		if (config.getHost() == null) {
-			return config.getHost();
+			return redisConfig.getHost();
 		}
 		return config.getHost();
 	}
 
 	private int getPort() {
 		if (config.getPort() == null) {
-			return config.getPort();
+			return redisConfig.getPort();
 		}
 		return config.getPort();
 	}
@@ -58,14 +61,14 @@ public class RediSearchWriter extends AbstractItemStreamItemWriter<HashItem> {
 
 	private int getPoolSize() {
 		if (config.getPoolSize() == null) {
-			return config.getPoolSize();
+			return redisConfig.getJedis().getPool().getMaxActive();
 		}
 		return config.getPoolSize();
 	}
 
 	private int getTimeout() {
 		if (config.getTimeout() == null) {
-			return config.getTimeout();
+			return (int) redisConfig.getJedis().getPool().getMaxWait().toMillis();
 		}
 		return config.getTimeout();
 	}
@@ -75,21 +78,17 @@ public class RediSearchWriter extends AbstractItemStreamItemWriter<HashItem> {
 	}
 
 	@Override
-	public void write(List<? extends HashItem> items) throws Exception {
-		for (HashItem item : items) {
-			addDocument(item);
-		}
-	}
-
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public void addDocument(HashItem item) {
-		try {
-			client.addDocument(item.getKey(), 1.0, (Map) item.getValue(), true, false, null);
-		} catch (JedisDataException e) {
-			if ("Document already in index".equals(e.getMessage())) {
-				log.debug(e.getMessage());
+	public void write(List<? extends Map<String, Object>> items) {
+		for (Map<String, Object> item : items) {
+			try {
+				client.addDocument(getKey(item), 1.0, item, true, false, null);
+			} catch (JedisDataException e) {
+				if ("Document already in index".equals(e.getMessage())) {
+					log.debug(e.getMessage());
+				}
+				log.error("Could not add document: {}", e.getMessage());
 			}
-			log.error("Could not add document: {}", e.getMessage());
+
 		}
 	}
 

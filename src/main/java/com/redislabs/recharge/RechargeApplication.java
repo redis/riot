@@ -1,7 +1,7 @@
 package com.redislabs.recharge;
 
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -21,7 +21,6 @@ import org.springframework.batch.core.repository.JobExecutionAlreadyRunningExcep
 import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
 import org.springframework.batch.core.repository.JobRestartException;
 import org.springframework.batch.core.step.builder.SimpleStepBuilder;
-import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
 import org.springframework.batch.item.support.CompositeItemWriter;
@@ -30,23 +29,30 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
+import org.springframework.data.redis.core.StringRedisTemplate;
 
-import com.redislabs.recharge.dummy.DummyItemWriter;
+import com.redislabs.recharge.config.DataType;
+import com.redislabs.recharge.config.RechargeConfiguration;
 import com.redislabs.recharge.dummy.DummyStep;
-import com.redislabs.recharge.file.delimited.DelimitedFileStep;
-import com.redislabs.recharge.file.fixedlength.FixedLengthFileStep;
+import com.redislabs.recharge.file.DelimitedFileStep;
+import com.redislabs.recharge.file.FixedLengthFileStep;
 import com.redislabs.recharge.generator.GeneratorStep;
-import com.redislabs.recharge.redis.HashItem;
-import com.redislabs.recharge.redis.RediSearchConfiguration;
+import com.redislabs.recharge.redis.AbstractRedisWriter;
+import com.redislabs.recharge.redis.GeoWriter;
+import com.redislabs.recharge.redis.HashWriter;
+import com.redislabs.recharge.redis.JsonValueWriter;
+import com.redislabs.recharge.redis.ListWriter;
 import com.redislabs.recharge.redis.RediSearchWriter;
-import com.redislabs.recharge.redis.RedisWriter;
+import com.redislabs.recharge.redis.SetWriter;
+import com.redislabs.recharge.redis.ZSetWriter;
 
 @SpringBootApplication
 @EnableBatchProcessing
 public class RechargeApplication implements ApplicationRunner {
-	
+
 	private Logger log = LoggerFactory.getLogger(RechargeApplication.class);
 
 	public static void main(String[] args) {
@@ -62,6 +68,8 @@ public class RechargeApplication implements ApplicationRunner {
 	@Autowired
 	private RechargeConfiguration config;
 	@Autowired
+	private RedisProperties redisConfig;
+	@Autowired
 	private DummyStep dummyStep;
 	@Autowired
 	private DelimitedFileStep delimitedFileStep;
@@ -70,43 +78,25 @@ public class RechargeApplication implements ApplicationRunner {
 	@Autowired
 	private GeneratorStep generatorStep;
 	@Autowired
-	private RediSearchConfiguration rediSearchConfig;
-	@Autowired
-	private RedisWriter redisWriter;
-	@Autowired
-	private RediSearchWriter rediSearchWriter;
+	private StringRedisTemplate redisTemplate;
 
 	private Step loadStep() throws IOException {
-		SimpleStepBuilder<Map<String, String>, HashItem> builder = stepBuilderFactory.get("load-step")
-				.<Map<String, String>, HashItem>chunk(config.getChunkSize());
-		AbstractItemCountingItemStreamItemReader<Map<String, String>> reader = reader();
-		if (config.getMaxItemCount() != null) {
+		SimpleStepBuilder<Map<String, Object>, Map<String, Object>> builder = stepBuilderFactory.get("load-step")
+				.<Map<String, Object>, Map<String, Object>>chunk(config.getChunkSize());
+		AbstractItemCountingItemStreamItemReader<Map<String, Object>> reader = reader();
+		if (config.getMaxItemCount() != -1) {
 			reader.setMaxItemCount(config.getMaxItemCount());
 		}
 		builder.reader(reader);
-		builder.processor(processor());
 		builder.writer(writer());
 		builder.taskExecutor(taskExecutor());
 		builder.throttleLimit(config.getMaxThreads());
 		return builder.build();
 	}
 
-	private ItemProcessor<Map<String, String>, HashItem> processor() {
-		switch (config.getConnector()) {
-		case Delimited:
-			return delimitedFileStep.processor();
-		case FixedLength:
-			return fixedLengthFileStep.processor();
-		case Generator:
-			return generatorStep.processor();
-		default:
-			return dummyStep.processor();
-		}
-	}
-
 	private Step unloadStep() throws IOException {
-		SimpleStepBuilder<HashItem, Map<String, String>> builder = stepBuilderFactory.get("unload-step")
-				.<HashItem, Map<String, String>>chunk(config.getChunkSize());
+		SimpleStepBuilder<Map<String, Object>, Map<String, Object>> builder = stepBuilderFactory.get("unload-step")
+				.<Map<String, Object>, Map<String, Object>>chunk(config.getChunkSize());
 //		builder.reader(reader());
 //		builder.writer(writer());
 //		builder.taskExecutor(taskExecutor());
@@ -114,7 +104,7 @@ public class RechargeApplication implements ApplicationRunner {
 		return builder.build();
 	}
 
-	private AbstractItemCountingItemStreamItemReader<Map<String, String>> reader() throws IOException {
+	private AbstractItemCountingItemStreamItemReader<Map<String, Object>> reader() throws IOException {
 		switch (config.getConnector()) {
 		case Delimited:
 			return delimitedFileStep.reader();
@@ -133,16 +123,40 @@ public class RechargeApplication implements ApplicationRunner {
 		return taskExecutor;
 	}
 
-	private ItemWriter<HashItem> writer() {
-		if (config.isNoOp()) {
-			return new DummyItemWriter();
+	private ItemWriter<Map<String, Object>> writer() {
+		List<DataType> dataTypes = config.getDatatypes();
+		if (dataTypes.isEmpty()) {
+			dataTypes.add(DataType.Hash);
 		}
-		if (rediSearchConfig.isEnabled()) {
-			CompositeItemWriter<HashItem> writer = new CompositeItemWriter<HashItem>();
-			writer.setDelegates(Arrays.asList(redisWriter, rediSearchWriter));
-			return writer;
+		if (dataTypes.size() == 1) {
+			return getWriter(dataTypes.get(0));
 		}
-		return redisWriter;
+		CompositeItemWriter<Map<String, Object>> writer = new CompositeItemWriter<Map<String, Object>>();
+		List<ItemWriter<? super Map<String, Object>>> delegates = new ArrayList<>();
+		for (DataType dataType : dataTypes) {
+			delegates.add(getWriter(dataType));
+		}
+		writer.setDelegates(delegates);
+		return writer;
+	}
+
+	private AbstractRedisWriter getWriter(DataType dataType) {
+		switch (dataType) {
+		case String:
+			return new JsonValueWriter(config.getKey(), redisTemplate);
+		case List:
+			return new ListWriter(config.getKey(), redisTemplate, config.getList());
+		case Set:
+			return new SetWriter(config.getKey(), redisTemplate, config.getSet());
+		case ZSet:
+			return new ZSetWriter(config.getKey(), redisTemplate, config.getZset());
+		case Geo:
+			return new GeoWriter(config.getKey(), redisTemplate, config.getGeo());
+		case RediSearchIndex:
+			return new RediSearchWriter(config.getKey(), config.getRedisearch(), redisConfig);
+		default:
+			return new HashWriter(config.getKey(), redisTemplate);
+		}
 	}
 
 	@Override

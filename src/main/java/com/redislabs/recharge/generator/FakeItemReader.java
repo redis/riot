@@ -1,50 +1,43 @@
 package com.redislabs.recharge.generator;
 
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import javax.annotation.PostConstruct;
+import java.util.Set;
 
 import org.ruaux.pojofaker.Faker;
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.convert.ConversionService;
+import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
-import org.springframework.stereotype.Component;
 import org.springframework.util.ClassUtils;
 
-@Component
-public class FakeItemReader extends AbstractItemCountingItemStreamItemReader<Map<String, String>> {
+public class FakeItemReader extends AbstractItemCountingItemStreamItemReader<Map<String, Object>> {
 
 	private ExpressionParser parser = new SpelExpressionParser();
 	private EvaluationContext context;
+	private Set<Entry<String, String>> fields;
+	private ConversionService conversionService = new DefaultConversionService();
 
-	@Autowired
-	private GeneratorConfiguration config;
-
-	@PostConstruct
-	public void open() {
-		Faker faker = new Faker(new Locale(config.getLocale()));
-		context = new StandardEvaluationContext(faker);
-	}
-
-	public FakeItemReader() {
+	public FakeItemReader(Faker faker, Set<Entry<String, String>> fields) {
 		setName(ClassUtils.getShortName(FakeItemReader.class));
+		this.context = new StandardEvaluationContext(faker);
+		this.fields = fields;
 	}
 
 	@Override
-	protected Map<String, String> doRead() throws Exception {
-		Map<String, String> map = new HashMap<>();
-		for (Entry<String, String> entry : config.getFields().entrySet()) {
+	protected Map<String, Object> doRead() throws Exception {
+		Map<String, Object> map = new HashMap<>();
+		for (Entry<String, String> entry : fields) {
 			Expression exp = parser.parseExpression(entry.getValue());
-			Object value = exp.getValue(context);
-			if (value != null) {
-				map.put(entry.getKey(), String.valueOf(value));
+			Object source = exp.getValue(context);
+			if (source != null) {
+				String value = conversionService.convert(source, String.class);
+				map.put(entry.getKey(), value);
 			}
 		}
 		return map;

@@ -1,4 +1,4 @@
-package com.redislabs.recharge.redis;
+package com.redislabs.recharge.config;
 
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -20,4 +20,5 @@ public class RedisConfiguration {
 		template.setConnectionFactory(connectionFactory);
 		return template;
 	}
+
 }

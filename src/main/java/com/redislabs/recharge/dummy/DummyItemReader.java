@@ -6,7 +6,7 @@ import java.util.Map;
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
 import org.springframework.util.ClassUtils;
 
-public class DummyItemReader extends AbstractItemCountingItemStreamItemReader<Map<String, String>> {
+public class DummyItemReader extends AbstractItemCountingItemStreamItemReader<Map<String, Object>> {
 
 	public static final String FIELD = "field";
 
@@ -17,9 +17,9 @@ public class DummyItemReader extends AbstractItemCountingItemStreamItemReader<Ma
 	}
 
 	@Override
-	protected Map<String, String> doRead() throws Exception {
-		Map<String, String> map = new HashMap<>();
-		map.put(FIELD, String.valueOf(index++));
+	protected Map<String, Object> doRead() throws Exception {
+		Map<String, Object> map = new HashMap<>();
+		map.put(FIELD, index++);
 		return map;
 	}
 
