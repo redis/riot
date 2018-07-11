@@ -4,6 +4,7 @@ package com.redislabs.recharge.redis;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.batch.item.ExecutionContext;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.StringRedisConnection;
@@ -19,6 +20,11 @@ public abstract class AbstractTemplateWriter extends AbstractRedisWriter {
 	protected AbstractTemplateWriter(KeyConfiguration config, StringRedisTemplate template) {
 		super(config);
 		this.template = template;
+	}
+
+	@Override
+	public void open(ExecutionContext executionContext) {
+		super.open(executionContext);
 	}
 
 	@Override
