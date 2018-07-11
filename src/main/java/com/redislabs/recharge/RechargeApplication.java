@@ -40,10 +40,10 @@ import com.redislabs.recharge.dummy.DummyStep;
 import com.redislabs.recharge.file.DelimitedFileStep;
 import com.redislabs.recharge.file.FixedLengthFileStep;
 import com.redislabs.recharge.generator.GeneratorStep;
-import com.redislabs.recharge.redis.AbstractRedisWriter;
 import com.redislabs.recharge.redis.GeoWriter;
 import com.redislabs.recharge.redis.HashWriter;
 import com.redislabs.recharge.redis.ListWriter;
+import com.redislabs.recharge.redis.NilWriter;
 import com.redislabs.recharge.redis.RediSearchWriter;
 import com.redislabs.recharge.redis.SetWriter;
 import com.redislabs.recharge.redis.StringWriter;
@@ -141,8 +141,10 @@ public class RechargeApplication implements ApplicationRunner {
 		return writer;
 	}
 
-	private AbstractRedisWriter getWriter(DataType dataType) {
+	private ItemWriter<Map<String, Object>> getWriter(DataType dataType) {
 		switch (dataType) {
+		case Nil:
+			return new NilWriter();
 		case String:
 			return new StringWriter(getObjectWriter(), config.getKey(), redisTemplate);
 		case List:

@@ -49,7 +49,7 @@ public class RechargeConfiguration {
 	}
 
 	public static enum DataType {
-		String, List, Set, Hash, ZSet, Geo, RediSearchIndex
+		Nil, String, List, Set, Hash, ZSet, Geo, RediSearchIndex
 	}
 
 	@Data
@@ -120,11 +120,7 @@ public class RechargeConfiguration {
 	@Data
 	public static class GeneratorConfiguration {
 		Map<String, String> fields = new LinkedHashMap<>();
-		String locale;
-
-		public boolean isEnabled() {
-			return !fields.isEmpty();
-		}
+		String locale = "en-US";
 	}
 
 	@Data
@@ -144,10 +140,6 @@ public class RechargeConfiguration {
 				return gz != null && gz.length() > 0;
 			}
 			return gzip;
-		}
-
-		public boolean isEnabled() {
-			return path != null && path.length() > 0;
 		}
 
 		private String getRegexGroupFromFilename(String groupName) {
