@@ -119,7 +119,7 @@ public class JsonStreamItemReaderTests {
 		};
 		JsonStreamItemReader<HashMap<String, Object>> itemReader = new JsonStreamItemReader<HashMap<String, Object>>();
 		itemReader.setResource(new InputStreamResource(
-				ClassLoader.class.getResourceAsStream("/com/redislabs/recharge/file/json/CallData.json")));
+				ClassLoader.class.getResourceAsStream("/json/CallData.json")));
 		itemReader.setTargetClass(typeRef);
 		itemReader.setUnmarshaller(unmarshaller);
 		itemReader.setKeyName("data");

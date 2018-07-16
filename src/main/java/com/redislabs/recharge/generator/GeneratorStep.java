@@ -16,7 +16,7 @@ public class GeneratorStep {
 
 	public FakeItemReader reader() {
 		Faker faker = new Faker(new Locale(config.getGenerator().getLocale()));
-		return new FakeItemReader(faker, config.getGenerator().getFields().entrySet());
+		return new FakeItemReader(faker, config.getGenerator().getFields());
 	}
 
 }

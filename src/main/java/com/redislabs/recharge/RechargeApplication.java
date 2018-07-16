@@ -28,6 +28,7 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -57,15 +58,16 @@ import lombok.extern.slf4j.Slf4j;
 public class RechargeApplication implements ApplicationRunner {
 
 	public static void main(String[] args) {
-		SpringApplication.run(RechargeApplication.class, args);
+		ConfigurableApplicationContext context = SpringApplication.run(RechargeApplication.class, args);
+		SpringApplication.exit(context);
 	}
 
 	@Autowired
 	private JobLauncher jobLauncher;
 	@Autowired
-	public JobBuilderFactory jobBuilderFactory;
+	private JobBuilderFactory jobBuilderFactory;
 	@Autowired
-	public StepBuilderFactory stepBuilderFactory;
+	private StepBuilderFactory stepBuilderFactory;
 	@Autowired
 	private RechargeConfiguration config;
 	@Autowired
