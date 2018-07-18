@@ -5,20 +5,27 @@ import java.util.Map;
 
 import org.springframework.batch.item.file.mapping.FieldSetMapper;
 import org.springframework.batch.item.file.transform.FieldSet;
-import org.springframework.validation.BindException;
 
-public class MapFieldSetMapper implements FieldSetMapper<Map<String, Object>> {
+import com.redislabs.recharge.Entity;
+
+public class MapFieldSetMapper implements FieldSetMapper<Entity> {
+
+	private String entityName;
+
+	public MapFieldSetMapper(String entityName) {
+		this.entityName = entityName;
+	}
 
 	@Override
-	public Map<String, Object> mapFieldSet(FieldSet fieldSet) throws BindException {
-		Map<String, Object> map = new HashMap<>();
+	public Entity mapFieldSet(FieldSet fieldSet) {
+		Map<String, Object> fields = new HashMap<>();
 		String[] names = fieldSet.getNames();
 		for (int index = 0; index < names.length; index++) {
 			String name = names[index];
 			String value = fieldSet.readString(index);
-			map.put(name, value);
+			fields.put(name, value);
 		}
-		return map;
+		return new Entity(entityName, fields);
 	}
 
 }

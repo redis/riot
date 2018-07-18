@@ -1,12 +1,13 @@
-package com.redislabs.recharge.redis;
-
-import java.util.List;
-import java.util.Map;
+package com.redislabs.recharge.redis.index;
 
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
+import org.springframework.data.redis.connection.StringRedisConnection;
+import org.springframework.data.redis.core.StringRedisTemplate;
 
-import com.redislabs.recharge.RechargeConfiguration.KeyConfiguration;
+import com.redislabs.recharge.Entity;
+import com.redislabs.recharge.RechargeConfiguration.EntityConfiguration;
+import com.redislabs.recharge.RechargeConfiguration.IndexConfiguration;
 import com.redislabs.recharge.RechargeConfiguration.RediSearchConfiguration;
 
 import io.redisearch.Schema;
@@ -17,15 +18,17 @@ import lombok.extern.slf4j.Slf4j;
 import redis.clients.jedis.exceptions.JedisDataException;
 
 @Slf4j
-public class RediSearchWriter extends AbstractRedisWriter {
+public class RediSearchIndexWriter extends AbstractIndexWriter {
 
 	private RediSearchConfiguration config;
 	private RedisProperties redisConfig;
 	private Client client;
 
-	public RediSearchWriter(KeyConfiguration keyConfig, RediSearchConfiguration config, RedisProperties redisConfig) {
-		super(keyConfig);
-		this.config = config;
+	public RediSearchIndexWriter(EntityConfiguration entityConfig, StringRedisTemplate template,
+			IndexConfiguration config, RedisProperties redisConfig) {
+		super(entityConfig, template, config);
+		
+		// TODO
 		this.redisConfig = redisConfig;
 	}
 
@@ -78,17 +81,14 @@ public class RediSearchWriter extends AbstractRedisWriter {
 	}
 
 	@Override
-	public void write(List<? extends Map<String, Object>> items) {
-		for (Map<String, Object> item : items) {
-			try {
-				client.addDocument(getKey(item), 1.0, item, true, false, null);
-			} catch (JedisDataException e) {
-				if ("Document already in index".equals(e.getMessage())) {
-					log.debug(e.getMessage());
-				}
-				log.error("Could not add document: {}", e.getMessage());
+	protected void write(StringRedisConnection conn, Entity entity, String id, String indexKey) {
+		try {
+			client.addDocument(indexKey, 1.0, entity.getFields(), true, false, null);
+		} catch (JedisDataException e) {
+			if ("Document already in index".equals(e.getMessage())) {
+				log.debug(e.getMessage());
 			}
-
+			log.error("Could not add document: {}", e.getMessage());
 		}
 	}
 

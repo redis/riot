@@ -1,26 +1,15 @@
 package com.redislabs.recharge;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.zip.GZIPInputStream;
 
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
-import org.springframework.util.ResourceUtils;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 @Configuration
 @ConfigurationProperties(prefix = "")
@@ -28,39 +17,49 @@ import lombok.EqualsAndHashCode;
 @Data
 public class RechargeConfiguration {
 
-	Connector connector;
-	int maxThreads = 1;
+	int maxThreads = 10;
 	int chunkSize = 50;
 	int maxItemCount = 1000;
-	KeyConfiguration key = new KeyConfiguration();
-	FileConfiguration file = new FileConfiguration();
-	GeneratorConfiguration generator = new GeneratorConfiguration();
-	List<DataType> datatypes = new ArrayList<>();
-	GeoConfiguration geo = new GeoConfiguration();
-	ListConfiguration list = new ListConfiguration();
-	RediSearchConfiguration redisearch = new RediSearchConfiguration();
-	SetConfiguration set = new SetConfiguration();
-	ZSetConfiguration zset = new ZSetConfiguration();
-	StringConfiguration string = new StringConfiguration();
-	XmlConfiguration xml = new XmlConfiguration();
+	Map<String, EntityConfiguration> entities = new LinkedHashMap<>();
+	Map<String, FileType> fileTypes;
 
-	public static enum Connector {
-		Delimited, FixedLength, Generator, Dummy
-	}
-
-	public static enum DataType {
-		Nil, String, List, Set, Hash, ZSet, Geo, RediSearchIndex
+	@Data
+	public static class GeneratorEntityConfiguration {
+		Map<String, String> fields = new LinkedHashMap<>();
+		String locale = "en-US";
 	}
 
 	@Data
-	public static class KeyConfiguration {
-		String prefix;
-		String separator = ":";
-		String[] fields;
+	public static class EntityConfiguration {
+		List<String> keys = new ArrayList<>();
+		DataType type = DataType.Hash;
+		List<String> fields = new ArrayList<>();
+		List<IndexConfiguration> indexes = new ArrayList<>();
+		ValueFormat format = ValueFormat.Json;
+		XmlConfiguration xml = new XmlConfiguration();
+		FileEntityConfiguration file;
+		GeneratorEntityConfiguration generator;
 	}
 
-	public static enum StringFormat {
-		Json, Xml
+	@Data
+	public static class IndexConfiguration {
+		IndexType type = IndexType.Set;
+		String field;
+		String score;
+		String longitude;
+		String latitude;
+	}
+
+	public static enum IndexType {
+		Set, Zset, List, Geo, Search
+	}
+
+	public static enum DataType {
+		Nil, String, Hash
+	}
+
+	public static enum ValueFormat {
+		Xml, Json
 	}
 
 	@Data
@@ -69,106 +68,31 @@ public class RechargeConfiguration {
 	}
 
 	@Data
-	public static class StringConfiguration {
-		StringFormat format = StringFormat.Json;
-	}
-
-	@Data
-	public static class ListConfiguration {
-		KeyConfiguration key = new KeyConfiguration();
-	}
-
-	@Data
-	public static class GeoConfiguration {
-		String xField;
-		String yField;
-		KeyConfiguration key = new KeyConfiguration();
-	}
-
-	@Data
-	public static class SetConfiguration {
-		KeyConfiguration key = new KeyConfiguration();
-	}
-
-	@Data
-	public static class ZSetConfiguration {
-		String score;
-		KeyConfiguration key = new KeyConfiguration();
-	}
-
-	@Data
-	public static abstract class FlatFileConfiguration {
-		Integer linesToSkip;
-		String[] fields;
-	}
-
-	@Data
-	@EqualsAndHashCode(callSuper = true)
-	public static class FixedLengthConfiguration extends FlatFileConfiguration {
+	public static class FixedLengthConfiguration {
 		String[] ranges;
 		Boolean strict;
 	}
 
 	@Data
-	@EqualsAndHashCode(callSuper = true)
-	public static class DelimitedConfiguration extends FlatFileConfiguration {
+	public static class DelimitedConfiguration {
 		String delimiter;
 		Integer[] includedFields;
 		Character quoteCharacter;
 	}
 
 	@Data
-	public static class GeneratorConfiguration {
-		Map<String, String> fields = new LinkedHashMap<>();
-		String locale = "en-US";
-	}
-
-	@Data
-	public static class FileConfiguration {
-
-		private Pattern filePathPattern = Pattern.compile("(?<basename>.+)\\.(?<extension>\\w+)(?<gz>\\.gz)?");
-
+	public static class FileEntityConfiguration {
 		String path;
 		Boolean gzip;
 		String encoding;
+		Integer linesToSkip;
+		FileType type;
 		DelimitedConfiguration delimited = new DelimitedConfiguration();
 		FixedLengthConfiguration fixedLength = new FixedLengthConfiguration();
+	}
 
-		public Boolean getGzip() {
-			if (gzip == null) {
-				String gz = getRegexGroupFromFilename("gz");
-				return gz != null && gz.length() > 0;
-			}
-			return gzip;
-		}
-
-		private String getRegexGroupFromFilename(String groupName) {
-			Matcher matcher = filePathPattern.matcher(new java.io.File(path).getName());
-			if (matcher.find()) {
-				return matcher.group(groupName);
-			}
-			return null;
-		}
-
-		public Resource getResource() throws IOException {
-			Resource resource = getResource(path);
-			if (Boolean.TRUE.equals(getGzip())) {
-				return getGZipResource(resource);
-			}
-			return resource;
-		}
-
-		private Resource getGZipResource(Resource resource) throws IOException {
-			return new InputStreamResource(new GZIPInputStream(resource.getInputStream()));
-		}
-
-		private Resource getResource(String path) throws MalformedURLException {
-			if (ResourceUtils.isUrl(path)) {
-				return new UrlResource(path);
-			}
-			return new FileSystemResource(path);
-		}
-
+	public static enum FileType {
+		Xml, Json, Delimited, FixedLength
 	}
 
 	@Data

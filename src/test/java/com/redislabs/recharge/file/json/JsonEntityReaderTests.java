@@ -1,7 +1,7 @@
 package com.redislabs.recharge.file.json;
 
+import java.util.AbstractMap.SimpleEntry;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -9,10 +9,11 @@ import java.util.Map.Entry;
 import org.junit.Test;
 import org.springframework.core.io.InputStreamResource;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.redislabs.recharge.Entity;
+import com.redislabs.recharge.RechargeConfiguration.EntityConfiguration;
 
-public class JsonStreamItemReaderTests {
+public class JsonEntityReaderTests {
 
 	public static class TestObject {
 		private Integer id;
@@ -115,18 +116,15 @@ public class JsonStreamItemReaderTests {
 	public void callData() throws Exception {
 		JacksonUnmarshaller unmarshaller = new JacksonUnmarshaller();
 		unmarshaller.setObjectMapper(new ObjectMapper());
-		TypeReference<HashMap<String, Object>> typeRef = new TypeReference<HashMap<String, Object>>() {
-		};
-		JsonStreamItemReader<HashMap<String, Object>> itemReader = new JsonStreamItemReader<HashMap<String, Object>>();
-		itemReader.setResource(new InputStreamResource(
-				ClassLoader.class.getResourceAsStream("/json/CallData.json")));
-		itemReader.setTargetClass(typeRef);
+		SimpleEntry<String, EntityConfiguration> entry = new SimpleEntry<>("testEntry", new EntityConfiguration());
+		JsonEntityReader itemReader = new JsonEntityReader(entry);
+		itemReader.setResource(new InputStreamResource(ClassLoader.class.getResourceAsStream("/json/CallData.json")));
 		itemReader.setUnmarshaller(unmarshaller);
 		itemReader.setKeyName("data");
 		itemReader.afterPropertiesSet();
 		itemReader.doOpen();
-		HashMap<String, Object> map = itemReader.read();
-		print(null, map);
+		Entity entity = itemReader.read();
+		print(null, entity.getFields());
 	}
 
 	private void print(String prefix, Map<String, Object> map) {
@@ -135,6 +133,7 @@ public class JsonStreamItemReaderTests {
 		}
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private void printValue(String property, Object value) {
 		if (value instanceof Map) {
 			print(property, (Map) value);

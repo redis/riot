@@ -17,25 +17,31 @@ package com.redislabs.recharge.file.json;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.json.Json;
 import javax.json.stream.JsonParser;
 
 import org.springframework.batch.item.file.ResourceAwareItemReaderItemStream;
-import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.io.Resource;
 import org.springframework.util.Assert;
-import org.springframework.util.ClassUtils;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.redislabs.recharge.AbstractEntityItemReader;
+import com.redislabs.recharge.Entity;
+import com.redislabs.recharge.RechargeConfiguration.EntityConfiguration;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class JsonStreamItemReader<T> extends AbstractItemCountingItemStreamItemReader<T>
-		implements ResourceAwareItemReaderItemStream<T>, InitializingBean {
+public class JsonEntityReader extends AbstractEntityItemReader
+		implements ResourceAwareItemReaderItemStream<Entity>, InitializingBean {
 
+	private static final TypeReference<HashMap<String, Object>> TYPE_REFERENCE = new TypeReference<HashMap<String, Object>>() {
+	};
 	private boolean strict = true;
 	private boolean noInput;
 
@@ -46,10 +52,9 @@ public class JsonStreamItemReader<T> extends AbstractItemCountingItemStreamItemR
 	private String keyName;
 
 	private Unmarshaller unmarshaller;
-	private TypeReference<T> targetClass;
 
-	public JsonStreamItemReader() {
-		setName(ClassUtils.getShortName(JsonStreamItemReader.class));
+	public JsonEntityReader(Entry<String, EntityConfiguration> entity) {
+		super(entity);
 	}
 
 	public void setKeyName(String keyName) {
@@ -58,10 +63,6 @@ public class JsonStreamItemReader<T> extends AbstractItemCountingItemStreamItemR
 
 	public void setUnmarshaller(Unmarshaller unmarshaller) {
 		this.unmarshaller = unmarshaller;
-	}
-
-	public void setTargetClass(TypeReference<T> targetClass) {
-		this.targetClass = targetClass;
 	}
 
 	@Override
@@ -75,7 +76,7 @@ public class JsonStreamItemReader<T> extends AbstractItemCountingItemStreamItemR
 	}
 
 	@Override
-	protected T doRead() throws Exception {
+	protected Map<String, Object> readValues() throws Exception {
 		if (noInput) {
 			return null;
 		}
@@ -112,9 +113,8 @@ public class JsonStreamItemReader<T> extends AbstractItemCountingItemStreamItemR
 					 * the json be unmarshalled. otherwise, we should continue to build the object.
 					 */
 					if (1 == nestingLevel) {
-						T item = unmarshaller.unmarshal(new ByteArrayInputStream(json.toString().getBytes()),
-								targetClass);
-						return item;
+						return unmarshaller.unmarshal(new ByteArrayInputStream(json.toString().getBytes()),
+								TYPE_REFERENCE);
 					} else {
 						nestingLevel--;
 						break;

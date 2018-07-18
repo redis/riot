@@ -1,0 +1,62 @@
+entities:
+  airport:
+    file:
+      path: https://raw.githubusercontent.com/jpatokal/openflights/master/data/airports.dat
+    fields:
+    - AirportID
+    - Name
+    - City
+    - Country
+    - IATA
+    - ICAO
+    - Latitude
+    - Longitude
+    - Altitude
+    - Timezone
+    - DST
+    - Tz
+    - Type
+    - Source
+    indexes:
+     - type: geo
+       latitude: Latitude
+       longitude: Longitude
+  airline:
+    file:
+      path: https://raw.githubusercontent.com/jpatokal/openflights/master/data/airlines.dat
+    fields:
+    - AirlineID
+    - Name
+    - Alias
+    - IATA
+    - ICAO
+    - Callsign
+    - Country
+    - Active
+  route:
+    file:
+      path: https://raw.githubusercontent.com/jpatokal/openflights/master/data/routes.dat
+    fields:
+    - Airline
+    - AirlineID
+    - SourceAirport
+    - SourceAirportID
+    - DestinationAirport
+    - DestinationAirportID
+    - Codeshare
+    - Stops
+    - Equipment
+    keys:
+    - Airline
+    - SourceAirport
+    - DestinationAirport
+  plane:
+    file:
+      path: https://raw.githubusercontent.com/jpatokal/openflights/master/data/planes.dat
+    keys:
+    - IATA
+    - ICAO
+    fields:
+    - Name
+    - IATA
+    - ICAO

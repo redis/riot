@@ -2,30 +2,31 @@ package com.redislabs.recharge.redis;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
-import org.springframework.core.convert.ConversionService;
-import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.data.redis.connection.StringRedisConnection;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
-import com.redislabs.recharge.RechargeConfiguration.KeyConfiguration;
+import com.redislabs.recharge.Entity;
+import com.redislabs.recharge.RechargeConfiguration.EntityConfiguration;
 
 public class HashWriter extends AbstractTemplateWriter {
 
-	public HashWriter(KeyConfiguration keyConfig, StringRedisTemplate template) {
+	public HashWriter(EntityConfiguration keyConfig, StringRedisTemplate template) {
 		super(keyConfig, template);
 	}
 
-	private ConversionService conversionService = new DefaultConversionService();
-
 	@Override
-	protected void write(StringRedisConnection conn, Map<String, Object> map) {
+	protected void write(StringRedisConnection conn, Entity entity, String id) {
+		conn.hMSet(getKey(entity, id), getValues(entity));
+	}
+
+	private Map<String, String> getValues(Entity entity) {
 		Map<String, String> values = new HashMap<String, String>();
-		for (Entry<String, Object> entry : map.entrySet()) {
-			values.put(entry.getKey(), conversionService.convert(entry.getValue(), String.class));
+		for (String field : entity.getFields().keySet()) {
+			String stringValue = getValue(entity, field, String.class);
+			values.put(field, stringValue);
 		}
-		conn.hMSet(getKey(map), values);
+		return values;
 	}
 
 }

@@ -2,19 +2,19 @@ package com.redislabs.recharge;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
+import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
 @Configuration
 public class RedisConfiguration {
 
 	@Bean
-	public JedisConnectionFactory connectionFactory() {
-		return new JedisConnectionFactory();
+	public LettuceConnectionFactory connectionFactory() {
+		return new LettuceConnectionFactory();
 	}
 
 	@Bean
-	public StringRedisTemplate redisTemplate(JedisConnectionFactory connectionFactory) {
+	public StringRedisTemplate redisTemplate(LettuceConnectionFactory connectionFactory) {
 		StringRedisTemplate template = new StringRedisTemplate();
 		template.setConnectionFactory(connectionFactory);
 		return template;
