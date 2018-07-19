@@ -15,16 +15,16 @@ import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
-import com.redislabs.recharge.RechargeConfiguration.GeneratorEntityConfiguration;
+import com.redislabs.recharge.RechargeConfiguration.GeneratorConfiguration;
 
 public class GeneratorEntityItemReader extends AbstractItemCountingItemStreamItemReader<Map<String, Object>> {
 
-	private GeneratorEntityConfiguration config;
+	private GeneratorConfiguration config;
 	private EvaluationContext context;
 	private ConversionService conversionService = new DefaultConversionService();
 	private Map<String, Expression> expressions = new LinkedHashMap<>();
 
-	public GeneratorEntityItemReader(GeneratorEntityConfiguration config) {
+	public GeneratorEntityItemReader(GeneratorConfiguration config) {
 		this.config = config;
 	}
 

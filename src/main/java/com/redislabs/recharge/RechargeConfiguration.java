@@ -24,7 +24,7 @@ public class RechargeConfiguration {
 	Map<String, FileType> fileTypes;
 
 	@Data
-	public static class GeneratorEntityConfiguration {
+	public static class GeneratorConfiguration {
 		Map<String, String> fields = new LinkedHashMap<>();
 		String locale = "en-US";
 	}
@@ -36,8 +36,8 @@ public class RechargeConfiguration {
 		String[] fields;
 		List<IndexConfiguration> indexes = new ArrayList<>();
 		ValueFormat format = ValueFormat.Json;
-		FileEntityConfiguration file;
-		GeneratorEntityConfiguration generator;
+		FileConfiguration file;
+		GeneratorConfiguration generator;
 	}
 
 	@Data
@@ -63,27 +63,17 @@ public class RechargeConfiguration {
 	}
 
 	@Data
-	public static class FixedLengthConfiguration {
-		String[] ranges;
-		Boolean strict;
-	}
-
-	@Data
-	public static class DelimitedConfiguration {
-		String delimiter;
-		Integer[] includedFields;
-		Character quoteCharacter;
-	}
-
-	@Data
-	public static class FileEntityConfiguration {
+	public static class FileConfiguration {
 		String path;
 		Boolean gzip;
 		String encoding;
 		Integer linesToSkip;
 		FileType type;
-		DelimitedConfiguration delimited = new DelimitedConfiguration();
-		FixedLengthConfiguration fixedLength = new FixedLengthConfiguration();
+		String delimiter;
+		Integer[] includedFields;
+		Character quoteCharacter;
+		String[] ranges;
+		Boolean strict;
 	}
 
 	public static enum FileType {

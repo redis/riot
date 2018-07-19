@@ -13,12 +13,16 @@ import java.util.zip.GZIPInputStream;
 
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobParameters;
+import org.springframework.batch.core.JobParametersInvalidException;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.job.builder.FlowBuilder;
 import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.core.launch.JobLauncher;
+import org.springframework.batch.core.repository.JobExecutionAlreadyRunningException;
+import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
+import org.springframework.batch.core.repository.JobRestartException;
 import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.file.FlatFileItemReader;
@@ -47,12 +51,10 @@ import org.springframework.util.ResourceUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.redislabs.recharge.RechargeConfiguration.DelimitedConfiguration;
 import com.redislabs.recharge.RechargeConfiguration.EntityConfiguration;
-import com.redislabs.recharge.RechargeConfiguration.FileEntityConfiguration;
+import com.redislabs.recharge.RechargeConfiguration.FileConfiguration;
 import com.redislabs.recharge.RechargeConfiguration.FileType;
-import com.redislabs.recharge.RechargeConfiguration.FixedLengthConfiguration;
-import com.redislabs.recharge.RechargeConfiguration.GeneratorEntityConfiguration;
+import com.redislabs.recharge.RechargeConfiguration.GeneratorConfiguration;
 import com.redislabs.recharge.RechargeConfiguration.IndexConfiguration;
 import com.redislabs.recharge.file.JsonItemReader;
 import com.redislabs.recharge.generator.GeneratorEntityItemReader;
@@ -160,14 +162,14 @@ public class RechargeApplication implements ApplicationRunner {
 	private AbstractItemCountingItemStreamItemReader<Map<String, Object>> getReader(
 			Entry<String, EntityConfiguration> entity) throws Exception {
 		if (entity.getValue().getGenerator() != null) {
-			GeneratorEntityConfiguration generator = entity.getValue().getGenerator();
+			GeneratorConfiguration generator = entity.getValue().getGenerator();
 			if (entity.getValue().getFields() == null) {
 				entity.getValue().setFields(generator.getFields().keySet().toArray(new String[0]));
 			}
 			return new GeneratorEntityItemReader(generator);
 		}
 		if (entity.getValue().getFile() != null) {
-			FileEntityConfiguration fileConfig = entity.getValue().getFile();
+			FileConfiguration fileConfig = entity.getValue().getFile();
 			if (fileConfig.getType() == null) {
 				fileConfig.setType(guessFileType(fileConfig.getPath()));
 			}
@@ -186,7 +188,7 @@ public class RechargeApplication implements ApplicationRunner {
 	}
 
 	private FlatFileItemReaderBuilder<Map<String, Object>> getFlatFileReaderBuilder(String entityName,
-			FileEntityConfiguration fileConfig) throws IOException {
+			FileConfiguration fileConfig) throws IOException {
 		FlatFileItemReaderBuilder<Map<String, Object>> builder = new FlatFileItemReaderBuilder<>();
 		Resource resource = getResource(fileConfig);
 		builder.resource(resource);
@@ -204,9 +206,8 @@ public class RechargeApplication implements ApplicationRunner {
 
 	private FlatFileItemReader<Map<String, Object>> getDelimitedReader(Entry<String, EntityConfiguration> entity)
 			throws IOException {
-		FileEntityConfiguration fileConfig = entity.getValue().getFile();
-		FlatFileItemReaderBuilder<Map<String, Object>> builder = getFlatFileReaderBuilder(entity.getKey(), fileConfig);
-		DelimitedConfiguration config = fileConfig.getDelimited();
+		FileConfiguration config = entity.getValue().getFile();
+		FlatFileItemReaderBuilder<Map<String, Object>> builder = getFlatFileReaderBuilder(entity.getKey(), config);
 		DelimitedBuilder<Map<String, Object>> delimitedBuilder = builder.delimited();
 		if (config.getDelimiter() != null) {
 			delimitedBuilder.delimiter(config.getDelimiter());
@@ -223,9 +224,8 @@ public class RechargeApplication implements ApplicationRunner {
 
 	private FlatFileItemReader<Map<String, Object>> getFixedLengthReader(Entry<String, EntityConfiguration> entity)
 			throws IOException {
-		FileEntityConfiguration fileConfig = entity.getValue().getFile();
-		FlatFileItemReaderBuilder<Map<String, Object>> builder = getFlatFileReaderBuilder(entity.getKey(), fileConfig);
-		FixedLengthConfiguration config = fileConfig.getFixedLength();
+		FileConfiguration config = entity.getValue().getFile();
+		FlatFileItemReaderBuilder<Map<String, Object>> builder = getFlatFileReaderBuilder(entity.getKey(), config);
 		FixedLengthBuilder<Map<String, Object>> fixedLengthBuilder = builder.fixedLength();
 		if (config.getRanges() != null) {
 			fixedLengthBuilder.columns(getRanges(config.getRanges()));
@@ -250,15 +250,6 @@ public class RechargeApplication implements ApplicationRunner {
 		return new Range(Integer.parseInt(split[0]), Integer.parseInt(split[1]));
 	}
 
-//	private String getBaseFilename(Resource resource) {
-//		String filename = resource.getFilename();
-//		int pos = filename.indexOf(".");
-//		if (pos == -1) {
-//			return filename;
-//		}
-//		return filename.substring(0, pos);
-//	}
-
 	private FileType guessFileType(String path) {
 		String extension = getFilenameGroup(path, FILE_EXTENSION);
 		if (extension == null) {
@@ -271,7 +262,7 @@ public class RechargeApplication implements ApplicationRunner {
 	private Pattern filePathPattern = Pattern
 			.compile("(?<" + FILE_BASENAME + ">.+)\\.(?<" + FILE_EXTENSION + ">\\w+)(?<" + FILE_GZ + ">\\.gz)?");
 
-	private boolean isGzip(FileEntityConfiguration config) {
+	private boolean isGzip(FileConfiguration config) {
 		if (config.getGzip() == null) {
 			String gz = getFilenameGroup(config.getPath(), FILE_GZ);
 			return gz != null && gz.length() > 0;
@@ -291,7 +282,7 @@ public class RechargeApplication implements ApplicationRunner {
 		return new File(path).getName();
 	}
 
-	private Resource getResource(FileEntityConfiguration config) throws IOException {
+	private Resource getResource(FileConfiguration config) throws IOException {
 		Resource resource = getResource(config.getPath());
 		if (isGzip(config)) {
 			return getGZipResource(resource);
@@ -337,27 +328,34 @@ public class RechargeApplication implements ApplicationRunner {
 		List<String> nonOptionArgs = args.getNonOptionArgs();
 		if (nonOptionArgs.size() > 0) {
 			String command = nonOptionArgs.get(0);
-			List<Flow> flows = getFlows(command);
-			SimpleAsyncTaskExecutor executor = new SimpleAsyncTaskExecutor();
-			executor.setConcurrencyLimit(rechargeConfig.getMaxThreads());
-			Flow flow = new FlowBuilder<Flow>("split-flow").split(executor).add(flows.toArray(new Flow[flows.size()]))
-					.build();
-			Job job = jobBuilderFactory.get(command + "-job").start(flow).end().build();
-			jobLauncher.run(job, new JobParameters());
+			switch (command) {
+			case "help":
+				printHelp();
+				break;
+			case "load":
+				run(command, getLoadFlows());
+				break;
+			case "unload":
+				run(command, getUnloadFlows());
+				break;
+			}
 		} else {
 			log.error("No command given. Run 'recharge help' for usage");
 		}
 	}
 
-	private List<Flow> getFlows(String command) throws Exception {
-		switch (command) {
-		case "load":
-			return getLoadFlows();
-		case "unload":
-			return getUnloadFlows();
-		default:
-			return null;
-		}
+	private void printHelp() {
+		
+	}
+
+	private void run(String command, List<Flow> flows) throws JobExecutionAlreadyRunningException, JobRestartException,
+			JobInstanceAlreadyCompleteException, JobParametersInvalidException {
+		SimpleAsyncTaskExecutor executor = new SimpleAsyncTaskExecutor();
+		executor.setConcurrencyLimit(rechargeConfig.getMaxThreads());
+		Flow flow = new FlowBuilder<Flow>("split-flow").split(executor).add(flows.toArray(new Flow[flows.size()]))
+				.build();
+		Job job = jobBuilderFactory.get(command + "-job").start(flow).end().build();
+		jobLauncher.run(job, new JobParameters());
 	}
 
 	private List<Flow> getUnloadFlows() {

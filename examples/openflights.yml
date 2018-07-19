@@ -15,7 +15,7 @@ entities:
     file:
       path: https://raw.githubusercontent.com/jpatokal/openflights/master/data/airlines.dat
     fields: AirlineID, Name, Alias, IATA, ICAO, Callsign, Country, Active
-    keys: AirlineID
+    keys: AirlineID 
     indexes:
     - type: set
       fields: Country
