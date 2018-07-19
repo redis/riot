@@ -1,6 +1,5 @@
-package com.redislabs.recharge.file.json;
+package com.redislabs.recharge.file;
 
-import java.util.AbstractMap.SimpleEntry;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -10,8 +9,8 @@ import org.junit.Test;
 import org.springframework.core.io.InputStreamResource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.redislabs.recharge.Entity;
-import com.redislabs.recharge.RechargeConfiguration.EntityConfiguration;
+import com.redislabs.recharge.file.JacksonUnmarshaller;
+import com.redislabs.recharge.file.JsonItemReader;
 
 public class JsonEntityReaderTests {
 
@@ -116,15 +115,14 @@ public class JsonEntityReaderTests {
 	public void callData() throws Exception {
 		JacksonUnmarshaller unmarshaller = new JacksonUnmarshaller();
 		unmarshaller.setObjectMapper(new ObjectMapper());
-		SimpleEntry<String, EntityConfiguration> entry = new SimpleEntry<>("testEntry", new EntityConfiguration());
-		JsonEntityReader itemReader = new JsonEntityReader(entry);
+		JsonItemReader itemReader = new JsonItemReader();
 		itemReader.setResource(new InputStreamResource(ClassLoader.class.getResourceAsStream("/json/CallData.json")));
 		itemReader.setUnmarshaller(unmarshaller);
 		itemReader.setKeyName("data");
 		itemReader.afterPropertiesSet();
 		itemReader.doOpen();
-		Entity entity = itemReader.read();
-		print(null, entity.getFields());
+		Map<String, Object> entity = itemReader.read();
+		print(null, entity);
 	}
 
 	private void print(String prefix, Map<String, Object> map) {

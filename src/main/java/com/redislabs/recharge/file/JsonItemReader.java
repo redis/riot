@@ -13,32 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.redislabs.recharge.file.json;
+package com.redislabs.recharge.file;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.json.Json;
 import javax.json.stream.JsonParser;
 
 import org.springframework.batch.item.file.ResourceAwareItemReaderItemStream;
+import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.io.Resource;
 import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.redislabs.recharge.AbstractEntityItemReader;
-import com.redislabs.recharge.Entity;
-import com.redislabs.recharge.RechargeConfiguration.EntityConfiguration;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class JsonEntityReader extends AbstractEntityItemReader
-		implements ResourceAwareItemReaderItemStream<Entity>, InitializingBean {
+public class JsonItemReader extends AbstractItemCountingItemStreamItemReader<Map<String, Object>>
+		implements ResourceAwareItemReaderItemStream<Map<String, Object>>, InitializingBean {
 
 	private static final TypeReference<HashMap<String, Object>> TYPE_REFERENCE = new TypeReference<HashMap<String, Object>>() {
 	};
@@ -52,10 +49,6 @@ public class JsonEntityReader extends AbstractEntityItemReader
 	private String keyName;
 
 	private Unmarshaller unmarshaller;
-
-	public JsonEntityReader(Entry<String, EntityConfiguration> entity) {
-		super(entity);
-	}
 
 	public void setKeyName(String keyName) {
 		this.keyName = keyName;
@@ -76,7 +69,7 @@ public class JsonEntityReader extends AbstractEntityItemReader
 	}
 
 	@Override
-	protected Map<String, Object> readValues() throws Exception {
+	protected Map<String, Object> doRead() throws Exception {
 		if (noInput) {
 			return null;
 		}

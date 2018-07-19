@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -53,9 +52,9 @@ import com.redislabs.recharge.RechargeConfiguration.EntityConfiguration;
 import com.redislabs.recharge.RechargeConfiguration.FileEntityConfiguration;
 import com.redislabs.recharge.RechargeConfiguration.FileType;
 import com.redislabs.recharge.RechargeConfiguration.FixedLengthConfiguration;
+import com.redislabs.recharge.RechargeConfiguration.GeneratorEntityConfiguration;
 import com.redislabs.recharge.RechargeConfiguration.IndexConfiguration;
-import com.redislabs.recharge.file.MapFieldSetMapper;
-import com.redislabs.recharge.file.json.JsonEntityReader;
+import com.redislabs.recharge.file.JsonItemReader;
 import com.redislabs.recharge.generator.GeneratorEntityItemReader;
 import com.redislabs.recharge.redis.HashWriter;
 import com.redislabs.recharge.redis.NilWriter;
@@ -90,7 +89,7 @@ public class RechargeApplication implements ApplicationRunner {
 	@Autowired
 	private StepBuilderFactory stepFactory;
 	@Autowired
-	private RechargeConfiguration config;
+	private RechargeConfiguration rechargeConfig;
 	@Autowired
 	private RedisProperties redisConfig;
 	@Autowired
@@ -98,81 +97,74 @@ public class RechargeApplication implements ApplicationRunner {
 
 	private List<Flow> getLoadFlows() throws Exception {
 		List<Flow> flows = new ArrayList<>();
-		Map<String, AbstractItemCountingItemStreamItemReader<Entity>> readers = getLoadReaders();
-		for (String entity : readers.keySet()) {
-			AbstractItemCountingItemStreamItemReader<Entity> reader = readers.get(entity);
-			SimpleStepBuilder<Entity, Entity> step = stepFactory.get(entity + "-load-step")
-					.<Entity, Entity>chunk(config.getChunkSize());
-			if (config.getMaxItemCount() != -1) {
-				reader.setMaxItemCount(config.getMaxItemCount());
+		for (Entry<String, EntityConfiguration> entity : rechargeConfig.getEntities().entrySet()) {
+			AbstractItemCountingItemStreamItemReader<Map<String, Object>> reader = getReader(entity);
+			reader.setName(entity.getKey() + "-load-reader");
+			sanitize(entity.getValue());
+			SimpleStepBuilder<Map<String, Object>, Map<String, Object>> step = stepFactory
+					.get(entity.getKey() + "-load-step")
+					.<Map<String, Object>, Map<String, Object>>chunk(rechargeConfig.getChunkSize());
+			if (rechargeConfig.getMaxItemCount() != -1) {
+				reader.setMaxItemCount(rechargeConfig.getMaxItemCount());
 			}
 			step.reader(reader);
-			EntityConfiguration entityConfig = config.getEntities().getOrDefault(entity, new EntityConfiguration());
-			step.writer(getWriter(entityConfig));
-			step.throttleLimit(config.getMaxThreads());
-			flows.add(new FlowBuilder<Flow>(entity + "-load-flow").from(step.build()).end());
+			step.writer(getWriter(entity));
+			step.throttleLimit(rechargeConfig.getMaxThreads());
+			flows.add(new FlowBuilder<Flow>(entity.getKey() + "-load-flow").from(step.build()).end());
 		}
 		return flows;
 	}
 
-	private ItemWriter<Entity> getWriter(EntityConfiguration entityConfig) {
-		ItemWriter<Entity> writer = getEntityWriter(entityConfig);
-		if (entityConfig.getIndexes().size() > 0) {
-			List<ItemWriter<? super Entity>> writers = new ArrayList<>();
-			writers.add(writer);
-			for (IndexConfiguration indexConfig : entityConfig.getIndexes()) {
-				writers.add(getIndexWriter(entityConfig, indexConfig));
+	private void sanitize(EntityConfiguration config) {
+		if (config.getKeys() == null || config.getKeys().length == 0) {
+			config.setKeys(config.getFields());
+		}
+		for (IndexConfiguration indexConfig : config.getIndexes()) {
+			if (indexConfig.getScore() == null) {
+				indexConfig.setScore(config.getKeys()[0]);
 			}
-			CompositeItemWriter<Entity> composite = new CompositeItemWriter<>();
+		}
+	}
+
+	private ItemWriter<Map<String, Object>> getWriter(Entry<String, EntityConfiguration> entity) {
+		ItemWriter<Map<String, Object>> writer = getEntityWriter(entity);
+		if (entity.getValue().getIndexes().size() > 0) {
+			List<ItemWriter<? super Map<String, Object>>> writers = new ArrayList<>();
+			writers.add(writer);
+			for (IndexConfiguration indexConfig : entity.getValue().getIndexes()) {
+				writers.add(getIndexWriter(entity, indexConfig));
+			}
+			CompositeItemWriter<Map<String, Object>> composite = new CompositeItemWriter<>();
 			composite.setDelegates(writers);
 			return composite;
 		}
 		return writer;
 	}
 
-	private AbstractIndexWriter getIndexWriter(EntityConfiguration entityConfig, IndexConfiguration indexConfig) {
+	private AbstractIndexWriter getIndexWriter(Entry<String, EntityConfiguration> entity,
+			IndexConfiguration indexConfig) {
 		switch (indexConfig.getType()) {
 		case Geo:
-			return new GeoIndexWriter(entityConfig, redisTemplate, indexConfig);
+			return new GeoIndexWriter(redisTemplate, entity, indexConfig);
 		case List:
-			return new ListIndexWriter(entityConfig, redisTemplate, indexConfig);
+			return new ListIndexWriter(redisTemplate, entity, indexConfig);
 		case Search:
-			return new RediSearchIndexWriter(entityConfig, redisTemplate, indexConfig, redisConfig);
+			return new RediSearchIndexWriter(redisTemplate, entity, indexConfig, redisConfig);
 		case Zset:
-			return new ZSetIndexWriter(entityConfig, redisTemplate, indexConfig);
+			return new ZSetIndexWriter(redisTemplate, entity, indexConfig);
 		default:
-			return new SetIndexWriter(entityConfig, redisTemplate, indexConfig);
+			return new SetIndexWriter(redisTemplate, entity, indexConfig);
 		}
 	}
 
-	private Map<String, AbstractItemCountingItemStreamItemReader<Entity>> getLoadReaders() throws Exception {
-		Map<String, AbstractItemCountingItemStreamItemReader<Entity>> readers = new LinkedHashMap<>();
-		for (Entry<String, EntityConfiguration> entity : config.getEntities().entrySet()) {
-			readers.put(entity.getKey(), getReader(entity));
-			EntityConfiguration entityConfig = entity.getValue();
-			if (entityConfig.getKeys().isEmpty()) {
-				entity.getValue().setKeys(entityConfig.getFields());
-			}
-			for (IndexConfiguration indexConfig : entityConfig.getIndexes()) {
-				if (indexConfig.getField() == null) {
-					if (entityConfig.getFields().size() > 1) {
-						indexConfig.setField(entityConfig.getFields().get(1));
-					} else {
-						log.error("Could not find a field to index");
-					}
-				}
-				if (indexConfig.getScore() == null) {
-					indexConfig.setScore(entityConfig.getKeys().get(0));
-				}
-			}
-		}
-		return readers;
-	}
-
-	private AbstractItemCountingItemStreamItemReader<Entity> getReader(Entry<String, EntityConfiguration> entity)
-			throws Exception {
+	private AbstractItemCountingItemStreamItemReader<Map<String, Object>> getReader(
+			Entry<String, EntityConfiguration> entity) throws Exception {
 		if (entity.getValue().getGenerator() != null) {
-			return new GeneratorEntityItemReader(entity);
+			GeneratorEntityConfiguration generator = entity.getValue().getGenerator();
+			if (entity.getValue().getFields() == null) {
+				entity.getValue().setFields(generator.getFields().keySet().toArray(new String[0]));
+			}
+			return new GeneratorEntityItemReader(generator);
 		}
 		if (entity.getValue().getFile() != null) {
 			FileEntityConfiguration fileConfig = entity.getValue().getFile();
@@ -185,7 +177,7 @@ public class RechargeApplication implements ApplicationRunner {
 			case FixedLength:
 				return getFixedLengthReader(entity);
 			case Json:
-				return new JsonEntityReader(entity);
+				return new JsonItemReader();
 			default:
 				throw new RechargeException("No reader found for file " + fileConfig.getPath());
 			}
@@ -193,10 +185,9 @@ public class RechargeApplication implements ApplicationRunner {
 		throw new RechargeException("No entity type configured");
 	}
 
-	private FlatFileItemReaderBuilder<Entity> getFlatFileReaderBuilder(String entityName,
+	private FlatFileItemReaderBuilder<Map<String, Object>> getFlatFileReaderBuilder(String entityName,
 			FileEntityConfiguration fileConfig) throws IOException {
-		FlatFileItemReaderBuilder<Entity> builder = new FlatFileItemReaderBuilder<>();
-		builder.name(entityName + "-file-reader");
+		FlatFileItemReaderBuilder<Map<String, Object>> builder = new FlatFileItemReaderBuilder<>();
 		Resource resource = getResource(fileConfig);
 		builder.resource(resource);
 		if (fileConfig.getEncoding() != null) {
@@ -204,19 +195,19 @@ public class RechargeApplication implements ApplicationRunner {
 		}
 		builder.strict(true);
 		builder.saveState(false);
-		builder.fieldSetMapper(new MapFieldSetMapper(entityName));
+		builder.fieldSetMapper(new MapFieldSetMapper());
 		if (fileConfig.getLinesToSkip() != null) {
 			builder.linesToSkip(fileConfig.getLinesToSkip());
 		}
 		return builder;
 	}
 
-	private FlatFileItemReader<Entity> getDelimitedReader(Entry<String, EntityConfiguration> entity)
+	private FlatFileItemReader<Map<String, Object>> getDelimitedReader(Entry<String, EntityConfiguration> entity)
 			throws IOException {
 		FileEntityConfiguration fileConfig = entity.getValue().getFile();
-		FlatFileItemReaderBuilder<Entity> builder = getFlatFileReaderBuilder(entity.getKey(), fileConfig);
+		FlatFileItemReaderBuilder<Map<String, Object>> builder = getFlatFileReaderBuilder(entity.getKey(), fileConfig);
 		DelimitedConfiguration config = fileConfig.getDelimited();
-		DelimitedBuilder<Entity> delimitedBuilder = builder.delimited();
+		DelimitedBuilder<Map<String, Object>> delimitedBuilder = builder.delimited();
 		if (config.getDelimiter() != null) {
 			delimitedBuilder.delimiter(config.getDelimiter());
 		}
@@ -226,23 +217,23 @@ public class RechargeApplication implements ApplicationRunner {
 		if (config.getQuoteCharacter() != null) {
 			delimitedBuilder.quoteCharacter(config.getQuoteCharacter());
 		}
-		delimitedBuilder.names(entity.getValue().getFields().toArray(new String[0]));
+		delimitedBuilder.names(entity.getValue().getFields());
 		return builder.build();
 	}
 
-	protected FlatFileItemReader<Entity> getFixedLengthReader(Entry<String, EntityConfiguration> entity)
+	private FlatFileItemReader<Map<String, Object>> getFixedLengthReader(Entry<String, EntityConfiguration> entity)
 			throws IOException {
 		FileEntityConfiguration fileConfig = entity.getValue().getFile();
-		FlatFileItemReaderBuilder<Entity> builder = getFlatFileReaderBuilder(entity.getKey(), fileConfig);
+		FlatFileItemReaderBuilder<Map<String, Object>> builder = getFlatFileReaderBuilder(entity.getKey(), fileConfig);
 		FixedLengthConfiguration config = fileConfig.getFixedLength();
-		FixedLengthBuilder<Entity> fixedLengthBuilder = builder.fixedLength();
+		FixedLengthBuilder<Map<String, Object>> fixedLengthBuilder = builder.fixedLength();
 		if (config.getRanges() != null) {
 			fixedLengthBuilder.columns(getRanges(config.getRanges()));
 		}
 		if (config.getStrict() != null) {
 			fixedLengthBuilder.strict(config.getStrict());
 		}
-		fixedLengthBuilder.names(entity.getValue().getFields().toArray(new String[0]));
+		fixedLengthBuilder.names(entity.getValue().getFields());
 		return builder.build();
 	}
 
@@ -274,7 +265,7 @@ public class RechargeApplication implements ApplicationRunner {
 			log.warn("Could not determine file type from path {}", path);
 		}
 		log.debug("Found file extension '{}' for path {}", extension, path);
-		return config.getFileTypes().getOrDefault(extension, FileType.Delimited);
+		return rechargeConfig.getFileTypes().getOrDefault(extension, FileType.Delimited);
 	}
 
 	private Pattern filePathPattern = Pattern
@@ -319,21 +310,22 @@ public class RechargeApplication implements ApplicationRunner {
 		return new FileSystemResource(path);
 	}
 
-	private AbstractItemStreamItemWriter<Entity> getEntityWriter(EntityConfiguration config) {
-		switch (config.getType()) {
+	private AbstractItemStreamItemWriter<Map<String, Object>> getEntityWriter(
+			Entry<String, EntityConfiguration> entity) {
+		switch (entity.getValue().getType()) {
 		case Nil:
-			return new NilWriter();
+			return new NilWriter(redisTemplate, entity);
 		case String:
-			return new StringWriter(config, redisTemplate, getObjectWriter(config));
+			return new StringWriter(redisTemplate, entity, getObjectWriter(entity));
 		default:
-			return new HashWriter(config, redisTemplate);
+			return new HashWriter(redisTemplate, entity);
 		}
 	}
 
-	private ObjectWriter getObjectWriter(EntityConfiguration config) {
-		switch (config.getFormat()) {
+	private ObjectWriter getObjectWriter(Entry<String, EntityConfiguration> entity) {
+		switch (entity.getValue().getFormat()) {
 		case Xml:
-			return new XmlMapper().writer().withRootName(config.getXml().getRootName());
+			return new XmlMapper().writer().withRootName(entity.getKey());
 		default:
 			break;
 		}
@@ -347,7 +339,7 @@ public class RechargeApplication implements ApplicationRunner {
 			String command = nonOptionArgs.get(0);
 			List<Flow> flows = getFlows(command);
 			SimpleAsyncTaskExecutor executor = new SimpleAsyncTaskExecutor();
-			executor.setConcurrencyLimit(config.getMaxThreads());
+			executor.setConcurrencyLimit(rechargeConfig.getMaxThreads());
 			Flow flow = new FlowBuilder<Flow>("split-flow").split(executor).add(flows.toArray(new Flow[flows.size()]))
 					.build();
 			Job job = jobBuilderFactory.get(command + "-job").start(flow).end().build();

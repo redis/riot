@@ -1,38 +1,54 @@
 package com.redislabs.recharge.redis.index;
 
+import java.util.Map;
+import java.util.Map.Entry;
+
 import org.springframework.data.redis.connection.StringRedisConnection;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
-import com.redislabs.recharge.Entity;
 import com.redislabs.recharge.RechargeConfiguration.EntityConfiguration;
 import com.redislabs.recharge.RechargeConfiguration.IndexConfiguration;
-import com.redislabs.recharge.redis.AbstractTemplateWriter;
+import com.redislabs.recharge.redis.AbstractEntityWriter;
+import com.redislabs.recharge.redis.key.AbstractKeyBuilder;
+import com.redislabs.recharge.redis.key.KeyBuilder;
+import com.redislabs.recharge.redis.key.MultipleFieldKeyBuilder;
 
-public abstract class AbstractIndexWriter extends AbstractTemplateWriter {
+public abstract class AbstractIndexWriter extends AbstractEntityWriter {
 
-	private IndexConfiguration config;
+	private KeyBuilder indexKeyBuilder;
 
-	protected AbstractIndexWriter(EntityConfiguration entityConfig, StringRedisTemplate template,
-			IndexConfiguration config) {
-		super(entityConfig, template);
-		this.config = config;
+	protected AbstractIndexWriter(StringRedisTemplate template, Entry<String, EntityConfiguration> entity,
+			IndexConfiguration indexConfig) {
+		super(template, entity);
+		indexKeyBuilder = AbstractKeyBuilder.getKeyBuilder(getKeyspace(entity, indexConfig), indexConfig.getFields());
 	}
 
-	public IndexConfiguration getConfig() {
-		return config;
+	private String getKeyspace(Entry<String, EntityConfiguration> entity, IndexConfiguration indexConfig) {
+		return MultipleFieldKeyBuilder.join(entity.getKey(), getKeyspace(indexConfig));
+	}
+
+	private String getKeyspace(IndexConfiguration indexConfig) {
+		if (indexConfig.getName() == null) {
+			if (indexConfig.getFields() == null || indexConfig.getFields().length == 0) {
+				return getDefaultKeyspace();
+			}
+			return MultipleFieldKeyBuilder.join(indexConfig.getFields());
+		}
+		return indexConfig.getName();
+	}
+
+	protected abstract String getDefaultKeyspace();
+
+	@Override
+	protected String getKey(Map<String, Object> record) {
+		return indexKeyBuilder.getKey(record);
 	}
 
 	@Override
-	protected void write(StringRedisConnection conn, Entity entity, String id) {
-		String indexKey = entity.getName() + AbstractTemplateWriter.KEY_SEPARATOR + config.getField()
-				+ AbstractTemplateWriter.KEY_SEPARATOR + getIndexId(entity);
-		write(conn, entity, id, indexKey);
+	protected void write(StringRedisConnection conn, String key, Map<String, Object> record) {
+		write(conn, key, record, getId(record));
 	}
 
-	protected abstract void write(StringRedisConnection conn, Entity entity, String id, String indexKey);
-
-	private String getIndexId(Entity entity) {
-		return getValue(entity, config.getField(), String.class);
-	}
+	protected abstract void write(StringRedisConnection conn, String key, Map<String, Object> record, String id);
 
 }

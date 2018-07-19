@@ -1,11 +1,13 @@
 package com.redislabs.recharge.redis.index;
 
+import java.util.Map;
+import java.util.Map.Entry;
+
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
 import org.springframework.data.redis.connection.StringRedisConnection;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
-import com.redislabs.recharge.Entity;
 import com.redislabs.recharge.RechargeConfiguration.EntityConfiguration;
 import com.redislabs.recharge.RechargeConfiguration.IndexConfiguration;
 import com.redislabs.recharge.RechargeConfiguration.RediSearchConfiguration;
@@ -24,10 +26,9 @@ public class RediSearchIndexWriter extends AbstractIndexWriter {
 	private RedisProperties redisConfig;
 	private Client client;
 
-	public RediSearchIndexWriter(EntityConfiguration entityConfig, StringRedisTemplate template,
+	public RediSearchIndexWriter(StringRedisTemplate template, Entry<String, EntityConfiguration> entity,
 			IndexConfiguration config, RedisProperties redisConfig) {
-		super(entityConfig, template, config);
-		
+		super(template, entity, config);
 		// TODO
 		this.redisConfig = redisConfig;
 	}
@@ -81,15 +82,20 @@ public class RediSearchIndexWriter extends AbstractIndexWriter {
 	}
 
 	@Override
-	protected void write(StringRedisConnection conn, Entity entity, String id, String indexKey) {
+	protected void write(StringRedisConnection conn, String key, Map<String, Object> record, String id) {
 		try {
-			client.addDocument(indexKey, 1.0, entity.getFields(), true, false, null);
+			client.addDocument(key, 1.0, record, true, false, null);
 		} catch (JedisDataException e) {
 			if ("Document already in index".equals(e.getMessage())) {
 				log.debug(e.getMessage());
 			}
 			log.error("Could not add document: {}", e.getMessage());
 		}
+	}
+
+	@Override
+	protected String getDefaultKeyspace() {
+		return "search";
 	}
 
 }

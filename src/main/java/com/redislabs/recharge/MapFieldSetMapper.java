@@ -1,4 +1,4 @@
-package com.redislabs.recharge.file;
+package com.redislabs.recharge;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -6,18 +6,10 @@ import java.util.Map;
 import org.springframework.batch.item.file.mapping.FieldSetMapper;
 import org.springframework.batch.item.file.transform.FieldSet;
 
-import com.redislabs.recharge.Entity;
-
-public class MapFieldSetMapper implements FieldSetMapper<Entity> {
-
-	private String entityName;
-
-	public MapFieldSetMapper(String entityName) {
-		this.entityName = entityName;
-	}
+public class MapFieldSetMapper implements FieldSetMapper<Map<String, Object>> {
 
 	@Override
-	public Entity mapFieldSet(FieldSet fieldSet) {
+	public Map<String, Object> mapFieldSet(FieldSet fieldSet) {
 		Map<String, Object> fields = new HashMap<>();
 		String[] names = fieldSet.getNames();
 		for (int index = 0; index < names.length; index++) {
@@ -25,7 +17,7 @@ public class MapFieldSetMapper implements FieldSetMapper<Entity> {
 			String value = fieldSet.readString(index);
 			fields.put(name, value);
 		}
-		return new Entity(entityName, fields);
+		return fields;
 	}
 
 }

@@ -19,7 +19,7 @@ public class RechargeConfiguration {
 
 	int maxThreads = 10;
 	int chunkSize = 50;
-	int maxItemCount = 1000;
+	int maxItemCount = 1000000;
 	Map<String, EntityConfiguration> entities = new LinkedHashMap<>();
 	Map<String, FileType> fileTypes;
 
@@ -31,12 +31,11 @@ public class RechargeConfiguration {
 
 	@Data
 	public static class EntityConfiguration {
-		List<String> keys = new ArrayList<>();
+		String[] keys;
 		DataType type = DataType.Hash;
-		List<String> fields = new ArrayList<>();
+		String[] fields;
 		List<IndexConfiguration> indexes = new ArrayList<>();
 		ValueFormat format = ValueFormat.Json;
-		XmlConfiguration xml = new XmlConfiguration();
 		FileEntityConfiguration file;
 		GeneratorEntityConfiguration generator;
 	}
@@ -44,7 +43,8 @@ public class RechargeConfiguration {
 	@Data
 	public static class IndexConfiguration {
 		IndexType type = IndexType.Set;
-		String field;
+		String name;
+		String[] fields;
 		String score;
 		String longitude;
 		String latitude;
@@ -60,11 +60,6 @@ public class RechargeConfiguration {
 
 	public static enum ValueFormat {
 		Xml, Json
-	}
-
-	@Data
-	public static class XmlConfiguration {
-		String rootName = "root";
 	}
 
 	@Data

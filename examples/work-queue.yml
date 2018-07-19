@@ -1,17 +1,16 @@
 entities:
   call:
-    fields:
-      task: number.numberBetween(1,10000)
-      community: number.numberBetween(1,100)
-      assignedDate: date.past(90,T(java.util.concurrent.TimeUnit).DAYS)
+    generator:
+      fields:
+        task: number.numberBetween(1,10000)
+        community: number.numberBetween(1,100)
+        assignedDate: date.past(90,T(java.util.concurrent.TimeUnit).DAYS)
+    indexes:
+    - type: zset      
   email:
-    fields:
-      task: number.numberBetween(1,10000)
-      community: number.numberBetween(1,100)
-entities:
-  call:
-    index:
-    - type: zset
-  email:
-    index:
+    generator:
+      fields:
+        task: number.numberBetween(1,10000)
+        community: number.numberBetween(1,100)
+    indexes:
     - type: set
