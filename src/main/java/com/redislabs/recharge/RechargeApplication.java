@@ -17,12 +17,17 @@ import org.springframework.batch.core.JobParametersInvalidException;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.explore.JobExplorer;
+import org.springframework.batch.core.explore.support.SimpleJobExplorer;
 import org.springframework.batch.core.job.builder.FlowBuilder;
 import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.core.launch.JobLauncher;
+import org.springframework.batch.core.launch.support.SimpleJobLauncher;
 import org.springframework.batch.core.repository.JobExecutionAlreadyRunningException;
 import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
+import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.repository.JobRestartException;
+import org.springframework.batch.core.repository.support.MapJobRepositoryFactoryBean;
 import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.file.FlatFileItemReader;
@@ -33,6 +38,7 @@ import org.springframework.batch.item.file.transform.Range;
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
 import org.springframework.batch.item.support.AbstractItemStreamItemWriter;
 import org.springframework.batch.item.support.CompositeItemWriter;
+import org.springframework.batch.support.transaction.ResourcelessTransactionManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -40,6 +46,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.Bean;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
@@ -82,6 +89,37 @@ public class RechargeApplication implements ApplicationRunner {
 	public static void main(String[] args) {
 		ConfigurableApplicationContext context = SpringApplication.run(RechargeApplication.class, args);
 		SpringApplication.exit(context);
+	}
+
+	@Bean
+	public ResourcelessTransactionManager transactionManager() {
+		return new ResourcelessTransactionManager();
+	}
+
+	@Bean
+	public MapJobRepositoryFactoryBean mapJobRepositoryFactory(ResourcelessTransactionManager transactionManager)
+			throws Exception {
+		MapJobRepositoryFactoryBean factory = new MapJobRepositoryFactoryBean(transactionManager);
+		factory.afterPropertiesSet();
+		return factory;
+	}
+
+	@Bean
+	public JobRepository jobRepository(MapJobRepositoryFactoryBean repositoryFactory) throws Exception {
+		return repositoryFactory.getObject();
+	}
+
+	@Bean
+	public JobExplorer jobExplorer(MapJobRepositoryFactoryBean repositoryFactory) {
+		return new SimpleJobExplorer(repositoryFactory.getJobInstanceDao(), repositoryFactory.getJobExecutionDao(),
+				repositoryFactory.getStepExecutionDao(), repositoryFactory.getExecutionContextDao());
+	}
+
+	@Bean
+	public SimpleJobLauncher jobLauncher(JobRepository jobRepository) {
+		SimpleJobLauncher launcher = new SimpleJobLauncher();
+		launcher.setJobRepository(jobRepository);
+		return launcher;
 	}
 
 	@Autowired
@@ -345,7 +383,7 @@ public class RechargeApplication implements ApplicationRunner {
 	}
 
 	private void printHelp() {
-		
+
 	}
 
 	private void run(String command, List<Flow> flows) throws JobExecutionAlreadyRunningException, JobRestartException,

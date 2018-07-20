@@ -21,7 +21,7 @@ public class RechargeConfiguration {
 	int chunkSize = 50;
 	int maxItemCount = 1000000;
 	Map<String, EntityConfiguration> entities = new LinkedHashMap<>();
-	Map<String, FileType> fileTypes;
+	Map<String, FileType> fileTypes = new LinkedHashMap<>();
 
 	@Data
 	public static class GeneratorConfiguration {
