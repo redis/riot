@@ -4,8 +4,8 @@ import java.util.Map;
 
 public interface KeyBuilder {
 
-	String getId(Map<String, Object> record);
+	public static final String KEY_SEPARATOR = ":";
 
-	String getKey(Map<String, Object> record);
+	String getId(Map<String, Object> record);
 
 }

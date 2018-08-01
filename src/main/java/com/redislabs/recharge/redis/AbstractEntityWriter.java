@@ -24,10 +24,12 @@ public abstract class AbstractEntityWriter extends AbstractItemStreamItemWriter<
 
 	private StringRedisTemplate template;
 	private KeyBuilder keyBuilder;
+	private String keyspace;
 
 	protected AbstractEntityWriter(StringRedisTemplate template, Entry<String, EntityConfiguration> entity) {
 		this.template = template;
-		this.keyBuilder = AbstractKeyBuilder.getKeyBuilder(entity.getKey(), entity.getValue().getKeys());
+		this.keyspace = entity.getKey();
+		this.keyBuilder = AbstractKeyBuilder.getKeyBuilder(entity.getValue().getKeys());
 	}
 
 	@Override
@@ -37,7 +39,9 @@ public abstract class AbstractEntityWriter extends AbstractItemStreamItemWriter<
 				public Object doInRedis(RedisConnection connection) throws DataAccessException {
 					StringRedisConnection conn = (StringRedisConnection) connection;
 					for (Map<String, Object> record : records) {
-						write(conn, getKey(record), record);
+						String id = keyBuilder.getId(record);
+						String key = keyspace + KeyBuilder.KEY_SEPARATOR + id;
+						write(conn, record, id, key);
 					}
 					return null;
 				}
@@ -50,14 +54,6 @@ public abstract class AbstractEntityWriter extends AbstractItemStreamItemWriter<
 		}
 	}
 
-	protected String getId(Map<String, Object> record) {
-		return keyBuilder.getId(record);
-	}
-
-	protected String getKey(Map<String, Object> record) {
-		return keyBuilder.getKey(record);
-	}
-
-	protected abstract void write(StringRedisConnection conn, String key, Map<String, Object> record);
+	protected abstract void write(StringRedisConnection conn, Map<String, Object> record, String id, String key);
 
 }

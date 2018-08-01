@@ -6,8 +6,7 @@ public class SingleFieldEntityKeyBuilder extends AbstractKeyBuilder {
 
 	private String field;
 
-	public SingleFieldEntityKeyBuilder(String keyspace, String field) {
-		super(keyspace);
+	public SingleFieldEntityKeyBuilder(String field) {
 		this.field = field;
 	}
 

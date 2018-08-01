@@ -10,9 +10,10 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 
 import com.redislabs.recharge.RechargeConfiguration.EntityConfiguration;
 import com.redislabs.recharge.RechargeConfiguration.IndexConfiguration;
-import com.redislabs.recharge.RechargeConfiguration.RediSearchConfiguration;
+import com.redislabs.recharge.RechargeConfiguration.RediSearchField;
 
 import io.redisearch.Schema;
+import io.redisearch.Schema.Field;
 import io.redisearch.client.Client;
 import io.redisearch.client.Client.IndexOptions;
 import io.redisearch.client.ClusterClient;
@@ -22,30 +23,43 @@ import redis.clients.jedis.exceptions.JedisDataException;
 @Slf4j
 public class RediSearchIndexWriter extends AbstractIndexWriter {
 
-	private RediSearchConfiguration config;
+	private Entry<String, IndexConfiguration> index;
 	private RedisProperties redisConfig;
 	private Client client;
 
 	public RediSearchIndexWriter(StringRedisTemplate template, Entry<String, EntityConfiguration> entity,
-			IndexConfiguration config, RedisProperties redisConfig) {
-		super(template, entity, config);
-		// TODO
+			Entry<String, IndexConfiguration> index, RedisProperties redisConfig) {
+		super(template, entity, index);
+		this.index = index;
 		this.redisConfig = redisConfig;
 	}
 
 	@Override
 	public void open(ExecutionContext executionContext) {
 		this.client = getClient();
+		if (!index.getValue().getSchema().isEmpty()) {
+			Schema schema = new Schema();
+			index.getValue().getSchema().entrySet().forEach(entry -> schema.addField(getField(entry)));
+			client.createIndex(schema, Client.IndexOptions.Default());
+		}
+	}
+
+	private Field getField(Entry<String, RediSearchField> entry) {
+		String name = entry.getKey();
+		RediSearchField field = entry.getValue();
+		return new Field(name, field.getType(), field.isSortable(), field.isNoIndex());
 	}
 
 	private Client getClient() {
+		IndexConfiguration config = index.getValue();
 		if (config.isCluster()) {
-			return new ClusterClient(getIndex(), getHost(), getPort(), getTimeout(), getPoolSize());
+			return new ClusterClient(getIndex(), getHost(), getPort(), config.getTimeout(), config.getPoolSize());
 		}
-		return new Client(getIndex(), getHost(), getPort(), getTimeout(), getPoolSize());
+		return new Client(getIndex(), getHost(), getPort(), config.getTimeout(), config.getPoolSize());
 	}
 
 	private String getHost() {
+		IndexConfiguration config = index.getValue();
 		if (config.getHost() == null) {
 			return redisConfig.getHost();
 		}
@@ -53,6 +67,7 @@ public class RediSearchIndexWriter extends AbstractIndexWriter {
 	}
 
 	private int getPort() {
+		IndexConfiguration config = index.getValue();
 		if (config.getPort() == null) {
 			return redisConfig.getPort();
 		}
@@ -60,21 +75,7 @@ public class RediSearchIndexWriter extends AbstractIndexWriter {
 	}
 
 	private String getIndex() {
-		return config.getIndex();
-	}
-
-	private int getPoolSize() {
-		if (config.getPoolSize() == null) {
-			return redisConfig.getJedis().getPool().getMaxActive();
-		}
-		return config.getPoolSize();
-	}
-
-	private int getTimeout() {
-		if (config.getTimeout() == null) {
-			return (int) redisConfig.getJedis().getPool().getMaxWait().toMillis();
-		}
-		return config.getTimeout();
+		return index.getKey();
 	}
 
 	public void createIndex(Schema schema, IndexOptions options) {
@@ -82,9 +83,10 @@ public class RediSearchIndexWriter extends AbstractIndexWriter {
 	}
 
 	@Override
-	protected void write(StringRedisConnection conn, String key, Map<String, Object> record, String id) {
+	protected void write(StringRedisConnection conn, Map<String, Object> record, String id, String key,
+			String indexKey) {
 		try {
-			client.addDocument(key, 1.0, record, true, false, null);
+			client.addHash(key, 1.0, true);
 		} catch (JedisDataException e) {
 			if ("Document already in index".equals(e.getMessage())) {
 				log.debug(e.getMessage());

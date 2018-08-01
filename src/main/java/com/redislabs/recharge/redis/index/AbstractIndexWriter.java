@@ -16,39 +16,35 @@ import com.redislabs.recharge.redis.key.MultipleFieldKeyBuilder;
 public abstract class AbstractIndexWriter extends AbstractEntityWriter {
 
 	private KeyBuilder indexKeyBuilder;
+	private String keyspace;
 
 	protected AbstractIndexWriter(StringRedisTemplate template, Entry<String, EntityConfiguration> entity,
-			IndexConfiguration indexConfig) {
+			Entry<String, IndexConfiguration> index) {
 		super(template, entity);
-		indexKeyBuilder = AbstractKeyBuilder.getKeyBuilder(getKeyspace(entity, indexConfig), indexConfig.getFields());
+		this.keyspace = MultipleFieldKeyBuilder.join(entity.getKey(), getKeyspace(index));
+		this.indexKeyBuilder = AbstractKeyBuilder.getKeyBuilder(index.getValue().getFields());
 	}
 
-	private String getKeyspace(Entry<String, EntityConfiguration> entity, IndexConfiguration indexConfig) {
-		return MultipleFieldKeyBuilder.join(entity.getKey(), getKeyspace(indexConfig));
-	}
-
-	private String getKeyspace(IndexConfiguration indexConfig) {
-		if (indexConfig.getName() == null) {
-			if (indexConfig.getFields() == null || indexConfig.getFields().length == 0) {
+	private String getKeyspace(Entry<String, IndexConfiguration> index) {
+		if (index.getKey() == null) {
+			if (index.getValue().getFields() == null || index.getValue().getFields().length == 0) {
 				return getDefaultKeyspace();
 			}
-			return MultipleFieldKeyBuilder.join(indexConfig.getFields());
+			return MultipleFieldKeyBuilder.join(index.getValue().getFields());
 		}
-		return indexConfig.getName();
+		return index.getKey();
 	}
 
 	protected abstract String getDefaultKeyspace();
 
 	@Override
-	protected String getKey(Map<String, Object> record) {
-		return indexKeyBuilder.getKey(record);
+	protected void write(StringRedisConnection conn, Map<String, Object> record, String id, String key) {
+		String indexId = indexKeyBuilder.getId(record);
+		String indexKey = keyspace + KeyBuilder.KEY_SEPARATOR + indexId;
+		write(conn, record, id, key, indexKey);
 	}
 
-	@Override
-	protected void write(StringRedisConnection conn, String key, Map<String, Object> record) {
-		write(conn, key, record, getId(record));
-	}
-
-	protected abstract void write(StringRedisConnection conn, String key, Map<String, Object> record, String id);
+	protected abstract void write(StringRedisConnection conn, Map<String, Object> record, String id, String key,
+			String indexKey);
 
 }

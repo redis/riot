@@ -1,14 +1,13 @@
 package com.redislabs.recharge;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
+import io.redisearch.Schema.FieldType;
 import lombok.Data;
 
 @Configuration
@@ -34,7 +33,7 @@ public class RechargeConfiguration {
 		String[] keys;
 		DataType type = DataType.Hash;
 		String[] fields;
-		List<IndexConfiguration> indexes = new ArrayList<>();
+		Map<String, IndexConfiguration> indexes = new LinkedHashMap<>();
 		ValueFormat format = ValueFormat.Json;
 		FileConfiguration file;
 		GeneratorConfiguration generator;
@@ -43,11 +42,24 @@ public class RechargeConfiguration {
 	@Data
 	public static class IndexConfiguration {
 		IndexType type = IndexType.Set;
-		String name;
 		String[] fields;
 		String score;
 		String longitude;
 		String latitude;
+		boolean cluster;
+		String host;
+		String password;
+		Integer port;
+		int timeout = 500;
+		int poolSize = 100;
+		Map<String, RediSearchField> schema = new LinkedHashMap<>();
+	}
+
+	@Data
+	public static class RediSearchField {
+		FieldType type;
+		boolean sortable;
+		boolean noIndex;
 	}
 
 	public static enum IndexType {
@@ -78,17 +90,6 @@ public class RechargeConfiguration {
 
 	public static enum FileType {
 		Xml, Json, Delimited, FixedLength
-	}
-
-	@Data
-	public static class RediSearchConfiguration {
-		String index;
-		boolean cluster;
-		String host;
-		String password;
-		Integer port;
-		Integer timeout;
-		Integer poolSize = 100;
 	}
 
 }

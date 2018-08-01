@@ -1,0 +1,28 @@
+entities:
+  reservation:
+    keys: id
+    generator:
+      fields:
+        id: number.randomNumber
+        firstName: name.firstName
+        lastName: name.lastName
+        address: address.fullAddress
+        creditCardNumber: finance.creditCard
+        propertyCode: number.digits(2)
+        roomCode: number.digits(1)
+        bookingDate: date.past(90,T(java.util.concurrent.TimeUnit).DAYS)
+        startDate: date.future(90,T(java.util.concurrent.TimeUnit).DAYS)
+        nights: number.digits(1)
+        guests: number.digits(1)
+        rate: commerce.price(100,1000)
+        promotionCode: commerce.promotionCode
+    indexes:
+      reservations:
+        type: search
+        schema:
+          firstName:
+            type: fulltext
+          lastName:
+            type: fulltext
+          address:
+            type: fulltext

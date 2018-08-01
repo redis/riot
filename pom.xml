@@ -41,8 +41,9 @@
 			<artifactId>spring-boot-starter-data-redis</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>redis.clients</groupId>
-			<artifactId>jedis</artifactId>
+			<groupId>com.redislabs</groupId>
+			<artifactId>jredisearch-jedis</artifactId>
+			<version>3.0.0-20180508</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

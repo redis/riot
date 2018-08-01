@@ -17,15 +17,16 @@ public class ZSetIndexWriter extends AbstractIndexWriter {
 	private ConversionService converter = new DefaultConversionService();
 
 	public ZSetIndexWriter(StringRedisTemplate template, Entry<String, EntityConfiguration> entity,
-			IndexConfiguration config) {
-		super(template, entity, config);
-		this.scoreField = config.getScore();
+			Entry<String, IndexConfiguration> index) {
+		super(template, entity, index);
+		this.scoreField = index.getValue().getScore();
 	}
 
 	@Override
-	protected void write(StringRedisConnection conn, String key, Map<String, Object> record, String id) {
+	protected void write(StringRedisConnection conn, Map<String, Object> record, String id, String key,
+			String indexKey) {
 		Double score = converter.convert(record.get(scoreField), Double.class);
-		conn.zAdd(key, score, id);
+		conn.zAdd(indexKey, score, id);
 	}
 
 	@Override

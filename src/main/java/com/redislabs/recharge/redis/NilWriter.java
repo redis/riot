@@ -27,7 +27,7 @@ public class NilWriter extends AbstractEntityWriter {
 	}
 
 	@Override
-	protected void write(StringRedisConnection conn, String key, Map<String, Object> entity) {
+	protected void write(StringRedisConnection conn, Map<String, Object> record, String id, String key) {
 		// not called
 	}
 }

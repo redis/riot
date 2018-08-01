@@ -12,13 +12,14 @@ import com.redislabs.recharge.RechargeConfiguration.IndexConfiguration;
 public class ListIndexWriter extends AbstractIndexWriter {
 
 	public ListIndexWriter(StringRedisTemplate template, Entry<String, EntityConfiguration> entity,
-			IndexConfiguration config) {
-		super(template, entity, config);
+			Entry<String, IndexConfiguration> index) {
+		super(template, entity, index);
 	}
 
 	@Override
-	protected void write(StringRedisConnection conn, String key, Map<String, Object> entity, String id) {
-		conn.lPush(key, id);
+	protected void write(StringRedisConnection conn, Map<String, Object> record, String id, String key,
+			String indexKey) {
+		conn.lPush(indexKey, id);
 	}
 
 	@Override

@@ -20,10 +20,10 @@ public class GeoIndexWriter extends AbstractIndexWriter {
 	private ConversionService converter = new DefaultConversionService();
 
 	public GeoIndexWriter(StringRedisTemplate template, Entry<String, EntityConfiguration> entity,
-			IndexConfiguration config) {
-		super(template, entity, config);
-		this.longitudeField = config.getLongitude();
-		this.latitudeField = config.getLatitude();
+			Entry<String, IndexConfiguration> index) {
+		super(template, entity, index);
+		this.longitudeField = index.getValue().getLongitude();
+		this.latitudeField = index.getValue().getLatitude();
 	}
 
 	@Override
@@ -32,10 +32,11 @@ public class GeoIndexWriter extends AbstractIndexWriter {
 	}
 
 	@Override
-	protected void write(StringRedisConnection conn, String key, Map<String, Object> record, String id) {
+	protected void write(StringRedisConnection conn, Map<String, Object> record, String id, String key,
+			String indexKey) {
 		double longitude = converter.convert(record.get(longitudeField), Double.class);
 		double latitude = converter.convert(record.get(latitudeField), Double.class);
-		conn.geoAdd(key, new Point(longitude, latitude), id);
+		conn.geoAdd(indexKey, new Point(longitude, latitude), id);
 	}
 
 }

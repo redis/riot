@@ -159,7 +159,8 @@ public class RechargeApplication implements ApplicationRunner {
 		if (config.getKeys() == null || config.getKeys().length == 0) {
 			config.setKeys(config.getFields());
 		}
-		for (IndexConfiguration indexConfig : config.getIndexes()) {
+		for (String indexName : config.getIndexes().keySet()) {
+			IndexConfiguration indexConfig = config.getIndexes().get(indexName);
 			if (indexConfig.getScore() == null) {
 				indexConfig.setScore(config.getKeys()[0]);
 			}
@@ -171,8 +172,8 @@ public class RechargeApplication implements ApplicationRunner {
 		if (entity.getValue().getIndexes().size() > 0) {
 			List<ItemWriter<? super Map<String, Object>>> writers = new ArrayList<>();
 			writers.add(writer);
-			for (IndexConfiguration indexConfig : entity.getValue().getIndexes()) {
-				writers.add(getIndexWriter(entity, indexConfig));
+			for (Entry<String, IndexConfiguration> index : entity.getValue().getIndexes().entrySet()) {
+				writers.add(getIndexWriter(entity, index));
 			}
 			CompositeItemWriter<Map<String, Object>> composite = new CompositeItemWriter<>();
 			composite.setDelegates(writers);
@@ -182,18 +183,18 @@ public class RechargeApplication implements ApplicationRunner {
 	}
 
 	private AbstractIndexWriter getIndexWriter(Entry<String, EntityConfiguration> entity,
-			IndexConfiguration indexConfig) {
-		switch (indexConfig.getType()) {
+			Entry<String, IndexConfiguration> index) {
+		switch (index.getValue().getType()) {
 		case Geo:
-			return new GeoIndexWriter(redisTemplate, entity, indexConfig);
+			return new GeoIndexWriter(redisTemplate, entity, index);
 		case List:
-			return new ListIndexWriter(redisTemplate, entity, indexConfig);
+			return new ListIndexWriter(redisTemplate, entity, index);
 		case Search:
-			return new RediSearchIndexWriter(redisTemplate, entity, indexConfig, redisConfig);
+			return new RediSearchIndexWriter(redisTemplate, entity, index, redisConfig);
 		case Zset:
-			return new ZSetIndexWriter(redisTemplate, entity, indexConfig);
+			return new ZSetIndexWriter(redisTemplate, entity, index);
 		default:
-			return new SetIndexWriter(redisTemplate, entity, indexConfig);
+			return new SetIndexWriter(redisTemplate, entity, index);
 		}
 	}
 

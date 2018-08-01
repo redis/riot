@@ -20,13 +20,13 @@ public class HashWriter extends AbstractEntityWriter {
 	}
 
 	@Override
-	protected void write(StringRedisConnection conn, String key, Map<String, Object> entity) {
-		conn.hMSet(key, getValues(entity));
+	protected void write(StringRedisConnection conn, Map<String, Object> record, String id, String key) {
+		conn.hMSet(key, getValues(record));
 	}
 
-	private Map<String, String> getValues(Map<String, Object> entity) {
+	private Map<String, String> getValues(Map<String, Object> record) {
 		Map<String, String> values = new HashMap<String, String>();
-		entity.entrySet().forEach(entry -> values.put(entry.getKey(), convert(entry.getValue())));
+		record.entrySet().forEach(entry -> values.put(entry.getKey(), convert(entry.getValue())));
 		return values;
 	}
 

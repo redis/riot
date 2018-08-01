@@ -23,9 +23,9 @@ public class StringWriter extends AbstractEntityWriter {
 	}
 
 	@Override
-	protected void write(StringRedisConnection conn, String key, Map<String, Object> entity) {
+	protected void write(StringRedisConnection conn, Map<String, Object> record, String id, String key) {
 		try {
-			String value = writer.writeValueAsString(entity);
+			String value = writer.writeValueAsString(record);
 			conn.set(key, value);
 		} catch (JsonProcessingException e) {
 			log.error("Could not serialize values", e);

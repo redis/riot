@@ -7,8 +7,7 @@ public class MultipleFieldKeyBuilder extends AbstractKeyBuilder {
 
 	private String[] fields;
 
-	public MultipleFieldKeyBuilder(String keyspace, String[] fields) {
-		super(keyspace);
+	public MultipleFieldKeyBuilder(String[] fields) {
 		this.fields = fields;
 	}
 
