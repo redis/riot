@@ -16,7 +16,7 @@ import com.redislabs.recharge.redis.key.MultipleFieldKeyBuilder;
 public abstract class AbstractIndexWriter extends AbstractEntityWriter {
 
 	private KeyBuilder indexKeyBuilder;
-	private String keyspace;
+	protected String keyspace;
 
 	protected AbstractIndexWriter(StringRedisTemplate template, Entry<String, EntityConfiguration> entity,
 			Entry<String, IndexConfiguration> index) {
@@ -44,7 +44,9 @@ public abstract class AbstractIndexWriter extends AbstractEntityWriter {
 		write(conn, record, id, key, indexKey);
 	}
 
-	protected abstract void write(StringRedisConnection conn, Map<String, Object> record, String id, String key,
-			String indexKey);
+	protected void write(StringRedisConnection conn, Map<String, Object> record, String id, String key,
+			String indexKey) {
+		// do nothing
+	}
 
 }

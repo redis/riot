@@ -32,11 +32,10 @@ public class GeoIndexWriter extends AbstractIndexWriter {
 	}
 
 	@Override
-	protected void write(StringRedisConnection conn, Map<String, Object> record, String id, String key,
-			String indexKey) {
+	protected void write(StringRedisConnection conn, Map<String, Object> record, String id, String key) {
 		double longitude = converter.convert(record.get(longitudeField), Double.class);
 		double latitude = converter.convert(record.get(latitudeField), Double.class);
-		conn.geoAdd(indexKey, new Point(longitude, latitude), id);
+		conn.geoAdd(keyspace, new Point(longitude, latitude), id);
 	}
 
 }
