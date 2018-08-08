@@ -14,13 +14,14 @@ entities:
     indexes:
       observations:
         type: search
+        drop: true
         schema:
           patientFirstName:
-            type: fulltext
+            type: text
           patientLastName:
-            type: fulltext
+            type: text
           notes:
-            type: fulltext
+            type: text
           deviceId: 
             type: numeric
             sortable: true

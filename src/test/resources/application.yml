@@ -1,26 +1,11 @@
 entities:
-  observations:
+  people:
     keys: id
     generator:
       fields:
         id: number.randomNumber
-        patientId: idNumber.ssnValid
-        patientFirstName: name.firstName
-        patientLastName: name.lastName
-        address: address.fullAddress
-        deviceId: number.digits(2)
-        date: date.past(90,T(java.util.concurrent.TimeUnit).DAYS)
-        notes: shakespeare.asYouLikeItQuote
+        name: name.name
     indexes:
-      observations:
-        type: search
-        schema:
-          patientFirstName:
-            type: fulltext
-          patientLastName:
-            type: fulltext
-          notes:
-            type: fulltext
-          deviceId: 
-            type: numeric
-            sortable: true
+      people:
+        type: suggestion
+        suggestion: name

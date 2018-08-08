@@ -44,7 +44,6 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.io.FileSystemResource;
@@ -58,6 +57,7 @@ import org.springframework.util.ResourceUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import com.redislabs.lettusearch.RediSearchClient;
 import com.redislabs.recharge.RechargeConfiguration.EntityConfiguration;
 import com.redislabs.recharge.RechargeConfiguration.FileConfiguration;
 import com.redislabs.recharge.RechargeConfiguration.FileType;
@@ -71,8 +71,9 @@ import com.redislabs.recharge.redis.StringWriter;
 import com.redislabs.recharge.redis.index.AbstractIndexWriter;
 import com.redislabs.recharge.redis.index.GeoIndexWriter;
 import com.redislabs.recharge.redis.index.ListIndexWriter;
-import com.redislabs.recharge.redis.index.RediSearchIndexWriter;
+import com.redislabs.recharge.redis.index.SearchIndexWriter;
 import com.redislabs.recharge.redis.index.SetIndexWriter;
+import com.redislabs.recharge.redis.index.SuggestionIndexWriter;
 import com.redislabs.recharge.redis.index.ZSetIndexWriter;
 
 import lombok.extern.slf4j.Slf4j;
@@ -85,6 +86,19 @@ public class RechargeApplication implements ApplicationRunner {
 	private static final String FILE_BASENAME = "basename";
 	private static final String FILE_EXTENSION = "extension";
 	private static final String FILE_GZ = "gz";
+
+	@Autowired
+	private JobLauncher jobLauncher;
+	@Autowired
+	private JobBuilderFactory jobBuilderFactory;
+	@Autowired
+	private StepBuilderFactory stepFactory;
+	@Autowired
+	private RechargeConfiguration rechargeConfig;
+	@Autowired
+	private StringRedisTemplate redisTemplate;
+	@Autowired
+	private RediSearchClient rediSearchClient;
 
 	public static void main(String[] args) {
 		ConfigurableApplicationContext context = SpringApplication.run(RechargeApplication.class, args);
@@ -121,19 +135,6 @@ public class RechargeApplication implements ApplicationRunner {
 		launcher.setJobRepository(jobRepository);
 		return launcher;
 	}
-
-	@Autowired
-	private JobLauncher jobLauncher;
-	@Autowired
-	private JobBuilderFactory jobBuilderFactory;
-	@Autowired
-	private StepBuilderFactory stepFactory;
-	@Autowired
-	private RechargeConfiguration rechargeConfig;
-	@Autowired
-	private RedisProperties redisConfig;
-	@Autowired
-	private StringRedisTemplate redisTemplate;
 
 	private List<Flow> getLoadFlows() throws Exception {
 		List<Flow> flows = new ArrayList<>();
@@ -190,7 +191,9 @@ public class RechargeApplication implements ApplicationRunner {
 		case List:
 			return new ListIndexWriter(redisTemplate, entity, index);
 		case Search:
-			return new RediSearchIndexWriter(redisTemplate, entity, index, redisConfig);
+			return new SearchIndexWriter(redisTemplate, entity, index, rediSearchClient);
+		case Suggestion:
+			return new SuggestionIndexWriter(redisTemplate, entity, index, rediSearchClient);
 		case Zset:
 			return new ZSetIndexWriter(redisTemplate, entity, index);
 		default:

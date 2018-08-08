@@ -32,6 +32,10 @@ public abstract class AbstractEntityWriter extends AbstractItemStreamItemWriter<
 		this.keyBuilder = AbstractKeyBuilder.getKeyBuilder(entity.getValue().getKeys());
 	}
 
+	protected StringRedisTemplate getTemplate() {
+		return template;
+	}
+
 	@Override
 	public void write(List<? extends Map<String, Object>> records) {
 		try {

@@ -7,7 +7,6 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
-import io.redisearch.Schema.FieldType;
 import lombok.Data;
 
 @Configuration
@@ -46,24 +45,24 @@ public class RechargeConfiguration {
 		String score;
 		String longitude;
 		String latitude;
-		boolean cluster;
-		String host;
-		String password;
-		Integer port;
-		int timeout = 500;
-		int poolSize = 100;
 		Map<String, RediSearchField> schema = new LinkedHashMap<>();
+		boolean drop;
+		String suggestion;
 	}
 
 	@Data
 	public static class RediSearchField {
-		FieldType type;
+		RediSearchFieldType type;
 		boolean sortable;
 		boolean noIndex;
 	}
 
+	public static enum RediSearchFieldType {
+		Text, Numeric, Geo
+	}
+
 	public static enum IndexType {
-		Set, Zset, List, Geo, Search
+		Set, Zset, List, Geo, Search, Suggestion
 	}
 
 	public static enum DataType {

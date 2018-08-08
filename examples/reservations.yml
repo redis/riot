@@ -21,8 +21,8 @@ entities:
         type: search
         schema:
           firstName:
-            type: fulltext
+            type: text
           lastName:
-            type: fulltext
+            type: text
           address:
-            type: fulltext
+            type: text
