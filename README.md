@@ -18,7 +18,7 @@ mvn clean install
 
 ## Examples
 The [examples](./examples) folder contains a few sample configurations to generate various datasets:
-* Openflights.org
+* Openflights.org: [https://openflights.org/data.html](https://openflights.org/data.html)
 ```
 java -jar target/recharge-0.0.1-SNAPSHOT.jar --spring.config.additional-location=examples/openflights.yml
 ```
