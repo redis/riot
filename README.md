@@ -7,9 +7,23 @@ recharge is a bulk loader for Redis. It supports the following data sources as i
 * Data Generator based on Faker
 
 ## Building
+Recharge depends on these two projects:
+* [Lettusearch](https://github.com/Redislabs-Solution-Architects/lettusearch)
+* [PojoFaker](https://github.com/jruaux/pojofaker)
 
-## Loading a CSV into Redis
-
+Build each project first before you build Recharge:
 ```
-java -jar recharge-0.0.1-SNAPSHOT.jar load --file=https://raw.githubusercontent.com/jpatokal/openflights/master/data/airlines.dat --fields=AirlineID,Name,Alias,IATA,ICAO,Callsign,Country,Active
+mvn clean install
+```
+
+## Examples
+The [examples](./examples) folder contains a few sample configurations to generate various datasets:
+* Openflights.org
+```
+java -jar target/recharge-0.0.1-SNAPSHOT.jar --spring.config.additional-location=examples/openflights.yml
+```
+
+* Medical Observations
+```
+java -jar target/recharge-0.0.1-SNAPSHOT.jar --spring.config.additional-location=examples/medical-observations.yml
 ```
