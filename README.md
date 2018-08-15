@@ -1,5 +1,5 @@
 # recharge
-`recharge` is a bulk loader for Redis. It supports the following data sources as inputs:
+recharge is a bulk loader for Redis. It supports the following data sources as inputs:
 
 * Flat files: delimited (CSV) and fixed length (FW)
 * JSON
@@ -7,11 +7,11 @@
 * Data Generator based on Faker
 
 ## Building
-`recharge` depends on these two projects:
+recharge depends on these two projects:
 * [Lettusearch](https://github.com/Redislabs-Solution-Architects/lettusearch)
 * [PojoFaker](https://github.com/jruaux/pojofaker)
 
-Build each project first before you build `recharge`:
+Build each project first before you build recharge:
 ```
 mvn clean install
 ```
