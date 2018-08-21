@@ -160,12 +160,6 @@ public class RechargeApplication implements ApplicationRunner {
 		if (config.getKeys() == null || config.getKeys().length == 0) {
 			config.setKeys(config.getFields());
 		}
-		for (String indexName : config.getIndexes().keySet()) {
-			IndexConfiguration indexConfig = config.getIndexes().get(indexName);
-			if (indexConfig.getScore() == null) {
-				indexConfig.setScore(config.getKeys()[0]);
-			}
-		}
 	}
 
 	private ItemWriter<Map<String, Object>> getWriter(Entry<String, EntityConfiguration> entity) {

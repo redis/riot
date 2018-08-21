@@ -37,4 +37,3 @@ entities:
         schema:
           fact:
             type: text
-          
