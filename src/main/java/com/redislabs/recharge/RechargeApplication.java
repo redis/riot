@@ -182,6 +182,12 @@ public class RechargeApplication implements ApplicationRunner {
 				if (index.getName() == null) {
 					index.setName(getKeyspace(entity, index));
 				}
+				if (index.getKeys() == null || index.getKeys().length == 0) {
+					index.setKeys(entity.getKeys());
+				}
+				if (index.getFields() == null || index.getFields().length == 0) {
+					index.setFields(index.getKeys());
+				}
 				writers.add(getIndexWriter(entity, index));
 			}
 			CompositeItemWriter<Map<String, Object>> composite = new CompositeItemWriter<>();

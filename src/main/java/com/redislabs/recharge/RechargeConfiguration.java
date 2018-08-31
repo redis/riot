@@ -45,6 +45,7 @@ public class RechargeConfiguration {
 		String name;
 		IndexType type = IndexType.Set;
 		String[] keys;
+		String[] fields;
 		String score;
 		String longitude;
 		String latitude;

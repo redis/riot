@@ -14,7 +14,7 @@ public abstract class AbstractIndexWriter extends AbstractRedisWriter {
 	private IndexConfiguration config;
 
 	protected AbstractIndexWriter(StringRedisTemplate template, EntityConfiguration entity, IndexConfiguration index) {
-		super(template, index.getName(), entity.getKeys());
+		super(template, index.getName(), index.getFields());
 		this.config = index;
 	}
 
@@ -33,7 +33,7 @@ public abstract class AbstractIndexWriter extends AbstractRedisWriter {
 			return keyspace;
 		}
 		String indexId = getValues(record, config.getKeys());
-		return String.join(KEY_SEPARATOR, keyspace, indexId);
+		return join(join(config.getKeys()), indexId, keyspace);
 	}
 
 	protected abstract void writeIndex(StringRedisConnection conn, String key, String id, Map<String, Object> record);

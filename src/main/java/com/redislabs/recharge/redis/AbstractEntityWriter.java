@@ -15,7 +15,7 @@ public abstract class AbstractEntityWriter extends AbstractRedisWriter {
 
 	@Override
 	protected void write(StringRedisConnection conn, String keyspace, String id, Map<String, Object> fields) {
-		write(conn, String.join(KEY_SEPARATOR, keyspace, id), fields);
+		write(conn, join(keyspace, id), fields);
 	}
 
 	protected abstract void write(StringRedisConnection conn, String key, Map<String, Object> fields);

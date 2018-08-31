@@ -36,6 +36,10 @@ public abstract class AbstractRedisWriter extends AbstractItemStreamItemWriter<M
 	protected String getValues(Map<String, Object> record, String[] fields) {
 		String[] values = new String[fields.length];
 		Arrays.setAll(values, index -> convert(record.get(fields[index]), String.class));
+		return join(values);
+	}
+
+	protected String join(String... values) {
 		return String.join(KEY_SEPARATOR, values);
 	}
 

@@ -1,5 +1,7 @@
 entities:
-- keys: node, sku
+- name: stock
+  keys: node, sku
+  max-item-count: 100000
   generator:
     node: sequence.next("node",1,1000,"%02d")
     sku: sequence.next("sku",5,1,"%09d")
@@ -14,3 +16,4 @@ entities:
   - name: skus
     type: set
     keys: node
+    fields: sku
