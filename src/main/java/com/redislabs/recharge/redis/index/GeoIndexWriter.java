@@ -17,9 +17,19 @@ public class GeoIndexWriter extends AbstractIndexWriter {
 
 	@Override
 	protected void writeIndex(StringRedisConnection conn, String key, String id, Map<String, Object> record) {
-		double longitude = convert(record.get(getConfig().getLongitude()), Double.class);
-		double latitude = convert(record.get(getConfig().getLatitude()), Double.class);
-		conn.geoAdd(key, new Point(longitude, latitude), id);
+		Object longitude = record.get(getConfig().getLongitude());
+		if (longitude == null || longitude.equals("")) {
+			return;
+		}
+		Object latitude = record.get(getConfig().getLatitude());
+		if (latitude == null || latitude.equals("")) {
+			return;
+		}
+		conn.geoAdd(key, new Point(toDouble(longitude), toDouble(latitude)), id);
+	}
+
+	private double toDouble(Object object) {
+		return convert(object, Double.class);
 	}
 
 }

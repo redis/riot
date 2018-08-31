@@ -1,4 +1,4 @@
-package com.redislabs.recharge;
+package com.redislabs.recharge.generator;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -6,10 +6,10 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.ruaux.pojofaker.Faker;
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.support.DefaultConversionService;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
@@ -22,8 +22,10 @@ public class GeneratorEntityItemReader extends AbstractItemCountingItemStreamIte
 	private EvaluationContext context;
 	private ConversionService conversionService = new DefaultConversionService();
 	private Map<String, Expression> expressions = new LinkedHashMap<>();
+	private StringRedisTemplate template;
 
-	public GeneratorEntityItemReader(String locale, Map<String, String> fields) {
+	public GeneratorEntityItemReader(StringRedisTemplate template, String locale, Map<String, String> fields) {
+		this.template = template;
 		this.locale = locale;
 		this.fields = fields;
 	}
@@ -43,7 +45,7 @@ public class GeneratorEntityItemReader extends AbstractItemCountingItemStreamIte
 
 	@Override
 	protected void doOpen() throws Exception {
-		Faker faker = new Faker(new Locale(locale));
+		RechargeFaker faker = new RechargeFaker(template, new Locale(locale));
 		SpelExpressionParser parser = new SpelExpressionParser();
 		this.context = new StandardEvaluationContext(faker);
 		this.fields.entrySet()

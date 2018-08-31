@@ -69,6 +69,7 @@ import com.redislabs.recharge.RechargeConfiguration.FileConfiguration;
 import com.redislabs.recharge.RechargeConfiguration.FileType;
 import com.redislabs.recharge.RechargeConfiguration.IndexConfiguration;
 import com.redislabs.recharge.file.JsonItemReader;
+import com.redislabs.recharge.generator.GeneratorEntityItemReader;
 import com.redislabs.recharge.redis.AbstractRedisWriter;
 import com.redislabs.recharge.redis.HashWriter;
 import com.redislabs.recharge.redis.NilWriter;
@@ -182,11 +183,11 @@ public class RechargeApplication implements ApplicationRunner {
 				if (index.getName() == null) {
 					index.setName(getKeyspace(entity, index));
 				}
-				if (index.getKeys() == null || index.getKeys().length == 0) {
-					index.setKeys(entity.getKeys());
-				}
+//				if (index.getKeys() == null || index.getKeys().length == 0) {
+//					index.setKeys(entity.getKeys());
+//				}
 				if (index.getFields() == null || index.getFields().length == 0) {
-					index.setFields(index.getKeys());
+					index.setFields(entity.getKeys());
 				}
 				writers.add(getIndexWriter(entity, index));
 			}
@@ -240,7 +241,7 @@ public class RechargeApplication implements ApplicationRunner {
 			if (entity.getFields() == null) {
 				entity.setFields(generatorFields.keySet().toArray(new String[0]));
 			}
-			return new GeneratorEntityItemReader(entity.getFakerLocale(), generatorFields);
+			return new GeneratorEntityItemReader(redisTemplate, entity.getFakerLocale(), generatorFields);
 		}
 		if (entity.getFile() != null) {
 			FileConfiguration fileConfig = entity.getFileConfig();
