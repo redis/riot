@@ -1,4 +1,4 @@
-package com.redislabs.recharge.dummy;
+package com.redislabs.recharge;
 
 import java.util.HashMap;
 import java.util.Map;

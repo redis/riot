@@ -2,7 +2,6 @@ package com.redislabs.recharge.redis;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.springframework.data.redis.connection.StringRedisConnection;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -16,7 +15,7 @@ public class NilWriter extends AbstractEntityWriter {
 
 	private int currentItemCount = 0;
 
-	public NilWriter(StringRedisTemplate template, Entry<String, EntityConfiguration> entity) {
+	public NilWriter(StringRedisTemplate template, EntityConfiguration entity) {
 		super(template, entity);
 	}
 
@@ -27,7 +26,7 @@ public class NilWriter extends AbstractEntityWriter {
 	}
 
 	@Override
-	protected void write(StringRedisConnection conn, Map<String, Object> record, String id, String key) {
+	protected void write(StringRedisConnection conn, String key, Map<String, Object> record) {
 		// not called
 	}
 }

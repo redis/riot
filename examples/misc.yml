@@ -1,39 +1,36 @@
 max-item-count: 1000
 entities:
-  rockBands:
-    type: nil  
-    generator:
-      fields:
-        name: rockBand.name
-    indexes:
-      rockBands:
-        type: suggestion
-        suggestion: name
-  beers:
-    type: nil  
-    generator:
-      fields:
-        name: beer.name
-        style: beer.style
-        hop: beer.hop
-    indexes:
-      beerNames:
-        type: suggestion
-        suggestion: name
-      beerStyles:
-        type: suggestion
-        suggestion: style
-      beerHops:
-        type: suggestion
-        suggestion: hop
-  chuckNorris:
-    generator:
-      fields:
-        fact: chuckNorris.fact
-    indexes:
-      chuckNorrisFacts:
-        type: search
-        drop: true
-        schema:
-          fact:
-            type: text
+- name: rockBands
+  type: nil  
+  generator:
+    name: rockBand.name
+  indexes:
+  - name: rockBands
+    type: suggestion
+    suggestion: name
+- name: beers
+  type: nil  
+  generator:
+    name: beer.name
+    style: beer.style
+    hop: beer.hop
+  indexes:
+  - name: beerNames
+    type: suggestion
+    suggestion: name
+  - name: beerStyles
+    type: suggestion
+    suggestion: style
+  - name: beerHops
+    type: suggestion
+    suggestion: hop
+- name: chuckNorris
+  generator:
+    fact: chuckNorris.fact
+  indexes:
+  - name: chuckNorrisFacts
+    type: search
+    drop: true
+    schema:
+      fact:
+        type: text

@@ -1,52 +1,41 @@
 package com.redislabs.recharge.redis.index;
 
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.springframework.data.redis.connection.StringRedisConnection;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
 import com.redislabs.recharge.RechargeConfiguration.EntityConfiguration;
 import com.redislabs.recharge.RechargeConfiguration.IndexConfiguration;
-import com.redislabs.recharge.redis.AbstractEntityWriter;
-import com.redislabs.recharge.redis.key.AbstractKeyBuilder;
-import com.redislabs.recharge.redis.key.KeyBuilder;
-import com.redislabs.recharge.redis.key.MultipleFieldKeyBuilder;
+import com.redislabs.recharge.redis.AbstractRedisWriter;
 
-public abstract class AbstractIndexWriter extends AbstractEntityWriter {
+public abstract class AbstractIndexWriter extends AbstractRedisWriter {
 
-	private KeyBuilder indexKeyBuilder;
-	protected String keyspace;
+	private IndexConfiguration config;
 
-	protected AbstractIndexWriter(StringRedisTemplate template, Entry<String, EntityConfiguration> entity,
-			Entry<String, IndexConfiguration> index) {
-		super(template, entity);
-		this.keyspace = MultipleFieldKeyBuilder.join(entity.getKey(), getKeyspace(index));
-		this.indexKeyBuilder = AbstractKeyBuilder.getKeyBuilder(index.getValue().getFields());
+	protected AbstractIndexWriter(StringRedisTemplate template, EntityConfiguration entity, IndexConfiguration index) {
+		super(template, index.getName(), entity.getKeys());
+		this.config = index;
 	}
 
-	private String getKeyspace(Entry<String, IndexConfiguration> index) {
-		if (index.getKey() == null) {
-			if (index.getValue().getFields() == null || index.getValue().getFields().length == 0) {
-				return getDefaultKeyspace();
-			}
-			return MultipleFieldKeyBuilder.join(index.getValue().getFields());
-		}
-		return index.getKey();
+	protected IndexConfiguration getConfig() {
+		return config;
 	}
-
-	protected abstract String getDefaultKeyspace();
 
 	@Override
-	protected void write(StringRedisConnection conn, Map<String, Object> record, String id, String key) {
-		String indexId = indexKeyBuilder.getId(record);
-		String indexKey = keyspace + KeyBuilder.KEY_SEPARATOR + indexId;
-		write(conn, record, id, key, indexKey);
+	protected void write(StringRedisConnection conn, String keyspace, String id, Map<String, Object> record) {
+		String indexKey = getIndexKey(keyspace, record);
+		writeIndex(conn, indexKey, id, record);
 	}
 
-	protected void write(StringRedisConnection conn, Map<String, Object> record, String id, String key,
-			String indexKey) {
-		// do nothing
+	private String getIndexKey(String keyspace, Map<String, Object> record) {
+		if (config.getKeys() == null || config.getKeys().length == 0) {
+			return keyspace;
+		}
+		String indexId = getValues(record, config.getKeys());
+		return String.join(KEY_SEPARATOR, keyspace, indexId);
 	}
+
+	protected abstract void writeIndex(StringRedisConnection conn, String key, String id, Map<String, Object> record);
 
 }

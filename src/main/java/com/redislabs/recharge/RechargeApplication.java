@@ -1,12 +1,13 @@
 package com.redislabs.recharge;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
@@ -30,10 +31,14 @@ import org.springframework.batch.core.repository.JobRestartException;
 import org.springframework.batch.core.repository.support.MapJobRepositoryFactoryBean;
 import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.item.file.BufferedReaderFactory;
+import org.springframework.batch.item.file.DefaultBufferedReaderFactory;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder.DelimitedBuilder;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder.FixedLengthBuilder;
+import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
+import org.springframework.batch.item.file.transform.FieldSet;
 import org.springframework.batch.item.file.transform.Range;
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
 import org.springframework.batch.item.support.AbstractItemStreamItemWriter;
@@ -43,6 +48,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -61,10 +67,9 @@ import com.redislabs.lettusearch.RediSearchClient;
 import com.redislabs.recharge.RechargeConfiguration.EntityConfiguration;
 import com.redislabs.recharge.RechargeConfiguration.FileConfiguration;
 import com.redislabs.recharge.RechargeConfiguration.FileType;
-import com.redislabs.recharge.RechargeConfiguration.GeneratorConfiguration;
 import com.redislabs.recharge.RechargeConfiguration.IndexConfiguration;
 import com.redislabs.recharge.file.JsonItemReader;
-import com.redislabs.recharge.generator.GeneratorEntityItemReader;
+import com.redislabs.recharge.redis.AbstractRedisWriter;
 import com.redislabs.recharge.redis.HashWriter;
 import com.redislabs.recharge.redis.NilWriter;
 import com.redislabs.recharge.redis.StringWriter;
@@ -80,6 +85,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @SpringBootApplication
 @EnableBatchProcessing
+@EnableAutoConfiguration
 @Slf4j
 public class RechargeApplication implements ApplicationRunner {
 
@@ -99,6 +105,8 @@ public class RechargeApplication implements ApplicationRunner {
 	private StringRedisTemplate redisTemplate;
 	@Autowired
 	private RediSearchClient rediSearchClient;
+
+	private BufferedReaderFactory bufferedReaderFactory = new DefaultBufferedReaderFactory();
 
 	public static void main(String[] args) {
 		ConfigurableApplicationContext context = SpringApplication.run(RechargeApplication.class, args);
@@ -137,37 +145,43 @@ public class RechargeApplication implements ApplicationRunner {
 	}
 
 	private List<Flow> getLoadFlows() throws Exception {
+		if (rechargeConfig.isFlushall()) {
+			log.warn("***** FLUSHALL *****");
+			redisTemplate.getConnectionFactory().getConnection().flushAll();
+		}
 		List<Flow> flows = new ArrayList<>();
-		for (Entry<String, EntityConfiguration> entity : rechargeConfig.getEntities().entrySet()) {
-			AbstractItemCountingItemStreamItemReader<Map<String, Object>> reader = getReader(entity);
-			reader.setName(entity.getKey() + "-load-reader");
-			sanitize(entity.getValue());
+		for (EntityConfiguration entityConfig : rechargeConfig.getEntities()) {
+			AbstractItemCountingItemStreamItemReader<Map<String, Object>> reader = getReader(entityConfig);
+			reader.setName(entityConfig.getName() + "-load-reader");
+			if (entityConfig.getName() == null) {
+				entityConfig.setName("entity" + rechargeConfig.getEntities().indexOf(entityConfig));
+			}
+			if (entityConfig.getKeys() == null || entityConfig.getKeys().length == 0) {
+				entityConfig.setKeys(entityConfig.getFields());
+			}
 			SimpleStepBuilder<Map<String, Object>, Map<String, Object>> step = stepFactory
-					.get(entity.getKey() + "-load-step")
+					.get(entityConfig.getName() + "-load-step")
 					.<Map<String, Object>, Map<String, Object>>chunk(rechargeConfig.getChunkSize());
-			if (rechargeConfig.getMaxItemCount() != -1) {
-				reader.setMaxItemCount(rechargeConfig.getMaxItemCount());
+			if (entityConfig.getMaxItemCount() != -1) {
+				reader.setMaxItemCount(entityConfig.getMaxItemCount());
 			}
 			step.reader(reader);
-			step.writer(getWriter(entity));
-			step.throttleLimit(rechargeConfig.getMaxThreads());
-			flows.add(new FlowBuilder<Flow>(entity.getKey() + "-load-flow").from(step.build()).end());
+			step.writer(getWriter(entityConfig));
+			step.throttleLimit(entityConfig.getMaxThreads());
+			flows.add(new FlowBuilder<Flow>(entityConfig.getName() + "-load-flow").from(step.build()).end());
 		}
 		return flows;
 	}
 
-	private void sanitize(EntityConfiguration config) {
-		if (config.getKeys() == null || config.getKeys().length == 0) {
-			config.setKeys(config.getFields());
-		}
-	}
-
-	private ItemWriter<Map<String, Object>> getWriter(Entry<String, EntityConfiguration> entity) {
+	private ItemWriter<Map<String, Object>> getWriter(EntityConfiguration entity) {
 		ItemWriter<Map<String, Object>> writer = getEntityWriter(entity);
-		if (entity.getValue().getIndexes().size() > 0) {
+		if (entity.getIndexes().size() > 0) {
 			List<ItemWriter<? super Map<String, Object>>> writers = new ArrayList<>();
 			writers.add(writer);
-			for (Entry<String, IndexConfiguration> index : entity.getValue().getIndexes().entrySet()) {
+			for (IndexConfiguration index : entity.getIndexes()) {
+				if (index.getName() == null) {
+					index.setName(getKeyspace(entity, index));
+				}
 				writers.add(getIndexWriter(entity, index));
 			}
 			CompositeItemWriter<Map<String, Object>> composite = new CompositeItemWriter<>();
@@ -177,9 +191,27 @@ public class RechargeApplication implements ApplicationRunner {
 		return writer;
 	}
 
-	private AbstractIndexWriter getIndexWriter(Entry<String, EntityConfiguration> entity,
-			Entry<String, IndexConfiguration> index) {
-		switch (index.getValue().getType()) {
+	private String getKeyspace(EntityConfiguration entity, IndexConfiguration index) {
+		String suffix = getSuffix(entity, index);
+		switch (index.getType()) {
+		case Search:
+			return entity.getName() + "Idx" + suffix;
+		case Suggestion:
+			return entity.getName() + "Suggestion" + suffix;
+		default:
+			return String.join(AbstractRedisWriter.KEY_SEPARATOR, entity.getName(), "index" + suffix);
+		}
+	}
+
+	private String getSuffix(EntityConfiguration entity, IndexConfiguration index) {
+		if (entity.getIndexes().size() == 0) {
+			return "";
+		}
+		return String.valueOf(entity.getIndexes().indexOf(index) + 1);
+	}
+
+	private AbstractIndexWriter getIndexWriter(EntityConfiguration entity, IndexConfiguration index) {
+		switch (index.getType()) {
 		case Geo:
 			return new GeoIndexWriter(redisTemplate, entity, index);
 		case List:
@@ -195,19 +227,19 @@ public class RechargeApplication implements ApplicationRunner {
 		}
 	}
 
-	private AbstractItemCountingItemStreamItemReader<Map<String, Object>> getReader(
-			Entry<String, EntityConfiguration> entity) throws Exception {
-		if (entity.getValue().getGenerator() != null) {
-			GeneratorConfiguration generator = entity.getValue().getGenerator();
-			if (entity.getValue().getFields() == null) {
-				entity.getValue().setFields(generator.getFields().keySet().toArray(new String[0]));
+	private AbstractItemCountingItemStreamItemReader<Map<String, Object>> getReader(EntityConfiguration entity)
+			throws Exception {
+		if (entity.getGenerator() != null && entity.getGenerator().size() > 0) {
+			Map<String, String> generatorFields = entity.getGenerator();
+			if (entity.getFields() == null) {
+				entity.setFields(generatorFields.keySet().toArray(new String[0]));
 			}
-			return new GeneratorEntityItemReader(generator);
+			return new GeneratorEntityItemReader(entity.getFakerLocale(), generatorFields);
 		}
-		if (entity.getValue().getFile() != null) {
-			FileConfiguration fileConfig = entity.getValue().getFile();
+		if (entity.getFile() != null) {
+			FileConfiguration fileConfig = entity.getFileConfig();
 			if (fileConfig.getType() == null) {
-				fileConfig.setType(guessFileType(fileConfig.getPath()));
+				fileConfig.setType(guessFileType(entity.getFile()));
 			}
 			switch (fileConfig.getType()) {
 			case Delimited:
@@ -217,33 +249,46 @@ public class RechargeApplication implements ApplicationRunner {
 			case Json:
 				return new JsonItemReader();
 			default:
-				throw new RechargeException("No reader found for file " + fileConfig.getPath());
+				throw new RechargeException("No reader found for file " + entity.getFile());
 			}
 		}
 		throw new RechargeException("No entity type configured");
 	}
 
-	private FlatFileItemReaderBuilder<Map<String, Object>> getFlatFileReaderBuilder(String entityName,
-			FileConfiguration fileConfig) throws IOException {
+	private FlatFileItemReaderBuilder<Map<String, Object>> getFlatFileReaderBuilder(EntityConfiguration entity)
+			throws IOException {
 		FlatFileItemReaderBuilder<Map<String, Object>> builder = new FlatFileItemReaderBuilder<>();
-		Resource resource = getResource(fileConfig);
+		Resource resource = getResource(entity);
 		builder.resource(resource);
+		if (entity.getName() == null) {
+			entity.setName(getFileBaseName(resource));
+		}
+		FileConfiguration fileConfig = entity.getFileConfig();
 		if (fileConfig.getEncoding() != null) {
 			builder.encoding(fileConfig.getEncoding());
 		}
 		builder.strict(true);
 		builder.saveState(false);
 		builder.fieldSetMapper(new MapFieldSetMapper());
-		if (fileConfig.getLinesToSkip() != null) {
-			builder.linesToSkip(fileConfig.getLinesToSkip());
+		builder.linesToSkip(fileConfig.getLinesToSkip());
+		if (fileConfig.isHeader() && fileConfig.getLinesToSkip() == 0) {
+			builder.linesToSkip(1);
 		}
 		return builder;
 	}
 
-	private FlatFileItemReader<Map<String, Object>> getDelimitedReader(Entry<String, EntityConfiguration> entity)
-			throws IOException {
-		FileConfiguration config = entity.getValue().getFile();
-		FlatFileItemReaderBuilder<Map<String, Object>> builder = getFlatFileReaderBuilder(entity.getKey(), config);
+	private String getFileBaseName(Resource resource) {
+		String filename = resource.getFilename();
+		int extensionIndex = filename.lastIndexOf(".");
+		if (extensionIndex == -1) {
+			return filename;
+		}
+		return filename.substring(0, extensionIndex);
+	}
+
+	private FlatFileItemReader<Map<String, Object>> getDelimitedReader(EntityConfiguration entity) throws IOException {
+		FileConfiguration config = entity.getFileConfig();
+		FlatFileItemReaderBuilder<Map<String, Object>> builder = getFlatFileReaderBuilder(entity);
 		DelimitedBuilder<Map<String, Object>> delimitedBuilder = builder.delimited();
 		if (config.getDelimiter() != null) {
 			delimitedBuilder.delimiter(config.getDelimiter());
@@ -254,14 +299,34 @@ public class RechargeApplication implements ApplicationRunner {
 		if (config.getQuoteCharacter() != null) {
 			delimitedBuilder.quoteCharacter(config.getQuoteCharacter());
 		}
-		delimitedBuilder.names(entity.getValue().getFields());
+		String[] fieldNames = entity.getFields();
+		if (config.isHeader()) {
+			Resource resource = getResource(entity);
+			try {
+				BufferedReader reader = bufferedReaderFactory.create(resource, config.getEncoding());
+				DelimitedLineTokenizer tokenizer = new DelimitedLineTokenizer();
+				if (config.getDelimiter() != null) {
+					tokenizer.setDelimiter(config.getDelimiter());
+				}
+				if (config.getQuoteCharacter() != null) {
+					tokenizer.setQuoteCharacter(config.getQuoteCharacter());
+				}
+				String line = reader.readLine();
+				FieldSet fields = tokenizer.tokenize(line);
+				fieldNames = fields.getValues();
+				log.info("Found header {}", Arrays.toString(fieldNames));
+			} catch (Exception e) {
+				log.error("Could not read header for file {}", entity.getFile(), e);
+			}
+		}
+		delimitedBuilder.names(fieldNames);
 		return builder.build();
 	}
 
-	private FlatFileItemReader<Map<String, Object>> getFixedLengthReader(Entry<String, EntityConfiguration> entity)
+	private FlatFileItemReader<Map<String, Object>> getFixedLengthReader(EntityConfiguration entity)
 			throws IOException {
-		FileConfiguration config = entity.getValue().getFile();
-		FlatFileItemReaderBuilder<Map<String, Object>> builder = getFlatFileReaderBuilder(entity.getKey(), config);
+		FileConfiguration config = entity.getFileConfig();
+		FlatFileItemReaderBuilder<Map<String, Object>> builder = getFlatFileReaderBuilder(entity);
 		FixedLengthBuilder<Map<String, Object>> fixedLengthBuilder = builder.fixedLength();
 		if (config.getRanges() != null) {
 			fixedLengthBuilder.columns(getRanges(config.getRanges()));
@@ -269,7 +334,7 @@ public class RechargeApplication implements ApplicationRunner {
 		if (config.getStrict() != null) {
 			fixedLengthBuilder.strict(config.getStrict());
 		}
-		fixedLengthBuilder.names(entity.getValue().getFields());
+		fixedLengthBuilder.names(entity.getFields());
 		return builder.build();
 	}
 
@@ -298,12 +363,12 @@ public class RechargeApplication implements ApplicationRunner {
 	private Pattern filePathPattern = Pattern
 			.compile("(?<" + FILE_BASENAME + ">.+)\\.(?<" + FILE_EXTENSION + ">\\w+)(?<" + FILE_GZ + ">\\.gz)?");
 
-	private boolean isGzip(FileConfiguration config) {
-		if (config.getGzip() == null) {
-			String gz = getFilenameGroup(config.getPath(), FILE_GZ);
+	private boolean isGzip(EntityConfiguration entity) {
+		if (entity.getFileConfig().getGzip() == null) {
+			String gz = getFilenameGroup(entity.getFile(), FILE_GZ);
 			return gz != null && gz.length() > 0;
 		}
-		return config.getGzip();
+		return entity.getFileConfig().getGzip();
 	}
 
 	private String getFilenameGroup(String path, String groupName) {
@@ -318,9 +383,9 @@ public class RechargeApplication implements ApplicationRunner {
 		return new File(path).getName();
 	}
 
-	private Resource getResource(FileConfiguration config) throws IOException {
-		Resource resource = getResource(config.getPath());
-		if (isGzip(config)) {
+	private Resource getResource(EntityConfiguration entity) throws IOException {
+		Resource resource = getResource(entity.getFile());
+		if (isGzip(entity)) {
 			return getGZipResource(resource);
 		}
 		return resource;
@@ -337,9 +402,8 @@ public class RechargeApplication implements ApplicationRunner {
 		return new FileSystemResource(path);
 	}
 
-	private AbstractItemStreamItemWriter<Map<String, Object>> getEntityWriter(
-			Entry<String, EntityConfiguration> entity) {
-		switch (entity.getValue().getType()) {
+	private AbstractItemStreamItemWriter<Map<String, Object>> getEntityWriter(EntityConfiguration entity) {
+		switch (entity.getType()) {
 		case Nil:
 			return new NilWriter(redisTemplate, entity);
 		case String:
@@ -349,10 +413,10 @@ public class RechargeApplication implements ApplicationRunner {
 		}
 	}
 
-	private ObjectWriter getObjectWriter(Entry<String, EntityConfiguration> entity) {
-		switch (entity.getValue().getFormat()) {
+	private ObjectWriter getObjectWriter(EntityConfiguration entity) {
+		switch (entity.getFormat()) {
 		case Xml:
-			return new XmlMapper().writer().withRootName(entity.getKey());
+			return new XmlMapper().writer().withRootName(entity.getName());
 		default:
 			break;
 		}
@@ -372,7 +436,7 @@ public class RechargeApplication implements ApplicationRunner {
 				run(command, getLoadFlows());
 				break;
 			case "unload":
-				run(command, getUnloadFlows());
+				System.out.println("Unload command not yet supported");
 				break;
 			}
 		} else {
@@ -381,22 +445,19 @@ public class RechargeApplication implements ApplicationRunner {
 	}
 
 	private void printHelp() {
-
+		// TODO
 	}
 
 	private void run(String command, List<Flow> flows) throws JobExecutionAlreadyRunningException, JobRestartException,
 			JobInstanceAlreadyCompleteException, JobParametersInvalidException {
 		SimpleAsyncTaskExecutor executor = new SimpleAsyncTaskExecutor();
-		executor.setConcurrencyLimit(rechargeConfig.getMaxThreads());
+		if (rechargeConfig.isConcurrent()) {
+			executor.setConcurrencyLimit(flows.size());
+		}
 		Flow flow = new FlowBuilder<Flow>("split-flow").split(executor).add(flows.toArray(new Flow[flows.size()]))
 				.build();
 		Job job = jobBuilderFactory.get(command + "-job").start(flow).end().build();
 		jobLauncher.run(job, new JobParameters());
-	}
-
-	private List<Flow> getUnloadFlows() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 }

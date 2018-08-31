@@ -1,18 +1,42 @@
 entities:
-  call:
-    generator:
-      fields:
-        task: number.numberBetween(1,10000)
-        community: number.numberBetween(1,100)
-        assignedDate: date.past(90,T(java.util.concurrent.TimeUnit).DAYS)
-    indexes:
-      communities:
-        type: zset   
-  email:
-    generator:
-      fields:
-        task: number.numberBetween(1,10000)
-        community: number.numberBetween(1,100)
-    indexes:
-      all:
-        type: set
+- name: call
+  max-item-count: 10
+  keys: taskId
+  generator:
+    taskId: number.digits(4)
+    communityId: number.digits(2)
+    assignedDate: date.past(90,T(java.util.concurrent.TimeUnit).DAYS).time
+    taskQueueTypeId: number.digits(1)
+    id: number.digits(6)
+    personId: number.digits(6)
+    unitNumber: number.digits(3)
+    date: date.past(90,T(java.util.concurrent.TimeUnit).DAYS).time
+    communityGroupId: number.digits(4)
+    callDetailActiveId: number.digits(6)
+    communicationTypeId: number.digits(1)
+    phoneNumber: phoneNumber.phoneNumber
+  indexes:
+  - name: communities
+    keys: communityId
+    score: assignedDate
+    type: zset
+- name: email
+  max-item-count: 10
+  keys: taskId
+  generator:
+    taskId: number.digits(4)
+    taskTypeId: number.digits(1)
+    communityId: number.digits(2)
+    communicationTypeId: number.digits(1)
+    assignedDate: date.past(90,T(java.util.concurrent.TimeUnit).DAYS).time
+    date: date.past(90,T(java.util.concurrent.TimeUnit).DAYS).time
+    id: number.digits(6)
+    emailAddress: internet.emailAddress
+    taskQueueTypeId: number.digits(1)
+    adSourceId: number.digits(3)
+    phoneNumber: phoneNumber.phoneNumber
+    emailMessageId: number.digits(7)
+    communityGroupId: number.digits(4)
+  indexes:
+  - name: all
+    type: set

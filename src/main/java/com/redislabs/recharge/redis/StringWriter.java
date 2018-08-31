@@ -1,7 +1,6 @@
 package com.redislabs.recharge.redis;
 
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.springframework.data.redis.connection.StringRedisConnection;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -17,13 +16,13 @@ public class StringWriter extends AbstractEntityWriter {
 
 	private ObjectWriter writer;
 
-	public StringWriter(StringRedisTemplate template, Entry<String, EntityConfiguration> entity, ObjectWriter writer) {
+	public StringWriter(StringRedisTemplate template, EntityConfiguration entity, ObjectWriter writer) {
 		super(template, entity);
 		this.writer = writer;
 	}
 
 	@Override
-	protected void write(StringRedisConnection conn, Map<String, Object> record, String id, String key) {
+	protected void write(StringRedisConnection conn, String key, Map<String, Object> record) {
 		try {
 			String value = writer.writeValueAsString(record);
 			conn.set(key, value);

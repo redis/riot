@@ -1,11 +1,8 @@
 package com.redislabs.recharge.redis.index;
 
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.springframework.batch.item.ExecutionContext;
-import org.springframework.core.convert.ConversionService;
-import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.data.redis.connection.StringRedisConnection;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
@@ -18,17 +15,10 @@ public class SuggestionIndexWriter extends AbstractIndexWriter {
 
 	private RediSearchClient client;
 	private RediSearchCommands<String, String> commands;
-	private String indexName;
-	private ConversionService converter = new DefaultConversionService();
-	private String suggestionField;
-	private String scoreField;
 
-	public SuggestionIndexWriter(StringRedisTemplate template, Entry<String, EntityConfiguration> entity,
-			Entry<String, IndexConfiguration> index, RediSearchClient client) {
+	public SuggestionIndexWriter(StringRedisTemplate template, EntityConfiguration entity, IndexConfiguration index,
+			RediSearchClient client) {
 		super(template, entity, index);
-		this.indexName = index.getKey();
-		this.suggestionField = index.getValue().getSuggestion();
-		this.scoreField = index.getValue().getScore();
 		this.client = client;
 	}
 
@@ -38,16 +28,10 @@ public class SuggestionIndexWriter extends AbstractIndexWriter {
 	}
 
 	@Override
-	protected void write(StringRedisConnection conn, Map<String, Object> record, String id, String key,
-			String indexKey) {
-		String string = converter.convert(record.get(suggestionField), String.class);
-		Double score = scoreField == null ? 1d : converter.convert(record.get(scoreField), Double.class);
-		commands.suggestionAdd(indexName, string, score);
-	}
-
-	@Override
-	protected String getDefaultKeyspace() {
-		return "search";
+	protected void writeIndex(StringRedisConnection conn, String key, String id, Map<String, Object> record) {
+		String string = convert(record.get(getConfig().getSuggestion()), String.class);
+		Double score = getConfig().getScore() == null ? 1d : convert(record.get(getConfig().getScore()), Double.class);
+		commands.suggestionAdd(getConfig().getName(), string, score);
 	}
 
 }

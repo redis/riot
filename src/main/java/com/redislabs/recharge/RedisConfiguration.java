@@ -1,25 +1,21 @@
 package com.redislabs.recharge;
 
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
-import org.springframework.data.redis.core.StringRedisTemplate;
 
 import com.redislabs.lettusearch.RediSearchClient;
 
 import io.lettuce.core.RedisURI;
 
 @Configuration
+@EnableAutoConfiguration
 public class RedisConfiguration {
 
-	@Bean
-	public LettuceConnectionFactory connectionFactory() {
-		return new LettuceConnectionFactory();
-	}
-
 	@Bean(destroyMethod = "shutdown")
-	public RediSearchClient lettuceClient(LettuceConnectionFactory connectionFactory) {
+	public RediSearchClient lettusearchClient(LettuceConnectionFactory connectionFactory) {
 		LettuceClientConfiguration clientConfiguration = connectionFactory.getClientConfiguration();
 		RedisURI uri = createRedisURIAndApplySettings(connectionFactory.getHostName(), connectionFactory.getPort(),
 				connectionFactory.getPassword(), clientConfiguration);
@@ -41,13 +37,6 @@ public class RedisConfiguration {
 		builder.withStartTls(clientConfiguration.isStartTls());
 		builder.withTimeout(clientConfiguration.getCommandTimeout());
 		return builder.build();
-	}
-
-	@Bean
-	public StringRedisTemplate redisTemplate(LettuceConnectionFactory connectionFactory) {
-		StringRedisTemplate template = new StringRedisTemplate();
-		template.setConnectionFactory(connectionFactory);
-		return template;
 	}
 
 }

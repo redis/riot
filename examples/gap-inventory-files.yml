@@ -1,0 +1,9 @@
+entities:
+- file: /Users/jruaux/ReDocuments/Customers/Gap ICM/GapLogInventoryForPOC/SUPPLY.csv
+  file-config:
+    header: true
+  keys: DC_ID, SKU_ID
+- file: /Users/jruaux/ReDocuments/Customers/Gap ICM/GapLogInventoryForPOC/DEMAND.csv
+  file-config:
+    header: true
+  keys: DC_ID, SKU_ID

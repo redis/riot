@@ -1,11 +1,10 @@
 entities:
-  people:
-    keys: id
-    generator:
-      fields:
-        id: number.randomNumber
-        name: name.name
-    indexes:
-      people:
-        type: suggestion
-        suggestion: name
+- name: people
+  keys: id
+  generator:
+    id: number.randomNumber
+    name: name.name
+  indexes:
+  - name: nameSuggestion
+    type: suggestion
+    suggestion: name

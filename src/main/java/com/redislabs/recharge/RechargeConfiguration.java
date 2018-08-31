@@ -1,8 +1,11 @@
 package com.redislabs.recharge;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
+import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
@@ -15,43 +18,44 @@ import lombok.Data;
 @Data
 public class RechargeConfiguration {
 
-	int maxThreads = 10;
 	int chunkSize = 50;
-	int maxItemCount = 1000000;
-	Map<String, EntityConfiguration> entities = new LinkedHashMap<>();
+	boolean concurrent = true;
+	boolean flushall = false;
+	List<EntityConfiguration> entities = new ArrayList<>();
 	Map<String, FileType> fileTypes = new LinkedHashMap<>();
 
 	@Data
-	public static class GeneratorConfiguration {
-		Map<String, String> fields = new LinkedHashMap<>();
-		String locale = "en-US";
-	}
-
-	@Data
 	public static class EntityConfiguration {
+		String name;
 		String[] keys;
 		DataType type = DataType.Hash;
 		String[] fields;
-		Map<String, IndexConfiguration> indexes = new LinkedHashMap<>();
+		int maxItemCount = 1000000;
+		int maxThreads = 1;
+		List<IndexConfiguration> indexes = new ArrayList<>();
 		ValueFormat format = ValueFormat.Json;
-		FileConfiguration file;
-		GeneratorConfiguration generator;
+		String file;
+		FileConfiguration fileConfig;
+		Map<String, String> generator = new LinkedHashMap<>();
+		String fakerLocale = "en-US";
 	}
 
 	@Data
 	public static class IndexConfiguration {
+		String name;
 		IndexType type = IndexType.Set;
-		String[] fields;
+		String[] keys;
 		String score;
 		String longitude;
 		String latitude;
-		Map<String, RediSearchField> schema = new LinkedHashMap<>();
+		List<RediSearchField> schemaFields = new ArrayList<>();
 		boolean drop;
 		String suggestion;
 	}
 
 	@Data
 	public static class RediSearchField {
+		String name;
 		RediSearchFieldType type;
 		boolean sortable;
 		boolean noIndex;
@@ -75,10 +79,10 @@ public class RechargeConfiguration {
 
 	@Data
 	public static class FileConfiguration {
-		String path;
 		Boolean gzip;
-		String encoding;
-		Integer linesToSkip;
+		String encoding = FlatFileItemReader.DEFAULT_CHARSET;
+		boolean header = false;
+		int linesToSkip = 0;
 		FileType type;
 		String delimiter;
 		Integer[] includedFields;

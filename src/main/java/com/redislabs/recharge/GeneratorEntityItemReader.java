@@ -1,4 +1,4 @@
-package com.redislabs.recharge.generator;
+package com.redislabs.recharge;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -15,17 +15,17 @@ import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
-import com.redislabs.recharge.RechargeConfiguration.GeneratorConfiguration;
-
 public class GeneratorEntityItemReader extends AbstractItemCountingItemStreamItemReader<Map<String, Object>> {
 
-	private GeneratorConfiguration config;
+	private String locale;
+	private Map<String, String> fields;
 	private EvaluationContext context;
 	private ConversionService conversionService = new DefaultConversionService();
 	private Map<String, Expression> expressions = new LinkedHashMap<>();
 
-	public GeneratorEntityItemReader(GeneratorConfiguration config) {
-		this.config = config;
+	public GeneratorEntityItemReader(String locale, Map<String, String> fields) {
+		this.locale = locale;
+		this.fields = fields;
 	}
 
 	@Override
@@ -43,10 +43,10 @@ public class GeneratorEntityItemReader extends AbstractItemCountingItemStreamIte
 
 	@Override
 	protected void doOpen() throws Exception {
-		Faker faker = new Faker(new Locale(config.getLocale()));
+		Faker faker = new Faker(new Locale(locale));
 		SpelExpressionParser parser = new SpelExpressionParser();
 		this.context = new StandardEvaluationContext(faker);
-		this.config.getFields().entrySet()
+		this.fields.entrySet()
 				.forEach(entry -> expressions.put(entry.getKey(), parser.parseExpression(entry.getValue())));
 	}
 
