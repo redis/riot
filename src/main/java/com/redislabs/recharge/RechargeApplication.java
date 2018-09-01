@@ -21,6 +21,8 @@ import org.springframework.batch.core.configuration.annotation.StepBuilderFactor
 import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.batch.core.explore.support.SimpleJobExplorer;
 import org.springframework.batch.core.job.builder.FlowBuilder;
+import org.springframework.batch.core.job.builder.JobBuilder;
+import org.springframework.batch.core.job.builder.JobFlowBuilder;
 import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.launch.support.SimpleJobLauncher;
@@ -153,23 +155,22 @@ public class RechargeApplication implements ApplicationRunner {
 		List<Flow> flows = new ArrayList<>();
 		for (EntityConfiguration entityConfig : rechargeConfig.getEntities()) {
 			AbstractItemCountingItemStreamItemReader<Map<String, Object>> reader = getReader(entityConfig);
-			reader.setName(entityConfig.getName() + "-load-reader");
+			int entityPosition = rechargeConfig.getEntities().indexOf(entityConfig) + 1;
+			String entityId = entityPosition + "-" + entityConfig.getName();
+			reader.setName(entityId + "-load-reader");
 			if (entityConfig.getName() == null) {
 				entityConfig.setName("entity" + rechargeConfig.getEntities().indexOf(entityConfig));
 			}
 			if (entityConfig.getKeys() == null || entityConfig.getKeys().length == 0) {
 				entityConfig.setKeys(entityConfig.getFields());
 			}
-			SimpleStepBuilder<Map<String, Object>, Map<String, Object>> step = stepFactory
-					.get(entityConfig.getName() + "-load-step")
+			SimpleStepBuilder<Map<String, Object>, Map<String, Object>> step = stepFactory.get(entityId + "-load-step")
 					.<Map<String, Object>, Map<String, Object>>chunk(rechargeConfig.getChunkSize());
-			if (entityConfig.getMaxItemCount() != -1) {
-				reader.setMaxItemCount(entityConfig.getMaxItemCount());
-			}
+			reader.setMaxItemCount(entityConfig.getMaxItemCount());
 			step.reader(reader);
 			step.writer(getWriter(entityConfig));
 			step.throttleLimit(entityConfig.getMaxThreads());
-			flows.add(new FlowBuilder<Flow>(entityConfig.getName() + "-load-flow").from(step.build()).end());
+			flows.add(new FlowBuilder<Flow>(entityId + "-load-flow").from(step.build()).end());
 		}
 		return flows;
 	}
@@ -457,14 +458,26 @@ public class RechargeApplication implements ApplicationRunner {
 
 	private void run(String command, List<Flow> flows) throws JobExecutionAlreadyRunningException, JobRestartException,
 			JobInstanceAlreadyCompleteException, JobParametersInvalidException {
-		SimpleAsyncTaskExecutor executor = new SimpleAsyncTaskExecutor();
-		if (rechargeConfig.isConcurrent()) {
-			executor.setConcurrencyLimit(flows.size());
-		}
-		Flow flow = new FlowBuilder<Flow>("split-flow").split(executor).add(flows.toArray(new Flow[flows.size()]))
-				.build();
-		Job job = jobBuilderFactory.get(command + "-job").start(flow).end().build();
+		JobBuilder builder = jobBuilderFactory.get(command + "-job");
+		Job job = getJob(builder, flows);
 		jobLauncher.run(job, new JobParameters());
+	}
+
+	private Job getJob(JobBuilder builder, List<Flow> flows) {
+		if (rechargeConfig.isConcurrent()) {
+			SimpleAsyncTaskExecutor executor = new SimpleAsyncTaskExecutor();
+			executor.setConcurrencyLimit(flows.size());
+			Flow flow = new FlowBuilder<Flow>("split-flow").split(executor).add(flows.toArray(new Flow[flows.size()]))
+					.build();
+			return builder.start(flow).end().build();
+		}
+		JobFlowBuilder flowBuilder = builder.start(flows.get(0));
+		if (flows.size() > 1) {
+			for (Flow flow : flows.subList(1, flows.size())) {
+				flowBuilder.next(flow);
+			}
+		}
+		return flowBuilder.end().build();
 	}
 
 }

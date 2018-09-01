@@ -31,6 +31,14 @@ public class GeneratorEntityItemReader extends AbstractItemCountingItemStreamIte
 	}
 
 	@Override
+	protected void doOpen() throws Exception {
+		this.context = new StandardEvaluationContext(new RechargeFaker(template, new Locale(locale)));
+		SpelExpressionParser parser = new SpelExpressionParser();
+		this.fields.entrySet()
+				.forEach(entry -> expressions.put(entry.getKey(), parser.parseExpression(entry.getValue())));
+	}
+
+	@Override
 	protected Map<String, Object> doRead() throws Exception {
 		Map<String, Object> map = new HashMap<>();
 		for (Entry<String, Expression> expression : expressions.entrySet()) {
@@ -41,15 +49,6 @@ public class GeneratorEntityItemReader extends AbstractItemCountingItemStreamIte
 			}
 		}
 		return map;
-	}
-
-	@Override
-	protected void doOpen() throws Exception {
-		RechargeFaker faker = new RechargeFaker(template, new Locale(locale));
-		SpelExpressionParser parser = new SpelExpressionParser();
-		this.context = new StandardEvaluationContext(faker);
-		this.fields.entrySet()
-				.forEach(entry -> expressions.put(entry.getKey(), parser.parseExpression(entry.getValue())));
 	}
 
 	@Override

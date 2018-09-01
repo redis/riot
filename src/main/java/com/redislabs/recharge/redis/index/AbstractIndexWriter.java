@@ -33,7 +33,7 @@ public abstract class AbstractIndexWriter extends AbstractRedisWriter {
 			return keyspace;
 		}
 		String indexId = getValues(record, config.getKeys());
-		return join(join(config.getKeys()), indexId, keyspace);
+		return join(keyspace, indexId);
 	}
 
 	protected abstract void writeIndex(StringRedisConnection conn, String key, String id, Map<String, Object> record);

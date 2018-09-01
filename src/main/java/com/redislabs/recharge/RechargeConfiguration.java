@@ -30,7 +30,7 @@ public class RechargeConfiguration {
 		String[] keys;
 		DataType type = DataType.Hash;
 		String[] fields;
-		int maxItemCount = 1000000;
+		int maxItemCount = 10000;
 		int maxThreads = 1;
 		List<IndexConfiguration> indexes = new ArrayList<>();
 		ValueFormat format = ValueFormat.Json;
