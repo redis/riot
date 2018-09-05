@@ -1,50 +1,53 @@
 concurrent: false
 entities:
-- name: store
+- name: node
   file: /Users/jruaux/ReDocuments/Customers/Gap ICM/GapLogInventoryForPOC/DC_Stores.csv
   file-config:
     header: true
   keys: DC_ID
   indexes:
-  - name: stores
+  - name: nodes
     type: set
   - name: market
     type: set
     keys: GID_MKT_CD
     fields: DC_ID
-- name: store
+- name: node
   file: /Users/jruaux/ReDocuments/Customers/Gap ICM/GapLogInventoryForPOC/DC_GEOADDR.csv
   file-config:
     header: true
   keys: DC_ID
   indexes:
-  - name: storegeo
+  - name: nodegeo
     type: geo
     latitude: LATITUDE
     longitude: LONGITUDE
 - name: stock
-  max-item-count: 100000
+  max-item-count: 71360000
   generator:
-    node: redis.randomMember("stores")
-    sku: sequence.next("sku",5,1,"%09d")
+    node: redis.randomMember("nodes")
+    sku: sequence.next("sku",20000,"%09d")
     brand: number.digits(1)
-    onhand: number.digits(2)
-    hold: number.digits(2)
-    reserved: number.digits(2)
-    allocated: number.digits(2)
-    backordered: number.digits(2)
-    excluded: number.digits(2)
+    onhand: number.randomNumber(2, false)
+    hold: number.randomNumber(2, false)
+    reserved: number.randomNumber(2, false)
+    allocated: number.randomNumber(2, false)
+    backordered: number.randomNumber(2, false)
+    excluded: number.randomNumber(2, false)
   keys: node, sku
   indexes:
   - name: skus
     type: set
     keys: node
     fields: sku
-- name: store
+  - name: skus
+    type: set
+    fields: sku    
+- name: node
   max-item-count: 3568
   keys: DC_ID
   generator:
-    DC_ID: redis.nextMember("stores")
+    DC_ID: redis.nextMember("nodes")
     giftwrap: bool.bool
     nextday: bool.bool
     pobox: bool.bool

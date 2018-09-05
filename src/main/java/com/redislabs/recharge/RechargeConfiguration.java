@@ -28,7 +28,7 @@ public class RechargeConfiguration {
 	public static class EntityConfiguration {
 		String name;
 		String[] keys;
-		DataType type = DataType.Hash;
+		Command command = new Command();
 		String[] fields;
 		int maxItemCount = 10000;
 		int maxThreads = 1;
@@ -70,8 +70,15 @@ public class RechargeConfiguration {
 		Set, Zset, List, Geo, Search, Suggestion
 	}
 
-	public static enum DataType {
-		Nil, String, Hash
+	@Data
+	public static class Command {
+		CommandType type = CommandType.Hmset;
+		String sourceField = "delta";
+		String targetField = "onhand";
+	}
+
+	public static enum CommandType {
+		Nil, Set, Hmset, Hincrby
 	}
 
 	public static enum ValueFormat {

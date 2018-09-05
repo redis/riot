@@ -12,18 +12,24 @@ recharge depends on these two projects:
 * [PojoFaker](https://github.com/jruaux/pojofaker)
 
 Build each project first before you build recharge:
-```
+```bash
 mvn clean install
 ```
 
 ## Examples
 The [examples](./examples) folder contains a few sample configurations to generate various datasets:
+
 * Openflights.org: [https://openflights.org/data.html](https://openflights.org/data.html)
-```
-java -jar target/recharge-0.0.1-SNAPSHOT.jar --spring.config.additional-location=examples/openflights.yml
+```bash
+java -jar target/recharge-0.0.1-SNAPSHOT.jar load --spring.config.additional-location=examples/openflights.yml
 ```
 
 * Medical Observations
+```bash
+java -jar target/recharge-0.0.1-SNAPSHOT.jar load --spring.config.additional-location=examples/medical-observations.yml
 ```
-java -jar target/recharge-0.0.1-SNAPSHOT.jar --spring.config.additional-location=examples/medical-observations.yml
+
+* Inventory
+```bash
+java -jar target/recharge-0.0.1-SNAPSHOT.jar load --flushall=true --spring.config.additional-location=examples/inventory.yml
 ```

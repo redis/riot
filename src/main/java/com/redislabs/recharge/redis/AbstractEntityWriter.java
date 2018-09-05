@@ -9,8 +9,15 @@ import com.redislabs.recharge.RechargeConfiguration.EntityConfiguration;
 
 public abstract class AbstractEntityWriter extends AbstractRedisWriter {
 
+	private EntityConfiguration config;
+
 	public AbstractEntityWriter(StringRedisTemplate template, EntityConfiguration entity) {
 		super(template, entity.getName(), entity.getKeys());
+		this.config = entity;
+	}
+	
+	protected EntityConfiguration getConfig() {
+		return config;
 	}
 
 	@Override
