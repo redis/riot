@@ -31,15 +31,15 @@ entities:
     nextday: bool.bool
     pobox: bool.bool
   indexes:
-  - name: nodes:giftwrap
+  - name: '{nodes}:giftwrap'
     type: set
     keys: giftwrap
     fields: DC_ID
-  - name: nodes:nextday
+  - name: '{nodes}:nextday'
     type: set
     keys: nextday
     fields: DC_ID
-  - name: nodes:pobox
+  - name: '{nodes}:pobox'
     type: set
     keys: pobox
     fields: DC_ID
