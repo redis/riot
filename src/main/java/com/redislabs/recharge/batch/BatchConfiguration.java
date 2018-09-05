@@ -67,14 +67,14 @@ public class BatchConfiguration {
 			String entityId = entityPosition + "-" + entityConfig.getName();
 			reader.setName(entityId + "-load-reader");
 			if (entityConfig.getName() == null) {
-				entityConfig.setName("entity" + rechargeConfig.getEntities().indexOf(entityConfig));
+				entityConfig.setName("entity" + entityPosition);
 			}
 			if (entityConfig.getKeys() == null || entityConfig.getKeys().length == 0) {
 				entityConfig.setKeys(entityConfig.getFields());
 			}
 			SimpleStepBuilder<Map<String, Object>, Map<String, Object>> builder = stepFactory
 					.get(entityId + "-load-step")
-					.<Map<String, Object>, Map<String, Object>>chunk(rechargeConfig.getChunkSize());
+					.<Map<String, Object>, Map<String, Object>>chunk(entityConfig.getChunkSize());
 			builder.listener(stepListener);
 			builder.listener(new MeteredItemWriteListener("redis-writer", entityId, metering));
 			if (entityConfig.getMaxItemCount() > 0) {

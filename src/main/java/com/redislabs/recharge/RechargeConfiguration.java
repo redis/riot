@@ -18,7 +18,6 @@ import lombok.Data;
 @Data
 public class RechargeConfiguration {
 
-	int chunkSize = 50;
 	boolean concurrent = true;
 	boolean flushall = false;
 	List<EntityConfiguration> entities = new ArrayList<>();
@@ -27,6 +26,7 @@ public class RechargeConfiguration {
 	@Data
 	public static class EntityConfiguration {
 		String name;
+		int chunkSize = 50;
 		String[] keys;
 		Command command = new Command();
 		String[] fields;
