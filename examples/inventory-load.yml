@@ -22,27 +22,6 @@ entities:
     type: geo
     latitude: LATITUDE
     longitude: LONGITUDE
-- name: stock
-  max-item-count: 71360000
-  generator:
-    node: redis.randomMember("nodes")
-    sku: sequence.next("sku",20000,"%09d")
-    brand: number.digits(1)
-    onhand: number.randomNumber(2, false)
-    hold: number.randomNumber(2, false)
-    reserved: number.randomNumber(2, false)
-    allocated: number.randomNumber(2, false)
-    backordered: number.randomNumber(2, false)
-    excluded: number.randomNumber(2, false)
-  keys: node, sku
-  indexes:
-  - name: skus
-    type: set
-    keys: node
-    fields: sku
-  - name: skus
-    type: set
-    fields: sku    
 - name: node
   max-item-count: 3568
   keys: DC_ID
@@ -64,3 +43,24 @@ entities:
     type: set
     keys: pobox
     fields: DC_ID
+- name: stock
+  max-item-count: 71360000
+  generator:
+    node: redis.randomMember("nodes")
+    sku: sequence.next("sku",20000,"%09d")
+    brand: number.digits(1)
+    onhand: number.randomNumber(2, false)
+    hold: number.randomNumber(2, false)
+    reserved: number.randomNumber(2, false)
+    allocated: number.randomNumber(2, false)
+    backordered: number.randomNumber(2, false)
+    excluded: number.randomNumber(2, false)
+  keys: node, sku
+  indexes:
+  - name: skus
+    type: set
+    keys: node
+    fields: sku
+  - name: skus
+    type: set
+    fields: sku    
