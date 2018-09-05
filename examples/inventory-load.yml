@@ -1,7 +1,7 @@
 concurrent: false
 entities:
 - name: node
-  file: /Users/jruaux/ReDocuments/Customers/Gap ICM/GapLogInventoryForPOC/DC_Stores.csv
+  file: examples/gap/DC_Stores.csv
   file-config:
     header: true
   keys: DC_ID
@@ -13,7 +13,7 @@ entities:
     keys: GID_MKT_CD
     fields: DC_ID
 - name: node
-  file: /Users/jruaux/ReDocuments/Customers/Gap ICM/GapLogInventoryForPOC/DC_GEOADDR.csv
+  file: examples/gap/DC_GEOADDR.csv
   file-config:
     header: true
   keys: DC_ID
@@ -45,6 +45,8 @@ entities:
     fields: DC_ID
 - name: stock
   max-item-count: 71360000
+  max-threads: 16
+  chunk-size: 150
   generator:
     node: redis.randomMember("nodes")
     sku: sequence.next("sku",20000,"%09d")
