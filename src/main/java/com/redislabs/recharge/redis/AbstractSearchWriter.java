@@ -1,4 +1,4 @@
-package com.redislabs.recharge.redis.index;
+package com.redislabs.recharge.redis;
 
 import java.util.Map;
 
@@ -14,40 +14,42 @@ import com.redislabs.lettusearch.index.NumericField;
 import com.redislabs.lettusearch.index.Schema;
 import com.redislabs.lettusearch.index.Schema.SchemaBuilder;
 import com.redislabs.lettusearch.index.TextField;
-import com.redislabs.recharge.RechargeConfiguration.EntityConfiguration;
-import com.redislabs.recharge.RechargeConfiguration.IndexConfiguration;
+import com.redislabs.recharge.RechargeConfiguration.FTCommandConfiguration;
 import com.redislabs.recharge.RechargeConfiguration.RediSearchField;
 import com.redislabs.recharge.RechargeConfiguration.RediSearchFieldType;
+import com.redislabs.recharge.RechargeConfiguration.RedisWriterConfiguration;
+import com.redislabs.recharge.RechargeConfiguration.SearchConfiguration;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class SearchIndexWriter extends AbstractIndexWriter {
+public abstract class AbstractSearchWriter extends AbstractRedisWriter {
 
 	private RediSearchClient client;
 	private RediSearchCommands<String, String> commands;
+	private SearchConfiguration search;
 
-	public SearchIndexWriter(StringRedisTemplate template, EntityConfiguration entity, IndexConfiguration index,
-			RediSearchClient client) {
-		super(template, entity, index);
-		this.client = client;
+	public AbstractSearchWriter(StringRedisTemplate template, RedisWriterConfiguration writer,
+			RediSearchClient rediSearchClient) {
+		super(template, writer);
+		this.search = writer.getSearch();
+		this.client = rediSearchClient;
 	}
 
 	@Override
 	public void open(ExecutionContext executionContext) {
 		commands = client.connect().sync();
-		IndexConfiguration index = getConfig();
-		if (!index.getSchemaFields().isEmpty()) {
+		if (!search.getSchema().isEmpty()) {
 			SchemaBuilder builder = Schema.builder();
-			index.getSchemaFields().forEach(entry -> builder.field(getField(entry)));
-			if (index.isDrop()) {
+			search.getSchema().forEach(entry -> builder.field(getField(entry)));
+			if (search.isDrop()) {
 				try {
-					commands.drop(index.getName());
+					commands.drop(search.getIndex());
 				} catch (Exception e) {
-					log.debug("Could not drop index {}", index.getName(), e);
+					log.debug("Could not drop index {}", search.getIndex(), e);
 				}
 			}
-			commands.create(index.getName(), builder.build());
+			commands.create(search.getIndex(), builder.build());
 		}
 	}
 
@@ -70,16 +72,19 @@ public class SearchIndexWriter extends AbstractIndexWriter {
 	}
 
 	@Override
-	protected void writeIndex(StringRedisConnection conn, String key, String id, Map<String, Object> record) {
-		try {
-			commands.addHash(getConfig().getName(), key, 1);
-		} catch (Exception e) {
-			if ("Document already exists".equals(e.getMessage())) {
-				log.debug(e.getMessage());
-			} else {
-				log.error("Could not add document: {}", e.getMessage());
-			}
+	protected void write(StringRedisConnection conn, String key, Map<String, Object> record) {
+		write(commands, search.getIndex(), key, record);
+	}
+
+	protected abstract void write(RediSearchCommands<String, String> commands, String index, String key,
+			Map<String, Object> record);
+
+	protected double getScore(FTCommandConfiguration search, Map<String, Object> record) {
+		if (search.getScore() == null) {
+			return search.getDefaultScore();
 		}
+		return convert(record.get(search.getScore()), Double.class);
+
 	}
 
 }

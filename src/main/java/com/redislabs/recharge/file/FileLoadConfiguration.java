@@ -30,10 +30,12 @@ import org.springframework.util.ResourceUtils;
 
 import com.redislabs.recharge.MapFieldSetMapper;
 import com.redislabs.recharge.RechargeConfiguration;
-import com.redislabs.recharge.RechargeException;
-import com.redislabs.recharge.RechargeConfiguration.EntityConfiguration;
-import com.redislabs.recharge.RechargeConfiguration.FileConfiguration;
+import com.redislabs.recharge.RechargeConfiguration.DelimitedFileConfiguration;
+import com.redislabs.recharge.RechargeConfiguration.FileReaderConfiguration;
 import com.redislabs.recharge.RechargeConfiguration.FileType;
+import com.redislabs.recharge.RechargeConfiguration.FixedLengthFileConfiguration;
+import com.redislabs.recharge.RechargeConfiguration.FlatFileConfiguration;
+import com.redislabs.recharge.RechargeConfiguration.JsonFileConfiguration;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -52,15 +54,11 @@ public class FileLoadConfiguration {
 
 	private BufferedReaderFactory bufferedReaderFactory = new DefaultBufferedReaderFactory();
 
-	private FlatFileItemReaderBuilder<Map<String, Object>> getFlatFileReaderBuilder(EntityConfiguration entity)
-			throws IOException {
+	private FlatFileItemReaderBuilder<Map<String, Object>> getFlatFileReaderBuilder(FileReaderConfiguration reader,
+			FlatFileConfiguration fileConfig) throws IOException {
 		FlatFileItemReaderBuilder<Map<String, Object>> builder = new FlatFileItemReaderBuilder<>();
-		Resource resource = getResource(entity);
+		Resource resource = getResource(reader);
 		builder.resource(resource);
-		if (entity.getName() == null) {
-			entity.setName(getFileBaseName(resource));
-		}
-		FileConfiguration fileConfig = entity.getFileConfig();
 		if (fileConfig.getEncoding() != null) {
 			builder.encoding(fileConfig.getEncoding());
 		}
@@ -74,9 +72,9 @@ public class FileLoadConfiguration {
 		return builder;
 	}
 
-	private Resource getResource(EntityConfiguration entity) throws IOException {
-		Resource resource = getResource(entity.getFile());
-		if (isGzip(entity)) {
+	private Resource getResource(FileReaderConfiguration reader) throws IOException {
+		Resource resource = getResource(reader.getPath());
+		if (isGzip(reader)) {
 			return getGZipResource(resource);
 		}
 		return resource;
@@ -89,12 +87,12 @@ public class FileLoadConfiguration {
 		return new FileSystemResource(path);
 	}
 
-	private boolean isGzip(EntityConfiguration entity) {
-		if (entity.getFileConfig().getGzip() == null) {
-			String gz = getFilenameGroup(entity.getFile(), FILE_GZ);
+	private boolean isGzip(FileReaderConfiguration reader) {
+		if (reader.getGzip() == null) {
+			String gz = getFilenameGroup(reader.getPath(), FILE_GZ);
 			return gz != null && gz.length() > 0;
 		}
-		return entity.getFileConfig().getGzip();
+		return reader.getGzip();
 	}
 
 	private String getFilenameGroup(String path, String groupName) {
@@ -113,60 +111,61 @@ public class FileLoadConfiguration {
 		return new InputStreamResource(new GZIPInputStream(resource.getInputStream()));
 	}
 
-	private FlatFileItemReader<Map<String, Object>> getDelimitedReader(EntityConfiguration entity) throws IOException {
-		FileConfiguration config = entity.getFileConfig();
-		FlatFileItemReaderBuilder<Map<String, Object>> builder = getFlatFileReaderBuilder(entity);
+	private FlatFileItemReader<Map<String, Object>> getDelimitedReader(FileReaderConfiguration readerConfig)
+			throws IOException {
+		DelimitedFileConfiguration delimited = readerConfig.getDelimited();
+		FlatFileItemReaderBuilder<Map<String, Object>> builder = getFlatFileReaderBuilder(readerConfig, delimited);
 		DelimitedBuilder<Map<String, Object>> delimitedBuilder = builder.delimited();
-		if (config.getDelimiter() != null) {
-			delimitedBuilder.delimiter(config.getDelimiter());
+		if (delimited.getDelimiter() != null) {
+			delimitedBuilder.delimiter(delimited.getDelimiter());
 		}
-		if (config.getIncludedFields() != null) {
-			delimitedBuilder.includedFields(config.getIncludedFields());
+		if (delimited.getIncludedFields() != null) {
+			delimitedBuilder.includedFields(delimited.getIncludedFields());
 		}
-		if (config.getQuoteCharacter() != null) {
-			delimitedBuilder.quoteCharacter(config.getQuoteCharacter());
+		if (delimited.getQuoteCharacter() != null) {
+			delimitedBuilder.quoteCharacter(delimited.getQuoteCharacter());
 		}
-		String[] fieldNames = entity.getFields();
-		if (config.isHeader()) {
-			Resource resource = getResource(entity);
+		String[] fieldNames = delimited.getFields();
+		if (delimited.isHeader()) {
+			Resource resource = getResource(readerConfig);
 			try {
-				BufferedReader reader = bufferedReaderFactory.create(resource, config.getEncoding());
+				BufferedReader reader = bufferedReaderFactory.create(resource, delimited.getEncoding());
 				DelimitedLineTokenizer tokenizer = new DelimitedLineTokenizer();
-				if (config.getDelimiter() != null) {
-					tokenizer.setDelimiter(config.getDelimiter());
+				if (delimited.getDelimiter() != null) {
+					tokenizer.setDelimiter(delimited.getDelimiter());
 				}
-				if (config.getQuoteCharacter() != null) {
-					tokenizer.setQuoteCharacter(config.getQuoteCharacter());
+				if (delimited.getQuoteCharacter() != null) {
+					tokenizer.setQuoteCharacter(delimited.getQuoteCharacter());
 				}
 				String line = reader.readLine();
 				FieldSet fields = tokenizer.tokenize(line);
 				fieldNames = fields.getValues();
 				log.info("Found header {}", Arrays.toString(fieldNames));
 			} catch (Exception e) {
-				log.error("Could not read header for file {}", entity.getFile(), e);
+				log.error("Could not read header for file {}", readerConfig.getPath(), e);
 			}
 		}
 		delimitedBuilder.names(fieldNames);
 		return builder.build();
 	}
 
-	private FlatFileItemReader<Map<String, Object>> getFixedLengthReader(EntityConfiguration entity)
+	private FlatFileItemReader<Map<String, Object>> getFixedLengthReader(FileReaderConfiguration reader)
 			throws IOException {
-		FileConfiguration config = entity.getFileConfig();
-		FlatFileItemReaderBuilder<Map<String, Object>> builder = getFlatFileReaderBuilder(entity);
+		FixedLengthFileConfiguration fixedLength = reader.getFixedLength();
+		FlatFileItemReaderBuilder<Map<String, Object>> builder = getFlatFileReaderBuilder(reader, fixedLength);
 		FixedLengthBuilder<Map<String, Object>> fixedLengthBuilder = builder.fixedLength();
-		if (config.getRanges() != null) {
-			fixedLengthBuilder.columns(getRanges(config.getRanges()));
+		if (fixedLength.getRanges() != null) {
+			fixedLengthBuilder.columns(getRanges(fixedLength.getRanges()));
 		}
-		if (config.getStrict() != null) {
-			fixedLengthBuilder.strict(config.getStrict());
+		if (fixedLength.getStrict() != null) {
+			fixedLengthBuilder.strict(fixedLength.getStrict());
 		}
-		fixedLengthBuilder.names(entity.getFields());
+		fixedLengthBuilder.names(fixedLength.getFields());
 		return builder.build();
 	}
 
-	private String getFileBaseName(Resource resource) {
-		String filename = resource.getFilename();
+	public String getBaseName(FileReaderConfiguration config) {
+		String filename = new File(config.getPath()).getName();
 		int extensionIndex = filename.lastIndexOf(".");
 		if (extensionIndex == -1) {
 			return filename;
@@ -187,30 +186,46 @@ public class FileLoadConfiguration {
 		return new Range(Integer.parseInt(split[0]), Integer.parseInt(split[1]));
 	}
 
-	private FileType guessFileType(String path) {
-		String extension = getFilenameGroup(path, FILE_EXTENSION);
-		if (extension == null) {
-			log.warn("Could not determine file type from path {}", path);
+	public AbstractItemCountingItemStreamItemReader<Map<String, Object>> getReader(FileReaderConfiguration reader)
+			throws IOException {
+		if (reader.getDelimited() != null) {
+			return getDelimitedReader(reader);
 		}
-		log.debug("Found file extension '{}' for path {}", extension, path);
-		return rechargeConfig.getFileTypes().getOrDefault(extension, FileType.Delimited);
+		if (reader.getFixedLength() != null) {
+			return getFixedLengthReader(reader);
+		}
+		if (reader.getJson() != null) {
+			return getJsonReader(reader);
+		}
+		String extension = getFilenameGroup(reader.getPath(), FILE_EXTENSION);
+		if (extension != null) {
+			log.debug("Found file extension '{}' for path {}", extension, reader.getPath());
+			FileType fileType = rechargeConfig.getFileTypes().get(extension);
+			if (fileType != null) {
+				switch (fileType) {
+				case Delimited:
+					reader.setDelimited(new DelimitedFileConfiguration());
+					return getDelimitedReader(reader);
+				case FixedLength:
+					reader.setFixedLength(new FixedLengthFileConfiguration());
+					return getFixedLengthReader(reader);
+				case Json:
+					reader.setJson(new JsonFileConfiguration());
+					return getJsonReader(reader);
+				default:
+					throw new IOException("File type " + fileType + " not yet supported");
+				}
+			}
+		}
+		throw new IOException("Could not determine file type from path " + reader.getPath());
 	}
 
-	public AbstractItemCountingItemStreamItemReader<Map<String, Object>> getReader(EntityConfiguration entity)
-			throws IOException, RechargeException {
-		FileConfiguration fileConfig = entity.getFileConfig();
-		if (fileConfig.getType() == null) {
-			fileConfig.setType(guessFileType(entity.getFile()));
+	private AbstractItemCountingItemStreamItemReader<Map<String, Object>> getJsonReader(
+			FileReaderConfiguration reader) {
+		JsonItemReader jsonItemReader = new JsonItemReader();
+		if (reader.getJson().getKey() != null) {
+			jsonItemReader.setKeyName(reader.getJson().getKey());
 		}
-		switch (fileConfig.getType()) {
-		case Delimited:
-			return getDelimitedReader(entity);
-		case FixedLength:
-			return getFixedLengthReader(entity);
-		case Json:
-			return new JsonItemReader();
-		default:
-			throw new RechargeException("No reader found for file " + entity.getFile());
-		}
+		return jsonItemReader;
 	}
 }

@@ -11,6 +11,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Configuration
 @ConfigurationProperties(prefix = "")
@@ -20,38 +21,196 @@ public class RechargeConfiguration {
 
 	boolean concurrent = true;
 	boolean flushall = false;
-	List<EntityConfiguration> entities = new ArrayList<>();
+	long flushallWait = 5000;
+	List<FlowConfiguration> flows = new ArrayList<>();
 	Map<String, FileType> fileTypes = new LinkedHashMap<>();
 
 	@Data
-	public static class EntityConfiguration {
-		String name;
-		int chunkSize = 50;
-		String[] keys;
-		Command command = new Command();
-		String[] fields;
-		int maxItemCount = 10000;
+	public static class FlowConfiguration {
 		int maxThreads = 1;
-		List<IndexConfiguration> indexes = new ArrayList<>();
-		ValueFormat format = ValueFormat.Json;
-		String file;
-		FileConfiguration fileConfig;
-		Map<String, String> generator = new LinkedHashMap<>();
-		String fakerLocale = "en-US";
+		int chunkSize = 50;
+		int maxItemCount = 10000;
+		GeneratorReaderConfiguration generator;
+		FileReaderConfiguration file;
+		Map<String, String> processor;
+		List<WriterConfiguration> writers;
 	}
 
 	@Data
-	public static class IndexConfiguration {
-		String name;
-		IndexType type = IndexType.Set;
+	public static class FileReaderConfiguration {
+		String path;
+		Boolean gzip;
+		DelimitedFileConfiguration delimited;
+		FixedLengthFileConfiguration fixedLength;
+		JsonFileConfiguration json;
+	}
+
+	@Data
+	public static class JsonFileConfiguration {
+		String key;
+	}
+
+	@Data
+	public static class FlatFileConfiguration {
+		String encoding = FlatFileItemReader.DEFAULT_CHARSET;
+		boolean header = false;
+		int linesToSkip = 0;
+		String[] fields = new String[0];
+	}
+
+	@Data
+	@EqualsAndHashCode(callSuper = true)
+	public static class DelimitedFileConfiguration extends FlatFileConfiguration {
+		String delimiter;
+		Integer[] includedFields;
+		Character quoteCharacter;
+	}
+
+	@Data
+	@EqualsAndHashCode(callSuper = true)
+	public static class FixedLengthFileConfiguration extends FlatFileConfiguration {
+		String[] ranges = new String[0];
+		Boolean strict;
+	}
+
+	@Data
+	public static class GeneratorReaderConfiguration {
+		Map<String, String> fields = new LinkedHashMap<>();
+		String locale = "en-US";
+	}
+
+	@Data
+	public static class WriterConfiguration {
+		RedisWriterConfiguration redis;
+	}
+
+	@Data
+	public static class RedisWriterConfiguration {
+		String keyspace;
 		String[] keys;
-		String[] fields;
+		GeoConfiguration geo;
+		SearchConfiguration search;
+		SuggestConfiguration suggest;
+		ZSetConfiguration zset;
+		StringConfiguration string;
+		PushConfiguration list;
+		SetConfiguration set;
+		HashConfiguration hash;
+		NilConfiguration nil;
+	}
+
+	@Data
+	public static class NilConfiguration {
+		long sleepInMillis = 0;
+	}
+
+	@Data
+	public static class SuggestConfiguration {
+		String field;
 		String score;
+		double defaultScore = 1d;
+	}
+
+	public static enum Command {
+		Nil, Set, SAdd, HMSet, HIncrBy, GeoAdd, FtAdd, FtSugAdd, LPush, Zadd
+	}
+
+	@Data
+	public static class HashConfiguration {
+		String[] includeFields;
+		HIncrByConfiguration incrBy;
+	}
+
+	@Data
+	public static class HIncrByConfiguration {
+		String sourceField;
+		String targetField;
+	}
+
+	@Data
+	public static class StringConfiguration {
+		XmlConfiguration xml;
+		JsonConfiguration json;
+	}
+
+	@Data
+	public static class XmlConfiguration {
+		String rootName;
+	}
+
+	@Data
+	public static class JsonConfiguration {
+		String dummy;
+	}
+
+	@Data
+	@EqualsAndHashCode(callSuper = true)
+	public static class ZSetConfiguration extends CollectionRedisWriterConfiguration {
+		String score;
+		double defaultScore = 1d;
+	}
+
+	@Data
+	public static class SearchConfiguration {
+		String index;
+		boolean drop;
+		List<RediSearchField> schema = new ArrayList<>();
+		FTAddConfiguration add = new FTAddConfiguration();
+		FTAddHashConfiguration addHash;
+	}
+
+	@Data
+	public static class FTCommandConfiguration {
+		String language;
+		String score;
+		double defaultScore = 1d;
+	}
+
+	@Data
+	@EqualsAndHashCode(callSuper = true)
+	public static class FTAddHashConfiguration extends FTCommandConfiguration {
+
+	}
+
+	@Data
+	@EqualsAndHashCode(callSuper = false)
+	public static class FTAddConfiguration extends FTCommandConfiguration {
+		boolean noSave;
+	}
+
+	@Data
+	public static class SearchCommandConfiguration {
+		String language;
+		String score;
+		double defaultScore = 1d;
+		boolean noSave;
+	}
+
+	public static enum SearchAddCommand {
+		Document, Hash
+	}
+
+	@Data
+	public static class CollectionRedisWriterConfiguration {
+		String[] fields;
+	}
+
+	@Data
+	@EqualsAndHashCode(callSuper = true)
+	public static class GeoConfiguration extends CollectionRedisWriterConfiguration {
 		String longitude;
 		String latitude;
-		List<RediSearchField> schemaFields = new ArrayList<>();
-		boolean drop;
-		String suggestion;
+	}
+
+	@Data
+	@EqualsAndHashCode(callSuper = true)
+	public static class PushConfiguration extends CollectionRedisWriterConfiguration {
+	}
+
+	@Data
+	@EqualsAndHashCode(callSuper = true)
+	public static class SetConfiguration extends CollectionRedisWriterConfiguration {
+
 	}
 
 	@Data
@@ -68,35 +227,6 @@ public class RechargeConfiguration {
 
 	public static enum IndexType {
 		Set, Zset, List, Geo, Search, Suggestion
-	}
-
-	@Data
-	public static class Command {
-		CommandType type = CommandType.Hmset;
-		String sourceField = "delta";
-		String targetField = "onhand";
-	}
-
-	public static enum CommandType {
-		Nil, Set, Hmset, Hincrby
-	}
-
-	public static enum ValueFormat {
-		Xml, Json
-	}
-
-	@Data
-	public static class FileConfiguration {
-		Boolean gzip;
-		String encoding = FlatFileItemReader.DEFAULT_CHARSET;
-		boolean header = false;
-		int linesToSkip = 0;
-		FileType type;
-		String delimiter;
-		Integer[] includedFields;
-		Character quoteCharacter;
-		String[] ranges;
-		Boolean strict;
 	}
 
 	public static enum FileType {

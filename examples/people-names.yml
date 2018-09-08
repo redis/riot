@@ -1,10 +1,9 @@
-entities:
-- name: people
-  keys: id
-  generator:
-    id: number.randomNumber
-    name: name.name
-  indexes:
-  - name: nameSuggestion
-    type: suggestion
-    suggestion: name
+flows:
+- generator:
+    fields:
+      name: name.name
+  writers:
+  - redis:
+      keyspace: nameSuggestion
+      suggest:
+        field: name

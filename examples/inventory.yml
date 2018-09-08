@@ -1,0 +1,96 @@
+concurrent: false
+flows:
+- file:
+    path: examples/gap/DC_Stores.csv
+    delimited:
+      header: true
+  writers:
+  - redis:
+      keyspace: node
+      keys: DC_ID
+  - redis:
+      keyspace: nodes
+      set:
+        fields: DC_ID
+  - redis:
+      keyspace: '{market}'
+      keys: GID_MKT_CD
+      set:
+        fields: DC_ID
+- file:
+    path: examples/gap/DC_GEOADDR.csv
+    delimited:
+      header: true
+  processor:
+    location: in['LONGITUDE'].concat(',').concat(in['LATITUDE'])
+  writers:
+  - redis:
+      keyspace: node
+      keys: DC_ID
+  - redis:
+      keyspace: nodesgeo
+      geo:
+        fields: DC_ID
+        latitude: LATITUDE
+        longitude: LONGITUDE
+  - redis:
+      keyspace: node
+      keys: DC_ID
+      search:
+        index: nodesgeoIdx
+        schema:
+        - name: location
+          type: geo
+- generator:
+    fields:
+      DC_ID: redis.nextMember('nodes')
+      giftwrap: bool.bool
+      nextday: bool.bool
+      pobox: bool.bool
+  max-item-count: 3568
+  writers:
+  - redis:
+      keyspace: '{nodes}:giftwrap'
+      keys: giftwrap
+      set:
+        fields: DC_ID
+  - redis:
+      keyspace: '{nodes}:nextday'
+      keys: nextday
+      set:
+        fields: DC_ID
+  - redis:
+      keyspace: '{nodes}:pobox'
+      keys: pobox
+      set:
+        fields: DC_ID
+- max-item-count: 7136
+  max-threads: 16
+  chunk-size: 150
+  generator:
+    fields:
+      node: redis.randomMember('nodes')
+      sku: sequence.next('sku',20000,'%09d')
+      brand: number.digits(1)
+      onhand: number.randomNumber(2, false)
+      hold: number.randomNumber(2, false)
+      reserved: number.randomNumber(2, false)
+      allocated: number.randomNumber(2, false)
+      backordered: number.randomNumber(2, false)
+      excluded: number.randomNumber(2, false)
+  processor:
+    location: redis.opsForHash().get('node:'.concat(in['node']), 'location')
+    market: redis.opsForHash().get('node:'.concat(in['node']), 'GID_MKT_CD')
+  writers:
+  - redis:
+      keyspace: stock
+      keys: node, sku
+  - redis:
+      keyspace: skus
+      keys: node
+      set:
+        fields: sku
+  - redis:
+      keyspace: skus
+      set:
+        fields: sku

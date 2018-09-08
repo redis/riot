@@ -6,11 +6,11 @@ import java.util.Map;
 import org.springframework.data.redis.connection.StringRedisConnection;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
-import com.redislabs.recharge.RechargeConfiguration.EntityConfiguration;
+import com.redislabs.recharge.RechargeConfiguration.RedisWriterConfiguration;
 
-public class HashWriter extends AbstractEntityWriter {
+public class HMSetWriter extends AbstractRedisWriter {
 
-	public HashWriter(StringRedisTemplate template, EntityConfiguration entity) {
+	public HMSetWriter(StringRedisTemplate template, RedisWriterConfiguration entity) {
 		super(template, entity);
 	}
 

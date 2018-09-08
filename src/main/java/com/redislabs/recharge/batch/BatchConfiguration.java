@@ -3,6 +3,7 @@ package com.redislabs.recharge.batch;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
@@ -13,7 +14,9 @@ import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.job.builder.JobFlowBuilder;
 import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.core.step.builder.SimpleStepBuilder;
+import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
+import org.springframework.batch.item.support.CompositeItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
@@ -21,10 +24,15 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
 import com.redislabs.recharge.RechargeConfiguration;
-import com.redislabs.recharge.RechargeConfiguration.EntityConfiguration;
+import com.redislabs.recharge.RechargeConfiguration.FlowConfiguration;
+import com.redislabs.recharge.RechargeConfiguration.NilConfiguration;
+import com.redislabs.recharge.RechargeConfiguration.RedisWriterConfiguration;
+import com.redislabs.recharge.RechargeConfiguration.WriterConfiguration;
 import com.redislabs.recharge.RechargeException;
 import com.redislabs.recharge.file.FileLoadConfiguration;
 import com.redislabs.recharge.generator.GeneratorLoadConfig;
+import com.redislabs.recharge.redis.AbstractRedisWriter;
+import com.redislabs.recharge.redis.NilWriter;
 import com.redislabs.recharge.redis.RedisLoadConfiguration;
 
 import lombok.extern.slf4j.Slf4j;
@@ -57,36 +65,56 @@ public class BatchConfiguration {
 
 	private List<Flow> getLoadFlows() throws Exception {
 		if (rechargeConfig.isFlushall()) {
-			log.warn("***** FLUSHALL *****");
+			log.warn("***** FLUSHALL in {} millis *****", rechargeConfig.getFlushallWait());
+			Thread.sleep(rechargeConfig.getFlushallWait());
 			redisTemplate.getConnectionFactory().getConnection().flushAll();
 		}
 		List<Flow> flows = new ArrayList<>();
-		for (EntityConfiguration entityConfig : rechargeConfig.getEntities()) {
-			AbstractItemCountingItemStreamItemReader<Map<String, Object>> reader = getReader(entityConfig);
-			int entityPosition = rechargeConfig.getEntities().indexOf(entityConfig) + 1;
-			String entityId = entityPosition + "-" + entityConfig.getName();
-			reader.setName(entityId + "-load-reader");
-			if (entityConfig.getName() == null) {
-				entityConfig.setName("entity" + entityPosition);
-			}
-			if (entityConfig.getKeys() == null || entityConfig.getKeys().length == 0) {
-				entityConfig.setKeys(entityConfig.getFields());
-			}
-			SimpleStepBuilder<Map<String, Object>, Map<String, Object>> builder = stepFactory
-					.get(entityId + "-load-step")
-					.<Map<String, Object>, Map<String, Object>>chunk(entityConfig.getChunkSize());
+		for (FlowConfiguration flow : rechargeConfig.getFlows()) {
+			int flowPosition = rechargeConfig.getFlows().indexOf(flow) + 1;
+			String flowName = "loadflow" + flowPosition;
+			String stepName = flowName + "-step";
+			SimpleStepBuilder<Map<String, Object>, Map<String, Object>> builder = stepFactory.get(stepName)
+					.<Map<String, Object>, Map<String, Object>>chunk(flow.getChunkSize());
 			builder.listener(stepListener);
-			builder.listener(new MeteredItemWriteListener("redis-writer", entityId, metering));
-			if (entityConfig.getMaxItemCount() > 0) {
-				reader.setMaxItemCount(entityConfig.getMaxItemCount());
+			builder.listener(new MeteredItemWriteListener("redis-writer", flowName, metering));
+			AbstractItemCountingItemStreamItemReader<Map<String, Object>> reader = getReader(flow);
+			if (flow.getMaxItemCount() > 0) {
+				reader.setMaxItemCount(flow.getMaxItemCount());
 			}
+			reader.setName(flowName + "-reader");
 			builder.reader(reader);
-			builder.writer(redisLoadConfig.getWriter(entityConfig));
-			builder.taskExecutor(getTaskExecutor(entityConfig.getMaxThreads()));
-			builder.throttleLimit(entityConfig.getMaxThreads() * 2);
-			flows.add(new FlowBuilder<Flow>(entityId + "-load-flow").from(builder.build()).end());
+			if (flow.getProcessor() != null) {
+				builder.processor(getProcessor(flow.getProcessor()));
+			}
+			builder.writer(getWriter(flow.getWriters()));
+			builder.taskExecutor(getTaskExecutor(flow.getMaxThreads()));
+			builder.throttleLimit(flow.getMaxThreads() * 2);
+			flows.add(new FlowBuilder<Flow>(flowName).from(builder.build()).end());
 		}
 		return flows;
+	}
+
+	private SpelProcessor getProcessor(Map<String, String> processor) {
+		return new SpelProcessor(redisTemplate, processor);
+	}
+
+	private ItemWriter<? super Map<String, Object>> getWriter(List<WriterConfiguration> writers) {
+		if (writers.size() == 0) {
+			RedisWriterConfiguration config = new RedisWriterConfiguration();
+			config.setNil(new NilConfiguration());
+			return new NilWriter(redisTemplate, config);
+		}
+		if (writers.size() == 1) {
+			return getRedisWriter(writers.get(0));
+		}
+		CompositeItemWriter<Map<String, Object>> composite = new CompositeItemWriter<>();
+		composite.setDelegates(writers.stream().map(writer -> getRedisWriter(writer)).collect(Collectors.toList()));
+		return composite;
+	}
+
+	private AbstractRedisWriter getRedisWriter(WriterConfiguration writer) {
+		return redisLoadConfig.getWriter(writer.getRedis());
 	}
 
 	private Job getJob(String name, List<Flow> flows) {
@@ -112,13 +140,13 @@ public class BatchConfiguration {
 		return executor;
 	}
 
-	private AbstractItemCountingItemStreamItemReader<Map<String, Object>> getReader(EntityConfiguration entity)
+	private AbstractItemCountingItemStreamItemReader<Map<String, Object>> getReader(FlowConfiguration flow)
 			throws Exception {
-		if (entity.getGenerator() != null && entity.getGenerator().size() > 0) {
-			return generatorLoadConfig.getReader(entity);
+		if (flow.getGenerator() != null) {
+			return generatorLoadConfig.getReader(flow.getGenerator());
 		}
-		if (entity.getFile() != null) {
-			return fileLoadConfig.getReader(entity);
+		if (flow.getFile() != null) {
+			return fileLoadConfig.getReader(flow.getFile());
 		}
 		throw new RechargeException("No entity type configured");
 	}

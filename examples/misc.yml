@@ -1,36 +1,38 @@
-max-item-count: 1000
-entities:
-- name: rockBands
-  type: nil  
-  generator:
-    name: rockBand.name
-  indexes:
-  - name: rockBands
-    type: suggestion
-    suggestion: name
-- name: beers
-  type: nil  
-  generator:
-    name: beer.name
-    style: beer.style
-    hop: beer.hop
-  indexes:
-  - name: beerNames
-    type: suggestion
-    suggestion: name
-  - name: beerStyles
-    type: suggestion
-    suggestion: style
-  - name: beerHops
-    type: suggestion
-    suggestion: hop
-- name: chuckNorris
-  generator:
-    fact: chuckNorris.fact
-  indexes:
-  - name: chuckNorrisFacts
-    type: search
-    drop: true
-    schema:
-      fact:
-        type: text
+flows:
+- generator:
+    fields:
+      name: rockBand.name
+  writers:
+  - redis:
+      keyspace: rockBands
+      suggest:
+        field: name
+- generator:
+    fields:
+      name: beer.name
+      style: beer.style
+      hop: beer.hop
+  writers:
+  - redis:
+      keyspace: beers
+      suggest:
+        field: name
+  - redis:
+      keyspace: beerStyles
+      suggest:
+        field: style
+  - redis:
+      keyspace: beerHops
+      suggest:
+        field: hop
+- generator:
+    fields:
+      fact: chuckNorris.fact
+  writers:
+  - redis:
+      keyspace: chuckNorrisFacts
+      search:
+        drop: true
+        schema:
+        - name: fact
+          type: text

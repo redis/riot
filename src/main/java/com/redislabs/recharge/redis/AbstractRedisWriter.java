@@ -15,6 +15,8 @@ import org.springframework.data.redis.connection.StringRedisConnection;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
+import com.redislabs.recharge.RechargeConfiguration.RedisWriterConfiguration;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -24,16 +26,17 @@ public abstract class AbstractRedisWriter extends AbstractItemStreamItemWriter<M
 
 	private ConversionService converter = new DefaultConversionService();
 	private StringRedisTemplate template;
-	private String keyspace;
-	private String[] keyFields;
+	private RedisWriterConfiguration config;
 
-	protected AbstractRedisWriter(StringRedisTemplate template, String keyspace, String[] keyFields) {
+	protected AbstractRedisWriter(StringRedisTemplate template, RedisWriterConfiguration config) {
 		this.template = template;
-		this.keyspace = keyspace;
-		this.keyFields = keyFields;
+		this.config = config;
 	}
 
 	protected String getValues(Map<String, Object> record, String[] fields) {
+		if (fields == null) {
+			return null;
+		}
 		String[] values = new String[fields.length];
 		Arrays.setAll(values, index -> convert(record.get(fields[index]), String.class));
 		return join(values);
@@ -58,8 +61,9 @@ public abstract class AbstractRedisWriter extends AbstractItemStreamItemWriter<M
 				public Object doInRedis(RedisConnection connection) throws DataAccessException {
 					StringRedisConnection conn = (StringRedisConnection) connection;
 					for (Map<String, Object> record : records) {
-						String id = getValues(record, keyFields);
-						write(conn, keyspace, id, record);
+						String id = getValues(record, config.getKeys());
+						String key = getKey(config.getKeyspace(), id);
+						write(conn, key, record);
 					}
 					return null;
 				}
@@ -73,6 +77,13 @@ public abstract class AbstractRedisWriter extends AbstractItemStreamItemWriter<M
 		}
 	}
 
-	protected abstract void write(StringRedisConnection conn, String keyspace, String id, Map<String, Object> record);
+	private String getKey(String keyspace, String id) {
+		if (id == null) {
+			return keyspace;
+		}
+		return join(keyspace, id);
+	}
+
+	protected abstract void write(StringRedisConnection conn, String key, Map<String, Object> record);
 
 }
