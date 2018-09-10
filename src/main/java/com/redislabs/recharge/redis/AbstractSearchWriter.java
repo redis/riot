@@ -42,7 +42,13 @@ public abstract class AbstractSearchWriter extends AbstractRedisWriter {
 					log.debug("Could not drop index {}", search.getIndex(), e);
 				}
 			}
-			client.createIndex(schema, IndexOptions.Default());
+			if (search.isCreate()) {
+				try {
+					client.createIndex(schema, IndexOptions.Default());
+				} catch (Exception e) {
+					log.error("Could not create index {}", search.getIndex(), e);
+				}
+			}
 		}
 	}
 

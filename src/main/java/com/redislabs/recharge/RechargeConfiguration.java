@@ -161,6 +161,7 @@ public class RechargeConfiguration {
 	public static class SearchConfiguration {
 		String index;
 		boolean drop;
+		boolean create;
 		List<RediSearchField> schema = new ArrayList<>();
 		FTAddConfiguration add;
 		FTAddHashConfiguration addHash = new FTAddHashConfiguration();
