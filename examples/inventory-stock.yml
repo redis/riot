@@ -39,7 +39,7 @@ flows:
         drop: false
         create: true
         add:
-          no-save: false
+          no-save: true
         schema:
         - name: node
         - name: sku
@@ -134,7 +134,7 @@ flows:
         create: true
         drop: false
         add:
-          no-save: false
+          no-save: true
         schema:
         - name: node
         - name: sku

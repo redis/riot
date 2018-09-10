@@ -46,7 +46,11 @@ public abstract class AbstractSearchWriter extends AbstractRedisWriter {
 				try {
 					client.createIndex(schema, IndexOptions.Default());
 				} catch (Exception e) {
-					log.error("Could not create index {}", search.getIndex(), e);
+					if (e.getMessage().startsWith("Index already exists")) {
+						log.debug("Ignored index {} creation fail", search.getIndex(), e);
+					} else {
+						log.error("Could not create index {}", search.getIndex(), e);
+					}
 				}
 			}
 		}
