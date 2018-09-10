@@ -4,13 +4,10 @@ import java.util.Map;
 
 import org.springframework.data.redis.core.StringRedisTemplate;
 
-import com.redislabs.lettusearch.RediSearchClient;
-import com.redislabs.lettusearch.RediSearchCommands;
-import com.redislabs.lettusearch.index.Document;
-import com.redislabs.lettusearch.index.Document.DocumentBuilder;
 import com.redislabs.recharge.RechargeConfiguration.FTAddConfiguration;
 import com.redislabs.recharge.RechargeConfiguration.RedisWriterConfiguration;
 
+import io.redisearch.client.Client;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -18,23 +15,16 @@ public class FTAddWriter extends AbstractSearchWriter {
 
 	private FTAddConfiguration add;
 
-	public FTAddWriter(StringRedisTemplate template, RedisWriterConfiguration writer,
-			RediSearchClient rediSearchClient) {
-		super(template, writer, rediSearchClient);
+	public FTAddWriter(StringRedisTemplate template, RedisWriterConfiguration writer, Client client) {
+		super(template, writer, client);
 		this.add = writer.getSearch().getAdd();
 	}
 
 	@Override
-	protected void write(RediSearchCommands<String, String> commands, String index, String key,
-			Map<String, Object> record) {
+	protected void write(Client client, String key, Map<String, Object> record) {
 		double score = getScore(add, record);
-		DocumentBuilder builder = Document.builder().id(key).fields(record).score(score);
-		if (add.getLanguage() != null) {
-			builder.language(add.getLanguage());
-		}
-		builder.noSave(add.isNoSave());
 		try {
-			commands.add(index, builder.build());
+			client.addDocument(key, score, record, add.isNoSave(), add.isReplace(), null);
 		} catch (Exception e) {
 			if ("Document already exists".equals(e.getMessage())) {
 				log.debug(e.getMessage());

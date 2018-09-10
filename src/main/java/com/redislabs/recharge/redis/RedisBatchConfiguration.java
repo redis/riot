@@ -4,16 +4,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
-import com.redislabs.lettusearch.RediSearchClient;
 import com.redislabs.recharge.RechargeConfiguration.RedisWriterConfiguration;
+
+import io.redisearch.client.Client;
 
 @Component
 public class RedisBatchConfiguration {
 
 	@Autowired
 	private StringRedisTemplate template;
+
 	@Autowired
-	private RediSearchClient rediSearchClient;
+	private RediSearchClientConfiguration searchClient;
 
 	public AbstractRedisWriter getWriter(RedisWriterConfiguration writer) {
 		if (writer.getNil() != null) {
@@ -29,13 +31,15 @@ public class RedisBatchConfiguration {
 			return new LPushWriter(template, writer);
 		}
 		if (writer.getSearch() != null) {
+			Client client = searchClient.getClient(writer.getSearch().getIndex());
 			if (writer.getSearch().getAdd() != null) {
-				return new FTAddWriter(template, writer, rediSearchClient);
+				return new FTAddWriter(template, writer, client);
 			}
-			return new FTAddHashWriter(template, writer, rediSearchClient);
+			return new FTAddHashWriter(template, writer, client);
 		}
 		if (writer.getSuggest() != null) {
-			return new SugAddWriter(template, writer, rediSearchClient);
+			Client client = searchClient.getClient(writer.getSearch().getIndex());
+			return new SugAddWriter(template, writer, client);
 		}
 		if (writer.getZset() != null) {
 			return new ZAddWriter(template, writer);

@@ -5,79 +5,69 @@ import java.util.Map;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.data.redis.connection.StringRedisConnection;
 import org.springframework.data.redis.core.StringRedisTemplate;
-
-import com.redislabs.lettusearch.RediSearchClient;
-import com.redislabs.lettusearch.RediSearchCommands;
-import com.redislabs.lettusearch.index.Field;
-import com.redislabs.lettusearch.index.GeoField;
-import com.redislabs.lettusearch.index.NumericField;
-import com.redislabs.lettusearch.index.Schema;
-import com.redislabs.lettusearch.index.Schema.SchemaBuilder;
-import com.redislabs.lettusearch.index.TextField;
 import com.redislabs.recharge.RechargeConfiguration.FTCommandConfiguration;
 import com.redislabs.recharge.RechargeConfiguration.RediSearchField;
 import com.redislabs.recharge.RechargeConfiguration.RediSearchFieldType;
 import com.redislabs.recharge.RechargeConfiguration.RedisWriterConfiguration;
 import com.redislabs.recharge.RechargeConfiguration.SearchConfiguration;
 
+import io.redisearch.Schema;
+import io.redisearch.Schema.Field;
+import io.redisearch.Schema.FieldType;
+import io.redisearch.client.Client;
+import io.redisearch.client.Client.IndexOptions;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public abstract class AbstractSearchWriter extends AbstractRedisWriter {
 
-	private RediSearchClient client;
-	private RediSearchCommands<String, String> commands;
+	private Client client;
 	private SearchConfiguration search;
 
-	public AbstractSearchWriter(StringRedisTemplate template, RedisWriterConfiguration writer,
-			RediSearchClient rediSearchClient) {
+	public AbstractSearchWriter(StringRedisTemplate template, RedisWriterConfiguration writer, Client client) {
 		super(template, writer);
 		this.search = writer.getSearch();
-		this.client = rediSearchClient;
+		this.client = client;
 	}
 
 	@Override
 	public void open(ExecutionContext executionContext) {
-		commands = client.connect().sync();
 		if (!search.getSchema().isEmpty()) {
-			SchemaBuilder builder = Schema.builder();
-			search.getSchema().forEach(entry -> builder.field(getField(entry)));
+			Schema schema = new Schema();
+			search.getSchema().forEach(entry -> schema.addField(getField(entry)));
 			if (search.isDrop()) {
 				try {
-					commands.drop(search.getIndex());
+					client.dropIndex();
 				} catch (Exception e) {
 					log.debug("Could not drop index {}", search.getIndex(), e);
 				}
 			}
-			commands.create(search.getIndex(), builder.build());
+			client.createIndex(schema, IndexOptions.Default());
 		}
 	}
 
 	private Field getField(RediSearchField fieldConfig) {
-		Field field = createField(fieldConfig.getName(), fieldConfig.getType());
-		field.setNoIndex(fieldConfig.isNoIndex());
-		field.setSortable(fieldConfig.isSortable());
-		return field;
+		return new Field(fieldConfig.getName(), getFieldType(fieldConfig.getType()), fieldConfig.isSortable(),
+				fieldConfig.isNoIndex());
 	}
 
-	private Field createField(String name, RediSearchFieldType type) {
+	private FieldType getFieldType(RediSearchFieldType type) {
 		switch (type) {
 		case Geo:
-			return new GeoField(name);
+			return FieldType.Geo;
 		case Numeric:
-			return new NumericField(name);
+			return FieldType.Numeric;
 		default:
-			return new TextField(name);
+			return FieldType.FullText;
 		}
 	}
 
 	@Override
 	protected void write(StringRedisConnection conn, String key, Map<String, Object> record) {
-		write(commands, search.getIndex(), key, record);
+		write(client, key, record);
 	}
 
-	protected abstract void write(RediSearchCommands<String, String> commands, String index, String key,
-			Map<String, Object> record);
+	protected abstract void write(Client client, String key, Map<String, Object> record);
 
 	protected double getScore(FTCommandConfiguration search, Map<String, Object> record) {
 		if (search.getScore() == null) {

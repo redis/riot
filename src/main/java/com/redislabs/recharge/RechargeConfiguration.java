@@ -115,6 +115,7 @@ public class RechargeConfiguration {
 		String field;
 		String score;
 		double defaultScore = 1d;
+		boolean increment;
 	}
 
 	public static enum Command {
@@ -170,12 +171,12 @@ public class RechargeConfiguration {
 		String language;
 		String score;
 		double defaultScore = 1d;
+		boolean replace;
 	}
 
 	@Data
 	@EqualsAndHashCode(callSuper = true)
 	public static class FTAddHashConfiguration extends FTCommandConfiguration {
-
 	}
 
 	@Data

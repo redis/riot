@@ -4,11 +4,10 @@ import java.util.Map;
 
 import org.springframework.data.redis.core.StringRedisTemplate;
 
-import com.redislabs.lettusearch.RediSearchClient;
-import com.redislabs.lettusearch.RediSearchCommands;
 import com.redislabs.recharge.RechargeConfiguration.FTAddHashConfiguration;
 import com.redislabs.recharge.RechargeConfiguration.RedisWriterConfiguration;
 
+import io.redisearch.client.Client;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -16,22 +15,16 @@ public class FTAddHashWriter extends AbstractSearchWriter {
 
 	private FTAddHashConfiguration addHash;
 
-	public FTAddHashWriter(StringRedisTemplate template, RedisWriterConfiguration writer,
-			RediSearchClient rediSearchClient) {
-		super(template, writer, rediSearchClient);
+	public FTAddHashWriter(StringRedisTemplate template, RedisWriterConfiguration writer, Client client) {
+		super(template, writer, client);
 		this.addHash = writer.getSearch().getAddHash();
 	}
 
 	@Override
-	protected void write(RediSearchCommands<String, String> commands, String index, String key,
-			Map<String, Object> record) {
+	protected void write(Client client, String key, Map<String, Object> record) {
 		double score = getScore(addHash, record);
 		try {
-			if (addHash.getLanguage() == null) {
-				commands.addHash(index, key, score);
-			} else {
-				commands.addHash(index, key, score, addHash.getLanguage());
-			}
+			client.addHash(key, score, addHash.isReplace());
 		} catch (Exception e) {
 			if ("Document already exists".equals(e.getMessage())) {
 				log.debug(e.getMessage());
