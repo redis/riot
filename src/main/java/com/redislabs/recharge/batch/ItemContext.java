@@ -2,7 +2,7 @@ package com.redislabs.recharge.batch;
 
 import java.util.Map;
 
-import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.connection.RedisConnection;
 
 import lombok.Builder;
 import lombok.Data;
@@ -11,6 +11,6 @@ import lombok.Data;
 @Builder
 public class ItemContext {
 
-	private StringRedisTemplate redis;
+	private RedisConnection redis;
 	private Map<String, Object> in;
 }

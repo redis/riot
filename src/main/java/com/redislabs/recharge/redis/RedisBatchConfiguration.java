@@ -8,7 +8,7 @@ import com.redislabs.lettusearch.RediSearchClient;
 import com.redislabs.recharge.RechargeConfiguration.RedisWriterConfiguration;
 
 @Component
-public class RedisLoadConfiguration {
+public class RedisBatchConfiguration {
 
 	@Autowired
 	private StringRedisTemplate template;

@@ -16,3 +16,4 @@ buildNumber.properties
 /.classpath
 /.factorypath
 /.project
+.DS_Store

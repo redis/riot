@@ -28,7 +28,6 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ResourceUtils;
 
-import com.redislabs.recharge.MapFieldSetMapper;
 import com.redislabs.recharge.RechargeConfiguration;
 import com.redislabs.recharge.RechargeConfiguration.DelimitedFileConfiguration;
 import com.redislabs.recharge.RechargeConfiguration.FileReaderConfiguration;
@@ -41,7 +40,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Component
 @Slf4j
-public class FileLoadConfiguration {
+public class FileBatchConfiguration {
 
 	private static final String FILE_BASENAME = "basename";
 	private static final String FILE_EXTENSION = "extension";

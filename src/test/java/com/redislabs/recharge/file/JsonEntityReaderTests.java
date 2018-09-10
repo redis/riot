@@ -62,55 +62,6 @@ public class JsonEntityReaderTests {
 		}
 	}
 
-//	private void testTemplate(String resourceString, String keyName) throws Exception {
-//		JacksonUnmarshaller unmarshaller = new JacksonUnmarshaller();
-//		unmarshaller.setObjectMapper(new ObjectMapper());
-//		JsonStreamItemReader<JsonStreamItemReaderTests.TestObject> itemReader = new JsonStreamItemReader<JsonStreamItemReaderTests.TestObject>();
-//		itemReader.setResource(new InputStreamResource(ClassLoader.class.getResourceAsStream(resourceString)));
-//		itemReader.setTargetClass(JsonStreamItemReaderTests.TestObject.class);
-//		itemReader.setUnmarshaller(unmarshaller);
-//		itemReader.setKeyName(keyName);
-//		itemReader.afterPropertiesSet();
-//		itemReader.doOpen();
-//
-//		TestObject testObject = itemReader.read();
-//		assertEquals(new Integer(1), testObject.getId());
-//		assertEquals("a", testObject.getString());
-//		assertEquals(new Double(0.012), testObject.getDoubleValue());
-//		assertEquals(true, testObject.getBooleanValue());
-//		List<TestObject> nestedTestObjects = testObject.getNestedTestObjectList();
-//		assertEquals(1, nestedTestObjects.size());
-//		TestObject nestedTestObject0 = nestedTestObjects.get(0);
-//		assertEquals(null, nestedTestObject0.getId());
-//		assertEquals("nested-a", nestedTestObject0.getString());
-//		assertEquals(null, nestedTestObject0.getDoubleValue());
-//		assertEquals(null, nestedTestObject0.getBooleanValue());
-//
-//		testObject = itemReader.read();
-//		assertEquals("\"b", testObject.getString());
-//		assertEquals(false, testObject.getBooleanValue());
-//		assertEquals(null, testObject.getNestedTestObjectList());
-//
-//		testObject = itemReader.read();
-//		assertEquals(null, testObject.getBooleanValue());
-//		assertEquals(null, testObject.getNestedTestObjectList());
-//	}
-
-//	@Test
-//	public void keyName() throws Exception {
-//		testTemplate("/com/redislabs/recharge/file/json/keyName.json", "arrayOfObjects");
-//	}
-//
-//	@Test
-//	public void noKeyName() throws Exception {
-//		testTemplate("/com/redislabs/recharge/file/json/noKeyName.json", null);
-//	}
-//
-//	@Test
-//	public void emptyKeyName() throws Exception {
-//		testTemplate("/com/redislabs/recharge/file/json/noKeyName.json", "");
-//	}
-
 	@Test
 	public void callData() throws Exception {
 		JacksonUnmarshaller unmarshaller = new JacksonUnmarshaller();

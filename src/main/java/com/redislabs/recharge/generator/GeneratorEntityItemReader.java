@@ -9,7 +9,7 @@ import java.util.Map.Entry;
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.support.DefaultConversionService;
-import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.connection.StringRedisConnection;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
@@ -22,17 +22,17 @@ public class GeneratorEntityItemReader extends AbstractItemCountingItemStreamIte
 	private EvaluationContext context;
 	private ConversionService conversionService = new DefaultConversionService();
 	private Map<String, Expression> expressions = new LinkedHashMap<>();
-	private StringRedisTemplate template;
+	private StringRedisConnection redis;
 
-	public GeneratorEntityItemReader(StringRedisTemplate template, String locale, Map<String, String> fields) {
-		this.template = template;
+	public GeneratorEntityItemReader(StringRedisConnection redis, String locale, Map<String, String> fields) {
+		this.redis = redis;
 		this.locale = locale;
 		this.fields = fields;
 	}
 
 	@Override
 	protected void doOpen() throws Exception {
-		this.context = new StandardEvaluationContext(new RechargeFaker(template, new Locale(locale)));
+		this.context = new StandardEvaluationContext(new GeneratorEvaluationContextRoot(redis, new Locale(locale)));
 		SpelExpressionParser parser = new SpelExpressionParser();
 		this.fields.entrySet()
 				.forEach(entry -> expressions.put(entry.getKey(), parser.parseExpression(entry.getValue())));

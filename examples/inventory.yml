@@ -22,7 +22,8 @@ flows:
     delimited:
       header: true
   processor:
-    location: in['LONGITUDE'].concat(',').concat(in['LATITUDE'])
+    fields:
+      location: in['LONGITUDE']?.concat(',')?.concat(in['LATITUDE'])
   writers:
   - redis:
       keyspace: node
@@ -37,13 +38,43 @@ flows:
       keyspace: node
       keys: DC_ID
       search:
-        index: nodesgeoIdx
+        index: nodesft
         schema:
+        - name: DC_ID
+        - name: GID_MKT_CD
+        - name: DC_CPCY_AMT
+          type: numeric
+          sortable: true
+        - name: DC_TYP_CD
+        - name: STR_DC_MAX_RLSE_ORD_PER_DY
+          type: numeric
+          sortable: true
+        - name: DC_STAT_TYP_CD
+        - name: DC_SUP_OFST_QTY
+          type: numeric
+          sortable: true
+        - name: ROLLUP_INVENTORY
+        - name: GID_DC_RESYNC_GRP
+        - name: DC_DESC
+        - name: GEO_POSITION_ID
+        - name: PREFERRED
+        - name: ISDEFAULT
+        - name: DC_INV_AVAL_TO_SELL
+        - name: PARENT_DC_ID
+        - name: ADDR_LN1_TXT
+        - name: ADDR_LN2_TXT
+        - name: ADDR_LN3_TXT
+        - name: CITY_NM
+        - name: CNTY_NM
+        - name: ST_PROV_CD
+        - name: PSTL_CD
+        - name: CTRY_CD
+        - name: PHN_NBR
         - name: location
           type: geo
 - generator:
     fields:
-      DC_ID: redis.nextMember('nodes')
+      DC_ID: redisSequence.nextMember('nodes')
       giftwrap: bool.bool
       nextday: bool.bool
       pobox: bool.bool
@@ -64,12 +95,12 @@ flows:
       keys: pobox
       set:
         fields: DC_ID
-- max-item-count: 7136
+- max-item-count: 71360
   max-threads: 16
   chunk-size: 150
   generator:
     fields:
-      node: redis.randomMember('nodes')
+      node: redis.sRandMember('nodes')
       sku: sequence.next('sku',20000,'%09d')
       brand: number.digits(1)
       onhand: number.randomNumber(2, false)
@@ -79,8 +110,9 @@ flows:
       backordered: number.randomNumber(2, false)
       excluded: number.randomNumber(2, false)
   processor:
-    location: redis.opsForHash().get('node:'.concat(in['node']), 'location')
-    market: redis.opsForHash().get('node:'.concat(in['node']), 'GID_MKT_CD')
+    map: redis.hGetAll('node:'.concat(in['node']))
+    fields:
+      location: redis.hGet('node:'.concat(in['node']), 'location')
   writers:
   - redis:
       keyspace: stock
@@ -94,3 +126,65 @@ flows:
       keyspace: skus
       set:
         fields: sku
+  - redis:
+      keyspace: stock
+      keys: node, sku
+      search:
+        index: stockft
+        add-hash:
+          default-score: 1d
+        schema:
+        - name: node
+        - name: sku
+        - name: brand
+          sortable: true
+        - name: onhand
+          type: numeric
+          sortable: true
+        - name: hold
+          type: numeric
+          sortable: true
+        - name: reserved
+          type: numeric
+          sortable: true
+        - name: allocated
+          type: numeric
+          sortable: true
+        - name: backordered
+          type: numeric
+          sortable: true
+        - name: excluded
+          type: numeric
+          sortable: true
+        - name: DC_ID
+        - name: GID_MKT_CD
+        - name: DC_CPCY_AMT
+          type: numeric
+          sortable: true
+        - name: DC_TYP_CD
+        - name: STR_DC_MAX_RLSE_ORD_PER_DY
+          type: numeric
+          sortable: true
+        - name: DC_STAT_TYP_CD
+        - name: DC_SUP_OFST_QTY
+          type: numeric
+          sortable: true
+        - name: ROLLUP_INVENTORY
+        - name: GID_DC_RESYNC_GRP
+        - name: DC_DESC
+        - name: GEO_POSITION_ID
+        - name: PREFERRED
+        - name: ISDEFAULT
+        - name: DC_INV_AVAL_TO_SELL
+        - name: PARENT_DC_ID
+        - name: ADDR_LN1_TXT
+        - name: ADDR_LN2_TXT
+        - name: ADDR_LN3_TXT
+        - name: CITY_NM
+        - name: CNTY_NM
+        - name: ST_PROV_CD
+        - name: PSTL_CD
+        - name: CTRY_CD
+        - name: PHN_NBR
+        - name: location
+          type: geo

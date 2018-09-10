@@ -36,7 +36,7 @@ public class FTAddHashWriter extends AbstractSearchWriter {
 			if ("Document already exists".equals(e.getMessage())) {
 				log.debug(e.getMessage());
 			} else {
-				log.error("Could not add document: {}", e.getMessage());
+				log.error("Could not add hash: {}", key, e);
 			}
 		}
 	}

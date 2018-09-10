@@ -32,8 +32,14 @@ public class RechargeConfiguration {
 		int maxItemCount = 10000;
 		GeneratorReaderConfiguration generator;
 		FileReaderConfiguration file;
-		Map<String, String> processor;
+		ProcessorConfiguration processor;
 		List<WriterConfiguration> writers;
+	}
+
+	@Data
+	public static class ProcessorConfiguration {
+		String map;
+		Map<String, String> fields;
 	}
 
 	@Data
@@ -155,8 +161,8 @@ public class RechargeConfiguration {
 		String index;
 		boolean drop;
 		List<RediSearchField> schema = new ArrayList<>();
-		FTAddConfiguration add = new FTAddConfiguration();
-		FTAddHashConfiguration addHash;
+		FTAddConfiguration add;
+		FTAddHashConfiguration addHash = new FTAddHashConfiguration();
 	}
 
 	@Data
@@ -216,7 +222,7 @@ public class RechargeConfiguration {
 	@Data
 	public static class RediSearchField {
 		String name;
-		RediSearchFieldType type;
+		RediSearchFieldType type = RediSearchFieldType.Text;
 		boolean sortable;
 		boolean noIndex;
 	}

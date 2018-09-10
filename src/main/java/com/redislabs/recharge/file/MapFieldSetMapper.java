@@ -1,4 +1,4 @@
-package com.redislabs.recharge;
+package com.redislabs.recharge.file;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,6 +15,9 @@ public class MapFieldSetMapper implements FieldSetMapper<Map<String, Object>> {
 		for (int index = 0; index < names.length; index++) {
 			String name = names[index];
 			String value = fieldSet.readString(index);
+			if (value == null || value.length() == 0) {
+				continue;
+			}
 			fields.put(name, value);
 		}
 		return fields;

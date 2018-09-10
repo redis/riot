@@ -20,20 +20,23 @@ import org.springframework.batch.item.support.CompositeItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
+import org.springframework.data.redis.connection.DefaultStringRedisConnection;
+import org.springframework.data.redis.connection.StringRedisConnection;
+import org.springframework.data.redis.core.RedisConnectionUtils;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
 import com.redislabs.recharge.RechargeConfiguration;
 import com.redislabs.recharge.RechargeConfiguration.FlowConfiguration;
 import com.redislabs.recharge.RechargeConfiguration.NilConfiguration;
+import com.redislabs.recharge.RechargeConfiguration.ProcessorConfiguration;
 import com.redislabs.recharge.RechargeConfiguration.RedisWriterConfiguration;
 import com.redislabs.recharge.RechargeConfiguration.WriterConfiguration;
-import com.redislabs.recharge.RechargeException;
-import com.redislabs.recharge.file.FileLoadConfiguration;
-import com.redislabs.recharge.generator.GeneratorLoadConfig;
+import com.redislabs.recharge.file.FileBatchConfiguration;
+import com.redislabs.recharge.generator.GeneratorBatchConfig;
 import com.redislabs.recharge.redis.AbstractRedisWriter;
 import com.redislabs.recharge.redis.NilWriter;
-import com.redislabs.recharge.redis.RedisLoadConfiguration;
+import com.redislabs.recharge.redis.RedisBatchConfiguration;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -49,11 +52,11 @@ public class BatchConfiguration {
 	@Autowired
 	private StepBuilderFactory stepFactory;
 	@Autowired
-	private FileLoadConfiguration fileLoadConfig;
+	private FileBatchConfiguration fileBatchConfig;
 	@Autowired
-	private GeneratorLoadConfig generatorLoadConfig;
+	private GeneratorBatchConfig generatorBatchConfig;
 	@Autowired
-	private RedisLoadConfiguration redisLoadConfig;
+	private RedisBatchConfiguration redisBatchConfig;
 	@Autowired
 	private StringRedisTemplate redisTemplate;
 	@Autowired
@@ -63,7 +66,7 @@ public class BatchConfiguration {
 	@Autowired
 	private MeteringProvider metering;
 
-	private List<Flow> getLoadFlows() throws Exception {
+	private List<Flow> getFlows() throws Exception {
 		if (rechargeConfig.isFlushall()) {
 			log.warn("***** FLUSHALL in {} millis *****", rechargeConfig.getFlushallWait());
 			Thread.sleep(rechargeConfig.getFlushallWait());
@@ -72,7 +75,7 @@ public class BatchConfiguration {
 		List<Flow> flows = new ArrayList<>();
 		for (FlowConfiguration flow : rechargeConfig.getFlows()) {
 			int flowPosition = rechargeConfig.getFlows().indexOf(flow) + 1;
-			String flowName = "loadflow" + flowPosition;
+			String flowName = "flow" + flowPosition;
 			String stepName = flowName + "-step";
 			SimpleStepBuilder<Map<String, Object>, Map<String, Object>> builder = stepFactory.get(stepName)
 					.<Map<String, Object>, Map<String, Object>>chunk(flow.getChunkSize());
@@ -95,8 +98,8 @@ public class BatchConfiguration {
 		return flows;
 	}
 
-	private SpelProcessor getProcessor(Map<String, String> processor) {
-		return new SpelProcessor(redisTemplate, processor);
+	private SpelProcessor getProcessor(ProcessorConfiguration processor) {
+		return new SpelProcessor(getRedisConnection(), processor);
 	}
 
 	private ItemWriter<? super Map<String, Object>> getWriter(List<WriterConfiguration> writers) {
@@ -114,11 +117,12 @@ public class BatchConfiguration {
 	}
 
 	private AbstractRedisWriter getRedisWriter(WriterConfiguration writer) {
-		return redisLoadConfig.getWriter(writer.getRedis());
+		return redisBatchConfig.getWriter(writer.getRedis());
 	}
 
-	private Job getJob(String name, List<Flow> flows) {
-		JobBuilder builder = jobBuilderFactory.get(name);
+	public Job getJob() throws Exception {
+		List<Flow> flows = getFlows();
+		JobBuilder builder = jobBuilderFactory.get("recharge-job");
 		builder.listener(jobListener);
 		if (rechargeConfig.isConcurrent()) {
 			Flow flow = new FlowBuilder<Flow>("split-flow").split(getTaskExecutor(flows.size()))
@@ -143,16 +147,17 @@ public class BatchConfiguration {
 	private AbstractItemCountingItemStreamItemReader<Map<String, Object>> getReader(FlowConfiguration flow)
 			throws Exception {
 		if (flow.getGenerator() != null) {
-			return generatorLoadConfig.getReader(flow.getGenerator());
+			return generatorBatchConfig.getReader(getRedisConnection(), flow.getGenerator());
 		}
 		if (flow.getFile() != null) {
-			return fileLoadConfig.getReader(flow.getFile());
+			return fileBatchConfig.getReader(flow.getFile());
 		}
-		throw new RechargeException("No entity type configured");
+		throw new Exception("No entity type configured");
 	}
 
-	public Job getLoadJob() throws Exception {
-		return getJob("load-job", getLoadFlows());
+	private StringRedisConnection getRedisConnection() {
+		return new DefaultStringRedisConnection(
+				RedisConnectionUtils.getConnection(redisTemplate.getConnectionFactory()));
 	}
 
 }

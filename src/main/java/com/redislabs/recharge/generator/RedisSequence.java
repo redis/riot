@@ -6,30 +6,26 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.connection.StringRedisConnection;
 
-public class RedisValueProvider {
+public class RedisSequence {
 
 	private Map<String, Integer> sequenceMap = new HashMap<>();
 	private Map<String, List<String>> membersMap = new HashMap<>();
 
-	private StringRedisTemplate template;
+	private StringRedisConnection redis;
 
-	public RedisValueProvider(StringRedisTemplate template) {
-		this.template = template;
+	public RedisSequence(StringRedisConnection redis) {
+		this.redis = redis;
 	}
 
-	public String randomMember(String key) {
-		return template.opsForSet().randomMember(key);
-	}
-
-	public Long size(String key) {
-		return template.opsForSet().size(key);
+	public StringRedisConnection getRedis() {
+		return redis;
 	}
 
 	public String nextMember(String key) {
 		if (!membersMap.containsKey(key)) {
-			Set<String> memberSet = template.opsForSet().members(key);
+			Set<String> memberSet = redis.sMembers(key);
 			ArrayList<String> members = new ArrayList<>(memberSet.size());
 			members.addAll(memberSet);
 			membersMap.put(key, members);
