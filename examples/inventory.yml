@@ -95,7 +95,7 @@ flows:
       keys: pobox
       set:
         fields: DC_ID
-- max-item-count: 71360
+- max-item-count: 71360000
   max-threads: 16
   chunk-size: 150
   generator:
