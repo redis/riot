@@ -39,6 +39,8 @@ flows:
       keys: DC_ID
       search:
         index: nodesft
+        add:
+          no-save: false
         schema:
         - name: DC_ID
         - name: GID_MKT_CD
@@ -131,8 +133,8 @@ flows:
       keys: node, sku
       search:
         index: stockft
-        add-hash:
-          default-score: 1d
+        add:
+          no-save: false
         schema:
         - name: node
         - name: sku
