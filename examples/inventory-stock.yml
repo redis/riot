@@ -1,7 +1,7 @@
 concurrent: true
 flows:
 - max-item-count: 50000000
-  max-threads: 4
+  max-threads: 12
   chunk-size: 150
   generator:
     fields:
@@ -96,7 +96,7 @@ flows:
         - name: location
           type: geo
 - max-item-count: 50000000
-  max-threads: 4
+  max-threads: 12
   chunk-size: 150
   generator:
     fields:
