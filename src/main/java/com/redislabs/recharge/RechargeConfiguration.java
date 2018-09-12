@@ -125,7 +125,7 @@ public class RechargeConfiguration {
 	@Data
 	public static class HashConfiguration {
 		String[] includeFields;
-		HIncrByConfiguration incrBy;
+		HIncrByConfiguration incrby;
 	}
 
 	@Data
@@ -163,27 +163,12 @@ public class RechargeConfiguration {
 		boolean drop;
 		boolean create;
 		List<RediSearchField> schema = new ArrayList<>();
-		FTAddConfiguration add;
-		FTAddHashConfiguration addHash = new FTAddHashConfiguration();
-	}
-
-	@Data
-	public static class FTCommandConfiguration {
 		String language;
 		String score;
 		double defaultScore = 1d;
 		boolean replace;
-	}
-
-	@Data
-	@EqualsAndHashCode(callSuper = true)
-	public static class FTAddHashConfiguration extends FTCommandConfiguration {
-	}
-
-	@Data
-	@EqualsAndHashCode(callSuper = false)
-	public static class FTAddConfiguration extends FTCommandConfiguration {
 		boolean noSave;
+		SearchAddCommand command = SearchAddCommand.Add;
 	}
 
 	@Data
@@ -195,7 +180,7 @@ public class RechargeConfiguration {
 	}
 
 	public static enum SearchAddCommand {
-		Document, Hash
+		Add, AddHash
 	}
 
 	@Data

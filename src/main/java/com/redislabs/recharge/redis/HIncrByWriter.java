@@ -14,7 +14,7 @@ public class HIncrByWriter extends AbstractRedisWriter {
 
 	public HIncrByWriter(StringRedisTemplate template, RedisWriterConfiguration entity) {
 		super(template, entity);
-		this.hincrby = entity.getHash().getIncrBy();
+		this.hincrby = entity.getHash().getIncrby();
 	}
 
 	@Override

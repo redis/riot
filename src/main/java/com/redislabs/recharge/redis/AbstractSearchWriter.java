@@ -5,7 +5,7 @@ import java.util.Map;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.data.redis.connection.StringRedisConnection;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import com.redislabs.recharge.RechargeConfiguration.FTCommandConfiguration;
+
 import com.redislabs.recharge.RechargeConfiguration.RediSearchField;
 import com.redislabs.recharge.RechargeConfiguration.RediSearchFieldType;
 import com.redislabs.recharge.RechargeConfiguration.RedisWriterConfiguration;
@@ -71,6 +71,10 @@ public abstract class AbstractSearchWriter extends AbstractRedisWriter {
 			return FieldType.FullText;
 		}
 	}
+	
+	public SearchConfiguration getSearch() {
+		return search;
+	}
 
 	@Override
 	protected void write(StringRedisConnection conn, String key, Map<String, Object> record) {
@@ -79,7 +83,7 @@ public abstract class AbstractSearchWriter extends AbstractRedisWriter {
 
 	protected abstract void write(Client client, String key, Map<String, Object> record);
 
-	protected double getScore(FTCommandConfiguration search, Map<String, Object> record) {
+	protected double getScore(Map<String, Object> record) {
 		if (search.getScore() == null) {
 			return search.getDefaultScore();
 		}
