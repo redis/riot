@@ -35,11 +35,9 @@ flows:
         latitude: LATITUDE
         longitude: LONGITUDE
   - redis:
-      keyspace: node
+      keyspace: nodesft
       keys: DC_ID
       search:
-        index: nodesft
-        create: true
         schema:
         - name: DC_ID
         - name: GID_MKT_CD
@@ -127,11 +125,9 @@ flows:
       set:
         fields: sku
   - redis:
-      keyspace: stock
+      keyspace: stockft
       keys: node, sku
       search:
-        index: stockft
-        create: true
         schema:
         - name: node
         - name: sku

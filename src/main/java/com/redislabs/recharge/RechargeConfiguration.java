@@ -159,9 +159,8 @@ public class RechargeConfiguration {
 
 	@Data
 	public static class SearchConfiguration {
-		String index;
-		boolean drop;
-		boolean create;
+		boolean drop = false;
+		boolean create = true;
 		List<RediSearchField> schema = new ArrayList<>();
 		String language;
 		String score;

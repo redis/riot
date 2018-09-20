@@ -37,7 +37,7 @@ public class RedisBatchConfiguration {
 			return new LPushWriter(template, writer);
 		}
 		if (writer.getSearch() != null) {
-			Client client = getRediSearchClient(writer.getSearch().getIndex());
+			Client client = getRediSearchClient(writer.getKeyspace());
 			switch (writer.getSearch().getCommand()) {
 			case AddHash:
 				return new FTAddHashWriter(template, writer, client);
@@ -46,7 +46,7 @@ public class RedisBatchConfiguration {
 			}
 		}
 		if (writer.getSuggest() != null) {
-			Client client = getRediSearchClient(writer.getSearch().getIndex());
+			Client client = getRediSearchClient(writer.getKeyspace());
 			return new SugAddWriter(template, writer, client);
 		}
 		if (writer.getZset() != null) {

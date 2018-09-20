@@ -20,7 +20,8 @@ public class FTAddWriter extends AbstractSearchWriter {
 	protected void write(Client client, String key, Map<String, Object> record) {
 		double score = getScore(record);
 		try {
-			client.addDocument(key, score, record, getSearch().isNoSave(), getSearch().isReplace(), null);
+			client.addDocument(key, score, record, getConfig().getSearch().isNoSave(),
+					getConfig().getSearch().isReplace(), null);
 		} catch (Exception e) {
 			if ("Document already exists".equals(e.getMessage())) {
 				log.debug(e.getMessage());

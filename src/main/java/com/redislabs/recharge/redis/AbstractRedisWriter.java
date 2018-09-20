@@ -32,7 +32,11 @@ public abstract class AbstractRedisWriter extends AbstractItemStreamItemWriter<M
 		this.template = template;
 		this.config = config;
 	}
-
+	
+	protected RedisWriterConfiguration getConfig() {
+		return config;
+	}
+	
 	protected String getValues(Map<String, Object> record, String[] fields) {
 		if (fields == null) {
 			return null;

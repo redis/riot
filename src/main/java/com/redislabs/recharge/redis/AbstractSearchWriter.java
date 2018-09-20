@@ -22,16 +22,15 @@ import lombok.extern.slf4j.Slf4j;
 public abstract class AbstractSearchWriter extends AbstractRedisWriter {
 
 	private Client client;
-	private SearchConfiguration search;
 
 	public AbstractSearchWriter(StringRedisTemplate template, RedisWriterConfiguration writer, Client client) {
 		super(template, writer);
-		this.search = writer.getSearch();
 		this.client = client;
 	}
 
 	@Override
 	public void open(ExecutionContext executionContext) {
+		SearchConfiguration search = getConfig().getSearch();
 		if (!search.getSchema().isEmpty()) {
 			Schema schema = new Schema();
 			search.getSchema().forEach(entry -> schema.addField(getField(entry)));
@@ -39,7 +38,7 @@ public abstract class AbstractSearchWriter extends AbstractRedisWriter {
 				try {
 					client.dropIndex();
 				} catch (Exception e) {
-					log.debug("Could not drop index {}", search.getIndex(), e);
+					log.debug("Could not drop index {}", getConfig().getKeyspace(), e);
 				}
 			}
 			if (search.isCreate()) {
@@ -47,9 +46,9 @@ public abstract class AbstractSearchWriter extends AbstractRedisWriter {
 					client.createIndex(schema, IndexOptions.Default());
 				} catch (Exception e) {
 					if (e.getMessage().startsWith("Index already exists")) {
-						log.debug("Ignored index {} creation fail", search.getIndex(), e);
+						log.debug("Ignored index {} creation fail", getConfig().getKeyspace(), e);
 					} else {
-						log.error("Could not create index {}", search.getIndex(), e);
+						log.error("Could not create index {}", getConfig().getKeyspace(), e);
 					}
 				}
 			}
@@ -71,10 +70,6 @@ public abstract class AbstractSearchWriter extends AbstractRedisWriter {
 			return FieldType.FullText;
 		}
 	}
-	
-	public SearchConfiguration getSearch() {
-		return search;
-	}
 
 	@Override
 	protected void write(StringRedisConnection conn, String key, Map<String, Object> record) {
@@ -84,10 +79,10 @@ public abstract class AbstractSearchWriter extends AbstractRedisWriter {
 	protected abstract void write(Client client, String key, Map<String, Object> record);
 
 	protected double getScore(Map<String, Object> record) {
-		if (search.getScore() == null) {
-			return search.getDefaultScore();
+		if (getConfig().getSearch().getScore() == null) {
+			return getConfig().getSearch().getDefaultScore();
 		}
-		return convert(record.get(search.getScore()), Double.class);
+		return convert(record.get(getConfig().getSearch().getScore()), Double.class);
 
 	}
 

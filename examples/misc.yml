@@ -30,7 +30,8 @@ flows:
       fact: chuckNorris.fact
   writers:
   - redis:
-      keyspace: chuckNorrisFacts
+      keyspace: chuckNorrisFactsIdx
+      keys: fact
       search:
         drop: true
         schema:

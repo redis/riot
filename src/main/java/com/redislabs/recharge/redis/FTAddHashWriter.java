@@ -20,7 +20,7 @@ public class FTAddHashWriter extends AbstractSearchWriter {
 	protected void write(Client client, String key, Map<String, Object> record) {
 		double score = getScore(record);
 		try {
-			client.addHash(key, score, getSearch().isReplace());
+			client.addHash(key, score, getConfig().getSearch().isReplace());
 		} catch (Exception e) {
 			if ("Document already exists".equals(e.getMessage())) {
 				log.debug(e.getMessage());

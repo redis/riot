@@ -1,0 +1,199 @@
+concurrent: false
+flows:
+- file:
+    path: examples/gap/DC_Stores.csv
+    delimited:
+      header: true
+  writers:
+  - redis:
+      keyspace: node
+      keys: DC_ID
+  - redis:
+      keyspace: nodes
+      set:
+        fields: DC_ID
+  - redis:
+      keyspace: '{market}'
+      keys: GID_MKT_CD
+      set:
+        fields: DC_ID
+- file:
+    path: examples/gap/DC_GEOADDR.csv
+    delimited:
+      header: true
+  processor:
+    fields:
+      location: in['LONGITUDE']?.concat(',')?.concat(in['LATITUDE'])
+  writers:
+  - redis:
+      keyspace: node
+      keys: DC_ID
+  - redis:
+      keyspace: nodesgeo
+      geo:
+        fields: DC_ID
+        latitude: LATITUDE
+        longitude: LONGITUDE
+  - redis:
+      keyspace: nodesft
+      keys: DC_ID
+      search:
+        schema:
+        - name: DC_ID
+        - name: GID_MKT_CD
+        - name: DC_CPCY_AMT
+          type: numeric
+          sortable: true
+        - name: DC_TYP_CD
+        - name: STR_DC_MAX_RLSE_ORD_PER_DY
+          type: numeric
+          sortable: true
+        - name: DC_STAT_TYP_CD
+        - name: DC_SUP_OFST_QTY
+          type: numeric
+          sortable: true
+        - name: ROLLUP_INVENTORY
+        - name: GID_DC_RESYNC_GRP
+        - name: DC_DESC
+        - name: GEO_POSITION_ID
+        - name: PREFERRED
+        - name: ISDEFAULT
+        - name: DC_INV_AVAL_TO_SELL
+        - name: PARENT_DC_ID
+        - name: ADDR_LN1_TXT
+        - name: ADDR_LN2_TXT
+        - name: ADDR_LN3_TXT
+        - name: CITY_NM
+        - name: CNTY_NM
+        - name: ST_PROV_CD
+        - name: PSTL_CD
+        - name: CTRY_CD
+        - name: PHN_NBR
+        - name: location
+          type: geo
+- generator:
+    fields:
+      DC_ID: redisSequence.nextMember('nodes')
+      giftwrap: bool.bool
+      nextday: bool.bool
+      pobox: bool.bool
+  max-item-count: 3568
+  writers:
+  - redis:
+      keyspace: '{nodes}:giftwrap'
+      keys: giftwrap
+      set:
+        fields: DC_ID
+  - redis:
+      keyspace: '{nodes}:nextday'
+      keys: nextday
+      set:
+        fields: DC_ID
+  - redis:
+      keyspace: '{nodes}:pobox'
+      keys: pobox
+      set:
+        fields: DC_ID
+- max-item-count: 356800
+  chunk-size: 150
+  generator:
+    fields:
+      node: redis.sRandMember('nodes')
+      sku: sequence.next('sku',1,1000,'%09d')
+      brand: number.digits(1)
+      onhand: number.randomNumber(2, false)
+      hold: number.randomNumber(2, false)
+      reserved: number.randomNumber(2, false)
+      allocated: number.randomNumber(2, false)
+      backordered: number.randomNumber(2, false)
+      excluded: number.randomNumber(2, false)
+  processor:
+    map: redis.hGetAll('node:'.concat(in['node']))
+    fields:
+      location: redis.hGet('node:'.concat(in['node']), 'location')
+  writers:
+  - redis:
+      keyspace: stock
+      keys: node, sku
+  - redis:
+      keyspace: skus
+      keys: node
+      set:
+        fields: sku
+  - redis:
+      keyspace: skus
+      set:
+        fields: sku
+  - redis:
+      keyspace: stockft
+      keys: node, sku
+      search:
+        schema:
+        - name: node
+        - name: sku
+        - name: brand
+          sortable: true
+        - name: onhand
+          type: numeric
+          sortable: true
+        - name: hold
+          type: numeric
+          sortable: true
+        - name: reserved
+          type: numeric
+          sortable: true
+        - name: allocated
+          type: numeric
+          sortable: true
+        - name: backordered
+          type: numeric
+          sortable: true
+        - name: excluded
+          type: numeric
+          sortable: true
+        - name: DC_ID
+        - name: GID_MKT_CD
+        - name: DC_CPCY_AMT
+          type: numeric
+          sortable: true
+        - name: DC_TYP_CD
+        - name: STR_DC_MAX_RLSE_ORD_PER_DY
+          type: numeric
+          sortable: true
+        - name: DC_STAT_TYP_CD
+        - name: DC_SUP_OFST_QTY
+          type: numeric
+          sortable: true
+        - name: ROLLUP_INVENTORY
+        - name: GID_DC_RESYNC_GRP
+        - name: DC_DESC
+        - name: GEO_POSITION_ID
+        - name: PREFERRED
+        - name: ISDEFAULT
+        - name: DC_INV_AVAL_TO_SELL
+        - name: PARENT_DC_ID
+        - name: ADDR_LN1_TXT
+        - name: ADDR_LN2_TXT
+        - name: ADDR_LN3_TXT
+        - name: CITY_NM
+        - name: CNTY_NM
+        - name: ST_PROV_CD
+        - name: PSTL_CD
+        - name: CTRY_CD
+        - name: PHN_NBR
+        - name: location
+          type: geo
+- max-item-count: -1
+  generator:
+    fields:
+      node: redis.sRandMember('nodes')
+      sku: redis.sRandMember('skus')
+      delta: number.numberBetween(1L,50L)
+  writers:
+  - redis:
+      keyspace: stock
+      keys: node, sku
+      hash:
+        incrby:
+          source-field: delta
+          target-field: onhand
