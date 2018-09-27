@@ -38,7 +38,7 @@ public class RechargeConfiguration {
 
 	@Data
 	public static class ProcessorConfiguration {
-		String map;
+		String putAll;
 		Map<String, String> fields;
 	}
 
@@ -46,6 +46,7 @@ public class RechargeConfiguration {
 	public static class FileReaderConfiguration {
 		String path;
 		Boolean gzip;
+		FileType type;
 		DelimitedFileConfiguration delimited;
 		FixedLengthFileConfiguration fixedLength;
 		JsonFileConfiguration json;

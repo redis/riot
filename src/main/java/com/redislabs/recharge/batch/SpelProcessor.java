@@ -23,8 +23,8 @@ public class SpelProcessor implements ItemProcessor<Map<String, Object>, Map<Str
 	public SpelProcessor(StringRedisConnection redis, ProcessorConfiguration processor) {
 		this.redis = redis;
 		this.config = processor;
-		if (processor.getMap() != null) {
-			this.map = parser.parseExpression(processor.getMap());
+		if (processor.getPutAll() != null) {
+			this.map = parser.parseExpression(processor.getPutAll());
 		}
 		config.getFields().entrySet().forEach(f -> fields.put(f.getKey(), parser.parseExpression(f.getValue())));
 	}
@@ -44,7 +44,7 @@ public class SpelProcessor implements ItemProcessor<Map<String, Object>, Map<Str
 			Object value = map.getValue(context);
 			if (value != null && value instanceof Map) {
 				@SuppressWarnings("unchecked")
-				Map<String, Object> valueMap = 	(Map<String, Object>) value;
+				Map<String, Object> valueMap = (Map<String, Object>) value;
 				in.putAll(valueMap);
 			}
 		}

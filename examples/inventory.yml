@@ -108,7 +108,7 @@ flows:
       backordered: number.randomNumber(2, false)
       excluded: number.randomNumber(2, false)
   processor:
-    map: redis.hGetAll('node:'.concat(in['node']))
+    putAll: redis.hGetAll('node:'.concat(in['node']))
     fields:
       location: redis.hGet('node:'.concat(in['node']), 'location')
   writers:

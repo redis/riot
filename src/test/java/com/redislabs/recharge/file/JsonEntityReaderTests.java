@@ -75,6 +75,19 @@ public class JsonEntityReaderTests {
 		Map<String, Object> entity = itemReader.read();
 		print(null, entity);
 	}
+	
+	@Test
+	public void resumes() throws Exception {
+		JacksonUnmarshaller unmarshaller = new JacksonUnmarshaller();
+		unmarshaller.setObjectMapper(new ObjectMapper());
+		JsonItemReader itemReader = new JsonItemReader();
+		itemReader.setResource(new InputStreamResource(ClassLoader.class.getResourceAsStream("/json/resumes.json")));
+		itemReader.setUnmarshaller(unmarshaller);
+		itemReader.afterPropertiesSet();
+		itemReader.doOpen();
+		Map<String, Object> entity = itemReader.read();
+		print(null, entity);
+	}
 
 	private void print(String prefix, Map<String, Object> map) {
 		for (Entry<String, Object> entry : map.entrySet()) {

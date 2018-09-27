@@ -28,6 +28,7 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ResourceUtils;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.redislabs.recharge.RechargeConfiguration;
 import com.redislabs.recharge.RechargeConfiguration.DelimitedFileConfiguration;
 import com.redislabs.recharge.RechargeConfiguration.FileReaderConfiguration;
@@ -53,10 +54,9 @@ public class FileBatchConfiguration {
 
 	private BufferedReaderFactory bufferedReaderFactory = new DefaultBufferedReaderFactory();
 
-	private FlatFileItemReaderBuilder<Map<String, Object>> getFlatFileReaderBuilder(FileReaderConfiguration reader,
+	private FlatFileItemReaderBuilder<Map<String, Object>> getFlatFileReaderBuilder(Resource resource,
 			FlatFileConfiguration fileConfig) throws IOException {
 		FlatFileItemReaderBuilder<Map<String, Object>> builder = new FlatFileItemReaderBuilder<>();
-		Resource resource = getResource(reader);
 		builder.resource(resource);
 		if (fileConfig.getEncoding() != null) {
 			builder.encoding(fileConfig.getEncoding());
@@ -110,10 +110,9 @@ public class FileBatchConfiguration {
 		return new InputStreamResource(new GZIPInputStream(resource.getInputStream()));
 	}
 
-	private FlatFileItemReader<Map<String, Object>> getDelimitedReader(FileReaderConfiguration readerConfig)
-			throws IOException {
-		DelimitedFileConfiguration delimited = readerConfig.getDelimited();
-		FlatFileItemReaderBuilder<Map<String, Object>> builder = getFlatFileReaderBuilder(readerConfig, delimited);
+	private FlatFileItemReader<Map<String, Object>> getDelimitedReader(DelimitedFileConfiguration delimited,
+			Resource resource) throws IOException {
+		FlatFileItemReaderBuilder<Map<String, Object>> builder = getFlatFileReaderBuilder(resource, delimited);
 		DelimitedBuilder<Map<String, Object>> delimitedBuilder = builder.delimited();
 		if (delimited.getDelimiter() != null) {
 			delimitedBuilder.delimiter(delimited.getDelimiter());
@@ -126,7 +125,6 @@ public class FileBatchConfiguration {
 		}
 		String[] fieldNames = delimited.getFields();
 		if (delimited.isHeader()) {
-			Resource resource = getResource(readerConfig);
 			try {
 				BufferedReader reader = bufferedReaderFactory.create(resource, delimited.getEncoding());
 				DelimitedLineTokenizer tokenizer = new DelimitedLineTokenizer();
@@ -141,25 +139,24 @@ public class FileBatchConfiguration {
 				fieldNames = fields.getValues();
 				log.info("Found header {}", Arrays.toString(fieldNames));
 			} catch (Exception e) {
-				log.error("Could not read header for file {}", readerConfig.getPath(), e);
+				log.error("Could not read header for file {}", resource, e);
 			}
 		}
 		delimitedBuilder.names(fieldNames);
 		return builder.build();
 	}
 
-	private FlatFileItemReader<Map<String, Object>> getFixedLengthReader(FileReaderConfiguration reader)
-			throws IOException {
-		FixedLengthFileConfiguration fixedLength = reader.getFixedLength();
-		FlatFileItemReaderBuilder<Map<String, Object>> builder = getFlatFileReaderBuilder(reader, fixedLength);
+	private FlatFileItemReader<Map<String, Object>> getFixedLengthReader(FixedLengthFileConfiguration config,
+			Resource resource) throws IOException {
+		FlatFileItemReaderBuilder<Map<String, Object>> builder = getFlatFileReaderBuilder(resource, config);
 		FixedLengthBuilder<Map<String, Object>> fixedLengthBuilder = builder.fixedLength();
-		if (fixedLength.getRanges() != null) {
-			fixedLengthBuilder.columns(getRanges(fixedLength.getRanges()));
+		if (config.getRanges() != null) {
+			fixedLengthBuilder.columns(getRanges(config.getRanges()));
 		}
-		if (fixedLength.getStrict() != null) {
-			fixedLengthBuilder.strict(fixedLength.getStrict());
+		if (config.getStrict() != null) {
+			fixedLengthBuilder.strict(config.getStrict());
 		}
-		fixedLengthBuilder.names(fixedLength.getFields());
+		fixedLengthBuilder.names(config.getFields());
 		return builder.build();
 	}
 
@@ -187,44 +184,49 @@ public class FileBatchConfiguration {
 
 	public AbstractItemCountingItemStreamItemReader<Map<String, Object>> getReader(FileReaderConfiguration reader)
 			throws IOException {
-		if (reader.getDelimited() != null) {
-			return getDelimitedReader(reader);
+		FileType type = getFileType(reader);
+		if (type == null) {
+			throw new IOException("Could not determine file type from path " + reader.getPath());
 		}
-		if (reader.getFixedLength() != null) {
-			return getFixedLengthReader(reader);
+		Resource resource = getResource(reader);
+		switch (type) {
+		case FixedLength:
+			return getFixedLengthReader(reader.getFixedLength(), resource);
+		case Json:
+			return getJsonReader(reader.getJson(), resource);
+		default:
+			return getDelimitedReader(reader.getDelimited(), resource);
 		}
-		if (reader.getJson() != null) {
-			return getJsonReader(reader);
-		}
-		String extension = getFilenameGroup(reader.getPath(), FILE_EXTENSION);
-		if (extension != null) {
-			log.debug("Found file extension '{}' for path {}", extension, reader.getPath());
-			FileType fileType = rechargeConfig.getFileTypes().get(extension);
-			if (fileType != null) {
-				switch (fileType) {
-				case Delimited:
-					reader.setDelimited(new DelimitedFileConfiguration());
-					return getDelimitedReader(reader);
-				case FixedLength:
-					reader.setFixedLength(new FixedLengthFileConfiguration());
-					return getFixedLengthReader(reader);
-				case Json:
-					reader.setJson(new JsonFileConfiguration());
-					return getJsonReader(reader);
-				default:
-					throw new IOException("File type " + fileType + " not yet supported");
-				}
-			}
-		}
-		throw new IOException("Could not determine file type from path " + reader.getPath());
 	}
 
-	private AbstractItemCountingItemStreamItemReader<Map<String, Object>> getJsonReader(
-			FileReaderConfiguration reader) {
-		JsonItemReader jsonItemReader = new JsonItemReader();
-		if (reader.getJson().getKey() != null) {
-			jsonItemReader.setKeyName(reader.getJson().getKey());
+	private FileType getFileType(FileReaderConfiguration config) {
+		if (config.getType() == null) {
+			return getFileType(config.getPath());
 		}
-		return jsonItemReader;
+		return config.getType();
+	}
+
+	private FileType getFileType(String path) {
+		String extension = getFilenameGroup(path, FILE_EXTENSION);
+		if (extension == null) {
+			return null;
+		}
+		log.debug("Found file extension '{}' for path {}", extension, path);
+		return rechargeConfig.getFileTypes().get(extension);
+	}
+
+	private AbstractItemCountingItemStreamItemReader<Map<String, Object>> getJsonReader(JsonFileConfiguration config,
+			Resource resource) {
+		JsonItemReader reader = new JsonItemReader();
+		reader.setResource(resource);
+		JacksonUnmarshaller unmarshaller = new JacksonUnmarshaller();
+		unmarshaller.setObjectMapper(new ObjectMapper());
+		reader.setUnmarshaller(unmarshaller);
+		if (config != null) {
+			if (config.getKey() != null) {
+				reader.setKeyName(config.getKey());
+			}
+		}
+		return reader;
 	}
 }

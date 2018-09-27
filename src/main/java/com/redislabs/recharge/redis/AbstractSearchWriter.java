@@ -55,6 +55,12 @@ public abstract class AbstractSearchWriter extends AbstractRedisWriter {
 		}
 	}
 
+	@Override
+	public void close() {
+		client.close();
+		super.close();
+	}
+
 	private Field getField(RediSearchField fieldConfig) {
 		return new Field(fieldConfig.getName(), getFieldType(fieldConfig.getType()), fieldConfig.isSortable(),
 				fieldConfig.isNoIndex());
