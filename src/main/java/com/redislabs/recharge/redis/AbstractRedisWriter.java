@@ -40,7 +40,7 @@ public abstract class AbstractRedisWriter extends AbstractItemStreamItemWriter<M
 	}
 
 	@Override
-	public void open(ExecutionContext executionContext) {
+	public synchronized void open(ExecutionContext executionContext) {
 		connection = client.connect();
 		commands = connection.async();
 		commands.setAutoFlushCommands(false);
@@ -51,7 +51,7 @@ public abstract class AbstractRedisWriter extends AbstractItemStreamItemWriter<M
 	}
 
 	@Override
-	public void close() {
+	public synchronized void close() {
 		commands = null;
 		if (connection != null) {
 			connection.close();
@@ -64,7 +64,7 @@ public abstract class AbstractRedisWriter extends AbstractItemStreamItemWriter<M
 			return null;
 		}
 		String[] values = new String[fields.length];
-		Arrays.setAll(values, index -> record.get(fields[index]));
+		Arrays.setAll(values, index -> converter.convert(record.get(fields[index]), String.class));
 		return join(values);
 	}
 

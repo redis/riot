@@ -3,9 +3,14 @@ flows:
   reader:
     generator:
       fields:
-        name: "name.name"
+        id: "sequence.next('person',1)"
+        firstName: "name.firstName"
+        lastName: "name.lastName"
   writers:
+#  - redis:
+#      keyspace: nameSuggestIdx
+#      suggest:
+#        field: name
   - redis:
-      keyspace: nameSuggestIdx
-      suggest:
-        field: name
+      keyspace: person
+      keys: id
