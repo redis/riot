@@ -1,54 +1,41 @@
 package com.redislabs.recharge.batch;
 
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.springframework.batch.item.ItemProcessor;
-import org.springframework.data.redis.connection.StringRedisConnection;
+import org.springframework.context.expression.MapAccessor;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
+import com.redislabs.lettusearch.StatefulRediSearchConnection;
 import com.redislabs.recharge.RechargeConfiguration.ProcessorConfiguration;
 
 public class SpelProcessor implements ItemProcessor<Map<String, Object>, Map<String, Object>> {
 
 	private SpelExpressionParser parser = new SpelExpressionParser();
-	private Expression map;
 	private Map<String, Expression> fields = new LinkedHashMap<>();
-	private StringRedisConnection redis;
 	private ProcessorConfiguration config;
+	private Expression source;
+	private StandardEvaluationContext context;
 
-	public SpelProcessor(StringRedisConnection redis, ProcessorConfiguration processor) {
-		this.redis = redis;
+	public SpelProcessor(StatefulRediSearchConnection<String, String> connection, ProcessorConfiguration processor) {
 		this.config = processor;
-		if (processor.getPutAll() != null) {
-			this.map = parser.parseExpression(processor.getPutAll());
-		}
-		config.getFields().entrySet().forEach(f -> fields.put(f.getKey(), parser.parseExpression(f.getValue())));
+		this.source = processor.getSource() == null ? null : parser.parseExpression(processor.getSource());
+		this.context = new StandardEvaluationContext();
+		context.setPropertyAccessors(Arrays.asList(new MapAccessor()));
+		context.setVariable("redis", connection.sync());
+		config.getFields().forEach((k, v) -> fields.put(k, parser.parseExpression(v)));
 	}
 
 	@Override
-	public Map<String, Object> process(Map<String, Object> in) throws Exception {
-		ItemContext rootObject = ItemContext.builder().redis(redis).in(in).build();
-		StandardEvaluationContext context = new StandardEvaluationContext(rootObject);
-		for (Entry<String, Expression> expression : fields.entrySet()) {
-			Object value = expression.getValue().getValue(context);
-			if (value == null) {
-				continue;
-			}
-			in.put(expression.getKey(), value);
-		}
-		if (map != null) {
-			Object value = map.getValue(context);
-			if (value != null && value instanceof Map) {
-				@SuppressWarnings("unchecked")
-				Map<String, Object> valueMap = (Map<String, Object>) value;
-				in.putAll(valueMap);
-			}
-		}
-		return in;
+	public Map<String, Object> process(Map<String, Object> record) throws Exception {
+		@SuppressWarnings("unchecked")
+		Map<String, Object> map = source == null ? record : source.getValue(context, record, Map.class);
+		fields.forEach((k, v) -> map.put(k, v.getValue(context, map)));
+		return map;
 	}
 
 }

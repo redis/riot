@@ -1,0 +1,74 @@
+flows:
+# Breweries: https://data.opendatasoft.com/explore/dataset/open-beer-database-breweries%40public-us/information/
+- reader:
+    file:
+#      path: https://data.opendatasoft.com/explore/dataset/open-beer-database-breweries@public-us/download/?format=json&timezone=America/Los_Angeles
+      path: /Users/jruaux/Downloads/open-beer-database-breweries.json
+      type: json
+  processor:
+    source: fields
+    fields:
+      location: containsKey('coordinates')?new double[]{coordinates[1],coordinates[0]}:null
+  writers:
+  - redis:
+      keyspace: brewery
+      keys: id
+  - redis:
+      keyspace: breweryIdx
+      keys: id
+      type: search
+      search:
+        schema:
+        - name: city
+          sortable: true
+        - name: name_breweries
+          sortable: true
+        - name: website
+          sortable: true
+        - name: phone
+          sortable: true
+        - name: descript
+        - name: country
+          sortable: true
+        - name: state
+          sortable: true
+        - name: address1
+          sortable: true
+        - name: location
+          type: geo
+# Beers: https://data.opendatasoft.com/explore/dataset/open-beer-database%40public-us/export/
+- reader:
+    file:
+      path: /Users/jruaux/Downloads/open-beer-database.json
+      type: json
+  processor:
+    source: fields
+    fields:
+      location: containsKey('coordinates')?new double[]{coordinates[1],coordinates[0]}:null
+  writers:
+  - redis:
+      keyspace: beer
+      keys: id
+  - redis:
+      keyspace: beerIdx
+      keys: id
+      type: search
+      search:
+        schema:
+        - name: abv
+          type: numeric
+          sortable: true
+        - name: name
+          sortable: true
+        - name: style
+          sortable: true
+        - name: brewery_id
+          sortable: true
+        - name: ounces
+          type: numeric
+          sortable: true
+        - name: location
+          type: geo
+# Breweries GeoCode: https://data.opendatasoft.com/explore/dataset/open-beer-database-breweries-geocode%40public-us/information/      
+# Styles: https://data.opendatasoft.com/explore/dataset/open-beer-database-styles%40public-us/export/
+# Categories: https://data.opendatasoft.com/explore/dataset/open-beer-database-categories%40public-us/table/

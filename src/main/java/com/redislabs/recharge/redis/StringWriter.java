@@ -2,13 +2,11 @@ package com.redislabs.recharge.redis;
 
 import java.util.Map;
 
-import org.springframework.data.redis.connection.StringRedisConnection;
-import org.springframework.data.redis.core.StringRedisTemplate;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import com.redislabs.lettusearch.RediSearchClient;
 import com.redislabs.recharge.RechargeConfiguration.RedisWriterConfiguration;
 import com.redislabs.recharge.RechargeConfiguration.StringConfiguration;
 
@@ -19,8 +17,8 @@ public class StringWriter extends AbstractRedisWriter {
 
 	private ObjectWriter writer;
 
-	public StringWriter(StringRedisTemplate template, RedisWriterConfiguration config) {
-		super(template, config);
+	public StringWriter(RediSearchClient client, RedisWriterConfiguration config) {
+		super(client, config);
 		this.writer = getObjectWriter(config.getString());
 	}
 
@@ -32,10 +30,10 @@ public class StringWriter extends AbstractRedisWriter {
 	}
 
 	@Override
-	protected void write(StringRedisConnection conn, String key, Map<String, Object> record) {
+	protected void write(String key, Map<String, Object> record) {
 		try {
 			String value = writer.writeValueAsString(record);
-			conn.set(key, value);
+			commands.set(key, value);
 		} catch (JsonProcessingException e) {
 			log.error("Could not serialize values", e);
 		}

@@ -3,9 +3,7 @@ package com.redislabs.recharge.redis;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.data.redis.connection.StringRedisConnection;
-import org.springframework.data.redis.core.StringRedisTemplate;
-
+import com.redislabs.lettusearch.RediSearchClient;
 import com.redislabs.recharge.RechargeConfiguration.NilConfiguration;
 import com.redislabs.recharge.RechargeConfiguration.RedisWriterConfiguration;
 
@@ -17,8 +15,8 @@ public class NilWriter extends AbstractRedisWriter {
 	private int currentItemCount = 0;
 	private NilConfiguration nil;
 
-	public NilWriter(StringRedisTemplate template, RedisWriterConfiguration writer) {
-		super(template, writer);
+	public NilWriter(RediSearchClient client, RedisWriterConfiguration writer) {
+		super(client, writer);
 		this.nil = writer.getNil();
 	}
 
@@ -29,7 +27,7 @@ public class NilWriter extends AbstractRedisWriter {
 	}
 
 	@Override
-	protected void write(StringRedisConnection conn, String key, Map<String, Object> record) {
+	protected void write(String key, Map<String, Object> record) {
 		if (nil.getSleepInMillis() > 0) {
 			try {
 				Thread.sleep(nil.getSleepInMillis());

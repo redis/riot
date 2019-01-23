@@ -1,9 +1,11 @@
 flows:
-- file:
-    path: '/Users/jruaux/ReDocuments/Customers/Roth Staffing/Shared/jobs.csv'
-    type: delimited
-    delimited:
-      header: true
+- reader:
+    type: file
+    file:
+      path: '/Users/jruaux/ReDocuments/Customers/Roth Staffing/Shared/jobs.csv'
+      type: delimited
+      delimited:
+        header: true
   writers:
   - redis:
       keyspace: job
@@ -11,6 +13,7 @@ flows:
   - redis:
       keyspace: jobIdx
       keys: JobID
+      type: search
       search:
         schema:
         - name: JobTitle

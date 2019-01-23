@@ -1,22 +1,25 @@
 
 package com.redislabs.recharge.redis;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
+import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.support.AbstractItemStreamItemWriter;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.support.DefaultConversionService;
-import org.springframework.dao.DataAccessException;
-import org.springframework.data.redis.connection.RedisConnection;
-import org.springframework.data.redis.connection.RedisPipelineException;
-import org.springframework.data.redis.connection.StringRedisConnection;
-import org.springframework.data.redis.core.RedisCallback;
-import org.springframework.data.redis.core.StringRedisTemplate;
 
+import com.redislabs.lettusearch.RediSearchAsyncCommands;
+import com.redislabs.lettusearch.RediSearchClient;
+import com.redislabs.lettusearch.StatefulRediSearchConnection;
 import com.redislabs.recharge.RechargeConfiguration.RedisWriterConfiguration;
 
+import io.lettuce.core.LettuceFutures;
+import io.lettuce.core.RedisFuture;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -24,25 +27,44 @@ public abstract class AbstractRedisWriter extends AbstractItemStreamItemWriter<M
 
 	public static final String KEY_SEPARATOR = ":";
 
-	private ConversionService converter = new DefaultConversionService();
-	private StringRedisTemplate template;
-	private RedisWriterConfiguration config;
+	ConversionService converter = new DefaultConversionService();
+	RedisWriterConfiguration config;
+	StatefulRediSearchConnection<String, String> connection;
+	RediSearchAsyncCommands<String, String> commands;
 
-	protected AbstractRedisWriter(StringRedisTemplate template, RedisWriterConfiguration config) {
-		this.template = template;
+	private RediSearchClient client;
+
+	protected AbstractRedisWriter(RediSearchClient client, RedisWriterConfiguration config) {
+		this.client = client;
 		this.config = config;
 	}
-	
-	protected RedisWriterConfiguration getConfig() {
-		return config;
+
+	@Override
+	public void open(ExecutionContext executionContext) {
+		connection = client.connect();
+		commands = connection.async();
+		commands.setAutoFlushCommands(false);
+		doOpen();
 	}
-	
+
+	protected void doOpen() {
+	}
+
+	@Override
+	public void close() {
+		commands = null;
+		if (connection != null) {
+			connection.close();
+			connection = null;
+		}
+	}
+
 	protected String getValues(Map<String, Object> record, String[] fields) {
 		if (fields == null) {
 			return null;
 		}
 		String[] values = new String[fields.length];
-		Arrays.setAll(values, index -> convert(record.get(fields[index]), String.class));
+		Arrays.setAll(values, index -> record.get(fields[index]));
 		return join(values);
 	}
 
@@ -54,31 +76,32 @@ public abstract class AbstractRedisWriter extends AbstractItemStreamItemWriter<M
 		return converter.convert(source, targetType);
 	}
 
-	protected StringRedisTemplate getTemplate() {
-		return template;
-	}
-
 	@Override
 	public void write(List<? extends Map<String, Object>> records) {
-		try {
-			template.executePipelined(new RedisCallback<Object>() {
-				public Object doInRedis(RedisConnection connection) throws DataAccessException {
-					StringRedisConnection conn = (StringRedisConnection) connection;
-					for (Map<String, Object> record : records) {
-						String id = getValues(record, config.getKeys());
-						String key = getKey(config.getKeyspace(), id);
-						write(conn, key, record);
-					}
-					return null;
-				}
-
-			});
-		} catch (RedisPipelineException e) {
-			if (log.isDebugEnabled()) {
-				log.debug("Could not write records", e);
-			}
-			log.warn("Could not write records: {}", e.getMessage());
+		List<RedisFuture<?>> futures = new ArrayList<>();
+		for (Map<String, Object> record : records) {
+			String id = getValues(record, config.getKeys());
+			String key = getKey(config.getKeyspace(), id);
+			write(key, record);
 		}
+		commands.flushCommands();
+		boolean result = LettuceFutures.awaitAll(5, TimeUnit.SECONDS, futures.toArray(new RedisFuture[futures.size()]));
+		if (result) {
+			log.debug("Wrote {} records", records.size());
+		} else {
+			log.warn("Could not write {} records", records.size());
+			for (RedisFuture<?> future : futures) {
+				if (future.getError() != null) {
+					log.error(future.getError());
+				}
+			}
+		}
+	}
+
+	protected Map<String, String> convert(Map<String, Object> record) {
+		Map<String, String> map = new HashMap<>();
+		record.forEach((k, v) -> map.put(k, converter.convert(v, String.class)));
+		return map;
 	}
 
 	private String getKey(String keyspace, String id) {
@@ -88,6 +111,6 @@ public abstract class AbstractRedisWriter extends AbstractItemStreamItemWriter<M
 		return join(keyspace, id);
 	}
 
-	protected abstract void write(StringRedisConnection conn, String key, Map<String, Object> record);
+	protected abstract void write(String key, Map<String, Object> record);
 
 }

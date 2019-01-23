@@ -1,37 +1,48 @@
 flows:
-- generator:
-    fields:
-      name: rockBand.name
+- reader:
+    generator:
+      fields:
+        name: rockBand.name
   writers:
   - redis:
       keyspace: rockBands
+      type: suggest
       suggest:
         field: name
-- generator:
-    fields:
-      name: beer.name
-      style: beer.style
-      hop: beer.hop
+- reader:
+    generator:
+      fields:
+        name: beer.name
+        style: beer.style
+        hop: beer.hop
   writers:
   - redis:
       keyspace: beers
+      keys: name
+  - redis:
+      keyspace: beerNames
+      type: suggest
       suggest:
         field: name
   - redis:
       keyspace: beerStyles
+      type: suggest
       suggest:
         field: style
   - redis:
       keyspace: beerHops
+      type: suggest
       suggest:
         field: hop
-- generator:
-    fields:
-      fact: chuckNorris.fact
+- reader:
+    generator:
+      fields:
+        fact: chuckNorris.fact
   writers:
   - redis:
       keyspace: chuckNorrisFactsIdx
       keys: fact
+      type: search
       search:
         drop: true
         schema:

@@ -10,6 +10,8 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
+import com.redislabs.lettusearch.search.field.Matcher;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -19,104 +21,122 @@ import lombok.EqualsAndHashCode;
 @Data
 public class RechargeConfiguration {
 
-	boolean concurrent = true;
-	boolean flushall = false;
-	long flushallWait = 5000;
-	List<FlowConfiguration> flows = new ArrayList<>();
-	Map<String, FileType> fileTypes = new LinkedHashMap<>();
+	private boolean concurrent;
+	private boolean flushall;
+	private long flushallWait = 5000;
+	private List<FlowConfiguration> flows = new ArrayList<>();
+	private Map<String, FileType> fileTypes = new LinkedHashMap<>();
 
 	@Data
 	public static class FlowConfiguration {
-		int maxThreads = 1;
-		int chunkSize = 50;
-		int maxItemCount = 10000;
-		GeneratorReaderConfiguration generator;
-		FileReaderConfiguration file;
-		ProcessorConfiguration processor;
-		List<WriterConfiguration> writers;
+		private int chunkSize = 50;
+		private int maxItemCount = 10000;
+		private ReaderConfiguration reader = new ReaderConfiguration();
+		private ProcessorConfiguration processor = new ProcessorConfiguration();
+		private List<WriterConfiguration> writers = new ArrayList<>();
+	}
+
+	@Data
+	public static class ReaderConfiguration {
+		private GeneratorReaderConfiguration generator;
+		private FileReaderConfiguration file;
+	}
+
+	public static enum ReaderType {
+		Generator, File
 	}
 
 	@Data
 	public static class ProcessorConfiguration {
-		String putAll;
-		Map<String, String> fields;
+		private String source;
+		private Map<String, String> fields = new LinkedHashMap<>();
 	}
 
 	@Data
 	public static class FileReaderConfiguration {
-		String path;
-		Boolean gzip;
-		FileType type;
-		DelimitedFileConfiguration delimited;
-		FixedLengthFileConfiguration fixedLength;
-		JsonFileConfiguration json;
+		private String path;
+		private Boolean gzip;
+		private FileType type;
+		private DelimitedFileConfiguration delimited = new DelimitedFileConfiguration();
+		private FixedLengthFileConfiguration fixedLength = new FixedLengthFileConfiguration();
+		private JsonFileConfiguration json = new JsonFileConfiguration();
 	}
 
 	@Data
 	public static class JsonFileConfiguration {
-		String key;
+		private String key;
 	}
 
 	@Data
 	public static class FlatFileConfiguration {
-		String encoding = FlatFileItemReader.DEFAULT_CHARSET;
-		boolean header = false;
-		int linesToSkip = 0;
-		String[] fields = new String[0];
+		private String encoding = FlatFileItemReader.DEFAULT_CHARSET;
+		private boolean header = false;
+		private int linesToSkip = 0;
+		private String[] fields = new String[0];
 	}
 
 	@Data
 	@EqualsAndHashCode(callSuper = true)
 	public static class DelimitedFileConfiguration extends FlatFileConfiguration {
-		String delimiter;
-		Integer[] includedFields;
-		Character quoteCharacter;
+		private String delimiter;
+		private Integer[] includedFields;
+		private Character quoteCharacter;
 	}
 
 	@Data
 	@EqualsAndHashCode(callSuper = true)
 	public static class FixedLengthFileConfiguration extends FlatFileConfiguration {
-		String[] ranges = new String[0];
-		Boolean strict;
+		private String[] ranges = new String[0];
+		private Boolean strict;
 	}
 
 	@Data
 	public static class GeneratorReaderConfiguration {
-		Map<String, String> fields = new LinkedHashMap<>();
-		String locale = "en-US";
+		private Map<String, String> fields = new LinkedHashMap<>();
+		private String locale = "en-US";
 	}
 
 	@Data
 	public static class WriterConfiguration {
-		RedisWriterConfiguration redis;
+		private WriterType type = WriterType.Redis;
+		private RedisWriterConfiguration redis = new RedisWriterConfiguration();
+	}
+
+	public static enum WriterType {
+		Redis
 	}
 
 	@Data
 	public static class RedisWriterConfiguration {
-		String keyspace;
-		String[] keys;
-		GeoConfiguration geo;
-		SearchConfiguration search;
-		SuggestConfiguration suggest;
-		ZSetConfiguration zset;
-		StringConfiguration string;
-		PushConfiguration list;
-		SetConfiguration set;
-		HashConfiguration hash;
-		NilConfiguration nil;
+		private String keyspace;
+		private String[] keys;
+		private RedisType type;
+		private NilConfiguration nil;
+		private StringConfiguration string;
+		private HashConfiguration hash;
+		private ListConfiguration list;
+		private SetConfiguration set;
+		private ZSetConfiguration zset;
+		private GeoConfiguration geo;
+		private SearchConfiguration search;
+		private SuggestConfiguration suggest;
+	}
+
+	public static enum RedisType {
+		nil, string, hash, list, set, zset, geo, search, suggest
 	}
 
 	@Data
 	public static class NilConfiguration {
-		long sleepInMillis = 0;
+		private long sleepInMillis = 0;
 	}
 
 	@Data
 	public static class SuggestConfiguration {
-		String field;
-		String score;
-		double defaultScore = 1d;
-		boolean increment;
+		private String field;
+		private String score;
+		private double defaultScore = 1d;
+		private boolean increment;
 	}
 
 	public static enum Command {
@@ -125,79 +145,74 @@ public class RechargeConfiguration {
 
 	@Data
 	public static class HashConfiguration {
-		String[] includeFields;
-		HIncrByConfiguration incrby;
+		private String[] includeFields;
+		private HIncrByConfiguration incrby;
 	}
 
 	@Data
 	public static class HIncrByConfiguration {
-		String sourceField;
-		String targetField;
+		private String sourceField;
+		private String targetField;
 	}
 
 	@Data
 	public static class StringConfiguration {
-		XmlConfiguration xml;
-		JsonConfiguration json;
+		private XmlConfiguration xml;
+		private JsonConfiguration json;
 	}
 
 	@Data
 	public static class XmlConfiguration {
-		String rootName;
+		private String rootName;
 	}
 
 	@Data
 	public static class JsonConfiguration {
-		String dummy;
+		private String dummy;
 	}
 
 	@Data
 	@EqualsAndHashCode(callSuper = true)
 	public static class ZSetConfiguration extends CollectionRedisWriterConfiguration {
-		String score;
-		double defaultScore = 1d;
+		private String score;
+		private double defaultScore = 1d;
 	}
 
 	@Data
 	public static class SearchConfiguration {
-		boolean drop = false;
-		boolean create = true;
-		List<RediSearchField> schema = new ArrayList<>();
-		String language;
-		String score;
-		double defaultScore = 1d;
-		boolean replace;
-		boolean noSave;
-		SearchAddCommand command = SearchAddCommand.Add;
+		private boolean drop = false;
+		private boolean create = true;
+		private List<RediSearchField> schema = new ArrayList<>();
+		private String language;
+		private String score;
+		private double defaultScore = 1d;
+		private boolean replace;
+		private boolean noSave;
 	}
 
 	@Data
 	public static class SearchCommandConfiguration {
-		String language;
-		String score;
-		double defaultScore = 1d;
-		boolean noSave;
-	}
-
-	public static enum SearchAddCommand {
-		Add, AddHash
+		private String language;
+		private String score;
+		private double defaultScore = 1d;
+		private boolean noSave;
 	}
 
 	@Data
 	public static class CollectionRedisWriterConfiguration {
-		String[] fields;
+		private String[] fields;
 	}
 
 	@Data
 	@EqualsAndHashCode(callSuper = true)
 	public static class GeoConfiguration extends CollectionRedisWriterConfiguration {
-		String longitude;
-		String latitude;
+		private String longitude;
+		private String latitude;
 	}
 
 	@Data
 	@EqualsAndHashCode(callSuper = true)
-	public static class PushConfiguration extends CollectionRedisWriterConfiguration {
+	public static class ListConfiguration extends CollectionRedisWriterConfiguration {
 	}
 
 	@Data
@@ -208,10 +223,13 @@ public class RechargeConfiguration {
 
 	@Data
 	public static class RediSearchField {
-		String name;
-		RediSearchFieldType type = RediSearchFieldType.Text;
-		boolean sortable;
-		boolean noIndex;
+		private String name;
+		private RediSearchFieldType type = RediSearchFieldType.Text;
+		private boolean sortable;
+		private boolean noIndex;
+		private Double weight;
+		private boolean noStem;
+		private Matcher matcher;
 	}
 
 	public static enum RediSearchFieldType {

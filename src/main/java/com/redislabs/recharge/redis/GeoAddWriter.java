@@ -2,10 +2,7 @@ package com.redislabs.recharge.redis;
 
 import java.util.Map;
 
-import org.springframework.data.geo.Point;
-import org.springframework.data.redis.connection.StringRedisConnection;
-import org.springframework.data.redis.core.StringRedisTemplate;
-
+import com.redislabs.lettusearch.RediSearchClient;
 import com.redislabs.recharge.RechargeConfiguration.GeoConfiguration;
 import com.redislabs.recharge.RechargeConfiguration.RedisWriterConfiguration;
 
@@ -13,13 +10,13 @@ public class GeoAddWriter extends AbstractCollectionRedisWriter {
 
 	private GeoConfiguration geo;
 
-	public GeoAddWriter(StringRedisTemplate template, RedisWriterConfiguration writer) {
-		super(template, writer, writer.getGeo());
+	public GeoAddWriter(RediSearchClient client, RedisWriterConfiguration writer) {
+		super(client, writer, writer.getGeo());
 		this.geo = writer.getGeo();
 	}
 
 	@Override
-	protected void write(StringRedisConnection conn, String key, Map<String, Object> record) {
+	protected void write(String key, Map<String, Object> record) {
 		Object longitude = record.get(geo.getLongitude());
 		if (longitude == null || longitude.equals("")) {
 			return;
@@ -28,7 +25,7 @@ public class GeoAddWriter extends AbstractCollectionRedisWriter {
 		if (latitude == null || latitude.equals("")) {
 			return;
 		}
-		conn.geoAdd(key, new Point(toDouble(longitude), toDouble(latitude)), getMemberId(record));
+		commands.geoadd(key, toDouble(longitude), toDouble(latitude), getMemberId(record));
 	}
 
 	private double toDouble(Object object) {

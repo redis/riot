@@ -1,95 +1,72 @@
 package com.redislabs.recharge.redis;
 
-import java.util.Map;
-
-import org.springframework.batch.item.ExecutionContext;
-import org.springframework.data.redis.connection.StringRedisConnection;
-import org.springframework.data.redis.core.StringRedisTemplate;
-
+import com.redislabs.lettusearch.RediSearchClient;
+import com.redislabs.lettusearch.search.DropOptions;
+import com.redislabs.lettusearch.search.Schema;
+import com.redislabs.lettusearch.search.Schema.SchemaBuilder;
+import com.redislabs.lettusearch.search.field.Field;
+import com.redislabs.lettusearch.search.field.GeoField;
+import com.redislabs.lettusearch.search.field.NumericField;
+import com.redislabs.lettusearch.search.field.TextField;
+import com.redislabs.lettusearch.search.field.TextField.TextFieldBuilder;
 import com.redislabs.recharge.RechargeConfiguration.RediSearchField;
-import com.redislabs.recharge.RechargeConfiguration.RediSearchFieldType;
 import com.redislabs.recharge.RechargeConfiguration.RedisWriterConfiguration;
 import com.redislabs.recharge.RechargeConfiguration.SearchConfiguration;
 
-import io.redisearch.Schema;
-import io.redisearch.Schema.Field;
-import io.redisearch.Schema.FieldType;
-import io.redisearch.client.Client;
-import io.redisearch.client.Client.IndexOptions;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public abstract class AbstractSearchWriter extends AbstractRedisWriter {
 
-	private Client client;
-
-	public AbstractSearchWriter(StringRedisTemplate template, RedisWriterConfiguration writer, Client client) {
-		super(template, writer);
-		this.client = client;
+	public AbstractSearchWriter(RediSearchClient connection, RedisWriterConfiguration writer) {
+		super(connection, writer);
 	}
 
 	@Override
-	public void open(ExecutionContext executionContext) {
-		SearchConfiguration search = getConfig().getSearch();
+	protected void doOpen() {
+		SearchConfiguration search = config.getSearch();
 		if (!search.getSchema().isEmpty()) {
-			Schema schema = new Schema();
-			search.getSchema().forEach(entry -> schema.addField(getField(entry)));
 			if (search.isDrop()) {
 				try {
-					client.dropIndex();
+					commands.drop(config.getKeyspace(), DropOptions.builder().build());
 				} catch (Exception e) {
-					log.debug("Could not drop index {}", getConfig().getKeyspace(), e);
+					log.debug("Could not drop index {}", config.getKeyspace(), e);
 				}
 			}
 			if (search.isCreate()) {
+				SchemaBuilder builder = Schema.builder();
+				search.getSchema().forEach(entry -> builder.field(getField(entry)));
+				Schema schema = builder.build();
 				try {
-					client.createIndex(schema, IndexOptions.Default());
+					commands.create(config.getKeyspace(), schema);
 				} catch (Exception e) {
 					if (e.getMessage().startsWith("Index already exists")) {
-						log.debug("Ignored index {} creation fail", getConfig().getKeyspace(), e);
+						log.debug("Ignored failure to create index {}", config.getKeyspace(), e);
 					} else {
-						log.error("Could not create index {}", getConfig().getKeyspace(), e);
+						log.error("Could not create index {}", config.getKeyspace(), e);
 					}
 				}
 			}
 		}
 	}
 
-	@Override
-	public void close() {
-		client.close();
-		super.close();
-	}
-
-	private Field getField(RediSearchField fieldConfig) {
-		return new Field(fieldConfig.getName(), getFieldType(fieldConfig.getType()), fieldConfig.isSortable(),
-				fieldConfig.isNoIndex());
-	}
-
-	private FieldType getFieldType(RediSearchFieldType type) {
-		switch (type) {
+	private Field getField(RediSearchField field) {
+		switch (field.getType()) {
 		case Geo:
-			return FieldType.Geo;
+			return GeoField.builder().name(field.getName()).sortable(field.isSortable()).build();
 		case Numeric:
-			return FieldType.Numeric;
+			return NumericField.builder().name(field.getName()).sortable(field.isSortable()).build();
 		default:
-			return FieldType.FullText;
+			TextFieldBuilder builder = TextField.builder().name(field.getName()).sortable(field.isSortable())
+					.noStem(field.isNoStem());
+			if (field.getWeight() != null) {
+				builder.weight(field.getWeight());
+			}
+			if (field.getMatcher() != null) {
+				builder.matcher(field.getMatcher());
+			}
+			return builder.build();
 		}
-	}
-
-	@Override
-	protected void write(StringRedisConnection conn, String key, Map<String, Object> record) {
-		write(client, key, record);
-	}
-
-	protected abstract void write(Client client, String key, Map<String, Object> record);
-
-	protected double getScore(Map<String, Object> record) {
-		if (getConfig().getSearch().getScore() == null) {
-			return getConfig().getSearch().getDefaultScore();
-		}
-		return convert(record.get(getConfig().getSearch().getScore()), Double.class);
-
 	}
 
 }

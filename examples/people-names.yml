@@ -1,9 +1,11 @@
 flows:
-- generator:
-    fields:
-      name: name.name
+- maxItemCount: -1
+  reader:
+    generator:
+      fields:
+        name: "name.name"
   writers:
   - redis:
-      keyspace: nameSuggestion
+      keyspace: nameSuggestIdx
       suggest:
         field: name

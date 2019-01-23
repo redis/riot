@@ -2,20 +2,18 @@ package com.redislabs.recharge.redis;
 
 import java.util.Map;
 
-import org.springframework.data.redis.connection.StringRedisConnection;
-import org.springframework.data.redis.core.StringRedisTemplate;
-
+import com.redislabs.lettusearch.RediSearchClient;
 import com.redislabs.recharge.RechargeConfiguration.RedisWriterConfiguration;
 
 public class SAddWriter extends AbstractCollectionRedisWriter {
 
-	public SAddWriter(StringRedisTemplate template, RedisWriterConfiguration writer) {
-		super(template, writer, writer.getSet());
+	public SAddWriter(RediSearchClient client, RedisWriterConfiguration writer) {
+		super(client, writer, writer.getSet());
 	}
 
 	@Override
-	protected void write(StringRedisConnection conn, String key, Map<String, Object> record) {
-		conn.sAdd(key, getMemberId(record));
+	protected void write(String key, Map<String, Object> record) {
+		commands.sadd(key, getMemberId(record));
 	}
 
 }

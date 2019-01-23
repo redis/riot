@@ -1,27 +1,30 @@
-entities:
-- name: reservation
-  keys: id
-  generator:
-    id: number.randomNumber
-    firstName: name.firstName
-    lastName: name.lastName
-    address: address.fullAddress
-    creditCardNumber: finance.creditCard
-    propertyCode: number.digits(2)
-    roomCode: number.digits(1)
-    bookingDate: date.past(90,T(java.util.concurrent.TimeUnit).DAYS)
-    startDate: date.future(90,T(java.util.concurrent.TimeUnit).DAYS)
-    nights: number.digits(1)
-    guests: number.digits(1)
-    rate: commerce.price(100,1000)
-    promotionCode: commerce.promotionCode
-  indexes:
-  - name: reservations
-    type: search
-    schema:
-      firstName:
-        type: text
-      lastName:
-        type: text
-      address:
-        type: text
+flows:
+- reader:
+    generator:
+      fields:
+        id: number.randomNumber
+        firstName: name.firstName
+        lastName: name.lastName
+        address: address.fullAddress
+        creditCardNumber: finance.creditCard
+        propertyCode: number.digits(2)
+        roomCode: number.digits(1)
+        bookingDate: date.past(90,T(java.util.concurrent.TimeUnit).DAYS)
+        startDate: date.future(90,T(java.util.concurrent.TimeUnit).DAYS)
+        nights: number.digits(1)
+        guests: number.digits(1)
+        rate: commerce.price(100,1000)
+        promotionCode: commerce.promotionCode
+  writers:
+  - redis:
+      keyspace: reservations
+      keys: id
+  - redis:
+      keyspace: reservationIdx
+      keys: id
+      type: search
+      search:
+        schema:
+        - name: firstName
+        - name: lastName
+        - name: address

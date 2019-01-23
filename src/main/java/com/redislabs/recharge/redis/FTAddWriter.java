@@ -2,26 +2,26 @@ package com.redislabs.recharge.redis;
 
 import java.util.Map;
 
-import org.springframework.data.redis.core.StringRedisTemplate;
-
+import com.redislabs.lettusearch.RediSearchClient;
+import com.redislabs.lettusearch.search.AddOptions;
 import com.redislabs.recharge.RechargeConfiguration.RedisWriterConfiguration;
 
-import io.redisearch.client.Client;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class FTAddWriter extends AbstractSearchWriter {
 
-	public FTAddWriter(StringRedisTemplate template, RedisWriterConfiguration writer, Client client) {
-		super(template, writer, client);
+	public FTAddWriter(RediSearchClient client, RedisWriterConfiguration writer) {
+		super(client, writer);
 	}
 
 	@Override
-	protected void write(Client client, String key, Map<String, Object> record) {
+	protected void write(String key, Map<String, Object> record) {
 		double score = getScore(record);
+		AddOptions options = AddOptions.builder().noSave(config.getSearch().isNoSave())
+				.replace(config.getSearch().isReplace()).build();
 		try {
-			client.addDocument(key, score, record, getConfig().getSearch().isNoSave(),
-					getConfig().getSearch().isReplace(), null);
+			commands.add(config.getKeyspace(), key, score, convert(record), options);
 		} catch (Exception e) {
 			if ("Document already exists".equals(e.getMessage())) {
 				log.debug(e.getMessage());
@@ -29,6 +29,13 @@ public class FTAddWriter extends AbstractSearchWriter {
 				log.error("Could not add document: {}", e.getMessage());
 			}
 		}
+	}
+
+	protected double getScore(Map<String, Object> record) {
+		if (config.getSearch().getScore() == null) {
+			return config.getSearch().getDefaultScore();
+		}
+		return convert(record.get(config.getSearch().getScore()), Double.class);
 	}
 
 }

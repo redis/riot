@@ -16,9 +16,12 @@ import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder.DelimitedBuilder;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder.FixedLengthBuilder;
+import org.springframework.batch.item.file.separator.DefaultRecordSeparatorPolicy;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.batch.item.file.transform.FieldSet;
 import org.springframework.batch.item.file.transform.Range;
+import org.springframework.batch.item.json.JacksonJsonObjectReader;
+import org.springframework.batch.item.json.builder.JsonItemReaderBuilder;
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
@@ -65,6 +68,7 @@ public class FileBatchConfiguration {
 		builder.saveState(false);
 		builder.fieldSetMapper(new MapFieldSetMapper());
 		builder.linesToSkip(fileConfig.getLinesToSkip());
+		builder.recordSeparatorPolicy(new DefaultRecordSeparatorPolicy());
 		if (fileConfig.isHeader() && fileConfig.getLinesToSkip() == 0) {
 			builder.linesToSkip(1);
 		}
@@ -184,12 +188,11 @@ public class FileBatchConfiguration {
 
 	public AbstractItemCountingItemStreamItemReader<Map<String, Object>> getReader(FileReaderConfiguration reader)
 			throws IOException {
-		FileType type = getFileType(reader);
-		if (type == null) {
-			throw new IOException("Could not determine file type from path " + reader.getPath());
-		}
 		Resource resource = getResource(reader);
-		switch (type) {
+		if (reader.getType() == null) {
+			reader.setType(getFileType(resource));
+		}
+		switch (reader.getType()) {
 		case FixedLength:
 			return getFixedLengthReader(reader.getFixedLength(), resource);
 		case Json:
@@ -199,34 +202,23 @@ public class FileBatchConfiguration {
 		}
 	}
 
-	private FileType getFileType(FileReaderConfiguration config) {
-		if (config.getType() == null) {
-			return getFileType(config.getPath());
-		}
-		return config.getType();
-	}
-
-	private FileType getFileType(String path) {
-		String extension = getFilenameGroup(path, FILE_EXTENSION);
+	private FileType getFileType(Resource resource) {
+		String extension = getFilenameGroup(resource.getFilename(), FILE_EXTENSION);
 		if (extension == null) {
 			return null;
 		}
-		log.debug("Found file extension '{}' for path {}", extension, path);
+		log.debug("Found file extension '{}' for path {}", extension, resource);
 		return rechargeConfig.getFileTypes().get(extension);
 	}
 
 	private AbstractItemCountingItemStreamItemReader<Map<String, Object>> getJsonReader(JsonFileConfiguration config,
 			Resource resource) {
-		JsonItemReader reader = new JsonItemReader();
-		reader.setResource(resource);
-		JacksonUnmarshaller unmarshaller = new JacksonUnmarshaller();
-		unmarshaller.setObjectMapper(new ObjectMapper());
-		reader.setUnmarshaller(unmarshaller);
-		if (config != null) {
-			if (config.getKey() != null) {
-				reader.setKeyName(config.getKey());
-			}
-		}
-		return reader;
+		JsonItemReaderBuilder<Map<String, Object>> builder = new JsonItemReaderBuilder<>();
+		builder.resource(resource);
+		JacksonJsonObjectReader<Map<String, Object>> reader = new JacksonJsonObjectReader<>(Map.class);
+		reader.setMapper(new ObjectMapper());
+		builder.jsonObjectReader(reader);
+		builder.name("jsonreader");
+		return builder.build();
 	}
 }

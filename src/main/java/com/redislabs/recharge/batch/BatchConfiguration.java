@@ -5,7 +5,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.Job;
+import org.springframework.batch.core.JobParameters;
+import org.springframework.batch.core.JobParametersInvalidException;
+import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
@@ -13,6 +17,11 @@ import org.springframework.batch.core.job.builder.FlowBuilder;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.job.builder.JobFlowBuilder;
 import org.springframework.batch.core.job.flow.Flow;
+import org.springframework.batch.core.launch.JobLauncher;
+import org.springframework.batch.core.listener.StepExecutionListenerSupport;
+import org.springframework.batch.core.repository.JobExecutionAlreadyRunningException;
+import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
+import org.springframework.batch.core.repository.JobRestartException;
 import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
@@ -20,23 +29,30 @@ import org.springframework.batch.item.support.CompositeItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
-import org.springframework.data.redis.connection.DefaultStringRedisConnection;
-import org.springframework.data.redis.connection.StringRedisConnection;
-import org.springframework.data.redis.core.RedisConnectionUtils;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
+import com.redislabs.lettusearch.RediSearchClient;
+import com.redislabs.lettusearch.StatefulRediSearchConnection;
 import com.redislabs.recharge.RechargeConfiguration;
 import com.redislabs.recharge.RechargeConfiguration.FlowConfiguration;
 import com.redislabs.recharge.RechargeConfiguration.NilConfiguration;
-import com.redislabs.recharge.RechargeConfiguration.ProcessorConfiguration;
+import com.redislabs.recharge.RechargeConfiguration.ReaderConfiguration;
+import com.redislabs.recharge.RechargeConfiguration.RedisType;
 import com.redislabs.recharge.RechargeConfiguration.RedisWriterConfiguration;
 import com.redislabs.recharge.RechargeConfiguration.WriterConfiguration;
 import com.redislabs.recharge.file.FileBatchConfiguration;
-import com.redislabs.recharge.generator.GeneratorBatchConfig;
+import com.redislabs.recharge.generator.GeneratorEntityItemReader;
 import com.redislabs.recharge.redis.AbstractRedisWriter;
+import com.redislabs.recharge.redis.FTAddWriter;
+import com.redislabs.recharge.redis.GeoAddWriter;
+import com.redislabs.recharge.redis.HIncrByWriter;
+import com.redislabs.recharge.redis.HMSetWriter;
+import com.redislabs.recharge.redis.LPushWriter;
 import com.redislabs.recharge.redis.NilWriter;
-import com.redislabs.recharge.redis.RedisBatchConfiguration;
+import com.redislabs.recharge.redis.SAddWriter;
+import com.redislabs.recharge.redis.StringWriter;
+import com.redislabs.recharge.redis.SuggestionWriter;
+import com.redislabs.recharge.redis.ZAddWriter;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -46,67 +62,67 @@ import lombok.extern.slf4j.Slf4j;
 public class BatchConfiguration {
 
 	@Autowired
-	private RechargeConfiguration rechargeConfig;
-	@Autowired
 	private JobBuilderFactory jobBuilderFactory;
 	@Autowired
-	private StepBuilderFactory stepFactory;
+	private StepBuilderFactory stepBuilderFactory;
+	@Autowired
+	private RechargeConfiguration rechargeConfig;
 	@Autowired
 	private FileBatchConfiguration fileBatchConfig;
 	@Autowired
-	private GeneratorBatchConfig generatorBatchConfig;
+	private RediSearchClient client;
 	@Autowired
-	private RedisBatchConfiguration redisBatchConfig;
-	@Autowired
-	private StringRedisTemplate redisTemplate;
-	@Autowired
-	private MeteredJobExecutionListener jobListener;
-	@Autowired
-	private MeteredStepExecutionListener stepListener;
-	@Autowired
-	private MeteringProvider metering;
+	private JobLauncher jobLauncher;
 
 	private List<Flow> getFlows() throws Exception {
 		if (rechargeConfig.isFlushall()) {
+			StatefulRediSearchConnection<String, String> connection = client.connect();
 			log.warn("***** FLUSHALL in {} millis *****", rechargeConfig.getFlushallWait());
 			Thread.sleep(rechargeConfig.getFlushallWait());
-			redisTemplate.getConnectionFactory().getConnection().flushAll();
+			try {
+				connection.sync().flushall();
+			} finally {
+				connection.close();
+			}
 		}
 		List<Flow> flows = new ArrayList<>();
 		for (FlowConfiguration flow : rechargeConfig.getFlows()) {
+			StatefulRediSearchConnection<String, String> connection = client.connect();
 			int flowPosition = rechargeConfig.getFlows().indexOf(flow) + 1;
 			String flowName = "flow" + flowPosition;
 			String stepName = flowName + "-step";
-			SimpleStepBuilder<Map<String, Object>, Map<String, Object>> builder = stepFactory.get(stepName)
+			SimpleStepBuilder<Map<String, Object>, Map<String, Object>> builder = stepBuilderFactory.get(stepName)
 					.<Map<String, Object>, Map<String, Object>>chunk(flow.getChunkSize());
-			builder.listener(stepListener);
-			builder.listener(new MeteredItemWriteListener("redis-writer", flowName, metering));
-			AbstractItemCountingItemStreamItemReader<Map<String, Object>> reader = getReader(flow);
+			AbstractItemCountingItemStreamItemReader<Map<String, Object>> reader = getReader(flow.getReader());
 			if (flow.getMaxItemCount() > 0) {
 				reader.setMaxItemCount(flow.getMaxItemCount());
 			}
 			reader.setName(flowName + "-reader");
 			builder.reader(reader);
 			if (flow.getProcessor() != null) {
-				builder.processor(getProcessor(flow.getProcessor()));
+				builder.processor(new SpelProcessor(connection, flow.getProcessor()));
 			}
 			builder.writer(getWriter(flow.getWriters()));
-			builder.taskExecutor(getTaskExecutor(flow.getMaxThreads()));
-			builder.throttleLimit(flow.getMaxThreads() * 2);
+			builder.listener(new StepExecutionListenerSupport() {
+
+				@Override
+				public ExitStatus afterStep(StepExecution stepExecution) {
+					if (connection != null) {
+						connection.close();
+					}
+					return null;
+				}
+			});
 			flows.add(new FlowBuilder<Flow>(flowName).from(builder.build()).end());
 		}
 		return flows;
-	}
-
-	private SpelProcessor getProcessor(ProcessorConfiguration processor) {
-		return new SpelProcessor(getRedisConnection(), processor);
 	}
 
 	private ItemWriter<? super Map<String, Object>> getWriter(List<WriterConfiguration> writers) {
 		if (writers.size() == 0) {
 			RedisWriterConfiguration config = new RedisWriterConfiguration();
 			config.setNil(new NilConfiguration());
-			return new NilWriter(redisTemplate, config);
+			return new NilWriter(client, config);
 		}
 		if (writers.size() == 1) {
 			return getRedisWriter(writers.get(0));
@@ -117,13 +133,69 @@ public class BatchConfiguration {
 	}
 
 	private AbstractRedisWriter getRedisWriter(WriterConfiguration writer) {
-		return redisBatchConfig.getWriter(writer.getRedis());
+		RedisWriterConfiguration redis = writer.getRedis();
+		switch (getRedisType(redis)) {
+		case nil:
+			return new NilWriter(client, redis);
+		case string:
+			return new StringWriter(client, redis);
+		case geo:
+			return new GeoAddWriter(client, redis);
+		case list:
+			return new LPushWriter(client, redis);
+		case search:
+			return new FTAddWriter(client, redis);
+		case suggest:
+			return new SuggestionWriter(client, redis);
+		case zset:
+			return new ZAddWriter(client, redis);
+		case set:
+			return new SAddWriter(client, redis);
+		default:
+			if (redis.getHash() != null && redis.getHash().getIncrby() != null) {
+				return new HIncrByWriter(client, redis);
+			}
+			return new HMSetWriter(client, redis);
+		}
 	}
 
-	public Job getJob() throws Exception {
+	private RedisType getRedisType(RedisWriterConfiguration redis) {
+		if (redis.getType() == null) {
+			if (redis.getSet() != null) {
+				return RedisType.set;
+			}
+			if (redis.getGeo() != null) {
+				return RedisType.geo;
+			}
+			if (redis.getList() != null) {
+				return RedisType.list;
+			}
+			if (redis.getNil() != null) {
+				return RedisType.nil;
+			}
+			if (redis.getSearch() != null) {
+				return RedisType.search;
+			}
+			if (redis.getSet() != null) {
+				return RedisType.set;
+			}
+			if (redis.getString() != null) {
+				return RedisType.string;
+			}
+			if (redis.getSuggest() != null) {
+				return RedisType.suggest;
+			}
+			if (redis.getZset() != null) {
+				return RedisType.zset;
+			}
+			return RedisType.hash;
+		}
+		return redis.getType();
+	}
+
+	private Job getJob() throws Exception {
 		List<Flow> flows = getFlows();
 		JobBuilder builder = jobBuilderFactory.get("recharge-job");
-		builder.listener(jobListener);
 		if (rechargeConfig.isConcurrent()) {
 			Flow flow = new FlowBuilder<Flow>("split-flow").split(getTaskExecutor(flows.size()))
 					.add(flows.toArray(new Flow[flows.size()])).build();
@@ -144,20 +216,22 @@ public class BatchConfiguration {
 		return executor;
 	}
 
-	private AbstractItemCountingItemStreamItemReader<Map<String, Object>> getReader(FlowConfiguration flow)
+	private AbstractItemCountingItemStreamItemReader<Map<String, Object>> getReader(ReaderConfiguration reader)
 			throws Exception {
-		if (flow.getGenerator() != null) {
-			return generatorBatchConfig.getReader(getRedisConnection(), flow.getGenerator());
+		if (reader.getFile() != null) {
+			return fileBatchConfig.getReader(reader.getFile());
 		}
-		if (flow.getFile() != null) {
-			return fileBatchConfig.getReader(flow.getFile());
+		if (reader.getGenerator() != null) {
+			Map<String, String> generatorFields = reader.getGenerator().getFields();
+			return new GeneratorEntityItemReader(client, reader.getGenerator().getLocale(), generatorFields);
 		}
-		throw new Exception("No entity type configured");
+		return null;
 	}
 
-	private StringRedisConnection getRedisConnection() {
-		return new DefaultStringRedisConnection(
-				RedisConnectionUtils.getConnection(redisTemplate.getConnectionFactory()));
+	public void runJob() throws JobExecutionAlreadyRunningException, JobRestartException,
+			JobInstanceAlreadyCompleteException, JobParametersInvalidException, Exception {
+		jobLauncher.run(getJob(), new JobParameters());
+
 	}
 
 }

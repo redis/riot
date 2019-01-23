@@ -6,26 +6,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.springframework.data.redis.connection.StringRedisConnection;
+import com.redislabs.lettusearch.StatefulRediSearchConnection;
 
 public class RedisSequence {
 
 	private Map<String, Integer> sequenceMap = new HashMap<>();
 	private Map<String, List<String>> membersMap = new HashMap<>();
+	private StatefulRediSearchConnection<String, String> connection;
 
-	private StringRedisConnection redis;
-
-	public RedisSequence(StringRedisConnection redis) {
-		this.redis = redis;
-	}
-
-	public StringRedisConnection getRedis() {
-		return redis;
+	public RedisSequence(StatefulRediSearchConnection<String, String> connection) {
+		this.connection = connection;
 	}
 
 	public String nextMember(String key) {
 		if (!membersMap.containsKey(key)) {
-			Set<String> memberSet = redis.sMembers(key);
+			Set<String> memberSet = connection.sync().smembers(key);
 			ArrayList<String> members = new ArrayList<>(memberSet.size());
 			members.addAll(memberSet);
 			membersMap.put(key, members);
