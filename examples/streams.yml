@@ -1,0 +1,18 @@
+flows:
+- maxItemCount: -1
+  reader:
+    generator:
+      fields:
+        id: "sequence.next('person',1)"
+        firstName: "name.firstName"
+        lastName: "name.lastName"
+  writers:
+#  - redis:
+#      keyspace: nameSuggestIdx
+#      suggest:
+#        field: name
+  - redis:
+      keyspace: person
+      stream:
+        id: id
+      

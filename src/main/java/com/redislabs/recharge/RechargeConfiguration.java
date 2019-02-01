@@ -24,13 +24,15 @@ public class RechargeConfiguration {
 	private boolean concurrent;
 	private boolean flushall;
 	private long flushallWait = 5000;
-	private List<FlowConfiguration> flows = new ArrayList<>();
-	private Map<String, FileType> fileTypes = new LinkedHashMap<>();
+	private boolean meter;
+	private Map<String, FlowConfiguration> flows;
+	private Map<String, FileType> fileTypes;
 
 	@Data
 	public static class FlowConfiguration {
 		private int chunkSize = 50;
 		private int maxItemCount = 10000;
+		private int partitions = 1;
 		private ReaderConfiguration reader = new ReaderConfiguration();
 		private ProcessorConfiguration processor = new ProcessorConfiguration();
 		private List<WriterConfiguration> writers = new ArrayList<>();
@@ -49,6 +51,7 @@ public class RechargeConfiguration {
 	@Data
 	public static class ProcessorConfiguration {
 		private String source;
+		private String merge;
 		private Map<String, String> fields = new LinkedHashMap<>();
 	}
 
@@ -92,6 +95,7 @@ public class RechargeConfiguration {
 
 	@Data
 	public static class GeneratorReaderConfiguration {
+		private String map;
 		private Map<String, String> fields = new LinkedHashMap<>();
 		private String locale = "en-US";
 	}
@@ -120,10 +124,11 @@ public class RechargeConfiguration {
 		private GeoConfiguration geo;
 		private SearchConfiguration search;
 		private SuggestConfiguration suggest;
+		private StreamConfiguration stream;
 	}
 
 	public static enum RedisType {
-		nil, string, hash, list, set, zset, geo, search, suggest
+		nil, string, hash, list, set, zset, geo, search, suggest, stream
 	}
 
 	@Data
@@ -137,6 +142,13 @@ public class RechargeConfiguration {
 		private String score;
 		private double defaultScore = 1d;
 		private boolean increment;
+	}
+
+	@Data
+	public static class StreamConfiguration {
+		private boolean approximateTrimming;
+		private String id;
+		private Long maxlen;
 	}
 
 	public static enum Command {

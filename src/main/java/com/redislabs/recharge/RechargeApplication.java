@@ -7,14 +7,13 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 
-import com.redislabs.recharge.batch.BatchConfiguration;
 import com.redislabs.springredisearch.RediSearchConfiguration;
 
 @SpringBootApplication(scanBasePackageClasses = { RechargeApplication.class, RediSearchConfiguration.class })
 public class RechargeApplication implements ApplicationRunner {
 
 	@Autowired
-	private BatchConfiguration batch;
+	private BatchConfig batch;
 
 	public static void main(String[] args) {
 		ConfigurableApplicationContext context = SpringApplication.run(RechargeApplication.class, args);
