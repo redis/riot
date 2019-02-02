@@ -13,6 +13,7 @@ import com.redislabs.recharge.RechargeConfiguration.StringConfiguration;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@SuppressWarnings("rawtypes")
 public class StringWriter extends AbstractPipelineRedisWriter {
 
 	private ObjectWriter writer;
@@ -30,7 +31,7 @@ public class StringWriter extends AbstractPipelineRedisWriter {
 	}
 
 	@Override
-	protected void write(String key, Map<String, Object> record) {
+	protected void write(String key, Map record) {
 		try {
 			String value = writer.writeValueAsString(record);
 			commands.set(key, value);

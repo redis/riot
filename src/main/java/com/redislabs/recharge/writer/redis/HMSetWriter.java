@@ -5,6 +5,7 @@ import java.util.Map;
 import com.redislabs.lettusearch.RediSearchClient;
 import com.redislabs.recharge.RechargeConfiguration.RedisWriterConfiguration;
 
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public class HMSetWriter extends AbstractPipelineRedisWriter {
 
 	public HMSetWriter(RediSearchClient client, RedisWriterConfiguration entity) {
@@ -12,7 +13,7 @@ public class HMSetWriter extends AbstractPipelineRedisWriter {
 	}
 
 	@Override
-	protected void write(String key, Map<String, Object> record) {
+	protected void write(String key, Map record) {
 		commands.hmset(key, convert(record));
 	}
 

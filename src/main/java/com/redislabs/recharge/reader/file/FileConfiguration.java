@@ -44,6 +44,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Component
 @Slf4j
+@SuppressWarnings("rawtypes")
 public class FileConfiguration {
 
 	private static final String FILE_BASENAME = "basename";
@@ -57,9 +58,10 @@ public class FileConfiguration {
 
 	private BufferedReaderFactory bufferedReaderFactory = new DefaultBufferedReaderFactory();
 
-	private FlatFileItemReaderBuilder<Map<String, Object>> getFlatFileReaderBuilder(Resource resource,
-			FlatFileConfiguration fileConfig) throws IOException {
-		FlatFileItemReaderBuilder<Map<String, Object>> builder = new FlatFileItemReaderBuilder<>();
+	private FlatFileItemReaderBuilder<Map> getFlatFileReaderBuilder(Resource resource, FlatFileConfiguration fileConfig)
+			throws IOException {
+		FlatFileItemReaderBuilder<Map> builder;
+		builder = new FlatFileItemReaderBuilder<Map>();
 		builder.resource(resource);
 		if (fileConfig.getEncoding() != null) {
 			builder.encoding(fileConfig.getEncoding());
@@ -114,10 +116,10 @@ public class FileConfiguration {
 		return new InputStreamResource(new GZIPInputStream(resource.getInputStream()));
 	}
 
-	private FlatFileItemReader<Map<String, Object>> getDelimitedReader(DelimitedFileConfiguration delimited,
-			Resource resource) throws IOException {
-		FlatFileItemReaderBuilder<Map<String, Object>> builder = getFlatFileReaderBuilder(resource, delimited);
-		DelimitedBuilder<Map<String, Object>> delimitedBuilder = builder.delimited();
+	private FlatFileItemReader<Map> getDelimitedReader(DelimitedFileConfiguration delimited, Resource resource)
+			throws IOException {
+		FlatFileItemReaderBuilder<Map> builder = getFlatFileReaderBuilder(resource, delimited);
+		DelimitedBuilder<Map> delimitedBuilder = builder.delimited();
 		if (delimited.getDelimiter() != null) {
 			delimitedBuilder.delimiter(delimited.getDelimiter());
 		}
@@ -150,10 +152,10 @@ public class FileConfiguration {
 		return builder.build();
 	}
 
-	private FlatFileItemReader<Map<String, Object>> getFixedLengthReader(FixedLengthFileConfiguration config,
-			Resource resource) throws IOException {
-		FlatFileItemReaderBuilder<Map<String, Object>> builder = getFlatFileReaderBuilder(resource, config);
-		FixedLengthBuilder<Map<String, Object>> fixedLengthBuilder = builder.fixedLength();
+	private FlatFileItemReader<Map> getFixedLengthReader(FixedLengthFileConfiguration config, Resource resource)
+			throws IOException {
+		FlatFileItemReaderBuilder<Map> builder = getFlatFileReaderBuilder(resource, config);
+		FixedLengthBuilder<Map> fixedLengthBuilder = builder.fixedLength();
 		if (config.getRanges() != null) {
 			fixedLengthBuilder.columns(getRanges(config.getRanges()));
 		}
@@ -186,8 +188,7 @@ public class FileConfiguration {
 		return new Range(Integer.parseInt(split[0]), Integer.parseInt(split[1]));
 	}
 
-	public AbstractItemCountingItemStreamItemReader<Map<String, Object>> reader(FileReaderConfiguration reader)
-			throws IOException {
+	public AbstractItemCountingItemStreamItemReader<Map> reader(FileReaderConfiguration reader) throws IOException {
 		Resource resource = getResource(reader);
 		if (reader.getType() == null) {
 			reader.setType(getFileType(resource));
@@ -211,12 +212,12 @@ public class FileConfiguration {
 		return rechargeConfig.getFileTypes().get(extension);
 	}
 
-	private AbstractItemCountingItemStreamItemReader<Map<String, Object>> getJsonReader(JsonFileConfiguration config,
+	private AbstractItemCountingItemStreamItemReader<Map> getJsonReader(JsonFileConfiguration config,
 			Resource resource) {
-		JsonItemReaderBuilder<Map<String, Object>> builder = new JsonItemReaderBuilder<>();
-		builder.resource(resource);
-		JacksonJsonObjectReader<Map<String, Object>> reader = new JacksonJsonObjectReader<>(Map.class);
+		JacksonJsonObjectReader<Map> reader = new JacksonJsonObjectReader<>(Map.class);
 		reader.setMapper(new ObjectMapper());
+		JsonItemReaderBuilder<Map> builder = new JsonItemReaderBuilder<>();
+		builder.resource(resource);
 		builder.jsonObjectReader(reader);
 		builder.name("jsonreader");
 		return builder.build();

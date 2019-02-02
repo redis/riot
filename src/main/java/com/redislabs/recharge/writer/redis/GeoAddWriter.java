@@ -6,6 +6,7 @@ import com.redislabs.lettusearch.RediSearchClient;
 import com.redislabs.recharge.RechargeConfiguration.GeoConfiguration;
 import com.redislabs.recharge.RechargeConfiguration.RedisWriterConfiguration;
 
+@SuppressWarnings("rawtypes")
 public class GeoAddWriter extends AbstractCollectionRedisWriter {
 
 	private GeoConfiguration geo;
@@ -16,7 +17,7 @@ public class GeoAddWriter extends AbstractCollectionRedisWriter {
 	}
 
 	@Override
-	protected void write(String key, Map<String, Object> record) {
+	protected void write(String key, Map record) {
 		Object longitude = record.get(geo.getLongitude());
 		if (longitude == null || longitude.equals("")) {
 			return;

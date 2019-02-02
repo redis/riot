@@ -7,6 +7,7 @@ import com.redislabs.lettusearch.suggest.SuggestAddOptions;
 import com.redislabs.recharge.RechargeConfiguration.RedisWriterConfiguration;
 import com.redislabs.recharge.RechargeConfiguration.SuggestConfiguration;
 
+@SuppressWarnings("rawtypes")
 public class SuggestionWriter extends AbstractPipelineRedisWriter {
 
 	private SuggestConfiguration suggest;
@@ -17,7 +18,7 @@ public class SuggestionWriter extends AbstractPipelineRedisWriter {
 	}
 
 	@Override
-	protected void write(String key, Map<String, Object> record) {
+	protected void write(String key, Map record) {
 		String string = convert(record.get(suggest.getField()), String.class);
 		double score = suggest.getScore() == null ? suggest.getDefaultScore()
 				: convert(record.get(suggest.getScore()), Double.class);

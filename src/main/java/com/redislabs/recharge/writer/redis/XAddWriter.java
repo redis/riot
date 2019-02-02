@@ -8,6 +8,7 @@ import com.redislabs.recharge.RechargeConfiguration.StreamConfiguration;
 
 import io.lettuce.core.XAddArgs;
 
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public class XAddWriter extends AbstractSyncRedisWriter {
 
 	private StreamConfiguration stream;
@@ -18,11 +19,11 @@ public class XAddWriter extends AbstractSyncRedisWriter {
 	}
 
 	@Override
-	protected void write(String key, Map<String, Object> record) {
+	protected void write(String key, Map record) {
 		commands.xadd(key, getXAddArgs(record), convert(record));
 	}
 
-	private XAddArgs getXAddArgs(Map<String, Object> record) {
+	private XAddArgs getXAddArgs(Map record) {
 		XAddArgs args = new XAddArgs();
 		args.approximateTrimming(stream.isApproximateTrimming());
 		if (stream.getId() != null) {

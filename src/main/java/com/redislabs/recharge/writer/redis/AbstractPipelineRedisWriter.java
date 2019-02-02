@@ -16,6 +16,7 @@ import io.lettuce.core.RedisFuture;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@SuppressWarnings("rawtypes")
 public abstract class AbstractPipelineRedisWriter extends AbstractRedisWriter {
 
 	RediSearchAsyncCommands<String, String> commands;
@@ -41,7 +42,7 @@ public abstract class AbstractPipelineRedisWriter extends AbstractRedisWriter {
 	}
 
 	@Override
-	public void write(List<? extends Map<String, Object>> records) {
+	public void write(List<? extends Map> records) {
 		List<RedisFuture<?>> futures = new ArrayList<>();
 		super.write(records);
 		commands.flushCommands();

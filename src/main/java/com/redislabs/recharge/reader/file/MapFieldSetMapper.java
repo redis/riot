@@ -6,11 +6,12 @@ import java.util.Map;
 import org.springframework.batch.item.file.mapping.FieldSetMapper;
 import org.springframework.batch.item.file.transform.FieldSet;
 
-public class MapFieldSetMapper implements FieldSetMapper<Map<String, Object>> {
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public class MapFieldSetMapper implements FieldSetMapper<Map> {
 
 	@Override
-	public Map<String, Object> mapFieldSet(FieldSet fieldSet) {
-		Map<String, Object> fields = new HashMap<>();
+	public Map mapFieldSet(FieldSet fieldSet) {
+		Map fields = new HashMap<>();
 		String[] names = fieldSet.getNames();
 		for (int index = 0; index < names.length; index++) {
 			String name = names[index];

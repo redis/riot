@@ -58,6 +58,7 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 @EnableBatchProcessing
 @Slf4j
+@SuppressWarnings("rawtypes")
 public class BatchConfig {
 
 	@Autowired
@@ -73,13 +74,13 @@ public class BatchConfig {
 	@Autowired
 	private JobLauncher jobLauncher;
 	@Autowired
-	private WriterMeter<Map<String, Object>> writerMeter;
+	private WriterMeter<Map> writerMeter;
 	@Autowired
-	private ReaderMeter<Map<String, Object>> readerMeter;
+	private ReaderMeter<Map> readerMeter;
 	@Autowired
-	private ProcessorMeter<Map<String, Object>, Map<String, Object>> processorMeter;
+	private ProcessorMeter<Map, Map> processorMeter;
 
-	private ItemWriter<? super Map<String, Object>> writer(List<WriterConfiguration> writers) {
+	private ItemWriter<? super Map> writer(List<WriterConfiguration> writers) {
 		if (writers.size() == 0) {
 			RedisWriterConfiguration writerConfig = new RedisWriterConfiguration();
 			writerConfig.setNil(new NilConfiguration());
@@ -88,7 +89,7 @@ public class BatchConfig {
 		if (writers.size() == 1) {
 			return redisWriter(writers.get(0));
 		}
-		CompositeItemWriter<Map<String, Object>> composite = new CompositeItemWriter<>();
+		CompositeItemWriter<Map> composite = new CompositeItemWriter<>();
 		composite.setDelegates(writers.stream().map(writer -> redisWriter(writer)).collect(Collectors.toList()));
 		return composite;
 	}
@@ -159,8 +160,7 @@ public class BatchConfig {
 		return redis.getType();
 	}
 
-	private AbstractItemCountingItemStreamItemReader<Map<String, Object>> reader(ReaderConfiguration reader)
-			throws IOException {
+	private AbstractItemCountingItemStreamItemReader<Map> reader(ReaderConfiguration reader) throws IOException {
 		if (reader.getFile() != null) {
 			return fileConfig.reader(reader.getFile());
 		}
@@ -206,26 +206,9 @@ public class BatchConfig {
 		return taskExecutor;
 	}
 
-//	private Job getJob(List<Flow> flows) {
-//		JobBuilder builder = jobs.get("recharge-job");
-//		if (rechargeConfig.isConcurrent()) {
-//			Flow flow = new FlowBuilder<Flow>("split-flow").split(getTaskExecutor(flows.size()))
-//					.add(flows.toArray(new Flow[flows.size()])).build();
-//			return builder.start(flow).end().build();
-//		}
-//		JobFlowBuilder flowBuilder = builder.start(flows.get(0));
-//		if (flows.size() > 1) {
-//			for (Flow flow : flows.subList(1, flows.size())) {
-//				flowBuilder.next(flow);
-//			}
-//		}
-//		return flowBuilder.end().build();
-//	}
-
 	private Step slaveStep(String name, FlowConfiguration flow) throws IOException {
-		SimpleStepBuilder<Map<String, Object>, Map<String, Object>> builder = steps.get(name + "-step")
-				.<Map<String, Object>, Map<String, Object>>chunk(flow.getChunkSize());
-		AbstractItemCountingItemStreamItemReader<Map<String, Object>> reader = reader(flow.getReader());
+		SimpleStepBuilder<Map, Map> builder = steps.get(name + "-step").<Map, Map>chunk(flow.getChunkSize());
+		AbstractItemCountingItemStreamItemReader<Map> reader = reader(flow.getReader());
 		if (flow.getMaxItemCount() > 0) {
 			reader.setMaxItemCount(flow.getMaxItemCount());
 		}
@@ -237,13 +220,11 @@ public class BatchConfig {
 			builder.listener(processor);
 		}
 		builder.writer(writer(flow.getWriters()));
-//		builder.listener(new WriterListener(String.valueOf(flowPosition)));
 		if (config.isMeter()) {
 			builder.listener(writerMeter);
 			builder.listener(readerMeter);
 			builder.listener(processorMeter);
 		}
-//		builder.taskExecutor(taskExecutor);
 		return builder.build();
 	}
 

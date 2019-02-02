@@ -5,6 +5,7 @@ import java.util.Map;
 import com.redislabs.lettusearch.RediSearchClient;
 import com.redislabs.recharge.RechargeConfiguration.RedisWriterConfiguration;
 
+@SuppressWarnings("rawtypes")
 public class LPushWriter extends AbstractCollectionRedisWriter {
 
 	public LPushWriter(RediSearchClient client, RedisWriterConfiguration writer) {
@@ -12,7 +13,7 @@ public class LPushWriter extends AbstractCollectionRedisWriter {
 	}
 
 	@Override
-	protected void write(String key, Map<String, Object> record) {
+	protected void write(String key, Map record) {
 		commands.lpush(key, getMemberId(record));
 	}
 

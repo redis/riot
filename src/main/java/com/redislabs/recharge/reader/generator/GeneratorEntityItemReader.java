@@ -22,7 +22,8 @@ import com.redislabs.recharge.RechargeConfiguration.GeneratorReaderConfiguration
 import lombok.Builder;
 import lombok.Data;
 
-public class GeneratorEntityItemReader extends AbstractItemCountingItemStreamItemReader<Map<String, Object>> {
+@SuppressWarnings("rawtypes")
+public class GeneratorEntityItemReader extends AbstractItemCountingItemStreamItemReader<Map> {
 
 	private String locale;
 	private SpelExpressionParser parser = new SpelExpressionParser();
@@ -67,8 +68,8 @@ public class GeneratorEntityItemReader extends AbstractItemCountingItemStreamIte
 
 	@Override
 	@SuppressWarnings("unchecked")
-	protected Map<String, Object> doRead() throws Exception {
-		Map<String, Object> output = map == null ? new HashMap<>() : map.getValue(context, Map.class);
+	protected Map doRead() throws Exception {
+		Map output = map == null ? new HashMap<>() : map.getValue(context, Map.class);
 		expressions.forEach((k, v) -> {
 			output.put(k, v.getValue(context));
 		});

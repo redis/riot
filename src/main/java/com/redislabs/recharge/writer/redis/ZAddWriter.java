@@ -6,6 +6,7 @@ import com.redislabs.lettusearch.RediSearchClient;
 import com.redislabs.recharge.RechargeConfiguration.RedisWriterConfiguration;
 import com.redislabs.recharge.RechargeConfiguration.ZSetConfiguration;
 
+@SuppressWarnings("rawtypes")
 public class ZAddWriter extends AbstractCollectionRedisWriter {
 
 	private ZSetConfiguration zset;
@@ -16,7 +17,7 @@ public class ZAddWriter extends AbstractCollectionRedisWriter {
 	}
 
 	@Override
-	protected void write(String key, Map<String, Object> record) {
+	protected void write(String key, Map record) {
 		Double score = zset.getScore() == null ? zset.getDefaultScore()
 				: convert(record.get(zset.getScore()), Double.class);
 		commands.zadd(key, score, getMemberId(record));

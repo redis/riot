@@ -6,6 +6,7 @@ import com.redislabs.lettusearch.RediSearchClient;
 import com.redislabs.recharge.RechargeConfiguration.CollectionRedisWriterConfiguration;
 import com.redislabs.recharge.RechargeConfiguration.RedisWriterConfiguration;
 
+@SuppressWarnings("rawtypes")
 public abstract class AbstractCollectionRedisWriter extends AbstractPipelineRedisWriter {
 
 	private CollectionRedisWriterConfiguration collectionConfig;
@@ -16,7 +17,7 @@ public abstract class AbstractCollectionRedisWriter extends AbstractPipelineRedi
 		this.collectionConfig = collectionConfig;
 	}
 
-	protected String getMemberId(Map<String, Object> record) {
+	protected String getMemberId(Map record) {
 		return getValues(record, collectionConfig.getFields());
 	}
 

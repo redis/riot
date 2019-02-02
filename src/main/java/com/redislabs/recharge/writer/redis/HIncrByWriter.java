@@ -6,6 +6,7 @@ import com.redislabs.lettusearch.RediSearchClient;
 import com.redislabs.recharge.RechargeConfiguration.HIncrByConfiguration;
 import com.redislabs.recharge.RechargeConfiguration.RedisWriterConfiguration;
 
+@SuppressWarnings("rawtypes")
 public class HIncrByWriter extends AbstractPipelineRedisWriter {
 
 	private HIncrByConfiguration hincrby;
@@ -16,7 +17,7 @@ public class HIncrByWriter extends AbstractPipelineRedisWriter {
 	}
 
 	@Override
-	protected void write(String key, Map<String, Object> fields) {
+	protected void write(String key, Map fields) {
 		Long delta = convert(fields.get(hincrby.getSourceField()), Long.class);
 		commands.hincrby(key, hincrby.getTargetField(), delta);
 	}

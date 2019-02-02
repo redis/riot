@@ -10,6 +10,7 @@ import com.redislabs.recharge.RechargeConfiguration.RedisWriterConfiguration;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@SuppressWarnings("rawtypes")
 public class NilWriter extends AbstractPipelineRedisWriter {
 
 	private NilConfiguration nil;
@@ -20,7 +21,7 @@ public class NilWriter extends AbstractPipelineRedisWriter {
 	}
 
 	@Override
-	public void write(List<? extends Map<String, Object>> items) {
+	public void write(List<? extends Map> items) {
 		if (nil == null) {
 			return;
 		}
@@ -32,6 +33,6 @@ public class NilWriter extends AbstractPipelineRedisWriter {
 	}
 
 	@Override
-	protected void write(String key, Map<String, Object> record) {
+	protected void write(String key, Map record) {
 	}
 }

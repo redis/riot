@@ -17,8 +17,9 @@ import com.redislabs.recharge.RechargeConfiguration.RedisWriterConfiguration;
 
 import lombok.extern.slf4j.Slf4j;
 
+@SuppressWarnings({ "rawtypes", "unchecked" })
 @Slf4j
-public abstract class AbstractRedisWriter extends AbstractItemStreamItemWriter<Map<String, Object>> {
+public abstract class AbstractRedisWriter extends AbstractItemStreamItemWriter<Map> {
 
 	public static final String KEY_SEPARATOR = ":";
 
@@ -49,7 +50,7 @@ public abstract class AbstractRedisWriter extends AbstractItemStreamItemWriter<M
 		}
 	}
 
-	protected String getValues(Map<String, Object> record, String[] fields) {
+	protected String getValues(Map record, String[] fields) {
 		if (fields == null) {
 			return null;
 		}
@@ -67,16 +68,16 @@ public abstract class AbstractRedisWriter extends AbstractItemStreamItemWriter<M
 	}
 
 	@Override
-	public void write(List<? extends Map<String, Object>> records) {
-		for (Map<String, Object> record : records) {
+	public void write(List<? extends Map> records) {
+		for (Map record : records) {
 			String id = getValues(record, config.getKeys());
 			String key = getKey(config.getKeyspace(), id);
 			write(key, record);
 		}
 	}
 
-	protected Map<String, String> convert(Map<String, Object> record) {
-		Map<String, String> map = new HashMap<>();
+	protected Map convert(Map record) {
+		Map map = new HashMap<>();
 		record.forEach((k, v) -> map.put(k, converter.convert(v, String.class)));
 		return map;
 	}
@@ -88,6 +89,6 @@ public abstract class AbstractRedisWriter extends AbstractItemStreamItemWriter<M
 		return join(keyspace, id);
 	}
 
-	protected abstract void write(String key, Map<String, Object> record);
+	protected abstract void write(String key, Map record);
 
 }

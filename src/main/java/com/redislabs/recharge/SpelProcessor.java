@@ -16,7 +16,8 @@ import org.springframework.expression.spel.support.StandardEvaluationContext;
 import com.redislabs.lettusearch.StatefulRediSearchConnection;
 import com.redislabs.recharge.RechargeConfiguration.ProcessorConfiguration;
 
-public class SpelProcessor implements ItemProcessor<Map<String, Object>, Map<String, Object>>, StepExecutionListener {
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public class SpelProcessor implements ItemProcessor<Map, Map>, StepExecutionListener {
 
 	private SpelExpressionParser parser = new SpelExpressionParser();
 	private Map<String, Expression> fields = new LinkedHashMap<>();
@@ -38,11 +39,10 @@ public class SpelProcessor implements ItemProcessor<Map<String, Object>, Map<Str
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
-	public Map<String, Object> process(Map<String, Object> record) throws Exception {
-		Map<String, Object> map = source == null ? record : source.getValue(context, record, Map.class);
+	public Map process(Map record) throws Exception {
+		Map map = source == null ? record : source.getValue(context, record, Map.class);
 		if (merge != null) {
-			Map<String, Object> toMerge = merge.getValue(context, record, Map.class);
+			Map toMerge = merge.getValue(context, record, Map.class);
 			if (toMerge != null) {
 				map.putAll(toMerge);
 			}

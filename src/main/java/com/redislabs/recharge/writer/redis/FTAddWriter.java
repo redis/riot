@@ -9,6 +9,7 @@ import com.redislabs.recharge.RechargeConfiguration.RedisWriterConfiguration;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public class FTAddWriter extends AbstractSearchWriter {
 
 	public FTAddWriter(RediSearchClient client, RedisWriterConfiguration writer) {
@@ -16,7 +17,7 @@ public class FTAddWriter extends AbstractSearchWriter {
 	}
 
 	@Override
-	protected void write(String key, Map<String, Object> record) {
+	protected void write(String key, Map record) {
 		double score = getScore(record);
 		AddOptions options = AddOptions.builder().noSave(config.getSearch().isNoSave())
 				.replace(config.getSearch().isReplace()).build();
