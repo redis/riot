@@ -176,7 +176,7 @@ public class BatchConfig {
 		}
 		config.getFlows().forEach((k, v) -> {
 			try {
-				jobLauncher.run(partitionerJob(k, v), new JobParameters());
+				jobLauncher.run(job(k, v), new JobParameters());
 			} catch (JobExecutionAlreadyRunningException | JobRestartException | JobInstanceAlreadyCompleteException
 					| JobParametersInvalidException | IOException e) {
 				log.error("Could not run job {}", k, e);
@@ -184,13 +184,16 @@ public class BatchConfig {
 		});
 	}
 
-	private Job partitionerJob(String name, FlowConfiguration flow) throws IOException {
-		return jobs.get(name + "-job").start(partitionStep(name, flow)).build();
+	private Job job(String name, FlowConfiguration flow) throws IOException {
+		return jobs.get(name + "-job").start(step(name, flow)).build();
 	}
 
-	private Step partitionStep(String name, FlowConfiguration flow) throws IOException {
-		return steps.get(name + "-step").partitioner(name + "-slave-step", partitioner(flow))
-				.step(slaveStep(name, flow)).taskExecutor(taskExecutor(flow)).build();
+	private Step step(String name, FlowConfiguration flow) throws IOException {
+		if (flow.getPartitions() > 1) {
+			return steps.get(name + "-partitioner-step").partitioner(name + "-slave-step", partitioner(flow))
+					.step(flowStep(name, flow)).taskExecutor(taskExecutor(flow)).build();
+		}
+		return flowStep(name, flow);
 	}
 
 	private IndexedPartitioner partitioner(FlowConfiguration flow) {
@@ -206,7 +209,7 @@ public class BatchConfig {
 		return taskExecutor;
 	}
 
-	private Step slaveStep(String name, FlowConfiguration flow) throws IOException {
+	private Step flowStep(String name, FlowConfiguration flow) throws IOException {
 		SimpleStepBuilder<Map, Map> builder = steps.get(name + "-step").<Map, Map>chunk(flow.getChunkSize());
 		AbstractItemCountingItemStreamItemReader<Map> reader = reader(flow.getReader());
 		if (flow.getMaxItemCount() > 0) {

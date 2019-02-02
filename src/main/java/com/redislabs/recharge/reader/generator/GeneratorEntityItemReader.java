@@ -52,8 +52,13 @@ public class GeneratorEntityItemReader extends AbstractItemCountingItemStreamIte
 
 	@Override
 	public void open(ExecutionContext executionContext) throws ItemStreamException {
-		this.partition = Partition.builder().size(executionContext.getInt(IndexedPartitioner.CONTEXT_KEY_PARTITIONS))
-				.index(executionContext.getInt(IndexedPartitioner.CONTEXT_KEY_INDEX)).build();
+		int partitionSize = executionContext.containsKey(IndexedPartitioner.CONTEXT_KEY_PARTITIONS)
+				? executionContext.getInt(IndexedPartitioner.CONTEXT_KEY_PARTITIONS)
+				: 1;
+		int partitionIndex = executionContext.containsKey(IndexedPartitioner.CONTEXT_KEY_INDEX)
+				? executionContext.getInt(IndexedPartitioner.CONTEXT_KEY_INDEX)
+				: 0;
+		this.partition = Partition.builder().size(partitionSize).index(partitionIndex).build();
 		super.open(executionContext);
 	}
 

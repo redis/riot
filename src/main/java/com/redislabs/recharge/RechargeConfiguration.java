@@ -26,7 +26,8 @@ public class RechargeConfiguration {
 	private long flushallWait = 5000;
 	private boolean meter;
 	private Map<String, FlowConfiguration> flows;
-	private Map<String, FileType> fileTypes;
+	private Map<String, FileType> fileTypes = Map.of("dat", FileType.Delimited, "csv", FileType.Delimited, "txt",
+			FileType.FixedLength);
 
 	@Data
 	public static class FlowConfiguration {
