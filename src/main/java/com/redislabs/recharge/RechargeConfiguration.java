@@ -26,8 +26,18 @@ public class RechargeConfiguration {
 	private long flushallWait = 5000;
 	private boolean meter;
 	private Map<String, FlowConfiguration> flows;
-	private Map<String, FileType> fileTypes = Map.of("dat", FileType.Delimited, "csv", FileType.Delimited, "txt",
-			FileType.FixedLength);
+	private Map<String, FileType> fileTypes = new LinkedHashMap<String, FileType>() {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 6218223585260809771L;
+
+		{
+			put("dat", FileType.Delimited);
+			put("csv", FileType.Delimited);
+			put("txt", FileType.FixedLength);
+		}
+	};
 
 	@Data
 	public static class FlowConfiguration {
