@@ -34,6 +34,7 @@ import com.redislabs.recharge.RechargeConfiguration.NilConfiguration;
 import com.redislabs.recharge.RechargeConfiguration.ReaderConfiguration;
 import com.redislabs.recharge.RechargeConfiguration.RedisType;
 import com.redislabs.recharge.RechargeConfiguration.RedisWriterConfiguration;
+import com.redislabs.recharge.RechargeConfiguration.SearchConfiguration;
 import com.redislabs.recharge.RechargeConfiguration.WriterConfiguration;
 import com.redislabs.recharge.meter.ProcessorMeter;
 import com.redislabs.recharge.meter.ReaderMeter;
@@ -106,6 +107,9 @@ public class BatchConfig {
 		case list:
 			return new LPushWriter(client, redis);
 		case search:
+			if (redis.getSearch() == null) {
+				redis.setSearch(new SearchConfiguration());
+			}
 			return new FTAddWriter(client, redis);
 		case suggest:
 			return new SuggestionWriter(client, redis);

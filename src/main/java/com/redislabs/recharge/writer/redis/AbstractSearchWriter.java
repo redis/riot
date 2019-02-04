@@ -25,26 +25,24 @@ public abstract class AbstractSearchWriter extends AbstractPipelineRedisWriter {
 	@Override
 	protected void doOpen() {
 		SearchConfiguration search = config.getSearch();
-		if (!search.getSchema().isEmpty()) {
-			if (search.isDrop()) {
-				try {
-					commands.drop(config.getKeyspace(), DropOptions.builder().build());
-				} catch (Exception e) {
-					log.debug("Could not drop index {}", config.getKeyspace(), e);
-				}
+		if (search.isDrop()) {
+			try {
+				commands.drop(config.getKeyspace(), DropOptions.builder().build());
+			} catch (Exception e) {
+				log.debug("Could not drop index {}", config.getKeyspace(), e);
 			}
-			if (search.isCreate()) {
-				SchemaBuilder builder = Schema.builder();
-				search.getSchema().forEach(entry -> builder.field(getField(entry)));
-				Schema schema = builder.build();
-				try {
-					commands.create(config.getKeyspace(), schema);
-				} catch (Exception e) {
-					if (e.getMessage().startsWith("Index already exists")) {
-						log.debug("Ignored failure to create index {}", config.getKeyspace(), e);
-					} else {
-						log.error("Could not create index {}", config.getKeyspace(), e);
-					}
+		}
+		if (search.isCreate() && !search.getSchema().isEmpty()) {
+			SchemaBuilder builder = Schema.builder();
+			search.getSchema().forEach(entry -> builder.field(getField(entry)));
+			Schema schema = builder.build();
+			try {
+				commands.create(config.getKeyspace(), schema);
+			} catch (Exception e) {
+				if (e.getMessage().startsWith("Index already exists")) {
+					log.debug("Ignored failure to create index {}", config.getKeyspace(), e);
+				} else {
+					log.error("Could not create index {}", config.getKeyspace(), e);
 				}
 			}
 		}

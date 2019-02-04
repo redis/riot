@@ -20,7 +20,7 @@ public class FTAddWriter extends AbstractSearchWriter {
 	protected void write(String key, Map record) {
 		double score = getScore(record);
 		AddOptions options = AddOptions.builder().noSave(config.getSearch().isNoSave())
-				.replace(config.getSearch().isReplace()).build();
+				.replace(config.getSearch().isReplace()).replacePartial(config.getSearch().isReplacePartial()).build();
 		try {
 			commands.add(config.getKeyspace(), key, score, convert(record), options);
 		} catch (Exception e) {

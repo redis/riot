@@ -26,15 +26,25 @@ flows:
     - redis:
         keyspace: node
         keys: DC_ID
+  stores-brand:
+    reader:
+      file:
+        path: /Users/jruaux/DocumentsRL/Customers/Gap ICM/InventoryPoC/GapLogInventoryForPOC/DC_BRD_ASSN.csv
+        delimited:
+          header: true
+    writers:
+    - redis:
+        keyspace: node
+        keys: DC_ID
   stores-gen:
     max-item-count: 3568  
     reader:
       generator:
         fields:
           DC_ID: "#sequence.nextMember('nodes')"
-          giftwrap: "bool.bool"
-          nextday: "bool.bool"
-          pobox: "bool.bool"
+          GIFTWRAP: "bool.bool"
+          NEXTDAY: "bool.bool"
+          POBOX: "bool.bool"
     writers:
     - redis:
         keyspace: node
@@ -91,107 +101,87 @@ flows:
             sortable: true
           - name: PHN_NBR
             sortable: true
-          - name: location
+          - name: BRD_CD
+            sortable: true
+          - name: LOCATION
             type: geo
-          - name: giftwrap
+          - name: GIFTWRAP
             sortable: true
-          - name: nextday
+          - name: NEXTDAY
             sortable: true
-          - name: pobox
+          - name: POBOX
             sortable: true
   stock:
-    max-item-count: 35680000
+    max-item-count: 100000
     partitions: 3
     reader:
-      type: generator
       generator:
-        map: "number.randomDoubleMap(0,0,100,'onhand','hold','reserved','allocated','backordered','excluded')"
         fields:
-          node: "#sequence.nextMember('nodes')"        
-          sku: "sequence.next('sku',#partition.index*1000,(#partition.index+1)*1000,'%09d')"
-          brand: "number.digits(1)"
+          DC_ID: "#sequence.nextMember('nodes')"       
+          SKU: "sequence.next('sku',#partition.index*7500+1,(#partition.index+1)*7500,'%09d')"
     processor:
-      merge: "#redis.hgetall('node:'.concat(node))"
+      merge: "#redis.hgetall('node:'.concat(DC_ID))"
     writers:
     - redis:
         keyspace: stock
-        keys: node,sku
+        keys: DC_ID,SKU
         search:
           schema:
-          - name: node
-          - name: sku
-          - name: brand
-            sortable: true
-          - name: onhand
-            type: numeric
-            sortable: true
-          - name: hold
-            type: numeric
-            sortable: true
-          - name: reserved
-            type: numeric
-            sortable: true
-          - name: allocated
-            type: numeric
-            sortable: true
-          - name: backordered
-            type: numeric
-            sortable: true
-          - name: excluded
-            type: numeric
-            sortable: true
           - name: DC_ID
+            sortable: true
+          - name: SKU
             sortable: true
           - name: GID_MKT_CD
             sortable: true
-          - name: DC_CPCY_AMT
-            type: numeric
-            sortable: true
           - name: DC_TYP_CD
-          - name: STR_DC_MAX_RLSE_ORD_PER_DY
-            type: numeric
-            sortable: true
-          - name: DC_STAT_TYP_CD
-            sortable: true
-          - name: DC_SUP_OFST_QTY
-            type: numeric
-            sortable: true
-          - name: ROLLUP_INVENTORY
-            sortable: true
-          - name: GID_DC_RESYNC_GRP
             sortable: true
           - name: DC_DESC
-            sortable: true
-          - name: GEO_POSITION_ID
-            sortable: true
-          - name: PREFERRED
-            sortable: true
-          - name: ISDEFAULT
-            sortable: true
-          - name: DC_INV_AVAL_TO_SELL
-            sortable: true
-          - name: PARENT_DC_ID
-            sortable: true
-          - name: ADDR_LN1_TXT
-          - name: ADDR_LN2_TXT
-          - name: ADDR_LN3_TXT
           - name: CITY_NM
-            sortable: true
-          - name: CNTY_NM
             sortable: true
           - name: ST_PROV_CD
             sortable: true
-          - name: PSTL_CD
-            sortable: true
           - name: CTRY_CD
             sortable: true
-          - name: PHN_NBR
+          - name: BRD_CD
             sortable: true
-          - name: location
+          - name: LOCATION
             type: geo
-          - name: giftwrap
+          - name: GIFTWRAP
             sortable: true
-          - name: nextday
+          - name: NEXTDAY
             sortable: true
-          - name: pobox
+          - name: POBOX
+            sortable: true            
+          - name: ONHAND
+            type: numeric
             sortable: true
+          - name: HOLD
+            type: numeric
+            sortable: true
+          - name: RESERVED
+            type: numeric
+            sortable: true
+          - name: ALLOCATED
+            type: numeric
+            sortable: true
+          - name: BACKORDERED
+            type: numeric
+            sortable: true
+          - name: EXCLUDED
+            type: numeric
+            sortable: true
+  stock-update:
+    max-item-count: -1
+    reader:
+      generator:
+        map: "number.randomDoubleMap(0,0,100,'ONHAND','HOLD','RESERVED','ALLOCATED','BACKORDERED','EXCLUDED')"
+        fields:
+          DC_ID: "#sequence.nextMember('nodes')"
+          SKU: "sequence.next('sku',1,22400,'%09d')"
+    writers:
+    - redis:
+        keyspace: stock
+        keys: DC_ID,SKU
+        search:
+          replace: true
+          replacePartial: true      

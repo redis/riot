@@ -210,6 +210,7 @@ public class RechargeConfiguration {
 		private String score;
 		private double defaultScore = 1d;
 		private boolean replace;
+		private boolean replacePartial;
 		private boolean noSave;
 	}
 
