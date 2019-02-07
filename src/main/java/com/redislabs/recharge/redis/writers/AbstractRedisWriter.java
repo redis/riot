@@ -1,53 +1,35 @@
 
-package com.redislabs.recharge.writer.redis;
+package com.redislabs.recharge.redis.writers;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.support.AbstractItemStreamItemWriter;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.support.DefaultConversionService;
 
-import com.redislabs.lettusearch.RediSearchClient;
 import com.redislabs.lettusearch.StatefulRediSearchConnection;
-import com.redislabs.recharge.RechargeConfiguration.RedisWriterConfiguration;
-
-import lombok.extern.slf4j.Slf4j;
+import com.redislabs.recharge.RechargeConfiguration.AbstractRedisWriterConfiguration;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
-@Slf4j
-public abstract class AbstractRedisWriter extends AbstractItemStreamItemWriter<Map> {
+public abstract class AbstractRedisWriter<T extends AbstractRedisWriterConfiguration>
+		extends AbstractItemStreamItemWriter<Map> {
 
 	public static final String KEY_SEPARATOR = ":";
 
+	T config;
+	StatefulRediSearchConnection<String, String> connection;
 	ConversionService converter = new DefaultConversionService();
-	RedisWriterConfiguration config;
-	private StatefulRediSearchConnection<String, String> connection;
-	private RediSearchClient client;
 
-	protected AbstractRedisWriter(RediSearchClient client, RedisWriterConfiguration config) {
-		this.client = client;
+	protected AbstractRedisWriter(T config) {
 		this.config = config;
 	}
 
-	@Override
-	public synchronized void open(ExecutionContext executionContext) {
-		log.info("Opening {}", getClass().getSimpleName());
-		connection = client.connect();
-		open(connection);
-	}
-
-	protected abstract void open(StatefulRediSearchConnection<String, String> connection);
-
-	@Override
-	public synchronized void close() {
-		if (connection != null) {
-			connection.close();
-			connection = null;
-		}
+	public AbstractRedisWriter<T> setConnection(StatefulRediSearchConnection<String, String> connection) {
+		this.connection = connection;
+		return this;
 	}
 
 	protected String getValues(Map record, String[] fields) {
@@ -61,10 +43,6 @@ public abstract class AbstractRedisWriter extends AbstractItemStreamItemWriter<M
 
 	protected String join(String... values) {
 		return String.join(KEY_SEPARATOR, values);
-	}
-
-	protected <T> T convert(Object source, Class<T> targetType) {
-		return converter.convert(source, targetType);
 	}
 
 	@Override

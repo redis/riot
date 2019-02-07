@@ -1,4 +1,4 @@
-package com.redislabs.recharge.reader.file;
+package com.redislabs.recharge.file;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -24,11 +24,11 @@ import org.springframework.batch.item.json.JacksonJsonObjectReader;
 import org.springframework.batch.item.json.builder.JsonItemReaderBuilder;
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
-import org.springframework.stereotype.Component;
 import org.springframework.util.ResourceUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -42,7 +42,7 @@ import com.redislabs.recharge.RechargeConfiguration.JsonFileConfiguration;
 
 import lombok.extern.slf4j.Slf4j;
 
-@Component
+@Configuration
 @Slf4j
 @SuppressWarnings("rawtypes")
 public class FileConfiguration {
@@ -53,10 +53,9 @@ public class FileConfiguration {
 	private Pattern filePathPattern = Pattern
 			.compile("(?<" + FILE_BASENAME + ">.+)\\.(?<" + FILE_EXTENSION + ">\\w+)(?<" + FILE_GZ + ">\\.gz)?");
 
-	@Autowired
-	private RechargeConfiguration rechargeConfig;
-
 	private BufferedReaderFactory bufferedReaderFactory = new DefaultBufferedReaderFactory();
+	@Autowired
+	private RechargeConfiguration recharge;
 
 	private FlatFileItemReaderBuilder<Map> getFlatFileReaderBuilder(Resource resource, FlatFileConfiguration fileConfig)
 			throws IOException {
@@ -77,9 +76,9 @@ public class FileConfiguration {
 		return builder;
 	}
 
-	private Resource getResource(FileReaderConfiguration reader) throws IOException {
-		Resource resource = getResource(reader.getPath());
-		if (isGzip(reader)) {
+	private Resource getResource(FileReaderConfiguration config) throws IOException {
+		Resource resource = getResource(config.getPath());
+		if (isGzip(config)) {
 			return getGZipResource(resource);
 		}
 		return resource;
@@ -92,12 +91,12 @@ public class FileConfiguration {
 		return new FileSystemResource(path);
 	}
 
-	private boolean isGzip(FileReaderConfiguration reader) {
-		if (reader.getGzip() == null) {
-			String gz = getFilenameGroup(reader.getPath(), FILE_GZ);
+	private boolean isGzip(FileReaderConfiguration config) {
+		if (config.getGzip() == null) {
+			String gz = getFilenameGroup(config.getPath(), FILE_GZ);
 			return gz != null && gz.length() > 0;
 		}
-		return reader.getGzip();
+		return config.getGzip();
 	}
 
 	private String getFilenameGroup(String path, String groupName) {
@@ -188,18 +187,23 @@ public class FileConfiguration {
 		return new Range(Integer.parseInt(split[0]), Integer.parseInt(split[1]));
 	}
 
-	public AbstractItemCountingItemStreamItemReader<Map> reader(FileReaderConfiguration reader) throws IOException {
-		Resource resource = getResource(reader);
-		if (reader.getType() == null) {
-			reader.setType(getFileType(resource));
-		}
-		switch (reader.getType()) {
-		case FixedLength:
-			return getFixedLengthReader(reader.getFixedLength(), resource);
-		case Json:
-			return getJsonReader(reader.getJson(), resource);
-		default:
-			return getDelimitedReader(reader.getDelimited(), resource);
+	public AbstractItemCountingItemStreamItemReader<Map> reader(FileReaderConfiguration config) {
+		try {
+			Resource resource = getResource(config);
+			if (config.getType() == null) {
+				config.setType(getFileType(resource));
+			}
+			switch (config.getType()) {
+			case FixedLength:
+				return getFixedLengthReader(config.getFixedLength(), resource);
+			case Json:
+				return getJsonReader(config.getJson(), resource);
+			default:
+				return getDelimitedReader(config.getDelimited(), resource);
+			}
+		} catch (IOException e) {
+			log.error("Could not create file reader for {}", config.getPath());
+			return null;
 		}
 	}
 
@@ -209,7 +213,7 @@ public class FileConfiguration {
 			return null;
 		}
 		log.debug("Found file extension '{}' for path {}", extension, resource);
-		return rechargeConfig.getFileTypes().get(extension);
+		return recharge.getFileTypes().get(extension);
 	}
 
 	private AbstractItemCountingItemStreamItemReader<Map> getJsonReader(JsonFileConfiguration config,

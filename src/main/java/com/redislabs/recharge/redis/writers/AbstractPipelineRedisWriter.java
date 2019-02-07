@@ -1,15 +1,15 @@
 
-package com.redislabs.recharge.writer.redis;
+package com.redislabs.recharge.redis.writers;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import org.springframework.batch.item.ExecutionContext;
+
 import com.redislabs.lettusearch.RediSearchAsyncCommands;
-import com.redislabs.lettusearch.RediSearchClient;
-import com.redislabs.lettusearch.StatefulRediSearchConnection;
-import com.redislabs.recharge.RechargeConfiguration.RedisWriterConfiguration;
+import com.redislabs.recharge.RechargeConfiguration.AbstractRedisWriterConfiguration;
 
 import io.lettuce.core.LettuceFutures;
 import io.lettuce.core.RedisFuture;
@@ -17,28 +17,20 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @SuppressWarnings("rawtypes")
-public abstract class AbstractPipelineRedisWriter extends AbstractRedisWriter {
+public abstract class AbstractPipelineRedisWriter<T extends AbstractRedisWriterConfiguration>
+		extends AbstractRedisWriter<T> {
+
+	protected AbstractPipelineRedisWriter(T config) {
+		super(config);
+	}
 
 	RediSearchAsyncCommands<String, String> commands;
 
-	protected AbstractPipelineRedisWriter(RediSearchClient client, RedisWriterConfiguration config) {
-		super(client, config);
-	}
-
 	@Override
-	protected void open(StatefulRediSearchConnection<String, String> connection) {
+	public void open(ExecutionContext executionContext) {
 		commands = connection.async();
 		commands.setAutoFlushCommands(false);
-		doOpen();
-	}
-
-	protected void doOpen() {
-	}
-
-	@Override
-	public synchronized void close() {
-		commands = null;
-		super.close();
+		super.open(executionContext);
 	}
 
 	@Override

@@ -1,4 +1,4 @@
-package com.redislabs.recharge.reader.file;
+package com.redislabs.recharge.file;
 
 import java.util.HashMap;
 import java.util.Map;

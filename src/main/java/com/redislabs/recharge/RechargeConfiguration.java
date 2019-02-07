@@ -20,18 +20,12 @@ import lombok.EqualsAndHashCode;
 @EnableAutoConfiguration
 @Data
 public class RechargeConfiguration {
-
-	private boolean concurrent;
-	private boolean flushall;
-	private long flushallWait = 5000;
 	private boolean meter;
-	private Map<String, FlowConfiguration> flows;
+	private boolean flushall;
+	private int flushallWait = 5;
+	private List<FlowConfiguration> flows = new ArrayList<>();
+	@SuppressWarnings("serial")
 	private Map<String, FileType> fileTypes = new LinkedHashMap<String, FileType>() {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 6218223585260809771L;
-
 		{
 			put("dat", FileType.Delimited);
 			put("csv", FileType.Delimited);
@@ -41,22 +35,15 @@ public class RechargeConfiguration {
 
 	@Data
 	public static class FlowConfiguration {
+		private String name;
 		private int chunkSize = 50;
 		private int maxItemCount = 10000;
 		private int partitions = 1;
-		private ReaderConfiguration reader = new ReaderConfiguration();
-		private ProcessorConfiguration processor = new ProcessorConfiguration();
-		private List<WriterConfiguration> writers = new ArrayList<>();
-	}
-
-	@Data
-	public static class ReaderConfiguration {
-		private GeneratorReaderConfiguration generator;
+		private GeneratorConfiguration generator;
 		private FileReaderConfiguration file;
-	}
+		private ProcessorConfiguration processor;
+		private List<RedisWriterConfiguration> redis = new ArrayList<>();
 
-	public static enum ReaderType {
-		Generator, File
 	}
 
 	@Data
@@ -64,6 +51,32 @@ public class RechargeConfiguration {
 		private String source;
 		private String merge;
 		private Map<String, String> fields = new LinkedHashMap<>();
+	}
+
+	@Data
+	public static class RedisWriterConfiguration {
+		private StringConfiguration string;
+		private HashConfiguration hash;
+		private ListConfiguration list;
+		private SetConfiguration set;
+		private ZSetConfiguration zset;
+		private GeoConfiguration geo;
+		private SearchConfiguration search;
+		private SuggestConfiguration suggest;
+		private StreamConfiguration stream;
+	}
+
+	@Data
+	public static class AbstractRedisWriterConfiguration {
+		private String keyspace;
+		private String[] keys;
+	}
+
+	@Data
+	public static class GeneratorConfiguration {
+		private String map;
+		private Map<String, String> fields = new LinkedHashMap<>();
+		private String locale = "en-US";
 	}
 
 	@Data
@@ -104,40 +117,6 @@ public class RechargeConfiguration {
 		private Boolean strict;
 	}
 
-	@Data
-	public static class GeneratorReaderConfiguration {
-		private String map;
-		private Map<String, String> fields = new LinkedHashMap<>();
-		private String locale = "en-US";
-	}
-
-	@Data
-	public static class WriterConfiguration {
-		private WriterType type = WriterType.Redis;
-		private RedisWriterConfiguration redis = new RedisWriterConfiguration();
-	}
-
-	public static enum WriterType {
-		Redis
-	}
-
-	@Data
-	public static class RedisWriterConfiguration {
-		private String keyspace;
-		private String[] keys;
-		private RedisType type;
-		private NilConfiguration nil;
-		private StringConfiguration string;
-		private HashConfiguration hash;
-		private ListConfiguration list;
-		private SetConfiguration set;
-		private ZSetConfiguration zset;
-		private GeoConfiguration geo;
-		private SearchConfiguration search;
-		private SuggestConfiguration suggest;
-		private StreamConfiguration stream;
-	}
-
 	public static enum RedisType {
 		nil, string, hash, list, set, zset, geo, search, suggest, stream
 	}
@@ -148,7 +127,8 @@ public class RechargeConfiguration {
 	}
 
 	@Data
-	public static class SuggestConfiguration {
+	@EqualsAndHashCode(callSuper = true)
+	public static class SuggestConfiguration extends AbstractRedisWriterConfiguration {
 		private String field;
 		private String score;
 		private double defaultScore = 1d;
@@ -156,7 +136,8 @@ public class RechargeConfiguration {
 	}
 
 	@Data
-	public static class StreamConfiguration {
+	@EqualsAndHashCode(callSuper = true)
+	public static class StreamConfiguration extends AbstractRedisWriterConfiguration {
 		private boolean approximateTrimming;
 		private String id;
 		private Long maxlen;
@@ -167,19 +148,22 @@ public class RechargeConfiguration {
 	}
 
 	@Data
-	public static class HashConfiguration {
+	@EqualsAndHashCode(callSuper = true)
+	public static class HashConfiguration extends AbstractRedisWriterConfiguration {
 		private String[] includeFields;
 		private HIncrByConfiguration incrby;
 	}
 
 	@Data
-	public static class HIncrByConfiguration {
+	@EqualsAndHashCode(callSuper = true)
+	public static class HIncrByConfiguration extends AbstractRedisWriterConfiguration {
 		private String sourceField;
 		private String targetField;
 	}
 
 	@Data
-	public static class StringConfiguration {
+	@EqualsAndHashCode(callSuper = true)
+	public static class StringConfiguration extends AbstractRedisWriterConfiguration {
 		private XmlConfiguration xml;
 		private JsonConfiguration json;
 	}
@@ -202,7 +186,8 @@ public class RechargeConfiguration {
 	}
 
 	@Data
-	public static class SearchConfiguration {
+	@EqualsAndHashCode(callSuper = true)
+	public static class SearchConfiguration extends AbstractRedisWriterConfiguration {
 		private boolean drop = false;
 		private boolean create = true;
 		private List<RediSearchField> schema = new ArrayList<>();
@@ -223,7 +208,8 @@ public class RechargeConfiguration {
 	}
 
 	@Data
-	public static class CollectionRedisWriterConfiguration {
+	@EqualsAndHashCode(callSuper = true)
+	private abstract static class CollectionRedisWriterConfiguration extends AbstractRedisWriterConfiguration {
 		private String[] fields;
 	}
 

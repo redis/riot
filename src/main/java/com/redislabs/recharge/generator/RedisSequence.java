@@ -1,4 +1,4 @@
-package com.redislabs.recharge.reader.generator;
+package com.redislabs.recharge.generator;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -6,21 +6,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.redislabs.lettusearch.StatefulRediSearchConnection;
+import com.redislabs.lettusearch.RediSearchCommands;
 
 public class RedisSequence {
 
 	private Map<String, Integer> sequenceMap = new HashMap<>();
 	private Map<String, List<String>> membersMap = new HashMap<>();
-	private StatefulRediSearchConnection<String, String> connection;
+	private RediSearchCommands<String, String> commands;
 
-	public RedisSequence(StatefulRediSearchConnection<String, String> connection) {
-		this.connection = connection;
+	public RedisSequence(RediSearchCommands<String, String> commands) {
+		this.commands = commands;
 	}
 
 	public String nextMember(String key, int start, int end) {
 		if (!membersMap.containsKey(key)) {
-			Set<String> memberSet = connection.sync().smembers(key);
+			Set<String> memberSet = commands.smembers(key);
 			ArrayList<String> members = new ArrayList<>(memberSet.size());
 			members.addAll(memberSet);
 			membersMap.put(key, members);

@@ -1,28 +1,43 @@
 package com.redislabs.recharge;
 
+import org.springframework.batch.core.JobParameters;
+import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.ConfigurableApplicationContext;
 
+import com.redislabs.lettusearch.StatefulRediSearchConnection;
 import com.redislabs.springredisearch.RediSearchConfiguration;
 
-@SpringBootApplication(scanBasePackageClasses = { RechargeApplication.class, RediSearchConfiguration.class })
-public class RechargeApplication implements ApplicationRunner {
+import lombok.extern.slf4j.Slf4j;
 
+@SpringBootApplication(scanBasePackageClasses = { RechargeApplication.class, RediSearchConfiguration.class })
+@Slf4j
+public class RechargeApplication implements ApplicationRunner {
+	@Autowired
+	private JobLauncher jobLauncher;
 	@Autowired
 	private BatchConfig batch;
+	@Autowired
+	private RechargeConfiguration config;
+	@Autowired
+	private StatefulRediSearchConnection<String, String> connection;
 
 	public static void main(String[] args) {
-		ConfigurableApplicationContext context = SpringApplication.run(RechargeApplication.class, args);
-		SpringApplication.exit(context);
+		SpringApplication.exit(SpringApplication.run(RechargeApplication.class, args));
+		log.info("Exited");
 	}
 
 	@Override
 	public void run(ApplicationArguments args) throws Exception {
-		batch.runJob();
+		if (config.isFlushall()) {
+			log.warn("Flushing database in {} seconds", config.getFlushallWait());
+			Thread.sleep(config.getFlushallWait() * 1000);
+			connection.sync().flushall();
+		}
+		jobLauncher.run(batch.job(), new JobParameters());
 	}
 
 }

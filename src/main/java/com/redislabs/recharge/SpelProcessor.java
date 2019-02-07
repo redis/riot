@@ -4,9 +4,6 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.springframework.batch.core.ExitStatus;
-import org.springframework.batch.core.StepExecution;
-import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.context.expression.MapAccessor;
 import org.springframework.expression.Expression;
@@ -17,25 +14,21 @@ import com.redislabs.lettusearch.StatefulRediSearchConnection;
 import com.redislabs.recharge.RechargeConfiguration.ProcessorConfiguration;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
-public class SpelProcessor implements ItemProcessor<Map, Map>, StepExecutionListener {
+public class SpelProcessor implements ItemProcessor<Map, Map> {
 
 	private SpelExpressionParser parser = new SpelExpressionParser();
 	private Map<String, Expression> fields = new LinkedHashMap<>();
-	private ProcessorConfiguration config;
 	private Expression source;
 	private Expression merge;
 	private StandardEvaluationContext context;
-	private StatefulRediSearchConnection<String, String> connection;
 
-	public SpelProcessor(StatefulRediSearchConnection<String, String> connection, ProcessorConfiguration processor) {
-		this.connection = connection;
-		this.config = processor;
+	public SpelProcessor(ProcessorConfiguration processor, StatefulRediSearchConnection<String, String> connection) {
 		this.source = processor.getSource() == null ? null : parser.parseExpression(processor.getSource());
 		this.merge = processor.getMerge() == null ? null : parser.parseExpression(processor.getMerge());
+		processor.getFields().forEach((k, v) -> fields.put(k, parser.parseExpression(v)));
 		this.context = new StandardEvaluationContext();
-		context.setPropertyAccessors(Arrays.asList(new MapAccessor()));
-		context.setVariable("redis", connection.sync());
-		config.getFields().forEach((k, v) -> fields.put(k, parser.parseExpression(v)));
+		this.context.setPropertyAccessors(Arrays.asList(new MapAccessor()));
+		this.context.setVariable("redis", connection.sync());
 	}
 
 	@Override
@@ -49,18 +42,6 @@ public class SpelProcessor implements ItemProcessor<Map, Map>, StepExecutionList
 		}
 		fields.forEach((k, v) -> map.put(k, v.getValue(context, map)));
 		return map;
-	}
-
-	@Override
-	public void beforeStep(StepExecution stepExecution) {
-	}
-
-	@Override
-	public ExitStatus afterStep(StepExecution stepExecution) {
-		if (connection != null) {
-			connection.close();
-		}
-		return null;
 	}
 
 }
