@@ -111,7 +111,7 @@ flows:
   generator:
     fields:
       DC_ID: "#sequence.nextMember('nodes')"
-      SKU: "sequence.next('SKU',#partition*7500+1,(#partition+1)*7500,'%09d')"
+      SKU: "#context.nextId(20000,'%09d')"
   processor:
     merge: "#redis.hgetall('node:'.concat(DC_ID))"
   redis:
