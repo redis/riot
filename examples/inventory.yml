@@ -106,7 +106,7 @@ flows:
       - name: POBOX
         sortable: true
 - name: stock
-  max-item-count: 1000000
+  max-item-count: 10000000
   partitions: 3
   generator:
     fields:

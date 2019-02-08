@@ -2,6 +2,7 @@ package com.redislabs.recharge.redis.writers;
 
 import java.util.Map;
 
+import com.redislabs.lettusearch.RediSearchAsyncCommands;
 import com.redislabs.recharge.RechargeConfiguration.HashConfiguration;
 
 @SuppressWarnings("rawtypes")
@@ -12,7 +13,7 @@ public class HIncrByWriter extends AbstractPipelineRedisWriter<HashConfiguration
 	}
 
 	@Override
-	protected void write(String key, Map record) {
+	protected void write(String key, Map record, RediSearchAsyncCommands<String, String> commands) {
 		commands.hincrby(key, config.getIncrby().getTargetField(), getDelta(record));
 	}
 

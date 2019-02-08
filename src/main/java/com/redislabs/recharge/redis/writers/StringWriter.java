@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import com.redislabs.lettusearch.RediSearchAsyncCommands;
 import com.redislabs.recharge.RechargeConfiguration.StringConfiguration;
 
 import lombok.extern.slf4j.Slf4j;
@@ -21,9 +22,9 @@ public class StringWriter extends AbstractPipelineRedisWriter<StringConfiguratio
 		this.objectWriter = config.getXml() == null ? new ObjectMapper().writer()
 				: new XmlMapper().writer().withRootName(config.getXml().getRootName());
 	}
-
+	
 	@Override
-	protected void write(String key, Map record) {
+	protected void write(String key, Map record, RediSearchAsyncCommands<String, String> commands) {
 		try {
 			commands.set(key, objectWriter.writeValueAsString(record));
 		} catch (JsonProcessingException e) {

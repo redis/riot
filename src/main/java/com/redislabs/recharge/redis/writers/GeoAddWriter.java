@@ -2,6 +2,7 @@ package com.redislabs.recharge.redis.writers;
 
 import java.util.Map;
 
+import com.redislabs.lettusearch.RediSearchAsyncCommands;
 import com.redislabs.recharge.RechargeConfiguration.GeoConfiguration;
 
 @SuppressWarnings("rawtypes")
@@ -10,9 +11,9 @@ public class GeoAddWriter extends AbstractPipelineRedisWriter<GeoConfiguration> 
 	public GeoAddWriter(GeoConfiguration config) {
 		super(config);
 	}
-
+	
 	@Override
-	protected void write(String key, Map record) {
+	protected void write(String key, Map record, RediSearchAsyncCommands<String, String> commands) {
 		Object longitude = record.get(config.getLongitude());
 		if (longitude == null || longitude.equals("")) {
 			return;

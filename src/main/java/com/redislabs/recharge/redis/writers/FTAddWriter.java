@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.springframework.batch.item.ExecutionContext;
 
+import com.redislabs.lettusearch.RediSearchAsyncCommands;
 import com.redislabs.lettusearch.search.AddOptions;
 import com.redislabs.lettusearch.search.DropOptions;
 import com.redislabs.lettusearch.search.Schema;
@@ -33,8 +34,7 @@ public class FTAddWriter extends AbstractPipelineRedisWriter<SearchConfiguration
 		if (config.isDrop()) {
 			log.debug("Dropping index {}", keyspace);
 			try {
-				commands.drop(keyspace, DropOptions.builder().build());
-				commands.flushCommands();
+				connection.sync().drop(keyspace, DropOptions.builder().build());
 			} catch (Exception e) {
 				log.debug("Could not drop index {}", keyspace, e);
 			}
@@ -45,8 +45,8 @@ public class FTAddWriter extends AbstractPipelineRedisWriter<SearchConfiguration
 			Schema schema = builder.build();
 			log.debug("Creating schema {}", keyspace);
 			try {
-				commands.create(keyspace, schema);
-				commands.flushCommands();
+				commands.get().create(keyspace, schema);
+				commands.get().flushCommands();
 			} catch (Exception e) {
 				if (e.getMessage().startsWith("Index already exists")) {
 					log.debug("Ignored failure to create index {}", keyspace, e);
@@ -58,7 +58,7 @@ public class FTAddWriter extends AbstractPipelineRedisWriter<SearchConfiguration
 	}
 
 	@Override
-	protected void write(String key, Map record) {
+	protected void write(String key, Map record, RediSearchAsyncCommands<String, String> commands) {
 		double score = getScore(record);
 		AddOptions options = AddOptions.builder().noSave(config.isNoSave()).replace(config.isReplace())
 				.replacePartial(config.isReplacePartial()).build();

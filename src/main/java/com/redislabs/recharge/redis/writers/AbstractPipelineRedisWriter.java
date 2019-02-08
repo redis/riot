@@ -24,12 +24,13 @@ public abstract class AbstractPipelineRedisWriter<T extends AbstractRedisWriterC
 		super(config);
 	}
 
-	RediSearchAsyncCommands<String, String> commands;
+	protected ThreadLocal<RediSearchAsyncCommands<String, String>> commands = new ThreadLocal<>();
 
 	@Override
 	public void open(ExecutionContext executionContext) {
-		commands = connection.async();
-		commands.setAutoFlushCommands(false);
+		RediSearchAsyncCommands<String, String> async = connection.async();
+		async.setAutoFlushCommands(false);
+		commands.set(async);
 		super.open(executionContext);
 	}
 
@@ -37,7 +38,7 @@ public abstract class AbstractPipelineRedisWriter<T extends AbstractRedisWriterC
 	public void write(List<? extends Map> records) {
 		List<RedisFuture<?>> futures = new ArrayList<>();
 		super.write(records);
-		commands.flushCommands();
+		commands.get().flushCommands();
 		boolean result = LettuceFutures.awaitAll(5, TimeUnit.SECONDS, futures.toArray(new RedisFuture[futures.size()]));
 		if (result) {
 			log.debug("Wrote {} records", records.size());
@@ -50,5 +51,12 @@ public abstract class AbstractPipelineRedisWriter<T extends AbstractRedisWriterC
 			}
 		}
 	}
+
+	@Override
+	protected void write(String key, Map record) {
+		write(key, record, commands.get());
+	}
+
+	protected abstract void write(String key, Map record, RediSearchAsyncCommands<String, String> commands);
 
 }

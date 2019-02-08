@@ -2,6 +2,7 @@ package com.redislabs.recharge.redis.writers;
 
 import java.util.Map;
 
+import com.redislabs.lettusearch.RediSearchAsyncCommands;
 import com.redislabs.recharge.RechargeConfiguration.ZSetConfiguration;
 
 @SuppressWarnings("rawtypes")
@@ -12,7 +13,7 @@ public class ZAddWriter extends AbstractPipelineRedisWriter<ZSetConfiguration> {
 	}
 
 	@Override
-	protected void write(String key, Map record) {
+	protected void write(String key, Map record, RediSearchAsyncCommands<String, String> commands) {
 		commands.zadd(key, getScore(record), getValues(record, config.getFields()));
 	}
 
