@@ -30,11 +30,12 @@ public class FTAddWriter extends AbstractPipelineRedisWriter<SearchConfiguration
 	@Override
 	public void open(ExecutionContext executionContext) {
 		super.open(executionContext);
+		RediSearchAsyncCommands<String, String> commands = connection.async();
 		String keyspace = config.getKeyspace();
 		if (config.isDrop()) {
 			log.debug("Dropping index {}", keyspace);
 			try {
-				connection.sync().drop(keyspace, DropOptions.builder().build());
+				commands.drop(keyspace, DropOptions.builder().build());
 			} catch (Exception e) {
 				log.debug("Could not drop index {}", keyspace, e);
 			}
@@ -45,8 +46,7 @@ public class FTAddWriter extends AbstractPipelineRedisWriter<SearchConfiguration
 			Schema schema = builder.build();
 			log.debug("Creating schema {}", keyspace);
 			try {
-				commands.get().create(keyspace, schema);
-				commands.get().flushCommands();
+				commands.create(keyspace, schema);
 			} catch (Exception e) {
 				if (e.getMessage().startsWith("Index already exists")) {
 					log.debug("Ignored failure to create index {}", keyspace, e);
@@ -55,6 +55,7 @@ public class FTAddWriter extends AbstractPipelineRedisWriter<SearchConfiguration
 				}
 			}
 		}
+		commands.flushCommands();
 	}
 
 	@Override

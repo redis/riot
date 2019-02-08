@@ -2,6 +2,7 @@ package com.redislabs.recharge.redis.writers;
 
 import java.util.Map;
 
+import com.redislabs.lettusearch.RediSearchCommands;
 import com.redislabs.recharge.RechargeConfiguration.StreamConfiguration;
 
 import io.lettuce.core.XAddArgs;
@@ -14,7 +15,7 @@ public class XAddWriter extends AbstractSyncRedisWriter<StreamConfiguration> {
 	}
 
 	@Override
-	protected void write(String key, Map record) {
+	protected void write(String key, Map record, RediSearchCommands<String, String> commands) {
 		commands.xadd(key, getXAddArgs(record), convert(record));
 	}
 

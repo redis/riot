@@ -3,7 +3,6 @@ package com.redislabs.recharge.redis.writers;
 
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.springframework.batch.item.support.AbstractItemStreamItemWriter;
@@ -45,13 +44,9 @@ public abstract class AbstractRedisWriter<T extends AbstractRedisWriterConfigura
 		return String.join(KEY_SEPARATOR, values);
 	}
 
-	@Override
-	public void write(List<? extends Map> records) {
-		for (Map record : records) {
-			String id = getValues(record, config.getKeys());
-			String key = getKey(config.getKeyspace(), id);
-			write(key, record);
-		}
+	protected String getKey(Map record) {
+		String id = getValues(record, config.getKeys());
+		return getKey(config.getKeyspace(), id);
 	}
 
 	protected Map convert(Map record) {
@@ -66,7 +61,5 @@ public abstract class AbstractRedisWriter<T extends AbstractRedisWriterConfigura
 		}
 		return join(keyspace, id);
 	}
-
-	protected abstract void write(String key, Map record);
 
 }
