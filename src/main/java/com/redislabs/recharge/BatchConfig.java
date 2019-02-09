@@ -2,24 +2,21 @@ package com.redislabs.recharge;
 
 import java.util.Map;
 
-import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
-import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.job.builder.SimpleJobBuilder;
-import org.springframework.batch.core.listener.StepExecutionListenerSupport;
 import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.core.step.tasklet.TaskletStep;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.core.task.TaskExecutor;
 
-import com.redislabs.lettusearch.StatefulRediSearchConnection;
+import com.redislabs.lettusearch.RediSearchClient;
 import com.redislabs.recharge.RechargeConfiguration.FlowConfiguration;
 import com.redislabs.recharge.file.FileConfiguration;
 import com.redislabs.recharge.generator.GeneratorEntityItemReader;
@@ -53,14 +50,16 @@ public class BatchConfig {
 	@Autowired
 	private ProcessorMeter<Map, Map> processorMeter;
 	@Autowired
-	private StatefulRediSearchConnection<String, String> connection;
+	private RediSearchClient client;
+	@Autowired
+	private TaskExecutor taskExecutor;
 
 	public AbstractItemCountingItemStreamItemReader<Map> reader(FlowConfiguration flow) throws RechargeException {
 		if (flow.getFile() != null) {
 			return fileConfig.reader(flow.getFile());
 		}
 		if (flow.getGenerator() != null) {
-			return new GeneratorEntityItemReader(flow.getGenerator(), connection);
+			return new GeneratorEntityItemReader(flow.getGenerator(), client.connect());
 		}
 		throw new RechargeException("No reader configured");
 	}
@@ -87,22 +86,9 @@ public class BatchConfig {
 	public Step step(FlowConfiguration flow) throws RechargeException {
 		TaskletStep taskletStep = taskletStep(flow);
 		if (flow.getPartitions() > 1) {
-			int partitions = flow.getPartitions();
-			IndexedPartitioner partitioner = new IndexedPartitioner(partitions);
-			ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
-			taskExecutor.setMaxPoolSize(partitions);
-			taskExecutor.setCorePoolSize(partitions);
-			taskExecutor.setQueueCapacity(partitions);
-			taskExecutor.afterPropertiesSet();
+			IndexedPartitioner partitioner = new IndexedPartitioner(flow.getPartitions());
 			return steps.get(flow.getName() + "-step").partitioner(flow.getName() + "-delegate-step", partitioner)
-					.step(taskletStep).taskExecutor(taskExecutor).listener(new StepExecutionListenerSupport() {
-						@Override
-						public ExitStatus afterStep(StepExecution stepExecution) {
-							taskExecutor.shutdown();
-							taskExecutor.destroy();
-							return super.afterStep(stepExecution);
-						}
-					}).build();
+					.step(taskletStep).taskExecutor(taskExecutor).build();
 		}
 		return taskletStep;
 	}
@@ -115,7 +101,7 @@ public class BatchConfig {
 		}
 		builder.reader(reader);
 		if (flow.getProcessor() != null) {
-			SpelProcessor processor = new SpelProcessor(flow.getProcessor(), connection);
+			SpelProcessor processor = new SpelProcessor(flow.getProcessor(), client.connect());
 			builder.processor(processor);
 //			builder.listener(new StepExecutionListenerSupport() {
 //				@Override

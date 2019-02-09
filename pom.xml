@@ -89,13 +89,23 @@
 			<artifactId>lombok</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>io.lettuce</groupId>
+			<artifactId>lettuce-core</artifactId>
+			<version>5.2.0.BUILD-SNAPSHOT</version>
+		</dependency>		
+		<dependency>
 			<groupId>com.redislabs</groupId>
 			<artifactId>spring-redisearch</artifactId>
-			<version>1.0.7</version>
+			<version>1.0.8-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-pool2</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.redislabs</groupId>
+			<artifactId>lettusearch</artifactId>
+			<version>1.0.3-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 

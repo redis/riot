@@ -4,12 +4,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.apache.commons.pool2.impl.GenericObjectPool;
+import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.support.CompositeItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 
 import com.redislabs.lettusearch.RediSearchClient;
+import com.redislabs.lettusearch.StatefulRediSearchConnection;
 import com.redislabs.recharge.RechargeConfiguration.HashConfiguration;
 import com.redislabs.recharge.RechargeConfiguration.NilConfiguration;
 import com.redislabs.recharge.RechargeConfiguration.RedisWriterConfiguration;
@@ -25,6 +28,8 @@ import com.redislabs.recharge.redis.writers.SuggestionWriter;
 import com.redislabs.recharge.redis.writers.XAddWriter;
 import com.redislabs.recharge.redis.writers.ZAddWriter;
 
+import io.lettuce.core.support.ConnectionPoolSupport;
+
 @Configuration
 @SuppressWarnings("rawtypes")
 public class RedisConfig {
@@ -36,12 +41,16 @@ public class RedisConfig {
 		if (redis.size() == 0) {
 			return new NilWriter(new NilConfiguration());
 		}
+		GenericObjectPool<StatefulRediSearchConnection<String, String>> pool = ConnectionPoolSupport
+				.createGenericObjectPool(() -> client.connect(),
+						new GenericObjectPoolConfig<StatefulRediSearchConnection<String, String>>());
+		pool.setMaxTotal(32);
 		if (redis.size() == 1) {
-			return writer(redis.get(0)).setConnection(client.connect());
+			return writer(redis.get(0)).setConnectionPool(pool);
 		}
 		CompositeItemWriter<Map> composite = new CompositeItemWriter<>();
-		composite.setDelegates(redis.stream().map(writer -> writer(writer).setConnection(client.connect()))
-				.collect(Collectors.toList()));
+		composite.setDelegates(
+				redis.stream().map(writer -> writer(writer).setConnectionPool(pool)).collect(Collectors.toList()));
 		return composite;
 	}
 

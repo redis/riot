@@ -5,6 +5,7 @@ import java.util.Map;
 import org.springframework.batch.item.ExecutionContext;
 
 import com.redislabs.lettusearch.RediSearchAsyncCommands;
+import com.redislabs.lettusearch.StatefulRediSearchConnection;
 import com.redislabs.lettusearch.search.AddOptions;
 import com.redislabs.lettusearch.search.DropOptions;
 import com.redislabs.lettusearch.search.Schema;
@@ -30,32 +31,41 @@ public class FTAddWriter extends AbstractPipelineRedisWriter<SearchConfiguration
 	@Override
 	public void open(ExecutionContext executionContext) {
 		super.open(executionContext);
-		RediSearchAsyncCommands<String, String> commands = connection.async();
-		String keyspace = config.getKeyspace();
-		if (config.isDrop()) {
-			log.debug("Dropping index {}", keyspace);
+		try {
+			StatefulRediSearchConnection<String, String> connection = getConnection();
 			try {
-				commands.drop(keyspace, DropOptions.builder().build());
-			} catch (Exception e) {
-				log.debug("Could not drop index {}", keyspace, e);
-			}
-		}
-		if (config.isCreate() && !config.getSchema().isEmpty()) {
-			SchemaBuilder builder = Schema.builder();
-			config.getSchema().forEach(entry -> builder.field(getField(entry)));
-			Schema schema = builder.build();
-			log.debug("Creating schema {}", keyspace);
-			try {
-				commands.create(keyspace, schema);
-			} catch (Exception e) {
-				if (e.getMessage().startsWith("Index already exists")) {
-					log.debug("Ignored failure to create index {}", keyspace, e);
-				} else {
-					log.error("Could not create index {}", keyspace, e);
+				RediSearchAsyncCommands<String, String> commands = connection.async();
+				String keyspace = config.getKeyspace();
+				if (config.isDrop()) {
+					log.debug("Dropping index {}", keyspace);
+					try {
+						commands.drop(keyspace, DropOptions.builder().build());
+					} catch (Exception e) {
+						log.debug("Could not drop index {}", keyspace, e);
+					}
 				}
+				if (config.isCreate() && !config.getSchema().isEmpty()) {
+					SchemaBuilder builder = Schema.builder();
+					config.getSchema().forEach(entry -> builder.field(getField(entry)));
+					Schema schema = builder.build();
+					log.debug("Creating schema {}", keyspace);
+					try {
+						commands.create(keyspace, schema);
+					} catch (Exception e) {
+						if (e.getMessage().startsWith("Index already exists")) {
+							log.debug("Ignored failure to create index {}", keyspace, e);
+						} else {
+							log.error("Could not create index {}", keyspace, e);
+						}
+					}
+				}
+				commands.flushCommands();
+			} finally {
+				release(connection);
 			}
+		} catch (Exception e) {
+
 		}
-		commands.flushCommands();
 	}
 
 	@Override

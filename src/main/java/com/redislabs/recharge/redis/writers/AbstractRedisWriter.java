@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.springframework.batch.item.support.AbstractItemStreamItemWriter;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.support.DefaultConversionService;
@@ -19,15 +20,24 @@ public abstract class AbstractRedisWriter<T extends AbstractRedisWriterConfigura
 	public static final String KEY_SEPARATOR = ":";
 
 	T config;
-	StatefulRediSearchConnection<String, String> connection;
 	ConversionService converter = new DefaultConversionService();
+	private GenericObjectPool<StatefulRediSearchConnection<String, String>> pool;
 
 	protected AbstractRedisWriter(T config) {
 		this.config = config;
 	}
 
-	public AbstractRedisWriter<T> setConnection(StatefulRediSearchConnection<String, String> connection) {
-		this.connection = connection;
+	protected StatefulRediSearchConnection<String, String> getConnection() throws Exception {
+		return pool.borrowObject();
+	}
+	
+	protected void release(StatefulRediSearchConnection<String, String> connection) {
+		pool.returnObject(connection);
+	}
+
+	public AbstractRedisWriter<T> setConnectionPool(
+			GenericObjectPool<StatefulRediSearchConnection<String, String>> pool) {
+		this.pool = pool;
 		return this;
 	}
 

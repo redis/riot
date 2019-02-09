@@ -8,7 +8,7 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import com.redislabs.lettusearch.StatefulRediSearchConnection;
+import com.redislabs.lettusearch.RediSearchClient;
 import com.redislabs.springredisearch.RediSearchConfiguration;
 
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +23,7 @@ public class RechargeApplication implements ApplicationRunner {
 	@Autowired
 	private RechargeConfiguration config;
 	@Autowired
-	private StatefulRediSearchConnection<String, String> connection;
+	private RediSearchClient client;
 
 	public static void main(String[] args) {
 		SpringApplication.exit(SpringApplication.run(RechargeApplication.class, args));
@@ -35,7 +35,7 @@ public class RechargeApplication implements ApplicationRunner {
 		if (config.isFlushall()) {
 			log.warn("Flushing database in {} seconds", config.getFlushallWait());
 			Thread.sleep(config.getFlushallWait() * 1000);
-			connection.sync().flushall();
+			client.connect().sync().flushall();
 		}
 		jobLauncher.run(batch.job(), new JobParameters());
 	}
