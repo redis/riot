@@ -20,10 +20,8 @@ import com.redislabs.recharge.IndexedPartitioner;
 import com.redislabs.recharge.RechargeConfiguration.GeneratorConfiguration;
 
 import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
 
 @SuppressWarnings("rawtypes")
-@Slf4j
 public class GeneratorReader extends AbstractThreadSafeItemCountingItemReader<Map> {
 
 	private StatefulRediSearchConnection<String, String> connection;
@@ -115,7 +113,6 @@ public class GeneratorReader extends AbstractThreadSafeItemCountingItemReader<Ma
 		Map output = map == null ? new HashMap<>() : map.get().getValue(context.get(), Map.class);
 		expressions.get().forEach((k, v) -> output.put(k, v.getValue(context.get())));
 		readerContext.get().incrementCount();
-		log.info("Count: {}", getCurrentItemCount());
 		return output;
 	}
 
