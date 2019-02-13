@@ -8,7 +8,6 @@ import java.util.Map;
 import org.ruaux.pojofaker.Faker;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemStreamException;
-import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
@@ -16,20 +15,22 @@ import org.springframework.expression.spel.support.StandardEvaluationContext;
 
 import com.redislabs.lettusearch.RediSearchCommands;
 import com.redislabs.lettusearch.StatefulRediSearchConnection;
+import com.redislabs.recharge.AbstractThreadSafeItemCountingItemReader;
 import com.redislabs.recharge.IndexedPartitioner;
 import com.redislabs.recharge.RechargeConfiguration.GeneratorConfiguration;
 
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
 @SuppressWarnings("rawtypes")
-public class GeneratorEntityItemReader extends AbstractItemCountingItemStreamItemReader<Map> {
+@Slf4j
+public class GeneratorReader extends AbstractThreadSafeItemCountingItemReader<Map> {
 
 	private StatefulRediSearchConnection<String, String> connection;
 	private GeneratorConfiguration config;
-	private SpelExpressionParser parser = new SpelExpressionParser();
 	private ThreadLocal<EvaluationContext> context = new ThreadLocal<>();
-	private Expression map;
-	private Map<String, Expression> expressions = new LinkedHashMap<>();
+	private ThreadLocal<Expression> map;
+	private ThreadLocal<Map<String, Expression>> expressions = new ThreadLocal<>();
 	private ThreadLocal<ReaderContext> readerContext = new ThreadLocal<>();
 
 	@Data
@@ -61,8 +62,7 @@ public class GeneratorEntityItemReader extends AbstractItemCountingItemStreamIte
 		}
 	}
 
-	public GeneratorEntityItemReader(GeneratorConfiguration config,
-			StatefulRediSearchConnection<String, String> connection) {
+	public GeneratorReader(GeneratorConfiguration config, StatefulRediSearchConnection<String, String> connection) {
 		setName("generator");
 		this.config = config;
 		this.connection = connection;
@@ -93,10 +93,14 @@ public class GeneratorEntityItemReader extends AbstractItemCountingItemStreamIte
 
 	@Override
 	protected void doOpen() throws Exception {
+		SpelExpressionParser parser = new SpelExpressionParser();
 		if (config.getMap() != null) {
-			this.map = parser.parseExpression(config.getMap());
+			this.map = new ThreadLocal<>();
+			this.map.set(parser.parseExpression(config.getMap()));
 		}
-		config.getFields().forEach((k, v) -> expressions.put(k, parser.parseExpression(v)));
+		Map<String, Expression> expressionMap = new LinkedHashMap<>();
+		config.getFields().forEach((k, v) -> expressionMap.put(k, parser.parseExpression(v)));
+		expressions.set(expressionMap);
 		RediSearchCommands<String, String> commands = connection.sync();
 		StandardEvaluationContext context = new StandardEvaluationContext(new Faker(new Locale(config.getLocale())));
 		context.setVariable("redis", commands);
@@ -108,17 +112,15 @@ public class GeneratorEntityItemReader extends AbstractItemCountingItemStreamIte
 	@Override
 	@SuppressWarnings("unchecked")
 	protected Map doRead() throws Exception {
-		Map output = map == null ? new HashMap<>() : map.getValue(context.get(), Map.class);
-		expressions.forEach((k, v) -> {
-			Object value = v.getValue(context.get());
-			output.put(k, value);
-		});
+		Map output = map == null ? new HashMap<>() : map.get().getValue(context.get(), Map.class);
+		expressions.get().forEach((k, v) -> output.put(k, v.getValue(context.get())));
 		readerContext.get().incrementCount();
+		log.info("Count: {}", getCurrentItemCount());
 		return output;
 	}
 
 	@Override
-	protected synchronized void doClose() throws Exception {
+	protected void doClose() throws Exception {
 		context.remove();
 	}
 

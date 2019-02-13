@@ -1,0 +1,11 @@
+flows:
+- name: partitions
+  max-item-count: 100
+  partitions: 20
+  generator:
+    fields:
+      id: "#context.nextId(16000000,'%09d')"
+  redis:
+  - hash:
+      keyspace: test
+      keys: id

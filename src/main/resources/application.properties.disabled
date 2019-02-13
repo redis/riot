@@ -1,5 +1,0 @@
-spring.banner.location=classpath:/recharge.txt
-#management.endpoints.web.exposure.include=*
-#management.endpoint.metrics.enabled=true
-#management.endpoint.prometheus.enabled=true
-#management.metrics.export.prometheus.enabled=true

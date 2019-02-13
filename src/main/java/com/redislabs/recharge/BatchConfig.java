@@ -10,6 +10,7 @@ import org.springframework.batch.core.configuration.annotation.StepBuilderFactor
 import org.springframework.batch.core.job.builder.SimpleJobBuilder;
 import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.core.step.tasklet.TaskletStep;
+import org.springframework.batch.item.ItemStreamReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +20,7 @@ import org.springframework.core.task.TaskExecutor;
 import com.redislabs.lettusearch.RediSearchClient;
 import com.redislabs.recharge.RechargeConfiguration.FlowConfiguration;
 import com.redislabs.recharge.file.FileConfiguration;
-import com.redislabs.recharge.generator.GeneratorEntityItemReader;
+import com.redislabs.recharge.generator.GeneratorReader;
 import com.redislabs.recharge.meter.ProcessorMeter;
 import com.redislabs.recharge.meter.ReaderMeter;
 import com.redislabs.recharge.meter.WriterMeter;
@@ -54,12 +55,21 @@ public class BatchConfig {
 	@Autowired
 	private TaskExecutor taskExecutor;
 
-	public AbstractItemCountingItemStreamItemReader<Map> reader(FlowConfiguration flow) throws RechargeException {
+	public ItemStreamReader<Map> reader(FlowConfiguration flow) throws RechargeException {
 		if (flow.getFile() != null) {
-			return fileConfig.reader(flow.getFile());
+			AbstractItemCountingItemStreamItemReader<Map> reader = fileConfig.reader(flow.getFile());
+			if (flow.getMaxItemCount() > 0) {
+				int maxItemCount = flow.getMaxItemCount() / flow.getPartitions();
+				reader.setMaxItemCount(maxItemCount);
+			}
 		}
 		if (flow.getGenerator() != null) {
-			return new GeneratorEntityItemReader(flow.getGenerator(), client.connect());
+			GeneratorReader reader = new GeneratorReader(flow.getGenerator(), client.connect());
+			if (flow.getMaxItemCount() > 0) {
+				int maxItemCount = flow.getMaxItemCount() / flow.getPartitions();
+				reader.setMaxItemCount(maxItemCount);
+			}
+			return reader;
 		}
 		throw new RechargeException("No reader configured");
 	}
@@ -95,22 +105,9 @@ public class BatchConfig {
 
 	public TaskletStep taskletStep(FlowConfiguration flow) throws RechargeException {
 		SimpleStepBuilder<Map, Map> builder = steps.get(flow.getName() + "-step").<Map, Map>chunk(50);
-		AbstractItemCountingItemStreamItemReader<Map> reader = reader(flow);
-		if (flow.getMaxItemCount() > 0) {
-			reader.setMaxItemCount(flow.getMaxItemCount());
-		}
-		builder.reader(reader);
+		builder.reader(reader(flow));
 		if (flow.getProcessor() != null) {
-			SpelProcessor processor = new SpelProcessor(flow.getProcessor(), client.connect());
-			builder.processor(processor);
-//			builder.listener(new StepExecutionListenerSupport() {
-//				@Override
-//				public ExitStatus afterStep(StepExecution stepExecution) {
-//					log.info("afterStep close");
-//					processor.close();
-//					return super.afterStep(stepExecution);
-//				}
-//			});
+			builder.processor(new SpelProcessor(flow.getProcessor(), client.connect()));
 		}
 		builder.writer(redis.writer(flow.getRedis()));
 		if (config.isMeter()) {

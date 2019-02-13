@@ -106,12 +106,12 @@ flows:
       - name: POBOX
         sortable: true
 - name: stock
-  max-item-count: 10000000
-  partitions: 8
+  max-item-count: 10000
+  partitions: 4
   generator:
     fields:
-      DC_ID: "#sequence.nextMember('nodes')"
-      SKU: "#context.nextId(20000,'%09d')"
+      DC_ID: "'dsf'"
+      SKU: "#context.nextId(100000,'%09d')"
   processor:
     merge: "#redis.hgetall('node:'.concat(DC_ID))"
   redis:
