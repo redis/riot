@@ -16,10 +16,6 @@ public class XAddWriter extends AbstractSyncRedisWriter<StreamConfiguration> {
 
 	@Override
 	protected void write(String key, Map record, RediSearchCommands<String, String> commands) {
-		commands.xadd(key, getXAddArgs(record), convert(record));
-	}
-
-	private XAddArgs getXAddArgs(Map record) {
 		XAddArgs args = new XAddArgs();
 		args.approximateTrimming(config.isApproximateTrimming());
 		if (config.getId() != null) {
@@ -28,6 +24,8 @@ public class XAddWriter extends AbstractSyncRedisWriter<StreamConfiguration> {
 		if (config.getMaxlen() != null) {
 			args.maxlen(config.getMaxlen());
 		}
-		return args;
+		convert(record);
+		commands.xadd(key, args, record);
 	}
+
 }

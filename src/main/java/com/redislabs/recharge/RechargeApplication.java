@@ -27,7 +27,6 @@ public class RechargeApplication implements ApplicationRunner {
 
 	public static void main(String[] args) {
 		SpringApplication.exit(SpringApplication.run(RechargeApplication.class, args));
-		log.info("Exited");
 	}
 
 	@Override

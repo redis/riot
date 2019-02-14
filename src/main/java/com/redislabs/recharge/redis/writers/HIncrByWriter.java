@@ -5,6 +5,8 @@ import java.util.Map;
 import com.redislabs.lettusearch.RediSearchAsyncCommands;
 import com.redislabs.recharge.RechargeConfiguration.HashConfiguration;
 
+import io.lettuce.core.RedisFuture;
+
 @SuppressWarnings("rawtypes")
 public class HIncrByWriter extends AbstractPipelineRedisWriter<HashConfiguration> {
 
@@ -13,12 +15,10 @@ public class HIncrByWriter extends AbstractPipelineRedisWriter<HashConfiguration
 	}
 
 	@Override
-	protected void write(String key, Map record, RediSearchAsyncCommands<String, String> commands) {
-		commands.hincrby(key, config.getIncrby().getTargetField(), getDelta(record));
-	}
-
-	private long getDelta(Map record) {
-		return converter.convert(record.get(config.getIncrby().getSourceField()), Long.class);
+	protected RedisFuture<Long> write(String key, Map record, RediSearchAsyncCommands<String, String> commands) {
+		Long amount = converter.convert(record.get(config.getIncrby().getSourceField()), Long.class);
+		String field = config.getIncrby().getTargetField();
+		return commands.hincrby(key, field, amount);
 	}
 
 }

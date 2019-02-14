@@ -9,6 +9,7 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.redislabs.lettusearch.RediSearchAsyncCommands;
 import com.redislabs.recharge.RechargeConfiguration.StringConfiguration;
 
+import io.lettuce.core.RedisFuture;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -22,13 +23,15 @@ public class StringWriter extends AbstractPipelineRedisWriter<StringConfiguratio
 		this.objectWriter = config.getXml() == null ? new ObjectMapper().writer()
 				: new XmlMapper().writer().withRootName(config.getXml().getRootName());
 	}
-	
+
 	@Override
-	protected void write(String key, Map record, RediSearchAsyncCommands<String, String> commands) {
+	protected RedisFuture<String> write(String key, Map record, RediSearchAsyncCommands<String, String> commands) {
 		try {
-			commands.set(key, objectWriter.writeValueAsString(record));
+			String string = objectWriter.writeValueAsString(record);
+			return commands.set(key, string);
 		} catch (JsonProcessingException e) {
-			log.error("Could not serialize values", e);
+			log.error("Could not serialize value to JSON: {}", record, e);
+			return null;
 		}
 	}
 

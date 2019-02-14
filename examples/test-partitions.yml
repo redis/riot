@@ -1,11 +1,15 @@
 flows:
 - name: partitions
-  max-item-count: 100
+  max-item-count: 40
   partitions: 20
   generator:
     fields:
-      id: "#context.nextId(16000000,'%09d')"
+      id: "#context.nextId(100,'%02d')"
   redis:
-  - hash:
+  - search:
       keyspace: test
       keys: id
+      schema:
+      - name: id
+        sortable: true
+      

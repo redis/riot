@@ -3,6 +3,7 @@ package com.redislabs.recharge;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.context.expression.MapAccessor;
@@ -40,7 +41,12 @@ public class SpelProcessor implements ItemProcessor<Map, Map> {
 				map.putAll(toMerge);
 			}
 		}
-		fields.forEach((k, v) -> map.put(k, v.getValue(context, map)));
+		for (Entry<String, Expression> entry : fields.entrySet()) {
+			Object value = entry.getValue().getValue(context, map);
+			if (value != null) {
+				map.put(entry.getKey(), value);
+			}
+		}
 		return map;
 	}
 

@@ -67,7 +67,7 @@ public class RechargeConfiguration {
 	}
 
 	@Data
-	public static class AbstractRedisWriterConfiguration {
+	public static class AbstractRedisConfiguration {
 		private String keyspace;
 		private String[] keys;
 	}
@@ -128,7 +128,7 @@ public class RechargeConfiguration {
 
 	@Data
 	@EqualsAndHashCode(callSuper = true)
-	public static class SuggestConfiguration extends AbstractRedisWriterConfiguration {
+	public static class SuggestConfiguration extends AbstractRedisConfiguration {
 		private String field;
 		private String score;
 		private double defaultScore = 1d;
@@ -137,7 +137,7 @@ public class RechargeConfiguration {
 
 	@Data
 	@EqualsAndHashCode(callSuper = true)
-	public static class StreamConfiguration extends AbstractRedisWriterConfiguration {
+	public static class StreamConfiguration extends AbstractRedisConfiguration {
 		private boolean approximateTrimming;
 		private String id;
 		private Long maxlen;
@@ -149,21 +149,21 @@ public class RechargeConfiguration {
 
 	@Data
 	@EqualsAndHashCode(callSuper = true)
-	public static class HashConfiguration extends AbstractRedisWriterConfiguration {
+	public static class HashConfiguration extends AbstractRedisConfiguration {
 		private String[] includeFields;
 		private HIncrByConfiguration incrby;
 	}
 
 	@Data
 	@EqualsAndHashCode(callSuper = true)
-	public static class HIncrByConfiguration extends AbstractRedisWriterConfiguration {
+	public static class HIncrByConfiguration extends AbstractRedisConfiguration {
 		private String sourceField;
 		private String targetField;
 	}
 
 	@Data
 	@EqualsAndHashCode(callSuper = true)
-	public static class StringConfiguration extends AbstractRedisWriterConfiguration {
+	public static class StringConfiguration extends AbstractRedisConfiguration {
 		private XmlConfiguration xml;
 		private JsonConfiguration json;
 	}
@@ -187,7 +187,7 @@ public class RechargeConfiguration {
 
 	@Data
 	@EqualsAndHashCode(callSuper = true)
-	public static class SearchConfiguration extends AbstractRedisWriterConfiguration {
+	public static class SearchConfiguration extends AbstractRedisConfiguration {
 		private boolean drop = false;
 		private boolean create = true;
 		private List<RediSearchField> schema = new ArrayList<>();
@@ -209,7 +209,7 @@ public class RechargeConfiguration {
 
 	@Data
 	@EqualsAndHashCode(callSuper = true)
-	private abstract static class CollectionRedisWriterConfiguration extends AbstractRedisWriterConfiguration {
+	private abstract static class CollectionRedisWriterConfiguration extends AbstractRedisConfiguration {
 		private String[] fields;
 	}
 

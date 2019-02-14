@@ -37,7 +37,7 @@ import org.springframework.util.Assert;
  * @author Glenn Renfro
  * @author Mahmoud Ben Hassine
  */
-public abstract class AbstractThreadSafeItemCountingItemReader<T> extends AbstractItemStreamItemReader<T> {
+public abstract class AbstractCountingReader<T> extends AbstractItemStreamItemReader<T> {
 
 	private static final String READ_COUNT = "read.count";
 

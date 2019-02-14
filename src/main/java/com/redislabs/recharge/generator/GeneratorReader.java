@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.ruaux.pojofaker.Faker;
 import org.springframework.batch.item.ExecutionContext;
@@ -15,50 +16,19 @@ import org.springframework.expression.spel.support.StandardEvaluationContext;
 
 import com.redislabs.lettusearch.RediSearchCommands;
 import com.redislabs.lettusearch.StatefulRediSearchConnection;
-import com.redislabs.recharge.AbstractThreadSafeItemCountingItemReader;
+import com.redislabs.recharge.AbstractCountingReader;
 import com.redislabs.recharge.IndexedPartitioner;
 import com.redislabs.recharge.RechargeConfiguration.GeneratorConfiguration;
 
-import lombok.Data;
-
 @SuppressWarnings("rawtypes")
-public class GeneratorReader extends AbstractThreadSafeItemCountingItemReader<Map> {
+public class GeneratorReader extends AbstractCountingReader<Map> {
 
 	private StatefulRediSearchConnection<String, String> connection;
 	private GeneratorConfiguration config;
 	private ThreadLocal<EvaluationContext> context = new ThreadLocal<>();
 	private ThreadLocal<Expression> map;
 	private ThreadLocal<Map<String, Expression>> expressions = new ThreadLocal<>();
-	private ThreadLocal<ReaderContext> readerContext = new ThreadLocal<>();
-
-	@Data
-	public static class ReaderContext {
-		private int partitions;
-		private int partitionIndex;
-		private long count;
-
-		public void incrementCount() {
-			count++;
-		}
-
-		public long nextLong(long end) {
-			return nextLong(0, end);
-		}
-
-		public long nextLong(long start, long end) {
-			long segment = (end - start) / partitions;
-			long partitionStart = start + partitionIndex * segment;
-			return partitionStart + (count % segment);
-		}
-
-		public String nextId(long start, long end, String format) {
-			return String.format(format, nextLong(start, end));
-		}
-
-		public String nextId(long end, String format) {
-			return nextId(0, end, format);
-		}
-	}
+	private ThreadLocal<GeneratorReaderContext> readerContext = new ThreadLocal<>();
 
 	public GeneratorReader(GeneratorConfiguration config, StatefulRediSearchConnection<String, String> connection) {
 		setName("generator");
@@ -68,7 +38,7 @@ public class GeneratorReader extends AbstractThreadSafeItemCountingItemReader<Ma
 
 	@Override
 	public void open(ExecutionContext executionContext) throws ItemStreamException {
-		ReaderContext readerContext = new ReaderContext();
+		GeneratorReaderContext readerContext = new GeneratorReaderContext();
 		readerContext.setPartitionIndex(getPartitionIndex(executionContext));
 		readerContext.setPartitions(getPartitions(executionContext));
 		this.readerContext.set(readerContext);
@@ -111,7 +81,12 @@ public class GeneratorReader extends AbstractThreadSafeItemCountingItemReader<Ma
 	@SuppressWarnings("unchecked")
 	protected Map doRead() throws Exception {
 		Map output = map == null ? new HashMap<>() : map.get().getValue(context.get(), Map.class);
-		expressions.get().forEach((k, v) -> output.put(k, v.getValue(context.get())));
+		for (Entry<String, Expression> expression : expressions.get().entrySet()) {
+			Object value = expression.getValue().getValue(context.get());
+			if (value != null) {
+				output.put(expression.getKey(), value);
+			}
+		}
 		readerContext.get().incrementCount();
 		return output;
 	}

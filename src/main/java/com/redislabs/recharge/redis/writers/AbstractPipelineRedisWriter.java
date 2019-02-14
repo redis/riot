@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.redislabs.lettusearch.RediSearchAsyncCommands;
 import com.redislabs.lettusearch.StatefulRediSearchConnection;
-import com.redislabs.recharge.RechargeConfiguration.AbstractRedisWriterConfiguration;
+import com.redislabs.recharge.RechargeConfiguration.AbstractRedisConfiguration;
 
 import io.lettuce.core.LettuceFutures;
 import io.lettuce.core.RedisFuture;
@@ -16,8 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @SuppressWarnings("rawtypes")
-public abstract class AbstractPipelineRedisWriter<T extends AbstractRedisWriterConfiguration>
-		extends AbstractRedisWriter<T> {
+public abstract class AbstractPipelineRedisWriter<T extends AbstractRedisConfiguration> extends AbstractRedisWriter<T> {
 
 	protected AbstractPipelineRedisWriter(T config) {
 		super(config);
@@ -30,7 +29,12 @@ public abstract class AbstractPipelineRedisWriter<T extends AbstractRedisWriterC
 		try {
 			RediSearchAsyncCommands<String, String> commands = connection.async();
 			commands.setAutoFlushCommands(false);
-			records.forEach(record -> write(getKey(record), record, commands));
+			for (Map record : records) {
+				RedisFuture<?> future = write(getKey(record), record, commands);
+				if (future != null) {
+					futures.add(future);
+				}
+			}
 			commands.flushCommands();
 			boolean result = LettuceFutures.awaitAll(5, TimeUnit.SECONDS,
 					futures.toArray(new RedisFuture[futures.size()]));
@@ -49,6 +53,6 @@ public abstract class AbstractPipelineRedisWriter<T extends AbstractRedisWriterC
 		}
 	}
 
-	protected abstract void write(String key, Map record, RediSearchAsyncCommands<String, String> commands);
+	protected abstract RedisFuture<?> write(String key, Map record, RediSearchAsyncCommands<String, String> commands);
 
 }

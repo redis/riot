@@ -2,7 +2,6 @@
 package com.redislabs.recharge.redis.writers;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.pool2.impl.GenericObjectPool;
@@ -11,10 +10,10 @@ import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.support.DefaultConversionService;
 
 import com.redislabs.lettusearch.StatefulRediSearchConnection;
-import com.redislabs.recharge.RechargeConfiguration.AbstractRedisWriterConfiguration;
+import com.redislabs.recharge.RechargeConfiguration.AbstractRedisConfiguration;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
-public abstract class AbstractRedisWriter<T extends AbstractRedisWriterConfiguration>
+public abstract class AbstractRedisWriter<T extends AbstractRedisConfiguration>
 		extends AbstractItemStreamItemWriter<Map> {
 
 	public static final String KEY_SEPARATOR = ":";
@@ -30,7 +29,7 @@ public abstract class AbstractRedisWriter<T extends AbstractRedisWriterConfigura
 	protected StatefulRediSearchConnection<String, String> getConnection() throws Exception {
 		return pool.borrowObject();
 	}
-	
+
 	protected void release(StatefulRediSearchConnection<String, String> connection) {
 		pool.returnObject(connection);
 	}
@@ -59,10 +58,11 @@ public abstract class AbstractRedisWriter<T extends AbstractRedisWriterConfigura
 		return getKey(config.getKeyspace(), id);
 	}
 
-	protected Map convert(Map record) {
-		Map map = new HashMap<>();
-		record.forEach((k, v) -> map.put(k, converter.convert(v, String.class)));
-		return map;
+	protected void convert(Map record) {
+		for (Object key : record.keySet()) {
+			Object value = record.get(key);
+			record.put(key, converter.convert(value, String.class));
+		}
 	}
 
 	protected String getKey(String keyspace, String id) {

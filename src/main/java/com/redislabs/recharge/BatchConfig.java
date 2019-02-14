@@ -62,6 +62,7 @@ public class BatchConfig {
 				int maxItemCount = flow.getMaxItemCount() / flow.getPartitions();
 				reader.setMaxItemCount(maxItemCount);
 			}
+			return reader;
 		}
 		if (flow.getGenerator() != null) {
 			GeneratorReader reader = new GeneratorReader(flow.getGenerator(), client.connect());

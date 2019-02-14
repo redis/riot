@@ -5,6 +5,8 @@ import java.util.Map;
 import com.redislabs.lettusearch.RediSearchAsyncCommands;
 import com.redislabs.recharge.RechargeConfiguration.SetConfiguration;
 
+import io.lettuce.core.RedisFuture;
+
 @SuppressWarnings("rawtypes")
 public class SAddWriter extends AbstractPipelineRedisWriter<SetConfiguration> {
 
@@ -13,8 +15,8 @@ public class SAddWriter extends AbstractPipelineRedisWriter<SetConfiguration> {
 	}
 	
 	@Override
-	protected void write(String key, Map record, RediSearchAsyncCommands<String, String> commands) {
-		commands.sadd(key, getValues(record, config.getFields()));
+	protected RedisFuture<Long> write(String key, Map record, RediSearchAsyncCommands<String, String> commands) {
+		return commands.sadd(key, getValues(record, config.getFields()));
 	}
 
 }
