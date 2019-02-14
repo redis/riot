@@ -2,8 +2,11 @@ package com.redislabs.recharge;
 
 import java.util.Map;
 
+import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
+import org.springframework.batch.core.StepExecution;
+import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
@@ -17,7 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.TaskExecutor;
 
-import com.redislabs.lettusearch.RediSearchClient;
+import com.redislabs.lettusearch.StatefulRediSearchConnection;
 import com.redislabs.recharge.RechargeConfiguration.FlowConfiguration;
 import com.redislabs.recharge.file.FileConfiguration;
 import com.redislabs.recharge.generator.GeneratorReader;
@@ -51,7 +54,7 @@ public class BatchConfig {
 	@Autowired
 	private ProcessorMeter<Map, Map> processorMeter;
 	@Autowired
-	private RediSearchClient client;
+	private StatefulRediSearchConnection<String, String> connection;
 	@Autowired
 	private TaskExecutor taskExecutor;
 
@@ -65,7 +68,7 @@ public class BatchConfig {
 			return reader;
 		}
 		if (flow.getGenerator() != null) {
-			GeneratorReader reader = new GeneratorReader(flow.getGenerator(), client.connect());
+			GeneratorReader reader = new GeneratorReader(flow.getGenerator(), connection);
 			if (flow.getMaxItemCount() > 0) {
 				int maxItemCount = flow.getMaxItemCount() / flow.getPartitions();
 				reader.setMaxItemCount(maxItemCount);
@@ -75,7 +78,7 @@ public class BatchConfig {
 		throw new RechargeException("No reader configured");
 	}
 
-	public ItemWriter<Map> writer(FlowConfiguration flow) {
+	public ItemWriter<Map> writer(FlowConfiguration flow) throws RechargeException {
 		return redis.writer(flow.getRedis());
 	}
 
@@ -108,7 +111,25 @@ public class BatchConfig {
 		SimpleStepBuilder<Map, Map> builder = steps.get(flow.getName() + "-step").<Map, Map>chunk(50);
 		builder.reader(reader(flow));
 		if (flow.getProcessor() != null) {
-			builder.processor(new SpelProcessor(flow.getProcessor(), client.connect()));
+			SpelProcessor processor = new SpelProcessor(flow.getProcessor(), connection);
+			builder.processor(processor);
+			builder.listener(new StepExecutionListener() {
+
+				@Override
+				public void beforeStep(StepExecution stepExecution) {
+					try {
+						processor.open();
+					} catch (Exception e) {
+						log.error("Could not open processor");
+					}
+				}
+
+				@Override
+				public ExitStatus afterStep(StepExecution stepExecution) {
+					processor.close();
+					return null;
+				}
+			});
 		}
 		builder.writer(redis.writer(flow.getRedis()));
 		if (config.isMeter()) {

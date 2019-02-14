@@ -1,18 +1,16 @@
 package com.redislabs.recharge.redis;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.apache.commons.pool2.impl.GenericObjectPool;
-import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.support.CompositeItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 
 import com.redislabs.lettusearch.RediSearchAsyncCommands;
-import com.redislabs.lettusearch.RediSearchClient;
 import com.redislabs.lettusearch.StatefulRediSearchConnection;
 import com.redislabs.lettusearch.search.DropOptions;
 import com.redislabs.lettusearch.search.Schema;
@@ -22,12 +20,12 @@ import com.redislabs.lettusearch.search.field.GeoField;
 import com.redislabs.lettusearch.search.field.NumericField;
 import com.redislabs.lettusearch.search.field.TextField;
 import com.redislabs.lettusearch.search.field.TextField.TextFieldBuilder;
-import com.redislabs.recharge.RechargeConfiguration;
 import com.redislabs.recharge.RechargeConfiguration.HashConfiguration;
 import com.redislabs.recharge.RechargeConfiguration.NilConfiguration;
 import com.redislabs.recharge.RechargeConfiguration.RediSearchField;
 import com.redislabs.recharge.RechargeConfiguration.RedisWriterConfiguration;
 import com.redislabs.recharge.RechargeConfiguration.SearchConfiguration;
+import com.redislabs.recharge.RechargeException;
 import com.redislabs.recharge.redis.writers.AbstractRedisWriter;
 import com.redislabs.recharge.redis.writers.FTAddWriter;
 import com.redislabs.recharge.redis.writers.GeoAddWriter;
@@ -40,7 +38,6 @@ import com.redislabs.recharge.redis.writers.SuggestionWriter;
 import com.redislabs.recharge.redis.writers.XAddWriter;
 import com.redislabs.recharge.redis.writers.ZAddWriter;
 
-import io.lettuce.core.support.ConnectionPoolSupport;
 import lombok.extern.slf4j.Slf4j;
 
 @Configuration
@@ -49,28 +46,25 @@ import lombok.extern.slf4j.Slf4j;
 public class RedisConfig {
 
 	@Autowired
-	private RediSearchClient client;
-	@Autowired
-	private RechargeConfiguration config;
+	private GenericObjectPool<StatefulRediSearchConnection<String, String>> rediSearchConnectionPool;
 
-	public ItemWriter<Map> writer(List<RedisWriterConfiguration> redis) {
+	public ItemWriter<Map> writer(List<RedisWriterConfiguration> redis) throws RechargeException {
 		if (redis.size() == 0) {
 			return new NilWriter(new NilConfiguration());
 		}
-		GenericObjectPool<StatefulRediSearchConnection<String, String>> pool = ConnectionPoolSupport
-				.createGenericObjectPool(() -> client.connect(),
-						new GenericObjectPoolConfig<StatefulRediSearchConnection<String, String>>());
-		pool.setMaxTotal(config.getMaxConnections());
 		if (redis.size() == 1) {
-			return writer(redis.get(0)).setConnectionPool(pool);
+			return writer(redis.get(0)).setConnectionPool(rediSearchConnectionPool);
+		}
+		List<ItemWriter<? super Map>> writers = new ArrayList<>();
+		for (RedisWriterConfiguration config : redis) {
+			writers.add(writer(config).setConnectionPool(rediSearchConnectionPool));
 		}
 		CompositeItemWriter<Map> composite = new CompositeItemWriter<>();
-		composite.setDelegates(
-				redis.stream().map(writer -> writer(writer).setConnectionPool(pool)).collect(Collectors.toList()));
+		composite.setDelegates(writers);
 		return composite;
 	}
 
-	private AbstractRedisWriter<?> writer(RedisWriterConfiguration writer) {
+	private AbstractRedisWriter<?> writer(RedisWriterConfiguration writer) throws RechargeException {
 		if (writer.getSet() != null) {
 			return new SAddWriter(writer.getSet());
 		}
@@ -82,38 +76,42 @@ public class RedisConfig {
 		}
 		if (writer.getSearch() != null) {
 			SearchConfiguration config = writer.getSearch();
-			StatefulRediSearchConnection<String, String> connection = client.connect();
 			try {
-				RediSearchAsyncCommands<String, String> commands = connection.async();
-				String keyspace = config.getKeyspace();
-				if (config.isDrop()) {
-					log.debug("Dropping index {}", keyspace);
-					try {
-						commands.drop(keyspace, DropOptions.builder().build());
-					} catch (Exception e) {
-						log.debug("Could not drop index {}", keyspace, e);
-					}
-				}
-				if (config.isCreate() && !config.getSchema().isEmpty()) {
-					SchemaBuilder builder = Schema.builder();
-					config.getSchema().forEach(entry -> builder.field(getField(entry)));
-					Schema schema = builder.build();
-					log.debug("Creating schema {}", keyspace);
-					try {
-						commands.create(keyspace, schema);
-					} catch (Exception e) {
-						if (e.getMessage().startsWith("Index already exists")) {
-							log.debug("Ignored failure to create index {}", keyspace, e);
-						} else {
-							log.error("Could not create index {}", keyspace, e);
+				StatefulRediSearchConnection<String, String> connection = rediSearchConnectionPool.borrowObject();
+				try {
+					RediSearchAsyncCommands<String, String> commands = connection.async();
+					String keyspace = config.getKeyspace();
+					if (config.isDrop()) {
+						log.debug("Dropping index {}", keyspace);
+						try {
+							commands.drop(keyspace, DropOptions.builder().build());
+						} catch (Exception e) {
+							log.debug("Could not drop index {}", keyspace, e);
 						}
 					}
+					if (config.isCreate() && !config.getSchema().isEmpty()) {
+						SchemaBuilder builder = Schema.builder();
+						config.getSchema().forEach(entry -> builder.field(getField(entry)));
+						Schema schema = builder.build();
+						log.debug("Creating schema {}", keyspace);
+						try {
+							commands.create(keyspace, schema);
+						} catch (Exception e) {
+							if (e.getMessage().startsWith("Index already exists")) {
+								log.debug("Ignored failure to create index {}", keyspace, e);
+							} else {
+								log.error("Could not create index {}", keyspace, e);
+							}
+						}
+					}
+					commands.flushCommands();
+				} finally {
+					connection.close();
 				}
-				commands.flushCommands();
-			} finally {
-				connection.close();
+				return new FTAddWriter(writer.getSearch());
+			} catch (Exception e) {
+				throw new RechargeException("Could not get connection from pool", e);
 			}
-			return new FTAddWriter(writer.getSearch());
 		}
 		if (writer.getSet() != null) {
 			return new SAddWriter(writer.getSet());

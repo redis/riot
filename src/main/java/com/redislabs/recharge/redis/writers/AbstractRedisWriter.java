@@ -26,18 +26,18 @@ public abstract class AbstractRedisWriter<T extends AbstractRedisConfiguration>
 		this.config = config;
 	}
 
+	public AbstractRedisWriter<T> setConnectionPool(
+			GenericObjectPool<StatefulRediSearchConnection<String, String>> pool) {
+		this.pool = pool;
+		return this;
+	}
+
 	protected StatefulRediSearchConnection<String, String> getConnection() throws Exception {
 		return pool.borrowObject();
 	}
 
 	protected void release(StatefulRediSearchConnection<String, String> connection) {
 		pool.returnObject(connection);
-	}
-
-	public AbstractRedisWriter<T> setConnectionPool(
-			GenericObjectPool<StatefulRediSearchConnection<String, String>> pool) {
-		this.pool = pool;
-		return this;
 	}
 
 	protected String getValues(Map record, String[] fields) {

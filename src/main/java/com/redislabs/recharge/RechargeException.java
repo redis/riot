@@ -7,4 +7,8 @@ public class RechargeException extends Exception {
 	public RechargeException(String message) {
 		super(message);
 	}
+
+	public RechargeException(String message, Throwable cause) {
+		super(message, cause);
+	}
 }

@@ -23,8 +23,8 @@ import com.redislabs.recharge.RechargeConfiguration.GeneratorConfiguration;
 @SuppressWarnings("rawtypes")
 public class GeneratorReader extends AbstractCountingReader<Map> {
 
-	private StatefulRediSearchConnection<String, String> connection;
 	private GeneratorConfiguration config;
+	private StatefulRediSearchConnection<String, String> connection;
 	private ThreadLocal<EvaluationContext> context = new ThreadLocal<>();
 	private ThreadLocal<Expression> map;
 	private ThreadLocal<Map<String, Expression>> expressions = new ThreadLocal<>();

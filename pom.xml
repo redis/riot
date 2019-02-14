@@ -99,10 +99,6 @@
 			<version>1.0.8-SNAPSHOT</version>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-pool2</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>com.redislabs</groupId>
 			<artifactId>lettusearch</artifactId>
 			<version>1.0.3-SNAPSHOT</version>
