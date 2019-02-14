@@ -23,6 +23,7 @@ public class RechargeConfiguration {
 	private boolean meter;
 	private boolean flushall;
 	private int flushallWait = 5;
+	private int maxConnections = 1;
 	private List<FlowConfiguration> flows = new ArrayList<>();
 	@SuppressWarnings("serial")
 	private Map<String, FileType> fileTypes = new LinkedHashMap<String, FileType>() {

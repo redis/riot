@@ -22,6 +22,7 @@ import com.redislabs.lettusearch.search.field.GeoField;
 import com.redislabs.lettusearch.search.field.NumericField;
 import com.redislabs.lettusearch.search.field.TextField;
 import com.redislabs.lettusearch.search.field.TextField.TextFieldBuilder;
+import com.redislabs.recharge.RechargeConfiguration;
 import com.redislabs.recharge.RechargeConfiguration.HashConfiguration;
 import com.redislabs.recharge.RechargeConfiguration.NilConfiguration;
 import com.redislabs.recharge.RechargeConfiguration.RediSearchField;
@@ -49,6 +50,8 @@ public class RedisConfig {
 
 	@Autowired
 	private RediSearchClient client;
+	@Autowired
+	private RechargeConfiguration config;
 
 	public ItemWriter<Map> writer(List<RedisWriterConfiguration> redis) {
 		if (redis.size() == 0) {
@@ -57,7 +60,7 @@ public class RedisConfig {
 		GenericObjectPool<StatefulRediSearchConnection<String, String>> pool = ConnectionPoolSupport
 				.createGenericObjectPool(() -> client.connect(),
 						new GenericObjectPoolConfig<StatefulRediSearchConnection<String, String>>());
-		pool.setMaxTotal(32);
+		pool.setMaxTotal(config.getMaxConnections());
 		if (redis.size() == 1) {
 			return writer(redis.get(0)).setConnectionPool(pool);
 		}
