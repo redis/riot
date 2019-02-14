@@ -52,7 +52,7 @@ flows:
       DC_ID: "#sequence.nextMember('nodes')"
       SKU: "#context.nextId(20000,'%09d')"
   processor:
-    merge: "#redis.hgetall('node:'.concat(DC_ID))"
+    merge: "#cachedRedis.hgetall('node:'.concat(DC_ID))"
   redis:
   - search:
       keyspace: stock

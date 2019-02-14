@@ -30,6 +30,7 @@ public class SpelProcessor implements ItemProcessor<Map, Map> {
 		this.context = new StandardEvaluationContext();
 		this.context.setPropertyAccessors(Arrays.asList(new MapAccessor()));
 		this.context.setVariable("redis", connection.sync());
+		this.context.setVariable("cachedRedis", new CachedRedis(connection.sync()));
 	}
 
 	@Override
