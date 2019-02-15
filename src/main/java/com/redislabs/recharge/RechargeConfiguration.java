@@ -1,9 +1,7 @@
 package com.redislabs.recharge;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -11,6 +9,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
 import com.redislabs.lettusearch.search.field.Matcher;
+import com.redislabs.recharge.file.FileConfiguration;
+import com.redislabs.recharge.generator.GeneratorConfiguration;
+import com.redislabs.recharge.processor.SpelProcessorConfiguration;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -23,16 +24,7 @@ public class RechargeConfiguration {
 	private boolean meter;
 	private boolean flushall;
 	private int flushallWait = 5;
-	private int maxConnections = 1;
 	private List<FlowConfiguration> flows = new ArrayList<>();
-	@SuppressWarnings("serial")
-	private Map<String, FileType> fileTypes = new LinkedHashMap<String, FileType>() {
-		{
-			put("dat", FileType.Delimited);
-			put("csv", FileType.Delimited);
-			put("txt", FileType.FixedLength);
-		}
-	};
 
 	@Data
 	public static class FlowConfiguration {
@@ -41,17 +33,9 @@ public class RechargeConfiguration {
 		private int maxItemCount = 10000;
 		private int partitions = 1;
 		private GeneratorConfiguration generator;
-		private FileReaderConfiguration file;
-		private ProcessorConfiguration processor;
+		private FileConfiguration file;
+		private SpelProcessorConfiguration processor;
 		private List<RedisWriterConfiguration> redis = new ArrayList<>();
-
-	}
-
-	@Data
-	public static class ProcessorConfiguration {
-		private String source;
-		private String merge;
-		private Map<String, String> fields = new LinkedHashMap<>();
 	}
 
 	@Data
@@ -71,23 +55,6 @@ public class RechargeConfiguration {
 	public static class AbstractRedisConfiguration {
 		private String keyspace;
 		private String[] keys;
-	}
-
-	@Data
-	public static class GeneratorConfiguration {
-		private String map;
-		private Map<String, String> fields = new LinkedHashMap<>();
-		private String locale = "en-US";
-	}
-
-	@Data
-	public static class FileReaderConfiguration {
-		private String path;
-		private Boolean gzip;
-		private FileType type;
-		private DelimitedFileConfiguration delimited = new DelimitedFileConfiguration();
-		private FixedLengthFileConfiguration fixedLength = new FixedLengthFileConfiguration();
-		private JsonFileConfiguration json = new JsonFileConfiguration();
 	}
 
 	@Data

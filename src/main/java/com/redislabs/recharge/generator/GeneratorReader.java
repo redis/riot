@@ -9,39 +9,62 @@ import java.util.Map.Entry;
 import org.ruaux.pojofaker.Faker;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemStreamException;
-import org.springframework.expression.EvaluationContext;
+import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
+import org.springframework.util.Assert;
+import org.springframework.util.ClassUtils;
 
-import com.redislabs.lettusearch.RediSearchCommands;
 import com.redislabs.lettusearch.StatefulRediSearchConnection;
-import com.redislabs.recharge.AbstractCountingReader;
 import com.redislabs.recharge.IndexedPartitioner;
-import com.redislabs.recharge.RechargeConfiguration.GeneratorConfiguration;
 
 @SuppressWarnings("rawtypes")
-public class GeneratorReader extends AbstractCountingReader<Map> {
+public class GeneratorReader extends AbstractItemCountingItemStreamItemReader<Map> implements InitializingBean {
 
-	private GeneratorConfiguration config;
+	private volatile boolean initialized = false;
+	private Object lock = new Object();
+	private volatile int current = 0;
 	private StatefulRediSearchConnection<String, String> connection;
-	private ThreadLocal<EvaluationContext> context = new ThreadLocal<>();
-	private ThreadLocal<Expression> map;
-	private ThreadLocal<Map<String, Expression>> expressions = new ThreadLocal<>();
-	private ThreadLocal<GeneratorReaderContext> readerContext = new ThreadLocal<>();
+	private String mapExpression;
+	private Map<String, String> fields;
+	private String locale;
+	private StandardEvaluationContext evaluationContext;
+	private Expression map;
+	private Map<String, Expression> expressions;
+	private int partitionIndex;
+	private int partitions;
 
-	public GeneratorReader(GeneratorConfiguration config, StatefulRediSearchConnection<String, String> connection) {
-		setName("generator");
-		this.config = config;
+	public GeneratorReader() {
+		setName(ClassUtils.getShortName(GeneratorReader.class));
+	}
+
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		Assert.notNull(fields, "Fields must not be null");
+	}
+
+	public void setMapExpression(String mapExpression) {
+		this.mapExpression = mapExpression;
+	}
+
+	public void setFields(Map<String, String> fields) {
+		this.fields = fields;
+	}
+
+	public void setLocale(String locale) {
+		this.locale = locale;
+	}
+
+	public void setConnection(StatefulRediSearchConnection<String, String> connection) {
 		this.connection = connection;
 	}
 
 	@Override
 	public void open(ExecutionContext executionContext) throws ItemStreamException {
-		GeneratorReaderContext readerContext = new GeneratorReaderContext();
-		readerContext.setPartitionIndex(getPartitionIndex(executionContext));
-		readerContext.setPartitions(getPartitions(executionContext));
-		this.readerContext.set(readerContext);
+		this.partitionIndex = getPartitionIndex(executionContext);
+		this.partitions = getPartitions(executionContext);
 		super.open(executionContext);
 	}
 
@@ -50,6 +73,18 @@ public class GeneratorReader extends AbstractCountingReader<Map> {
 			return executionContext.getInt(IndexedPartitioner.CONTEXT_KEY_INDEX);
 		}
 		return 0;
+	}
+
+	public int getPartitions() {
+		return partitions;
+	}
+
+	public int getPartitionIndex() {
+		return partitionIndex;
+	}
+
+	public int getCurrent() {
+		return current;
 	}
 
 	private int getPartitions(ExecutionContext executionContext) {
@@ -61,39 +96,67 @@ public class GeneratorReader extends AbstractCountingReader<Map> {
 
 	@Override
 	protected void doOpen() throws Exception {
+		Assert.state(!initialized, "Cannot open an already open ItemReader, call close first");
 		SpelExpressionParser parser = new SpelExpressionParser();
-		if (config.getMap() != null) {
-			this.map = new ThreadLocal<>();
-			this.map.set(parser.parseExpression(config.getMap()));
+		if (mapExpression != null) {
+			this.map = parser.parseExpression(mapExpression);
 		}
-		Map<String, Expression> expressionMap = new LinkedHashMap<>();
-		config.getFields().forEach((k, v) -> expressionMap.put(k, parser.parseExpression(v)));
-		expressions.set(expressionMap);
-		RediSearchCommands<String, String> commands = connection.sync();
-		StandardEvaluationContext context = new StandardEvaluationContext(new Faker(new Locale(config.getLocale())));
-		context.setVariable("redis", commands);
-		context.setVariable("sequence", new RedisSequence(commands));
-		context.setVariable("context", readerContext.get());
-		this.context.set(context);
+		this.expressions = new LinkedHashMap<>();
+		for (Entry<String, String> field : fields.entrySet()) {
+			expressions.put(field.getKey(), parser.parseExpression(field.getValue()));
+		}
+		Faker faker = locale == null ? new Faker() : new Faker(new Locale(locale));
+		this.evaluationContext = new StandardEvaluationContext(faker);
+		evaluationContext.setVariable("reader", this);
+		if (connection != null) {
+			evaluationContext.setVariable("redis", connection.sync());
+			evaluationContext.setVariable("sequence", new RedisSequence(connection.sync()));
+		}
+		initialized = true;
+	}
+
+	public long nextLong(long end) {
+		return nextLong(0, end);
+	}
+
+	public long nextLong(long start, long end) {
+		long segment = (end - start) / partitions;
+		long partitionStart = start + partitionIndex * segment;
+		return partitionStart + (current % segment);
+	}
+
+	public String nextId(long start, long end, String format) {
+		return String.format(format, nextLong(start, end));
+	}
+
+	public String nextId(long end, String format) {
+		return nextId(0, end, format);
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
 	protected Map doRead() throws Exception {
-		Map output = map == null ? new HashMap<>() : map.get().getValue(context.get(), Map.class);
-		for (Entry<String, Expression> expression : expressions.get().entrySet()) {
-			Object value = expression.getValue().getValue(context.get());
-			if (value != null) {
-				output.put(expression.getKey(), value);
+		synchronized (lock) {
+			Map output = map == null ? new HashMap<>() : map.getValue(evaluationContext, Map.class);
+			for (Entry<String, Expression> expression : expressions.entrySet()) {
+				Object value = expression.getValue().getValue(evaluationContext);
+				if (value != null) {
+					output.put(expression.getKey(), value);
+				}
 			}
+			current++;
+			return output;
 		}
-		readerContext.get().incrementCount();
-		return output;
 	}
 
 	@Override
 	protected void doClose() throws Exception {
-		context.remove();
+		synchronized (lock) {
+			initialized = false;
+			current = 0;
+			evaluationContext = null;
+			map = null;
+		}
 	}
 
 }

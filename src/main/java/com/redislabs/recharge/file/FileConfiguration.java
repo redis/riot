@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -23,7 +24,6 @@ import org.springframework.batch.item.file.transform.Range;
 import org.springframework.batch.item.json.JacksonJsonObjectReader;
 import org.springframework.batch.item.json.builder.JsonItemReaderBuilder;
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.InputStreamResource;
@@ -32,19 +32,19 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.util.ResourceUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.redislabs.recharge.RechargeConfiguration;
 import com.redislabs.recharge.RechargeConfiguration.DelimitedFileConfiguration;
-import com.redislabs.recharge.RechargeConfiguration.FileReaderConfiguration;
 import com.redislabs.recharge.RechargeConfiguration.FileType;
 import com.redislabs.recharge.RechargeConfiguration.FixedLengthFileConfiguration;
 import com.redislabs.recharge.RechargeConfiguration.FlatFileConfiguration;
 import com.redislabs.recharge.RechargeConfiguration.JsonFileConfiguration;
 
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 @Configuration
 @Slf4j
 @SuppressWarnings("rawtypes")
+@Data
 public class FileConfiguration {
 
 	private static final String FILE_BASENAME = "basename";
@@ -54,8 +54,20 @@ public class FileConfiguration {
 			.compile("(?<" + FILE_BASENAME + ">.+)\\.(?<" + FILE_EXTENSION + ">\\w+)(?<" + FILE_GZ + ">\\.gz)?");
 
 	private BufferedReaderFactory bufferedReaderFactory = new DefaultBufferedReaderFactory();
-	@Autowired
-	private RechargeConfiguration recharge;
+	private String path;
+	private Boolean gzip;
+	private FileType type;
+	private DelimitedFileConfiguration delimited = new DelimitedFileConfiguration();
+	private FixedLengthFileConfiguration fixedLength = new FixedLengthFileConfiguration();
+	private JsonFileConfiguration json = new JsonFileConfiguration();
+	@SuppressWarnings("serial")
+	private Map<String, FileType> fileTypes = new LinkedHashMap<String, FileType>() {
+		{
+			put("dat", FileType.Delimited);
+			put("csv", FileType.Delimited);
+			put("txt", FileType.FixedLength);
+		}
+	};
 
 	private FlatFileItemReaderBuilder<Map> getFlatFileReaderBuilder(Resource resource, FlatFileConfiguration fileConfig)
 			throws IOException {
@@ -76,9 +88,9 @@ public class FileConfiguration {
 		return builder;
 	}
 
-	private Resource getResource(FileReaderConfiguration config) throws IOException {
-		Resource resource = getResource(config.getPath());
-		if (isGzip(config)) {
+	private Resource getResource() throws IOException {
+		Resource resource = getResource(path);
+		if (isGzip()) {
 			return getGZipResource(resource);
 		}
 		return resource;
@@ -91,12 +103,12 @@ public class FileConfiguration {
 		return new FileSystemResource(path);
 	}
 
-	private boolean isGzip(FileReaderConfiguration config) {
-		if (config.getGzip() == null) {
-			String gz = getFilenameGroup(config.getPath(), FILE_GZ);
+	private boolean isGzip() {
+		if (gzip == null) {
+			String gz = getFilenameGroup(path, FILE_GZ);
 			return gz != null && gz.length() > 0;
 		}
-		return config.getGzip();
+		return gzip;
 	}
 
 	private String getFilenameGroup(String path, String groupName) {
@@ -165,8 +177,8 @@ public class FileConfiguration {
 		return builder.build();
 	}
 
-	public String getBaseName(FileReaderConfiguration config) {
-		String filename = new File(config.getPath()).getName();
+	public String getBaseName() {
+		String filename = new File(path).getName();
 		int extensionIndex = filename.lastIndexOf(".");
 		if (extensionIndex == -1) {
 			return filename;
@@ -187,22 +199,22 @@ public class FileConfiguration {
 		return new Range(Integer.parseInt(split[0]), Integer.parseInt(split[1]));
 	}
 
-	public AbstractItemCountingItemStreamItemReader<Map> reader(FileReaderConfiguration config) {
+	public AbstractItemCountingItemStreamItemReader<Map> reader() {
 		try {
-			Resource resource = getResource(config);
-			if (config.getType() == null) {
-				config.setType(getFileType(resource));
+			Resource resource = getResource();
+			if (type == null) {
+				type = getFileType(resource);
 			}
-			switch (config.getType()) {
+			switch (type) {
 			case FixedLength:
-				return getFixedLengthReader(config.getFixedLength(), resource);
+				return getFixedLengthReader(getFixedLength(), resource);
 			case Json:
-				return getJsonReader(config.getJson(), resource);
+				return getJsonReader(getJson(), resource);
 			default:
-				return getDelimitedReader(config.getDelimited(), resource);
+				return getDelimitedReader(getDelimited(), resource);
 			}
 		} catch (IOException e) {
-			log.error("Could not create file reader for {}", config.getPath());
+			log.error("Could not create file reader for {}", path);
 			return null;
 		}
 	}
@@ -213,7 +225,7 @@ public class FileConfiguration {
 			return null;
 		}
 		log.debug("Found file extension '{}' for path {}", extension, resource);
-		return recharge.getFileTypes().get(extension);
+		return fileTypes.get(extension);
 	}
 
 	private AbstractItemCountingItemStreamItemReader<Map> getJsonReader(JsonFileConfiguration config,

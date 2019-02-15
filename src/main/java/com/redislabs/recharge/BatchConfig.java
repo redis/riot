@@ -17,16 +17,17 @@ import org.springframework.batch.item.ItemStreamReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.TaskExecutor;
 
 import com.redislabs.lettusearch.StatefulRediSearchConnection;
 import com.redislabs.recharge.RechargeConfiguration.FlowConfiguration;
-import com.redislabs.recharge.file.FileConfiguration;
 import com.redislabs.recharge.generator.GeneratorReader;
 import com.redislabs.recharge.meter.ProcessorMeter;
 import com.redislabs.recharge.meter.ReaderMeter;
 import com.redislabs.recharge.meter.WriterMeter;
+import com.redislabs.recharge.processor.SpelProcessor;
 import com.redislabs.recharge.redis.RedisConfig;
 
 import lombok.extern.slf4j.Slf4j;
@@ -44,8 +45,6 @@ public class BatchConfig {
 	@Autowired
 	private StepBuilderFactory steps;
 	@Autowired
-	private FileConfiguration fileConfig;
-	@Autowired
 	private RedisConfig redis;
 	@Autowired
 	private WriterMeter<Map> writerMeter;
@@ -60,7 +59,7 @@ public class BatchConfig {
 
 	public ItemStreamReader<Map> reader(FlowConfiguration flow) throws RechargeException {
 		if (flow.getFile() != null) {
-			AbstractItemCountingItemStreamItemReader<Map> reader = fileConfig.reader(flow.getFile());
+			AbstractItemCountingItemStreamItemReader<Map> reader = flow.getFile().reader();
 			if (flow.getMaxItemCount() > 0) {
 				int maxItemCount = flow.getMaxItemCount() / flow.getPartitions();
 				reader.setMaxItemCount(maxItemCount);
@@ -68,7 +67,8 @@ public class BatchConfig {
 			return reader;
 		}
 		if (flow.getGenerator() != null) {
-			GeneratorReader reader = new GeneratorReader(flow.getGenerator(), connection);
+			GeneratorReader reader = flow.getGenerator().reader();
+			reader.setConnection(connection);
 			if (flow.getMaxItemCount() > 0) {
 				int maxItemCount = flow.getMaxItemCount() / flow.getPartitions();
 				reader.setMaxItemCount(maxItemCount);
@@ -111,8 +111,8 @@ public class BatchConfig {
 		SimpleStepBuilder<Map, Map> builder = steps.get(flow.getName() + "-step").<Map, Map>chunk(50);
 		builder.reader(reader(flow));
 		if (flow.getProcessor() != null) {
-			SpelProcessor processor = new SpelProcessor(flow.getProcessor(), connection);
-			builder.processor(processor);
+			SpelProcessor processor = flow.getProcessor().processor();
+			processor.setConnection(connection);
 			builder.listener(new StepExecutionListener() {
 
 				@Override
@@ -130,6 +130,7 @@ public class BatchConfig {
 					return null;
 				}
 			});
+			builder.processor(processor);
 		}
 		builder.writer(redis.writer(flow.getRedis()));
 		if (config.isMeter()) {

@@ -50,9 +50,9 @@ flows:
   generator:
     fields:
       DC_ID: "#sequence.nextMember('nodes')"
-      SKU: "#context.nextId(20000,'%09d')"
+      SKU: "#reader.nextId(20000,'%09d')"
   processor:
-    merge: "#cachedRedis.hgetall('node:'.concat(DC_ID))"
+    merge: "#c.hgetall('node:'.concat(DC_ID))"
   redis:
   - search:
       keyspace: stock
