@@ -10,7 +10,7 @@ import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.support.DefaultConversionService;
 
 import com.redislabs.lettusearch.StatefulRediSearchConnection;
-import com.redislabs.recharge.RechargeConfiguration.AbstractRedisConfiguration;
+import com.redislabs.recharge.redis.AbstractRedisConfiguration;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public abstract class AbstractRedisWriter<T extends AbstractRedisConfiguration>

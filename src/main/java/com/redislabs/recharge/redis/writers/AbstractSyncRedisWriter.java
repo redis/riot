@@ -6,7 +6,7 @@ import java.util.Map;
 
 import com.redislabs.lettusearch.RediSearchCommands;
 import com.redislabs.lettusearch.StatefulRediSearchConnection;
-import com.redislabs.recharge.RechargeConfiguration.AbstractRedisConfiguration;
+import com.redislabs.recharge.redis.AbstractRedisConfiguration;
 
 @SuppressWarnings("rawtypes")
 public abstract class AbstractSyncRedisWriter<T extends AbstractRedisConfiguration>

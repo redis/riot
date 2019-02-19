@@ -21,9 +21,9 @@ public class RechargeApplication implements ApplicationRunner {
 	@Autowired
 	private BatchConfig batch;
 	@Autowired
-	private RechargeConfiguration config;
-	@Autowired
 	private RediSearchClient client;
+	@Autowired
+	private RechargeConfiguration config;
 
 	public static void main(String[] args) {
 		SpringApplication.exit(SpringApplication.run(RechargeApplication.class, args));

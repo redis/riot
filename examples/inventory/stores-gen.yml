@@ -1,0 +1,11 @@
+max-item-count: 3568
+generator:
+  fields:
+    DC_ID: "#sequence.nextMember('nodes')"
+    GIFTWRAP: "bool.bool"
+    NEXTDAY: "bool.bool"
+    POBOX: "bool.bool"
+redis:
+- hash:
+    keyspace: node
+    keys: DC_ID

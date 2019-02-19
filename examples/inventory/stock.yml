@@ -1,0 +1,57 @@
+- name: stock
+  max-item-count: 10000
+  partitions: 10
+  generator:
+    fields:
+      DC_ID: "#sequence.nextMember('nodes')"
+      SKU: "#reader.nextId(20000,'%09d')"
+  processor:
+    merge: "#c.hgetall('node:'.concat(DC_ID))"
+  redis:
+  - search:
+      keyspace: stock
+      keys: DC_ID,SKU
+      schema:
+      - name: DC_ID
+        sortable: true
+      - name: SKU
+        sortable: true
+      - name: GID_MKT_CD
+        sortable: true
+      - name: DC_TYP_CD
+        sortable: true
+      - name: DC_DESC
+      - name: CITY_NM
+        sortable: true
+      - name: ST_PROV_CD
+        sortable: true
+      - name: CTRY_CD
+        sortable: true
+      - name: BRD_CD
+        sortable: true
+      - name: LOCATION
+        type: geo
+      - name: GIFTWRAP
+        sortable: true
+      - name: NEXTDAY
+        sortable: true
+      - name: POBOX
+        sortable: true            
+      - name: ONHAND
+        type: numeric
+        sortable: true
+      - name: HOLD
+        type: numeric
+        sortable: true
+      - name: RESERVED
+        type: numeric
+        sortable: true
+      - name: ALLOCATED
+        type: numeric
+        sortable: true
+      - name: BACKORDERED
+        type: numeric
+        sortable: true
+      - name: EXCLUDED
+        type: numeric
+        sortable: true

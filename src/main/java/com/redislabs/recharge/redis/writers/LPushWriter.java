@@ -3,7 +3,7 @@ package com.redislabs.recharge.redis.writers;
 import java.util.Map;
 
 import com.redislabs.lettusearch.RediSearchAsyncCommands;
-import com.redislabs.recharge.RechargeConfiguration.ListConfiguration;
+import com.redislabs.recharge.redis.ListConfiguration;
 
 import io.lettuce.core.RedisFuture;
 

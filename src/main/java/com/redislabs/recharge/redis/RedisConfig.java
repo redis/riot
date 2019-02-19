@@ -20,11 +20,7 @@ import com.redislabs.lettusearch.search.field.GeoField;
 import com.redislabs.lettusearch.search.field.NumericField;
 import com.redislabs.lettusearch.search.field.TextField;
 import com.redislabs.lettusearch.search.field.TextField.TextFieldBuilder;
-import com.redislabs.recharge.RechargeConfiguration.HashConfiguration;
-import com.redislabs.recharge.RechargeConfiguration.NilConfiguration;
-import com.redislabs.recharge.RechargeConfiguration.RediSearchField;
-import com.redislabs.recharge.RechargeConfiguration.RedisWriterConfiguration;
-import com.redislabs.recharge.RechargeConfiguration.SearchConfiguration;
+import com.redislabs.recharge.RechargeConfiguration;
 import com.redislabs.recharge.RechargeException;
 import com.redislabs.recharge.redis.writers.AbstractRedisWriter;
 import com.redislabs.recharge.redis.writers.FTAddWriter;
@@ -46,9 +42,13 @@ import lombok.extern.slf4j.Slf4j;
 public class RedisConfig {
 
 	@Autowired
+	private RechargeConfiguration config;
+
+	@Autowired
 	private GenericObjectPool<StatefulRediSearchConnection<String, String>> rediSearchConnectionPool;
 
-	public ItemWriter<Map> writer(List<RedisWriterConfiguration> redis) throws RechargeException {
+	public ItemWriter<Map> writer() throws RechargeException {
+		List<RedisWriterConfiguration> redis = config.getRedis();
 		if (redis.size() == 0) {
 			return new NilWriter(new NilConfiguration());
 		}

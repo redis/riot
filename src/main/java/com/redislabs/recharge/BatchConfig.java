@@ -10,7 +10,7 @@ import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
-import org.springframework.batch.core.job.builder.SimpleJobBuilder;
+import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.core.step.tasklet.TaskletStep;
 import org.springframework.batch.item.ItemStreamReader;
@@ -19,10 +19,9 @@ import org.springframework.batch.item.support.AbstractItemCountingItemStreamItem
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.task.TaskExecutor;
+import org.springframework.core.task.SimpleAsyncTaskExecutor;
 
 import com.redislabs.lettusearch.StatefulRediSearchConnection;
-import com.redislabs.recharge.RechargeConfiguration.FlowConfiguration;
 import com.redislabs.recharge.generator.GeneratorReader;
 import com.redislabs.recharge.meter.ProcessorMeter;
 import com.redislabs.recharge.meter.ReaderMeter;
@@ -54,23 +53,39 @@ public class BatchConfig {
 	private ProcessorMeter<Map, Map> processorMeter;
 	@Autowired
 	private StatefulRediSearchConnection<String, String> connection;
-	@Autowired
-	private TaskExecutor taskExecutor;
 
-	public ItemStreamReader<Map> reader(FlowConfiguration flow) throws RechargeException {
-		if (flow.getFile() != null) {
-			AbstractItemCountingItemStreamItemReader<Map> reader = flow.getFile().reader();
-			if (flow.getMaxItemCount() > 0) {
-				int maxItemCount = flow.getMaxItemCount() / flow.getPartitions();
+	@Bean(name = "rechargeJob")
+	public Job job() throws RechargeException {
+		return jobs.get("recharge-job").start(step()).build();
+	}
+
+	@Bean
+	public Step step() throws RechargeException {
+		TaskletStep taskletStep = taskletStep();
+		if (config.getPartitions() > 1) {
+			IndexedPartitioner partitioner = new IndexedPartitioner(config.getPartitions());
+			return steps.get("recharge-step").partitioner("delegate-step", partitioner).step(taskletStep)
+					.taskExecutor(new SimpleAsyncTaskExecutor()).build();
+		}
+		return taskletStep;
+	}
+
+	@Bean
+	@StepScope
+	public ItemStreamReader<Map> reader() throws RechargeException {
+		if (config.getFile() != null) {
+			AbstractItemCountingItemStreamItemReader<Map> reader = config.getFile().reader();
+			if (config.getMaxItemCount() > 0) {
+				int maxItemCount = config.getMaxItemCount() / config.getPartitions();
 				reader.setMaxItemCount(maxItemCount);
 			}
 			return reader;
 		}
-		if (flow.getGenerator() != null) {
-			GeneratorReader reader = flow.getGenerator().reader();
+		if (config.getGenerator() != null) {
+			GeneratorReader reader = config.getGenerator().reader();
 			reader.setConnection(connection);
-			if (flow.getMaxItemCount() > 0) {
-				int maxItemCount = flow.getMaxItemCount() / flow.getPartitions();
+			if (config.getMaxItemCount() > 0) {
+				int maxItemCount = config.getMaxItemCount() / config.getPartitions();
 				reader.setMaxItemCount(maxItemCount);
 			}
 			return reader;
@@ -78,41 +93,19 @@ public class BatchConfig {
 		throw new RechargeException("No reader configured");
 	}
 
-	public ItemWriter<Map> writer(FlowConfiguration flow) throws RechargeException {
-		return redis.writer(flow.getRedis());
+	@Bean
+	@StepScope
+	public ItemWriter<Map> writer() throws RechargeException {
+		return redis.writer();
 	}
 
-	public Job job() throws RechargeException {
-		if (config.getFlows().isEmpty()) {
-			throw new RechargeException("No flow configured");
-		}
-		SimpleJobBuilder builder = jobs.get("recharge-job").start(step(config.getFlows().get(0)));
-		config.getFlows().subList(1, config.getFlows().size()).forEach(flow -> {
-			try {
-				builder.next(step(flow));
-			} catch (RechargeException e) {
-				log.error("Could not create flow {}", flow.getName(), e);
-			}
-		});
-		return builder.build();
-	}
-
-	public Step step(FlowConfiguration flow) throws RechargeException {
-		TaskletStep taskletStep = taskletStep(flow);
-		if (flow.getPartitions() > 1) {
-			IndexedPartitioner partitioner = new IndexedPartitioner(flow.getPartitions());
-			return steps.get(flow.getName() + "-step").partitioner(flow.getName() + "-delegate-step", partitioner)
-					.step(taskletStep).taskExecutor(taskExecutor).build();
-		}
-		return taskletStep;
-	}
-
-	public TaskletStep taskletStep(FlowConfiguration flow) throws RechargeException {
-		SimpleStepBuilder<Map, Map> builder = steps.get(flow.getName() + "-step").<Map, Map>chunk(50);
-		builder.reader(reader(flow));
-		if (flow.getProcessor() != null) {
-			SpelProcessor processor = flow.getProcessor().processor();
-			processor.setConnection(connection);
+	@Bean
+	public TaskletStep taskletStep() throws RechargeException {
+		SimpleStepBuilder<Map, Map> builder = steps.get("recharge-step").<Map, Map>chunk(50);
+		builder.reader(reader());
+		if (config.getProcessor() != null) {
+			SpelProcessor processor = processor();
+			builder.processor(processor);
 			builder.listener(new StepExecutionListener() {
 
 				@Override
@@ -130,15 +123,22 @@ public class BatchConfig {
 					return null;
 				}
 			});
-			builder.processor(processor);
 		}
-		builder.writer(redis.writer(flow.getRedis()));
+		builder.writer(writer());
 		if (config.isMeter()) {
 			builder.listener(writerMeter);
 			builder.listener(readerMeter);
 			builder.listener(processorMeter);
 		}
 		return builder.build();
+	}
+
+	@Bean
+	@StepScope
+	public SpelProcessor processor() {
+		SpelProcessor processor = config.getProcessor().processor();
+		processor.setConnection(connection);
+		return processor;
 	}
 
 }

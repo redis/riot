@@ -1,15 +1,13 @@
-flows:
-- name: partitions
-  max-item-count: 40
-  partitions: 20
-  generator:
-    fields:
-      id: "#context.nextId(100,'%02d')"
-  redis:
-  - search:
-      keyspace: test
-      keys: id
-      schema:
-      - name: id
-        sortable: true
+max-item-count: 1000000
+partitions: 2
+generator:
+  fields:
+    id: "#reader.nextId(1000000,'%02d')"
+redis:
+- search:
+    keyspace: test
+    keys: id
+    schema:
+    - name: id
+      sortable: true
       

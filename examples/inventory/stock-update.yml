@@ -1,0 +1,15 @@
+stock-update:
+  max-item-count: -1
+  reader:
+    generator:
+      map: "number.randomDoubleMap(0,0,100,'ONHAND','HOLD','RESERVED','ALLOCATED','BACKORDERED','EXCLUDED')"
+      fields:
+        DC_ID: "#sequence.nextMember('nodes')"
+        SKU: "sequence.next('sku',1,22400,'%09d')"
+  writers:
+  - redis:
+      keyspace: stock
+      keys: DC_ID,SKU
+      search:
+        replace: true
+        replacePartial: true

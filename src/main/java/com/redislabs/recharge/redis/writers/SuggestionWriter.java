@@ -4,7 +4,7 @@ import java.util.Map;
 
 import com.redislabs.lettusearch.RediSearchAsyncCommands;
 import com.redislabs.lettusearch.suggest.SuggestAddOptions;
-import com.redislabs.recharge.RechargeConfiguration.SuggestConfiguration;
+import com.redislabs.recharge.redis.SuggestConfiguration;
 
 import io.lettuce.core.RedisFuture;
 

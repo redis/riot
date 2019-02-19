@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.redislabs.lettusearch.RediSearchAsyncCommands;
 import com.redislabs.lettusearch.StatefulRediSearchConnection;
-import com.redislabs.recharge.RechargeConfiguration.AbstractRedisConfiguration;
+import com.redislabs.recharge.redis.AbstractRedisConfiguration;
 
 import io.lettuce.core.LettuceFutures;
 import io.lettuce.core.RedisFuture;

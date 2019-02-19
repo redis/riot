@@ -3,7 +3,7 @@ package com.redislabs.recharge.redis.writers;
 import java.util.Map;
 
 import com.redislabs.lettusearch.RediSearchCommands;
-import com.redislabs.recharge.RechargeConfiguration.StreamConfiguration;
+import com.redislabs.recharge.redis.StreamConfiguration;
 
 import io.lettuce.core.XAddArgs;
 

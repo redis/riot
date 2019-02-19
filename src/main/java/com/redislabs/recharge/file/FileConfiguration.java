@@ -32,11 +32,6 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.util.ResourceUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.redislabs.recharge.RechargeConfiguration.DelimitedFileConfiguration;
-import com.redislabs.recharge.RechargeConfiguration.FileType;
-import com.redislabs.recharge.RechargeConfiguration.FixedLengthFileConfiguration;
-import com.redislabs.recharge.RechargeConfiguration.FlatFileConfiguration;
-import com.redislabs.recharge.RechargeConfiguration.JsonFileConfiguration;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;

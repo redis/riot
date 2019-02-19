@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.redislabs.lettusearch.RediSearchAsyncCommands;
-import com.redislabs.recharge.RechargeConfiguration.StringConfiguration;
+import com.redislabs.recharge.redis.StringConfiguration;
 
 import io.lettuce.core.RedisFuture;
 import lombok.extern.slf4j.Slf4j;

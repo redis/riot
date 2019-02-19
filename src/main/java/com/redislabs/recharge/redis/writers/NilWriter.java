@@ -5,7 +5,7 @@ import java.util.Map;
 
 import org.springframework.batch.item.support.AbstractItemStreamItemWriter;
 
-import com.redislabs.recharge.RechargeConfiguration.NilConfiguration;
+import com.redislabs.recharge.redis.NilConfiguration;
 
 import lombok.extern.slf4j.Slf4j;
 
