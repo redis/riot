@@ -1,6 +1,6 @@
 package com.redislabs.recharge.redis.search;
 
-import com.redislabs.lettusearch.search.field.Matcher;
+import com.redislabs.lettusearch.search.field.TextField.Matcher;
 
 import lombok.Data;
 
