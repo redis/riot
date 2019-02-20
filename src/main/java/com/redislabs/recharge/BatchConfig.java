@@ -1,5 +1,7 @@
 package com.redislabs.recharge;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.batch.core.ExitStatus;
@@ -13,21 +15,24 @@ import org.springframework.batch.core.configuration.annotation.StepBuilderFactor
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.core.step.tasklet.TaskletStep;
-import org.springframework.batch.item.ItemStreamReader;
-import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.item.ItemStreamWriter;
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
+import org.springframework.batch.item.support.CompositeItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 
 import com.redislabs.lettusearch.StatefulRediSearchConnection;
+import com.redislabs.recharge.file.FileConfig;
+import com.redislabs.recharge.generator.GeneratorConfig;
 import com.redislabs.recharge.generator.GeneratorReader;
 import com.redislabs.recharge.meter.ProcessorMeter;
 import com.redislabs.recharge.meter.ReaderMeter;
 import com.redislabs.recharge.meter.WriterMeter;
 import com.redislabs.recharge.processor.SpelProcessor;
 import com.redislabs.recharge.redis.RedisConfig;
+import com.redislabs.recharge.redis.RedisWriter;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -44,6 +49,10 @@ public class BatchConfig {
 	@Autowired
 	private StepBuilderFactory steps;
 	@Autowired
+	private FileConfig file;
+	@Autowired
+	private GeneratorConfig generator;
+	@Autowired
 	private RedisConfig redis;
 	@Autowired
 	private WriterMeter<Map> writerMeter;
@@ -54,7 +63,7 @@ public class BatchConfig {
 	@Autowired
 	private StatefulRediSearchConnection<String, String> connection;
 
-	@Bean(name = "rechargeJob")
+	@Bean
 	public Job job() throws RechargeException {
 		return jobs.get("recharge-job").start(step()).build();
 	}
@@ -72,17 +81,20 @@ public class BatchConfig {
 
 	@Bean
 	@StepScope
-	public ItemStreamReader<Map> reader() throws RechargeException {
+	public AbstractItemCountingItemStreamItemReader<Map> reader() throws RechargeException {
 		if (config.getFile() != null) {
-			AbstractItemCountingItemStreamItemReader<Map> reader = config.getFile().reader();
+			AbstractItemCountingItemStreamItemReader<Map> reader = file.reader();
 			if (config.getMaxItemCount() > 0) {
 				int maxItemCount = config.getMaxItemCount() / config.getPartitions();
 				reader.setMaxItemCount(maxItemCount);
 			}
+			if (config.getName() == null) {
+				config.setName(file.getBaseName());
+			}
 			return reader;
 		}
 		if (config.getGenerator() != null) {
-			GeneratorReader reader = config.getGenerator().reader();
+			GeneratorReader reader = generator.reader();
 			reader.setConnection(connection);
 			if (config.getMaxItemCount() > 0) {
 				int maxItemCount = config.getMaxItemCount() / config.getPartitions();
@@ -95,13 +107,19 @@ public class BatchConfig {
 
 	@Bean
 	@StepScope
-	public ItemWriter<Map> writer() throws RechargeException {
-		return redis.writer();
+	public ItemStreamWriter<Map> writer() throws RechargeException {
+		List<RedisWriter<?>> writers = redis.writers();
+		if (writers.size() == 1) {
+			return writers.get(0);
+		}
+		CompositeItemWriter<Map> composite = new CompositeItemWriter<>();
+		composite.setDelegates(new ArrayList<>(writers));
+		return composite;
 	}
 
 	@Bean
 	public TaskletStep taskletStep() throws RechargeException {
-		SimpleStepBuilder<Map, Map> builder = steps.get("recharge-step").<Map, Map>chunk(50);
+		SimpleStepBuilder<Map, Map> builder = steps.get("main-step").<Map, Map>chunk(50);
 		builder.reader(reader());
 		if (config.getProcessor() != null) {
 			SpelProcessor processor = processor();

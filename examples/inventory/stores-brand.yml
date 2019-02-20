@@ -1,6 +1,0 @@
-file:
-  path: /Users/jruaux/DocumentsRL/Customers/Gap ICM/InventoryPoC/GapLogInventoryForPOC/DC_BRD_ASSN.csv
-redis:
-- hash:
-    keyspace: node
-    keys: DC_ID

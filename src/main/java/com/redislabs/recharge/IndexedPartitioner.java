@@ -48,4 +48,18 @@ public class IndexedPartitioner implements Partitioner {
 		return map;
 	}
 
+	public static int getPartitionIndex(ExecutionContext executionContext) {
+		if (executionContext.containsKey(IndexedPartitioner.CONTEXT_KEY_INDEX)) {
+			return executionContext.getInt(IndexedPartitioner.CONTEXT_KEY_INDEX);
+		}
+		return 0;
+	}
+
+	public static int getPartitions(ExecutionContext executionContext) {
+		if (executionContext.containsKey(IndexedPartitioner.CONTEXT_KEY_PARTITIONS)) {
+			return executionContext.getInt(IndexedPartitioner.CONTEXT_KEY_PARTITIONS);
+		}
+		return 1;
+	}
+
 }

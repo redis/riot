@@ -9,5 +9,4 @@ public class FlatFileConfiguration {
 	private String encoding = FlatFileItemReader.DEFAULT_CHARSET;
 	private boolean header = true;
 	private int linesToSkip = 0;
-	private String[] fields = new String[0];
 }

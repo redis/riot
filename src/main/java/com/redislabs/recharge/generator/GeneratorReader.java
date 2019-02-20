@@ -1,12 +1,10 @@
 package com.redislabs.recharge.generator;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.ruaux.pojofaker.Faker;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemStreamException;
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
@@ -18,6 +16,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 
 import com.redislabs.lettusearch.StatefulRediSearchConnection;
+import com.redislabs.recharge.CachedRedis;
 import com.redislabs.recharge.IndexedPartitioner;
 
 @SuppressWarnings("rawtypes")
@@ -63,16 +62,9 @@ public class GeneratorReader extends AbstractItemCountingItemStreamItemReader<Ma
 
 	@Override
 	public void open(ExecutionContext executionContext) throws ItemStreamException {
-		this.partitionIndex = getPartitionIndex(executionContext);
-		this.partitions = getPartitions(executionContext);
+		this.partitionIndex = IndexedPartitioner.getPartitionIndex(executionContext);
+		this.partitions = IndexedPartitioner.getPartitions(executionContext);
 		super.open(executionContext);
-	}
-
-	private int getPartitionIndex(ExecutionContext executionContext) {
-		if (executionContext.containsKey(IndexedPartitioner.CONTEXT_KEY_INDEX)) {
-			return executionContext.getInt(IndexedPartitioner.CONTEXT_KEY_INDEX);
-		}
-		return 0;
 	}
 
 	public int getPartitions() {
@@ -87,13 +79,6 @@ public class GeneratorReader extends AbstractItemCountingItemStreamItemReader<Ma
 		return current;
 	}
 
-	private int getPartitions(ExecutionContext executionContext) {
-		if (executionContext.containsKey(IndexedPartitioner.CONTEXT_KEY_PARTITIONS)) {
-			return executionContext.getInt(IndexedPartitioner.CONTEXT_KEY_PARTITIONS);
-		}
-		return 1;
-	}
-
 	@Override
 	protected void doOpen() throws Exception {
 		Assert.state(!initialized, "Cannot open an already open ItemReader, call close first");
@@ -105,14 +90,25 @@ public class GeneratorReader extends AbstractItemCountingItemStreamItemReader<Ma
 		for (Entry<String, String> field : fields.entrySet()) {
 			expressions.put(field.getKey(), parser.parseExpression(field.getValue()));
 		}
-		Faker faker = locale == null ? new Faker() : new Faker(new Locale(locale));
-		this.evaluationContext = new StandardEvaluationContext(faker);
-		evaluationContext.setVariable("reader", this);
+		GeneratorRootObject root = getRootObject();
+		root.setReader(this);
+		this.evaluationContext = new StandardEvaluationContext(root);
 		if (connection != null) {
-			evaluationContext.setVariable("redis", connection.sync());
-			evaluationContext.setVariable("sequence", new RedisSequence(connection.sync()));
+			evaluationContext.setVariable("r", connection.sync());
+			evaluationContext.setVariable("c", new CachedRedis(connection.sync()));
 		}
 		initialized = true;
+	}
+
+	private GeneratorRootObject getRootObject() {
+		if (locale == null) {
+			return new GeneratorRootObject();
+		}
+		return new GeneratorRootObject(new Locale(locale));
+	}
+
+	public long current(long end) {
+		return current / segment(end);
 	}
 
 	public long nextLong(long end) {
@@ -120,9 +116,17 @@ public class GeneratorReader extends AbstractItemCountingItemStreamItemReader<Ma
 	}
 
 	public long nextLong(long start, long end) {
-		long segment = (end - start) / partitions;
+		long segment = segment(start, end);
 		long partitionStart = start + partitionIndex * segment;
 		return partitionStart + (current % segment);
+	}
+
+	public long segment(long end) {
+		return segment(0, end);
+	}
+
+	public long segment(long start, long end) {
+		return (end - start) / partitions;
 	}
 
 	public String nextId(long start, long end, String format) {
@@ -137,7 +141,10 @@ public class GeneratorReader extends AbstractItemCountingItemStreamItemReader<Ma
 	@SuppressWarnings("unchecked")
 	protected Map doRead() throws Exception {
 		synchronized (lock) {
-			Map output = map == null ? new HashMap<>() : map.getValue(evaluationContext, Map.class);
+			Map output = new LinkedHashMap<>();
+			if (map != null) {
+				output.putAll(map.getValue(evaluationContext, Map.class));
+			}
 			for (Entry<String, Expression> expression : expressions.entrySet()) {
 				Object value = expression.getValue().getValue(evaluationContext);
 				if (value != null) {

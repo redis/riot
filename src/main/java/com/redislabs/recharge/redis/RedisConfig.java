@@ -1,156 +1,99 @@
 package com.redislabs.recharge.redis;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.commons.pool2.impl.GenericObjectPool;
-import org.springframework.batch.item.ItemWriter;
-import org.springframework.batch.item.support.CompositeItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 
-import com.redislabs.lettusearch.RediSearchAsyncCommands;
 import com.redislabs.lettusearch.StatefulRediSearchConnection;
-import com.redislabs.lettusearch.search.DropOptions;
-import com.redislabs.lettusearch.search.Schema;
-import com.redislabs.lettusearch.search.Schema.SchemaBuilder;
-import com.redislabs.lettusearch.search.field.Field;
-import com.redislabs.lettusearch.search.field.GeoField;
-import com.redislabs.lettusearch.search.field.NumericField;
-import com.redislabs.lettusearch.search.field.TextField;
-import com.redislabs.lettusearch.search.field.TextField.TextFieldBuilder;
 import com.redislabs.recharge.RechargeConfiguration;
 import com.redislabs.recharge.RechargeException;
-import com.redislabs.recharge.redis.writers.AbstractRedisWriter;
-import com.redislabs.recharge.redis.writers.FTAddWriter;
-import com.redislabs.recharge.redis.writers.GeoAddWriter;
-import com.redislabs.recharge.redis.writers.HMSetWriter;
-import com.redislabs.recharge.redis.writers.LPushWriter;
-import com.redislabs.recharge.redis.writers.NilWriter;
-import com.redislabs.recharge.redis.writers.SAddWriter;
-import com.redislabs.recharge.redis.writers.StringWriter;
-import com.redislabs.recharge.redis.writers.SuggestionWriter;
-import com.redislabs.recharge.redis.writers.XAddWriter;
-import com.redislabs.recharge.redis.writers.ZAddWriter;
-
-import lombok.extern.slf4j.Slf4j;
+import com.redislabs.recharge.redis.geo.GeoAddWriter;
+import com.redislabs.recharge.redis.hash.HMSetWriter;
+import com.redislabs.recharge.redis.hash.HashConfiguration;
+import com.redislabs.recharge.redis.list.LPushWriter;
+import com.redislabs.recharge.redis.search.FTAddWriter;
+import com.redislabs.recharge.redis.set.SAddWriter;
+import com.redislabs.recharge.redis.set.SRemWriter;
+import com.redislabs.recharge.redis.stream.XAddWriter;
+import com.redislabs.recharge.redis.string.StringWriter;
+import com.redislabs.recharge.redis.suggest.SuggestWriter;
+import com.redislabs.recharge.redis.zset.ZAddWriter;
 
 @Configuration
-@SuppressWarnings("rawtypes")
-@Slf4j
 public class RedisConfig {
 
 	@Autowired
 	private RechargeConfiguration config;
-
 	@Autowired
-	private GenericObjectPool<StatefulRediSearchConnection<String, String>> rediSearchConnectionPool;
+	private GenericObjectPool<StatefulRediSearchConnection<String, String>> pool;
 
-	public ItemWriter<Map> writer() throws RechargeException {
-		List<RedisWriterConfiguration> redis = config.getRedis();
-		if (redis.size() == 0) {
-			return new NilWriter(new NilConfiguration());
+	public List<RedisWriter<?>> writers() throws RechargeException {
+		if (config.getRedis().size() == 0) {
+			RedisConfiguration writerConfig = new RedisConfiguration();
+			writerConfig.setHash(new HashConfiguration());
+			config.getRedis().add(writerConfig);
 		}
-		if (redis.size() == 1) {
-			return writer(redis.get(0)).setConnectionPool(rediSearchConnectionPool);
-		}
-		List<ItemWriter<? super Map>> writers = new ArrayList<>();
-		for (RedisWriterConfiguration config : redis) {
-			writers.add(writer(config).setConnectionPool(rediSearchConnectionPool));
-		}
-		CompositeItemWriter<Map> composite = new CompositeItemWriter<>();
-		composite.setDelegates(writers);
-		return composite;
+		return config.getRedis().stream().map(redis -> writer(redis, pool)).collect(Collectors.toList());
 	}
 
-	private AbstractRedisWriter<?> writer(RedisWriterConfiguration writer) throws RechargeException {
-		if (writer.getSet() != null) {
-			return new SAddWriter(writer.getSet());
-		}
-		if (writer.getGeo() != null) {
-			return new GeoAddWriter(writer.getGeo());
-		}
-		if (writer.getList() != null) {
-			return new LPushWriter(writer.getList());
-		}
-		if (writer.getSearch() != null) {
-			SearchConfiguration config = writer.getSearch();
-			try {
-				StatefulRediSearchConnection<String, String> connection = rediSearchConnectionPool.borrowObject();
-				try {
-					RediSearchAsyncCommands<String, String> commands = connection.async();
-					String keyspace = config.getKeyspace();
-					if (config.isDrop()) {
-						log.debug("Dropping index {}", keyspace);
-						try {
-							commands.drop(keyspace, DropOptions.builder().build());
-						} catch (Exception e) {
-							log.debug("Could not drop index {}", keyspace, e);
-						}
-					}
-					if (config.isCreate() && !config.getSchema().isEmpty()) {
-						SchemaBuilder builder = Schema.builder();
-						config.getSchema().forEach(entry -> builder.field(getField(entry)));
-						Schema schema = builder.build();
-						log.debug("Creating schema {}", keyspace);
-						try {
-							commands.create(keyspace, schema);
-						} catch (Exception e) {
-							if (e.getMessage().startsWith("Index already exists")) {
-								log.debug("Ignored failure to create index {}", keyspace, e);
-							} else {
-								log.error("Could not create index {}", keyspace, e);
-							}
-						}
-					}
-					commands.flushCommands();
-				} finally {
-					connection.close();
-				}
-				return new FTAddWriter(writer.getSearch());
-			} catch (Exception e) {
-				throw new RechargeException("Could not get connection from pool", e);
+	private RedisWriter<?> writer(RedisConfiguration writerConfig,
+			GenericObjectPool<StatefulRediSearchConnection<String, String>> pool) {
+		if (writerConfig.getSet() != null) {
+			switch (writerConfig.getSet().getCommand()) {
+			case sadd:
+				return new SAddWriter(sanitize(writerConfig.getSet()), pool);
+			case srem:
+				return new SRemWriter(sanitize(writerConfig.getSet()), pool);
 			}
 		}
-		if (writer.getSet() != null) {
-			return new SAddWriter(writer.getSet());
+		if (writerConfig.getGeo() != null) {
+			return new GeoAddWriter(sanitize(writerConfig.getGeo()), pool);
 		}
-		if (writer.getString() != null) {
-			return new StringWriter(writer.getString());
+		if (writerConfig.getList() != null) {
+			return new LPushWriter(sanitize(writerConfig.getList()), pool);
 		}
-		if (writer.getSuggest() != null) {
-			return new SuggestionWriter(writer.getSuggest());
+		if (writerConfig.getSearch() != null) {
+			return new FTAddWriter(sanitize(writerConfig.getSearch()), pool);
 		}
-		if (writer.getZset() != null) {
-			return new ZAddWriter(writer.getZset());
+		if (writerConfig.getSet() != null) {
+			return new SAddWriter(sanitize(writerConfig.getSet()), pool);
 		}
-		if (writer.getStream() != null) {
-			return new XAddWriter(writer.getStream());
+		if (writerConfig.getString() != null) {
+			return new StringWriter(sanitize(writerConfig.getString()), pool);
 		}
-		if (writer.getHash() != null) {
-			return new HMSetWriter(writer.getHash());
+		if (writerConfig.getSuggest() != null) {
+			return new SuggestWriter(sanitize(writerConfig.getSuggest()), pool);
 		}
-		return new HMSetWriter(new HashConfiguration());
+		if (writerConfig.getZset() != null) {
+			return new ZAddWriter(sanitize(writerConfig.getZset()), pool);
+		}
+		if (writerConfig.getStream() != null) {
+			return new XAddWriter(sanitize(writerConfig.getStream()), pool);
+		}
+		if (writerConfig.getHash() != null) {
+			return new HMSetWriter(sanitize(writerConfig.getHash()), pool);
+		}
+		return new HMSetWriter(sanitize(new HashConfiguration()), pool);
 	}
 
-	private Field getField(RediSearchField field) {
-		switch (field.getType()) {
-		case Geo:
-			return GeoField.builder().name(field.getName()).sortable(field.isSortable()).build();
-		case Numeric:
-			return NumericField.builder().name(field.getName()).sortable(field.isSortable()).build();
-		default:
-			TextFieldBuilder builder = TextField.builder().name(field.getName()).sortable(field.isSortable())
-					.noStem(field.isNoStem());
-			if (field.getWeight() != null) {
-				builder.weight(field.getWeight());
-			}
-			if (field.getMatcher() != null) {
-				builder.matcher(field.getMatcher());
-			}
-			return builder.build();
+	private <T extends RedisDataStructureConfiguration> T sanitize(T redis) {
+		if (redis.getKeyspace() == null) {
+			redis.setKeyspace(config.getName());
 		}
+		if (redis instanceof CollectionRedisConfiguration) {
+			CollectionRedisConfiguration collection = (CollectionRedisConfiguration) redis;
+			if (collection.getFields().length == 0 && config.getFields().length > 0) {
+				collection.setFields(new String[] { config.getFields()[0] });
+			}
+		} else {
+			if (redis.getKeys().length == 0 && config.getFields().length > 0) {
+				redis.setKeys(new String[] { config.getFields()[0] });
+			}
+		}
+		return redis;
 	}
 
 }

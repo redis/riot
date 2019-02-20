@@ -88,9 +88,9 @@ public class SpelProcessor implements ItemProcessor<Map, Map> {
 			fields.forEach((k, v) -> fieldMap.put(k, parser.parseExpression(v)));
 		}
 		this.context = new StandardEvaluationContext();
-		context.setPropertyAccessors(Arrays.asList(new MapAccessor()));
-		context.setVariable("r", connection.sync());
-		context.setVariable("c", new CachedRedis(connection.sync()));
+		this.context.setPropertyAccessors(Arrays.asList(new MapAccessor()));
+		this.context.setVariable("r", connection.sync());
+		this.context.setVariable("c", new CachedRedis(connection.sync()));
 	}
 
 	public void close() {
