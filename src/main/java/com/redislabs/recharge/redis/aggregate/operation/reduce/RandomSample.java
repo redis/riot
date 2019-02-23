@@ -5,9 +5,8 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class RandomSample extends AbstractReducer {
+public class RandomSample extends PropertyReducer {
 
-	private String property;
 	private int size;
 
 }

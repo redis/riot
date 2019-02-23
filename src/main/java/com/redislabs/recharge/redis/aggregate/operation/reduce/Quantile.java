@@ -5,9 +5,8 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class Quantile extends AbstractReducer {
+public class Quantile extends PropertyReducer {
 
-	private String property;
 	private double quantile;
 
 }

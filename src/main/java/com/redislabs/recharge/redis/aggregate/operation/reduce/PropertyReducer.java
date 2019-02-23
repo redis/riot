@@ -5,7 +5,7 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class ToList extends AbstractReducer {
+public class PropertyReducer extends Reducer {
 
 	private String property;
 

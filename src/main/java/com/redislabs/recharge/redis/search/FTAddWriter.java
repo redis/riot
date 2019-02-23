@@ -13,6 +13,10 @@ import com.redislabs.lettusearch.search.DropOptions;
 import com.redislabs.lettusearch.search.Schema;
 import com.redislabs.lettusearch.search.Schema.SchemaBuilder;
 import com.redislabs.lettusearch.search.field.Field;
+import com.redislabs.lettusearch.search.field.GeoField;
+import com.redislabs.lettusearch.search.field.NumericField;
+import com.redislabs.lettusearch.search.field.TagField;
+import com.redislabs.lettusearch.search.field.TextField;
 import com.redislabs.recharge.IndexedPartitioner;
 import com.redislabs.recharge.redis.PipelineRedisWriter;
 
@@ -100,15 +104,20 @@ public class FTAddWriter extends PipelineRedisWriter<SearchConfiguration> {
 
 	private Field getField(SearchField field) {
 		if (field.getGeo() != null) {
-			return field.getGeo();
+			return GeoField.builder().name(field.getGeo().getName()).sortable(field.getGeo().isSortable())
+					.noIndex(field.getGeo().isNoIndex()).build();
 		}
 		if (field.getNumeric() != null) {
-			return field.getNumeric();
+			return NumericField.builder().name(field.getNumeric().getName()).sortable(field.getNumeric().isSortable())
+					.noIndex(field.getNumeric().isNoIndex()).build();
 		}
 		if (field.getTag() != null) {
-			return field.getTag();
+			return TagField.builder().name(field.getTag().getName()).sortable(field.getTag().isSortable())
+					.noIndex(field.getTag().isNoIndex()).build();
 		}
-		return field.getText();
+		return TextField.builder().name(field.getText().getName()).sortable(field.getText().isSortable())
+				.noIndex(field.getText().isNoIndex()).matcher(field.getText().getMatcher())
+				.noStem(field.getText().isNoStem()).weight(field.getText().getWeight()).build();
 	}
 
 }
