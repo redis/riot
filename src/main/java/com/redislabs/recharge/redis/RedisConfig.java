@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Configuration;
 import com.redislabs.lettusearch.StatefulRediSearchConnection;
 import com.redislabs.recharge.RechargeConfiguration;
 import com.redislabs.recharge.RechargeException;
+import com.redislabs.recharge.redis.aggregate.AggregateWriter;
 import com.redislabs.recharge.redis.geo.GeoAddWriter;
 import com.redislabs.recharge.redis.hash.HMSetWriter;
 import com.redislabs.recharge.redis.hash.HashConfiguration;
@@ -55,6 +56,9 @@ public class RedisConfig {
 		if (writerConfig.getList() != null) {
 			return new LPushWriter(sanitize(writerConfig.getList()), pool);
 		}
+		if (writerConfig.getAggregate() != null) {
+			return new AggregateWriter(writerConfig.getAggregate(), pool);
+		}
 		if (writerConfig.getSearch() != null) {
 			return new FTAddWriter(sanitize(writerConfig.getSearch()), pool);
 		}
@@ -85,12 +89,12 @@ public class RedisConfig {
 		}
 		if (redis instanceof CollectionRedisConfiguration) {
 			CollectionRedisConfiguration collection = (CollectionRedisConfiguration) redis;
-			if (collection.getFields().length == 0 && config.getFields().length > 0) {
-				collection.setFields(new String[] { config.getFields()[0] });
+			if (collection.getFields().length == 0 && !config.getFields().isEmpty()) {
+				collection.setFields(new String[] { config.getFields().get(0) });
 			}
 		} else {
-			if (redis.getKeys().length == 0 && config.getFields().length > 0) {
-				redis.setKeys(new String[] { config.getFields()[0] });
+			if (redis.getKeys().length == 0 && !config.getFields().isEmpty()) {
+				redis.setKeys(new String[] { config.getFields().get(0) });
 			}
 		}
 		return redis;

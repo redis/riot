@@ -75,7 +75,7 @@ public class GeneratorReader extends AbstractItemCountingItemStreamItemReader<Ma
 		return partitionIndex;
 	}
 
-	public int getCurrent() {
+	public int current() {
 		return current;
 	}
 

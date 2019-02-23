@@ -5,7 +5,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.springframework.batch.item.ExecutionContext;
-import org.springframework.batch.item.ItemStream;
 
 import com.redislabs.lettusearch.RediSearchAsyncCommands;
 import com.redislabs.lettusearch.StatefulRediSearchConnection;
@@ -14,11 +13,6 @@ import com.redislabs.lettusearch.search.DropOptions;
 import com.redislabs.lettusearch.search.Schema;
 import com.redislabs.lettusearch.search.Schema.SchemaBuilder;
 import com.redislabs.lettusearch.search.field.Field;
-import com.redislabs.lettusearch.search.field.GeoField;
-import com.redislabs.lettusearch.search.field.NumericField;
-import com.redislabs.lettusearch.search.field.TagField;
-import com.redislabs.lettusearch.search.field.TextField;
-import com.redislabs.lettusearch.search.field.TextField.TextFieldBuilder;
 import com.redislabs.recharge.IndexedPartitioner;
 import com.redislabs.recharge.redis.PipelineRedisWriter;
 
@@ -28,7 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
 @Slf4j
-public class FTAddWriter extends PipelineRedisWriter<SearchConfiguration> implements ItemStream {
+public class FTAddWriter extends PipelineRedisWriter<SearchConfiguration> {
 
 	private AddOptions options;
 
@@ -105,27 +99,16 @@ public class FTAddWriter extends PipelineRedisWriter<SearchConfiguration> implem
 	}
 
 	private Field getField(SearchField field) {
-		switch (field.getType()) {
-		case Geo:
-			return GeoField.builder().name(field.getName()).sortable(field.isSortable()).noIndex(field.isNoIndex())
-					.build();
-		case Numeric:
-			return NumericField.builder().name(field.getName()).sortable(field.isSortable()).noIndex(field.isNoIndex())
-					.build();
-		case Tag:
-			return TagField.builder().name(field.getName()).sortable(field.isSortable()).noIndex(field.isNoIndex())
-					.separator(field.getSeparator()).build();
-		default:
-			TextFieldBuilder builder = TextField.builder().name(field.getName()).sortable(field.isSortable())
-					.noIndex(field.isNoIndex()).noStem(field.isNoStem());
-			if (field.getWeight() != null) {
-				builder.weight(field.getWeight());
-			}
-			if (field.getMatcher() != null) {
-				builder.matcher(field.getMatcher());
-			}
-			return builder.build();
+		if (field.getGeo() != null) {
+			return field.getGeo();
 		}
+		if (field.getNumeric() != null) {
+			return field.getNumeric();
+		}
+		if (field.getTag() != null) {
+			return field.getTag();
+		}
+		return field.getText();
 	}
 
 }

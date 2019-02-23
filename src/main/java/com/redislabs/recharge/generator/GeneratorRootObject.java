@@ -41,8 +41,8 @@ public class GeneratorRootObject extends Faker {
 		return reader.segment(start, end);
 	}
 
-	public int getCurrent() {
-		return reader.getCurrent();
+	public int current() {
+		return reader.current();
 	}
 
 	public long nextLong(long end) {

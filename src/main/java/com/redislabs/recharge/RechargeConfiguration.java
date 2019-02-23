@@ -20,7 +20,7 @@ import lombok.Data;
 @EnableAutoConfiguration
 public class RechargeConfiguration {
 	private String name;
-	private String[] fields = new String[0];
+	private List<String> fields = new ArrayList<>();
 	private boolean meter;
 	private boolean flushall;
 	private int flushallWait = 5;

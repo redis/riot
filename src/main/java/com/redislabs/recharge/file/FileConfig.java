@@ -10,6 +10,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.batch.item.file.DefaultBufferedReaderFactory;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
@@ -109,36 +110,43 @@ public class FileConfig {
 
 	private FlatFileItemReader<Map> getDelimitedReader(DelimitedFileConfiguration delimited, Resource resource)
 			throws IOException {
-		FlatFileItemReaderBuilder<Map> builder = getFlatFileReaderBuilder(resource, delimited);
-		DelimitedBuilder<Map> delimitedBuilder = builder.delimited();
+		FlatFileItemReaderBuilder<Map> fileBuilder = getFlatFileReaderBuilder(resource, delimited);
+		DelimitedBuilder<Map> builder = fileBuilder.delimited();
 		if (delimited.getDelimiter() != null) {
-			delimitedBuilder.delimiter(delimited.getDelimiter());
+			builder.delimiter(delimited.getDelimiter());
 		}
 		if (delimited.getIncludedFields() != null) {
-			delimitedBuilder.includedFields(delimited.getIncludedFields());
+			builder.includedFields(ArrayUtils.toObject(delimited.getIncludedFields()));
 		}
 		if (delimited.getQuoteCharacter() != null) {
-			delimitedBuilder.quoteCharacter(delimited.getQuoteCharacter());
+			builder.quoteCharacter(delimited.getQuoteCharacter());
 		}
 		if (delimited.isHeader()) {
-			try {
-				BufferedReader reader = new DefaultBufferedReaderFactory().create(resource, delimited.getEncoding());
-				DelimitedLineTokenizer tokenizer = new DelimitedLineTokenizer();
-				if (delimited.getDelimiter() != null) {
-					tokenizer.setDelimiter(delimited.getDelimiter());
+			fileBuilder.linesToSkip(1);
+			if (config.getFields().isEmpty()) {
+				try {
+					BufferedReader reader = new DefaultBufferedReaderFactory().create(resource,
+							delimited.getEncoding());
+					DelimitedLineTokenizer tokenizer = new DelimitedLineTokenizer();
+					if (delimited.getDelimiter() != null) {
+						tokenizer.setDelimiter(delimited.getDelimiter());
+					}
+					if (delimited.getQuoteCharacter() != null) {
+						tokenizer.setQuoteCharacter(delimited.getQuoteCharacter());
+					}
+					if (delimited.getIncludedFields() != null) {
+						tokenizer.setIncludedFields(delimited.getIncludedFields());
+					}
+					String line = reader.readLine();
+					config.setFields(Arrays.asList(tokenizer.tokenize(line).getValues()));
+					log.info("Found header {}", config.getFields());
+				} catch (Exception e) {
+					log.error("Could not read header for file {}", resource, e);
 				}
-				if (delimited.getQuoteCharacter() != null) {
-					tokenizer.setQuoteCharacter(delimited.getQuoteCharacter());
-				}
-				String line = reader.readLine();
-				config.setFields(tokenizer.tokenize(line).getValues());
-				log.info("Found header {}", Arrays.toString(config.getFields()));
-			} catch (Exception e) {
-				log.error("Could not read header for file {}", resource, e);
 			}
 		}
-		delimitedBuilder.names(config.getFields());
-		return builder.build();
+		builder.names(config.getFields().toArray(new String[config.getFields().size()]));
+		return fileBuilder.build();
 	}
 
 	private FlatFileItemReader<Map> getFixedLengthReader(FixedLengthFileConfiguration fileConfig, Resource resource)
@@ -151,7 +159,7 @@ public class FileConfig {
 		if (fileConfig.getStrict() != null) {
 			fixedLengthBuilder.strict(fileConfig.getStrict());
 		}
-		fixedLengthBuilder.names(config.getFields());
+		fixedLengthBuilder.names(config.getFields().toArray(new String[config.getFields().size()]));
 		return builder.build();
 	}
 

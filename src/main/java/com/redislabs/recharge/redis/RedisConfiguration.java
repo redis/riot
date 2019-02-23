@@ -1,5 +1,6 @@
 package com.redislabs.recharge.redis;
 
+import com.redislabs.recharge.redis.aggregate.AggregateConfiguration;
 import com.redislabs.recharge.redis.geo.GeoConfiguration;
 import com.redislabs.recharge.redis.hash.HashConfiguration;
 import com.redislabs.recharge.redis.list.ListConfiguration;
@@ -21,6 +22,7 @@ public class RedisConfiguration {
 	private ZSetConfiguration zset;
 	private GeoConfiguration geo;
 	private SearchConfiguration search;
+	private AggregateConfiguration aggregate;
 	private SuggestConfiguration suggest;
 	private StreamConfiguration stream;
 }

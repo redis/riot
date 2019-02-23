@@ -1,7 +1,8 @@
+name: node
 max-item-count: 3568
 generator:
   fields:
-    DC_ID: "#sequence.nextMember('nodes')"
+    DC_ID: "#c.smember('nodes',current())"
     GIFTWRAP: "bool.bool"
     NEXTDAY: "bool.bool"
     POBOX: "bool.bool"

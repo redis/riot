@@ -7,6 +7,6 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 public class DelimitedFileConfiguration extends FlatFileConfiguration {
 	private String delimiter;
-	private Integer[] includedFields;
+	private int[] includedFields;
 	private Character quoteCharacter;
 }

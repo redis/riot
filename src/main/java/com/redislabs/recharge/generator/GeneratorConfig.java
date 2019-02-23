@@ -16,8 +16,8 @@ public class GeneratorConfig {
 		reader.setFields(config.getGenerator().getFields());
 		reader.setLocale(config.getGenerator().getLocale());
 		reader.setMapExpression(config.getGenerator().getMap());
-		if (config.getFields().length == 0) {
-			config.setFields(config.getGenerator().getFields().keySet().toArray(new String[0]));
+		if (config.getFields().isEmpty()) {
+			config.getFields().addAll(config.getGenerator().getFields().keySet());
 		}
 		return reader;
 	}

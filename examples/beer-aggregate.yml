@@ -1,0 +1,18 @@
+max-item-count: -1
+generator:
+  fields:
+    dummy: '10'
+redis:
+- aggregate:
+    keyspace: beer
+    query: '*'
+    operations:
+    - group:
+        properties: style
+        reducers:
+        - avg:
+            as: abv
+            property: abv
+    - sort:
+        properties:
+          abv: desc

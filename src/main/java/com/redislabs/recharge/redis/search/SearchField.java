@@ -1,21 +1,18 @@
 package com.redislabs.recharge.redis.search;
 
-import com.redislabs.lettusearch.search.field.TextField.Matcher;
+import com.redislabs.lettusearch.search.field.GeoField;
+import com.redislabs.lettusearch.search.field.NumericField;
+import com.redislabs.lettusearch.search.field.TagField;
+import com.redislabs.lettusearch.search.field.TextField;
 
 import lombok.Data;
 
 @Data
 public class SearchField {
-	private String name;
-	private FieldType type = FieldType.Text;
-	private boolean sortable;
-	private boolean noIndex;
-	private Double weight;
-	private boolean noStem;
-	private Matcher matcher;
-	private String separator;
 
-	public static enum FieldType {
-		Text, Numeric, Geo, Tag
-	}
+	private NumericField numeric;
+	private TextField text;
+	private TagField tag;
+	private GeoField geo;
+
 }
