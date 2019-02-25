@@ -78,7 +78,7 @@ public class FTAddWriter extends PipelineRedisWriter<SearchConfiguration> {
 				}
 				if (config.isCreate() && !config.getSchema().isEmpty()) {
 					SchemaBuilder builder = Schema.builder();
-					config.getSchema().forEach(entry -> builder.field(getField(entry)));
+					config.getSchema().forEach(field -> builder.field(field(field)));
 					Schema schema = builder.build();
 					log.debug("Creating schema {}", keyspace);
 					try {
@@ -102,22 +102,18 @@ public class FTAddWriter extends PipelineRedisWriter<SearchConfiguration> {
 		super.open(executionContext);
 	}
 
-	private Field getField(SearchField field) {
-		if (field.getGeo() != null) {
-			return GeoField.builder().name(field.getGeo().getName()).sortable(field.getGeo().isSortable())
-					.noIndex(field.getGeo().isNoIndex()).build();
+	private Field field(SearchField field) {
+		switch (field.getType()) {
+		case Geo:
+			return GeoField.builder().name(field.getName()).sortable(field.isSortable()).noIndex(field.isNoIndex()).build();
+		case Numeric:
+			return NumericField.builder().name(field.getName()).sortable(field.isSortable()).noIndex(field.isNoIndex()).build();
+		case Tag:
+			return TagField.builder().name(field.getName()).sortable(field.isSortable()).noIndex(field.isNoIndex()).build();
+		default:
+			return TextField.builder().name(field.getName()).sortable(field.isSortable()).noIndex(field.isNoIndex())
+					.matcher(field.getMatcher()).noStem(field.isNoStem()).weight(field.getWeight()).build();
 		}
-		if (field.getNumeric() != null) {
-			return NumericField.builder().name(field.getNumeric().getName()).sortable(field.getNumeric().isSortable())
-					.noIndex(field.getNumeric().isNoIndex()).build();
-		}
-		if (field.getTag() != null) {
-			return TagField.builder().name(field.getTag().getName()).sortable(field.getTag().isSortable())
-					.noIndex(field.getTag().isNoIndex()).build();
-		}
-		return TextField.builder().name(field.getText().getName()).sortable(field.getText().isSortable())
-				.noIndex(field.getText().isNoIndex()).matcher(field.getText().getMatcher())
-				.noStem(field.getText().isNoStem()).weight(field.getText().getWeight()).build();
 	}
 
 }

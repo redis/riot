@@ -6,23 +6,25 @@ file:
     included-fields: [1,2,3,4,5,6,7]
 redis:
 - search:
-#   schema.field(TextField.builder().name(FIELD_NAME).sortable(true).build());
-#   schema.field(TextField.builder().name(FIELD_STYLE).matcher(Matcher.English).sortable(true).build());
-#   schema.field(NumericField.builder().name(FIELD_ABV).sortable(true).build());
-#   schema.field(NumericField.builder().name(FIELD_OUNCES).sortable(true).build());
     keyspace: beer
     keys: id
     drop: true
     schema:
-    - text:
-        name: name
-        sortable: true
-    - text:
-        name: style
-        sortable: true
-    - numeric:
-        name: abv
-        sortable: true
-    - numeric:
-        name: ounces
-        sortable: true
+    - name: id
+      sortable: true
+    - name: name
+      sortable: true
+    - name: style
+      sortable: true
+    - name: abv
+      sortable: true
+      type: numeric
+    - name: ounces
+      type: numeric
+      sortable: true
+- set:
+    keyspace: beerStyles
+    fields: style
+- set:
+    keyspace: abvs
+    fields: abv    

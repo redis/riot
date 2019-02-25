@@ -24,6 +24,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 
 import com.redislabs.lettusearch.StatefulRediSearchConnection;
+import com.redislabs.recharge.dummy.DummyReader;
 import com.redislabs.recharge.file.FileConfig;
 import com.redislabs.recharge.generator.GeneratorConfig;
 import com.redislabs.recharge.generator.GeneratorReader;
@@ -102,7 +103,7 @@ public class BatchConfig {
 			}
 			return reader;
 		}
-		throw new RechargeException("No reader configured");
+		return new DummyReader();
 	}
 
 	@Bean

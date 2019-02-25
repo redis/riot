@@ -31,6 +31,7 @@ import com.redislabs.lettusearch.aggregate.reducer.RandomSample;
 import com.redislabs.lettusearch.aggregate.reducer.StdDev;
 import com.redislabs.lettusearch.aggregate.reducer.Sum;
 import com.redislabs.lettusearch.aggregate.reducer.ToList;
+import com.redislabs.recharge.MapTemplate;
 import com.redislabs.recharge.redis.PipelineRedisWriter;
 import com.redislabs.recharge.redis.aggregate.operation.ApplyOperation;
 import com.redislabs.recharge.redis.aggregate.operation.FilterOperation;
@@ -41,8 +42,10 @@ import com.redislabs.recharge.redis.aggregate.operation.SortOperation;
 
 import io.lettuce.core.RedisFuture;
 
-@SuppressWarnings({ "rawtypes" })
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public class AggregateWriter extends PipelineRedisWriter<AggregateConfiguration> {
+
+	private MapTemplate template = new MapTemplate();
 
 	public AggregateWriter(AggregateConfiguration config,
 			GenericObjectPool<StatefulRediSearchConnection<String, String>> pool) {
@@ -51,7 +54,11 @@ public class AggregateWriter extends PipelineRedisWriter<AggregateConfiguration>
 
 	@Override
 	protected RedisFuture<?> write(String id, Map record, RediSearchAsyncCommands<String, String> commands) {
-		return commands.aggregate(config.getKeyspace(), config.getQuery(), getAggregateOptions());
+		return commands.aggregate(config.getKeyspace(), query(record), getAggregateOptions());
+	}
+
+	private String query(Map record) {
+		return template.expand(config.getQuery(), record);
 	}
 
 	private AggregateOptions getAggregateOptions() {

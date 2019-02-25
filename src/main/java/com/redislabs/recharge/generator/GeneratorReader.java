@@ -34,6 +34,8 @@ public class GeneratorReader extends AbstractItemCountingItemStreamItemReader<Ma
 	private Map<String, Expression> expressions;
 	private int partitionIndex;
 	private int partitions;
+	private long sleep = 0;
+	private int sleepNanos;
 
 	public GeneratorReader() {
 		setName(ClassUtils.getShortName(GeneratorReader.class));
@@ -58,6 +60,14 @@ public class GeneratorReader extends AbstractItemCountingItemStreamItemReader<Ma
 
 	public void setConnection(StatefulRediSearchConnection<String, String> connection) {
 		this.connection = connection;
+	}
+
+	public void setSleep(long sleep) {
+		this.sleep = sleep;
+	}
+
+	public void setSleepNanos(int sleepNanos) {
+		this.sleepNanos = sleepNanos;
 	}
 
 	@Override
@@ -152,6 +162,9 @@ public class GeneratorReader extends AbstractItemCountingItemStreamItemReader<Ma
 				}
 			}
 			current++;
+			if (sleep > 0) {
+				Thread.sleep(sleep, sleepNanos);
+			}
 			return output;
 		}
 	}

@@ -1,5 +1,5 @@
 max-item-count: 1000000
-partitions: 4
+partitions: 2
 generator:
   map: "#c.hgetall('node:'.concat(#c.smembers('nodes').get(current(20000))))"
   fields:
@@ -10,58 +10,46 @@ redis:
     keys: DC_ID,SKU
     drop: true
     schema:
-    - text:
-        name: DC_ID
-        sortable: true
-    - text:
-        name: SKU
-        sortable: true
-    - text:
-        name: GID_MKT_CD
-        sortable: true
-    - text:
-        name: DC_TYP_CD
-        sortable: true
-    - text:
-        name: DC_DESC
-    - text:
-        name: CITY_NM
-        sortable: true
-    - text:
-        name: ST_PROV_CD
-        sortable: true
-    - text:
-        name: CTRY_CD
-        sortable: true
-    - text:
-        name: BRD_CD
-        sortable: true
-    - geo:
-        name: LOCATION
-    - text:
-        name: GIFTWRAP
-        sortable: true
-    - text:
-        name: NEXTDAY
-        sortable: true
-    - text:
-        name: POBOX
-        sortable: true            
-    - numeric:
-        name: ONHAND
-        sortable: true
-    - numeric:
-        name: HOLD
-        sortable: true
-    - numeric:
-        name: RESERVED
-        sortable: true
-    - numeric:
-        name: ALLOCATED
-        sortable: true
-    - numeric:
-        name: BACKORDERED
-        sortable: true
-    - type:
-        name: EXCLUDED
-        sortable: true
+    - name: DC_ID
+      sortable: true
+    - name: SKU
+      sortable: true
+    - name: GID_MKT_CD
+      sortable: true
+    - name: DC_TYP_CD
+      sortable: true
+    - name: DC_DESC
+    - name: CITY_NM
+      sortable: true
+    - name: ST_PROV_CD
+      sortable: true
+    - name: CTRY_CD
+      sortable: true
+    - name: BRD_CD
+      sortable: true
+    - name: LOCATION
+      type: geo
+    - name: GIFTWRAP
+      sortable: true
+    - name: NEXTDAY
+      sortable: true
+    - name: POBOX
+      sortable: true            
+    - name: ONHAND
+      type: numeric 
+      sortable: true
+    - name: HOLD
+      type: numeric
+      sortable: true
+    - name: RESERVED
+      type: numeric
+      sortable: true
+    - name: ALLOCATED
+      type: numeric
+      sortable: true
+    - name: BACKORDERED
+      type: numeric
+      sortable: true
+    - name: EXCLUDED
+      type: numeric
+      sortable: true

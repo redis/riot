@@ -1,7 +1,7 @@
 max-item-count: -1
 generator:
   fields:
-    dummy: '10'
+    abv: "#c.srandmember('abvs')"
 redis:
 - aggregate:
     keyspace: beer

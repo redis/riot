@@ -1,0 +1,20 @@
+max-item-count: 1000000
+#partitions: 2
+generator:
+  map: "#c.hgetall('node:'.concat(#c.smembers('nodes').get(current(20000))))"
+  fields:
+    SKU: "nextId(20000,'%09d')"
+redis:
+- aggregate:
+    keyspace: stock
+    query: '@DC_ID:1054'
+    operations:
+    - group:
+        properties: ONHAND
+        reducers:
+        - sum:
+            property: ONHAND
+            as: ONHAND
+    - sort:
+        properties:
+          ONHAND: desc
