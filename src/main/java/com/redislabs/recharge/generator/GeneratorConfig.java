@@ -12,15 +12,12 @@ public class GeneratorConfig {
 	private RechargeConfiguration config;
 
 	public GeneratorReader reader() {
+		GeneratorConfiguration generator = config.getGenerator();
 		GeneratorReader reader = new GeneratorReader();
-		reader.setFields(config.getGenerator().getFields());
-		reader.setLocale(config.getGenerator().getLocale());
-		reader.setMapExpression(config.getGenerator().getMap());
-		reader.setSleep(config.getGenerator().getSleep());
-		reader.setSleepNanos(config.getGenerator().getSleepNanos());
-		if (config.getFields().isEmpty()) {
-			config.getFields().addAll(config.getGenerator().getFields().keySet());
-		}
+		reader.setFields(generator.getFields());
+		reader.setLocale(generator.getLocale());
+		reader.setMapExpression(generator.getMap());
+		config.getRedis().setCollectionFields(generator.getFields().keySet().toArray(new String[0]));
 		return reader;
 	}
 }

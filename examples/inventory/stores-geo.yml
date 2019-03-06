@@ -1,6 +1,9 @@
-name: node
 file:
   path: /Users/jruaux/DocumentsRL/Customers/Gap ICM/InventoryPoC/GapLogInventoryForPOC/DC_GEOADDR.csv
 processor:
   fields:
-    LOCATION: "containsKey('LONGITUDE')?LONGITUDE.concat(',').concat(LATITUDE):null"
+    LOCATION: LONGITUDE?.concat(',')?.concat(LATITUDE)
+redis:
+  hash:
+    keyspace: node
+    keys: DC_ID

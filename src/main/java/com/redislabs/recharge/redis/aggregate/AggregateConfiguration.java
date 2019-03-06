@@ -3,14 +3,14 @@ package com.redislabs.recharge.redis.aggregate;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.redislabs.recharge.redis.RedisDataStructureConfiguration;
+import com.redislabs.recharge.redis.DataStructureConfiguration;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class AggregateConfiguration extends RedisDataStructureConfiguration {
+public class AggregateConfiguration extends DataStructureConfiguration {
 
 	private String query;
 	private boolean withSchema;

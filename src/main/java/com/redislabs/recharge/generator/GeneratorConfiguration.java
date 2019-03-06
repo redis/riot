@@ -14,7 +14,5 @@ public class GeneratorConfiguration {
 	private String map;
 	private Map<String, String> fields = new LinkedHashMap<>();
 	private String locale = "en-US";
-	private long sleep;
-	private int sleepNanos;
 
 }

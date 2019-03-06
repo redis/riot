@@ -85,11 +85,12 @@ public class FileConfig {
 	}
 
 	private boolean isGzip() {
-		if (config.getFile().getGzip() == null) {
-			String gz = getFilenameGroup(config.getFile().getPath(), FILE_GZ);
+		FileReaderConfiguration file = config.getFile();
+		if (file.getGzip() == null) {
+			String gz = getFilenameGroup(file.getPath(), FILE_GZ);
 			return gz != null && gz.length() > 0;
 		}
-		return config.getFile().getGzip();
+		return file.getGzip();
 	}
 
 	private String getFilenameGroup(String path, String groupName) {
@@ -123,7 +124,7 @@ public class FileConfig {
 		}
 		if (delimited.isHeader()) {
 			fileBuilder.linesToSkip(1);
-			if (config.getFields().isEmpty()) {
+			if (delimited.getFields() == null) {
 				try {
 					BufferedReader reader = new DefaultBufferedReaderFactory().create(resource,
 							delimited.getEncoding());
@@ -138,33 +139,39 @@ public class FileConfig {
 						tokenizer.setIncludedFields(delimited.getIncludedFields());
 					}
 					String line = reader.readLine();
-					config.setFields(Arrays.asList(tokenizer.tokenize(line).getValues()));
-					log.info("Found header {}", config.getFields());
+					delimited.setFields(tokenizer.tokenize(line).getValues());
+					log.info("Found header {}", Arrays.asList(delimited.getFields()));
 				} catch (Exception e) {
 					log.error("Could not read header for file {}", resource, e);
 				}
 			}
 		}
-		builder.names(config.getFields().toArray(new String[config.getFields().size()]));
+		if (delimited.getFields() != null) {
+			builder.names(delimited.getFields());
+			config.getRedis().setCollectionFields(delimited.getFields());
+		}
 		return fileBuilder.build();
 	}
 
-	private FlatFileItemReader<Map> getFixedLengthReader(FixedLengthFileConfiguration fileConfig, Resource resource)
+	private FlatFileItemReader<Map> getFixedLengthReader(FixedLengthFileConfiguration fixedLength, Resource resource)
 			throws IOException {
-		FlatFileItemReaderBuilder<Map> builder = getFlatFileReaderBuilder(resource, fileConfig);
-		FixedLengthBuilder<Map> fixedLengthBuilder = builder.fixedLength();
-		if (fileConfig.getRanges() != null) {
-			fixedLengthBuilder.columns(getRanges(fileConfig.getRanges()));
+		FlatFileItemReaderBuilder<Map> fileBuilder = getFlatFileReaderBuilder(resource, fixedLength);
+		FixedLengthBuilder<Map> builder = fileBuilder.fixedLength();
+		if (fixedLength.getRanges() != null) {
+			builder.columns(getRanges(fixedLength.getRanges()));
 		}
-		if (fileConfig.getStrict() != null) {
-			fixedLengthBuilder.strict(fileConfig.getStrict());
+		if (fixedLength.getStrict() != null) {
+			builder.strict(fixedLength.getStrict());
 		}
-		fixedLengthBuilder.names(config.getFields().toArray(new String[config.getFields().size()]));
-		return builder.build();
+		if (fixedLength.getFields() != null) {
+			builder.names(fixedLength.getFields());
+			config.getRedis().setCollectionFields(fixedLength.getFields());
+		}
+		return fileBuilder.build();
 	}
 
-	public String getBaseName() {
-		String filename = new File(config.getFile().getPath()).getName();
+	public String getBaseName(FileConfiguration file) {
+		String filename = new File(file.getPath()).getName();
 		int extensionIndex = filename.lastIndexOf(".");
 		if (extensionIndex == -1) {
 			return filename;
@@ -186,21 +193,22 @@ public class FileConfig {
 	}
 
 	public AbstractItemCountingItemStreamItemReader<Map> reader() {
+		FileReaderConfiguration file = config.getFile();
 		try {
 			Resource resource = getResource();
-			if (config.getFile().getType() == null) {
-				config.getFile().setType(getFileType(resource));
+			if (file.getType() == null) {
+				file.setType(getFileType(resource));
 			}
-			switch (config.getFile().getType()) {
+			switch (file.getType()) {
 			case FixedLength:
-				return getFixedLengthReader(config.getFile().getFixedLength(), resource);
+				return getFixedLengthReader(file.getFixedLength(), resource);
 			case Json:
-				return getJsonReader(config.getFile().getJson(), resource);
+				return getJsonReader(file.getJson(), resource);
 			default:
-				return getDelimitedReader(config.getFile().getDelimited(), resource);
+				return getDelimitedReader(file.getDelimited(), resource);
 			}
 		} catch (IOException e) {
-			log.error("Could not create file reader for {}", config.getFile().getPath());
+			log.error("Could not create file reader for {}", file.getPath());
 			return null;
 		}
 	}
@@ -211,7 +219,7 @@ public class FileConfig {
 			return null;
 		}
 		log.debug("Found file extension '{}' for path {}", extension, resource);
-		return config.getFile().getFileTypes().get(extension);
+		return config.getFileTypes().get(extension);
 	}
 
 	private JsonItemReader<Map> getJsonReader(JsonFileConfiguration config, Resource resource) {

@@ -1,13 +1,17 @@
-max-item-count: 1000000
-#partitions: 2
+logging:
+  level:
+    com.redislabs: debug
+max-item-count: 100
+sleep: 1000
+chunk-size: 1
 generator:
-  map: "#c.hgetall('node:'.concat(#c.smembers('nodes').get(current(20000))))"
+  map: "#c.hgetall('node:'.concat(#c.srandmember('nodes')))"
   fields:
     SKU: "nextId(20000,'%09d')"
 redis:
-- aggregate:
+  aggregate:
     keyspace: stock
-    query: '@DC_ID:1054'
+    query: '@DC_ID:{DC_ID}'
     operations:
     - group:
         properties: ONHAND

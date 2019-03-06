@@ -25,4 +25,38 @@ public class RedisConfiguration {
 	private AggregateConfiguration aggregate;
 	private SuggestConfiguration suggest;
 	private StreamConfiguration stream;
+	private ScanConfiguration scan;
+
+	public void setKeyspace(String keyspace) {
+		setKeyspace(keyspace, string, hash, list, set, zset, geo, search, aggregate, suggest, stream);
+	}
+
+	private void setKeyspace(String keyspace, DataStructureConfiguration... configs) {
+		for (DataStructureConfiguration config : configs) {
+			if (config == null) {
+				continue;
+			}
+			if (config.getKeyspace() == null) {
+				config.setKeyspace(keyspace);
+			}
+		}
+	}
+
+	public void setCollectionFields(String... fields) {
+		if (fields.length > 0) {
+			setFields(fields[0], list, set, zset, geo);
+		}
+	}
+
+	private void setFields(String field, CollectionRedisConfiguration... collections) {
+		for (CollectionRedisConfiguration collection : collections) {
+			if (collection == null) {
+				continue;
+			}
+			if (collection.getFields().length == 0) {
+				collection.setFields(new String[] { field });
+			}
+		}
+
+	}
 }

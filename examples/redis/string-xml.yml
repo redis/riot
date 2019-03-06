@@ -1,0 +1,12 @@
+maxItemCount: 100
+generator:
+  fields:
+    id: nextLong(1000)
+    name: name.name
+redis:
+  string:
+    keyspace: xml
+    keys: id
+    format: xml
+    xml:
+      root: root

@@ -1,0 +1,7 @@
+generator:
+  fields:
+    name: rockBand.name
+redis:
+  suggest:
+    keyspace: rockbands
+    field: name

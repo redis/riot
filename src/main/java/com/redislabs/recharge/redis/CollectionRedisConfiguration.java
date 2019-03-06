@@ -5,6 +5,6 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-public abstract class CollectionRedisConfiguration extends RedisDataStructureConfiguration {
+public abstract class CollectionRedisConfiguration extends DataStructureConfiguration {
 	private String[] fields = new String[0];
 }

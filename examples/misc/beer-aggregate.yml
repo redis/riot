@@ -1,9 +1,11 @@
 max-item-count: -1
+chunk-size: 1
+sleep: 1000
 generator:
   fields:
     abv: "#c.srandmember('abvs')"
 redis:
-- aggregate:
+  aggregate:
     keyspace: beer
     query: '*'
     operations:

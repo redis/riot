@@ -26,6 +26,9 @@ public class SuggestWriter extends SingleRedisWriter<SuggestConfiguration> {
 	protected RedisFuture<?> writeSingle(String key, Map record, RediSearchAsyncCommands<String, String> commands) {
 		String string = converter.convert(record.get(config.getField()), String.class);
 		double score = getScore(record);
+		if (string == null) {
+			return null;
+		}
 		return commands.sugadd(key, string, score, options);
 	}
 

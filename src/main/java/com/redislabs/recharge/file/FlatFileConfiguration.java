@@ -6,6 +6,7 @@ import lombok.Data;
 
 @Data
 public class FlatFileConfiguration {
+	private String[] fields;
 	private String encoding = FlatFileItemReader.DEFAULT_CHARSET;
 	private boolean header = true;
 	private int linesToSkip = 0;

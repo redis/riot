@@ -10,7 +10,7 @@ import com.redislabs.lettusearch.StatefulRediSearchConnection;
 import io.lettuce.core.RedisFuture;
 
 @SuppressWarnings("rawtypes")
-public abstract class SingleRedisWriter<T extends RedisDataStructureConfiguration>
+public abstract class SingleRedisWriter<T extends DataStructureConfiguration>
 		extends PipelineRedisWriter<T> {
 
 	public SingleRedisWriter(T config, GenericObjectPool<StatefulRediSearchConnection<String, String>> pool) {

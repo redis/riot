@@ -1,0 +1,17 @@
+maxItemCount: 10000
+generator:
+  fields:
+    id: nextId(100000,'%09d')
+    firstName: name.firstName
+    lastName: name.lastName
+    address: address.fullAddress
+redis:
+- hash:
+    keyspace: people
+    keys: id
+- suggest:
+    keyspace: lastNames
+    field: lastName
+- suggest:
+    keyspace: firstNames
+    field: firstName    

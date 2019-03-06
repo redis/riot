@@ -24,17 +24,24 @@ public class StringWriter extends SingleRedisWriter<StringConfiguration> {
 	public StringWriter(StringConfiguration config,
 			GenericObjectPool<StatefulRediSearchConnection<String, String>> pool) {
 		super(config, pool);
-		this.objectWriter = config.getXml() == null ? new ObjectMapper().writer()
-				: new XmlMapper().writer().withRootName(config.getXml().getRootName());
+		this.objectWriter = writer(config);
+	}
+
+	private ObjectWriter writer(StringConfiguration config) {
+		switch (config.getFormat()) {
+		case xml:
+			return new XmlMapper().writer().withRootName(config.getXml().getRoot());
+		default:
+			return new ObjectMapper().writer();
+		}
 	}
 
 	@Override
 	protected RedisFuture<?> writeSingle(String key, Map record, RediSearchAsyncCommands<String, String> commands) {
 		try {
-			String string = objectWriter.writeValueAsString(record);
-			return commands.set(key, string);
+			return commands.set(key, objectWriter.writeValueAsString(record));
 		} catch (JsonProcessingException e) {
-			log.error("Could not serialize value to JSON: {}", record, e);
+			log.error("Could not serialize value: {}", record, e);
 			return null;
 		}
 	}

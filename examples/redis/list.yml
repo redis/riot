@@ -1,0 +1,8 @@
+maxItemCount: 100
+generator:
+  fields:
+    id: nextLong(1000)
+redis:
+  list:
+    keyspace: list
+    fields: id

@@ -1,5 +1,9 @@
 package com.redislabs.recharge;
 
+import java.util.Arrays;
+import java.util.List;
+
+import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +20,10 @@ import lombok.extern.slf4j.Slf4j;
 @SpringBootApplication(scanBasePackageClasses = { RechargeApplication.class, RediSearchConfiguration.class })
 @Slf4j
 public class RechargeApplication implements ApplicationRunner {
+
+	private static final String IMPORT = "import";
+	private static final String EXPORT = "export";
+
 	@Autowired
 	private JobLauncher jobLauncher;
 	@Autowired
@@ -36,7 +44,32 @@ public class RechargeApplication implements ApplicationRunner {
 			Thread.sleep(config.getFlushallWait() * 1000);
 			client.connect().sync().flushall();
 		}
-		jobLauncher.run(batch.job(), new JobParameters());
+		nonOptionArgs(args).forEach(arg -> {
+			try {
+				jobLauncher.run(job(arg), new JobParameters());
+			} catch (Exception e) {
+				log.error("Could not run command {}", arg, e);
+			}
+		});
+
+	}
+
+	private Job job(String command) throws RechargeException {
+		log.info("{} {}", command, config);
+		switch (command) {
+		case EXPORT:
+			return batch.exportJob();
+		default:
+			return batch.importJob();
+		}
+
+	}
+
+	private List<String> nonOptionArgs(ApplicationArguments args) {
+		if (args.getNonOptionArgs().isEmpty()) {
+			return Arrays.asList(IMPORT);
+		}
+		return args.getNonOptionArgs();
 	}
 
 }

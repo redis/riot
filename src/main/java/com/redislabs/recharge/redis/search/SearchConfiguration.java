@@ -3,14 +3,14 @@ package com.redislabs.recharge.redis.search;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.redislabs.recharge.redis.CollectionRedisConfiguration;
+import com.redislabs.recharge.redis.DataStructureConfiguration;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class SearchConfiguration extends CollectionRedisConfiguration {
+public class SearchConfiguration extends DataStructureConfiguration {
 	private boolean drop = false;
 	private boolean dropKeepDocs = false;
 	private boolean create = true;

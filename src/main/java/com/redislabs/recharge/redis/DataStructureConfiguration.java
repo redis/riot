@@ -3,7 +3,7 @@ package com.redislabs.recharge.redis;
 import lombok.Data;
 
 @Data
-public abstract class RedisDataStructureConfiguration {
+public abstract class DataStructureConfiguration {
 	private String keyspace;
 	private String[] keys = new String[0];
 }

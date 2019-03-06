@@ -12,7 +12,7 @@ import org.springframework.core.convert.support.DefaultConversionService;
 import com.redislabs.lettusearch.StatefulRediSearchConnection;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
-public abstract class RedisWriter<T extends RedisDataStructureConfiguration> extends AbstractItemStreamItemWriter<Map> {
+public abstract class RedisWriter<T extends DataStructureConfiguration> extends AbstractItemStreamItemWriter<Map> {
 
 	public static final String KEY_SEPARATOR = ":";
 

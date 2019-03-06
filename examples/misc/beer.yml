@@ -1,11 +1,10 @@
-name: beer
 file:
   path: https://raw.githubusercontent.com/nickhould/craft-beers-dataset/master/data/processed/beers.csv
   delimited:
     header: true
     included-fields: [1,2,3,4,5,6,7]
 redis:
-- search:
+  search:
     keyspace: beer
     keys: id
     drop: true
@@ -14,17 +13,13 @@ redis:
       sortable: true
     - name: name
       sortable: true
+      matcher: english
     - name: style
       sortable: true
+      matcher: english
     - name: abv
       sortable: true
       type: numeric
     - name: ounces
       type: numeric
       sortable: true
-- set:
-    keyspace: beerStyles
-    fields: style
-- set:
-    keyspace: abvs
-    fields: abv    

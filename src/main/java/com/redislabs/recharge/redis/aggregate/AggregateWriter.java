@@ -41,8 +41,10 @@ import com.redislabs.recharge.redis.aggregate.operation.ReduceFunction;
 import com.redislabs.recharge.redis.aggregate.operation.SortOperation;
 
 import io.lettuce.core.RedisFuture;
+import lombok.extern.slf4j.Slf4j;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
+@Slf4j
 public class AggregateWriter extends PipelineRedisWriter<AggregateConfiguration> {
 
 	private MapTemplate template = new MapTemplate();
@@ -54,7 +56,11 @@ public class AggregateWriter extends PipelineRedisWriter<AggregateConfiguration>
 
 	@Override
 	protected RedisFuture<?> write(String id, Map record, RediSearchAsyncCommands<String, String> commands) {
-		return commands.aggregate(config.getKeyspace(), query(record), getAggregateOptions());
+		String index = config.getKeyspace();
+		String query = query(record);
+		AggregateOptions options = getAggregateOptions();
+		log.debug("Aggregate index={}, query='{}' options={}", index, query, options);
+		return commands.aggregate(index, query, options);
 	}
 
 	private String query(Map record) {

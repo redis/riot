@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.springframework.batch.item.ItemProcessor;
-import org.springframework.context.expression.MapAccessor;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
@@ -76,7 +75,7 @@ public class SpelProcessor implements ItemProcessor<Map, Map> {
 		return map;
 	}
 
-	public void open() throws Exception {
+	public void open() {
 		SpelExpressionParser parser = new SpelExpressionParser();
 		if (sourceExpression != null) {
 			this.source = parser.parseExpression(sourceExpression);

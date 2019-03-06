@@ -12,12 +12,13 @@ import com.redislabs.lettusearch.RediSearchAsyncCommands;
 import com.redislabs.lettusearch.StatefulRediSearchConnection;
 
 import io.lettuce.core.LettuceFutures;
+import io.lettuce.core.RedisCommandExecutionException;
 import io.lettuce.core.RedisFuture;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @SuppressWarnings("rawtypes")
-public abstract class PipelineRedisWriter<T extends RedisDataStructureConfiguration> extends RedisWriter<T> {
+public abstract class PipelineRedisWriter<T extends DataStructureConfiguration> extends RedisWriter<T> {
 
 	protected PipelineRedisWriter(T config, GenericObjectPool<StatefulRediSearchConnection<String, String>> pool) {
 		super(config, pool);
@@ -38,17 +39,21 @@ public abstract class PipelineRedisWriter<T extends RedisDataStructureConfigurat
 				}
 			}
 			commands.flushCommands();
-			boolean result = LettuceFutures.awaitAll(5, TimeUnit.SECONDS,
-					futures.toArray(new RedisFuture[futures.size()]));
-			if (result) {
-				log.debug("Wrote {} records", records.size());
-			} else {
-				log.warn("Could not write {} records", records.size());
-				for (RedisFuture<?> future : futures) {
-					if (future.getError() != null) {
-						log.error(future.getError());
+			try {
+				boolean result = LettuceFutures.awaitAll(5, TimeUnit.SECONDS,
+						futures.toArray(new RedisFuture[futures.size()]));
+				if (result) {
+					log.debug("Wrote {} records", records.size());
+				} else {
+					log.warn("Could not write {} records", records.size());
+					for (RedisFuture<?> future : futures) {
+						if (future.getError() != null) {
+							log.error(future.getError());
+						}
 					}
 				}
+			} catch (RedisCommandExecutionException e) {
+				log.error("Could not execute commands", e);
 			}
 		} finally {
 			pool.returnObject(connection);

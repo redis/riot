@@ -5,7 +5,7 @@ generator:
   fields:
     SKU: "nextId(20000,'%09d')"
 redis:
-- search:
+  search:
     keyspace: stock
     keys: DC_ID,SKU
     drop: true

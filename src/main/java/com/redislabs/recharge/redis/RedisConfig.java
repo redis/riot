@@ -1,8 +1,5 @@
 package com.redislabs.recharge.redis;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -30,74 +27,61 @@ public class RedisConfig {
 	private RechargeConfiguration config;
 	@Autowired
 	private GenericObjectPool<StatefulRediSearchConnection<String, String>> pool;
+	@Autowired
+	private StatefulRediSearchConnection<String, String> connection;
 
-	public List<RedisWriter<?>> writers() throws RechargeException {
-		if (config.getRedis().size() == 0) {
-			RedisConfiguration writerConfig = new RedisConfiguration();
-			writerConfig.setHash(new HashConfiguration());
-			config.getRedis().add(writerConfig);
-		}
-		return config.getRedis().stream().map(redis -> writer(redis, pool)).collect(Collectors.toList());
-	}
-
-	private RedisWriter<?> writer(RedisConfiguration writerConfig,
-			GenericObjectPool<StatefulRediSearchConnection<String, String>> pool) {
-		if (writerConfig.getSet() != null) {
-			switch (writerConfig.getSet().getCommand()) {
+	public RedisWriter<?> writer() throws RechargeException {
+		RedisConfiguration redis = config.getRedis();
+		if (redis.getSet() != null) {
+			switch (redis.getSet().getCommand()) {
 			case sadd:
-				return new SAddWriter(sanitize(writerConfig.getSet()), pool);
+				return new SAddWriter(redis.getSet(), pool);
 			case srem:
-				return new SRemWriter(sanitize(writerConfig.getSet()), pool);
+				return new SRemWriter(redis.getSet(), pool);
 			}
 		}
-		if (writerConfig.getGeo() != null) {
-			return new GeoAddWriter(sanitize(writerConfig.getGeo()), pool);
+		if (redis.getGeo() != null) {
+			return new GeoAddWriter(redis.getGeo(), pool);
 		}
-		if (writerConfig.getList() != null) {
-			return new LPushWriter(sanitize(writerConfig.getList()), pool);
+		if (redis.getList() != null) {
+			return new LPushWriter(redis.getList(), pool);
 		}
-		if (writerConfig.getAggregate() != null) {
-			return new AggregateWriter(writerConfig.getAggregate(), pool);
+		if (redis.getAggregate() != null) {
+			return new AggregateWriter(redis.getAggregate(), pool);
 		}
-		if (writerConfig.getSearch() != null) {
-			return new FTAddWriter(sanitize(writerConfig.getSearch()), pool);
+		if (redis.getSearch() != null) {
+			return new FTAddWriter(redis.getSearch(), pool);
 		}
-		if (writerConfig.getSet() != null) {
-			return new SAddWriter(sanitize(writerConfig.getSet()), pool);
+		if (redis.getSet() != null) {
+			return new SAddWriter(redis.getSet(), pool);
 		}
-		if (writerConfig.getString() != null) {
-			return new StringWriter(sanitize(writerConfig.getString()), pool);
+		if (redis.getString() != null) {
+			return new StringWriter(redis.getString(), pool);
 		}
-		if (writerConfig.getSuggest() != null) {
-			return new SuggestWriter(sanitize(writerConfig.getSuggest()), pool);
+		if (redis.getSuggest() != null) {
+			return new SuggestWriter(redis.getSuggest(), pool);
 		}
-		if (writerConfig.getZset() != null) {
-			return new ZAddWriter(sanitize(writerConfig.getZset()), pool);
+		if (redis.getZset() != null) {
+			return new ZAddWriter(redis.getZset(), pool);
 		}
-		if (writerConfig.getStream() != null) {
-			return new XAddWriter(sanitize(writerConfig.getStream()), pool);
+		if (redis.getStream() != null) {
+			return new XAddWriter(redis.getStream(), pool);
 		}
-		if (writerConfig.getHash() != null) {
-			return new HMSetWriter(sanitize(writerConfig.getHash()), pool);
+		if (redis.getHash() == null) {
+			redis.setHash(new HashConfiguration());
 		}
-		return new HMSetWriter(sanitize(new HashConfiguration()), pool);
+		return new HMSetWriter(redis.getHash(), pool);
 	}
 
-	private <T extends RedisDataStructureConfiguration> T sanitize(T redis) {
-		if (redis.getKeyspace() == null) {
-			redis.setKeyspace(config.getName());
+	public RedisReader reader() {
+		ScanConfiguration scan = config.getRedis().getScan();
+		if (scan == null) {
+			scan = new ScanConfiguration();
 		}
-		if (redis instanceof CollectionRedisConfiguration) {
-			CollectionRedisConfiguration collection = (CollectionRedisConfiguration) redis;
-			if (collection.getFields().length == 0 && !config.getFields().isEmpty()) {
-				collection.setFields(new String[] { config.getFields().get(0) });
-			}
-		} else {
-			if (redis.getKeys().length == 0 && !config.getFields().isEmpty()) {
-				redis.setKeys(new String[] { config.getFields().get(0) });
-			}
-		}
-		return redis;
+		RedisReader reader = new RedisReader();
+		reader.setConnection(connection);
+		reader.setConfig(scan);
+		return reader;
 	}
 
 }
