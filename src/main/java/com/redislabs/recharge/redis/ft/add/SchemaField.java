@@ -1,4 +1,4 @@
-package com.redislabs.recharge.redisearch.add;
+package com.redislabs.recharge.redis.ft.add;
 
 import com.redislabs.lettusearch.search.field.PhoneticMatcher;
 

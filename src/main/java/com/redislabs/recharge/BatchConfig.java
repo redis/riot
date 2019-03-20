@@ -120,7 +120,8 @@ public class BatchConfig {
 
 	@Bean
 	public TaskletStep tasklet() throws RechargeException {
-		SimpleStepBuilder<Map<String, Object>, Map<String, Object>> builder = steps.get("import-tasklet-step").<Map<String, Object>, Map<String, Object>>chunk(config.getChunkSize());
+		SimpleStepBuilder<Map<String, Object>, Map<String, Object>> builder = steps.get("import-tasklet-step")
+				.<Map<String, Object>, Map<String, Object>>chunk(config.getChunkSize());
 		builder.reader(reader());
 		if (config.getProcessor() != null) {
 			SpelProcessor processor = processor(null);

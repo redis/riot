@@ -1,7 +1,7 @@
-package com.redislabs.recharge.redisearch.search;
+package com.redislabs.recharge.redis.ft.search;
 
 import com.redislabs.lettusearch.search.SortBy.Direction;
-import com.redislabs.recharge.redisearch.RediSearchCommandConfiguration;
+import com.redislabs.recharge.redis.ft.RediSearchCommandConfiguration;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;

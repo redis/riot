@@ -1,9 +1,9 @@
-package com.redislabs.recharge.redisearch.add;
+package com.redislabs.recharge.redis.ft.add;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.redislabs.recharge.redisearch.RediSearchCommandConfiguration;
+import com.redislabs.recharge.redis.ft.RediSearchCommandConfiguration;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;

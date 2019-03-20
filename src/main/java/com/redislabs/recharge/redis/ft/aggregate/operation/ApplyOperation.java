@@ -1,4 +1,4 @@
-package com.redislabs.recharge.redisearch.aggregate.operation;
+package com.redislabs.recharge.redis.ft.aggregate.operation;
 
 import lombok.Data;
 

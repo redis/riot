@@ -1,5 +1,6 @@
 package com.redislabs.recharge.redis;
 
+import com.redislabs.recharge.redis.ft.RediSearchSinkConfiguration;
 import com.redislabs.recharge.redis.geo.GeoAddWriter;
 import com.redislabs.recharge.redis.geo.GeoConfiguration;
 import com.redislabs.recharge.redis.hash.HMSetWriter;
@@ -15,7 +16,6 @@ import com.redislabs.recharge.redis.string.StringConfiguration;
 import com.redislabs.recharge.redis.string.StringWriter;
 import com.redislabs.recharge.redis.zset.ZAddWriter;
 import com.redislabs.recharge.redis.zset.ZSetConfiguration;
-import com.redislabs.recharge.redisearch.RediSearchSinkConfiguration;
 
 import lombok.Data;
 

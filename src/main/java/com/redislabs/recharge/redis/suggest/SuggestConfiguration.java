@@ -1,6 +1,6 @@
 package com.redislabs.recharge.redis.suggest;
 
-import com.redislabs.recharge.redisearch.RediSearchCommandConfiguration;
+import com.redislabs.recharge.redis.ft.RediSearchCommandConfiguration;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;

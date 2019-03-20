@@ -1,13 +1,13 @@
-package com.redislabs.recharge.redisearch;
+package com.redislabs.recharge.redis.ft;
 
+import com.redislabs.recharge.redis.ft.add.AddConfiguration;
+import com.redislabs.recharge.redis.ft.add.AddWriter;
+import com.redislabs.recharge.redis.ft.aggregate.AggregateConfiguration;
+import com.redislabs.recharge.redis.ft.aggregate.AggregateWriter;
+import com.redislabs.recharge.redis.ft.search.SearchConfiguration;
+import com.redislabs.recharge.redis.ft.search.SearchWriter;
 import com.redislabs.recharge.redis.suggest.SuggestConfiguration;
 import com.redislabs.recharge.redis.suggest.SuggestWriter;
-import com.redislabs.recharge.redisearch.add.AddConfiguration;
-import com.redislabs.recharge.redisearch.add.AddWriter;
-import com.redislabs.recharge.redisearch.aggregate.AggregateConfiguration;
-import com.redislabs.recharge.redisearch.aggregate.AggregateWriter;
-import com.redislabs.recharge.redisearch.search.SearchConfiguration;
-import com.redislabs.recharge.redisearch.search.SearchWriter;
 
 import lombok.Data;
 

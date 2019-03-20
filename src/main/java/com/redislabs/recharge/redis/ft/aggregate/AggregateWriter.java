@@ -1,4 +1,4 @@
-package com.redislabs.recharge.redisearch.aggregate;
+package com.redislabs.recharge.redis.ft.aggregate;
 
 import java.util.Map;
 
@@ -29,13 +29,13 @@ import com.redislabs.lettusearch.aggregate.reducer.StdDev;
 import com.redislabs.lettusearch.aggregate.reducer.Sum;
 import com.redislabs.lettusearch.aggregate.reducer.ToList;
 import com.redislabs.recharge.MapTemplate;
-import com.redislabs.recharge.redisearch.RediSearchCommandWriter;
-import com.redislabs.recharge.redisearch.aggregate.operation.ApplyOperation;
-import com.redislabs.recharge.redisearch.aggregate.operation.FilterOperation;
-import com.redislabs.recharge.redisearch.aggregate.operation.GroupOperation;
-import com.redislabs.recharge.redisearch.aggregate.operation.LimitOperation;
-import com.redislabs.recharge.redisearch.aggregate.operation.ReduceFunction;
-import com.redislabs.recharge.redisearch.aggregate.operation.SortOperation;
+import com.redislabs.recharge.redis.ft.RediSearchCommandWriter;
+import com.redislabs.recharge.redis.ft.aggregate.operation.ApplyOperation;
+import com.redislabs.recharge.redis.ft.aggregate.operation.FilterOperation;
+import com.redislabs.recharge.redis.ft.aggregate.operation.GroupOperation;
+import com.redislabs.recharge.redis.ft.aggregate.operation.LimitOperation;
+import com.redislabs.recharge.redis.ft.aggregate.operation.ReduceFunction;
+import com.redislabs.recharge.redis.ft.aggregate.operation.SortOperation;
 
 import io.lettuce.core.RedisFuture;
 import lombok.extern.slf4j.Slf4j;

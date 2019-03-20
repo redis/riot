@@ -1,4 +1,4 @@
-package com.redislabs.recharge.redisearch.search;
+package com.redislabs.recharge.redis.ft.search;
 
 import java.util.Map;
 
@@ -9,7 +9,7 @@ import com.redislabs.lettusearch.search.SearchOptions;
 import com.redislabs.lettusearch.search.SearchOptions.SearchOptionsBuilder;
 import com.redislabs.lettusearch.search.SortBy;
 import com.redislabs.recharge.MapTemplate;
-import com.redislabs.recharge.redisearch.RediSearchCommandWriter;
+import com.redislabs.recharge.redis.ft.RediSearchCommandWriter;
 
 import io.lettuce.core.RedisFuture;
 import lombok.extern.slf4j.Slf4j;

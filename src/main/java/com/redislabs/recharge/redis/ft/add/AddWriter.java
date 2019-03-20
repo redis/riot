@@ -1,4 +1,4 @@
-package com.redislabs.recharge.redisearch.add;
+package com.redislabs.recharge.redis.ft.add;
 
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -17,7 +17,7 @@ import com.redislabs.lettusearch.search.field.NumericField;
 import com.redislabs.lettusearch.search.field.TagField;
 import com.redislabs.lettusearch.search.field.TextField;
 import com.redislabs.recharge.IndexedPartitioner;
-import com.redislabs.recharge.redisearch.RediSearchCommandWriter;
+import com.redislabs.recharge.redis.ft.RediSearchCommandWriter;
 
 import io.lettuce.core.LettuceFutures;
 import io.lettuce.core.RedisFuture;
