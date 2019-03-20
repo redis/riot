@@ -24,7 +24,6 @@ import org.springframework.core.task.SimpleAsyncTaskExecutor;
 
 import com.redislabs.lettusearch.StatefulRediSearchConnection;
 import com.redislabs.recharge.db.DatabaseConfig;
-import com.redislabs.recharge.dummy.DummyReader;
 import com.redislabs.recharge.file.FileConfig;
 import com.redislabs.recharge.generator.GeneratorConfig;
 import com.redislabs.recharge.meter.ProcessorMeter;
@@ -115,7 +114,7 @@ public class BatchConfig {
 		if (config.getSource().getRedis() != null) {
 			return redis.reader();
 		}
-		return new DummyReader();
+		throw new RechargeException("No reader configured");
 	}
 
 	@Bean
