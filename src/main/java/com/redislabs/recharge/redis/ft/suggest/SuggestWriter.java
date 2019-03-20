@@ -1,4 +1,4 @@
-package com.redislabs.recharge.redis.suggest;
+package com.redislabs.recharge.redis.ft.suggest;
 
 import java.util.Map;
 

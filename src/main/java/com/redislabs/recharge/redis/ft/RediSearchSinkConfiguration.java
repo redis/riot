@@ -6,8 +6,8 @@ import com.redislabs.recharge.redis.ft.aggregate.AggregateConfiguration;
 import com.redislabs.recharge.redis.ft.aggregate.AggregateWriter;
 import com.redislabs.recharge.redis.ft.search.SearchConfiguration;
 import com.redislabs.recharge.redis.ft.search.SearchWriter;
-import com.redislabs.recharge.redis.suggest.SuggestConfiguration;
-import com.redislabs.recharge.redis.suggest.SuggestWriter;
+import com.redislabs.recharge.redis.ft.suggest.SuggestConfiguration;
+import com.redislabs.recharge.redis.ft.suggest.SuggestWriter;
 
 import lombok.Data;
 
