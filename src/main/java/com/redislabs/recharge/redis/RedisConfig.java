@@ -38,14 +38,14 @@ public class RedisConfig {
 
 	@Primary
 	@Bean(name = "sinkRedisClient", destroyMethod = "shutdown")
-	RediSearchClient sinkRedisClient(ClientResources clientResources, RedisProperties properties) {
-		return client(clientResources, properties);
+	RediSearchClient sinkRedisClient(ClientResources clientResources, RedisProperties sinkRedisProperties) {
+		return client(clientResources, sinkRedisProperties);
 	}
 
 	@Bean(name = "sourceRedisClient", destroyMethod = "shutdown")
 	RediSearchClient sourceRedisClient(ClientResources clientResources,
-			@Qualifier("sourceRedisProperties") RedisProperties properties) {
-		return client(clientResources, properties);
+			@Qualifier("sourceRedisProperties") RedisProperties sourceRedisProperties) {
+		return client(clientResources, sourceRedisProperties);
 	}
 
 	@Primary
@@ -88,28 +88,29 @@ public class RedisConfig {
 	@Primary
 	@Bean(name = "sinkRedisConnection", destroyMethod = "close")
 	StatefulRediSearchConnection<String, String> sinkRedisConnection(
-			@Qualifier("sinkRedisClient") RediSearchClient client) {
-		return client.connect();
+			@Qualifier("sinkRedisClient") RediSearchClient sinkRedisClient) {
+		return sinkRedisClient.connect();
 	}
 
 	@Bean(name = "sourceRedisConnection", destroyMethod = "close")
 	StatefulRediSearchConnection<String, String> sourceRedisConnection(
-			@Qualifier("sourceRedisClient") RediSearchClient client) {
-		return client.connect();
+			@Qualifier("sourceRedisClient") RediSearchClient sourceRedisClient) {
+		return sourceRedisClient.connect();
 	}
 
 	@Primary
 	@Bean(name = "sinkRedisConnectionPool", destroyMethod = "close")
 	GenericObjectPool<StatefulRediSearchConnection<String, String>> sinkRedisConnectionPool(
-			@Qualifier("sinkRedisClient") RediSearchClient client, Pool poolProperties) {
-		return pool(client, poolProperties);
+			@Qualifier("sinkRedisClient") RediSearchClient sinkRedisClient,
+			@Qualifier("sinkRedisPoolProperties") Pool sinkRedisPoolProperties) {
+		return pool(sinkRedisClient, sinkRedisPoolProperties);
 	}
 
 	@Bean(name = "sourceRedisConnectionPool", destroyMethod = "close")
 	GenericObjectPool<StatefulRediSearchConnection<String, String>> sourceRedisConnectionPool(
-			@Qualifier("sourceRedisClient") RediSearchClient client,
-			@Qualifier("sourceRedisPoolProperties") Pool poolProperties) {
-		return pool(client, poolProperties);
+			@Qualifier("sourceRedisClient") RediSearchClient sourceRedisClient,
+			@Qualifier("sourceRedisPoolProperties") Pool sourceRedisPoolProperties) {
+		return pool(sourceRedisClient, sourceRedisPoolProperties);
 	}
 
 	private GenericObjectPool<StatefulRediSearchConnection<String, String>> pool(RediSearchClient client,
