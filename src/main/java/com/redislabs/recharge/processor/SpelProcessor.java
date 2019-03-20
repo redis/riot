@@ -17,7 +17,7 @@ import com.redislabs.lettusearch.StatefulRediSearchConnection;
 import com.redislabs.recharge.CachedRedis;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
-public class SpelProcessor implements ItemProcessor<Map, Map>, StepExecutionListener {
+public class SpelProcessor implements ItemProcessor<Map<String, Object>, Map<String, Object>>, StepExecutionListener {
 
 	private String sourceExpression;
 	private String mergeExpression;

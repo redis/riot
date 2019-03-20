@@ -14,7 +14,6 @@ import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.core.step.tasklet.TaskletStep;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemStreamReader;
-import org.springframework.batch.item.ItemStreamWriter;
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.jdbc.DataSourceBuilder;
@@ -33,10 +32,10 @@ import com.redislabs.recharge.meter.ReaderMeter;
 import com.redislabs.recharge.meter.WriterMeter;
 import com.redislabs.recharge.processor.SpelProcessor;
 import com.redislabs.recharge.redis.RedisConfig;
+import com.redislabs.recharge.redis.RedisWriter;
 
 @Configuration
 @EnableBatchProcessing
-@SuppressWarnings("rawtypes")
 public class BatchConfig {
 
 	@Autowired
@@ -54,11 +53,11 @@ public class BatchConfig {
 	@Autowired
 	private GeneratorConfig generator;
 	@Autowired
-	private WriterMeter<Map> writerMeter;
+	private WriterMeter<Map<String, Object>> writerMeter;
 	@Autowired
-	private ReaderMeter<Map> readerMeter;
+	private ReaderMeter<Map<String, Object>> readerMeter;
 	@Autowired
-	private ProcessorMeter<Map, Map> processorMeter;
+	private ProcessorMeter<Map<String, Object>, Map<String, Object>> processorMeter;
 
 	@Primary
 	@Bean
@@ -121,7 +120,7 @@ public class BatchConfig {
 
 	@Bean
 	public TaskletStep tasklet() throws RechargeException {
-		SimpleStepBuilder<Map, Map> builder = steps.get("import-tasklet-step").<Map, Map>chunk(config.getChunkSize());
+		SimpleStepBuilder<Map<String, Object>, Map<String, Object>> builder = steps.get("import-tasklet-step").<Map<String, Object>, Map<String, Object>>chunk(config.getChunkSize());
 		builder.reader(reader());
 		if (config.getProcessor() != null) {
 			SpelProcessor processor = processor(null);
@@ -138,7 +137,7 @@ public class BatchConfig {
 	}
 
 	@Bean
-	public ItemReader<? extends Map> reader() throws RechargeException {
+	public ItemReader<Map<String, Object>> reader() throws RechargeException {
 		AbstractItemCountingItemStreamItemReader<Map<String, Object>> reader = itemStreamReader();
 		if (config.getSource().getMaxItemCountPerPartition() != null) {
 			reader.setMaxItemCount(config.getSource().getMaxItemCountPerPartition());
@@ -148,7 +147,7 @@ public class BatchConfig {
 
 	@Bean
 	@StepScope
-	public ItemStreamWriter<Map> writer() throws RechargeException {
+	public RedisWriter writer() throws RechargeException {
 		return redis.writer();
 	}
 
