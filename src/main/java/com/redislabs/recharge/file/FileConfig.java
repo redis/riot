@@ -20,7 +20,6 @@ import org.springframework.batch.item.file.separator.DefaultRecordSeparatorPolic
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.batch.item.file.transform.Range;
 import org.springframework.batch.item.json.JacksonJsonObjectReader;
-import org.springframework.batch.item.json.JsonItemReader;
 import org.springframework.batch.item.json.builder.JsonItemReaderBuilder;
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -202,6 +201,7 @@ public class FileConfig {
 		return reader;
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public AbstractItemCountingItemStreamItemReader<Map<String, Object>> reader(FileSourceConfiguration file) {
 		try {
 			Resource resource = resource(file);
@@ -212,7 +212,7 @@ public class FileConfig {
 			case FixedLength:
 				return getFixedLengthReader(file.getFixedLength(), resource);
 			case Json:
-				return getJsonReader(file.getJson(), resource);
+				return (AbstractItemCountingItemStreamItemReader) getJsonReader(file.getJson(), resource);
 			default:
 				return getDelimitedReader(file.getDelimited(), resource);
 			}
@@ -231,10 +231,11 @@ public class FileConfig {
 		return config.getFileTypes().get(extension);
 	}
 
-	private JsonItemReader<Map<String, Object>> getJsonReader(JsonFileConfiguration json, Resource resource) {
-		JacksonJsonObjectReader<Map<String, Object>> reader = new JacksonJsonObjectReader<>(Map.class);
+	@SuppressWarnings("rawtypes")
+	private AbstractItemCountingItemStreamItemReader<Map> getJsonReader(JsonFileConfiguration json, Resource resource) {
+		JacksonJsonObjectReader<Map> reader = new JacksonJsonObjectReader<>(Map.class);
 		reader.setMapper(new ObjectMapper());
-		JsonItemReaderBuilder<Map<String, Object>> builder = new JsonItemReaderBuilder<>();
+		JsonItemReaderBuilder<Map> builder = new JsonItemReaderBuilder<>();
 		builder.resource(resource);
 		builder.strict(json.isStrict());
 		builder.jsonObjectReader(reader);
