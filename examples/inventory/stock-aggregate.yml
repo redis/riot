@@ -1,16 +1,12 @@
-logging:
-  level:
-    com.redislabs: debug
-max-item-count: 100
-sleep: 1000
+max-item-count: -1
 chunk-size: 1
 generator:
   map: "#c.hgetall('node:'.concat(#c.srandmember('nodes')))"
   fields:
     SKU: "nextId(20000,'%09d')"
-redis:
+redisearch:
   aggregate:
-    keyspace: stock
+    index: stock
     query: '@DC_ID:{DC_ID}'
     operations:
     - group:

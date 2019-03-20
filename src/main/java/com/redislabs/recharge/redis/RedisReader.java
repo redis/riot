@@ -2,6 +2,7 @@
 package com.redislabs.recharge.redis;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
 import org.springframework.util.Assert;
@@ -11,20 +12,22 @@ import com.redislabs.lettusearch.StatefulRediSearchConnection;
 
 import io.lettuce.core.KeyScanCursor;
 import io.lettuce.core.ScanArgs;
+import lombok.extern.slf4j.Slf4j;
 
-public class RedisReader extends AbstractItemCountingItemStreamItemReader<List<String>> {
+@Slf4j
+public class RedisReader extends AbstractItemCountingItemStreamItemReader<Map<String, Object>> {
 
 	private volatile boolean initialized = false;
 	private StatefulRediSearchConnection<String, String> connection;
 	private Object lock = new Object();
-	private ScanConfiguration config;
+	private RedisSourceConfiguration config;
 	private KeyScanCursor<String> cursor;
 
 	public RedisReader() {
 		setName(ClassUtils.getShortName(RedisReader.class));
 	}
 
-	public void setConfig(ScanConfiguration config) {
+	public void setConfig(RedisSourceConfiguration config) {
 		this.config = config;
 	}
 
@@ -54,7 +57,7 @@ public class RedisReader extends AbstractItemCountingItemStreamItemReader<List<S
 	}
 
 	@Override
-	protected List<String> doRead() throws Exception {
+	protected Map<String, Object> doRead() throws Exception {
 		synchronized (lock) {
 			if (cursor == null) {
 				return null;
@@ -65,8 +68,12 @@ public class RedisReader extends AbstractItemCountingItemStreamItemReader<List<S
 			} else {
 				cursor = connection.sync().scan(cursor);
 			}
-			return keys;
+			for (String key : keys) {
+				log.info("Key {} type: {}", key, connection.sync().type(key));
+				// get type
+			}
 		}
+		return null;
 	}
 
 }

@@ -5,23 +5,49 @@ import java.util.Arrays;
 import java.util.Map;
 
 import org.apache.commons.pool2.impl.GenericObjectPool;
+import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.support.AbstractItemStreamItemWriter;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.support.DefaultConversionService;
 
 import com.redislabs.lettusearch.StatefulRediSearchConnection;
 
+import lombok.extern.slf4j.Slf4j;
+
 @SuppressWarnings({ "rawtypes", "unchecked" })
-public abstract class RedisWriter<T extends DataStructureConfiguration> extends AbstractItemStreamItemWriter<Map> {
+@Slf4j
+public abstract class RedisWriter extends AbstractItemStreamItemWriter<Map> {
 
 	public static final String KEY_SEPARATOR = ":";
 
-	protected T config;
 	protected ConversionService converter = new DefaultConversionService();
 	protected GenericObjectPool<StatefulRediSearchConnection<String, String>> pool;
+	private Integer flushall;
 
-	protected RedisWriter(T config, GenericObjectPool<StatefulRediSearchConnection<String, String>> pool) {
-		this.config = config;
+	public void setFlushall(Integer flushall) {
+		this.flushall = flushall;
+	}
+
+	@Override
+	public void open(ExecutionContext executionContext) {
+		if (flushall != null) {
+			try {
+				log.warn("Flushing database in {} seconds", flushall);
+				Thread.sleep(flushall * 1000);
+				StatefulRediSearchConnection<String, String> connection = pool.borrowObject();
+				try {
+					connection.sync().flushall();
+				} finally {
+					pool.returnObject(connection);
+				}
+			} catch (Exception e) {
+				log.error("Could not perform flushall", e);
+			}
+		}
+		super.open(executionContext);
+	}
+
+	public void setPool(GenericObjectPool<StatefulRediSearchConnection<String, String>> pool) {
 		this.pool = pool;
 	}
 
@@ -43,13 +69,6 @@ public abstract class RedisWriter<T extends DataStructureConfiguration> extends 
 			Object value = record.get(key);
 			record.put(key, converter.convert(value, String.class));
 		}
-	}
-
-	protected String getKey(String id) {
-		if (id == null) {
-			return config.getKeyspace();
-		}
-		return join(config.getKeyspace(), id);
 	}
 
 }

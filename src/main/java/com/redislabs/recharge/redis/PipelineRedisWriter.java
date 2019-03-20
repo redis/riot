@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.pool2.impl.GenericObjectPool;
-
 import com.redislabs.lettusearch.RediSearchAsyncCommands;
 import com.redislabs.lettusearch.StatefulRediSearchConnection;
 
@@ -18,22 +16,20 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @SuppressWarnings("rawtypes")
-public abstract class PipelineRedisWriter<T extends DataStructureConfiguration> extends RedisWriter<T> {
-
-	protected PipelineRedisWriter(T config, GenericObjectPool<StatefulRediSearchConnection<String, String>> pool) {
-		super(config, pool);
-	}
+public abstract class PipelineRedisWriter extends RedisWriter {
 
 	@Override
 	public void write(List<? extends Map> records) throws Exception {
 		List<RedisFuture<?>> futures = new ArrayList<>();
+		if (pool.isClosed()) {
+			return;
+		}
 		StatefulRediSearchConnection<String, String> connection = pool.borrowObject();
 		try {
 			RediSearchAsyncCommands<String, String> commands = connection.async();
 			commands.setAutoFlushCommands(false);
 			for (Map record : records) {
-				String id = getValues(record, config.getKeys());
-				RedisFuture<?> future = write(id, record, commands);
+				RedisFuture<?> future = write(record, commands);
 				if (future != null) {
 					futures.add(future);
 				}
@@ -60,6 +56,6 @@ public abstract class PipelineRedisWriter<T extends DataStructureConfiguration> 
 		}
 	}
 
-	protected abstract RedisFuture<?> write(String id, Map record, RediSearchAsyncCommands<String, String> commands);
+	protected abstract RedisFuture<?> write(Map record, RediSearchAsyncCommands<String, String> commands);
 
 }

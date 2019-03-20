@@ -6,8 +6,7 @@ import java.util.Map;
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
 import org.springframework.util.ClassUtils;
 
-@SuppressWarnings("rawtypes")
-public class DummyReader extends AbstractItemCountingItemStreamItemReader<Map> {
+public class DummyReader extends AbstractItemCountingItemStreamItemReader<Map<String, Object>> {
 
 	public DummyReader() {
 		setName(ClassUtils.getShortName(DummyReader.class));
@@ -19,9 +18,8 @@ public class DummyReader extends AbstractItemCountingItemStreamItemReader<Map> {
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
-	protected Map doRead() throws Exception {
-		Map output = new LinkedHashMap<>();
+	protected Map<String, Object> doRead() throws Exception {
+		Map<String, Object> output = new LinkedHashMap<>();
 		output.put("currentItemCount", getCurrentItemCount());
 		return output;
 	}

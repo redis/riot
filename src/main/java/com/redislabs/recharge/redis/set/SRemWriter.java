@@ -2,10 +2,7 @@ package com.redislabs.recharge.redis.set;
 
 import java.util.Map;
 
-import org.apache.commons.pool2.impl.GenericObjectPool;
-
 import com.redislabs.lettusearch.RediSearchAsyncCommands;
-import com.redislabs.lettusearch.StatefulRediSearchConnection;
 import com.redislabs.recharge.redis.CollectionRedisWriter;
 
 import io.lettuce.core.RedisFuture;
@@ -13,8 +10,8 @@ import io.lettuce.core.RedisFuture;
 @SuppressWarnings("rawtypes")
 public class SRemWriter extends CollectionRedisWriter<SetConfiguration> {
 
-	public SRemWriter(SetConfiguration config, GenericObjectPool<StatefulRediSearchConnection<String, String>> pool) {
-		super(config, pool);
+	public SRemWriter(SetConfiguration config) {
+		super(config);
 	}
 
 	@Override

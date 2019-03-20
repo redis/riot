@@ -37,7 +37,6 @@ import com.redislabs.recharge.RechargeConfiguration;
 import lombok.extern.slf4j.Slf4j;
 
 @Configuration
-@SuppressWarnings("rawtypes")
 @Slf4j
 public class FileConfig {
 
@@ -50,10 +49,10 @@ public class FileConfig {
 	@Autowired
 	private RechargeConfiguration config;
 
-	private FlatFileItemReaderBuilder<Map> getFlatFileReaderBuilder(Resource resource, FlatFileConfiguration fileConfig)
-			throws IOException {
-		FlatFileItemReaderBuilder<Map> builder;
-		builder = new FlatFileItemReaderBuilder<Map>();
+	private FlatFileItemReaderBuilder<Map<String, Object>> getFlatFileReaderBuilder(Resource resource,
+			FlatFileConfiguration fileConfig) throws IOException {
+		FlatFileItemReaderBuilder<Map<String, Object>> builder;
+		builder = new FlatFileItemReaderBuilder<Map<String, Object>>();
 		builder.resource(resource);
 		if (fileConfig.getEncoding() != null) {
 			builder.encoding(fileConfig.getEncoding());
@@ -69,23 +68,22 @@ public class FileConfig {
 		return builder;
 	}
 
-	private Resource getResource() throws IOException {
-		Resource resource = getResource(config.getFile().getPath());
-		if (isGzip()) {
+	private Resource resource(FileSourceConfiguration file) throws IOException {
+		Resource resource = resource(file.getPath());
+		if (isGzip(file)) {
 			return getGZipResource(resource);
 		}
 		return resource;
 	}
 
-	private Resource getResource(String path) throws MalformedURLException {
+	private Resource resource(String path) throws MalformedURLException {
 		if (ResourceUtils.isUrl(path)) {
 			return new UrlResource(path);
 		}
 		return new FileSystemResource(path);
 	}
 
-	private boolean isGzip() {
-		FileReaderConfiguration file = config.getFile();
+	private boolean isGzip(FileSourceConfiguration file) {
 		if (file.getGzip() == null) {
 			String gz = getFilenameGroup(file.getPath(), FILE_GZ);
 			return gz != null && gz.length() > 0;
@@ -109,10 +107,10 @@ public class FileConfig {
 		return new InputStreamResource(new GZIPInputStream(resource.getInputStream()));
 	}
 
-	private FlatFileItemReader<Map> getDelimitedReader(DelimitedFileConfiguration delimited, Resource resource)
-			throws IOException {
-		FlatFileItemReaderBuilder<Map> fileBuilder = getFlatFileReaderBuilder(resource, delimited);
-		DelimitedBuilder<Map> builder = fileBuilder.delimited();
+	private FlatFileItemReader<Map<String, Object>> getDelimitedReader(DelimitedFileConfiguration delimited,
+			Resource resource) throws IOException {
+		FlatFileItemReaderBuilder<Map<String, Object>> fileBuilder = getFlatFileReaderBuilder(resource, delimited);
+		DelimitedBuilder<Map<String, Object>> builder = fileBuilder.delimited();
 		if (delimited.getDelimiter() != null) {
 			builder.delimiter(delimited.getDelimiter());
 		}
@@ -148,15 +146,15 @@ public class FileConfig {
 		}
 		if (delimited.getFields() != null) {
 			builder.names(delimited.getFields());
-			config.getRedis().setCollectionFields(delimited.getFields());
+			config.getSink().getRedis().setCollectionFields(delimited.getFields());
 		}
 		return fileBuilder.build();
 	}
 
-	private FlatFileItemReader<Map> getFixedLengthReader(FixedLengthFileConfiguration fixedLength, Resource resource)
-			throws IOException {
-		FlatFileItemReaderBuilder<Map> fileBuilder = getFlatFileReaderBuilder(resource, fixedLength);
-		FixedLengthBuilder<Map> builder = fileBuilder.fixedLength();
+	private FlatFileItemReader<Map<String, Object>> getFixedLengthReader(FixedLengthFileConfiguration fixedLength,
+			Resource resource) throws IOException {
+		FlatFileItemReaderBuilder<Map<String, Object>> fileBuilder = getFlatFileReaderBuilder(resource, fixedLength);
+		FixedLengthBuilder<Map<String, Object>> builder = fileBuilder.fixedLength();
 		if (fixedLength.getRanges() != null) {
 			builder.columns(getRanges(fixedLength.getRanges()));
 		}
@@ -165,12 +163,12 @@ public class FileConfig {
 		}
 		if (fixedLength.getFields() != null) {
 			builder.names(fixedLength.getFields());
-			config.getRedis().setCollectionFields(fixedLength.getFields());
+			config.getSink().getRedis().setCollectionFields(fixedLength.getFields());
 		}
 		return fileBuilder.build();
 	}
 
-	public String getBaseName(FileConfiguration file) {
+	public String baseName(FileSourceConfiguration file) {
 		String filename = new File(file.getPath()).getName();
 		int extensionIndex = filename.lastIndexOf(".");
 		if (extensionIndex == -1) {
@@ -192,10 +190,21 @@ public class FileConfig {
 		return new Range(Integer.parseInt(split[0]), Integer.parseInt(split[1]));
 	}
 
-	public AbstractItemCountingItemStreamItemReader<Map> reader() {
-		FileReaderConfiguration file = config.getFile();
+	public AbstractItemCountingItemStreamItemReader<Map<String, Object>> reader() {
+		AbstractItemCountingItemStreamItemReader<Map<String, Object>> reader = reader(config.getSource().getFile());
+		String baseName = baseName(config.getSource().getFile());
+		config.getSink().getRedis().setKeyspace(baseName);
+		if (config.getSink().getRedis().getFt() != null) {
+			if (config.getSink().getRedis().getFt().getAdd().getIndex() == null) {
+				config.getSink().getRedis().getFt().getAdd().setIndex(baseName);
+			}
+		}
+		return reader;
+	}
+
+	public AbstractItemCountingItemStreamItemReader<Map<String, Object>> reader(FileSourceConfiguration file) {
 		try {
-			Resource resource = getResource();
+			Resource resource = resource(file);
 			if (file.getType() == null) {
 				file.setType(getFileType(resource));
 			}
@@ -222,11 +231,12 @@ public class FileConfig {
 		return config.getFileTypes().get(extension);
 	}
 
-	private JsonItemReader<Map> getJsonReader(JsonFileConfiguration config, Resource resource) {
-		JacksonJsonObjectReader<Map> reader = new JacksonJsonObjectReader<>(Map.class);
+	private JsonItemReader<Map<String, Object>> getJsonReader(JsonFileConfiguration json, Resource resource) {
+		JacksonJsonObjectReader<Map<String, Object>> reader = new JacksonJsonObjectReader<>(Map.class);
 		reader.setMapper(new ObjectMapper());
-		JsonItemReaderBuilder<Map> builder = new JsonItemReaderBuilder<>();
+		JsonItemReaderBuilder<Map<String, Object>> builder = new JsonItemReaderBuilder<>();
 		builder.resource(resource);
+		builder.strict(json.isStrict());
 		builder.jsonObjectReader(reader);
 		builder.name("jsonreader");
 		return builder.build();

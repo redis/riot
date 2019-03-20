@@ -1,12 +1,12 @@
-max-item-count: 1000000
+max-item-count: 1100000
 partitions: 2
 generator:
-  map: "#c.hgetall('node:'.concat(#c.smembers('nodes').get(current(20000))))"
+  map: "#c.hgetall('node:'.concat(#c.smembers('nodes').get(current(300))))"
   fields:
-    SKU: "nextId(20000,'%09d')"
-redis:
-  search:
-    keyspace: stock
+    SKU: "nextId(300,'%09d')"
+redisearch:
+  add:
+    index: stock
     keys: DC_ID,SKU
     drop: true
     schema:

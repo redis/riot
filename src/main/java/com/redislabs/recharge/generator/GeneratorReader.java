@@ -20,7 +20,8 @@ import com.redislabs.recharge.CachedRedis;
 import com.redislabs.recharge.IndexedPartitioner;
 
 @SuppressWarnings("rawtypes")
-public class GeneratorReader extends AbstractItemCountingItemStreamItemReader<Map> implements InitializingBean {
+public class GeneratorReader extends AbstractItemCountingItemStreamItemReader<Map<String, Object>>
+		implements InitializingBean {
 
 	private volatile boolean initialized = false;
 	private Object lock = new Object();

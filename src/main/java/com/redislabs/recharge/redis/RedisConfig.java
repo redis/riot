@@ -1,87 +1,146 @@
 package com.redislabs.recharge.redis;
 
 import org.apache.commons.pool2.impl.GenericObjectPool;
+import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
+import org.springframework.boot.autoconfigure.data.redis.RedisProperties.Pool;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 
+import com.redislabs.lettusearch.RediSearchClient;
 import com.redislabs.lettusearch.StatefulRediSearchConnection;
 import com.redislabs.recharge.RechargeConfiguration;
-import com.redislabs.recharge.RechargeException;
-import com.redislabs.recharge.redis.aggregate.AggregateWriter;
-import com.redislabs.recharge.redis.geo.GeoAddWriter;
-import com.redislabs.recharge.redis.hash.HMSetWriter;
-import com.redislabs.recharge.redis.hash.HashConfiguration;
-import com.redislabs.recharge.redis.list.LPushWriter;
-import com.redislabs.recharge.redis.search.FTAddWriter;
-import com.redislabs.recharge.redis.set.SAddWriter;
-import com.redislabs.recharge.redis.set.SRemWriter;
-import com.redislabs.recharge.redis.stream.XAddWriter;
-import com.redislabs.recharge.redis.string.StringWriter;
-import com.redislabs.recharge.redis.suggest.SuggestWriter;
-import com.redislabs.recharge.redis.zset.ZAddWriter;
+
+import io.lettuce.core.RedisURI;
+import io.lettuce.core.resource.ClientResources;
+import io.lettuce.core.resource.DefaultClientResources;
+import io.lettuce.core.support.ConnectionPoolSupport;
 
 @Configuration
 public class RedisConfig {
 
 	@Autowired
-	private RechargeConfiguration config;
+	RechargeConfiguration config;
 	@Autowired
-	private GenericObjectPool<StatefulRediSearchConnection<String, String>> pool;
+	GenericObjectPool<StatefulRediSearchConnection<String, String>> pool;
 	@Autowired
-	private StatefulRediSearchConnection<String, String> connection;
+	@Qualifier("sourceRedisClient")
+	RediSearchClient sourceRedisClient;
 
-	public RedisWriter<?> writer() throws RechargeException {
-		RedisConfiguration redis = config.getRedis();
-		if (redis.getSet() != null) {
-			switch (redis.getSet().getCommand()) {
-			case sadd:
-				return new SAddWriter(redis.getSet(), pool);
-			case srem:
-				return new SRemWriter(redis.getSet(), pool);
+	@Bean(destroyMethod = "shutdown")
+	ClientResources clientResources() {
+		return DefaultClientResources.create();
+	}
+
+	@Primary
+	@Bean(name = "sinkRedisClient", destroyMethod = "shutdown")
+	RediSearchClient sinkRedisClient(ClientResources clientResources, RedisProperties properties) {
+		return client(clientResources, properties);
+	}
+
+	@Bean(name = "sourceRedisClient", destroyMethod = "shutdown")
+	RediSearchClient sourceRedisClient(ClientResources clientResources,
+			@Qualifier("sourceRedisProperties") RedisProperties properties) {
+		return client(clientResources, properties);
+	}
+
+	@Primary
+	@Bean(name = "sinkRedisProperties")
+	@ConfigurationProperties(prefix = "")
+	RedisProperties sinkRedisProperties() {
+		return new RedisProperties();
+	}
+
+	@Bean(name = "sourceRedisProperties")
+	@ConfigurationProperties(prefix = "source.redis")
+	RedisProperties sourceRedisProperties() {
+		return new RedisProperties();
+	}
+
+	@Primary
+	@Bean(name = "sinkRedisPoolProperties")
+	@ConfigurationProperties(prefix = "pool")
+	Pool sinkRedisPoolProperties() {
+		return new Pool();
+	}
+
+	@Bean(name = "sourceRedisPoolProperties")
+	@ConfigurationProperties(prefix = "source.redis.pool")
+	Pool sourceRedisPoolProperties() {
+		return new Pool();
+	}
+
+	private RediSearchClient client(ClientResources clientResources, RedisProperties redis) {
+		RedisURI redisURI = RedisURI.create(redis.getHost(), redis.getPort());
+		if (redis.getPassword() != null) {
+			redisURI.setPassword(redis.getPassword());
+		}
+		if (redis.getTimeout() != null) {
+			redisURI.setTimeout(redis.getTimeout());
+		}
+		return RediSearchClient.create(clientResources, redisURI);
+	}
+
+	@Primary
+	@Bean(name = "sinkRedisConnection", destroyMethod = "close")
+	StatefulRediSearchConnection<String, String> sinkRedisConnection(
+			@Qualifier("sinkRedisClient") RediSearchClient client) {
+		return client.connect();
+	}
+
+	@Bean(name = "sourceRedisConnection", destroyMethod = "close")
+	StatefulRediSearchConnection<String, String> sourceRedisConnection(
+			@Qualifier("sourceRedisClient") RediSearchClient client) {
+		return client.connect();
+	}
+
+	@Primary
+	@Bean(name = "sinkRedisConnectionPool", destroyMethod = "close")
+	GenericObjectPool<StatefulRediSearchConnection<String, String>> sinkRedisConnectionPool(
+			@Qualifier("sinkRedisClient") RediSearchClient client, Pool poolProperties) {
+		return pool(client, poolProperties);
+	}
+
+	@Bean(name = "sourceRedisConnectionPool", destroyMethod = "close")
+	GenericObjectPool<StatefulRediSearchConnection<String, String>> sourceRedisConnectionPool(
+			@Qualifier("sourceRedisClient") RediSearchClient client,
+			@Qualifier("sourceRedisPoolProperties") Pool poolProperties) {
+		return pool(client, poolProperties);
+	}
+
+	private GenericObjectPool<StatefulRediSearchConnection<String, String>> pool(RediSearchClient client,
+			Pool poolProperties) {
+		GenericObjectPoolConfig<StatefulRediSearchConnection<String, String>> config = new GenericObjectPoolConfig<StatefulRediSearchConnection<String, String>>();
+		config.setJmxEnabled(false);
+		GenericObjectPool<StatefulRediSearchConnection<String, String>> pool = ConnectionPoolSupport
+				.createGenericObjectPool(() -> client.connect(), config);
+		if (poolProperties != null) {
+			pool.setMaxTotal(poolProperties.getMaxActive());
+			pool.setMaxIdle(poolProperties.getMaxIdle());
+			pool.setMinIdle(poolProperties.getMinIdle());
+			if (poolProperties.getMaxWait() != null) {
+				pool.setMaxWaitMillis(poolProperties.getMaxWait().toMillis());
 			}
 		}
-		if (redis.getGeo() != null) {
-			return new GeoAddWriter(redis.getGeo(), pool);
-		}
-		if (redis.getList() != null) {
-			return new LPushWriter(redis.getList(), pool);
-		}
-		if (redis.getAggregate() != null) {
-			return new AggregateWriter(redis.getAggregate(), pool);
-		}
-		if (redis.getSearch() != null) {
-			return new FTAddWriter(redis.getSearch(), pool);
-		}
-		if (redis.getSet() != null) {
-			return new SAddWriter(redis.getSet(), pool);
-		}
-		if (redis.getString() != null) {
-			return new StringWriter(redis.getString(), pool);
-		}
-		if (redis.getSuggest() != null) {
-			return new SuggestWriter(redis.getSuggest(), pool);
-		}
-		if (redis.getZset() != null) {
-			return new ZAddWriter(redis.getZset(), pool);
-		}
-		if (redis.getStream() != null) {
-			return new XAddWriter(redis.getStream(), pool);
-		}
-		if (redis.getHash() == null) {
-			redis.setHash(new HashConfiguration());
-		}
-		return new HMSetWriter(redis.getHash(), pool);
+		return pool;
 	}
 
 	public RedisReader reader() {
-		ScanConfiguration scan = config.getRedis().getScan();
-		if (scan == null) {
-			scan = new ScanConfiguration();
-		}
 		RedisReader reader = new RedisReader();
-		reader.setConnection(connection);
-		reader.setConfig(scan);
+		reader.setConnection(sourceRedisClient.connect());
+		reader.setConfig(config.getSource().getRedis());
 		return reader;
+	}
+
+	public RedisWriter writer() {
+		PipelineRedisWriter writer = config.getSink().getRedis().writer();
+		writer.setFlushall(config.getFlushall());
+		writer.setPool(pool);
+		return writer;
 	}
 
 }

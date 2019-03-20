@@ -5,6 +5,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.springframework.batch.core.ExitStatus;
+import org.springframework.batch.core.StepExecution;
+import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
@@ -14,7 +17,7 @@ import com.redislabs.lettusearch.StatefulRediSearchConnection;
 import com.redislabs.recharge.CachedRedis;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
-public class SpelProcessor implements ItemProcessor<Map, Map> {
+public class SpelProcessor implements ItemProcessor<Map, Map>, StepExecutionListener {
 
 	private String sourceExpression;
 	private String mergeExpression;
@@ -39,6 +42,24 @@ public class SpelProcessor implements ItemProcessor<Map, Map> {
 
 	public void setMergeExpression(String mergeExpression) {
 		this.mergeExpression = mergeExpression;
+	}
+
+	@Override
+	public void beforeStep(StepExecution stepExecution) {
+		SpelExpressionParser parser = new SpelExpressionParser();
+		if (sourceExpression != null) {
+			this.source = parser.parseExpression(sourceExpression);
+		}
+		if (mergeExpression != null) {
+			this.merge = parser.parseExpression(mergeExpression);
+		}
+		if (fields != null) {
+			fields.forEach((k, v) -> fieldMap.put(k, parser.parseExpression(v)));
+		}
+		this.context = new StandardEvaluationContext();
+		this.context.setPropertyAccessors(Arrays.asList(new MapAccessor()));
+		this.context.setVariable("r", connection.sync());
+		this.context.setVariable("c", new CachedRedis(connection.sync()));
 	}
 
 	public Map<String, String> getFields() {
@@ -75,28 +96,13 @@ public class SpelProcessor implements ItemProcessor<Map, Map> {
 		return map;
 	}
 
-	public void open() {
-		SpelExpressionParser parser = new SpelExpressionParser();
-		if (sourceExpression != null) {
-			this.source = parser.parseExpression(sourceExpression);
-		}
-		if (mergeExpression != null) {
-			this.merge = parser.parseExpression(mergeExpression);
-		}
-		if (fields != null) {
-			fields.forEach((k, v) -> fieldMap.put(k, parser.parseExpression(v)));
-		}
-		this.context = new StandardEvaluationContext();
-		this.context.setPropertyAccessors(Arrays.asList(new MapAccessor()));
-		this.context.setVariable("r", connection.sync());
-		this.context.setVariable("c", new CachedRedis(connection.sync()));
-	}
-
-	public void close() {
+	@Override
+	public ExitStatus afterStep(StepExecution stepExecution) {
 		context = null;
 		fieldMap.clear();
 		merge = null;
 		source = null;
+		return null;
 	}
 
 }

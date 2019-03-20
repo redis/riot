@@ -2,10 +2,7 @@ package com.redislabs.recharge.redis.hash;
 
 import java.util.Map;
 
-import org.apache.commons.pool2.impl.GenericObjectPool;
-
 import com.redislabs.lettusearch.RediSearchAsyncCommands;
-import com.redislabs.lettusearch.StatefulRediSearchConnection;
 import com.redislabs.recharge.redis.SingleRedisWriter;
 
 import io.lettuce.core.RedisFuture;
@@ -13,8 +10,8 @@ import io.lettuce.core.RedisFuture;
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class HMSetWriter extends SingleRedisWriter<HashConfiguration> {
 
-	public HMSetWriter(HashConfiguration config, GenericObjectPool<StatefulRediSearchConnection<String, String>> pool) {
-		super(config, pool);
+	public HMSetWriter(HashConfiguration config) {
+		super(config);
 	}
 
 	@Override

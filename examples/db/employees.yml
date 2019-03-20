@@ -1,0 +1,12 @@
+source:
+  db:
+    driverClassName: com.mysql.cj.jdbc.Driver
+    jdbcUrl: 'jdbc:mysql://localhost:3306/employees?serverTimezone=PST&useLegacyDatetimeCode=false&useSSL=false'
+    username: root
+    password: password
+    sql: 'select * from employees'
+sink:
+  redis:
+    hash:
+      keyspace: employee
+      keys: emp_no

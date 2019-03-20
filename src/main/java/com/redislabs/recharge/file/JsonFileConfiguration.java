@@ -4,5 +4,5 @@ import lombok.Data;
 
 @Data
 public class JsonFileConfiguration {
-	private String key;
+	private boolean strict;
 }

@@ -2,10 +2,7 @@ package com.redislabs.recharge.redis.stream;
 
 import java.util.Map;
 
-import org.apache.commons.pool2.impl.GenericObjectPool;
-
 import com.redislabs.lettusearch.RediSearchAsyncCommands;
-import com.redislabs.lettusearch.StatefulRediSearchConnection;
 import com.redislabs.recharge.redis.SingleRedisWriter;
 
 import io.lettuce.core.RedisFuture;
@@ -14,9 +11,8 @@ import io.lettuce.core.XAddArgs;
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class XAddWriter extends SingleRedisWriter<StreamConfiguration> {
 
-	public XAddWriter(StreamConfiguration config,
-			GenericObjectPool<StatefulRediSearchConnection<String, String>> pool) {
-		super(config, pool);
+	public XAddWriter(StreamConfiguration config) {
+		super(config);
 	}
 
 	@Override
