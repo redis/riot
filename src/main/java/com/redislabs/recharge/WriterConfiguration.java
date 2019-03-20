@@ -5,7 +5,7 @@ import com.redislabs.recharge.redis.RedisSinkConfiguration;
 import lombok.Data;
 
 @Data
-public class SinkConfiguration {
+public class WriterConfiguration {
 
 	private RedisSinkConfiguration redis = new RedisSinkConfiguration();
 

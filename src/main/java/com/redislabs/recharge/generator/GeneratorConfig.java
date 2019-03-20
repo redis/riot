@@ -15,12 +15,12 @@ public class GeneratorConfig {
 	private StatefulRediSearchConnection<String, String> connection;
 
 	public GeneratorReader reader() {
-		GeneratorConfiguration generator = config.getSource().getGenerator();
+		GeneratorConfiguration generator = config.getReader().getGenerator();
 		GeneratorReader reader = new GeneratorReader();
 		reader.setFields(generator.getFields());
 		reader.setLocale(generator.getLocale());
 		reader.setMapExpression(generator.getMap());
-		config.getSink().getRedis().setCollectionFields(generator.getFields().keySet().toArray(new String[0]));
+		config.getWriter().getRedis().setCollectionFields(generator.getFields().keySet().toArray(new String[0]));
 		reader.setConnection(connection);
 		return reader;
 	}

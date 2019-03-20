@@ -36,7 +36,7 @@ public class DatabaseConfig {
 	@Bean
 	@StepScope
 	public JdbcCursorItemReader<Map<String, Object>> dbReader() {
-		DatabaseSourceConfiguration db = config.getSource().getDb();
+		DatabaseSourceConfiguration db = config.getReader().getDb();
 		JdbcCursorItemReaderBuilder<Map<String, Object>> builder = new JdbcCursorItemReaderBuilder<Map<String, Object>>();
 		builder.dataSource(dataSource);
 		if (db.getFetchSize() != null) {

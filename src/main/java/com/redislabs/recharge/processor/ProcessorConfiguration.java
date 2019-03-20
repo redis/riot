@@ -9,13 +9,14 @@ import lombok.Data;
 
 @Data
 @Configuration
-public class SpelProcessorConfiguration {
+public class ProcessorConfiguration {
+
 	private String source;
 	private String merge;
 	private Map<String, String> fields = new LinkedHashMap<>();
 
-	public SpelProcessor processor() {
-		SpelProcessor processor = new SpelProcessor();
+	public SpelItemProcessor processor() {
+		SpelItemProcessor processor = new SpelItemProcessor();
 		processor.setSourceExpression(source);
 		processor.setMergeExpression(merge);
 		processor.setFields(fields);

@@ -146,7 +146,7 @@ public class FileConfig {
 		}
 		if (delimited.getFields() != null) {
 			builder.names(delimited.getFields());
-			config.getSink().getRedis().setCollectionFields(delimited.getFields());
+			config.getWriter().getRedis().setCollectionFields(delimited.getFields());
 		}
 		return fileBuilder.build();
 	}
@@ -163,7 +163,7 @@ public class FileConfig {
 		}
 		if (fixedLength.getFields() != null) {
 			builder.names(fixedLength.getFields());
-			config.getSink().getRedis().setCollectionFields(fixedLength.getFields());
+			config.getWriter().getRedis().setCollectionFields(fixedLength.getFields());
 		}
 		return fileBuilder.build();
 	}
@@ -191,12 +191,12 @@ public class FileConfig {
 	}
 
 	public AbstractItemCountingItemStreamItemReader<Map<String, Object>> reader() {
-		AbstractItemCountingItemStreamItemReader<Map<String, Object>> reader = reader(config.getSource().getFile());
-		String baseName = baseName(config.getSource().getFile());
-		config.getSink().getRedis().setKeyspace(baseName);
-		if (config.getSink().getRedis().getFt() != null) {
-			if (config.getSink().getRedis().getFt().getAdd().getIndex() == null) {
-				config.getSink().getRedis().getFt().getAdd().setIndex(baseName);
+		AbstractItemCountingItemStreamItemReader<Map<String, Object>> reader = reader(config.getReader().getFile());
+		String baseName = baseName(config.getReader().getFile());
+		config.getWriter().getRedis().setKeyspace(baseName);
+		if (config.getWriter().getRedis().getFt() != null) {
+			if (config.getWriter().getRedis().getFt().getAdd().getIndex() == null) {
+				config.getWriter().getRedis().getFt().getAdd().setIndex(baseName);
 			}
 		}
 		return reader;

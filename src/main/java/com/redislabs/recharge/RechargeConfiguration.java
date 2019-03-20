@@ -8,7 +8,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
 import com.redislabs.recharge.file.FileType;
-import com.redislabs.recharge.processor.SpelProcessorConfiguration;
+import com.redislabs.recharge.processor.ProcessorConfiguration;
 
 import lombok.Data;
 import lombok.ToString;
@@ -23,9 +23,9 @@ public class RechargeConfiguration {
 	private Integer flushall;
 	private boolean meter;
 	private int chunkSize = 50;
-	private SourceConfiguration source = new SourceConfiguration();
-	private SpelProcessorConfiguration processor;
-	private SinkConfiguration sink = new SinkConfiguration();
+	private ReaderConfiguration reader = new ReaderConfiguration();
+	private ProcessorConfiguration processor;
+	private WriterConfiguration writer = new WriterConfiguration();
 
 	@SuppressWarnings("serial")
 	private Map<String, FileType> fileTypes = new LinkedHashMap<String, FileType>() {

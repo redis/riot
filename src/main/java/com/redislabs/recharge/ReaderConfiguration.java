@@ -8,7 +8,7 @@ import com.redislabs.recharge.redis.RedisSourceConfiguration;
 import lombok.Data;
 
 @Data
-public class SourceConfiguration {
+public class ReaderConfiguration {
 	private int partitions = 1;
 	private long sleep;
 	private int sleepNanos;

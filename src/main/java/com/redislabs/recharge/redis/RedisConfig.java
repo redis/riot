@@ -132,12 +132,12 @@ public class RedisConfig {
 	public RedisReader reader() {
 		RedisReader reader = new RedisReader();
 		reader.setConnection(sourceRedisClient.connect());
-		reader.setConfig(config.getSource().getRedis());
+		reader.setConfig(config.getReader().getRedis());
 		return reader;
 	}
 
 	public RedisWriter writer() {
-		PipelineRedisWriter writer = config.getSink().getRedis().writer();
+		PipelineRedisWriter writer = config.getWriter().getRedis().writer();
 		writer.setFlushall(config.getFlushall());
 		writer.setPool(pool);
 		return writer;

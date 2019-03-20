@@ -29,7 +29,7 @@ import com.redislabs.recharge.generator.GeneratorConfig;
 import com.redislabs.recharge.meter.ProcessorMeter;
 import com.redislabs.recharge.meter.ReaderMeter;
 import com.redislabs.recharge.meter.WriterMeter;
-import com.redislabs.recharge.processor.SpelProcessor;
+import com.redislabs.recharge.processor.SpelItemProcessor;
 import com.redislabs.recharge.redis.RedisConfig;
 import com.redislabs.recharge.redis.RedisWriter;
 
@@ -69,30 +69,11 @@ public class BatchConfig {
 		return jobs.get("recharge-job").start(step()).build();
 	}
 
-//	@Bean
-//	public ResourcelessTransactionManager transactionManager() {
-//		return new ResourcelessTransactionManager();
-//	}
-//
-//	@Bean
-//	public JobRepository jobRepository(ResourcelessTransactionManager transactionManager) throws Exception {
-//		MapJobRepositoryFactoryBean mapJobRepositoryFactoryBean = new MapJobRepositoryFactoryBean(transactionManager);
-//		mapJobRepositoryFactoryBean.setTransactionManager(transactionManager);
-//		return mapJobRepositoryFactoryBean.getObject();
-//	}
-//
-//	@Bean
-//	public SimpleJobLauncher jobLauncher(JobRepository jobRepository) {
-//		SimpleJobLauncher simpleJobLauncher = new SimpleJobLauncher();
-//		simpleJobLauncher.setJobRepository(jobRepository);
-//		return simpleJobLauncher;
-//	}
-
 	@Bean
 	public Step step() throws RechargeException {
 		TaskletStep taskletStep = tasklet();
-		if (config.getSource().getPartitions() > 1) {
-			IndexedPartitioner partitioner = new IndexedPartitioner(config.getSource().getPartitions());
+		if (config.getReader().getPartitions() > 1) {
+			IndexedPartitioner partitioner = new IndexedPartitioner(config.getReader().getPartitions());
 			return steps.get("import-step").partitioner("delegate-import-step", partitioner).step(taskletStep)
 					.taskExecutor(new SimpleAsyncTaskExecutor()).build();
 		}
@@ -102,16 +83,16 @@ public class BatchConfig {
 	@Bean
 	@StepScope
 	public AbstractItemCountingItemStreamItemReader<Map<String, Object>> itemStreamReader() throws RechargeException {
-		if (config.getSource().getDb() != null) {
+		if (config.getReader().getDb() != null) {
 			return db.dbReader();
 		}
-		if (config.getSource().getFile() != null) {
+		if (config.getReader().getFile() != null) {
 			return file.reader();
 		}
-		if (config.getSource().getGenerator() != null) {
+		if (config.getReader().getGenerator() != null) {
 			return generator.reader();
 		}
-		if (config.getSource().getRedis() != null) {
+		if (config.getReader().getRedis() != null) {
 			return redis.reader();
 		}
 		throw new RechargeException("No reader configured");
@@ -123,7 +104,7 @@ public class BatchConfig {
 				.<Map<String, Object>, Map<String, Object>>chunk(config.getChunkSize());
 		builder.reader(reader());
 		if (config.getProcessor() != null) {
-			SpelProcessor processor = processor(null);
+			SpelItemProcessor processor = processor(null);
 			builder.processor(processor);
 			builder.listener(processor);
 		}
@@ -139,8 +120,8 @@ public class BatchConfig {
 	@Bean
 	public ItemReader<Map<String, Object>> reader() throws RechargeException {
 		AbstractItemCountingItemStreamItemReader<Map<String, Object>> reader = itemStreamReader();
-		if (config.getSource().getMaxItemCountPerPartition() != null) {
-			reader.setMaxItemCount(config.getSource().getMaxItemCountPerPartition());
+		if (config.getReader().getMaxItemCountPerPartition() != null) {
+			reader.setMaxItemCount(config.getReader().getMaxItemCountPerPartition());
 		}
 		return throttle(reader);
 	}
@@ -153,17 +134,17 @@ public class BatchConfig {
 
 	private ItemStreamReader<Map<String, Object>> throttle(
 			AbstractItemCountingItemStreamItemReader<Map<String, Object>> reader) {
-		if (config.getSource().getSleep() > 0 || config.getSource().getSleepNanos() > 0) {
-			return new ThrottledItemStreamItemReader<Map<String, Object>>(reader, config.getSource().getSleep(),
-					config.getSource().getSleepNanos());
+		if (config.getReader().getSleep() > 0 || config.getReader().getSleepNanos() > 0) {
+			return new ThrottledItemStreamItemReader<Map<String, Object>>(reader, config.getReader().getSleep(),
+					config.getReader().getSleepNanos());
 		}
 		return reader;
 	}
 
 	@Bean
 	@StepScope
-	public SpelProcessor processor(StatefulRediSearchConnection<String, String> connection) {
-		SpelProcessor processor = config.getProcessor().processor();
+	public SpelItemProcessor processor(StatefulRediSearchConnection<String, String> connection) {
+		SpelItemProcessor processor = config.getProcessor().processor();
 		processor.setConnection(connection);
 		return processor;
 	}
