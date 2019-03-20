@@ -7,13 +7,13 @@ import org.springframework.batch.item.NonTransientResourceException;
 import org.springframework.batch.item.ParseException;
 import org.springframework.batch.item.UnexpectedInputException;
 
-public class ThrottledItemStreamItemReader<T> implements ItemStreamReader<T> {
+public class ThrottledItemStreamReader<T> implements ItemStreamReader<T> {
 
 	private ItemStreamReader<T> reader;
 	private long sleep;
 	private int sleepNanos;
 
-	public ThrottledItemStreamItemReader(ItemStreamReader<T> reader, long sleep, int sleepNanos) {
+	public ThrottledItemStreamReader(ItemStreamReader<T> reader, long sleep, int sleepNanos) {
 		this.reader = reader;
 		this.sleep = sleep;
 		this.sleepNanos = sleepNanos;

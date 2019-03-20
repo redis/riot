@@ -135,7 +135,7 @@ public class BatchConfig {
 	private ItemStreamReader<Map<String, Object>> throttle(
 			AbstractItemCountingItemStreamItemReader<Map<String, Object>> reader) {
 		if (config.getReader().getSleep() > 0 || config.getReader().getSleepNanos() > 0) {
-			return new ThrottledItemStreamItemReader<Map<String, Object>>(reader, config.getReader().getSleep(),
+			return new ThrottledItemStreamReader<Map<String, Object>>(reader, config.getReader().getSleep(),
 					config.getReader().getSleepNanos());
 		}
 		return reader;
