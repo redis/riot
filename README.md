@@ -1,4 +1,4 @@
-# recharge
+# ReCharge
 ReCharge is a bulk loader for Redis. It supports the following data sources as inputs:
 
 * Databases (JDBC)
@@ -20,10 +20,14 @@ mvn clean install
 ## Examples
 The [examples](./examples) folder contains a few sample configurations to import various datasets:
 
-* [Openflights.org](https://openflights.org/data.html)
-  * Airlines: `java -jar target/recharge-1.0.0.jar --spring.config.location=examples/file/airlines.yml`
-  * Airports: `java -jar target/recharge-1.0.0.jar --spring.config.location=examples/file/airports.yml`
-  * Planes: `java -jar target/recharge-1.0.0.jar --spring.config.location=examples/file/planes.yml`
-  * Routes: `java -jar target/recharge-1.0.0.jar --spring.config.location=examples/file/routes.yml`
+### [Openflights.org](https://openflights.org/data.html)
+1. Airlines
+  `java -jar target/recharge-1.0.0.jar --spring.config.location=examples/file/airlines.yml`
+2. Airports
+  `java -jar target/recharge-1.0.0.jar --spring.config.location=examples/file/airports.yml`
+3. Planes
+  `java -jar target/recharge-1.0.0.jar --spring.config.location=examples/file/planes.yml`
+4. Routes
+  `java -jar target/recharge-1.0.0.jar --spring.config.location=examples/file/routes.yml`
 
 
