@@ -3,8 +3,6 @@ package com.redislabs.recharge.redis.search.add;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import org.springframework.batch.item.ExecutionContext;
-
 import com.redislabs.lettusearch.RediSearchAsyncCommands;
 import com.redislabs.lettusearch.StatefulRediSearchConnection;
 import com.redislabs.lettusearch.search.AddOptions;
@@ -16,7 +14,6 @@ import com.redislabs.lettusearch.search.field.GeoField;
 import com.redislabs.lettusearch.search.field.NumericField;
 import com.redislabs.lettusearch.search.field.TagField;
 import com.redislabs.lettusearch.search.field.TextField;
-import com.redislabs.recharge.IndexedPartitioner;
 import com.redislabs.recharge.redis.search.RediSearchCommandWriter;
 
 import io.lettuce.core.LettuceFutures;
@@ -51,10 +48,8 @@ public class AddWriter extends RediSearchCommandWriter<AddConfiguration> {
 	}
 
 	@Override
-	public void open(ExecutionContext executionContext) {
-		if (IndexedPartitioner.getPartitionIndex(executionContext) != 0) {
-			return;
-		}
+	protected void doOpen() {
+		super.doOpen();
 		try {
 			StatefulRediSearchConnection<String, String> connection = pool.borrowObject();
 			try {
@@ -97,7 +92,6 @@ public class AddWriter extends RediSearchCommandWriter<AddConfiguration> {
 		} catch (Exception e) {
 			log.error("Could not create schema", e);
 		}
-		super.open(executionContext);
 	}
 
 	private Field field(SchemaField field) {

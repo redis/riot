@@ -11,6 +11,7 @@ import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.support.DefaultConversionService;
 
 import com.redislabs.lettusearch.StatefulRediSearchConnection;
+import com.redislabs.recharge.IndexedPartitioner;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -30,21 +31,32 @@ public abstract class RedisWriter extends AbstractItemStreamItemWriter<Map> {
 
 	@Override
 	public void open(ExecutionContext executionContext) {
-		if (flushall != null) {
-			try {
-				log.warn("Flushing database in {} seconds", flushall);
-				Thread.sleep(flushall * 1000);
-				StatefulRediSearchConnection<String, String> connection = pool.borrowObject();
-				try {
-					connection.sync().flushall();
-				} finally {
-					pool.returnObject(connection);
-				}
-			} catch (Exception e) {
-				log.error("Could not perform flushall", e);
-			}
+		if (IndexedPartitioner.getPartitionIndex(executionContext) == 0) {
+			doOpen();
 		}
 		super.open(executionContext);
+	}
+
+	protected void doOpen() {
+		if (flushall != null) {
+			flushall();
+		}
+	}
+
+	private void flushall() {
+		try {
+			log.warn("Flushing database in {} seconds", flushall);
+			Thread.sleep(flushall * 1000);
+			StatefulRediSearchConnection<String, String> connection = pool.borrowObject();
+			try {
+				connection.sync().flushall();
+			} finally {
+				pool.returnObject(connection);
+			}
+		} catch (Exception e) {
+			log.error("Could not perform flushall", e);
+		}
+
 	}
 
 	public void setPool(GenericObjectPool<StatefulRediSearchConnection<String, String>> pool) {
