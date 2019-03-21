@@ -21,6 +21,7 @@ mvn clean install
 ----
 
 === Running
+
 Run ReCharge using java -jar:
 
 [source,bash]
@@ -28,6 +29,19 @@ Run ReCharge using java -jar:
 ----
 $ java -jar target/recharge.jar
 ----
+
+=== Parameters
+Use the following parameters to configure ReCharge:
+
+==== Redis
+* `host`: Redis database hostname e.g. `--host=redis.redislabs.com`
+* `port`: Redis database port e.g. `--port=12000`
+* `password`: Redis database password e.g. `--password=1234`
+* `timeout`: Command timeout for synchronous command execution e.g. `--timeout=5s`
+* `pool.max-active`: Maximum number of connections that can be allocated by the pool at a given time. Use a negative value for no limit.
+* `pool.max-idle`: Maximum number of "idle" connections in the pool. Use a negative value to indicate an unlimited number of idle connections.
+* `pool.min-idle`: Target for the minimum number of idle connections to maintain in the pool. This setting only has an effect if it is positive.
+* `pool.max-wait`: Maximum amount of time a connection allocation should block before throwing an exception when the pool is exhausted. Use a negative value to block indefinitely. e.g. `--pool.max-wait=5s`
 
 === Examples
 

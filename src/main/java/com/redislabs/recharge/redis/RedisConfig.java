@@ -4,6 +4,7 @@ import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
 import org.springframework.boot.autoconfigure.data.redis.RedisProperties.Pool;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -28,8 +29,8 @@ public class RedisConfig {
 	@Autowired
 	GenericObjectPool<StatefulRediSearchConnection<String, String>> pool;
 	@Autowired
-	@Qualifier("sourceRedisClient")
-	RediSearchClient sourceRedisClient;
+	@Qualifier("readerRedisClient")
+	RediSearchClient readerRedisClient;
 
 	@Bean(destroyMethod = "shutdown")
 	ClientResources clientResources() {
@@ -37,40 +38,40 @@ public class RedisConfig {
 	}
 
 	@Primary
-	@Bean(name = "sinkRedisClient", destroyMethod = "shutdown")
-	RediSearchClient sinkRedisClient(ClientResources clientResources, RedisProperties sinkRedisProperties) {
-		return client(clientResources, sinkRedisProperties);
+	@Bean(name = "writerRedisClient", destroyMethod = "shutdown")
+	RediSearchClient writerRedisClient(ClientResources clientResources, RedisProperties writerRedisProperties) {
+		return client(clientResources, writerRedisProperties);
 	}
 
-	@Bean(name = "sourceRedisClient", destroyMethod = "shutdown")
-	RediSearchClient sourceRedisClient(ClientResources clientResources,
-			@Qualifier("sourceRedisProperties") RedisProperties sourceRedisProperties) {
-		return client(clientResources, sourceRedisProperties);
+	@Bean(name = "readerRedisClient", destroyMethod = "shutdown")
+	RediSearchClient readerRedisClient(ClientResources clientResources,
+			@Qualifier("readerRedisProperties") RedisProperties readerRedisProperties) {
+		return client(clientResources, readerRedisProperties);
 	}
 
 	@Primary
-	@Bean(name = "sinkRedisProperties")
+	@Bean(name = "writerRedisProperties")
 	@ConfigurationProperties(prefix = "")
-	RedisProperties sinkRedisProperties() {
+	RedisProperties writerRedisProperties() {
 		return new RedisProperties();
 	}
 
-	@Bean(name = "sourceRedisProperties")
-	@ConfigurationProperties(prefix = "source.redis")
-	RedisProperties sourceRedisProperties() {
+	@Bean(name = "readerRedisProperties")
+	@ConfigurationProperties(prefix = "redis.scan")
+	RedisProperties readerRedisProperties() {
 		return new RedisProperties();
 	}
 
 	@Primary
-	@Bean(name = "sinkRedisPoolProperties")
+	@Bean(name = "writerRedisPoolProperties")
 	@ConfigurationProperties(prefix = "pool")
-	Pool sinkRedisPoolProperties() {
+	Pool writerRedisPoolProperties() {
 		return new Pool();
 	}
 
-	@Bean(name = "sourceRedisPoolProperties")
-	@ConfigurationProperties(prefix = "source.redis.pool")
-	Pool sourceRedisPoolProperties() {
+	@Bean(name = "readerRedisPoolProperties")
+	@ConfigurationProperties(prefix = "redis.scan.pool")
+	Pool readerRedisPoolProperties() {
 		return new Pool();
 	}
 
@@ -86,31 +87,32 @@ public class RedisConfig {
 	}
 
 	@Primary
-	@Bean(name = "sinkRedisConnection", destroyMethod = "close")
-	StatefulRediSearchConnection<String, String> sinkRedisConnection(
-			@Qualifier("sinkRedisClient") RediSearchClient sinkRedisClient) {
-		return sinkRedisClient.connect();
+	@Bean(name = "writerRedisConnection", destroyMethod = "close")
+	StatefulRediSearchConnection<String, String> writerRedisConnection(
+			@Qualifier("writerRedisClient") RediSearchClient writerRedisClient) {
+		return writerRedisClient.connect();
 	}
 
-	@Bean(name = "sourceRedisConnection", destroyMethod = "close")
-	StatefulRediSearchConnection<String, String> sourceRedisConnection(
-			@Qualifier("sourceRedisClient") RediSearchClient sourceRedisClient) {
-		return sourceRedisClient.connect();
+	@Bean(name = "readerRedisConnection", destroyMethod = "close")
+	@ConditionalOnProperty(name = "redis.scan.host")
+	StatefulRediSearchConnection<String, String> readerRedisConnection(
+			@Qualifier("readerRedisClient") RediSearchClient readerRedisClient) {
+		return readerRedisClient.connect();
 	}
 
 	@Primary
-	@Bean(name = "sinkRedisConnectionPool", destroyMethod = "close")
-	GenericObjectPool<StatefulRediSearchConnection<String, String>> sinkRedisConnectionPool(
-			@Qualifier("sinkRedisClient") RediSearchClient sinkRedisClient,
-			@Qualifier("sinkRedisPoolProperties") Pool sinkRedisPoolProperties) {
-		return pool(sinkRedisClient, sinkRedisPoolProperties);
+	@Bean(name = "writerRedisConnectionPool", destroyMethod = "close")
+	GenericObjectPool<StatefulRediSearchConnection<String, String>> writerRedisConnectionPool(
+			@Qualifier("writerRedisClient") RediSearchClient writerRedisClient,
+			@Qualifier("writerRedisPoolProperties") Pool writerRedisPoolProperties) {
+		return pool(writerRedisClient, writerRedisPoolProperties);
 	}
 
-	@Bean(name = "sourceRedisConnectionPool", destroyMethod = "close")
-	GenericObjectPool<StatefulRediSearchConnection<String, String>> sourceRedisConnectionPool(
-			@Qualifier("sourceRedisClient") RediSearchClient sourceRedisClient,
-			@Qualifier("sourceRedisPoolProperties") Pool sourceRedisPoolProperties) {
-		return pool(sourceRedisClient, sourceRedisPoolProperties);
+	@Bean(name = "readerRedisConnectionPool", destroyMethod = "close")
+	GenericObjectPool<StatefulRediSearchConnection<String, String>> readerRedisConnectionPool(
+			@Qualifier("readerRedisClient") RediSearchClient readerRedisClient,
+			@Qualifier("readerRedisPoolProperties") Pool readerRedisPoolProperties) {
+		return pool(readerRedisClient, readerRedisPoolProperties);
 	}
 
 	private GenericObjectPool<StatefulRediSearchConnection<String, String>> pool(RediSearchClient client,
@@ -132,13 +134,13 @@ public class RedisConfig {
 
 	public RedisReader reader() {
 		RedisReader reader = new RedisReader();
-		reader.setConnection(sourceRedisClient.connect());
-		reader.setConfig(config.getReader().getRedis());
+		reader.setConnection(readerRedisClient.connect());
+		reader.setConfig(config.getRedis());
 		return reader;
 	}
 
 	public RedisWriter writer() {
-		PipelineRedisWriter writer = config.getWriter().getRedis().writer();
+		PipelineRedisWriter writer = config.getRedis().writer();
 		writer.setFlushall(config.getFlushall());
 		writer.setPool(pool);
 		return writer;

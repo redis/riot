@@ -1,23 +1,21 @@
-reader:
-  file:
-    path: https://raw.githubusercontent.com/jpatokal/openflights/master/data/airports.dat
-    delimited:
-      fields: AirportID,Name,City,Country,IATA,ICAO,Latitude,Longitude,Altitude,Timezone,DST,Tz,Type,Source
+file:
+  path: https://raw.githubusercontent.com/jpatokal/openflights/master/data/airports.dat
+  delimited:
+    fields: AirportID,Name,City,Country,IATA,ICAO,Latitude,Longitude,Altitude,Timezone,DST,Tz,Type,Source
 processor:
   fields:
     Location: Longitude?.concat(',')?.concat(Latitude)
-writer:
-  redis:
-    ft:
-      add:
-        index: airports
-        keys: AirportID
-        drop: true
-        schema:
-        - name: Name
-        - name: City
-          sortable: true
-        - name: Country
-          sortable: true
-        - name: Location
-          type: geo
+redis:
+  search:
+    add:
+      index: airports
+      keys: AirportID
+      drop: true
+      schema:
+      - name: Name
+      - name: City
+        sortable: true
+      - name: Country
+        sortable: true
+      - name: Location
+        type: geo

@@ -7,8 +7,12 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
+import com.redislabs.recharge.db.DatabaseConfiguration;
+import com.redislabs.recharge.file.FileReaderConfiguration;
 import com.redislabs.recharge.file.FileType;
+import com.redislabs.recharge.generator.GeneratorConfiguration;
 import com.redislabs.recharge.processor.ProcessorConfiguration;
+import com.redislabs.recharge.redis.RedisConfiguration;
 
 import lombok.Data;
 import lombok.ToString;
@@ -23,9 +27,22 @@ public class RechargeConfiguration {
 	private Integer flushall;
 	private boolean meter;
 	private int chunkSize = 50;
-	private ReaderConfiguration reader = new ReaderConfiguration();
+	private int partitions = 1;
+	private long sleep;
+	private int sleepNanos;
+	private Integer maxItemCount;
+	private GeneratorConfiguration generator;
+	private DatabaseConfiguration datasource;
+	private FileReaderConfiguration file;
+	private RedisConfiguration redis;
 	private ProcessorConfiguration processor;
-	private WriterConfiguration writer = new WriterConfiguration();
+
+	public Integer getMaxItemCountPerPartition() {
+		if (maxItemCount == null) {
+			return null;
+		}
+		return maxItemCount / partitions;
+	}
 
 	@SuppressWarnings("serial")
 	private Map<String, FileType> fileTypes = new LinkedHashMap<String, FileType>() {

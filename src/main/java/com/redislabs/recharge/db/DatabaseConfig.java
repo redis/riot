@@ -4,7 +4,6 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
-import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.database.JdbcCursorItemReader;
 import org.springframework.batch.item.database.builder.JdbcCursorItemReaderBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,20 +22,18 @@ public class DatabaseConfig {
 	@Autowired
 	private RechargeConfiguration config;
 
-	@Bean(name = "sourceDB")
-	@ConfigurationProperties(prefix = "source.db")
+	@Bean(name = "datasource")
+	@ConfigurationProperties(prefix = "datasource")
 	public DataSource dataSource() {
 		return DataSourceBuilder.create().build();
 	}
 
 	@Autowired
-	@Qualifier("sourceDB")
-	private DataSource dataSource;
+	@Qualifier("datasource")
+	DataSource dataSource;
 
-	@Bean
-	@StepScope
-	public JdbcCursorItemReader<Map<String, Object>> dbReader() {
-		DatabaseSourceConfiguration db = config.getReader().getDb();
+	public JdbcCursorItemReader<Map<String, Object>> reader() {
+		DatabaseConfiguration db = config.getDatasource();
 		JdbcCursorItemReaderBuilder<Map<String, Object>> builder = new JdbcCursorItemReaderBuilder<Map<String, Object>>();
 		builder.dataSource(dataSource);
 		if (db.getFetchSize() != null) {

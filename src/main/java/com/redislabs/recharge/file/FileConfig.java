@@ -67,7 +67,7 @@ public class FileConfig {
 		return builder;
 	}
 
-	private Resource resource(FileSourceConfiguration file) throws IOException {
+	private Resource resource(FileReaderConfiguration file) throws IOException {
 		Resource resource = resource(file.getPath());
 		if (isGzip(file)) {
 			return getGZipResource(resource);
@@ -82,7 +82,7 @@ public class FileConfig {
 		return new FileSystemResource(path);
 	}
 
-	private boolean isGzip(FileSourceConfiguration file) {
+	private boolean isGzip(FileReaderConfiguration file) {
 		if (file.getGzip() == null) {
 			String gz = getFilenameGroup(file.getPath(), FILE_GZ);
 			return gz != null && gz.length() > 0;
@@ -145,7 +145,7 @@ public class FileConfig {
 		}
 		if (delimited.getFields() != null) {
 			builder.names(delimited.getFields());
-			config.getWriter().getRedis().setCollectionFields(delimited.getFields());
+			config.getRedis().setCollectionFields(delimited.getFields());
 		}
 		return fileBuilder.build();
 	}
@@ -162,12 +162,12 @@ public class FileConfig {
 		}
 		if (fixedLength.getFields() != null) {
 			builder.names(fixedLength.getFields());
-			config.getWriter().getRedis().setCollectionFields(fixedLength.getFields());
+			config.getRedis().setCollectionFields(fixedLength.getFields());
 		}
 		return fileBuilder.build();
 	}
 
-	public String baseName(FileSourceConfiguration file) {
+	public String baseName(FileReaderConfiguration file) {
 		String filename = new File(file.getPath()).getName();
 		int extensionIndex = filename.lastIndexOf(".");
 		if (extensionIndex == -1) {
@@ -190,19 +190,19 @@ public class FileConfig {
 	}
 
 	public AbstractItemCountingItemStreamItemReader<Map<String, Object>> reader() {
-		AbstractItemCountingItemStreamItemReader<Map<String, Object>> reader = reader(config.getReader().getFile());
-		String baseName = baseName(config.getReader().getFile());
-		config.getWriter().getRedis().setKeyspace(baseName);
-		if (config.getWriter().getRedis().getFt() != null) {
-			if (config.getWriter().getRedis().getFt().getAdd().getIndex() == null) {
-				config.getWriter().getRedis().getFt().getAdd().setIndex(baseName);
+		AbstractItemCountingItemStreamItemReader<Map<String, Object>> reader = reader(config.getFile());
+		String baseName = baseName(config.getFile());
+		config.getRedis().setKeyspace(baseName);
+		if (config.getRedis().getSearch() != null) {
+			if (config.getRedis().getSearch().getAdd().getIndex() == null) {
+				config.getRedis().getSearch().getAdd().setIndex(baseName);
 			}
 		}
 		return reader;
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public AbstractItemCountingItemStreamItemReader<Map<String, Object>> reader(FileSourceConfiguration file) {
+	public AbstractItemCountingItemStreamItemReader<Map<String, Object>> reader(FileReaderConfiguration file) {
 		try {
 			Resource resource = resource(file);
 			if (file.getType() == null) {

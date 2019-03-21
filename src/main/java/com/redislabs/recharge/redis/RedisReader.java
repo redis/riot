@@ -20,14 +20,14 @@ public class RedisReader extends AbstractItemCountingItemStreamItemReader<Map<St
 	private volatile boolean initialized = false;
 	private StatefulRediSearchConnection<String, String> connection;
 	private Object lock = new Object();
-	private RedisSourceConfiguration config;
+	private RedisConfiguration config;
 	private KeyScanCursor<String> cursor;
 
 	public RedisReader() {
 		setName(ClassUtils.getShortName(RedisReader.class));
 	}
 
-	public void setConfig(RedisSourceConfiguration config) {
+	public void setConfig(RedisConfiguration config) {
 		this.config = config;
 	}
 
@@ -39,11 +39,11 @@ public class RedisReader extends AbstractItemCountingItemStreamItemReader<Map<St
 	protected void doOpen() throws Exception {
 		Assert.state(!initialized, "Cannot open an already open ItemReader, call close first");
 		ScanArgs args = new ScanArgs();
-		if (config.getLimit() != null) {
-			args.limit(config.getLimit());
+		if (config.getScan().getLimit() != null) {
+			args.limit(config.getScan().getLimit());
 		}
-		if (config.getMatch() != null) {
-			args.match(config.getMatch());
+		if (config.getScan().getMatch() != null) {
+			args.match(config.getScan().getMatch());
 		}
 		this.cursor = connection.sync().scan(args);
 		initialized = true;

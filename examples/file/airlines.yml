@@ -1,22 +1,20 @@
-reader:
-  file:
-    path: https://raw.githubusercontent.com/jpatokal/openflights/master/data/airlines.dat
-    delimited:
-      header: false
-      fields: AirlineID,Name,Alias,IATA,ICAO,Callsign,Country,Active
-writer:
-  redis:
-    ft:
-      add:
-        index: airlines
-        keys: AirlineID
-        schema:
-        - name: Name
-        - name: Alias
-        - name: IATA
-        - name: ICAO
-        - name: Callsign
-        - name: Country
-          sortable: true
-        - name: Active
-          sortable: true
+file:
+  path: https://raw.githubusercontent.com/jpatokal/openflights/master/data/airlines.dat
+  delimited:
+    header: false
+    fields: AirlineID,Name,Alias,IATA,ICAO,Callsign,Country,Active
+redis:
+  search:
+    add:
+      index: airlines
+      keys: AirlineID
+      schema:
+      - name: Name
+      - name: Alias
+      - name: IATA
+      - name: ICAO
+      - name: Callsign
+      - name: Country
+        sortable: true
+      - name: Active
+        sortable: true
