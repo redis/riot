@@ -2,6 +2,7 @@ package com.redislabs.recharge.redis;
 
 import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
+import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -132,7 +133,9 @@ public class RedisConfig {
 		return pool;
 	}
 
-	public RedisReader reader() {
+	@Bean
+	@StepScope
+	public RedisReader redisReader() {
 		RedisReader reader = new RedisReader();
 		reader.setConnection(readerRedisClient.connect());
 		reader.setConfig(config.getRedis());

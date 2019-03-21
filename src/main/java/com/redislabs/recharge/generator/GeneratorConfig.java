@@ -1,6 +1,8 @@
 package com.redislabs.recharge.generator;
 
+import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.redislabs.lettusearch.StatefulRediSearchConnection;
@@ -14,7 +16,9 @@ public class GeneratorConfig {
 	@Autowired
 	private StatefulRediSearchConnection<String, String> connection;
 
-	public GeneratorReader reader() {
+	@Bean
+	@StepScope
+	public GeneratorReader generatorReader() {
 		GeneratorConfiguration generator = config.getGenerator();
 		GeneratorReader reader = new GeneratorReader();
 		reader.setFields(generator.getFields());

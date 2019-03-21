@@ -4,6 +4,7 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
+import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.database.JdbcCursorItemReader;
 import org.springframework.batch.item.database.builder.JdbcCursorItemReaderBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +33,9 @@ public class DatabaseConfig {
 	@Qualifier("datasource")
 	DataSource dataSource;
 
-	public JdbcCursorItemReader<Map<String, Object>> reader() {
+	@Bean
+	@StepScope
+	public JdbcCursorItemReader<Map<String, Object>> databaseReader() {
 		DatabaseConfiguration db = config.getDatasource();
 		JdbcCursorItemReaderBuilder<Map<String, Object>> builder = new JdbcCursorItemReaderBuilder<Map<String, Object>>();
 		builder.dataSource(dataSource);

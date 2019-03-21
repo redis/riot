@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.file.DefaultBufferedReaderFactory;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
@@ -23,6 +24,7 @@ import org.springframework.batch.item.json.JacksonJsonObjectReader;
 import org.springframework.batch.item.json.builder.JsonItemReaderBuilder;
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.InputStreamResource;
@@ -189,7 +191,9 @@ public class FileConfig {
 		return new Range(Integer.parseInt(split[0]), Integer.parseInt(split[1]));
 	}
 
-	public AbstractItemCountingItemStreamItemReader<Map<String, Object>> reader() {
+	@Bean
+	@StepScope
+	public AbstractItemCountingItemStreamItemReader<Map<String, Object>> fileReader() {
 		AbstractItemCountingItemStreamItemReader<Map<String, Object>> reader = reader(config.getFile());
 		String baseName = baseName(config.getFile());
 		config.getRedis().setKeyspace(baseName);

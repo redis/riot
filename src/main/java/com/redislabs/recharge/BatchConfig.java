@@ -84,16 +84,16 @@ public class BatchConfig {
 	@StepScope
 	public AbstractItemCountingItemStreamItemReader<Map<String, Object>> itemStreamReader() throws RechargeException {
 		if (config.getDatasource() != null) {
-			return db.reader();
+			return db.databaseReader();
 		}
 		if (config.getFile() != null) {
-			return file.reader();
+			return file.fileReader();
 		}
 		if (config.getGenerator() != null) {
-			return generator.reader();
+			return generator.generatorReader();
 		}
 		if (config.getRedis() != null) {
-			return redis.reader();
+			return redis.redisReader();
 		}
 		throw new RechargeException("No reader configured");
 	}
