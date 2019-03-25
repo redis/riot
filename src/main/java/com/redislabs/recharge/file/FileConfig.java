@@ -1,17 +1,15 @@
 package com.redislabs.recharge.file;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.Arrays;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.batch.core.configuration.annotation.StepScope;
+import org.springframework.batch.item.ItemStreamReader;
 import org.springframework.batch.item.file.DefaultBufferedReaderFactory;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
@@ -21,9 +19,11 @@ import org.springframework.batch.item.file.separator.DefaultRecordSeparatorPolic
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.batch.item.file.transform.Range;
 import org.springframework.batch.item.json.JacksonJsonObjectReader;
+import org.springframework.batch.item.json.JsonItemReader;
+import org.springframework.batch.item.json.JsonObjectReader;
 import org.springframework.batch.item.json.builder.JsonItemReaderBuilder;
-import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
@@ -33,48 +33,30 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.util.ResourceUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.redislabs.recharge.RechargeConfiguration;
+import com.redislabs.recharge.RechargeException;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Configuration
+@EnableConfigurationProperties(FileProperties.class)
 @Slf4j
 public class FileConfig {
 
-	private static final String FILE_BASENAME = "basename";
-	private static final String FILE_EXTENSION = "extension";
-	private static final String FILE_GZ = "gz";
-	private static final Pattern filePathPattern = Pattern
-			.compile("(?<" + FILE_BASENAME + ">.+)\\.(?<" + FILE_EXTENSION + ">\\w+)(?<" + FILE_GZ + ">\\.gz)?");
-
-	@Autowired
-	private RechargeConfiguration config;
-
-	private FlatFileItemReaderBuilder<Map<String, Object>> getFlatFileReaderBuilder(Resource resource,
-			FlatFileConfiguration fileConfig) throws IOException {
-		FlatFileItemReaderBuilder<Map<String, Object>> builder;
-		builder = new FlatFileItemReaderBuilder<Map<String, Object>>();
-		builder.resource(resource);
-		if (fileConfig.getEncoding() != null) {
-			builder.encoding(fileConfig.getEncoding());
-		}
-		builder.strict(true);
-		builder.saveState(false);
-		builder.fieldSetMapper(new MapFieldSetMapper());
-		builder.linesToSkip(fileConfig.getLinesToSkip());
-		builder.recordSeparatorPolicy(new DefaultRecordSeparatorPolicy());
-		if (fileConfig.isHeader() && fileConfig.getLinesToSkip() == 0) {
-			builder.linesToSkip(1);
-		}
-		return builder;
-	}
-
-	private Resource resource(FileReaderConfiguration file) throws IOException {
+	@Bean
+	@ConditionalOnProperty("file.path")
+	public Resource resource(FileProperties file) throws IOException {
 		Resource resource = resource(file.getPath());
 		if (isGzip(file)) {
-			return getGZipResource(resource);
+			return new InputStreamResource(new GZIPInputStream(resource.getInputStream()));
 		}
 		return resource;
+	}
+
+	private boolean isGzip(FileProperties file) {
+		if (file.getGzip() == null) {
+			return file.getPath().endsWith(".gz");
+		}
+		return file.getGzip();
 	}
 
 	private Resource resource(String path) throws MalformedURLException {
@@ -84,167 +66,127 @@ public class FileConfig {
 		return new FileSystemResource(path);
 	}
 
-	private boolean isGzip(FileReaderConfiguration file) {
-		if (file.getGzip() == null) {
-			String gz = getFilenameGroup(file.getPath(), FILE_GZ);
-			return gz != null && gz.length() > 0;
+	private FlatFileItemReaderBuilder<Map<String, Object>> flatFileBuilder(Resource resource, FileProperties flatFile)
+			throws IOException {
+		FlatFileItemReaderBuilder<Map<String, Object>> builder = new FlatFileItemReaderBuilder<Map<String, Object>>();
+		builder.resource(resource);
+		if (flatFile.getEncoding() != null) {
+			builder.encoding(flatFile.getEncoding());
 		}
-		return file.getGzip();
+		builder.strict(true);
+		builder.saveState(false);
+		builder.fieldSetMapper(new MapFieldSetMapper());
+		builder.linesToSkip(flatFile.getLinesToSkip());
+		builder.recordSeparatorPolicy(new DefaultRecordSeparatorPolicy());
+		if (flatFile.isHeader() && flatFile.getLinesToSkip() == 0) {
+			builder.linesToSkip(1);
+		}
+		return builder;
 	}
 
-	private String getFilenameGroup(String path, String groupName) {
-		Matcher matcher = filePathPattern.matcher(getFilename(path));
-		if (matcher.find()) {
-			return matcher.group(groupName);
+	@SuppressWarnings("unchecked")
+	@Bean
+	@StepScope
+	@ConditionalOnProperty("file.path")
+	public ItemStreamReader<Map<String, Object>> fileReader(Resource resource, FileProperties props)
+			throws IOException, RechargeException {
+		switch (props.getType()) {
+		case "json":
+			return (ItemStreamReader<Map<String, Object>>) jsonReader(resource, props);
+		case "fw":
+			return fixedLengthReader(resource, props);
+		default:
+			return delimitedReader(resource, props);
 		}
-		return null;
 	}
 
-	private String getFilename(String path) {
-		return new File(path).getName();
-	}
-
-	private Resource getGZipResource(Resource resource) throws IOException {
-		return new InputStreamResource(new GZIPInputStream(resource.getInputStream()));
-	}
-
-	private FlatFileItemReader<Map<String, Object>> getDelimitedReader(DelimitedFileConfiguration delimited,
-			Resource resource) throws IOException {
-		FlatFileItemReaderBuilder<Map<String, Object>> fileBuilder = getFlatFileReaderBuilder(resource, delimited);
-		DelimitedBuilder<Map<String, Object>> builder = fileBuilder.delimited();
-		if (delimited.getDelimiter() != null) {
-			builder.delimiter(delimited.getDelimiter());
+	private FlatFileItemReader<Map<String, Object>> delimitedReader(Resource resource, FileProperties props)
+			throws IOException, RechargeException {
+		FlatFileItemReaderBuilder<Map<String, Object>> flatFileBuilder = flatFileBuilder(resource, props);
+		flatFileBuilder.name("delimited-file-reader");
+		DelimitedBuilder<Map<String, Object>> builder = flatFileBuilder.delimited();
+		if (props.getDelimiter() != null) {
+			builder.delimiter(props.getDelimiter());
 		}
-		if (delimited.getIncludedFields() != null) {
-			builder.includedFields(ArrayUtils.toObject(delimited.getIncludedFields()));
+		if (props.getIncludedFields() != null) {
+			builder.includedFields(ArrayUtils.toObject(props.getIncludedFields()));
 		}
-		if (delimited.getQuoteCharacter() != null) {
-			builder.quoteCharacter(delimited.getQuoteCharacter());
+		if (props.getQuoteCharacter() != null) {
+			builder.quoteCharacter(props.getQuoteCharacter());
 		}
-		if (delimited.isHeader()) {
-			fileBuilder.linesToSkip(1);
-			if (delimited.getFields() == null) {
+		String[] fields = props.getFields();
+		if (props.isHeader()) {
+			flatFileBuilder.linesToSkip(1);
+			if (props.getFields() == null) {
 				try {
-					BufferedReader reader = new DefaultBufferedReaderFactory().create(resource,
-							delimited.getEncoding());
+					BufferedReader reader = new DefaultBufferedReaderFactory().create(resource, props.getEncoding());
 					DelimitedLineTokenizer tokenizer = new DelimitedLineTokenizer();
-					if (delimited.getDelimiter() != null) {
-						tokenizer.setDelimiter(delimited.getDelimiter());
+					if (props.getDelimiter() != null) {
+						tokenizer.setDelimiter(props.getDelimiter());
 					}
-					if (delimited.getQuoteCharacter() != null) {
-						tokenizer.setQuoteCharacter(delimited.getQuoteCharacter());
+					if (props.getQuoteCharacter() != null) {
+						tokenizer.setQuoteCharacter(props.getQuoteCharacter());
 					}
-					if (delimited.getIncludedFields() != null) {
-						tokenizer.setIncludedFields(delimited.getIncludedFields());
+					if (props.getIncludedFields() != null) {
+						tokenizer.setIncludedFields(props.getIncludedFields());
 					}
 					String line = reader.readLine();
-					delimited.setFields(tokenizer.tokenize(line).getValues());
-					log.info("Found header {}", Arrays.asList(delimited.getFields()));
+					fields = tokenizer.tokenize(line).getValues();
+					log.info("Found header {}", Arrays.asList(fields));
 				} catch (Exception e) {
 					log.error("Could not read header for file {}", resource, e);
 				}
 			}
 		}
-		if (delimited.getFields() != null) {
-			builder.names(delimited.getFields());
-			config.getRedis().setCollectionFields(delimited.getFields());
+		if (fields == null) {
+			throw new RechargeException("No fields specified for file " + resource);
 		}
-		return fileBuilder.build();
+		builder.names(fields);
+		return flatFileBuilder.build();
 	}
 
-	private FlatFileItemReader<Map<String, Object>> getFixedLengthReader(FixedLengthFileConfiguration fixedLength,
-			Resource resource) throws IOException {
-		FlatFileItemReaderBuilder<Map<String, Object>> fileBuilder = getFlatFileReaderBuilder(resource, fixedLength);
+	private FlatFileItemReader<Map<String, Object>> fixedLengthReader(Resource resource, FileProperties props)
+			throws IOException {
+		FlatFileItemReaderBuilder<Map<String, Object>> fileBuilder = flatFileBuilder(resource, props);
+		fileBuilder.name("fixed-length-file-reader");
 		FixedLengthBuilder<Map<String, Object>> builder = fileBuilder.fixedLength();
-		if (fixedLength.getRanges() != null) {
-			builder.columns(getRanges(fixedLength.getRanges()));
+		if (props.getRanges() != null) {
+			builder.columns(ranges(props.getRanges()));
 		}
-		if (fixedLength.getStrict() != null) {
-			builder.strict(fixedLength.getStrict());
-		}
-		if (fixedLength.getFields() != null) {
-			builder.names(fixedLength.getFields());
-			config.getRedis().setCollectionFields(fixedLength.getFields());
+		if (props.getFields() != null) {
+			builder.names(props.getFields());
 		}
 		return fileBuilder.build();
 	}
 
-	public String baseName(FileReaderConfiguration file) {
-		String filename = new File(file.getPath()).getName();
-		int extensionIndex = filename.lastIndexOf(".");
-		if (extensionIndex == -1) {
-			return filename;
-		}
-		return filename.substring(0, extensionIndex);
-	}
-
-	private Range[] getRanges(String[] strings) {
+	private Range[] ranges(String[] strings) {
 		Range[] ranges = new Range[strings.length];
 		for (int index = 0; index < strings.length; index++) {
-			ranges[index] = getRange(strings[index]);
+			ranges[index] = range(strings[index]);
 		}
 		return ranges;
 	}
 
-	private Range getRange(String string) {
+	private Range range(String string) {
 		String[] split = string.split("-");
 		return new Range(Integer.parseInt(split[0]), Integer.parseInt(split[1]));
 	}
 
-	@Bean
-	@StepScope
-	public AbstractItemCountingItemStreamItemReader<Map<String, Object>> fileReader() {
-		AbstractItemCountingItemStreamItemReader<Map<String, Object>> reader = reader(config.getFile());
-		String baseName = baseName(config.getFile());
-		config.getRedis().setKeyspace(baseName);
-		if (config.getRedis().getSearch() != null) {
-			if (config.getRedis().getSearch().getAdd().getIndex() == null) {
-				config.getRedis().getSearch().getAdd().setIndex(baseName);
-			}
-		}
-		return reader;
-	}
-
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public AbstractItemCountingItemStreamItemReader<Map<String, Object>> reader(FileReaderConfiguration file) {
-		try {
-			Resource resource = resource(file);
-			if (file.getType() == null) {
-				file.setType(getFileType(resource));
-			}
-			switch (file.getType()) {
-			case FixedLength:
-				return getFixedLengthReader(file.getFixedLength(), resource);
-			case Json:
-				return (AbstractItemCountingItemStreamItemReader) getJsonReader(file.getJson(), resource);
-			default:
-				return getDelimitedReader(file.getDelimited(), resource);
-			}
-		} catch (IOException e) {
-			log.error("Could not create file reader for {}", file.getPath());
-			return null;
-		}
-	}
-
-	private FileType getFileType(Resource resource) {
-		String extension = getFilenameGroup(resource.getFilename(), FILE_EXTENSION);
-		if (extension == null) {
-			return null;
-		}
-		log.debug("Found file extension '{}' for path {}", extension, resource);
-		return config.getFileTypes().get(extension);
+	@SuppressWarnings("rawtypes")
+	private JsonItemReader<? extends Map> jsonReader(Resource resource, FileProperties props) {
+		JsonItemReaderBuilder<Map> builder = new JsonItemReaderBuilder<>();
+		builder.resource(resource);
+		builder.jsonObjectReader(jsonObjectReader());
+		builder.name("json-file-reader");
+		builder.strict(props.isStrict());
+		return builder.build();
 	}
 
 	@SuppressWarnings("rawtypes")
-	private AbstractItemCountingItemStreamItemReader<Map> getJsonReader(JsonFileConfiguration json, Resource resource) {
+	private JsonObjectReader<Map> jsonObjectReader() {
 		JacksonJsonObjectReader<Map> reader = new JacksonJsonObjectReader<>(Map.class);
 		reader.setMapper(new ObjectMapper());
-		JsonItemReaderBuilder<Map> builder = new JsonItemReaderBuilder<>();
-		builder.resource(resource);
-		builder.strict(json.isStrict());
-		builder.jsonObjectReader(reader);
-		builder.name("jsonreader");
-		return builder.build();
+		return reader;
 	}
 
 }

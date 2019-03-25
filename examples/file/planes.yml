@@ -1,8 +1,0 @@
-file:
-  path: https://raw.githubusercontent.com/jpatokal/openflights/master/data/planes.dat
-  delimited:
-    fields: Name, IATA, ICAO
-redis:
-  hash:
-    keyspace: plane
-    keys: IATA, ICAO

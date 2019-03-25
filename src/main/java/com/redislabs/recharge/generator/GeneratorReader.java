@@ -1,16 +1,11 @@
 package com.redislabs.recharge.generator;
 
-import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemStreamException;
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.expression.Expression;
-import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
@@ -19,38 +14,24 @@ import com.redislabs.lettusearch.StatefulRediSearchConnection;
 import com.redislabs.recharge.CachedRedis;
 import com.redislabs.recharge.IndexedPartitioner;
 
-@SuppressWarnings("rawtypes")
-public class GeneratorReader extends AbstractItemCountingItemStreamItemReader<Map<String, Object>>
-		implements InitializingBean {
+public class GeneratorReader extends AbstractItemCountingItemStreamItemReader<Map<String, Object>> {
 
 	private volatile boolean initialized = false;
 	private Object lock = new Object();
 	private volatile int current = 0;
 	private StatefulRediSearchConnection<String, String> connection;
-	private String mapExpression;
-	private Map<String, String> fields;
 	private String locale;
 	private StandardEvaluationContext evaluationContext;
-	private Expression map;
-	private Map<String, Expression> expressions;
 	private int partitionIndex;
 	private int partitions;
+	private MapGenerator generator;
 
 	public GeneratorReader() {
 		setName(ClassUtils.getShortName(GeneratorReader.class));
 	}
 
-	@Override
-	public void afterPropertiesSet() throws Exception {
-		Assert.notNull(fields, "Fields must not be null");
-	}
-
-	public void setMapExpression(String mapExpression) {
-		this.mapExpression = mapExpression;
-	}
-
-	public void setFields(Map<String, String> fields) {
-		this.fields = fields;
+	public void setGenerator(MapGenerator generator) {
+		this.generator = generator;
 	}
 
 	public void setLocale(String locale) {
@@ -82,15 +63,7 @@ public class GeneratorReader extends AbstractItemCountingItemStreamItemReader<Ma
 
 	@Override
 	protected void doOpen() throws Exception {
-		Assert.state(!initialized, "Cannot open an already open ItemReader, call close first");
-		SpelExpressionParser parser = new SpelExpressionParser();
-		if (mapExpression != null) {
-			this.map = parser.parseExpression(mapExpression);
-		}
-		this.expressions = new LinkedHashMap<>();
-		for (Entry<String, String> field : fields.entrySet()) {
-			expressions.put(field.getKey(), parser.parseExpression(field.getValue()));
-		}
+		Assert.state(!initialized, "Cannot open an already open GeneratorReader, call close first");
 		GeneratorRootObject root = getRootObject();
 		root.setReader(this);
 		this.evaluationContext = new StandardEvaluationContext(root);
@@ -139,21 +112,11 @@ public class GeneratorReader extends AbstractItemCountingItemStreamItemReader<Ma
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
-	protected Map doRead() throws Exception {
+	protected Map<String, Object> doRead() throws Exception {
 		synchronized (lock) {
-			Map output = new LinkedHashMap<>();
-			if (map != null) {
-				output.putAll(map.getValue(evaluationContext, Map.class));
-			}
-			for (Entry<String, Expression> expression : expressions.entrySet()) {
-				Object value = expression.getValue().getValue(evaluationContext);
-				if (value != null) {
-					output.put(expression.getKey(), value);
-				}
-			}
+			Map<String, Object> map = generator.generate(evaluationContext);
 			current++;
-			return output;
+			return map;
 		}
 	}
 
@@ -163,7 +126,6 @@ public class GeneratorReader extends AbstractItemCountingItemStreamItemReader<Ma
 			initialized = false;
 			current = 0;
 			evaluationContext = null;
-			map = null;
 		}
 	}
 

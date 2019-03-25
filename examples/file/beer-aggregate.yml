@@ -1,0 +1,21 @@
+chunk-size: 1
+sleep: 1000
+max: 1000
+generator:
+  fields:
+  - name: abv
+    expression: "#c.srandmember('abvs')"
+redisearch:
+  command: aggregate
+  index: beer
+  query: '*'
+  operations:
+  - group:
+      properties: style
+      reducers:
+      - avg:
+          as: abv
+          property: abv
+  - sort:
+      properties:
+        abv: desc

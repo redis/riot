@@ -1,0 +1,10 @@
+generator:
+  max: 100
+  fields:
+  - name: id
+    expression: nextLong(1000)
+  - name: name
+    expression: name.name
+type: stream
+keyspace: stream
+id: id

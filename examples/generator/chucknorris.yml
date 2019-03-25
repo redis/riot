@@ -1,0 +1,11 @@
+generator:
+  max: 1000
+  fields:
+  - name: fact
+    expression: chuckNorris.fact
+index: chucknorris
+keys: fact
+drop: true
+replace: true
+schema:
+- name: fact

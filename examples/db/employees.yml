@@ -1,10 +1,7 @@
-datasource:
-#  driverClassName: com.mysql.cj.jdbc.Driver
-  jdbcUrl: jdbc:mysql://localhost:3306/employees?serverTimezone=PST&useLegacyDatetimeCode=false&useSSL=false
+db:
+  url: 'jdbc:mysql://localhost:3306/employees?serverTimezone=PST&useLegacyDatetimeCode=false&useSSL=false'
   username: root
   password: password
   sql: select * from employees
-redis:
-  hash:
-    keyspace: employee
-    keys: emp_no
+keyspace: employee
+keys: emp_no

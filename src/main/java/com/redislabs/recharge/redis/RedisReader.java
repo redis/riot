@@ -2,9 +2,9 @@
 package com.redislabs.recharge.redis;
 
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 
@@ -15,20 +15,37 @@ import io.lettuce.core.ScanArgs;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class RedisReader extends AbstractItemCountingItemStreamItemReader<Map<String, Object>> {
+public class RedisReader extends AbstractItemCountingItemStreamItemReader<RedisEntry> implements InitializingBean {
 
-	private volatile boolean initialized = false;
 	private StatefulRediSearchConnection<String, String> connection;
-	private Object lock = new Object();
-	private RedisConfiguration config;
+	private Long limit;
+	private String match;
+	private ScanArgs args;
+	private volatile boolean initialized = false;
 	private KeyScanCursor<String> cursor;
+	private Object lock = new Object();
 
 	public RedisReader() {
 		setName(ClassUtils.getShortName(RedisReader.class));
 	}
 
-	public void setConfig(RedisConfiguration config) {
-		this.config = config;
+	public void setLimit(Long limit) {
+		this.limit = limit;
+	}
+
+	public void setMatch(String match) {
+		this.match = match;
+	}
+
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		this.args = new ScanArgs();
+		if (limit != null) {
+			args.limit(limit);
+		}
+		if (match != null) {
+			args.match(match);
+		}
 	}
 
 	public void setConnection(StatefulRediSearchConnection<String, String> connection) {
@@ -38,13 +55,6 @@ public class RedisReader extends AbstractItemCountingItemStreamItemReader<Map<St
 	@Override
 	protected void doOpen() throws Exception {
 		Assert.state(!initialized, "Cannot open an already open ItemReader, call close first");
-		ScanArgs args = new ScanArgs();
-		if (config.getScan().getLimit() != null) {
-			args.limit(config.getScan().getLimit());
-		}
-		if (config.getScan().getMatch() != null) {
-			args.match(config.getScan().getMatch());
-		}
 		this.cursor = connection.sync().scan(args);
 		initialized = true;
 	}
@@ -57,7 +67,7 @@ public class RedisReader extends AbstractItemCountingItemStreamItemReader<Map<St
 	}
 
 	@Override
-	protected Map<String, Object> doRead() throws Exception {
+	protected RedisEntry doRead() throws Exception {
 		synchronized (lock) {
 			if (cursor == null) {
 				return null;

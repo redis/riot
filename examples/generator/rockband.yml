@@ -1,0 +1,9 @@
+generator:
+  max: 100
+  fields:
+  - name: id
+    expression: current()
+  - name: name
+    expression: rockBand.name
+index: rockbands
+type: sugadd

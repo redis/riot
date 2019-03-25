@@ -1,8 +1,0 @@
-source:
-  file:
-    path: /Users/jruaux/DocumentsRL/Customers/Gap ICM/InventoryPoC/GapLogInventoryForPOC/DC_Stores.csv
-sink:
-  redis:
-    hash:
-      keyspace: node
-      keys: DC_ID

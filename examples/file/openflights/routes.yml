@@ -1,0 +1,21 @@
+file:
+  path: https://raw.githubusercontent.com/jpatokal/openflights/master/data/routes.dat
+  fields: Airline,AirlineID,SourceAirport,SourceAirportID,DestinationAirport,DestinationAirportID,Codeshare,Stops,Equipment
+index: routes
+keys: Airline,SourceAirport,DestinationAirport
+schema:
+- name: Airline
+- name: AirlineID
+- name: SourceAirport
+  sortable: true
+- name: SourceAirportID
+  sortable: true
+- name: DestinationAirport
+  sortable: true
+- name: DestinationAirportID
+  sortable: true
+- name: Codeshare
+  sortable: true
+- name: Stops
+- name: Equipment
+  sortable: true

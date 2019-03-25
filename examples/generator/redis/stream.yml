@@ -1,9 +1,0 @@
-maxItemCount: 100
-generator:
-  fields:
-    id: nextLong(1000)
-    name: name.name
-redis:
-  stream:
-    keyspace: stream
-    id: id

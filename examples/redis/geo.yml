@@ -1,0 +1,14 @@
+generator:
+  max: 100
+  fields:
+  - name: id
+    expression: nextLong(1000)
+  - name: lon
+    expression: number.randomDouble(3,-180,180)
+  - name: lat
+    expression: number.randomDouble(3, -85, 85)
+type: geo
+keyspace: geo
+fields: id
+latitudeField: lat
+longitudeField: lon

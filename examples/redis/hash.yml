@@ -1,0 +1,10 @@
+generator:
+  max: 100
+  fields:
+  - name: id
+    expresion: nextLong(1000)
+  - name: name
+    expression: name.name
+type: hash
+keyspace: hash
+keys: id

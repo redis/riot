@@ -1,0 +1,13 @@
+generator:
+  max: 1000
+  fields:
+  - name: id
+    expression: current()
+  - name: firstName
+    expression: name.firstName
+  - name: lastName
+    expression: name.lastName
+  - name: address
+    expression: address.fullAddress
+keyspace: people
+keys: id

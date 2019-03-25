@@ -1,0 +1,12 @@
+generator:
+  max: 100
+  fields:
+  - name: id
+    expression: nextLong(1000)
+  - name: name
+    expression: name.name
+type: string
+keyspace: xml
+keys: id
+format: xml
+root: root
