@@ -10,7 +10,7 @@ import lombok.Data;
 public class FileProperties {
 
 	private String path;
-	private String type;
+	private FileType type;
 	private Boolean gzip;
 	private String delimiter;
 	private int[] includedFields;
@@ -21,5 +21,9 @@ public class FileProperties {
 	private int linesToSkip = 0;
 	private String[] ranges = new String[0];
 	private boolean strict;
+	
+	public static enum FileType {
+		Csv, Fw, Json
+	}
 
 }

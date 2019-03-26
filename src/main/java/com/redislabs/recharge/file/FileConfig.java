@@ -34,6 +34,7 @@ import org.springframework.util.ResourceUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.redislabs.recharge.RechargeException;
+import com.redislabs.recharge.file.FileProperties.FileType;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -90,14 +91,15 @@ public class FileConfig {
 	@ConditionalOnProperty("file.path")
 	public ItemStreamReader<Map<String, Object>> fileReader(Resource resource, FileProperties props)
 			throws IOException, RechargeException {
-		switch (props.getType()) {
-		case "json":
-			return (ItemStreamReader<Map<String, Object>>) jsonReader(resource, props);
-		case "fw":
-			return fixedLengthReader(resource, props);
-		default:
-			return delimitedReader(resource, props);
+		if (props.getType() != null) {
+			if (props.getType() == FileType.Fw) {
+				return fixedLengthReader(resource, props);
+			}
+			if (props.getType() == FileType.Json) {
+				return (ItemStreamReader<Map<String, Object>>) jsonReader(resource, props);
+			}
 		}
+		return delimitedReader(resource, props);
 	}
 
 	private FlatFileItemReader<Map<String, Object>> delimitedReader(Resource resource, FileProperties props)

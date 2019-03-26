@@ -1,0 +1,7 @@
+file:
+  path: https://raw.githubusercontent.com/nickhould/craft-beers-dataset/master/data/processed/beers.csv
+  header: true
+  included-fields: [1,2,3,4,5,6,7]
+index: beers
+type: suggest
+field: name
