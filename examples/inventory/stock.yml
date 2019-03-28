@@ -1,7 +1,7 @@
 partitions: 2
 generator:
   max: 1000000
-  map: "#c.hgetall('node:'.concat(#c.smembers('nodes').get(current(10000)%3568)))"
+  map: "#c.hgetall('node:'.concat(#c.smembers('nodes').get(index(10000)%3568)))"
   fields:
     SKU: "nextId(10000,'%09d')"
 redis:

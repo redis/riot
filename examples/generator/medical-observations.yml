@@ -2,7 +2,7 @@ generator:
   max: 1000
   fields:
   - name: id
-    expression: current()
+    expression: index
   - name: patientId
     expression: idNumber.ssnValid
   - name: patientFirstName

@@ -2,7 +2,7 @@ generator:
   max: 100
   fields:
   - name: id
-    expression: current()
+    expression: index
   - name: name
     expression: rockBand.name
 index: rockbands

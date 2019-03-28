@@ -1,8 +1,8 @@
 name: node
-max-item-count: 3568
 generator:
+  max: 3568
   fields:
-    DC_ID: "#c.smember('nodes',current())"
+    DC_ID: "#c.smember('nodes',index)"
     GIFTWRAP: "bool.bool"
     NEXTDAY: "bool.bool"
     POBOX: "bool.bool"

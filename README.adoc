@@ -1,6 +1,6 @@
-== ReCharge
-ReCharge is a bulk loader for Redis. It supports the following data
-sources as inputs:
+= Recharge
+
+Recharge is a data import/export tool for Redis. It supports the following data sources:
 
 * Databases (JDBC)
 * Files
@@ -8,11 +8,9 @@ sources as inputs:
 ** Fixed width (FW)
 ** JSON
 ** XML
-* https://github.com/DiUS/java-faker[Faker]
+* Generated data with https://github.com/DiUS/java-faker[Faker]
 
-=== Building
-Build each project first before you build recharge:
-
+== Building
 [source,bash]
 ----
 git clone https://github.com/Redislabs-Solution-Architects/recharge.git
@@ -20,41 +18,78 @@ cd recharge
 mvn clean install
 ----
 
-=== Running
-
-Run ReCharge using java -jar:
+== Running
+Run Recharge using java -jar:
 
 [source,bash]
-
 ----
-$ java -jar target/recharge.jar
+java -jar target/recharge.jar
 ----
 
-=== Parameters
-Use the following parameters to configure ReCharge:
+== Configuration
+Use the following parameters to configure Recharge.
 
-==== Redis
-* `host`: Redis database hostname e.g. `--host=redis.redislabs.com`
-* `port`: Redis database port e.g. `--port=12000`
-* `password`: Redis database password e.g. `--password=1234`
-* `timeout`: Command timeout for synchronous command execution e.g. `--timeout=5s`
-* `pool.max-active`: Maximum number of connections that can be allocated by the pool at a given time. Use a negative value for no limit.
-* `pool.max-idle`: Maximum number of "idle" connections in the pool. Use a negative value to indicate an unlimited number of idle connections.
-* `pool.min-idle`: Target for the minimum number of idle connections to maintain in the pool. This setting only has an effect if it is positive.
-* `pool.max-wait`: Maximum amount of time a connection allocation should block before throwing an exception when the pool is exhausted. Use a negative value to block indefinitely. e.g. `--pool.max-wait=5s`
+=== Redis Connection
+- *host*: Redis database hostname e.g. `--host=redis.redislabs.com`
+- *port*: Redis database port e.g. `--port=12000`
+- *password*: Redis database password e.g. `--password=1234`
+- *timeout*: Command timeout for synchronous command execution e.g. `--timeout=5s`
+- *pool.max-active*: Maximum number of connections that can be allocated by the pool at a given time. Use a negative value for no limit.
+- *pool.max-idle*: Maximum number of "idle" connections in the pool. Use a negative value to indicate an unlimited number of idle connections.
+- *pool.min-idle*: Target for the minimum number of idle connections to maintain in the pool. This setting only has an effect if it is positive.
+- *pool.max-wait*: Maximum amount of time a connection allocation should block before throwing an exception when the pool is exhausted. Use a negative value to block indefinitely. e.g. `--pool.max-wait=5s`
+
+=== Redis Writer
+
+==== Common
+Options common to all Redis writers:
+
+ - *type*: target Redis data structure (Hash, String, Set, Zset, Geo, List, Stream). Default is `Hash`.
+ - *keyspace*: key prefix e.g. `beer`
+ - *keys*: key field names e.g. if keyspace is `beer` and `id` is an integer -> `beer:1`, `beer:2`, ... 
+
+==== Hash
+
+- *increment-field*: If this option is specified HINCRBY will be used instead of HMSET and this option determines which field from the source data to use as the increment value. 
+- *field*: Specifies the field to increment (only for HINCRBY)
+- *default-increment*: numeric value for default increment if value of increment-field is null
+
+==== String
+
+- *format*: format to serialize the input data to (XML or JSON)
+- *root*: if format is XML, specifies the name of the root element
+
+==== Stream
+
+- *approximate-trimming*: true or false (default)
+- *id-field*: name of the field containing stream entry id information
+- *maxlen*: maxlen option for XADD
+
+==== Collections
+Options common to collection data structures (List, Set, Sorted Set, Geo)
+
+- *fields*: fields used to build member IDs
+ 
+==== List
+- *right*: use RPUSH instead of LPUSH to add to lists
+
+==== Sorted Set
+- *score-field*: name of the field containing score information
+- *default-score*: default numeric value to use when score is null
+
+==== Geo
+- *latitude-field*: name of the field containing latitude information
+- *longitude-field*: name of the field containing longitude information
 
 === Examples
 
 The link:./examples[examples] folder contains a few sample
 configurations to import various datasets:
 
-* https://openflights.org/data.html[openflights.org]
+==== https://openflights.org/data.html[openflights.org]
 
-Airlines::
-  `java -jar target/recharge.jar --spring.config.location=examples/file/airlines.yml`
-Airports::
-  `java -jar target/recharge.jar --spring.config.location=examples/file/airports.yml`
-Planes::
-  `java -jar target/recharge.jar --spring.config.location=examples/file/planes.yml`
-Routes::
-  `java -jar target/recharge.jar --spring.config.location=examples/file/routes.yml`
+* Airlines
+
+```
+java -jar target/recharge.jar --file.path=https://raw.githubusercontent.com/jpatokal/openflights/master/data/airlines.dat --file.type=csv --file.header=false --file.fields=AirlineID,Name,Alias,IATA,ICAO,Callsign,Country,Active --keyspace=airline --keys=AirlineID
+```

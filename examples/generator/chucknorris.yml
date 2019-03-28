@@ -1,10 +1,12 @@
 generator:
   max: 1000
   fields:
+  - name: id
+    expression: index
   - name: fact
     expression: chuckNorris.fact
 index: chucknorris
-keys: fact
+keys: id
 drop: true
 replace: true
 schema:

@@ -2,7 +2,7 @@ generator:
   max: 1000
   fields:
   - name: id
-    expression: current()
+    expression: index
   - name: firstName
     expression: name.firstName
   - name: lastName

@@ -22,11 +22,11 @@ public class RedisCommandProperties {
 	private boolean approximateTrimming;
 	private String idField;
 	private Long maxlen;
-	private Long limit;
-	private String match;
 	private boolean right;
 	private String scoreField;
 	private double defaultScore = 1d;
+	private Long limit;
+	private String match;
 
 	public static enum StringFormat {
 		Xml, Json

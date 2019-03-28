@@ -3,7 +3,7 @@ generator:
   sleep: 2
   map: "number.randomDoubleMap(0,0,100,'ONHAND','HOLD','RESERVED','ALLOCATED','BACKORDERED','EXCLUDED')"
   fields:
-    DC_ID: "#c.smembers('nodes').get(current(200))"
+    DC_ID: "#c.smembers('nodes').get(index(200))"
     SKU: "nextId(200,'%09d')"
 redis:
   search:

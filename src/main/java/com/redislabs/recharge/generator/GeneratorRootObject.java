@@ -29,7 +29,7 @@ public class GeneratorRootObject extends Faker {
 		this.reader = reader;
 	}
 
-	public long current(long end) {
+	public long index(long end) {
 		return reader.current(end);
 	}
 
@@ -41,7 +41,7 @@ public class GeneratorRootObject extends Faker {
 		return reader.segment(start, end);
 	}
 
-	public int current() {
+	public int getIndex() {
 		return reader.current();
 	}
 

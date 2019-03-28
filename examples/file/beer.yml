@@ -2,21 +2,5 @@ file:
   path: https://raw.githubusercontent.com/nickhould/craft-beers-dataset/master/data/processed/beers.csv
   header: true
   included-fields: [1,2,3,4,5,6,7]
-index: beer
+keyspace: beer
 keys: id
-drop: true
-schema:
-- name: id
-  sortable: true
-- name: name
-  sortable: true
-  matcher: english
-- name: style
-  sortable: true
-  matcher: english
-- name: abv
-  sortable: true
-  type: numeric
-- name: ounces
-  type: numeric
-  sortable: true
