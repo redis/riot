@@ -3,6 +3,7 @@ package com.redislabs.recharge.redis.writer;
 import java.util.Map;
 
 import com.redislabs.lettusearch.RediSearchAsyncCommands;
+import com.redislabs.recharge.redis.RedisType;
 
 import io.lettuce.core.RedisFuture;
 import io.lettuce.core.XAddArgs;
@@ -27,6 +28,11 @@ public class StreamWriter extends AbstractSingleRedisWriter {
 			args.maxlen(maxlen);
 		}
 		return commands.xadd(key, args, toStringMap(record));
+	}
+	
+	@Override
+	public RedisType getRedisType() {
+		return RedisType.Stream;
 	}
 
 }

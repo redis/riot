@@ -11,8 +11,8 @@ import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 
 import com.redislabs.lettusearch.StatefulRediSearchConnection;
-import com.redislabs.recharge.CachedRedis;
 import com.redislabs.recharge.IndexedPartitioner;
+import com.redislabs.recharge.processor.CachedRedis;
 
 public class GeneratorReader extends AbstractItemCountingItemStreamItemReader<Map<String, Object>> {
 

@@ -1,4 +1,4 @@
-package com.redislabs.recharge;
+package com.redislabs.recharge.redisearch;
 
 import java.util.Map;
 import java.util.regex.Matcher;

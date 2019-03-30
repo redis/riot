@@ -4,7 +4,6 @@ import java.util.Map;
 
 import com.redislabs.lettusearch.RediSearchAsyncCommands;
 import com.redislabs.lettusearch.search.SearchOptions;
-import com.redislabs.recharge.MapTemplate;
 
 import io.lettuce.core.RedisFuture;
 import lombok.Setter;

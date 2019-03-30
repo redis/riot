@@ -6,6 +6,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
 
 import com.redislabs.lettusearch.RediSearchAsyncCommands;
+import com.redislabs.recharge.redis.RedisType;
 
 import io.lettuce.core.RedisFuture;
 import lombok.Setter;
@@ -30,6 +31,11 @@ public class ZSetWriter extends AbstractCollectionRedisWriter implements Initial
 	@Override
 	public void afterPropertiesSet() {
 		Assert.notNull(scoreField, "No score field specified");
+	}
+
+	@Override
+	public RedisType getRedisType() {
+		return RedisType.Zset;
 	}
 
 }

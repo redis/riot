@@ -1,4 +1,4 @@
-package com.redislabs.recharge.generator;
+package com.redislabs.recharge;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -12,10 +12,18 @@ import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 
 import com.redislabs.lettusearch.StatefulRediSearchConnection;
-import com.redislabs.recharge.RechargeProperties;
+import com.redislabs.recharge.generator.CompositeGenerator;
+import com.redislabs.recharge.generator.EmptyMapGenerator;
+import com.redislabs.recharge.generator.ExpressionFieldGenerator;
+import com.redislabs.recharge.generator.ExpressionMapGenerator;
+import com.redislabs.recharge.generator.GeneratorReader;
+import com.redislabs.recharge.generator.MapGenerator;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Configuration
 @EnableConfigurationProperties(GeneratorProperties.class)
+@Slf4j
 public class GeneratorConfig {
 
 	private SpelExpressionParser parser = new SpelExpressionParser();
@@ -25,6 +33,7 @@ public class GeneratorConfig {
 	@ConditionalOnProperty("generator.max")
 	public GeneratorReader generatorReader(GeneratorProperties props, RechargeProperties recharge,
 			StatefulRediSearchConnection<String, String> connection) {
+		log.info("Reading {}", props);
 		GeneratorReader reader = new GeneratorReader();
 		reader.setGenerator(generator(props));
 		reader.setLocale(props.getLocale());

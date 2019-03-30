@@ -1,6 +1,4 @@
-package com.redislabs.recharge.redis;
-
-import java.util.Map;
+package com.redislabs.recharge;
 
 import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.springframework.batch.core.configuration.annotation.StepScope;
@@ -8,28 +6,32 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.util.ClassUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.redislabs.lettusearch.RediSearchAsyncCommands;
 import com.redislabs.lettusearch.StatefulRediSearchConnection;
-import com.redislabs.recharge.redis.RedisCommandProperties.StringFormat;
+import com.redislabs.recharge.RedisCommandProperties.StringFormat;
+import com.redislabs.recharge.redis.RedisReader;
 import com.redislabs.recharge.redis.writer.AbstractCollectionRedisWriter;
 import com.redislabs.recharge.redis.writer.AbstractRedisCommandWriter;
 import com.redislabs.recharge.redis.writer.AbstractRedisWriter;
 import com.redislabs.recharge.redis.writer.GeoWriter;
 import com.redislabs.recharge.redis.writer.HashIncrByWriter;
 import com.redislabs.recharge.redis.writer.HashWriter;
+import com.redislabs.recharge.redis.writer.ListWriter;
+import com.redislabs.recharge.redis.writer.SetWriter;
 import com.redislabs.recharge.redis.writer.StreamWriter;
 import com.redislabs.recharge.redis.writer.StringWriter;
 import com.redislabs.recharge.redis.writer.ZSetWriter;
 
-import io.lettuce.core.RedisFuture;
+import lombok.extern.slf4j.Slf4j;
 
 @Configuration
 @EnableConfigurationProperties(RedisCommandProperties.class)
 @ConditionalOnProperty("keyspace")
+@Slf4j
 public class RedisCommandConfig {
 
 	@Bean
@@ -56,6 +58,7 @@ public class RedisCommandConfig {
 			AbstractCollectionRedisWriter collectionWriter = (AbstractCollectionRedisWriter) writer;
 			collectionWriter.setFields(props.getFields());
 		}
+		log.info("Writing to {} with keyspace '{}' and keys {}", ClassUtils.getShortName(writer.getClass()), props.getKeyspace(), props.getKeys());
 		return writer;
 	}
 
@@ -94,35 +97,13 @@ public class RedisCommandConfig {
 	}
 
 	private AbstractCollectionRedisWriter setWriter() {
-		return new AbstractCollectionRedisWriter() {
-
-			@Override
-			protected RedisFuture<?> write(String key, String member, Map<String, Object> record,
-					RediSearchAsyncCommands<String, String> commands) {
-				return commands.sadd(key, member);
-			}
-		};
+		return new SetWriter();
 	}
 
 	private AbstractCollectionRedisWriter listWriter(RedisCommandProperties props) {
-		if (props.isRight()) {
-			return new AbstractCollectionRedisWriter() {
-
-				@Override
-				protected RedisFuture<?> write(String key, String member, Map<String, Object> record,
-						RediSearchAsyncCommands<String, String> commands) {
-					return commands.rpush(key, member);
-				}
-			};
-		}
-		return new AbstractCollectionRedisWriter() {
-
-			@Override
-			protected RedisFuture<?> write(String key, String member, Map<String, Object> record,
-					RediSearchAsyncCommands<String, String> commands) {
-				return commands.lpush(key, member);
-			}
-		};
+		ListWriter writer = new ListWriter();
+		writer.setRight(props.isRight());
+		return writer;
 	}
 
 	private AbstractRedisCommandWriter hashWriter(RedisCommandProperties props) {

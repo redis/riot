@@ -12,6 +12,7 @@ import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.springframework.batch.item.support.AbstractItemStreamItemWriter;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.support.DefaultConversionService;
+import org.springframework.util.ClassUtils;
 
 import com.redislabs.lettusearch.RediSearchAsyncCommands;
 import com.redislabs.lettusearch.StatefulRediSearchConnection;
@@ -29,6 +30,14 @@ public abstract class AbstractRedisWriter extends AbstractItemStreamItemWriter<M
 	protected ConversionService converter = new DefaultConversionService();
 	protected GenericObjectPool<StatefulRediSearchConnection<String, String>> pool;
 
+	public AbstractRedisWriter() {
+		setName(ClassUtils.getShortName(this.getClass()));
+	}
+	
+	public String getName() {
+		return getExecutionContextKey("name");
+	}
+	
 	public void setPool(GenericObjectPool<StatefulRediSearchConnection<String, String>> pool) {
 		this.pool = pool;
 	}

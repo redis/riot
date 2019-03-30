@@ -3,6 +3,7 @@ package com.redislabs.recharge.redis.writer;
 import java.util.Map;
 
 import com.redislabs.lettusearch.RediSearchAsyncCommands;
+import com.redislabs.recharge.redis.RedisType;
 
 import io.lettuce.core.RedisFuture;
 import lombok.Setter;
@@ -18,6 +19,16 @@ public abstract class AbstractRedisCommandWriter extends AbstractRedisWriter {
 		String id = getValues(record, keys);
 		return write(id, record, commands);
 	}
+
+	public String getKeyspace() {
+		return keyspace;
+	}
+
+	public String[] getKeys() {
+		return keys;
+	}
+
+	public abstract RedisType getRedisType();
 
 	protected abstract RedisFuture<?> write(String id, Map<String, Object> record,
 			RediSearchAsyncCommands<String, String> commands);

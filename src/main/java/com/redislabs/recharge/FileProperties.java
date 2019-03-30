@@ -1,4 +1,4 @@
-package com.redislabs.recharge.file;
+package com.redislabs.recharge;
 
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.boot.context.properties.ConfigurationProperties;

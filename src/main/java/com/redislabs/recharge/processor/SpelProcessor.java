@@ -14,7 +14,6 @@ import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
 import com.redislabs.lettusearch.StatefulRediSearchConnection;
-import com.redislabs.recharge.CachedRedis;
 
 public class SpelProcessor implements ItemProcessor<Map<String, Object>, Map<String, Object>>, StepExecutionListener {
 

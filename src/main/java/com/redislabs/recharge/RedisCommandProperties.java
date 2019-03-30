@@ -1,6 +1,8 @@
-package com.redislabs.recharge.redis;
+package com.redislabs.recharge;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
+
+import com.redislabs.recharge.redis.RedisType;
 
 import lombok.Data;
 

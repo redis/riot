@@ -10,23 +10,17 @@ Recharge is a data import/export tool for Redis. It supports the following data 
 ** XML
 * Generated data with https://github.com/DiUS/java-faker[Faker]
 
-== Building
-[source,bash]
-----
-git clone https://github.com/Redislabs-Solution-Architects/recharge.git
-cd recharge
-mvn clean install
-----
+== Installation
+You can download the Recharge distribution from these locations:
+* zip
+* tar.gz
+
+Unpack the downloaded archive and follow the INSTALL.txt instructions.
 
 == Running
-Run Recharge using java -jar:
+Use the `recharge` script (`recharge.bat` for Windows) to launch Recharge.
 
-[source,bash]
-----
-java -jar target/recharge.jar
-----
-
-== Configuration
+== Usage
 Use the following parameters to configure Recharge.
 
 === Redis Connection
@@ -84,12 +78,12 @@ Options common to collection data structures (List, Set, Sorted Set, Geo)
 === Examples
 
 The link:./examples[examples] folder contains a few sample
-configurations to import various datasets:
+configurations to import various datasets.
 
 ==== https://openflights.org/data.html[openflights.org]
 
 * Airlines
 
 ```
-java -jar target/recharge.jar --file.path=https://raw.githubusercontent.com/jpatokal/openflights/master/data/airlines.dat --file.type=csv --file.header=false --file.fields=AirlineID,Name,Alias,IATA,ICAO,Callsign,Country,Active --keyspace=airline --keys=AirlineID
+recharge --file.path=https://raw.githubusercontent.com/jpatokal/openflights/master/data/airlines.dat --file.type=csv --file.header=false --file.fields=AirlineID,Name,Alias,IATA,ICAO,Callsign,Country,Active --keyspace=airline --keys=AirlineID
 ```

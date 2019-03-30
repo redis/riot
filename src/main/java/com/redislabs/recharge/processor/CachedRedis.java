@@ -1,4 +1,4 @@
-package com.redislabs.recharge;
+package com.redislabs.recharge.processor;
 
 import java.util.ArrayList;
 import java.util.Collections;

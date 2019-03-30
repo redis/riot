@@ -1,4 +1,4 @@
-package com.redislabs.recharge.database;
+package com.redislabs.recharge;
 
 import java.util.Map;
 
@@ -18,12 +18,16 @@ import org.springframework.jdbc.core.ColumnMapRowMapper;
 
 import com.zaxxer.hikari.HikariDataSource;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Configuration
 @EnableConfigurationProperties(DatabaseProperties.class)
+@Slf4j
 public class DatabaseConfig {
 
 	@Bean("dbProps")
 	@ConfigurationProperties("db")
+	@ConditionalOnProperty("db.url")
 	public DataSourceProperties dataSourceProperties() {
 		return new DataSourceProperties();
 	}
@@ -32,6 +36,8 @@ public class DatabaseConfig {
 	@ConfigurationProperties("db")
 	@ConditionalOnProperty("db.url")
 	public HikariDataSource dataSource(@Qualifier("dbProps") DataSourceProperties properties) {
+		log.info("Creating DataSource(driverClassName={}, url={}, username={})", properties.getDriverClassName(),
+				properties.getUrl(), properties.getUsername());
 		return properties.initializeDataSourceBuilder().type(HikariDataSource.class).build();
 	}
 
@@ -55,6 +61,7 @@ public class DatabaseConfig {
 		builder.sql(props.getSql());
 		builder.useSharedExtendedConnection(props.isUseSharedExtendedConnection());
 		builder.verifyCursorPosition(props.isVerifyCursorPosition());
+		log.info("Reading from database {}", props);
 		return builder.build();
 	}
 

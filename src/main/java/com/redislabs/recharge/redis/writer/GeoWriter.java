@@ -3,6 +3,7 @@ package com.redislabs.recharge.redis.writer;
 import java.util.Map;
 
 import com.redislabs.lettusearch.RediSearchAsyncCommands;
+import com.redislabs.recharge.redis.RedisType;
 
 import io.lettuce.core.RedisFuture;
 import lombok.Setter;
@@ -27,6 +28,11 @@ public class GeoWriter extends AbstractCollectionRedisWriter {
 		double lon = converter.convert(longitude, Double.class);
 		double lat = converter.convert(latitude, Double.class);
 		return commands.geoadd(key, lon, lat, member);
+	}
+	
+	@Override
+	public RedisType getRedisType() {
+		return RedisType.Geo;
 	}
 
 }

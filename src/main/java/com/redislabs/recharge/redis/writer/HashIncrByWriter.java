@@ -3,6 +3,7 @@ package com.redislabs.recharge.redis.writer;
 import java.util.Map;
 
 import com.redislabs.lettusearch.RediSearchAsyncCommands;
+import com.redislabs.recharge.redis.RedisType;
 
 import io.lettuce.core.RedisFuture;
 import lombok.Setter;
@@ -20,6 +21,11 @@ public class HashIncrByWriter extends AbstractSingleRedisWriter {
 		Object increment = record.getOrDefault(incrementField, defaultIncrement);
 		Long amount = converter.convert(increment, Long.class);
 		return commands.hincrby(key, field, amount);
+	}
+	
+	@Override
+	public RedisType getRedisType() {
+		return RedisType.Hash;
 	}
 
 }

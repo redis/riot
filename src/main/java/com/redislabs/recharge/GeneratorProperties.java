@@ -1,9 +1,11 @@
-package com.redislabs.recharge.generator;
+package com.redislabs.recharge;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
+
+import com.redislabs.recharge.generator.GeneratorField;
 
 import lombok.Data;
 

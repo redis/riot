@@ -6,18 +6,20 @@ import com.redislabs.lettusearch.RediSearchAsyncCommands;
 import com.redislabs.recharge.redis.RedisType;
 
 import io.lettuce.core.RedisFuture;
+import lombok.Setter;
 
-public class HashWriter extends AbstractSingleRedisWriter {
+@Setter
+public class SetWriter extends AbstractCollectionRedisWriter {
 
 	@Override
-	protected RedisFuture<?> writeSingle(String key, Map<String, Object> record,
+	protected RedisFuture<?> write(String key, String member, Map<String, Object> record,
 			RediSearchAsyncCommands<String, String> commands) {
-		Map<String, String> stringRecord = toStringMap(record);
-		return commands.hmset(key, stringRecord);
+		return commands.sadd(key, member);
 	}
 
 	@Override
 	public RedisType getRedisType() {
-		return RedisType.Hash;
+		return RedisType.Set;
 	}
+
 }

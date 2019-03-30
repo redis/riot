@@ -1,4 +1,4 @@
-package com.redislabs.recharge.database;
+package com.redislabs.recharge;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

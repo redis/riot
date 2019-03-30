@@ -1,4 +1,4 @@
-package com.redislabs.recharge.redis;
+package com.redislabs.recharge;
 
 import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 
 import com.redislabs.lettusearch.RediSearchClient;
 import com.redislabs.lettusearch.StatefulRediSearchConnection;
+import com.redislabs.recharge.redis.RedisProperties;
 
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.resource.ClientResources;
@@ -44,7 +45,6 @@ public class RedisConfig {
 	GenericObjectPool<StatefulRediSearchConnection<String, String>> redisConnectionPool(RediSearchClient client,
 			RedisProperties props) {
 		GenericObjectPoolConfig<StatefulRediSearchConnection<String, String>> config = new GenericObjectPoolConfig<StatefulRediSearchConnection<String, String>>();
-		config.setJmxEnabled(false);
 		GenericObjectPool<StatefulRediSearchConnection<String, String>> pool = ConnectionPoolSupport
 				.createGenericObjectPool(() -> client.connect(), config);
 		if (props.getPool() != null) {
