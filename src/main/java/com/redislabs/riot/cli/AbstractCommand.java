@@ -2,19 +2,29 @@ package com.redislabs.riot.cli;
 
 import java.net.InetAddress;
 
+import com.redislabs.riot.batch.JobBuilder;
 import com.redislabs.riot.redis.RedisConnectionBuilder;
 
 import io.lettuce.core.RedisURI;
-import lombok.Data;
-import picocli.CommandLine.Command;
+import lombok.Getter;
 import picocli.CommandLine.Option;
 
-@Command(sortOptions = false)
-@Data
-public class RedisConnectionOptions {
+public class AbstractCommand extends HelpAwareCommand {
 
 	public static final String DEFAULT_HOST = "localhost";
 
+	@Option(names = "--max", description = "Maximum number of items to read.", paramLabel = "<count>")
+	@Getter
+	private Integer maxCount;
+	@Option(names = "--threads", description = "Number of partitions to use for processing. (default: ${DEFAULT-VALUE}).")
+	@Getter
+	private int threads = 1;
+	@Option(names = "--chunk-size", description = "The chunk size commit interval. (default: ${DEFAULT-VALUE}).")
+	@Getter
+	private int chunkSize = JobBuilder.DEFAULT_CHUNK_SIZE;
+	@Option(names = "--sleep", description = "Sleep duration in milliseconds between each read.")
+	@Getter
+	private Long sleep;
 	@Option(names = { "-h", "--host" }, description = "Redis server host (default: localhost).", order = 1)
 	private InetAddress host;
 	@Option(names = { "-p", "--port" }, description = "Redis server port (default: ${DEFAULT-VALUE}).", order = 2)
@@ -32,7 +42,7 @@ public class RedisConnectionOptions {
 	@Option(names = "--max-wait", description = "Maximum amount of time in milliseconds a connection allocation should block before throwing an exception when the pool is exhausted. Use a negative value to block indefinitely (default).", order = 3)
 	private long maxWait = -1L;
 
-	public RedisConnectionBuilder builder() {
+	public RedisConnectionBuilder redisConnectionBuilder() {
 		RedisConnectionBuilder builder = new RedisConnectionBuilder();
 		builder.setHost(getHostname());
 		builder.setMaxActive(maxActive);
@@ -49,7 +59,7 @@ public class RedisConnectionOptions {
 		if (host != null) {
 			return host.getHostName();
 		}
-		return RedisConnectionOptions.DEFAULT_HOST;
+		return DEFAULT_HOST;
 	}
 
 }

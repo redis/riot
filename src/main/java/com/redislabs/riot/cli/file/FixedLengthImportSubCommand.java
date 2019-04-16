@@ -1,10 +1,11 @@
-package com.redislabs.riot.cli;
+package com.redislabs.riot.cli.file;
 
 import java.io.IOException;
 import java.util.Map;
 
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
 
+import com.redislabs.riot.cli.AbstractFlatFileImportSubCommand;
 import com.redislabs.riot.file.FileReaderBuilder;
 
 import picocli.CommandLine.Command;
@@ -17,7 +18,7 @@ public class FixedLengthImportSubCommand extends AbstractFlatFileImportSubComman
 	private String[] columnRanges;
 
 	@Override
-	protected AbstractItemCountingItemStreamItemReader<Map<String, Object>> countingReader() throws IOException {
+	public AbstractItemCountingItemStreamItemReader<Map<String, Object>> reader() throws IOException {
 		FileReaderBuilder builder = builder();
 		builder.setColumnRanges(columnRanges);
 		return builder.buildFixedLength();

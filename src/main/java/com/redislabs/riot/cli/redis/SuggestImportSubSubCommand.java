@@ -1,12 +1,13 @@
 package com.redislabs.riot.cli.redis;
 
+import com.redislabs.riot.cli.AbstractImportSubSubCommand;
 import com.redislabs.riot.redis.writer.search.SuggestWriter;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 @Command(name = "suggest", description = "Suggestion index")
-public class SuggestImportSubSubCommand extends AbstractRedisImportSubSubCommand {
+public class SuggestImportSubSubCommand extends AbstractImportSubSubCommand {
 
 	@Option(names = "--index", description = "Name of the suggestion index", order = 3)
 	private String index;

@@ -24,12 +24,12 @@ public class GeneratorImportSubCommand extends AbstractImportSubCommand {
 	private String locale = "en-US";
 
 	@Override
-	protected GeneratorReader countingReader() {
+	public GeneratorReader reader() {
 		GeneratorReaderBuilder builder = new GeneratorReaderBuilder();
 		builder.setMapExpression(mapExpression);
 		builder.setFieldExpressions(fieldExpressions);
 		builder.setLocale(locale);
-		builder.setConnection(getParent().getRedis().builder().buildClient().connect());
+		builder.setConnection(getParent().redisConnectionBuilder().buildClient().connect());
 		return builder.build();
 	}
 

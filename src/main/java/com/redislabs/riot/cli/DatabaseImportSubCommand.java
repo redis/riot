@@ -40,7 +40,7 @@ public class DatabaseImportSubCommand extends AbstractImportSubCommand {
 	private boolean verifyCursorPosition;
 
 	@Override
-	protected JdbcCursorItemReader<Map<String, Object>> countingReader() {
+	public JdbcCursorItemReader<Map<String, Object>> reader() {
 		DataSourceProperties properties = new DataSourceProperties();
 		properties.setUrl(url);
 		properties.setDriverClassName(driverClassName);

@@ -1,9 +1,11 @@
-package com.redislabs.riot.cli;
+package com.redislabs.riot.cli.file;
 
 import java.io.IOException;
 import java.util.Map;
 
 import org.springframework.batch.item.json.JsonItemReader;
+
+import com.redislabs.riot.cli.AbstractFileImportSubCommand;
 
 import picocli.CommandLine.Command;
 
@@ -12,7 +14,7 @@ public class JsonImportSubCommand extends AbstractFileImportSubCommand {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	protected JsonItemReader<Map<String, Object>> countingReader() throws IOException {
+	public JsonItemReader<Map<String, Object>> reader() throws IOException {
 		return (JsonItemReader<Map<String, Object>>) builder().buildJson();
 	}
 

@@ -1,19 +1,30 @@
 package com.redislabs.riot;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.List;
+
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import com.redislabs.riot.cli.MainCommand;
+import com.redislabs.riot.cli.ExportCommand;
+import com.redislabs.riot.cli.HelpAwareCommand;
+import com.redislabs.riot.cli.ImportCommand;
 
 import picocli.CommandLine;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.DefaultExceptionHandler;
+import picocli.CommandLine.Option;
+import picocli.CommandLine.RunLast;
 
 @SpringBootApplication
-public class Riot implements CommandLineRunner {
+@Command(name = "riot", subcommands = { ImportCommand.class, ExportCommand.class })
+public class Riot extends HelpAwareCommand implements CommandLineRunner {
 
-	@Autowired
-	private MainCommand riotCommand;
+	/**
+	 * Just here to avoid picocli complain in Eclipse console
+	 */
+	@Option(names = "--spring.output.ansi.enabled", hidden = true)
+	private String ansiEnabled;
 
 	public static void main(String[] args) {
 		SpringApplication.run(Riot.class, args);
@@ -21,8 +32,12 @@ public class Riot implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) {
-		new CommandLine(riotCommand).setCaseInsensitiveEnumValuesAllowed(true).parseWithHandlers(
-				new CommandLine.RunLast().useOut(System.out), CommandLine.defaultExceptionHandler().useErr(System.err),
-				args);
+		CommandLine commandLine = new CommandLine(this);
+		commandLine.setCaseInsensitiveEnumValuesAllowed(true);
+		RunLast handler = new RunLast();
+		handler.useOut(System.out);
+		DefaultExceptionHandler<List<Object>> exceptionHandler = CommandLine.defaultExceptionHandler();
+		exceptionHandler.useErr(System.err);
+		commandLine.parseWithHandlers(handler, exceptionHandler, args);
 	}
 }

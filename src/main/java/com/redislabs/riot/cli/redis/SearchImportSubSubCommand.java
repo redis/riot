@@ -2,13 +2,14 @@ package com.redislabs.riot.cli.redis;
 
 import com.redislabs.lettusearch.search.AddOptions;
 import com.redislabs.lettusearch.search.Language;
+import com.redislabs.riot.cli.AbstractImportSubSubCommand;
 import com.redislabs.riot.redis.writer.search.SearchAddWriter;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 @Command(name = "search", description = "Search index")
-public class SearchImportSubSubCommand extends AbstractRedisImportSubSubCommand {
+public class SearchImportSubSubCommand extends AbstractImportSubSubCommand {
 
 	@Option(names = "--index", description = "Name of the search index", order = 3)
 	private String index;

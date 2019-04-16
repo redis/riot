@@ -1,4 +1,4 @@
-package com.redislabs.riot.cli;
+package com.redislabs.riot.cli.file;
 
 import java.io.IOException;
 import java.util.Map;
@@ -6,6 +6,7 @@ import java.util.Map;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
 
+import com.redislabs.riot.cli.AbstractFlatFileImportSubCommand;
 import com.redislabs.riot.file.FileReaderBuilder;
 
 import picocli.CommandLine.Command;
@@ -24,7 +25,7 @@ public class DelimitedImportSubCommand extends AbstractFlatFileImportSubCommand 
 	private int[] includedFields;
 
 	@Override
-	protected AbstractItemCountingItemStreamItemReader<Map<String, Object>> countingReader() throws IOException {
+	public AbstractItemCountingItemStreamItemReader<Map<String, Object>> reader() throws IOException {
 		FileReaderBuilder builder = builder();
 		builder.setDelimiter(delimiter);
 		builder.setHeader(header);
