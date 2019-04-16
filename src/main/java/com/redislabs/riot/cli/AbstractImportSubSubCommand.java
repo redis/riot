@@ -3,8 +3,8 @@ package com.redislabs.riot.cli;
 import java.io.IOException;
 import java.util.Map;
 
+import org.springframework.batch.item.ItemStreamWriter;
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
-import org.springframework.beans.factory.InitializingBean;
 
 import com.redislabs.riot.redis.writer.AbstractRedisWriter;
 
@@ -22,15 +22,12 @@ public abstract class AbstractImportSubSubCommand
 	}
 
 	@Override
-	protected AbstractRedisWriter writer() throws Exception {
-		AbstractRedisWriter writer = createWriter();
+	protected ItemStreamWriter<Map<String, Object>> writer() {
+		AbstractRedisWriter writer = redisWriter();
 		writer.setPool(parent.getParent().redisConnectionBuilder().buildPool());
-		if (writer instanceof InitializingBean) {
-			((InitializingBean) writer).afterPropertiesSet();
-		}
 		return writer;
 	}
 
-	protected abstract AbstractRedisWriter createWriter();
+	protected abstract AbstractRedisWriter redisWriter();
 
 }

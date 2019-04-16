@@ -2,24 +2,17 @@ package com.redislabs.riot.redis.writer;
 
 import java.util.Map;
 
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.util.Assert;
-
 import com.redislabs.lettusearch.RediSearchAsyncCommands;
 
 import io.lettuce.core.RedisFuture;
 import lombok.Setter;
 
-@Setter
-public class ZSetWriter extends AbstractRedisCollectionWriter implements InitializingBean {
+public class ZSetWriter extends AbstractRedisCollectionWriter {
 
+	@Setter
 	private String scoreField;
+	@Setter
 	private double defaultScore;
-
-	@Override
-	public void afterPropertiesSet() {
-		Assert.notNull(scoreField, "No score field specified");
-	}
 
 	@Override
 	protected RedisFuture<?> write(String key, String member, Map<String, Object> record,

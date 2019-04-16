@@ -29,7 +29,7 @@ public abstract class AbstractRedisDataStructureImportSubSubCommand extends Abst
 	}
 
 	@Override
-	protected AbstractRedisDataStructureWriter createWriter() {
+	protected AbstractRedisDataStructureWriter redisWriter() {
 		AbstractRedisDataStructureWriter writer = doCreateWriter();
 		writer.setKeyspace(keyspace);
 		writer.setKeys(keys);

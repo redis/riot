@@ -37,7 +37,7 @@ public class SearchImportSubSubCommand extends AbstractImportSubSubCommand {
 	private String payloadField;
 
 	@Override
-	protected SearchAddWriter createWriter() {
+	protected SearchAddWriter redisWriter() {
 		SearchAddWriter writer = new SearchAddWriter();
 		writer.setDefaultScore(defaultScore);
 		writer.setDrop(dropIndex);

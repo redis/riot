@@ -9,7 +9,7 @@ import com.redislabs.riot.cli.AbstractFileImportSubCommand;
 
 import picocli.CommandLine.Command;
 
-@Command(name = "json", description = "Import a JSON file", sortOptions = false)
+@Command(name = "json", description = "Import a JSON file")
 public class JsonImportSubCommand extends AbstractFileImportSubCommand {
 
 	@SuppressWarnings("unchecked")

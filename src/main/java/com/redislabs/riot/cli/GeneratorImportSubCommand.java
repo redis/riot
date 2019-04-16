@@ -13,7 +13,7 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 @Component
-@Command(name = "gen", description = "Import randomly generated data", sortOptions = false)
+@Command(name = "gen", description = "Import randomly generated data")
 public class GeneratorImportSubCommand extends AbstractImportSubCommand {
 
 	@Option(names = "--map", description = "SpEL expression to generate maps.", order = 3, paramLabel = "<SpEL>")

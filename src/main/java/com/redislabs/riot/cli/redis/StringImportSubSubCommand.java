@@ -17,8 +17,7 @@ public class StringImportSubSubCommand extends AbstractRedisDataStructureImportS
 	@Override
 	protected StringWriter doCreateWriter() {
 		StringWriter writer = new StringWriter();
-		writer.setFormat(format);
-		writer.setRoot(xmlRoot);
+		writer.setFormat(format).withRootName(xmlRoot);
 		return writer;
 	}
 

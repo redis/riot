@@ -14,7 +14,7 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 @Component
-@Command(name = "db", description = "Import from a database", sortOptions = false)
+@Command(name = "db", description = "Import from a database")
 public class DatabaseImportSubCommand extends AbstractImportSubCommand {
 
 	@Option(names = { "-d",

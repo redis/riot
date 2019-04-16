@@ -11,10 +11,10 @@ import com.redislabs.riot.file.FileReaderBuilder;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
-@Command(name = "fw", description = "Import a fixed-width file", sortOptions = false)
+@Command(name = "fw", description = "Import a fixed-width file")
 public class FixedLengthImportSubCommand extends AbstractFlatFileImportSubCommand {
 
-	@Option(arity = "1..*", names = "--ranges", description = "Column ranges.", required = true, order = 6)
+	@Option(arity = "1..*", names = "--ranges", description = "Column ranges.", required = true)
 	private String[] columnRanges;
 
 	@Override

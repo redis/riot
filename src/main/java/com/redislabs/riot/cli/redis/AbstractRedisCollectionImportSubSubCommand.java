@@ -9,8 +9,8 @@ public abstract class AbstractRedisCollectionImportSubSubCommand extends Abstrac
 	private String[] fields;
 
 	@Override
-	protected AbstractRedisCollectionWriter createWriter() {
-		AbstractRedisCollectionWriter writer = (AbstractRedisCollectionWriter) super.createWriter();
+	protected AbstractRedisCollectionWriter redisWriter() {
+		AbstractRedisCollectionWriter writer = (AbstractRedisCollectionWriter) super.redisWriter();
 		writer.setFields(fields);
 		return writer;
 	}

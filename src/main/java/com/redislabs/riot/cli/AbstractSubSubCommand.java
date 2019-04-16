@@ -58,12 +58,12 @@ public abstract class AbstractSubSubCommand<I, O> extends HelpAwareCommand {
 
 	protected abstract String getTargetDescription();
 
-	protected abstract ItemStreamWriter<O> writer() throws Exception;
-
 	protected ItemProcessor<I, O> processor() {
 		return null;
 	}
 
 	protected abstract AbstractItemCountingItemStreamItemReader<I> reader() throws IOException;
+
+	protected abstract ItemStreamWriter<O> writer();
 
 }

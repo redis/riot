@@ -2,9 +2,6 @@ package com.redislabs.riot.redis.writer;
 
 import java.util.Map;
 
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.util.Assert;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -12,29 +9,21 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.redislabs.lettusearch.RediSearchAsyncCommands;
 
 import io.lettuce.core.RedisFuture;
-import lombok.AccessLevel;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@Setter
-public class StringWriter extends AbstractRedisSimpleWriter implements InitializingBean {
+public class StringWriter extends AbstractRedisSimpleWriter {
 
-	private StringFormat format;
-	private String root;
-
-	@Setter(AccessLevel.NONE)
 	private ObjectWriter objectWriter;
 
-	@Override
-	public void afterPropertiesSet() throws Exception {
-		Assert.notNull(format, "Format not specified");
-		this.objectWriter = objectWriter();
+	public ObjectWriter setFormat(StringFormat format) {
+		objectWriter = objectWriter(format);
+		return objectWriter;
 	}
 
-	private ObjectWriter objectWriter() {
+	private ObjectWriter objectWriter(StringFormat format) {
 		if (format == StringFormat.Xml) {
-			return new XmlMapper().writer().withRootName(root);
+			return new XmlMapper().writer();
 		}
 		return new ObjectMapper().writer();
 	}

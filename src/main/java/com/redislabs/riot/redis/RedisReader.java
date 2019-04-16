@@ -4,7 +4,6 @@ package com.redislabs.riot.redis;
 import java.util.List;
 
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 
@@ -15,12 +14,10 @@ import io.lettuce.core.ScanArgs;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class RedisReader extends AbstractItemCountingItemStreamItemReader<RedisEntry> implements InitializingBean {
+public class RedisReader extends AbstractItemCountingItemStreamItemReader<RedisEntry> {
 
 	private StatefulRediSearchConnection<String, String> connection;
-	private Long limit;
-	private String match;
-	private ScanArgs args;
+	private ScanArgs args = new ScanArgs();
 	private volatile boolean initialized = false;
 	private KeyScanCursor<String> cursor;
 	private Object lock = new Object();
@@ -30,22 +27,11 @@ public class RedisReader extends AbstractItemCountingItemStreamItemReader<RedisE
 	}
 
 	public void setLimit(Long limit) {
-		this.limit = limit;
+		this.args.limit(limit);
 	}
 
 	public void setMatch(String match) {
-		this.match = match;
-	}
-
-	@Override
-	public void afterPropertiesSet() throws Exception {
-		this.args = new ScanArgs();
-		if (limit != null) {
-			args.limit(limit);
-		}
-		if (match != null) {
-			args.match(match);
-		}
+		this.args.match(match);
 	}
 
 	public void setConnection(StatefulRediSearchConnection<String, String> connection) {

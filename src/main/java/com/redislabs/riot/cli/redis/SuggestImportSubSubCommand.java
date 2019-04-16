@@ -23,7 +23,7 @@ public class SuggestImportSubSubCommand extends AbstractImportSubSubCommand {
 	private String payloadField;
 
 	@Override
-	protected SuggestWriter createWriter() {
+	protected SuggestWriter redisWriter() {
 		SuggestWriter writer = new SuggestWriter();
 		writer.setDefaultScore(defaultScore);
 		writer.setField(suggestField);
