@@ -1,5 +1,7 @@
 package com.redislabs.riot.cli;
 
+import java.util.Map;
+
 import org.springframework.stereotype.Component;
 
 import com.redislabs.riot.cli.file.DelimitedImportSubCommand;
@@ -12,6 +14,6 @@ import picocli.CommandLine.Command;
 @Command(name = "import", description = "Import data into Redis", subcommands = { DelimitedImportSubCommand.class,
 		FixedLengthImportSubCommand.class, JsonImportSubCommand.class, DatabaseImportSubCommand.class,
 		GeneratorImportSubCommand.class })
-public class ImportCommand extends AbstractCommand {
+public class ImportCommand extends AbstractCommand<Map<String, Object>, Map<String, Object>> {
 
 }

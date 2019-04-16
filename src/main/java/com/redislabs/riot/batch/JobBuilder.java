@@ -1,10 +1,7 @@
 package com.redislabs.riot.batch;
 
-import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
-import org.springframework.batch.core.StepExecution;
-import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.repository.JobRepository;
@@ -12,6 +9,7 @@ import org.springframework.batch.core.repository.support.MapJobRepositoryFactory
 import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.core.step.tasklet.TaskletStep;
 import org.springframework.batch.item.ItemProcessor;
+import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemStreamReader;
 import org.springframework.batch.item.ItemStreamWriter;
 import org.springframework.batch.support.transaction.ResourcelessTransactionManager;
@@ -19,9 +17,7 @@ import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 public class JobBuilder<I, O> {
 
 	public static final int DEFAULT_PARTITIONS = 1;
@@ -44,46 +40,46 @@ public class JobBuilder<I, O> {
 	private JobBuilderFactory jobBuilderFactory;
 	private MapJobRepositoryFactoryBean jobRepositoryFactory;
 	private JobRepository jobRepository;
+	private StepBuilderFactory stepBuilderFactory;
 
-	private Step step() throws Exception {
-		StepBuilderFactory stepBuilderFactory = new StepBuilderFactory(jobRepository(), transactionManager);
-		SimpleStepBuilder<I, O> builder = stepBuilderFactory.get("import-step").<I, O>chunk(chunkSize);
-		builder.listener(new StepExecutionListener() {
-
-			@Override
-			public void beforeStep(StepExecution stepExecution) {
-				log.debug("Starting step {}", stepExecution.getStepName());
-			}
-
-			@Override
-			public ExitStatus afterStep(StepExecution stepExecution) {
-				log.debug("Finished step {} - wrote {} items", stepExecution.getStepName(),
-						stepExecution.getWriteCount());
-				return null;
-			}
-		});
-		if (sleep == null) {
-			builder.reader(reader);
-		} else {
-			builder.reader(new ThrottledItemStreamReader<I>(reader, sleep, 0));
-		}
+	private TaskletStep taskletStep() throws Exception {
+		SimpleStepBuilder<I, O> builder = stepBuilderFactory().get("tasklet-step").<I, O>chunk(chunkSize);
+		builder.reader(reader());
 		if (processor != null) {
 			builder.processor(processor);
 			builder.listener(processor);
 		}
 		builder.writer(writer);
-		TaskletStep taskletStep = builder.build();
-		if (partitions > 1) {
-			IndexedPartitioner partitioner = new IndexedPartitioner(partitions);
-			return stepBuilderFactory.get("import-partitioner-step").partitioner("import-delegate-step", partitioner)
-					.step(taskletStep).taskExecutor(new SimpleAsyncTaskExecutor()).build();
-		}
-		return taskletStep;
+		return builder.build();
+	}
 
+	private StepBuilderFactory stepBuilderFactory() throws Exception {
+		if (stepBuilderFactory == null) {
+			stepBuilderFactory = new StepBuilderFactory(jobRepository(), transactionManager);
+		}
+		return stepBuilderFactory;
+	}
+
+	private ItemReader<? extends I> reader() {
+		if (sleep == null) {
+			return reader;
+		}
+		return new ThrottledItemStreamReader<I>(reader, sleep, 0);
 	}
 
 	public Job build() throws Exception {
-		return jobBuilderFactory().get("riot-job").start(step()).build();
+		TaskletStep taskletStep = taskletStep();
+		return jobBuilderFactory().get("riot-job").start(step(taskletStep)).build();
+	}
+
+	private Step step(TaskletStep taskletStep) throws Exception {
+		if (partitions == 1) {
+			return taskletStep;
+		}
+		IndexedPartitioner indexedPartitioner = new IndexedPartitioner(partitions);
+		SimpleAsyncTaskExecutor taskExecutor = new SimpleAsyncTaskExecutor();
+		return stepBuilderFactory().get("partitioner-step").partitioner("delegate-step", indexedPartitioner)
+				.step(taskletStep).taskExecutor(taskExecutor).build();
 	}
 
 	public JobBuilderFactory jobBuilderFactory() throws Exception {

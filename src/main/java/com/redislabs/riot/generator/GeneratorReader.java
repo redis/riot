@@ -17,7 +17,6 @@ import com.redislabs.riot.processor.CachedRedis;
 public class GeneratorReader extends AbstractItemCountingItemStreamItemReader<Map<String, Object>> {
 
 	private volatile boolean initialized = false;
-	private Object lock = new Object();
 	private volatile int current = 0;
 	private StatefulRediSearchConnection<String, String> connection;
 	private String locale;
@@ -113,20 +112,16 @@ public class GeneratorReader extends AbstractItemCountingItemStreamItemReader<Ma
 
 	@Override
 	protected Map<String, Object> doRead() throws Exception {
-		synchronized (lock) {
-			Map<String, Object> map = generator.generate(evaluationContext);
-			current++;
-			return map;
-		}
+		Map<String, Object> map = generator.generate(evaluationContext);
+		current++;
+		return map;
 	}
 
 	@Override
 	protected void doClose() throws Exception {
-		synchronized (lock) {
-			initialized = false;
-			current = 0;
-			evaluationContext = null;
-		}
+		initialized = false;
+		current = 0;
+		evaluationContext = null;
 	}
 
 }

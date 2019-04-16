@@ -5,9 +5,9 @@ import picocli.CommandLine.ParentCommand;
 public abstract class AbstractSubCommand<I, O> extends HelpAwareCommand {
 
 	@ParentCommand
-	private AbstractCommand parent;
+	private AbstractCommand<I, O> parent;
 
-	public AbstractCommand getParent() {
+	public AbstractCommand<I, O> getParent() {
 		return parent;
 	}
 

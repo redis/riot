@@ -1,6 +1,17 @@
 package com.redislabs.riot.cli;
 
 import java.net.InetAddress;
+import java.text.NumberFormat;
+
+import org.springframework.batch.core.Job;
+import org.springframework.batch.core.JobExecution;
+import org.springframework.batch.core.JobParameters;
+import org.springframework.batch.core.StepExecution;
+import org.springframework.batch.core.launch.support.SimpleJobLauncher;
+import org.springframework.batch.item.ItemProcessor;
+import org.springframework.batch.item.ItemStreamWriter;
+import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
+import org.springframework.core.task.SyncTaskExecutor;
 
 import com.redislabs.riot.batch.JobBuilder;
 import com.redislabs.riot.redis.RedisConnectionBuilder;
@@ -9,7 +20,7 @@ import io.lettuce.core.RedisURI;
 import lombok.Getter;
 import picocli.CommandLine.Option;
 
-public class AbstractCommand extends HelpAwareCommand {
+public class AbstractCommand<I, O> extends HelpAwareCommand {
 
 	public static final String DEFAULT_HOST = "localhost";
 
@@ -60,6 +71,38 @@ public class AbstractCommand extends HelpAwareCommand {
 			return host.getHostName();
 		}
 		return DEFAULT_HOST;
+	}
+
+	public void run(String sourceDescription, AbstractItemCountingItemStreamItemReader<I> reader,
+			ItemProcessor<I, O> processor, String targetDescription, ItemStreamWriter<O> writer) throws Exception {
+		JobBuilder<I, O> builder = new JobBuilder<>();
+		builder.setChunkSize(chunkSize);
+		if (maxCount != null) {
+			reader.setMaxItemCount(maxCount);
+		}
+		builder.setReader(reader);
+		builder.setProcessor(processor);
+		builder.setWriter(writer);
+		builder.setPartitions(threads);
+		builder.setSleep(sleep);
+		Job job = builder.build();
+		long startTime = System.currentTimeMillis();
+		System.out.println("Importing into " + targetDescription + " from " + sourceDescription);
+		SimpleJobLauncher jobLauncher = new SimpleJobLauncher();
+		jobLauncher.setJobRepository(builder.jobRepository());
+		jobLauncher.setTaskExecutor(new SyncTaskExecutor());
+		jobLauncher.afterPropertiesSet();
+		JobExecution execution = jobLauncher.run(job, new JobParameters());
+		long endTime = System.currentTimeMillis();
+		long duration = endTime - startTime;
+		NumberFormat numberFormat = NumberFormat.getIntegerInstance();
+		for (StepExecution stepExecution : execution.getStepExecutions()) {
+			double durationInSeconds = (double) duration / 1000;
+			int writeCount = stepExecution.getWriteCount();
+			double throughput = writeCount / durationInSeconds;
+			System.out.println("Imported " + numberFormat.format(writeCount) + " items in " + durationInSeconds
+					+ " seconds (" + numberFormat.format(throughput) + " writes/sec)");
+		}
 	}
 
 }
