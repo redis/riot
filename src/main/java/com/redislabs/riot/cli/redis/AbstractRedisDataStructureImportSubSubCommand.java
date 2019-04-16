@@ -3,10 +3,11 @@ package com.redislabs.riot.cli.redis;
 import com.redislabs.riot.redis.writer.AbstractRedisDataStructureWriter;
 
 import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
 
 public abstract class AbstractRedisDataStructureImportSubSubCommand extends AbstractRedisImportSubSubCommand {
 
-	@Option(required = true, names = { "-s", "--keyspace" }, description = "Redis keyspace prefix.", order = 3)
+	@Parameters(description = "Redis keyspace prefix.")
 	private String keyspace;
 	@Option(arity = "1..*", names = { "-k", "--keys" }, description = "Key fields.", order = 3)
 	private String[] keys = new String[0];

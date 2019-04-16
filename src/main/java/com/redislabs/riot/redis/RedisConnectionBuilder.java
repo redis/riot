@@ -4,7 +4,6 @@ import java.time.Duration;
 
 import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
-import org.springframework.boot.autoconfigure.data.redis.RedisProperties.Pool;
 
 import com.redislabs.lettusearch.RediSearchClient;
 import com.redislabs.lettusearch.StatefulRediSearchConnection;
@@ -12,10 +11,28 @@ import com.redislabs.lettusearch.StatefulRediSearchConnection;
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.resource.DefaultClientResources;
 import io.lettuce.core.support.ConnectionPoolSupport;
+import lombok.Setter;
 
-public class RedisConfig {
+public class RedisConnectionBuilder {
 
-	public RediSearchClient client(String host, int port, String password, Long timeout) {
+	@Setter
+	private String host;
+	@Setter
+	private int port;
+	@Setter
+	private String password;
+	@Setter
+	private Long timeout;
+	@Setter
+	private Integer maxIdle;
+	@Setter
+	private Integer minIdle;
+	@Setter
+	private Integer maxActive;
+	@Setter
+	private Long maxWait;
+
+	public RediSearchClient buildClient() {
 		RedisURI redisURI = RedisURI.create(host, port);
 		if (password != null) {
 			redisURI.setPassword(password);
@@ -26,17 +43,22 @@ public class RedisConfig {
 		return RediSearchClient.create(DefaultClientResources.create(), redisURI);
 	}
 
-	public GenericObjectPool<StatefulRediSearchConnection<String, String>> pool(RediSearchClient client, Pool options) {
+	public GenericObjectPool<StatefulRediSearchConnection<String, String>> buildPool() {
+		RediSearchClient client = buildClient();
 		GenericObjectPoolConfig<StatefulRediSearchConnection<String, String>> config = new GenericObjectPoolConfig<StatefulRediSearchConnection<String, String>>();
 		GenericObjectPool<StatefulRediSearchConnection<String, String>> pool = ConnectionPoolSupport
 				.createGenericObjectPool(() -> client.connect(), config);
-		if (options != null) {
-			pool.setMaxTotal(options.getMaxActive());
-			pool.setMaxIdle(options.getMaxIdle());
-			pool.setMinIdle(options.getMinIdle());
-			if (options.getMaxWait() != null) {
-				pool.setMaxWaitMillis(options.getMaxWait().toMillis());
-			}
+		if (maxActive != null) {
+			pool.setMaxTotal(maxActive);
+		}
+		if (maxIdle != null) {
+			pool.setMaxIdle(maxIdle);
+		}
+		if (minIdle != null) {
+			pool.setMinIdle(minIdle);
+		}
+		if (maxWait != null) {
+			pool.setMaxWaitMillis(maxWait);
 		}
 		return pool;
 	}

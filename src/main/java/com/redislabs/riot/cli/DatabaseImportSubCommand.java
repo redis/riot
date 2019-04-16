@@ -2,7 +2,7 @@ package com.redislabs.riot.cli;
 
 import java.util.Map;
 
-import org.springframework.batch.item.ItemStreamReader;
+import org.springframework.batch.item.database.JdbcCursorItemReader;
 import org.springframework.batch.item.database.builder.JdbcCursorItemReaderBuilder;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.jdbc.core.ColumnMapRowMapper;
@@ -40,7 +40,7 @@ public class DatabaseImportSubCommand extends AbstractImportSubCommand {
 	private boolean verifyCursorPosition;
 
 	@Override
-	public ItemStreamReader<Map<String, Object>> reader() {
+	protected JdbcCursorItemReader<Map<String, Object>> countingReader() {
 		DataSourceProperties properties = new DataSourceProperties();
 		properties.setUrl(url);
 		properties.setDriverClassName(driverClassName);

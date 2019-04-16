@@ -3,12 +3,10 @@ package com.redislabs.riot.cli;
 import java.io.IOException;
 import java.util.Map;
 
-import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
-import org.springframework.core.io.Resource;
+import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
 
-import com.redislabs.riot.file.DelimitedFileOptions;
-import com.redislabs.riot.file.FileConfig;
+import com.redislabs.riot.file.FileReaderBuilder;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -17,7 +15,7 @@ import picocli.CommandLine.Option;
 public class DelimitedImportSubCommand extends AbstractFlatFileImportSubCommand {
 
 	@Option(names = "--header", description = "Use first line to discover field names.", order = 3)
-	private boolean header;
+	private boolean header = false;
 	@Option(names = "--delimiter", description = "Delimiter used when reading input. (default: ${DEFAULT-VALUE}).", order = 4)
 	private String delimiter = DelimitedLineTokenizer.DELIMITER_COMMA;
 	@Option(names = "--quote-character", description = "Character to escape delimiters or line endings. (default: ${DEFAULT-VALUE})", order = 5)
@@ -26,14 +24,13 @@ public class DelimitedImportSubCommand extends AbstractFlatFileImportSubCommand 
 	private int[] includedFields;
 
 	@Override
-	protected FlatFileItemReader<Map<String, Object>> reader(Resource resource) throws IOException {
-		DelimitedFileOptions options = new DelimitedFileOptions();
-		options.setDelimiter(delimiter);
-		options.setHeader(header);
-		options.setIncludedFields(includedFields);
-		options.setQuoteCharacter(quoteCharacter);
-		setOptions(options);
-		return new FileConfig().reader(resource, options);
+	protected AbstractItemCountingItemStreamItemReader<Map<String, Object>> countingReader() throws IOException {
+		FileReaderBuilder builder = builder();
+		builder.setDelimiter(delimiter);
+		builder.setHeader(header);
+		builder.setIncludedFields(includedFields);
+		builder.setQuoteCharacter(quoteCharacter);
+		return builder.buildDelimited();
 	}
 
 }

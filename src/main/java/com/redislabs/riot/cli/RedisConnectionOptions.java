@@ -1,9 +1,8 @@
 package com.redislabs.riot.cli;
 
 import java.net.InetAddress;
-import java.time.Duration;
 
-import org.springframework.boot.autoconfigure.data.redis.RedisProperties.Pool;
+import com.redislabs.riot.redis.RedisConnectionBuilder;
 
 import io.lettuce.core.RedisURI;
 import lombok.Data;
@@ -31,15 +30,26 @@ public class RedisConnectionOptions {
 	@Option(names = "--max-active", description = "Maximum number of connections that can be allocated by the pool at a given time (default: ${DEFAULT-VALUE}). Use a negative value for no limit.", order = 3)
 	private int maxActive = 8;
 	@Option(names = "--max-wait", description = "Maximum amount of time in milliseconds a connection allocation should block before throwing an exception when the pool is exhausted. Use a negative value to block indefinitely (default).", order = 3)
-	private Long maxWait = -1L;
+	private long maxWait = -1L;
 
-	public Pool getPool() {
-		Pool pool = new Pool();
-		pool.setMaxActive(maxActive);
-		pool.setMaxIdle(maxIdle);
-		pool.setMaxWait(Duration.ofMillis(maxWait));
-		pool.setMinIdle(minIdle);
-		return pool;
+	public RedisConnectionBuilder builder() {
+		RedisConnectionBuilder builder = new RedisConnectionBuilder();
+		builder.setHost(getHostname());
+		builder.setMaxActive(maxActive);
+		builder.setMaxIdle(maxIdle);
+		builder.setMaxWait(maxWait);
+		builder.setMinIdle(minIdle);
+		builder.setPassword(password);
+		builder.setPort(port);
+		builder.setTimeout(timeout);
+		return builder;
+	}
+
+	private String getHostname() {
+		if (host != null) {
+			return host.getHostName();
+		}
+		return RedisConnectionOptions.DEFAULT_HOST;
 	}
 
 }

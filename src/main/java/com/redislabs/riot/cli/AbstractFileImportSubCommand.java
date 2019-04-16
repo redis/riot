@@ -1,14 +1,9 @@
 package com.redislabs.riot.cli;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
-import java.util.Map;
 
-import org.springframework.batch.item.ItemStreamReader;
-import org.springframework.core.io.Resource;
-
-import com.redislabs.riot.file.FileConfig;
+import com.redislabs.riot.file.FileReaderBuilder;
 
 import picocli.CommandLine.Option;
 
@@ -23,38 +18,17 @@ public abstract class AbstractFileImportSubCommand extends AbstractImportSubComm
 	@Option(names = "--gzip", description = "Input is gzip compressed.", order = 9)
 	private boolean gzip;
 
-	public File getFile() {
-		return file;
-	}
-
-	public URL getUrl() {
-		return url;
-	}
-
 	@Override
 	public String getSourceDescription() {
 		return "file " + (file == null ? url : file);
 	}
 
-	@Override
-	public ItemStreamReader<Map<String, Object>> reader() throws IOException {
-		Resource resource = resource();
-		if (gzip) {
-			resource = new FileConfig().gzip(resource);
-		}
-		return reader(resource);
+	protected FileReaderBuilder builder() {
+		FileReaderBuilder builder = new FileReaderBuilder();
+		builder.setFile(file);
+		builder.setUrl(url);
+		builder.setGzip(gzip);
+		return builder;
 	}
-
-	private Resource resource() throws IOException {
-		if (file == null) {
-			if (url == null) {
-				throw new IOException("No URL or file specified");
-			}
-			return new FileConfig().resource(url);
-		}
-		return new FileConfig().resource(file);
-	}
-
-	protected abstract ItemStreamReader<Map<String, Object>> reader(Resource resource) throws IOException;
 
 }

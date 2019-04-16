@@ -22,7 +22,7 @@ public abstract class AbstractRedisImportSubSubCommand extends HelpAwareCommand 
 	@ParentCommand
 	private AbstractImportSubCommand parent;
 
-	NumberFormat numberFormat = NumberFormat.getIntegerInstance();
+	private NumberFormat numberFormat = NumberFormat.getIntegerInstance();
 
 	@Override
 	public Void call() throws Exception {
@@ -42,7 +42,6 @@ public abstract class AbstractRedisImportSubSubCommand extends HelpAwareCommand 
 			System.out.println("Imported " + numberFormat.format(writeCount) + " items in " + durationInSeconds
 					+ " seconds (" + numberFormat.format(throughput) + " writes/sec)");
 		}
-		System.out.println("Executed import with status " + execution.getExitStatus().getExitCode());
 		return null;
 	}
 
@@ -50,7 +49,7 @@ public abstract class AbstractRedisImportSubSubCommand extends HelpAwareCommand 
 
 	private AbstractRedisWriter writer() throws Exception {
 		AbstractRedisWriter writer = createWriter();
-		writer.setPool(parent.getParent().getPool());
+		writer.setPool(parent.getParent().getRedis().builder().buildPool());
 		if (writer instanceof InitializingBean) {
 			((InitializingBean) writer).afterPropertiesSet();
 		}

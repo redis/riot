@@ -23,43 +23,69 @@ import org.springframework.batch.item.file.transform.Range;
 import org.springframework.batch.item.json.JacksonJsonObjectReader;
 import org.springframework.batch.item.json.JsonItemReader;
 import org.springframework.batch.item.json.builder.JsonItemReaderBuilder;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
+import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@Configuration
-public class FileConfig {
+public class FileReaderBuilder {
 
-	public Resource gzip(Resource resource) throws IOException {
-		return new InputStreamResource(new GZIPInputStream(resource.getInputStream()));
+	@Setter
+	private File file;
+	@Setter
+	private URL url;
+	@Setter
+	private boolean gzip;
+	@Setter
+	private boolean header;
+	@Setter
+	private String delimiter;
+	@Setter
+	private int[] includedFields;
+	@Setter
+	private Character quoteCharacter;
+	@Setter
+	private String[] names = new String[0];
+	@Setter
+	private String encoding = FlatFileItemReader.DEFAULT_CHARSET;
+	@Setter
+	private Integer linesToSkip;
+	@Setter
+	private String[] columnRanges;
+
+	private Resource resource(Resource resource) throws IOException {
+		if (gzip) {
+			return new InputStreamResource(new GZIPInputStream(resource.getInputStream()));
+		}
+		return resource;
 	}
 
-	public Resource resource(URL url) {
-		return new UrlResource(url);
+	private Resource resource() throws IOException {
+		if (url != null) {
+			return resource(new UrlResource(url));
+		}
+		return resource(new FileSystemResource(file));
 	}
 
-	public Resource resource(File file) {
-		return new FileSystemResource(file);
-	}
-
-	private FlatFileItemReaderBuilder<Map<String, Object>> flatFile(Resource resource, FlatFileOptions options)
-			throws IOException {
+	private FlatFileItemReaderBuilder<Map<String, Object>> flatFile(Resource resource) throws IOException {
 		FlatFileItemReaderBuilder<Map<String, Object>> builder = new FlatFileItemReaderBuilder<Map<String, Object>>();
 		builder.resource(resource);
-		if (options.getEncoding() != null) {
-			builder.encoding(options.getEncoding());
+		if (encoding != null) {
+			builder.encoding(encoding);
 		}
 		builder.strict(true);
 		builder.saveState(false);
 		builder.fieldSetMapper(new MapFieldSetMapper());
-		builder.linesToSkip(options.getLinesToSkip());
+		if (linesToSkip != null) {
+			builder.linesToSkip(linesToSkip);
+		}
 		builder.recordSeparatorPolicy(new DefaultRecordSeparatorPolicy());
 		return builder;
 	}
@@ -82,82 +108,65 @@ public class FileConfig {
 		}
 	}
 
-	public FlatFileItemReader<Map<String, Object>> reader(Resource resource, DelimitedFileOptions options)
-			throws IOException {
-		FlatFileItemReaderBuilder<Map<String, Object>> builder = flatFile(resource, options);
+	public FlatFileItemReader<Map<String, Object>> buildDelimited() throws IOException {
+		Resource resource = resource();
+		FlatFileItemReaderBuilder<Map<String, Object>> builder = flatFile(resource);
 		builder.name("delimited-file-reader");
 		DelimitedBuilder<Map<String, Object>> delimited = builder.delimited();
-		if (options.getDelimiter() != null) {
-			delimited.delimiter(options.getDelimiter());
+		if (delimiter != null) {
+			delimited.delimiter(delimiter);
 		}
-		if (options.getIncludedFields() != null) {
-			delimited.includedFields(ArrayUtils.toObject(options.getIncludedFields()));
+		if (includedFields != null) {
+			delimited.includedFields(ArrayUtils.toObject(includedFields));
 		}
-		if (options.getQuoteCharacter() != null) {
-			delimited.quoteCharacter(options.getQuoteCharacter());
+		if (quoteCharacter != null) {
+			delimited.quoteCharacter(quoteCharacter);
 		}
-		String[] names = options.getNames();
-		if (options.isHeader()) {
-			if (options.getNames() == null) {
-				try {
-					BufferedReader reader = new DefaultBufferedReaderFactory().create(resource, options.getEncoding());
-					DelimitedLineTokenizer tokenizer = new DelimitedLineTokenizer();
-					if (options.getDelimiter() != null) {
-						tokenizer.setDelimiter(options.getDelimiter());
-					}
-					if (options.getQuoteCharacter() != null) {
-						tokenizer.setQuoteCharacter(options.getQuoteCharacter());
-					}
-					if (options.getIncludedFields() != null) {
-						tokenizer.setIncludedFields(options.getIncludedFields());
-					}
-					String line = reader.readLine();
-					names = tokenizer.tokenize(line).getValues();
-					log.info("Found header {}", Arrays.asList(names));
-				} catch (Exception e) {
-					log.error("Could not read header for file {}", resource, e);
+		String[] fieldNames = Arrays.copyOf(names, names.length);
+		if (header) {
+			if (fieldNames.length == 0) {
+				BufferedReader reader = new DefaultBufferedReaderFactory().create(resource, encoding);
+				DelimitedLineTokenizer tokenizer = new DelimitedLineTokenizer();
+				if (delimiter != null) {
+					tokenizer.setDelimiter(delimiter);
 				}
+				if (quoteCharacter != null) {
+					tokenizer.setQuoteCharacter(quoteCharacter);
+				}
+				if (includedFields != null) {
+					tokenizer.setIncludedFields(includedFields);
+				}
+				fieldNames = tokenizer.tokenize(reader.readLine()).getValues();
+				log.debug("Found header {}", Arrays.asList(fieldNames));
 			}
 		}
-		if (names == null || names.length == 0) {
+		if (fieldNames == null || fieldNames.length == 0) {
 			throw new IOException("No fields found");
 		}
-		delimited.names(names);
+		delimited.names(fieldNames);
 		return builder.build();
 	}
 
-	public FlatFileItemReader<Map<String, Object>> reader(Resource resource, FixedLengthFileOptions options)
-			throws IOException {
-		FlatFileItemReaderBuilder<Map<String, Object>> builder = flatFile(resource, options);
+	public FlatFileItemReader<Map<String, Object>> buildFixedLength() throws IOException {
+		FlatFileItemReaderBuilder<Map<String, Object>> builder = flatFile(resource());
 		builder.name("fixed-length-file-reader");
 		FixedLengthBuilder<Map<String, Object>> fixedlength = builder.fixedLength();
-		if (options.getRanges() != null) {
-			fixedlength.columns(ranges(options.getRanges()));
+		Assert.notNull(columnRanges, "Column ranges are required");
+		Range[] ranges = new Range[columnRanges.length];
+		for (int index = 0; index < columnRanges.length; index++) {
+			String[] split = columnRanges[index].split("-");
+			ranges[index] = new Range(Integer.parseInt(split[0]), Integer.parseInt(split[1]));
 		}
-		if (options.getNames() != null) {
-			fixedlength.names(options.getNames());
-		}
+		fixedlength.columns(ranges);
+		fixedlength.names(names);
 		return builder.build();
-	}
-
-	private Range[] ranges(String[] strings) {
-		Range[] ranges = new Range[strings.length];
-		for (int index = 0; index < strings.length; index++) {
-			ranges[index] = range(strings[index]);
-		}
-		return ranges;
-	}
-
-	private Range range(String string) {
-		String[] split = string.split("-");
-		return new Range(Integer.parseInt(split[0]), Integer.parseInt(split[1]));
 	}
 
 	@SuppressWarnings("rawtypes")
-	public JsonItemReader<? extends Map> reader(Resource resource) throws IOException {
+	public JsonItemReader<? extends Map> buildJson() throws IOException {
 		JsonItemReaderBuilder<Map> builder = new JsonItemReaderBuilder<>();
 		builder.name("json-file-reader");
-		builder.resource(resource);
+		builder.resource(resource());
 		JacksonJsonObjectReader<Map> reader = new JacksonJsonObjectReader<>(Map.class);
 		reader.setMapper(new ObjectMapper());
 		builder.jsonObjectReader(reader);

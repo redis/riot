@@ -2,7 +2,7 @@ package com.redislabs.riot.cli;
 
 import org.springframework.batch.item.file.FlatFileItemReader;
 
-import com.redislabs.riot.file.FlatFileOptions;
+import com.redislabs.riot.file.FileReaderBuilder;
 
 import picocli.CommandLine.Option;
 
@@ -13,12 +13,21 @@ public abstract class AbstractFlatFileImportSubCommand extends AbstractFileImpor
 	@Option(names = "--names", arity = "1..*", description = "Names of the fields in the order they occur within the delimited file.", order = 10)
 	private String[] fieldNames;
 	@Option(names = "--lines-to-skip", description = "Number of lines to skip at the beginning of reading the file. (default: ${DEFAULT-VALUE}).", order = 10)
-	private int linesToSkip = 0;
+	private Integer linesToSkip;
 
-	protected void setOptions(FlatFileOptions options) {
-		options.setNames(fieldNames);
-		options.setLinesToSkip(linesToSkip);
-		options.setEncoding(encoding);
+	@Override
+	protected FileReaderBuilder builder() {
+		FileReaderBuilder builder = super.builder();
+		if (fieldNames != null) {
+			builder.setNames(fieldNames);
+		}
+		if (linesToSkip != null) {
+			builder.setLinesToSkip(linesToSkip);
+		}
+		if (encoding != null) {
+			builder.setEncoding(encoding);
+		}
+		return builder;
 	}
 
 }
