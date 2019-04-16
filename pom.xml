@@ -58,7 +58,7 @@
 		<dependency>
 			<groupId>com.redislabs</groupId>
 			<artifactId>lettusearch</artifactId>
-			<version>1.1.8-SNAPSHOT</version>
+			<version>1.1.8</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
