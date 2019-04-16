@@ -13,7 +13,7 @@
 			<unpack>false</unpack>
 		</dependencySet>
 	</dependencySets>
-	<baseDirectory>recharge-${project.version}</baseDirectory>
+	<baseDirectory>${project.artifactId}-${project.version}</baseDirectory>
 	<includeBaseDirectory>true</includeBaseDirectory>
 	<fileSets>
 		<fileSet>
@@ -22,8 +22,8 @@
 			<filtered>true</filtered>
 			<fileMode>0755</fileMode>
 			<includes>
-				<include>recharge</include>
-				<include>recharge.bat</include>
+				<include>riot</include>
+				<include>riot.bat</include>
 			</includes>
 		</fileSet>
 	</fileSets>

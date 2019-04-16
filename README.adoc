@@ -1,6 +1,6 @@
-= Recharge
+= Riot
 
-Recharge is a data import/export tool for Redis. It supports the following data sources:
+Riot is a data import/export tool for Redis. It supports the following data sources:
 
 * Databases (JDBC)
 * Files
@@ -18,10 +18,10 @@ You can download the Recharge distribution from these locations:
 Unpack the downloaded archive and follow the INSTALL.txt instructions.
 
 == Running
-Use the `recharge` script (`recharge.bat` for Windows) to launch Recharge.
+Use the `riot` script (`riot.bat` for Windows) to launch Riot.
 
 == Usage
-Use the following parameters to configure Recharge.
+Use the following parameters to configure Riot.
 
 === Redis Connection
 - *host*: Redis database hostname e.g. `--host=redis.redislabs.com`
