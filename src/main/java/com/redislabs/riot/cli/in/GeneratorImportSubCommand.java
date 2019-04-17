@@ -1,7 +1,8 @@
-package com.redislabs.riot.cli;
+package com.redislabs.riot.cli.in;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import org.springframework.stereotype.Component;
@@ -16,20 +17,19 @@ import picocli.CommandLine.Option;
 @Command(name = "gen", description = "Import randomly generated data")
 public class GeneratorImportSubCommand extends AbstractImportSubCommand {
 
-	@Option(names = "--map", description = "SpEL expression to generate maps.", order = 3, paramLabel = "<SpEL>")
+	@Option(names = "--map", description = "SpEL expression to generate maps.", paramLabel = "<SpEL>")
 	private String mapExpression;
-	@Option(names = { "-f", "--field" }, description = "Field SpEL expressions.", order = 3, paramLabel = "<name=SpEL>")
+	@Option(names = { "-f", "--field" }, description = "Field SpEL expressions.", paramLabel = "<name=SpEL>")
 	private Map<String, String> fieldExpressions = new LinkedHashMap<>();
-	@Option(names = "--locale", description = "Faker locale. (default: ${DEFAULT-VALUE}).", order = 3)
-	private String locale = "en-US";
+	@Option(names = "--locale", description = "Faker locale. (default: ${DEFAULT-VALUE}).")
+	private Locale locale = Locale.ENGLISH;
 
 	@Override
 	public GeneratorReader reader() {
 		GeneratorReaderBuilder builder = new GeneratorReaderBuilder();
-		builder.setMapExpression(mapExpression);
-		builder.setFieldExpressions(fieldExpressions);
+		builder.setFields(fieldExpressions);
 		builder.setLocale(locale);
-		builder.setConnection(getParent().redisConnectionBuilder().buildClient().connect());
+		builder.setClient(getParent().redisConnectionBuilder().buildClient());
 		return builder.build();
 	}
 

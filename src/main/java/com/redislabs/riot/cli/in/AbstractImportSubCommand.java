@@ -1,10 +1,8 @@
-package com.redislabs.riot.cli;
+package com.redislabs.riot.cli.in;
 
-import java.io.IOException;
 import java.util.Map;
 
-import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
-
+import com.redislabs.riot.cli.AbstractSubCommand;
 import com.redislabs.riot.cli.redis.GeoImportSubSubCommand;
 import com.redislabs.riot.cli.redis.HashImportSubSubCommand;
 import com.redislabs.riot.cli.redis.ListImportSubSubCommand;
@@ -21,7 +19,5 @@ import picocli.CommandLine.Command;
 		SearchImportSubSubCommand.class, SetImportSubSubCommand.class, StreamImportSubSubCommand.class,
 		StringImportSubSubCommand.class, SuggestImportSubSubCommand.class, ZSetImportSubSubCommand.class })
 public abstract class AbstractImportSubCommand extends AbstractSubCommand<Map<String, Object>, Map<String, Object>> {
-
-	public abstract AbstractItemCountingItemStreamItemReader<Map<String, Object>> reader() throws IOException;
 
 }

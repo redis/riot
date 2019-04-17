@@ -1,11 +1,10 @@
-package com.redislabs.riot.cli;
+package com.redislabs.riot.cli.in;
 
-import java.io.IOException;
 import java.util.Map;
 
 import org.springframework.batch.item.ItemStreamWriter;
-import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
 
+import com.redislabs.riot.cli.AbstractSubSubCommand;
 import com.redislabs.riot.redis.writer.AbstractRedisWriter;
 
 import picocli.CommandLine.ParentCommand;
@@ -15,11 +14,6 @@ public abstract class AbstractImportSubSubCommand
 
 	@ParentCommand
 	private AbstractImportSubCommand parent;
-
-	@Override
-	protected AbstractItemCountingItemStreamItemReader<Map<String, Object>> reader() throws IOException {
-		return parent.reader();
-	}
 
 	@Override
 	protected ItemStreamWriter<Map<String, Object>> writer() {

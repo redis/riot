@@ -22,9 +22,6 @@ import java.util.Map;
 import org.springframework.batch.core.partition.support.Partitioner;
 import org.springframework.batch.item.ExecutionContext;
 
-import lombok.Data;
-
-@Data
 public class IndexedPartitioner implements Partitioner {
 
 	public static final String PARTITION_KEY = "partition";

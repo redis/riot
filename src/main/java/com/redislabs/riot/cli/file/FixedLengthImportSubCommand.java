@@ -5,7 +5,7 @@ import java.util.Map;
 
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
 
-import com.redislabs.riot.cli.AbstractFlatFileImportSubCommand;
+import com.redislabs.riot.cli.in.AbstractFlatFileImportSubCommand;
 import com.redislabs.riot.file.FileReaderBuilder;
 
 import picocli.CommandLine.Command;

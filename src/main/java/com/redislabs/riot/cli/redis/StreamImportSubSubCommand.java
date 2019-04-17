@@ -8,11 +8,11 @@ import picocli.CommandLine.Option;
 @Command(name = "stream", description = "Stream data structure")
 public class StreamImportSubSubCommand extends AbstractRedisDataStructureImportSubSubCommand {
 
-	@Option(names = "--approximate-trimming", description = "Apply efficient trimming for capped streams using the ~ flag.", order = 5)
+	@Option(names = "--approximate-trimming", description = "Apply efficient trimming for capped streams using the ~ flag.")
 	private boolean approximateTrimming;
-	@Option(names = "--maxlen", description = "Limit stream to maxlen entries.", order = 5)
+	@Option(names = "--maxlen", description = "Limit stream to maxlen entries.")
 	private Long maxlen;
-	@Option(names = "--id", description = "Field used for stream entry IDs.", order = 5)
+	@Option(names = "--id", description = "Field used for stream entry IDs.")
 	private String idField;
 
 	@Override

@@ -1,127 +1,91 @@
 package com.redislabs.riot.generator;
 
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemStreamException;
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
-import org.springframework.expression.spel.support.StandardEvaluationContext;
-import org.springframework.util.Assert;
+import org.springframework.expression.EvaluationContext;
+import org.springframework.expression.Expression;
+import org.springframework.expression.spel.support.ReflectivePropertyAccessor;
+import org.springframework.expression.spel.support.SimpleEvaluationContext;
 import org.springframework.util.ClassUtils;
 
-import com.redislabs.lettusearch.StatefulRediSearchConnection;
+import com.redislabs.lettusearch.RediSearchClient;
 import com.redislabs.riot.batch.IndexedPartitioner;
 import com.redislabs.riot.processor.CachedRedis;
 
+import lombok.Setter;
+
 public class GeneratorReader extends AbstractItemCountingItemStreamItemReader<Map<String, Object>> {
 
-	private volatile boolean initialized = false;
-	private volatile int current = 0;
-	private StatefulRediSearchConnection<String, String> connection;
-	private String locale;
-	private StandardEvaluationContext evaluationContext;
-	private int partitionIndex;
-	private int partitions;
-	private MapGenerator generator;
+	private ThreadLocal<Long> current = new ThreadLocal<>();
+	@Setter
+	private RediSearchClient client;
+	@Setter
+	private Locale locale;
+	@Setter
+	private Map<String, Expression> fieldExpressions;
+	private ThreadLocal<EvaluationContext> context = new ThreadLocal<>();
+	private ThreadLocal<Integer> partitionIndex = new ThreadLocal<>();
+	private ThreadLocal<Integer> partitions = new ThreadLocal<>();
+	private int maxItemCount;
 
 	public GeneratorReader() {
 		setName(ClassUtils.getShortName(GeneratorReader.class));
 	}
 
-	public void setGenerator(MapGenerator generator) {
-		this.generator = generator;
-	}
-
-	public void setLocale(String locale) {
-		this.locale = locale;
-	}
-
-	public void setConnection(StatefulRediSearchConnection<String, String> connection) {
-		this.connection = connection;
-	}
-
 	@Override
 	public void open(ExecutionContext executionContext) throws ItemStreamException {
-		this.partitionIndex = IndexedPartitioner.getPartitionIndex(executionContext);
-		this.partitions = IndexedPartitioner.getPartitions(executionContext);
+		this.partitionIndex.set(IndexedPartitioner.getPartitionIndex(executionContext));
+		this.partitions.set(IndexedPartitioner.getPartitions(executionContext));
 		super.open(executionContext);
 	}
 
 	public int getPartitions() {
-		return partitions;
+		return partitions.get();
 	}
 
 	public int getPartitionIndex() {
-		return partitionIndex;
-	}
-
-	public int current() {
-		return current;
+		return partitionIndex.get();
 	}
 
 	@Override
 	protected void doOpen() throws Exception {
-		Assert.state(!initialized, "Cannot open an already open GeneratorReader, call close first");
-		GeneratorRootObject root = getRootObject();
-		root.setReader(this);
-		this.evaluationContext = new StandardEvaluationContext(root);
-		if (connection != null) {
-			evaluationContext.setVariable("r", connection.sync());
-			evaluationContext.setVariable("c", new CachedRedis(connection.sync()));
-		}
-		initialized = true;
+		EvaluationContext evaluationContext = new SimpleEvaluationContext.Builder(new ReflectivePropertyAccessor())
+				.withRootObject(this).build();
+		evaluationContext.setVariable("r", client.connect().sync());
+		evaluationContext.setVariable("c", new CachedRedis(client.connect().sync()));
+		context.set(evaluationContext);
+		current.set(0l);
 	}
 
-	private GeneratorRootObject getRootObject() {
-		if (locale == null) {
-			return new GeneratorRootObject();
-		}
-		return new GeneratorRootObject(new Locale(locale));
+	public void setMaxItemCount(int count) {
+		this.maxItemCount = count;
+		super.setMaxItemCount(count);
 	}
 
-	public long current(long end) {
-		return current / segment(end);
+	public long getSequence() {
+		return start(maxItemCount) + current.get();
 	}
 
-	public long nextLong(long end) {
-		return nextLong(0, end);
-	}
-
-	public long nextLong(long start, long end) {
-		long segment = segment(start, end);
-		long partitionStart = start + partitionIndex * segment;
-		return partitionStart + (current % segment);
-	}
-
-	public long segment(long end) {
-		return segment(0, end);
-	}
-
-	public long segment(long start, long end) {
-		return (end - start) / partitions;
-	}
-
-	public String nextId(long start, long end, String format) {
-		return String.format(format, nextLong(start, end));
-	}
-
-	public String nextId(long end, String format) {
-		return nextId(0, end, format);
+	private long start(long total) {
+		return total * partitionIndex.get() / partitions.get();
 	}
 
 	@Override
 	protected Map<String, Object> doRead() throws Exception {
-		Map<String, Object> map = generator.generate(evaluationContext);
-		current++;
+		Map<String, Object> map = new HashMap<>();
+		fieldExpressions.forEach((k, v) -> map.put(k, v.getValue(context.get())));
+		current.set(current.get() + 1);
 		return map;
 	}
 
 	@Override
 	protected void doClose() throws Exception {
-		initialized = false;
-		current = 0;
-		evaluationContext = null;
+		context.remove();
 	}
 
 }

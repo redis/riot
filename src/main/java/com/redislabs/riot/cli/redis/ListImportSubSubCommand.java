@@ -9,7 +9,7 @@ import picocli.CommandLine.Option;
 @Command(name = "list", description = "List data structure")
 public class ListImportSubSubCommand extends AbstractRedisCollectionImportSubSubCommand {
 
-	@Option(names = "--push-direction", description = "Direction for list push: ${COMPLETION-CANDIDATES}. (default: ${DEFAULT-VALUE}).", order = 5)
+	@Option(names = "--push-direction", description = "Direction for list push: ${COMPLETION-CANDIDATES}. (default: ${DEFAULT-VALUE}).")
 	private PushDirection pushDirection = PushDirection.Left;
 
 	@Override

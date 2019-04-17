@@ -5,7 +5,7 @@ import java.util.Map;
 
 import org.springframework.batch.item.json.JsonItemReader;
 
-import com.redislabs.riot.cli.AbstractFileImportSubCommand;
+import com.redislabs.riot.cli.in.AbstractFileImportSubCommand;
 
 import picocli.CommandLine.Command;
 

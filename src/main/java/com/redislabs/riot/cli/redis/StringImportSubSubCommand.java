@@ -9,9 +9,9 @@ import picocli.CommandLine.Option;
 @Command(name = "string", description = "String data structure")
 public class StringImportSubSubCommand extends AbstractRedisDataStructureImportSubSubCommand {
 
-	@Option(names = "--format", description = "Serialization format: ${COMPLETION-CANDIDATES}", order = 5)
+	@Option(names = "--format", description = "Serialization format: ${COMPLETION-CANDIDATES}")
 	private StringFormat format = StringFormat.Json;
-	@Option(names = "--xml-root", description = "XML root element name.", order = 6)
+	@Option(names = "--xml-root", description = "XML root element name.")
 	private String xmlRoot;
 
 	@Override

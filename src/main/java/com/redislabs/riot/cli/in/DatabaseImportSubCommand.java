@@ -1,4 +1,4 @@
-package com.redislabs.riot.cli;
+package com.redislabs.riot.cli.in;
 
 import java.util.Map;
 

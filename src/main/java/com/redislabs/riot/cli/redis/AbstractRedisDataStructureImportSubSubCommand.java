@@ -1,6 +1,6 @@
 package com.redislabs.riot.cli.redis;
 
-import com.redislabs.riot.cli.AbstractImportSubSubCommand;
+import com.redislabs.riot.cli.in.AbstractImportSubSubCommand;
 import com.redislabs.riot.redis.writer.AbstractRedisDataStructureWriter;
 
 import picocli.CommandLine.Option;
@@ -10,7 +10,7 @@ public abstract class AbstractRedisDataStructureImportSubSubCommand extends Abst
 
 	@Parameters(description = "Redis keyspace prefix.")
 	private String keyspace;
-	@Option(arity = "1..*", names = { "-k", "--keys" }, description = "Key fields.", order = 3)
+	@Option(arity = "1..*", names = { "-k", "--keys" }, description = "Key fields.")
 	private String[] keys = new String[0];
 
 	@Override

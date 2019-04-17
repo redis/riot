@@ -1,14 +1,15 @@
 package com.redislabs.riot;
 
 import java.util.List;
+import java.util.Locale;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import com.redislabs.riot.cli.ExportCommand;
 import com.redislabs.riot.cli.HelpAwareCommand;
-import com.redislabs.riot.cli.ImportCommand;
+import com.redislabs.riot.cli.in.ImportCommand;
+import com.redislabs.riot.cli.out.ExportCommand;
 
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -33,6 +34,7 @@ public class Riot extends HelpAwareCommand implements CommandLineRunner {
 	@Override
 	public void run(String... args) {
 		CommandLine commandLine = new CommandLine(this);
+		commandLine.registerConverter(Locale.class, s -> new Locale.Builder().setLanguageTag(s).build());
 		commandLine.setCaseInsensitiveEnumValuesAllowed(true);
 		RunLast handler = new RunLast();
 		handler.useOut(System.out);

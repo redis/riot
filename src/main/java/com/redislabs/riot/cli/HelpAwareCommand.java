@@ -6,7 +6,7 @@ import picocli.CommandLine.Option;
 
 public class HelpAwareCommand implements Callable<Void> {
 
-	@Option(names = { "--help" }, usageHelp = true, order = 0)
+	@Option(names = "--help", usageHelp = true)
 	private boolean helpRequested;
 
 	@Override

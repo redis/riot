@@ -1,4 +1,6 @@
-package com.redislabs.riot.cli;
+package com.redislabs.riot.cli.out;
+
+import com.redislabs.riot.cli.HelpAwareCommand;
 
 import picocli.CommandLine.Command;
 

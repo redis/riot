@@ -1,12 +1,13 @@
 package com.redislabs.riot.generator;
 
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 
-import com.redislabs.lettusearch.StatefulRediSearchConnection;
+import com.redislabs.lettusearch.RediSearchClient;
 
 import lombok.Setter;
 
@@ -15,36 +16,20 @@ public class GeneratorReaderBuilder {
 	private SpelExpressionParser parser = new SpelExpressionParser();
 
 	@Setter
-	private String mapExpression;
+	private Map<String, String> fields;
 	@Setter
-	private Map<String, String> fieldExpressions;
+	private Locale locale = Locale.ENGLISH;
 	@Setter
-	private String locale;
-	@Setter
-	private StatefulRediSearchConnection<String, String> connection;
+	private RediSearchClient client;
 
 	public GeneratorReader build() {
-		CompositeGenerator generator = new CompositeGenerator();
-		generator.setMapGenerator(mapGenerator(mapExpression));
 		Map<String, Expression> fieldExpressionMap = new LinkedHashMap<String, Expression>();
-		fieldExpressions.forEach((k, v) -> fieldExpressionMap.put(k, parser.parseExpression(v)));
-		ExpressionFieldGenerator expressionFieldGenerator = new ExpressionFieldGenerator();
-		expressionFieldGenerator.setExpressions(fieldExpressionMap);
-		generator.setFieldGenerator(expressionFieldGenerator);
+		fields.forEach((k, v) -> fieldExpressionMap.put(k, parser.parseExpression(v)));
 		GeneratorReader reader = new GeneratorReader();
-		reader.setGenerator(generator);
+		reader.setFieldExpressions(fieldExpressionMap);
 		reader.setLocale(locale);
-		reader.setConnection(connection);
+		reader.setClient(client);
 		return reader;
-	}
-
-	private MapGenerator mapGenerator(String expression) {
-		if (expression == null) {
-			return new EmptyMapGenerator();
-		}
-		ExpressionMapGenerator generator = new ExpressionMapGenerator();
-		generator.setExpression(parser.parseExpression(expression));
-		return generator;
 	}
 
 }

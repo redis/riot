@@ -8,9 +8,9 @@ import picocli.CommandLine.Option;
 @Command(name = "zset", description = "Sorted set data structure")
 public class ZSetImportSubSubCommand extends AbstractRedisCollectionImportSubSubCommand {
 
-	@Option(names = "--score-field", description = "Name of the field to use for scores.", order = 5)
+	@Option(names = "--score-field", description = "Name of the field to use for scores.")
 	private String scoreField;
-	@Option(names = "--default-score", description = "Default score to use when score field is not present. (default: ${DEFAULT-VALUE}).", order = 5)
+	@Option(names = "--default-score", description = "Default score to use when score field is not present. (default: ${DEFAULT-VALUE}).")
 	private Double defaultScore = 1d;
 
 	@Override
