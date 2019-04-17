@@ -59,10 +59,10 @@ public class RediSearchConfig {
 	@StepScope
 	@ConditionalOnProperty("index")
 	public AbstractRediSearchWriter rediSearchWriter(
-			GenericObjectPool<StatefulRediSearchConnection<String, String>> pool, RediSearchProperties redisearch) {
+			GenericObjectPool<StatefulRediSearchConnection<String, String>> pool, RediSearchProperties redisearch) throws Exception {
 		AbstractRediSearchWriter writer = writer(redisearch);
 		writer.setIndex(redisearch.getIndex());
-		writer.setPool(pool);
+		writer.setConnection(pool.borrowObject());
 		return writer;
 	}
 

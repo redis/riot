@@ -51,47 +51,47 @@ public class SearchAddWriter extends AbstractRediSearchWriter {
 
 	@Override
 	public void open(ExecutionContext executionContext) {
-		if (IndexedPartitioner.getPartitionIndex(executionContext) == 0) {
-			try {
-				StatefulRediSearchConnection<String, String> connection = pool.borrowObject();
-				try {
-					RediSearchAsyncCommands<String, String> commands = connection.async();
-					if (drop) {
-						log.info("Dropping index {}", index);
-						try {
-							RedisFuture<String> drop = commands.drop(index,
-									DropOptions.builder().keepDocs(dropKeepDocs).build());
-							commands.flushCommands();
-							LettuceFutures.awaitOrCancel(drop, 10, TimeUnit.SECONDS);
-						} catch (Exception e) {
-							if (log.isDebugEnabled()) {
-								log.debug("Could not drop index {}", index, e);
-							} else {
-								log.warn("Could not drop index {}", index);
-							}
-						}
-					}
-					if (schema != null) {
-						log.debug("Creating schema {}", index);
-						try {
-							RedisFuture<String> create = commands.create(index, schema);
-							commands.flushCommands();
-							LettuceFutures.awaitOrCancel(create, 10, TimeUnit.SECONDS);
-						} catch (Exception e) {
-							if (e.getMessage().startsWith("Index already exists")) {
-								log.debug("Ignored failure to create index {}", index, e);
-							} else {
-								log.error("Could not create index {}", index, e);
-							}
-						}
-					}
-				} finally {
-					pool.returnObject(connection);
-				}
-			} catch (Exception e) {
-				log.error("Could not create schema", e);
-			}
-		}
+//		if (IndexedPartitioner.getPartitionIndex(executionContext) == 0) {
+//			try {
+//				StatefulRediSearchConnection<String, String> connection = pool.borrowObject();
+//				try {
+//					RediSearchAsyncCommands<String, String> commands = connection.async();
+//					if (drop) {
+//						log.info("Dropping index {}", index);
+//						try {
+//							RedisFuture<String> drop = commands.drop(index,
+//									DropOptions.builder().keepDocs(dropKeepDocs).build());
+//							commands.flushCommands();
+//							LettuceFutures.awaitOrCancel(drop, 10, TimeUnit.SECONDS);
+//						} catch (Exception e) {
+//							if (log.isDebugEnabled()) {
+//								log.debug("Could not drop index {}", index, e);
+//							} else {
+//								log.warn("Could not drop index {}", index);
+//							}
+//						}
+//					}
+//					if (schema != null) {
+//						log.debug("Creating schema {}", index);
+//						try {
+//							RedisFuture<String> create = commands.create(index, schema);
+//							commands.flushCommands();
+//							LettuceFutures.awaitOrCancel(create, 10, TimeUnit.SECONDS);
+//						} catch (Exception e) {
+//							if (e.getMessage().startsWith("Index already exists")) {
+//								log.debug("Ignored failure to create index {}", index, e);
+//							} else {
+//								log.error("Could not create index {}", index, e);
+//							}
+//						}
+//					}
+//				} finally {
+//					pool.returnObject(connection);
+//				}
+//			} catch (Exception e) {
+//				log.error("Could not create schema", e);
+//			}
+//		}
 		super.open(executionContext);
 	}
 

@@ -10,7 +10,7 @@ public abstract class AbstractFlatFileImportSubCommand extends AbstractFileImpor
 
 	@Option(names = "--encoding", description = "Encoding for this input source. (default: ${DEFAULT-VALUE}).")
 	private String encoding = FlatFileItemReader.DEFAULT_CHARSET;
-	@Option(names = "--names", arity = "1..*", description = "Names of the fields in the order they occur within the delimited file.")
+	@Option(names = "--fields", arity = "1..*", description = "Names of the fields in the order they occur within the delimited file.")
 	private String[] fieldNames;
 	@Option(names = "--lines-to-skip", description = "Number of lines to skip at the beginning of reading the file. (default: ${DEFAULT-VALUE}).")
 	private Integer linesToSkip;

@@ -82,7 +82,7 @@ public class AbstractCommand<I, O> extends HelpAwareCommand {
 		builder.setSleep(sleep);
 		Job job = builder.build();
 		long startTime = System.currentTimeMillis();
-		System.out.println("Importing into " + targetDescription + " from " + sourceDescription);
+		System.out.println("Importing from " + sourceDescription + " to " + targetDescription);
 		SimpleJobLauncher jobLauncher = new SimpleJobLauncher();
 		jobLauncher.setJobRepository(builder.jobRepository());
 		jobLauncher.setTaskExecutor(new SyncTaskExecutor());

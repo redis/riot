@@ -20,6 +20,7 @@ import com.redislabs.lettusearch.StatefulRediSearchConnection;
 import io.lettuce.core.LettuceFutures;
 import io.lettuce.core.RedisCommandExecutionException;
 import io.lettuce.core.RedisFuture;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -28,7 +29,9 @@ public abstract class AbstractRedisWriter extends AbstractItemStreamItemWriter<M
 	public static final String KEY_SEPARATOR = ":";
 
 	protected ConversionService converter = new DefaultConversionService();
-	protected GenericObjectPool<StatefulRediSearchConnection<String, String>> pool;
+	@Setter
+	private StatefulRediSearchConnection<String, String> connection;
+//	protected GenericObjectPool<StatefulRediSearchConnection<String, String>> pool;
 
 	public AbstractRedisWriter() {
 		setName(ClassUtils.getShortName(this.getClass()));
@@ -38,9 +41,9 @@ public abstract class AbstractRedisWriter extends AbstractItemStreamItemWriter<M
 		return getExecutionContextKey("name");
 	}
 
-	public void setPool(GenericObjectPool<StatefulRediSearchConnection<String, String>> pool) {
-		this.pool = pool;
-	}
+//	public void setPool(GenericObjectPool<StatefulRediSearchConnection<String, String>> pool) {
+//		this.pool = pool;
+//	}
 
 	protected String getValues(Map<String, Object> record, String[] fields) {
 		if (fields == null || fields.length == 0) {
@@ -66,11 +69,11 @@ public abstract class AbstractRedisWriter extends AbstractItemStreamItemWriter<M
 	@Override
 	public void write(List<? extends Map<String, Object>> records) throws Exception {
 		List<RedisFuture<?>> futures = new ArrayList<>();
-		if (pool.isClosed()) {
-			return;
-		}
-		StatefulRediSearchConnection<String, String> connection = pool.borrowObject();
-		try {
+//		if (connection.isClosed()) {
+//			return;
+//		}
+//		StatefulRediSearchConnection<String, String> connection = pool.borrowObject();
+//		try {
 			RediSearchAsyncCommands<String, String> commands = connection.async();
 			commands.setAutoFlushCommands(false);
 			for (Map<String, Object> record : records) {
@@ -96,9 +99,9 @@ public abstract class AbstractRedisWriter extends AbstractItemStreamItemWriter<M
 			} catch (RedisCommandExecutionException e) {
 				log.error("Could not execute commands", e);
 			}
-		} finally {
-			pool.returnObject(connection);
-		}
+//		} finally {
+//			pool.returnObject(connection);
+//		}
 	}
 
 	protected abstract RedisFuture<?> write(Map<String, Object> record,

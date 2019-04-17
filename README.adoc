@@ -1,89 +1,28 @@
-= Riot
+= RIOT
 
-Riot is a data import/export tool for Redis. It supports the following data sources:
+Redis Input/Output Tool (RIOT) is a data import/export tool for Redis. It supports the following data sources:
 
-* Databases (JDBC)
-* Files
-** Delimited (CSV)
-** Fixed width (FW)
-** JSON
-** XML
-* Generated data with https://github.com/DiUS/java-faker[Faker]
+* Databases through JDBC
+* Delimited files (CSV)
+* Fixed width files
+* JSON files
+* Data generator using https://github.com/DiUS/java-faker[Faker]
 
 == Installation
-You can download the Recharge distribution from these locations:
-* zip
-* tar.gz
-
-Unpack the downloaded archive and follow the INSTALL.txt instructions.
+Download the latest RIOT distribution (zip or tar.gz) and unpack the downloaded archive.
 
 == Running
-Use the `riot` script (`riot.bat` for Windows) to launch Riot.
+Use the `riot` script (`riot.bat` for Windows) to launch RIOT.
 
 == Usage
-Use the following parameters to configure Riot.
-
-=== Redis Connection
-- *host*: Redis database hostname e.g. `--host=redis.redislabs.com`
-- *port*: Redis database port e.g. `--port=12000`
-- *password*: Redis database password e.g. `--password=1234`
-- *timeout*: Command timeout for synchronous command execution e.g. `--timeout=5s`
-- *pool.max-active*: Maximum number of connections that can be allocated by the pool at a given time. Use a negative value for no limit.
-- *pool.max-idle*: Maximum number of "idle" connections in the pool. Use a negative value to indicate an unlimited number of idle connections.
-- *pool.min-idle*: Target for the minimum number of idle connections to maintain in the pool. This setting only has an effect if it is positive.
-- *pool.max-wait*: Maximum amount of time a connection allocation should block before throwing an exception when the pool is exhausted. Use a negative value to block indefinitely. e.g. `--pool.max-wait=5s`
-
-=== Redis Writer
-
-==== Common
-Options common to all Redis writers:
-
- - *type*: target Redis data structure (Hash, String, Set, Zset, Geo, List, Stream). Default is `Hash`.
- - *keyspace*: key prefix e.g. `beer`
- - *keys*: key field names e.g. if keyspace is `beer` and `id` is an integer -> `beer:1`, `beer:2`, ... 
-
-==== Hash
-
-- *increment-field*: If this option is specified HINCRBY will be used instead of HMSET and this option determines which field from the source data to use as the increment value. 
-- *field*: Specifies the field to increment (only for HINCRBY)
-- *default-increment*: numeric value for default increment if value of increment-field is null
-
-==== String
-
-- *format*: format to serialize the input data to (XML or JSON)
-- *root*: if format is XML, specifies the name of the root element
-
-==== Stream
-
-- *approximate-trimming*: true or false (default)
-- *id-field*: name of the field containing stream entry id information
-- *maxlen*: maxlen option for XADD
-
-==== Collections
-Options common to collection data structures (List, Set, Sorted Set, Geo)
-
-- *fields*: fields used to build member IDs
- 
-==== List
-- *right*: use RPUSH instead of LPUSH to add to lists
-
-==== Sorted Set
-- *score-field*: name of the field containing score information
-- *default-score*: default numeric value to use when score is null
-
-==== Geo
-- *latitude-field*: name of the field containing latitude information
-- *longitude-field*: name of the field containing longitude information
+Follow the usage help provided with the `--help` option. 
 
 === Examples
-
-The link:./examples[examples] folder contains a few sample
-configurations to import various datasets.
 
 ==== https://openflights.org/data.html[openflights.org]
 
 * Airlines
 
 ```
-recharge --file.path=https://raw.githubusercontent.com/jpatokal/openflights/master/data/airlines.dat --file.type=csv --file.header=false --file.fields=AirlineID,Name,Alias,IATA,ICAO,Callsign,Country,Active --keyspace=airline --keys=AirlineID
+riot --file.path=https://raw.githubusercontent.com/jpatokal/openflights/master/data/airlines.dat --file.type=csv --file.header=false --file.fields=AirlineID,Name,Alias,IATA,ICAO,Callsign,Country,Active --keyspace=airline --keys=AirlineID
 ```
