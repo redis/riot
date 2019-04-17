@@ -8,13 +8,14 @@ import java.util.Map;
 import java.util.StringJoiner;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.pool2.impl.GenericObjectPool;
+import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.support.AbstractItemStreamItemWriter;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.util.ClassUtils;
 
 import com.redislabs.lettusearch.RediSearchAsyncCommands;
+import com.redislabs.lettusearch.RediSearchClient;
 import com.redislabs.lettusearch.StatefulRediSearchConnection;
 
 import io.lettuce.core.LettuceFutures;
@@ -30,7 +31,8 @@ public abstract class AbstractRedisWriter extends AbstractItemStreamItemWriter<M
 
 	protected ConversionService converter = new DefaultConversionService();
 	@Setter
-	private StatefulRediSearchConnection<String, String> connection;
+	private RediSearchClient redisClient;
+	private ThreadLocal<StatefulRediSearchConnection<String, String>> connection = new ThreadLocal<>();
 //	protected GenericObjectPool<StatefulRediSearchConnection<String, String>> pool;
 
 	public AbstractRedisWriter() {
@@ -67,6 +69,12 @@ public abstract class AbstractRedisWriter extends AbstractItemStreamItemWriter<M
 	}
 
 	@Override
+	public void open(ExecutionContext executionContext) {
+		connection.set(redisClient.connect());
+		super.open(executionContext);
+	}
+
+	@Override
 	public void write(List<? extends Map<String, Object>> records) throws Exception {
 		List<RedisFuture<?>> futures = new ArrayList<>();
 //		if (connection.isClosed()) {
@@ -74,31 +82,31 @@ public abstract class AbstractRedisWriter extends AbstractItemStreamItemWriter<M
 //		}
 //		StatefulRediSearchConnection<String, String> connection = pool.borrowObject();
 //		try {
-			RediSearchAsyncCommands<String, String> commands = connection.async();
-			commands.setAutoFlushCommands(false);
-			for (Map<String, Object> record : records) {
-				RedisFuture<?> future = write(record, commands);
-				if (future != null) {
-					futures.add(future);
-				}
+		RediSearchAsyncCommands<String, String> commands = connection.get().async();
+		commands.setAutoFlushCommands(false);
+		for (Map<String, Object> record : records) {
+			RedisFuture<?> future = write(record, commands);
+			if (future != null) {
+				futures.add(future);
 			}
-			commands.flushCommands();
-			try {
-				boolean result = LettuceFutures.awaitAll(5, TimeUnit.SECONDS,
-						futures.toArray(new RedisFuture[futures.size()]));
-				if (result) {
-					log.debug("Wrote {} records", records.size());
-				} else {
-					log.warn("Could not write {} records", records.size());
-					for (RedisFuture<?> future : futures) {
-						if (future.getError() != null) {
-							log.error(future.getError());
-						}
+		}
+		commands.flushCommands();
+		try {
+			boolean result = LettuceFutures.awaitAll(5, TimeUnit.SECONDS,
+					futures.toArray(new RedisFuture[futures.size()]));
+			if (result) {
+				log.debug("Wrote {} records", records.size());
+			} else {
+				log.warn("Could not write {} records", records.size());
+				for (RedisFuture<?> future : futures) {
+					if (future.getError() != null) {
+						log.error(future.getError());
 					}
 				}
-			} catch (RedisCommandExecutionException e) {
-				log.error("Could not execute commands", e);
 			}
+		} catch (RedisCommandExecutionException e) {
+			log.error("Could not execute commands", e);
+		}
 //		} finally {
 //			pool.returnObject(connection);
 //		}

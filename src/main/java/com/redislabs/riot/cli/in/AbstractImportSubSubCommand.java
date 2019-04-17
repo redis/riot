@@ -18,7 +18,7 @@ public abstract class AbstractImportSubSubCommand
 	@Override
 	protected ItemStreamWriter<Map<String, Object>> writer() {
 		AbstractRedisWriter writer = redisWriter();
-		writer.setConnection(parent.getParent().redisConnectionBuilder().buildClient().connect());
+		writer.setRedisClient(parent.getParent().redisConnectionBuilder().buildClient());
 		return writer;
 	}
 
