@@ -12,6 +12,8 @@ import io.lettuce.core.RedisURI;
 import io.lettuce.core.resource.DefaultClientResources;
 import io.lettuce.core.support.ConnectionPoolSupport;
 import lombok.Setter;
+import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.JedisPoolConfig;
 
 public class RedisConnectionBuilder {
 
@@ -22,45 +24,54 @@ public class RedisConnectionBuilder {
 	@Setter
 	private String password;
 	@Setter
-	private Long timeout;
+	private int connectionTimeout;
 	@Setter
-	private Integer maxIdle;
+	private int socketTimeout;
 	@Setter
-	private Integer minIdle;
+	private int database;
 	@Setter
-	private Integer maxActive;
+	private String clientName;
 	@Setter
-	private Long maxWait;
+	private Long commandTimeout;
+	@Setter
+	private int maxIdle;
+	@Setter
+	private int minIdle;
+	@Setter
+	private int maxTotal;
+	@Setter
+	private long maxWait;
 
-	public RediSearchClient buildClient() {
+	public RediSearchClient buildLettuceClient() {
 		RedisURI redisURI = RedisURI.create(host, port);
 		if (password != null) {
 			redisURI.setPassword(password);
 		}
-		if (timeout != null) {
-			redisURI.setTimeout(Duration.ofMillis(timeout));
+		if (commandTimeout != null) {
+			redisURI.setTimeout(Duration.ofMillis(commandTimeout));
 		}
 		return RediSearchClient.create(DefaultClientResources.create(), redisURI);
 	}
 
-	public GenericObjectPool<StatefulRediSearchConnection<String, String>> buildPool() {
-		RediSearchClient client = buildClient();
+	public GenericObjectPool<StatefulRediSearchConnection<String, String>> buildLettucePool() {
+		RediSearchClient client = buildLettuceClient();
 		GenericObjectPoolConfig<StatefulRediSearchConnection<String, String>> config = new GenericObjectPoolConfig<StatefulRediSearchConnection<String, String>>();
 		GenericObjectPool<StatefulRediSearchConnection<String, String>> pool = ConnectionPoolSupport
 				.createGenericObjectPool(() -> client.connect(), config);
-		if (maxActive != null) {
-			pool.setMaxTotal(maxActive);
-		}
-		if (maxIdle != null) {
-			pool.setMaxIdle(maxIdle);
-		}
-		if (minIdle != null) {
-			pool.setMinIdle(minIdle);
-		}
-		if (maxWait != null) {
-			pool.setMaxWaitMillis(maxWait);
-		}
+		pool.setMaxTotal(maxTotal);
+		pool.setMaxIdle(maxIdle);
+		pool.setMinIdle(minIdle);
+		pool.setMaxWaitMillis(maxWait);
 		return pool;
+	}
+
+	public JedisPool buildJedisPool() {
+		JedisPoolConfig config = new JedisPoolConfig();
+		config.setMaxIdle(maxIdle);
+		config.setMaxIdle(maxTotal);
+		config.setMaxWaitMillis(maxWait);
+		config.setMinIdle(minIdle);
+		return new JedisPool(config, host, port, connectionTimeout, socketTimeout, password, database, clientName);
 	}
 
 }

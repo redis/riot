@@ -2,18 +2,14 @@ package com.redislabs.riot.redis.writer;
 
 import java.util.Map;
 
-import com.redislabs.lettusearch.RediSearchAsyncCommands;
-
-import io.lettuce.core.RedisFuture;
 import lombok.Setter;
 
 @Setter
-public class SetWriter extends AbstractRedisCollectionWriter {
+public class SetWriter extends AbstractCollectionRedisItemWriter {
 
 	@Override
-	protected RedisFuture<?> write(String key, String member, Map<String, Object> record,
-			RediSearchAsyncCommands<String, String> commands) {
-		return commands.sadd(key, member);
+	public Object write(Object redis, Map<String, Object> item) {
+		return commands.sadd(redis, key(item), member(item));
 	}
 
 }

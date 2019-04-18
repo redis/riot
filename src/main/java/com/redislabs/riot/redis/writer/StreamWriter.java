@@ -2,31 +2,25 @@ package com.redislabs.riot.redis.writer;
 
 import java.util.Map;
 
-import com.redislabs.lettusearch.RediSearchAsyncCommands;
-
-import io.lettuce.core.RedisFuture;
-import io.lettuce.core.XAddArgs;
 import lombok.Setter;
 
 @Setter
-public class StreamWriter extends AbstractRedisSimpleWriter {
+public class StreamWriter extends AbstractRedisItemWriter {
 
 	private Long maxlen;
 	private boolean approximateTrimming;
 	private String idField;
 
 	@Override
-	protected RedisFuture<?> writeSingle(String key, Map<String, Object> record,
-			RediSearchAsyncCommands<String, String> commands) {
-		XAddArgs args = new XAddArgs();
-		args.approximateTrimming(approximateTrimming);
-		if (idField != null) {
-			args.id(converter.convert(record.getOrDefault(idField, idField), String.class));
+	public Object write(Object redis, Map<String, Object> item) {
+		return commands.xadd(redis, key(item), id(item), item, maxlen, approximateTrimming);
+	}
+
+	private String id(Map<String, Object> item) {
+		if (idField == null) {
+			return null;
 		}
-		if (maxlen != null) {
-			args.maxlen(maxlen);
-		}
-		return commands.xadd(key, args, toStringMap(record));
+		return converter.convert(item.getOrDefault(idField, idField), String.class);
 	}
 
 }

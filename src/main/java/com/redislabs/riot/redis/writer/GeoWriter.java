@@ -2,31 +2,28 @@ package com.redislabs.riot.redis.writer;
 
 import java.util.Map;
 
-import com.redislabs.lettusearch.RediSearchAsyncCommands;
-
-import io.lettuce.core.RedisFuture;
 import lombok.Setter;
 
-@Setter
-public class GeoWriter extends AbstractRedisCollectionWriter {
+public class GeoWriter extends AbstractCollectionRedisItemWriter {
 
+	@Setter
 	private String longitudeField;
+	@Setter
 	private String latitudeField;
 
 	@Override
-	protected RedisFuture<?> write(String key, String member, Map<String, Object> record,
-			RediSearchAsyncCommands<String, String> commands) {
-		Object longitude = record.get(longitudeField);
+	public Object write(Object redis, Map<String, Object> item) {
+		Object longitude = item.get(longitudeField);
 		if (longitude == null || longitude.equals("")) {
 			return null;
 		}
-		Object latitude = record.get(latitudeField);
+		Object latitude = item.get(latitudeField);
 		if (latitude == null || latitude.equals("")) {
 			return null;
 		}
 		double lon = converter.convert(longitude, Double.class);
 		double lat = converter.convert(latitude, Double.class);
-		return commands.geoadd(key, lon, lat, member);
+		return commands.geoadd(redis, key(item), lon, lat, member(item));
 	}
 
 }

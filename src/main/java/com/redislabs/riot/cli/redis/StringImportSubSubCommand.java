@@ -1,5 +1,6 @@
 package com.redislabs.riot.cli.redis;
 
+import com.redislabs.riot.redis.writer.AbstractRedisItemWriter;
 import com.redislabs.riot.redis.writer.StringWriter;
 import com.redislabs.riot.redis.writer.StringWriter.StringFormat;
 
@@ -7,7 +8,7 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 @Command(name = "string", description = "String data structure")
-public class StringImportSubSubCommand extends AbstractRedisDataStructureImportSubSubCommand {
+public class StringImportSubSubCommand extends AbstractRedisImportSubSubCommand {
 
 	@Option(names = "--format", description = "Serialization format: ${COMPLETION-CANDIDATES}")
 	private StringFormat format = StringFormat.Json;
@@ -15,7 +16,7 @@ public class StringImportSubSubCommand extends AbstractRedisDataStructureImportS
 	private String xmlRoot;
 
 	@Override
-	protected StringWriter doCreateWriter() {
+	protected AbstractRedisItemWriter redisItemWriter() {
 		StringWriter writer = new StringWriter();
 		writer.setFormat(format).withRootName(xmlRoot);
 		return writer;

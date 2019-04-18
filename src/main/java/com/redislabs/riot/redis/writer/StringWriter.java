@@ -6,13 +6,15 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.redislabs.lettusearch.RediSearchAsyncCommands;
 
-import io.lettuce.core.RedisFuture;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class StringWriter extends AbstractRedisSimpleWriter {
+public class StringWriter extends AbstractRedisItemWriter {
+
+	public static enum StringFormat {
+		Xml, Json
+	}
 
 	private ObjectWriter objectWriter;
 
@@ -29,18 +31,13 @@ public class StringWriter extends AbstractRedisSimpleWriter {
 	}
 
 	@Override
-	protected RedisFuture<?> writeSingle(String key, Map<String, Object> record,
-			RediSearchAsyncCommands<String, String> commands) {
+	public Object write(Object redis, Map<String, Object> item) {
 		try {
-			return commands.set(key, objectWriter.writeValueAsString(record));
+			return commands.set(redis, key(item), objectWriter.writeValueAsString(item));
 		} catch (JsonProcessingException e) {
-			log.error("Could not serialize value: {}", record, e);
+			log.error("Could not serialize value: {}", item, e);
 			return null;
 		}
-	}
-
-	public static enum StringFormat {
-		Xml, Json
 	}
 
 }

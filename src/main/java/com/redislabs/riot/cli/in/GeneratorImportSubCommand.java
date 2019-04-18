@@ -29,7 +29,7 @@ public class GeneratorImportSubCommand extends AbstractImportSubCommand {
 		GeneratorReaderBuilder builder = new GeneratorReaderBuilder();
 		builder.setFields(fieldExpressions);
 		builder.setLocale(locale);
-		builder.setClient(getParent().redisConnectionBuilder().buildClient());
+		builder.setClient(getParent().redisConnectionBuilder().buildLettuceClient());
 		return builder.build();
 	}
 

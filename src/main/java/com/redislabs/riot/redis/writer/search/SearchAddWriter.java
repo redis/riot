@@ -1,23 +1,19 @@
 package com.redislabs.riot.redis.writer.search;
 
+import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import org.springframework.batch.item.ExecutionContext;
+import org.springframework.core.convert.support.DefaultConversionService;
 
 import com.redislabs.lettusearch.RediSearchAsyncCommands;
-import com.redislabs.lettusearch.StatefulRediSearchConnection;
 import com.redislabs.lettusearch.search.AddOptions;
-import com.redislabs.lettusearch.search.DropOptions;
 import com.redislabs.lettusearch.search.Schema;
-import com.redislabs.riot.batch.IndexedPartitioner;
+import com.redislabs.riot.redis.RedisConverter;
 
-import io.lettuce.core.LettuceFutures;
 import io.lettuce.core.RedisFuture;
 import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 @Setter
 public class SearchAddWriter extends AbstractRediSearchWriter {
 
@@ -29,13 +25,24 @@ public class SearchAddWriter extends AbstractRediSearchWriter {
 	private double defaultScore;
 	private boolean drop;
 	private Schema schema;
+	private RedisConverter redisConverter;
+	private DefaultConversionService converter;
 
-	@Override
+	//TODO use AbstractRedisCommands
+	private Map<String, String> stringMap(Map<String, Object> item) {
+		Map<String, String> stringMap = new HashMap<String, String>();
+		for (String key : item.keySet()) {
+			Object value = item.get(key);
+			stringMap.put(key, converter.convert(value, String.class));
+		}
+		return stringMap;
+	}
+
 	protected RedisFuture<?> write(Map<String, Object> record, RediSearchAsyncCommands<String, String> commands) {
 		double score = getScore(record);
-		String id = getValues(record, keys);
+		String id = redisConverter.joinFields(record, keys);
 		String payload = payload(record);
-		return commands.add(index, id, score, toStringMap(record), options, payload);
+		return commands.add(index, id, score, stringMap(record), options, payload);
 	}
 
 	private String payload(Map<String, Object> record) {
@@ -49,7 +56,6 @@ public class SearchAddWriter extends AbstractRediSearchWriter {
 		return converter.convert(record.getOrDefault(scoreField, defaultScore), Double.class);
 	}
 
-	@Override
 	public void open(ExecutionContext executionContext) {
 //		if (IndexedPartitioner.getPartitionIndex(executionContext) == 0) {
 //			try {
@@ -92,7 +98,6 @@ public class SearchAddWriter extends AbstractRediSearchWriter {
 //				log.error("Could not create schema", e);
 //			}
 //		}
-		super.open(executionContext);
 	}
 
 }

@@ -2,27 +2,14 @@ package com.redislabs.riot.redis.writer;
 
 import java.util.Map;
 
-import com.redislabs.lettusearch.RediSearchAsyncCommands;
-
-import io.lettuce.core.RedisFuture;
 import lombok.Setter;
 
 @Setter
-public class ListWriter extends AbstractRedisCollectionWriter {
-
-	public enum PushDirection {
-		Left, Right
-	}
-
-	private PushDirection pushDirection;
+public class ListWriter extends AbstractCollectionRedisItemWriter {
 
 	@Override
-	protected RedisFuture<?> write(String key, String member, Map<String, Object> record,
-			RediSearchAsyncCommands<String, String> commands) {
-		if (pushDirection == PushDirection.Right) {
-			return commands.rpush(key, member);
-		}
-		return commands.lpush(key, member);
+	public Object write(Object redis, Map<String, Object> item) {
+		return commands.lpush(redis, key(item), member(item));
 	}
 
 }

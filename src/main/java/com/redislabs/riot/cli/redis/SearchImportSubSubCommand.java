@@ -3,6 +3,7 @@ package com.redislabs.riot.cli.redis;
 import com.redislabs.lettusearch.search.AddOptions;
 import com.redislabs.lettusearch.search.Language;
 import com.redislabs.riot.cli.in.AbstractImportSubSubCommand;
+import com.redislabs.riot.redis.writer.AbstractRedisItemWriter;
 import com.redislabs.riot.redis.writer.search.SearchAddWriter;
 
 import picocli.CommandLine.Command;
@@ -37,7 +38,7 @@ public class SearchImportSubSubCommand extends AbstractImportSubSubCommand {
 	private String payloadField;
 
 	@Override
-	protected SearchAddWriter redisWriter() {
+	protected AbstractRedisItemWriter itemWriter() {
 		SearchAddWriter writer = new SearchAddWriter();
 		writer.setDefaultScore(defaultScore);
 		writer.setDrop(dropIndex);
@@ -48,7 +49,7 @@ public class SearchImportSubSubCommand extends AbstractImportSubSubCommand {
 				.replace(replace).replacePartial(replacePartial).build());
 		writer.setPayloadField(payloadField);
 		writer.setScoreField(scoreField);
-		return writer;
+		return null; // TODO
 	}
 
 	@Override

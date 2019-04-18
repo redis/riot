@@ -1,12 +1,9 @@
 package com.redislabs.riot.redis.writer.search;
 
-import com.redislabs.riot.redis.writer.AbstractRedisWriter;
+import lombok.Setter;
 
-public abstract class AbstractRediSearchWriter extends AbstractRedisWriter {
+public abstract class AbstractRediSearchWriter {
 
+	@Setter
 	protected String index;
-
-	public void setIndex(String index) {
-		this.index = index;
-	}
 }

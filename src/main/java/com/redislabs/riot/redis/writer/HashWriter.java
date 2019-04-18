@@ -2,17 +2,11 @@ package com.redislabs.riot.redis.writer;
 
 import java.util.Map;
 
-import com.redislabs.lettusearch.RediSearchAsyncCommands;
-
-import io.lettuce.core.RedisFuture;
-
-public class HashWriter extends AbstractRedisSimpleWriter {
+public class HashWriter extends AbstractRedisItemWriter {
 
 	@Override
-	protected RedisFuture<?> writeSingle(String key, Map<String, Object> record,
-			RediSearchAsyncCommands<String, String> commands) {
-		Map<String, String> stringRecord = toStringMap(record);
-		return commands.hmset(key, stringRecord);
+	public Object write(Object redis, Map<String, Object> item) {
+		return commands.hmset(redis, key(item), item);
 	}
 
 }

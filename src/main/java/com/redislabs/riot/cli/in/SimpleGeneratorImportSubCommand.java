@@ -13,7 +13,7 @@ public class SimpleGeneratorImportSubCommand extends AbstractImportSubCommand {
 	@Override
 	public SimpleGeneratorReader reader() {
 		SimpleGeneratorReader reader = new SimpleGeneratorReader();
-		reader.setClient(getParent().redisConnectionBuilder().buildClient());
+		reader.setClient(getParent().redisConnectionBuilder().buildLettuceClient());
 		return reader;
 	}
 

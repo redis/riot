@@ -2,6 +2,8 @@ package com.redislabs.riot.redis.writer.search;
 
 import java.util.Map;
 
+import org.springframework.core.convert.ConversionService;
+
 import com.redislabs.lettusearch.RediSearchAsyncCommands;
 import com.redislabs.lettusearch.suggest.SuggestAddOptions;
 import com.redislabs.lettusearch.suggest.SuggestAddOptions.SuggestAddOptionsBuilder;
@@ -17,8 +19,8 @@ public class SuggestWriter extends AbstractRediSearchWriter {
 	private double defaultScore = 1d;
 	private boolean increment;
 	private String payloadField;
+	private ConversionService converter;
 
-	@Override
 	protected RedisFuture<?> write(Map<String, Object> record, RediSearchAsyncCommands<String, String> commands) {
 		String string = converter.convert(record.get(field), String.class);
 		double score = converter.convert(record.getOrDefault(scoreField, defaultScore), Double.class);

@@ -1,6 +1,7 @@
 package com.redislabs.riot.cli.redis;
 
 import com.redislabs.riot.cli.in.AbstractImportSubSubCommand;
+import com.redislabs.riot.redis.writer.AbstractRedisItemWriter;
 import com.redislabs.riot.redis.writer.search.SuggestWriter;
 
 import picocli.CommandLine.Command;
@@ -23,7 +24,7 @@ public class SuggestImportSubSubCommand extends AbstractImportSubSubCommand {
 	private String payloadField;
 
 	@Override
-	protected SuggestWriter redisWriter() {
+	protected AbstractRedisItemWriter itemWriter() {
 		SuggestWriter writer = new SuggestWriter();
 		writer.setDefaultScore(defaultScore);
 		writer.setField(suggestField);
@@ -31,7 +32,7 @@ public class SuggestImportSubSubCommand extends AbstractImportSubSubCommand {
 		writer.setIndex(index);
 		writer.setPayloadField(payloadField);
 		writer.setScoreField(scoreField);
-		return writer;
+		return null; // TODO
 	}
 
 	@Override

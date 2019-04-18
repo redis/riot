@@ -5,7 +5,12 @@ import java.util.Map;
 import org.springframework.batch.item.ItemStreamWriter;
 
 import com.redislabs.riot.cli.AbstractSubSubCommand;
-import com.redislabs.riot.redis.writer.AbstractRedisWriter;
+import com.redislabs.riot.redis.writer.AbstractRedisItemWriter;
+import com.redislabs.riot.redis.writer.JedisCommands;
+import com.redislabs.riot.redis.writer.JedisWriter;
+import com.redislabs.riot.redis.writer.LettuceCommands;
+import com.redislabs.riot.redis.writer.LettuceWriter;
+import com.redislabs.riot.redis.writer.RedisCommands;
 
 import picocli.CommandLine.ParentCommand;
 
@@ -17,11 +22,43 @@ public abstract class AbstractImportSubSubCommand
 
 	@Override
 	protected ItemStreamWriter<Map<String, Object>> writer() {
-		AbstractRedisWriter writer = redisWriter();
-		writer.setRedisClient(parent.getParent().redisConnectionBuilder().buildClient());
+		switch (parent.getParent().getDriver()) {
+		case Lettuce:
+			return lettuceWriter();
+		default:
+			return jedisWriter();
+		}
+	}
+
+	private JedisWriter jedisWriter() {
+		JedisWriter writer = new JedisWriter();
+		writer.setPool(parent.getParent().redisConnectionBuilder().buildJedisPool());
+		writer.setItemWriter(redisItemWriter());
 		return writer;
 	}
 
-	protected abstract AbstractRedisWriter redisWriter();
+	private AbstractRedisItemWriter redisItemWriter() {
+		AbstractRedisItemWriter itemWriter = itemWriter();
+		itemWriter.setCommands(redisCommands());
+		return itemWriter;
+	}
+
+	private LettuceWriter lettuceWriter() {
+		LettuceWriter writer = new LettuceWriter();
+		writer.setPool(parent.getParent().redisConnectionBuilder().buildLettucePool());
+		writer.setItemWriter(redisItemWriter());
+		return writer;
+	}
+
+	private RedisCommands redisCommands() {
+		switch (parent.getParent().getDriver()) {
+		case Lettuce:
+			return new LettuceCommands();
+		default:
+			return new JedisCommands();
+		}
+	}
+
+	protected abstract AbstractRedisItemWriter itemWriter();
 
 }

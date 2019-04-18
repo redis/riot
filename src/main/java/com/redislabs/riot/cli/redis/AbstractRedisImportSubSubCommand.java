@@ -1,12 +1,13 @@
 package com.redislabs.riot.cli.redis;
 
 import com.redislabs.riot.cli.in.AbstractImportSubSubCommand;
-import com.redislabs.riot.redis.writer.AbstractRedisDataStructureWriter;
+import com.redislabs.riot.redis.RedisConverter;
+import com.redislabs.riot.redis.writer.AbstractRedisItemWriter;
 
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
-public abstract class AbstractRedisDataStructureImportSubSubCommand extends AbstractImportSubSubCommand {
+public abstract class AbstractRedisImportSubSubCommand extends AbstractImportSubSubCommand {
 
 	@Parameters(description = "Redis keyspace prefix.")
 	private String keyspace;
@@ -29,13 +30,15 @@ public abstract class AbstractRedisDataStructureImportSubSubCommand extends Abst
 	}
 
 	@Override
-	protected AbstractRedisDataStructureWriter redisWriter() {
-		AbstractRedisDataStructureWriter writer = doCreateWriter();
-		writer.setKeyspace(keyspace);
-		writer.setKeys(keys);
+	protected AbstractRedisItemWriter itemWriter() {
+		AbstractRedisItemWriter writer = redisItemWriter();
+		RedisConverter converter = new RedisConverter();
+		converter.setKeyspace(keyspace);
+		converter.setKeys(keys);
+		writer.setConverter(converter);
 		return writer;
 	}
 
-	protected abstract AbstractRedisDataStructureWriter doCreateWriter();
+	protected abstract AbstractRedisItemWriter redisItemWriter();
 
 }

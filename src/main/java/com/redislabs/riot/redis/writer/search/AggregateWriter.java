@@ -20,7 +20,6 @@ public class AggregateWriter extends AbstractRediSearchWriter {
 	@Setter(AccessLevel.NONE)
 	private MapTemplate template = new MapTemplate();
 
-	@Override
 	protected RedisFuture<?> write(Map<String, Object> record, RediSearchAsyncCommands<String, String> commands) {
 		String query = query(record);
 		log.debug("Aggregate index={}, query='{}' options={}", index, query, options);

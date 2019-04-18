@@ -2,12 +2,9 @@ package com.redislabs.riot.redis.writer;
 
 import java.util.Map;
 
-import com.redislabs.lettusearch.RediSearchAsyncCommands;
-
-import io.lettuce.core.RedisFuture;
 import lombok.Setter;
 
-public class ZSetWriter extends AbstractRedisCollectionWriter {
+public class ZSetWriter extends AbstractCollectionRedisItemWriter {
 
 	@Setter
 	private String scoreField;
@@ -15,14 +12,13 @@ public class ZSetWriter extends AbstractRedisCollectionWriter {
 	private double defaultScore;
 
 	@Override
-	protected RedisFuture<?> write(String key, String member, Map<String, Object> record,
-			RediSearchAsyncCommands<String, String> commands) {
-		double score = score(record);
-		return commands.zadd(key, score, member);
+	public Object write(Object redis, Map<String, Object> item) {
+		double score = score(item);
+		return commands.zadd(redis, key(item), score, member(item));
 	}
 
-	private double score(Map<String, Object> record) {
-		return converter.convert(record.getOrDefault(scoreField, defaultScore), Double.class);
+	private double score(Map<String, Object> item) {
+		return converter.convert(item.getOrDefault(scoreField, defaultScore), Double.class);
 	}
 
 }

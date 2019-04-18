@@ -1,12 +1,13 @@
 package com.redislabs.riot.cli.redis;
 
+import com.redislabs.riot.redis.writer.AbstractCollectionRedisItemWriter;
 import com.redislabs.riot.redis.writer.ZSetWriter;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 @Command(name = "zset", description = "Sorted set data structure")
-public class ZSetImportSubSubCommand extends AbstractRedisCollectionImportSubSubCommand {
+public class ZSetImportSubSubCommand extends AbstractCollectionRedisImportSubSubCommand {
 
 	@Option(names = "--score-field", description = "Name of the field to use for scores.")
 	private String scoreField;
@@ -14,7 +15,7 @@ public class ZSetImportSubSubCommand extends AbstractRedisCollectionImportSubSub
 	private Double defaultScore = 1d;
 
 	@Override
-	protected ZSetWriter doCreateWriter() {
+	protected AbstractCollectionRedisItemWriter collectionRedisItemWriter() {
 		ZSetWriter writer = new ZSetWriter();
 		writer.setScoreField(scoreField);
 		writer.setDefaultScore(defaultScore);

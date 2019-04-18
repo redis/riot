@@ -62,7 +62,7 @@ public class RediSearchConfig {
 			GenericObjectPool<StatefulRediSearchConnection<String, String>> pool, RediSearchProperties redisearch) throws Exception {
 		AbstractRediSearchWriter writer = writer(redisearch);
 		writer.setIndex(redisearch.getIndex());
-		writer.setRedisClient(null);//TODO
+//		writer.setRedisClient(null);//TODO
 		return writer;
 	}
 
