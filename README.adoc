@@ -19,9 +19,7 @@ Follow the usage help provided with the `--help` option.
 
 === Examples
 
-==== https://openflights.org/data.html[openflights.org]
-
-* Airlines
+==== Import Beers
 
 ```
 riot import csv --url https://bit.ly/2PhqhsR --header hash beers --keys id
