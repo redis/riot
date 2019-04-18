@@ -138,15 +138,13 @@
 				<artifactId>github-release-plugin</artifactId>
 				<version>1.1.1</version>
 				<configuration>
-					<description>Riot ${project.version}</description>
-					<releaseName>Riot ${project.version}</releaseName>
+					<description>${project.name} ${project.version}</description>
+					<releaseName>${project.name} ${project.version}</releaseName>
 					<tag>${project.version}</tag>
+					<artifact>${project.artifactId}-${project.version}.jar</artifact>
 					<fileSets>
 						<fileSet>
 							<directory>${project.build.directory}</directory>
-							<excludes>
-								<exclude>${project.artifactId}-${project.version}.jar</exclude>
-							</excludes>
 							<includes>
 								<include>${project.artifactId}-${project.version}-bin.tar.gz</include>
 								<include>${project.artifactId}-${project.version}-bin.zip</include>

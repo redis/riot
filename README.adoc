@@ -9,7 +9,7 @@ Redis Input/Output Tool (RIOT) is a data import/export tool for Redis. It suppor
 * Data generator using https://github.com/DiUS/java-faker[Faker]
 
 == Installation
-Download the latest RIOT distribution (zip or tar.gz) and unpack the downloaded archive.
+Download the https://github.com/Redislabs-Solution-Architects/riot/releases/latest[latest RIOT distribution] (zip or tar.gz) and unpack the downloaded archive.
 
 == Running
 Use the `riot` script (`riot.bat` for Windows) to launch RIOT.
