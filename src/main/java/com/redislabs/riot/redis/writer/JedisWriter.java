@@ -35,4 +35,10 @@ public class JedisWriter extends AbstractItemStreamItemWriter<Map<String, Object
 			p.sync();
 		}
 	}
+
+	@Override
+	public void close() {
+		pool.close();
+		super.close();
+	}
 }

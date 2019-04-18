@@ -50,6 +50,8 @@ public class RedisConnectionBuilder {
 		if (commandTimeout != null) {
 			redisURI.setTimeout(Duration.ofMillis(commandTimeout));
 		}
+		redisURI.setClientName(clientName);
+		redisURI.setDatabase(database);
 		return RediSearchClient.create(DefaultClientResources.create(), redisURI);
 	}
 

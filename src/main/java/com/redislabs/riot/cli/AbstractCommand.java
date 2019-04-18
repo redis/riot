@@ -6,7 +6,6 @@ import java.text.NumberFormat;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParameters;
-import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.launch.support.SimpleJobLauncher;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemStreamWriter;
@@ -19,6 +18,7 @@ import com.redislabs.riot.redis.RedisConnectionBuilder;
 import io.lettuce.core.RedisURI;
 import lombok.Getter;
 import picocli.CommandLine.Option;
+import redis.clients.jedis.Protocol;
 
 public class AbstractCommand<I, O> extends HelpAwareCommand {
 
@@ -42,6 +42,10 @@ public class AbstractCommand<I, O> extends HelpAwareCommand {
 	private int port = RedisURI.DEFAULT_REDIS_PORT;
 	@Option(names = "--command-timeout", description = "Redis command timeout in seconds for synchronous command execution (default: ${DEFAULT-VALUE}).")
 	private long commandTimeout = RedisURI.DEFAULT_TIMEOUT;
+	@Option(names = "--connection-timeout", description = "Redis connect timeout in milliseconds. (default: ${DEFAULT-VALUE}).")
+	private int connectionTimeout = Protocol.DEFAULT_TIMEOUT;
+	@Option(names = "--socket-timeout", description = "Redis socket timeout in milliseconds. (default: ${DEFAULT-VALUE}).")
+	private int socketTimeout = Protocol.DEFAULT_TIMEOUT;
 	@Option(names = "--password", description = "Redis database password.", interactive = true)
 	private String password;
 	@Option(names = "--max-idle", description = "Maximum number of idle connections in the pool. Use a negative value to indicate an unlimited number of idle connections. (default: ${DEFAULT-VALUE}).")
@@ -52,12 +56,20 @@ public class AbstractCommand<I, O> extends HelpAwareCommand {
 	private int maxTotal = 8;
 	@Option(names = "--max-wait", description = "Maximum amount of time in milliseconds a connection allocation should block before throwing an exception when the pool is exhausted. Use a negative value to block indefinitely (default).")
 	private long maxWait = -1L;
-	@Option(names = "--driver", description = "Redis driver: ${COMPLETION-CANDIDATES}. (default: ${DEFAULT-VALUE})")
+	@Option(names = "--database", description = "Redis database number. Databases are only available for Redis Standalone and Redis Master/Slave. (default: ${DEFAULT-VALUE}).")
+	private int database = 0;
+	@Option(names = "--client-name", description = "Redis client name.")
+	private String clientName;
 	@Getter
+	@Option(names = "--driver", description = "Redis driver: ${COMPLETION-CANDIDATES}. (default: ${DEFAULT-VALUE})")
 	private RedisDriver driver = RedisDriver.Jedis;
 
 	public RedisConnectionBuilder redisConnectionBuilder() {
 		RedisConnectionBuilder builder = new RedisConnectionBuilder();
+		builder.setClientName(clientName);
+		builder.setCommandTimeout(commandTimeout);
+		builder.setConnectionTimeout(connectionTimeout);
+		builder.setDatabase(database);
 		builder.setHost(getHostname());
 		builder.setMaxTotal(maxTotal);
 		builder.setMaxIdle(maxIdle);
@@ -65,7 +77,7 @@ public class AbstractCommand<I, O> extends HelpAwareCommand {
 		builder.setMinIdle(minIdle);
 		builder.setPassword(password);
 		builder.setPort(port);
-		builder.setCommandTimeout(commandTimeout);
+		builder.setSocketTimeout(socketTimeout);
 		return builder;
 	}
 
@@ -99,13 +111,11 @@ public class AbstractCommand<I, O> extends HelpAwareCommand {
 		long endTime = System.currentTimeMillis();
 		long duration = endTime - startTime;
 		NumberFormat numberFormat = NumberFormat.getIntegerInstance();
-		for (StepExecution stepExecution : execution.getStepExecutions()) {
-			double durationInSeconds = (double) duration / 1000;
-			int writeCount = stepExecution.getWriteCount();
-			double throughput = writeCount / durationInSeconds;
-			System.out.println("Imported " + numberFormat.format(writeCount) + " items in " + durationInSeconds
-					+ " seconds (" + numberFormat.format(throughput) + " writes/sec)");
-		}
+		double durationInSeconds = (double) duration / 1000;
+		int writeCount = execution.getStepExecutions().iterator().next().getWriteCount();
+		double throughput = writeCount / durationInSeconds;
+		System.out.println("Imported " + numberFormat.format(writeCount) + " items in " + durationInSeconds
+				+ " seconds (" + numberFormat.format(throughput) + " writes/sec)");
 	}
 
 }

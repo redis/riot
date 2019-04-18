@@ -23,9 +23,9 @@
 	</properties>
 
 	<scm>
-		<url>https://github.com/Redislabs-Solution-Architects/recharge</url>
-		<connection>scm:git:https://github.com/Redislabs-Solution-Architects/recharge.git</connection>
-		<developerConnection>scm:git:https://github.com/Redislabs-Solution-Architects/recharge.git</developerConnection>
+		<url>https://github.com/Redislabs-Solution-Architects/riot</url>
+		<connection>scm:git:https://github.com/Redislabs-Solution-Architects/riot.git</connection>
+		<developerConnection>scm:git:https://github.com/Redislabs-Solution-Architects/riot.git</developerConnection>
 		<tag>HEAD</tag>
 	</scm>
 
@@ -144,6 +144,9 @@
 					<fileSets>
 						<fileSet>
 							<directory>${project.build.directory}</directory>
+							<excludes>
+								<exclude>${project.artifactId}-${project.version}.jar</exclude>
+							</excludes>
 							<includes>
 								<include>${project.artifactId}-${project.version}-bin.tar.gz</include>
 								<include>${project.artifactId}-${project.version}-bin.zip</include>

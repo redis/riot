@@ -24,5 +24,5 @@ Follow the usage help provided with the `--help` option.
 * Airlines
 
 ```
-riot --file.path=https://raw.githubusercontent.com/jpatokal/openflights/master/data/airlines.dat --file.type=csv --file.header=false --file.fields=AirlineID,Name,Alias,IATA,ICAO,Callsign,Country,Active --keyspace=airline --keys=AirlineID
+riot import csv --url https://bit.ly/2PhqhsR --header hash beers --keys id
 ```

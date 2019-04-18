@@ -70,4 +70,10 @@ public class LettuceWriter extends AbstractItemStreamItemWriter<Map<String, Obje
 			pool.returnObject(connection);
 		}
 	}
+
+	@Override
+	public void close() {
+		pool.close();
+		super.close();
+	}
 }
