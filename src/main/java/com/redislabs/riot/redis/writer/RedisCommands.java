@@ -18,6 +18,13 @@ public interface RedisCommands {
 
 	Object zadd(Object redis, String key, double score, String member);
 
-	Object xadd(Object redis, String key, String id, Map<String, Object> item, Long maxlen, boolean approximateTrimming);
+	Object xadd(Object redis, String key, Map<String, Object> item, long maxlen, boolean approximateTrimming);
+
+	Object xadd(Object redis, String key, String id, Map<String, Object> item, long maxlen,
+			boolean approximateTrimming);
+
+	Object xadd(Object redis, String key, Map<String, Object> item);
+
+	Object xadd(Object redis, String key, String id, Map<String, Object> item);
 
 }

@@ -34,16 +34,32 @@ public class LettuceCommands extends AbstractRedisCommands {
 	}
 
 	@Override
-	public Object xadd(Object redis, String key, String id, Map<String, Object> item, Long maxlen,
+	public Object xadd(Object redis, String key, String id, Map<String, Object> item, long maxlen,
 			boolean approximateTrimming) {
 		XAddArgs args = new XAddArgs();
 		args.approximateTrimming(approximateTrimming);
-		if (id != null) {
-			args.id(id);
-		}
-		if (maxlen != null) {
-			args.maxlen(maxlen);
-		}
+		args.id(id);
+		args.maxlen(maxlen);
+		return ((RedisAsyncCommands<String, String>) redis).xadd(key, args, stringMap(item));
+	}
+
+	@Override
+	public Object xadd(Object redis, String key, Map<String, Object> item) {
+		return ((RedisAsyncCommands<String, String>) redis).xadd(key, stringMap(item));
+	}
+
+	@Override
+	public Object xadd(Object redis, String key, Map<String, Object> item, long maxlen, boolean approximateTrimming) {
+		XAddArgs args = new XAddArgs();
+		args.approximateTrimming(approximateTrimming);
+		args.maxlen(maxlen);
+		return ((RedisAsyncCommands<String, String>) redis).xadd(key, args, stringMap(item));
+	}
+
+	@Override
+	public Object xadd(Object redis, String key, String id, Map<String, Object> item) {
+		XAddArgs args = new XAddArgs();
+		args.id(id);
 		return ((RedisAsyncCommands<String, String>) redis).xadd(key, args, stringMap(item));
 	}
 

@@ -33,9 +33,24 @@ public class JedisCommands extends AbstractRedisCommands {
 	}
 
 	@Override
-	public Object xadd(Object redis, String key, String id, Map<String, Object> item, Long maxlen,
+	public Object xadd(Object redis, String key, String id, Map<String, Object> item, long maxlen,
 			boolean approximateTrimming) {
 		return ((Pipeline) redis).xadd(key, new StreamEntryID(id), stringMap(item), maxlen, approximateTrimming);
+	}
+
+	@Override
+	public Object xadd(Object redis, String key, Map<String, Object> item) {
+		return ((Pipeline) redis).xadd(key, new StreamEntryID(), stringMap(item));
+	}
+
+	@Override
+	public Object xadd(Object redis, String key, Map<String, Object> item, long maxlen, boolean approximateTrimming) {
+		return ((Pipeline) redis).xadd(key, new StreamEntryID(), stringMap(item), maxlen, approximateTrimming);
+	}
+
+	@Override
+	public Object xadd(Object redis, String key, String id, Map<String, Object> item) {
+		return ((Pipeline) redis).xadd(key, new StreamEntryID(id), stringMap(item));
 	}
 
 	@Override
