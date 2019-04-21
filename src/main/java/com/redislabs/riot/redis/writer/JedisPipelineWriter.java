@@ -11,14 +11,14 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.Pipeline;
 
-public class JedisWriter extends AbstractItemStreamItemWriter<Map<String, Object>> {
+public class JedisPipelineWriter extends AbstractItemStreamItemWriter<Map<String, Object>> {
 
 	@Setter
 	private JedisPool pool;
 	@Setter
 	private AbstractRedisItemWriter itemWriter;
 
-	public JedisWriter() {
+	public JedisPipelineWriter() {
 		setName(ClassUtils.getShortName(this.getClass()));
 	}
 

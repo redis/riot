@@ -2,6 +2,9 @@ package com.redislabs.riot.redis.writer;
 
 import java.util.Map;
 
+import com.redislabs.lettusearch.RediSearchAsyncCommands;
+import com.redislabs.lettusearch.search.AddOptions;
+
 import io.lettuce.core.XAddArgs;
 import io.lettuce.core.api.async.RedisAsyncCommands;
 
@@ -71,6 +74,18 @@ public class LettuceCommands extends AbstractRedisCommands {
 	@Override
 	public Object zadd(Object redis, String key, double score, String member) {
 		return ((RedisAsyncCommands<String, String>) redis).zadd(key, score, member);
+	}
+
+	@Override
+	public Object ftadd(Object redis, String index, String docId, double score, Map<String, Object> item,
+			AddOptions options, String payload) {
+		return ((RediSearchAsyncCommands<String, String>) redis).add(index, docId, score, stringMap(item), options,
+				payload);
+	}
+
+	@Override
+	public Object sugadd(Object redis, String index, String string, double score, boolean increment, String payload) {
+		return ((RediSearchAsyncCommands<String, String>) redis).sugadd(index, string, score, increment, payload);
 	}
 
 }

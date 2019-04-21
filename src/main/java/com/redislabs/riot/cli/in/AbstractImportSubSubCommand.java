@@ -7,7 +7,7 @@ import org.springframework.batch.item.ItemStreamWriter;
 import com.redislabs.riot.cli.AbstractSubSubCommand;
 import com.redislabs.riot.redis.writer.AbstractRedisItemWriter;
 import com.redislabs.riot.redis.writer.JedisCommands;
-import com.redislabs.riot.redis.writer.JedisWriter;
+import com.redislabs.riot.redis.writer.JedisPipelineWriter;
 import com.redislabs.riot.redis.writer.LettuceCommands;
 import com.redislabs.riot.redis.writer.LettuceWriter;
 import com.redislabs.riot.redis.writer.RedisCommands;
@@ -18,7 +18,7 @@ public abstract class AbstractImportSubSubCommand
 		extends AbstractSubSubCommand<Map<String, Object>, Map<String, Object>> {
 
 	@ParentCommand
-	private AbstractImportSubCommand parent;
+	protected AbstractImportSubCommand parent;
 
 	@Override
 	protected ItemStreamWriter<Map<String, Object>> writer() {
@@ -30,8 +30,8 @@ public abstract class AbstractImportSubSubCommand
 		}
 	}
 
-	private JedisWriter jedisWriter() {
-		JedisWriter writer = new JedisWriter();
+	protected ItemStreamWriter<Map<String, Object>> jedisWriter() {
+		JedisPipelineWriter writer = new JedisPipelineWriter();
 		writer.setPool(parent.getParent().redisConnectionBuilder().buildJedisPool());
 		writer.setItemWriter(redisItemWriter());
 		return writer;
@@ -43,20 +43,28 @@ public abstract class AbstractImportSubSubCommand
 		return itemWriter;
 	}
 
-	private LettuceWriter lettuceWriter() {
+	protected LettuceWriter lettuceWriter() {
 		LettuceWriter writer = new LettuceWriter();
 		writer.setPool(parent.getParent().redisConnectionBuilder().buildLettucePool());
 		writer.setItemWriter(redisItemWriter());
 		return writer;
 	}
 
-	private RedisCommands redisCommands() {
+	protected RedisCommands redisCommands() {
 		switch (parent.getParent().getDriver()) {
 		case Lettuce:
-			return new LettuceCommands();
+			return lettuceCommands();
 		default:
-			return new JedisCommands();
+			return jedisCommands();
 		}
+	}
+
+	private RedisCommands jedisCommands() {
+		return new JedisCommands();
+	}
+
+	protected RedisCommands lettuceCommands() {
+		return new LettuceCommands();
 	}
 
 	protected abstract AbstractRedisItemWriter itemWriter();

@@ -38,20 +38,24 @@ public class AbstractCommand<I, O> extends HelpAwareCommand {
 	private Long sleep;
 	@Option(names = { "-h", "--host" }, description = "Redis server host. (default: localhost).")
 	private InetAddress host;
+	@Getter
 	@Option(names = { "-p", "--port" }, description = "Redis server port. (default: ${DEFAULT-VALUE}).")
 	private int port = RedisURI.DEFAULT_REDIS_PORT;
 	@Option(names = "--command-timeout", description = "Redis command timeout in seconds for synchronous command execution (default: ${DEFAULT-VALUE}).")
 	private long commandTimeout = RedisURI.DEFAULT_TIMEOUT;
+	@Getter
 	@Option(names = "--connection-timeout", description = "Redis connect timeout in milliseconds. (default: ${DEFAULT-VALUE}).")
 	private int connectionTimeout = Protocol.DEFAULT_TIMEOUT;
 	@Option(names = "--socket-timeout", description = "Redis socket timeout in milliseconds. (default: ${DEFAULT-VALUE}).")
 	private int socketTimeout = Protocol.DEFAULT_TIMEOUT;
+	@Getter
 	@Option(names = "--password", description = "Redis database password.", interactive = true)
-	private String password;
+	protected String password;
 	@Option(names = "--max-idle", description = "Maximum number of idle connections in the pool. Use a negative value to indicate an unlimited number of idle connections. (default: ${DEFAULT-VALUE}).")
 	private int maxIdle = 8;
 	@Option(names = "--min-idle", description = "Target for the minimum number of idle connections to maintain in the pool. This setting only has an effect if it is positive. (default: ${DEFAULT-VALUE}).")
 	private int minIdle = 0;
+	@Getter
 	@Option(names = "--max-total", description = "Maximum number of connections that can be allocated by the pool at a given time. Use a negative value for no limit. (default: ${DEFAULT-VALUE})")
 	private int maxTotal = 8;
 	@Option(names = "--max-wait", description = "Maximum amount of time in milliseconds a connection allocation should block before throwing an exception when the pool is exhausted. Use a negative value to block indefinitely (default).")
@@ -81,7 +85,7 @@ public class AbstractCommand<I, O> extends HelpAwareCommand {
 		return builder;
 	}
 
-	private String getHostname() {
+	public String getHostname() {
 		if (host != null) {
 			return host.getHostName();
 		}

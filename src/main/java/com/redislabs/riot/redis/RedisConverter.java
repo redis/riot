@@ -39,6 +39,9 @@ public class RedisConverter {
 		if (id == null) {
 			return keyspace;
 		}
+		if (keyspace == null) {
+			return id;
+		}
 		return keyspace + RedisConverter.KEY_SEPARATOR + id;
 	}
 

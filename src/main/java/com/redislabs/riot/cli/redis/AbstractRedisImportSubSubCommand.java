@@ -5,11 +5,10 @@ import com.redislabs.riot.redis.RedisConverter;
 import com.redislabs.riot.redis.writer.AbstractRedisItemWriter;
 
 import picocli.CommandLine.Option;
-import picocli.CommandLine.Parameters;
 
 public abstract class AbstractRedisImportSubSubCommand extends AbstractImportSubSubCommand {
 
-	@Parameters(description = "Redis keyspace prefix.")
+	@Option(names = { "-s", "--keyspace" }, description = "Redis keyspace prefix.")
 	private String keyspace;
 	@Option(arity = "1..*", names = { "-k", "--keys" }, description = "Key fields.")
 	private String[] keys = new String[0];
@@ -21,8 +20,8 @@ public abstract class AbstractRedisImportSubSubCommand extends AbstractImportSub
 
 	protected abstract String getDataStructure();
 
-	private String getKeyspaceDescription() {
-		String description = keyspace;
+	protected String getKeyspaceDescription() {
+		String description = keyspace == null ? "" : keyspace;
 		for (String key : keys) {
 			description += ":<" + key + ">";
 		}
@@ -32,11 +31,15 @@ public abstract class AbstractRedisImportSubSubCommand extends AbstractImportSub
 	@Override
 	protected AbstractRedisItemWriter itemWriter() {
 		AbstractRedisItemWriter writer = redisItemWriter();
+		writer.setConverter(redisConverter());
+		return writer;
+	}
+
+	protected RedisConverter redisConverter() {
 		RedisConverter converter = new RedisConverter();
 		converter.setKeyspace(keyspace);
 		converter.setKeys(keys);
-		writer.setConverter(converter);
-		return writer;
+		return converter;
 	}
 
 	protected abstract AbstractRedisItemWriter redisItemWriter();

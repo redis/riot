@@ -2,6 +2,8 @@ package com.redislabs.riot.redis.writer;
 
 import java.util.Map;
 
+import com.redislabs.lettusearch.search.AddOptions;
+
 public interface RedisCommands {
 
 	Object geoadd(Object redis, String key, double longitude, double latitude, String member);
@@ -26,5 +28,10 @@ public interface RedisCommands {
 	Object xadd(Object redis, String key, Map<String, Object> item);
 
 	Object xadd(Object redis, String key, String id, Map<String, Object> item);
+
+	Object ftadd(Object redis, String index, String docId, double score, Map<String, Object> item, AddOptions options,
+			String payload);
+
+	Object sugadd(Object redis, String index, String string, double score, boolean increment, String payload);
 
 }

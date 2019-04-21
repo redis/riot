@@ -4,15 +4,10 @@ import java.util.Map;
 
 import org.springframework.core.convert.ConversionService;
 
-import com.redislabs.lettusearch.RediSearchAsyncCommands;
-import com.redislabs.lettusearch.suggest.SuggestAddOptions;
-import com.redislabs.lettusearch.suggest.SuggestAddOptions.SuggestAddOptionsBuilder;
-
-import io.lettuce.core.RedisFuture;
 import lombok.Setter;
 
 @Setter
-public class SuggestWriter extends AbstractRediSearchWriter {
+public class SuggestWriter extends AbstractRediSearchItemWriter {
 
 	private String field;
 	private String scoreField;
@@ -21,17 +16,22 @@ public class SuggestWriter extends AbstractRediSearchWriter {
 	private String payloadField;
 	private ConversionService converter;
 
-	protected RedisFuture<?> write(Map<String, Object> record, RediSearchAsyncCommands<String, String> commands) {
-		String string = converter.convert(record.get(field), String.class);
-		double score = converter.convert(record.getOrDefault(scoreField, defaultScore), Double.class);
+	@Override
+	public Object write(Object redis, Map<String, Object> item) {
+		String string = converter.convert(item.get(field), String.class);
+		double score = converter.convert(item.getOrDefault(scoreField, defaultScore), Double.class);
 		if (string == null) {
 			return null;
 		}
-		SuggestAddOptionsBuilder options = SuggestAddOptions.builder().increment(increment);
-		if (payloadField != null) {
-			options.payload(converter.convert(record.get(payloadField), String.class)).build();
+		String payload = payload(item);
+		return commands.sugadd(redis, index, string, score, increment, payload);
+	}
+
+	private String payload(Map<String, Object> item) {
+		if (payloadField == null) {
+			return null;
 		}
-		return commands.sugadd(index, string, score, options.build());
+		return converter.convert(item.get(payloadField), String.class);
 	}
 
 }

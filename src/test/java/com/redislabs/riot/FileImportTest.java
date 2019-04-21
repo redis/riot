@@ -10,10 +10,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.redislabs.lettusearch.StatefulRediSearchConnection;
-import com.redislabs.riot.Riot;
+import com.redislabs.riot.RiotApplication;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = Riot.class, properties = { "spring.config.location=examples/file/beer.yml" })
+@SpringBootTest(classes = RiotApplication.class, properties = { "spring.config.location=examples/file/beer.yml" })
 public class FileImportTest extends BaseTest {
 
 	@Autowired

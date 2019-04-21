@@ -2,6 +2,8 @@ package com.redislabs.riot.redis.writer;
 
 import java.util.Map;
 
+import com.redislabs.lettusearch.search.AddOptions;
+
 import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.StreamEntryID;
 
@@ -61,6 +63,17 @@ public class JedisCommands extends AbstractRedisCommands {
 	@Override
 	public Object zadd(Object redis, String key, double score, String member) {
 		return ((Pipeline) redis).zadd(key, score, member);
+	}
+
+	@Override
+	public Object ftadd(Object redis, String index, String docId, double score, Map<String, Object> item,
+			AddOptions options, String payload) {
+		throw new RuntimeException("FT.ADD Not supported in JedisCommands");
+	}
+
+	@Override
+	public Object sugadd(Object redis, String index, String string, double score, boolean increment, String payload) {
+		throw new RuntimeException("SUG.ADD Not supported in JedisCommands");
 	}
 
 }

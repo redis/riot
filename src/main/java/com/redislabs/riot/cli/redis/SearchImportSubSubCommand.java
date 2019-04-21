@@ -1,25 +1,22 @@
 package com.redislabs.riot.cli.redis;
 
+import java.util.Map;
+
+import org.springframework.batch.item.ItemStreamWriter;
+
 import com.redislabs.lettusearch.search.AddOptions;
 import com.redislabs.lettusearch.search.Language;
-import com.redislabs.riot.cli.in.AbstractImportSubSubCommand;
-import com.redislabs.riot.redis.writer.AbstractRedisItemWriter;
+import com.redislabs.riot.redis.writer.search.JedisSearchWriter;
 import com.redislabs.riot.redis.writer.search.SearchAddWriter;
 
+import io.redisearch.client.AddOptions.ReplacementPolicy;
+import io.redisearch.client.Client;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 @Command(name = "search", description = "Search index")
-public class SearchImportSubSubCommand extends AbstractImportSubSubCommand {
+public class SearchImportSubSubCommand extends AbstractRediSearchImportSubSubCommand {
 
-	@Option(names = "--index", description = "Name of the search index")
-	private String index;
-	@Option(arity = "1..*", names = "--keys", description = "Fields used to build the document id.")
-	private String[] keys;
-	@Option(names = "--drop-index", description = "Drop index before writing")
-	private boolean dropIndex;
-	@Option(names = "--keep-docs", description = "Keep documents when dropping index")
-	private boolean keepDocs;
 	@Option(names = "--no-save", description = "Do not save the actual document in the database and only index it")
 	private boolean noSave;
 	@Option(names = "--replace", description = "Do an UPSERT style insertion and delete an older version of the document if it exists")
@@ -38,23 +35,51 @@ public class SearchImportSubSubCommand extends AbstractImportSubSubCommand {
 	private String payloadField;
 
 	@Override
-	protected AbstractRedisItemWriter itemWriter() {
+	protected SearchAddWriter rediSearchItemWriter() {
 		SearchAddWriter writer = new SearchAddWriter();
 		writer.setDefaultScore(defaultScore);
-		writer.setDrop(dropIndex);
-		writer.setDropKeepDocs(keepDocs);
-		writer.setIndex(index);
-		writer.setKeys(keys);
 		writer.setOptions(AddOptions.builder().ifCondition(ifCondition).language(language).noSave(noSave)
 				.replace(replace).replacePartial(replacePartial).build());
 		writer.setPayloadField(payloadField);
 		writer.setScoreField(scoreField);
-		return null; // TODO
+		return writer;
 	}
 
 	@Override
-	public String getTargetDescription() {
-		return "search index \"" + index + "\"";
+	protected ItemStreamWriter<Map<String, Object>> jedisWriter() {
+		JedisSearchWriter writer = new JedisSearchWriter();
+		writer.setClient(new Client(getIndex(), parent.getParent().redisConnectionBuilder().buildJedisPool()));
+		writer.setConverter(redisConverter());
+		if (defaultScore != null) {
+			writer.setDefaultScore(defaultScore.floatValue());
+		}
+		writer.setScoreField(scoreField);
+		writer.setPayloadField(payloadField);
+		io.redisearch.client.AddOptions options = new io.redisearch.client.AddOptions();
+		if (language != null) {
+			options.setLanguage(language.name());
+		}
+		if (noSave) {
+			options.setNosave();
+		}
+		options.setReplacementPolicy(replacementPolicy());
+		writer.setOptions(options);
+		return writer;
+	}
+
+	private ReplacementPolicy replacementPolicy() {
+		if (replace) {
+			if (replacePartial) {
+				return ReplacementPolicy.PARTIAL;
+			}
+			return ReplacementPolicy.FULL;
+		}
+		return ReplacementPolicy.NONE;
+	}
+
+	@Override
+	protected String getDataStructure() {
+		return "search index";
 	}
 
 }

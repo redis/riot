@@ -1,17 +1,14 @@
 package com.redislabs.riot.cli.redis;
 
-import com.redislabs.riot.cli.in.AbstractImportSubSubCommand;
-import com.redislabs.riot.redis.writer.AbstractRedisItemWriter;
+import com.redislabs.riot.redis.writer.search.AbstractRediSearchItemWriter;
 import com.redislabs.riot.redis.writer.search.SuggestWriter;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 @Command(name = "suggest", description = "Suggestion index")
-public class SuggestImportSubSubCommand extends AbstractImportSubSubCommand {
+public class SuggestImportSubSubCommand extends AbstractRediSearchImportSubSubCommand {
 
-	@Option(names = "--index", description = "Name of the suggestion index")
-	private String index;
 	@Option(names = "--score-field", description = "Name of the field to use for scores.")
 	private String scoreField;
 	@Option(names = "--default-score", description = "Default score to use when score field is not present. (default: ${DEFAULT-VALUE}).")
@@ -24,20 +21,19 @@ public class SuggestImportSubSubCommand extends AbstractImportSubSubCommand {
 	private String payloadField;
 
 	@Override
-	protected AbstractRedisItemWriter itemWriter() {
+	protected AbstractRediSearchItemWriter rediSearchItemWriter() {
 		SuggestWriter writer = new SuggestWriter();
 		writer.setDefaultScore(defaultScore);
 		writer.setField(suggestField);
 		writer.setIncrement(increment);
-		writer.setIndex(index);
 		writer.setPayloadField(payloadField);
 		writer.setScoreField(scoreField);
-		return null; // TODO
+		return writer;
 	}
 
 	@Override
-	public String getTargetDescription() {
-		return "suggestion index " + index;
+	protected String getDataStructure() {
+		return "suggestion index";
 	}
 
 }

@@ -83,11 +83,21 @@ public class FileReaderBuilder {
 		builder.strict(true);
 		builder.saveState(false);
 		builder.fieldSetMapper(new MapFieldSetMapper());
-		if (linesToSkip != null) {
-			builder.linesToSkip(linesToSkip);
+		if (getLinesToSkip() > 0) {
+			builder.linesToSkip(getLinesToSkip());
 		}
 		builder.recordSeparatorPolicy(new DefaultRecordSeparatorPolicy());
 		return builder;
+	}
+
+	private int getLinesToSkip() {
+		if (linesToSkip != null) {
+			return linesToSkip;
+		}
+		if (header) {
+			return 1;
+		}
+		return 0;
 	}
 
 	private static class MapFieldSetMapper implements FieldSetMapper<Map<String, Object>> {
