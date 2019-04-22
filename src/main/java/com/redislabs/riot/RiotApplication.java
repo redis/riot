@@ -2,6 +2,7 @@ package com.redislabs.riot;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.Callable;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -18,7 +19,7 @@ import picocli.CommandLine.RunLast;
 
 @SpringBootApplication
 @Command(name = "riot", subcommands = { ImportCommand.class, ExportCommand.class }, mixinStandardHelpOptions = true)
-public class RiotApplication implements CommandLineRunner {
+public class RiotApplication implements CommandLineRunner, Callable<Void> {
 
 	/**
 	 * Just to avoid picocli complain in Eclipse console
@@ -41,4 +42,11 @@ public class RiotApplication implements CommandLineRunner {
 		exceptionHandler.useErr(System.err);
 		commandLine.parseWithHandlers(handler, exceptionHandler, args);
 	}
+
+	@Override
+	public Void call() {
+		CommandLine.usage(this, System.out);
+		return null;
+	}
+
 }
