@@ -146,7 +146,6 @@
 					<description>${project.name} ${project.version}</description>
 					<releaseName>${project.name} ${project.version}</releaseName>
 					<tag>${project.version}</tag>
-					<artifact>${project.artifactId}-${project.version}.jar</artifact>
 					<fileSets>
 						<fileSet>
 							<directory>${project.build.directory}</directory>
@@ -157,6 +156,10 @@
 						</fileSet>
 					</fileSets>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
 		</plugins>
 	</build>

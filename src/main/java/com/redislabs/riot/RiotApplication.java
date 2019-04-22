@@ -21,7 +21,7 @@ import picocli.CommandLine.RunLast;
 public class RiotApplication implements CommandLineRunner {
 
 	/**
-	 * Just here to avoid picocli complain in Eclipse console
+	 * Just to avoid picocli complain in Eclipse console
 	 */
 	@Option(names = "--spring.output.ansi.enabled", hidden = true)
 	private String ansiEnabled;

@@ -4,23 +4,14 @@ import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
 
-import com.redislabs.lettusearch.StatefulRediSearchConnection;
-import com.redislabs.riot.RiotApplication;
-
-@RunWith(SpringRunner.class)
-@SpringBootTest(classes = RiotApplication.class, properties = { "spring.config.location=examples/file/beer.yml" })
-public class FileImportTest extends BaseTest {
-
-	@Autowired
-	StatefulRediSearchConnection<String, String> connection;
+public class FileImportTest extends AbstractBaseTest {
 
 	@Test
-	public void testFileImport() {
+	public void testFileImport() throws Exception {
+		String[] args = "import csv --url https://raw.githubusercontent.com/nickhould/craft-beers-dataset/master/data/processed/beers.csv --header hash --keyspace beer --keys id"
+				.split(" ");
+		RiotApplication.main(args);
 		List<String> keys = connection.sync().keys("beer:*");
 		Assert.assertEquals(2410, keys.size());
 	}

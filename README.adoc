@@ -12,7 +12,7 @@ Redis Input/Output Tool (RIOT) is a data import/export tool for Redis. It suppor
 Download the https://github.com/Redislabs-Solution-Architects/riot/releases/latest[latest RIOT distribution] (zip or tar.gz) and unpack the downloaded archive.
 
 == Running
-Use the `riot` script (`riot.bat` for Windows) to launch RIOT.
+Use the `riot` script (`riot.bat` for Windows) to launch RIOT. 
 
 == Usage
 Follow the usage help provided with the `--help` option. 
@@ -22,5 +22,5 @@ Follow the usage help provided with the `--help` option.
 ==== Import Beers
 
 ```
-riot import csv --url https://bit.ly/2PhqhsR --header hash beers --keys id
+riot import csv --url https://bit.ly/2PhqhsR --header hash --keyspace beers --keys id
 ```
