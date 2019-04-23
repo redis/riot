@@ -1,4 +1,5 @@
 = RIOT
+:source-highlighter: coderay
 
 Redis Input/Output Tool (RIOT) is a data import/export tool for Redis. It supports the following data sources:
 
@@ -20,7 +21,7 @@ Follow the usage help provided with the `--help` option.
 === Examples
 
 ==== Import Beers
-
-```
+[source,shell]
+----
 riot import csv --url https://bit.ly/2PhqhsR --header hash --keyspace beers --keys id
-```
+----
