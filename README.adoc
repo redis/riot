@@ -1,7 +1,7 @@
 = RIOT
 :source-highlighter: coderay
 
-Redis Input/Output Tool (RIOT) is a data import/export tool for Redis. It supports the following data sources:
+Redis Input/Output Tool (RIOT) is a data import/export tool for Redis and RediSearch. It supports the following data sources:
 
 * Databases through JDBC
 * Delimited files (CSV)
