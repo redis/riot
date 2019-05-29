@@ -56,7 +56,7 @@ riot import csv --header --included-fields 1 3 4 5 6 --url https://raw.githubuse
 
 ==== Airports
 
-Here is an excerpt of https://raw.githubusercontent.com/jpatokal/openflights/master/data/airports.dat
+Here is an excerpt of https://raw.githubusercontent.com/jpatokal/openflights/master/data/airports.dat[airports.dat] available at https://github.com/jpatokal/openflights[openflights]
 ----
 1,"Goroka Airport","Goroka","Papua New Guinea","GKA","AYGA",-6.081689834590001,145.391998291,5282,10,"U","Pacific/Port_Moresby","airport","OurAirports"
 2,"Madang Airport","Madang","Papua New Guinea","MAG","AYMD",-5.20707988739,145.789001465,20,10,"U","Pacific/Port_Moresby","airport","OurAirports"
