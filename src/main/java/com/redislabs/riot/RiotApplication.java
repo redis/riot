@@ -2,14 +2,13 @@ package com.redislabs.riot;
 
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.Callable;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import com.redislabs.riot.cli.BaseCommand;
 import com.redislabs.riot.cli.in.ImportCommand;
-import com.redislabs.riot.cli.out.ExportCommand;
 
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -18,8 +17,8 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.RunLast;
 
 @SpringBootApplication
-@Command(name = "riot", subcommands = { ImportCommand.class, ExportCommand.class }, mixinStandardHelpOptions = true)
-public class RiotApplication implements CommandLineRunner, Callable<Void> {
+@Command(name = "riot", subcommands = { ImportCommand.class })
+public class RiotApplication extends BaseCommand implements CommandLineRunner {
 
 	/**
 	 * Just to avoid picocli complain in Eclipse console
@@ -44,9 +43,8 @@ public class RiotApplication implements CommandLineRunner, Callable<Void> {
 	}
 
 	@Override
-	public Void call() {
+	public void run() {
 		CommandLine.usage(this, System.out);
-		return null;
 	}
 
 }

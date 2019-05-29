@@ -6,7 +6,7 @@ import picocli.CommandLine.Option;
 
 public abstract class AbstractCollectionRedisImportSubSubCommand extends AbstractRedisImportSubSubCommand {
 
-	@Option(arity = "1..*", names = "--fields", description = "Fields used to build member ids for collection data structures (list, set, zset, geo).")
+	@Option(names = "--fields", required = true, arity = "1..*", description = "Fields used to build member ids for collection data structures (list, set, zset, geo).")
 	private String[] fields;
 
 	@Override

@@ -14,7 +14,7 @@ import picocli.CommandLine.Option;
 @Command(name = "fw", description = "Import a fixed-width file")
 public class FixedLengthImportSubCommand extends AbstractFlatFileImportSubCommand {
 
-	@Option(arity = "1..*", names = "--ranges", description = "Column ranges.", required = true)
+	@Option(names = "--ranges", arity = "1..*", description = "Column ranges.", required = true)
 	private String[] columnRanges;
 
 	@Override

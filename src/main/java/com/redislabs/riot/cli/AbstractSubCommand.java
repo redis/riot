@@ -6,7 +6,7 @@ import org.springframework.batch.item.support.AbstractItemCountingItemStreamItem
 
 import picocli.CommandLine.ParentCommand;
 
-public abstract class AbstractSubCommand<I, O> extends HelpAwareCommand {
+public abstract class AbstractSubCommand<I, O> extends BaseCommand {
 
 	@ParentCommand
 	private AbstractCommand<I, O> parent;

@@ -5,16 +5,22 @@ import org.springframework.batch.item.ItemStreamWriter;
 
 import picocli.CommandLine.ParentCommand;
 
-public abstract class AbstractSubSubCommand<I, O> extends HelpAwareCommand {
+public abstract class AbstractSubSubCommand<I, O> extends BaseCommand {
 
 	@ParentCommand
 	private AbstractSubCommand<I, O> parent;
 
 	@Override
-	public Void call() throws Exception {
-		parent.getParent().run(parent.getSourceDescription(), parent.reader(), processor(), getTargetDescription(),
-				writer());
-		return null;
+	public void run() {
+		if (isHelpRequested()) {
+			super.run();
+		}
+		try {
+			parent.getParent().run(parent.getSourceDescription(), parent.reader(), processor(), getTargetDescription(),
+					writer());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	protected abstract String getTargetDescription();

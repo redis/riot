@@ -10,7 +10,7 @@ public abstract class AbstractRedisImportSubSubCommand extends AbstractImportSub
 
 	@Option(names = { "-s", "--keyspace" }, description = "Redis keyspace prefix.")
 	private String keyspace;
-	@Option(arity = "1..*", names = { "-k", "--keys" }, description = "Key fields.")
+	@Option(names = { "-k", "--keys" }, arity = "1..*", description = "Key fields.")
 	private String[] keys = new String[0];
 
 	@Override

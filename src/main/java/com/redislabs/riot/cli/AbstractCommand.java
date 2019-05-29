@@ -20,7 +20,7 @@ import lombok.Getter;
 import picocli.CommandLine.Option;
 import redis.clients.jedis.Protocol;
 
-public class AbstractCommand<I, O> extends HelpAwareCommand {
+public class AbstractCommand<I, O> extends BaseCommand {
 
 	public static final String DEFAULT_HOST = "localhost";
 
@@ -36,10 +36,10 @@ public class AbstractCommand<I, O> extends HelpAwareCommand {
 	private int chunkSize = JobBuilder.DEFAULT_CHUNK_SIZE;
 	@Option(names = "--sleep", description = "Sleep duration in milliseconds between each read.")
 	private Long sleep;
-	@Option(names = { "-h", "--host" }, description = "Redis server host. (default: localhost).")
+	@Option(names = { "-s", "--host" }, description = "Redis server host. (default: localhost).")
 	private InetAddress host;
 	@Getter
-	@Option(names = { "-p", "--port" }, description = "Redis server port. (default: ${DEFAULT-VALUE}).")
+	@Option(names = { "-h", "--port" }, description = "Redis server port. (default: ${DEFAULT-VALUE}).")
 	private int port = RedisURI.DEFAULT_REDIS_PORT;
 	@Option(names = "--command-timeout", description = "Redis command timeout in seconds for synchronous command execution (default: ${DEFAULT-VALUE}).")
 	private long commandTimeout = RedisURI.DEFAULT_TIMEOUT;

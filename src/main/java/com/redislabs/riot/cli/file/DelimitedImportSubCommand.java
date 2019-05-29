@@ -21,7 +21,7 @@ public class DelimitedImportSubCommand extends AbstractFlatFileImportSubCommand 
 	private String delimiter = DelimitedLineTokenizer.DELIMITER_COMMA;
 	@Option(names = "--quote-character", description = "Character to escape delimiters or line endings. (default: ${DEFAULT-VALUE})")
 	private Character quoteCharacter = DelimitedLineTokenizer.DEFAULT_QUOTE_CHARACTER;
-	@Option(arity = "1..*", names = "--included-fields", description = "Fields to include in the output by position (starting at 0). By default all fields are included, but this property can be set to pick out only a few fields from a larger set. Note that if field names are provided, their number must match the number of included fields.")
+	@Option(names = "--included-fields", arity = "1..*", description = "Fields to include in the output by position (starting at 0). By default all fields are included, but this property can be set to pick out only a few fields from a larger set. Note that if field names are provided, their number must match the number of included fields.")
 	private int[] includedFields;
 
 	@Override
