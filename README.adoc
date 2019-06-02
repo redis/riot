@@ -20,6 +20,33 @@ Follow the usage help provided with the `--help` option.
 
 == Examples
 
+=== Importing Database Tables
+
+image::import_db.svg[Import DB]
+
+Let's import the following table from a MySQL database running locally: 
+[source,plaintext]
+----
+mysql> describe employees;
++------------+---------------+------+-----+---------+-------+
+| Field      | Type          | Null | Key | Default | Extra |
++------------+---------------+------+-----+---------+-------+
+| emp_no     | int(11)       | NO   | PRI | NULL    |       |
+| birth_date | date          | NO   |     | NULL    |       |
+| first_name | varchar(14)   | NO   |     | NULL    |       |
+| last_name  | varchar(16)   | NO   |     | NULL    |       |
+| gender     | enum('M','F') | NO   |     | NULL    |       |
+| hire_date  | date          | NO   |     | NULL    |       |
++------------+---------------+------+-----+---------+-------+
+6 rows in set (0.01 sec)
+----
+
+[source,shell]
+----
+riot import db --url "jdbc:mysql://localhost:3306/employees?serverTimezone=PST&useLegacyDatetimeCode=false&useSSL=false" --username root --password --sql "select * from employees" hash --keyspace employee --keys emp_no
+----
+
+
 === Importing CSV Files
 
 Here is an excerpt of https://raw.githubusercontent.com/jpatokal/openflights/master/data/airports.dat[airports.dat] available at https://github.com/jpatokal/openflights[openflights]

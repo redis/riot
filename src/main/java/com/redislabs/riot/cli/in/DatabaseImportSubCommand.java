@@ -17,10 +17,9 @@ import picocli.CommandLine.Option;
 @Command(name = "db", description = "Import from a database")
 public class DatabaseImportSubCommand extends AbstractImportSubCommand {
 
-	@Option(names = { "-d",
-			"--driver" }, description = "Fully qualified name of the JDBC driver. Auto-detected based on the URL by default.")
+	@Option(names = "--driver", description = "Fully qualified name of the JDBC driver. Auto-detected based on the URL by default.")
 	private String driverClassName;
-	@Option(names = { "-u", "--url" }, description = "JDBC URL of the database.", required = true)
+	@Option(names = "--url", description = "JDBC URL of the database.", required = true)
 	private String url;
 	@Option(names = "--username", description = "Login username of the database.")
 	private String username;
