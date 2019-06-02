@@ -20,9 +20,7 @@ Follow the usage help provided with the `--help` option.
 
 == Examples
 
-=== Importing Files
-
-==== CSV
+=== Importing CSV Files
 
 Here is an excerpt of https://raw.githubusercontent.com/jpatokal/openflights/master/data/airports.dat[airports.dat] available at https://github.com/jpatokal/openflights[openflights]
 ----
@@ -77,7 +75,7 @@ HGETALL airport:3469
 28) "13"
 ----
 
-==== JSON
+=== Importing JSON Files
 
 Here is an excerpt of beers.json available at https://github.com/rethinkdb/beerthink/blob/master/data/beers.json[beerthink]:
 [source,json]
