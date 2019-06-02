@@ -6,7 +6,7 @@ import com.redislabs.riot.redis.writer.HashWriter;
 import picocli.CommandLine.Command;
 
 @Command(name = "hash", description = "Hash data structure")
-public class HashImportSubSubCommand extends AbstractRedisImportSubSubCommand {
+public class HashImportSubSubCommand extends AbstractSingleRedisImportSubSubCommand {
 
 	@Override
 	protected AbstractRedisItemWriter redisItemWriter() {

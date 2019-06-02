@@ -8,7 +8,7 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 @Command(name = "string", description = "String data structure")
-public class StringImportSubSubCommand extends AbstractRedisImportSubSubCommand {
+public class StringImportSubSubCommand extends AbstractSingleRedisImportSubSubCommand {
 
 	@Option(names = "--format", description = "Serialization format: ${COMPLETION-CANDIDATES}")
 	private StringFormat format = StringFormat.Json;

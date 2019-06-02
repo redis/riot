@@ -12,7 +12,7 @@
 
 	<groupId>com.redislabs</groupId>
 	<artifactId>riot</artifactId>
-	<version>0.2.0</version>
+	<version>0.2.1</version>
 	<packaging>jar</packaging>
 	<name>RIOT</name>
 	<description>Redis Input/Output Tool</description>
@@ -58,7 +58,7 @@
 		<dependency>
 			<groupId>com.redislabs</groupId>
 			<artifactId>lettusearch</artifactId>
-			<version>1.1.9</version>
+			<version>1.2.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>

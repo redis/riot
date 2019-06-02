@@ -12,10 +12,18 @@ public abstract class AbstractRedisCommands implements RedisCommands {
 
 	protected Map<String, String> stringMap(Map<String, Object> item) {
 		Map<String, String> stringMap = new HashMap<String, String>();
-		for (String key : item.keySet()) {
-			Object value = item.get(key);
-			stringMap.put(key, converter.convert(value, String.class));
-		}
+		item.forEach((k, v) -> put(stringMap, k, v));
 		return stringMap;
+	}
+
+	private void put(Map<String, String> map, String key, Object value) {
+		if (value == null) {
+			return;
+		}
+		if (value instanceof Map) {
+			((Map<?, ?>) value).forEach((k, v) -> put(map, key + "." + converter.convert(k, String.class), v));
+		} else {
+			map.put(key, converter.convert(value, String.class));
+		}
 	}
 }

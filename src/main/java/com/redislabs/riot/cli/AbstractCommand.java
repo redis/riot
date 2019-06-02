@@ -106,7 +106,7 @@ public class AbstractCommand<I, O> extends BaseCommand {
 		builder.setSleep(sleep);
 		Job job = builder.build();
 		long startTime = System.currentTimeMillis();
-		System.out.println("Importing from " + sourceDescription + " to " + targetDescription);
+		System.out.println("Importing " + sourceDescription + " into " + targetDescription);
 		SimpleJobLauncher jobLauncher = new SimpleJobLauncher();
 		jobLauncher.setJobRepository(builder.jobRepository());
 		jobLauncher.setTaskExecutor(new SyncTaskExecutor());

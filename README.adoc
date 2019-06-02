@@ -20,7 +20,11 @@ Follow the usage help provided with the `--help` option.
 
 == Examples
 
-=== Beers
+=== Importing Files
+
+==== CSV
+
+===== Beers
 
 Here is an excerpt of https://raw.githubusercontent.com/nickhould/craft-beers-dataset/master/data/processed/beers.csv[beers.csv] available at https://github.com/nickhould/craft-beers-dataset[craft-beers-dataset]:  
 [source]
@@ -32,29 +36,28 @@ Here is an excerpt of https://raw.githubusercontent.com/nickhould/craft-beers-da
 3,0.09,,2263,Sinister,American Double / Imperial IPA,177,12.0
 ----
 
-==== Import to Hashes
+* Import beers to Hashes
 [source,shell]
 ----
 riot import csv --url https://raw.githubusercontent.com/nickhould/craft-beers-dataset/master/data/processed/beers.csv --header hash --keyspace beers --keys id
 ----
 
-==== Import to RediSearch Index
-. Create an index with redis-cli
+* Import beers to RediSearch
++
+.Create an index with redis-cli
 +
 [source,shell]
 ----
 FT.CREATE beerIdx SCHEMA abv NUMERIC SORTABLE id TAG name TEXT PHONETIC dm:en style TEXT PHONETIC dm:en brewery_id TAG ounces NUMERIC SORTABLE
 ----
-. Import data into the index
+.Import data into the index
 +
 [source,shell]
 ----
 riot import csv --header --included-fields 1 3 4 5 6 --url https://raw.githubusercontent.com/nickhould/craft-beers-dataset/master/data/processed/beers.csv search --index beerIdx --keys id
 ----
 
-=== OpenFlights
-
-==== Airports
+===== OpenFlights
 
 Here is an excerpt of https://raw.githubusercontent.com/jpatokal/openflights/master/data/airports.dat[airports.dat] available at https://github.com/jpatokal/openflights[openflights]
 ----
@@ -63,28 +66,22 @@ Here is an excerpt of https://raw.githubusercontent.com/jpatokal/openflights/mas
 3,"Mount Hagen Kagamuga Airport","Mount Hagen","Papua New Guinea","HGU","AYMH",-5.826789855957031,144.29600524902344,5388,10,"U","Pacific/Port_Moresby","airport","OurAirports"
 ----
 
-===== Airport Geo
-. Import airports into a geoset
-+
+.Import airports into a geoset
 [source,shell]
 ----
 riot import csv --url https://raw.githubusercontent.com/jpatokal/openflights/master/data/airports.dat --fields AirportID Name City Country IATA ICAO Latitude Longitude Altitude Timezone DST Tz Type Source geo --keyspace airportgeo --fields AirportID --longitude-field Longitude --latitude-field Latitude
 ----
-. Query the `airportgeo` geoset using redis-cli
-+
+.Query the `airportgeo` geoset using redis-cli
 [source,shell]
 ----
-> GEORADIUS airportgeo -122.4194 37.7749 20 mi
+GEORADIUS airportgeo -122.4194 37.7749 20 mi
 1) "3469"
 2) "10360"
 3) "8982"
 4) "9071"
 5) "3453"
-----
-+
-[source,shell]
-----
-> HGETALL airport:3469
+
+HGETALL airport:3469
  1) "AirportID"
  2) "3469"
  3) "ICAO"
@@ -115,5 +112,51 @@ riot import csv --url https://raw.githubusercontent.com/jpatokal/openflights/mas
 28) "13"
 ----
 
+==== JSON
 
+===== Beers
+
+Here is an excerpt of beers.json available at https://github.com/rethinkdb/beerthink/blob/master/data/beers.json[beerthink]:
+[source,json]
+----
+[
+	{
+		"id": "1",
+		"brewery_id": "812",
+		"name": "Hocus Pocus",
+		"abv": "4.5",
+		"ibu": "0",
+		"srm": "0",
+		"upc": "0",
+		"filepath": "",
+		"descript": "Our take on a classic summer ale.  A toast to weeds, rays, and summer haze.  A light, crisp ale for mowing lawns, hitting lazy fly balls, and communing with nature, Hocus Pocus is offered up as a summer sacrifice to clodless days.\n\nIts malty sweetness finishes tart and crisp and is best apprediated with a wedge of orange.",
+		"add_user": "0",
+		"last_mod": "2010-07-22 20:00:20 UTC",
+		"style_name": "Light American Wheat Ale or Lager",
+		"cat_name": "Other Style"
+	},
+	{
+		"id": "6",
+		"brewery_id": "1385",
+		"name": "Winter Warmer",
+		"abv": "5.199999809265137",
+		"ibu": "0",
+		"srm": "0",
+		"upc": "0",
+		"filepath": "",
+		"descript": "",
+		"add_user": "0",
+		"last_mod": "2010-07-22 20:00:20 UTC",
+		"style_name": "Old Ale",
+		"cat_name": "British Ale"
+	},
+	...
+]
+----
+
+.Import beers into Hashes
+[source,shell]
+----
+riot import json --url=https://raw.githubusercontent.com/rethinkdb/beerthink/master/data/beers.json hash --keyspace beerjson --keys id
+----
 

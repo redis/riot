@@ -7,7 +7,7 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 @Command(name = "stream", description = "Stream data structure")
-public class StreamImportSubSubCommand extends AbstractRedisImportSubSubCommand {
+public class StreamImportSubSubCommand extends AbstractSingleRedisImportSubSubCommand {
 
 	@Option(names = "--approximate-trimming", description = "Apply efficient trimming for capped streams using the ~ flag.")
 	private boolean approximateTrimming;
