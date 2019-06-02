@@ -22,7 +22,7 @@ Follow the usage help provided with the `--help` option.
 
 === Importing Database Tables
 
-image::import_db.svg[Import DB]
+image::https://raw.githubusercontent.com/Redislabs-Solution-Architects/riot/master/import_db.svg[Import DB]
 
 Let's import the following table from a MySQL database running locally: 
 [source,plaintext]
