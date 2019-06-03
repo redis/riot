@@ -5,19 +5,31 @@ Redis Input/Output Tool (RIOT) is a data import/export tool for Redis and Redis 
 
 == Input Sources
 
-RIOT supports multiple input sources.
+* Databases (JDBC)
+* Files
+** Delimited (CSV)
+** Fixed-width
+** JSON
+* Generator
+** Simple (sequence)
+** https://github.com/stympy/faker[Faker] data
+
+== Installation
+Download the https://github.com/Redislabs-Solution-Architects/riot/releases/latest[latest RIOT distribution] (zip or tar.gz) and unpack the downloaded archive.
+
+== Running
+Use the `riot` script (`riot.bat` for Windows) to launch RIOT. 
+
+== Usage
+Follow the usage help provided with the `--help` option.
 
 === Databases
-Databases are supported through JDBC. Add the appropriate driver jar for your database under the `lib` directory, e.g. for MySQL: `lib/mysql-connector-java-5.1.47.jar`
 
-=== Files
-RIOT supports the following file formats:
+WARNING: Add the appropriate driver jar for your database under the `lib` directory
 
-==== Delimited (CSV)
+For example with MySQL: `lib/mysql-connector-java-5.1.47.jar`
 
-==== Fixed-width
-
-==== JSON
+=== JSON
 RIOT can read JSON data from a file with the following format:
 [source,json]
 ----
@@ -32,22 +44,12 @@ RIOT can read JSON data from a file with the following format:
 ----
 
 === Generator
-RIOT can also import generated data.
 
-==== Simple Generator
+==== Simple
 The simple data generator generates entries with a single field named `field` which is a sequence of integers.  
 
-==== Faker Generator
+==== Faker
 This data generator relies on the https://github.com/DiUS/java-faker[Faker] library.
-
-== Installation
-Download the https://github.com/Redislabs-Solution-Architects/riot/releases/latest[latest RIOT distribution] (zip or tar.gz) and unpack the downloaded archive.
-
-== Running
-Use the `riot` script (`riot.bat` for Windows) to launch RIOT. 
-
-== Usage
-Follow the usage help provided with the `--help` option.
 
 == Examples
 
