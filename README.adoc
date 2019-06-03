@@ -130,7 +130,7 @@ Here is an excerpt of beers.json available at https://github.com/rethinkdb/beert
     "brewery_id": "812",
     "name": "Hocus Pocus",
     "abv": "4.5",
-    ...
+    // ...
     "style_name": "Light American Wheat Ale or Lager",
     "cat_name": "Other Style"
   },
@@ -139,11 +139,11 @@ Here is an excerpt of beers.json available at https://github.com/rethinkdb/beert
     "brewery_id": "1385",
     "name": "Winter Warmer",
     "abv": "5.199999809265137",
-    ...
+    // ...
     "style_name": "Old Ale",
     "cat_name": "British Ale"
-  },
-    ...
+  }
+  // ...
 ]
 ----
 
