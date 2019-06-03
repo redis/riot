@@ -103,20 +103,6 @@ riot import csv --url https://raw.githubusercontent.com/jpatokal/openflights/mas
 1) "3469"
 2) "10360"
 3) "8982"
-4) "9071"
-5) "3453"
-
-> HGETALL airport:3469
- 1) "AirportID"
- 2) "3469"
- 3) "ICAO"
- 4) "KSFO"
- 5) "Latitude"
- 6) "37.61899948120117"
- 7) "IATA"
- 8) "SFO"
- 9) "Longitude"
-10) "-122.375"
 …
 ----
 
@@ -185,17 +171,13 @@ riot import json --url https://raw.githubusercontent.com/rethinkdb/beerthink/mas
  2) "5896"
  3)  1) cat_name
      2) "North American Ale"
-     3) upc
-     4) "0"
-     5) srm
-     6) "0"
+     …
      7) style_name
      8) "American-Style Strong Pale Ale"
-     9) last_mod
-    10) "2011-07-07 07:44:10 UTC"
+     …
     11) abv
     12) "7.099999904632568"
-    …
+     …
 ----
 
 === Generating data
