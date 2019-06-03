@@ -117,7 +117,7 @@ riot import csv --url https://raw.githubusercontent.com/jpatokal/openflights/mas
  8) "SFO"
  9) "Longitude"
 10) "-122.375"
-...
+…
 ----
 
 === Importing JSON files
@@ -162,7 +162,7 @@ riot import json --url https://raw.githubusercontent.com/rethinkdb/beerthink/mas
  4) "Light American Wheat Ale or Lager"
  5) "brewery_id"
  6) "812"
- ...
+ …
 ----
 
 
@@ -195,7 +195,7 @@ riot import json --url https://raw.githubusercontent.com/rethinkdb/beerthink/mas
     10) "2011-07-07 07:44:10 UTC"
     11) abv
     12) "7.099999904632568"
-    ...
+    …
 ----
 
 === Generating data
@@ -231,7 +231,7 @@ riot import --max 100 gen --field name=faker.gameOfThrones.character set --keysp
    3) "Halmon Paege"
    4) "Mark Mullendore"
    5) "Cleyton Caswell"
-   ...
+   …
 ----
 
 ==== Faker Generators
