@@ -12,14 +12,9 @@ Redis Input/Output Tool (RIOT) is a data import/export tool for Redis and Redis 
 
 == Input Sources
 
-* Databases (JDBC)
-* Files
-** Delimited (CSV)
-** Fixed-width
-** JSON
-* Generator
-** Simple (sequence)
-** https://github.com/stympy/faker[Faker] data
+* Databases: JDBC
+* Files: delimited (CSV), fixed-width, JSON
+* Generator: https://github.com/stympy/faker[Faker], simple 
 
 == Installation
 Download the https://github.com/Redislabs-Solution-Architects/riot/releases/latest[latest RIOT distribution] (zip or tar.gz) and unpack the downloaded archive.
@@ -218,76 +213,6 @@ riot import --max 100 gen --field name=faker.gameOfThrones.character set --keysp
 
 ==== Faker Generators
 
-These are the https://github.com/DiUS/java-faker[Faker generators] available:
-
-* address
-* ancient
-* app
-* artist
-* avatar
-* beer
-* book
-* bool
-* business
-* cat
-* chuckNorris
-* code
-* color
-* commerce
-* company
-* country
-* crypto
-* currency
-* dateAndTime
-* demographic
-* dog
-* dragonBall
-* educator
-* esports
-* file
-* finance
-* food
-* friends
-* funnyName
-* gameOfThrones
-* hacker
-* harryPotter
-* hipster
-* hitchhikersGuideToTheGalaxy
-* hobbit
-* howIMetYourMother
-* idNumber
-* internet
-* job
-* leagueOfLegends
-* lebowski
-* lordOfTheRings
-* lorem
-* matz
-* medical
-* music
-* name
-* number
-* options
-* overwatch
-* phoneNumber
-* pokemon
-* randomService
-* rickAndMorty
-* robin
-* rockBand
-* shakespeare
-* slackEmoji
-* space
-* starTrek
-* stock
-* superhero
-* team
-* twinPeaks
-* university
-* weather
-* witcher
-* yoda
-* zelda 
+These are the https://github.com/DiUS/java-faker[Faker generators] available: `address, ancient, app, artist, avatar, beer, book, bool, business, cat, chuckNorris, code, color, commerce, company, country, crypto, currency, dateAndTime, demographic, dog, dragonBall, educator, esports, file, finance, food, friends, funnyName, gameOfThrones, hacker, harryPotter, hipster, hitchhikersGuideToTheGalaxy, hobbit, howIMetYourMother, idNumber, internet, job, leagueOfLegends, lebowski, lordOfTheRings, lorem, matz, medical, music, name, number, options, overwatch, phoneNumber, pokemon, randomService, rickAndMorty, robin, rockBand, shakespeare, slackEmoji, space, starTrek, stock, superhero, team, twinPeaks, university, weather, witcher, yoda, zelda` 
 
 
