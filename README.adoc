@@ -38,7 +38,7 @@ For example with MySQL: `lib/mysql-connector-java-5.1.47.jar`
 
 === JSON
 RIOT can read JSON data from a file with the following format:
-[source,json]
+[source,plaintext]
 ----
 [
   {
