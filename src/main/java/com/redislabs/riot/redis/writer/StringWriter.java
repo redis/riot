@@ -32,8 +32,9 @@ public class StringWriter extends AbstractRedisItemWriter {
 
 	@Override
 	public Object write(Object redis, Map<String, Object> item) {
+		String key = converter.key(item);
 		try {
-			return commands.set(redis, key(item), objectWriter.writeValueAsString(item));
+			return commands.set(redis, key, objectWriter.writeValueAsString(item));
 		} catch (JsonProcessingException e) {
 			log.error("Could not serialize value: {}", item, e);
 			return null;

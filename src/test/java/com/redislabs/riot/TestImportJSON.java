@@ -8,7 +8,7 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class ImportJSON extends BaseTest {
+public class TestImportJSON extends BaseTest {
 
 	@Test
 	public void importJSON() throws MalformedURLException, URISyntaxException {

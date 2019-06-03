@@ -9,7 +9,7 @@ public class SetWriter extends AbstractCollectionRedisItemWriter {
 
 	@Override
 	public Object write(Object redis, Map<String, Object> item) {
-		return commands.sadd(redis, key(item), member(item));
+		return commands.sadd(redis, converter.key(item), member(item));
 	}
 
 }

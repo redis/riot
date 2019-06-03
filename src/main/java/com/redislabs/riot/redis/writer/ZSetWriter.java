@@ -14,7 +14,7 @@ public class ZSetWriter extends AbstractCollectionRedisItemWriter {
 	@Override
 	public Object write(Object redis, Map<String, Object> item) {
 		double score = score(item);
-		return commands.zadd(redis, key(item), score, member(item));
+		return commands.zadd(redis, converter.key(item), score, member(item));
 	}
 
 	private double score(Map<String, Object> item) {

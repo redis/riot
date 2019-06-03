@@ -6,7 +6,8 @@ public class HashWriter extends AbstractRedisItemWriter {
 
 	@Override
 	public Object write(Object redis, Map<String, Object> item) {
-		return commands.hmset(redis, key(item), item);
+		String key = converter.key(item);
+		return commands.hmset(redis, key, item);
 	}
 
 }

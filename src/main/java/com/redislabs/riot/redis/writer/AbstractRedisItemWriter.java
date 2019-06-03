@@ -13,10 +13,6 @@ public abstract class AbstractRedisItemWriter {
 	@Setter
 	protected RedisCommands commands;
 
-	protected String key(Map<String, Object> item) {
-		return converter.key(item);
-	}
-
 	public abstract Object write(Object redis, Map<String, Object> item);
 
 }

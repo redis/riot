@@ -5,7 +5,7 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class ImportCSV extends BaseTest {
+public class TestImportCSV extends BaseTest {
 
 	@Test
 	public void importHashes() throws Exception {

@@ -23,7 +23,7 @@ public class GeoWriter extends AbstractCollectionRedisItemWriter {
 		}
 		double lon = converter.convert(longitude, Double.class);
 		double lat = converter.convert(latitude, Double.class);
-		return commands.geoadd(redis, key(item), lon, lat, member(item));
+		return commands.geoadd(redis, converter.key(item), lon, lat, member(item));
 	}
 
 }

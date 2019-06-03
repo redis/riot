@@ -11,7 +11,7 @@ import com.redislabs.lettusearch.search.field.NumericField;
 import com.redislabs.lettusearch.search.field.PhoneticMatcher;
 import com.redislabs.lettusearch.search.field.TextField;
 
-public class ImportToRediSearch extends BaseTest {
+public class TestImportToRediSearch extends BaseTest {
 
 	@Test
 	public void importBeers() throws Exception {
@@ -28,7 +28,7 @@ public class ImportToRediSearch extends BaseTest {
 		schema.field(NumericField.builder().name(FIELD_ABV).sortable(true).build());
 		schema.field(NumericField.builder().name(FIELD_OUNCES).sortable(true).build());
 		commands.create(INDEX, schema.build());
-		run("import csv --header --included-fields=1,3,4,5,6 --url https://raw.githubusercontent.com/nickhould/craft-beers-dataset/master/data/processed/beers.csv search --index beerIdx --keys id");
+		run("import csv --header --included-fields 1 3 4 5 6 --url https://raw.githubusercontent.com/nickhould/craft-beers-dataset/master/data/processed/beers.csv search --index beerIdx --keys id");
 		SearchResults<String, String> results = connection.sync().search(INDEX, "*");
 		Assert.assertEquals(2410, results.getCount());
 	}

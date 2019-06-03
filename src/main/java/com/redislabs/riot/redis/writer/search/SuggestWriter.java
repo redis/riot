@@ -31,7 +31,7 @@ public class SuggestWriter extends AbstractRediSearchItemWriter {
 		if (payloadField == null) {
 			return null;
 		}
-		return converter.convert(item.get(payloadField), String.class);
+		return converter.convert(item.remove(payloadField), String.class);
 	}
 
 }

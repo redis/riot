@@ -9,7 +9,7 @@ public class ListWriter extends AbstractCollectionRedisItemWriter {
 
 	@Override
 	public Object write(Object redis, Map<String, Object> item) {
-		return commands.lpush(redis, key(item), member(item));
+		return commands.lpush(redis, converter.key(item), member(item));
 	}
 
 }

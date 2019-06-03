@@ -13,14 +13,14 @@ public class StreamWriter extends AbstractRedisItemWriter {
 
 	@Override
 	public Object write(Object redis, Map<String, Object> item) {
-		String key = key(item);
+		String key = converter.key(item);
 		if (idField == null) {
 			if (maxlen == null) {
 				return commands.xadd(redis, key, item);
 			}
 			return commands.xadd(redis, key, item, maxlen, approximateTrimming);
 		}
-		String id = converter.convert(item.getOrDefault(idField, idField), String.class);
+		String id = converter.convert(item.remove(idField), String.class);
 		if (maxlen == null) {
 			return commands.xadd(redis, key, id, item);
 		}

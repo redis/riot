@@ -7,6 +7,7 @@ import java.util.StringJoiner;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.support.DefaultConversionService;
 
+import lombok.Getter;
 import lombok.Setter;
 
 public class RedisConverter {
@@ -14,21 +15,15 @@ public class RedisConverter {
 	public static final String KEY_SEPARATOR = ":";
 
 	private ConversionService converter = new DefaultConversionService();
+	@Getter
 	@Setter
 	private String keyspace;
+	@Getter
 	@Setter
 	private String[] keys;
 
 	public String id(Map<String, Object> item) {
 		return joinFields(item, keys);
-	}
-
-	public String getKeyspace() {
-		return keyspace;
-	}
-
-	public String[] getKeys() {
-		return keys;
 	}
 
 	public String key(Map<String, Object> item) {
@@ -51,7 +46,7 @@ public class RedisConverter {
 		}
 		StringJoiner joiner = new StringJoiner(KEY_SEPARATOR);
 		for (String field : fields) {
-			joiner.add(converter.convert(item.get(field), String.class));
+			joiner.add(converter.convert(item.remove(field), String.class));
 		}
 		return joiner.toString();
 	}
