@@ -12,14 +12,14 @@
 
 	<groupId>com.redislabs</groupId>
 	<artifactId>riot</artifactId>
-	<version>0.2.3</version>
+	<version>0.2.4</version>
 	<packaging>jar</packaging>
 	<name>RIOT</name>
 	<description>Redis Input/Output Tool</description>
 
 	<properties>
 		<start-class>com.redislabs.riot.RiotApplication</start-class>
-<!-- 		<spring.profiles.active>default</spring.profiles.active> -->
+		<spring.profiles.active>default</spring.profiles.active>
 	</properties>
 
 	<scm>

@@ -36,10 +36,10 @@ public class AbstractCommand<I, O> extends BaseCommand {
 	private int chunkSize = JobBuilder.DEFAULT_CHUNK_SIZE;
 	@Option(names = "--sleep", description = "Sleep duration in milliseconds between each read.")
 	private Long sleep;
-	@Option(names = { "-s", "--host" }, description = "Redis server host. (default: localhost).")
+	@Option(names = "--host", description = "Redis server host. (default: localhost).")
 	private InetAddress host;
 	@Getter
-	@Option(names = { "-h", "--port" }, description = "Redis server port. (default: ${DEFAULT-VALUE}).")
+	@Option(names = "--port", description = "Redis server port. (default: ${DEFAULT-VALUE}).")
 	private int port = RedisURI.DEFAULT_REDIS_PORT;
 	@Option(names = "--command-timeout", description = "Redis command timeout in seconds for synchronous command execution (default: ${DEFAULT-VALUE}).")
 	private long commandTimeout = RedisURI.DEFAULT_TIMEOUT;
