@@ -65,11 +65,6 @@
 			<artifactId>commons-pool2</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.ruaux</groupId>
-			<artifactId>pojofaker</artifactId>
-			<version>1.0.4</version>
-		</dependency>
-		<dependency>
 			<groupId>org.glassfish</groupId>
 			<artifactId>javax.json</artifactId>
 			<version>1.1.4</version>
@@ -104,10 +99,6 @@
 			<version>3.9.6</version>
 		</dependency>
 		<dependency>
-			<groupId>mysql</groupId>
-			<artifactId>mysql-connector-java</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>redis.clients</groupId>
 			<artifactId>jedis</artifactId>
 			<version>3.1.0-m1</version>
@@ -116,6 +107,11 @@
 			<groupId>com.redislabs</groupId>
 			<artifactId>jredisearch</artifactId>
 			<version>0.23.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.github.javafaker</groupId>
+			<artifactId>javafaker</artifactId>
+			<version>0.18</version>
 		</dependency>
 	</dependencies>
 

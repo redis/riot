@@ -1,13 +1,44 @@
 = RIOT
 :source-highlighter: highlightjs
 
-Redis Input/Output Tool (RIOT) is a data import/export tool for Redis and RediSearch. It supports the following data sources:
+Redis Input/Output Tool (RIOT) is a data import/export tool for Redis and Redis Modules.
 
-* Databases through JDBC
-* Delimited files (CSV)
-* Fixed width files
-* JSON files
-* Data generator using https://github.com/DiUS/java-faker[Faker]
+== Input Sources
+
+RIOT supports multiple input sources.
+
+=== Databases
+Databases are supported through JDBC. Add the appropriate driver jar for your database under the `lib` directory, e.g. for MySQL: `lib/mysql-connector-java-5.1.47.jar`
+
+=== Files
+RIOT supports the following file formats:
+
+==== Delimited (CSV)
+
+==== Fixed-width
+
+==== JSON
+RIOT can read JSON data from a file with the following format:
+[source,json]
+----
+[
+  {
+    // JSON object
+  },
+  {
+    // JSON object
+  }
+]
+----
+
+=== Generator
+RIOT can also import generated data.
+
+==== Simple Generator
+The simple data generator generates entries with a single field named `field` which is a sequence of integers.  
+
+==== Faker Generator
+This data generator relies on the https://github.com/DiUS/java-faker[Faker] library.
 
 == Installation
 Download the https://github.com/Redislabs-Solution-Architects/riot/releases/latest[latest RIOT distribution] (zip or tar.gz) and unpack the downloaded archive.
@@ -16,14 +47,11 @@ Download the https://github.com/Redislabs-Solution-Architects/riot/releases/late
 Use the `riot` script (`riot.bat` for Windows) to launch RIOT. 
 
 == Usage
-Follow the usage help provided with the `--help` option. 
+Follow the usage help provided with the `--help` option.
 
 == Examples
 
-=== Importing Database Tables
-
-image::https://raw.githubusercontent.com/Redislabs-Solution-Architects/riot/master/import_db.svg[Import DB]
-
+=== Importing from databases
 Let's import the following table from a MySQL database running locally: 
 [source,plaintext]
 ----
@@ -46,9 +74,7 @@ mysql> describe employees;
 riot import db --url "jdbc:mysql://localhost:3306/employees?serverTimezone=PST&useLegacyDatetimeCode=false&useSSL=false" --username root --password --sql "select * from employees" hash --keyspace employee --keys emp_no
 ----
 
-
-=== Importing CSV Files
-
+=== Importing CSV files
 Here is an excerpt of https://raw.githubusercontent.com/jpatokal/openflights/master/data/airports.dat[airports.dat] available at https://github.com/jpatokal/openflights[openflights]
 ----
 1,"Goroka Airport","Goroka","Papua New Guinea","GKA","AYGA",-6.081689834590001,145.391998291,5282,10,"U","Pacific/Port_Moresby","airport","OurAirports"
@@ -62,16 +88,16 @@ Here is an excerpt of https://raw.githubusercontent.com/jpatokal/openflights/mas
 riot import csv --url https://raw.githubusercontent.com/jpatokal/openflights/master/data/airports.dat --fields AirportID Name City Country IATA ICAO Latitude Longitude Altitude Timezone DST Tz Type Source geo --keyspace airportgeo --fields AirportID --longitude-field Longitude --latitude-field Latitude
 ----
 .Query the `airportgeo` geoset using redis-cli
-[source,shell]
+[source,plaintext]
 ----
-GEORADIUS airportgeo -122.4194 37.7749 20 mi
+> GEORADIUS airportgeo -122.4194 37.7749 20 mi
 1) "3469"
 2) "10360"
 3) "8982"
 4) "9071"
 5) "3453"
 
-HGETALL airport:3469
+> HGETALL airport:3469
  1) "AirportID"
  2) "3469"
  3) "ICAO"
@@ -82,84 +108,124 @@ HGETALL airport:3469
  8) "SFO"
  9) "Longitude"
 10) "-122.375"
-11) "DST"
-12) "A"
-13) "Name"
-14) "San Francisco International Airport"
-15) "City"
-16) "San Francisco"
-17) "Type"
-18) "airport"
-19) "Source"
-20) "OurAirports"
-21) "Country"
-22) "United States"
-23) "Timezone"
-24) "-8"
-25) "Tz"
-26) "America/Los_Angeles"
-27) "Altitude"
-28) "13"
+...
 ----
 
-=== Importing JSON Files
-
+=== Importing JSON files
 Here is an excerpt of beers.json available at https://github.com/rethinkdb/beerthink/blob/master/data/beers.json[beerthink]:
 [source,json]
 ----
 [
-	{
-		"id": "1",
-		"brewery_id": "812",
-		"name": "Hocus Pocus",
-		"abv": "4.5",
-		"ibu": "0",
-		"srm": "0",
-		"upc": "0",
-		"filepath": "",
-		"descript": "Our take on a classic summer ale.  A toast to weeds, rays, and summer haze.  A light, crisp ale for mowing lawns, hitting lazy fly balls, and communing with nature, Hocus Pocus is offered up as a summer sacrifice to clodless days.\n\nIts malty sweetness finishes tart and crisp and is best apprediated with a wedge of orange.",
-		"add_user": "0",
-		"last_mod": "2010-07-22 20:00:20 UTC",
-		"style_name": "Light American Wheat Ale or Lager",
-		"cat_name": "Other Style"
-	},
-	{
-		"id": "6",
-		"brewery_id": "1385",
-		"name": "Winter Warmer",
-		"abv": "5.199999809265137",
-		"ibu": "0",
-		"srm": "0",
-		"upc": "0",
-		"filepath": "",
-		"descript": "",
-		"add_user": "0",
-		"last_mod": "2010-07-22 20:00:20 UTC",
-		"style_name": "Old Ale",
-		"cat_name": "British Ale"
-	},
-	...
+  {
+    "id": "1",
+    "brewery_id": "812",
+    "name": "Hocus Pocus",
+    "abv": "4.5",
+    ...
+    "style_name": "Light American Wheat Ale or Lager",
+    "cat_name": "Other Style"
+  },
+  {
+    "id": "6",
+    "brewery_id": "1385",
+    "name": "Winter Warmer",
+    "abv": "5.199999809265137",
+    ...
+    "style_name": "Old Ale",
+    "cat_name": "British Ale"
+  },
+    ...
 ]
 ----
 
-* Import beers into Hashes
+==== Import beers into Hashes
 [source,shell]
 ----
-riot import json --url https://raw.githubusercontent.com/rethinkdb/beerthink/master/data/beers.json hash --keyspace beers --keys id
+riot import json --url https://raw.githubusercontent.com/rethinkdb/beerthink/master/data/beers.json hash --keyspace beer --keys id
 ----
 
-* Import beers to RediSearch
-+
-.Create an index with redis-cli
-+
-[source,shell]
+[source,plaintext]
 ----
-FT.CREATE beerIdx SCHEMA abv NUMERIC SORTABLE id TAG name TEXT PHONETIC dm:en style_name TEXT PHONETIC dm:en brewery_id TAG
+> HGETALL beer:1
+ 1) "last_mod"
+ 2) "2010-07-22 20:00:20 UTC"
+ 3) "style_name"
+ 4) "Light American Wheat Ale or Lager"
+ 5) "brewery_id"
+ 6) "812"
+ ...
 ----
-.Import data into the index
-+
+
+
+==== Import beers to RediSearch
+* Create an index with redis-cli
+[source,plaintext]
+----
+FT.CREATE beerIdx SCHEMA abv NUMERIC SORTABLE id TAG name TEXT PHONETIC dm:en style_name TEXT cat_name TEXT brewery_id TAG
+----
+* Import data into the index
 [source,shell]
 ----
 riot import json --url https://raw.githubusercontent.com/rethinkdb/beerthink/master/data/beers.json search --index beerIdx --keys id
 ----
+* Search beers
+[source,plaintext]
+----
+> FT.SEARCH beerIdx "@abv:[7 9]"
+ 1) (integer) 500
+ 2) "5896"
+ 3)  1) cat_name
+     2) "North American Ale"
+     3) upc
+     4) "0"
+     5) srm
+     6) "0"
+     7) style_name
+     8) "American-Style Strong Pale Ale"
+     9) last_mod
+    10) "2011-07-07 07:44:10 UTC"
+    11) abv
+    12) "7.099999904632568"
+    ...
+----
+
+=== Generating data
+
+==== People
+[source,shell]
+----
+riot import --max 100 gen --field id=sequence --field firstName=faker.name.firstName --field lastName=faker.name.lastName --field address=faker.address.fullAddress hash --keyspace person --keys id
+----
+
+[source,plaintext]
+----
+> HGETALL person:1
+1) "address"
+2) "036 Robbin Points, North Sonia, PA 42251"
+3) "id"
+4) "1"
+5) "firstName"
+6) "Nickolas"
+7) "lastName"
+8) "Gleason"
+---- 
+
+==== Rock Bands
+[source,shell]
+----
+riot import --max 100 gen --field name=faker.rockBand.name set --keyspace rockbands --fields name
+----
+
+[source,plaintext]
+----
+> SMEMBERS rockbands
+ 1) "Bruce Springsteen & The E Street Band"
+ 2) "The Cure"
+ 3) "King Crimson"
+ 4) "ZZ Top"
+ ...
+----
+
+
+
 
