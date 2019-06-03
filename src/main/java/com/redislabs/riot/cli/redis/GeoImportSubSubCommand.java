@@ -9,9 +9,9 @@ import picocli.CommandLine.Option;
 @Command(name = "geo", description = "Geo data structure")
 public class GeoImportSubSubCommand extends AbstractCollectionRedisImportSubSubCommand {
 
-	@Option(names = "--longitude-field", description = "Longitude field for geo sets.")
+	@Option(names = "--longitude", description = "Longitude field for geo sets.")
 	private String longitudeField;
-	@Option(names = "--latitude-field", description = "Latitude field for geo sets.")
+	@Option(names = "--latitude", description = "Latitude field for geo sets.")
 	private String latitudeField;
 
 	@Override

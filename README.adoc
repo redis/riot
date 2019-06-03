@@ -85,7 +85,7 @@ Here is an excerpt of https://raw.githubusercontent.com/jpatokal/openflights/mas
 .Import airports into a geoset
 [source,shell]
 ----
-riot import csv --url https://raw.githubusercontent.com/jpatokal/openflights/master/data/airports.dat --fields AirportID Name City Country IATA ICAO Latitude Longitude Altitude Timezone DST Tz Type Source geo --keyspace airportgeo --fields AirportID --longitude-field Longitude --latitude-field Latitude
+riot import csv --url https://raw.githubusercontent.com/jpatokal/openflights/master/data/airports.dat --fields AirportID Name City Country IATA ICAO Latitude Longitude Altitude Timezone DST Tz Type Source geo --keyspace airportgeo --fields AirportID --longitude Longitude --latitude Latitude
 ----
 .Query the `airportgeo` geoset using redis-cli
 [source,plaintext]
@@ -202,30 +202,101 @@ riot import --max 100 gen --field id=sequence --field firstName=faker.name.first
 > HGETALL person:1
 1) "address"
 2) "036 Robbin Points, North Sonia, PA 42251"
-3) "id"
-4) "1"
 5) "firstName"
 6) "Nickolas"
 7) "lastName"
 8) "Gleason"
 ---- 
 
-==== Rock Bands
+==== Game of Thrones
 [source,shell]
 ----
-riot import --max 100 gen --field name=faker.rockBand.name set --keyspace rockbands --fields name
+riot import --max 100 gen --field name=faker.gameOfThrones.character set --keyspace got:characters --fields name
 ----
 
 [source,plaintext]
 ----
-> SMEMBERS rockbands
- 1) "Bruce Springsteen & The E Street Band"
- 2) "The Cure"
- 3) "King Crimson"
- 4) "ZZ Top"
- ...
+> SMEMBERS got:characters
+   1) "Nymella Toland"
+   2) "Ysilla Royce"
+   3) "Halmon Paege"
+   4) "Mark Mullendore"
+   5) "Cleyton Caswell"
+   ...
 ----
 
+==== Faker Generators
 
+These are the generators available:
+
+* address
+* ancient
+* app
+* artist
+* avatar
+* beer
+* book
+* bool
+* business
+* cat
+* chuckNorris
+* code
+* color
+* commerce
+* company
+* country
+* crypto
+* currency
+* dateAndTime
+* demographic
+* dog
+* dragonBall
+* educator
+* esports
+* file
+* finance
+* food
+* friends
+* funnyName
+* gameOfThrones
+* hacker
+* harryPotter
+* hipster
+* hitchhikersGuideToTheGalaxy
+* hobbit
+* howIMetYourMother
+* idNumber
+* internet
+* job
+* leagueOfLegends
+* lebowski
+* lordOfTheRings
+* lorem
+* matz
+* medical
+* music
+* name
+* number
+* options
+* overwatch
+* phoneNumber
+* pokemon
+* randomService
+* rickAndMorty
+* robin
+* rockBand
+* shakespeare
+* slackEmoji
+* space
+* starTrek
+* stock
+* superhero
+* team
+* twinPeaks
+* university
+* weather
+* witcher
+* yoda
+* zelda 
 
 
