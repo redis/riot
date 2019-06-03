@@ -227,7 +227,7 @@ riot import --max 100 gen --field name=faker.gameOfThrones.character set --keysp
 
 ==== Faker Generators
 
-These are the generators available:
+These are the https://github.com/DiUS/java-faker[Faker generators] available:
 
 * address
 * ancient
