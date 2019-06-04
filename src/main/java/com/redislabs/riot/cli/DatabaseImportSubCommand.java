@@ -1,4 +1,4 @@
-package com.redislabs.riot.cli.in;
+package com.redislabs.riot.cli;
 
 import java.util.Map;
 
@@ -15,7 +15,7 @@ import picocli.CommandLine.Option;
 
 @Component
 @Command(name = "db", description = "Import from a database")
-public class DatabaseImportSubCommand extends AbstractImportSubCommand {
+public class DatabaseImportSubCommand extends ImportSubCommand {
 
 	@Option(names = "--driver", description = "Fully qualified name of the JDBC driver. Auto-detected based on the URL by default.")
 	private String driverClassName;
@@ -65,7 +65,6 @@ public class DatabaseImportSubCommand extends AbstractImportSubCommand {
 		return builder.build();
 	}
 
-	@Override
 	public String getSourceDescription() {
 		return "database query \"" + sql + "\"";
 	}

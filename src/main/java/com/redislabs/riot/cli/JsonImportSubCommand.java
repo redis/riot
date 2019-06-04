@@ -1,11 +1,9 @@
-package com.redislabs.riot.cli.file;
+package com.redislabs.riot.cli;
 
 import java.io.IOException;
 import java.util.Map;
 
 import org.springframework.batch.item.json.JsonItemReader;
-
-import com.redislabs.riot.cli.in.AbstractFileImportSubCommand;
 
 import picocli.CommandLine.Command;
 

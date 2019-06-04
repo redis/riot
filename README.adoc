@@ -23,7 +23,11 @@ Download the https://github.com/Redislabs-Solution-Architects/riot/releases/late
 Use the `riot` script (`riot.bat` for Windows) to launch RIOT. 
 
 == Usage
-Follow the usage help provided with the `--help` option.
+Follow the usage help provided with the `help` command:
+[source,shell]
+----
+riot help
+----
 
 === Databases
 

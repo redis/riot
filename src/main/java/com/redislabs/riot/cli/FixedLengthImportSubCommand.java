@@ -1,11 +1,10 @@
-package com.redislabs.riot.cli.file;
+package com.redislabs.riot.cli;
 
 import java.io.IOException;
 import java.util.Map;
 
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
 
-import com.redislabs.riot.cli.in.AbstractFlatFileImportSubCommand;
 import com.redislabs.riot.file.FileReaderBuilder;
 
 import picocli.CommandLine.Command;

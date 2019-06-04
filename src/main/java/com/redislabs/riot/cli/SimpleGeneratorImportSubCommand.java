@@ -1,4 +1,4 @@
-package com.redislabs.riot.cli.in;
+package com.redislabs.riot.cli;
 
 import org.springframework.stereotype.Component;
 
@@ -8,16 +8,15 @@ import picocli.CommandLine.Command;
 
 @Component
 @Command(name = "sgen", description = "Import simple generated data")
-public class SimpleGeneratorImportSubCommand extends AbstractImportSubCommand {
+public class SimpleGeneratorImportSubCommand extends ImportSubCommand {
 
 	@Override
 	public SimpleGeneratorReader reader() {
 		SimpleGeneratorReader reader = new SimpleGeneratorReader();
-		reader.setClient(getParent().redisConnectionBuilder().buildLettuceClient());
+		reader.setClient(getParent().getParent().redisConnectionBuilder().buildLettuceClient());
 		return reader;
 	}
 
-	@Override
 	public String getSourceDescription() {
 		return "simple-generated";
 	}

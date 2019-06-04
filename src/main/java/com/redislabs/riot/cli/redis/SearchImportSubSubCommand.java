@@ -13,6 +13,7 @@ import io.redisearch.client.AddOptions.ReplacementPolicy;
 import io.redisearch.client.Client;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
+import redis.clients.jedis.JedisPool;
 
 @Command(name = "search", description = "Search index")
 public class SearchImportSubSubCommand extends AbstractRediSearchImportSubSubCommand {
@@ -27,11 +28,11 @@ public class SearchImportSubSubCommand extends AbstractRediSearchImportSubSubCom
 	private Language language;
 	@Option(names = "--if-condition", description = "Applicable only in conjunction with REPLACE and optionally PARTIAL. Update the document only if a boolean expression applies to the document before the update.")
 	private String ifCondition;
-	@Option(names = "--score-field", description = "Name of the field to use for scores.")
+	@Option(names = "--score", description = "Name of the field to use for scores.")
 	private String scoreField;
 	@Option(names = "--default-score", description = "Default score to use when score field is not present. (default: ${DEFAULT-VALUE}).")
-	private Double defaultScore = 1d;
-	@Option(names = "--payload-field", description = "Name of the field containing the payload")
+	private double defaultScore = 1d;
+	@Option(names = "--payload", description = "Name of the field containing the payload")
 	private String payloadField;
 
 	@Override
@@ -48,11 +49,10 @@ public class SearchImportSubSubCommand extends AbstractRediSearchImportSubSubCom
 	@Override
 	protected ItemStreamWriter<Map<String, Object>> jedisWriter() {
 		JedisSearchWriter writer = new JedisSearchWriter();
-		writer.setClient(new Client(getIndex(), parent.getParent().redisConnectionBuilder().buildJedisPool()));
+		JedisPool pool = parent.getParent().getParent().redisConnectionBuilder().buildJedisPool();
+		writer.setClient(new Client(getIndex(), pool));
 		writer.setConverter(redisConverter());
-		if (defaultScore != null) {
-			writer.setDefaultScore(defaultScore.floatValue());
-		}
+		writer.setDefaultScore((float) defaultScore);
 		writer.setScoreField(scoreField);
 		writer.setPayloadField(payloadField);
 		io.redisearch.client.AddOptions options = new io.redisearch.client.AddOptions();

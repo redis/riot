@@ -1,18 +1,17 @@
 package com.redislabs.riot.cli;
 
-import lombok.Getter;
+import java.util.concurrent.Callable;
+
+import org.springframework.batch.core.ExitStatus;
+
 import picocli.CommandLine;
-import picocli.CommandLine.Option;
 
-public class BaseCommand implements Runnable {
-
-	@Getter
-	@Option(names = { "--help" }, usageHelp = true, description = "Prints this help message and exits")
-	private boolean helpRequested;
+public class BaseCommand implements Callable<ExitStatus> {
 
 	@Override
-	public void run() {
-		CommandLine.usage(this, System.out);
+	public ExitStatus call() {
+		new CommandLine(this).usage(System.out);
+		return ExitStatus.COMPLETED;
 	}
 
 }

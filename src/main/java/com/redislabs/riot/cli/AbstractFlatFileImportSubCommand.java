@@ -1,4 +1,4 @@
-package com.redislabs.riot.cli.in;
+package com.redislabs.riot.cli;
 
 import org.springframework.batch.item.file.FlatFileItemReader;
 

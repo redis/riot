@@ -1,4 +1,4 @@
-package com.redislabs.riot.cli.in;
+package com.redislabs.riot.cli;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -15,11 +15,11 @@ import picocli.CommandLine.Option;
 
 @Component
 @Command(name = "gen", description = "Import randomly generated data")
-public class GeneratorImportSubCommand extends AbstractImportSubCommand {
+public class GeneratorImportSubCommand extends ImportSubCommand {
 
 	@Option(names = "--map", description = "SpEL expression to generate maps.", paramLabel = "<SpEL>")
 	private String mapExpression;
-	@Option(names = { "-f", "--field" }, description = "Field SpEL expressions.", paramLabel = "<name=SpEL>")
+	@Option(names = "--field" , description = "Field SpEL expressions.", paramLabel = "<name=SpEL>")
 	private Map<String, String> fieldExpressions = new LinkedHashMap<>();
 	@Option(names = "--locale", description = "Faker locale. (default: ${DEFAULT-VALUE}).")
 	private Locale locale = Locale.ENGLISH;
@@ -29,11 +29,10 @@ public class GeneratorImportSubCommand extends AbstractImportSubCommand {
 		GeneratorReaderBuilder builder = new GeneratorReaderBuilder();
 		builder.setFields(fieldExpressions);
 		builder.setLocale(locale);
-		builder.setClient(getParent().redisConnectionBuilder().buildLettuceClient());
+		builder.setClient(getParent().getParent().redisConnectionBuilder().buildLettuceClient());
 		return builder.build();
 	}
 
-	@Override
 	public String getSourceDescription() {
 		String description = "generated";
 		if (mapExpression != null) {

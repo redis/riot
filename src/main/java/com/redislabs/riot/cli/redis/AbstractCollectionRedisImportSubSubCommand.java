@@ -1,10 +1,11 @@
 package com.redislabs.riot.cli.redis;
 
+import com.redislabs.riot.cli.AbstractImportSubSubCommand;
 import com.redislabs.riot.redis.writer.AbstractCollectionRedisItemWriter;
 
 import picocli.CommandLine.Option;
 
-public abstract class AbstractCollectionRedisImportSubSubCommand extends AbstractRedisImportSubSubCommand {
+public abstract class AbstractCollectionRedisImportSubSubCommand extends AbstractImportSubSubCommand {
 
 	@Option(names = "--keyspace", required = true, description = "Redis keyspace prefix.")
 	private String keyspace;
