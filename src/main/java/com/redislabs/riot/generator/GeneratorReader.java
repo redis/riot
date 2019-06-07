@@ -13,17 +13,13 @@ import org.springframework.expression.spel.support.SimpleEvaluationContext;
 import org.springframework.util.ClassUtils;
 
 import com.github.javafaker.Faker;
-import com.redislabs.lettusearch.RediSearchClient;
 import com.redislabs.riot.batch.IndexedPartitioner;
-import com.redislabs.riot.processor.CachedRedis;
 
 import lombok.Setter;
 
 public class GeneratorReader extends AbstractItemCountingItemStreamItemReader<Map<String, Object>> {
 
 	private ThreadLocal<Long> current = new ThreadLocal<>();
-	@Setter
-	private RediSearchClient client;
 	@Setter
 	private Locale locale;
 	@Setter
@@ -63,8 +59,6 @@ public class GeneratorReader extends AbstractItemCountingItemStreamItemReader<Ma
 		ReflectivePropertyAccessor accessor = new ReflectivePropertyAccessor();
 		EvaluationContext evaluationContext = new SimpleEvaluationContext.Builder(accessor).withRootObject(this)
 				.build();
-		evaluationContext.setVariable("r", client.connect().sync());
-		evaluationContext.setVariable("c", new CachedRedis(client.connect().sync()));
 		context.set(evaluationContext);
 		current.set(0l);
 	}

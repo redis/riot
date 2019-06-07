@@ -24,7 +24,7 @@ public class LettuceWriter extends AbstractItemStreamItemWriter<Map<String, Obje
 	@Setter
 	private GenericObjectPool<StatefulRediSearchConnection<String, String>> pool;
 	@Setter
-	private AbstractRedisItemWriter itemWriter;
+	private RedisItemWriter itemWriter;
 
 	public LettuceWriter() {
 		setName(ClassUtils.getShortName(this.getClass()));

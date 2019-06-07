@@ -2,10 +2,16 @@ package com.redislabs.riot.redis.writer;
 
 import java.util.Map;
 
+import com.redislabs.riot.redis.RedisConverter;
+
 import lombok.Setter;
 
-public abstract class AbstractCollectionRedisItemWriter extends AbstractRedisItemWriter {
+public abstract class AbstractCollectionRedisItemWriter implements RedisItemWriter {
 
+	@Setter
+	protected RedisConverter converter;
+	@Setter
+	protected RedisCommands commands;
 	@Setter
 	private String[] fields;
 

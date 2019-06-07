@@ -9,7 +9,7 @@ import org.springframework.batch.core.step.tasklet.TaskletStep;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemStreamReader;
-import org.springframework.batch.item.ItemStreamWriter;
+import org.springframework.batch.item.ItemWriter;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 
 import lombok.Setter;
@@ -28,7 +28,7 @@ public class JobBuilder<I, O> {
 	@Setter
 	private ItemStreamReader<I> reader;
 	@Setter
-	private ItemStreamWriter<O> writer;
+	private ItemWriter<O> writer;
 	@Setter
 	private ItemProcessor<I, O> processor;
 	private JobBuilderFactory jobBuilderFactory;

@@ -12,8 +12,6 @@ import lombok.Setter;
 
 public class RedisConverter {
 
-	public static final String KEY_SEPARATOR = ":";
-
 	private ConversionService converter = new DefaultConversionService();
 	@Getter
 	@Setter
@@ -21,6 +19,8 @@ public class RedisConverter {
 	@Getter
 	@Setter
 	private String[] keys;
+	@Setter
+	private String separator;
 
 	public String id(Map<String, Object> item) {
 		return joinFields(item, keys);
@@ -37,14 +37,14 @@ public class RedisConverter {
 		if (keyspace == null) {
 			return id;
 		}
-		return keyspace + RedisConverter.KEY_SEPARATOR + id;
+		return keyspace + separator + id;
 	}
 
 	public String joinFields(Map<String, Object> item, String[] fields) {
 		if (fields == null || fields.length == 0) {
 			return null;
 		}
-		StringJoiner joiner = new StringJoiner(KEY_SEPARATOR);
+		StringJoiner joiner = new StringJoiner(separator);
 		for (String field : fields) {
 			joiner.add(converter.convert(item.remove(field), String.class));
 		}

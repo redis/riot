@@ -103,6 +103,10 @@
 			<artifactId>javafaker</artifactId>
 			<version>0.18</version>
 		</dependency>
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+		</dependency>
 	</dependencies>
 
 	<build>

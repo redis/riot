@@ -16,7 +16,7 @@ public class JedisPipelineWriter extends AbstractItemStreamItemWriter<Map<String
 	@Setter
 	private JedisPool pool;
 	@Setter
-	private AbstractRedisItemWriter itemWriter;
+	private RedisItemWriter itemWriter;
 
 	public JedisPipelineWriter() {
 		setName(ClassUtils.getShortName(this.getClass()));

@@ -2,10 +2,17 @@ package com.redislabs.riot.redis.writer;
 
 import java.util.Map;
 
+import com.redislabs.riot.redis.RedisConverter;
+
 import lombok.Setter;
 
 @Setter
-public class StreamWriter extends AbstractRedisItemWriter {
+public class StreamWriter implements RedisItemWriter {
+
+	@Setter
+	protected RedisConverter converter;
+	@Setter
+	protected RedisCommands commands;
 
 	private Long maxlen;
 	private boolean approximateTrimming;
