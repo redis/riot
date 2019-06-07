@@ -1,7 +1,6 @@
 
 package com.redislabs.riot.cli;
 
-import com.redislabs.riot.RiotApplication.RedisDriver;
 import com.redislabs.riot.redis.writer.JedisCommands;
 import com.redislabs.riot.redis.writer.LettuceCommands;
 import com.redislabs.riot.redis.writer.RedisCommands;
@@ -13,7 +12,7 @@ public class CommandsBuilder {
 	@Setter
 	private RedisDriver driver;
 
-	protected RedisCommands build() {
+	public RedisCommands build() {
 		switch (driver) {
 		case Lettuce:
 			return lettuceCommands();

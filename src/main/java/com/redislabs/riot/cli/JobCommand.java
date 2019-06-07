@@ -20,8 +20,6 @@ import org.springframework.batch.support.transaction.ResourcelessTransactionMana
 import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.transaction.PlatformTransactionManager;
 
-import com.redislabs.riot.BaseCommand;
-import com.redislabs.riot.RiotApplication;
 import com.redislabs.riot.batch.JobBuilder;
 
 import lombok.Getter;
@@ -30,11 +28,11 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.ParentCommand;
 
 @Command
-public class JobCommand<I, O> extends BaseCommand {
+public class JobCommand<I, O> extends AbstractCommand {
 
 	@ParentCommand
 	@Getter
-	private RiotApplication parent;
+	private RootCommand parent;
 
 	private NumberFormat numberFormat = NumberFormat.getIntegerInstance();
 
