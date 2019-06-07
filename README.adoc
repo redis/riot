@@ -10,11 +10,14 @@ endif::[]
 
 Redis Input/Output Tool (RIOT) is a data import/export tool for Redis and Redis Modules.
 
-== Input Sources
-
-* Databases: JDBC
+== Inputs
+* Databases: any JDBC driver
 * Files: delimited (CSV), fixed-width, JSON
-* Generator: https://github.com/stympy/faker[Faker], simple 
+* Generator: https://github.com/stympy/faker[Faker], simple
+
+== Outputs
+* Databases: any JDBC driver
+* Files: delimited (CSV), formatted, JSON
 
 == Installation
 Download the https://github.com/Redislabs-Solution-Architects/riot/releases/latest[latest RIOT distribution] (zip or tar.gz) and unpack the downloaded archive.
@@ -36,7 +39,7 @@ WARNING: Add the appropriate driver jar for your database under the `lib` direct
 For example with MySQL: `lib/mysql-connector-java-5.1.47.jar`
 
 === JSON
-RIOT can read JSON data from a file with the following format:
+RIOT can read and write JSON data in the following format:
 [source,plaintext]
 ----
 [
@@ -59,7 +62,7 @@ This data generator relies on the https://github.com/DiUS/java-faker[Faker] libr
 
 == Examples
 
-=== Importing from databases
+=== Import from databases
 Let's import the following table from a MySQL database running locally: 
 [source,plaintext]
 ----
@@ -82,7 +85,7 @@ mysql> describe employees;
 riot import db --url "jdbc:mysql://localhost:3306/employees?serverTimezone=PST&useLegacyDatetimeCode=false&useSSL=false" --username root --password --sql "select * from employees" hash --keyspace employee --keys emp_no
 ----
 
-=== Importing CSV files
+=== Import CSV files
 Here is an excerpt of https://raw.githubusercontent.com/jpatokal/openflights/master/data/airports.dat[airports.dat] available at https://github.com/jpatokal/openflights[openflights]
 ----
 1,"Goroka Airport","Goroka","Papua New Guinea","GKA","AYGA",-6.081689834590001,145.391998291,5282,10,"U","Pacific/Port_Moresby","airport","OurAirports"
@@ -105,7 +108,7 @@ riot import csv --url https://raw.githubusercontent.com/jpatokal/openflights/mas
 …
 ----
 
-=== Importing JSON files
+=== Import JSON files
 Here is an excerpt of beers.json available at https://github.com/rethinkdb/beerthink/blob/master/data/beers.json[beerthink]:
 [source,json]
 ----
@@ -179,7 +182,7 @@ riot import json --url https://raw.githubusercontent.com/rethinkdb/beerthink/mas
      …
 ----
 
-=== Generating data
+=== Generate data
 
 ==== People
 [source,shell]
@@ -219,6 +222,23 @@ riot import --max 100 gen --field name=faker.gameOfThrones.character set --keysp
 
 These are the https://github.com/DiUS/java-faker[Faker generators] available:
 
-`address, ancient, app, artist, avatar, beer, book, bool, business, cat, chuckNorris, code, color, commerce, company, country, crypto, currency, dateAndTime, demographic, dog, dragonBall, educator, esports, file, finance, food, friends, funnyName, gameOfThrones, hacker, harryPotter, hipster, hitchhikersGuideToTheGalaxy, hobbit, howIMetYourMother, idNumber, internet, job, leagueOfLegends, lebowski, lordOfTheRings, lorem, matz, medical, music, name, number, options, overwatch, phoneNumber, pokemon, randomService, rickAndMorty, robin, rockBand, shakespeare, slackEmoji, space, starTrek, stock, superhero, team, twinPeaks, university, weather, witcher, yoda, zelda` 
+`address, ancient, app, artist, avatar, beer, book, bool, business, cat, chuckNorris, code, color, commerce, company, country, crypto, currency, dateAndTime, demographic, dog, dragonBall, educator, esports, file, finance, food, friends, funnyName, gameOfThrones, hacker, harryPotter, hipster, hitchhikersGuideToTheGalaxy, hobbit, howIMetYourMother, idNumber, internet, job, leagueOfLegends, lebowski, lordOfTheRings, lorem, matz, medical, music, name, number, options, overwatch, phoneNumber, pokemon, randomService, rickAndMorty, robin, rockBand, shakespeare, slackEmoji, space, starTrek, stock, superhero, team, twinPeaks, university, weather, witcher, yoda, zelda`
 
+=== Export to Databases
 
+[source,shell]
+----
+export --keyspace beer --keys id db --url "jdbc:mysql://localhost:3306/employees?serverTimezone=PST&useLegacyDatetimeCode=false&useSSL=false" --username root --password --sql "INSERT INTO beers (id, name, style_name) VALUES (:id, :name, :style_name)"
+----
+
+=== Export to CSV
+[source,shell]
+----
+export --keyspace beer --keys id csv --file export-beers.csv --names id name brewery_id abv --header
+----
+
+=== Export to JSON
+[source,shell]
+----
+export --keyspace beer --keys id json --file export-beers.json
+----
