@@ -26,14 +26,17 @@ public class StreamWriter extends AbstractRedisDataStructureItemWriter {
 		if (idField == null) {
 			if (maxlen == null) {
 				pipeline.xadd(key, new StreamEntryID(), fields);
+			} else {
+				pipeline.xadd(key, new StreamEntryID(), fields, maxlen, approximateTrimming);
 			}
-			pipeline.xadd(key, new StreamEntryID(), fields, maxlen, approximateTrimming);
+		} else {
+			String id = id(item);
+			if (maxlen == null) {
+				pipeline.xadd(key, new StreamEntryID(id), fields);
+			} else {
+				pipeline.xadd(key, new StreamEntryID(id), fields, maxlen, approximateTrimming);
+			}
 		}
-		String id = id(item);
-		if (maxlen == null) {
-			pipeline.xadd(key, new StreamEntryID(id), fields);
-		}
-		pipeline.xadd(key, new StreamEntryID(id), fields, maxlen, approximateTrimming);
 	}
 
 	@Override
