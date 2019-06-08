@@ -6,7 +6,7 @@ import org.springframework.batch.item.ItemWriter;
 
 import com.redislabs.riot.cli.in.AbstractImportWriterCommand;
 import com.redislabs.riot.redis.writer.LettuceWriter;
-import com.redislabs.riot.redis.writer.search.AbstractRediSearchItemWriter;
+import com.redislabs.riot.redis.writer.search.AbstractLettuSearchItemWriter;
 
 import lombok.Getter;
 import picocli.CommandLine.Option;
@@ -35,13 +35,13 @@ public abstract class AbstractRediSearchImport extends AbstractImportWriterComma
 
 	protected abstract ItemWriter<Map<String, Object>> jedisSearchWriter();
 
-	private AbstractRediSearchItemWriter lettuceItemWriter() {
-		AbstractRediSearchItemWriter writer = rediSearchItemWriter();
+	private AbstractLettuSearchItemWriter lettuceItemWriter() {
+		AbstractLettuSearchItemWriter writer = rediSearchItemWriter();
 		writer.setIndex(index);
 		writer.setConverter(redisConverter());
 		return writer;
 	}
 
-	protected abstract AbstractRediSearchItemWriter rediSearchItemWriter();
+	protected abstract AbstractLettuSearchItemWriter rediSearchItemWriter();
 
 }

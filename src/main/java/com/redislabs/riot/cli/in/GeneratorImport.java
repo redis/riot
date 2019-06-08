@@ -5,13 +5,15 @@ import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 
+import org.springframework.expression.Expression;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+
 import com.redislabs.riot.generator.GeneratorReader;
-import com.redislabs.riot.generator.GeneratorReaderBuilder;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
-@Command(name = "gen", description = "Import randomly generated data")
+@Command(name = "faker", description = "Import randomly generated data")
 public class GeneratorImport extends AbstractImportReaderCommand {
 
 	@Option(names = "--map", description = "SpEL expression to generate maps.", paramLabel = "<SpEL>")
@@ -23,10 +25,13 @@ public class GeneratorImport extends AbstractImportReaderCommand {
 
 	@Override
 	public GeneratorReader reader() {
-		GeneratorReaderBuilder builder = new GeneratorReaderBuilder();
-		builder.setFields(fieldExpressions);
-		builder.setLocale(locale);
-		return builder.build();
+		SpelExpressionParser parser = new SpelExpressionParser();
+		Map<String, Expression> fieldExpressionMap = new LinkedHashMap<String, Expression>();
+		fieldExpressions.forEach((k, v) -> fieldExpressionMap.put(k, parser.parseExpression(v)));
+		GeneratorReader reader = new GeneratorReader();
+		reader.setFieldExpressions(fieldExpressionMap);
+		reader.setLocale(locale);
+		return reader;
 	}
 
 	@Override

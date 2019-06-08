@@ -4,7 +4,7 @@ import com.redislabs.riot.generator.SimpleGeneratorReader;
 
 import picocli.CommandLine.Command;
 
-@Command(name = "sgen", description = "Import simple generated data")
+@Command(name = "simple", description = "Import simple generated data")
 public class SimpleGeneratorImport extends AbstractImportReaderCommand {
 
 	@Override

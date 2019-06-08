@@ -8,9 +8,8 @@ import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemStreamException;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
-import org.springframework.expression.spel.support.SimpleEvaluationContext;
+import org.springframework.expression.spel.support.SimpleEvaluationContext.Builder;
 
-import com.github.javafaker.Faker;
 import com.redislabs.riot.AbstractReader;
 import com.redislabs.riot.batch.IndexedPartitioner;
 
@@ -23,7 +22,6 @@ public class GeneratorReader extends AbstractReader {
 	private Locale locale;
 	@Setter
 	private Map<String, Expression> fieldExpressions;
-	private Faker faker;
 	private ThreadLocal<EvaluationContext> context = new ThreadLocal<>();
 	private ThreadLocal<Integer> partitionIndex = new ThreadLocal<>();
 	private ThreadLocal<Integer> partitions = new ThreadLocal<>();
@@ -31,30 +29,24 @@ public class GeneratorReader extends AbstractReader {
 
 	@Override
 	public void open(ExecutionContext executionContext) throws ItemStreamException {
-		this.faker = new Faker(locale);
 		this.partitionIndex.set(IndexedPartitioner.getPartitionIndex(executionContext));
 		this.partitions.set(IndexedPartitioner.getPartitions(executionContext));
 		super.open(executionContext);
 	}
 
-	public int partitions() {
+	public int getPartitions() {
 		return partitions.get();
 	}
 
-	public int partitionIndex() {
+	public int getPartitionIndex() {
 		return partitionIndex.get();
-	}
-
-	public Faker faker() {
-		return faker;
 	}
 
 	@Override
 	protected void doOpen() throws Exception {
 		ReflectivePropertyAccessor accessor = new ReflectivePropertyAccessor();
-		EvaluationContext evaluationContext = new SimpleEvaluationContext.Builder(accessor).withRootObject(this)
-				.build();
-		context.set(evaluationContext);
+		GeneratorFaker faker = new GeneratorFaker(locale, this);
+		context.set(new Builder(accessor).withRootObject(faker).build());
 		current.set(0l);
 	}
 
@@ -63,7 +55,7 @@ public class GeneratorReader extends AbstractReader {
 		super.setMaxItemCount(count);
 	}
 
-	public long sequence() {
+	public long getSequence() {
 		// Start at 1
 		return start(maxItemCount) + current.get() + 1;
 	}

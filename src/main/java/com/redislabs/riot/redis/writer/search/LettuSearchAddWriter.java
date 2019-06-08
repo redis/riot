@@ -3,28 +3,28 @@ package com.redislabs.riot.redis.writer.search;
 import java.util.Map;
 
 import com.redislabs.lettusearch.RediSearchAsyncCommands;
+import com.redislabs.lettusearch.search.AddOptions;
 
 import io.lettuce.core.RedisFuture;
 import lombok.Setter;
 
 @Setter
-public class SuggestWriter extends AbstractRediSearchItemWriter {
+public class LettuSearchAddWriter extends AbstractLettuSearchItemWriter {
 
-	private String field;
+	@Setter
 	private String scoreField;
-	private double defaultScore = 1d;
-	private boolean increment;
+	@Setter
 	private String payloadField;
+	@Setter
+	private double defaultScore;
+	@Setter
+	private AddOptions options;
 
 	@Override
 	protected RedisFuture<?> write(RediSearchAsyncCommands<String, String> commands, String index,
 			Map<String, Object> item) {
-		String string = convert(item.get(field), String.class);
-		if (string == null) {
-			return null;
-		}
 		double score = convert(item.getOrDefault(scoreField, defaultScore), Double.class);
-		return commands.sugadd(index, string, score, increment, payload(item));
+		return commands.add(index, key(item), score, stringMap(item), options, payload(item));
 	}
 
 	private String payload(Map<String, Object> item) {

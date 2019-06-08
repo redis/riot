@@ -7,7 +7,7 @@ import org.springframework.batch.item.ItemWriter;
 import com.redislabs.lettusearch.search.AddOptions;
 import com.redislabs.lettusearch.search.Language;
 import com.redislabs.riot.redis.writer.search.JedisSearchWriter;
-import com.redislabs.riot.redis.writer.search.SearchAddWriter;
+import com.redislabs.riot.redis.writer.search.LettuSearchAddWriter;
 
 import io.redisearch.client.AddOptions.ReplacementPolicy;
 import io.redisearch.client.Client;
@@ -36,8 +36,8 @@ public class SearchImport extends AbstractRediSearchImport {
 	private String payload;
 
 	@Override
-	protected SearchAddWriter rediSearchItemWriter() {
-		SearchAddWriter writer = new SearchAddWriter();
+	protected LettuSearchAddWriter rediSearchItemWriter() {
+		LettuSearchAddWriter writer = new LettuSearchAddWriter();
 		writer.setDefaultScore(defaultScore);
 		writer.setOptions(AddOptions.builder().ifCondition(ifCondition).language(language).noSave(noSave)
 				.replace(replace).replacePartial(partial).build());

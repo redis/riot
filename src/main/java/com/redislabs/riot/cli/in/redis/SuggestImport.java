@@ -4,8 +4,8 @@ import java.util.Map;
 
 import org.springframework.batch.item.ItemWriter;
 
-import com.redislabs.riot.redis.writer.search.AbstractRediSearchItemWriter;
-import com.redislabs.riot.redis.writer.search.SuggestWriter;
+import com.redislabs.riot.redis.writer.search.AbstractLettuSearchItemWriter;
+import com.redislabs.riot.redis.writer.search.LettuSearchSuggestWriter;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -25,8 +25,8 @@ public class SuggestImport extends AbstractRediSearchImport {
 	private String payload;
 
 	@Override
-	protected AbstractRediSearchItemWriter rediSearchItemWriter() {
-		SuggestWriter writer = new SuggestWriter();
+	protected AbstractLettuSearchItemWriter rediSearchItemWriter() {
+		LettuSearchSuggestWriter writer = new LettuSearchSuggestWriter();
 		writer.setDefaultScore(defaultScore);
 		writer.setField(suggest);
 		writer.setIncrement(increment);

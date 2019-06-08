@@ -10,7 +10,7 @@ import io.lettuce.core.RedisFuture;
 import io.lettuce.core.api.async.RedisAsyncCommands;
 import lombok.Setter;
 
-public abstract class AbstractRediSearchItemWriter extends AbstractRedisItemWriter implements LettuceItemWriter {
+public abstract class AbstractLettuSearchItemWriter extends AbstractRedisItemWriter implements LettuceItemWriter {
 
 	@Setter
 	private String index;
