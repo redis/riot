@@ -6,32 +6,23 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.pool2.impl.GenericObjectPool;
-import org.springframework.batch.item.support.AbstractItemStreamItemWriter;
-import org.springframework.util.ClassUtils;
-
-import com.redislabs.lettusearch.RediSearchAsyncCommands;
-import com.redislabs.lettusearch.StatefulRediSearchConnection;
 
 import io.lettuce.core.LettuceFutures;
 import io.lettuce.core.RedisCommandExecutionException;
 import io.lettuce.core.RedisFuture;
-import lombok.Setter;
+import io.lettuce.core.api.StatefulRedisConnection;
+import io.lettuce.core.api.async.RedisAsyncCommands;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class LettuceWriter extends AbstractItemStreamItemWriter<Map<String, Object>> {
+public class LettuceWriter extends AbstractRedisWriter {
 
-	@Setter
-	private GenericObjectPool<StatefulRediSearchConnection<String, String>> pool;
-	@Setter
-	private RedisItemWriter itemWriter;
+	private GenericObjectPool<StatefulRedisConnection<String, String>> pool;
+	private LettuceItemWriter writer;
 
-	public LettuceWriter() {
-		setName(ClassUtils.getShortName(this.getClass()));
-	}
-
-	public String getName() {
-		return getExecutionContextKey("name");
+	public LettuceWriter(GenericObjectPool<StatefulRedisConnection<String, String>> pool, LettuceItemWriter writer) {
+		this.pool = pool;
+		this.writer = writer;
 	}
 
 	public void write(List<? extends Map<String, Object>> items) throws Exception {
@@ -39,12 +30,12 @@ public class LettuceWriter extends AbstractItemStreamItemWriter<Map<String, Obje
 		if (pool.isClosed()) {
 			return;
 		}
-		StatefulRediSearchConnection<String, String> connection = pool.borrowObject();
+		StatefulRedisConnection<String, String> connection = pool.borrowObject();
 		try {
-			RediSearchAsyncCommands<String, String> commands = connection.async();
+			RedisAsyncCommands<String, String> commands = connection.async();
 			commands.setAutoFlushCommands(false);
 			for (Map<String, Object> item : items) {
-				RedisFuture<?> future = (RedisFuture<?>) itemWriter.write(commands, item);
+				RedisFuture<?> future = writer.write(commands, item);
 				if (future != null) {
 					futures.add(future);
 				}

@@ -2,36 +2,55 @@ package com.redislabs.riot.redis.writer;
 
 import java.util.Map;
 
-import com.redislabs.riot.redis.RedisConverter;
-
+import io.lettuce.core.RedisFuture;
+import io.lettuce.core.XAddArgs;
+import io.lettuce.core.api.async.RedisAsyncCommands;
 import lombok.Setter;
+import redis.clients.jedis.Pipeline;
+import redis.clients.jedis.StreamEntryID;
 
 @Setter
-public class StreamWriter implements RedisItemWriter {
-
-	@Setter
-	protected RedisConverter converter;
-	@Setter
-	protected RedisCommands commands;
+public class StreamWriter extends AbstractRedisDataStructureItemWriter {
 
 	private Long maxlen;
 	private boolean approximateTrimming;
 	private String idField;
 
+	private String id(Map<String, Object> item) {
+		return convert(item.remove(idField), String.class);
+	}
+
 	@Override
-	public Object write(Object redis, Map<String, Object> item) {
-		String key = converter.key(item);
+	protected void write(Pipeline pipeline, String key, Map<String, Object> item) {
+		Map<String, String> fields = stringMap(item);
 		if (idField == null) {
 			if (maxlen == null) {
-				return commands.xadd(redis, key, item);
+				pipeline.xadd(key, new StreamEntryID(), fields);
 			}
-			return commands.xadd(redis, key, item, maxlen, approximateTrimming);
+			pipeline.xadd(key, new StreamEntryID(), fields, maxlen, approximateTrimming);
 		}
-		String id = converter.convert(item.remove(idField), String.class);
+		String id = id(item);
 		if (maxlen == null) {
-			return commands.xadd(redis, key, id, item);
+			pipeline.xadd(key, new StreamEntryID(id), fields);
 		}
-		return commands.xadd(redis, key, id, item, maxlen, approximateTrimming);
+		pipeline.xadd(key, new StreamEntryID(id), fields, maxlen, approximateTrimming);
+	}
+
+	@Override
+	protected RedisFuture<?> write(RedisAsyncCommands<String, String> commands, String key, Map<String, Object> item) {
+		Map<String, String> fields = stringMap(item);
+		if (idField == null) {
+			if (maxlen == null) {
+				return commands.xadd(key, fields);
+			}
+			return commands.xadd(key, fields, maxlen, approximateTrimming);
+		}
+		XAddArgs args = new XAddArgs();
+		args.id(id(item));
+		if (maxlen == null) {
+			return commands.xadd(key, args, fields);
+		}
+		return commands.xadd(key, args, fields, maxlen, approximateTrimming);
 	}
 
 }

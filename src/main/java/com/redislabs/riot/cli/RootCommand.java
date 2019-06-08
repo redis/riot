@@ -1,15 +1,24 @@
 package com.redislabs.riot.cli;
 
 import java.net.InetAddress;
+import java.time.Duration;
 
+import org.apache.commons.pool2.impl.GenericObjectPool;
+import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
+
+import com.redislabs.lettusearch.RediSearchClient;
 import com.redislabs.riot.cli.in.Import;
 import com.redislabs.riot.cli.out.Export;
-import com.redislabs.riot.redis.RedisConnectionBuilder;
 
 import io.lettuce.core.RedisURI;
+import io.lettuce.core.api.StatefulRedisConnection;
+import io.lettuce.core.resource.DefaultClientResources;
+import io.lettuce.core.support.ConnectionPoolSupport;
 import lombok.Getter;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
+import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.Protocol;
 
 @Command(name = "riot", subcommands = { Export.class, Import.class })
@@ -22,9 +31,7 @@ public class RootCommand extends AbstractCommand {
 	 */
 	@Option(names = "--spring.output.ansi.enabled", hidden = true)
 	private String ansiEnabled;
-	@Option(names = "--driver", description = "Redis driver: ${COMPLETION-CANDIDATES}. (default: ${DEFAULT-VALUE})")
 	@Getter
-	private RedisDriver driver = RedisDriver.Jedis;
 	@Option(names = "--host", description = "Redis server host. (default: localhost).")
 	private InetAddress host;
 	@Option(names = "--port", description = "Redis server port. (default: ${DEFAULT-VALUE}).")
@@ -50,28 +57,43 @@ public class RootCommand extends AbstractCommand {
 	@Option(names = "--client-name", description = "Redis client name.")
 	private String clientName;
 
-	public RedisConnectionBuilder redisConnectionBuilder() {
-		RedisConnectionBuilder builder = new RedisConnectionBuilder();
-		builder.setClientName(clientName);
-		builder.setCommandTimeout(commandTimeout);
-		builder.setConnectionTimeout(connectionTimeout);
-		builder.setDatabase(database);
-		builder.setHost(getHostname());
-		builder.setMaxTotal(maxTotal);
-		builder.setMaxIdle(maxIdle);
-		builder.setMaxWait(maxWait);
-		builder.setMinIdle(minIdle);
-		builder.setPassword(password);
-		builder.setPort(port);
-		builder.setSocketTimeout(socketTimeout);
-		return builder;
-	}
-
-	private String getHostname() {
+	public String getHostname() {
 		if (host != null) {
 			return host.getHostName();
 		}
 		return DEFAULT_HOST;
 	}
 
+	public JedisPool jedisPool() {
+		JedisPoolConfig config = new JedisPoolConfig();
+		config.setMaxIdle(maxIdle);
+		config.setMaxTotal(maxTotal);
+		config.setMaxWaitMillis(maxWait);
+		config.setMinIdle(minIdle);
+		return new JedisPool(config, getHostname(), port, connectionTimeout, socketTimeout, password, database,
+				clientName);
+	}
+
+	public RediSearchClient lettuceClient() {
+		RedisURI redisURI = RedisURI.create(getHostname(), port);
+		if (password != null) {
+			redisURI.setPassword(password);
+		}
+		redisURI.setTimeout(Duration.ofSeconds(commandTimeout));
+		redisURI.setClientName(clientName);
+		redisURI.setDatabase(database);
+		return RediSearchClient.create(DefaultClientResources.create(), redisURI);
+	}
+
+	public GenericObjectPool<StatefulRedisConnection<String, String>> lettucePool() {
+		RediSearchClient client = lettuceClient();
+		GenericObjectPoolConfig<StatefulRedisConnection<String, String>> config = new GenericObjectPoolConfig<StatefulRedisConnection<String, String>>();
+		GenericObjectPool<StatefulRedisConnection<String, String>> pool = ConnectionPoolSupport
+				.createGenericObjectPool(() -> client.connect(), config);
+		pool.setMaxTotal(maxTotal);
+		pool.setMaxIdle(maxIdle);
+		pool.setMinIdle(minIdle);
+		pool.setMaxWaitMillis(maxWait);
+		return pool;
+	}
 }

@@ -1,5 +1,9 @@
 package com.redislabs.riot.cli.in.redis;
 
+import java.util.Map;
+
+import org.springframework.batch.item.ItemWriter;
+
 import com.redislabs.riot.redis.writer.search.AbstractRediSearchItemWriter;
 import com.redislabs.riot.redis.writer.search.SuggestWriter;
 
@@ -32,8 +36,8 @@ public class SuggestImport extends AbstractRediSearchImport {
 	}
 
 	@Override
-	protected String getDataStructure() {
-		return "suggestion index";
+	protected ItemWriter<Map<String, Object>> jedisSearchWriter() {
+		return null;
 	}
 
 }

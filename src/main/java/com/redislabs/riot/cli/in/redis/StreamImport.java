@@ -1,14 +1,13 @@
 package com.redislabs.riot.cli.in.redis;
 
-import com.redislabs.riot.cli.in.AbstractImportWriterCommand;
-import com.redislabs.riot.redis.writer.RedisItemWriter;
+import com.redislabs.riot.cli.in.AbstractRedisImportWriterCommand;
 import com.redislabs.riot.redis.writer.StreamWriter;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 @Command(name = "stream", description = "Stream data structure")
-public class StreamImport extends AbstractImportWriterCommand {
+public class StreamImport extends AbstractRedisImportWriterCommand {
 
 	@Option(names = "--keyspace", required = true, description = "Redis keyspace prefix.")
 	private String keyspace;
@@ -32,7 +31,7 @@ public class StreamImport extends AbstractImportWriterCommand {
 	}
 
 	@Override
-	protected RedisItemWriter redisItemWriter() {
+	protected StreamWriter redisItemWriter() {
 		StreamWriter writer = new StreamWriter();
 		writer.setApproximateTrimming(approximateTrimming);
 		writer.setIdField(id);

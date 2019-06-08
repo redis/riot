@@ -16,7 +16,7 @@ public abstract class AbstractExportWriterCommand extends AbstractCommand {
 
 	private RedisReader reader() {
 		RedisReader reader = new RedisReader();
-		reader.setJedisPool(parent.getParent().redisConnectionBuilder().buildJedisPool());
+		reader.setJedisPool(parent.getParent().jedisPool());
 		reader.setCount(parent.getScanCount());
 		reader.setMatch(getScanPattern());
 		reader.setKeys(parent.getKeys());

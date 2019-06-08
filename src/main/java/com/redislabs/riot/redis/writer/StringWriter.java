@@ -3,45 +3,39 @@ package com.redislabs.riot.redis.writer;
 import java.util.Map;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.redislabs.riot.redis.RedisConverter;
 
-import lombok.Setter;
+import io.lettuce.core.RedisFuture;
+import io.lettuce.core.api.async.RedisAsyncCommands;
 import lombok.extern.slf4j.Slf4j;
+import redis.clients.jedis.Pipeline;
 
 @Slf4j
-public class StringWriter implements RedisItemWriter {
-
-	@Setter
-	protected RedisConverter converter;
-	@Setter
-	protected RedisCommands commands;
-
-	public static enum StringFormat {
-		Xml, Json
-	}
+public class StringWriter extends AbstractRedisDataStructureItemWriter {
 
 	private ObjectWriter objectWriter;
 
-	public ObjectWriter setFormat(StringFormat format) {
-		objectWriter = objectWriter(format);
-		return objectWriter;
+	public StringWriter(ObjectWriter objectWriter) {
+		this.objectWriter = objectWriter;
 	}
 
-	private ObjectWriter objectWriter(StringFormat format) {
-		if (format == StringFormat.Xml) {
-			return new XmlMapper().writer();
-		}
-		return new ObjectMapper().writer();
+	private String value(Map<String, Object> item) throws JsonProcessingException {
+		return objectWriter.writeValueAsString(item);
 	}
 
 	@Override
-	public Object write(Object redis, Map<String, Object> item) {
-		String key = converter.key(item);
+	protected void write(Pipeline pipeline, String key, Map<String, Object> item) {
 		try {
-			return commands.set(redis, key, objectWriter.writeValueAsString(item));
+			pipeline.set(key, value(item));
+		} catch (JsonProcessingException e) {
+			log.error("Could not serialize value: {}", item, e);
+		}
+	}
+
+	@Override
+	protected RedisFuture<?> write(RedisAsyncCommands<String, String> commands, String key, Map<String, Object> item) {
+		try {
+			return commands.set(key, value(item));
 		} catch (JsonProcessingException e) {
 			log.error("Could not serialize value: {}", item, e);
 			return null;

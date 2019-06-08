@@ -1,6 +1,5 @@
 package com.redislabs.riot.cli.in.redis;
 
-import com.redislabs.riot.redis.writer.AbstractCollectionRedisItemWriter;
 import com.redislabs.riot.redis.writer.GeoWriter;
 
 import picocli.CommandLine.Command;
@@ -15,7 +14,7 @@ public class GeoImport extends AbstractCollectionImport {
 	private String latitude;
 
 	@Override
-	protected AbstractCollectionRedisItemWriter collectionRedisItemWriter() {
+	protected GeoWriter collectionRedisItemWriter() {
 		GeoWriter writer = new GeoWriter();
 		writer.setLatitudeField(latitude);
 		writer.setLongitudeField(longitude);

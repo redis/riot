@@ -3,10 +3,8 @@ package com.redislabs.riot.redis.writer.search;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.batch.item.support.AbstractItemStreamItemWriter;
-import org.springframework.util.ClassUtils;
-
 import com.redislabs.riot.redis.RedisConverter;
+import com.redislabs.riot.redis.writer.AbstractRedisWriter;
 
 import io.redisearch.Document;
 import io.redisearch.client.AddOptions;
@@ -15,7 +13,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class JedisSearchWriter extends AbstractItemStreamItemWriter<Map<String, Object>> {
+public class JedisSearchWriter extends AbstractRedisWriter {
 
 	@Setter
 	protected RedisConverter converter;
@@ -29,14 +27,6 @@ public class JedisSearchWriter extends AbstractItemStreamItemWriter<Map<String, 
 	private Client client;
 	@Setter
 	private AddOptions options;
-
-	public JedisSearchWriter() {
-		setName(ClassUtils.getShortName(this.getClass()));
-	}
-
-	public String getName() {
-		return getExecutionContextKey("name");
-	}
 
 	public void write(List<? extends Map<String, Object>> items) throws Exception {
 		Document[] docs = items.stream().map(item -> document(item)).toArray(Document[]::new);

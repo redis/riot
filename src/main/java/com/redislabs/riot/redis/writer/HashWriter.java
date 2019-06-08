@@ -2,21 +2,20 @@ package com.redislabs.riot.redis.writer;
 
 import java.util.Map;
 
-import com.redislabs.riot.redis.RedisConverter;
+import io.lettuce.core.RedisFuture;
+import io.lettuce.core.api.async.RedisAsyncCommands;
+import redis.clients.jedis.Pipeline;
 
-import lombok.Setter;
-
-public class HashWriter implements RedisItemWriter {
-
-	@Setter
-	protected RedisConverter converter;
-	@Setter
-	protected RedisCommands commands;
+public class HashWriter extends AbstractRedisDataStructureItemWriter {
 
 	@Override
-	public Object write(Object redis, Map<String, Object> item) {
-		String key = converter.key(item);
-		return commands.hmset(redis, key, item);
+	protected void write(Pipeline pipeline, String key, Map<String, Object> item) {
+		pipeline.hmset(key, stringMap(item));
+	}
+
+	@Override
+	protected RedisFuture<?> write(RedisAsyncCommands<String, String> commands, String key, Map<String, Object> item) {
+		return commands.hmset(key, stringMap(item));
 	}
 
 }

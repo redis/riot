@@ -1,7 +1,6 @@
 package com.redislabs.riot.cli.in.redis;
 
 import com.redislabs.riot.redis.writer.HashWriter;
-import com.redislabs.riot.redis.writer.RedisItemWriter;
 
 import picocli.CommandLine.Command;
 
@@ -9,7 +8,7 @@ import picocli.CommandLine.Command;
 public class HashImport extends AbstractSingleImport {
 
 	@Override
-	protected RedisItemWriter redisItemWriter() {
+	protected HashWriter redisItemWriter() {
 		return new HashWriter();
 	}
 

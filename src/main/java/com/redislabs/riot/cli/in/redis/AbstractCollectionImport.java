@@ -1,11 +1,11 @@
 package com.redislabs.riot.cli.in.redis;
 
-import com.redislabs.riot.cli.in.AbstractImportWriterCommand;
+import com.redislabs.riot.cli.in.AbstractRedisImportWriterCommand;
 import com.redislabs.riot.redis.writer.AbstractCollectionRedisItemWriter;
 
 import picocli.CommandLine.Option;
 
-public abstract class AbstractCollectionImport extends AbstractImportWriterCommand {
+public abstract class AbstractCollectionImport extends AbstractRedisImportWriterCommand {
 
 	@Option(names = "--keyspace", required = true, description = "Redis keyspace prefix.")
 	private String keyspace;

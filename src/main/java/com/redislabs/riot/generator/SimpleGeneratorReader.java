@@ -5,21 +5,16 @@ import java.util.Map;
 
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemStreamException;
-import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
-import org.springframework.util.ClassUtils;
 
+import com.redislabs.riot.AbstractReader;
 import com.redislabs.riot.batch.IndexedPartitioner;
 
-public class SimpleGeneratorReader extends AbstractItemCountingItemStreamItemReader<Map<String, Object>> {
+public class SimpleGeneratorReader extends AbstractReader {
 
 	private ThreadLocal<Long> current = new ThreadLocal<>();
 	private ThreadLocal<Integer> partitionIndex = new ThreadLocal<>();
 	private ThreadLocal<Integer> partitions = new ThreadLocal<>();
 	private int maxItemCount;
-
-	public SimpleGeneratorReader() {
-		setName(ClassUtils.getShortName(SimpleGeneratorReader.class));
-	}
 
 	@Override
 	public void open(ExecutionContext executionContext) throws ItemStreamException {

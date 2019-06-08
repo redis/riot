@@ -47,9 +47,9 @@ public class SearchImport extends AbstractRediSearchImport {
 	}
 
 	@Override
-	protected ItemWriter<Map<String, Object>> jedisWriter() {
+	protected ItemWriter<Map<String, Object>> jedisSearchWriter() {
 		JedisSearchWriter writer = new JedisSearchWriter();
-		JedisPool pool = getParent().getParent().getParent().redisConnectionBuilder().buildJedisPool();
+		JedisPool pool = getRoot().jedisPool();
 		writer.setClient(new Client(getIndex(), pool));
 		writer.setConverter(redisConverter());
 		writer.setDefaultScore((float) defaultScore);
@@ -75,11 +75,6 @@ public class SearchImport extends AbstractRediSearchImport {
 			return ReplacementPolicy.FULL;
 		}
 		return ReplacementPolicy.NONE;
-	}
-
-	@Override
-	protected String getDataStructure() {
-		return "search index";
 	}
 
 }

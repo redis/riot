@@ -2,8 +2,10 @@ package com.redislabs.riot.redis.writer.search;
 
 import java.util.Map;
 
+import com.redislabs.lettusearch.RediSearchAsyncCommands;
 import com.redislabs.lettusearch.search.AddOptions;
 
+import io.lettuce.core.RedisFuture;
 import lombok.Setter;
 
 @Setter
@@ -19,19 +21,17 @@ public class SearchAddWriter extends AbstractRediSearchItemWriter {
 	private AddOptions options;
 
 	@Override
-	public Object write(Object redis, Map<String, Object> item) {
-		double score = converter.convert(item.getOrDefault(scoreField, defaultScore), Double.class);
-		String id = converter.key(item);
-		String payload = payload(item);
-		return commands.ftadd(redis, index, id, score, item, options, payload);
-
+	protected RedisFuture<?> write(RediSearchAsyncCommands<String, String> commands, String index,
+			Map<String, Object> item) {
+		double score = convert(item.getOrDefault(scoreField, defaultScore), Double.class);
+		return commands.add(index, key(item), score, stringMap(item), options, payload(item));
 	}
 
 	private String payload(Map<String, Object> item) {
 		if (payloadField == null) {
 			return null;
 		}
-		return converter.convert(item.remove(payloadField), String.class);
+		return convert(item.remove(payloadField), String.class);
 	}
 
 }
