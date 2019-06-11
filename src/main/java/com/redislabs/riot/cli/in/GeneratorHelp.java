@@ -6,8 +6,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.core.convert.Property;
-
 import com.github.javafaker.Faker;
 
 import picocli.CommandLine.Command;

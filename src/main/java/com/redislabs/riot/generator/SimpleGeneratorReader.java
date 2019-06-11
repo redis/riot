@@ -14,7 +14,12 @@ public class SimpleGeneratorReader extends AbstractReader {
 	private ThreadLocal<Long> current = new ThreadLocal<>();
 	private ThreadLocal<Integer> partitionIndex = new ThreadLocal<>();
 	private ThreadLocal<Integer> partitions = new ThreadLocal<>();
+	private int fieldCount;
 	private int maxItemCount;
+
+	public SimpleGeneratorReader(int fieldCount) {
+		this.fieldCount = fieldCount;
+	}
 
 	@Override
 	public void open(ExecutionContext executionContext) throws ItemStreamException {
@@ -52,7 +57,11 @@ public class SimpleGeneratorReader extends AbstractReader {
 	@Override
 	protected Map<String, Object> doRead() throws Exception {
 		Map<String, Object> map = new HashMap<>();
-		map.put("field", current.get());
+		for (int index = 0; index < fieldCount; index++) {
+			int fieldIndex = index + 1;
+			String fieldName = "field" + fieldIndex;
+			map.put(fieldName, current.get());
+		}
 		current.set(current.get() + 1);
 		return map;
 	}
