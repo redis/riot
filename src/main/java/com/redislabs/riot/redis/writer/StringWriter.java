@@ -9,6 +9,7 @@ import io.lettuce.core.RedisFuture;
 import io.lettuce.core.api.async.RedisAsyncCommands;
 import lombok.extern.slf4j.Slf4j;
 import redis.clients.jedis.Pipeline;
+import redis.clients.jedis.Response;
 
 @Slf4j
 public class StringWriter extends AbstractRedisDataStructureItemWriter {
@@ -24,11 +25,12 @@ public class StringWriter extends AbstractRedisDataStructureItemWriter {
 	}
 
 	@Override
-	protected void write(Pipeline pipeline, String key, Map<String, Object> item) {
+	protected Response<String> write(Pipeline pipeline, String key, Map<String, Object> item) {
 		try {
-			pipeline.set(key, value(item));
+			return pipeline.set(key, value(item));
 		} catch (JsonProcessingException e) {
 			log.error("Could not serialize value: {}", item, e);
+			return null;
 		}
 	}
 

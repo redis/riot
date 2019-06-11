@@ -3,9 +3,10 @@ package com.redislabs.riot.redis.writer;
 import java.util.Map;
 
 import redis.clients.jedis.Pipeline;
+import redis.clients.jedis.Response;
 
 public interface JedisItemWriter {
 
-	void write(Pipeline pipeline, Map<String, Object> item);
+	Response<?> write(Pipeline pipeline, Map<String, Object> item);
 
 }

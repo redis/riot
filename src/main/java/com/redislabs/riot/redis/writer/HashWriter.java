@@ -5,12 +5,13 @@ import java.util.Map;
 import io.lettuce.core.RedisFuture;
 import io.lettuce.core.api.async.RedisAsyncCommands;
 import redis.clients.jedis.Pipeline;
+import redis.clients.jedis.Response;
 
 public class HashWriter extends AbstractRedisDataStructureItemWriter {
 
 	@Override
-	protected void write(Pipeline pipeline, String key, Map<String, Object> item) {
-		pipeline.hmset(key, stringMap(item));
+	protected Response<String> write(Pipeline pipeline, String key, Map<String, Object> item) {
+		return pipeline.hmset(key, stringMap(item));
 	}
 
 	@Override

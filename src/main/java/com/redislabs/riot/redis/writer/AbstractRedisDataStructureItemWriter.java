@@ -5,16 +5,17 @@ import java.util.Map;
 import io.lettuce.core.RedisFuture;
 import io.lettuce.core.api.async.RedisAsyncCommands;
 import redis.clients.jedis.Pipeline;
+import redis.clients.jedis.Response;
 
 public abstract class AbstractRedisDataStructureItemWriter extends AbstractRedisItemWriter
 		implements JedisItemWriter, LettuceItemWriter {
 
 	@Override
-	public void write(Pipeline pipeline, Map<String, Object> item) {
-		write(pipeline, key(item), item);
+	public Response<?> write(Pipeline pipeline, Map<String, Object> item) {
+		return write(pipeline, key(item), item);
 	}
 
-	protected abstract void write(Pipeline pipeline, String key, Map<String, Object> item);
+	protected abstract Response<?> write(Pipeline pipeline, String key, Map<String, Object> item);
 
 	@Override
 	public RedisFuture<?> write(RedisAsyncCommands<String, String> commands, Map<String, Object> item) {

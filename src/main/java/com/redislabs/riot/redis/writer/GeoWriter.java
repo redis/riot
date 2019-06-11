@@ -6,6 +6,7 @@ import io.lettuce.core.RedisFuture;
 import io.lettuce.core.api.async.RedisAsyncCommands;
 import lombok.Setter;
 import redis.clients.jedis.Pipeline;
+import redis.clients.jedis.Response;
 
 public class GeoWriter extends AbstractCollectionRedisItemWriter {
 
@@ -15,18 +16,18 @@ public class GeoWriter extends AbstractCollectionRedisItemWriter {
 	private String latitudeField;
 
 	@Override
-	protected void write(Pipeline pipeline, String key, String member, Map<String, Object> item) {
+	protected Response<Long> write(Pipeline pipeline, String key, String member, Map<String, Object> item) {
 		Object longitude = item.get(longitudeField);
 		if (longitude == null || longitude.equals("")) {
-			return;
+			return null;
 		}
 		Object latitude = item.get(latitudeField);
 		if (latitude == null || latitude.equals("")) {
-			return;
+			return null;
 		}
 		double lon = convert(longitude, Double.class);
 		double lat = convert(latitude, Double.class);
-		pipeline.geoadd(key, lon, lat, member);
+		return pipeline.geoadd(key, lon, lat, member);
 	}
 
 	@Override

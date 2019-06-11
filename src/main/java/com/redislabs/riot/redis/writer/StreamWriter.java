@@ -7,6 +7,7 @@ import io.lettuce.core.XAddArgs;
 import io.lettuce.core.api.async.RedisAsyncCommands;
 import lombok.Setter;
 import redis.clients.jedis.Pipeline;
+import redis.clients.jedis.Response;
 import redis.clients.jedis.StreamEntryID;
 
 @Setter
@@ -21,22 +22,20 @@ public class StreamWriter extends AbstractRedisDataStructureItemWriter {
 	}
 
 	@Override
-	protected void write(Pipeline pipeline, String key, Map<String, Object> item) {
+	protected Response<StreamEntryID> write(Pipeline pipeline, String key, Map<String, Object> item) {
+		StreamEntryID id = streamEntryID(item);
 		Map<String, String> fields = stringMap(item);
-		if (idField == null) {
-			if (maxlen == null) {
-				pipeline.xadd(key, new StreamEntryID(), fields);
-			} else {
-				pipeline.xadd(key, new StreamEntryID(), fields, maxlen, approximateTrimming);
-			}
-		} else {
-			String id = id(item);
-			if (maxlen == null) {
-				pipeline.xadd(key, new StreamEntryID(id), fields);
-			} else {
-				pipeline.xadd(key, new StreamEntryID(id), fields, maxlen, approximateTrimming);
-			}
+		if (maxlen == null) {
+			return pipeline.xadd(key, id, fields);
 		}
+		return pipeline.xadd(key, id, fields, maxlen, approximateTrimming);
+	}
+
+	private StreamEntryID streamEntryID(Map<String, Object> item) {
+		if (idField == null) {
+			return null;
+		}
+		return new StreamEntryID(id(item));
 	}
 
 	@Override
