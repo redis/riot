@@ -31,7 +31,6 @@ public class RootCommand extends AbstractCommand {
 	 */
 	@Option(names = "--spring.output.ansi.enabled", hidden = true)
 	private String ansiEnabled;
-	@Getter
 	@Option(names = "--host", description = "Redis server host. (default: localhost).")
 	private InetAddress host;
 	@Option(names = "--port", description = "Redis server port. (default: ${DEFAULT-VALUE}).")
@@ -56,6 +55,9 @@ public class RootCommand extends AbstractCommand {
 	private int database = 0;
 	@Option(names = "--client-name", description = "Redis client name.")
 	private String clientName;
+	@Getter
+	@Option(names = "--driver", description = "Redis driver: ${COMPLETION-CANDIDATES}. (default: ${DEFAULT-VALUE})")
+	private RedisDriver driver = RedisDriver.Jedis;
 
 	public String getHostname() {
 		if (host != null) {

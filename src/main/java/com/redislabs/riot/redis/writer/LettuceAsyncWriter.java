@@ -15,12 +15,12 @@ import io.lettuce.core.api.async.RedisAsyncCommands;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class LettuceWriter extends AbstractRedisWriter {
+public class LettuceAsyncWriter extends AbstractRedisWriter {
 
 	private GenericObjectPool<StatefulRedisConnection<String, String>> pool;
 	private LettuceItemWriter writer;
 
-	public LettuceWriter(GenericObjectPool<StatefulRedisConnection<String, String>> pool, LettuceItemWriter writer) {
+	public LettuceAsyncWriter(GenericObjectPool<StatefulRedisConnection<String, String>> pool, LettuceItemWriter writer) {
 		this.pool = pool;
 		this.writer = writer;
 	}

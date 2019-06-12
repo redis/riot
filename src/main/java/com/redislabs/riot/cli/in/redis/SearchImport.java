@@ -6,7 +6,9 @@ import org.springframework.batch.item.ItemWriter;
 
 import com.redislabs.lettusearch.search.AddOptions;
 import com.redislabs.lettusearch.search.Language;
+import com.redislabs.riot.redis.writer.search.AbstractLettuSearchItemWriter;
 import com.redislabs.riot.redis.writer.search.JedisSearchWriter;
+import com.redislabs.riot.redis.writer.search.LettuSearchAddPayloadWriter;
 import com.redislabs.riot.redis.writer.search.LettuSearchAddWriter;
 
 import io.redisearch.client.AddOptions.ReplacementPolicy;
@@ -29,20 +31,27 @@ public class SearchImport extends AbstractRediSearchImport {
 	@Option(names = "--if", description = "Applicable only in conjunction with REPLACE and optionally PARTIAL. Update the document only if a boolean expression applies to the document before the update.")
 	private String ifCondition;
 	@Option(names = "--score", description = "Name of the field to use for scores.")
-	private String score;
+	private String scoreField;
 	@Option(names = "--default-score", description = "Default score to use when score field is not present. (default: ${DEFAULT-VALUE}).")
 	private double defaultScore = 1d;
 	@Option(names = "--payload", description = "Name of the field containing the payload")
-	private String payload;
+	private String payloadField;
 
 	@Override
-	protected LettuSearchAddWriter rediSearchItemWriter() {
-		LettuSearchAddWriter writer = new LettuSearchAddWriter();
+	protected AbstractLettuSearchItemWriter rediSearchItemWriter() {
+		AddOptions options = AddOptions.builder().ifCondition(ifCondition).language(language).noSave(noSave)
+				.replace(replace).replacePartial(partial).build();
+		if (payloadField == null) {
+			LettuSearchAddWriter writer = new LettuSearchAddWriter();
+			writer.setDefaultScore(defaultScore);
+			writer.setOptions(options);
+			writer.setScoreField(scoreField);
+			return writer;
+		}
+		LettuSearchAddPayloadWriter writer = new LettuSearchAddPayloadWriter();
 		writer.setDefaultScore(defaultScore);
-		writer.setOptions(AddOptions.builder().ifCondition(ifCondition).language(language).noSave(noSave)
-				.replace(replace).replacePartial(partial).build());
-		writer.setPayloadField(payload);
-		writer.setScoreField(score);
+		writer.setOptions(options);
+		writer.setScoreField(scoreField);
 		return writer;
 	}
 
@@ -53,8 +62,8 @@ public class SearchImport extends AbstractRediSearchImport {
 		writer.setClient(new Client(getIndex(), pool));
 		writer.setConverter(redisConverter());
 		writer.setDefaultScore((float) defaultScore);
-		writer.setScoreField(score);
-		writer.setPayloadField(payload);
+		writer.setScoreField(scoreField);
+		writer.setPayloadField(payloadField);
 		io.redisearch.client.AddOptions options = new io.redisearch.client.AddOptions();
 		if (language != null) {
 			options.setLanguage(language.name());

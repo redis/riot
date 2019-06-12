@@ -4,27 +4,26 @@ import java.util.Map;
 
 import org.springframework.batch.item.ItemWriter;
 
-import com.redislabs.riot.cli.RedisDriver;
+import com.redislabs.lettusearch.RediSearchClient;
 import com.redislabs.riot.redis.writer.AbstractRedisDataStructureItemWriter;
 import com.redislabs.riot.redis.writer.JedisWriter;
-import com.redislabs.riot.redis.writer.LettuceWriter;
-
-import picocli.CommandLine.Option;
+import com.redislabs.riot.redis.writer.LettuceAsyncWriter;
+import com.redislabs.riot.redis.writer.LettuceReactiveWriter;
 
 public abstract class AbstractRedisImportWriterCommand extends AbstractImportWriterCommand {
-
-	@Option(names = "--driver", description = "Redis driver: ${COMPLETION-CANDIDATES}. (default: ${DEFAULT-VALUE})")
-	private RedisDriver driver = RedisDriver.Jedis;
 
 	@Override
 	protected ItemWriter<Map<String, Object>> writer() {
 		AbstractRedisDataStructureItemWriter itemWriter = redisItemWriter();
 		itemWriter.setConverter(redisConverter());
-		switch (driver) {
-		case Jedis:
-			return new JedisWriter(getRoot().jedisPool(), itemWriter);
+		switch (getRoot().getDriver()) {
+		case LettuceAsync:
+			return new LettuceAsyncWriter(getRoot().lettucePool(), itemWriter);
+		case LettuceReactive:
+			RediSearchClient client = getRoot().lettuceClient();
+			return new LettuceReactiveWriter(client.connect(), itemWriter);
 		default:
-			return new LettuceWriter(getRoot().lettucePool(), itemWriter);
+			return new JedisWriter(getRoot().jedisPool(), itemWriter);
 		}
 	}
 

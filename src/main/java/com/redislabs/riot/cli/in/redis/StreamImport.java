@@ -1,6 +1,10 @@
 package com.redislabs.riot.cli.in.redis;
 
 import com.redislabs.riot.cli.in.AbstractRedisImportWriterCommand;
+import com.redislabs.riot.redis.writer.AbstractRedisDataStructureItemWriter;
+import com.redislabs.riot.redis.writer.StreamIdMaxlenWriter;
+import com.redislabs.riot.redis.writer.StreamIdWriter;
+import com.redislabs.riot.redis.writer.StreamMaxlenWriter;
 import com.redislabs.riot.redis.writer.StreamWriter;
 
 import picocli.CommandLine.Command;
@@ -18,7 +22,7 @@ public class StreamImport extends AbstractRedisImportWriterCommand {
 	@Option(names = "--maxlen", description = "Limit stream to maxlen entries.")
 	private Long maxlen;
 	@Option(names = "--id", description = "Field used for stream entry IDs.")
-	private String id;
+	private String idField;
 
 	@Override
 	protected String getKeyspace() {
@@ -31,10 +35,24 @@ public class StreamImport extends AbstractRedisImportWriterCommand {
 	}
 
 	@Override
-	protected StreamWriter redisItemWriter() {
-		StreamWriter writer = new StreamWriter();
+	protected AbstractRedisDataStructureItemWriter redisItemWriter() {
+		if (idField == null) {
+			if (maxlen == null) {
+				return new StreamWriter();
+			}
+			StreamMaxlenWriter writer = new StreamMaxlenWriter();
+			writer.setMaxlen(maxlen);
+			writer.setApproximateTrimming(approximateTrimming);
+			return writer;
+		}
+		if (maxlen == null) {
+			StreamIdWriter writer = new StreamIdWriter();
+			writer.setIdField(idField);
+			return writer;
+		}
+		StreamIdMaxlenWriter writer = new StreamIdMaxlenWriter();
 		writer.setApproximateTrimming(approximateTrimming);
-		writer.setIdField(id);
+		writer.setIdField(idField);
 		writer.setMaxlen(maxlen);
 		return writer;
 	}

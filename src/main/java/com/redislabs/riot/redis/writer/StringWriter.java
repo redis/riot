@@ -7,7 +7,9 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 
 import io.lettuce.core.RedisFuture;
 import io.lettuce.core.api.async.RedisAsyncCommands;
+import io.lettuce.core.api.reactive.RedisReactiveCommands;
 import lombok.extern.slf4j.Slf4j;
+import reactor.core.publisher.Mono;
 import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.Response;
 
@@ -36,6 +38,16 @@ public class StringWriter extends AbstractRedisDataStructureItemWriter {
 
 	@Override
 	protected RedisFuture<?> write(RedisAsyncCommands<String, String> commands, String key, Map<String, Object> item) {
+		try {
+			return commands.set(key, value(item));
+		} catch (JsonProcessingException e) {
+			log.error("Could not serialize value: {}", item, e);
+			return null;
+		}
+	}
+
+	@Override
+	protected Mono<?> write(RedisReactiveCommands<String, String> commands, String key, Map<String, Object> item) {
 		try {
 			return commands.set(key, value(item));
 		} catch (JsonProcessingException e) {

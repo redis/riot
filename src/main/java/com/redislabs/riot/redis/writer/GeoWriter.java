@@ -4,11 +4,25 @@ import java.util.Map;
 
 import io.lettuce.core.RedisFuture;
 import io.lettuce.core.api.async.RedisAsyncCommands;
+import io.lettuce.core.api.reactive.RedisReactiveCommands;
 import lombok.Setter;
+import lombok.Value;
+import reactor.core.publisher.Mono;
 import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.Response;
 
 public class GeoWriter extends AbstractCollectionRedisItemWriter {
+
+	@Value
+	private static class Point {
+		private Double longitude;
+		private Double latitude;
+
+		public boolean isInvalid() {
+			return longitude == null || latitude == null;
+		}
+
+	}
 
 	@Setter
 	private String longitudeField;
@@ -17,33 +31,53 @@ public class GeoWriter extends AbstractCollectionRedisItemWriter {
 
 	@Override
 	protected Response<Long> write(Pipeline pipeline, String key, String member, Map<String, Object> item) {
-		Object longitude = item.get(longitudeField);
-		if (longitude == null || longitude.equals("")) {
+		Point point = point(item);
+		if (point.isInvalid()) {
 			return null;
 		}
-		Object latitude = item.get(latitudeField);
-		if (latitude == null || latitude.equals("")) {
-			return null;
+		return pipeline.geoadd(key, point.getLongitude(), point.getLatitude(), member);
+	}
+
+	private Point point(Map<String, Object> item) {
+		return new Point(longitude(item), latitude(item));
+	}
+
+	private Double coordinate(Map<String, Object> item, String field) {
+		if (item.containsKey(field)) {
+			Object value = item.get(field);
+			if (value != null && !"".equals(value)) {
+				return convert(value, Double.class);
+			}
 		}
-		double lon = convert(longitude, Double.class);
-		double lat = convert(latitude, Double.class);
-		return pipeline.geoadd(key, lon, lat, member);
+		return null;
+	}
+
+	private Double longitude(Map<String, Object> item) {
+		return coordinate(item, longitudeField);
+	}
+
+	private Double latitude(Map<String, Object> item) {
+		return coordinate(item, latitudeField);
 	}
 
 	@Override
 	protected RedisFuture<?> write(RedisAsyncCommands<String, String> commands, String key, String member,
 			Map<String, Object> item) {
-		Object longitude = item.get(longitudeField);
-		if (longitude == null || longitude.equals("")) {
+		Point point = point(item);
+		if (point.isInvalid()) {
 			return null;
 		}
-		Object latitude = item.get(latitudeField);
-		if (latitude == null || latitude.equals("")) {
+		return commands.geoadd(key, point.getLongitude(), point.getLatitude(), member);
+	}
+
+	@Override
+	protected Mono<?> write(RedisReactiveCommands<String, String> commands, String key, String member,
+			Map<String, Object> item) {
+		Point point = point(item);
+		if (point.isInvalid()) {
 			return null;
 		}
-		double lon = convert(longitude, Double.class);
-		double lat = convert(latitude, Double.class);
-		return commands.geoadd(key, lon, lat, member);
+		return commands.geoadd(key, point.getLongitude(), point.getLatitude(), member);
 	}
 
 }
