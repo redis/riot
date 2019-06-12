@@ -72,8 +72,8 @@ public class JobCommand<I, O> extends AbstractCommand {
 						.ofMillis(stepExecution.getEndTime().getTime() - stepExecution.getStartTime().getTime());
 				int writeCount = stepExecution.getWriteCount();
 				double throughput = (double) writeCount / duration.toMillis() * 1000;
-				System.out.println(stepExecution.getStepName() + ": " + numberFormat.format(writeCount) + " items in "
-						+ duration.toSeconds() + " seconds (" + numberFormat.format(throughput) + " items/sec)");
+				System.out.println("Wrote " + numberFormat.format(writeCount) + " items in " + duration.toSeconds()
+						+ " seconds (" + numberFormat.format(throughput) + " items/sec)");
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
