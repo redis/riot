@@ -17,7 +17,7 @@ public abstract class AbstractRedisImportWriterCommand extends AbstractImportWri
 		AbstractRedisDataStructureItemWriter itemWriter = redisItemWriter();
 		itemWriter.setConverter(redisConverter());
 		switch (getRoot().getDriver()) {
-		case LettuceAsync:
+		case Lettuce:
 			return new LettuceAsyncWriter(getRoot().lettucePool(), itemWriter);
 		case LettuceReactive:
 			RediSearchClient client = getRoot().lettuceClient();
