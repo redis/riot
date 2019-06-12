@@ -300,11 +300,27 @@ export --keyspace beer --keys id db --url "jdbc:mysql://localhost:3306/employees
 === Export to CSV
 [source,shell]
 ----
-export --keyspace beer --keys id csv --file export-beers.csv --names id name brewery_id abv --header
+riot export --keyspace beer --keys id csv --file export-beers.csv --names id name brewery_id abv --header
 ----
 
 === Export to JSON
 [source,shell]
 ----
-export --keyspace beer --keys id json --file export-beers.json
+riot export --keyspace beer --keys id json --file export-beers.json
 ----
+
+== Load Testing with Redis Enterprise
+
+=== String
+[source,shell]
+----
+riot --driver lettuce --host redis-12000.internal.jrx.demo.redislabs.com --port 12000 --max-total 96 import --chunk-size 500 --threads 96 simple --max 100000000 string --keyspace string --keys field1
+----
+image::riot-performance-strings.png[]
+
+=== Stream
+[source,shell]
+----
+riot --driver lettuce --host redis-12000.internal.jrx.demo.redislabs.com --port 12000 --max-total 96 import --chunk-size 500 --threads 96 simple --max 100000000 stream --keyspace stream --keys partition
+----
+image::riot-performance-streams.png[]
