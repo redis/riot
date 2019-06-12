@@ -57,6 +57,7 @@ public class SimpleGeneratorReader extends AbstractReader {
 	@Override
 	protected Map<String, Object> doRead() throws Exception {
 		Map<String, Object> map = new HashMap<>();
+		map.put(IndexedPartitioner.PARTITION_KEY, partitionIndex.get());
 		for (int index = 0; index < fieldCount; index++) {
 			int fieldIndex = index + 1;
 			String fieldName = "field" + fieldIndex;
