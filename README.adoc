@@ -10,7 +10,7 @@ endif::[]
 
 Redis Input/Output Tool (RIOT) is a data import/export tool for Redis and Redis Modules.
 
-image::riot-import-json.svg[]
+image::https://redislabs-solution-architects.github.io/riot/riot-import-json.svg[Import JSON]
 
 == Inputs
 * Databases: any JDBC driver
