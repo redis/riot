@@ -18,7 +18,7 @@ public abstract class AbstractImportWriterCommand extends AbstractCommand {
 	@Getter
 	private AbstractImportReaderCommand parent;
 	@Getter
-	@Option(names = "--key-separator", description = "Redis key separator. (default: ${DEFAULT-VALUE}).")
+	@Option(names = "--separator", description = "Redis key separator. (default: ${DEFAULT-VALUE}).")
 	private String separator = ":";
 
 	protected RedisConverter redisConverter() {

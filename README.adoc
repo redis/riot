@@ -316,13 +316,13 @@ riot export --keyspace beer --keys id json --file export-beers.json
 === String
 [source,shell]
 ----
-riot --driver lettuce --host redis-12000.internal.jrx.demo.redislabs.com --port 12000 --max-total 96 import --chunk-size 500 --threads 96 simple --max 100000000 string --keyspace string --keys field1
+riot --driver lettuce --host redis-12000.internal.jrx.demo.redislabs.com --port 12000 --pool 96 import --batch 500 --threads 96 simple --max 100000000 string --keyspace string --keys field1
 ----
 image::riot-performance-strings.png[]
 
 === Stream
 [source,shell]
 ----
-riot --driver lettuce --host redis-12000.internal.jrx.demo.redislabs.com --port 12000 --max-total 96 import --chunk-size 500 --threads 96 simple --max 100000000 stream --keyspace stream --keys partition
+riot --driver lettuce --host redis-12000.internal.jrx.demo.redislabs.com --port 12000 --pool 96 import --batch 500 --threads 96 simple --max 100000000 stream --keyspace stream --keys partition
 ----
 image::riot-performance-streams.png[]

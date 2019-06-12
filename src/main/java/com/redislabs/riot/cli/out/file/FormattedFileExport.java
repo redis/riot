@@ -10,8 +10,8 @@ import org.springframework.batch.item.file.builder.FlatFileItemWriterBuilder.For
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
-@Command(name = "fw", description = "Export to a delimited file")
-public class FixedLengthFileExport extends AbstractFlatFileExport {
+@Command(name = "ff", description = "Export to a formatted file")
+public class FormattedFileExport extends AbstractFlatFileExport {
 
 	@Option(names = "--format", required = true, description = "Format string used to aggregate items.")
 	private String format;

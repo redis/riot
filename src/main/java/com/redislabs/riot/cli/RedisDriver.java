@@ -1,5 +1,5 @@
 package com.redislabs.riot.cli;
 
 public enum RedisDriver {
-	Jedis, Lettuce, LettuceReactive
+	Jedis, Lettuce
 }

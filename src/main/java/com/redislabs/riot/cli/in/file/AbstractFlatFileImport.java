@@ -22,7 +22,7 @@ public abstract class AbstractFlatFileImport extends AbstractFileImport {
 	@Option(names = "--fields", arity = "1..*", description = "Names of the fields in the order they occur within the delimited file.")
 	private String[] names = new String[0];
 	@Getter
-	@Option(names = "--lines-to-skip", description = "Number of lines to skip at the beginning of reading the file. (default: ${DEFAULT-VALUE}).")
+	@Option(names = "--skip", description = "Number of lines to skip at the beginning of reading the file. (default: ${DEFAULT-VALUE}).")
 	private int linesToSkip = 0;
 
 	protected FlatFileItemReaderBuilder<Map<String, Object>> builder() throws IOException {

@@ -13,7 +13,7 @@ import picocli.CommandLine.Option;
 @Command(name = "json", description = "Export to a JSON file")
 public class JsonFileExport extends AbstractFileExport {
 
-	@Option(names = "--line-separator", description = "String used to separate lines in output. (default: ${DEFAULT-VALUE}).")
+	@Option(names = "--separator", description = "String used to separate lines in output. (default: ${DEFAULT-VALUE}).")
 	private String lineSeparator = JsonFileItemWriter.DEFAULT_LINE_SEPARATOR;
 
 	@Override

@@ -19,9 +19,6 @@ public abstract class AbstractRedisImportWriterCommand extends AbstractImportWri
 		switch (getRoot().getDriver()) {
 		case Lettuce:
 			return new LettuceAsyncWriter(getRoot().lettucePool(), itemWriter);
-		case LettuceReactive:
-			RediSearchClient client = getRoot().lettuceClient();
-			return new LettuceReactiveWriter(client.connect(), itemWriter);
 		default:
 			return new JedisWriter(getRoot().jedisPool(), itemWriter);
 		}

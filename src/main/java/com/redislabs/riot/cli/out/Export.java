@@ -4,7 +4,7 @@ import java.util.Map;
 
 import com.redislabs.riot.cli.JobCommand;
 import com.redislabs.riot.cli.out.file.DelimitedFileExport;
-import com.redislabs.riot.cli.out.file.FixedLengthFileExport;
+import com.redislabs.riot.cli.out.file.FormattedFileExport;
 import com.redislabs.riot.cli.out.file.JsonFileExport;
 
 import lombok.Getter;
@@ -12,7 +12,7 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 @Command(name = "export", description = "Export from Redis", subcommands = { DelimitedFileExport.class,
-		FixedLengthFileExport.class, JsonFileExport.class, DatabaseExport.class })
+		FormattedFileExport.class, JsonFileExport.class, DatabaseExport.class })
 public class Export extends JobCommand<Map<String, Object>, Map<String, Object>> {
 
 	@Getter
@@ -28,7 +28,7 @@ public class Export extends JobCommand<Map<String, Object>, Map<String, Object>>
 	@Option(names = "--keys", arity = "1..*", description = "Key fields.")
 	private String[] keys = new String[0];
 	@Getter
-	@Option(names = "--key-separator", description = "Redis key separator. (default: ${DEFAULT-VALUE}).")
+	@Option(names = "--separator", description = "Redis key separator. (default: ${DEFAULT-VALUE}).")
 	private String separator = ":";
 
 }

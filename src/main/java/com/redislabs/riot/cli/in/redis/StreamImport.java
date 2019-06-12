@@ -17,7 +17,7 @@ public class StreamImport extends AbstractRedisImportWriterCommand {
 	private String keyspace;
 	@Option(names = "--keys", arity = "1..*", description = "Key fields.")
 	private String[] keys = new String[0];
-	@Option(names = "--approximate-trimming", description = "Apply efficient trimming for capped streams using the ~ flag.")
+	@Option(names = "--approximate", description = "Apply efficient trimming for capped streams using the ~ flag.")
 	private boolean approximateTrimming;
 	@Option(names = "--maxlen", description = "Limit stream to maxlen entries.")
 	private Long maxlen;

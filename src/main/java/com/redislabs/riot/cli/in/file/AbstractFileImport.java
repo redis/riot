@@ -20,7 +20,7 @@ public abstract class AbstractFileImport extends AbstractImportReaderCommand {
 	private File file;
 	@Option(names = "--url", description = "URL for input file. Mutually exclusive with file option.")
 	private URL url;
-	@Option(names = "--gzip", description = "Input is gzip compressed.")
+	@Option(names = "--gz", description = "Input is gzip compressed.")
 	private boolean gzip;
 
 	@Override

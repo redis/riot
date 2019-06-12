@@ -19,15 +19,15 @@ public class DatabaseImport extends AbstractImportReaderCommand {
 	private DatabaseConnectionOptions connection = new DatabaseConnectionOptions();
 	@Option(names = "--sql", description = "The query to be executed for this reader.", required = true)
 	private String sql;
-	@Option(names = "--fetch-size", description = "A hint to the driver as to how many rows to return with each fetch.")
+	@Option(names = "--fetch", description = "A hint to the driver as to how many rows to return with each fetch.")
 	private Integer fetchSize;
-	@Option(names = "--max-rows", description = "The max number of rows the ResultSet can contain.")
+	@Option(names = "--rows", description = "The max number of rows the ResultSet can contain.")
 	private Integer maxRows;
-	@Option(names = "--query-timeout", description = "The time in milliseconds for the query to timeout.")
+	@Option(names = "--timeout", description = "The time in milliseconds for the query to timeout.")
 	private Integer queryTimeout;
 	@Option(names = "--use-shared-extended-connection", description = "Indicates that the connection used for the cursor is being used by all other processing, therefore part of the same transaction.")
 	private boolean useSharedExtendedConnection;
-	@Option(names = "--verify-cursor-position", description = "Indicates if the reader should verify the current position of the ResultSet after being passed to the RowMapper.")
+	@Option(names = "--verify", description = "Indicates if the reader should verify the current position of the ResultSet after being passed to the RowMapper.")
 	private boolean verifyCursorPosition;
 
 	@Override

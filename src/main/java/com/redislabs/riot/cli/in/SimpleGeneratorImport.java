@@ -7,8 +7,8 @@ import picocli.CommandLine.Option;
 
 @Command(name = "simple", description = "Import simple generated data")
 public class SimpleGeneratorImport extends AbstractImportReaderCommand {
-	
-	@Option(names = "--field-count", description = "Number of fields to generate. (default: ${DEFAULT-VALUE}).")
+
+	@Option(names = "--fields", description = "Number of fields to generate. (default: ${DEFAULT-VALUE}).")
 	private int fieldCount = 3;
 
 	@Override

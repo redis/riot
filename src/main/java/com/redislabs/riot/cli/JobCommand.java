@@ -23,11 +23,9 @@ import org.springframework.transaction.PlatformTransactionManager;
 import com.redislabs.riot.batch.JobBuilder;
 
 import lombok.Getter;
-import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.ParentCommand;
 
-@Command
 public class JobCommand<I, O> extends AbstractCommand {
 
 	@ParentCommand
@@ -38,7 +36,7 @@ public class JobCommand<I, O> extends AbstractCommand {
 
 	@Option(names = "--threads", description = "Number of partitions to use for processing. (default: ${DEFAULT-VALUE}).")
 	private int threads = 1;
-	@Option(names = "--chunk-size", description = "The chunk size commit interval. (default: ${DEFAULT-VALUE}).")
+	@Option(names = "--batch", description = "The chunk size commit interval. (default: ${DEFAULT-VALUE}).")
 	private int chunkSize = JobBuilder.DEFAULT_CHUNK_SIZE;
 	@Option(names = "--sleep", description = "Sleep duration in milliseconds between each read.")
 	private Long sleep;
