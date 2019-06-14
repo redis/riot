@@ -315,13 +315,13 @@ riot export --keyspace beer --keys id json --file export-beers.json
 === Strings
 [source,shell]
 ----
-riot --host redis-12000.internal.jrx.demo.redislabs.com --port 12000 --pool 96 import --batch 500 --threads 96 simple --max 100000000 --field value=100 string --format raw --keyspace string --keys index --field value
+riot --host redis-12000.redislabs.com --port 12000 --pool 96 import --batch 500 --threads 96 simple --max 100000000 --field value=100 string --format raw --keyspace string --keys index --field value
 ----
 image::riot-performance-strings.png[]
 
 === Streams
 [source,shell]
 ----
-riot --host redis-12000.internal.jrx.demo.redislabs.com --port 12000 --pool 96 import --batch 500 --threads 96 simple --max 100000000 stream --keyspace stream --keys partition
+riot --host redis-12000.redislabs.com --port 12000 --pool 96 import --batch 500 --threads 96 simple --max 100000000 stream --keyspace stream --keys partition
 ----
 image::riot-performance-streams.png[]
