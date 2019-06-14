@@ -2,17 +2,25 @@ package com.redislabs.riot.cli;
 
 import java.net.InetAddress;
 import java.time.Duration;
+import java.util.function.Supplier;
 
 import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 
 import com.redislabs.lettusearch.RediSearchClient;
+import com.redislabs.lettusearch.StatefulRediSearchConnection;
 import com.redislabs.riot.cli.in.Import;
 import com.redislabs.riot.cli.out.Export;
 
+import io.lettuce.core.RedisClient;
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.api.StatefulRedisConnection;
+import io.lettuce.core.event.DefaultEventPublisherOptions;
+import io.lettuce.core.event.metrics.CommandLatencyEvent;
+import io.lettuce.core.metrics.DefaultCommandLatencyCollectorOptions;
+import io.lettuce.core.resource.ClientResources;
 import io.lettuce.core.resource.DefaultClientResources;
+import io.lettuce.core.resource.DefaultClientResources.Builder;
 import io.lettuce.core.support.ConnectionPoolSupport;
 import lombok.Getter;
 import picocli.CommandLine.Command;
@@ -57,7 +65,9 @@ public class RootCommand extends AbstractCommand {
 	private String clientName;
 	@Getter
 	@Option(names = "--driver", description = "Redis driver: ${COMPLETION-CANDIDATES}. (default: ${DEFAULT-VALUE})")
-	private RedisDriver driver = RedisDriver.Jedis;
+	private RedisDriver driver = RedisDriver.Lettuce;
+	@Option(names = "--metrics", description = "Show metrics (only works with Lettuce driver)")
+	private boolean showMetrics;
 
 	public String getHostname() {
 		if (host != null) {
@@ -76,7 +86,30 @@ public class RootCommand extends AbstractCommand {
 				clientName);
 	}
 
-	public RediSearchClient lettuceClient() {
+	public RedisClient lettuceClient() {
+		return RedisClient.create(clientResources(), redisURI());
+	}
+
+	public RediSearchClient lettuSearchClient() {
+		return RediSearchClient.create(clientResources(), redisURI());
+	}
+
+	private ClientResources clientResources() {
+		Builder builder = DefaultClientResources.builder();
+		if (showMetrics) {
+			builder.commandLatencyCollectorOptions(DefaultCommandLatencyCollectorOptions.builder().enable().build());
+			builder.commandLatencyPublisherOptions(
+					DefaultEventPublisherOptions.builder().eventEmitInterval(Duration.ofSeconds(1)).build());
+		}
+		DefaultClientResources resources = builder.build();
+		if (showMetrics) {
+			resources.eventBus().get().filter(redisEvent -> redisEvent instanceof CommandLatencyEvent)
+					.cast(CommandLatencyEvent.class).subscribe(e -> System.out.println(e.getLatencies()));
+		}
+		return resources;
+	}
+
+	private RedisURI redisURI() {
 		RedisURI redisURI = RedisURI.create(getHostname(), port);
 		if (password != null) {
 			redisURI.setPassword(password);
@@ -84,18 +117,26 @@ public class RootCommand extends AbstractCommand {
 		redisURI.setTimeout(Duration.ofSeconds(commandTimeout));
 		redisURI.setClientName(clientName);
 		redisURI.setDatabase(database);
-		return RediSearchClient.create(DefaultClientResources.create(), redisURI);
+		return redisURI;
 	}
 
-	public GenericObjectPool<StatefulRedisConnection<String, String>> lettucePool() {
-		RediSearchClient client = lettuceClient();
-		GenericObjectPoolConfig<StatefulRedisConnection<String, String>> config = new GenericObjectPoolConfig<StatefulRedisConnection<String, String>>();
-		GenericObjectPool<StatefulRedisConnection<String, String>> pool = ConnectionPoolSupport
-				.createGenericObjectPool(() -> client.connect(), config);
+	private <T extends StatefulRedisConnection<String, String>> GenericObjectPool<T> lettucePool(Supplier<T> supplier) {
+		GenericObjectPoolConfig<T> config = new GenericObjectPoolConfig<>();
+		GenericObjectPool<T> pool = ConnectionPoolSupport.createGenericObjectPool(supplier, config);
 		pool.setMaxTotal(maxTotal);
 		pool.setMaxIdle(maxIdle);
 		pool.setMinIdle(minIdle);
 		pool.setMaxWaitMillis(maxWait);
 		return pool;
+	}
+
+	public GenericObjectPool<StatefulRedisConnection<String, String>> lettucePool() {
+		RedisClient client = lettuceClient();
+		return lettucePool(client::connect);
+	}
+
+	public GenericObjectPool<StatefulRediSearchConnection<String, String>> lettusearchPool() {
+		RediSearchClient client = lettuSearchClient();
+		return lettucePool(client::connect);
 	}
 }

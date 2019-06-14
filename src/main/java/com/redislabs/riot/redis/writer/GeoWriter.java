@@ -4,10 +4,8 @@ import java.util.Map;
 
 import io.lettuce.core.RedisFuture;
 import io.lettuce.core.api.async.RedisAsyncCommands;
-import io.lettuce.core.api.reactive.RedisReactiveCommands;
 import lombok.Setter;
 import lombok.Value;
-import reactor.core.publisher.Mono;
 import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.Response;
 
@@ -62,16 +60,6 @@ public class GeoWriter extends AbstractCollectionRedisItemWriter {
 
 	@Override
 	protected RedisFuture<?> write(RedisAsyncCommands<String, String> commands, String key, String member,
-			Map<String, Object> item) {
-		Point point = point(item);
-		if (point.isInvalid()) {
-			return null;
-		}
-		return commands.geoadd(key, point.getLongitude(), point.getLatitude(), member);
-	}
-
-	@Override
-	protected Mono<?> write(RedisReactiveCommands<String, String> commands, String key, String member,
 			Map<String, Object> item) {
 		Point point = point(item);
 		if (point.isInvalid()) {

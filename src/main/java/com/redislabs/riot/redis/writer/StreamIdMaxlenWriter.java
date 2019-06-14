@@ -5,9 +5,7 @@ import java.util.Map;
 import io.lettuce.core.RedisFuture;
 import io.lettuce.core.XAddArgs;
 import io.lettuce.core.api.async.RedisAsyncCommands;
-import io.lettuce.core.api.reactive.RedisReactiveCommands;
 import lombok.Setter;
-import reactor.core.publisher.Mono;
 import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.Response;
 import redis.clients.jedis.StreamEntryID;
@@ -34,11 +32,6 @@ public class StreamIdMaxlenWriter extends AbstractRedisDataStructureItemWriter {
 
 	@Override
 	protected RedisFuture<?> write(RedisAsyncCommands<String, String> commands, String key, Map<String, Object> item) {
-		return commands.xadd(key, xAddArgs(item), stringMap(item), maxlen, approximateTrimming);
-	}
-
-	@Override
-	protected Mono<?> write(RedisReactiveCommands<String, String> commands, String key, Map<String, Object> item) {
 		return commands.xadd(key, xAddArgs(item), stringMap(item), maxlen, approximateTrimming);
 	}
 

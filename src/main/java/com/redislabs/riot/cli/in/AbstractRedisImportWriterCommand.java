@@ -4,11 +4,12 @@ import java.util.Map;
 
 import org.springframework.batch.item.ItemWriter;
 
-import com.redislabs.lettusearch.RediSearchClient;
 import com.redislabs.riot.redis.writer.AbstractRedisDataStructureItemWriter;
 import com.redislabs.riot.redis.writer.JedisWriter;
 import com.redislabs.riot.redis.writer.LettuceAsyncWriter;
-import com.redislabs.riot.redis.writer.LettuceReactiveWriter;
+
+import io.lettuce.core.api.StatefulRedisConnection;
+import io.lettuce.core.api.async.RedisAsyncCommands;
 
 public abstract class AbstractRedisImportWriterCommand extends AbstractImportWriterCommand {
 
@@ -18,7 +19,8 @@ public abstract class AbstractRedisImportWriterCommand extends AbstractImportWri
 		itemWriter.setConverter(redisConverter());
 		switch (getRoot().getDriver()) {
 		case Lettuce:
-			return new LettuceAsyncWriter(getRoot().lettucePool(), itemWriter);
+			return new LettuceAsyncWriter<StatefulRedisConnection<String, String>, RedisAsyncCommands<String, String>>(
+					getRoot().lettucePool(), itemWriter);
 		default:
 			return new JedisWriter(getRoot().jedisPool(), itemWriter);
 		}

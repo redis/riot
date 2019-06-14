@@ -4,6 +4,8 @@ import java.util.Map;
 
 import org.springframework.batch.item.ItemWriter;
 
+import com.redislabs.lettusearch.RediSearchAsyncCommands;
+import com.redislabs.lettusearch.StatefulRediSearchConnection;
 import com.redislabs.riot.cli.in.AbstractImportWriterCommand;
 import com.redislabs.riot.redis.writer.LettuceAsyncWriter;
 import com.redislabs.riot.redis.writer.search.AbstractLettuSearchItemWriter;
@@ -30,7 +32,8 @@ public abstract class AbstractRediSearchImport extends AbstractImportWriterComma
 
 	@Override
 	protected ItemWriter<Map<String, Object>> writer() {
-		return new LettuceAsyncWriter(getRoot().lettucePool(), lettuceItemWriter());
+		return new LettuceAsyncWriter<StatefulRediSearchConnection<String, String>, RediSearchAsyncCommands<String, String>>(
+				getRoot().lettusearchPool(), lettuceItemWriter());
 	}
 
 	protected abstract ItemWriter<Map<String, Object>> jedisSearchWriter();

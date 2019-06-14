@@ -3,6 +3,7 @@ package com.redislabs.riot.generator;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemStreamException;
 
@@ -14,11 +15,11 @@ public class SimpleGeneratorReader extends AbstractReader {
 	private ThreadLocal<Long> current = new ThreadLocal<>();
 	private ThreadLocal<Integer> partitionIndex = new ThreadLocal<>();
 	private ThreadLocal<Integer> partitions = new ThreadLocal<>();
-	private int fieldCount;
 	private int maxItemCount;
+	private Map<String, Integer> fields;
 
-	public SimpleGeneratorReader(int fieldCount) {
-		this.fieldCount = fieldCount;
+	public SimpleGeneratorReader(Map<String, Integer> fields) {
+		this.fields = fields;
 	}
 
 	@Override
@@ -58,11 +59,8 @@ public class SimpleGeneratorReader extends AbstractReader {
 	protected Map<String, Object> doRead() throws Exception {
 		Map<String, Object> map = new HashMap<>();
 		map.put(IndexedPartitioner.PARTITION_KEY, partitionIndex.get());
-		for (int index = 0; index < fieldCount; index++) {
-			int fieldIndex = index + 1;
-			String fieldName = "field" + fieldIndex;
-			map.put(fieldName, current.get());
-		}
+		fields.forEach((name, size) -> map.put(name, RandomStringUtils.randomAscii(size)));
+		map.put("index", current.get());
 		current.set(current.get() + 1);
 		return map;
 	}

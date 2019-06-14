@@ -3,11 +3,9 @@ package com.redislabs.riot.redis.writer.search;
 import java.util.Map;
 
 import com.redislabs.lettusearch.RediSearchAsyncCommands;
-import com.redislabs.lettusearch.RediSearchReactiveCommands;
 
 import io.lettuce.core.RedisFuture;
 import lombok.Setter;
-import reactor.core.publisher.Mono;
 
 @Setter
 public class LettuSearchSuggestWriter extends AbstractLettuSearchItemWriter {
@@ -30,21 +28,6 @@ public class LettuSearchSuggestWriter extends AbstractLettuSearchItemWriter {
 	}
 
 	protected RedisFuture<?> sugadd(RediSearchAsyncCommands<String, String> commands, String index, String string,
-			double score, boolean increment, @SuppressWarnings("unused") Map<String, Object> item) {
-		return commands.sugadd(index, string, score, increment);
-	}
-
-	@Override
-	protected Mono<?> write(RediSearchReactiveCommands<String, String> commands, String index,
-			Map<String, Object> item) {
-		String string = string(item);
-		if (string == null) {
-			return null;
-		}
-		return sugadd(commands, index, string, score(item), increment, item);
-	}
-
-	protected Mono<?> sugadd(RediSearchReactiveCommands<String, String> commands, String index, String string,
 			double score, boolean increment, @SuppressWarnings("unused") Map<String, Object> item) {
 		return commands.sugadd(index, string, score, increment);
 	}

@@ -12,7 +12,7 @@
 
 	<groupId>com.redislabs</groupId>
 	<artifactId>riot</artifactId>
-	<version>0.4.6</version>
+	<version>0.5.0</version>
 	<packaging>jar</packaging>
 	<name>RIOT</name>
 	<description>Redis Input/Output Tool</description>
@@ -97,6 +97,11 @@
 			<artifactId>javafaker</artifactId>
 			<version>0.18</version>
 		</dependency>
+		<dependency>
+			<groupId>org.latencyutils</groupId>
+			<artifactId>LatencyUtils</artifactId>
+			<version>2.0.3</version>
+		</dependency>
 		<!-- Test -->
 		<dependency>
 			<groupId>junit</groupId>
@@ -148,7 +153,7 @@
 			<plugin>
 				<groupId>de.jutzig</groupId>
 				<artifactId>github-release-plugin</artifactId>
-				<version>1.1.1</version>
+				<version>1.3.0</version>
 				<configuration>
 					<description>${project.name} ${project.version}</description>
 					<releaseName>${project.name} ${project.version}</releaseName>
