@@ -312,6 +312,20 @@ riot export --keyspace beer --keys id json --file export-beers.json
 
 == Load Testing with Redis Enterprise
 
+=== Metrics
+Use the `--metrics` option to show latency metrics when using the Lettuce driver:
+[source,shell]
+----
+riot --metrics ...
+----
+[source,plaintext]
+----
+{[local:any -> localhost/127.0.0.1:6379, commandType=SET]=[count=401, timeUnit=MICROSECONDS, firstResponse=[min=116, max=7274, percentiles={50.0=197, 90.0=458, 95.0=606, 99.0=1081, 99.9=7274}], completion=[min=128, max=8519, percentiles={50.0=219, 90.0=489, 95.0=634, 99.0=1122, 99.9=8519}]]}
+{[local:any -> localhost/127.0.0.1:6379, commandType=SET]=[count=1403, timeUnit=MICROSECONDS, firstResponse=[min=48, max=704, percentiles={50.0=99, 90.0=156, 95.0=183, 99.0=280, 99.9=573}], completion=[min=49, max=909, percentiles={50.0=108, 90.0=171, 95.0=205, 99.0=317, 99.9=581}]]}
+{[local:any -> localhost/127.0.0.1:6379, commandType=SET]=[count=1684, timeUnit=MICROSECONDS, firstResponse=[min=56, max=516, percentiles={50.0=80, 90.0=124, 95.0=142, 99.0=183, 99.9=391}], completion=[min=58, max=520, percentiles={50.0=82, 90.0=127, 95.0=146, 99.0=188, 99.9=403}]]}
+----
+
+
 === Strings
 [source,shell]
 ----
