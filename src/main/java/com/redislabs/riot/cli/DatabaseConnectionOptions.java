@@ -18,7 +18,7 @@ public class DatabaseConnectionOptions {
 	private String url;
 	@Option(names = "--username", description = "Login username of the database.")
 	private String username;
-	@Option(names = "--password", description = "Login password of the database.", interactive = true)
+	@Option(names = "--password", description = "Login password of the database.", arity = "0..1", interactive = true)
 	private String password;
 
 	public DataSource dataSource() {

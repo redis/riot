@@ -49,7 +49,7 @@ public class RootCommand extends AbstractCommand {
 	private int connectionTimeout = Protocol.DEFAULT_TIMEOUT;
 	@Option(names = "--socket-timeout", description = "Redis socket timeout in milliseconds. (default: ${DEFAULT-VALUE}).")
 	private int socketTimeout = Protocol.DEFAULT_TIMEOUT;
-	@Option(names = "--password", description = "Redis database password.", interactive = true)
+	@Option(names = "--password", description = "Redis database password.", arity = "0..1", interactive = true)
 	private String password;
 	@Option(names = "--pool-max-idle", description = "Maximum number of idle connections in the pool. Use a negative value to indicate an unlimited number of idle connections. (default: ${DEFAULT-VALUE}).")
 	private int maxIdle = 8;

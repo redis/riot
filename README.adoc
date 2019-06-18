@@ -40,6 +40,16 @@ WARNING: Add the appropriate driver jar for your database under the `lib` direct
 
 For example with MySQL: `lib/mysql-connector-java-5.1.47.jar`
 
+==== MS SQL Server
+
+https://docs.microsoft.com/en-us/sql/connect/jdbc/microsoft-jdbc-driver-for-sql-server[JDBC Driver]
+
+https://docs.microsoft.com/en-us/sql/connect/jdbc/building-the-connection-url?view=sql-server-2017[Building the Connection URL]
+```
+jdbc:sqlserver://[serverName[\instanceName][:portNumber]][;property=value[;property=value]]
+```
+
+
 === JSON
 RIOT can read and write JSON data in the following format:
 [source,plaintext]
