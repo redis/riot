@@ -8,7 +8,7 @@ import com.redislabs.riot.generator.SimpleGeneratorReader;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
-@Command(name = "simple", description = "Import simple generated data")
+@Command(name = "simple", description = "Generate random fixed-size string fields")
 public class SimpleGeneratorImport extends AbstractImportReaderCommand {
 
 	@Option(names = "--field", description = "Field name and size in bytes.", paramLabel = "<name=size>")

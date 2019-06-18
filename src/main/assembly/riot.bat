@@ -8,7 +8,7 @@ if "%OS%"=="Windows_NT" setlocal
 if defined RIOT_HOME goto setJavaHome
 set DIRNAME=%~dp0
 if "%DIRNAME%" == "" set DIRNAME=.
-set RIOT_HOME=%DIRNAME%\..
+set RIOT_HOME=%DIRNAME%
 
 :setJavaHome
 @rem Find java.exe
@@ -58,7 +58,7 @@ set CMD_LINE_ARGS=%$
 :execute
 @rem Setup the command line
 
-set CLASSPATH=.:%RIOT_HOME%\lib\*
+set CLASSPATH=%RIOT_HOME%lib\*
 "%JAVA_EXE%" -noverify -XX:TieredStopAtLevel=1 %JAVA_OPTS% -cp "%CLASSPATH%" ${start-class} %CMD_LINE_ARGS%
 
 :end
