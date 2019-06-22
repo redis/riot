@@ -1,0 +1,67 @@
+* *address*: state timeZone lastName country latitude longitude firstName streetAddressNumber streetName zipCode streetAddress secondaryAddress stateAbbr streetSuffix streetPrefix citySuffix cityPrefix city cityName countryCode buildingNumber fullAddress
+* *ancient*: primordial titan god hero
+* *app*: name version author
+* *artist*: name
+* *avatar*: image
+* *beer*: name yeast malt hop style
+* *book*: title publisher author genre
+* *bool*: bool
+* *business*: creditCardNumber creditCardType creditCardExpiry
+* *cat*: name registry breed
+* *chuckNorris*: fact
+* *code*: asin isbnGs1 isbnGroup isbnRegistrant isbn10 isbn13 imei ean8 gtin8 ean13 gtin13
+* *color*: name hex
+* *commerce*: productName material price promotionCode department color
+* *company*: name suffix url industry profession buzzword catchPhrase logo domainName bs domainSuffix
+* *country*: flag currencyCode currency countryCode2 countryCode3 capital
+* *crypto*: sha1 sha256 md5 sha512
+* *currency*: name code
+* *date*: birthday
+* *demographic*: educationalAttainment demonym race sex maritalStatus
+* *dog*: name size memePhrase age sound coatLength gender breed
+* *dragonBall*: character
+* *educator*: secondarySchool course campus university
+* *esports*: event player league game team
+* *file*: fileName extension mimeType
+* *finance*: creditCard bic iban randomCreditCardType createCountryCodeToBasicBankAccountNumberPatternMap
+* *food*: spice ingredient measurement
+* *friends*: location character quote
+* *funnyName*: name
+* *gameOfThrones*: character dragon house quote city
+* *hacker*: abbreviation adjective noun verb ingverb
+* *harryPotter*: location character quote book
+* *hipster*: word
+* *hitchhikersGuideToTheGalaxy*: location character specie marvinQuote starship quote planet
+* *hobbit*: location character thorinsCompany quote
+* *howIMetYourMother*: character catchPhrase highFive quote
+* *idNumber*: valid ssnValid validSvSeSsn invalidSvSeSsn invalid
+* *internet*: url uuid domainName password image avatar slug emailAddress safeEmailAddress domainWord domainSuffix macAddress ipV4Address privateIpV4Address publicIpV4Address ipV4Cidr ipV6Address ipV6Cidr userAgentAny
+* *job*: field position title keySkills seniority
+* *leagueOfLegends*: location summonerSpell masteries champion rank quote
+* *lebowski*: character actor quote
+* *lordOfTheRings*: location character
+* *lorem*: character words word characters sentence paragraph
+* *matz*: quote
+* *medical*: medicineName symptoms diseaseName hospitalName
+* *music*: key instrument chord genre
+* *name*: name prefix suffix title lastName fullName firstName nameWithMiddle username
+* *number*: digit randomDigit randomDigitNotZero randomNumber
+* *overwatch*: location quote hero
+* *phoneNumber*: phoneNumber cellPhone
+* *pokemon*: name location
+* *rickAndMorty*: location character quote
+* *robin*: quote
+* *rockBand*: name
+* *shakespeare*: hamletQuote asYouLikeItQuote kingRichardIIIQuote romeoAndJulietQuote
+* *slackEmoji*: people nature activity foodAndDrink celebration travelAndPlaces objectsAndSymbols custom emoji
+* *space*: company planet moon galaxy nebula starCluster constellation star agency agencyAbbreviation meteorite nasaSpaceCraft distanceMeasurement
+* *starTrek*: location character specie villain
+* *stock*: nyseSymbol nsdqSymbol
+* *superhero*: name prefix suffix descriptor power
+* *team*: name state sport creature
+* *twinPeaks*: location character quote
+* *university*: name prefix suffix
+* *weather*: temperatureCelsius temperatureFahrenheit description
+* *witcher*: location character school monster quote witcher
+* *yoda*: quote
+* *zelda*: character game

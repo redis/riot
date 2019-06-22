@@ -3,19 +3,19 @@ package com.redislabs.riot.redis.writer.search;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.batch.item.support.AbstractItemStreamItemWriter;
+import org.springframework.util.ClassUtils;
+
 import com.redislabs.riot.redis.RedisConverter;
-import com.redislabs.riot.redis.writer.AbstractRedisWriter;
 
 import io.redisearch.Suggestion;
 import io.redisearch.client.Client;
 import lombok.Setter;
 
-public class JedisSuggestWriter extends AbstractRedisWriter {
+public class JedisSuggestWriter extends AbstractItemStreamItemWriter<Map<String, Object>> {
 
-	@Setter
-	protected RedisConverter converter;
-	@Setter
 	private Client client;
+	private RedisConverter converter;
 	@Setter
 	private String field;
 	@Setter
@@ -26,6 +26,12 @@ public class JedisSuggestWriter extends AbstractRedisWriter {
 	private boolean increment;
 	@Setter
 	private String payloadField;
+
+	public JedisSuggestWriter(Client client, RedisConverter converter) {
+		setName(ClassUtils.getShortName(JedisSuggestWriter.class));
+		this.client = client;
+		this.converter = converter;
+	}
 
 	@Override
 	public void write(List<? extends Map<String, Object>> items) throws Exception {

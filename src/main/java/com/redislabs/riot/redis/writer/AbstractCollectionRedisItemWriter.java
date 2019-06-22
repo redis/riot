@@ -11,7 +11,7 @@ import redis.clients.jedis.Response;
 public abstract class AbstractCollectionRedisItemWriter extends AbstractRedisDataStructureItemWriter {
 
 	@Setter
-	private String[] fields;
+	private String[] fields = new String[0];
 
 	private String member(Map<String, Object> item) {
 		return join(item, fields);

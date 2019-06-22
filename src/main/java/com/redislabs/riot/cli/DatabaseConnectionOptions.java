@@ -12,13 +12,13 @@ import picocli.CommandLine.Option;
 @Data
 public class DatabaseConnectionOptions {
 
-	@Option(names = "--driver", description = "Fully qualified name of the JDBC driver. Auto-detected based on the URL by default.")
+	@Option(names = "--jdbc-driver", description = "Fully qualified name of the JDBC driver.", paramLabel = "<class>")
 	private String driverClassName;
-	@Option(names = "--url", description = "JDBC URL of the database.", required = true)
+	@Option(names = "--url", required = true, description = "JDBC URL of the database.")
 	private String url;
 	@Option(names = "--username", description = "Login username of the database.")
 	private String username;
-	@Option(names = "--password", description = "Login password of the database.", arity = "0..1", interactive = true)
+	@Option(names = "--password", arity = "0..1", interactive = true, description = "Login password of the database.")
 	private String password;
 
 	public DataSource dataSource() {

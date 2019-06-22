@@ -4,13 +4,14 @@ import java.util.Map;
 
 import com.redislabs.lettusearch.RediSearchAsyncCommands;
 import com.redislabs.riot.redis.writer.AbstractRedisItemWriter;
-import com.redislabs.riot.redis.writer.LettuceItemWriter;
 
 import io.lettuce.core.RedisFuture;
 import lombok.Setter;
+import redis.clients.jedis.Pipeline;
+import redis.clients.jedis.Response;
 
-public abstract class AbstractLettuSearchItemWriter extends AbstractRedisItemWriter
-		implements LettuceItemWriter<RediSearchAsyncCommands<String, String>> {
+public abstract class AbstractLettuSearchItemWriter
+		extends AbstractRedisItemWriter<RediSearchAsyncCommands<String, String>> {
 
 	@Setter
 	private String index;
@@ -30,5 +31,11 @@ public abstract class AbstractLettuSearchItemWriter extends AbstractRedisItemWri
 
 	protected abstract RedisFuture<?> write(RediSearchAsyncCommands<String, String> commands, String index,
 			Map<String, Object> item);
+
+	@Override
+	public Response<?> write(Pipeline pipeline, Map<String, Object> item) {
+		// not supported
+		return null;
+	}
 
 }

@@ -41,7 +41,7 @@ public class RedisConverter {
 	}
 
 	public String join(Map<String, Object> item, String[] fields) {
-		if (fields == null || fields.length == 0) {
+		if (fields.length == 0) {
 			return null;
 		}
 		StringJoiner joiner = new StringJoiner(separator);

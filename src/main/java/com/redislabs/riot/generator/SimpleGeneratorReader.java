@@ -1,24 +1,30 @@
 package com.redislabs.riot.generator;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemStreamException;
+import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
+import org.springframework.util.ClassUtils;
 
-import com.redislabs.riot.AbstractReader;
-import com.redislabs.riot.batch.IndexedPartitioner;
+import com.redislabs.riot.IndexedPartitioner;
 
-public class SimpleGeneratorReader extends AbstractReader {
+public class SimpleGeneratorReader extends AbstractItemCountingItemStreamItemReader<Map<String, Object>> {
 
 	private ThreadLocal<Long> current = new ThreadLocal<>();
 	private ThreadLocal<Integer> partitionIndex = new ThreadLocal<>();
 	private ThreadLocal<Integer> partitions = new ThreadLocal<>();
 	private int maxItemCount;
-	private Map<String, Integer> fields;
+	private Map<String, Integer> fields = new LinkedHashMap<>();
 
-	public SimpleGeneratorReader(Map<String, Integer> fields) {
+	public SimpleGeneratorReader() {
+		setName(ClassUtils.getShortName(SimpleGeneratorReader.class));
+	}
+
+	public void setFields(Map<String, Integer> fields) {
 		this.fields = fields;
 	}
 
@@ -59,8 +65,8 @@ public class SimpleGeneratorReader extends AbstractReader {
 	protected Map<String, Object> doRead() throws Exception {
 		Map<String, Object> map = new HashMap<>();
 		map.put(IndexedPartitioner.PARTITION_KEY, partitionIndex.get());
-		fields.forEach((name, size) -> map.put(name, RandomStringUtils.randomAscii(size)));
 		map.put("index", current.get());
+		fields.forEach((name, size) -> map.put(name, RandomStringUtils.randomAscii(size)));
 		current.set(current.get() + 1);
 		return map;
 	}

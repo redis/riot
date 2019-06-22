@@ -28,7 +28,7 @@ public class TestImportToRediSearch extends BaseTest {
 		schema.field(NumericField.builder().name(FIELD_ABV).sortable(true).build());
 		schema.field(NumericField.builder().name(FIELD_OUNCES).sortable(true).build());
 		commands.create(INDEX, schema.build());
-		run("import csv --header --include 1 3 4 5 6 --url https://raw.githubusercontent.com/nickhould/craft-beers-dataset/master/data/processed/beers.csv search --index beerIdx --keys id");
+		run("csv --header --include 1 3 4 5 6 --url https://raw.githubusercontent.com/nickhould/craft-beers-dataset/master/data/processed/beers.csv redisearch --index beerIdx --keys id");
 		SearchResults<String, String> results = connection.sync().search(INDEX, "*");
 		Assert.assertEquals(2410, results.getCount());
 	}

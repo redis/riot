@@ -29,7 +29,7 @@ public class BaseTest {
 		}
 	}
 
-	protected void run(String string) {
+	protected void run(String string) throws Exception {
 		RiotApplication.main(string.split(" "));
 	}
 

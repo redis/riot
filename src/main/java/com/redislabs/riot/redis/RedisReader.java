@@ -3,17 +3,16 @@ package com.redislabs.riot.redis;
 
 import java.util.Map;
 
+import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
 import org.springframework.util.Assert;
-
-import com.redislabs.riot.AbstractReader;
+import org.springframework.util.ClassUtils;
 
 import lombok.Setter;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
-public class RedisReader extends AbstractReader {
+public class RedisReader extends AbstractItemCountingItemStreamItemReader<Map<String, Object>> {
 
-	@Setter
 	private JedisPool jedisPool;
 	@Setter
 	private Integer count;
@@ -29,6 +28,11 @@ public class RedisReader extends AbstractReader {
 	private Object lock = new Object();
 	private RedisKeyIterator redisIterator;
 	private Jedis jedis;
+
+	public RedisReader(JedisPool jedisPool) {
+		setName(ClassUtils.getShortName(RedisReader.class));
+		this.jedisPool = jedisPool;
+	}
 
 	@Override
 	protected void doOpen() throws Exception {
