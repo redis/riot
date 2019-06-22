@@ -1,4 +1,4 @@
-= R.I.O.T.
+= RIOT
 // Settings
 :idprefix:
 :idseparator: -
@@ -21,7 +21,15 @@ ifdef::env-github[]
 :warning-caption: :warning:
 endif::[]
 
-Redis Input/Output Tool (RIOT) is a data import/export tool for Redis that connects to various sources and targets: Redis, RediSearch, files, databases, and data generators.
+----
+█████╗ ██╗ █████╗██████╗
+██╔═██╗██║██╔══██╚═██╔═╝
+█████╔╝██║██║  ██║ ██║
+██╔═██╗██║╚█████╔╝ ██║
+╚═╝ ╚═╝╚═╝ ╚════╝  ╚═╝
+Redis Input Output Tool
+----
+RIOT is a data import/export tool for Redis and Redis Modules that connects to various sources and targets: files, databases, data generators, ...
 
 ifdef::show-svg[]
 image::https://redislabs-solution-architects.github.io/riot/riot-import-json.svg[Import JSON]
@@ -36,10 +44,9 @@ Launch the `riot` script (`riot.bat` for Windows) and follow the usage informati
 
 RIOT can connect to any RDBMS with a JDBC driver.
 
-=== JDBC
+=== Setup
 
-WARNING: Add the JDBC driver jar for your database under the `lib` directory
-+
+WARNING: Add the JDBC driver jar for your database under the `lib` directory. +
 e.g. for MySQL: `lib/mysql-connector-java-5.1.47.jar`.
 
 ==== MS SQL Server
@@ -87,11 +94,8 @@ This command exports all hashes under keyspace `beer:<id>` to MySQL:
 riot redis --keyspace beer --keys id db --url "jdbc:mysql://localhost:3306/employees?serverTimezone=PST&useLegacyDatetimeCode=false&useSSL=false" --username root --password --sql "INSERT INTO beers (id, name, style_name) VALUES (:id, :name, :style_name)"
 ----
 
-== Files
+== Delimited Files (CSV)
 
-RIOT supports files in various format: delimited (CSV), fixed-width, and JSON.
-
-=== Delimited (CSV)
 Here is an excerpt of https://raw.githubusercontent.com/jpatokal/openflights/master/data/airports.dat[airports.dat] CSV data available at https://github.com/jpatokal/openflights[openflights]
 ----
 1,"Goroka Airport","Goroka","Papua New Guinea","GKA","AYGA",-6.081689834590001,145.391998291,5282,10,"U","Pacific/Port_Moresby","airport","OurAirports"
@@ -99,7 +103,7 @@ Here is an excerpt of https://raw.githubusercontent.com/jpatokal/openflights/mas
 3,"Mount Hagen Kagamuga Airport","Mount Hagen","Papua New Guinea","HGU","AYMH",-5.826789855957031,144.29600524902344,5388,10,"U","Pacific/Port_Moresby","airport","OurAirports"
 ----
 
-==== CSV -> Redis
+=== CSV -> Redis
 [source,shell]
 ----
 riot csv --url https://raw.githubusercontent.com/jpatokal/openflights/master/data/airports.dat --fields AirportID Name City Country IATA ICAO Latitude Longitude Altitude Timezone DST Tz Type Source redis --type geo --keyspace airportgeo --fields AirportID --lon Longitude --lat Latitude
@@ -115,13 +119,13 @@ Query the `airportgeo` geoset using redis-cli
 …
 ----
 
-==== Redis -> CSV
+=== Redis -> CSV
 [source,shell]
 ----
 riot redis --keyspace beer --keys id csv --file export-beers.csv --names id name brewery_id abv --header
 ----
 
-=== JSON
+== JSON Files
 RIOT can read and write JSON data in the following format:
 [source,plaintext]
 ----
@@ -135,7 +139,7 @@ RIOT can read and write JSON data in the following format:
 ]
 ----
 
-==== JSON -> Redis
+=== JSON -> Redis
 Here is an excerpt of `beers.json` available at https://github.com/rethinkdb/beerthink/blob/master/data/beers.json[beerthink]:
 [source,json]
 ----
@@ -176,7 +180,7 @@ riot json --url https://raw.githubusercontent.com/rethinkdb/beerthink/master/dat
  …
 ----
 
-==== JSON -> RediSearch
+=== JSON -> RediSearch
 . Create an index with redis-cli
 +
 [source,plaintext]
@@ -207,7 +211,7 @@ riot json --url https://raw.githubusercontent.com/rethinkdb/beerthink/master/dat
      …
 ----
 
-==== Redis -> JSON
+=== Redis -> JSON
 [source,shell]
 ----
 riot redis --keyspace beer --keys id json --file export-beers.json
@@ -215,7 +219,7 @@ riot redis --keyspace beer --keys id json --file export-beers.json
 
 == Data Generators
 
-=== Simple Generator
+=== Simple
 The simple data generator generates entries with 2 fields by default:
 
 * `index`: monotonous integer sequence
@@ -229,7 +233,7 @@ For example the following command generates hashes in the keyspace `test:<index>
 riot simple --max 100 --field value=10 --field value2=100 redis --keyspace test --keys index
 ----
 
-=== Faker Generator
+=== Faker
 This data generator relies on the https://github.com/DiUS/java-faker[Faker] library. The supported data types are described here <<faker#,faker>>.
 
 ==== Example #1: People
@@ -279,7 +283,7 @@ riot redis --metrics …
 {[local:any -> localhost/127.0.0.1:6379, commandType=SET]=[count=1684, timeUnit=MICROSECONDS, firstResponse=[min=56, max=516, percentiles={50.0=80, 90.0=124, 95.0=142, 99.0=183, 99.9=391}], completion=[min=58, max=520, percentiles={50.0=82, 90.0=127, 95.0=146, 99.0=188, 99.9=403}]]}
 ----
 
-=== Load Testing with Redis Enterprise
+=== Using Redis Enterprise
 .Strings
 [source,shell]
 ----
