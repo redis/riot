@@ -1,4 +1,4 @@
-= RIOT
+= RIOT: Redis Input Output Tool
 // Settings
 :idprefix:
 :idseparator: -
@@ -27,7 +27,6 @@ endif::[]
 █████╔╝██║██║  ██║ ██║
 ██╔═██╗██║╚█████╔╝ ██║
 ╚═╝ ╚═╝╚═╝ ╚════╝  ╚═╝
-Redis Input Output Tool
 ----
 RIOT is a data import/export tool for Redis and Redis Modules that connects to various sources and targets: files, databases, data generators, ...
 
