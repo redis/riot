@@ -1,3 +1,13 @@
+----
+█████╗ ██╗ █████╗██████╗
+██╔═██╗██║██╔══██╚═██╔═╝
+█████╔╝██║██║  ██║ ██║
+██╔═██╗██║╚█████╔╝ ██║
+╚═╝ ╚═╝╚═╝ ╚════╝  ╚═╝
+Redis Input/Output Tool
+----
+
+= 
 
 // Settings
 :idprefix:
@@ -21,14 +31,6 @@ ifdef::env-github[]
 :warning-caption: :warning:
 endif::[]
 
-----
-█████╗ ██╗ █████╗██████╗
-██╔═██╗██║██╔══██╚═██╔═╝
-█████╔╝██║██║  ██║ ██║
-██╔═██╗██║╚█████╔╝ ██║
-╚═╝ ╚═╝╚═╝ ╚════╝  ╚═╝
-Redis Input/Output Tool
-----
 RIOT is a data import/export tool for Redis and Redis Modules that connects to files, databases, and data generators.
 
 == Getting Started
