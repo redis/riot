@@ -1,9 +1,10 @@
-= RIOT: Redis Input Output Tool
+= RIOT
 // Settings
 :idprefix:
 :idseparator: -
 ifdef::env-github,env-browser[:outfilesuffix: .adoc]
 :toc: preamble
+:toclevels: 1
 endif::[]
 ifndef::env-github[:icons: font]
 // URIs
@@ -27,8 +28,9 @@ endif::[]
 █████╔╝██║██║  ██║ ██║
 ██╔═██╗██║╚█████╔╝ ██║
 ╚═╝ ╚═╝╚═╝ ╚════╝  ╚═╝
+Redis Input/Output Tool
 ----
-RIOT is a data import/export tool for Redis and Redis Modules that connects to various sources and targets: files, databases, data generators, ...
+RIOT is a data import/export tool for Redis and Redis Modules that connects to files, databases, and data generators.
 
 ifdef::show-svg[]
 image::https://redislabs-solution-architects.github.io/riot/riot-import-json.svg[Import JSON]
@@ -39,7 +41,7 @@ Download the https://github.com/Redislabs-Solution-Architects/riot/releases/late
 
 Launch the `riot` script (`riot.bat` for Windows) and follow the usage information provided.
 
-== Relational Databases
+== Databases
 
 RIOT can connect to any RDBMS with a JDBC driver.
 
@@ -93,7 +95,7 @@ This command exports all hashes under keyspace `beer:<id>` to MySQL:
 riot redis --keyspace beer --keys id db --url "jdbc:mysql://localhost:3306/employees?serverTimezone=PST&useLegacyDatetimeCode=false&useSSL=false" --username root --password --sql "INSERT INTO beers (id, name, style_name) VALUES (:id, :name, :style_name)"
 ----
 
-== Delimited Files (CSV)
+== CSV Files
 
 Here is an excerpt of https://raw.githubusercontent.com/jpatokal/openflights/master/data/airports.dat[airports.dat] CSV data available at https://github.com/jpatokal/openflights[openflights]
 ----
