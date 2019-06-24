@@ -10,7 +10,7 @@
 
 	<groupId>com.redislabs</groupId>
 	<artifactId>riot</artifactId>
-	<version>0.6.1</version>
+	<version>0.6.2-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<name>RIOT</name>
 	<description>Redis Input/Output Tool</description>
@@ -23,7 +23,7 @@
 		<url>https://github.com/Redislabs-Solution-Architects/riot</url>
 		<connection>scm:git:https://github.com/Redislabs-Solution-Architects/riot.git</connection>
 		<developerConnection>scm:git:https://github.com/Redislabs-Solution-Architects/riot.git</developerConnection>
-		<tag>riot-0.6.1</tag>
+		<tag>HEAD</tag>
 	</scm>
 
 	<dependencies>
