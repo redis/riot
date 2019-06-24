@@ -10,6 +10,6 @@ public class RedisKeyOptions {
 	private String separator = ":";
 	@Option(names = "--keyspace", description = "Redis keyspace prefix.", paramLabel = "<string>")
 	private String space;
-	@Option(names = "--keys", description = "Key fields.", paramLabel = "<names>")
+	@Option(names = "--keys", arity = "1..*", description = "Key fields.", paramLabel = "<names>")
 	private String[] names = new String[0];
 }

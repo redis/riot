@@ -34,7 +34,7 @@ public class RedisDataStructureWriterCommand extends AbstractRedisWriterCommand<
 
 	@Option(names = "--type", description = "Redis data structure: ${COMPLETION-CANDIDATES}.")
 	private RedisDataStructure dataStructure = RedisDataStructure.Hash;
-	@Option(names = "--fields", description = "Fields used to build member ids for collections (list, set, zset, geo).")
+	@Option(names = "--fields", arity = "1..*", description = "Fields used to build member ids for collections (list, set, zset, geo).")
 	private String[] fields = new String[0];
 	@ArgGroup(exclusive = false, heading = "Geospatial%n")
 	private GeoOptions geo = new GeoOptions();

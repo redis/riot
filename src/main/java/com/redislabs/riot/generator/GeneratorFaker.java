@@ -6,9 +6,9 @@ import com.github.javafaker.Faker;
 
 public class GeneratorFaker extends Faker {
 
-	private GeneratorReader reader;
+	private FakerGeneratorReader reader;
 
-	public GeneratorFaker(Locale locale, GeneratorReader reader) {
+	public GeneratorFaker(Locale locale, FakerGeneratorReader reader) {
 		super(locale);
 		this.reader = reader;
 	}

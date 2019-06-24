@@ -16,7 +16,7 @@ import com.redislabs.riot.IndexedPartitioner;
 
 import lombok.Setter;
 
-public class GeneratorReader extends AbstractItemCountingItemStreamItemReader<Map<String, Object>> {
+public class FakerGeneratorReader extends AbstractItemCountingItemStreamItemReader<Map<String, Object>> {
 
 	private ThreadLocal<Long> current = new ThreadLocal<>();
 	@Setter
@@ -28,8 +28,8 @@ public class GeneratorReader extends AbstractItemCountingItemStreamItemReader<Ma
 	private ThreadLocal<Integer> partitions = new ThreadLocal<>();
 	private int maxItemCount;
 
-	public GeneratorReader() {
-		setName(ClassUtils.getShortName(GeneratorReader.class));
+	public FakerGeneratorReader() {
+		setName(ClassUtils.getShortName(FakerGeneratorReader.class));
 	}
 
 	@Override
@@ -51,7 +51,8 @@ public class GeneratorReader extends AbstractItemCountingItemStreamItemReader<Ma
 	protected void doOpen() throws Exception {
 		ReflectivePropertyAccessor accessor = new ReflectivePropertyAccessor();
 		GeneratorFaker faker = new GeneratorFaker(locale, this);
-		context.set(new Builder(accessor).withRootObject(faker).build());
+		context.set(new Builder(accessor).withInstanceMethods().withRootObject(faker)
+				.build());
 		current.set(0l);
 	}
 

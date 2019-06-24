@@ -15,7 +15,7 @@ public abstract class AbstractFlatFileWriterCommand extends AbstractFileWriterCo
 
 	@Option(names = "--header", description = "Write field names on first line.")
 	private boolean header = false;
-	@Option(names = "--names", required = true, description = "Names of the fields to write on the first line.")
+	@Option(names = "--names", arity = "1..*", required = true, description = "Names of the fields to write on the first line.")
 	private String[] names;
 	@Option(names = "--line-separator", description = "String used to separate lines in output.")
 	private String lineSeparator = FlatFileItemWriter.DEFAULT_LINE_SEPARATOR;

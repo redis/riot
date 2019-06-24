@@ -20,7 +20,7 @@ import picocli.CommandLine.Option;
 @Command(name = "csv", description = "Delimited file")
 public class DelimitedFileReaderCommand extends AbstractFlatFileReaderCommand {
 
-	@Option(names = "--fields", description = "Names of the fields in the order they occur within the file.", paramLabel = "<names>")
+	@Option(names = "--fields", arity = "1..*", description = "Names of the fields in the order they occur within the file.", paramLabel = "<names>")
 	private String[] names = new String[0];
 	@Option(names = "--header", description = "Use first line to discover field names.")
 	private boolean header = false;
@@ -28,7 +28,7 @@ public class DelimitedFileReaderCommand extends AbstractFlatFileReaderCommand {
 	private String delimiter = DelimitedLineTokenizer.DELIMITER_COMMA;
 	@Option(names = "--quote", description = "Character to escape delimiters or line endings.", paramLabel = "<char>")
 	private Character quoteCharacter = DelimitedLineTokenizer.DEFAULT_QUOTE_CHARACTER;
-	@Option(names = "--include", description = "Fields to include in the output by position (starting at 0).", paramLabel = "<fields>")
+	@Option(names = "--include", arity = "1..*", description = "Fields to include in the output by position (starting at 0).", paramLabel = "<fields>")
 	private Integer[] includedFields = new Integer[0];
 
 	@Override

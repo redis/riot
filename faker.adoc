@@ -1,3 +1,25 @@
+= Faker Types
+// Settings
+:idprefix:
+:idseparator: -
+ifdef::env-github,env-browser[:outfilesuffix: .adoc]
+endif::[]
+ifndef::env-github[:icons: font]
+// URIs
+:project-repo: Redislabs-Solution-Architects/riot
+:uri-repo: https://github.com/{project-repo}
+// GitHub customization
+ifdef::env-github[]
+:badges:
+:tag: master
+:!toc-title:
+:tip-caption: :bulb:
+:note-caption: :paperclip:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+endif::[]
+
 * *address*: state timeZone lastName country latitude longitude firstName streetAddressNumber streetName zipCode streetAddress secondaryAddress stateAbbr streetSuffix streetPrefix citySuffix cityPrefix city cityName countryCode buildingNumber fullAddress
 * *ancient*: primordial titan god hero
 * *app*: name version author

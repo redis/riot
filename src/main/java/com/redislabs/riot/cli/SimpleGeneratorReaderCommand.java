@@ -11,7 +11,7 @@ import picocli.CommandLine.Option;
 @Command(name = "simple", description = "Simple generated data")
 public class SimpleGeneratorReaderCommand extends AbstractReaderCommand {
 
-	@Option(names = "--field", description = "Field name and size in bytes.", paramLabel = "<name=size>")
+	@Option(names = "--field", arity = "1..*", description = "Field name and size in bytes.", paramLabel = "<name=size>")
 	private Map<String, Integer> fields = new LinkedHashMap<>();
 
 	@Override
