@@ -16,9 +16,7 @@ public class SimpleGeneratorReaderCommand extends AbstractReaderCommand {
 
 	@Override
 	public SimpleGeneratorReader reader() {
-		SimpleGeneratorReader reader = new SimpleGeneratorReader();
-		reader.setFields(fields);
-		return reader;
+		return new SimpleGeneratorReader(fields);
 	}
 
 	@Override

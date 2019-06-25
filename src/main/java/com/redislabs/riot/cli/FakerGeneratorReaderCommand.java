@@ -26,10 +26,7 @@ public class FakerGeneratorReaderCommand extends AbstractReaderCommand {
 		SpelExpressionParser parser = new SpelExpressionParser();
 		Map<String, Expression> fieldExpressionMap = new LinkedHashMap<String, Expression>();
 		fieldExpressions.forEach((k, v) -> fieldExpressionMap.put(k, parser.parseExpression(v)));
-		FakerGeneratorReader reader = new FakerGeneratorReader();
-		reader.setFieldExpressions(fieldExpressionMap);
-		reader.setLocale(locale);
-		return reader;
+		return new FakerGeneratorReader(locale, fieldExpressionMap);
 	}
 
 	@Override

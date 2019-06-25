@@ -237,7 +237,7 @@ This data generator relies on the https://github.com/DiUS/java-faker[Faker] libr
 ===== Example #1: People
 [source,shell]
 ----
-riot faker --max 100 --field id=sequence --field firstName=name.firstName --field lastName=name.lastName --field address=address.fullAddress redis --keyspace person --keys id
+riot faker --max 100 --field id=index --field firstName=name.firstName --field lastName=name.lastName --field address=address.fullAddress redis --keyspace person --keys id
 ----
 [source,plaintext]
 ----

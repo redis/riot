@@ -17,6 +17,7 @@ public class BaseTest {
 	public void setup() throws IOException {
 		client = RediSearchClient.create("redis://localhost");
 		connection = client.connect();
+		connection.sync().flushall();
 	}
 
 	@After

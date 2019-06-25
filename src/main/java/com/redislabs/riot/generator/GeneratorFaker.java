@@ -13,16 +13,16 @@ public class GeneratorFaker extends Faker {
 		this.reader = reader;
 	}
 
-	public long sequence() {
-		return reader.getSequence();
+	public long index() {
+		return reader.index();
 	}
 
-	public int partitions() {
-		return reader.getPartitions();
+	public int threads() {
+		return reader.partitions();
 	}
 
-	public int partitionIndex() {
-		return reader.getPartitionIndex();
+	public int thread() {
+		return reader.partition();
 	}
 
 }
