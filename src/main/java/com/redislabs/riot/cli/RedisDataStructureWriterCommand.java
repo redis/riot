@@ -10,6 +10,7 @@ import com.redislabs.riot.redis.writer.AbstractStringWriter;
 import com.redislabs.riot.redis.writer.GeoWriter;
 import com.redislabs.riot.redis.writer.HashWriter;
 import com.redislabs.riot.redis.writer.ListWriter;
+import com.redislabs.riot.redis.writer.LuaWriter;
 import com.redislabs.riot.redis.writer.SetWriter;
 import com.redislabs.riot.redis.writer.StreamIdMaxlenWriter;
 import com.redislabs.riot.redis.writer.StreamIdWriter;
@@ -19,6 +20,7 @@ import com.redislabs.riot.redis.writer.StringFieldWriter;
 import com.redislabs.riot.redis.writer.StringObjectWriter;
 import com.redislabs.riot.redis.writer.ZSetWriter;
 
+import io.lettuce.core.ScriptOutputType;
 import io.lettuce.core.api.async.RedisAsyncCommands;
 import lombok.Getter;
 import picocli.CommandLine.ArgGroup;
@@ -29,7 +31,7 @@ import picocli.CommandLine.Option;
 public class RedisDataStructureWriterCommand extends AbstractRedisWriterCommand<RedisAsyncCommands<String, String>> {
 
 	enum RedisDataStructure {
-		Geo, Hash, List, Set, Stream, String, ZSet
+		Geo, Hash, List, Set, Stream, String, ZSet, Lua
 	}
 
 	@Option(names = "--type", description = "Redis data structure: ${COMPLETION-CANDIDATES}.")
@@ -44,6 +46,20 @@ public class RedisDataStructureWriterCommand extends AbstractRedisWriterCommand<
 	private ZSetOptions zset = new ZSetOptions();
 	@ArgGroup(exclusive = false, heading = "Strings%n")
 	private StringOptions string = new StringOptions();
+	@ArgGroup(exclusive = false, heading = "LUA script%n")
+	private LuaOptions lua = new LuaOptions();
+
+	@Getter
+	static class LuaOptions {
+		@Option(names = "--sha", description = "SHA1 digest of the LUA script")
+		private String sha;
+		@Option(names = "--output", description = "Script output type: ${COMPLETION-CANDIDATES}.", paramLabel = "<type>")
+		private ScriptOutputType outputType = ScriptOutputType.STATUS;
+		@Option(names = "--lua-keys", arity = "1..*", description = "Field names of the LUA script keys", paramLabel = "<field1,field2,...>")
+		private String[] keys = new String[0];
+		@Option(names = "--lua-args", arity = "1..*", description = "Field names of the LUA script args", paramLabel = "<field1,field2,...>")
+		private String[] args = new String[0];
+	}
 
 	@Getter
 	static class GeoOptions {
@@ -164,6 +180,8 @@ public class RedisDataStructureWriterCommand extends AbstractRedisWriterCommand<
 			return geoWriter();
 		case List:
 			return new ListWriter();
+		case Lua:
+			return luaWriter();
 		case Set:
 			return new SetWriter();
 		case Stream:
@@ -175,6 +193,14 @@ public class RedisDataStructureWriterCommand extends AbstractRedisWriterCommand<
 		default:
 			return new HashWriter();
 		}
+	}
+
+	private LuaWriter luaWriter() {
+		LuaWriter writer = new LuaWriter(lua.getSha());
+		writer.setOutputType(lua.getOutputType());
+		writer.setKeys(lua.getKeys());
+		writer.setArgs(lua.getArgs());
+		return writer;
 	}
 
 	@Override
