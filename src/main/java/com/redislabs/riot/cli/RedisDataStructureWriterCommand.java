@@ -7,6 +7,7 @@ import com.redislabs.riot.redis.writer.AbstractCollectionRedisItemWriter;
 import com.redislabs.riot.redis.writer.AbstractRedisDataStructureItemWriter;
 import com.redislabs.riot.redis.writer.AbstractRedisItemWriter;
 import com.redislabs.riot.redis.writer.AbstractStringWriter;
+import com.redislabs.riot.redis.writer.ExpireWriter;
 import com.redislabs.riot.redis.writer.GeoWriter;
 import com.redislabs.riot.redis.writer.HashWriter;
 import com.redislabs.riot.redis.writer.ListWriter;
@@ -31,7 +32,7 @@ import picocli.CommandLine.Option;
 public class RedisDataStructureWriterCommand extends AbstractRedisWriterCommand<RedisAsyncCommands<String, String>> {
 
 	enum RedisDataStructure {
-		Geo, Hash, List, Set, Stream, String, ZSet, Lua
+		Geo, Hash, List, Set, Stream, String, ZSet, Lua, Expire
 	}
 
 	@Option(names = "--type", description = "Redis data structure: ${COMPLETION-CANDIDATES}.")
@@ -48,6 +49,16 @@ public class RedisDataStructureWriterCommand extends AbstractRedisWriterCommand<
 	private StringOptions string = new StringOptions();
 	@ArgGroup(exclusive = false, heading = "LUA script%n")
 	private LuaOptions lua = new LuaOptions();
+	@ArgGroup(exclusive = false, heading = "Expire%n")
+	private ExpireOptions expire = new ExpireOptions();
+
+	@Getter
+	static class ExpireOptions {
+		@Option(names = "--default-timeout", description = "Default timeout in seconds.", paramLabel = "<seconds>")
+		private long defaultTimeout = 60;
+		@Option(names = "--timeout", description = "Field to get the timeout value from", paramLabel = "<field>")
+		private String timeoutField;
+	}
 
 	@Getter
 	static class LuaOptions {
@@ -176,6 +187,8 @@ public class RedisDataStructureWriterCommand extends AbstractRedisWriterCommand<
 
 	private AbstractRedisDataStructureItemWriter dataStructureWriter() {
 		switch (dataStructure) {
+		case Expire:
+			return expireWriter();
 		case Geo:
 			return geoWriter();
 		case List:
@@ -193,6 +206,13 @@ public class RedisDataStructureWriterCommand extends AbstractRedisWriterCommand<
 		default:
 			return new HashWriter();
 		}
+	}
+
+	private ExpireWriter expireWriter() {
+		ExpireWriter writer = new ExpireWriter();
+		writer.setDefaultTimeout(expire.getDefaultTimeout());
+		writer.setTimeoutField(expire.getTimeoutField());
+		return writer;
 	}
 
 	private LuaWriter luaWriter() {
