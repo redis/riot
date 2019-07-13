@@ -4,7 +4,6 @@ import java.util.Map;
 
 import org.springframework.batch.item.ItemWriter;
 
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine.ParentCommand;
 
@@ -12,7 +11,6 @@ import picocli.CommandLine.ParentCommand;
 public abstract class AbstractWriterCommand extends AbstractCommand {
 
 	@ParentCommand
-	@Getter
 	private AbstractReaderCommand parent;
 
 	@Override

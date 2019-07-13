@@ -10,11 +10,13 @@ import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.Response;
 import redis.clients.jedis.StreamEntryID;
 
-@Setter
 public class StreamIdMaxlenWriter extends AbstractRedisDataStructureItemWriter {
 
+	@Setter
 	private Long maxlen;
+	@Setter
 	private boolean approximateTrimming;
+	@Setter
 	private String idField;
 
 	private String id(Map<String, Object> item) {

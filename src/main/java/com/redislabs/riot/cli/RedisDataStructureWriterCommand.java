@@ -10,7 +10,8 @@ import com.redislabs.riot.redis.writer.AbstractStringWriter;
 import com.redislabs.riot.redis.writer.ExpireWriter;
 import com.redislabs.riot.redis.writer.GeoWriter;
 import com.redislabs.riot.redis.writer.HashWriter;
-import com.redislabs.riot.redis.writer.ListWriter;
+import com.redislabs.riot.redis.writer.ListLeftPushWriter;
+import com.redislabs.riot.redis.writer.ListRightPushWriter;
 import com.redislabs.riot.redis.writer.LuaWriter;
 import com.redislabs.riot.redis.writer.SetWriter;
 import com.redislabs.riot.redis.writer.StreamIdMaxlenWriter;
@@ -23,7 +24,6 @@ import com.redislabs.riot.redis.writer.ZSetWriter;
 
 import io.lettuce.core.ScriptOutputType;
 import io.lettuce.core.api.async.RedisAsyncCommands;
-import lombok.Getter;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -39,6 +39,8 @@ public class RedisDataStructureWriterCommand extends AbstractRedisWriterCommand<
 	private RedisDataStructure dataStructure = RedisDataStructure.Hash;
 	@Option(names = "--fields", arity = "1..*", description = "Fields used to build member ids for collections (list, set, zset, geo).")
 	private String[] fields = new String[0];
+	@ArgGroup(exclusive = false, heading = "Lists%n")
+	private ListOptions list = new ListOptions();
 	@ArgGroup(exclusive = false, heading = "Geospatial%n")
 	private GeoOptions geo = new GeoOptions();
 	@ArgGroup(exclusive = false, heading = "Streams%n")
@@ -52,45 +54,86 @@ public class RedisDataStructureWriterCommand extends AbstractRedisWriterCommand<
 	@ArgGroup(exclusive = false, heading = "Expire%n")
 	private ExpireOptions expire = new ExpireOptions();
 
-	@Getter
 	static class ExpireOptions {
 		@Option(names = "--default-timeout", description = "Default timeout in seconds.", paramLabel = "<seconds>")
-		private long defaultTimeout = 60;
+		long defaultTimeout = 60;
 		@Option(names = "--timeout", description = "Field to get the timeout value from", paramLabel = "<field>")
-		private String timeoutField;
+		String timeoutField;
+
+		public ExpireWriter writer() {
+			ExpireWriter writer = new ExpireWriter();
+			writer.setDefaultTimeout(defaultTimeout);
+			writer.setTimeoutField(timeoutField);
+			return writer;
+		}
+
 	}
 
-	@Getter
 	static class LuaOptions {
 		@Option(names = "--sha", description = "SHA1 digest of the LUA script")
-		private String sha;
+		String sha;
 		@Option(names = "--output", description = "Script output type: ${COMPLETION-CANDIDATES}.", paramLabel = "<type>")
-		private ScriptOutputType outputType = ScriptOutputType.STATUS;
+		ScriptOutputType outputType = ScriptOutputType.STATUS;
 		@Option(names = "--lua-keys", arity = "1..*", description = "Field names of the LUA script keys", paramLabel = "<field1,field2,...>")
-		private String[] keys = new String[0];
+		String[] keys = new String[0];
 		@Option(names = "--lua-args", arity = "1..*", description = "Field names of the LUA script args", paramLabel = "<field1,field2,...>")
-		private String[] args = new String[0];
+		String[] args = new String[0];
+
+		private LuaWriter writer() {
+			LuaWriter writer = new LuaWriter(sha);
+			writer.setOutputType(outputType);
+			writer.setKeys(keys);
+			writer.setArgs(args);
+			return writer;
+		}
 	}
 
-	@Getter
 	static class GeoOptions {
+
 		@Option(names = "--lon", description = "Longitude field for geo sets.", paramLabel = "<field>")
-		private String lon;
+		String longitudeField;
 		@Option(names = "--lat", description = "Latitude field for geo sets.", paramLabel = "<field>")
-		private String lat;
+		String latitudeField;
+
+		public GeoWriter writer() {
+			GeoWriter writer = new GeoWriter();
+			writer.setLatitudeField(latitudeField);
+			writer.setLongitudeField(longitudeField);
+			return writer;
+		}
 	}
 
-	@Getter
 	static class StreamOptions {
 		@Option(names = "--trim", description = "Apply efficient trimming for capped streams using the ~ flag.")
-		private boolean trim;
+		boolean trim;
 		@Option(names = "--max", description = "Limit stream to maxlen entries.", paramLabel = "<len>")
-		private Long maxlen;
+		Long maxlen;
 		@Option(names = "--id", description = "Field used for stream entry IDs.", paramLabel = "<field>")
-		private String id;
+		String id;
+
+		public AbstractRedisDataStructureItemWriter writer() {
+			if (id == null) {
+				if (maxlen == null) {
+					return new StreamWriter();
+				}
+				StreamMaxlenWriter writer = new StreamMaxlenWriter();
+				writer.setMaxlen(maxlen);
+				writer.setApproximateTrimming(trim);
+				return writer;
+			}
+			if (maxlen == null) {
+				StreamIdWriter writer = new StreamIdWriter();
+				writer.setIdField(id);
+				return writer;
+			}
+			StreamIdMaxlenWriter writer = new StreamIdMaxlenWriter();
+			writer.setApproximateTrimming(trim);
+			writer.setIdField(id);
+			writer.setMaxlen(maxlen);
+			return writer;
+		}
 	}
 
-	@Getter
 	static class ListOptions {
 
 		public enum PushDirection {
@@ -99,17 +142,31 @@ public class RedisDataStructureWriterCommand extends AbstractRedisWriterCommand<
 
 		@Option(names = "--push-direction", hidden = true, description = "Direction for list push: ${COMPLETION-CANDIDATES}.")
 		private PushDirection direction = PushDirection.Left;
+
+		public AbstractCollectionRedisItemWriter writer() {
+			switch (direction) {
+			case Right:
+				return new ListRightPushWriter();
+			default:
+				return new ListLeftPushWriter();
+			}
+		}
 	}
 
-	@Getter
 	static class ZSetOptions {
 		@Option(names = "--score", description = "Name of the field to use for scores.", paramLabel = "<field>")
 		private String score;
 		@Option(names = "--default-score", description = "Default score to use when score field is not present.", paramLabel = "<float>")
 		private double defaultScore = 1d;
+
+		private ZSetWriter writer() {
+			ZSetWriter writer = new ZSetWriter();
+			writer.setScoreField(score);
+			writer.setDefaultScore(defaultScore);
+			return writer;
+		}
 	}
 
-	@Getter
 	static class StringOptions {
 
 		public static enum StringFormat {
@@ -123,57 +180,21 @@ public class RedisDataStructureWriterCommand extends AbstractRedisWriterCommand<
 		@Option(names = "--value", description = "Field to use for value when using raw format.", paramLabel = "<field>")
 		private String field;
 
-	}
-
-	private AbstractStringWriter stringWriter() {
-		switch (string.getFormat()) {
-		case Raw:
-			return new StringFieldWriter(string.getField());
-		case Xml:
-			return new StringObjectWriter(objectWriter(new XmlMapper()));
-		default:
-			return new StringObjectWriter(objectWriter(new ObjectMapper()));
-		}
-	}
-
-	private ObjectWriter objectWriter(ObjectMapper mapper) {
-		return mapper.writer().withRootName(string.getRoot());
-	}
-
-	private GeoWriter geoWriter() {
-		GeoWriter writer = new GeoWriter();
-		writer.setLatitudeField(geo.getLat());
-		writer.setLongitudeField(geo.getLon());
-		return writer;
-	}
-
-	private AbstractRedisDataStructureItemWriter streamWriter() {
-		if (stream.getId() == null) {
-			if (stream.getMaxlen() == null) {
-				return new StreamWriter();
+		private AbstractStringWriter writer() {
+			switch (format) {
+			case Raw:
+				return new StringFieldWriter(field);
+			case Xml:
+				return new StringObjectWriter(objectWriter(new XmlMapper()));
+			default:
+				return new StringObjectWriter(objectWriter(new ObjectMapper()));
 			}
-			StreamMaxlenWriter writer = new StreamMaxlenWriter();
-			writer.setMaxlen(stream.getMaxlen());
-			writer.setApproximateTrimming(stream.isTrim());
-			return writer;
 		}
-		if (stream.getMaxlen() == null) {
-			StreamIdWriter writer = new StreamIdWriter();
-			writer.setIdField(stream.getId());
-			return writer;
-		}
-		StreamIdMaxlenWriter writer = new StreamIdMaxlenWriter();
-		writer.setApproximateTrimming(stream.isTrim());
-		writer.setIdField(stream.getId());
-		writer.setMaxlen(stream.getMaxlen());
-		return writer;
-	}
 
-	private ZSetWriter zSetWriter() {
-		ZSetWriter writer = new ZSetWriter();
-		writer.setScoreField(zset.getScore());
-		writer.setDefaultScore(zset.getDefaultScore());
-		return writer;
+		private ObjectWriter objectWriter(ObjectMapper mapper) {
+			return mapper.writer().withRootName(root);
+		}
+
 	}
 
 	@Override
@@ -188,39 +209,24 @@ public class RedisDataStructureWriterCommand extends AbstractRedisWriterCommand<
 	private AbstractRedisDataStructureItemWriter dataStructureWriter() {
 		switch (dataStructure) {
 		case Expire:
-			return expireWriter();
+			return expire.writer();
 		case Geo:
-			return geoWriter();
+			return geo.writer();
 		case List:
-			return new ListWriter();
+			return list.writer();
 		case Lua:
-			return luaWriter();
+			return lua.writer();
 		case Set:
 			return new SetWriter();
 		case Stream:
-			return streamWriter();
+			return stream.writer();
 		case String:
-			return stringWriter();
+			return string.writer();
 		case ZSet:
-			return zSetWriter();
+			return zset.writer();
 		default:
 			return new HashWriter();
 		}
-	}
-
-	private ExpireWriter expireWriter() {
-		ExpireWriter writer = new ExpireWriter();
-		writer.setDefaultTimeout(expire.getDefaultTimeout());
-		writer.setTimeoutField(expire.getTimeoutField());
-		return writer;
-	}
-
-	private LuaWriter luaWriter() {
-		LuaWriter writer = new LuaWriter(lua.getSha());
-		writer.setOutputType(lua.getOutputType());
-		writer.setKeys(lua.getKeys());
-		writer.setArgs(lua.getArgs());
-		return writer;
 	}
 
 	@Override

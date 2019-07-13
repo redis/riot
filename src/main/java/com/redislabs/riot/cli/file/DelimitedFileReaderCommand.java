@@ -53,7 +53,7 @@ public class DelimitedFileReaderCommand extends AbstractFlatFileReaderCommand {
 		String[] fieldNames = Arrays.copyOf(names, names.length);
 		if (header) {
 			if (fieldNames.length == 0) {
-				BufferedReader reader = new DefaultBufferedReaderFactory().create(resource(), getEncoding());
+				BufferedReader reader = new DefaultBufferedReaderFactory().create(resource(), encoding);
 				DelimitedLineTokenizer tokenizer = new DelimitedLineTokenizer();
 				tokenizer.setDelimiter(delimiter);
 				tokenizer.setQuoteCharacter(quoteCharacter);

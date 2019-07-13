@@ -23,9 +23,9 @@ public abstract class AbstractFlatFileWriterCommand extends AbstractFileWriterCo
 	@Override
 	protected FlatFileItemWriter<Map<String, Object>> writer() {
 		FlatFileItemWriterBuilder<Map<String, Object>> builder = new FlatFileItemWriterBuilder<>();
-		builder.append(isAppend());
-		builder.encoding(getEncoding());
-		builder.forceSync(isForceSync());
+		builder.append(append);
+		builder.encoding(encoding);
+		builder.forceSync(forceSync);
 		builder.lineSeparator(lineSeparator);
 		builder.resource(resource());
 		builder.saveState(false);

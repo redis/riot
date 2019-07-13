@@ -20,9 +20,9 @@ public class JsonFileWriterCommand extends AbstractFileWriterCommand {
 	protected ItemWriter<Map<String, Object>> writer() {
 		JsonFileItemWriterBuilder<Map<String, Object>> builder = new JsonFileItemWriterBuilder<>();
 		builder.name("json-file-writer");
-		builder.append(isAppend());
-		builder.encoding(getEncoding());
-		builder.forceSync(isForceSync());
+		builder.append(append);
+		builder.encoding(encoding);
+		builder.forceSync(forceSync);
 		builder.jsonObjectMarshaller(new JacksonJsonObjectMarshaller<>());
 		builder.lineSeparator(lineSeparator);
 		builder.resource(resource());

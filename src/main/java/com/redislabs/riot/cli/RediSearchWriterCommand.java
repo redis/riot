@@ -86,18 +86,16 @@ public class RediSearchWriterCommand extends AbstractRedisWriterCommand<RediSear
 			suggestWriter.setIncrement(increment);
 			return suggestWriter;
 		default:
-			AbstractSearchWriter searchWriter = searchItemWriter();
-			searchWriter.setOptions(AddOptions.builder().ifCondition(ifCondition).language(language).noSave(noSave)
+			return searchItemWriter(AddOptions.builder().ifCondition(ifCondition).language(language).noSave(noSave)
 					.replace(replace).replacePartial(partial).build());
-			return searchWriter;
 		}
 	}
 
-	private AbstractSearchWriter searchItemWriter() {
+	private AbstractSearchWriter searchItemWriter(AddOptions options) {
 		if (payloadField == null) {
-			return new SearchWriter();
+			return new SearchWriter(options);
 		}
-		SearchPayloadWriter writer = new SearchPayloadWriter();
+		SearchPayloadWriter writer = new SearchPayloadWriter(options);
 		writer.setPayloadField(payloadField);
 		return writer;
 	}

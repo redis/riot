@@ -11,7 +11,6 @@ import com.redislabs.riot.redis.RedisConverter;
 import io.redisearch.Document;
 import io.redisearch.client.AddOptions;
 import io.redisearch.client.Client;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -20,11 +19,8 @@ public class JedisSearchWriter extends AbstractItemStreamItemWriter<Map<String, 
 	private Client client;
 	private RedisConverter converter;
 	private AddOptions options;
-	@Setter
 	private String scoreField;
-	@Setter
 	private String payloadField;
-	@Setter
 	private float defaultScore;
 
 	public JedisSearchWriter(Client client, RedisConverter converter, AddOptions options) {
@@ -32,6 +28,18 @@ public class JedisSearchWriter extends AbstractItemStreamItemWriter<Map<String, 
 		this.client = client;
 		this.converter = converter;
 		this.options = options;
+	}
+
+	public void setScoreField(String scoreField) {
+		this.scoreField = scoreField;
+	}
+
+	public void setPayloadField(String payloadField) {
+		this.payloadField = payloadField;
+	}
+
+	public void setDefaultScore(float defaultScore) {
+		this.defaultScore = defaultScore;
 	}
 
 	public void write(List<? extends Map<String, Object>> items) throws Exception {

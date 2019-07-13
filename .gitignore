@@ -17,3 +17,4 @@ buildNumber.properties
 /.project
 .DS_Store
 /.asciidoctor/
+/bin/

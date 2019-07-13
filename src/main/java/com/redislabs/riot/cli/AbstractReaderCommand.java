@@ -15,8 +15,6 @@ import com.redislabs.riot.cli.file.DelimitedFileWriterCommand;
 import com.redislabs.riot.cli.file.FormattedFileWriterCommand;
 import com.redislabs.riot.cli.file.JsonFileWriterCommand;
 
-import lombok.Getter;
-import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.ParentCommand;
@@ -26,18 +24,12 @@ import picocli.CommandLine.ParentCommand;
 		DatabaseWriterCommand.class }, synopsisSubcommandLabel = "[TARGET]", commandListHeading = "Targets:%n")
 public abstract class AbstractReaderCommand extends AbstractCommand {
 
-	@Getter
-	static class ProcessorOptions {
-		@Option(names = "--processor", description = "SpEL expression to process a field.", paramLabel = "<name=SpEL>")
-		private Map<String, String> fields = new LinkedHashMap<>();
-	}
-
 	@Option(names = "--max", description = "Max number of items to read.", paramLabel = "<count>")
 	private Integer count;
 	@Option(names = "--sleep", description = "Sleep duration in millis between reads.", paramLabel = "<millis>")
 	private Long sleep;
-	@ArgGroup(exclusive = false, heading = "Processor%n")
-	private ProcessorOptions processorOptions = new ProcessorOptions();
+	@Option(names = "--processor", description = "SpEL expression to process a field.", paramLabel = "<name=SpEL>")
+	private Map<String, String> processorFields = new LinkedHashMap<>();
 	@ParentCommand
 	private RiotApplication root;
 
@@ -57,10 +49,10 @@ public abstract class AbstractReaderCommand extends AbstractCommand {
 	}
 
 	private ItemProcessor<Map<String, Object>, Map<String, Object>> processor() throws Exception {
-		if (processorOptions.getFields().isEmpty()) {
+		if (processorFields.isEmpty()) {
 			return null;
 		}
-		return new Processor(processorOptions.getFields());
+		return new Processor(processorFields);
 	}
 
 	public abstract AbstractItemCountingItemStreamItemReader<Map<String, Object>> reader() throws Exception;

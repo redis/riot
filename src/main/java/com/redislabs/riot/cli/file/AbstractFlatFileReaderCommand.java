@@ -10,16 +10,14 @@ import org.springframework.batch.item.file.mapping.FieldSetMapper;
 import org.springframework.batch.item.file.separator.DefaultRecordSeparatorPolicy;
 import org.springframework.batch.item.file.transform.FieldSet;
 
-import lombok.Getter;
 import picocli.CommandLine.Option;
 
 public abstract class AbstractFlatFileReaderCommand extends AbstractFileReaderCommand {
 
-	@Getter
 	@Option(names = "--encoding", description = "File encoding.", paramLabel = "<charset>")
-	private String encoding = FlatFileItemReader.DEFAULT_CHARSET;
+	String encoding = FlatFileItemReader.DEFAULT_CHARSET;
 	@Option(names = "--skip", description = "Number of lines to skip at the beginning of reading the file.", paramLabel = "<count>")
-	private int linesToSkip = 0;
+	int linesToSkip = 0;
 
 	protected int getLinesToSkip() {
 		return linesToSkip;
