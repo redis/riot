@@ -6,22 +6,30 @@ import java.util.Map;
 import io.lettuce.core.RedisFuture;
 import io.lettuce.core.ScriptOutputType;
 import io.lettuce.core.api.async.RedisAsyncCommands;
-import lombok.Setter;
 import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.Response;
 
 public class LuaWriter extends AbstractRedisDataStructureItemWriter {
 
 	private String sha;
-	@Setter
 	private String[] keys;
-	@Setter
 	private String[] args;
-	@Setter
 	private ScriptOutputType outputType;
 
 	public LuaWriter(String sha) {
 		this.sha = sha;
+	}
+
+	public void setKeys(String[] keys) {
+		this.keys = keys;
+	}
+
+	public void setArgs(String[] args) {
+		this.args = args;
+	}
+
+	public void setOutputType(ScriptOutputType outputType) {
+		this.outputType = outputType;
 	}
 
 	@Override

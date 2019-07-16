@@ -2,13 +2,15 @@ package com.redislabs.riot.redis.writer;
 
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
-import lombok.extern.slf4j.Slf4j;
-
-@Slf4j
 public class StringObjectWriter extends AbstractStringWriter {
+
+	private final static Logger log = LoggerFactory.getLogger(StringObjectWriter.class);
 
 	private ObjectWriter objectWriter;
 

@@ -1,9 +1,7 @@
 package com.redislabs.riot.cli;
 
-import lombok.Data;
 import picocli.CommandLine.Option;
 
-@Data
 public class RedisKeyOptions {
 
 	@Option(names = "--separator", description = "Redis key separator.", paramLabel = "<string>")
@@ -11,5 +9,18 @@ public class RedisKeyOptions {
 	@Option(names = "--keyspace", description = "Redis keyspace prefix.", paramLabel = "<string>")
 	private String space;
 	@Option(names = "--keys", arity = "1..*", description = "Key fields.", paramLabel = "<names>")
-	private String[] names = new String[0];
+	private String[] fields = new String[0];
+
+	public String getSeparator() {
+		return separator;
+	}
+
+	public String getSpace() {
+		return space;
+	}
+
+	public String[] getFields() {
+		return fields;
+	}
+
 }

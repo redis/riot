@@ -26,12 +26,10 @@ public abstract class AbstractRedisWriterCommand<C extends RedisAsyncCommands<St
 	protected final ItemWriter<Map<String, Object>> writer() {
 		AbstractRedisItemWriter<C> itemWriter = redisItemWriter();
 		itemWriter.setConverter(redisConverter());
-		switch (redis.getDriver()) {
-		case Lettuce:
-			return lettuceWriter(itemWriter);
-		default:
+		if (redis.isJedis()) {
 			return jedisWriter(redis.jedisPool(), itemWriter);
 		}
+		return lettuceWriter(itemWriter);
 	}
 
 	protected ItemWriter<Map<String, Object>> jedisWriter(JedisPool pool, AbstractRedisItemWriter<C> itemWriter) {
@@ -46,21 +44,21 @@ public abstract class AbstractRedisWriterCommand<C extends RedisAsyncCommands<St
 	protected abstract AbstractRedisItemWriter<C> redisItemWriter();
 
 	protected RedisConverter redisConverter() {
-		return new RedisConverter(key.getSeparator(), key.getSpace(), key.getNames());
+		return new RedisConverter(key.getSeparator(), key.getSpace(), key.getFields());
 	}
 
 	protected String keyspaceDescription() {
 		if (key.getSpace() == null) {
 			return keysDescription();
 		}
-		if (key.getNames().length > 0) {
+		if (key.getFields().length > 0) {
 			return key.getSpace() + key.getSeparator() + keysDescription();
 		}
 		return key.getSpace();
 	}
 
 	private String keysDescription() {
-		return String.join(key.getSeparator(), key.getNames());
+		return String.join(key.getSeparator(), key.getFields());
 	}
 
 }

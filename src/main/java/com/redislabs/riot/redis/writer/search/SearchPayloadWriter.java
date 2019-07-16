@@ -6,17 +6,14 @@ import com.redislabs.lettusearch.RediSearchAsyncCommands;
 import com.redislabs.lettusearch.search.AddOptions;
 
 import io.lettuce.core.RedisFuture;
-import lombok.Setter;
 
-@Setter
 public class SearchPayloadWriter extends AbstractSearchWriter {
 
-	public SearchPayloadWriter(AddOptions options) {
-		super(options);
-	}
-
-	@Setter
 	private String payloadField;
+
+	public SearchPayloadWriter(String payloadField) {
+		this.payloadField = payloadField;
+	}
 
 	private String payload(Map<String, Object> item) {
 		return convert(item.remove(payloadField), String.class);

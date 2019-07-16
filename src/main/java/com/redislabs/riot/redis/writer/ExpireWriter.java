@@ -4,16 +4,18 @@ import java.util.Map;
 
 import io.lettuce.core.RedisFuture;
 import io.lettuce.core.api.async.RedisAsyncCommands;
-import lombok.Setter;
 import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.Response;
 
 public class ExpireWriter extends AbstractRedisDataStructureItemWriter {
 
-	@Setter
-	private Long defaultTimeout;
-	@Setter
 	private String timeoutField;
+	private Long defaultTimeout;
+
+	public ExpireWriter(String timeoutField, Long defaultTimeout) {
+		this.timeoutField = timeoutField;
+		this.defaultTimeout = defaultTimeout;
+	}
 
 	@Override
 	protected Response<Long> write(Pipeline pipeline, String key, Map<String, Object> item) {

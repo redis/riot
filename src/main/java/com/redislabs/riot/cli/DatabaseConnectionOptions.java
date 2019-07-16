@@ -6,10 +6,8 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 
 import com.zaxxer.hikari.HikariDataSource;
 
-import lombok.Data;
 import picocli.CommandLine.Option;
 
-@Data
 public class DatabaseConnectionOptions {
 
 	@Option(names = "--jdbc-driver", description = "Fully qualified name of the JDBC driver.", paramLabel = "<class>")

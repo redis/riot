@@ -12,7 +12,6 @@ import org.springframework.core.io.UrlResource;
 
 import com.redislabs.riot.cli.AbstractReaderCommand;
 
-import lombok.Data;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Option;
 
@@ -24,17 +23,31 @@ public abstract class AbstractFileReaderCommand extends AbstractReaderCommand {
 	@Option(names = "--gz", description = "Input is gzip compressed.")
 	private boolean gzip;
 
-	@Data
 	static class InputOptions {
 		@Option(names = "--file", description = "Path to input file.", paramLabel = "<path>")
-		private File file;
+		File file;
 		@Option(names = "--url", description = "URL for input file.")
-		private URL url;
+		URL url;
+
+		@Override
+		public String toString() {
+			if (file == null) {
+				if (url == null) {
+					return "not set";
+				}
+				return url.toString();
+			}
+			return file.toString();
+		}
+
+		public boolean isURL() {
+			return url != null;
+		}
 	}
 
 	@Override
 	public String getSourceDescription() {
-		return "file " + (input.getFile() == null ? input.getUrl() : input.getFile());
+		return "file " + input.toString();
 	}
 
 	private Resource resource(Resource resource) throws IOException {
@@ -45,10 +58,10 @@ public abstract class AbstractFileReaderCommand extends AbstractReaderCommand {
 	}
 
 	protected Resource resource() throws IOException {
-		if (input.getUrl() != null) {
-			return resource(new UrlResource(input.getUrl()));
+		if (input.isURL()) {
+			return resource(new UrlResource(input.url));
 		}
-		return resource(new FileSystemResource(input.getFile()));
+		return resource(new FileSystemResource(input.file));
 	}
 
 }

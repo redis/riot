@@ -5,12 +5,14 @@ import java.util.Map;
 import com.redislabs.lettusearch.RediSearchAsyncCommands;
 
 import io.lettuce.core.RedisFuture;
-import lombok.Setter;
 
 public class SuggestPayloadWriter extends SuggestWriter {
 
-	@Setter
 	private String payloadField;
+
+	public SuggestPayloadWriter(String payloadField) {
+		this.payloadField = payloadField;
+	}
 
 	private String payload(Map<String, Object> item) {
 		if (payloadField == null) {

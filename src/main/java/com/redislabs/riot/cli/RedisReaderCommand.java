@@ -25,7 +25,7 @@ public class RedisReaderCommand extends AbstractReaderCommand {
 		RedisReader reader = new RedisReader(redis.jedisPool());
 		reader.setCount(scanCount);
 		reader.setMatch(getScanPattern());
-		reader.setKeys(key.getNames());
+		reader.setKeys(key.getFields());
 		reader.setKeyspace(key.getSpace());
 		reader.setSeparator(key.getSeparator());
 		return reader;

@@ -4,14 +4,16 @@ import java.util.Map;
 
 import io.lettuce.core.RedisFuture;
 import io.lettuce.core.api.async.RedisAsyncCommands;
-import lombok.Setter;
 import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.Response;
 
 public abstract class AbstractCollectionRedisItemWriter extends AbstractRedisDataStructureItemWriter {
 
-	@Setter
 	private String[] fields = new String[0];
+
+	public void setFields(String[] fields) {
+		this.fields = fields;
+	}
 
 	private String member(Map<String, Object> item) {
 		return join(item, fields);

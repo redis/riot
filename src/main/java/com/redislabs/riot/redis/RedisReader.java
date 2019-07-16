@@ -7,22 +7,16 @@ import org.springframework.batch.item.support.AbstractItemCountingItemStreamItem
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 
-import lombok.Setter;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
 public class RedisReader extends AbstractItemCountingItemStreamItemReader<Map<String, Object>> {
 
 	private JedisPool jedisPool;
-	@Setter
 	private Integer count;
-	@Setter
 	private String match;
-	@Setter
 	private String separator;
-	@Setter
 	private String keyspace;
-	@Setter
 	private String[] keys;
 	private volatile boolean initialized = false;
 	private Object lock = new Object();
@@ -32,6 +26,30 @@ public class RedisReader extends AbstractItemCountingItemStreamItemReader<Map<St
 	public RedisReader(JedisPool jedisPool) {
 		setName(ClassUtils.getShortName(RedisReader.class));
 		this.jedisPool = jedisPool;
+	}
+
+	public void setCount(Integer count) {
+		this.count = count;
+	}
+
+	public void setMatch(String match) {
+		this.match = match;
+	}
+
+	public void setSeparator(String separator) {
+		this.separator = separator;
+	}
+
+	public void setKeyspace(String keyspace) {
+		this.keyspace = keyspace;
+	}
+
+	public void setKeys(String[] keys) {
+		this.keys = keys;
+	}
+
+	public void setInitialized(boolean initialized) {
+		this.initialized = initialized;
 	}
 
 	@Override

@@ -3,6 +3,8 @@ package com.redislabs.riot.redis.writer.search;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.support.AbstractItemStreamItemWriter;
 import org.springframework.util.ClassUtils;
 
@@ -11,10 +13,10 @@ import com.redislabs.riot.redis.RedisConverter;
 import io.redisearch.Document;
 import io.redisearch.client.AddOptions;
 import io.redisearch.client.Client;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 public class JedisSearchWriter extends AbstractItemStreamItemWriter<Map<String, Object>> {
+
+	private final static Logger log = LoggerFactory.getLogger(JedisSearchWriter.class);
 
 	private Client client;
 	private RedisConverter converter;

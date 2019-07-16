@@ -19,13 +19,11 @@ import io.lettuce.core.resource.ClientResources;
 import io.lettuce.core.resource.DefaultClientResources;
 import io.lettuce.core.resource.DefaultClientResources.Builder;
 import io.lettuce.core.support.ConnectionPoolSupport;
-import lombok.Data;
 import picocli.CommandLine.Option;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.Protocol;
 
-@Data
 public class RedisConnectionOptions {
 
 	public enum RedisDriver {
@@ -122,5 +120,9 @@ public class RedisConnectionOptions {
 	public GenericObjectPool<StatefulRediSearchConnection<String, String>> lettusearchPool() {
 		RediSearchClient client = lettuSearchClient();
 		return lettucePool(client::connect);
+	}
+
+	public boolean isJedis() {
+		return driver == RedisDriver.Jedis;
 	}
 }

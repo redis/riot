@@ -4,17 +4,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.support.AbstractItemStreamItemWriter;
 import org.springframework.util.ClassUtils;
 
-import lombok.extern.slf4j.Slf4j;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.Response;
 
-@Slf4j
 public class JedisWriter extends AbstractItemStreamItemWriter<Map<String, Object>> {
+
+	private final static Logger log = LoggerFactory.getLogger(JedisWriter.class);
 
 	private JedisPool pool;
 	private JedisItemWriter writer;

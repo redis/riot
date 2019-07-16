@@ -2,13 +2,15 @@ package com.redislabs.riot.cli;
 
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemWriter;
 
-import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine.ParentCommand;
 
-@Slf4j
 public abstract class AbstractWriterCommand extends AbstractCommand {
+
+	private final static Logger log = LoggerFactory.getLogger(AbstractWriterCommand.class);
 
 	@ParentCommand
 	private AbstractReaderCommand parent;

@@ -4,40 +4,27 @@ import java.util.Map;
 
 import io.lettuce.core.RedisFuture;
 import io.lettuce.core.api.async.RedisAsyncCommands;
-import lombok.Setter;
-import lombok.Value;
 import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.Response;
 
 public class GeoWriter extends AbstractCollectionRedisItemWriter {
 
-	@Value
-	private static class Point {
-		private Double longitude;
-		private Double latitude;
-
-		public boolean isInvalid() {
-			return longitude == null || latitude == null;
-		}
-
-	}
-
-	@Setter
 	private String longitudeField;
-	@Setter
 	private String latitudeField;
+
+	public GeoWriter(String longitudeField, String latitudeField) {
+		this.longitudeField = longitudeField;
+		this.latitudeField = latitudeField;
+	}
 
 	@Override
 	protected Response<Long> write(Pipeline pipeline, String key, String member, Map<String, Object> item) {
-		Point point = point(item);
-		if (point.isInvalid()) {
+		Double longitude = longitude(item);
+		Double latitude = latitude(item);
+		if (longitude == null || latitude == null) {
 			return null;
 		}
-		return pipeline.geoadd(key, point.getLongitude(), point.getLatitude(), member);
-	}
-
-	private Point point(Map<String, Object> item) {
-		return new Point(longitude(item), latitude(item));
+		return pipeline.geoadd(key, longitude, latitude, member);
 	}
 
 	private Double coordinate(Map<String, Object> item, String field) {
@@ -61,11 +48,12 @@ public class GeoWriter extends AbstractCollectionRedisItemWriter {
 	@Override
 	protected RedisFuture<?> write(RedisAsyncCommands<String, String> commands, String key, String member,
 			Map<String, Object> item) {
-		Point point = point(item);
-		if (point.isInvalid()) {
+		Double longitude = longitude(item);
+		Double latitude = latitude(item);
+		if (longitude == null || latitude == null) {
 			return null;
 		}
-		return commands.geoadd(key, point.getLongitude(), point.getLatitude(), member);
+		return commands.geoadd(key, longitude, latitude, member);
 	}
 
 }

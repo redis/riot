@@ -5,14 +5,19 @@ import java.util.Map;
 import com.redislabs.lettusearch.RediSearchAsyncCommands;
 
 import io.lettuce.core.RedisFuture;
-import lombok.Setter;
 
 public class SuggestWriter extends AbstractLettuSearchItemWriter {
 
-	@Setter
 	private String field;
-	@Setter
 	private boolean increment;
+
+	public void setField(String field) {
+		this.field = field;
+	}
+
+	public void setIncrement(boolean increment) {
+		this.increment = increment;
+	}
 
 	private String string(Map<String, Object> item) {
 		return convert(item.get(field), String.class);

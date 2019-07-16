@@ -10,21 +10,15 @@ import com.redislabs.riot.redis.RedisConverter;
 
 import io.redisearch.Suggestion;
 import io.redisearch.client.Client;
-import lombok.Setter;
 
 public class JedisSuggestWriter extends AbstractItemStreamItemWriter<Map<String, Object>> {
 
 	private Client client;
 	private RedisConverter converter;
-	@Setter
 	private String field;
-	@Setter
 	private String scoreField;
-	@Setter
 	private double defaultScore = 1d;
-	@Setter
 	private boolean increment;
-	@Setter
 	private String payloadField;
 
 	public JedisSuggestWriter(Client client, RedisConverter converter) {
@@ -51,6 +45,26 @@ public class JedisSuggestWriter extends AbstractItemStreamItemWriter<Map<String,
 			return null;
 		}
 		return converter.convert(item.remove(payloadField), String.class);
+	}
+
+	public void setField(String field) {
+		this.field = field;
+	}
+
+	public void setScoreField(String scoreField) {
+		this.scoreField = scoreField;
+	}
+
+	public void setDefaultScore(double defaultScore) {
+		this.defaultScore = defaultScore;
+	}
+
+	public void setIncrement(boolean increment) {
+		this.increment = increment;
+	}
+
+	public void setPayloadField(String payloadField) {
+		this.payloadField = payloadField;
 	}
 
 }

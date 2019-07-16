@@ -6,19 +6,21 @@ import java.util.Arrays;
 import java.util.Map;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.file.DefaultBufferedReaderFactory;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder.DelimitedBuilder;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
 
-import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
-@Slf4j
 @Command(name = "csv", description = "Delimited file")
 public class DelimitedFileReaderCommand extends AbstractFlatFileReaderCommand {
+
+	private final static Logger log = LoggerFactory.getLogger(DelimitedFileReaderCommand.class);
 
 	@Option(names = "--fields", arity = "1..*", description = "Names of the fields in the order they occur within the file.", paramLabel = "<names>")
 	private String[] names = new String[0];

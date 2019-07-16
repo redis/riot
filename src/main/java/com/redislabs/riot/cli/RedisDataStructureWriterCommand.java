@@ -56,28 +56,25 @@ public class RedisDataStructureWriterCommand extends AbstractRedisWriterCommand<
 
 	static class ExpireOptions {
 		@Option(names = "--default-timeout", description = "Default timeout in seconds.", paramLabel = "<seconds>")
-		long defaultTimeout = 60;
+		private long defaultTimeout = 60;
 		@Option(names = "--timeout", description = "Field to get the timeout value from", paramLabel = "<field>")
-		String timeoutField;
+		private String timeoutField;
 
 		public ExpireWriter writer() {
-			ExpireWriter writer = new ExpireWriter();
-			writer.setDefaultTimeout(defaultTimeout);
-			writer.setTimeoutField(timeoutField);
-			return writer;
+			return new ExpireWriter(timeoutField, defaultTimeout);
 		}
 
 	}
 
 	static class LuaOptions {
 		@Option(names = "--sha", description = "SHA1 digest of the LUA script")
-		String sha;
+		private String sha;
 		@Option(names = "--output", description = "Script output type: ${COMPLETION-CANDIDATES}.", paramLabel = "<type>")
-		ScriptOutputType outputType = ScriptOutputType.STATUS;
+		private ScriptOutputType outputType = ScriptOutputType.STATUS;
 		@Option(names = "--lua-keys", arity = "1..*", description = "Field names of the LUA script keys", paramLabel = "<field1,field2,...>")
-		String[] keys = new String[0];
+		private String[] keys = new String[0];
 		@Option(names = "--lua-args", arity = "1..*", description = "Field names of the LUA script args", paramLabel = "<field1,field2,...>")
-		String[] args = new String[0];
+		private String[] args = new String[0];
 
 		private LuaWriter writer() {
 			LuaWriter writer = new LuaWriter(sha);
@@ -91,46 +88,34 @@ public class RedisDataStructureWriterCommand extends AbstractRedisWriterCommand<
 	static class GeoOptions {
 
 		@Option(names = "--lon", description = "Longitude field for geo sets.", paramLabel = "<field>")
-		String longitudeField;
+		private String longitudeField;
 		@Option(names = "--lat", description = "Latitude field for geo sets.", paramLabel = "<field>")
-		String latitudeField;
+		private String latitudeField;
 
 		public GeoWriter writer() {
-			GeoWriter writer = new GeoWriter();
-			writer.setLatitudeField(latitudeField);
-			writer.setLongitudeField(longitudeField);
-			return writer;
+			return new GeoWriter(longitudeField, latitudeField);
 		}
 	}
 
 	static class StreamOptions {
 		@Option(names = "--trim", description = "Apply efficient trimming for capped streams using the ~ flag.")
-		boolean trim;
+		private boolean trim;
 		@Option(names = "--max", description = "Limit stream to maxlen entries.", paramLabel = "<len>")
-		Long maxlen;
+		private Long maxlen;
 		@Option(names = "--id", description = "Field used for stream entry IDs.", paramLabel = "<field>")
-		String id;
+		private String idField;
 
 		public AbstractRedisDataStructureItemWriter writer() {
-			if (id == null) {
+			if (idField == null) {
 				if (maxlen == null) {
 					return new StreamWriter();
 				}
-				StreamMaxlenWriter writer = new StreamMaxlenWriter();
-				writer.setMaxlen(maxlen);
-				writer.setApproximateTrimming(trim);
-				return writer;
+				return new StreamMaxlenWriter(maxlen, trim);
 			}
 			if (maxlen == null) {
-				StreamIdWriter writer = new StreamIdWriter();
-				writer.setIdField(id);
-				return writer;
+				return new StreamIdWriter(idField);
 			}
-			StreamIdMaxlenWriter writer = new StreamIdMaxlenWriter();
-			writer.setApproximateTrimming(trim);
-			writer.setIdField(id);
-			writer.setMaxlen(maxlen);
-			return writer;
+			return new StreamIdMaxlenWriter(idField, maxlen, trim);
 		}
 	}
 
@@ -155,15 +140,12 @@ public class RedisDataStructureWriterCommand extends AbstractRedisWriterCommand<
 
 	static class ZSetOptions {
 		@Option(names = "--score", description = "Name of the field to use for scores.", paramLabel = "<field>")
-		private String score;
+		private String scoreField;
 		@Option(names = "--default-score", description = "Default score to use when score field is not present.", paramLabel = "<float>")
 		private double defaultScore = 1d;
 
 		private ZSetWriter writer() {
-			ZSetWriter writer = new ZSetWriter();
-			writer.setScoreField(score);
-			writer.setDefaultScore(defaultScore);
-			return writer;
+			return new ZSetWriter(scoreField, defaultScore);
 		}
 	}
 

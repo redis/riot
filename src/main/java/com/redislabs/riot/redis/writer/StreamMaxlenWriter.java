@@ -4,17 +4,20 @@ import java.util.Map;
 
 import io.lettuce.core.RedisFuture;
 import io.lettuce.core.api.async.RedisAsyncCommands;
-import lombok.Setter;
 import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.Response;
 import redis.clients.jedis.StreamEntryID;
 
 public class StreamMaxlenWriter extends AbstractRedisDataStructureItemWriter {
 
-	@Setter
 	private Long maxlen;
-	@Setter
 	private boolean approximateTrimming;
+
+	public StreamMaxlenWriter(Long maxlen, boolean approximateTrimming) {
+		super();
+		this.maxlen = maxlen;
+		this.approximateTrimming = approximateTrimming;
+	}
 
 	@Override
 	protected Response<StreamEntryID> write(Pipeline pipeline, String key, Map<String, Object> item) {

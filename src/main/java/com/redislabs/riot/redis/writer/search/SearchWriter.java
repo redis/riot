@@ -9,10 +9,6 @@ import io.lettuce.core.RedisFuture;
 
 public class SearchWriter extends AbstractSearchWriter {
 
-	public SearchWriter(AddOptions options) {
-		super(options);
-	}
-
 	@Override
 	protected RedisFuture<?> write(RediSearchAsyncCommands<String, String> commands, String index,
 			Map<String, Object> item, AddOptions options) {

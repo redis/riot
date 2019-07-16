@@ -6,6 +6,8 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.pool2.impl.GenericObjectPool;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.support.AbstractItemStreamItemWriter;
 import org.springframework.util.ClassUtils;
 
@@ -14,11 +16,11 @@ import io.lettuce.core.RedisCommandExecutionException;
 import io.lettuce.core.RedisFuture;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.api.async.RedisAsyncCommands;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 public class LettuceAsyncWriter<T extends StatefulRedisConnection<String, String>, C extends RedisAsyncCommands<String, String>>
 		extends AbstractItemStreamItemWriter<Map<String, Object>> {
+
+	private final static Logger log = LoggerFactory.getLogger(LettuceAsyncWriter.class);
 
 	private GenericObjectPool<T> pool;
 	private LettuceItemWriter<C> writer;

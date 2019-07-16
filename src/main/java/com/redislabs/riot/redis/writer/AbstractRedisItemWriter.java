@@ -5,13 +5,15 @@ import java.util.Map;
 import com.redislabs.riot.redis.RedisConverter;
 
 import io.lettuce.core.api.async.RedisAsyncCommands;
-import lombok.Setter;
 
 public abstract class AbstractRedisItemWriter<C extends RedisAsyncCommands<String, String>>
 		implements JedisItemWriter, LettuceItemWriter<C> {
 
-	@Setter
 	private RedisConverter converter;
+
+	public void setConverter(RedisConverter converter) {
+		this.converter = converter;
+	}
 
 	protected Map<String, String> stringMap(Map<String, Object> item) {
 		return converter.stringMap(item);

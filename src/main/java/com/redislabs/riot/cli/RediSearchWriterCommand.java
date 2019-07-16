@@ -53,7 +53,7 @@ public class RediSearchWriterCommand extends AbstractRedisWriterCommand<RediSear
 	@Option(names = "--score", description = "Name of the field to use for scores.", paramLabel = "<field>")
 	private String scoreField;
 	@Option(names = "--increment", description = "Use increment to set value.")
-	private boolean increment;
+	private boolean suggestIncrement;
 	@Option(names = "--suggest", description = "Name of the field containing the suggestion.", paramLabel = "<field>")
 	private String suggestField;
 
@@ -81,32 +81,30 @@ public class RediSearchWriterCommand extends AbstractRedisWriterCommand<RediSear
 	private AbstractLettuSearchItemWriter rediSearchItemWriter() {
 		switch (type) {
 		case Suggest:
-			SuggestWriter suggestWriter = suggestItemWriter();
-			suggestWriter.setField(suggestField);
-			suggestWriter.setIncrement(increment);
-			return suggestWriter;
+			SuggestWriter suggestItemWriter = suggestItemWriter();
+			suggestItemWriter.setField(suggestField);
+			suggestItemWriter.setIncrement(suggestIncrement);
+			return suggestItemWriter;
 		default:
-			return searchItemWriter(AddOptions.builder().ifCondition(ifCondition).language(language).noSave(noSave)
+			AbstractSearchWriter searchItemWriter = searchItemWriter();
+			searchItemWriter.setOptions(AddOptions.builder().ifCondition(ifCondition).language(language).noSave(noSave)
 					.replace(replace).replacePartial(partial).build());
+			return searchItemWriter;
 		}
 	}
 
-	private AbstractSearchWriter searchItemWriter(AddOptions options) {
+	private AbstractSearchWriter searchItemWriter() {
 		if (payloadField == null) {
-			return new SearchWriter(options);
+			return new SearchWriter();
 		}
-		SearchPayloadWriter writer = new SearchPayloadWriter(options);
-		writer.setPayloadField(payloadField);
-		return writer;
+		return new SearchPayloadWriter(payloadField);
 	}
 
 	private SuggestWriter suggestItemWriter() {
 		if (payloadField == null) {
 			return new SuggestWriter();
 		}
-		SuggestPayloadWriter writer = new SuggestPayloadWriter();
-		writer.setPayloadField(payloadField);
-		return writer;
+		return new SuggestPayloadWriter(payloadField);
 	}
 
 	@Override
@@ -125,7 +123,7 @@ public class RediSearchWriterCommand extends AbstractRedisWriterCommand<RediSear
 		writer.setDefaultScore((float) defaultScore);
 		writer.setScoreField(scoreField);
 		writer.setPayloadField(payloadField);
-		writer.setIncrement(increment);
+		writer.setIncrement(suggestIncrement);
 		writer.setField(suggestField);
 		return writer;
 	}

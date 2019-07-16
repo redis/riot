@@ -11,7 +11,7 @@ public abstract class AbstractSearchWriter extends AbstractLettuSearchItemWriter
 
 	private AddOptions options;
 
-	public AbstractSearchWriter(AddOptions options) {
+	public void setOptions(AddOptions options) {
 		this.options = options;
 	}
 
