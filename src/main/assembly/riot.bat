@@ -59,7 +59,7 @@ set CMD_LINE_ARGS=%$
 @rem Setup the command line
 
 set CLASSPATH=%RIOT_HOME%lib\*
-"%JAVA_EXE%" -noverify -XX:TieredStopAtLevel=1 %JAVA_OPTS% -cp "%CLASSPATH%" ${start-class} %CMD_LINE_ARGS%
+"%JAVA_EXE%" -noverify -XX:TieredStopAtLevel=1 -Dspring.config.location=classpath:/application.properties %JAVA_OPTS% -cp "%CLASSPATH%" ${start-class} %CMD_LINE_ARGS%
 
 :end
 @rem End local scope for the variables with windows NT shell

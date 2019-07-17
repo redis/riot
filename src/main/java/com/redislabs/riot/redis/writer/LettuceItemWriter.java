@@ -5,8 +5,8 @@ import java.util.Map;
 import io.lettuce.core.RedisFuture;
 import io.lettuce.core.api.async.RedisAsyncCommands;
 
-public interface LettuceItemWriter<C extends RedisAsyncCommands<String, String>> {
+public interface LettuceItemWriter {
 
-	RedisFuture<?> write(C commands, Map<String, Object> item);
+	RedisFuture<?> write(RedisAsyncCommands<String, String> commands, Map<String, Object> item);
 
 }

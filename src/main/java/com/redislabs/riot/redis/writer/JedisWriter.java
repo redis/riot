@@ -21,10 +21,13 @@ public class JedisWriter extends AbstractItemStreamItemWriter<Map<String, Object
 	private JedisPool pool;
 	private JedisItemWriter writer;
 
-	public JedisWriter(JedisPool pool, JedisItemWriter writer) {
+	public JedisWriter(JedisItemWriter writer) {
 		setName(ClassUtils.getShortName(JedisWriter.class));
-		this.pool = pool;
 		this.writer = writer;
+	}
+
+	public void setPool(JedisPool pool) {
+		this.pool = pool;
 	}
 
 	public void write(List<? extends Map<String, Object>> items) throws Exception {

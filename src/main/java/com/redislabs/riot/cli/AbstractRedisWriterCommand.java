@@ -2,63 +2,49 @@ package com.redislabs.riot.cli;
 
 import java.util.Map;
 
+import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.springframework.batch.item.ItemWriter;
 
-import com.redislabs.riot.redis.RedisConverter;
 import com.redislabs.riot.redis.writer.AbstractRedisItemWriter;
 import com.redislabs.riot.redis.writer.JedisWriter;
 import com.redislabs.riot.redis.writer.LettuceAsyncWriter;
 
 import io.lettuce.core.api.StatefulRedisConnection;
-import io.lettuce.core.api.async.RedisAsyncCommands;
-import picocli.CommandLine.ArgGroup;
-import redis.clients.jedis.JedisPool;
+import picocli.CommandLine.Mixin;
+import picocli.CommandLine.ParentCommand;
 
-public abstract class AbstractRedisWriterCommand<C extends RedisAsyncCommands<String, String>>
-		extends AbstractWriterCommand {
+public abstract class AbstractRedisWriterCommand<S extends StatefulRedisConnection<String, String>>
+		extends AbstractCommand {
 
-	@ArgGroup(exclusive = false, heading = "Redis connection%n")
-	protected RedisConnectionOptions redis = new RedisConnectionOptions();
-	@ArgGroup(exclusive = false, heading = "Redis keyspace%n")
-	private RedisKeyOptions key = new RedisKeyOptions();
+	@ParentCommand
+	private AbstractReaderCommand parent;
 
-	@Override
-	protected final ItemWriter<Map<String, Object>> writer() {
-		AbstractRedisItemWriter<C> itemWriter = redisItemWriter();
-		itemWriter.setConverter(redisConverter());
+	@Mixin
+	private RedisConnectionOptions redis = new RedisConnectionOptions();
+
+	public void execute(AbstractRedisItemWriter itemWriter, String description) {
+		parent.execute(writer(itemWriter), description);
+	}
+
+	private ItemWriter<Map<String, Object>> writer(AbstractRedisItemWriter itemWriter) {
 		if (redis.isJedis()) {
-			return jedisWriter(redis.jedisPool(), itemWriter);
+			JedisWriter writer = jedisWriter(itemWriter);
+			writer.setPool(redis.jedisPool());
+			return writer;
 		}
-		return lettuceWriter(itemWriter);
+		LettuceAsyncWriter<S> writer = lettuceWriter(itemWriter);
+		writer.setPool(lettucePool(redis));
+		return writer;
 	}
 
-	protected ItemWriter<Map<String, Object>> jedisWriter(JedisPool pool, AbstractRedisItemWriter<C> itemWriter) {
-		return new JedisWriter(pool, itemWriter);
+	protected abstract GenericObjectPool<S> lettucePool(RedisConnectionOptions redis);
+
+	protected JedisWriter jedisWriter(AbstractRedisItemWriter itemWriter) {
+		return new JedisWriter(itemWriter);
 	}
 
-	protected LettuceAsyncWriter<? extends StatefulRedisConnection<String, String>, C> lettuceWriter(
-			AbstractRedisItemWriter<C> itemWriter) {
-		return new LettuceAsyncWriter<StatefulRedisConnection<String, String>, C>(redis.lettucePool(), itemWriter);
-	}
-
-	protected abstract AbstractRedisItemWriter<C> redisItemWriter();
-
-	protected RedisConverter redisConverter() {
-		return new RedisConverter(key.getSeparator(), key.getSpace(), key.getFields());
-	}
-
-	protected String keyspaceDescription() {
-		if (key.getSpace() == null) {
-			return keysDescription();
-		}
-		if (key.getFields().length > 0) {
-			return key.getSpace() + key.getSeparator() + keysDescription();
-		}
-		return key.getSpace();
-	}
-
-	private String keysDescription() {
-		return String.join(key.getSeparator(), key.getFields());
+	protected LettuceAsyncWriter<S> lettuceWriter(AbstractRedisItemWriter itemWriter) {
+		return new LettuceAsyncWriter<S>(itemWriter);
 	}
 
 }

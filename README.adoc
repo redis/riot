@@ -82,14 +82,14 @@ mysql> describe employees;
 To import the whole table run the following command:
 [source,shell]
 ----
-riot db --url "jdbc:mysql://localhost:3306/employees?serverTimezone=PST&useLegacyDatetimeCode=false&useSSL=false" --username root --password --sql "select * from employees" redis --keyspace employee --keys emp_no
+riot db --url "jdbc:mysql://localhost:3306/employees?serverTimezone=PST&useLegacyDatetimeCode=false&useSSL=false" --username root --password "select * from employees" redis hash --keyspace employee --keys emp_no
 ----
 
 ==== Redis -> RDBMS
 This command exports all hashes under keyspace `beer:<id>` to MySQL: 
 [source,shell]
 ----
-riot redis --keyspace beer --keys id db --url "jdbc:mysql://localhost:3306/employees?serverTimezone=PST&useLegacyDatetimeCode=false&useSSL=false" --username root --password --sql "INSERT INTO beers (id, name, style_name) VALUES (:id, :name, :style_name)"
+riot redis --keyspace beer --keys id db --url "jdbc:mysql://localhost:3306/employees?serverTimezone=PST&useLegacyDatetimeCode=false&useSSL=false" --username root --password "INSERT INTO beers (id, name, style_name) VALUES (:id, :name, :style_name)"
 ----
 
 === CSV Files
@@ -104,7 +104,7 @@ Here is an excerpt of https://raw.githubusercontent.com/jpatokal/openflights/mas
 ==== CSV -> Redis
 [source,shell]
 ----
-riot csv --url https://raw.githubusercontent.com/jpatokal/openflights/master/data/airports.dat --fields AirportID Name City Country IATA ICAO Latitude Longitude Altitude Timezone DST Tz Type Source redis --type geo --keyspace airportgeo --fields AirportID --lon Longitude --lat Latitude
+riot file --type=csv https://raw.githubusercontent.com/jpatokal/openflights/master/data/airports.dat --fields AirportID Name City Country IATA ICAO Latitude Longitude Altitude Timezone DST Tz Type Source redis geo --keyspace airportgeo --fields AirportID --lon Longitude --lat Latitude
 ----
 
 Query the `airportgeo` geoset using redis-cli
@@ -120,7 +120,7 @@ Query the `airportgeo` geoset using redis-cli
 ==== Redis -> CSV
 [source,shell]
 ----
-riot redis --keyspace beer --keys id csv --file export-beers.csv --names id name brewery_id abv --header
+riot redis --keyspace beer --keys id file export-beers.csv --names id name brewery_id abv --header
 ----
 
 === JSON Files
@@ -163,7 +163,7 @@ Here is an excerpt of `beers.json` available at https://github.com/rethinkdb/bee
 
 [source,shell]
 ----
-riot json --url https://raw.githubusercontent.com/rethinkdb/beerthink/master/data/beers.json redis --keyspace beer --keys id
+riot file https://raw.githubusercontent.com/rethinkdb/beerthink/master/data/beers.json redis hash --keyspace beer --keys id
 ----
 
 [source,plaintext]
@@ -189,7 +189,7 @@ FT.CREATE beers SCHEMA abv NUMERIC SORTABLE id TAG name TEXT PHONETIC dm:en styl
 +
 [source,shell]
 ----
-riot json --url https://raw.githubusercontent.com/rethinkdb/beerthink/master/data/beers.json redisearch --index beers --keys id
+riot file https://raw.githubusercontent.com/rethinkdb/beerthink/master/data/beers.json redisearch search beers --keys id
 ----
 . Search for beers
 +
@@ -212,7 +212,7 @@ riot json --url https://raw.githubusercontent.com/rethinkdb/beerthink/master/dat
 ==== Redis -> JSON
 [source,shell]
 ----
-riot redis --keyspace beer --keys id json --file export-beers.json
+riot redis --keyspace beer --keys id file export-beers.json
 ----
 
 === Data Generators
@@ -228,7 +228,7 @@ You can also configure it to generate fixed-sized fields with `--field <name=siz
 For example the following command generates hashes in the keyspace `test:<index>` with fields `value` and `value2` of respectively 10 and 100 bytes:
 [source,shell]
 ----
-riot simple --max 100 --field value=10 --field value2=100 redis --keyspace test --keys index
+riot gen --type=simple --max 100 value=10 value2=100 redis hash --keyspace test --keys index
 ----
 
 ==== Faker
@@ -237,7 +237,7 @@ This data generator relies on the https://github.com/DiUS/java-faker[Faker] libr
 ===== Example #1: People
 [source,shell]
 ----
-riot faker --max 100 --field id=index --field firstName=name.firstName --field lastName=name.lastName --field address=address.fullAddress redis --keyspace person --keys id
+riot gen --max 100 id=index firstName=name.firstName lastName=name.lastName address=address.fullAddress redis hash --keyspace person --keys id
 ----
 [source,plaintext]
 ----
@@ -253,7 +253,7 @@ riot faker --max 100 --field id=index --field firstName=name.firstName --field l
 ===== Example #2: Game of Thrones
 [source,shell]
 ----
-riot faker --max 100 --field name=gameOfThrones.character redis --type set --keyspace got:characters --fields name
+riot gen --max 100 name=gameOfThrones.character redis set --keyspace got:characters --fields name
 ----
 [source,plaintext]
 ----
@@ -285,13 +285,13 @@ riot redis --metrics …
 .Strings
 [source,shell]
 ----
-riot --host=redis-12000.redislabs.com --port=12000 --pool=96 --batch=500 --threads=96 simple --max=100000000 --field value=100 redis --type=string --format=raw --keyspace=string --keys=index --field=value
+riot --host=redis-12000.redislabs.com --port=12000 --pool=96 --batch=500 --threads=96 gen --type=simple --max=100000000 --field value=100 redis --type=string --format=raw --keyspace=string --keys=index --field=value
 ----
 image::riot-performance-strings.png[]
 
 .Streams
 [source,shell]
 ----
-riot --host=redis-12000.redislabs.com --port=12000 --pool=96 --batch=500 --threads=96 simple --max=100000000 redis --type=stream --keyspace=stream --keys=partition
+riot --host=redis-12000.redislabs.com --port=12000 --pool=96 --batch=500 --threads=96 gen --type=simple --max=100000000 redis --type=stream --keyspace=stream --keys=partition
 ----
 image::riot-performance-streams.png[]

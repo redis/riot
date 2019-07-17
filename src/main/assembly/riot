@@ -113,4 +113,4 @@ if $cygwin; then
 fi
 
 IFS=" " read -r -a javaOpts <<< "$JAVA_OPTS"
-"${JAVA_HOME}/bin/java" -noverify -XX:TieredStopAtLevel=1 "${javaOpts[@]}" -cp "$CLASSPATH" ${start-class} "$@"
+"${JAVA_HOME}/bin/java" -noverify -XX:TieredStopAtLevel=1 -Dspring.config.location=classpath:/application.properties "${javaOpts[@]}" -cp "$CLASSPATH" ${start-class} "$@"

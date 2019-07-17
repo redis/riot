@@ -9,27 +9,28 @@ import org.springframework.jdbc.core.ColumnMapRowMapper;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
 
-@Command(name = "db", description = " database")
+@Command(name = "db", description = "Database")
 public class DatabaseReaderCommand extends AbstractReaderCommand {
 
 	@ArgGroup(exclusive = false, heading = "Database connection%n")
 	private DatabaseConnectionOptions connection = new DatabaseConnectionOptions();
-	@Option(names = "--sql", required = true, description = "The query to be executed for this reader.", paramLabel = "<stmt>")
+	@Parameters(description = "SQL query to be executed", paramLabel = "<sql>")
 	private String sql;
-	@Option(names = "--fetch", description = "A hint to the driver as to how many rows to return with each fetch.", paramLabel = "<size>")
+	@Option(names = "--fetch", description = "A hint to the driver as to how many rows to return with each fetch", paramLabel = "<size>")
 	private Integer fetchSize;
-	@Option(names = "--rows", description = "The max number of rows the ResultSet can contain.", paramLabel = "<count>")
+	@Option(names = "--rows", description = "The max number of rows the ResultSet can contain", paramLabel = "<count>")
 	private Integer maxRows;
-	@Option(names = "--timeout", description = "The time in milliseconds for the query to timeout.", paramLabel = "<millis>")
+	@Option(names = "--timeout", description = "The time in milliseconds for the query to timeout", paramLabel = "<millis>")
 	private Integer queryTimeout;
-	@Option(names = "--use-shared-extended-connection", description = "Connection used for cursor to be used by all other processing, therefore part of the same transaction.")
+	@Option(names = "--use-shared-extended-connection", description = "Connection used for cursor to be used by all other processing, therefore part of the same transaction")
 	private boolean useSharedExtendedConnection;
-	@Option(names = "--verify", description = "Verify position of ResultSet after RowMapper.")
+	@Option(names = "--verify", description = "Verify position of ResultSet after RowMapper")
 	private boolean verifyCursorPosition;
 
 	@Override
-	public JdbcCursorItemReader<Map<String, Object>> reader() {
+	protected JdbcCursorItemReader<Map<String, Object>> reader() {
 		JdbcCursorItemReaderBuilder<Map<String, Object>> builder = new JdbcCursorItemReaderBuilder<Map<String, Object>>();
 		builder.dataSource(connection.dataSource());
 		if (fetchSize != null) {
@@ -50,7 +51,7 @@ public class DatabaseReaderCommand extends AbstractReaderCommand {
 	}
 
 	@Override
-	public String getSourceDescription() {
+	protected String description() {
 		return "database query \"" + sql + "\"";
 	}
 

@@ -1,16 +1,10 @@
 package com.redislabs.riot;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.text.NumberFormat;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.Locale;
-import java.util.logging.Handler;
-import java.util.logging.Level;
-import java.util.logging.LogManager;
-import java.util.logging.Logger;
 
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.Job;
@@ -29,67 +23,50 @@ import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemStreamReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.support.transaction.ResourcelessTransactionManager;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import com.redislabs.riot.cli.AbstractCommand;
 import com.redislabs.riot.cli.DatabaseReaderCommand;
-import com.redislabs.riot.cli.FakerGeneratorReaderCommand;
+import com.redislabs.riot.cli.FileReaderCommand;
+import com.redislabs.riot.cli.GeneratorReaderCommand;
 import com.redislabs.riot.cli.GeneratorReaderHelpCommand;
 import com.redislabs.riot.cli.RedisReaderCommand;
-import com.redislabs.riot.cli.SimpleGeneratorReaderCommand;
-import com.redislabs.riot.cli.file.DelimitedFileReaderCommand;
-import com.redislabs.riot.cli.file.FixedLengthFileReaderCommand;
-import com.redislabs.riot.cli.file.JsonFileReaderCommand;
 
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
-@Command(name = "riot", subcommands = { DelimitedFileReaderCommand.class, FixedLengthFileReaderCommand.class,
-		JsonFileReaderCommand.class, DatabaseReaderCommand.class, FakerGeneratorReaderCommand.class,
-		GeneratorReaderHelpCommand.class, SimpleGeneratorReaderCommand.class,
+@Command(name = "riot", subcommands = { FileReaderCommand.class, DatabaseReaderCommand.class,
+		GeneratorReaderCommand.class, GeneratorReaderHelpCommand.class,
 		RedisReaderCommand.class }, synopsisSubcommandLabel = "[SOURCE]", commandListHeading = "Sources:%n")
-public class RiotApplication extends AbstractCommand {
-
-	static {
-		LogManager.getLogManager().getLogger(Logger.GLOBAL_LOGGER_NAME).setLevel(Level.WARNING);
-	}
+public class RiotApplication extends AbstractCommand implements CommandLineRunner {
 
 	/**
 	 * Just to avoid picocli complain in Eclipse console
 	 */
 	@Option(names = "--spring.output.ansi.enabled", hidden = true)
 	private String ansiEnabled;
-	@Option(names = "--threads", description = "Number of processing threads.", paramLabel = "<count>")
+	@Option(names = "--threads", description = "Number of processing threads", paramLabel = "<count>")
 	private int threads = 1;
-	@Option(names = "--batch", description = "Number of items in each batch.", paramLabel = "<size>")
+	@Option(names = "--batch", description = "Number of items in each batch", paramLabel = "<size>")
 	private int batchSize = 50;
 
 	private NumberFormat numberFormat = NumberFormat.getIntegerInstance();
 
 	public static void main(String[] args) throws IOException {
-		setLevel(Level.WARNING);
-		BufferedReader in = new BufferedReader(
-				new InputStreamReader(ClassLoader.getSystemResource("banner.txt").openStream()));
-		String line;
-		while ((line = in.readLine()) != null) {
-			System.out.println(line);
-		}
-		in.close();
+		SpringApplication.run(RiotApplication.class, args);
+	}
+
+	@Override
+	public void run(String... args) throws Exception {
 		CommandLine commandLine = new CommandLine(new RiotApplication());
 		commandLine.registerConverter(Locale.class, s -> new Locale.Builder().setLanguageTag(s).build());
 		commandLine.setCaseInsensitiveEnumValuesAllowed(true);
 		commandLine.execute(args);
-	}
-
-	private static void setLevel(Level targetLevel) {
-		Logger root = Logger.getLogger("");
-		root.setLevel(targetLevel);
-		for (Handler handler : root.getHandlers()) {
-			handler.setLevel(targetLevel);
-		}
 	}
 
 	public <I, O> void execute(ItemStreamReader<I> reader, ItemProcessor<I, O> processor, ItemWriter<O> writer)

@@ -46,7 +46,7 @@ public class RedisConverter {
 		}
 		StringJoiner joiner = new StringJoiner(separator);
 		for (String field : fields) {
-			joiner.add(converter.convert(item.remove(field), String.class));
+			joiner.add(converter.convert(item.get(field), String.class));
 		}
 		return joiner.toString();
 	}

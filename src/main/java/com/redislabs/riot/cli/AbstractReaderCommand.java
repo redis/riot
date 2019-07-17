@@ -1,8 +1,9 @@
 package com.redislabs.riot.cli;
 
-import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemStreamReader;
 import org.springframework.batch.item.ItemWriter;
@@ -11,34 +12,38 @@ import org.springframework.batch.item.support.AbstractItemCountingItemStreamItem
 import com.redislabs.riot.Processor;
 import com.redislabs.riot.RiotApplication;
 import com.redislabs.riot.ThrottledItemStreamReader;
-import com.redislabs.riot.cli.file.DelimitedFileWriterCommand;
-import com.redislabs.riot.cli.file.FormattedFileWriterCommand;
-import com.redislabs.riot.cli.file.JsonFileWriterCommand;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.ParentCommand;
 
-@Command(subcommands = { RedisDataStructureWriterCommand.class, RediSearchWriterCommand.class,
-		DelimitedFileWriterCommand.class, FormattedFileWriterCommand.class, JsonFileWriterCommand.class,
+@Command(subcommands = { RedisDataStructureWriterCommand.class, RediSearchWriterCommand.class,  FileWriterCommand.class,
 		DatabaseWriterCommand.class }, synopsisSubcommandLabel = "[TARGET]", commandListHeading = "Targets:%n")
 public abstract class AbstractReaderCommand extends AbstractCommand {
 
-	@Option(names = "--max", description = "Max number of items to read.", paramLabel = "<count>")
+	private final static Logger log = LoggerFactory.getLogger(AbstractReaderCommand.class);
+
+	@Option(names = "--max", description = "Max number of items to read", paramLabel = "<count>")
 	private Integer count;
-	@Option(names = "--sleep", description = "Sleep duration in millis between reads.", paramLabel = "<millis>")
+	@Option(names = "--sleep", description = "Sleep duration in millis between reads", paramLabel = "<millis>")
 	private Long sleep;
-	@Option(names = "--processor", description = "SpEL expression to process a field.", paramLabel = "<name=SpEL>")
-	private Map<String, String> processorFields = new LinkedHashMap<>();
+	@Option(names = "--processor", description = "SpEL expression to process a field", paramLabel = "<name=SpEL>")
+	private Map<String, String> processorFields;
 	@ParentCommand
 	private RiotApplication root;
 
-	protected void execute(ItemWriter<Map<String, Object>> writer) throws Exception {
-		AbstractItemCountingItemStreamItemReader<Map<String, Object>> reader = reader();
-		if (count != null) {
-			reader.setMaxItemCount(count);
+	public void execute(ItemWriter<Map<String, Object>> writer, String targetDescription) {
+		try {
+			AbstractItemCountingItemStreamItemReader<Map<String, Object>> reader = reader();
+			if (count != null) {
+				reader.setMaxItemCount(count);
+			}
+			System.out.println("Transferring from " + description() + " to " + targetDescription);
+			root.execute(throttle(reader), processor(), writer);
+		} catch (Exception e) {
+			System.err.println(e.getMessage());
+			log.debug("Could not execute transfer", e);
 		}
-		root.execute(throttle(reader), processor(), writer);
 	}
 
 	private ItemStreamReader<Map<String, Object>> throttle(ItemStreamReader<Map<String, Object>> reader) {
@@ -49,14 +54,14 @@ public abstract class AbstractReaderCommand extends AbstractCommand {
 	}
 
 	private ItemProcessor<Map<String, Object>, Map<String, Object>> processor() throws Exception {
-		if (processorFields.isEmpty()) {
+		if (processorFields == null) {
 			return null;
 		}
 		return new Processor(processorFields);
 	}
 
-	public abstract AbstractItemCountingItemStreamItemReader<Map<String, Object>> reader() throws Exception;
+	protected abstract AbstractItemCountingItemStreamItemReader<Map<String, Object>> reader() throws Exception;
 
-	public abstract String getSourceDescription();
+	protected abstract String description();
 
 }

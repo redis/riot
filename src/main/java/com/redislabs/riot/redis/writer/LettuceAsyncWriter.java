@@ -17,18 +17,21 @@ import io.lettuce.core.RedisFuture;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.api.async.RedisAsyncCommands;
 
-public class LettuceAsyncWriter<T extends StatefulRedisConnection<String, String>, C extends RedisAsyncCommands<String, String>>
+public class LettuceAsyncWriter<S extends StatefulRedisConnection<String, String>>
 		extends AbstractItemStreamItemWriter<Map<String, Object>> {
 
 	private final static Logger log = LoggerFactory.getLogger(LettuceAsyncWriter.class);
 
-	private GenericObjectPool<T> pool;
-	private LettuceItemWriter<C> writer;
+	private GenericObjectPool<S> pool;
+	private LettuceItemWriter writer;
 
-	public LettuceAsyncWriter(GenericObjectPool<T> pool, LettuceItemWriter<C> writer) {
+	public LettuceAsyncWriter(LettuceItemWriter writer) {
 		setName(ClassUtils.getShortName(LettuceAsyncWriter.class));
-		this.pool = pool;
 		this.writer = writer;
+	}
+
+	public void setPool(GenericObjectPool<S> pool) {
+		this.pool = pool;
 	}
 
 	public void write(List<? extends Map<String, Object>> items) throws Exception {
@@ -36,10 +39,9 @@ public class LettuceAsyncWriter<T extends StatefulRedisConnection<String, String
 		if (pool.isClosed()) {
 			return;
 		}
-		T connection = pool.borrowObject();
+		S connection = pool.borrowObject();
 		try {
-			@SuppressWarnings("unchecked")
-			C commands = (C) connection.async();
+			RedisAsyncCommands<String, String> commands = connection.async();
 			commands.setAutoFlushCommands(false);
 			for (Map<String, Object> item : items) {
 				RedisFuture<?> future = writer.write(commands, item);

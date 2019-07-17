@@ -1,219 +1,30 @@
 package com.redislabs.riot.cli;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.redislabs.riot.redis.writer.AbstractCollectionRedisItemWriter;
-import com.redislabs.riot.redis.writer.AbstractRedisDataStructureItemWriter;
-import com.redislabs.riot.redis.writer.AbstractRedisItemWriter;
-import com.redislabs.riot.redis.writer.AbstractStringWriter;
-import com.redislabs.riot.redis.writer.ExpireWriter;
-import com.redislabs.riot.redis.writer.GeoWriter;
-import com.redislabs.riot.redis.writer.HashWriter;
-import com.redislabs.riot.redis.writer.ListLeftPushWriter;
-import com.redislabs.riot.redis.writer.ListRightPushWriter;
-import com.redislabs.riot.redis.writer.LuaWriter;
-import com.redislabs.riot.redis.writer.SetWriter;
-import com.redislabs.riot.redis.writer.StreamIdMaxlenWriter;
-import com.redislabs.riot.redis.writer.StreamIdWriter;
-import com.redislabs.riot.redis.writer.StreamMaxlenWriter;
-import com.redislabs.riot.redis.writer.StreamWriter;
-import com.redislabs.riot.redis.writer.StringFieldWriter;
-import com.redislabs.riot.redis.writer.StringObjectWriter;
-import com.redislabs.riot.redis.writer.ZSetWriter;
+import org.apache.commons.pool2.impl.GenericObjectPool;
 
-import io.lettuce.core.ScriptOutputType;
-import io.lettuce.core.api.async.RedisAsyncCommands;
-import picocli.CommandLine.ArgGroup;
+import com.redislabs.riot.cli.redis.ExpireWriterCommand;
+import com.redislabs.riot.cli.redis.GeoWriterCommand;
+import com.redislabs.riot.cli.redis.HashWriterCommand;
+import com.redislabs.riot.cli.redis.ListWriterCommand;
+import com.redislabs.riot.cli.redis.LuaWriterCommand;
+import com.redislabs.riot.cli.redis.SetWriterCommand;
+import com.redislabs.riot.cli.redis.StreamWriterCommand;
+import com.redislabs.riot.cli.redis.StringWriterCommand;
+import com.redislabs.riot.cli.redis.ZSetWriterCommand;
+
+import io.lettuce.core.api.StatefulRedisConnection;
 import picocli.CommandLine.Command;
-import picocli.CommandLine.Option;
 
-@Command(name = "redis", description = "Redis data structure")
-public class RedisDataStructureWriterCommand extends AbstractRedisWriterCommand<RedisAsyncCommands<String, String>> {
-
-	enum RedisDataStructure {
-		Geo, Hash, List, Set, Stream, String, ZSet, Lua, Expire
-	}
-
-	@Option(names = "--type", description = "Redis data structure: ${COMPLETION-CANDIDATES}.")
-	private RedisDataStructure dataStructure = RedisDataStructure.Hash;
-	@Option(names = "--fields", arity = "1..*", description = "Fields used to build member ids for collections (list, set, zset, geo).")
-	private String[] fields = new String[0];
-	@ArgGroup(exclusive = false, heading = "Lists%n")
-	private ListOptions list = new ListOptions();
-	@ArgGroup(exclusive = false, heading = "Geospatial%n")
-	private GeoOptions geo = new GeoOptions();
-	@ArgGroup(exclusive = false, heading = "Streams%n")
-	private StreamOptions stream = new StreamOptions();
-	@ArgGroup(exclusive = false, heading = "Sorted sets%n")
-	private ZSetOptions zset = new ZSetOptions();
-	@ArgGroup(exclusive = false, heading = "Strings%n")
-	private StringOptions string = new StringOptions();
-	@ArgGroup(exclusive = false, heading = "LUA script%n")
-	private LuaOptions lua = new LuaOptions();
-	@ArgGroup(exclusive = false, heading = "Expire%n")
-	private ExpireOptions expire = new ExpireOptions();
-
-	static class ExpireOptions {
-		@Option(names = "--default-timeout", description = "Default timeout in seconds.", paramLabel = "<seconds>")
-		private long defaultTimeout = 60;
-		@Option(names = "--timeout", description = "Field to get the timeout value from", paramLabel = "<field>")
-		private String timeoutField;
-
-		public ExpireWriter writer() {
-			return new ExpireWriter(timeoutField, defaultTimeout);
-		}
-
-	}
-
-	static class LuaOptions {
-		@Option(names = "--sha", description = "SHA1 digest of the LUA script")
-		private String sha;
-		@Option(names = "--output", description = "Script output type: ${COMPLETION-CANDIDATES}.", paramLabel = "<type>")
-		private ScriptOutputType outputType = ScriptOutputType.STATUS;
-		@Option(names = "--lua-keys", arity = "1..*", description = "Field names of the LUA script keys", paramLabel = "<field1,field2,...>")
-		private String[] keys = new String[0];
-		@Option(names = "--lua-args", arity = "1..*", description = "Field names of the LUA script args", paramLabel = "<field1,field2,...>")
-		private String[] args = new String[0];
-
-		private LuaWriter writer() {
-			LuaWriter writer = new LuaWriter(sha);
-			writer.setOutputType(outputType);
-			writer.setKeys(keys);
-			writer.setArgs(args);
-			return writer;
-		}
-	}
-
-	static class GeoOptions {
-
-		@Option(names = "--lon", description = "Longitude field for geo sets.", paramLabel = "<field>")
-		private String longitudeField;
-		@Option(names = "--lat", description = "Latitude field for geo sets.", paramLabel = "<field>")
-		private String latitudeField;
-
-		public GeoWriter writer() {
-			return new GeoWriter(longitudeField, latitudeField);
-		}
-	}
-
-	static class StreamOptions {
-		@Option(names = "--trim", description = "Apply efficient trimming for capped streams using the ~ flag.")
-		private boolean trim;
-		@Option(names = "--max", description = "Limit stream to maxlen entries.", paramLabel = "<len>")
-		private Long maxlen;
-		@Option(names = "--id", description = "Field used for stream entry IDs.", paramLabel = "<field>")
-		private String idField;
-
-		public AbstractRedisDataStructureItemWriter writer() {
-			if (idField == null) {
-				if (maxlen == null) {
-					return new StreamWriter();
-				}
-				return new StreamMaxlenWriter(maxlen, trim);
-			}
-			if (maxlen == null) {
-				return new StreamIdWriter(idField);
-			}
-			return new StreamIdMaxlenWriter(idField, maxlen, trim);
-		}
-	}
-
-	static class ListOptions {
-
-		public enum PushDirection {
-			Left, Right
-		}
-
-		@Option(names = "--push-direction", hidden = true, description = "Direction for list push: ${COMPLETION-CANDIDATES}.")
-		private PushDirection direction = PushDirection.Left;
-
-		public AbstractCollectionRedisItemWriter writer() {
-			switch (direction) {
-			case Right:
-				return new ListRightPushWriter();
-			default:
-				return new ListLeftPushWriter();
-			}
-		}
-	}
-
-	static class ZSetOptions {
-		@Option(names = "--score", description = "Name of the field to use for scores.", paramLabel = "<field>")
-		private String scoreField;
-		@Option(names = "--default-score", description = "Default score to use when score field is not present.", paramLabel = "<float>")
-		private double defaultScore = 1d;
-
-		private ZSetWriter writer() {
-			return new ZSetWriter(scoreField, defaultScore);
-		}
-	}
-
-	static class StringOptions {
-
-		public static enum StringFormat {
-			Raw, Xml, Json
-		}
-
-		@Option(names = "--format", description = "Serialization format: ${COMPLETION-CANDIDATES}.")
-		private StringFormat format = StringFormat.Json;
-		@Option(names = "--root", description = "XML root element name.", paramLabel = "<name>")
-		private String root;
-		@Option(names = "--value", description = "Field to use for value when using raw format.", paramLabel = "<field>")
-		private String field;
-
-		private AbstractStringWriter writer() {
-			switch (format) {
-			case Raw:
-				return new StringFieldWriter(field);
-			case Xml:
-				return new StringObjectWriter(objectWriter(new XmlMapper()));
-			default:
-				return new StringObjectWriter(objectWriter(new ObjectMapper()));
-			}
-		}
-
-		private ObjectWriter objectWriter(ObjectMapper mapper) {
-			return mapper.writer().withRootName(root);
-		}
-
-	}
+@Command(name = "redis", description = "Redis", subcommands = { GeoWriterCommand.class, HashWriterCommand.class,
+		ListWriterCommand.class, SetWriterCommand.class, StreamWriterCommand.class, StringWriterCommand.class,
+		ZSetWriterCommand.class, LuaWriterCommand.class,
+		ExpireWriterCommand.class }, synopsisSubcommandLabel = "[TYPE]", commandListHeading = "Types:%n")
+public class RedisDataStructureWriterCommand
+		extends AbstractRedisWriterCommand<StatefulRedisConnection<String, String>> {
 
 	@Override
-	protected AbstractRedisItemWriter<RedisAsyncCommands<String, String>> redisItemWriter() {
-		AbstractRedisDataStructureItemWriter itemWriter = dataStructureWriter();
-		if (itemWriter instanceof AbstractCollectionRedisItemWriter) {
-			((AbstractCollectionRedisItemWriter) itemWriter).setFields(fields);
-		}
-		return itemWriter;
-	}
-
-	private AbstractRedisDataStructureItemWriter dataStructureWriter() {
-		switch (dataStructure) {
-		case Expire:
-			return expire.writer();
-		case Geo:
-			return geo.writer();
-		case List:
-			return list.writer();
-		case Lua:
-			return lua.writer();
-		case Set:
-			return new SetWriter();
-		case Stream:
-			return stream.writer();
-		case String:
-			return string.writer();
-		case ZSet:
-			return zset.writer();
-		default:
-			return new HashWriter();
-		}
-	}
-
-	@Override
-	protected String getTargetDescription() {
-		return "Redis " + dataStructure.name() + " \"" + keyspaceDescription() + "\"";
+	protected GenericObjectPool<StatefulRedisConnection<String, String>> lettucePool(RedisConnectionOptions redis) {
+		return redis.lettucePool();
 	}
 
 }

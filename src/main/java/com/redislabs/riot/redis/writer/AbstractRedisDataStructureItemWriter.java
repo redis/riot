@@ -7,8 +7,7 @@ import io.lettuce.core.api.async.RedisAsyncCommands;
 import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.Response;
 
-public abstract class AbstractRedisDataStructureItemWriter
-		extends AbstractRedisItemWriter<RedisAsyncCommands<String, String>> {
+public abstract class AbstractRedisDataStructureItemWriter extends AbstractRedisItemWriter {
 
 	@Override
 	public Response<?> write(Pipeline pipeline, Map<String, Object> item) {

@@ -10,7 +10,7 @@ import com.github.javafaker.Faker;
 
 import picocli.CommandLine.Command;
 
-@Command(name = "faker-help", description = "Print all faker entities")
+@Command(name = "gen-help", hidden = true, description = "Show all Faker generator options")
 public class GeneratorReaderHelpCommand implements Runnable {
 
 	private final static List<String> EXCLUDES = Arrays.asList("instance", "options");

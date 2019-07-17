@@ -7,7 +7,7 @@ import picocli.CommandLine.Option;
 @Command(usageHelpAutoWidth = true, showDefaultValues = true, abbreviateSynopsis = true)
 public abstract class AbstractCommand implements Runnable {
 
-	@Option(names = "--help", usageHelp = true, description = "Show this help message and exit.")
+	@Option(names = "--help", usageHelp = true, description = "Show this help message and exit")
 	private boolean help;
 
 	@Override

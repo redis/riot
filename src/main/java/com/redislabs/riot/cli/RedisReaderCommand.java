@@ -17,11 +17,11 @@ public class RedisReaderCommand extends AbstractReaderCommand {
 	private RedisConnectionOptions redis = new RedisConnectionOptions();
 	@ArgGroup(exclusive = false, heading = "Redis keyspace%n")
 	private RedisKeyOptions key = new RedisKeyOptions();
-	@Option(names = "--count", description = "Number of elements to return for each scan call.")
+	@Option(names = "--count", description = "Number of elements to return for each scan call")
 	private Integer scanCount;
 
 	@Override
-	public AbstractItemCountingItemStreamItemReader<Map<String, Object>> reader() throws Exception {
+	protected AbstractItemCountingItemStreamItemReader<Map<String, Object>> reader() throws Exception {
 		RedisReader reader = new RedisReader(redis.jedisPool());
 		reader.setCount(scanCount);
 		reader.setMatch(getScanPattern());
@@ -39,7 +39,7 @@ public class RedisReaderCommand extends AbstractReaderCommand {
 	}
 
 	@Override
-	public String getSourceDescription() {
+	protected String description() {
 		return "redis " + getScanPattern();
 	}
 

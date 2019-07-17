@@ -4,10 +4,7 @@ import java.util.Map;
 
 import com.redislabs.riot.redis.RedisConverter;
 
-import io.lettuce.core.api.async.RedisAsyncCommands;
-
-public abstract class AbstractRedisItemWriter<C extends RedisAsyncCommands<String, String>>
-		implements JedisItemWriter, LettuceItemWriter<C> {
+public abstract class AbstractRedisItemWriter implements JedisItemWriter, LettuceItemWriter {
 
 	private RedisConverter converter;
 

@@ -27,36 +27,36 @@ import redis.clients.jedis.Protocol;
 public class RedisConnectionOptions {
 
 	public enum RedisDriver {
-		Jedis, Lettuce
+		jedis, lettuce
 	}
 
-	@Option(names = "--host", description = "Redis server host.")
+	@Option(names = "--host", description = "Redis server host")
 	private String host = "localhost";
-	@Option(names = "--port", description = "Redis server port.", paramLabel = "<integer>")
+	@Option(names = "--port", description = "Redis server port", paramLabel = "<integer>")
 	private int port = RedisURI.DEFAULT_REDIS_PORT;
-	@Option(names = "--command-timeout", description = "Redis command timeout in seconds for synchronous command execution.", paramLabel = "<seconds>")
+	@Option(names = "--command-timeout", description = "Redis command timeout in seconds for synchronous command execution", paramLabel = "<seconds>")
 	private long commandTimeout = RedisURI.DEFAULT_TIMEOUT;
-	@Option(names = "--connection-timeout", description = "Redis connect timeout in milliseconds.", paramLabel = "<millis>")
+	@Option(names = "--connection-timeout", description = "Redis connect timeout in milliseconds", paramLabel = "<millis>")
 	private int connectionTimeout = Protocol.DEFAULT_TIMEOUT;
-	@Option(names = "--socket-timeout", description = "Redis socket timeout in milliseconds.", paramLabel = "<millis>")
+	@Option(names = "--socket-timeout", description = "Redis socket timeout in milliseconds", paramLabel = "<millis>")
 	private int socketTimeout = Protocol.DEFAULT_TIMEOUT;
-	@Option(names = "--auth", arity = "0..1", interactive = true, description = "Redis database login password.", paramLabel = "<string>")
+	@Option(names = "--auth", arity = "0..1", interactive = true, description = "Redis database login password", paramLabel = "<string>")
 	private String password;
-	@Option(names = "--pool-max-idle", description = "Maximum number of idle connections in the pool. Use a negative value to indicate an unlimited number of idle connections.", paramLabel = "<integer>")
+	@Option(names = "--pool-max-idle", description = "Maximum number of idle connections in the pool. Use a negative value to indicate an unlimited number of idle connections", paramLabel = "<integer>")
 	private int maxIdle = 8;
-	@Option(names = "--pool-min-idle", description = "Target for the minimum number of idle connections to maintain in the pool. This setting only has an effect if it is positive.", paramLabel = "<integer>")
+	@Option(names = "--pool-min-idle", description = "Target for the minimum number of idle connections to maintain in the pool. This setting only has an effect if it is positive", paramLabel = "<integer>")
 	private int minIdle = 0;
-	@Option(names = "--pool", description = "Maximum number of connections that can be allocated by the pool at a given time. Use a negative value for no limit.", paramLabel = "<integer>")
+	@Option(names = "--pool", description = "Maximum number of connections that can be allocated by the pool at a given time. Use a negative value for no limit", paramLabel = "<integer>")
 	private int maxTotal = 8;
-	@Option(names = "--pool-max-wait", description = "Maximum amount of time in milliseconds a connection allocation should block before throwing an exception when the pool is exhausted. Use a negative value to block indefinitely (default).")
+	@Option(names = "--pool-max-wait", description = "Maximum amount of time in milliseconds a connection allocation should block before throwing an exception when the pool is exhausted. Use a negative value to block indefinitely (default)")
 	private long maxWait = -1L;
-	@Option(names = "--db", description = "Redis database number. Databases are only available for Redis Standalone and Redis Master/Slave.")
+	@Option(names = "--db", description = "Redis database number. Databases are only available for Redis Standalone and Redis Master/Slave")
 	private int database = 0;
-	@Option(names = "--client", description = "Redis client name.", paramLabel = "<string>")
+	@Option(names = "--client", description = "Redis client name", paramLabel = "<string>")
 	private String clientName;
-	@Option(names = "--driver", description = "Redis driver: ${COMPLETION-CANDIDATES}.")
-	private RedisDriver driver = RedisDriver.Lettuce;
-	@Option(names = "--metrics", description = "Show metrics (only works with Lettuce driver).")
+	@Option(names = "--driver", description = "Redis driver: ${COMPLETION-CANDIDATES}")
+	private RedisDriver driver = RedisDriver.lettuce;
+	@Option(names = "--metrics", description = "Show metrics (only works with Lettuce driver)")
 	private boolean showMetrics;
 
 	public JedisPool jedisPool() {
@@ -123,6 +123,6 @@ public class RedisConnectionOptions {
 	}
 
 	public boolean isJedis() {
-		return driver == RedisDriver.Jedis;
+		return driver == RedisDriver.jedis;
 	}
 }

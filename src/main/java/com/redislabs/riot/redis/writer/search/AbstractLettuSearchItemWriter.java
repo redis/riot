@@ -6,11 +6,11 @@ import com.redislabs.lettusearch.RediSearchAsyncCommands;
 import com.redislabs.riot.redis.writer.AbstractRedisItemWriter;
 
 import io.lettuce.core.RedisFuture;
+import io.lettuce.core.api.async.RedisAsyncCommands;
 import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.Response;
 
-public abstract class AbstractLettuSearchItemWriter
-		extends AbstractRedisItemWriter<RediSearchAsyncCommands<String, String>> {
+public abstract class AbstractLettuSearchItemWriter extends AbstractRedisItemWriter {
 
 	private String index;
 	private String scoreField;
@@ -33,8 +33,8 @@ public abstract class AbstractLettuSearchItemWriter
 	}
 
 	@Override
-	public RedisFuture<?> write(RediSearchAsyncCommands<String, String> commands, Map<String, Object> item) {
-		return write(commands, index, item);
+	public RedisFuture<?> write(RedisAsyncCommands<String, String> commands, Map<String, Object> item) {
+		return write((RediSearchAsyncCommands<String, String>) commands, index, item);
 	}
 
 	protected abstract RedisFuture<?> write(RediSearchAsyncCommands<String, String> commands, String index,
