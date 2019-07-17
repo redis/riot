@@ -285,13 +285,13 @@ riot redis --metrics …
 .Strings
 [source,shell]
 ----
-riot --host=redis-12000.redislabs.com --port=12000 --pool=96 --batch=500 --threads=96 gen --type=simple --max=100000000 --field value=100 redis --type=string --format=raw --keyspace=string --keys=index --field=value
+riot --batch=500 --threads=96 gen --type=simple --max=100000000 value=100 redis --host=redis-12000.redislabs.com --port=12000 --pool=96 string --format=raw --keyspace=string --keys=index --value=value
 ----
 image::riot-performance-strings.png[]
 
 .Streams
 [source,shell]
 ----
-riot --host=redis-12000.redislabs.com --port=12000 --pool=96 --batch=500 --threads=96 gen --type=simple --max=100000000 redis --type=stream --keyspace=stream --keys=partition
+riot --batch=500 --threads=96 gen --type=simple --max=100000000 redis --host=redis-12000.redislabs.com --port=12000 --pool=96 stream --keyspace=stream --keys=partition
 ----
 image::riot-performance-streams.png[]
