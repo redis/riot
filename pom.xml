@@ -12,7 +12,7 @@
 
 	<groupId>com.redislabs</groupId>
 	<artifactId>riot</artifactId>
-	<version>0.6.8-SNAPSHOT</version>
+	<version>0.6.9</version>
 	<packaging>jar</packaging>
 	<name>RIOT</name>
 	<description>Redis Input/Output Tool</description>

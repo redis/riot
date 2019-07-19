@@ -38,30 +38,59 @@ Launch the `riot` script (`riot.bat` for Windows) and follow the usage informati
 
 == Connectors
 
+=== Sources
+
+* <<database-source,Databases>>
+* <<file-source,Files>>
+* <<generator-source,Data Generators>>
+* <<redis-source,Redis>>
+
+=== Targets
+
+* <<database-target,Databases>>
+* <<file-target,Files>>
+* <<redis-target,Redis>>
+* <<redisearch-target,RediSearch>>
+
 === Databases
 
 RIOT can connect to any RDBMS with a JDBC driver.
 
 ==== Setup
 
-WARNING: Add the JDBC driver jar for your database under the `lib` directory. +
-e.g. for MySQL: `lib/mysql-connector-java-5.1.47.jar`.
+TIP: Add the JDBC driver jar for your database under the `lib` directory, for example MySQL: `lib/mysql-connector-java-5.1.47.jar`.
 
-===== MS SQL Server
-https://docs.microsoft.com/en-us/sql/connect/jdbc/microsoft-jdbc-driver-for-sql-server[Microsoft JDBC Driver]
+For reference here are links to common JDBC drivers:
 
-https://docs.microsoft.com/en-us/sql/connect/jdbc/building-the-connection-url?view=sql-server-2017[Building the connection URL]
+* Oracle
+** https://www.oracle.com/technetwork/database/application-development/jdbc/downloads/index.html[Download]
+** https://docs.oracle.com/cd/E11882_01/appdev.112/e13995/oracle/jdbc/OracleDriver.html[Connection URL]
++
+[source,plaintext]
+----
+jdbc:oracle:thin:@myhost:1521:orcl
+----
 
-===== MySQL
-https://dev.mysql.com/downloads/connector/j/[MySQL Connector/J]
-
-https://dev.mysql.com/doc/connector-j/8.0/en/connector-j-reference-jdbc-url-format.html[Connection URL Syntax]
+* MS SQL Server
+** https://docs.microsoft.com/en-us/sql/connect/jdbc/microsoft-jdbc-driver-for-sql-server[Download]
+** https://docs.microsoft.com/en-us/sql/connect/jdbc/building-the-connection-url?view=sql-server-2017[Connection URL]
++
 [source,plaintext]
 ----
 jdbc:sqlserver://[serverName[\instanceName][:portNumber]][;property=value[;property=value]]
 ----
 
-==== RDBMS -> Redis
+* MySQL
+** https://dev.mysql.com/downloads/connector/j/[MySQL Connector/J]
+** https://dev.mysql.com/doc/connector-j/8.0/en/connector-j-reference-jdbc-url-format.html[Connection URL]
++
+[source,plaintext]
+----
+jdbc:mysql://[host]:[port][/database][?properties]
+----
+
+[#database-source]
+==== SQL Database -> Redis
 Let's use the following MySQL database table from https://dev.mysql.com/doc/employee/en/[mysql.com]: 
 [source,plaintext]
 ----
@@ -85,7 +114,8 @@ To import the whole table run the following command:
 riot db --url "jdbc:mysql://localhost:3306/employees?serverTimezone=PST&useLegacyDatetimeCode=false&useSSL=false" --username root --password "select * from employees" redis hash --keyspace employee --keys emp_no
 ----
 
-==== Redis -> RDBMS
+[#database-target]
+==== Redis -> SQL Database
 This command exports all hashes under keyspace `beer:<id>` to MySQL: 
 [source,shell]
 ----
@@ -101,6 +131,7 @@ Here is an excerpt of https://raw.githubusercontent.com/jpatokal/openflights/mas
 3,"Mount Hagen Kagamuga Airport","Mount Hagen","Papua New Guinea","HGU","AYMH",-5.826789855957031,144.29600524902344,5388,10,"U","Pacific/Port_Moresby","airport","OurAirports"
 ----
 
+[#file-source]
 ==== CSV -> Redis
 [source,shell]
 ----
@@ -117,6 +148,7 @@ Query the `airportgeo` geoset using redis-cli
 …
 ----
 
+[#file-target]
 ==== Redis -> CSV
 [source,shell]
 ----
@@ -137,6 +169,7 @@ RIOT can read and write JSON data in the following format:
 ]
 ----
 
+[#redis-target]
 ==== JSON -> Redis
 Here is an excerpt of `beers.json` available at https://github.com/rethinkdb/beerthink/blob/master/data/beers.json[beerthink]:
 [source,json]
@@ -178,6 +211,7 @@ riot file https://raw.githubusercontent.com/rethinkdb/beerthink/master/data/beer
  …
 ----
 
+[#redisearch-target]
 ==== JSON -> RediSearch
 . Create an index with redis-cli
 +
@@ -209,12 +243,14 @@ riot file https://raw.githubusercontent.com/rethinkdb/beerthink/master/data/beer
      …
 ----
 
+[#redis-source]
 ==== Redis -> JSON
 [source,shell]
 ----
 riot redis --keyspace beer --keys id file export-beers.json
 ----
 
+[#generator-source]
 === Data Generators
 
 ==== Simple
