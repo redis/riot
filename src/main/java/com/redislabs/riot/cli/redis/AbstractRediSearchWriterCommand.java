@@ -1,7 +1,7 @@
 package com.redislabs.riot.cli.redis;
 
 import com.redislabs.riot.redis.writer.AbstractRedisItemWriter;
-import com.redislabs.riot.redis.writer.search.AbstractLettuSearchItemWriter;
+import com.redislabs.riot.redisearch.AbstractLettuSearchItemWriter;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;

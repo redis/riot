@@ -57,7 +57,7 @@
 		<dependency>
 			<groupId>com.redislabs</groupId>
 			<artifactId>lettusearch</artifactId>
-			<version>1.4.0</version>
+			<version>1.4.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>

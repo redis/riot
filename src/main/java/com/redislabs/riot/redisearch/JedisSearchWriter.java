@@ -1,4 +1,4 @@
-package com.redislabs.riot.redis.writer.search;
+package com.redislabs.riot.redisearch;
 
 import java.util.List;
 import java.util.Map;

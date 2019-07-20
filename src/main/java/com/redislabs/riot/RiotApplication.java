@@ -34,6 +34,7 @@ import com.redislabs.riot.cli.DatabaseReaderCommand;
 import com.redislabs.riot.cli.FileReaderCommand;
 import com.redislabs.riot.cli.GeneratorReaderCommand;
 import com.redislabs.riot.cli.GeneratorReaderHelpCommand;
+import com.redislabs.riot.cli.RediSearchReaderCommand;
 import com.redislabs.riot.cli.RedisReaderCommand;
 
 import picocli.CommandLine;
@@ -41,8 +42,8 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 @Command(name = "riot", subcommands = { FileReaderCommand.class, DatabaseReaderCommand.class,
-		GeneratorReaderCommand.class, GeneratorReaderHelpCommand.class,
-		RedisReaderCommand.class }, synopsisSubcommandLabel = "[SOURCE]", commandListHeading = "Sources:%n")
+		GeneratorReaderCommand.class, GeneratorReaderHelpCommand.class, RedisReaderCommand.class,
+		RediSearchReaderCommand.class }, synopsisSubcommandLabel = "[SOURCE]", commandListHeading = "Sources:%n")
 public class RiotApplication extends AbstractCommand implements CommandLineRunner {
 
 	/**

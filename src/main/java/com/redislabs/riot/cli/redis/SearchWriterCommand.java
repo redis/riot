@@ -2,11 +2,11 @@ package com.redislabs.riot.cli.redis;
 
 import com.redislabs.lettusearch.search.AddOptions;
 import com.redislabs.lettusearch.search.Language;
-import com.redislabs.riot.redis.writer.search.AbstractLettuSearchItemWriter;
-import com.redislabs.riot.redis.writer.search.AbstractSearchWriter;
-import com.redislabs.riot.redis.writer.search.JedisSearchWriter;
-import com.redislabs.riot.redis.writer.search.SearchPayloadWriter;
-import com.redislabs.riot.redis.writer.search.SearchWriter;
+import com.redislabs.riot.redisearch.AbstractLettuSearchItemWriter;
+import com.redislabs.riot.redisearch.AbstractSearchWriter;
+import com.redislabs.riot.redisearch.JedisSearchWriter;
+import com.redislabs.riot.redisearch.SearchPayloadWriter;
+import com.redislabs.riot.redisearch.SearchWriter;
 
 import io.redisearch.client.AddOptions.ReplacementPolicy;
 import io.redisearch.client.Client;

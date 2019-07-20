@@ -1,9 +1,9 @@
 package com.redislabs.riot.cli.redis;
 
-import com.redislabs.riot.redis.writer.search.AbstractLettuSearchItemWriter;
-import com.redislabs.riot.redis.writer.search.JedisSuggestWriter;
-import com.redislabs.riot.redis.writer.search.SuggestPayloadWriter;
-import com.redislabs.riot.redis.writer.search.SuggestWriter;
+import com.redislabs.riot.redisearch.AbstractLettuSearchItemWriter;
+import com.redislabs.riot.redisearch.JedisSuggestWriter;
+import com.redislabs.riot.redisearch.SuggestPayloadWriter;
+import com.redislabs.riot.redisearch.SuggestWriter;
 
 import io.redisearch.client.Client;
 import picocli.CommandLine.Command;
@@ -33,6 +33,7 @@ public class SuggestWriterCommand extends AbstractRediSearchWriterCommand {
 		return new SuggestPayloadWriter(payloadField);
 	}
 
+	@SuppressWarnings("unused")
 	private JedisSuggestWriter jedisSuggestWriter(JedisPool pool) {
 		JedisSuggestWriter writer = new JedisSuggestWriter(new Client(index, pool), redisConverter());
 		writer.setDefaultScore((float) defaultScore);

@@ -48,10 +48,6 @@ public class RedisReader extends AbstractItemCountingItemStreamItemReader<Map<St
 		this.keys = keys;
 	}
 
-	public void setInitialized(boolean initialized) {
-		this.initialized = initialized;
-	}
-
 	@Override
 	protected void doOpen() throws Exception {
 		Assert.state(!initialized, "Cannot open an already open ItemReader, call close first");

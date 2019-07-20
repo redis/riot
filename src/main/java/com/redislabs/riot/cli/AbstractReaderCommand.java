@@ -18,7 +18,7 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.ParentCommand;
 
 @Command(subcommands = { RedisDataStructureWriterCommand.class, RediSearchWriterCommand.class,  FileWriterCommand.class,
-		DatabaseWriterCommand.class }, synopsisSubcommandLabel = "[TARGET]", commandListHeading = "Targets:%n")
+		DatabaseWriterCommand.class, ConsoleWriterCommand.class }, synopsisSubcommandLabel = "[TARGET]", commandListHeading = "Targets:%n")
 public abstract class AbstractReaderCommand extends AbstractCommand {
 
 	private final static Logger log = LoggerFactory.getLogger(AbstractReaderCommand.class);
