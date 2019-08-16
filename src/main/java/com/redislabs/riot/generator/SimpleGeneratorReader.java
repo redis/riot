@@ -1,11 +1,10 @@
 package com.redislabs.riot.generator;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.RandomStringUtils;
 
-public class SimpleGeneratorReader extends AbstractGeneratorReader {
+public class SimpleGeneratorReader extends GeneratorReader {
 
 	private Map<String, Integer> fields = new LinkedHashMap<>();
 

@@ -1,8 +1,0 @@
-name: node
-generator:
-  max: 3568
-  fields:
-    DC_ID: "#c.smember('nodes',index)"
-    GIFTWRAP: "bool.bool"
-    NEXTDAY: "bool.bool"
-    POBOX: "bool.bool"

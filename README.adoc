@@ -111,7 +111,7 @@ mysql> describe employees;
 To import the whole table run the following command:
 [source,shell]
 ----
-riot db --url "jdbc:mysql://localhost:3306/employees?serverTimezone=PST&useLegacyDatetimeCode=false&useSSL=false" --username root --password "select * from employees" redis hash --keyspace employee --keys emp_no
+riot db-import --url "jdbc:mysql://localhost:3306/employees?serverTimezone=PST&useLegacyDatetimeCode=false&useSSL=false" --username root --password "select * from employees" redis hash --keyspace employee --keys emp_no
 ----
 
 [#database-target]
@@ -119,7 +119,7 @@ riot db --url "jdbc:mysql://localhost:3306/employees?serverTimezone=PST&useLegac
 This command exports all hashes under keyspace `beer:<id>` to MySQL: 
 [source,shell]
 ----
-riot redis --keyspace beer --keys id db --url "jdbc:mysql://localhost:3306/employees?serverTimezone=PST&useLegacyDatetimeCode=false&useSSL=false" --username root --password "INSERT INTO beers (id, name, style_name) VALUES (:id, :name, :style_name)"
+riot db-export --keyspace beer --keys id --url "jdbc:mysql://localhost:3306/employees?serverTimezone=PST&useLegacyDatetimeCode=false&useSSL=false" --username root --password --sql "INSERT INTO beers (id, name, style_name) VALUES (:id, :name, :style_name)"
 ----
 
 === CSV Files
@@ -135,7 +135,7 @@ Here is an excerpt of https://raw.githubusercontent.com/jpatokal/openflights/mas
 ==== CSV -> Redis
 [source,shell]
 ----
-riot file --type=csv https://raw.githubusercontent.com/jpatokal/openflights/master/data/airports.dat --fields AirportID Name City Country IATA ICAO Latitude Longitude Altitude Timezone DST Tz Type Source redis geo --keyspace airportgeo --fields AirportID --lon Longitude --lat Latitude
+riot file-import --type csv -u https://raw.githubusercontent.com/jpatokal/openflights/master/data/airports.dat --fields AirportID Name City Country IATA ICAO Latitude Longitude Altitude Timezone DST Tz Type Source redis geo --keyspace airportgeo --fields AirportID --lon Longitude --lat Latitude
 ----
 
 Query the `airportgeo` geoset using redis-cli

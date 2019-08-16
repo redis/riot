@@ -4,9 +4,12 @@ import java.io.IOException;
 
 import org.junit.After;
 import org.junit.Before;
+import org.slf4j.impl.SimpleLogger;
 
 import com.redislabs.lettusearch.RediSearchClient;
 import com.redislabs.lettusearch.StatefulRediSearchConnection;
+
+import picocli.CommandLine;
 
 public class BaseTest {
 
@@ -15,6 +18,7 @@ public class BaseTest {
 
 	@Before
 	public void setup() throws IOException {
+		System.setProperty(SimpleLogger.DEFAULT_LOG_LEVEL_KEY, "info");
 		client = RediSearchClient.create("redis://localhost");
 		connection = client.connect();
 		connection.sync().flushall();
@@ -30,8 +34,8 @@ public class BaseTest {
 		}
 	}
 
-	protected void run(String string) throws Exception {
-		RiotApplication.main(string.split(" "));
+	protected void run(String template, Object... args) {
+		new CommandLine(new Riot()).execute(String.format(template, args).split(" "));
 	}
 
 }

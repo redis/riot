@@ -1,8 +1,0 @@
-generator:
-  max: 100
-  fields:
-  - name: id
-    expression: nextLong(1000)
-type: set
-keyspace: set
-fields: id

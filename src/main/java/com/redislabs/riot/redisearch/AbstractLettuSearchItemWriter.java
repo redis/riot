@@ -20,12 +20,12 @@ public abstract class AbstractLettuSearchItemWriter extends AbstractRedisItemWri
 		this.index = index;
 	}
 
-	public void setScoreField(String scoreField) {
-		this.scoreField = scoreField;
-	}
-
 	public void setDefaultScore(double defaultScore) {
 		this.defaultScore = defaultScore;
+	}
+
+	public void setScoreField(String scoreField) {
+		this.scoreField = scoreField;
 	}
 
 	protected double score(Map<String, Object> item) {

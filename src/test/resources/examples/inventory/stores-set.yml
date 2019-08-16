@@ -1,6 +1,0 @@
-file:
-  path: /Users/jruaux/DocumentsRL/Customers/Gap ICM/InventoryPoC/GapLogInventoryForPOC/DC_Stores.csv
-redis:
-  set:
-    keyspace: nodes
-    fields: DC_ID

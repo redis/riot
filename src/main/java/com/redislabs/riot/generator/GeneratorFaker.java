@@ -1,5 +1,4 @@
 package com.redislabs.riot.generator;
-
 import java.util.Locale;
 
 import com.github.javafaker.Faker;

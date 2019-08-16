@@ -1,5 +1,4 @@
 package com.redislabs.riot.generator;
-
 import java.util.Locale;
 import java.util.Map;
 
@@ -7,7 +6,7 @@ import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.support.SimpleEvaluationContext.Builder;
 
-public class FakerGeneratorReader extends AbstractGeneratorReader {
+public class FakerGeneratorReader extends GeneratorReader {
 
 	private Locale locale;
 	private Map<String, Expression> fieldExpressions;

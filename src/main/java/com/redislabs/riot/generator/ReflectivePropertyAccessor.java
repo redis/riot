@@ -1,21 +1,4 @@
-/*
- * Copyright 2002-2018 the original author or authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      https://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.redislabs.riot.generator;
-
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
@@ -36,29 +19,10 @@ import org.springframework.expression.PropertyAccessor;
 import org.springframework.expression.TypedValue;
 import org.springframework.expression.spel.CodeFlow;
 import org.springframework.expression.spel.CompilablePropertyAccessor;
-import org.springframework.expression.spel.support.DataBindingPropertyAccessor;
-import org.springframework.expression.spel.support.SimpleEvaluationContext;
-import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
 
-/**
- * A powerful {@link PropertyAccessor} that uses reflection to access properties
- * for reading and possibly also for writing.
- *
- * <p>
- * A property can be referenced through a public getter method (when being read)
- * or a public setter method (when being written), and also as a public field.
- *
- * @author Andy Clement
- * @author Juergen Hoeller
- * @author Phillip Webb
- * @since 3.0
- * @see StandardEvaluationContext
- * @see SimpleEvaluationContext
- * @see DataBindingPropertyAccessor
- */
 public class ReflectivePropertyAccessor implements PropertyAccessor {
 
 	static {
