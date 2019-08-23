@@ -16,6 +16,10 @@ public abstract class AbstractLettuSearchItemWriter extends AbstractRedisItemWri
 	private String scoreField;
 	private double defaultScore = 1d;
 
+	public String getIndex() {
+		return index;
+	}
+
 	public void setIndex(String index) {
 		this.index = index;
 	}

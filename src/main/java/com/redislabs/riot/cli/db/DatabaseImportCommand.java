@@ -13,12 +13,12 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
 import picocli.CommandLine.Option;
 
-@Command(name = "db-import", description = "Import database into Redis")
+@Command(name = "db", description = "Import database into Redis")
 public class DatabaseImportCommand extends ImportCommand {
 
 	@Mixin
 	private DatabaseConnectionOptions connection = new DatabaseConnectionOptions();
-	@Option(names = "--sql", required = true, description = "SELECT statement", paramLabel = "<string>")
+	@Option(names = { "-s", "--sql" }, required = true, description = "SELECT statement", paramLabel = "<string>")
 	private String sql;
 	@Option(names = "--fetch", description = "A hint to the driver as to how many rows to return with each fetch", paramLabel = "<size>")
 	private Integer fetchSize;
@@ -54,8 +54,4 @@ public class DatabaseImportCommand extends ImportCommand {
 		return reader;
 	}
 
-	@Override
-	protected String sourceDescription() {
-		return String.format("SQL \"%s\"", sql);
-	}
 }

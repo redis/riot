@@ -24,4 +24,9 @@ public abstract class RedisItemWriter extends AbstractRedisItemWriter {
 	protected abstract RedisFuture<?> write(RedisAsyncCommands<String, String> commands, String key,
 			Map<String, Object> item);
 
+	@Override
+	public String toString() {
+		return String.format("Redis %s", getConverter());
+	}
+
 }

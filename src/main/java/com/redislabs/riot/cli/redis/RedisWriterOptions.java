@@ -27,19 +27,22 @@ import io.lettuce.core.ScriptOutputType;
 import picocli.CommandLine.Option;
 
 public class RedisWriterOptions {
+
 	@Option(names = "--key-separator", description = "Redis key separator (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
 	private String separator = ":";
-	@Option(names = "--keyspace", description = "Redis keyspace prefix", paramLabel = "<string>")
+	@Option(names = { "-s", "--keyspace" }, description = "Redis keyspace prefix", paramLabel = "<string>")
 	private String keyspace;
-	@Option(names = "--keys", arity = "1..*", description = "Key fields", paramLabel = "<names>")
+	@Option(names = { "-k", "--keys" }, arity = "1..*", description = "Key fields", paramLabel = "<names>")
 	private String[] keys = new String[0];
-	@Option(names = "--command", description = "Redis command: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})")
+	@Option(names = { "-c",
+			"--command" }, description = "Redis command: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})")
 	private RedisCommand command = RedisCommand.hmset;
 	@Option(names = "--zset-score", description = "Name of the field to use for sorted set scores", paramLabel = "<field>")
 	private String scoreField;
 	@Option(names = "--zset-default-score", description = "Score when field not present (default: ${DEFAULT-VALUE})", paramLabel = "<float>")
 	private double defaultScore = 1d;
-	@Option(names = "--fields", arity = "1..*", description = "Names of fields composing member ids in collection data structures (list, geo, set, zset)")
+	@Option(names = { "-f",
+			"--fields" }, arity = "1..*", description = "Names of fields composing member ids in collection data structures (list, geo, set, zset)")
 	private String[] fields = new String[0];
 	@Option(names = "--expire-default-timeout", description = "Default timeout in seconds (default: ${DEFAULT-VALUE})", paramLabel = "<seconds>")
 	private long defaultTimeout = 60;
@@ -72,28 +75,6 @@ public class RedisWriterOptions {
 
 	public RedisCommand getCommand() {
 		return command;
-	}
-
-	public String keyspaceDescription() {
-		if (keyspace == null) {
-			return keysDescription();
-		}
-		if (keys.length > 0) {
-			return keyspace + separator + keysDescription();
-		}
-		return keyspace;
-	}
-
-	private String keysDescription() {
-		return String.join(separator, wrap(keys));
-	}
-
-	private String[] wrap(String[] fields) {
-		String[] results = new String[fields.length];
-		for (int index = 0; index < fields.length; index++) {
-			results[index] = "<" + fields[index] + ">";
-		}
-		return results;
 	}
 
 	private ZaddItemWriter zaddWriter() {

@@ -21,13 +21,11 @@ import com.redislabs.riot.batch.ThrottlingItemReader;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
-@Command(usageHelpAutoWidth = true, abbreviateSynopsis = true)
-public abstract class TransferCommand implements Runnable {
+@Command(synopsisSubcommandLabel = "[CONNECTOR]", commandListHeading = "Connectors:%n", abbreviateSynopsis = true)
+public class TransferCommand extends HelpAwareCommand {
 
 	private final Logger log = LoggerFactory.getLogger(TransferCommand.class);
 
-	@Option(names = "--help", usageHelp = true, description = "Show this help message and exit")
-	private boolean help;
 	@Option(names = { "-t",
 			"--threads" }, description = "Thread count (default: ${DEFAULT-VALUE})", paramLabel = "<count>")
 	private int threads = 1;
@@ -38,41 +36,30 @@ public abstract class TransferCommand implements Runnable {
 	private Integer count;
 	@Option(names = "--sleep", description = "Sleep duration in millis between reads", paramLabel = "<millis>")
 	private Long sleep;
-	@Option(names = { "-c",
+	@Option(names = { "-e",
 			"--processor" }, description = "SpEL expression to process a field", paramLabel = "<name=SpEL>")
 	private Map<String, String> processorFields;
 
-	@Override
-	public void run() {
+	public void transfer(ItemReader<Map<String, Object>> reader, ItemWriter<Map<String, Object>> writer) {
 		try {
-			ItemReader<Map<String, Object>> reader = throttle(reader());
 			Processor processor = processor();
-			try {
-				ItemWriter<Map<String, Object>> writer = writer();
-				JobExecutor executor = new JobExecutor();
-				try {
-					log.info("Transferring from {} to {}", sourceDescription(), targetDescription());
-					JobExecution execution = executor.execute(reader, processor, writer, threads, batchSize);
-					if (execution.getExitStatus().equals(ExitStatus.FAILED)) {
-						execution.getAllFailureExceptions().forEach(e -> e.printStackTrace());
-					}
-					for (StepExecution stepExecution : execution.getStepExecutions()) {
-						Duration duration = Duration.ofMillis(
-								stepExecution.getEndTime().getTime() - stepExecution.getStartTime().getTime());
-						int writeCount = stepExecution.getWriteCount();
-						double throughput = (double) writeCount / duration.toMillis() * 1000;
-						NumberFormat numberFormat = NumberFormat.getIntegerInstance();
-						log.info("Wrote {} items in {} seconds ({} items/sec)", numberFormat.format(writeCount),
-								duration.get(ChronoUnit.SECONDS), numberFormat.format(throughput));
-					}
-				} catch (Exception e) {
-					log.error("Could not execute batch job", e);
-				}
-			} catch (Exception e) {
-				log.error("Could not initialize writer for {}", targetDescription(), e);
+			JobExecutor executor = new JobExecutor();
+			log.info("Transferring from {} to {}", reader, writer);
+			JobExecution execution = executor.execute(throttle(reader), processor, writer, threads, batchSize);
+			if (execution.getExitStatus().equals(ExitStatus.FAILED)) {
+				execution.getAllFailureExceptions().forEach(e -> e.printStackTrace());
+			}
+			for (StepExecution stepExecution : execution.getStepExecutions()) {
+				Duration duration = Duration
+						.ofMillis(stepExecution.getEndTime().getTime() - stepExecution.getStartTime().getTime());
+				int writeCount = stepExecution.getWriteCount();
+				double throughput = (double) writeCount / duration.toMillis() * 1000;
+				NumberFormat numberFormat = NumberFormat.getIntegerInstance();
+				log.info("Wrote {} items in {} seconds ({} items/sec)", numberFormat.format(writeCount),
+						duration.get(ChronoUnit.SECONDS), numberFormat.format(throughput));
 			}
 		} catch (Exception e) {
-			log.error("Could not initialize reader for {}", sourceDescription(), e);
+			log.error("Could not execute transfer", e);
 		}
 	}
 
@@ -97,11 +84,4 @@ public abstract class TransferCommand implements Runnable {
 		return new Processor(processorFields);
 	}
 
-	protected abstract String sourceDescription();
-
-	protected abstract ItemReader<Map<String, Object>> reader() throws Exception;
-
-	protected abstract ItemWriter<Map<String, Object>> writer() throws Exception;
-
-	protected abstract String targetDescription();
 }

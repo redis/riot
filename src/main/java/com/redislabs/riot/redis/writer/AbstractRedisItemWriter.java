@@ -8,6 +8,10 @@ public abstract class AbstractRedisItemWriter implements JedisItemWriter, Lettuc
 
 	private RedisConverter converter;
 
+	public RedisConverter getConverter() {
+		return converter;
+	}
+
 	public void setConverter(RedisConverter converter) {
 		this.converter = converter;
 	}

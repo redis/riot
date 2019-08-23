@@ -14,7 +14,7 @@ import picocli.CommandLine.Option;
 
 public class RediSearchWriterOptions {
 
-	@Option(names = "--index", description = "Name of the RediSearch index")
+	@Option(names = { "-i", "--index" }, description = "Name of the RediSearch index")
 	private String index;
 	@Option(names = "--ids", arity = "1..*", description = "Fields to use to build document ids", paramLabel = "<names>")
 	private String[] ids = new String[0];

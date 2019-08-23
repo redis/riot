@@ -1,0 +1,1 @@
+$ riot import --max 100 --keyspace person --keys id faker id=index firstName=name.firstName lastName=name.lastName address=address.fullAddress

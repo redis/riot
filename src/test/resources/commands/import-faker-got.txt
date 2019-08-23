@@ -1,0 +1,1 @@
+$ riot import --max 10000 -c sadd --fields name --keyspace got:characters faker name=gameOfThrones.character

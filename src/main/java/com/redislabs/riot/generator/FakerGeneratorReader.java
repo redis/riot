@@ -1,4 +1,5 @@
 package com.redislabs.riot.generator;
+
 import java.util.Locale;
 import java.util.Map;
 
@@ -34,6 +35,11 @@ public class FakerGeneratorReader extends GeneratorReader {
 	protected void doClose() throws Exception {
 		context.remove();
 		super.doClose();
+	}
+
+	@Override
+	public String toString() {
+		return "Faker generator";
 	}
 
 }

@@ -1,11 +1,10 @@
 package com.redislabs.riot.cli.file;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
-import java.net.URL;
+import java.net.MalformedURLException;
+import java.net.URI;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.GZIPInputStream;
 
@@ -17,10 +16,8 @@ import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder.DelimitedBuilder;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder.FixedLengthBuilder;
-import org.springframework.batch.item.file.mapping.FieldSetMapper;
 import org.springframework.batch.item.file.separator.DefaultRecordSeparatorPolicy;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
-import org.springframework.batch.item.file.transform.FieldSet;
 import org.springframework.batch.item.file.transform.Range;
 import org.springframework.batch.item.json.JacksonJsonObjectReader;
 import org.springframework.batch.item.json.JsonItemReader;
@@ -35,46 +32,40 @@ import org.springframework.util.Assert;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.redislabs.riot.cli.ImportCommand;
 
-import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
 import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
 
-@Command(name = "file-import", description = "Import file into Redis")
+@Command(name = "file", description = "Import file into Redis")
 public class FileImportCommand extends ImportCommand {
 
 	private final Logger log = LoggerFactory.getLogger(FileImportCommand.class);
 
-	@ArgGroup(multiplicity = "1")
-	private PathGroup path = new PathGroup();
+	@Parameters(arity = "1", description = "File path or URL")
+	private String file;
 	@Mixin
-	private FileOptions file = new FileOptions();
+	private FileOptions options = new FileOptions();
 	@Option(names = { "-z", "--gzip" }, description = "File is gzip compressed")
 	private boolean gzip;
-	@Option(names = "--skip", description = "Lines to skip from the beginning of the file", paramLabel = "<count>")
+	@Option(names = { "-s",
+			"--skip" }, description = "Lines to skip from the beginning of the file", paramLabel = "<count>")
 	private Integer linesToSkip;
 	@Option(names = "--include", arity = "1..*", description = "Indices of the fields within the delimited file to be included (0-based)", paramLabel = "<index>")
 	private Integer[] includedFields = new Integer[0];
 	@Option(names = "--ranges", arity = "1..*", description = "Fixed-width column ranges", paramLabel = "<int>")
 	private Range[] columnRanges = new Range[0];
 
-	static class PathGroup {
-		@Option(names = { "-f", "--file" }, description = "File path")
-		private File file;
-		@Option(names = { "-u", "--url" }, description = "File URL")
-		private URL url;
-
-		public Resource resource() {
-			if (file == null) {
-				return new UrlResource(url);
-			}
-			return new FileSystemResource(file);
+	public Resource rawResource() throws MalformedURLException {
+		URI uri = URI.create(file);
+		if (uri.isAbsolute()) {
+			return new UrlResource(uri);
 		}
-
+		return new FileSystemResource(file);
 	}
 
 	private Resource resource() throws IOException {
-		Resource resource = path.resource();
+		Resource resource = rawResource();
 		if (gzip || resource.getFilename().toLowerCase().endsWith(".gz")) {
 			return new InputStreamResource(new GZIPInputStream(resource.getInputStream()));
 		}
@@ -85,8 +76,8 @@ public class FileImportCommand extends ImportCommand {
 		FlatFileItemReaderBuilder<Map<String, Object>> builder = new FlatFileItemReaderBuilder<Map<String, Object>>();
 		builder.name("flat-file-reader");
 		builder.resource(resource());
-		if (file.getEncoding() != null) {
-			builder.encoding(file.getEncoding());
+		if (options.getEncoding() != null) {
+			builder.encoding(options.getEncoding());
 		}
 		if (linesToSkip != null) {
 			builder.linesToSkip(linesToSkip);
@@ -98,39 +89,21 @@ public class FileImportCommand extends ImportCommand {
 		return builder;
 	}
 
-	private static class MapFieldSetMapper implements FieldSetMapper<Map<String, Object>> {
-
-		@Override
-		public Map<String, Object> mapFieldSet(FieldSet fieldSet) {
-			Map<String, Object> fields = new HashMap<>();
-			String[] names = fieldSet.getNames();
-			for (int index = 0; index < names.length; index++) {
-				String name = names[index];
-				String value = fieldSet.readString(index);
-				if (value == null || value.length() == 0) {
-					continue;
-				}
-				fields.put(name, value);
-			}
-			return fields;
-		}
-	}
-
 	private FlatFileItemReader<Map<String, Object>> delimitedReader() throws IOException {
 		FlatFileItemReaderBuilder<Map<String, Object>> builder = flatFileItemReaderBuilder();
-		if (file.isHeader() && linesToSkip == null) {
+		if (options.isHeader() && linesToSkip == null) {
 			builder.linesToSkip(1);
 		}
 		DelimitedBuilder<Map<String, Object>> delimitedBuilder = builder.delimited();
-		delimitedBuilder.delimiter(file.getDelimiter());
+		delimitedBuilder.delimiter(options.getDelimiter());
 		delimitedBuilder.includedFields(includedFields);
-		delimitedBuilder.quoteCharacter(file.getQuoteCharacter());
-		String[] fieldNames = Arrays.copyOf(file.getNames(), file.getNames().length);
-		if (file.isHeader()) {
-			BufferedReader reader = new DefaultBufferedReaderFactory().create(resource(), file.getEncoding());
+		delimitedBuilder.quoteCharacter(options.getQuoteCharacter());
+		String[] fieldNames = Arrays.copyOf(options.getNames(), options.getNames().length);
+		if (options.isHeader()) {
+			BufferedReader reader = new DefaultBufferedReaderFactory().create(resource(), options.getEncoding());
 			DelimitedLineTokenizer tokenizer = new DelimitedLineTokenizer();
-			tokenizer.setDelimiter(file.getDelimiter());
-			tokenizer.setQuoteCharacter(file.getQuoteCharacter());
+			tokenizer.setDelimiter(options.getDelimiter());
+			tokenizer.setQuoteCharacter(options.getQuoteCharacter());
 			if (includedFields.length > 0) {
 				int[] result = new int[includedFields.length];
 				for (int i = 0; i < includedFields.length; i++) {
@@ -153,7 +126,7 @@ public class FileImportCommand extends ImportCommand {
 		FixedLengthBuilder<Map<String, Object>> fixedlength = builder.fixedLength();
 		Assert.notEmpty(columnRanges, "Column ranges are required");
 		fixedlength.columns(columnRanges);
-		fixedlength.names(file.getNames());
+		fixedlength.names(options.getNames());
 		return builder.build();
 	}
 
@@ -171,9 +144,7 @@ public class FileImportCommand extends ImportCommand {
 
 	@Override
 	protected ItemReader<Map<String, Object>> reader() throws Exception {
-		Resource resource = path.resource();
-		Assert.isTrue(resource.exists(), String.format("%s does not exist", resource));
-		switch (file.type(resource)) {
+		switch (options.type(rawResource())) {
 		case json:
 			return jsonReader();
 		case fixed:
@@ -181,11 +152,6 @@ public class FileImportCommand extends ImportCommand {
 		default:
 			return delimitedReader();
 		}
-	}
-
-	@Override
-	protected String sourceDescription() {
-		return String.valueOf(path.resource());
 	}
 
 }

@@ -12,13 +12,16 @@ public class DatabaseConnectionOptions {
 
 	private final Logger log = LoggerFactory.getLogger(DatabaseExportCommand.class);
 
-	@Option(names = "--driver", description = "Fully qualified name of the JDBC driver", paramLabel = "<class>")
+	@Option(names = { "-d",
+			"--driver" }, description = "Fully qualified name of the JDBC driver", paramLabel = "<class>")
 	private String driver;
-	@Option(names = "--url", required = true, description = "URL to connect to the database", paramLabel = "<string>")
+	@Option(names = { "-u",
+			"--url" }, required = true, description = "URL to connect to the database", paramLabel = "<string>")
 	private String url;
-	@Option(names = "--username", description = "Login username of the database")
+	@Option(names = { "-n", "--username" }, description = "Login username of the database")
 	private String username;
-	@Option(names = "--password", arity = "0..1", interactive = true, description = "Login password of the database")
+	@Option(names = { "-p",
+			"--password" }, arity = "0..1", interactive = true, description = "Login password of the database")
 	private String password;
 
 	protected HikariDataSource dataSource() {

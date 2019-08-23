@@ -2,37 +2,35 @@ package com.redislabs.riot.cli;
 
 import java.util.Map;
 
-import org.springframework.batch.item.ItemWriter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.batch.item.ItemReader;
 
-import com.redislabs.riot.cli.redis.RediSearchWriterOptions;
-import com.redislabs.riot.cli.redis.RedisConnectionPoolOptions;
-import com.redislabs.riot.cli.redis.RedisWriterOptions;
+import com.redislabs.riot.cli.file.FileImportCommand;
 
-import picocli.CommandLine.ArgGroup;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.ParentCommand;
 
-public abstract class ImportCommand extends TransferCommand {
+@Command
+public abstract class ImportCommand extends HelpAwareCommand implements Runnable {
 
-	@ArgGroup(exclusive = false, heading = "Redis connection options%n")
-	private RedisConnectionPoolOptions redis = new RedisConnectionPoolOptions();
-	@ArgGroup(exclusive = false, heading = "Redis writer options%n")
-	private RedisWriterOptions redisWriter = new RedisWriterOptions();
-	@ArgGroup(exclusive = false, heading = "RediSearch writer options%n")
-	private RediSearchWriterOptions searchWriter = new RediSearchWriterOptions();
+	private final Logger log = LoggerFactory.getLogger(FileImportCommand.class);
 
-	@Override
-	protected ItemWriter<Map<String, Object>> writer() throws Exception {
-		if (searchWriter.isSet()) {
-			return redis.writer(searchWriter.writer());
-		}
-		return redis.writer(redisWriter.writer());
-	}
+	@ParentCommand
+	private ImportParentCommand parent;
 
 	@Override
-	protected String targetDescription() {
-		if (searchWriter.isSet()) {
-			return String.format("RediSearch index %s", searchWriter.getIndex());
+	public void run() {
+		ItemReader<Map<String, Object>> reader;
+		try {
+			reader = reader();
+		} catch (Exception e) {
+			log.error("Could not initialize reader", e);
+			return;
 		}
-		return String.format("Redis %s %s", redisWriter.getCommand(), redisWriter.keyspaceDescription());
+		parent.transfer(reader);
 	}
+
+	protected abstract ItemReader<Map<String, Object>> reader() throws Exception;
 
 }

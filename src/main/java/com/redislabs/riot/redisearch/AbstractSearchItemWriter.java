@@ -24,4 +24,9 @@ public abstract class AbstractSearchItemWriter extends AbstractLettuSearchItemWr
 	protected abstract RedisFuture<?> write(RediSearchAsyncCommands<String, String> commands, String index,
 			Map<String, Object> item, AddOptions options);
 
+	@Override
+	public String toString() {
+		return String.format("RediSearch index %s", getIndex());
+	}
+
 }

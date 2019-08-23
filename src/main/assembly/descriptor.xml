@@ -26,13 +26,5 @@
 				<include>riot.bat</include>
 			</includes>
 		</fileSet>
-		<fileSet>
-			<directory>${project.build.directory}</directory>
-			<outputDirectory></outputDirectory>
-			<fileMode>0755</fileMode>
-			<includes>
-				<include>riot_completion.sh</include>
-			</includes>
-		</fileSet>
 	</fileSets>
 </assembly>

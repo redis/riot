@@ -14,12 +14,13 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
 import picocli.CommandLine.Option;
 
-@Command(name = "db-export", description = "Export Redis to database")
+@Command(name = "db", description = "Export to database")
 public class DatabaseExportCommand extends ExportCommand {
 
 	@Mixin
 	private DatabaseConnectionOptions connection = new DatabaseConnectionOptions();
-	@Option(names = "--sql", description = "Insert statement e.g. \"INSERT INTO people (id, name) VALUES (:ssn, :name)\"")
+	@Option(names = { "-s",
+			"--sql" }, required = true, description = "Insert/update statement e.g. \"INSERT INTO people (id, name) VALUES (:ssn, :name)\"")
 	private String sql;
 
 	@Override
@@ -32,11 +33,6 @@ public class DatabaseExportCommand extends ExportCommand {
 		JdbcBatchItemWriter<Map<String, Object>> writer = builder.build();
 		writer.afterPropertiesSet();
 		return writer;
-	}
-
-	@Override
-	protected String targetDescription() {
-		return String.format("SQL \"%s\"", sql);
 	}
 
 }

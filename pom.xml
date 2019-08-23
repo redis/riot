@@ -6,7 +6,7 @@
 
 	<groupId>com.redislabs</groupId>
 	<artifactId>riot</artifactId>
-	<version>0.7.0</version>
+	<version>0.8.0</version>
 	<packaging>jar</packaging>
 	<name>RIOT</name>
 	<description>Redis Input/Output Tool</description>
@@ -29,9 +29,8 @@
 		<jackson-dataformat-xml.version>2.9.8</jackson-dataformat-xml.version>
 		<jedis.version>3.1.0</jedis.version>
 		<jredisearch.version>1.0.0</jredisearch.version>
-		<junit.version>4.12</junit.version>
 		<lettusearch.version>1.5.1</lettusearch.version>
-		<maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
+		<maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
 		<maven-jar-plugin.version>3.1.1</maven-jar-plugin.version>
 		<exec-maven-plugin.version>1.6.0</exec-maven-plugin.version>
 		<picocli.version>4.0.2</picocli.version>
@@ -40,7 +39,7 @@
 		<spring-boot-autoconfigure.version>2.1.6.RELEASE</spring-boot-autoconfigure.version>
 		<spring-jdbc.version>5.1.6.RELEASE</spring-jdbc.version>
 		<hikaricp.version>3.2.0</hikaricp.version>
-		<junit.version>4.12</junit.version>
+		<junit.version>5.5.1</junit.version>
 		<latencyutils.version>2.0.3</latencyutils.version>
 		<lombok.version>1.18.8</lombok.version>
 		<javafaker.version>0.18</javafaker.version>
@@ -124,8 +123,8 @@
 		</dependency>
 		<!-- Test -->
 		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-engine</artifactId>
 			<version>${junit.version}</version>
 			<scope>test</scope>
 		</dependency>
@@ -169,33 +168,6 @@
 				</configuration>
 			</plugin>
 			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>exec-maven-plugin</artifactId>
-				<version>${exec-maven-plugin.version}</version>
-				<executions>
-					<execution>
-						<id>generate-autocompletion-script</id>
-						<phase>package</phase>
-						<goals>
-							<goal>exec</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<executable>java</executable>
-					<arguments>
-						<argument>-Dpicocli.autocomplete.systemExitOnError</argument>
-						<argument>-cp</argument>
-						<classpath />
-						<argument>picocli.AutoComplete</argument>
-						<argument>--force</argument><!-- overwrite if exists -->
-						<argument>--completionScript</argument>
-						<argument>${project.build.directory}/riot_completion.sh</argument>
-						<argument>com.redislabs.riot.Riot</argument><!-- replace with your class -->
-					</arguments>
-				</configuration>
-			</plugin>
-			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
 				<configuration>
 					<descriptors>
@@ -219,7 +191,6 @@
 				<configuration>
 					<description>${project.name} ${project.version}</description>
 					<releaseName>${project.name} ${project.version}</releaseName>
-					<tag>v${project.version}</tag>
 					<fileSets>
 						<fileSet>
 							<directory>${project.build.directory}</directory>
@@ -230,6 +201,28 @@
 						</fileSet>
 					</fileSets>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.asciidoctor</groupId>
+				<artifactId>asciidoctor-maven-plugin</artifactId>
+				<version>1.5.8</version>
+				<executions>
+					<execution>
+						<id>output-html</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>process-asciidoc</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<backend>html5</backend>
+					<sourceHighlighter>coderay</sourceHighlighter>
+				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.22.2</version>
 			</plugin>
 		</plugins>
 	</build>

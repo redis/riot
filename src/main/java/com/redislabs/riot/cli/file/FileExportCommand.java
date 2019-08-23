@@ -25,14 +25,15 @@ import com.redislabs.riot.cli.ExportCommand;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
 import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
 
-@Command(name = "file-export", description = "Export Redis to file")
+@Command(name = "file", description = "Export to file")
 public class FileExportCommand extends ExportCommand {
 
-	@Option(names = { "-f", "--file" }, description = "Path to file")
-	private File path;
+	@Parameters(arity = "1", description = "Path to file")
+	private File file;
 	@Mixin
-	private FileOptions file = new FileOptions();
+	private FileOptions options = new FileOptions();
 	@Option(names = "--append", description = "Append to file if it exists")
 	private boolean append;
 	@Option(names = "--force-sync", description = "Force-sync changes to disk on flush")
@@ -52,7 +53,7 @@ public class FileExportCommand extends ExportCommand {
 		JsonFileItemWriterBuilder<Map<String, Object>> builder = new JsonFileItemWriterBuilder<>();
 		builder.name("json-file-writer");
 		builder.append(append);
-		builder.encoding(file.getEncoding());
+		builder.encoding(options.getEncoding());
 		builder.forceSync(forceSync);
 		builder.jsonObjectMarshaller(new JacksonJsonObjectMarshaller<>());
 		builder.lineSeparator(lineSeparator);
@@ -65,7 +66,7 @@ public class FileExportCommand extends ExportCommand {
 		FlatFileItemWriterBuilder<Map<String, Object>> builder = new FlatFileItemWriterBuilder<>();
 		builder.name("file-writer");
 		builder.append(append);
-		builder.encoding(file.getEncoding());
+		builder.encoding(options.getEncoding());
 		builder.forceSync(forceSync);
 		builder.lineSeparator(lineSeparator);
 		builder.resource(resource);
@@ -102,8 +103,8 @@ public class FileExportCommand extends ExportCommand {
 	}
 
 	public AbstractFileItemWriter<Map<String, Object>> writer() {
-		FileSystemResource resource = new FileSystemResource(path);
-		switch (file.type(resource)) {
+		FileSystemResource resource = new FileSystemResource(file);
+		switch (options.type(resource)) {
 		case json:
 			return jsonWriter(resource);
 		case fixed:
@@ -115,23 +116,23 @@ public class FileExportCommand extends ExportCommand {
 
 	private FlatFileItemWriter<Map<String, Object>> delimitedWriter(Resource resource) {
 		FlatFileItemWriterBuilder<Map<String, Object>> builder = flatFileWriterBuilder(resource,
-				file.isHeader() ? String.join(file.getDelimiter(), file.getNames()) : null);
+				options.isHeader() ? String.join(options.getDelimiter(), options.getNames()) : null);
 		DelimitedBuilder<Map<String, Object>> delimited = builder.delimited();
-		delimited.delimiter(file.getDelimiter());
-		delimited.fieldExtractor(new MapFieldExtractor(file.getNames()));
-		if (file.getNames().length > 0) {
-			delimited.names(file.getNames());
+		delimited.delimiter(options.getDelimiter());
+		delimited.fieldExtractor(new MapFieldExtractor(options.getNames()));
+		if (options.getNames().length > 0) {
+			delimited.names(options.getNames());
 		}
 		return builder.build();
 	}
 
 	private FlatFileItemWriter<Map<String, Object>> formattedWriter(Resource resource) {
 		FlatFileItemWriterBuilder<Map<String, Object>> builder = flatFileWriterBuilder(resource,
-				file.isHeader() ? String.format(locale, format, Arrays.asList(file.getNames()).toArray()) : null);
+				options.isHeader() ? String.format(locale, format, Arrays.asList(options.getNames()).toArray()) : null);
 		FormattedBuilder<Map<String, Object>> formatted = builder.formatted();
-		formatted.fieldExtractor(new MapFieldExtractor(file.getNames()));
-		if (file.getNames().length > 0) {
-			formatted.names(file.getNames());
+		formatted.fieldExtractor(new MapFieldExtractor(options.getNames()));
+		if (options.getNames().length > 0) {
+			formatted.names(options.getNames());
 		}
 		formatted.format(format);
 		formatted.locale(locale);
@@ -142,11 +143,6 @@ public class FileExportCommand extends ExportCommand {
 			formatted.maximumLength(maxLength);
 		}
 		return builder.build();
-	}
-
-	@Override
-	protected String targetDescription() {
-		return String.format("file %s", path);
 	}
 
 }

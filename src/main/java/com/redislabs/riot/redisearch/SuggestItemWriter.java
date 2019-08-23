@@ -38,4 +38,9 @@ public class SuggestItemWriter extends AbstractLettuSearchItemWriter {
 		return commands.sugadd(index, string, score, increment);
 	}
 
+	@Override
+	public String toString() {
+		return String.format("RediSearch suggestion index %s", getIndex());
+	}
+
 }

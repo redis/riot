@@ -72,4 +72,27 @@ public class RedisConverter {
 		}
 	}
 
+	@Override
+	public String toString() {
+		if (keyspace == null) {
+			return keysDescription();
+		}
+		if (keys.length > 0) {
+			return keyspace + separator + keysDescription();
+		}
+		return keyspace;
+	}
+
+	private String keysDescription() {
+		return String.join(separator, wrap(keys));
+	}
+
+	private String[] wrap(String[] fields) {
+		String[] results = new String[fields.length];
+		for (int index = 0; index < fields.length; index++) {
+			results[index] = "<" + fields[index] + ">";
+		}
+		return results;
+	}
+
 }

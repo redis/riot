@@ -3,21 +3,23 @@ package com.redislabs.riot;
 import org.slf4j.impl.SimpleLogger;
 import org.springframework.batch.item.file.transform.Range;
 
+import com.redislabs.riot.cli.BaseCommand;
+import com.redislabs.riot.cli.ExportParentCommand;
+import com.redislabs.riot.cli.ImportParentCommand;
 import com.redislabs.riot.cli.ManifestVersionProvider;
-import com.redislabs.riot.cli.db.DatabaseExportCommand;
-import com.redislabs.riot.cli.db.DatabaseImportCommand;
-import com.redislabs.riot.cli.file.FileExportCommand;
-import com.redislabs.riot.cli.file.FileImportCommand;
 import com.redislabs.riot.cli.file.RangeConverter;
-import com.redislabs.riot.cli.generator.GeneratorImportCommand;
 
+import picocli.AutoComplete;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
-@Command(name = "riot", mixinStandardHelpOptions = true, subcommands = { FileImportCommand.class,
-		FileExportCommand.class, DatabaseExportCommand.class, DatabaseImportCommand.class,
-		GeneratorImportCommand.class }, versionProvider = ManifestVersionProvider.class)
-public class Riot implements Runnable {
+@Command(name = "riot", mixinStandardHelpOptions = true, subcommands = { ImportParentCommand.class,
+		ExportParentCommand.class }, versionProvider = ManifestVersionProvider.class)
+public class Riot extends BaseCommand {
+
+	@Option(names = "--completion-script", hidden = true)
+	private boolean completionScript;
 
 	public static void main(String[] args) {
 		System.setProperty(SimpleLogger.LOG_KEY_PREFIX + "io.lettuce.core", "warn");
@@ -28,7 +30,11 @@ public class Riot implements Runnable {
 
 	@Override
 	public void run() {
-		CommandLine.usage(this, System.out);
+		if (completionScript) {
+			System.out.println(AutoComplete.bash("riot", new CommandLine(new Riot())));
+		} else {
+			super.run();
+		}
 	}
 
 }

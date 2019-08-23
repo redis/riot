@@ -81,4 +81,9 @@ public class LettuceWriter extends AbstractItemStreamItemWriter<Map<String, Obje
 		super.close();
 	}
 
+	@Override
+	public String toString() {
+		return writer.toString();
+	}
+
 }

@@ -3,7 +3,6 @@
 :idprefix:
 :idseparator: -
 ifdef::env-github,env-browser[:outfilesuffix: .adoc]
-endif::[]
 ifndef::env-github[:icons: font]
 // URIs
 :project-repo: Redislabs-Solution-Architects/riot
