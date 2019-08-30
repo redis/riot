@@ -37,7 +37,7 @@ import picocli.CommandLine.Mixin;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
-@Command(name = "file", description = "Import file into Redis")
+@Command(name = "file", description = "File -> Redis")
 public class FileImportCommand extends ImportCommand {
 
 	private final Logger log = LoggerFactory.getLogger(FileImportCommand.class);
@@ -112,7 +112,7 @@ public class FileImportCommand extends ImportCommand {
 				tokenizer.setIncludedFields(result);
 			}
 			fieldNames = tokenizer.tokenize(reader.readLine()).getValues();
-			log.info("Found header {}", Arrays.asList(fieldNames));
+			log.debug("Found header {}", Arrays.asList(fieldNames));
 		}
 		if (fieldNames == null || fieldNames.length == 0) {
 			throw new IOException("No fields found");

@@ -6,7 +6,6 @@ import java.io.InputStream;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.slf4j.impl.SimpleLogger;
 
 import com.redislabs.lettusearch.RediSearchClient;
 import com.redislabs.lettusearch.RediSearchCommands;
@@ -23,7 +22,6 @@ public class BaseTest {
 
 	@BeforeAll
 	public static void setup() throws IOException {
-		System.setProperty(SimpleLogger.DEFAULT_LOG_LEVEL_KEY, "info");
 		client = RediSearchClient.create("redis://localhost");
 		connection = client.connect();
 	}
@@ -48,10 +46,9 @@ public class BaseTest {
 	}
 
 	protected void runFile(String filename, Object... args) throws IOException {
-		InputStream inputStream = getClass().getResourceAsStream("/commands/" + filename + ".txt");
-		runCommand(new String(inputStream.readAllBytes()), args);
-//		Path resources = Paths.get("src", "test", "resources", "commands");
-//		Path file = resources.resolve(filename + ".txt");
+		try (InputStream inputStream = getClass().getResourceAsStream("/commands/" + filename + ".txt")) {
+			runCommand(new String(inputStream.readAllBytes()), args);
+		}
 	}
 
 	protected void runCommand(String line, Object... args) {

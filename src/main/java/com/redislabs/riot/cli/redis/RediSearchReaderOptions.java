@@ -6,13 +6,11 @@ import com.redislabs.lettusearch.search.SearchOptions;
 import com.redislabs.lettusearch.search.SearchOptions.SearchOptionsBuilder;
 import com.redislabs.riot.redisearch.RediSearchReader;
 
-import io.lettuce.core.RedisURI;
-import io.lettuce.core.resource.ClientResources;
 import picocli.CommandLine.Option;
 
 public class RediSearchReaderOptions {
 
-	@Option(names = "--index", description = "RediSearch index")
+	@Option(names = "--index", description = "RediSearch index", paramLabel = "<name>")
 	private String index;
 	@Option(names = "--query", description = "RediSearch query (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
 	private String query = "*";
@@ -21,18 +19,9 @@ public class RediSearchReaderOptions {
 	@Option(names = "--offset", description = "Limit results to offset (default: ${DEFAULT-VALUE})", paramLabel = "<count>")
 	private long limitOffset = Limit.DEFAULT_OFFSET;
 
-	public String getIndex() {
-		return index;
-	}
-
-	public String getQuery() {
-		return query;
-	}
-
-	public RediSearchReader reader(ClientResources clientResources, RedisURI redisUri) {
+	public RediSearchReader reader(RediSearchClient client) {
 		SearchOptionsBuilder builder = SearchOptions.builder();
 		builder.limit(Limit.builder().num(limitNum).offset(limitOffset).build());
-		RediSearchClient client = RediSearchClient.create(clientResources, redisUri);
 		return new RediSearchReader(client, index, query, builder.build());
 	}
 

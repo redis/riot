@@ -9,7 +9,7 @@ import com.redislabs.riot.generator.SimpleGeneratorReader;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Parameters;
 
-@Command(name = "simple", description = "Import simple generated data into Redis")
+@Command(name = "simple", description = "Simple generator -> Redis")
 public class SimpleGeneratorCommand extends ImportCommand {
 
 	@Parameters(description = "Field sizes in bytes", paramLabel = "<field=size>")

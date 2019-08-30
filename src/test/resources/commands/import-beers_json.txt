@@ -1,1 +1,1 @@
-$ riot import --keyspace beer --keys id file https://raw.githubusercontent.com/rethinkdb/beerthink/master/data/beers.json
+$ riot import --keyspace beer --keys id file https://git.io/fjxPZ -t json

@@ -1,8 +1,15 @@
 package com.redislabs.riot.cli.redis;
 
+import java.util.Map;
+
+import org.springframework.batch.item.ItemWriter;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import com.redislabs.riot.redis.JedisWriter;
+import com.redislabs.riot.redis.LettuSearchWriter;
+import com.redislabs.riot.redis.LettuceWriter;
 import com.redislabs.riot.redis.RedisConverter;
 import com.redislabs.riot.redis.writer.AbstractRedisItemWriter;
 import com.redislabs.riot.redis.writer.CollectionItemWriter;
@@ -24,6 +31,7 @@ import com.redislabs.riot.redis.writer.XaddMaxlenItemWriter;
 import com.redislabs.riot.redis.writer.ZaddItemWriter;
 
 import io.lettuce.core.ScriptOutputType;
+import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Option;
 
 public class RedisWriterOptions {
@@ -35,14 +43,14 @@ public class RedisWriterOptions {
 	@Option(names = { "-k", "--keys" }, arity = "1..*", description = "Key fields", paramLabel = "<names>")
 	private String[] keys = new String[0];
 	@Option(names = { "-c",
-			"--command" }, description = "Redis command: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})")
+			"--command" }, description = "Redis command: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})", paramLabel = "<command>")
 	private RedisCommand command = RedisCommand.hmset;
 	@Option(names = "--zset-score", description = "Name of the field to use for sorted set scores", paramLabel = "<field>")
 	private String scoreField;
 	@Option(names = "--zset-default-score", description = "Score when field not present (default: ${DEFAULT-VALUE})", paramLabel = "<float>")
 	private double defaultScore = 1d;
 	@Option(names = { "-f",
-			"--fields" }, arity = "1..*", description = "Names of fields composing member ids in collection data structures (list, geo, set, zset)")
+			"--fields" }, arity = "1..*", description = "Names of fields composing member ids in collection data structures (list, geo, set, zset)", paramLabel = "<names>")
 	private String[] fields = new String[0];
 	@Option(names = "--expire-default-timeout", description = "Default timeout in seconds (default: ${DEFAULT-VALUE})", paramLabel = "<seconds>")
 	private long defaultTimeout = 60;
@@ -52,7 +60,7 @@ public class RedisWriterOptions {
 	private String longitudeField;
 	@Option(names = "--geo-lat", description = "Latitude field", paramLabel = "<field>")
 	private String latitudeField;
-	@Option(names = "--eval-sha", description = "SHA1 digest of the Lua script")
+	@Option(names = "--eval-sha", description = "SHA1 digest of the Lua script", paramLabel = "<string>")
 	private String sha;
 	@Option(names = "--eval-output", description = "Lua script output type: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})", paramLabel = "<type>")
 	private ScriptOutputType outputType = ScriptOutputType.STATUS;
@@ -66,12 +74,14 @@ public class RedisWriterOptions {
 	private Long maxlen;
 	@Option(names = "--xadd-id", description = "Field used for stream entry IDs", paramLabel = "<field>")
 	private String idField;
-	@Option(names = "--string-format", description = "Serialization format: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})")
+	@Option(names = "--string-format", description = "Serialization format: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
 	private StringFormat format = StringFormat.json;
 	@Option(names = "--string-root", description = "XML root element name", paramLabel = "<name>")
 	private String root;
 	@Option(names = "--string-value", description = "Field to use for value when using raw format", paramLabel = "<field>")
 	private String field;
+	@ArgGroup(exclusive = false, heading = "RediSearch writer options%n")
+	private RediSearchWriterOptions search = new RediSearchWriterOptions();
 
 	public RedisCommand getCommand() {
 		return command;
@@ -150,16 +160,16 @@ public class RedisWriterOptions {
 		return writer;
 	}
 
-	public AbstractRedisItemWriter writer() {
-		AbstractRedisItemWriter itemWriter = itemWriter();
-		itemWriter.setConverter(new RedisConverter(separator, keyspace, keys));
-		if (itemWriter instanceof CollectionItemWriter) {
-			((CollectionItemWriter) itemWriter).setFields(fields);
+	public AbstractRedisItemWriter itemWriter() {
+		AbstractRedisItemWriter redisItemWriter = redisItemWriter();
+		redisItemWriter.setConverter(new RedisConverter(separator, keyspace, keys));
+		if (redisItemWriter instanceof CollectionItemWriter) {
+			((CollectionItemWriter) redisItemWriter).setFields(fields);
 		}
-		return itemWriter;
+		return redisItemWriter;
 	}
 
-	private AbstractRedisItemWriter itemWriter() {
+	private AbstractRedisItemWriter redisItemWriter() {
 		switch (command) {
 		case expire:
 			return expireWriter();
@@ -182,6 +192,16 @@ public class RedisWriterOptions {
 		default:
 			return new HmsetItemWriter();
 		}
+	}
+
+	public ItemWriter<Map<String, Object>> writer(RedisConnectionOptions connection) {
+		if (search.isSet()) {
+			return new LettuSearchWriter(connection.rediSearchClient(), connection.poolConfig(), search.itemWriter());
+		}
+		if (connection.getDriver() == RedisDriver.jedis) {
+			return new JedisWriter(connection.jedisPool(), itemWriter());
+		}
+		return new LettuceWriter(connection.redisClient(), connection.poolConfig(), itemWriter());
 	}
 
 }

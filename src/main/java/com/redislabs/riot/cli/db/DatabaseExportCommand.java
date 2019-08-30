@@ -14,13 +14,13 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
 import picocli.CommandLine.Option;
 
-@Command(name = "db", description = "Export to database")
+@Command(name = "db", description = "Redis -> database")
 public class DatabaseExportCommand extends ExportCommand {
 
 	@Mixin
 	private DatabaseConnectionOptions connection = new DatabaseConnectionOptions();
 	@Option(names = { "-s",
-			"--sql" }, required = true, description = "Insert/update statement e.g. \"INSERT INTO people (id, name) VALUES (:ssn, :name)\"")
+			"--sql" }, required = true, description = "Insert/update statement e.g. \"INSERT INTO people (id, name) VALUES (:ssn, :name)\"", paramLabel = "<string>")
 	private String sql;
 
 	@Override

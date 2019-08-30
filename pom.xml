@@ -6,7 +6,7 @@
 
 	<groupId>com.redislabs</groupId>
 	<artifactId>riot</artifactId>
-	<version>0.8.0</version>
+	<version>0.9.0</version>
 	<packaging>jar</packaging>
 	<name>RIOT</name>
 	<description>Redis Input/Output Tool</description>
@@ -34,7 +34,7 @@
 		<maven-jar-plugin.version>3.1.1</maven-jar-plugin.version>
 		<exec-maven-plugin.version>1.6.0</exec-maven-plugin.version>
 		<picocli.version>4.0.2</picocli.version>
-		<slf4j.version>1.7.25</slf4j.version>
+		<slf4j.version>1.7.26</slf4j.version>
 		<spring-batch.version>4.1.2.RELEASE</spring-batch.version>
 		<spring-boot-autoconfigure.version>2.1.6.RELEASE</spring-boot-autoconfigure.version>
 		<spring-jdbc.version>5.1.6.RELEASE</spring-jdbc.version>
@@ -53,12 +53,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-simple</artifactId>
-			<version>${slf4j.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>log4j-over-slf4j</artifactId>
+			<artifactId>slf4j-jdk14</artifactId>
 			<version>${slf4j.version}</version>
 		</dependency>
 		<dependency>
@@ -134,6 +129,11 @@
 			<version>${hsqldb.version}</version>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>jcl-over-slf4j</artifactId>
+			<version>${slf4j.version}</version>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -184,23 +184,43 @@
 					</execution>
 				</executions>
 			</plugin>
+			<!-- <plugin> -->
+			<!-- <groupId>de.jutzig</groupId> -->
+			<!-- <artifactId>github-release-plugin</artifactId> -->
+			<!-- <version>1.3.0</version> -->
+			<!-- <configuration> -->
+			<!-- <description>${project.name} ${project.version}</description> -->
+			<!-- <releaseName>${project.name} ${project.version}</releaseName> -->
+			<!-- <fileSets> -->
+			<!-- <fileSet> -->
+			<!-- <directory>${project.build.directory}</directory> -->
+			<!-- <includes> -->
+			<!-- <include>${project.artifactId}-${project.version}-bin.tar.gz</include> -->
+			<!-- <include>${project.artifactId}-${project.version}-bin.zip</include> -->
+			<!-- </includes> -->
+			<!-- </fileSet> -->
+			<!-- </fileSets> -->
+			<!-- </configuration> -->
+			<!-- </plugin> -->
 			<plugin>
-				<groupId>de.jutzig</groupId>
-				<artifactId>github-release-plugin</artifactId>
-				<version>1.3.0</version>
-				<configuration>
-					<description>${project.name} ${project.version}</description>
-					<releaseName>${project.name} ${project.version}</releaseName>
-					<fileSets>
-						<fileSet>
-							<directory>${project.build.directory}</directory>
-							<includes>
-								<include>${project.artifactId}-${project.version}-bin.tar.gz</include>
-								<include>${project.artifactId}-${project.version}-bin.zip</include>
-							</includes>
-						</fileSet>
-					</fileSets>
-				</configuration>
+				<groupId>com.ragedunicorn.tools.maven</groupId>
+				<artifactId>github-release-maven-plugin</artifactId>
+				<version>1.0.1</version>
+				<executions>
+					<execution>
+						<id>default-cli</id>
+						<configuration>
+							<owner>Redislabs-Solution-Architects</owner>
+							<repository>riot</repository>
+							<server>github</server>
+							<tagName>${project.version}</tagName>
+							<assets>
+								<asset>src/main/resources/asset-plain-text-example.txt</asset>
+								<asset>src/main/resources/asset-zip-example.zip</asset>
+							</assets>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 			<plugin>
 				<groupId>org.asciidoctor</groupId>
@@ -218,6 +238,7 @@
 				<configuration>
 					<backend>html5</backend>
 					<sourceHighlighter>coderay</sourceHighlighter>
+					<outputDirectory>${basedir}/docs</outputDirectory>
 				</configuration>
 			</plugin>
 			<plugin>

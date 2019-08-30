@@ -13,7 +13,7 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
 import picocli.CommandLine.Option;
 
-@Command(name = "db", description = "Import database into Redis")
+@Command(name = "db", description = "Database -> Redis")
 public class DatabaseImportCommand extends ImportCommand {
 
 	@Mixin

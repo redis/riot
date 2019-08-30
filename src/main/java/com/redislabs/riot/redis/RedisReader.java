@@ -8,6 +8,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
 
 public class RedisReader extends AbstractItemCountingItemStreamItemReader<Map<String, Object>> {
 
@@ -16,14 +17,15 @@ public class RedisReader extends AbstractItemCountingItemStreamItemReader<Map<St
 	private String separator;
 	private String keyspace;
 	private String[] keys;
+	private JedisPool jedisPool;
 	private volatile boolean initialized = false;
 	private Object lock = new Object();
 	private RedisKeyIterator redisIterator;
 	private Jedis jedis;
 
-	public RedisReader(Jedis jedis) {
+	public RedisReader(JedisPool jedisPool) {
 		setName(ClassUtils.getShortName(RedisReader.class));
-		this.jedis = jedis;
+		this.jedisPool = jedisPool;
 	}
 
 	public void setCount(Integer count) {
@@ -49,6 +51,7 @@ public class RedisReader extends AbstractItemCountingItemStreamItemReader<Map<St
 	@Override
 	protected void doOpen() throws Exception {
 		Assert.state(!initialized, "Cannot open an already open ItemReader, call close first");
+		jedis = jedisPool.getResource();
 		redisIterator = new RedisKeyIterator(jedis, count, match);
 		initialized = true;
 	}
@@ -58,7 +61,9 @@ public class RedisReader extends AbstractItemCountingItemStreamItemReader<Map<St
 		synchronized (lock) {
 			redisIterator = null;
 			jedis.close();
+			jedisPool.close();
 			jedis = null;
+			jedisPool = null;
 			initialized = false;
 		}
 	}

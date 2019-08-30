@@ -18,3 +18,5 @@ buildNumber.properties
 .DS_Store
 .asciidoctor/
 bin/
+/build/
+/.gradle/

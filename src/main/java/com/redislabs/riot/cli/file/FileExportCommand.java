@@ -27,7 +27,7 @@ import picocli.CommandLine.Mixin;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
-@Command(name = "file", description = "Export to file")
+@Command(name = "file", description = "Redis -> file")
 public class FileExportCommand extends ExportCommand {
 
 	@Parameters(arity = "1", description = "Path to file")
@@ -40,7 +40,7 @@ public class FileExportCommand extends ExportCommand {
 	private boolean forceSync;
 	@Option(names = "--line-separator", description = "String to separate lines (default: system default)", paramLabel = "<string>")
 	private String lineSeparator = FlatFileItemWriter.DEFAULT_LINE_SEPARATOR;
-	@Option(names = "--format", description = "Format string used to aggregate items")
+	@Option(names = "--format", description = "Format string used to aggregate items", paramLabel = "<string>")
 	private String format;
 	@Option(names = "--locale", description = "Locale", paramLabel = "<tag>")
 	private Locale locale = Locale.ENGLISH;

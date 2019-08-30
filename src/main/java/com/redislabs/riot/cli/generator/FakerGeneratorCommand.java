@@ -19,7 +19,7 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
-@Command(name = "faker", description = "Import Faker data into Redis")
+@Command(name = "faker", description = "Faker -> Redis")
 public class FakerGeneratorCommand extends ImportCommand {
 
 	@Parameters(paramLabel = "<name=SpEL>", description = "SpEL expression to generate a field")

@@ -2,23 +2,25 @@
 // Settings
 :idprefix:
 :idseparator: -
-ifdef::env-github,env-browser[:outfilesuffix: .adoc]
 :toc: preamble
-ifndef::env-github[:icons: font]
+:icons: font
 // URIs
 :project-repo: Redislabs-Solution-Architects/riot
 :uri-repo: https://github.com/{project-repo}
-// GitHub customization
-ifdef::env-github[]
-:badges:
-:tag: master
-:!toc-title:
-:tip-caption: :bulb:
-:note-caption: :paperclip:
-:important-caption: :heavy_exclamation_mark:
-:caution-caption: :fire:
-:warning-caption: :warning:
-endif::[]
+
+RIOT is a data import/export tool for Redis that connects to files, databases, and generators.
+
+== Getting Started 
+
+Download the https://github.com/Redislabs-Solution-Architects/riot/releases/latest[latest RIOT distribution] (zip or tar.gz) and unpack the downloaded archive.
+
+Launch the `riot` script (`riot.bat` for Windows) and follow the usage information provided.
+
+== Installing via Homebrew
+
+```
+$ brew install jruaux/tap/riot
+```
 
 == Connectors
 
@@ -46,14 +48,6 @@ RIOT can import/export files in these formats:
 * JSON
 
 ==== Delimited Files
-
-Here is an excerpt of https://raw.githubusercontent.com/nickhould/craft-beers-dataset/master/data/processed/beers.csv[beers.csv]
-[source,csv]
-----
-,abv,ibu,id,name,style,brewery_id,ounces
-0,0.05,,1436,Pub Beer,American Pale Lager,408,12.0
-1,0.066,,2265,Devil's Cup,American Pale Ale (APA),177,12.0
-----
 
 .CSV -> Redis
 [source,shell]
@@ -109,29 +103,6 @@ RIOT can read and write JSON data in the following format:
 ]
 ----
 
-Here is an excerpt of `beers.json` available at https://github.com/rethinkdb/beerthink/blob/master/data/beers.json[beerthink]:
-[source,json]
-----
-[
-  {
-    "id": "1",
-    "brewery_id": "812",
-    "name": "Hocus Pocus",
-    "abv": "4.5",
-    "style_name": "Light American Wheat Ale or Lager",
-    "cat_name": "Other Style"
-  },
-  {
-    "id": "6",
-    "brewery_id": "1385",
-    "name": "Winter Warmer",
-    "abv": "5.199999809265137",
-    "style_name": "Old Ale",
-    "cat_name": "British Ale"
-  }
-]
-----
-
 .JSON -> Redis
 [source,shell]
 ----
@@ -149,38 +120,24 @@ include::../../test/resources/commands/export-beers_json.txt[]
 
 RIOT can connect to any RDBMS with a JDBC driver.
 
-==== Setup
+[TIP]
+====
+Add the driver jar for your database under the `lib` directory.
 
-TIP: Add the JDBC driver jar for your database under the `lib` directory, for example MySQL: `lib/mysql-connector-java-5.1.47.jar`.
+e.g. with MySQL: `<RIOT>/lib/mysql-connector-java-5.1.47.jar`.
+====
 
 For reference here are links to common JDBC drivers:
 
-==== Oracle
-** https://www.oracle.com/technetwork/database/application-development/jdbc/downloads/index.html[Download]
-** https://docs.oracle.com/cd/E11882_01/appdev.112/e13995/oracle/jdbc/OracleDriver.html[Connection URL]
-+
-[source,plaintext]
-----
-jdbc:oracle:thin:@myhost:1521:orcl
-----
+[options="noheader"]
+|=========================================================
+|https://www.oracle.com/technetwork/database/application-development/jdbc/downloads/index.html[Oracle] | https://docs.oracle.com/cd/E11882_01/appdev.112/e13995/oracle/jdbc/OracleDriver.html[Doc] |`jdbc:oracle:thin:@myhost:1521:orcl`
 
-==== MS SQL Server
-* https://docs.microsoft.com/en-us/sql/connect/jdbc/microsoft-jdbc-driver-for-sql-server[Download]
-* https://docs.microsoft.com/en-us/sql/connect/jdbc/building-the-connection-url?view=sql-server-2017[Connection URL]
-+
-[source,plaintext]
-----
-jdbc:sqlserver://[serverName[\instanceName][:portNumber]][;property=value[;property=value]]
-----
+|https://docs.microsoft.com/en-us/sql/connect/jdbc/microsoft-jdbc-driver-for-sql-server[MS SQL]|https://docs.microsoft.com/en-us/sql/connect/jdbc/building-the-connection-url?view=sql-server-2017[Doc] | `jdbc:sqlserver://[serverName[\instanceName][:portNumber]][;property=value[;property=value]]`
 
-==== MySQL
-* https://dev.mysql.com/downloads/connector/j/[MySQL Connector/J]
-* https://dev.mysql.com/doc/connector-j/8.0/en/connector-j-reference-jdbc-url-format.html[Connection URL]
-+
-[source,plaintext]
-----
-jdbc:mysql://[host]:[port][/database][?properties]
-----
+|https://dev.mysql.com/downloads/connector/j/[MySQL]|https://dev.mysql.com/doc/connector-j/8.0/en/connector-j-reference-jdbc-url-format.html[Doc]|`jdbc:mysql://[host]:[port][/database][?properties]`
+|=========================================================
+
 
 .DB -> Redis
 Let's use the following MySQL database table from https://dev.mysql.com/doc/employee/en/[mysql.com]: 
@@ -214,7 +171,7 @@ $ riot export --keyspace beer --keys id db --sql "INSERT INTO beers (id, name, s
 ----
 
 [#gen]
-=== Data Generators
+=== Generators
 
 ==== Simple
 The simple data generator generates entries with 2 fields by default:

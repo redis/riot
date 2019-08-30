@@ -14,7 +14,7 @@ import picocli.CommandLine.Option;
 
 public class RediSearchWriterOptions {
 
-	@Option(names = { "-i", "--index" }, description = "Name of the RediSearch index")
+	@Option(names = { "-i", "--index" }, description = "Name of the RediSearch index", paramLabel = "<name>")
 	private String index;
 	@Option(names = "--ids", arity = "1..*", description = "Fields to use to build document ids", paramLabel = "<names>")
 	private String[] ids = new String[0];
@@ -28,7 +28,7 @@ public class RediSearchWriterOptions {
 	private boolean replace;
 	@Option(names = "--partial", description = "Only applicable with replace. If set, you do not have to specify all fields for reindexing")
 	private boolean partial;
-	@Option(names = "--language", description = "Use a stemmer for the supplied language during indexing. Languages supported: ${COMPLETION-CANDIDATES}")
+	@Option(names = "--language", description = "Use a stemmer for the supplied language during indexing. Languages supported: ${COMPLETION-CANDIDATES}", paramLabel = "<string>")
 	private Language language;
 	@Option(names = "--if-condition", description = "Update the document only if a boolean expression applies to the document before the update. Applicable only in conjunction with REPLACE and optionally PARTIAL.", paramLabel = "<condition>")
 	private String ifCondition;
@@ -47,38 +47,18 @@ public class RediSearchWriterOptions {
 		return index;
 	}
 
-	public AbstractLettuSearchItemWriter writer() {
-		AbstractLettuSearchItemWriter itemWriter = itemWriter();
-		itemWriter.setConverter(new RedisConverter(idSeparator, idPrefix, ids));
-		return itemWriter;
-	}
-
-	private AbstractLettuSearchItemWriter itemWriter() {
+	public AbstractLettuSearchItemWriter itemWriter() {
 		if (field == null) {
-			return searchWriter();
+			AbstractSearchItemWriter writer = searchWriter();
+			writer.setOptions(AddOptions.builder().ifCondition(ifCondition).language(language).noSave(noSave)
+					.replace(replace).replacePartial(partial).build());
+			writer.setDefaultScore(defaultScore);
+			writer.setScoreField(scoreField);
+			writer.setIndex(index);
+			writer.setConverter(new RedisConverter(idSeparator, idPrefix, ids));
+			return writer;
 		}
-		return suggestWriter();
-	}
-
-	private AbstractSearchItemWriter searchWriter() {
-		if (payloadField == null) {
-			return configure(new SearchItemWriter());
-		}
-		SearchPayloadItemWriter writer = new SearchPayloadItemWriter();
-		writer.setPayloadField(payloadField);
-		return configure(writer);
-	}
-
-	private SuggestItemWriter suggestWriter() {
-		if (payloadField == null) {
-			return configure(new SuggestItemWriter());
-		}
-		SuggestPayloadItemWriter writer = new SuggestPayloadItemWriter();
-		writer.setPayloadField(payloadField);
-		return configure(writer);
-	}
-
-	private SuggestItemWriter configure(SuggestItemWriter writer) {
+		SuggestItemWriter writer = suggestWriter();
 		writer.setIndex(index);
 		writer.setScoreField(scoreField);
 		writer.setDefaultScore(defaultScore);
@@ -87,12 +67,21 @@ public class RediSearchWriterOptions {
 		return writer;
 	}
 
-	private AbstractSearchItemWriter configure(AbstractSearchItemWriter writer) {
-		writer.setOptions(AddOptions.builder().ifCondition(ifCondition).language(language).noSave(noSave)
-				.replace(replace).replacePartial(partial).build());
-		writer.setDefaultScore(defaultScore);
-		writer.setScoreField(scoreField);
-		writer.setIndex(index);
+	private AbstractSearchItemWriter searchWriter() {
+		if (payloadField == null) {
+			return new SearchItemWriter();
+		}
+		SearchPayloadItemWriter writer = new SearchPayloadItemWriter();
+		writer.setPayloadField(payloadField);
+		return writer;
+	}
+
+	private SuggestItemWriter suggestWriter() {
+		if (payloadField == null) {
+			return new SuggestItemWriter();
+		}
+		SuggestPayloadItemWriter writer = new SuggestPayloadItemWriter();
+		writer.setPayloadField(payloadField);
 		return writer;
 	}
 

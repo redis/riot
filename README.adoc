@@ -44,4 +44,4 @@ $ brew install jruaux/tap/riot
 
 == Documentation
 
-
+https://redislabs-solution-architects.github.io/riot/index.html[RIOT Documentation]

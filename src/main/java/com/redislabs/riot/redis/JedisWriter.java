@@ -17,7 +17,7 @@ import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.Response;
 
 public class JedisWriter extends AbstractItemStreamItemWriter<Map<String, Object>> {
-	
+
 	private final Logger log = LoggerFactory.getLogger(JedisWriter.class);
 
 	private JedisPool pool;

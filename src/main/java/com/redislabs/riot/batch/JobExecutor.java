@@ -39,9 +39,9 @@ public class JobExecutor {
 		this.jobLauncher.afterPropertiesSet();
 	}
 
-	public <I, O> JobExecution execute(ItemReader<I> reader, ItemProcessor<I, O> processor, ItemWriter<O> writer,
-			int threads, int chunkSize) throws Exception {
-		SimpleStepBuilder<I, O> builder = stepFactory.get("tasklet-step").<I, O>chunk(chunkSize);
+	public <I, O> JobExecution execute(String name, ItemReader<I> reader, ItemProcessor<I, O> processor,
+			ItemWriter<O> writer, int threads, int chunkSize) throws Exception {
+		SimpleStepBuilder<I, O> builder = stepFactory.get(name).<I, O>chunk(chunkSize);
 		builder.reader(reader);
 		if (processor != null) {
 			builder.processor(processor);
@@ -49,10 +49,10 @@ public class JobExecutor {
 		builder.writer(writer);
 		Step step = builder.build();
 		if (threads > 1) {
-			step = stepFactory.get("partitioner-step").partitioner("delegate-step", new IndexedPartitioner(threads))
-					.step(step).taskExecutor(new SimpleAsyncTaskExecutor()).build();
+			step = stepFactory.get(name + "-partitioner").partitioner(name, new IndexedPartitioner(threads)).step(step)
+					.taskExecutor(new SimpleAsyncTaskExecutor()).build();
 		}
-		Job job = jobFactory.get("riot-job").start(step).build();
+		Job job = jobFactory.get(name).start(step).build();
 		return jobLauncher.run(job, new JobParameters());
 	}
 }

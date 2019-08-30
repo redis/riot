@@ -10,7 +10,7 @@ import picocli.CommandLine.Option;
 
 public class DatabaseConnectionOptions {
 
-	private final Logger log = LoggerFactory.getLogger(DatabaseExportCommand.class);
+	private final Logger log = LoggerFactory.getLogger(DatabaseConnectionOptions.class);
 
 	@Option(names = { "-d",
 			"--driver" }, description = "Fully qualified name of the JDBC driver", paramLabel = "<class>")
@@ -18,10 +18,10 @@ public class DatabaseConnectionOptions {
 	@Option(names = { "-u",
 			"--url" }, required = true, description = "URL to connect to the database", paramLabel = "<string>")
 	private String url;
-	@Option(names = { "-n", "--username" }, description = "Login username of the database")
+	@Option(names = { "-n", "--username" }, description = "Login username of the database", paramLabel = "<string>")
 	private String username;
 	@Option(names = { "-p",
-			"--password" }, arity = "0..1", interactive = true, description = "Login password of the database")
+			"--password" }, arity = "0..1", interactive = true, description = "Login password of the database", paramLabel = "<pwd>")
 	private String password;
 
 	protected HikariDataSource dataSource() {
@@ -30,7 +30,7 @@ public class DatabaseConnectionOptions {
 		properties.setDriverClassName(driver);
 		properties.setUsername(username);
 		properties.setPassword(password);
-		log.info("Initializing datasource: driver={} url={}", driver, url);
+		log.debug("Initializing datasource: driver={} url={}", driver, url);
 		return properties.initializeDataSourceBuilder().type(HikariDataSource.class).build();
 	}
 

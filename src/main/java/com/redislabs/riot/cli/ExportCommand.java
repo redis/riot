@@ -6,18 +6,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemWriter;
 
-import com.redislabs.riot.cli.file.FileImportCommand;
-
 import picocli.CommandLine.Command;
 import picocli.CommandLine.ParentCommand;
 
 @Command
 public abstract class ExportCommand extends HelpAwareCommand implements Runnable {
 
-	private final Logger log = LoggerFactory.getLogger(FileImportCommand.class);
+	private final Logger log = LoggerFactory.getLogger(ExportCommand.class);
 
 	@ParentCommand
-	private ExportParentCommand parent;
+	protected ExportParentCommand parent;
 
 	@Override
 	public void run() {

@@ -1,5 +1,5 @@
 package com.redislabs.riot.cli.redis;
 
-public enum RedisClient {
+public enum RedisDriver {
 	jedis, lettuce
 }

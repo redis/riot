@@ -134,7 +134,6 @@ public class TestFile extends BaseTest {
 	@Test
 	public void testImportBeersJson() throws Exception {
 		runFile("import-beers_json");
-		System.out.println("Before commands");
 		List<String> keys = commands().keys("beer:*");
 		Assertions.assertEquals(4432, keys.size());
 		Map<String, String> beer1 = commands().hgetall("beer:1");

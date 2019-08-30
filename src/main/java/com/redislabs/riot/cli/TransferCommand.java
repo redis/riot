@@ -14,18 +14,22 @@ import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
 
+import com.redislabs.riot.Riot;
 import com.redislabs.riot.batch.JobExecutor;
 import com.redislabs.riot.batch.Processor;
 import com.redislabs.riot.batch.ThrottlingItemReader;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
+import picocli.CommandLine.ParentCommand;
 
-@Command(synopsisSubcommandLabel = "[CONNECTOR]", commandListHeading = "Connectors:%n", abbreviateSynopsis = true)
+@Command(synopsisSubcommandLabel = "[CONNECTOR]", commandListHeading = "Connectors:%n")
 public class TransferCommand extends HelpAwareCommand {
 
 	private final Logger log = LoggerFactory.getLogger(TransferCommand.class);
 
+	@ParentCommand
+	private Riot riot;
 	@Option(names = { "-t",
 			"--threads" }, description = "Thread count (default: ${DEFAULT-VALUE})", paramLabel = "<count>")
 	private int threads = 1;
@@ -36,16 +40,19 @@ public class TransferCommand extends HelpAwareCommand {
 	private Integer count;
 	@Option(names = "--sleep", description = "Sleep duration in millis between reads", paramLabel = "<millis>")
 	private Long sleep;
-	@Option(names = { "-e",
-			"--processor" }, description = "SpEL expression to process a field", paramLabel = "<name=SpEL>")
+	@Option(names = { "-p",
+			"--processor" }, description = "SpEL expression to process a field", paramLabel = "<name=ex>")
 	private Map<String, String> processorFields;
 
-	public void transfer(ItemReader<Map<String, Object>> reader, ItemWriter<Map<String, Object>> writer) {
+	public Riot getRiot() {
+		return riot;
+	}
+
+	public void transfer(String name, ItemReader<Map<String, Object>> reader, ItemWriter<Map<String, Object>> writer) {
 		try {
 			Processor processor = processor();
 			JobExecutor executor = new JobExecutor();
-			log.info("Transferring from {} to {}", reader, writer);
-			JobExecution execution = executor.execute(throttle(reader), processor, writer, threads, batchSize);
+			JobExecution execution = executor.execute(name, throttle(reader), processor, writer, threads, batchSize);
 			if (execution.getExitStatus().equals(ExitStatus.FAILED)) {
 				execution.getAllFailureExceptions().forEach(e -> e.printStackTrace());
 			}
@@ -55,7 +62,7 @@ public class TransferCommand extends HelpAwareCommand {
 				int writeCount = stepExecution.getWriteCount();
 				double throughput = (double) writeCount / duration.toMillis() * 1000;
 				NumberFormat numberFormat = NumberFormat.getIntegerInstance();
-				log.info("Wrote {} items in {} seconds ({} items/sec)", numberFormat.format(writeCount),
+				log.debug("Wrote {} items in {} seconds ({} items/sec)", numberFormat.format(writeCount),
 						duration.get(ChronoUnit.SECONDS), numberFormat.format(throughput));
 			}
 		} catch (Exception e) {
