@@ -35,3 +35,12 @@ RELEASE_ID=$(okurl -d "$RELEASE_BODY" https://api.github.com/repos/Redislabs-Sol
 echo Created "https://api.github.com/repos/Redislabs-Solution-Architects/riot/releases/${RELEASE_ID}"
 
 okurl -H "Content-Type: application/x-gzip" -d "@build/distributions/riot-${TAG_VERSION}.tgz" "https://uploads.github.com/repos/Redislabs-Solution-Architects/riot/releases/${RELEASE_ID}/assets?name=riot-${TAG_VERSION}.tgz" | jq ".browser_download_url"
+
+SHA256=$(shasum -a 256 "@build/distributions/riot-${TAG_VERSION}.tgz")
+
+git co master
+cd ../homebrew-tap
+sed -e "s/\${version}/$VERSION/" -e "s/\${sha256}/$SHA256/" riot.rb.template > riot.rb
+git add riot.rb
+git commit -m "Updated to release $VERSION"
+git push
