@@ -1,5 +1,6 @@
 package com.redislabs.riot.cli.generator;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.redislabs.riot.cli.ImportCommand;
@@ -18,7 +19,7 @@ public class SimpleGeneratorCommand extends ImportCommand {
 	private GeneratorConnector connector;
 
 	@Parameters(description = "Field sizes in bytes", paramLabel = "<field=size>")
-	private Map<String, Integer> fields;
+	private Map<String, Integer> fields = new LinkedHashMap<>();
 
 	@Override
 	protected GeneratorReader reader() {

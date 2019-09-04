@@ -44,24 +44,24 @@ public class RedisWriterOptions {
 	private String[] keys = new String[0];
 	@Option(names = { "-r",
 			"--type" }, description = "Redis type: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})", paramLabel = "<type>")
-	private RedisType command = RedisType.hash;
+	private RedisType redisType = RedisType.hash;
 	@Option(names = "--zset-score", description = "Name of the field to use for sorted set scores", paramLabel = "<field>")
-	private String scoreField;
+	private String zsetScore;
 	@Option(names = "--zset-default-score", description = "Score when field not present (default: ${DEFAULT-VALUE})", paramLabel = "<float>")
-	private double defaultScore = 1d;
+	private double zsetDefaultScore = 1d;
 	@Option(names = { "-m",
 			"--members" }, arity = "1..*", description = "Names of fields composing member ids in collection data structures (list, geo, set, zset)", paramLabel = "<names>")
 	private String[] members = new String[0];
 	@Option(names = "--expire-default-timeout", description = "Default timeout in seconds (default: ${DEFAULT-VALUE})", paramLabel = "<seconds>")
-	private long defaultTimeout = 60;
+	private long expireDefaultTimeout = 60;
 	@Option(names = "--expire-timeout", description = "Field to get the timeout value from", paramLabel = "<field>")
-	private String timeoutField;
+	private String expireTimeout;
 	@Option(names = "--geo-lon", description = "Longitude field", paramLabel = "<field>")
-	private String longitudeField;
+	private String geoLon;
 	@Option(names = "--geo-lat", description = "Latitude field", paramLabel = "<field>")
-	private String latitudeField;
+	private String geoLat;
 	@Option(names = "--eval-sha", description = "SHA1 digest of the Lua script", paramLabel = "<string>")
-	private String sha;
+	private String evalSha;
 	@Option(names = "--eval-output", description = "Lua script output type: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})", paramLabel = "<type>")
 	private ScriptOutputType outputType = ScriptOutputType.STATUS;
 	@Option(names = "--eval-keys", arity = "1..*", description = "Fields for Lua script keys", paramLabel = "<field1,field2,...>")
@@ -69,38 +69,38 @@ public class RedisWriterOptions {
 	@Option(names = "--eval-args", arity = "1..*", description = "Fields for Lua script args", paramLabel = "<field1,field2,...>")
 	private String[] evalArgs = new String[0];
 	@Option(names = "--list-direction", description = "List direction: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
-	private ListPushDirection direction = ListPushDirection.left;
+	private ListPushDirection listDirection = ListPushDirection.left;
 	@Option(names = "--xadd-trim", description = "Apply efficient trimming for capped streams using the ~ flag")
-	private boolean trim;
+	private boolean xaddTrim;
 	@Option(names = "--xadd-maxlen", description = "Limit stream to maxlen entries", paramLabel = "<integer>")
-	private Long maxlen;
+	private Long xaddMaxlen;
 	@Option(names = "--xadd-id", description = "Field used for stream entry IDs", paramLabel = "<field>")
-	private String idField;
+	private String xaddId;
 	@Option(names = "--string-format", description = "Serialization format: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
-	private StringFormat format = StringFormat.json;
+	private StringFormat stringFormat = StringFormat.json;
 	@Option(names = "--string-root", description = "XML root element name", paramLabel = "<name>")
-	private String root;
+	private String stringRoot;
 	@Option(names = "--string-value", description = "Field to use for value when using raw format", paramLabel = "<field>")
-	private String field;
+	private String stringValue;
 	@ArgGroup(exclusive = false, heading = "RediSearch writer options%n")
 	private RediSearchWriterOptions search = new RediSearchWriterOptions();
 
 	public RedisType getCommand() {
-		return command;
+		return redisType;
 	}
 
 	private ZaddItemWriter zaddWriter() {
 		ZaddItemWriter writer = new ZaddItemWriter();
-		writer.setDefaultScore(defaultScore);
-		writer.setScoreField(scoreField);
+		writer.setDefaultScore(zsetDefaultScore);
+		writer.setScoreField(zsetScore);
 		return writer;
 	}
 
 	private SetItemWriter setWriter() {
-		switch (format) {
+		switch (stringFormat) {
 		case raw:
 			SetFieldItemWriter fieldWriter = new SetFieldItemWriter();
-			fieldWriter.setField(field);
+			fieldWriter.setField(stringValue);
 			return fieldWriter;
 		case xml:
 			SetObjectItemWriter xmlWriter = new SetObjectItemWriter();
@@ -114,28 +114,28 @@ public class RedisWriterOptions {
 	}
 
 	private ObjectWriter objectWriter(ObjectMapper mapper) {
-		return mapper.writer().withRootName(root);
+		return mapper.writer().withRootName(stringRoot);
 	}
 
 	private RedisItemWriter xaddWriter() {
-		if (idField == null) {
-			if (maxlen == null) {
+		if (xaddId == null) {
+			if (xaddMaxlen == null) {
 				return new XaddItemWriter();
 			}
 			XaddMaxlenItemWriter writer = new XaddMaxlenItemWriter();
-			writer.setApproximateTrimming(trim);
-			writer.setMaxlen(maxlen);
+			writer.setApproximateTrimming(xaddTrim);
+			writer.setMaxlen(xaddMaxlen);
 			return writer;
 		}
-		if (maxlen == null) {
+		if (xaddMaxlen == null) {
 			XaddIdItemWriter writer = new XaddIdItemWriter();
-			writer.setIdField(idField);
+			writer.setIdField(xaddId);
 			return writer;
 		}
 		XaddIdMaxlenItemWriter writer = new XaddIdMaxlenItemWriter();
-		writer.setApproximateTrimming(trim);
-		writer.setIdField(idField);
-		writer.setMaxlen(maxlen);
+		writer.setApproximateTrimming(xaddTrim);
+		writer.setIdField(xaddId);
+		writer.setMaxlen(xaddMaxlen);
 		return writer;
 	}
 
@@ -144,21 +144,21 @@ public class RedisWriterOptions {
 		luaWriter.setArgs(evalArgs);
 		luaWriter.setKeys(evalKeys);
 		luaWriter.setOutputType(outputType);
-		luaWriter.setSha(sha);
+		luaWriter.setSha(evalSha);
 		return luaWriter;
 	}
 
 	private ExpireItemWriter expireWriter() {
 		ExpireItemWriter expireWriter = new ExpireItemWriter();
-		expireWriter.setDefaultTimeout(defaultTimeout);
-		expireWriter.setTimeoutField(timeoutField);
+		expireWriter.setDefaultTimeout(expireDefaultTimeout);
+		expireWriter.setTimeoutField(expireTimeout);
 		return expireWriter;
 	}
 
 	private GeoaddItemWriter geoWriter() {
 		GeoaddItemWriter writer = new GeoaddItemWriter();
-		writer.setLatitudeField(latitudeField);
-		writer.setLongitudeField(longitudeField);
+		writer.setLatitudeField(geoLat);
+		writer.setLongitudeField(geoLon);
 		return writer;
 	}
 
@@ -172,13 +172,13 @@ public class RedisWriterOptions {
 	}
 
 	private AbstractRedisItemWriter redisItemWriter() {
-		switch (command) {
+		switch (redisType) {
 		case ex:
 			return expireWriter();
 		case geo:
 			return geoWriter();
 		case list:
-			if (direction == ListPushDirection.left) {
+			if (listDirection == ListPushDirection.left) {
 				return new LpushItemWriter();
 			}
 			return new RpushItemWriter();
@@ -198,11 +198,11 @@ public class RedisWriterOptions {
 	}
 
 	public ItemWriter<Map<String, Object>> writer(RedisConnectionOptions connection) {
-		if (command == RedisType.search) {
+		if (redisType == RedisType.search) {
 			return new LettuSearchWriter(connection.rediSearchClient(), connection.poolConfig(),
 					search.searchItemWriter());
 		}
-		if (command == RedisType.suggest) {
+		if (redisType == RedisType.suggest) {
 			return new LettuSearchWriter(connection.rediSearchClient(), connection.poolConfig(),
 					search.suggestItemWriter());
 		}

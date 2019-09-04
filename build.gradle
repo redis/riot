@@ -9,7 +9,7 @@ plugins {
 dependencies {
     compile 'org.slf4j:slf4j-api:1.7.26'
     compile 'org.slf4j:slf4j-jdk14:1.7.26'
-    compile 'info.picocli:picocli:4.0.2'
+    compile 'info.picocli:picocli:4.0.3'
     compile 'org.springframework.batch:spring-batch-core:4.1.2.RELEASE'
     compile 'org.springframework.boot:spring-boot-autoconfigure:2.1.6.RELEASE'
     compile 'org.springframework:spring-jdbc:5.1.6.RELEASE'

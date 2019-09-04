@@ -38,7 +38,7 @@ public class RediSearchWriterOptions {
 	@Option(names = "--default-score", description = "Score when field not present (default: ${DEFAULT-VALUE})", paramLabel = "<float>")
 	private double defaultScore = 1d;
 	@Option(names = "--suggest-field", description = "Name of the field containing the suggestion", paramLabel = "<field>")
-	private String field;
+	private String suggestField;
 	@Option(names = "--suggest-increment", description = "Use increment to set value")
 	private boolean increment;
 
@@ -58,7 +58,7 @@ public class RediSearchWriterOptions {
 		writer.setIndex(index);
 		writer.setScoreField(scoreField);
 		writer.setDefaultScore(defaultScore);
-		writer.setField(field);
+		writer.setField(suggestField);
 		writer.setIncrement(increment);
 		return writer;
 	}
