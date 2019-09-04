@@ -33,6 +33,7 @@ test {
 group = 'com.redislabs'
 version = versioning.info.display
 description = 'RIOT'
+sourceCompatibility = '1.8'
 
 application {
 	mainClassName = 'com.redislabs.riot.Riot'
