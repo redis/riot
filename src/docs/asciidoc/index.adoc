@@ -160,14 +160,14 @@ mysql> describe employees;
 To import the whole table run the following command:
 [source,shell]
 ----
-$ riot import --keyspace employee --keys emp_no db --sql "select * from employees" --url "jdbc:mysql://localhost:3306/employees?serverTimezone=PST&useLegacyDatetimeCode=false&useSSL=false" --username root --password
+$ riot db --url "jdbc:mysql://localhost:3306/employees?serverTimezone=PST&useLegacyDatetimeCode=false&useSSL=false" --username root --password import "select * from employees" --keyspace employee --keys emp_no
 ----
 
 .Redis -> DB
 This command exports all hashes under keyspace `beer:<id>` to MySQL: 
 [source,shell]
 ----
-$ riot export --keyspace beer --keys id db --sql "INSERT INTO beers (id, name, style_name) VALUES (:id, :name, :style_name)" --url "jdbc:mysql://localhost:3306/employees?serverTimezone=PST&useLegacyDatetimeCode=false&useSSL=false" --username root --password
+$ riot db --url "jdbc:mysql://localhost:3306/employees?serverTimezone=PST&useLegacyDatetimeCode=false&useSSL=false" --username root --password export export --keyspace beer --keys id "INSERT INTO beers (id, name, style_name) VALUES (:id, :name, :style_name)"
 ----
 
 [#gen]
@@ -228,7 +228,7 @@ include::../../test/resources/commands/import-faker-got.txt[]
 Use the `--metrics` option to show latency metrics when using the Lettuce driver:
 [source,shell]
 ----
-riot import --metrics …
+riot --metrics …
 ----
 [source,plaintext]
 ----
@@ -241,13 +241,13 @@ riot import --metrics …
 .Strings
 [source,shell]
 ----
-riot import --max 100000000 --batch 500 --threads 96 --host redis-12000.redislabs.com --port 12000 --max-total 96 -c set --string-format raw --keyspace string --keys=index --value value simple value=100
+riot --host redis-12000.redislabs.com --port 12000 --max-total 96 gen simple value=100 --max 100000000 --batch 500 --threads 96 -r string --string-format raw --keyspace string --keys=index --value value
 ----
 image::rs-strings.png[]
 
 .Streams
 [source,shell]
 ----
-riot import --max 100000000 --batch 500 --threads 96 --host redis-12000.redislabs.com --port 12000 --pool 96 -c xadd --keyspace stream --keys partition simple
+riot --host redis-12000.redislabs.com --port 12000 --max-total 96 gen simple --max 100000000 --batch 500 --threads 96 -r stream --keyspace stream --keys partition
 ----
 image::rs-streams.png[]
