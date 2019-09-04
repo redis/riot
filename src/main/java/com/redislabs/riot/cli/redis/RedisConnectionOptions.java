@@ -28,10 +28,11 @@ public class RedisConnectionOptions {
 
 	private final Logger log = LoggerFactory.getLogger(RedisConnectionOptions.class);
 
-	@Option(names = { "-h", "--host" }, description = "Redis host (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
+	@Option(names = { "-s",
+			"--server" }, description = "Redis server address (default: ${DEFAULT-VALUE})", paramLabel = "<host>")
 	private String host = "localhost";
 	@Option(names = { "-p",
-			"--port" }, description = "Redis port (default: ${DEFAULT-VALUE})", paramLabel = "<integer>")
+			"--port" }, description = "Redis server port (default: ${DEFAULT-VALUE})", paramLabel = "<integer>")
 	private int port = RedisURI.DEFAULT_REDIS_PORT;
 	@Option(names = "--command-timeout", description = "Command timeout in seconds for synchronous command execution (default: ${DEFAULT-VALUE})", paramLabel = "<seconds>")
 	private long commandTimeout = RedisURI.DEFAULT_TIMEOUT;

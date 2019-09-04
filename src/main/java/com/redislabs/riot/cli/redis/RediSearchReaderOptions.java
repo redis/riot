@@ -10,7 +10,7 @@ import picocli.CommandLine.Option;
 
 public class RediSearchReaderOptions {
 
-	@Option(names = "--index", description = "RediSearch index", paramLabel = "<name>")
+	@Option(names = "--source-index", description = "RediSearch index", paramLabel = "<name>")
 	private String index;
 	@Option(names = "--query", description = "RediSearch query (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
 	private String query = "*";

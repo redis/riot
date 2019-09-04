@@ -1,1 +1,1 @@
-$ riot export --keyspace beer --keys id redis --keyspace beer2 --keys id
+$ riot redis --scan-keyspace beer --scan-keys id --keyspace beer2 --keys id

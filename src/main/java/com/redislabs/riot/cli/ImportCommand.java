@@ -5,14 +5,14 @@ import java.util.Map;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemReader;
 
-import picocli.CommandLine.Command;
-import picocli.CommandLine.ParentCommand;
+import com.redislabs.riot.cli.redis.RedisWriterOptions;
 
-@Command
-public abstract class ImportCommand extends HelpAwareCommand implements Runnable {
+import picocli.CommandLine.ArgGroup;
 
-	@ParentCommand
-	private ImportParentCommand parent;
+public abstract class ImportCommand extends TransferCommand {
+
+	@ArgGroup(exclusive = false, heading = "Redis writer options%n")
+	private RedisWriterOptions writer = new RedisWriterOptions();
 
 	@Override
 	public void run() {
@@ -23,7 +23,7 @@ public abstract class ImportCommand extends HelpAwareCommand implements Runnable
 			LoggerFactory.getLogger(ImportCommand.class).error("Could not initialize reader", e);
 			return;
 		}
-		parent.transfer(reader);
+		transfer(reader, writer.writer(redis()));
 	}
 
 	protected abstract ItemReader<Map<String, Object>> reader() throws Exception;

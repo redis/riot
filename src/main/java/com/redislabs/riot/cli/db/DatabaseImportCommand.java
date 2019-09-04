@@ -8,17 +8,19 @@ import org.springframework.batch.item.database.builder.JdbcCursorItemReaderBuild
 import org.springframework.jdbc.core.ColumnMapRowMapper;
 
 import com.redislabs.riot.cli.ImportCommand;
+import com.redislabs.riot.cli.redis.RedisConnectionOptions;
 
 import picocli.CommandLine.Command;
-import picocli.CommandLine.Mixin;
 import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
+import picocli.CommandLine.ParentCommand;
 
-@Command(name = "db", description = "Database -> Redis")
+@Command(name = "import", description = "Import database")
 public class DatabaseImportCommand extends ImportCommand {
 
-	@Mixin
-	private DatabaseConnectionOptions connection = new DatabaseConnectionOptions();
-	@Option(names = { "-s", "--sql" }, required = true, description = "SELECT statement", paramLabel = "<string>")
+	@ParentCommand
+	private DatabaseConnector db;
+	@Parameters(arity = "1", description = "Select statement", paramLabel = "<sql>")
 	private String sql;
 	@Option(names = "--fetch", description = "A hint to the driver as to how many rows to return with each fetch", paramLabel = "<size>")
 	private Integer fetchSize;
@@ -34,7 +36,7 @@ public class DatabaseImportCommand extends ImportCommand {
 	@Override
 	protected ItemReader<Map<String, Object>> reader() throws Exception {
 		JdbcCursorItemReaderBuilder<Map<String, Object>> builder = new JdbcCursorItemReaderBuilder<Map<String, Object>>();
-		builder.dataSource(connection.dataSource());
+		builder.dataSource(db.dataSource());
 		if (fetchSize != null) {
 			builder.fetchSize(fetchSize);
 		}
@@ -52,6 +54,16 @@ public class DatabaseImportCommand extends ImportCommand {
 		JdbcCursorItemReader<Map<String, Object>> reader = builder.build();
 		reader.afterPropertiesSet();
 		return reader;
+	}
+
+	@Override
+	protected String name() {
+		return "db-import";
+	}
+
+	@Override
+	protected RedisConnectionOptions redis() {
+		return db.riot().redis();
 	}
 
 }

@@ -1,1 +1,1 @@
-$ riot import --batch=50 --max=10000 --command zadd --keyspace=leases --keys=ip --fields=lease --score=time faker ip=number.digits(4) lease=number.digits(2) time=number.digits(5)
+$ riot gen faker ip=number.digits(4) lease=number.digits(2) time=number.digits(5) --batch=50 --max=10000 -r zset --keyspace=leases --keys=ip --fields=lease --score=time

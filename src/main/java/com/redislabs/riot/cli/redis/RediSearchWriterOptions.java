@@ -3,7 +3,6 @@ package com.redislabs.riot.cli.redis;
 import com.redislabs.lettusearch.search.AddOptions;
 import com.redislabs.lettusearch.search.Language;
 import com.redislabs.riot.redis.RedisConverter;
-import com.redislabs.riot.redisearch.AbstractLettuSearchItemWriter;
 import com.redislabs.riot.redisearch.AbstractSearchItemWriter;
 import com.redislabs.riot.redisearch.SearchItemWriter;
 import com.redislabs.riot.redisearch.SearchPayloadItemWriter;
@@ -43,21 +42,18 @@ public class RediSearchWriterOptions {
 	@Option(names = "--suggest-increment", description = "Use increment to set value")
 	private boolean increment;
 
-	public String getIndex() {
-		return index;
+	public AbstractSearchItemWriter searchItemWriter() {
+		AbstractSearchItemWriter writer = searchWriter();
+		writer.setOptions(AddOptions.builder().ifCondition(ifCondition).language(language).noSave(noSave)
+				.replace(replace).replacePartial(partial).build());
+		writer.setDefaultScore(defaultScore);
+		writer.setScoreField(scoreField);
+		writer.setIndex(index);
+		writer.setConverter(new RedisConverter(idSeparator, idPrefix, ids));
+		return writer;
 	}
 
-	public AbstractLettuSearchItemWriter itemWriter() {
-		if (field == null) {
-			AbstractSearchItemWriter writer = searchWriter();
-			writer.setOptions(AddOptions.builder().ifCondition(ifCondition).language(language).noSave(noSave)
-					.replace(replace).replacePartial(partial).build());
-			writer.setDefaultScore(defaultScore);
-			writer.setScoreField(scoreField);
-			writer.setIndex(index);
-			writer.setConverter(new RedisConverter(idSeparator, idPrefix, ids));
-			return writer;
-		}
+	public SuggestItemWriter suggestItemWriter() {
 		SuggestItemWriter writer = suggestWriter();
 		writer.setIndex(index);
 		writer.setScoreField(scoreField);
@@ -83,10 +79,6 @@ public class RediSearchWriterOptions {
 		SuggestPayloadItemWriter writer = new SuggestPayloadItemWriter();
 		writer.setPayloadField(payloadField);
 		return writer;
-	}
-
-	public boolean isSet() {
-		return index != null;
 	}
 
 }

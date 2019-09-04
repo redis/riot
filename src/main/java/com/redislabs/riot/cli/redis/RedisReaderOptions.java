@@ -14,11 +14,11 @@ public class RedisReaderOptions {
 
 	@Option(names = "--count", description = "Number of elements to return for each scan call", paramLabel = "<integer>")
 	private Integer count;
-	@Option(names = "--key-separator", description = "Redis key separator (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
+	@Option(names = "--scan-key-separator", description = "Redis key separator (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
 	private String separator = ":";
-	@Option(names = "--keyspace", description = "Redis keyspace prefix", paramLabel = "<string>")
+	@Option(names = { "--scan-keyspace" }, description = "Redis keyspace prefix", paramLabel = "<string>")
 	private String keyspace;
-	@Option(names = "--keys", arity = "1..*", description = "Key fields", paramLabel = "<names>")
+	@Option(names = { "--scan-keys" }, arity = "1..*", description = "Key fields", paramLabel = "<names>")
 	private String[] keys = new String[0];
 
 	public RedisReader reader(JedisPool jedisPool) {

@@ -1,1 +1,1 @@
-$ riot import --batch 100 --threads 3 --max 10000 --keyspace test --keys index simple field1=100 field2=1000
+$ riot gen simple field1=100 field2=1000 --batch 100 --threads 3 --max 10000 --keyspace test --keys index

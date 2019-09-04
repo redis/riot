@@ -22,13 +22,15 @@ import java.util.logging.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.file.transform.Range;
 
-import com.redislabs.riot.cli.PingCommand;
-import com.redislabs.riot.cli.ExportParentCommand;
-import com.redislabs.riot.cli.HelpAwareCommand;
-import com.redislabs.riot.cli.ImportParentCommand;
+import com.redislabs.riot.cli.BaseCommand;
 import com.redislabs.riot.cli.ManifestVersionProvider;
+import com.redislabs.riot.cli.db.DatabaseConnector;
+import com.redislabs.riot.cli.file.FileConnector;
 import com.redislabs.riot.cli.file.RangeConverter;
+import com.redislabs.riot.cli.generator.GeneratorConnector;
 import com.redislabs.riot.cli.redis.RedisConnectionOptions;
+import com.redislabs.riot.cli.redis.RedisConnector;
+import com.redislabs.riot.cli.test.TestConnector;
 
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import io.netty.util.internal.logging.JdkLoggerFactory;
@@ -39,27 +41,26 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.ParseResult;
 
-@Command(name = "riot", subcommands = { ImportParentCommand.class, ExportParentCommand.class,
-		PingCommand.class }, versionProvider = ManifestVersionProvider.class)
-public class Riot extends HelpAwareCommand {
+@Command(name = "riot", mixinStandardHelpOptions = true, subcommands = { FileConnector.class, DatabaseConnector.class,
+		RedisConnector.class, GeneratorConnector.class,
+		TestConnector.class }, versionProvider = ManifestVersionProvider.class, abbreviateSynopsis = true, commandListHeading = "Connectors:%n", synopsisSubcommandLabel = "[CONNECTOR]")
+public class Riot extends BaseCommand {
 
 	private final static String DNS_CACHE_TTL = "networkaddress.cache.ttl";
 	private final static String DNS_CACHE_NEGATIVE_TTL = "networkaddress.cache.negative.ttl";
-	private final static String SSL_PREFIX = "javax.net.ssl.";
-	private final static String SSL_TRUST_STORE = SSL_PREFIX + "trustStore";
-	private final static String SSL_TRUST_STORE_TYPE = SSL_PREFIX + "trustStoreType";
-	private final static String SSL_TRUST_STORE_PASSWORD = SSL_PREFIX + "trustStorePassword";
-	private final static String SSL_KEY_STORE = SSL_PREFIX + "keyStore";
-	private final static String SSL_KEY_STORE_TYPE = SSL_PREFIX + "keyStoreType";
-	private final static String SSL_KEY_STORE_PASSWORD = SSL_PREFIX + "keyStorePassword";
+//	private final static String SSL_PREFIX = "javax.net.ssl.";
+//	private final static String SSL_TRUST_STORE = SSL_PREFIX + "trustStore";
+//	private final static String SSL_TRUST_STORE_TYPE = SSL_PREFIX + "trustStoreType";
+//	private final static String SSL_TRUST_STORE_PASSWORD = SSL_PREFIX + "trustStorePassword";
+//	private final static String SSL_KEY_STORE = SSL_PREFIX + "keyStore";
+//	private final static String SSL_KEY_STORE_TYPE = SSL_PREFIX + "keyStoreType";
+//	private final static String SSL_KEY_STORE_PASSWORD = SSL_PREFIX + "keyStorePassword";
 
 	private List<Logger> activeLoggers = new ArrayList<>();
 
-	@Option(names = { "-V", "--version" }, versionHelp = true, description = "Print version information and exit")
-	private boolean version;
 	@Option(names = "--completion-script", hidden = true)
 	private boolean completionScript;
-	@Option(names = { "-v", "--verbose" }, description = "Enable verbose logging")
+	@Option(names = { "-d", "--debug" }, description = "Enable verbose logging")
 	private boolean verbose;
 	@Option(names = { "-q", "--quiet" }, description = "Disable all logging")
 	private boolean quiet;
@@ -74,7 +75,7 @@ public class Riot extends HelpAwareCommand {
 		new Riot().execute(args);
 	}
 
-	public RedisConnectionOptions getRedis() {
+	public RedisConnectionOptions redis() {
 		return redis;
 	}
 

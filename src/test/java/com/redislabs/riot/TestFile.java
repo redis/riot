@@ -37,9 +37,10 @@ public class TestFile extends BaseTest {
 
 	@Test
 	public void testExportBeersCsv() throws UnexpectedInputException, ParseException, Exception {
+		File file = new File("/tmp/beers.csv");
+		file.delete();
 		runFile("import-beers_json");
 		runFile("export-beers_csv");
-		File file = new File("/tmp/beers.csv");
 		String[] header = Files.readAllLines(file.toPath()).get(0).split("\\|");
 		FlatFileItemReaderBuilder<Map<String, Object>> builder = new FlatFileItemReaderBuilder<Map<String, Object>>();
 		builder.name("flat-file-reader");
@@ -72,9 +73,10 @@ public class TestFile extends BaseTest {
 	@SuppressWarnings("rawtypes")
 	@Test
 	public void testExportBeersJson() throws UnexpectedInputException, ParseException, Exception {
+		File file = new File("/tmp/beers.json");
+		file.delete();
 		runFile("import-beers_json");
 		runFile("export-beers_json");
-		File file = new File("/tmp/beers.json");
 		JsonItemReaderBuilder<Map> builder = new JsonItemReaderBuilder<>();
 		builder.name("json-file-reader");
 		builder.resource(new FileSystemResource(file));
@@ -124,7 +126,7 @@ public class TestFile extends BaseTest {
 	@Test
 	public void testImportElasticacheJson() throws Exception {
 		String url = getClass().getClassLoader().getResource("es_test-index.json").getFile();
-		runCommand("import --keyspace estest --keys _id file %s", url);
+		runCommand("file %s import --keyspace estest --keys _id", url);
 		Assertions.assertEquals(2, commands().keys("estest:*").size());
 		Map<String, String> doc1 = commands().hgetall("estest:doc1");
 		Assertions.assertEquals("ruan", doc1.get("_source.name"));

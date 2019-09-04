@@ -1,8 +1,8 @@
 package com.redislabs.riot.cli.file;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
+import java.net.MalformedURLException;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.Map;
@@ -17,23 +17,20 @@ import org.springframework.batch.item.json.JacksonJsonObjectMarshaller;
 import org.springframework.batch.item.json.JsonFileItemWriter;
 import org.springframework.batch.item.json.builder.JsonFileItemWriterBuilder;
 import org.springframework.batch.item.support.AbstractFileItemWriter;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 
 import com.redislabs.riot.cli.ExportCommand;
+import com.redislabs.riot.cli.redis.RedisConnectionOptions;
 
 import picocli.CommandLine.Command;
-import picocli.CommandLine.Mixin;
 import picocli.CommandLine.Option;
-import picocli.CommandLine.Parameters;
+import picocli.CommandLine.ParentCommand;
 
-@Command(name = "file", description = "Redis -> file")
+@Command(name = "export", description = "Export to file")
 public class FileExportCommand extends ExportCommand {
 
-	@Parameters(arity = "1", description = "Path to file")
-	private File file;
-	@Mixin
-	private FileOptions options = new FileOptions();
+	@ParentCommand
+	private FileConnector connector;
 	@Option(names = "--append", description = "Append to file if it exists")
 	private boolean append;
 	@Option(names = "--force-sync", description = "Force-sync changes to disk on flush")
@@ -53,7 +50,7 @@ public class FileExportCommand extends ExportCommand {
 		JsonFileItemWriterBuilder<Map<String, Object>> builder = new JsonFileItemWriterBuilder<>();
 		builder.name("json-file-writer");
 		builder.append(append);
-		builder.encoding(options.getEncoding());
+		builder.encoding(connector.getEncoding());
 		builder.forceSync(forceSync);
 		builder.jsonObjectMarshaller(new JacksonJsonObjectMarshaller<>());
 		builder.lineSeparator(lineSeparator);
@@ -66,7 +63,7 @@ public class FileExportCommand extends ExportCommand {
 		FlatFileItemWriterBuilder<Map<String, Object>> builder = new FlatFileItemWriterBuilder<>();
 		builder.name("file-writer");
 		builder.append(append);
-		builder.encoding(options.getEncoding());
+		builder.encoding(connector.getEncoding());
 		builder.forceSync(forceSync);
 		builder.lineSeparator(lineSeparator);
 		builder.resource(resource);
@@ -102,37 +99,37 @@ public class FileExportCommand extends ExportCommand {
 
 	}
 
-	public AbstractFileItemWriter<Map<String, Object>> writer() {
-		FileSystemResource resource = new FileSystemResource(file);
-		switch (options.type(resource)) {
+	public AbstractFileItemWriter<Map<String, Object>> writer() throws MalformedURLException {
+		switch (connector.type()) {
 		case json:
-			return jsonWriter(resource);
+			return jsonWriter(connector.resource());
 		case fixed:
-			return formattedWriter(resource);
+			return formattedWriter(connector.resource());
 		default:
-			return delimitedWriter(resource);
+			return delimitedWriter(connector.resource());
 		}
 	}
 
 	private FlatFileItemWriter<Map<String, Object>> delimitedWriter(Resource resource) {
 		FlatFileItemWriterBuilder<Map<String, Object>> builder = flatFileWriterBuilder(resource,
-				options.isHeader() ? String.join(options.getDelimiter(), options.getNames()) : null);
+				connector.isHeader() ? String.join(connector.getDelimiter(), connector.getNames()) : null);
 		DelimitedBuilder<Map<String, Object>> delimited = builder.delimited();
-		delimited.delimiter(options.getDelimiter());
-		delimited.fieldExtractor(new MapFieldExtractor(options.getNames()));
-		if (options.getNames().length > 0) {
-			delimited.names(options.getNames());
+		delimited.delimiter(connector.getDelimiter());
+		delimited.fieldExtractor(new MapFieldExtractor(connector.getNames()));
+		if (connector.getNames().length > 0) {
+			delimited.names(connector.getNames());
 		}
 		return builder.build();
 	}
 
 	private FlatFileItemWriter<Map<String, Object>> formattedWriter(Resource resource) {
 		FlatFileItemWriterBuilder<Map<String, Object>> builder = flatFileWriterBuilder(resource,
-				options.isHeader() ? String.format(locale, format, Arrays.asList(options.getNames()).toArray()) : null);
+				connector.isHeader() ? String.format(locale, format, Arrays.asList(connector.getNames()).toArray())
+						: null);
 		FormattedBuilder<Map<String, Object>> formatted = builder.formatted();
-		formatted.fieldExtractor(new MapFieldExtractor(options.getNames()));
-		if (options.getNames().length > 0) {
-			formatted.names(options.getNames());
+		formatted.fieldExtractor(new MapFieldExtractor(connector.getNames()));
+		if (connector.getNames().length > 0) {
+			formatted.names(connector.getNames());
 		}
 		formatted.format(format);
 		formatted.locale(locale);
@@ -143,6 +140,16 @@ public class FileExportCommand extends ExportCommand {
 			formatted.maximumLength(maxLength);
 		}
 		return builder.build();
+	}
+
+	@Override
+	protected String name() {
+		return "file-export";
+	}
+
+	@Override
+	protected RedisConnectionOptions redis() {
+		return connector.riot().redis();
 	}
 
 }

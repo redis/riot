@@ -2,8 +2,6 @@ package com.redislabs.riot.cli.file;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URI;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.zip.GZIPInputStream;
@@ -23,49 +21,39 @@ import org.springframework.batch.item.json.JacksonJsonObjectReader;
 import org.springframework.batch.item.json.JsonItemReader;
 import org.springframework.batch.item.json.builder.JsonItemReaderBuilder;
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.redislabs.riot.cli.ImportCommand;
+import com.redislabs.riot.cli.redis.RedisConnectionOptions;
 
 import picocli.CommandLine.Command;
-import picocli.CommandLine.Mixin;
 import picocli.CommandLine.Option;
-import picocli.CommandLine.Parameters;
+import picocli.CommandLine.ParentCommand;
 
-@Command(name = "file", description = "File -> Redis")
+@Command(name = "import", description = "Import file")
 public class FileImportCommand extends ImportCommand {
 
 	private final Logger log = LoggerFactory.getLogger(FileImportCommand.class);
 
-	@Parameters(arity = "1", description = "File path or URL")
-	private String file;
-	@Mixin
-	private FileOptions options = new FileOptions();
+	@ParentCommand
+	private FileConnector connector;
 	@Option(names = { "-z", "--gzip" }, description = "File is gzip compressed")
 	private boolean gzip;
-	@Option(names = { "-s",
-			"--skip" }, description = "Lines to skip from the beginning of the file", paramLabel = "<count>")
+	@Option(names = { "--skip" }, description = "Lines to skip from the beginning of the file", paramLabel = "<count>")
 	private Integer linesToSkip;
 	@Option(names = "--include", arity = "1..*", description = "Indices of the fields within the delimited file to be included (0-based)", paramLabel = "<index>")
 	private Integer[] includedFields = new Integer[0];
 	@Option(names = "--ranges", arity = "1..*", description = "Fixed-width column ranges", paramLabel = "<int>")
 	private Range[] columnRanges = new Range[0];
-
-	public Resource rawResource() throws MalformedURLException {
-		URI uri = URI.create(file);
-		if (uri.isAbsolute()) {
-			return new UrlResource(uri);
-		}
-		return new FileSystemResource(file);
-	}
+	@Option(names = { "-q",
+			"--quote" }, description = "Character to escape delimiters or line endings (default: ${DEFAULT-VALUE})", paramLabel = "<char>")
+	private Character quoteCharacter = DelimitedLineTokenizer.DEFAULT_QUOTE_CHARACTER;
 
 	private Resource resource() throws IOException {
-		Resource resource = rawResource();
+		Resource resource = connector.resource();
 		if (gzip || resource.getFilename().toLowerCase().endsWith(".gz")) {
 			return new InputStreamResource(new GZIPInputStream(resource.getInputStream()));
 		}
@@ -76,8 +64,8 @@ public class FileImportCommand extends ImportCommand {
 		FlatFileItemReaderBuilder<Map<String, Object>> builder = new FlatFileItemReaderBuilder<Map<String, Object>>();
 		builder.name("flat-file-reader");
 		builder.resource(resource());
-		if (options.getEncoding() != null) {
-			builder.encoding(options.getEncoding());
+		if (connector.getEncoding() != null) {
+			builder.encoding(connector.getEncoding());
 		}
 		if (linesToSkip != null) {
 			builder.linesToSkip(linesToSkip);
@@ -91,19 +79,19 @@ public class FileImportCommand extends ImportCommand {
 
 	private FlatFileItemReader<Map<String, Object>> delimitedReader() throws IOException {
 		FlatFileItemReaderBuilder<Map<String, Object>> builder = flatFileItemReaderBuilder();
-		if (options.isHeader() && linesToSkip == null) {
+		if (connector.isHeader() && linesToSkip == null) {
 			builder.linesToSkip(1);
 		}
 		DelimitedBuilder<Map<String, Object>> delimitedBuilder = builder.delimited();
-		delimitedBuilder.delimiter(options.getDelimiter());
+		delimitedBuilder.delimiter(connector.getDelimiter());
 		delimitedBuilder.includedFields(includedFields);
-		delimitedBuilder.quoteCharacter(options.getQuoteCharacter());
-		String[] fieldNames = Arrays.copyOf(options.getNames(), options.getNames().length);
-		if (options.isHeader()) {
-			BufferedReader reader = new DefaultBufferedReaderFactory().create(resource(), options.getEncoding());
+		delimitedBuilder.quoteCharacter(quoteCharacter);
+		String[] fieldNames = Arrays.copyOf(connector.getNames(), connector.getNames().length);
+		if (connector.isHeader()) {
+			BufferedReader reader = new DefaultBufferedReaderFactory().create(resource(), connector.getEncoding());
 			DelimitedLineTokenizer tokenizer = new DelimitedLineTokenizer();
-			tokenizer.setDelimiter(options.getDelimiter());
-			tokenizer.setQuoteCharacter(options.getQuoteCharacter());
+			tokenizer.setDelimiter(connector.getDelimiter());
+			tokenizer.setQuoteCharacter(quoteCharacter);
 			if (includedFields.length > 0) {
 				int[] result = new int[includedFields.length];
 				for (int i = 0; i < includedFields.length; i++) {
@@ -126,7 +114,7 @@ public class FileImportCommand extends ImportCommand {
 		FixedLengthBuilder<Map<String, Object>> fixedlength = builder.fixedLength();
 		Assert.notEmpty(columnRanges, "Column ranges are required");
 		fixedlength.columns(columnRanges);
-		fixedlength.names(options.getNames());
+		fixedlength.names(connector.getNames());
 		return builder.build();
 	}
 
@@ -144,7 +132,7 @@ public class FileImportCommand extends ImportCommand {
 
 	@Override
 	protected ItemReader<Map<String, Object>> reader() throws Exception {
-		switch (options.type(rawResource())) {
+		switch (connector.type()) {
 		case json:
 			return jsonReader();
 		case fixed:
@@ -152,6 +140,16 @@ public class FileImportCommand extends ImportCommand {
 		default:
 			return delimitedReader();
 		}
+	}
+
+	@Override
+	protected String name() {
+		return "file-import";
+	}
+
+	@Override
+	protected RedisConnectionOptions redis() {
+		return connector.riot().redis();
 	}
 
 }

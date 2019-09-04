@@ -38,20 +38,20 @@ public class RedisWriterOptions {
 
 	@Option(names = "--key-separator", description = "Redis key separator (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
 	private String separator = ":";
-	@Option(names = { "-s", "--keyspace" }, description = "Redis keyspace prefix", paramLabel = "<string>")
+	@Option(names = { "-k", "--keyspace" }, description = "Redis keyspace prefix", paramLabel = "<string>")
 	private String keyspace;
-	@Option(names = { "-k", "--keys" }, arity = "1..*", description = "Key fields", paramLabel = "<names>")
+	@Option(names = { "-f", "--keys" }, arity = "1..*", description = "Key fields", paramLabel = "<names>")
 	private String[] keys = new String[0];
-	@Option(names = { "-c",
-			"--command" }, description = "Redis command: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})", paramLabel = "<command>")
-	private RedisCommand command = RedisCommand.hmset;
+	@Option(names = { "-r",
+			"--type" }, description = "Redis type: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})", paramLabel = "<type>")
+	private RedisType command = RedisType.hash;
 	@Option(names = "--zset-score", description = "Name of the field to use for sorted set scores", paramLabel = "<field>")
 	private String scoreField;
 	@Option(names = "--zset-default-score", description = "Score when field not present (default: ${DEFAULT-VALUE})", paramLabel = "<float>")
 	private double defaultScore = 1d;
-	@Option(names = { "-f",
-			"--fields" }, arity = "1..*", description = "Names of fields composing member ids in collection data structures (list, geo, set, zset)", paramLabel = "<names>")
-	private String[] fields = new String[0];
+	@Option(names = { "-m",
+			"--members" }, arity = "1..*", description = "Names of fields composing member ids in collection data structures (list, geo, set, zset)", paramLabel = "<names>")
+	private String[] members = new String[0];
 	@Option(names = "--expire-default-timeout", description = "Default timeout in seconds (default: ${DEFAULT-VALUE})", paramLabel = "<seconds>")
 	private long defaultTimeout = 60;
 	@Option(names = "--expire-timeout", description = "Field to get the timeout value from", paramLabel = "<field>")
@@ -68,6 +68,8 @@ public class RedisWriterOptions {
 	private String[] evalKeys = new String[0];
 	@Option(names = "--eval-args", arity = "1..*", description = "Fields for Lua script args", paramLabel = "<field1,field2,...>")
 	private String[] evalArgs = new String[0];
+	@Option(names = "--list-direction", description = "List direction: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
+	private ListPushDirection direction = ListPushDirection.left;
 	@Option(names = "--xadd-trim", description = "Apply efficient trimming for capped streams using the ~ flag")
 	private boolean trim;
 	@Option(names = "--xadd-maxlen", description = "Limit stream to maxlen entries", paramLabel = "<integer>")
@@ -83,7 +85,7 @@ public class RedisWriterOptions {
 	@ArgGroup(exclusive = false, heading = "RediSearch writer options%n")
 	private RediSearchWriterOptions search = new RediSearchWriterOptions();
 
-	public RedisCommand getCommand() {
+	public RedisType getCommand() {
 		return command;
 	}
 
@@ -164,30 +166,31 @@ public class RedisWriterOptions {
 		AbstractRedisItemWriter redisItemWriter = redisItemWriter();
 		redisItemWriter.setConverter(new RedisConverter(separator, keyspace, keys));
 		if (redisItemWriter instanceof CollectionItemWriter) {
-			((CollectionItemWriter) redisItemWriter).setFields(fields);
+			((CollectionItemWriter) redisItemWriter).setFields(members);
 		}
 		return redisItemWriter;
 	}
 
 	private AbstractRedisItemWriter redisItemWriter() {
 		switch (command) {
-		case expire:
+		case ex:
 			return expireWriter();
-		case geoadd:
+		case geo:
 			return geoWriter();
-		case lpush:
-			return new LpushItemWriter();
-		case rpush:
+		case list:
+			if (direction == ListPushDirection.left) {
+				return new LpushItemWriter();
+			}
 			return new RpushItemWriter();
-		case evalsha:
+		case lua:
 			return evalshaWriter();
-		case sadd:
-			return new SaddWriter();
-		case xadd:
-			return xaddWriter();
 		case set:
+			return new SaddWriter();
+		case stream:
+			return xaddWriter();
+		case string:
 			return setWriter();
-		case zadd:
+		case zset:
 			return zaddWriter();
 		default:
 			return new HmsetItemWriter();
@@ -195,8 +198,13 @@ public class RedisWriterOptions {
 	}
 
 	public ItemWriter<Map<String, Object>> writer(RedisConnectionOptions connection) {
-		if (search.isSet()) {
-			return new LettuSearchWriter(connection.rediSearchClient(), connection.poolConfig(), search.itemWriter());
+		if (command == RedisType.search) {
+			return new LettuSearchWriter(connection.rediSearchClient(), connection.poolConfig(),
+					search.searchItemWriter());
+		}
+		if (command == RedisType.suggest) {
+			return new LettuSearchWriter(connection.rediSearchClient(), connection.poolConfig(),
+					search.suggestItemWriter());
 		}
 		if (connection.getDriver() == RedisDriver.jedis) {
 			return new JedisWriter(connection.jedisPool(), itemWriter());

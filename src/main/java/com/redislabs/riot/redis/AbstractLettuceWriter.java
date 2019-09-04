@@ -75,6 +75,7 @@ public abstract class AbstractLettuceWriter extends AbstractItemStreamItemWriter
 	public void close() {
 		// Take care of multi-threaded writer by only closing on the last call
 		if (pool.getNumActive() == 0) {
+			log.debug("Closing pool");
 			pool.close();
 			shutdownClient();
 		}
