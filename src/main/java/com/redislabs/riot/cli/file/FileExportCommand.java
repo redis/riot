@@ -12,7 +12,6 @@ import org.springframework.batch.item.file.FlatFileItemWriter;
 import org.springframework.batch.item.file.builder.FlatFileItemWriterBuilder;
 import org.springframework.batch.item.file.builder.FlatFileItemWriterBuilder.DelimitedBuilder;
 import org.springframework.batch.item.file.builder.FlatFileItemWriterBuilder.FormattedBuilder;
-import org.springframework.batch.item.file.transform.FieldExtractor;
 import org.springframework.batch.item.json.JacksonJsonObjectMarshaller;
 import org.springframework.batch.item.json.JsonFileItemWriter;
 import org.springframework.batch.item.json.builder.JsonFileItemWriterBuilder;
@@ -78,25 +77,6 @@ public class FileExportCommand extends ExportCommand {
 			});
 		}
 		return builder;
-	}
-
-	static class MapFieldExtractor implements FieldExtractor<Map<String, Object>> {
-
-		private String[] names;
-
-		public MapFieldExtractor(String[] names) {
-			this.names = names;
-		}
-
-		@Override
-		public Object[] extract(Map<String, Object> item) {
-			Object[] fields = new Object[names.length];
-			for (int index = 0; index < names.length; index++) {
-				fields[index] = item.get(names[index]);
-			}
-			return fields;
-		}
-
 	}
 
 	public AbstractFileItemWriter<Map<String, Object>> writer() throws MalformedURLException {

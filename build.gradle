@@ -1,7 +1,7 @@
 plugins {
     id 'application'
     id 'java'
-    id 'maven-publish'
+    id 'java-library'
     id 'net.nemerosa.versioning' version '2.8.2'
     id 'org.asciidoctor.convert' version '1.5.9.2'
 }
@@ -33,7 +33,6 @@ test {
 group = 'com.redislabs'
 version = versioning.info.display
 description = 'RIOT'
-sourceCompatibility = '1.8'
 
 application {
 	mainClassName = 'com.redislabs.riot.Riot'

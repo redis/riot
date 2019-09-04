@@ -138,10 +138,6 @@ public class RedisConnectionOptions {
 		return builder.build();
 	}
 
-	public enum SslProvider {
-		Jdk, OpenSsl
-	}
-
 	private SslOptions sslOptions() {
 		SslOptions.Builder builder = SslOptions.builder();
 		switch (sslProvider) {
