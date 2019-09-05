@@ -9,18 +9,6 @@
 
 RIOT is a data import/export tool for Redis that connects to files, databases, and generators.
 
-== Getting Started 
-
-Download the https://github.com/Redislabs-Solution-Architects/riot/releases/latest[latest RIOT distribution] (zip or tar.gz) and unpack the downloaded archive.
-
-Launch the `riot` script (`riot.bat` for Windows) and follow the usage information provided.
-
-== Installing via Homebrew
-
-```
-$ brew install jruaux/tap/riot
-```
-
 == Connectors
 
 [cols="<,^,^",options="header",halign="center"]
