@@ -72,7 +72,7 @@ public class RedisWriterOptions {
 	private ListPushDirection listDirection = ListPushDirection.left;
 	@Option(names = "--xadd-trim", description = "Apply efficient trimming for capped streams using the ~ flag")
 	private boolean xaddTrim;
-	@Option(names = "--xadd-maxlen", description = "Limit stream to maxlen entries", paramLabel = "<integer>")
+	@Option(names = "--xadd-maxlen", description = "Limit stream to maxlen entries", paramLabel = "<int>")
 	private Long xaddMaxlen;
 	@Option(names = "--xadd-id", description = "Field used for stream entry IDs", paramLabel = "<field>")
 	private String xaddId;

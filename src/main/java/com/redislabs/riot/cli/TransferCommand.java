@@ -48,7 +48,7 @@ public abstract class TransferCommand extends HelpAwareCommand {
 		try {
 			Processor processor = processor();
 			JobExecutor executor = new JobExecutor();
-			log.info("Executing {} with {} threads and {} batch size", name, threads, batchSize);
+			log.info("Executing {}, threads: {}, batch size: {}", name, threads, batchSize);
 			JobExecution execution = executor.execute(name, throttle(reader), processor, writer, threads, batchSize);
 			if (execution.getExitStatus().equals(ExitStatus.FAILED)) {
 				execution.getAllFailureExceptions().forEach(e -> e.printStackTrace());

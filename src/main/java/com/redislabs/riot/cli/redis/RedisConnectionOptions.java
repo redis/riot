@@ -32,17 +32,17 @@ public class RedisConnectionOptions {
 			"--host" }, description = "Redis server address (default: ${DEFAULT-VALUE})", paramLabel = "<name>")
 	private String host = "localhost";
 	@Option(names = { "-p",
-			"--port" }, description = "Redis server port (default: ${DEFAULT-VALUE})", paramLabel = "<integer>")
+			"--port" }, description = "Redis server port (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
 	private int port = RedisURI.DEFAULT_REDIS_PORT;
-	@Option(names = "--command-timeout", description = "Command timeout in seconds for synchronous command execution (default: ${DEFAULT-VALUE})", paramLabel = "<seconds>")
+	@Option(names = "--command-timeout", description = "Command timeout for synchronous command execution (default: ${DEFAULT-VALUE})", paramLabel = "<seconds>")
 	private long commandTimeout = RedisURI.DEFAULT_TIMEOUT;
-	@Option(names = "--connection-timeout", description = "Connect timeout in milliseconds (default: ${DEFAULT-VALUE})", paramLabel = "<millis>")
+	@Option(names = "--connection-timeout", description = "Connect timeout (default: ${DEFAULT-VALUE})", paramLabel = "<millis>")
 	private int connectionTimeout = Protocol.DEFAULT_TIMEOUT;
-	@Option(names = "--socket-timeout", description = "Socket timeout in milliseconds (default: ${DEFAULT-VALUE})", paramLabel = "<millis>")
+	@Option(names = "--socket-timeout", description = "Socket timeout (default: ${DEFAULT-VALUE})", paramLabel = "<millis>")
 	private int socketTimeout = Protocol.DEFAULT_TIMEOUT;
 	@Option(names = "--auth", arity = "0..1", interactive = true, description = "Database login password", paramLabel = "<pwd>")
 	private String password;
-	@Option(names = "--db", description = "Redis database number. Databases are only available for Redis Standalone and Redis Master/Slave", paramLabel = "<number>")
+	@Option(names = "--db", description = "Redis database number. Databases are only available for Redis Standalone and Redis Master/Slave", paramLabel = "<int>")
 	private int database = 0;
 	@Option(names = "--client-name", description = "Redis client name (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
 	private String clientName = "RIOT";
@@ -52,13 +52,13 @@ public class RedisConnectionOptions {
 	private RedisDriver driver = RedisDriver.lettuce;
 	@Option(names = "--ssl", description = "SSL connection")
 	private boolean ssl;
-	@Option(names = "--max-total", description = "Maximum number of connections that can be allocated by the pool at a given time. Use a negative value for no limit (default: ${DEFAULT-VALUE})", paramLabel = "<integer>")
+	@Option(names = "--max-total", description = "Max connections that can be allocated by the pool at a given time. Use negative value for no limit (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
 	private int maxTotal = GenericObjectPoolConfig.DEFAULT_MAX_TOTAL;
-	@Option(names = "--min-idle", description = "Target for the minimum number of idle connections to maintain in the pool. This setting only has an effect if it is positive (default: ${DEFAULT-VALUE})", paramLabel = "<integer>")
+	@Option(names = "--min-idle", description = "Min idle connections in pool. Only has an effect if >0 (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
 	private int minIdle = GenericObjectPoolConfig.DEFAULT_MIN_IDLE;
-	@Option(names = "--max-idle", description = "Maximum number of idle connections in the pool. Use a negative value to indicate an unlimited number of idle connections (default: ${DEFAULT-VALUE})", paramLabel = "<integer>")
+	@Option(names = "--max-idle", description = "Max idle connections in pool. Use negative value for no limit (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
 	private int maxIdle = GenericObjectPoolConfig.DEFAULT_MAX_IDLE;
-	@Option(names = "--max-wait", description = "Maximum amount of time a connection allocation should block before throwing an exception when the pool is exhausted. Use a negative value to block indefinitely (default: ${DEFAULT-VALUE})", paramLabel = "<millis>")
+	@Option(names = "--max-wait", description = "Max duration a connection allocation should block before throwing an exception when pool is exhausted. Use negative value to block indefinitely (default: ${DEFAULT-VALUE})", paramLabel = "<millis>")
 	private long maxWait = GenericObjectPoolConfig.DEFAULT_MAX_WAIT_MILLIS;
 	@Option(names = "--ssl-provider", description = "SSL Provider: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
 	private SslProvider sslProvider = SslProvider.Jdk;

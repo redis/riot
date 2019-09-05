@@ -12,7 +12,7 @@ public class RedisReaderOptions {
 
 	private final Logger log = LoggerFactory.getLogger(RedisReaderOptions.class);
 
-	@Option(names = "--count", description = "Number of elements to return for each scan call", paramLabel = "<integer>")
+	@Option(names = "--count", description = "Number of elements to return for each scan call", paramLabel = "<int>")
 	private Integer count;
 	@Option(names = "--scan-key-separator", description = "Redis key separator (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
 	private String separator = ":";
