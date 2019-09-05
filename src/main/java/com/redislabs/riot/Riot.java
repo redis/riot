@@ -1,8 +1,6 @@
 package com.redislabs.riot;
 
 import java.security.Security;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
@@ -11,7 +9,7 @@ import java.util.logging.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.file.transform.Range;
 
-import com.redislabs.riot.cli.BaseCommand;
+import com.redislabs.riot.cli.HelpAwareCommand;
 import com.redislabs.riot.cli.ManifestVersionProvider;
 import com.redislabs.riot.cli.db.DatabaseConnector;
 import com.redislabs.riot.cli.file.FileConnector;
@@ -29,11 +27,16 @@ import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.ParseResult;
+import picocli.CommandLine.Spec;
+import picocli.CommandLine.Model.CommandSpec;
 
-@Command(name = "riot", mixinStandardHelpOptions = true, subcommands = { FileConnector.class, DatabaseConnector.class,
-		RedisConnector.class, GeneratorConnector.class,
-		TestConnector.class }, versionProvider = ManifestVersionProvider.class, abbreviateSynopsis = true, commandListHeading = "Connectors:%n", synopsisSubcommandLabel = "[CONNECTOR]")
-public class Riot extends BaseCommand {
+@Command(name = "riot", subcommands = { FileConnector.class, DatabaseConnector.class, RedisConnector.class,
+		GeneratorConnector.class,
+		TestConnector.class }, versionProvider = ManifestVersionProvider.class, commandListHeading = "Connectors:%n", synopsisSubcommandLabel = "[CONNECTOR]")
+public class Riot extends HelpAwareCommand {
+
+	@Spec
+	private CommandSpec spec;
 
 	private final static String DNS_CACHE_TTL = "networkaddress.cache.ttl";
 	private final static String DNS_CACHE_NEGATIVE_TTL = "networkaddress.cache.negative.ttl";
@@ -45,8 +48,10 @@ public class Riot extends BaseCommand {
 //	private final static String SSL_KEY_STORE_TYPE = SSL_PREFIX + "keyStoreType";
 //	private final static String SSL_KEY_STORE_PASSWORD = SSL_PREFIX + "keyStorePassword";
 
-	private List<Logger> activeLoggers = new ArrayList<>();
+	private static final String ROOT_LOGGER = "";
 
+	@Option(names = { "-V", "--version" }, versionHelp = true, description = "Print version information and exit")
+	private boolean versionRequested;
 	@Option(names = "--completion-script", hidden = true)
 	private boolean completionScript;
 	@Option(names = { "-d", "--debug" }, description = "Enable verbose logging")
@@ -87,29 +92,23 @@ public class Riot extends BaseCommand {
 		Security.setProperty(DNS_CACHE_NEGATIVE_TTL, String.valueOf(dnsNegativeTtl));
 	}
 
-	private Logger getLogger(String name) {
-		Logger logger = Logger.getLogger(name);
-		activeLoggers.add(logger);
-		return logger;
-	}
-
 	private void configureLogging() {
 		InternalLoggerFactory.setDefaultFactory(JdkLoggerFactory.INSTANCE);
 		LogManager.getLogManager().reset();
-		Logger activeLogger = getLogger("");
+		Logger activeLogger = Logger.getLogger(ROOT_LOGGER);
 		ConsoleHandler handler = new ConsoleHandler();
 		handler.setLevel(Level.ALL);
 		handler.setFormatter(new OneLineLogFormat(verbose));
 		activeLogger.addHandler(handler);
-		getLogger("").setLevel(quiet ? Level.OFF : (verbose ? Level.INFO : Level.SEVERE));
-		getLogger(Riot.class.getPackage().getName())
+		Logger.getLogger(ROOT_LOGGER).setLevel(quiet ? Level.OFF : (verbose ? Level.INFO : Level.SEVERE));
+		Logger.getLogger(Riot.class.getPackage().getName())
 				.setLevel(quiet ? Level.OFF : (verbose ? Level.FINEST : Level.INFO));
 	}
 
 	@Override
 	public void run() {
 		if (completionScript) {
-			System.out.println(AutoComplete.bash("riot", new CommandLine(new Riot())));
+			System.out.println(AutoComplete.bash(spec.name(), new CommandLine(new Riot())));
 		} else {
 			super.run();
 		}

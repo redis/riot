@@ -16,7 +16,7 @@ public class TestGenerator extends BaseTest {
 
 	@Test
 	public void testImportSimple() throws Exception {
-		runFile("import-simple");
+		runFile("gen-simple");
 		List<String> keys = commands().keys("test:*");
 		Assertions.assertTrue(keys.size() > 5000);
 		Map<String, String> simple123 = commands().hgetall("test:123");
@@ -28,7 +28,7 @@ public class TestGenerator extends BaseTest {
 
 	@Test
 	public void testImportFaker() throws Exception {
-		runFile("import-faker");
+		runFile("gen-faker-hash");
 		List<String> keys = commands().keys("person:*");
 		Assertions.assertEquals(100, keys.size());
 		Map<String, String> person = commands().hgetall(keys.get(0));
@@ -40,7 +40,7 @@ public class TestGenerator extends BaseTest {
 
 	@Test
 	public void testImportFakerGot() throws Exception {
-		runFile("import-faker-got");
+		runFile("gen-faker-set");
 		Set<String> names = commands().smembers("got:characters");
 		Assertions.assertTrue(names.size() > 10);
 		Assertions.assertTrue(names.contains("Lysa Meadows"));
@@ -48,7 +48,7 @@ public class TestGenerator extends BaseTest {
 
 	@Test
 	public void testImportFakerZset() throws Exception {
-		runFile("import-faker-zset");
+		runFile("gen-faker-zset");
 		List<String> keys = commands().keys("leases:*");
 		Assertions.assertTrue(keys.size() > 100);
 		String key = keys.get(0);
@@ -57,7 +57,7 @@ public class TestGenerator extends BaseTest {
 
 	@Test
 	public void testImportStream() throws Exception {
-		runFile("import-faker-stream");
+		runFile("gen-faker-stream");
 		List<StreamMessage<String, String>> messages = commands().xrange("teststream:1", Range.unbounded());
 		Assertions.assertTrue(messages.size() > 0);
 	}

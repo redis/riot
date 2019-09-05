@@ -44,10 +44,12 @@ public abstract class TransferCommand extends HelpAwareCommand {
 	private Map<String, String> processorFields;
 
 	protected void transfer(ItemReader<Map<String, Object>> reader, ItemWriter<Map<String, Object>> writer) {
+		String name = name();
 		try {
 			Processor processor = processor();
 			JobExecutor executor = new JobExecutor();
-			JobExecution execution = executor.execute(name(), throttle(reader), processor, writer, threads, batchSize);
+			log.info("Executing {} with {} threads and {} batch size", name, threads, batchSize);
+			JobExecution execution = executor.execute(name, throttle(reader), processor, writer, threads, batchSize);
 			if (execution.getExitStatus().equals(ExitStatus.FAILED)) {
 				execution.getAllFailureExceptions().forEach(e -> e.printStackTrace());
 			}
@@ -57,7 +59,7 @@ public abstract class TransferCommand extends HelpAwareCommand {
 				int writeCount = stepExecution.getWriteCount();
 				double throughput = (double) writeCount / duration.toMillis() * 1000;
 				NumberFormat numberFormat = NumberFormat.getIntegerInstance();
-				log.debug("Wrote {} items in {} seconds ({} items/sec)", numberFormat.format(writeCount),
+				log.info("Wrote {} items in {} seconds ({} items/sec)", numberFormat.format(writeCount),
 						duration.get(ChronoUnit.SECONDS), numberFormat.format(throughput));
 			}
 		} catch (Exception e) {

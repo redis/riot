@@ -28,8 +28,8 @@ public class RedisConnectionOptions {
 
 	private final Logger log = LoggerFactory.getLogger(RedisConnectionOptions.class);
 
-	@Option(names = { "-s",
-			"--server" }, description = "Redis server address (default: ${DEFAULT-VALUE})", paramLabel = "<host>")
+	@Option(names = { "-h",
+			"--host" }, description = "Redis server address (default: ${DEFAULT-VALUE})", paramLabel = "<name>")
 	private String host = "localhost";
 	@Option(names = { "-p",
 			"--port" }, description = "Redis server port (default: ${DEFAULT-VALUE})", paramLabel = "<integer>")

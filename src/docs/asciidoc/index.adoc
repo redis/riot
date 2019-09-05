@@ -1,10 +1,9 @@
 = RIOT
-// Settings
+:source-highlighter: highlightjs
 :idprefix:
 :idseparator: -
 :toc: preamble
 :icons: font
-// URIs
 :project-repo: Redislabs-Solution-Architects/riot
 :uri-repo: https://github.com/{project-repo}
 
@@ -49,20 +48,20 @@ RIOT can import/export files in these formats:
 
 ==== Delimited Files
 
-.CSV -> Redis
+===== CSV -> Redis
 [source,shell]
 ----
-include::../../test/resources/commands/import-beers_csv.txt[]
+include::../../test/resources/commands/file-import-csv-hash.txt[]
 ----
 
-.Redis -> CSV
+===== Redis -> CSV
 [source,shell]
 ----
-include::../../test/resources/commands/export-beers_csv.txt[]
+include::../../test/resources/commands/file-export-csv.txt[]
 ----
 
-.CSV -> RediSearch
-. Create an index with redis-cli
+===== CSV -> RediSearch
+. Create an index with `redis-cli`
 +
 [source,plaintext]
 ----
@@ -72,7 +71,7 @@ FT.CREATE beers SCHEMA abv NUMERIC SORTABLE id TAG name TEXT PHONETIC dm:en styl
 +
 [source,shell]
 ----
-include::../../test/resources/commands/import-beers_csv-search.txt[]
+include::../../test/resources/commands/file-import-csv-search.txt[]
 ----
 . Search for beers
 +
@@ -103,16 +102,16 @@ RIOT can read and write JSON data in the following format:
 ]
 ----
 
-.JSON -> Redis
+===== JSON -> Redis
 [source,shell]
 ----
-include::../../test/resources/commands/import-beers_json.txt[]
+include::../../test/resources/commands/file-import-json-hash.txt[]
 ----
 
-.Redis -> JSON
+===== Redis -> JSON
 [source,shell]
 ----
-include::../../test/resources/commands/export-beers_json.txt[]
+include::../../test/resources/commands/file-export-json.txt[]
 ----
 
 [#db]
@@ -122,10 +121,22 @@ RIOT can connect to any RDBMS with a JDBC driver.
 
 [TIP]
 ====
-Add the driver jar for your database under the `lib` directory.
-
-e.g. with MySQL: `<RIOT>/lib/mysql-connector-java-5.1.47.jar`.
+Copy the JDBC driver for your database under `lib` and include it in the `CLASSPATH`
 ====
+
+For example with Oracle:
+
+.riot
+[source,bash]
+----
+CLASSPATH=$APP_HOME/lib/ojdbc8.jar:$APP_HOME/lib/…
+----
+
+.riot.bat
+[source,bat]
+----
+set CLASSPATH=%APP_HOME%\lib\ojdbc8.jar;%APP_HOME%\lib\…
+----
 
 For reference here are links to common JDBC drivers:
 
@@ -139,35 +150,17 @@ For reference here are links to common JDBC drivers:
 |=========================================================
 
 
-.DB -> Redis
-Let's use the following MySQL database table from https://dev.mysql.com/doc/employee/en/[mysql.com]: 
-[source,plaintext]
-----
-mysql> describe employees;
-+------------+---------------+------+-----+---------+-------+
-| Field      | Type          | Null | Key | Default | Extra |
-+------------+---------------+------+-----+---------+-------+
-| emp_no     | int(11)       | NO   | PRI | NULL    |       |
-| birth_date | date          | NO   |     | NULL    |       |
-| first_name | varchar(14)   | NO   |     | NULL    |       |
-| last_name  | varchar(16)   | NO   |     | NULL    |       |
-| gender     | enum('M','F') | NO   |     | NULL    |       |
-| hire_date  | date          | NO   |     | NULL    |       |
-+------------+---------------+------+-----+---------+-------+
-6 rows in set (0.01 sec)
-----
-
-To import the whole table run the following command:
+==== DB -> Redis
 [source,shell]
 ----
-$ riot db --url "jdbc:mysql://localhost:3306/employees?serverTimezone=PST&useLegacyDatetimeCode=false&useSSL=false" --username root --password import "select * from employees" --keyspace employee --keys emp_no
+include::../../test/resources/commands/db-import.txt[]
 ----
 
-.Redis -> DB
-This command exports all hashes under keyspace `beer:<id>` to MySQL: 
+==== Redis -> DB
+This command exports all hashes in keyspace `beer:<id>` to the database: 
 [source,shell]
 ----
-$ riot db --url "jdbc:mysql://localhost:3306/employees?serverTimezone=PST&useLegacyDatetimeCode=false&useSSL=false" --username root --password export export --keyspace beer --keys id "INSERT INTO beers (id, name, style_name) VALUES (:id, :name, :style_name)"
+include::../../test/resources/commands/db-export.txt[]
 ----
 
 [#gen]
@@ -184,7 +177,7 @@ You can also configure it to generate fixed-sized fields with `--field <name=siz
 For example the following command generates hashes in the keyspace `test:<index>` with fields `field1` and `field2` of respectively 100 and 1,000 bytes:
 [source,shell]
 ----
-include::../../test/resources/commands/import-simple.txt[]
+include::../../test/resources/commands/gen-simple.txt[]
 ----
 
 ==== Faker
@@ -193,33 +186,27 @@ This data generator relies on the https://github.com/DiUS/java-faker[Faker] libr
 .Example #1: People
 [source,shell]
 ----
-include::../../test/resources/commands/import-faker.txt[]
+include::../../test/resources/commands/gen-faker-hash.txt[]
 ----
 [source,plaintext]
 ----
 > HGETALL person:1
 1) "address"
 2) "036 Robbin Points, North Sonia, PA 42251"
-5) "firstName"
-6) "Nickolas"
-7) "lastName"
-8) "Gleason"
+…
 ---- 
 
 .Example #2: Game of Thrones
 [source,shell]
 ----
-include::../../test/resources/commands/import-faker-got.txt[]
+include::../../test/resources/commands/gen-faker-set.txt[]
 ----
 [source,plaintext]
 ----
 > SMEMBERS got:characters
-   1) "Nymella Toland"
-   2) "Ysilla Royce"
-   3) "Halmon Paege"
-   4) "Mark Mullendore"
-   5) "Cleyton Caswell"
-   …
+1) "Nymella Toland"
+2) "Ysilla Royce"
+…
 ----
 
 == Load Testing
@@ -243,11 +230,11 @@ riot --metrics …
 ----
 riot --host redis-12000.redislabs.com --port 12000 --max-total 96 gen simple value=100 --max 100000000 --batch 500 --threads 96 -r string --string-format raw --keyspace string --keys=index --value value
 ----
-image::rs-strings.png[]
+image::images/rs-strings.png[]
 
 .Streams
 [source,shell]
 ----
 riot --host redis-12000.redislabs.com --port 12000 --max-total 96 gen simple --max 100000000 --batch 500 --threads 96 -r stream --keyspace stream --keys partition
 ----
-image::rs-streams.png[]
+image::images/rs-streams.png[]

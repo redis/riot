@@ -3,6 +3,7 @@ package com.redislabs.riot;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.codehaus.plexus.util.cli.CommandLineUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,6 +20,7 @@ public class BaseTest {
 
 	private static RediSearchClient client;
 	private static StatefulRediSearchConnection<String, String> connection;
+	protected static final int BEER_COUNT = 2410;
 
 	@BeforeAll
 	public static void setup() throws IOException {
@@ -45,15 +47,15 @@ public class BaseTest {
 		}
 	}
 
-	protected void runFile(String filename, Object... args) throws IOException {
+	protected void runFile(String filename, Object... args) throws Exception {
 		try (InputStream inputStream = getClass().getResourceAsStream("/commands/" + filename + ".txt")) {
 			runCommand(new String(inputStream.readAllBytes()), args);
 		}
 	}
 
-	protected void runCommand(String line, Object... args) {
+	protected void runCommand(String line, Object... args) throws Exception {
 		String command = line.startsWith(COMMAND_START) ? line.substring(COMMAND_START.length()) : line;
-		new CommandLine(new Riot()).execute(String.format(command, args).split(" "));
+		new CommandLine(new Riot()).execute(CommandLineUtils.translateCommandline(String.format(command, args)));
 	}
 
 }

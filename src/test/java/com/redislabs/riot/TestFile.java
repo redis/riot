@@ -39,8 +39,8 @@ public class TestFile extends BaseTest {
 	public void testExportBeersCsv() throws UnexpectedInputException, ParseException, Exception {
 		File file = new File("/tmp/beers.csv");
 		file.delete();
-		runFile("import-beers_json");
-		runFile("export-beers_csv");
+		runFile("file-import-json-hash");
+		runFile("file-export-csv");
 		String[] header = Files.readAllLines(file.toPath()).get(0).split("\\|");
 		FlatFileItemReaderBuilder<Map<String, Object>> builder = new FlatFileItemReaderBuilder<Map<String, Object>>();
 		builder.name("flat-file-reader");
@@ -75,8 +75,8 @@ public class TestFile extends BaseTest {
 	public void testExportBeersJson() throws UnexpectedInputException, ParseException, Exception {
 		File file = new File("/tmp/beers.json");
 		file.delete();
-		runFile("import-beers_json");
-		runFile("export-beers_json");
+		runFile("file-import-json-hash");
+		runFile("file-export-json");
 		JsonItemReaderBuilder<Map> builder = new JsonItemReaderBuilder<>();
 		builder.name("json-file-reader");
 		builder.resource(new FileSystemResource(file));
@@ -90,9 +90,9 @@ public class TestFile extends BaseTest {
 
 	@Test
 	public void testImportCsv() throws Exception {
-		runFile("import-beers_csv");
+		runFile("file-import-csv-hash");
 		List<String> keys = commands().keys("beer:*");
-		Assertions.assertEquals(2410, keys.size());
+		Assertions.assertEquals(BEER_COUNT, keys.size());
 	}
 
 	@Test
@@ -109,14 +109,14 @@ public class TestFile extends BaseTest {
 		schema.field(NumericField.builder().name(FIELD_ABV).sortable(true).build());
 		schema.field(NumericField.builder().name(FIELD_OUNCES).sortable(true).build());
 		commands().create(INDEX, schema.build());
-		runFile("import-beers_csv-search");
+		runFile("file-import-csv-search");
 		SearchResults<String, String> results = commands().search(INDEX, "*");
-		Assertions.assertEquals(2410, results.getCount());
+		Assertions.assertEquals(BEER_COUNT, results.getCount());
 	}
 
 	@Test
 	public void testImportAirports() throws Exception {
-		runFile("import-airports");
+		runFile("file-import-csv-geo");
 		Set<String> results = commands().georadius("airportgeo", -122.4194, 37.7749, 20, Unit.mi);
 		Assertions.assertTrue(results.contains("3469"));
 		Assertions.assertTrue(results.contains("10360"));
@@ -135,7 +135,7 @@ public class TestFile extends BaseTest {
 
 	@Test
 	public void testImportBeersJson() throws Exception {
-		runFile("import-beers_json");
+		runFile("file-import-json-hash");
 		List<String> keys = commands().keys("beer:*");
 		Assertions.assertEquals(4432, keys.size());
 		Map<String, String> beer1 = commands().hgetall("beer:1");

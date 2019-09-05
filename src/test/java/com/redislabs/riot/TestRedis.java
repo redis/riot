@@ -9,10 +9,10 @@ public class TestRedis extends BaseTest {
 
 	@Test
 	public void testExportToRedis() throws Exception {
-		runFile("import-beers_csv");
+		runFile("file-import-csv-hash");
 		List<String> keys = commands().keys("beer:*");
-		Assertions.assertEquals(2410, keys.size());
-		runFile("export-redis");
+		Assertions.assertEquals(BEER_COUNT, keys.size());
+		runFile("redis-export");
 		List<String> keys2 = commands().keys("beer2:*");
 		Assertions.assertEquals(keys.size(), keys2.size());
 	}
