@@ -518,6 +518,28 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </li>
 </ul>
 </div>
+<div class="paragraph">
+<p>Files can be GZIP compressed, and local or remote:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>/myfolder/myfile.csv</p>
+</li>
+<li>
+<p>/myfolder/myfile.json.gz</p>
+</li>
+<li>
+<p><a href="https://example.com/path/dataset.csv" class="bare">https://example.com/path/dataset.csv</a></p>
+</li>
+<li>
+<p>s3://mybucket/myfolder/myfile.json</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>In the case of AWS S3 you can pass the access and secret keys as well as the region for the bucket.</p>
+</div>
 <div class="sect3">
 <h4 id="delimited-files">Delimited Files</h4>
 <div class="sect4">
@@ -606,6 +628,14 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">$ riot file /tmp/beers.json --fields id name brewery_id abv export --scan-keyspace beer --scan-keys id</code></pre>
+</div>
+</div>
+</div>
+<div class="sect4">
+<h5 id="redis-compressed-json">Redis &#8594; Compressed JSON</h5>
+<div class="listingblock">
+<div class="content">
+<pre>$ riot file /tmp/beers.json.gz --fields id name brewery_id abv export --scan-keyspace beer --scan-keys id</pre>
 </div>
 </div>
 </div>
@@ -809,7 +839,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2019-09-04 23:21:07 -0700
+Last updated 2019-09-09 14:48:57 -0700
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/styles/github.min.css">
