@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Map;
-import java.util.zip.GZIPInputStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,8 +20,6 @@ import org.springframework.batch.item.json.JacksonJsonObjectReader;
 import org.springframework.batch.item.json.JsonItemReader;
 import org.springframework.batch.item.json.builder.JsonItemReaderBuilder;
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.core.io.Resource;
 import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -40,8 +37,6 @@ public class FileImportCommand extends ImportCommand {
 
 	@ParentCommand
 	private FileConnector connector;
-	@Option(names = { "-z", "--gzip" }, description = "File is gzip compressed")
-	private boolean gzip;
 	@Option(names = { "--skip" }, description = "Lines to skip from the beginning of the file", paramLabel = "<count>")
 	private Integer linesToSkip;
 	@Option(names = "--include", arity = "1..*", description = "Indices of the fields within the delimited file to be included (0-based)", paramLabel = "<index>")
@@ -52,18 +47,10 @@ public class FileImportCommand extends ImportCommand {
 			"--quote" }, description = "Character to escape delimiters or line endings (default: ${DEFAULT-VALUE})", paramLabel = "<char>")
 	private Character quoteCharacter = DelimitedLineTokenizer.DEFAULT_QUOTE_CHARACTER;
 
-	private Resource resource() throws IOException {
-		Resource resource = connector.resource();
-		if (gzip || resource.getFilename().toLowerCase().endsWith(".gz")) {
-			return new InputStreamResource(new GZIPInputStream(resource.getInputStream()));
-		}
-		return resource;
-	}
-
 	private FlatFileItemReaderBuilder<Map<String, Object>> flatFileItemReaderBuilder() throws IOException {
 		FlatFileItemReaderBuilder<Map<String, Object>> builder = new FlatFileItemReaderBuilder<Map<String, Object>>();
 		builder.name("flat-file-reader");
-		builder.resource(resource());
+		builder.resource(connector.inputResource());
 		if (connector.getEncoding() != null) {
 			builder.encoding(connector.getEncoding());
 		}
@@ -88,7 +75,8 @@ public class FileImportCommand extends ImportCommand {
 		delimitedBuilder.quoteCharacter(quoteCharacter);
 		String[] fieldNames = Arrays.copyOf(connector.getNames(), connector.getNames().length);
 		if (connector.isHeader()) {
-			BufferedReader reader = new DefaultBufferedReaderFactory().create(resource(), connector.getEncoding());
+			BufferedReader reader = new DefaultBufferedReaderFactory().create(connector.inputResource(),
+					connector.getEncoding());
 			DelimitedLineTokenizer tokenizer = new DelimitedLineTokenizer();
 			tokenizer.setDelimiter(connector.getDelimiter());
 			tokenizer.setQuoteCharacter(quoteCharacter);
@@ -122,7 +110,7 @@ public class FileImportCommand extends ImportCommand {
 	private AbstractItemCountingItemStreamItemReader<Map<String, Object>> jsonReader() throws Exception {
 		JsonItemReaderBuilder<Map> builder = new JsonItemReaderBuilder<Map>();
 		builder.name("json-file-reader");
-		builder.resource(resource());
+		builder.resource(connector.inputResource());
 		JacksonJsonObjectReader<Map> objectReader = new JacksonJsonObjectReader<>(Map.class);
 		objectReader.setMapper(new ObjectMapper());
 		builder.jsonObjectReader(objectReader);

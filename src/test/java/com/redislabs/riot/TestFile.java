@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.zip.GZIPInputStream;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -21,6 +22,7 @@ import org.springframework.batch.item.json.JsonItemReader;
 import org.springframework.batch.item.json.builder.JsonItemReaderBuilder;
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.InputStreamResource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.redislabs.lettusearch.search.Schema;
@@ -80,6 +82,26 @@ public class TestFile extends BaseTest {
 		JsonItemReaderBuilder<Map> builder = new JsonItemReaderBuilder<>();
 		builder.name("json-file-reader");
 		builder.resource(new FileSystemResource(file));
+		JacksonJsonObjectReader<Map> objectReader = new JacksonJsonObjectReader<>(Map.class);
+		objectReader.setMapper(new ObjectMapper());
+		builder.jsonObjectReader(objectReader);
+		JsonItemReader<Map> reader = builder.build();
+		List<Map> records = readAll(reader);
+		Assertions.assertEquals(commands().keys("beer:*").size(), records.size());
+	}
+
+	@SuppressWarnings("rawtypes")
+	@Test
+	public void testExportBeersJsonGz() throws UnexpectedInputException, ParseException, Exception {
+		File file = new File("/tmp/beers.json.gz");
+		file.delete();
+		runFile("file-import-json-hash");
+		runFile("file-export-json_gz");
+		JsonItemReaderBuilder<Map> builder = new JsonItemReaderBuilder<>();
+		builder.name("json-file-reader");
+		FileSystemResource resource = new FileSystemResource(file);
+		builder.resource(
+				new InputStreamResource(new GZIPInputStream(resource.getInputStream()), resource.getDescription()));
 		JacksonJsonObjectReader<Map> objectReader = new JacksonJsonObjectReader<>(Map.class);
 		objectReader.setMapper(new ObjectMapper());
 		builder.jsonObjectReader(objectReader);

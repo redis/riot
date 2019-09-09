@@ -2,24 +2,20 @@ package com.redislabs.riot.cli.file;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.net.MalformedURLException;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.Map;
 
 import org.springframework.batch.item.file.FlatFileHeaderCallback;
 import org.springframework.batch.item.file.FlatFileItemWriter;
-import org.springframework.batch.item.file.builder.FlatFileItemWriterBuilder;
-import org.springframework.batch.item.file.builder.FlatFileItemWriterBuilder.DelimitedBuilder;
-import org.springframework.batch.item.file.builder.FlatFileItemWriterBuilder.FormattedBuilder;
 import org.springframework.batch.item.json.JacksonJsonObjectMarshaller;
-import org.springframework.batch.item.json.JsonFileItemWriter;
-import org.springframework.batch.item.json.builder.JsonFileItemWriterBuilder;
-import org.springframework.batch.item.support.AbstractFileItemWriter;
+import org.springframework.batch.item.support.AbstractItemStreamItemWriter;
 import org.springframework.core.io.Resource;
 
 import com.redislabs.riot.cli.ExportCommand;
 import com.redislabs.riot.cli.redis.RedisConnectionOptions;
+import com.redislabs.riot.file.FlatResourceItemWriterBuilder;
+import com.redislabs.riot.file.JsonResourceItemWriterBuilder;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -45,25 +41,10 @@ public class FileExportCommand extends ExportCommand {
 	@Option(names = "--min-length", description = "Min length of the formatted string", paramLabel = "<int>")
 	private Integer minLength;
 
-	private JsonFileItemWriter<Map<String, Object>> jsonWriter(Resource resource) {
-		JsonFileItemWriterBuilder<Map<String, Object>> builder = new JsonFileItemWriterBuilder<>();
-		builder.name("json-file-writer");
+	private FlatResourceItemWriterBuilder<Map<String, Object>> flatWriterBuilder(Resource resource, String headerLine) {
+		FlatResourceItemWriterBuilder<Map<String, Object>> builder = new FlatResourceItemWriterBuilder<>();
 		builder.append(append);
 		builder.encoding(connector.getEncoding());
-		builder.forceSync(forceSync);
-		builder.jsonObjectMarshaller(new JacksonJsonObjectMarshaller<>());
-		builder.lineSeparator(lineSeparator);
-		builder.resource(resource);
-		builder.saveState(false);
-		return builder.build();
-	}
-
-	private FlatFileItemWriterBuilder<Map<String, Object>> flatFileWriterBuilder(Resource resource, String headerLine) {
-		FlatFileItemWriterBuilder<Map<String, Object>> builder = new FlatFileItemWriterBuilder<>();
-		builder.name("file-writer");
-		builder.append(append);
-		builder.encoding(connector.getEncoding());
-		builder.forceSync(forceSync);
 		builder.lineSeparator(lineSeparator);
 		builder.resource(resource);
 		builder.saveState(false);
@@ -79,21 +60,39 @@ public class FileExportCommand extends ExportCommand {
 		return builder;
 	}
 
-	public AbstractFileItemWriter<Map<String, Object>> writer() throws MalformedURLException {
+	public AbstractItemStreamItemWriter<Map<String, Object>> writer() throws IOException {
+		Resource resource = connector.outputResource();
 		switch (connector.type()) {
 		case json:
-			return jsonWriter(connector.resource());
+			return jsonWriter(resource);
 		case fixed:
-			return formattedWriter(connector.resource());
+			return formattedWriter(resource);
 		default:
-			return delimitedWriter(connector.resource());
+			return delimitedWriter(resource);
 		}
 	}
 
-	private FlatFileItemWriter<Map<String, Object>> delimitedWriter(Resource resource) {
-		FlatFileItemWriterBuilder<Map<String, Object>> builder = flatFileWriterBuilder(resource,
-				connector.isHeader() ? String.join(connector.getDelimiter(), connector.getNames()) : null);
-		DelimitedBuilder<Map<String, Object>> delimited = builder.delimited();
+	private AbstractItemStreamItemWriter<Map<String, Object>> jsonWriter(Resource resource) {
+		JsonResourceItemWriterBuilder<Map<String, Object>> builder = new JsonResourceItemWriterBuilder<>();
+		builder.name("json-s3-writer");
+		builder.append(append);
+		builder.encoding(connector.getEncoding());
+		builder.jsonObjectMarshaller(new JacksonJsonObjectMarshaller<>());
+		builder.lineSeparator(lineSeparator);
+		builder.resource(resource);
+		builder.saveState(false);
+		return builder.build();
+	}
+
+	private AbstractItemStreamItemWriter<Map<String, Object>> delimitedWriter(Resource resource) {
+		String headerLine = null;
+		if (connector.isHeader()) {
+			headerLine = String.join(connector.getDelimiter(), connector.getNames());
+		}
+		FlatResourceItemWriterBuilder<Map<String, Object>> builder = flatWriterBuilder(resource, headerLine);
+		builder.name("delimited-s3-writer");
+		com.redislabs.riot.file.FlatResourceItemWriterBuilder.DelimitedBuilder<Map<String, Object>> delimited = builder
+				.delimited();
 		delimited.delimiter(connector.getDelimiter());
 		delimited.fieldExtractor(new MapFieldExtractor(connector.getNames()));
 		if (connector.getNames().length > 0) {
@@ -102,11 +101,14 @@ public class FileExportCommand extends ExportCommand {
 		return builder.build();
 	}
 
-	private FlatFileItemWriter<Map<String, Object>> formattedWriter(Resource resource) {
-		FlatFileItemWriterBuilder<Map<String, Object>> builder = flatFileWriterBuilder(resource,
-				connector.isHeader() ? String.format(locale, format, Arrays.asList(connector.getNames()).toArray())
-						: null);
-		FormattedBuilder<Map<String, Object>> formatted = builder.formatted();
+	private AbstractItemStreamItemWriter<Map<String, Object>> formattedWriter(Resource resource) {
+		String headerLine = null;
+		if (connector.isHeader()) {
+			headerLine = String.format(locale, format, Arrays.asList(connector.getNames()).toArray());
+		}
+		FlatResourceItemWriterBuilder<Map<String, Object>> builder = flatWriterBuilder(resource, headerLine);
+		FlatResourceItemWriterBuilder.FormattedBuilder<Map<String, Object>> formatted = builder.formatted();
+		builder.name("formatted-s3-writer");
 		formatted.fieldExtractor(new MapFieldExtractor(connector.getNames()));
 		if (connector.getNames().length > 0) {
 			formatted.names(connector.getNames());

@@ -1,0 +1,1 @@
+$ riot file /tmp/beers.json.gz --fields id name brewery_id abv export --scan-keyspace beer --scan-keys id

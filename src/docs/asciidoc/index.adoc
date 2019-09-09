@@ -34,6 +34,15 @@ RIOT can import/export files in these formats:
 * Fixed-Width
 * JSON
 
+Files can be GZIP compressed, and local or remote:
+
+* /myfolder/myfile.csv
+* /myfolder/myfile.json.gz
+* https://example.com/path/dataset.csv
+* s3://mybucket/myfolder/myfile.json
+
+In the case of AWS S3 you can pass the access and secret keys as well as the region for the bucket. 
+
 ==== Delimited Files
 
 ===== CSV -> Redis
@@ -100,6 +109,11 @@ include::../../test/resources/commands/file-import-json-hash.txt[]
 [source,shell]
 ----
 include::../../test/resources/commands/file-export-json.txt[]
+----
+
+===== Redis -> Compressed JSON 
+----
+include::../../test/resources/commands/file-export-json_gz.txt[]
 ----
 
 [#db]
