@@ -1,1 +1,1 @@
-$ riot gen field1=100 field2=1000 -b 100 --threads 3 -m 10000 -s test -k index
+$ riot gen field1=100 field2=1000 -b 100 --threads 3 -m 10000 -p test -k index

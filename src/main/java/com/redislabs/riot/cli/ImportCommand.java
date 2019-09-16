@@ -32,7 +32,7 @@ public abstract class ImportCommand extends TransferCommand<Map<String, Object>,
 	private RedisCommandOptions redis = new RedisCommandOptions();
 	@ArgGroup(exclusive = false, heading = "RediSearch command options%n")
 	private RediSearchCommandOptions search = new RediSearchCommandOptions();
-	@Option(names = { "-p",
+	@Option(names = {
 			"--processor" }, description = "SpEL expression to process a field", paramLabel = "<name=expression>")
 	private Map<String, String> fields;
 	@Option(names = { "-r",

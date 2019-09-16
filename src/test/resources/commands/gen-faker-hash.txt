@@ -1,1 +1,1 @@
-$ riot faker id=index firstName=name.firstName lastName=name.lastName address=address.fullAddress --max 100 -s person -k id
+$ riot faker id=index firstName=name.firstName lastName=name.lastName address=address.fullAddress --max 100 -p person -k id

@@ -6,6 +6,11 @@ plugins {
     id 'org.asciidoctor.convert' version '1.5.9.2'
 }
 
+repositories {
+	mavenCentral()
+	mavenLocal()
+}
+
 dependencies {
     compile 'org.slf4j:slf4j-api:1.7.26'
     compile 'org.slf4j:slf4j-jdk14:1.7.26'
@@ -14,7 +19,7 @@ dependencies {
     compile 'org.springframework.boot:spring-boot-autoconfigure:2.1.6.RELEASE'
     compile 'org.springframework:spring-jdbc:5.1.6.RELEASE'
     compile 'com.zaxxer:HikariCP:3.2.0'
-    compile 'com.redislabs:lettusearch:1.5.1'
+    compile 'com.redislabs:lettusearch:1.6.0'
     compile 'org.apache.commons:commons-pool2:2.6.1'
     compile 'org.latencyutils:LatencyUtils:2.0.3'
     compile 'redis.clients:jedis:3.1.0'

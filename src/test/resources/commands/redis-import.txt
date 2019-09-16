@@ -1,1 +1,1 @@
-$ riot -e localhost:6379 redis-import -e localhost:6379 --scan-keyspace beer --scan-keys id -s beer2 -k id
+$ riot -s localhost:6379 redis-import -s localhost:6379 --scan-keyspace beer --scan-keys id -p beer2 -k id

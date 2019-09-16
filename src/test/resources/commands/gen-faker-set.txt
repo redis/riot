@@ -1,1 +1,1 @@
-$ riot faker name=gameOfThrones.character --max 10000 -c sadd --members name -s got:characters
+$ riot faker name=gameOfThrones.character --max 10000 -c sadd --members name -p got:characters

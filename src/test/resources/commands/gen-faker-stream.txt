@@ -1,1 +1,1 @@
-$ riot faker id=index category=number.randomDigit -b 50 -m 1000 -c xadd -s teststream -k category
+$ riot faker id=index category=number.randomDigit -b 50 -m 1000 -c xadd -p teststream -k category

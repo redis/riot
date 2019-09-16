@@ -49,8 +49,8 @@ public class RedisConnectionOptions {
 
 	private final Logger log = LoggerFactory.getLogger(RedisConnectionOptions.class);
 
-	@Option(names = { "-e",
-			"--endpoint" }, description = "Redis server address (default: ${DEFAULT-VALUE})", paramLabel = "<host:port>")
+	@Option(names = { "-s",
+			"--server" }, description = "Redis server address (default: ${DEFAULT-VALUE})", paramLabel = "<host:port>")
 	private List<RedisEndpoint> endpoints = Arrays.asList(new RedisEndpoint("localhost:6379"));
 	@Option(names = "--cluster", description = "Connect to a Redis cluster")
 	private boolean cluster;
