@@ -13,19 +13,18 @@ import org.springframework.batch.item.support.AbstractItemStreamItemWriter;
 import org.springframework.core.io.Resource;
 
 import com.redislabs.riot.cli.ExportCommand;
-import com.redislabs.riot.cli.redis.RedisConnectionOptions;
 import com.redislabs.riot.file.FlatResourceItemWriterBuilder;
 import com.redislabs.riot.file.JsonResourceItemWriterBuilder;
 
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Mixin;
 import picocli.CommandLine.Option;
-import picocli.CommandLine.ParentCommand;
 
-@Command(name = "export", description = "Export to file")
+@Command(name = "file-export", description = "Export to file")
 public class FileExportCommand extends ExportCommand {
 
-	@ParentCommand
-	private FileConnector connector;
+	@Mixin
+	private FileOptions connector;
 	@Option(names = "--append", description = "Append to file if it exists")
 	private boolean append;
 	@Option(names = "--force-sync", description = "Force-sync changes to disk on flush")
@@ -60,7 +59,8 @@ public class FileExportCommand extends ExportCommand {
 		return builder;
 	}
 
-	public AbstractItemStreamItemWriter<Map<String, Object>> writer() throws IOException {
+	@Override
+	protected AbstractItemStreamItemWriter<Map<String, Object>> writer() throws IOException {
 		Resource resource = connector.outputResource();
 		switch (connector.type()) {
 		case json:
@@ -122,16 +122,6 @@ public class FileExportCommand extends ExportCommand {
 			formatted.maximumLength(maxLength);
 		}
 		return builder.build();
-	}
-
-	@Override
-	protected String name() {
-		return "file-export";
-	}
-
-	@Override
-	protected RedisConnectionOptions redis() {
-		return connector.riot().redis();
 	}
 
 }

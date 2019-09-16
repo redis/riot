@@ -6,7 +6,8 @@ import org.slf4j.LoggerFactory;
 import com.redislabs.riot.redis.RedisReader;
 
 import picocli.CommandLine.Option;
-import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.util.Pool;
 
 public class RedisReaderOptions {
 
@@ -21,7 +22,7 @@ public class RedisReaderOptions {
 	@Option(names = { "--scan-keys" }, arity = "1..*", description = "Key fields", paramLabel = "<names>")
 	private String[] keys = new String[0];
 
-	public RedisReader reader(JedisPool jedisPool) {
+	public RedisReader reader(Pool<Jedis> jedisPool) {
 		String scanPattern = scanPattern();
 		log.debug("Creating Redis reader with match={} and count={}", scanPattern, count);
 		RedisReader reader = new RedisReader(jedisPool);

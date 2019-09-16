@@ -17,21 +17,22 @@ import org.springframework.util.ClassUtils;
 import com.redislabs.riot.redis.writer.LettuceItemWriter;
 
 import io.lettuce.core.RedisFuture;
-import io.lettuce.core.api.StatefulRedisConnection;
-import io.lettuce.core.api.async.RedisAsyncCommands;
+import io.lettuce.core.api.StatefulConnection;
+import io.lettuce.core.api.async.BaseRedisAsyncCommands;
 import io.lettuce.core.support.ConnectionPoolSupport;
 
-public abstract class AbstractLettuceWriter extends AbstractItemStreamItemWriter<Map<String, Object>> {
+public abstract class AbstractLettuceWriter<S extends StatefulConnection<String, String>, C extends BaseRedisAsyncCommands<String, String>>
+		extends AbstractItemStreamItemWriter<Map<String, Object>> {
 
 	private final Logger log = LoggerFactory.getLogger(AbstractLettuceWriter.class);
 
-	private GenericObjectPoolConfig<? extends StatefulRedisConnection<String, String>> poolConfig;
-	private Supplier<StatefulRedisConnection<String, String>> supplier;
-	private GenericObjectPool<StatefulRedisConnection<String, String>> pool;
-	private LettuceItemWriter writer;
+	private GenericObjectPoolConfig<S> poolConfig;
+	private Supplier<S> supplier;
+	private GenericObjectPool<S> pool;
+	private LettuceItemWriter<C> writer;
 
-	public AbstractLettuceWriter(GenericObjectPoolConfig<? extends StatefulRedisConnection<String, String>> poolConfig,
-			Supplier<StatefulRedisConnection<String, String>> supplier, LettuceItemWriter writer) {
+	public AbstractLettuceWriter(GenericObjectPoolConfig<S> poolConfig, Supplier<S> supplier,
+			LettuceItemWriter<C> writer) {
 		setName(ClassUtils.getShortName(this.getClass()));
 		this.poolConfig = poolConfig;
 		this.supplier = supplier;
@@ -47,10 +48,10 @@ public abstract class AbstractLettuceWriter extends AbstractItemStreamItemWriter
 
 	@Override
 	public void write(List<? extends Map<String, Object>> items) throws Exception {
-		StatefulRedisConnection<String, String> connection = pool.borrowObject();
+		S connection = pool.borrowObject();
 		List<RedisFuture<?>> futures = new ArrayList<>();
 		try {
-			RedisAsyncCommands<String, String> commands = connection.async();
+			C commands = commands(connection);
 			commands.setAutoFlushCommands(false);
 			for (Map<String, Object> item : items) {
 				RedisFuture<?> future = writer.write(commands, item);
@@ -59,25 +60,29 @@ public abstract class AbstractLettuceWriter extends AbstractItemStreamItemWriter
 				}
 			}
 			commands.flushCommands();
-			futures.forEach(f -> {
+			for (int index = 0; index < futures.size(); index++) {
+				RedisFuture<?> future = futures.get(index);
 				try {
-					f.get(1, TimeUnit.SECONDS);
+					future.get(1, TimeUnit.SECONDS);
 				} catch (Exception e) {
-					log.error("Could not write record: {}", f.getError());
+					log.error("Could not write record {}: {}", items.get(index), future.getError());
 				}
-			});
+			}
 		} finally {
 			pool.returnObject(connection);
 		}
 	}
 
+	protected abstract C commands(S connection);
+
 	@Override
 	public void close() {
 		// Take care of multi-threaded writer by only closing on the last call
-		if (pool.getNumActive() == 0) {
+		if (pool != null && pool.getNumActive() == 0) {
 			log.debug("Closing pool");
 			pool.close();
 			shutdownClient();
+			pool = null;
 		}
 		super.close();
 	}

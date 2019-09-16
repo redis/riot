@@ -27,7 +27,9 @@ import org.springframework.core.io.InputStreamResource;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.redislabs.lettusearch.search.Schema;
 import com.redislabs.lettusearch.search.Schema.SchemaBuilder;
+import com.redislabs.lettusearch.search.SearchResult;
 import com.redislabs.lettusearch.search.SearchResults;
+import com.redislabs.lettusearch.search.field.GeoField;
 import com.redislabs.lettusearch.search.field.NumericField;
 import com.redislabs.lettusearch.search.field.PhoneticMatcher;
 import com.redislabs.lettusearch.search.field.TextField;
@@ -137,6 +139,19 @@ public class TestFile extends BaseTest {
 	}
 
 	@Test
+	public void testImportAirportsSearch() throws Exception {
+		String INDEX = "airports";
+		commands().flushall();
+		SchemaBuilder schema = Schema.builder();
+		schema.field(TextField.builder().name("Name").sortable(true).build());
+		schema.field(GeoField.builder().name("Location").sortable(true).build());
+		commands().create(INDEX, schema.build());
+		runFile("file-import-csv-geosearch");
+		SearchResults<String, String> results = commands().search(INDEX, "@Location:[-77 38 50 mi]");
+		Assertions.assertEquals(3, results.getCount());
+	}
+
+	@Test
 	public void testImportAirports() throws Exception {
 		runFile("file-import-csv-geo");
 		Set<String> results = commands().georadius("airportgeo", -122.4194, 37.7749, 20, Unit.mi);
@@ -148,7 +163,7 @@ public class TestFile extends BaseTest {
 	@Test
 	public void testImportElasticacheJson() throws Exception {
 		String url = getClass().getClassLoader().getResource("es_test-index.json").getFile();
-		runCommand("file %s import --keyspace estest --keys _id", url);
+		runCommand("file-import %s --keyspace estest --keys _id", url);
 		Assertions.assertEquals(2, commands().keys("estest:*").size());
 		Map<String, String> doc1 = commands().hgetall("estest:doc1");
 		Assertions.assertEquals("ruan", doc1.get("_source.name"));
@@ -162,5 +177,33 @@ public class TestFile extends BaseTest {
 		Assertions.assertEquals(4432, keys.size());
 		Map<String, String> beer1 = commands().hgetall("beer:1");
 		Assertions.assertEquals("Hocus Pocus", beer1.get("name"));
+	}
+
+	@Test
+	public void testImportCsvHashDate() throws Exception {
+		runFile("file-import-csv-hash-date");
+		List<String> keys = commands().keys("event:*");
+		Assertions.assertEquals(568, keys.size());
+		Map<String, String> event = commands().hgetall("event:248206");
+		Assertions.assertEquals("1512838800000", event.get("EpochStart"));
+	}
+
+	@Test
+	public void testImportLAEvents() throws Exception {
+		String INDEX = "laevents";
+		commands().flushall();
+		SchemaBuilder schema = Schema.builder();
+		schema.field(TextField.builder().name("Title").build());
+		schema.field(NumericField.builder().name("lon").build());
+		schema.field(NumericField.builder().name("kat").build());
+		schema.field(GeoField.builder().name("location").sortable(true).build());
+		commands().create(INDEX, schema.build());
+		runFile("file-import-laevents");
+		SearchResults<String, String> results = commands().search(INDEX, "@location:[-118.446014 33.998415 10 mi]");
+		Assertions.assertTrue(results.getCount() > 0);
+		for (SearchResult<String, String> result : results) {
+			Double lat = Double.parseDouble(result.get("lat"));
+			Assertions.assertTrue(lat > 33 && lat < 35);
+		}
 	}
 }

@@ -7,7 +7,7 @@ import com.redislabs.lettusearch.search.AddOptions;
 
 import io.lettuce.core.RedisFuture;
 
-public class SearchItemWriter extends AbstractSearchItemWriter {
+public class FtaddItemWriter extends AbstractSearchItemWriter {
 
 	@Override
 	protected RedisFuture<?> write(RediSearchAsyncCommands<String, String> commands, String index,

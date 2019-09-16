@@ -8,7 +8,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 
 import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.util.Pool;
 
 public class RedisReader extends AbstractItemCountingItemStreamItemReader<Map<String, Object>> {
 
@@ -17,13 +17,13 @@ public class RedisReader extends AbstractItemCountingItemStreamItemReader<Map<St
 	private String separator;
 	private String keyspace;
 	private String[] keys;
-	private JedisPool jedisPool;
+	private Pool<Jedis> jedisPool;
 	private volatile boolean initialized = false;
 	private Object lock = new Object();
 	private RedisKeyIterator redisIterator;
 	private Jedis jedis;
 
-	public RedisReader(JedisPool jedisPool) {
+	public RedisReader(Pool<Jedis> jedisPool) {
 		setName(ClassUtils.getShortName(RedisReader.class));
 		this.jedisPool = jedisPool;
 	}

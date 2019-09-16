@@ -1,1 +1,1 @@
-$ riot file https://git.io/fjxPs --header import --keyspace beer --keys id
+$ riot file-import -s beer -k id --header https://git.io/fjxPs

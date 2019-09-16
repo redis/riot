@@ -12,20 +12,16 @@ import org.springframework.expression.spel.standard.SpelExpressionParser;
 
 import com.github.javafaker.Faker;
 import com.redislabs.riot.cli.ImportCommand;
-import com.redislabs.riot.cli.redis.RedisConnectionOptions;
 import com.redislabs.riot.generator.FakerGeneratorReader;
 import com.redislabs.riot.generator.GeneratorReader;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
-import picocli.CommandLine.ParentCommand;
 
-@Command(name = "faker", description = "Generate data with Faker")
+@Command(name = "faker", description = "Import Faker-generated data")
 public class FakerGeneratorCommand extends ImportCommand {
 
-	@ParentCommand
-	private GeneratorConnector connector;
 	@Parameters(paramLabel = "<name=SpEL>", description = "SpEL expression to generate a field")
 	private Map<String, String> fields;
 	@Option(names = { "-l",
@@ -65,16 +61,6 @@ public class FakerGeneratorCommand extends ImportCommand {
 		System.out.println(method.getName());
 		Arrays.asList(method.getReturnType().getDeclaredMethods()).stream().filter(m -> m.getParameters().length == 0)
 				.map(m -> m.getName()).forEach(n -> System.out.println(" ." + n));
-	}
-
-	@Override
-	protected String name() {
-		return "faker-import";
-	}
-
-	@Override
-	protected RedisConnectionOptions redis() {
-		return connector.riot().redis();
 	}
 
 }

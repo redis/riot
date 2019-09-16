@@ -3,10 +3,9 @@ package com.redislabs.riot.redis.writer;
 import java.util.Map;
 
 import io.lettuce.core.RedisFuture;
-import io.lettuce.core.api.async.RedisAsyncCommands;
 
-public interface LettuceItemWriter {
+public interface LettuceItemWriter<C> {
 
-	RedisFuture<?> write(RedisAsyncCommands<String, String> commands, Map<String, Object> item);
+	RedisFuture<?> write(C commands, Map<String, Object> item);
 
 }

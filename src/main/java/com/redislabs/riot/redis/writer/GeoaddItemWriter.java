@@ -3,11 +3,12 @@ package com.redislabs.riot.redis.writer;
 import java.util.Map;
 
 import io.lettuce.core.RedisFuture;
-import io.lettuce.core.api.async.RedisAsyncCommands;
+import io.lettuce.core.api.async.RedisGeoAsyncCommands;
+import redis.clients.jedis.JedisCluster;
 import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.Response;
 
-public class GeoaddItemWriter extends CollectionItemWriter {
+public class GeoaddItemWriter extends CollectionItemWriter<RedisGeoAsyncCommands<String, String>> {
 
 	private String longitudeField;
 	private String latitudeField;
@@ -30,6 +31,16 @@ public class GeoaddItemWriter extends CollectionItemWriter {
 		return pipeline.geoadd(key, longitude, latitude, member);
 	}
 
+	@Override
+	protected void write(JedisCluster cluster, String key, String member, Map<String, Object> item) {
+		Double longitude = longitude(item);
+		Double latitude = latitude(item);
+		if (longitude == null || latitude == null) {
+			return;
+		}
+		cluster.geoadd(key, longitude, latitude, member);
+	}
+
 	private Double coordinate(Map<String, Object> item, String field) {
 		if (item.containsKey(field)) {
 			Object value = item.get(field);
@@ -49,7 +60,7 @@ public class GeoaddItemWriter extends CollectionItemWriter {
 	}
 
 	@Override
-	protected RedisFuture<?> write(RedisAsyncCommands<String, String> commands, String key, String member,
+	protected RedisFuture<?> write(RedisGeoAsyncCommands<String, String> commands, String key, String member,
 			Map<String, Object> item) {
 		Double longitude = longitude(item);
 		Double latitude = latitude(item);

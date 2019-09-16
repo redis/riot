@@ -4,7 +4,7 @@ import java.util.Map;
 
 import com.redislabs.riot.redis.RedisConverter;
 
-public abstract class AbstractRedisItemWriter implements JedisItemWriter, LettuceItemWriter {
+public abstract class AbstractRedisItemWriter<C> implements JedisItemWriter, LettuceItemWriter<C> {
 
 	private RedisConverter converter;
 

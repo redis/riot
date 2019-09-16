@@ -10,17 +10,16 @@ import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilde
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 
 import com.redislabs.riot.cli.ExportCommand;
-import com.redislabs.riot.cli.redis.RedisConnectionOptions;
 
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Mixin;
 import picocli.CommandLine.Parameters;
-import picocli.CommandLine.ParentCommand;
 
-@Command(name = "export", description = "Export to database")
+@Command(name = "db-export", description = "Export to database")
 public class DatabaseExportCommand extends ExportCommand {
 
-	@ParentCommand
-	private DatabaseConnector db;
+	@Mixin
+	private DatabaseOptions db;
 	@Parameters(arity = "1", description = "SQL statement e.g. \"INSERT INTO people (id, name) VALUES (:ssn, :name)\"", paramLabel = "<sql>")
 	private String sql;
 
@@ -34,16 +33,6 @@ public class DatabaseExportCommand extends ExportCommand {
 		JdbcBatchItemWriter<Map<String, Object>> writer = builder.build();
 		writer.afterPropertiesSet();
 		return writer;
-	}
-
-	@Override
-	protected String name() {
-		return "db-export";
-	}
-
-	@Override
-	protected RedisConnectionOptions redis() {
-		return db.riot().redis();
 	}
 
 }

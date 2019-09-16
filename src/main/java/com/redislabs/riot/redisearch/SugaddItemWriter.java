@@ -6,7 +6,7 @@ import com.redislabs.lettusearch.RediSearchAsyncCommands;
 
 import io.lettuce.core.RedisFuture;
 
-public class SuggestItemWriter extends AbstractLettuSearchItemWriter {
+public class SugaddItemWriter extends AbstractLettuSearchItemWriter {
 
 	private String field;
 	private boolean increment;

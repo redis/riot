@@ -12,18 +12,18 @@ import org.springframework.util.ClassUtils;
 import com.redislabs.riot.redis.writer.JedisItemWriter;
 
 import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.Response;
+import redis.clients.jedis.util.Pool;
 
 public class JedisWriter extends AbstractItemStreamItemWriter<Map<String, Object>> {
 
 	private final Logger log = LoggerFactory.getLogger(JedisWriter.class);
 
-	private JedisPool pool;
+	private Pool<Jedis> pool;
 	private JedisItemWriter writer;
 
-	public JedisWriter(JedisPool pool, JedisItemWriter writer) {
+	public JedisWriter(Pool<Jedis> pool, JedisItemWriter writer) {
 		setName(ClassUtils.getShortName(JedisWriter.class));
 		this.pool = pool;
 		this.writer = writer;

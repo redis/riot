@@ -3,11 +3,11 @@ package com.redislabs.riot.redis.writer;
 import java.util.Map;
 
 import io.lettuce.core.RedisFuture;
-import io.lettuce.core.api.async.RedisAsyncCommands;
+import redis.clients.jedis.JedisCluster;
 import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.Response;
 
-public abstract class CollectionItemWriter extends RedisItemWriter {
+public abstract class CollectionItemWriter<C> extends RedisItemWriter<C> {
 
 	private String[] fields = new String[0];
 
@@ -24,14 +24,20 @@ public abstract class CollectionItemWriter extends RedisItemWriter {
 		return write(pipeline, key, member(item), item);
 	}
 
+	@Override
+	protected void write(JedisCluster cluster, String key, Map<String, Object> item) {
+		write(cluster, key, member(item), item);
+	}
+
+	protected abstract void write(JedisCluster cluster, String key, String member, Map<String, Object> item);
+
 	protected abstract Response<?> write(Pipeline pipeline, String key, String member, Map<String, Object> item);
 
 	@Override
-	protected RedisFuture<?> write(RedisAsyncCommands<String, String> commands, String key, Map<String, Object> item) {
+	protected RedisFuture<?> write(C commands, String key, Map<String, Object> item) {
 		return write(commands, key, member(item), item);
 	}
 
-	protected abstract RedisFuture<?> write(RedisAsyncCommands<String, String> commands, String key, String member,
-			Map<String, Object> item);
+	protected abstract RedisFuture<?> write(C commands, String key, String member, Map<String, Object> item);
 
 }

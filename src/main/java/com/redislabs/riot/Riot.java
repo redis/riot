@@ -9,15 +9,21 @@ import java.util.logging.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.file.transform.Range;
 
+import com.redislabs.riot.cli.ConsoleExportCommand;
 import com.redislabs.riot.cli.HelpAwareCommand;
-import com.redislabs.riot.cli.ManifestVersionProvider;
-import com.redislabs.riot.cli.db.DatabaseConnector;
-import com.redislabs.riot.cli.file.FileConnector;
+import com.redislabs.riot.cli.db.DatabaseExportCommand;
+import com.redislabs.riot.cli.db.DatabaseImportCommand;
+import com.redislabs.riot.cli.file.FileExportCommand;
+import com.redislabs.riot.cli.file.FileImportCommand;
 import com.redislabs.riot.cli.file.RangeConverter;
-import com.redislabs.riot.cli.generator.GeneratorConnector;
+import com.redislabs.riot.cli.generator.FakerGeneratorCommand;
+import com.redislabs.riot.cli.generator.SimpleGeneratorCommand;
+import com.redislabs.riot.cli.redis.RediSearchImportCommand;
 import com.redislabs.riot.cli.redis.RedisConnectionOptions;
-import com.redislabs.riot.cli.redis.RedisConnector;
-import com.redislabs.riot.cli.test.TestConnector;
+import com.redislabs.riot.cli.redis.RedisEndpoint;
+import com.redislabs.riot.cli.redis.RedisImportCommand;
+import com.redislabs.riot.cli.test.InfoCommand;
+import com.redislabs.riot.cli.test.PingCommand;
 
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import io.netty.util.internal.logging.JdkLoggerFactory;
@@ -25,14 +31,15 @@ import picocli.AutoComplete;
 import picocli.CommandLine;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.ParseResult;
 import picocli.CommandLine.Spec;
-import picocli.CommandLine.Model.CommandSpec;
 
-@Command(name = "riot", subcommands = { FileConnector.class, DatabaseConnector.class, RedisConnector.class,
-		GeneratorConnector.class,
-		TestConnector.class }, versionProvider = ManifestVersionProvider.class, commandListHeading = "Connectors:%n", synopsisSubcommandLabel = "[CONNECTOR]")
+@Command(name = "riot", subcommands = { FileImportCommand.class, FileExportCommand.class, DatabaseImportCommand.class,
+		DatabaseExportCommand.class, RedisImportCommand.class, RediSearchImportCommand.class,
+		FakerGeneratorCommand.class, SimpleGeneratorCommand.class, ConsoleExportCommand.class, PingCommand.class,
+		InfoCommand.class }, versionProvider = ManifestVersionProvider.class)
 public class Riot extends HelpAwareCommand {
 
 	@Spec
@@ -62,26 +69,26 @@ public class Riot extends HelpAwareCommand {
 	private int dnsTtl = 0;
 	@Option(names = "--dns-negative-ttl", description = "DNS cache negative TTL", paramLabel = "<seconds>")
 	private int dnsNegativeTtl = 0;
+
 	@ArgGroup(exclusive = false, heading = "Redis connection options%n")
-	private RedisConnectionOptions redis = new RedisConnectionOptions();
+	private RedisConnectionOptions redisOptions = new RedisConnectionOptions();
 
 	public static void main(String[] args) {
-		new Riot().execute(args);
+		System.exit(new Riot().execute(args));
 	}
 
-	public RedisConnectionOptions redis() {
-		return redis;
+	public RedisConnectionOptions getRedisOptions() {
+		return redisOptions;
 	}
 
-	private void execute(String[] args) {
+	public int execute(String[] args) {
 		CommandLine commandLine = new CommandLine(this).registerConverter(Range.class, new RangeConverter())
+				.registerConverter(RedisEndpoint.class, s -> new RedisEndpoint(s))
 				.setCaseInsensitiveEnumValuesAllowed(true);
 		ParseResult parseResult = commandLine.parseArgs(args);
 		configureLogging();
 		configureDns();
-		int exitCode = commandLine.getExecutionStrategy().execute(parseResult);
-		System.exit(exitCode);
-
+		return commandLine.getExecutionStrategy().execute(parseResult);
 	}
 
 	private void configureDns() {

@@ -1,1 +1,1 @@
-$ riot gen faker id=index category=number.randomDigit --batch 50 --max 1000 -r stream --keyspace teststream --keys category
+$ riot faker id=index category=number.randomDigit -b 50 -m 1000 -c xadd -s teststream -k category

@@ -2,17 +2,33 @@ package com.redislabs.riot.cli.redis;
 
 import java.io.File;
 import java.time.Duration;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.batch.item.ItemWriter;
 
 import com.redislabs.lettusearch.RediSearchClient;
+import com.redislabs.riot.redis.JedisClusterWriter;
+import com.redislabs.riot.redis.JedisWriter;
+import com.redislabs.riot.redis.LettuSearchWriter;
+import com.redislabs.riot.redis.LettuceClusterWriter;
+import com.redislabs.riot.redis.LettuceWriter;
+import com.redislabs.riot.redis.writer.AbstractRedisItemWriter;
+import com.redislabs.riot.redisearch.AbstractLettuSearchItemWriter;
 
 import io.lettuce.core.ClientOptions;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.SslOptions;
+import io.lettuce.core.cluster.ClusterClientOptions;
+import io.lettuce.core.cluster.RedisClusterClient;
 import io.lettuce.core.event.DefaultEventPublisherOptions;
 import io.lettuce.core.event.metrics.CommandLatencyEvent;
 import io.lettuce.core.metrics.DefaultCommandLatencyCollectorOptions;
@@ -20,24 +36,30 @@ import io.lettuce.core.resource.ClientResources;
 import io.lettuce.core.resource.DefaultClientResources;
 import io.lettuce.core.resource.DefaultClientResources.Builder;
 import picocli.CommandLine.Option;
+import redis.clients.jedis.HostAndPort;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisCluster;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
+import redis.clients.jedis.JedisSentinelPool;
 import redis.clients.jedis.Protocol;
+import redis.clients.jedis.util.Pool;
 
 public class RedisConnectionOptions {
 
 	private final Logger log = LoggerFactory.getLogger(RedisConnectionOptions.class);
 
-	@Option(names = { "-h",
-			"--host" }, description = "Redis server address (default: ${DEFAULT-VALUE})", paramLabel = "<name>")
-	private String host = "localhost";
-	@Option(names = { "-p",
-			"--port" }, description = "Redis server port (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
-	private int port = RedisURI.DEFAULT_REDIS_PORT;
+	@Option(names = { "-e",
+			"--endpoint" }, description = "Redis server address (default: ${DEFAULT-VALUE})", paramLabel = "<host:port>")
+	private List<RedisEndpoint> endpoints = Arrays.asList(new RedisEndpoint("localhost:6379"));
+	@Option(names = "--cluster", description = "Connect to a Redis cluster")
+	private boolean cluster;
+	@Option(names = "--sentinel-master", description = "Sentinel master name")
+	private String sentinelMaster;
 	@Option(names = "--command-timeout", description = "Command timeout for synchronous command execution (default: ${DEFAULT-VALUE})", paramLabel = "<seconds>")
 	private long commandTimeout = RedisURI.DEFAULT_TIMEOUT;
-	@Option(names = "--connection-timeout", description = "Connect timeout (default: ${DEFAULT-VALUE})", paramLabel = "<millis>")
-	private int connectionTimeout = Protocol.DEFAULT_TIMEOUT;
+	@Option(names = "--connect-timeout", description = "Connect timeout (default: ${DEFAULT-VALUE})", paramLabel = "<millis>")
+	private int connectTimeout = Protocol.DEFAULT_TIMEOUT;
 	@Option(names = "--socket-timeout", description = "Socket timeout (default: ${DEFAULT-VALUE})", paramLabel = "<millis>")
 	private int socketTimeout = Protocol.DEFAULT_TIMEOUT;
 	@Option(names = "--auth", arity = "0..1", interactive = true, description = "Database login password", paramLabel = "<pwd>")
@@ -45,7 +67,7 @@ public class RedisConnectionOptions {
 	@Option(names = "--db", description = "Redis database number. Databases are only available for Redis Standalone and Redis Master/Slave", paramLabel = "<int>")
 	private int database = 0;
 	@Option(names = "--client-name", description = "Redis client name (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
-	private String clientName = "RIOT";
+	private String clientName = "riot";
 	@Option(names = "--metrics", description = "Show metrics (only works with Lettuce driver)")
 	private boolean showMetrics;
 	@Option(names = "--driver", description = "Redis driver: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})", paramLabel = "<name>")
@@ -70,6 +92,8 @@ public class RedisConnectionOptions {
 	private File truststore;
 	@Option(names = "--truststore-password", arity = "0..1", interactive = true, description = "Truststore password", paramLabel = "<pwd>")
 	private String truststorePassword;
+	@Option(names = "--max-redirects", description = "Number of maximal cluster redirects (-MOVED and -ASK) to follow in case a key was moved from one node to another node (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
+	private int maxRedirects = ClusterClientOptions.DEFAULT_MAX_REDIRECTS;
 
 	@SuppressWarnings("rawtypes")
 	private <T extends GenericObjectPoolConfig> T configure(T poolConfig) {
@@ -80,19 +104,29 @@ public class RedisConnectionOptions {
 		return poolConfig;
 	}
 
-	public RedisDriver getDriver() {
-		return driver;
+	private RedisURI uri() {
+		if (sentinelMaster == null) {
+			return uri(endpoints.get(0));
+		}
+		RedisURI.Builder builder = RedisURI.Builder.sentinel(endpoints.get(0).getHost(), endpoints.get(0).getPort(),
+				sentinelMaster);
+		endpoints.forEach(e -> builder.withSentinel(e.getHost(), e.getPort()));
+		return uri(builder);
 	}
 
-	private RedisURI redisUri() {
-		RedisURI redisURI = RedisURI.create(host, port);
+	private RedisURI uri(RedisEndpoint endpoint) {
+		return uri(RedisURI.Builder.redis(endpoint.getHost()).withPort(endpoint.getPort()));
+	}
+
+	private RedisURI uri(RedisURI.Builder builder) {
+		builder.withClientName(clientName).withDatabase(database).withTimeout(Duration.ofSeconds(commandTimeout));
 		if (password != null) {
-			redisURI.setPassword(password);
+			builder.withPassword(password);
 		}
-		redisURI.setTimeout(Duration.ofSeconds(commandTimeout));
-		redisURI.setClientName(clientName);
-		redisURI.setDatabase(database);
-		return redisURI;
+		if (ssl) {
+			builder.withSsl(ssl);
+		}
+		return builder.build();
 	}
 
 	private ClientResources resources() {
@@ -110,28 +144,48 @@ public class RedisConnectionOptions {
 		return resources;
 	}
 
-	public JedisPool jedisPool() {
+	public Pool<Jedis> jedisPool() {
 		JedisPoolConfig poolConfig = configure(new JedisPoolConfig());
-		log.debug("Creating Jedis connection pool for {}:{} with {}", host, port, poolConfig);
-		return new JedisPool(poolConfig, host, port, connectionTimeout, socketTimeout, password, database, clientName);
+		if (sentinelMaster == null) {
+			String host = endpoints.get(0).getHost();
+			int port = endpoints.get(0).getPort();
+			log.debug("Creating Jedis connection pool for {}:{} with {}", host, port, poolConfig);
+			return new JedisPool(poolConfig, host, port, connectTimeout, socketTimeout, password, database, clientName);
+		}
+		return new JedisSentinelPool(sentinelMaster,
+				endpoints.stream().map(e -> e.toString()).collect(Collectors.toSet()), poolConfig, connectTimeout,
+				socketTimeout, password, database, clientName);
 	}
 
-	public RedisClient redisClient() {
+	private RedisClient client() {
 		log.debug("Creating Lettuce client");
-		RedisClient client = RedisClient.create(resources(), redisUri());
+		RedisClient client = RedisClient.create(resources(), uri());
 		client.setOptions(clientOptions());
+		return client;
+	}
+
+	private RedisClusterClient clusterClient() {
+		log.debug("Creating Lettuce cluster client");
+		RedisClusterClient client = RedisClusterClient.create(resources(),
+				endpoints.stream().map(e -> uri(e)).collect(Collectors.toList()));
+		ClusterClientOptions.Builder builder = ClusterClientOptions.builder();
+		builder.maxRedirects(maxRedirects);
+		client.setOptions((ClusterClientOptions) clientOptions(builder));
 		return client;
 	}
 
 	public RediSearchClient rediSearchClient() {
 		log.debug("Creating LettuSearch client");
-		RediSearchClient client = RediSearchClient.create(resources(), redisUri());
+		RediSearchClient client = RediSearchClient.create(resources(), uri());
 		client.setOptions(clientOptions());
 		return client;
 	}
 
 	private ClientOptions clientOptions() {
-		io.lettuce.core.ClientOptions.Builder builder = ClientOptions.builder();
+		return clientOptions(ClientOptions.builder());
+	}
+
+	private ClientOptions clientOptions(ClientOptions.Builder builder) {
 		if (ssl) {
 			builder.sslOptions(sslOptions());
 		}
@@ -165,7 +219,44 @@ public class RedisConnectionOptions {
 		return builder.build();
 	}
 
-	public <T> GenericObjectPoolConfig<T> poolConfig() {
+	private <T> GenericObjectPoolConfig<T> poolConfig() {
 		return configure(new GenericObjectPoolConfig<>());
 	}
+
+	public Object redis() {
+		if (driver == RedisDriver.jedis) {
+			return jedisPool().getResource();
+		}
+		if (cluster) {
+			return clusterClient().connect().sync();
+		}
+		return client().connect().sync();
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public ItemWriter<Map<String, Object>> writer(AbstractRedisItemWriter itemWriter) {
+		if (itemWriter instanceof AbstractLettuSearchItemWriter) {
+			return new LettuSearchWriter(rediSearchClient(), poolConfig(), (AbstractLettuSearchItemWriter) itemWriter);
+		}
+		if (driver == RedisDriver.jedis) {
+			if (cluster) {
+				return new JedisClusterWriter(jedisCluster(), itemWriter);
+			}
+			return new JedisWriter(jedisPool(), itemWriter);
+		}
+		if (cluster) {
+			return new LettuceClusterWriter(clusterClient(), poolConfig(), itemWriter);
+		}
+		return new LettuceWriter(client(), poolConfig(), itemWriter);
+	}
+
+	private JedisCluster jedisCluster() {
+		Set<HostAndPort> hostAndPort = new HashSet<>();
+		endpoints.forEach(node -> hostAndPort.add(new HostAndPort(node.getHost(), node.getPort())));
+		if (password == null) {
+			return new JedisCluster(hostAndPort, connectTimeout, socketTimeout, maxRedirects, poolConfig());
+		}
+		return new JedisCluster(hostAndPort, connectTimeout, socketTimeout, maxRedirects, password, poolConfig());
+	}
+
 }

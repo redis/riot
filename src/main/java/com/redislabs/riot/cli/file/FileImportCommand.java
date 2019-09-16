@@ -24,19 +24,18 @@ import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.redislabs.riot.cli.ImportCommand;
-import com.redislabs.riot.cli.redis.RedisConnectionOptions;
 
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Mixin;
 import picocli.CommandLine.Option;
-import picocli.CommandLine.ParentCommand;
 
-@Command(name = "import", description = "Import file")
+@Command(name = "file-import", description = "Import file")
 public class FileImportCommand extends ImportCommand {
 
 	private final Logger log = LoggerFactory.getLogger(FileImportCommand.class);
 
-	@ParentCommand
-	private FileConnector connector;
+	@Mixin
+	private FileOptions connector;
 	@Option(names = { "--skip" }, description = "Lines to skip from the beginning of the file", paramLabel = "<count>")
 	private Integer linesToSkip;
 	@Option(names = "--include", arity = "1..*", description = "Indices of the fields within the delimited file to be included (0-based)", paramLabel = "<index>")
@@ -128,16 +127,6 @@ public class FileImportCommand extends ImportCommand {
 		default:
 			return delimitedReader();
 		}
-	}
-
-	@Override
-	protected String name() {
-		return "file-import";
-	}
-
-	@Override
-	protected RedisConnectionOptions redis() {
-		return connector.riot().redis();
 	}
 
 }

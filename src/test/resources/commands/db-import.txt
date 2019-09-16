@@ -1,1 +1,1 @@
-$ riot db --driver org.hsqldb.jdbc.JDBCDriver --url jdbc:hsqldb:mem:mymemdb import "SELECT * FROM beers" --keyspace dbbeer --keys id
+$ riot db-import -s dbbeer -k id --driver org.hsqldb.jdbc.JDBCDriver --url jdbc:hsqldb:mem:mymemdb "SELECT * FROM beers"

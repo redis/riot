@@ -1,12 +1,10 @@
-package com.redislabs.riot.cli;
+package com.redislabs.riot;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
-
-import com.redislabs.riot.Riot;
 
 import picocli.CommandLine.IVersionProvider;
 

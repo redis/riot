@@ -1,0 +1,1 @@
+$ riot file-import "https://data.lacity.org/api/views/rx9t-fp7k/rows.csv?accessType=DOWNLOAD" -c ftadd -i laevents -k Id --header --regex 'Event Location'="\((?<lat>.+),\s+(?<lon>.+)\)" -p location=#geo(lon,lat)

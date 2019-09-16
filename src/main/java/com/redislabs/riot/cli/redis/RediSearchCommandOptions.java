@@ -2,25 +2,19 @@ package com.redislabs.riot.cli.redis;
 
 import com.redislabs.lettusearch.search.AddOptions;
 import com.redislabs.lettusearch.search.Language;
-import com.redislabs.riot.redis.RedisConverter;
+import com.redislabs.riot.redisearch.AbstractLettuSearchItemWriter;
 import com.redislabs.riot.redisearch.AbstractSearchItemWriter;
-import com.redislabs.riot.redisearch.SearchItemWriter;
-import com.redislabs.riot.redisearch.SearchPayloadItemWriter;
-import com.redislabs.riot.redisearch.SuggestItemWriter;
-import com.redislabs.riot.redisearch.SuggestPayloadItemWriter;
+import com.redislabs.riot.redisearch.FtaddItemWriter;
+import com.redislabs.riot.redisearch.FtaddPayloadItemWriter;
+import com.redislabs.riot.redisearch.SugaddItemWriter;
+import com.redislabs.riot.redisearch.SugaddPayloadItemWriter;
 
 import picocli.CommandLine.Option;
 
-public class RediSearchWriterOptions {
+public class RediSearchCommandOptions {
 
 	@Option(names = { "-i", "--index" }, description = "Name of the RediSearch index", paramLabel = "<name>")
 	private String index;
-	@Option(names = "--ids", arity = "1..*", description = "Fields to use to build document ids", paramLabel = "<names>")
-	private String[] ids = new String[0];
-	@Option(names = "--id-separator", description = "Document id separator (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
-	private String idSeparator = ":";
-	@Option(names = "--id-prefix", description = "Document id prefix", paramLabel = "<string>")
-	private String idPrefix;
 	@Option(names = "--nosave", description = "Do not save the actual document in the database and only index it")
 	private boolean noSave;
 	@Option(names = "--replace", description = "Do an UPSERT style insertion and delete an older version of the document if it exists")
@@ -42,42 +36,41 @@ public class RediSearchWriterOptions {
 	@Option(names = "--suggest-increment", description = "Use increment to set value")
 	private boolean increment;
 
-	public AbstractSearchItemWriter searchItemWriter() {
+	private AbstractSearchItemWriter searchWriter() {
+		if (payloadField == null) {
+			return new FtaddItemWriter();
+		}
+		FtaddPayloadItemWriter writer = new FtaddPayloadItemWriter();
+		writer.setPayloadField(payloadField);
+		return writer;
+	}
+
+	private SugaddItemWriter suggestWriter() {
+		if (payloadField == null) {
+			return new SugaddItemWriter();
+		}
+		SugaddPayloadItemWriter writer = new SugaddPayloadItemWriter();
+		writer.setPayloadField(payloadField);
+		return writer;
+	}
+
+	public AbstractLettuSearchItemWriter addWriter() {
 		AbstractSearchItemWriter writer = searchWriter();
 		writer.setOptions(AddOptions.builder().ifCondition(ifCondition).language(language).noSave(noSave)
 				.replace(replace).replacePartial(partial).build());
 		writer.setDefaultScore(defaultScore);
 		writer.setScoreField(scoreField);
 		writer.setIndex(index);
-		writer.setConverter(new RedisConverter(idSeparator, idPrefix, ids));
 		return writer;
 	}
 
-	public SuggestItemWriter suggestItemWriter() {
-		SuggestItemWriter writer = suggestWriter();
+	public AbstractLettuSearchItemWriter sugaddWriter() {
+		SugaddItemWriter writer = suggestWriter();
 		writer.setIndex(index);
 		writer.setScoreField(scoreField);
 		writer.setDefaultScore(defaultScore);
 		writer.setField(suggestField);
 		writer.setIncrement(increment);
-		return writer;
-	}
-
-	private AbstractSearchItemWriter searchWriter() {
-		if (payloadField == null) {
-			return new SearchItemWriter();
-		}
-		SearchPayloadItemWriter writer = new SearchPayloadItemWriter();
-		writer.setPayloadField(payloadField);
-		return writer;
-	}
-
-	private SuggestItemWriter suggestWriter() {
-		if (payloadField == null) {
-			return new SuggestItemWriter();
-		}
-		SuggestPayloadItemWriter writer = new SuggestPayloadItemWriter();
-		writer.setPayloadField(payloadField);
 		return writer;
 	}
 

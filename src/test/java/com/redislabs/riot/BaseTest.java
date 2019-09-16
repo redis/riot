@@ -12,8 +12,6 @@ import com.redislabs.lettusearch.RediSearchClient;
 import com.redislabs.lettusearch.RediSearchCommands;
 import com.redislabs.lettusearch.StatefulRediSearchConnection;
 
-import picocli.CommandLine;
-
 public class BaseTest {
 
 	private final static String COMMAND_START = "$ riot ";
@@ -47,15 +45,15 @@ public class BaseTest {
 		}
 	}
 
-	protected void runFile(String filename, Object... args) throws Exception {
+	protected int runFile(String filename, Object... args) throws Exception {
 		try (InputStream inputStream = getClass().getResourceAsStream("/commands/" + filename + ".txt")) {
-			runCommand(new String(inputStream.readAllBytes()), args);
+			return runCommand(new String(inputStream.readAllBytes()), args);
 		}
 	}
 
-	protected void runCommand(String line, Object... args) throws Exception {
+	protected int runCommand(String line, Object... args) throws Exception {
 		String command = line.startsWith(COMMAND_START) ? line.substring(COMMAND_START.length()) : line;
-		new CommandLine(new Riot()).execute(CommandLineUtils.translateCommandline(String.format(command, args)));
+		return new Riot().execute(CommandLineUtils.translateCommandline(String.format(command, args)));
 	}
 
 }

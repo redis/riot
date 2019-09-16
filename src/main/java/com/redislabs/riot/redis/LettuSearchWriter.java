@@ -2,11 +2,13 @@ package com.redislabs.riot.redis;
 
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 
+import com.redislabs.lettusearch.RediSearchAsyncCommands;
 import com.redislabs.lettusearch.RediSearchClient;
 import com.redislabs.lettusearch.StatefulRediSearchConnection;
 import com.redislabs.riot.redisearch.AbstractLettuSearchItemWriter;
 
-public class LettuSearchWriter extends AbstractLettuceWriter {
+public class LettuSearchWriter extends
+		AbstractLettuceWriter<StatefulRediSearchConnection<String, String>, RediSearchAsyncCommands<String, String>> {
 
 	private RediSearchClient client;
 
@@ -21,6 +23,12 @@ public class LettuSearchWriter extends AbstractLettuceWriter {
 	protected void shutdownClient() {
 		client.shutdown();
 		client.getResources().shutdown();
+	}
+
+	@Override
+	protected RediSearchAsyncCommands<String, String> commands(
+			StatefulRediSearchConnection<String, String> connection) {
+		return connection.async();
 	}
 
 }

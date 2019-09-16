@@ -11,31 +11,22 @@ import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.core.io.WritableResource;
 import org.springframework.util.Assert;
 
-import com.redislabs.riot.Riot;
-import com.redislabs.riot.cli.HelpAwareCommand;
 import com.redislabs.riot.file.OutputStreamResource;
 
 import picocli.CommandLine.ArgGroup;
-import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
-import picocli.CommandLine.ParentCommand;
 
-@Command(name = "file", description = "File import/export", subcommands = { FileImportCommand.class,
-		FileExportCommand.class })
-public class FileConnector extends HelpAwareCommand {
+public class FileOptions {
 
-	@ParentCommand
-	private Riot riot;
 	@Parameters(arity = "1", description = "File path")
 	private String path;
 	@Option(names = { "-z", "--gzip" }, description = "File is gzip compressed")
 	private boolean gzip;
-	@Option(names = { "-t", "--type" }, description = "File type: ${COMPLETION-CANDIDATES}", paramLabel = "<type>")
+	@Option(names = { "-t", "--filetype" }, description = "File type: ${COMPLETION-CANDIDATES}", paramLabel = "<type>")
 	private FileType type;
 	@Option(names = { "-e",
 			"--encoding" }, description = "File encoding (default: ${DEFAULT-VALUE})", paramLabel = "<charset>")
@@ -90,11 +81,7 @@ public class FileConnector extends HelpAwareCommand {
 		if (uri.getScheme().equals("s3")) {
 			return s3Options.resource(path);
 		}
-		return new UrlResource(uri);
-	}
-
-	public Riot riot() {
-		return riot;
+		return new UncustomizedUrlResource(uri);
 	}
 
 	public Resource inputResource() throws IOException {

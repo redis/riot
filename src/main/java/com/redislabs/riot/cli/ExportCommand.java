@@ -2,19 +2,17 @@ package com.redislabs.riot.cli;
 
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
-import org.springframework.batch.item.ItemWriter;
 
 import com.redislabs.riot.cli.redis.RediSearchReaderOptions;
 import com.redislabs.riot.cli.redis.RedisReaderOptions;
 
 import picocli.CommandLine.ArgGroup;
+import picocli.CommandLine.Command;
 
-public abstract class ExportCommand extends TransferCommand {
-
-	private final Logger log = LoggerFactory.getLogger(ExportCommand.class);
+@Command
+public abstract class ExportCommand extends TransferCommand<Map<String, Object>, Map<String, Object>> {
 
 	@ArgGroup(exclusive = false, heading = "Redis reader options%n")
 	private RedisReaderOptions redisReader = new RedisReaderOptions();
@@ -22,25 +20,17 @@ public abstract class ExportCommand extends TransferCommand {
 	@ArgGroup(exclusive = false, heading = "RediSearch reader options%n")
 	private RediSearchReaderOptions searchReader = new RediSearchReaderOptions();
 
-	private ItemReader<Map<String, Object>> reader() {
+	@Override
+	protected ItemReader<Map<String, Object>> reader() {
 		if (searchReader.isSet()) {
-			return searchReader.reader(redis().rediSearchClient());
+			return searchReader.reader(getRedisOptions().rediSearchClient());
 		}
-		return redisReader.reader(redis().jedisPool());
+		return redisReader.reader(getRedisOptions().jedisPool());
 	}
 
 	@Override
-	public void run() {
-		ItemWriter<Map<String, Object>> writer;
-		try {
-			writer = writer();
-		} catch (Exception e) {
-			log.error("Could not initialize writer", e);
-			return;
-		}
-		transfer(reader(), writer);
+	protected ItemProcessor<Map<String, Object>, Map<String, Object>> processor() throws Exception {
+		return null;
 	}
-
-	protected abstract ItemWriter<Map<String, Object>> writer() throws Exception;
 
 }

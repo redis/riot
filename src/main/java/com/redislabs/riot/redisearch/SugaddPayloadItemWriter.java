@@ -3,11 +3,10 @@ package com.redislabs.riot.redisearch;
 import java.util.Map;
 
 import com.redislabs.lettusearch.RediSearchAsyncCommands;
-import com.redislabs.lettusearch.search.AddOptions;
 
 import io.lettuce.core.RedisFuture;
 
-public class SearchPayloadItemWriter extends AbstractSearchItemWriter {
+public class SugaddPayloadItemWriter extends SugaddItemWriter {
 
 	private String payloadField;
 
@@ -16,13 +15,16 @@ public class SearchPayloadItemWriter extends AbstractSearchItemWriter {
 	}
 
 	private String payload(Map<String, Object> item) {
+		if (payloadField == null) {
+			return null;
+		}
 		return convert(item.remove(payloadField), String.class);
 	}
 
 	@Override
-	protected RedisFuture<?> write(RediSearchAsyncCommands<String, String> commands, String index,
-			Map<String, Object> item, AddOptions options) {
-		return commands.add(index, key(item), score(item), stringMap(item), options, payload(item));
+	protected RedisFuture<?> sugadd(RediSearchAsyncCommands<String, String> commands, String index, String string,
+			double score, boolean increment, Map<String, Object> item) {
+		return commands.sugadd(index, string, score, increment, payload(item));
 	}
 
 }
