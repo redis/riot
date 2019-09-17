@@ -18,11 +18,10 @@ import com.redislabs.riot.file.OutputStreamResource;
 
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Option;
-import picocli.CommandLine.Parameters;
 
 public class FileOptions {
 
-	@Parameters(arity = "1", description = "File path")
+	@Option(required = true, names = "--file", description = "File path")
 	private String path;
 	@Option(names = { "-z", "--gzip" }, description = "File is gzip compressed")
 	private boolean gzip;

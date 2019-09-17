@@ -1,1 +1,0 @@
-$ riot file-import -p event -k Id --header --processor-date-format "MM/dd/yyyy HH:mm:ss a" --processor "EventStartDate=remove('Event Start Date')" --processor "EpochStart=#date.parse(EventStartDate).getTime()" "https://data.lacity.org/api/views/rx9t-fp7k/rows.csv?accessType=DOWNLOAD"

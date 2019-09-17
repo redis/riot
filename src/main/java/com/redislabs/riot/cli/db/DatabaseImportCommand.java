@@ -12,14 +12,13 @@ import com.redislabs.riot.cli.ImportCommand;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
 import picocli.CommandLine.Option;
-import picocli.CommandLine.Parameters;
 
 @Command(name = "db-import", description = "Import database")
 public class DatabaseImportCommand extends ImportCommand {
 
 	@Mixin
 	private DatabaseOptions db;
-	@Parameters(arity = "1", description = "Select statement", paramLabel = "<sql>")
+	@Option(required = true, names = "--sql", description = "SELECT statement", paramLabel = "<sql>")
 	private String sql;
 	@Option(names = "--fetch", description = "A hint to the driver as to how many rows to return with each fetch", paramLabel = "<size>")
 	private Integer fetchSize;

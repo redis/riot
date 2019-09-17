@@ -1,1 +1,1 @@
-$ riot file-export /tmp/beers.json --scan-keyspace beer --scan-keys id -f id name brewery_id abv
+$ riot file-export --file /tmp/beers.json --scan-keyspace beer --scan-keys id -f id name brewery_id abv

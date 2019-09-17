@@ -7,18 +7,20 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemWriter;
 
+import com.redislabs.lettusearch.RediSearchAsyncCommands;
 import com.redislabs.lettusearch.RediSearchClient;
+import com.redislabs.lettusearch.StatefulRediSearchConnection;
 import com.redislabs.riot.redis.JedisClusterWriter;
 import com.redislabs.riot.redis.JedisWriter;
-import com.redislabs.riot.redis.LettuSearchWriter;
-import com.redislabs.riot.redis.LettuceClusterWriter;
 import com.redislabs.riot.redis.LettuceWriter;
 import com.redislabs.riot.redis.writer.AbstractRedisItemWriter;
 import com.redislabs.riot.redisearch.AbstractLettuSearchItemWriter;
@@ -27,14 +29,21 @@ import io.lettuce.core.ClientOptions;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.SslOptions;
+import io.lettuce.core.api.StatefulConnection;
+import io.lettuce.core.api.StatefulRedisConnection;
+import io.lettuce.core.api.async.RedisAsyncCommands;
 import io.lettuce.core.cluster.ClusterClientOptions;
 import io.lettuce.core.cluster.RedisClusterClient;
+import io.lettuce.core.cluster.api.StatefulRedisClusterConnection;
+import io.lettuce.core.cluster.api.async.RedisClusterAsyncCommands;
 import io.lettuce.core.event.DefaultEventPublisherOptions;
 import io.lettuce.core.event.metrics.CommandLatencyEvent;
 import io.lettuce.core.metrics.DefaultCommandLatencyCollectorOptions;
 import io.lettuce.core.resource.ClientResources;
 import io.lettuce.core.resource.DefaultClientResources;
 import io.lettuce.core.resource.DefaultClientResources.Builder;
+import io.lettuce.core.support.ConnectionPoolSupport;
+import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Option;
 import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.Jedis;
@@ -74,14 +83,6 @@ public class RedisConnectionOptions {
 	private RedisDriver driver = RedisDriver.lettuce;
 	@Option(names = "--ssl", description = "SSL connection")
 	private boolean ssl;
-	@Option(names = "--max-total", description = "Max connections that can be allocated by the pool at a given time. Use negative value for no limit (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
-	private int maxTotal = GenericObjectPoolConfig.DEFAULT_MAX_TOTAL;
-	@Option(names = "--min-idle", description = "Min idle connections in pool. Only has an effect if >0 (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
-	private int minIdle = GenericObjectPoolConfig.DEFAULT_MIN_IDLE;
-	@Option(names = "--max-idle", description = "Max idle connections in pool. Use negative value for no limit (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
-	private int maxIdle = GenericObjectPoolConfig.DEFAULT_MAX_IDLE;
-	@Option(names = "--max-wait", description = "Max duration a connection allocation should block before throwing an exception when pool is exhausted. Use negative value to block indefinitely (default: ${DEFAULT-VALUE})", paramLabel = "<millis>")
-	private long maxWait = GenericObjectPoolConfig.DEFAULT_MAX_WAIT_MILLIS;
 	@Option(names = "--ssl-provider", description = "SSL Provider: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
 	private SslProvider sslProvider = SslProvider.Jdk;
 	@Option(names = "--keystore", description = "Path to keystore", paramLabel = "<file>")
@@ -94,14 +95,32 @@ public class RedisConnectionOptions {
 	private String truststorePassword;
 	@Option(names = "--max-redirects", description = "Number of maximal cluster redirects (-MOVED and -ASK) to follow in case a key was moved from one node to another node (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
 	private int maxRedirects = ClusterClientOptions.DEFAULT_MAX_REDIRECTS;
+	@ArgGroup(exclusive = false, heading = "Redis connection pool options%n")
+	private RedisConnectionPoolOptions poolOptions = new RedisConnectionPoolOptions();
 
-	@SuppressWarnings("rawtypes")
-	private <T extends GenericObjectPoolConfig> T configure(T poolConfig) {
-		poolConfig.setMaxTotal(maxTotal);
-		poolConfig.setMaxIdle(maxIdle);
-		poolConfig.setMinIdle(minIdle);
-		poolConfig.setMaxWaitMillis(maxWait);
-		return poolConfig;
+	static class RedisConnectionPoolOptions {
+		@Option(names = "--pool-max-total", description = "Max connections that can be allocated by the pool at a given time. Use negative value for no limit (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
+		private int maxTotal = GenericObjectPoolConfig.DEFAULT_MAX_TOTAL;
+		@Option(names = "--pool-min-idle", description = "Min idle connections in pool. Only has an effect if >0 (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
+		private int minIdle = GenericObjectPoolConfig.DEFAULT_MIN_IDLE;
+		@Option(names = "--pool-max-idle", description = "Max idle connections in pool. Use negative value for no limit (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
+		private int maxIdle = GenericObjectPoolConfig.DEFAULT_MAX_IDLE;
+		@Option(names = "--pool-max-wait", description = "Max duration a connection allocation should block before throwing an exception when pool is exhausted. Use negative value to block indefinitely (default: ${DEFAULT-VALUE})", paramLabel = "<millis>")
+		private long maxWait = GenericObjectPoolConfig.DEFAULT_MAX_WAIT_MILLIS;
+
+		@SuppressWarnings("rawtypes")
+		public <T extends GenericObjectPoolConfig> T configure(T poolConfig) {
+			poolConfig.setMaxTotal(maxTotal);
+			poolConfig.setMaxIdle(maxIdle);
+			poolConfig.setMinIdle(minIdle);
+			poolConfig.setMaxWaitMillis(maxWait);
+			return poolConfig;
+		}
+
+		public <T extends StatefulConnection<String, String>> GenericObjectPool<T> pool(Supplier<T> supplier) {
+			return ConnectionPoolSupport.createGenericObjectPool(supplier, configure(new GenericObjectPoolConfig<>()));
+		}
+
 	}
 
 	private RedisURI uri() {
@@ -145,7 +164,7 @@ public class RedisConnectionOptions {
 	}
 
 	public Pool<Jedis> jedisPool() {
-		JedisPoolConfig poolConfig = configure(new JedisPoolConfig());
+		JedisPoolConfig poolConfig = poolOptions.configure(new JedisPoolConfig());
 		if (sentinelMaster == null) {
 			String host = endpoints.get(0).getHost();
 			int port = endpoints.get(0).getPort();
@@ -219,10 +238,6 @@ public class RedisConnectionOptions {
 		return builder.build();
 	}
 
-	private <T> GenericObjectPoolConfig<T> poolConfig() {
-		return configure(new GenericObjectPoolConfig<>());
-	}
-
 	public Object redis() {
 		if (driver == RedisDriver.jedis) {
 			return jedisPool().getResource();
@@ -236,7 +251,10 @@ public class RedisConnectionOptions {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public ItemWriter<Map<String, Object>> writer(AbstractRedisItemWriter itemWriter) {
 		if (itemWriter instanceof AbstractLettuSearchItemWriter) {
-			return new LettuSearchWriter(rediSearchClient(), poolConfig(), (AbstractLettuSearchItemWriter) itemWriter);
+			RediSearchClient client = rediSearchClient();
+			return new LettuceWriter<StatefulRediSearchConnection<String, String>, RediSearchAsyncCommands<String, String>>(
+					client, client::getResources, poolOptions.pool(client::connect), itemWriter,
+					StatefulRediSearchConnection::async);
 		}
 		if (driver == RedisDriver.jedis) {
 			if (cluster) {
@@ -245,18 +263,24 @@ public class RedisConnectionOptions {
 			return new JedisWriter(jedisPool(), itemWriter);
 		}
 		if (cluster) {
-			return new LettuceClusterWriter(clusterClient(), poolConfig(), itemWriter);
+			RedisClusterClient client = clusterClient();
+			return new LettuceWriter<StatefulRedisClusterConnection<String, String>, RedisClusterAsyncCommands<String, String>>(
+					client, client::getResources, poolOptions.pool(client::connect), itemWriter,
+					StatefulRedisClusterConnection::async);
 		}
-		return new LettuceWriter(client(), poolConfig(), itemWriter);
+		RedisClient client = client();
+		return new LettuceWriter<StatefulRedisConnection<String, String>, RedisAsyncCommands<String, String>>(client,
+				client::getResources, poolOptions.pool(client::connect), itemWriter, StatefulRedisConnection::async);
 	}
 
 	private JedisCluster jedisCluster() {
 		Set<HostAndPort> hostAndPort = new HashSet<>();
 		endpoints.forEach(node -> hostAndPort.add(new HostAndPort(node.getHost(), node.getPort())));
+		JedisPoolConfig poolConfig = poolOptions.configure(new JedisPoolConfig());
 		if (password == null) {
-			return new JedisCluster(hostAndPort, connectTimeout, socketTimeout, maxRedirects, poolConfig());
+			return new JedisCluster(hostAndPort, connectTimeout, socketTimeout, maxRedirects, poolConfig);
 		}
-		return new JedisCluster(hostAndPort, connectTimeout, socketTimeout, maxRedirects, password, poolConfig());
+		return new JedisCluster(hostAndPort, connectTimeout, socketTimeout, maxRedirects, password, poolConfig);
 	}
 
 }

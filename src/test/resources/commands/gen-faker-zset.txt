@@ -1,1 +1,1 @@
-$ riot faker ip=number.digits(4) lease=number.digits(2) time=number.digits(5) -b 50 -m 10000 -c zadd -p leases -k ip -f lease --score=time
+$ riot faker --fields ip=number.digits(4) lease=number.digits(2) time=number.digits(5) -b 50 -m 10000 -c zadd -p leases -k ip -f lease --score=time

@@ -8,12 +8,12 @@ import com.redislabs.riot.generator.GeneratorReader;
 import com.redislabs.riot.generator.SimpleGeneratorReader;
 
 import picocli.CommandLine.Command;
-import picocli.CommandLine.Parameters;
+import picocli.CommandLine.Option;
 
 @Command(name = "gen", description = "Import simple generated data")
 public class SimpleGeneratorCommand extends ImportCommand {
 
-	@Parameters(description = "Field sizes in bytes", paramLabel = "<field=size>")
+	@Option(names = "--fields", arity = "1..*", description = "Field sizes in bytes", paramLabel = "<field=size>")
 	private Map<String, Integer> fields = new LinkedHashMap<>();
 
 	@Override

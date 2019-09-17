@@ -40,7 +40,7 @@ import io.lettuce.core.GeoArgs.Unit;
 public class TestFile extends BaseTest {
 
 	@Test
-	public void testExportBeersCsv() throws UnexpectedInputException, ParseException, Exception {
+	public void testExportCsv() throws UnexpectedInputException, ParseException, Exception {
 		File file = new File("/tmp/beers.csv");
 		file.delete();
 		runFile("file-import-json-hash");
@@ -76,7 +76,7 @@ public class TestFile extends BaseTest {
 
 	@SuppressWarnings("rawtypes")
 	@Test
-	public void testExportBeersJson() throws UnexpectedInputException, ParseException, Exception {
+	public void testExportJson() throws UnexpectedInputException, ParseException, Exception {
 		File file = new File("/tmp/beers.json");
 		file.delete();
 		runFile("file-import-json-hash");
@@ -94,7 +94,7 @@ public class TestFile extends BaseTest {
 
 	@SuppressWarnings("rawtypes")
 	@Test
-	public void testExportBeersJsonGz() throws UnexpectedInputException, ParseException, Exception {
+	public void testExportJsonGz() throws UnexpectedInputException, ParseException, Exception {
 		File file = new File("/tmp/beers.json.gz");
 		file.delete();
 		runFile("file-import-json-hash");
@@ -113,14 +113,14 @@ public class TestFile extends BaseTest {
 	}
 
 	@Test
-	public void testImportCsv() throws Exception {
+	public void testImportCsvHash() throws Exception {
 		runFile("file-import-csv-hash");
 		List<String> keys = commands().keys("beer:*");
 		Assertions.assertEquals(BEER_COUNT, keys.size());
 	}
 
 	@Test
-	public void testImportBeersSearch() throws Exception {
+	public void testImportCsvSearch() throws Exception {
 		String FIELD_ABV = "abv";
 		String FIELD_NAME = "name";
 		String FIELD_STYLE = "style";
@@ -139,20 +139,20 @@ public class TestFile extends BaseTest {
 	}
 
 	@Test
-	public void testImportAirportsSearch() throws Exception {
+	public void testImportCsvProcessorSearchGeo() throws Exception {
 		String INDEX = "airports";
 		commands().flushall();
 		SchemaBuilder schema = Schema.builder();
 		schema.field(TextField.builder().name("Name").sortable(true).build());
 		schema.field(GeoField.builder().name("Location").sortable(true).build());
 		commands().create(INDEX, schema.build());
-		runFile("file-import-csv-geosearch");
+		runFile("file-import-csv-processor-search-geo");
 		SearchResults<String, String> results = commands().search(INDEX, "@Location:[-77 38 50 mi]");
 		Assertions.assertEquals(3, results.getCount());
 	}
 
 	@Test
-	public void testImportAirports() throws Exception {
+	public void testImportCsvGeo() throws Exception {
 		runFile("file-import-csv-geo");
 		Set<String> results = commands().georadius("airportgeo", -122.4194, 37.7749, 20, Unit.mi);
 		Assertions.assertTrue(results.contains("3469"));
@@ -163,7 +163,7 @@ public class TestFile extends BaseTest {
 	@Test
 	public void testImportElasticacheJson() throws Exception {
 		String url = getClass().getClassLoader().getResource("es_test-index.json").getFile();
-		runCommand("file-import %s --keyspace estest --keys _id", url);
+		runCommand("file-import --file %s --keyspace estest --keys _id", url);
 		Assertions.assertEquals(2, commands().keys("estest:*").size());
 		Map<String, String> doc1 = commands().hgetall("estest:doc1");
 		Assertions.assertEquals("ruan", doc1.get("_source.name"));
@@ -171,7 +171,7 @@ public class TestFile extends BaseTest {
 	}
 
 	@Test
-	public void testImportBeersJson() throws Exception {
+	public void testImportJsonHash() throws Exception {
 		runFile("file-import-json-hash");
 		List<String> keys = commands().keys("beer:*");
 		Assertions.assertEquals(4432, keys.size());
@@ -180,8 +180,8 @@ public class TestFile extends BaseTest {
 	}
 
 	@Test
-	public void testImportCsvHashDate() throws Exception {
-		runFile("file-import-csv-hash-date");
+	public void testImportCsvProcessorHashDateFormat() throws Exception {
+		runFile("file-import-csv-processor-hash-dateformat");
 		List<String> keys = commands().keys("event:*");
 		Assertions.assertEquals(568, keys.size());
 		Map<String, String> event = commands().hgetall("event:248206");
@@ -189,7 +189,7 @@ public class TestFile extends BaseTest {
 	}
 
 	@Test
-	public void testImportLAEvents() throws Exception {
+	public void testImportCsvProcessorSearch() throws Exception {
 		String INDEX = "laevents";
 		commands().flushall();
 		SchemaBuilder schema = Schema.builder();
@@ -198,7 +198,7 @@ public class TestFile extends BaseTest {
 		schema.field(NumericField.builder().name("kat").build());
 		schema.field(GeoField.builder().name("location").sortable(true).build());
 		commands().create(INDEX, schema.build());
-		runFile("file-import-laevents");
+		runFile("file-import-csv-processor-search");
 		SearchResults<String, String> results = commands().search(INDEX, "@location:[-118.446014 33.998415 10 mi]");
 		Assertions.assertTrue(results.getCount() > 0);
 		for (SearchResult<String, String> result : results) {

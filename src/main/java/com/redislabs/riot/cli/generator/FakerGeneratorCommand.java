@@ -17,12 +17,11 @@ import com.redislabs.riot.generator.GeneratorReader;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
-import picocli.CommandLine.Parameters;
 
 @Command(name = "faker", description = "Import Faker-generated data")
 public class FakerGeneratorCommand extends ImportCommand {
 
-	@Parameters(paramLabel = "<name=SpEL>", description = "SpEL expression to generate a field")
+	@Option(required = true, arity = "1..*", names = "--fields", description = "SpEL expression to generate a field", paramLabel = "<name=SpEL>")
 	private Map<String, String> fields;
 	@Option(names = { "-l",
 			"--locale" }, description = "Faker locale (default: ${DEFAULT-VALUE})", paramLabel = "<tag>")

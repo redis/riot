@@ -230,13 +230,13 @@ riot --metrics …
 .Strings
 [source,shell]
 ----
-riot --host redis-12000.redislabs.com --port 12000 --max-total 96 gen simple value=100 --max 100000000 --batch 500 --threads 96 -r string --string-format raw --keyspace string --keys=index --value value
+$ riot -s redis-12000.redislabs.com:12000 --pool-max-total 96 gen --batch 500 --threads 96 --max 100000000 --fields value=100 -c set --string-format raw --keyspace string --keys index --string-value value
 ----
 image::images/rs-strings.png[]
 
 .Streams
 [source,shell]
 ----
-riot --host redis-12000.redislabs.com --port 12000 --max-total 96 gen simple --max 100000000 --batch 500 --threads 96 -r stream --keyspace stream --keys partition
+$ riot -s redis-12000.redislabs.com:12000 --pool-max-total 96 gen --batch 500 --threads 96 --max 100000000 -c xadd --keyspace stream --keys partition
 ----
 image::images/rs-streams.png[]

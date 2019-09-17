@@ -13,14 +13,14 @@ import com.redislabs.riot.cli.ExportCommand;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
-import picocli.CommandLine.Parameters;
+import picocli.CommandLine.Option;
 
 @Command(name = "db-export", description = "Export to database")
 public class DatabaseExportCommand extends ExportCommand {
 
 	@Mixin
 	private DatabaseOptions db;
-	@Parameters(arity = "1", description = "SQL statement e.g. \"INSERT INTO people (id, name) VALUES (:ssn, :name)\"", paramLabel = "<sql>")
+	@Option(required = true, names = "--sql", description = "SQL statement e.g. \"INSERT INTO people (id, name) VALUES (:ssn, :name)\"", paramLabel = "<sql>")
 	private String sql;
 
 	@Override

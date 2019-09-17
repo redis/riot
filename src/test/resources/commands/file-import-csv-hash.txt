@@ -1,1 +1,1 @@
-$ riot file-import -p beer -k id --header https://git.io/fjxPs
+$ riot file-import -p beer -k id --header --file https://git.io/fjxPs
