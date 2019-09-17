@@ -2,17 +2,21 @@ package com.redislabs.riot.cli.redis;
 
 import com.redislabs.lettusearch.search.AddOptions;
 import com.redislabs.lettusearch.search.Language;
-import com.redislabs.riot.redisearch.AbstractLettuSearchItemWriter;
-import com.redislabs.riot.redisearch.AbstractSearchItemWriter;
-import com.redislabs.riot.redisearch.FtaddItemWriter;
-import com.redislabs.riot.redisearch.FtaddPayloadItemWriter;
-import com.redislabs.riot.redisearch.SugaddItemWriter;
-import com.redislabs.riot.redisearch.SugaddPayloadItemWriter;
+import com.redislabs.riot.cli.RediSearchCommand;
+import com.redislabs.riot.redisearch.AbstractLettuSearchMapWriter;
+import com.redislabs.riot.redisearch.AbstractSearchMapWriter;
+import com.redislabs.riot.redisearch.FtaddMapWriter;
+import com.redislabs.riot.redisearch.FtaddPayloadMapWriter;
+import com.redislabs.riot.redisearch.SugaddMapWriter;
+import com.redislabs.riot.redisearch.SugaddPayloadMapWriter;
 
 import picocli.CommandLine.Option;
 
 public class RediSearchCommandOptions {
 
+	@Option(names = { "-r",
+			"--redisearch-command" }, description = "Redis command: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})", paramLabel = "<name>")
+	private RediSearchCommand command = RediSearchCommand.add;
 	@Option(names = { "-i", "--index" }, description = "Name of the RediSearch index", paramLabel = "<name>")
 	private String index;
 	@Option(names = "--nosave", description = "Do not save the actual document in the database and only index it")
@@ -36,42 +40,47 @@ public class RediSearchCommandOptions {
 	@Option(names = "--suggest-increment", description = "Use increment to set value")
 	private boolean increment;
 
-	private AbstractSearchItemWriter searchWriter() {
+	private AbstractSearchMapWriter searchWriter() {
 		if (payloadField == null) {
-			return new FtaddItemWriter();
+			return new FtaddMapWriter();
 		}
-		FtaddPayloadItemWriter writer = new FtaddPayloadItemWriter();
+		FtaddPayloadMapWriter writer = new FtaddPayloadMapWriter();
 		writer.setPayloadField(payloadField);
 		return writer;
 	}
 
-	private SugaddItemWriter suggestWriter() {
+	private SugaddMapWriter suggestWriter() {
 		if (payloadField == null) {
-			return new SugaddItemWriter();
+			return new SugaddMapWriter();
 		}
-		SugaddPayloadItemWriter writer = new SugaddPayloadItemWriter();
+		SugaddPayloadMapWriter writer = new SugaddPayloadMapWriter();
 		writer.setPayloadField(payloadField);
 		return writer;
 	}
 
-	public AbstractLettuSearchItemWriter addWriter() {
-		AbstractSearchItemWriter writer = searchWriter();
-		writer.setOptions(AddOptions.builder().ifCondition(ifCondition).language(language).noSave(noSave)
-				.replace(replace).replacePartial(partial).build());
-		writer.setDefaultScore(defaultScore);
-		writer.setScoreField(scoreField);
-		writer.setIndex(index);
-		return writer;
+	public AbstractLettuSearchMapWriter writer() {
+		switch (command) {
+		case sugadd:
+			SugaddMapWriter suggestWriter = suggestWriter();
+			suggestWriter.setIndex(index);
+			suggestWriter.setScoreField(scoreField);
+			suggestWriter.setDefaultScore(defaultScore);
+			suggestWriter.setField(suggestField);
+			suggestWriter.setIncrement(increment);
+			return suggestWriter;
+		default:
+			AbstractSearchMapWriter addWriter = searchWriter();
+			addWriter.setOptions(AddOptions.builder().ifCondition(ifCondition).language(language).noSave(noSave)
+					.replace(replace).replacePartial(partial).build());
+			addWriter.setDefaultScore(defaultScore);
+			addWriter.setScoreField(scoreField);
+			addWriter.setIndex(index);
+			return addWriter;
+		}
 	}
 
-	public AbstractLettuSearchItemWriter sugaddWriter() {
-		SugaddItemWriter writer = suggestWriter();
-		writer.setIndex(index);
-		writer.setScoreField(scoreField);
-		writer.setDefaultScore(defaultScore);
-		writer.setField(suggestField);
-		writer.setIncrement(increment);
-		return writer;
+	public boolean isSet() {
+		return index != null;
 	}
 
 }

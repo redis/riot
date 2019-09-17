@@ -4,7 +4,7 @@ import com.redislabs.lettusearch.RediSearchClient;
 import com.redislabs.lettusearch.search.Limit;
 import com.redislabs.lettusearch.search.SearchOptions;
 import com.redislabs.lettusearch.search.SearchOptions.SearchOptionsBuilder;
-import com.redislabs.riot.redisearch.RediSearchReader;
+import com.redislabs.riot.redisearch.RediSearchItemReader;
 
 import picocli.CommandLine.Option;
 
@@ -19,10 +19,10 @@ public class RediSearchReaderOptions {
 	@Option(names = "--offset", description = "Limit results to offset (default: ${DEFAULT-VALUE})", paramLabel = "<count>")
 	private long limitOffset = Limit.DEFAULT_OFFSET;
 
-	public RediSearchReader reader(RediSearchClient client) {
+	public RediSearchItemReader reader(RediSearchClient client) {
 		SearchOptionsBuilder builder = SearchOptions.builder();
 		builder.limit(Limit.builder().num(limitNum).offset(limitOffset).build());
-		return new RediSearchReader(client, index, query, builder.build());
+		return new RediSearchItemReader(client, index, query, builder.build());
 	}
 
 	public boolean isSet() {

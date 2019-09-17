@@ -31,15 +31,15 @@ public class ProcessorOptions {
 	@Option(arity = "1..*", names = {
 			"--processor" }, description = "SpEL expression to process a field", paramLabel = "<name=expression>")
 	private Map<String, String> fields;
-	@Option(arity = "1..*", names = { "-r",
-			"--regex" }, description = "Extract fields from a source field using a regular expression", paramLabel = "<source=regex>")
+	@Option(arity = "1..*", names = "--regex", description = "Extract fields from a source field using a regular expression", paramLabel = "<source=regex>")
 	private Map<String, String> regexes;
 	@Option(arity = "1..*", names = "--processor-variable", description = "Register a variable in the processor context", paramLabel = "<name=expression>")
 	private Map<String, String> variables = new LinkedHashMap<String, String>();
 	@Option(names = "--processor-date-format", description = "java.text.SimpleDateFormat pattern for 'date' processor variable (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
 	private String dateFormat = new SimpleDateFormat().toPattern();
 
-	public ItemProcessor<Map<String, Object>, Map<String, Object>> processor(RedisConnectionOptions redis) throws Exception {
+	public ItemProcessor<Map<String, Object>, Map<String, Object>> processor(RedisConnectionOptions redis)
+			throws Exception {
 		List<ItemProcessor<Map<String, Object>, Map<String, Object>>> processors = new ArrayList<>();
 		if (regexes != null) {
 			processors.add(new RegexProcessor(regexes));

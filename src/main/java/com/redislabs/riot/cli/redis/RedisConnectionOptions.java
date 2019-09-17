@@ -19,11 +19,11 @@ import org.springframework.batch.item.ItemWriter;
 import com.redislabs.lettusearch.RediSearchAsyncCommands;
 import com.redislabs.lettusearch.RediSearchClient;
 import com.redislabs.lettusearch.StatefulRediSearchConnection;
-import com.redislabs.riot.redis.JedisClusterWriter;
-import com.redislabs.riot.redis.JedisWriter;
-import com.redislabs.riot.redis.LettuceWriter;
-import com.redislabs.riot.redis.writer.AbstractRedisItemWriter;
-import com.redislabs.riot.redisearch.AbstractLettuSearchItemWriter;
+import com.redislabs.riot.redis.JedisClusterItemWriter;
+import com.redislabs.riot.redis.JedisItemWriter;
+import com.redislabs.riot.redis.LettuceItemWriter;
+import com.redislabs.riot.redis.writer.RedisMapWriter;
+import com.redislabs.riot.redisearch.AbstractLettuSearchMapWriter;
 
 import io.lettuce.core.ClientOptions;
 import io.lettuce.core.RedisClient;
@@ -249,27 +249,27 @@ public class RedisConnectionOptions {
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public ItemWriter<Map<String, Object>> writer(AbstractRedisItemWriter itemWriter) {
-		if (itemWriter instanceof AbstractLettuSearchItemWriter) {
+	public ItemWriter<Map<String, Object>> writer(RedisMapWriter itemWriter) {
+		if (itemWriter instanceof AbstractLettuSearchMapWriter) {
 			RediSearchClient client = rediSearchClient();
-			return new LettuceWriter<StatefulRediSearchConnection<String, String>, RediSearchAsyncCommands<String, String>>(
+			return new LettuceItemWriter<StatefulRediSearchConnection<String, String>, RediSearchAsyncCommands<String, String>>(
 					client, client::getResources, poolOptions.pool(client::connect), itemWriter,
 					StatefulRediSearchConnection::async);
 		}
 		if (driver == RedisDriver.jedis) {
 			if (cluster) {
-				return new JedisClusterWriter(jedisCluster(), itemWriter);
+				return new JedisClusterItemWriter(jedisCluster(), itemWriter);
 			}
-			return new JedisWriter(jedisPool(), itemWriter);
+			return new JedisItemWriter(jedisPool(), itemWriter);
 		}
 		if (cluster) {
 			RedisClusterClient client = clusterClient();
-			return new LettuceWriter<StatefulRedisClusterConnection<String, String>, RedisClusterAsyncCommands<String, String>>(
+			return new LettuceItemWriter<StatefulRedisClusterConnection<String, String>, RedisClusterAsyncCommands<String, String>>(
 					client, client::getResources, poolOptions.pool(client::connect), itemWriter,
 					StatefulRedisClusterConnection::async);
 		}
 		RedisClient client = client();
-		return new LettuceWriter<StatefulRedisConnection<String, String>, RedisAsyncCommands<String, String>>(client,
+		return new LettuceItemWriter<StatefulRedisConnection<String, String>, RedisAsyncCommands<String, String>>(client,
 				client::getResources, poolOptions.pool(client::connect), itemWriter, StatefulRedisConnection::async);
 	}
 

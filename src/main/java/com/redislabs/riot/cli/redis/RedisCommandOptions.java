@@ -4,24 +4,24 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.redislabs.riot.cli.RedisCommand;
-import com.redislabs.riot.redis.writer.AbstractRedisItemWriter;
-import com.redislabs.riot.redis.writer.CollectionItemWriter;
-import com.redislabs.riot.redis.writer.EvalshaItemWriter;
-import com.redislabs.riot.redis.writer.ExpireItemWriter;
-import com.redislabs.riot.redis.writer.GeoaddItemWriter;
-import com.redislabs.riot.redis.writer.HmsetItemWriter;
-import com.redislabs.riot.redis.writer.LpushItemWriter;
-import com.redislabs.riot.redis.writer.RedisItemWriter;
-import com.redislabs.riot.redis.writer.RpushItemWriter;
-import com.redislabs.riot.redis.writer.SaddWriter;
-import com.redislabs.riot.redis.writer.SetFieldItemWriter;
-import com.redislabs.riot.redis.writer.SetItemWriter;
-import com.redislabs.riot.redis.writer.SetObjectItemWriter;
-import com.redislabs.riot.redis.writer.XaddIdItemWriter;
-import com.redislabs.riot.redis.writer.XaddIdMaxlenItemWriter;
-import com.redislabs.riot.redis.writer.XaddItemWriter;
-import com.redislabs.riot.redis.writer.XaddMaxlenItemWriter;
-import com.redislabs.riot.redis.writer.ZaddItemWriter;
+import com.redislabs.riot.redis.writer.RedisMapWriter;
+import com.redislabs.riot.redis.writer.CollectionMapWriter;
+import com.redislabs.riot.redis.writer.EvalshaMapWriter;
+import com.redislabs.riot.redis.writer.ExpireMapWriter;
+import com.redislabs.riot.redis.writer.GeoaddMapWriter;
+import com.redislabs.riot.redis.writer.HmsetMapWriter;
+import com.redislabs.riot.redis.writer.LpushMapWriter;
+import com.redislabs.riot.redis.writer.RedisDataStructureMapWriter;
+import com.redislabs.riot.redis.writer.RpushMapWriter;
+import com.redislabs.riot.redis.writer.SaddMapWriter;
+import com.redislabs.riot.redis.writer.SetFieldMapWriter;
+import com.redislabs.riot.redis.writer.SetMapWriter;
+import com.redislabs.riot.redis.writer.SetObjectMapWriter;
+import com.redislabs.riot.redis.writer.XaddIdMapWriter;
+import com.redislabs.riot.redis.writer.XaddIdMaxlenMapWriter;
+import com.redislabs.riot.redis.writer.XaddMapWriter;
+import com.redislabs.riot.redis.writer.XaddMaxlenMapWriter;
+import com.redislabs.riot.redis.writer.ZaddMapWriter;
 
 import io.lettuce.core.ScriptOutputType;
 import io.lettuce.core.api.async.RedisStreamAsyncCommands;
@@ -63,26 +63,29 @@ public class RedisCommandOptions {
 	private String stringRoot;
 	@Option(names = "--string-value", description = "Field to use for value when using raw format", paramLabel = "<field>")
 	private String stringValue;
+	@Option(names = { "-c",
+			"--command" }, description = "Redis command: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})", paramLabel = "<name>")
+	private RedisCommand command = RedisCommand.hmset;
 
-	private ZaddItemWriter zaddWriter() {
-		ZaddItemWriter writer = new ZaddItemWriter();
+	private ZaddMapWriter zaddWriter() {
+		ZaddMapWriter writer = new ZaddMapWriter();
 		writer.setDefaultScore(zsetDefaultScore);
 		writer.setScoreField(zsetScore);
 		return writer;
 	}
 
-	private SetItemWriter setWriter() {
+	private SetMapWriter setWriter() {
 		switch (stringFormat) {
 		case raw:
-			SetFieldItemWriter fieldWriter = new SetFieldItemWriter();
+			SetFieldMapWriter fieldWriter = new SetFieldMapWriter();
 			fieldWriter.setField(stringValue);
 			return fieldWriter;
 		case xml:
-			SetObjectItemWriter xmlWriter = new SetObjectItemWriter();
+			SetObjectMapWriter xmlWriter = new SetObjectMapWriter();
 			xmlWriter.setObjectWriter(objectWriter(new XmlMapper()));
 			return xmlWriter;
 		default:
-			SetObjectItemWriter jsonWriter = new SetObjectItemWriter();
+			SetObjectMapWriter jsonWriter = new SetObjectMapWriter();
 			jsonWriter.setObjectWriter(objectWriter(new ObjectMapper()));
 			return jsonWriter;
 		}
@@ -92,30 +95,30 @@ public class RedisCommandOptions {
 		return mapper.writer().withRootName(stringRoot);
 	}
 
-	private RedisItemWriter<RedisStreamAsyncCommands<String, String>> xaddWriter() {
+	private RedisDataStructureMapWriter<RedisStreamAsyncCommands<String, String>> xaddWriter() {
 		if (xaddId == null) {
 			if (xaddMaxlen == null) {
-				return new XaddItemWriter();
+				return new XaddMapWriter();
 			}
-			XaddMaxlenItemWriter writer = new XaddMaxlenItemWriter();
+			XaddMaxlenMapWriter writer = new XaddMaxlenMapWriter();
 			writer.setApproximateTrimming(xaddTrim);
 			writer.setMaxlen(xaddMaxlen);
 			return writer;
 		}
 		if (xaddMaxlen == null) {
-			XaddIdItemWriter writer = new XaddIdItemWriter();
+			XaddIdMapWriter writer = new XaddIdMapWriter();
 			writer.setIdField(xaddId);
 			return writer;
 		}
-		XaddIdMaxlenItemWriter writer = new XaddIdMaxlenItemWriter();
+		XaddIdMaxlenMapWriter writer = new XaddIdMaxlenMapWriter();
 		writer.setApproximateTrimming(xaddTrim);
 		writer.setIdField(xaddId);
 		writer.setMaxlen(xaddMaxlen);
 		return writer;
 	}
 
-	private EvalshaItemWriter evalshaWriter() {
-		EvalshaItemWriter luaWriter = new EvalshaItemWriter();
+	private EvalshaMapWriter evalshaWriter() {
+		EvalshaMapWriter luaWriter = new EvalshaMapWriter();
 		luaWriter.setArgs(evalArgs);
 		luaWriter.setKeys(evalKeys);
 		luaWriter.setOutputType(outputType);
@@ -123,42 +126,42 @@ public class RedisCommandOptions {
 		return luaWriter;
 	}
 
-	private ExpireItemWriter expireWriter() {
-		ExpireItemWriter expireWriter = new ExpireItemWriter();
+	private ExpireMapWriter expireWriter() {
+		ExpireMapWriter expireWriter = new ExpireMapWriter();
 		expireWriter.setDefaultTimeout(expireDefaultTimeout);
 		expireWriter.setTimeoutField(expireTimeout);
 		return expireWriter;
 	}
 
-	private GeoaddItemWriter geoWriter() {
-		GeoaddItemWriter writer = new GeoaddItemWriter();
+	private GeoaddMapWriter geoWriter() {
+		GeoaddMapWriter writer = new GeoaddMapWriter();
 		writer.setLatitudeField(geoLat);
 		writer.setLongitudeField(geoLon);
 		return writer;
 	}
 
-	public AbstractRedisItemWriter<?> writer(RedisCommand command) {
-		AbstractRedisItemWriter<?> redisItemWriter = redisItemWriter(command);
-		if (redisItemWriter instanceof CollectionItemWriter) {
-			((CollectionItemWriter<?>) redisItemWriter).setFields(members);
+	public RedisMapWriter<?> writer() {
+		RedisMapWriter<?> redisItemWriter = redisItemWriter(command);
+		if (redisItemWriter instanceof CollectionMapWriter) {
+			((CollectionMapWriter<?>) redisItemWriter).setFields(members);
 		}
 		return redisItemWriter;
 	}
 
-	private AbstractRedisItemWriter<?> redisItemWriter(RedisCommand command) {
+	private RedisMapWriter<?> redisItemWriter(RedisCommand command) {
 		switch (command) {
 		case expire:
 			return expireWriter();
 		case geoadd:
 			return geoWriter();
 		case lpush:
-			return new LpushItemWriter();
+			return new LpushMapWriter();
 		case rpush:
-			return new RpushItemWriter();
+			return new RpushMapWriter();
 		case evalsha:
 			return evalshaWriter();
 		case sadd:
-			return new SaddWriter();
+			return new SaddMapWriter();
 		case xadd:
 			return xaddWriter();
 		case set:
@@ -166,7 +169,7 @@ public class RedisCommandOptions {
 		case zadd:
 			return zaddWriter();
 		default:
-			return new HmsetItemWriter();
+			return new HmsetMapWriter();
 		}
 	}
 
