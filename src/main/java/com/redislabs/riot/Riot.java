@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.file.transform.Range;
 
 import com.redislabs.riot.cli.ConsoleExportCommand;
-import com.redislabs.riot.cli.HelpAwareCommand;
 import com.redislabs.riot.cli.db.DatabaseExportCommand;
 import com.redislabs.riot.cli.db.DatabaseImportCommand;
 import com.redislabs.riot.cli.file.FileExportCommand;
@@ -36,11 +35,12 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.ParseResult;
 import picocli.CommandLine.Spec;
 
-@Command(name = "riot", subcommands = { FileImportCommand.class, FileExportCommand.class, DatabaseImportCommand.class,
-		DatabaseExportCommand.class, RedisImportCommand.class, RediSearchImportCommand.class,
-		FakerGeneratorCommand.class, SimpleGeneratorCommand.class, ConsoleExportCommand.class, PingCommand.class,
+@Command(name = "riot", mixinStandardHelpOptions = true, subcommands = { FileImportCommand.class,
+		FileExportCommand.class, DatabaseImportCommand.class, DatabaseExportCommand.class, RedisImportCommand.class,
+		RediSearchImportCommand.class, FakerGeneratorCommand.class, SimpleGeneratorCommand.class,
+		ConsoleExportCommand.class, PingCommand.class,
 		InfoCommand.class }, versionProvider = ManifestVersionProvider.class)
-public class Riot extends HelpAwareCommand {
+public class Riot implements Runnable {
 
 	@Spec
 	private CommandSpec spec;
@@ -57,8 +57,6 @@ public class Riot extends HelpAwareCommand {
 
 	private static final String ROOT_LOGGER = "";
 
-	@Option(names = { "-V", "--version" }, versionHelp = true, description = "Print version information and exit")
-	private boolean versionRequested;
 	@Option(names = "--completion-script", hidden = true)
 	private boolean completionScript;
 	@Option(names = { "-d", "--debug" }, description = "Enable verbose logging")
@@ -117,7 +115,7 @@ public class Riot extends HelpAwareCommand {
 		if (completionScript) {
 			System.out.println(AutoComplete.bash(spec.name(), new CommandLine(new Riot())));
 		} else {
-			super.run();
+			CommandLine.usage(this, System.out);
 		}
 	}
 

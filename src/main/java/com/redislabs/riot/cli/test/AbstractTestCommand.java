@@ -7,7 +7,7 @@ import io.lettuce.core.api.sync.BaseRedisCommands;
 import picocli.CommandLine.Mixin;
 import redis.clients.jedis.Jedis;
 
-public abstract class AbstractTestCommand extends HelpAwareCommand {
+public abstract class AbstractTestCommand extends HelpAwareCommand implements Runnable {
 
 	@Mixin
 	private RedisConnectionOptions redis = new RedisConnectionOptions();
