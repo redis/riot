@@ -434,18 +434,24 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <body class="article">
 <div id="header">
 <h1>Faker Types</h1>
+<div class="details">
+<span id="revnumber">version master-aa4dfd5-dirty</span>
+</div>
 </div>
 <div id="content">
 <div class="ulist">
 <ul>
 <li>
-<p><strong>address</strong>: state timeZone lastName country latitude longitude firstName streetAddressNumber streetName zipCode streetAddress secondaryAddress stateAbbr streetSuffix streetPrefix citySuffix cityPrefix city cityName countryCode buildingNumber fullAddress</p>
+<p><strong>address</strong>: buildingNumber city cityName cityPrefix citySuffix country countryCode firstName fullAddress lastName latitude longitude secondaryAddress state stateAbbr streetAddress streetAddressNumber streetName streetPrefix streetSuffix timeZone zipCode</p>
 </li>
 <li>
-<p><strong>ancient</strong>: primordial titan god hero</p>
+<p><strong>ancient</strong>: god hero primordial titan</p>
 </li>
 <li>
-<p><strong>app</strong>: name version author</p>
+<p><strong>animal</strong>: name</p>
+</li>
+<li>
+<p><strong>app</strong>: author name version</p>
 </li>
 <li>
 <p><strong>artist</strong>: name</p>
@@ -454,145 +460,169 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p><strong>avatar</strong>: image</p>
 </li>
 <li>
-<p><strong>beer</strong>: name yeast malt hop style</p>
+<p><strong>aviation</strong>: METAR aircraft airport</p>
 </li>
 <li>
-<p><strong>book</strong>: title publisher author genre</p>
+<p><strong>backToTheFuture</strong>: character date quote</p>
+</li>
+<li>
+<p><strong>beer</strong>: hop malt name style yeast</p>
+</li>
+<li>
+<p><strong>book</strong>: author genre publisher title</p>
 </li>
 <li>
 <p><strong>bool</strong>: bool</p>
 </li>
 <li>
-<p><strong>business</strong>: creditCardNumber creditCardType creditCardExpiry</p>
+<p><strong>buffy</strong>: bigBads celebrities characters episodes quotes</p>
 </li>
 <li>
-<p><strong>cat</strong>: name registry breed</p>
+<p><strong>business</strong>: creditCardExpiry creditCardNumber creditCardType</p>
+</li>
+<li>
+<p><strong>cat</strong>: breed name registry</p>
 </li>
 <li>
 <p><strong>chuckNorris</strong>: fact</p>
 </li>
 <li>
-<p><strong>code</strong>: asin isbnGs1 isbnGroup isbnRegistrant isbn10 isbn13 imei ean8 gtin8 ean13 gtin13</p>
+<p><strong>code</strong>: asin ean13 ean8 gtin13 gtin8 imei isbn10 isbn13 isbnGroup isbnGs1 isbnRegistrant</p>
 </li>
 <li>
-<p><strong>color</strong>: name hex</p>
+<p><strong>color</strong>: hex name</p>
 </li>
 <li>
-<p><strong>commerce</strong>: productName material price promotionCode department color</p>
+<p><strong>commerce</strong>: color department material price productName promotionCode</p>
 </li>
 <li>
-<p><strong>company</strong>: name suffix url industry profession buzzword catchPhrase logo domainName bs domainSuffix</p>
+<p><strong>company</strong>: bs buzzword catchPhrase domainName domainSuffix industry logo name profession suffix url</p>
 </li>
 <li>
-<p><strong>country</strong>: flag currencyCode currency countryCode2 countryCode3 capital</p>
+<p><strong>country</strong>: capital countryCode2 countryCode3 currency currencyCode flag name</p>
 </li>
 <li>
-<p><strong>crypto</strong>: sha1 sha256 md5 sha512</p>
+<p><strong>crypto</strong>: md5 sha1 sha256 sha512</p>
 </li>
 <li>
-<p><strong>currency</strong>: name code</p>
+<p><strong>currency</strong>: code name</p>
 </li>
 <li>
 <p><strong>date</strong>: birthday</p>
 </li>
 <li>
-<p><strong>demographic</strong>: educationalAttainment demonym race sex maritalStatus</p>
+<p><strong>demographic</strong>: demonym educationalAttainment maritalStatus race sex</p>
 </li>
 <li>
-<p><strong>dog</strong>: name size memePhrase age sound coatLength gender breed</p>
+<p><strong>dog</strong>: age breed coatLength gender memePhrase name size sound</p>
 </li>
 <li>
 <p><strong>dragonBall</strong>: character</p>
 </li>
 <li>
-<p><strong>educator</strong>: secondarySchool course campus university</p>
+<p><strong>dune</strong>: character planet quote saying title</p>
 </li>
 <li>
-<p><strong>esports</strong>: event player league game team</p>
+<p><strong>educator</strong>: campus course secondarySchool university</p>
 </li>
 <li>
-<p><strong>file</strong>: fileName extension mimeType</p>
+<p><strong>elderScrolls</strong>: city creature dragon firstName lastName quote race region</p>
 </li>
 <li>
-<p><strong>finance</strong>: creditCard bic iban randomCreditCardType createCountryCodeToBasicBankAccountNumberPatternMap</p>
+<p><strong>esports</strong>: event game league player team</p>
 </li>
 <li>
-<p><strong>food</strong>: spice ingredient measurement</p>
+<p><strong>file</strong>: extension fileName mimeType</p>
 </li>
 <li>
-<p><strong>friends</strong>: location character quote</p>
+<p><strong>finance</strong>: bic createCountryCodeToBasicBankAccountNumberPatternMap creditCard iban randomCreditCardType</p>
+</li>
+<li>
+<p><strong>food</strong>: dish fruit ingredient measurement spice sushi vegetable</p>
+</li>
+<li>
+<p><strong>friends</strong>: character location quote</p>
 </li>
 <li>
 <p><strong>funnyName</strong>: name</p>
 </li>
 <li>
-<p><strong>gameOfThrones</strong>: character dragon house quote city</p>
+<p><strong>gameOfThrones</strong>: character city dragon house quote</p>
 </li>
 <li>
-<p><strong>hacker</strong>: abbreviation adjective noun verb ingverb</p>
+<p><strong>hacker</strong>: abbreviation adjective ingverb noun verb</p>
 </li>
 <li>
-<p><strong>harryPotter</strong>: location character quote book</p>
+<p><strong>harryPotter</strong>: book character location quote</p>
 </li>
 <li>
 <p><strong>hipster</strong>: word</p>
 </li>
 <li>
-<p><strong>hitchhikersGuideToTheGalaxy</strong>: location character specie marvinQuote starship quote planet</p>
+<p><strong>hitchhikersGuideToTheGalaxy</strong>: character location marvinQuote planet quote specie starship</p>
 </li>
 <li>
-<p><strong>hobbit</strong>: location character thorinsCompany quote</p>
+<p><strong>hobbit</strong>: character location quote thorinsCompany</p>
 </li>
 <li>
-<p><strong>howIMetYourMother</strong>: character catchPhrase highFive quote</p>
+<p><strong>howIMetYourMother</strong>: catchPhrase character highFive quote</p>
 </li>
 <li>
-<p><strong>idNumber</strong>: valid ssnValid validSvSeSsn invalidSvSeSsn invalid</p>
+<p><strong>idNumber</strong>: invalid invalidSvSeSsn ssnValid valid validSvSeSsn</p>
 </li>
 <li>
-<p><strong>internet</strong>: url uuid domainName password image avatar slug emailAddress safeEmailAddress domainWord domainSuffix macAddress ipV4Address privateIpV4Address publicIpV4Address ipV4Cidr ipV6Address ipV6Cidr userAgentAny</p>
+<p><strong>internet</strong>: avatar domainName domainSuffix domainWord emailAddress image ipV4Address ipV4Cidr ipV6Address ipV6Cidr macAddress password privateIpV4Address publicIpV4Address safeEmailAddress slug url userAgentAny uuid</p>
 </li>
 <li>
-<p><strong>job</strong>: field position title keySkills seniority</p>
+<p><strong>job</strong>: field keySkills position seniority title</p>
 </li>
 <li>
-<p><strong>leagueOfLegends</strong>: location summonerSpell masteries champion rank quote</p>
+<p><strong>leagueOfLegends</strong>: champion location masteries quote rank summonerSpell</p>
 </li>
 <li>
-<p><strong>lebowski</strong>: character actor quote</p>
+<p><strong>lebowski</strong>: actor character quote</p>
 </li>
 <li>
-<p><strong>lordOfTheRings</strong>: location character</p>
+<p><strong>lordOfTheRings</strong>: character location</p>
 </li>
 <li>
-<p><strong>lorem</strong>: character words word characters sentence paragraph</p>
+<p><strong>lorem</strong>: character characters paragraph sentence word words</p>
 </li>
 <li>
 <p><strong>matz</strong>: quote</p>
 </li>
 <li>
-<p><strong>medical</strong>: medicineName symptoms diseaseName hospitalName</p>
+<p><strong>medical</strong>: diseaseName hospitalName medicineName symptoms</p>
 </li>
 <li>
-<p><strong>music</strong>: key instrument chord genre</p>
+<p><strong>music</strong>: chord genre instrument key</p>
 </li>
 <li>
-<p><strong>name</strong>: name prefix suffix title lastName fullName firstName nameWithMiddle username</p>
+<p><strong>name</strong>: bloodGroup firstName fullName lastName name nameWithMiddle prefix suffix title username</p>
+</li>
+<li>
+<p><strong>nation</strong>: capitalCity flag language nationality</p>
 </li>
 <li>
 <p><strong>number</strong>: digit randomDigit randomDigitNotZero randomNumber</p>
 </li>
 <li>
-<p><strong>overwatch</strong>: location quote hero</p>
+<p><strong>overwatch</strong>: hero location quote</p>
 </li>
 <li>
-<p><strong>phoneNumber</strong>: phoneNumber cellPhone</p>
+<p><strong>phoneNumber</strong>: cellPhone extension phoneNumber subscriberNumber</p>
 </li>
 <li>
-<p><strong>pokemon</strong>: name location</p>
+<p><strong>pokemon</strong>: location name</p>
 </li>
 <li>
-<p><strong>rickAndMorty</strong>: location character quote</p>
+<p><strong>princessBride</strong>: character quote</p>
+</li>
+<li>
+<p><strong>relationships</strong>: any direct extended inLaw parent sibling spouse</p>
+</li>
+<li>
+<p><strong>rickAndMorty</strong>: character location quote</p>
 </li>
 <li>
 <p><strong>robin</strong>: quote</p>
@@ -601,37 +631,37 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p><strong>rockBand</strong>: name</p>
 </li>
 <li>
-<p><strong>shakespeare</strong>: hamletQuote asYouLikeItQuote kingRichardIIIQuote romeoAndJulietQuote</p>
+<p><strong>shakespeare</strong>: asYouLikeItQuote hamletQuote kingRichardIIIQuote romeoAndJulietQuote</p>
 </li>
 <li>
-<p><strong>slackEmoji</strong>: people nature activity foodAndDrink celebration travelAndPlaces objectsAndSymbols custom emoji</p>
+<p><strong>slackEmoji</strong>: activity celebration custom emoji foodAndDrink nature objectsAndSymbols people travelAndPlaces</p>
 </li>
 <li>
-<p><strong>space</strong>: company planet moon galaxy nebula starCluster constellation star agency agencyAbbreviation meteorite nasaSpaceCraft distanceMeasurement</p>
+<p><strong>space</strong>: agency agencyAbbreviation company constellation distanceMeasurement galaxy meteorite moon nasaSpaceCraft nebula planet star starCluster</p>
 </li>
 <li>
-<p><strong>starTrek</strong>: location character specie villain</p>
+<p><strong>starTrek</strong>: character location specie villain</p>
 </li>
 <li>
-<p><strong>stock</strong>: nyseSymbol nsdqSymbol</p>
+<p><strong>stock</strong>: nsdqSymbol nyseSymbol</p>
 </li>
 <li>
-<p><strong>superhero</strong>: name prefix suffix descriptor power</p>
+<p><strong>superhero</strong>: descriptor name power prefix suffix</p>
 </li>
 <li>
-<p><strong>team</strong>: name state sport creature</p>
+<p><strong>team</strong>: creature name sport state</p>
 </li>
 <li>
-<p><strong>twinPeaks</strong>: location character quote</p>
+<p><strong>twinPeaks</strong>: character location quote</p>
 </li>
 <li>
 <p><strong>university</strong>: name prefix suffix</p>
 </li>
 <li>
-<p><strong>weather</strong>: temperatureCelsius temperatureFahrenheit description</p>
+<p><strong>weather</strong>: description temperatureCelsius temperatureFahrenheit</p>
 </li>
 <li>
-<p><strong>witcher</strong>: location character school monster quote witcher</p>
+<p><strong>witcher</strong>: character location monster quote school witcher</p>
 </li>
 <li>
 <p><strong>yoda</strong>: quote</p>
@@ -644,7 +674,8 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2019-09-10 21:50:28 -0700
+Version master-aa4dfd5-dirty<br>
+Last updated 2019-09-18 16:52:51 -0700
 </div>
 </div>
 </body>

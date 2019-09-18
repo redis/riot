@@ -119,46 +119,44 @@ include::../../test/resources/commands/file-export-json_gz.txt[]
 [#db]
 === Databases
 
-RIOT can connect to any RDBMS with a JDBC driver.
+RIOT can connect to SQL databases through JDBC. It includes drivers for the most common database systems. 
+
+For reference here are links to common database systems and related JDBC driver documentation:
+
+|=========================================================
+|RDBMS|URL Format
+
+|https://docs.oracle.com/cd/E11882_01/appdev.112/e13995/oracle/jdbc/OracleDriver.html[Oracle]|`jdbc:oracle:thin:@myhost:1521:orcl`
+
+|https://docs.microsoft.com/en-us/sql/connect/jdbc/building-the-connection-url?view=sql-server-2017[MS SQL Server]|`jdbc:sqlserver://[serverName[\instanceName][:portNumber]][;property=value[;property=value]]`
+
+|https://dev.mysql.com/doc/connector-j/8.0/en/connector-j-reference-jdbc-url-format.html[MySQL]|`jdbc:mysql://[host]:[port][/database][?properties]`
+
+|https://www.postgresql.org/docs/7.4/jdbc-use.html[PostgreSQL]|`jdbc:postgresql://host:port/database`
+
+|https://www.ibm.com/support/knowledgecenter/en/SSEPEK_10.0.0/java/src/tpc/imjcc_r0052342.html[IBM Db2]|`jdbc:db2://host:port/database`
+
+|https://www.sqlitetutorial.net/sqlite-java/sqlite-jdbc-driver/[SQLite]|`jdbc:sqlite:sqlite_database_file_path`
+|=========================================================
 
 [TIP]
 ====
-Copy the JDBC driver for your database under `lib` and include it in the `CLASSPATH`
+For non-included databases you must install the corresponding JDBC driver under the `lib` directory and modify the RIOT `CLASSPATH`:
+
+* *nix: `bin/riot` -> `CLASSPATH=$APP_HOME/lib/myjdbc.jar:$APP_HOME/lib/…`
+
+* Windows: `bin\riot.bat` -> `set CLASSPATH=%APP_HOME%\lib\myjdbc.jar;%APP_HOME%\lib\…`
+
 ====
 
-For example with Oracle:
 
-.riot
-[source,bash]
-----
-CLASSPATH=$APP_HOME/lib/ojdbc8.jar:$APP_HOME/lib/…
-----
-
-.riot.bat
-[source,bat]
-----
-set CLASSPATH=%APP_HOME%\lib\ojdbc8.jar;%APP_HOME%\lib\…
-----
-
-For reference here are links to common JDBC drivers:
-
-[options="noheader"]
-|=========================================================
-|https://www.oracle.com/technetwork/database/application-development/jdbc/downloads/index.html[Oracle] | https://docs.oracle.com/cd/E11882_01/appdev.112/e13995/oracle/jdbc/OracleDriver.html[Doc] |`jdbc:oracle:thin:@myhost:1521:orcl`
-
-|https://docs.microsoft.com/en-us/sql/connect/jdbc/microsoft-jdbc-driver-for-sql-server[MS SQL]|https://docs.microsoft.com/en-us/sql/connect/jdbc/building-the-connection-url?view=sql-server-2017[Doc] | `jdbc:sqlserver://[serverName[\instanceName][:portNumber]][;property=value[;property=value]]`
-
-|https://dev.mysql.com/downloads/connector/j/[MySQL]|https://dev.mysql.com/doc/connector-j/8.0/en/connector-j-reference-jdbc-url-format.html[Doc]|`jdbc:mysql://[host]:[port][/database][?properties]`
-|=========================================================
-
-
-==== DB -> Redis
+==== SQL -> Redis
 [source,shell]
 ----
 include::../../test/resources/commands/db-import.txt[]
 ----
 
-==== Redis -> DB
+==== Redis -> SQL
 This command exports all hashes in keyspace `beer:<id>` to the database: 
 [source,shell]
 ----

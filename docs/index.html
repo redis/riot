@@ -434,6 +434,9 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <body class="article">
 <div id="header">
 <h1>RIOT</h1>
+<div class="details">
+<span id="revnumber">version master-aa4dfd5-dirty</span>
+</div>
 </div>
 <div id="content">
 <div id="preamble">
@@ -574,7 +577,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p>Import data into the index</p>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">$ riot file-import --include 1 3 4 5 6 -c ftadd -i beers -k id --header --file https://git.io/fjxPs</code></pre>
+<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">$ riot file-import --include 1 3 4 5 6 -i beers -k id --header --file https://git.io/fjxPs</code></pre>
 </div>
 </div>
 </li>
@@ -644,8 +647,49 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="sect2">
 <h3 id="db">Databases</h3>
 <div class="paragraph">
-<p>RIOT can connect to any RDBMS with a JDBC driver.</p>
+<p>RIOT can connect to SQL databases through JDBC. It includes drivers for the most common database systems.</p>
 </div>
+<div class="paragraph">
+<p>For reference here are links to common database systems and related JDBC driver documentation:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">RDBMS</th>
+<th class="tableblock halign-left valign-top">URL Format</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://docs.oracle.com/cd/E11882_01/appdev.112/e13995/oracle/jdbc/OracleDriver.html">Oracle</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>jdbc:oracle:thin:@myhost:1521:orcl</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://docs.microsoft.com/en-us/sql/connect/jdbc/building-the-connection-url?view=sql-server-2017">MS SQL Server</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>jdbc:sqlserver://[serverName[\instanceName][:portNumber]][;property=value[;property=value]]</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://dev.mysql.com/doc/connector-j/8.0/en/connector-j-reference-jdbc-url-format.html">MySQL</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>jdbc:mysql://[host]:[port][/database][?properties]</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://www.postgresql.org/docs/7.4/jdbc-use.html">PostgreSQL</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>jdbc:postgresql://host:port/database</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://www.ibm.com/support/knowledgecenter/en/SSEPEK_10.0.0/java/src/tpc/imjcc_r0052342.html">IBM Db2</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>jdbc:db2://host:port/database</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://www.sqlitetutorial.net/sqlite-java/sqlite-jdbc-driver/">SQLite</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>jdbc:sqlite:sqlite_database_file_path</code></p></td>
+</tr>
+</tbody>
+</table>
 <div class="admonitionblock tip">
 <table>
 <tr>
@@ -654,56 +698,24 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </td>
 <td class="content">
 <div class="paragraph">
-<p>Copy the JDBC driver for your database under <code>lib</code> and include it in the <code>CLASSPATH</code></p>
+<p>For non-included databases you must install the corresponding JDBC driver under the <code>lib</code> directory and modify the RIOT <code>CLASSPATH</code>:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>*nix: <code>bin/riot</code> &#8594; <code>CLASSPATH=$APP_HOME/lib/myjdbc.jar:$APP_HOME/lib/…</code></p>
+</li>
+<li>
+<p>Windows: <code>bin\riot.bat</code> &#8594; <code>set CLASSPATH=%APP_HOME%\lib\myjdbc.jar;%APP_HOME%\lib\…</code></p>
+</li>
+</ul>
 </div>
 </td>
 </tr>
 </table>
 </div>
-<div class="paragraph">
-<p>For example with Oracle:</p>
-</div>
-<div class="listingblock">
-<div class="title">riot</div>
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">CLASSPATH=$APP_HOME/lib/ojdbc8.jar:$APP_HOME/lib/…</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="title">riot.bat</div>
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bat hljs" data-lang="bat">set CLASSPATH=%APP_HOME%\lib\ojdbc8.jar;%APP_HOME%\lib\…</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>For reference here are links to common JDBC drivers:</p>
-</div>
-<table class="tableblock frame-all grid-all stretch">
-<colgroup>
-<col style="width: 33.3333%;">
-<col style="width: 33.3333%;">
-<col style="width: 33.3334%;">
-</colgroup>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://www.oracle.com/technetwork/database/application-development/jdbc/downloads/index.html">Oracle</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://docs.oracle.com/cd/E11882_01/appdev.112/e13995/oracle/jdbc/OracleDriver.html">Doc</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>jdbc:oracle:thin:@myhost:1521:orcl</code></p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://docs.microsoft.com/en-us/sql/connect/jdbc/microsoft-jdbc-driver-for-sql-server">MS SQL</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://docs.microsoft.com/en-us/sql/connect/jdbc/building-the-connection-url?view=sql-server-2017">Doc</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>jdbc:sqlserver://[serverName[\instanceName][:portNumber]][;property=value[;property=value]]</code></p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://dev.mysql.com/downloads/connector/j/">MySQL</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://dev.mysql.com/doc/connector-j/8.0/en/connector-j-reference-jdbc-url-format.html">Doc</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>jdbc:mysql://[host]:[port][/database][?properties]</code></p></td>
-</tr>
-</tbody>
-</table>
 <div class="sect3">
-<h4 id="db-redis">DB &#8594; Redis</h4>
+<h4 id="sql-redis">SQL &#8594; Redis</h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">$ riot db-import -p dbbeer -k id --driver org.hsqldb.jdbc.JDBCDriver --url jdbc:hsqldb:mem:mymemdb --sql "SELECT * FROM beers"</code></pre>
@@ -711,7 +723,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="sect3">
-<h4 id="redis-db">Redis &#8594; DB</h4>
+<h4 id="redis-sql">Redis &#8594; SQL</h4>
 <div class="paragraph">
 <p>This command exports all hashes in keyspace <code>beer:&lt;id&gt;</code> to the database:</p>
 </div>
@@ -839,7 +851,8 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2019-09-17 10:04:37 -0700
+Version master-aa4dfd5-dirty<br>
+Last updated 2019-09-18 16:43:59 -0700
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/styles/github.min.css">

@@ -21,7 +21,7 @@ import picocli.CommandLine.Option;
 @Command(name = "faker", description = "Import Faker-generated data")
 public class FakerGeneratorCommand extends ImportCommand {
 
-	@Option(required = true, arity = "1..*", names = "--fields", description = "SpEL expression to generate a field", paramLabel = "<name=SpEL>")
+	@Option(arity = "1..*", names = "--fields", description = "SpEL expression to generate a field", paramLabel = "<name=SpEL>")
 	private Map<String, String> fields;
 	@Option(names = { "-l",
 			"--locale" }, description = "Faker locale (default: ${DEFAULT-VALUE})", paramLabel = "<tag>")
@@ -57,9 +57,10 @@ public class FakerGeneratorCommand extends ImportCommand {
 	}
 
 	private void describe(Method method) {
-		System.out.println(method.getName());
+		System.out.print("* *" + method.getName() + "*:");
 		Arrays.asList(method.getReturnType().getDeclaredMethods()).stream().filter(m -> m.getParameters().length == 0)
-				.map(m -> m.getName()).forEach(n -> System.out.println(" ." + n));
+				.map(m -> m.getName()).sorted().forEach(n -> System.out.print(" " + n));
+		System.out.println("");
 	}
 
 }
