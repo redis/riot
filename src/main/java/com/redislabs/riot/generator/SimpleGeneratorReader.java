@@ -1,4 +1,5 @@
 package com.redislabs.riot.generator;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 

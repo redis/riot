@@ -1,4 +1,4 @@
-package com.redislabs.riot.redis;
+package com.redislabs.riot.redis.writer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,8 +10,6 @@ import java.util.function.Supplier;
 import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.redislabs.riot.redis.writer.LettuceMapWriter;
 
 import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.RedisFuture;
@@ -27,11 +25,11 @@ public class LettuceItemWriter<S extends StatefulConnection<String, String>, C e
 	private AbstractRedisClient client;
 	private Supplier<ClientResources> resources;
 	private GenericObjectPool<S> pool;
-	private LettuceMapWriter<C> writer;
+	private RedisMapWriter writer;
 	private Function<S, C> async;
 
 	public LettuceItemWriter(AbstractRedisClient client, Supplier<ClientResources> resources, GenericObjectPool<S> pool,
-			LettuceMapWriter<C> writer, Function<S, C> async) {
+			RedisMapWriter writer, Function<S, C> async) {
 		this.client = client;
 		this.resources = resources;
 		this.pool = pool;

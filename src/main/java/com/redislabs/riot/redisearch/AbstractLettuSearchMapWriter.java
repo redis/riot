@@ -3,15 +3,14 @@ package com.redislabs.riot.redisearch;
 import java.util.Map;
 
 import com.redislabs.lettusearch.RediSearchAsyncCommands;
-import com.redislabs.riot.redis.writer.RedisMapWriter;
+import com.redislabs.riot.redis.writer.map.AbstractRedisMapWriter;
 
 import io.lettuce.core.RedisFuture;
 import redis.clients.jedis.JedisCluster;
 import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.Response;
 
-public abstract class AbstractLettuSearchMapWriter
-		extends RedisMapWriter<RediSearchAsyncCommands<String, String>> {
+public abstract class AbstractLettuSearchMapWriter extends AbstractRedisMapWriter {
 
 	private String index;
 	private String scoreField;
@@ -37,9 +36,10 @@ public abstract class AbstractLettuSearchMapWriter
 		return convert(item.getOrDefault(scoreField, defaultScore), Double.class);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public RedisFuture<?> write(RediSearchAsyncCommands<String, String> commands, Map<String, Object> item) {
-		return write(commands, index, item);
+	public RedisFuture<?> write(Object commands, Map<String, Object> item) {
+		return write((RediSearchAsyncCommands<String, String>) commands, index, item);
 	}
 
 	protected abstract RedisFuture<?> write(RediSearchAsyncCommands<String, String> commands, String index,

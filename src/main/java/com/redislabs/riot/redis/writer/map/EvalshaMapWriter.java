@@ -1,4 +1,4 @@
-package com.redislabs.riot.redis.writer;
+package com.redislabs.riot.redis.writer.map;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -10,7 +10,7 @@ import redis.clients.jedis.JedisCluster;
 import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.Response;
 
-public class EvalshaMapWriter extends RedisDataStructureMapWriter<RedisScriptingAsyncCommands<String, String>> {
+public class EvalshaMapWriter extends RedisDataStructureMapWriter {
 
 	private String sha;
 	private String[] keys;
@@ -37,7 +37,7 @@ public class EvalshaMapWriter extends RedisDataStructureMapWriter<RedisScripting
 	protected Response<Object> write(Pipeline pipeline, String key, Map<String, Object> item) {
 		return pipeline.evalsha(sha, Arrays.asList(keys(item)), Arrays.asList(args(item)));
 	}
-	
+
 	@Override
 	protected void write(JedisCluster cluster, String key, Map<String, Object> item) {
 		cluster.evalsha(sha, Arrays.asList(keys(item)), Arrays.asList(args(item)));
@@ -59,10 +59,11 @@ public class EvalshaMapWriter extends RedisDataStructureMapWriter<RedisScripting
 		return array;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	protected RedisFuture<?> write(RedisScriptingAsyncCommands<String, String> commands, String key,
-			Map<String, Object> item) {
-		return commands.evalsha(sha, outputType, keys(item), args(item));
+	protected RedisFuture<?> write(Object commands, String key, Map<String, Object> item) {
+		return ((RedisScriptingAsyncCommands<String, String>) commands).evalsha(sha, outputType, keys(item),
+				args(item));
 	}
 
 }

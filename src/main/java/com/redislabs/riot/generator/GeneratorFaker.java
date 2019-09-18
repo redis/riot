@@ -1,4 +1,5 @@
 package com.redislabs.riot.generator;
+
 import java.util.Locale;
 
 import com.github.javafaker.Faker;
@@ -16,11 +17,11 @@ public class GeneratorFaker extends Faker {
 		return reader.index();
 	}
 
-	public int threads() {
+	public int partitions() {
 		return reader.partitions();
 	}
 
-	public int thread() {
+	public int partition() {
 		return reader.partition();
 	}
 

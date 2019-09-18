@@ -1,4 +1,4 @@
-package com.redislabs.riot.redis.writer;
+package com.redislabs.riot.redis.writer.map;
 
 import java.util.Map;
 
@@ -8,22 +8,22 @@ import redis.clients.jedis.JedisCluster;
 import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.Response;
 
-public class RpushMapWriter extends CollectionMapWriter<RedisListAsyncCommands<String, String>> {
+public class LpushMapWriter extends CollectionMapWriter {
 
 	@Override
 	protected Response<Long> write(Pipeline pipeline, String key, String member, Map<String, Object> item) {
-		return pipeline.rpush(key, member);
+		return pipeline.lpush(key, member);
 	}
 
 	@Override
 	protected void write(JedisCluster cluster, String key, String member, Map<String, Object> item) {
-		cluster.rpush(key, member);
+		cluster.lpush(key, member);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	protected RedisFuture<?> write(RedisListAsyncCommands<String, String> commands, String key, String member,
-			Map<String, Object> item) {
-		return commands.rpush(key, member);
+	protected RedisFuture<?> write(Object commands, String key, String member, Map<String, Object> item) {
+		return ((RedisListAsyncCommands<String, String>) commands).lpush(key, member);
 	}
 
 }

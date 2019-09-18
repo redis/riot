@@ -1,4 +1,4 @@
-package com.redislabs.riot.redis.writer;
+package com.redislabs.riot.redis.writer.map;
 
 import java.util.Map;
 
@@ -7,7 +7,7 @@ import redis.clients.jedis.JedisCluster;
 import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.Response;
 
-public abstract class RedisDataStructureMapWriter<C> extends RedisMapWriter<C> {
+public abstract class RedisDataStructureMapWriter extends AbstractRedisMapWriter {
 
 	@Override
 	public Response<?> write(Pipeline pipeline, Map<String, Object> item) {
@@ -24,11 +24,11 @@ public abstract class RedisDataStructureMapWriter<C> extends RedisMapWriter<C> {
 	protected abstract void write(JedisCluster cluster, String key, Map<String, Object> item);
 
 	@Override
-	public RedisFuture<?> write(C commands, Map<String, Object> item) {
+	public RedisFuture<?> write(Object commands, Map<String, Object> item) {
 		return write(commands, key(item), item);
 	}
 
-	protected abstract RedisFuture<?> write(C commands, String key, Map<String, Object> item);
+	protected abstract RedisFuture<?> write(Object commands, String key, Map<String, Object> item);
 
 	@Override
 	public String toString() {

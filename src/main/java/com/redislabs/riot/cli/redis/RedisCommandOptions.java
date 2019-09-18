@@ -5,26 +5,26 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.redislabs.riot.cli.RedisCommand;
 import com.redislabs.riot.redis.writer.RedisMapWriter;
-import com.redislabs.riot.redis.writer.CollectionMapWriter;
-import com.redislabs.riot.redis.writer.EvalshaMapWriter;
-import com.redislabs.riot.redis.writer.ExpireMapWriter;
-import com.redislabs.riot.redis.writer.GeoaddMapWriter;
-import com.redislabs.riot.redis.writer.HmsetMapWriter;
-import com.redislabs.riot.redis.writer.LpushMapWriter;
-import com.redislabs.riot.redis.writer.RedisDataStructureMapWriter;
-import com.redislabs.riot.redis.writer.RpushMapWriter;
-import com.redislabs.riot.redis.writer.SaddMapWriter;
-import com.redislabs.riot.redis.writer.SetFieldMapWriter;
-import com.redislabs.riot.redis.writer.SetMapWriter;
-import com.redislabs.riot.redis.writer.SetObjectMapWriter;
-import com.redislabs.riot.redis.writer.XaddIdMapWriter;
-import com.redislabs.riot.redis.writer.XaddIdMaxlenMapWriter;
-import com.redislabs.riot.redis.writer.XaddMapWriter;
-import com.redislabs.riot.redis.writer.XaddMaxlenMapWriter;
-import com.redislabs.riot.redis.writer.ZaddMapWriter;
+import com.redislabs.riot.redis.writer.map.CollectionMapWriter;
+import com.redislabs.riot.redis.writer.map.EvalshaMapWriter;
+import com.redislabs.riot.redis.writer.map.ExpireMapWriter;
+import com.redislabs.riot.redis.writer.map.GeoaddMapWriter;
+import com.redislabs.riot.redis.writer.map.HmsetMapWriter;
+import com.redislabs.riot.redis.writer.map.LpushMapWriter;
+import com.redislabs.riot.redis.writer.map.NoopMapWriter;
+import com.redislabs.riot.redis.writer.map.RedisDataStructureMapWriter;
+import com.redislabs.riot.redis.writer.map.RpushMapWriter;
+import com.redislabs.riot.redis.writer.map.SaddMapWriter;
+import com.redislabs.riot.redis.writer.map.SetFieldMapWriter;
+import com.redislabs.riot.redis.writer.map.SetMapWriter;
+import com.redislabs.riot.redis.writer.map.SetObjectMapWriter;
+import com.redislabs.riot.redis.writer.map.XaddIdMapWriter;
+import com.redislabs.riot.redis.writer.map.XaddIdMaxlenMapWriter;
+import com.redislabs.riot.redis.writer.map.XaddMapWriter;
+import com.redislabs.riot.redis.writer.map.XaddMaxlenMapWriter;
+import com.redislabs.riot.redis.writer.map.ZaddMapWriter;
 
 import io.lettuce.core.ScriptOutputType;
-import io.lettuce.core.api.async.RedisStreamAsyncCommands;
 import picocli.CommandLine.Option;
 
 public class RedisCommandOptions {
@@ -95,7 +95,7 @@ public class RedisCommandOptions {
 		return mapper.writer().withRootName(stringRoot);
 	}
 
-	private RedisDataStructureMapWriter<RedisStreamAsyncCommands<String, String>> xaddWriter() {
+	private RedisDataStructureMapWriter xaddWriter() {
 		if (xaddId == null) {
 			if (xaddMaxlen == null) {
 				return new XaddMapWriter();
@@ -140,16 +140,18 @@ public class RedisCommandOptions {
 		return writer;
 	}
 
-	public RedisMapWriter<?> writer() {
-		RedisMapWriter<?> redisItemWriter = redisItemWriter(command);
+	public RedisMapWriter writer() {
+		RedisMapWriter redisItemWriter = redisItemWriter(command);
 		if (redisItemWriter instanceof CollectionMapWriter) {
-			((CollectionMapWriter<?>) redisItemWriter).setFields(members);
+			((CollectionMapWriter) redisItemWriter).setFields(members);
 		}
 		return redisItemWriter;
 	}
 
-	private RedisMapWriter<?> redisItemWriter(RedisCommand command) {
+	private RedisMapWriter redisItemWriter(RedisCommand command) {
 		switch (command) {
+		case evalsha:
+			return evalshaWriter();
 		case expire:
 			return expireWriter();
 		case geoadd:
@@ -158,16 +160,16 @@ public class RedisCommandOptions {
 			return new LpushMapWriter();
 		case rpush:
 			return new RpushMapWriter();
-		case evalsha:
-			return evalshaWriter();
 		case sadd:
 			return new SaddMapWriter();
-		case xadd:
-			return xaddWriter();
 		case set:
 			return setWriter();
+		case xadd:
+			return xaddWriter();
 		case zadd:
 			return zaddWriter();
+		case noop:
+			return new NoopMapWriter();
 		default:
 			return new HmsetMapWriter();
 		}

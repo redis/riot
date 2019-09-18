@@ -1,4 +1,4 @@
-package com.redislabs.riot.redis;
+package com.redislabs.riot.redis.writer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,8 +7,6 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.ClassUtils;
-
-import com.redislabs.riot.redis.writer.JedisMapWriter;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.Pipeline;
@@ -20,9 +18,9 @@ public class JedisItemWriter extends AbstractRedisItemWriter {
 	private final Logger log = LoggerFactory.getLogger(JedisItemWriter.class);
 
 	private Pool<Jedis> pool;
-	private JedisMapWriter writer;
+	private RedisMapWriter writer;
 
-	public JedisItemWriter(Pool<Jedis> pool, JedisMapWriter writer) {
+	public JedisItemWriter(Pool<Jedis> pool, RedisMapWriter writer) {
 		setName(ClassUtils.getShortName(JedisItemWriter.class));
 		this.pool = pool;
 		this.writer = writer;

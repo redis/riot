@@ -1,4 +1,4 @@
-package com.redislabs.riot.redis.writer;
+package com.redislabs.riot.redis.writer.map;
 
 import java.util.Map;
 
@@ -8,7 +8,7 @@ import redis.clients.jedis.JedisCluster;
 import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.Response;
 
-public abstract class SetMapWriter extends RedisDataStructureMapWriter<RedisStringAsyncCommands<String, String>> {
+public abstract class SetMapWriter extends RedisDataStructureMapWriter {
 
 	@Override
 	protected Response<String> write(Pipeline pipeline, String key, Map<String, Object> item) {
@@ -18,11 +18,11 @@ public abstract class SetMapWriter extends RedisDataStructureMapWriter<RedisStri
 		}
 		return pipeline.set(key, value);
 	}
-	
+
 	@Override
 	protected void write(JedisCluster cluster, String key, Map<String, Object> item) {
 		String value = value(item);
-		if (value==null) {
+		if (value == null) {
 			return;
 		}
 		cluster.set(key, value);
@@ -30,14 +30,14 @@ public abstract class SetMapWriter extends RedisDataStructureMapWriter<RedisStri
 
 	protected abstract String value(Map<String, Object> item);
 
+	@SuppressWarnings("unchecked")
 	@Override
-	protected RedisFuture<?> write(RedisStringAsyncCommands<String, String> commands, String key,
-			Map<String, Object> item) {
+	protected RedisFuture<?> write(Object commands, String key, Map<String, Object> item) {
 		String value = value(item);
 		if (value == null) {
 			return null;
 		}
-		return commands.set(key, value);
+		return ((RedisStringAsyncCommands<String, String>) commands).set(key, value);
 	}
 
 }

@@ -2,34 +2,17 @@ package com.redislabs.riot.redis.writer;
 
 import java.util.Map;
 
-import com.redislabs.riot.redis.RedisConverter;
+import io.lettuce.core.RedisFuture;
+import redis.clients.jedis.JedisCluster;
+import redis.clients.jedis.Pipeline;
+import redis.clients.jedis.Response;
 
-public abstract class RedisMapWriter<C> implements JedisMapWriter, LettuceMapWriter<C> {
+public interface RedisMapWriter {
 
-	private RedisConverter converter;
+	RedisFuture<?> write(Object commands, Map<String, Object> item);
 
-	public RedisConverter getConverter() {
-		return converter;
-	}
+	Response<?> write(Pipeline pipeline, Map<String, Object> item);
 
-	public void setConverter(RedisConverter converter) {
-		this.converter = converter;
-	}
-
-	protected Map<String, String> stringMap(Map<String, Object> item) {
-		return converter.stringMap(item);
-	}
-
-	protected <T> T convert(Object source, Class<T> targetType) {
-		return converter.convert(source, targetType);
-	}
-
-	protected String join(Map<String, Object> item, String[] fields) {
-		return converter.join(item, fields);
-	}
-
-	protected String key(Map<String, Object> item) {
-		return converter.key(item);
-	}
+	void write(JedisCluster cluster, Map<String, Object> item);
 
 }

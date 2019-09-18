@@ -1,4 +1,4 @@
-package com.redislabs.riot.redis;
+package com.redislabs.riot.redis.reader;
 
 import java.util.Iterator;
 

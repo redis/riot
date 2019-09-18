@@ -1,4 +1,4 @@
-package com.redislabs.riot.redis.writer;
+package com.redislabs.riot.redis.writer.map;
 
 import java.util.Map;
 
@@ -8,7 +8,7 @@ import redis.clients.jedis.JedisCluster;
 import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.Response;
 
-public class GeoaddMapWriter extends CollectionMapWriter<RedisGeoAsyncCommands<String, String>> {
+public class GeoaddMapWriter extends CollectionMapWriter {
 
 	private String longitudeField;
 	private String latitudeField;
@@ -59,15 +59,15 @@ public class GeoaddMapWriter extends CollectionMapWriter<RedisGeoAsyncCommands<S
 		return coordinate(item, latitudeField);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	protected RedisFuture<?> write(RedisGeoAsyncCommands<String, String> commands, String key, String member,
-			Map<String, Object> item) {
+	protected RedisFuture<?> write(Object commands, String key, String member, Map<String, Object> item) {
 		Double longitude = longitude(item);
 		Double latitude = latitude(item);
 		if (longitude == null || latitude == null) {
 			return null;
 		}
-		return commands.geoadd(key, longitude, latitude, member);
+		return ((RedisGeoAsyncCommands<String, String>) commands).geoadd(key, longitude, latitude, member);
 	}
 
 }

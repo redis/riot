@@ -2,7 +2,6 @@ package com.redislabs.riot.generator;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
 
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemStreamException;
@@ -16,12 +15,13 @@ import com.redislabs.riot.batch.IndexedPartitioner;
 public abstract class GeneratorReader extends AbstractItemCountingItemStreamItemReader<Map<String, Object>> {
 
 	public static final String FIELD_INDEX = "index";
-	public static final String FIELD_THREAD = "thread";
-	public static final String FIELD_THREADS = "threads";
-	private AtomicLong currentItemCount = new AtomicLong(0);
+	public static final String FIELD_PARTITION = "partition";
+	public static final String FIELD_PARTITIONS = "partitions";
+	private ThreadLocal<Long> count = new ThreadLocal<>();
 	private ThreadLocal<Integer> partition = new ThreadLocal<>();
-	private ThreadLocal<Integer> partitions = new ThreadLocal<>();
+	private int partitions;
 	private int maxItemCount;
+	private int partitionSize;
 
 	public GeneratorReader() {
 		setName(ClassUtils.getShortName(getClass()));
@@ -29,11 +29,11 @@ public abstract class GeneratorReader extends AbstractItemCountingItemStreamItem
 
 	@Override
 	protected void doOpen() throws Exception {
-		// do nothing
+		count.set(0l);
 	}
 
 	public int partitions() {
-		return partitions.get();
+		return partitions;
 	}
 
 	public int partition() {
@@ -43,7 +43,8 @@ public abstract class GeneratorReader extends AbstractItemCountingItemStreamItem
 	@Override
 	public void open(ExecutionContext executionContext) throws ItemStreamException {
 		this.partition.set(IndexedPartitioner.getPartitionIndex(executionContext));
-		this.partitions.set(IndexedPartitioner.getPartitions(executionContext));
+		this.partitions = IndexedPartitioner.getPartitions(executionContext);
+		this.partitionSize = maxItemCount / partitions;
 		super.open(executionContext);
 	}
 
@@ -53,16 +54,12 @@ public abstract class GeneratorReader extends AbstractItemCountingItemStreamItem
 	}
 
 	public long index() {
-		return start(maxItemCount) + currentItemCount.get();
-	}
-
-	private long start(long total) {
-		return total * partition.get() / partitions.get();
+		return (partitionSize * partition.get()) + count.get();
 	}
 
 	@Override
 	public Map<String, Object> read() throws Exception, UnexpectedInputException, ParseException {
-		if (currentItemCount.incrementAndGet() > maxItemCount) {
+		if (count.get() >= partitionSize) {
 			return null;
 		}
 		return super.read();
@@ -72,9 +69,10 @@ public abstract class GeneratorReader extends AbstractItemCountingItemStreamItem
 	protected Map<String, Object> doRead() throws Exception {
 		Map<String, Object> map = new HashMap<>();
 		map.put(FIELD_INDEX, index());
-		map.put(FIELD_THREAD, partition.get());
-		map.put(FIELD_THREADS, partitions.get());
+		map.put(FIELD_PARTITION, partition.get());
+		map.put(FIELD_PARTITIONS, partitions);
 		generate(map);
+		count.set(count.get() + 1);
 		return map;
 	}
 

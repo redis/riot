@@ -1,4 +1,4 @@
-package com.redislabs.riot.redis.writer;
+package com.redislabs.riot.redis.writer.map;
 
 import java.util.Map;
 
@@ -8,7 +8,7 @@ import redis.clients.jedis.JedisCluster;
 import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.Response;
 
-public class HmsetMapWriter extends RedisDataStructureMapWriter<RedisHashAsyncCommands<String, String>> {
+public class HmsetMapWriter extends RedisDataStructureMapWriter {
 
 	@Override
 	protected Response<String> write(Pipeline pipeline, String key, Map<String, Object> item) {
@@ -20,10 +20,10 @@ public class HmsetMapWriter extends RedisDataStructureMapWriter<RedisHashAsyncCo
 		cluster.hmset(key, stringMap(item));
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	protected RedisFuture<?> write(RedisHashAsyncCommands<String, String> commands, String key,
-			Map<String, Object> item) {
-		return commands.hmset(key, stringMap(item));
+	protected RedisFuture<?> write(Object commands, String key, Map<String, Object> item) {
+		return ((RedisHashAsyncCommands<String, String>) commands).hmset(key, stringMap(item));
 	}
 
 }

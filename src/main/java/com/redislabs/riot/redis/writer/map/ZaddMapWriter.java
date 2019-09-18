@@ -1,4 +1,4 @@
-package com.redislabs.riot.redis.writer;
+package com.redislabs.riot.redis.writer.map;
 
 import java.util.Map;
 
@@ -8,7 +8,7 @@ import redis.clients.jedis.JedisCluster;
 import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.Response;
 
-public class ZaddMapWriter extends CollectionMapWriter<RedisSortedSetAsyncCommands<String, String>> {
+public class ZaddMapWriter extends CollectionMapWriter {
 
 	private String scoreField;
 	private double defaultScore;
@@ -35,10 +35,10 @@ public class ZaddMapWriter extends CollectionMapWriter<RedisSortedSetAsyncComman
 		cluster.zadd(key, score(item), member);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	protected RedisFuture<?> write(RedisSortedSetAsyncCommands<String, String> commands, String key, String member,
-			Map<String, Object> item) {
-		return commands.zadd(key, score(item), member);
+	protected RedisFuture<?> write(Object commands, String key, String member, Map<String, Object> item) {
+		return ((RedisSortedSetAsyncCommands<String, String>) commands).zadd(key, score(item), member);
 	}
 
 }

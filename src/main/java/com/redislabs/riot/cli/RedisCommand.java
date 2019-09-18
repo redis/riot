@@ -2,6 +2,6 @@ package com.redislabs.riot.cli;
 
 public enum RedisCommand {
 
-	expire, geoadd, hmset, lpush, rpush, evalsha, sadd, xadd, set, zadd;
+	evalsha, expire, geoadd, hmset, lpush, noop, rpush, sadd, set, xadd, zadd;
 
 }

@@ -1,4 +1,4 @@
-package com.redislabs.riot.redis.writer;
+package com.redislabs.riot.redis.writer.map;
 
 import java.util.Map;
 
@@ -10,7 +10,7 @@ import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.Response;
 import redis.clients.jedis.StreamEntryID;
 
-public class XaddIdMaxlenMapWriter extends RedisDataStructureMapWriter<RedisStreamAsyncCommands<String, String>> {
+public class XaddIdMaxlenMapWriter extends RedisDataStructureMapWriter {
 
 	private String idField;
 	private Long maxlen;
@@ -46,10 +46,11 @@ public class XaddIdMaxlenMapWriter extends RedisDataStructureMapWriter<RedisStre
 		return new XAddArgs().id(id(item));
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	protected RedisFuture<?> write(RedisStreamAsyncCommands<String, String> commands, String key,
-			Map<String, Object> item) {
-		return commands.xadd(key, xAddArgs(item), stringMap(item), maxlen, approximateTrimming);
+	protected RedisFuture<?> write(Object commands, String key, Map<String, Object> item) {
+		return ((RedisStreamAsyncCommands<String, String>) commands).xadd(key, xAddArgs(item), stringMap(item), maxlen,
+				approximateTrimming);
 	}
 
 }

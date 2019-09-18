@@ -9,6 +9,7 @@ import com.redislabs.riot.cli.redis.RediSearchCommandOptions;
 import com.redislabs.riot.cli.redis.RedisCommandOptions;
 import com.redislabs.riot.cli.redis.RedisKeyOptions;
 import com.redislabs.riot.redis.writer.RedisMapWriter;
+import com.redislabs.riot.redis.writer.map.AbstractRedisMapWriter;
 
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
@@ -32,12 +33,14 @@ public abstract class ImportCommand extends TransferCommand<Map<String, Object>,
 
 	@Override
 	protected ItemWriter<Map<String, Object>> writer() {
-		RedisMapWriter<?> writer = itemWriter();
-		writer.setConverter(keyOptions.converter());
+		RedisMapWriter writer = itemWriter();
+		if (writer instanceof AbstractRedisMapWriter) {
+			((AbstractRedisMapWriter) writer).setConverter(keyOptions.converter());
+		}
 		return getRedisOptions().writer(writer);
 	}
 
-	private RedisMapWriter<?> itemWriter() {
+	private RedisMapWriter itemWriter() {
 		if (search.isSet()) {
 			return search.writer();
 		}

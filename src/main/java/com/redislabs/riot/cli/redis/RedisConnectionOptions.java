@@ -19,9 +19,9 @@ import org.springframework.batch.item.ItemWriter;
 import com.redislabs.lettusearch.RediSearchAsyncCommands;
 import com.redislabs.lettusearch.RediSearchClient;
 import com.redislabs.lettusearch.StatefulRediSearchConnection;
-import com.redislabs.riot.redis.JedisClusterItemWriter;
-import com.redislabs.riot.redis.JedisItemWriter;
-import com.redislabs.riot.redis.LettuceItemWriter;
+import com.redislabs.riot.redis.writer.JedisClusterItemWriter;
+import com.redislabs.riot.redis.writer.JedisItemWriter;
+import com.redislabs.riot.redis.writer.LettuceItemWriter;
 import com.redislabs.riot.redis.writer.RedisMapWriter;
 import com.redislabs.riot.redisearch.AbstractLettuSearchMapWriter;
 
@@ -248,7 +248,6 @@ public class RedisConnectionOptions {
 		return client().connect().sync();
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public ItemWriter<Map<String, Object>> writer(RedisMapWriter itemWriter) {
 		if (itemWriter instanceof AbstractLettuSearchMapWriter) {
 			RediSearchClient client = rediSearchClient();
@@ -269,8 +268,9 @@ public class RedisConnectionOptions {
 					StatefulRedisClusterConnection::async);
 		}
 		RedisClient client = client();
-		return new LettuceItemWriter<StatefulRedisConnection<String, String>, RedisAsyncCommands<String, String>>(client,
-				client::getResources, poolOptions.pool(client::connect), itemWriter, StatefulRedisConnection::async);
+		return new LettuceItemWriter<StatefulRedisConnection<String, String>, RedisAsyncCommands<String, String>>(
+				client, client::getResources, poolOptions.pool(client::connect), itemWriter,
+				StatefulRedisConnection::async);
 	}
 
 	private JedisCluster jedisCluster() {

@@ -1,4 +1,4 @@
-package com.redislabs.riot.redis.writer;
+package com.redislabs.riot.redis.writer.map;
 
 import java.util.Map;
 
@@ -10,7 +10,7 @@ import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.Response;
 import redis.clients.jedis.StreamEntryID;
 
-public class XaddIdMapWriter extends RedisDataStructureMapWriter<RedisStreamAsyncCommands<String, String>> {
+public class XaddIdMapWriter extends RedisDataStructureMapWriter {
 
 	private String idField;
 
@@ -32,10 +32,10 @@ public class XaddIdMapWriter extends RedisDataStructureMapWriter<RedisStreamAsyn
 		cluster.xadd(key, new StreamEntryID(id(item)), stringMap(item));
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	protected RedisFuture<?> write(RedisStreamAsyncCommands<String, String> commands, String key,
-			Map<String, Object> item) {
-		return commands.xadd(key, xAddArgs(item), stringMap(item));
+	protected RedisFuture<?> write(Object commands, String key, Map<String, Object> item) {
+		return ((RedisStreamAsyncCommands<String, String>) commands).xadd(key, xAddArgs(item), stringMap(item));
 	}
 
 	private XAddArgs xAddArgs(Map<String, Object> item) {
