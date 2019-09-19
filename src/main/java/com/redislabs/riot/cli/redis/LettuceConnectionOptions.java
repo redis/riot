@@ -35,9 +35,9 @@ public class LettuceConnectionOptions {
 	private File truststore;
 	@Option(names = "--truststore-password", arity = "0..1", interactive = true, description = "Truststore password", paramLabel = "<pwd>")
 	private String truststorePassword;
-	@Option(names = "--computation-thread-pool-size", description = "Number of threads for computation operations (default value is the number of CPUs)")
+	@Option(names = "--computation-thread-pool-size", description = "Number of threads for computation operations (default value is the number of CPUs=${DEFAULT-VALUE})")
 	private int computationThreadPoolSize = DefaultClientResources.DEFAULT_COMPUTATION_THREADS;
-	@Option(names = "--io-thread-pool-size", description = "Number of threads for I/O operations (default value is the number of CPUs)")
+	@Option(names = "--io-thread-pool-size", description = "Number of threads for I/O operations (default value is the number of CPUs=${DEFAULT-VALUE})")
 	private int ioThreadPoolSize = DefaultClientResources.DEFAULT_IO_THREADS;
 	@Option(names = "--command-timeout", description = "Lettuce command timeout for synchronous command execution (default: ${DEFAULT-VALUE})", paramLabel = "<seconds>")
 	private long commandTimeout = RedisURI.DEFAULT_TIMEOUT;
