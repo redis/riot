@@ -13,7 +13,7 @@ import picocli.CommandLine.Option;
 @Command(name = "gen", description = "Import simple generated data")
 public class SimpleGeneratorCommand extends ImportCommand {
 
-	@Option(names = "--fields", arity = "1..*", description = "Field sizes in bytes", paramLabel = "<field=size>")
+	@Option(names = "--fields", arity = "0..*", description = "Field sizes in bytes", paramLabel = "<field=size>")
 	private Map<String, Integer> fields = new LinkedHashMap<>();
 
 	@Override
