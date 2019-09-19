@@ -67,4 +67,5 @@ tasks.withType(Tar){
 asciidoctor {
   outputDir = file('docs')
   separateOutputDirs = false
+  attributes revnumber : '1.0'
 }
