@@ -58,7 +58,7 @@ public class LettuceItemWriter<S extends StatefulConnection<String, String>, C e
 				try {
 					future.get(1, TimeUnit.SECONDS);
 				} catch (Exception e) {
-					log.error("Could not write record {}: {}", items.get(index), future.getError());
+					log.error("Could not write record {}", items.get(index), e);
 				}
 			}
 		} finally {
