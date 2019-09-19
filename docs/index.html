@@ -809,7 +809,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="listingblock">
 <div class="title">Strings</div>
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">$ riot -s redis-12000.redislabs.com:12000 --pool-max-total 96 gen --batch 500 --threads 96 --max 100000000 --fields value=100 -c set --string-format raw --keyspace string --keys index --string-value value</code></pre>
+<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">$ riot -s redis-12001.redislabs.com:12001 --pool-max-total 96 gen --batch 5000 --threads 96 --max 100000000 -c set --keyspace hash --keys index --string-value index</code></pre>
 </div>
 </div>
 <div class="imageblock">
@@ -820,7 +820,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="listingblock">
 <div class="title">Streams</div>
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">$ riot -s redis-12000.redislabs.com:12000 --pool-max-total 96 gen --batch 500 --threads 96 --max 100000000 -c xadd --keyspace stream --keys partition</code></pre>
+<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">$ riot -s redis-12001.internal.jrx.demo.redislabs.com:12001 --pool-max-total 96 gen --batch 5000 --threads 96 --max 100000000 -c xadd --keyspace stream --keys partition</code></pre>
 </div>
 </div>
 <div class="imageblock">
@@ -835,7 +835,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="footer">
 <div id="footer-text">
 Version 1.0<br>
-Last updated 2019-09-18 17:06:57 -0700
+Last updated 2019-09-18 23:48:48 -0700
 </div>
 </div>
 </body>
