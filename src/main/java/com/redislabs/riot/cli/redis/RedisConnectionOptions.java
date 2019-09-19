@@ -121,31 +121,6 @@ public class RedisConnectionOptions {
 		return lettuce.redisClient(this).connect().sync();
 	}
 
-	public ItemWriter<Map<String, Object>> writer(RedisMapWriter itemWriter) {
-		if (itemWriter instanceof AbstractLettuSearchMapWriter) {
-			RediSearchClient client = lettuce.rediSearchClient(this);
-			return new LettuceItemWriter<StatefulRediSearchConnection<String, String>, RediSearchAsyncCommands<String, String>>(
-					client, client::getResources, poolOptions.pool(client::connect), itemWriter,
-					StatefulRediSearchConnection::async);
-		}
-		if (driver == RedisDriver.jedis) {
-			if (cluster) {
-				return new JedisClusterItemWriter(jedisCluster(), itemWriter);
-			}
-			return new JedisItemWriter(jedisPool(), itemWriter);
-		}
-		if (cluster) {
-			RedisClusterClient client = lettuce.redisClusterClient(this);
-			return new LettuceItemWriter<StatefulRedisClusterConnection<String, String>, RedisClusterAsyncCommands<String, String>>(
-					client, client::getResources, poolOptions.pool(client::connect), itemWriter,
-					StatefulRedisClusterConnection::async);
-		}
-		RedisClient client = lettuce.redisClient(this);
-		return new LettuceItemWriter<StatefulRedisConnection<String, String>, RedisAsyncCommands<String, String>>(
-				client, client::getResources, poolOptions.pool(client::connect), itemWriter,
-				StatefulRedisConnection::async);
-	}
-
 	private JedisCluster jedisCluster() {
 		Set<HostAndPort> hostAndPort = new HashSet<>();
 		servers.forEach(node -> hostAndPort.add(new HostAndPort(node.getHost(), node.getPort())));
@@ -158,6 +133,31 @@ public class RedisConnectionOptions {
 
 	public RediSearchClient rediSearchClient() {
 		return lettuce.rediSearchClient(this);
+	}
+
+	public ItemWriter<Map<String, Object>> writer(RedisMapWriter itemWriter) {
+		if (itemWriter instanceof AbstractLettuSearchMapWriter) {
+			RediSearchClient client = lettuce.rediSearchClient(this);
+			return new LettuceItemWriter<StatefulRediSearchConnection<String, String>, RediSearchAsyncCommands<String, String>>(
+					client, client::getResources, poolOptions.pool(client::connect), itemWriter,
+					StatefulRediSearchConnection::async, lettuce.getCommandTimeout());
+		}
+		if (driver == RedisDriver.jedis) {
+			if (cluster) {
+				return new JedisClusterItemWriter(jedisCluster(), itemWriter);
+			}
+			return new JedisItemWriter(jedisPool(), itemWriter);
+		}
+		if (cluster) {
+			RedisClusterClient client = lettuce.redisClusterClient(this);
+			return new LettuceItemWriter<StatefulRedisClusterConnection<String, String>, RedisClusterAsyncCommands<String, String>>(
+					client, client::getResources, poolOptions.pool(client::connect), itemWriter,
+					StatefulRedisClusterConnection::async, lettuce.getCommandTimeout());
+		}
+		RedisClient client = lettuce.redisClient(this);
+		return new LettuceItemWriter<StatefulRedisConnection<String, String>, RedisAsyncCommands<String, String>>(
+				client, client::getResources, poolOptions.pool(client::connect), itemWriter,
+				StatefulRedisConnection::async, lettuce.getCommandTimeout());
 	}
 
 }

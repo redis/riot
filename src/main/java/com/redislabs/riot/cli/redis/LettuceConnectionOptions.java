@@ -52,6 +52,10 @@ public class LettuceConnectionOptions {
 	@Option(names = "--ssl-provider", description = "SSL Provider: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
 	private SslProvider sslProvider = SslProvider.Jdk;
 
+	public long getCommandTimeout() {
+		return commandTimeout;
+	}
+
 	public RedisClient redisClient(RedisConnectionOptions options) {
 		log.debug("Creating Lettuce client");
 		RedisClient client = RedisClient.create(clientResources(), redisURI(options));

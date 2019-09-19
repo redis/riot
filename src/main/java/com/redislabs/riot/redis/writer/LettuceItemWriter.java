@@ -29,14 +29,16 @@ public class LettuceItemWriter<S extends StatefulConnection<String, String>, C e
 	private GenericObjectPool<S> pool;
 	private RedisMapWriter writer;
 	private Function<S, C> async;
+	private long timeout;
 
 	public LettuceItemWriter(AbstractRedisClient client, Supplier<ClientResources> resources, GenericObjectPool<S> pool,
-			RedisMapWriter writer, Function<S, C> async) {
+			RedisMapWriter writer, Function<S, C> async, long timeout) {
 		this.client = client;
 		this.resources = resources;
 		this.pool = pool;
 		this.writer = writer;
 		this.async = async;
+		this.timeout = timeout;
 	}
 
 	@Override
@@ -56,7 +58,7 @@ public class LettuceItemWriter<S extends StatefulConnection<String, String>, C e
 					continue;
 				}
 				try {
-					future.get(1, TimeUnit.SECONDS);
+					future.get(timeout, TimeUnit.MILLISECONDS);
 				} catch (Exception e) {
 					log.error("Could not write record {}", items.get(index), e);
 				}
