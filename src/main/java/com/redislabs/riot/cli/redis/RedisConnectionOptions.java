@@ -114,6 +114,7 @@ public class RedisConnectionOptions {
 			poolConfig.setMaxIdle(maxIdle);
 			poolConfig.setMinIdle(minIdle);
 			poolConfig.setMaxWaitMillis(maxWait);
+			poolConfig.setJmxEnabled(false);
 			return poolConfig;
 		}
 
