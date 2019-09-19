@@ -35,10 +35,10 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.ParseResult;
 import picocli.CommandLine.Spec;
 
-@Command(name = "riot", mixinStandardHelpOptions = true, subcommands = { FileImportCommand.class,
-		FileExportCommand.class, DatabaseImportCommand.class, DatabaseExportCommand.class, RedisImportCommand.class,
-		RediSearchImportCommand.class, FakerGeneratorCommand.class, SimpleGeneratorCommand.class,
-		ConsoleExportCommand.class, PingCommand.class,
+@Command(name = "riot", abbreviateSynopsis = true, mixinStandardHelpOptions = true, subcommands = {
+		FileImportCommand.class, FileExportCommand.class, DatabaseImportCommand.class, DatabaseExportCommand.class,
+		RedisImportCommand.class, RediSearchImportCommand.class, FakerGeneratorCommand.class,
+		SimpleGeneratorCommand.class, ConsoleExportCommand.class, PingCommand.class,
 		InfoCommand.class }, versionProvider = ManifestVersionProvider.class)
 public class Riot implements Runnable {
 
