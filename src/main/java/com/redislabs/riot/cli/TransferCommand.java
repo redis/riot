@@ -72,19 +72,18 @@ public abstract class TransferCommand<I, O> extends AbstractCommand {
 			if (execution.getExitStatus().getExitCode().equals(ExitStatus.FAILED.getExitCode())) {
 				execution.getAllFailureExceptions().forEach(e -> e.printStackTrace());
 			}
-			for (StepExecution stepExecution : execution.getStepExecutions()) {
-				if (stepExecution.getExitStatus().getExitCode().equals(ExitStatus.FAILED.getExitCode())) {
-					stepExecution.getFailureExceptions()
-							.forEach(e -> log.error("Could not execute step {}", stepExecution.getStepName(), e));
-				} else {
-					Duration duration = Duration
-							.ofMillis(stepExecution.getEndTime().getTime() - stepExecution.getStartTime().getTime());
-					int writeCount = stepExecution.getWriteCount();
-					double throughput = (double) writeCount / duration.toMillis() * 1000;
-					NumberFormat numberFormat = NumberFormat.getIntegerInstance();
-					log.info("Wrote {} items in {} seconds ({} items/sec)", numberFormat.format(writeCount),
-							duration.get(ChronoUnit.SECONDS), numberFormat.format(throughput));
-				}
+			StepExecution stepExecution = execution.getStepExecutions().iterator().next();
+			if (stepExecution.getExitStatus().getExitCode().equals(ExitStatus.FAILED.getExitCode())) {
+				stepExecution.getFailureExceptions()
+						.forEach(e -> log.error("Could not execute step {}", stepExecution.getStepName(), e));
+			} else {
+				Duration duration = Duration
+						.ofMillis(stepExecution.getEndTime().getTime() - stepExecution.getStartTime().getTime());
+				int writeCount = stepExecution.getWriteCount();
+				double throughput = (double) writeCount / duration.toMillis() * 1000;
+				NumberFormat numberFormat = NumberFormat.getIntegerInstance();
+				log.info("Wrote {} items in {} seconds ({} items/sec)", numberFormat.format(writeCount),
+						duration.get(ChronoUnit.SECONDS), numberFormat.format(throughput));
 			}
 		} catch (Exception e) {
 			log.error("Could not execute transfer", e);
