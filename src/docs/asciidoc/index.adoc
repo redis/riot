@@ -1,6 +1,4 @@
 = RIOT
-Julien Ruaux
-
 :source-highlighter: highlightjs
 :idprefix:
 :idseparator: -
@@ -8,7 +6,6 @@ Julien Ruaux
 :icons: font
 :project-repo: Redislabs-Solution-Architects/riot
 :uri-repo: https://github.com/{project-repo}
-
 
 RIOT is a data import/export tool for Redis that connects to files, databases, and generators.
 
@@ -149,9 +146,7 @@ For non-included databases you must install the corresponding JDBC driver under 
 * *nix: `bin/riot` -> `CLASSPATH=$APP_HOME/lib/myjdbc.jar:$APP_HOME/lib/…`
 
 * Windows: `bin\riot.bat` -> `set CLASSPATH=%APP_HOME%\lib\myjdbc.jar;%APP_HOME%\lib\…`
-
 ====
-
 
 ==== SQL -> Redis
 [source,shell]
