@@ -11,6 +11,8 @@ import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.redislabs.riot.redis.writer.map.RedisMapWriter;
+
 import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.RedisFuture;
 import io.lettuce.core.api.StatefulConnection;
@@ -50,6 +52,9 @@ public class LettuceItemWriter<S extends StatefulConnection<String, String>, C e
 			commands.flushCommands();
 			for (int index = 0; index < futures.size(); index++) {
 				RedisFuture<?> future = futures.get(index);
+				if (future == null) {
+					continue;
+				}
 				try {
 					future.get(1, TimeUnit.SECONDS);
 				} catch (Exception e) {

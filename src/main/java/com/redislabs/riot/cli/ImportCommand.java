@@ -8,8 +8,8 @@ import org.springframework.batch.item.ItemWriter;
 import com.redislabs.riot.cli.redis.RediSearchCommandOptions;
 import com.redislabs.riot.cli.redis.RedisCommandOptions;
 import com.redislabs.riot.cli.redis.RedisKeyOptions;
-import com.redislabs.riot.redis.writer.RedisMapWriter;
 import com.redislabs.riot.redis.writer.map.AbstractRedisMapWriter;
+import com.redislabs.riot.redis.writer.map.RedisMapWriter;
 
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;

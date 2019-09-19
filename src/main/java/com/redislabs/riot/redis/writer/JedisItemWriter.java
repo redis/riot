@@ -8,6 +8,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.ClassUtils;
 
+import com.redislabs.riot.redis.writer.map.RedisMapWriter;
+
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.Response;
@@ -35,6 +37,9 @@ public class JedisItemWriter extends AbstractRedisItemWriter {
 			}
 			p.sync();
 			for (Response<?> response : responses) {
+				if (response == null) {
+					continue;
+				}
 				try {
 					response.get();
 				} catch (Exception e) {

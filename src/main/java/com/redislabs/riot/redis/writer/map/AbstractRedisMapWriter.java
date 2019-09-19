@@ -3,7 +3,6 @@ package com.redislabs.riot.redis.writer.map;
 import java.util.Map;
 
 import com.redislabs.riot.redis.RedisConverter;
-import com.redislabs.riot.redis.writer.RedisMapWriter;
 
 public abstract class AbstractRedisMapWriter implements RedisMapWriter {
 

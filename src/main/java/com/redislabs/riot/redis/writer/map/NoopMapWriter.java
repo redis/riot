@@ -2,8 +2,6 @@ package com.redislabs.riot.redis.writer.map;
 
 import java.util.Map;
 
-import com.redislabs.riot.redis.writer.RedisMapWriter;
-
 import io.lettuce.core.RedisFuture;
 import redis.clients.jedis.JedisCluster;
 import redis.clients.jedis.Pipeline;

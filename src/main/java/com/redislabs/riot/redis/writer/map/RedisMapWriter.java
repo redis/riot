@@ -1,4 +1,4 @@
-package com.redislabs.riot.redis.writer;
+package com.redislabs.riot.redis.writer.map;
 
 import java.util.Map;
 

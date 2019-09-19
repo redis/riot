@@ -22,7 +22,7 @@ import com.redislabs.lettusearch.StatefulRediSearchConnection;
 import com.redislabs.riot.redis.writer.JedisClusterItemWriter;
 import com.redislabs.riot.redis.writer.JedisItemWriter;
 import com.redislabs.riot.redis.writer.LettuceItemWriter;
-import com.redislabs.riot.redis.writer.RedisMapWriter;
+import com.redislabs.riot.redis.writer.map.RedisMapWriter;
 import com.redislabs.riot.redisearch.AbstractLettuSearchMapWriter;
 
 import io.lettuce.core.ClientOptions;

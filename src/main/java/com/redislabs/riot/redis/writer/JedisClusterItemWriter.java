@@ -8,6 +8,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.support.AbstractItemStreamItemWriter;
 import org.springframework.util.ClassUtils;
 
+import com.redislabs.riot.redis.writer.map.RedisMapWriter;
+
 import redis.clients.jedis.JedisCluster;
 
 public class JedisClusterItemWriter extends AbstractItemStreamItemWriter<Map<String, Object>> {
