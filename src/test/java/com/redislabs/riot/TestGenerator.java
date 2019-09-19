@@ -27,7 +27,7 @@ public class TestGenerator extends BaseTest {
 	}
 
 	@Test
-	public void testImportFaker() throws Exception {
+	public void testImportFakerHash() throws Exception {
 		runFile("gen-faker-hash");
 		List<String> keys = commands().keys("person:*");
 		Assertions.assertEquals(100, keys.size());
@@ -36,6 +36,19 @@ public class TestGenerator extends BaseTest {
 		Assertions.assertTrue(person.containsKey("firstName"));
 		Assertions.assertTrue(person.containsKey("lastName"));
 		Assertions.assertTrue(person.containsKey("address"));
+	}
+
+	@Test
+	public void testImportFakerScriptProcessorHash() throws Exception {
+		runFile("gen-faker-script-processor-hash");
+		List<String> keys = commands().keys("person:*");
+		Assertions.assertEquals(100, keys.size());
+		Map<String, String> person = commands().hgetall(keys.get(0));
+		Assertions.assertTrue(person.containsKey("id"));
+		Assertions.assertTrue(person.containsKey("firstName"));
+		Assertions.assertTrue(person.containsKey("lastName"));
+		Assertions.assertTrue(person.containsKey("address"));
+		Assertions.assertEquals(person.get("address"), person.get("address").toUpperCase());
 	}
 
 	@Test

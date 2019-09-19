@@ -1,0 +1,1 @@
+$ riot -s 127.0.0.1:6379 redis-export -s localhost:6379 --scan-keyspace beer --scan-keys id --keyspace beer2 --keys id

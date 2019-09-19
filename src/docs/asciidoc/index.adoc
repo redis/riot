@@ -6,6 +6,7 @@
 :icons: font
 :project-repo: Redislabs-Solution-Architects/riot
 :uri-repo: https://github.com/{project-repo}
+:commandsdir: ../../../src/test/resources/commands
 
 RIOT is a data import/export tool for Redis that connects to files, databases, and generators.
 
@@ -36,10 +37,10 @@ RIOT can import/export files in these formats:
 
 Files can be GZIP compressed, and local or remote:
 
-* /myfolder/myfile.csv
-* /myfolder/myfile.json.gz
-* https://example.com/path/dataset.csv
-* s3://mybucket/myfolder/myfile.json
+* `/myfolder/myfile.csv`
+* `/myfolder/myfile.json.gz`
+* `https://example.com/path/dataset.csv`
+* `s3://mybucket/myfolder/myfile.json`
 
 In the case of AWS S3 you can pass the access and secret keys as well as the region for the bucket. 
 
@@ -48,13 +49,13 @@ In the case of AWS S3 you can pass the access and secret keys as well as the reg
 ===== CSV -> Redis
 [source,shell]
 ----
-include::src/test/resources/commands/file-import-csv-hash.txt[]
+include::{commandsdir}/file-import-csv-hash.txt[]
 ----
 
 ===== Redis -> CSV
 [source,shell]
 ----
-include::src/test/resources/commands/file-export-csv.txt[]
+include::{commandsdir}/file-export-csv.txt[]
 ----
 
 ===== CSV -> RediSearch
@@ -68,7 +69,7 @@ FT.CREATE beers SCHEMA abv NUMERIC SORTABLE id TAG name TEXT PHONETIC dm:en styl
 +
 [source,shell]
 ----
-include::src/test/resources/commands/file-import-csv-search.txt[]
+include::{commandsdir}/file-import-csv-search.txt[]
 ----
 . Search for beers
 +
@@ -102,18 +103,18 @@ RIOT can read and write JSON data in the following format:
 ===== JSON -> Redis
 [source,shell]
 ----
-include::src/test/resources/commands/file-import-json-hash.txt[]
+include::{commandsdir}/file-import-json-hash.txt[]
 ----
 
 ===== Redis -> JSON
 [source,shell]
 ----
-include::src/test/resources/commands/file-export-json.txt[]
+include::{commandsdir}/file-export-json.txt[]
 ----
 
 ===== Redis -> Compressed JSON 
 ----
-include::src/test/resources/commands/file-export-json_gz.txt[]
+include::{commandsdir}/file-export-json_gz.txt[]
 ----
 
 [#db]
@@ -151,14 +152,14 @@ For non-included databases you must install the corresponding JDBC driver under 
 ==== SQL -> Redis
 [source,shell]
 ----
-include::src/test/resources/commands/db-import.txt[]
+include::{commandsdir}/db-import.txt[]
 ----
 
 ==== Redis -> SQL
 This command exports all hashes in keyspace `beer:<id>` to the database: 
 [source,shell]
 ----
-include::src/test/resources/commands/db-export.txt[]
+include::{commandsdir}/db-export.txt[]
 ----
 
 [#gen]
@@ -175,7 +176,7 @@ You can also configure it to generate fixed-sized fields with `--field <name=siz
 For example the following command generates hashes in the keyspace `test:<index>` with fields `field1` and `field2` of respectively 100 and 1,000 bytes:
 [source,shell]
 ----
-include::src/test/resources/commands/gen-simple.txt[]
+include::{commandsdir}/gen-simple.txt[]
 ----
 
 ==== Faker
@@ -184,7 +185,7 @@ This data generator relies on the https://github.com/DiUS/java-faker[Faker] libr
 .Example #1: People
 [source,shell]
 ----
-include::src/test/resources/commands/gen-faker-hash.txt[]
+include::{commandsdir}/gen-faker-hash.txt[]
 ----
 [source,plaintext]
 ----
@@ -197,7 +198,7 @@ include::src/test/resources/commands/gen-faker-hash.txt[]
 .Example #2: Game of Thrones
 [source,shell]
 ----
-include::src/test/resources/commands/gen-faker-set.txt[]
+include::{commandsdir}/gen-faker-set.txt[]
 ----
 [source,plaintext]
 ----
@@ -205,6 +206,53 @@ include::src/test/resources/commands/gen-faker-set.txt[]
 1) "Nymella Toland"
 2) "Ysilla Royce"
 …
+----
+
+=== Redis
+
+The Redis connector allows for transferring data between two Redis databases.
+
+[source,shell]
+----
+include::{commandsdir}/redis-export.txt[]
+----
+
+== Processors
+
+RIOT can process records as they are being read. There are 2 processor approaches: field expressions or script processor.
+
+=== Field expressions
+
+You can transform the incoming key/value pairs with field expressions, in the form `field1=<exp>`, `field2=<exp>`, ...
+
+The input record can be accessed by field name, and the processor context also exposes the following variables that can be called with the `#` prefix:
+
+* `redis`: Redis connection to issue any command, e.g. `name=#redis.hgetall('person1').lastName`
+* `date`: date parser/formatter, e.g. `epoch=#date.parse(mydate).getTime()`
+* `context`: exposes processor context, e.g. `id=#context.index`
+
+[source,shell]
+----
+include::{commandsdir}/file-import-csv-processor-hash-dateformat.txt[]
+----
+
+=== Script evaluator
+
+Use an external or inline script to provide the processor logic.
+
+.Javascript example
+[source,javascript]
+----
+function process(item) {
+    item.name = item.name.toUpperCase();
+    return item;
+}
+process(item);
+----
+
+[source,shell]
+----
+include::{commandsdir}/gen-faker-script-processor-hash.txt[]
 ----
 
 == Load Testing

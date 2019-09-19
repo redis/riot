@@ -186,6 +186,8 @@ public class TestFile extends BaseTest {
 		Assertions.assertEquals(568, keys.size());
 		Map<String, String> event = commands().hgetall("event:248206");
 		Assertions.assertEquals("1512838800000", event.get("EpochStart"));
+		long index = Long.parseLong(event.get("index"));
+		Assertions.assertTrue(index > 0);
 	}
 
 	@Test

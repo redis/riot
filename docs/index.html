@@ -453,6 +453,13 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#file">Files</a></li>
 <li><a href="#db">Databases</a></li>
 <li><a href="#gen">Generators</a></li>
+<li><a href="#redis">Redis</a></li>
+</ul>
+</li>
+<li><a href="#processors">Processors</a>
+<ul class="sectlevel2">
+<li><a href="#field-expressions">Field expressions</a></li>
+<li><a href="#script-evaluator">Script evaluator</a></li>
 </ul>
 </li>
 <li><a href="#load-testing">Load Testing</a>
@@ -527,16 +534,16 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="ulist">
 <ul>
 <li>
-<p>/myfolder/myfile.csv</p>
+<p><code>/myfolder/myfile.csv</code></p>
 </li>
 <li>
-<p>/myfolder/myfile.json.gz</p>
+<p><code>/myfolder/myfile.json.gz</code></p>
 </li>
 <li>
-<p><a href="https://example.com/path/dataset.csv" class="bare">https://example.com/path/dataset.csv</a></p>
+<p><code><a href="https://example.com/path/dataset.csv" class="bare">https://example.com/path/dataset.csv</a></code></p>
 </li>
 <li>
-<p>s3://mybucket/myfolder/myfile.json</p>
+<p><code>s3://mybucket/myfolder/myfile.json</code></p>
 </li>
 </ul>
 </div>
@@ -798,6 +805,73 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 </div>
+<div class="sect2">
+<h3 id="redis">Redis</h3>
+<div class="paragraph">
+<p>The Redis connector allows for transferring data between two Redis databases.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">$ riot -s 127.0.0.1:6379 redis-export -s localhost:6379 --scan-keyspace beer --scan-keys id --keyspace beer2 --keys id</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="processors">Processors</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>RIOT can process records as they are being read. There are 2 processor approaches: field expressions or script processor.</p>
+</div>
+<div class="sect2">
+<h3 id="field-expressions">Field expressions</h3>
+<div class="paragraph">
+<p>You can transform the incoming key/value pairs with field expressions, in the form <code>field1=&lt;exp&gt;</code>, <code>field2=&lt;exp&gt;</code>, &#8230;&#8203;</p>
+</div>
+<div class="paragraph">
+<p>The input record can be accessed by field name, and the processor context also exposes the following variables that can be called with the <code>#</code> prefix:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>redis</code>: Redis connection to issue any command, e.g. <code>name=#redis.hgetall('person1').lastName</code></p>
+</li>
+<li>
+<p><code>date</code>: date parser/formatter, e.g. <code>epoch=#date.parse(mydate).getTime()</code></p>
+</li>
+<li>
+<p><code>context</code>: exposes processor context, e.g. <code>id=#context.index</code></p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">$ riot file-import -p event -k Id --header --processor-date-format "MM/dd/yyyy HH:mm:ss a" --processor "EventStartDate=remove('Event Start Date')" "EpochStart=#date.parse(EventStartDate).getTime()" "index=#context.index" --file "https://data.lacity.org/api/views/rx9t-fp7k/rows.csv?accessType=DOWNLOAD"</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="script-evaluator">Script evaluator</h3>
+<div class="paragraph">
+<p>Use an external or inline script to provide the processor logic.</p>
+</div>
+<div class="listingblock">
+<div class="title">Javascript example</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-javascript hljs" data-lang="javascript">function process(item) {
+    item.name = item.name.toUpperCase();
+    return item;
+}
+process(item);</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">$ riot faker --fields id=index firstName=name.firstName lastName=name.lastName address=address.fullAddress --processor-script "function process(item) { item.address = item.address.toUpperCase(); return item; } process(item);" --max 100 -p person -k id</code></pre>
+</div>
+</div>
+</div>
 </div>
 </div>
 <div class="sect1">
@@ -852,7 +926,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="footer">
 <div id="footer-text">
 Version 1.0<br>
-Last updated 2019-09-19 00:43:15 -0700
+Last updated 2019-09-19 14:49:51 -0700
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/styles/github.min.css">

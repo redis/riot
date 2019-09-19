@@ -1,0 +1,1 @@
+$ riot faker --fields id=index firstName=name.firstName lastName=name.lastName address=address.fullAddress --processor-script "function process(item) { item.address = item.address.toUpperCase(); return item; } process(item);" --max 100 -p person -k id
