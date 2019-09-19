@@ -1,14 +1,9 @@
 package com.redislabs.riot.cli.redis;
 
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemWriter;
 
 import com.redislabs.lettusearch.RediSearchAsyncCommands;
@@ -29,28 +24,16 @@ import io.lettuce.core.cluster.api.StatefulRedisClusterConnection;
 import io.lettuce.core.cluster.api.async.RedisClusterAsyncCommands;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Option;
-import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisCluster;
-import redis.clients.jedis.JedisPool;
-import redis.clients.jedis.JedisPoolConfig;
-import redis.clients.jedis.JedisSentinelPool;
-import redis.clients.jedis.Protocol;
 import redis.clients.jedis.util.Pool;
 
 public class RedisConnectionOptions {
-
-	private final Logger log = LoggerFactory.getLogger(RedisConnectionOptions.class);
 
 	@Option(names = { "-s",
 			"--server" }, description = "Redis server address (default: ${DEFAULT-VALUE})", paramLabel = "<host:port>")
 	private List<RedisEndpoint> servers = Arrays.asList(new RedisEndpoint("localhost:6379"));
 	@Option(names = "--sentinel-master", description = "Sentinel master name")
 	private String sentinelMaster;
-	@Option(names = "--connect-timeout", description = "Connect timeout (default: ${DEFAULT-VALUE})", paramLabel = "<millis>")
-	private int connectTimeout = Protocol.DEFAULT_TIMEOUT;
-	@Option(names = "--socket-timeout", description = "Socket timeout (default: ${DEFAULT-VALUE})", paramLabel = "<millis>")
-	private int socketTimeout = Protocol.DEFAULT_TIMEOUT;
 	@Option(names = "--auth", arity = "0..1", interactive = true, description = "Database login password", paramLabel = "<pwd>")
 	private String password;
 	@Option(names = "--db", description = "Redis database number. Databases are only available for Redis Standalone and Redis Master/Slave", paramLabel = "<int>")
@@ -69,6 +52,8 @@ public class RedisConnectionOptions {
 	private RedisConnectionPoolOptions poolOptions = new RedisConnectionPoolOptions();
 	@ArgGroup(exclusive = false, heading = "Lettuce options%n")
 	private LettuceConnectionOptions lettuce = new LettuceConnectionOptions();
+	@ArgGroup(exclusive = false, heading = "Jedis options%n")
+	private JedisConnectionOptions jedis = new JedisConnectionOptions();
 
 	public List<RedisEndpoint> getServers() {
 		return servers;
@@ -98,22 +83,9 @@ public class RedisConnectionOptions {
 		return database;
 	}
 
-	public Pool<Jedis> jedisPool() {
-		JedisPoolConfig poolConfig = poolOptions.configure(new JedisPoolConfig());
-		if (sentinelMaster == null) {
-			String host = servers.get(0).getHost();
-			int port = servers.get(0).getPort();
-			log.debug("Creating Jedis connection pool for {}:{} with {}", host, port, poolConfig);
-			return new JedisPool(poolConfig, host, port, connectTimeout, socketTimeout, password, database, clientName);
-		}
-		return new JedisSentinelPool(sentinelMaster,
-				servers.stream().map(e -> e.toString()).collect(Collectors.toSet()), poolConfig, connectTimeout,
-				socketTimeout, password, database, clientName);
-	}
-
 	public Object redis() {
 		if (driver == RedisDriver.jedis) {
-			return jedisPool().getResource();
+			return jedis.pool(this).getResource();
 		}
 		if (cluster) {
 			return lettuce.redisClusterClient(this).connect().sync();
@@ -121,14 +93,8 @@ public class RedisConnectionOptions {
 		return lettuce.redisClient(this).connect().sync();
 	}
 
-	private JedisCluster jedisCluster() {
-		Set<HostAndPort> hostAndPort = new HashSet<>();
-		servers.forEach(node -> hostAndPort.add(new HostAndPort(node.getHost(), node.getPort())));
-		JedisPoolConfig poolConfig = poolOptions.configure(new JedisPoolConfig());
-		if (password == null) {
-			return new JedisCluster(hostAndPort, connectTimeout, socketTimeout, maxRedirects, poolConfig);
-		}
-		return new JedisCluster(hostAndPort, connectTimeout, socketTimeout, maxRedirects, password, poolConfig);
+	public RedisConnectionPoolOptions getPoolOptions() {
+		return poolOptions;
 	}
 
 	public RediSearchClient rediSearchClient() {
@@ -144,9 +110,9 @@ public class RedisConnectionOptions {
 		}
 		if (driver == RedisDriver.jedis) {
 			if (cluster) {
-				return new JedisClusterItemWriter(jedisCluster(), itemWriter);
+				return new JedisClusterItemWriter(jedis.cluster(this), itemWriter);
 			}
-			return new JedisItemWriter(jedisPool(), itemWriter);
+			return new JedisItemWriter(jedis.pool(this), itemWriter);
 		}
 		if (cluster) {
 			RedisClusterClient client = lettuce.redisClusterClient(this);
@@ -158,6 +124,14 @@ public class RedisConnectionOptions {
 		return new LettuceItemWriter<StatefulRedisConnection<String, String>, RedisAsyncCommands<String, String>>(
 				client, client::getResources, poolOptions.pool(client::connect), itemWriter,
 				StatefulRedisConnection::async, lettuce.getCommandTimeout());
+	}
+
+	public JedisConnectionOptions jedis() {
+		return jedis;
+	}
+
+	public Pool<Jedis> jedisPool() {
+		return jedis.pool(this);
 	}
 
 }

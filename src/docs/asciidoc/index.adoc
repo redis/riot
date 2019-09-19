@@ -48,13 +48,13 @@ In the case of AWS S3 you can pass the access and secret keys as well as the reg
 ===== CSV -> Redis
 [source,shell]
 ----
-include::../../test/resources/commands/file-import-csv-hash.txt[]
+include::src/test/resources/commands/file-import-csv-hash.txt[]
 ----
 
 ===== Redis -> CSV
 [source,shell]
 ----
-include::../../test/resources/commands/file-export-csv.txt[]
+include::src/test/resources/commands/file-export-csv.txt[]
 ----
 
 ===== CSV -> RediSearch
@@ -68,7 +68,7 @@ FT.CREATE beers SCHEMA abv NUMERIC SORTABLE id TAG name TEXT PHONETIC dm:en styl
 +
 [source,shell]
 ----
-include::../../test/resources/commands/file-import-csv-search.txt[]
+include::src/test/resources/commands/file-import-csv-search.txt[]
 ----
 . Search for beers
 +
@@ -102,18 +102,18 @@ RIOT can read and write JSON data in the following format:
 ===== JSON -> Redis
 [source,shell]
 ----
-include::../../test/resources/commands/file-import-json-hash.txt[]
+include::src/test/resources/commands/file-import-json-hash.txt[]
 ----
 
 ===== Redis -> JSON
 [source,shell]
 ----
-include::../../test/resources/commands/file-export-json.txt[]
+include::src/test/resources/commands/file-export-json.txt[]
 ----
 
 ===== Redis -> Compressed JSON 
 ----
-include::../../test/resources/commands/file-export-json_gz.txt[]
+include::src/test/resources/commands/file-export-json_gz.txt[]
 ----
 
 [#db]
@@ -151,14 +151,14 @@ For non-included databases you must install the corresponding JDBC driver under 
 ==== SQL -> Redis
 [source,shell]
 ----
-include::../../test/resources/commands/db-import.txt[]
+include::src/test/resources/commands/db-import.txt[]
 ----
 
 ==== Redis -> SQL
 This command exports all hashes in keyspace `beer:<id>` to the database: 
 [source,shell]
 ----
-include::../../test/resources/commands/db-export.txt[]
+include::src/test/resources/commands/db-export.txt[]
 ----
 
 [#gen]
@@ -175,7 +175,7 @@ You can also configure it to generate fixed-sized fields with `--field <name=siz
 For example the following command generates hashes in the keyspace `test:<index>` with fields `field1` and `field2` of respectively 100 and 1,000 bytes:
 [source,shell]
 ----
-include::../../test/resources/commands/gen-simple.txt[]
+include::src/test/resources/commands/gen-simple.txt[]
 ----
 
 ==== Faker
@@ -184,7 +184,7 @@ This data generator relies on the https://github.com/DiUS/java-faker[Faker] libr
 .Example #1: People
 [source,shell]
 ----
-include::../../test/resources/commands/gen-faker-hash.txt[]
+include::src/test/resources/commands/gen-faker-hash.txt[]
 ----
 [source,plaintext]
 ----
@@ -197,7 +197,7 @@ include::../../test/resources/commands/gen-faker-hash.txt[]
 .Example #2: Game of Thrones
 [source,shell]
 ----
-include::../../test/resources/commands/gen-faker-set.txt[]
+include::src/test/resources/commands/gen-faker-set.txt[]
 ----
 [source,plaintext]
 ----
