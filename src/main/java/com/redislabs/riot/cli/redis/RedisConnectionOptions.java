@@ -60,13 +60,9 @@ public class RedisConnectionOptions {
 
 	@Option(names = { "-s",
 			"--server" }, description = "Redis server address (default: ${DEFAULT-VALUE})", paramLabel = "<host:port>")
-	private List<RedisEndpoint> endpoints = Arrays.asList(new RedisEndpoint("localhost:6379"));
-	@Option(names = "--cluster", description = "Connect to a Redis cluster")
-	private boolean cluster;
+	private List<RedisEndpoint> servers = Arrays.asList(new RedisEndpoint("localhost:6379"));
 	@Option(names = "--sentinel-master", description = "Sentinel master name")
 	private String sentinelMaster;
-	@Option(names = "--command-timeout", description = "Command timeout for synchronous command execution (default: ${DEFAULT-VALUE})", paramLabel = "<seconds>")
-	private long commandTimeout = RedisURI.DEFAULT_TIMEOUT;
 	@Option(names = "--connect-timeout", description = "Connect timeout (default: ${DEFAULT-VALUE})", paramLabel = "<millis>")
 	private int connectTimeout = Protocol.DEFAULT_TIMEOUT;
 	@Option(names = "--socket-timeout", description = "Socket timeout (default: ${DEFAULT-VALUE})", paramLabel = "<millis>")
@@ -77,13 +73,25 @@ public class RedisConnectionOptions {
 	private int database = 0;
 	@Option(names = "--client-name", description = "Redis client name (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
 	private String clientName = "riot";
-	@Option(names = "--metrics", description = "Show metrics (only works with Lettuce driver)")
-	private boolean showMetrics;
 	@Option(names = "--driver", description = "Redis driver: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})", paramLabel = "<name>")
 	private RedisDriver driver = RedisDriver.lettuce;
 	@Option(names = "--ssl", description = "SSL connection")
 	private boolean ssl;
-	@Option(names = "--ssl-provider", description = "SSL Provider: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
+	@Option(names = "--cluster", description = "Connect to a Redis cluster")
+	private boolean cluster;
+	@Option(names = "--cluster-max-redirects", description = "Number of maximal cluster redirects (-MOVED and -ASK) to follow in case a key was moved from one node to another node (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
+	private int maxRedirects = ClusterClientOptions.DEFAULT_MAX_REDIRECTS;
+	@Option(names = "--lettuce-command-timeout", description = "Lettuce command timeout for synchronous command execution (default: ${DEFAULT-VALUE})", paramLabel = "<seconds>")
+	private long commandTimeout = RedisURI.DEFAULT_TIMEOUT;
+	@Option(names = "--lettuce-metrics", description = "Show Lettuce metrics")
+	private boolean showMetrics;
+	@Option(names = "--lettuce-publish-on-scheduler", description = "Enable Lettuce publish on scheduler (default: ${DEFAULT-VALUE})", negatable = true)
+	private boolean publishOnScheduler = ClientOptions.DEFAULT_PUBLISH_ON_SCHEDULER;
+	@Option(names = "--lettuce-auto-reconnect", description = "Enable Lettuce auto-reconnect (default: ${DEFAULT-VALUE})", negatable = true)
+	private boolean autoReconnect = ClientOptions.DEFAULT_AUTO_RECONNECT;
+	@Option(names = "--lettuce-request-queue-size", description = "Per-connection request queue size (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
+	private int requestQueueSize = ClientOptions.DEFAULT_REQUEST_QUEUE_SIZE;
+	@Option(names = "--lettuce-ssl-provider", description = "SSL Provider: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
 	private SslProvider sslProvider = SslProvider.Jdk;
 	@Option(names = "--keystore", description = "Path to keystore", paramLabel = "<file>")
 	private File keystore;
@@ -93,8 +101,6 @@ public class RedisConnectionOptions {
 	private File truststore;
 	@Option(names = "--truststore-password", arity = "0..1", interactive = true, description = "Truststore password", paramLabel = "<pwd>")
 	private String truststorePassword;
-	@Option(names = "--max-redirects", description = "Number of maximal cluster redirects (-MOVED and -ASK) to follow in case a key was moved from one node to another node (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
-	private int maxRedirects = ClusterClientOptions.DEFAULT_MAX_REDIRECTS;
 	@ArgGroup(exclusive = false, heading = "Redis connection pool options%n")
 	private RedisConnectionPoolOptions poolOptions = new RedisConnectionPoolOptions();
 
@@ -126,11 +132,11 @@ public class RedisConnectionOptions {
 
 	private RedisURI uri() {
 		if (sentinelMaster == null) {
-			return uri(endpoints.get(0));
+			return uri(servers.get(0));
 		}
-		RedisURI.Builder builder = RedisURI.Builder.sentinel(endpoints.get(0).getHost(), endpoints.get(0).getPort(),
+		RedisURI.Builder builder = RedisURI.Builder.sentinel(servers.get(0).getHost(), servers.get(0).getPort(),
 				sentinelMaster);
-		endpoints.forEach(e -> builder.withSentinel(e.getHost(), e.getPort()));
+		servers.forEach(e -> builder.withSentinel(e.getHost(), e.getPort()));
 		return uri(builder);
 	}
 
@@ -167,13 +173,13 @@ public class RedisConnectionOptions {
 	public Pool<Jedis> jedisPool() {
 		JedisPoolConfig poolConfig = poolOptions.configure(new JedisPoolConfig());
 		if (sentinelMaster == null) {
-			String host = endpoints.get(0).getHost();
-			int port = endpoints.get(0).getPort();
+			String host = servers.get(0).getHost();
+			int port = servers.get(0).getPort();
 			log.debug("Creating Jedis connection pool for {}:{} with {}", host, port, poolConfig);
 			return new JedisPool(poolConfig, host, port, connectTimeout, socketTimeout, password, database, clientName);
 		}
 		return new JedisSentinelPool(sentinelMaster,
-				endpoints.stream().map(e -> e.toString()).collect(Collectors.toSet()), poolConfig, connectTimeout,
+				servers.stream().map(e -> e.toString()).collect(Collectors.toSet()), poolConfig, connectTimeout,
 				socketTimeout, password, database, clientName);
 	}
 
@@ -187,7 +193,7 @@ public class RedisConnectionOptions {
 	private RedisClusterClient clusterClient() {
 		log.debug("Creating Lettuce cluster client");
 		RedisClusterClient client = RedisClusterClient.create(resources(),
-				endpoints.stream().map(e -> uri(e)).collect(Collectors.toList()));
+				servers.stream().map(e -> uri(e)).collect(Collectors.toList()));
 		ClusterClientOptions.Builder builder = ClusterClientOptions.builder();
 		builder.maxRedirects(maxRedirects);
 		client.setOptions((ClusterClientOptions) clientOptions(builder));
@@ -209,6 +215,9 @@ public class RedisConnectionOptions {
 		if (ssl) {
 			builder.sslOptions(sslOptions());
 		}
+		builder.publishOnScheduler(publishOnScheduler);
+		builder.autoReconnect(autoReconnect);
+		builder.requestQueueSize(requestQueueSize);
 		return builder.build();
 	}
 
@@ -276,7 +285,7 @@ public class RedisConnectionOptions {
 
 	private JedisCluster jedisCluster() {
 		Set<HostAndPort> hostAndPort = new HashSet<>();
-		endpoints.forEach(node -> hostAndPort.add(new HostAndPort(node.getHost(), node.getPort())));
+		servers.forEach(node -> hostAndPort.add(new HostAndPort(node.getHost(), node.getPort())));
 		JedisPoolConfig poolConfig = poolOptions.configure(new JedisPoolConfig());
 		if (password == null) {
 			return new JedisCluster(hostAndPort, connectTimeout, socketTimeout, maxRedirects, poolConfig);
