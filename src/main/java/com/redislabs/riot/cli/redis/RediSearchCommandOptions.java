@@ -3,12 +3,12 @@ package com.redislabs.riot.cli.redis;
 import com.redislabs.lettusearch.search.AddOptions;
 import com.redislabs.lettusearch.search.Language;
 import com.redislabs.riot.cli.RediSearchCommand;
-import com.redislabs.riot.redisearch.AbstractLettuSearchMapWriter;
-import com.redislabs.riot.redisearch.AbstractSearchMapWriter;
-import com.redislabs.riot.redisearch.FtaddMapWriter;
-import com.redislabs.riot.redisearch.FtaddPayloadMapWriter;
-import com.redislabs.riot.redisearch.SugaddMapWriter;
-import com.redislabs.riot.redisearch.SugaddPayloadMapWriter;
+import com.redislabs.riot.redisearch.writer.AbstractLettuSearchMapWriter;
+import com.redislabs.riot.redisearch.writer.AbstractSearchMapWriter;
+import com.redislabs.riot.redisearch.writer.FtaddMapWriter;
+import com.redislabs.riot.redisearch.writer.FtaddPayloadMapWriter;
+import com.redislabs.riot.redisearch.writer.SugaddMapWriter;
+import com.redislabs.riot.redisearch.writer.SugaddPayloadMapWriter;
 
 import picocli.CommandLine.Option;
 

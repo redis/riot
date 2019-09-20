@@ -10,18 +10,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.file.transform.Range;
 
 import com.redislabs.riot.cli.ConsoleExportCommand;
+import com.redislabs.riot.cli.GeneratorCommand;
 import com.redislabs.riot.cli.db.DatabaseExportCommand;
 import com.redislabs.riot.cli.db.DatabaseImportCommand;
 import com.redislabs.riot.cli.file.FileExportCommand;
 import com.redislabs.riot.cli.file.FileImportCommand;
 import com.redislabs.riot.cli.file.RangeConverter;
-import com.redislabs.riot.cli.generator.FakerGeneratorCommand;
-import com.redislabs.riot.cli.generator.SimpleGeneratorCommand;
 import com.redislabs.riot.cli.redis.RedisConnectionOptions;
 import com.redislabs.riot.cli.redis.RedisEndpoint;
 import com.redislabs.riot.cli.redis.RedisExportCommand;
-import com.redislabs.riot.cli.test.InfoCommand;
-import com.redislabs.riot.cli.test.PingCommand;
+import com.redislabs.riot.cli.test.TestCommand;
 
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import io.netty.util.internal.logging.JdkLoggerFactory;
@@ -37,8 +35,8 @@ import picocli.CommandLine.Spec;
 
 @Command(name = "riot", abbreviateSynopsis = true, mixinStandardHelpOptions = true, subcommands = {
 		FileImportCommand.class, FileExportCommand.class, DatabaseImportCommand.class, DatabaseExportCommand.class,
-		RedisExportCommand.class, FakerGeneratorCommand.class, SimpleGeneratorCommand.class, ConsoleExportCommand.class,
-		PingCommand.class, InfoCommand.class }, versionProvider = ManifestVersionProvider.class)
+		RedisExportCommand.class, ConsoleExportCommand.class, GeneratorCommand.class,
+		TestCommand.class }, versionProvider = ManifestVersionProvider.class)
 public class Riot implements Runnable {
 
 	@Spec

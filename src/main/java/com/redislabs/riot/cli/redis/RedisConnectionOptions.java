@@ -9,11 +9,12 @@ import org.springframework.batch.item.ItemWriter;
 import com.redislabs.lettusearch.RediSearchAsyncCommands;
 import com.redislabs.lettusearch.RediSearchClient;
 import com.redislabs.lettusearch.StatefulRediSearchConnection;
-import com.redislabs.riot.redis.writer.JedisClusterItemWriter;
-import com.redislabs.riot.redis.writer.JedisItemWriter;
-import com.redislabs.riot.redis.writer.LettuceItemWriter;
-import com.redislabs.riot.redis.writer.map.RedisMapWriter;
-import com.redislabs.riot.redisearch.AbstractLettuSearchMapWriter;
+import com.redislabs.riot.Riot;
+import com.redislabs.riot.redis.JedisClusterItemWriter;
+import com.redislabs.riot.redis.JedisItemWriter;
+import com.redislabs.riot.redis.LettuceItemWriter;
+import com.redislabs.riot.redis.writer.RedisMapWriter;
+import com.redislabs.riot.redisearch.writer.AbstractLettuSearchMapWriter;
 
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.api.StatefulRedisConnection;
@@ -39,7 +40,7 @@ public class RedisConnectionOptions {
 	@Option(names = "--db", description = "Redis database number. Databases are only available for Redis Standalone and Redis Master/Slave", paramLabel = "<int>")
 	private int database = 0;
 	@Option(names = "--client-name", description = "Redis client name (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
-	private String clientName = "riot";
+	private String clientName = Riot.class.getName().toLowerCase();
 	@Option(names = "--driver", description = "Redis driver: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})", paramLabel = "<name>")
 	private RedisDriver driver = RedisDriver.lettuce;
 	@Option(names = "--ssl", description = "SSL connection")

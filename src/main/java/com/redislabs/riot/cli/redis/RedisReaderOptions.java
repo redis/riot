@@ -3,7 +3,7 @@ package com.redislabs.riot.cli.redis;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.redislabs.riot.redis.reader.RedisItemReader;
+import com.redislabs.riot.redis.RedisItemReader;
 
 import picocli.CommandLine.Option;
 import redis.clients.jedis.Jedis;

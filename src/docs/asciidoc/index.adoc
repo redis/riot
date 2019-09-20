@@ -146,11 +146,12 @@ include::{commandsdir}/db-export.txt[]
 [#gen]
 === Generators
 
-==== Simple
-The simple data generator generates entries with 2 fields by default:
+RIOT can be used to generate data in Redis with 2 different generators:
 
-* `index`: monotonous integer sequence
-* `partition`: index of the partition (thread) generating the data, e.g. if you have 8 threads generating data each will have a different partition index between 0 and 7.
+* Simple: fixed-length fields of random text with 2 fields by default:
+
+** `index`: monotonous integer sequence
+** `partition`: index of the partition (thread) generating the data, e.g. if you have 8 threads generating data each will have a different partition index between 0 and 7.
 
 You can also configure it to generate fixed-sized fields with `--field <name=size>` options.
 

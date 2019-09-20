@@ -8,7 +8,7 @@ import com.redislabs.riot.batch.ConsoleWriter;
 
 import picocli.CommandLine.Command;
 
-@Command(name = "console", description = "Export to console")
+@Command(name = "console-export", description = "Export to console")
 public class ConsoleExportCommand extends ExportCommand {
 
 	@Override

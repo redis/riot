@@ -3,8 +3,8 @@ package com.redislabs.riot.cli;
 import com.redislabs.riot.cli.redis.RediSearchCommandOptions;
 import com.redislabs.riot.cli.redis.RedisCommandOptions;
 import com.redislabs.riot.cli.redis.RedisKeyOptions;
-import com.redislabs.riot.redis.writer.map.AbstractRedisMapWriter;
-import com.redislabs.riot.redis.writer.map.RedisMapWriter;
+import com.redislabs.riot.redis.writer.AbstractRedisMapWriter;
+import com.redislabs.riot.redis.writer.RedisMapWriter;
 
 import picocli.CommandLine.ArgGroup;
 
