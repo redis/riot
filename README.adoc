@@ -81,4 +81,4 @@ Source your `~/.bash_profile` or launch a new terminal to start using this compl
 
 == Documentation
 
-https://redislabs-solution-architects.github.io/riot/index.html[Documentation]
+https://redislabs-solution-architects.github.io/riot/index.html[RIOT Documentation]
