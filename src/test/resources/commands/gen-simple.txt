@@ -1,1 +1,1 @@
-$ riot -d gen --fields field1=100 field2=1000 -b 100 --threads 3 -m 10000 -p test -k index
+$ riot --debug gen --fields field1=100 field2=1000 --batch 100 --threads 3 --max 10000 --keyspace test --keys index

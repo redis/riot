@@ -42,7 +42,7 @@ Files can be GZIP compressed, and local or remote:
 * `https://example.com/path/dataset.csv`
 * `s3://mybucket/myfolder/myfile.json`
 
-In the case of AWS S3 you can pass the access and secret keys as well as the region for the bucket. 
+For AWS S3  you can specify access and secret keys as well as the region for the bucket. 
 
 ==== Delimited Files
 
@@ -76,29 +76,10 @@ include::{commandsdir}/file-import-csv-search.txt[]
 [source,plaintext]
 ----
 > FT.SEARCH beers "@abv:[7 9]"
- 1) (integer) 500
- 2) "5896"
- 3)  1) style
-     2) "North American Ale"
-     …
-    11) abv
-    12) "7.099999904632568"
-     …
 ----
 
 ==== JSON
-RIOT can read and write JSON data in the following format:
-[source,plaintext]
-----
-[
-  {
-    // JSON object
-  },
-  {
-    // JSON object
-  }
-]
-----
+RIOT can read and write JSON data in this format: `[ { … }, { … } ]`
 
 ===== JSON -> Redis
 [source,shell]
