@@ -32,6 +32,7 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.ParseResult;
+import picocli.CommandLine.PicocliException;
 import picocli.CommandLine.Spec;
 
 @Command(name = "riot", abbreviateSynopsis = true, mixinStandardHelpOptions = true, subcommands = {
@@ -81,10 +82,15 @@ public class Riot implements Runnable {
 		CommandLine commandLine = new CommandLine(this).registerConverter(Range.class, new RangeConverter())
 				.registerConverter(RedisEndpoint.class, s -> new RedisEndpoint(s))
 				.setCaseInsensitiveEnumValuesAllowed(true);
-		ParseResult parseResult = commandLine.parseArgs(args);
-		configureLogging();
-		configureDns();
-		return commandLine.getExecutionStrategy().execute(parseResult);
+		try {
+			ParseResult parseResult = commandLine.parseArgs(args);
+			configureLogging();
+			configureDns();
+			return commandLine.getExecutionStrategy().execute(parseResult);
+		} catch (PicocliException e) {
+			System.err.println(e.getMessage());
+			return 1;
+		}
 	}
 
 	private void configureDns() {
