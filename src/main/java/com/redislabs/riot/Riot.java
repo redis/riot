@@ -17,7 +17,6 @@ import com.redislabs.riot.cli.file.FileImportCommand;
 import com.redislabs.riot.cli.file.RangeConverter;
 import com.redislabs.riot.cli.generator.FakerGeneratorCommand;
 import com.redislabs.riot.cli.generator.SimpleGeneratorCommand;
-import com.redislabs.riot.cli.redis.RediSearchImportCommand;
 import com.redislabs.riot.cli.redis.RedisConnectionOptions;
 import com.redislabs.riot.cli.redis.RedisEndpoint;
 import com.redislabs.riot.cli.redis.RedisExportCommand;
@@ -37,9 +36,8 @@ import picocli.CommandLine.Spec;
 
 @Command(name = "riot", abbreviateSynopsis = true, mixinStandardHelpOptions = true, subcommands = {
 		FileImportCommand.class, FileExportCommand.class, DatabaseImportCommand.class, DatabaseExportCommand.class,
-		RedisExportCommand.class, RediSearchImportCommand.class, FakerGeneratorCommand.class,
-		SimpleGeneratorCommand.class, ConsoleExportCommand.class, PingCommand.class,
-		InfoCommand.class }, versionProvider = ManifestVersionProvider.class)
+		RedisExportCommand.class, FakerGeneratorCommand.class, SimpleGeneratorCommand.class, ConsoleExportCommand.class,
+		PingCommand.class, InfoCommand.class }, versionProvider = ManifestVersionProvider.class)
 public class Riot implements Runnable {
 
 	@Spec

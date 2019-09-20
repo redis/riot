@@ -46,6 +46,42 @@ $ cd riot
 $ ./riot --help
 ----
 
+== Shell completion
+
+RIOT has command line completion for Bash and ZSH Unix shells:
+
+```
+$ riot <TAB><TAB>
+console            gen              
+db-export          info             
+db-import          ping             
+faker              redis-export     
+file-export        file-import                         
+```      
+
+=== Homebrew
+
+The completion script is already installed and can be loaded in ZSH using:
+
+```
+autoload -U +X compinit && compinit
+autoload -U +X bashcompinit && bashcompinit
+. /usr/local/share/zsh/site-functions/_riot
+```
+
+To make this permanent, add the previous lines to `~/.zshrc`.
+
+=== Manual installation
+
+This requires `bash-completion` installed.
+
+Generate the completion script and place it in `bash_completion.d`:
+```
+riot --completion-script > /etc/bash_completion.d/riot_completion
+```
+
+Source your `~/.bash_profile` or launch a new terminal to start using this completion script.
+
 == Documentation
 
 https://redislabs-solution-architects.github.io/riot/index.html[Documentation]
