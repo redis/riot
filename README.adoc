@@ -52,11 +52,8 @@ RIOT has command line completion for Bash and ZSH Unix shells:
 
 ```
 $ riot <TAB><TAB>
-console            gen              
-db-export          info             
-db-import          ping             
-faker              redis-export     
-file-export        file-import                         
+console       db-import     file-export   gen           ping                                              
+db-export     faker         file-import   info          redis-export                       
 ```      
 
 === Homebrew
