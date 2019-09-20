@@ -32,9 +32,6 @@ public class FileOptions {
 	private String encoding = FlatFileItemWriter.DEFAULT_CHARSET;
 	@Option(names = { "-h", "--header" }, description = "First line contains field names")
 	private boolean header;
-	@Option(names = { "-f",
-			"--fields" }, arity = "1..*", description = "Names of the fields as they occur in the file", paramLabel = "<names>")
-	private String[] names = new String[0];
 	@Option(names = { "-d",
 			"--delimiter" }, description = "Delimiter character (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
 	private String delimiter = DelimitedLineTokenizer.DELIMITER_COMMA;
@@ -51,10 +48,6 @@ public class FileOptions {
 
 	public boolean isHeader() {
 		return header;
-	}
-
-	public String[] getNames() {
-		return names;
 	}
 
 	public FileType type() {

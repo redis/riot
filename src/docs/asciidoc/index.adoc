@@ -223,9 +223,11 @@ RIOT can process records as they are being read. There are 2 processor approache
 
 === Field expressions
 
-You can transform the incoming key/value pairs with field expressions, in the form `field1=<exp>`, `field2=<exp>`, ...
+You can specify field expressions to process key/value pairs using the https://docs.spring.io/spring/docs/current/spring-framework-reference/core.html#expressions[Spring Expression Language] (SpEL): `field1=<exp>`, `field2=<exp>`, ...
 
-The input record can be accessed by field name, and the processor context also exposes the following variables that can be called with the `#` prefix:
+The input record is accessed through its field names (e.g. `field3=field1+field2`).
+
+The processor also exposes the following variables that can be called with the `#` prefix:
 
 * `redis`: Redis connection to issue any command, e.g. `name=#redis.hgetall('person1').lastName`
 * `date`: date parser/formatter, e.g. `epoch=#date.parse(mydate).getTime()`

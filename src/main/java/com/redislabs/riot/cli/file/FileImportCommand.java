@@ -36,6 +36,9 @@ public class FileImportCommand extends ImportCommand {
 
 	@Mixin
 	private FileOptions connector;
+	@Option(names = { "-f",
+			"--fields" }, arity = "1..*", description = "Names of the fields as they occur in the file", paramLabel = "<names>")
+	private String[] names = new String[0];
 	@Option(names = { "--skip" }, description = "Lines to skip from the beginning of the file", paramLabel = "<count>")
 	private Integer linesToSkip;
 	@Option(names = "--include", arity = "1..*", description = "Indices of the fields within the delimited file to be included (0-based)", paramLabel = "<index>")
@@ -72,7 +75,7 @@ public class FileImportCommand extends ImportCommand {
 		delimitedBuilder.delimiter(connector.getDelimiter());
 		delimitedBuilder.includedFields(includedFields);
 		delimitedBuilder.quoteCharacter(quoteCharacter);
-		String[] fieldNames = Arrays.copyOf(connector.getNames(), connector.getNames().length);
+		String[] fieldNames = Arrays.copyOf(names, names.length);
 		if (connector.isHeader()) {
 			BufferedReader reader = new DefaultBufferedReaderFactory().create(connector.inputResource(),
 					connector.getEncoding());
@@ -101,7 +104,7 @@ public class FileImportCommand extends ImportCommand {
 		FixedLengthBuilder<Map<String, Object>> fixedlength = builder.fixedLength();
 		Assert.notEmpty(columnRanges, "Column ranges are required");
 		fixedlength.columns(columnRanges);
-		fixedlength.names(connector.getNames());
+		fixedlength.names(names);
 		return builder.build();
 	}
 

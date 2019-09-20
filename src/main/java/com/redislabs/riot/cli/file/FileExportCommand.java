@@ -25,6 +25,9 @@ public class FileExportCommand extends ExportCommand {
 
 	@Mixin
 	private FileOptions connector;
+	@Option(required = true, names = { "-f",
+			"--fields" }, arity = "1..*", description = "Names of the fields to write to file", paramLabel = "<names>")
+	private String[] names = new String[0];
 	@Option(names = "--append", description = "Append to file if it exists")
 	private boolean append;
 	@Option(names = "--force-sync", description = "Force-sync changes to disk on flush")
@@ -87,16 +90,16 @@ public class FileExportCommand extends ExportCommand {
 	private AbstractItemStreamItemWriter<Map<String, Object>> delimitedWriter(Resource resource) {
 		String headerLine = null;
 		if (connector.isHeader()) {
-			headerLine = String.join(connector.getDelimiter(), connector.getNames());
+			headerLine = String.join(connector.getDelimiter(), names);
 		}
 		FlatResourceItemWriterBuilder<Map<String, Object>> builder = flatWriterBuilder(resource, headerLine);
 		builder.name("delimited-s3-writer");
 		com.redislabs.riot.file.FlatResourceItemWriterBuilder.DelimitedBuilder<Map<String, Object>> delimited = builder
 				.delimited();
 		delimited.delimiter(connector.getDelimiter());
-		delimited.fieldExtractor(new MapFieldExtractor(connector.getNames()));
-		if (connector.getNames().length > 0) {
-			delimited.names(connector.getNames());
+		delimited.fieldExtractor(new MapFieldExtractor(names));
+		if (names.length > 0) {
+			delimited.names(names);
 		}
 		return builder.build();
 	}
@@ -104,14 +107,14 @@ public class FileExportCommand extends ExportCommand {
 	private AbstractItemStreamItemWriter<Map<String, Object>> formattedWriter(Resource resource) {
 		String headerLine = null;
 		if (connector.isHeader()) {
-			headerLine = String.format(locale, format, Arrays.asList(connector.getNames()).toArray());
+			headerLine = String.format(locale, format, Arrays.asList(names).toArray());
 		}
 		FlatResourceItemWriterBuilder<Map<String, Object>> builder = flatWriterBuilder(resource, headerLine);
 		FlatResourceItemWriterBuilder.FormattedBuilder<Map<String, Object>> formatted = builder.formatted();
 		builder.name("formatted-s3-writer");
-		formatted.fieldExtractor(new MapFieldExtractor(connector.getNames()));
-		if (connector.getNames().length > 0) {
-			formatted.names(connector.getNames());
+		formatted.fieldExtractor(new MapFieldExtractor(names));
+		if (names.length > 0) {
+			formatted.names(names);
 		}
 		formatted.format(format);
 		formatted.locale(locale);

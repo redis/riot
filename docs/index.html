@@ -827,10 +827,13 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="sect2">
 <h3 id="field-expressions">Field expressions</h3>
 <div class="paragraph">
-<p>You can transform the incoming key/value pairs with field expressions, in the form <code>field1=&lt;exp&gt;</code>, <code>field2=&lt;exp&gt;</code>, &#8230;&#8203;</p>
+<p>You can specify field expressions to process key/value pairs using the <a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/core.html#expressions">Spring Expression Language</a> (SpEL): <code>field1=&lt;exp&gt;</code>, <code>field2=&lt;exp&gt;</code>, &#8230;&#8203;</p>
 </div>
 <div class="paragraph">
-<p>The input record can be accessed by field name, and the processor context also exposes the following variables that can be called with the <code>#</code> prefix:</p>
+<p>The input record is accessed through its field names (e.g. <code>field3=field1+field2</code>).</p>
+</div>
+<div class="paragraph">
+<p>The processor also exposes the following variables that can be called with the <code>#</code> prefix:</p>
 </div>
 <div class="ulist">
 <ul>
@@ -926,7 +929,7 @@ process(item);</code></pre>
 <div id="footer">
 <div id="footer-text">
 Version 1.0<br>
-Last updated 2019-09-19 14:49:51 -0700
+Last updated 2019-09-19 22:24:31 -0700
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/styles/github.min.css">
