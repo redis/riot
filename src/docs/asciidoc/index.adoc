@@ -5,7 +5,7 @@
 :toc: preamble
 :icons: font
 :project-repo: Redislabs-Solution-Architects/riot
-:uri-repo: https://github.com/{project-repo}
+:repo-url: https://github.com/{project-repo}
 :commandsdir: ../../../src/test/resources/commands
 
 RIOT is a data import/export tool for Redis that connects to files, databases, and generators.

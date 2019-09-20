@@ -7,7 +7,7 @@ endif::[]
 ifndef::env-github[:icons: font]
 // URIs
 :project-repo: Redislabs-Solution-Architects/riot
-:uri-repo: https://github.com/{project-repo}
+:repo-url: https://github.com/{project-repo}
 // GitHub customization
 ifdef::env-github[]
 :badges:
@@ -33,18 +33,19 @@ $ riot --help
 
 === Download and run 
 
-Download the https://github.com/Redislabs-Solution-Architects/riot/releases/latest[latest RIOT distribution] and untar the downloaded archive.
+Download the {repo-url}/releases/latest[latest RIOT distribution] and untar the downloaded archive.
 
 Launch the `riot` script (`riot.bat` for Windows) and follow the usage information provided.
 
 === Build and run
 
-```
-$ git clone https://github.com/Redislabs-Solution-Architects/riot.git
+[subs="attributes"]
+----
+$ git clone {repo-url}/riot.git
 $ cd riot
 $ ./riot --help
-```
+----
 
 == Documentation
 
-https://redislabs-solution-architects.github.io/riot/index.html[RIOT Documentation]
+https://redislabs-solution-architects.github.io/riot/index.html[Documentation]
