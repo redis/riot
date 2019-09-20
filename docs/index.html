@@ -564,7 +564,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h5 id="redis-csv">Redis &#8594; CSV</h5>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">$ riot file-export --file /tmp/beers.csv --scan-keyspace beer --scan-keys id --fields id name brewery_id abv --header --delimiter |</code></pre>
+<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">$ riot file-export --file /tmp/beers.csv --scan-keyspace beer --scan-keys id --fields id name brewery_id abv --header --delimiter '|'</code></pre>
 </div>
 </div>
 </div>
