@@ -1,1 +1,1 @@
-$ riot db-export --scan-keyspace beer --scan-keys id --driver org.hsqldb.jdbc.JDBCDriver --url jdbc:hsqldb:mem:mymemdb --sql "INSERT INTO beers (id, name) VALUES (:id, :name)"
+$ riot db-export --scan-keyspace beer --scan-keys id --url jdbc:hsqldb:mem:mymemdb --sql "INSERT INTO beers (id, name) VALUES (:id, :name)"
