@@ -7,7 +7,7 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.ParentCommand;
 
-@Command(abbreviateSynopsis = true)
+@Command(abbreviateSynopsis = true, usageHelpAutoWidth = true)
 public abstract class AbstractCommand implements Runnable {
 
 	@ParentCommand

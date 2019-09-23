@@ -14,13 +14,13 @@ import picocli.CommandLine.Option;
 
 public class S3Options implements AWSCredentialsProvider {
 
-	@Option(names = "--access-key", description = "AWS S3 access key ID", paramLabel = "<string>")
+	@Option(names = "--s3-access", description = "AWS S3 access key ID", paramLabel = "<string>")
 	private String accessKey;
 
-	@Option(names = "--secret-key", arity = "0..1", interactive = true, description = "AWS S3 secret access key", paramLabel = "<string>")
+	@Option(names = "--s3-secret", arity = "0..1", interactive = true, description = "AWS S3 secret access key", paramLabel = "<string>")
 	private String secretKey;
 
-	@Option(names = "--region", description = "AWS region", paramLabel = "<string>")
+	@Option(names = "--s3-region", description = "AWS region", paramLabel = "<string>")
 	private String region;
 
 	@Override

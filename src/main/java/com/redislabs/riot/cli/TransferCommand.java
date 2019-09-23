@@ -21,7 +21,8 @@ import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Spec;
 
-public abstract class TransferCommand<I, O> extends AbstractCommand {
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public abstract class TransferCommand extends AbstractCommand {
 
 	private final Logger log = LoggerFactory.getLogger(TransferCommand.class);
 
@@ -30,34 +31,53 @@ public abstract class TransferCommand<I, O> extends AbstractCommand {
 
 	@Option(names = "--threads", description = "Thread count (default: ${DEFAULT-VALUE})", paramLabel = "<count>")
 	private int threads = 1;
-
 	@Option(names = { "-b",
 			"--batch" }, description = "Number of items in each batch (default: ${DEFAULT-VALUE})", paramLabel = "<size>")
 	private int batchSize = 50;
-
 	@Option(names = { "-m", "--max" }, description = "Max number of items to read", paramLabel = "<count>")
 	private Integer count;
-
-	@Option(names = "--sleep", description = "Sleep duration in millis between reads", paramLabel = "<millis>")
+	@Option(names = "--sleep", description = "Sleep duration in millis between reads", paramLabel = "<ms>")
 	private Long sleep;
+
+	private ItemReader throttle(ItemReader reader) {
+		if (count != null) {
+			if (reader instanceof AbstractItemCountingItemStreamItemReader) {
+				((AbstractItemCountingItemStreamItemReader) reader).setMaxItemCount(count);
+			} else {
+				log.warn("Count is set for a source that does not support capping");
+			}
+		}
+		if (sleep == null) {
+			return reader;
+		}
+		return new ThrottlingItemReader(reader, sleep);
+	}
+
+	public JobExecution execute(String name, ItemReader reader, ItemProcessor processor, ItemWriter writer)
+			throws Exception {
+		JobExecutor executor = new JobExecutor();
+		log.info("Executing {}, threads: {}, batch size: {}", name, threads, batchSize);
+		return executor.execute(name, throttle(reader), processor, writer, threads, batchSize);
+
+	}
 
 	@Override
 	public void run() {
-		ItemReader<I> reader;
+		ItemReader reader;
 		try {
 			reader = reader();
 		} catch (Exception e) {
 			log.error("Could not initialize {} reader", spec.name(), e);
 			return;
 		}
-		ItemWriter<O> writer;
+		ItemWriter writer;
 		try {
 			writer = writer();
 		} catch (Exception e) {
 			log.error("Could not initialize {} writer", spec.name(), e);
 			return;
 		}
-		ItemProcessor<I, O> processor;
+		ItemProcessor processor;
 		try {
 			processor = processor();
 		} catch (Exception e) {
@@ -65,10 +85,7 @@ public abstract class TransferCommand<I, O> extends AbstractCommand {
 			return;
 		}
 		try {
-			JobExecutor executor = new JobExecutor();
-			log.info("Executing {}, threads: {}, batch size: {}", spec.name(), threads, batchSize);
-			JobExecution execution = executor.execute(spec.name(), throttle(reader), processor, writer, threads,
-					batchSize);
+			JobExecution execution = execute(spec.name(), reader, processor, writer);
 			if (execution.getExitStatus().getExitCode().equals(ExitStatus.FAILED.getExitCode())) {
 				execution.getAllFailureExceptions().forEach(e -> e.printStackTrace());
 			}
@@ -90,24 +107,10 @@ public abstract class TransferCommand<I, O> extends AbstractCommand {
 		}
 	}
 
-	protected abstract ItemReader<I> reader() throws Exception;
+	protected abstract ItemReader reader() throws Exception;
 
-	protected abstract ItemProcessor<I, O> processor() throws Exception;
+	protected abstract ItemProcessor processor() throws Exception;
 
-	protected abstract ItemWriter<O> writer() throws Exception;
-
-	private ItemReader<I> throttle(ItemReader<I> reader) {
-		if (count != null) {
-			if (reader instanceof AbstractItemCountingItemStreamItemReader) {
-				((AbstractItemCountingItemStreamItemReader<?>) reader).setMaxItemCount(count);
-			} else {
-				log.warn("Count is set for a source that does not support capping");
-			}
-		}
-		if (sleep == null) {
-			return reader;
-		}
-		return new ThrottlingItemReader<>(reader, sleep);
-	}
+	protected abstract ItemWriter writer() throws Exception;
 
 }

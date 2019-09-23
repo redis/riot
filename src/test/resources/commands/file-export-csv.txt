@@ -1,1 +1,1 @@
-$ riot file-export --file /tmp/beers.csv --scan-keyspace beer --scan-keys id --fields id name brewery_id abv --header --delimiter '|'
+$ riot --server myredissource:6379 file-export --file /tmp/beers.csv --scan-keyspace beer --scan-keys id --fields id name brewery_id abv --header --delimiter '|'

@@ -4,12 +4,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.redislabs.riot.cli.AbstractCommand;
+import com.redislabs.riot.cli.redis.RedisConnectionOptions;
 import com.redislabs.riot.test.InfoTest;
 import com.redislabs.riot.test.LatencyTest;
 import com.redislabs.riot.test.PingTest;
 import com.redislabs.riot.test.RedisTest;
 
-import io.lettuce.core.api.sync.BaseRedisCommands;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import redis.clients.jedis.Jedis;
@@ -24,25 +24,23 @@ public class TestCommand extends AbstractCommand {
 	private RedisTestType test = RedisTestType.ping;
 	@Option(names = "--latency-iterations", description = "Number of iterations for latency test (default: ${DEFAULT-VALUE})", paramLabel = "<count>")
 	private int latencyIterations = 1000;
-	@Option(names = "--latency-sleep", description = "Sleep duration in milliseconds between calls (default: ${DEFAULT-VALUE})", paramLabel = "<millis>")
+	@Option(names = "--latency-sleep", description = "Sleep duration in milliseconds between calls (default: ${DEFAULT-VALUE})", paramLabel = "<ms>")
 	private long latencySleep = 1;
 	@Option(names = "--latency-distribution", description = "Show latency distribution")
 	private boolean latencyDistribution;
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public void run() {
+		RedisTest test = test();
 		try {
-			Object commands = getRedisOptions().redis();
-			if (commands instanceof Jedis) {
-				Jedis jedis = (Jedis) commands;
-				try {
-					test().execute(jedis);
-				} finally {
-					jedis.close();
+			RedisConnectionOptions redis = getRedisOptions();
+			if (redis.isJedis()) {
+				try (Jedis jedis = redis.jedisPool().getResource()) {
+					test.execute(jedis);
 				}
 			} else {
-				test().execute((BaseRedisCommands<String, String>) commands);
+				test.execute(redis.isCluster() ? redis.lettuceClusterClient().connect().sync()
+						: redis.lettuceClient().connect().sync());
 			}
 		} catch (Exception e) {
 			log.error("Latency test was interrupted", e);

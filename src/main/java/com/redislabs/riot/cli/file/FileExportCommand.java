@@ -3,11 +3,9 @@ package com.redislabs.riot.cli.file;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Arrays;
-import java.util.Locale;
 import java.util.Map;
 
 import org.springframework.batch.item.file.FlatFileHeaderCallback;
-import org.springframework.batch.item.file.FlatFileItemWriter;
 import org.springframework.batch.item.json.JacksonJsonObjectMarshaller;
 import org.springframework.batch.item.support.AbstractItemStreamItemWriter;
 import org.springframework.core.io.Resource;
@@ -16,38 +14,22 @@ import com.redislabs.riot.cli.ExportCommand;
 import com.redislabs.riot.file.FlatResourceItemWriterBuilder;
 import com.redislabs.riot.file.JsonResourceItemWriterBuilder;
 
+import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
-import picocli.CommandLine.Mixin;
-import picocli.CommandLine.Option;
 
 @Command(name = "file-export", description = "Export to file")
 public class FileExportCommand extends ExportCommand {
 
-	@Mixin
-	private FileOptions connector;
-	@Option(required = true, names = { "-f",
-			"--fields" }, arity = "1..*", description = "Names of the fields to write to file", paramLabel = "<names>")
-	private String[] names = new String[0];
-	@Option(names = "--append", description = "Append to file if it exists")
-	private boolean append;
-	@Option(names = "--force-sync", description = "Force-sync changes to disk on flush")
-	private boolean forceSync;
-	@Option(names = "--line-separator", description = "String to separate lines (default: system default)", paramLabel = "<string>")
-	private String lineSeparator = FlatFileItemWriter.DEFAULT_LINE_SEPARATOR;
-	@Option(names = "--format", description = "Format string used to aggregate items", paramLabel = "<string>")
-	private String format;
-	@Option(names = "--locale", description = "Locale", paramLabel = "<tag>")
-	private Locale locale = Locale.ENGLISH;
-	@Option(names = "--max-length", description = "Max length of the formatted string", paramLabel = "<int>")
-	private Integer maxLength;
-	@Option(names = "--min-length", description = "Min length of the formatted string", paramLabel = "<int>")
-	private Integer minLength;
+	@ArgGroup(exclusive = false, heading = "File options%n", order = 1)
+	private FileOptions fileOptions;
+	@ArgGroup(exclusive = false, heading = "File reader options%n", order = 3)
+	private FileReaderOptions fileReaderOptions = new FileReaderOptions();
 
 	private FlatResourceItemWriterBuilder<Map<String, Object>> flatWriterBuilder(Resource resource, String headerLine) {
 		FlatResourceItemWriterBuilder<Map<String, Object>> builder = new FlatResourceItemWriterBuilder<>();
-		builder.append(append);
-		builder.encoding(connector.getEncoding());
-		builder.lineSeparator(lineSeparator);
+		builder.append(fileReaderOptions.isAppend());
+		builder.encoding(fileOptions.getEncoding());
+		builder.lineSeparator(fileReaderOptions.getLineSeparator());
 		builder.resource(resource);
 		builder.saveState(false);
 		if (headerLine != null) {
@@ -64,8 +46,8 @@ public class FileExportCommand extends ExportCommand {
 
 	@Override
 	protected AbstractItemStreamItemWriter<Map<String, Object>> writer() throws IOException {
-		Resource resource = connector.outputResource();
-		switch (connector.type()) {
+		Resource resource = fileOptions.outputResource();
+		switch (fileOptions.type()) {
 		case json:
 			return jsonWriter(resource);
 		case fixed:
@@ -78,10 +60,10 @@ public class FileExportCommand extends ExportCommand {
 	private AbstractItemStreamItemWriter<Map<String, Object>> jsonWriter(Resource resource) {
 		JsonResourceItemWriterBuilder<Map<String, Object>> builder = new JsonResourceItemWriterBuilder<>();
 		builder.name("json-s3-writer");
-		builder.append(append);
-		builder.encoding(connector.getEncoding());
+		builder.append(fileReaderOptions.isAppend());
+		builder.encoding(fileOptions.getEncoding());
 		builder.jsonObjectMarshaller(new JacksonJsonObjectMarshaller<>());
-		builder.lineSeparator(lineSeparator);
+		builder.lineSeparator(fileReaderOptions.getLineSeparator());
 		builder.resource(resource);
 		builder.saveState(false);
 		return builder.build();
@@ -89,40 +71,41 @@ public class FileExportCommand extends ExportCommand {
 
 	private AbstractItemStreamItemWriter<Map<String, Object>> delimitedWriter(Resource resource) {
 		String headerLine = null;
-		if (connector.isHeader()) {
-			headerLine = String.join(connector.getDelimiter(), names);
+		if (fileOptions.isHeader()) {
+			headerLine = String.join(fileOptions.getDelimiter(), fileReaderOptions.getNames());
 		}
 		FlatResourceItemWriterBuilder<Map<String, Object>> builder = flatWriterBuilder(resource, headerLine);
 		builder.name("delimited-s3-writer");
 		com.redislabs.riot.file.FlatResourceItemWriterBuilder.DelimitedBuilder<Map<String, Object>> delimited = builder
 				.delimited();
-		delimited.delimiter(connector.getDelimiter());
-		delimited.fieldExtractor(new MapFieldExtractor(names));
-		if (names.length > 0) {
-			delimited.names(names);
+		delimited.delimiter(fileOptions.getDelimiter());
+		delimited.fieldExtractor(new MapFieldExtractor(fileReaderOptions.getNames()));
+		if (fileReaderOptions.getNames().length > 0) {
+			delimited.names(fileReaderOptions.getNames());
 		}
 		return builder.build();
 	}
 
 	private AbstractItemStreamItemWriter<Map<String, Object>> formattedWriter(Resource resource) {
 		String headerLine = null;
-		if (connector.isHeader()) {
-			headerLine = String.format(locale, format, Arrays.asList(names).toArray());
+		if (fileOptions.isHeader()) {
+			headerLine = String.format(fileReaderOptions.getLocale(), fileReaderOptions.getFormat(),
+					Arrays.asList(fileReaderOptions.getNames()).toArray());
 		}
 		FlatResourceItemWriterBuilder<Map<String, Object>> builder = flatWriterBuilder(resource, headerLine);
 		FlatResourceItemWriterBuilder.FormattedBuilder<Map<String, Object>> formatted = builder.formatted();
 		builder.name("formatted-s3-writer");
-		formatted.fieldExtractor(new MapFieldExtractor(names));
-		if (names.length > 0) {
-			formatted.names(names);
+		formatted.fieldExtractor(new MapFieldExtractor(fileReaderOptions.getNames()));
+		if (fileReaderOptions.getNames().length > 0) {
+			formatted.names(fileReaderOptions.getNames());
 		}
-		formatted.format(format);
-		formatted.locale(locale);
-		if (minLength != null) {
-			formatted.minimumLength(minLength);
+		formatted.format(fileReaderOptions.getFormat());
+		formatted.locale(fileReaderOptions.getLocale());
+		if (fileReaderOptions.getMinLength() != null) {
+			formatted.minimumLength(fileReaderOptions.getMinLength());
 		}
-		if (maxLength != null) {
-			formatted.maximumLength(maxLength);
+		if (fileReaderOptions.getMaxLength() != null) {
+			formatted.maximumLength(fileReaderOptions.getMaxLength());
 		}
 		return builder.build();
 	}

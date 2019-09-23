@@ -35,7 +35,7 @@ public class FileOptions {
 	@Option(names = { "-d",
 			"--delimiter" }, description = "Delimiter character (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
 	private String delimiter = DelimitedLineTokenizer.DELIMITER_COMMA;
-	@ArgGroup(exclusive = false, heading = "AWS S3 Options%n")
+	@ArgGroup(exclusive = false, heading = "AWS S3 Options%n", order = 2)
 	private S3Options s3Options = new S3Options();
 
 	public String getEncoding() {

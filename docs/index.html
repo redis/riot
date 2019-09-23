@@ -556,7 +556,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h5 id="csv-redis">CSV &#8594; Redis</h5>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">$ riot file-import --keyspace beer --keys id --header --file https://git.io/fjxPs</code></pre>
+<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">$ riot --server myredistarget:6379 file-import --keyspace beer --keys id --header --file https://git.io/fjxPs</code></pre>
 </div>
 </div>
 </div>
@@ -564,7 +564,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h5 id="redis-csv">Redis &#8594; CSV</h5>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">$ riot file-export --file /tmp/beers.csv --scan-keyspace beer --scan-keys id --fields id name brewery_id abv --header --delimiter '|'</code></pre>
+<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">$ riot --server myredissource:6379 file-export --file /tmp/beers.csv --scan-keyspace beer --scan-keys id --fields id name brewery_id abv --header --delimiter '|'</code></pre>
 </div>
 </div>
 </div>
@@ -723,11 +723,13 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div class="sect2">
 <h3 id="gen">Generators</h3>
-<div class="sect3">
-<h4 id="simple">Simple</h4>
 <div class="paragraph">
-<p>The simple data generator generates entries with 2 fields by default:</p>
+<p>RIOT can be used to generate data in Redis with 2 different generators:</p>
 </div>
+<div class="ulist">
+<ul>
+<li>
+<p>Simple: fixed-length fields of random text with 2 fields by default:</p>
 <div class="ulist">
 <ul>
 <li>
@@ -735,6 +737,9 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </li>
 <li>
 <p><code>partition</code>: index of the partition (thread) generating the data, e.g. if you have 8 threads generating data each will have a different partition index between 0 and 7.</p>
+</li>
+</ul>
+</div>
 </li>
 </ul>
 </div>
@@ -746,8 +751,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">$ riot --debug gen --fields field1=100 field2=1000 --batch 100 --threads 3 --max 10000 --keyspace test --keys index</code></pre>
-</div>
+<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">$ riot --debug gen --simple-fields field1=100 field2=1000 --batch 100 --threads 3 --max 10000 --keyspace test --keys index</code></pre>
 </div>
 </div>
 <div class="sect3">
@@ -758,7 +762,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="listingblock">
 <div class="title">Example #1: People</div>
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">$ riot faker --fields id=index firstName=name.firstName lastName=name.lastName address=address.fullAddress --max 100 --keyspace person --keys id</code></pre>
+<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">$ riot gen --faker-fields id=index firstName=name.firstName lastName=name.lastName address=address.fullAddress --max 100 --keyspace person --keys id</code></pre>
 </div>
 </div>
 <div class="listingblock">
@@ -772,7 +776,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="listingblock">
 <div class="title">Example #2: Game of Thrones</div>
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">$ riot faker --fields name=gameOfThrones.character --max 10000 --command sadd --members name --keyspace got:characters</code></pre>
+<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">$ riot gen --faker-fields name=gameOfThrones.character --max 10000 --command sadd --members name --keyspace got:characters</code></pre>
 </div>
 </div>
 <div class="listingblock">
@@ -792,7 +796,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">$ riot --server 127.0.0.1:6379 redis-export --server localhost:6379 --scan-keyspace beer --scan-keys id --keyspace beer2 --keys id</code></pre>
+<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">$ riot --server myredissource:6379 redis-export --server myredistarget:6379 --scan-keyspace beer --scan-keys id --keyspace beer2 --keys id</code></pre>
 </div>
 </div>
 </div>
@@ -830,7 +834,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">$ riot file-import --keyspace event --keys Id --header --processor-date-format "MM/dd/yyyy HH:mm:ss a" --processor "EventStartDate=remove('Event Start Date')" "EpochStart=#date.parse(EventStartDate).getTime()" "index=#context.index" --file "https://data.lacity.org/api/views/rx9t-fp7k/rows.csv?accessType=DOWNLOAD"</code></pre>
+<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">$ riot file-import --keyspace event --keys Id --header --proc-date "MM/dd/yyyy HH:mm:ss a" --proc "EventStartDate=remove('Event Start Date')" "EpochStart=#date.parse(EventStartDate).getTime()" "index=#context.index" --file "https://data.lacity.org/api/views/rx9t-fp7k/rows.csv?accessType=DOWNLOAD"</code></pre>
 </div>
 </div>
 </div>
@@ -851,7 +855,7 @@ process(item);</code></pre>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">$ riot faker --fields id=index firstName=name.firstName lastName=name.lastName address=address.fullAddress --processor-script "function process(item) { item.address = item.address.toUpperCase(); return item; } process(item);" --max 100 --keyspace person --keys id</code></pre>
+<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">$ riot gen --faker-fields id=index firstName=name.firstName lastName=name.lastName address=address.fullAddress --proc-script "function process(item) { item.address = item.address.toUpperCase(); return item; } process(item);" --max 100 --keyspace person --keys id</code></pre>
 </div>
 </div>
 </div>
@@ -909,7 +913,7 @@ process(item);</code></pre>
 <div id="footer">
 <div id="footer-text">
 Version 1.0<br>
-Last updated 2019-09-19 23:00:21 -0700
+Last updated 2019-09-20 10:55:40 -0700
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/styles/github.min.css">

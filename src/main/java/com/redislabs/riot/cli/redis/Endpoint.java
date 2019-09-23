@@ -1,12 +1,12 @@
 package com.redislabs.riot.cli.redis;
 
-public class RedisEndpoint {
+public class Endpoint {
 
 	private static final String SEPARATOR = ":";
 	private String host;
 	private int port;
 
-	public RedisEndpoint(String endpoint) {
+	public Endpoint(String endpoint) {
 		String[] split = endpoint.split(SEPARATOR);
 		this.host = split[0];
 		this.port = Integer.parseInt(split[1]);

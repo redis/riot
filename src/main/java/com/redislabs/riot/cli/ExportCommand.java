@@ -12,18 +12,19 @@ import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 
 @Command
-public abstract class ExportCommand extends TransferCommand<Map<String, Object>, Map<String, Object>> {
+public abstract class ExportCommand extends TransferCommand {
 
-	@ArgGroup(exclusive = false, heading = "Redis reader options%n")
+	@ArgGroup(exclusive = false, heading = "Redis reader options%n", order = 4)
 	private RedisReaderOptions redisReader = new RedisReaderOptions();
 
-	@ArgGroup(exclusive = false, heading = "RediSearch reader options%n")
+	@ArgGroup(exclusive = false, heading = "RediSearch reader options%n", order = 5)
 	private RediSearchReaderOptions searchReader = new RediSearchReaderOptions();
 
+	@SuppressWarnings("rawtypes")
 	@Override
-	protected ItemReader<Map<String, Object>> reader() {
+	protected ItemReader reader() {
 		if (searchReader.isSet()) {
-			return searchReader.reader(getRedisOptions().rediSearchClient());
+			return searchReader.reader(getRedisOptions().lettuSearchClient());
 		}
 		return redisReader.reader(getRedisOptions().jedisPool());
 	}

@@ -7,14 +7,13 @@ import org.springframework.batch.item.ItemWriter;
 
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
-import picocli.CommandLine.Mixin;
 
 @Command
-public abstract class ImportCommand extends TransferCommand<Map<String, Object>, Map<String, Object>> {
+public abstract class ImportCommand extends TransferCommand {
 
-	@Mixin
+	@ArgGroup(exclusive = false)
 	private RedisWriterOptions redisWriterOptions = new RedisWriterOptions();
-	@ArgGroup(exclusive = false, heading = "Processor options%n")
+	@ArgGroup(exclusive = false, heading = "Processor options%n", order = 40)
 	private ProcessorOptions processorOptions = new ProcessorOptions();
 
 	@Override
@@ -24,7 +23,7 @@ public abstract class ImportCommand extends TransferCommand<Map<String, Object>,
 
 	@Override
 	protected ItemWriter<Map<String, Object>> writer() {
-		return getRedisOptions().writer(redisWriterOptions.writer());
+		return redisWriterOptions.writer(getRedisOptions());
 	}
 
 }

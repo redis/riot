@@ -16,8 +16,8 @@ import com.redislabs.riot.cli.db.DatabaseImportCommand;
 import com.redislabs.riot.cli.file.FileExportCommand;
 import com.redislabs.riot.cli.file.FileImportCommand;
 import com.redislabs.riot.cli.file.RangeConverter;
+import com.redislabs.riot.cli.redis.Endpoint;
 import com.redislabs.riot.cli.redis.RedisConnectionOptions;
-import com.redislabs.riot.cli.redis.RedisEndpoint;
 import com.redislabs.riot.cli.redis.RedisExportCommand;
 import com.redislabs.riot.cli.test.TestCommand;
 
@@ -36,7 +36,7 @@ import picocli.CommandLine.Spec;
 @Command(name = "riot", abbreviateSynopsis = true, mixinStandardHelpOptions = true, subcommands = {
 		FileImportCommand.class, FileExportCommand.class, DatabaseImportCommand.class, DatabaseExportCommand.class,
 		RedisExportCommand.class, ConsoleExportCommand.class, GeneratorCommand.class,
-		TestCommand.class }, versionProvider = ManifestVersionProvider.class)
+		TestCommand.class }, versionProvider = ManifestVersionProvider.class, usageHelpAutoWidth = true)
 public class Riot implements Runnable {
 
 	@Spec
@@ -60,12 +60,12 @@ public class Riot implements Runnable {
 	private boolean verbose;
 	@Option(names = { "-q", "--quiet" }, description = "Disable all logging")
 	private boolean quiet;
-	@Option(names = "--dns-ttl", description = "DNS cache TTL", paramLabel = "<seconds>")
+	@Option(names = "--dns-ttl", description = "DNS cache TTL", paramLabel = "<sec>")
 	private int dnsTtl = 0;
-	@Option(names = "--dns-negative-ttl", description = "DNS cache negative TTL", paramLabel = "<seconds>")
+	@Option(names = "--dns-neg-ttl", description = "DNS cache negative TTL", paramLabel = "<sec>")
 	private int dnsNegativeTtl = 0;
 
-	@ArgGroup(exclusive = false, heading = "Redis connection options%n")
+	@ArgGroup(exclusive = false, heading = "Redis connection options%n", order = 1)
 	private RedisConnectionOptions redisOptions = new RedisConnectionOptions();
 
 	public static void main(String[] args) {
@@ -78,8 +78,7 @@ public class Riot implements Runnable {
 
 	public int execute(String[] args) {
 		CommandLine commandLine = new CommandLine(this).registerConverter(Range.class, new RangeConverter())
-				.registerConverter(RedisEndpoint.class, s -> new RedisEndpoint(s))
-				.setCaseInsensitiveEnumValuesAllowed(true);
+				.registerConverter(Endpoint.class, s -> new Endpoint(s)).setCaseInsensitiveEnumValuesAllowed(true);
 		try {
 			ParseResult parseResult = commandLine.parseArgs(args);
 			configureLogging();

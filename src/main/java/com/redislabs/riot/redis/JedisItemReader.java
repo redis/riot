@@ -10,7 +10,7 @@ import org.springframework.util.ClassUtils;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.util.Pool;
 
-public class RedisItemReader extends AbstractItemCountingItemStreamItemReader<Map<String, Object>> {
+public class JedisItemReader extends AbstractItemCountingItemStreamItemReader<Map<String, Object>> {
 
 	private Integer count;
 	private String match;
@@ -23,8 +23,8 @@ public class RedisItemReader extends AbstractItemCountingItemStreamItemReader<Ma
 	private RedisKeyIterator redisIterator;
 	private Jedis jedis;
 
-	public RedisItemReader(Pool<Jedis> jedisPool) {
-		setName(ClassUtils.getShortName(RedisItemReader.class));
+	public JedisItemReader(Pool<Jedis> jedisPool) {
+		setName(ClassUtils.getShortName(JedisItemReader.class));
 		this.jedisPool = jedisPool;
 	}
 

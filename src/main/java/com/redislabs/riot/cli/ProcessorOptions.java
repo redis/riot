@@ -21,25 +21,24 @@ import picocli.CommandLine.Option;
 
 public class ProcessorOptions {
 
-	@Option(names = { "--processor-script" }, description = "Use an inline script to process items")
+	@Option(names = { "--proc-script" }, description = "Use an inline script to process items", paramLabel = "<script>")
 	private String processorScript;
-	@Option(names = { "--processor-script-file" }, description = "Use an external script to process items")
+	@Option(names = { "--proc-file" }, description = "Use an external script to process items", paramLabel = "<file>")
 	private File processorScriptFile;
 	@Option(names = {
-			"--processor-script-language" }, description = "Language for the inline script (default: ${DEFAULT-VALUE})", paramLabel = "<lang>")
+			"--proc-lang" }, description = "Script language (default: ${DEFAULT-VALUE})", paramLabel = "<name>")
 	private String processorScriptLanguage = "ECMAScript";
 	@Option(arity = "1..*", names = {
-			"--processor" }, description = "SpEL expression to process a field", paramLabel = "<name=expression>")
+			"--proc" }, description = "SpEL expression to process a field", paramLabel = "<name=exp>")
 	private Map<String, String> fields;
-	@Option(arity = "1..*", names = "--regex", description = "Extract fields from a source field using a regular expression", paramLabel = "<source=regex>")
+	@Option(arity = "1..*", names = "--regex", description = "Extract fields from source field using regex", paramLabel = "<src=exp>")
 	private Map<String, String> regexes;
-	@Option(arity = "1..*", names = "--processor-variable", description = "Register a variable in the processor context", paramLabel = "<name=expression>")
+	@Option(arity = "1..*", names = "--proc-var", description = "Register a variable in the processor context", paramLabel = "<v=exp>")
 	private Map<String, String> variables = new LinkedHashMap<String, String>();
-	@Option(names = "--processor-date-format", description = "java.text.SimpleDateFormat pattern for 'date' processor variable (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
+	@Option(names = "--proc-date", description = "Java date format (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
 	private String dateFormat = new SimpleDateFormat().toPattern();
 
-	public ItemProcessor<Map<String, Object>, Map<String, Object>> processor(RedisConnectionOptions redis)
-			throws Exception {
+	public ItemProcessor<Map<String, Object>, Map<String, Object>> processor(RedisConnectionOptions redis) throws Exception {
 		List<ItemProcessor<Map<String, Object>, Map<String, Object>>> processors = new ArrayList<>();
 		if (regexes != null) {
 			processors.add(new RegexProcessor(regexes));
@@ -59,7 +58,7 @@ public class ProcessorOptions {
 			processors.add(processor);
 		}
 		if (fields != null) {
-			processors.add(new SpelProcessor(redis.redis(), new SimpleDateFormat(dateFormat), variables, fields));
+			processors.add(new SpelProcessor(redis(redis), new SimpleDateFormat(dateFormat), variables, fields));
 		}
 		if (processors.isEmpty()) {
 			return null;
@@ -70,6 +69,16 @@ public class ProcessorOptions {
 		CompositeItemProcessor<Map<String, Object>, Map<String, Object>> processor = new CompositeItemProcessor<>();
 		processor.setDelegates(processors);
 		return processor;
+	}
+
+	public Object redis(RedisConnectionOptions redis) {
+		if (redis.isJedis()) {
+			return redis.jedisPool();
+		}
+		if (redis.isCluster()) {
+			return redis.lettuceClusterClient().connect().sync();
+		}
+		return redis.lettuceClient().connect().sync();
 	}
 
 }

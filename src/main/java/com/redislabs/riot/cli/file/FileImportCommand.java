@@ -15,7 +15,6 @@ import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder.Del
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder.FixedLengthBuilder;
 import org.springframework.batch.item.file.separator.DefaultRecordSeparatorPolicy;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
-import org.springframework.batch.item.file.transform.Range;
 import org.springframework.batch.item.json.JacksonJsonObjectReader;
 import org.springframework.batch.item.json.JsonItemReader;
 import org.springframework.batch.item.json.builder.JsonItemReaderBuilder;
@@ -25,39 +24,28 @@ import org.springframework.util.Assert;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.redislabs.riot.cli.ImportCommand;
 
+import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
-import picocli.CommandLine.Mixin;
-import picocli.CommandLine.Option;
 
 @Command(name = "file-import", description = "Import file")
 public class FileImportCommand extends ImportCommand {
 
 	private final Logger log = LoggerFactory.getLogger(FileImportCommand.class);
 
-	@Mixin
-	private FileOptions connector;
-	@Option(names = { "-f",
-			"--fields" }, arity = "1..*", description = "Names of the fields as they occur in the file", paramLabel = "<names>")
-	private String[] names = new String[0];
-	@Option(names = { "--skip" }, description = "Lines to skip from the beginning of the file", paramLabel = "<count>")
-	private Integer linesToSkip;
-	@Option(names = "--include", arity = "1..*", description = "Indices of the fields within the delimited file to be included (0-based)", paramLabel = "<index>")
-	private Integer[] includedFields = new Integer[0];
-	@Option(names = "--ranges", arity = "1..*", description = "Fixed-width column ranges", paramLabel = "<int>")
-	private Range[] columnRanges = new Range[0];
-	@Option(names = { "-q",
-			"--quote" }, description = "Character to escape delimiters or line endings (default: ${DEFAULT-VALUE})", paramLabel = "<char>")
-	private Character quoteCharacter = DelimitedLineTokenizer.DEFAULT_QUOTE_CHARACTER;
+	@ArgGroup(exclusive = false, heading = "File options%n", order = 2)
+	private FileOptions fileOptions;
+	@ArgGroup(exclusive = false, heading = "File writer options%n", order = 3)
+	private FileWriterOptions writerOptions = new FileWriterOptions();
 
 	private FlatFileItemReaderBuilder<Map<String, Object>> flatFileItemReaderBuilder() throws IOException {
 		FlatFileItemReaderBuilder<Map<String, Object>> builder = new FlatFileItemReaderBuilder<Map<String, Object>>();
 		builder.name("flat-file-reader");
-		builder.resource(connector.inputResource());
-		if (connector.getEncoding() != null) {
-			builder.encoding(connector.getEncoding());
+		builder.resource(fileOptions.inputResource());
+		if (fileOptions.getEncoding() != null) {
+			builder.encoding(fileOptions.getEncoding());
 		}
-		if (linesToSkip != null) {
-			builder.linesToSkip(linesToSkip);
+		if (writerOptions.getLinesToSkip() != null) {
+			builder.linesToSkip(writerOptions.getLinesToSkip());
 		}
 		builder.strict(true);
 		builder.saveState(false);
@@ -68,24 +56,24 @@ public class FileImportCommand extends ImportCommand {
 
 	private FlatFileItemReader<Map<String, Object>> delimitedReader() throws IOException {
 		FlatFileItemReaderBuilder<Map<String, Object>> builder = flatFileItemReaderBuilder();
-		if (connector.isHeader() && linesToSkip == null) {
+		if (fileOptions.isHeader() && writerOptions.getLinesToSkip() == null) {
 			builder.linesToSkip(1);
 		}
 		DelimitedBuilder<Map<String, Object>> delimitedBuilder = builder.delimited();
-		delimitedBuilder.delimiter(connector.getDelimiter());
-		delimitedBuilder.includedFields(includedFields);
-		delimitedBuilder.quoteCharacter(quoteCharacter);
-		String[] fieldNames = Arrays.copyOf(names, names.length);
-		if (connector.isHeader()) {
-			BufferedReader reader = new DefaultBufferedReaderFactory().create(connector.inputResource(),
-					connector.getEncoding());
+		delimitedBuilder.delimiter(fileOptions.getDelimiter());
+		delimitedBuilder.includedFields(writerOptions.getIncludedFields());
+		delimitedBuilder.quoteCharacter(writerOptions.getQuoteCharacter());
+		String[] fieldNames = Arrays.copyOf(writerOptions.getNames(), writerOptions.getNames().length);
+		if (fileOptions.isHeader()) {
+			BufferedReader reader = new DefaultBufferedReaderFactory().create(fileOptions.inputResource(),
+					fileOptions.getEncoding());
 			DelimitedLineTokenizer tokenizer = new DelimitedLineTokenizer();
-			tokenizer.setDelimiter(connector.getDelimiter());
-			tokenizer.setQuoteCharacter(quoteCharacter);
-			if (includedFields.length > 0) {
-				int[] result = new int[includedFields.length];
-				for (int i = 0; i < includedFields.length; i++) {
-					result[i] = includedFields[i].intValue();
+			tokenizer.setDelimiter(fileOptions.getDelimiter());
+			tokenizer.setQuoteCharacter(writerOptions.getQuoteCharacter());
+			if (writerOptions.getIncludedFields().length > 0) {
+				int[] result = new int[writerOptions.getIncludedFields().length];
+				for (int i = 0; i < writerOptions.getIncludedFields().length; i++) {
+					result[i] = writerOptions.getIncludedFields()[i].intValue();
 				}
 				tokenizer.setIncludedFields(result);
 			}
@@ -102,9 +90,9 @@ public class FileImportCommand extends ImportCommand {
 	private AbstractItemCountingItemStreamItemReader<Map<String, Object>> fixedLengthReader() throws IOException {
 		FlatFileItemReaderBuilder<Map<String, Object>> builder = flatFileItemReaderBuilder();
 		FixedLengthBuilder<Map<String, Object>> fixedlength = builder.fixedLength();
-		Assert.notEmpty(columnRanges, "Column ranges are required");
-		fixedlength.columns(columnRanges);
-		fixedlength.names(names);
+		Assert.notEmpty(writerOptions.getColumnRanges(), "Column ranges are required");
+		fixedlength.columns(writerOptions.getColumnRanges());
+		fixedlength.names(writerOptions.getNames());
 		return builder.build();
 	}
 
@@ -112,7 +100,7 @@ public class FileImportCommand extends ImportCommand {
 	private AbstractItemCountingItemStreamItemReader<Map<String, Object>> jsonReader() throws Exception {
 		JsonItemReaderBuilder<Map> builder = new JsonItemReaderBuilder<Map>();
 		builder.name("json-file-reader");
-		builder.resource(connector.inputResource());
+		builder.resource(fileOptions.inputResource());
 		JacksonJsonObjectReader<Map> objectReader = new JacksonJsonObjectReader<>(Map.class);
 		objectReader.setMapper(new ObjectMapper());
 		builder.jsonObjectReader(objectReader);
@@ -122,7 +110,7 @@ public class FileImportCommand extends ImportCommand {
 
 	@Override
 	protected ItemReader<Map<String, Object>> reader() throws Exception {
-		switch (connector.type()) {
+		switch (fileOptions.type()) {
 		case json:
 			return jsonReader();
 		case fixed:

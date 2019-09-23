@@ -15,27 +15,27 @@ import picocli.CommandLine.Option;
 public class RediSearchCommandOptions {
 
 	@Option(names = { "-r",
-			"--redisearch-command" }, description = "Redis command: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})", paramLabel = "<name>")
+			"--ft-command" }, description = "RediSearch command: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})", paramLabel = "<name>")
 	private RediSearchCommand command = RediSearchCommand.add;
 	@Option(names = { "-i", "--index" }, description = "Name of the RediSearch index", paramLabel = "<name>")
 	private String index;
-	@Option(names = "--nosave", description = "Do not save the actual document in the database and only index it")
+	@Option(names = "--nosave", description = "Do not save docs, only index")
 	private boolean noSave;
-	@Option(names = "--replace", description = "Do an UPSERT style insertion and delete an older version of the document if it exists")
+	@Option(names = "--replace", description = "UPSERT-style insertion")
 	private boolean replace;
-	@Option(names = "--partial", description = "Only applicable with replace. If set, you do not have to specify all fields for reindexing")
+	@Option(names = "--partial", description = "Partial update (only applicable with replace)")
 	private boolean partial;
-	@Option(names = "--language", description = "Use a stemmer for the supplied language during indexing. Languages supported: ${COMPLETION-CANDIDATES}", paramLabel = "<string>")
+	@Option(names = "--language", description = "Stemmer to use for indexing: ${COMPLETION-CANDIDATES}", paramLabel = "<string>")
 	private Language language;
-	@Option(names = "--if-condition", description = "Update the document only if a boolean expression applies to the document before the update. Applicable only in conjunction with REPLACE and optionally PARTIAL.", paramLabel = "<condition>")
+	@Option(names = "--if-condition", description = "Boolean expression for conditional update", paramLabel = "<exp>")
 	private String ifCondition;
 	@Option(names = "--payload", description = "Name of the field containing the payload", paramLabel = "<field>")
 	private String payloadField;
 	@Option(names = "--score", description = "Name of the field to use for scores", paramLabel = "<field>")
 	private String scoreField;
-	@Option(names = "--default-score", description = "Score when field not present (default: ${DEFAULT-VALUE})", paramLabel = "<float>")
+	@Option(names = "--default-score", description = "Score when field not present (default: ${DEFAULT-VALUE})", paramLabel = "<num>")
 	private double defaultScore = 1d;
-	@Option(names = "--suggest-field", description = "Name of the field containing the suggestion", paramLabel = "<field>")
+	@Option(names = "--suggest", description = "Field containing the suggestion", paramLabel = "<field>")
 	private String suggestField;
 	@Option(names = "--suggest-increment", description = "Use increment to set value")
 	private boolean increment;

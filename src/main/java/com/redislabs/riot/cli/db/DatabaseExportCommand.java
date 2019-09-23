@@ -2,37 +2,24 @@ package com.redislabs.riot.cli.db;
 
 import java.util.Map;
 
-import javax.sql.DataSource;
-
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.batch.item.database.JdbcBatchItemWriter;
-import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilder;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 
 import com.redislabs.riot.cli.ExportCommand;
 
+import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
-import picocli.CommandLine.Mixin;
-import picocli.CommandLine.Option;
 
 @Command(name = "db-export", description = "Export to database")
 public class DatabaseExportCommand extends ExportCommand {
 
-	@Mixin
-	private DatabaseOptions db;
-	@Option(required = true, names = "--sql", description = "SQL statement e.g. \"INSERT INTO people (id, name) VALUES (:ssn, :name)\"", paramLabel = "<sql>")
-	private String sql;
+	@ArgGroup(exclusive = false, heading = "Database connection options%n", order = 2)
+	private DatabaseOptions db = new DatabaseOptions();
+	@ArgGroup(exclusive = false, heading = "Database writer options%n", order = 3)
+	private DatabaseWriterOptions writer = new DatabaseWriterOptions();
 
 	@Override
 	protected ItemWriter<Map<String, Object>> writer() {
-		DataSource dataSource = db.dataSource();
-		JdbcBatchItemWriterBuilder<Map<String, Object>> builder = new JdbcBatchItemWriterBuilder<Map<String, Object>>();
-		builder.itemSqlParameterSourceProvider(MapSqlParameterSource::new);
-		builder.dataSource(dataSource);
-		builder.sql(sql);
-		JdbcBatchItemWriter<Map<String, Object>> writer = builder.build();
-		writer.afterPropertiesSet();
-		return writer;
+		return writer.writer(db.dataSource());
 	}
 
 }
