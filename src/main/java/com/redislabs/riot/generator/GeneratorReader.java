@@ -26,7 +26,7 @@ public class GeneratorReader extends AbstractItemCountingItemStreamItemReader<Ma
 	private ThreadLocal<Long> count = new ThreadLocal<>();
 	private ThreadLocal<Integer> partition = new ThreadLocal<>();
 	private int partitions;
-	private int maxItemCount;
+	private Integer maxItemCount;
 	private int partitionSize;
 	private Locale locale;
 	private Map<String, Expression> fieldExpressions;
@@ -59,10 +59,11 @@ public class GeneratorReader extends AbstractItemCountingItemStreamItemReader<Ma
 	public void open(ExecutionContext executionContext) throws ItemStreamException {
 		this.partition.set(IndexedPartitioner.getPartitionIndex(executionContext));
 		this.partitions = IndexedPartitioner.getPartitions(executionContext);
-		this.partitionSize = maxItemCount / partitions;
+		this.partitionSize = maxItemCount == null ? Integer.MAX_VALUE : (maxItemCount / partitions);
 		super.open(executionContext);
 	}
 
+	@Override
 	public void setMaxItemCount(int count) {
 		this.maxItemCount = count;
 		super.setMaxItemCount(count);

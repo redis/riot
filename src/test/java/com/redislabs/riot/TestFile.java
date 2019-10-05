@@ -2,6 +2,10 @@ package com.redislabs.riot;
 
 import java.io.File;
 import java.nio.file.Files;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -185,7 +189,8 @@ public class TestFile extends BaseTest {
 		List<String> keys = commands().keys("event:*");
 		Assertions.assertEquals(568, keys.size());
 		Map<String, String> event = commands().hgetall("event:248206");
-		Assertions.assertEquals("1512838800000", event.get("EpochStart"));
+		Instant date = Instant.ofEpochMilli(Long.parseLong(event.get("EpochStart")));
+		Assertions.assertTrue(date.isBefore(Instant.now()));
 		long index = Long.parseLong(event.get("index"));
 		Assertions.assertTrue(index > 0);
 	}

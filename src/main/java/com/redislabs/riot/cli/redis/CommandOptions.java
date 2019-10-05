@@ -2,6 +2,7 @@ package com.redislabs.riot.cli.redis;
 
 import com.redislabs.riot.cli.RedisCommand;
 import com.redislabs.riot.redis.writer.CollectionMapWriter;
+import com.redislabs.riot.redis.writer.DebugMapWriter;
 import com.redislabs.riot.redis.writer.HmsetMapWriter;
 import com.redislabs.riot.redis.writer.LpushMapWriter;
 import com.redislabs.riot.redis.writer.NoopMapWriter;
@@ -60,6 +61,8 @@ public class CommandOptions {
 			return stream.writer();
 		case zadd:
 			return zset.writer();
+		case print:
+			return new DebugMapWriter();
 		case noop:
 			return new NoopMapWriter();
 		default:

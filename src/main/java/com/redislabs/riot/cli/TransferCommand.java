@@ -11,11 +11,13 @@ import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
+import org.springframework.batch.item.ItemStreamReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
 
 import com.redislabs.riot.batch.JobExecutor;
 import com.redislabs.riot.batch.ThrottlingItemReader;
+import com.redislabs.riot.batch.ThrottlingItemStreamReader;
 
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
@@ -49,6 +51,9 @@ public abstract class TransferCommand extends AbstractCommand {
 		}
 		if (sleep == null) {
 			return reader;
+		}
+		if (reader instanceof ItemStreamReader) {
+			return new ThrottlingItemStreamReader((ItemStreamReader) reader, sleep);
 		}
 		return new ThrottlingItemReader(reader, sleep);
 	}

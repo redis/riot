@@ -20,3 +20,4 @@ buildNumber.properties
 bin/
 /build/
 /.gradle/
+*.log
