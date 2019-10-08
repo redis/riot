@@ -42,15 +42,13 @@ public class LettuceItemWriter<S extends StatefulConnection<String, String>, C e
 	}
 
 	@Override
-	public void write(List<? extends Map<String, Object>> items) throws Exception {
+	protected void doWrite(List<? extends Map<String, Object>> items) throws Exception {
 		S connection = pool.borrowObject();
 		List<RedisFuture<?>> futures = new ArrayList<>();
 		try {
 			C commands = async.apply(connection);
 			commands.setAutoFlushCommands(false);
-			for (Map<String, Object> item : items) {
-				futures.add(writer.write(commands, item));
-			}
+			items.forEach(item -> futures.add(writer.write(commands, item)));
 			commands.flushCommands();
 			for (int index = 0; index < futures.size(); index++) {
 				RedisFuture<?> future = futures.get(index);

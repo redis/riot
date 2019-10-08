@@ -10,7 +10,7 @@ import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.Response;
 import redis.clients.jedis.StreamEntryID;
 
-public class XaddIdMapWriter extends RedisDataStructureMapWriter {
+public class XaddIdMapWriter extends AbstractRedisFlatMapWriter {
 
 	private String idField;
 
@@ -22,11 +22,13 @@ public class XaddIdMapWriter extends RedisDataStructureMapWriter {
 		return convert(item.remove(idField), String.class);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	protected Response<StreamEntryID> write(Pipeline pipeline, String key, Map<String, Object> item) {
 		return pipeline.xadd(key, new StreamEntryID(id(item)), stringMap(item));
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	protected void write(JedisCluster cluster, String key, Map<String, Object> item) {
 		cluster.xadd(key, new StreamEntryID(id(item)), stringMap(item));

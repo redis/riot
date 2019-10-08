@@ -1,5 +1,9 @@
 package com.redislabs.riot.redis;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -18,6 +22,45 @@ public abstract class AbstractRedisItemWriter extends AbstractItemStreamItemWrit
 	public AbstractRedisItemWriter() {
 		setName(ClassUtils.getShortName(this.getClass()));
 	}
+
+	@Override
+	public void write(List<? extends Map<String, Object>> items) throws Exception {
+		for (Map<String, Object> item : items) {
+			Map<String, Object> flatMap = new HashMap<>();
+			item.forEach((k, v) -> flatMap.putAll(flatten(k, v)));
+			item.clear();
+			item.putAll(flatMap);
+		}
+		items.forEach(item -> item.forEach((k, v) -> {
+			item.putAll(flatten(k, v));
+		}));
+		doWrite(items);
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private Map<String, Object> flatten(String key, Object value) {
+		Map<String, Object> flatMap = new HashMap<String, Object>();
+		if (value instanceof Map) {
+			((Map<String, Object>) value).forEach((k, v) -> {
+				flatMap.putAll(flatten(key + "." + k, v));
+			});
+		} else {
+			if (value instanceof Collection) {
+				Collection collection = (Collection) value;
+				Iterator iterator = collection.iterator();
+				int index = 0;
+				while (iterator.hasNext()) {
+					flatMap.putAll(flatten(key + "[" + index + "]", iterator.next()));
+					index++;
+				}
+			} else {
+				flatMap.put(key, value);
+			}
+		}
+		return flatMap;
+	}
+
+	protected abstract void doWrite(List<? extends Map<String, Object>> flatMaps) throws Exception;
 
 	@Override
 	public synchronized void open(ExecutionContext executionContext) {

@@ -3,14 +3,14 @@ package com.redislabs.riot.redisearch.writer;
 import java.util.Map;
 
 import com.redislabs.lettusearch.RediSearchAsyncCommands;
-import com.redislabs.riot.redis.writer.AbstractRedisMapWriter;
+import com.redislabs.riot.redis.writer.AbstractFlatMapWriter;
 
 import io.lettuce.core.RedisFuture;
 import redis.clients.jedis.JedisCluster;
 import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.Response;
 
-public abstract class AbstractLettuSearchMapWriter extends AbstractRedisMapWriter {
+public abstract class AbstractLettuSearchMapWriter extends AbstractFlatMapWriter {
 
 	private String index;
 	private String scoreField;

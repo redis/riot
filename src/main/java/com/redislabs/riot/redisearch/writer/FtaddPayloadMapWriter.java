@@ -7,6 +7,7 @@ import com.redislabs.lettusearch.search.AddOptions;
 
 import io.lettuce.core.RedisFuture;
 
+@SuppressWarnings("unchecked")
 public class FtaddPayloadMapWriter extends AbstractSearchMapWriter {
 
 	private String payloadField;

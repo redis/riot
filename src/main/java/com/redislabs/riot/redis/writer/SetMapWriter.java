@@ -8,7 +8,7 @@ import redis.clients.jedis.JedisCluster;
 import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.Response;
 
-public abstract class SetMapWriter extends RedisDataStructureMapWriter {
+public abstract class SetMapWriter extends AbstractRedisFlatMapWriter {
 
 	@Override
 	protected Response<String> write(Pipeline pipeline, String key, Map<String, Object> item) {

@@ -36,6 +36,7 @@ public class TestDatabase extends BaseTest {
 				.execute("CREATE TABLE IF NOT EXISTS beers (id INT NOT NULL, name VARCHAR(500), PRIMARY KEY (id))");
 		runFile("file-import-csv-hash");
 		runFile("db-export");
+		commands().flushall();
 	}
 
 	@Test

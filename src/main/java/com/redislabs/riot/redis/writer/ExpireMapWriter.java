@@ -8,7 +8,7 @@ import redis.clients.jedis.JedisCluster;
 import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.Response;
 
-public class ExpireMapWriter extends RedisDataStructureMapWriter {
+public class ExpireMapWriter extends AbstractRedisFlatMapWriter {
 
 	private String timeoutField;
 	private Long defaultTimeout;

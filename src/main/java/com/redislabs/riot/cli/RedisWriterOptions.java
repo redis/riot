@@ -14,7 +14,7 @@ import com.redislabs.riot.cli.redis.RedisConnectionOptions;
 import com.redislabs.riot.redis.JedisClusterItemWriter;
 import com.redislabs.riot.redis.JedisItemWriter;
 import com.redislabs.riot.redis.LettuceItemWriter;
-import com.redislabs.riot.redis.writer.AbstractRedisMapWriter;
+import com.redislabs.riot.redis.writer.AbstractFlatMapWriter;
 import com.redislabs.riot.redis.writer.RedisMapWriter;
 import com.redislabs.riot.redisearch.writer.AbstractLettuSearchMapWriter;
 
@@ -37,8 +37,8 @@ public class RedisWriterOptions {
 
 	public ItemWriter<Map<String, Object>> writer(RedisConnectionOptions redis) {
 		RedisMapWriter mapWriter = searchCommand.isSet() ? searchCommand.writer() : redisCommand.writer();
-		if (mapWriter instanceof AbstractRedisMapWriter) {
-			((AbstractRedisMapWriter) mapWriter).setConverter(keyOptions.converter());
+		if (mapWriter instanceof AbstractFlatMapWriter) {
+			((AbstractFlatMapWriter) mapWriter).setConverter(keyOptions.converter());
 		}
 		if (mapWriter instanceof AbstractLettuSearchMapWriter) {
 			RediSearchClient client = redis.lettuSearchClient();

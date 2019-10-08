@@ -7,7 +7,7 @@ import redis.clients.jedis.JedisCluster;
 import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.Response;
 
-public abstract class CollectionMapWriter extends RedisDataStructureMapWriter {
+public abstract class CollectionMapWriter extends AbstractRedisFlatMapWriter {
 
 	private String[] fields = new String[0];
 

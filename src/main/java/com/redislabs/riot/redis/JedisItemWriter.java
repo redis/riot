@@ -28,13 +28,12 @@ public class JedisItemWriter extends AbstractRedisItemWriter {
 		this.writer = writer;
 	}
 
-	public void write(List<? extends Map<String, Object>> items) throws Exception {
+	@Override
+	protected void doWrite(List<? extends Map<String, Object>> items) {
 		try (Jedis jedis = pool.getResource()) {
 			Pipeline p = jedis.pipelined();
 			List<Response<?>> responses = new ArrayList<>();
-			for (Map<String, Object> item : items) {
-				responses.add(writer.write(p, item));
-			}
+			items.forEach(item -> responses.add(writer.write(p, item)));
 			p.sync();
 			for (Response<?> response : responses) {
 				if (response == null) {

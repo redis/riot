@@ -8,13 +8,15 @@ import redis.clients.jedis.JedisCluster;
 import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.Response;
 
-public class HmsetMapWriter extends RedisDataStructureMapWriter {
+public class HmsetMapWriter extends AbstractRedisFlatMapWriter {
 
+	@SuppressWarnings("unchecked")
 	@Override
 	protected Response<String> write(Pipeline pipeline, String key, Map<String, Object> item) {
 		return pipeline.hmset(key, stringMap(item));
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	protected void write(JedisCluster cluster, String key, Map<String, Object> item) {
 		cluster.hmset(key, stringMap(item));

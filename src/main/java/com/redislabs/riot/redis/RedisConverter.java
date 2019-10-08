@@ -1,16 +1,10 @@
 
 package com.redislabs.riot.redis;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.StringJoiner;
 
-import org.springframework.core.convert.ConversionService;
-import org.springframework.core.convert.support.DefaultConversionService;
-
 public class RedisConverter {
-
-	private ConversionService converter = new DefaultConversionService();
 
 	private String separator;
 	private String keyspace;
@@ -46,30 +40,10 @@ public class RedisConverter {
 		}
 		StringJoiner joiner = new StringJoiner(separator);
 		for (String field : fields) {
-			joiner.add(converter.convert(item.get(field), String.class));
+			Object value = item.get(field);
+			joiner.add(value == null ? "" : String.valueOf(value));
 		}
 		return joiner.toString();
-	}
-
-	public <T> T convert(Object source, Class<T> targetType) {
-		return converter.convert(source, targetType);
-	}
-
-	public Map<String, String> stringMap(Map<String, Object> item) {
-		Map<String, String> stringMap = new HashMap<String, String>();
-		item.forEach((k, v) -> put(stringMap, k, v));
-		return stringMap;
-	}
-
-	private void put(Map<String, String> map, String key, Object value) {
-		if (value == null) {
-			return;
-		}
-		if (value instanceof Map) {
-			((Map<?, ?>) value).forEach((k, v) -> put(map, key + "." + converter.convert(k, String.class), v));
-		} else {
-			map.put(key, converter.convert(value, String.class));
-		}
 	}
 
 	@Override

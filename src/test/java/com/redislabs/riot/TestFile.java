@@ -171,7 +171,7 @@ public class TestFile extends BaseTest {
 		Assertions.assertEquals(2, commands().keys("estest:*").size());
 		Map<String, String> doc1 = commands().hgetall("estest:doc1");
 		Assertions.assertEquals("ruan", doc1.get("_source.name"));
-		Assertions.assertEquals("1,3", doc1.get("_source.articles"));
+		Assertions.assertEquals("3", doc1.get("_source.articles[1]"));
 	}
 
 	@Test

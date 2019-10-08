@@ -1,6 +1,6 @@
 package com.redislabs.riot.cli.redis;
 
-import com.redislabs.riot.redis.writer.RedisDataStructureMapWriter;
+import com.redislabs.riot.redis.writer.AbstractRedisFlatMapWriter;
 import com.redislabs.riot.redis.writer.XaddIdMapWriter;
 import com.redislabs.riot.redis.writer.XaddIdMaxlenMapWriter;
 import com.redislabs.riot.redis.writer.XaddMapWriter;
@@ -17,7 +17,7 @@ public class StreamCommandOptions {
 	@Option(names = "--xadd-id", description = "Field used for stream entry IDs", paramLabel = "<field>")
 	private String xaddId;
 
-	public RedisDataStructureMapWriter writer() {
+	public AbstractRedisFlatMapWriter writer() {
 		if (xaddId == null) {
 			if (xaddMaxlen == null) {
 				return new XaddMapWriter();

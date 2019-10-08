@@ -10,7 +10,7 @@ import redis.clients.jedis.JedisCluster;
 import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.Response;
 
-public class EvalshaMapWriter extends RedisDataStructureMapWriter {
+public class EvalshaMapWriter extends AbstractRedisFlatMapWriter {
 
 	private String sha;
 	private String[] keys;

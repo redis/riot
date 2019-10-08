@@ -6,6 +6,8 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.support.AbstractItemStreamItemWriter;
+import org.springframework.core.convert.ConversionService;
+import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.util.ClassUtils;
 
 import com.redislabs.riot.redis.RedisConverter;
@@ -24,6 +26,7 @@ public class JedisSearchMapWriter extends AbstractItemStreamItemWriter<Map<Strin
 	private String scoreField;
 	private String payloadField;
 	private float defaultScore;
+	private ConversionService conversionService = new DefaultConversionService();
 
 	public JedisSearchMapWriter(Client client, RedisConverter converter, AddOptions options) {
 		setName(ClassUtils.getShortName(JedisSearchMapWriter.class));
@@ -55,7 +58,7 @@ public class JedisSearchMapWriter extends AbstractItemStreamItemWriter<Map<Strin
 	}
 
 	private Document document(Map<String, Object> item) {
-		Float score = converter.convert(item.getOrDefault(scoreField, defaultScore), Float.class);
+		Float score = conversionService.convert(item.getOrDefault(scoreField, defaultScore), Float.class);
 		byte[] payload = payload(item);
 		return new Document(converter.key(item), item, score, payload);
 	}
@@ -64,7 +67,7 @@ public class JedisSearchMapWriter extends AbstractItemStreamItemWriter<Map<Strin
 		if (payloadField == null) {
 			return null;
 		}
-		String payload = converter.convert(item.get(payloadField), String.class);
+		String payload = conversionService.convert(item.get(payloadField), String.class);
 		if (payload == null) {
 			return null;
 		}

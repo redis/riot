@@ -2,10 +2,14 @@ package com.redislabs.riot.redis.writer;
 
 import java.util.Map;
 
+import org.springframework.core.convert.ConversionService;
+import org.springframework.core.convert.support.DefaultConversionService;
+
 import com.redislabs.riot.redis.RedisConverter;
 
-public abstract class AbstractRedisMapWriter implements RedisMapWriter {
+public abstract class AbstractFlatMapWriter implements RedisMapWriter {
 
+	private ConversionService conversionService = new DefaultConversionService();
 	private RedisConverter converter;
 
 	public RedisConverter getConverter() {
@@ -16,12 +20,8 @@ public abstract class AbstractRedisMapWriter implements RedisMapWriter {
 		this.converter = converter;
 	}
 
-	protected Map<String, String> stringMap(Map<String, Object> item) {
-		return converter.stringMap(item);
-	}
-
 	protected <T> T convert(Object source, Class<T> targetType) {
-		return converter.convert(source, targetType);
+		return conversionService.convert(source, targetType);
 	}
 
 	protected String join(Map<String, Object> item, String[] fields) {
@@ -30,6 +30,12 @@ public abstract class AbstractRedisMapWriter implements RedisMapWriter {
 
 	protected String key(Map<String, Object> item) {
 		return converter.key(item);
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	protected Map stringMap(Map map) {
+		map.forEach((k, v) -> map.put(k, conversionService.convert(v, String.class)));
+		return map;
 	}
 
 }
