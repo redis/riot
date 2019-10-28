@@ -87,7 +87,7 @@ public class GeneratorReader extends AbstractItemCountingItemStreamItemReader<Ma
 	}
 
 	@Override
-	protected Map<String, Object> doRead() throws Exception {
+	protected synchronized Map<String, Object> doRead() throws Exception {
 		Map<String, Object> map = new HashMap<>();
 		map.put(FIELD_INDEX, index());
 		map.put(FIELD_PARTITION, partition.get());
