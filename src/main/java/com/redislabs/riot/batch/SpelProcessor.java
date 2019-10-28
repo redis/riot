@@ -3,24 +3,20 @@ package com.redislabs.riot.batch;
 import java.lang.reflect.Method;
 import java.text.DateFormat;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Set;
+import java.util.Map.Entry;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionInvocationTargetException;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
-import com.redislabs.riot.generator.GeneratorReader;
+import lombok.extern.slf4j.Slf4j;
 
-public class SpelProcessor implements ItemProcessor<Map<String, Object>, Map<String, Object>>, Map<String, Object> {
-
-	private final Logger log = LoggerFactory.getLogger(SpelProcessor.class);
+@Slf4j
+public class SpelProcessor implements ItemProcessor<Map<String, Object>, Map<String, Object>> {
 
 	private SpelExpressionParser parser = new SpelExpressionParser();
 	private StandardEvaluationContext context;
@@ -32,7 +28,7 @@ public class SpelProcessor implements ItemProcessor<Map<String, Object>, Map<Str
 		context = new StandardEvaluationContext();
 		context.setVariable("redis", redis);
 		context.setVariable("date", dateFormat);
-		context.setVariable("context", this);
+		context.setVariable("context", new SpelProcessorContext(this));
 		variables.forEach((k, v) -> context.setVariable(k, parser.parseExpression(v).getValue(context)));
 		Method geoMethod;
 		try {
@@ -69,65 +65,8 @@ public class SpelProcessor implements ItemProcessor<Map<String, Object>, Map<Str
 		return longitude + "," + latitude;
 	}
 
-	@Override
-	public int size() {
-		return 1;
-	}
-
-	@Override
-	public boolean isEmpty() {
-		return false;
-	}
-
-	@Override
-	public boolean containsKey(Object key) {
-		return true;
-	}
-
-	@Override
-	public boolean containsValue(Object value) {
-		return true;
-	}
-
-	@Override
-	public Object get(Object key) {
-		if (GeneratorReader.FIELD_INDEX.equals(key)) {
-			return index;
-		}
-		return null;
-	}
-
-	@Override
-	public Object put(String key, Object value) {
-		return null;
-	}
-
-	@Override
-	public Object remove(Object key) {
-		return null;
-	}
-
-	@Override
-	public void putAll(Map<? extends String, ? extends Object> m) {
-	}
-
-	@Override
-	public void clear() {
-	}
-
-	@Override
-	public Set<String> keySet() {
-		return null;
-	}
-
-	@Override
-	public Collection<Object> values() {
-		return null;
-	}
-
-	@Override
-	public Set<Entry<String, Object>> entrySet() {
-		return null;
+	public long getIndex() {
+		return index;
 	}
 
 }

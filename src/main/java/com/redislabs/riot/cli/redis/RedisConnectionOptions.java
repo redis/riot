@@ -10,8 +10,6 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.util.ClassUtils;
 
 import com.redislabs.lettusearch.RediSearchClient;
@@ -24,6 +22,8 @@ import io.lettuce.core.api.StatefulConnection;
 import io.lettuce.core.cluster.ClusterClientOptions;
 import io.lettuce.core.cluster.RedisClusterClient;
 import io.lettuce.core.support.ConnectionPoolSupport;
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Option;
 import redis.clients.jedis.HostAndPort;
@@ -34,9 +34,8 @@ import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.JedisSentinelPool;
 import redis.clients.jedis.util.Pool;
 
-public class RedisConnectionOptions {
-
-	private final Logger log = LoggerFactory.getLogger(RedisConnectionOptions.class);
+@Slf4j
+public @Data class RedisConnectionOptions {
 
 	@Option(names = "--driver", description = "Redis driver: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})", paramLabel = "<name>")
 	private RedisDriver driver = RedisDriver.lettuce;
@@ -68,7 +67,7 @@ public class RedisConnectionOptions {
 	@ArgGroup(exclusive = false, heading = "Jedis connection options%n", order = 2)
 	private JedisConnectionOptions jedis = new JedisConnectionOptions();
 	@ArgGroup(exclusive = false, heading = "Lettuce connection options%n", order = 3)
-	private LettuceConnectionOptions lettuce = new LettuceConnectionOptions();
+	private LettuceConnectionOptions lettuce = LettuceConnectionOptions.builder().build();
 
 	public boolean isCluster() {
 		return cluster;

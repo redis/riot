@@ -21,3 +21,4 @@ bin/
 /build/
 /.gradle/
 *.log
+/.externalToolBuilders/

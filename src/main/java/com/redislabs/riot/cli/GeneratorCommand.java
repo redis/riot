@@ -5,7 +5,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.github.javafaker.Faker;
-import com.redislabs.riot.generator.GeneratorReader;
+import com.redislabs.riot.batch.generator.GeneratorReader;
+import com.redislabs.riot.cli.redis.RedisConnectionOptions;
 
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
@@ -17,7 +18,7 @@ public class GeneratorCommand extends ImportCommand {
 	private GeneratorOptions options = new GeneratorOptions();
 
 	@Override
-	protected GeneratorReader reader() {
+	protected GeneratorReader reader(RedisConnectionOptions redisOptions) {
 		return options.reader();
 	}
 

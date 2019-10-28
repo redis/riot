@@ -7,11 +7,14 @@ import java.util.Map;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 
-import com.redislabs.riot.generator.GeneratorReader;
+import com.redislabs.riot.batch.generator.GeneratorReader;
 
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine.Option;
 
-public class GeneratorOptions {
+@Slf4j
+public @Data class GeneratorOptions {
 
 	@Option(arity = "1..*", names = "--faker-fields", description = "SpEL expression to generate a field", paramLabel = "<name=SpEL>")
 	private Map<String, String> fakerFields = new LinkedHashMap<>();
@@ -30,6 +33,7 @@ public class GeneratorOptions {
 	public GeneratorReader reader() {
 		SpelExpressionParser parser = new SpelExpressionParser();
 		Map<String, Expression> expressionMap = new LinkedHashMap<String, Expression>();
+		log.info("fakerFields: {}", fakerFields);
 		fakerFields.forEach((k, v) -> expressionMap.put(k, parser.parseExpression(v)));
 		return new GeneratorReader(locale, expressionMap, simpleFields);
 	}

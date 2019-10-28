@@ -1,10 +1,11 @@
 package com.redislabs.riot.cli.redis;
 
-import com.redislabs.riot.redis.writer.ExpireMapWriter;
+import com.redislabs.riot.batch.redis.writer.ExpireMapWriter;
 
+import lombok.Data;
 import picocli.CommandLine.Option;
 
-public class ExpireCommandOptions {
+public @Data class ExpireCommandOptions {
 
 	@Option(names = "--expire-default", description = "Default timeout (default: ${DEFAULT-VALUE})", paramLabel = "<sec>")
 	private long expireDefaultTimeout = 60;

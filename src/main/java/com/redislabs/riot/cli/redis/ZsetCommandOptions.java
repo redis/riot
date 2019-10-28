@@ -1,10 +1,11 @@
 package com.redislabs.riot.cli.redis;
 
-import com.redislabs.riot.redis.writer.ZaddMapWriter;
+import com.redislabs.riot.batch.redis.writer.ZaddMapWriter;
 
+import lombok.Data;
 import picocli.CommandLine.Option;
 
-public class ZsetCommandOptions {
+public @Data class ZsetCommandOptions {
 
 	@Option(names = "--zset-score", description = "Field to use for sorted set scores", paramLabel = "<field>")
 	private String zsetScore;

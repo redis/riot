@@ -1,43 +1,40 @@
 package com.redislabs.riot.cli.file;
 
-import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
-import org.springframework.batch.item.file.transform.Range;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
+import org.springframework.batch.item.file.FlatFileItemWriter;
+import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import picocli.CommandLine.Option;
 
-public class FileWriterOptions {
+@EqualsAndHashCode(callSuper = true)
+public @Data class FileWriterOptions extends FileOptions {
 
-	@Option(names = { "-f",
-			"--fields" }, arity = "1..*", description = "Names of the fields as they occur in the file", paramLabel = "<names>")
-	private String[] names = new String[0];
-	@Option(names = { "--skip" }, description = "Lines to skip from the beginning of the file", paramLabel = "<count>")
-	private Integer linesToSkip;
-	@Option(names = "--include", arity = "1..*", description = "Field indices to include (0-based)", paramLabel = "<index>")
-	private Integer[] includedFields = new Integer[0];
-	@Option(names = "--ranges", arity = "1..*", description = "Fixed-width column ranges", paramLabel = "<int>")
-	private Range[] columnRanges = new Range[0];
-	@Option(names = { "-q",
-			"--quote" }, description = "Escape character (default: ${DEFAULT-VALUE})", paramLabel = "<char>")
-	private Character quoteCharacter = DelimitedLineTokenizer.DEFAULT_QUOTE_CHARACTER;
-
-	public Integer getLinesToSkip() {
-		return linesToSkip;
-	}
-
-	public String[] getNames() {
-		return names;
-	}
-
-	public Integer[] getIncludedFields() {
-		return includedFields;
-	}
-
-	public Range[] getColumnRanges() {
-		return columnRanges;
-	}
-
-	public Character getQuoteCharacter() {
-		return quoteCharacter;
-	}
+	@Option(required = true, names = { "-f",
+			"--fields" }, arity = "1..*", description = "Fields to write to file", paramLabel = "<names>")
+	private List<String> names = new ArrayList<>();
+	@Option(names = "--append", description = "Append to file if it exists")
+	private boolean append;
+	@Option(names = "--force-sync", description = "Force-sync changes to disk on flush")
+	private boolean forceSync;
+	@Option(names = "--line-sep", description = "String to separate lines (default: system default)", paramLabel = "<string>")
+	private String lineSeparator = FlatFileItemWriter.DEFAULT_LINE_SEPARATOR;
+	@Option(names = "--format", description = "Format string used to aggregate items", paramLabel = "<string>")
+	private String format;
+	@Option(names = "--locale", description = "Locale", paramLabel = "<tag>")
+	private Locale locale = Locale.ENGLISH;
+	@Option(names = "--max-length", description = "Max length of the formatted string", paramLabel = "<int>")
+	private Integer maxLength;
+	@Option(names = "--min-length", description = "Min length of the formatted string", paramLabel = "<int>")
+	private Integer minLength;
+	@Option(names = { "-d",
+			"--delimiter" }, description = "Delimiter character (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
+	private String delimiter = DelimitedLineTokenizer.DELIMITER_COMMA;
+	@Option(names = { "-h", "--header" }, description = "Read field names from first line")
+	private boolean header;
 
 }

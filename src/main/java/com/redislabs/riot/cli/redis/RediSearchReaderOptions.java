@@ -4,11 +4,12 @@ import com.redislabs.lettusearch.RediSearchClient;
 import com.redislabs.lettusearch.search.Limit;
 import com.redislabs.lettusearch.search.SearchOptions;
 import com.redislabs.lettusearch.search.SearchOptions.SearchOptionsBuilder;
-import com.redislabs.riot.redisearch.RediSearchItemReader;
+import com.redislabs.riot.batch.redis.RediSearchItemReader;
 
+import lombok.Data;
 import picocli.CommandLine.Option;
 
-public class RediSearchReaderOptions {
+public @Data class RediSearchReaderOptions {
 
 	@Option(names = "--source-index", description = "RediSearch index", paramLabel = "<name>")
 	private String index;

@@ -17,48 +17,56 @@ import com.redislabs.riot.batch.RegexProcessor;
 import com.redislabs.riot.batch.SpelProcessor;
 import com.redislabs.riot.cli.redis.RedisConnectionOptions;
 
+import lombok.Data;
 import picocli.CommandLine.Option;
 
-public class ProcessorOptions {
+public @Data class ProcessorOptions {
 
 	@Option(names = { "--proc-script" }, description = "Use an inline script to process items", paramLabel = "<script>")
-	private String processorScript;
+	private String script;
 	@Option(names = { "--proc-file" }, description = "Use an external script to process items", paramLabel = "<file>")
-	private File processorScriptFile;
+	private File scriptFile;
 	@Option(names = {
 			"--proc-lang" }, description = "Script language (default: ${DEFAULT-VALUE})", paramLabel = "<name>")
 	private String processorScriptLanguage = "ECMAScript";
 	@Option(arity = "1..*", names = {
 			"--proc" }, description = "SpEL expression to process a field", paramLabel = "<name=exp>")
-	private Map<String, String> fields;
+	private Map<String, String> fields = new LinkedHashMap<>();
 	@Option(arity = "1..*", names = "--regex", description = "Extract fields from source field using regex", paramLabel = "<src=exp>")
-	private Map<String, String> regexes;
+	private Map<String, String> regexes = new LinkedHashMap<>();
 	@Option(arity = "1..*", names = "--proc-var", description = "Register a variable in the processor context", paramLabel = "<v=exp>")
 	private Map<String, String> variables = new LinkedHashMap<String, String>();
 	@Option(names = "--proc-date", description = "Java date format (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
 	private String dateFormat = new SimpleDateFormat().toPattern();
 
-	public ItemProcessor<Map<String, Object>, Map<String, Object>> processor(RedisConnectionOptions redis) throws Exception {
+	public void addField(String name, String expression) {
+		fields.put(name, expression);
+	}
+
+	public ItemProcessor<Map<String, Object>, Map<String, Object>> processor(RedisConnectionOptions redis)
+			throws Exception {
 		List<ItemProcessor<Map<String, Object>, Map<String, Object>>> processors = new ArrayList<>();
 		if (regexes != null) {
 			processors.add(new RegexProcessor(regexes));
 		}
-		if (processorScript != null || processorScriptFile != null) {
+		if (script != null || scriptFile != null) {
 			System.setProperty("nashorn.args", "--no-deprecation-warning");
 			ScriptItemProcessorBuilder<Map<String, Object>, Map<String, Object>> builder = new ScriptItemProcessorBuilder<>();
 			builder.language(processorScriptLanguage);
-			if (processorScript != null) {
-				builder.scriptSource(processorScript);
+			if (script != null) {
+				builder.scriptSource(script);
 			}
-			if (processorScriptFile != null) {
-				builder.scriptResource(new FileSystemResource(processorScriptFile));
+			if (scriptFile != null) {
+				builder.scriptResource(new FileSystemResource(scriptFile));
 			}
 			ScriptItemProcessor<Map<String, Object>, Map<String, Object>> processor = builder.build();
 			processor.afterPropertiesSet();
 			processors.add(processor);
 		}
 		if (fields != null) {
-			processors.add(new SpelProcessor(redis(redis), new SimpleDateFormat(dateFormat), variables, fields));
+			SpelProcessor spelProcessor = new SpelProcessor(redis(redis), new SimpleDateFormat(dateFormat), variables,
+					fields);
+			processors.add(spelProcessor);
 		}
 		if (processors.isEmpty()) {
 			return null;

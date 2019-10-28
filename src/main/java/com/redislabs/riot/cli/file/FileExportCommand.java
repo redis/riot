@@ -10,9 +10,10 @@ import org.springframework.batch.item.json.JacksonJsonObjectMarshaller;
 import org.springframework.batch.item.support.AbstractItemStreamItemWriter;
 import org.springframework.core.io.Resource;
 
+import com.redislabs.riot.batch.file.FlatResourceItemWriterBuilder;
+import com.redislabs.riot.batch.file.JsonResourceItemWriterBuilder;
 import com.redislabs.riot.cli.ExportCommand;
-import com.redislabs.riot.file.FlatResourceItemWriterBuilder;
-import com.redislabs.riot.file.JsonResourceItemWriterBuilder;
+import com.redislabs.riot.cli.redis.RedisConnectionOptions;
 
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
@@ -20,16 +21,14 @@ import picocli.CommandLine.Command;
 @Command(name = "file-export", description = "Export to file")
 public class FileExportCommand extends ExportCommand {
 
-	@ArgGroup(exclusive = false, heading = "File options%n", order = 1)
-	private FileOptions fileOptions;
 	@ArgGroup(exclusive = false, heading = "File reader options%n", order = 3)
-	private FileReaderOptions fileReaderOptions = new FileReaderOptions();
+	private FileWriterOptions fileWriterOptions = new FileWriterOptions();
 
 	private FlatResourceItemWriterBuilder<Map<String, Object>> flatWriterBuilder(Resource resource, String headerLine) {
 		FlatResourceItemWriterBuilder<Map<String, Object>> builder = new FlatResourceItemWriterBuilder<>();
-		builder.append(fileReaderOptions.isAppend());
-		builder.encoding(fileOptions.getEncoding());
-		builder.lineSeparator(fileReaderOptions.getLineSeparator());
+		builder.append(fileWriterOptions.isAppend());
+		builder.encoding(fileWriterOptions.getEncoding());
+		builder.lineSeparator(fileWriterOptions.getLineSeparator());
 		builder.resource(resource);
 		builder.saveState(false);
 		if (headerLine != null) {
@@ -45,9 +44,10 @@ public class FileExportCommand extends ExportCommand {
 	}
 
 	@Override
-	protected AbstractItemStreamItemWriter<Map<String, Object>> writer() throws IOException {
-		Resource resource = fileOptions.outputResource();
-		switch (fileOptions.type()) {
+	protected AbstractItemStreamItemWriter<Map<String, Object>> writer(RedisConnectionOptions redisOptions)
+			throws IOException {
+		Resource resource = fileWriterOptions.outputResource();
+		switch (fileWriterOptions.type()) {
 		case json:
 			return jsonWriter(resource);
 		case fixed:
@@ -60,10 +60,10 @@ public class FileExportCommand extends ExportCommand {
 	private AbstractItemStreamItemWriter<Map<String, Object>> jsonWriter(Resource resource) {
 		JsonResourceItemWriterBuilder<Map<String, Object>> builder = new JsonResourceItemWriterBuilder<>();
 		builder.name("json-s3-writer");
-		builder.append(fileReaderOptions.isAppend());
-		builder.encoding(fileOptions.getEncoding());
+		builder.append(fileWriterOptions.isAppend());
+		builder.encoding(fileWriterOptions.getEncoding());
 		builder.jsonObjectMarshaller(new JacksonJsonObjectMarshaller<>());
-		builder.lineSeparator(fileReaderOptions.getLineSeparator());
+		builder.lineSeparator(fileWriterOptions.getLineSeparator());
 		builder.resource(resource);
 		builder.saveState(false);
 		return builder.build();
@@ -71,41 +71,41 @@ public class FileExportCommand extends ExportCommand {
 
 	private AbstractItemStreamItemWriter<Map<String, Object>> delimitedWriter(Resource resource) {
 		String headerLine = null;
-		if (fileOptions.isHeader()) {
-			headerLine = String.join(fileOptions.getDelimiter(), fileReaderOptions.getNames());
+		if (fileWriterOptions.isHeader()) {
+			headerLine = String.join(fileWriterOptions.getDelimiter(), fileWriterOptions.getNames());
 		}
 		FlatResourceItemWriterBuilder<Map<String, Object>> builder = flatWriterBuilder(resource, headerLine);
 		builder.name("delimited-s3-writer");
-		com.redislabs.riot.file.FlatResourceItemWriterBuilder.DelimitedBuilder<Map<String, Object>> delimited = builder
+		com.redislabs.riot.batch.file.FlatResourceItemWriterBuilder.DelimitedBuilder<Map<String, Object>> delimited = builder
 				.delimited();
-		delimited.delimiter(fileOptions.getDelimiter());
-		delimited.fieldExtractor(new MapFieldExtractor(fileReaderOptions.getNames()));
-		if (fileReaderOptions.getNames().length > 0) {
-			delimited.names(fileReaderOptions.getNames());
+		delimited.delimiter(fileWriterOptions.getDelimiter());
+		delimited.fieldExtractor(new MapFieldExtractor(fileWriterOptions.getNames()));
+		if (!fileWriterOptions.getNames().isEmpty()) {
+			delimited.names(fileWriterOptions.getNames().toArray(new String[fileWriterOptions.getNames().size()]));
 		}
 		return builder.build();
 	}
 
 	private AbstractItemStreamItemWriter<Map<String, Object>> formattedWriter(Resource resource) {
 		String headerLine = null;
-		if (fileOptions.isHeader()) {
-			headerLine = String.format(fileReaderOptions.getLocale(), fileReaderOptions.getFormat(),
-					Arrays.asList(fileReaderOptions.getNames()).toArray());
+		if (fileWriterOptions.isHeader()) {
+			headerLine = String.format(fileWriterOptions.getLocale(), fileWriterOptions.getFormat(),
+					Arrays.asList(fileWriterOptions.getNames()).toArray());
 		}
 		FlatResourceItemWriterBuilder<Map<String, Object>> builder = flatWriterBuilder(resource, headerLine);
 		FlatResourceItemWriterBuilder.FormattedBuilder<Map<String, Object>> formatted = builder.formatted();
 		builder.name("formatted-s3-writer");
-		formatted.fieldExtractor(new MapFieldExtractor(fileReaderOptions.getNames()));
-		if (fileReaderOptions.getNames().length > 0) {
-			formatted.names(fileReaderOptions.getNames());
+		formatted.fieldExtractor(new MapFieldExtractor(fileWriterOptions.getNames()));
+		if (!fileWriterOptions.getNames().isEmpty()) {
+			formatted.names(fileWriterOptions.getNames().toArray(new String[fileWriterOptions.getNames().size()]));
 		}
-		formatted.format(fileReaderOptions.getFormat());
-		formatted.locale(fileReaderOptions.getLocale());
-		if (fileReaderOptions.getMinLength() != null) {
-			formatted.minimumLength(fileReaderOptions.getMinLength());
+		formatted.format(fileWriterOptions.getFormat());
+		formatted.locale(fileWriterOptions.getLocale());
+		if (fileWriterOptions.getMinLength() != null) {
+			formatted.minimumLength(fileWriterOptions.getMinLength());
 		}
-		if (fileReaderOptions.getMaxLength() != null) {
-			formatted.maximumLength(fileReaderOptions.getMaxLength());
+		if (fileWriterOptions.getMaxLength() != null) {
+			formatted.maximumLength(fileWriterOptions.getMaxLength());
 		}
 		return builder.build();
 	}

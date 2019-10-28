@@ -3,13 +3,14 @@ package com.redislabs.riot.cli.redis;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.redislabs.riot.redis.writer.SetFieldMapWriter;
-import com.redislabs.riot.redis.writer.SetMapWriter;
-import com.redislabs.riot.redis.writer.SetObjectMapWriter;
+import com.redislabs.riot.batch.redis.writer.SetFieldMapWriter;
+import com.redislabs.riot.batch.redis.writer.SetMapWriter;
+import com.redislabs.riot.batch.redis.writer.SetObjectMapWriter;
 
+import lombok.Data;
 import picocli.CommandLine.Option;
 
-public class StringCommandOptions {
+public @Data class StringCommandOptions {
 
 	@Option(names = "--string-format", description = "Serialization: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})", paramLabel = "<fmt>")
 	private StringFormat format = StringFormat.json;

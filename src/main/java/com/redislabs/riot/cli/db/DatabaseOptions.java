@@ -2,17 +2,17 @@ package com.redislabs.riot.cli.db;
 
 import javax.sql.DataSource;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 
 import com.zaxxer.hikari.HikariDataSource;
 
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine.Option;
 
-public class DatabaseOptions {
-
-	private final Logger log = LoggerFactory.getLogger(DatabaseOptions.class);
+@Slf4j
+@Data
+class DatabaseOptions {
 
 	@Option(names = { "-d",
 			"--driver" }, description = "Fully qualified name of the JDBC driver", paramLabel = "<class>")
@@ -25,7 +25,7 @@ public class DatabaseOptions {
 	@Option(names = "--password", arity = "0..1", interactive = true, description = "Login password of the database", paramLabel = "<pwd>")
 	private String password;
 
-	public DataSource dataSource() {
+	protected DataSource dataSource() {
 		DataSourceProperties properties = new DataSourceProperties();
 		properties.setUrl(url);
 		properties.setDriverClassName(driver);

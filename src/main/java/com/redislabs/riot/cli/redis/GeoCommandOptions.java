@@ -1,11 +1,12 @@
 package com.redislabs.riot.cli.redis;
 
-import com.redislabs.riot.redis.writer.GeoaddMapWriter;
-import com.redislabs.riot.redis.writer.RedisMapWriter;
+import com.redislabs.riot.batch.redis.writer.GeoaddMapWriter;
+import com.redislabs.riot.batch.redis.writer.RedisMapWriter;
 
+import lombok.Data;
 import picocli.CommandLine.Option;
 
-public class GeoCommandOptions {
+public @Data class GeoCommandOptions {
 
 	@Option(names = "--geo-lon", description = "Longitude field", paramLabel = "<field>")
 	private String geoLon;

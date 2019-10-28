@@ -2,17 +2,18 @@ package com.redislabs.riot.cli.redis;
 
 import com.redislabs.lettusearch.search.AddOptions;
 import com.redislabs.lettusearch.search.Language;
+import com.redislabs.riot.batch.redisearch.writer.AbstractLettuSearchMapWriter;
+import com.redislabs.riot.batch.redisearch.writer.AbstractSearchMapWriter;
+import com.redislabs.riot.batch.redisearch.writer.FtaddMapWriter;
+import com.redislabs.riot.batch.redisearch.writer.FtaddPayloadMapWriter;
+import com.redislabs.riot.batch.redisearch.writer.SugaddMapWriter;
+import com.redislabs.riot.batch.redisearch.writer.SugaddPayloadMapWriter;
 import com.redislabs.riot.cli.RediSearchCommand;
-import com.redislabs.riot.redisearch.writer.AbstractLettuSearchMapWriter;
-import com.redislabs.riot.redisearch.writer.AbstractSearchMapWriter;
-import com.redislabs.riot.redisearch.writer.FtaddMapWriter;
-import com.redislabs.riot.redisearch.writer.FtaddPayloadMapWriter;
-import com.redislabs.riot.redisearch.writer.SugaddMapWriter;
-import com.redislabs.riot.redisearch.writer.SugaddPayloadMapWriter;
 
+import lombok.Data;
 import picocli.CommandLine.Option;
 
-public class RediSearchCommandOptions {
+public @Data class RediSearchCommandOptions {
 
 	@Option(names = { "-r",
 			"--ft-command" }, description = "RediSearch command: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})", paramLabel = "<name>")

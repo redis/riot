@@ -1,14 +1,15 @@
 package com.redislabs.riot.cli.redis;
 
-import com.redislabs.riot.redis.writer.AbstractRedisFlatMapWriter;
-import com.redislabs.riot.redis.writer.XaddIdMapWriter;
-import com.redislabs.riot.redis.writer.XaddIdMaxlenMapWriter;
-import com.redislabs.riot.redis.writer.XaddMapWriter;
-import com.redislabs.riot.redis.writer.XaddMaxlenMapWriter;
+import com.redislabs.riot.batch.redis.writer.AbstractRedisFlatMapWriter;
+import com.redislabs.riot.batch.redis.writer.XaddIdMapWriter;
+import com.redislabs.riot.batch.redis.writer.XaddIdMaxlenMapWriter;
+import com.redislabs.riot.batch.redis.writer.XaddMapWriter;
+import com.redislabs.riot.batch.redis.writer.XaddMaxlenMapWriter;
 
+import lombok.Data;
 import picocli.CommandLine.Option;
 
-public class StreamCommandOptions {
+public @Data class StreamCommandOptions {
 
 	@Option(names = "--xadd-trim", description = "Use efficient trimming (~ flag)")
 	private boolean xaddTrim;

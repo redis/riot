@@ -4,8 +4,6 @@ import java.text.NumberFormat;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.StepExecution;
@@ -18,18 +16,14 @@ import org.springframework.batch.item.support.AbstractItemCountingItemStreamItem
 import com.redislabs.riot.batch.JobExecutor;
 import com.redislabs.riot.batch.ThrottlingItemReader;
 import com.redislabs.riot.batch.ThrottlingItemStreamReader;
+import com.redislabs.riot.cli.redis.RedisConnectionOptions;
 
-import picocli.CommandLine.Model.CommandSpec;
+import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine.Option;
-import picocli.CommandLine.Spec;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
+@Slf4j
 public abstract class TransferCommand extends AbstractCommand {
-
-	private final Logger log = LoggerFactory.getLogger(TransferCommand.class);
-
-	@Spec
-	private CommandSpec spec;
 
 	@Option(names = "--threads", description = "Thread count (default: ${DEFAULT-VALUE})", paramLabel = "<count>")
 	private int threads = 1;
@@ -67,30 +61,30 @@ public abstract class TransferCommand extends AbstractCommand {
 	}
 
 	@Override
-	public void run() {
+	public void execute(String name, RedisConnectionOptions redisOptions) {
 		ItemReader reader;
 		try {
-			reader = reader();
+			reader = reader(redisOptions);
 		} catch (Exception e) {
-			log.error("Could not initialize {} reader", spec.name(), e);
+			log.error("Could not initialize {} reader", name, e);
 			return;
 		}
 		ItemWriter writer;
 		try {
-			writer = writer();
+			writer = writer(redisOptions);
 		} catch (Exception e) {
-			log.error("Could not initialize {} writer", spec.name(), e);
+			log.error("Could not initialize {} writer", name, e);
 			return;
 		}
 		ItemProcessor processor;
 		try {
-			processor = processor();
+			processor = processor(redisOptions);
 		} catch (Exception e) {
-			log.error("Could not initialize {} processor", spec.name(), e);
+			log.error("Could not initialize {} processor", name, e);
 			return;
 		}
 		try {
-			JobExecution execution = execute(spec.name(), reader, processor, writer);
+			JobExecution execution = execute(name, reader, processor, writer);
 			if (execution.getExitStatus().getExitCode().equals(ExitStatus.FAILED.getExitCode())) {
 				execution.getAllFailureExceptions().forEach(e -> e.printStackTrace());
 			}
@@ -112,10 +106,10 @@ public abstract class TransferCommand extends AbstractCommand {
 		}
 	}
 
-	protected abstract ItemReader reader() throws Exception;
+	protected abstract ItemReader reader(RedisConnectionOptions options) throws Exception;
 
-	protected abstract ItemProcessor processor() throws Exception;
+	protected abstract ItemProcessor processor(RedisConnectionOptions options) throws Exception;
 
-	protected abstract ItemWriter writer() throws Exception;
+	protected abstract ItemWriter writer(RedisConnectionOptions options) throws Exception;
 
 }

@@ -2,16 +2,17 @@ package com.redislabs.riot.cli.db;
 
 import java.util.Map;
 
-import javax.sql.DataSource;
-
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.database.JdbcCursorItemReader;
 import org.springframework.batch.item.database.builder.JdbcCursorItemReaderBuilder;
 import org.springframework.jdbc.core.ColumnMapRowMapper;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import picocli.CommandLine.Option;
 
-public class DatabaseReaderOptions {
+@EqualsAndHashCode(callSuper = true)
+public @Data class DatabaseReaderOptions extends DatabaseOptions {
 
 	@Option(required = true, names = "--sql", description = "SELECT statement", paramLabel = "<sql>")
 	private String sql;
@@ -26,9 +27,9 @@ public class DatabaseReaderOptions {
 	@Option(names = "--verify", description = "Verify position of ResultSet after RowMapper")
 	private boolean verifyCursorPosition;
 
-	public ItemReader<Map<String, Object>> reader(DataSource dataSource) throws Exception {
+	public ItemReader<Map<String, Object>> reader() throws Exception {
 		JdbcCursorItemReaderBuilder<Map<String, Object>> builder = new JdbcCursorItemReaderBuilder<Map<String, Object>>();
-		builder.dataSource(dataSource);
+		builder.dataSource(dataSource());
 		if (fetchSize != null) {
 			builder.fetchSize(fetchSize);
 		}

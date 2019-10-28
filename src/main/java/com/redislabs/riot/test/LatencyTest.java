@@ -17,11 +17,13 @@ public class LatencyTest implements RedisTest {
 
 	private int iterations;
 	private long sleep;
+	private TimeUnit timeUnit;
 	private boolean printDistribution;
 
-	public LatencyTest(int iterations, long sleep, boolean printDistribution) {
+	public LatencyTest(int iterations, long sleep, TimeUnit timeUnit, boolean printDistribution) {
 		this.iterations = iterations;
 		this.sleep = sleep;
+		this.timeUnit = timeUnit;
 		this.printDistribution = printDistribution;
 	}
 
@@ -50,10 +52,9 @@ public class LatencyTest implements RedisTest {
 			DefaultCommandLatencyCollectorOptions options = DefaultCommandLatencyCollectorOptions.create();
 			Map<Double, Long> percentiles = new TreeMap<Double, Long>();
 			for (double targetPercentile : options.targetPercentiles()) {
-				percentiles.put(targetPercentile, options.targetUnit()
-						.convert(histogram.getValueAtPercentile(targetPercentile), TimeUnit.NANOSECONDS));
+				percentiles.put(targetPercentile,
+						timeUnit.convert(histogram.getValueAtPercentile(targetPercentile), TimeUnit.NANOSECONDS));
 			}
-			TimeUnit timeUnit = options.targetUnit();
 			CommandLatency latency = new CommandLatency(timeUnit.convert(histogram.getMinValue(), TimeUnit.NANOSECONDS),
 					timeUnit.convert(histogram.getMaxValue(), TimeUnit.NANOSECONDS), percentiles);
 			System.out.println(latency.toString());

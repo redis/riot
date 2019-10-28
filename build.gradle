@@ -5,6 +5,16 @@ plugins {
     id 'net.nemerosa.versioning' version '2.8.2'
     id 'org.asciidoctor.jvm.convert' version '2.3.0'
     id 'com.github.ben-manes.versions' version '0.25.0'
+    id 'maven-publish'
+    id 'maven'
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
 }
 
 repositories {
@@ -23,15 +33,15 @@ dependencies {
     compile 'com.microsoft.sqlserver:mssql-jdbc:7.4.1.jre8'
     compile 'com.oracle.ojdbc:ojdbc8:19.3.0.0'
     compile 'com.redislabs:jredisearch:1.0.0'
-    compile 'com.redislabs:lettusearch:1.6.0'
+    compile 'com.redislabs:lettusearch:1.7.1'
     compile 'com.zaxxer:HikariCP:3.4.1'
     compile 'info.picocli:picocli:4.0.4'
     compile 'org.apache.commons:commons-pool2:2.7.0'
     compile 'org.latencyutils:LatencyUtils:2.0.3'
     compile 'org.postgresql:postgresql:42.2.8'
-    compile "org.slf4j:jcl-over-slf4j:${slf4jVersion}"
     compile "org.slf4j:slf4j-api:${slf4jVersion}"
-    compile "org.slf4j:slf4j-jdk14:${slf4jVersion}"
+//    compile "org.slf4j:jcl-over-slf4j:${slf4jVersion}"
+//    compile "org.slf4j:slf4j-jdk14:${slf4jVersion}"
     compile 'org.springframework.batch:spring-batch-core:4.1.2.RELEASE'
     compile 'org.springframework.boot:spring-boot-autoconfigure:2.1.8.RELEASE'
     compile 'org.springframework:spring-jdbc:5.1.9.RELEASE'
@@ -39,6 +49,8 @@ dependencies {
     compile 'org.springframework.cloud:spring-cloud-aws-autoconfigure:2.1.3.RELEASE'
     compile 'org.xerial:sqlite-jdbc:3.28.0'
     compile 'redis.clients:jedis:3.1.0'
+    compileOnly 'org.projectlombok:lombok:1.18.10'
+    annotationProcessor 'org.projectlombok:lombok:1.18.10'
     testCompile 'org.codehaus.plexus:plexus-utils:3.2.1'
     testCompile 'org.hsqldb:hsqldb:2.5.0'
     testCompile 'org.junit.jupiter:junit-jupiter-engine:5.5.2'
@@ -75,4 +87,21 @@ asciidoctor {
   outputOptions {
   	separateOutputDirs = false
   }
+}
+
+task writePom {
+    doLast {
+        pom {
+            project {
+                inceptionYear '2008'
+                licenses {
+                    license {
+                        name 'The Apache Software License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        distribution 'repo'
+                    }
+                }
+            }
+        }.writeTo("$buildDir/pom.xml")
+    }
 }

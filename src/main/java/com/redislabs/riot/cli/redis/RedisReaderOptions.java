@@ -1,17 +1,18 @@
 package com.redislabs.riot.cli.redis;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.ArrayList;
+import java.util.List;
 
-import com.redislabs.riot.redis.JedisItemReader;
+import com.redislabs.riot.batch.redis.JedisItemReader;
 
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine.Option;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.util.Pool;
 
-public class RedisReaderOptions {
-
-	private final Logger log = LoggerFactory.getLogger(RedisReaderOptions.class);
+@Slf4j
+public @Data class RedisReaderOptions {
 
 	@Option(names = "--count", description = "Number of elements to return for each scan call", paramLabel = "<int>")
 	private Integer count;
@@ -20,7 +21,7 @@ public class RedisReaderOptions {
 	@Option(names = { "--scan-keyspace" }, description = "Redis keyspace prefix", paramLabel = "<str>")
 	private String keyspace;
 	@Option(names = { "--scan-keys" }, arity = "1..*", description = "Key fields", paramLabel = "<names>")
-	private String[] keys = new String[0];
+	private List<String> keys = new ArrayList<>();
 
 	public JedisItemReader reader(Pool<Jedis> jedisPool) {
 		String scanPattern = scanPattern();
@@ -28,7 +29,7 @@ public class RedisReaderOptions {
 		JedisItemReader reader = new JedisItemReader(jedisPool);
 		reader.setCount(count);
 		reader.setMatch(scanPattern);
-		reader.setKeys(keys);
+		reader.setKeys(keys.toArray(new String[keys.size()]));
 		reader.setKeyspace(keyspace);
 		reader.setSeparator(separator);
 		return reader;
