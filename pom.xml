@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.redislabs</groupId>
 	<artifactId>riot</artifactId>
-	<version>0.42.2-SNAPSHOT</version>
+	<version>0.44.0</version>
 	<name>RIOT</name>
 	<description>Redis Input/Output Tool</description>
 	<url>https://github.com/Redislabs-Solution-Architects/riot</url>
@@ -11,7 +11,7 @@
 		<url>https://github.com/Redislabs-Solution-Architects/riot</url>
 		<connection>scm:git:git://github.com/Redislabs-Solution-Architects/riot.git</connection>
 		<developerConnection>scm:git:git@github.com:Redislabs-Solution-Architects/riot.git</developerConnection>
-		<tag>HEAD</tag>
+		<tag>riot-0.44.0</tag>
 	</scm>
 	<developers>
 		<developer>
