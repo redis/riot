@@ -59,7 +59,7 @@ public class GeneratorReader extends AbstractItemCountingItemStreamItemReader<Ma
 	}
 
 	@Override
-	public void open(ExecutionContext executionContext) throws ItemStreamException {
+	public synchronized void open(ExecutionContext executionContext) throws ItemStreamException {
 		int partitionIndex = IndexedPartitioner.getPartitionIndex(executionContext);
 		log.debug("Setting partition={}", partitionIndex);
 		this.partition.set(partitionIndex);
