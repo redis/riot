@@ -9,54 +9,27 @@ import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
-import org.springframework.batch.item.ItemStreamReader;
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
 
 import com.redislabs.riot.batch.JobExecutor;
-import com.redislabs.riot.batch.ThrottlingItemReader;
-import com.redislabs.riot.batch.ThrottlingItemStreamReader;
 import com.redislabs.riot.cli.redis.RedisConnectionOptions;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import picocli.CommandLine.Option;
+import picocli.CommandLine.ArgGroup;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
 @Slf4j
 public abstract class TransferCommand extends AbstractCommand {
 
-	@Option(names = "--threads", description = "Thread count (default: ${DEFAULT-VALUE})", paramLabel = "<count>")
-	private int threads = 1;
-	@Option(names = { "-b",
-			"--batch" }, description = "Number of items in each batch (default: ${DEFAULT-VALUE})", paramLabel = "<size>")
-	private int batchSize = 50;
-	@Option(names = { "-m", "--max" }, description = "Max number of items to read", paramLabel = "<count>")
-	private Integer count;
-	@Option(names = "--sleep", description = "Sleep duration in millis between reads", paramLabel = "<ms>")
-	private Long sleep;
-
-	private ItemReader throttle(ItemReader reader) {
-		if (count != null) {
-			if (reader instanceof AbstractItemCountingItemStreamItemReader) {
-				((AbstractItemCountingItemStreamItemReader) reader).setMaxItemCount(count);
-			} else {
-				log.warn("Count is set for a source that does not support capping");
-			}
-		}
-		if (sleep == null) {
-			return reader;
-		}
-		if (reader instanceof ItemStreamReader) {
-			return new ThrottlingItemStreamReader((ItemStreamReader) reader, sleep);
-		}
-		return new ThrottlingItemReader(reader, sleep);
-	}
+	@Setter
+	@ArgGroup(exclusive = false, heading = "Transfer options%n")
+	private TransferOptions transferOptions = new TransferOptions();
 
 	public JobExecution execute(String name, ItemReader reader, ItemProcessor processor, ItemWriter writer)
 			throws Exception {
-		JobExecutor executor = new JobExecutor();
-		log.info("Executing {}, threads: {}, batch size: {}", name, threads, batchSize);
-		return executor.execute(name, throttle(reader), processor, writer, threads, batchSize);
+		return new JobExecutor().execute(name, transferOptions.configure(reader), processor, writer,
+				transferOptions.getThreads(), transferOptions.getBatchSize());
 
 	}
 

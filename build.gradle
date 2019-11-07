@@ -22,10 +22,6 @@ repositories {
 	mavenLocal()
 }
 
-ext {
-	slf4jVersion = '1.7.28'
-}
-
 dependencies {
     compile 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.9.9'
     compile 'com.github.javafaker:javafaker:1.0.1'
@@ -39,9 +35,9 @@ dependencies {
     compile 'org.apache.commons:commons-pool2:2.7.0'
     compile 'org.latencyutils:LatencyUtils:2.0.3'
     compile 'org.postgresql:postgresql:42.2.8'
-    compile "org.slf4j:slf4j-api:${slf4jVersion}"
-//    compile "org.slf4j:jcl-over-slf4j:${slf4jVersion}"
-//    compile "org.slf4j:slf4j-jdk14:${slf4jVersion}"
+    compile "org.slf4j:slf4j-api:1.7.28"
+    compile "org.slf4j:jcl-over-slf4j:1.7.28"
+    compile "org.slf4j:slf4j-jdk14:1.7.28"
     compile 'org.springframework.batch:spring-batch-core:4.1.2.RELEASE'
     compile 'org.springframework.boot:spring-boot-autoconfigure:2.1.8.RELEASE'
     compile 'org.springframework:spring-jdbc:5.1.9.RELEASE'
