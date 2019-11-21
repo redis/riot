@@ -32,13 +32,7 @@ dependencies {
     compile 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.9.9'
     compile 'com.github.javafaker:javafaker:1.0.1'
     compile 'com.zaxxer:HikariCP:3.4.1'
-    compile 'com.ibm.db2:jcc:11.5.0.0'
-    compile 'com.microsoft.sqlserver:mssql-jdbc:7.4.1.jre8'
-    compile 'com.oracle.ojdbc:ojdbc8:19.3.0.0'
-    compile 'org.postgresql:postgresql:42.2.8'
-    compile 'com.redislabs:jredisearch:1.0.0'
-    compile 'com.redislabs:lettusearch:1.7.1'
-    compile 'org.xerial:sqlite-jdbc:3.28.0'
+    compile 'com.redislabs:lettusearch:1.7.3'
     compile 'org.slf4j:slf4j-api:1.7.28'
     compile 'org.slf4j:jcl-over-slf4j:1.7.28'
     compile 'org.slf4j:slf4j-jdk14:1.7.28'
@@ -48,6 +42,12 @@ dependencies {
     testCompile 'org.codehaus.plexus:plexus-utils:3.2.1'
     testCompile 'org.hsqldb:hsqldb:2.5.0'
     testCompile 'org.junit.jupiter:junit-jupiter-engine:5.5.2'
+    implementation 'com.google.code.findbugs:jsr305:3.0.2'
+//    compile 'org.xerial:sqlite-jdbc:3.28.0'
+//    compile 'com.ibm.db2:jcc:11.5.0.0'
+//    compile 'com.microsoft.sqlserver:mssql-jdbc:7.4.1.jre8'
+//    compile 'com.oracle.ojdbc:ojdbc8:19.3.0.0'
+//    compile 'org.postgresql:postgresql:42.2.8'    
 }
 
 test {

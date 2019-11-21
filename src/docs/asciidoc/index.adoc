@@ -101,7 +101,12 @@ include::{commandsdir}/file-export-json_gz.txt[]
 [#db]
 === Databases
 
-RIOT can connect to SQL databases through JDBC. It includes drivers for the most common database systems. 
+RIOT can connect to SQL databases through JDBC. Install the appropriate JDBC driver under the `lib` directory and modify the RIOT `CLASSPATH` accordingly:
+
+* *nix: `bin/riot` -> `CLASSPATH=$APP_HOME/lib/myjdbc.jar:$APP_HOME/lib/…`
+
+* Windows: `bin\riot.bat` -> `set CLASSPATH=%APP_HOME%\lib\myjdbc.jar;%APP_HOME%\lib\…`
+ 
 
 For reference here are links to common database systems and related JDBC driver documentation:
 
@@ -121,14 +126,6 @@ For reference here are links to common database systems and related JDBC driver 
 |https://www.sqlitetutorial.net/sqlite-java/sqlite-jdbc-driver/[SQLite]|`jdbc:sqlite:sqlite_database_file_path`
 |=========================================================
 
-[TIP]
-====
-For non-included databases you must install the corresponding JDBC driver under the `lib` directory and modify the RIOT `CLASSPATH`:
-
-* *nix: `bin/riot` -> `CLASSPATH=$APP_HOME/lib/myjdbc.jar:$APP_HOME/lib/…`
-
-* Windows: `bin\riot.bat` -> `set CLASSPATH=%APP_HOME%\lib\myjdbc.jar;%APP_HOME%\lib\…`
-====
 
 ==== SQL -> Redis
 [source,shell]
