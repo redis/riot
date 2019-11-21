@@ -23,7 +23,7 @@ repositories {
 }
 
 dependencies {
-    compile 'com.redislabs:picocli-redis:1.0.6'
+    compile 'com.redislabs:picocli-redis:1.0.7'
     compile 'org.springframework.batch:spring-batch-core:4.1.2.RELEASE'
     compile 'org.springframework.boot:spring-boot-autoconfigure:2.1.8.RELEASE'
     compile 'org.springframework:spring-jdbc:5.1.9.RELEASE'

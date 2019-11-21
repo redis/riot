@@ -6,6 +6,8 @@ import org.springframework.batch.item.ItemWriter;
 
 import com.redislabs.lettusearch.RediSearchAsyncCommands;
 import com.redislabs.lettusearch.RediSearchClient;
+import com.redislabs.lettusearch.RediSearchCommands;
+import com.redislabs.lettusearch.RediSearchReactiveCommands;
 import com.redislabs.lettusearch.StatefulRediSearchConnection;
 import com.redislabs.picocliredis.RedisOptions;
 import com.redislabs.riot.batch.redis.AbstractRedisWriter;
@@ -13,20 +15,27 @@ import com.redislabs.riot.batch.redis.JedisClusterWriter;
 import com.redislabs.riot.batch.redis.JedisPipelineWriter;
 import com.redislabs.riot.batch.redis.LettuceAsyncItemWriter;
 import com.redislabs.riot.batch.redis.LettuceConnector;
+import com.redislabs.riot.batch.redis.LettuceReactiveItemWriter;
+import com.redislabs.riot.batch.redis.LettuceSyncItemWriter;
 import com.redislabs.riot.batch.redis.RedisWriter;
 import com.redislabs.riot.batch.redis.map.AbstractMapWriter;
 import com.redislabs.riot.batch.redis.map.JedisClusterCommands;
 import com.redislabs.riot.batch.redis.map.JedisPipelineCommands;
 import com.redislabs.riot.batch.redis.map.LettuceAsyncCommands;
+import com.redislabs.riot.batch.redis.map.LettuceReactiveCommands;
+import com.redislabs.riot.batch.redis.map.LettuceSyncCommands;
 import com.redislabs.riot.batch.redis.map.RedisCommands;
 import com.redislabs.riot.cli.RedisCommand;
 
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.api.async.RedisAsyncCommands;
+import io.lettuce.core.api.reactive.RedisReactiveCommands;
 import io.lettuce.core.cluster.RedisClusterClient;
 import io.lettuce.core.cluster.api.StatefulRedisClusterConnection;
 import io.lettuce.core.cluster.api.async.RedisClusterAsyncCommands;
+import io.lettuce.core.cluster.api.reactive.RedisClusterReactiveCommands;
+import io.lettuce.core.cluster.api.sync.RedisClusterCommands;
 import lombok.Data;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Option;
@@ -39,9 +48,9 @@ public @Data class RedisWriterOptions {
 	@ArgGroup(exclusive = false, heading = "Redis key options%n", order = 10)
 	private KeyOptions keyOptions = new KeyOptions();
 	@ArgGroup(exclusive = false, heading = "Redis command options%n", order = 20)
-	private RedisCommandOptions redisWriterOptions = new RedisCommandOptions();
+	private RedisCommandOptions redisCommandOptions = new RedisCommandOptions();
 	@ArgGroup(exclusive = false, heading = "RediSearch command options%n", order = 30)
-	private RediSearchCommandOptions rediSearchWriterOptions = new RediSearchCommandOptions();
+	private RediSearchCommandOptions rediSearchCommandOptions = new RediSearchCommandOptions();
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public ItemWriter<Map<String, Object>> writer(RedisOptions redis) {
@@ -51,24 +60,62 @@ public @Data class RedisWriterOptions {
 			}
 			return new JedisPipelineWriter<>(redis.jedisPool(), mapWriter(redis));
 		}
-		return new LettuceAsyncItemWriter(lettuceConnector(redis), mapWriter(redis), redis.getCommandTimeout());
+		switch (redis.getLettuce().getApi()) {
+		case reactive:
+			return new LettuceReactiveItemWriter<>(lettuceConnector(redis), mapWriter(redis));
+		case sync:
+			return new LettuceSyncItemWriter<>(lettuceConnector(redis), mapWriter(redis));
+		default:
+			return new LettuceAsyncItemWriter(lettuceConnector(redis), mapWriter(redis), redis.getCommandTimeout());
+		}
 	}
 
 	@SuppressWarnings("rawtypes")
 	private LettuceConnector lettuceConnector(RedisOptions redis) {
 		if (isRediSearch()) {
 			RediSearchClient client = redis.lettuSearchClient();
-			return new LettuceConnector<String, String, StatefulRediSearchConnection<String, String>, RediSearchAsyncCommands<String, String>>(
-					client, client::getResources, redis.pool(client::connect), StatefulRediSearchConnection::async);
+			switch (redis.getLettuce().getApi()) {
+			case sync:
+				return new LettuceConnector<String, String, StatefulRediSearchConnection<String, String>, RediSearchCommands<String, String>>(
+						client, client::getResources, redis.pool(client::connect), StatefulRediSearchConnection::sync);
+			case reactive:
+				return new LettuceConnector<String, String, StatefulRediSearchConnection<String, String>, RediSearchReactiveCommands<String, String>>(
+						client, client::getResources, redis.pool(client::connect),
+						StatefulRediSearchConnection::reactive);
+			default:
+				return new LettuceConnector<String, String, StatefulRediSearchConnection<String, String>, RediSearchAsyncCommands<String, String>>(
+						client, client::getResources, redis.pool(client::connect), StatefulRediSearchConnection::async);
+			}
 		}
 		if (redis.isCluster()) {
 			RedisClusterClient client = redis.lettuceClusterClient();
-			return new LettuceConnector<String, String, StatefulRedisClusterConnection<String, String>, RedisClusterAsyncCommands<String, String>>(
-					client, client::getResources, redis.pool(client::connect), StatefulRedisClusterConnection::async);
+			switch (redis.getLettuce().getApi()) {
+			case sync:
+				return new LettuceConnector<String, String, StatefulRedisClusterConnection<String, String>, RedisClusterCommands<String, String>>(
+						client, client::getResources, redis.pool(client::connect),
+						StatefulRedisClusterConnection::sync);
+			case reactive:
+				return new LettuceConnector<String, String, StatefulRedisClusterConnection<String, String>, RedisClusterReactiveCommands<String, String>>(
+						client, client::getResources, redis.pool(client::connect),
+						StatefulRedisClusterConnection::reactive);
+			default:
+				return new LettuceConnector<String, String, StatefulRedisClusterConnection<String, String>, RedisClusterAsyncCommands<String, String>>(
+						client, client::getResources, redis.pool(client::connect),
+						StatefulRedisClusterConnection::async);
+			}
 		}
 		RedisClient client = redis.lettuceClient();
-		return new LettuceConnector<String, String, StatefulRedisConnection<String, String>, RedisAsyncCommands<String, String>>(
-				client, client::getResources, redis.pool(client::connect), StatefulRedisConnection::async);
+		switch (redis.getLettuce().getApi()) {
+		case sync:
+			return new LettuceConnector<String, String, StatefulRedisConnection<String, String>, io.lettuce.core.api.sync.RedisCommands<String, String>>(
+					client, client::getResources, redis.pool(client::connect), StatefulRedisConnection::sync);
+		case reactive:
+			return new LettuceConnector<String, String, StatefulRedisConnection<String, String>, RedisReactiveCommands<String, String>>(
+					client, client::getResources, redis.pool(client::connect), StatefulRedisConnection::reactive);
+		default:
+			return new LettuceConnector<String, String, StatefulRedisConnection<String, String>, RedisAsyncCommands<String, String>>(
+					client, client::getResources, redis.pool(client::connect), StatefulRedisConnection::async);
+		}
 
 	}
 
@@ -91,14 +138,21 @@ public @Data class RedisWriterOptions {
 			}
 			return new JedisPipelineCommands();
 		}
-		return new LettuceAsyncCommands();
+		switch (redis.getLettuce().getApi()) {
+		case reactive:
+			return new LettuceReactiveCommands();
+		case sync:
+			return new LettuceSyncCommands();
+		default:
+			return new LettuceAsyncCommands();
+		}
 	}
 
 	private <R> AbstractRedisWriter<R, Map<String, Object>> writer() {
 		if (isRediSearch()) {
-			return rediSearchWriterOptions.writer(command);
+			return rediSearchCommandOptions.writer(command);
 		}
-		return redisWriterOptions.writer(command);
+		return redisCommandOptions.writer(command);
 	}
 
 	private boolean isRediSearch() {
