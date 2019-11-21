@@ -34,6 +34,6 @@ RELEASE_ID=$(okurl -d "$RELEASE_BODY" https://api.github.com/repos/Redislabs-Sol
 
 echo Created "https://api.github.com/repos/Redislabs-Solution-Architects/riot/releases/${RELEASE_ID}"
 
-okurl -H "Content-Type: application/x-gzip" -d "@build/distributions/riot-${TAG_VERSION}.tgz" "https://uploads.github.com/repos/Redislabs-Solution-Architects/riot/releases/${RELEASE_ID}/assets?name=riot-${TAG_VERSION}.tgz" | jq ".browser_download_url"
+okurl -H "Content-Type: application/x-gzip" --data="@build/distributions/riot-${TAG_VERSION}.tgz" "https://uploads.github.com/repos/Redislabs-Solution-Architects/riot/releases/${RELEASE_ID}/assets?name=riot-${TAG_VERSION}.tgz" | jq ".browser_download_url"
 
 git co master
