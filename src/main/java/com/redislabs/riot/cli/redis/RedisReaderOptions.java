@@ -3,7 +3,7 @@ package com.redislabs.riot.cli.redis;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.redislabs.riot.batch.redis.JedisItemReader;
+import com.redislabs.riot.batch.redis.JedisMapReader;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -23,10 +23,10 @@ public @Data class RedisReaderOptions {
 	@Option(names = { "--scan-keys" }, arity = "1..*", description = "Key fields", paramLabel = "<names>")
 	private List<String> keys = new ArrayList<>();
 
-	public JedisItemReader reader(Pool<Jedis> jedisPool) {
+	public JedisMapReader reader(Pool<Jedis> jedisPool) {
 		String scanPattern = scanPattern();
 		log.debug("Creating Redis reader with match={} and count={}", scanPattern, count);
-		JedisItemReader reader = new JedisItemReader(jedisPool);
+		JedisMapReader reader = new JedisMapReader(jedisPool);
 		reader.setCount(count);
 		reader.setMatch(scanPattern);
 		reader.setKeys(keys.toArray(new String[keys.size()]));

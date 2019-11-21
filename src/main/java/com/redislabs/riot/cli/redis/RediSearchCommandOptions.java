@@ -8,16 +8,13 @@ import com.redislabs.riot.batch.redisearch.writer.FtaddMapWriter;
 import com.redislabs.riot.batch.redisearch.writer.FtaddPayloadMapWriter;
 import com.redislabs.riot.batch.redisearch.writer.SugaddMapWriter;
 import com.redislabs.riot.batch.redisearch.writer.SugaddPayloadMapWriter;
-import com.redislabs.riot.cli.RediSearchCommand;
+import com.redislabs.riot.cli.RedisCommand;
 
 import lombok.Data;
 import picocli.CommandLine.Option;
 
 public @Data class RediSearchCommandOptions {
 
-	@Option(names = { "-r",
-			"--ft-command" }, description = "RediSearch command: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})", paramLabel = "<name>")
-	private RediSearchCommand command = RediSearchCommand.add;
 	@Option(names = { "-i", "--index" }, description = "Name of the RediSearch index", paramLabel = "<name>")
 	private String index;
 	@Option(names = "--nosave", description = "Do not save docs, only index")
@@ -41,41 +38,39 @@ public @Data class RediSearchCommandOptions {
 	@Option(names = "--suggest-increment", description = "Use increment to set value")
 	private boolean increment;
 
-	private AbstractSearchMapWriter searchWriter() {
+	private <R> AbstractSearchMapWriter<R> searchWriter() {
 		if (payloadField == null) {
-			return new FtaddMapWriter();
+			return new FtaddMapWriter<>();
 		}
-		FtaddPayloadMapWriter writer = new FtaddPayloadMapWriter();
-		writer.setPayloadField(payloadField);
+		return new FtaddPayloadMapWriter<R>().payloadField(payloadField);
+	}
+
+	private <R> SugaddMapWriter<R> suggestWriter() {
+		if (payloadField == null) {
+			return new SugaddMapWriter<>();
+		}
+		return new SugaddPayloadMapWriter<R>().payloadField(payloadField);
+	}
+
+	public <R> AbstractLettuSearchMapWriter<R> writer(RedisCommand command) {
+		AbstractLettuSearchMapWriter<R> writer = createWriter(command);
+		writer.index(index);
+		writer.scoreField(scoreField);
+		writer.defaultScore(defaultScore);
 		return writer;
 	}
 
-	private SugaddMapWriter suggestWriter() {
-		if (payloadField == null) {
-			return new SugaddMapWriter();
-		}
-		SugaddPayloadMapWriter writer = new SugaddPayloadMapWriter();
-		writer.setPayloadField(payloadField);
-		return writer;
-	}
-
-	public AbstractLettuSearchMapWriter writer() {
+	private <R> AbstractLettuSearchMapWriter<R> createWriter(RedisCommand command) {
 		switch (command) {
-		case sugadd:
-			SugaddMapWriter suggestWriter = suggestWriter();
-			suggestWriter.setIndex(index);
-			suggestWriter.setScoreField(scoreField);
-			suggestWriter.setDefaultScore(defaultScore);
-			suggestWriter.setField(suggestField);
-			suggestWriter.setIncrement(increment);
+		case ftsugadd:
+			SugaddMapWriter<R> suggestWriter = suggestWriter();
+			suggestWriter.field(suggestField);
+			suggestWriter.increment(increment);
 			return suggestWriter;
 		default:
-			AbstractSearchMapWriter addWriter = searchWriter();
-			addWriter.setOptions(AddOptions.builder().ifCondition(ifCondition).language(language).noSave(noSave)
+			AbstractSearchMapWriter<R> addWriter = searchWriter();
+			addWriter.options(AddOptions.builder().ifCondition(ifCondition).language(language).noSave(noSave)
 					.replace(replace).replacePartial(partial).build());
-			addWriter.setDefaultScore(defaultScore);
-			addWriter.setScoreField(scoreField);
-			addWriter.setIndex(index);
 			return addWriter;
 		}
 	}

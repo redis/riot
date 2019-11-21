@@ -4,8 +4,8 @@ import java.util.Map;
 
 import org.springframework.batch.item.ItemReader;
 
+import com.redislabs.picocliredis.RedisOptions;
 import com.redislabs.riot.cli.ImportCommand;
-import com.redislabs.riot.cli.redis.RedisConnectionOptions;
 
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
@@ -17,7 +17,7 @@ public class DatabaseImportCommand extends ImportCommand {
 	private DatabaseReaderOptions options = new DatabaseReaderOptions();
 
 	@Override
-	protected ItemReader<Map<String, Object>> reader(RedisConnectionOptions redisConnectionOptions) throws Exception {
+	protected ItemReader<Map<String, Object>> reader(RedisOptions redisConnectionOptions) throws Exception {
 		return options.reader();
 	}
 

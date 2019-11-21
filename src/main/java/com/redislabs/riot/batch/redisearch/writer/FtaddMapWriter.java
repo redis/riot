@@ -2,18 +2,12 @@ package com.redislabs.riot.batch.redisearch.writer;
 
 import java.util.Map;
 
-import com.redislabs.lettusearch.RediSearchAsyncCommands;
-import com.redislabs.lettusearch.search.AddOptions;
-
-import io.lettuce.core.RedisFuture;
-
 @SuppressWarnings("unchecked")
-public class FtaddMapWriter extends AbstractSearchMapWriter {
+public class FtaddMapWriter<R> extends AbstractSearchMapWriter<R> {
 
 	@Override
-	protected RedisFuture<?> write(RediSearchAsyncCommands<String, String> commands, String index,
-			Map<String, Object> item, AddOptions options) {
-		return commands.add(index, key(item), score(item), stringMap(item), options);
+	protected Object write(R redis, String key, Map<String, Object> item) {
+		return commands.ftadd(redis, index, key, score(item), stringMap(item), options);
 	}
 
 }

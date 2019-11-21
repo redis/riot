@@ -2,45 +2,39 @@ package com.redislabs.riot.batch.redisearch.writer;
 
 import java.util.Map;
 
-import com.redislabs.lettusearch.RediSearchAsyncCommands;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 
-import io.lettuce.core.RedisFuture;
+@Accessors(fluent = true)
+public class SugaddMapWriter<R> extends AbstractLettuSearchMapWriter<R> {
 
-public class SugaddMapWriter extends AbstractLettuSearchMapWriter {
-
+	@Setter
 	private String field;
-	private boolean increment;
-
-	public void setField(String field) {
-		this.field = field;
-	}
-
-	public void setIncrement(boolean increment) {
-		this.increment = increment;
-	}
+	@Setter
+	protected boolean increment;
 
 	private String string(Map<String, Object> item) {
 		return convert(item.get(field), String.class);
 	}
 
 	@Override
-	protected RedisFuture<?> write(RediSearchAsyncCommands<String, String> commands, String index,
-			Map<String, Object> item) {
+	protected Object write(R redis, String key, Map<String, Object> item) {
 		String string = string(item);
 		if (string == null) {
 			return null;
 		}
-		return sugadd(commands, index, string, score(item), increment, item);
+		double score = score(item);
+		return write(redis, key, item, string, score);
 	}
 
-	protected RedisFuture<?> sugadd(RediSearchAsyncCommands<String, String> commands, String index, String string,
-			double score, boolean increment, @SuppressWarnings("unused") Map<String, Object> item) {
-		return commands.sugadd(index, string, score, increment);
+	@SuppressWarnings("unused")
+	protected Object write(R redis, String key, Map<String, Object> item, String string, double score) {
+		return commands.sugadd(redis, index, string, score, increment);
 	}
 
 	@Override
 	public String toString() {
-		return String.format("RediSearch suggestion index %s", getIndex());
+		return String.format("RediSearch suggestion index %s", index);
 	}
 
 }

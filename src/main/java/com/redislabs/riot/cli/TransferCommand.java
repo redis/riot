@@ -11,8 +11,8 @@ import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 
+import com.redislabs.picocliredis.RedisOptions;
 import com.redislabs.riot.batch.JobExecutor;
-import com.redislabs.riot.cli.redis.RedisConnectionOptions;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +34,7 @@ public abstract class TransferCommand extends AbstractCommand {
 	}
 
 	@Override
-	public void execute(String name, RedisConnectionOptions redisOptions) {
+	public void execute(String name, RedisOptions redisOptions) {
 		ItemReader reader;
 		try {
 			reader = reader(redisOptions);
@@ -79,10 +79,10 @@ public abstract class TransferCommand extends AbstractCommand {
 		}
 	}
 
-	protected abstract ItemReader reader(RedisConnectionOptions options) throws Exception;
+	protected abstract ItemReader reader(RedisOptions options) throws Exception;
 
-	protected abstract ItemProcessor processor(RedisConnectionOptions options) throws Exception;
+	protected abstract ItemProcessor processor(RedisOptions options) throws Exception;
 
-	protected abstract ItemWriter writer(RedisConnectionOptions options) throws Exception;
+	protected abstract ItemWriter writer(RedisOptions options) throws Exception;
 
 }

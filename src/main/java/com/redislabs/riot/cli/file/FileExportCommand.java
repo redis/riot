@@ -10,10 +10,10 @@ import org.springframework.batch.item.json.JacksonJsonObjectMarshaller;
 import org.springframework.batch.item.support.AbstractItemStreamItemWriter;
 import org.springframework.core.io.Resource;
 
+import com.redislabs.picocliredis.RedisOptions;
 import com.redislabs.riot.batch.file.FlatResourceItemWriterBuilder;
 import com.redislabs.riot.batch.file.JsonResourceItemWriterBuilder;
 import com.redislabs.riot.cli.ExportCommand;
-import com.redislabs.riot.cli.redis.RedisConnectionOptions;
 
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
@@ -44,8 +44,7 @@ public class FileExportCommand extends ExportCommand {
 	}
 
 	@Override
-	protected AbstractItemStreamItemWriter<Map<String, Object>> writer(RedisConnectionOptions redisOptions)
-			throws IOException {
+	protected AbstractItemStreamItemWriter<Map<String, Object>> writer(RedisOptions redisOptions) throws IOException {
 		Resource resource = fileWriterOptions.outputResource();
 		switch (fileWriterOptions.type()) {
 		case json:

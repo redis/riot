@@ -1,6 +1,6 @@
 package com.redislabs.riot.cli.redis;
 
-import com.redislabs.riot.batch.redis.writer.ExpireMapWriter;
+import com.redislabs.riot.batch.redis.map.ExpireMapWriter;
 
 import lombok.Data;
 import picocli.CommandLine.Option;
@@ -12,10 +12,7 @@ public @Data class ExpireCommandOptions {
 	@Option(names = "--expire-timeout", description = "Field to get the timeout value from", paramLabel = "<f>")
 	private String expireTimeout;
 
-	public ExpireMapWriter writer() {
-		ExpireMapWriter expireWriter = new ExpireMapWriter();
-		expireWriter.setDefaultTimeout(expireDefaultTimeout);
-		expireWriter.setTimeoutField(expireTimeout);
-		return expireWriter;
+	public <R> ExpireMapWriter<R> writer() {
+		return new ExpireMapWriter<R>().defaultTimeout(expireDefaultTimeout).timeoutField(expireTimeout);
 	}
 }

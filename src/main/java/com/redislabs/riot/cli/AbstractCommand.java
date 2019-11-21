@@ -1,7 +1,7 @@
 package com.redislabs.riot.cli;
 
+import com.redislabs.picocliredis.RedisOptions;
 import com.redislabs.riot.Riot;
-import com.redislabs.riot.cli.redis.RedisConnectionOptions;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Model.CommandSpec;
@@ -25,6 +25,6 @@ public abstract class AbstractCommand implements Runnable {
 		execute(spec.name(), riot.getRedisOptions());
 	}
 
-	public abstract void execute(String name, RedisConnectionOptions options);
+	public abstract void execute(String name, RedisOptions options);
 
 }

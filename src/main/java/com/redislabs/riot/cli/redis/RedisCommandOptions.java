@@ -2,15 +2,16 @@ package com.redislabs.riot.cli.redis;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
-import com.redislabs.riot.batch.redis.writer.CollectionMapWriter;
-import com.redislabs.riot.batch.redis.writer.DebugMapWriter;
-import com.redislabs.riot.batch.redis.writer.HmsetMapWriter;
-import com.redislabs.riot.batch.redis.writer.LpushMapWriter;
-import com.redislabs.riot.batch.redis.writer.NoopMapWriter;
-import com.redislabs.riot.batch.redis.writer.RedisMapWriter;
-import com.redislabs.riot.batch.redis.writer.RpushMapWriter;
-import com.redislabs.riot.batch.redis.writer.SaddMapWriter;
+import com.redislabs.riot.batch.redis.AbstractRedisWriter;
+import com.redislabs.riot.batch.redis.map.CollectionMapWriter;
+import com.redislabs.riot.batch.redis.map.DebugMapWriter;
+import com.redislabs.riot.batch.redis.map.HmsetMapWriter;
+import com.redislabs.riot.batch.redis.map.LpushMapWriter;
+import com.redislabs.riot.batch.redis.map.NoopMapWriter;
+import com.redislabs.riot.batch.redis.map.RpushMapWriter;
+import com.redislabs.riot.batch.redis.map.SaddMapWriter;
 import com.redislabs.riot.cli.RedisCommand;
 
 import lombok.Data;
@@ -19,9 +20,6 @@ import picocli.CommandLine.Option;
 
 public @Data class RedisCommandOptions {
 
-	@Option(names = { "-c",
-			"--command" }, description = "Command: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})", paramLabel = "<name>")
-	private RedisCommand command = RedisCommand.hmset;
 	@Option(names = "--members", arity = "1..*", description = "Member fields for collections: list geo set zset", paramLabel = "<names>")
 	private List<String> members = new ArrayList<>();
 	@ArgGroup(exclusive = false, heading = "Lua command options%n", order = 21)
@@ -37,15 +35,15 @@ public @Data class RedisCommandOptions {
 	@ArgGroup(exclusive = false, heading = "Expire command options%n", order = 21)
 	private ExpireCommandOptions expire = new ExpireCommandOptions();
 
-	public RedisMapWriter writer() {
-		RedisMapWriter redisItemWriter = redisItemWriter(command);
+	public <R> AbstractRedisWriter<R, Map<String, Object>> writer(RedisCommand command) {
+		AbstractRedisWriter<R, Map<String, Object>> redisItemWriter = redisItemWriter(command);
 		if (redisItemWriter instanceof CollectionMapWriter) {
-			((CollectionMapWriter) redisItemWriter).setFields(members.toArray(new String[members.size()]));
+			((CollectionMapWriter<R>) redisItemWriter).setFields(members.toArray(new String[members.size()]));
 		}
 		return redisItemWriter;
 	}
 
-	private RedisMapWriter redisItemWriter(RedisCommand command) {
+	private <R> AbstractRedisWriter<R, Map<String, Object>> redisItemWriter(RedisCommand command) {
 		switch (command) {
 		case evalsha:
 			return lua.writer();
@@ -54,11 +52,11 @@ public @Data class RedisCommandOptions {
 		case geoadd:
 			return geo.writer();
 		case lpush:
-			return new LpushMapWriter();
+			return new LpushMapWriter<>();
 		case rpush:
-			return new RpushMapWriter();
+			return new RpushMapWriter<>();
 		case sadd:
-			return new SaddMapWriter();
+			return new SaddMapWriter<>();
 		case set:
 			return string.writer();
 		case xadd:
@@ -66,11 +64,11 @@ public @Data class RedisCommandOptions {
 		case zadd:
 			return zset.writer();
 		case print:
-			return new DebugMapWriter();
+			return new DebugMapWriter<>();
 		case noop:
-			return new NoopMapWriter();
+			return new NoopMapWriter<>();
 		default:
-			return new HmsetMapWriter();
+			return new HmsetMapWriter<>();
 		}
 	}
 

@@ -2,57 +2,23 @@ package com.redislabs.riot.batch.redisearch.writer;
 
 import java.util.Map;
 
-import com.redislabs.lettusearch.RediSearchAsyncCommands;
-import com.redislabs.riot.batch.redis.writer.AbstractFlatMapWriter;
+import com.redislabs.riot.batch.redis.map.AbstractMapWriter;
 
-import io.lettuce.core.RedisFuture;
-import redis.clients.jedis.JedisCluster;
-import redis.clients.jedis.Pipeline;
-import redis.clients.jedis.Response;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 
-public abstract class AbstractLettuSearchMapWriter extends AbstractFlatMapWriter {
+@Accessors(fluent = true)
+public abstract class AbstractLettuSearchMapWriter<R> extends AbstractMapWriter<R> {
 
-	private String index;
+	@Setter
+	protected String index;
+	@Setter
 	private String scoreField;
+	@Setter
 	private double defaultScore = 1d;
-
-	public String getIndex() {
-		return index;
-	}
-
-	public void setIndex(String index) {
-		this.index = index;
-	}
-
-	public void setDefaultScore(double defaultScore) {
-		this.defaultScore = defaultScore;
-	}
-
-	public void setScoreField(String scoreField) {
-		this.scoreField = scoreField;
-	}
 
 	protected double score(Map<String, Object> item) {
 		return convert(item.getOrDefault(scoreField, defaultScore), Double.class);
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public RedisFuture<?> write(Object commands, Map<String, Object> item) {
-		return write((RediSearchAsyncCommands<String, String>) commands, index, item);
-	}
-
-	protected abstract RedisFuture<?> write(RediSearchAsyncCommands<String, String> commands, String index,
-			Map<String, Object> item);
-
-	@Override
-	public Response<?> write(Pipeline pipeline, Map<String, Object> item) {
-		throw new UnsupportedOperationException("Jedis not supported for RediSearch module");
-	}
-
-	@Override
-	public void write(JedisCluster cluster, Map<String, Object> item) {
-		throw new UnsupportedOperationException("Jedis not supported for RediSearch module");
 	}
 
 }

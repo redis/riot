@@ -2,8 +2,8 @@ package com.redislabs.riot.cli.test;
 
 import java.util.concurrent.TimeUnit;
 
+import com.redislabs.picocliredis.RedisOptions;
 import com.redislabs.riot.cli.AbstractCommand;
-import com.redislabs.riot.cli.redis.RedisConnectionOptions;
 import com.redislabs.riot.test.InfoTest;
 import com.redislabs.riot.test.LatencyTest;
 import com.redislabs.riot.test.PingTest;
@@ -31,7 +31,7 @@ public class TestCommand extends AbstractCommand {
 	private boolean latencyDistribution;
 
 	@Override
-	public void execute(String name, RedisConnectionOptions redis) {
+	public void execute(String name, RedisOptions redis) {
 		RedisTest test = test();
 		try {
 			if (redis.isJedis()) {

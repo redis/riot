@@ -13,9 +13,9 @@ import org.springframework.batch.item.support.ScriptItemProcessor;
 import org.springframework.batch.item.support.builder.ScriptItemProcessorBuilder;
 import org.springframework.core.io.FileSystemResource;
 
+import com.redislabs.picocliredis.RedisOptions;
 import com.redislabs.riot.batch.RegexProcessor;
 import com.redislabs.riot.batch.SpelProcessor;
-import com.redislabs.riot.cli.redis.RedisConnectionOptions;
 
 import lombok.Data;
 import picocli.CommandLine.Option;
@@ -43,8 +43,7 @@ public @Data class ProcessorOptions {
 		fields.put(name, expression);
 	}
 
-	public ItemProcessor<Map<String, Object>, Map<String, Object>> processor(RedisConnectionOptions redis)
-			throws Exception {
+	public ItemProcessor<Map<String, Object>, Map<String, Object>> processor(RedisOptions redis) throws Exception {
 		List<ItemProcessor<Map<String, Object>, Map<String, Object>>> processors = new ArrayList<>();
 		if (regexes != null) {
 			processors.add(new RegexProcessor(regexes));
@@ -79,7 +78,7 @@ public @Data class ProcessorOptions {
 		return processor;
 	}
 
-	public Object redis(RedisConnectionOptions redis) {
+	public Object redis(RedisOptions redis) {
 		if (redis.isJedis()) {
 			return redis.jedisPool();
 		}

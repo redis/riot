@@ -40,8 +40,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.WritableResource;
 import org.springframework.util.Assert;
 
-import com.google.common.io.CountingOutputStream;
-
 /**
  * Base class for item writers that write data to a file or stream.
  * This class provides common features like restart, force sync, append etc.

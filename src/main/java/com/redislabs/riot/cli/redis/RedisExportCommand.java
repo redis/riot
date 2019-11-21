@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.springframework.batch.item.ItemWriter;
 
+import com.redislabs.picocliredis.RedisOptions;
 import com.redislabs.riot.cli.ExportCommand;
 
 import lombok.Setter;
@@ -16,13 +17,13 @@ public class RedisExportCommand extends ExportCommand {
 
 	@Setter
 	@ArgGroup(exclusive = false, heading = "Target Redis connection options%n", order = 1)
-	private RedisConnectionOptions redis = new RedisConnectionOptions();
+	private RedisOptions redis = new RedisOptions();
 	@Setter
 	@Mixin
 	private RedisWriterOptions writer = new RedisWriterOptions();
 
 	@Override
-	protected ItemWriter<Map<String, Object>> writer(RedisConnectionOptions sourceRedisOptions) {
+	protected ItemWriter<Map<String, Object>> writer(RedisOptions sourceRedisOptions) {
 		return writer.writer(redis);
 	}
 

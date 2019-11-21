@@ -3,7 +3,7 @@ package com.redislabs.riot.cli.redis;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.redislabs.riot.batch.redis.writer.EvalshaMapWriter;
+import com.redislabs.riot.batch.redis.map.EvalshaMapWriter;
 
 import io.lettuce.core.ScriptOutputType;
 import lombok.Data;
@@ -20,13 +20,8 @@ public @Data class LuaCommandOptions {
 	@Option(names = "--eval-output", description = "Output: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})", paramLabel = "<type>")
 	private ScriptOutputType outputType = ScriptOutputType.STATUS;
 
-	public EvalshaMapWriter writer() {
-		EvalshaMapWriter luaWriter = new EvalshaMapWriter();
-		luaWriter.setArgs(evalArgs);
-		luaWriter.setKeys(evalKeys);
-		luaWriter.setOutputType(outputType);
-		luaWriter.setSha(evalSha);
-		return luaWriter;
+	public <R> EvalshaMapWriter<R> writer() {
+		return new EvalshaMapWriter<R>().args(evalArgs).keys(evalKeys).outputType(outputType).sha(evalSha);
 	}
 
 }

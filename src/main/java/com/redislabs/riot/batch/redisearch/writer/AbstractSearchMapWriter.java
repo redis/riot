@@ -1,32 +1,19 @@
 package com.redislabs.riot.batch.redisearch.writer;
 
-import java.util.Map;
-
-import com.redislabs.lettusearch.RediSearchAsyncCommands;
 import com.redislabs.lettusearch.search.AddOptions;
 
-import io.lettuce.core.RedisFuture;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 
-public abstract class AbstractSearchMapWriter extends AbstractLettuSearchMapWriter {
+@Accessors(fluent = true)
+public abstract class AbstractSearchMapWriter<R> extends AbstractLettuSearchMapWriter<R> {
 
-	private AddOptions options;
-
-	public void setOptions(AddOptions options) {
-		this.options = options;
-	}
-
-	@Override
-	protected RedisFuture<?> write(RediSearchAsyncCommands<String, String> commands, String index,
-			Map<String, Object> item) {
-		return write(commands, index, item, options);
-	}
-
-	protected abstract RedisFuture<?> write(RediSearchAsyncCommands<String, String> commands, String index,
-			Map<String, Object> item, AddOptions options);
+	@Setter
+	protected AddOptions options;
 
 	@Override
 	public String toString() {
-		return String.format("RediSearch index %s", getIndex());
+		return String.format("RediSearch index %s", index);
 	}
 
 }

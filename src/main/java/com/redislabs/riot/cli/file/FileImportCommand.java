@@ -21,8 +21,8 @@ import org.springframework.batch.item.support.AbstractItemCountingItemStreamItem
 import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.redislabs.picocliredis.RedisOptions;
 import com.redislabs.riot.cli.ImportCommand;
-import com.redislabs.riot.cli.redis.RedisConnectionOptions;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -111,7 +111,7 @@ public class FileImportCommand extends ImportCommand {
 	}
 
 	@Override
-	protected ItemReader<Map<String, Object>> reader(RedisConnectionOptions redisOptions) throws Exception {
+	protected ItemReader<Map<String, Object>> reader(RedisOptions redisOptions) throws Exception {
 		switch (fileReaderOptions.type()) {
 		case json:
 			return jsonReader();

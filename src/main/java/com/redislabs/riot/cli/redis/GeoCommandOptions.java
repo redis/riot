@@ -1,7 +1,6 @@
 package com.redislabs.riot.cli.redis;
 
-import com.redislabs.riot.batch.redis.writer.GeoaddMapWriter;
-import com.redislabs.riot.batch.redis.writer.RedisMapWriter;
+import com.redislabs.riot.batch.redis.map.GeoaddMapWriter;
 
 import lombok.Data;
 import picocli.CommandLine.Option;
@@ -13,11 +12,8 @@ public @Data class GeoCommandOptions {
 	@Option(names = "--geo-lat", description = "Latitude field", paramLabel = "<field>")
 	private String geoLat;
 
-	public RedisMapWriter writer() {
-		GeoaddMapWriter writer = new GeoaddMapWriter();
-		writer.setLatitudeField(geoLat);
-		writer.setLongitudeField(geoLon);
-		return writer;
+	public <R> GeoaddMapWriter<R> writer() {
+		return new GeoaddMapWriter<R>().latitudeField(geoLat).longitudeField(geoLon);
 	}
 
 }

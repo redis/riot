@@ -2,16 +2,18 @@ package com.redislabs.riot.batch.redisearch.writer;
 
 import java.util.Map;
 
-import com.redislabs.lettusearch.RediSearchAsyncCommands;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 
-import io.lettuce.core.RedisFuture;
+@Accessors(fluent = true)
+public class SugaddPayloadMapWriter<R> extends SugaddMapWriter<R> {
 
-public class SugaddPayloadMapWriter extends SugaddMapWriter {
-
+	@Setter
 	private String payloadField;
 
-	public void setPayloadField(String payloadField) {
-		this.payloadField = payloadField;
+	@Override
+	protected Object write(R redis, String key, Map<String, Object> item, String string, double score) {
+		return commands.sugadd(redis, index, string, score, increment, payload(item));
 	}
 
 	private String payload(Map<String, Object> item) {
@@ -19,12 +21,6 @@ public class SugaddPayloadMapWriter extends SugaddMapWriter {
 			return null;
 		}
 		return convert(item.remove(payloadField), String.class);
-	}
-
-	@Override
-	protected RedisFuture<?> sugadd(RediSearchAsyncCommands<String, String> commands, String index, String string,
-			double score, boolean increment, Map<String, Object> item) {
-		return commands.sugadd(index, string, score, increment, payload(item));
 	}
 
 }

@@ -1,6 +1,6 @@
 package com.redislabs.riot.cli.redis;
 
-import com.redislabs.riot.batch.redis.writer.ZaddMapWriter;
+import com.redislabs.riot.batch.redis.map.ZaddMapWriter;
 
 import lombok.Data;
 import picocli.CommandLine.Option;
@@ -12,10 +12,7 @@ public @Data class ZsetCommandOptions {
 	@Option(names = "--zset-default", description = "Score when field not present (default: ${DEFAULT-VALUE})", paramLabel = "<float>")
 	private double zsetDefaultScore = 1d;
 
-	public ZaddMapWriter writer() {
-		ZaddMapWriter writer = new ZaddMapWriter();
-		writer.setDefaultScore(zsetDefaultScore);
-		writer.setScoreField(zsetScore);
-		return writer;
+	public <R> ZaddMapWriter<R> writer() {
+		return new ZaddMapWriter<R>().defaultScore(zsetDefaultScore).scoreField(zsetScore);
 	}
 }

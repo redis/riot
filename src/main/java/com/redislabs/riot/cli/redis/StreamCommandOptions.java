@@ -1,10 +1,10 @@
 package com.redislabs.riot.cli.redis;
 
-import com.redislabs.riot.batch.redis.writer.AbstractRedisFlatMapWriter;
-import com.redislabs.riot.batch.redis.writer.XaddIdMapWriter;
-import com.redislabs.riot.batch.redis.writer.XaddIdMaxlenMapWriter;
-import com.redislabs.riot.batch.redis.writer.XaddMapWriter;
-import com.redislabs.riot.batch.redis.writer.XaddMaxlenMapWriter;
+import com.redislabs.riot.batch.redis.map.AbstractMapWriter;
+import com.redislabs.riot.batch.redis.map.XaddIdMapWriter;
+import com.redislabs.riot.batch.redis.map.XaddIdMaxlenMapWriter;
+import com.redislabs.riot.batch.redis.map.XaddMapWriter;
+import com.redislabs.riot.batch.redis.map.XaddMaxlenMapWriter;
 
 import lombok.Data;
 import picocli.CommandLine.Option;
@@ -18,26 +18,17 @@ public @Data class StreamCommandOptions {
 	@Option(names = "--xadd-id", description = "Field used for stream entry IDs", paramLabel = "<field>")
 	private String xaddId;
 
-	public AbstractRedisFlatMapWriter writer() {
+	public <R> AbstractMapWriter<R> writer() {
 		if (xaddId == null) {
 			if (xaddMaxlen == null) {
-				return new XaddMapWriter();
+				return new XaddMapWriter<R>();
 			}
-			XaddMaxlenMapWriter writer = new XaddMaxlenMapWriter();
-			writer.setApproximateTrimming(xaddTrim);
-			writer.setMaxlen(xaddMaxlen);
-			return writer;
+			return new XaddMaxlenMapWriter<R>().approximateTrimming(xaddTrim).maxlen(xaddMaxlen);
 		}
 		if (xaddMaxlen == null) {
-			XaddIdMapWriter writer = new XaddIdMapWriter();
-			writer.setIdField(xaddId);
-			return writer;
+			return new XaddIdMapWriter<R>().idField(xaddId);
 		}
-		XaddIdMaxlenMapWriter writer = new XaddIdMaxlenMapWriter();
-		writer.setApproximateTrimming(xaddTrim);
-		writer.setIdField(xaddId);
-		writer.setMaxlen(xaddMaxlen);
-		return writer;
+		return new XaddIdMaxlenMapWriter<R>().approximateTrimming(xaddTrim).idField(xaddId).maxlen(xaddMaxlen);
 	}
 
 }

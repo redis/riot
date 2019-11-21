@@ -10,14 +10,23 @@ import org.springframework.util.ClassUtils;
 
 import io.redisearch.Suggestion;
 import io.redisearch.client.Client;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 
+@Accessors(fluent = true)
 public class JedisSuggestMapWriter extends AbstractItemStreamItemWriter<Map<String, Object>> {
 
+	@Setter
 	private Client client;
+	@Setter
 	private String field;
+	@Setter
 	private String scoreField;
+	@Setter
 	private double defaultScore = 1d;
+	@Setter
 	private boolean increment;
+	@Setter
 	private String payloadField;
 	private ConversionService conversionService = new DefaultConversionService();
 
@@ -44,26 +53,6 @@ public class JedisSuggestMapWriter extends AbstractItemStreamItemWriter<Map<Stri
 			return null;
 		}
 		return conversionService.convert(item.remove(payloadField), String.class);
-	}
-
-	public void setField(String field) {
-		this.field = field;
-	}
-
-	public void setScoreField(String scoreField) {
-		this.scoreField = scoreField;
-	}
-
-	public void setDefaultScore(double defaultScore) {
-		this.defaultScore = defaultScore;
-	}
-
-	public void setIncrement(boolean increment) {
-		this.increment = increment;
-	}
-
-	public void setPayloadField(String payloadField) {
-		this.payloadField = payloadField;
 	}
 
 }

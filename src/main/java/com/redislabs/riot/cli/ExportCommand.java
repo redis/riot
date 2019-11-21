@@ -5,8 +5,8 @@ import java.util.Map;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 
+import com.redislabs.picocliredis.RedisOptions;
 import com.redislabs.riot.cli.redis.RediSearchReaderOptions;
-import com.redislabs.riot.cli.redis.RedisConnectionOptions;
 import com.redislabs.riot.cli.redis.RedisReaderOptions;
 
 import picocli.CommandLine.ArgGroup;
@@ -22,7 +22,7 @@ public abstract class ExportCommand extends TransferCommand {
 
 	@SuppressWarnings("rawtypes")
 	@Override
-	protected ItemReader reader(RedisConnectionOptions redisOptions) {
+	protected ItemReader reader(RedisOptions redisOptions) {
 		if (searchReader.isSet()) {
 			return searchReader.reader(redisOptions.lettuSearchClient());
 		}
@@ -30,8 +30,7 @@ public abstract class ExportCommand extends TransferCommand {
 	}
 
 	@Override
-	protected ItemProcessor<Map<String, Object>, Map<String, Object>> processor(RedisConnectionOptions options)
-			throws Exception {
+	protected ItemProcessor<Map<String, Object>, Map<String, Object>> processor(RedisOptions options) throws Exception {
 		return null;
 	}
 
