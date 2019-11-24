@@ -2,23 +2,21 @@ package com.redislabs.riot.cli.db;
 
 import java.util.Map;
 
-import org.springframework.batch.item.ItemReader;
+import org.springframework.batch.item.database.JdbcCursorItemReader;
 
-import com.redislabs.picocliredis.RedisOptions;
 import com.redislabs.riot.cli.ImportCommand;
 
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 
-@Command(name = "db-import", description = "Import database")
+@Command(name = "db-import", description="Import from a database")
 public class DatabaseImportCommand extends ImportCommand {
 
-	@ArgGroup(exclusive = false, heading = "Database reader options%n", order = 3)
-	private DatabaseReaderOptions options = new DatabaseReaderOptions();
+	@ArgGroup(exclusive = false, heading = "Database options%n", order = 3)
+	DatabaseReaderOptions options = new DatabaseReaderOptions();
 
 	@Override
-	protected ItemReader<Map<String, Object>> reader(RedisOptions redisConnectionOptions) throws Exception {
+	protected JdbcCursorItemReader<Map<String, Object>> reader() throws Exception {
 		return options.reader();
 	}
-
 }

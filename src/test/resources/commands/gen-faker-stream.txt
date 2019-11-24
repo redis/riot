@@ -1,1 +1,1 @@
-$ riot gen --faker-fields id=index category=number.randomDigit --batch 50 --max 1000 --command xadd --keyspace teststream --keys category
+$ riot gen --faker-fields id=index category=number.randomDigit --batch 50 --max 1000 xadd --keyspace teststream --keys category

@@ -2,7 +2,6 @@ package com.redislabs.riot.cli.db;
 
 import java.util.Map;
 
-import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.database.JdbcCursorItemReader;
 import org.springframework.batch.item.database.builder.JdbcCursorItemReaderBuilder;
 import org.springframework.jdbc.core.ColumnMapRowMapper;
@@ -27,7 +26,11 @@ public @Data class DatabaseReaderOptions extends DatabaseOptions {
 	@Option(names = "--verify", description = "Verify position of ResultSet after RowMapper")
 	private boolean verifyCursorPosition;
 
-	public ItemReader<Map<String, Object>> reader() throws Exception {
+	public boolean isSet() {
+		return sql != null;
+	}
+
+	public JdbcCursorItemReader<Map<String, Object>> reader() throws Exception {
 		JdbcCursorItemReaderBuilder<Map<String, Object>> builder = new JdbcCursorItemReaderBuilder<Map<String, Object>>();
 		builder.dataSource(dataSource());
 		if (fetchSize != null) {

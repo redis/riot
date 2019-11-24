@@ -10,14 +10,12 @@ import redis.clients.jedis.Response;
 import redis.clients.jedis.util.Pool;
 
 @Slf4j
-public class JedisPipelineWriter<O> extends AbstractRedisItemWriter<O> {
+public class JedisPipelineWriter<O> extends AbstractRedisItemWriter<Pipeline, O> {
 
 	private Pool<Jedis> pool;
-	private RedisWriter<Pipeline, O> writer;
 
-	public JedisPipelineWriter(Pool<Jedis> pool, RedisWriter<Pipeline, O> writer) {
+	public JedisPipelineWriter(Pool<Jedis> pool) {
 		this.pool = pool;
-		this.writer = writer;
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -27,7 +25,11 @@ public class JedisPipelineWriter<O> extends AbstractRedisItemWriter<O> {
 			Pipeline p = jedis.pipelined();
 			List<Response> responses = new ArrayList<>();
 			for (O item : items) {
-				responses.add((Response) writer.write(p, item));
+				try {
+					responses.add((Response) writer.write(p, item));
+				} catch (Exception e) {
+					logWriteError(item, e);
+				}
 			}
 			p.sync();
 			for (Response response : responses) {

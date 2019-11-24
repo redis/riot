@@ -6,12 +6,17 @@ import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.support.AbstractItemStreamItemWriter;
 import org.springframework.util.ClassUtils;
 
+import lombok.Setter;
+import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public abstract class AbstractRedisItemWriter<O> extends AbstractItemStreamItemWriter<O> {
+@Accessors(fluent = true)
+public abstract class AbstractRedisItemWriter<R, O> extends AbstractItemStreamItemWriter<O> {
 
 	private AtomicInteger activeThreads = new AtomicInteger(0);
+	@Setter
+	protected RedisWriter<R, O> writer;
 
 	public AbstractRedisItemWriter() {
 		setName(ClassUtils.getShortName(this.getClass()));
@@ -33,5 +38,13 @@ public abstract class AbstractRedisItemWriter<O> extends AbstractItemStreamItemW
 
 	protected boolean hasActiveThreads() {
 		return activeThreads.get() > 0;
+	}
+
+	protected void logWriteError(O item, Exception e) {
+		if (log.isDebugEnabled()) {
+			log.debug("Could not write record {}", item, e);
+		} else {
+			log.error("Could not write record: {}", e.getMessage());
+		}
 	}
 }

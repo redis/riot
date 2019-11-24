@@ -164,7 +164,7 @@ public class TestFile extends BaseTest {
 	@Test
 	public void testImportElasticacheJson() throws Exception {
 		String url = getClass().getClassLoader().getResource("es_test-index.json").getFile();
-		runCommand("file-import --file %s --keyspace estest --keys _id", url);
+		runCommand("file-import --file %s hmset --keyspace estest --keys _id", url);
 		Assertions.assertEquals(2, commands().keys("estest:*").size());
 		Map<String, String> doc1 = commands().hgetall("estest:doc1");
 		Assertions.assertEquals("ruan", doc1.get("_source.name"));

@@ -2,18 +2,16 @@ package com.redislabs.riot.batch.redis;
 
 import java.util.List;
 
-import lombok.extern.slf4j.Slf4j;
+import lombok.experimental.Accessors;
 import redis.clients.jedis.JedisCluster;
 
-@Slf4j
-public class JedisClusterWriter<O> extends AbstractRedisItemWriter<O> {
+@Accessors(fluent = true)
+public class JedisClusterWriter<O> extends AbstractRedisItemWriter<JedisCluster, O> {
 
 	private JedisCluster cluster;
-	private RedisWriter<JedisCluster, O> writer;
 
-	public JedisClusterWriter(JedisCluster cluster, RedisWriter<JedisCluster, O> writer) {
+	public JedisClusterWriter(JedisCluster cluster) {
 		this.cluster = cluster;
-		this.writer = writer;
 	}
 
 	@Override
@@ -22,7 +20,7 @@ public class JedisClusterWriter<O> extends AbstractRedisItemWriter<O> {
 			try {
 				writer.write(cluster, item);
 			} catch (Exception e) {
-				log.error("Could not write item {}", item, e);
+				logWriteError(item, e);
 			}
 		}
 	}

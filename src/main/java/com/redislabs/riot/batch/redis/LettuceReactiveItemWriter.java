@@ -10,17 +10,21 @@ import reactor.core.publisher.Flux;
 public class LettuceReactiveItemWriter<K, V, C extends StatefulConnection<K, V>, R extends BaseRedisReactiveCommands<K, V>, O>
 		extends AbstractLettuceItemWriter<K, V, C, R, O> {
 
-	private RedisWriter<R, O> writer;
-
-	public LettuceReactiveItemWriter(LettuceConnector<K, V, C, R> connector, RedisWriter<R, O> writer) {
+	public LettuceReactiveItemWriter(LettuceConnector<K, V, C, R> connector) {
 		super(connector);
-		this.writer = writer;
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	protected void write(List<? extends O> items, R commands) {
-		Flux.just((O[]) items.toArray()).flatMap(item -> (CorePublisher<?>) writer.write(commands, item)).blockLast();
+		Flux.just((O[]) items.toArray()).flatMap(item -> {
+			try {
+				return (CorePublisher<?>) writer.write(commands, item);
+			} catch (Exception e) {
+				logWriteError(item, e);
+				return null;
+			}
+		}).blockLast();
 	}
 
 }

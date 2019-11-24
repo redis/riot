@@ -23,10 +23,8 @@ public class SpelProcessor implements ItemProcessor<Map<String, Object>, Map<Str
 	private Map<String, Expression> expressions = new LinkedHashMap<>();
 	private long index = 0;
 
-	public SpelProcessor(Object redis, DateFormat dateFormat, Map<String, String> variables,
-			Map<String, String> fields) {
+	public SpelProcessor(DateFormat dateFormat, Map<String, String> variables, Map<String, String> fields) {
 		context = new StandardEvaluationContext();
-		context.setVariable("redis", redis);
 		context.setVariable("date", dateFormat);
 		context.setVariable("context", new SpelProcessorContext(this));
 		variables.forEach((k, v) -> context.setVariable(k, parser.parseExpression(v).getValue(context)));

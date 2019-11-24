@@ -4,7 +4,6 @@ import java.util.Map;
 
 import org.springframework.batch.item.ItemWriter;
 
-import com.redislabs.picocliredis.RedisOptions;
 import com.redislabs.riot.cli.ExportCommand;
 
 import picocli.CommandLine.ArgGroup;
@@ -17,7 +16,7 @@ public class DatabaseExportCommand extends ExportCommand {
 	private DatabaseWriterOptions options = new DatabaseWriterOptions();
 
 	@Override
-	protected ItemWriter<Map<String, Object>> writer(RedisOptions redisConnectionOptions) {
+	protected ItemWriter<Map<String, Object>> writer() throws Exception {
 		return options.writer();
 	}
 

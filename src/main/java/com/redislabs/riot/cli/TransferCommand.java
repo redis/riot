@@ -3,6 +3,7 @@ package com.redislabs.riot.cli;
 import java.text.NumberFormat;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
+import java.util.Map;
 
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
@@ -11,78 +12,65 @@ import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 
-import com.redislabs.picocliredis.RedisOptions;
 import com.redislabs.riot.batch.JobExecutor;
 
 import lombok.Setter;
+import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine.ArgGroup;
+import picocli.CommandLine.Model.CommandSpec;
+import picocli.CommandLine.Spec;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
 @Slf4j
-public abstract class TransferCommand extends AbstractCommand {
+@Accessors(fluent = true)
+public abstract class TransferCommand extends RiotCommand {
 
+	@Spec
+	private CommandSpec spec;
 	@Setter
 	@ArgGroup(exclusive = false, heading = "Transfer options%n")
-	private TransferOptions transferOptions = new TransferOptions();
+	private TransferOptions transfer = new TransferOptions();
+	@ArgGroup(exclusive = false, heading = "Processor options%n", order = 40)
+	private ProcessorOptions processor = new ProcessorOptions();
 
-	public JobExecution execute(String name, ItemReader reader, ItemProcessor processor, ItemWriter writer)
-			throws Exception {
-		return new JobExecutor().execute(name, transferOptions.configure(reader), processor, writer,
-				transferOptions.getThreads(), transferOptions.getBatchSize());
-
-	}
-
-	@Override
-	public void execute(String name, RedisOptions redisOptions) {
-		ItemReader reader;
+	public void execute(ItemReader reader, ItemWriter writer) {
+		ItemProcessor<Map<String, Object>, Map<String, Object>> processor;
 		try {
-			reader = reader(redisOptions);
+			processor = this.processor.processor(postProcessor());
 		} catch (Exception e) {
-			log.error("Could not initialize {} reader", name, e);
+			log.error("Could not initialize processor", e);
 			return;
 		}
-		ItemWriter writer;
+
+		JobExecution execution;
 		try {
-			writer = writer(redisOptions);
+			execution = new JobExecutor().execute(spec.name(), transfer.configure(reader), processor, writer,
+					transfer.getThreads(), transfer.getBatchSize());
 		} catch (Exception e) {
-			log.error("Could not initialize {} writer", name, e);
+			log.error("Could not execute {}", spec.name(), e);
 			return;
 		}
-		ItemProcessor processor;
-		try {
-			processor = processor(redisOptions);
-		} catch (Exception e) {
-			log.error("Could not initialize {} processor", name, e);
-			return;
+		if (execution.getExitStatus().getExitCode().equals(ExitStatus.FAILED.getExitCode())) {
+			execution.getAllFailureExceptions().forEach(e -> e.printStackTrace());
 		}
-		try {
-			JobExecution execution = execute(name, reader, processor, writer);
-			if (execution.getExitStatus().getExitCode().equals(ExitStatus.FAILED.getExitCode())) {
-				execution.getAllFailureExceptions().forEach(e -> e.printStackTrace());
-			}
-			StepExecution stepExecution = execution.getStepExecutions().iterator().next();
-			if (stepExecution.getExitStatus().getExitCode().equals(ExitStatus.FAILED.getExitCode())) {
-				stepExecution.getFailureExceptions()
-						.forEach(e -> log.error("Could not execute step {}", stepExecution.getStepName(), e));
-			} else {
-				Duration duration = Duration
-						.ofMillis(stepExecution.getEndTime().getTime() - stepExecution.getStartTime().getTime());
-				int writeCount = stepExecution.getWriteCount();
-				double throughput = (double) writeCount / duration.toMillis() * 1000;
-				NumberFormat numberFormat = NumberFormat.getIntegerInstance();
-				log.info("Wrote {} items in {} seconds ({} items/sec)", numberFormat.format(writeCount),
-						duration.get(ChronoUnit.SECONDS), numberFormat.format(throughput));
-			}
-		} catch (Exception e) {
-			log.error("Could not execute transfer", e);
+		StepExecution stepExecution = execution.getStepExecutions().iterator().next();
+		if (stepExecution.getExitStatus().getExitCode().equals(ExitStatus.FAILED.getExitCode())) {
+			stepExecution.getFailureExceptions()
+					.forEach(e -> log.error("Could not execute step {}", stepExecution.getStepName(), e));
+		} else {
+			Duration duration = Duration
+					.ofMillis(stepExecution.getEndTime().getTime() - stepExecution.getStartTime().getTime());
+			int writeCount = stepExecution.getWriteCount();
+			double throughput = (double) writeCount / duration.toMillis() * 1000;
+			NumberFormat numberFormat = NumberFormat.getIntegerInstance();
+			log.info("Wrote {} items in {} seconds ({} items/sec)", numberFormat.format(writeCount),
+					duration.get(ChronoUnit.SECONDS), numberFormat.format(throughput));
 		}
 	}
 
-	protected abstract ItemReader reader(RedisOptions options) throws Exception;
-
-	protected abstract ItemProcessor processor(RedisOptions options) throws Exception;
-
-	protected abstract ItemWriter writer(RedisOptions options) throws Exception;
+	protected ItemProcessor postProcessor() {
+		return null;
+	}
 
 }

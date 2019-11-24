@@ -8,11 +8,11 @@ import org.junit.jupiter.api.Test;
 public class TestRedis extends BaseTest {
 
 	@Test
-	public void testExportFromRedis() throws Exception {
+	public void testRedisImport() throws Exception {
 		runFile("file-import-csv-hash");
 		List<String> keys = commands().keys("beer:*");
 		Assertions.assertEquals(BEER_COUNT, keys.size());
-		runFile("redis-export");
+		runFile("redis-import");
 		List<String> keys2 = commands().keys("beer2:*");
 		Assertions.assertEquals(keys.size(), keys2.size());
 	}

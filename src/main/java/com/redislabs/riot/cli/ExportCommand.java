@@ -2,36 +2,42 @@ package com.redislabs.riot.cli;
 
 import java.util.Map;
 
-import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
+import org.springframework.batch.item.ItemWriter;
 
-import com.redislabs.picocliredis.RedisOptions;
-import com.redislabs.riot.cli.redis.RediSearchReaderOptions;
-import com.redislabs.riot.cli.redis.RedisReaderOptions;
+import com.redislabs.riot.Riot;
 
+import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Model.CommandSpec;
+import picocli.CommandLine.ParentCommand;
+import picocli.CommandLine.Spec;
 
+@Slf4j
 @Command
-public abstract class ExportCommand extends TransferCommand {
+public abstract class ExportCommand extends TransferCommand implements Runnable {
 
-	@ArgGroup(exclusive = false, heading = "Redis reader options%n", order = 4)
-	private RedisReaderOptions redisReader = new RedisReaderOptions();
-	@ArgGroup(exclusive = false, heading = "RediSearch reader options%n", order = 5)
-	private RediSearchReaderOptions searchReader = new RediSearchReaderOptions();
+	@ParentCommand
+	private Riot parent;
+	@Spec
+	private CommandSpec spec;
+	@ArgGroup(exclusive = false, heading = "Redis reader options%n")
+	private RedisReaderOptions options = new RedisReaderOptions();
 
-	@SuppressWarnings("rawtypes")
 	@Override
-	protected ItemReader reader(RedisOptions redisOptions) {
-		if (searchReader.isSet()) {
-			return searchReader.reader(redisOptions.lettuSearchClient());
+	public void run() {
+		ItemReader<Map<String, Object>> reader = options.reader(parent.redisOptions());
+		ItemWriter<Map<String, Object>> writer;
+		try {
+			writer = writer();
+		} catch (Exception e) {
+			log.error("Could not initialize writer", e);
+			return;
 		}
-		return redisReader.reader(redisOptions.jedisPool());
+		execute(reader, writer);
 	}
 
-	@Override
-	protected ItemProcessor<Map<String, Object>, Map<String, Object>> processor(RedisOptions options) throws Exception {
-		return null;
-	}
+	protected abstract ItemWriter<Map<String, Object>> writer() throws Exception;
 
 }

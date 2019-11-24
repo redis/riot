@@ -13,12 +13,10 @@ import lombok.extern.slf4j.Slf4j;
 public class LettuceAsyncItemWriter<K, V, C extends StatefulConnection<K, V>, R extends BaseRedisAsyncCommands<K, V>, O>
 		extends AbstractLettuceItemWriter<K, V, C, R, O> {
 
-	private RedisWriter<R, O> writer;
 	private long timeout;
 
-	public LettuceAsyncItemWriter(LettuceConnector<K, V, C, R> connector, RedisWriter<R, O> writer, long timeout) {
+	public LettuceAsyncItemWriter(LettuceConnector<K, V, C, R> connector, long timeout) {
 		super(connector);
-		this.writer = writer;
 		this.timeout = timeout;
 	}
 
@@ -28,7 +26,11 @@ public class LettuceAsyncItemWriter<K, V, C extends StatefulConnection<K, V>, R 
 		List<RedisFuture> futures = new ArrayList<>();
 		commands.setAutoFlushCommands(false);
 		for (O item : items) {
-			futures.add((RedisFuture) writer.write(commands, item));
+			try {
+				futures.add((RedisFuture) writer.write(commands, item));
+			} catch (Exception e) {
+				logWriteError(item, e);
+			}
 		}
 		commands.flushCommands();
 		for (int index = 0; index < futures.size(); index++) {

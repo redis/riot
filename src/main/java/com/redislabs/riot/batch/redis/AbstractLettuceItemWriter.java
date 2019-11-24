@@ -7,7 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public abstract class AbstractLettuceItemWriter<K, V, C extends StatefulConnection<K, V>, R, O>
-		extends AbstractRedisItemWriter<O> {
+		extends AbstractRedisItemWriter<R, O> {
 
 	private LettuceConnector<K, V, C, R> connector;
 

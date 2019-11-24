@@ -1,1 +1,1 @@
-$ riot gen --faker-fields id=index firstName=name.firstName lastName=name.lastName address=address.fullAddress --max 100 --keyspace person --keys id
+$ riot gen --faker-fields id=index firstName=name.firstName lastName=name.lastName address=address.fullAddress --max 100 hmset --keyspace person --keys id

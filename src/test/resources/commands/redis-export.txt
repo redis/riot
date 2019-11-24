@@ -1,1 +1,0 @@
-$ riot --server myredissource:6379 redis-export --server myredistarget:6379 --scan-keyspace beer --scan-keys id --keyspace beer2 --keys id

@@ -3,33 +3,75 @@ package com.redislabs.riot.cli.file;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.nio.file.Path;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 import org.springframework.batch.item.file.FlatFileItemWriter;
+import org.springframework.cloud.aws.core.io.s3.SimpleStorageProtocolResolver;
+import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.WritableResource;
 import org.springframework.util.Assert;
 
+import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.AWSCredentialsProvider;
+import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3Client;
 import com.redislabs.riot.batch.file.OutputStreamResource;
 
 import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
+import lombok.Getter;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Option;
 
-@Slf4j
 @Data
-class FileOptions {
+public class FileOptions implements AWSCredentialsProvider {
 
 	public enum FileType {
 		json, csv, fixed
 	}
 
-	@Option(required = true, names = "--file", description = "File path")
-	private String path;
+	static class ResourceOptions {
+
+		@Getter
+		@Option(names = "--file", description = "File path")
+		private Path file;
+
+		@Getter
+		@Option(names = "--url", description = "File URL")
+		private URI url;
+
+		public boolean isUri() {
+			return url != null;
+		}
+
+		public String path() {
+			if (isUri()) {
+				return url.toString();
+			}
+			return file.toString();
+		}
+
+		public boolean isGzip() {
+			return path().toLowerCase().endsWith(".gz");
+		}
+
+		public FileType type() {
+			String path = path().toLowerCase();
+			if (path.toLowerCase().endsWith(".json") || path.endsWith(".json.gz")) {
+				return FileType.json;
+			}
+			return FileType.csv;
+		}
+
+	}
+
+	@ArgGroup(exclusive = true, multiplicity = "1")
+	private ResourceOptions resource = new ResourceOptions();
 	@Option(names = { "-z", "--gzip" }, description = "File is gzip compressed")
 	private boolean gzip;
 	@Option(names = { "-t", "--filetype" }, description = "File type: ${COMPLETION-CANDIDATES}", paramLabel = "<type>")
@@ -37,37 +79,42 @@ class FileOptions {
 	@Option(names = { "-e",
 			"--encoding" }, description = "File encoding (default: ${DEFAULT-VALUE})", paramLabel = "<charset>")
 	private String encoding = FlatFileItemWriter.DEFAULT_CHARSET;
-	@ArgGroup(exclusive = false, heading = "AWS S3 Options%n", order = 2)
-	private S3Options s3Options = new S3Options();
+	@Option(names = "--s3-access", description = "AWS S3 access key ID", paramLabel = "<string>")
+	private String accessKey;
+	@Option(names = "--s3-secret", arity = "0..1", interactive = true, description = "AWS S3 secret access key", paramLabel = "<string>")
+	private String secretKey;
+	@Option(names = "--s3-region", description = "AWS region", paramLabel = "<string>")
+	private String region;
+
+	@Override
+	public AWSCredentials getCredentials() {
+		return new BasicAWSCredentials(accessKey, secretKey);
+	}
+
+	@Override
+	public void refresh() {
+		// do nothing
+	}
+
+	public Resource resource() throws MalformedURLException {
+		if (resource.isUri()) {
+			URI uri = resource.getUrl();
+			if (uri.getScheme().equals("s3")) {
+				AmazonS3 s3 = AmazonS3Client.builder().withCredentials(this).withRegion(region).build();
+				SimpleStorageProtocolResolver resolver = new SimpleStorageProtocolResolver(s3);
+				resolver.afterPropertiesSet();
+				return resolver.resolve(uri.toString(), new DefaultResourceLoader());
+			}
+			return new UncustomizedUrlResource(uri);
+		}
+		return new FileSystemResource(resource.getFile());
+	}
 
 	public FileType type() {
 		if (type == null) {
-			if (path.toLowerCase().endsWith(".json") || path.toLowerCase().endsWith(".json.gz")) {
-				return FileType.json;
-			}
-			return FileType.csv;
+			return resource.type();
 		}
 		return type;
-	}
-
-	private Resource resource() {
-		try {
-			URI uri = URI.create(path);
-			if (uri.isAbsolute()) {
-				return urlResource(uri);
-			}
-		} catch (Exception e) {
-			log.debug("Could not parse URL {}", path, e);
-		}
-		return new FileSystemResource(path);
-	}
-
-	private Resource urlResource(URI uri) throws MalformedURLException {
-		// try S3 first
-		if (uri.getScheme().equals("s3")) {
-			return s3Options.resource(path);
-		}
-		return new UncustomizedUrlResource(uri);
 	}
 
 	public Resource inputResource() throws IOException {
@@ -90,7 +137,7 @@ class FileOptions {
 	}
 
 	private boolean isGzip() {
-		return gzip || path.toLowerCase().endsWith(".gz");
+		return gzip || resource.isGzip();
 	}
 
 }

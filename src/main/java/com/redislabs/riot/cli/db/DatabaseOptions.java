@@ -14,8 +14,7 @@ import picocli.CommandLine.Option;
 @Data
 class DatabaseOptions {
 
-	@Option(names = { "-d",
-			"--driver" }, description = "Fully qualified name of the JDBC driver", paramLabel = "<class>")
+	@Option(names = "--driver", description = "Fully qualified name of the JDBC driver", paramLabel = "<class>")
 	private String driver;
 	@Option(names = { "-u",
 			"--url" }, required = true, description = "URL to connect to the database", paramLabel = "<string>")
