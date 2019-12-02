@@ -78,6 +78,11 @@ public class JedisCommands implements RedisCommands<Jedis> {
 	}
 
 	@Override
+	public Object restore(Jedis redis, String key, long ttl, byte[] value) {
+		return redis.restore(key, Math.toIntExact(ttl), value);
+	}
+
+	@Override
 	public Object ftadd(Jedis redis, String index, String docId, double score, Map<String, String> map,
 			AddOptions options) {
 		throw new UnsupportedOperationException("Jedis not supported with RediSearch");

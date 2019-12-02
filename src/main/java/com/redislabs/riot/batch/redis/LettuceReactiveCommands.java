@@ -79,6 +79,11 @@ public class LettuceReactiveCommands implements RedisCommands<RedisReactiveComma
 			String[] args) {
 		return redis.evalsha(sha, type, keys, args);
 	}
+	
+	@Override
+	public Object restore(RedisReactiveCommands<String, String> redis, String key, long ttl, byte[] value) {
+		return redis.restore(key, ttl, value);
+	}
 
 	@Override
 	public Object ftadd(RedisReactiveCommands<String, String> redis, String index, String docId, double score,

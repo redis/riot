@@ -1,22 +1,18 @@
 package com.redislabs.riot.cli.file;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 
 import org.springframework.batch.item.file.FlatFileItemWriter;
-import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
 import picocli.CommandLine.Option;
 
 @EqualsAndHashCode(callSuper = true)
-public @Data class FileWriterOptions extends FileOptions {
+@Accessors(fluent = true)
+public @Data class FileWriterOptions extends FlatFileOptions {
 
-	@Option(required = true, names = { "-f",
-			"--fields" }, arity = "1..*", description = "Fields to write to file", paramLabel = "<names>")
-	private List<String> names = new ArrayList<>();
 	@Option(names = "--append", description = "Append to file if it exists")
 	private boolean append;
 	@Option(names = "--force-sync", description = "Force-sync changes to disk on flush")
@@ -31,10 +27,5 @@ public @Data class FileWriterOptions extends FileOptions {
 	private Integer maxLength;
 	@Option(names = "--min-length", description = "Min length of the formatted string", paramLabel = "<int>")
 	private Integer minLength;
-	@Option(names = { "-d",
-			"--delimiter" }, description = "Delimiter character (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
-	private String delimiter = DelimitedLineTokenizer.DELIMITER_COMMA;
-	@Option(names = { "-h", "--header" }, description = "Read field names from first line")
-	private boolean header;
 
 }

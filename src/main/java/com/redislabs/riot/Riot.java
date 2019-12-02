@@ -4,7 +4,6 @@ import org.springframework.batch.item.file.transform.Range;
 
 import com.redislabs.picocliredis.Main;
 import com.redislabs.picocliredis.RedisOptions;
-import com.redislabs.riot.cli.RedisImportCommand;
 import com.redislabs.riot.cli.TestCommand;
 import com.redislabs.riot.cli.db.DatabaseExportCommand;
 import com.redislabs.riot.cli.db.DatabaseImportCommand;
@@ -12,6 +11,8 @@ import com.redislabs.riot.cli.file.FileExportCommand;
 import com.redislabs.riot.cli.file.FileImportCommand;
 import com.redislabs.riot.cli.file.RangeConverter;
 import com.redislabs.riot.cli.gen.GeneratorImportCommand;
+import com.redislabs.riot.cli.redis.RedisImportCommand;
+import com.redislabs.riot.cli.redis.RedisReplicateCommand;
 
 import lombok.Getter;
 import lombok.experimental.Accessors;
@@ -21,7 +22,7 @@ import picocli.CommandLine.Command;
 
 @Accessors(fluent = true)
 @Command(name = "riot", subcommands = { FileImportCommand.class, FileExportCommand.class, DatabaseImportCommand.class,
-		DatabaseExportCommand.class, RedisImportCommand.class, GeneratorImportCommand.class, TestCommand.class })
+		DatabaseExportCommand.class, RedisImportCommand.class, GeneratorImportCommand.class, TestCommand.class, RedisReplicateCommand.class })
 public class Riot extends Main {
 
 	@Getter

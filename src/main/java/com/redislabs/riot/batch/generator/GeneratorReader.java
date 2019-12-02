@@ -2,14 +2,13 @@ package com.redislabs.riot.batch.generator;
 
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemStreamException;
-import org.springframework.batch.item.ParseException;
-import org.springframework.batch.item.UnexpectedInputException;
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
@@ -18,36 +17,59 @@ import org.springframework.util.ClassUtils;
 
 import com.redislabs.riot.batch.IndexedPartitioner;
 
+import lombok.Setter;
+import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@Accessors(fluent = true)
 public class GeneratorReader extends AbstractItemCountingItemStreamItemReader<Map<String, Object>> {
 
 	public static final String FIELD_INDEX = "index";
 	public static final String FIELD_PARTITION = "partition";
 	public static final String FIELD_PARTITIONS = "partitions";
-	private ThreadLocal<Long> count = new ThreadLocal<>();
-	private ThreadLocal<Integer> partition = new ThreadLocal<>();
-	private int partitions;
-	private Integer maxItemCount;
-	private int partitionSize;
-	private Locale locale;
-	private Map<String, Expression> fieldExpressions;
-	private ThreadLocal<EvaluationContext> context = new ThreadLocal<>();
-	private Map<String, Integer> fieldSizes = new LinkedHashMap<>();
 
-	public GeneratorReader(Locale locale, Map<String, Expression> fieldExpressions, Map<String, Integer> fieldSizes) {
+	@Setter
+	private Locale locale;
+	@Setter
+	private Map<String, Expression> fieldExpressions = new HashMap<>();
+	@Setter
+	private Map<String, Integer> fieldSizes = new HashMap<>();
+	private int partitions;
+	private Object lock = new Object();
+	private AtomicInteger activeThreads = new AtomicInteger(0);
+	private AtomicLong count = new AtomicLong();
+	private ThreadLocal<Integer> partition = new ThreadLocal<>();
+	private EvaluationContext context;
+
+	public GeneratorReader() {
 		setName(ClassUtils.getShortName(getClass()));
-		this.locale = locale;
-		this.fieldExpressions = fieldExpressions;
-		this.fieldSizes = fieldSizes;
 	}
 
 	@Override
 	protected void doOpen() throws Exception {
-		GeneratorFaker faker = new GeneratorFaker(locale, this);
-		context.set(new Builder(new ReflectivePropertyAccessor()).withInstanceMethods().withRootObject(faker).build());
-		count.set(0l);
+		synchronized (lock) {
+			activeThreads.incrementAndGet();
+			if (context != null) {
+				return;
+			}
+			GeneratorFaker faker = new GeneratorFaker(locale, this);
+			ReflectivePropertyAccessor accessor = new ReflectivePropertyAccessor();
+			Builder builder = new Builder(accessor).withInstanceMethods().withRootObject(faker);
+			this.context = builder.build();
+		}
+
+	}
+
+	@Override
+	public void open(ExecutionContext executionContext) throws ItemStreamException {
+		synchronized (lock) {
+			int partitionIndex = IndexedPartitioner.getPartitionIndex(executionContext);
+			log.debug("Setting partition={}", partitionIndex);
+			this.partition.set(partitionIndex);
+			this.partitions = IndexedPartitioner.getPartitions(executionContext);
+			super.open(executionContext);
+		}
 	}
 
 	public int partitions() {
@@ -58,49 +80,31 @@ public class GeneratorReader extends AbstractItemCountingItemStreamItemReader<Ma
 		return partition.get();
 	}
 
-	@Override
-	public synchronized void open(ExecutionContext executionContext) throws ItemStreamException {
-		int partitionIndex = IndexedPartitioner.getPartitionIndex(executionContext);
-		log.debug("Setting partition={}", partitionIndex);
-		this.partition.set(partitionIndex);
-		this.partitions = IndexedPartitioner.getPartitions(executionContext);
-		this.partitionSize = maxItemCount == null ? Integer.MAX_VALUE : (maxItemCount / partitions);
-		super.open(executionContext);
-	}
-
-	@Override
-	public void setMaxItemCount(int count) {
-		this.maxItemCount = count;
-		super.setMaxItemCount(count);
-	}
-
 	public long index() {
-		return (partitionSize * partition.get()) + count.get();
+		return count.get();
 	}
 
 	@Override
-	public Map<String, Object> read() throws Exception, UnexpectedInputException, ParseException {
-		if (count.get() >= partitionSize) {
-			return null;
+	protected Map<String, Object> doRead() throws Exception {
+		synchronized (lock) {
+			Map<String, Object> map = new HashMap<>();
+			map.put(FIELD_INDEX, index());
+			map.put(FIELD_PARTITION, partition.get());
+			map.put(FIELD_PARTITIONS, partitions);
+			fieldExpressions.forEach((k, v) -> map.put(k, v.getValue(context)));
+			fieldSizes.forEach((name, size) -> map.put(name, new String(new byte[size], StandardCharsets.UTF_8)));
+			setCurrentItemCount(Math.toIntExact(count.incrementAndGet()));
+			return map;
 		}
-		return super.read();
-	}
-
-	@Override
-	protected synchronized Map<String, Object> doRead() throws Exception {
-		Map<String, Object> map = new HashMap<>();
-		map.put(FIELD_INDEX, index());
-		map.put(FIELD_PARTITION, partition.get());
-		map.put(FIELD_PARTITIONS, partitions);
-		fieldExpressions.forEach((k, v) -> map.put(k, v.getValue(context.get())));
-		fieldSizes.forEach((name, size) -> map.put(name, new String(new byte[size], StandardCharsets.UTF_8)));
-		count.set(count.get() + 1);
-		return map;
 	}
 
 	@Override
 	protected void doClose() throws Exception {
-		context.remove();
+		synchronized (lock) {
+			if (activeThreads.decrementAndGet() == 0) {
+				this.context = null;
+			}
+		}
 	}
 
 }

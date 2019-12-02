@@ -13,13 +13,13 @@ import org.springframework.core.io.Resource;
 
 import com.redislabs.riot.batch.file.FlatResourceItemWriterBuilder;
 import com.redislabs.riot.batch.file.JsonResourceItemWriterBuilder;
-import com.redislabs.riot.cli.ExportCommand;
+import com.redislabs.riot.cli.HashExportCommand;
 
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 
 @Command(name = "file-export", description = "Export to file")
-public class FileExportCommand extends ExportCommand {
+public class FileExportCommand extends HashExportCommand {
 
 	@ArgGroup(exclusive = false, heading = "File options%n", order = 3)
 	private FileWriterOptions options = new FileWriterOptions();
@@ -27,21 +27,20 @@ public class FileExportCommand extends ExportCommand {
 	protected ItemWriter<Map<String, Object>> writer() throws Exception {
 		Resource resource = options.outputResource();
 		switch (options.type()) {
-		case json:
+		case Json:
 			return jsonWriter(resource);
-		case fixed:
+		case Fixed:
 			return formattedWriter(resource);
 		default:
 			return delimitedWriter(resource);
 		}
-
 	}
 
 	private FlatResourceItemWriterBuilder<Map<String, Object>> flatWriterBuilder(Resource resource, String headerLine) {
 		FlatResourceItemWriterBuilder<Map<String, Object>> builder = new FlatResourceItemWriterBuilder<>();
-		builder.append(options.isAppend());
-		builder.encoding(options.getEncoding());
-		builder.lineSeparator(options.getLineSeparator());
+		builder.append(options.append());
+		builder.encoding(options.encoding());
+		builder.lineSeparator(options.lineSeparator());
 		builder.resource(resource);
 		builder.saveState(false);
 		if (headerLine != null) {
@@ -59,10 +58,10 @@ public class FileExportCommand extends ExportCommand {
 	private AbstractItemStreamItemWriter<Map<String, Object>> jsonWriter(Resource resource) {
 		JsonResourceItemWriterBuilder<Map<String, Object>> builder = new JsonResourceItemWriterBuilder<>();
 		builder.name("json-s3-writer");
-		builder.append(options.isAppend());
-		builder.encoding(options.getEncoding());
+		builder.append(options.append());
+		builder.encoding(options.encoding());
 		builder.jsonObjectMarshaller(new JacksonJsonObjectMarshaller<>());
-		builder.lineSeparator(options.getLineSeparator());
+		builder.lineSeparator(options.lineSeparator());
 		builder.resource(resource);
 		builder.saveState(false);
 		return builder.build();
@@ -70,41 +69,40 @@ public class FileExportCommand extends ExportCommand {
 
 	private AbstractItemStreamItemWriter<Map<String, Object>> delimitedWriter(Resource resource) {
 		String headerLine = null;
-		if (options.isHeader()) {
-			headerLine = String.join(options.getDelimiter(), options.getNames());
+		if (options.header()) {
+			headerLine = String.join(options.delimiter(), options.names());
 		}
 		FlatResourceItemWriterBuilder<Map<String, Object>> builder = flatWriterBuilder(resource, headerLine);
 		builder.name("delimited-s3-writer");
 		com.redislabs.riot.batch.file.FlatResourceItemWriterBuilder.DelimitedBuilder<Map<String, Object>> delimited = builder
 				.delimited();
-		delimited.delimiter(options.getDelimiter());
-		delimited.fieldExtractor(new MapFieldExtractor(options.getNames()));
-		if (!options.getNames().isEmpty()) {
-			delimited.names(options.getNames().toArray(new String[options.getNames().size()]));
+		delimited.delimiter(options.delimiter());
+		delimited.fieldExtractor(new MapFieldExtractor(options.names()));
+		if (options.names().length > 0) {
+			delimited.names(options.names());
 		}
 		return builder.build();
 	}
 
 	private AbstractItemStreamItemWriter<Map<String, Object>> formattedWriter(Resource resource) {
 		String headerLine = null;
-		if (options.isHeader()) {
-			headerLine = String.format(options.getLocale(), options.getFormat(),
-					Arrays.asList(options.getNames()).toArray());
+		if (options.header()) {
+			headerLine = String.format(options.locale(), options.format(), Arrays.asList(options.names()).toArray());
 		}
 		FlatResourceItemWriterBuilder<Map<String, Object>> builder = flatWriterBuilder(resource, headerLine);
 		FlatResourceItemWriterBuilder.FormattedBuilder<Map<String, Object>> formatted = builder.formatted();
 		builder.name("formatted-s3-writer");
-		formatted.fieldExtractor(new MapFieldExtractor(options.getNames()));
-		if (!options.getNames().isEmpty()) {
-			formatted.names(options.getNames().toArray(new String[options.getNames().size()]));
+		formatted.fieldExtractor(new MapFieldExtractor(options.names()));
+		if (options.names().length > 0) {
+			formatted.names(options.names());
 		}
-		formatted.format(options.getFormat());
-		formatted.locale(options.getLocale());
-		if (options.getMinLength() != null) {
-			formatted.minimumLength(options.getMinLength());
+		formatted.format(options.format());
+		formatted.locale(options.locale());
+		if (options.minLength() != null) {
+			formatted.minimumLength(options.minLength());
 		}
-		if (options.getMaxLength() != null) {
-			formatted.maximumLength(options.getMaxLength());
+		if (options.maxLength() != null) {
+			formatted.maximumLength(options.maxLength());
 		}
 		return builder.build();
 	}

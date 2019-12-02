@@ -7,6 +7,8 @@ import java.util.Set;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import com.redislabs.riot.batch.generator.GeneratorReader;
+
 import io.lettuce.core.Range;
 import io.lettuce.core.StreamMessage;
 
@@ -18,8 +20,8 @@ public class TestGenerator extends BaseTest {
 		List<String> keys = commands().keys("test:*");
 		Assertions.assertTrue(keys.size() > 5000);
 		Map<String, String> simple123 = commands().hgetall("test:123");
-//		Assertions.assertTrue(simple123.containsKey(GeneratorReader.FIELD_PARTITION));
-//		Assertions.assertEquals("3", simple123.get(GeneratorReader.FIELD_PARTITIONS));
+		Assertions.assertTrue(simple123.containsKey(GeneratorReader.FIELD_PARTITION));
+		Assertions.assertEquals("3", simple123.get(GeneratorReader.FIELD_PARTITIONS));
 		Assertions.assertEquals(100, simple123.get("field1").length());
 		Assertions.assertEquals(1000, simple123.get("field2").length());
 	}

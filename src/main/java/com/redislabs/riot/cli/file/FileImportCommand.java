@@ -5,13 +5,13 @@ import java.util.Map;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 
-import com.redislabs.riot.cli.ImportCommand;
+import com.redislabs.riot.cli.MapImportCommand;
 
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 
 @Command(name = "file-import", description = "Import from a file")
-public class FileImportCommand extends ImportCommand {
+public class FileImportCommand extends MapImportCommand {
 
 	@ArgGroup(exclusive = false, heading = "File options%n", order = 3)
 	FileReaderOptions options = new FileReaderOptions();

@@ -78,6 +78,11 @@ public class JedisPipelineCommands implements RedisCommands<Pipeline> {
 	}
 
 	@Override
+	public Object restore(Pipeline redis, String key, long ttl, byte[] value) {
+		return redis.restore(key, Math.toIntExact(ttl), value);
+	}
+
+	@Override
 	public Object ftadd(Pipeline redis, String index, String docId, double score, Map<String, String> map,
 			AddOptions options) {
 		throw new UnsupportedOperationException("Pipeline not supported with JRediSearch client");

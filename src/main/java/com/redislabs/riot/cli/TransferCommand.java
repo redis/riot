@@ -3,7 +3,6 @@ package com.redislabs.riot.cli;
 import java.text.NumberFormat;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
-import java.util.Map;
 
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
@@ -21,32 +20,28 @@ import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Spec;
 
-@SuppressWarnings({ "rawtypes", "unchecked" })
 @Slf4j
 @Accessors(fluent = true)
-public abstract class TransferCommand extends RiotCommand {
+public abstract class TransferCommand<I, O> extends RiotCommand {
 
 	@Spec
 	private CommandSpec spec;
 	@Setter
 	@ArgGroup(exclusive = false, heading = "Transfer options%n")
 	private TransferOptions transfer = new TransferOptions();
-	@ArgGroup(exclusive = false, heading = "Processor options%n", order = 40)
-	private ProcessorOptions processor = new ProcessorOptions();
 
-	public void execute(ItemReader reader, ItemWriter writer) {
-		ItemProcessor<Map<String, Object>, Map<String, Object>> processor;
+	protected void execute(ItemReader<I> reader, ItemProcessor<I, O> processor, ItemWriter<O> writer) {
+		JobExecutor executor;
 		try {
-			processor = this.processor.processor(postProcessor());
+			executor = new JobExecutor();
 		} catch (Exception e) {
-			log.error("Could not initialize processor", e);
+			log.error("Could not initialize Spring Batch job executor", e);
 			return;
 		}
-
 		JobExecution execution;
 		try {
-			execution = new JobExecutor().execute(spec.name(), transfer.configure(reader), processor, writer,
-					transfer.getThreads(), transfer.getBatchSize());
+			execution = executor.execute(spec.name() + "-step", transfer.configure(reader), processor, writer,
+					transfer.batchSize(), transfer.threads());
 		} catch (Exception e) {
 			log.error("Could not execute {}", spec.name(), e);
 			return;
@@ -67,10 +62,6 @@ public abstract class TransferCommand extends RiotCommand {
 			log.info("Wrote {} items in {} seconds ({} items/sec)", numberFormat.format(writeCount),
 					duration.get(ChronoUnit.SECONDS), numberFormat.format(throughput));
 		}
-	}
-
-	protected ItemProcessor postProcessor() {
-		return null;
 	}
 
 }

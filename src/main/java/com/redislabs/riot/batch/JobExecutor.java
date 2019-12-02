@@ -1,6 +1,5 @@
 package com.redislabs.riot.batch;
 
-import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.Step;
@@ -40,7 +39,7 @@ public class JobExecutor {
 	}
 
 	public <I, O> JobExecution execute(String name, ItemReader<I> reader, ItemProcessor<I, O> processor,
-			ItemWriter<O> writer, int threads, int chunkSize) throws Exception {
+			ItemWriter<O> writer, int chunkSize, int threads) throws Exception {
 		SimpleStepBuilder<I, O> builder = stepFactory.get(name).<I, O>chunk(chunkSize);
 		builder.reader(reader);
 		if (processor != null) {
@@ -52,7 +51,6 @@ public class JobExecutor {
 			step = stepFactory.get(name + "-partitioner").partitioner(name, new IndexedPartitioner(threads)).step(step)
 					.taskExecutor(new SimpleAsyncTaskExecutor()).build();
 		}
-		Job job = jobFactory.get(name).start(step).build();
-		return jobLauncher.run(job, new JobParameters());
+		return jobLauncher.run(jobFactory.get(name).start(step).build(), new JobParameters());
 	}
 }

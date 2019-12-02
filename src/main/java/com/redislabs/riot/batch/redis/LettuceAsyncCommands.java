@@ -103,4 +103,9 @@ public class LettuceAsyncCommands implements RedisCommands<RedisAsyncCommands<St
 			boolean increment, String payload) {
 		return ((RediSearchAsyncCommands<String, String>) redis).sugadd(index, string, score, increment, payload);
 	}
+
+	@Override
+	public Object restore(RedisAsyncCommands<String, String> redis, String key, long ttl, byte[] value) {
+		return redis.restore(key, ttl, value);
+	}
 }

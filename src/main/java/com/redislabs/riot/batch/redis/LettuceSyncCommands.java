@@ -84,6 +84,12 @@ public class LettuceSyncCommands implements RedisCommands<io.lettuce.core.api.sy
 	}
 
 	@Override
+	public Object restore(io.lettuce.core.api.sync.RedisCommands<String, String> redis, String key, long ttl,
+			byte[] value) {
+		return redis.restore(key, ttl, value);
+	}
+
+	@Override
 	public Object ftadd(io.lettuce.core.api.sync.RedisCommands<String, String> redis, String index, String docId,
 			double score, Map<String, String> map, AddOptions options) {
 		return ((RediSearchCommands<String, String>) redis).add(index, docId, score, map, options);

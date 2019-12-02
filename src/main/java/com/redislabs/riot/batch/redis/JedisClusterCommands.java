@@ -79,6 +79,11 @@ public class JedisClusterCommands implements RedisCommands<JedisCluster> {
 	}
 
 	@Override
+	public Object restore(JedisCluster redis, String key, long ttl, byte[] value) {
+		return redis.restore(key, Math.toIntExact(ttl), value);
+	}
+
+	@Override
 	public Object ftadd(JedisCluster redis, String index, String docId, double score, Map<String, String> map,
 			AddOptions options) {
 		throw new UnsupportedOperationException("Jedis Cluster not supported with RediSearch");

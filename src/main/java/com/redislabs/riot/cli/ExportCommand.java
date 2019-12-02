@@ -1,43 +1,47 @@
 package com.redislabs.riot.cli;
 
-import java.util.Map;
-
+import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 
-import com.redislabs.riot.Riot;
+import com.redislabs.picocliredis.RedisOptions;
 
 import lombok.extern.slf4j.Slf4j;
-import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
-import picocli.CommandLine.Model.CommandSpec;
-import picocli.CommandLine.ParentCommand;
-import picocli.CommandLine.Spec;
 
 @Slf4j
 @Command
-public abstract class ExportCommand extends TransferCommand implements Runnable {
-
-	@ParentCommand
-	private Riot parent;
-	@Spec
-	private CommandSpec spec;
-	@ArgGroup(exclusive = false, heading = "Redis reader options%n")
-	private RedisReaderOptions options = new RedisReaderOptions();
+public abstract class ExportCommand<I, O> extends TransferCommand<I, O> implements Runnable {
 
 	@Override
 	public void run() {
-		ItemReader<Map<String, Object>> reader = options.reader(parent.redisOptions());
-		ItemWriter<Map<String, Object>> writer;
+		ItemReader<I> reader;
+		try {
+			reader = reader(redisOptions());
+		} catch (Exception e) {
+			log.error("Could not initialize reader", e);
+			return;
+		}
+		ItemProcessor<I, O> processor;
+		try {
+			processor = processor();
+		} catch (Exception e) {
+			log.error("Could not initialize processor", e);
+			return;
+		}
+		ItemWriter<O> writer;
 		try {
 			writer = writer();
 		} catch (Exception e) {
 			log.error("Could not initialize writer", e);
 			return;
 		}
-		execute(reader, writer);
+		execute(reader, processor, writer);
 	}
 
-	protected abstract ItemWriter<Map<String, Object>> writer() throws Exception;
+	protected abstract ItemReader<I> reader(RedisOptions redisOptions);
 
+	protected abstract ItemProcessor<I, O> processor() throws Exception;
+
+	protected abstract ItemWriter<O> writer() throws Exception;
 }

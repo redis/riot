@@ -8,10 +8,12 @@ import com.redislabs.riot.batch.ThrottlingItemReader;
 import com.redislabs.riot.batch.ThrottlingItemStreamReader;
 
 import lombok.Data;
+import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine.Option;
 
 @Slf4j
+@Accessors(fluent = true)
 public @Data class TransferOptions {
 
 	@Option(names = "--threads", description = "Thread count (default: ${DEFAULT-VALUE})", paramLabel = "<count>")
@@ -24,11 +26,10 @@ public @Data class TransferOptions {
 	@Option(names = "--sleep", description = "Sleep duration in millis between reads", paramLabel = "<ms>")
 	private Long sleep;
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public ItemReader configure(ItemReader reader) {
+	public <I> ItemReader<I> configure(ItemReader<I> reader) {
 		if (count != null) {
 			if (reader instanceof AbstractItemCountingItemStreamItemReader) {
-				((AbstractItemCountingItemStreamItemReader) reader).setMaxItemCount(count);
+				((AbstractItemCountingItemStreamItemReader<I>) reader).setMaxItemCount(count);
 			} else {
 				log.warn("Count is set for a source that does not support capping");
 			}
@@ -37,9 +38,9 @@ public @Data class TransferOptions {
 			return reader;
 		}
 		if (reader instanceof ItemStreamReader) {
-			return new ThrottlingItemStreamReader((ItemStreamReader) reader, sleep);
+			return new ThrottlingItemStreamReader<I>((ItemStreamReader<I>) reader, sleep);
 		}
-		return new ThrottlingItemReader(reader, sleep);
+		return new ThrottlingItemReader<I>(reader, sleep);
 	}
 
 }

@@ -3,11 +3,9 @@ package com.redislabs.riot.cli.file;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
-import java.nio.file.Path;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import org.springframework.batch.item.file.FlatFileItemWriter;
 import org.springframework.cloud.aws.core.io.s3.SimpleStorageProtocolResolver;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.FileSystemResource;
@@ -23,52 +21,12 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.redislabs.riot.batch.file.OutputStreamResource;
 
-import lombok.Data;
-import lombok.Getter;
+import lombok.experimental.Accessors;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Option;
 
-@Data
+@Accessors(fluent = true)
 public class FileOptions implements AWSCredentialsProvider {
-
-	public enum FileType {
-		json, csv, fixed
-	}
-
-	static class ResourceOptions {
-
-		@Getter
-		@Option(names = "--file", description = "File path")
-		private Path file;
-
-		@Getter
-		@Option(names = "--url", description = "File URL")
-		private URI url;
-
-		public boolean isUri() {
-			return url != null;
-		}
-
-		public String path() {
-			if (isUri()) {
-				return url.toString();
-			}
-			return file.toString();
-		}
-
-		public boolean isGzip() {
-			return path().toLowerCase().endsWith(".gz");
-		}
-
-		public FileType type() {
-			String path = path().toLowerCase();
-			if (path.toLowerCase().endsWith(".json") || path.endsWith(".json.gz")) {
-				return FileType.json;
-			}
-			return FileType.csv;
-		}
-
-	}
 
 	@ArgGroup(exclusive = true, multiplicity = "1")
 	private ResourceOptions resource = new ResourceOptions();
@@ -76,9 +34,6 @@ public class FileOptions implements AWSCredentialsProvider {
 	private boolean gzip;
 	@Option(names = { "-t", "--filetype" }, description = "File type: ${COMPLETION-CANDIDATES}", paramLabel = "<type>")
 	private FileType type;
-	@Option(names = { "-e",
-			"--encoding" }, description = "File encoding (default: ${DEFAULT-VALUE})", paramLabel = "<charset>")
-	private String encoding = FlatFileItemWriter.DEFAULT_CHARSET;
 	@Option(names = "--s3-access", description = "AWS S3 access key ID", paramLabel = "<string>")
 	private String accessKey;
 	@Option(names = "--s3-secret", arity = "0..1", interactive = true, description = "AWS S3 secret access key", paramLabel = "<string>")
@@ -98,7 +53,7 @@ public class FileOptions implements AWSCredentialsProvider {
 
 	public Resource resource() throws MalformedURLException {
 		if (resource.isUri()) {
-			URI uri = resource.getUrl();
+			URI uri = resource.url();
 			if (uri.getScheme().equals("s3")) {
 				AmazonS3 s3 = AmazonS3Client.builder().withCredentials(this).withRegion(region).build();
 				SimpleStorageProtocolResolver resolver = new SimpleStorageProtocolResolver(s3);
@@ -107,7 +62,7 @@ public class FileOptions implements AWSCredentialsProvider {
 			}
 			return new UncustomizedUrlResource(uri);
 		}
-		return new FileSystemResource(resource.getFile());
+		return new FileSystemResource(resource.file());
 	}
 
 	public FileType type() {

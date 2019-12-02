@@ -12,9 +12,10 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @AllArgsConstructor
-public @Getter class LettuceConnector<K, V, C extends StatefulConnection<K, V>, R> {
+public @Getter class LettuceConnector<C extends StatefulConnection<String, String>, R> {
 
 	private AbstractRedisClient client;
+	private Supplier<C> connection;
 	private Supplier<ClientResources> resources;
 	private GenericObjectPool<C> pool;
 	private Function<C, R> api;

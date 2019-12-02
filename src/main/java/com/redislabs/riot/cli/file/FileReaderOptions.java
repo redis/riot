@@ -32,11 +32,8 @@ import picocli.CommandLine.Option;
 
 @EqualsAndHashCode(callSuper = true)
 @Slf4j
-public class FileReaderOptions extends FileOptions {
+public class FileReaderOptions extends FlatFileOptions {
 
-	@Option(names = { "-f",
-			"--fields" }, arity = "1..*", description = "Names of the fields as they occur in the file", paramLabel = "<names>")
-	private List<String> names = new ArrayList<>();
 	@Option(names = { "--skip" }, description = "Lines to skip from the beginning of the file", paramLabel = "<count>")
 	private Integer linesToSkip;
 	@Option(names = "--include", arity = "1..*", description = "Field indices to include (0-based)", paramLabel = "<index>")
@@ -46,19 +43,12 @@ public class FileReaderOptions extends FileOptions {
 	@Option(names = { "-q",
 			"--quote" }, description = "Escape character (default: ${DEFAULT-VALUE})", paramLabel = "<char>")
 	private Character quoteCharacter = DelimitedLineTokenizer.DEFAULT_QUOTE_CHARACTER;
-	@Option(names = { "-d",
-			"--delimiter" }, description = "Delimiter character (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
-	private String delimiter = DelimitedLineTokenizer.DELIMITER_COMMA;
-	@Option(names = { "-h", "--header" }, description = "Write field names on the first line")
-	private boolean header;
 
 	private FlatFileItemReaderBuilder<Map<String, Object>> flatFileItemReaderBuilder() throws IOException {
 		FlatFileItemReaderBuilder<Map<String, Object>> builder = new FlatFileItemReaderBuilder<Map<String, Object>>();
 		builder.name("flat-file-reader");
 		builder.resource(inputResource());
-		if (getEncoding() != null) {
-			builder.encoding(getEncoding());
-		}
+		builder.encoding(encoding());
 		if (linesToSkip != null) {
 			builder.linesToSkip(linesToSkip);
 		}
@@ -71,18 +61,18 @@ public class FileReaderOptions extends FileOptions {
 
 	private FlatFileItemReader<Map<String, Object>> delimitedReader() throws IOException {
 		FlatFileItemReaderBuilder<Map<String, Object>> builder = flatFileItemReaderBuilder();
-		if (header && linesToSkip == null) {
+		if (header() && linesToSkip == null) {
 			builder.linesToSkip(1);
 		}
 		DelimitedBuilder<Map<String, Object>> delimitedBuilder = builder.delimited();
-		delimitedBuilder.delimiter(delimiter);
+		delimitedBuilder.delimiter(delimiter());
 		delimitedBuilder.includedFields(includedFields.toArray(new Integer[includedFields.size()]));
 		delimitedBuilder.quoteCharacter(quoteCharacter);
-		String[] fieldNames = names.toArray(new String[names.size()]);
-		if (header) {
-			BufferedReader reader = new DefaultBufferedReaderFactory().create(inputResource(), getEncoding());
+		String[] fieldNames = names();
+		if (header()) {
+			BufferedReader reader = new DefaultBufferedReaderFactory().create(inputResource(), encoding());
 			DelimitedLineTokenizer tokenizer = new DelimitedLineTokenizer();
-			tokenizer.setDelimiter(delimiter);
+			tokenizer.setDelimiter(delimiter());
 			tokenizer.setQuoteCharacter(quoteCharacter);
 			if (!includedFields.isEmpty()) {
 				int[] result = new int[includedFields.size()];
@@ -106,7 +96,7 @@ public class FileReaderOptions extends FileOptions {
 		FixedLengthBuilder<Map<String, Object>> fixedlength = builder.fixedLength();
 		Assert.notEmpty(columnRanges, "Column ranges are required");
 		fixedlength.columns(columnRanges.toArray(new Range[columnRanges.size()]));
-		fixedlength.names(names.toArray(new String[names.size()]));
+		fixedlength.names(names());
 		return builder.build();
 	}
 
@@ -124,9 +114,9 @@ public class FileReaderOptions extends FileOptions {
 
 	public ItemReader<Map<String, Object>> reader() throws Exception {
 		switch (type()) {
-		case json:
+		case Json:
 			return jsonReader();
-		case fixed:
+		case Fixed:
 			return fixedLengthReader();
 		default:
 			return delimitedReader();
@@ -135,7 +125,7 @@ public class FileReaderOptions extends FileOptions {
 
 	public ItemProcessor<Map<String, Object>, Map<String, Object>> postProcessor() {
 		switch (type()) {
-		case json:
+		case Json:
 			return new MapFlattener();
 		default:
 			return null;

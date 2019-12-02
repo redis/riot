@@ -17,8 +17,10 @@ import com.redislabs.riot.batch.RegexProcessor;
 import com.redislabs.riot.batch.SpelProcessor;
 
 import lombok.Data;
+import lombok.experimental.Accessors;
 import picocli.CommandLine.Option;
 
+@Accessors(fluent = true)
 public @Data class ProcessorOptions {
 
 	@Option(names = { "--script" }, description = "Use an inline script to process items", paramLabel = "<script>")

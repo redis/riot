@@ -4,13 +4,13 @@ import java.util.Map;
 
 import org.springframework.batch.item.ItemWriter;
 
-import com.redislabs.riot.cli.ExportCommand;
+import com.redislabs.riot.cli.HashExportCommand;
 
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 
 @Command(name = "db-export", description = "Export to database")
-public class DatabaseExportCommand extends ExportCommand {
+public class DatabaseExportCommand extends HashExportCommand {
 
 	@ArgGroup(exclusive = false, heading = "Database writer options%n", order = 3)
 	private DatabaseWriterOptions options = new DatabaseWriterOptions();

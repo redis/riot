@@ -43,4 +43,6 @@ public interface RedisCommands<T> {
 
 	Object sugadd(T redis, String index, String string, double score, boolean increment, String payload);
 
+	Object restore(T redis, String key, long ttl, byte[] value);
+
 }
