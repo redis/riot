@@ -37,8 +37,8 @@ import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine.Command;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
-@Slf4j
 @Command
+@Slf4j
 public abstract class ImportCommand<I, O> extends TransferCommand {
 
 	public void execute(AbstractRedisWriter redisWriter) {

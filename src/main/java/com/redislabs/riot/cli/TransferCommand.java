@@ -9,9 +9,13 @@ import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
+import org.springframework.batch.item.ItemStreamReader;
 import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
 
 import com.redislabs.riot.batch.JobExecutor;
+import com.redislabs.riot.batch.ThrottlingItemReader;
+import com.redislabs.riot.batch.ThrottlingItemStreamReader;
 
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -23,6 +27,9 @@ import picocli.CommandLine.Spec;
 @Slf4j
 @Accessors(fluent = true)
 public abstract class TransferCommand<I, O> extends RiotCommand {
+
+	public final static String PARTITION = "partition";
+	public final static String PARTITIONS = "partitions";
 
 	@Spec
 	private CommandSpec spec;
@@ -40,8 +47,8 @@ public abstract class TransferCommand<I, O> extends RiotCommand {
 		}
 		JobExecution execution;
 		try {
-			execution = executor.execute(spec.name() + "-step", transfer.configure(reader), processor, writer,
-					transfer.batchSize(), transfer.threads());
+			execution = executor.execute(spec.name() + "-step", configure(reader), processor, writer,
+					transfer.batchSize(), transfer.threads(), partitioned());
 		} catch (Exception e) {
 			log.error("Could not execute {}", spec.name(), e);
 			return;
@@ -62,6 +69,27 @@ public abstract class TransferCommand<I, O> extends RiotCommand {
 			log.info("Wrote {} items in {} seconds ({} items/sec)", numberFormat.format(writeCount),
 					duration.get(ChronoUnit.SECONDS), numberFormat.format(throughput));
 		}
+	}
+
+	protected boolean partitioned() {
+		return false;
+	}
+
+	private ItemReader<I> configure(ItemReader<I> reader) {
+		if (transfer.count() != null) {
+			if (reader instanceof AbstractItemCountingItemStreamItemReader) {
+				((AbstractItemCountingItemStreamItemReader<I>) reader).setMaxItemCount(transfer.count());
+			} else {
+				log.warn("Count is set for a source that does not support capping");
+			}
+		}
+		if (transfer.sleep() == null) {
+			return reader;
+		}
+		if (reader instanceof ItemStreamReader) {
+			return new ThrottlingItemStreamReader<I>((ItemStreamReader<I>) reader, transfer.sleep());
+		}
+		return new ThrottlingItemReader<I>(reader, transfer.sleep());
 	}
 
 }

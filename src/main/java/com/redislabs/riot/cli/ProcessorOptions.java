@@ -13,8 +13,8 @@ import org.springframework.batch.item.support.ScriptItemProcessor;
 import org.springframework.batch.item.support.builder.ScriptItemProcessorBuilder;
 import org.springframework.core.io.FileSystemResource;
 
-import com.redislabs.riot.batch.RegexProcessor;
-import com.redislabs.riot.batch.SpelProcessor;
+import com.redislabs.riot.batch.processor.RegexProcessor;
+import com.redislabs.riot.batch.processor.SpelProcessor;
 
 import lombok.Data;
 import lombok.experimental.Accessors;

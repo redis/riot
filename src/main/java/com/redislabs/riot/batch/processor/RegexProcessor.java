@@ -1,4 +1,4 @@
-package com.redislabs.riot.batch;
+package com.redislabs.riot.batch.processor;
 
 import java.util.ArrayList;
 import java.util.HashMap;

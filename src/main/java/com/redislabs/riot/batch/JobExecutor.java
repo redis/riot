@@ -39,18 +39,28 @@ public class JobExecutor {
 	}
 
 	public <I, O> JobExecution execute(String name, ItemReader<I> reader, ItemProcessor<I, O> processor,
-			ItemWriter<O> writer, int chunkSize, int threads) throws Exception {
+			ItemWriter<O> writer, int chunkSize, int nThreads, boolean partitioned) throws Exception {
 		SimpleStepBuilder<I, O> builder = stepFactory.get(name).<I, O>chunk(chunkSize);
 		builder.reader(reader);
 		if (processor != null) {
 			builder.processor(processor);
 		}
 		builder.writer(writer);
-		Step step = builder.build();
-		if (threads > 1) {
-			step = stepFactory.get(name + "-partitioner").partitioner(name, new IndexedPartitioner(threads)).step(step)
-					.taskExecutor(new SimpleAsyncTaskExecutor()).build();
+		return jobLauncher.run(jobFactory.get(name).start(step(name, builder, nThreads, partitioned)).build(),
+				new JobParameters());
+	}
+
+	private <I, O> Step step(String name, SimpleStepBuilder<I, O> step, int nThreads, boolean partitioned) {
+		if (partitioned) {
+			return stepFactory.get(name + "-partitioner").partitioner(name, new IndexedPartitioner(nThreads))
+					.step(step.build()).taskExecutor(new SimpleAsyncTaskExecutor()).build();
 		}
-		return jobLauncher.run(jobFactory.get(name).start(step).build(), new JobParameters());
+		if (nThreads > 1) {
+			SimpleAsyncTaskExecutor taskExecutor = new SimpleAsyncTaskExecutor();
+			taskExecutor.setConcurrencyLimit(nThreads);
+			step.taskExecutor(taskExecutor);
+			step.throttleLimit(nThreads);
+		}
+		return step.build();
 	}
 }

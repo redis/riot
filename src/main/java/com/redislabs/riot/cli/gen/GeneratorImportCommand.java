@@ -29,6 +29,11 @@ public class GeneratorImportCommand extends MapImportCommand implements Runnable
 	}
 
 	@Override
+	protected boolean partitioned() {
+		return true;
+	}
+
+	@Override
 	public void run() {
 		if (fakerHelp) {
 			Arrays.asList(Faker.class.getDeclaredMethods()).stream().filter(this::accept)

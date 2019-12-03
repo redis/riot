@@ -24,30 +24,30 @@ import org.springframework.batch.item.ExecutionContext;
 
 public class IndexedPartitioner implements Partitioner {
 
-	public static final String PARTITION_KEY = "partition";
-	public static final String CONTEXT_KEY_INDEX = "index";
+	public static final String CONTEXT_KEY_PARTITION = "partition";
 	public static final String CONTEXT_KEY_PARTITIONS = "partitions";
-	private int size;
 
-	public IndexedPartitioner(int size) {
-		this.size = size;
+	private int nPartitions;
+
+	public IndexedPartitioner(int nPartitions) {
+		this.nPartitions = nPartitions;
 	}
 
 	@Override
 	public Map<String, ExecutionContext> partition(int gridSize) {
 		Map<String, ExecutionContext> map = new HashMap<String, ExecutionContext>(gridSize);
-		for (int index = 0; index < size; index++) {
+		for (int index = 0; index < nPartitions; index++) {
 			ExecutionContext context = new ExecutionContext();
-			context.putInt(CONTEXT_KEY_INDEX, index);
-			context.putInt(CONTEXT_KEY_PARTITIONS, size);
-			map.put(PARTITION_KEY + String.valueOf(index), context);
+			context.putInt(CONTEXT_KEY_PARTITION, index);
+			context.putInt(CONTEXT_KEY_PARTITIONS, nPartitions);
+			map.put(CONTEXT_KEY_PARTITION + String.valueOf(index), context);
 		}
 		return map;
 	}
 
 	public static int getPartitionIndex(ExecutionContext executionContext) {
-		if (executionContext.containsKey(IndexedPartitioner.CONTEXT_KEY_INDEX)) {
-			return executionContext.getInt(IndexedPartitioner.CONTEXT_KEY_INDEX);
+		if (executionContext.containsKey(IndexedPartitioner.CONTEXT_KEY_PARTITION)) {
+			return executionContext.getInt(IndexedPartitioner.CONTEXT_KEY_PARTITION);
 		}
 		return 0;
 	}

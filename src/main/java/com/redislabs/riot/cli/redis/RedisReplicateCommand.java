@@ -4,6 +4,8 @@ import org.springframework.batch.item.ItemReader;
 
 import com.redislabs.picocliredis.RedisOptions;
 import com.redislabs.riot.batch.redis.KeyValue;
+import com.redislabs.riot.batch.redis.LettuceConnector;
+import com.redislabs.riot.batch.redis.reader.LettuceKeyScanReader;
 import com.redislabs.riot.batch.redis.writer.Restore;
 import com.redislabs.riot.cli.ImportCommand;
 
@@ -23,10 +25,11 @@ public class RedisReplicateCommand extends ImportCommand<KeyValue, KeyValue> imp
 	@ArgGroup(exclusive = false, heading = "Source Redis options%n")
 	private RedisKeyScanOptions keyScanOptions = new RedisKeyScanOptions();
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	protected ItemReader<KeyValue> reader() throws Exception {
-		return keyScanOptions.reader(lettuceConnector(redisOptions));
+		LettuceConnector connector = lettuceConnector(redisOptions);
+		return new LettuceKeyScanReader(connector).count(keyScanOptions.count()).match(keyScanOptions.match());
 	}
 
 	@Override

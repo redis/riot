@@ -13,6 +13,12 @@ import picocli.CommandLine.Command;
 @Command
 public abstract class ExportCommand<I, O> extends TransferCommand<I, O> implements Runnable {
 
+	protected abstract ItemReader<I> reader(RedisOptions redisOptions);
+
+	protected abstract ItemProcessor<I, O> processor() throws Exception;
+
+	protected abstract ItemWriter<O> writer() throws Exception;
+
 	@Override
 	public void run() {
 		ItemReader<I> reader;
@@ -38,10 +44,4 @@ public abstract class ExportCommand<I, O> extends TransferCommand<I, O> implemen
 		}
 		execute(reader, processor, writer);
 	}
-
-	protected abstract ItemReader<I> reader(RedisOptions redisOptions);
-
-	protected abstract ItemProcessor<I, O> processor() throws Exception;
-
-	protected abstract ItemWriter<O> writer() throws Exception;
 }

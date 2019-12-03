@@ -1,4 +1,4 @@
-package com.redislabs.riot.batch;
+package com.redislabs.riot.batch.processor;
 
 public class SpelProcessorContext {
 

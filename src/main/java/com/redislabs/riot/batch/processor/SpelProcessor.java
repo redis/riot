@@ -1,4 +1,4 @@
-package com.redislabs.riot.batch;
+package com.redislabs.riot.batch.processor;
 
 import java.lang.reflect.Method;
 import java.text.DateFormat;
@@ -12,6 +12,8 @@ import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionInvocationTargetException;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
+
+import com.redislabs.riot.batch.MapAccessor;
 
 import lombok.extern.slf4j.Slf4j;
 
