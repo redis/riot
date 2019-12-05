@@ -3,6 +3,7 @@ package com.redislabs.riot.cli.redis;
 import org.springframework.batch.item.ItemReader;
 
 import com.redislabs.picocliredis.RedisOptions;
+import com.redislabs.riot.batch.TransferContext;
 import com.redislabs.riot.batch.redis.KeyValue;
 import com.redislabs.riot.batch.redis.LettuceConnector;
 import com.redislabs.riot.batch.redis.reader.LettuceKeyScanReader;
@@ -27,7 +28,7 @@ public class RedisReplicateCommand extends ImportCommand<KeyValue, KeyValue> imp
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
-	protected ItemReader<KeyValue> reader() throws Exception {
+	protected ItemReader<KeyValue> reader(TransferContext context) throws Exception {
 		LettuceConnector connector = lettuceConnector(redisOptions);
 		return new LettuceKeyScanReader(connector).count(keyScanOptions.count()).match(keyScanOptions.match());
 	}

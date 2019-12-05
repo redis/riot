@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.springframework.batch.item.database.JdbcCursorItemReader;
 
+import com.redislabs.riot.batch.TransferContext;
 import com.redislabs.riot.cli.MapImportCommand;
 
 import picocli.CommandLine.ArgGroup;
@@ -16,7 +17,7 @@ public class DatabaseImportCommand extends MapImportCommand {
 	DatabaseReaderOptions options = new DatabaseReaderOptions();
 
 	@Override
-	protected JdbcCursorItemReader<Map<String, Object>> reader() throws Exception {
+	protected JdbcCursorItemReader<Map<String, Object>> reader(TransferContext context) throws Exception {
 		return options.reader();
 	}
 }

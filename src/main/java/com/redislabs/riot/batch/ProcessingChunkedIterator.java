@@ -1,4 +1,4 @@
-package com.redislabs.riot.batch.archive;
+package com.redislabs.riot.batch;
 
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;

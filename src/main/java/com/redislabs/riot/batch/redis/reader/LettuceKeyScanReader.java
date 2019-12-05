@@ -43,8 +43,8 @@ public class LettuceKeyScanReader extends AbstractItemCountingItemStreamItemRead
 			if (iterator != null) {
 				return;
 			}
-			this.iterator = new LettuceKeyScanIterator(connector.getConnection().get(), count, match);
-			this.producer = new LettuceKeyValueProducer(connector.getPool(), 2, iterator, 50);
+			this.iterator = new LettuceKeyScanIterator(connector.connection().get(), count, match);
+			this.producer = new LettuceKeyValueProducer(connector.pool(), 2, iterator, 50);
 			executor.submit(producer);
 		}
 	}

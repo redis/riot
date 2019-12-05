@@ -45,12 +45,4 @@ public class JedisPipelineWriter<O> extends AbstractRedisItemWriter<Pipeline, O>
 		}
 	}
 
-	@Override
-	public synchronized void close() {
-		if (pool != null && !hasActiveThreads()) {
-			pool.close();
-			pool = null;
-		}
-		super.close();
-	}
 }

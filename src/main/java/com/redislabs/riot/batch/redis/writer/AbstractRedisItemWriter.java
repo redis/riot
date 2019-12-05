@@ -1,7 +1,5 @@
 package com.redislabs.riot.batch.redis.writer;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.support.AbstractItemStreamItemWriter;
 import org.springframework.util.ClassUtils;
@@ -14,7 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 @Accessors(fluent = true)
 public abstract class AbstractRedisItemWriter<R, O> extends AbstractItemStreamItemWriter<O> {
 
-	private AtomicInteger activeThreads = new AtomicInteger(0);
 	@Setter
 	protected RedisWriter<R, O> writer;
 
@@ -24,20 +21,12 @@ public abstract class AbstractRedisItemWriter<R, O> extends AbstractItemStreamIt
 
 	@Override
 	public synchronized void open(ExecutionContext executionContext) {
-		int threads = activeThreads.incrementAndGet();
-		log.debug("Opened Redis writer, {} active threads", threads);
 		super.open(executionContext);
 	}
 
 	@Override
 	public synchronized void close() {
 		super.close();
-		int threads = activeThreads.decrementAndGet();
-		log.debug("Closed Redis writer, {} active threads", threads);
-	}
-
-	protected boolean hasActiveThreads() {
-		return activeThreads.get() > 0;
 	}
 
 	protected void logWriteError(O item, Exception e) {

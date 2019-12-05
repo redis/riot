@@ -10,8 +10,10 @@ import io.lettuce.core.api.StatefulConnection;
 import io.lettuce.core.resource.ClientResources;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.experimental.Accessors;
 
 @AllArgsConstructor
+@Accessors(fluent = true)
 public @Getter class LettuceConnector<C extends StatefulConnection<String, String>, R> {
 
 	private AbstractRedisClient client;

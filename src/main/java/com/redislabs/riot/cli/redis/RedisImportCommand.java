@@ -5,6 +5,7 @@ import java.util.Map;
 import org.springframework.batch.item.ItemReader;
 
 import com.redislabs.picocliredis.RedisOptions;
+import com.redislabs.riot.batch.TransferContext;
 import com.redislabs.riot.cli.MapImportCommand;
 
 import picocli.CommandLine.ArgGroup;
@@ -19,7 +20,7 @@ public class RedisImportCommand extends MapImportCommand {
 	private RedisHashReaderOptions options = new RedisHashReaderOptions();
 
 	@Override
-	protected ItemReader<Map<String, Object>> reader() {
+	protected ItemReader<Map<String, Object>> reader(TransferContext context) {
 		return options.reader(redis);
 	}
 

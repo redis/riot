@@ -18,7 +18,7 @@ public class TestGenerator extends BaseTest {
 	public void testImportSimple() throws Exception {
 		runFile("gen-simple");
 		List<String> keys = commands().keys("test:*");
-		Assertions.assertTrue(keys.size() >= 10000);
+		Assertions.assertEquals(keys.size(), 10000);
 		Map<String, String> simple123 = commands().hgetall("test:123");
 		Assertions.assertTrue(simple123.containsKey(GeneratorReader.FIELD_PARTITION));
 		Assertions.assertEquals("3", simple123.get(GeneratorReader.FIELD_PARTITIONS));

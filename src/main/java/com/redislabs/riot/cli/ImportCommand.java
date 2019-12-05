@@ -2,6 +2,7 @@ package com.redislabs.riot.cli;
 
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
+import org.springframework.batch.item.ItemWriter;
 
 import com.redislabs.lettusearch.RediSearchAsyncCommands;
 import com.redislabs.lettusearch.RediSearchClient;
@@ -9,6 +10,8 @@ import com.redislabs.lettusearch.RediSearchCommands;
 import com.redislabs.lettusearch.RediSearchReactiveCommands;
 import com.redislabs.lettusearch.StatefulRediSearchConnection;
 import com.redislabs.picocliredis.RedisOptions;
+import com.redislabs.riot.batch.Transfer;
+import com.redislabs.riot.batch.TransferContext;
 import com.redislabs.riot.batch.redis.JedisClusterCommands;
 import com.redislabs.riot.batch.redis.JedisPipelineCommands;
 import com.redislabs.riot.batch.redis.LettuceAsyncCommands;
@@ -33,37 +36,36 @@ import io.lettuce.core.cluster.api.StatefulRedisClusterConnection;
 import io.lettuce.core.cluster.api.async.RedisClusterAsyncCommands;
 import io.lettuce.core.cluster.api.reactive.RedisClusterReactiveCommands;
 import io.lettuce.core.cluster.api.sync.RedisClusterCommands;
-import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine.Command;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 @Command
-@Slf4j
 public abstract class ImportCommand<I, O> extends TransferCommand {
 
 	public void execute(AbstractRedisWriter redisWriter) {
-		ItemReader<I> reader;
-		try {
-			reader = reader();
-		} catch (Exception e) {
-			log.error("Could not initialize reader", e);
-			return;
-		}
-		ItemProcessor<I, O> processor;
-		try {
-			processor = processor();
-		} catch (Exception e) {
-			log.error("Could not initialize processor", e);
-			return;
-		}
 		RedisOptions redis = redisOptions();
 		AbstractRedisItemWriter writer = writer(redis, redisWriter.isRediSearch());
 		redisWriter.commands(redisCommands(redis));
 		writer.writer(redisWriter);
-		execute(reader, processor, writer);
+		execute(new Transfer<I, O>() {
+			@Override
+			public ItemReader<I> reader(TransferContext context) throws Exception {
+				return ImportCommand.this.reader(context);
+			}
+
+			@Override
+			public ItemProcessor<I, O> processor(TransferContext context) throws Exception {
+				return ImportCommand.this.processor();
+			}
+
+			@Override
+			public ItemWriter<O> writer(TransferContext context) throws Exception {
+				return writer;
+			}
+		});
 	}
 
-	protected abstract ItemReader<I> reader() throws Exception;
+	protected abstract ItemReader<I> reader(TransferContext context) throws Exception;
 
 	protected ItemProcessor<I, O> processor() throws Exception {
 		return null;

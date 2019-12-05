@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.github.javafaker.Faker;
+import com.redislabs.riot.batch.TransferContext;
 import com.redislabs.riot.batch.generator.GeneratorReader;
 import com.redislabs.riot.cli.MapImportCommand;
 
@@ -24,13 +25,11 @@ public class GeneratorImportCommand extends MapImportCommand implements Runnable
 	private boolean fakerHelp;
 
 	@Override
-	protected GeneratorReader reader() {
-		return options.reader();
-	}
-
-	@Override
-	protected boolean partitioned() {
-		return true;
+	protected GeneratorReader reader(TransferContext context) {
+		GeneratorReader reader = options.reader();
+		reader.partition(context.thread());
+		reader.partitions(context.threads());
+		return reader;
 	}
 
 	@Override

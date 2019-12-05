@@ -5,6 +5,7 @@ import java.util.Map;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 
+import com.redislabs.riot.batch.TransferContext;
 import com.redislabs.riot.cli.MapImportCommand;
 
 import picocli.CommandLine.ArgGroup;
@@ -17,7 +18,7 @@ public class FileImportCommand extends MapImportCommand {
 	FileReaderOptions options = new FileReaderOptions();
 
 	@Override
-	protected ItemReader<Map<String, Object>> reader() throws Exception {
+	protected ItemReader<Map<String, Object>> reader(TransferContext context) throws Exception {
 		return options.reader();
 	}
 

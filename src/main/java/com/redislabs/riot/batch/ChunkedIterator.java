@@ -1,4 +1,4 @@
-package com.redislabs.riot.batch.archive;
+package com.redislabs.riot.batch;
 
 import java.util.ArrayList;
 import java.util.Iterator;

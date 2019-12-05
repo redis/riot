@@ -5,18 +5,14 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.atomic.AtomicInteger;
 
-import org.springframework.batch.item.ExecutionContext;
-import org.springframework.batch.item.ItemStreamException;
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.support.SimpleEvaluationContext.Builder;
 import org.springframework.util.ClassUtils;
 
-import com.redislabs.riot.batch.IndexedPartitioner;
-
+import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
@@ -27,42 +23,23 @@ public class GeneratorReader extends AbstractItemCountingItemStreamItemReader<Ma
 	public final static String FIELD_PARTITION = "partition";
 	public final static String FIELD_PARTITIONS = "partitions";
 
-	private Object lock = new Object();
-	private AtomicInteger activeThreads = new AtomicInteger(0);
-	private ThreadLocal<Integer> partition = new ThreadLocal<>();
-	private int partitions;
-	private int partitionSize;
+	@Setter
+	@Getter
+	private int partition;
+	@Setter
+	@Getter
+	private int partitions = 1;
 	@Setter
 	private Locale locale;
 	@Setter
 	private Map<String, Expression> fieldExpressions = new HashMap<>();
 	@Setter
 	private Map<String, Integer> fieldSizes = new HashMap<>();
-	private ThreadLocal<EvaluationContext> context = new ThreadLocal<>();
-	private ThreadLocal<Integer> index = new ThreadLocal<>();
-	private int maxItemCount;
+	private EvaluationContext context;
+	private int offset;
 
 	public GeneratorReader() {
 		setName(ClassUtils.getShortName(getClass()));
-	}
-
-	@Override
-	public void open(ExecutionContext executionContext) throws ItemStreamException {
-		synchronized (lock) {
-			if (executionContext.containsKey(IndexedPartitioner.CONTEXT_KEY_PARTITION)) {
-				this.partition.set(executionContext.getInt(IndexedPartitioner.CONTEXT_KEY_PARTITION));
-			} else {
-				this.partition.set(0);
-			}
-			if (executionContext.containsKey(IndexedPartitioner.CONTEXT_KEY_PARTITIONS)) {
-				partitions = executionContext.getInt(IndexedPartitioner.CONTEXT_KEY_PARTITIONS);
-			} else {
-				this.partitions = 1;
-			}
-			this.partitionSize = maxItemCount / partitions;
-			this.index.set(partition.get() * partitionSize);
-			super.open(executionContext);
-		}
 	}
 
 	@Override
@@ -70,50 +47,42 @@ public class GeneratorReader extends AbstractItemCountingItemStreamItemReader<Ma
 		GeneratorFaker faker = new GeneratorFaker(locale, this);
 		ReflectivePropertyAccessor accessor = new ReflectivePropertyAccessor();
 		Builder builder = new Builder(accessor).withInstanceMethods().withRootObject(faker);
-		this.context.set(builder.build());
+		this.context = builder.build();
 	}
 
 	@Override
 	public void setMaxItemCount(int count) {
-		this.maxItemCount = count;
-		super.setMaxItemCount(count);
+		int partitionSize = count / partitions;
+		if (partition == partitions - 1) {
+			// make up for non exact divisions (e.g. 10/3=9, missing 1)
+			partitionSize += count - (partitions * partitionSize);
+		}
+		this.offset = partition * partitionSize;
+		super.setMaxItemCount(partitionSize);
 	}
 
-	public long index() {
-		return index.get();
-	}
-
-	public int partition() {
-		return partition.get();
-	}
-
-	public int partitions() {
-		return partitions;
+	public int index() {
+		return offset + getCurrentItemCount();
 	}
 
 	@Override
 	protected Map<String, Object> doRead() throws Exception {
 		Map<String, Object> map = new HashMap<>();
-		map.put(FIELD_INDEX, index.get());
+		map.put(FIELD_INDEX, index());
 		map.put(FIELD_PARTITION, partition());
 		map.put(FIELD_PARTITIONS, partitions());
 		for (Entry<String, Expression> entry : fieldExpressions.entrySet()) {
-			map.put(entry.getKey(), entry.getValue().getValue(context.get()));
+			map.put(entry.getKey(), entry.getValue().getValue(context));
 		}
 		for (Entry<String, Integer> entry : fieldSizes.entrySet()) {
 			map.put(entry.getKey(), new String(new byte[entry.getValue()], StandardCharsets.UTF_8));
 		}
-		index.set(index.get() + 1);
 		return map;
 	}
 
 	@Override
 	protected void doClose() throws Exception {
-		synchronized (lock) {
-			if (activeThreads.decrementAndGet() == 0) {
-				this.context = null;
-			}
-		}
+		this.context = null;
 	}
 
 }

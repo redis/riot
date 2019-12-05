@@ -5,11 +5,11 @@ import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 
 import com.redislabs.picocliredis.RedisOptions;
+import com.redislabs.riot.batch.Transfer;
+import com.redislabs.riot.batch.TransferContext;
 
-import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine.Command;
 
-@Slf4j
 @Command
 public abstract class ExportCommand<I, O> extends TransferCommand<I, O> implements Runnable {
 
@@ -21,27 +21,23 @@ public abstract class ExportCommand<I, O> extends TransferCommand<I, O> implemen
 
 	@Override
 	public void run() {
-		ItemReader<I> reader;
-		try {
-			reader = reader(redisOptions());
-		} catch (Exception e) {
-			log.error("Could not initialize reader", e);
-			return;
-		}
-		ItemProcessor<I, O> processor;
-		try {
-			processor = processor();
-		} catch (Exception e) {
-			log.error("Could not initialize processor", e);
-			return;
-		}
-		ItemWriter<O> writer;
-		try {
-			writer = writer();
-		} catch (Exception e) {
-			log.error("Could not initialize writer", e);
-			return;
-		}
-		execute(reader, processor, writer);
+		execute(new Transfer<I, O>() {
+
+			@Override
+			public ItemReader<I> reader(TransferContext context) throws Exception {
+				return ExportCommand.this.reader(ExportCommand.this.redisOptions());
+			}
+
+			@Override
+			public ItemProcessor<I, O> processor(TransferContext context) throws Exception {
+				return ExportCommand.this.processor();
+			}
+
+			@Override
+			public ItemWriter<O> writer(TransferContext context) throws Exception {
+				return ExportCommand.this.writer();
+			}
+
+		});
 	}
 }
