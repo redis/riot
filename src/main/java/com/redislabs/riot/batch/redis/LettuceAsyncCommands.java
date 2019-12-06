@@ -7,105 +7,111 @@ import com.redislabs.lettusearch.search.AddOptions;
 
 import io.lettuce.core.ScriptOutputType;
 import io.lettuce.core.XAddArgs;
-import io.lettuce.core.api.async.RedisAsyncCommands;
+import io.lettuce.core.api.async.RedisGeoAsyncCommands;
+import io.lettuce.core.api.async.RedisHashAsyncCommands;
+import io.lettuce.core.api.async.RedisKeyAsyncCommands;
+import io.lettuce.core.api.async.RedisListAsyncCommands;
+import io.lettuce.core.api.async.RedisScriptingAsyncCommands;
+import io.lettuce.core.api.async.RedisSetAsyncCommands;
+import io.lettuce.core.api.async.RedisSortedSetAsyncCommands;
+import io.lettuce.core.api.async.RedisStreamAsyncCommands;
+import io.lettuce.core.api.async.RedisStringAsyncCommands;
 
-public class LettuceAsyncCommands implements RedisCommands<RedisAsyncCommands<String, String>> {
+@SuppressWarnings("unchecked")
+public class LettuceAsyncCommands implements RedisCommands<Object> {
 
 	@Override
-	public Object geoadd(RedisAsyncCommands<String, String> redis, String key, double longitude, double latitude,
-			String member) {
-		return redis.geoadd(key, longitude, latitude, member);
+	public Object geoadd(Object redis, String key, double longitude, double latitude, String member) {
+		return ((RedisGeoAsyncCommands<String, String>) redis).geoadd(key, longitude, latitude, member);
 	}
 
 	@Override
-	public Object hmset(RedisAsyncCommands<String, String> redis, String key, Map<String, String> map) {
-		return redis.hmset(key, map);
+	public Object hmset(Object redis, String key, Map<String, String> map) {
+		return ((RedisHashAsyncCommands<String, String>) redis).hmset(key, map);
 	}
 
 	@Override
-	public Object xadd(RedisAsyncCommands<String, String> redis, String key, Map<String, String> map) {
-		return redis.xadd(key, map);
+	public Object xadd(Object redis, String key, Map<String, String> map) {
+		return ((RedisStreamAsyncCommands<String, String>) redis).xadd(key, map);
 	}
 
 	@Override
-	public Object xadd(RedisAsyncCommands<String, String> redis, String key, String id, Map<String, String> map,
-			long maxlen, boolean approximateTrimming) {
-		return redis.xadd(key, new XAddArgs().id(id).maxlen(maxlen).approximateTrimming(approximateTrimming), map);
-	}
-
-	@Override
-	public Object xadd(RedisAsyncCommands<String, String> redis, String key, Map<String, String> map, long maxlen,
+	public Object xadd(Object redis, String key, String id, Map<String, String> map, long maxlen,
 			boolean approximateTrimming) {
-		return redis.xadd(key, new XAddArgs().maxlen(maxlen).approximateTrimming(approximateTrimming), map);
+		return ((RedisStreamAsyncCommands<String, String>) redis).xadd(key,
+				new XAddArgs().id(id).maxlen(maxlen).approximateTrimming(approximateTrimming), map);
 	}
 
 	@Override
-	public Object xadd(RedisAsyncCommands<String, String> redis, String key, String id, Map<String, String> map) {
-		return redis.xadd(key, new XAddArgs().id(id), map);
+	public Object xadd(Object redis, String key, Map<String, String> map, long maxlen, boolean approximateTrimming) {
+		return ((RedisStreamAsyncCommands<String, String>) redis).xadd(key,
+				new XAddArgs().maxlen(maxlen).approximateTrimming(approximateTrimming), map);
 	}
 
 	@Override
-	public Object zadd(RedisAsyncCommands<String, String> redis, String key, double score, String member) {
-		return redis.zadd(key, score, member);
+	public Object xadd(Object redis, String key, String id, Map<String, String> map) {
+		return ((RedisStreamAsyncCommands<String, String>) redis).xadd(key, new XAddArgs().id(id), map);
 	}
 
 	@Override
-	public Object set(RedisAsyncCommands<String, String> redis, String key, String value) {
-		return redis.set(key, value);
+	public Object zadd(Object redis, String key, double score, String member) {
+		return ((RedisSortedSetAsyncCommands<String, String>) redis).zadd(key, score, member);
 	}
 
 	@Override
-	public Object sadd(RedisAsyncCommands<String, String> redis, String key, String member) {
-		return redis.sadd(key, member);
+	public Object set(Object redis, String key, String value) {
+		return ((RedisStringAsyncCommands<String, String>) redis).set(key, value);
 	}
 
 	@Override
-	public Object rpush(RedisAsyncCommands<String, String> redis, String key, String member) {
-		return redis.rpush(key, member);
+	public Object sadd(Object redis, String key, String member) {
+		return ((RedisSetAsyncCommands<String, String>) redis).sadd(key, member);
 	}
 
 	@Override
-	public Object lpush(RedisAsyncCommands<String, String> redis, String key, String member) {
-		return redis.lpush(key, member);
+	public Object rpush(Object redis, String key, String member) {
+		return ((RedisListAsyncCommands<String, String>) redis).rpush(key, member);
 	}
 
 	@Override
-	public Object expire(RedisAsyncCommands<String, String> redis, String key, long timeout) {
-		return redis.expire(key, timeout);
+	public Object lpush(Object redis, String key, String member) {
+		return ((RedisListAsyncCommands<String, String>) redis).lpush(key, member);
 	}
 
 	@Override
-	public Object evalsha(RedisAsyncCommands<String, String> redis, String sha, ScriptOutputType type, String[] keys,
-			String[] args) {
-		return redis.evalsha(sha, type, keys, args);
+	public Object expire(Object redis, String key, long timeout) {
+		return ((RedisKeyAsyncCommands<String, String>) redis).expire(key, timeout);
 	}
 
 	@Override
-	public Object ftadd(RedisAsyncCommands<String, String> redis, String index, String docId, double score,
-			Map<String, String> map, AddOptions options) {
+	public Object evalsha(Object redis, String sha, ScriptOutputType type, String[] keys, String[] args) {
+		return ((RedisScriptingAsyncCommands<String, String>) redis).evalsha(sha, type, keys, args);
+	}
+
+	@Override
+	public Object ftadd(Object redis, String index, String docId, double score, Map<String, String> map,
+			AddOptions options) {
 		return ((RediSearchAsyncCommands<String, String>) redis).add(index, docId, score, map, options);
 	}
 
 	@Override
-	public Object ftadd(RedisAsyncCommands<String, String> redis, String index, String docId, double score,
-			Map<String, String> map, AddOptions options, String payload) {
+	public Object ftadd(Object redis, String index, String docId, double score, Map<String, String> map,
+			AddOptions options, String payload) {
 		return ((RediSearchAsyncCommands<String, String>) redis).add(index, docId, score, map, options, payload);
 	}
 
 	@Override
-	public Object sugadd(RedisAsyncCommands<String, String> redis, String index, String string, double score,
-			boolean increment) {
+	public Object sugadd(Object redis, String index, String string, double score, boolean increment) {
 		return ((RediSearchAsyncCommands<String, String>) redis).sugadd(index, string, score, increment);
 	}
 
 	@Override
-	public Object sugadd(RedisAsyncCommands<String, String> redis, String index, String string, double score,
-			boolean increment, String payload) {
+	public Object sugadd(Object redis, String index, String string, double score, boolean increment, String payload) {
 		return ((RediSearchAsyncCommands<String, String>) redis).sugadd(index, string, score, increment, payload);
 	}
 
 	@Override
-	public Object restore(RedisAsyncCommands<String, String> redis, String key, long ttl, byte[] value) {
-		return redis.restore(key, ttl, value);
+	public Object restore(Object redis, String key, long ttl, byte[] value) {
+		return ((RedisKeyAsyncCommands<String, String>) redis).restore(key, ttl, value);
 	}
 }

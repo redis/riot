@@ -7,105 +7,111 @@ import com.redislabs.lettusearch.search.AddOptions;
 
 import io.lettuce.core.ScriptOutputType;
 import io.lettuce.core.XAddArgs;
-import io.lettuce.core.api.reactive.RedisReactiveCommands;
+import io.lettuce.core.api.reactive.RedisGeoReactiveCommands;
+import io.lettuce.core.api.reactive.RedisHashReactiveCommands;
+import io.lettuce.core.api.reactive.RedisKeyReactiveCommands;
+import io.lettuce.core.api.reactive.RedisListReactiveCommands;
+import io.lettuce.core.api.reactive.RedisScriptingReactiveCommands;
+import io.lettuce.core.api.reactive.RedisSetReactiveCommands;
+import io.lettuce.core.api.reactive.RedisSortedSetReactiveCommands;
+import io.lettuce.core.api.reactive.RedisStreamReactiveCommands;
+import io.lettuce.core.api.reactive.RedisStringReactiveCommands;
 
-public class LettuceReactiveCommands implements RedisCommands<RedisReactiveCommands<String, String>> {
+@SuppressWarnings("unchecked")
+public class LettuceReactiveCommands implements RedisCommands<Object> {
 
 	@Override
-	public Object geoadd(RedisReactiveCommands<String, String> redis, String key, double longitude, double latitude,
-			String member) {
-		return redis.geoadd(key, longitude, latitude, member);
+	public Object geoadd(Object redis, String key, double longitude, double latitude, String member) {
+		return ((RedisGeoReactiveCommands<String, String>) redis).geoadd(key, longitude, latitude, member);
 	}
 
 	@Override
-	public Object hmset(RedisReactiveCommands<String, String> redis, String key, Map<String, String> map) {
-		return redis.hmset(key, map);
+	public Object hmset(Object redis, String key, Map<String, String> map) {
+		return ((RedisHashReactiveCommands<String, String>) redis).hmset(key, map);
 	}
 
 	@Override
-	public Object xadd(RedisReactiveCommands<String, String> redis, String key, Map<String, String> map) {
-		return redis.xadd(key, map);
+	public Object xadd(Object redis, String key, Map<String, String> map) {
+		return ((RedisStreamReactiveCommands<String, String>) redis).xadd(key, map);
 	}
 
 	@Override
-	public Object xadd(RedisReactiveCommands<String, String> redis, String key, String id, Map<String, String> map,
-			long maxlen, boolean approximateTrimming) {
-		return redis.xadd(key, new XAddArgs().id(id).maxlen(maxlen).approximateTrimming(approximateTrimming), map);
-	}
-
-	@Override
-	public Object xadd(RedisReactiveCommands<String, String> redis, String key, String id, Map<String, String> map) {
-		return redis.xadd(key, new XAddArgs().id(id), map);
-	}
-
-	@Override
-	public Object xadd(RedisReactiveCommands<String, String> redis, String key, Map<String, String> map, long maxlen,
+	public Object xadd(Object redis, String key, String id, Map<String, String> map, long maxlen,
 			boolean approximateTrimming) {
-		return redis.xadd(key, new XAddArgs().maxlen(maxlen).approximateTrimming(approximateTrimming), map);
+		return ((RedisStreamReactiveCommands<String, String>) redis).xadd(key,
+				new XAddArgs().id(id).maxlen(maxlen).approximateTrimming(approximateTrimming), map);
 	}
 
 	@Override
-	public Object zadd(RedisReactiveCommands<String, String> redis, String key, double score, String member) {
-		return redis.zadd(key, score, member);
+	public Object xadd(Object redis, String key, String id, Map<String, String> map) {
+		return ((RedisStreamReactiveCommands<String, String>) redis).xadd(key, new XAddArgs().id(id), map);
 	}
 
 	@Override
-	public Object set(RedisReactiveCommands<String, String> redis, String key, String value) {
-		return redis.set(key, value);
+	public Object xadd(Object redis, String key, Map<String, String> map, long maxlen, boolean approximateTrimming) {
+		return ((RedisStreamReactiveCommands<String, String>) redis).xadd(key,
+				new XAddArgs().maxlen(maxlen).approximateTrimming(approximateTrimming), map);
 	}
 
 	@Override
-	public Object sadd(RedisReactiveCommands<String, String> redis, String key, String member) {
-		return redis.sadd(key, member);
+	public Object zadd(Object redis, String key, double score, String member) {
+		return ((RedisSortedSetReactiveCommands<String, String>) redis).zadd(key, score, member);
 	}
 
 	@Override
-	public Object rpush(RedisReactiveCommands<String, String> redis, String key, String member) {
-		return redis.rpush(key, member);
+	public Object set(Object redis, String key, String value) {
+		return ((RedisStringReactiveCommands<String, String>) redis).set(key, value);
 	}
 
 	@Override
-	public Object lpush(RedisReactiveCommands<String, String> redis, String key, String member) {
-		return redis.lpush(key, member);
+	public Object sadd(Object redis, String key, String member) {
+		return ((RedisSetReactiveCommands<String, String>) redis).sadd(key, member);
 	}
 
 	@Override
-	public Object expire(RedisReactiveCommands<String, String> redis, String key, long timeout) {
-		return redis.expire(key, timeout);
+	public Object rpush(Object redis, String key, String member) {
+		return ((RedisListReactiveCommands<String, String>) redis).rpush(key, member);
 	}
 
 	@Override
-	public Object evalsha(RedisReactiveCommands<String, String> redis, String sha, ScriptOutputType type, String[] keys,
-			String[] args) {
-		return redis.evalsha(sha, type, keys, args);
-	}
-	
-	@Override
-	public Object restore(RedisReactiveCommands<String, String> redis, String key, long ttl, byte[] value) {
-		return redis.restore(key, ttl, value);
+	public Object lpush(Object redis, String key, String member) {
+		return ((RedisListReactiveCommands<String, String>) redis).lpush(key, member);
 	}
 
 	@Override
-	public Object ftadd(RedisReactiveCommands<String, String> redis, String index, String docId, double score,
-			Map<String, String> map, AddOptions options) {
+	public Object expire(Object redis, String key, long timeout) {
+		return ((RedisKeyReactiveCommands<String, String>) redis).expire(key, timeout);
+	}
+
+	@Override
+	public Object evalsha(Object redis, String sha, ScriptOutputType type, String[] keys, String[] args) {
+		return ((RedisScriptingReactiveCommands<String, String>) redis).evalsha(sha, type, keys, args);
+	}
+
+	@Override
+	public Object restore(Object redis, String key, long ttl, byte[] value) {
+		return ((RedisKeyReactiveCommands<String, String>) redis).restore(key, ttl, value);
+	}
+
+	@Override
+	public Object ftadd(Object redis, String index, String docId, double score, Map<String, String> map,
+			AddOptions options) {
 		return ((RediSearchReactiveCommands<String, String>) redis).add(index, docId, score, map, options);
 	}
 
 	@Override
-	public Object ftadd(RedisReactiveCommands<String, String> redis, String index, String docId, double score,
-			Map<String, String> map, AddOptions options, String payload) {
+	public Object ftadd(Object redis, String index, String docId, double score, Map<String, String> map,
+			AddOptions options, String payload) {
 		return ((RediSearchReactiveCommands<String, String>) redis).add(index, docId, score, map, options, payload);
 	}
 
 	@Override
-	public Object sugadd(RedisReactiveCommands<String, String> redis, String index, String string, double score,
-			boolean increment) {
+	public Object sugadd(Object redis, String index, String string, double score, boolean increment) {
 		return ((RediSearchReactiveCommands<String, String>) redis).sugadd(index, string, score, increment);
 	}
 
 	@Override
-	public Object sugadd(RedisReactiveCommands<String, String> redis, String index, String string, double score,
-			boolean increment, String payload) {
+	public Object sugadd(Object redis, String index, String string, double score, boolean increment, String payload) {
 		return ((RediSearchReactiveCommands<String, String>) redis).sugadd(index, string, score, increment, payload);
 	}
 
