@@ -33,7 +33,6 @@ import com.redislabs.riot.batch.redis.writer.map.AbstractRediSearchWriter;
 
 import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.RedisClient;
-import io.lettuce.core.api.StatefulConnection;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.api.async.RedisAsyncCommands;
 import io.lettuce.core.api.reactive.RedisReactiveCommands;
@@ -49,6 +48,10 @@ import picocli.CommandLine.Command;
 public abstract class ImportCommand<I, O> extends TransferCommand {
 
 	public void execute(String unitName, AbstractRedisWriter redisWriter) {
+		boolean isRediSearch = redisWriter instanceof AbstractRediSearchWriter;
+		redisWriter.commands(redisCommands(redisOptions()));
+		AbstractRedisItemWriter writer = itemWriter(redisOptions(), isRediSearch);
+		writer.writer(redisWriter);
 		execute(new Transfer<I, O>() {
 			@Override
 			public ItemReader<I> reader(TransferContext context) throws Exception {
@@ -62,10 +65,6 @@ public abstract class ImportCommand<I, O> extends TransferCommand {
 
 			@Override
 			public ItemWriter<O> writer(TransferContext context) throws Exception {
-				boolean isRediSearch = redisWriter instanceof AbstractRediSearchWriter;
-				redisWriter.commands(redisCommands(redisOptions()));
-				AbstractRedisItemWriter writer = itemWriter(redisOptions(), isRediSearch);
-				writer.writer(redisWriter);
 				return writer;
 			}
 
@@ -92,7 +91,9 @@ public abstract class ImportCommand<I, O> extends TransferCommand {
 		AbstractLettuceItemWriter writer = lettuceItemWriter(redis);
 		writer.api(lettuceApi(redis, isRediSearch));
 		AbstractRedisClient client = lettuceClient(redis, isRediSearch);
-		writer.connection((StatefulConnection) lettuceConnectionSupplier(client).get());
+		writer.client(client);
+		writer.pool(redis.pool(lettuceConnectionSupplier(client)));
+		writer.resources(lettuceResources(client));
 		return writer;
 	}
 
