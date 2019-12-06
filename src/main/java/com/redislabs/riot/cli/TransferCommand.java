@@ -93,7 +93,9 @@ public abstract class TransferCommand<I, O> extends RiotCommand {
 				}
 			}
 			pb.stepTo(writeCount);
-			pb.setExtraMessage(" (" + nRunningThreads + " threads)");
+			if (nRunningThreads > 1) {
+				pb.setExtraMessage(" (" + nRunningThreads + " threads)");
+			}
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {

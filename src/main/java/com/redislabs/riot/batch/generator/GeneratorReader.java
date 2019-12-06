@@ -7,16 +7,21 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.batch.item.ParseException;
+import org.springframework.batch.item.UnexpectedInputException;
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.support.SimpleEvaluationContext.Builder;
+import org.springframework.lang.Nullable;
 import org.springframework.util.ClassUtils;
 
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Accessors(fluent = true)
 public class GeneratorReader extends AbstractItemCountingItemStreamItemReader<Map<String, Object>> {
 
@@ -69,6 +74,16 @@ public class GeneratorReader extends AbstractItemCountingItemStreamItemReader<Ma
 
 	public int index() {
 		return offset + getCurrentItemCount();
+	}
+
+	@Nullable
+	@Override
+	public Map<String, Object> read() throws Exception, UnexpectedInputException, ParseException {
+		Map<String, Object> item = super.read();
+		if (item == null) {
+			log.debug("Null item read");
+		}
+		return item;
 	}
 
 	@Override
