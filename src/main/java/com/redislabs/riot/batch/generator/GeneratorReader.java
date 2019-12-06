@@ -81,7 +81,7 @@ public class GeneratorReader extends AbstractItemCountingItemStreamItemReader<Ma
 	public Map<String, Object> read() throws Exception, UnexpectedInputException, ParseException {
 		Map<String, Object> item = super.read();
 		if (item == null) {
-			log.debug("Null item read");
+			log.debug("Null - {} items read", getCurrentItemCount());
 		}
 		return item;
 	}
