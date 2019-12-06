@@ -4,11 +4,11 @@ import java.util.List;
 
 import redis.clients.jedis.JedisCluster;
 
-public class JedisClusterWriter<O> extends AbstractRedisItemWriter<JedisCluster, O> {
+public class ClusterJedisWriter<O> extends AbstractRedisItemWriter<JedisCluster, O> {
 
 	private JedisCluster cluster;
 
-	public JedisClusterWriter(JedisCluster cluster) {
+	public ClusterJedisWriter(JedisCluster cluster) {
 		this.cluster = cluster;
 	}
 

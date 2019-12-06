@@ -24,11 +24,11 @@ import com.redislabs.riot.batch.redis.RedisCommands;
 import com.redislabs.riot.batch.redis.writer.AbstractLettuceItemWriter;
 import com.redislabs.riot.batch.redis.writer.AbstractRedisItemWriter;
 import com.redislabs.riot.batch.redis.writer.AbstractRedisWriter;
-import com.redislabs.riot.batch.redis.writer.JedisClusterWriter;
-import com.redislabs.riot.batch.redis.writer.JedisPipelineWriter;
-import com.redislabs.riot.batch.redis.writer.LettuceAsyncItemWriter;
-import com.redislabs.riot.batch.redis.writer.LettuceReactiveItemWriter;
-import com.redislabs.riot.batch.redis.writer.LettuceSyncItemWriter;
+import com.redislabs.riot.batch.redis.writer.AsyncLettuceItemWriter;
+import com.redislabs.riot.batch.redis.writer.ClusterJedisWriter;
+import com.redislabs.riot.batch.redis.writer.PipelineJedisWriter;
+import com.redislabs.riot.batch.redis.writer.ReactiveLettuceItemWriter;
+import com.redislabs.riot.batch.redis.writer.SyncLettuceItemWriter;
 import com.redislabs.riot.batch.redis.writer.map.AbstractRediSearchWriter;
 
 import io.lettuce.core.AbstractRedisClient;
@@ -42,10 +42,15 @@ import io.lettuce.core.cluster.api.async.RedisClusterAsyncCommands;
 import io.lettuce.core.cluster.api.reactive.RedisClusterReactiveCommands;
 import io.lettuce.core.cluster.api.sync.RedisClusterCommands;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 @Command
 public abstract class ImportCommand<I, O> extends TransferCommand {
+	
+	@Option(names = "--no-reply", description = "Don't wait for replies in lettuce async")
+	private boolean noReply;
+
 
 	public void execute(String unitName, AbstractRedisWriter redisWriter) {
 		boolean isRediSearch = redisWriter instanceof AbstractRediSearchWriter;
@@ -84,9 +89,9 @@ public abstract class ImportCommand<I, O> extends TransferCommand {
 	private AbstractRedisItemWriter<?, O> itemWriter(RedisOptions redis, boolean isRediSearch) {
 		if (redis.isJedis()) {
 			if (redis.isCluster()) {
-				return new JedisClusterWriter<O>(redis.jedisCluster());
+				return new ClusterJedisWriter<O>(redis.jedisCluster());
 			}
-			return new JedisPipelineWriter<O>(redis.jedisPool());
+			return new PipelineJedisWriter<O>(redis.jedisPool());
 		}
 		AbstractLettuceItemWriter writer = lettuceItemWriter(redis);
 		writer.api(lettuceApi(redis, isRediSearch));
@@ -120,12 +125,12 @@ public abstract class ImportCommand<I, O> extends TransferCommand {
 	private AbstractLettuceItemWriter lettuceItemWriter(RedisOptions redis) {
 		switch (redis.lettuce().api()) {
 		case Reactive:
-			return new LettuceReactiveItemWriter<>();
+			return new ReactiveLettuceItemWriter<>();
 		case Sync:
-			return new LettuceSyncItemWriter<>();
+			return new SyncLettuceItemWriter<>();
 		default:
-			LettuceAsyncItemWriter lettuceAsyncItemWriter = new LettuceAsyncItemWriter();
-			lettuceAsyncItemWriter.timeout(redis.lettuce().commandTimeout());
+			AsyncLettuceItemWriter lettuceAsyncItemWriter = new AsyncLettuceItemWriter();
+			lettuceAsyncItemWriter.timeout(redis.lettuce().commandTimeout()).waitForReplies(!noReply);
 			return lettuceAsyncItemWriter;
 		}
 	}

@@ -7,7 +7,7 @@ import io.lettuce.core.api.reactive.BaseRedisReactiveCommands;
 import reactor.core.CorePublisher;
 import reactor.core.publisher.Flux;
 
-public class LettuceReactiveItemWriter<C extends StatefulConnection<String, String>, R extends BaseRedisReactiveCommands<String, String>, O>
+public class ReactiveLettuceItemWriter<C extends StatefulConnection<String, String>, R extends BaseRedisReactiveCommands<String, String>, O>
 		extends AbstractLettuceItemWriter<C, R, O> {
 
 	@SuppressWarnings("unchecked")

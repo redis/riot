@@ -5,7 +5,7 @@ import java.util.List;
 import io.lettuce.core.api.StatefulConnection;
 import io.lettuce.core.api.sync.BaseRedisCommands;
 
-public class LettuceSyncItemWriter<C extends StatefulConnection<String, String>, R extends BaseRedisCommands<String, String>, O>
+public class SyncLettuceItemWriter<C extends StatefulConnection<String, String>, R extends BaseRedisCommands<String, String>, O>
 		extends AbstractLettuceItemWriter<C, R, O> {
 
 	@Override
