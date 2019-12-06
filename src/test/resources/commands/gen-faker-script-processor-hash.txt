@@ -1,1 +1,1 @@
-$ riot gen --faker-fields id=index firstName=name.firstName lastName=name.lastName address=address.fullAddress --script "function process(item) { item.address = item.address.toUpperCase(); return item; } process(item);" --max 100 hmset --keyspace person --keys id
+$ riot gen --faker id=index firstName=name.firstName lastName=name.lastName address=address.fullAddress --script "function process(item) { item.address = item.address.toUpperCase(); return item; } process(item);" --max 100 hmset --keyspace person --keys id

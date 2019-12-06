@@ -18,8 +18,6 @@ public class AsyncLettuceItemWriter<C extends StatefulConnection<String, String>
 
 	@Setter
 	private long timeout;
-	@Setter
-	private boolean waitForReplies = true;
 
 	@SuppressWarnings("rawtypes")
 	@Override
@@ -34,20 +32,18 @@ public class AsyncLettuceItemWriter<C extends StatefulConnection<String, String>
 			}
 		}
 		commands.flushCommands();
-		if (waitForReplies) {
-			for (int index = 0; index < futures.size(); index++) {
-				RedisFuture future = futures.get(index);
-				if (future == null) {
-					continue;
-				}
-				try {
-					future.get(timeout, TimeUnit.SECONDS);
-				} catch (Exception e) {
-					if (log.isDebugEnabled()) {
-						log.debug("Could not write record {}", items.get(index), e);
-					} else {
-						log.error("Could not write record: {}", e.getMessage());
-					}
+		for (int index = 0; index < futures.size(); index++) {
+			RedisFuture future = futures.get(index);
+			if (future == null) {
+				continue;
+			}
+			try {
+				future.get(timeout, TimeUnit.SECONDS);
+			} catch (Exception e) {
+				if (log.isDebugEnabled()) {
+					log.debug("Could not write record {}", items.get(index), e);
+				} else {
+					log.error("Could not write record: {}", e.getMessage());
 				}
 			}
 		}

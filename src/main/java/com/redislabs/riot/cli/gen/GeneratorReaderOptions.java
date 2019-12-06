@@ -16,9 +16,10 @@ import picocli.CommandLine.Option;
 @Accessors(fluent = true)
 public @Data class GeneratorReaderOptions {
 
-	@Option(arity = "1..*", names = "--faker-fields", description = "SpEL expression to generate a field", paramLabel = "<name=SpEL>")
+	@Option(arity = "1..*", names = "--faker", description = "SpEL expression to generate a field", paramLabel = "<name=SpEL>")
 	private Map<String, String> fakerFields = new LinkedHashMap<>();
-	@Option(names = "--simple-fields", arity = "0..*", description = "Field sizes in bytes", paramLabel = "<field=size>")
+	@Option(names = { "-d",
+			"--data" }, arity = "0..*", description = "Field sizes in bytes", paramLabel = "<field=size>")
 	private Map<String, Integer> simpleFields = new LinkedHashMap<>();
 	@Option(names = { "-l",
 			"--locale" }, description = "Faker locale (default: ${DEFAULT-VALUE})", paramLabel = "<tag>")

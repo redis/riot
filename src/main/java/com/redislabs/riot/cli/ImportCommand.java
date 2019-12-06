@@ -42,15 +42,10 @@ import io.lettuce.core.cluster.api.async.RedisClusterAsyncCommands;
 import io.lettuce.core.cluster.api.reactive.RedisClusterReactiveCommands;
 import io.lettuce.core.cluster.api.sync.RedisClusterCommands;
 import picocli.CommandLine.Command;
-import picocli.CommandLine.Option;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 @Command
 public abstract class ImportCommand<I, O> extends TransferCommand {
-	
-	@Option(names = "--no-reply", description = "Don't wait for replies in lettuce async")
-	private boolean noReply;
-
 
 	public void execute(String unitName, AbstractRedisWriter redisWriter) {
 		boolean isRediSearch = redisWriter instanceof AbstractRediSearchWriter;
@@ -130,7 +125,7 @@ public abstract class ImportCommand<I, O> extends TransferCommand {
 			return new SyncLettuceItemWriter<>();
 		default:
 			AsyncLettuceItemWriter lettuceAsyncItemWriter = new AsyncLettuceItemWriter();
-			lettuceAsyncItemWriter.timeout(redis.lettuce().commandTimeout()).waitForReplies(!noReply);
+			lettuceAsyncItemWriter.timeout(redis.lettuce().commandTimeout());
 			return lettuceAsyncItemWriter;
 		}
 	}
