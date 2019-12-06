@@ -1,5 +1,8 @@
 package com.redislabs.riot.cli;
 
+import java.util.function.Function;
+import java.util.function.Supplier;
+
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
@@ -15,10 +18,10 @@ import com.redislabs.riot.batch.TransferContext;
 import com.redislabs.riot.batch.redis.JedisClusterCommands;
 import com.redislabs.riot.batch.redis.JedisPipelineCommands;
 import com.redislabs.riot.batch.redis.LettuceAsyncCommands;
-import com.redislabs.riot.batch.redis.LettuceConnector;
 import com.redislabs.riot.batch.redis.LettuceReactiveCommands;
 import com.redislabs.riot.batch.redis.LettuceSyncCommands;
 import com.redislabs.riot.batch.redis.RedisCommands;
+import com.redislabs.riot.batch.redis.writer.AbstractLettuceItemWriter;
 import com.redislabs.riot.batch.redis.writer.AbstractRedisItemWriter;
 import com.redislabs.riot.batch.redis.writer.AbstractRedisWriter;
 import com.redislabs.riot.batch.redis.writer.JedisClusterWriter;
@@ -26,7 +29,9 @@ import com.redislabs.riot.batch.redis.writer.JedisPipelineWriter;
 import com.redislabs.riot.batch.redis.writer.LettuceAsyncItemWriter;
 import com.redislabs.riot.batch.redis.writer.LettuceReactiveItemWriter;
 import com.redislabs.riot.batch.redis.writer.LettuceSyncItemWriter;
+import com.redislabs.riot.batch.redis.writer.map.AbstractRediSearchWriter;
 
+import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.api.async.RedisAsyncCommands;
@@ -42,10 +47,10 @@ import picocli.CommandLine.Command;
 @Command
 public abstract class ImportCommand<I, O> extends TransferCommand {
 
-	public void execute(AbstractRedisWriter redisWriter) {
-		RedisOptions redis = redisOptions();
-		AbstractRedisItemWriter writer = writer(redis, redisWriter.isRediSearch());
-		redisWriter.commands(redisCommands(redis));
+	public void execute(String unitName, AbstractRedisWriter redisWriter) {
+		boolean isRediSearch = redisWriter instanceof AbstractRediSearchWriter;
+		redisWriter.commands(redisCommands(redisOptions()));
+		AbstractRedisItemWriter writer = itemWriter(redisOptions(), isRediSearch);
 		writer.writer(redisWriter);
 		execute(new Transfer<I, O>() {
 			@Override
@@ -62,8 +67,70 @@ public abstract class ImportCommand<I, O> extends TransferCommand {
 			public ItemWriter<O> writer(TransferContext context) throws Exception {
 				return writer;
 			}
+
+			@Override
+			public String unitName() {
+				return unitName;
+			}
+
+			@Override
+			public String taskName() {
+				return ImportCommand.this.taskName();
+			}
+
 		});
 	}
+
+	private AbstractRedisItemWriter<?, O> itemWriter(RedisOptions redis, boolean isRediSearch) {
+		if (redis.isJedis()) {
+			if (redis.isCluster()) {
+				return new JedisClusterWriter<O>(redis.jedisCluster());
+			}
+			return new JedisPipelineWriter<O>(redis.jedisPool());
+		}
+		AbstractLettuceItemWriter writer = lettuceItemWriter(redis);
+		writer.api(lettuceApi(redis, isRediSearch));
+		AbstractRedisClient client = lettuceClient(redis, isRediSearch);
+		writer.client(client);
+		writer.pool(redis.pool(lettuceConnectionSupplier(client)));
+		writer.resources(lettuceResources(client));
+		return writer;
+	}
+
+	private Supplier lettuceConnectionSupplier(AbstractRedisClient client) {
+		if (client instanceof RediSearchClient) {
+			return ((RediSearchClient) client)::connect;
+		}
+		if (client instanceof RedisClusterClient) {
+			return ((RedisClusterClient) client)::connect;
+		}
+		return ((RedisClient) client)::connect;
+	}
+
+	private Supplier lettuceResources(AbstractRedisClient client) {
+		if (client instanceof RediSearchClient) {
+			return ((RediSearchClient) client)::getResources;
+		}
+		if (client instanceof RedisClusterClient) {
+			return ((RedisClusterClient) client)::getResources;
+		}
+		return ((RedisClient) client)::getResources;
+	}
+
+	private AbstractLettuceItemWriter lettuceItemWriter(RedisOptions redis) {
+		switch (redis.lettuce().api()) {
+		case Reactive:
+			return new LettuceReactiveItemWriter<>();
+		case Sync:
+			return new LettuceSyncItemWriter<>();
+		default:
+			LettuceAsyncItemWriter lettuceAsyncItemWriter = new LettuceAsyncItemWriter();
+			lettuceAsyncItemWriter.timeout(redis.lettuce().commandTimeout());
+			return lettuceAsyncItemWriter;
+		}
+	}
+
+	protected abstract String taskName();
 
 	protected abstract ItemReader<I> reader(TransferContext context) throws Exception;
 
@@ -71,92 +138,45 @@ public abstract class ImportCommand<I, O> extends TransferCommand {
 		return null;
 	}
 
-	private AbstractRedisItemWriter<?, O> writer(RedisOptions redis, boolean rediSearch) {
-		if (rediSearch) {
-			return rediSearchWriter(redis);
-		}
-		return redisWriter(redis);
-	}
-
-	private AbstractRedisItemWriter<?, O> rediSearchWriter(RedisOptions redis) {
-		switch (redis.lettuce().api()) {
-		case Reactive:
-			return new LettuceReactiveItemWriter<>(lettuSearchConnector(redis));
-		case Sync:
-			return new LettuceSyncItemWriter<>(lettuSearchConnector(redis));
-		default:
-			return new LettuceAsyncItemWriter(lettuSearchConnector(redis), redis.getCommandTimeout());
-		}
-	}
-
-	private AbstractRedisItemWriter<?, O> redisWriter(RedisOptions redis) {
-		if (redis.isJedis()) {
-			if (redis.isCluster()) {
-				return new JedisClusterWriter<O>(redis.jedisCluster());
-			}
-			return new JedisPipelineWriter<O>(redis.jedisPool());
-		}
-		switch (redis.lettuce().api()) {
-		case Reactive:
-			return new LettuceReactiveItemWriter<>(lettuceConnector(redis));
-		case Sync:
-			return new LettuceSyncItemWriter<>(lettuceConnector(redis));
-		default:
-			return new LettuceAsyncItemWriter(lettuceConnector(redis), redis.getCommandTimeout());
-		}
-	}
-
-	private LettuceConnector lettuSearchConnector(RedisOptions redis) {
-		RediSearchClient client = redis.lettuSearchClient();
-		switch (redis.lettuce().api()) {
-		case Sync:
-			return new LettuceConnector<StatefulRediSearchConnection<String, String>, RediSearchCommands<String, String>>(
-					client, client::connect, client::getResources, redis.pool(client::connect),
-					StatefulRediSearchConnection::sync);
-		case Reactive:
-			return new LettuceConnector<StatefulRediSearchConnection<String, String>, RediSearchReactiveCommands<String, String>>(
-					client, client::connect, client::getResources, redis.pool(client::connect),
-					StatefulRediSearchConnection::reactive);
-		default:
-			return new LettuceConnector<StatefulRediSearchConnection<String, String>, RediSearchAsyncCommands<String, String>>(
-					client, client::connect, client::getResources, redis.pool(client::connect),
-					StatefulRediSearchConnection::async);
-		}
-	}
-
-	protected LettuceConnector lettuceConnector(RedisOptions redis) {
-		if (redis.isCluster()) {
-			RedisClusterClient client = redis.lettuceClusterClient();
+	private Function lettuceApi(RedisOptions redis, boolean isRediSearch) {
+		if (isRediSearch) {
 			switch (redis.lettuce().api()) {
 			case Sync:
-				return new LettuceConnector<StatefulRedisClusterConnection<String, String>, RedisClusterCommands<String, String>>(
-						client, client::connect, client::getResources, redis.pool(client::connect),
-						StatefulRedisClusterConnection::sync);
+				return (Function<StatefulRediSearchConnection, RediSearchCommands>) StatefulRediSearchConnection::sync;
 			case Reactive:
-				return new LettuceConnector<StatefulRedisClusterConnection<String, String>, RedisClusterReactiveCommands<String, String>>(
-						client, client::connect, client::getResources, redis.pool(client::connect),
-						StatefulRedisClusterConnection::reactive);
+				return (Function<StatefulRediSearchConnection, RediSearchReactiveCommands>) StatefulRediSearchConnection::reactive;
 			default:
-				return new LettuceConnector<StatefulRedisClusterConnection<String, String>, RedisClusterAsyncCommands<String, String>>(
-						client, client::connect, client::getResources, redis.pool(client::connect),
-						StatefulRedisClusterConnection::async);
+				return (Function<StatefulRediSearchConnection, RediSearchAsyncCommands>) StatefulRediSearchConnection::async;
 			}
 		}
-		RedisClient client = redis.lettuceClient();
+		if (redis.isCluster()) {
+			switch (redis.lettuce().api()) {
+			case Sync:
+				return (Function<StatefulRedisClusterConnection, RedisClusterCommands>) StatefulRedisClusterConnection::sync;
+			case Reactive:
+				return (Function<StatefulRedisClusterConnection, RedisClusterReactiveCommands>) StatefulRedisClusterConnection::reactive;
+			default:
+				return (Function<StatefulRedisClusterConnection, RedisClusterAsyncCommands>) StatefulRedisClusterConnection::async;
+			}
+		}
 		switch (redis.lettuce().api()) {
 		case Sync:
-			return new LettuceConnector<StatefulRedisConnection<String, String>, io.lettuce.core.api.sync.RedisCommands<String, String>>(
-					client, client::connect, client::getResources, redis.pool(client::connect),
-					StatefulRedisConnection::sync);
+			return (Function<StatefulRedisConnection, io.lettuce.core.api.sync.RedisCommands>) StatefulRedisConnection::sync;
 		case Reactive:
-			return new LettuceConnector<StatefulRedisConnection<String, String>, RedisReactiveCommands<String, String>>(
-					client, client::connect, client::getResources, redis.pool(client::connect),
-					StatefulRedisConnection::reactive);
+			return (Function<StatefulRedisConnection, RedisReactiveCommands>) StatefulRedisConnection::reactive;
 		default:
-			return new LettuceConnector<StatefulRedisConnection<String, String>, RedisAsyncCommands<String, String>>(
-					client, client::connect, client::getResources, redis.pool(client::connect),
-					StatefulRedisConnection::async);
+			return (Function<StatefulRedisConnection, RedisAsyncCommands>) StatefulRedisConnection::async;
 		}
+	}
+
+	protected AbstractRedisClient lettuceClient(RedisOptions redis, boolean rediSearch) {
+		if (rediSearch) {
+			return redis.lettuSearchClient();
+		}
+		if (redis.isCluster()) {
+			return redis.lettuceClusterClient();
+		}
+		return redis.lettuceClient();
 	}
 
 	private RedisCommands redisCommands(RedisOptions redis) {

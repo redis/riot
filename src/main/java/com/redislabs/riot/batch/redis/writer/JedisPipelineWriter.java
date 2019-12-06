@@ -45,4 +45,13 @@ public class JedisPipelineWriter<O> extends AbstractRedisItemWriter<Pipeline, O>
 		}
 	}
 
+	@Override
+	public void close() {
+		if (pool != null) {
+			pool.close();
+			pool = null;
+		}
+		super.close();
+	}
+
 }

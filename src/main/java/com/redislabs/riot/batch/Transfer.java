@@ -12,4 +12,8 @@ public interface Transfer<I, O> {
 
 	ItemWriter<O> writer(TransferContext context) throws Exception;
 
+	String unitName();
+
+	String taskName();
+
 }

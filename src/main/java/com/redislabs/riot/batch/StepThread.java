@@ -1,53 +1,70 @@
 package com.redislabs.riot.batch;
 
+import java.util.List;
+
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemStream;
 import org.springframework.batch.item.ItemWriter;
 
+import lombok.Getter;
+import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class StepExecutor<I, O> implements Runnable {
+@Accessors(fluent = true)
+public class StepThread<I, O> implements Runnable {
 
 	private ItemReader<I> reader;
-	private ItemProcessor<I, O> processor;
 	private ItemWriter<O> writer;
-	private int chunkSize;
+	private ChunkedIterator<I, O> iterator;
+	@Getter
+	private long readCount;
+	@Getter
+	private long writeCount;
+	@Getter
+	private boolean running;
 
-	public StepExecutor(ItemReader<I> reader, ItemProcessor<I, O> processor, ItemWriter<O> writer, int chunkSize) {
+	public StepThread(ItemReader<I> reader, ItemProcessor<I, O> processor, ItemWriter<O> writer, int chunkSize) {
 		this.reader = reader;
-		this.processor = processor;
 		this.writer = writer;
-		this.chunkSize = chunkSize;
+		this.iterator = processor == null ? new ChunkedIterator<>(reader, chunkSize)
+				: new ProcessingChunkedIterator<>(reader, chunkSize, processor);
 	}
 
-	@Override
-	public void run() {
-		ExecutionContext executionContext = new ExecutionContext();
+	public void open(ExecutionContext executionContext) {
 		if (reader instanceof ItemStream) {
 			((ItemStream) reader).open(executionContext);
 		}
 		if (writer instanceof ItemStream) {
 			((ItemStream) writer).open(executionContext);
 		}
-		ChunkedIterator<I, O> iterator = processor == null ? new ChunkedIterator<>(reader, chunkSize)
-				: new ProcessingChunkedIterator<>(reader, chunkSize, processor);
+	}
+
+	@Override
+	public void run() {
+		this.running = true;
 		while (iterator.hasNext()) {
+			List<O> items = iterator.next();
+			readCount += items.size();
 			try {
-				writer.write(iterator.next());
+				writer.write(items);
+				writeCount += items.size();
 			} catch (Exception e) {
 				log.error("Could not write items", e);
 			}
 		}
+		this.running = false;
+	}
+
+	public void close() {
 		if (writer instanceof ItemStream) {
 			((ItemStream) writer).close();
 		}
 		if (reader instanceof ItemStream) {
 			((ItemStream) reader).close();
 		}
-
 	}
 
 }

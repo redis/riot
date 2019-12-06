@@ -38,6 +38,20 @@ public abstract class ExportCommand<I, O> extends TransferCommand<I, O> implemen
 				return ExportCommand.this.writer();
 			}
 
+			@Override
+			public String unitName() {
+				return ExportCommand.this.unitName();
+			}
+
+			@Override
+			public String taskName() {
+				return ExportCommand.this.taskName();
+			}
+
 		});
 	}
+
+	protected abstract String taskName();
+
+	protected abstract String unitName();
 }

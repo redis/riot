@@ -20,7 +20,7 @@ public abstract class AbstractRedisCommand extends HelpCommand implements Runnab
 
 	@Override
 	public void run() {
-		parent.execute(redisWriter());
+		parent.execute(spec.name(), redisWriter());
 	}
 
 	protected abstract AbstractRedisWriter redisWriter();

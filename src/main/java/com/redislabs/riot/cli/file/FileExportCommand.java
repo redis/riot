@@ -107,4 +107,14 @@ public class FileExportCommand extends HashExportCommand {
 		return builder.build();
 	}
 
+	@Override
+	protected String taskName() {
+		return "Exporting to " + options.resourceOptions().path();
+	}
+
+	@Override
+	protected String unitName() {
+		return "line";
+	}
+
 }

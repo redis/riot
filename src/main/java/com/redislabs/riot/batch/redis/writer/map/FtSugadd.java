@@ -8,21 +8,12 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 
 @Accessors(fluent = true)
-public class FtSugadd<R> extends AbstractKeyMapRedisWriter<R> {
+public class FtSugadd<R> extends AbstractRediSearchWriter<R> {
 
 	@Setter
 	private String field;
 	@Setter
 	private boolean increment;
-	@Setter
-	private String scoreField;
-	@Setter
-	private double defaultScore = 1d;
-
-	@Override
-	public boolean isRediSearch() {
-		return true;
-	}
 
 	@Override
 	protected Object write(RedisCommands<R> commands, R redis, String key, Map<String, Object> item) {
@@ -30,8 +21,7 @@ public class FtSugadd<R> extends AbstractKeyMapRedisWriter<R> {
 		if (string == null) {
 			return null;
 		}
-		double score = convert(item.getOrDefault(scoreField, defaultScore), Double.class);
-		return write(commands, redis, key, item, string, score, increment);
+		return write(commands, redis, key, item, string, score(item), increment);
 	}
 
 	@SuppressWarnings("unused")

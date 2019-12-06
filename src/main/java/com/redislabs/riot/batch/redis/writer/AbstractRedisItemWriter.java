@@ -1,6 +1,5 @@
 package com.redislabs.riot.batch.redis.writer;
 
-import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.support.AbstractItemStreamItemWriter;
 import org.springframework.util.ClassUtils;
 
@@ -17,16 +16,6 @@ public abstract class AbstractRedisItemWriter<R, O> extends AbstractItemStreamIt
 
 	public AbstractRedisItemWriter() {
 		setName(ClassUtils.getShortName(this.getClass()));
-	}
-
-	@Override
-	public synchronized void open(ExecutionContext executionContext) {
-		super.open(executionContext);
-	}
-
-	@Override
-	public synchronized void close() {
-		super.close();
 	}
 
 	protected void logWriteError(O item, Exception e) {

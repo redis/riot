@@ -27,4 +27,9 @@ public class FileImportCommand extends MapImportCommand {
 		return options.postProcessor();
 	}
 
+	@Override
+	protected String taskName() {
+		return "Importing from " + options.resourceOptions().path();
+	}
+
 }

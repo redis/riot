@@ -25,6 +25,11 @@ public class GeneratorImportCommand extends MapImportCommand implements Runnable
 	private boolean fakerHelp;
 
 	@Override
+	protected String taskName() {
+		return "Generating";
+	}
+
+	@Override
 	protected GeneratorReader reader(TransferContext context) {
 		GeneratorReader reader = options.reader();
 		reader.partition(context.thread());

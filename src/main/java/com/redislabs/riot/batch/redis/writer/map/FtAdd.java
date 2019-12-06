@@ -10,26 +10,16 @@ import lombok.experimental.Accessors;
 
 @SuppressWarnings("unchecked")
 @Accessors(fluent = true)
-public class FtAdd<R> extends AbstractKeyMapRedisWriter<R> {
+public class FtAdd<R> extends AbstractRediSearchWriter<R> {
 
 	@Setter
 	private String index;
 	@Setter
-	private String scoreField;
-	@Setter
-	private double defaultScore = 1d;
-	@Setter
 	private AddOptions options;
 
 	@Override
-	public boolean isRediSearch() {
-		return true;
-	}
-
-	@Override
 	protected Object write(RedisCommands<R> commands, R redis, String key, Map<String, Object> item) {
-		Double score = convert(item.getOrDefault(scoreField, defaultScore), Double.class);
-		return write(commands, redis, index, key, score, stringMap(item), options);
+		return write(commands, redis, index, key, score(item), stringMap(item), options);
 	}
 
 	protected Object write(RedisCommands<R> commands, R redis, String index, String key, double score,

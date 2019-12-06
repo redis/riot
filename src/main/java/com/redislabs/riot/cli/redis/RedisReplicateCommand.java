@@ -5,11 +5,11 @@ import org.springframework.batch.item.ItemReader;
 import com.redislabs.picocliredis.RedisOptions;
 import com.redislabs.riot.batch.TransferContext;
 import com.redislabs.riot.batch.redis.KeyValue;
-import com.redislabs.riot.batch.redis.LettuceConnector;
 import com.redislabs.riot.batch.redis.reader.LettuceKeyScanReader;
 import com.redislabs.riot.batch.redis.writer.Restore;
 import com.redislabs.riot.cli.ImportCommand;
 
+import io.lettuce.core.RedisClient;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import picocli.CommandLine.ArgGroup;
@@ -21,21 +21,26 @@ public class RedisReplicateCommand extends ImportCommand<KeyValue, KeyValue> imp
 
 	@Setter
 	@ArgGroup(exclusive = false, heading = "Source Redis connection options%n")
-	private RedisOptions redisOptions = new RedisOptions();
+	private RedisOptions redis = new RedisOptions();
 	@Setter
 	@ArgGroup(exclusive = false, heading = "Source Redis options%n")
-	private RedisKeyScanOptions keyScanOptions = new RedisKeyScanOptions();
+	private RedisKeyScanOptions keyScan = new RedisKeyScanOptions();
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	protected ItemReader<KeyValue> reader(TransferContext context) throws Exception {
-		LettuceConnector connector = lettuceConnector(redisOptions);
-		return new LettuceKeyScanReader(connector).count(keyScanOptions.count()).match(keyScanOptions.match());
+		RedisClient client = redis.lettuceClient();
+		return new LettuceKeyScanReader().connection(client.connect()).pool(redis.pool(client::connect))
+				.count(keyScan.count()).match(keyScan.match());
 	}
 
 	@Override
 	public void run() {
-		execute(new Restore<>());
+		execute("restore", new Restore<>());
+	}
+
+	@Override
+	protected String taskName() {
+		return "Replicating from " + redis.servers().get(0);
 	}
 
 }

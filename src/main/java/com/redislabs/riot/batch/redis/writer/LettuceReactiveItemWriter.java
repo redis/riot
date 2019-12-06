@@ -2,8 +2,6 @@ package com.redislabs.riot.batch.redis.writer;
 
 import java.util.List;
 
-import com.redislabs.riot.batch.redis.LettuceConnector;
-
 import io.lettuce.core.api.StatefulConnection;
 import io.lettuce.core.api.reactive.BaseRedisReactiveCommands;
 import reactor.core.CorePublisher;
@@ -11,10 +9,6 @@ import reactor.core.publisher.Flux;
 
 public class LettuceReactiveItemWriter<C extends StatefulConnection<String, String>, R extends BaseRedisReactiveCommands<String, String>, O>
 		extends AbstractLettuceItemWriter<C, R, O> {
-
-	public LettuceReactiveItemWriter(LettuceConnector<C, R> connector) {
-		super(connector);
-	}
 
 	@SuppressWarnings("unchecked")
 	@Override

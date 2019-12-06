@@ -20,4 +20,14 @@ public class DatabaseExportCommand extends HashExportCommand {
 		return options.writer();
 	}
 
+	@Override
+	protected String taskName() {
+		return "Exporting to " + options.url();
+	}
+
+	@Override
+	protected String unitName() {
+		return "row";
+	}
+
 }

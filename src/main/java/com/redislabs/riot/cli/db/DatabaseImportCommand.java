@@ -20,4 +20,9 @@ public class DatabaseImportCommand extends MapImportCommand {
 	protected JdbcCursorItemReader<Map<String, Object>> reader(TransferContext context) throws Exception {
 		return options.reader();
 	}
+
+	@Override
+	protected String taskName() {
+		return "Importing from " + options.url();
+	}
 }

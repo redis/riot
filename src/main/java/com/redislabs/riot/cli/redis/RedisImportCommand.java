@@ -20,6 +20,11 @@ public class RedisImportCommand extends MapImportCommand {
 	private RedisHashReaderOptions options = new RedisHashReaderOptions();
 
 	@Override
+	protected String taskName() {
+		return "Importing from " + redis.servers().get(0);
+	}
+
+	@Override
 	protected ItemReader<Map<String, Object>> reader(TransferContext context) {
 		return options.reader(redis);
 	}

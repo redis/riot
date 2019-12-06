@@ -3,13 +3,15 @@ package com.redislabs.riot.cli;
 import java.text.NumberFormat;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.StepExecution;
+import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemStreamReader;
@@ -17,7 +19,7 @@ import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
 
 import com.redislabs.riot.batch.JobExecutor;
-import com.redislabs.riot.batch.StepExecutor;
+import com.redislabs.riot.batch.StepThread;
 import com.redislabs.riot.batch.ThrottlingItemReader;
 import com.redislabs.riot.batch.ThrottlingItemStreamReader;
 import com.redislabs.riot.batch.Transfer;
@@ -25,6 +27,8 @@ import com.redislabs.riot.batch.TransferContext;
 
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
+import me.tongfei.progressbar.ProgressBar;
+import me.tongfei.progressbar.ProgressBarBuilder;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Spec;
@@ -42,7 +46,7 @@ public abstract class TransferCommand<I, O> extends RiotCommand {
 	private TransferOptions options = new TransferOptions();
 
 	protected void execute(Transfer<I, O> transfer) {
-		ExecutorService executor = Executors.newFixedThreadPool(options.threads());
+		List<StepThread<I, O>> stepThreads = new ArrayList<>();
 		for (int thread = 0; thread < options.threads(); thread++) {
 			TransferContext context = new TransferContext(thread, options.threads());
 			ItemReader<I> reader;
@@ -66,14 +70,37 @@ public abstract class TransferCommand<I, O> extends RiotCommand {
 				log.error("Could not initialize writer", e);
 				continue;
 			}
-			executor.execute(new StepExecutor<>(reader, processor, writer, options.batchSize()));
+			stepThreads.add(new StepThread<>(reader, processor, writer, options.batchSize()));
 		}
+		ExecutionContext executionContext = new ExecutionContext();
+		stepThreads.forEach(t -> t.open(executionContext));
+		ExecutorService executor = Executors.newFixedThreadPool(options.threads());
+		stepThreads.forEach(t -> executor.execute(t));
 		executor.shutdown();
-		try {
-			executor.awaitTermination(1, TimeUnit.DAYS);
-		} catch (InterruptedException e) {
-			log.error("Transfer interrupted", e);
+		ProgressBarBuilder pbb = new ProgressBarBuilder().setInitialMax(options.count() == null ? -1 : options.count())
+				.setTaskName(transfer.taskName()).showSpeed();
+		if (options.showUnit()) {
+			pbb.setUnit(" " + transfer.unitName() + "s", 1);
 		}
+		ProgressBar pb = pbb.build();
+		while (!executor.isTerminated()) {
+			long writeCount = 0;
+			int nRunningThreads = 0;
+			for (StepThread<I, O> stepThread : stepThreads) {
+				writeCount += stepThread.writeCount();
+				if (stepThread.running()) {
+					nRunningThreads++;
+				}
+			}
+			pb.stepTo(writeCount);
+			pb.setExtraMessage(" (" + nRunningThreads + " threads)");
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				log.error("Interrupted", e);
+			}
+		}
+		stepThreads.forEach(t -> t.close());
 	}
 
 	protected void oldExecute(ItemReader<I> reader, ItemProcessor<I, O> processor, ItemWriter<O> writer) {

@@ -2,10 +2,8 @@ package com.redislabs.riot.batch.redis.writer;
 
 import java.util.List;
 
-import lombok.experimental.Accessors;
 import redis.clients.jedis.JedisCluster;
 
-@Accessors(fluent = true)
 public class JedisClusterWriter<O> extends AbstractRedisItemWriter<JedisCluster, O> {
 
 	private JedisCluster cluster;

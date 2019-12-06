@@ -4,23 +4,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import com.redislabs.riot.batch.redis.LettuceConnector;
-
 import io.lettuce.core.RedisFuture;
 import io.lettuce.core.api.StatefulConnection;
 import io.lettuce.core.api.async.BaseRedisAsyncCommands;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@Accessors(fluent = true)
 public class LettuceAsyncItemWriter<C extends StatefulConnection<String, String>, R extends BaseRedisAsyncCommands<String, String>, O>
 		extends AbstractLettuceItemWriter<C, R, O> {
 
+	@Setter
 	private long timeout;
-
-	public LettuceAsyncItemWriter(LettuceConnector<C, R> connector, long timeout) {
-		super(connector);
-		this.timeout = timeout;
-	}
 
 	@SuppressWarnings("rawtypes")
 	@Override

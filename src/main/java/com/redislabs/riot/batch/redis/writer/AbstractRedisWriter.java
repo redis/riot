@@ -18,8 +18,4 @@ public abstract class AbstractRedisWriter<R, O> implements RedisWriter<R, O> {
 
 	protected abstract Object write(RedisCommands<R> commands, R redis, O item) throws Exception;
 
-	public boolean isRediSearch() {
-		return false;
-	}
-
 }
