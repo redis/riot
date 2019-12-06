@@ -43,7 +43,7 @@ public class AsyncLettuceItemWriter<C extends StatefulConnection<String, String>
 				if (log.isDebugEnabled()) {
 					log.debug("Could not write record {}", items.get(index), e);
 				} else {
-					log.error("Could not write record: {}", e.getMessage());
+					log.error("Could not write record", e);
 				}
 			}
 		}

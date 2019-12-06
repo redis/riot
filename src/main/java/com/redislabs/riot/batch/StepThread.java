@@ -25,8 +25,11 @@ public class StepThread<I, O> implements Runnable {
 	private long writeCount;
 	@Getter
 	private boolean running;
+	private int id;
 
-	public StepThread(ItemReader<I> reader, ItemProcessor<I, O> processor, ItemWriter<O> writer, int chunkSize) {
+	public StepThread(int threadId, ItemReader<I> reader, ItemProcessor<I, O> processor, ItemWriter<O> writer,
+			int chunkSize) {
+		this.id = threadId;
 		this.reader = reader;
 		this.writer = writer;
 		this.iterator = processor == null ? new ChunkedIterator<>(reader, chunkSize)
@@ -55,6 +58,7 @@ public class StepThread<I, O> implements Runnable {
 				log.error("Could not write items", e);
 			}
 		}
+		log.debug("StepThread #{} finished", id);
 		this.running = false;
 	}
 

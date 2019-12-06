@@ -70,7 +70,7 @@ public abstract class TransferCommand<I, O> extends RiotCommand {
 				log.error("Could not initialize writer", e);
 				continue;
 			}
-			stepThreads.add(new StepThread<>(reader, processor, writer, options.batchSize()));
+			stepThreads.add(new StepThread<>(thread, reader, processor, writer, options.batchSize()));
 		}
 		ExecutionContext executionContext = new ExecutionContext();
 		stepThreads.forEach(t -> t.open(executionContext));

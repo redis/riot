@@ -37,6 +37,7 @@ public class ChunkedIterator<I, O> implements Iterator<List<O>> {
 				continue;
 			}
 			if (item == null) {
+				log.debug("Reached last item in iterator");
 				finished = true;
 			} else {
 				items.add(process(item));
