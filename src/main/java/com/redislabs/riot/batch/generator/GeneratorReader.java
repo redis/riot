@@ -1,11 +1,12 @@
 package com.redislabs.riot.batch.generator;
 
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
@@ -35,6 +36,7 @@ public class GeneratorReader extends AbstractItemCountingItemStreamItemReader<Ma
 	private Map<String, Expression> fieldExpressions = new HashMap<>();
 	@Setter
 	private Map<String, Integer> fieldSizes = new HashMap<>();
+	private Map<String, String> simpleFields = new LinkedHashMap<>();
 	private EvaluationContext context;
 	private int offset;
 
@@ -48,6 +50,10 @@ public class GeneratorReader extends AbstractItemCountingItemStreamItemReader<Ma
 		ReflectivePropertyAccessor accessor = new ReflectivePropertyAccessor();
 		Builder builder = new Builder(accessor).withInstanceMethods().withRootObject(faker);
 		this.context = builder.build();
+		for (Entry<String, Integer> field : fieldSizes.entrySet()) {
+			String string = StringUtils.leftPad("", field.getValue(), "x");
+			simpleFields.put(field.getKey(), string);
+		}
 	}
 
 	@Override
@@ -74,8 +80,8 @@ public class GeneratorReader extends AbstractItemCountingItemStreamItemReader<Ma
 		for (Entry<String, Expression> entry : fieldExpressions.entrySet()) {
 			map.put(entry.getKey(), entry.getValue().getValue(context));
 		}
-		for (Entry<String, Integer> entry : fieldSizes.entrySet()) {
-			map.put(entry.getKey(), new String(new byte[entry.getValue()], StandardCharsets.UTF_8));
+		for (Entry<String, String> entry : simpleFields.entrySet()) {
+			map.put(entry.getKey(), entry.getValue());
 		}
 		return map;
 	}
