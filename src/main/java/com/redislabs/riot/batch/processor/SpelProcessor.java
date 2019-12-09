@@ -15,20 +15,24 @@ import org.springframework.expression.spel.support.StandardEvaluationContext;
 
 import com.redislabs.riot.batch.MapAccessor;
 
+import lombok.Getter;
+import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@Accessors(fluent = true)
 public class SpelProcessor implements ItemProcessor<Map<String, Object>, Map<String, Object>> {
 
 	private SpelExpressionParser parser = new SpelExpressionParser();
 	private StandardEvaluationContext context;
 	private Map<String, Expression> expressions = new LinkedHashMap<>();
+	@Getter
 	private long index = 0;
 
 	public SpelProcessor(DateFormat dateFormat, Map<String, String> variables, Map<String, String> fields) {
 		context = new StandardEvaluationContext();
 		context.setVariable("date", dateFormat);
-		context.setVariable("context", new SpelProcessorContext(this));
+		context.setVariable("context", this);
 		variables.forEach((k, v) -> context.setVariable(k, parser.parseExpression(v).getValue(context)));
 		Method geoMethod;
 		try {
@@ -58,15 +62,11 @@ public class SpelProcessor implements ItemProcessor<Map<String, Object>, Map<Str
 		return item;
 	}
 
-	protected static String geo(String longitude, String latitude) {
+	public static String geo(String longitude, String latitude) {
 		if (longitude == null || latitude == null) {
 			return null;
 		}
 		return longitude + "," + latitude;
-	}
-
-	public long getIndex() {
-		return index;
 	}
 
 }

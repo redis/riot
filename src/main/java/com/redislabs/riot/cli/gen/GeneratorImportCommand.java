@@ -14,7 +14,7 @@ import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
-@Command(name = "gen", description = "Generate data")
+@Command(name = "gen", description = "Generate data", subcommands = IntrospectIndexCommand.class)
 public class GeneratorImportCommand extends MapImportCommand implements Runnable {
 
 	private final static List<String> EXCLUDES = Arrays.asList("instance", "options");

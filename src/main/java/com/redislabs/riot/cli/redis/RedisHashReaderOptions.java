@@ -6,7 +6,6 @@ import org.springframework.batch.item.ItemReader;
 
 import com.redislabs.lettusearch.search.Limit;
 import com.redislabs.lettusearch.search.SearchOptions;
-import com.redislabs.lettusearch.search.SearchOptions.SearchOptionsBuilder;
 import com.redislabs.picocliredis.RedisOptions;
 import com.redislabs.riot.batch.redis.reader.JedisHashReader;
 import com.redislabs.riot.batch.redis.reader.RediSearchDocumentReader;
@@ -43,9 +42,9 @@ public @Data class RedisHashReaderOptions {
 	}
 
 	public RediSearchDocumentReader searchReader(RedisOptions redis) {
-		SearchOptionsBuilder builder = SearchOptions.builder();
-		builder.limit(Limit.builder().num(limitNum).offset(limitOffset).build());
-		return new RediSearchDocumentReader(redis.lettuSearchClient(), index, query, builder.build());
+		SearchOptions options = new SearchOptions();
+		options.limit(new Limit().num(limitNum).offset(limitOffset));
+		return new RediSearchDocumentReader(redis.lettuSearchClient(), index, query, options);
 	}
 
 	private JedisHashReader redisReader(RedisOptions redis) {

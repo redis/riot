@@ -25,7 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 @Accessors(fluent = true)
 public class GeneratorReader extends AbstractItemCountingItemStreamItemReader<Map<String, Object>> {
 
-	private final static String FIELD_INDEX = "index";
+	public final static String FIELD_INDEX = "index";
 	public final static String FIELD_PARTITION = "partition";
 	public final static String FIELD_PARTITIONS = "partitions";
 
