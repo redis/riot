@@ -1,19 +1,97 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.21.1"
+    }
+}
+
 plugins {
     id 'application'
     id 'java'
     id 'java-library'
-    id 'net.nemerosa.versioning' version '2.10.0'
     id 'org.asciidoctor.jvm.convert' version '2.3.0'
     id 'com.github.ben-manes.versions' version '0.27.0'
     id 'maven-publish'
+    id 'signing'
+    id 'io.codearte.nexus-staging' version '0.21.1'
+}
+
+nexusStaging {
+	username = "$ossrhUsername"
+	password = "$ossrhPassword"
+}
+
+task sourcesJar(type: Jar) {
+    archiveClassifier = 'sources'
+    from sourceSets.main.allJava
+}
+
+task javadocJar(type: Jar) {
+    archiveClassifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+artifacts {
+    archives sourcesJar, javadocJar
 }
 
 publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            from components.java
+
+    repositories {
+        maven {
+            def releasesRepoUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+            def snapshotsRepoUrl = "https://oss.sonatype.org/content/repositories/snapshots/"
+            url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+            credentials {
+                username = "$ossrhUsername"
+                password = "$ossrhPassword"
+            }
         }
     }
+
+    publications {
+        mavenJava(MavenPublication) {
+            groupId 'com.redislabs'
+            artifactId 'riot'
+            from components.java
+
+            artifact sourcesJar
+            artifact javadocJar
+
+            pom {
+                name = 'LettuSearch'
+                packaging = 'jar'
+                description = 'Java client for RediSearch based on Lettuce'
+                url = 'https://github.com/Redislabs-Solution-Architects/riot'
+
+		        scm {
+		          connection = 'scm:git:git://github.com/Redislabs-Solution-Architects/riot.git'
+		          developerConnection = 'scm:git:git@github.com:Redislabs-Solution-Architects/riot.git'
+		          url = 'https://github.com/Redislabs-Solution-Architects/riot'
+		        }
+
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id = 'jruaux'
+                        name = 'Julien Ruaux'
+                    }
+                }
+            }
+        }
+    }
+}
+
+signing {
+	sign publishing.publications.mavenJava
 }
 
 repositories {
@@ -42,7 +120,7 @@ dependencies {
 //    implementation 'com.ibm.db2:jcc:11.5.0.0'
 //    implementation 'com.microsoft.sqlserver:mssql-jdbc:7.4.1.jre8'
 //    implementation 'com.oracle.ojdbc:ojdbc8:19.3.0.0'
-//    implementation 'org.postgresql:postgresql:42.2.8'    
+//    implementation 'org.postgresql:postgresql:42.2.8'
 }
 
 test {
@@ -50,7 +128,7 @@ test {
 }
 
 group = 'com.redislabs'
-version = versioning.info.display
+version = '1.1.1'
 description = 'RIOT'
 sourceCompatibility = '1.8'
 
@@ -76,21 +154,4 @@ asciidoctor {
   outputOptions {
   	separateOutputDirs = false
   }
-}
-
-task writePom {
-    doLast {
-        pom {
-            project {
-                inceptionYear '2008'
-                licenses {
-                    license {
-                        name 'The Apache Software License, Version 2.0'
-                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                        distribution 'repo'
-                    }
-                }
-            }
-        }.writeTo("$buildDir/pom.xml")
-    }
 }
