@@ -1,7 +1,7 @@
 #!/bin/sh -ex
 
 ./gradlew -q clean test distTar
-./gradlew clean
+./gradlew clean publishToMavenLocal publish 
 
 git co master
 git pull
