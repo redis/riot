@@ -128,7 +128,7 @@ test {
 }
 
 group = 'com.redislabs'
-version = '1.1.1'
+version = '1.1.2'
 description = 'RIOT'
 sourceCompatibility = '1.8'
 
