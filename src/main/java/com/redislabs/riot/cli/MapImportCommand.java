@@ -18,13 +18,15 @@ import com.redislabs.riot.cli.redis.command.SetCommand;
 import com.redislabs.riot.cli.redis.command.XaddCommand;
 import com.redislabs.riot.cli.redis.command.ZaddCommand;
 
+import picocli.CommandLine;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 
 @Command(subcommands = { EvalshaCommand.class, ExpireCommand.class, FtAddCommand.class, FtSugaddCommand.class,
 		GeoaddCommand.class, HmsetCommand.class, LpushCommand.class, NoopCommand.class, RpushCommand.class,
 		SaddCommand.class, SetCommand.class, XaddCommand.class, ZaddCommand.class })
-public abstract class MapImportCommand extends ImportCommand<Map<String, Object>, Map<String, Object>> {
+public abstract class MapImportCommand extends ImportCommand<Map<String, Object>, Map<String, Object>>
+		implements Runnable {
 
 	@ArgGroup(exclusive = false, heading = "Processor options%n", order = 40)
 	private ProcessorOptions processorOptions = new ProcessorOptions();
@@ -36,6 +38,11 @@ public abstract class MapImportCommand extends ImportCommand<Map<String, Object>
 
 	protected ItemProcessor<Map<String, Object>, Map<String, Object>> postProcessor() {
 		return null;
+	}
+
+	@Override
+	public void run() {
+		CommandLine.usage(this, System.out);
 	}
 
 }

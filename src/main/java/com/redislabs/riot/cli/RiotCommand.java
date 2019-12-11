@@ -16,4 +16,8 @@ public class RiotCommand extends HelpCommand {
 	public RedisOptions redisOptions() {
 		return parent.redisOptions();
 	}
+
+	protected Riot parent() {
+		return parent;
+	}
 }

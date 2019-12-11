@@ -12,6 +12,7 @@ import org.springframework.batch.item.UnexpectedInputException;
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.SimpleEvaluationContext.Builder;
 import org.springframework.lang.Nullable;
 import org.springframework.util.ClassUtils;
@@ -37,10 +38,7 @@ public class GeneratorReader extends AbstractItemCountingItemStreamItemReader<Ma
 	private int partitions = 1;
 	@Setter
 	private Locale locale;
-	@Setter
-	private Map<String, Expression> fieldExpressions = new HashMap<>();
-	@Setter
-	private Map<String, Integer> fieldSizes = new HashMap<>();
+	private Map<String, Expression> fakerFields = new HashMap<>();
 	private Map<String, String> simpleFields = new LinkedHashMap<>();
 	private EvaluationContext context;
 	private int offset;
@@ -49,16 +47,26 @@ public class GeneratorReader extends AbstractItemCountingItemStreamItemReader<Ma
 		setName(ClassUtils.getShortName(getClass()));
 	}
 
+	public GeneratorReader fakerFields(Map<String, String> fields) {
+		SpelExpressionParser parser = new SpelExpressionParser();
+		fields.forEach((k, v) -> fakerFields.put(k, parser.parseExpression(v)));
+		return this;
+	}
+
+	public GeneratorReader simpleFields(Map<String, Integer> fields) {
+		for (Entry<String, Integer> field : fields.entrySet()) {
+			String string = StringUtils.leftPad("", field.getValue(), "x");
+			simpleFields.put(field.getKey(), string);
+		}
+		return this;
+	}
+
 	@Override
 	protected void doOpen() throws Exception {
 		GeneratorFaker faker = new GeneratorFaker(locale, this);
 		ReflectivePropertyAccessor accessor = new ReflectivePropertyAccessor();
 		Builder builder = new Builder(accessor).withInstanceMethods().withRootObject(faker);
 		this.context = builder.build();
-		for (Entry<String, Integer> field : fieldSizes.entrySet()) {
-			String string = StringUtils.leftPad("", field.getValue(), "x");
-			simpleFields.put(field.getKey(), string);
-		}
 	}
 
 	@Override
@@ -92,7 +100,7 @@ public class GeneratorReader extends AbstractItemCountingItemStreamItemReader<Ma
 		map.put(FIELD_INDEX, index());
 		map.put(FIELD_PARTITION, partition());
 		map.put(FIELD_PARTITIONS, partitions());
-		for (Entry<String, Expression> entry : fieldExpressions.entrySet()) {
+		for (Entry<String, Expression> entry : fakerFields.entrySet()) {
 			map.put(entry.getKey(), entry.getValue().getValue(context));
 		}
 		for (Entry<String, String> entry : simpleFields.entrySet()) {

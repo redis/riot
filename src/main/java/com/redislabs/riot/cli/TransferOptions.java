@@ -16,7 +16,5 @@ public @Data class TransferOptions {
 	private Integer count;
 	@Option(names = "--sleep", description = "Sleep duration in millis between reads", paramLabel = "<ms>")
 	private Long sleep;
-	@Option(names = "--show-unit", description = "Show unit name in progress bar")
-	private boolean showUnit;
 
 }

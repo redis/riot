@@ -27,8 +27,6 @@ import com.redislabs.riot.batch.TransferContext;
 
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
-import me.tongfei.progressbar.ProgressBar;
-import me.tongfei.progressbar.ProgressBarBuilder;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Spec;
@@ -77,12 +75,7 @@ public abstract class TransferCommand<I, O> extends RiotCommand {
 		ExecutorService executor = Executors.newFixedThreadPool(options.threads());
 		stepThreads.forEach(t -> executor.execute(t));
 		executor.shutdown();
-		ProgressBarBuilder pbb = new ProgressBarBuilder().setInitialMax(options.count() == null ? -1 : options.count())
-				.setTaskName(transfer.taskName()).showSpeed();
-		if (options.showUnit()) {
-			pbb.setUnit(" " + transfer.unitName() + "s", 1);
-		}
-		ProgressBar pb = pbb.build();
+		ProgressReporter reporter = progressReporter(transfer);
 		while (!executor.isTerminated()) {
 			long writeCount = 0;
 			int nRunningThreads = 0;
@@ -92,10 +85,7 @@ public abstract class TransferCommand<I, O> extends RiotCommand {
 					nRunningThreads++;
 				}
 			}
-			pb.stepTo(writeCount);
-			if (nRunningThreads > 1) {
-				pb.setExtraMessage(" (" + nRunningThreads + " threads)");
-			}
+			reporter.onUpdate(writeCount, nRunningThreads);
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
@@ -103,6 +93,19 @@ public abstract class TransferCommand<I, O> extends RiotCommand {
 			}
 		}
 		stepThreads.forEach(t -> t.close());
+	}
+
+	private ProgressReporter progressReporter(Transfer<I, O> transfer) {
+		if (parent().quiet()) {
+			return new ProgressReporter() {
+
+				@Override
+				public void onUpdate(long writeCount, int runningThreads) {
+					// do nothing
+				}
+			};
+		}
+		return new ProgressBarReporter(options.count(), transfer.taskName());
 	}
 
 	protected void oldExecute(ItemReader<I> reader, ItemProcessor<I, O> processor, ItemWriter<O> writer) {

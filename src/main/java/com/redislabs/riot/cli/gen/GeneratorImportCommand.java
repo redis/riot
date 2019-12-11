@@ -2,20 +2,32 @@ package com.redislabs.riot.cli.gen;
 
 import java.io.PrintStream;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.github.javafaker.Faker;
+import com.redislabs.lettusearch.RediSearchCommands;
+import com.redislabs.lettusearch.RediSearchUtils;
+import com.redislabs.lettusearch.RediSearchUtils.IndexInfo;
+import com.redislabs.lettusearch.search.field.Field;
+import com.redislabs.lettusearch.search.field.GeoField;
+import com.redislabs.lettusearch.search.field.TagField;
+import com.redislabs.lettusearch.search.field.TextField;
 import com.redislabs.riot.batch.TransferContext;
 import com.redislabs.riot.batch.generator.GeneratorReader;
 import com.redislabs.riot.cli.MapImportCommand;
 
+import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
-@Command(name = "gen", description = "Generate data", subcommands = IntrospectIndexCommand.class)
-public class GeneratorImportCommand extends MapImportCommand implements Runnable {
+@Slf4j
+@Command(name = "gen", description = "Generate data")
+public class GeneratorImportCommand extends MapImportCommand {
 
 	private final static List<String> EXCLUDES = Arrays.asList("instance", "options");
 
@@ -23,18 +35,56 @@ public class GeneratorImportCommand extends MapImportCommand implements Runnable
 	private GeneratorReaderOptions options = new GeneratorReaderOptions();
 	@Option(names = { "--faker-help" }, description = "Show all available Faker properties")
 	private boolean fakerHelp;
+	@Option(names = { "--faker-index" }, description = "Use given search index to introspect Faker fields", paramLabel = "<index>")
+	private String fakerIndex;
 
 	@Override
 	protected String taskName() {
 		return "Generating";
 	}
 
+	private String expression(Field field) {
+		if (field instanceof TextField) {
+			return "lorem.paragraph";
+		}
+		if (field instanceof TagField) {
+			return "number.digits(10)";
+		}
+		if (field instanceof GeoField) {
+			return "address.longitude.concat(',').concat(address.latitude)";
+		}
+		return "number.randomDouble(3,-1000,1000)";
+	}
+
+	private String quotes(String field, String expression) {
+		return "\"" + field + "=" + expression + "\"";
+	}
+
 	@Override
 	protected GeneratorReader reader(TransferContext context) {
 		GeneratorReader reader = options.reader();
+		if (fakerIndex != null) {
+			RediSearchCommands<String, String> ft = redisOptions().lettuSearchClient().connect().sync();
+			IndexInfo info = RediSearchUtils.getInfo(ft.indexInfo(fakerIndex));
+			Map<String, String> fakerFields = new LinkedHashMap<>();
+			info.fields().forEach(f -> {
+				String fieldName = f.name();
+				String expression = expression(f);
+				fakerFields.put(fieldName, expression);
+			});
+			reader.fakerFields(fakerFields);
+			log.info("Adding introspected fields: {}", String.join(" ", fakerArgs(fakerFields)));
+		}
+
 		reader.partition(context.thread());
 		reader.partitions(context.threads());
 		return reader;
+	}
+
+	private List<String> fakerArgs(Map<String, String> fakerFields) {
+		List<String> args = new ArrayList<>();
+		fakerFields.forEach((k, v) -> args.add(quotes(k, v)));
+		return args;
 	}
 
 	@Override
@@ -44,6 +94,7 @@ public class GeneratorImportCommand extends MapImportCommand implements Runnable
 					.sorted((m1, m2) -> m1.getName().compareTo(m2.getName())).forEach(m -> describe(System.out, m));
 			return;
 		}
+		super.run();
 	}
 
 	private boolean accept(Method method) {

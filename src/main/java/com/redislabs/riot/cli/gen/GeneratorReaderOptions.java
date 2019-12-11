@@ -4,9 +4,6 @@ import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 
-import org.springframework.expression.Expression;
-import org.springframework.expression.spel.standard.SpelExpressionParser;
-
 import com.redislabs.riot.batch.generator.GeneratorReader;
 
 import lombok.Data;
@@ -26,10 +23,7 @@ public @Data class GeneratorReaderOptions {
 	private Locale locale = Locale.ENGLISH;
 
 	public GeneratorReader reader() {
-		SpelExpressionParser parser = new SpelExpressionParser();
-		Map<String, Expression> expressionMap = new LinkedHashMap<String, Expression>();
-		fakerFields.forEach((k, v) -> expressionMap.put(k, parser.parseExpression(v)));
-		return new GeneratorReader().locale(locale).fieldExpressions(expressionMap).fieldSizes(simpleFields);
+		return new GeneratorReader().locale(locale).fakerFields(fakerFields).simpleFields(simpleFields);
 	}
 
 	public boolean isSet() {
