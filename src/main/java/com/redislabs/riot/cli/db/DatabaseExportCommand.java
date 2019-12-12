@@ -9,7 +9,7 @@ import com.redislabs.riot.cli.HashExportCommand;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 
-@Command(name = "db-export", description = "Export to database")
+@Command(name = "db-export", description = "Export to a database")
 public class DatabaseExportCommand extends HashExportCommand {
 
 	@ArgGroup(exclusive = false, heading = "Database writer options%n", order = 3)

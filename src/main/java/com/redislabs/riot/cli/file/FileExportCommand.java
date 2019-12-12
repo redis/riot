@@ -18,7 +18,7 @@ import com.redislabs.riot.cli.HashExportCommand;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 
-@Command(name = "file-export", description = "Export to file")
+@Command(name = "file-export", description = "Export to a file")
 public class FileExportCommand extends HashExportCommand {
 
 	@ArgGroup(exclusive = false, heading = "File options%n", order = 3)
