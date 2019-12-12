@@ -1,27 +1,67 @@
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath "io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.21.1"
-    }
-}
-
 plugins {
     id 'application'
     id 'java'
     id 'java-library'
+    id 'maven-publish'
+    id 'com.jfrog.bintray' version '1.8.4'
     id 'org.asciidoctor.jvm.convert' version '2.3.0'
     id 'net.nemerosa.versioning' version '2.10.0'
     id 'com.github.ben-manes.versions' version '0.27.0'
-    id 'maven-publish'
-    id 'signing'
-    id 'io.codearte.nexus-staging' version '0.21.1'
 }
 
-nexusStaging {
-	username = "$ossrhUsername"
-	password = "$ossrhPassword"
+repositories {
+	mavenCentral()
+	mavenLocal()
+}
+
+
+dependencies {
+    implementation 'com.redislabs:picocli-redis:1.4.0'
+    implementation 'org.springframework.batch:spring-batch-core:4.2.1.RELEASE'
+    implementation 'org.springframework.boot:spring-boot-autoconfigure:2.2.2.RELEASE'
+    implementation 'org.springframework:spring-jdbc:5.2.2.RELEASE'
+    implementation 'org.springframework.cloud:spring-cloud-aws-context:2.2.0.RELEASE'
+    implementation 'org.springframework.cloud:spring-cloud-aws-autoconfigure:2.2.0.RELEASE'
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.10.1'
+    implementation 'com.github.javafaker:javafaker:1.0.1'
+    implementation 'com.zaxxer:HikariCP:3.4.1'
+    implementation 'me.tongfei:progressbar:0.7.4'
+    compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
+    compileOnly 'org.projectlombok:lombok:1.18.10'
+    annotationProcessor 'org.projectlombok:lombok:1.18.10'
+    testImplementation 'org.codehaus.plexus:plexus-utils:3.3.0'
+    testImplementation 'org.hsqldb:hsqldb:2.5.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.5.2'
+//    implementation 'org.xerial:sqlite-jdbc:3.28.0'
+//    implementation 'com.ibm.db2:jcc:11.5.0.0'
+//    implementation 'com.microsoft.sqlserver:mssql-jdbc:7.4.1.jre8'
+//    implementation 'com.oracle.ojdbc:ojdbc8:19.3.0.0'
+//    implementation 'org.postgresql:postgresql:42.2.8'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+bintray {
+    user = bintrayUser
+    key = bintrayKey
+    publications = ['mavenJava']
+    pkg {
+        repo = 'maven'
+        name = 'riot'
+        licenses = ['Apache-2.0']
+        vcsUrl = 'https://github.com/Redislabs-Solution-Architects/picocli-redis.git'
+    }
+    version {
+    	gpg {
+    		sign = true
+    	}
+    	mavenCentralSync {
+    		sync = true
+    	}
+    }
+    publish = true
 }
 
 task sourcesJar(type: Jar) {
@@ -39,19 +79,6 @@ artifacts {
 }
 
 publishing {
-
-    repositories {
-        maven {
-            def releasesRepoUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
-            def snapshotsRepoUrl = "https://oss.sonatype.org/content/repositories/snapshots/"
-            url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
-            credentials {
-                username = "$ossrhUsername"
-                password = "$ossrhPassword"
-            }
-        }
-    }
-
     publications {
         mavenJava(MavenPublication) {
             groupId 'com.redislabs'
@@ -62,9 +89,9 @@ publishing {
             artifact javadocJar
 
             pom {
-                name = 'LettuSearch'
+                name = 'RIOT'
                 packaging = 'jar'
-                description = 'Java client for RediSearch based on Lettuce'
+                description = 'Redis Input/Output Tool'
                 url = 'https://github.com/Redislabs-Solution-Architects/riot'
 
 		        scm {
@@ -91,42 +118,6 @@ publishing {
     }
 }
 
-signing {
-	sign publishing.publications.mavenJava
-}
-
-repositories {
-	mavenCentral()
-	mavenLocal()
-}
-
-dependencies {
-    implementation 'com.redislabs:picocli-redis:1.3.6'
-    implementation 'org.springframework.batch:spring-batch-core:4.2.1.RELEASE'
-    implementation 'org.springframework.boot:spring-boot-autoconfigure:2.2.2.RELEASE'
-    implementation 'org.springframework:spring-jdbc:5.2.2.RELEASE'
-    implementation 'org.springframework.cloud:spring-cloud-aws-context:2.2.0.RELEASE'
-    implementation 'org.springframework.cloud:spring-cloud-aws-autoconfigure:2.2.0.RELEASE'
-    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.10.1'
-    implementation 'com.github.javafaker:javafaker:1.0.1'
-    implementation 'com.zaxxer:HikariCP:3.4.1'
-    implementation 'me.tongfei:progressbar:0.7.4'
-    compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
-    compileOnly 'org.projectlombok:lombok:1.18.10'
-    annotationProcessor 'org.projectlombok:lombok:1.18.10'
-    testImplementation 'org.codehaus.plexus:plexus-utils:3.3.0'
-    testImplementation 'org.hsqldb:hsqldb:2.5.0'
-    testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.5.2'
-//    implementation 'org.xerial:sqlite-jdbc:3.28.0'
-//    implementation 'com.ibm.db2:jcc:11.5.0.0'
-//    implementation 'com.microsoft.sqlserver:mssql-jdbc:7.4.1.jre8'
-//    implementation 'com.oracle.ojdbc:ojdbc8:19.3.0.0'
-//    implementation 'org.postgresql:postgresql:42.2.8'
-}
-
-test {
-    useJUnitPlatform()
-}
 
 group = 'com.redislabs'
 version = versioning.info.display
