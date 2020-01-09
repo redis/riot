@@ -64,7 +64,7 @@ public class ReplicateCommand extends ImportCommand<KeyValue, KeyValue> implemen
 			pubSub.sync().psubscribe(options.channel());
 		}
 		super.execute(reader, processor, writer);
-		if (subscribe && !options.noWait()) {
+		if (subscribe && options.listen()) {
 			while (true) {
 				try {
 					Thread.sleep(100);
@@ -78,7 +78,7 @@ public class ReplicateCommand extends ImportCommand<KeyValue, KeyValue> implemen
 	@Override
 	public void run() {
 		Restore<Object> restore = new Restore<>();
-		restore.setReplace(true);
+		restore.setReplace(options.replace());
 		execute(restore);
 	}
 

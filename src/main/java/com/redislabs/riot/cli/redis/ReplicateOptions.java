@@ -21,7 +21,9 @@ public @Data class ReplicateOptions {
 	private int timeout = 2;
 	@Option(names = "--keyspace-channel", description = "Pub/sub channel for keyspace events (default: ${DEFAULT-VALUE}). Blank to disable", paramLabel = "<string>")
 	private String channel = "__keyspace@0__:*";
-	@Option(names = "--no-wait", description = "Do not keep keyspace notification listener open after scan is finished")
-	private boolean noWait;
+	@Option(names = "--listen", description = "Keep keyspace notification listener open after scan is finished (default: ${DEFAULT-VALUE})", negatable = true)
+	private boolean listen = true;
+	@Option(names = "--replace", description = "Use REPLACE modifier with RESTORE command (default: ${DEFAULT-VALUE})", negatable = true)
+	private boolean replace = true;
 
 }
