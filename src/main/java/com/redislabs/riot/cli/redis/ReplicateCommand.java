@@ -44,8 +44,7 @@ public class ReplicateCommand extends ImportCommand<KeyValue, KeyValue> implemen
 	protected void execute(ItemReader<KeyValue> reader, ItemProcessor<KeyValue, KeyValue> processor,
 			ItemWriter<KeyValue> writer) {
 		StatefulRedisConnection<String, String> connection = sourceRedis.lettuceClient().connect();
-		boolean subscribe = !options.channel().isBlank();
-		if (subscribe) {
+		if (!options.channel().isBlank()) {
 			StatefulRedisPubSubConnection<String, String> pubSub = sourceRedis.lettuceClient().connectPubSub();
 			pubSub.addListener(new RedisPubSubAdapter<String, String>() {
 				@Override
@@ -64,7 +63,11 @@ public class ReplicateCommand extends ImportCommand<KeyValue, KeyValue> implemen
 			pubSub.sync().psubscribe(options.channel());
 		}
 		super.execute(reader, processor, writer);
-		if (subscribe && options.listen()) {
+	}
+
+	@Override
+	protected void close(ItemReader<KeyValue> reader, ItemWriter<KeyValue> writer) {
+		if (!options.channel().isBlank() && options.listen()) {
 			while (true) {
 				try {
 					Thread.sleep(100);
@@ -73,6 +76,7 @@ public class ReplicateCommand extends ImportCommand<KeyValue, KeyValue> implemen
 				}
 			}
 		}
+		super.close(reader, writer);
 	}
 
 	@Override

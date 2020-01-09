@@ -52,6 +52,10 @@ public abstract class TransferCommand<I, O> extends RiotCommand {
 		}
 		reporter.onUpdate(execution.progress());
 		reporter.stop();
+		close(reader, writer);
+	}
+
+	protected void close(ItemReader<I> reader, ItemWriter<O> writer) {
 		if (reader instanceof ItemStream) {
 			((ItemStream) reader).close();
 		}
