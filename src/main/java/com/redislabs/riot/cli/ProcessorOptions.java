@@ -13,14 +13,12 @@ import org.springframework.batch.item.support.ScriptItemProcessor;
 import org.springframework.batch.item.support.builder.ScriptItemProcessorBuilder;
 import org.springframework.core.io.FileSystemResource;
 
-import com.redislabs.riot.batch.processor.RegexProcessor;
-import com.redislabs.riot.batch.processor.SpelProcessor;
+import com.redislabs.riot.processor.RegexProcessor;
+import com.redislabs.riot.processor.SpelProcessor;
 
 import lombok.Data;
-import lombok.experimental.Accessors;
 import picocli.CommandLine.Option;
 
-@Accessors(fluent = true)
 public @Data class ProcessorOptions {
 
 	@Option(names = { "--script" }, description = "Use an inline script to process items", paramLabel = "<script>")

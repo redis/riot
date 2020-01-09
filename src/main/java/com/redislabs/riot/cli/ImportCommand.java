@@ -5,7 +5,6 @@ import java.util.function.Supplier;
 
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
-import org.springframework.batch.item.ItemWriter;
 
 import com.redislabs.lettusearch.RediSearchAsyncCommands;
 import com.redislabs.lettusearch.RediSearchClient;
@@ -13,23 +12,21 @@ import com.redislabs.lettusearch.RediSearchCommands;
 import com.redislabs.lettusearch.RediSearchReactiveCommands;
 import com.redislabs.lettusearch.StatefulRediSearchConnection;
 import com.redislabs.picocliredis.RedisOptions;
-import com.redislabs.riot.batch.Transfer;
-import com.redislabs.riot.batch.TransferContext;
-import com.redislabs.riot.batch.redis.JedisClusterCommands;
-import com.redislabs.riot.batch.redis.JedisPipelineCommands;
-import com.redislabs.riot.batch.redis.LettuceAsyncCommands;
-import com.redislabs.riot.batch.redis.LettuceReactiveCommands;
-import com.redislabs.riot.batch.redis.LettuceSyncCommands;
-import com.redislabs.riot.batch.redis.RedisCommands;
-import com.redislabs.riot.batch.redis.writer.AbstractLettuceItemWriter;
-import com.redislabs.riot.batch.redis.writer.AbstractRedisItemWriter;
-import com.redislabs.riot.batch.redis.writer.AbstractRedisWriter;
-import com.redislabs.riot.batch.redis.writer.AsyncLettuceItemWriter;
-import com.redislabs.riot.batch.redis.writer.ClusterJedisWriter;
-import com.redislabs.riot.batch.redis.writer.PipelineJedisWriter;
-import com.redislabs.riot.batch.redis.writer.ReactiveLettuceItemWriter;
-import com.redislabs.riot.batch.redis.writer.SyncLettuceItemWriter;
-import com.redislabs.riot.batch.redis.writer.map.AbstractRediSearchWriter;
+import com.redislabs.riot.redis.JedisClusterCommands;
+import com.redislabs.riot.redis.JedisPipelineCommands;
+import com.redislabs.riot.redis.LettuceAsyncCommands;
+import com.redislabs.riot.redis.LettuceReactiveCommands;
+import com.redislabs.riot.redis.LettuceSyncCommands;
+import com.redislabs.riot.redis.RedisCommands;
+import com.redislabs.riot.redis.writer.AbstractLettuceItemWriter;
+import com.redislabs.riot.redis.writer.AbstractRedisItemWriter;
+import com.redislabs.riot.redis.writer.AbstractRedisWriter;
+import com.redislabs.riot.redis.writer.AsyncLettuceItemWriter;
+import com.redislabs.riot.redis.writer.ClusterJedisWriter;
+import com.redislabs.riot.redis.writer.PipelineJedisWriter;
+import com.redislabs.riot.redis.writer.ReactiveLettuceItemWriter;
+import com.redislabs.riot.redis.writer.SyncLettuceItemWriter;
+import com.redislabs.riot.redis.writer.map.AbstractRediSearchWriter;
 
 import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.RedisClient;
@@ -41,44 +38,35 @@ import io.lettuce.core.cluster.api.StatefulRedisClusterConnection;
 import io.lettuce.core.cluster.api.async.RedisClusterAsyncCommands;
 import io.lettuce.core.cluster.api.reactive.RedisClusterReactiveCommands;
 import io.lettuce.core.cluster.api.sync.RedisClusterCommands;
+import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine.Command;
 
+@Slf4j
 @SuppressWarnings({ "unchecked", "rawtypes" })
 @Command
-public abstract class ImportCommand<I, O> extends TransferCommand {
+public abstract class ImportCommand<I, O> extends TransferCommand<I, O> {
 
-	public void execute(String unitName, AbstractRedisWriter redisWriter) {
+	public void execute(AbstractRedisWriter redisWriter) {
 		boolean isRediSearch = redisWriter instanceof AbstractRediSearchWriter;
-		redisWriter.commands(redisCommands(redisOptions()));
+		redisWriter.setCommands(redisCommands(redisOptions()));
 		AbstractRedisItemWriter writer = itemWriter(redisOptions(), isRediSearch);
-		writer.writer(redisWriter);
-		execute(new Transfer<I, O>() {
-			@Override
-			public ItemReader<I> reader(TransferContext context) throws Exception {
-				return ImportCommand.this.reader(context);
-			}
+		writer.setWriter(redisWriter);
+		ItemReader<I> reader;
+		ItemProcessor<I, O> processor;
+		try {
+			reader = reader();
+			processor = processor();
+		} catch (Exception e) {
+			log.error("Could not initialize import", e);
+			return;
+		}
+		execute(reader, processor, writer);
+	}
 
-			@Override
-			public ItemProcessor<I, O> processor(TransferContext context) throws Exception {
-				return ImportCommand.this.processor();
-			}
+	protected abstract ItemReader<I> reader() throws Exception;
 
-			@Override
-			public ItemWriter<O> writer(TransferContext context) throws Exception {
-				return writer;
-			}
-
-			@Override
-			public String unitName() {
-				return unitName;
-			}
-
-			@Override
-			public String taskName() {
-				return ImportCommand.this.taskName();
-			}
-
-		});
+	protected ItemProcessor<I, O> processor() throws Exception {
+		return null;
 	}
 
 	private AbstractRedisItemWriter<?, O> itemWriter(RedisOptions redis, boolean isRediSearch) {
@@ -89,11 +77,11 @@ public abstract class ImportCommand<I, O> extends TransferCommand {
 			return new PipelineJedisWriter<O>(redis.jedisPool());
 		}
 		AbstractLettuceItemWriter writer = lettuceItemWriter(redis);
-		writer.api(lettuceApi(redis, isRediSearch));
+		writer.setApi(lettuceApi(redis, isRediSearch));
 		AbstractRedisClient client = lettuceClient(redis, isRediSearch);
-		writer.client(client);
-		writer.pool(redis.pool(lettuceConnectionSupplier(client)));
-		writer.resources(lettuceResources(client));
+		writer.setClient(client);
+		writer.setPool(redis.pool(lettuceConnectionSupplier(client)));
+		writer.setResources(lettuceResources(client));
 		return writer;
 	}
 
@@ -118,29 +106,21 @@ public abstract class ImportCommand<I, O> extends TransferCommand {
 	}
 
 	private AbstractLettuceItemWriter lettuceItemWriter(RedisOptions redis) {
-		switch (redis.lettuce().api()) {
+		switch (redis.getLettuce().getApi()) {
 		case Reactive:
 			return new ReactiveLettuceItemWriter<>();
 		case Sync:
 			return new SyncLettuceItemWriter<>();
 		default:
 			AsyncLettuceItemWriter lettuceAsyncItemWriter = new AsyncLettuceItemWriter();
-			lettuceAsyncItemWriter.timeout(redis.lettuce().commandTimeout());
+			lettuceAsyncItemWriter.setTimeout(redis.getLettuce().getCommandTimeout());
 			return lettuceAsyncItemWriter;
 		}
 	}
 
-	protected abstract String taskName();
-
-	protected abstract ItemReader<I> reader(TransferContext context) throws Exception;
-
-	protected ItemProcessor<I, O> processor() throws Exception {
-		return null;
-	}
-
 	private Function lettuceApi(RedisOptions redis, boolean isRediSearch) {
 		if (isRediSearch) {
-			switch (redis.lettuce().api()) {
+			switch (redis.getLettuce().getApi()) {
 			case Sync:
 				return (Function<StatefulRediSearchConnection, RediSearchCommands>) StatefulRediSearchConnection::sync;
 			case Reactive:
@@ -150,7 +130,7 @@ public abstract class ImportCommand<I, O> extends TransferCommand {
 			}
 		}
 		if (redis.isCluster()) {
-			switch (redis.lettuce().api()) {
+			switch (redis.getLettuce().getApi()) {
 			case Sync:
 				return (Function<StatefulRedisClusterConnection, RedisClusterCommands>) StatefulRedisClusterConnection::sync;
 			case Reactive:
@@ -159,7 +139,7 @@ public abstract class ImportCommand<I, O> extends TransferCommand {
 				return (Function<StatefulRedisClusterConnection, RedisClusterAsyncCommands>) StatefulRedisClusterConnection::async;
 			}
 		}
-		switch (redis.lettuce().api()) {
+		switch (redis.getLettuce().getApi()) {
 		case Sync:
 			return (Function<StatefulRedisConnection, io.lettuce.core.api.sync.RedisCommands>) StatefulRedisConnection::sync;
 		case Reactive:
@@ -173,9 +153,6 @@ public abstract class ImportCommand<I, O> extends TransferCommand {
 		if (rediSearch) {
 			return redis.lettuSearchClient();
 		}
-		if (redis.isCluster()) {
-			return redis.lettuceClusterClient();
-		}
 		return redis.lettuceClient();
 	}
 
@@ -186,7 +163,7 @@ public abstract class ImportCommand<I, O> extends TransferCommand {
 			}
 			return new JedisPipelineCommands();
 		}
-		switch (redis.lettuce().api()) {
+		switch (redis.getLettuce().getApi()) {
 		case Reactive:
 			return new LettuceReactiveCommands();
 		case Sync:

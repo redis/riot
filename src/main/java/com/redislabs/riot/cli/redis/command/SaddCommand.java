@@ -1,6 +1,6 @@
 package com.redislabs.riot.cli.redis.command;
 
-import com.redislabs.riot.batch.redis.writer.map.Sadd;
+import com.redislabs.riot.redis.writer.map.Sadd;
 
 import picocli.CommandLine.Command;
 

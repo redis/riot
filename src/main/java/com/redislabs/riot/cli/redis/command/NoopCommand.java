@@ -1,7 +1,7 @@
 package com.redislabs.riot.cli.redis.command;
 
-import com.redislabs.riot.batch.redis.writer.AbstractRedisWriter;
-import com.redislabs.riot.batch.redis.writer.map.Noop;
+import com.redislabs.riot.redis.writer.AbstractRedisWriter;
+import com.redislabs.riot.redis.writer.map.Noop;
 
 import picocli.CommandLine.Command;
 

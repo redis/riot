@@ -6,11 +6,9 @@ import org.springframework.batch.item.file.FlatFileItemWriter;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.experimental.Accessors;
 import picocli.CommandLine.Option;
 
 @EqualsAndHashCode(callSuper = true)
-@Accessors(fluent = true)
 public @Data class FileWriterOptions extends FlatFileOptions {
 
 	@Option(names = "--append", description = "Append to file if it exists")

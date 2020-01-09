@@ -19,17 +19,14 @@ import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
-import com.redislabs.riot.batch.file.OutputStreamResource;
+import com.redislabs.riot.file.OutputStreamResource;
 
-import lombok.Getter;
-import lombok.experimental.Accessors;
+import lombok.Data;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Option;
 
-@Accessors(fluent = true)
-public class FileOptions implements AWSCredentialsProvider {
+public @Data class FileOptions implements AWSCredentialsProvider {
 
-	@Getter
 	@ArgGroup(exclusive = true, multiplicity = "1")
 	private ResourceOptions resourceOptions = new ResourceOptions();
 	@Option(names = { "-z", "--gzip" }, description = "File is gzip compressed")
@@ -55,7 +52,7 @@ public class FileOptions implements AWSCredentialsProvider {
 
 	public Resource resource() throws MalformedURLException {
 		if (resourceOptions.isUri()) {
-			URI uri = resourceOptions.url();
+			URI uri = resourceOptions.getUrl();
 			if (uri.getScheme().equals("s3")) {
 				AmazonS3 s3 = AmazonS3Client.builder().withCredentials(this).withRegion(region).build();
 				SimpleStorageProtocolResolver resolver = new SimpleStorageProtocolResolver(s3);
@@ -64,7 +61,7 @@ public class FileOptions implements AWSCredentialsProvider {
 			}
 			return new UncustomizedUrlResource(uri);
 		}
-		return new FileSystemResource(resourceOptions.file());
+		return new FileSystemResource(resourceOptions.getFile());
 	}
 
 	public FileType type() {

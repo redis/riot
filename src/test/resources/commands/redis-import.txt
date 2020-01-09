@@ -1,1 +1,1 @@
-$ riot --server myredistarget:6379 redis-import --server myredissource:6379 --keyspace beer --keys id hmset --keyspace beer2 --keys id
+$ riot --server myredistarget:16379 redis-import --server myredissource:16379 --keyspace beer --keys id hmset --keyspace beer2 --keys id

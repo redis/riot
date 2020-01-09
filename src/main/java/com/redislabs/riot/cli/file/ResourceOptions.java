@@ -4,10 +4,8 @@ import java.net.URI;
 import java.nio.file.Path;
 
 import lombok.Data;
-import lombok.experimental.Accessors;
 import picocli.CommandLine.Option;
 
-@Accessors(fluent = true)
 public @Data class ResourceOptions {
 
 	@Option(names = "--file", description = "File path")

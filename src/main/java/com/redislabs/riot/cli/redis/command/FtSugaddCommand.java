@@ -1,12 +1,13 @@
 package com.redislabs.riot.cli.redis.command;
 
-import com.redislabs.riot.batch.redis.writer.map.AbstractKeyMapRedisWriter;
-import com.redislabs.riot.batch.redis.writer.map.FtSugadd;
-import com.redislabs.riot.batch.redis.writer.map.FtSugaddPayload;
+import com.redislabs.riot.redis.writer.map.AbstractKeyMapRedisWriter;
+import com.redislabs.riot.redis.writer.map.FtSugadd;
+import com.redislabs.riot.redis.writer.map.FtSugaddPayload;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
+@SuppressWarnings("rawtypes")
 @Command(name = "ftsugadd", description = "Add suggestion strings to an auto-complete suggestion dictionary")
 public class FtSugaddCommand extends AbstractKeyRedisCommand {
 
@@ -21,14 +22,22 @@ public class FtSugaddCommand extends AbstractKeyRedisCommand {
 	@Option(names = "--increment", description = "Use increment to set value")
 	private boolean increment;
 
-	@SuppressWarnings("rawtypes")
 	@Override
 	protected AbstractKeyMapRedisWriter keyWriter() {
-		FtSugadd writer = payload == null ? new FtSugadd() : new FtSugaddPayload().payload(payload);
-		writer.field(suggest);
-		writer.increment(increment);
-		writer.defaultScore(defaultScore);
-		writer.scoreField(score);
+		FtSugadd writer = ftSugadd();
+		writer.setField(suggest);
+		writer.setIncrement(increment);
+		writer.setDefaultScore(defaultScore);
+		writer.setScoreField(score);
+		return writer;
+	}
+
+	private FtSugadd ftSugadd() {
+		if (payload == null) {
+			return new FtSugadd();
+		}
+		FtSugaddPayload writer = new FtSugaddPayload();
+		writer.setPayload(payload);
 		return writer;
 	}
 

@@ -1,6 +1,6 @@
 package com.redislabs.riot.cli.redis.command;
 
-import com.redislabs.riot.batch.redis.writer.map.Evalsha;
+import com.redislabs.riot.redis.writer.map.Evalsha;
 
 import io.lettuce.core.ScriptOutputType;
 import picocli.CommandLine.Command;
@@ -21,7 +21,12 @@ public class EvalshaCommand extends AbstractRedisCommand {
 	@SuppressWarnings("rawtypes")
 	@Override
 	public Evalsha redisWriter() {
-		return new Evalsha().args(args).keys(keys).outputType(outputType).sha(sha);
+		Evalsha writer = new Evalsha();
+		writer.setArgs(args);
+		writer.setKeys(keys);
+		writer.setOutputType(outputType);
+		writer.setSha(sha);
+		return writer;
 	}
 
 }

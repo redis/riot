@@ -12,21 +12,22 @@ import com.redislabs.riot.cli.file.FileImportCommand;
 import com.redislabs.riot.cli.file.RangeConverter;
 import com.redislabs.riot.cli.gen.GeneratorImportCommand;
 import com.redislabs.riot.cli.redis.RedisImportCommand;
-import com.redislabs.riot.cli.redis.RedisReplicateCommand;
+import com.redislabs.riot.cli.redis.ReplicateCommand;
 
 import lombok.Getter;
-import lombok.experimental.Accessors;
+import lombok.Setter;
 import picocli.CommandLine;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 
-@Accessors(fluent = true)
 @Command(name = "riot", subcommands = { FileImportCommand.class, FileExportCommand.class, DatabaseImportCommand.class,
-		DatabaseExportCommand.class, RedisImportCommand.class, GeneratorImportCommand.class, TestCommand.class, RedisReplicateCommand.class })
+		DatabaseExportCommand.class, RedisImportCommand.class, GeneratorImportCommand.class, TestCommand.class,
+		ReplicateCommand.class })
 public class Riot extends Main {
 
-	@Getter
 	@ArgGroup(exclusive = false, heading = "Redis connection options%n")
+	@Getter
+	@Setter
 	private RedisOptions redisOptions = new RedisOptions();
 
 	public static void main(String[] args) {

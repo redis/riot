@@ -1,6 +1,6 @@
 package com.redislabs.riot.cli.redis.command;
 
-import com.redislabs.riot.batch.redis.writer.map.AbstractCollectionMapWriter;
+import com.redislabs.riot.redis.writer.map.AbstractCollectionMapWriter;
 
 import picocli.CommandLine.Option;
 

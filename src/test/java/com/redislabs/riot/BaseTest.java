@@ -12,17 +12,28 @@ import com.redislabs.lettusearch.RediSearchClient;
 import com.redislabs.lettusearch.RediSearchCommands;
 import com.redislabs.lettusearch.StatefulRediSearchConnection;
 
+import io.lettuce.core.RedisURI;
+import redis.embedded.RedisExecProvider;
+import redis.embedded.RedisServer;
+import redis.embedded.util.OS;
+
 public class BaseTest {
 
 	private final static String COMMAND_START = "$ riot ";
 
+	private static RedisServer server;
 	private static RediSearchClient client;
 	private static StatefulRediSearchConnection<String, String> connection;
 	protected static final int BEER_COUNT = 2410;
 
 	@BeforeAll
 	public static void setup() throws IOException {
-		client = RediSearchClient.create("redis://localhost");
+		RedisExecProvider provider = RedisExecProvider.defaultProvider().override(OS.MAC_OS_X,
+				"/usr/local/bin/redis-server");
+		server = RedisServer.builder().redisExecProvider(provider).port(16379)
+				.setting("loadmodule /Users/jruaux/git/RediSearch/build/redisearch.so").build();
+		server.start();
+		client = RediSearchClient.create(RedisURI.create("localhost", 16379));
 		connection = client.connect();
 	}
 
@@ -43,17 +54,21 @@ public class BaseTest {
 		if (client != null) {
 			client.shutdown();
 		}
+		if (server != null) {
+			server.stop();
+		}
 	}
 
 	protected int runFile(String filename, Object... args) throws Exception {
 		try (InputStream inputStream = getClass().getResourceAsStream("/commands/" + filename + ".txt")) {
-			return runCommand(new String(inputStream.readAllBytes()), args);
+			String line = new String(inputStream.readAllBytes());
+			String command = serverOptions() + " " + line.substring(COMMAND_START.length());
+			return new Riot().execute(CommandLineUtils.translateCommandline(String.format(command, args)));
 		}
 	}
 
-	protected int runCommand(String line, Object... args) throws Exception {
-		String command = line.startsWith(COMMAND_START) ? line.substring(COMMAND_START.length()) : line;
-		return new Riot().execute(CommandLineUtils.translateCommandline(String.format(command, args)));
+	private String serverOptions() {
+		return "-s localhost:16379";
 	}
 
 }

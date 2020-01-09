@@ -1,14 +1,12 @@
 package com.redislabs.riot.cli.redis.command;
 
-import com.redislabs.riot.batch.redis.writer.map.AbstractKeyMapRedisWriter;
+import com.redislabs.riot.redis.writer.map.AbstractKeyMapRedisWriter;
 
-import lombok.experimental.Accessors;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 @SuppressWarnings("rawtypes")
 @Command
-@Accessors(fluent = true)
 public abstract class AbstractKeyRedisCommand extends AbstractRedisCommand {
 
 	@Option(names = "--separator", description = "Key separator (default: ${DEFAULT-VALUE})", paramLabel = "<str>")

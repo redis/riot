@@ -2,14 +2,14 @@ package com.redislabs.riot.cli.redis.command;
 
 import com.redislabs.lettusearch.search.AddOptions;
 import com.redislabs.lettusearch.search.Language;
-import com.redislabs.riot.batch.redis.writer.map.AbstractKeyMapRedisWriter;
-import com.redislabs.riot.batch.redis.writer.map.FtAdd;
-import com.redislabs.riot.batch.redis.writer.map.FtAddPayload;
+import com.redislabs.riot.redis.writer.map.FtAdd;
+import com.redislabs.riot.redis.writer.map.FtAddPayload;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 @Command(name = "ftadd", description = "Adds documents to an index")
+@SuppressWarnings("rawtypes")
 public class FtAddCommand extends AbstractKeyRedisCommand {
 
 	@Option(names = { "-i", "--index" }, description = "Name of the RediSearch index", paramLabel = "<name>")
@@ -31,15 +31,23 @@ public class FtAddCommand extends AbstractKeyRedisCommand {
 	@Option(names = "--default-score", description = "Score when field not present (default: ${DEFAULT-VALUE})", paramLabel = "<num>")
 	private double defaultScore = 1d;
 
-	@SuppressWarnings("rawtypes")
 	@Override
-	protected AbstractKeyMapRedisWriter keyWriter() {
-		FtAdd writer = payload == null ? new FtAdd() : new FtAddPayload().payload(payload);
-		writer.options(new AddOptions().ifCondition(ifCondition).language(language).noSave(noSave).replace(replace)
+	protected FtAdd keyWriter() {
+		FtAdd writer = ftAdd();
+		writer.setOptions(new AddOptions().ifCondition(ifCondition).language(language).noSave(noSave).replace(replace)
 				.replacePartial(partial));
-		writer.index(index);
-		writer.defaultScore(defaultScore);
-		writer.scoreField(score);
+		writer.setIndex(index);
+		writer.setDefaultScore(defaultScore);
+		writer.setScoreField(score);
+		return writer;
+	}
+
+	private FtAdd ftAdd() {
+		if (payload == null) {
+			return new FtAdd();
+		}
+		FtAddPayload writer = new FtAddPayload();
+		writer.setPayload(payload);
 		return writer;
 	}
 

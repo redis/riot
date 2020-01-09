@@ -5,53 +5,36 @@ import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 
 import com.redislabs.picocliredis.RedisOptions;
-import com.redislabs.riot.batch.Transfer;
-import com.redislabs.riot.batch.TransferContext;
 
+import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine.Command;
 
+@Slf4j
 @Command
 public abstract class ExportCommand<I, O> extends TransferCommand<I, O> implements Runnable {
 
+	@Override
+	public void run() {
+		ItemReader<I> reader;
+		ItemProcessor<I, O> processor;
+		ItemWriter<O> writer;
+		try {
+			reader = reader(redisOptions());
+			processor = processor();
+			writer = writer();
+		} catch (Exception e) {
+			log.error("Could not initialize export", e);
+			return;
+		}
+		execute(reader, processor, writer);
+	}
+
 	protected abstract ItemReader<I> reader(RedisOptions redisOptions);
 
-	protected abstract ItemProcessor<I, O> processor() throws Exception;
+	protected ItemProcessor<I, O> processor() throws Exception {
+		return null;
+	}
 
 	protected abstract ItemWriter<O> writer() throws Exception;
 
-	@Override
-	public void run() {
-		execute(new Transfer<I, O>() {
-
-			@Override
-			public ItemReader<I> reader(TransferContext context) throws Exception {
-				return ExportCommand.this.reader(ExportCommand.this.redisOptions());
-			}
-
-			@Override
-			public ItemProcessor<I, O> processor(TransferContext context) throws Exception {
-				return ExportCommand.this.processor();
-			}
-
-			@Override
-			public ItemWriter<O> writer(TransferContext context) throws Exception {
-				return ExportCommand.this.writer();
-			}
-
-			@Override
-			public String unitName() {
-				return ExportCommand.this.unitName();
-			}
-
-			@Override
-			public String taskName() {
-				return ExportCommand.this.taskName();
-			}
-
-		});
-	}
-
-	protected abstract String taskName();
-
-	protected abstract String unitName();
 }

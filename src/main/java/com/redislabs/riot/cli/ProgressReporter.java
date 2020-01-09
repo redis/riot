@@ -1,7 +1,13 @@
 package com.redislabs.riot.cli;
 
+import com.redislabs.riot.TransferExecution.ProgressUpdate;
+
 public interface ProgressReporter {
 
-	void onUpdate(long writeCount, int runningThreads);
+	void start();
+
+	void onUpdate(ProgressUpdate update);
+
+	void stop();
 
 }

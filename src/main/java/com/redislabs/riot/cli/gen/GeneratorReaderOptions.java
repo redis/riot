@@ -4,13 +4,11 @@ import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 
-import com.redislabs.riot.batch.generator.GeneratorReader;
+import com.redislabs.riot.generator.GeneratorReader;
 
 import lombok.Data;
-import lombok.experimental.Accessors;
 import picocli.CommandLine.Option;
 
-@Accessors(fluent = true)
 public @Data class GeneratorReaderOptions {
 
 	@Option(names = "--faker", arity = "1..*", description = "SpEL expression to generate a field", paramLabel = "<name=SpEL>")
@@ -23,7 +21,11 @@ public @Data class GeneratorReaderOptions {
 	private Locale locale = Locale.ENGLISH;
 
 	public GeneratorReader reader() {
-		return new GeneratorReader().locale(locale).fakerFields(fakerFields).simpleFields(simpleFields);
+		GeneratorReader reader = new GeneratorReader();
+		reader.setLocale(locale);
+		reader.setFakerFields(fakerFields);
+		reader.setSimpleFields(simpleFields);
+		return reader;
 	}
 
 	public boolean isSet() {

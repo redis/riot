@@ -159,9 +159,9 @@ public class TestFile extends BaseTest {
 	}
 
 	@Test
-	public void testImportElasticacheJson() throws Exception {
+	public void testImportElasticJson() throws Exception {
 		String url = getClass().getClassLoader().getResource("es_test-index.json").getFile();
-		runCommand("file-import --file %s hmset --keyspace estest --keys _id", url);
+		runFile("file-import-elastic-json", url);
 		Assertions.assertEquals(2, commands().keys("estest:*").size());
 		Map<String, String> doc1 = commands().hgetall("estest:doc1");
 		Assertions.assertEquals("ruan", doc1.get("_source.name"));

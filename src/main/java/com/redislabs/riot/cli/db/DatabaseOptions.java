@@ -7,12 +7,10 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import com.zaxxer.hikari.HikariDataSource;
 
 import lombok.Data;
-import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine.Option;
 
 @Slf4j
-@Accessors(fluent = true)
 public @Data class DatabaseOptions {
 
 	@Option(names = "--driver", description = "Fully qualified name of the JDBC driver", paramLabel = "<class>")

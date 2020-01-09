@@ -8,11 +8,9 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.experimental.Accessors;
 import picocli.CommandLine.Option;
 
 @EqualsAndHashCode(callSuper = true)
-@Accessors(fluent = true)
 public @Data class DatabaseWriterOptions extends DatabaseOptions {
 
 	@Option(required = true, names = "--sql", description = "Insert SQL statement", paramLabel = "<sql>")

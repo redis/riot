@@ -16,9 +16,8 @@ import com.redislabs.lettusearch.search.field.Field;
 import com.redislabs.lettusearch.search.field.GeoField;
 import com.redislabs.lettusearch.search.field.TagField;
 import com.redislabs.lettusearch.search.field.TextField;
-import com.redislabs.riot.batch.TransferContext;
-import com.redislabs.riot.batch.generator.GeneratorReader;
 import com.redislabs.riot.cli.MapImportCommand;
+import com.redislabs.riot.generator.GeneratorReader;
 
 import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine.ArgGroup;
@@ -32,16 +31,12 @@ public class GeneratorImportCommand extends MapImportCommand {
 	private final static List<String> EXCLUDES = Arrays.asList("instance", "options");
 
 	@ArgGroup(exclusive = false, heading = "Generator options%n", order = 2)
-	private GeneratorReaderOptions options = new GeneratorReaderOptions();
+	private GeneratorReaderOptions readerOptions = new GeneratorReaderOptions();
 	@Option(names = { "--faker-help" }, description = "Show all available Faker properties")
 	private boolean fakerHelp;
-	@Option(names = { "--faker-index" }, description = "Use given search index to introspect Faker fields", paramLabel = "<index>")
+	@Option(names = {
+			"--faker-index" }, description = "Use given search index to introspect Faker fields", paramLabel = "<index>")
 	private String fakerIndex;
-
-	@Override
-	protected String taskName() {
-		return "Generating";
-	}
 
 	private String expression(Field field) {
 		if (field instanceof TextField) {
@@ -61,8 +56,13 @@ public class GeneratorImportCommand extends MapImportCommand {
 	}
 
 	@Override
-	protected GeneratorReader reader(TransferContext context) {
-		GeneratorReader reader = options.reader();
+	protected String taskName() {
+		return "Generating";
+	}
+
+	@Override
+	protected GeneratorReader reader() {
+		GeneratorReader reader = readerOptions.reader();
 		if (fakerIndex != null) {
 			RediSearchCommands<String, String> ft = redisOptions().lettuSearchClient().connect().sync();
 			IndexInfo info = RediSearchUtils.getInfo(ft.indexInfo(fakerIndex));
@@ -72,12 +72,9 @@ public class GeneratorImportCommand extends MapImportCommand {
 				String expression = expression(f);
 				fakerFields.put(fieldName, expression);
 			});
-			reader.fakerFields(fakerFields);
+			reader.setFakerFields(fakerFields);
 			log.info("Adding introspected fields: {}", String.join(" ", fakerArgs(fakerFields)));
 		}
-
-		reader.partition(context.thread());
-		reader.partitions(context.threads());
 		return reader;
 	}
 

@@ -7,7 +7,7 @@ import java.util.Set;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import com.redislabs.riot.batch.generator.GeneratorReader;
+import com.redislabs.riot.generator.GeneratorReader;
 
 import io.lettuce.core.Range;
 import io.lettuce.core.StreamMessage;

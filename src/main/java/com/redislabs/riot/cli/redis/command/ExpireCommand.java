@@ -1,6 +1,6 @@
 package com.redislabs.riot.cli.redis.command;
 
-import com.redislabs.riot.batch.redis.writer.map.Expire;
+import com.redislabs.riot.redis.writer.map.Expire;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -16,7 +16,10 @@ public class ExpireCommand extends AbstractRedisCommand {
 	@SuppressWarnings("rawtypes")
 	@Override
 	protected Expire redisWriter() {
-		return new Expire().defaultTimeout(defaultTimeout).timeoutField(timeout);
+		Expire writer = new Expire();
+		writer.setDefaultTimeout(defaultTimeout);
+		writer.setTimeoutField(timeout);
+		return writer;
 	}
 
 }

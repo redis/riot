@@ -3,14 +3,14 @@ package com.redislabs.riot.cli.redis.command;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.redislabs.riot.batch.redis.writer.map.AbstractKeyMapRedisWriter;
-import com.redislabs.riot.batch.redis.writer.map.SetField;
-import com.redislabs.riot.batch.redis.writer.map.SetObject;
+import com.redislabs.riot.redis.writer.map.AbstractKeyMapRedisWriter;
+import com.redislabs.riot.redis.writer.map.SetField;
+import com.redislabs.riot.redis.writer.map.SetObject;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
-@Command(name = "set", description="Set string values")
+@Command(name = "set", description = "Set string values")
 public class SetCommand extends AbstractKeyRedisCommand {
 
 	public enum StringFormat {
@@ -29,11 +29,17 @@ public class SetCommand extends AbstractKeyRedisCommand {
 	protected AbstractKeyMapRedisWriter keyWriter() {
 		switch (format) {
 		case raw:
-			return new SetField().field(value);
+			SetField setField = new SetField();
+			setField.setField(value);
+			return setField;
 		case xml:
-			return new SetObject().objectWriter(objectWriter(new XmlMapper()));
+			SetObject setXml = new SetObject();
+			setXml.setObjectWriter(objectWriter(new XmlMapper()));
+			return setXml;
 		default:
-			return new SetObject().objectWriter(objectWriter(new ObjectMapper()));
+			SetObject setObject = new SetObject();
+			setObject.setObjectWriter(objectWriter(new ObjectMapper()));
+			return setObject;
 		}
 	}
 

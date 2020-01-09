@@ -1,163 +1,93 @@
 package com.redislabs.riot.cli;
 
-import java.text.NumberFormat;
-import java.time.Duration;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import org.springframework.batch.core.ExitStatus;
-import org.springframework.batch.core.JobExecution;
-import org.springframework.batch.core.StepExecution;
-import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
+import org.springframework.batch.item.ItemStream;
 import org.springframework.batch.item.ItemStreamReader;
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
 
-import com.redislabs.riot.batch.JobExecutor;
-import com.redislabs.riot.batch.StepThread;
-import com.redislabs.riot.batch.ThrottlingItemReader;
-import com.redislabs.riot.batch.ThrottlingItemStreamReader;
-import com.redislabs.riot.batch.Transfer;
-import com.redislabs.riot.batch.TransferContext;
+import com.redislabs.riot.CappedItemReader;
+import com.redislabs.riot.ThrottlingItemReader;
+import com.redislabs.riot.ThrottlingItemStreamReader;
+import com.redislabs.riot.Transfer;
+import com.redislabs.riot.TransferExecution;
 
-import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
-import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Model.CommandSpec;
+import picocli.CommandLine.Option;
 import picocli.CommandLine.Spec;
 
 @Slf4j
-@Accessors(fluent = true)
 public abstract class TransferCommand<I, O> extends RiotCommand {
-
-	public final static String PARTITION = "partition";
-	public final static String PARTITIONS = "partitions";
 
 	@Spec
 	private CommandSpec spec;
-	@ArgGroup(exclusive = false, heading = "Transfer options%n")
-	private TransferOptions options = new TransferOptions();
+	@Option(names = "--threads", description = "Thread count (default: ${DEFAULT-VALUE})", paramLabel = "<count>")
+	private int nThreads = 1;
+	@Option(names = { "-b",
+			"--batch" }, description = "Number of items in each batch (default: ${DEFAULT-VALUE})", paramLabel = "<size>")
+	private int batchSize = 50;
+	@Option(names = { "-m", "--max" }, description = "Max number of items to read", paramLabel = "<count>")
+	private Long maxItemCount;
+	@Option(names = "--sleep", description = "Sleep duration in millis between reads", paramLabel = "<ms>")
+	private Long sleep;
 
-	protected void execute(Transfer<I, O> transfer) {
-		List<StepThread<I, O>> stepThreads = new ArrayList<>();
-		for (int thread = 0; thread < options.threads(); thread++) {
-			TransferContext context = new TransferContext(thread, options.threads());
-			ItemReader<I> reader;
-			try {
-				reader = configure(transfer.reader(context));
-			} catch (Exception e) {
-				log.error("Could not initialize reader", e);
-				continue;
-			}
-			ItemProcessor<I, O> processor;
-			try {
-				processor = transfer.processor(context);
-			} catch (Exception e) {
-				log.error("Could not initialize processor", e);
-				continue;
-			}
-			ItemWriter<O> writer;
-			try {
-				writer = transfer.writer(context);
-			} catch (Exception e) {
-				log.error("Could not initialize writer", e);
-				continue;
-			}
-			stepThreads.add(new StepThread<>(thread, reader, processor, writer, options.batchSize()));
-		}
-		ExecutionContext executionContext = new ExecutionContext();
-		stepThreads.forEach(t -> t.open(executionContext));
-		ExecutorService executor = Executors.newFixedThreadPool(options.threads());
-		stepThreads.forEach(t -> executor.execute(t));
-		executor.shutdown();
-		ProgressReporter reporter = progressReporter(transfer);
-		while (!executor.isTerminated()) {
-			long writeCount = 0;
-			int nRunningThreads = 0;
-			for (StepThread<I, O> stepThread : stepThreads) {
-				writeCount += stepThread.writeCount();
-				if (stepThread.running()) {
-					nRunningThreads++;
-				}
-			}
-			reporter.onUpdate(writeCount, nRunningThreads);
+	protected void execute(ItemReader<I> reader, ItemProcessor<I, O> processor, ItemWriter<O> writer) {
+		Transfer<I, O> transfer = new Transfer<>();
+		transfer.setBatchSize(batchSize);
+		transfer.setNThreads(nThreads);
+		transfer.setReader(throttle(cap(reader)));
+		transfer.setProcessor(processor);
+		transfer.setWriter(writer);
+		TransferExecution<I, O> execution = transfer.execute();
+		ProgressReporter reporter = progressReporter();
+		reporter.start();
+		while (!execution.isFinished()) {
+			reporter.onUpdate(execution.progress());
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
 				log.error("Interrupted", e);
 			}
 		}
-		stepThreads.forEach(t -> t.close());
+		reporter.stop();
+		if (reader instanceof ItemStream) {
+			((ItemStream) reader).close();
+		}
+		if (writer instanceof ItemStream) {
+			((ItemStream) writer).close();
+		}
+		log.info("{} finished", taskName());
 	}
 
-	private ProgressReporter progressReporter(Transfer<I, O> transfer) {
-		if (parent().quiet()) {
-			return new ProgressReporter() {
-
-				@Override
-				public void onUpdate(long writeCount, int runningThreads) {
-					// do nothing
-				}
-			};
-		}
-		return new ProgressBarReporter(options.count(), transfer.taskName());
-	}
-
-	protected void oldExecute(ItemReader<I> reader, ItemProcessor<I, O> processor, ItemWriter<O> writer) {
-		JobExecutor executor;
-		try {
-			executor = new JobExecutor();
-		} catch (Exception e) {
-			log.error("Could not initialize Spring Batch job executor", e);
-			return;
-		}
-		log.info("Transferring from {} to {}", reader, writer);
-		JobExecution execution;
-		try {
-			execution = executor.execute(spec.name() + "-step", configure(reader), processor, writer,
-					options.batchSize(), options.threads(), false);
-		} catch (Exception e) {
-			log.error("Could not execute {}", spec.name(), e);
-			return;
-		}
-		if (execution.getExitStatus().getExitCode().equals(ExitStatus.FAILED.getExitCode())) {
-			execution.getAllFailureExceptions().forEach(e -> e.printStackTrace());
-		}
-		StepExecution stepExecution = execution.getStepExecutions().iterator().next();
-		if (stepExecution.getExitStatus().getExitCode().equals(ExitStatus.FAILED.getExitCode())) {
-			stepExecution.getFailureExceptions()
-					.forEach(e -> log.error("Could not execute step {}", stepExecution.getStepName(), e));
-		} else {
-			Duration duration = Duration
-					.ofMillis(stepExecution.getEndTime().getTime() - stepExecution.getStartTime().getTime());
-			int writeCount = stepExecution.getWriteCount();
-			double throughput = (double) writeCount / duration.toMillis() * 1000;
-			NumberFormat numberFormat = NumberFormat.getIntegerInstance();
-			log.info("Transferred {} items in {} seconds ({} ops/sec)", numberFormat.format(writeCount),
-					duration.get(ChronoUnit.SECONDS), numberFormat.format(throughput));
-		}
-	}
-
-	private ItemReader<I> configure(ItemReader<I> reader) {
-		if (options.count() != null) {
-			if (reader instanceof AbstractItemCountingItemStreamItemReader) {
-				((AbstractItemCountingItemStreamItemReader<I>) reader).setMaxItemCount(options.count());
-			} else {
-				log.warn("Count is set for a source that does not support capping");
-			}
-		}
-		if (options.sleep() == null) {
+	private ItemReader<I> throttle(ItemReader<I> reader) {
+		if (sleep == null) {
 			return reader;
 		}
 		if (reader instanceof ItemStreamReader) {
-			return new ThrottlingItemStreamReader<I>((ItemStreamReader<I>) reader, options.sleep());
+			return new ThrottlingItemStreamReader<I>((ItemStreamReader<I>) reader, sleep);
 		}
-		return new ThrottlingItemReader<I>(reader, options.sleep());
+		return new ThrottlingItemReader<I>(reader, sleep);
 	}
+
+	private ItemReader<I> cap(ItemReader<I> reader) {
+		if (maxItemCount == null) {
+			return reader;
+		}
+		return new CappedItemReader<I>(reader, maxItemCount);
+	}
+
+	private ProgressReporter progressReporter() {
+		if (parent().getOptions().isQuiet()) {
+			return new NoopProgressReporter();
+		}
+		ProgressBarReporter progressBarReporter = new ProgressBarReporter().taskName(taskName());
+		if (maxItemCount != null) {
+			progressBarReporter.initialMax(maxItemCount);
+		}
+		return progressBarReporter;
+	}
+
+	protected abstract String taskName();
 
 }

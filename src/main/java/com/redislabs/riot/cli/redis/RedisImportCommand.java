@@ -5,7 +5,6 @@ import java.util.Map;
 import org.springframework.batch.item.ItemReader;
 
 import com.redislabs.picocliredis.RedisOptions;
-import com.redislabs.riot.batch.TransferContext;
 import com.redislabs.riot.cli.MapImportCommand;
 
 import picocli.CommandLine.ArgGroup;
@@ -17,15 +16,15 @@ public class RedisImportCommand extends MapImportCommand {
 	@ArgGroup(exclusive = false, heading = "Source Redis connection options%n")
 	private RedisOptions redis = new RedisOptions();
 	@ArgGroup(exclusive = false, heading = "Source Redis options%n")
-	private RedisHashReaderOptions options = new RedisHashReaderOptions();
+	private HashReaderOptions options = new HashReaderOptions();
 
 	@Override
 	protected String taskName() {
-		return "Importing from " + redis.servers().get(0);
+		return "Importing from " + redis.getServers().get(0);
 	}
 
 	@Override
-	protected ItemReader<Map<String, Object>> reader(TransferContext context) {
+	protected ItemReader<Map<String, Object>> reader() {
 		return options.reader(redis);
 	}
 

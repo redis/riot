@@ -16,18 +16,13 @@ public class DatabaseExportCommand extends HashExportCommand {
 	private DatabaseWriterOptions options = new DatabaseWriterOptions();
 
 	@Override
-	protected ItemWriter<Map<String, Object>> writer() throws Exception {
+	protected ItemWriter<Map<String, Object>> writer() {
 		return options.writer();
 	}
 
 	@Override
 	protected String taskName() {
-		return "Exporting to " + options.url();
-	}
-
-	@Override
-	protected String unitName() {
-		return "row";
+		return "Exporting to " + options.getUrl();
 	}
 
 }

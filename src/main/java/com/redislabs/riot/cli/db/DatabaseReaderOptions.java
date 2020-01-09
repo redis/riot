@@ -8,11 +8,9 @@ import org.springframework.jdbc.core.ColumnMapRowMapper;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.experimental.Accessors;
 import picocli.CommandLine.Option;
 
 @EqualsAndHashCode(callSuper = true)
-@Accessors(fluent = true)
 public @Data class DatabaseReaderOptions extends DatabaseOptions {
 
 	@Option(required = true, names = "--sql", description = "SELECT statement", paramLabel = "<sql>")
