@@ -41,7 +41,7 @@ public class TestReplicate {
 					}
 				}).start();
 				String[] replicateCommand = CommandLineUtils.translateCommandline(
-						"--server localhost:16380 replicate --threads 5 --server localhost:16379");
+						"--server localhost:16380 replicate --no-wait --threads 5 --server localhost:16379");
 				new Riot().execute(replicateCommand);
 				RedisClient targetClient = RedisClient.create(RedisURI.create("localhost", 16380));
 				Long sourceSize = sourceClient.connect().sync().dbsize();

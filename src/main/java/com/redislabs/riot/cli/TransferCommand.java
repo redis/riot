@@ -50,6 +50,7 @@ public abstract class TransferCommand<I, O> extends RiotCommand {
 				log.error("Interrupted", e);
 			}
 		}
+		reporter.onUpdate(execution.progress());
 		reporter.stop();
 		if (reader instanceof ItemStream) {
 			((ItemStream) reader).close();
@@ -57,7 +58,6 @@ public abstract class TransferCommand<I, O> extends RiotCommand {
 		if (writer instanceof ItemStream) {
 			((ItemStream) writer).close();
 		}
-		log.info("{} finished", taskName());
 	}
 
 	private ItemReader<I> throttle(ItemReader<I> reader) {

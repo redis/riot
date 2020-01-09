@@ -23,5 +23,7 @@ public @Data class ReplicateOptions {
 	private String channel = "__keyspace@*__:*";
 	@Option(names = "--keyspace-notifications", description = "Configuration param for keyspace notifications (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
 	private String notifications = "KA";
+	@Option(names = "--no-wait", description = "Do not keep keyspace notification listener open after scan is finished")
+	private boolean noWait;
 
 }

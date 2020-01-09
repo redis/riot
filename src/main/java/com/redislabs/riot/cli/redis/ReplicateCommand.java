@@ -44,24 +44,35 @@ public class ReplicateCommand extends ImportCommand<KeyValue, KeyValue> implemen
 	protected void execute(ItemReader<KeyValue> reader, ItemProcessor<KeyValue, KeyValue> processor,
 			ItemWriter<KeyValue> writer) {
 		StatefulRedisConnection<String, String> connection = sourceRedis.lettuceClient().connect();
-		connection.sync().configSet("notify-keyspace-events", options.notifications());
-		StatefulRedisPubSubConnection<String, String> pubSub = sourceRedis.lettuceClient().connectPubSub();
-		pubSub.addListener(new RedisPubSubAdapter<String, String>() {
-			@Override
-			public void message(String pattern, String channel, String message) {
-				String key = channel.substring(channel.indexOf(":") + 1);
-				Long ttl = connection.sync().pttl(key);
-				byte[] value = connection.sync().dump(key);
-				KeyValue keyValue = new KeyValue(key, ttl, value);
+		if (!options.notifications().isBlank()) {
+			connection.sync().configSet("notify-keyspace-events", options.notifications());
+			StatefulRedisPubSubConnection<String, String> pubSub = sourceRedis.lettuceClient().connectPubSub();
+			pubSub.addListener(new RedisPubSubAdapter<String, String>() {
+				@Override
+				public void message(String pattern, String channel, String message) {
+					String key = channel.substring(channel.indexOf(":") + 1);
+					Long ttl = connection.sync().pttl(key);
+					byte[] value = connection.sync().dump(key);
+					KeyValue keyValue = new KeyValue(key, ttl, value);
+					try {
+						writer.write(Arrays.asList(keyValue));
+					} catch (Exception e) {
+						log.error("Could not write key '{}'", key);
+					}
+				}
+			});
+			pubSub.sync().psubscribe(options.channel());
+		}
+		super.execute(reader, processor, writer);
+		if (!options.notifications().isBlank() && !options.noWait()) {
+			while (true) {
 				try {
-					writer.write(Arrays.asList(keyValue));
-				} catch (Exception e) {
-					log.error("Could not write key '{}'", key);
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+					log.debug("Interrupted while sleeping for keyspace notifications", e);
 				}
 			}
-		});
-		pubSub.sync().psubscribe(options.channel());
-		super.execute(reader, processor, writer);
+		}
 	}
 
 	@Override
