@@ -57,7 +57,7 @@ public class ReplicateCommand extends ImportCommand<KeyValue, KeyValue> implemen
 					try {
 						writer.write(Arrays.asList(keyValue));
 					} catch (Exception e) {
-						log.error("Could not write key '{}'", key);
+						log.error("Could not write key '{}'", key, e);
 					}
 				}
 			});

@@ -35,7 +35,7 @@ public class KeyValueProducer implements Runnable {
 			try {
 				addValues(keys);
 			} catch (Exception e) {
-				log.error("Could not get values for keys {}", keys);
+				log.error("Could not get values for keys {}", keys, e);
 			}
 		}
 	}
