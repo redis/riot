@@ -19,10 +19,8 @@ public @Data class ReplicateOptions {
 	private int batchSize = 50;
 	@Option(names = "--reader-timeout", description = "Command timeout duration in seconds (default: ${DEFAULT-VALUE})", paramLabel = "<sec>")
 	private int timeout = 2;
-	@Option(names = "--keyspace-channel", description = "Pub/sub channel to listen to for keyspace events (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
-	private String channel = "__keyspace@*__:*";
-	@Option(names = "--keyspace-notifications", description = "Configuration param for keyspace notifications (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
-	private String notifications = "KA";
+	@Option(names = "--keyspace-channel", description = "Pub/sub channel for keyspace events (default: ${DEFAULT-VALUE}). Blank to disable", paramLabel = "<string>")
+	private String channel = "__keyspace@0__:*";
 	@Option(names = "--no-wait", description = "Do not keep keyspace notification listener open after scan is finished")
 	private boolean noWait;
 

@@ -17,7 +17,7 @@ public class TestReplicate {
 	public void testReplicate() throws Exception {
 		RedisExecProvider redisExecProvider = RedisExecProvider.defaultProvider().override(OS.MAC_OS_X,
 				"/usr/local/bin/redis-server");
-		RedisServer source = RedisServer.builder().port(16379).build();
+		RedisServer source = RedisServer.builder().setting("notify-keyspace-events AK").port(16379).build();
 		try {
 			source.start();
 			RedisServer target = RedisServer.builder().redisExecProvider(redisExecProvider).port(16380).build();
