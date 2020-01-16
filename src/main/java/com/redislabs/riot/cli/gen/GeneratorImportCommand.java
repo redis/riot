@@ -11,7 +11,7 @@ import java.util.Map;
 import com.github.javafaker.Faker;
 import com.redislabs.lettusearch.RediSearchCommands;
 import com.redislabs.lettusearch.RediSearchUtils;
-import com.redislabs.lettusearch.RediSearchUtils.IndexInfo;
+import com.redislabs.lettusearch.index.IndexInfo;
 import com.redislabs.lettusearch.search.field.Field;
 import com.redislabs.lettusearch.search.field.GeoField;
 import com.redislabs.lettusearch.search.field.TagField;

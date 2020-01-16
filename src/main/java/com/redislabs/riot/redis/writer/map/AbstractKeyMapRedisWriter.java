@@ -48,29 +48,6 @@ public abstract class AbstractKeyMapRedisWriter<R> extends AbstractMapRedisWrite
 		this.keymaker = KeyMaker.create(separator, prefix, fields);
 	}
 
-//	@Override
-//	public String toString() {
-//		if (keyspace == null) {
-//			return keysDescription();
-//		}
-//		if (keys.length > 0) {
-//			return keyspace + separator + keysDescription();
-//		}
-//		return keyspace;
-//	}
-//
-//	private String keysDescription() {
-//		return String.join(separator, wrap(keys));
-//	}
-//
-//	private String[] wrap(String[] fields) {
-//		String[] results = new String[fields.length];
-//		for (int index = 0; index < fields.length; index++) {
-//			results[index] = "<" + fields[index] + ">";
-//		}
-//		return results;
-//	}
-
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	protected Map stringMap(Map map) {
 		map.forEach((k, v) -> map.put(k, convert(v, String.class)));

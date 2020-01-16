@@ -1,6 +1,6 @@
 package com.redislabs.riot.cli;
 
-import com.redislabs.riot.TransferExecution.ProgressUpdate;
+import com.redislabs.riot.transfer.Metrics;
 
 public class NoopProgressReporter implements ProgressReporter {
 
@@ -9,7 +9,7 @@ public class NoopProgressReporter implements ProgressReporter {
 	}
 
 	@Override
-	public void onUpdate(ProgressUpdate update) {
+	public void onUpdate(Metrics update) {
 	}
 
 	@Override

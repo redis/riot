@@ -40,9 +40,8 @@ public @Data class HashReaderOptions {
 	}
 
 	public RediSearchDocumentReader searchReader(RedisOptions redis) {
-		SearchOptions options = new SearchOptions();
-		options.limit(new Limit().num(limitNum).offset(limitOffset));
-		return new RediSearchDocumentReader(redis.lettuSearchClient(), index, query, options);
+		return new RediSearchDocumentReader(redis.lettuSearchClient(), index, query,
+				SearchOptions.builder().limit(Limit.builder().num(limitNum).offset(limitOffset).build()).build());
 	}
 
 	private JedisHashReader redisReader(RedisOptions redis) {

@@ -2,11 +2,14 @@ package com.redislabs.riot.redis.replicate;
 
 import java.util.Iterator;
 
+import org.springframework.util.Assert;
+
 import io.lettuce.core.KeyScanCursor;
 import io.lettuce.core.ScanArgs;
 import io.lettuce.core.api.StatefulRedisConnection;
+import lombok.Builder;
 
-public class KeyScanIterator implements Iterator<String> {
+public class ScanKeyIterator implements KeyIterator {
 
 	private Object lock = new Object();
 	private StatefulRedisConnection<String, String> connection;
@@ -14,11 +17,23 @@ public class KeyScanIterator implements Iterator<String> {
 	private Iterator<String> keys;
 	private KeyScanCursor<String> cursor;
 
-	public KeyScanIterator(StatefulRedisConnection<String, String> connection, ScanArgs scanArgs) {
+	@Builder
+	private ScanKeyIterator(StatefulRedisConnection<String, String> connection, ScanArgs scanArgs) {
 		this.connection = connection;
 		this.args = scanArgs;
-		this.cursor = connection.sync().scan(args);
-		this.keys = cursor.getKeys().iterator();
+	}
+
+	@Override
+	public void start() {
+		Assert.isNull(this.cursor, "Iterator already started");
+		cursor = connection.sync().scan(args);
+		keys = cursor.getKeys().iterator();
+	}
+
+	@Override
+	public void stop() {
+		cursor = null;
+		keys = null;
 	}
 
 	@Override
@@ -33,12 +48,6 @@ public class KeyScanIterator implements Iterator<String> {
 			cursor = connection.sync().scan(cursor, args);
 			keys = cursor.getKeys().iterator();
 			return keys.hasNext();
-		}
-	}
-
-	public boolean isFinished() {
-		synchronized (lock) {
-			return cursor.isFinished() && !keys.hasNext();
 		}
 	}
 

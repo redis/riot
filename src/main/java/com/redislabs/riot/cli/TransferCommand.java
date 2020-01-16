@@ -1,23 +1,25 @@
 package com.redislabs.riot.cli;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
-import org.springframework.batch.item.ItemStream;
-import org.springframework.batch.item.ItemStreamReader;
 import org.springframework.batch.item.ItemWriter;
 
-import com.redislabs.riot.CappedItemReader;
-import com.redislabs.riot.ThrottlingItemReader;
-import com.redislabs.riot.ThrottlingItemStreamReader;
-import com.redislabs.riot.Transfer;
-import com.redislabs.riot.TransferExecution;
+import com.redislabs.riot.transfer.CappedReader;
+import com.redislabs.riot.transfer.Flow;
+import com.redislabs.riot.transfer.ThrottledReader;
+import com.redislabs.riot.transfer.Transfer;
+import com.redislabs.riot.transfer.TransferExecution;
 
-import lombok.extern.slf4j.Slf4j;
+import lombok.experimental.Accessors;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Spec;
 
-@Slf4j
+@Accessors(fluent = true)
 public abstract class TransferCommand<I, O> extends RiotCommand {
 
 	@Spec
@@ -31,54 +33,54 @@ public abstract class TransferCommand<I, O> extends RiotCommand {
 	private Long maxItemCount;
 	@Option(names = "--sleep", description = "Sleep duration in millis between reads", paramLabel = "<ms>")
 	private Long sleep;
+	@Option(names = "--progress", description = "Progress reporting interval (default: ${DEFAULT-VALUE} ms)", paramLabel = "<ms>")
+	private long progressRate = 300;
+	@Option(names = "--transfer-max-wait", description = "Max duration to wait for transfer to complete", paramLabel = "<ms>")
+	private Long maxWait;
 
-	protected void execute(ItemReader<I> reader, ItemProcessor<I, O> processor, ItemWriter<O> writer) {
-		Transfer<I, O> transfer = new Transfer<>();
-		transfer.setBatchSize(batchSize);
-		transfer.setNThreads(nThreads);
-		transfer.setReader(throttle(cap(reader)));
-		transfer.setProcessor(processor);
-		transfer.setWriter(writer);
-		TransferExecution<I, O> execution = transfer.execute();
-		ProgressReporter reporter = progressReporter();
-		reporter.start();
-		while (!execution.isFinished()) {
-			reporter.onUpdate(execution.progress());
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				log.error("Interrupted", e);
-			}
-		}
-		reporter.onUpdate(execution.progress());
-		reporter.stop();
-		close(reader, writer);
+	protected Transfer transfer(ItemReader<I> reader, ItemProcessor<I, O> processor, ItemWriter<O> writer) {
+		Transfer transfer = new Transfer();
+		transfer.flows().add(flow("main", reader, processor, writer));
+		return transfer;
 	}
 
-	protected void close(ItemReader<I> reader, ItemWriter<O> writer) {
-		if (reader instanceof ItemStream) {
-			((ItemStream) reader).close();
+	protected Flow flow(String name, ItemReader<I> reader, ItemProcessor<I, O> processor, ItemWriter<O> writer) {
+		return Flow.builder().name(name).batchSize(batchSize).nThreads(nThreads).reader(throttle(cap(reader)))
+				.processor(processor).writer(writer).build();
+	}
+
+	protected void execute(Transfer transfer) {
+		ProgressReporter reporter = progressReporter();
+		reporter.start();
+		TransferExecution execution = transfer.execute();
+		ScheduledExecutorService progressReportExecutor = Executors.newSingleThreadScheduledExecutor();
+		progressReportExecutor.scheduleAtFixedRate(() -> reporter.onUpdate(execution.progress()), 0, progressRate,
+				TimeUnit.MILLISECONDS);
+		execution.awaitTermination(maxWait(), TimeUnit.MILLISECONDS);
+		progressReportExecutor.shutdown();
+		reporter.onUpdate(execution.progress());
+		reporter.stop();
+	}
+
+	private long maxWait() {
+		if (maxWait == null) {
+			return Long.MAX_VALUE;
 		}
-		if (writer instanceof ItemStream) {
-			((ItemStream) writer).close();
-		}
+		return maxWait;
 	}
 
 	private ItemReader<I> throttle(ItemReader<I> reader) {
 		if (sleep == null) {
 			return reader;
 		}
-		if (reader instanceof ItemStreamReader) {
-			return new ThrottlingItemStreamReader<I>((ItemStreamReader<I>) reader, sleep);
-		}
-		return new ThrottlingItemReader<I>(reader, sleep);
+		return ThrottledReader.<I>builder().reader(reader).sleep(sleep).build();
 	}
 
 	private ItemReader<I> cap(ItemReader<I> reader) {
 		if (maxItemCount == null) {
 			return reader;
 		}
-		return new CappedItemReader<I>(reader, maxItemCount);
+		return new CappedReader<I>(reader, maxItemCount);
 	}
 
 	private ProgressReporter progressReporter() {

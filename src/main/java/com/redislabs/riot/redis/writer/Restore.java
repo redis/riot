@@ -12,13 +12,13 @@ public class Restore<R> extends AbstractRedisWriter<R, KeyValue> {
 
 	@Override
 	protected Object write(RedisCommands<R> commands, R redis, KeyValue item) throws Exception {
-		byte[] value = item.getValue();
+		byte[] value = item.value();
 		if (value == null) {
 			// DUMP returns null if key does not exist
-			return commands.del(redis, item.getKey());
+			return commands.del(redis, item.key());
 		}
-		long ttl = filter(item.getTtl());
-		return commands.restore(redis, item.getKey(), item.getValue(), ttl, replace);
+		long ttl = filter(item.ttl());
+		return commands.restore(redis, item.key(), item.value(), ttl, replace);
 	}
 
 	private long filter(long ttl) {

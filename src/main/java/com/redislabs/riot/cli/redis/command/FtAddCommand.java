@@ -34,8 +34,8 @@ public class FtAddCommand extends AbstractKeyRedisCommand {
 	@Override
 	protected FtAdd keyWriter() {
 		FtAdd writer = ftAdd();
-		writer.setOptions(new AddOptions().ifCondition(ifCondition).language(language).noSave(noSave).replace(replace)
-				.replacePartial(partial));
+		writer.setOptions(AddOptions.builder().ifCondition(ifCondition).language(language).noSave(noSave)
+				.replace(replace).replacePartial(partial).build());
 		writer.setIndex(index);
 		writer.setDefaultScore(defaultScore);
 		writer.setScoreField(score);

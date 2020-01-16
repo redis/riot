@@ -60,7 +60,7 @@ public abstract class ImportCommand<I, O> extends TransferCommand<I, O> {
 			log.error("Could not initialize import", e);
 			return;
 		}
-		execute(reader, processor, writer);
+		execute(transfer(reader, processor, writer));
 	}
 
 	protected abstract ItemReader<I> reader() throws Exception;
@@ -79,9 +79,7 @@ public abstract class ImportCommand<I, O> extends TransferCommand<I, O> {
 		AbstractLettuceItemWriter writer = lettuceItemWriter(redis);
 		writer.setApi(lettuceApi(redis, isRediSearch));
 		AbstractRedisClient client = lettuceClient(redis, isRediSearch);
-		writer.setClient(client);
 		writer.setPool(redis.pool(lettuceConnectionSupplier(client)));
-		writer.setResources(lettuceResources(client));
 		return writer;
 	}
 
@@ -95,15 +93,24 @@ public abstract class ImportCommand<I, O> extends TransferCommand<I, O> {
 		return ((RedisClient) client)::connect;
 	}
 
-	private Supplier lettuceResources(AbstractRedisClient client) {
-		if (client instanceof RediSearchClient) {
-			return ((RediSearchClient) client)::getResources;
-		}
-		if (client instanceof RedisClusterClient) {
-			return ((RedisClusterClient) client)::getResources;
-		}
-		return ((RedisClient) client)::getResources;
-	}
+//	private void closeLettuce() {
+//		log.debug("Closing Lettuce pool");
+//		pool.close();
+//		log.debug("Shutting down Lettuce client");
+//		client.shutdown();
+//		log.debug("Shutting down Lettuce client resources");
+//		resources.get().shutdown();
+//	}
+
+//	private Supplier lettuceResources(AbstractRedisClient client) {
+//		if (client instanceof RediSearchClient) {
+//			return ((RediSearchClient) client)::getResources;
+//		}
+//		if (client instanceof RedisClusterClient) {
+//			return ((RedisClusterClient) client)::getResources;
+//		}
+//		return ((RedisClient) client)::getResources;
+//	}
 
 	private AbstractLettuceItemWriter lettuceItemWriter(RedisOptions redis) {
 		switch (redis.getLettuce().getApi()) {

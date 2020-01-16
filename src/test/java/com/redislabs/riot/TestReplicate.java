@@ -1,5 +1,10 @@
 package com.redislabs.riot;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.codehaus.plexus.util.cli.CommandLineUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -24,25 +29,25 @@ public class TestReplicate {
 			try {
 				target.start();
 				String[] importCommand = CommandLineUtils.translateCommandline(
-						"--server localhost:16379 gen --threads 4 -d field1=100 field2=1000 --batch 100 --max 100000 hmset --keyspace test --keys index");
+						"--server localhost:16379 gen --threads 1 -d field1=100 field2=1000 --max 1000 hmset --keyspace test --keys index");
 				new Riot().execute(importCommand);
 				RedisClient sourceClient = RedisClient.create(RedisURI.create("localhost", 16379));
-				new Thread(() -> {
-					try {
-						Thread.sleep(500);
-						RedisCommands<String, String> commands = sourceClient.connect().sync();
-						for (int index = 0; index < 5; index++) {
-							String key = "key" + index;
-							commands.set(key, "value" + index);
-							Thread.sleep(100);
-						}
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-				}).start();
-				String[] replicateCommand = CommandLineUtils.translateCommandline(
-						"--server localhost:16380 replicate --no-wait --threads 5 --server localhost:16379");
-				new Riot().execute(replicateCommand);
+				ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+				RedisCommands<String, String> commands = sourceClient.connect().sync();
+				final AtomicInteger index = new AtomicInteger();
+				scheduler.scheduleWithFixedDelay(() -> {
+					String key = "notificationkey" + index.getAndIncrement();
+					commands.set(key, "value");
+				}, 1000, 100, TimeUnit.MILLISECONDS);
+				String[] replicate = CommandLineUtils.translateCommandline(
+						"--debug --server localhost:16380 replicate --flush-rate 50 --threads 1 --server localhost:16379");
+				Thread replicateThread = new Thread(() -> new Riot().execute(replicate));
+				replicateThread.start();
+				Thread.sleep(5000);
+				scheduler.shutdown();
+				Thread.sleep(500);
+				replicateThread.interrupt();
+				Thread.sleep(3000);
 				RedisClient targetClient = RedisClient.create(RedisURI.create("localhost", 16380));
 				Long sourceSize = sourceClient.connect().sync().dbsize();
 				Long targetSize = targetClient.connect().sync().dbsize();
@@ -50,7 +55,9 @@ public class TestReplicate {
 			} finally {
 				target.stop();
 			}
-		} finally {
+		} finally
+
+		{
 			source.stop();
 		}
 	}

@@ -26,7 +26,7 @@ public abstract class ExportCommand<I, O> extends TransferCommand<I, O> implemen
 			log.error("Could not initialize export", e);
 			return;
 		}
-		execute(reader, processor, writer);
+		execute(transfer(reader, processor, writer));
 	}
 
 	protected abstract ItemReader<I> reader(RedisOptions redisOptions);

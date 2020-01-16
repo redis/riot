@@ -1,7 +1,5 @@
 package com.redislabs.riot.cli.redis;
 
-import java.util.Arrays;
-
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
@@ -9,19 +7,20 @@ import org.springframework.batch.item.ItemWriter;
 import com.redislabs.picocliredis.RedisOptions;
 import com.redislabs.riot.cli.ImportCommand;
 import com.redislabs.riot.redis.KeyValue;
-import com.redislabs.riot.redis.replicate.LettuceKeyScanReader;
+import com.redislabs.riot.redis.replicate.KeyIterator;
+import com.redislabs.riot.redis.replicate.KeyValueReader;
+import com.redislabs.riot.redis.replicate.KeyspaceNotificationsIterator;
+import com.redislabs.riot.redis.replicate.ScanKeyIterator;
 import com.redislabs.riot.redis.writer.Restore;
+import com.redislabs.riot.transfer.Flow;
+import com.redislabs.riot.transfer.Transfer;
 
 import io.lettuce.core.RedisClient;
-import io.lettuce.core.api.StatefulRedisConnection;
-import io.lettuce.core.pubsub.RedisPubSubAdapter;
-import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
+import io.lettuce.core.ScanArgs;
 import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 
-@Slf4j
 @Command(name = "replicate", description = "Replicate a Redis database")
 public class ReplicateCommand extends ImportCommand<KeyValue, KeyValue> implements Runnable {
 
@@ -33,56 +32,44 @@ public class ReplicateCommand extends ImportCommand<KeyValue, KeyValue> implemen
 	private ReplicateOptions options = new ReplicateOptions();
 
 	@Override
-	protected LettuceKeyScanReader reader() {
+	protected KeyValueReader reader() {
 		RedisClient client = sourceRedis.lettuceClient();
-		return new LettuceKeyScanReader().limit(options.count()).match(options.match()).connection(client.connect())
-				.queueCapacity(options.queueSize()).pool(sourceRedis.pool(client::connect)).threads(options.threads())
-				.batchSize(options.batchSize()).timeout(options.timeout());
+		ScanArgs args = new ScanArgs().limit(options.count());
+		if (options.match() != null) {
+			args.match(options.match());
+		}
+		return valueReader(ScanKeyIterator.builder().connection(client.connect()).scanArgs(args).build());
+	}
+
+	private KeyValueReader valueReader(KeyIterator iterator) {
+		RedisClient client = sourceRedis.lettuceClient();
+		return KeyValueReader.builder().keyIterator(iterator).valueQueueCapacity(options.valueQueueSize())
+				.pool(sourceRedis.pool(client::connect)).threads(options.threads()).batchSize(options.batchSize())
+				.timeout(options.timeout()).flushRate(options.flushRate()).build();
 	}
 
 	@Override
-	protected void execute(ItemReader<KeyValue> reader, ItemProcessor<KeyValue, KeyValue> processor,
+	protected Transfer transfer(ItemReader<KeyValue> reader, ItemProcessor<KeyValue, KeyValue> processor,
 			ItemWriter<KeyValue> writer) {
-		StatefulRedisConnection<String, String> connection = sourceRedis.lettuceClient().connect();
-		if (!options.channel().isBlank()) {
-			StatefulRedisPubSubConnection<String, String> pubSub = sourceRedis.lettuceClient().connectPubSub();
-			pubSub.addListener(new RedisPubSubAdapter<String, String>() {
-				@Override
-				public void message(String pattern, String channel, String message) {
-					String key = channel.substring(channel.indexOf(":") + 1);
-					Long ttl = connection.sync().pttl(key);
-					byte[] value = connection.sync().dump(key);
-					KeyValue keyValue = new KeyValue(key, ttl, value);
-					try {
-						writer.write(Arrays.asList(keyValue));
-					} catch (Exception e) {
-						log.error("Could not write key '{}'", key, e);
-					}
-				}
-			});
-			pubSub.sync().psubscribe(options.channel());
+		Transfer transfer = super.transfer(reader, processor, writer);
+		if (keyspaceNotificationsEnabled()) {
+			KeyspaceNotificationsIterator iterator = KeyspaceNotificationsIterator.builder().channel(options.channel())
+					.pubSubConnection(sourceRedis.lettuceClient().connectPubSub()).queueCapacity(options.keyQueueSize())
+					.build();
+			Flow flow = flow("syncer", valueReader(iterator), processor, writer).flushRate(options.flushRate());
+			transfer.flows().add(flow);
 		}
-		super.execute(reader, processor, writer);
+		return transfer;
 	}
 
-	@Override
-	protected void close(ItemReader<KeyValue> reader, ItemWriter<KeyValue> writer) {
-		if (!options.channel().isBlank() && options.listen()) {
-			while (true) {
-				try {
-					Thread.sleep(100);
-				} catch (InterruptedException e) {
-					log.debug("Interrupted while sleeping for keyspace notifications", e);
-				}
-			}
-		}
-		super.close(reader, writer);
+	private boolean keyspaceNotificationsEnabled() {
+		return !options.channel().isBlank();
 	}
 
 	@Override
 	public void run() {
 		Restore<Object> restore = new Restore<>();
-		restore.setReplace(options.replace());
+		restore.setReplace(!options.noReplace());
 		execute(restore);
 	}
 

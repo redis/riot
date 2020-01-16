@@ -23,9 +23,4 @@ public class ClusterJedisWriter<O> extends AbstractRedisItemWriter<JedisCluster,
 		}
 	}
 
-	@Override
-	public void close() {
-		cluster.close();
-		super.close();
-	}
 }

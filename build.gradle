@@ -16,15 +16,15 @@ repositories {
 
 
 dependencies {
-    implementation 'com.redislabs:picocli-redis:1.4.8'
+    implementation 'com.redislabs:picocli-redis:1.6.0'
     implementation 'org.springframework.batch:spring-batch-core:4.2.1.RELEASE'
     implementation 'org.springframework.boot:spring-boot-autoconfigure:2.2.2.RELEASE'
-    implementation 'org.springframework:spring-jdbc:5.2.2.RELEASE'
+    implementation 'org.springframework:spring-jdbc:5.2.3.RELEASE'
     implementation 'org.springframework.cloud:spring-cloud-aws-context:2.2.1.RELEASE'
     implementation 'org.springframework.cloud:spring-cloud-aws-autoconfigure:2.2.1.RELEASE'
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.10.2'
     implementation 'com.github.javafaker:javafaker:1.0.1'
-    implementation 'com.zaxxer:HikariCP:3.4.1'
+    implementation 'com.zaxxer:HikariCP:3.4.2'
     implementation 'me.tongfei:progressbar:0.8.0'
     compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
     compileOnly 'org.projectlombok:lombok:1.18.10'

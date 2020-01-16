@@ -125,11 +125,10 @@ public class TestFile extends BaseTest {
 		String FIELD_OUNCES = "ounces";
 		String INDEX = "beers";
 		commands().flushall();
-		Schema schema = new Schema();
-		schema.field(Field.text(FIELD_NAME).sortable(true));
-		schema.field(Field.text(FIELD_STYLE).matcher(PhoneticMatcher.English).sortable(true));
-		schema.field(Field.numeric(FIELD_ABV).sortable(true));
-		schema.field(Field.numeric(FIELD_OUNCES).sortable(true));
+		Schema schema = Schema.builder().field(Field.text(FIELD_NAME).sortable(true))
+				.field(Field.text(FIELD_STYLE).matcher(PhoneticMatcher.English).sortable(true))
+				.field(Field.numeric(FIELD_ABV).sortable(true)).field(Field.numeric(FIELD_OUNCES).sortable(true))
+				.build();
 		commands().create(INDEX, schema);
 		runFile("file-import-csv-search");
 		SearchResults<String, String> results = commands().search(INDEX, "*");
@@ -140,9 +139,8 @@ public class TestFile extends BaseTest {
 	public void testImportCsvProcessorSearchGeo() throws Exception {
 		String INDEX = "airports";
 		commands().flushall();
-		Schema schema = new Schema();
-		schema.field(Field.text("Name").sortable(true));
-		schema.field(Field.geo("Location").sortable(true));
+		Schema schema = Schema.builder().field(Field.text("Name").sortable(true))
+				.field(Field.geo("Location").sortable(true)).build();
 		commands().create(INDEX, schema);
 		runFile("file-import-csv-processor-search-geo");
 		SearchResults<String, String> results = commands().search(INDEX, "@Location:[-77 38 50 mi]");
@@ -193,11 +191,8 @@ public class TestFile extends BaseTest {
 	public void testImportCsvProcessorSearch() throws Exception {
 		String INDEX = "laevents";
 		commands().flushall();
-		Schema schema = new Schema();
-		schema.field(Field.text("Title"));
-		schema.field(Field.numeric("lon"));
-		schema.field(Field.numeric("kat"));
-		schema.field(Field.geo("location").sortable(true));
+		Schema schema = Schema.builder().field(Field.text("Title")).field(Field.numeric("lon"))
+				.field(Field.numeric("kat")).field(Field.geo("location").sortable(true)).build();
 		commands().create(INDEX, schema);
 		runFile("file-import-csv-processor-search");
 		SearchResults<String, String> results = commands().search(INDEX, "@location:[-118.446014 33.998415 10 mi]");

@@ -1,4 +1,4 @@
-package com.redislabs.riot;
+package com.redislabs.riot.transfer;
 
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -10,14 +10,14 @@ import org.springframework.batch.item.NonTransientResourceException;
 import org.springframework.batch.item.ParseException;
 import org.springframework.batch.item.UnexpectedInputException;
 
-public class CappedItemReader<I> implements ItemStreamReader<I> {
+public class CappedReader<I> implements ItemStreamReader<I> {
 
 	private Object lock = new Object();
 	private ItemReader<I> reader;
 	private AtomicLong currentItemCount = new AtomicLong();
 	private long maxItemCount;
 
-	public CappedItemReader(ItemReader<I> reader, long maxItemCount) {
+	public CappedReader(ItemReader<I> reader, long maxItemCount) {
 		this.reader = reader;
 		this.maxItemCount = maxItemCount;
 	}
