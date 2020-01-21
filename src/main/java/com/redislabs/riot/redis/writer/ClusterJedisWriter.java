@@ -4,7 +4,7 @@ import java.util.List;
 
 import redis.clients.jedis.JedisCluster;
 
-public class ClusterJedisWriter<O> extends AbstractRedisItemWriter<JedisCluster, O> {
+public class ClusterJedisWriter<O> extends AbstractRedisItemWriter<O> {
 
 	private JedisCluster cluster;
 

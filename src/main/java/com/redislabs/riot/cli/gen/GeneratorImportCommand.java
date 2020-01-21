@@ -19,6 +19,7 @@ import com.redislabs.lettusearch.search.field.TextField;
 import com.redislabs.riot.cli.MapImportCommand;
 import com.redislabs.riot.generator.GeneratorReader;
 
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
@@ -26,7 +27,7 @@ import picocli.CommandLine.Option;
 
 @Slf4j
 @Command(name = "gen", description = "Generate data")
-public class GeneratorImportCommand extends MapImportCommand {
+public @Data class GeneratorImportCommand extends MapImportCommand {
 
 	private final static List<String> EXCLUDES = Arrays.asList("instance", "options");
 
@@ -56,11 +57,6 @@ public class GeneratorImportCommand extends MapImportCommand {
 	}
 
 	@Override
-	protected String taskName() {
-		return "Generating";
-	}
-
-	@Override
 	protected GeneratorReader reader() {
 		GeneratorReader reader = readerOptions.reader();
 		if (fakerIndex != null) {
@@ -72,7 +68,7 @@ public class GeneratorImportCommand extends MapImportCommand {
 				String expression = expression(f);
 				fakerFields.put(fieldName, expression);
 			});
-			reader.setFakerFields(fakerFields);
+			reader.fakerFields(fakerFields);
 			log.info("Adding introspected fields: {}", String.join(" ", fakerArgs(fakerFields)));
 		}
 		return reader;

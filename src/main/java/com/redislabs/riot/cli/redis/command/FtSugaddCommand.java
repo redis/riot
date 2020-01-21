@@ -7,7 +7,6 @@ import com.redislabs.riot.redis.writer.map.FtSugaddPayload;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
-@SuppressWarnings("rawtypes")
 @Command(name = "ftsugadd", description = "Add suggestion strings to an auto-complete suggestion dictionary")
 public class FtSugaddCommand extends AbstractKeyRedisCommand {
 
@@ -25,10 +24,10 @@ public class FtSugaddCommand extends AbstractKeyRedisCommand {
 	@Override
 	protected AbstractKeyMapRedisWriter keyWriter() {
 		FtSugadd writer = ftSugadd();
-		writer.setField(suggest);
-		writer.setIncrement(increment);
-		writer.setDefaultScore(defaultScore);
-		writer.setScoreField(score);
+		writer.field(suggest);
+		writer.increment(increment);
+		writer.defaultScore(defaultScore);
+		writer.scoreField(score);
 		return writer;
 	}
 
@@ -37,7 +36,7 @@ public class FtSugaddCommand extends AbstractKeyRedisCommand {
 			return new FtSugadd();
 		}
 		FtSugaddPayload writer = new FtSugaddPayload();
-		writer.setPayload(payload);
+		writer.payload(payload);
 		return writer;
 	}
 

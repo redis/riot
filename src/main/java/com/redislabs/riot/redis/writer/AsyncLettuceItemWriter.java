@@ -11,16 +11,16 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class AsyncLettuceItemWriter<C extends StatefulConnection<String, String>, R extends BaseRedisAsyncCommands<String, String>, O>
-		extends AbstractLettuceItemWriter<C, R, O> {
+public class AsyncLettuceItemWriter<C extends StatefulConnection<String, String>, O>
+		extends AbstractLettuceItemWriter<C, O> {
 
 	@Setter
 	private long timeout;
 
-	@SuppressWarnings("rawtypes")
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
-	protected void write(List<? extends O> items, R commands) {
-		commands.setAutoFlushCommands(false);
+	protected void write(List<? extends O> items, Object commands) {
+		((BaseRedisAsyncCommands<String, String>) commands).setAutoFlushCommands(false);
 		List<RedisFuture> futures = new ArrayList<>();
 		for (O item : items) {
 			try {
@@ -29,7 +29,7 @@ public class AsyncLettuceItemWriter<C extends StatefulConnection<String, String>
 				logWriteError(item, e);
 			}
 		}
-		commands.flushCommands();
+		((BaseRedisAsyncCommands<String, String>) commands).flushCommands();
 		for (int index = 0; index < futures.size(); index++) {
 			RedisFuture future = futures.get(index);
 			if (future == null) {

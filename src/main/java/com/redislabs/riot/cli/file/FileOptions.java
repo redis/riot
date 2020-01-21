@@ -51,8 +51,8 @@ public @Data class FileOptions implements AWSCredentialsProvider {
 	}
 
 	public Resource resource() throws MalformedURLException {
-		if (resourceOptions.isUri()) {
-			URI uri = resourceOptions.getUrl();
+		if (resourceOptions.uri()) {
+			URI uri = resourceOptions.url();
 			if (uri.getScheme().equals("s3")) {
 				AmazonS3 s3 = AmazonS3Client.builder().withCredentials(this).withRegion(region).build();
 				SimpleStorageProtocolResolver resolver = new SimpleStorageProtocolResolver(s3);
@@ -61,7 +61,7 @@ public @Data class FileOptions implements AWSCredentialsProvider {
 			}
 			return new UncustomizedUrlResource(uri);
 		}
-		return new FileSystemResource(resourceOptions.getFile());
+		return new FileSystemResource(resourceOptions.file());
 	}
 
 	public FileType type() {
@@ -91,7 +91,7 @@ public @Data class FileOptions implements AWSCredentialsProvider {
 	}
 
 	private boolean isGzip() {
-		return gzip || resourceOptions.isGzip();
+		return gzip || resourceOptions.gzip();
 	}
 
 }

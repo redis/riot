@@ -13,12 +13,11 @@ public class ExpireCommand extends AbstractRedisCommand {
 	@Option(names = "--timeout", description = "Field to get the timeout value from", paramLabel = "<f>")
 	private String timeout;
 
-	@SuppressWarnings("rawtypes")
 	@Override
 	protected Expire redisWriter() {
 		Expire writer = new Expire();
-		writer.setDefaultTimeout(defaultTimeout);
-		writer.setTimeoutField(timeout);
+		writer.defaultTimeout(defaultTimeout);
+		writer.timeoutField(timeout);
 		return writer;
 	}
 

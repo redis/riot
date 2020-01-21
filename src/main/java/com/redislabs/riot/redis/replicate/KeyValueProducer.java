@@ -13,12 +13,9 @@ import com.redislabs.riot.redis.KeyValue;
 import io.lettuce.core.RedisFuture;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.api.async.RedisAsyncCommands;
-import lombok.Builder;
-import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@Accessors(fluent = true)
 public class KeyValueProducer implements Runnable {
 
 	private KeyIterator keyIterator;
@@ -29,12 +26,10 @@ public class KeyValueProducer implements Runnable {
 	private boolean stopped;
 	private BlockingQueue<String> keys;
 
-	@Builder
-	private KeyValueProducer(KeyIterator keyIterator, int batchSize,
+	public KeyValueProducer(KeyIterator keyIterator, int batchSize,
 			GenericObjectPool<StatefulRedisConnection<String, String>> pool, long timeout,
 			BlockingQueue<KeyValue> queue) {
 		this.keyIterator = keyIterator;
-		this.keys = new LinkedBlockingDeque<>(batchSize);
 		this.batchSize = batchSize;
 		this.pool = pool;
 		this.timeout = timeout;
@@ -48,6 +43,7 @@ public class KeyValueProducer implements Runnable {
 
 	@Override
 	public void run() {
+		this.keys = new LinkedBlockingDeque<>(batchSize);
 		try {
 			while (keyIterator.hasNext() && !stopped) {
 				String key = keyIterator.next();
@@ -82,7 +78,7 @@ public class KeyValueProducer implements Runnable {
 				try {
 					Long ttl = ttlFutures.get(index).get(timeout, TimeUnit.SECONDS);
 					byte[] value = valueFutures.get(index).get(timeout, TimeUnit.SECONDS);
-					queue.put(new KeyValue(key, ttl, value));
+					queue.put(new KeyValue().key(key).ttl(ttl).value(value));
 				} catch (Exception e) {
 					log.error("Could not read value for key {}", key, e);
 				}

@@ -8,11 +8,12 @@ import org.springframework.batch.item.ItemReader;
 import com.redislabs.picocliredis.RedisOptions;
 import com.redislabs.riot.cli.redis.HashReaderOptions;
 
+import lombok.Data;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 
 @Command
-public abstract class HashExportCommand extends ExportCommand<Map<String, Object>, Map<String, Object>> {
+public @Data abstract class HashExportCommand extends ExportCommand<Map<String, Object>, Map<String, Object>> {
 
 	@ArgGroup(exclusive = false, heading = "Redis reader options%n")
 	private HashReaderOptions readerOptions = new HashReaderOptions();

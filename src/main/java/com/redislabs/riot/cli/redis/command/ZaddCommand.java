@@ -14,12 +14,11 @@ public class ZaddCommand extends AbstractCollectionRedisCommand {
 	@Option(names = "--default", description = "Score when field not present (default: ${DEFAULT-VALUE})", paramLabel = "<float>")
 	private double defaultScore = 1d;
 
-	@SuppressWarnings("rawtypes")
 	@Override
 	protected AbstractCollectionMapWriter collectionWriter() {
 		Zadd zadd = new Zadd();
-		zadd.setDefaultScore(defaultScore);
-		zadd.setScoreField(score);
+		zadd.defaultScore(defaultScore);
+		zadd.scoreField(score);
 		return zadd;
 	}
 }

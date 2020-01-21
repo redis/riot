@@ -1,10 +1,8 @@
 package com.redislabs.riot.cli.redis;
 
 import lombok.Data;
-import lombok.experimental.Accessors;
 import picocli.CommandLine.Option;
 
-@Accessors(fluent = true)
 public @Data class ReplicateOptions {
 
 	@Option(names = "--scan-count", description = "Number of elements to return for each scan call (default: ${DEFAULT-VALUE})", paramLabel = "<int>")

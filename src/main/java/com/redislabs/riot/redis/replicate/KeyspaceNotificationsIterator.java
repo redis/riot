@@ -6,22 +6,28 @@ import java.util.concurrent.TimeUnit;
 
 import io.lettuce.core.pubsub.RedisPubSubAdapter;
 import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
-import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class KeyspaceNotificationsIterator extends RedisPubSubAdapter<String, String> implements KeyIterator {
 
+	@Getter
+	@Setter
 	private StatefulRedisPubSubConnection<String, String> pubSubConnection;
+	@Getter
+	@Setter
 	private String channel;
+	@Getter
+	@Setter
 	private int queueCapacity;
 
 	private BlockingQueue<String> queue;
 	private boolean stopped;
 
-	@Builder
-	private KeyspaceNotificationsIterator(StatefulRedisPubSubConnection<String, String> pubSubConnection,
-			String channel, int queueCapacity) {
+	public KeyspaceNotificationsIterator(StatefulRedisPubSubConnection<String, String> pubSubConnection, String channel,
+			int queueCapacity) {
 		this.pubSubConnection = pubSubConnection;
 		this.channel = channel;
 		this.queueCapacity = queueCapacity;

@@ -1,7 +1,7 @@
 package com.redislabs.riot.redis.writer;
 
-public interface RedisWriter<R, O> {
+public interface RedisWriter<O> {
 
-	Object write(R redis, O item) throws Exception;
+	Object write(Object redis, O item) throws Exception;
 
 }

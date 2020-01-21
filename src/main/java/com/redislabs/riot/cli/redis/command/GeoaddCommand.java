@@ -13,12 +13,11 @@ public class GeoaddCommand extends AbstractCollectionRedisCommand {
 	@Option(names = "--lat", description = "Latitude field", paramLabel = "<field>")
 	private String latitudeField;
 
-	@SuppressWarnings("rawtypes")
 	@Override
 	protected Geoadd collectionWriter() {
 		Geoadd writer = new Geoadd();
-		writer.setLongitudeField(longitudeField);
-		writer.setLatitudeField(latitudeField);
+		writer.longitudeField(longitudeField);
+		writer.latitudeField(latitudeField);
 		return writer;
 	}
 

@@ -4,7 +4,7 @@ import java.util.Map;
 
 import lombok.Setter;
 
-public abstract class AbstractRediSearchWriter<R> extends AbstractKeyMapRedisWriter<R> {
+public abstract class AbstractRediSearchWriter extends AbstractKeyMapRedisWriter {
 
 	@Setter
 	private String scoreField;

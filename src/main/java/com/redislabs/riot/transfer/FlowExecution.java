@@ -5,18 +5,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import lombok.Builder;
+import lombok.Setter;
 
 public class FlowExecution {
 
-	private List<FlowThread> threads;
-	private ExecutorService executor;
-
-	@Builder
-	private FlowExecution(List<FlowThread> threads, ExecutorService executor) {
-		this.threads = threads;
-		this.executor = executor;
-	}
+	private @Setter List<FlowThread> threads;
+	private @Setter ExecutorService executor;
 
 	public void stop() {
 		threads.forEach(t -> t.stop());

@@ -4,16 +4,17 @@ import com.redislabs.riot.redis.RedisCommands;
 
 import lombok.Setter;
 
-public abstract class AbstractRedisWriter<R, O> implements RedisWriter<R, O> {
+@SuppressWarnings("rawtypes")
+public abstract class AbstractRedisWriter<O> implements RedisWriter<O> {
 
 	@Setter
-	private RedisCommands<R> commands;
+	private RedisCommands commands;
 
 	@Override
-	public Object write(R redis, O item) throws Exception {
+	public Object write(Object redis, O item) throws Exception {
 		return write(commands, redis, item);
 	}
 
-	protected abstract Object write(RedisCommands<R> commands, R redis, O item) throws Exception;
+	protected abstract Object write(RedisCommands commands, Object redis, O item) throws Exception;
 
 }

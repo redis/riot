@@ -18,14 +18,13 @@ public class EvalshaCommand extends AbstractRedisCommand {
 	@Option(names = "--output", description = "Output: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})", paramLabel = "<type>")
 	private ScriptOutputType outputType = ScriptOutputType.STATUS;
 
-	@SuppressWarnings("rawtypes")
 	@Override
 	public Evalsha redisWriter() {
 		Evalsha writer = new Evalsha();
-		writer.setArgs(args);
-		writer.setKeys(keys);
-		writer.setOutputType(outputType);
-		writer.setSha(sha);
+		writer.args(args);
+		writer.keys(keys);
+		writer.outputType(outputType);
+		writer.sha(sha);
 		return writer;
 	}
 

@@ -19,7 +19,6 @@ public class XaddCommand extends AbstractKeyRedisCommand {
 	@Option(names = "--id", description = "Field used for stream entry IDs", paramLabel = "<field>")
 	private String id;
 
-	@SuppressWarnings("rawtypes")
 	@Override
 	protected AbstractKeyMapRedisWriter keyWriter() {
 		if (id == null) {
@@ -27,19 +26,19 @@ public class XaddCommand extends AbstractKeyRedisCommand {
 				return new Xadd();
 			}
 			XaddMaxlen xaddMaxlen = new XaddMaxlen();
-			xaddMaxlen.setApproximateTrimming(trim);
-			xaddMaxlen.setMaxlen(maxlen);
+			xaddMaxlen.approximateTrimming(trim);
+			xaddMaxlen.maxlen(maxlen);
 			return xaddMaxlen;
 		}
 		if (maxlen == null) {
 			XaddId xaddId = new XaddId();
-			xaddId.setIdField(id);
+			xaddId.idField(id);
 			return xaddId;
 		}
 		XaddIdMaxlen xaddIdMaxlen = new XaddIdMaxlen();
-		xaddIdMaxlen.setApproximateTrimming(trim);
-		xaddIdMaxlen.setMaxlen(maxlen);
-		xaddIdMaxlen.setIdField(id);
+		xaddIdMaxlen.approximateTrimming(trim);
+		xaddIdMaxlen.maxlen(maxlen);
+		xaddIdMaxlen.idField(id);
 		return xaddIdMaxlen;
 	}
 

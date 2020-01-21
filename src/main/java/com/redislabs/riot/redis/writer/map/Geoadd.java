@@ -6,7 +6,8 @@ import com.redislabs.riot.redis.RedisCommands;
 
 import lombok.Setter;
 
-public class Geoadd<R> extends AbstractCollectionMapWriter<R> {
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public class Geoadd extends AbstractCollectionMapWriter {
 
 	@Setter
 	private String longitudeField;
@@ -14,7 +15,7 @@ public class Geoadd<R> extends AbstractCollectionMapWriter<R> {
 	private String latitudeField;
 
 	@Override
-	protected Object write(RedisCommands<R> commands, R redis, String key, String member, Map<String, Object> item) {
+	protected Object write(RedisCommands commands, Object redis, String key, String member, Map<String, Object> item) {
 		Double longitude = coordinate(item, longitudeField);
 		if (longitude == null) {
 			return null;

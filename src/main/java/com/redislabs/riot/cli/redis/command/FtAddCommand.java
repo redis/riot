@@ -9,7 +9,6 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 @Command(name = "ftadd", description = "Adds documents to an index")
-@SuppressWarnings("rawtypes")
 public class FtAddCommand extends AbstractKeyRedisCommand {
 
 	@Option(names = { "-i", "--index" }, description = "Name of the RediSearch index", paramLabel = "<name>")
@@ -34,11 +33,11 @@ public class FtAddCommand extends AbstractKeyRedisCommand {
 	@Override
 	protected FtAdd keyWriter() {
 		FtAdd writer = ftAdd();
-		writer.setOptions(AddOptions.builder().ifCondition(ifCondition).language(language).noSave(noSave)
-				.replace(replace).replacePartial(partial).build());
-		writer.setIndex(index);
-		writer.setDefaultScore(defaultScore);
-		writer.setScoreField(score);
+		writer.options(AddOptions.builder().ifCondition(ifCondition).language(language).noSave(noSave).replace(replace)
+				.replacePartial(partial).build());
+		writer.index(index);
+		writer.defaultScore(defaultScore);
+		writer.scoreField(score);
 		return writer;
 	}
 
@@ -47,7 +46,7 @@ public class FtAddCommand extends AbstractKeyRedisCommand {
 			return new FtAdd();
 		}
 		FtAddPayload writer = new FtAddPayload();
-		writer.setPayload(payload);
+		writer.payload(payload);
 		return writer;
 	}
 

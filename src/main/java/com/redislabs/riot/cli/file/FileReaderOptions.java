@@ -26,13 +26,12 @@ import org.springframework.util.Assert;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.redislabs.riot.processor.MapFlattener;
 
-import lombok.EqualsAndHashCode;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine.Option;
 
-@EqualsAndHashCode(callSuper = true)
 @Slf4j
-public class FileReaderOptions extends FlatFileOptions {
+public @Data class FileReaderOptions extends FlatFileOptions {
 
 	@Option(names = { "--skip" }, description = "Lines to skip from the beginning of the file", paramLabel = "<count>")
 	private Integer linesToSkip;
@@ -48,7 +47,7 @@ public class FileReaderOptions extends FlatFileOptions {
 		FlatFileItemReaderBuilder<Map<String, Object>> builder = new FlatFileItemReaderBuilder<Map<String, Object>>();
 		builder.name("flat-file-reader");
 		builder.resource(inputResource());
-		builder.encoding(getEncoding());
+		builder.encoding(encoding());
 		if (linesToSkip != null) {
 			builder.linesToSkip(linesToSkip);
 		}
@@ -61,18 +60,18 @@ public class FileReaderOptions extends FlatFileOptions {
 
 	private FlatFileItemReader<Map<String, Object>> delimitedReader() throws IOException {
 		FlatFileItemReaderBuilder<Map<String, Object>> builder = flatFileItemReaderBuilder();
-		if (isHeader() && linesToSkip == null) {
+		if (header() && linesToSkip == null) {
 			builder.linesToSkip(1);
 		}
 		DelimitedBuilder<Map<String, Object>> delimitedBuilder = builder.delimited();
-		delimitedBuilder.delimiter(getDelimiter());
+		delimitedBuilder.delimiter(delimiter());
 		delimitedBuilder.includedFields(includedFields.toArray(new Integer[includedFields.size()]));
 		delimitedBuilder.quoteCharacter(quoteCharacter);
-		String[] fieldNames = getNames();
-		if (isHeader()) {
-			BufferedReader reader = new DefaultBufferedReaderFactory().create(inputResource(), getEncoding());
+		String[] fieldNames = names();
+		if (header()) {
+			BufferedReader reader = new DefaultBufferedReaderFactory().create(inputResource(), encoding());
 			DelimitedLineTokenizer tokenizer = new DelimitedLineTokenizer();
-			tokenizer.setDelimiter(getDelimiter());
+			tokenizer.setDelimiter(delimiter());
 			tokenizer.setQuoteCharacter(quoteCharacter);
 			if (!includedFields.isEmpty()) {
 				int[] result = new int[includedFields.size()];
@@ -96,7 +95,7 @@ public class FileReaderOptions extends FlatFileOptions {
 		FixedLengthBuilder<Map<String, Object>> fixedlength = builder.fixedLength();
 		Assert.notEmpty(columnRanges, "Column ranges are required");
 		fixedlength.columns(columnRanges.toArray(new Range[columnRanges.size()]));
-		fixedlength.names(getNames());
+		fixedlength.names(names());
 		return builder.build();
 	}
 

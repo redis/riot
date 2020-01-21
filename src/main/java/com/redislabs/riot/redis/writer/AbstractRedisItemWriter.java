@@ -7,10 +7,10 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public abstract class AbstractRedisItemWriter<R, O> extends AbstractItemStreamItemWriter<O> {
+public abstract class AbstractRedisItemWriter<O> extends AbstractItemStreamItemWriter<O> {
 
 	@Setter
-	protected RedisWriter<R, O> writer;
+	protected RedisWriter<O> writer;
 
 	public AbstractRedisItemWriter() {
 		setName(ClassUtils.getShortName(this.getClass()));

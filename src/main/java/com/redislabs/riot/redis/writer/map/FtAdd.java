@@ -7,8 +7,8 @@ import com.redislabs.riot.redis.RedisCommands;
 
 import lombok.Setter;
 
-@SuppressWarnings("unchecked")
-public class FtAdd<R> extends AbstractRediSearchWriter<R> {
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public class FtAdd extends AbstractRediSearchWriter {
 
 	@Setter
 	private String index;
@@ -16,11 +16,11 @@ public class FtAdd<R> extends AbstractRediSearchWriter<R> {
 	private AddOptions options;
 
 	@Override
-	protected Object write(RedisCommands<R> commands, R redis, String key, Map<String, Object> item) {
+	protected Object write(RedisCommands commands, Object redis, String key, Map<String, Object> item) {
 		return write(commands, redis, index, key, score(item), stringMap(item), options);
 	}
 
-	protected Object write(RedisCommands<R> commands, R redis, String index, String key, double score,
+	protected Object write(RedisCommands commands, Object redis, String index, String key, double score,
 			Map<String, String> map, AddOptions options) {
 		return commands.ftadd(redis, index, key, score, map, options);
 	}

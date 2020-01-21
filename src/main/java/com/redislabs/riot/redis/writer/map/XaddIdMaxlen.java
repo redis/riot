@@ -6,7 +6,8 @@ import com.redislabs.riot.redis.RedisCommands;
 
 import lombok.Setter;
 
-public class XaddIdMaxlen<R> extends XaddId<R> {
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public class XaddIdMaxlen extends XaddId {
 
 	@Setter
 	private long maxlen;
@@ -14,7 +15,7 @@ public class XaddIdMaxlen<R> extends XaddId<R> {
 	private boolean approximateTrimming;
 
 	@Override
-	protected Object doWrite(RedisCommands<R> commands, R redis, String key, Map<String, String> map, String id) {
+	protected Object doWrite(RedisCommands commands, Object redis, String key, Map<String, String> map, String id) {
 		return commands.xadd(redis, key, id, map, maxlen, approximateTrimming);
 	}
 

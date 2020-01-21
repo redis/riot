@@ -132,7 +132,7 @@ public class TestFile extends BaseTest {
 		commands().create(INDEX, schema);
 		runFile("file-import-csv-search");
 		SearchResults<String, String> results = commands().search(INDEX, "*");
-		Assertions.assertEquals(BEER_COUNT, results.getCount());
+		Assertions.assertEquals(BEER_COUNT, results.count());
 	}
 
 	@Test
@@ -144,7 +144,7 @@ public class TestFile extends BaseTest {
 		commands().create(INDEX, schema);
 		runFile("file-import-csv-processor-search-geo");
 		SearchResults<String, String> results = commands().search(INDEX, "@Location:[-77 38 50 mi]");
-		Assertions.assertEquals(3, results.getCount());
+		Assertions.assertEquals(3, results.count());
 	}
 
 	@Test
@@ -196,7 +196,7 @@ public class TestFile extends BaseTest {
 		commands().create(INDEX, schema);
 		runFile("file-import-csv-processor-search");
 		SearchResults<String, String> results = commands().search(INDEX, "@location:[-118.446014 33.998415 10 mi]");
-		Assertions.assertTrue(results.getCount() > 0);
+		Assertions.assertTrue(results.count() > 0);
 		for (SearchResult<String, String> result : results) {
 			Double lat = Double.parseDouble(result.get("lat"));
 			Assertions.assertTrue(lat > 33 && lat < 35);

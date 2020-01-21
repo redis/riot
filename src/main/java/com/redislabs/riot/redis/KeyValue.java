@@ -1,17 +1,12 @@
 package com.redislabs.riot.redis;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.experimental.Accessors;
+import lombok.Getter;
+import lombok.Setter;
 
-@AllArgsConstructor
-@NoArgsConstructor
-@Accessors(fluent = true)
-public @Data class KeyValue {
+public class KeyValue {
 
-	private String key;
-	private long ttl;
-	private byte[] value;
+	private @Getter @Setter String key;
+	private @Getter @Setter long ttl;
+	private @Getter @Setter byte[] value;
 
 }

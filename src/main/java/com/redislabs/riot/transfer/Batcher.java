@@ -8,25 +8,22 @@ import java.util.concurrent.LinkedBlockingDeque;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 
-import lombok.Builder;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class Batcher {
 
-	private ItemReader reader;
-	private int chunkSize;
-	private boolean finished;
-	private ItemProcessor processor;
+	private @Setter ItemReader reader;
+	private @Setter int chunkSize;
+	private @Setter boolean finished;
+	private @Setter ItemProcessor processor;
 	private BlockingQueue items;
 
-	@Builder
-	private Batcher(ItemReader reader, ItemProcessor processor, int chunkSize) {
-		this.reader = reader;
-		this.processor = processor;
-		this.chunkSize = chunkSize;
-		this.items = new LinkedBlockingDeque(1000);
+	public Batcher queueCapacity(int capacity) {
+		this.items = new LinkedBlockingDeque(capacity);
+		return this;
 	}
 
 	public List next() {

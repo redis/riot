@@ -9,24 +9,22 @@ import java.util.concurrent.TimeUnit;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemStream;
 
-import lombok.Builder;
 import lombok.Getter;
-import lombok.experimental.Accessors;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@Accessors(fluent = true)
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class FlowThread implements Runnable {
 
 	public final static String CONTEXT_PARTITION = "partition";
 	public final static String CONTEXT_PARTITIONS = "partitions";
 
-	private int threadId;
-	private int threads;
-	private Flow flow;
-	private Batcher batcher;
-	private Long flushRate;
+	private @Setter int threadId;
+	private @Setter int threads;
+	private @Setter Flow flow;
+	private @Setter Batcher batcher;
+	private @Setter Long flushRate;
 	@Getter
 	private long readCount;
 	@Getter
@@ -34,15 +32,6 @@ public class FlowThread implements Runnable {
 	@Getter
 	private boolean running;
 	private boolean stopped;
-
-	@Builder
-	private FlowThread(int threadId, int threads, Flow flow, Batcher batcher, Long flushRate) {
-		this.threadId = threadId;
-		this.threads = threads;
-		this.flow = flow;
-		this.batcher = batcher;
-		this.flushRate = flushRate;
-	}
 
 	@Override
 	public void run() {
@@ -88,7 +77,7 @@ public class FlowThread implements Runnable {
 	}
 
 	public Metrics progress() {
-		return Metrics.builder().reads(readCount).writes(writeCount).runningThreads(running ? 1 : 0).build();
+		return new Metrics().reads(readCount).writes(writeCount).runningThreads(running ? 1 : 0);
 	}
 
 	public void stop() {

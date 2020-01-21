@@ -4,7 +4,7 @@ import java.util.Map;
 
 import lombok.Setter;
 
-public class SetField<R> extends Set<R> {
+public class SetField extends Set {
 
 	@Setter
 	private String field;

@@ -9,7 +9,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class SetObject<R> extends Set<R> {
+public class SetObject<R> extends Set {
 
 	@Setter
 	private ObjectWriter objectWriter;

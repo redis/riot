@@ -6,13 +6,14 @@ import com.redislabs.riot.redis.RedisCommands;
 
 import lombok.Setter;
 
-public class FtSugaddPayload<R> extends FtSugadd<R> {
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public class FtSugaddPayload extends FtSugadd {
 
 	@Setter
 	private String payload;
 
 	@Override
-	protected Object write(RedisCommands<R> commands, R redis, String key, Map<String, Object> item, String string,
+	protected Object write(RedisCommands commands, Object redis, String key, Map<String, Object> item, String string,
 			double score, boolean increment) {
 		return commands.sugadd(redis, key, string, score, increment, convert(item.remove(payload), String.class));
 	}

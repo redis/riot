@@ -10,7 +10,7 @@ import redis.clients.jedis.Response;
 import redis.clients.jedis.util.Pool;
 
 @Slf4j
-public class PipelineJedisWriter<O> extends AbstractRedisItemWriter<Pipeline, O> {
+public class PipelineJedisWriter<O> extends AbstractRedisItemWriter<O> {
 
 	private Pool<Jedis> pool;
 

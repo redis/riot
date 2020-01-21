@@ -4,10 +4,8 @@ import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import picocli.CommandLine.Option;
 
-@EqualsAndHashCode(callSuper = true)
 public @Data class FlatFileOptions extends FileOptions {
 
 	@Option(names = { "-f", "--fields" }, arity = "1..*", description = "Field names", paramLabel = "<names>")

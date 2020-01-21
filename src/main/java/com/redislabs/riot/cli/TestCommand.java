@@ -9,15 +9,16 @@ import com.redislabs.riot.test.LatencyTest;
 import com.redislabs.riot.test.PingTest;
 import com.redislabs.riot.test.RedisTest;
 
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import redis.clients.jedis.Jedis;
 
-@Command(name = "test", description = "Execute a test")
 @Slf4j
-public class TestCommand extends HelpCommand {
+@Command(name = "test", description = "Execute a test")
+public @Data class TestCommand extends HelpCommand {
 
 	public enum RedisTestType {
 		info, ping, latency
@@ -45,7 +46,7 @@ public class TestCommand extends HelpCommand {
 					test.execute(jedis);
 				}
 			} else {
-				test.execute(redis.isCluster() ? redis.lettuceClusterClient().connect().sync()
+				test.execute(redis.cluster() ? redis.lettuceClusterClient().connect().sync()
 						: redis.lettuceClient().connect().sync());
 			}
 		} catch (Exception e) {

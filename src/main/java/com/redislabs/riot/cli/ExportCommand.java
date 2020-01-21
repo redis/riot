@@ -6,12 +6,13 @@ import org.springframework.batch.item.ItemWriter;
 
 import com.redislabs.picocliredis.RedisOptions;
 
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine.Command;
 
 @Slf4j
 @Command
-public abstract class ExportCommand<I, O> extends TransferCommand<I, O> implements Runnable {
+public @Data abstract class ExportCommand<I, O> extends TransferCommand<I, O> implements Runnable {
 
 	@Override
 	public void run() {
@@ -36,5 +37,10 @@ public abstract class ExportCommand<I, O> extends TransferCommand<I, O> implemen
 	}
 
 	protected abstract ItemWriter<O> writer() throws Exception;
+	
+	@Override
+	protected String taskName() {
+		return "Exporting";
+	}
 
 }

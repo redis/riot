@@ -7,7 +7,8 @@ import com.redislabs.riot.redis.RedisCommands;
 import io.lettuce.core.ScriptOutputType;
 import lombok.Setter;
 
-public class Evalsha<R> extends AbstractMapRedisWriter<R> {
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public class Evalsha extends AbstractMapRedisWriter {
 
 	@Setter
 	private String sha;
@@ -19,7 +20,7 @@ public class Evalsha<R> extends AbstractMapRedisWriter<R> {
 	private ScriptOutputType outputType;
 
 	@Override
-	protected Object write(RedisCommands<R> commands, R redis, Map<String, Object> item) {
+	protected Object write(RedisCommands commands, Object redis, Map<String, Object> item) {
 		String[] keys = array(this.keys, item);
 		String[] args = array(this.args, item);
 		return commands.evalsha(redis, sha, outputType, keys, args);

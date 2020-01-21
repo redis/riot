@@ -5,16 +5,12 @@ import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemStreamException;
 import org.springframework.batch.item.ItemStreamReader;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.experimental.Accessors;
+import lombok.Setter;
 
-@Accessors(fluent = true)
-@Builder
-public @Data class ThrottledReader<I> implements ItemStreamReader<I> {
+public class ThrottledReader<I> implements ItemStreamReader<I> {
 
-	private ItemReader<I> reader;
-	private long sleep;
+	private @Setter ItemReader<I> reader;
+	private @Setter long sleep;
 
 	@Override
 	public void open(ExecutionContext executionContext) throws ItemStreamException {

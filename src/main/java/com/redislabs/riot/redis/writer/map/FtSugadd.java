@@ -6,7 +6,8 @@ import com.redislabs.riot.redis.RedisCommands;
 
 import lombok.Setter;
 
-public class FtSugadd<R> extends AbstractRediSearchWriter<R> {
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public class FtSugadd extends AbstractRediSearchWriter {
 
 	@Setter
 	private String field;
@@ -14,7 +15,7 @@ public class FtSugadd<R> extends AbstractRediSearchWriter<R> {
 	private boolean increment;
 
 	@Override
-	protected Object write(RedisCommands<R> commands, R redis, String key, Map<String, Object> item) {
+	protected Object write(RedisCommands commands, Object redis, String key, Map<String, Object> item) {
 		String string = convert(item.get(field), String.class);
 		if (string == null) {
 			return null;
@@ -23,7 +24,7 @@ public class FtSugadd<R> extends AbstractRediSearchWriter<R> {
 	}
 
 	@SuppressWarnings("unused")
-	protected Object write(RedisCommands<R> commands, R redis, String key, Map<String, Object> item, String string,
+	protected Object write(RedisCommands commands, Object redis, String key, Map<String, Object> item, String string,
 			double score, boolean increment) {
 		return commands.sugadd(redis, key, string, score, increment);
 	}

@@ -7,10 +7,8 @@ import org.springframework.batch.item.database.builder.JdbcCursorItemReaderBuild
 import org.springframework.jdbc.core.ColumnMapRowMapper;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import picocli.CommandLine.Option;
 
-@EqualsAndHashCode(callSuper = true)
 public @Data class DatabaseReaderOptions extends DatabaseOptions {
 
 	@Option(required = true, names = "--sql", description = "SELECT statement", paramLabel = "<sql>")

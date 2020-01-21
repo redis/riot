@@ -47,11 +47,11 @@ public @Data class HashReaderOptions {
 	private JedisHashReader redisReader(RedisOptions redis) {
 		String scanPattern = keyspace == null ? null : (keyspace + separator + "*");
 		JedisHashReader reader = new JedisHashReader(redis.jedisPool());
-		reader.setCount(count);
-		reader.setMatch(scanPattern);
-		reader.setKeys(keys);
-		reader.setKeyspace(keyspace);
-		reader.setSeparator(separator);
+		reader.count(count);
+		reader.match(scanPattern);
+		reader.keys(keys);
+		reader.keyspace(keyspace);
+		reader.separator(separator);
 		return reader;
 	}
 

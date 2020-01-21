@@ -6,7 +6,8 @@ import com.redislabs.riot.redis.RedisCommands;
 
 import lombok.Setter;
 
-public class Zadd<R> extends AbstractCollectionMapWriter<R> {
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public class Zadd extends AbstractCollectionMapWriter {
 
 	@Setter
 	private String scoreField;
@@ -14,7 +15,7 @@ public class Zadd<R> extends AbstractCollectionMapWriter<R> {
 	private double defaultScore;
 
 	@Override
-	protected Object write(RedisCommands<R> commands, R redis, String key, String member, Map<String, Object> item) {
+	protected Object write(RedisCommands commands, Object redis, String key, String member, Map<String, Object> item) {
 		Double score = convert(item.getOrDefault(scoreField, defaultScore), Double.class);
 		return commands.zadd(redis, key, score, member);
 	}

@@ -7,10 +7,8 @@ import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilde
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import picocli.CommandLine.Option;
 
-@EqualsAndHashCode(callSuper = true)
 public @Data class DatabaseWriterOptions extends DatabaseOptions {
 
 	@Option(required = true, names = "--sql", description = "Insert SQL statement", paramLabel = "<sql>")

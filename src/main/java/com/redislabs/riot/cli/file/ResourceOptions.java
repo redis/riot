@@ -10,22 +10,21 @@ public @Data class ResourceOptions {
 
 	@Option(names = "--file", description = "File path")
 	private Path file;
-
 	@Option(names = "--url", description = "File URL")
 	private URI url;
 
-	public boolean isUri() {
+	public boolean uri() {
 		return url != null;
 	}
 
 	public String path() {
-		if (isUri()) {
+		if (uri()) {
 			return url.toString();
 		}
 		return file.toString();
 	}
 
-	public boolean isGzip() {
+	public boolean gzip() {
 		return path().toLowerCase().endsWith(".gz");
 	}
 

@@ -3,22 +3,23 @@ package com.redislabs.riot.redis.writer.map;
 import java.util.Map;
 
 import com.redislabs.riot.redis.RedisCommands;
+import com.redislabs.riot.redis.writer.KeyBuilder;
 
-public abstract class AbstractCollectionMapWriter<R> extends AbstractKeyMapRedisWriter<R> {
+import lombok.Setter;
 
-	private KeyMaker memberIdMaker;
+@SuppressWarnings("rawtypes")
+public abstract class AbstractCollectionMapWriter extends AbstractKeyMapRedisWriter {
 
-	public void memberFields(String[] fields) {
-		this.memberIdMaker = KeyMaker.create(this.keySeparator, null, fields);
-	}
+	@Setter
+	private KeyBuilder memberIdBuilder;
 
 	@Override
-	protected Object write(RedisCommands<R> commands, R redis, String key, Map<String, Object> item) {
-		String member = memberIdMaker.key(item);
+	protected Object write(RedisCommands commands, Object redis, String key, Map<String, Object> item) {
+		String member = memberIdBuilder.key(item);
 		return write(commands, redis, key, member, item);
 	}
 
-	protected abstract Object write(RedisCommands<R> commands, R redis, String key, String member,
+	protected abstract Object write(RedisCommands commands, Object redis, String key, String member,
 			Map<String, Object> item);
 
 }

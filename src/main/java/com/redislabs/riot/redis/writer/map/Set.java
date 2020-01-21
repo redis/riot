@@ -4,10 +4,11 @@ import java.util.Map;
 
 import com.redislabs.riot.redis.RedisCommands;
 
-public abstract class Set<R> extends AbstractKeyMapRedisWriter<R> {
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public abstract class Set extends AbstractKeyMapRedisWriter {
 
 	@Override
-	protected Object write(RedisCommands<R> commands, R redis, String key, Map<String, Object> item) {
+	protected Object write(RedisCommands commands, Object redis, String key, Map<String, Object> item) {
 		String value = value(item);
 		if (value == null) {
 			return null;

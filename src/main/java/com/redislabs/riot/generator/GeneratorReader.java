@@ -54,13 +54,13 @@ public class GeneratorReader extends AbstractItemStreamItemReader<Map<String, Ob
 		return partitions.get();
 	}
 
-	public GeneratorReader setFakerFields(Map<String, String> fields) {
+	public GeneratorReader fakerFields(Map<String, String> fields) {
 		SpelExpressionParser parser = new SpelExpressionParser();
 		fields.forEach((k, v) -> fakerFields.put(k, parser.parseExpression(v)));
 		return this;
 	}
 
-	public GeneratorReader setSimpleFields(Map<String, Integer> fields) {
+	public GeneratorReader simpleFields(Map<String, Integer> fields) {
 		for (Entry<String, Integer> field : fields.entrySet()) {
 			String string = StringUtils.leftPad("", field.getValue(), "x");
 			simpleFields.put(field.getKey(), string);

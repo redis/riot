@@ -48,9 +48,9 @@ public abstract class ImportCommand<I, O> extends TransferCommand<I, O> {
 
 	public void execute(AbstractRedisWriter redisWriter) {
 		boolean isRediSearch = redisWriter instanceof AbstractRediSearchWriter;
-		redisWriter.setCommands(redisCommands(redisOptions()));
+		redisWriter.commands(redisCommands(redisOptions()));
 		AbstractRedisItemWriter writer = itemWriter(redisOptions(), isRediSearch);
-		writer.setWriter(redisWriter);
+		writer.writer(redisWriter);
 		ItemReader<I> reader;
 		ItemProcessor<I, O> processor;
 		try {
@@ -69,17 +69,22 @@ public abstract class ImportCommand<I, O> extends TransferCommand<I, O> {
 		return null;
 	}
 
-	private AbstractRedisItemWriter<?, O> itemWriter(RedisOptions redis, boolean isRediSearch) {
+	@Override
+	protected String taskName() {
+		return "Importing";
+	}
+
+	private AbstractRedisItemWriter<O> itemWriter(RedisOptions redis, boolean isRediSearch) {
 		if (redis.isJedis()) {
-			if (redis.isCluster()) {
+			if (redis.cluster()) {
 				return new ClusterJedisWriter<O>(redis.jedisCluster());
 			}
 			return new PipelineJedisWriter<O>(redis.jedisPool());
 		}
 		AbstractLettuceItemWriter writer = lettuceItemWriter(redis);
-		writer.setApi(lettuceApi(redis, isRediSearch));
+		writer.api(lettuceApi(redis, isRediSearch));
 		AbstractRedisClient client = lettuceClient(redis, isRediSearch);
-		writer.setPool(redis.pool(lettuceConnectionSupplier(client)));
+		writer.pool(redis.pool(lettuceConnectionSupplier(client)));
 		return writer;
 	}
 
@@ -113,21 +118,21 @@ public abstract class ImportCommand<I, O> extends TransferCommand<I, O> {
 //	}
 
 	private AbstractLettuceItemWriter lettuceItemWriter(RedisOptions redis) {
-		switch (redis.getLettuce().getApi()) {
+		switch (redis.lettuce().api()) {
 		case Reactive:
 			return new ReactiveLettuceItemWriter<>();
 		case Sync:
 			return new SyncLettuceItemWriter<>();
 		default:
 			AsyncLettuceItemWriter lettuceAsyncItemWriter = new AsyncLettuceItemWriter();
-			lettuceAsyncItemWriter.setTimeout(redis.getLettuce().getCommandTimeout());
+			lettuceAsyncItemWriter.timeout(redis.lettuce().commandTimeout());
 			return lettuceAsyncItemWriter;
 		}
 	}
 
 	private Function lettuceApi(RedisOptions redis, boolean isRediSearch) {
 		if (isRediSearch) {
-			switch (redis.getLettuce().getApi()) {
+			switch (redis.lettuce().api()) {
 			case Sync:
 				return (Function<StatefulRediSearchConnection, RediSearchCommands>) StatefulRediSearchConnection::sync;
 			case Reactive:
@@ -136,8 +141,8 @@ public abstract class ImportCommand<I, O> extends TransferCommand<I, O> {
 				return (Function<StatefulRediSearchConnection, RediSearchAsyncCommands>) StatefulRediSearchConnection::async;
 			}
 		}
-		if (redis.isCluster()) {
-			switch (redis.getLettuce().getApi()) {
+		if (redis.cluster()) {
+			switch (redis.lettuce().api()) {
 			case Sync:
 				return (Function<StatefulRedisClusterConnection, RedisClusterCommands>) StatefulRedisClusterConnection::sync;
 			case Reactive:
@@ -146,7 +151,7 @@ public abstract class ImportCommand<I, O> extends TransferCommand<I, O> {
 				return (Function<StatefulRedisClusterConnection, RedisClusterAsyncCommands>) StatefulRedisClusterConnection::async;
 			}
 		}
-		switch (redis.getLettuce().getApi()) {
+		switch (redis.lettuce().api()) {
 		case Sync:
 			return (Function<StatefulRedisConnection, io.lettuce.core.api.sync.RedisCommands>) StatefulRedisConnection::sync;
 		case Reactive:
@@ -165,12 +170,12 @@ public abstract class ImportCommand<I, O> extends TransferCommand<I, O> {
 
 	private RedisCommands redisCommands(RedisOptions redis) {
 		if (redis.isJedis()) {
-			if (redis.isCluster()) {
+			if (redis.cluster()) {
 				return new JedisClusterCommands();
 			}
 			return new JedisPipelineCommands();
 		}
-		switch (redis.getLettuce().getApi()) {
+		switch (redis.lettuce().api()) {
 		case Reactive:
 			return new LettuceReactiveCommands();
 		case Sync:

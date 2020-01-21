@@ -7,7 +7,7 @@ import org.springframework.core.convert.support.DefaultConversionService;
 
 import com.redislabs.riot.redis.writer.AbstractRedisWriter;
 
-public abstract class AbstractMapRedisWriter<R> extends AbstractRedisWriter<R, Map<String, Object>> {
+public abstract class AbstractMapRedisWriter extends AbstractRedisWriter<Map<String, Object>> {
 
 	private final ConversionService conversionService = new DefaultConversionService();
 

@@ -30,15 +30,15 @@ public class SetCommand extends AbstractKeyRedisCommand {
 		switch (format) {
 		case raw:
 			SetField setField = new SetField();
-			setField.setField(value);
+			setField.field(value);
 			return setField;
 		case xml:
 			SetObject setXml = new SetObject();
-			setXml.setObjectWriter(objectWriter(new XmlMapper()));
+			setXml.objectWriter(objectWriter(new XmlMapper()));
 			return setXml;
 		default:
 			SetObject setObject = new SetObject();
-			setObject.setObjectWriter(objectWriter(new ObjectMapper()));
+			setObject.objectWriter(objectWriter(new ObjectMapper()));
 			return setObject;
 		}
 	}

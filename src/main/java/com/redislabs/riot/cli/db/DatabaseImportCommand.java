@@ -6,22 +6,19 @@ import org.springframework.batch.item.database.JdbcCursorItemReader;
 
 import com.redislabs.riot.cli.MapImportCommand;
 
+import lombok.Data;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 
 @Command(name = "db-import", description = "Import from a database")
-public class DatabaseImportCommand extends MapImportCommand {
+public @Data class DatabaseImportCommand extends MapImportCommand {
 
 	@ArgGroup(exclusive = false, heading = "Database options%n", order = 3)
-	DatabaseReaderOptions options = new DatabaseReaderOptions();
+	private DatabaseReaderOptions options = new DatabaseReaderOptions();
 
 	@Override
 	protected JdbcCursorItemReader<Map<String, Object>> reader() throws Exception {
 		return options.reader();
 	}
 
-	@Override
-	protected String taskName() {
-		return "Importing from " + options.getUrl();
-	}
 }

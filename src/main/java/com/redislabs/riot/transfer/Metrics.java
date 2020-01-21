@@ -2,17 +2,14 @@ package com.redislabs.riot.transfer;
 
 import java.util.List;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.experimental.Accessors;
+import lombok.Getter;
+import lombok.Setter;
 
-@Builder
-@Accessors(fluent = true)
-public @Data class Metrics {
+public class Metrics {
 
-	private long reads;
-	private long writes;
-	private int runningThreads;
+	private @Getter @Setter long reads;
+	private @Getter @Setter long writes;
+	private @Getter @Setter int runningThreads;
 
 	public static Metrics create(List<Metrics> metrics) {
 		long reads = 0;
@@ -23,6 +20,6 @@ public @Data class Metrics {
 			writes += metric.writes();
 			runningThreads += metric.runningThreads();
 		}
-		return Metrics.builder().reads(reads).writes(writes).runningThreads(runningThreads).build();
+		return new Metrics().reads(reads).writes(writes).runningThreads(runningThreads);
 	}
 }

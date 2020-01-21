@@ -7,7 +7,6 @@ import picocli.CommandLine.Command;
 @Command(name = "hmset", description = "Set hash values")
 public class HmsetCommand extends AbstractKeyRedisCommand {
 
-	@SuppressWarnings("rawtypes")
 	@Override
 	protected Hmset keyWriter() {
 		return new Hmset();

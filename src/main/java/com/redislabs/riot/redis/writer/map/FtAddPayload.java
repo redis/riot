@@ -7,13 +7,14 @@ import com.redislabs.riot.redis.RedisCommands;
 
 import lombok.Setter;
 
-public class FtAddPayload<R> extends FtAdd<R> {
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public class FtAddPayload extends FtAdd {
 
 	@Setter
 	private String payload;
 
 	@Override
-	protected Object write(RedisCommands<R> commands, R redis, String index, String key, double score,
+	protected Object write(RedisCommands commands, Object redis, String index, String key, double score,
 			Map<String, String> map, AddOptions options) {
 		return commands.ftadd(redis, index, key, score, map, options, map.remove(payload));
 	}

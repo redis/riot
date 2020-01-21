@@ -22,9 +22,9 @@ public @Data class GeneratorReaderOptions {
 
 	public GeneratorReader reader() {
 		GeneratorReader reader = new GeneratorReader();
-		reader.setLocale(locale);
-		reader.setFakerFields(fakerFields);
-		reader.setSimpleFields(simpleFields);
+		reader.locale(locale);
+		reader.fakerFields(fakerFields);
+		reader.simpleFields(simpleFields);
 		return reader;
 	}
 

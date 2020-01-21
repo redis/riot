@@ -14,15 +14,21 @@ import com.redislabs.riot.transfer.ThrottledReader;
 import com.redislabs.riot.transfer.Transfer;
 import com.redislabs.riot.transfer.TransferExecution;
 
-import lombok.experimental.Accessors;
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import picocli.CommandLine.Command;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Spec;
 
-@Accessors(fluent = true)
-public abstract class TransferCommand<I, O> extends RiotCommand {
+@Command
+public @Data abstract class TransferCommand<I, O> extends RiotCommand {
 
 	@Spec
+	@Getter(AccessLevel.NONE)
+	@Setter(AccessLevel.NONE)
 	private CommandSpec spec;
 	@Option(names = "--threads", description = "Thread count (default: ${DEFAULT-VALUE})", paramLabel = "<count>")
 	private int nThreads = 1;
@@ -40,13 +46,13 @@ public abstract class TransferCommand<I, O> extends RiotCommand {
 
 	protected Transfer transfer(ItemReader<I> reader, ItemProcessor<I, O> processor, ItemWriter<O> writer) {
 		Transfer transfer = new Transfer();
-		transfer.flows().add(flow("main", reader, processor, writer));
+		transfer.flow(flow("main", reader, processor, writer));
 		return transfer;
 	}
 
 	protected Flow flow(String name, ItemReader<I> reader, ItemProcessor<I, O> processor, ItemWriter<O> writer) {
-		return Flow.builder().name(name).batchSize(batchSize).nThreads(nThreads).reader(throttle(cap(reader)))
-				.processor(processor).writer(writer).build();
+		return new Flow().name(name).batchSize(batchSize).nThreads(nThreads).reader(throttle(cap(reader)))
+				.processor(processor).writer(writer);
 	}
 
 	protected void execute(Transfer transfer) {
@@ -73,7 +79,7 @@ public abstract class TransferCommand<I, O> extends RiotCommand {
 		if (sleep == null) {
 			return reader;
 		}
-		return ThrottledReader.<I>builder().reader(reader).sleep(sleep).build();
+		return new ThrottledReader<I>().reader(reader).sleep(sleep);
 	}
 
 	private ItemReader<I> cap(ItemReader<I> reader) {
@@ -84,7 +90,7 @@ public abstract class TransferCommand<I, O> extends RiotCommand {
 	}
 
 	private ProgressReporter progressReporter() {
-		if (parent().getOptions().isQuiet()) {
+		if (parent().options().quiet()) {
 			return new NoopProgressReporter();
 		}
 		ProgressBarReporter progressBarReporter = new ProgressBarReporter().taskName(taskName());
