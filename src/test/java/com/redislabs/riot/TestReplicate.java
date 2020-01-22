@@ -19,7 +19,7 @@ import redis.embedded.util.OS;
 public class TestReplicate {
 
 	@Test
-	public void testReplicate() throws Exception {
+	public void testStandaloneSource() throws Exception {
 		RedisExecProvider redisExecProvider = RedisExecProvider.defaultProvider().override(OS.MAC_OS_X,
 				"/usr/local/bin/redis-server");
 		RedisServer source = RedisServer.builder().setting("notify-keyspace-events AK").port(16379).build();
@@ -29,7 +29,7 @@ public class TestReplicate {
 			try {
 				target.start();
 				String[] importCommand = CommandLineUtils.translateCommandline(
-						"--server localhost:16379 gen --threads 1 -d field1=100 field2=1000 --max 1000 hmset --keyspace test --keys index");
+						"--servers localhost:16379 gen --threads 1 -d field1=100 field2=1000 --max 1000 hmset --keyspace test --keys index");
 				new Riot().execute(importCommand);
 				RedisClient sourceClient = RedisClient.create(RedisURI.create("localhost", 16379));
 				ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
@@ -40,7 +40,7 @@ public class TestReplicate {
 					commands.set(key, "value");
 				}, 1000, 100, TimeUnit.MILLISECONDS);
 				String[] replicate = CommandLineUtils.translateCommandline(
-						"--debug --server localhost:16380 replicate --flush-rate 50 --threads 1 --server localhost:16379");
+						"--debug --servers localhost:16380 replicate --flush-rate 50 --threads 1 --servers localhost:16379");
 				Thread replicateThread = new Thread(() -> new Riot().execute(replicate));
 				replicateThread.start();
 				Thread.sleep(5000);

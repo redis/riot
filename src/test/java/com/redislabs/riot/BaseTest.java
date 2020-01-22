@@ -59,16 +59,16 @@ public class BaseTest {
 		}
 	}
 
-	protected int runFile(String filename, Object... args) throws Exception {
-		try (InputStream inputStream = getClass().getResourceAsStream("/commands/" + filename + ".txt")) {
-			String line = new String(inputStream.readAllBytes());
-			String command = serverOptions() + " " + line.substring(COMMAND_START.length());
-			return new Riot().execute(CommandLineUtils.translateCommandline(String.format(command, args)));
-		}
+	public static int runFile(String filename, Object... args) throws Exception {
+		return runFileWithServer(filename, "-s localhost:16379", args);
 	}
 
-	private String serverOptions() {
-		return "-s localhost:16379";
+	public static int runFileWithServer(String filename, String serverOptions, Object... args) throws Exception {
+		try (InputStream inputStream = BaseTest.class.getResourceAsStream("/commands/" + filename + ".txt")) {
+			String line = new String(inputStream.readAllBytes());
+			String command = serverOptions + " " + line.substring(COMMAND_START.length());
+			return new Riot().execute(CommandLineUtils.translateCommandline(String.format(command, args)));
+		}
 	}
 
 }

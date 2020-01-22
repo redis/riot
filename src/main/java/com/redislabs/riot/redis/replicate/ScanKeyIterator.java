@@ -6,22 +6,29 @@ import org.springframework.util.Assert;
 
 import io.lettuce.core.KeyScanCursor;
 import io.lettuce.core.ScanArgs;
-import io.lettuce.core.api.StatefulRedisConnection;
-import lombok.Setter;
+import io.lettuce.core.api.StatefulConnection;
+import io.lettuce.core.api.sync.RedisKeyCommands;
+import lombok.Builder;
 
-public class ScanKeyIterator implements KeyIterator {
+public class ScanKeyIterator<C extends StatefulConnection<String, String>> implements KeyIterator {
 
-	private @Setter StatefulRedisConnection<String, String> connection;
-	private @Setter ScanArgs args;
+	private RedisKeyCommands<String, String> commands;
+	private ScanArgs args;
 
 	private Object lock = new Object();
 	private Iterator<String> keys;
 	private KeyScanCursor<String> cursor;
 
+	@Builder
+	private ScanKeyIterator(RedisKeyCommands<String, String> commands, ScanArgs args) {
+		this.commands = commands;
+		this.args = args;
+	}
+
 	@Override
 	public void start() {
 		Assert.isNull(this.cursor, "Iterator already started");
-		cursor = connection.sync().scan(args);
+		cursor = commands.scan(args);
 		keys = cursor.getKeys().iterator();
 	}
 
@@ -40,7 +47,7 @@ public class ScanKeyIterator implements KeyIterator {
 			if (cursor.isFinished()) {
 				return false;
 			}
-			cursor = connection.sync().scan(cursor, args);
+			cursor = commands.scan(cursor, args);
 			keys = cursor.getKeys().iterator();
 			return keys.hasNext();
 		}

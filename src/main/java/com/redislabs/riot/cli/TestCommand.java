@@ -46,8 +46,7 @@ public @Data class TestCommand extends HelpCommand {
 					test.execute(jedis);
 				}
 			} else {
-				test.execute(redis.cluster() ? redis.lettuceClusterClient().connect().sync()
-						: redis.lettuceClient().connect().sync());
+				test.execute(redis.redisCommands());
 			}
 		} catch (Exception e) {
 			log.error("Test was interrupted", e);

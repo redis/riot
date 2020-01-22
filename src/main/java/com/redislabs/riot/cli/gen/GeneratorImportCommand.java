@@ -60,7 +60,7 @@ public @Data class GeneratorImportCommand extends MapImportCommand {
 	protected GeneratorReader reader() {
 		GeneratorReader reader = readerOptions.reader();
 		if (fakerIndex != null) {
-			RediSearchCommands<String, String> ft = redisOptions().lettuSearchClient().connect().sync();
+			RediSearchCommands<String, String> ft = redisOptions().rediSearchClient().connect().sync();
 			IndexInfo info = RediSearchUtils.getInfo(ft.indexInfo(fakerIndex));
 			Map<String, String> fakerFields = new LinkedHashMap<>();
 			info.fields().forEach(f -> {

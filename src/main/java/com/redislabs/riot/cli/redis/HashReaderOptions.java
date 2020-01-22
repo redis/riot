@@ -40,7 +40,7 @@ public @Data class HashReaderOptions {
 	}
 
 	public RediSearchDocumentReader searchReader(RedisOptions redis) {
-		return new RediSearchDocumentReader(redis.lettuSearchClient(), index, query,
+		return new RediSearchDocumentReader(redis.rediSearchClient(), index, query,
 				SearchOptions.builder().limit(Limit.builder().num(limitNum).offset(limitOffset).build()).build());
 	}
 

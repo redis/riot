@@ -12,10 +12,8 @@ import lombok.Setter;
 public abstract class AbstractLettuceItemWriter<C extends StatefulConnection<String, String>, O>
 		extends AbstractRedisItemWriter<O> {
 
-	@Setter
-	private GenericObjectPool<C> pool;
-	@Setter
-	private Function api;
+	private @Setter GenericObjectPool<C> pool;
+	private @Setter Function api;
 
 	@Override
 	public void write(List<? extends O> items) throws Exception {

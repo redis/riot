@@ -1,16 +1,11 @@
 package com.redislabs.riot.cli;
 
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 
-import com.redislabs.lettusearch.RediSearchAsyncCommands;
 import com.redislabs.lettusearch.RediSearchClient;
-import com.redislabs.lettusearch.RediSearchCommands;
-import com.redislabs.lettusearch.RediSearchReactiveCommands;
-import com.redislabs.lettusearch.StatefulRediSearchConnection;
 import com.redislabs.picocliredis.RedisOptions;
 import com.redislabs.riot.redis.JedisClusterCommands;
 import com.redislabs.riot.redis.JedisPipelineCommands;
@@ -30,14 +25,7 @@ import com.redislabs.riot.redis.writer.map.AbstractRediSearchWriter;
 
 import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.RedisClient;
-import io.lettuce.core.api.StatefulRedisConnection;
-import io.lettuce.core.api.async.RedisAsyncCommands;
-import io.lettuce.core.api.reactive.RedisReactiveCommands;
 import io.lettuce.core.cluster.RedisClusterClient;
-import io.lettuce.core.cluster.api.StatefulRedisClusterConnection;
-import io.lettuce.core.cluster.api.async.RedisClusterAsyncCommands;
-import io.lettuce.core.cluster.api.reactive.RedisClusterReactiveCommands;
-import io.lettuce.core.cluster.api.sync.RedisClusterCommands;
 import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine.Command;
 
@@ -82,7 +70,7 @@ public abstract class ImportCommand<I, O> extends TransferCommand<I, O> {
 			return new PipelineJedisWriter<O>(redis.jedisPool());
 		}
 		AbstractLettuceItemWriter writer = lettuceItemWriter(redis);
-		writer.api(lettuceApi(redis, isRediSearch));
+		writer.api(isRediSearch ? redis.lettuSearchApi() : redis.lettuceApi());
 		AbstractRedisClient client = lettuceClient(redis, isRediSearch);
 		writer.pool(redis.pool(lettuceConnectionSupplier(client)));
 		return writer;
@@ -130,40 +118,9 @@ public abstract class ImportCommand<I, O> extends TransferCommand<I, O> {
 		}
 	}
 
-	private Function lettuceApi(RedisOptions redis, boolean isRediSearch) {
-		if (isRediSearch) {
-			switch (redis.lettuce().api()) {
-			case Sync:
-				return (Function<StatefulRediSearchConnection, RediSearchCommands>) StatefulRediSearchConnection::sync;
-			case Reactive:
-				return (Function<StatefulRediSearchConnection, RediSearchReactiveCommands>) StatefulRediSearchConnection::reactive;
-			default:
-				return (Function<StatefulRediSearchConnection, RediSearchAsyncCommands>) StatefulRediSearchConnection::async;
-			}
-		}
-		if (redis.cluster()) {
-			switch (redis.lettuce().api()) {
-			case Sync:
-				return (Function<StatefulRedisClusterConnection, RedisClusterCommands>) StatefulRedisClusterConnection::sync;
-			case Reactive:
-				return (Function<StatefulRedisClusterConnection, RedisClusterReactiveCommands>) StatefulRedisClusterConnection::reactive;
-			default:
-				return (Function<StatefulRedisClusterConnection, RedisClusterAsyncCommands>) StatefulRedisClusterConnection::async;
-			}
-		}
-		switch (redis.lettuce().api()) {
-		case Sync:
-			return (Function<StatefulRedisConnection, io.lettuce.core.api.sync.RedisCommands>) StatefulRedisConnection::sync;
-		case Reactive:
-			return (Function<StatefulRedisConnection, RedisReactiveCommands>) StatefulRedisConnection::reactive;
-		default:
-			return (Function<StatefulRedisConnection, RedisAsyncCommands>) StatefulRedisConnection::async;
-		}
-	}
-
 	protected AbstractRedisClient lettuceClient(RedisOptions redis, boolean rediSearch) {
 		if (rediSearch) {
-			return redis.lettuSearchClient();
+			return redis.rediSearchClient();
 		}
 		return redis.lettuceClient();
 	}
