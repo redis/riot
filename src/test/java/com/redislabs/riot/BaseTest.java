@@ -66,7 +66,8 @@ public class BaseTest {
 	public static int runFileWithServer(String filename, String serverOptions, Object... args) throws Exception {
 		try (InputStream inputStream = BaseTest.class.getResourceAsStream("/commands/" + filename + ".txt")) {
 			String line = new String(inputStream.readAllBytes());
-			String command = serverOptions + " " + line.substring(COMMAND_START.length());
+			String command = serverOptions == null ? "" : (serverOptions + " ");
+			command += line.substring(COMMAND_START.length());
 			return new Riot().execute(CommandLineUtils.translateCommandline(String.format(command, args)));
 		}
 	}

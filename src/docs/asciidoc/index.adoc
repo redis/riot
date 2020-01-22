@@ -193,8 +193,10 @@ The Redis connector allows for transferring data between two Redis databases.
 
 [source,shell]
 ----
-include::{commandsdir}/redis-import.txt[]
+include::{commandsdir}/replicate.txt[]
 ----
+
+The target database is specified first (`localhost:16380`), and the source database is after the `replicate` command (`localhost:16379`) 
 
 == Processors
 

@@ -788,7 +788,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">$ riot --servers myredistarget:16379 redis-import --servers myredissource:16379 --keyspace beer --keys id hmset --keyspace beer2 --keys id</code></pre>
+<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">$ riot --servers localhost:16380 replicate --servers localhost:16379</code></pre>
 </div>
 </div>
 </div>
@@ -905,7 +905,7 @@ process(item);</code></pre>
 <div id="footer">
 <div id="footer-text">
 Version 1.0<br>
-Last updated 2019-11-23 21:18:11 -0800
+Last updated 2020-01-22 01:12:39 -0800
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/styles/github.min.css">

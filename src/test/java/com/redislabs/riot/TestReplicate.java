@@ -39,9 +39,13 @@ public class TestReplicate {
 					String key = "notificationkey" + index.getAndIncrement();
 					commands.set(key, "value");
 				}, 1000, 100, TimeUnit.MILLISECONDS);
-				String[] replicate = CommandLineUtils.translateCommandline(
-						"--debug --servers localhost:16380 replicate --flush-rate 50 --threads 1 --servers localhost:16379");
-				Thread replicateThread = new Thread(() -> new Riot().execute(replicate));
+				Thread replicateThread = new Thread(() -> {
+					try {
+						BaseTest.runFileWithServer("replicate", null);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				});
 				replicateThread.start();
 				Thread.sleep(5000);
 				scheduler.shutdown();

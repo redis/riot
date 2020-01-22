@@ -1,0 +1,1 @@
+$ riot --servers localhost:16380 replicate --servers localhost:16379
