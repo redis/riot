@@ -13,6 +13,7 @@ git push origin "$BRANCH"
 
 ./gradlew -q clean distTar
 
+git tag "$VERSION"
 git push origin "$VERSION"
 
 RELEASE_BODY=$(cat <<EOF
