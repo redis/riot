@@ -50,7 +50,7 @@ bintray {
         repo = 'maven'
         name = 'riot'
         licenses = ['Apache-2.0']
-        vcsUrl = 'https://github.com/Redislabs-Solution-Architects/picocli-redis.git'
+        vcsUrl = 'https://github.com/Redislabs-Solution-Architects/riot.git'
     }
     version {
     	gpg {
