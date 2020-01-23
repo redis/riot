@@ -119,7 +119,7 @@ publishing {
 
 
 group = 'com.redislabs'
-version = '1.6.7'
+version = '1.6.9'
 description = 'RIOT'
 sourceCompatibility = '1.8'
 
