@@ -5,7 +5,6 @@ plugins {
     id 'maven-publish'
     id 'com.jfrog.bintray' version '1.8.4'
     id 'org.asciidoctor.jvm.convert' version '3.0.0'
-    id 'net.nemerosa.versioning' version '2.10.0'
     id 'com.github.ben-manes.versions' version '0.27.0'
 }
 
@@ -13,7 +12,6 @@ repositories {
 	mavenCentral()
 	mavenLocal()
 }
-
 
 dependencies {
     api 'com.redislabs:picocli-redis:1.10.0'
@@ -45,8 +43,8 @@ test {
 }
 
 bintray {
-    user = hasProperty('bintrayUser') ? bintrayUser : ''
-    key = hasProperty('bintrayKey') ? bintrayKey : ''
+    user = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : ''
+    key = project.hasProperty('bintrayKey') ? project.property('bintrayKey') : ''
     publications = ['mavenJava']
     pkg {
         repo = 'maven'
@@ -121,7 +119,7 @@ publishing {
 
 
 group = 'com.redislabs'
-version = versioning.info.display
+version = '1.6.1'
 description = 'RIOT'
 sourceCompatibility = '1.8'
 
@@ -147,4 +145,10 @@ asciidoctor {
   outputOptions {
   	separateOutputDirs = false
   }
+}
+
+task printVersion {
+    doLast {
+        println project.version
+    }
 }
