@@ -15,10 +15,10 @@ repositories {
 
 dependencies {
     api 'com.redislabs:picocli-redis:1.10.0'
-    api 'org.springframework.cloud:spring-cloud-aws-context:2.2.1.RELEASE'
     implementation 'org.springframework.batch:spring-batch-core:4.2.1.RELEASE'
     implementation 'org.springframework.boot:spring-boot-autoconfigure:2.2.4.RELEASE'
     implementation 'org.springframework:spring-jdbc:5.2.3.RELEASE'
+    implementation 'org.springframework.cloud:spring-cloud-aws-context:2.2.1.RELEASE'
     implementation 'org.springframework.cloud:spring-cloud-aws-autoconfigure:2.2.1.RELEASE'
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.10.2'
     implementation 'com.github.javafaker:javafaker:1.0.1'
@@ -119,7 +119,7 @@ publishing {
 
 
 group = 'com.redislabs'
-version = '1.6.4'
+version = '1.6.7'
 description = 'RIOT'
 sourceCompatibility = '1.8'
 

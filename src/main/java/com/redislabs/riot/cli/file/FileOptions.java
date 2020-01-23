@@ -6,26 +6,19 @@ import java.net.URI;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import org.springframework.cloud.aws.core.io.s3.SimpleStorageProtocolResolver;
-import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.WritableResource;
 import org.springframework.util.Assert;
 
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.auth.AWSCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3Client;
 import com.redislabs.riot.file.OutputStreamResource;
 
 import lombok.Data;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Option;
 
-public @Data class FileOptions implements AWSCredentialsProvider {
+public @Data class FileOptions {
 
 	@ArgGroup(exclusive = true, multiplicity = "1")
 	private ResourceOptions resourceOptions = new ResourceOptions();
@@ -40,24 +33,11 @@ public @Data class FileOptions implements AWSCredentialsProvider {
 	@Option(names = "--s3-region", description = "AWS region", paramLabel = "<string>")
 	private String region;
 
-	@Override
-	public AWSCredentials getCredentials() {
-		return new BasicAWSCredentials(accessKey, secretKey);
-	}
-
-	@Override
-	public void refresh() {
-		// do nothing
-	}
-
 	public Resource resource() throws MalformedURLException {
 		if (resourceOptions.uri()) {
 			URI uri = resourceOptions.url();
 			if (uri.getScheme().equals("s3")) {
-				AmazonS3 s3 = AmazonS3Client.builder().withCredentials(this).withRegion(region).build();
-				SimpleStorageProtocolResolver resolver = new SimpleStorageProtocolResolver(s3);
-				resolver.afterPropertiesSet();
-				return resolver.resolve(uri.toString(), new DefaultResourceLoader());
+				return S3ResourceBuilder.resource(accessKey, secretKey, region, uri);
 			}
 			return new UncustomizedUrlResource(uri);
 		}
