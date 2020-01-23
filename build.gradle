@@ -52,18 +52,16 @@ bintray {
         name = 'riot'
         licenses = ['Apache-2.0']
         vcsUrl = 'https://github.com/Redislabs-Solution-Architects/riot.git'
-    }
-    version {
-        gpg {
-            sign = true //Determines whether to GPG sign the files. The default is false
-        }
-        //Optional configuration for Maven Central sync of the version
-        mavenCentralSync {
-            sync = true //[Default: true] Determines whether to sync the version to Maven Central.
-            user = 'jruaux' //OSS user token: mandatory
-            password = 'vyRgys-tucfuc-7najqy' //OSS user password: mandatory
-            close = '1' //Optional property. By default the staging repository is closed and artifacts are released to Maven Central. You can optionally turn this behaviour off (by puting 0 as value) and release the version manually.
-        }            
+	    version {
+	        gpg {
+	            sign = true
+	        }
+	        mavenCentralSync {
+	            sync = true
+	            user = project.hasProperty('ossrhUsername') ? project.property('ossrhUsername') : System.getenv('OSSRH_USER')
+	            password = project.hasProperty('ossrhPassword') ? project.property('ossrhPassword') : System.getenv('OSSRH_PASSWORD')
+	        }
+	    }
     }
 }
 
@@ -81,27 +79,6 @@ artifacts {
     archives sourcesJar, javadocJar
 }
 
-// Create the pom configuration:
-def pomConfig = {
-    licenses {
-        license {
-            name "The Apache Software License, Version 2.0"
-            url "http://www.apache.org/licenses/LICENSE-2.0.txt"
-            distribution "repo"
-        }
-    }
-    developers {
-        developer {
-            id "jruaux"
-            name "Julien Ruaux"
-        }
-    }
-    
-    scm {
-       url "https://github.com/Redislabs-Solution-Architects/riot"
-    }
-}
-
 publishing {
     publications {
         mavenJava(MavenPublication) {
@@ -110,19 +87,39 @@ publishing {
             artifact javadocJar
             groupId 'com.redislabs'
             artifactId 'riot'
-            pom.withXml {
-                def root = asNode()
-                root.appendNode('description', 'Redis Input/Output Tool')
-                root.appendNode('name', 'RIOT')
-                root.appendNode('url', 'https://github.com/Redislabs-Solution-Architects/riot')
-                root.children().last() + pomConfig
+
+            pom {
+                name = 'RIOT'
+                packaging = 'jar'
+                description = 'Redis Input/Output Tool'
+                url = 'https://github.com/Redislabs-Solution-Architects/riot'
+
+		        scm {
+		          connection = 'scm:git:git://github.com/Redislabs-Solution-Architects/riot.git'
+		          developerConnection = 'scm:git:git@github.com:Redislabs-Solution-Architects/riot.git'
+		          url = 'https://github.com/Redislabs-Solution-Architects/riot'
+		        }
+
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id = 'jruaux'
+                        name = 'Julien Ruaux'
+                    }
+                }
             }
         }
     }
 }
 
 group = 'com.redislabs'
-version = '1.6.19'
+version = '1.6.22'
 description = 'RIOT'
 sourceCompatibility = '1.8'
 
