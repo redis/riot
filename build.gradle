@@ -14,7 +14,8 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.redislabs:picocli-redis:1.11.0'
+    api 'com.redislabs:picocli-redis:1.11.1'
+	implementation 'org.slf4j:slf4j-jdk14:1.7.28'
     implementation 'org.springframework.batch:spring-batch-core:4.2.1.RELEASE'
     implementation 'org.springframework.boot:spring-boot-autoconfigure:2.2.4.RELEASE'
     implementation 'org.springframework:spring-jdbc:5.2.3.RELEASE'
@@ -119,7 +120,7 @@ publishing {
 }
 
 group = 'com.redislabs'
-version = '1.7.0'
+version = '1.8.2'
 description = 'RIOT'
 sourceCompatibility = '1.8'
 
