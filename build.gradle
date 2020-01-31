@@ -5,9 +5,9 @@ plugins {
     id 'maven-publish'
     id 'com.jfrog.bintray' version '1.8.4'
     id 'com.github.ben-manes.versions' version '0.27.0'
-    id 'net.researchgate.release' version '2.6.0'
-    id 'com.github.breadmoirai.github-release' version '2.2.9'
-    id 'org.asciidoctor.jvm.convert' version '3.0.0'
+    id 'net.researchgate.release' version '2.8.1'
+    id 'com.github.breadmoirai.github-release' version '2.2.10'
+    id 'org.asciidoctor.jvm.convert' version '3.1.0'
 }
 
 repositories {
@@ -16,7 +16,7 @@ repositories {
 }
 
 dependencies {
-    api 'com.redislabs:picocli-redis:1.11.1'
+    api 'com.redislabs:picocli-redis:1.11.7'
 	implementation 'org.slf4j:slf4j-jdk14:1.7.28'
     implementation 'org.springframework.batch:spring-batch-core:4.2.1.RELEASE'
     implementation 'org.springframework.boot:spring-boot-autoconfigure:2.2.4.RELEASE'
@@ -26,7 +26,7 @@ dependencies {
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.10.2'
     implementation 'com.github.javafaker:javafaker:1.0.1'
     implementation 'com.zaxxer:HikariCP:3.4.2'
-    implementation 'me.tongfei:progressbar:0.8.0'
+    implementation 'me.tongfei:progressbar:0.8.1'
     compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
     compileOnly 'org.projectlombok:lombok:1.18.10'
     annotationProcessor 'org.projectlombok:lombok:1.18.10'
