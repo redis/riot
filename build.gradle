@@ -159,6 +159,7 @@ githubRelease {
     token = project.hasProperty('githubToken') ? project.property('githubToken') : System.getenv('GITHUB_TOKEN')
     owner "Redislabs-Solution-Architects"
     repo "riot"
+    releaseAssets distZip, distTar
 }
 
 afterReleaseBuild.dependsOn ":githubRelease"
