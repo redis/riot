@@ -25,12 +25,9 @@ public class FlowThread implements Runnable {
 	private @Setter Flow flow;
 	private @Setter Batcher batcher;
 	private @Setter Long flushRate;
-	@Getter
-	private long readCount;
-	@Getter
-	private long writeCount;
-	@Getter
-	private boolean running;
+	private @Getter long readCount;
+	private @Getter long writeCount;
+	private @Getter boolean running;
 	private boolean stopped;
 
 	@Override

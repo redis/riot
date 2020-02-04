@@ -9,6 +9,7 @@ import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 
 import com.redislabs.riot.transfer.CappedReader;
+import com.redislabs.riot.transfer.ErrorHandler;
 import com.redislabs.riot.transfer.Flow;
 import com.redislabs.riot.transfer.ThrottledReader;
 import com.redislabs.riot.transfer.Transfer;
@@ -18,11 +19,13 @@ import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Spec;
 
+@Slf4j
 @Command
 public @Data abstract class TransferCommand<I, O> extends RiotCommand {
 
@@ -50,9 +53,13 @@ public @Data abstract class TransferCommand<I, O> extends RiotCommand {
 		return transfer;
 	}
 
+	protected ErrorHandler errorHandler() {
+		return e -> log.error("Could not read item", e);
+	}
+
 	protected Flow flow(String name, ItemReader<I> reader, ItemProcessor<I, O> processor, ItemWriter<O> writer) {
-		return new Flow().name(name).batchSize(batchSize).nThreads(nThreads).reader(throttle(cap(reader)))
-				.processor(processor).writer(writer);
+		return Flow.builder().name(name).batchSize(batchSize).nThreads(nThreads).reader(throttle(cap(reader)))
+				.processor(processor).writer(writer).errorHandler(errorHandler()).build();
 	}
 
 	protected void execute(Transfer transfer) {

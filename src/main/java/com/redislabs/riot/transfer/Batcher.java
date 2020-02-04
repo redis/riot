@@ -19,6 +19,7 @@ public class Batcher {
 	private @Setter int chunkSize;
 	private @Setter boolean finished;
 	private @Setter ItemProcessor processor;
+	private @Setter ErrorHandler errorHandler;
 	private BlockingQueue items;
 
 	public Batcher queueCapacity(int capacity) {
@@ -35,7 +36,7 @@ public class Batcher {
 			try {
 				item = reader.read();
 			} catch (Exception e) {
-				log.error("Could not get next item from reader", e);
+				errorHandler.handle(e);
 				continue;
 			}
 			if (item == null) {

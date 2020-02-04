@@ -9,26 +9,27 @@ import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Builder;
+import lombok.Data;
 
 @SuppressWarnings("rawtypes")
-public class Flow {
+@Builder
+public @Data class Flow {
 
-	private @Getter @Setter String name;
-	private @Getter @Setter ItemReader reader;
-	private @Setter ItemProcessor processor;
-	private @Getter @Setter ItemWriter writer;
-	private @Getter @Setter int nThreads;
-	private @Getter @Setter int batchSize;
-	private @Getter @Setter Long flushRate;
+	private String name;
+	private ItemReader reader;
+	private ItemProcessor processor;
+	private ItemWriter writer;
+	private int nThreads;
+	private int batchSize;
+	private Long flushRate;
+	private ErrorHandler errorHandler;
 
 	public FlowExecution execute() {
 		List<FlowThread> threads = new ArrayList<>(nThreads);
 		for (int index = 0; index < nThreads; index++) {
-			Batcher batcher = new Batcher().reader(reader).processor(processor()).chunkSize(batchSize)
-					.queueCapacity(batchSize * 2);
-			;
+			Batcher batcher = new Batcher().reader(reader).processor(createProcessor()).chunkSize(batchSize)
+					.queueCapacity(batchSize * 2).errorHandler(errorHandler);
 			FlowThread thread = new FlowThread().threadId(index).threads(nThreads).flow(this).batcher(batcher)
 					.flushRate(flushRate);
 			threads.add(thread);
@@ -41,7 +42,7 @@ public class Flow {
 		return new FlowExecution().threads(threads).executor(executor);
 	}
 
-	private ItemProcessor processor() {
+	private ItemProcessor createProcessor() {
 		if (processor == null) {
 			return item -> item;
 		}
