@@ -16,7 +16,7 @@ repositories {
 }
 
 dependencies {
-    api 'com.redislabs:picocli-redis:1.11.7'
+    api 'com.redislabs:picocli-redis:1.11.9'
 	implementation 'org.slf4j:slf4j-jdk14:1.7.28'
     implementation 'org.springframework.batch:spring-batch-core:4.2.1.RELEASE'
     implementation 'org.springframework.boot:spring-boot-autoconfigure:2.2.4.RELEASE'
