@@ -716,12 +716,13 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="sect2">
 <h3 id="gen">Generators</h3>
 <div class="paragraph">
-<p>RIOT can be used to generate data in Redis with 2 different generators:</p>
+<p>RIOT can be used to create random data in Redis with 2 different generators.</p>
 </div>
-<div class="ulist">
-<ul>
-<li>
-<p>Simple: fixed-length fields of random text with 2 fields by default:</p>
+<div class="sect3">
+<h4 id="simple">Simple</h4>
+<div class="paragraph">
+<p>The simple generator produces fixed-length fields with 2 fields by default:</p>
+</div>
 <div class="ulist">
 <ul>
 <li>
@@ -729,9 +730,6 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </li>
 <li>
 <p><code>partition</code>: index of the partition (thread) generating the data, e.g. if you have 8 threads generating data each will have a different partition index between 0 and 7.</p>
-</li>
-</ul>
-</div>
 </li>
 </ul>
 </div>
@@ -744,6 +742,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">$ riot --debug gen -d field1=100 field2=1000 --batch 100 --threads 3 --max 10000 hmset --keyspace test --keys index</code></pre>
+</div>
 </div>
 </div>
 <div class="sect3">
@@ -777,6 +776,15 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 1) "Nymella Toland"
 2) "Ysilla Royce"
 …</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<div class="title">RediSearch Index Introspection</div>
+<p>RIOT can introspect an existing RediSearch index (specified with the <code>--faker-index</code> option) and generate Faker data accordingly:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">$ riot gen --faker-index beerIntrospection --max 100 ftadd --index beerIntrospection --keys id</code></pre>
 </div>
 </div>
 </div>
@@ -908,7 +916,7 @@ process(item);</code></pre>
 <div id="footer">
 <div id="footer-text">
 Version 1.0<br>
-Last updated 2020-01-22 01:15:01 -0800
+Last updated 2020-02-04 16:49:52 -0800
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/styles/github.min.css">

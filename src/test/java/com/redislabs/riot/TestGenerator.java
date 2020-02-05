@@ -7,6 +7,10 @@ import java.util.Set;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import com.redislabs.lettusearch.search.Schema;
+import com.redislabs.lettusearch.search.SearchResults;
+import com.redislabs.lettusearch.search.field.Field;
+import com.redislabs.lettusearch.search.field.PhoneticMatcher;
 import com.redislabs.riot.generator.GeneratorReader;
 
 import io.lettuce.core.Range;
@@ -73,6 +77,26 @@ public class TestGenerator extends BaseTest {
 		runFile("gen-faker-stream");
 		List<StreamMessage<String, String>> messages = commands().xrange("teststream:1", Range.unbounded());
 		Assertions.assertTrue(messages.size() > 0);
+	}
+
+	@Test
+	public void testIndexIntrospection() throws Exception {
+		String INDEX = "beerIntrospection";
+		String FIELD_ID = "id";
+		String FIELD_ABV = "abv";
+		String FIELD_NAME = "name";
+		String FIELD_STYLE = "style";
+		String FIELD_OUNCES = "ounces";
+		commands().flushall();
+		Schema schema = Schema.builder().field(Field.tag(FIELD_ID).sortable(true))
+				.field(Field.text(FIELD_NAME).sortable(true))
+				.field(Field.text(FIELD_STYLE).matcher(PhoneticMatcher.English).sortable(true))
+				.field(Field.numeric(FIELD_ABV).sortable(true)).field(Field.numeric(FIELD_OUNCES).sortable(true))
+				.build();
+		commands().create(INDEX, schema);
+		runFile("gen-faker-index-introspection");
+		SearchResults<String, String> results = commands().search(INDEX, "*");
+		Assertions.assertEquals(100, results.count());
 	}
 
 }

@@ -143,9 +143,11 @@ include::{commandsdir}/db-export.txt[]
 [#gen]
 === Generators
 
-RIOT can be used to generate data in Redis with 2 different generators:
+RIOT can be used to create random data in Redis with 2 different generators.
 
-* Simple: fixed-length fields of random text with 2 fields by default:
+==== Simple
+
+The simple generator produces fixed-length fields with 2 fields by default:
 
 ** `index`: monotonous integer sequence
 ** `partition`: index of the partition (thread) generating the data, e.g. if you have 8 threads generating data each will have a different partition index between 0 and 7.
@@ -186,6 +188,15 @@ include::{commandsdir}/gen-faker-set.txt[]
 2) "Ysilla Royce"
 …
 ----
+
+.RediSearch Index Introspection
+
+RIOT can introspect an existing RediSearch index (specified with the `--faker-index` option) and generate Faker data accordingly:
+[source,shell]
+----
+include::{commandsdir}/gen-faker-index-introspection.txt[]
+----
+ 
 
 === Redis
 
