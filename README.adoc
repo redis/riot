@@ -23,7 +23,7 @@ RIOT is a data import/export tool for Redis and Redis Modules that connects to f
 
 == Getting Started
 
-=== Homebrew  
+=== Homebrew 
 
 ```
 $ brew install jruaux/tap/riot
@@ -32,47 +32,9 @@ $ riot --help
 
 === Download and run 
 
-Download the {repo-url}/releases/latest[latest RIOT distribution] and untar the downloaded archive.
+Download the {repo-url}/releases/latest[latest release], and untar/unzip the archive.
 
 Launch the `riot` script (`riot.bat` for Windows) and follow the usage information provided.
-
-=== Build and run
-
-[subs="attributes"]
-----
-$ git clone {repo-url}/riot.git
-$ cd riot
-$ ./riot --help
-----
-
-== Shell completion
-
-RIOT has command line completion for Bash and ZSH Unix shells:
-
-```
-$ riot <TAB><TAB>
-console       db-import     file-export   gen           ping                                              
-db-export     faker         file-import   info          redis-export                       
-```      
-
-=== Homebrew
-
-The completion script is already installed and can be loaded in ZSH using:
-
-```
-. /usr/local/share/zsh/site-functions/_riot
-```
-
-To make this permanent, add the previous lines to `~/.zshrc`.
-
-=== Manual installation
-
-Generate and source the completion script:
-
-```
-$ source <(riot generate-completion)
-```
-
 
 == Documentation
 
