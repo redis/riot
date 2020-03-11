@@ -70,7 +70,7 @@ public @Data class ReplicateCommand extends ImportCommand<KeyValue, KeyValue> im
 	}
 
 	private boolean keyspaceNotificationsEnabled() {
-		return !options.channel().isBlank();
+		return options.channel().length() > 0;
 	}
 
 	@Override

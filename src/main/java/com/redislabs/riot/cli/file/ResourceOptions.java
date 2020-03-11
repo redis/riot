@@ -33,6 +33,9 @@ public @Data class ResourceOptions {
 		if (path.toLowerCase().endsWith(".json") || path.endsWith(".json.gz")) {
 			return FileType.Json;
 		}
+		if (path.toLowerCase().endsWith(".xml") || path.endsWith(".xml.gz")) {
+			return FileType.Xml;
+		}
 		return FileType.Csv;
 	}
 

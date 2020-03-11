@@ -2,7 +2,9 @@ package com.redislabs.riot;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 
+import org.apache.commons.io.IOUtils;
 import org.codehaus.plexus.util.cli.CommandLineUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -65,7 +67,7 @@ public class BaseTest {
 
 	public static int runFileWithServer(String filename, String serverOptions, Object... args) throws Exception {
 		try (InputStream inputStream = BaseTest.class.getResourceAsStream("/commands/" + filename + ".txt")) {
-			String line = new String(inputStream.readAllBytes());
+			String line = IOUtils.toString(inputStream, Charset.defaultCharset());
 			String command = serverOptions == null ? "" : (serverOptions + " ");
 			command += line.substring(COMMAND_START.length());
 			return new Riot().execute(CommandLineUtils.translateCommandline(String.format(command, args)));

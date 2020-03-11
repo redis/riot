@@ -2,7 +2,6 @@ package com.redislabs.riot.cli;
 
 import java.util.concurrent.TimeUnit;
 
-import com.redislabs.picocliredis.HelpCommand;
 import com.redislabs.picocliredis.RedisOptions;
 import com.redislabs.riot.test.InfoTest;
 import com.redislabs.riot.test.LatencyTest;
@@ -18,7 +17,7 @@ import redis.clients.jedis.Jedis;
 
 @Slf4j
 @Command(name = "test", description = "Execute a test")
-public @Data class TestCommand extends HelpCommand {
+public @Data class TestCommand extends RiotCommand implements Runnable {
 
 	public enum RedisTestType {
 		info, ping, latency
@@ -38,7 +37,8 @@ public @Data class TestCommand extends HelpCommand {
 	@Option(names = "--latency-distribution", description = "Show latency distribution")
 	private boolean latencyDistribution;
 
-	public void execute() {
+	@Override
+	public void run() {
 		RedisTest test = test();
 		try {
 			if (redis.isJedis()) {

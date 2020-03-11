@@ -21,9 +21,13 @@ import org.springframework.batch.item.json.JacksonJsonObjectReader;
 import org.springframework.batch.item.json.JsonItemReader;
 import org.springframework.batch.item.json.builder.JsonItemReaderBuilder;
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
+import org.springframework.batch.item.xml.XmlItemReader;
+import org.springframework.batch.item.xml.XmlObjectReader;
+import org.springframework.batch.item.xml.builder.XmlItemReaderBuilder;
 import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.redislabs.riot.processor.MapFlattener;
 
 import lombok.Data;
@@ -111,10 +115,24 @@ public @Data class FileReaderOptions extends FlatFileOptions {
 		return (AbstractItemCountingItemStreamItemReader<Map<String, Object>>) reader;
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private AbstractItemCountingItemStreamItemReader<Map<String, Object>> xmlReader() throws Exception {
+		XmlItemReaderBuilder<Map> builder = new XmlItemReaderBuilder<Map>();
+		builder.name("xml-file-reader");
+		builder.resource(inputResource());
+		XmlObjectReader<Map> objectReader = new XmlObjectReader<>(Map.class);
+		objectReader.setMapper(new XmlMapper());
+		builder.xmlObjectReader(objectReader);
+		XmlItemReader<? extends Map> reader = builder.build();
+		return (AbstractItemCountingItemStreamItemReader<Map<String, Object>>) reader;
+	}
+
 	public ItemReader<Map<String, Object>> reader() throws Exception {
 		switch (type()) {
 		case Json:
 			return jsonReader();
+		case Xml:
+			return xmlReader();
 		case Fixed:
 			return fixedLengthReader();
 		default:
@@ -125,6 +143,8 @@ public @Data class FileReaderOptions extends FlatFileOptions {
 	public ItemProcessor<Map<String, Object>, Map<String, Object>> postProcessor() {
 		switch (type()) {
 		case Json:
+			return new MapFlattener();
+		case Xml:
 			return new MapFlattener();
 		default:
 			return null;
