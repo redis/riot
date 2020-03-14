@@ -23,6 +23,12 @@ RIOT is a data import/export tool for Redis and Redis Modules that connects to f
 
 == Getting Started
 
+Pre-requsite:
+
+```
+$ brew cask install adoptopenjdk
+```
+
 === Homebrew 
 
 ```
