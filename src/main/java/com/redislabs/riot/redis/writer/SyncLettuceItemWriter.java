@@ -2,10 +2,7 @@ package com.redislabs.riot.redis.writer;
 
 import java.util.List;
 
-import io.lettuce.core.api.StatefulConnection;
-
-public class SyncLettuceItemWriter<C extends StatefulConnection<String, String>, O>
-		extends AbstractLettuceItemWriter<C, O> {
+public class SyncLettuceItemWriter<O> extends AbstractLettuceItemWriter<O> {
 
 	@Override
 	protected void write(List<? extends O> items, Object commands) {

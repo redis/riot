@@ -1,0 +1,264 @@
+'\" t
+.\"     Title: riot-replicate
+.\"    Author: [see the "AUTHOR(S)" section]
+.\" Generator: Asciidoctor 1.5.8
+.\"      Date: 2020-03-11
+.\"    Manual: Riot Manual
+.\"    Source: 
+.\"  Language: English
+.\"
+.TH "RIOT\-REPLICATE" "1" "2020-03-11" "" "Riot Manual"
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.ss \n[.ss] 0
+.nh
+.ad l
+.de URL
+\fI\\$2\fP <\\$1>\\$3
+..
+.als MTO URL
+.if \n[.g] \{\
+.  mso www.tmac
+.  am URL
+.    ad l
+.  .
+.  am MTO
+.    ad l
+.  .
+.  LINKSTYLE blue R < >
+.\}
+.SH "NAME"
+riot\-replicate \- Replicate a Redis database
+.SH "SYNOPSIS"
+.sp
+\fBriot replicate\fP [OPTIONS]
+.SH "DESCRIPTION"
+.sp
+Replicate a Redis database
+.SH "OPTIONS"
+.sp
+\fB\-\-api\fP=\fI<name>\fP
+.RS 4
+API: Async, Reactive, Sync (default: Async)
+.RE
+.sp
+\fB\-\-auth\fP[=\fI<pwd>\fP]
+.RS 4
+Database login password
+.RE
+.sp
+\fB\-b\fP, \fB\-\-batch\fP=\fI<size>\fP
+.RS 4
+Number of items in each batch (default: 50)
+.RE
+.sp
+\fB\-\-client\fP=\fI<name>\fP
+.RS 4
+Redis client name (default: picocli\-redis)
+.RE
+.sp
+\fB\-\-cluster\fP
+.RS 4
+Connect to a Redis cluster
+.RE
+.sp
+\fB\-\-command\-timeout\fP=\fI<s>\fP
+.RS 4
+Timeout for sync command execution (default: 60)
+.RE
+.sp
+\fB\-\-comp\-threads\fP=\fI<int>\fP
+.RS 4
+Number of computation threads (default: 4)
+.RE
+.sp
+\fB\-\-connect\-timeout\fP=\fI<ms>\fP
+.RS 4
+Connect timeout (default: 2000)
+.RE
+.sp
+\fB\-\-db\fP=\fI<int>\fP
+.RS 4
+Redis database number
+.RE
+.sp
+\fB\-\-driver\fP=\fI<name>\fP
+.RS 4
+Redis driver: Jedis, Lettuce (default: Lettuce)
+.RE
+.sp
+\fB\-\-help\fP
+.RS 4
+Show this help message and exit
+.RE
+.sp
+\fB\-\-io\-threads\fP=\fI<int>\fP
+.RS 4
+Number of threads for I/O operations (default: 4)
+.RE
+.sp
+\fB\-\-ks\fP=\fI<file>\fP
+.RS 4
+Path to keystore
+.RE
+.sp
+\fB\-\-ks\-password\fP[=\fI<pwd>\fP]
+.RS 4
+Keystore password
+.RE
+.sp
+\fB\-m\fP, \fB\-\-max\fP=\fI<count>\fP
+.RS 4
+Max number of items to read
+.RE
+.sp
+\fB\-\-max\-idle\fP=\fI<int>\fP
+.RS 4
+Max idle connections; \-1 for no limit (default: 8)
+.RE
+.sp
+\fB\-\-max\-redirects\fP=\fI<int>\fP
+.RS 4
+Max cluster redirects (default: 5)
+.RE
+.sp
+\fB\-\-max\-total\fP=\fI<int>\fP
+.RS 4
+Max connections; \-1 for no limit (default: 8)
+.RE
+.sp
+\fB\-\-max\-wait\fP=\fI<ms>\fP
+.RS 4
+Max duration; \-1 for infinite (default: \-1)
+.RE
+.sp
+\fB\-\-metrics\fP
+.RS 4
+Show metrics
+.RE
+.sp
+\fB\-\-min\-idle\fP=\fI<int>\fP
+.RS 4
+Min idle connections (default: 0)
+.RE
+.sp
+\fB\-\-no\-auto\-reconnect\fP
+.RS 4
+Disable auto\-reconnect
+.RE
+.sp
+\fB\-\-progress\fP=\fI<ms>\fP
+.RS 4
+Progress reporting interval (default: 300 ms)
+.RE
+.sp
+\fB\-\-publish\-on\-sched\fP
+.RS 4
+Enable publish on scheduler (default: false)
+.RE
+.sp
+\fB\-\-request\-queue\fP=\fI<int>\fP
+.RS 4
+Per\-connection request queue size (default: max)
+.RE
+.sp
+\fB\-s\fP, *\-\-servers*\fI=<s1 s2 …>\fP
+.RS 4
+Server endpoints (default: localhost:6379)
+.RE
+.sp
+\fB\-\-sentinel\fP=\fI<master>\fP
+.RS 4
+Sentinel master
+.RE
+.sp
+\fB\-\-sleep\fP=\fI<ms>\fP
+.RS 4
+Sleep duration in millis between reads
+.RE
+.sp
+\fB\-\-socket\-timeout\fP=\fI<ms>\fP
+.RS 4
+Socket timeout (default: 2000)
+.RE
+.sp
+\fB\-\-ssl\fP
+.RS 4
+SSL connection
+.RE
+.sp
+\fB\-\-ssl\-provider\fP=\fI<name>\fP
+.RS 4
+SSL provider: Jdk, OpenSsl (default: Jdk)
+.RE
+.sp
+\fB\-\-threads\fP=\fI<count>\fP
+.RS 4
+Thread count (default: 1)
+.RE
+.sp
+\fB\-\-transfer\-max\-wait\fP=\fI<ms>\fP
+.RS 4
+Max duration to wait for transfer to complete
+.RE
+.sp
+\fB\-\-ts\fP=\fI<file>\fP
+.RS 4
+Path to truststore
+.RE
+.sp
+\fB\-\-ts\-password\fP[=\fI<pwd>\fP]
+.RS 4
+Truststore password
+.RE
+.SH "REPLICATION OPTIONS"
+.sp
+\fB\-\-flush\-rate\fP=\fI<ms>\fP
+.RS 4
+Interval in millis between notification flushes (default: 50)
+.RE
+.sp
+\fB\-\-key\-queue\-size\fP=\fI<int>\fP
+.RS 4
+Capacity of the key queue (default: 10000)
+.RE
+.sp
+\fB\-\-keyspace\-channel\fP=\fI<string>\fP
+.RS 4
+Pub/sub channel for keyspace events (default: \fIkeyspace@0\fP:*). Blank to disable
+.RE
+.sp
+\fB\-\-no\-replace\fP
+.RS 4
+No REPLACE modifier with RESTORE command
+.RE
+.sp
+\fB\-\-reader\-batch\fP=\fI<int>\fP
+.RS 4
+Number of values in dump pipeline (default: 50)
+.RE
+.sp
+\fB\-\-reader\-threads\fP=\fI<int>\fP
+.RS 4
+Number of value reader threads (default: 1)
+.RE
+.sp
+\fB\-\-reader\-timeout\fP=\fI<sec>\fP
+.RS 4
+Command timeout duration in seconds (default: 2)
+.RE
+.sp
+\fB\-\-scan\-count\fP=\fI<int>\fP
+.RS 4
+Number of elements to return for each scan call (default: 1000)
+.RE
+.sp
+\fB\-\-scan\-match\fP=\fI<pattern>\fP
+.RS 4
+Scan match pattern
+.RE
+.sp
+\fB\-\-value\-queue\-size\fP=\fI<int>\fP
+.RS 4
+Capacity of the value queue (default: 10000)
+.RE

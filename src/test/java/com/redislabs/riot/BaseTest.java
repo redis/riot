@@ -17,11 +17,15 @@ import com.redislabs.lettusearch.StatefulRediSearchConnection;
 import io.lettuce.core.RedisURI;
 import redis.embedded.RedisExecProvider;
 import redis.embedded.RedisServer;
+import redis.embedded.RedisServerBuilder;
 import redis.embedded.util.OS;
 
 public class BaseTest {
 
-	private final static String COMMAND_START = "$ riot ";
+	private final static String COMMAND_PREAMBLE = "$ riot ";
+
+	private final static int REDIS_PORT = 16379;
+	private final static String REDIS_HOST = "localhost";
 
 	private static RedisServer server;
 	private static RediSearchClient client;
@@ -30,13 +34,17 @@ public class BaseTest {
 
 	@BeforeAll
 	public static void setup() throws IOException {
-		RedisExecProvider provider = RedisExecProvider.defaultProvider().override(OS.MAC_OS_X,
-				"/usr/local/bin/redis-server");
-		server = RedisServer.builder().redisExecProvider(provider).port(16379)
+		server = serverBuilder(REDIS_PORT).setting("notify-keyspace-events AK")
 				.setting("loadmodule /Users/jruaux/git/RediSearch/build/redisearch.so").build();
 		server.start();
-		client = RediSearchClient.create(RedisURI.create("localhost", 16379));
+		client = RediSearchClient.create(RedisURI.create(REDIS_HOST, REDIS_PORT));
 		connection = client.connect();
+	}
+
+	protected static RedisServerBuilder serverBuilder(int port) {
+		RedisExecProvider provider = RedisExecProvider.defaultProvider().override(OS.MAC_OS_X,
+				"/usr/local/bin/redis-server");
+		return RedisServer.builder().redisExecProvider(provider).port(port);
 	}
 
 	@BeforeEach
@@ -61,17 +69,26 @@ public class BaseTest {
 		}
 	}
 
-	public static int runFile(String filename, Object... args) throws Exception {
-		return runFileWithServer(filename, "-s localhost:16379", args);
+	protected int runFile(String filename, Object... args) throws Exception {
+		try (InputStream inputStream = BaseTest.class.getResourceAsStream("/commands/" + filename + ".txt")) {
+			return runCommandWithServer(IOUtils.toString(inputStream, Charset.defaultCharset()), args);
+		}
 	}
 
-	public static int runFileWithServer(String filename, String serverOptions, Object... args) throws Exception {
-		try (InputStream inputStream = BaseTest.class.getResourceAsStream("/commands/" + filename + ".txt")) {
-			String line = IOUtils.toString(inputStream, Charset.defaultCharset());
-			String command = serverOptions == null ? "" : (serverOptions + " ");
-			command += line.substring(COMMAND_START.length());
-			return new Riot().execute(CommandLineUtils.translateCommandline(String.format(command, args)));
+	protected int runCommandWithServer(String command, Object... args) throws Exception {
+		String server = REDIS_HOST + ":" + REDIS_PORT;
+		return runCommand("-s" + " " + server + " " + removePreamble(command), args);
+	}
+
+	protected int runCommand(String command, Object... args) throws Exception {
+		return new Riot().execute(CommandLineUtils.translateCommandline(String.format(command, args)));
+	}
+
+	private String removePreamble(String command) {
+		if (command.startsWith(COMMAND_PREAMBLE)) {
+			return command.substring(COMMAND_PREAMBLE.length());
 		}
+		return command;
 	}
 
 }

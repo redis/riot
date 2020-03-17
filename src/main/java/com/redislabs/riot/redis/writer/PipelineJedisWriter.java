@@ -3,13 +3,11 @@ package com.redislabs.riot.redis.writer;
 import java.util.ArrayList;
 import java.util.List;
 
-import lombok.extern.slf4j.Slf4j;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.Response;
 import redis.clients.jedis.util.Pool;
 
-@Slf4j
 public class PipelineJedisWriter<O> extends AbstractRedisItemWriter<O> {
 
 	private Pool<Jedis> pool;
@@ -32,14 +30,14 @@ public class PipelineJedisWriter<O> extends AbstractRedisItemWriter<O> {
 				}
 			}
 			p.sync();
-			for (Response response : responses) {
-				if (response == null) {
+			for (int index = 0; index < responses.size(); index++) {
+				if (responses.get(index) == null) {
 					continue;
 				}
 				try {
-					response.get();
+					responses.get(index).get();
 				} catch (Exception e) {
-					log.error("Error during write", e);
+					logWriteError(items.get(index), e);
 				}
 			}
 		}

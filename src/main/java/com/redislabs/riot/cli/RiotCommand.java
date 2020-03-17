@@ -4,22 +4,21 @@ import com.redislabs.picocliredis.HelpCommand;
 import com.redislabs.picocliredis.RedisOptions;
 import com.redislabs.riot.Riot;
 
-import lombok.Data;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.ParentCommand;
 
 @Command
-public @Data class RiotCommand extends HelpCommand {
+public abstract class RiotCommand extends HelpCommand implements Runnable {
 
 	@ParentCommand
 	private Riot parent = new Riot();
 
-	public RedisOptions redisOptions() {
-		return parent.redisOptions();
+	protected RedisOptions redisOptions() {
+		return parent.getRedis();
 	}
 
-	protected Riot parent() {
-		return parent;
+	protected boolean isQuiet() {
+		return parent.getOptions().isQuiet();
 	}
 
 }

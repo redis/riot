@@ -34,15 +34,15 @@ public class TestDatabase extends BaseTest {
 		connection.createStatement().execute("DROP TABLE IF EXISTS beers");
 		connection.createStatement()
 				.execute("CREATE TABLE IF NOT EXISTS beers (id INT NOT NULL, name VARCHAR(500), PRIMARY KEY (id))");
-		runFile("file-import-csv-hash");
-		runFile("db-export");
+		runFile("import-csv-hash");
+		runFile("export-db");
 		commands().flushall();
 	}
 
 	@Test
 	public void testImportDatabase() throws Exception {
 		populateBeersTable();
-		runFile("db-import");
+		runFile("import-db");
 		List<String> keys = commands().keys("dbbeer:*");
 		Assertions.assertEquals(BEER_COUNT, keys.size());
 	}

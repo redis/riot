@@ -1,11 +1,13 @@
 package com.redislabs.riot.redis;
 
+import java.util.List;
 import java.util.Map;
 
 import com.redislabs.lettusearch.RediSearchAsyncCommands;
 import com.redislabs.lettusearch.search.AddOptions;
 
 import io.lettuce.core.RestoreArgs;
+import io.lettuce.core.ScoredValue;
 import io.lettuce.core.ScriptOutputType;
 import io.lettuce.core.XAddArgs;
 import io.lettuce.core.api.async.RedisGeoAsyncCommands;
@@ -22,8 +24,8 @@ import io.lettuce.core.api.async.RedisStringAsyncCommands;
 public class LettuceAsyncCommands implements RedisCommands<Object> {
 
 	@Override
-	public Object del(Object redis, String key) {
-		return ((RedisKeyAsyncCommands<String, String>) redis).del(key);
+	public Object del(Object redis, String... keys) {
+		return ((RedisKeyAsyncCommands<String, String>) redis).del(keys);
 	}
 
 	@Override
@@ -60,8 +62,18 @@ public class LettuceAsyncCommands implements RedisCommands<Object> {
 	}
 
 	@Override
+	public Object xadd(Object redis, String key, List<String> ids, List<Map<String, String>> maps) {
+		throw new UnsupportedOperationException("Multi-message xadd not supported");
+	}
+
+	@Override
 	public Object zadd(Object redis, String key, double score, String member) {
 		return ((RedisSortedSetAsyncCommands<String, String>) redis).zadd(key, score, member);
+	}
+
+	@Override
+	public Object zadd(Object redis, String key, List<ScoredValue<String>> scoredValues) {
+		return ((RedisSortedSetAsyncCommands<String, String>) redis).zadd(key, scoredValues);
 	}
 
 	@Override
@@ -70,18 +82,18 @@ public class LettuceAsyncCommands implements RedisCommands<Object> {
 	}
 
 	@Override
-	public Object sadd(Object redis, String key, String member) {
-		return ((RedisSetAsyncCommands<String, String>) redis).sadd(key, member);
+	public Object sadd(Object redis, String key, String... members) {
+		return ((RedisSetAsyncCommands<String, String>) redis).sadd(key, members);
 	}
 
 	@Override
-	public Object rpush(Object redis, String key, String member) {
-		return ((RedisListAsyncCommands<String, String>) redis).rpush(key, member);
+	public Object rpush(Object redis, String key, String... members) {
+		return ((RedisListAsyncCommands<String, String>) redis).rpush(key, members);
 	}
 
 	@Override
-	public Object lpush(Object redis, String key, String member) {
-		return ((RedisListAsyncCommands<String, String>) redis).lpush(key, member);
+	public Object lpush(Object redis, String key, String... members) {
+		return ((RedisListAsyncCommands<String, String>) redis).lpush(key, members);
 	}
 
 	@Override

@@ -41,8 +41,8 @@ public class TestFile extends BaseTest {
 	public void testExportCsv() throws UnexpectedInputException, ParseException, Exception {
 		File file = new File("/tmp/beers.csv");
 		file.delete();
-		runFile("file-import-json-hash");
-		runFile("file-export-csv");
+		runFile("import-json-hash");
+		runFile("export-csv");
 		String[] header = Files.readAllLines(file.toPath()).get(0).split("\\|");
 		FlatFileItemReaderBuilder<Map<String, Object>> builder = new FlatFileItemReaderBuilder<Map<String, Object>>();
 		builder.name("flat-file-reader");
@@ -77,8 +77,8 @@ public class TestFile extends BaseTest {
 	public void testExportJson() throws UnexpectedInputException, ParseException, Exception {
 		File file = new File("/tmp/beers.json");
 		file.delete();
-		runFile("file-import-json-hash");
-		runFile("file-export-json");
+		runFile("import-json-hash");
+		runFile("export-json");
 		JsonItemReaderBuilder<Map> builder = new JsonItemReaderBuilder<>();
 		builder.name("json-file-reader");
 		builder.resource(new FileSystemResource(file));
@@ -95,8 +95,8 @@ public class TestFile extends BaseTest {
 	public void testExportJsonGz() throws UnexpectedInputException, ParseException, Exception {
 		File file = new File("/tmp/beers.json.gz");
 		file.delete();
-		runFile("file-import-json-hash");
-		runFile("file-export-json_gz");
+		runFile("import-json-hash");
+		runFile("export-json_gz");
 		JsonItemReaderBuilder<Map> builder = new JsonItemReaderBuilder<>();
 		builder.name("json-file-reader");
 		FileSystemResource resource = new FileSystemResource(file);
@@ -112,7 +112,7 @@ public class TestFile extends BaseTest {
 
 	@Test
 	public void testImportCsvHash() throws Exception {
-		runFile("file-import-csv-hash");
+		runFile("import-csv-hash");
 		List<String> keys = commands().keys("beer:*");
 		Assertions.assertEquals(BEER_COUNT, keys.size());
 	}
@@ -130,7 +130,7 @@ public class TestFile extends BaseTest {
 				.field(Field.numeric(FIELD_ABV).sortable(true)).field(Field.numeric(FIELD_OUNCES).sortable(true))
 				.build();
 		commands().create(INDEX, schema);
-		runFile("file-import-csv-search");
+		runFile("import-csv-search");
 		SearchResults<String, String> results = commands().search(INDEX, "*");
 		Assertions.assertEquals(BEER_COUNT, results.count());
 	}
@@ -142,14 +142,14 @@ public class TestFile extends BaseTest {
 		Schema schema = Schema.builder().field(Field.text("Name").sortable(true))
 				.field(Field.geo("Location").sortable(true)).build();
 		commands().create(INDEX, schema);
-		runFile("file-import-csv-processor-search-geo");
+		runFile("import-csv-processor-search-geo");
 		SearchResults<String, String> results = commands().search(INDEX, "@Location:[-77 38 50 mi]");
 		Assertions.assertEquals(3, results.count());
 	}
 
 	@Test
 	public void testImportCsvGeo() throws Exception {
-		runFile("file-import-csv-geo");
+		runFile("import-csv-geo");
 		Set<String> results = commands().georadius("airportgeo", -122.4194, 37.7749, 20, Unit.mi);
 		Assertions.assertTrue(results.contains("3469"));
 		Assertions.assertTrue(results.contains("10360"));
@@ -159,7 +159,7 @@ public class TestFile extends BaseTest {
 	@Test
 	public void testImportElasticJson() throws Exception {
 		String url = getClass().getClassLoader().getResource("es_test-index.json").getFile();
-		runFile("file-import-elastic-json", url);
+		runFile("import-elastic-json", url);
 		Assertions.assertEquals(2, commands().keys("estest:*").size());
 		Map<String, String> doc1 = commands().hgetall("estest:doc1");
 		Assertions.assertEquals("ruan", doc1.get("_source.name"));
@@ -168,7 +168,7 @@ public class TestFile extends BaseTest {
 
 	@Test
 	public void testImportJsonHash() throws Exception {
-		runFile("file-import-json-hash");
+		runFile("import-json-hash");
 		List<String> keys = commands().keys("beer:*");
 		Assertions.assertEquals(4432, keys.size());
 		Map<String, String> beer1 = commands().hgetall("beer:1");
@@ -177,7 +177,7 @@ public class TestFile extends BaseTest {
 
 	@Test
 	public void testImportCsvProcessorHashDateFormat() throws Exception {
-		runFile("file-import-csv-processor-hash-dateformat");
+		runFile("import-csv-processor-hash-dateformat");
 		List<String> keys = commands().keys("event:*");
 		Assertions.assertEquals(568, keys.size());
 		Map<String, String> event = commands().hgetall("event:248206");
@@ -194,7 +194,7 @@ public class TestFile extends BaseTest {
 		Schema schema = Schema.builder().field(Field.text("Title")).field(Field.numeric("lon"))
 				.field(Field.numeric("kat")).field(Field.geo("location").sortable(true)).build();
 		commands().create(INDEX, schema);
-		runFile("file-import-csv-processor-search");
+		runFile("import-csv-processor-search");
 		SearchResults<String, String> results = commands().search(INDEX, "@location:[-118.446014 33.998415 10 mi]");
 		Assertions.assertTrue(results.count() > 0);
 		for (SearchResult<String, String> result : results) {

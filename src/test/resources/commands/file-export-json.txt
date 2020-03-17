@@ -1,1 +1,0 @@
-$ riot file-export --file /tmp/beers.json --keyspace beer --keys id --fields id name brewery_id abv

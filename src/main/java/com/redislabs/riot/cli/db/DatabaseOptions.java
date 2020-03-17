@@ -6,22 +6,24 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 
 import com.zaxxer.hikari.HikariDataSource;
 
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine.Option;
 
 @Slf4j
-public @Data class DatabaseOptions {
+public class DatabaseOptions {
 
-	@Option(names = "--driver", description = "Fully qualified name of the JDBC driver", paramLabel = "<class>")
+	@Option(names = "--db-driver", description = "Fully qualified name of the JDBC driver", paramLabel = "<class>")
 	private String driver;
-	@Option(names = { "-u",
-			"--url" }, required = true, description = "URL to connect to the database", paramLabel = "<string>")
+	@Option(names = "--db-url", required = true, description = "JDBC URL to connect to the database", paramLabel = "<string>")
 	private String url;
-	@Option(names = { "-n", "--username" }, description = "Login username of the database", paramLabel = "<string>")
+	@Option(names = "--db-username", description = "Login username of the database", paramLabel = "<string>")
 	private String username;
-	@Option(names = "--password", arity = "0..1", interactive = true, description = "Login password of the database", paramLabel = "<pwd>")
+	@Option(names = "--db-password", arity = "0..1", interactive = true, description = "Login password of the database", paramLabel = "<pwd>")
 	private String password;
+
+	public String getUrl() {
+		return url;
+	}
 
 	protected DataSource dataSource() {
 		DataSourceProperties properties = new DataSourceProperties();

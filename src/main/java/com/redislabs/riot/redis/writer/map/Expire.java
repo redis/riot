@@ -5,9 +5,11 @@ import java.util.Map;
 import com.redislabs.riot.redis.RedisCommands;
 
 import lombok.Setter;
+import lombok.experimental.Accessors;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
-public class Expire extends AbstractKeyMapRedisWriter {
+@Accessors(fluent = true)
+public class Expire extends AbstractKeyMapCommandWriter {
 
 	@Setter
 	private String timeoutField;

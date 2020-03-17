@@ -3,18 +3,29 @@ package com.redislabs.riot.transfer;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Transfer {
+import com.redislabs.riot.transfer.TransferExecution.TransferExecutionBuilder;
 
-	private List<Flow> flows = new ArrayList<>();
+import lombok.Builder;
 
-	public TransferExecution execute() {
-		TransferExecution execution = new TransferExecution();
-		flows.forEach(f -> execution.flowExecution(f.execute()));
-		return execution;
+public class Transfer<I, O> {
+
+	private List<Flow<I, O>> flows;
+
+	@Builder
+	private Transfer(Flow<I, O> flow) {
+		this.flows = new ArrayList<>();
+		this.flows.add(flow);
 	}
 
-	public void flow(Flow flow) {
-		flows.add(flow);
+	public Transfer<I, O> add(Flow<I, O> flow) {
+		this.flows.add(flow);
+		return this;
+	}
+
+	public TransferExecution<I, O> execute() {
+		TransferExecutionBuilder<I, O> builder = TransferExecution.<I, O>builder();
+		flows.forEach(f -> builder.flow(f.execute()));
+		return builder.build();
 	}
 
 }

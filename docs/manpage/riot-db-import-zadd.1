@@ -1,0 +1,78 @@
+'\" t
+.\"     Title: riot-db-import-zadd
+.\"    Author: [see the "AUTHOR(S)" section]
+.\" Generator: Asciidoctor 1.5.8
+.\"      Date: 2020-03-11
+.\"    Manual: Riot Manual
+.\"    Source: 
+.\"  Language: English
+.\"
+.TH "RIOT\-DB\-IMPORT\-ZADD" "1" "2020-03-11" "" "Riot Manual"
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.ss \n[.ss] 0
+.nh
+.ad l
+.de URL
+\fI\\$2\fP <\\$1>\\$3
+..
+.als MTO URL
+.if \n[.g] \{\
+.  mso www.tmac
+.  am URL
+.    ad l
+.  .
+.  am MTO
+.    ad l
+.  .
+.  LINKSTYLE blue R < >
+.\}
+.SH "NAME"
+riot\-db\-import\-zadd \- Add members with scores to a sorted set
+.SH "SYNOPSIS"
+.sp
+\fBriot db\-import zadd\fP [OPTIONS]
+.SH "DESCRIPTION"
+.sp
+Add members with scores to a sorted set
+.SH "OPTIONS"
+.sp
+\fB\-\-default\fP=\fI<float>\fP
+.RS 4
+Score when field not present (default: 1.0)
+.RE
+.sp
+\fB\-\-help\fP
+.RS 4
+Show this help message and exit
+.RE
+.sp
+\fB\-k\fP, \fB\-\-keys\fP=\fI<names>\fP...
+.RS 4
+Key fields
+.RE
+.sp
+\fB\-\-member\-keyspace\fP=\fI<str>\fP
+.RS 4
+Keyspace prefix for member IDs
+.RE
+.sp
+\fB\-\-members\fP=\fI<names>\fP...
+.RS 4
+Fields composing member IDs for collections: list geo set zset
+.RE
+.sp
+\fB\-p\fP, \fB\-\-keyspace\fP=\fI<str>\fP
+.RS 4
+Keyspace prefix
+.RE
+.sp
+\fB\-\-score\fP=\fI<field>\fP
+.RS 4
+Field to use for sorted set scores
+.RE
+.sp
+\fB\-\-separator\fP=\fI<str>\fP
+.RS 4
+Key separator (default: :)
+.RE

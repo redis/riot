@@ -1,0 +1,53 @@
+'\" t
+.\"     Title: riot-db-import-expire
+.\"    Author: [see the "AUTHOR(S)" section]
+.\" Generator: Asciidoctor 1.5.8
+.\"      Date: 2020-03-11
+.\"    Manual: Riot Manual
+.\"    Source: 
+.\"  Language: English
+.\"
+.TH "RIOT\-DB\-IMPORT\-EXPIRE" "1" "2020-03-11" "" "Riot Manual"
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.ss \n[.ss] 0
+.nh
+.ad l
+.de URL
+\fI\\$2\fP <\\$1>\\$3
+..
+.als MTO URL
+.if \n[.g] \{\
+.  mso www.tmac
+.  am URL
+.    ad l
+.  .
+.  am MTO
+.    ad l
+.  .
+.  LINKSTYLE blue R < >
+.\}
+.SH "NAME"
+riot\-db\-import\-expire \- Set timeouts on keys
+.SH "SYNOPSIS"
+.sp
+\fBriot db\-import expire\fP [OPTIONS]
+.SH "DESCRIPTION"
+.sp
+Set timeouts on keys
+.SH "OPTIONS"
+.sp
+\fB\-\-default\-timeout\fP=\fI<sec>\fP
+.RS 4
+Default timeout (default: 60)
+.RE
+.sp
+\fB\-\-help\fP
+.RS 4
+Show this help message and exit
+.RE
+.sp
+\fB\-\-timeout\fP=\fI<f>\fP
+.RS 4
+Field to get the timeout value from
+.RE

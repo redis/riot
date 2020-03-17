@@ -1,11 +1,13 @@
 package com.redislabs.riot.redis;
 
+import java.util.List;
 import java.util.Map;
 
 import com.redislabs.lettusearch.RediSearchCommands;
 import com.redislabs.lettusearch.search.AddOptions;
 
 import io.lettuce.core.RestoreArgs;
+import io.lettuce.core.ScoredValue;
 import io.lettuce.core.ScriptOutputType;
 import io.lettuce.core.XAddArgs;
 import io.lettuce.core.api.sync.RedisGeoCommands;
@@ -22,70 +24,84 @@ import io.lettuce.core.api.sync.RedisStringCommands;
 public class LettuceSyncCommands implements RedisCommands<Object> {
 
 	@Override
-	public Object del(Object redis, String key) {
-		return ((RedisKeyCommands<String, String>) redis).del(key);
+	public Long del(Object redis, String... keys) {
+		return ((RedisKeyCommands<String, String>) redis).del(keys);
 	}
 
 	@Override
-	public Object geoadd(Object redis, String key, double longitude, double latitude, String member) {
+	public Long geoadd(Object redis, String key, double longitude, double latitude, String member) {
 		return ((RedisGeoCommands<String, String>) redis).geoadd(key, longitude, latitude, member);
 	}
 
 	@Override
-	public Object hmset(Object redis, String key, Map<String, String> map) {
+	public String hmset(Object redis, String key, Map<String, String> map) {
 		return ((RedisHashCommands<String, String>) redis).hmset(key, map);
 	}
 
 	@Override
-	public Object xadd(Object redis, String key, Map<String, String> map) {
+	public String xadd(Object redis, String key, Map<String, String> map) {
 		return ((RedisStreamCommands<String, String>) redis).xadd(key, map);
 	}
 
 	@Override
-	public Object xadd(Object redis, String key, String id, Map<String, String> map, long maxlen,
+	public String xadd(Object redis, String key, String id, Map<String, String> map, long maxlen,
 			boolean approximateTrimming) {
 		return ((RedisStreamCommands<String, String>) redis).xadd(key,
 				new XAddArgs().id(id).maxlen(maxlen).approximateTrimming(approximateTrimming), map);
 	}
 
 	@Override
-	public Object xadd(Object redis, String key, String id, Map<String, String> map) {
+	public String xadd(Object redis, String key, String id, Map<String, String> map) {
 		return ((RedisStreamCommands<String, String>) redis).xadd(key, new XAddArgs().id(id), map);
 	}
 
 	@Override
-	public Object xadd(Object redis, String key, Map<String, String> map, long maxlen, boolean approximateTrimming) {
+	public String xadd(Object redis, String key, Map<String, String> map, long maxlen, boolean approximateTrimming) {
 		return ((RedisStreamCommands<String, String>) redis).xadd(key,
 				new XAddArgs().maxlen(maxlen).approximateTrimming(approximateTrimming), map);
 	}
 
 	@Override
-	public Object zadd(Object redis, String key, double score, String member) {
-		return ((RedisSortedSetCommands<String, String>) redis).zadd(key, score, member);
+	public String xadd(Object redis, String key, List<String> ids, List<Map<String, String>> maps) {
+		String last = null;
+		for (int index = 0; index < ids.size(); index++) {
+			last = xadd(redis, key, ids.get(index), maps.get(index));
+		}
+		return last;
 	}
 
 	@Override
-	public Object set(Object redis, String key, String value) {
+	public Long zadd(Object redis, String key, double score, String member) {
+		return ((RedisSortedSetCommands<String, String>) redis).zadd(key, score, member);
+	}
+	
+	@Override
+	public Object zadd(Object redis, String key, List<ScoredValue<String>> scoredValues) {
+		return ((RedisSortedSetCommands<String, String>) redis).zadd(key, scoredValues);
+	}
+
+	@Override
+	public String set(Object redis, String key, String value) {
 		return ((RedisStringCommands<String, String>) redis).set(key, value);
 	}
 
 	@Override
-	public Object sadd(Object redis, String key, String member) {
-		return ((RedisSetCommands<String, String>) redis).sadd(key, member);
+	public Long sadd(Object redis, String key, String... members) {
+		return ((RedisSetCommands<String, String>) redis).sadd(key, members);
 	}
 
 	@Override
-	public Object rpush(Object redis, String key, String member) {
-		return ((RedisListCommands<String, String>) redis).rpush(key, member);
+	public Long rpush(Object redis, String key, String... members) {
+		return ((RedisListCommands<String, String>) redis).rpush(key, members);
 	}
 
 	@Override
-	public Object lpush(Object redis, String key, String member) {
-		return ((RedisListCommands<String, String>) redis).lpush(key, member);
+	public Long lpush(Object redis, String key, String... members) {
+		return ((RedisListCommands<String, String>) redis).lpush(key, members);
 	}
 
 	@Override
-	public Object expire(Object redis, String key, long timeout) {
+	public Boolean expire(Object redis, String key, long timeout) {
 		return ((RedisKeyCommands<String, String>) redis).expire(key, timeout);
 	}
 
@@ -95,30 +111,30 @@ public class LettuceSyncCommands implements RedisCommands<Object> {
 	}
 
 	@Override
-	public Object restore(Object redis, String key, byte[] value, long ttl, boolean replace) {
+	public String restore(Object redis, String key, byte[] value, long ttl, boolean replace) {
 		RestoreArgs args = new RestoreArgs().ttl(ttl).replace(replace);
 		return ((RedisKeyCommands<String, String>) redis).restore(key, value, args);
 	}
 
 	@Override
-	public Object ftadd(Object redis, String index, String docId, double score, Map<String, String> map,
+	public String ftadd(Object redis, String index, String docId, double score, Map<String, String> map,
 			AddOptions options) {
 		return ((RediSearchCommands<String, String>) redis).add(index, docId, score, map, options);
 	}
 
 	@Override
-	public Object ftadd(Object redis, String index, String docId, double score, Map<String, String> map,
+	public String ftadd(Object redis, String index, String docId, double score, Map<String, String> map,
 			AddOptions options, String payload) {
 		return ((RediSearchCommands<String, String>) redis).add(index, docId, score, map, options, payload);
 	}
 
 	@Override
-	public Object sugadd(Object redis, String index, String string, double score, boolean increment) {
+	public Long sugadd(Object redis, String index, String string, double score, boolean increment) {
 		return ((RediSearchCommands<String, String>) redis).sugadd(index, string, score, increment);
 	}
 
 	@Override
-	public Object sugadd(Object redis, String index, String string, double score, boolean increment, String payload) {
+	public Long sugadd(Object redis, String index, String string, double score, boolean increment, String payload) {
 		return ((RediSearchCommands<String, String>) redis).sugadd(index, string, score, increment, payload);
 	}
 

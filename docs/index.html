@@ -562,7 +562,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h5 id="csv-redis">CSV &#8594; Redis</h5>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">$ riot --servers myredistarget:6379 file-import --url https://git.io/fjxPs --header hmset --keyspace beer --keys id</code></pre>
+<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">$ riot file-import --file https://git.io/fjxPs --header --keyspace beer --keys id</code></pre>
 </div>
 </div>
 </div>
@@ -570,7 +570,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h5 id="redis-csv">Redis &#8594; CSV</h5>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">$ riot --servers myredissource:6379 file-export --keyspace beer --keys id --file /tmp/beers.csv --fields id name brewery_id abv --header --delimiter '|'</code></pre>
+<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">$ riot file-export --scan-match beer:* --key-regex "beer:(?&lt;id&gt;.*)" --file /tmp/beers.csv --fields id name brewery_id abv --header --delimiter '|'</code></pre>
 </div>
 </div>
 </div>
@@ -590,7 +590,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p>Import data into the index</p>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">$ riot file-import --url https://git.io/fjxPs --header --include 1 3 4 5 6 ftadd --index beers --keys id</code></pre>
+<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">$ riot file-import --file https://git.io/fjxPs --header --include 1 3 4 5 6 --command ftadd --index beers --keys id</code></pre>
 </div>
 </div>
 </li>
@@ -615,7 +615,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h5 id="json-redis">JSON &#8594; Redis</h5>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">$ riot file-import --url https://git.io/fjxPZ --filetype json hmset --keyspace beer --keys id</code></pre>
+<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">$ riot file-import --file https://git.io/fjxPZ --filetype json --keyspace beer --keys id</code></pre>
 </div>
 </div>
 </div>
@@ -623,7 +623,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h5 id="redis-json">Redis &#8594; JSON</h5>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">$ riot file-export --file /tmp/beers.json --keyspace beer --keys id --fields id name brewery_id abv</code></pre>
+<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">$ riot file-export --file /tmp/beers.json --scan-match beer:* --key-regex "beer:(?&lt;id&gt;.*)" --fields id name brewery_id abv</code></pre>
 </div>
 </div>
 </div>
@@ -631,7 +631,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h5 id="redis-compressed-json">Redis &#8594; Compressed JSON</h5>
 <div class="listingblock">
 <div class="content">
-<pre>$ riot file-export --file /tmp/beers.json.gz --keyspace beer --keys id --fields id name brewery_id abv</pre>
+<pre>$ riot file-export --file /tmp/beers.json.gz --scan-match beer:* --fields id name brewery_id abv</pre>
 </div>
 </div>
 </div>
@@ -697,7 +697,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h4 id="sql-redis">SQL &#8594; Redis</h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">$ riot db-import --url jdbc:hsqldb:mem:mymemdb --sql "SELECT * FROM beers" hmset --keyspace dbbeer --keys id</code></pre>
+<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">$ riot db-import --url jdbc:hsqldb:mem:mymemdb --sql "SELECT * FROM beers" --keyspace dbbeer --keys id</code></pre>
 </div>
 </div>
 </div>
@@ -708,7 +708,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">$ riot db-export --keyspace beer --keys id --url jdbc:hsqldb:mem:mymemdb --sql "INSERT INTO beers (id, name) VALUES (:id, :name)"</code></pre>
+<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">$ riot db-export --scan-match "beer:*" --key-regex "beer:(?&lt;id&gt;.*)" --url jdbc:hsqldb:mem:mymemdb --sql "INSERT INTO beers (id, name) VALUES (:id, :name)"</code></pre>
 </div>
 </div>
 </div>
@@ -741,7 +741,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">$ riot --debug gen -d field1=100 field2=1000 --batch 100 --threads 3 --max 10000 hmset --keyspace test --keys index</code></pre>
+<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">$ riot gen -d field1=100 field2=1000 --batch 100 --threads 3 --max 10000 --keyspace test --keys index</code></pre>
 </div>
 </div>
 </div>
@@ -753,7 +753,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="listingblock">
 <div class="title">Example #1: People</div>
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">$ riot gen --faker id=index firstName=name.firstName lastName=name.lastName address=address.fullAddress --max 100 hmset --keyspace person --keys id</code></pre>
+<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">$ riot gen --faker id=index firstName=name.firstName lastName=name.lastName address=address.fullAddress --max 100 --keyspace person --keys id</code></pre>
 </div>
 </div>
 <div class="listingblock">
@@ -767,7 +767,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="listingblock">
 <div class="title">Example #2: Game of Thrones</div>
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">$ riot gen --faker name=gameOfThrones.character --max 10000 sadd --members name --keyspace got:characters</code></pre>
+<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">$ riot gen --faker name=gameOfThrones.character --max 10000 --command sadd --members name --keyspace got:characters</code></pre>
 </div>
 </div>
 <div class="listingblock">
@@ -784,7 +784,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">$ riot gen --faker-index beerIntrospection --max 100 ftadd --index beerIntrospection --keys id</code></pre>
+<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">$ riot gen --faker-index beerIntrospection --max 100 --command ftadd --index beerIntrospection --keys id</code></pre>
 </div>
 </div>
 </div>
@@ -792,15 +792,15 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="sect2">
 <h3 id="redis">Redis</h3>
 <div class="paragraph">
-<p>The Redis connector allows for transferring data between two Redis databases.</p>
+<p>The Redis connector allows for replicating data between two Redis databases using scan and optionally keyspace notifications.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">$ riot --servers localhost:16380 replicate --servers localhost:16379</code></pre>
+<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">$ riot -s localhost:16379 replicate -s localhost:16380 --listener</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>The target database is specified first (<code>localhost:16380</code>), and the source database is after the <code>replicate</code> command (<code>localhost:16379</code>)</p>
+<p>The source database is specified first (<code>localhost:16379</code>), and the target database is after the <code>replicate</code> command (<code>localhost:16380</code>)</p>
 </div>
 </div>
 </div>
@@ -837,7 +837,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">$ riot file-import --url "https://data.lacity.org/api/views/rx9t-fp7k/rows.csv?accessType=DOWNLOAD" --header --date-format "MM/dd/yyyy HH:mm:ss a" --proc "EventStartDate=remove('Event Start Date')" "EpochStart=#date.parse(EventStartDate).getTime()" "index=#context.index()" hmset --keyspace event --keys Id</code></pre>
+<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">$ riot file-import --file "https://data.lacity.org/api/views/rx9t-fp7k/rows.csv?accessType=DOWNLOAD" --header --spel-date-format "MM/dd/yyyy HH:mm:ss a" --spel "EventStartDate=remove('Event Start Date')" "EpochStart=#date.parse(EventStartDate).getTime()" "index=#context.index()" --keyspace event --keys Id</code></pre>
 </div>
 </div>
 </div>
@@ -858,7 +858,7 @@ process(item);</code></pre>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">$ riot gen --faker id=index firstName=name.firstName lastName=name.lastName address=address.fullAddress --script "function process(item) { item.address = item.address.toUpperCase(); return item; } process(item);" --max 100 hmset --keyspace person --keys id</code></pre>
+<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">$ riot gen --faker id=index firstName=name.firstName lastName=name.lastName address=address.fullAddress --script "function process(item) { item.address = item.address.toUpperCase(); return item; } process(item);" --max 100 --keyspace person --keys id</code></pre>
 </div>
 </div>
 </div>
@@ -890,7 +890,7 @@ process(item);</code></pre>
 <div class="listingblock">
 <div class="title">Strings</div>
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">$ riot -s redis-12001.redislabs.com:12001 --max-total 96 gen --batch 5000 --threads 96 --max 100000000 set --keyspace hash --keys index --value index</code></pre>
+<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">$ riot -s redis-12001.redislabs.com:12001 --max-total 96 gen --batch 5000 --threads 96 --max 100000000 --command set --keyspace hash --keys index --value index</code></pre>
 </div>
 </div>
 <div class="imageblock">
@@ -901,7 +901,7 @@ process(item);</code></pre>
 <div class="listingblock">
 <div class="title">Streams</div>
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">$ riot -s redis-12001.internal.jrx.demo.redislabs.com:12001 --max-total 96 gen --batch 5000 --threads 96 --max 100000000 xadd --keyspace stream --keys partition</code></pre>
+<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">$ riot -s redis-12001.internal.jrx.demo.redislabs.com:12001 --max-total 96 gen --batch 5000 --threads 96 --max 100000000 --command xadd --keyspace stream --keys partition</code></pre>
 </div>
 </div>
 <div class="imageblock">
@@ -916,7 +916,7 @@ process(item);</code></pre>
 <div id="footer">
 <div id="footer-text">
 Version 1.0<br>
-Last updated 2020-02-04 16:49:52 -0800
+Last updated 2020-03-15 21:33:36 -0700
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/styles/github.min.css">

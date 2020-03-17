@@ -22,7 +22,9 @@ import org.springframework.util.ClassUtils;
 import com.redislabs.riot.transfer.FlowThread;
 
 import lombok.Setter;
+import lombok.experimental.Accessors;
 
+@Accessors(fluent = true)
 public class GeneratorReader extends AbstractItemStreamItemReader<Map<String, Object>> {
 
 	public final static String FIELD_INDEX = "index";

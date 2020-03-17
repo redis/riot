@@ -6,7 +6,9 @@ import org.springframework.batch.item.ItemStreamException;
 import org.springframework.batch.item.ItemStreamReader;
 
 import lombok.Setter;
+import lombok.experimental.Accessors;
 
+@Accessors(fluent = true)
 public class ThrottledReader<I> implements ItemStreamReader<I> {
 
 	private @Setter ItemReader<I> reader;

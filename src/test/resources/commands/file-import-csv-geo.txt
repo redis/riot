@@ -1,1 +1,0 @@
-$ riot file-import --url https://raw.githubusercontent.com/jpatokal/openflights/master/data/airports.dat --filetype csv --fields AirportID Name City Country IATA ICAO Latitude Longitude Altitude Timezone DST Tz Type Source geoadd --keyspace airportgeo --members AirportID --lon Longitude --lat Latitude

@@ -19,7 +19,7 @@ import io.lettuce.core.StreamMessage;
 public class TestGenerator extends BaseTest {
 
 	@Test
-	public void testImportSimple() throws Exception {
+	public void testGenSimple() throws Exception {
 		runFile("gen-simple");
 		List<String> keys = commands().keys("test:*");
 		Assertions.assertEquals(10000, keys.size());
@@ -31,7 +31,7 @@ public class TestGenerator extends BaseTest {
 	}
 
 	@Test
-	public void testImportFakerHash() throws Exception {
+	public void testGenFakerHash() throws Exception {
 		runFile("gen-faker-hash");
 		List<String> keys = commands().keys("person:*");
 		Assertions.assertEquals(100, keys.size());
@@ -43,7 +43,7 @@ public class TestGenerator extends BaseTest {
 	}
 
 	@Test
-	public void testImportFakerScriptProcessorHash() throws Exception {
+	public void testGenFakerScriptProcessorHash() throws Exception {
 		runFile("gen-faker-script-processor-hash");
 		List<String> keys = commands().keys("person:*");
 		Assertions.assertEquals(100, keys.size());
@@ -56,7 +56,7 @@ public class TestGenerator extends BaseTest {
 	}
 
 	@Test
-	public void testImportFakerGot() throws Exception {
+	public void testGenFakerSet() throws Exception {
 		runFile("gen-faker-set");
 		Set<String> names = commands().smembers("got:characters");
 		Assertions.assertTrue(names.size() > 10);
@@ -64,7 +64,7 @@ public class TestGenerator extends BaseTest {
 	}
 
 	@Test
-	public void testImportFakerZset() throws Exception {
+	public void testGenFakerZset() throws Exception {
 		runFile("gen-faker-zset");
 		List<String> keys = commands().keys("leases:*");
 		Assertions.assertTrue(keys.size() > 100);
@@ -73,7 +73,7 @@ public class TestGenerator extends BaseTest {
 	}
 
 	@Test
-	public void testImportStream() throws Exception {
+	public void testGenFakerStream() throws Exception {
 		runFile("gen-faker-stream");
 		List<StreamMessage<String, String>> messages = commands().xrange("teststream:1", Range.unbounded());
 		Assertions.assertTrue(messages.size() > 0);

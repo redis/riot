@@ -8,31 +8,35 @@ import java.util.concurrent.LinkedBlockingDeque;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 
-import lombok.Setter;
+import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@SuppressWarnings({ "rawtypes", "unchecked" })
-public class Batcher {
+public class Batcher<I, O> {
 
-	private @Setter ItemReader reader;
-	private @Setter int chunkSize;
-	private @Setter boolean finished;
-	private @Setter ItemProcessor processor;
-	private @Setter ErrorHandler errorHandler;
-	private BlockingQueue items;
+	private ItemReader<I> reader;
+	private int batchSize;
+	private ItemProcessor<I, O> processor;
+	private ErrorHandler errorHandler;
+	private BlockingQueue<O> items;
+	boolean finished = false;
 
-	public Batcher queueCapacity(int capacity) {
-		this.items = new LinkedBlockingDeque(capacity);
-		return this;
+	@Builder
+	public Batcher(ItemReader<I> reader, int batchSize, ItemProcessor<I, O> processor, ErrorHandler errorHandler) {
+		this.reader = reader;
+		this.batchSize = batchSize;
+		this.processor = processor;
+		this.errorHandler = errorHandler;
+		this.items = new LinkedBlockingDeque<>(batchSize);
 	}
 
-	public List next() {
+	@SuppressWarnings("unchecked")
+	public List<O> next() {
 		if (finished) {
 			return null;
 		}
-		while (items.size() < chunkSize && !finished) {
-			Object item;
+		while (items.size() < batchSize && !finished) {
+			I item;
 			try {
 				item = reader.read();
 			} catch (Exception e) {
@@ -43,13 +47,14 @@ public class Batcher {
 				log.debug("Batcher finished");
 				finished = true;
 			} else {
-				Object processedItem;
+				O processedItem;
 				try {
-					processedItem = processor.process(item);
+					processedItem = processor == null ? (O) item : processor.process(item);
 				} catch (Exception e) {
 					log.error("Could not process item", e);
 					continue;
 				}
+				log.debug("Adding processed item");
 				try {
 					items.put(processedItem);
 				} catch (InterruptedException e) {
@@ -57,13 +62,11 @@ public class Batcher {
 				}
 			}
 		}
-		List result = new ArrayList<>(chunkSize);
-		items.drainTo(result, chunkSize);
-		return result;
+		return flush();
 	}
 
-	public List flush() {
-		List result = new ArrayList<>(items.size());
+	public List<O> flush() {
+		List<O> result = new ArrayList<>(items.size());
 		items.drainTo(result);
 		return result;
 	}

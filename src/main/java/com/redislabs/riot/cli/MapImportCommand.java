@@ -1,49 +1,48 @@
 package com.redislabs.riot.cli;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.batch.item.ItemProcessor;
+import org.springframework.batch.item.ItemReader;
 
-import com.redislabs.riot.cli.redis.command.EvalshaCommand;
-import com.redislabs.riot.cli.redis.command.ExpireCommand;
-import com.redislabs.riot.cli.redis.command.FtAddCommand;
-import com.redislabs.riot.cli.redis.command.FtSugaddCommand;
-import com.redislabs.riot.cli.redis.command.GeoaddCommand;
-import com.redislabs.riot.cli.redis.command.HmsetCommand;
-import com.redislabs.riot.cli.redis.command.LpushCommand;
-import com.redislabs.riot.cli.redis.command.NoopCommand;
-import com.redislabs.riot.cli.redis.command.RpushCommand;
-import com.redislabs.riot.cli.redis.command.SaddCommand;
-import com.redislabs.riot.cli.redis.command.SetCommand;
-import com.redislabs.riot.cli.redis.command.XaddCommand;
-import com.redislabs.riot.cli.redis.command.ZaddCommand;
+import com.redislabs.riot.cli.db.DatabaseImportOptions;
+import com.redislabs.riot.cli.file.FileImportOptions;
 
-import lombok.Data;
-import picocli.CommandLine;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 
-@Command(subcommands = { EvalshaCommand.class, ExpireCommand.class, FtAddCommand.class, FtSugaddCommand.class,
-		GeoaddCommand.class, HmsetCommand.class, LpushCommand.class, NoopCommand.class, RpushCommand.class,
-		SaddCommand.class, SetCommand.class, XaddCommand.class, ZaddCommand.class })
-public abstract @Data class MapImportCommand extends ImportCommand<Map<String, Object>, Map<String, Object>>
-		implements Runnable {
+@Command(name = "import", description = "Import data into Redis")
+public class MapImportCommand extends ImportCommand {
 
-	@ArgGroup(exclusive = false, heading = "Processor options%n", order = 40)
-	private ProcessorOptions processorOptions = new ProcessorOptions();
-
-	@Override
-	protected ItemProcessor<Map<String, Object>, Map<String, Object>> processor() throws Exception {
-		return processorOptions.processor(postProcessor());
-	}
-
-	protected ItemProcessor<Map<String, Object>, Map<String, Object>> postProcessor() {
-		return null;
-	}
+	@ArgGroup(exclusive = false, heading = "File options%n")
+	private FileImportOptions file = new FileImportOptions();
+	@ArgGroup(exclusive = false, heading = "Database options%n")
+	private DatabaseImportOptions db = new DatabaseImportOptions();
 
 	@Override
-	public void run() {
-		CommandLine.usage(this, System.out);
+	protected ItemReader<Map<String, Object>> reader() throws Exception {
+		if (db.getUrl() != null) {
+			return db.reader();
+		}
+		return file.reader();
+	}
+
+	@SuppressWarnings("rawtypes")
+	@Override
+	protected List<ItemProcessor> processors() {
+		List<ItemProcessor> processors = new ArrayList<>();
+		processors.addAll(super.processors());
+		if (file.isSet()) {
+			processors.add(file.postProcessor());
+		}
+		return processors;
+	}
+
+	@Override
+	protected String taskName() {
+		return "Importing";
 	}
 
 }

@@ -2,12 +2,10 @@ package com.redislabs.riot.redis.writer;
 
 import java.util.List;
 
-import io.lettuce.core.api.StatefulConnection;
 import reactor.core.CorePublisher;
 import reactor.core.publisher.Flux;
 
-public class ReactiveLettuceItemWriter<C extends StatefulConnection<String, String>, O>
-		extends AbstractLettuceItemWriter<C, O> {
+public class ReactiveLettuceItemWriter<O> extends AbstractLettuceItemWriter<O> {
 
 	@SuppressWarnings("unchecked")
 	@Override

@@ -27,7 +27,9 @@ public class SpelProcessor implements ItemProcessor<Map<String, Object>, Map<Str
 		context = new StandardEvaluationContext();
 		context.setVariable("date", dateFormat);
 		context.setVariable("context", this);
-		variables.forEach((k, v) -> context.setVariable(k, parser.parseExpression(v).getValue(context)));
+		if (variables != null) {
+			variables.forEach((k, v) -> context.setVariable(k, parser.parseExpression(v).getValue(context)));
+		}
 		Method geoMethod;
 		try {
 			geoMethod = getClass().getDeclaredMethod("geo", new Class[] { String.class, String.class });

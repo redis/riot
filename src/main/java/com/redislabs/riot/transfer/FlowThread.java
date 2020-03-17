@@ -9,26 +9,35 @@ import java.util.concurrent.TimeUnit;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemStream;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @SuppressWarnings({ "rawtypes", "unchecked" })
-public class FlowThread implements Runnable {
+public class FlowThread<I, O> implements Runnable {
 
 	public final static String CONTEXT_PARTITION = "partition";
 	public final static String CONTEXT_PARTITIONS = "partitions";
 
-	private @Setter int threadId;
-	private @Setter int threads;
-	private @Setter Flow flow;
-	private @Setter Batcher batcher;
-	private @Setter Long flushRate;
-	private @Getter long readCount;
-	private @Getter long writeCount;
-	private @Getter boolean running;
+	private int threadId;
+	private int threads;
+	private Flow<I, O> flow;
+	private Batcher<I, O> batcher;
+	private Long flushRate;
+	private long readCount;
+	private long writeCount;
+	private boolean running;
 	private boolean stopped;
+
+	@Builder
+	public FlowThread(int threadId, int threads, Flow<I, O> flow, Batcher<I, O> batcher, Long flushRate) {
+		super();
+		this.threadId = threadId;
+		this.threads = threads;
+		this.flow = flow;
+		this.batcher = batcher;
+		this.flushRate = flushRate;
+	}
 
 	@Override
 	public void run() {
@@ -36,11 +45,11 @@ public class FlowThread implements Runnable {
 			ExecutionContext executionContext = new ExecutionContext();
 			executionContext.putInt(CONTEXT_PARTITION, threadId);
 			executionContext.putInt(CONTEXT_PARTITIONS, threads);
-			if (flow.reader() instanceof ItemStream) {
-				((ItemStream) flow.reader()).open(executionContext);
+			if (flow.getReader() instanceof ItemStream) {
+				((ItemStream) flow.getReader()).open(executionContext);
 			}
-			if (flow.writer() instanceof ItemStream) {
-				((ItemStream) flow.writer()).open(executionContext);
+			if (flow.getWriter() instanceof ItemStream) {
+				((ItemStream) flow.getWriter()).open(executionContext);
 			}
 			ScheduledExecutorService scheduler = null;
 			ScheduledFuture<?> flushFuture = null;
@@ -60,16 +69,16 @@ public class FlowThread implements Runnable {
 				flushFuture.cancel(true);
 			}
 			log.debug("Closing reader");
-			if (flow.reader() instanceof ItemStream) {
-				((ItemStream) flow.reader()).close();
+			if (flow.getReader() instanceof ItemStream) {
+				((ItemStream) flow.getReader()).close();
 			}
-			if (flow.writer() instanceof ItemStream) {
-				((ItemStream) flow.writer()).close();
+			if (flow.getWriter() instanceof ItemStream) {
+				((ItemStream) flow.getWriter()).close();
 			}
 			this.running = false;
-			log.debug("Flow {} thread {} finished", flow.name(), threadId);
+			log.debug("Flow {} thread {} finished", flow.getName(), threadId);
 		} catch (Throwable e) {
-			log.error("Flow {} execution failed", flow.name(), e);
+			log.error("Flow {} execution failed", flow.getName(), e);
 		}
 	}
 
@@ -84,7 +93,7 @@ public class FlowThread implements Runnable {
 	private void write(List items) {
 		readCount += items.size();
 		try {
-			flow.writer().write(items);
+			flow.getWriter().write(items);
 			writeCount += items.size();
 		} catch (Exception e) {
 			log.error("Could not write items", e);

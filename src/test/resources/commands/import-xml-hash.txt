@@ -1,0 +1,1 @@
+$ riot import https://raw.githubusercontent.com/Redislabs-Solution-Architects/riot/master/src/test/resources/releases.xml --keyspace release --keys id

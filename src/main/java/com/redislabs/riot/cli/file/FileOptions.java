@@ -1,27 +1,23 @@
 package com.redislabs.riot.cli.file;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
 
+import org.springframework.batch.item.file.FlatFileItemReader;
+import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.WritableResource;
-import org.springframework.util.Assert;
+import org.springframework.core.io.UrlResource;
+import org.springframework.util.ResourceUtils;
 
-import com.redislabs.riot.file.OutputStreamResource;
+import com.redislabs.riot.cli.StandardInputResource;
 
-import lombok.Data;
-import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
 
-public @Data class FileOptions {
+public class FileOptions {
 
-	@ArgGroup(exclusive = true, multiplicity = "1")
-	private ResourceOptions resourceOptions = new ResourceOptions();
+	@Parameters(paramLabel = "FILE", description = "File")
+	private String file;
 	@Option(names = { "-z", "--gzip" }, description = "File is gzip compressed")
 	private boolean gzip;
 	@Option(names = { "-t", "--filetype" }, description = "File type: ${COMPLETION-CANDIDATES}", paramLabel = "<type>")
@@ -32,46 +28,51 @@ public @Data class FileOptions {
 	private String secretKey;
 	@Option(names = "--s3-region", description = "AWS region", paramLabel = "<string>")
 	private String region;
+	@Option(names = "--fields", arity = "1..*", description = "Field names", paramLabel = "<names>")
+	protected String[] names = new String[0];
+	@Option(names = { "-e",
+			"--encoding" }, description = "File encoding (default: ${DEFAULT-VALUE})", paramLabel = "<charset>")
+	protected String encoding = FlatFileItemReader.DEFAULT_CHARSET;
+	@Option(names = { "-h", "--header" }, description = "First line contains field names")
+	protected boolean header;
+	@Option(names = "--delimiter", description = "Delimiter character (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
+	protected String delimiter = DelimitedLineTokenizer.DELIMITER_COMMA;
 
-	public Resource resource() throws MalformedURLException {
-		if (resourceOptions.uri()) {
-			URI uri = resourceOptions.url();
-			if (uri.getScheme().equals("s3")) {
-				return S3ResourceBuilder.resource(accessKey, secretKey, region, uri);
+	protected Resource resource() throws IOException {
+		if (file.equals("-")) {
+			System.out.println("File: " + file);
+			return new StandardInputResource();
+		}
+		if (ResourceUtils.isUrl(file)) {
+			UrlResource resource = new UrlResource(file.toString());
+			if (resource.getURI().getScheme().equals("s3")) {
+				return S3ResourceBuilder.resource(accessKey, secretKey, region, resource.getURI());
 			}
-			return new UncustomizedUrlResource(uri);
+			return new UncustomizedUrlResource(resource.getURI());
 		}
-		return new FileSystemResource(resourceOptions.file());
+		return new FileSystemResource(file);
 	}
 
-	public FileType type() {
-		if (type == null) {
-			return resourceOptions.type();
-		}
-		return type;
+	protected boolean isGzip(Resource resource) {
+		return gzip || (resource.getFilename()!=null && resource.getFilename().toLowerCase().endsWith(".gz"));
 	}
 
-	public Resource inputResource() throws IOException {
-		Resource resource = resource();
-		if (isGzip()) {
-			return new InputStreamResource(new GZIPInputStream(resource.getInputStream()), resource.getDescription());
-		}
-		return resource;
+	public boolean isSet() {
+		return file != null;
 	}
 
-	public WritableResource outputResource() throws IOException {
-		Resource resource = resource();
-		Assert.isInstanceOf(WritableResource.class, resource);
-		WritableResource writable = (WritableResource) resource;
-		if (isGzip()) {
-			return new OutputStreamResource(new GZIPOutputStream(writable.getOutputStream()),
-					writable.getDescription());
+	protected FileType type() {
+		if (type != null) {
+			return type;
 		}
-		return writable;
-	}
-
-	private boolean isGzip() {
-		return gzip || resourceOptions.gzip();
+		String name = file.toLowerCase();
+		if (name.endsWith(".json") || name.endsWith(".json.gz")) {
+			return FileType.Json;
+		}
+		if (name.endsWith(".xml") || name.endsWith(".xml.gz")) {
+			return FileType.Xml;
+		}
+		return FileType.Csv;
 	}
 
 }

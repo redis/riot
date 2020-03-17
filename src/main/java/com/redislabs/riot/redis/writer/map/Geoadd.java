@@ -5,26 +5,28 @@ import java.util.Map;
 import com.redislabs.riot.redis.RedisCommands;
 
 import lombok.Setter;
+import lombok.experimental.Accessors;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
-public class Geoadd extends AbstractCollectionMapWriter {
+@Accessors(fluent = true)
+public class Geoadd extends AbstractCollectionMapCommandWriter {
 
 	@Setter
-	private String longitudeField;
+	private String longitude;
 	@Setter
-	private String latitudeField;
+	private String latitude;
 
 	@Override
 	protected Object write(RedisCommands commands, Object redis, String key, String member, Map<String, Object> item) {
-		Double longitude = coordinate(item, longitudeField);
-		if (longitude == null) {
+		Double lon = coordinate(item, longitude);
+		if (lon == null) {
 			return null;
 		}
-		Double latitude = coordinate(item, latitudeField);
-		if (latitude == null) {
+		Double lat = coordinate(item, latitude);
+		if (lat == null) {
 			return null;
 		}
-		return commands.geoadd(redis, key, longitude, latitude, member);
+		return commands.geoadd(redis, key, lon, lat, member);
 	}
 
 	private Double coordinate(Map<String, Object> item, String field) {

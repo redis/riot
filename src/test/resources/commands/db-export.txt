@@ -1,1 +1,0 @@
-$ riot db-export --keyspace beer --keys id --url jdbc:hsqldb:mem:mymemdb --sql "INSERT INTO beers (id, name) VALUES (:id, :name)"

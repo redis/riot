@@ -1,1 +1,0 @@
-$ riot db-import --url jdbc:hsqldb:mem:mymemdb --sql "SELECT * FROM beers" hmset --keyspace dbbeer --keys id

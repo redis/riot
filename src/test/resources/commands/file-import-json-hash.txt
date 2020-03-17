@@ -1,1 +1,0 @@
-$ riot file-import --url https://git.io/fjxPZ --filetype json hmset --keyspace beer --keys id

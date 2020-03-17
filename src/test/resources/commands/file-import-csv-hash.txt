@@ -1,1 +1,0 @@
-$ riot --servers myredistarget:6379 file-import --url https://git.io/fjxPs --header hmset --keyspace beer --keys id

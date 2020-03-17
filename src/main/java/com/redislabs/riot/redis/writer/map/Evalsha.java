@@ -6,9 +6,11 @@ import com.redislabs.riot.redis.RedisCommands;
 
 import io.lettuce.core.ScriptOutputType;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
-public class Evalsha extends AbstractMapRedisWriter {
+@Accessors(fluent = true)
+public class Evalsha extends AbstractMapCommandWriter {
 
 	@Setter
 	private String sha;

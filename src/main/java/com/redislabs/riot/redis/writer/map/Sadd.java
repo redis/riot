@@ -5,7 +5,7 @@ import java.util.Map;
 import com.redislabs.riot.redis.RedisCommands;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
-public class Sadd extends AbstractCollectionMapWriter {
+public class Sadd extends AbstractCollectionMapCommandWriter {
 
 	@Override
 	protected Object write(RedisCommands commands, Object redis, String key, String member, Map<String, Object> item) {

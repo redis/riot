@@ -1,0 +1,103 @@
+'\" t
+.\"     Title: riot-gen-ftadd
+.\"    Author: [see the "AUTHOR(S)" section]
+.\" Generator: Asciidoctor 1.5.8
+.\"      Date: 2020-03-11
+.\"    Manual: Riot Manual
+.\"    Source: 
+.\"  Language: English
+.\"
+.TH "RIOT\-GEN\-FTADD" "1" "2020-03-11" "" "Riot Manual"
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.ss \n[.ss] 0
+.nh
+.ad l
+.de URL
+\fI\\$2\fP <\\$1>\\$3
+..
+.als MTO URL
+.if \n[.g] \{\
+.  mso www.tmac
+.  am URL
+.    ad l
+.  .
+.  am MTO
+.    ad l
+.  .
+.  LINKSTYLE blue R < >
+.\}
+.SH "NAME"
+riot\-gen\-ftadd \- Adds documents to an index
+.SH "SYNOPSIS"
+.sp
+\fBriot gen ftadd\fP [OPTIONS]
+.SH "DESCRIPTION"
+.sp
+Adds documents to an index
+.SH "OPTIONS"
+.sp
+\fB\-\-default\-score\fP=\fI<num>\fP
+.RS 4
+Score when field not present (default: 1.0)
+.RE
+.sp
+\fB\-\-help\fP
+.RS 4
+Show this help message and exit
+.RE
+.sp
+\fB\-i\fP, \fB\-\-index\fP=\fI<name>\fP
+.RS 4
+Name of the RediSearch index
+.RE
+.sp
+\fB\-\-if\-condition\fP=\fI<exp>\fP
+.RS 4
+Boolean expression for conditional update
+.RE
+.sp
+\fB\-k\fP, \fB\-\-keys\fP=\fI<names>\fP...
+.RS 4
+Key fields
+.RE
+.sp
+\fB\-\-language\fP=\fI<string>\fP
+.RS 4
+Stemmer to use for indexing: Arabic, Danish, Dutch, English, Finnish, French, German, Hungarian, Italian, Norwegian, Portuguese, Romanian, Russian, Spanish, Swedish, Tamil, Turkish, Chinese
+.RE
+.sp
+\fB\-\-nosave\fP
+.RS 4
+Do not save docs, only index
+.RE
+.sp
+\fB\-p\fP, \fB\-\-keyspace\fP=\fI<str>\fP
+.RS 4
+Keyspace prefix
+.RE
+.sp
+\fB\-\-partial\fP
+.RS 4
+Partial update (only applicable with replace)
+.RE
+.sp
+\fB\-\-payload\fP=\fI<field>\fP
+.RS 4
+Name of the field containing the payload
+.RE
+.sp
+\fB\-\-replace\fP
+.RS 4
+UPSERT\-style insertion
+.RE
+.sp
+\fB\-\-score\fP=\fI<field>\fP
+.RS 4
+Name of the field to use for scores
+.RE
+.sp
+\fB\-\-separator\fP=\fI<str>\fP
+.RS 4
+Key separator (default: :)
+.RE

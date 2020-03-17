@@ -5,14 +5,12 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import io.lettuce.core.RedisFuture;
-import io.lettuce.core.api.StatefulConnection;
 import io.lettuce.core.api.async.BaseRedisAsyncCommands;
 import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
+import lombok.experimental.Accessors;
 
-@Slf4j
-public class AsyncLettuceItemWriter<C extends StatefulConnection<String, String>, O>
-		extends AbstractLettuceItemWriter<C, O> {
+@Accessors(fluent = true)
+public class AsyncLettuceItemWriter<O> extends AbstractLettuceItemWriter<O> {
 
 	@Setter
 	private long timeout;
@@ -38,11 +36,7 @@ public class AsyncLettuceItemWriter<C extends StatefulConnection<String, String>
 			try {
 				future.get(timeout, TimeUnit.SECONDS);
 			} catch (Exception e) {
-				if (log.isDebugEnabled()) {
-					log.debug("Could not write record {}", items.get(index), e);
-				} else {
-					log.error("Could not write record", e);
-				}
+				logWriteError(items.get(index), e);
 			}
 		}
 	}

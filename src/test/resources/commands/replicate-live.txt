@@ -1,0 +1,1 @@
+$ riot -s localhost:16379 replicate -s localhost:16380 --listener

@@ -1,46 +1,37 @@
 package com.redislabs.riot.cli;
 
-import org.springframework.batch.item.ItemProcessor;
-import org.springframework.batch.item.ItemReader;
-import org.springframework.batch.item.ItemWriter;
-
 import com.redislabs.picocliredis.RedisOptions;
+import com.redislabs.riot.redis.RedisItemReader;
+import com.redislabs.riot.redis.ValueReader;
+import com.redislabs.riot.redis.replicate.ScanKeyIterator;
 
-import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
+import io.lettuce.core.ScanArgs;
+import io.lettuce.core.api.sync.RedisKeyCommands;
+import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 
-@Slf4j
 @Command
-public @Data abstract class ExportCommand<I, O> extends TransferCommand<I, O> implements Runnable {
+public abstract class ExportCommand<I, O> extends TransferCommand<I, O> {
 
-	@Override
-	public void run() {
-		ItemReader<I> reader;
-		ItemProcessor<I, O> processor;
-		ItemWriter<O> writer;
-		try {
-			reader = reader(redisOptions());
-			processor = processor();
-			writer = writer();
-		} catch (Exception e) {
-			log.error("Could not initialize export", e);
-			return;
+	@ArgGroup(exclusive = false, heading = "Redis export options%n")
+	private ExportOptions options = new ExportOptions();
+
+	protected ExportOptions getReaderOptions() {
+		return options;
+	}
+
+	@SuppressWarnings("unchecked")
+	protected RedisItemReader<I> reader(ValueReader<I> valueReader) {
+		RedisOptions redisOptions = redisOptions();
+		ScanArgs args = ScanArgs.Builder.limit(options.getCount());
+		if (options.getMatch() != null) {
+			args.match(options.getMatch());
 		}
-		execute(transfer(reader, processor, writer));
-	}
-
-	protected abstract ItemReader<I> reader(RedisOptions redisOptions);
-
-	protected ItemProcessor<I, O> processor() throws Exception {
-		return null;
-	}
-
-	protected abstract ItemWriter<O> writer() throws Exception;
-	
-	@Override
-	protected String taskName() {
-		return "Exporting";
+		ScanKeyIterator iterator = ScanKeyIterator.builder()
+				.commands((RedisKeyCommands<String, String>) redisOptions.redisCommands()).args(args).build();
+		return RedisItemReader.builder().keyIterator(iterator).queueCapacity(options.getQueue())
+				.pool(redisOptions.lettucePool()).asyncApi(redisOptions.lettuceAsyncApi()).threads(options.getThreads())
+				.pipeline(options.getPipeline()).reader(valueReader).build();
 	}
 
 }

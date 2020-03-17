@@ -6,7 +6,6 @@
 :icons: font
 :project-repo: Redislabs-Solution-Architects/riot
 :repo-url: https://github.com/{project-repo}
-:commandsdir: ../../../src/test/resources/commands
 
 RIOT is a data import/export tool for Redis that connects to files, databases, and generators.
 
@@ -200,14 +199,14 @@ include::{commandsdir}/gen-faker-index-introspection.txt[]
 
 === Redis
 
-The Redis connector allows for transferring data between two Redis databases.
+The Redis connector allows for replicating data between two Redis databases using scan and optionally keyspace notifications (`--listener`). 
 
 [source,shell]
 ----
-include::{commandsdir}/replicate.txt[]
+include::{commandsdir}/replicate-live.txt[]
 ----
 
-The target database is specified first (`localhost:16380`), and the source database is after the `replicate` command (`localhost:16379`) 
+The source database is specified first (`localhost:16379`), and the target database is after the `replicate` command (`localhost:16380`) 
 
 == Processors
 
@@ -268,13 +267,13 @@ riot --metrics …
 .Strings
 [source,shell]
 ----
-$ riot -s redis-12001.redislabs.com:12001 --max-total 96 gen --batch 5000 --threads 96 --max 100000000 set --keyspace hash --keys index --value index
+$ riot -s redis-12001.redislabs.com:12001 --max-total 96 gen --batch 5000 --threads 96 --max 100000000 --command set --keyspace hash --keys index --value index
 ----
 image::images/rs-strings.png[]
 
 .Streams
 [source,shell]
 ----
-$ riot -s redis-12001.internal.jrx.demo.redislabs.com:12001 --max-total 96 gen --batch 5000 --threads 96 --max 100000000 xadd --keyspace stream --keys partition
+$ riot -s redis-12001.internal.jrx.demo.redislabs.com:12001 --max-total 96 gen --batch 5000 --threads 96 --max 100000000 --command xadd --keyspace stream --keys partition
 ----
 image::images/rs-streams.png[]

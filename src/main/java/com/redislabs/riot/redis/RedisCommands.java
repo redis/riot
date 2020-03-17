@@ -1,9 +1,11 @@
 package com.redislabs.riot.redis;
 
+import java.util.List;
 import java.util.Map;
 
 import com.redislabs.lettusearch.search.AddOptions;
 
+import io.lettuce.core.ScoredValue;
 import io.lettuce.core.ScriptOutputType;
 
 public interface RedisCommands<T> {
@@ -22,13 +24,15 @@ public interface RedisCommands<T> {
 
 	Object xadd(T redis, String key, String id, Map<String, String> map, long maxlen, boolean approximateTrimming);
 
+	Object xadd(T redis, String key, List<String> ids, List<Map<String, String>> maps);
+
 	Object set(T redis, String key, String value);
 
-	Object sadd(T redis, String key, String member);
+	Object sadd(T redis, String key, String... members);
 
-	Object rpush(T redis, String key, String member);
+	Object rpush(T redis, String key, String... members);
 
-	Object lpush(T redis, String key, String member);
+	Object lpush(T redis, String key, String... members);
 
 	Object expire(T redis, String key, long timeout);
 
@@ -45,6 +49,8 @@ public interface RedisCommands<T> {
 
 	Object restore(T redis, String key, byte[] value, long ttl, boolean replace);
 
-	Object del(T redis, String key);
+	Object del(T redis, String... keys);
+
+	Object zadd(T redis, String key, List<ScoredValue<String>> scoredValues);
 
 }

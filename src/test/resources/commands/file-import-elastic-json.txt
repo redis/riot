@@ -1,1 +1,0 @@
-$ riot file-import --file %s hmset --keyspace estest --keys _id

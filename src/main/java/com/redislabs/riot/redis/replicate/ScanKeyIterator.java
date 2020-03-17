@@ -4,17 +4,17 @@ import java.util.Iterator;
 
 import org.springframework.util.Assert;
 
+import com.redislabs.riot.redis.KeyIterator;
+
 import io.lettuce.core.KeyScanCursor;
 import io.lettuce.core.ScanArgs;
-import io.lettuce.core.api.StatefulConnection;
 import io.lettuce.core.api.sync.RedisKeyCommands;
 import lombok.Builder;
 
-public class ScanKeyIterator<C extends StatefulConnection<String, String>> implements KeyIterator {
+public class ScanKeyIterator implements KeyIterator {
 
 	private RedisKeyCommands<String, String> commands;
 	private ScanArgs args;
-
 	private Object lock = new Object();
 	private Iterator<String> keys;
 	private KeyScanCursor<String> cursor;

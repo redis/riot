@@ -4,8 +4,11 @@ import java.util.Map;
 
 import com.redislabs.riot.redis.RedisCommands;
 
+import lombok.Setter;
+import lombok.experimental.Accessors;
+
 @SuppressWarnings({ "rawtypes", "unchecked" })
-public class Xadd extends AbstractKeyMapRedisWriter {
+public class Xadd extends AbstractKeyMapCommandWriter {
 
 	@Override
 	protected Object write(RedisCommands commands, Object redis, String key, Map<String, Object> item) {
@@ -14,6 +17,53 @@ public class Xadd extends AbstractKeyMapRedisWriter {
 
 	protected Object doWrite(RedisCommands commands, Object redis, String key, Map<String, String> map) {
 		return commands.xadd(redis, key, map);
+	}
+
+	@Accessors(fluent = true)
+	public static class XaddId extends Xadd {
+
+		@Setter
+		private String id;
+
+		@Override
+		protected Object doWrite(RedisCommands commands, Object redis, String key, Map<String, String> map) {
+			return doWrite(commands, redis, key, map, map.remove(id));
+		}
+
+		protected Object doWrite(RedisCommands commands, Object redis, String key, Map<String, String> map, String id) {
+			return commands.xadd(redis, key, id, map);
+		}
+
+	}
+
+	@Accessors(fluent = true)
+	public static class XaddIdMaxlen extends XaddId {
+
+		@Setter
+		private long maxlen;
+		@Setter
+		private boolean approximateTrimming;
+
+		@Override
+		protected Object doWrite(RedisCommands commands, Object redis, String key, Map<String, String> map, String id) {
+			return commands.xadd(redis, key, id, map, maxlen, approximateTrimming);
+		}
+
+	}
+
+	@Accessors(fluent = true)
+	public static class XaddMaxlen extends Xadd {
+
+		@Setter
+		private long maxlen;
+		@Setter
+		private boolean approximateTrimming;
+
+		@Override
+		protected Object doWrite(RedisCommands commands, Object redis, String key, Map<String, String> map) {
+			return commands.xadd(redis, key, map, maxlen, approximateTrimming);
+		}
+
 	}
 
 }

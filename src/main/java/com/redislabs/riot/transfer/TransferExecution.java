@@ -1,35 +1,32 @@
 package com.redislabs.riot.transfer;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-public class TransferExecution {
+import lombok.Builder;
+import lombok.Singular;
 
-	private List<FlowExecution> flowExecutions = new ArrayList<>();
+@Builder
+public class TransferExecution<I, O> {
 
-	public TransferExecution flowExecution(FlowExecution flowExecution) {
-		this.flowExecutions.add(flowExecution);
-		return this;
-	}
+	@Singular
+	private List<FlowExecution<I, O>> flows;
 
 	public Metrics progress() {
-		return Metrics.create(flowExecutions.stream().map(f -> f.progress()).collect(Collectors.toList()));
+		return Metrics.create(flows.stream().map(f -> f.progress()).collect(Collectors.toList()));
 	}
 
 	public boolean isTerminated() {
 		boolean finished = true;
-		for (FlowExecution flowExecution : flowExecutions) {
+		for (FlowExecution<I, O> flowExecution : flows) {
 			finished &= flowExecution.isTerminated();
 		}
 		return finished;
 	}
 
 	public void awaitTermination(long timeout, TimeUnit unit) {
-		for (FlowExecution execution : flowExecutions) {
-			execution.awaitTermination(timeout, unit);
-		}
+		flows.forEach(f -> f.awaitTermination(timeout, unit));
 	}
 
 }

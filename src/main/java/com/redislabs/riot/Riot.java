@@ -3,29 +3,18 @@ package com.redislabs.riot;
 import org.springframework.batch.item.file.transform.Range;
 
 import com.redislabs.picocliredis.Main;
-import com.redislabs.picocliredis.RedisOptions;
-import com.redislabs.riot.cli.TestCommand;
-import com.redislabs.riot.cli.db.DatabaseExportCommand;
-import com.redislabs.riot.cli.db.DatabaseImportCommand;
-import com.redislabs.riot.cli.file.FileExportCommand;
-import com.redislabs.riot.cli.file.FileImportCommand;
+import com.redislabs.riot.cli.GeneratorCommand;
+import com.redislabs.riot.cli.MapExportCommand;
+import com.redislabs.riot.cli.MapImportCommand;
+import com.redislabs.riot.cli.ReplicateCommand;
 import com.redislabs.riot.cli.file.RangeConverter;
-import com.redislabs.riot.cli.gen.GeneratorImportCommand;
-import com.redislabs.riot.cli.redis.RedisImportCommand;
-import com.redislabs.riot.cli.redis.ReplicateCommand;
 
-import lombok.Data;
 import picocli.CommandLine;
-import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 
-@Command(name = "riot", subcommands = { FileImportCommand.class, FileExportCommand.class, DatabaseImportCommand.class,
-		DatabaseExportCommand.class, RedisImportCommand.class, GeneratorImportCommand.class, TestCommand.class,
+@Command(name = "riot", subcommands = { MapImportCommand.class, MapExportCommand.class, GeneratorCommand.class,
 		ReplicateCommand.class })
-public @Data class Riot extends Main {
-
-	@ArgGroup(exclusive = false, heading = "Redis connection options%n")
-	private RedisOptions redisOptions = new RedisOptions();
+public class Riot extends Main {
 
 	public static void main(String[] args) {
 		System.exit(new Riot().execute(args));

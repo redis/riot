@@ -5,7 +5,7 @@ import java.util.Map;
 import com.redislabs.riot.redis.RedisCommands;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
-public class Hmset extends AbstractKeyMapRedisWriter {
+public class Hmset extends AbstractKeyMapCommandWriter {
 
 	@Override
 	protected Object write(RedisCommands commands, Object redis, String key, Map<String, Object> item) {

@@ -1,1 +1,0 @@
-$ riot file-import --url "https://data.lacity.org/api/views/rx9t-fp7k/rows.csv?accessType=DOWNLOAD" --header --date-format "MM/dd/yyyy HH:mm:ss a" --proc "EventStartDate=remove('Event Start Date')" "EpochStart=#date.parse(EventStartDate).getTime()" "index=#context.index()" hmset --keyspace event --keys Id
