@@ -40,7 +40,6 @@ public class FileOptions {
 
 	protected Resource resource() throws IOException {
 		if (file.equals("-")) {
-			System.out.println("File: " + file);
 			return new StandardInputResource();
 		}
 		if (ResourceUtils.isUrl(file)) {
