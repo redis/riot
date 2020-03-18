@@ -1,8 +1,5 @@
 package com.redislabs.riot.cli;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -10,7 +7,6 @@ import java.util.concurrent.TimeUnit;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.batch.item.support.CompositeItemProcessor;
 
 import com.redislabs.picocliredis.RedisOptions;
 import com.redislabs.riot.redis.JedisClusterCommands;
@@ -38,47 +34,26 @@ import com.redislabs.riot.transfer.TransferExecution;
 
 import io.lettuce.core.AbstractRedisClient;
 import lombok.extern.slf4j.Slf4j;
-import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
-import picocli.CommandLine.Mixin;
+import picocli.CommandLine.Option;
 
 @Slf4j
 @Command
 public abstract class TransferCommand<I, O> extends RiotCommand {
 
-	@Mixin
-	private TransferOptions transfer = new TransferOptions();
-	@ArgGroup(exclusive = false, heading = "Script processor options%n")
-	private ScriptProcessorOptions scriptProcessor = new ScriptProcessorOptions();
-
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	protected ItemProcessor<I, O> processor() throws Exception {
-		List<ItemProcessor> delegates = new ArrayList<>();
-		if (scriptProcessor.isSet()) {
-			delegates.add(scriptProcessor.processor());
-		}
-		for (ItemProcessor processor : processors()) {
-			if (processor == null) {
-				continue;
-			}
-			delegates.add(processor);
-		}
-		if (delegates.isEmpty()) {
-			return null;
-		}
-		if (delegates.size() == 1) {
-			return delegates.get(0);
-		}
-		CompositeItemProcessor composite = new CompositeItemProcessor();
-		composite.setDelegates(delegates);
-		composite.afterPropertiesSet();
-		return composite;
-	}
-
-	@SuppressWarnings("rawtypes")
-	protected List<ItemProcessor> processors() {
-		return Collections.emptyList();
-	}
+	@Option(names = "--threads", description = "Thread count (default: ${DEFAULT-VALUE})", paramLabel = "<count>")
+	private int threads = 1;
+	@Option(names = { "-b",
+			"--batch" }, description = "Number of items in each batch (default: ${DEFAULT-VALUE})", paramLabel = "<size>")
+	private int batchSize = 50;
+	@Option(names = { "-m", "--max" }, description = "Max number of items to read", paramLabel = "<count>")
+	private Long maxItemCount;
+	@Option(names = "--sleep", description = "Sleep duration in millis between reads", paramLabel = "<ms>")
+	private Long sleep;
+	@Option(names = "--progress", description = "Progress reporting interval (default: ${DEFAULT-VALUE} ms)", paramLabel = "<ms>")
+	private long progressRate = 300;
+	@Option(names = "--max-wait", description = "Max duration to wait for transfer to complete", paramLabel = "<ms>")
+	private Long maxWait;
 
 	@Override
 	public void run() {
@@ -108,6 +83,8 @@ public abstract class TransferCommand<I, O> extends RiotCommand {
 
 	protected abstract ItemReader<I> reader() throws Exception;
 
+	protected abstract ItemProcessor<I, O> processor() throws Exception;
+
 	protected abstract ItemWriter<O> writer() throws Exception;
 
 	protected Transfer<I, O> transfer(ItemReader<I> reader, ItemProcessor<I, O> processor, ItemWriter<O> writer) {
@@ -119,8 +96,8 @@ public abstract class TransferCommand<I, O> extends RiotCommand {
 	}
 
 	protected Flow<I, O> flow(String name, ItemReader<I> reader, ItemProcessor<I, O> processor, ItemWriter<O> writer) {
-		return Flow.<I, O>builder().name(name).batchSize(transfer.getBatchSize()).nThreads(transfer.getThreads())
-				.reader(throttle(cap(reader))).processor(processor).writer(writer).errorHandler(errorHandler()).build();
+		return Flow.<I, O>builder().name(name).batchSize(batchSize).nThreads(threads).reader(throttle(cap(reader)))
+				.processor(processor).writer(writer).errorHandler(errorHandler()).build();
 	}
 
 	protected void execute(Transfer<I, O> transfer) {
@@ -128,8 +105,8 @@ public abstract class TransferCommand<I, O> extends RiotCommand {
 		reporter.start();
 		TransferExecution<I, O> execution = transfer.execute();
 		ScheduledExecutorService progressReportExecutor = Executors.newSingleThreadScheduledExecutor();
-		progressReportExecutor.scheduleAtFixedRate(() -> reporter.onUpdate(execution.progress()), 0,
-				this.transfer.getProgressRate(), TimeUnit.MILLISECONDS);
+		progressReportExecutor.scheduleAtFixedRate(() -> reporter.onUpdate(execution.progress()), 0, progressRate,
+				TimeUnit.MILLISECONDS);
 		execution.awaitTermination(maxWait(), TimeUnit.MILLISECONDS);
 		progressReportExecutor.shutdown();
 		reporter.onUpdate(execution.progress());
@@ -137,24 +114,24 @@ public abstract class TransferCommand<I, O> extends RiotCommand {
 	}
 
 	private long maxWait() {
-		if (transfer.getMaxWait() == null) {
+		if (maxWait == null) {
 			return Long.MAX_VALUE;
 		}
-		return transfer.getMaxWait();
+		return maxWait;
 	}
 
 	private ItemReader<I> throttle(ItemReader<I> reader) {
-		if (transfer.getSleep() == null) {
+		if (sleep == null) {
 			return reader;
 		}
-		return new ThrottledReader<I>().reader(reader).sleep(transfer.getSleep());
+		return new ThrottledReader<I>().reader(reader).sleep(sleep);
 	}
 
 	private ItemReader<I> cap(ItemReader<I> reader) {
-		if (transfer.getMaxItemCount() == null) {
+		if (maxItemCount == null) {
 			return reader;
 		}
-		return new CappedReader<I>(reader, transfer.getMaxItemCount());
+		return new CappedReader<I>(reader, maxItemCount);
 	}
 
 	private ProgressReporter progressReporter() {
@@ -162,8 +139,8 @@ public abstract class TransferCommand<I, O> extends RiotCommand {
 			return new NoopProgressReporter();
 		}
 		ProgressBarReporter progressBarReporter = new ProgressBarReporter().taskName(taskName());
-		if (transfer.getMaxItemCount() != null) {
-			progressBarReporter.initialMax(transfer.getMaxItemCount());
+		if (maxItemCount != null) {
+			progressBarReporter.initialMax(maxItemCount);
 		}
 		return progressBarReporter;
 	}
@@ -197,9 +174,9 @@ public abstract class TransferCommand<I, O> extends RiotCommand {
 			return new JedisPipelineCommands();
 		}
 		switch (redis.getApi()) {
-		case Reactive:
+		case REACTIVE:
 			return new LettuceReactiveCommands();
-		case Sync:
+		case SYNC:
 			return new LettuceSyncCommands();
 		default:
 			return new LettuceAsyncCommands();
@@ -208,9 +185,9 @@ public abstract class TransferCommand<I, O> extends RiotCommand {
 
 	private AbstractLettuceItemWriter<O> lettuceItemWriter(RedisOptions redis) {
 		switch (redis.getApi()) {
-		case Reactive:
+		case REACTIVE:
 			return new ReactiveLettuceItemWriter<>();
-		case Sync:
+		case SYNC:
 			return new SyncLettuceItemWriter<>();
 		default:
 			AsyncLettuceItemWriter<O> lettuceAsyncItemWriter = new AsyncLettuceItemWriter<O>();

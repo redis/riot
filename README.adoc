@@ -19,22 +19,22 @@ ifdef::env-github[]
 :warning-caption: :warning:
 endif::[]
 
-RIOT is a data import/export tool for Redis and Redis Modules that connects to files, databases, and data generators.
+RIOT is a data import/export tool for Redis. Use RIOT to bulk load/unload data from files (CSV, JSON, XML) and relational databases (JDBC), replicate data between Redis databases, or generate random datasets (https://faker.readthedocs.io[Faker]). 
 
 == Getting Started
 
-=== Homebrew 
+=== Download and Run
+
+Download the {repo-url}/releases/latest[latest release] and untar/unzip the archive.
+
+Launch the `riot` script (`riot.bat` for Windows) and follow the usage information provided.
+
+=== Install via Homebrew
 
 ```
 $ brew install jruaux/tap/riot
 $ riot --help
 ```
-
-=== Download and run 
-
-Download the {repo-url}/releases/latest[latest release], and untar/unzip the archive.
-
-Launch the `riot` script (`riot.bat` for Windows) and follow the usage information provided.
 
 == Documentation
 

@@ -7,7 +7,7 @@ import com.redislabs.riot.Riot;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.ParentCommand;
 
-@Command
+@Command(sortOptions = false)
 public abstract class RiotCommand extends HelpCommand implements Runnable {
 
 	@ParentCommand
@@ -18,7 +18,7 @@ public abstract class RiotCommand extends HelpCommand implements Runnable {
 	}
 
 	protected boolean isQuiet() {
-		return parent.getOptions().isQuiet();
+		return parent.isQuiet();
 	}
 
 }

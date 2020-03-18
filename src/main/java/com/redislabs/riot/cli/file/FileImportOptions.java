@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.zip.GZIPInputStream;
 
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
@@ -25,7 +24,6 @@ import org.springframework.batch.item.support.AbstractItemCountingItemStreamItem
 import org.springframework.batch.item.xml.XmlItemReader;
 import org.springframework.batch.item.xml.XmlObjectReader;
 import org.springframework.batch.item.xml.builder.XmlItemReaderBuilder;
-import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.util.Assert;
 
@@ -54,7 +52,7 @@ public class FileImportOptions extends FileOptions {
 		FlatFileItemReaderBuilder<Map<String, Object>> builder = new FlatFileItemReaderBuilder<Map<String, Object>>();
 		builder.name("flat-file-reader");
 		builder.resource(resource);
-		builder.encoding(encoding);
+		builder.encoding(getEncoding());
 		if (linesToSkip != null) {
 			builder.linesToSkip(linesToSkip);
 		}
@@ -65,29 +63,28 @@ public class FileImportOptions extends FileOptions {
 		return builder;
 	}
 
-	@Override
-	protected Resource resource() throws IOException {
-		Resource resource = super.resource();
-		if (isGzip(resource)) {
-			return new InputStreamResource(new GZIPInputStream(resource.getInputStream()), resource.getDescription());
+	private Resource getResource() throws IOException {
+		Resource resource = getInputResource();
+		if (isGzip()) {
+			return new GZIPInputStreamResource(resource.getInputStream(), resource.getDescription());
 		}
 		return resource;
 	}
 
 	private FlatFileItemReader<Map<String, Object>> delimitedReader(Resource resource) throws IOException {
 		FlatFileItemReaderBuilder<Map<String, Object>> builder = flatFileItemReaderBuilder(resource);
-		if (header && linesToSkip == null) {
+		if (isHeader() && linesToSkip == null) {
 			builder.linesToSkip(1);
 		}
 		DelimitedBuilder<Map<String, Object>> delimitedBuilder = builder.delimited();
-		delimitedBuilder.delimiter(delimiter);
+		delimitedBuilder.delimiter(getDelimiter());
 		delimitedBuilder.includedFields(includedFields.toArray(new Integer[includedFields.size()]));
 		delimitedBuilder.quoteCharacter(quoteCharacter);
-		String[] fieldNames = names;
-		if (header) {
-			BufferedReader reader = new DefaultBufferedReaderFactory().create(resource, encoding);
+		String[] fieldNames = getNames();
+		if (isHeader()) {
+			BufferedReader reader = new DefaultBufferedReaderFactory().create(resource, getEncoding());
 			DelimitedLineTokenizer tokenizer = new DelimitedLineTokenizer();
-			tokenizer.setDelimiter(delimiter);
+			tokenizer.setDelimiter(getDelimiter());
 			tokenizer.setQuoteCharacter(quoteCharacter);
 			if (!includedFields.isEmpty()) {
 				int[] result = new int[includedFields.size()];
@@ -112,7 +109,7 @@ public class FileImportOptions extends FileOptions {
 		FixedLengthBuilder<Map<String, Object>> fixedlength = builder.fixedLength();
 		Assert.notEmpty(columnRanges, "Column ranges are required");
 		fixedlength.columns(columnRanges.toArray(new Range[columnRanges.size()]));
-		fixedlength.names(names);
+		fixedlength.names(getNames());
 		return builder.build();
 	}
 
@@ -143,23 +140,24 @@ public class FileImportOptions extends FileOptions {
 	}
 
 	public ItemReader<Map<String, Object>> reader() throws Exception {
-		switch (type()) {
-		case Json:
-			return jsonReader(resource());
-		case Xml:
-			return xmlReader(resource());
-		case Fixed:
-			return fixedLengthReader(resource());
+		Resource resource = getResource();
+		switch (getType()) {
+		case JSON:
+			return jsonReader(resource);
+		case XML:
+			return xmlReader(resource);
+		case FIXED:
+			return fixedLengthReader(resource);
 		default:
-			return delimitedReader(resource());
+			return delimitedReader(resource);
 		}
 	}
 
-	public ItemProcessor<Map<String, Object>, Map<String, Object>> postProcessor() {
-		switch (type()) {
-		case Json:
+	public ItemProcessor<Map<String, Object>, Map<String, Object>> processor() {
+		switch (getType()) {
+		case JSON:
 			return new MapFlattener();
-		case Xml:
+		case XML:
 			return new MapFlattener();
 		default:
 			return null;

@@ -13,7 +13,7 @@ import picocli.CommandLine.Option;
 import redis.clients.jedis.Jedis;
 
 @Slf4j
-@Command(name = "test", description = "Execute a test")
+@Command(name = "test", description = "Execute a test", sortOptions = false)
 public class TestCommand extends RiotCommand implements Runnable {
 
 	public enum RedisTestType {

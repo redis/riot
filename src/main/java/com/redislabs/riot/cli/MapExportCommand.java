@@ -1,53 +1,50 @@
 package com.redislabs.riot.cli;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.item.support.CompositeItemProcessor;
 
 import com.redislabs.riot.cli.db.DatabaseExportOptions;
 import com.redislabs.riot.cli.file.FileExportOptions;
-import com.redislabs.riot.redis.reader.FieldExtractor;
-import com.redislabs.riot.redis.reader.KeyFieldValueMapProcessor;
 import com.redislabs.riot.redis.reader.KeyValue;
 import com.redislabs.riot.redis.reader.KeyValueMapProcessor;
 import com.redislabs.riot.redis.reader.KeyValueReader;
 
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
-import picocli.CommandLine.Option;
+import picocli.CommandLine.Mixin;
 
-@Command(name = "export", description = "Export data from Redis")
+@Command(name = "export", description = "Export data from Redis", sortOptions = false)
 public class MapExportCommand extends ExportCommand<KeyValue, Map<String, Object>> {
 
-	@ArgGroup(exclusive = false, heading = "Field processor options%n")
-	private MapProcessorOptions processor = new MapProcessorOptions();
-	@Option(names = "--key-regex", description = "Regular expression for key-field extraction", paramLabel = "<regex>")
-	private String keyRegex;
-	@ArgGroup(exclusive = false, heading = "File options%n", order = 3)
+	@Mixin
+	private KeyValueProcessorOptions keyValueProcessorOptions = new KeyValueProcessorOptions();
+	@Mixin
+	private MapProcessorOptions mapProcessorOptions = new MapProcessorOptions();
+	@ArgGroup(exclusive = false, heading = "File options%n")
 	private FileExportOptions file = new FileExportOptions();
 	@ArgGroup(exclusive = false, heading = "Database options%n")
 	private DatabaseExportOptions db = new DatabaseExportOptions();
 
 	@Override
 	protected ItemReader<KeyValue> reader() throws Exception {
-		return reader(KeyValueReader.builder().timeout(getReaderOptions().getTimeout()).build());
+		return reader(KeyValueReader.builder().timeout(getTimeout()).build());
 	}
 
-	@SuppressWarnings("rawtypes")
 	@Override
-	protected List<ItemProcessor> processors() {
-		return Arrays.asList(keyValueMapProcessor(), processor.processor());
-	}
-
-	private KeyValueMapProcessor keyValueMapProcessor() {
-		if (keyRegex != null) {
-			return new KeyFieldValueMapProcessor(FieldExtractor.builder().regex(keyRegex).build());
+	protected ItemProcessor<KeyValue, Map<String, Object>> processor() throws Exception {
+		KeyValueMapProcessor keyValueProcessor = keyValueProcessorOptions.processor();
+		ItemProcessor<Map<String, Object>, Map<String, Object>> mapProcessor = mapProcessorOptions.processor();
+		if (mapProcessor == null) {
+			return keyValueProcessor;
 		}
-		return new KeyValueMapProcessor();
+		CompositeItemProcessor<KeyValue, Map<String, Object>> processor = new CompositeItemProcessor<>();
+		processor.setDelegates(Arrays.asList(keyValueProcessor, mapProcessor));
+		return processor;
 	}
 
 	@Override

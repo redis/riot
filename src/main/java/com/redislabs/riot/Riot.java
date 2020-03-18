@@ -2,7 +2,7 @@ package com.redislabs.riot;
 
 import org.springframework.batch.item.file.transform.Range;
 
-import com.redislabs.picocliredis.Main;
+import com.redislabs.picocliredis.Application;
 import com.redislabs.riot.cli.GeneratorCommand;
 import com.redislabs.riot.cli.MapExportCommand;
 import com.redislabs.riot.cli.MapImportCommand;
@@ -14,7 +14,7 @@ import picocli.CommandLine.Command;
 
 @Command(name = "riot", subcommands = { MapImportCommand.class, MapExportCommand.class, GeneratorCommand.class,
 		ReplicateCommand.class })
-public class Riot extends Main {
+public class Riot extends Application {
 
 	public static void main(String[] args) {
 		System.exit(new Riot().execute(args));

@@ -2,100 +2,33 @@
 :source-highlighter: highlightjs
 :idprefix:
 :idseparator: -
-:toc: preamble
+:toc:
 :icons: font
 :project-repo: Redislabs-Solution-Architects/riot
 :repo-url: https://github.com/{project-repo}
 
-RIOT is a data import/export tool for Redis that connects to files, databases, and generators.
-
 == Connectors
 
-[cols="<,^,^",options="header",halign="center"]
-|=========================================================
-|Connector     | Source | Target
-
-|<<file,File>> | icon:check[] | icon:check[]
-
-|<<db,RDBMS>> | icon:check[] | icon:check[]
-
-|<<redis,Redis>> | icon:check[] | icon:check[]
-
-|<<gen,Generator>> | icon:check[] |
-
-|=========================================================
-
-[#file]
+[#files]
 === Files
 
 RIOT can import/export files in these formats:
 
-* Delimited (CSV)
+* Delimited (CSV, TSV)
 * Fixed-Width
 * JSON
+* XML (repeating elements not supported)
 
-Files can be GZIP compressed, and local or remote:
+Files can be local or remote, and GZIP compressed:
 
 * `/myfolder/myfile.csv`
 * `/myfolder/myfile.json.gz`
 * `https://example.com/path/dataset.csv`
 * `s3://mybucket/myfolder/myfile.json`
 
-For AWS S3  you can specify access and secret keys as well as the region for the bucket. 
+For AWS S3 you can specify access and secret keys as well as the region for the bucket.
 
-==== Delimited Files
-
-===== CSV -> Redis
-[source,shell]
-----
-include::{commandsdir}/file-import-csv-hash.txt[]
-----
-
-===== Redis -> CSV
-[source,shell]
-----
-include::{commandsdir}/file-export-csv.txt[]
-----
-
-===== CSV -> RediSearch
-. Create an index with `redis-cli`
-+
-[source,plaintext]
-----
-FT.CREATE beers SCHEMA abv NUMERIC SORTABLE id TAG name TEXT PHONETIC dm:en style_name TEXT cat_name TEXT brewery_id TAG
-----
-. Import data into the index
-+
-[source,shell]
-----
-include::{commandsdir}/file-import-csv-search.txt[]
-----
-. Search for beers
-+
-[source,plaintext]
-----
-> FT.SEARCH beers "@abv:[7 9]"
-----
-
-==== JSON
-RIOT can read and write JSON data in this format: `[ { … }, { … } ]`
-
-===== JSON -> Redis
-[source,shell]
-----
-include::{commandsdir}/file-import-json-hash.txt[]
-----
-
-===== Redis -> JSON
-[source,shell]
-----
-include::{commandsdir}/file-export-json.txt[]
-----
-
-===== Redis -> Compressed JSON 
-----
-include::{commandsdir}/file-export-json_gz.txt[]
-----
+TIP: Use `-` to import/export from/to standard input/output 
 
 [#db]
 === Databases
@@ -109,104 +42,49 @@ RIOT can connect to SQL databases through JDBC. Install the appropriate JDBC dri
 
 For reference here are links to common database systems and related JDBC driver documentation:
 
-|=========================================================
-|RDBMS|URL Format
+* https://docs.oracle.com/cd/E11882_01/appdev.112/e13995/oracle/jdbc/OracleDriver.html[Oracle]
++
+`jdbc:oracle:thin:@myhost:1521:orcl`
 
-|https://docs.oracle.com/cd/E11882_01/appdev.112/e13995/oracle/jdbc/OracleDriver.html[Oracle]|`jdbc:oracle:thin:@myhost:1521:orcl`
+* https://www.ibm.com/support/knowledgecenter/en/SSEPEK_10.0.0/java/src/tpc/imjcc_r0052342.html[IBM Db2]
++
+`jdbc:db2://host:port/database`
 
-|https://docs.microsoft.com/en-us/sql/connect/jdbc/building-the-connection-url?view=sql-server-2017[MS SQL Server]|`jdbc:sqlserver://[serverName[\instanceName][:portNumber]][;property=value[;property=value]]`
+* https://docs.microsoft.com/en-us/sql/connect/jdbc/building-the-connection-url?view=sql-server-2017[MS SQL Server]
++
+`jdbc:sqlserver://[serverName[\instanceName][:portNumber]][;property=value[;property=value]]`
 
-|https://dev.mysql.com/doc/connector-j/8.0/en/connector-j-reference-jdbc-url-format.html[MySQL]|`jdbc:mysql://[host]:[port][/database][?properties]`
+* https://dev.mysql.com/doc/connector-j/8.0/en/connector-j-reference-jdbc-url-format.html[MySQL]
++
+`jdbc:mysql://[host]:[port][/database][?properties]`
 
-|https://www.postgresql.org/docs/7.4/jdbc-use.html[PostgreSQL]|`jdbc:postgresql://host:port/database`
-
-|https://www.ibm.com/support/knowledgecenter/en/SSEPEK_10.0.0/java/src/tpc/imjcc_r0052342.html[IBM Db2]|`jdbc:db2://host:port/database`
-
-|https://www.sqlitetutorial.net/sqlite-java/sqlite-jdbc-driver/[SQLite]|`jdbc:sqlite:sqlite_database_file_path`
-|=========================================================
+* https://www.postgresql.org/docs/7.4/jdbc-use.html[PostgreSQL]
++
+`jdbc:postgresql://host:port/database`
 
 
-==== SQL -> Redis
-[source,shell]
-----
-include::{commandsdir}/db-import.txt[]
-----
+* https://www.sqlitetutorial.net/sqlite-java/sqlite-jdbc-driver/[SQLite]
++
+`jdbc:sqlite:sqlite_database_file_path`
 
-==== Redis -> SQL
-This command exports all hashes in keyspace `beer:<id>` to the database: 
-[source,shell]
-----
-include::{commandsdir}/db-export.txt[]
-----
 
 [#gen]
 === Generators
 
 RIOT can be used to create random data in Redis with 2 different generators.
 
-==== Simple
-
-The simple generator produces fixed-length fields with 2 fields by default:
-
+* The simple generator produces the following fields:
 ** `index`: monotonous integer sequence
-** `partition`: index of the partition (thread) generating the data, e.g. if you have 8 threads generating data each will have a different partition index between 0 and 7.
+** `partition`: index of the partition (thread) generating the data, e.g. if you have 8 threads generating data each will have a different partition index between 0 and 7
+** configurable fixed-sized fields using `--field <name=size>` options
 
-You can also configure it to generate fixed-sized fields with `--field <name=size>` options.
+* The Faker generator relies on the https://github.com/DiUS/java-faker[Faker] library. Supported data types are described <<faker#,here>>.
 
-For example the following command generates hashes in the keyspace `test:<index>` with fields `field1` and `field2` of respectively 100 and 1,000 bytes:
-[source,shell]
-----
-include::{commandsdir}/gen-simple.txt[]
-----
-
-==== Faker
-This data generator relies on the https://github.com/DiUS/java-faker[Faker] library. The supported data types are described <<faker#,here>>.
-
-.Example #1: People
-[source,shell]
-----
-include::{commandsdir}/gen-faker-hash.txt[]
-----
-[source,plaintext]
-----
-> HGETALL person:1
-1) "address"
-2) "036 Robbin Points, North Sonia, PA 42251"
-…
----- 
-
-.Example #2: Game of Thrones
-[source,shell]
-----
-include::{commandsdir}/gen-faker-set.txt[]
-----
-[source,plaintext]
-----
-> SMEMBERS got:characters
-1) "Nymella Toland"
-2) "Ysilla Royce"
-…
-----
-
-.RediSearch Index Introspection
-
-RIOT can introspect an existing RediSearch index (specified with the `--faker-index` option) and generate Faker data accordingly:
-[source,shell]
-----
-include::{commandsdir}/gen-faker-index-introspection.txt[]
-----
- 
-
+[#redis]
 === Redis
 
-The Redis connector allows for replicating data between two Redis databases using scan and optionally keyspace notifications (`--listener`). 
+The Redis connector allows for replicating data between two Redis databases using scan and optionally keyspace notifications (`--listener`).
 
-[source,shell]
-----
-include::{commandsdir}/replicate-live.txt[]
-----
-
-The source database is specified first (`localhost:16379`), and the target database is after the `replicate` command (`localhost:16380`) 
 
 == Processors
 
@@ -226,7 +104,7 @@ The processor also exposes the following variables that can be called with the `
 
 [source,shell]
 ----
-include::{commandsdir}/file-import-csv-processor-hash-dateformat.txt[]
+include::{commandsdir}/import-csv-processor-hash-dateformat.txt[]
 ----
 
 === Script evaluator
@@ -246,6 +124,95 @@ process(item);
 [source,shell]
 ----
 include::{commandsdir}/gen-faker-script-processor-hash.txt[]
+----
+
+
+== Examples
+
+=== Files
+
+.Import CSV
+[source,shell]
+----
+include::{commandsdir}/import-csv-hash.txt[]
+----
+
+.Import JSON
+[source,shell]
+----
+include::{commandsdir}/import-json-hash.txt[]
+----
+
+.Import CSV into RediSearch
+[source,shell]
+----
+include::{commandsdir}/import-csv-search.txt[]
+----
+
+.Export CSV
+[source,shell]
+----
+include::{commandsdir}/export-csv.txt[]
+----
+
+.Export JSON
+[source,shell]
+----
+include::{commandsdir}/export-json.txt[]
+----
+
+.Export compressed JSON
+[source,shell]
+----
+include::{commandsdir}/export-json_gz.txt[]
+----
+
+=== Databases
+
+.Import from a database
+[source,shell]
+----
+include::{commandsdir}/import-db.txt[]
+----
+
+.Export to a database
+[source,shell]
+----
+include::{commandsdir}/export-db.txt[]
+----
+
+=== Generators
+
+.Generate hashes using simple generator
+[source,shell]
+----
+include::{commandsdir}/gen-simple.txt[]
+----
+
+.Generate hashes using Faker
+[source,shell]
+----
+include::{commandsdir}/gen-faker-hash.txt[]
+----
+
+.Generate Redis sets using Faker
+[source,shell]
+----
+include::{commandsdir}/gen-faker-set.txt[]
+----
+
+.Generate RediSearch data using introspection
+[source,shell]
+----
+include::{commandsdir}/gen-faker-index-introspection.txt[]
+----
+
+=== Replication
+
+.Live replication from `localhost:16379` to `localhost:16380`
+[source,shell]
+----
+include::{commandsdir}/replicate-live.txt[]
 ----
 
 == Load Testing

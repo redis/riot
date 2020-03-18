@@ -5,7 +5,6 @@ import java.io.Writer;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.Map;
-import java.util.zip.GZIPOutputStream;
 
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.file.FlatFileHeaderCallback;
@@ -18,7 +17,6 @@ import org.springframework.util.Assert;
 
 import com.redislabs.riot.file.FlatResourceItemWriterBuilder;
 import com.redislabs.riot.file.JsonResourceItemWriterBuilder;
-import com.redislabs.riot.file.OutputStreamResource;
 
 import picocli.CommandLine.Option;
 
@@ -40,25 +38,23 @@ public class FileExportOptions extends FileOptions {
 	private Integer minLength;
 
 	public ItemWriter<Map<String, Object>> writer() throws IOException {
-		Resource resource = resource();
-		switch (type()) {
-		case Json:
+		WritableResource resource = getResource();
+		switch (getType()) {
+		case JSON:
 			return jsonWriter(resource);
-		case Fixed:
+		case FIXED:
 			return formattedWriter(resource);
 		default:
 			return delimitedWriter(resource);
 		}
 	}
 
-	@Override
-	protected WritableResource resource() throws IOException {
-		Resource resource = super.resource();
+	protected WritableResource getResource() throws IOException {
+		Resource resource = getOutputResource();
 		Assert.isInstanceOf(WritableResource.class, resource);
 		WritableResource writable = (WritableResource) resource;
-		if (isGzip(resource)) {
-			return new OutputStreamResource(new GZIPOutputStream(writable.getOutputStream()),
-					writable.getDescription());
+		if (isGzip()) {
+			return new GZIPOutputStreamResource(writable.getOutputStream(), writable.getDescription());
 		}
 		return writable;
 	}
@@ -66,7 +62,7 @@ public class FileExportOptions extends FileOptions {
 	private FlatResourceItemWriterBuilder<Map<String, Object>> flatWriterBuilder(Resource resource, String headerLine) {
 		FlatResourceItemWriterBuilder<Map<String, Object>> builder = new FlatResourceItemWriterBuilder<>();
 		builder.append(append);
-		builder.encoding(encoding);
+		builder.encoding(getEncoding());
 		builder.lineSeparator(lineSeparator);
 		builder.resource(resource);
 		builder.saveState(false);
@@ -86,7 +82,7 @@ public class FileExportOptions extends FileOptions {
 		JsonResourceItemWriterBuilder<Map<String, Object>> builder = new JsonResourceItemWriterBuilder<>();
 		builder.name("json-s3-writer");
 		builder.append(append);
-		builder.encoding(encoding);
+		builder.encoding(getEncoding());
 		builder.jsonObjectMarshaller(new JacksonJsonObjectMarshaller<>());
 		builder.lineSeparator(lineSeparator);
 		builder.resource(resource);
@@ -96,32 +92,32 @@ public class FileExportOptions extends FileOptions {
 
 	private AbstractItemStreamItemWriter<Map<String, Object>> delimitedWriter(Resource resource) {
 		String headerLine = null;
-		if (header) {
-			headerLine = String.join(delimiter, names);
+		if (isHeader()) {
+			headerLine = String.join(getDelimiter(), getNames());
 		}
 		FlatResourceItemWriterBuilder<Map<String, Object>> builder = flatWriterBuilder(resource, headerLine);
 		builder.name("delimited-s3-writer");
 		com.redislabs.riot.file.FlatResourceItemWriterBuilder.DelimitedBuilder<Map<String, Object>> delimited = builder
 				.delimited();
-		delimited.delimiter(delimiter);
-		delimited.fieldExtractor(new MapFieldExtractor(names));
-		if (names.length > 0) {
-			delimited.names(names);
+		delimited.delimiter(getDelimiter());
+		delimited.fieldExtractor(new MapFieldExtractor(getNames()));
+		if (getNames().length > 0) {
+			delimited.names(getNames());
 		}
 		return builder.build();
 	}
 
 	private AbstractItemStreamItemWriter<Map<String, Object>> formattedWriter(Resource resource) {
 		String headerLine = null;
-		if (header) {
-			headerLine = String.format(locale, format, Arrays.asList(names).toArray());
+		if (isHeader()) {
+			headerLine = String.format(locale, format, Arrays.asList(getNames()).toArray());
 		}
 		FlatResourceItemWriterBuilder<Map<String, Object>> builder = flatWriterBuilder(resource, headerLine);
 		FlatResourceItemWriterBuilder.FormattedBuilder<Map<String, Object>> formatted = builder.formatted();
 		builder.name("formatted-s3-writer");
-		formatted.fieldExtractor(new MapFieldExtractor(names));
-		if (names.length > 0) {
-			formatted.names(names);
+		formatted.fieldExtractor(new MapFieldExtractor(getNames()));
+		if (getNames().length > 0) {
+			formatted.names(getNames());
 		}
 		formatted.format(format);
 		formatted.locale(locale);

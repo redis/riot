@@ -18,7 +18,7 @@ repositories {
 }
 
 dependencies {
-    api 'com.redislabs:picocli-redis:1.13.1'
+    api 'com.redislabs:picocli-redis:1.14.0'
 	implementation 'org.slf4j:slf4j-jdk14:1.7.28'
     implementation 'org.springframework.batch:spring-batch-core:4.2.1.RELEASE'
     implementation 'org.springframework.boot:spring-boot-autoconfigure:2.2.5.RELEASE'
@@ -157,7 +157,6 @@ tasks.withType(Tar){
 }
 
 asciidoctor {
-  attributes revnumber : '1.0'
   outputOptions {
   	separateOutputDirs = false
   }
@@ -193,3 +192,4 @@ gitPublishPush.dependsOn asciidoctor
 
 afterReleaseBuild.dependsOn ":githubRelease"
 afterReleaseBuild.dependsOn bintrayUpload
+afterReleaseBuild.dependsOn gitPublishPush

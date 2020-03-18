@@ -1,4 +1,4 @@
-package com.redislabs.riot.cli;
+package com.redislabs.riot.file;
 
 import java.io.IOException;
 import java.io.InputStream;
