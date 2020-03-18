@@ -1,1 +1,1 @@
-$ riot import --file "https://data.lacity.org/api/views/rx9t-fp7k/rows.csv?accessType=DOWNLOAD" --header --regex 'Event Location'="\((?<lat>.+),\s+(?<lon>.+)\)" --spel location=#geo(lon,lat) --command ftadd --index laevents --keys Id
+$ riot import --url "https://data.lacity.org/api/views/rx9t-fp7k/rows.csv?accessType=DOWNLOAD" --header --regex 'Event Location'="\((?<lat>.+),\s+(?<lon>.+)\)" --spel location=#geo(lon,lat) --command ftadd --index laevents --keys Id
