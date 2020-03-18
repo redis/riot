@@ -12,9 +12,9 @@ public class DatabaseImportOptions extends DatabaseOptions {
 
 	@Option(names = "--sql", description = "SELECT statement", paramLabel = "<sql>")
 	private String sql;
-	@Option(names = "--fetch", description = "# rows to return with each fetch", paramLabel = "<size>")
+	@Option(names = "--fetch", description = "Number of rows to return with each fetch", paramLabel = "<size>")
 	private Integer fetchSize;
-	@Option(names = "--rows", description = "The max number of rows the ResultSet can contain", paramLabel = "<count>")
+	@Option(names = "--rows", description = "Max number of rows the ResultSet can contain", paramLabel = "<count>")
 	private Integer maxRows;
 	@Option(names = "--timeout", description = "The time in milliseconds for the query to timeout", paramLabel = "<ms>")
 	private Integer queryTimeout;

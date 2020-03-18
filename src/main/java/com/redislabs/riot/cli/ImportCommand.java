@@ -13,9 +13,6 @@ import com.redislabs.riot.redis.writer.map.AbstractCollectionMapCommandWriter;
 import com.redislabs.riot.redis.writer.map.AbstractKeyMapCommandWriter;
 import com.redislabs.riot.redis.writer.map.AbstractMapCommandWriter;
 import com.redislabs.riot.redis.writer.map.AbstractSearchMapCommandWriter;
-import com.redislabs.riot.redis.writer.map.Evalsha;
-import com.redislabs.riot.redis.writer.map.Expire;
-import com.redislabs.riot.redis.writer.map.Geoadd;
 import com.redislabs.riot.redis.writer.map.Hmset;
 import com.redislabs.riot.redis.writer.map.Lpush;
 import com.redislabs.riot.redis.writer.map.Noop;
@@ -31,7 +28,6 @@ import com.redislabs.riot.redis.writer.map.Xadd.XaddIdMaxlen;
 import com.redislabs.riot.redis.writer.map.Xadd.XaddMaxlen;
 import com.redislabs.riot.redis.writer.map.Zadd;
 
-import io.lettuce.core.ScriptOutputType;
 import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
@@ -49,26 +45,18 @@ public abstract class ImportCommand extends TransferCommand<Map<String, Object>,
 	private Command command = Command.HMSET;
 	@Option(names = "--member-space", description = "Prefix for member IDs", paramLabel = "<str>")
 	private String memberKeyspace;
-	@Option(names = "--members", arity = "1..*", description = "Member field names for collections", paramLabel = "<name>")
+	@Option(names = "--members", arity = "1..*", description = "Member field names for collections", paramLabel = "<fields>")
 	private String[] memberIds = new String[0];
 	@Option(names = "--key-separator", description = "Key separator (default: ${DEFAULT-VALUE})", paramLabel = "<str>")
 	private String separator = KeyBuilder.DEFAULT_KEY_SEPARATOR;
 	@Option(names = { "-p", "--keyspace" }, description = "Keyspace prefix", paramLabel = "<str>")
 	private String keyspace;
-	@Option(names = { "-k", "--keys" }, arity = "1..*", description = "Key fields", paramLabel = "<names>")
+	@Option(names = { "-k", "--keys" }, arity = "1..*", description = "Key fields", paramLabel = "<fields>")
 	private String[] keys = new String[0];
 	@Option(names = "--score", description = "Name of the field to use for scores", paramLabel = "<field>")
 	private String score;
 	@Option(names = "--score-default", description = "Score when field not present (default: ${DEFAULT-VALUE})", paramLabel = "<num>")
 	private double defaultScore = 1d;
-	@Option(names = "--lon", description = "Longitude field", paramLabel = "<field>")
-	private String longitude;
-	@Option(names = "--lat", description = "Latitude field", paramLabel = "<field>")
-	private String latitude;
-	@Option(names = "--ttl-default", description = "EXPIRE default timeout (default: ${DEFAULT-VALUE})", paramLabel = "<sec>")
-	private long defaultTimeout = 60;
-	@Option(names = "--ttl", description = "EXPIRE timeout field", paramLabel = "<name>")
-	private String timeout;
 	@Option(names = "--format", description = "Serialization: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})", paramLabel = "<fmt>")
 	private Format format = Format.JSON;
 	@Option(names = "--root", description = "XML root element name", paramLabel = "<name>")
@@ -81,16 +69,16 @@ public abstract class ImportCommand extends TransferCommand<Map<String, Object>,
 	private Long maxlen;
 	@Option(names = "--stream-id", description = "Stream entry ID field", paramLabel = "<field>")
 	private String id;
-	@Option(names = "--eval-args", arity = "1..*", description = "EVALSHA arg field names", paramLabel = "<names>")
-	private String[] args = new String[0];
-	@Option(names = "--eval-sha", description = "EVALSHA digest", paramLabel = "<sha>")
-	private String sha;
-	@Option(names = "--eval-output", description = "EVALSHA output: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})", paramLabel = "<type>")
-	private ScriptOutputType outputType = ScriptOutputType.STATUS;
-	@ArgGroup(exclusive = false, heading = "RediSearch options%n")
-	private RediSearchOptions search = new RediSearchOptions();
 	@ArgGroup(exclusive = false, heading = "Processor options%n")
 	private MapProcessorOptions mapProcessor = new MapProcessorOptions();
+	@ArgGroup(exclusive = false, heading = "EVALSHA options%n")
+	private EvalshaOptions evalsha = new EvalshaOptions();
+	@ArgGroup(exclusive = false, heading = "EXPIRE options%n")
+	private ExpireOptions expire = new ExpireOptions();
+	@ArgGroup(exclusive = false, heading = "GEOADD options%n")
+	private GeoaddOptions geoadd = new GeoaddOptions();
+	@ArgGroup(exclusive = false, heading = "RediSearch options%n")
+	private RediSearchOptions search = new RediSearchOptions();
 
 	private KeyBuilder keyBuilder() {
 		if (keyspace == null && keys.length == 0) {
@@ -120,15 +108,15 @@ public abstract class ImportCommand extends TransferCommand<Map<String, Object>,
 	private CommandWriter<Map<String, Object>> mapCommandWriter(Command command) {
 		switch (command) {
 		case EVALSHA:
-			return new Evalsha().args(args).keys(keys).outputType(outputType).sha(sha);
+			return evalsha.evalsha().keys(keys);
 		case EXPIRE:
-			return new Expire().defaultTimeout(defaultTimeout).timeoutField(timeout);
+			return expire.expire();
 		case FTADD:
 			return search.add();
 		case FTSUGADD:
 			return search.sugadd();
 		case GEOADD:
-			return new Geoadd().longitude(longitude).latitude(latitude);
+			return geoadd.geoadd();
 		case LPUSH:
 			return new Lpush();
 		case NOOP:

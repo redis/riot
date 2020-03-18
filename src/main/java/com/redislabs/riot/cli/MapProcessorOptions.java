@@ -19,9 +19,9 @@ import picocli.CommandLine.Option;
 
 public class MapProcessorOptions {
 
-	@Option(arity = "1..*", names = "--regex", description = "Extract named values from source field using regex", paramLabel = "<src=exp>")
+	@Option(arity = "1..*", names = "--regex", description = "Extract named values from source field using regex", paramLabel = "<field=exp>")
 	private Map<String, String> regexes;
-	@Option(arity = "1..*", names = "--spel", description = "SpEL expression to process a field", paramLabel = "<name=exp>")
+	@Option(arity = "1..*", names = "--spel", description = "SpEL expression to produce a field", paramLabel = "<field=exp>")
 	private Map<String, String> spel;
 	@Option(arity = "1..*", names = "--spel-var", description = "Register a variable in the SpEL processor context", paramLabel = "<v=exp>")
 	private Map<String, String> variables;
