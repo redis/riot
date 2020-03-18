@@ -2,10 +2,21 @@
 :source-highlighter: highlightjs
 :idprefix:
 :idseparator: -
-:toc:
+:toc: macro
 :icons: font
 :project-repo: Redislabs-Solution-Architects/riot
 :repo-url: https://github.com/{project-repo}
+
+----
+█████╗ ██╗ █████╗██████╗
+██╔═██╗██║██╔══██╚═██╔═╝
+█████╔╝██║██║  ██║ ██║
+██╔═██╗██║╚█████╔╝ ██║
+╚═╝ ╚═╝╚═╝ ╚════╝  ╚═╝
+Redis Input/Output Tool
+----
+
+toc::[]
 
 == Connectors
 
