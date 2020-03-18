@@ -36,6 +36,16 @@ $ brew install jruaux/tap/riot
 $ riot --help
 ```
 
+=== Tab Completion
+
+RIOT has command line completion in Bash or ZSH Unix shells. The Unix shell will complete a command or option when users type the first few letters then press the TAB key.
+
+Run the following command to install completion:
+[source,shell]
+----
+$ source <(riot generate-completion)
+---- 
+
 == Documentation
 
 https://redislabs-solution-architects.github.io/riot/index.html[RIOT Documentation]
