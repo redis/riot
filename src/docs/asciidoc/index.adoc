@@ -23,7 +23,7 @@ Files can be local or remote, and GZIP compressed:
 
 * `/myfolder/myfile.csv`
 * `/myfolder/myfile.json.gz`
-* `https://example.com/path/dataset.csv`
+* `\https://example.com/path/dataset.csv`
 * `s3://mybucket/myfolder/myfile.json`
 
 For AWS S3 you can specify access and secret keys as well as the region for the bucket.
