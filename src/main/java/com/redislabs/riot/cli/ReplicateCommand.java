@@ -13,8 +13,8 @@ import com.redislabs.riot.redis.writer.map.Restore;
 import com.redislabs.riot.transfer.Flow;
 import com.redislabs.riot.transfer.Transfer;
 
+import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
-import picocli.CommandLine.Mixin;
 import picocli.CommandLine.Option;
 
 @Command(name = "replicate", description = "Replicate a Redis database to another Redis database", sortOptions = false)
@@ -22,19 +22,19 @@ public class ReplicateCommand extends ExportCommand<KeyDump, KeyDump> {
 
 	private final static String DATABASE_TOKEN = "{database}";
 
-	@Mixin
+	@ArgGroup(heading = "Target Redis options%n")
 	private RedisOptions target = new RedisOptions();
-	@Option(names = "--notification-queue", description = "Capacity of the keyspace notification queue (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
+	@Option(names = "--event-queue", description = "Event queue capacity (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
 	private int notificationQueue = 10000;
-	@Option(names = "--keyspace-channel", description = "Pub/sub channel for keyspace events (default: ${DEFAULT-VALUE}). Blank to disable", paramLabel = "<string>")
+	@Option(names = "--event-channel", description = "Event pub/sub channel (default: ${DEFAULT-VALUE}). Blank to disable", paramLabel = "<str>")
 	private String channel = "__keyspace@" + DATABASE_TOKEN + "__:*";
 	@Option(names = "--no-replace", description = "No REPLACE modifier with RESTORE command")
 	private boolean noReplace;
-	@Option(names = "--flush-rate", description = "Interval in millis between notification flushes (default: ${DEFAULT-VALUE})", paramLabel = "<ms>")
+	@Option(names = "--flush-rate", description = "Duration between notification flushes (default: ${DEFAULT-VALUE})", paramLabel = "<ms>")
 	private long flushRate = 50;
-	@Option(names = "--syncer-timeout", description = "Syncer timeout duration in seconds (default: ${DEFAULT-VALUE})", paramLabel = "<sec>")
+	@Option(names = "--syncer-timeout", description = "Syncer timeout duration (default: ${DEFAULT-VALUE})", paramLabel = "<sec>")
 	private int timeout = 2;
-	@Option(names = "--syncer-pipeline", description = "Number of values in dump pipeline (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
+	@Option(names = "--syncer-batch", description = "Number of values in dump pipeline (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
 	private int pipeline = 50;
 	@Option(names = "--syncer-queue", description = "Capacity of the value queue (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
 	private int queueSize = 10000;

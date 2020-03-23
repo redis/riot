@@ -23,7 +23,7 @@ public abstract class ExportCommand<I, O> extends TransferCommand<I, O> {
 	private int queue = 10000;
 	@Option(names = "--reader-threads", description = "Number of value-reader threads (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
 	private int threads = 1;
-	@Option(names = "--reader-pipeline", description = "Number of values in reader pipeline (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
+	@Option(names = "--reader-batch", description = "Number of values in reader pipeline (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
 	private int pipeline = 50;
 	@Option(names = "--reader-timeout", description = "Command timeout duration in seconds (default: ${DEFAULT-VALUE})", paramLabel = "<sec>")
 	private int timeout = 2;

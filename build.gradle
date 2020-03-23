@@ -31,7 +31,7 @@ dependencies {
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.10.3'
     compileOnly 'org.projectlombok:lombok:1.18.12'
     annotationProcessor 'org.projectlombok:lombok:1.18.12'
-    annotationProcessor "info.picocli:picocli-codegen:4.2.0"    
+//    annotationProcessor "info.picocli:picocli-codegen:4.2.0"    
     testImplementation 'org.codehaus.plexus:plexus-utils:3.3.0'
     testImplementation 'org.hsqldb:hsqldb:2.5.0'
     testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.6.0'
@@ -47,18 +47,6 @@ dependencies {
 test {
     useJUnitPlatform()
 }
-
-mainClassName = 'com.redislabs.riot.Riot'
-
-task generateManpageAsciiDoc(type: JavaExec) {
-    dependsOn(classes)
-    group = "Documentation"
-    description = "Generate AsciiDoc manpage"
-    classpath(configurations.compile, configurations.annotationProcessor, sourceSets.main.runtimeClasspath)
-    main 'picocli.codegen.docgen.manpage.ManPageGenerator'
-    args mainClassName, "--outdir=${project.buildDir}/generated-picocli-docs", "-v" //, "--template-dir=src/docs/mantemplates"
-}
-
 
 bintray {
     user = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : ''
