@@ -15,27 +15,26 @@ import org.springframework.batch.item.support.AbstractItemStreamItemReader;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
-import org.springframework.expression.spel.support.SimpleEvaluationContext.Builder;
+import org.springframework.expression.spel.support.SimpleEvaluationContext;
 import org.springframework.lang.Nullable;
 import org.springframework.util.ClassUtils;
 
 import com.redislabs.riot.transfer.FlowThread;
 
+import lombok.Builder;
 import lombok.Setter;
-import lombok.experimental.Accessors;
 
-@Accessors(fluent = true)
 public class GeneratorReader extends AbstractItemStreamItemReader<Map<String, Object>> {
 
 	public final static String FIELD_INDEX = "index";
 	public final static String FIELD_PARTITION = "partition";
 	public final static String FIELD_PARTITIONS = "partitions";
 
-	@Setter
-	private Locale locale;
-	private int maxItemCount = Integer.MAX_VALUE;
-	private Map<String, Expression> fakerFields = new HashMap<>();
-	private Map<String, String> simpleFields = new LinkedHashMap<>();
+	private @Setter int maxItemCount = Integer.MAX_VALUE;
+	private @Setter Locale locale;
+	private @Setter boolean includeMetadata;
+	private @Setter Map<String, Expression> fakerFields = new HashMap<>();
+	private @Setter Map<String, String> simpleFields = new LinkedHashMap<>();
 
 	private ThreadLocal<Integer> partition = new ThreadLocal<>();
 	private ThreadLocal<Integer> partitions = new ThreadLocal<>();
@@ -48,26 +47,27 @@ public class GeneratorReader extends AbstractItemStreamItemReader<Map<String, Ob
 		setName(ClassUtils.getShortName(getClass()));
 	}
 
+	@Builder
+	private GeneratorReader(Integer maxItemCount, Locale locale, Boolean includeMetadata,
+			Map<String, String> fakerFields, Map<String, Integer> simpleFields) {
+		if (maxItemCount != null) {
+			this.maxItemCount = maxItemCount;
+		}
+		this.locale = locale;
+		if (includeMetadata != null) {
+			this.includeMetadata = includeMetadata;
+		}
+		SpelExpressionParser parser = new SpelExpressionParser();
+		fakerFields.forEach((k, v) -> this.fakerFields.put(k, parser.parseExpression(v)));
+		simpleFields.forEach((k, v) -> this.simpleFields.put(k, StringUtils.leftPad("", v, "x")));
+	}
+
 	public int partition() {
 		return partition.get();
 	}
 
 	public int partitions() {
 		return partitions.get();
-	}
-
-	public GeneratorReader fakerFields(Map<String, String> fields) {
-		SpelExpressionParser parser = new SpelExpressionParser();
-		fields.forEach((k, v) -> fakerFields.put(k, parser.parseExpression(v)));
-		return this;
-	}
-
-	public GeneratorReader simpleFields(Map<String, Integer> fields) {
-		for (Entry<String, Integer> field : fields.entrySet()) {
-			String string = StringUtils.leftPad("", field.getValue(), "x");
-			simpleFields.put(field.getKey(), string);
-		}
-		return this;
 	}
 
 	@Override
@@ -83,8 +83,8 @@ public class GeneratorReader extends AbstractItemStreamItemReader<Map<String, Ob
 		this.currentItemCount.set(0);
 		GeneratorFaker faker = new GeneratorFaker(locale, this);
 		ReflectivePropertyAccessor accessor = new ReflectivePropertyAccessor();
-		Builder builder = new Builder(accessor).withInstanceMethods().withRootObject(faker);
-		this.context.set(builder.build());
+		this.context
+				.set(new SimpleEvaluationContext.Builder(accessor).withInstanceMethods().withRootObject(faker).build());
 	}
 
 	public int index() {
@@ -101,9 +101,11 @@ public class GeneratorReader extends AbstractItemStreamItemReader<Map<String, Ob
 	public Map<String, Object> read() throws Exception, UnexpectedInputException, ParseException {
 		currentItemCount.set(currentItemCount.get() + 1);
 		Map<String, Object> map = new HashMap<>();
-		map.put(FIELD_INDEX, index());
-		map.put(FIELD_PARTITION, partition.get());
-		map.put(FIELD_PARTITIONS, partitions.get());
+		if (includeMetadata) {
+			map.put(FIELD_INDEX, index());
+			map.put(FIELD_PARTITION, partition.get());
+			map.put(FIELD_PARTITIONS, partitions.get());
+		}
 		for (Entry<String, Expression> entry : fakerFields.entrySet()) {
 			map.put(entry.getKey(), entry.getValue().getValue(context.get()));
 		}

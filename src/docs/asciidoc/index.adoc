@@ -3,6 +3,7 @@
 :idprefix:
 :idseparator: -
 :toc: macro
+:sectanchors:
 :icons: font
 :project-repo: Redislabs-Solution-Architects/riot
 :repo-url: https://github.com/{project-repo}
@@ -122,7 +123,7 @@ include::{commandsdir}/import-csv-processor-hash-dateformat.txt[]
 
 Use an external or inline script to provide the processor logic.
 
-.Javascript example
+==== Javascript example
 [source,javascript]
 ----
 function process(item) {
@@ -142,37 +143,37 @@ include::{commandsdir}/gen-faker-script-processor-hash.txt[]
 
 === Files
 
-.Import CSV
+==== Import CSV
 [source,shell]
 ----
 include::{commandsdir}/import-csv-hash.txt[]
 ----
 
-.Import JSON
+==== Import JSON
 [source,shell]
 ----
 include::{commandsdir}/import-json-hash.txt[]
 ----
 
-.Import CSV into RediSearch
+==== Import CSV into RediSearch
 [source,shell]
 ----
 include::{commandsdir}/import-csv-search.txt[]
 ----
 
-.Export CSV
+==== Export CSV
 [source,shell]
 ----
 include::{commandsdir}/export-csv.txt[]
 ----
 
-.Export JSON
+==== Export JSON
 [source,shell]
 ----
 include::{commandsdir}/export-json.txt[]
 ----
 
-.Export compressed JSON
+==== Export compressed JSON
 [source,shell]
 ----
 include::{commandsdir}/export-json_gz.txt[]
@@ -180,13 +181,13 @@ include::{commandsdir}/export-json_gz.txt[]
 
 === Databases
 
-.Import from a database
+==== Import from a database
 [source,shell]
 ----
 include::{commandsdir}/import-db.txt[]
 ----
 
-.Export to a database
+==== Export to a database
 [source,shell]
 ----
 include::{commandsdir}/export-db.txt[]
@@ -194,25 +195,25 @@ include::{commandsdir}/export-db.txt[]
 
 === Generators
 
-.Generate hashes using simple generator
+==== Generate hashes using simple generator
 [source,shell]
 ----
 include::{commandsdir}/gen-simple.txt[]
 ----
 
-.Generate hashes using Faker
+==== Generate hashes using Faker
 [source,shell]
 ----
 include::{commandsdir}/gen-faker-hash.txt[]
 ----
 
-.Generate Redis sets using Faker
+==== Generate Redis sets using Faker
 [source,shell]
 ----
 include::{commandsdir}/gen-faker-set.txt[]
 ----
 
-.Generate RediSearch data using introspection
+==== Generate RediSearch data using introspection
 [source,shell]
 ----
 include::{commandsdir}/gen-faker-index-introspection.txt[]
@@ -220,7 +221,7 @@ include::{commandsdir}/gen-faker-index-introspection.txt[]
 
 === Replication
 
-.Live replication from `localhost:16379` to `localhost:16380`
+==== Live replication from `localhost:16379` to `localhost:16380`
 [source,shell]
 ----
 include::{commandsdir}/replicate-live.txt[]
@@ -242,14 +243,14 @@ riot --metrics …
 ----
 
 === Using Redis Enterprise
-.Strings
+==== Strings
 [source,shell]
 ----
 $ riot -s redis-12001.redislabs.com:12001 --max-total 96 gen --batch 5000 --threads 96 --max 100000000 --command set --keyspace hash --keys index --value index
 ----
 image::images/rs-strings.png[]
 
-.Streams
+==== Streams
 [source,shell]
 ----
 $ riot -s redis-12001.internal.jrx.demo.redislabs.com:12001 --max-total 96 gen --batch 5000 --threads 96 --max 100000000 --command xadd --keyspace stream --keys partition

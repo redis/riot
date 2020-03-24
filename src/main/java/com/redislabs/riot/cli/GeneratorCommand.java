@@ -34,6 +34,8 @@ public class GeneratorCommand extends ImportCommand {
 	private Map<String, Integer> simpleFields = new LinkedHashMap<>();
 	@Option(names = "--locale", description = "Faker locale (default: ${DEFAULT-VALUE})", paramLabel = "<tag>")
 	private Locale locale = Locale.ENGLISH;
+	@Option(names = "--metadata", description = "Include metadata (index, partition)")
+	private boolean includeMetadata;
 
 	private String expression(Field field) {
 		if (field instanceof TextField) {
@@ -60,7 +62,8 @@ public class GeneratorCommand extends ImportCommand {
 
 	@Override
 	protected GeneratorReader reader() throws Exception {
-		return new GeneratorReader().locale(locale).fakerFields(fakerFields()).simpleFields(simpleFields);
+		return GeneratorReader.builder().locale(locale).includeMetadata(includeMetadata).fakerFields(fakerFields())
+				.simpleFields(simpleFields).build();
 	}
 
 	private Map<String, String> fakerFields() {
