@@ -11,7 +11,6 @@ import com.redislabs.riot.redis.writer.CommandWriter;
 import com.redislabs.riot.redis.writer.KeyBuilder;
 import com.redislabs.riot.redis.writer.map.AbstractCollectionMapCommandWriter;
 import com.redislabs.riot.redis.writer.map.AbstractKeyMapCommandWriter;
-import com.redislabs.riot.redis.writer.map.AbstractMapCommandWriter;
 import com.redislabs.riot.redis.writer.map.AbstractSearchMapCommandWriter;
 import com.redislabs.riot.redis.writer.map.Hmset;
 import com.redislabs.riot.redis.writer.map.Lpush;
@@ -53,6 +52,8 @@ public abstract class ImportCommand extends TransferCommand<Map<String, Object>,
 	private String keyspace;
 	@Option(names = { "-k", "--keys" }, arity = "1..*", description = "Key fields", paramLabel = "<fields>")
 	private String[] keys = new String[0];
+	@Option(names = "--keep-keys", description = "Keep key fields in data structure")
+	private boolean keepKeyFields;
 	@Option(names = "--score", description = "Name of the field to use for scores", paramLabel = "<field>")
 	private String score;
 	@Option(names = "--score-default", description = "Score when field not present (default: ${DEFAULT-VALUE})", paramLabel = "<num>")
@@ -80,23 +81,21 @@ public abstract class ImportCommand extends TransferCommand<Map<String, Object>,
 	@ArgGroup(exclusive = false, heading = "RediSearch options%n")
 	private RediSearchOptions search = new RediSearchOptions();
 
-	private KeyBuilder keyBuilder() {
-		if (keyspace == null && keys.length == 0) {
-			log.warn("No keyspace nor key fields specified; using empty key (\"\")");
-		}
-		return KeyBuilder.builder().separator(separator).prefix(keyspace).fields(keys).build();
-	}
-
 	private KeyBuilder memberIdBuilder() {
 		return KeyBuilder.builder().separator(separator).prefix(memberKeyspace).fields(memberIds).build();
 	}
 
 	protected CommandWriter<Map<String, Object>> commandWriter() {
 		CommandWriter<Map<String, Object>> writer = mapCommandWriter(command);
-		if (writer instanceof AbstractMapCommandWriter) {
-			((AbstractKeyMapCommandWriter) writer).keyBuilder(keyBuilder());
+		if (writer instanceof AbstractKeyMapCommandWriter) {
+			AbstractKeyMapCommandWriter keyWriter = (AbstractKeyMapCommandWriter) writer;
+			if (keyspace == null && keys.length == 0) {
+				log.warn("No keyspace nor key fields specified; using empty key (\"\")");
+			}
+			keyWriter.keyBuilder(KeyBuilder.builder().separator(separator).prefix(keyspace).fields(keys).build());
+			keyWriter.keepKeyFields(keepKeyFields);
 			if (writer instanceof AbstractCollectionMapCommandWriter) {
-				((AbstractCollectionMapCommandWriter) writer).setMemberIdBuilder(memberIdBuilder());
+				((AbstractCollectionMapCommandWriter) writer).memberIdBuilder(memberIdBuilder());
 			}
 			if (writer instanceof AbstractSearchMapCommandWriter) {
 				((AbstractSearchMapCommandWriter) writer).score(score).defaultScore(defaultScore);

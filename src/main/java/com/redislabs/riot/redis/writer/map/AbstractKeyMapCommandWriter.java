@@ -12,8 +12,8 @@ import lombok.experimental.Accessors;
 @Accessors(fluent = true)
 public abstract class AbstractKeyMapCommandWriter extends AbstractMapCommandWriter {
 
-	@Setter
-	private KeyBuilder keyBuilder;
+	private @Setter KeyBuilder keyBuilder;
+	private @Setter boolean keepKeyFields;
 
 	@SuppressWarnings("unchecked")
 	protected Map stringMap(Map map) {
@@ -24,6 +24,9 @@ public abstract class AbstractKeyMapCommandWriter extends AbstractMapCommandWrit
 	@Override
 	protected Object write(RedisCommands commands, Object redis, Map<String, Object> item) {
 		String key = keyBuilder.key(item);
+		if (!keepKeyFields) {
+			keyBuilder.getFields().forEach(k -> item.remove(k));
+		}
 		return write(commands, redis, key, item);
 	}
 

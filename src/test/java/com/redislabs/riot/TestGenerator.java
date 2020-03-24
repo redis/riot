@@ -36,7 +36,6 @@ public class TestGenerator extends BaseTest {
 		List<String> keys = commands().keys("person:*");
 		Assertions.assertEquals(100, keys.size());
 		Map<String, String> person = commands().hgetall(keys.get(0));
-		Assertions.assertTrue(person.containsKey("id"));
 		Assertions.assertTrue(person.containsKey("firstName"));
 		Assertions.assertTrue(person.containsKey("lastName"));
 		Assertions.assertTrue(person.containsKey("address"));
@@ -48,7 +47,6 @@ public class TestGenerator extends BaseTest {
 		List<String> keys = commands().keys("person:*");
 		Assertions.assertEquals(100, keys.size());
 		Map<String, String> person = commands().hgetall(keys.get(0));
-		Assertions.assertTrue(person.containsKey("id"));
 		Assertions.assertTrue(person.containsKey("firstName"));
 		Assertions.assertTrue(person.containsKey("lastName"));
 		Assertions.assertTrue(person.containsKey("address"));

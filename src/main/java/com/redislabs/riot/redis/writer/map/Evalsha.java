@@ -12,14 +12,10 @@ import lombok.experimental.Accessors;
 @Accessors(fluent = true)
 public class Evalsha extends AbstractMapCommandWriter {
 
-	@Setter
-	private String sha;
-	@Setter
-	private String[] keys;
-	@Setter
-	private String[] args;
-	@Setter
-	private ScriptOutputType outputType;
+	private @Setter String sha;
+	private @Setter String[] keys;
+	private @Setter String[] args;
+	private @Setter ScriptOutputType outputType;
 
 	@Override
 	protected Object write(RedisCommands commands, Object redis, Map<String, Object> item) {

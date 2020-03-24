@@ -22,8 +22,7 @@ public class Xadd extends AbstractKeyMapCommandWriter {
 	@Accessors(fluent = true)
 	public static class XaddId extends Xadd {
 
-		@Setter
-		private String id;
+		private @Setter String id;
 
 		@Override
 		protected Object doWrite(RedisCommands commands, Object redis, String key, Map<String, String> map) {
@@ -39,10 +38,8 @@ public class Xadd extends AbstractKeyMapCommandWriter {
 	@Accessors(fluent = true)
 	public static class XaddIdMaxlen extends XaddId {
 
-		@Setter
-		private long maxlen;
-		@Setter
-		private boolean approximateTrimming;
+		private @Setter long maxlen;
+		private @Setter boolean approximateTrimming;
 
 		@Override
 		protected Object doWrite(RedisCommands commands, Object redis, String key, Map<String, String> map, String id) {
@@ -54,10 +51,8 @@ public class Xadd extends AbstractKeyMapCommandWriter {
 	@Accessors(fluent = true)
 	public static class XaddMaxlen extends Xadd {
 
-		@Setter
-		private long maxlen;
-		@Setter
-		private boolean approximateTrimming;
+		private @Setter long maxlen;
+		private @Setter boolean approximateTrimming;
 
 		@Override
 		protected Object doWrite(RedisCommands commands, Object redis, String key, Map<String, String> map) {

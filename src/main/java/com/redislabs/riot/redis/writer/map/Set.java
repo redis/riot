@@ -31,8 +31,7 @@ public abstract class Set extends AbstractKeyMapCommandWriter {
 	@Accessors(fluent = true)
 	public static class SetField extends Set {
 
-		@Setter
-		private String field;
+		private @Setter String field;
 
 		@Override
 		protected String value(Map<String, Object> item) {
@@ -45,8 +44,7 @@ public abstract class Set extends AbstractKeyMapCommandWriter {
 	@Accessors(fluent = true)
 	public static class SetObject extends Set {
 
-		@Setter
-		private ObjectWriter objectWriter;
+		private @Setter ObjectWriter objectWriter;
 
 		@Override
 		protected String value(Map<String, Object> item) {

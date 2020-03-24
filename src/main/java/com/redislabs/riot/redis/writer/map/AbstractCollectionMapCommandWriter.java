@@ -6,12 +6,13 @@ import com.redislabs.riot.redis.RedisCommands;
 import com.redislabs.riot.redis.writer.KeyBuilder;
 
 import lombok.Setter;
+import lombok.experimental.Accessors;
 
 @SuppressWarnings("rawtypes")
+@Accessors(fluent = true)
 public abstract class AbstractCollectionMapCommandWriter extends AbstractKeyMapCommandWriter {
 
-	@Setter
-	private KeyBuilder memberIdBuilder;
+	private @Setter KeyBuilder memberIdBuilder;
 
 	@Override
 	protected Object write(RedisCommands commands, Object redis, String key, Map<String, Object> item) {
