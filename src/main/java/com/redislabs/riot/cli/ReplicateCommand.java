@@ -40,8 +40,8 @@ public class ReplicateCommand extends ExportCommand<KeyDump, KeyDump> {
 	private int queueSize = 10000;
 	@Option(names = "--syncer-threads", description = "Number of value reader threads (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
 	private int threads = 1;
-	@Option(names = "--listener", description = "Enable keyspace notification listener")
-	private boolean listener;
+	@Option(names = "--listen", description = "Enable keyspace notification listener")
+	private boolean listen;
 
 	public String getChannel(RedisOptions redisOptions) {
 		return channel.replace(DATABASE_TOKEN, String.valueOf(redisOptions.getDatabase()));
@@ -57,7 +57,7 @@ public class ReplicateCommand extends ExportCommand<KeyDump, KeyDump> {
 	protected Transfer<KeyDump, KeyDump> transfer(ItemReader<KeyDump> reader, ItemProcessor<KeyDump, KeyDump> processor,
 			ItemWriter<KeyDump> writer) {
 		Transfer<KeyDump, KeyDump> transfer = super.transfer(reader, processor, writer);
-		if (listener) {
+		if (listen) {
 			RedisOptions source = redisOptions();
 			KeyspaceNotificationsIterator iterator = KeyspaceNotificationsIterator.builder()
 					.connection(source.statefulRedisPubSubConnection()).channel(getChannel(source))
