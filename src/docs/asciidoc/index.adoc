@@ -95,7 +95,7 @@ RIOT can be used to create random data in Redis with 2 different generators.
 [#redis]
 === Redis
 
-The Redis connector allows for replicating data between two Redis databases using scan and optionally keyspace notifications (`--listener`).
+The Redis connector allows for replicating data between two Redis databases using scan and optionally keyspace notifications (`--listen`).
 
 
 == Processors
