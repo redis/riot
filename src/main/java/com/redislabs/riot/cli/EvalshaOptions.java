@@ -1,6 +1,7 @@
 package com.redislabs.riot.cli;
 
 import com.redislabs.riot.redis.writer.map.Evalsha;
+import com.redislabs.riot.redis.writer.map.Evalsha.EvalshaBuilder;
 
 import io.lettuce.core.ScriptOutputType;
 import picocli.CommandLine.Option;
@@ -14,8 +15,8 @@ public class EvalshaOptions {
 	@Option(names = "--output", description = "EVALSHA output: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})", paramLabel = "<type>")
 	private ScriptOutputType outputType = ScriptOutputType.STATUS;
 
-	public Evalsha evalsha() {
-		return new Evalsha().args(args).outputType(outputType).sha(sha);
+	public EvalshaBuilder builder() {
+		return Evalsha.builder().args(args).outputType(outputType).sha(sha);
 	}
 
 }

@@ -44,7 +44,6 @@ public class Batcher<I, O> {
 				continue;
 			}
 			if (item == null) {
-				log.debug("Batcher finished");
 				finished = true;
 			} else {
 				O processedItem;
@@ -54,7 +53,6 @@ public class Batcher<I, O> {
 					log.error("Could not process item", e);
 					continue;
 				}
-				log.debug("Adding processed item");
 				try {
 					items.put(processedItem);
 				} catch (InterruptedException e) {

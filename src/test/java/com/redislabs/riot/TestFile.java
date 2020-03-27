@@ -26,11 +26,13 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.InputStreamResource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.redislabs.lettusearch.search.Document;
 import com.redislabs.lettusearch.search.Schema;
-import com.redislabs.lettusearch.search.SearchResult;
 import com.redislabs.lettusearch.search.SearchResults;
-import com.redislabs.lettusearch.search.field.Field;
+import com.redislabs.lettusearch.search.field.GeoField;
+import com.redislabs.lettusearch.search.field.NumericField;
 import com.redislabs.lettusearch.search.field.PhoneticMatcher;
+import com.redislabs.lettusearch.search.field.TextField;
 import com.redislabs.riot.cli.file.MapFieldSetMapper;
 
 import io.lettuce.core.GeoArgs.Unit;
@@ -125,26 +127,26 @@ public class TestFile extends BaseTest {
 		String FIELD_OUNCES = "ounces";
 		String INDEX = "beers";
 		commands().flushall();
-		Schema schema = Schema.builder().field(Field.text(FIELD_NAME).sortable(true))
-				.field(Field.text(FIELD_STYLE).matcher(PhoneticMatcher.English).sortable(true))
-				.field(Field.numeric(FIELD_ABV).sortable(true)).field(Field.numeric(FIELD_OUNCES).sortable(true))
-				.build();
+		Schema schema = Schema.builder().field(TextField.builder().name(FIELD_NAME).sortable(true).build())
+				.field(TextField.builder().name(FIELD_STYLE).matcher(PhoneticMatcher.English).sortable(true).build())
+				.field(NumericField.builder().name(FIELD_ABV).sortable(true).build())
+				.field(NumericField.builder().name(FIELD_OUNCES).sortable(true).build()).build();
 		commands().create(INDEX, schema);
 		runFile("import-csv-search");
 		SearchResults<String, String> results = commands().search(INDEX, "*");
-		Assertions.assertEquals(BEER_COUNT, results.count());
+		Assertions.assertEquals(BEER_COUNT, results.getCount());
 	}
 
 	@Test
 	public void testImportCsvProcessorSearchGeo() throws Exception {
 		String INDEX = "airports";
 		commands().flushall();
-		Schema schema = Schema.builder().field(Field.text("Name").sortable(true))
-				.field(Field.geo("Location").sortable(true)).build();
+		Schema schema = Schema.builder().field(TextField.builder().name("Name").sortable(true).build())
+				.field(GeoField.builder().name("Location").sortable(true).build()).build();
 		commands().create(INDEX, schema);
 		runFile("import-csv-processor-search-geo");
 		SearchResults<String, String> results = commands().search(INDEX, "@Location:[-77 38 50 mi]");
-		Assertions.assertEquals(3, results.count());
+		Assertions.assertEquals(3, results.getCount());
 	}
 
 	@Test
@@ -191,13 +193,14 @@ public class TestFile extends BaseTest {
 	public void testImportCsvProcessorSearch() throws Exception {
 		String INDEX = "laevents";
 		commands().flushall();
-		Schema schema = Schema.builder().field(Field.text("Title")).field(Field.numeric("lon"))
-				.field(Field.numeric("kat")).field(Field.geo("location").sortable(true)).build();
+		Schema schema = Schema.builder().field(TextField.builder().name("Title").build())
+				.field(NumericField.builder().name("lon").build()).field(NumericField.builder().name("kat").build())
+				.field(GeoField.builder().name("location").sortable(true).build()).build();
 		commands().create(INDEX, schema);
 		runFile("import-csv-processor-search");
 		SearchResults<String, String> results = commands().search(INDEX, "@location:[-118.446014 33.998415 10 mi]");
-		Assertions.assertTrue(results.count() > 0);
-		for (SearchResult<String, String> result : results) {
+		Assertions.assertTrue(results.getCount() > 0);
+		for (Document<String, String> result : results) {
 			Double lat = Double.parseDouble(result.get("lat"));
 			Assertions.assertTrue(lat > 33 && lat < 35);
 		}

@@ -2,51 +2,21 @@ package com.redislabs.riot.redis.writer.map;
 
 import java.util.Map;
 
-import com.redislabs.riot.redis.RedisCommands;
+import com.redislabs.riot.redis.writer.KeyBuilder;
 
-import lombok.Setter;
-import lombok.experimental.Accessors;
+import lombok.Builder;
 
-@SuppressWarnings({ "rawtypes", "unchecked" })
-@Accessors(fluent = true)
-public class FtSugadd extends AbstractSearchMapCommandWriter {
+public class FtSugadd extends AbstractFtSugadd {
 
-	@Setter
-	private String field;
-	@Setter
-	private boolean increment;
-
-	@Override
-	protected Object write(RedisCommands commands, Object redis, String key, Map<String, Object> item) {
-		String string = convert(item.get(field), String.class);
-		if (string == null) {
-			return null;
-		}
-		return write(commands, redis, key, item, string, getScore(item), increment);
-	}
-
-	@SuppressWarnings("unused")
-	protected Object write(RedisCommands commands, Object redis, String key, Map<String, Object> item, String string,
-			double score, boolean increment) {
-		return commands.sugadd(redis, key, string, score, increment);
+	@Builder
+	protected FtSugadd(KeyBuilder keyBuilder, boolean keepKeyFields, String field, String score, double defaultScore,
+			boolean increment) {
+		super(keyBuilder, keepKeyFields, field, score, defaultScore, increment);
 	}
 
 	@Override
-	public String toString() {
-		return String.format("RediSearch suggestion index");
-	}
-
-	public static class FtSugaddPayload extends FtSugadd {
-
-		@Setter
-		private String payload;
-
-		@Override
-		protected Object write(RedisCommands commands, Object redis, String key, Map<String, Object> item,
-				String string, double score, boolean increment) {
-			return commands.sugadd(redis, key, string, score, increment, convert(item.remove(payload), String.class));
-		}
-
+	protected String payload(Map<String, Object> item) {
+		return null;
 	}
 
 }

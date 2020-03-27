@@ -3,16 +3,20 @@ package com.redislabs.riot.redis.writer;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.Builder;
+import lombok.Setter;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.Response;
 import redis.clients.jedis.util.Pool;
 
-public class PipelineJedisWriter<O> extends AbstractRedisItemWriter<O> {
+public class JedisPipelineWriter<O> extends AbstractRedisItemWriter<O> {
 
-	private Pool<Jedis> pool;
+	private @Setter Pool<Jedis> pool;
 
-	public PipelineJedisWriter(Pool<Jedis> pool) {
+	@Builder
+	protected JedisPipelineWriter(CommandWriter<O> writer, Pool<Jedis> pool) {
+		super(writer);
 		this.pool = pool;
 	}
 

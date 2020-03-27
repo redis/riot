@@ -80,7 +80,7 @@ public class ReplicateCommand extends ExportCommand<KeyDump, KeyDump> {
 
 	@Override
 	protected ItemWriter<KeyDump> writer() throws Exception {
-		return writer(target, new Restore<>().replace(!noReplace));
+		return writer(target, Restore.builder().replace(!noReplace).build());
 	}
 
 }

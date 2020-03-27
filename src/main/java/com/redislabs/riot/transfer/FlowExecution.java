@@ -18,7 +18,7 @@ public class FlowExecution<I, O> {
 	}
 
 	public Metrics progress() {
-		return Metrics.create(threads.stream().map(t -> t.progress()).collect(Collectors.toList()));
+		return Metrics.builder().metrics(threads.stream().map(t -> t.progress()).collect(Collectors.toList())).build();
 	}
 
 	public boolean isTerminated() {

@@ -4,15 +4,16 @@ import org.springframework.batch.item.support.AbstractItemStreamItemWriter;
 import org.springframework.util.ClassUtils;
 
 import lombok.Setter;
-import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@Accessors(fluent = true)
 public abstract class AbstractRedisItemWriter<O> extends AbstractItemStreamItemWriter<O> {
 
-	@Setter
-	protected CommandWriter<O> writer;
+	protected @Setter CommandWriter<O> writer;
+
+	protected AbstractRedisItemWriter(CommandWriter<O> writer) {
+		this.writer = writer;
+	}
 
 	public AbstractRedisItemWriter() {
 		setName(ClassUtils.getShortName(this.getClass()));
@@ -25,4 +26,5 @@ public abstract class AbstractRedisItemWriter<O> extends AbstractItemStreamItemW
 			log.error("Could not write record: {}", e.getMessage());
 		}
 	}
+
 }

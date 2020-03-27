@@ -71,8 +71,8 @@ public class GeneratorCommand extends ImportCommand {
 		if (fakerIndex != null) {
 			RediSearchCommands<String, String> ft = redisOptions().rediSearchClient().connect().sync();
 			IndexInfo info = RediSearchUtils.getInfo(ft.indexInfo(fakerIndex));
-			info.fields().forEach(f -> {
-				String fieldName = f.name();
+			info.getFields().forEach(f -> {
+				String fieldName = f.getName();
 				String expression = expression(f);
 				fields.put(fieldName, expression);
 			});

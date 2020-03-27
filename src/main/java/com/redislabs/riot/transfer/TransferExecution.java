@@ -14,7 +14,7 @@ public class TransferExecution<I, O> {
 	private List<FlowExecution<I, O>> flows;
 
 	public Metrics progress() {
-		return Metrics.create(flows.stream().map(f -> f.progress()).collect(Collectors.toList()));
+		return Metrics.builder().metrics(flows.stream().map(f -> f.progress()).collect(Collectors.toList())).build();
 	}
 
 	public boolean isTerminated() {

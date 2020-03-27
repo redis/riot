@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.redislabs.lettusearch.aggregate.Cursor;
 import com.redislabs.lettusearch.search.AddOptions;
 
 import io.lettuce.core.ScoredValue;
@@ -108,23 +109,27 @@ public class JedisPipelineCommands implements RedisCommands<Pipeline> {
 
 	@Override
 	public Object ftadd(Pipeline redis, String index, String docId, double score, Map<String, String> map,
-			AddOptions options) {
-		throw new UnsupportedOperationException("Pipeline not supported with JRediSearch client");
-	}
-
-	@Override
-	public Object ftadd(Pipeline redis, String index, String docId, double score, Map<String, String> map,
-			AddOptions options, String payload) {
-		throw new UnsupportedOperationException("Pipeline not supported with JRediSearch client");
-	}
-
-	@Override
-	public Object sugadd(Pipeline redis, String index, String string, double score, boolean increment) {
+			String payload, AddOptions options) {
 		throw new UnsupportedOperationException("Pipeline not supported with JRediSearch client");
 	}
 
 	@Override
 	public Object sugadd(Pipeline redis, String index, String string, double score, boolean increment, String payload) {
+		throw new UnsupportedOperationException("Pipeline not supported with JRediSearch client");
+	}
+
+	@Override
+	public Object ftsearch(Pipeline redis, String index, String query, Object... options) {
+		throw new UnsupportedOperationException("Pipeline not supported with JRediSearch client");
+	}
+
+	@Override
+	public Object ftaggregate(Pipeline redis, String index, String query, Cursor cursor, Object... options) {
+		throw new UnsupportedOperationException("Pipeline not supported with JRediSearch client");
+	}
+
+	@Override
+	public Object ftaggregate(Pipeline redis, String index, String query, Object... options) {
 		throw new UnsupportedOperationException("Pipeline not supported with JRediSearch client");
 	}
 

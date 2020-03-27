@@ -3,18 +3,24 @@ package com.redislabs.riot.redis.writer.map;
 import java.util.Map;
 
 import com.redislabs.riot.redis.RedisCommands;
+import com.redislabs.riot.redis.writer.KeyBuilder;
 
+import lombok.Builder;
 import lombok.Setter;
-import lombok.experimental.Accessors;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
-@Accessors(fluent = true)
 public class Zadd extends AbstractCollectionMapCommandWriter {
 
-	@Setter
-	private String score;
-	@Setter
-	private double defaultScore;
+	private @Setter String score;
+	private @Setter double defaultScore;
+
+	@Builder
+	protected Zadd(KeyBuilder keyBuilder, boolean keepKeyFields, KeyBuilder memberIdBuilder, String score,
+			double defaultScore) {
+		super(keyBuilder, keepKeyFields, memberIdBuilder);
+		this.score = score;
+		this.defaultScore = defaultScore;
+	}
 
 	@Override
 	protected Object write(RedisCommands commands, Object redis, String key, String member, Map<String, Object> item) {

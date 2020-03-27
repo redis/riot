@@ -11,20 +11,18 @@ import com.redislabs.riot.redis.writer.CommandWriter;
 import com.redislabs.riot.redis.writer.KeyBuilder;
 import com.redislabs.riot.redis.writer.map.AbstractCollectionMapCommandWriter;
 import com.redislabs.riot.redis.writer.map.AbstractKeyMapCommandWriter;
-import com.redislabs.riot.redis.writer.map.AbstractSearchMapCommandWriter;
 import com.redislabs.riot.redis.writer.map.Hmset;
 import com.redislabs.riot.redis.writer.map.Lpush;
 import com.redislabs.riot.redis.writer.map.Noop;
 import com.redislabs.riot.redis.writer.map.Rpush;
 import com.redislabs.riot.redis.writer.map.Sadd;
-import com.redislabs.riot.redis.writer.map.Set;
 import com.redislabs.riot.redis.writer.map.Set.Format;
-import com.redislabs.riot.redis.writer.map.Set.SetField;
-import com.redislabs.riot.redis.writer.map.Set.SetObject;
+import com.redislabs.riot.redis.writer.map.SetField;
+import com.redislabs.riot.redis.writer.map.SetObject;
 import com.redislabs.riot.redis.writer.map.Xadd;
-import com.redislabs.riot.redis.writer.map.Xadd.XaddId;
-import com.redislabs.riot.redis.writer.map.Xadd.XaddIdMaxlen;
-import com.redislabs.riot.redis.writer.map.Xadd.XaddMaxlen;
+import com.redislabs.riot.redis.writer.map.XaddId;
+import com.redislabs.riot.redis.writer.map.XaddIdMaxlen;
+import com.redislabs.riot.redis.writer.map.XaddMaxlen;
 import com.redislabs.riot.redis.writer.map.Zadd;
 
 import lombok.extern.slf4j.Slf4j;
@@ -37,7 +35,8 @@ import picocli.CommandLine.Option;
 public abstract class ImportCommand extends TransferCommand<Map<String, Object>, Map<String, Object>> {
 
 	public enum Command {
-		EVALSHA, EXPIRE, GEOADD, FTADD, FTSUGADD, HMSET, LPUSH, NOOP, RPUSH, SADD, SET, XADD, ZADD
+		EVALSHA, EXPIRE, GEOADD, FTADD, FTSEARCH, FTAGGREGATE, FTSUGADD, HMSET, LPUSH, NOOP, RPUSH, SADD, SET, XADD,
+		ZADD
 	}
 
 	@Option(names = "--command", description = "Redis command: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})", paramLabel = "<name>")
@@ -85,92 +84,79 @@ public abstract class ImportCommand extends TransferCommand<Map<String, Object>,
 		return KeyBuilder.builder().separator(separator).prefix(memberKeyspace).fields(memberIds).build();
 	}
 
-	protected CommandWriter<Map<String, Object>> commandWriter() {
+	private CommandWriter<Map<String, Object>> mapCommandWriter(Command command) {
+		switch (command) {
+		case EVALSHA:
+			return evalsha.builder().keys(keys).build();
+		case EXPIRE:
+			return expire.builder().build();
+		case FTADD:
+			if (search.hasPayload()) {
+				return search.ftAddPayload().score(score).defaultScore(defaultScore).build();
+			}
+			return search.ftAdd().score(score).defaultScore(defaultScore).build();
+		case FTAGGREGATE:
+			return search.aggregate().build();
+		case FTSEARCH:
+			return search.search().build();
+		case FTSUGADD:
+			if (search.hasPayload()) {
+				return search.sugaddPayload().score(score).defaultScore(defaultScore).build();
+			}
+			return search.sugadd().score(score).defaultScore(defaultScore).build();
+		case GEOADD:
+			return geoadd.geoadd();
+		case HMSET:
+			return Hmset.builder().build();
+		case LPUSH:
+			return Lpush.builder().build();
+		case NOOP:
+			return Noop.<Map<String, Object>>builder().build();
+		case RPUSH:
+			return Rpush.builder().build();
+		case SADD:
+			return Sadd.builder().build();
+		case SET:
+			switch (format) {
+			case RAW:
+				return SetField.builder().field(value).build();
+			case XML:
+				return SetObject.builder().objectWriter(new XmlMapper().writer().withRootName(root)).build();
+			default:
+				return SetObject.builder().objectWriter(new ObjectMapper().writer().withRootName(root)).build();
+			}
+		case XADD:
+			if (id == null) {
+				if (maxlen == null) {
+					return Xadd.builder().build();
+				}
+				return XaddMaxlen.builder().approximateTrimming(trim).maxlen(maxlen).build();
+			}
+			if (maxlen == null) {
+				XaddId.builder().id(id).build();
+			}
+			return XaddIdMaxlen.builder().approximateTrimming(trim).maxlen(maxlen).id(id).build();
+		case ZADD:
+			return Zadd.builder().defaultScore(defaultScore).score(score).build();
+		}
+		throw new IllegalArgumentException("Command " + command + " not supported");
+	}
+
+	@Override
+	protected AbstractRedisItemWriter<Map<String, Object>> writer() throws Exception {
 		CommandWriter<Map<String, Object>> writer = mapCommandWriter(command);
 		if (writer instanceof AbstractKeyMapCommandWriter) {
 			AbstractKeyMapCommandWriter keyWriter = (AbstractKeyMapCommandWriter) writer;
 			if (keyspace == null && keys.length == 0) {
 				log.warn("No keyspace nor key fields specified; using empty key (\"\")");
 			}
-			keyWriter.keyBuilder(KeyBuilder.builder().separator(separator).prefix(keyspace).fields(keys).build());
-			keyWriter.keepKeyFields(keepKeyFields);
+			keyWriter.setKeyBuilder(KeyBuilder.builder().separator(separator).prefix(keyspace).fields(keys).build());
+			keyWriter.setKeepKeyFields(keepKeyFields);
 			if (writer instanceof AbstractCollectionMapCommandWriter) {
-				((AbstractCollectionMapCommandWriter) writer).memberIdBuilder(memberIdBuilder());
-			}
-			if (writer instanceof AbstractSearchMapCommandWriter) {
-				((AbstractSearchMapCommandWriter) writer).score(score).defaultScore(defaultScore);
+				((AbstractCollectionMapCommandWriter) writer).setMemberIdBuilder(memberIdBuilder());
 			}
 		}
-		return writer;
-	}
-
-	private CommandWriter<Map<String, Object>> mapCommandWriter(Command command) {
-		switch (command) {
-		case EVALSHA:
-			return evalsha.evalsha().keys(keys);
-		case EXPIRE:
-			return expire.expire();
-		case FTADD:
-			return search.add();
-		case FTSUGADD:
-			return search.sugadd();
-		case GEOADD:
-			return geoadd.geoadd();
-		case LPUSH:
-			return new Lpush();
-		case NOOP:
-			return new Noop<Map<String, Object>>();
-		case RPUSH:
-			return new Rpush();
-		case SADD:
-			return new Sadd();
-		case SET:
-			return set();
-		case XADD:
-			return xadd();
-		case ZADD:
-			return new Zadd().defaultScore(defaultScore).score(score);
-		default:
-			return new Hmset();
-		}
-	}
-
-	private Set set() {
-		switch (format) {
-		case RAW:
-			return new SetField().field(value);
-		case XML:
-			return new SetObject().objectWriter(new XmlMapper().writer().withRootName(root));
-		default:
-			return new SetObject().objectWriter(new ObjectMapper().writer().withRootName(root));
-		}
-	}
-
-	private Xadd xadd() {
-		if (id == null) {
-			if (maxlen == null) {
-				return new Xadd();
-			}
-			XaddMaxlen xaddMaxlen = new XaddMaxlen();
-			xaddMaxlen.approximateTrimming(trim);
-			xaddMaxlen.maxlen(maxlen);
-			return xaddMaxlen;
-		}
-		if (maxlen == null) {
-			XaddId xaddId = new XaddId();
-			xaddId.id(id);
-			return xaddId;
-		}
-		XaddIdMaxlen xaddIdMaxlen = new XaddIdMaxlen();
-		xaddIdMaxlen.approximateTrimming(trim);
-		xaddIdMaxlen.maxlen(maxlen);
-		xaddIdMaxlen.id(id);
-		return xaddIdMaxlen;
-	}
-
-	@Override
-	protected AbstractRedisItemWriter<Map<String, Object>> writer() throws Exception {
-		return writer(redisOptions(), commandWriter());
+		return writer(redisOptions(), writer);
 	}
 
 	@Override

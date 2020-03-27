@@ -7,14 +7,19 @@ import org.apache.commons.pool2.impl.GenericObjectPool;
 
 import io.lettuce.core.api.StatefulConnection;
 import lombok.Setter;
-import lombok.experimental.Accessors;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
-@Accessors(fluent = true)
 public abstract class AbstractLettuceItemWriter<O> extends AbstractRedisItemWriter<O> {
 
 	private @Setter GenericObjectPool<? extends StatefulConnection<String, String>> pool;
 	private @Setter Function api;
+
+	protected AbstractLettuceItemWriter(CommandWriter<O> writer,
+			GenericObjectPool<? extends StatefulConnection<String, String>> pool, Function api) {
+		super(writer);
+		this.pool = pool;
+		this.api = api;
+	}
 
 	@Override
 	public void write(List<? extends O> items) throws Exception {

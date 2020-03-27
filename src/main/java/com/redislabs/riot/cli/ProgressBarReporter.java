@@ -32,9 +32,9 @@ public class ProgressBarReporter implements ProgressReporter {
 
 	@Override
 	public void onUpdate(Metrics update) {
-		bar.stepTo(update.writes());
-		if (update.runningThreads() > 1) {
-			bar.setExtraMessage(" (" + update.runningThreads() + " threads)");
+		bar.stepTo(update.getWrites());
+		if (update.getRunningThreads() > 1) {
+			bar.setExtraMessage(" (" + update.getRunningThreads() + " threads)");
 		}
 	}
 

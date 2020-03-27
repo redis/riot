@@ -18,13 +18,13 @@ import com.redislabs.riot.redis.RedisCommands;
 import com.redislabs.riot.redis.writer.AbstractCommandWriter;
 import com.redislabs.riot.redis.writer.AbstractLettuceItemWriter;
 import com.redislabs.riot.redis.writer.AbstractRedisItemWriter;
-import com.redislabs.riot.redis.writer.AsyncLettuceItemWriter;
-import com.redislabs.riot.redis.writer.ClusterJedisWriter;
 import com.redislabs.riot.redis.writer.CommandWriter;
-import com.redislabs.riot.redis.writer.PipelineJedisWriter;
-import com.redislabs.riot.redis.writer.ReactiveLettuceItemWriter;
-import com.redislabs.riot.redis.writer.SyncLettuceItemWriter;
-import com.redislabs.riot.redis.writer.map.AbstractSearchMapCommandWriter;
+import com.redislabs.riot.redis.writer.JedisClusterWriter;
+import com.redislabs.riot.redis.writer.JedisPipelineWriter;
+import com.redislabs.riot.redis.writer.LettuceAsyncItemWriter;
+import com.redislabs.riot.redis.writer.LettuceReactiveItemWriter;
+import com.redislabs.riot.redis.writer.LettuceSyncItemWriter;
+import com.redislabs.riot.redis.writer.RediSearchCommandWriter;
 import com.redislabs.riot.transfer.CappedReader;
 import com.redislabs.riot.transfer.ErrorHandler;
 import com.redislabs.riot.transfer.Flow;
@@ -32,7 +32,6 @@ import com.redislabs.riot.transfer.ThrottledReader;
 import com.redislabs.riot.transfer.Transfer;
 import com.redislabs.riot.transfer.TransferExecution;
 
-import io.lettuce.core.AbstractRedisClient;
 import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -124,7 +123,7 @@ public abstract class TransferCommand<I, O> extends RiotCommand {
 		if (sleep == null) {
 			return reader;
 		}
-		return new ThrottledReader<I>().reader(reader).sleep(sleep);
+		return ThrottledReader.<I>builder().reader(reader).sleep(sleep).build();
 	}
 
 	private ItemReader<I> cap(ItemReader<I> reader) {
@@ -149,21 +148,36 @@ public abstract class TransferCommand<I, O> extends RiotCommand {
 
 	protected AbstractRedisItemWriter<O> writer(RedisOptions redisOptions, CommandWriter<O> writer) {
 		if (writer instanceof AbstractCommandWriter) {
-			((AbstractCommandWriter<O>) writer).commands(redisCommands(redisOptions));
+			((AbstractCommandWriter<O>) writer).setCommands(redisCommands(redisOptions));
 		}
 		if (redisOptions.isJedis()) {
 			if (redisOptions.isCluster()) {
-				return new ClusterJedisWriter<O>(redisOptions.jedisCluster()).writer(writer);
+				return JedisClusterWriter.<O>builder().cluster(redisOptions.jedisCluster()).writer(writer).build();
 			}
-			return new PipelineJedisWriter<O>(redisOptions.jedisPool()).writer(writer);
+			return JedisPipelineWriter.<O>builder().pool(redisOptions.jedisPool()).writer(writer).build();
 		}
-		AbstractLettuceItemWriter<O> lettuceWriter = lettuceItemWriter(redisOptions);
-		lettuceWriter.writer(writer);
-		lettuceWriter.api(writer instanceof AbstractSearchMapCommandWriter ? redisOptions.lettuSearchApi()
-				: redisOptions.lettuceApi());
-		AbstractRedisClient client = lettuceClient(redisOptions, writer instanceof AbstractSearchMapCommandWriter);
-		lettuceWriter.pool(redisOptions.pool(client));
+		AbstractLettuceItemWriter<O> lettuceWriter = lettuceWriter(redisOptions);
+		lettuceWriter.setWriter(writer);
+		if (writer instanceof RediSearchCommandWriter) {
+			lettuceWriter.setApi(redisOptions.lettuSearchApi());
+			lettuceWriter.setPool(redisOptions.pool(redisOptions.rediSearchClient()));
+		} else {
+			lettuceWriter.setApi(redisOptions.lettuceApi());
+			lettuceWriter.setPool(redisOptions.pool(redisOptions.lettuceClient()));
+		}
 		return lettuceWriter;
+	}
+
+	private AbstractLettuceItemWriter<O> lettuceWriter(RedisOptions redisOptions) {
+		switch (redisOptions.getApi()) {
+		case REACTIVE:
+			return LettuceReactiveItemWriter.<O>builder().build();
+		case SYNC:
+			return LettuceSyncItemWriter.<O>builder().build();
+		default:
+			return LettuceAsyncItemWriter.<O>builder().timeout(redisOptions.getCommandTimeout())
+					.fireAndForget(redisOptions.isFireAndForget()).build();
+		}
 	}
 
 	private RedisCommands<?> redisCommands(RedisOptions redis) {
@@ -181,26 +195,6 @@ public abstract class TransferCommand<I, O> extends RiotCommand {
 		default:
 			return new LettuceAsyncCommands();
 		}
-	}
-
-	private AbstractLettuceItemWriter<O> lettuceItemWriter(RedisOptions redis) {
-		switch (redis.getApi()) {
-		case REACTIVE:
-			return new ReactiveLettuceItemWriter<>();
-		case SYNC:
-			return new SyncLettuceItemWriter<>();
-		default:
-			AsyncLettuceItemWriter<O> lettuceAsyncItemWriter = new AsyncLettuceItemWriter<O>();
-			lettuceAsyncItemWriter.timeout(redis.getCommandTimeout());
-			return lettuceAsyncItemWriter;
-		}
-	}
-
-	private AbstractRedisClient lettuceClient(RedisOptions redis, boolean rediSearch) {
-		if (rediSearch) {
-			return redis.rediSearchClient();
-		}
-		return redis.lettuceClient();
 	}
 
 }

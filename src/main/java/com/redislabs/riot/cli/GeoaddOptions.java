@@ -12,7 +12,7 @@ public class GeoaddOptions {
 	private String latitude;
 
 	public Geoadd geoadd() {
-		return new Geoadd().longitude(longitude).latitude(latitude);
+		return Geoadd.builder().longitude(longitude).latitude(latitude).build();
 	}
 
 }

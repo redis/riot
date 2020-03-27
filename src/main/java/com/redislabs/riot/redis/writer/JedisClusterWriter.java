@@ -2,13 +2,17 @@ package com.redislabs.riot.redis.writer;
 
 import java.util.List;
 
+import lombok.Builder;
+import lombok.Setter;
 import redis.clients.jedis.JedisCluster;
 
-public class ClusterJedisWriter<O> extends AbstractRedisItemWriter<O> {
+public class JedisClusterWriter<O> extends AbstractRedisItemWriter<O> {
 
-	private JedisCluster cluster;
+	private @Setter JedisCluster cluster;
 
-	public ClusterJedisWriter(JedisCluster cluster) {
+	@Builder
+	protected JedisClusterWriter(CommandWriter<O> writer, JedisCluster cluster) {
+		super(writer);
 		this.cluster = cluster;
 	}
 

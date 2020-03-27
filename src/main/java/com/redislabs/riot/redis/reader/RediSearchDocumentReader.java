@@ -9,8 +9,8 @@ import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 
 import com.redislabs.lettusearch.StatefulRediSearchConnection;
+import com.redislabs.lettusearch.search.Document;
 import com.redislabs.lettusearch.search.SearchOptions;
-import com.redislabs.lettusearch.search.SearchResult;
 
 public class RediSearchDocumentReader extends AbstractItemCountingItemStreamItemReader<Map<String, Object>> {
 
@@ -20,7 +20,7 @@ public class RediSearchDocumentReader extends AbstractItemCountingItemStreamItem
 	private SearchOptions options;
 	private FieldExtractor extractor;
 	private Object lock = new Object();
-	private Iterator<SearchResult<String, String>> resultIterator;
+	private Iterator<Document<String, String>> resultIterator;
 
 	public RediSearchDocumentReader(StatefulRediSearchConnection<String, String> connection, String index, String query,
 			SearchOptions options, FieldExtractor extractor) {
@@ -52,8 +52,8 @@ public class RediSearchDocumentReader extends AbstractItemCountingItemStreamItem
 	protected Map doRead() throws Exception {
 		synchronized (lock) {
 			if (resultIterator.hasNext()) {
-				SearchResult<String, String> result = resultIterator.next();
-				Map<String, String> fields = extractor.getFields(result.documentId());
+				Document<String, String> result = resultIterator.next();
+				Map<String, String> fields = extractor.getFields(result.getId());
 				result.putAll(fields);
 				return result;
 			}

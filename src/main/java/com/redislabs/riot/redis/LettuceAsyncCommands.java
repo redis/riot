@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.redislabs.lettusearch.RediSearchAsyncCommands;
+import com.redislabs.lettusearch.aggregate.Cursor;
 import com.redislabs.lettusearch.search.AddOptions;
 
 import io.lettuce.core.RestoreArgs;
@@ -107,20 +108,9 @@ public class LettuceAsyncCommands implements RedisCommands<Object> {
 	}
 
 	@Override
-	public Object ftadd(Object redis, String index, String docId, double score, Map<String, String> map,
+	public Object ftadd(Object redis, String index, String docId, double score, Map<String, String> map, String payload,
 			AddOptions options) {
-		return ((RediSearchAsyncCommands<String, String>) redis).add(index, docId, score, map, options);
-	}
-
-	@Override
-	public Object ftadd(Object redis, String index, String docId, double score, Map<String, String> map,
-			AddOptions options, String payload) {
-		return ((RediSearchAsyncCommands<String, String>) redis).add(index, docId, score, map, options, payload);
-	}
-
-	@Override
-	public Object sugadd(Object redis, String index, String string, double score, boolean increment) {
-		return ((RediSearchAsyncCommands<String, String>) redis).sugadd(index, string, score, increment);
+		return ((RediSearchAsyncCommands<String, String>) redis).add(index, docId, score, map, payload, options);
 	}
 
 	@Override
@@ -129,8 +119,23 @@ public class LettuceAsyncCommands implements RedisCommands<Object> {
 	}
 
 	@Override
+	public Object ftsearch(Object redis, String index, String query, Object... options) {
+		return ((RediSearchAsyncCommands<String, String>) redis).search(index, query, options);
+	}
+
+	@Override
+	public Object ftaggregate(Object redis, String index, String query, Object... options) {
+		return ((RediSearchAsyncCommands<String, String>) redis).aggregate(index, query, options);
+	}
+
+	@Override
+	public Object ftaggregate(Object redis, String index, String query, Cursor cursor, Object... options) {
+		return ((RediSearchAsyncCommands<String, String>) redis).aggregate(index, query, cursor, options);
+	}
+
+	@Override
 	public Object restore(Object redis, String key, byte[] value, long ttl, boolean replace) {
-		RestoreArgs args = new RestoreArgs().ttl(ttl).replace(replace);
-		return ((RedisKeyAsyncCommands<String, String>) redis).restore(key, value, args);
+		return ((RedisKeyAsyncCommands<String, String>) redis).restore(key, value,
+				new RestoreArgs().ttl(ttl).replace(replace));
 	}
 }

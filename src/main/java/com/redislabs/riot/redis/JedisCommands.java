@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.redislabs.lettusearch.aggregate.Cursor;
 import com.redislabs.lettusearch.search.AddOptions;
 
 import io.lettuce.core.ScoredValue;
@@ -33,7 +34,7 @@ public class JedisCommands implements RedisCommands<Jedis> {
 	public Object zadd(Jedis redis, String key, double score, String member) {
 		return redis.zadd(key, score, member);
 	}
-	
+
 	@Override
 	public Object zadd(Jedis redis, String key, List<ScoredValue<String>> scoredValues) {
 		Map<String, Double> scoreMembers = new HashMap<>();
@@ -107,24 +108,28 @@ public class JedisCommands implements RedisCommands<Jedis> {
 	}
 
 	@Override
-	public Object ftadd(Jedis redis, String index, String docId, double score, Map<String, String> map,
+	public Object ftadd(Jedis redis, String index, String docId, double score, Map<String, String> map, String payload,
 			AddOptions options) {
 		throw new UnsupportedOperationException("Jedis not supported with RediSearch");
 	}
 
 	@Override
-	public Object ftadd(Jedis redis, String index, String docId, double score, Map<String, String> map,
-			AddOptions options, String payload) {
-		throw new UnsupportedOperationException("Jedis not supported with RediSearch");
-	}
-
-	@Override
-	public Object sugadd(Jedis redis, String index, String string, double score, boolean increment) {
-		throw new UnsupportedOperationException("Jedis not supported with RediSearch");
-	}
-
-	@Override
 	public Object sugadd(Jedis redis, String index, String string, double score, boolean increment, String payload) {
+		throw new UnsupportedOperationException("Jedis not supported with RediSearch");
+	}
+	
+	@Override
+	public Object ftsearch(Jedis redis, String index, String query, Object... options) {
+		throw new UnsupportedOperationException("Jedis not supported with RediSearch");
+	}
+	
+	@Override
+	public Object ftaggregate(Jedis redis, String index, String query, Cursor cursor, Object... options) {
+		throw new UnsupportedOperationException("Jedis not supported with RediSearch");
+	}
+	
+	@Override
+	public Object ftaggregate(Jedis redis, String index, String query, Object... options) {
 		throw new UnsupportedOperationException("Jedis not supported with RediSearch");
 	}
 

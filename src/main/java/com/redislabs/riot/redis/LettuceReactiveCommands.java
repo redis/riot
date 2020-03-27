@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.redislabs.lettusearch.RediSearchReactiveCommands;
+import com.redislabs.lettusearch.aggregate.Cursor;
 import com.redislabs.lettusearch.search.AddOptions;
 
 import io.lettuce.core.RestoreArgs;
@@ -70,7 +71,7 @@ public class LettuceReactiveCommands implements RedisCommands<Object> {
 	public Object zadd(Object redis, String key, double score, String member) {
 		return ((RedisSortedSetReactiveCommands<String, String>) redis).zadd(key, score, member);
 	}
-	
+
 	@Override
 	public Object zadd(Object redis, String key, List<ScoredValue<String>> scoredValues) {
 		return ((RedisSortedSetReactiveCommands<String, String>) redis).zadd(key, scoredValues);
@@ -113,25 +114,29 @@ public class LettuceReactiveCommands implements RedisCommands<Object> {
 	}
 
 	@Override
-	public Object ftadd(Object redis, String index, String docId, double score, Map<String, String> map,
+	public Object ftadd(Object redis, String index, String docId, double score, Map<String, String> map, String payload,
 			AddOptions options) {
-		return ((RediSearchReactiveCommands<String, String>) redis).add(index, docId, score, map, options);
-	}
-
-	@Override
-	public Object ftadd(Object redis, String index, String docId, double score, Map<String, String> map,
-			AddOptions options, String payload) {
-		return ((RediSearchReactiveCommands<String, String>) redis).add(index, docId, score, map, options, payload);
-	}
-
-	@Override
-	public Object sugadd(Object redis, String index, String string, double score, boolean increment) {
-		return ((RediSearchReactiveCommands<String, String>) redis).sugadd(index, string, score, increment);
+		return ((RediSearchReactiveCommands<String, String>) redis).add(index, docId, score, map, payload, options);
 	}
 
 	@Override
 	public Object sugadd(Object redis, String index, String string, double score, boolean increment, String payload) {
 		return ((RediSearchReactiveCommands<String, String>) redis).sugadd(index, string, score, increment, payload);
+	}
+
+	@Override
+	public Object ftsearch(Object redis, String index, String query, Object... options) {
+		return ((RediSearchReactiveCommands<String, String>) redis).search(index, query, options);
+	}
+
+	@Override
+	public Object ftaggregate(Object redis, String index, String query, Cursor cursor, Object... options) {
+		return ((RediSearchReactiveCommands<String, String>) redis).aggregate(index, query, cursor, options);
+	}
+
+	@Override
+	public Object ftaggregate(Object redis, String index, String query, Object... options) {
+		return ((RediSearchReactiveCommands<String, String>) redis).aggregate(index, query, options);
 	}
 
 }

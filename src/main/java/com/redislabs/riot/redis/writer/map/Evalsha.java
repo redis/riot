@@ -5,11 +5,11 @@ import java.util.Map;
 import com.redislabs.riot.redis.RedisCommands;
 
 import io.lettuce.core.ScriptOutputType;
+import lombok.Builder;
 import lombok.Setter;
-import lombok.experimental.Accessors;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
-@Accessors(fluent = true)
+@Builder
 public class Evalsha extends AbstractMapCommandWriter {
 
 	private @Setter String sha;

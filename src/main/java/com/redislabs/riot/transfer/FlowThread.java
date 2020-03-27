@@ -83,7 +83,7 @@ public class FlowThread<I, O> implements Runnable {
 	}
 
 	public Metrics progress() {
-		return new Metrics().reads(readCount).writes(writeCount).runningThreads(running ? 1 : 0);
+		return Metrics.builder().reads(readCount).writes(writeCount).runningThreads(running ? 1 : 0).build();
 	}
 
 	public void stop() {

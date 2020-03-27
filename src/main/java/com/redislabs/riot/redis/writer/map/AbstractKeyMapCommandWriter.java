@@ -6,14 +6,17 @@ import com.redislabs.riot.redis.RedisCommands;
 import com.redislabs.riot.redis.writer.KeyBuilder;
 
 import lombok.Setter;
-import lombok.experimental.Accessors;
 
 @SuppressWarnings("rawtypes")
-@Accessors(fluent = true)
 public abstract class AbstractKeyMapCommandWriter extends AbstractMapCommandWriter {
 
 	private @Setter KeyBuilder keyBuilder;
 	private @Setter boolean keepKeyFields;
+
+	protected AbstractKeyMapCommandWriter(KeyBuilder keyBuilder, boolean keepKeyFields) {
+		this.keyBuilder = keyBuilder;
+		this.keepKeyFields = keepKeyFields;
+	}
 
 	@SuppressWarnings("unchecked")
 	protected Map stringMap(Map map) {

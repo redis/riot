@@ -6,18 +6,22 @@ import com.redislabs.lettusearch.search.AddOptions;
 import com.redislabs.riot.redis.writer.KeyBuilder;
 
 import lombok.Builder;
+import lombok.Setter;
 
-public class FtAdd extends AbstractFtAdd {
+public class FtAddPayload extends AbstractFtAdd {
+
+	private @Setter String payload;
 
 	@Builder
-	protected FtAdd(KeyBuilder keyBuilder, boolean keepKeyFields, String index, String score, double defaultScore,
-			AddOptions options) {
+	protected FtAddPayload(KeyBuilder keyBuilder, boolean keepKeyFields, String index, String score,
+			double defaultScore, AddOptions options, String payload) {
 		super(keyBuilder, keepKeyFields, index, score, defaultScore, options);
+		this.payload = payload;
 	}
 
 	@Override
 	protected String payload(Map<String, Object> item) {
-		return null;
+		return convert(item.remove(payload), String.class);
 	}
 
 }

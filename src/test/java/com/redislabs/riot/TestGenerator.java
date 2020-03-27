@@ -9,8 +9,10 @@ import org.junit.jupiter.api.Test;
 
 import com.redislabs.lettusearch.search.Schema;
 import com.redislabs.lettusearch.search.SearchResults;
-import com.redislabs.lettusearch.search.field.Field;
+import com.redislabs.lettusearch.search.field.NumericField;
 import com.redislabs.lettusearch.search.field.PhoneticMatcher;
+import com.redislabs.lettusearch.search.field.TagField;
+import com.redislabs.lettusearch.search.field.TextField;
 import com.redislabs.riot.generator.GeneratorReader;
 
 import io.lettuce.core.Range;
@@ -86,15 +88,15 @@ public class TestGenerator extends BaseTest {
 		String FIELD_STYLE = "style";
 		String FIELD_OUNCES = "ounces";
 		commands().flushall();
-		Schema schema = Schema.builder().field(Field.tag(FIELD_ID).sortable(true))
-				.field(Field.text(FIELD_NAME).sortable(true))
-				.field(Field.text(FIELD_STYLE).matcher(PhoneticMatcher.English).sortable(true))
-				.field(Field.numeric(FIELD_ABV).sortable(true)).field(Field.numeric(FIELD_OUNCES).sortable(true))
-				.build();
+		Schema schema = Schema.builder().field(TagField.builder().name(FIELD_ID).sortable(true).build())
+				.field(TextField.builder().name(FIELD_NAME).sortable(true).build())
+				.field(TextField.builder().name(FIELD_STYLE).matcher(PhoneticMatcher.English).sortable(true).build())
+				.field(NumericField.builder().name(FIELD_ABV).sortable(true).build())
+				.field(NumericField.builder().name(FIELD_OUNCES).sortable(true).build()).build();
 		commands().create(INDEX, schema);
 		runFile("gen-faker-index-introspection");
 		SearchResults<String, String> results = commands().search(INDEX, "*");
-		Assertions.assertEquals(100, results.count());
+		Assertions.assertEquals(100, results.getCount());
 	}
 
 }

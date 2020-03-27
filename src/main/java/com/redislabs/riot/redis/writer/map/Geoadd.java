@@ -3,18 +3,24 @@ package com.redislabs.riot.redis.writer.map;
 import java.util.Map;
 
 import com.redislabs.riot.redis.RedisCommands;
+import com.redislabs.riot.redis.writer.KeyBuilder;
 
+import lombok.Builder;
 import lombok.Setter;
-import lombok.experimental.Accessors;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
-@Accessors(fluent = true)
 public class Geoadd extends AbstractCollectionMapCommandWriter {
 
-	@Setter
-	private String longitude;
-	@Setter
-	private String latitude;
+	private @Setter String longitude;
+	private @Setter String latitude;
+
+	@Builder
+	protected Geoadd(KeyBuilder keyBuilder, boolean keepKeyFields, KeyBuilder memberIdBuilder, String longitude,
+			String latitude) {
+		super(keyBuilder, keepKeyFields, memberIdBuilder);
+		this.longitude = longitude;
+		this.latitude = latitude;
+	}
 
 	@Override
 	protected Object write(RedisCommands commands, Object redis, String key, String member, Map<String, Object> item) {

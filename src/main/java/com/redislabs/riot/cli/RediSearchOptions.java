@@ -1,15 +1,26 @@
 package com.redislabs.riot.cli;
 
+import java.util.List;
+
 import com.redislabs.lettusearch.search.AddOptions;
 import com.redislabs.lettusearch.search.Language;
 import com.redislabs.riot.redis.writer.map.FtAdd;
+import com.redislabs.riot.redis.writer.map.FtAdd.FtAddBuilder;
+import com.redislabs.riot.redis.writer.map.FtAddPayload;
+import com.redislabs.riot.redis.writer.map.FtAddPayload.FtAddPayloadBuilder;
+import com.redislabs.riot.redis.writer.map.FtAggregate;
+import com.redislabs.riot.redis.writer.map.FtAggregate.FtAggregateBuilder;
+import com.redislabs.riot.redis.writer.map.FtSearch;
+import com.redislabs.riot.redis.writer.map.FtSearch.FtSearchBuilder;
 import com.redislabs.riot.redis.writer.map.FtSugadd;
-import com.redislabs.riot.redis.writer.map.FtAdd.FtAddPayload;
-import com.redislabs.riot.redis.writer.map.FtSugadd.FtSugaddPayload;
+import com.redislabs.riot.redis.writer.map.FtSugadd.FtSugaddBuilder;
+import com.redislabs.riot.redis.writer.map.FtSugaddPayload;
+import com.redislabs.riot.redis.writer.map.FtSugaddPayload.FtSugaddPayloadBuilder;
 
 import picocli.CommandLine.Option;
 
 public class RediSearchOptions {
+
 	@Option(names = { "-i", "--index" }, description = "Name of the RediSearch index", paramLabel = "<name>")
 	private String index;
 	@Option(names = "--nosave", description = "Do not save docs, only index")
@@ -28,16 +39,42 @@ public class RediSearchOptions {
 	private String suggest;
 	@Option(names = "--increment", description = "Use increment to set value")
 	private boolean increment;
+	@Option(names = "--query", description = "RediSearch query", paramLabel = "<string>")
+	private String query;
+	@Option(names = "--options", arity = "1..*", description = "Search/aggregate options", paramLabel = "<string>")
+	private List<String> options;
 
-	public FtAdd add() {
-		FtAdd add = payload == null ? new FtAdd() : new FtAddPayload().payload(payload);
-		return add.options(AddOptions.builder().ifCondition(ifCondition).language(language).noSave(noSave)
-				.replace(replace).replacePartial(partial).build()).index(index);
+	public boolean hasPayload() {
+		return payload != null;
 	}
 
-	public FtSugadd sugadd() {
-		FtSugadd sugadd = payload == null ? new FtSugadd() : new FtSugaddPayload().payload(payload);
-		return sugadd.field(suggest).increment(increment);
+	public FtSearchBuilder search() {
+		return FtSearch.builder().index(index).query(query).options(options);
+	}
+
+	public FtAggregateBuilder aggregate() {
+		return FtAggregate.builder().index(index).query(query).options(options);
+	}
+
+	public FtAddBuilder ftAdd() {
+		return FtAdd.builder().index(index).options(addOptions());
+	}
+
+	public FtAddPayloadBuilder ftAddPayload() {
+		return FtAddPayload.builder().index(index).options(addOptions()).payload(payload);
+	}
+
+	private AddOptions addOptions() {
+		return AddOptions.builder().ifCondition(ifCondition).language(language).noSave(noSave).replace(replace)
+				.replacePartial(partial).build();
+	}
+
+	public FtSugaddBuilder sugadd() {
+		return FtSugadd.builder().field(suggest).increment(increment);
+	}
+
+	public FtSugaddPayloadBuilder sugaddPayload() {
+		return FtSugaddPayload.builder().field(suggest).increment(increment).payload(payload);
 	}
 
 }

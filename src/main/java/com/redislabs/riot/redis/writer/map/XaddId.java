@@ -5,26 +5,23 @@ import java.util.Map;
 import com.redislabs.riot.redis.RedisCommands;
 import com.redislabs.riot.redis.writer.KeyBuilder;
 
+import lombok.Builder;
+import lombok.Setter;
+
 @SuppressWarnings({ "rawtypes", "unchecked" })
-public abstract class Set extends AbstractKeyMapCommandWriter {
+public class XaddId extends AbstractKeyMapCommandWriter {
 
-	public static enum Format {
-		RAW, XML, JSON
-	}
+	private @Setter String id;
 
-	protected Set(KeyBuilder keyBuilder, boolean keepKeyFields) {
+	@Builder
+	protected XaddId(KeyBuilder keyBuilder, boolean keepKeyFields, String id) {
 		super(keyBuilder, keepKeyFields);
+		this.id = id;
 	}
 
 	@Override
 	protected Object write(RedisCommands commands, Object redis, String key, Map<String, Object> item) {
-		String value = value(item);
-		if (value == null) {
-			return null;
-		}
-		return commands.set(redis, key, value);
+		return commands.xadd(redis, key, convert(item.get(id), String.class), stringMap(item));
 	}
-
-	protected abstract String value(Map<String, Object> item);
 
 }

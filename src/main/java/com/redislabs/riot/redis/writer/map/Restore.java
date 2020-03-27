@@ -4,15 +4,14 @@ import com.redislabs.riot.redis.KeyDump;
 import com.redislabs.riot.redis.RedisCommands;
 import com.redislabs.riot.redis.writer.AbstractCommandWriter;
 
+import lombok.Builder;
 import lombok.Setter;
-import lombok.experimental.Accessors;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
-@Accessors(fluent = true)
+@Builder
 public class Restore<R> extends AbstractCommandWriter<KeyDump> {
 
-	@Setter
-	private boolean replace;
+	private @Setter boolean replace;
 
 	@Override
 	protected Object write(RedisCommands commands, Object redis, KeyDump item) throws Exception {

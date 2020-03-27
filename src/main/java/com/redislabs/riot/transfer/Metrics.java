@@ -2,26 +2,27 @@ package com.redislabs.riot.transfer;
 
 import java.util.List;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.experimental.Accessors;
 
-@Accessors(fluent = true)
 public class Metrics {
 
 	private @Getter @Setter long reads;
 	private @Getter @Setter long writes;
 	private @Getter @Setter int runningThreads;
 
-	public static Metrics create(List<Metrics> metrics) {
-		long reads = 0;
-		long writes = 0;
-		int runningThreads = 0;
-		for (Metrics metric : metrics) {
-			reads += metric.reads();
-			writes += metric.writes();
-			runningThreads += metric.runningThreads();
+	@Builder
+	protected Metrics(long reads, long writes, int runningThreads, List<Metrics> metrics) {
+		this.reads = reads;
+		this.writes = writes;
+		this.runningThreads = runningThreads;
+		if (metrics != null) {
+			for (Metrics metric : metrics) {
+				this.reads += metric.getReads();
+				this.writes += metric.getWrites();
+				this.runningThreads += metric.getRunningThreads();
+			}
 		}
-		return new Metrics().reads(reads).writes(writes).runningThreads(runningThreads);
 	}
 }

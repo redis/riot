@@ -3,6 +3,7 @@ package com.redislabs.riot.redis;
 import java.util.List;
 import java.util.Map;
 
+import com.redislabs.lettusearch.aggregate.Cursor;
 import com.redislabs.lettusearch.search.AddOptions;
 
 import io.lettuce.core.ScoredValue;
@@ -38,12 +39,14 @@ public interface RedisCommands<T> {
 
 	Object evalsha(T redis, String sha, ScriptOutputType type, String[] keys, String[] args);
 
-	Object ftadd(T redis, String index, String docId, double score, Map<String, String> map, AddOptions options);
+	Object ftadd(T redis, String index, String docId, double score, Map<String, String> map, String payload,
+			AddOptions options);
 
-	Object ftadd(T redis, String index, String docId, double score, Map<String, String> map, AddOptions options,
-			String payload);
+	Object ftsearch(T redis, String index, String query, Object... options);
 
-	Object sugadd(T redis, String index, String string, double score, boolean increment);
+	Object ftaggregate(T redis, String index, String query, Object... options);
+	
+	Object ftaggregate(T redis, String index, String query, Cursor cursor, Object... options);
 
 	Object sugadd(T redis, String index, String string, double score, boolean increment, String payload);
 

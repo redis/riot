@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.redislabs.lettusearch.aggregate.Cursor;
 import com.redislabs.lettusearch.search.AddOptions;
 
 import io.lettuce.core.ScoredValue;
@@ -108,25 +109,29 @@ public class JedisClusterCommands implements RedisCommands<JedisCluster> {
 	}
 
 	@Override
-	public Object ftadd(JedisCluster redis, String index, String docId, double score, Map<String, String> map,
+	public Object ftadd(JedisCluster redis, String index, String docId, double score, Map<String, String> map, String payload,
 			AddOptions options) {
-		throw new UnsupportedOperationException("Jedis Cluster not supported with RediSearch");
-	}
-
-	@Override
-	public Object ftadd(JedisCluster redis, String index, String docId, double score, Map<String, String> map,
-			AddOptions options, String payload) {
-		throw new UnsupportedOperationException("Jedis Cluster not supported with RediSearch");
-	}
-
-	@Override
-	public Object sugadd(JedisCluster redis, String index, String string, double score, boolean increment) {
 		throw new UnsupportedOperationException("Jedis Cluster not supported with RediSearch");
 	}
 
 	@Override
 	public Object sugadd(JedisCluster redis, String index, String string, double score, boolean increment,
 			String payload) {
+		throw new UnsupportedOperationException("Jedis Cluster not supported with RediSearch");
+	}
+	
+	@Override
+	public Object ftsearch(JedisCluster redis, String index, String query, Object... options) {
+		throw new UnsupportedOperationException("Jedis Cluster not supported with RediSearch");
+	}
+	
+	@Override
+	public Object ftaggregate(JedisCluster redis, String index, String query, Cursor cursor, Object... options) {
+		throw new UnsupportedOperationException("Jedis Cluster not supported with RediSearch");
+	}
+	
+	@Override
+	public Object ftaggregate(JedisCluster redis, String index, String query, Object... options) {
 		throw new UnsupportedOperationException("Jedis Cluster not supported with RediSearch");
 	}
 
