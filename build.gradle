@@ -163,6 +163,7 @@ githubRelease {
     owner "Redislabs-Solution-Architects"
     repo "riot"
     releaseAssets distZip, distTar
+    body changelog()
 }
 
 gitPublish {
