@@ -1,1 +1,1 @@
-$ riot -s localhost:16379 replicate -s localhost:16380 --batch 1
+$ riot -s localhost:6379 replicate -s localhost:6380 --batch 1

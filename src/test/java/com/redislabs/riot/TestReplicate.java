@@ -15,14 +15,14 @@ import redis.embedded.RedisServer;
 public class TestReplicate extends BaseTest {
 
 	private final static String TARGET_HOST = "localhost";
-	private final static int TARGET_PORT = 16380;
+	private final static int TARGET_PORT = 6380;
 
 	@Test
 	public void testReplicate() throws Exception {
 		RedisServer target = serverBuilder(TARGET_PORT).build();
 		try {
 			target.start();
-			runCommandWithServer("gen -d field1=100 field2=1000 --max 1000 --keyspace test --keys index");
+			runCommand(" -s localhost:6379 gen -d field1=100 field2=1000 --max 1000 --keyspace test --keys index");
 			Long sourceSize = commands().dbsize();
 			Assertions.assertTrue(sourceSize > 0);
 			runFile("replicate");
@@ -39,7 +39,7 @@ public class TestReplicate extends BaseTest {
 		RedisServer target = serverBuilder(TARGET_PORT).build();
 		try {
 			target.start();
-			runCommandWithServer("gen -d field1=100 field2=1000 --max 1000 --keyspace test --keys index");
+			runCommand(" -s localhost:6379 gen -d field1=100 field2=1000 --max 1000 --keyspace test --keys index");
 			ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 			final AtomicInteger index = new AtomicInteger();
 			scheduler.scheduleWithFixedDelay(() -> {
@@ -60,7 +60,7 @@ public class TestReplicate extends BaseTest {
 			System.out.println("Made " + index.get() + " updates");
 			replicateThread.interrupt();
 			Thread.sleep(3000);
-			RedisClient targetClient = RedisClient.create(RedisURI.create("localhost", 16380));
+			RedisClient targetClient = RedisClient.create(RedisURI.create(TARGET_HOST, TARGET_PORT));
 			Long sourceSize = commands().dbsize();
 			Assertions.assertTrue(sourceSize > 0);
 			Long targetSize = targetClient.connect().sync().dbsize();

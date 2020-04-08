@@ -1,1 +1,1 @@
-$ riot import --url https://git.io/fjxPs --header --command ftadd --index beers --keys id
+$ riot -s localhost:6379 import --url https://git.io/fjxPs --header --command ftadd --index beers --keys id

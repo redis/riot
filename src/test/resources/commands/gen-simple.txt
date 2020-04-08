@@ -1,1 +1,1 @@
-$ riot gen --metadata -d field1=100 field2=1000 --batch 100 --threads 3 --max 10000 --keyspace test --keys index
+$ riot -s localhost:6379 gen --metadata -d field1=100 field2=1000 --batch 100 --threads 3 --max 10000 --keyspace test --keys index

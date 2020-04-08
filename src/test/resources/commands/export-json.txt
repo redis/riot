@@ -1,1 +1,1 @@
-$ riot export --file /tmp/beers.json --match beer:* --key-regex "beer:(?<id>.*)" --fields id name brewery_id abv
+$ riot -s localhost:6379 export --file /tmp/beers.json --match beer:* --key-regex "beer:(?<id>.*)" --fields id name brewery_id abv

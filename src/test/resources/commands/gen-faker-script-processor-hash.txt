@@ -1,1 +1,1 @@
-$ riot gen --faker id=index firstName=name.firstName lastName=name.lastName address=address.fullAddress --script "function process(item) { item.address = item.address.toUpperCase(); return item; } process(item);" --max 100 --keyspace person --keys id
+$ riot -s localhost:6379 gen --faker id=index firstName=name.firstName lastName=name.lastName address=address.fullAddress --script "function process(item) { item.address = item.address.toUpperCase(); return item; } process(item);" --max 100 --keyspace person --keys id

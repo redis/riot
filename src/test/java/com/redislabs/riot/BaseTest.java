@@ -24,7 +24,7 @@ public class BaseTest {
 
 	private final static String COMMAND_PREAMBLE = "$ riot ";
 
-	private final static int REDIS_PORT = 16379;
+	private final static int REDIS_PORT = 6379;
 	private final static String REDIS_HOST = "localhost";
 
 	private static RedisServer server;
@@ -71,13 +71,8 @@ public class BaseTest {
 
 	protected int runFile(String filename, Object... args) throws Exception {
 		try (InputStream inputStream = BaseTest.class.getResourceAsStream("/commands/" + filename + ".txt")) {
-			return runCommandWithServer(IOUtils.toString(inputStream, Charset.defaultCharset()), args);
+			return runCommand(removePreamble(IOUtils.toString(inputStream, Charset.defaultCharset())), args);
 		}
-	}
-
-	protected int runCommandWithServer(String command, Object... args) throws Exception {
-		String server = REDIS_HOST + ":" + REDIS_PORT;
-		return runCommand("-s" + " " + server + " " + removePreamble(command), args);
 	}
 
 	protected int runCommand(String command, Object... args) throws Exception {

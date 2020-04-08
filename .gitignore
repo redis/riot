@@ -22,3 +22,4 @@ bin/
 /.gradle/
 *.log
 /.externalToolBuilders/
+.idea

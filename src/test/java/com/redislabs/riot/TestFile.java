@@ -46,7 +46,7 @@ public class TestFile extends BaseTest {
 		runFile("import-json-hash");
 		runFile("export-csv");
 		String[] header = Files.readAllLines(file.toPath()).get(0).split("\\|");
-		FlatFileItemReaderBuilder<Map<String, Object>> builder = new FlatFileItemReaderBuilder<Map<String, Object>>();
+		FlatFileItemReaderBuilder<Map<String, Object>> builder = new FlatFileItemReaderBuilder<>();
 		builder.name("flat-file-reader");
 		builder.resource(new FileSystemResource(file));
 		builder.strict(true);
