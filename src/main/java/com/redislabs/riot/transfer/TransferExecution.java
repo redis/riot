@@ -8,25 +8,25 @@ import lombok.Builder;
 import lombok.Singular;
 
 @Builder
-public class TransferExecution<I, O> {
+public class TransferExecution<I, O> implements MetricsProvider {
 
-	@Singular
-	private List<FlowExecution<I, O>> flows;
+    @Singular
+    private List<FlowExecution<I, O>> flows;
 
-	public Metrics progress() {
-		return Metrics.builder().metrics(flows.stream().map(f -> f.progress()).collect(Collectors.toList())).build();
-	}
+    public boolean isTerminated() {
+        boolean finished = true;
+        for (FlowExecution<I, O> flowExecution : flows) {
+            finished &= flowExecution.isTerminated();
+        }
+        return finished;
+    }
 
-	public boolean isTerminated() {
-		boolean finished = true;
-		for (FlowExecution<I, O> flowExecution : flows) {
-			finished &= flowExecution.isTerminated();
-		}
-		return finished;
-	}
+    public void awaitTermination(long timeout, TimeUnit unit) {
+        flows.forEach(f -> f.awaitTermination(timeout, unit));
+    }
 
-	public void awaitTermination(long timeout, TimeUnit unit) {
-		flows.forEach(f -> f.awaitTermination(timeout, unit));
-	}
-
+    @Override
+    public Metrics getMetrics() {
+        return Metrics.builder().metrics(flows.stream().map(f -> f.progress()).collect(Collectors.toList())).build();
+    }
 }

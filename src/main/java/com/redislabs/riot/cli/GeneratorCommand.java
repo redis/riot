@@ -82,6 +82,11 @@ public class GeneratorCommand extends ImportCommand {
 	}
 
 	@Override
+	protected String getMainFlowName() {
+		return "generator";
+	}
+
+	@Override
 	protected String taskName() {
 		return "Generating";
 	}

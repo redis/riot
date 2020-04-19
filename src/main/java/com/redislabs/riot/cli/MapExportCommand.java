@@ -56,6 +56,11 @@ public class MapExportCommand extends ExportCommand<KeyValue, Map<String, Object
 	}
 
 	@Override
+	protected String getMainFlowName() {
+		return "export";
+	}
+
+	@Override
 	protected String taskName() {
 		return "Exporting";
 	}

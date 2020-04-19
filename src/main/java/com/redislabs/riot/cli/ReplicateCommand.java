@@ -48,15 +48,20 @@ public class ReplicateCommand extends ExportCommand<KeyDump, KeyDump> {
 	}
 
 	@Override
+	protected String getMainFlowName() {
+		return "replication";
+	}
+
+	@Override
 	protected RedisItemReader<KeyDump> reader() throws Exception {
 		return reader(KeyDumpReader.builder().timeout(getTimeout()).build());
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	protected Transfer<KeyDump, KeyDump> transfer(ItemReader<KeyDump> reader, ItemProcessor<KeyDump, KeyDump> processor,
+	protected Transfer<KeyDump, KeyDump> transfer(String mainFlowName, ItemReader<KeyDump> reader, ItemProcessor<KeyDump, KeyDump> processor,
 			ItemWriter<KeyDump> writer) {
-		Transfer<KeyDump, KeyDump> transfer = super.transfer(reader, processor, writer);
+		Transfer<KeyDump, KeyDump> transfer = super.transfer(mainFlowName, reader, processor, writer);
 		if (listen) {
 			RedisOptions source = redisOptions();
 			KeyspaceNotificationsIterator iterator = KeyspaceNotificationsIterator.builder()
@@ -75,7 +80,7 @@ public class ReplicateCommand extends ExportCommand<KeyDump, KeyDump> {
 
 	@Override
 	protected String taskName() {
-		return "Replicating " + redisOptions().getServers().get(0) + " to " + target.getServers().get(0);
+		return "Replicating";
 	}
 
 	@Override

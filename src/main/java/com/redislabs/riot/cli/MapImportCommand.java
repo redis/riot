@@ -45,7 +45,11 @@ public class MapImportCommand extends ImportCommand {
 			return composite;
 		}
 		return processor;
+	}
 
+	@Override
+	protected String getMainFlowName() {
+		return "import";
 	}
 
 	@Override

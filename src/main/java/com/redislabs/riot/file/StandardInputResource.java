@@ -11,7 +11,7 @@ public class StandardInputResource extends InputStreamResource {
 	}
 
 	@Override
-	public InputStream getInputStream() throws IOException, IllegalStateException {
+	public InputStream getInputStream() {
 		return System.in;
 	}
 }
