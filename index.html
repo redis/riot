@@ -461,15 +461,14 @@ Redis Input/Output Tool</pre>
 <div id="toctitle" class="title">Table of Contents</div>
 <ul class="sectlevel1">
 <li><a href="#architecture">Architecture</a></li>
-<li><a href="#files">Files</a>
+<li><a href="#connectors">Connectors</a>
 <ul class="sectlevel2">
-<li><a href="#delimited">Delimited</a></li>
-<li><a href="#json">JSON</a></li>
-</ul>
-</li>
+<li><a href="#files">Files</a></li>
 <li><a href="#db">Databases</a></li>
 <li><a href="#gen">Generators</a></li>
 <li><a href="#redis">Redis</a></li>
+</ul>
+</li>
 <li><a href="#processors">Processors</a>
 <ul class="sectlevel2">
 <li><a href="#field-expressions">Field expressions</a></li>
@@ -524,8 +523,10 @@ corresponding Redis keys.</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="files"><a class="anchor" href="#files"></a>Files</h2>
+<h2 id="connectors"><a class="anchor" href="#connectors"></a>Connectors</h2>
 <div class="sectionbody">
+<div class="sect2">
+<h3 id="files"><a class="anchor" href="#files"></a>Files</h3>
 <div class="paragraph">
 <p>RIOT can import/export local or remote files in CSV, fixed-width, or JSON format with optional GZIP compression:</p>
 </div>
@@ -563,8 +564,8 @@ Use <code>-</code> to import/export from/to standard input/output.
 <div class="paragraph">
 <p>Specify the file type using the <code>--filetype</code> option. If not RIOT will try to determine it from the file extension (e.g. <code>.csv</code> or <code>.json</code>).</p>
 </div>
-<div class="sect2">
-<h3 id="delimited"><a class="anchor" href="#delimited"></a>Delimited</h3>
+<div class="sect3">
+<h4 id="delimited"><a class="anchor" href="#delimited"></a>Delimited</h4>
 <div class="paragraph">
 <p>The delimiter character(s) is <code>,</code> and can be set with the <code>--delimiter</code> option.</p>
 </div>
@@ -575,8 +576,8 @@ Use <code>-</code> to import/export from/to standard input/output.
 <p>If the file has a header containing field names, use the <code>--header</code> option.</p>
 </div>
 </div>
-<div class="sect2">
-<h3 id="json"><a class="anchor" href="#json"></a>JSON</h3>
+<div class="sect3">
+<h4 id="json"><a class="anchor" href="#json"></a>JSON</h4>
 <div class="paragraph">
 <p>The expected format is:</p>
 </div>
@@ -612,10 +613,8 @@ Use <code>-</code> to import/export from/to standard input/output.
 </div>
 </div>
 </div>
-</div>
-<div class="sect1">
-<h2 id="db"><a class="anchor" href="#db"></a>Databases</h2>
-<div class="sectionbody">
+<div class="sect2">
+<h3 id="db"><a class="anchor" href="#db"></a>Databases</h3>
 <div class="paragraph">
 <p>RIOT can connect to SQL databases through JDBC. Install the appropriate JDBC driver
 under the <code>lib</code> directory and modify the RIOT <code>CLASSPATH</code> accordingly:</p>
@@ -674,10 +673,8 @@ under the <code>lib</code> directory and modify the RIOT <code>CLASSPATH</code> 
 </ul>
 </div>
 </div>
-</div>
-<div class="sect1">
-<h2 id="gen"><a class="anchor" href="#gen"></a>Generators</h2>
-<div class="sectionbody">
+<div class="sect2">
+<h3 id="gen"><a class="anchor" href="#gen"></a>Generators</h3>
 <div class="paragraph">
 <p>RIOT can be used to create random data in Redis with 2 different generators.</p>
 </div>
@@ -705,12 +702,11 @@ under the <code>lib</code> directory and modify the RIOT <code>CLASSPATH</code> 
 </ul>
 </div>
 </div>
-</div>
-<div class="sect1">
-<h2 id="redis"><a class="anchor" href="#redis"></a>Redis</h2>
-<div class="sectionbody">
+<div class="sect2">
+<h3 id="redis"><a class="anchor" href="#redis"></a>Redis</h3>
 <div class="paragraph">
 <p>The Redis connector allows for replicating data between two Redis databases using scan and optionally keyspace notifications (<code>--listen</code>).</p>
+</div>
 </div>
 </div>
 </div>
@@ -958,7 +954,7 @@ process(item);</code></pre>
 <div id="footer">
 <div id="footer-text">
 Version 1.11.2<br>
-Last updated 2020-04-20 21:40:08 -0700
+Last updated 2020-04-20 21:51:24 -0700
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/styles/github.min.css">
