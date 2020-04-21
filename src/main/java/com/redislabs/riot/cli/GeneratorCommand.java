@@ -9,10 +9,10 @@ import java.util.Map;
 import com.redislabs.lettusearch.RediSearchCommands;
 import com.redislabs.lettusearch.RediSearchUtils;
 import com.redislabs.lettusearch.index.IndexInfo;
-import com.redislabs.lettusearch.search.field.Field;
-import com.redislabs.lettusearch.search.field.GeoField;
-import com.redislabs.lettusearch.search.field.TagField;
-import com.redislabs.lettusearch.search.field.TextField;
+import com.redislabs.lettusearch.index.field.Field;
+import com.redislabs.lettusearch.index.field.GeoField;
+import com.redislabs.lettusearch.index.field.TagField;
+import com.redislabs.lettusearch.index.field.TextField;
 import com.redislabs.riot.generator.GeneratorReader;
 
 import lombok.extern.slf4j.Slf4j;
@@ -61,7 +61,7 @@ public class GeneratorCommand extends ImportCommand {
 	}
 
 	@Override
-	protected GeneratorReader reader() throws Exception {
+	protected GeneratorReader reader() {
 		return GeneratorReader.builder().locale(locale).includeMetadata(includeMetadata).fakerFields(fakerFields())
 				.simpleFields(simpleFields).build();
 	}
@@ -70,7 +70,7 @@ public class GeneratorCommand extends ImportCommand {
 		Map<String, String> fields = new LinkedHashMap<>(fakerFields);
 		if (fakerIndex != null) {
 			RediSearchCommands<String, String> ft = redisOptions().rediSearchClient().connect().sync();
-			IndexInfo info = RediSearchUtils.getInfo(ft.indexInfo(fakerIndex));
+			IndexInfo info = RediSearchUtils.getInfo(ft.ftInfo(fakerIndex));
 			info.getFields().forEach(f -> {
 				String fieldName = f.getName();
 				String expression = expression(f);

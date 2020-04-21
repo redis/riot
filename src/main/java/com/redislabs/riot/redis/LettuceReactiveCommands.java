@@ -7,6 +7,8 @@ import com.redislabs.lettusearch.RediSearchReactiveCommands;
 import com.redislabs.lettusearch.aggregate.Cursor;
 import com.redislabs.lettusearch.search.AddOptions;
 
+import com.redislabs.lettusearch.search.Document;
+import com.redislabs.lettusearch.suggest.Suggestion;
 import io.lettuce.core.RestoreArgs;
 import io.lettuce.core.ScoredValue;
 import io.lettuce.core.ScriptOutputType;
@@ -114,14 +116,13 @@ public class LettuceReactiveCommands implements RedisCommands<Object> {
 	}
 
 	@Override
-	public Object ftadd(Object redis, String index, String docId, double score, Map<String, String> map, String payload,
-			AddOptions options) {
-		return ((RediSearchReactiveCommands<String, String>) redis).add(index, docId, score, map, payload, options);
+	public Object ftadd(Object redis, String index, Document<String, String> document, AddOptions options) {
+		return ((RediSearchReactiveCommands<String, String>) redis).add(index, document, options);
 	}
 
 	@Override
-	public Object sugadd(Object redis, String index, String string, double score, boolean increment, String payload) {
-		return ((RediSearchReactiveCommands<String, String>) redis).sugadd(index, string, score, increment, payload);
+	public Object sugadd(Object redis, String key, Suggestion<String> suggestion, boolean increment) {
+		return ((RediSearchReactiveCommands<String, String>) redis).sugadd(key, suggestion, increment);
 	}
 
 	@Override

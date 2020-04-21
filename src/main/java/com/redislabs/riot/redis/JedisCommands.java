@@ -1,17 +1,18 @@
 package com.redislabs.riot.redis;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.redislabs.lettusearch.aggregate.Cursor;
 import com.redislabs.lettusearch.search.AddOptions;
-
+import com.redislabs.lettusearch.search.Document;
+import com.redislabs.lettusearch.suggest.Suggestion;
 import io.lettuce.core.ScoredValue;
 import io.lettuce.core.ScriptOutputType;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.StreamEntryID;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class JedisCommands implements RedisCommands<Jedis> {
 
@@ -108,13 +109,12 @@ public class JedisCommands implements RedisCommands<Jedis> {
 	}
 
 	@Override
-	public Object ftadd(Jedis redis, String index, String docId, double score, Map<String, String> map, String payload,
-			AddOptions options) {
+	public Object ftadd(Jedis redis, String index, Document<String, String> document, AddOptions options) {
 		throw new UnsupportedOperationException("Jedis not supported with RediSearch");
 	}
 
 	@Override
-	public Object sugadd(Jedis redis, String index, String string, double score, boolean increment, String payload) {
+	public Object sugadd(Jedis redis, String key, Suggestion<String> suggestion, boolean increment) {
 		throw new UnsupportedOperationException("Jedis not supported with RediSearch");
 	}
 	

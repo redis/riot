@@ -7,12 +7,12 @@ import java.util.Set;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import com.redislabs.lettusearch.search.Schema;
+import com.redislabs.lettusearch.index.Schema;
 import com.redislabs.lettusearch.search.SearchResults;
-import com.redislabs.lettusearch.search.field.NumericField;
-import com.redislabs.lettusearch.search.field.PhoneticMatcher;
-import com.redislabs.lettusearch.search.field.TagField;
-import com.redislabs.lettusearch.search.field.TextField;
+import com.redislabs.lettusearch.index.field.NumericField;
+import com.redislabs.lettusearch.index.field.PhoneticMatcher;
+import com.redislabs.lettusearch.index.field.TagField;
+import com.redislabs.lettusearch.index.field.TextField;
 import com.redislabs.riot.generator.GeneratorReader;
 
 import io.lettuce.core.Range;
@@ -93,7 +93,7 @@ public class TestGenerator extends BaseTest {
 				.field(TextField.builder().name(FIELD_STYLE).matcher(PhoneticMatcher.English).sortable(true).build())
 				.field(NumericField.builder().name(FIELD_ABV).sortable(true).build())
 				.field(NumericField.builder().name(FIELD_OUNCES).sortable(true).build()).build();
-		commands().create(INDEX, schema);
+		commands().create(INDEX, schema, null);
 		runFile("gen-faker-index-introspection");
 		SearchResults<String, String> results = commands().search(INDEX, "*");
 		Assertions.assertEquals(100, results.getCount());

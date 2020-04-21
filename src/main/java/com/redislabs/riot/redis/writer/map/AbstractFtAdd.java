@@ -3,6 +3,7 @@ package com.redislabs.riot.redis.writer.map;
 import java.util.Map;
 
 import com.redislabs.lettusearch.search.AddOptions;
+import com.redislabs.lettusearch.search.Document;
 import com.redislabs.riot.redis.RedisCommands;
 import com.redislabs.riot.redis.writer.KeyBuilder;
 import com.redislabs.riot.redis.writer.RediSearchCommandWriter;
@@ -29,8 +30,9 @@ public abstract class AbstractFtAdd extends AbstractKeyMapCommandWriter
 
 	@Override
 	protected Object write(RedisCommands commands, Object redis, String key, Map<String, Object> item) {
-		return commands.ftadd(redis, index, key, convert(item.getOrDefault(score, defaultScore), Double.class),
-				stringMap(item), payload(item), options);
+		Document<String, String> document = Document.<String, String>builder().id(key).score(convert(item.getOrDefault(score, defaultScore), Double.class)).payload(payload(item)).build();
+		item.forEach((k, v) -> document.put(k, convert(v, String.class)));
+		return commands.ftadd(redis, index, document, options);
 	}
 
 	protected abstract String payload(Map<String, Object> item);

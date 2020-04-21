@@ -27,12 +27,12 @@ import org.springframework.core.io.InputStreamResource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.redislabs.lettusearch.search.Document;
-import com.redislabs.lettusearch.search.Schema;
+import com.redislabs.lettusearch.index.Schema;
 import com.redislabs.lettusearch.search.SearchResults;
-import com.redislabs.lettusearch.search.field.GeoField;
-import com.redislabs.lettusearch.search.field.NumericField;
-import com.redislabs.lettusearch.search.field.PhoneticMatcher;
-import com.redislabs.lettusearch.search.field.TextField;
+import com.redislabs.lettusearch.index.field.GeoField;
+import com.redislabs.lettusearch.index.field.NumericField;
+import com.redislabs.lettusearch.index.field.PhoneticMatcher;
+import com.redislabs.lettusearch.index.field.TextField;
 import com.redislabs.riot.cli.file.MapFieldSetMapper;
 
 import io.lettuce.core.GeoArgs.Unit;
@@ -131,7 +131,7 @@ public class TestFile extends BaseTest {
 				.field(TextField.builder().name(FIELD_STYLE).matcher(PhoneticMatcher.English).sortable(true).build())
 				.field(NumericField.builder().name(FIELD_ABV).sortable(true).build())
 				.field(NumericField.builder().name(FIELD_OUNCES).sortable(true).build()).build();
-		commands().create(INDEX, schema);
+		commands().create(INDEX, schema, null);
 		runFile("import-csv-search");
 		SearchResults<String, String> results = commands().search(INDEX, "*");
 		Assertions.assertEquals(BEER_COUNT, results.getCount());
@@ -143,7 +143,7 @@ public class TestFile extends BaseTest {
 		commands().flushall();
 		Schema schema = Schema.builder().field(TextField.builder().name("Name").sortable(true).build())
 				.field(GeoField.builder().name("Location").sortable(true).build()).build();
-		commands().create(INDEX, schema);
+		commands().create(INDEX, schema, null);
 		runFile("import-csv-processor-search-geo");
 		SearchResults<String, String> results = commands().search(INDEX, "@Location:[-77 38 50 mi]");
 		Assertions.assertEquals(3, results.getCount());
@@ -196,7 +196,7 @@ public class TestFile extends BaseTest {
 		Schema schema = Schema.builder().field(TextField.builder().name("Title").build())
 				.field(NumericField.builder().name("lon").build()).field(NumericField.builder().name("kat").build())
 				.field(GeoField.builder().name("location").sortable(true).build()).build();
-		commands().create(INDEX, schema);
+		commands().create(INDEX, schema, null);
 		runFile("import-csv-processor-search");
 		SearchResults<String, String> results = commands().search(INDEX, "@location:[-118.446014 33.998415 10 mi]");
 		Assertions.assertTrue(results.getCount() > 0);

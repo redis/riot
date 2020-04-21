@@ -8,6 +8,8 @@ import java.util.Map;
 import com.redislabs.lettusearch.aggregate.Cursor;
 import com.redislabs.lettusearch.search.AddOptions;
 
+import com.redislabs.lettusearch.search.Document;
+import com.redislabs.lettusearch.suggest.Suggestion;
 import io.lettuce.core.ScoredValue;
 import io.lettuce.core.ScriptOutputType;
 import redis.clients.jedis.JedisCluster;
@@ -109,14 +111,12 @@ public class JedisClusterCommands implements RedisCommands<JedisCluster> {
 	}
 
 	@Override
-	public Object ftadd(JedisCluster redis, String index, String docId, double score, Map<String, String> map, String payload,
-			AddOptions options) {
+	public Object ftadd(JedisCluster redis, String index, Document<String, String> document, AddOptions options) {
 		throw new UnsupportedOperationException("Jedis Cluster not supported with RediSearch");
 	}
 
 	@Override
-	public Object sugadd(JedisCluster redis, String index, String string, double score, boolean increment,
-			String payload) {
+	public Object sugadd(JedisCluster redis, String key, Suggestion<String> suggestion, boolean increment) {
 		throw new UnsupportedOperationException("Jedis Cluster not supported with RediSearch");
 	}
 	
