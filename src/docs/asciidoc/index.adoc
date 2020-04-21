@@ -35,8 +35,10 @@ corresponding Redis keys.
 
 image::images/mapping.png[]
 
+== Connectors
+
 [#files]
-== Files
+=== Files
 
 RIOT can import/export local or remote files in CSV, fixed-width, or JSON format with optional GZIP compression:
 
@@ -51,7 +53,7 @@ TIP: Use `-` to import/export from/to standard input/output.
 
 Specify the file type using the `--filetype` option. If not RIOT will try to determine it from the file extension (e.g. `.csv` or `.json`).
 
-=== Delimited
+==== Delimited
 
 The delimiter character(s) is `,` and can be set with the `--delimiter` option.
 
@@ -59,7 +61,7 @@ Specify field names with the `--fields` option (see xref:import-csv-geo[]).
 
 If the file has a header containing field names, use the `--header` option.
 
-=== JSON
+==== JSON
 
 The expected format is:
 ----
@@ -83,7 +85,7 @@ To that end, RIOT uses a field naming convention to flatten JSON objects and arr
 -> `field[0]=1 field[1]=2 field[2]=3`
 
 [#db]
-== Databases
+=== Databases
 
 RIOT can connect to SQL databases through JDBC. Install the appropriate JDBC driver
 under the `lib` directory and modify the RIOT `CLASSPATH` accordingly:
@@ -121,7 +123,7 @@ For reference here are links to common database systems and related JDBC driver 
 
 
 [#gen]
-== Generators
+=== Generators
 
 RIOT can be used to create random data in Redis with 2 different generators.
 
@@ -133,7 +135,7 @@ RIOT can be used to create random data in Redis with 2 different generators.
 * The Faker generator relies on the https://github.com/DiUS/java-faker[Faker] library. Supported data types are described <<faker#,here>>.
 
 [#redis]
-== Redis
+=== Redis
 
 The Redis connector allows for replicating data between two Redis databases using scan and optionally keyspace notifications (`--listen`).
 
