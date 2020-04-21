@@ -475,14 +475,6 @@ Redis Input/Output Tool</pre>
 <li><a href="#script-processor">Script Processor</a></li>
 </ul>
 </li>
-<li><a href="#examples">Examples</a>
-<ul class="sectlevel2">
-<li><a href="#files-2">Files</a></li>
-<li><a href="#databases">Databases</a></li>
-<li><a href="#generators">Generators</a></li>
-<li><a href="#replication">Replication</a></li>
-</ul>
-</li>
 <li><a href="#load-testing">Load Testing</a>
 <ul class="sectlevel2">
 <li><a href="#metrics">Metrics</a></li>
@@ -575,6 +567,79 @@ Use <code>-</code> to import/export from/to standard input/output.
 <div class="paragraph">
 <p>If the file has a header containing field names, use the <code>--header</code> option.</p>
 </div>
+<div class="paragraph">
+<div class="title">Import CSV</div>
+<p>Using this CSV file:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top"></th>
+<th class="tableblock halign-left valign-top">abv</th>
+<th class="tableblock halign-left valign-top">ibu</th>
+<th class="tableblock halign-left valign-top">id</th>
+<th class="tableblock halign-left valign-top">name</th>
+<th class="tableblock halign-left valign-top">style</th>
+<th class="tableblock halign-left valign-top">brewery_id</th>
+<th class="tableblock halign-left valign-top">ounces</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0.05</p></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1436</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Pub Beer</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Pale Lager</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">408</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">12.0</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0.066</p></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2265</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Devil&#8217;s Cup</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">APA</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">177</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">12.0</p></td>
+</tr>
+</tbody>
+</table>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">$ riot -s localhost:6379 import --url https://git.io/fjxPs --header --keyspace beer --keys id</code></pre>
+</div>
+</div>
+<div id="import-csv-geo" class="listingblock">
+<div class="title">Import CSV to Geo</div>
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">$ riot -s localhost:6379 import --url https://git.io/JfT6Y --fields AirportID Name City Country IATA ICAO Latitude Longitude Altitude Timezone DST Tz Type Source --command geoadd --keyspace airportgeo --members AirportID --lon Longitude --lat Latitude</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Import CSV into RediSearch</div>
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">$ riot -s localhost:6379 import --url https://git.io/fjxPs --header --command ftadd --index beers --keys id</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Export CSV</div>
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">$ riot -s localhost:6379 export --file /tmp/beers.csv --match beer:* --key-regex "beer:(?&lt;id&gt;.*)" --fields id name brewery_id abv --header --delimiter '|'</code></pre>
+</div>
+</div>
 </div>
 <div class="sect3">
 <h4 id="json"><a class="anchor" href="#json"></a>JSON</h4>
@@ -610,6 +675,24 @@ Use <code>-</code> to import/export from/to standard input/output.
 &#8594; <code>field[0]=1 field[1]=2 field[2]=3</code></p>
 </li>
 </ul>
+</div>
+<div class="listingblock">
+<div class="title">Import JSON</div>
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">$ riot -s localhost:6379 import --url https://git.io/fjxPZ --filetype json --keyspace beer --keys id</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Export JSON</div>
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">$ riot -s localhost:6379 export --file /tmp/beers.json --match beer:* --key-regex "beer:(?&lt;id&gt;.*)" --fields id name brewery_id abv</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Export compressed JSON</div>
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">$ riot -s localhost:6379 export --file /tmp/beers.json.gz --match beer:* --fields id name brewery_id abv</code></pre>
+</div>
 </div>
 </div>
 </div>
@@ -672,40 +755,76 @@ under the <code>lib</code> directory and modify the RIOT <code>CLASSPATH</code> 
 </li>
 </ul>
 </div>
+<div class="listingblock">
+<div class="title">Import from a database</div>
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">$ riot -s localhost:6379 import --db-url jdbc:hsqldb:mem:mymemdb --sql "SELECT * FROM beers" --keyspace dbbeer --keys id</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Export to a database</div>
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">$ riot -s localhost:6379 export --match "beer:*" --key-regex "beer:(?&lt;id&gt;.*)" --db-url jdbc:hsqldb:mem:mymemdb --sql "INSERT INTO beers (id, name) VALUES (:id, :name)"</code></pre>
+</div>
+</div>
 </div>
 <div class="sect2">
 <h3 id="gen"><a class="anchor" href="#gen"></a>Generators</h3>
 <div class="paragraph">
 <p>RIOT can be used to create random data in Redis with 2 different generators.</p>
 </div>
-<div class="ulist">
-<ul>
-<li>
-<p>The simple generator produces the following fields:</p>
-<div class="ulist">
-<ul>
-<li>
-<p><code>index</code>: monotonous integer sequence</p>
-</li>
-<li>
-<p><code>partition</code>: index of the partition (thread) generating the data, e.g. if you have 8 threads generating data each will have a different partition index between 0 and 7</p>
-</li>
-<li>
-<p>configurable fixed-sized fields using <code>--field &lt;name=size&gt;</code> options</p>
-</li>
-</ul>
+<div class="sect3">
+<h4 id="simple"><a class="anchor" href="#simple"></a>Simple</h4>
+<div class="paragraph">
+<p>The simple generator produces the following fields:
+* <code>index</code>: monotonous integer sequence
+* <code>partition</code>: index of the partition (thread) generating the data, e.g. if you have 8 threads generating data each will have a different partition index between 0 and 7
+* configurable fixed-sized fields using <code>--field &lt;name=size&gt;</code> options</p>
 </div>
-</li>
-<li>
-<p>The Faker generator relies on the <a href="https://github.com/DiUS/java-faker">Faker</a> library. Supported data types are described <a href="faker.html">here</a>.</p>
-</li>
-</ul>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">$ riot -s localhost:6379 gen --metadata -d field1=100 field2=1000 --batch 100 --threads 3 --max 10000 --keyspace test --keys index</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="faker"><a class="anchor" href="#faker"></a>Faker</h4>
+<div class="paragraph">
+<p>The Faker generator relies on the <a href="https://github.com/DiUS/java-faker">Faker</a> library.</p>
+</div>
+<div class="paragraph">
+<p>Supported data types are described <a href="faker.html">here</a>.</p>
+</div>
+<div class="listingblock">
+<div class="title">Faker Hashes</div>
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">$ riot -s localhost:6379 gen --faker id=index firstName=name.firstName lastName=name.lastName address=address.fullAddress --max 100 --keyspace person --keys id</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Faker Sets</div>
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">$ riot -s localhost:6379 gen --faker name=gameOfThrones.character --max 10000 --command sadd --members name --keyspace got:characters</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">RediSearch with introspection</div>
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">$ riot -s localhost:6379 gen --faker-index beerIntrospection --max 100 --command ftadd --index beerIntrospection --keys id</code></pre>
+</div>
+</div>
 </div>
 </div>
 <div class="sect2">
 <h3 id="redis"><a class="anchor" href="#redis"></a>Redis</h3>
 <div class="paragraph">
 <p>The Redis connector allows for replicating data between two Redis databases using scan and optionally keyspace notifications (<code>--listen</code>).</p>
+</div>
+<div class="listingblock">
+<div class="title">Live replication from <code>localhost:16379</code> to <code>localhost:16380</code></div>
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">$ riot -s localhost:6379 replicate -s localhost:6380 --listen</code></pre>
+</div>
 </div>
 </div>
 </div>
@@ -770,135 +889,6 @@ process(item);</code></pre>
 </div>
 </div>
 <div class="sect1">
-<h2 id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-<div class="sectionbody">
-<div class="sect2">
-<h3 id="files-2"><a class="anchor" href="#files-2"></a>Files</h3>
-<div class="sect3">
-<h4 id="import-csv"><a class="anchor" href="#import-csv"></a>Import CSV</h4>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">$ riot -s localhost:6379 import --url https://git.io/fjxPs --header --keyspace beer --keys id</code></pre>
-</div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="import-csv-geo"><a class="anchor" href="#import-csv-geo"></a>Import CSV to Geo</h4>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">$ riot -s localhost:6379 import --url https://raw.githubusercontent.com/jpatokal/openflights/master/data/airports.dat --fields AirportID Name City Country IATA ICAO Latitude Longitude Altitude Timezone DST Tz Type Source --command geoadd --keyspace airportgeo --members AirportID --lon Longitude --lat Latitude</code></pre>
-</div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="import-json"><a class="anchor" href="#import-json"></a>Import JSON</h4>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">$ riot -s localhost:6379 import --url https://git.io/fjxPZ --filetype json --keyspace beer --keys id</code></pre>
-</div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="import-csv-into-redisearch"><a class="anchor" href="#import-csv-into-redisearch"></a>Import CSV into RediSearch</h4>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">$ riot -s localhost:6379 import --url https://git.io/fjxPs --header --command ftadd --index beers --keys id</code></pre>
-</div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="export-csv"><a class="anchor" href="#export-csv"></a>Export CSV</h4>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">$ riot -s localhost:6379 export --file /tmp/beers.csv --match beer:* --key-regex "beer:(?&lt;id&gt;.*)" --fields id name brewery_id abv --header --delimiter '|'</code></pre>
-</div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="export-json"><a class="anchor" href="#export-json"></a>Export JSON</h4>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">$ riot -s localhost:6379 export --file /tmp/beers.json --match beer:* --key-regex "beer:(?&lt;id&gt;.*)" --fields id name brewery_id abv</code></pre>
-</div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="export-compressed-json"><a class="anchor" href="#export-compressed-json"></a>Export compressed JSON</h4>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">$ riot -s localhost:6379 export --file /tmp/beers.json.gz --match beer:* --fields id name brewery_id abv</code></pre>
-</div>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="databases"><a class="anchor" href="#databases"></a>Databases</h3>
-<div class="sect3">
-<h4 id="import-from-a-database"><a class="anchor" href="#import-from-a-database"></a>Import from a database</h4>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">$ riot -s localhost:6379 import --db-url jdbc:hsqldb:mem:mymemdb --sql "SELECT * FROM beers" --keyspace dbbeer --keys id</code></pre>
-</div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="export-to-a-database"><a class="anchor" href="#export-to-a-database"></a>Export to a database</h4>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">$ riot -s localhost:6379 export --match "beer:*" --key-regex "beer:(?&lt;id&gt;.*)" --db-url jdbc:hsqldb:mem:mymemdb --sql "INSERT INTO beers (id, name) VALUES (:id, :name)"</code></pre>
-</div>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="generators"><a class="anchor" href="#generators"></a>Generators</h3>
-<div class="sect3">
-<h4 id="generate-hashes-using-simple-generator"><a class="anchor" href="#generate-hashes-using-simple-generator"></a>Generate hashes using simple generator</h4>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">$ riot -s localhost:6379 gen --metadata -d field1=100 field2=1000 --batch 100 --threads 3 --max 10000 --keyspace test --keys index</code></pre>
-</div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="generate-hashes-using-faker"><a class="anchor" href="#generate-hashes-using-faker"></a>Generate hashes using Faker</h4>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">$ riot -s localhost:6379 gen --faker id=index firstName=name.firstName lastName=name.lastName address=address.fullAddress --max 100 --keyspace person --keys id</code></pre>
-</div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="generate-redis-sets-using-faker"><a class="anchor" href="#generate-redis-sets-using-faker"></a>Generate Redis sets using Faker</h4>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">$ riot -s localhost:6379 gen --faker name=gameOfThrones.character --max 10000 --command sadd --members name --keyspace got:characters</code></pre>
-</div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="generate-redisearch-data-using-introspection"><a class="anchor" href="#generate-redisearch-data-using-introspection"></a>Generate RediSearch data using introspection</h4>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">$ riot -s localhost:6379 gen --faker-index beerIntrospection --max 100 --command ftadd --index beerIntrospection --keys id</code></pre>
-</div>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="replication"><a class="anchor" href="#replication"></a>Replication</h3>
-<div class="sect3">
-<h4 id="live-replication-from-localhost16379-to-localhost16380"><a class="anchor" href="#live-replication-from-localhost16379-to-localhost16380"></a>Live replication from <code>localhost:16379</code> to <code>localhost:16380</code></h4>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">$ riot -s localhost:6379 replicate -s localhost:6380 --listen</code></pre>
-</div>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
 <h2 id="load-testing"><a class="anchor" href="#load-testing"></a>Load Testing</h2>
 <div class="sectionbody">
 <div class="sect2">
@@ -954,7 +944,7 @@ process(item);</code></pre>
 <div id="footer">
 <div id="footer-text">
 Version 1.11.2<br>
-Last updated 2020-04-20 21:51:24 -0700
+Last updated 2020-04-20 22:11:01 -0700
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/styles/github.min.css">
