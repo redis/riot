@@ -441,7 +441,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="header">
 <h1>RIOT</h1>
 <div class="details">
-<span id="revnumber">version 1.11.1</span>
+<span id="revnumber">version 1.11.2</span>
 </div>
 </div>
 <div id="content">
@@ -460,18 +460,20 @@ Redis Input/Output Tool</pre>
 <div id="toc" class="toc">
 <div id="toctitle" class="title">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#connectors">Connectors</a>
+<li><a href="#architecture">Architecture</a></li>
+<li><a href="#files">Files</a>
 <ul class="sectlevel2">
-<li><a href="#files">Files</a></li>
+<li><a href="#delimited">Delimited</a></li>
+<li><a href="#json">JSON</a></li>
+</ul>
+</li>
 <li><a href="#db">Databases</a></li>
 <li><a href="#gen">Generators</a></li>
 <li><a href="#redis">Redis</a></li>
-</ul>
-</li>
 <li><a href="#processors">Processors</a>
 <ul class="sectlevel2">
 <li><a href="#field-expressions">Field expressions</a></li>
-<li><a href="#script-evaluator">Script evaluator</a></li>
+<li><a href="#script-processor">Script Processor</a></li>
 </ul>
 </li>
 <li><a href="#examples">Examples</a>
@@ -493,31 +495,39 @@ Redis Input/Output Tool</pre>
 </div>
 </div>
 <div class="sect1">
-<h2 id="connectors"><a class="anchor" href="#connectors"></a>Connectors</h2>
+<h2 id="architecture"><a class="anchor" href="#architecture"></a>Architecture</h2>
 <div class="sectionbody">
-<div class="sect2">
-<h3 id="files"><a class="anchor" href="#files"></a>Files</h3>
 <div class="paragraph">
-<p>RIOT can import/export files in these formats:</p>
+<p>RIOT reads records from a source (file, database, Redis, generator) and writes them to a target (file, database, Redis).</p>
 </div>
-<div class="ulist">
-<ul>
-<li>
-<p>Delimited (CSV, TSV)</p>
-</li>
-<li>
-<p>Fixed-Width</p>
-</li>
-<li>
-<p>JSON</p>
-</li>
-<li>
-<p>XML (repeating elements not supported)</p>
-</li>
-</ul>
+<div class="imageblock">
+<div class="content">
+<img src="images/architecture.png" alt="architecture">
+</div>
 </div>
 <div class="paragraph">
-<p>Files can be local or remote, and GZIP compressed:</p>
+<p>In most cases some processing needs to happen in order to adapt input records to the output.</p>
+</div>
+<div class="paragraph">
+<p>For example records from  delimited files are string maps (key/value pairs where values are character strings) that look
+pretty much exactly like Redis hashes.</p>
+</div>
+<div class="paragraph">
+<p>However you still need to extract keys from those records, i.e. one or more fields should be used to construct the
+corresponding Redis keys.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/mapping.png" alt="mapping">
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="files"><a class="anchor" href="#files"></a>Files</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>RIOT can import/export local or remote files in CSV, fixed-width, or JSON format with optional GZIP compression:</p>
 </div>
 <div class="ulist">
 <ul>
@@ -545,16 +555,70 @@ Redis Input/Output Tool</pre>
 <i class="fa icon-tip" title="Tip"></i>
 </td>
 <td class="content">
-Use <code>-</code> to import/export from/to standard input/output
+Use <code>-</code> to import/export from/to standard input/output.
 </td>
 </tr>
 </table>
 </div>
+<div class="paragraph">
+<p>Specify the file type using the <code>--filetype</code> option. If not RIOT will try to determine it from the file extension (e.g. <code>.csv</code> or <code>.json</code>).</p>
 </div>
 <div class="sect2">
-<h3 id="db"><a class="anchor" href="#db"></a>Databases</h3>
+<h3 id="delimited"><a class="anchor" href="#delimited"></a>Delimited</h3>
 <div class="paragraph">
-<p>RIOT can connect to SQL databases through JDBC. Install the appropriate JDBC driver under the <code>lib</code> directory and modify the RIOT <code>CLASSPATH</code> accordingly:</p>
+<p>The delimiter character(s) is <code>,</code> and can be set with the <code>--delimiter</code> option.</p>
+</div>
+<div class="paragraph">
+<p>Specify field names with the <code>--fields</code> option (see <a href="#import-csv-geo">Import CSV to Geo</a>).</p>
+</div>
+<div class="paragraph">
+<p>If the file has a header containing field names, use the <code>--header</code> option.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="json"><a class="anchor" href="#json"></a>JSON</h3>
+<div class="paragraph">
+<p>The expected format is:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>[
+  {
+     // JSON object
+  },
+  {
+     // JSON object
+  }
+]</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>JSON records are trees with potentially nested values that need to be flattened when stored in a Redis hash.</p>
+</div>
+<div class="paragraph">
+<p>To that end, RIOT uses a field naming convention to flatten JSON objects and arrays:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>{ "field": { "sub": "value" } }</code>
+&#8594; <code>field.sub=value</code></p>
+</li>
+<li>
+<p><code>{ "field": [1, 2, 3] }</code>
+&#8594; <code>field[0]=1 field[1]=2 field[2]=3</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="db"><a class="anchor" href="#db"></a>Databases</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>RIOT can connect to SQL databases through JDBC. Install the appropriate JDBC driver
+under the <code>lib</code> directory and modify the RIOT <code>CLASSPATH</code> accordingly:</p>
 </div>
 <div class="ulist">
 <ul>
@@ -610,8 +674,10 @@ Use <code>-</code> to import/export from/to standard input/output
 </ul>
 </div>
 </div>
-<div class="sect2">
-<h3 id="gen"><a class="anchor" href="#gen"></a>Generators</h3>
+</div>
+<div class="sect1">
+<h2 id="gen"><a class="anchor" href="#gen"></a>Generators</h2>
+<div class="sectionbody">
 <div class="paragraph">
 <p>RIOT can be used to create random data in Redis with 2 different generators.</p>
 </div>
@@ -639,11 +705,12 @@ Use <code>-</code> to import/export from/to standard input/output
 </ul>
 </div>
 </div>
-<div class="sect2">
-<h3 id="redis"><a class="anchor" href="#redis"></a>Redis</h3>
+</div>
+<div class="sect1">
+<h2 id="redis"><a class="anchor" href="#redis"></a>Redis</h2>
+<div class="sectionbody">
 <div class="paragraph">
 <p>The Redis connector allows for replicating data between two Redis databases using scan and optionally keyspace notifications (<code>--listen</code>).</p>
-</div>
 </div>
 </div>
 </div>
@@ -651,7 +718,7 @@ Use <code>-</code> to import/export from/to standard input/output
 <h2 id="processors"><a class="anchor" href="#processors"></a>Processors</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>RIOT can process records as they are being read. There are 2 processor approaches: field expressions or script processor.</p>
+<p>RIOT can process records through 2 approaches: field expressions or script processor.</p>
 </div>
 <div class="sect2">
 <h3 id="field-expressions"><a class="anchor" href="#field-expressions"></a>Field expressions</h3>
@@ -684,13 +751,12 @@ Use <code>-</code> to import/export from/to standard input/output
 </div>
 </div>
 <div class="sect2">
-<h3 id="script-evaluator"><a class="anchor" href="#script-evaluator"></a>Script evaluator</h3>
+<h3 id="script-processor"><a class="anchor" href="#script-processor"></a>Script Processor</h3>
 <div class="paragraph">
 <p>Use an external or inline script to provide the processor logic.</p>
 </div>
-<div class="sect3">
-<h4 id="javascript-example"><a class="anchor" href="#javascript-example"></a>Javascript example</h4>
 <div class="listingblock">
+<div class="title">Javascript example</div>
 <div class="content">
 <pre class="highlightjs highlight"><code data-lang="javascript" class="language-javascript hljs">function process(item) {
     item.name = item.name.toUpperCase();
@@ -707,7 +773,6 @@ process(item);</code></pre>
 </div>
 </div>
 </div>
-</div>
 <div class="sect1">
 <h2 id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
 <div class="sectionbody">
@@ -718,6 +783,14 @@ process(item);</code></pre>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">$ riot -s localhost:6379 import --url https://git.io/fjxPs --header --keyspace beer --keys id</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="import-csv-geo"><a class="anchor" href="#import-csv-geo"></a>Import CSV to Geo</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">$ riot -s localhost:6379 import --url https://raw.githubusercontent.com/jpatokal/openflights/master/data/airports.dat --fields AirportID Name City Country IATA ICAO Latitude Longitude Altitude Timezone DST Tz Type Source --command geoadd --keyspace airportgeo --members AirportID --lon Longitude --lat Latitude</code></pre>
 </div>
 </div>
 </div>
@@ -884,8 +957,8 @@ process(item);</code></pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.11.1<br>
-Last updated 2020-03-26 18:15:53 -0700
+Version 1.11.2<br>
+Last updated 2020-04-20 21:40:08 -0700
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/styles/github.min.css">
