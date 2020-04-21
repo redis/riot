@@ -19,19 +19,26 @@ Redis Input/Output Tool
 
 toc::[]
 
-== Connectors
+== Architecture
+
+RIOT reads records from a source (file, database, Redis, generator) and writes them to a target (file, database, Redis).
+
+image::images/architecture.png[]
+
+In most cases some processing needs to happen in order to adapt input records to the output.
+
+For example records from  delimited files are string maps (key/value pairs where values are character strings) that look
+pretty much exactly like Redis hashes.
+
+However you still need to extract keys from those records, i.e. one or more fields should be used to construct the
+corresponding Redis keys.
+
+image::images/mapping.png[]
 
 [#files]
-=== Files
+== Files
 
-RIOT can import/export files in these formats:
-
-* Delimited (CSV, TSV)
-* Fixed-Width
-* JSON
-* XML (repeating elements not supported)
-
-Files can be local or remote, and GZIP compressed:
+RIOT can import/export local or remote files in CSV, fixed-width, or JSON format with optional GZIP compression:
 
 * `/myfolder/myfile.csv`
 * `/myfolder/myfile.json.gz`
@@ -40,17 +47,50 @@ Files can be local or remote, and GZIP compressed:
 
 For AWS S3 you can specify access and secret keys as well as the region for the bucket.
 
-TIP: Use `-` to import/export from/to standard input/output 
+TIP: Use `-` to import/export from/to standard input/output.
+
+Specify the file type using the `--filetype` option. If not RIOT will try to determine it from the file extension (e.g. `.csv` or `.json`).
+
+=== Delimited
+
+The delimiter character(s) is `,` and can be set with the `--delimiter` option.
+
+Specify field names with the `--fields` option (see xref:import-csv-geo[]).
+
+If the file has a header containing field names, use the `--header` option.
+
+=== JSON
+
+The expected format is:
+----
+[
+  {
+     // JSON object
+  },
+  {
+     // JSON object
+  }
+]
+----
+
+JSON records are trees with potentially nested values that need to be flattened when stored in a Redis hash.
+
+To that end, RIOT uses a field naming convention to flatten JSON objects and arrays:
+
+* `{ "field": { "sub": "value" } }`
+-> `field.sub=value`
+* `{ "field": [1, 2, 3] }`
+-> `field[0]=1 field[1]=2 field[2]=3`
 
 [#db]
-=== Databases
+== Databases
 
-RIOT can connect to SQL databases through JDBC. Install the appropriate JDBC driver under the `lib` directory and modify the RIOT `CLASSPATH` accordingly:
+RIOT can connect to SQL databases through JDBC. Install the appropriate JDBC driver
+under the `lib` directory and modify the RIOT `CLASSPATH` accordingly:
 
 * *nix: `bin/riot` -> `CLASSPATH=$APP_HOME/lib/myjdbc.jar:$APP_HOME/lib/…`
 
 * Windows: `bin\riot.bat` -> `set CLASSPATH=%APP_HOME%\lib\myjdbc.jar;%APP_HOME%\lib\…`
- 
 
 For reference here are links to common database systems and related JDBC driver documentation:
 
@@ -81,7 +121,7 @@ For reference here are links to common database systems and related JDBC driver 
 
 
 [#gen]
-=== Generators
+== Generators
 
 RIOT can be used to create random data in Redis with 2 different generators.
 
@@ -93,14 +133,13 @@ RIOT can be used to create random data in Redis with 2 different generators.
 * The Faker generator relies on the https://github.com/DiUS/java-faker[Faker] library. Supported data types are described <<faker#,here>>.
 
 [#redis]
-=== Redis
+== Redis
 
 The Redis connector allows for replicating data between two Redis databases using scan and optionally keyspace notifications (`--listen`).
 
-
 == Processors
 
-RIOT can process records as they are being read. There are 2 processor approaches: field expressions or script processor.
+RIOT can process records through 2 approaches: field expressions or script processor.
 
 === Field expressions
 
@@ -119,11 +158,11 @@ The processor also exposes the following variables that can be called with the `
 include::{commandsdir}/import-csv-processor-hash-dateformat.txt[]
 ----
 
-=== Script evaluator
+=== Script Processor
 
 Use an external or inline script to provide the processor logic.
 
-==== Javascript example
+.Javascript example
 [source,javascript]
 ----
 function process(item) {
@@ -147,6 +186,13 @@ include::{commandsdir}/gen-faker-script-processor-hash.txt[]
 [source,shell]
 ----
 include::{commandsdir}/import-csv-hash.txt[]
+----
+
+[#import-csv-geo]
+==== Import CSV to Geo
+[source,shell]
+----
+include::{commandsdir}/import-csv-geo.txt[]
 ----
 
 ==== Import JSON
