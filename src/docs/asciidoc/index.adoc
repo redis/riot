@@ -61,6 +61,42 @@ Specify field names with the `--fields` option (see xref:import-csv-geo[]).
 
 If the file has a header containing field names, use the `--header` option.
 
+.Import CSV
+Using this CSV file:
+
+|=========
+|   | abv   | ibu | id   | name        | style                   | brewery_id | ounces
+
+| 0 | 0.05  |     | 1436 | Pub Beer    | Pale Lager     | 408        | 12.0
+
+| 1 | 0.066 |     | 2265 | Devil's Cup | APA | 177        | 12.0
+
+|=========
+
+[source,shell]
+----
+include::{commandsdir}/import-csv-hash.txt[]
+----
+
+[#import-csv-geo]
+.Import CSV to Geo
+[source,shell]
+----
+include::{commandsdir}/import-csv-geo.txt[]
+----
+
+.Import CSV into RediSearch
+[source,shell]
+----
+include::{commandsdir}/import-csv-search.txt[]
+----
+
+.Export CSV
+[source,shell]
+----
+include::{commandsdir}/export-csv.txt[]
+----
+
 ==== JSON
 
 The expected format is:
@@ -83,6 +119,26 @@ To that end, RIOT uses a field naming convention to flatten JSON objects and arr
 -> `field.sub=value`
 * `{ "field": [1, 2, 3] }`
 -> `field[0]=1 field[1]=2 field[2]=3`
+
+
+.Import JSON
+[source,shell]
+----
+include::{commandsdir}/import-json-hash.txt[]
+----
+
+.Export JSON
+[source,shell]
+----
+include::{commandsdir}/export-json.txt[]
+----
+
+.Export compressed JSON
+[source,shell]
+----
+include::{commandsdir}/export-json_gz.txt[]
+----
+
 
 [#db]
 === Databases
@@ -122,22 +178,70 @@ For reference here are links to common database systems and related JDBC driver 
 `jdbc:sqlite:sqlite_database_file_path`
 
 
+.Import from a database
+[source,shell]
+----
+include::{commandsdir}/import-db.txt[]
+----
+
+.Export to a database
+[source,shell]
+----
+include::{commandsdir}/export-db.txt[]
+----
+
 [#gen]
 === Generators
 
 RIOT can be used to create random data in Redis with 2 different generators.
 
-* The simple generator produces the following fields:
-** `index`: monotonous integer sequence
-** `partition`: index of the partition (thread) generating the data, e.g. if you have 8 threads generating data each will have a different partition index between 0 and 7
-** configurable fixed-sized fields using `--field <name=size>` options
+==== Simple
 
-* The Faker generator relies on the https://github.com/DiUS/java-faker[Faker] library. Supported data types are described <<faker#,here>>.
+The simple generator produces the following fields:
+* `index`: monotonous integer sequence
+* `partition`: index of the partition (thread) generating the data, e.g. if you have 8 threads generating data each will have a different partition index between 0 and 7
+* configurable fixed-sized fields using `--field <name=size>` options
+
+[source,shell]
+----
+include::{commandsdir}/gen-simple.txt[]
+----
+
+==== Faker
+
+The Faker generator relies on the https://github.com/DiUS/java-faker[Faker] library.
+
+Supported data types are described <<faker#,here>>.
+
+.Faker Hashes
+[source,shell]
+----
+include::{commandsdir}/gen-faker-hash.txt[]
+----
+
+.Faker Sets
+[source,shell]
+----
+include::{commandsdir}/gen-faker-set.txt[]
+----
+
+.RediSearch with introspection
+[source,shell]
+----
+include::{commandsdir}/gen-faker-index-introspection.txt[]
+----
 
 [#redis]
 === Redis
 
 The Redis connector allows for replicating data between two Redis databases using scan and optionally keyspace notifications (`--listen`).
+
+.Live replication from `localhost:16379` to `localhost:16380`
+[source,shell]
+----
+include::{commandsdir}/replicate-live.txt[]
+----
+
 
 == Processors
 
@@ -177,102 +281,6 @@ process(item);
 [source,shell]
 ----
 include::{commandsdir}/gen-faker-script-processor-hash.txt[]
-----
-
-
-== Examples
-
-=== Files
-
-==== Import CSV
-[source,shell]
-----
-include::{commandsdir}/import-csv-hash.txt[]
-----
-
-[#import-csv-geo]
-==== Import CSV to Geo
-[source,shell]
-----
-include::{commandsdir}/import-csv-geo.txt[]
-----
-
-==== Import JSON
-[source,shell]
-----
-include::{commandsdir}/import-json-hash.txt[]
-----
-
-==== Import CSV into RediSearch
-[source,shell]
-----
-include::{commandsdir}/import-csv-search.txt[]
-----
-
-==== Export CSV
-[source,shell]
-----
-include::{commandsdir}/export-csv.txt[]
-----
-
-==== Export JSON
-[source,shell]
-----
-include::{commandsdir}/export-json.txt[]
-----
-
-==== Export compressed JSON
-[source,shell]
-----
-include::{commandsdir}/export-json_gz.txt[]
-----
-
-=== Databases
-
-==== Import from a database
-[source,shell]
-----
-include::{commandsdir}/import-db.txt[]
-----
-
-==== Export to a database
-[source,shell]
-----
-include::{commandsdir}/export-db.txt[]
-----
-
-=== Generators
-
-==== Generate hashes using simple generator
-[source,shell]
-----
-include::{commandsdir}/gen-simple.txt[]
-----
-
-==== Generate hashes using Faker
-[source,shell]
-----
-include::{commandsdir}/gen-faker-hash.txt[]
-----
-
-==== Generate Redis sets using Faker
-[source,shell]
-----
-include::{commandsdir}/gen-faker-set.txt[]
-----
-
-==== Generate RediSearch data using introspection
-[source,shell]
-----
-include::{commandsdir}/gen-faker-index-introspection.txt[]
-----
-
-=== Replication
-
-==== Live replication from `localhost:16379` to `localhost:16380`
-[source,shell]
-----
-include::{commandsdir}/replicate-live.txt[]
 ----
 
 == Load Testing
