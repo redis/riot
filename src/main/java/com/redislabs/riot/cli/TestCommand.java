@@ -1,62 +1,103 @@
 package com.redislabs.riot.cli;
 
-import java.util.concurrent.TimeUnit;
-
-import com.redislabs.riot.test.InfoTest;
-import com.redislabs.riot.test.LatencyTest;
-import com.redislabs.riot.test.PingTest;
-import com.redislabs.riot.test.RedisTest;
-
+import com.redislabs.picocliredis.RedisCommandLineOptions;
+import io.lettuce.core.api.sync.BaseRedisCommands;
+import io.lettuce.core.api.sync.RedisServerCommands;
+import io.lettuce.core.metrics.CommandMetrics;
+import io.lettuce.core.metrics.DefaultCommandLatencyCollectorOptions;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.HdrHistogram.Histogram;
+import org.LatencyUtils.LatencyStats;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
-import redis.clients.jedis.Jedis;
+
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Command(name = "test", description = "Execute a test", sortOptions = false)
 public class TestCommand extends RiotCommand implements Runnable {
 
-	public enum RedisTestType {
-		info, ping, latency
-	}
+    public enum RedisTestType {
+        INFO, PING, LATENCY
+    }
 
-	@Option(names = { "-t",
-			"--test" }, description = "Test to execute: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})", paramLabel = "<name>")
-	private RedisTestType test = RedisTestType.ping;
-	@Option(names = "--latency-iterations", description = "Number of iterations for latency test (default: ${DEFAULT-VALUE})", paramLabel = "<count>")
-	private int latencyIterations = 1000;
-	@Option(names = "--latency-sleep", description = "Sleep duration in milliseconds between calls (default: ${DEFAULT-VALUE})", paramLabel = "<ms>")
-	private long latencySleep = 1;
-	@Option(names = "--latency-unit", description = "Latency unit (default: ${DEFAULT-VALUE})", paramLabel = "<unit>")
-	private TimeUnit latencyTimeUnit = TimeUnit.MILLISECONDS;
-	@Option(names = "--latency-distribution", description = "Show latency distribution")
-	private boolean latencyDistribution;
+    @Builder.Default
+    @Option(names = {"-t", "--test"}, description = "Test to execute: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})", paramLabel = "<name>")
+    private RedisTestType test = RedisTestType.PING;
+    @Builder.Default
+    @Option(names = "--latency-iterations", description = "Number of iterations for latency test (default: ${DEFAULT-VALUE})", paramLabel = "<count>")
+    private int latencyIterations = 1000;
+    @Builder.Default
+    @Option(names = "--latency-sleep", description = "Sleep duration in milliseconds between calls (default: ${DEFAULT-VALUE})", paramLabel = "<ms>")
+    private long latencySleep = 1;
+    @Builder.Default
+    @Option(names = "--latency-unit", description = "Latency unit (default: ${DEFAULT-VALUE})", paramLabel = "<unit>")
+    private TimeUnit latencyTimeUnit = TimeUnit.MILLISECONDS;
+    @Builder.Default
+    @Option(names = "--latency-distribution", description = "Show latency distribution")
+    private boolean latencyDistribution = false;
 
-	@Override
-	public void run() {
-		RedisTest test = test();
-		try {
-			if (redisOptions().isJedis()) {
-				try (Jedis jedis = redisOptions().jedisPool().getResource()) {
-					test.execute(jedis);
-				}
-			} else {
-				test.execute(redisOptions().redisCommands());
-			}
-		} catch (Exception e) {
-			log.error("Test was interrupted", e);
-		}
-	}
+    @Override
+    public void run() {
+        BaseRedisCommands<String, String> commands = getRedisCommands();
+        switch (test) {
+            case PING:
+                ping(commands);
+            case INFO:
+                info(commands);
+            case LATENCY:
+                latency(commands);
+        }
+    }
 
-	private RedisTest test() {
-		switch (test) {
-		case info:
-			return new InfoTest();
-		case latency:
-			return new LatencyTest(latencyIterations, latencySleep, latencyTimeUnit, latencyDistribution);
-		default:
-			return new PingTest();
-		}
-	}
+    private BaseRedisCommands<String, String> getRedisCommands() {
+        RedisCommandLineOptions redisOptions = getOptions();
+        if (redisOptions.isCluster()) {
+            return redisOptions.redisClusterClient().connect().sync();
+        }
+        return redisOptions.redisClient().connect().sync();
+    }
+
+    private void ping(BaseRedisCommands<String, String> commands) {
+        log.info("Received ping reply: {}", commands.ping());
+    }
+
+    private void info(BaseRedisCommands<String, String> commands) {
+        log.info(((RedisServerCommands<String, String>) commands).info());
+    }
+
+    private void latency(BaseRedisCommands<String, String> commands) {
+        LatencyStats stats = new LatencyStats();
+        for (int index = 0; index < latencyIterations; index++) {
+            long startTime = System.nanoTime();
+            commands.ping();
+            stats.recordLatency(System.nanoTime() - startTime);
+            try {
+                Thread.sleep(latencySleep);
+            } catch (InterruptedException e) {
+                return;
+            }
+        }
+        Histogram histogram = stats.getIntervalHistogram();
+        if (latencyDistribution) {
+            histogram.outputPercentileDistribution(System.out, 1000000.0);
+        } else {
+            DefaultCommandLatencyCollectorOptions options = DefaultCommandLatencyCollectorOptions.create();
+            Map<Double, Long> percentiles = new TreeMap<>();
+            for (double targetPercentile : options.targetPercentiles()) {
+                percentiles.put(targetPercentile, latencyTimeUnit.convert(histogram.getValueAtPercentile(targetPercentile), TimeUnit.NANOSECONDS));
+            }
+            CommandMetrics.CommandLatency latency = new CommandMetrics.CommandLatency(latencyTimeUnit.convert(histogram.getMinValue(), TimeUnit.NANOSECONDS), latencyTimeUnit.convert(histogram.getMaxValue(), TimeUnit.NANOSECONDS), percentiles);
+            System.out.println(latency.toString());
+        }
+    }
 
 }

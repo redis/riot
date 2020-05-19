@@ -3,6 +3,7 @@ package com.redislabs.riot;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.util.List;
 
 import org.apache.commons.io.IOUtils;
 import org.codehaus.plexus.util.cli.CommandLineUtils;
@@ -15,10 +16,15 @@ import com.redislabs.lettusearch.RediSearchCommands;
 import com.redislabs.lettusearch.StatefulRediSearchConnection;
 
 import io.lettuce.core.RedisURI;
+import org.springframework.scripting.support.StandardScriptUtils;
+import org.springframework.util.StringUtils;
 import redis.embedded.RedisExecProvider;
 import redis.embedded.RedisServer;
 import redis.embedded.RedisServerBuilder;
 import redis.embedded.util.OS;
+
+import javax.script.ScriptEngineFactory;
+import javax.script.ScriptEngineManager;
 
 public class BaseTest {
 
@@ -33,7 +39,7 @@ public class BaseTest {
 	protected static final int BEER_COUNT = 2410;
 
 	@BeforeAll
-	public static void setup() throws IOException {
+	public static void setup() {
 		server = serverBuilder(REDIS_PORT).setting("notify-keyspace-events AK")
 				.setting("loadmodule /Users/jruaux/git/RediSearch/build/redisearch.so").build();
 		server.start();

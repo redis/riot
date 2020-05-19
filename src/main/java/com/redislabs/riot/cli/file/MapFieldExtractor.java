@@ -1,20 +1,18 @@
 package com.redislabs.riot.cli.file;
 
-import java.util.Map;
-
+import lombok.Builder;
 import org.springframework.batch.item.file.transform.FieldExtractor;
 
-public class MapFieldExtractor implements FieldExtractor<Map<String, Object>> {
+import java.util.Map;
 
-	private String[] names;
+@Builder
+public class MapFieldExtractor implements FieldExtractor<Map<String, String>> {
 
-	public MapFieldExtractor(String[] names) {
-		this.names = names;
-	}
+	private final String[] names;
 
 	@Override
-	public Object[] extract(Map<String, Object> item) {
-		Object[] fields = new Object[names.length];
+	public String[] extract(Map<String, String> item) {
+		String[] fields = new String[names.length];
 		for (int index = 0; index < names.length; index++) {
 			fields[index] = item.get(names[index]);
 		}

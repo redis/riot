@@ -1,67 +1,73 @@
 package com.redislabs.riot.transfer;
 
-import com.redislabs.riot.transfer.TransferExecution.TransferExecutionBuilder;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Singular;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.batch.item.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Transfer<I, O> implements Flow.Listener<I, O> {
-
+@Builder
+@Slf4j
+public class Transfer<I, O> {
     @Getter
-    private final List<Flow<I, O>> flows;
+    private final ItemReader<I> reader;
+    private final ItemProcessor<I, ? extends O> processor;
+    @Getter
+    private final ItemWriter<O> writer;
+    private final int nThreads;
+    private final int batchSize;
+    @Setter
+    private Long flushRate;
+    private final ErrorHandler errorHandler;
     private final List<Listener> listeners = new ArrayList<>();
-
-    @Builder
-    private Transfer(Flow<I, O> flow) {
-        this.flows = new ArrayList<>();
-        this.flows.add(flow);
-    }
+    @Getter
+    private boolean open;
 
     public void addListener(Listener listener) {
         listeners.add(listener);
     }
 
-    public Transfer<I, O> add(Flow<I, O> flow) {
-        flows.add(flow);
-        return this;
-    }
-
     public TransferExecution<I, O> execute() {
-        flows.forEach(f -> f.addListener(this));
-        TransferExecutionBuilder<I, O> builder = TransferExecution.builder();
-        flows.forEach(f -> builder.flow(f.execute()));
-        return builder.build();
+        List<TransferExecutor<I, O>> transferExecutors = new ArrayList<>(nThreads);
+        for (int index = 0; index < nThreads; index++) {
+            Batcher<I, O> batcher = Batcher.<I, O>builder().reader(reader).processor(processor).batchSize(batchSize).errorHandler(errorHandler).build();
+            transferExecutors.add(TransferExecutor.<I, O>builder().transfer(this).id(index).threads(nThreads).batcher(batcher).flushRate(flushRate).build());
+        }
+        return TransferExecution.<I, O>builder().threads(transferExecutors).build().execute();
     }
 
-    @Override
-    public void onOpen(Flow<I, O> flow) {
-        boolean allOpen = true;
-        for (Flow<I, O> f : flows) {
-            allOpen &= f.isOpen();
+    public void open(ExecutionContext executionContext) throws ItemStreamException {
+        if (reader instanceof ItemStream) {
+            log.debug("Opening reader");
+            ((ItemStream) reader).open(executionContext);
         }
-        if (allOpen) {
-            listeners.forEach(Listener::onOpen);
+        if (writer instanceof ItemStream) {
+            log.debug("Opening writer");
+            ((ItemStream) writer).open(executionContext);
         }
+        this.open = true;
+        listeners.forEach(Listener::onOpen);
     }
 
-    @Override
-    public void onClose(Flow<I, O> flow) {
-        boolean allClosed = true;
-        for (Flow<I, O> f : flows) {
-            allClosed &= !f.isOpen();
+    public void close() throws ItemStreamException {
+        if (reader instanceof ItemStream) {
+            ((ItemStream) reader).close();
         }
-        if (allClosed) {
-            listeners.forEach(Listener::onClose);
+        log.debug("Closing writer");
+        if (writer instanceof ItemStream) {
+            ((ItemStream) writer).close();
         }
+        this.open = false;
+        listeners.forEach(Listener::onClose);
     }
 
     public interface Listener {
+
         void onOpen();
 
         void onClose();
     }
-
 }

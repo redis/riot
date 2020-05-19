@@ -1,19 +1,18 @@
 package com.redislabs.riot.cli.file;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import com.sun.tools.jdeprscan.CSV;
 
 public enum FileType {
-	CSV("csv"), TSV("tsv"), FIXED("fw"), JSON("json"), XML("xml");
 
-	private final String extension;
+    DELIMITED(FileExtensions.CSV, FileExtensions.TSV), FIXED(FileExtensions.FW), JSON(FileExtensions.JSON), XML(FileExtensions.XML);
 
-	FileType(String extension) {
-		this.extension = extension;
-	}
+    private final String[] extensions;
 
-	public String getExtension() {
-		return extension;
-	}
+    FileType(String... extensions) {
+        this.extensions = extensions;
+    }
+
+    public String[] getExtensions() {
+        return extensions;
+    }
 }

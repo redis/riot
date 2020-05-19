@@ -7,6 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import lombok.Builder;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionInvocationTargetException;
@@ -23,7 +24,8 @@ public class SpelProcessor implements ItemProcessor<Map<String, Object>, Map<Str
 	private Map<String, Expression> expressions = new LinkedHashMap<>();
 	private long index = 0;
 
-	public SpelProcessor(DateFormat dateFormat, Map<String, String> variables, Map<String, String> fields) {
+	@Builder
+	private SpelProcessor(DateFormat dateFormat, Map<String, String> variables, Map<String, String> fields) {
 		context = new StandardEvaluationContext();
 		context.setVariable("date", dateFormat);
 		context.setVariable("context", this);

@@ -1,167 +1,318 @@
 package com.redislabs.riot.cli;
 
-import java.util.Map;
-
-import org.springframework.batch.item.ItemProcessor;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.redislabs.riot.redis.writer.AbstractRedisItemWriter;
-import com.redislabs.riot.redis.writer.CommandWriter;
-import com.redislabs.riot.redis.writer.KeyBuilder;
-import com.redislabs.riot.redis.writer.map.AbstractCollectionMapCommandWriter;
-import com.redislabs.riot.redis.writer.map.AbstractKeyMapCommandWriter;
-import com.redislabs.riot.redis.writer.map.Hmset;
-import com.redislabs.riot.redis.writer.map.Lpush;
-import com.redislabs.riot.redis.writer.map.Noop;
-import com.redislabs.riot.redis.writer.map.Rpush;
-import com.redislabs.riot.redis.writer.map.Sadd;
-import com.redislabs.riot.redis.writer.map.Set.Format;
-import com.redislabs.riot.redis.writer.map.SetField;
-import com.redislabs.riot.redis.writer.map.SetObject;
-import com.redislabs.riot.redis.writer.map.Xadd;
-import com.redislabs.riot.redis.writer.map.XaddId;
-import com.redislabs.riot.redis.writer.map.XaddIdMaxlen;
-import com.redislabs.riot.redis.writer.map.XaddMaxlen;
-import com.redislabs.riot.redis.writer.map.Zadd;
-
+import com.redislabs.riot.cli.db.DatabaseImportOptions;
+import com.redislabs.riot.cli.file.FileImportOptions;
+import com.redislabs.riot.cli.file.MapFieldSetMapper;
+import com.redislabs.riot.convert.KeyMaker;
+import com.redislabs.riot.convert.field.FieldExtractor;
+import com.redislabs.riot.convert.map.command.EvalshaArgsProcessor;
+import com.redislabs.riot.convert.map.command.HmsetArgsProcessor;
+import com.redislabs.riot.convert.map.command.PexpireArgsProcessor;
+import com.redislabs.riot.processor.MapFlattener;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.batch.item.ItemProcessor;
+import org.springframework.batch.item.ItemReader;
+import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.item.database.JdbcCursorItemReader;
+import org.springframework.batch.item.database.builder.JdbcCursorItemReaderBuilder;
+import org.springframework.batch.item.file.DefaultBufferedReaderFactory;
+import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
+import org.springframework.batch.item.file.separator.DefaultRecordSeparatorPolicy;
+import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
+import org.springframework.batch.item.file.transform.Range;
+import org.springframework.batch.item.json.JacksonJsonObjectReader;
+import org.springframework.batch.item.json.JsonItemReader;
+import org.springframework.batch.item.json.builder.JsonItemReaderBuilder;
+import org.springframework.batch.item.redis.RedisItemWriter;
+import org.springframework.batch.item.redis.support.WriteCommand;
+import org.springframework.batch.item.redis.support.commands.*;
+import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
+import org.springframework.batch.item.support.CompositeItemProcessor;
+import org.springframework.batch.item.xml.XmlItemReader;
+import org.springframework.batch.item.xml.XmlObjectReader;
+import org.springframework.batch.item.xml.builder.XmlItemReaderBuilder;
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.jdbc.core.ColumnMapRowMapper;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.util.Assert;
+import picocli.CommandLine;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
 @Slf4j
-@Command(sortOptions = false)
-public abstract class ImportCommand extends TransferCommand<Map<String, Object>, Map<String, Object>> {
+@Command(name = "import", description = "Import data into Redis", sortOptions = false)
+public class ImportCommand extends TransferCommand<Map<String, ? extends Object>, Object> {
 
-	public enum Command {
-		EVALSHA, EXPIRE, GEOADD, FTADD, FTSEARCH, FTAGGREGATE, FTSUGADD, HMSET, LPUSH, NOOP, RPUSH, SADD, SET, XADD,
-		ZADD
-	}
+    public enum CommandName {
+        EVALSHA, EXPIRE, GEOADD, FTADD, FTSEARCH, FTAGGREGATE, FTSUGADD, HMSET, LPUSH, NOOP, RPUSH, SADD, SET, XADD, ZADD
+    }
 
-	@Option(names = "--command", description = "Redis command: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})", paramLabel = "<name>")
-	private Command command = Command.HMSET;
-	@Option(names = "--member-space", description = "Prefix for member IDs", paramLabel = "<str>")
-	private String memberKeyspace;
-	@Option(names = "--members", arity = "1..*", description = "Member field names for collections", paramLabel = "<fields>")
-	private String[] memberIds = new String[0];
-	@Option(names = "--key-separator", description = "Key separator (default: ${DEFAULT-VALUE})", paramLabel = "<str>")
-	private String separator = KeyBuilder.DEFAULT_KEY_SEPARATOR;
-	@Option(names = { "-p", "--keyspace" }, description = "Keyspace prefix", paramLabel = "<str>")
-	private String keyspace;
-	@Option(names = { "-k", "--keys" }, arity = "1..*", description = "Key fields", paramLabel = "<fields>")
-	private String[] keys = new String[0];
-	@Option(names = "--keep-keys", description = "Keep key fields in data structure")
-	private boolean keepKeyFields;
-	@Option(names = "--score", description = "Name of the field to use for scores", paramLabel = "<field>")
-	private String score;
-	@Option(names = "--score-default", description = "Score when field not present (default: ${DEFAULT-VALUE})", paramLabel = "<num>")
-	private double defaultScore = 1d;
-	@Option(names = "--format", description = "Serialization: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})", paramLabel = "<fmt>")
-	private Format format = Format.JSON;
-	@Option(names = "--root", description = "XML root element name", paramLabel = "<name>")
-	private String root;
-	@Option(names = "--value", description = "String raw value field", paramLabel = "<field>")
-	private String value;
-	@Option(names = "--trim", description = "Stream efficient trimming (~ flag)")
-	private boolean trim;
-	@Option(names = "--maxlen", description = "Stream maxlen", paramLabel = "<int>")
-	private Long maxlen;
-	@Option(names = "--stream-id", description = "Stream entry ID field", paramLabel = "<field>")
-	private String id;
-	@ArgGroup(exclusive = false, heading = "Processor options%n")
-	private MapProcessorOptions mapProcessor = new MapProcessorOptions();
-	@ArgGroup(exclusive = false, heading = "EVALSHA options%n")
-	private EvalshaOptions evalsha = new EvalshaOptions();
-	@ArgGroup(exclusive = false, heading = "EXPIRE options%n")
-	private ExpireOptions expire = new ExpireOptions();
-	@ArgGroup(exclusive = false, heading = "GEOADD options%n")
-	private GeoaddOptions geoadd = new GeoaddOptions();
-	@ArgGroup(exclusive = false, heading = "RediSearch options%n")
-	private RediSearchOptions search = new RediSearchOptions();
+    @ArgGroup(exclusive = false, heading = "File options%n")
+    private FileImportOptions file = new FileImportOptions();
+    @ArgGroup(exclusive = false, heading = "Database options%n")
+    private DatabaseImportOptions db = new DatabaseImportOptions();
+    @ArgGroup(exclusive = false, heading = "Processor options%n")
+    private MapProcessorOptions mapProcessor = new MapProcessorOptions();
+    @Option(names = "--command", description = "Redis command: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})", paramLabel = "<name>")
+    private CommandName command = CommandName.HMSET;
+    @CommandLine.Mixin
+    private ScoreOptions score = new ScoreOptions();
+    @ArgGroup(exclusive = false, heading = "Collection options%n")
+    private MemberOptions member = new MemberOptions();
+    @ArgGroup(exclusive = false, heading = "SET options%n")
+    private SetOptions set = new SetOptions();
+    @ArgGroup(exclusive = false, heading = "Key options%n")
+    private KeyOptions key = new KeyOptions();
+    @ArgGroup(exclusive = false, heading = "XADD options%n")
+    private XaddOptions xadd = new XaddOptions();
+    @ArgGroup(exclusive = false, heading = "EVALSHA options%n")
+    private EvalshaOptions evalsha = new EvalshaOptions();
+    @ArgGroup(exclusive = false, heading = "PEXPIRE options%n")
+    private PexpireOptions expire = new PexpireOptions();
+    @ArgGroup(exclusive = false, heading = "GEOADD options%n")
+    private GeoaddOptions geoadd = new GeoaddOptions();
+    @ArgGroup(exclusive = false, heading = "RediSearch options%n")
+    private RediSearchOptions search = new RediSearchOptions();
 
-	private KeyBuilder memberIdBuilder() {
-		return KeyBuilder.builder().separator(separator).prefix(memberKeyspace).fields(memberIds).build();
-	}
+    private KeyMaker<Map<String, String>> keyMaker() {
+        return keyMaker(key.getKeyspace(), key.getKeyFields());
+    }
 
-	private CommandWriter<Map<String, Object>> mapCommandWriter(Command command) {
-		switch (command) {
-		case EVALSHA:
-			return evalsha.builder().keys(keys).build();
-		case EXPIRE:
-			return expire.builder().build();
-		case FTADD:
-			if (search.hasPayload()) {
-				return search.ftAddPayload().score(score).defaultScore(defaultScore).build();
-			}
-			return search.ftAdd().score(score).defaultScore(defaultScore).build();
-		case FTAGGREGATE:
-			return search.aggregate().build();
-		case FTSEARCH:
-			return search.search().build();
-		case FTSUGADD:
-			if (search.hasPayload()) {
-				return search.sugaddPayload().score(score).defaultScore(defaultScore).build();
-			}
-			return search.sugadd().score(score).defaultScore(defaultScore).build();
-		case GEOADD:
-			return geoadd.geoadd();
-		case HMSET:
-			return Hmset.builder().build();
-		case LPUSH:
-			return Lpush.builder().build();
-		case NOOP:
-			return Noop.<Map<String, Object>>builder().build();
-		case RPUSH:
-			return Rpush.builder().build();
-		case SADD:
-			return Sadd.builder().build();
-		case SET:
-			switch (format) {
-			case RAW:
-				return SetField.builder().field(value).build();
-			case XML:
-				return SetObject.builder().objectWriter(new XmlMapper().writer().withRootName(root)).build();
-			default:
-				return SetObject.builder().objectWriter(new ObjectMapper().writer().withRootName(root)).build();
-			}
-		case XADD:
-			if (id == null) {
-				if (maxlen == null) {
-					return Xadd.builder().build();
-				}
-				return XaddMaxlen.builder().approximateTrimming(trim).maxlen(maxlen).build();
-			}
-			if (maxlen == null) {
-				XaddId.builder().id(id).build();
-			}
-			return XaddIdMaxlen.builder().approximateTrimming(trim).maxlen(maxlen).id(id).build();
-		case ZADD:
-			return Zadd.builder().defaultScore(defaultScore).score(score).build();
-		}
-		throw new IllegalArgumentException("Command " + command + " not supported");
-	}
+    private KeyMaker<Map<String, String>> memberIdMaker() {
+        return keyMaker(member.getKeyspace(), member.getFields());
+    }
 
-	@Override
-	protected AbstractRedisItemWriter<Map<String, Object>> writer() throws Exception {
-		CommandWriter<Map<String, Object>> writer = mapCommandWriter(command);
-		if (writer instanceof AbstractKeyMapCommandWriter) {
-			AbstractKeyMapCommandWriter keyWriter = (AbstractKeyMapCommandWriter) writer;
-			if (keyspace == null && keys.length == 0) {
-				log.warn("No keyspace nor key fields specified; using empty key (\"\")");
-			}
-			keyWriter.setKeyBuilder(KeyBuilder.builder().separator(separator).prefix(keyspace).fields(keys).build());
-			keyWriter.setKeepKeyFields(keepKeyFields);
-			if (writer instanceof AbstractCollectionMapCommandWriter) {
-				((AbstractCollectionMapCommandWriter) writer).setMemberIdBuilder(memberIdBuilder());
-			}
-		}
-		return writer(redisOptions(), writer);
-	}
+    private KeyMaker<Map<String, String>> keyMaker(String keyspace, String[] fields) {
+        return KeyMaker.<Map<String, String>>builder().separator(key.getSeparator()).prefix(keyspace).extractors(fieldExtractors(!key.isKeepKeyFields(), fields)).build();
+    }
 
-	@Override
-	protected ItemProcessor<Map<String, Object>, Map<String, Object>> processor() throws Exception {
-		return mapProcessor.processor();
-	}
+    private Converter<Map<String, String>, String>[] fieldExtractors(boolean remove, String... fields) {
+        List<Converter<Map<String, String>, String>> extractors = new ArrayList<>();
+        for (int index = 0; index < fields.length; index++) {
+            extractors.add(FieldExtractor.builder().remove(remove).field(fields[index]).build());
+        }
+        return extractors.toArray(new Converter[0]);
+    }
+
+    private WriteCommand<String, String, ? extends Object> writeCommand() {
+        switch (command) {
+            case EVALSHA:
+                return new Evalsha<>(evalsha.getSha(), evalsha.getOutputType());
+            case EXPIRE:
+                return new Pexpire<>();
+            case GEOADD:
+                return new Geoadd<>();
+            case HMSET:
+                return new Hmset<>();
+            case LPUSH:
+                return new Lpush<>();
+            case NOOP:
+                return new Noop<>();
+            case RPUSH:
+                return new Rpush<>();
+            case SADD:
+                return new Sadd<>();
+            case SET:
+                return new Set<>();
+            case XADD:
+                if (xadd.getId() == null) {
+                    if (xadd.getMaxlen() == null) {
+                        return new Xadd<>();
+                    }
+                    return new Xadd.XaddMaxlen<>(xadd.getMaxlen(), xadd.isTrim());
+                }
+                if (xadd.getMaxlen() == null) {
+                    new Xadd.XaddId<>();
+                }
+                return new Xadd.XaddIdMaxlen<>(xadd.getMaxlen(), xadd.isTrim());
+            case ZADD:
+                return new Zadd<>();
+        }
+        throw new IllegalArgumentException("Command " + command + " not supported");
+    }
+
+    @Override
+    protected ItemWriter<Object> writer() {
+        return RedisItemWriter.builder().redisOptions(redisOptions()).writeCommand((WriteCommand<String, String, Object>) writeCommand()).build();
+    }
+
+    @Override
+    protected ItemReader<Map<String, ?>> reader() throws Exception {
+        if (db.isSet()) {
+            JdbcCursorItemReaderBuilder<Map<String, ?>> builder = new JdbcCursorItemReaderBuilder<>();
+            builder.dataSource(db.getDataSource());
+            if (db.getFetchSize() != null) {
+                builder.fetchSize(db.getFetchSize());
+            }
+            if (db.getMaxRows() != null) {
+                builder.maxRows(db.getMaxRows());
+            }
+            builder.name("database-reader");
+            if (db.getQueryTimeout() != null) {
+                builder.queryTimeout(db.getQueryTimeout());
+            }
+            builder.rowMapper((RowMapper) new ColumnMapRowMapper());
+            builder.sql(db.getSql());
+            builder.useSharedExtendedConnection(db.isUseSharedExtendedConnection());
+            builder.verifyCursorPosition(db.isVerifyCursorPosition());
+            JdbcCursorItemReader<Map<String, ?>> reader = builder.build();
+            reader.afterPropertiesSet();
+            return reader;
+        }
+        if (file.isSet()) {
+            switch (file.getFileType()) {
+                case DELIMITED:
+                    return (ItemReader) delimitedReader();
+                case FIXED:
+                    return (ItemReader) fixedLengthReader();
+                case JSON:
+                    return (ItemReader) jsonReader();
+                case XML:
+                    return (ItemReader) xmlReader();
+            }
+        }
+        throw new IllegalArgumentException("Unknown import source");
+    }
+
+    @Override
+    protected ItemProcessor<Map<String, ?>, Object> processor() throws Exception {
+        if (db.isSet()) {
+            //CompositeItemProcessor
+        }
+        if (file.isSet()) {
+            switch (file.getFileType()) {
+                case FIXED:
+                case DELIMITED:
+                    return (ItemProcessor) mapItemProcessor();
+                case JSON:
+                case XML:
+                    CompositeItemProcessor<Map<String, ?>, Object> processor = new CompositeItemProcessor<>();
+                    processor.setDelegates(Arrays.asList(MapFlattener.builder().build(), mapItemProcessor()));
+                    return processor;
+            }
+        }
+        throw new IllegalArgumentException("Unknown import source");
+    }
+
+    private ItemProcessor<Map<String, String>, ? extends Object> mapItemProcessor() {
+        switch (command) {
+            case EVALSHA:
+                return EvalshaArgsProcessor.builder().keyFields(key.getKeyFields()).argFields(evalsha.getArgs()).build();
+            case EXPIRE:
+                return PexpireArgsProcessor.builder().keyMaker(keyMaker()).timeoutField(expire.getTimeout()).build();
+            case HMSET:
+                return HmsetArgsProcessor.builder().keyMaker(keyMaker()).build();
+        }
+        throw new IllegalArgumentException("Command " + command.name() + " not supported");
+    }
+
+    @Override
+    protected String taskName() {
+        return "Importing";
+    }
+
+    private FlatFileItemReaderBuilder<Map<String, String>> flatFileItemReaderBuilder() throws IOException {
+        FlatFileItemReaderBuilder<Map<String, String>> builder = new FlatFileItemReaderBuilder<>();
+        builder.name("flat-file-reader");
+        builder.resource(file.getInputResource());
+        builder.encoding(file.getEncoding());
+        builder.linesToSkip(file.getLinesToSkip());
+        builder.strict(true);
+        builder.saveState(false);
+        builder.fieldSetMapper(new MapFieldSetMapper());
+        builder.recordSeparatorPolicy(new DefaultRecordSeparatorPolicy());
+        return builder;
+    }
+
+    private ItemReader<Map<String, String>> delimitedReader() throws IOException {
+        FlatFileItemReaderBuilder<Map<String, String>> builder = flatFileItemReaderBuilder();
+        if (file.isHeader() && file.getLinesToSkip() == 0) {
+            builder.linesToSkip(1);
+        }
+        FlatFileItemReaderBuilder.DelimitedBuilder<Map<String, String>> delimitedBuilder = builder.delimited();
+        delimitedBuilder.delimiter(file.getDelimiter());
+        delimitedBuilder.includedFields(file.getIncludedFields().toArray(new Integer[0]));
+        delimitedBuilder.quoteCharacter(file.getQuoteCharacter());
+        String[] fieldNames = file.getNames();
+        if (file.isHeader()) {
+            BufferedReader reader = new DefaultBufferedReaderFactory().create(file.getInputResource(), file.getEncoding());
+            DelimitedLineTokenizer tokenizer = new DelimitedLineTokenizer();
+            tokenizer.setDelimiter(file.getDelimiter());
+            tokenizer.setQuoteCharacter(file.getQuoteCharacter());
+            if (!file.getIncludedFields().isEmpty()) {
+                tokenizer.setIncludedFields(file.getIncludedFields().stream().mapToInt(Integer::intValue).toArray());
+            }
+            fieldNames = tokenizer.tokenize(reader.readLine()).getValues();
+            log.debug("Found header {}", Arrays.asList(fieldNames));
+        }
+        if (fieldNames == null || fieldNames.length == 0) {
+            throw new IOException("No fields specified");
+        }
+        delimitedBuilder.names(fieldNames);
+        return builder.build();
+    }
+
+    private AbstractItemCountingItemStreamItemReader<Map<String, String>> fixedLengthReader() throws IOException {
+        FlatFileItemReaderBuilder<Map<String, String>> builder = flatFileItemReaderBuilder();
+        FlatFileItemReaderBuilder.FixedLengthBuilder<Map<String, String>> fixedlength = builder.fixedLength();
+        Assert.notEmpty(file.getColumnRanges(), "Column ranges are required");
+        fixedlength.columns(file.getColumnRanges().toArray(new Range[file.getColumnRanges().size()]));
+        fixedlength.names(file.getNames());
+        return builder.build();
+    }
+
+    private JsonItemReader<Map> jsonReader() throws IOException {
+        JsonItemReaderBuilder<Map> builder = new JsonItemReaderBuilder<>();
+        builder.name("json-file-reader");
+        builder.resource(file.getInputResource());
+        JacksonJsonObjectReader<Map> objectReader = new JacksonJsonObjectReader<>(Map.class);
+        objectReader.setMapper(new ObjectMapper());
+        builder.jsonObjectReader(objectReader);
+        return builder.build();
+    }
+
+    private XmlItemReader<Map> xmlReader() throws IOException {
+        XmlItemReaderBuilder<Map> builder = new XmlItemReaderBuilder<>();
+        builder.name("xml-file-reader");
+        builder.resource(file.getInputResource());
+        XmlObjectReader<Map> objectReader = new XmlObjectReader<>(Map.class);
+        objectReader.setMapper(new XmlMapper());
+        builder.xmlObjectReader(objectReader);
+        return builder.build();
+    }
+
+    private void temp() {
+//        switch (format) {
+//            case RAW:
+//                return SetField.builder().field(value).build();
+//            case XML:
+//                return SetObject.builder().objectWriter(new XmlMapper().writer().withRootName(root)).build();
+//            default:
+//                return SetObject.builder().objectWriter(new ObjectMapper().writer().withRootName(root)).build();
+//        }
+//        CommandWriter<Map<String, Object>> commandWriter = mapCommandWriter(command);
+//        if (commandWriter instanceof AbstractKeyMapCommandWriter) {
+//            AbstractKeyMapCommandWriter keyWriter = (AbstractKeyMapCommandWriter) commandWriter;
+//            if (keyspace == null && keys.length == 0) {
+//                log.warn("No keyspace nor key fields specified; using empty key (\"\")");
+//            }
+//            keyWriter.setKeyBuilder(KeyBuilder.builder().separator(separator).prefix(keyspace).fields(keys).build());
+//            keyWriter.setKeepKeyFields(keepKeyFields);
+//            if (commandWriter instanceof AbstractCollectionMapCommandWriter) {
+//                ((AbstractCollectionMapCommandWriter) commandWriter).setMemberIdBuilder(memberIdBuilder());
+//            }
+//        }
+//        return redisItemWriter(commandWriter, timeout);
+    }
 
 }

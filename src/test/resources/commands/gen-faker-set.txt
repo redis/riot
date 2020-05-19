@@ -1,1 +1,1 @@
-$ riot -s localhost:6379 gen --faker name=gameOfThrones.character --max 10000 --command sadd --members name --keyspace got:characters
+$ riot gen --faker name=gameOfThrones.character --max 10000 --command sadd --members name --keyspace got:characters

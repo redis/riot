@@ -1,1 +1,1 @@
-$ riot -s localhost:6379 import --file %s --keyspace estest --keys _id
+$ riot import --file %s --keyspace estest --keys _id

@@ -1,1 +1,1 @@
-$ riot -s localhost:6379 export --file /tmp/beers.json.gz --match beer:* --fields id name brewery_id abv
+$ riot export --file /tmp/beers.json.gz --match beer:* --fields id name brewery_id abv

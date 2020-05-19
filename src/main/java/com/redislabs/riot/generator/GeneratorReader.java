@@ -19,7 +19,7 @@ import org.springframework.expression.spel.support.SimpleEvaluationContext;
 import org.springframework.lang.Nullable;
 import org.springframework.util.ClassUtils;
 
-import com.redislabs.riot.transfer.FlowThread;
+import com.redislabs.riot.transfer.TransferExecutor;
 
 import lombok.Builder;
 import lombok.Setter;
@@ -72,8 +72,8 @@ public class GeneratorReader extends AbstractItemStreamItemReader<Map<String, Ob
 
 	@Override
 	public void open(ExecutionContext executionContext) throws ItemStreamException {
-		this.partition.set(executionContext.getInt(FlowThread.CONTEXT_PARTITION));
-		this.partitions.set(executionContext.getInt(FlowThread.CONTEXT_PARTITIONS));
+		this.partition.set(executionContext.getInt(TransferExecutor.CONTEXT_PARTITION));
+		this.partitions.set(executionContext.getInt(TransferExecutor.CONTEXT_PARTITIONS));
 		this.partitionSize.set(maxItemCount / partitions.get());
 		if (partition.get() == partitions.get() - 1) {
 			// make up for non exact divisions (e.g. 10/3=9, missing 1)

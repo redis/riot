@@ -3,6 +3,8 @@ plugins {
     id 'java'
     id 'java-library'
     id 'maven-publish'
+    id 'org.springframework.boot' version '2.3.0.RELEASE'
+    id 'io.spring.dependency-management' version '1.0.9.RELEASE'
     id 'com.jfrog.bintray' version '1.8.5'
     id 'com.github.ben-manes.versions' version '0.28.0'
     id 'net.researchgate.release' version '2.8.1'
@@ -17,31 +19,51 @@ repositories {
 	mavenLocal()
 }
 
+ext {
+    set('springCloudVersion', "Hoxton.SR4")
+}
+
+bootJar {
+    enabled = false
+}
+
+jar {
+    enabled = true
+}
+
 dependencies {
-    api 'com.redislabs:picocli-redis:1.16.0'
-	implementation 'org.slf4j:slf4j-jdk14:1.7.28'
-    implementation 'org.springframework.batch:spring-batch-core:4.2.2.RELEASE'
-    implementation 'org.springframework.boot:spring-boot-autoconfigure:2.2.6.RELEASE'
-    implementation 'org.springframework:spring-jdbc:5.2.5.RELEASE'
-    implementation 'org.springframework.cloud:spring-cloud-aws-context:2.2.1.RELEASE'
-    implementation 'org.springframework.cloud:spring-cloud-aws-autoconfigure:2.2.1.RELEASE'
+    api 'com.redislabs:picocli-redis:2.0.0'
+    implementation 'org.slf4j:slf4j-jdk14'
+    implementation 'org.latencyutils:LatencyUtils:2.0.3'
+    implementation 'com.redislabs:lettusearch:2.1.0'
+    implementation 'com.redislabs:spring-batch-redis:1.0.0-SNAPSHOT'
+    implementation 'org.springframework.batch:spring-batch-core'
+    implementation 'org.springframework.boot:spring-boot-autoconfigure'
+    implementation 'org.springframework:spring-jdbc'
+    implementation 'org.springframework:spring-oxm'
+    implementation 'org.springframework.cloud:spring-cloud-aws-context'
+    implementation 'org.springframework.cloud:spring-cloud-aws-autoconfigure'
     implementation 'com.github.javafaker:javafaker:1.0.2'
-    implementation 'com.zaxxer:HikariCP:3.4.2'
+    implementation 'com.zaxxer:HikariCP'
     implementation 'me.tongfei:progressbar:0.8.1'
-    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.10.3'
-    compileOnly 'org.projectlombok:lombok:1.18.12'
-    annotationProcessor 'org.projectlombok:lombok:1.18.12'
-//    annotationProcessor "info.picocli:picocli-codegen:4.2.0"    
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.codehaus.plexus:plexus-utils:3.3.0'
-    testImplementation 'org.hsqldb:hsqldb:2.5.0'
-    testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.6.0'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.6.0'
+    testImplementation 'org.hsqldb:hsqldb'
+    testImplementation 'org.junit.jupiter:junit-jupiter-engine'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
     testImplementation 'it.ozimov:embedded-redis:0.7.2'
-//    implementation 'org.xerial:sqlite-jdbc:3.28.0'
-//    implementation 'com.ibm.db2:jcc:11.5.0.0'
-//    implementation 'com.microsoft.sqlserver:mssql-jdbc:7.4.1.jre8'
-//    implementation 'com.oracle.ojdbc:ojdbc8:19.3.0.0'
-//    implementation 'org.postgresql:postgresql:42.2.8'
+}
+
+configurations {
+    all*.exclude module : 'spring-boot-starter-logging'
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
 }
 
 test {
