@@ -13,6 +13,7 @@ import com.redislabs.riot.redis.writer.map.Restore;
 import com.redislabs.riot.transfer.Flow;
 import com.redislabs.riot.transfer.Transfer;
 
+import picocli.CommandLine;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -22,7 +23,7 @@ public class ReplicateCommand extends ExportCommand<KeyDump, KeyDump> {
 
 	private final static String DATABASE_TOKEN = "{database}";
 
-	@ArgGroup(heading = "Target Redis options%n")
+	@CommandLine.Mixin
 	private RedisOptions target = new RedisOptions();
 	@Option(names = "--event-queue", description = "Event queue capacity (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
 	private int notificationQueue = 10000;
