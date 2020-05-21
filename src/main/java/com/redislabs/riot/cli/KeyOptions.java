@@ -14,7 +14,4 @@ public class KeyOptions {
     @Getter
     @CommandLine.Option(names = {"-k", "--keys"}, arity = "1..*", description = "Key fields", paramLabel = "<fields>")
     private String[] keyFields = new String[0];
-    @Getter
-    @CommandLine.Option(names = "--keys-keep", description = "Keep key fields in data structure")
-    private boolean keepKeyFields;
 }

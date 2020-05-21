@@ -1,5 +1,6 @@
 package com.redislabs.riot.processor;
 
+import com.redislabs.riot.convert.ConversionServiceConverter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.springframework.batch.item.ItemProcessor;
@@ -66,7 +67,7 @@ public class MapFlattener<K, V> implements ItemProcessor<Map<K, Object>, Map<K, 
         private String indexedKeyFormat = DEFAULT_INDEXED_KEY_FORMAT;
 
         public MapFlattener<String, String> build() {
-            return new MapFlattener((k1, k2) -> k1 + nestedKeySeparator + k2, (k, i) -> String.format(indexedKeyFormat, k, i), o -> String.valueOf(o));
+            return new MapFlattener((k1, k2) -> k1 + nestedKeySeparator + k2, (k, i) -> String.format(indexedKeyFormat, k, i), new ConversionServiceConverter<>(String.class));
         }
 
     }

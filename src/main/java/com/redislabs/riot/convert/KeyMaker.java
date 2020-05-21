@@ -5,6 +5,7 @@ import lombok.NonNull;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,7 +27,7 @@ public interface KeyMaker<T> extends Converter<T, String> {
         private String separator = DEFAULT_SEPARATOR;
         @Setter
         private String prefix = EMPTY_STRING;
-        private Converter<T, String>[] keyExtractors;
+        private Converter<T, String>[] keyExtractors = new Converter[0];
 
         public KeyConverterBuilder<T> extractors(Converter<T, String>... keyExtractors) {
             this.keyExtractors = keyExtractors;
@@ -34,7 +35,7 @@ public interface KeyMaker<T> extends Converter<T, String> {
         }
 
         private String getPrefix() {
-            if (EMPTY_STRING.equals(prefix)) {
+            if (prefix == null || prefix.isEmpty()) {
                 return EMPTY_STRING;
             }
             return prefix + separator;
@@ -42,6 +43,7 @@ public interface KeyMaker<T> extends Converter<T, String> {
 
         public KeyMaker<T> build() {
             if (keyExtractors == null || keyExtractors.length == 0) {
+                Assert.isTrue(prefix != null && !prefix.isEmpty(), "No keyspace nor key fields specified");
                 return NoKeyMaker.<T>builder().prefix(prefix).build();
             }
             if (keyExtractors.length == 1) {

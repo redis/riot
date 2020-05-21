@@ -1,23 +1,19 @@
 package com.redislabs.riot.cli.file;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
-
-import com.redislabs.riot.file.StandardInputResource;
-import com.redislabs.riot.file.StandardOutputResource;
-
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Option;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Slf4j
 public class FileOptions {
@@ -72,30 +68,8 @@ public class FileOptions {
         return delimiter;
     }
 
-    public Resource getInputResource() throws IOException {
-        if (isConsoleResource()) {
-            return wrap(new StandardInputResource());
-        }
-        return wrap(getResource());
-    }
-
-    private Resource wrap(Resource resource) throws IOException {
-        if (isGzip()) {
-            return new GZIPInputStreamResource(resource.getInputStream(), resource.getDescription());
-        }
-        return resource;
-    }
-
-
     public boolean isConsoleResource() {
         return path.file != null && path.file.getName().equals("-");
-    }
-
-    public Resource getOutputResource() throws IOException {
-        if (isConsoleResource()) {
-            return new StandardOutputResource();
-        }
-        return getResource();
     }
 
     public Resource getResource() throws IOException {

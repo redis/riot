@@ -1,20 +1,15 @@
 package com.redislabs.riot.cli;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import picocli.CommandLine.Option;
 
-@Builder
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class GeoaddOptions {
 
+    @Getter
     @Option(names = "--lon", description = "Longitude field", paramLabel = "<field>")
-    private String longitude;
+    private String longitudeField;
+    @Getter
     @Option(names = "--lat", description = "Latitude field", paramLabel = "<field>")
-    private String latitude;
+    private String latitudeField;
 
 }

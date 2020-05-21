@@ -2,13 +2,15 @@ package com.redislabs.riot.cli;
 
 import com.redislabs.riot.cli.db.DatabaseExportOptions;
 import com.redislabs.riot.cli.file.FileExportOptions;
+import com.redislabs.riot.cli.file.GZIPOutputStreamResource;
 import com.redislabs.riot.cli.file.MapFieldExtractor;
 import com.redislabs.riot.file.FlatResourceItemWriterBuilder;
 import com.redislabs.riot.file.JsonResourceItemWriterBuilder;
+import com.redislabs.riot.file.StandardOutputResource;
 import com.redislabs.riot.processor.KeyValueItemProcessor;
+import com.redislabs.riot.transfer.Transfer;
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.ScanArgs;
-import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.database.JdbcBatchItemWriter;
@@ -24,11 +26,13 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.WritableResource;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
+import org.springframework.util.Assert;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
 import picocli.CommandLine.Option;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -48,33 +52,14 @@ public class ExportCommand extends TransferCommand<KeyValue<String>, Object> {
     @Option(names = "--key-regex", description = "Regular expression for key-field extraction", paramLabel = "<regex>")
     private String keyRegex;
 
-    @Override
-    protected ItemReader<KeyValue<String>> reader() {
+    private ItemReader<KeyValue<String>> reader() {
         ScanArgs scanArgs = ScanArgs.Builder.limit(exportOptions.getScanCount()).match(exportOptions.getScanMatch());
         RedisItemReader.Options readerOptions = RedisItemReader.Options.builder().batchSize(exportOptions.getBatchSize()).threads(exportOptions.getThreads()).queueCapacity(exportOptions.getQueueCapacity()).build();
         return RedisKeyValueItemReader.builder().redisOptions(redisOptions()).options(readerOptions).options(readerOptions).scanArgs(scanArgs).build();
     }
 
     @Override
-    protected ItemProcessor<KeyValue<String>, Object> processor() {
-        if (db.isSet()) {
-            return (ItemProcessor) KeyValueItemProcessor.builder().build();
-        }
-        if (file.isSet()) {
-            switch (file.getFileType()) {
-                case DELIMITED:
-                case FIXED:
-                    return (ItemProcessor) KeyValueItemProcessor.builder().build();
-                case JSON:
-                case XML:
-                    return (ItemProcessor) new PassThroughItemProcessor<>();
-            }
-        }
-        throw new IllegalArgumentException("Unknown export target");
-    }
-
-    @Override
-    protected ItemWriter<Object> writer() throws Exception {
+    protected Transfer<KeyValue<String>, Object> getTransfer() throws Exception {
         if (db.isSet()) {
             JdbcBatchItemWriterBuilder<Map<String, Object>> builder = new JdbcBatchItemWriterBuilder<Map<String, Object>>();
             builder.itemSqlParameterSourceProvider(MapSqlParameterSource::new);
@@ -83,22 +68,39 @@ public class ExportCommand extends TransferCommand<KeyValue<String>, Object> {
             builder.assertUpdates(!db.isNoAssertUpdates());
             JdbcBatchItemWriter<Map<String, Object>> writer = builder.build();
             writer.afterPropertiesSet();
-            return (ItemWriter) writer;
+            return new Transfer(reader(), keyValueProcessor(), writer);
         }
         if (file.isSet()) {
-            WritableResource resource = file.getResource();
+            WritableResource resource = getResource();
             switch (file.getFileType()) {
                 case DELIMITED:
-                    return (ItemWriter) delimitedWriter(resource);
+                    return new Transfer(reader(), keyValueProcessor(), (ItemWriter) delimitedWriter(resource));
                 case FIXED:
-                    return (ItemWriter) formattedWriter(resource);
+                    return new Transfer(reader(), keyValueProcessor(), (ItemWriter) formattedWriter(resource));
                 case JSON:
-                    return (ItemWriter) jsonWriter(resource);
+                    return new Transfer(reader(), new PassThroughItemProcessor<>(), jsonWriter(resource));
                 case XML:
-                    return (ItemWriter) xmlWriter(resource);
+                    return new Transfer(reader(), new PassThroughItemProcessor<>(), xmlWriter(resource));
             }
         }
         throw new IllegalArgumentException("Unknown export target");
+    }
+
+    private WritableResource getResource() throws IOException {
+        if (file.isConsoleResource()) {
+            return new StandardOutputResource();
+        }
+        Resource resource = file.getResource();
+        Assert.isInstanceOf(WritableResource.class, resource);
+        WritableResource writable = (WritableResource) resource;
+        if (file.isGzip()) {
+            return new GZIPOutputStreamResource(writable.getOutputStream(), writable.getDescription());
+        }
+        return writable;
+    }
+
+    private KeyValueItemProcessor<String, String> keyValueProcessor() {
+        return KeyValueItemProcessor.builder().build();
     }
 
     @Override

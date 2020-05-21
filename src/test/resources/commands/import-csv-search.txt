@@ -1,1 +1,1 @@
-$ riot import --url https://git.io/fjxPs --header --command ftadd --index beers --keys id
+$ riot import --url https://raw.githubusercontent.com/nickhould/craft-beers-dataset/master/data/processed/beers.csv --header --command ftadd --index beers --keys id

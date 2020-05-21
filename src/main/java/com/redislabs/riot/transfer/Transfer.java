@@ -1,42 +1,37 @@
 package com.redislabs.riot.transfer;
 
-import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.item.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Builder
 @Slf4j
 public class Transfer<I, O> {
+
     @Getter
     private final ItemReader<I> reader;
+    @Getter
     private final ItemProcessor<I, ? extends O> processor;
     @Getter
     private final ItemWriter<O> writer;
-    private final int nThreads;
-    private final int batchSize;
-    @Setter
-    private Long flushRate;
-    private final ErrorHandler errorHandler;
-    private final List<Listener> listeners = new ArrayList<>();
+    private List<Listener> listeners = new ArrayList<>();
     @Getter
     private boolean open;
+
+    public Transfer(ItemReader<I> reader, ItemProcessor<I, ? extends O> processor, ItemWriter<O> writer) {
+        this.reader = reader;
+        this.processor = processor;
+        this.writer = writer;
+    }
 
     public void addListener(Listener listener) {
         listeners.add(listener);
     }
 
-    public TransferExecution<I, O> execute() {
-        List<TransferExecutor<I, O>> transferExecutors = new ArrayList<>(nThreads);
-        for (int index = 0; index < nThreads; index++) {
-            Batcher<I, O> batcher = Batcher.<I, O>builder().reader(reader).processor(processor).batchSize(batchSize).errorHandler(errorHandler).build();
-            transferExecutors.add(TransferExecutor.<I, O>builder().transfer(this).id(index).threads(nThreads).batcher(batcher).flushRate(flushRate).build());
-        }
-        return TransferExecution.<I, O>builder().threads(transferExecutors).build().execute();
+    public TransferExecution<I, O> execute(TransferExecution.Options options) {
+        return new TransferExecution<>(this, options).execute();
     }
 
     public void open(ExecutionContext executionContext) throws ItemStreamException {
@@ -64,10 +59,15 @@ public class Transfer<I, O> {
         listeners.forEach(Listener::onClose);
     }
 
+    public void write(List<O> items) throws Exception {
+        writer.write(items);
+    }
+
     public interface Listener {
 
         void onOpen();
 
         void onClose();
     }
+
 }

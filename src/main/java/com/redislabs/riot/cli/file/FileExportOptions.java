@@ -2,12 +2,8 @@ package com.redislabs.riot.cli.file;
 
 import lombok.Getter;
 import org.springframework.batch.item.file.FlatFileItemWriter;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.WritableResource;
-import org.springframework.util.Assert;
 import picocli.CommandLine.Option;
 
-import java.io.IOException;
 import java.util.Locale;
 
 public class FileExportOptions extends FileOptions {
@@ -34,17 +30,7 @@ public class FileExportOptions extends FileOptions {
     @Option(names = "--min-length", description = "Min length of the formatted string", paramLabel = "<int>")
     private Integer minLength;
     @Getter
-    @Option(names="--root", description = "XML root element tag name", paramLabel ="<string>")
+    @Option(names = "--root", description = "XML root element tag name", paramLabel = "<string>")
     private String root;
-
-    public WritableResource getResource() throws IOException {
-        Resource resource = getOutputResource();
-        Assert.isInstanceOf(WritableResource.class, resource);
-        WritableResource writable = (WritableResource) resource;
-        if (isGzip()) {
-            return new GZIPOutputStreamResource(writable.getOutputStream(), writable.getDescription());
-        }
-        return writable;
-    }
 
 }

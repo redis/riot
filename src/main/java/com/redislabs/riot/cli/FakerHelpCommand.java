@@ -13,7 +13,7 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Help;
 import picocli.CommandLine.IHelpCommandInitializable2;
 
-@Command(name = "help", header = "Displays help information about Faker", synopsisHeading = "%nUsage: ", helpCommand = true, sortOptions = false)
+@Command(name = "faker-help", header = "Displays help information about Faker", synopsisHeading = "%nUsage: ", helpCommand = true, sortOptions = false)
 public class FakerHelpCommand implements IHelpCommandInitializable2, Runnable {
 
 	private final static List<String> EXCLUDES = Arrays.asList("instance", "options");

@@ -1,4 +1,4 @@
-package com.redislabs.riot.convert;
+package com.redislabs.riot.processor;
 
 import lombok.Builder;
 import lombok.Singular;

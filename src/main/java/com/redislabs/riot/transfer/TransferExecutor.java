@@ -18,11 +18,9 @@ public class TransferExecutor<I, O> implements Runnable {
     public final static String CONTEXT_PARTITIONS = "partitions";
 
     private final int id;
-    private final int threads;
-    @Getter
-    private final Transfer<I, O> transfer;
     private final Batcher<I, O> batcher;
-    private final Long flushRate;
+    private final TransferExecution<I,O> execution;
+
     private long readCount;
     private long writeCount;
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
@@ -31,28 +29,26 @@ public class TransferExecutor<I, O> implements Runnable {
     private boolean stopped;
 
     @Builder
-    public TransferExecutor(int id, int threads, Transfer<I, O> transfer, Batcher<I, O> batcher, Long flushRate) {
+    public TransferExecutor(int id, TransferExecution<I, O> execution, Batcher<I, O> batcher) {
         super();
         this.id = id;
-        this.threads = threads;
-        this.transfer = transfer;
+        this.execution = execution;
         this.batcher = batcher;
-        this.flushRate = flushRate;
     }
 
     @Override
     public void run() {
         ExecutionContext executionContext = new ExecutionContext();
         executionContext.putInt(CONTEXT_PARTITION, id);
-        executionContext.putInt(CONTEXT_PARTITIONS, threads);
+        executionContext.putInt(CONTEXT_PARTITIONS, execution.getOptions().getNThreads());
         try {
-            transfer.open(executionContext);
+            execution.getTransfer().open(executionContext);
         } catch (Exception e) {
             log.error("Could not initialize transfer", e);
             return;
         }
-        if (flushRate != null) {
-            flushFuture = scheduler.scheduleAtFixedRate(new Flusher(), flushRate, flushRate, TimeUnit.MILLISECONDS);
+        if (execution.getOptions().getFlushRate() != null) {
+            flushFuture = scheduler.scheduleAtFixedRate(new Flusher(), execution.getOptions().getFlushRate(), execution.getOptions().getFlushRate(), TimeUnit.MILLISECONDS);
         }
         running = true;
         try {
@@ -68,7 +64,7 @@ public class TransferExecutor<I, O> implements Runnable {
             }
             scheduler.shutdown();
             try {
-                transfer.close();
+                execution.getTransfer().close();
             } catch (Exception e) {
                 log.error("Could not close transfer", e);
             }
@@ -88,7 +84,7 @@ public class TransferExecutor<I, O> implements Runnable {
 
     private void write(List<O> items) throws Exception {
         readCount += items.size();
-        transfer.getWriter().write(items);
+        execution.getTransfer().write(items);
         writeCount += items.size();
     }
 

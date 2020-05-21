@@ -5,9 +5,6 @@ import io.lettuce.core.api.sync.BaseRedisCommands;
 import io.lettuce.core.api.sync.RedisServerCommands;
 import io.lettuce.core.metrics.CommandMetrics;
 import io.lettuce.core.metrics.DefaultCommandLatencyCollectorOptions;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.HdrHistogram.Histogram;
 import org.LatencyUtils.LatencyStats;
@@ -19,9 +16,6 @@ import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 @Command(name = "test", description = "Execute a test", sortOptions = false)
 public class TestCommand extends RiotCommand implements Runnable {
 
@@ -29,19 +23,14 @@ public class TestCommand extends RiotCommand implements Runnable {
         INFO, PING, LATENCY
     }
 
-    @Builder.Default
     @Option(names = {"-t", "--test"}, description = "Test to execute: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})", paramLabel = "<name>")
     private RedisTestType test = RedisTestType.PING;
-    @Builder.Default
     @Option(names = "--latency-iterations", description = "Number of iterations for latency test (default: ${DEFAULT-VALUE})", paramLabel = "<count>")
     private int latencyIterations = 1000;
-    @Builder.Default
     @Option(names = "--latency-sleep", description = "Sleep duration in milliseconds between calls (default: ${DEFAULT-VALUE})", paramLabel = "<ms>")
     private long latencySleep = 1;
-    @Builder.Default
     @Option(names = "--latency-unit", description = "Latency unit (default: ${DEFAULT-VALUE})", paramLabel = "<unit>")
     private TimeUnit latencyTimeUnit = TimeUnit.MILLISECONDS;
-    @Builder.Default
     @Option(names = "--latency-distribution", description = "Show latency distribution")
     private boolean latencyDistribution = false;
 

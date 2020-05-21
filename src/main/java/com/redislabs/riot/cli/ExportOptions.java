@@ -4,7 +4,6 @@ import lombok.Getter;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
-@Command(sortOptions = false)
 public class ExportOptions {
 
     @Getter

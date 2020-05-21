@@ -1,6 +1,7 @@
 package com.redislabs.riot.cli;
 
 import com.redislabs.picocliredis.RedisCommandLineOptions;
+import com.redislabs.riot.transfer.Transfer;
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.ScanArgs;
 import org.springframework.batch.item.ItemProcessor;
@@ -14,6 +15,8 @@ import org.springframework.batch.item.support.PassThroughItemProcessor;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
+
+import java.io.IOException;
 
 @Command(name = "replicate", description = "Replicate a Redis database to another Redis database", sortOptions = false)
 public class ReplicateCommand extends TransferCommand<KeyDump<String>, KeyDump<String>> {
@@ -40,14 +43,16 @@ public class ReplicateCommand extends TransferCommand<KeyDump<String>, KeyDump<S
     private int syncerThreads = 1;
     @CommandLine.Mixin
     private ExportOptions exportOptions = new ExportOptions();
-    @Option(names = "--mode", description ="Replication mode ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})")
+    @Option(names = "--mode", description = "Replication mode ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})")
     private RedisItemReader.RedisItemReaderBuilder.Mode readerMode = RedisItemReader.RedisItemReaderBuilder.Mode.SCAN;
 
     @Override
-    protected RedisKeyDumpItemReader<String> reader() {
+    protected Transfer<KeyDump<String>, KeyDump<String>> getTransfer() throws Exception {
         ScanArgs scanArgs = ScanArgs.Builder.limit(exportOptions.getScanCount()).match(exportOptions.getScanMatch());
         RedisItemReader.Options readerOptions = RedisItemReader.Options.builder().batchSize(exportOptions.getBatchSize()).threads(exportOptions.getThreads()).queueCapacity(exportOptions.getQueueCapacity()).build();
-        return RedisKeyDumpItemReader.builder().redisOptions(redisOptions()).mode(readerMode).options(readerOptions).scanArgs(scanArgs).build();
+        RedisKeyDumpItemReader<String> reader = RedisKeyDumpItemReader.builder().redisOptions(redisOptions()).mode(readerMode).options(readerOptions).scanArgs(scanArgs).build();
+        RedisItemWriter<String, String, KeyDump<String>> writer = RedisItemWriter.<KeyDump<String>>builder().writeCommand(new Restore<>()).redisOptions(redisOptions(target)).build();
+        return new Transfer<>(reader, new PassThroughItemProcessor<>(), writer);
     }
 
     @Override
@@ -55,14 +60,5 @@ public class ReplicateCommand extends TransferCommand<KeyDump<String>, KeyDump<S
         return "Replicating";
     }
 
-    @Override
-    protected ItemWriter<KeyDump<String>> writer() {
-        return RedisItemWriter.<KeyDump<String>>builder().writeCommand(new Restore<>()).redisOptions(redisOptions(target)).build();
-    }
-
-    @Override
-    protected ItemProcessor<KeyDump<String>, KeyDump<String>> processor() {
-        return new PassThroughItemProcessor<>();
-    }
 
 }

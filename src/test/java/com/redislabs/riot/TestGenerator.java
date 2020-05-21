@@ -1,36 +1,21 @@
 package com.redislabs.riot;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-
 import com.redislabs.lettusearch.index.Schema;
-import com.redislabs.lettusearch.search.SearchResults;
 import com.redislabs.lettusearch.index.field.NumericField;
 import com.redislabs.lettusearch.index.field.PhoneticMatcher;
 import com.redislabs.lettusearch.index.field.TagField;
 import com.redislabs.lettusearch.index.field.TextField;
-import com.redislabs.riot.generator.GeneratorReader;
-
+import com.redislabs.lettusearch.search.SearchResults;
 import io.lettuce.core.Range;
 import io.lettuce.core.StreamMessage;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class TestGenerator extends BaseTest {
-
-	@Test
-	public void testGenSimple() throws Exception {
-		runFile("gen-simple");
-		List<String> keys = commands().keys("test:*");
-		Assertions.assertEquals(10000, keys.size());
-		Map<String, String> simple123 = commands().hgetall("test:123");
-		Assertions.assertTrue(simple123.containsKey(GeneratorReader.FIELD_PARTITION));
-		Assertions.assertEquals("3", simple123.get(GeneratorReader.FIELD_PARTITIONS));
-		Assertions.assertEquals(100, simple123.get("field1").length());
-		Assertions.assertEquals(1000, simple123.get("field2").length());
-	}
 
 	@Test
 	public void testGenFakerHash() throws Exception {

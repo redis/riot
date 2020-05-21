@@ -1,6 +1,6 @@
 package com.redislabs.riot.cli;
 
-import com.redislabs.riot.convert.MapProcessor;
+import com.redislabs.riot.processor.MapProcessor;
 import com.redislabs.riot.convert.map.RegexNamedGroupsExtractor;
 import com.redislabs.riot.processor.SpelProcessor;
 import org.springframework.batch.item.ItemProcessor;

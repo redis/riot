@@ -17,5 +17,6 @@ public class SetOptions {
     private String root;
     @Getter
     @CommandLine.Option(names = "--value", description = "String raw value field", paramLabel = "<field>")
-    private String value;
+    private String valueField;
+
 }

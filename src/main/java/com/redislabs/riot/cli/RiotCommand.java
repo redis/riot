@@ -1,5 +1,6 @@
 package com.redislabs.riot.cli;
 
+import com.redislabs.picocliredis.Application;
 import com.redislabs.picocliredis.HelpCommand;
 import com.redislabs.picocliredis.RedisCommandLineOptions;
 import com.redislabs.riot.Riot;
@@ -17,7 +18,7 @@ public abstract class RiotCommand extends HelpCommand implements Runnable {
     }
 
     protected boolean isQuiet() {
-        return parent.isQuiet();
+        return parent.getDebugLevel() == Application.LogLevel.QUIET;
     }
 
 }

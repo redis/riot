@@ -1,17 +1,15 @@
 package com.redislabs.riot.cli;
 
 import com.redislabs.picocliredis.RedisCommandLineOptions;
-import com.redislabs.riot.transfer.*;
+import com.redislabs.riot.transfer.ErrorHandler;
+import com.redislabs.riot.transfer.Transfer;
+import com.redislabs.riot.transfer.TransferExecution;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.batch.item.ItemProcessor;
-import org.springframework.batch.item.ItemReader;
-import org.springframework.batch.item.ItemWriter;
-import org.springframework.batch.item.redis.support.PoolOptions;
 import org.springframework.batch.item.redis.support.RedisOptions;
+import org.springframework.batch.item.redisearch.RediSearchOptions;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
-import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -23,14 +21,14 @@ public abstract class TransferCommand<I, O> extends RiotCommand {
     @Option(names = {"-b", "--batch"}, description = "Number of items in each batch (default: ${DEFAULT-VALUE})", paramLabel = "<size>")
     private int batchSize = 50;
     @Option(names = {"-m", "--max"}, description = "Max number of items to read", paramLabel = "<count>")
-    private Long maxItemCount;
+    private Integer maxItemCount;
     @Option(names = "--sleep", description = "Sleep duration in millis between reads", paramLabel = "<ms>")
     private Long sleep;
     @Option(names = "--progress", description = "Progress reporting interval (default: ${DEFAULT-VALUE} ms)", paramLabel = "<ms>")
     private long progressRate = 300;
     @Option(names = "--max-wait", description = "Max duration to wait for transfer to complete", paramLabel = "<ms>")
     private Long maxWait;
-    @Option(names = "--pool-size", description = "Max size of Redis connection pool (default: #threads)", paramLabel = "<int>")
+    @Option(names = "--pool-size", description = "Max connections in pool (default: #threads)", paramLabel = "<int>")
     private Integer maxTotal;
 
     protected int getPoolMaxTotal() {
@@ -42,40 +40,22 @@ public abstract class TransferCommand<I, O> extends RiotCommand {
 
     @Override
     public void run() {
-        ItemReader<I> reader;
+        Transfer<I, O> transfer = null;
         try {
-            reader = reader();
+            transfer = getTransfer();
         } catch (Exception e) {
-            log.error("Could not initialize reader", e);
+            log.error("Could not initialize transfer", e);
             return;
         }
-        ItemProcessor<I, O> processor;
-        try {
-            processor = processor();
-        } catch (Exception e) {
-            log.error("Could not initialize processor", e);
-            return;
-        }
-        ItemWriter<O> writer;
-        try {
-            writer = writer();
-        } catch (Exception e) {
-            log.error("Could not initialize writer", e);
-            return;
-        }
-        Transfer<I, O> transfer = Transfer.<I, O>builder().reader(throttle(cap(reader))).processor(processor).writer(writer).errorHandler(errorHandler()).batchSize(batchSize).nThreads(threads).build();
-        TransferExecution<I, O> execution = transfer.execute();
+        TransferExecution.Options options = TransferExecution.Options.builder().batchSize(batchSize).errorHandler(errorHandler()).maxItemCount(maxItemCount).nThreads(threads).build();
+        TransferExecution<I, O> execution = transfer.execute(options);
         if (!isQuiet()) {
-            transfer.addListener(ProgressBarReporter.builder().taskName(taskName()).initialMax(maxItemCount).period(progressRate).timeUnit(TimeUnit.MILLISECONDS).metricsProvider(execution).build());
+            transfer.addListener(ProgressBarReporter.builder().taskName(taskName()).initialMax(maxItemCount==null?null:maxItemCount.longValue()).period(progressRate).timeUnit(TimeUnit.MILLISECONDS).metricsProvider(execution).build());
         }
         execution.awaitTermination(maxWait(), TimeUnit.MILLISECONDS);
     }
 
-    protected abstract ItemWriter<O> writer() throws Exception;
-
-    protected abstract ItemProcessor<I, O> processor() throws IOException, Exception;
-
-    protected abstract ItemReader<I> reader() throws IOException, Exception;
+    protected abstract Transfer<I, O> getTransfer() throws Exception;
 
     protected abstract String taskName();
 
@@ -83,12 +63,12 @@ public abstract class TransferCommand<I, O> extends RiotCommand {
         return redisOptions(getOptions());
     }
 
-    protected RedisOptions redisOptions(RedisCommandLineOptions cliOptions) {
-        return RedisOptions.builder().clientOptions(cliOptions.clientOptions()).clusterClientOptions(cliOptions.clusterClientOptions()).clientResources(cliOptions.clientResources()).poolOptions(poolOptions()).cluster(cliOptions.isCluster()).redisURI(cliOptions.getRedisURI()).build();
+    protected RediSearchOptions rediSearchOptions() {
+        return RediSearchOptions.builder().redisURI(getOptions().getRedisURI()).clientOptions(getOptions().clientOptions()).clientResources(getOptions().clientResources()).poolOptions(RediSearchOptions.PoolOptions.builder().maxTotal(getPoolMaxTotal()).build()).build();
     }
 
-    private PoolOptions poolOptions() {
-        return PoolOptions.builder().maxTotal(getPoolMaxTotal()).build();
+    protected RedisOptions redisOptions(RedisCommandLineOptions cliOptions) {
+        return RedisOptions.builder().redisURI(cliOptions.getRedisURI()).clientOptions(cliOptions.clientOptions()).clientResources(cliOptions.clientResources()).poolOptions(RedisOptions.PoolOptions.builder().maxTotal(getPoolMaxTotal()).build()).cluster(cliOptions.isCluster()).clusterClientOptions(cliOptions.clusterClientOptions()).build();
     }
 
     protected ErrorHandler errorHandler() {
@@ -100,20 +80,6 @@ public abstract class TransferCommand<I, O> extends RiotCommand {
             return Long.MAX_VALUE;
         }
         return maxWait;
-    }
-
-    private <I> ItemReader<I> throttle(ItemReader<I> reader) {
-        if (sleep == null) {
-            return reader;
-        }
-        return ThrottledReader.<I>builder().reader(reader).sleep(sleep).build();
-    }
-
-    private <I> ItemReader<I> cap(ItemReader<I> reader) {
-        if (maxItemCount == null) {
-            return reader;
-        }
-        return new CappedReader<>(reader, maxItemCount);
     }
 
 }

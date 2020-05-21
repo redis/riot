@@ -48,6 +48,9 @@ public abstract class FieldExtractor<K, V> implements Converter<Map<K, V>, V> {
         }
 
         public Converter<Map<String, String>, T> build() {
+            if (field == null) {
+                return new ConstantFieldExtractor<>(defaultValue);
+            }
             if (String.class.isAssignableFrom(targetType)) {
                 if (defaultValue == null) {
                     return (Converter) fieldExtractor();
@@ -70,8 +73,7 @@ public abstract class FieldExtractor<K, V> implements Converter<Map<K, V>, V> {
             throw new IllegalArgumentException("No converter found for type " + targetType.getName());
         }
 
-        private FieldExtractor<String, String> fieldExtractor() {
-            Assert.notNull(field, "A field name is required.");
+        private Converter<Map<String, String>, String> fieldExtractor() {
             if (remove) {
                 return new RemovingFieldExtractor<>(field);
             }
