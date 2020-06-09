@@ -1,64 +1,87 @@
 package com.redislabs.riot.cli;
 
-import com.redislabs.picocliredis.RedisCommandLineOptions;
-import com.redislabs.riot.transfer.Transfer;
-import io.lettuce.core.RedisURI;
-import io.lettuce.core.ScanArgs;
-import org.springframework.batch.item.ItemProcessor;
+import com.redislabs.picocliredis.RedisOptions;
+import com.redislabs.riot.Riot;
+import com.redislabs.riot.TransferOptions;
+import io.lettuce.core.RedisClient;
+import io.lettuce.core.cluster.RedisClusterClient;
+import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.batch.item.redis.RedisItemReader;
-import org.springframework.batch.item.redis.RedisItemWriter;
-import org.springframework.batch.item.redis.RedisKeyDumpItemReader;
-import org.springframework.batch.item.redis.support.KeyDump;
-import org.springframework.batch.item.redis.support.commands.Restore;
+import org.springframework.batch.item.redis.*;
+import org.springframework.batch.item.redis.support.KeyValue;
+import org.springframework.batch.item.redis.support.ReaderOptions;
 import org.springframework.batch.item.support.PassThroughItemProcessor;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
-import picocli.CommandLine.Option;
 
-import java.io.IOException;
+@Command(name = "replicate", description = "Replicate a Redis database to another Redis database")
+public class ReplicateCommand extends TransferCommand {
 
-@Command(name = "replicate", description = "Replicate a Redis database to another Redis database", sortOptions = false)
-public class ReplicateCommand extends TransferCommand<KeyDump<String>, KeyDump<String>> {
-
-    private final static String DATABASE_TOKEN = "{database}";
-
+    @CommandLine.ParentCommand
+    private Riot riot;
     @CommandLine.Mixin
-    private RedisCommandLineOptions target = new RedisCommandLineOptions();
-    @Option(names = "--event-queue", description = "Event queue capacity (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
-    private int notificationQueue = 10000;
-    @Option(names = "--event-channel", description = "Event pub/sub channel (default: ${DEFAULT-VALUE}). Blank to disable", paramLabel = "<str>")
-    private String channel = "__keyspace@" + DATABASE_TOKEN + "__:*";
-    @Option(names = "--no-replace", description = "No REPLACE modifier with RESTORE command")
-    private boolean noReplace;
-    @Option(names = "--flush-rate", description = "Duration between notification flushes (default: ${DEFAULT-VALUE})", paramLabel = "<ms>")
-    private long flushRate = 50;
-    @Option(names = "--syncer-timeout", description = "Syncer timeout duration (default: ${DEFAULT-VALUE})", paramLabel = "<sec>")
-    private long timeout = RedisURI.DEFAULT_TIMEOUT;
-    @Option(names = "--syncer-batch", description = "Number of values in dump pipeline (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
-    private int syncerBatchSize = 50;
-    @Option(names = "--syncer-queue", description = "Capacity of the value queue (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
-    private int syncerQueueSize = 10000;
-    @Option(names = "--syncer-threads", description = "Number of value reader threads (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
-    private int syncerThreads = 1;
+    private RedisOptions target = new RedisOptions();
     @CommandLine.Mixin
-    private ExportOptions exportOptions = new ExportOptions();
-    @Option(names = "--mode", description = "Replication mode ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})")
-    private RedisItemReader.RedisItemReaderBuilder.Mode readerMode = RedisItemReader.RedisItemReaderBuilder.Mode.SCAN;
+    private ExportOptions options = new ExportOptions();
+    @CommandLine.Option(names = "--keyspace-patterns", description = "Keyspace notification subscription patterns", paramLabel = "<str>", hidden = true)
+    private String[] keyspacePatterns;
+    @CommandLine.Option(names = "--flush-interval", description = "Duration between notification flushes (default: ${DEFAULT-VALUE})", paramLabel = "<ms>")
+    private long flushPeriod = 50;
+    @CommandLine.Option(names = "--live", description = "Live replication")
+    private boolean live;
 
     @Override
-    protected Transfer<KeyDump<String>, KeyDump<String>> getTransfer() throws Exception {
-        ScanArgs scanArgs = ScanArgs.Builder.limit(exportOptions.getScanCount()).match(exportOptions.getScanMatch());
-        RedisItemReader.Options readerOptions = RedisItemReader.Options.builder().batchSize(exportOptions.getBatchSize()).threads(exportOptions.getThreads()).queueCapacity(exportOptions.getQueueCapacity()).build();
-        RedisKeyDumpItemReader<String> reader = RedisKeyDumpItemReader.builder().redisOptions(redisOptions()).mode(readerMode).options(readerOptions).scanArgs(scanArgs).build();
-        RedisItemWriter<String, String, KeyDump<String>> writer = RedisItemWriter.<KeyDump<String>>builder().writeCommand(new Restore<>()).redisOptions(redisOptions(target)).build();
-        return new Transfer<>(reader, new PassThroughItemProcessor<>(), writer);
+    protected boolean isQuiet() {
+        return riot.isQuiet();
     }
 
     @Override
-    protected String taskName() {
-        return "Replicating";
+    protected TransferOptions transferOptions() {
+        TransferOptions transferOptions = super.transferOptions();
+        if (live) {
+            transferOptions.setFlushPeriod(flushPeriod);
+        }
+        return transferOptions;
     }
 
+    private ItemReader<KeyValue<String, byte[]>> reader() {
+        if (riot.getRedisOptions().isCluster()) {
+            RedisClusterClient redisClusterClient = riot.getRedisOptions().redisClusterClient();
+            return RedisClusterKeyDumpItemReader.<String, String>builder().pool(connectionPool(redisClusterClient)).keyReader(keyReader(redisClusterClient)).options(readerOptions()).build();
+        }
+        RedisClient redisClient = riot.getRedisOptions().redisClient();
+        return RedisKeyDumpItemReader.<String, String>builder().pool(connectionPool(redisClient)).keyReader(keyReader(redisClient)).options(readerOptions()).build();
+    }
+
+    private ReaderOptions readerOptions() {
+        return ReaderOptions.builder().batchSize(options.getBatchSize()).commandTimeout(riot.getRedisOptions().getCommandTimeout()).threadCount(options.getThreads()).queueCapacity(options.getQueueCapacity()).build();
+    }
+
+    private ItemReader<String> keyReader(RedisClient redisClient) {
+        if (live) {
+            return RedisLiveKeyItemReader.builder().redisClient(redisClient).scanCount(options.getScanCount()).scanPattern(options.getScanMatch()).database(riot.getRedisOptions().getRedisURI().getDatabase()).pubSubPatterns(keyspacePatterns).queueCapacity(options.getQueueCapacity()).build();
+        }
+        return RedisKeyItemReader.builder().redisClient(redisClient).scanCount(options.getScanCount()).scanPattern(options.getScanMatch()).build();
+    }
+
+
+    private ItemReader<String> keyReader(RedisClusterClient redisClusterClient) {
+        if (live) {
+            return RedisClusterLiveKeyItemReader.builder().redisClusterClient(redisClusterClient).scanCount(options.getScanCount()).scanPattern(options.getScanMatch()).database(riot.getRedisOptions().getRedisURI().getDatabase()).pubSubPatterns(keyspacePatterns).queueCapacity(options.getQueueCapacity()).build();
+        }
+        return RedisClusterKeyItemReader.builder().redisClusterClient(redisClusterClient).scanCount(options.getScanCount()).scanPattern(options.getScanMatch()).build();
+    }
+
+    @Override
+    public void run() {
+        execute("Replicating", reader(), new PassThroughItemProcessor<>(), writer());
+    }
+
+    private ItemWriter<KeyValue<String, byte[]>> writer() {
+        if (target.isCluster()) {
+            return RedisClusterKeyDumpItemWriter.<String, String>builder().pool(connectionPool(target.redisClusterClient())).commandTimeout(target.getCommandTimeout()).replace(true).build();
+        }
+        return RedisKeyDumpItemWriter.<String, String>builder().pool(connectionPool(target.redisClient())).commandTimeout(target.getCommandTimeout()).replace(true).build();
+    }
 
 }

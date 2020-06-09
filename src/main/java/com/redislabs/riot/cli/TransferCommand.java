@@ -1,85 +1,77 @@
 package com.redislabs.riot.cli;
 
-import com.redislabs.picocliredis.RedisCommandLineOptions;
-import com.redislabs.riot.transfer.ErrorHandler;
-import com.redislabs.riot.transfer.Transfer;
-import com.redislabs.riot.transfer.TransferExecution;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.batch.item.redis.support.RedisOptions;
-import org.springframework.batch.item.redisearch.RediSearchOptions;
-import picocli.CommandLine.Command;
-import picocli.CommandLine.Option;
+import com.redislabs.lettusearch.RediSearchClient;
+import com.redislabs.lettusearch.StatefulRediSearchConnection;
+import com.redislabs.picocliredis.RedisOptions;
+import com.redislabs.riot.Transfer;
+import com.redislabs.riot.cli.progress.ProgressBarOptions;
+import com.redislabs.riot.cli.progress.ProgressBarReporter;
+import io.lettuce.core.RedisClient;
+import io.lettuce.core.api.StatefulConnection;
+import io.lettuce.core.api.StatefulRedisConnection;
+import io.lettuce.core.cluster.RedisClusterClient;
+import io.lettuce.core.cluster.api.StatefulRedisClusterConnection;
+import io.lettuce.core.support.ConnectionPoolSupport;
+import org.apache.commons.pool2.impl.GenericObjectPool;
+import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
+import org.springframework.batch.item.ItemProcessor;
+import org.springframework.batch.item.ItemReader;
+import org.springframework.batch.item.ItemWriter;
+import picocli.CommandLine;
 
-import java.util.concurrent.TimeUnit;
+public class TransferCommand extends RiotCommand {
 
-@Slf4j
-@Command
-public abstract class TransferCommand<I, O> extends RiotCommand {
-
-    @Option(names = "--threads", description = "Thread count (default: ${DEFAULT-VALUE})", paramLabel = "<count>")
+    @CommandLine.Option(names = "--threads", description = "Thread count (default: ${DEFAULT-VALUE})", paramLabel = "<count>")
     private int threads = 1;
-    @Option(names = {"-b", "--batch"}, description = "Number of items in each batch (default: ${DEFAULT-VALUE})", paramLabel = "<size>")
+    @CommandLine.Option(names = {"-b", "--batch"}, description = "Number of items in each batch (default: ${DEFAULT-VALUE})", paramLabel = "<size>")
     private int batchSize = 50;
-    @Option(names = {"-m", "--max"}, description = "Max number of items to read", paramLabel = "<count>")
+    @CommandLine.Option(names = {"-m", "--max"}, description = "Max number of items to read", paramLabel = "<count>")
     private Integer maxItemCount;
-    @Option(names = "--sleep", description = "Sleep duration in millis between reads", paramLabel = "<ms>")
-    private Long sleep;
-    @Option(names = "--progress", description = "Progress reporting interval (default: ${DEFAULT-VALUE} ms)", paramLabel = "<ms>")
-    private long progressRate = 300;
-    @Option(names = "--max-wait", description = "Max duration to wait for transfer to complete", paramLabel = "<ms>")
-    private Long maxWait;
-    @Option(names = "--pool-size", description = "Max connections in pool (default: #threads)", paramLabel = "<int>")
-    private Integer maxTotal;
+    @CommandLine.Option(names = "--pool-size", description = "Max connections in pool (default: #threads)", paramLabel = "<int>")
+    private Integer poolSize;
 
-    protected int getPoolMaxTotal() {
-        if (maxTotal == null) {
+    public int getPoolSize() {
+        if (poolSize == null) {
             return threads;
         }
-        return maxTotal;
+        return poolSize;
     }
 
-    @Override
-    public void run() {
-        Transfer<I, O> transfer = null;
-        try {
-            transfer = getTransfer();
-        } catch (Exception e) {
-            log.error("Could not initialize transfer", e);
-            return;
-        }
-        TransferExecution.Options options = TransferExecution.Options.builder().batchSize(batchSize).errorHandler(errorHandler()).maxItemCount(maxItemCount).nThreads(threads).build();
-        TransferExecution<I, O> execution = transfer.execute(options);
-        if (!isQuiet()) {
-            transfer.addListener(ProgressBarReporter.builder().taskName(taskName()).initialMax(maxItemCount==null?null:maxItemCount.longValue()).period(progressRate).timeUnit(TimeUnit.MILLISECONDS).metricsProvider(execution).build());
-        }
-        execution.awaitTermination(maxWait(), TimeUnit.MILLISECONDS);
+    protected GenericObjectPool<StatefulRedisConnection<String, String>> connectionPool(RedisClient redisClient) {
+        return ConnectionPoolSupport.createGenericObjectPool(redisClient::connect, poolConfig());
     }
 
-    protected abstract Transfer<I, O> getTransfer() throws Exception;
-
-    protected abstract String taskName();
-
-    protected RedisOptions redisOptions() {
-        return redisOptions(getOptions());
+    protected GenericObjectPool<StatefulRedisClusterConnection<String, String>> connectionPool(RedisClusterClient redisClusterClient) {
+        return ConnectionPoolSupport.createGenericObjectPool(redisClusterClient::connect, poolConfig());
     }
 
-    protected RediSearchOptions rediSearchOptions() {
-        return RediSearchOptions.builder().redisURI(getOptions().getRedisURI()).clientOptions(getOptions().clientOptions()).clientResources(getOptions().clientResources()).poolOptions(RediSearchOptions.PoolOptions.builder().maxTotal(getPoolMaxTotal()).build()).build();
+    protected GenericObjectPool<StatefulRediSearchConnection<String, String>> connectionPool(RediSearchClient rediSearchClient) {
+        return ConnectionPoolSupport.createGenericObjectPool(rediSearchClient::connect, poolConfig());
     }
 
-    protected RedisOptions redisOptions(RedisCommandLineOptions cliOptions) {
-        return RedisOptions.builder().redisURI(cliOptions.getRedisURI()).clientOptions(cliOptions.clientOptions()).clientResources(cliOptions.clientResources()).poolOptions(RedisOptions.PoolOptions.builder().maxTotal(getPoolMaxTotal()).build()).cluster(cliOptions.isCluster()).clusterClientOptions(cliOptions.clusterClientOptions()).build();
+    protected <C extends StatefulConnection<String, String>> GenericObjectPoolConfig<C> poolConfig() {
+        GenericObjectPoolConfig<C> poolConfig = new GenericObjectPoolConfig<>();
+        poolConfig.setMaxTotal(getPoolSize());
+        return poolConfig;
     }
 
-    protected ErrorHandler errorHandler() {
-        return e -> log.error("Could not read item", e);
+    public <I, O> void execute(String taskName, ItemReader<I> reader, ItemProcessor<I, O> processor, ItemWriter<O> writer) {
+        Transfer<I, O> transfer = Transfer.<I, O>builder().reader(reader).processor(processor).writer(writer).options(transferOptions()).build();
+        ProgressBarOptions progressBarOptions = ProgressBarOptions.builder().taskName(taskName).initialMax(maxItemCount).quiet(isQuiet()).build();
+        ProgressBarReporter reporter = ProgressBarReporter.builder().transfer(transfer).options(progressBarOptions).build();
+        reporter.start();
+        transfer.execute();
+        reporter.stop();
     }
 
-    private long maxWait() {
-        if (maxWait == null) {
-            return Long.MAX_VALUE;
-        }
-        return maxWait;
+    protected com.redislabs.riot.TransferOptions transferOptions() {
+        return com.redislabs.riot.TransferOptions.builder().batchSize(batchSize).threadCount(threads).maxItemCount(maxItemCount).build();
+    }
+
+    protected RediSearchClient rediSearchClient(RedisOptions redisOptions) {
+        RediSearchClient client = RediSearchClient.create(redisOptions.clientResources(), redisOptions.getRedisURI());
+        client.setOptions(redisOptions.clientOptions());
+        return client;
     }
 
 }

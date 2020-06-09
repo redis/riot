@@ -1,7 +1,6 @@
 package com.redislabs.riot.cli;
 
 import lombok.Getter;
-import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 public class ExportOptions {
@@ -13,10 +12,10 @@ public class ExportOptions {
     @Option(names = "--match", description = "SCAN MATCH pattern", paramLabel = "<pattern>")
     private String scanMatch;
     @Getter
-    @Option(names = "--reader-queue", description = "Capacity of the value-reader queue (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
+    @Option(names = "--reader-queue", description = "Capacity of the reader queue (default: ${DEFAULT-VALUE})", paramLabel = "<int>", hidden = true)
     private int queueCapacity = 10000;
     @Getter
-    @Option(names = "--reader-threads", description = "Number of value-reader threads (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
+    @Option(names = "--reader-threads", description = "Number of reader threads (default: ${DEFAULT-VALUE})", paramLabel = "<int>", hidden = true)
     private int threads = 1;
     @Getter
     @Option(names = "--reader-batch", description = "Number of reader values to process at once (default: ${DEFAULT-VALUE})", paramLabel = "<int>")

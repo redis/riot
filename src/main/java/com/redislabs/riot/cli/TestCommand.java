@@ -1,10 +1,10 @@
 package com.redislabs.riot.cli;
 
-import com.redislabs.picocliredis.RedisCommandLineOptions;
 import io.lettuce.core.api.sync.BaseRedisCommands;
 import io.lettuce.core.api.sync.RedisServerCommands;
 import io.lettuce.core.metrics.CommandMetrics;
 import io.lettuce.core.metrics.DefaultCommandLatencyCollectorOptions;
+import io.lettuce.core.protocol.RedisCommand;
 import lombok.extern.slf4j.Slf4j;
 import org.HdrHistogram.Histogram;
 import org.LatencyUtils.LatencyStats;
@@ -16,7 +16,7 @@ import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
-@Command(name = "test", description = "Execute a test", sortOptions = false)
+@Command(name = "test", description = "Execute a test")
 public class TestCommand extends RiotCommand implements Runnable {
 
     public enum RedisTestType {
@@ -48,11 +48,10 @@ public class TestCommand extends RiotCommand implements Runnable {
     }
 
     private BaseRedisCommands<String, String> getRedisCommands() {
-        RedisCommandLineOptions redisOptions = getOptions();
-        if (redisOptions.isCluster()) {
-            return redisOptions.redisClusterClient().connect().sync();
+        if (getRedisOptions().isCluster()) {
+            return getRedisOptions().redisClusterClient().connect().sync();
         }
-        return redisOptions.redisClient().connect().sync();
+        return getRedisOptions().redisClient().connect().sync();
     }
 
     private void ping(BaseRedisCommands<String, String> commands) {

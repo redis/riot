@@ -245,9 +245,7 @@ include::{commandsdir}/replicate-live.txt[]
 
 == Processors
 
-RIOT can process records through 2 approaches: field expressions or script processor.
-
-=== Field expressions
+RIOT can process records with field expressions.
 
 You can specify field expressions to process key/value pairs using the https://docs.spring.io/spring/docs/current/spring-framework-reference/core.html#expressions[Spring Expression Language] (SpEL): `field1=<exp>`, `field2=<exp>`, ...
 
@@ -257,30 +255,11 @@ The processor also exposes the following variables that can be called with the `
 
 * `redis`: Redis connection to issue any command, e.g. `name=#redis.hgetall('person1').lastName`
 * `date`: date parser/formatter, e.g. `epoch=#date.parse(mydate).getTime()`
-* `context`: exposes processor context, e.g. `id=#context.index`
+* `index`: sequence number e.g. `id=#index`
 
 [source,shell]
 ----
 include::{commandsdir}/import-csv-processor-hash-dateformat.txt[]
-----
-
-=== Script Processor
-
-Use an external or inline script to provide the processor logic.
-
-.Javascript example
-[source,javascript]
-----
-function process(item) {
-    item.name = item.name.toUpperCase();
-    return item;
-}
-process(item);
-----
-
-[source,shell]
-----
-include::{commandsdir}/gen-faker-script-processor-hash.txt[]
 ----
 
 == Load Testing

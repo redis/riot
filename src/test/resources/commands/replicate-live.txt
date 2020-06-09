@@ -1,1 +1,1 @@
-$ riot -r redis://localhost:6379 replicate -r redis://localhost:6380 --listen
+$ riot -r redis://localhost:6379 replicate -r redis://localhost:6380 --live

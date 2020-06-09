@@ -18,7 +18,7 @@ import java.util.Set;
 public class TestGenerator extends BaseTest {
 
 	@Test
-	public void testGenFakerHash() throws Exception {
+	public void genFakerHash() throws Exception {
 		runFile("gen-faker-hash");
 		List<String> keys = commands().keys("person:*");
 		Assertions.assertEquals(100, keys.size());
@@ -28,8 +28,7 @@ public class TestGenerator extends BaseTest {
 		Assertions.assertTrue(person.containsKey("address"));
 	}
 
-	@Test
-	public void testGenFakerScriptProcessorHash() throws Exception {
+	public void genFakerScriptProcessorHash() throws Exception {
 		runFile("gen-faker-script-processor-hash");
 		List<String> keys = commands().keys("person:*");
 		Assertions.assertEquals(100, keys.size());
@@ -37,11 +36,11 @@ public class TestGenerator extends BaseTest {
 		Assertions.assertTrue(person.containsKey("firstName"));
 		Assertions.assertTrue(person.containsKey("lastName"));
 		Assertions.assertTrue(person.containsKey("address"));
-		Assertions.assertEquals(person.get("address"), person.get("address").toUpperCase());
+		Assertions.assertEquals(person.get("address").toUpperCase(), person.get("address"));
 	}
 
 	@Test
-	public void testGenFakerSet() throws Exception {
+	public void genFakerSet() throws Exception {
 		runFile("gen-faker-set");
 		Set<String> names = commands().smembers("got:characters");
 		Assertions.assertTrue(names.size() > 10);
@@ -49,7 +48,7 @@ public class TestGenerator extends BaseTest {
 	}
 
 	@Test
-	public void testGenFakerZset() throws Exception {
+	public void genFakerZset() throws Exception {
 		runFile("gen-faker-zset");
 		List<String> keys = commands().keys("leases:*");
 		Assertions.assertTrue(keys.size() > 100);
@@ -58,14 +57,14 @@ public class TestGenerator extends BaseTest {
 	}
 
 	@Test
-	public void testGenFakerStream() throws Exception {
+	public void genFakerStream() throws Exception {
 		runFile("gen-faker-stream");
 		List<StreamMessage<String, String>> messages = commands().xrange("teststream:1", Range.unbounded());
 		Assertions.assertTrue(messages.size() > 0);
 	}
 
 	@Test
-	public void testIndexIntrospection() throws Exception {
+	public void genFakerIndexIntrospection() throws Exception {
 		String INDEX = "beerIntrospection";
 		String FIELD_ID = "id";
 		String FIELD_ABV = "abv";

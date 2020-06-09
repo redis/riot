@@ -187,7 +187,6 @@ public class TestFile extends BaseTest {
     @Test
     public void testImportCsvProcessorSearch() throws Exception {
         String INDEX = "laevents";
-        commands().flushall();
         Schema schema = Schema.builder().field(TextField.builder().name("Title").build())
                 .field(NumericField.builder().name("lon").build()).field(NumericField.builder().name("kat").build())
                 .field(GeoField.builder().name("location").sortable(true).build()).build();

@@ -1,1 +1,1 @@
-$ riot -r redis://localhost:6379 import --db-url jdbc:hsqldb:mem:mymemdb --sql "SELECT * FROM beers" --keyspace dbbeer --keys id
+$ riot -r redis://localhost:6379 import --keyspace dbbeer --keys id db "SELECT * FROM beers" --url jdbc:hsqldb:mem:mymemdb
