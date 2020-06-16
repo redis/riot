@@ -1,7 +1,5 @@
 package com.redislabs.riot.convert.field;
 
-import lombok.Builder;
-
 import java.util.Map;
 
 public class SimpleFieldExtractor<K, V> extends FieldExtractor<K, V> {

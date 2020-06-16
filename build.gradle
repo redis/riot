@@ -3,7 +3,7 @@ plugins {
     id 'java'
     id 'java-library'
     id 'maven-publish'
-    id 'org.springframework.boot' version '2.3.0.RELEASE'
+    id 'org.springframework.boot' version '2.3.1.RELEASE'
     id 'io.spring.dependency-management' version '1.0.9.RELEASE'
     id 'com.jfrog.bintray' version '1.8.5'
     id 'com.github.ben-manes.versions' version '0.28.0'
@@ -14,13 +14,13 @@ plugins {
 }
 
 repositories {
-	jcenter()
-	mavenCentral()
-	mavenLocal()
+    jcenter()
+    mavenCentral()
+    mavenLocal()
 }
 
 ext {
-    set('springCloudVersion', "Hoxton.SR4")
+    set('springCloudVersion', "Hoxton.SR5")
 }
 
 bootJar {
@@ -32,22 +32,23 @@ jar {
 }
 
 dependencies {
-    api 'com.redislabs:picocli-redis:2.0.0'
+    implementation 'com.redislabs:picocli-redis:2.0.0'
     implementation 'org.slf4j:slf4j-jdk14'
     implementation 'org.latencyutils:LatencyUtils:2.0.3'
-    implementation 'com.redislabs:lettusearch:2.3.0'
-    implementation 'com.redislabs:spring-batch-redis:2.0.0-SNAPSHOT'
-    implementation 'com.redislabs:spring-batch-redisearch:2.3.0'
+    implementation 'com.redislabs:spring-batch-redis:2.1.1-SNAPSHOT'
+//    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+//    implementation 'org.springframework.kafka:spring-kafka'
+    implementation 'com.redislabs:spring-batch-redisearch:2.3.1'
     implementation 'org.springframework.batch:spring-batch-core'
     implementation 'org.springframework.boot:spring-boot-autoconfigure'
     implementation 'org.springframework:spring-jdbc'
-    implementation 'org.springframework:spring-oxm'
     implementation 'org.springframework.cloud:spring-cloud-aws-context'
     implementation 'org.springframework.cloud:spring-cloud-aws-autoconfigure'
-    implementation 'com.github.javafaker:javafaker:1.0.2'
+    implementation 'org.ruaux:spring-batch-resource:1.0.0'
+    implementation 'org.ruaux:spring-batch-faker:1.0.1'
+    implementation 'org.ruaux:spring-batch-xml:1.0.0'
     implementation 'com.zaxxer:HikariCP'
     implementation 'me.tongfei:progressbar:0.8.1'
-    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.slf4j:slf4j-jdk14'
@@ -55,9 +56,14 @@ dependencies {
     testImplementation 'org.hsqldb:hsqldb'
     testImplementation 'org.junit.jupiter:junit-jupiter-engine'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
-    testImplementation 'it.ozimov:embedded-redis:0.7.2'
+    testImplementation 'it.ozimov:embedded-redis:0.7.3'
     testImplementation 'org.projectlombok:lombok'
     testAnnotationProcessor 'org.projectlombok:lombok'
+//    implementation 'org.xerial:sqlite-jdbc:3.28.0'
+//    implementation 'com.ibm.db2:jcc:11.5.0.0'
+//    implementation 'com.microsoft.sqlserver:mssql-jdbc:7.4.1.jre8'
+//    implementation 'com.oracle.ojdbc:ojdbc8:19.3.0.0'
+//    implementation 'org.postgresql:postgresql:42.2.8'
 }
 
 configurations {
@@ -83,18 +89,18 @@ bintray {
         repo = 'maven'
         name = 'riot'
         licenses = ['Apache-2.0']
-        vcsUrl = 'https://github.com/Redislabs-Solution-Architects/riot.git'
-	    version {
-	        gpg {
-	            sign = true
-	        }
-	        mavenCentralSync {
-	            sync = true
-	            user = project.hasProperty('ossrhUsername') ? project.property('ossrhUsername') : ''
-	            password = project.hasProperty('ossrhPassword') ? project.property('ossrhPassword') : ''
-	        }
-	    }
+        vcsUrl = 'https:/ / github.com / Redislabs - Solution - Architects / riot.git '
+    version {
+        gpg {
+            sign = true
+        }
+        mavenCentralSync {
+            sync = true
+            user = project.hasProperty('ossrhUsername') ? project.property('ossrhUsername') : ''
+            password = project.hasProperty('ossrhPassword') ? project.property('ossrhPassword') : ''
+        }
     }
+}
 }
 
 task sourcesJar(type: Jar) {
@@ -126,11 +132,11 @@ publishing {
                 description = 'Redis Input/Output Tool'
                 url = 'https://github.com/Redislabs-Solution-Architects/riot'
 
-		        scm {
-		          connection = 'scm:git:git://github.com/Redislabs-Solution-Architects/riot.git'
-		          developerConnection = 'scm:git:git@github.com:Redislabs-Solution-Architects/riot.git'
-		          url = 'https://github.com/Redislabs-Solution-Architects/riot'
-		        }
+                scm {
+                    connection = 'scm:git:git://github.com/Redislabs-Solution-Architects/riot.git'
+                    developerConnection = 'scm:git:git@github.com:Redislabs-Solution-Architects/riot.git'
+                    url = 'https://github.com/Redislabs-Solution-Architects/riot'
+                }
 
                 licenses {
                     license {
@@ -156,25 +162,25 @@ sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
 
 application {
-	mainClassName = 'com.redislabs.riot.Riot'
+    mainClassName = 'com.redislabs.riot.Riot'
 }
 
 jar {
     manifest {
         attributes("Implementation-Title": "RIOT",
-                   "Implementation-Version": archiveVersion)
+                "Implementation-Version": archiveVersion)
     }
 }
 
-tasks.withType(Tar){
+tasks.withType(Tar) {
     compression = Compression.GZIP
 }
 
 asciidoctor {
-  outputOptions {
-  	separateOutputDirs = false
-  }
-  attributes 'commandsdir': 'src/test/resources/commands'
+    outputOptions {
+        separateOutputDirs = false
+    }
+    attributes 'commandsdir': 'src/test/resources/commands'
 }
 
 task printVersion {

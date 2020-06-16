@@ -1,5 +1,6 @@
 package com.redislabs.riot.cli;
 
+import com.redislabs.lettuce.helper.RedisOptions;
 import com.redislabs.lettusearch.RediSearchClient;
 import com.redislabs.lettusearch.RediSearchCommands;
 import com.redislabs.lettusearch.RediSearchUtils;
@@ -8,11 +9,10 @@ import com.redislabs.lettusearch.index.field.Field;
 import com.redislabs.lettusearch.index.field.GeoField;
 import com.redislabs.lettusearch.index.field.TagField;
 import com.redislabs.lettusearch.index.field.TextField;
-import com.redislabs.picocliredis.RedisOptions;
-import com.redislabs.riot.generator.GeneratorReader;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
+import org.springframework.batch.item.faker.FakerItemReader;
 import picocli.CommandLine;
 
 import java.util.*;
@@ -32,7 +32,7 @@ public class GenerateCommand extends AbstractImportCommand<Map<String, Object>> 
 
     @Override
     protected ItemReader<Map<String, Object>> reader() {
-        return GeneratorReader.builder().locale(locale).includeMetadata(includeMetadata).fields(fakerFields()).build();
+        return FakerItemReader.builder().locale(locale).includeMetadata(includeMetadata).fields(fakerFields()).build();
     }
 
     private String expression(Field field) {
@@ -64,8 +64,8 @@ public class GenerateCommand extends AbstractImportCommand<Map<String, Object>> 
         if (fakerIndex == null) {
             return fields;
         }
-        RedisOptions redisOptions = getRedisOptions();
-        RediSearchClient rediSearchClient = redisOptions.clientResources() == null ? RediSearchClient.create(redisOptions.getRedisURI()) : RediSearchClient.create(redisOptions.clientResources(), redisOptions.getRedisURI());
+        RedisOptions redisOptions = redisOptions();
+        RediSearchClient rediSearchClient = redisOptions.getClientResources() == null ? RediSearchClient.create(redisOptions.getRedisURI()) : RediSearchClient.create(redisOptions.getClientResources(), redisOptions.getRedisURI());
         RediSearchCommands<String, String> commands = rediSearchClient.connect().sync();
         IndexInfo info = RediSearchUtils.getInfo(commands.ftInfo(fakerIndex));
         for (Field field : info.getFields()) {

@@ -5,12 +5,10 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.redislabs.riot.cli.file.FileType;
 import com.redislabs.riot.cli.file.GZIPInputStreamResource;
 import com.redislabs.riot.cli.file.MapFieldSetMapper;
-import com.redislabs.riot.file.StandardInputResource;
 import com.redislabs.riot.processor.MapFlattener;
 import com.redislabs.riot.processor.MapProcessor;
 import com.redislabs.riot.processor.ObjectMapToStringMapProcessor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.file.DefaultBufferedReaderFactory;
@@ -20,6 +18,7 @@ import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.batch.item.file.transform.Range;
 import org.springframework.batch.item.json.JacksonJsonObjectReader;
 import org.springframework.batch.item.json.builder.JsonItemReaderBuilder;
+import org.springframework.batch.item.resource.StandardInputResource;
 import org.springframework.batch.item.xml.XmlObjectReader;
 import org.springframework.batch.item.xml.builder.XmlItemReaderBuilder;
 import org.springframework.core.io.Resource;
@@ -39,7 +38,7 @@ public class FileImportCommand extends AbstractImportCommand<Map<String, String>
     @CommandLine.Option(names = {"--skip"}, description = "Lines to skip at start of file (default: ${DEFAULT-VALUE})", paramLabel = "<count>")
     private int linesToSkip = 0;
     @CommandLine.Option(names = "--include", arity = "1..*", description = "Field indices to include (0-based)", paramLabel = "<index>")
-    private Integer[] includedFields = new Integer[0];
+    private int[] includedFields = new int[0];
     @CommandLine.Option(names = "--ranges", arity = "1..*", description = "Fixed-width column ranges", paramLabel = "<int>")
     private Range[] columnRanges = new Range[0];
     @CommandLine.Option(names = {"-q", "--quote"}, description = "Escape character (default: ${DEFAULT-VALUE})", paramLabel = "<char>")
@@ -57,7 +56,7 @@ public class FileImportCommand extends AbstractImportCommand<Map<String, String>
                 FlatFileItemReaderBuilder delimitedReaderBuilder = flatFileReaderBuilder(resource);
                 FlatFileItemReaderBuilder.DelimitedBuilder delimitedBuilder = delimitedReaderBuilder.delimited();
                 delimitedBuilder.delimiter(options.getDelimiter());
-                delimitedBuilder.includedFields(includedFields);
+                delimitedBuilder.includedFields(includedFields());
                 delimitedBuilder.quoteCharacter(quoteCharacter);
                 String[] fieldNames = options.getNames();
                 if (options.isHeader()) {
@@ -66,7 +65,7 @@ public class FileImportCommand extends AbstractImportCommand<Map<String, String>
                     tokenizer.setDelimiter(options.getDelimiter());
                     tokenizer.setQuoteCharacter(quoteCharacter);
                     if (includedFields.length > 0) {
-                        tokenizer.setIncludedFields(ArrayUtils.toPrimitive(includedFields));
+                        tokenizer.setIncludedFields(includedFields);
                     }
                     fieldNames = tokenizer.tokenize(reader.readLine()).getValues();
                     log.debug("Found header {}", Arrays.asList(fieldNames));
@@ -101,6 +100,14 @@ public class FileImportCommand extends AbstractImportCommand<Map<String, String>
                 return (ItemReader) xmlReaderBuilder.build();
         }
         throw new IllegalArgumentException("Unknown file type: " + fileType);
+    }
+
+    private Integer[] includedFields() {
+        Integer[] fields = new Integer[includedFields.length];
+        for (int index = 0; index < includedFields.length; index++) {
+            fields[index] = includedFields[index];
+        }
+        return fields;
     }
 
     private FlatFileItemReaderBuilder<Map<String, String>> flatFileReaderBuilder(Resource resource) {
@@ -147,6 +154,7 @@ public class FileImportCommand extends AbstractImportCommand<Map<String, String>
     }
 
 
+    @SuppressWarnings("rawtypes")
     private ItemProcessor stringMapProcessor() {
         List<ItemProcessor> processors = new ArrayList<>();
         if (!regexes.isEmpty()) {

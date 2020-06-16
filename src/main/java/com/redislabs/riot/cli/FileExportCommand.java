@@ -3,14 +3,13 @@ package com.redislabs.riot.cli;
 import com.redislabs.riot.cli.file.GZIPOutputStreamResource;
 import com.redislabs.riot.cli.file.HeaderCallback;
 import com.redislabs.riot.cli.file.MapFieldExtractor;
-import com.redislabs.riot.file.*;
 import com.redislabs.riot.processor.KeyValueItemProcessor;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.file.FlatFileHeaderCallback;
 import org.springframework.batch.item.file.FlatFileItemWriter;
 import org.springframework.batch.item.json.JacksonJsonObjectMarshaller;
-import org.springframework.batch.item.redis.support.KeyValue;
-import org.springframework.batch.item.redis.support.TypeKeyValue;
+import org.springframework.batch.item.redis.KeyValue;
+import org.springframework.batch.item.resource.*;
 import org.springframework.batch.item.support.AbstractItemStreamItemWriter;
 import org.springframework.batch.item.support.PassThroughItemProcessor;
 import org.springframework.batch.item.xml.StaxEventItemWriter;
@@ -79,14 +78,14 @@ public class FileExportCommand extends AbstractExportCommand<Object> {
 
     @Override
     @SuppressWarnings({"rawtypes", "unchecked"})
-    protected ItemProcessor<TypeKeyValue<String>, Object> processor() {
+    protected ItemProcessor<KeyValue<String>, Object> processor() {
         switch (options.getFileType()) {
             case DELIMITED:
             case FIXED:
                 return (ItemProcessor) KeyValueItemProcessor.builder().build();
             case JSON:
             case XML:
-                return (ItemProcessor) new PassThroughItemProcessor<TypeKeyValue<String>>();
+                return (ItemProcessor) new PassThroughItemProcessor<KeyValue<String>>();
         }
         throw new IllegalArgumentException("Unknown file type");
     }
@@ -119,8 +118,8 @@ public class FileExportCommand extends AbstractExportCommand<Object> {
         throw new IllegalArgumentException("Unknown file type");
     }
 
-    private JsonResourceItemWriter<TypeKeyValue<String>> jsonWriter() throws IOException {
-        JsonResourceItemWriterBuilder<TypeKeyValue<String>> builder = new JsonResourceItemWriterBuilder<>();
+    private JsonResourceItemWriter<KeyValue<String>> jsonWriter() throws IOException {
+        JsonResourceItemWriterBuilder<KeyValue<String>> builder = new JsonResourceItemWriterBuilder<>();
         builder.name("json-resource-item-writer");
         builder.append(append);
         builder.encoding(options.getEncoding());
@@ -131,8 +130,8 @@ public class FileExportCommand extends AbstractExportCommand<Object> {
         return builder.build();
     }
 
-    private StaxEventItemWriter<TypeKeyValue<String>> xmlWriter() throws IOException {
-        StaxEventItemWriterBuilder<TypeKeyValue<String>> builder = new StaxEventItemWriterBuilder<>();
+    private StaxEventItemWriter<KeyValue<String>> xmlWriter() throws IOException {
+        StaxEventItemWriterBuilder<KeyValue<String>> builder = new StaxEventItemWriterBuilder<>();
         builder.name("xml-resource-item-writer");
         builder.encoding(options.getEncoding());
         builder.forceSync(forceSync);

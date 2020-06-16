@@ -1,10 +1,10 @@
 package com.redislabs.riot.cli.file;
 
+import org.springframework.batch.item.resource.OutputStreamResource;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.zip.GZIPOutputStream;
-
-import com.redislabs.riot.file.OutputStreamResource;
 
 public class GZIPOutputStreamResource extends OutputStreamResource {
 

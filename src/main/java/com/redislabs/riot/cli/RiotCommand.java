@@ -1,7 +1,7 @@
 package com.redislabs.riot.cli;
 
+import com.redislabs.lettuce.helper.RedisOptions;
 import com.redislabs.picocliredis.HelpCommand;
-import com.redislabs.picocliredis.RedisOptions;
 import com.redislabs.riot.Riot;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -22,8 +22,8 @@ public class RiotCommand extends HelpCommand implements Runnable {
         CommandLine.usage(this, System.out);
     }
 
-    public RedisOptions getRedisOptions() {
-        return riot.getRedisOptions();
+    public RedisOptions redisOptions() {
+        return riot.redisOptions();
     }
 
 

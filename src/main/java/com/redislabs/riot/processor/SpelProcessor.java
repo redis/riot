@@ -2,7 +2,6 @@ package com.redislabs.riot.processor;
 
 import io.lettuce.core.api.StatefulConnection;
 import io.lettuce.core.api.sync.BaseRedisCommands;
-import io.lettuce.core.api.sync.RedisCommands;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.item.ItemProcessor;
@@ -14,10 +13,7 @@ import org.springframework.util.Assert;
 
 import java.lang.reflect.Method;
 import java.text.DateFormat;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 
@@ -51,14 +47,13 @@ public class SpelProcessor implements ItemProcessor<Map<String, Object>, Map<Str
         } catch (NoSuchMethodException | SecurityException e) {
             log.error("Could not register geo function", e);
         }
-        context.setPropertyAccessors(Arrays.asList(new MapAccessor()));
+        context.setPropertyAccessors(Collections.singletonList(new MapAccessor()));
         fields.forEach((k, v) -> expressions.put(k, parser.parseExpression(v)));
     }
 
     @Override
     public Map<String, Object> process(Map<String, Object> item) {
-        Map<String, Object> map = new HashMap<>();
-        map.putAll(item);
+        Map<String, Object> map = new HashMap<>(item);
         synchronized (context) {
             for (String field : expressions.keySet()) {
                 try {

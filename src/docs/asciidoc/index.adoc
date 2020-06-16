@@ -55,14 +55,19 @@ Specify the file type using the `--filetype` option. If not RIOT will try to det
 
 ==== Delimited
 
-The delimiter character(s) is `,` and can be set with the `--delimiter` option.
+* Delimiter character
 
-Specify field names with the `--fields` option (see xref:import-csv-geo[]).
+The default delimiter character is comma (`,`). It can be changed with the `--delimiter` option.
 
-If the file has a header containing field names, use the `--header` option.
+* Field names
 
-.Import CSV
-Using this CSV file:
+To specify field names use the `--fields` option (see xref:import-csv-geo[]).
+
+If the file has a header containing field names, use the `--header` option to have RIOT obtain the fields from that header.
+
+* Importing
+
+Let's use this CSV file: https://raw.githubusercontent.com/nickhould/craft-beers-dataset/master/data/processed/beers.csv
 
 |=========
 |   | abv   | ibu | id   | name        | style                   | brewery_id | ounces
@@ -73,25 +78,33 @@ Using this CSV file:
 
 |=========
 
+The following command imports the CSV data into Redis hashes with `beer` as the key prefix and `id` as the primary key, which means that the keys will be `beer:1436`, `beer:2265`, ...
+.Import CSV to Hashes
 [source,shell]
 ----
 include::{commandsdir}/import-csv-hash.txt[]
 ----
 
-[#import-csv-geo]
-.Import CSV to Geo
-[source,shell]
-----
-include::{commandsdir}/import-csv-geo.txt[]
-----
-
-.Import CSV into RediSearch
+.Import CSV into RediSearch index
 [source,shell]
 ----
 include::{commandsdir}/import-csv-search.txt[]
 ----
 
-.Export CSV
+[#import-csv-geo]
+.Import CSV to a Geo set
+[source,shell]
+----
+include::{commandsdir}/import-csv-geo.txt[]
+----
+
+.Import CSV into RediSearch geo
+[source,shell]
+----
+include::{commandsdir}/import-csv-processor-search-geo.txt[]
+----
+
+.Export to CSV
 [source,shell]
 ----
 include::{commandsdir}/export-csv.txt[]

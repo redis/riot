@@ -2,9 +2,8 @@ package com.redislabs.riot.cli;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.redislabs.lettusearch.StatefulRediSearchConnection;
+import com.redislabs.lettuce.helper.RedisOptions;
 import com.redislabs.lettusearch.search.AddOptions;
-import com.redislabs.picocliredis.RedisOptions;
 import com.redislabs.riot.convert.IdemConverter;
 import com.redislabs.riot.convert.KeyMaker;
 import com.redislabs.riot.convert.ObjectMapperConverter;
@@ -12,20 +11,14 @@ import com.redislabs.riot.convert.field.FieldExtractor;
 import com.redislabs.riot.convert.field.MapToArrayConverter;
 import com.redislabs.riot.processor.ObjectMapToStringMapProcessor;
 import com.redislabs.riot.processor.SpelProcessor;
-import com.redislabs.riot.processor.command.DocumentItemProcessor;
-import com.redislabs.riot.processor.command.PayloadDocumentItemProcessor;
-import com.redislabs.riot.processor.command.PayloadSuggestionItemProcessor;
-import com.redislabs.riot.processor.command.SuggestionItemProcessor;
-import io.lettuce.core.api.StatefulRedisConnection;
-import io.lettuce.core.cluster.api.StatefulRedisClusterConnection;
 import lombok.Getter;
-import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.batch.item.redis.support.RedisClusterDataStructureItemWriters;
-import org.springframework.batch.item.redis.support.RedisDataStructureItemWriters;
-import org.springframework.batch.item.redisearch.RediSearchDocumentItemWriter;
+import org.springframework.batch.item.redis.support.RedisCommandItemWriters;
+import org.springframework.batch.item.redisearch.RediSearchItemWriter;
 import org.springframework.batch.item.redisearch.RediSearchSuggestItemWriter;
+import org.springframework.batch.item.redisearch.support.DocumentItemProcessor;
+import org.springframework.batch.item.redisearch.support.SuggestionItemProcessor;
 import org.springframework.batch.item.support.CompositeItemProcessor;
 import org.springframework.batch.item.support.PassThroughItemProcessor;
 import org.springframework.core.convert.converter.Converter;
@@ -71,10 +64,14 @@ public class ImportCommand extends TransferCommand {
     @CommandLine.ArgGroup(exclusive = false, heading = "RediSearch command options%n")
     private final RediSearchCommandOptions redisearch = new RediSearchCommandOptions();
 
+    @Override
+    protected String taskName() {
+        return "Importing";
+    }
 
     public SpelProcessor spelProcessor() {
-        RedisOptions redisOptions = getRedisOptions();
-        return SpelProcessor.builder().connection(redisOptions.isCluster() ? redisOptions.redisClusterClient().connect() : redisOptions.redisClient().connect()).commands(redisOptions.isCluster() ? c -> ((StatefulRedisClusterConnection<String, String>) c).sync() : c -> ((StatefulRedisConnection<String, String>) c).sync()).dateFormat(new SimpleDateFormat(dateFormat)).variables(variables).fields(spel).build();
+        RedisOptions redisOptions = redisOptions();
+        return SpelProcessor.builder().connection(redisOptions.connection()).commands(redisOptions.sync()).dateFormat(new SimpleDateFormat(dateFormat)).variables(variables).fields(spel).build();
     }
 
     private KeyMaker<Map<String, String>> keyMaker() {
@@ -128,151 +125,61 @@ public class ImportCommand extends TransferCommand {
     }
 
     private ItemProcessor suggestionItemProcessor() {
-        if (redisearch.getPayloadField() == null) {
-            new SuggestionItemProcessor<>(fieldExtractor(redisearch.getField()), scoreConverter());
+        SuggestionItemProcessor.SuggestionItemProcessorBuilder<String, String> builder = SuggestionItemProcessor.<String, String>builder().stringConverter(fieldExtractor(redisearch.getField())).scoreConverter(scoreConverter());
+        if (redisearch.getPayloadField() != null) {
+            builder.payloadConverter(fieldExtractor(redisearch.getPayloadField()));
         }
-        return new PayloadSuggestionItemProcessor<>(fieldExtractor(redisearch.getField()), scoreConverter(), fieldExtractor(redisearch.getPayloadField()));
+        return builder.build();
     }
 
     private ItemProcessor documentItemProcessor() {
-        if (redisearch.getPayloadField() == null) {
-            return new DocumentItemProcessor<>(keyMaker(), scoreConverter());
+        DocumentItemProcessor.DocumentItemProcessorBuilder<String, String> builder = DocumentItemProcessor.<String, String>builder().idConverter(keyMaker()).scoreConverter(scoreConverter());
+        if (redisearch.getPayloadField() != null) {
+            builder.payloadConverter(fieldExtractor(redisearch.getPayloadField()));
         }
-        return new PayloadDocumentItemProcessor<>(keyMaker(), scoreConverter(), fieldExtractor(redisearch.getPayloadField()));
+        return builder.build();
     }
 
-    public ItemWriter<Object> writer() {
+    public ItemWriter writer() {
+        RedisOptions redisOptions = redisOptions();
         switch (command) {
             case EVALSHA:
-                return (ItemWriter) evalWriter();
+                return new RedisCommandItemWriters.Eval<>(redisOptions.connectionPool(), redisOptions.async(), redisOptions.getTimeout(), commandOptions.getEvalSha(), commandOptions.getEvalOutputType(), MapToArrayConverter.builder().fields(keyFields).build(), MapToArrayConverter.builder().fields(commandOptions.getEvalArgs()).build());
             case EXPIRE:
-                return (ItemWriter) expireWriter();
+                return new RedisCommandItemWriters.Expire(redisOptions.connectionPool(), redisOptions.async(), redisOptions.getTimeout(), keyMaker(), longFieldExtractor(commandOptions.getTimeout()));
             case HMSET:
-                return (ItemWriter) hashWriter();
+                return new RedisCommandItemWriters.Hmset(redisOptions.connectionPool(), redisOptions.async(), redisOptions.getTimeout(), keyMaker(), new IdemConverter<>());
             case GEOADD:
-                return (ItemWriter) geoWriter();
+                return new RedisCommandItemWriters.Geoadd(redisOptions.connectionPool(), redisOptions.async(), redisOptions.getTimeout(), keyMaker(), memberIdMaker(), doubleFieldExtractor(commandOptions.getLongitudeField()), doubleFieldExtractor(commandOptions.getLatitudeField()));
             case LPUSH:
-                return (ItemWriter) listWriter(false);
+                return new RedisCommandItemWriters.Lpush(redisOptions.connectionPool(), redisOptions.async(), redisOptions.getTimeout(), keyMaker(), memberIdMaker());
             case RPUSH:
-                return (ItemWriter) listWriter(true);
+                return new RedisCommandItemWriters.Rpush(redisOptions.connectionPool(), redisOptions.async(), redisOptions.getTimeout(), keyMaker(), memberIdMaker());
             case SADD:
-                return (ItemWriter) setWriter();
+                return new RedisCommandItemWriters.Sadd(redisOptions.connectionPool(), redisOptions.async(), redisOptions.getTimeout(), keyMaker(), memberIdMaker());
             case SET:
-                return (ItemWriter) stringWriter();
+                return new RedisCommandItemWriters.Set(redisOptions.connectionPool(), redisOptions.async(), redisOptions.getTimeout(), keyMaker(), stringValueConverter());
             case NOOP:
-                return (ItemWriter) noopWriter();
+                return new RedisCommandItemWriters.Noop<>(redisOptions.connectionPool(), redisOptions.async(), redisOptions.getTimeout());
             case XADD:
-                return (ItemWriter) streamWriter();
+                return new RedisCommandItemWriters.Xadd(redisOptions.connectionPool(), redisOptions.async(), redisOptions.getTimeout(), keyMaker(), new IdemConverter<>(), fieldExtractor(commandOptions.getIdField()), commandOptions.getMaxlen(), commandOptions.isApproximateTrimming());
             case ZADD:
-                return (ItemWriter) sortedSetWriter();
+                return new RedisCommandItemWriters.Zadd(redisOptions.connectionPool(), redisOptions.async(), redisOptions.getTimeout(), keyMaker(), memberIdMaker(), scoreConverter());
             case FTADD:
-                return (ItemWriter) searchWriter();
+                return searchWriter();
             case FTSUGADD:
-                return (ItemWriter) suggestWriter();
+                return suggestWriter();
         }
         throw new IllegalArgumentException("Command not supported");
     }
 
-    private RediSearchDocumentItemWriter<String, String> searchWriter() {
+    private RediSearchItemWriter<String, String> searchWriter() {
         AddOptions addOptions = AddOptions.builder().ifCondition(redisearch.getIfCondition()).language(redisearch.getLanguage()).noSave(redisearch.isNosave()).replace(redisearch.isReplace()).replacePartial(redisearch.isReplacePartial()).build();
-        RediSearchDocumentItemWriter.Options options = RediSearchDocumentItemWriter.Options.builder().addOptions(addOptions).build();
-        return RediSearchDocumentItemWriter.<String, String>builder().pool(rediSearchConnectionPool()).index(redisearch.getIndex()).options(options).build();
+        return RediSearchItemWriter.builder().redisOptions(redisOptions()).index(redisearch.getIndex()).addOptions(addOptions).build();
     }
 
     private RediSearchSuggestItemWriter<String, String> suggestWriter() {
-        RediSearchSuggestItemWriter.Options options = RediSearchSuggestItemWriter.Options.builder().increment(redisearch.isIncrement()).build();
-        return RediSearchSuggestItemWriter.<String, String>builder().pool(rediSearchConnectionPool()).key(redisearch.getIndex()).options(options).build();
-    }
-
-    private GenericObjectPool<StatefulRediSearchConnection<String, String>> rediSearchConnectionPool() {
-        return connectionPool(rediSearchClient(getRedisOptions()));
-    }
-
-    private GenericObjectPool<StatefulRedisClusterConnection<String, String>> clusterConnectionPool() {
-        return connectionPool(getRedisOptions().redisClusterClient());
-    }
-
-    private GenericObjectPool<StatefulRedisConnection<String, String>> connectionPool() {
-        return connectionPool(getRedisOptions().redisClient());
-    }
-
-    private long commandTimeout() {
-        return getRedisOptions().getCommandTimeout();
-    }
-
-    private boolean isCluster() {
-        return getRedisOptions().isCluster();
-    }
-
-
-    private ItemWriter<Map<String, String>> evalWriter() {
-        if (isCluster()) {
-            return new RedisClusterDataStructureItemWriters.RedisClusterEvalItemWriter<>(clusterConnectionPool(), commandTimeout(), commandOptions.getEvalSha(), commandOptions.getEvalOutputType(), MapToArrayConverter.builder().fields(keyFields).build(), MapToArrayConverter.builder().fields(commandOptions.getEvalArgs()).build());
-        }
-        return new RedisDataStructureItemWriters.RedisEvalItemWriter<>(connectionPool(), commandTimeout(), commandOptions.getEvalSha(), commandOptions.getEvalOutputType(), MapToArrayConverter.builder().fields(keyFields).build(), MapToArrayConverter.builder().fields(commandOptions.getEvalArgs()).build());
-    }
-
-    private ItemWriter<Map<String, String>> noopWriter() {
-        if (isCluster()) {
-            return new RedisClusterDataStructureItemWriters.RedisClusterNoopItemWriter<>(clusterConnectionPool(), commandTimeout());
-        }
-        return new RedisDataStructureItemWriters.RedisNoopItemWriter<>(connectionPool(), commandTimeout());
-    }
-
-    private ItemWriter<Map<String, String>> streamWriter() {
-        if (isCluster()) {
-            return new RedisClusterDataStructureItemWriters.RedisClusterStreamItemWriter<>(clusterConnectionPool(), commandTimeout(), keyMaker(), new IdemConverter<>(), fieldExtractor(commandOptions.getIdField()), commandOptions.getMaxlen(), commandOptions.isApproximateTrimming());
-        }
-        return new RedisDataStructureItemWriters.RedisStreamItemWriter<>(connectionPool(), commandTimeout(), keyMaker(), new IdemConverter<>(), fieldExtractor(commandOptions.getIdField()), commandOptions.getMaxlen(), commandOptions.isApproximateTrimming());
-    }
-
-    private ItemWriter<Map<String, String>> sortedSetWriter() {
-        if (isCluster()) {
-            return new RedisClusterDataStructureItemWriters.RedisClusterSortedSetItemWriter<>(clusterConnectionPool(), commandTimeout(), keyMaker(), memberIdMaker(), scoreConverter());
-        }
-        return new RedisDataStructureItemWriters.RedisSortedSetItemWriter<>(connectionPool(), commandTimeout(), keyMaker(), memberIdMaker(), scoreConverter());
-    }
-
-    private ItemWriter<Map<String, String>> hashWriter() {
-        if (isCluster()) {
-            return new RedisClusterDataStructureItemWriters.RedisClusterHashItemWriter<>(clusterConnectionPool(), commandTimeout(), keyMaker(), new IdemConverter<>());
-        }
-        return new RedisDataStructureItemWriters.RedisHashItemWriter<>(connectionPool(), commandTimeout(), keyMaker(), new IdemConverter<>());
-    }
-
-    private ItemWriter<Map<String, String>> geoWriter() {
-        if (isCluster()) {
-            return new RedisClusterDataStructureItemWriters.RedisClusterGeoSetItemWriter<>(clusterConnectionPool(), commandTimeout(), keyMaker(), memberIdMaker(), doubleFieldExtractor(commandOptions.getLongitudeField()), doubleFieldExtractor(commandOptions.getLatitudeField()));
-        }
-        return new RedisDataStructureItemWriters.RedisGeoSetItemWriter<>(connectionPool(), commandTimeout(), keyMaker(), memberIdMaker(), doubleFieldExtractor(commandOptions.getLongitudeField()), doubleFieldExtractor(commandOptions.getLatitudeField()));
-    }
-
-    private ItemWriter<Map<String, String>> listWriter(boolean right) {
-        if (isCluster()) {
-            return new RedisClusterDataStructureItemWriters.RedisClusterListItemWriter<>(clusterConnectionPool(), commandTimeout(), keyMaker(), memberIdMaker(), right);
-        }
-        return new RedisDataStructureItemWriters.RedisListItemWriter<>(connectionPool(), commandTimeout(), keyMaker(), memberIdMaker(), right);
-    }
-
-    private ItemWriter<Map<String, String>> setWriter() {
-        if (isCluster()) {
-            return new RedisClusterDataStructureItemWriters.RedisClusterSetItemWriter<>(clusterConnectionPool(), commandTimeout(), keyMaker(), memberIdMaker());
-        }
-        return new RedisDataStructureItemWriters.RedisSetItemWriter<>(connectionPool(), commandTimeout(), keyMaker(), memberIdMaker());
-    }
-
-    private ItemWriter<Map<String, String>> stringWriter() {
-        if (isCluster()) {
-            return new RedisClusterDataStructureItemWriters.RedisClusterStringItemWriter<>(clusterConnectionPool(), commandTimeout(), keyMaker(), stringValueConverter());
-        }
-        return new RedisDataStructureItemWriters.RedisStringItemWriter<>(connectionPool(), commandTimeout(), keyMaker(), stringValueConverter());
-    }
-
-    private ItemWriter<Map<String, String>> expireWriter() {
-        if (isCluster()) {
-            return new RedisClusterDataStructureItemWriters.RedisClusterExpireItemWriter<>(clusterConnectionPool(), commandTimeout(), keyMaker(), longFieldExtractor(commandOptions.getTimeout()));
-        }
-        return new RedisDataStructureItemWriters.RedisExpireItemWriter<>(connectionPool(), commandTimeout(), keyMaker(), longFieldExtractor(commandOptions.getTimeout()));
+        return RediSearchSuggestItemWriter.builder().redisOptions(redisOptions()).increment(redisearch.isIncrement()).key(redisearch.getIndex()).build();
     }
 
     private Converter<Map<String, String>, String> fieldExtractor(String field) {

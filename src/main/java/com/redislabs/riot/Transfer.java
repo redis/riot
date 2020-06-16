@@ -83,7 +83,7 @@ public class Transfer<I, O> {
 
     private void flush() {
         if (reader instanceof AbstractRedisItemReader) {
-            ((AbstractRedisItemReader<?, ?, ?, ?>) reader).flush();
+            ((AbstractRedisItemReader<?, ?, ?>) reader).flush();
         }
         for (BatchRunnable<I> thread : threads) {
             try {

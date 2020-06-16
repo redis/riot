@@ -1,4 +1,4 @@
-package com.redislabs.riot.cli.progress;
+package com.redislabs.riot.cli;
 
 import lombok.Builder;
 import lombok.Data;

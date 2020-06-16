@@ -1,1 +1,1 @@
-$ riot -r localhost:6379 import --max 1000 --keyspace test --keys index gen index=#index firstName=name.firstName lastName=name.lastName address=address.fullAddress
+$ riot -r redis://localhost:6379 import --max 1000 --keyspace test --keys index gen index=#index firstName=name.firstName lastName=name.lastName address=address.fullAddress

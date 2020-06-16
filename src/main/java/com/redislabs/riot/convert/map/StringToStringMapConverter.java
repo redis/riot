@@ -3,7 +3,6 @@ package com.redislabs.riot.convert.map;
 import lombok.Builder;
 import org.springframework.core.convert.converter.Converter;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 

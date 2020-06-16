@@ -1,16 +1,17 @@
 package com.redislabs.riot.cli;
 
 import lombok.Getter;
+import org.springframework.batch.item.redis.support.ReaderOptions;
 import picocli.CommandLine.Option;
 
 public class ExportOptions {
 
     @Getter
     @Option(names = "--count", description = "SCAN COUNT option (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
-    private long scanCount = 1000;
+    private long scanCount = ReaderOptions.DEFAULT_SCAN_COUNT;
     @Getter
-    @Option(names = "--match", description = "SCAN MATCH pattern", paramLabel = "<pattern>")
-    private String scanMatch;
+    @Option(names = "--match", description = "SCAN MATCH pattern (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
+    private String scanMatch = ReaderOptions.DEFAULT_SCAN_MATCH;
     @Getter
     @Option(names = "--reader-queue", description = "Capacity of the reader queue (default: ${DEFAULT-VALUE})", paramLabel = "<int>", hidden = true)
     private int queueCapacity = 10000;

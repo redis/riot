@@ -6,7 +6,6 @@ import com.redislabs.riot.convert.type.StringToLongConverter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.springframework.core.convert.converter.Converter;
-import org.springframework.util.Assert;
 
 import java.util.Map;
 

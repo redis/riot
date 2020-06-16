@@ -17,10 +17,8 @@ public class ObjectMapToStringMapProcessor<K, V> implements ItemProcessor<Map<K,
     }
 
     @Override
-    public Map<K, V> process(Map<K, Object> item) throws Exception {
-        for (K key : item.keySet()) {
-            item.put(key, objectToStringConverter.convert(item.get(key)));
-        }
+    public Map<K, V> process(Map<K, Object> item) {
+        item.replaceAll((k, v) -> objectToStringConverter.convert(item.get(k)));
         return (Map) item;
     }
 

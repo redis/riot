@@ -4,7 +4,6 @@ import io.lettuce.core.api.sync.BaseRedisCommands;
 import io.lettuce.core.api.sync.RedisServerCommands;
 import io.lettuce.core.metrics.CommandMetrics;
 import io.lettuce.core.metrics.DefaultCommandLatencyCollectorOptions;
-import io.lettuce.core.protocol.RedisCommand;
 import lombok.extern.slf4j.Slf4j;
 import org.HdrHistogram.Histogram;
 import org.LatencyUtils.LatencyStats;
@@ -35,31 +34,22 @@ public class TestCommand extends RiotCommand implements Runnable {
     private boolean latencyDistribution = false;
 
     @Override
+    @SuppressWarnings("unchecked")
     public void run() {
-        BaseRedisCommands<String, String> commands = getRedisCommands();
+        BaseRedisCommands<String, String> commands = redisOptions().commands();
         switch (test) {
             case PING:
-                ping(commands);
+                log.info("Received ping reply: {}", commands.ping());
+                break;
             case INFO:
-                info(commands);
+                log.info(((RedisServerCommands<String, String>) commands).info());
+                break;
             case LATENCY:
                 latency(commands);
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown test command: " + test);
         }
-    }
-
-    private BaseRedisCommands<String, String> getRedisCommands() {
-        if (getRedisOptions().isCluster()) {
-            return getRedisOptions().redisClusterClient().connect().sync();
-        }
-        return getRedisOptions().redisClient().connect().sync();
-    }
-
-    private void ping(BaseRedisCommands<String, String> commands) {
-        log.info("Received ping reply: {}", commands.ping());
-    }
-
-    private void info(BaseRedisCommands<String, String> commands) {
-        log.info(((RedisServerCommands<String, String>) commands).info());
     }
 
     private void latency(BaseRedisCommands<String, String> commands) {

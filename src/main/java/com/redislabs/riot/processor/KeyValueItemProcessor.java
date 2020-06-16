@@ -8,7 +8,7 @@ import io.lettuce.core.StreamMessage;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.springframework.batch.item.ItemProcessor;
-import org.springframework.batch.item.redis.support.TypeKeyValue;
+import org.springframework.batch.item.redis.KeyValue;
 import org.springframework.core.convert.converter.Converter;
 
 import java.util.HashMap;
@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class KeyValueItemProcessor<K, V> implements ItemProcessor<TypeKeyValue<K>, Map<K, Object>> {
+public class KeyValueItemProcessor<K, V> implements ItemProcessor<KeyValue<K>, Map<K, Object>> {
 
     private final Converter<K, Map<K, V>> keyFieldsExtractor;
     private final Converter<Map<K, V>, Map<K, V>> hashConverter;
@@ -39,9 +39,8 @@ public class KeyValueItemProcessor<K, V> implements ItemProcessor<TypeKeyValue<K
     }
 
     @Override
-    public Map<K, Object> process(TypeKeyValue<K> item) {
-        Map<K, Object> map = new HashMap<>();
-        map.putAll(keyFieldsExtractor.convert(item.getKey()));
+    public Map<K, Object> process(KeyValue<K> item) {
+        Map<K, Object> map = new HashMap<>(keyFieldsExtractor.convert(item.getKey()));
         Map<K, V> valueMap = map(item);
         if (valueMap != null) {
             map.putAll(valueMap);
@@ -49,7 +48,7 @@ public class KeyValueItemProcessor<K, V> implements ItemProcessor<TypeKeyValue<K
         return map;
     }
 
-    private Map<K, V> map(TypeKeyValue<K> item) {
+    private Map<K, V> map(KeyValue<K> item) {
         switch (item.getType()) {
             case HASH:
                 return hashConverter.convert((Map<K, V>) item.getValue());

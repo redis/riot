@@ -1,4 +1,4 @@
-package com.redislabs.riot.cli.progress;
+package com.redislabs.riot.cli;
 
 import com.redislabs.riot.Transfer;
 import lombok.Builder;
@@ -38,6 +38,7 @@ public class ProgressBarReporter {
             builder.setInitialMax(options.getInitialMax());
         }
         builder.setTaskName(options.getTaskName());
+        builder.showSpeed();
         this.bar = builder.build();
         this.scheduledFuture = scheduler.scheduleAtFixedRate(this::update, 0, options.getRefreshInterval(), TimeUnit.MILLISECONDS);
     }

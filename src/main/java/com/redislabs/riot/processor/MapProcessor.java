@@ -7,7 +7,6 @@ import org.springframework.core.convert.converter.Converter;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 public class MapProcessor<K, V> implements ItemProcessor<Map<K, V>, Map<K, V>> {
 
