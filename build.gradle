@@ -89,7 +89,7 @@ bintray {
         repo = 'maven'
         name = 'riot'
         licenses = ['Apache-2.0']
-        vcsUrl = 'https:/ / github.com / Redislabs - Solution - Architects / riot.git '
+        vcsUrl = 'https://github.com/Redislabs-Solution-Architects/riot.git'
     version {
         gpg {
             sign = true
@@ -167,8 +167,7 @@ application {
 
 jar {
     manifest {
-        attributes("Implementation-Title": "RIOT",
-                "Implementation-Version": archiveVersion)
+        attributes("Implementation-Title": "RIOT", "Implementation-Version": archiveVersion)
     }
 }
 
