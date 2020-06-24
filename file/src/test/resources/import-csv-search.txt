@@ -1,0 +1,1 @@
+❯ riot-file import https://raw.githubusercontent.com/nickhould/craft-beers-dataset/master/data/processed/beers.csv --command ftadd --index beers --keys id --header

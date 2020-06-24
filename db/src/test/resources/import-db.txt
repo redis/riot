@@ -1,0 +1,1 @@
+❯ riot-db import "SELECT * FROM mytable" --url "jdbc:hsqldb:mem:mymemdb" --keyspace dbtest --keys id

@@ -1,1 +1,0 @@
-$ riot import --script "function process(item) { item.address = item.address.toUpperCase(); return item; } process(item);" --max 100 --keyspace person --keys id gen id=#index firstName=name.firstName lastName=name.lastName address=address.fullAddress

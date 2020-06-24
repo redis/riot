@@ -1,0 +1,43 @@
+plugins {
+    id 'application'
+}
+
+archivesBaseName = 'riot-db'
+
+bootJar {
+    enabled = false
+}
+
+jar {
+    enabled = true
+}
+
+test {
+    useJUnitPlatform()
+}
+
+dependencies {
+    implementation project(':core')
+    implementation 'org.slf4j:slf4j-jdk14'
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    implementation 'org.springframework.boot:spring-boot-autoconfigure'
+    implementation 'org.springframework:spring-jdbc'
+    implementation 'com.zaxxer:HikariCP'
+    implementation 'org.xerial:sqlite-jdbc:3.28.0'
+    implementation 'com.ibm.db2:jcc:11.5.0.0'
+    implementation 'com.microsoft.sqlserver:mssql-jdbc:7.4.1.jre8'
+    implementation 'com.oracle.ojdbc:ojdbc8:19.3.0.0'
+    implementation 'org.postgresql:postgresql:42.2.8'
+    testImplementation project(':test')
+    testImplementation 'org.hsqldb:hsqldb'
+}
+
+configurations {
+    all*.exclude module: 'spring-boot-starter-logging'
+}
+
+application {
+    mainClassName = 'com.redislabs.riot.db.App'
+    applicationName = 'riot-db'
+}

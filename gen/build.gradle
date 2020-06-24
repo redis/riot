@@ -1,0 +1,35 @@
+plugins {
+    id 'application'
+}
+
+archivesBaseName = 'riot-gen'
+
+bootJar {
+    enabled = false
+}
+
+jar {
+    enabled = true
+}
+
+test {
+    useJUnitPlatform()
+}
+
+dependencies {
+    implementation project(':core')
+    implementation 'org.slf4j:slf4j-jdk14'
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    implementation 'org.ruaux:spring-batch-faker:1.0.1'
+    testImplementation project(':test')
+}
+
+configurations {
+    all*.exclude module: 'spring-boot-starter-logging'
+}
+
+application {
+    mainClassName = 'com.redislabs.riot.gen.App'
+    applicationName = 'riot-gen'
+}

@@ -1,0 +1,1 @@
+❯ riot-file import %s --keyspace estest --keys _id

@@ -18,8 +18,8 @@ buildNumber.properties
 .DS_Store
 .asciidoctor/
 bin/
-/build/
-/.gradle/
+build/
+.gradle/
 *.log
 /.externalToolBuilders/
-.idea
+.idea/

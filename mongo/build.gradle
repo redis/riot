@@ -1,0 +1,27 @@
+plugins {
+    id 'application'
+    id 'java'
+    id 'java-library'
+    id 'org.springframework.boot' version '2.3.1.RELEASE'
+    id 'io.spring.dependency-management' version '1.0.9.RELEASE'
+}
+
+bootJar {
+    enabled = false
+}
+
+jar {
+    enabled = true
+}
+
+test {
+    useJUnitPlatform()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+}
+
+application {
+    mainClassName = 'com.redislabs.riot-file.mongodb.App'
+}

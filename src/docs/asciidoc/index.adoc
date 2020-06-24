@@ -294,13 +294,13 @@ riot --metrics …
 ==== Strings
 [source,shell]
 ----
-$ riot -s redis-12001.redislabs.com:12001 --max-total 96 gen --batch 5000 --threads 96 --max 100000000 --command set --keyspace hash --keys index --value index
+❯ riot -s redis-12001.redislabs.com:12001 --max-total 96 gen --batch 5000 --threads 96 --max 100000000 --command set --keyspace hash --keys index --value index
 ----
 image::images/rs-strings.png[]
 
 ==== Streams
 [source,shell]
 ----
-$ riot -s redis-12001.internal.jrx.demo.redislabs.com:12001 --pool-max-total 96 gen --batch 5000 --threads 96 --max 100000000 --command xadd --keyspace stream --keys partition
+❯ riot -s redis-12001.internal.jrx.demo.redislabs.com:12001 --pool-max-total 96 gen --batch 5000 --threads 96 --max 100000000 --command xadd --keyspace stream --keys partition
 ----
 image::images/rs-streams.png[]

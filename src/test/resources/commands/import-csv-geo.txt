@@ -1,1 +1,0 @@
-$ riot import --command geoadd --keyspace airportgeo --members AirportID --lon Longitude --lat Latitude file https://raw.githubusercontent.com/jpatokal/openflights/master/data/airports.dat --fields AirportID Name City Country IATA ICAO Latitude Longitude Altitude Timezone DST Tz Type Source

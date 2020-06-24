@@ -1,1 +1,0 @@
-$ riot import --batch 50 --max 1000 --command xadd --keyspace teststream --keys category gen id=#index category=number.randomDigit

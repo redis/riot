@@ -27,13 +27,13 @@ RIOT is a data import/export tool for Redis. Use RIOT to bulk load/unload data f
 
 Download the {repo-url}/releases/latest[latest release] and untar/unzip the archive.
 
-Launch the `riot` script (`riot.bat` for Windows) and follow the usage information provided.
+Launch the `riot-file` script (`riot.bat` for Windows) and follow the usage information provided.
 
 === Install via Homebrew
 
 ```
 $ brew install jruaux/tap/riot
-$ riot --help
+❯ riot --help
 ```
 
 === Tab Completion
