@@ -1,6 +1,18 @@
 plugins {
+    id 'distribution'
     id 'org.springframework.boot' version '2.3.1.RELEASE'
     id 'io.spring.dependency-management' version '1.0.9.RELEASE'
+    id 'com.github.ben-manes.versions' version '0.28.0'
+    id 'net.researchgate.release' version '2.8.1'
+    id 'com.github.breadmoirai.github-release' version '2.2.12'
+    id 'org.asciidoctor.jvm.convert' version '3.2.0'
+    id 'org.ajoberstar.git-publish' version '2.1.3'
+}
+
+repositories {
+    jcenter()
+    mavenCentral()
+    mavenLocal()
 }
 
 subprojects {
@@ -8,6 +20,7 @@ subprojects {
     apply plugin: 'java'
     apply plugin: 'org.springframework.boot'
     apply plugin: 'io.spring.dependency-management'
+    apply plugin: 'com.github.breadmoirai.github-release'
     sourceCompatibility = '1.8'
     targetCompatibility = '1.8'
     repositories {
@@ -15,4 +28,49 @@ subprojects {
         mavenCentral()
         mavenLocal()
     }
+    tasks.withType(Tar) {
+        compression = Compression.GZIP
+    }
 }
+
+asciidoctor {
+    outputOptions {
+        separateOutputDirs = false
+    }
+}
+
+task printVersion {
+    doLast {
+        println project.version
+    }
+}
+
+distributions {
+    custom {
+        contents {
+            into ('lib') {
+                from 'file/build/distributions/riot-file-2.0.0.zip'
+            }
+        }
+    }
+}
+
+githubRelease {
+    token = project.hasProperty('githubToken') ? project.property('githubToken') : ''
+    owner "Redislabs-Solution-Architects"
+    repo "riot"
+    releaseAssets customDistZip
+}
+
+gitPublish {
+    repoUri = 'git@github.com:Redislabs-Solution-Architects/riot.git'
+    referenceRepoUri = 'file:///Users/jruaux/git/riot/'
+    branch = 'gh-pages'
+    contents {
+        from 'build/docs/asciidoc'
+    }
+}
+
+gitPublishPush.dependsOn asciidoctor
+afterReleaseBuild.dependsOn ":githubRelease"
+afterReleaseBuild.dependsOn gitPublishPush
