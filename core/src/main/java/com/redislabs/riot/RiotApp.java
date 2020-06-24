@@ -27,7 +27,7 @@ import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
-@CommandLine.Command(sortOptions = false)
+@CommandLine.Command(sortOptions = false, usageHelpAutoWidth = true)
 public class RiotApp extends RedisApplication {
 
     @Getter
@@ -69,10 +69,6 @@ public class RiotApp extends RedisApplication {
         return ClusterClientOptions.builder().sslOptions(sslOptionsBuilder.build()).build();
     }
 
-    protected String getLoggerName() {
-        return "com.redislabs";
-    }
-
     private static final String ROOT_LOGGER = "";
 
     @Override
@@ -85,7 +81,7 @@ public class RiotApp extends RedisApplication {
         handler.setFormatter(new OneLineLogFormat(isDebug()));
         activeLogger.addHandler(handler);
         Logger.getLogger(ROOT_LOGGER).setLevel(rootLoggingLevel());
-        Logger.getLogger(getLoggerName()).setLevel(packageLoggingLevel());
+        Logger.getLogger("com.redislabs").setLevel(packageLoggingLevel());
     }
 
     private Level packageLoggingLevel() {

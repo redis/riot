@@ -14,7 +14,7 @@ import org.springframework.batch.item.support.PassThroughItemProcessor;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
-@Command(name = "replicate", description = "Replicate a Redis database to another Redis database")
+@Command(name = "replicate", aliases = {"r"}, description = "Replicate a Redis database to another Redis database")
 public class ReplicateCommand extends AbstractTransferCommand<KeyDump<String>, KeyDump<String>> {
 
     @CommandLine.ArgGroup(exclusive = false,  heading = "Target Redis connection options%n")

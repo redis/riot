@@ -9,7 +9,7 @@ import picocli.CommandLine;
 
 import java.util.Map;
 
-@CommandLine.Command(name = "import", description = "Import database")
+@CommandLine.Command(name = "import", aliases = {"i"}, description = "Import database")
 public class DatabaseImportCommand extends AbstractImportCommand<Map<String, Object>> {
 
     @CommandLine.Parameters(arity = "1", description = "SQL SELECT statement", paramLabel = "SQL")

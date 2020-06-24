@@ -1,10 +1,10 @@
 package com.redislabs.riot.file;
 
 import com.redislabs.riot.AbstractExportCommand;
-import com.redislabs.riot.processor.KeyValueItemProcessor;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.file.FlatFileHeaderCallback;
 import org.springframework.batch.item.file.FlatFileItemWriter;
+import org.springframework.batch.item.file.transform.FieldExtractor;
 import org.springframework.batch.item.json.JacksonJsonObjectMarshaller;
 import org.springframework.batch.item.redis.support.KeyValue;
 import org.springframework.batch.item.resource.*;
@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.util.Locale;
 import java.util.Map;
 
-@CommandLine.Command(name = "export", description = "Export to file")
+@CommandLine.Command(name = "export", aliases = "e", description = "Export to file")
 public class FileExportCommand extends AbstractExportCommand<Object> {
 
     @CommandLine.Mixin
@@ -45,11 +45,11 @@ public class FileExportCommand extends AbstractExportCommand<Object> {
     private String root;
 
     @Override
-    protected ItemProcessor<KeyValue<String>, Object> processor() throws Exception {
+    protected ItemProcessor<KeyValue<String>, Object> processor() {
         switch (options.getFileType()) {
             case DELIMITED:
             case FIXED:
-                return (ItemProcessor) KeyValueItemProcessor.builder().build();
+                return (ItemProcessor) keyValueProcessor();
             case JSON:
             case XML:
                 return (ItemProcessor) new PassThroughItemProcessor<KeyValue<String>>();
@@ -99,7 +99,7 @@ public class FileExportCommand extends AbstractExportCommand<Object> {
 
     private FlatFileHeaderCallback headerCallback() {
         if (options.isHeader()) {
-            return new HeaderCallback(header());
+            return w -> w.write(header());
         }
         return null;
     }
@@ -140,12 +140,26 @@ public class FileExportCommand extends AbstractExportCommand<Object> {
         return builder.build();
     }
 
+    private class MapFieldExtractor implements FieldExtractor<Map<String, String>> {
+
+        @Override
+        public String[] extract(Map<String, String> item) {
+            String[] names = options.getNames();
+            String[] fields = new String[names.length];
+            for (int index = 0; index < names.length; index++) {
+                fields[index] = item.get(names[index]);
+            }
+            return fields;
+        }
+
+    }
+
     private FlatResourceItemWriter<Map<String, String>> delimitedWriter() throws IOException {
         FlatResourceItemWriterBuilder<Map<String, String>> builder = flatWriterBuilder();
         builder.name("delimited-resource-item-writer");
         FlatResourceItemWriterBuilder.DelimitedBuilder<Map<String, String>> delimited = builder.delimited();
         delimited.delimiter(options.getDelimiter());
-        delimited.fieldExtractor(MapFieldExtractor.builder().names(options.getNames()).build());
+        delimited.fieldExtractor(new MapFieldExtractor());
         if (options.getNames().length > 0) {
             delimited.names(options.getNames());
         }
@@ -156,7 +170,7 @@ public class FileExportCommand extends AbstractExportCommand<Object> {
         FlatResourceItemWriterBuilder<Map<String, String>> builder = flatWriterBuilder();
         FlatResourceItemWriterBuilder.FormattedBuilder<Map<String, String>> formatted = builder.formatted();
         builder.name("formatted-resource-item-writer");
-        formatted.fieldExtractor(MapFieldExtractor.builder().names(options.getNames()).build());
+        formatted.fieldExtractor(new MapFieldExtractor());
         if (options.getNames().length > 0) {
             formatted.names(options.getNames());
         }

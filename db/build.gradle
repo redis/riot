@@ -38,6 +38,6 @@ configurations {
 }
 
 application {
-    mainClassName = 'com.redislabs.riot.db.App'
+    mainClassName = 'com.redislabs.riot.db.RiotDb'
     applicationName = 'riot-db'
 }

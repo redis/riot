@@ -20,7 +20,7 @@ public class TestGen extends BaseTest {
 
 	@Override
 	protected int execute(String[] args) throws Exception {
-		return new App().execute(args);
+		return new RiotGen().execute(args);
 	}
 
 	@Override

@@ -1,8 +1,14 @@
 package com.redislabs.riot.file;
 
+import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.AWSCredentialsProvider;
+import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.services.s3.AmazonS3Client;
 import lombok.Getter;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
+import org.springframework.cloud.aws.core.io.s3.SimpleStorageProtocolResolver;
+import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.util.ResourceUtils;
@@ -16,14 +22,31 @@ import java.util.regex.Pattern;
 
 public class FileOptions {
 
-    public final static String CSV = "csv";
-    public final static String TSV = "tsv";
-    public final static String FW = "fw";
-    public final static String JSON = "json";
-    public final static String XML = "xml";
+    public final static String EXT_CSV = "csv";
+    public final static String EXT_TSV = "tsv";
+    public final static String EXT_FW = "fw";
+    public final static String EXT_JSON = "json";
+    public final static String EXT_XML = "xml";
+
+    public enum FileType {
+
+        DELIMITED(EXT_CSV, EXT_TSV), FIXED(EXT_FW), JSON(EXT_JSON), XML(EXT_XML);
+
+        private final String[] extensions;
+
+        FileType(String... extensions) {
+            this.extensions = extensions;
+        }
+
+        public String[] getExtensions() {
+            return extensions;
+        }
+    }
+
 
     private final static Pattern EXTENSION_PATTERN = Pattern.compile("(?i)\\.(?<extension>\\w+)(?<gz>\\.gz)?$");
     private static final FileType DEFAULT_FILETYPE = FileType.DELIMITED;
+
 
     @CommandLine.Parameters(arity = "1", description = "File path or URL", paramLabel = "FILE")
     private String file;
@@ -66,9 +89,9 @@ public class FileOptions {
             String extension = getExtension();
             if (extension != null) {
                 switch (extension) {
-                    case FileOptions.TSV:
+                    case FileOptions.EXT_TSV:
                         return DelimitedLineTokenizer.DELIMITER_TAB;
-                    case FileOptions.CSV:
+                    case FileOptions.EXT_CSV:
                         return DelimitedLineTokenizer.DELIMITER_COMMA;
                 }
             }
@@ -81,11 +104,27 @@ public class FileOptions {
         if (ResourceUtils.isUrl(file)) {
             URI uri = URI.create(file);
             if ("s3".equals(uri.getScheme())) {
-                return S3ResourceBuilder.resource(accessKey, secretKey, region, uri);
+                SimpleStorageProtocolResolver resolver = new SimpleStorageProtocolResolver(AmazonS3Client.builder().withCredentials(new SimpleAWSCredentialsProvider()).withRegion(region).build());
+                resolver.afterPropertiesSet();
+                return resolver.resolve(uri.toString(), new DefaultResourceLoader());
             }
             return new UncustomizedUrlResource(uri);
         }
         return new FileSystemResource(file);
+    }
+
+    private class SimpleAWSCredentialsProvider implements AWSCredentialsProvider {
+
+        @Override
+        public AWSCredentials getCredentials() {
+            return new BasicAWSCredentials(accessKey, secretKey);
+        }
+
+        @Override
+        public void refresh() {
+            // do nothing
+        }
+
     }
 
     public boolean isGzip() {

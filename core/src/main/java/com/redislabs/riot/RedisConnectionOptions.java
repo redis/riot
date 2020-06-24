@@ -14,7 +14,7 @@ public class RedisConnectionOptions {
     private boolean cluster;
     @CommandLine.Option(names = {"-m", "--metrics"}, description = "Show metrics")
     private boolean showMetrics;
-    @CommandLine.Option(names = "--pool", description = "Max pool connections (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
+    @CommandLine.Option(names = {"-p", "--pool"}, description = "Max pool connections (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
     private int poolMaxTotal = GenericObjectPoolConfig.DEFAULT_MAX_TOTAL;
 
 }

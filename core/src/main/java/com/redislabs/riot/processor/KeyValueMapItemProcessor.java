@@ -10,13 +10,14 @@ import lombok.experimental.Accessors;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.redis.support.KeyValue;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.util.Assert;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class KeyValueItemProcessor<K, V> implements ItemProcessor<KeyValue<K>, Map<K, Object>> {
+public class KeyValueMapItemProcessor<K, V> implements ItemProcessor<KeyValue<K>, Map<K, Object>> {
 
     private final Converter<K, Map<K, V>> keyFieldsExtractor;
     private final Converter<Map<K, V>, Map<K, V>> hashConverter;
@@ -27,7 +28,7 @@ public class KeyValueItemProcessor<K, V> implements ItemProcessor<KeyValue<K>, M
     private final Converter<V, Map<K, V>> stringConverter;
     private final Converter<Object, Map<K, V>> defaultConverter;
 
-    public KeyValueItemProcessor(Converter<K, Map<K, V>> keyFieldsExtractor, Converter<Map<K, V>, Map<K, V>> hashConverter, Converter<List<V>, Map<K, V>> listConverter, Converter<Set<V>, Map<K, V>> setConverter, Converter<List<StreamMessage<K, V>>, Map<K, V>> streamConverter, Converter<V, Map<K, V>> stringConverter, Converter<List<ScoredValue<V>>, Map<K, V>> zsetConverter, Converter<Object, Map<K, V>> defaultConverter) {
+    public KeyValueMapItemProcessor(Converter<K, Map<K, V>> keyFieldsExtractor, Converter<Map<K, V>, Map<K, V>> hashConverter, Converter<List<V>, Map<K, V>> listConverter, Converter<Set<V>, Map<K, V>> setConverter, Converter<List<StreamMessage<K, V>>, Map<K, V>> streamConverter, Converter<V, Map<K, V>> stringConverter, Converter<List<ScoredValue<V>>, Map<K, V>> zsetConverter, Converter<Object, Map<K, V>> defaultConverter) {
         this.keyFieldsExtractor = keyFieldsExtractor;
         this.hashConverter = hashConverter;
         this.listConverter = listConverter;
@@ -75,11 +76,10 @@ public class KeyValueItemProcessor<K, V> implements ItemProcessor<KeyValue<K>, M
     @Setter
     public static class KeyValueItemProcessorBuilder {
 
-        public static final String DEFAULT_KEY_REGEX = "\\w+:(?<id>.+)";
+        private String keyRegex;
 
-        private String keyRegex = DEFAULT_KEY_REGEX;
-
-        public KeyValueItemProcessor<String, String> build() {
+        public KeyValueMapItemProcessor<String, String> build() {
+            Assert.notNull(keyRegex, "Key regex is required.");
             RegexNamedGroupsExtractor keyFieldsExtractor = RegexNamedGroupsExtractor.builder().regex(keyRegex).build();
             Converter<Map<String, String>, Map<String, String>> hashConverter = new IdemConverter<>();
             StreamToStringMapConverter streamConverter = StreamToStringMapConverter.builder().build();
@@ -88,7 +88,7 @@ public class KeyValueItemProcessor<K, V> implements ItemProcessor<KeyValue<K>, M
             ZsetToStringMapConverter zsetConverter = ZsetToStringMapConverter.builder().build();
             Converter<String, Map<String, String>> stringConverter = StringToStringMapConverter.builder().build();
             Converter<Object, Map<String, String>> defaultConverter = new NullConverter<>();
-            return new KeyValueItemProcessor<>(keyFieldsExtractor, hashConverter, listConverter, setConverter, streamConverter, stringConverter, zsetConverter, defaultConverter);
+            return new KeyValueMapItemProcessor<>(keyFieldsExtractor, hashConverter, listConverter, setConverter, streamConverter, stringConverter, zsetConverter, defaultConverter);
         }
 
     }

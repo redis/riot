@@ -1,6 +1,6 @@
 package com.redis.riot.redis;
 
-import com.redislabs.riot.redis.App;
+import com.redislabs.riot.redis.RiotRedis;
 import com.redislabs.riot.test.BaseTest;
 import com.redislabs.riot.test.DataPopulator;
 import io.lettuce.core.RedisClient;
@@ -21,7 +21,7 @@ public class TestReplicate extends BaseTest {
 
     @Override
     protected int execute(String[] args) {
-        return new App().execute(args);
+        return new RiotRedis().execute(args);
     }
 
     @Override

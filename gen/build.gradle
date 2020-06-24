@@ -30,6 +30,6 @@ configurations {
 }
 
 application {
-    mainClassName = 'com.redislabs.riot.gen.App'
+    mainClassName = 'com.redislabs.riot.gen.RiotGen'
     applicationName = 'riot-gen'
 }

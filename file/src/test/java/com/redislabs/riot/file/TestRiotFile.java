@@ -40,7 +40,7 @@ public class TestRiotFile extends BaseTest {
 
     @Override
     protected int execute(String[] args) throws Exception {
-        return new App().execute(args);
+        return new RiotFile().execute(args);
     }
 
     @Override

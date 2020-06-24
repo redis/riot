@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine;
 
 @Slf4j
-@CommandLine.Command(name = "ping")
+@CommandLine.Command(name = "ping", aliases = {"p"}, description = "Execute PING command")
 public class PingCommand extends AbstractRedisCommand {
 
     @Override

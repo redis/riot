@@ -30,6 +30,6 @@ configurations {
 }
 
 application {
-    mainClassName = 'com.redislabs.riot.redis.App'
+    mainClassName = 'com.redislabs.riot.redis.RiotRedis'
     applicationName = 'riot-redis'
 }

@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine;
 
 @Slf4j
-@CommandLine.Command(name = "info")
+@CommandLine.Command(name = "info", aliases = {"i"}, description = "Display INFO command output")
 public class InfoCommand extends AbstractRedisCommand {
 
     @Override

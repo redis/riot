@@ -46,6 +46,6 @@ dependencyManagement {
 }
 
 application {
-    mainClassName = 'com.redislabs.riot.file.App'
+    mainClassName = 'com.redislabs.riot.file.RiotFile'
     applicationName = 'riot-file'
 }

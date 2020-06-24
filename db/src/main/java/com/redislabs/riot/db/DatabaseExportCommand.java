@@ -1,7 +1,6 @@
 package com.redislabs.riot.db;
 
 import com.redislabs.riot.AbstractExportCommand;
-import com.redislabs.riot.processor.KeyValueItemProcessor;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.database.JdbcBatchItemWriter;
 import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilder;
@@ -11,7 +10,7 @@ import picocli.CommandLine;
 
 import java.util.Map;
 
-@CommandLine.Command(name = "export", description = "Export to database")
+@CommandLine.Command(name = "export", aliases = "e", description = "Export to database")
 public class DatabaseExportCommand extends AbstractExportCommand<Map<String, Object>> {
 
     @CommandLine.Parameters(arity = "1", description = "SQL INSERT statement", paramLabel = "SQL")
@@ -35,6 +34,6 @@ public class DatabaseExportCommand extends AbstractExportCommand<Map<String, Obj
 
     @Override
     protected ItemProcessor<KeyValue<String>, Map<String, Object>> processor() {
-        return KeyValueItemProcessor.builder().build();
+        return keyValueProcessor();
     }
 }

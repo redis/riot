@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 
-@CommandLine.Command(name="latency")
+@CommandLine.Command(name = "latency", aliases = {"l"}, description = "Calculate latency stats")
 public class LatencyCommand extends AbstractRedisCommand {
 
     @CommandLine.Option(names = "--iterations", description = "Number of latency tests (default: ${DEFAULT-VALUE})", paramLabel = "<count>")

@@ -21,7 +21,7 @@ public class TestRiotDb extends BaseTest {
 
     @Override
     protected int execute(String[] args) {
-        return new App().execute(args);
+        return new RiotDb().execute(args);
     }
 
     @Override

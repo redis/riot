@@ -19,7 +19,7 @@ import picocli.CommandLine;
 import java.util.*;
 
 @Slf4j
-@CommandLine.Command(name = "import", description = "Import generated data")
+@CommandLine.Command(name = "import", aliases = {"i"}, description = "Import generated data")
 public class GenerateCommand extends AbstractImportCommand<Map<String, Object>> {
 
     @CommandLine.Parameters(description = "SpEL expressions", paramLabel = "SPEL")

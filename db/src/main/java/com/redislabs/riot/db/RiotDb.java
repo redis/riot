@@ -4,9 +4,9 @@ import com.redislabs.riot.RiotApp;
 import picocli.CommandLine;
 
 @CommandLine.Command(name = "riot-db", subcommands = {DatabaseImportCommand.class, DatabaseExportCommand.class})
-public class App extends RiotApp {
+public class RiotDb extends RiotApp {
 
     public static void main(String[] args) {
-        System.exit(new App().execute(args));
+        System.exit(new RiotDb().execute(args));
     }
 }

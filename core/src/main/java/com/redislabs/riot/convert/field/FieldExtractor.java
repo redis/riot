@@ -51,7 +51,7 @@ public abstract class FieldExtractor<K, V> implements Converter<Map<K, V>, V> {
                 if (defaultValue == null) {
                     return null;
                 }
-                return new ConstantFieldExtractor<Map<String, String>, T>(defaultValue);
+                return new ConstantFieldExtractor<>(defaultValue);
             }
             if (String.class.isAssignableFrom(targetType)) {
                 if (defaultValue == null) {

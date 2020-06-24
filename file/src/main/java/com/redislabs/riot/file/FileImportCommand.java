@@ -28,7 +28,7 @@ import java.io.IOException;
 import java.util.*;
 
 @Slf4j
-@CommandLine.Command(name = "import", description = "Import file")
+@CommandLine.Command(name = "import", aliases = {"i"}, description = "Import file")
 public class FileImportCommand extends AbstractImportCommand<Map<String, String>> {
 
     @CommandLine.Mixin
@@ -47,7 +47,7 @@ public class FileImportCommand extends AbstractImportCommand<Map<String, String>
     @Override
     @SuppressWarnings({"unchecked", "rawtypes"})
     protected ItemReader<Map<String, String>> reader() throws Exception {
-        FileType fileType = options.getFileType();
+        FileOptions.FileType fileType = options.getFileType();
         Resource resource = resource();
         switch (fileType) {
             case DELIMITED:
@@ -139,7 +139,7 @@ public class FileImportCommand extends AbstractImportCommand<Map<String, String>
     @Override
     @SuppressWarnings("unchecked")
     protected ItemProcessor<Map<String, String>, Object> processor() {
-        FileType fileType = options.getFileType();
+        FileOptions.FileType fileType = options.getFileType();
         switch (fileType) {
             case DELIMITED:
             case FIXED:

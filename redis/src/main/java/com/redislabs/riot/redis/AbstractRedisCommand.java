@@ -16,7 +16,6 @@ public abstract class AbstractRedisCommand extends HelpCommand {
     private RiotApp app;
 
     @Override
-    @SuppressWarnings("unchecked")
     public void run() {
         StatefulConnection<String, String> connection = app.connection();
         BaseRedisCommands<String, String> commands = app.sync(connection);
