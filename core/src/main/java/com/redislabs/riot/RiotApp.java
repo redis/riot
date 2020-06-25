@@ -1,7 +1,7 @@
 package com.redislabs.riot;
 
 import com.redislabs.lettusearch.StatefulRediSearchConnection;
-import com.redislabs.picocliredis.RedisApplication;
+import io.lettuce.core.RedisURI;
 import io.lettuce.core.SslOptions;
 import io.lettuce.core.api.StatefulConnection;
 import io.lettuce.core.api.async.BaseRedisAsyncCommands;
@@ -27,8 +27,8 @@ import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
-@CommandLine.Command(sortOptions = false, usageHelpAutoWidth = true)
-public class RiotApp extends RedisApplication {
+@CommandLine.Command(mixinStandardHelpOptions = true, usageHelpAutoWidth = true, sortOptions = false, versionProvider = ManifestVersionProvider.class, subcommands = HiddenGenerateCompletion.class)
+public class RiotApp implements Runnable {
 
     @Getter
     @CommandLine.Option(names = {"-q", "--quiet"}, description = "Log errors only")
@@ -50,6 +50,37 @@ public class RiotApp extends RedisApplication {
     @CommandLine.ArgGroup(heading = "Redis connection options%n", exclusive = false)
     private RedisConnectionOptions redis = new RedisConnectionOptions();
 
+    public int execute(String... args) {
+        CommandLine commandLine = new CommandLine(this);
+        registerConverters(commandLine);
+        commandLine.setCaseInsensitiveEnumValuesAllowed(true);
+        try {
+            CommandLine.ParseResult parseResult = commandLine.parseArgs(args);
+            InternalLoggerFactory.setDefaultFactory(JdkLoggerFactory.INSTANCE);
+            LogManager.getLogManager().reset();
+            Logger activeLogger = Logger.getLogger(ROOT_LOGGER);
+            ConsoleHandler handler = new ConsoleHandler();
+            handler.setLevel(Level.ALL);
+            handler.setFormatter(new OneLineLogFormat(isDebug()));
+            activeLogger.addHandler(handler);
+            Logger.getLogger(ROOT_LOGGER).setLevel(rootLoggingLevel());
+            Logger.getLogger("com.redislabs").setLevel(packageLoggingLevel());
+            return commandLine.getExecutionStrategy().execute(parseResult);
+        } catch (CommandLine.PicocliException e) {
+            System.err.println(e.getMessage());
+            return 1;
+        }
+    }
+
+    protected void registerConverters(CommandLine commandLine) {
+        commandLine.registerConverter(RedisURI.class, new RedisURIConverter());
+    }
+
+    @Override
+    public void run() {
+        CommandLine.usage(this, System.out);
+    }
+
     private ClusterClientOptions clientOptions() {
         SslOptions.Builder sslOptionsBuilder = SslOptions.builder();
         if (keystore != null) {
@@ -70,19 +101,6 @@ public class RiotApp extends RedisApplication {
     }
 
     private static final String ROOT_LOGGER = "";
-
-    @Override
-    protected void configure() {
-        InternalLoggerFactory.setDefaultFactory(JdkLoggerFactory.INSTANCE);
-        LogManager.getLogManager().reset();
-        Logger activeLogger = Logger.getLogger(ROOT_LOGGER);
-        ConsoleHandler handler = new ConsoleHandler();
-        handler.setLevel(Level.ALL);
-        handler.setFormatter(new OneLineLogFormat(isDebug()));
-        activeLogger.addHandler(handler);
-        Logger.getLogger(ROOT_LOGGER).setLevel(rootLoggingLevel());
-        Logger.getLogger("com.redislabs").setLevel(packageLoggingLevel());
-    }
 
     private Level packageLoggingLevel() {
         if (isQuiet()) {

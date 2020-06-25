@@ -10,6 +10,7 @@ import picocli.CommandLine;
 public class InfoCommand extends AbstractRedisCommand {
 
     @Override
+    @SuppressWarnings("unchecked")
     protected void execute(BaseRedisCommands<String, String> commands) {
         log.info(((RedisServerCommands<String, String>) commands).info());
     }

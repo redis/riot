@@ -1,6 +1,6 @@
 package com.redislabs.riot.redis;
 
-import com.redislabs.picocliredis.HelpCommand;
+import com.redislabs.riot.HelpCommand;
 import com.redislabs.riot.RiotApp;
 import io.lettuce.core.api.StatefulConnection;
 import io.lettuce.core.api.sync.BaseRedisCommands;

@@ -43,3 +43,9 @@ application {
     mainClassName = 'com.redislabs.riot.db.RiotDb'
     applicationName = 'riot-db'
 }
+
+jar {
+    manifest {
+        attributes("Implementation-Title": "riot-db", "Implementation-Version": archiveVersion)
+    }
+}

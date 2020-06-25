@@ -1,6 +1,5 @@
 package com.redislabs.riot;
 
-import com.redislabs.picocliredis.HelpCommand;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
