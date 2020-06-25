@@ -34,12 +34,13 @@ import java.time.Instant;
 import java.util.*;
 import java.util.zip.GZIPInputStream;
 
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class TestRiotFile extends BaseTest {
 
     private final static int COUNT = 2410;
 
     @Override
-    protected int execute(String[] args) throws Exception {
+    protected int execute(String[] args) {
         return new RiotFile().execute(args);
     }
 
@@ -243,5 +244,5 @@ public class TestRiotFile extends BaseTest {
             Assertions.assertTrue(lat > 33 && lat < 35);
         }
     }
-    
+
 }
