@@ -82,32 +82,32 @@ The following command imports the CSV data into Redis hashes with `beer` as the 
 .Import CSV to Hashes
 [source,shell]
 ----
-include::../../../file/src/test/resources/import-csv-hash.txt[]
+include::file/src/test/resources/import-csv-hash.txt[]
 ----
 
 .Import CSV into RediSearch index
 [source,shell]
 ----
-include::../../../file/src/test/resources/import-csv-search.txt[]
+include::file/src/test/resources/import-csv-search.txt[]
 ----
 
 [#import-csv-geo]
 .Import CSV to a Geo set
 [source,shell]
 ----
-include::../../../file/src/test/resources/import-csv-geo.txt[]
+include::file/src/test/resources/import-csv-geo.txt[]
 ----
 
 .Import CSV into RediSearch geo
 [source,shell]
 ----
-include::../../../file/src/test/resources/import-csv-processor-search-geo.txt[]
+include::file/src/test/resources/import-csv-processor-search-geo.txt[]
 ----
 
 .Export to CSV
 [source,shell]
 ----
-include::../../../file/src/test/resources/export-csv.txt[]
+include::file/src/test/resources/export-csv.txt[]
 ----
 
 ==== JSON
@@ -137,19 +137,19 @@ To that end, RIOT uses a field naming convention to flatten JSON objects and arr
 .Import JSON
 [source,shell]
 ----
-include::../../../file/src/test/resources/import-json-hash.txt[]
+include::file/src/test/resources/import-json-hash.txt[]
 ----
 
 .Export JSON
 [source,shell]
 ----
-include::../../../file/src/test/resources/export-json.txt[]
+include::file/src/test/resources/export-json.txt[]
 ----
 
 .Export compressed JSON
 [source,shell]
 ----
-include::../../../file/src/test/resources/export-json-gz.txt[]
+include::file/src/test/resources/export-json-gz.txt[]
 ----
 
 
@@ -196,13 +196,13 @@ For reference here are links to common database systems and related JDBC driver 
 .Import from a database
 [source,shell]
 ----
-include::../../../db/src/test/resources/import.txt[]
+include::db/src/test/resources/import.txt[]
 ----
 
 .Export to a database
 [source,shell]
 ----
-include::../../../db/src/test/resources/export.txt[]
+include::db/src/test/resources/export.txt[]
 ----
 
 [#gen]
@@ -215,19 +215,19 @@ Supported data types are described <<faker#,here>>.
 .Faker Hashes
 [source,shell]
 ----
-include::../../../gen/src/test/resources/import-hash.txt[]
+include::gen/src/test/resources/import-hash.txt[]
 ----
 
 .Faker Sets
 [source,shell]
 ----
-include::../../../gen/src/test/resources/import-set.txt[]
+include::gen/src/test/resources/import-set.txt[]
 ----
 
 .RediSearch index introspection
 [source,shell]
 ----
-include::../../../gen/src/test/resources/index-introspection.txt[]
+include::gen/src/test/resources/index-introspection.txt[]
 ----
 
 [#redis]
@@ -238,7 +238,7 @@ include::../../../gen/src/test/resources/index-introspection.txt[]
 .Live replication from `localhost:6379` to `localhost:6380`
 [source,shell]
 ----
-include::../../../redis/src/test/resources/replicate-live.txt[]
+include::redis/src/test/resources/replicate-live.txt[]
 ----
 
 == Processors
@@ -257,7 +257,7 @@ The processor also exposes the following variables that can be called with the `
 
 [source,shell]
 ----
-include::../../../file/src/test/resources/import-csv-processor-hash-dateformat.txt[]
+include::file/src/test/resources/import-csv-processor-hash-dateformat.txt[]
 ----
 
 == Load Testing

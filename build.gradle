@@ -2,10 +2,10 @@ plugins {
     id 'org.springframework.boot' version '2.3.1.RELEASE'
     id 'io.spring.dependency-management' version '1.0.9.RELEASE'
     id 'com.github.ben-manes.versions' version '0.28.0'
-//    id 'net.researchgate.release' version '2.8.1'
+    id 'net.researchgate.release' version '2.8.1'
     id 'com.github.breadmoirai.github-release' version '2.2.12'
-//  id 'org.asciidoctor.jvm.convert' version '3.2.0'
-//  id 'org.ajoberstar.git-publish' version '2.1.3'
+    id 'org.asciidoctor.jvm.convert' version '3.2.0'
+    id 'org.ajoberstar.git-publish' version '2.1.3'
 }
 
 repositories {
@@ -27,7 +27,7 @@ subprojects {
         mavenCentral()
         mavenLocal()
     }
-    tasks.withType(Tar){
+    tasks.withType(Tar) {
         compression = Compression.GZIP
     }
 }
@@ -39,21 +39,21 @@ githubRelease {
     releaseAssets "db/build/distributions/riot-db-${project.version}.zip", "db/build/distributions/riot-db-${project.version}.tgz", "file/build/distributions/riot-file-${project.version}.zip", "file/build/distributions/riot-file-${project.version}.tgz", "gen/build/distributions/riot-gen-${project.version}.zip", "gen/build/distributions/riot-gen-${project.version}.tgz", "redis/build/distributions/riot-redis-${project.version}.zip", "redis/build/distributions/riot-redis-${project.version}.tgz"
 }
 
-//asciidoctor {
-//    outputOptions {
-//        separateOutputDirs = false
-//    }
-//}
+asciidoctor {
+    outputOptions {
+        separateOutputDirs = false
+    }
+}
 
-//gitPublish {
-//    repoUri = 'git@github.com:Redislabs-Solution-Architects/riot.git'
-//    referenceRepoUri = 'file:///Users/jruaux/git/riot/'
-//    branch = 'gh-pages'
-//    contents {
-//        from 'build/docs/asciidoc'
-//    }
-//}
+gitPublish {
+    repoUri = 'git@github.com:Redislabs-Solution-Architects/riot.git'
+    referenceRepoUri = 'file:///Users/jruaux/git/riot/'
+    branch = 'gh-pages'
+    contents {
+        from 'build/docs/asciidoc'
+    }
+}
 
-//gitPublishPush.dependsOn asciidoctor
-//afterReleaseBuild.dependsOn ":githubRelease"
-//afterReleaseBuild.dependsOn gitPublishPush
+gitPublishPush.dependsOn asciidoctor
+afterReleaseBuild.dependsOn ":githubRelease"
+afterReleaseBuild.dependsOn gitPublishPush
