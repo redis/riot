@@ -20,6 +20,7 @@ dependencies {
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
     api 'com.redislabs:picocli-redis:2.0.2'
+    annotationProcessor 'info.picocli:picocli-codegen:4.3.2'
     api 'com.redislabs:spring-batch-redis:2.2.1'
     api 'com.redislabs:spring-batch-redisearch:2.4.1'
     implementation 'me.tongfei:progressbar:0.8.1'

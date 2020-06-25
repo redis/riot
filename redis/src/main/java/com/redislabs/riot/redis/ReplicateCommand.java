@@ -17,7 +17,7 @@ import picocli.CommandLine.Command;
 @Command(name = "replicate", aliases = {"r"}, description = "Replicate a Redis database to another Redis database")
 public class ReplicateCommand extends AbstractTransferCommand<KeyDump<String>, KeyDump<String>> {
 
-    @CommandLine.ArgGroup(exclusive = false,  heading = "Target Redis connection options%n")
+    @CommandLine.Mixin
     private RedisConnectionOptions targetRedis = new RedisConnectionOptions();
     @CommandLine.Mixin
     private RedisExportOptions options = new RedisExportOptions();
