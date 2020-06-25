@@ -34,7 +34,7 @@ public class TestRiotDb extends BaseTest {
         connection.createStatement().execute("DROP TABLE IF EXISTS mytable");
         connection.createStatement().execute("CREATE TABLE IF NOT EXISTS mytable (id INT NOT NULL, field1 VARCHAR(500), field2 VARCHAR(500), PRIMARY KEY (id))");
         DataPopulator.builder().connection(super.connection).dataTypes(Collections.singletonList(DataType.HASH)).start(0).end(1234).build().run();
-        runFile("/export-db.txt");
+        runFile("/export.txt");
         commands().flushall();
     }
 
@@ -62,7 +62,7 @@ public class TestRiotDb extends BaseTest {
     @Test
     public void testImportDatabase() throws Exception {
         populateBeersTable();
-        runFile("/import-db.txt");
+        runFile("/import.txt");
         List<String> keys = commands().keys("dbtest:*");
         Assertions.assertEquals(COUNT, keys.size());
     }

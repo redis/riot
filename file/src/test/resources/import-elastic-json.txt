@@ -1,1 +1,1 @@
-❯ riot-file import %s --keyspace estest --keys _id
+❯ riot-file -r redis://localhost:6379 import %s --keyspace estest --keys _id

@@ -1,0 +1,1 @@
+❯ riot-gen -r redis://localhost:6379 import ip=number.digits(4) lease=number.digits(2) time=number.digits(5) --batch 50 --max 10000 --command zadd --keyspace leases --keys ip --members lease --score=time

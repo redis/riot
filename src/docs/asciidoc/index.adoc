@@ -21,7 +21,7 @@ toc::[]
 
 == Architecture
 
-RIOT reads records from a source (file, database, Redis, generator) and writes them to a target (file, database, Redis).
+RIOT reads records from a source (file, database, Redis, data generator) and writes them to a target (file, database, Redis).
 
 image::images/architecture.png[]
 
@@ -38,9 +38,9 @@ image::images/mapping.png[]
 == Connectors
 
 [#files]
-=== Files
+=== File
 
-RIOT can import/export local or remote files in CSV, fixed-width, or JSON format with optional GZIP compression:
+*riot-file* can import/export local or remote files in CSV, fixed-width, JSON or XML format with optional GZIP compression:
 
 * `/myfolder/myfile.csv`
 * `/myfolder/myfile.json.gz`
@@ -82,32 +82,32 @@ The following command imports the CSV data into Redis hashes with `beer` as the 
 .Import CSV to Hashes
 [source,shell]
 ----
-include::{commandsdir}/import-csv-hash.txt[]
+include::../../../file/src/test/resources/import-csv-hash.txt[]
 ----
 
 .Import CSV into RediSearch index
 [source,shell]
 ----
-include::{commandsdir}/import-csv-search.txt[]
+include::../../../file/src/test/resources/import-csv-search.txt[]
 ----
 
 [#import-csv-geo]
 .Import CSV to a Geo set
 [source,shell]
 ----
-include::{commandsdir}/import-csv-geo.txt[]
+include::../../../file/src/test/resources/import-csv-geo.txt[]
 ----
 
 .Import CSV into RediSearch geo
 [source,shell]
 ----
-include::{commandsdir}/import-csv-processor-search-geo.txt[]
+include::../../../file/src/test/resources/import-csv-processor-search-geo.txt[]
 ----
 
 .Export to CSV
 [source,shell]
 ----
-include::{commandsdir}/export-csv.txt[]
+include::../../../file/src/test/resources/export-csv.txt[]
 ----
 
 ==== JSON
@@ -137,31 +137,34 @@ To that end, RIOT uses a field naming convention to flatten JSON objects and arr
 .Import JSON
 [source,shell]
 ----
-include::{commandsdir}/import-json-hash.txt[]
+include::../../../file/src/test/resources/import-json-hash.txt[]
 ----
 
 .Export JSON
 [source,shell]
 ----
-include::{commandsdir}/export-json.txt[]
+include::../../../file/src/test/resources/export-json.txt[]
 ----
 
 .Export compressed JSON
 [source,shell]
 ----
-include::{commandsdir}/export-json_gz.txt[]
+include::../../../file/src/test/resources/export-json-gz.txt[]
 ----
 
 
 [#db]
-=== Databases
+=== Database
 
-RIOT can connect to SQL databases through JDBC. Install the appropriate JDBC driver
-under the `lib` directory and modify the RIOT `CLASSPATH` accordingly:
+*riot-db* connects to any SQL databases with a JDBC driver and includes drivers for the most common database systems:
 
-* *nix: `bin/riot` -> `CLASSPATH=$APP_HOME/lib/myjdbc.jar:$APP_HOME/lib/…`
+[TIP]
+====
+For non-included databases you must install the corresponding JDBC driver under the `lib` directory and modify the RIOT `CLASSPATH`:
 
-* Windows: `bin\riot.bat` -> `set CLASSPATH=%APP_HOME%\lib\myjdbc.jar;%APP_HOME%\lib\…`
+* *nix: `bin/riot-db` -> `CLASSPATH=$APP_HOME/lib/myjdbc.jar:$APP_HOME/lib/…`
+* Windows: `bin\riot-db.bat` -> `set CLASSPATH=%APP_HOME%\lib\myjdbc.jar;%APP_HOME%\lib\…`
+====
 
 For reference here are links to common database systems and related JDBC driver documentation:
 
@@ -169,7 +172,7 @@ For reference here are links to common database systems and related JDBC driver 
 +
 `jdbc:oracle:thin:@myhost:1521:orcl`
 
-* https://www.ibm.com/support/knowledgecenter/en/SSEPEK_10.0.0/java/src/tpc/imjcc_r0052342.html[IBM Db2]
+* https://www.ibm.com/support/knowledgecenter/en/SSEPGG_11.5.0/com.ibm.db2.luw.apdv.java.doc/src/tpc/imjcc_r0052342.html[IBM Db2]
 +
 `jdbc:db2://host:port/database`
 
@@ -185,7 +188,6 @@ For reference here are links to common database systems and related JDBC driver 
 +
 `jdbc:postgresql://host:port/database`
 
-
 * https://www.sqlitetutorial.net/sqlite-java/sqlite-jdbc-driver/[SQLite]
 +
 `jdbc:sqlite:sqlite_database_file_path`
@@ -194,67 +196,50 @@ For reference here are links to common database systems and related JDBC driver 
 .Import from a database
 [source,shell]
 ----
-include::{commandsdir}/import-db.txt[]
+include::../../../db/src/test/resources/import.txt[]
 ----
 
 .Export to a database
 [source,shell]
 ----
-include::{commandsdir}/export-db.txt[]
+include::../../../db/src/test/resources/export.txt[]
 ----
 
 [#gen]
-=== Generators
+=== Data Generator
 
-RIOT can be used to create random data in Redis with 2 different generators.
-
-==== Simple
-
-The simple generator produces the following fields:
-* `index`: monotonous integer sequence
-* `partition`: index of the partition (thread) generating the data, e.g. if you have 8 threads generating data each will have a different partition index between 0 and 7
-* configurable fixed-sized fields using `--field <name=size>` options
-
-[source,shell]
-----
-include::{commandsdir}/gen-simple.txt[]
-----
-
-==== Faker
-
-The Faker generator relies on the https://github.com/DiUS/java-faker[Faker] library.
+*riot-gen* generates random data using the https://github.com/DiUS/java-faker[Faker] library.
 
 Supported data types are described <<faker#,here>>.
 
 .Faker Hashes
 [source,shell]
 ----
-include::{commandsdir}/gen-faker-hash.txt[]
+include::../../../gen/src/test/resources/import-hash.txt[]
 ----
 
 .Faker Sets
 [source,shell]
 ----
-include::{commandsdir}/gen-faker-set.txt[]
+include::../../../gen/src/test/resources/import-set.txt[]
 ----
 
-.RediSearch with introspection
+.RediSearch index introspection
 [source,shell]
 ----
-include::{commandsdir}/gen-faker-index-introspection.txt[]
+include::../../../gen/src/test/resources/index-introspection.txt[]
 ----
 
 [#redis]
 === Redis
 
-The Redis connector allows for replicating data between two Redis databases using scan and optionally keyspace notifications (`--listen`).
+*redis-db* allows for replicating data between two Redis databases using scan and optionally keyspace notifications (*live* replication).
 
-.Live replication from `localhost:16379` to `localhost:16380`
+.Live replication from `localhost:6379` to `localhost:6380`
 [source,shell]
 ----
-include::{commandsdir}/replicate-live.txt[]
+include::../../../redis/src/test/resources/replicate-live.txt[]
 ----
-
 
 == Processors
 
@@ -272,16 +257,16 @@ The processor also exposes the following variables that can be called with the `
 
 [source,shell]
 ----
-include::{commandsdir}/import-csv-processor-hash-dateformat.txt[]
+include::../../../file/src/test/resources/import-csv-processor-hash-dateformat.txt[]
 ----
 
 == Load Testing
 
 === Metrics
-Use the `--metrics` option to show latency metrics when using the Lettuce driver:
+Use the `--metrics` option to show latency metrics:
 [source,shell]
 ----
-riot --metrics …
+❯ riot-file --metrics ...
 ----
 [source,plaintext]
 ----
@@ -294,13 +279,13 @@ riot --metrics …
 ==== Strings
 [source,shell]
 ----
-❯ riot -s redis-12001.redislabs.com:12001 --max-total 96 gen --batch 5000 --threads 96 --max 100000000 --command set --keyspace hash --keys index --value index
+❯ riot-gen -r redis://redis-12001.redislabs.com:12001 --pool 96 import --metadata --batch 5000 --threads 96 --max 100000000 --command set --keyspace test --keys index --value index
 ----
 image::images/rs-strings.png[]
 
 ==== Streams
 [source,shell]
 ----
-❯ riot -s redis-12001.internal.jrx.demo.redislabs.com:12001 --pool-max-total 96 gen --batch 5000 --threads 96 --max 100000000 --command xadd --keyspace stream --keys partition
+❯ riot-gen -r redis://redis-12001.redislabs.com:12001 --pool 96 import "partition=number.randomDigit" --metadata --batch 5000 --threads 96 --max 100000000 --command xadd --keyspace stream --keys partition
 ----
 image::images/rs-streams.png[]

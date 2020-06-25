@@ -1,1 +1,1 @@
-❯ riot-file export /tmp/beers.csv --match beer:* --key-regex "beer:(?<id>.*)" --fields id name brewery_id abv --header --delimiter '|'
+❯ riot-file -r redis://localhost:6379 export /tmp/beers.csv --match beer:* --key-regex "beer:(?<id>.*)" --fields id name brewery_id abv --header --delimiter '|'

@@ -25,11 +25,12 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-autoconfigure'
     implementation 'org.springframework:spring-jdbc'
     implementation 'com.zaxxer:HikariCP'
-    implementation 'org.xerial:sqlite-jdbc:3.28.0'
     implementation 'com.ibm.db2:jcc:11.5.0.0'
-    implementation 'com.microsoft.sqlserver:mssql-jdbc:7.4.1.jre8'
+    implementation 'com.microsoft.sqlserver:mssql-jdbc:8.2.2.jre8'
     implementation 'com.oracle.ojdbc:ojdbc8:19.3.0.0'
-    implementation 'org.postgresql:postgresql:42.2.8'
+    implementation 'mysql:mysql-connector-java:8.0.20'
+    implementation 'org.postgresql:postgresql:42.2.14'
+    implementation 'org.xerial:sqlite-jdbc:3.32.3'
     testImplementation project(':test')
     testImplementation 'org.hsqldb:hsqldb'
 }
