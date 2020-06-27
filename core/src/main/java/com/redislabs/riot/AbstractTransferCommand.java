@@ -6,7 +6,11 @@ import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.redis.support.RedisConnectionBuilder;
 import org.springframework.batch.item.redisearch.support.RediSearchConnectionBuilder;
+import org.springframework.batch.item.support.CompositeItemProcessor;
+import org.springframework.batch.item.support.PassThroughItemProcessor;
 import picocli.CommandLine;
+
+import java.util.List;
 
 @Slf4j
 @CommandLine.Command(abbreviateSynopsis = true, sortOptions = false)
@@ -20,8 +24,6 @@ public abstract class AbstractTransferCommand<I, O> extends HelpCommand implemen
     private int batchSize = 50;
     @CommandLine.Option(names = "--max", description = "Max number of items to read", paramLabel = "<count>")
     private Integer maxItemCount;
-    @CommandLine.Option(names = "--progress-refresh", description = "Progress bar refresh rate", paramLabel = "<ms>")
-    private long progressBarRefreshInterval = 300;
 
     protected <B extends RedisConnectionBuilder<B>> B configure(RedisConnectionBuilder<B> builder) {
         return app.configure(builder);
@@ -39,16 +41,12 @@ public abstract class AbstractTransferCommand<I, O> extends HelpCommand implemen
         return app.configure(builder, redis);
     }
 
-    public void execute(ItemReader<I> reader, ItemProcessor<I, O> processor, ItemWriter<O> writer) {
-        Transfer<I, O> transfer = transfer(reader, processor, writer);
-        ProgressBarReporter reporter = ProgressBarReporter.builder().transfer(transfer).taskName(taskName()).initialMax(maxItemCount).quiet(app.isQuiet()).refreshInterval(progressBarRefreshInterval).build();
-        reporter.start();
-        transfer.execute();
-        reporter.stop();
+    protected Transfer<I, O> transfer(ItemReader<I> reader, ItemProcessor<I, O> processor, ItemWriter<O> writer) {
+        return Transfer.<I, O>builder().reader(reader).processor(processor).writer(writer).batchSize(batchSize).threadCount(threads).maxItemCount(maxItemCount).flushPeriod(flushPeriod()).build();
     }
 
-    protected Transfer<I, O> transfer(ItemReader<I> reader, ItemProcessor<I, O> processor, ItemWriter<O> writer) {
-        return Transfer.<I, O>builder().reader(reader).processor(processor).writer(writer).batchSize(batchSize).threadCount(threads).maxItemCount(maxItemCount).build();
+    protected Long flushPeriod() {
+        return null;
     }
 
     protected abstract String taskName();
@@ -70,7 +68,22 @@ public abstract class AbstractTransferCommand<I, O> extends HelpCommand implemen
             log.error("Could not create writer", e);
             return;
         }
-        execute(reader, processor(), writer);
+        ItemProcessor<I, O> processor = processor();
+        Transfer<I, O> transfer = transfer(reader, processor, writer);
+        transfer.addListener(ProgressBarReporter.builder().transfer(transfer).taskName(taskName()).initialMax(maxItemCount).quiet(app.isQuiet()).build());
+        try {
+            transfer.open();
+        } catch (Exception e) {
+            log.error("Could not start transfer", e);
+            return;
+        }
+        try {
+            transfer.execute();
+        } catch (Exception e) {
+            log.error("Could not execute transfer", e);
+        } finally {
+            transfer.close();
+        }
     }
 
     protected abstract ItemReader<I> reader() throws Exception;
@@ -78,6 +91,18 @@ public abstract class AbstractTransferCommand<I, O> extends HelpCommand implemen
     protected abstract ItemProcessor<I, O> processor();
 
     protected abstract ItemWriter<O> writer() throws Exception;
+
+    protected ItemProcessor compositeProcessor(List<ItemProcessor> allProcessors) {
+        if (allProcessors.isEmpty()) {
+            return new PassThroughItemProcessor();
+        }
+        if (allProcessors.size() == 1) {
+            return allProcessors.get(0);
+        }
+        CompositeItemProcessor compositeItemProcessor = new CompositeItemProcessor();
+        compositeItemProcessor.setDelegates(allProcessors);
+        return compositeItemProcessor;
+    }
 
 
 }

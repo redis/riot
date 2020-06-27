@@ -18,8 +18,6 @@ import org.springframework.batch.item.redisearch.RediSearchItemWriter;
 import org.springframework.batch.item.redisearch.RediSearchSuggestItemWriter;
 import org.springframework.batch.item.redisearch.support.DocumentItemProcessor;
 import org.springframework.batch.item.redisearch.support.SuggestionItemProcessor;
-import org.springframework.batch.item.support.CompositeItemProcessor;
-import org.springframework.batch.item.support.PassThroughItemProcessor;
 import org.springframework.core.convert.converter.Converter;
 import picocli.CommandLine;
 
@@ -96,15 +94,7 @@ public abstract class AbstractImportCommand<I> extends AbstractTransferCommand<I
                 allProcessors.add(suggestionItemProcessor());
                 break;
         }
-        if (allProcessors.isEmpty()) {
-            return new PassThroughItemProcessor();
-        }
-        if (allProcessors.size() == 1) {
-            return allProcessors.get(0);
-        }
-        CompositeItemProcessor compositeItemProcessor = new CompositeItemProcessor();
-        compositeItemProcessor.setDelegates(allProcessors);
-        return compositeItemProcessor;
+        return compositeProcessor(allProcessors);
     }
 
     @SuppressWarnings("rawtypes")

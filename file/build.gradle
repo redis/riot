@@ -24,6 +24,7 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
     implementation 'org.springframework.cloud:spring-cloud-aws-context'
     implementation 'org.springframework.cloud:spring-cloud-aws-autoconfigure'
+    implementation 'org.springframework.cloud:spring-cloud-gcp-starter-storage'
     implementation 'org.ruaux:spring-batch-resource:1.0.0'
     implementation 'org.ruaux:spring-batch-xml:1.0.1'
     implementation 'org.springframework:spring-oxm'

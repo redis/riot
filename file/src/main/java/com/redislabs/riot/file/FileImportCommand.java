@@ -16,7 +16,6 @@ import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.batch.item.file.transform.Range;
 import org.springframework.batch.item.json.JacksonJsonObjectReader;
 import org.springframework.batch.item.json.builder.JsonItemReaderBuilder;
-import org.springframework.batch.item.resource.StandardInputResource;
 import org.springframework.batch.item.xml.XmlObjectReader;
 import org.springframework.batch.item.xml.builder.XmlItemReaderBuilder;
 import org.springframework.core.io.Resource;
@@ -32,7 +31,7 @@ import java.util.*;
 public class FileImportCommand extends AbstractImportCommand<Map<String, String>> {
 
     @CommandLine.Mixin
-    private final FileOptions options = new FileOptions();
+    private final FileOptions fileOptions = new FileOptions();
     @CommandLine.Option(names = {"--skip"}, description = "Lines to skip at start of file (default: ${DEFAULT-VALUE})", paramLabel = "<count>")
     private int linesToSkip = 0;
     @CommandLine.Option(names = "--include", arity = "1..*", description = "Field indices to include (0-based)", paramLabel = "<index>")
@@ -46,21 +45,21 @@ public class FileImportCommand extends AbstractImportCommand<Map<String, String>
 
     @Override
     @SuppressWarnings({"unchecked", "rawtypes"})
-    protected ItemReader<Map<String, String>> reader() throws Exception {
-        FileOptions.FileType fileType = options.getFileType();
-        Resource resource = resource();
-        switch (fileType) {
+    protected ItemReader reader() throws Exception {
+        ResourceHelper helper = new ResourceHelper(fileOptions);
+        Resource resource = helper.getInputResource();
+        switch (helper.getFileType()) {
             case DELIMITED:
                 FlatFileItemReaderBuilder delimitedReaderBuilder = flatFileReaderBuilder(resource);
                 FlatFileItemReaderBuilder.DelimitedBuilder delimitedBuilder = delimitedReaderBuilder.delimited();
-                delimitedBuilder.delimiter(options.getDelimiter());
+                delimitedBuilder.delimiter(helper.getDelimiter());
                 delimitedBuilder.includedFields(includedFields());
                 delimitedBuilder.quoteCharacter(quoteCharacter);
-                String[] fieldNames = options.getNames();
-                if (options.isHeader()) {
-                    BufferedReader reader = new DefaultBufferedReaderFactory().create(resource, options.getEncoding());
+                String[] fieldNames = fileOptions.getNames();
+                if (fileOptions.isHeader()) {
+                    BufferedReader reader = new DefaultBufferedReaderFactory().create(resource, fileOptions.getEncoding());
                     DelimitedLineTokenizer tokenizer = new DelimitedLineTokenizer();
-                    tokenizer.setDelimiter(options.getDelimiter());
+                    tokenizer.setDelimiter(helper.getDelimiter());
                     tokenizer.setQuoteCharacter(quoteCharacter);
                     if (includedFields.length > 0) {
                         tokenizer.setIncludedFields(includedFields);
@@ -78,26 +77,26 @@ public class FileImportCommand extends AbstractImportCommand<Map<String, String>
                 FlatFileItemReaderBuilder.FixedLengthBuilder fixedLength = fixedReaderBuilder.fixedLength();
                 Assert.notEmpty(columnRanges, "Column ranges are required");
                 fixedLength.columns(columnRanges);
-                fixedLength.names(options.getNames());
+                fixedLength.names(fileOptions.getNames());
                 return fixedReaderBuilder.build();
             case JSON:
                 JsonItemReaderBuilder<Map> jsonReaderBuilder = new JsonItemReaderBuilder<>();
                 jsonReaderBuilder.name("json-file-reader");
-                jsonReaderBuilder.resource(resource());
+                jsonReaderBuilder.resource(resource);
                 JacksonJsonObjectReader<Map> jsonObjectReader = new JacksonJsonObjectReader<>(Map.class);
                 jsonObjectReader.setMapper(new ObjectMapper());
                 jsonReaderBuilder.jsonObjectReader(jsonObjectReader);
-                return (ItemReader) jsonReaderBuilder.build();
+                return jsonReaderBuilder.build();
             case XML:
                 XmlItemReaderBuilder<Map> xmlReaderBuilder = new XmlItemReaderBuilder<>();
                 xmlReaderBuilder.name("xml-file-reader");
-                xmlReaderBuilder.resource(resource());
+                xmlReaderBuilder.resource(resource);
                 XmlObjectReader<Map> xmlObjectReader = new XmlObjectReader<>(Map.class);
                 xmlObjectReader.setMapper(new XmlMapper());
                 xmlReaderBuilder.xmlObjectReader(xmlObjectReader);
-                return (ItemReader) xmlReaderBuilder.build();
+                return xmlReaderBuilder.build();
         }
-        throw new IllegalArgumentException("Unknown file type: " + fileType);
+        throw new IllegalArgumentException("Unknown file type: " + helper.getFileType());
     }
 
     private Integer[] includedFields() {
@@ -112,34 +111,23 @@ public class FileImportCommand extends AbstractImportCommand<Map<String, String>
         FlatFileItemReaderBuilder<Map<String, String>> flatFileReaderBuilder = new FlatFileItemReaderBuilder<>();
         flatFileReaderBuilder.name("flat-file-reader");
         flatFileReaderBuilder.resource(resource);
-        flatFileReaderBuilder.encoding(options.getEncoding());
+        flatFileReaderBuilder.encoding(fileOptions.getEncoding());
         flatFileReaderBuilder.linesToSkip(linesToSkip);
         flatFileReaderBuilder.strict(true);
         flatFileReaderBuilder.saveState(false);
         flatFileReaderBuilder.fieldSetMapper(new MapFieldSetMapper());
         flatFileReaderBuilder.recordSeparatorPolicy(new DefaultRecordSeparatorPolicy());
-        if (options.isHeader() && linesToSkip == 0) {
+        if (fileOptions.isHeader() && linesToSkip == 0) {
             flatFileReaderBuilder.linesToSkip(1);
         }
         return flatFileReaderBuilder;
     }
 
-    private Resource resource() throws IOException {
-        if (options.isConsole()) {
-            return new StandardInputResource();
-        }
-        Resource resource = options.getResource();
-        if (options.isGzip()) {
-            return new GZIPInputStreamResource(resource.getInputStream(), resource.getDescription());
-        }
-        return resource;
-
-    }
-
     @Override
     @SuppressWarnings("unchecked")
     protected ItemProcessor<Map<String, String>, Object> processor() {
-        FileOptions.FileType fileType = options.getFileType();
+        ResourceHelper helper = new ResourceHelper(fileOptions);
+        FileType fileType = helper.getFileType();
         switch (fileType) {
             case DELIMITED:
             case FIXED:

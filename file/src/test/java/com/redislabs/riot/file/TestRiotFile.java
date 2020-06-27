@@ -159,14 +159,14 @@ public class TestRiotFile extends BaseTest {
     }
 
     @Test
-    public void importCsvHash() throws Exception {
+    public void importCsvHash() {
         runFile("/import-csv-hash.txt");
         List<String> keys = commands().keys("beer:*");
         Assertions.assertEquals(COUNT, keys.size());
     }
 
     @Test
-    public void importCsvSearch() throws Exception {
+    public void importCsvSearch() {
         String FIELD_ABV = "abv";
         String FIELD_NAME = "name";
         String FIELD_STYLE = "style";
@@ -181,7 +181,7 @@ public class TestRiotFile extends BaseTest {
     }
 
     @Test
-    public void importCsvProcessorSearchGeo() throws Exception {
+    public void importCsvProcessorSearchGeo() {
         String INDEX = "airports";
         commands().flushall();
         Schema schema = Schema.builder().field(TextField.builder().name("Name").sortable(true).build()).field(GeoField.builder().name("Location").sortable(true).build()).build();
@@ -192,7 +192,7 @@ public class TestRiotFile extends BaseTest {
     }
 
     @Test
-    public void importCsvGeo() throws Exception {
+    public void importCsvGeo()  {
         runFile("/import-csv-geo.txt");
         Set<String> results = commands().georadius("airportgeo", -122.4194, 37.7749, 20, Unit.mi);
         Assertions.assertTrue(results.contains("3469"));
@@ -201,7 +201,7 @@ public class TestRiotFile extends BaseTest {
     }
 
     @Test
-    public void importElasticJson() throws Exception {
+    public void importElasticJson() {
         String url = getClass().getClassLoader().getResource("es_test-index.json").getFile();
         runFile("/import-elastic-json.txt", url);
         Assertions.assertEquals(2, commands().keys("estest:*").size());
@@ -211,7 +211,7 @@ public class TestRiotFile extends BaseTest {
     }
 
     @Test
-    public void importJsonHash() throws Exception {
+    public void importJsonHash() {
         runFile("/import-json-hash.txt");
         List<String> keys = commands().keys("beer:*");
         Assertions.assertEquals(4432, keys.size());
@@ -220,7 +220,7 @@ public class TestRiotFile extends BaseTest {
     }
 
     @Test
-    public void importCsvProcessorHashDateFormat() throws Exception {
+    public void importCsvProcessorHashDateFormat() {
         runFile("/import-csv-processor-hash-dateformat.txt");
         List<String> keys = commands().keys("event:*");
         Assertions.assertEquals(568, keys.size());
@@ -232,7 +232,7 @@ public class TestRiotFile extends BaseTest {
     }
 
     @Test
-    public void importCsvProcessorSearch() throws Exception {
+    public void importCsvProcessorSearch() {
         String INDEX = "laevents";
         Schema schema = Schema.builder().field(TextField.builder().name("Title").build()).field(NumericField.builder().name("lon").build()).field(NumericField.builder().name("kat").build()).field(GeoField.builder().name("location").sortable(true).build()).build();
         commands().create(INDEX, schema, null);
@@ -243,6 +243,24 @@ public class TestRiotFile extends BaseTest {
             Double lat = Double.parseDouble(result.get("lat"));
             Assertions.assertTrue(lat > 33 && lat < 35);
         }
+    }
+
+    @Test
+    public void importGcs() {
+        runFile("/import-gcs.txt");
+        List<String> keys = commands().keys("beer:*");
+        Assertions.assertEquals(4432, keys.size());
+        Map<String, String> beer1 = commands().hgetall("beer:1");
+        Assertions.assertEquals("Hocus Pocus", beer1.get("name"));
+    }
+
+    @Test
+    public void importS3() {
+        runFile("/import-s3.txt");
+        List<String> keys = commands().keys("beer:*");
+        Assertions.assertEquals(4432, keys.size());
+        Map<String, String> beer1 = commands().hgetall("beer:1");
+        Assertions.assertEquals("Hocus Pocus", beer1.get("name"));
     }
 
 }

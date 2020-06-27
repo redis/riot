@@ -12,26 +12,24 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
-public class ProgressBarReporter {
+public class ProgressBarReporter implements Transfer.Listener {
 
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
     private final Transfer<?, ?> transfer;
     private final Integer initialMax;
     private final String taskName;
-    private final long refreshInterval;
     private final boolean quiet;
 
     private ProgressBar bar;
     private ScheduledFuture<?> scheduledFuture;
 
     @Builder
-    private ProgressBarReporter(Transfer<?, ?> transfer, String taskName, Integer initialMax, long refreshInterval, boolean quiet) {
+    private ProgressBarReporter(Transfer<?, ?> transfer, String taskName, Integer initialMax, boolean quiet) {
         Assert.notNull(transfer, "A Transfer instance is required.");
         Assert.notNull(taskName, "A task name is required.");
         this.transfer = transfer;
         this.taskName = taskName;
         this.initialMax = initialMax;
-        this.refreshInterval = refreshInterval;
         this.quiet = quiet;
     }
 
@@ -46,14 +44,7 @@ public class ProgressBarReporter {
         builder.setTaskName(taskName);
         builder.showSpeed();
         this.bar = builder.build();
-        this.scheduledFuture = scheduler.scheduleAtFixedRate(this::update, 0, refreshInterval, TimeUnit.MILLISECONDS);
-    }
-
-    private void update() {
-        if (bar == null) {
-            return;
-        }
-        bar.stepTo(transfer.getWriteCount());
+        this.scheduledFuture = scheduler.scheduleAtFixedRate(this::update, 300, 300, TimeUnit.MILLISECONDS);
     }
 
     public void stop() {
@@ -66,5 +57,26 @@ public class ProgressBarReporter {
         this.bar.close();
     }
 
+    private void update() {
+        if (bar == null) {
+            return;
+        }
+        bar.stepTo(transfer.getWriteCount());
+    }
 
+
+    @Override
+    public void onOpen() {
+        start();
+    }
+
+    @Override
+    public void onUpdate(long writeCount) {
+        // do nothing
+    }
+
+    @Override
+    public void onClose() {
+        stop();
+    }
 }

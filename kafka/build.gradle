@@ -1,10 +1,8 @@
 plugins {
     id 'application'
-    id 'java'
-    id 'java-library'
-    id 'org.springframework.boot' version '2.3.1.RELEASE'
-    id 'io.spring.dependency-management' version '1.0.9.RELEASE'
 }
+
+archivesBaseName = 'riot-kafka'
 
 bootJar {
     enabled = false
@@ -19,9 +17,16 @@ test {
 }
 
 dependencies {
+    implementation project(':core')
+    annotationProcessor 'info.picocli:picocli-codegen:4.3.2'
+    implementation 'org.slf4j:slf4j-jdk14'
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
     implementation 'org.springframework.kafka:spring-kafka'
+    testImplementation project(':test')
 }
 
 application {
-    mainClassName = 'com.redislabs.riot-file.kafka.App'
+    mainClassName = 'com.redislabs.riot.kafka.RiotKafka'
+    applicationName = 'riot-kafka'
 }

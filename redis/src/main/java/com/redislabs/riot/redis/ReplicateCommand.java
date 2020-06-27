@@ -21,10 +21,10 @@ public class ReplicateCommand extends AbstractTransferCommand<KeyDump<String>, K
     private RedisConnectionOptions targetRedis = new RedisConnectionOptions();
     @CommandLine.Mixin
     private RedisExportOptions options = new RedisExportOptions();
+    @CommandLine.Option(names = "--live", description = "Enable live replication")
+    private boolean live;
     @CommandLine.Option(names = "--flush-interval", description = "Duration between notification flushes (default: ${DEFAULT-VALUE})", paramLabel = "<ms>")
     private long flushPeriod = 50;
-    @CommandLine.Option(names = "--live", description = "Live replication")
-    private boolean live;
 
     @Override
     protected ItemReader<KeyDump<String>> reader() {
@@ -42,12 +42,11 @@ public class ReplicateCommand extends AbstractTransferCommand<KeyDump<String>, K
     }
 
     @Override
-    protected Transfer<KeyDump<String>, KeyDump<String>> transfer(ItemReader<KeyDump<String>> reader, ItemProcessor<KeyDump<String>, KeyDump<String>> processor, ItemWriter<KeyDump<String>> writer) {
-        Transfer<KeyDump<String>, KeyDump<String>> transfer = super.transfer(reader, processor, writer);
+    protected Long flushPeriod() {
         if (live) {
-            transfer.setFlushPeriod(flushPeriod);
+            return flushPeriod;
         }
-        return transfer;
+        return super.flushPeriod();
     }
 
     @Override

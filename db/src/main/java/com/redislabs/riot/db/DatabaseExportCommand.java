@@ -4,7 +4,6 @@ import com.redislabs.riot.AbstractExportCommand;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.database.JdbcBatchItemWriter;
 import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilder;
-import org.springframework.batch.item.redis.support.KeyValue;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import picocli.CommandLine;
 
@@ -33,7 +32,7 @@ public class DatabaseExportCommand extends AbstractExportCommand<Map<String, Obj
     }
 
     @Override
-    protected ItemProcessor<KeyValue<String>, Map<String, Object>> processor() {
-        return keyValueProcessor();
+    protected ItemProcessor processor() {
+        return keyValueMapProcessor();
     }
 }
