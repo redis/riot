@@ -22,8 +22,8 @@ endif::[]
 
 RIOT is a set of import/export tools for Redis:
 
-* https://redislabs-solution-architects.github.io/riot/file.html[RIOT File]: Import/export of delimited (CSV), fixed-length, JSON, and XML files
 * https://redislabs-solution-architects.github.io/riot/db.html[RIOT DB]: Import/export of relational databases
+* https://redislabs-solution-architects.github.io/riot/file.html[RIOT File]: Import/export of delimited (CSV), fixed-length, JSON, and XML files
 * https://redislabs-solution-architects.github.io/riot/gen.html[RIOT Gen]: Generate random datasets
 * https://redislabs-solution-architects.github.io/riot/redis.html[RIOT Redis]: Data replication between Redis databases
 
