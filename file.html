@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.10">
-<title>Faker Types</title>
+<title>RIOT File</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /* Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -439,250 +439,283 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="article">
 <div id="header">
-<h1>Faker Types</h1>
+<h1>RIOT File</h1>
 <div class="details">
-<span id="revnumber">version 2.0.4</span>
+<span id="revnumber">version 2.0.5</span>
 </div>
 </div>
 <div id="content">
+<div class="sect1">
+<h2 id="overview"><a class="anchor" href="#overview"></a>Overview</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><strong>riot-file</strong> can import/export local or remote files in CSV, fixed-width, JSON or XML format with optional GZIP compression:</p>
+</div>
 <div class="ulist">
 <ul>
 <li>
-<p><strong>address</strong>: buildingNumber city cityName cityPrefix citySuffix country countryCode firstName fullAddress lastName latitude longitude secondaryAddress state stateAbbr streetAddress streetAddressNumber streetName streetPrefix streetSuffix timeZone zipCode</p>
+<p><code>/myfolder/myfile.csv</code></p>
 </li>
 <li>
-<p><strong>ancient</strong>: god hero primordial titan</p>
+<p><code>/myfolder/myfile.json.gz</code></p>
 </li>
 <li>
-<p><strong>animal</strong>: name</p>
+<p><code>https://example.com/path/dataset.csv</code></p>
 </li>
 <li>
-<p><strong>app</strong>: author name version</p>
+<p><code>s3://my-bucket/myfolder/myfile.json</code></p>
 </li>
 <li>
-<p><strong>artist</strong>: name</p>
-</li>
-<li>
-<p><strong>avatar</strong>: image</p>
-</li>
-<li>
-<p><strong>aviation</strong>: METAR aircraft airport</p>
-</li>
-<li>
-<p><strong>backToTheFuture</strong>: character date quote</p>
-</li>
-<li>
-<p><strong>beer</strong>: hop malt name style yeast</p>
-</li>
-<li>
-<p><strong>book</strong>: author genre publisher title</p>
-</li>
-<li>
-<p><strong>bool</strong>: bool</p>
-</li>
-<li>
-<p><strong>buffy</strong>: bigBads celebrities characters episodes quotes</p>
-</li>
-<li>
-<p><strong>business</strong>: creditCardExpiry creditCardNumber creditCardType</p>
-</li>
-<li>
-<p><strong>cat</strong>: breed name registry</p>
-</li>
-<li>
-<p><strong>chuckNorris</strong>: fact</p>
-</li>
-<li>
-<p><strong>code</strong>: asin ean13 ean8 gtin13 gtin8 imei isbn10 isbn13 isbnGroup isbnGs1 isbnRegistrant</p>
-</li>
-<li>
-<p><strong>color</strong>: hex name</p>
-</li>
-<li>
-<p><strong>commerce</strong>: color department material price productName promotionCode</p>
-</li>
-<li>
-<p><strong>company</strong>: bs buzzword catchPhrase domainName domainSuffix industry logo name profession suffix url</p>
-</li>
-<li>
-<p><strong>country</strong>: capital countryCode2 countryCode3 currency currencyCode flag name</p>
-</li>
-<li>
-<p><strong>crypto</strong>: md5 sha1 sha256 sha512</p>
-</li>
-<li>
-<p><strong>currency</strong>: code name</p>
-</li>
-<li>
-<p><strong>date</strong>: birthday</p>
-</li>
-<li>
-<p><strong>demographic</strong>: demonym educationalAttainment maritalStatus race sex</p>
-</li>
-<li>
-<p><strong>dog</strong>: age breed coatLength gender memePhrase name size sound</p>
-</li>
-<li>
-<p><strong>dragonBall</strong>: character</p>
-</li>
-<li>
-<p><strong>dune</strong>: character planet quote saying title</p>
-</li>
-<li>
-<p><strong>educator</strong>: campus course secondarySchool university</p>
-</li>
-<li>
-<p><strong>elderScrolls</strong>: city creature dragon firstName lastName quote race region</p>
-</li>
-<li>
-<p><strong>esports</strong>: event game league player team</p>
-</li>
-<li>
-<p><strong>file</strong>: extension fileName mimeType</p>
-</li>
-<li>
-<p><strong>finance</strong>: bic createCountryCodeToBasicBankAccountNumberPatternMap creditCard iban randomCreditCardType</p>
-</li>
-<li>
-<p><strong>food</strong>: dish fruit ingredient measurement spice sushi vegetable</p>
-</li>
-<li>
-<p><strong>friends</strong>: character location quote</p>
-</li>
-<li>
-<p><strong>funnyName</strong>: name</p>
-</li>
-<li>
-<p><strong>gameOfThrones</strong>: character city dragon house quote</p>
-</li>
-<li>
-<p><strong>hacker</strong>: abbreviation adjective ingverb noun verb</p>
-</li>
-<li>
-<p><strong>harryPotter</strong>: book character location quote</p>
-</li>
-<li>
-<p><strong>hipster</strong>: word</p>
-</li>
-<li>
-<p><strong>hitchhikersGuideToTheGalaxy</strong>: character location marvinQuote planet quote specie starship</p>
-</li>
-<li>
-<p><strong>hobbit</strong>: character location quote thorinsCompany</p>
-</li>
-<li>
-<p><strong>howIMetYourMother</strong>: catchPhrase character highFive quote</p>
-</li>
-<li>
-<p><strong>idNumber</strong>: invalid invalidSvSeSsn ssnValid valid validSvSeSsn</p>
-</li>
-<li>
-<p><strong>internet</strong>: avatar domainName domainSuffix domainWord emailAddress image ipV4Address ipV4Cidr ipV6Address ipV6Cidr macAddress password privateIpV4Address publicIpV4Address safeEmailAddress slug url userAgentAny uuid</p>
-</li>
-<li>
-<p><strong>job</strong>: field keySkills position seniority title</p>
-</li>
-<li>
-<p><strong>leagueOfLegends</strong>: champion location masteries quote rank summonerSpell</p>
-</li>
-<li>
-<p><strong>lebowski</strong>: actor character quote</p>
-</li>
-<li>
-<p><strong>lordOfTheRings</strong>: character location</p>
-</li>
-<li>
-<p><strong>lorem</strong>: character characters paragraph sentence word words</p>
-</li>
-<li>
-<p><strong>matz</strong>: quote</p>
-</li>
-<li>
-<p><strong>medical</strong>: diseaseName hospitalName medicineName symptoms</p>
-</li>
-<li>
-<p><strong>music</strong>: chord genre instrument key</p>
-</li>
-<li>
-<p><strong>name</strong>: bloodGroup firstName fullName lastName name nameWithMiddle prefix suffix title username</p>
-</li>
-<li>
-<p><strong>nation</strong>: capitalCity flag language nationality</p>
-</li>
-<li>
-<p><strong>number</strong>: digit randomDigit randomDigitNotZero randomNumber</p>
-</li>
-<li>
-<p><strong>overwatch</strong>: hero location quote</p>
-</li>
-<li>
-<p><strong>phoneNumber</strong>: cellPhone extension phoneNumber subscriberNumber</p>
-</li>
-<li>
-<p><strong>pokemon</strong>: location name</p>
-</li>
-<li>
-<p><strong>princessBride</strong>: character quote</p>
-</li>
-<li>
-<p><strong>relationships</strong>: any direct extended inLaw parent sibling spouse</p>
-</li>
-<li>
-<p><strong>rickAndMorty</strong>: character location quote</p>
-</li>
-<li>
-<p><strong>robin</strong>: quote</p>
-</li>
-<li>
-<p><strong>rockBand</strong>: name</p>
-</li>
-<li>
-<p><strong>shakespeare</strong>: asYouLikeItQuote hamletQuote kingRichardIIIQuote romeoAndJulietQuote</p>
-</li>
-<li>
-<p><strong>slackEmoji</strong>: activity celebration custom emoji foodAndDrink nature objectsAndSymbols people travelAndPlaces</p>
-</li>
-<li>
-<p><strong>space</strong>: agency agencyAbbreviation company constellation distanceMeasurement galaxy meteorite moon nasaSpaceCraft nebula planet star starCluster</p>
-</li>
-<li>
-<p><strong>starTrek</strong>: character location specie villain</p>
-</li>
-<li>
-<p><strong>stock</strong>: nsdqSymbol nyseSymbol</p>
-</li>
-<li>
-<p><strong>superhero</strong>: descriptor name power prefix suffix</p>
-</li>
-<li>
-<p><strong>team</strong>: creature name sport state</p>
-</li>
-<li>
-<p><strong>twinPeaks</strong>: character location quote</p>
-</li>
-<li>
-<p><strong>university</strong>: name prefix suffix</p>
-</li>
-<li>
-<p><strong>weather</strong>: description temperatureCelsius temperatureFahrenheit</p>
-</li>
-<li>
-<p><strong>witcher</strong>: character location monster quote school witcher</p>
-</li>
-<li>
-<p><strong>yoda</strong>: quote</p>
-</li>
-<li>
-<p><strong>zelda</strong>: character game</p>
+<p><code>gs://my-bucket/myfolder/myfile.json</code></p>
 </li>
 </ul>
+</div>
+<div class="paragraph">
+<p>For AWS S3 you can specify access and secret keys as well as the region for the bucket.</p>
+</div>
+<div class="paragraph">
+<p>For Google Cloud Storage you can specify credentials and project id for the bucket.</p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+Use <code>-</code> to import/export from/to standard input/output.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Specify the file type using the <code>--filetype</code> option. If not RIOT will try to determine it from the file extension (e.g. <code>.csv</code> or <code>.json</code>).</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="flat-files"><a class="anchor" href="#flat-files"></a>Flat Files</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>To specify field names for flat files use the <code>--fields</code> option.</p>
+</div>
+<div class="paragraph">
+<p>If the file has a header use the <code>--header</code> option to automatically get fields names from that header.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Delimited: the default delimiter character is comma (<code>,</code>). It can be changed with the <code>--delimiter</code> option.</p>
+</li>
+<li>
+<p>Fixed-width: these are files where fields in a record are each of a fixed width. The width of each field must be defined using the <code>--ranges</code> option.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s consider this CSV file: <a href="https://raw.githubusercontent.com/nickhould/craft-beers-dataset/master/data/processed/beers.csv" class="bare">https://raw.githubusercontent.com/nickhould/craft-beers-dataset/master/data/processed/beers.csv</a></p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top"></th>
+<th class="tableblock halign-left valign-top">abv</th>
+<th class="tableblock halign-left valign-top">ibu</th>
+<th class="tableblock halign-left valign-top">id</th>
+<th class="tableblock halign-left valign-top">name</th>
+<th class="tableblock halign-left valign-top">style</th>
+<th class="tableblock halign-left valign-top">brewery_id</th>
+<th class="tableblock halign-left valign-top">ounces</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0.05</p></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1436</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Pub Beer</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Pale Lager</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">408</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">12.0</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0.066</p></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2265</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Devil&#8217;s Cup</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">APA</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">177</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">12.0</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&#8230;&#8203;</p></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>The following command imports the CSV data into Redis hashes with <code>beer</code> as the key prefix and <code>id</code> as the primary key, which means that the keys will be <code>beer:1436</code>, <code>beer:2265</code>, &#8230;&#8203;</p>
+</div>
+<div class="listingblock">
+<div class="title">Import CSV to Hashes</div>
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">❯ riot-file -r redis://localhost:6379 import https://raw.githubusercontent.com/nickhould/craft-beers-dataset/master/data/processed/beers.csv --keyspace beer --keys id --header</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Import CSV into RediSearch index</div>
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">❯ riot-file -r redis://localhost:6379 import https://raw.githubusercontent.com/nickhould/craft-beers-dataset/master/data/processed/beers.csv --command ftadd --index beers --keys id --header</code></pre>
+</div>
+</div>
+<div id="import-csv-geo" class="listingblock">
+<div class="title">Import CSV to a Geo set</div>
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">❯ riot-file -r redis://localhost:6379 import https://raw.githubusercontent.com/jpatokal/openflights/master/data/airports.dat --command geoadd --keyspace airportgeo --members AirportID --lon Longitude --lat Latitude --fields AirportID Name City Country IATA ICAO Latitude Longitude Altitude Timezone DST Tz Type Source</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Import CSV into RediSearch geo</div>
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">❯ riot-file -r redis://localhost:6379 import https://raw.githubusercontent.com/jpatokal/openflights/master/data/airports.dat --command ftadd --index airports -k AirportID --spel "Location=#geo(Longitude,Latitude)" --fields AirportID Name City Country IATA ICAO Latitude Longitude Altitude Timezone DST Tz Type Source</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Export to CSV</div>
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">❯ riot-file -r redis://localhost:6379 export /tmp/beers.csv --match beer:* --key-regex "beer:(?&lt;id&gt;.*)" --fields id name brewery_id abv --header --delimiter '|'</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="json"><a class="anchor" href="#json"></a>JSON</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The expected format is:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="json" class="language-json hljs">[
+  {
+    "isin": "123",
+    "quantity": 1,
+    "price": 1.2,
+    "customer": "foo"
+  },
+  {
+    "isin": "456",
+    "quantity": 2,
+    "price": 1.4,
+    "customer": "bar"
+  }
+]</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>JSON records are trees with potentially nested values that need to be flattened when the target is a Redis hash for example.</p>
+</div>
+<div class="paragraph">
+<p>To that end, RIOT uses a field naming convention to flatten JSON objects and arrays:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>{ "field": { "sub": "value" } }</code>
+&#8594; <code>field.sub=value</code></p>
+</li>
+<li>
+<p><code>{ "field": [1, 2, 3] }</code>
+&#8594; <code>field[0]=1 field[1]=2 field[2]=3</code></p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="title">Import JSON</div>
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">❯ riot-file -r redis://localhost:6379 import https://raw.githubusercontent.com/rethinkdb/beerthink/master/data/beers.json --keyspace beer --keys id</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Export JSON</div>
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">❯ riot-file -r redis://localhost:6379 export /tmp/riot-keyvalues.json</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Export compressed JSON</div>
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">❯ riot-file -r redis://localhost:6379 export /tmp/beers.json.gz --match beer:* --fields id name brewery_id abv</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="xml"><a class="anchor" href="#xml"></a>XML</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Here is an example of XML file that can be processed by RIOT File:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="xml" class="language-xml hljs">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;records&gt;
+    &lt;trade&gt;
+        &lt;isin&gt;XYZ0001&lt;/isin&gt;
+        &lt;quantity&gt;5&lt;/quantity&gt;
+        &lt;price&gt;11.39&lt;/price&gt;
+        &lt;customer&gt;Customer1&lt;/customer&gt;
+    &lt;/trade&gt;
+    &lt;trade&gt;
+        &lt;isin&gt;XYZ0002&lt;/isin&gt;
+        &lt;quantity&gt;2&lt;/quantity&gt;
+        &lt;price&gt;72.99&lt;/price&gt;
+        &lt;customer&gt;Customer2c&lt;/customer&gt;
+    &lt;/trade&gt;
+    &lt;trade&gt;
+        &lt;isin&gt;XYZ0003&lt;/isin&gt;
+        &lt;quantity&gt;9&lt;/quantity&gt;
+        &lt;price&gt;99.99&lt;/price&gt;
+        &lt;customer&gt;Customer3&lt;/customer&gt;
+    &lt;/trade&gt;
+&lt;/records&gt;</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Import XML</div>
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">❯ riot-file -r redis://localhost:6379 import https://raw.githubusercontent.com/Redislabs-Solution-Architects/riot/master/file/src/test/resources/trades.xml --keyspace trade --keys id</code></pre>
+</div>
+</div>
+</div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 2.0.4<br>
-Last updated 2020-03-18 12:30:24 -0700
+Version 2.0.5<br>
+Last updated 2020-06-28 17:50:59 -0700
 </div>
 </div>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/styles/github.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/highlight.min.js"></script>
+<script>hljs.initHighlighting()</script>
 </body>
 </html>
