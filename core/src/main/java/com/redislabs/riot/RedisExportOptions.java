@@ -4,14 +4,8 @@ import lombok.Getter;
 import org.springframework.batch.item.redis.support.RedisItemReaderBuilder;
 import picocli.CommandLine;
 
-import java.util.List;
-
 @Getter
 public class RedisExportOptions {
-
-    public enum FtCommand {
-        SEARCH, AGGREGATE, CURSOR
-    }
 
     @CommandLine.Option(names = "--count", description = "SCAN COUNT option (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
     private long scanCount = RedisItemReaderBuilder.DEFAULT_SCAN_COUNT;
@@ -23,8 +17,6 @@ public class RedisExportOptions {
     private int threads = 1;
     @CommandLine.Option(names = "--reader-batch", description = "Number of reader values to process at once (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
     private int batchSize = 50;
-    @CommandLine.Option(names = "--ft-command", description = "RediSearch command used for export: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})", paramLabel = "<cmd>")
-    private FtCommand ftCommand = FtCommand.SEARCH;
     @CommandLine.Option(names = "--cursor-maxidle", description = "Cursor idle timeout", paramLabel = "<int>")
     private Long cursorMaxIdle;
     @CommandLine.Option(names = "--cursor-count", description = "Cursor count", paramLabel = "<int>")

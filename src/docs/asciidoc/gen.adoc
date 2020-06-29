@@ -1,23 +1,40 @@
-= Faker Types
-// Settings
+= RIOT Gen
+:source-highlighter: highlightjs
 :idprefix:
 :idseparator: -
-ifdef::env-github,env-browser[:outfilesuffix: .adoc]
-ifndef::env-github[:icons: font]
-// URIs
+:toc: macro
+:sectanchors:
+:icons: font
 :project-repo: Redislabs-Solution-Architects/riot
-:uri-repo: https://github.com/{project-repo}
-// GitHub customization
-ifdef::env-github[]
-:badges:
-:tag: master
-:!toc-title:
-:tip-caption: :bulb:
-:note-caption: :paperclip:
-:important-caption: :heavy_exclamation_mark:
-:caution-caption: :fire:
-:warning-caption: :warning:
-endif::[]
+:repo-url: https://github.com/{project-repo}
+:path: ../../..
+:resources: {path}/gen/src/test/resources
+
+== Overview
+
+*riot-gen* generates random data using the https://github.com/DiUS/java-faker[Faker] library.
+
+All supported Faker data types are listed <<faker-data-types,below>>.
+
+.Generate hashes
+[source,shell]
+----
+include::{resources}/import-hash.txt[]
+----
+
+.Generate sets
+[source,shell]
+----
+include::{resources}/import-set.txt[]
+----
+
+.Introspect RediSearch index
+[source,shell]
+----
+include::{resources}/index-introspection.txt[]
+----
+
+== Faker data types
 
 * *address*: buildingNumber city cityName cityPrefix citySuffix country countryCode firstName fullAddress lastName latitude longitude secondaryAddress state stateAbbr streetAddress streetAddressNumber streetName streetPrefix streetSuffix timeZone zipCode
 * *ancient*: god hero primordial titan

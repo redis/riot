@@ -12,12 +12,6 @@ public class RedisImportOptions {
         RAW, XML, JSON
     }
 
-    public enum CommandName {
-        EVALSHA, EXPIRE, GEOADD, FTADD, FTSEARCH, FTAGGREGATE, FTSUGADD, HMSET, LPUSH, NOOP, RPUSH, SADD, SET, XADD, ZADD
-    }
-
-    @CommandLine.Option(names = "--command", description = "Redis command: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})", paramLabel = "<name>")
-    private CommandName command = CommandName.HMSET;
     @CommandLine.Option(names = "--key-separator", description = "Key separator (default: ${DEFAULT-VALUE})", paramLabel = "<str>")
     private String keySeparator = KeyMaker.DEFAULT_SEPARATOR;
     @CommandLine.Option(names = {"-p", "--keyspace"}, description = "Keyspace prefix", paramLabel = "<str>")

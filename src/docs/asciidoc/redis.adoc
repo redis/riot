@@ -1,0 +1,23 @@
+= RIOT Redis
+:source-highlighter: highlightjs
+:idprefix:
+:idseparator: -
+:toc: macro
+:sectanchors:
+:icons: font
+:project-repo: Redislabs-Solution-Architects/riot
+:repo-url: https://github.com/{project-repo}
+:path: ../../..
+:resources: {path}/redis/src/test/resources
+
+== Overview
+
+*riot-redis* allows for replicating data between two Redis databases using scan and optionally keyspace notifications (*live* replication).
+
+== Examples
+
+.Live replication from localhost:6379 to localhost:6380
+[source,shell]
+----
+include::{resources}/replicate-live.txt[]
+----

@@ -27,7 +27,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@SuppressWarnings({"rawtypes", "unchecked"})
 public abstract class AbstractImportCommand<I> extends AbstractTransferCommand<I, Object> {
+
+    public enum CommandName {
+        EVALSHA, EXPIRE, GEOADD, FTADD, FTSEARCH, FTAGGREGATE, FTSUGADD, HMSET, LPUSH, NOOP, RPUSH, SADD, SET, XADD, ZADD
+    }
 
     @Getter
     @CommandLine.Option(arity = "1..*", names = "--spel", description = "SpEL expression to produce a field", paramLabel = "<field=exp>")
@@ -38,6 +43,9 @@ public abstract class AbstractImportCommand<I> extends AbstractTransferCommand<I
     private String dateFormat = new SimpleDateFormat().toPattern();
     @CommandLine.Option(names = "--remove-fields", description = "Remove fields already used in data structures")
     private boolean removeFields;
+    @Getter
+    @CommandLine.Option(names = "--command", description = "Redis command: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})", paramLabel = "<name>")
+    private CommandName command = CommandName.HMSET;
     @CommandLine.ArgGroup(exclusive = false, heading = "Redis command options%n")
     private final RedisImportOptions redis = new RedisImportOptions();
     @CommandLine.ArgGroup(exclusive = false, heading = "RediSearch command options%n")
@@ -64,7 +72,6 @@ public abstract class AbstractImportCommand<I> extends AbstractTransferCommand<I
         return KeyMaker.<Map<String, String>>builder().separator(redis.getKeySeparator()).prefix(prefix).extractors(fieldExtractors(removeFields, fields)).build();
     }
 
-    @SuppressWarnings("unchecked")
     private Converter<Map<String, String>, String>[] fieldExtractors(boolean remove, String... fields) {
         List<Converter<Map<String, String>, String>> extractors = new ArrayList<>();
         for (String field : fields) {
@@ -73,7 +80,6 @@ public abstract class AbstractImportCommand<I> extends AbstractTransferCommand<I
         return extractors.toArray(new Converter[0]);
     }
 
-    @SuppressWarnings("rawtypes")
     public ItemProcessor objectMapProcessor() {
         List<ItemProcessor> processors = new ArrayList<>();
         if (!spel.isEmpty()) {
@@ -83,10 +89,9 @@ public abstract class AbstractImportCommand<I> extends AbstractTransferCommand<I
         return processor(processors);
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
     public ItemProcessor processor(List<ItemProcessor> processors) {
         List<ItemProcessor> allProcessors = new ArrayList<>(processors);
-        switch (redis.getCommand()) {
+        switch (command) {
             case FTADD:
                 allProcessors.add(documentItemProcessor());
                 break;
@@ -97,7 +102,6 @@ public abstract class AbstractImportCommand<I> extends AbstractTransferCommand<I
         return compositeProcessor(allProcessors);
     }
 
-    @SuppressWarnings("rawtypes")
     private ItemProcessor suggestionItemProcessor() {
         SuggestionItemProcessor.SuggestionItemProcessorBuilder<String, String> builder = SuggestionItemProcessor.<String, String>builder().stringConverter(fieldExtractor(redisearch.getField())).scoreConverter(scoreConverter());
         if (redisearch.getPayloadField() != null) {
@@ -106,7 +110,6 @@ public abstract class AbstractImportCommand<I> extends AbstractTransferCommand<I
         return builder.build();
     }
 
-    @SuppressWarnings("rawtypes")
     private ItemProcessor documentItemProcessor() {
         DocumentItemProcessor.DocumentItemProcessorBuilder<String, String> builder = DocumentItemProcessor.<String, String>builder().idConverter(keyMaker()).scoreConverter(scoreConverter());
         if (redisearch.getPayloadField() != null) {
@@ -115,9 +118,8 @@ public abstract class AbstractImportCommand<I> extends AbstractTransferCommand<I
         return builder.build();
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
     public ItemWriter writer() {
-        switch (redis.getCommand()) {
+        switch (command) {
             case EVALSHA:
                 return configure(Eval.<Map<String, String>>builder().sha(redis.getEvalSha()).outputType(redis.getEvalOutputType()).keysConverter(MapToArrayConverter.builder().fields(redis.getKeyFields()).build()).argsConverter(MapToArrayConverter.builder().fields(redis.getEvalArgs()).build())).build();
             case EXPIRE:

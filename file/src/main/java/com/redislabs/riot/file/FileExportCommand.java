@@ -6,7 +6,6 @@ import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.file.FlatFileItemWriter;
 import org.springframework.batch.item.file.transform.FieldExtractor;
 import org.springframework.batch.item.json.JacksonJsonObjectMarshaller;
-import org.springframework.batch.item.redis.support.KeyValue;
 import org.springframework.batch.item.resource.FlatResourceItemWriterBuilder;
 import org.springframework.batch.item.resource.JsonResourceItemWriterBuilder;
 import org.springframework.batch.item.support.PassThroughItemProcessor;
@@ -49,10 +48,10 @@ public class FileExportCommand extends AbstractExportCommand<Object> {
         switch (helper.getFileType()) {
             case DELIMITED:
             case FIXED:
-                return keyValueMapProcessor();
+                return mapProcessor();
             case JSON:
             case XML:
-                return new PassThroughItemProcessor<KeyValue<String>>();
+                return targetObjectProcessor();
         }
         throw new IllegalArgumentException("Unknown file type");
     }
@@ -78,7 +77,7 @@ public class FileExportCommand extends AbstractExportCommand<Object> {
             case FIXED:
                 FlatResourceItemWriterBuilder<Map<String, String>> fixedWriterBuilder = flatWriterBuilder("formatted-resource-item-writer", resource);
                 if (fileOptions.isHeader()) {
-                    fixedWriterBuilder.headerCallback(w -> w.write(String.format(locale, lineFormat, fileOptions.getNames())));
+                    fixedWriterBuilder.headerCallback(w -> w.write(String.format(locale, lineFormat, (Object[]) fileOptions.getNames())));
                 }
                 FlatResourceItemWriterBuilder.FormattedBuilder<Map<String, String>> formatted = fixedWriterBuilder.formatted();
                 formatted.fieldExtractor(new MapFieldExtractor());
@@ -110,7 +109,7 @@ public class FileExportCommand extends AbstractExportCommand<Object> {
                 xmlWriterBuilder.encoding(fileOptions.getEncoding());
                 xmlWriterBuilder.forceSync(forceSync);
                 Jaxb2Marshaller marshaller = new Jaxb2Marshaller();
-                marshaller.setClassesToBeBound(KeyValue.class);
+                marshaller.setClassesToBeBound(targetClass());
                 xmlWriterBuilder.marshaller(marshaller);
                 xmlWriterBuilder.rootTagName(root);
                 xmlWriterBuilder.resource(resource);

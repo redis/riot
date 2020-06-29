@@ -2,6 +2,8 @@ package com.redislabs.riot.file;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import com.redislabs.lettusearch.search.Document;
+import com.redislabs.lettusearch.suggest.Suggestion;
 import com.redislabs.riot.AbstractImportCommand;
 import com.redislabs.riot.processor.MapFlattener;
 import com.redislabs.riot.processor.MapProcessor;
@@ -16,6 +18,8 @@ import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.batch.item.file.transform.Range;
 import org.springframework.batch.item.json.JacksonJsonObjectReader;
 import org.springframework.batch.item.json.builder.JsonItemReaderBuilder;
+import org.springframework.batch.item.redis.support.KeyValue;
+import org.springframework.batch.item.support.PassThroughItemProcessor;
 import org.springframework.batch.item.xml.XmlObjectReader;
 import org.springframework.batch.item.xml.builder.XmlItemReaderBuilder;
 import org.springframework.core.io.Resource;
@@ -28,7 +32,8 @@ import java.util.*;
 
 @Slf4j
 @CommandLine.Command(name = "import", aliases = {"i"}, description = "Import file")
-public class FileImportCommand extends AbstractImportCommand<Map<String, String>> {
+@SuppressWarnings({"rawtypes", "unchecked"})
+public class FileImportCommand extends AbstractImportCommand {
 
     @CommandLine.Mixin
     private final FileOptions fileOptions = new FileOptions();
@@ -44,7 +49,6 @@ public class FileImportCommand extends AbstractImportCommand<Map<String, String>
     private Map<String, String> regexes = new HashMap<>();
 
     @Override
-    @SuppressWarnings({"unchecked", "rawtypes"})
     protected ItemReader reader() throws Exception {
         ResourceHelper helper = new ResourceHelper(fileOptions);
         Resource resource = helper.getInputResource();
@@ -83,7 +87,7 @@ public class FileImportCommand extends AbstractImportCommand<Map<String, String>
                 JsonItemReaderBuilder<Map> jsonReaderBuilder = new JsonItemReaderBuilder<>();
                 jsonReaderBuilder.name("json-file-reader");
                 jsonReaderBuilder.resource(resource);
-                JacksonJsonObjectReader<Map> jsonObjectReader = new JacksonJsonObjectReader<>(Map.class);
+                JacksonJsonObjectReader<Map> jsonObjectReader = new JacksonJsonObjectReader<>(formatClass());
                 jsonObjectReader.setMapper(new ObjectMapper());
                 jsonReaderBuilder.jsonObjectReader(jsonObjectReader);
                 return jsonReaderBuilder.build();
@@ -91,12 +95,28 @@ public class FileImportCommand extends AbstractImportCommand<Map<String, String>
                 XmlItemReaderBuilder<Map> xmlReaderBuilder = new XmlItemReaderBuilder<>();
                 xmlReaderBuilder.name("xml-file-reader");
                 xmlReaderBuilder.resource(resource);
-                XmlObjectReader<Map> xmlObjectReader = new XmlObjectReader<>(Map.class);
+                XmlObjectReader<Map> xmlObjectReader = new XmlObjectReader<>(formatClass());
                 xmlObjectReader.setMapper(new XmlMapper());
                 xmlReaderBuilder.xmlObjectReader(xmlObjectReader);
                 return xmlReaderBuilder.build();
         }
         throw new IllegalArgumentException("Unknown file type: " + helper.getFileType());
+    }
+
+    private Class formatClass() {
+        switch (fileOptions.getFormat()) {
+            case NATIVE:
+                switch (getCommand()) {
+                    case FTADD:
+                        return Document.class;
+                    case FTSUGADD:
+                        return Suggestion.class;
+                    default:
+                        return KeyValue.class;
+                }
+            default:
+                return Map.class;
+        }
     }
 
     private Integer[] includedFields() {
@@ -124,8 +144,7 @@ public class FileImportCommand extends AbstractImportCommand<Map<String, String>
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    protected ItemProcessor<Map<String, String>, Object> processor() {
+    protected ItemProcessor processor() {
         ResourceHelper helper = new ResourceHelper(fileOptions);
         FileType fileType = helper.getFileType();
         switch (fileType) {
@@ -134,13 +153,17 @@ public class FileImportCommand extends AbstractImportCommand<Map<String, String>
                 return stringMapProcessor();
             case JSON:
             case XML:
-                return processor(Collections.singletonList(MapFlattener.builder().build()));
+                switch (fileOptions.getFormat()) {
+                    case NATIVE:
+                        return new PassThroughItemProcessor();
+                    default:
+                        return processor(Collections.singletonList(MapFlattener.builder().build()));
+                }
         }
         throw new IllegalArgumentException("Unknown file type: " + fileType);
     }
 
 
-    @SuppressWarnings("rawtypes")
     private ItemProcessor stringMapProcessor() {
         List<ItemProcessor> processors = new ArrayList<>();
         if (!regexes.isEmpty()) {

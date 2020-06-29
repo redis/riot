@@ -43,6 +43,7 @@ asciidoctor {
     outputOptions {
         separateOutputDirs = false
     }
+    attributes 'path': '.'
 }
 
 gitPublish {

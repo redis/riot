@@ -12,8 +12,8 @@ jar {
     enabled = true
 }
 
-test {
-    useJUnitPlatform()
+ext {
+    set('springCloudVersion', "Hoxton.SR5")
 }
 
 dependencies {
@@ -37,10 +37,6 @@ configurations {
     all*.exclude module: 'spring-boot-starter-logging'
 }
 
-ext {
-    set('springCloudVersion', "Hoxton.SR5")
-}
-
 dependencyManagement {
     imports {
         mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
@@ -50,4 +46,8 @@ dependencyManagement {
 application {
     mainClassName = 'com.redislabs.riot.file.RiotFile'
     applicationName = 'riot-file'
+}
+
+test {
+    useJUnitPlatform()
 }

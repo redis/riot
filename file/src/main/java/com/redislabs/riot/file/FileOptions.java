@@ -8,12 +8,18 @@ import picocli.CommandLine.Option;
 @Getter
 public class FileOptions {
 
+    public enum RecordFormat {
+        MAP, NATIVE
+    }
+
     @CommandLine.Parameters(arity = "1", description = "File path or URL", paramLabel = "FILE")
     private String file;
     @Option(names = {"-z", "--gzip"}, description = "File is gzip compressed")
     private Boolean gzip;
     @Option(names = {"-t", "--filetype"}, description = "File type: ${COMPLETION-CANDIDATES}", paramLabel = "<type>")
     private FileType type;
+    @CommandLine.Option(names = "--format", description = "JSON/XML record format: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})", paramLabel = "<format>")
+    private RecordFormat format = RecordFormat.MAP;
     @Option(names = "--fields", arity = "1..*", description = "Field names", paramLabel = "<names>")
     private String[] names = new String[0];
     @Option(names = "--encoding", description = "File encoding (default: ${DEFAULT-VALUE})", paramLabel = "<charset>")
@@ -26,5 +32,6 @@ public class FileOptions {
     private S3Options s3 = new S3Options();
     @CommandLine.ArgGroup(exclusive = false, heading = "GCS options%n")
     private GcsOptions gcs = new GcsOptions();
+
 
 }

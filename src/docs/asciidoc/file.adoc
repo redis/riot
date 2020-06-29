@@ -1,0 +1,169 @@
+= RIOT File
+:source-highlighter: highlightjs
+:idprefix:
+:idseparator: -
+:toc: macro
+:sectanchors:
+:icons: font
+:project-repo: Redislabs-Solution-Architects/riot
+:repo-url: https://github.com/{project-repo}
+:path: ../../..
+:resources: {path}/file/src/test/resources
+
+== Overview
+
+*riot-file* can import/export local or remote files in CSV, fixed-width, JSON or XML format with optional GZIP compression:
+
+* `/myfolder/myfile.csv`
+* `/myfolder/myfile.json.gz`
+* `\https://example.com/path/dataset.csv`
+* `s3://my-bucket/myfolder/myfile.json`
+* `gs://my-bucket/myfolder/myfile.json`
+
+For AWS S3 you can specify access and secret keys as well as the region for the bucket.
+
+For Google Cloud Storage you can specify credentials and project id for the bucket.
+
+TIP: Use `-` to import/export from/to standard input/output.
+
+Specify the file type using the `--filetype` option. If not RIOT will try to determine it from the file extension (e.g. `.csv` or `.json`).
+
+== Flat Files
+
+To specify field names for flat files use the `--fields` option.
+
+If the file has a header use the `--header` option to automatically get fields names from that header.
+
+* Delimited: the default delimiter character is comma (`,`). It can be changed with the `--delimiter` option.
+
+* Fixed-width: these are files where fields in a record are each of a fixed width. The width of each field must be defined using the `--ranges` option.
+
+Let's consider this CSV file: https://raw.githubusercontent.com/nickhould/craft-beers-dataset/master/data/processed/beers.csv
+
+|=========
+|   | abv   | ibu | id   | name        | style                   | brewery_id | ounces
+
+| 0 | 0.05  |     | 1436 | Pub Beer    | Pale Lager     | 408        | 12.0
+
+| 1 | 0.066 |     | 2265 | Devil's Cup | APA | 177        | 12.0
+
+| ... | | | | | | |
+
+|=========
+
+The following command imports the CSV data into Redis hashes with `beer` as the key prefix and `id` as the primary key, which means that the keys will be `beer:1436`, `beer:2265`, ...
+
+.Import CSV to Hashes
+[source,shell]
+----
+include::{resources}/csv/import-hash.txt[]
+----
+
+.Import CSV into RediSearch index
+[source,shell]
+----
+include::{resources}/csv/import-search.txt[]
+----
+
+[#import-csv-geo]
+.Import CSV to a Geo set
+[source,shell]
+----
+include::{resources}/csv/import-geo.txt[]
+----
+
+.Import CSV into RediSearch geo
+[source,shell]
+----
+include::{resources}/csv/import-search-geo-processor.txt[]
+----
+
+.Export to CSV
+[source,shell]
+----
+include::{resources}/csv/export-hash.txt[]
+----
+
+== JSON
+
+The expected format is:
+[source,json]
+----
+[
+  {
+    "isin": "123",
+    "quantity": 1,
+    "price": 1.2,
+    "customer": "foo"
+  },
+  {
+    "isin": "456",
+    "quantity": 2,
+    "price": 1.4,
+    "customer": "bar"
+  }
+]
+----
+
+JSON records are trees with potentially nested values that need to be flattened when the target is a Redis hash for example.
+
+To that end, RIOT uses a field naming convention to flatten JSON objects and arrays:
+
+* `{ "field": { "sub": "value" } }`
+-> `field.sub=value`
+* `{ "field": [1, 2, 3] }`
+-> `field[0]=1 field[1]=2 field[2]=3`
+
+.Import JSON
+[source,shell]
+----
+include::{resources}/json/import-hash.txt[]
+----
+
+.Export JSON
+[source,shell]
+----
+include::{resources}/json/export-keyvalues.txt[]
+----
+
+.Export compressed JSON
+[source,shell]
+----
+include::{resources}/json/export-gzip.txt[]
+----
+
+
+== XML
+
+Here is an example of XML file that can be processed by RIOT File:
+
+[source,xml]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<records>
+    <trade>
+        <isin>XYZ0001</isin>
+        <quantity>5</quantity>
+        <price>11.39</price>
+        <customer>Customer1</customer>
+    </trade>
+    <trade>
+        <isin>XYZ0002</isin>
+        <quantity>2</quantity>
+        <price>72.99</price>
+        <customer>Customer2c</customer>
+    </trade>
+    <trade>
+        <isin>XYZ0003</isin>
+        <quantity>9</quantity>
+        <price>99.99</price>
+        <customer>Customer3</customer>
+    </trade>
+</records>
+----
+
+.Import XML
+[source,shell]
+----
+include::{resources}/xml/import-hash.txt[]
+----

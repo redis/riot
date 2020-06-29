@@ -1,0 +1,1 @@
+❯ riot-file -r redis://localhost:6379 export /tmp/beers.json --index beers --max-results 10000 --with-scores

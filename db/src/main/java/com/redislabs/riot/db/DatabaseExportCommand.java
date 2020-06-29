@@ -33,6 +33,6 @@ public class DatabaseExportCommand extends AbstractExportCommand<Map<String, Obj
 
     @Override
     protected ItemProcessor processor() {
-        return keyValueMapProcessor();
+        return mapProcessor();
     }
 }
