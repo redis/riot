@@ -62,19 +62,19 @@ The Redis URI supports Redis Standalone, Redis Sentinel and Redis Cluster with p
 
 * Redis Standalone
 +
-`redis :// [[username :] password@] host [: port] [/ database][? [timeout=timeout[d|h|m|s|ms|us|ns]] [&_database=database_]]`
+`redis :// [password@] host [: port] [/ database][? [timeout=timeout[d|h|m|s|ms|us|ns]] [&_database=database_]]`
 
 * Redis Standalone (SSL)
 +
-`rediss :// [[username :] password@] host [: port] [/ database][? [timeout=timeout[d|h|m|s|ms|us|ns]] [&_database=database_]]`
+`rediss :// [password@] host [: port] [/ database][? [timeout=timeout[d|h|m|s|ms|us|ns]] [&_database=database_]]`
 
 * Redis Standalone (Unix Domain Sockets)
 +
-`redis-socket :// [[username :] password@]path [?[timeout=timeout[d|h|m|s|ms|us|ns]][&_database=database_]]`
+`redis-socket :// [password@]path [?[timeout=timeout[d|h|m|s|ms|us|ns]][&_database=database_]]`
 
 * Redis Sentinel
 +
-`redis-sentinel :// [[username :] password@] host1[: port1] [, host2[: port2]] [, hostN[: portN]] [/ database][?[timeout=timeout[d|h|m|s|ms|us|ns]] [&_sentinelMasterId=sentinelMasterId_] [&_database=database_]]`
+`redis-sentinel :// [password@] host1[: port1] [, host2[: port2]] [, hostN[: portN]] [/ database][?[timeout=timeout[d|h|m|s|ms|us|ns]] [&_sentinelMasterId=sentinelMasterId_] [&_database=database_]]`
 +
 NOTE: When using Redis Sentinel, the password from the URI applies to the data nodes only. Sentinel authentication must be configured for each sentinel node.
 
