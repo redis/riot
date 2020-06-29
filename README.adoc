@@ -54,7 +54,56 @@ Run the following command to install completion:
 ❯ source <(riot-file generate-completion)
 ----
 
-=== Architecture
+== Connecting
+
+RIOT uses Lettuce as it Redis client and follows the Redis URI syntax described https://github.com/lettuce-io/lettuce-core/wiki/Redis-URI-and-connection-details#uri-syntax[here].
+
+The Redis URI supports Redis Standalone, Redis Sentinel and Redis Cluster with plain, SSL, TLS and unix domain socket connections.
+
+* Redis Standalone
++
+`redis :// [[username :] password@] host [: port] [/ database][? [timeout=timeout[d|h|m|s|ms|us|ns]] [&_database=database_]]`
+
+* Redis Standalone (SSL)
++
+`rediss :// [[username :] password@] host [: port] [/ database][? [timeout=timeout[d|h|m|s|ms|us|ns]] [&_database=database_]]`
+
+* Redis Standalone (Unix Domain Sockets)
++
+`redis-socket :// [[username :] password@]path [?[timeout=timeout[d|h|m|s|ms|us|ns]][&_database=database_]]`
+
+* Redis Sentinel
++
+`redis-sentinel :// [[username :] password@] host1[: port1] [, host2[: port2]] [, hostN[: portN]] [/ database][?[timeout=timeout[d|h|m|s|ms|us|ns]] [&_sentinelMasterId=sentinelMasterId_] [&_database=database_]]`
++
+NOTE: When using Redis Sentinel, the password from the URI applies to the data nodes only. Sentinel authentication must be configured for each sentinel node.
+
+* Redis Cluster
++
+To use the Redis Cluster API specifiy the `--cluster` option in addition to the URI:
++
+`riot-file -r redis://redis-12000.redislabs.com:12000 --cluster ...`
+
+=== Schemes
+
+* `redis` Redis Standalone
+* `rediss` Redis Standalone SSL
+* `redis-socket` Redis Standalone Unix Domain Socket
+* `redis-sentinel` Redis Sentinel
+
+=== Timeout units
+
+* `d` Days
+* `h` Hours
+* `m` Minutes
+* `s` Seconds
+* `ms` Milliseconds
+* `us` Microseconds
+* `ns` Nanoseconds
+
+TIP: The database parameter within the query part has higher precedence than the database in the path.
+
+== Architecture
 
 RIOT reads records from a source (file, database, Redis, data generator) and writes them to a target (file, database, Redis).
 
@@ -70,7 +119,7 @@ corresponding Redis keys.
 
 image::mapping.png[]
 
-=== Processors
+== Processors
 
 RIOT can process records with field expressions.
 
@@ -84,7 +133,7 @@ The processor also exposes the following variables that can be called with the `
 * `date`: date parser/formatter, e.g. `epoch=#date.parse(mydate).getTime()`
 * `index`: sequence number e.g. `id=#index`
 
-=== Metrics
+== Metrics
 
 Use the `--metrics` option to show latency metrics:
 [source,shell]
