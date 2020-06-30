@@ -20,6 +20,16 @@ ifdef::env-github[]
 endif::[]
 :imagesdir: src/docs/asciidoc/images
 
+// Badges
+ifdef::badges[]
+image:https://img.shields.io/github/license/Redislabs-Solution-Architects/riot.svg["License", link="https://github.com/Redislabs-Solution-Architects/riot"]
+image:https://img.shields.io/github/release/Redislabs-Solution-Architects/riot.svg["Latest", link="https://github.com/Redislabs-Solution-Architects/riot/releases/latest"]
+image:https://github.com/Redislabs-Solution-Architects/riot/workflows/CI/badge.svg["Actions", link="https://github.com/Redislabs-Solution-Architects/riot/workflows/CI/badge.svg"]
+image:https://codecov.io/gh/Redislabs-Solution-Architects/riot/branch/master/graph/badge.svg["Codecov", link="https://codecov.io/gh/Redislabs-Solution-Architects/riot"]
+image:https://img.shields.io/lgtm/grade/java/g/Redislabs-Solution-Architects/riot.svg?logo=lgtm&logoWidth=18["Language grade: Java", link="https://lgtm.com/projects/g/Redislabs-Solution-Architects/riot/context:java"]
+image:https://snyk.io/test/github/Redislabs-Solution-Architects/riot/badge.svg?targetFile=build.gradle["Known Vulnerabilities", link="https://snyk.io/test/github/Redislabs-Solution-Architects/riot?targetFile=build.gradle"]
+endif::[]
+
 RIOT is a set of import/export tools for Redis:
 
 * https://redislabs-solution-architects.github.io/riot/db.html[RIOT DB]: Import/export of relational databases
