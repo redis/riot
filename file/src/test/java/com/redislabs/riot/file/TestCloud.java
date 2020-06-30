@@ -10,7 +10,7 @@ public class TestCloud extends AbstractFileTest {
 
 
     @Test
-    public void importGcs() {
+    public void importGcs() throws Exception {
         runFile("/cloud/import-gcs.txt");
         List<String> keys = commands().keys("beer:*");
         Assertions.assertEquals(4432, keys.size());
@@ -19,7 +19,7 @@ public class TestCloud extends AbstractFileTest {
     }
 
     @Test
-    public void importS3() {
+    public void importS3() throws Exception {
         runFile("/cloud/import-s3.txt");
         List<String> keys = commands().keys("beer:*");
         Assertions.assertEquals(4432, keys.size());

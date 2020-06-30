@@ -67,5 +67,6 @@ public class DataPopulator implements Runnable {
                 e.printStackTrace();
             }
         }
+        connection.close();
     }
 }

@@ -37,7 +37,11 @@ public class OneLineLogFormat extends Formatter {
         if (verbose) {
             return String.format("%s %s %s\t: %s%n%s%n", time.format(d), record.getLevel().getLocalizedName(), record.getLoggerName(), message, stackTrace(record));
         }
-        return String.format("%s: %s%n", message, ExceptionUtils.getRootCause(record.getThrown()).getMessage());
+        Throwable rootCause = ExceptionUtils.getRootCause(record.getThrown());
+        if (rootCause == null || rootCause.getMessage() == null) {
+            return String.format("%s%n", message);
+        }
+        return String.format("%s: %s%n", message, rootCause.getMessage());
     }
 
     private String stackTrace(LogRecord record) {

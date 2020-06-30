@@ -9,7 +9,7 @@ import java.util.Map;
 public class TestXml extends AbstractFileTest {
 
     @Test
-    public void importXmlHash() {
+    public void importXmlHash() throws Exception {
         runFile("/xml/import-hash.txt");
         List<String> keys = commands().keys("trade:*");
         Assertions.assertEquals(3, keys.size());

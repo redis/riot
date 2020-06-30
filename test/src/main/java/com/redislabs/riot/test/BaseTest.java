@@ -6,74 +6,78 @@ import com.redislabs.lettusearch.StatefulRediSearchConnection;
 import io.lettuce.core.RedisURI;
 import org.apache.commons.io.IOUtils;
 import org.codehaus.plexus.util.cli.CommandLineUtils;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import redis.embedded.RedisExecProvider;
-import redis.embedded.RedisServer;
-import redis.embedded.RedisServerBuilder;
-import redis.embedded.util.OS;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.io.InputStream;
 import java.nio.charset.Charset;
 
+@Testcontainers
+@SuppressWarnings("rawtypes")
 public abstract class BaseTest {
 
     private final static String COMMAND_PREAMBLE = "❯";
+    protected final static String LOCALHOST = "localhost";
+    private static final int REDIS_PORT = 6379;
+    private static final String DOCKER_IMAGE_NAME = "redislabs/redisearch:latest";
 
-    private final static int REDIS_PORT = 6379;
-    private final static String REDIS_HOST = "localhost";
+    private RediSearchClient client;
 
-    private static RedisServer server;
-    private static RediSearchClient client;
-    protected static StatefulRediSearchConnection<String, String> connection;
+    @Container
+    private final GenericContainer redis = redisContainer();
 
-    @BeforeAll
-    public static void setup() {
-        server = serverBuilder(REDIS_PORT).setting("notify-keyspace-events AK").setting("loadmodule /Users/jruaux/git/RediSearch/build/redisearch.so").build();
-        server.start();
-        client = RediSearchClient.create(RedisURI.create(REDIS_HOST, REDIS_PORT));
-        connection = client.connect();
-    }
-
-    protected static RedisServerBuilder serverBuilder(int port) {
-        RedisExecProvider provider = RedisExecProvider.defaultProvider().override(OS.MAC_OS_X, "/usr/local/bin/redis-server");
-        return RedisServer.builder().redisExecProvider(provider).port(port);
+    protected GenericContainer redisContainer() {
+        return new GenericContainer(DOCKER_IMAGE_NAME).withExposedPorts(REDIS_PORT);
     }
 
     @BeforeEach
-    public void flushAll() {
-        connection.sync().flushall();
+    public void setup() {
+        client = RediSearchClient.create(RedisURI.create(redis.getHost(), redis.getFirstMappedPort()));
+        client.connect().sync().flushall();
+    }
+
+    protected StatefulRediSearchConnection<String, String> connection() {
+        return client.connect();
     }
 
     protected RediSearchCommands<String, String> commands() {
-        return connection.sync();
+        return client.connect().sync();
     }
 
-    @AfterAll
-    public static void teardown() {
-        if (connection != null) {
-            connection.close();
-        }
+    @AfterEach
+    public void teardown() {
         if (client != null) {
             client.shutdown();
         }
-        if (server != null) {
-            server.stop();
-        }
     }
 
-    protected int runFile(String filename, Object... args) {
+    protected String[] commandArgs(String command, RedisURI... sourceTargetRedisURIs) throws Exception {
+        return CommandLineUtils.translateCommandline(replace(removePreamble(command).replace("redis://localhost:6379", redisURI(redis).toURI().toString()), sourceTargetRedisURIs));
+    }
+
+    protected String[] fileCommandArgs(String filename, RedisURI... sourceTargetRedisURIs) throws Exception {
         try (InputStream inputStream = getClass().getResourceAsStream(filename)) {
-            return runCommand(removePreamble(IOUtils.toString(inputStream, Charset.defaultCharset())), args);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return 0;
+            return commandArgs(IOUtils.toString(inputStream, Charset.defaultCharset()), sourceTargetRedisURIs);
         }
     }
 
-    protected int runCommand(String command, Object... args) throws Exception {
-        return execute(CommandLineUtils.translateCommandline(String.format(command, args)));
+    protected int runFile(String filename, RedisURI... sourceTargetRedisURIs) throws Exception {
+        return execute(fileCommandArgs(filename, sourceTargetRedisURIs));
+    }
+
+    protected RedisURI redisURI(GenericContainer redis) {
+        return RedisURI.create(redis.getHost(), redis.getFirstMappedPort());
+    }
+
+    protected String replace(String command, RedisURI... sourceTargetRedisURIs) {
+        String replaced = command;
+        for (int index = 0; index < sourceTargetRedisURIs.length / 2; index++) {
+            replaced = replaced.replace(sourceTargetRedisURIs[index].toURI().toString(), sourceTargetRedisURIs[index + 1].toURI().toString());
+        }
+        return replaced;
     }
 
     protected abstract int execute(String[] args) throws Exception;
@@ -90,7 +94,6 @@ public abstract class BaseTest {
         }
         return command;
     }
-
 
 
 }

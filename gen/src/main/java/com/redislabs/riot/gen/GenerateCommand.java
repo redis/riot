@@ -78,7 +78,8 @@ public class GenerateCommand extends AbstractImportCommand<Map<String, Object>> 
     }
 
     @Override
-    protected ItemProcessor<Map<String, Object>, Object> processor() {
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    protected ItemProcessor processor() {
         return objectMapProcessor();
     }
 }

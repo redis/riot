@@ -40,7 +40,7 @@ public class TestCsv extends AbstractFileTest {
     @Test
     public void export() throws Exception {
         File file = new File("/tmp/beers.csv");
-        file.delete();
+        Files.delete(file.toPath());
         runFile("/json/import-hash.txt");
         runFile("/csv/export-hash.txt");
         String[] header = Files.readAllLines(file.toPath()).get(0).split("\\|");
@@ -61,22 +61,22 @@ public class TestCsv extends AbstractFileTest {
     }
 
     @Test
-    public void importHash() {
+    public void importHash() throws Exception {
         runFile("/csv/import-hash.txt");
         List<String> keys = commands().keys("beer:*");
         Assertions.assertEquals(COUNT, keys.size());
     }
 
     @Test
-    public void importSearch() {
-        createBeerIndex(connection);
+    public void importSearch() throws Exception {
+        createBeerIndex(connection());
         runFile("/csv/import-search.txt");
         SearchResults<String, String> results = commands().search(INDEX, "*");
         Assertions.assertEquals(COUNT, results.getCount());
     }
 
     @Test
-    public void importCsvProcessorSearchGeo() {
+    public void importCsvProcessorSearchGeo() throws Exception {
         String INDEX = "airports";
         commands().flushall();
         Schema schema = Schema.builder().field(TextField.builder().name("Name").sortable(true).build()).field(GeoField.builder().name("Location").sortable(true).build()).build();
@@ -87,7 +87,7 @@ public class TestCsv extends AbstractFileTest {
     }
 
     @Test
-    public void importCsvGeo() {
+    public void importCsvGeo() throws Exception {
         runFile("/csv/import-geo.txt");
         Set<String> results = commands().georadius("airportgeo", -122.4194, 37.7749, 20, GeoArgs.Unit.mi);
         Assertions.assertTrue(results.contains("3469"));
@@ -97,7 +97,7 @@ public class TestCsv extends AbstractFileTest {
 
 
     @Test
-    public void importCsvProcessorHashDateFormat() {
+    public void importCsvProcessorHashDateFormat() throws Exception {
         runFile("/csv/import-hash-processor.txt");
         List<String> keys = commands().keys("event:*");
         Assertions.assertEquals(568, keys.size());
@@ -109,7 +109,7 @@ public class TestCsv extends AbstractFileTest {
     }
 
     @Test
-    public void importCsvProcessorSearch() {
+    public void importCsvProcessorSearch() throws Exception {
         String INDEX = "laevents";
         Schema schema = Schema.builder().field(TextField.builder().name("Title").build()).field(NumericField.builder().name("lon").build()).field(NumericField.builder().name("kat").build()).field(GeoField.builder().name("location").sortable(true).build()).build();
         commands().create(INDEX, schema, null);
@@ -117,7 +117,7 @@ public class TestCsv extends AbstractFileTest {
         SearchResults<String, String> results = commands().search(INDEX, "@location:[-118.446014 33.998415 10 mi]");
         Assertions.assertTrue(results.getCount() > 0);
         for (Document<String, String> result : results) {
-            Double lat = Double.parseDouble(result.get("lat"));
+            double lat = Double.parseDouble(result.get("lat"));
             Assertions.assertTrue(lat > 33 && lat < 35);
         }
     }

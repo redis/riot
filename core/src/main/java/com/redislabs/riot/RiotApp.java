@@ -51,25 +51,31 @@ public class RiotApp implements Runnable {
     private RedisConnectionOptions redis = new RedisConnectionOptions();
 
     public int execute(String... args) {
-        CommandLine commandLine = new CommandLine(this);
-        registerConverters(commandLine);
-        commandLine.setCaseInsensitiveEnumValuesAllowed(true);
+        CommandLine commandLine = commandLine();
+        CommandLine.ParseResult parseResult = commandLine.parseArgs(args);
+        InternalLoggerFactory.setDefaultFactory(JdkLoggerFactory.INSTANCE);
+        LogManager.getLogManager().reset();
+        Logger activeLogger = Logger.getLogger(ROOT_LOGGER);
+        ConsoleHandler handler = new ConsoleHandler();
+        handler.setLevel(Level.ALL);
+        handler.setFormatter(new OneLineLogFormat(isDebug()));
+        activeLogger.addHandler(handler);
+        Logger.getLogger(ROOT_LOGGER).setLevel(rootLoggingLevel());
+        Logger logger = Logger.getLogger("com.redislabs");
+        logger.setLevel(packageLoggingLevel());
         try {
-            CommandLine.ParseResult parseResult = commandLine.parseArgs(args);
-            InternalLoggerFactory.setDefaultFactory(JdkLoggerFactory.INSTANCE);
-            LogManager.getLogManager().reset();
-            Logger activeLogger = Logger.getLogger(ROOT_LOGGER);
-            ConsoleHandler handler = new ConsoleHandler();
-            handler.setLevel(Level.ALL);
-            handler.setFormatter(new OneLineLogFormat(isDebug()));
-            activeLogger.addHandler(handler);
-            Logger.getLogger(ROOT_LOGGER).setLevel(rootLoggingLevel());
-            Logger.getLogger("com.redislabs").setLevel(packageLoggingLevel());
             return commandLine.getExecutionStrategy().execute(parseResult);
         } catch (CommandLine.PicocliException e) {
             System.err.println(e.getMessage());
             return 1;
         }
+    }
+
+    public CommandLine commandLine() {
+        CommandLine commandLine = new CommandLine(this);
+        registerConverters(commandLine);
+        commandLine.setCaseInsensitiveEnumValuesAllowed(true);
+        return commandLine;
     }
 
     protected void registerConverters(CommandLine commandLine) {
@@ -81,7 +87,7 @@ public class RiotApp implements Runnable {
         CommandLine.usage(this, System.out);
     }
 
-    private ClusterClientOptions clientOptions() {
+    private ClusterClientOptions clientOptions(RedisConnectionOptions redis) {
         SslOptions.Builder sslOptionsBuilder = SslOptions.builder();
         if (keystore != null) {
             if (keystorePassword == null) {
@@ -97,7 +103,7 @@ public class RiotApp implements Runnable {
                 sslOptionsBuilder.truststore(truststore, truststorePassword);
             }
         }
-        return ClusterClientOptions.builder().sslOptions(sslOptionsBuilder.build()).build();
+        return ClusterClientOptions.builder().autoReconnect(!redis.isNoAutoReconnect()).sslOptions(sslOptionsBuilder.build()).build();
     }
 
     private static final String ROOT_LOGGER = "";
@@ -137,11 +143,11 @@ public class RiotApp implements Runnable {
     }
 
     public <B extends RedisConnectionBuilder<B>> B configure(RedisConnectionBuilder<B> builder, RedisConnectionOptions redis) {
-        return builder.redisURI(redis.getRedisURI()).cluster(redis.isCluster()).clientResources(clientResources(redis)).clientOptions(clientOptions()).poolConfig(ConnectionPoolConfig.builder().maxTotal(redis.getPoolMaxTotal()).build());
+        return builder.redisURI(redis.getRedisURI()).cluster(redis.isCluster()).clientResources(clientResources(redis)).clientOptions(clientOptions(redis)).poolConfig(ConnectionPoolConfig.builder().maxTotal(redis.getPoolMaxTotal()).build());
     }
 
     public <B extends RediSearchConnectionBuilder<B>> B configure(RediSearchConnectionBuilder<B> builder, RedisConnectionOptions redis) {
-        return builder.redisURI(redis.getRedisURI()).clientResources(clientResources(redis)).clientOptions(clientOptions()).poolConfig(org.springframework.batch.item.redisearch.support.ConnectionPoolConfig.builder().maxTotal(redis.getPoolMaxTotal()).build());
+        return builder.redisURI(redis.getRedisURI()).clientResources(clientResources(redis)).clientOptions(clientOptions(redis)).poolConfig(org.springframework.batch.item.redisearch.support.ConnectionPoolConfig.builder().maxTotal(redis.getPoolMaxTotal()).build());
     }
 
     private ClientResources clientResources(RedisConnectionOptions redis) {

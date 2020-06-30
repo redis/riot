@@ -52,25 +52,27 @@ public abstract class AbstractTransferCommand<I, O> extends HelpCommand implemen
     protected abstract String taskName();
 
     @Override
-    @SuppressWarnings({"rawtypes", "unchecked"})
     public void run() {
-        ItemReader<I> reader;
+        Transfer<I, O> transfer;
         try {
-            reader = reader();
+            transfer = transfer();
         } catch (Exception e) {
-            log.error("Could not create reader", e);
+            log.error("Could not create transfer", e);
             return;
         }
-        ItemWriter writer;
-        try {
-            writer = writer();
-        } catch (Exception e) {
-            log.error("Could not create writer", e);
-            return;
-        }
-        ItemProcessor<I, O> processor = processor();
-        Transfer<I, O> transfer = transfer(reader, processor, writer);
         transfer.addListener(ProgressBarReporter.builder().transfer(transfer).taskName(taskName()).initialMax(maxItemCount).quiet(app.isQuiet()).build());
+        execute(transfer);
+    }
+
+    public Transfer<I, O> transfer() throws Exception {
+        return transfer(reader(), processor(), writer());
+    }
+
+    public void execute() throws Exception {
+        execute(transfer());
+    }
+
+    public void execute(Transfer<I, O> transfer) {
         try {
             transfer.open();
         } catch (Exception e) {
@@ -92,6 +94,7 @@ public abstract class AbstractTransferCommand<I, O> extends HelpCommand implemen
 
     protected abstract ItemWriter<O> writer() throws Exception;
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     protected ItemProcessor compositeProcessor(List<ItemProcessor> allProcessors) {
         if (allProcessors.isEmpty()) {
             return new PassThroughItemProcessor();

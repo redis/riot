@@ -1,6 +1,7 @@
 package com.redislabs.riot;
 
 import lombok.Builder;
+import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.item.*;
@@ -17,8 +18,11 @@ import java.util.concurrent.*;
 public class Transfer<I, O> implements BatchRunnable.Listener {
 
     private final List<Listener> listeners = new ArrayList<>();
+    @Getter
     private final ItemReader<I> reader;
+    @Getter
     private final ItemProcessor<I, O> processor;
+    @Getter
     private final ItemWriter<O> writer;
     private final int threadCount;
     private final int batchSize;
@@ -84,6 +88,10 @@ public class Transfer<I, O> implements BatchRunnable.Listener {
                 throw new RuntimeException(e);
             }
         }
+    }
+
+    public void stop() {
+        threads.forEach(BatchRunnable::stop);
     }
 
     public void close() {

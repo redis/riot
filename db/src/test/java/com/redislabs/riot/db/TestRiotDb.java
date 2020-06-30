@@ -33,7 +33,7 @@ public class TestRiotDb extends BaseTest {
         Connection connection = dataSource().getConnection();
         connection.createStatement().execute("DROP TABLE IF EXISTS mytable");
         connection.createStatement().execute("CREATE TABLE IF NOT EXISTS mytable (id INT NOT NULL, field1 VARCHAR(500), field2 VARCHAR(500), PRIMARY KEY (id))");
-        DataPopulator.builder().connection(super.connection).dataTypes(Collections.singletonList(DataType.HASH)).start(0).end(1234).build().run();
+        DataPopulator.builder().connection(connection()).dataTypes(Collections.singletonList(DataType.HASH)).start(0).end(1234).build().run();
         runFile("/export.txt");
         commands().flushall();
     }
