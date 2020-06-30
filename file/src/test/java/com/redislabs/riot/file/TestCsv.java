@@ -18,6 +18,7 @@ import org.springframework.core.io.FileSystemResource;
 
 import java.io.File;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -39,11 +40,10 @@ public class TestCsv extends AbstractFileTest {
 
     @Test
     public void export() throws Exception {
-        File file = new File("/tmp/beers.csv");
-        Files.delete(file.toPath());
+        Path file = tempFile("beers.csv");
         runFile("/json/import-hash.txt");
         runFile("/csv/export-hash.txt");
-        String[] header = Files.readAllLines(file.toPath()).get(0).split("\\|");
+        String[] header = Files.readAllLines(file).get(0).split("\\|");
         FlatFileItemReaderBuilder<Map<String, String>> builder = new FlatFileItemReaderBuilder<>();
         builder.name("flat-file-reader");
         builder.resource(new FileSystemResource(file));
@@ -76,7 +76,7 @@ public class TestCsv extends AbstractFileTest {
     }
 
     @Test
-    public void importCsvProcessorSearchGeo() throws Exception {
+    public void importProcessorSearchGeo() throws Exception {
         String INDEX = "airports";
         commands().flushall();
         Schema schema = Schema.builder().field(TextField.builder().name("Name").sortable(true).build()).field(GeoField.builder().name("Location").sortable(true).build()).build();
@@ -87,7 +87,7 @@ public class TestCsv extends AbstractFileTest {
     }
 
     @Test
-    public void importCsvGeo() throws Exception {
+    public void importGeo() throws Exception {
         runFile("/csv/import-geo.txt");
         Set<String> results = commands().georadius("airportgeo", -122.4194, 37.7749, 20, GeoArgs.Unit.mi);
         Assertions.assertTrue(results.contains("3469"));
@@ -97,7 +97,7 @@ public class TestCsv extends AbstractFileTest {
 
 
     @Test
-    public void importCsvProcessorHashDateFormat() throws Exception {
+    public void importProcessorHashDateFormat() throws Exception {
         runFile("/csv/import-hash-processor.txt");
         List<String> keys = commands().keys("event:*");
         Assertions.assertEquals(568, keys.size());
@@ -109,7 +109,7 @@ public class TestCsv extends AbstractFileTest {
     }
 
     @Test
-    public void importCsvProcessorSearch() throws Exception {
+    public void importProcessorSearch() throws Exception {
         String INDEX = "laevents";
         Schema schema = Schema.builder().field(TextField.builder().name("Title").build()).field(NumericField.builder().name("lon").build()).field(NumericField.builder().name("kat").build()).field(GeoField.builder().name("location").sortable(true).build()).build();
         commands().create(INDEX, schema, null);

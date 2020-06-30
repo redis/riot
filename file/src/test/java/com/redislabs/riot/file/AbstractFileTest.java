@@ -1,9 +1,14 @@
 package com.redislabs.riot.file;
 
 import com.redislabs.riot.test.BaseTest;
+import io.lettuce.core.RedisURI;
+import org.junit.jupiter.api.BeforeAll;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,6 +16,26 @@ import java.util.List;
 public class AbstractFileTest extends BaseTest {
 
     protected final static int COUNT = 2410;
+
+    private static Path tempDir;
+
+    @BeforeAll
+    public static void setupAll() throws IOException {
+        tempDir = Files.createTempDirectory(AbstractFileTest.class.getName());
+    }
+
+    protected Path tempFile(String filename) throws IOException {
+        Path path = tempDir.resolve(filename);
+        if (Files.exists(path)) {
+            Files.delete(path);
+        }
+        return path;
+    }
+
+    @Override
+    protected String filter(String command) {
+        return super.filter(command).replace("/tmp", tempDir.toString());
+    }
 
     @Override
     protected int execute(String[] args) {
@@ -33,7 +58,6 @@ public class AbstractFileTest extends BaseTest {
         reader.close();
         return records;
     }
-
 
 
 }

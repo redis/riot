@@ -13,19 +13,16 @@ import org.springframework.batch.item.redis.support.KeyValue;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.InputStreamResource;
 
-import java.io.File;
-import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.zip.GZIPInputStream;
 
 public class TestJson extends AbstractFileTest {
 
-
     @Test
     public void exportSearch() throws Exception {
-        File file = new File("/tmp/beers.json");
-        Files.delete(file.toPath());
+        Path file = tempFile("beers.json");
         TestCsv.createBeerIndex(connection());
         runFile("/csv/import-search.txt");
         runFile("/json/export-search.txt");
@@ -44,8 +41,7 @@ public class TestJson extends AbstractFileTest {
     @SuppressWarnings("rawtypes")
     @Test
     public void exportKeyValues() throws Exception {
-        File file = new File("/tmp/riot-keyvalues.json");
-        Files.delete(file.toPath());
+        Path file = tempFile("riot-keyvalues.json");
         DataPopulator.builder().connection(connection()).build().run();
         runFile("/json/export-keyvalues.txt");
         JsonItemReaderBuilder<KeyValue> builder = new JsonItemReaderBuilder<>();
@@ -62,8 +58,7 @@ public class TestJson extends AbstractFileTest {
     @SuppressWarnings("rawtypes")
     @Test
     public void exportGzip() throws Exception {
-        File file = new File("/tmp/beers.json.gz");
-        Files.delete(file.toPath());
+        Path file = tempFile("beers.json.gz");
         runFile("/json/import-hash.txt");
         runFile("/json/export-gzip.txt");
         JsonItemReaderBuilder<Map> builder = new JsonItemReaderBuilder<>();

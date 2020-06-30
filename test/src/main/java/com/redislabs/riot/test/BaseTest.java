@@ -54,30 +54,25 @@ public abstract class BaseTest {
         }
     }
 
-    protected String[] commandArgs(String command, RedisURI... sourceTargetRedisURIs) throws Exception {
-        return CommandLineUtils.translateCommandline(replace(removePreamble(command).replace("redis://localhost:6379", redisURI(redis).toURI().toString()), sourceTargetRedisURIs));
-    }
-
-    protected String[] fileCommandArgs(String filename, RedisURI... sourceTargetRedisURIs) throws Exception {
+    protected String[] fileCommandArgs(String filename) throws Exception {
         try (InputStream inputStream = getClass().getResourceAsStream(filename)) {
-            return commandArgs(IOUtils.toString(inputStream, Charset.defaultCharset()), sourceTargetRedisURIs);
+            String command = IOUtils.toString(inputStream, Charset.defaultCharset());
+            command = removePreamble(command);
+            command = command.replace("redis://localhost:6379", redisURI(redis).toURI().toString());
+            return CommandLineUtils.translateCommandline(filter(command));
         }
     }
 
-    protected int runFile(String filename, RedisURI... sourceTargetRedisURIs) throws Exception {
-        return execute(fileCommandArgs(filename, sourceTargetRedisURIs));
+    protected String filter(String command) {
+        return command;
+    }
+
+    protected int runFile(String filename) throws Exception {
+        return execute(fileCommandArgs(filename));
     }
 
     protected RedisURI redisURI(GenericContainer redis) {
         return RedisURI.create(redis.getHost(), redis.getFirstMappedPort());
-    }
-
-    protected String replace(String command, RedisURI... sourceTargetRedisURIs) {
-        String replaced = command;
-        for (int index = 0; index < sourceTargetRedisURIs.length / 2; index++) {
-            replaced = replaced.replace(sourceTargetRedisURIs[index].toURI().toString(), sourceTargetRedisURIs[index + 1].toURI().toString());
-        }
-        return replaced;
     }
 
     protected abstract int execute(String[] args) throws Exception;

@@ -47,8 +47,13 @@ public class TestReplicate extends BaseTest {
         DataPopulator.builder().connection(connection()).build().run();
         Long sourceSize = commands().dbsize();
         Assertions.assertTrue(sourceSize > 0);
-        runFile("/replicate.txt", originalTargetRedisURI(), targetRedisURI);
+        runFile("/replicate.txt");
         Assertions.assertEquals(sourceSize, targetClient.connect().sync().dbsize());
+    }
+
+    @Override
+    protected String filter(String command) {
+        return super.filter(command).replace(originalTargetRedisURI().toURI().toString(), redisURI(targetRedis).toURI().toString());
     }
 
     private RedisURI originalTargetRedisURI() {
@@ -65,21 +70,21 @@ public class TestReplicate extends BaseTest {
         StatefulRedisConnection<String, String> targetConnection = targetClient.connect();
         targetConnection.sync().flushall();
         DataPopulator.builder().connection(connection()).build().run();
-        String[] commandArgs = fileCommandArgs("/replicate-live.txt", originalTargetRedisURI(), targetRedisURI);
+        String[] commandArgs = fileCommandArgs("/replicate-live.txt");
         RiotRedis riotRedis = new RiotRedis();
         CommandLine commandLine = riotRedis.commandLine();
         CommandLine.ParseResult parseResult = commandLine.parseArgs(commandArgs);
         ReplicateCommand command = parseResult.asCommandLineList().get(1).getCommand();
         Transfer<KeyDump<String>, KeyDump<String>> transfer = command.transfer();
         new Thread(() -> command.execute(transfer)).start();
-        Thread.sleep(500);
+        Thread.sleep(400);
         RedisCommands<String, String> commands = commands();
         int count = 39;
         for (int index = 0; index < count; index++) {
             commands.set("livestring:" + index, "value" + index);
             Thread.sleep(1);
         }
-        Thread.sleep(500);
+        Thread.sleep(200);
         RedisItemReader<String, KeyDump<String>> reader = (RedisItemReader<String, KeyDump<String>>) transfer.getReader();
         LiveKeyItemReader<String, String> keyReader = (LiveKeyItemReader<String, String>) reader.getKeyReader();
         log.info("Stopping LiveKeyItemReader");
