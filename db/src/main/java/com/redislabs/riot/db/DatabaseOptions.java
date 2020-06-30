@@ -6,6 +6,7 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import picocli.CommandLine.Option;
 
 import javax.sql.DataSource;
+import java.sql.SQLException;
 
 @Slf4j
 public class DatabaseOptions {
@@ -19,7 +20,7 @@ public class DatabaseOptions {
     @Option(names = "--password", arity = "0..1", interactive = true, description = "Login password of the database", paramLabel = "<pwd>")
     private String password;
 
-    public DataSource getDataSource() {
+    public DataSource dataSource() {
         DataSourceProperties properties = new DataSourceProperties();
         properties.setUrl(url);
         properties.setDriverClassName(driver);
@@ -29,4 +30,7 @@ public class DatabaseOptions {
         return properties.initializeDataSourceBuilder().type(HikariDataSource.class).build();
     }
 
+    public String name(DataSource dataSource) throws SQLException {
+        return dataSource.getConnection().getMetaData().getDatabaseProductName();
+    }
 }

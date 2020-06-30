@@ -32,11 +32,6 @@ public abstract class AbstractExportCommand<O> extends AbstractTransferCommand<O
     @CommandLine.Option(names = "--key-regex", description = "Regex for key-field extraction (default: ${DEFAULT-VALUE})", paramLabel = "<str>")
     private String keyRegex = "\\w+:(?<id>.+)";
 
-    @Override
-    protected String taskName() {
-        return "Exporting";
-    }
-
     public ItemReader reader() {
         if (search.getIndex() != null) {
             switch (search.getReader()) {

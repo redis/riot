@@ -1,6 +1,5 @@
 package com.redislabs.riot;
 
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -9,50 +8,48 @@ import org.springframework.batch.item.redis.support.BatchRunnable;
 import org.springframework.batch.item.redis.support.RedisItemReader;
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
 import org.springframework.batch.item.support.SynchronizedItemStreamReader;
+import org.springframework.util.Assert;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.*;
 
 @Slf4j
-public class Transfer<I, O> implements BatchRunnable.Listener {
+public class Transfer<I, O> {
 
-    private final List<Listener> listeners = new ArrayList<>();
+    @Getter
+    private final String name;
     @Getter
     private final ItemReader<I> reader;
     @Getter
     private final ItemProcessor<I, O> processor;
     @Getter
     private final ItemWriter<O> writer;
-    private final int threadCount;
-    private final int batchSize;
+    @Setter
+    private int threadCount;
+    @Setter
+    private int batchSize;
     @Setter
     private Long flushPeriod;
-    private final Integer maxItemCount;
-    private final ArrayList<BatchRunnable<I>> threads;
-    private final ExecutorService executor;
-    private final ScheduledExecutorService scheduler;
+    @Setter
+    private Integer maxItemCount;
+    private ArrayList<BatchRunnable<I>> threads;
+    private ExecutorService executor;
+    private ScheduledExecutorService scheduler;
     private ScheduledFuture<?> scheduledFuture = null;
 
-    @Builder
-    public Transfer(ItemReader<I> reader, ItemProcessor<I, O> processor, ItemWriter<O> writer, int threadCount, int batchSize, Long flushPeriod, Integer maxItemCount) {
+    public Transfer(String name, ItemReader<I> reader, ItemProcessor<I, O> processor, ItemWriter<O> writer) {
+        this.name = name;
         this.reader = reader;
         this.processor = processor;
         this.writer = writer;
-        this.threadCount = threadCount;
-        this.batchSize = batchSize;
-        this.flushPeriod = flushPeriod;
-        this.maxItemCount = maxItemCount;
-        this.threads = new ArrayList<>(threadCount);
-        this.executor = Executors.newFixedThreadPool(threadCount);
-        this.scheduler = Executors.newSingleThreadScheduledExecutor();
-    }
-
-    public void addListener(Listener listener) {
-        listeners.add(listener);
     }
 
     public void open() {
+        Assert.isTrue(threadCount > 0, "Thread count must be greater than 0.");
+        Assert.isTrue(batchSize > 0, "Batch size must be greater than 0.");
+        this.threads = new ArrayList<>(threadCount);
+        this.executor = Executors.newFixedThreadPool(threadCount);
+        this.scheduler = Executors.newSingleThreadScheduledExecutor();
         ExecutionContext executionContext = new ExecutionContext();
         if (writer instanceof ItemStream) {
             log.debug("Opening writer");
@@ -68,7 +65,6 @@ public class Transfer<I, O> implements BatchRunnable.Listener {
             log.debug("Opening reader");
             ((ItemStream) reader).open(executionContext);
         }
-        listeners.forEach(Listener::onOpen);
     }
 
     public void execute() {
@@ -107,7 +103,6 @@ public class Transfer<I, O> implements BatchRunnable.Listener {
             log.debug("Closing writer");
             ((ItemStream) writer).close();
         }
-        listeners.forEach(Listener::onClose);
     }
 
     private ItemReader<I> reader() {
@@ -136,18 +131,4 @@ public class Transfer<I, O> implements BatchRunnable.Listener {
         return threads.stream().mapToLong(BatchRunnable::getWriteCount).sum();
     }
 
-    @Override
-    public void onWrite(long writeCount) {
-        listeners.forEach(l -> l.onUpdate(getWriteCount()));
-    }
-
-    public interface Listener {
-
-        void onOpen();
-
-        void onUpdate(long writeCount);
-
-        void onClose();
-
-    }
 }

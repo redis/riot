@@ -2,7 +2,7 @@ package com.redislabs.riot.file;
 
 public enum FileType {
 
-    DELIMITED(ResourceHelper.EXT_CSV, ResourceHelper.EXT_TSV), FIXED(ResourceHelper.EXT_FW), JSON(ResourceHelper.EXT_JSON), XML(ResourceHelper.EXT_XML);
+    DELIMITED(FileOptions.EXT_CSV, FileOptions.EXT_TSV), FIXED(FileOptions.EXT_FW), JSON(FileOptions.EXT_JSON), XML(FileOptions.EXT_XML);
 
     private final String[] extensions;
 

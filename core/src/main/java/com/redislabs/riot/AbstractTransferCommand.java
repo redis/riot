@@ -10,6 +10,7 @@ import org.springframework.batch.item.support.CompositeItemProcessor;
 import org.springframework.batch.item.support.PassThroughItemProcessor;
 import picocli.CommandLine;
 
+import java.util.Collections;
 import java.util.List;
 
 @Slf4j
@@ -24,6 +25,10 @@ public abstract class AbstractTransferCommand<I, O> extends HelpCommand implemen
     private int batchSize = 50;
     @CommandLine.Option(names = "--max", description = "Max number of items to read", paramLabel = "<count>")
     private Integer maxItemCount;
+
+    public RedisConnectionOptions getRedisConnectionOptions() {
+        return app.getRedisConnectionOptions();
+    }
 
     protected <B extends RedisConnectionBuilder<B>> B configure(RedisConnectionBuilder<B> builder) {
         return app.configure(builder);
@@ -41,35 +46,48 @@ public abstract class AbstractTransferCommand<I, O> extends HelpCommand implemen
         return app.configure(builder, redis);
     }
 
-    protected Transfer<I, O> transfer(ItemReader<I> reader, ItemProcessor<I, O> processor, ItemWriter<O> writer) {
-        return Transfer.<I, O>builder().reader(reader).processor(processor).writer(writer).batchSize(batchSize).threadCount(threads).maxItemCount(maxItemCount).flushPeriod(flushPeriod()).build();
-    }
-
     protected Long flushPeriod() {
         return null;
     }
 
-    protected abstract String taskName();
-
     @Override
     public void run() {
-        Transfer<I, O> transfer;
+        List<Transfer<I, O>> transfers;
         try {
-            transfer = transfer();
+            transfers = transfers();
         } catch (Exception e) {
-            log.error("Could not create transfer", e);
+            log.error("Could not create transfers", e);
             return;
         }
-        transfer.addListener(ProgressBarReporter.builder().transfer(transfer).taskName(taskName()).initialMax(maxItemCount).quiet(app.isQuiet()).build());
-        execute(transfer);
+        execute(transfers);
     }
 
-    public Transfer<I, O> transfer() throws Exception {
-        return transfer(reader(), processor(), writer());
+    protected Transfer<I, O> transfer(String name, ItemReader<I> reader, ItemProcessor<I, O> processor, ItemWriter<O> writer) {
+        Transfer<I, O> transfer = new Transfer<>(name, reader, processor, writer);
+        transfer.setBatchSize(batchSize);
+        transfer.setThreadCount(threads);
+        transfer.setMaxItemCount(maxItemCount);
+        transfer.setFlushPeriod(flushPeriod());
+        return transfer;
     }
+
+    protected List<Transfer<I, O>> transfers(String name, ItemReader<I> reader, ItemProcessor<I, O> processor, ItemWriter<O> writer) {
+        return Collections.singletonList(transfer(name, reader, processor, writer));
+    }
+
+    private void execute(List<Transfer<I, O>> transfers) {
+        for (Transfer<I, O> transfer : transfers) {
+            ProgressBarReporter reporter = ProgressBarReporter.builder().progressProvider(new TransferProgressProvider(transfer)).taskName(transfer.getName()).initialMax(maxItemCount).quiet(app.isQuiet()).build();
+            reporter.start();
+            execute(transfer);
+            reporter.stop();
+        }
+    }
+
+    protected abstract List<Transfer<I, O>> transfers() throws Exception;
 
     public void execute() throws Exception {
-        execute(transfer());
+        execute(transfers());
     }
 
     public void execute(Transfer<I, O> transfer) {
@@ -88,12 +106,6 @@ public abstract class AbstractTransferCommand<I, O> extends HelpCommand implemen
         }
     }
 
-    protected abstract ItemReader<I> reader() throws Exception;
-
-    protected abstract ItemProcessor<I, O> processor();
-
-    protected abstract ItemWriter<O> writer() throws Exception;
-
     @SuppressWarnings({"rawtypes", "unchecked"})
     protected ItemProcessor compositeProcessor(List<ItemProcessor> allProcessors) {
         if (allProcessors.isEmpty()) {
@@ -108,4 +120,31 @@ public abstract class AbstractTransferCommand<I, O> extends HelpCommand implemen
     }
 
 
+    private class TransferProgressProvider implements ProgressProvider {
+
+        private final Transfer<I, O> transfer;
+
+        public TransferProgressProvider(Transfer<I, O> transfer) {
+            this.transfer = transfer;
+        }
+
+        @Override
+        public long getWriteCount() {
+            return transfer.getWriteCount();
+        }
+    }
+
+    private class MultiTransferProgressProvider implements ProgressProvider {
+
+        private final List<Transfer<I, O>> transfers;
+
+        public MultiTransferProgressProvider(List<Transfer<I, O>> transfers) {
+            this.transfers = transfers;
+        }
+
+        @Override
+        public long getWriteCount() {
+            return transfers.stream().map(Transfer::getWriteCount).mapToLong(Long::longValue).sum();
+        }
+    }
 }

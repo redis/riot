@@ -9,9 +9,8 @@ import com.redislabs.lettusearch.index.field.GeoField;
 import com.redislabs.lettusearch.index.field.TagField;
 import com.redislabs.lettusearch.index.field.TextField;
 import com.redislabs.riot.AbstractImportCommand;
+import com.redislabs.riot.Transfer;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.batch.item.ItemProcessor;
-import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.faker.FakerItemReader;
 import org.springframework.batch.item.redisearch.support.RediSearchConnectionBuilder;
 import picocli.CommandLine;
@@ -32,8 +31,10 @@ public class GenerateCommand extends AbstractImportCommand<Map<String, Object>> 
     private boolean includeMetadata;
 
     @Override
-    protected ItemReader<Map<String, Object>> reader() {
-        return FakerItemReader.builder().locale(locale).includeMetadata(includeMetadata).fields(fakerFields()).build();
+    @SuppressWarnings("unchecked")
+    protected List<Transfer<Map<String, Object>, Object>> transfers() {
+        FakerItemReader reader = FakerItemReader.builder().locale(locale).includeMetadata(includeMetadata).fields(fakerFields()).build();
+        return transfers("Importing Faker data", reader, objectMapProcessor(), writer());
     }
 
     private String expression(Field field) {
@@ -77,9 +78,4 @@ public class GenerateCommand extends AbstractImportCommand<Map<String, Object>> 
         return fields;
     }
 
-    @Override
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    protected ItemProcessor processor() {
-        return objectMapProcessor();
-    }
 }

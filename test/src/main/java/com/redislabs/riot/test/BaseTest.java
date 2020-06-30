@@ -27,9 +27,9 @@ public abstract class BaseTest {
     private RediSearchClient client;
 
     @Container
-    private final GenericContainer redis = redisContainer();
+    private static final GenericContainer redis = redisContainer();
 
-    protected GenericContainer redisContainer() {
+    protected static GenericContainer redisContainer() {
         return new GenericContainer(DOCKER_IMAGE_NAME).withExposedPorts(REDIS_PORT);
     }
 
@@ -67,8 +67,8 @@ public abstract class BaseTest {
         return command;
     }
 
-    protected int runFile(String filename) throws Exception {
-        return execute(fileCommandArgs(filename));
+    protected void runFile(String filename) throws Exception {
+        execute(fileCommandArgs(filename));
     }
 
     protected RedisURI redisURI(GenericContainer redis) {

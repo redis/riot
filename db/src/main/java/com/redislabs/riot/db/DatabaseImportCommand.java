@@ -1,12 +1,16 @@
 package com.redislabs.riot.db;
 
 import com.redislabs.riot.AbstractImportCommand;
+import com.redislabs.riot.Transfer;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.database.JdbcCursorItemReader;
 import org.springframework.batch.item.database.builder.JdbcCursorItemReaderBuilder;
 import org.springframework.jdbc.core.ColumnMapRowMapper;
 import picocli.CommandLine;
 
+import javax.sql.DataSource;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 @CommandLine.Command(name = "import", aliases = {"i"}, description = "Import database")
@@ -28,9 +32,11 @@ public class DatabaseImportCommand extends AbstractImportCommand<Map<String, Obj
     private boolean verifyCursorPosition;
 
     @Override
-    protected JdbcCursorItemReader<Map<String, Object>> reader() throws Exception {
+    @SuppressWarnings("unchecked")
+    protected List<Transfer<Map<String, Object>, Object>> transfers() throws Exception {
+        DataSource dataSource = options.dataSource();
         JdbcCursorItemReaderBuilder<Map<String, Object>> builder = new JdbcCursorItemReaderBuilder<>();
-        builder.dataSource(options.getDataSource());
+        builder.dataSource(dataSource);
         if (fetchSize != null) {
             builder.fetchSize(fetchSize);
         }
@@ -47,12 +53,7 @@ public class DatabaseImportCommand extends AbstractImportCommand<Map<String, Obj
         builder.verifyCursorPosition(verifyCursorPosition);
         JdbcCursorItemReader<Map<String, Object>> reader = builder.build();
         reader.afterPropertiesSet();
-        return reader;
+        return transfers("Importing from " + options.name(dataSource), reader, objectMapProcessor(), writer());
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
-    protected ItemProcessor<Map<String, Object>, Object> processor() {
-        return objectMapProcessor();
-    }
 }

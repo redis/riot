@@ -51,11 +51,6 @@ public abstract class AbstractImportCommand<I> extends AbstractTransferCommand<I
     @CommandLine.ArgGroup(exclusive = false, heading = "RediSearch command options%n")
     private final RediSearchImportOptions redisearch = new RediSearchImportOptions();
 
-    @Override
-    protected String taskName() {
-        return "Importing";
-    }
-
     public SpelProcessor spelProcessor() {
         return configure(SpelProcessor.builder().dateFormat(new SimpleDateFormat(dateFormat)).variables(variables).fields(spel)).build();
     }

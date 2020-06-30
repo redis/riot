@@ -1,7 +1,6 @@
 package com.redislabs.riot.file;
 
 import com.redislabs.riot.test.BaseTest;
-import io.lettuce.core.RedisURI;
 import org.junit.jupiter.api.BeforeAll;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
@@ -12,7 +11,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class AbstractFileTest extends BaseTest {
 
     protected final static int COUNT = 2410;

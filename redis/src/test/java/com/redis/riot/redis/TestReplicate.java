@@ -1,5 +1,6 @@
 package com.redis.riot.redis;
 
+import com.redislabs.lettusearch.RediSearchClient;
 import com.redislabs.lettusearch.StatefulRediSearchConnection;
 import com.redislabs.riot.Transfer;
 import com.redislabs.riot.redis.ReplicateCommand;
@@ -10,7 +11,9 @@ import io.lettuce.core.RedisClient;
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.api.sync.RedisCommands;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,13 +24,14 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.junit.jupiter.Container;
 import picocli.CommandLine;
 
-@SuppressWarnings("rawtypes")
+@SuppressWarnings({"rawtypes"})
 public class TestReplicate extends BaseTest {
 
     private final static Logger log = LoggerFactory.getLogger(TestReplicate.class);
 
     @Container
-    private final GenericContainer targetRedis = redisContainer();
+    private static final GenericContainer targetRedis = redisContainer();
+    private RedisClient targetClient;
 
     @Override
     protected int execute(String[] args) {
@@ -39,10 +43,22 @@ public class TestReplicate extends BaseTest {
         return "riot-redis";
     }
 
+    @BeforeEach
+    public void setupTarget() {
+        RedisURI targetRedisURI = redisURI(targetRedis);
+        targetClient = RedisClient.create(targetRedisURI);
+        targetClient.connect().sync().flushall();
+    }
+
+    @AfterEach
+    public void teardownTarget() {
+        if (targetClient != null) {
+            targetClient.shutdown();
+        }
+    }
+
     @Test
     public void replicate() throws Exception {
-        RedisURI targetRedisURI = redisURI(targetRedis);
-        RedisClient targetClient = RedisClient.create(targetRedisURI);
         targetClient.connect().sync().flushall();
         DataPopulator.builder().connection(connection()).build().run();
         Long sourceSize = commands().dbsize();
@@ -65,8 +81,6 @@ public class TestReplicate extends BaseTest {
         StatefulRediSearchConnection<String, String> connection = connection();
         connection.sync().configSet("notify-keyspace-events", "AK");
         connection.close();
-        RedisURI targetRedisURI = redisURI(targetRedis);
-        RedisClient targetClient = RedisClient.create(targetRedisURI);
         StatefulRedisConnection<String, String> targetConnection = targetClient.connect();
         targetConnection.sync().flushall();
         DataPopulator.builder().connection(connection()).build().run();
@@ -75,7 +89,7 @@ public class TestReplicate extends BaseTest {
         CommandLine commandLine = riotRedis.commandLine();
         CommandLine.ParseResult parseResult = commandLine.parseArgs(commandArgs);
         ReplicateCommand command = parseResult.asCommandLineList().get(1).getCommand();
-        Transfer<KeyDump<String>, KeyDump<String>> transfer = command.transfer();
+        Transfer<KeyDump<String>, KeyDump<String>> transfer = command.transfers().get(0);
         new Thread(() -> command.execute(transfer)).start();
         Thread.sleep(400);
         RedisCommands<String, String> commands = commands();

@@ -50,6 +50,10 @@ public class RiotApp implements Runnable {
     @CommandLine.ArgGroup(heading = "Redis connection options%n", exclusive = false)
     private RedisConnectionOptions redis = new RedisConnectionOptions();
 
+    public RedisConnectionOptions getRedisConnectionOptions() {
+        return redis;
+    }
+
     public int execute(String... args) {
         CommandLine commandLine = commandLine();
         CommandLine.ParseResult parseResult = commandLine.parseArgs(args);

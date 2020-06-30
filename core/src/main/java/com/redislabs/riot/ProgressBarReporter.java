@@ -12,10 +12,10 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
-public class ProgressBarReporter implements Transfer.Listener {
+public class ProgressBarReporter {
 
+    private final ProgressProvider progressProvider;
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-    private final Transfer<?, ?> transfer;
     private final Integer initialMax;
     private final String taskName;
     private final boolean quiet;
@@ -24,10 +24,10 @@ public class ProgressBarReporter implements Transfer.Listener {
     private ScheduledFuture<?> scheduledFuture;
 
     @Builder
-    private ProgressBarReporter(Transfer<?, ?> transfer, String taskName, Integer initialMax, boolean quiet) {
-        Assert.notNull(transfer, "A Transfer instance is required.");
+    private ProgressBarReporter(ProgressProvider progressProvider, String taskName, Integer initialMax, boolean quiet) {
+        Assert.notNull(progressProvider, "A progress provider is required.");
         Assert.notNull(taskName, "A task name is required.");
-        this.transfer = transfer;
+        this.progressProvider = progressProvider;
         this.taskName = taskName;
         this.initialMax = initialMax;
         this.quiet = quiet;
@@ -51,7 +51,7 @@ public class ProgressBarReporter implements Transfer.Listener {
         if (quiet) {
             return;
         }
-        bar.stepTo(transfer.getWriteCount());
+        bar.stepTo(progressProvider.getWriteCount());
         scheduler.shutdown();
         scheduledFuture.cancel(true);
         this.bar.close();
@@ -61,22 +61,7 @@ public class ProgressBarReporter implements Transfer.Listener {
         if (bar == null) {
             return;
         }
-        bar.stepTo(transfer.getWriteCount());
+        bar.stepTo(progressProvider.getWriteCount());
     }
 
-
-    @Override
-    public void onOpen() {
-        start();
-    }
-
-    @Override
-    public void onUpdate(long writeCount) {
-        // do nothing
-    }
-
-    @Override
-    public void onClose() {
-        stop();
-    }
 }

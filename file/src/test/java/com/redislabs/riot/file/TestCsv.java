@@ -16,7 +16,6 @@ import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
 import org.springframework.batch.item.file.separator.DefaultRecordSeparatorPolicy;
 import org.springframework.core.io.FileSystemResource;
 
-import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
@@ -40,7 +39,7 @@ public class TestCsv extends AbstractFileTest {
 
     @Test
     public void export() throws Exception {
-        Path file = tempFile("beers.csv");
+        Path file = tempFile("beers1.csv");
         runFile("/json/import-hash.txt");
         runFile("/csv/export-hash.txt");
         String[] header = Files.readAllLines(file).get(0).split("\\|");
@@ -63,6 +62,13 @@ public class TestCsv extends AbstractFileTest {
     @Test
     public void importHash() throws Exception {
         runFile("/csv/import-hash.txt");
+        List<String> keys = commands().keys("beer:*");
+        Assertions.assertEquals(COUNT, keys.size());
+    }
+
+    @Test
+    public void importMultiHash() throws Exception {
+        runFile("/csv/import-multi-hash.txt");
         List<String> keys = commands().keys("beer:*");
         Assertions.assertEquals(COUNT, keys.size());
     }
