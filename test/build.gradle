@@ -19,9 +19,9 @@ dependencies {
     implementation 'org.junit.jupiter:junit-jupiter-api'
     implementation 'org.junit.jupiter:junit-jupiter-params'
     api 'org.junit.jupiter:junit-jupiter-engine'
-    implementation 'commons-io:commons-io:2.7'
     api 'org.testcontainers:testcontainers:1.14.3'
     api 'org.testcontainers:junit-jupiter:1.14.3'
+    implementation 'commons-io:commons-io:2.7'
 }
 
 configurations {

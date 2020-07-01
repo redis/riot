@@ -1,1 +1,0 @@
-❯ riot-db -r redis://localhost:6379 export "INSERT INTO mytable (id, field1, field2) VALUES (:id, :field1, :field2)" --url "jdbc:hsqldb:mem:mymemdb" --match "hash:*" --key-regex "hash:(?<id>.*)"

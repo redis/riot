@@ -32,7 +32,9 @@ dependencies {
     implementation 'org.postgresql:postgresql:42.2.14'
     implementation 'org.xerial:sqlite-jdbc:3.32.3'
     testImplementation project(':test')
-    testImplementation 'org.hsqldb:hsqldb'
+    testImplementation 'org.testcontainers:postgresql:1.14.3'
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
 }
 
 configurations {

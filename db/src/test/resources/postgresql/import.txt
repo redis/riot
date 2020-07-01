@@ -1,0 +1,1 @@
+❯ riot-db --info -r redis://localhost:6379 import "SELECT * FROM orders" --url jdbc:postgresql://host:port/database --username appuser --password passwd --keyspace order --keys order_id

@@ -50,14 +50,14 @@ For reference here are links to common database systems and related JDBC driver 
 
 == Examples
 
-.Import from a database
+.Import from PostgreSQL
 [source,shell]
 ----
-include::{resources}/import.txt[]
+include::{resources}/postgresql/import.txt[]
 ----
 
-.Export to a database
+.Export to PostgreSQL
 [source,shell]
 ----
-include::{resources}/export.txt[]
+include::{resources}/postgresql/export.txt[]
 ----

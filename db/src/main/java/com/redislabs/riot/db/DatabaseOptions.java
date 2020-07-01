@@ -1,6 +1,5 @@
 package com.redislabs.riot.db;
 
-import com.zaxxer.hikari.HikariDataSource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import picocli.CommandLine.Option;
@@ -27,7 +26,7 @@ public class DatabaseOptions {
         properties.setUsername(username);
         properties.setPassword(password);
         log.debug("Initializing datasource: driver={} url={}", driver, url);
-        return properties.initializeDataSourceBuilder().type(HikariDataSource.class).build();
+        return properties.initializeDataSourceBuilder().build();
     }
 
     public String name(DataSource dataSource) throws SQLException {
