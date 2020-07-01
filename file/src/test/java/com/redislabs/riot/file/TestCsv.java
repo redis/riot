@@ -39,7 +39,7 @@ public class TestCsv extends AbstractFileTest {
 
     @Test
     public void export() throws Exception {
-        Path file = tempFile("beers1.csv");
+        Path file = tempFile("beers.csv");
         runFile("/json/import-hash.txt");
         runFile("/csv/export-hash.txt");
         String[] header = Files.readAllLines(file).get(0).split("\\|");

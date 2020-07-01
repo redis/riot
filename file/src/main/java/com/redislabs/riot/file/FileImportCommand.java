@@ -29,6 +29,10 @@ import picocli.CommandLine;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 @Slf4j
@@ -54,10 +58,33 @@ public class FileImportCommand extends AbstractImportCommand {
     @Override
     protected List<Transfer> transfers() throws Exception {
         List<Transfer> transfers = new ArrayList<>();
-        for (String file : files) {
+        for (String file : expandedFileList()) {
             transfers.add(transfer(file));
         }
         return transfers;
+    }
+
+    private List<String> expandedFileList() {
+        List<String> fileList = new ArrayList<>();
+        for (String file : files) {
+            if (fileOptions.isFile(file)) {
+                Path path = Paths.get(file);
+                if (Files.exists(path)) {
+                    fileList.add(file);
+                } else {
+                    // Path might be glob pattern
+                    Path parent = path.getParent();
+                    try (DirectoryStream<Path> stream = Files.newDirectoryStream(parent, path.getFileName().toString())) {
+                        stream.forEach(p -> fileList.add(p.toString()));
+                    } catch (IOException e) {
+                        log.debug("Could not list files in {}", path, e);
+                    }
+                }
+            } else {
+                fileList.add(file);
+            }
+        }
+        return fileList;
     }
 
     private Transfer transfer(String file) throws Exception {

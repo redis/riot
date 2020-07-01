@@ -133,11 +133,15 @@ public class FileOptions {
         }
     }
 
+    public boolean isFile(String file) {
+        return !(isGcs(file) || isS3(file) || ResourceUtils.isUrl(file));
+    }
+
     private Resource resource(String file, boolean readOnly) throws IOException {
-        if (file.startsWith(GS_URI_PREFIX)) {
+        if (isGcs(file)) {
             return new GoogleStorageResource(gcsStorage(readOnly), file);
         }
-        if (file.startsWith(S3_URI_PREFIX)) {
+        if (isS3(file)) {
             AmazonS3ClientBuilder clientBuilder = AmazonS3Client.builder();
             if (s3.getRegion() != null) {
                 clientBuilder.withRegion(s3.getRegion());
@@ -153,6 +157,14 @@ public class FileOptions {
             return new UncustomizedUrlResource(file);
         }
         return new FileSystemResource(file);
+    }
+
+    private boolean isS3(String file) {
+        return file.startsWith(S3_URI_PREFIX);
+    }
+
+    private boolean isGcs(String file) {
+        return file.startsWith(GS_URI_PREFIX);
     }
 
     private Storage gcsStorage(boolean readOnly) throws IOException {
