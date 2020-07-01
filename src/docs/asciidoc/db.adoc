@@ -7,7 +7,7 @@
 :icons: font
 :project-repo: Redislabs-Solution-Architects/riot
 :repo-url: https://github.com/{project-repo}
-:path: ../../..
+:path: ../../../connectors
 :resources: {path}/db/src/test/resources
 
 == Overview

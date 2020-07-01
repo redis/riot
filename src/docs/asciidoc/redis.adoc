@@ -7,12 +7,14 @@
 :icons: font
 :project-repo: Redislabs-Solution-Architects/riot
 :repo-url: https://github.com/{project-repo}
-:path: ../../..
+:path: ../../../connectors
 :resources: {path}/redis/src/test/resources
 
 == Overview
 
 *riot-redis* allows for replicating data between two Redis databases using scan and optionally keyspace notifications (*live* replication).
+
+TIP: Live replication makes use of keyspace notifications. Make sure the source Redis database has keyspace notifications enabled using `notify-keyspace-events = KA` in `redis.conf` or via CONFIG SET.
 
 == Examples
 
