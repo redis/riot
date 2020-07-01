@@ -12,7 +12,7 @@ public class RedisConnectionOptions {
     private RedisURI redisURI = RedisURI.create("localhost", RedisURI.DEFAULT_REDIS_PORT);
     @CommandLine.Option(names = {"-c", "--cluster"}, description = "Connect to a Redis Cluster")
     private boolean cluster;
-    @CommandLine.Option(names = "--no-auto-reconnect", description = "Disable auto-reconnect")
+    @CommandLine.Option(names = "--no-auto-reconnect", description = "Disable auto-reconnect", hidden = true)
     private boolean noAutoReconnect;
     @CommandLine.Option(names = {"-m", "--metrics"}, description = "Show metrics")
     private boolean showMetrics;
