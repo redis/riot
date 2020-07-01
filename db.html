@@ -441,7 +441,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="header">
 <h1>RIOT DB</h1>
 <div class="details">
-<span id="revnumber">version 2.0.6</span>
+<span id="revnumber">version 2.0.7</span>
 </div>
 </div>
 <div id="content">
@@ -526,13 +526,13 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="listingblock">
 <div class="title">Import from PostgreSQL</div>
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">Unresolved directive in db.adoc - include::./db/src/test/resources/postgresql/import.txt[]</code></pre>
+<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">❯ riot-db --info -r redis://localhost:6379 import "SELECT * FROM orders" --url jdbc:postgresql://host:port/database --username appuser --password passwd --keyspace order --keys order_id</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="title">Export to PostgreSQL</div>
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">Unresolved directive in db.adoc - include::./db/src/test/resources/postgresql/export.txt[]</code></pre>
+<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">❯ riot-db -r redis://localhost:6379 export "INSERT INTO mytable (id, field1, field2) VALUES (CAST(:id AS SMALLINT), :field1, :field2)" --url jdbc:postgresql://host:port/database --username appuser --password passwd --match "hash:*" --key-regex "hash:(?&lt;id&gt;.*)"</code></pre>
 </div>
 </div>
 </div>
@@ -540,8 +540,8 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 2.0.6<br>
-Last updated 2020-07-01 13:31:34 -0700
+Version 2.0.7<br>
+Last updated 2020-07-01 15:21:49 -0700
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/styles/github.min.css">
