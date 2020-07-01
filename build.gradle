@@ -37,6 +37,7 @@ githubRelease {
     owner "Redislabs-Solution-Architects"
     repo "riot"
     releaseAssets "connectors/db/build/distributions/riot-db-${project.version}.zip", "connectors/file/build/distributions/riot-file-${project.version}.zip", "connectors/gen/build/distributions/riot-gen-${project.version}.zip", "connectors/redis/build/distributions/riot-redis-${project.version}.zip"
+    body changelog()
 }
 
 asciidoctor {
