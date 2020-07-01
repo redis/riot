@@ -21,7 +21,7 @@ import java.util.Locale;
 import java.util.Map;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
-@CommandLine.Command(name = "export", aliases = "e", description = "Export to file")
+@CommandLine.Command(name = "export", aliases = "e", description = "Export to a file")
 public class FileExportCommand extends AbstractExportCommand<Object> {
 
     @CommandLine.Parameters(arity = "1", description = "File path or URL", paramLabel = "FILE")

@@ -126,7 +126,12 @@ public class FileOptions {
             return resource.getFilename();
         }
         try {
-            return resource.getURI().toString();
+            String path = resource.getURI().getPath();
+            int cut = path.lastIndexOf('/');
+            if (cut == -1) {
+                return path;
+            }
+            return path.substring(cut + 1);
         } catch (IOException e) {
             log.debug("Could not get resource URI", e);
             return "unknown";

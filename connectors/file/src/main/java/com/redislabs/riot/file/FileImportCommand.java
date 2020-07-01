@@ -36,7 +36,7 @@ import java.nio.file.Paths;
 import java.util.*;
 
 @Slf4j
-@CommandLine.Command(name = "import", aliases = {"i"}, description = "Import file")
+@CommandLine.Command(name = "import", aliases = {"i"}, description = "Import file(s)")
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class FileImportCommand extends AbstractImportCommand {
 

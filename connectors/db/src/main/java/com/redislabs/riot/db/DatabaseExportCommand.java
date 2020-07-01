@@ -14,7 +14,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-@CommandLine.Command(name = "export", aliases = "e", description = "Export to database")
+@CommandLine.Command(name = "export", aliases = "e", description = "Export to a database")
 public class DatabaseExportCommand extends AbstractExportCommand<Map<String, Object>> {
 
     @CommandLine.Parameters(arity = "1", description = "SQL INSERT statement", paramLabel = "SQL")

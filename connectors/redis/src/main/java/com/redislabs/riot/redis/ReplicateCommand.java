@@ -15,7 +15,7 @@ import picocli.CommandLine.Command;
 import java.util.Collections;
 import java.util.List;
 
-@Command(name = "replicate", aliases = {"r"}, description = "Replicate a Redis database to another Redis database")
+@Command(name = "replicate", aliases = {"r"}, description = "Replicate a source Redis database in a target Redis database")
 public class ReplicateCommand extends AbstractTransferCommand<KeyDump<String>, KeyDump<String>> {
 
     @CommandLine.Mixin
