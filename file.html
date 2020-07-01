@@ -441,7 +441,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="header">
 <h1>RIOT File</h1>
 <div class="details">
-<span id="revnumber">version 2.0.5</span>
+<span id="revnumber">version 2.0.6</span>
 </div>
 </div>
 <div id="content">
@@ -449,32 +449,26 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="overview"><a class="anchor" href="#overview"></a>Overview</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><strong>riot-file</strong> can import/export local or remote files in CSV, fixed-width, JSON or XML format with optional GZIP compression:</p>
+<p><strong>riot-file</strong> can import/export local or remote files in CSV, fixed-width, JSON or XML format, and gzipped:</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p><code>/myfolder/myfile.csv</code></p>
+<p><code>/path/file.csv</code></p>
 </li>
 <li>
-<p><code>/myfolder/myfile.json.gz</code></p>
+<p><code>/path/file-*.csv</code></p>
 </li>
 <li>
-<p><code>https://example.com/path/dataset.csv</code></p>
+<p><code>/path/file.json</code></p>
 </li>
 <li>
-<p><code>s3://my-bucket/myfolder/myfile.json</code></p>
+<p><code>http://data.com/file.csv</code></p>
 </li>
 <li>
-<p><code>gs://my-bucket/myfolder/myfile.json</code></p>
+<p><code>http://data.com/file.json.gz</code></p>
 </li>
 </ul>
-</div>
-<div class="paragraph">
-<p>For AWS S3 you can specify access and secret keys as well as the region for the bucket.</p>
-</div>
-<div class="paragraph">
-<p>For Google Cloud Storage you can specify credentials and project id for the bucket.</p>
 </div>
 <div class="admonitionblock tip">
 <table>
@@ -487,6 +481,18 @@ Use <code>-</code> to import/export from/to standard input/output.
 </td>
 </tr>
 </table>
+</div>
+<div class="paragraph">
+<p>For AWS S3 buckets you can specify access and secret keys as well as the region for the bucket.</p>
+</div>
+<div class="paragraph">
+<p><code>riot-file import s3://my-bucket/path/file.json --s3-region us-west-1 --s3-access xxxxxx --s3-secret xxxxxx</code></p>
+</div>
+<div class="paragraph">
+<p>For Google Cloud Storage you can specify credentials and project id for the bucket:</p>
+</div>
+<div class="paragraph">
+<p><code>riot-file import gs://my-bucket/path/file.json --gcs-key-file key.json --gcs-project-id my-gcp-project</code></p>
 </div>
 <div class="paragraph">
 <p>Specify the file type using the <code>--filetype</code> option. If not RIOT will try to determine it from the file extension (e.g. <code>.csv</code> or <code>.json</code>).</p>
@@ -577,31 +583,31 @@ Use <code>-</code> to import/export from/to standard input/output.
 <div class="listingblock">
 <div class="title">Import CSV to Hashes</div>
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">❯ riot-file -r redis://localhost:6379 import https://raw.githubusercontent.com/nickhould/craft-beers-dataset/master/data/processed/beers.csv --keyspace beer --keys id --header</code></pre>
+<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">Unresolved directive in file.adoc - include::./file/src/test/resources/csv/import-hash.txt[]</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="title">Import CSV into RediSearch index</div>
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">❯ riot-file -r redis://localhost:6379 import https://raw.githubusercontent.com/nickhould/craft-beers-dataset/master/data/processed/beers.csv --command ftadd --index beers --keys id --header</code></pre>
+<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">Unresolved directive in file.adoc - include::./file/src/test/resources/csv/import-search.txt[]</code></pre>
 </div>
 </div>
 <div id="import-csv-geo" class="listingblock">
 <div class="title">Import CSV to a Geo set</div>
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">❯ riot-file -r redis://localhost:6379 import https://raw.githubusercontent.com/jpatokal/openflights/master/data/airports.dat --command geoadd --keyspace airportgeo --members AirportID --lon Longitude --lat Latitude --fields AirportID Name City Country IATA ICAO Latitude Longitude Altitude Timezone DST Tz Type Source</code></pre>
+<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">Unresolved directive in file.adoc - include::./file/src/test/resources/csv/import-geo.txt[]</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="title">Import CSV into RediSearch geo</div>
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">❯ riot-file -r redis://localhost:6379 import https://raw.githubusercontent.com/jpatokal/openflights/master/data/airports.dat --command ftadd --index airports -k AirportID --spel "Location=#geo(Longitude,Latitude)" --fields AirportID Name City Country IATA ICAO Latitude Longitude Altitude Timezone DST Tz Type Source</code></pre>
+<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">Unresolved directive in file.adoc - include::./file/src/test/resources/csv/import-search-geo-processor.txt[]</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="title">Export to CSV</div>
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">❯ riot-file -r redis://localhost:6379 export /tmp/beers.csv --match beer:* --key-regex "beer:(?&lt;id&gt;.*)" --fields id name brewery_id abv --header --delimiter '|'</code></pre>
+<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">Unresolved directive in file.adoc - include::./file/src/test/resources/csv/export-hash.txt[]</code></pre>
 </div>
 </div>
 </div>
@@ -651,19 +657,19 @@ Use <code>-</code> to import/export from/to standard input/output.
 <div class="listingblock">
 <div class="title">Import JSON</div>
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">❯ riot-file -r redis://localhost:6379 import https://raw.githubusercontent.com/rethinkdb/beerthink/master/data/beers.json --keyspace beer --keys id</code></pre>
+<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">Unresolved directive in file.adoc - include::./file/src/test/resources/json/import-hash.txt[]</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="title">Export JSON</div>
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">❯ riot-file -r redis://localhost:6379 export /tmp/riot-keyvalues.json</code></pre>
+<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">Unresolved directive in file.adoc - include::./file/src/test/resources/json/export-keyvalues.txt[]</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="title">Export compressed JSON</div>
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">❯ riot-file -r redis://localhost:6379 export /tmp/beers.json.gz --match beer:* --fields id name brewery_id abv</code></pre>
+<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">Unresolved directive in file.adoc - include::./file/src/test/resources/json/export-gzip.txt[]</code></pre>
 </div>
 </div>
 </div>
@@ -702,7 +708,7 @@ Use <code>-</code> to import/export from/to standard input/output.
 <div class="listingblock">
 <div class="title">Import XML</div>
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">❯ riot-file -r redis://localhost:6379 import https://raw.githubusercontent.com/Redislabs-Solution-Architects/riot/master/file/src/test/resources/xml/trades.xml --keyspace trade --keys id</code></pre>
+<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">Unresolved directive in file.adoc - include::./file/src/test/resources/xml/import-hash.txt[]</code></pre>
 </div>
 </div>
 </div>
@@ -710,8 +716,8 @@ Use <code>-</code> to import/export from/to standard input/output.
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 2.0.5<br>
-Last updated 2020-06-28 17:50:59 -0700
+Version 2.0.6<br>
+Last updated 2020-07-01 13:31:43 -0700
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/styles/github.min.css">
