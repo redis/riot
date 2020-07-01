@@ -526,7 +526,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="listingblock">
 <div class="title">Import from PostgreSQL</div>
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">❯ riot-db --info -r redis://localhost:6379 import "SELECT * FROM orders" --url jdbc:postgresql://host:port/database --username appuser --password passwd --keyspace order --keys order_id</code></pre>
+<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">❯ riot-db -r redis://localhost:6379 import "SELECT * FROM orders" --url jdbc:postgresql://host:port/database --username appuser --password passwd --keyspace order --keys order_id</code></pre>
 </div>
 </div>
 <div class="listingblock">
