@@ -31,6 +31,10 @@ subprojects {
     }
 }
 
+release {
+    tagTemplate = 'v${version}'
+}
+
 asciidoctor {
     outputOptions {
         separateOutputDirs = false
