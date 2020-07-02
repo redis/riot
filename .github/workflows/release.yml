@@ -26,7 +26,7 @@ jobs:
       run: ./gradlew build
     - name: Get the version
       id: get_version
-      run: echo ::set-output name=version::${{ github.event.release.tag_name }}
+      run: echo ::set-output name=version::${GITHUB_REF/refs\/tags\//}
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
