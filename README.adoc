@@ -43,14 +43,27 @@ Download the {repo-url}/releases/latest[latest release] and unzip the archive.
 
 Launch the `bin/riot-*` script and follow the usage information provided.
 
+=== Build and Run
+
+[source,shell]
+----
+❯ git clone https://github.com/Redislabs-Solution-Architects/riot.git
+❯ cd riot
+❯ ./riot-db
+❯ ./riot-file
+❯ ./riot-gen
+❯ ./riot-redis
+----
+
 === Install via Homebrew
 
-```
+[source,shell]
+----
 ❯ brew install jruaux/tap/riot-db
 ❯ brew install jruaux/tap/riot-file
 ❯ brew install jruaux/tap/riot-gen
 ❯ brew install jruaux/tap/riot-redis
-```
+----
 
 === Tab Completion
 
