@@ -55,19 +55,19 @@ public class RiotApp implements Runnable {
     }
 
     public int execute(String... args) {
-        CommandLine commandLine = commandLine();
-        CommandLine.ParseResult parseResult = commandLine.parseArgs(args);
-        InternalLoggerFactory.setDefaultFactory(JdkLoggerFactory.INSTANCE);
-        LogManager.getLogManager().reset();
-        Logger activeLogger = Logger.getLogger(ROOT_LOGGER);
-        ConsoleHandler handler = new ConsoleHandler();
-        handler.setLevel(Level.ALL);
-        handler.setFormatter(new OneLineLogFormat(isDebug()));
-        activeLogger.addHandler(handler);
-        Logger.getLogger(ROOT_LOGGER).setLevel(rootLoggingLevel());
-        Logger logger = Logger.getLogger("com.redislabs");
-        logger.setLevel(packageLoggingLevel());
         try {
+            CommandLine commandLine = commandLine();
+            CommandLine.ParseResult parseResult = commandLine.parseArgs(args);
+            InternalLoggerFactory.setDefaultFactory(JdkLoggerFactory.INSTANCE);
+            LogManager.getLogManager().reset();
+            Logger activeLogger = Logger.getLogger(ROOT_LOGGER);
+            ConsoleHandler handler = new ConsoleHandler();
+            handler.setLevel(Level.ALL);
+            handler.setFormatter(new OneLineLogFormat(isDebug()));
+            activeLogger.addHandler(handler);
+            Logger.getLogger(ROOT_LOGGER).setLevel(rootLoggingLevel());
+            Logger logger = Logger.getLogger("com.redislabs");
+            logger.setLevel(packageLoggingLevel());
             return commandLine.getExecutionStrategy().execute(parseResult);
         } catch (CommandLine.PicocliException e) {
             System.err.println(e.getMessage());
