@@ -79,23 +79,15 @@ Run the following command to install completion:
 
 RIOT uses Lettuce as it Redis client and follows the Redis URI syntax described https://github.com/lettuce-io/lettuce-core/wiki/Redis-URI-and-connection-details#uri-syntax[here].
 
-The Redis URI supports Redis Standalone, Redis Sentinel and Redis Cluster with plain, SSL, TLS and unix domain socket connections.
+The Redis URI supports Redis Standalone, Redis Sentinel and Redis Cluster with plain, SSL, TLS and unix domain socket connections:
 
-* Redis Standalone
-+
-`redis :// [password@] host [: port] [/ database][? [timeout=timeout[d|h|m|s|ms|us|ns]] [&_database=database_]]`
+* Standalone: `redis :// [password@] host [: port] [/ database][? [timeout=timeout[d|h|m|s|ms|us|ns]] [&_database=database_]]`
 
-* Redis Standalone (SSL)
-+
-`rediss :// [password@] host [: port] [/ database][? [timeout=timeout[d|h|m|s|ms|us|ns]] [&_database=database_]]`
+* Standalone (SSL): `rediss :// [password@] host [: port] [/ database][? [timeout=timeout[d|h|m|s|ms|us|ns]] [&_database=database_]]`
 
-* Redis Standalone (Unix Domain Sockets)
-+
-`redis-socket :// [password@]path [?[timeout=timeout[d|h|m|s|ms|us|ns]][&_database=database_]]`
+* Standalone (Unix Domain Sockets): `redis-socket :// [password@]path [?[timeout=timeout[d|h|m|s|ms|us|ns]][&_database=database_]]`
 
-* Redis Sentinel
-+
-`redis-sentinel :// [password@] host1[: port1] [, host2[: port2]] [, hostN[: portN]] [/ database][?[timeout=timeout[d|h|m|s|ms|us|ns]] [&_sentinelMasterId=sentinelMasterId_] [&_database=database_]]`
+* Sentinel: `redis-sentinel :// [password@] host1[: port1] [, host2[: port2]] [, hostN[: portN]] [/ database][?[timeout=timeout[d|h|m|s|ms|us|ns]] [&_sentinelMasterId=sentinelMasterId_] [&_database=database_]]`
 +
 NOTE: When using Redis Sentinel, the password from the URI applies to the data nodes only. Sentinel authentication must be configured for each sentinel node.
 
@@ -107,20 +99,20 @@ To use the Redis Cluster API specifiy the `--cluster` option in addition to the 
 
 === Schemes
 
-* `redis` Redis Standalone
-* `rediss` Redis Standalone SSL
-* `redis-socket` Redis Standalone Unix Domain Socket
-* `redis-sentinel` Redis Sentinel
+* `redis` -> Redis Standalone
+* `rediss` -> Redis Standalone SSL
+* `redis-socket` -> Redis Standalone Unix Domain Socket
+* `redis-sentinel` -> Redis Sentinel
 
 === Timeout units
 
-* `d` Days
-* `h` Hours
-* `m` Minutes
-* `s` Seconds
-* `ms` Milliseconds
-* `us` Microseconds
-* `ns` Nanoseconds
+* `d` -> Days
+* `h` -> Hours
+* `m` -> Minutes
+* `s` -> Seconds
+* `ms` -> Milliseconds
+* `us` -> Microseconds
+* `ns` -> Nanoseconds
 
 TIP: The database parameter within the query part has higher precedence than the database in the path.
 
