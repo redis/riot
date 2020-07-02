@@ -3,7 +3,6 @@ plugins {
     id 'io.spring.dependency-management' version '1.0.9.RELEASE'
     id 'com.github.ben-manes.versions' version '0.28.0'
     id 'net.researchgate.release' version '2.8.1'
-    id 'com.github.breadmoirai.github-release' version '2.2.12'
     id 'org.asciidoctor.jvm.convert' version '3.2.0'
     id 'org.ajoberstar.git-publish' version '2.1.3'
 }
@@ -32,14 +31,6 @@ subprojects {
     }
 }
 
-githubRelease {
-    token = project.hasProperty('githubToken') ? project.property('githubToken') : ''
-    owner "Redislabs-Solution-Architects"
-    repo "riot"
-    releaseAssets "connectors/db/build/distributions/riot-db-${project.version}.zip", "connectors/file/build/distributions/riot-file-${project.version}.zip", "connectors/gen/build/distributions/riot-gen-${project.version}.zip", "connectors/redis/build/distributions/riot-redis-${project.version}.zip"
-    body changelog()
-}
-
 asciidoctor {
     outputOptions {
         separateOutputDirs = false
@@ -57,5 +48,3 @@ gitPublish {
 }
 
 gitPublishPush.dependsOn asciidoctor
-afterReleaseBuild.dependsOn ":githubRelease"
-afterReleaseBuild.dependsOn gitPublishPush
