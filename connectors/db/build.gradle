@@ -28,7 +28,7 @@ dependencies {
     implementation 'com.ibm.db2:jcc:11.5.4.0'
     implementation 'com.microsoft.sqlserver:mssql-jdbc:8.2.2.jre8'
     implementation 'com.oracle.ojdbc:ojdbc8:19.3.0.0'
-    implementation 'mysql:mysql-connector-java:8.0.20'
+    implementation 'mysql:mysql-connector-java:8.0.21'
     implementation 'org.postgresql:postgresql:42.2.14'
     implementation 'org.xerial:sqlite-jdbc:3.32.3'
     testImplementation project(':test')
