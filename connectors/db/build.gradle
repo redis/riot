@@ -18,7 +18,7 @@ test {
 
 dependencies {
     implementation project(':core')
-    annotationProcessor 'info.picocli:picocli-codegen:4.3.2'
+    annotationProcessor 'info.picocli:picocli-codegen:4.4.0'
     implementation 'org.slf4j:slf4j-jdk14'
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
@@ -28,9 +28,9 @@ dependencies {
     implementation 'com.ibm.db2:jcc:11.5.4.0'
     implementation 'com.microsoft.sqlserver:mssql-jdbc:8.2.2.jre8'
     implementation 'com.oracle.ojdbc:ojdbc8:19.3.0.0'
-    implementation 'mysql:mysql-connector-java:8.0.20'
+    implementation 'mysql:mysql-connector-java:8.0.21'
     implementation 'org.postgresql:postgresql:42.2.14'
-    implementation 'org.xerial:sqlite-jdbc:3.32.3'
+    implementation 'org.xerial:sqlite-jdbc:3.32.3.1'
     testImplementation project(':test')
     testImplementation 'org.testcontainers:postgresql:1.14.3'
     testCompileOnly 'org.projectlombok:lombok'
