@@ -30,6 +30,8 @@ import java.util.logging.Logger;
 @CommandLine.Command(mixinStandardHelpOptions = true, usageHelpAutoWidth = true, sortOptions = false, versionProvider = ManifestVersionProvider.class, subcommands = HiddenGenerateCompletion.class, abbreviateSynopsis = true)
 public class RiotApp implements Runnable {
 
+    private static final String ROOT_LOGGER = "";
+
     @Getter
     @CommandLine.Option(names = {"-q", "--quiet"}, description = "Log errors only")
     private boolean quiet;
@@ -109,8 +111,6 @@ public class RiotApp implements Runnable {
         }
         return ClusterClientOptions.builder().autoReconnect(!redis.isNoAutoReconnect()).sslOptions(sslOptionsBuilder.build()).build();
     }
-
-    private static final String ROOT_LOGGER = "";
 
     private Level packageLoggingLevel() {
         if (isQuiet()) {
