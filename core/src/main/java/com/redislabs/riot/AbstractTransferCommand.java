@@ -1,5 +1,6 @@
 package com.redislabs.riot;
 
+import io.lettuce.core.RedisURI;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
@@ -146,5 +147,16 @@ public abstract class AbstractTransferCommand<I, O> extends HelpCommand implemen
         public long getWriteCount() {
             return transfers.stream().map(Transfer::getWriteCount).mapToLong(Long::longValue).sum();
         }
+    }
+
+
+    protected String toString(RedisURI redisURI) {
+        if (redisURI.getSocket() != null) {
+            return redisURI.getSocket();
+        }
+        if (redisURI.getSentinelMasterId() != null) {
+            return redisURI.getSentinelMasterId();
+        }
+        return redisURI.getHost();
     }
 }

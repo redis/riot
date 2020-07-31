@@ -12,12 +12,6 @@ public class RedisImportOptions {
         RAW, XML, JSON
     }
 
-    @CommandLine.Option(names = "--key-separator", description = "Key separator (default: ${DEFAULT-VALUE})", paramLabel = "<str>")
-    private String keySeparator = KeyMaker.DEFAULT_SEPARATOR;
-    @CommandLine.Option(names = {"-p", "--keyspace"}, description = "Keyspace prefix", paramLabel = "<str>")
-    private String keyspace;
-    @CommandLine.Option(names = {"-k", "--keys"}, arity = "1..*", description = "Key fields", paramLabel = "<fields>")
-    private String[] keyFields = new String[0];
     @CommandLine.Option(names = "--member-space", description = "Prefix for member IDs", paramLabel = "<str>")
     private String memberSpace;
     @CommandLine.Option(names = "--members", arity = "1..*", description = "Member field names for collections", paramLabel = "<fields>")

@@ -1,1 +1,1 @@
-❯ riot-gen -r redis://localhost:6379 import name=gameOfThrones.character --max 10000 --command sadd --members name --keyspace got:characters
+❯ riot-gen -u redis://localhost:6379 import name=gameOfThrones.character --max 10000 --command sadd --members name --keyspace got:characters

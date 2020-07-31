@@ -1,1 +1,1 @@
-❯ riot-gen -r redis://localhost:6379 import id=#index firstName=name.firstName lastName=name.lastName address=address.fullAddress --max 100 --keyspace person --keys id
+❯ riot-gen -u redis://localhost:6379 import id=#index firstName=name.firstName lastName=name.lastName address=address.fullAddress --max 100 --keyspace person --keys id

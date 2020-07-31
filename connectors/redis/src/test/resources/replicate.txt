@@ -1,1 +1,1 @@
-❯ riot-redis -r redis://localhost:6379 replicate -r redis://localhost:6380 --batch 10
+❯ riot-redis -u redis://localhost:6379 replicate -u redis://localhost:6380 --batch 10

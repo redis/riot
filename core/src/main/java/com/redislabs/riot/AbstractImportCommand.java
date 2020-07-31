@@ -31,7 +31,7 @@ import java.util.Map;
 public abstract class AbstractImportCommand<I> extends AbstractTransferCommand<I, Object> {
 
     public enum CommandName {
-        EVALSHA, EXPIRE, GEOADD, FTADD, FTSEARCH, FTAGGREGATE, FTSUGADD, HMSET, LPUSH, NOOP, RPUSH, SADD, SET, XADD, ZADD
+        EVALSHA, EXPIRE, GEOADD, FTADD, FTSUGADD, HMSET, LPUSH, NOOP, RPUSH, SADD, SET, XADD, ZADD
     }
 
     @Getter
@@ -41,11 +41,17 @@ public abstract class AbstractImportCommand<I> extends AbstractTransferCommand<I
     private Map<String, String> variables = new HashMap<>();
     @CommandLine.Option(names = "--date-format", description = "Processor date format (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
     private String dateFormat = new SimpleDateFormat().toPattern();
-    @CommandLine.Option(names = "--remove-fields", description = "Remove fields already used in data structures")
+    @CommandLine.Option(names = "--remove-fields", description = "Remove fields already being used (e.g. keys or member ids)")
     private boolean removeFields;
     @Getter
     @CommandLine.Option(names = "--command", description = "Redis command: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})", paramLabel = "<name>")
     private CommandName command = CommandName.HMSET;
+    @CommandLine.Option(names = "--key-separator", description = "Key separator (default: ${DEFAULT-VALUE})", paramLabel = "<str>")
+    private String keySeparator = KeyMaker.DEFAULT_SEPARATOR;
+    @CommandLine.Option(names = {"-p", "--keyspace"}, description = "Keyspace prefix", paramLabel = "<str>")
+    private String keyspace;
+    @CommandLine.Option(names = {"-k", "--keys"}, arity = "1..*", description = "Key fields", paramLabel = "<fields>")
+    private String[] keys = new String[0];
     @CommandLine.ArgGroup(exclusive = false, heading = "Redis command options%n")
     private final RedisImportOptions redis = new RedisImportOptions();
     @CommandLine.ArgGroup(exclusive = false, heading = "RediSearch command options%n")
@@ -56,7 +62,7 @@ public abstract class AbstractImportCommand<I> extends AbstractTransferCommand<I
     }
 
     private KeyMaker<Map<String, String>> keyMaker() {
-        return idMaker(redis.getKeyspace(), redis.getKeyFields());
+        return idMaker(keyspace, keys);
     }
 
     private KeyMaker<Map<String, String>> memberIdMaker() {
@@ -64,7 +70,7 @@ public abstract class AbstractImportCommand<I> extends AbstractTransferCommand<I
     }
 
     private KeyMaker<Map<String, String>> idMaker(String prefix, String[] fields) {
-        return KeyMaker.<Map<String, String>>builder().separator(redis.getKeySeparator()).prefix(prefix).extractors(fieldExtractors(removeFields, fields)).build();
+        return KeyMaker.<Map<String, String>>builder().separator(keySeparator).prefix(prefix).extractors(fieldExtractors(removeFields, fields)).build();
     }
 
     private Converter<Map<String, String>, String>[] fieldExtractors(boolean remove, String... fields) {
@@ -116,7 +122,7 @@ public abstract class AbstractImportCommand<I> extends AbstractTransferCommand<I
     public ItemWriter writer() {
         switch (command) {
             case EVALSHA:
-                return configure(Eval.<Map<String, String>>builder().sha(redis.getEvalSha()).outputType(redis.getEvalOutputType()).keysConverter(MapToArrayConverter.builder().fields(redis.getKeyFields()).build()).argsConverter(MapToArrayConverter.builder().fields(redis.getEvalArgs()).build())).build();
+                return configure(Eval.<Map<String, String>>builder().sha(redis.getEvalSha()).outputType(redis.getEvalOutputType()).keysConverter(MapToArrayConverter.builder().fields(keys).build()).argsConverter(MapToArrayConverter.builder().fields(redis.getEvalArgs()).build())).build();
             case EXPIRE:
                 return configureKeyCommandWriterBuilder(Expire.<Map<String, String>>builder().timeoutConverter(longFieldExtractor(redis.getTimeout()))).build();
             case HMSET:

@@ -1,1 +1,1 @@
-❯ riot-file -r redis://localhost:6379 export /tmp/beers.json.gz --match beer:* --fields id name brewery_id abv
+❯ riot-file -u redis://localhost:6379 export /tmp/beers.json.gz --pattern beer:* --fields id name brewery_id abv

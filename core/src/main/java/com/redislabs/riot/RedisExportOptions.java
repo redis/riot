@@ -9,7 +9,7 @@ public class RedisExportOptions {
 
     @CommandLine.Option(names = "--count", description = "SCAN COUNT option (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
     private long scanCount = RedisItemReaderBuilder.DEFAULT_SCAN_COUNT;
-    @CommandLine.Option(names = "--match", description = "SCAN MATCH pattern (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
+    @CommandLine.Option(names = "--pattern", description = "SCAN pattern (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
     private String scanMatch = RedisItemReaderBuilder.DEFAULT_SCAN_MATCH;
     @CommandLine.Option(names = "--reader-queue", description = "Capacity of the reader queue (default: ${DEFAULT-VALUE})", paramLabel = "<int>", hidden = true)
     private int queueCapacity = 10000;

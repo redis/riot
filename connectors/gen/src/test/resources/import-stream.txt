@@ -1,1 +1,1 @@
-❯ riot-gen -r redis://localhost:6379 import id=#index category=number.randomDigit --batch 50 --max 1000 --command xadd --keyspace teststream --keys category
+❯ riot-gen -u redis://localhost:6379 import id=#index category=number.randomDigit --batch 50 --max 1000 --command xadd --keyspace teststream --keys category

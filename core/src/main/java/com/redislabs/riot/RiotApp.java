@@ -2,16 +2,9 @@ package com.redislabs.riot;
 
 import com.redislabs.lettusearch.StatefulRediSearchConnection;
 import io.lettuce.core.RedisURI;
-import io.lettuce.core.SslOptions;
 import io.lettuce.core.api.StatefulConnection;
 import io.lettuce.core.api.async.BaseRedisAsyncCommands;
 import io.lettuce.core.api.sync.BaseRedisCommands;
-import io.lettuce.core.cluster.ClusterClientOptions;
-import io.lettuce.core.event.DefaultEventPublisherOptions;
-import io.lettuce.core.event.metrics.CommandLatencyEvent;
-import io.lettuce.core.metrics.DefaultCommandLatencyCollectorOptions;
-import io.lettuce.core.resource.ClientResources;
-import io.lettuce.core.resource.DefaultClientResources;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import io.netty.util.internal.logging.JdkLoggerFactory;
 import lombok.Getter;
@@ -20,18 +13,20 @@ import org.springframework.batch.item.redis.support.RedisConnectionBuilder;
 import org.springframework.batch.item.redisearch.support.RediSearchConnectionBuilder;
 import picocli.CommandLine;
 
-import java.io.File;
-import java.time.Duration;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
-@CommandLine.Command(mixinStandardHelpOptions = true, usageHelpAutoWidth = true, sortOptions = false, versionProvider = ManifestVersionProvider.class, subcommands = HiddenGenerateCompletion.class, abbreviateSynopsis = true)
+@CommandLine.Command(usageHelpAutoWidth = true, sortOptions = false, versionProvider = ManifestVersionProvider.class, subcommands = HiddenGenerateCompletion.class, abbreviateSynopsis = true)
 public class RiotApp implements Runnable {
 
     private static final String ROOT_LOGGER = "";
 
+    @CommandLine.Option(names = {"--help"}, usageHelp = true, description = "Show this help message and exit.")
+    private boolean helpRequested;
+    @CommandLine.Option(names = {"-V", "--version"}, versionHelp = true, description = "Print version information and exit.")
+    private boolean versionRequested;
     @Getter
     @CommandLine.Option(names = {"-q", "--quiet"}, description = "Log errors only")
     private boolean quiet;
@@ -41,14 +36,6 @@ public class RiotApp implements Runnable {
     @Getter
     @CommandLine.Option(names = {"-i", "--info"}, description = "Set log level to info")
     private boolean info;
-    @CommandLine.Option(names = "--ks", description = "Path to keystore", paramLabel = "<file>", hidden = true)
-    private File keystore;
-    @CommandLine.Option(names = "--ks-password", arity = "0..1", interactive = true, description = "Keystore password", paramLabel = "<pwd>", hidden = true)
-    private String keystorePassword;
-    @CommandLine.Option(names = "--ts", description = "Path to truststore", paramLabel = "<file>", hidden = true)
-    private File truststore;
-    @CommandLine.Option(names = "--ts-password", arity = "0..1", interactive = true, description = "Truststore password", paramLabel = "<pwd>", hidden = true)
-    private String truststorePassword;
     @CommandLine.ArgGroup(heading = "Redis connection options%n", exclusive = false)
     private RedisConnectionOptions redis = new RedisConnectionOptions();
 
@@ -93,25 +80,6 @@ public class RiotApp implements Runnable {
         CommandLine.usage(this, System.out);
     }
 
-    private ClusterClientOptions clientOptions(RedisConnectionOptions redis) {
-        SslOptions.Builder sslOptionsBuilder = SslOptions.builder();
-        if (keystore != null) {
-            if (keystorePassword == null) {
-                sslOptionsBuilder.keystore(keystore);
-            } else {
-                sslOptionsBuilder.keystore(keystore, keystorePassword.toCharArray());
-            }
-        }
-        if (truststore != null) {
-            if (truststorePassword == null) {
-                sslOptionsBuilder.truststore(truststore);
-            } else {
-                sslOptionsBuilder.truststore(truststore, truststorePassword);
-            }
-        }
-        return ClusterClientOptions.builder().autoReconnect(!redis.isNoAutoReconnect()).sslOptions(sslOptionsBuilder.build()).build();
-    }
-
     private Level packageLoggingLevel() {
         if (isQuiet()) {
             return Level.OFF;
@@ -147,23 +115,11 @@ public class RiotApp implements Runnable {
     }
 
     public <B extends RedisConnectionBuilder<B>> B configure(RedisConnectionBuilder<B> builder, RedisConnectionOptions redis) {
-        return builder.redisURI(redis.getRedisURI()).cluster(redis.isCluster()).clientResources(clientResources(redis)).clientOptions(clientOptions(redis)).poolConfig(ConnectionPoolConfig.builder().maxTotal(redis.getPoolMaxTotal()).build());
+        return builder.redisURI(redis.getRedisURI()).cluster(redis.isCluster()).clientResources(redis.getClientResources()).clientOptions(redis.getClientOptions()).poolConfig(ConnectionPoolConfig.builder().maxTotal(redis.getPoolMaxTotal()).build());
     }
 
     public <B extends RediSearchConnectionBuilder<B>> B configure(RediSearchConnectionBuilder<B> builder, RedisConnectionOptions redis) {
-        return builder.redisURI(redis.getRedisURI()).clientResources(clientResources(redis)).clientOptions(clientOptions(redis)).poolConfig(org.springframework.batch.item.redisearch.support.ConnectionPoolConfig.builder().maxTotal(redis.getPoolMaxTotal()).build());
-    }
-
-    private ClientResources clientResources(RedisConnectionOptions redis) {
-        if (redis.isShowMetrics()) {
-            DefaultClientResources.Builder clientResourcesBuilder = DefaultClientResources.builder();
-            clientResourcesBuilder.commandLatencyCollectorOptions(DefaultCommandLatencyCollectorOptions.builder().enable().build());
-            clientResourcesBuilder.commandLatencyPublisherOptions(DefaultEventPublisherOptions.builder().eventEmitInterval(Duration.ofSeconds(1)).build());
-            ClientResources resources = clientResourcesBuilder.build();
-            resources.eventBus().get().filter(redisEvent -> redisEvent instanceof CommandLatencyEvent).cast(CommandLatencyEvent.class).subscribe(e -> System.out.println(e.getLatencies()));
-            return clientResourcesBuilder.build();
-        }
-        return null;
+        return builder.redisURI(redis.getRedisURI()).clientResources(redis.getClientResources()).clientOptions(redis.getClientOptions()).poolConfig(org.springframework.batch.item.redisearch.support.ConnectionPoolConfig.builder().maxTotal(redis.getPoolMaxTotal()).build());
     }
 
     public StatefulConnection<String, String> connection() {

@@ -4,6 +4,7 @@ import com.redislabs.riot.AbstractTransferCommand;
 import com.redislabs.riot.RedisConnectionOptions;
 import com.redislabs.riot.RedisExportOptions;
 import com.redislabs.riot.Transfer;
+import io.lettuce.core.RedisURI;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.redis.RedisKeyDumpItemReader;
 import org.springframework.batch.item.redis.RedisKeyDumpItemWriter;
@@ -12,8 +13,10 @@ import org.springframework.batch.item.support.PassThroughItemProcessor;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Command(name = "replicate", aliases = {"r"}, description = "Replicate a source Redis database in a target Redis database")
 public class ReplicateCommand extends AbstractTransferCommand<KeyDump<String>, KeyDump<String>> {
@@ -32,7 +35,7 @@ public class ReplicateCommand extends AbstractTransferCommand<KeyDump<String>, K
     public List<Transfer<KeyDump<String>, KeyDump<String>>> transfers() {
         RedisKeyDumpItemReader<String> reader = configure(RedisKeyDumpItemReader.builder().scanCount(options.getScanCount()).scanMatch(options.getScanMatch()).batch(options.getBatchSize()).threads(options.getThreads()).queueCapacity(options.getQueueCapacity()).live(live)).build();
         ItemWriter writer = configure(RedisKeyDumpItemWriter.builder().replace(true), targetRedis).build();
-        return transfers("Replicating from " + getRedisConnectionOptions().getRedisURI() + " to " + targetRedis.getRedisURI(), reader, new PassThroughItemProcessor<>(), writer);
+        return transfers("Replicating from " + toString(getRedisConnectionOptions().getRedisURI()) + " to " + toString(targetRedis.getRedisURI()), reader, new PassThroughItemProcessor<>(), writer);
     }
 
     @Override

@@ -1,1 +1,1 @@
-❯ riot-file -r redis://localhost:6379 export /tmp/riot-keyvalues.json
+❯ riot-file -u redis://localhost:6379 export /tmp/riot-keyvalues.json
