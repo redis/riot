@@ -1,1 +1,1 @@
-❯ riot-file -u redis://localhost:6379 import https://raw.githubusercontent.com/Redislabs-Solution-Architects/riot/master/connectors/file/src/test/resources/xml/trades.xml --keyspace trade --keys id
+❯ riot-file -u redis://localhost:6379 import https://raw.githubusercontent.com/Redislabs-Solution-Architects/riot/master/riot-connectors/riot-file/src/test/resources/xml/trades.xml --keyspace trade --keys id
