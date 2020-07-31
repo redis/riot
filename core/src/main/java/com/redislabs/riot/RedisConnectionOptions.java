@@ -17,13 +17,13 @@ import java.time.Duration;
 
 public class RedisConnectionOptions {
 
-    @CommandLine.Option(names = {"-h", "--host"}, description = "Server hostname (default: ${DEFAULT-VALUE})", paramLabel = "<host>")
+    @CommandLine.Option(names = {"-h", "--hostname"}, description = "Server hostname (default: ${DEFAULT-VALUE})", paramLabel = "<host>")
     private String host = "127.0.0.1";
-    @CommandLine.Option(names = {"-p", "--port"}, description = "Server port (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
+    @CommandLine.Option(names = {"-p", "--port"}, description = "Server port (default: ${DEFAULT-VALUE})", paramLabel = "<port>")
     private int port = 6379;
     @CommandLine.Option(names = {"-s", "--socket"}, description = "Server socket (overrides hostname and port)", paramLabel = "<socket>")
     private String socket;
-    @CommandLine.Option(names = {"-a", "--pass"}, arity = "0..1", interactive = true, description = "Password to use when connecting to the server", paramLabel = "<pwd>")
+    @CommandLine.Option(names = {"-a", "--pass"}, arity = "0..1", interactive = true, description = "Password to use when connecting to the server", paramLabel = "<password>")
     private String password;
     @CommandLine.Option(names = {"-u", "--uri"}, description = "Server URI", paramLabel = "<uri>")
     private RedisURI redisURI;

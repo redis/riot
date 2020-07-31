@@ -77,20 +77,17 @@ Run the following command to install completion:
 
 == Connecting
 
-For connections to Redis RIOT follows the same convention as `redis-cli`:
-[source,shell]
+Redis connection options are the same as `redis-cli`:
+[source]
 ----
-Redis connection options
-  -h, --host=<host>       Server hostname (default: 127.0.0.1)
-  -p, --port=<int>        Server port (default: 6379)
-  -s, --socket=<socket>   Server socket (overrides hostname and port)
-  -a, --pass[=<pwd>]      Password to use when connecting to the server
-  -u, --uri=<uri>         Server URI
-  -n, --db=<int>          Database number
-  -c, --cluster           Enable cluster mode
-  -t, --tls               Establish a secure TLS connection
-  -l, --latency           Show latency metrics
-  -m, --pool=<int>        Max pool connections (default: 8)
+  -h, --hostname=<host>     Server hostname (default: 127.0.0.1)
+  -p, --port=<port>         Server port (default: 6379)
+  -s, --socket=<socket>     Server socket (overrides hostname and port)
+  -a, --pass[=<password>]   Password to use when connecting to the server
+  -u, --uri=<uri>           Server URI
+  -n, --db=<int>            Database number
+  -c, --cluster             Enable cluster mode
+  -t, --tls                 Establish a secure TLS connection
 ----
 
 The Redis URI syntax is described https://github.com/lettuce-io/lettuce-core/wiki/Redis-URI-and-connection-details#uri-syntax[here].
