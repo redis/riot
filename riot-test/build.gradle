@@ -13,7 +13,7 @@ jar {
 dependencies {
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
-    implementation project(':core')
+    implementation project(':riot-core')
     implementation 'org.slf4j:slf4j-jdk14'
     implementation 'org.codehaus.plexus:plexus-utils:3.3.0'
     implementation 'org.junit.jupiter:junit-jupiter-api'

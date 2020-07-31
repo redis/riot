@@ -2,4 +2,4 @@
 
 ./gradlew -q --console plain installDist
 
-./connectors/db/build/install/riot-db/bin/riot-db "$@"
+./riot-connectors/riot-db/build/install/riot-db/bin/riot-db "$@"

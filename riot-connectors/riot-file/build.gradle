@@ -17,7 +17,7 @@ ext {
 }
 
 dependencies {
-    implementation project(':core')
+    implementation project(':riot-core')
     annotationProcessor 'info.picocli:picocli-codegen:4.4.0'
     implementation 'org.slf4j:slf4j-jdk14'
     compileOnly 'org.projectlombok:lombok'
@@ -29,7 +29,7 @@ dependencies {
     implementation 'org.ruaux:spring-batch-xml:1.0.1'
     implementation 'org.springframework:spring-oxm'
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
-    testImplementation project(':test')
+    testImplementation project(':riot-test')
     testImplementation 'org.ruaux:spring-batch-faker:1.0.1'
 }
 

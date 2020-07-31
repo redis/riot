@@ -2,4 +2,4 @@
 
 ./gradlew -q --console plain installDist
 
-./connectors/redis/build/install/riot-redis/bin/riot-redis "$@"
+./riot-connectors/riot-redis/build/install/riot-redis/bin/riot-redis "$@"

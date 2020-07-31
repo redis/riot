@@ -2,7 +2,7 @@ plugins {
     id 'application'
 }
 
-archivesBaseName = 'riot-kafka'
+archivesBaseName = 'riot-gen'
 
 bootJar {
     enabled = false
@@ -17,16 +17,20 @@ test {
 }
 
 dependencies {
-    implementation project(':core')
+    implementation project(':riot-core')
     annotationProcessor 'info.picocli:picocli-codegen:4.4.0'
     implementation 'org.slf4j:slf4j-jdk14'
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
-    implementation 'org.springframework.kafka:spring-kafka'
-    testImplementation project(':test')
+    implementation 'org.ruaux:spring-batch-faker:1.0.1'
+    testImplementation project(':riot-test')
+}
+
+configurations {
+    all*.exclude module: 'spring-boot-starter-logging'
 }
 
 application {
-    mainClassName = 'com.redislabs.riot.kafka.RiotKafka'
-    applicationName = 'riot-kafka'
+    mainClassName = 'com.redislabs.riot.gen.RiotGen'
+    applicationName = 'riot-gen'
 }

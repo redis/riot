@@ -2,7 +2,7 @@ plugins {
     id 'application'
 }
 
-archivesBaseName = 'riot-gen'
+archivesBaseName = 'riot-redis'
 
 bootJar {
     enabled = false
@@ -17,13 +17,13 @@ test {
 }
 
 dependencies {
-    implementation project(':core')
+    implementation project(':riot-core')
     annotationProcessor 'info.picocli:picocli-codegen:4.4.0'
     implementation 'org.slf4j:slf4j-jdk14'
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
-    implementation 'org.ruaux:spring-batch-faker:1.0.1'
-    testImplementation project(':test')
+    implementation 'org.latencyutils:LatencyUtils:2.0.3'
+    testImplementation project(':riot-test')
 }
 
 configurations {
@@ -31,6 +31,6 @@ configurations {
 }
 
 application {
-    mainClassName = 'com.redislabs.riot.gen.RiotGen'
-    applicationName = 'riot-gen'
+    mainClassName = 'com.redislabs.riot.redis.RiotRedis'
+    applicationName = 'riot-redis'
 }

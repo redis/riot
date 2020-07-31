@@ -18,12 +18,13 @@ public interface KeyMaker<T> extends Converter<T, String> {
     }
 
     @Accessors(fluent = true)
-    class KeyConverterBuilder<T> {
+    @SuppressWarnings("unchecked")
+    public static class KeyConverterBuilder<T> {
         @Setter
         private String separator = DEFAULT_SEPARATOR;
         @Setter
         private String prefix = EMPTY_STRING;
-        private Converter<T, String>[] keyExtractors = new Converter[0];
+		private Converter<T, String>[] keyExtractors = new Converter[0];
 
         public KeyConverterBuilder<T> extractors(Converter<T, String>... keyExtractors) {
             this.keyExtractors = keyExtractors;
@@ -51,7 +52,7 @@ public interface KeyMaker<T> extends Converter<T, String> {
     }
 
     @Builder
-    class NoKeyMaker<T> implements KeyMaker<T> {
+    public static class NoKeyMaker<T> implements KeyMaker<T> {
 
         @NonNull
         private final String prefix;
@@ -64,7 +65,7 @@ public interface KeyMaker<T> extends Converter<T, String> {
 
 
     @Builder
-    class SingleKeyMaker<T> implements KeyMaker<T> {
+    public static class SingleKeyMaker<T> implements KeyMaker<T> {
 
         @NonNull
         private final String prefix;
@@ -78,7 +79,7 @@ public interface KeyMaker<T> extends Converter<T, String> {
     }
 
     @Builder
-    class MultiKeyMaker<T> implements KeyMaker<T> {
+    public static class MultiKeyMaker<T> implements KeyMaker<T> {
 
         @NonNull
         private final String prefix;
