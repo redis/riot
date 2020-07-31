@@ -44,7 +44,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-        asset_path: ./connectors/db/build/distributions/riot-db-${{ steps.get_version.outputs.version }}.zip
+        asset_path: ./riot-connectors/riot-db/build/distributions/riot-db-${{ steps.get_version.outputs.version }}.zip
         asset_name: riot-db-${{ steps.get_version.outputs.version }}.zip
         asset_content_type: application/zip
     - name: Upload RIOT File
@@ -54,7 +54,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-        asset_path: ./connectors/file/build/distributions/riot-file-${{ steps.get_version.outputs.version }}.zip
+        asset_path: ./riot-connectors/riot-file/build/distributions/riot-file-${{ steps.get_version.outputs.version }}.zip
         asset_name: riot-file-${{ steps.get_version.outputs.version }}.zip
         asset_content_type: application/zip
     - name: Upload RIOT Gen
@@ -64,7 +64,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-        asset_path: ./connectors/gen/build/distributions/riot-gen-${{ steps.get_version.outputs.version }}.zip
+        asset_path: ./riot-connectors/riot-gen/build/distributions/riot-gen-${{ steps.get_version.outputs.version }}.zip
         asset_name: riot-gen-${{ steps.get_version.outputs.version }}.zip
         asset_content_type: application/zip
     - name: Upload RIOT Redis
@@ -74,6 +74,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-        asset_path: ./connectors/redis/build/distributions/riot-redis-${{ steps.get_version.outputs.version }}.zip
+        asset_path: ./riot-connectors/riot-redis/build/distributions/riot-redis-${{ steps.get_version.outputs.version }}.zip
         asset_name: riot-redis-${{ steps.get_version.outputs.version }}.zip
         asset_content_type: application/zip
