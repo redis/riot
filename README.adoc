@@ -77,44 +77,23 @@ Run the following command to install completion:
 
 == Connecting
 
-RIOT uses Lettuce as it Redis client and follows the Redis URI syntax described https://github.com/lettuce-io/lettuce-core/wiki/Redis-URI-and-connection-details#uri-syntax[here].
+For connections to Redis RIOT follows the same convention as `redis-cli`:
+[source,shell]
+----
+Redis connection options
+  -h, --host=<host>       Server hostname (default: 127.0.0.1)
+  -p, --port=<int>        Server port (default: 6379)
+  -s, --socket=<socket>   Server socket (overrides hostname and port)
+  -a, --pass[=<pwd>]      Password to use when connecting to the server
+  -u, --uri=<uri>         Server URI
+  -n, --db=<int>          Database number
+  -c, --cluster           Enable cluster mode
+  -t, --tls               Establish a secure TLS connection
+  -l, --latency           Show latency metrics
+  -m, --pool=<int>        Max pool connections (default: 8)
+----
 
-The Redis URI supports Redis Standalone, Redis Sentinel and Redis Cluster with plain, SSL, TLS and unix domain socket connections:
-
-* Standalone: `redis :// [password@] host [: port] [/ database][? [timeout=timeout[d|h|m|s|ms|us|ns]] [&_database=database_]]`
-
-* Standalone (SSL): `rediss :// [password@] host [: port] [/ database][? [timeout=timeout[d|h|m|s|ms|us|ns]] [&_database=database_]]`
-
-* Standalone (Unix Domain Sockets): `redis-socket :// [password@]path [?[timeout=timeout[d|h|m|s|ms|us|ns]][&_database=database_]]`
-
-* Sentinel: `redis-sentinel :// [password@] host1[: port1] [, host2[: port2]] [, hostN[: portN]] [/ database][?[timeout=timeout[d|h|m|s|ms|us|ns]] [&_sentinelMasterId=sentinelMasterId_] [&_database=database_]]`
-+
-NOTE: When using Redis Sentinel, the password from the URI applies to the data nodes only. Sentinel authentication must be configured for each sentinel node.
-
-* Redis Cluster
-+
-To use the Redis Cluster API specifiy the `--cluster` option in addition to the URI:
-+
-`riot-file -r redis://redis-12000.redislabs.com:12000 --cluster ...`
-
-=== Schemes
-
-* `redis` -> Redis Standalone
-* `rediss` -> Redis Standalone SSL
-* `redis-socket` -> Redis Standalone Unix Domain Socket
-* `redis-sentinel` -> Redis Sentinel
-
-=== Timeout units
-
-* `d` -> Days
-* `h` -> Hours
-* `m` -> Minutes
-* `s` -> Seconds
-* `ms` -> Milliseconds
-* `us` -> Microseconds
-* `ns` -> Nanoseconds
-
-TIP: The database parameter within the query part has higher precedence than the database in the path.
+The Redis URI syntax is described https://github.com/lettuce-io/lettuce-core/wiki/Redis-URI-and-connection-details#uri-syntax[here].
 
 == Architecture
 
