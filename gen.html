@@ -441,7 +441,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="header">
 <h1>RIOT Gen</h1>
 <div class="details">
-<span id="revnumber">version 2.0.8</span>
+<span id="revnumber">version 2.0.9</span>
 </div>
 </div>
 <div id="content">
@@ -457,19 +457,19 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="listingblock">
 <div class="title">Generate hashes</div>
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">❯ riot-gen -r redis://localhost:6379 import id=#index firstName=name.firstName lastName=name.lastName address=address.fullAddress --max 100 --keyspace person --keys id</code></pre>
+<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">❯ riot-gen -u redis://localhost:6379 import id=#index firstName=name.firstName lastName=name.lastName address=address.fullAddress --max 100 --keyspace person --keys id</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="title">Generate sets</div>
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">❯ riot-gen -r redis://localhost:6379 import name=gameOfThrones.character --max 10000 --command sadd --members name --keyspace got:characters</code></pre>
+<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">❯ riot-gen -u redis://localhost:6379 import name=gameOfThrones.character --max 10000 --command sadd --members name --keyspace got:characters</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="title">Introspect RediSearch index</div>
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">❯ riot-gen -r redis://localhost:6379 import --faker-index beerIntrospection --max 100 --command ftadd --index beerIntrospection --keys id</code></pre>
+<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">❯ riot-gen -u redis://localhost:6379 import --faker-index beerIntrospection --max 100 --command ftadd --index beerIntrospection --keys id</code></pre>
 </div>
 </div>
 </div>
@@ -714,8 +714,8 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 2.0.8<br>
-Last updated 2020-07-01 15:22:02 -0700
+Version 2.0.9<br>
+Last updated 2020-08-17 10:36:12 -0700
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/styles/github.min.css">
