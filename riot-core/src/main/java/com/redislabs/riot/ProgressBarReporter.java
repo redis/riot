@@ -1,17 +1,16 @@
 package com.redislabs.riot;
 
-import lombok.Builder;
-import lombok.extern.slf4j.Slf4j;
-import me.tongfei.progressbar.ProgressBar;
-import me.tongfei.progressbar.ProgressBarBuilder;
-import org.springframework.util.Assert;
-
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-@Slf4j
+import org.springframework.util.Assert;
+
+import lombok.Builder;
+import me.tongfei.progressbar.ProgressBar;
+import me.tongfei.progressbar.ProgressBarBuilder;
+
 public class ProgressBarReporter {
 
     private final ProgressProvider progressProvider;

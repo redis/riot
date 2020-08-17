@@ -1,7 +1,9 @@
 package com.redislabs.riot.file;
 
-import com.redislabs.riot.AbstractExportCommand;
-import com.redislabs.riot.Transfer;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.file.FlatFileItemWriter;
@@ -13,12 +15,11 @@ import org.springframework.batch.item.xml.builder.StaxEventItemWriterBuilder;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.WritableResource;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
-import picocli.CommandLine;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import com.redislabs.riot.AbstractExportCommand;
+import com.redislabs.riot.Transfer;
+
+import picocli.CommandLine;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 @CommandLine.Command(name = "export", aliases = "e", description = "Export to a file")

@@ -16,7 +16,8 @@ public class ObjectMapToStringMapProcessor<K, V> implements ItemProcessor<Map<K,
         this.objectToStringConverter = objectToStringConverter;
     }
 
-    @Override
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+	@Override
     public Map<K, V> process(Map<K, Object> item) {
         item.replaceAll((k, v) -> objectToStringConverter.convert(item.get(k)));
         return (Map) item;

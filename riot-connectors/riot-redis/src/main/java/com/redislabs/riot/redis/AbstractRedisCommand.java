@@ -2,13 +2,12 @@ package com.redislabs.riot.redis;
 
 import com.redislabs.riot.HelpCommand;
 import com.redislabs.riot.RiotApp;
+
 import io.lettuce.core.api.StatefulConnection;
 import io.lettuce.core.api.sync.BaseRedisCommands;
-import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
-@Slf4j
 @Command
 public abstract class AbstractRedisCommand extends HelpCommand {
 

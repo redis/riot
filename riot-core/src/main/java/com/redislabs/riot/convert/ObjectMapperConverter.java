@@ -1,11 +1,10 @@
 package com.redislabs.riot.convert;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.convert.converter.Converter;
 
-@Slf4j
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectWriter;
+
 public class ObjectMapperConverter<T> implements Converter<T, String> {
 
     private final ObjectWriter writer;

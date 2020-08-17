@@ -11,7 +11,8 @@ import java.util.Map;
 
 public class TestKeyMaker {
 
-    @Test
+    @SuppressWarnings("unchecked")
+	@Test
     public void testSingleKeyConverter() {
         String prefix = "beer";
         String idField = "id";
@@ -25,7 +26,8 @@ public class TestKeyMaker {
         Assertions.assertEquals(prefix + KeyMaker.DEFAULT_SEPARATOR + id, key);
     }
 
-    @Test
+    @SuppressWarnings("unchecked")
+	@Test
     public void testMultiKeyConverter() {
         String prefix = "inventory";
         Converter<Map<String, String>, String> storeExtractor = FieldExtractor.builder().field("store").build();

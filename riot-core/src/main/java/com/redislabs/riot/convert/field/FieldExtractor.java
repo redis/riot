@@ -46,7 +46,8 @@ public abstract class FieldExtractor<K, V> implements Converter<Map<K, V>, V> {
             this.targetType = targetType;
         }
 
-        public Converter<Map<String, String>, T> build() {
+        @SuppressWarnings({ "unchecked", "rawtypes" })
+		public Converter<Map<String, String>, T> build() {
             if (field == null) {
                 if (defaultValue == null) {
                     return null;

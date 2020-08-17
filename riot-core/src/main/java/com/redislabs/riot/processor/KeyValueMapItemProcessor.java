@@ -49,7 +49,8 @@ public class KeyValueMapItemProcessor<K, V> implements ItemProcessor<KeyValue<K>
         return map;
     }
 
-    private Map<K, V> map(KeyValue<K> item) {
+    @SuppressWarnings("unchecked")
+	private Map<K, V> map(KeyValue<K> item) {
         switch (item.getType()) {
             case HASH:
                 return hashConverter.convert((Map<K, V>) item.getValue());

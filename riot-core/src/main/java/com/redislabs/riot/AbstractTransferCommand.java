@@ -135,21 +135,6 @@ public abstract class AbstractTransferCommand<I, O> extends HelpCommand implemen
         }
     }
 
-    private class MultiTransferProgressProvider implements ProgressProvider {
-
-        private final List<Transfer<I, O>> transfers;
-
-        public MultiTransferProgressProvider(List<Transfer<I, O>> transfers) {
-            this.transfers = transfers;
-        }
-
-        @Override
-        public long getWriteCount() {
-            return transfers.stream().map(Transfer::getWriteCount).mapToLong(Long::longValue).sum();
-        }
-    }
-
-
     protected String toString(RedisURI redisURI) {
         if (redisURI.getSocket() != null) {
             return redisURI.getSocket();

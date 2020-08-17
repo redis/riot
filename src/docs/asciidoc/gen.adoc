@@ -8,7 +8,7 @@
 :project-repo: Redislabs-Solution-Architects/riot
 :repo-url: https://github.com/{project-repo}
 :path: ../../..
-:resources: {path}/connectors/gen/src/test/resources
+:resources: {path}/riot-connectors/riot-gen/src/test/resources
 
 == Overview
 

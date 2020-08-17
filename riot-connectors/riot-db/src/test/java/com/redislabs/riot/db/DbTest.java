@@ -18,7 +18,8 @@ public class DbTest extends BaseTest {
         return "riot-db";
     }
 
-    protected DataSource dataSource(JdbcDatabaseContainer container) {
+    @SuppressWarnings("rawtypes")
+	protected DataSource dataSource(JdbcDatabaseContainer container) {
         DataSourceProperties properties = new DataSourceProperties();
         properties.setUrl(container.getJdbcUrl());
         properties.setUsername(container.getUsername());

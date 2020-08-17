@@ -1,17 +1,18 @@
 package com.redislabs.riot.db;
 
-import com.redislabs.riot.AbstractImportCommand;
-import com.redislabs.riot.Transfer;
-import org.springframework.batch.item.ItemProcessor;
+import java.util.List;
+import java.util.Map;
+
+import javax.sql.DataSource;
+
 import org.springframework.batch.item.database.JdbcCursorItemReader;
 import org.springframework.batch.item.database.builder.JdbcCursorItemReaderBuilder;
 import org.springframework.jdbc.core.ColumnMapRowMapper;
-import picocli.CommandLine;
 
-import javax.sql.DataSource;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import com.redislabs.riot.AbstractImportCommand;
+import com.redislabs.riot.Transfer;
+
+import picocli.CommandLine;
 
 @CommandLine.Command(name = "import", aliases = {"i"}, description = "Import from a database")
 public class DatabaseImportCommand extends AbstractImportCommand<Map<String, Object>> {

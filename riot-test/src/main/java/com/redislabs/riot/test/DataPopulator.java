@@ -1,18 +1,17 @@
 package com.redislabs.riot.test;
 
-import io.lettuce.core.api.StatefulRedisConnection;
-import io.lettuce.core.api.sync.RedisCommands;
-import lombok.Builder;
-import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.batch.item.redis.support.DataType;
-
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Slf4j
+import org.springframework.batch.item.redis.support.DataType;
+
+import io.lettuce.core.api.StatefulRedisConnection;
+import io.lettuce.core.api.sync.RedisCommands;
+import lombok.Builder;
+import lombok.NonNull;
+
 @Builder
 public class DataPopulator implements Runnable {
 

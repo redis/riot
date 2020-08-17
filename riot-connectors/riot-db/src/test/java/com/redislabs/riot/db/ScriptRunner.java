@@ -52,7 +52,8 @@ public class ScriptRunner {
      * @throws SQLException if any SQL errors occur
      * @throws IOException  if there is an error reading from the Reader
      */
-    private void runScript(Connection conn, Reader reader) throws IOException, SQLException {
+    @SuppressWarnings("unused")
+	private void runScript(Connection conn, Reader reader) throws IOException, SQLException {
         StringBuffer command = null;
         LineNumberReader lineReader = new LineNumberReader(reader);
         String line;

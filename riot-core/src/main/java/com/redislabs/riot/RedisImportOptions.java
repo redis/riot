@@ -1,6 +1,5 @@
 package com.redislabs.riot;
 
-import com.redislabs.riot.convert.KeyMaker;
 import io.lettuce.core.ScriptOutputType;
 import lombok.Getter;
 import picocli.CommandLine;

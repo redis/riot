@@ -1,16 +1,5 @@
 package com.redis.riot.redis;
 
-import com.redislabs.lettusearch.RediSearchClient;
-import com.redislabs.lettusearch.StatefulRediSearchConnection;
-import com.redislabs.riot.Transfer;
-import com.redislabs.riot.redis.ReplicateCommand;
-import com.redislabs.riot.redis.RiotRedis;
-import com.redislabs.riot.test.BaseTest;
-import com.redislabs.riot.test.DataPopulator;
-import io.lettuce.core.RedisClient;
-import io.lettuce.core.RedisURI;
-import io.lettuce.core.api.StatefulRedisConnection;
-import io.lettuce.core.api.sync.RedisCommands;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,6 +11,18 @@ import org.springframework.batch.item.redis.support.LiveKeyItemReader;
 import org.springframework.batch.item.redis.support.RedisItemReader;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.junit.jupiter.Container;
+
+import com.redislabs.lettusearch.StatefulRediSearchConnection;
+import com.redislabs.riot.Transfer;
+import com.redislabs.riot.redis.ReplicateCommand;
+import com.redislabs.riot.redis.RiotRedis;
+import com.redislabs.riot.test.BaseTest;
+import com.redislabs.riot.test.DataPopulator;
+
+import io.lettuce.core.RedisClient;
+import io.lettuce.core.RedisURI;
+import io.lettuce.core.api.StatefulRedisConnection;
+import io.lettuce.core.api.sync.RedisCommands;
 import picocli.CommandLine;
 
 @SuppressWarnings({"rawtypes"})
@@ -76,7 +77,8 @@ public class TestReplicate extends BaseTest {
         return RedisURI.create(LOCALHOST, 6380);
     }
 
-    @Test
+    @SuppressWarnings("unchecked")
+	@Test
     public void replicateLive() throws Exception {
         StatefulRediSearchConnection<String, String> connection = connection();
         connection.sync().configSet("notify-keyspace-events", "AK");

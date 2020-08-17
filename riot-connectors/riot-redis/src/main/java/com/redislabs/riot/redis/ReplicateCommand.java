@@ -1,22 +1,20 @@
 package com.redislabs.riot.redis;
 
-import com.redislabs.riot.AbstractTransferCommand;
-import com.redislabs.riot.RedisConnectionOptions;
-import com.redislabs.riot.RedisExportOptions;
-import com.redislabs.riot.Transfer;
-import io.lettuce.core.RedisURI;
+import java.util.List;
+
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.redis.RedisKeyDumpItemReader;
 import org.springframework.batch.item.redis.RedisKeyDumpItemWriter;
 import org.springframework.batch.item.redis.support.KeyDump;
 import org.springframework.batch.item.support.PassThroughItemProcessor;
+
+import com.redislabs.riot.AbstractTransferCommand;
+import com.redislabs.riot.RedisConnectionOptions;
+import com.redislabs.riot.RedisExportOptions;
+import com.redislabs.riot.Transfer;
+
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Command(name = "replicate", aliases = {"r"}, description = "Replicate a source Redis database in a target Redis database")
 public class ReplicateCommand extends AbstractTransferCommand<KeyDump<String>, KeyDump<String>> {

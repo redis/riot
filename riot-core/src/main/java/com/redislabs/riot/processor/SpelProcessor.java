@@ -25,7 +25,6 @@ import java.util.function.Function;
 @Slf4j
 public class SpelProcessor implements ItemProcessor<Map<String, Object>, Map<String, Object>> {
 
-    private final StatefulConnection<String, String> connection;
     private final StandardEvaluationContext context;
     private final Map<String, Expression> expressions = new LinkedHashMap<>();
     private final AtomicLong index = new AtomicLong();
@@ -35,7 +34,6 @@ public class SpelProcessor implements ItemProcessor<Map<String, Object>, Map<Str
         Assert.notNull(commands, "A connection -> commands function is required.");
         Assert.notNull(dateFormat, "A DateFormat instance is required.");
         Assert.isTrue(fields != null && !fields.isEmpty(), "At least one field is required.");
-        this.connection = connection;
         this.context = new StandardEvaluationContext();
         context.setVariable("date", dateFormat);
         context.setVariable("index", index);

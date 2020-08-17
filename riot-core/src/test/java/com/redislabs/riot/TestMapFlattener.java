@@ -8,9 +8,10 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public class TestMapFlattener {
 
-    @Test
+	@Test
     public void testNestedKeys() {
         Map<String, Object> map = map("1", map("1", "1.1", "2", "1.2"), "2", map("1", "2.1", "2", "2.2"));
         Map<String, String> expected = new HashMap<>();
@@ -53,12 +54,6 @@ public class TestMapFlattener {
         expected.putAll((Map) map("1[0]", "1.1", "1[1]", "1.2"));
         expected.putAll((Map) map("2.1", "2.1", "2.2", "2.2"));
         Assertions.assertEquals(expected, MapFlattener.builder().build().process(map));
-    }
-
-    private Map<String, Object> map(String field, Object value) {
-        Map<String, Object> map = new HashMap<>();
-        map.put(field, value);
-        return map;
     }
 
     private Map<String, Object> map(String field1, Object value1, String field2, Object value2) {

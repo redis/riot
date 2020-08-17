@@ -1,18 +1,19 @@
 package com.redislabs.riot.db;
 
-import com.redislabs.riot.AbstractExportCommand;
-import com.redislabs.riot.Transfer;
-import org.springframework.batch.item.ItemProcessor;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Map;
+
+import javax.sql.DataSource;
+
 import org.springframework.batch.item.database.JdbcBatchItemWriter;
 import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilder;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import picocli.CommandLine;
 
-import javax.sql.DataSource;
-import java.sql.SQLException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import com.redislabs.riot.AbstractExportCommand;
+import com.redislabs.riot.Transfer;
+
+import picocli.CommandLine;
 
 @CommandLine.Command(name = "export", aliases = "e", description = "Export to a database")
 public class DatabaseExportCommand extends AbstractExportCommand<Map<String, Object>> {

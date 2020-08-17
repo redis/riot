@@ -29,7 +29,8 @@ public abstract class BaseTest {
     @Container
     private static final GenericContainer redis = redisContainer();
 
-    protected static GenericContainer redisContainer() {
+    @SuppressWarnings("resource")
+	protected static GenericContainer redisContainer() {
         return new GenericContainer(DOCKER_IMAGE_NAME).withExposedPorts(REDIS_PORT);
     }
 

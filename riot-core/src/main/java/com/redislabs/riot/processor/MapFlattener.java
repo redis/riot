@@ -32,7 +32,8 @@ public class MapFlattener<K, V> implements ItemProcessor<Map<K, Object>, Map<K, 
         return flatMap;
     }
 
-    private void process(Map<K, V> stringMap, K key, Object value) {
+    @SuppressWarnings("unchecked")
+	private void process(Map<K, V> stringMap, K key, Object value) {
         if (value instanceof Map) {
             Map<K, Object> map = (Map<K, Object>) value;
             for (Map.Entry<K, Object> entry : map.entrySet()) {
@@ -66,7 +67,8 @@ public class MapFlattener<K, V> implements ItemProcessor<Map<K, Object>, Map<K, 
         private String nestedKeySeparator = DEFAULT_NESTED_KEY_SEPARATOR;
         private String indexedKeyFormat = DEFAULT_INDEXED_KEY_FORMAT;
 
-        public MapFlattener<String, String> build() {
+        @SuppressWarnings({ "rawtypes", "unchecked" })
+		public MapFlattener<String, String> build() {
             return new MapFlattener((k1, k2) -> k1 + nestedKeySeparator + k2, (k, i) -> String.format(indexedKeyFormat, k, i), new ConversionServiceConverter<>(String.class));
         }
 

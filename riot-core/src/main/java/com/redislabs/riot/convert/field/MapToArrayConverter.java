@@ -16,7 +16,8 @@ public class MapToArrayConverter<K, V> implements Converter<Map<K, V>, V[]> {
         this.arraySupplier = arraySupplier;
     }
 
-    @Builder
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+	@Builder
     private static MapToArrayConverter<String, String> stringBuilder(String... fields) {
         Converter[] extractors = new Converter[fields.length];
         for (int index = 0; index < fields.length; index++) {
