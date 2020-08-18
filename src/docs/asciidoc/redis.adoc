@@ -16,12 +16,16 @@ Most of the database migration tools available today are offline in nature. Migr
 
 *riot-redis* is a migration tool that allows for replicating data between two Redis databases. It implements client-side replication using a producer/consumer approach:
 
+* the producer is connected to the source Redis (e.g. ElastiCache) and iterates over keys to read their corresponding values
+* the consumer is connected to the target Redis (e.g. Redis Enterprise Cloud) and writes the key/value tuples previously created 
+
 image::images/replication.png[]
 
-* The producer is connected to the source Redis (e.g. ElastiCache) and is composed of
-** key reader: calls `SCAN` and optionally `SUBSCRIBE` to listen for keyspace notifications (*live* replication)
-** value reader: takes keys from the key reader and calls `DUMP` and `TTL`
-* The resulting key/value/ttl tuples are passed to the consumer connected to the target Redis (e.g. Redis Enterprise Cloud) which calls `RESTORE` and `EXPIRE`.
+<1> Key reader: initiates a `SCAN` and optionally calls `SUBSCRIBE` to listen for keyspace notifications (live replication).
+
+<2> Value reader: takes the keys and calls `DUMP` and `TTL`.
+
+<3> Key/Value writer: takes key/value/ttl tuples and calls `RESTORE` and `EXPIRE`.
 
 TIP: Live replication makes use of keyspace notifications. Make sure the source Redis database has keyspace notifications enabled using `notify-keyspace-events = KA` in `redis.conf` or via CONFIG SET.
 
