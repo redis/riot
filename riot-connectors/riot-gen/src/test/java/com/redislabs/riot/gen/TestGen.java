@@ -30,7 +30,7 @@ public class TestGen extends BaseTest {
 
 	@Test
 	public void genFakerHash() throws Exception {
-		runFile("/import-hash.txt");
+		executeFile("/import-hash.txt");
 		List<String> keys = commands().keys("person:*");
 		Assertions.assertEquals(100, keys.size());
 		Map<String, String> person = commands().hgetall(keys.get(0));
@@ -40,7 +40,7 @@ public class TestGen extends BaseTest {
 	}
 
 	public void genFakerScriptProcessorHash() throws Exception {
-		runFile("/script-processor.txt");
+		executeFile("/script-processor.txt");
 		List<String> keys = commands().keys("person:*");
 		Assertions.assertEquals(100, keys.size());
 		Map<String, String> person = commands().hgetall(keys.get(0));
@@ -52,7 +52,7 @@ public class TestGen extends BaseTest {
 
 	@Test
 	public void genFakerSet() throws Exception {
-		runFile("/import-set.txt");
+		executeFile("/import-set.txt");
 		Set<String> names = commands().smembers("got:characters");
 		Assertions.assertTrue(names.size() > 10);
 		Assertions.assertTrue(names.contains("Lysa Meadows"));
@@ -60,7 +60,7 @@ public class TestGen extends BaseTest {
 
 	@Test
 	public void genFakerZset() throws Exception {
-		runFile("/import-zset.txt");
+		executeFile("/import-zset.txt");
 		List<String> keys = commands().keys("leases:*");
 		Assertions.assertTrue(keys.size() > 100);
 		String key = keys.get(0);
@@ -69,7 +69,7 @@ public class TestGen extends BaseTest {
 
 	@Test
 	public void genFakerStream() throws Exception {
-		runFile("/import-stream.txt");
+		executeFile("/import-stream.txt");
 		List<StreamMessage<String, String>> messages = commands().xrange("teststream:1", Range.unbounded());
 		Assertions.assertTrue(messages.size() > 0);
 	}
@@ -89,7 +89,7 @@ public class TestGen extends BaseTest {
 				.field(NumericField.builder().name(FIELD_ABV).sortable(true).build())
 				.field(NumericField.builder().name(FIELD_OUNCES).sortable(true).build()).build();
 		commands().create(INDEX, schema, null);
-		runFile("/index-introspection.txt");
+		executeFile("/index-introspection.txt");
 		SearchResults<String, String> results = commands().search(INDEX, "*");
 		Assertions.assertEquals(100, results.getCount());
 	}

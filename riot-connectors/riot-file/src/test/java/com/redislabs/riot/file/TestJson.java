@@ -24,8 +24,8 @@ public class TestJson extends AbstractFileTest {
     public void exportSearch() throws Exception {
         Path file = tempFile("beers.json");
         TestCsv.createBeerIndex(connection());
-        runFile("/csv/import-search.txt");
-        runFile("/json/export-search.txt");
+        executeFile("/csv/import-search.txt");
+        executeFile("/json/export-search.txt");
         JsonItemReaderBuilder<WritableDocument> builder = new JsonItemReaderBuilder<>();
         builder.name("search-json-file-reader");
         builder.resource(new FileSystemResource(file));
@@ -43,7 +43,7 @@ public class TestJson extends AbstractFileTest {
     public void exportKeyValues() throws Exception {
         Path file = tempFile("riot-keyvalues.json");
         DataPopulator.builder().connection(connection()).build().run();
-        runFile("/json/export-keyvalues.txt");
+        executeFile("/json/export-keyvalues.txt");
         JsonItemReaderBuilder<KeyValue> builder = new JsonItemReaderBuilder<>();
         builder.name("json-keyvalues-file-reader");
         builder.resource(new FileSystemResource(file));
@@ -59,8 +59,8 @@ public class TestJson extends AbstractFileTest {
     @Test
     public void exportGzip() throws Exception {
         Path file = tempFile("beers.json.gz");
-        runFile("/json/import-hash.txt");
-        runFile("/json/export-gzip.txt");
+        executeFile("/json/import-hash.txt");
+        executeFile("/json/export-gzip.txt");
         JsonItemReaderBuilder<Map> builder = new JsonItemReaderBuilder<>();
         builder.name("json-file-reader");
         FileSystemResource resource = new FileSystemResource(file);
@@ -75,7 +75,7 @@ public class TestJson extends AbstractFileTest {
 
     @Test
     public void importElastic() throws Exception {
-        runFile("/json/import-elastic.txt");
+        executeFile("/json/import-elastic.txt");
         Assertions.assertEquals(2, commands().keys("estest:*").size());
         Map<String, String> doc1 = commands().hgetall("estest:doc1");
         Assertions.assertEquals("ruan", doc1.get("_source.name"));
@@ -84,7 +84,7 @@ public class TestJson extends AbstractFileTest {
 
     @Test
     public void importHash() throws Exception {
-        runFile("/json/import-hash.txt");
+        executeFile("/json/import-hash.txt");
         List<String> keys = commands().keys("beer:*");
         Assertions.assertEquals(4432, keys.size());
         Map<String, String> beer1 = commands().hgetall("beer:1");

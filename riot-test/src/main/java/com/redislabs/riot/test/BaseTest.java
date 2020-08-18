@@ -1,9 +1,8 @@
 package com.redislabs.riot.test;
 
-import com.redislabs.lettusearch.RediSearchClient;
-import com.redislabs.lettusearch.RediSearchCommands;
-import com.redislabs.lettusearch.StatefulRediSearchConnection;
-import io.lettuce.core.RedisURI;
+import java.io.InputStream;
+import java.nio.charset.Charset;
+
 import org.apache.commons.io.IOUtils;
 import org.codehaus.plexus.util.cli.CommandLineUtils;
 import org.junit.jupiter.api.AfterEach;
@@ -12,8 +11,11 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import java.io.InputStream;
-import java.nio.charset.Charset;
+import com.redislabs.lettusearch.RediSearchClient;
+import com.redislabs.lettusearch.RediSearchCommands;
+import com.redislabs.lettusearch.StatefulRediSearchConnection;
+
+import io.lettuce.core.RedisURI;
 
 @Testcontainers
 @SuppressWarnings("rawtypes")
@@ -55,25 +57,27 @@ public abstract class BaseTest {
 		}
 	}
 
-	protected String[] fileCommandArgs(String filename) throws Exception {
+	protected String process(String command) {
+		return connectionArgs(redis) + removeConnectionArgs(command);
+	}
+
+	private String removeConnectionArgs(String command) {
+		return command.replace("-h localhost -p 6379", "");
+	}
+
+	protected String connectionArgs(GenericContainer redis) {
+		return "-h " + redis.getHost() + " -p " + redis.getFirstMappedPort();
+	}
+
+	protected int executeFile(String filename) throws Exception {
+		return execute(args(filename));
+	}
+
+	protected String[] args(String filename) throws Exception {
 		try (InputStream inputStream = getClass().getResourceAsStream(filename)) {
 			String command = IOUtils.toString(inputStream, Charset.defaultCharset());
-			command = removePreamble(command);
-			command = command.replace("redis://localhost:6379", redisURI(redis).toURI().toString());
-			command = command.replace("--host localhost", "--host " + redis.getHost());
-			command = command.replace("-h localhost", "-h " + redis.getHost());
-			command = command.replace("--port 6379", "--port " + redis.getFirstMappedPort());
-			command = command.replace("-p 6379", "--port " + redis.getFirstMappedPort());
-			return CommandLineUtils.translateCommandline(filter(command));
+			return CommandLineUtils.translateCommandline(process(removePreamble(command)));
 		}
-	}
-
-	protected String filter(String command) {
-		return command;
-	}
-
-	protected void runFile(String filename) throws Exception {
-		execute(fileCommandArgs(filename));
 	}
 
 	protected RedisURI redisURI(GenericContainer redis) {

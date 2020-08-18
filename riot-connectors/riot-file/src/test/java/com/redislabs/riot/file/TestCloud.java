@@ -11,7 +11,7 @@ public class TestCloud extends AbstractFileTest {
 
     @Test
     public void importGcs() throws Exception {
-        runFile("/cloud/import-gcs.txt");
+        executeFile("/cloud/import-gcs.txt");
         List<String> keys = commands().keys("beer:*");
         Assertions.assertEquals(4432, keys.size());
         Map<String, String> beer1 = commands().hgetall("beer:1");
@@ -20,7 +20,7 @@ public class TestCloud extends AbstractFileTest {
 
     @Test
     public void importS3() throws Exception {
-        runFile("/cloud/import-s3.txt");
+        executeFile("/cloud/import-s3.txt");
         List<String> keys = commands().keys("beer:*");
         Assertions.assertEquals(4432, keys.size());
         Map<String, String> beer1 = commands().hgetall("beer:1");

@@ -34,7 +34,7 @@ public class TestPostgreSQL extends DbTest {
         statement.execute("CREATE TABLE mytable (id smallint NOT NULL, field1 bpchar, field2 bpchar)");
         statement.execute("ALTER TABLE ONLY mytable ADD CONSTRAINT pk_mytable PRIMARY KEY (id)");
         DataPopulator.builder().connection(connection()).dataTypes(Collections.singletonList(DataType.HASH)).build().run();
-        runFile("/postgresql/export.txt");
+        executeFile("/postgresql/export.txt");
         statement.execute("SELECT COUNT(*) AS count FROM mytable");
         ResultSet countResultSet = statement.getResultSet();
         countResultSet.next();
@@ -55,7 +55,7 @@ public class TestPostgreSQL extends DbTest {
         ScriptRunner scriptRunner = ScriptRunner.builder().connection(connection).autoCommit(false).stopOnError(true).build();
         InputStream inputStream = getClass().getClassLoader().getResourceAsStream("postgresql/northwind.sql");
         scriptRunner.runScript(new InputStreamReader(inputStream));
-        runFile("/postgresql/import.txt");
+        executeFile("/postgresql/import.txt");
         Statement statement = connection.createStatement();
         statement.execute("SELECT COUNT(*) AS count FROM orders");
         List<String> keys = commands().keys("order:*");
@@ -69,7 +69,7 @@ public class TestPostgreSQL extends DbTest {
     }
 
     @Override
-    protected String filter(String command) {
-        return super.filter(command).replace("jdbc:postgresql://host:port/database", postgreSQL.getJdbcUrl()).replace("appuser", postgreSQL.getUsername()).replace("passwd", postgreSQL.getPassword());
+    protected String process(String command) {
+        return super.process(command).replace("jdbc:postgresql://host:port/database", postgreSQL.getJdbcUrl()).replace("appuser", postgreSQL.getUsername()).replace("passwd", postgreSQL.getPassword());
     }
 }

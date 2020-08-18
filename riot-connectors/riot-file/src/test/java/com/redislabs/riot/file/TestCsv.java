@@ -40,8 +40,8 @@ public class TestCsv extends AbstractFileTest {
     @Test
     public void export() throws Exception {
         Path file = tempFile("beers.csv");
-        runFile("/json/import-hash.txt");
-        runFile("/csv/export-hash.txt");
+        executeFile("/json/import-hash.txt");
+        executeFile("/csv/export-hash.txt");
         String[] header = Files.readAllLines(file).get(0).split("\\|");
         FlatFileItemReaderBuilder<Map<String, String>> builder = new FlatFileItemReaderBuilder<>();
         builder.name("flat-file-reader");
@@ -61,14 +61,14 @@ public class TestCsv extends AbstractFileTest {
 
     @Test
     public void importHash() throws Exception {
-        runFile("/csv/import-hash.txt");
+        executeFile("/csv/import-hash.txt");
         List<String> keys = commands().keys("beer:*");
         Assertions.assertEquals(COUNT, keys.size());
     }
 
     @Test
     public void importMultiHash() throws Exception {
-        runFile("/csv/import-multi-hash.txt");
+        executeFile("/csv/import-multi-hash.txt");
         List<String> keys = commands().keys("beer:*");
         Assertions.assertEquals(COUNT, keys.size());
     }
@@ -76,7 +76,7 @@ public class TestCsv extends AbstractFileTest {
     @Test
     public void importSearch() throws Exception {
         createBeerIndex(connection());
-        runFile("/csv/import-search.txt");
+        executeFile("/csv/import-search.txt");
         SearchResults<String, String> results = commands().search(INDEX, "*");
         Assertions.assertEquals(COUNT, results.getCount());
     }
@@ -87,14 +87,14 @@ public class TestCsv extends AbstractFileTest {
         commands().flushall();
         Schema schema = Schema.builder().field(TextField.builder().name("Name").sortable(true).build()).field(GeoField.builder().name("Location").sortable(true).build()).build();
         commands().create(INDEX, schema, null);
-        runFile("/csv/import-search-geo-processor.txt");
+        executeFile("/csv/import-search-geo-processor.txt");
         SearchResults<String, String> results = commands().search(INDEX, "@Location:[-77 38 50 mi]");
         Assertions.assertEquals(3, results.getCount());
     }
 
     @Test
     public void importGeo() throws Exception {
-        runFile("/csv/import-geo.txt");
+        executeFile("/csv/import-geo.txt");
         Set<String> results = commands().georadius("airportgeo", -122.4194, 37.7749, 20, GeoArgs.Unit.mi);
         Assertions.assertTrue(results.contains("3469"));
         Assertions.assertTrue(results.contains("10360"));
@@ -104,7 +104,7 @@ public class TestCsv extends AbstractFileTest {
 
     @Test
     public void importProcessorHashDateFormat() throws Exception {
-        runFile("/csv/import-hash-processor.txt");
+        executeFile("/csv/import-hash-processor.txt");
         List<String> keys = commands().keys("event:*");
         Assertions.assertEquals(568, keys.size());
         Map<String, String> event = commands().hgetall("event:248206");
@@ -119,7 +119,7 @@ public class TestCsv extends AbstractFileTest {
         String INDEX = "laevents";
         Schema schema = Schema.builder().field(TextField.builder().name("Title").build()).field(NumericField.builder().name("lon").build()).field(NumericField.builder().name("kat").build()).field(GeoField.builder().name("location").sortable(true).build()).build();
         commands().create(INDEX, schema, null);
-        runFile("/csv/import-search-processor.txt");
+        executeFile("/csv/import-search-processor.txt");
         SearchResults<String, String> results = commands().search(INDEX, "@location:[-118.446014 33.998415 10 mi]");
         Assertions.assertTrue(results.getCount() > 0);
         for (Document<String, String> result : results) {

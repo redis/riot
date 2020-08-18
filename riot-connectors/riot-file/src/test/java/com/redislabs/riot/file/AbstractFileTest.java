@@ -31,8 +31,8 @@ public class AbstractFileTest extends BaseTest {
     }
 
     @Override
-    protected String filter(String command) {
-        return super.filter(command).replace("/tmp", tempDir.toString());
+    protected String process(String command) {
+        return super.process(command).replace("/tmp", tempDir.toString());
     }
 
     @Override

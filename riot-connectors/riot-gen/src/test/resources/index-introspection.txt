@@ -1,1 +1,1 @@
-❯ riot-gen -u redis://localhost:6379 import --faker-index beerIntrospection --max 100 --command ftadd --index beerIntrospection --keys id
+❯ riot-gen import --faker-index beerIntrospection --max 100 --command ftadd --index beerIntrospection --keys id

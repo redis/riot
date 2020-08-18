@@ -1,1 +1,1 @@
-❯ riot-file -u redis://localhost:6379 import s3://riot-bucket-jrx/beers.json --s3-region us-west-1 --keyspace beer --keys id
+❯ riot-file import s3://riot-bucket-jrx/beers.json --s3-region us-west-1 --keyspace beer --keys id

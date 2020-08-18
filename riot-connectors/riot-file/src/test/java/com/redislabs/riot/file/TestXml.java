@@ -10,7 +10,7 @@ public class TestXml extends AbstractFileTest {
 
     @Test
     public void importHash() throws Exception {
-        runFile("/xml/import-hash.txt");
+        executeFile("/xml/import-hash.txt");
         List<String> keys = commands().keys("trade:*");
         Assertions.assertEquals(3, keys.size());
         Map<String, String> trade1 = commands().hgetall("trade:1");

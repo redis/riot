@@ -64,17 +64,14 @@ public class TestReplicate extends BaseTest {
         DataPopulator.builder().connection(connection()).build().run();
         Long sourceSize = commands().dbsize();
         Assertions.assertTrue(sourceSize > 0);
-        runFile("/replicate.txt");
+        executeFile("/replicate.txt");
         Assertions.assertEquals(sourceSize, targetClient.connect().sync().dbsize());
     }
 
     @Override
-    protected String filter(String command) {
-        return super.filter(command).replace(originalTargetRedisURI().toURI().toString(), redisURI(targetRedis).toURI().toString());
-    }
-
-    private RedisURI originalTargetRedisURI() {
-        return RedisURI.create(LOCALHOST, 6380);
+    protected String process(String command) {
+    	String processedCommand = command.replace("-h source -p 6379", "").replace("-h target -p 6380", connectionArgs(targetRedis));
+        return super.process(processedCommand);
     }
 
     @SuppressWarnings("unchecked")
@@ -86,7 +83,7 @@ public class TestReplicate extends BaseTest {
         StatefulRedisConnection<String, String> targetConnection = targetClient.connect();
         targetConnection.sync().flushall();
         DataPopulator.builder().connection(connection()).build().run();
-        String[] commandArgs = fileCommandArgs("/replicate-live.txt");
+        String[] commandArgs = args("/replicate-live.txt");
         RiotRedis riotRedis = new RiotRedis();
         CommandLine commandLine = riotRedis.commandLine();
         CommandLine.ParseResult parseResult = commandLine.parseArgs(commandArgs);
