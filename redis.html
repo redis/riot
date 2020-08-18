@@ -441,7 +441,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="header">
 <h1>RIOT Redis</h1>
 <div class="details">
-<span id="revnumber">version 2.1.0</span>
+<span id="revnumber">version 2.1.1</span>
 </div>
 </div>
 <div id="content">
@@ -449,7 +449,35 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="overview"><a class="anchor" href="#overview"></a>Overview</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><strong>riot-redis</strong> allows for replicating data between two Redis databases using scan and optionally keyspace notifications (<strong>live</strong> replication).</p>
+<p>Most of the database migration tools available today are offline in nature. Migrating data from AWS ElastiCache to Redis Enterprise Cloud for example means backing up your Elasticache data to an AWS S3 bucket and importing it into Redis Enterprise Cloud using its UI. This implies some downtime and might result in data loss. Other available techniques include creating point-in-time snapshots of the source Redis server &amp; applying the changes to the destination servers to keep both servers in sync. It might sound like a good approach but can be challenging when you have to maintain dozens of scripts to implement the migration strategy.</p>
+</div>
+<div class="paragraph">
+<p><strong>riot-redis</strong> is a migration tool that allows for replicating data between two Redis databases. It implements client-side replication using a producer/consumer approach:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/replication.png" alt="replication">
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>The producer is connected to the source Redis (e.g. ElastiCache) and is composed of</p>
+<div class="ulist">
+<ul>
+<li>
+<p>key reader: calls <code>SCAN</code> and optionally <code>SUBSCRIBE</code> to listen for keyspace notifications (<strong>live</strong> replication)</p>
+</li>
+<li>
+<p>value reader: takes keys from the key reader and calls <code>DUMP</code> and <code>TTL</code></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>The resulting key/value/ttl tuples are passed to the consumer connected to the target Redis (e.g. Redis Enterprise Cloud) which calls <code>RESTORE</code> and <code>EXPIRE</code>.</p>
+</li>
+</ul>
 </div>
 <div class="admonitionblock tip">
 <table>
@@ -471,7 +499,7 @@ Live replication makes use of keyspace notifications. Make sure the source Redis
 <div class="listingblock">
 <div class="title">Live replication from localhost:6379 to localhost:6380</div>
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">❯ riot-redis -u redis://localhost:6379 replicate -u redis://localhost:6380 --live</code></pre>
+<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">❯ riot-redis -h source -p 6379 replicate -h target -p 6380 --live</code></pre>
 </div>
 </div>
 </div>
@@ -479,8 +507,8 @@ Live replication makes use of keyspace notifications. Make sure the source Redis
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 2.1.0<br>
-Last updated 2020-08-17 10:36:20 -0700
+Version 2.1.1<br>
+Last updated 2020-08-17 23:11:54 -0700
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/styles/github.min.css">
