@@ -53,7 +53,7 @@ public abstract class AbstractImportCommand<I> extends AbstractTransferCommand<I
 	@CommandLine.Option(names = { "-k", "--keys" }, arity = "1..*", description = "Key fields", paramLabel = "<fields>")
 	private String[] keys = new String[0];
 	@CommandLine.ArgGroup(exclusive = false, heading = "Redis command options%n")
-	private final RedisImportOptions redis = new RedisImportOptions();
+	private final RedisImportOptions redisImportOptions = new RedisImportOptions();
 	@CommandLine.ArgGroup(exclusive = false, heading = "RediSearch command options%n")
 	private final RediSearchImportOptions redisearch = new RediSearchImportOptions();
 
@@ -68,7 +68,7 @@ public abstract class AbstractImportCommand<I> extends AbstractTransferCommand<I
 	}
 
 	private KeyMaker<Map<String, String>> memberIdMaker() {
-		return idMaker(redis.getMemberSpace(), redis.getMemberFields());
+		return idMaker(redisImportOptions.getMemberSpace(), redisImportOptions.getMemberFields());
 	}
 
 	private KeyMaker<Map<String, String>> idMaker(String prefix, String[] fields) {
@@ -125,21 +125,21 @@ public abstract class AbstractImportCommand<I> extends AbstractTransferCommand<I
 	public ItemWriter writer() {
 		switch (command) {
 		case EVALSHA:
-			return configure(
-					Eval.<Map<String, String>>builder().sha(redis.getEvalSha()).outputType(redis.getEvalOutputType())
-							.keysConverter(MapToArrayConverter.builder().fields(keys).build())
-							.argsConverter(MapToArrayConverter.builder().fields(redis.getEvalArgs()).build())).build();
-		case EXPIRE:
-			return configureKeyCommandWriterBuilder(
-					Expire.<Map<String, String>>builder().timeoutConverter(longFieldExtractor(redis.getTimeout())))
+			return configure(Eval.<Map<String, String>>builder().sha(redisImportOptions.getEvalSha())
+					.outputType(redisImportOptions.getEvalOutputType())
+					.keysConverter(MapToArrayConverter.builder().fields(keys).build())
+					.argsConverter(MapToArrayConverter.builder().fields(redisImportOptions.getEvalArgs()).build()))
 							.build();
+		case EXPIRE:
+			return configureKeyCommandWriterBuilder(Expire.<Map<String, String>>builder()
+					.timeoutConverter(longFieldExtractor(redisImportOptions.getTimeout()))).build();
 		case HMSET:
 			return configureKeyCommandWriterBuilder(
 					Hmset.<Map<String, String>>builder().mapConverter(new IdemConverter<>())).build();
 		case GEOADD:
 			return configureCollectionCommandWriterBuilder(Geoadd.<Map<String, String>>builder()
-					.longitudeConverter(doubleFieldExtractor(redis.getLongitudeField()))
-					.latitudeConverter(doubleFieldExtractor(redis.getLatitudeField()))).build();
+					.longitudeConverter(doubleFieldExtractor(redisImportOptions.getLongitudeField()))
+					.latitudeConverter(doubleFieldExtractor(redisImportOptions.getLatitudeField()))).build();
 		case LPUSH:
 			return configureCollectionCommandWriterBuilder(Lpush.builder()).build();
 		case RPUSH:
@@ -153,8 +153,9 @@ public abstract class AbstractImportCommand<I> extends AbstractTransferCommand<I
 			return configure(Noop.<Map<String, String>>builder()).build();
 		case XADD:
 			return configureKeyCommandWriterBuilder(Xadd.<Map<String, String>>builder()
-					.bodyConverter(new IdemConverter<>()).idConverter(fieldExtractor(redis.getIdField()))
-					.maxlen(redis.getMaxlen()).approximateTrimming(redis.isApproximateTrimming())).build();
+					.bodyConverter(new IdemConverter<>()).idConverter(fieldExtractor(redisImportOptions.getIdField()))
+					.maxlen(redisImportOptions.getMaxlen())
+					.approximateTrimming(redisImportOptions.isApproximateTrimming())).build();
 		case ZADD:
 			return configureCollectionCommandWriterBuilder(
 					Zadd.<Map<String, String>>builder().scoreConverter(scoreConverter())).build();
@@ -197,20 +198,20 @@ public abstract class AbstractImportCommand<I> extends AbstractTransferCommand<I
 	}
 
 	private Converter<Map<String, String>, Double> scoreConverter() {
-		return FieldExtractor.builder(Double.class).field(redis.getField()).defaultValue(redis.getDefaultValue())
-				.remove(removeFields).build();
+		return FieldExtractor.builder(Double.class).field(redisImportOptions.getField())
+				.defaultValue(redisImportOptions.getDefaultValue()).remove(removeFields).build();
 	}
 
 	private Converter<Map<String, String>, String> stringValueConverter() {
-		switch (redis.getFormat()) {
+		switch (redisImportOptions.getFormat()) {
 		case RAW:
-			return fieldExtractor(redis.getValueField());
+			return fieldExtractor(redisImportOptions.getValueField());
 		case XML:
-			return new ObjectMapperConverter<>(new XmlMapper().writer().withRootName(redis.getRoot()));
+			return new ObjectMapperConverter<>(new XmlMapper().writer().withRootName(redisImportOptions.getRoot()));
 		case JSON:
-			return new ObjectMapperConverter<>(new ObjectMapper().writer().withRootName(redis.getRoot()));
+			return new ObjectMapperConverter<>(new ObjectMapper().writer().withRootName(redisImportOptions.getRoot()));
 		}
-		throw new IllegalArgumentException("Unsupported String format: " + redis.getFormat());
+		throw new IllegalArgumentException("Unsupported String format: " + redisImportOptions.getFormat());
 	}
 
 }
