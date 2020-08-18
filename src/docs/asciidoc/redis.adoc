@@ -29,6 +29,8 @@ image::images/replication.png[]
 
 TIP: Live replication makes use of keyspace notifications. Make sure the source Redis database has keyspace notifications enabled using `notify-keyspace-events = KA` in `redis.conf` or via CONFIG SET.
 
+WARNING: The live replication mechanism does not guarantee data consistency. Redis sends keyspace notifications over pub/sub which does not provide	guaranteed delivery. It is possible that RIOT can miss some notifications in case of network failures for example.   
+
 == Examples
 
 .Live replication from localhost:6379 to localhost:6380
