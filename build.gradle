@@ -49,4 +49,5 @@ gitPublish {
     }
 }
 
+afterReleaseBuild.dependsOn gitPublishPush
 gitPublishPush.dependsOn asciidoctor
