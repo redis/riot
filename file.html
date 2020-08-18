@@ -441,7 +441,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="header">
 <h1>RIOT File</h1>
 <div class="details">
-<span id="revnumber">version 2.0.9</span>
+<span id="revnumber">version 2.1.1</span>
 </div>
 </div>
 <div id="content">
@@ -595,7 +595,7 @@ Use <code>-</code> to import/export from/to standard input/output.
 <div id="import-csv-geo" class="listingblock">
 <div class="title">Import CSV to a Geo set</div>
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">❯ riot-file -u redis://localhost:6379 import https://raw.githubusercontent.com/jpatokal/openflights/master/data/airports.dat --command geoadd --keyspace airportgeo --members AirportID --lon Longitude --lat Latitude --fields AirportID Name City Country IATA ICAO Latitude Longitude Altitude Timezone DST Tz Type Source</code></pre>
+<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">❯ riot-file -h localhost -p 6379 import https://raw.githubusercontent.com/jpatokal/openflights/master/data/airports.dat --command geoadd --keyspace airportgeo --members AirportID --lon Longitude --lat Latitude --fields AirportID Name City Country IATA ICAO Latitude Longitude Altitude Timezone DST Tz Type Source</code></pre>
 </div>
 </div>
 <div class="listingblock">
@@ -716,7 +716,7 @@ Use <code>-</code> to import/export from/to standard input/output.
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 2.0.9<br>
+Version 2.1.1<br>
 Last updated 2020-08-17 10:36:00 -0700
 </div>
 </div>
