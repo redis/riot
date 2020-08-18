@@ -454,30 +454,36 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="paragraph">
 <p><strong>riot-redis</strong> is a migration tool that allows for replicating data between two Redis databases. It implements client-side replication using a producer/consumer approach:</p>
 </div>
+<div class="ulist">
+<ul>
+<li>
+<p>the producer is connected to the source Redis (e.g. ElastiCache) and iterates over keys to read their corresponding values</p>
+</li>
+<li>
+<p>the consumer is connected to the target Redis (e.g. Redis Enterprise Cloud) and writes the key/value tuples previously created</p>
+</li>
+</ul>
+</div>
 <div class="imageblock">
 <div class="content">
 <img src="images/replication.png" alt="replication">
 </div>
 </div>
-<div class="ulist">
-<ul>
-<li>
-<p>The producer is connected to the source Redis (e.g. ElastiCache) and is composed of</p>
-<div class="ulist">
-<ul>
-<li>
-<p>key reader: calls <code>SCAN</code> and optionally <code>SUBSCRIBE</code> to listen for keyspace notifications (<strong>live</strong> replication)</p>
-</li>
-<li>
-<p>value reader: takes keys from the key reader and calls <code>DUMP</code> and <code>TTL</code></p>
-</li>
-</ul>
-</div>
-</li>
-<li>
-<p>The resulting key/value/ttl tuples are passed to the consumer connected to the target Redis (e.g. Redis Enterprise Cloud) which calls <code>RESTORE</code> and <code>EXPIRE</code>.</p>
-</li>
-</ul>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Key reader: initiates a <code>SCAN</code> and optionally calls <code>SUBSCRIBE</code> to listen for keyspace notifications (live replication).</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Value reader: takes the keys and calls <code>DUMP</code> and <code>TTL</code>.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>Key/Value writer: takes key/value/ttl tuples and calls <code>RESTORE</code> and <code>EXPIRE</code>.</td>
+</tr>
+</table>
 </div>
 <div class="admonitionblock tip">
 <table>
@@ -508,7 +514,7 @@ Live replication makes use of keyspace notifications. Make sure the source Redis
 <div id="footer">
 <div id="footer-text">
 Version 2.1.0<br>
-Last updated 2020-08-17 23:11:54 -0700
+Last updated 2020-08-18 00:35:36 -0700
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/styles/github.min.css">
