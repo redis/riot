@@ -69,10 +69,10 @@ Launch the `bin/riot-*` script and follow the usage information provided.
 
 RIOT has command line completion in Bash or ZSH Unix shells. The Unix shell will complete a command or option when users type the first few letters then press the TAB key.
 
-Run the following command to install completion:
+Run the following command to set up completion:
 [source,shell]
 ----
-❯ source <(riot-file generate-completion)
+❯ source <(riot-* generate-completion)
 ----
 
 == Connecting
