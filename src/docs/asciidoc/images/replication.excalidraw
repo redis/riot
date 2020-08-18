@@ -356,8 +356,8 @@
     },
     {
       "type": "text",
-      "version": 576,
-      "versionNonce": 1694138807,
+      "version": 584,
+      "versionNonce": 535091833,
       "isDeleted": false,
       "id": "Z4bnEqAeMf5NXaJhtzN99",
       "fillStyle": "hachure",
@@ -366,7 +366,6 @@
       "roughness": 1,
       "opacity": 100,
       "angle": 0,
-      "x": 236.61290322580646,
       "y": -605.5107526881721,
       "strokeColor": "#000000",
       "backgroundColor": "transparent",
@@ -384,7 +383,8 @@
       "text": "SCAN + SUBSCRIBE",
       "baseline": 18,
       "textAlign": "left",
-      "verticalAlign": "top"
+      "verticalAlign": "top",
+      "x": 244.61290322580646
     },
     {
       "type": "arrow",
