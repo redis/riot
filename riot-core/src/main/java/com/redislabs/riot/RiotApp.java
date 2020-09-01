@@ -5,7 +5,7 @@ import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
-import org.springframework.batch.item.redis.support.ConnectionPoolConfig;
+import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.springframework.batch.item.redis.support.RedisConnectionBuilder;
 import org.springframework.batch.item.redisearch.support.RediSearchConnectionBuilder;
 
@@ -121,17 +121,19 @@ public class RiotApp implements Runnable {
 
 	public <B extends RedisConnectionBuilder<B>> B configure(RedisConnectionBuilder<B> builder,
 			RedisConnectionOptions redis) {
+		GenericObjectPoolConfig<StatefulConnection<String, String>> poolConfig = new GenericObjectPoolConfig<>();
+		poolConfig.setMaxTotal(redis.getPoolMaxTotal());
 		return builder.redisURI(redis.getRedisURI()).cluster(redis.isCluster())
 				.clientResources(redis.getClientResources()).clientOptions(redis.getClientOptions())
-				.poolConfig(ConnectionPoolConfig.builder().maxTotal(redis.getPoolMaxTotal()).build());
+				.poolConfig(poolConfig);
 	}
 
 	public <B extends RediSearchConnectionBuilder<B>> B configure(RediSearchConnectionBuilder<B> builder,
 			RedisConnectionOptions redis) {
+		GenericObjectPoolConfig<StatefulRediSearchConnection<String, String>> poolConfig = new GenericObjectPoolConfig<>();
+		poolConfig.setMaxTotal(redis.getPoolMaxTotal());
 		return builder.redisURI(redis.getRedisURI()).clientResources(redis.getClientResources())
-				.clientOptions(redis.getClientOptions())
-				.poolConfig(org.springframework.batch.item.redisearch.support.ConnectionPoolConfig.builder()
-						.maxTotal(redis.getPoolMaxTotal()).build());
+				.clientOptions(redis.getClientOptions()).poolConfig(poolConfig);
 	}
 
 	public StatefulConnection<String, String> connection() {

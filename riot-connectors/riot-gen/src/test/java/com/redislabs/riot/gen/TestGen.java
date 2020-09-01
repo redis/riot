@@ -83,11 +83,11 @@ public class TestGen extends BaseTest {
 		String FIELD_STYLE = "style";
 		String FIELD_OUNCES = "ounces";
 		commands().flushall();
-		Schema schema = Schema.builder().field(TagField.builder().name(FIELD_ID).sortable(true).build())
-				.field(TextField.builder().name(FIELD_NAME).sortable(true).build())
-				.field(TextField.builder().name(FIELD_STYLE).matcher(PhoneticMatcher.English).sortable(true).build())
-				.field(NumericField.builder().name(FIELD_ABV).sortable(true).build())
-				.field(NumericField.builder().name(FIELD_OUNCES).sortable(true).build()).build();
+		Schema<String> schema = Schema.<String>builder().field(TagField.<String>builder().name(FIELD_ID).sortable(true).build())
+				.field(TextField.<String>builder().name(FIELD_NAME).sortable(true).build())
+				.field(TextField.<String>builder().name(FIELD_STYLE).matcher(PhoneticMatcher.English).sortable(true).build())
+				.field(NumericField.<String>builder().name(FIELD_ABV).sortable(true).build())
+				.field(NumericField.<String>builder().name(FIELD_OUNCES).sortable(true).build()).build();
 		commands().create(INDEX, schema, null);
 		executeFile("/index-introspection.txt");
 		SearchResults<String, String> results = commands().search(INDEX, "*");

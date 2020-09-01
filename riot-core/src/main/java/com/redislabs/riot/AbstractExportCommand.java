@@ -42,7 +42,7 @@ public abstract class AbstractExportCommand<O> extends AbstractTransferCommand<O
                 case SUGGEST:
                     return configure(RediSearchSuggestItemReader.builder().key(search.getIndex()).prefix(search.getQuery()).suggetOptions(SuggetOptions.builder().build())).build();
                 default:
-                    return configure(RediSearchItemReader.builder().index(search.getIndex()).query(search.getQuery()).args(search.getArgs()).searchOptions(SearchOptions.builder().withScores(search.isWithScores()).withPayloads(search.isWithPayloads()).limit(Limit.builder().num(search.getMax()).build()).build())).build();
+                    return configure(RediSearchItemReader.builder().index(search.getIndex()).query(search.getQuery()).args(search.getArgs()).searchOptions(SearchOptions.<String>builder().withScores(search.isWithScores()).withPayloads(search.isWithPayloads()).limit(Limit.builder().num(search.getMax()).build()).build())).build();
             }
         }
         return configure(RedisKeyValueItemReader.builder().scanCount(options.getScanCount()).scanMatch(options.getScanMatch()).batch(options.getBatchSize()).queueCapacity(options.getQueueCapacity()).threads(options.getThreads())).build();
