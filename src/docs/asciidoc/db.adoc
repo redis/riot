@@ -61,3 +61,16 @@ include::{resources}/postgresql/import.txt[]
 ----
 include::{resources}/postgresql/export.txt[]
 ----
+
+.Import from PostgreSQL to JSON strings
+[source,shell]
+----
+include::{resources}/postgresql/import-to-json-strings[]
+----
+
+This will produce Redis strings that look like this:
+
+[source,json]
+----
+include::order.json[]
+----
