@@ -18,7 +18,6 @@ ifdef::env-github[]
 :caution-caption: :fire:
 :warning-caption: :warning:
 endif::[]
-:imagesdir: src/docs/asciidoc/images
 
 // Badges
 ifdef::badges[]
@@ -96,7 +95,7 @@ The Redis URI syntax is described https://github.com/lettuce-io/lettuce-core/wik
 
 RIOT reads records from a source (file, database, Redis, data generator) and writes them to a target (file, database, Redis).
 
-image::architecture.png[]
+image::images/architecture.png[]
 
 In most cases some processing needs to happen in order to adapt input records to the output.
 
@@ -106,7 +105,7 @@ pretty much exactly like Redis hashes.
 However you still need to extract keys from those records, i.e. one or more fields should be used to construct the
 corresponding Redis keys.
 
-image::mapping.png[]
+image::images/mapping.png[]
 
 == Processors
 
