@@ -441,7 +441,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="header">
 <h1>RIOT DB</h1>
 <div class="details">
-<span id="revnumber">version 2.1.0</span>
+<span id="revnumber">version 2.1.1</span>
 </div>
 </div>
 <div id="content">
@@ -535,13 +535,27 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">❯ riot-db export "INSERT INTO mytable (id, field1, field2) VALUES (CAST(:id AS SMALLINT), :field1, :field2)" --url jdbc:postgresql://host:port/database --username appuser --password passwd --pattern "hash:*" --key-regex "hash:(?&lt;id&gt;.*)"</code></pre>
 </div>
 </div>
+<div class="listingblock">
+<div class="title">Import from PostgreSQL to JSON strings</div>
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">Unresolved directive in db.adoc - include::./riot-connectors/riot-db/src/test/resources/postgresql/import-to-json-strings[]</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This will produce Redis strings that look like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="json" class="language-json hljs">Unresolved directive in db.adoc - include::order.json[]</code></pre>
+</div>
+</div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 2.1.0<br>
-Last updated 2020-08-17 10:35:46 -0700
+Version 2.1.1<br>
+Last updated 2020-09-21 15:45:20 -0700
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/styles/github.min.css">
