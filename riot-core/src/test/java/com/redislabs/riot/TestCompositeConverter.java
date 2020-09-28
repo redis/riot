@@ -1,5 +1,6 @@
 package com.redislabs.riot;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.jupiter.api.Assertions;
@@ -15,7 +16,9 @@ public class TestCompositeConverter {
 	public void testCompositeConverter() {
 		CompositeConverter converter = new CompositeConverter(FieldExtractor.builder().field("myField").build(),
 				ConverterFactory.getStringToNumberConverter(Double.class));
-		Assertions.assertEquals(123.456, converter.convert(Map.of("myField", "123.456")));
+		Map<String, String> map = new HashMap<>();
+		map.put("myField", "123.456");
+		Assertions.assertEquals(123.456, converter.convert(map));
 	}
 
 }
