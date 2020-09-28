@@ -7,9 +7,6 @@ import java.util.logging.Logger;
 
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.springframework.batch.item.redis.support.RedisConnectionBuilder;
-import org.springframework.batch.item.redisearch.support.RediSearchConnectionBuilder;
-
-import com.redislabs.lettusearch.StatefulRediSearchConnection;
 
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.api.StatefulConnection;
@@ -42,10 +39,10 @@ public class RiotApp implements Runnable {
 	@Option(names = { "-i", "--info" }, description = "Set log level to info")
 	private boolean info;
 	@ArgGroup(heading = "Redis connection options%n", exclusive = false)
-	private RedisConnectionOptions redis = new RedisConnectionOptions();
+	private RedisConnectionOptions redisConnectionOptions = new RedisConnectionOptions();
 
 	public RedisConnectionOptions getRedisConnectionOptions() {
-		return redis;
+		return redisConnectionOptions;
 	}
 
 	public int execute(String... args) {
@@ -112,28 +109,16 @@ public class RiotApp implements Runnable {
 	}
 
 	public <B extends RedisConnectionBuilder<B>> B configure(RedisConnectionBuilder<B> builder) {
-		return configure(builder, redis);
-	}
-
-	public <B extends RediSearchConnectionBuilder<B>> B configure(RediSearchConnectionBuilder<B> builder) {
-		return configure(builder, redis);
+		return configure(builder, redisConnectionOptions);
 	}
 
 	public <B extends RedisConnectionBuilder<B>> B configure(RedisConnectionBuilder<B> builder,
-			RedisConnectionOptions redis) {
+			RedisConnectionOptions redisConnectionOptions) {
 		GenericObjectPoolConfig<StatefulConnection<String, String>> poolConfig = new GenericObjectPoolConfig<>();
-		poolConfig.setMaxTotal(redis.getPoolMaxTotal());
-		return builder.redisURI(redis.getRedisURI()).cluster(redis.isCluster())
-				.clientResources(redis.getClientResources()).clientOptions(redis.getClientOptions())
-				.poolConfig(poolConfig);
-	}
-
-	public <B extends RediSearchConnectionBuilder<B>> B configure(RediSearchConnectionBuilder<B> builder,
-			RedisConnectionOptions redis) {
-		GenericObjectPoolConfig<StatefulRediSearchConnection<String, String>> poolConfig = new GenericObjectPoolConfig<>();
-		poolConfig.setMaxTotal(redis.getPoolMaxTotal());
-		return builder.redisURI(redis.getRedisURI()).clientResources(redis.getClientResources())
-				.clientOptions(redis.getClientOptions()).poolConfig(poolConfig);
+		poolConfig.setMaxTotal(redisConnectionOptions.getPoolMaxTotal());
+		return builder.redisURI(redisConnectionOptions.getRedisURI()).cluster(redisConnectionOptions.isCluster())
+				.clientResources(redisConnectionOptions.getClientResources())
+				.clientOptions(redisConnectionOptions.getClientOptions()).poolConfig(poolConfig);
 	}
 
 	public StatefulConnection<String, String> connection() {
@@ -154,9 +139,4 @@ public class RiotApp implements Runnable {
 		return connectionBuilder.async().apply(connection);
 	}
 
-	public StatefulRediSearchConnection<String, String> rediSearchConnection() {
-		RediSearchConnectionBuilder<?> connectionBuilder = new RediSearchConnectionBuilder<>();
-		configure(connectionBuilder);
-		return connectionBuilder.connection();
-	}
 }

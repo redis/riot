@@ -1,5 +1,5 @@
 #!/bin/sh -e
 
-./gradlew -q --console plain installDist
+gradle -q --console plain installDist
 
 ./riot-connectors/riot-redis/build/install/riot-redis/bin/riot-redis "$@"

@@ -90,19 +90,17 @@ public class TestPostgreSQL extends DbTest {
 		ResultSet resultSet = statement.getResultSet();
 		long count = 0;
 		while (resultSet.next()) {
-//		    freight real,
 			int orderId = resultSet.getInt("order_id");
 			String order = commands().get("order:" + orderId);
 			ObjectMapper mapper = new ObjectMapper();
 			ObjectReader reader = mapper.readerFor(Map.class);
 			Map<String, Object> orderMap = reader.readValue(order);
-			Assert.assertEquals(orderId, Integer.parseInt((String) orderMap.get("order_id")));
+			Assert.assertEquals(orderId, orderMap.get("order_id"));
 			Assert.assertEquals(resultSet.getString("customer_id"), orderMap.get("customer_id"));
-			Assert.assertEquals(resultSet.getInt("employee_id"),
-					Integer.parseInt((String) orderMap.get("employee_id")));
+			Assert.assertEquals(resultSet.getInt("employee_id"), orderMap.get("employee_id"));
 			Assert.assertEquals(resultSet.getDate("order_date"), java.sql.Date
 					.valueOf(LocalDate.from(DateTimeFormatter.ISO_DATE.parse((String) orderMap.get("order_date")))));
-			Assert.assertEquals(resultSet.getFloat("freight"), Float.parseFloat((String) orderMap.get("freight")), 0);
+			Assert.assertEquals(resultSet.getFloat("freight"), ((Double) orderMap.get("freight")).floatValue(), 0);
 			count++;
 		}
 		List<String> keys = commands().keys("order:*");

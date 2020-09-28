@@ -1,1 +1,0 @@
-❯ riot-file export /tmp/beers.json --index beers --max-results 10000 --with-scores

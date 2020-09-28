@@ -11,11 +11,10 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import com.redislabs.lettusearch.RediSearchClient;
-import com.redislabs.lettusearch.RediSearchCommands;
-import com.redislabs.lettusearch.StatefulRediSearchConnection;
-
+import io.lettuce.core.RedisClient;
 import io.lettuce.core.RedisURI;
+import io.lettuce.core.api.StatefulRedisConnection;
+import io.lettuce.core.api.sync.RedisCommands;
 
 @Testcontainers
 @SuppressWarnings("rawtypes")
@@ -26,10 +25,10 @@ public abstract class BaseTest {
 	private static final int REDIS_PORT = 6379;
 	private static final String DOCKER_IMAGE_NAME = "redislabs/redisearch:latest";
 
-	private RediSearchClient client;
+	private RedisClient client;
 
 	@Container
-	private static final GenericContainer redis = redisContainer();
+	protected static final GenericContainer redis = redisContainer();
 
 	@SuppressWarnings("resource")
 	protected static GenericContainer redisContainer() {
@@ -38,15 +37,15 @@ public abstract class BaseTest {
 
 	@BeforeEach
 	public void setup() {
-		client = RediSearchClient.create(RedisURI.create(redis.getHost(), redis.getFirstMappedPort()));
+		client = RedisClient.create(RedisURI.create(redis.getHost(), redis.getFirstMappedPort()));
 		client.connect().sync().flushall();
 	}
 
-	protected StatefulRediSearchConnection<String, String> connection() {
+	protected StatefulRedisConnection<String, String> connection() {
 		return client.connect();
 	}
 
-	protected RediSearchCommands<String, String> commands() {
+	protected RedisCommands<String, String> commands() {
 		return client.connect().sync();
 	}
 

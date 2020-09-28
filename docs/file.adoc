@@ -63,23 +63,11 @@ The following command imports the CSV data into Redis hashes with `beer` as the 
 include::{resources}/csv/import-hash.txt[]
 ----
 
-.Import CSV into RediSearch index
-[source,shell]
-----
-include::{resources}/csv/import-search.txt[]
-----
-
 [#import-csv-geo]
 .Import CSV to a Geo set
 [source,shell]
 ----
 include::{resources}/csv/import-geo.txt[]
-----
-
-.Import CSV into RediSearch geo
-[source,shell]
-----
-include::{resources}/csv/import-search-geo-processor.txt[]
 ----
 
 .Export to CSV

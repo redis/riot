@@ -1,1 +1,1 @@
-❯ riot-gen import id=#index category=number.randomDigit --batch 50 --max 1000 --command xadd --keyspace teststream --keys category
+❯ riot-gen --debug import id=#index category=number.randomDigit --batch 50 --max 1000 --command xadd --keyspace teststream --keys category
