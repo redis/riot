@@ -441,7 +441,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="header">
 <h1>RIOT File</h1>
 <div class="details">
-<span id="revnumber">version 2.1.1</span>
+<span id="revnumber">version 2.1.2</span>
 </div>
 </div>
 <div id="content">
@@ -586,22 +586,10 @@ Use <code>-</code> to import/export from/to standard input/output.
 <pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">❯ riot-file -h localhost -p 6379 import https://raw.githubusercontent.com/Redislabs-Solution-Architects/riot/master/riot-connectors/riot-file/src/test/resources/csv/beers.csv --header --keyspace beer --keys id</code></pre>
 </div>
 </div>
-<div class="listingblock">
-<div class="title">Import CSV into RediSearch index</div>
-<div class="content">
-<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">❯ riot-file import https://raw.githubusercontent.com/nickhould/craft-beers-dataset/master/data/processed/beers.csv --command ftadd --index beers --keys id --header</code></pre>
-</div>
-</div>
 <div id="import-csv-geo" class="listingblock">
 <div class="title">Import CSV to a Geo set</div>
 <div class="content">
 <pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">❯ riot-file import https://raw.githubusercontent.com/jpatokal/openflights/master/data/airports.dat --command geoadd --keyspace airportgeo --members AirportID --lon Longitude --lat Latitude --fields AirportID Name City Country IATA ICAO Latitude Longitude Altitude Timezone DST Tz Type Source</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="title">Import CSV into RediSearch geo</div>
-<div class="content">
-<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">❯ riot-file import https://raw.githubusercontent.com/jpatokal/openflights/master/data/airports.dat --command ftadd --index airports -k AirportID --spel "Location=#geo(Longitude,Latitude)" --fields AirportID Name City Country IATA ICAO Latitude Longitude Altitude Timezone DST Tz Type Source</code></pre>
 </div>
 </div>
 <div class="listingblock">
@@ -716,8 +704,8 @@ Use <code>-</code> to import/export from/to standard input/output.
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 2.1.1<br>
-Last updated 2020-09-21 16:04:19 -0700
+Version 2.1.2<br>
+Last updated 2020-09-25 23:59:50 -0700
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/styles/github.min.css">
