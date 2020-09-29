@@ -15,8 +15,8 @@ public abstract class AbstractExportCommand<O> extends AbstractTransferCommand<K
 
 	@CommandLine.Mixin
 	private RedisExportOptions options = new RedisExportOptions();
-	@CommandLine.Option(names = "--key-regex", description = "Regex for key-field extraction (default: ${DEFAULT-VALUE})", paramLabel = "<str>")
-	private String keyRegex = "\\w+:(?<id>.+)";
+	@CommandLine.Option(names = "--key-regex", defaultValue = "\\w+:(?<id>.+)", description = "Regex for key-field extraction (default: ${DEFAULT-VALUE})", paramLabel = "<str>")
+	private String keyRegex;
 
 	protected ItemReader<KeyValue<String>> reader() {
 		return configure(RedisKeyValueItemReader.builder().scanCount(options.getScanCount())

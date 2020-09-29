@@ -1,1 +1,1 @@
-❯ riot-db -h localhost -p 6379 import "SELECT * FROM orders" --url jdbc:postgresql://host:port/database --username appuser --password passwd --keyspace order --keys order_id --command set 
+❯ riot-db -h localhost -p 6379 import "SELECT * FROM orders" --url jdbc:postgresql://host:port/database --username appuser --password passwd --command set --keyspace order --keys order_id

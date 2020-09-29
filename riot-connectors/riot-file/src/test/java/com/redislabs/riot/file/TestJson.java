@@ -17,6 +17,7 @@ import org.springframework.core.io.InputStreamResource;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.redislabs.riot.test.DataPopulator;
 
+@SuppressWarnings("rawtypes")
 public class TestJson extends AbstractFileTest {
 
 	@Test
@@ -47,7 +48,6 @@ public class TestJson extends AbstractFileTest {
 		Assertions.assertEquals(records.size(), commands().dbsize());
 	}
 
-	@SuppressWarnings("rawtypes")
 	@Test
 	public void exportGzip() throws Exception {
 		Path file = tempFile("beers.json.gz");

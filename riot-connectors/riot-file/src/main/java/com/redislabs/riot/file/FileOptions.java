@@ -7,7 +7,6 @@ import java.util.Base64;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.batch.item.resource.StandardInputResource;
 import org.springframework.batch.item.resource.StandardOutputResource;
@@ -60,8 +59,8 @@ public class FileOptions {
 	private boolean structured;
 	@Option(names = "--fields", arity = "1..*", description = "Field names", paramLabel = "<names>")
 	private String[] names = new String[0];
-	@Option(names = "--encoding", description = "File encoding (default: ${DEFAULT-VALUE})", paramLabel = "<charset>")
-	private String encoding = FlatFileItemReader.DEFAULT_CHARSET;
+	@Option(names = "--encoding", defaultValue = "UTF-8", description = "File encoding (default: ${DEFAULT-VALUE})", paramLabel = "<charset>")
+	private String encoding;
 	@Option(names = { "-h", "--header" }, description = "First line contains field names")
 	private boolean header;
 	@Option(names = "--delimiter", description = "Delimiter character", paramLabel = "<string>")
@@ -70,7 +69,7 @@ public class FileOptions {
 	private S3Options s3 = new S3Options();
 	@CommandLine.ArgGroup(exclusive = false, heading = "GCS options%n")
 	private GcsOptions gcs = new GcsOptions();
-	
+
 	public String fileName(Resource resource) {
 		if (resource.isFile()) {
 			return resource.getFilename();

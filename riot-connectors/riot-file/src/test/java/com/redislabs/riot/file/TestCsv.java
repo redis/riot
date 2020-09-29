@@ -54,7 +54,7 @@ public class TestCsv extends AbstractFileTest {
 		List<String> keys = commands().keys("beer:*");
 		Assertions.assertEquals(COUNT, keys.size());
 	}
-
+	
 	@Test
 	public void importGeo() throws Exception {
 		executeFile("/csv/import-geo.txt");
@@ -74,6 +74,20 @@ public class TestCsv extends AbstractFileTest {
 		Assertions.assertTrue(date.isBefore(Instant.now()));
 		long index = Long.parseLong(event.get("index"));
 		Assertions.assertTrue(index > 0);
+	}
+	
+	@Test
+	public void importMultiCommands() throws Exception {
+		executeFile("/csv/import-multi-commands.txt");
+		List<String> beers = commands().keys("beer:*");
+		Assertions.assertEquals(2410, beers.size());
+		for (String beer : beers) {
+			Map<String, String> hash = commands().hgetall(beer);
+			Assertions.assertTrue(hash.containsKey("name"));
+			Assertions.assertTrue(hash.containsKey("brewery_id"));
+		}
+		Set<String> breweries = commands().smembers("breweries");
+		Assertions.assertEquals(558, breweries.size());
 	}
 
 }

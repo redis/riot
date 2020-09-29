@@ -1,1 +1,1 @@
-❯ riot-gen import --faker-index beerIntrospection --max 100 --keyspace beer --keys id
+❯ riot-gen import --faker-index beerIntrospection --max 100 -c hmset --keyspace beer --keys id

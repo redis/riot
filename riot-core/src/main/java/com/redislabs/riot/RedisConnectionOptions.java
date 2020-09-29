@@ -3,8 +3,6 @@ package com.redislabs.riot;
 import java.io.File;
 import java.time.Duration;
 
-import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
-
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.SslOptions;
 import io.lettuce.core.cluster.ClusterClientOptions;
@@ -19,10 +17,11 @@ import picocli.CommandLine.Option;
 public class RedisConnectionOptions {
 
 	@Option(names = { "-h",
-			"--hostname" }, description = "Server hostname (default: ${DEFAULT-VALUE})", paramLabel = "<host>")
-	private String host = "127.0.0.1";
-	@Option(names = { "-p", "--port" }, description = "Server port (default: ${DEFAULT-VALUE})", paramLabel = "<port>")
-	private int port = 6379;
+			"--hostname" }, defaultValue = "127.0.0.1", description = "Server hostname (default: ${DEFAULT-VALUE})", paramLabel = "<host>")
+	private String host;
+	@Option(names = { "-p",
+			"--port" }, defaultValue = "6379", description = "Server port (default: ${DEFAULT-VALUE})", paramLabel = "<port>")
+	private int port;
 	@Option(names = { "-s",
 			"--socket" }, description = "Server socket (overrides hostname and port)", paramLabel = "<socket>")
 	private String socket;
@@ -32,10 +31,11 @@ public class RedisConnectionOptions {
 	@Option(names = { "-u", "--uri" }, description = "Server URI", paramLabel = "<uri>")
 	private RedisURI redisURI;
 	@Option(names = { "-o",
-			"--timeout" }, description = "Redis command timeout (default: ${DEFAULT-VALUE})", paramLabel = "<sec>")
-	private long timeout = RedisURI.DEFAULT_TIMEOUT;
-	@Option(names = { "-n", "--db" }, description = "Database number (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
-	private int database = 0;
+			"--timeout" }, defaultValue = "60", description = "Redis command timeout (default: ${DEFAULT-VALUE})", paramLabel = "<sec>")
+	private long timeout;
+	@Option(names = { "-n",
+			"--db" }, defaultValue = "0", description = "Database number (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
+	private int database;
 	@Getter
 	@Option(names = { "-c", "--cluster" }, description = "Enable cluster mode")
 	private boolean cluster;
@@ -53,12 +53,12 @@ public class RedisConnectionOptions {
 	private boolean showMetrics;
 	@Getter
 	@Option(names = { "-m",
-			"--pool" }, description = "Max pool connections (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
-	private int poolMaxTotal = GenericObjectPoolConfig.DEFAULT_MAX_TOTAL;
+			"--pool" }, defaultValue = "8", description = "Max pool connections (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
+	private int poolMaxTotal;
 	@Option(names = "--no-auto-reconnect", description = "Disable auto-reconnect", hidden = true)
 	private boolean noAutoReconnect;
-	@Option(names = "--client-name", description = "Client name (default: ${DEFAULT-VALUE})", hidden = true)
-	private String clientName = "RIOT";
+	@Option(names = "--client-name", defaultValue = "RIOT", description = "Client name (default: ${DEFAULT-VALUE})", hidden = true)
+	private String clientName;
 
 	public RedisURI getRedisURI() {
 		RedisURI uri = redisURI();
