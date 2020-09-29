@@ -441,7 +441,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="header">
 <h1>RIOT DB</h1>
 <div class="details">
-<span id="revnumber">version 2.1.2</span>
+<span id="revnumber">version 2.2.0</span>
 </div>
 </div>
 <div id="content">
@@ -526,7 +526,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="listingblock">
 <div class="title">Import from PostgreSQL</div>
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">❯ riot-db -h localhost -p 6379 import "SELECT * FROM orders" --url jdbc:postgresql://host:port/database --username appuser --password passwd --keyspace order --keys order_id</code></pre>
+<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">❯ riot-db -h localhost -p 6379 import "SELECT * FROM orders" --url jdbc:postgresql://host:port/database --username appuser --password passwd --command hmset --keyspace order --keys order_id</code></pre>
 </div>
 </div>
 <div class="listingblock">
@@ -538,7 +538,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="listingblock">
 <div class="title">Import from PostgreSQL to JSON strings</div>
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">❯ riot-db -h localhost -p 6379 import "SELECT * FROM orders" --url jdbc:postgresql://host:port/database --username appuser --password passwd --keyspace order --keys order_id --command set</code></pre>
+<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">❯ riot-db -h localhost -p 6379 import "SELECT * FROM orders" --url jdbc:postgresql://host:port/database --username appuser --password passwd --command set --keyspace order --keys order_id</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -568,7 +568,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 2.1.2<br>
+Version 2.2.0<br>
 Last updated 2020-09-21 16:03:24 -0700
 </div>
 </div>
