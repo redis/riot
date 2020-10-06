@@ -33,6 +33,7 @@ dependencies {
     implementation 'org.xerial:sqlite-jdbc:3.32.3.2'
     testImplementation project(':riot-test')
     testImplementation 'org.testcontainers:postgresql:1.15.0-rc2'
+    testImplementation 'org.testcontainers:oracle-xe:1.15.0-rc2'
     testCompileOnly 'org.projectlombok:lombok'
     testAnnotationProcessor 'org.projectlombok:lombok'
 }
