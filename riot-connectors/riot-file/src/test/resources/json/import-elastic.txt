@@ -1,1 +1,1 @@
-❯ riot-file import https://raw.githubusercontent.com/Redislabs-Solution-Architects/riot/master/riot-connectors/riot-file/src/test/resources/json/es_test-index.json --command hmset --keyspace estest --keys _id
+❯ riot-file import https://raw.githubusercontent.com/Redislabs-Solution-Architects/riot/master/riot-connectors/riot-file/src/test/resources/json/es_test-index.json hmset --keyspace estest --keys _id

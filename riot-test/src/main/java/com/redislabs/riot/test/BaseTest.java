@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
 
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.RedisURI;
@@ -23,7 +24,7 @@ public abstract class BaseTest {
 	private final static String COMMAND_PREAMBLE = "❯";
 	protected final static String LOCALHOST = "localhost";
 	private static final int REDIS_PORT = 6379;
-	private static final String DOCKER_IMAGE_NAME = "redislabs/redisearch:latest";
+	private static final DockerImageName DOCKER_IMAGE_NAME = DockerImageName.parse("redislabs/redisearch:latest");
 
 	private RedisClient client;
 

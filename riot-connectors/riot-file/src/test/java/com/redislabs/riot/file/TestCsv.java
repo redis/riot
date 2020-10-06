@@ -25,7 +25,7 @@ public class TestCsv extends AbstractFileTest {
 		executeFile("/json/import-hash.txt");
 		executeFile("/csv/export-hash.txt");
 		String[] header = Files.readAllLines(file).get(0).split("\\|");
-		FlatFileItemReaderBuilder<Map<String, String>> builder = new FlatFileItemReaderBuilder<>();
+		FlatFileItemReaderBuilder<Map<String, Object>> builder = new FlatFileItemReaderBuilder<>();
 		builder.name("flat-file-reader");
 		builder.resource(new FileSystemResource(file));
 		builder.strict(true);
@@ -33,11 +33,11 @@ public class TestCsv extends AbstractFileTest {
 		builder.linesToSkip(1);
 		builder.fieldSetMapper(new MapFieldSetMapper());
 		builder.recordSeparatorPolicy(new DefaultRecordSeparatorPolicy());
-		FlatFileItemReaderBuilder.DelimitedBuilder<Map<String, String>> delimitedBuilder = builder.delimited();
+		FlatFileItemReaderBuilder.DelimitedBuilder<Map<String, Object>> delimitedBuilder = builder.delimited();
 		delimitedBuilder.delimiter("|");
 		delimitedBuilder.names(header);
-		FlatFileItemReader<Map<String, String>> reader = builder.build();
-		List<Map<String, String>> records = readAll(reader);
+		FlatFileItemReader<Map<String, Object>> reader = builder.build();
+		List<Map<String, Object>> records = readAll(reader);
 		Assertions.assertEquals(commands().keys("beer:*").size(), records.size());
 	}
 

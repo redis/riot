@@ -9,6 +9,7 @@ import java.util.Map;
 
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.springframework.batch.item.ItemProcessor;
+import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.faker.FakerItemReader;
 
 import com.redislabs.lettusearch.RediSearchClient;
@@ -22,7 +23,6 @@ import com.redislabs.lettusearch.index.field.TagField;
 import com.redislabs.lettusearch.index.field.TextField;
 import com.redislabs.riot.AbstractImportCommand;
 import com.redislabs.riot.RedisConnectionOptions;
-import com.redislabs.riot.Transfer;
 
 import io.lettuce.core.cluster.ClusterClientOptions;
 import io.lettuce.core.resource.ClientResources;
@@ -31,7 +31,7 @@ import picocli.CommandLine;
 
 @Slf4j
 @CommandLine.Command(name = "import", aliases = { "i" }, description = "Import generated data")
-public class GenerateCommand extends AbstractImportCommand {
+public class GenerateCommand extends AbstractImportCommand<Map<String, Object>, Map<String, Object>> {
 
 	@CommandLine.Parameters(description = "SpEL expressions", paramLabel = "SPEL")
 	private Map<String, String> fakerFields = new LinkedHashMap<>();
@@ -43,10 +43,10 @@ public class GenerateCommand extends AbstractImportCommand {
 	private boolean includeMetadata;
 
 	@Override
-	protected List<Transfer<Object, Object>> transfers() throws Exception {
+	protected List<ItemReader<Map<String, Object>>> readers() throws Exception {
 		FakerItemReader reader = FakerItemReader.builder().locale(locale).includeMetadata(includeMetadata)
 				.fields(fakerFields()).build();
-		return Collections.singletonList(transfer("Importing Faker data", reader, SourceType.OBJECT_MAP));
+		return Collections.singletonList(reader);
 	}
 
 	@Override
@@ -83,7 +83,7 @@ public class GenerateCommand extends AbstractImportCommand {
 			return fields;
 		}
 		GenericObjectPoolConfig<StatefulRediSearchConnection<String, String>> poolConfig = new GenericObjectPoolConfig<>();
-		RedisConnectionOptions redis = getRedisConnectionOptions();
+		RedisConnectionOptions redis = getApp().getRedisConnectionOptions();
 		poolConfig.setMaxTotal(redis.getPoolMaxTotal());
 		RediSearchClient client = rediSearchClient(redis);
 		ClusterClientOptions clientOptions = redis.getClientOptions();

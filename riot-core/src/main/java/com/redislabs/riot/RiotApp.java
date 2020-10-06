@@ -1,12 +1,17 @@
 package com.redislabs.riot;
 
+import java.util.List;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
+import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
+import org.springframework.batch.item.redis.support.AbstractRedisItemWriter;
 import org.springframework.batch.item.redis.support.RedisConnectionBuilder;
+
+import com.redislabs.riot.redis.AbstractRedisCommand;
 
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.api.StatefulConnection;
@@ -19,6 +24,9 @@ import picocli.CommandLine;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
+import picocli.CommandLine.ParseResult;
+import picocli.CommandLine.PicocliException;
+import picocli.CommandLine.RunFirst;
 
 @Command(usageHelpAutoWidth = true, sortOptions = false, versionProvider = ManifestVersionProvider.class, subcommands = HiddenGenerateCompletion.class, abbreviateSynopsis = true)
 public class RiotApp implements Runnable {
@@ -45,10 +53,11 @@ public class RiotApp implements Runnable {
 		return redisConnectionOptions;
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public int execute(String... args) {
 		try {
 			CommandLine commandLine = commandLine();
-			CommandLine.ParseResult parseResult = commandLine.parseArgs(args);
+			ParseResult parsed = commandLine.parseArgs(args);
 			InternalLoggerFactory.setDefaultFactory(JdkLoggerFactory.INSTANCE);
 			LogManager.getLogManager().reset();
 			Logger activeLogger = Logger.getLogger(ROOT_LOGGER);
@@ -59,8 +68,25 @@ public class RiotApp implements Runnable {
 			Logger.getLogger(ROOT_LOGGER).setLevel(rootLoggingLevel());
 			Logger logger = Logger.getLogger("com.redislabs");
 			logger.setLevel(packageLoggingLevel());
-			return commandLine.getExecutionStrategy().execute(parseResult);
-		} catch (CommandLine.PicocliException e) {
+			ParseResult subcommand = parsed.subcommand();
+			if (subcommand != null) {
+				Object command = subcommand.commandSpec().userObject();
+				if (AbstractImportCommand.class.isAssignableFrom(command.getClass())) {
+					AbstractImportCommand<?, ?> importCommand = (AbstractImportCommand<?, ?>) command;
+					List<ParseResult> parsedRedisCommands = subcommand.subcommands();
+					for (ParseResult parsedRedisCommand : parsedRedisCommands) {
+						if (parsedRedisCommand.isUsageHelpRequested()) {
+							return commandLine.getExecutionStrategy().execute(parsedRedisCommand);
+						}
+						importCommand.getRedisCommands()
+								.add((AbstractRedisCommand) parsedRedisCommand.commandSpec().userObject());
+					}
+					commandLine.setExecutionStrategy(new RunFirst());
+					return commandLine.getExecutionStrategy().execute(subcommand);
+				}
+			}
+			return commandLine.getExecutionStrategy().execute(parsed);
+		} catch (PicocliException e) {
 			System.err.println(e.getMessage());
 			return 1;
 		}
@@ -137,6 +163,17 @@ public class RiotApp implements Runnable {
 		RedisConnectionBuilder<?> connectionBuilder = new RedisConnectionBuilder<>();
 		configure(connectionBuilder);
 		return connectionBuilder.async().apply(connection);
+	}
+
+	public void configure(AbstractRedisItemWriter<String, String, ?> writer) throws Exception {
+		RedisConnectionBuilder<?> builder = new RedisConnectionBuilder<>();
+		configure(builder);
+		GenericObjectPool<StatefulConnection<String, String>> pool = builder.pool();
+		try (StatefulConnection<String, String> connection = pool.borrowObject()) {
+		}
+		writer.setPool(pool);
+		writer.setCommands(builder.async());
+		writer.setCommandTimeout(builder.timeout());
 	}
 
 }

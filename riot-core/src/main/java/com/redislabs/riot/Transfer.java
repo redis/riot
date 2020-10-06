@@ -1,133 +1,87 @@
 package com.redislabs.riot;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.batch.item.*;
-import org.springframework.batch.item.redis.support.BatchRunnable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+
+import org.springframework.batch.item.ExecutionContext;
+import org.springframework.batch.item.ItemProcessor;
+import org.springframework.batch.item.ItemReader;
+import org.springframework.batch.item.ItemStream;
+import org.springframework.batch.item.ItemStreamReader;
+import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.item.redis.support.BatchTransfer;
 import org.springframework.batch.item.redis.support.RedisItemReader;
-import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
 import org.springframework.batch.item.support.SynchronizedItemStreamReader;
 import org.springframework.util.Assert;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.*;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class Transfer<I, O> {
 
 	@Getter
-	private final String name;
-	@Getter
 	private final ItemReader<I> reader;
 	@Getter
-	private final ItemProcessor<I, O> processor;
-	@Getter
 	private final ItemWriter<O> writer;
-	@Setter
-	private int threadCount;
-	@Setter
-	private int batchSize;
-	@Setter
-	private Long flushPeriod;
-	@Getter
-	@Setter
-	private Integer maxItemCount;
-	private ArrayList<BatchRunnable<I>> threads;
-	private ExecutorService executor;
-	private ScheduledExecutorService scheduler;
-	private ScheduledFuture<?> scheduledFuture = null;
-	private List<TransferListener> listeners = new ArrayList<>();
+	private final List<BatchTransfer<I>> threads;
 
-	public Transfer(String name, ItemReader<I> reader, ItemProcessor<I, O> processor, ItemWriter<O> writer) {
-		this.name = name;
-		this.reader = reader;
-		this.processor = processor;
-		this.writer = writer;
-	}
-
-	public void addListener(TransferListener listener) {
-		listeners.add(listener);
-	}
-
-	public static interface TransferListener {
-
-		void onOpen();
-
-		void onUpdate(long count);
-
-		void onClose();
-
-	}
-
-	public void open() {
+	@Builder
+	public Transfer(ItemReader<I> reader, ItemProcessor<I, O> processor, ItemWriter<O> writer, int threadCount,
+			int batchSize) {
+		Assert.notNull(reader, "A reader instance is required.");
+		Assert.notNull(writer, "A writer instance is required.");
 		Assert.isTrue(threadCount > 0, "Thread count must be greater than 0.");
 		Assert.isTrue(batchSize > 0, "Batch size must be greater than 0.");
+		this.reader = reader;
+		this.writer = writer;
 		this.threads = new ArrayList<>(threadCount);
-		this.executor = Executors.newFixedThreadPool(threadCount);
-		this.scheduler = Executors.newSingleThreadScheduledExecutor();
+		for (int index = 0; index < threadCount; index++) {
+			threads.add(new BatchTransfer<>(reader(), writer(processor, writer), batchSize));
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private ItemWriter<I> writer(ItemProcessor<I, O> processor, ItemWriter<O> writer) {
+		if (processor == null) {
+			return (ItemWriter<I>) writer;
+		}
+		return new ProcessingItemWriter<>(processor, writer);
+	}
+
+	@SuppressWarnings("rawtypes")
+	public CompletableFuture<Void> execute() {
 		ExecutionContext executionContext = new ExecutionContext();
 		if (writer instanceof ItemStream) {
 			log.debug("Opening writer");
 			((ItemStream) writer).open(executionContext);
 		}
 		if (reader instanceof ItemStream) {
-			if (maxItemCount != null) {
-				if (reader instanceof AbstractItemCountingItemStreamItemReader) {
-					log.debug("Configuring reader with maxItemCount={}", maxItemCount);
-					((AbstractItemCountingItemStreamItemReader<I>) reader).setMaxItemCount(maxItemCount);
-				}
-			}
 			log.debug("Opening reader");
 			((ItemStream) reader).open(executionContext);
 		}
-		listeners.forEach(TransferListener::onOpen);
-	}
-
-	public void execute() {
-		for (int index = 0; index < threadCount; index++) {
-			threads.add(new BatchRunnable<>(reader(), new ProcessingItemWriter<>(processor, writer), batchSize));
+		CompletableFuture[] futures = new CompletableFuture[threads.size()];
+		for (int index = 0; index < threads.size(); index++) {
+			futures[index] = CompletableFuture.runAsync(threads.get(index));
 		}
-		threads.forEach(executor::submit);
-		executor.shutdown();
-		if (flushPeriod != null) {
-			scheduledFuture = scheduler.scheduleAtFixedRate(this::flush, flushPeriod, flushPeriod,
-					TimeUnit.MILLISECONDS);
-		}
-		while (!executor.isTerminated()) {
-			try {
-				executor.awaitTermination(100, TimeUnit.MILLISECONDS);
-				listeners.forEach(l -> l.onUpdate(getWriteCount()));
-			} catch (InterruptedException e) {
-				log.debug("Interrupted while awaiting termination", e);
-				throw new RuntimeException(e);
+		CompletableFuture<Void> future = CompletableFuture.allOf(futures);
+		future.whenComplete((v, t) -> {
+			if (reader instanceof ItemStream) {
+				log.debug("Closing reader");
+				((ItemStream) reader).close();
 			}
-		}
-	}
-
-	public void stop() {
-		threads.forEach(BatchRunnable::stop);
-	}
-
-	public void close() {
-		scheduler.shutdown();
-		if (scheduledFuture != null) {
-			scheduledFuture.cancel(false);
-		}
-		if (reader instanceof ItemStream) {
-			log.debug("Closing reader");
-			((ItemStream) reader).close();
-		}
-		if (writer instanceof ItemStream) {
-			log.debug("Closing writer");
-			((ItemStream) writer).close();
-		}
-		listeners.forEach(TransferListener::onClose);
+			if (writer instanceof ItemStream) {
+				log.debug("Closing writer");
+				((ItemStream) writer).close();
+			}
+		});
+		return future;
 	}
 
 	private ItemReader<I> reader() {
-		if (threadCount > 1 && reader instanceof ItemStreamReader) {
+		if (threads.size() > 1 && reader instanceof ItemStreamReader) {
 			SynchronizedItemStreamReader<I> synchronizedReader = new SynchronizedItemStreamReader<>();
 			synchronizedReader.setDelegate((ItemStreamReader<I>) reader);
 			return synchronizedReader;
@@ -135,11 +89,11 @@ public class Transfer<I, O> {
 		return reader;
 	}
 
-	private void flush() {
+	public void flush() {
 		if (reader instanceof RedisItemReader) {
 			((RedisItemReader<?, ?>) reader).flush();
 		}
-		for (BatchRunnable<I> thread : threads) {
+		for (BatchTransfer<I> thread : threads) {
 			try {
 				thread.flush();
 			} catch (Exception e) {
@@ -148,8 +102,8 @@ public class Transfer<I, O> {
 		}
 	}
 
-	private long getWriteCount() {
-		return threads.stream().mapToLong(BatchRunnable::getWriteCount).sum();
+	public long count() {
+		return threads.stream().mapToLong(BatchTransfer::getCount).sum();
 	}
 
 }

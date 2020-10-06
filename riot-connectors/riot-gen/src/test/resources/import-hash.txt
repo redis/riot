@@ -1,1 +1,1 @@
-❯ riot-gen -h localhost -p 6379 import id=#index firstName=name.firstName lastName=name.lastName address=address.fullAddress --max 100 -c hmset --keyspace person --keys id
+❯ riot-gen -h localhost -p 6379 import id=#index firstName=name.firstName lastName=name.lastName address=address.fullAddress --max 100 hmset --keyspace person --keys id

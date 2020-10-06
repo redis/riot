@@ -32,7 +32,7 @@ dependencies {
     implementation 'org.postgresql:postgresql:42.2.16'
     implementation 'org.xerial:sqlite-jdbc:3.32.3.2'
     testImplementation project(':riot-test')
-    testImplementation 'org.testcontainers:postgresql:1.14.3'
+    testImplementation 'org.testcontainers:postgresql:1.15.0-rc2'
     testCompileOnly 'org.projectlombok:lombok'
     testAnnotationProcessor 'org.projectlombok:lombok'
 }

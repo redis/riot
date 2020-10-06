@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class KeyValueMapItemProcessor implements ItemProcessor<KeyValue<String>, Map<String, String>> {
+public class KeyValueMapItemProcessor implements ItemProcessor<KeyValue<String>, Map<String, Object>> {
 
 	private final Converter<String, Map<String, String>> keyFieldsExtractor;
 	private final Converter<Map<String, String>, Map<String, String>> hashConverter;
@@ -49,8 +49,8 @@ public class KeyValueMapItemProcessor implements ItemProcessor<KeyValue<String>,
 	}
 
 	@Override
-	public Map<String, String> process(KeyValue<String> item) {
-		Map<String, String> map = new HashMap<>(keyFieldsExtractor.convert(item.getKey()));
+	public Map<String, Object> process(KeyValue<String> item) {
+		Map<String, Object> map = new HashMap<>(keyFieldsExtractor.convert(item.getKey()));
 		Map<String, String> valueMap = map(item);
 		if (valueMap != null) {
 			map.putAll(valueMap);

@@ -1,16 +1,20 @@
 package com.redislabs.riot;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
+import org.springframework.batch.item.ItemStreamSupport;
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.batch.item.redis.support.RedisConnectionBuilder;
-
-import com.redislabs.riot.Transfer.TransferListener;
+import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
 
 import io.lettuce.core.RedisURI;
-import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import me.tongfei.progressbar.ProgressBar;
 import me.tongfei.progressbar.ProgressBarBuilder;
@@ -18,7 +22,7 @@ import picocli.CommandLine;
 
 @Slf4j
 @CommandLine.Command(abbreviateSynopsis = true, sortOptions = false)
-public abstract class AbstractTransferCommand<I, O> extends HelpCommand implements Runnable {
+public abstract class AbstractTransferCommand<I, O> extends HelpCommand {
 
 	@CommandLine.ParentCommand
 	private RiotApp app;
@@ -30,19 +34,10 @@ public abstract class AbstractTransferCommand<I, O> extends HelpCommand implemen
 	@CommandLine.Option(names = "--max", description = "Max number of items to read", paramLabel = "<count>")
 	private Integer maxItemCount;
 
-	protected RedisConnectionOptions getRedisConnectionOptions() {
-		return app.getRedisConnectionOptions();
+	protected RiotApp getApp() {
+		return app;
 	}
 
-	protected <B extends RedisConnectionBuilder<B>> B configure(RedisConnectionBuilder<B> builder) {
-		return app.configure(builder);
-	}
-
-	protected <B extends RedisConnectionBuilder<B>> B configure(RedisConnectionBuilder<B> builder,
-			RedisConnectionOptions redis) {
-		return app.configure(builder, redis);
-	}
-	
 	protected Long flushPeriod() {
 		return null;
 	}
@@ -57,65 +52,88 @@ public abstract class AbstractTransferCommand<I, O> extends HelpCommand implemen
 			return;
 		}
 		for (Transfer<I, O> transfer : transfers) {
+			CompletableFuture<Void> future;
 			try {
-				execute(transfer);
+				future = execute(transfer);
 			} catch (Exception e) {
-				log.error("Could not start transfer", e);
+				log.error("Could not initialize transfer", e);
 				continue;
+			}
+			future.whenComplete((r, t) -> {
+				if (t != null) {
+					log.error("Error during transfer", t);
+				}
+			});
+			ProgressBarBuilder builder = new ProgressBarBuilder();
+			if (maxItemCount != null) {
+				builder.setInitialMax(maxItemCount);
+			}
+			builder.setTaskName(taskName() + " " + name(transfer.getReader()));
+			builder.showSpeed();
+			try (ProgressBar progressBar = builder.build()) {
+				while (!future.isDone()) {
+					progressBar.stepTo(transfer.count());
+					try {
+						Thread.sleep(100);
+					} catch (InterruptedException e) {
+						return;
+					}
+				}
+				progressBar.stepTo(transfer.count());
+				progressBar.close();
 			}
 		}
 	}
 
-	public void execute(Transfer<I, O> transfer) throws Exception {
-		transfer.open();
-		ProgressBarBuilder builder = new ProgressBarBuilder();
-		if (transfer.getMaxItemCount() != null) {
-			builder.setInitialMax(transfer.getMaxItemCount());
+	public CompletableFuture<Void> execute(Transfer<I, O> transfer) {
+		CompletableFuture<Void> future = transfer.execute();
+		Long flushPeriod = flushPeriod();
+		if (flushPeriod != null) {
+			ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+			ScheduledFuture<?> flushFuture = scheduler.scheduleAtFixedRate(transfer::flush, flushPeriod, flushPeriod,
+					TimeUnit.MILLISECONDS);
+			future.whenComplete((r, t) -> {
+				scheduler.shutdown();
+				flushFuture.cancel(true);
+			});
 		}
-		builder.setTaskName(transfer.getName());
-		builder.showSpeed();
-		transfer.addListener(TransferProgressMonitor.builder().bar(builder.build()).build());
-		try {
-			transfer.execute();
-		} catch (Exception e) {
-			log.error("Could not execute transfer", e);
-		} finally {
-			transfer.close();
-		}
+		return future;
 	}
 
-	@Builder
-	public static class TransferProgressMonitor implements TransferListener {
-
-		private final ProgressBar bar;
-
-		@Override
-		public void onOpen() {
-			// do nothing
+	public List<Transfer<I, O>> transfers() throws Exception {
+		List<Transfer<I, O>> transfers = new ArrayList<>();
+		for (ItemReader<I> reader : readers()) {
+			if (maxItemCount != null) {
+				if (reader instanceof AbstractItemCountingItemStreamItemReader) {
+					log.debug("Configuring reader with maxItemCount={}", maxItemCount);
+					((AbstractItemCountingItemStreamItemReader<I>) reader).setMaxItemCount(maxItemCount);
+				}
+			}
+			transfers.add(transfer(reader, processor(), writer()));
 		}
-
-		@Override
-		public void onUpdate(long count) {
-			bar.stepTo(count);
-		}
-
-		@Override
-		public void onClose() {
-			bar.close();
-		}
-
+		return transfers;
 	}
 
-	protected abstract List<Transfer<I, O>> transfers() throws Exception;
+	protected abstract String taskName();
 
-	protected Transfer<I, O> transfer(String name, ItemReader<I> reader, ItemProcessor<I, O> processor,
-			ItemWriter<O> writer) {
-		Transfer<I, O> transfer = new Transfer<>(name, reader, processor, writer);
-		transfer.setBatchSize(batchSize);
-		transfer.setThreadCount(threads);
-		transfer.setMaxItemCount(maxItemCount);
-		transfer.setFlushPeriod(flushPeriod());
-		return transfer;
+	protected abstract List<? extends ItemReader<I>> readers() throws Exception;
+
+	protected abstract ItemProcessor<I, O> processor();
+
+	protected abstract ItemWriter<O> writer() throws Exception;
+
+	protected Transfer<I, O> transfer(ItemReader<I> reader, ItemProcessor<I, O> processor, ItemWriter<O> writer) {
+		return Transfer.<I, O>builder().reader(reader).processor(processor).writer(writer).batchSize(batchSize)
+				.threadCount(threads).build();
+	}
+
+	private String name(ItemReader<I> reader) {
+		if (reader instanceof ItemStreamSupport) {
+			// this is a hack to get the source name
+			String name = ((ItemStreamSupport) reader).getExecutionContextKey("");
+			return name.substring(0, name.length() - 1);
+		}
+		return "";
 	}
 
 	protected String toString(RedisURI redisURI) {

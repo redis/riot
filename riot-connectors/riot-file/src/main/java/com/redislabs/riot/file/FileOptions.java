@@ -7,7 +7,6 @@ import java.util.Base64;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.batch.item.resource.StandardInputResource;
 import org.springframework.batch.item.resource.StandardOutputResource;
 import org.springframework.cloud.aws.core.io.s3.SimpleStorageProtocolResolver;
@@ -53,18 +52,8 @@ public class FileOptions {
 
 	@Option(names = { "-z", "--gzip" }, description = "File is gzip compressed")
 	private boolean gzip;
-	@Option(names = { "-t", "--filetype" }, description = "File type: ${COMPLETION-CANDIDATES}", paramLabel = "<type>")
-	private FileType type;
-	@CommandLine.Option(names = "--structured", description = "Use JSON/XML record structure")
-	private boolean structured;
-	@Option(names = "--fields", arity = "1..*", description = "Field names", paramLabel = "<names>")
-	private String[] names = new String[0];
 	@Option(names = "--encoding", defaultValue = "UTF-8", description = "File encoding (default: ${DEFAULT-VALUE})", paramLabel = "<charset>")
 	private String encoding;
-	@Option(names = { "-h", "--header" }, description = "First line contains field names")
-	private boolean header;
-	@Option(names = "--delimiter", description = "Delimiter character", paramLabel = "<string>")
-	private String delimiter;
 	@CommandLine.ArgGroup(exclusive = false, heading = "S3 options%n")
 	private S3Options s3 = new S3Options();
 	@CommandLine.ArgGroup(exclusive = false, heading = "GCS options%n")
@@ -97,22 +86,6 @@ public class FileOptions {
 			}
 		}
 		return DEFAULT_FILETYPE;
-	}
-
-	public String delimiter(String file) {
-		if (delimiter == null) {
-			String extension = extension(file);
-			if (extension != null) {
-				switch (extension) {
-				case EXT_TSV:
-					return DelimitedLineTokenizer.DELIMITER_TAB;
-				case EXT_CSV:
-					return DelimitedLineTokenizer.DELIMITER_COMMA;
-				}
-			}
-			return DelimitedLineTokenizer.DELIMITER_COMMA;
-		}
-		return delimiter;
 	}
 
 	public Resource inputResource(String file) throws IOException {
@@ -232,11 +205,11 @@ public class FileOptions {
 		return extensionGroup(file, "gz") != null;
 	}
 
-	public String extension(String file) {
+	public static String extension(String file) {
 		return extensionGroup(file, "extension");
 	}
 
-	public String extensionGroup(String file, String group) {
+	public static String extensionGroup(String file, String group) {
 		Matcher matcher = EXTENSION_PATTERN.matcher(file);
 		if (matcher.find()) {
 			return matcher.group(group);

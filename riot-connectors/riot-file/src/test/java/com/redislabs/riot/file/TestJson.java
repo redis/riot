@@ -21,7 +21,7 @@ import com.redislabs.riot.test.DataPopulator;
 public class TestJson extends AbstractFileTest {
 
 	@Test
-	public void exportKeyValues() throws Exception {
+	public void exportRedis() throws Exception {
 		List<KeyValue> records = doExportKeyValues();
 		Assertions.assertEquals(commands().dbsize(), records.size());
 	}
@@ -29,7 +29,7 @@ public class TestJson extends AbstractFileTest {
 	private List<KeyValue> doExportKeyValues() throws Exception {
 		Path file = tempFile("riot-keyvalues.json");
 		DataPopulator.builder().connection(connection()).build().run();
-		executeFile("/json/export-keyvalues.txt");
+		executeFile("/json/export-redis.txt");
 		JsonItemReaderBuilder<KeyValue> builder = new JsonItemReaderBuilder<>();
 		builder.name("json-keyvalues-file-reader");
 		builder.resource(new FileSystemResource(file));
@@ -44,7 +44,7 @@ public class TestJson extends AbstractFileTest {
 	public void importKeyValues() throws Exception {
 		List<KeyValue> records = doExportKeyValues();
 		commands().flushall();
-		executeFile("/json/import-keyvalues.txt");
+		executeFile("/json/import-redis.txt");
 		Assertions.assertEquals(records.size(), commands().dbsize());
 	}
 

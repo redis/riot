@@ -1,18 +1,16 @@
 package com.redislabs.riot.redis;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.redis.RedisKeyDumpItemReader;
 import org.springframework.batch.item.redis.RedisKeyDumpItemWriter;
 import org.springframework.batch.item.redis.support.KeyDump;
-import org.springframework.batch.item.support.PassThroughItemProcessor;
 
 import com.redislabs.riot.AbstractTransferCommand;
 import com.redislabs.riot.RedisConnectionOptions;
 import com.redislabs.riot.RedisExportOptions;
-import com.redislabs.riot.Transfer;
 
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -31,17 +29,34 @@ public class ReplicateCommand extends AbstractTransferCommand<KeyDump<String>, K
 	private long flushPeriod = 50;
 
 	@Override
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public List<Transfer<KeyDump<String>, KeyDump<String>>> transfers() {
-		RedisKeyDumpItemReader<String> reader = configure(RedisKeyDumpItemReader.builder()
+	protected List<RedisKeyDumpItemReader<String>> readers() throws Exception {
+		return Collections.singletonList(reader());
+	}
+
+	private RedisKeyDumpItemReader<String> reader() {
+		RedisKeyDumpItemReader<String> reader = getApp().configure(RedisKeyDumpItemReader.builder()
 				.scanCount(options.getScanCount()).scanMatch(options.getScanMatch()).batch(options.getBatchSize())
 				.threads(options.getThreads()).queueCapacity(options.getQueueCapacity()).live(live)).build();
-		ItemWriter writer = configure(RedisKeyDumpItemWriter.builder().replace(true), targetRedis).build();
-		String transferName = "Replicating from " + toString(getRedisConnectionOptions().getRedisURI()) + " to "
-				+ toString(targetRedis.getRedisURI());
-		List<Transfer<KeyDump<String>, KeyDump<String>>> transfers = new ArrayList<>();
-		transfers.add(transfer(transferName, reader, new PassThroughItemProcessor<>(), writer));
-		return transfers;
+		reader.setName(String.valueOf(getApp().getRedisConnectionOptions().getRedisURI()));
+		return reader;
+	}
+
+	@Override
+	protected RedisKeyDumpItemWriter<String, String> writer() {
+		RedisKeyDumpItemWriter<String, String> writer = getApp()
+				.configure(RedisKeyDumpItemWriter.builder().replace(true), targetRedis).build();
+		writer.setName(String.valueOf(targetRedis.getRedisURI()));
+		return writer;
+	}
+
+	@Override
+	protected ItemProcessor<KeyDump<String>, KeyDump<String>> processor() {
+		return null;
+	}
+
+	@Override
+	protected String taskName() {
+		return "Replicating";
 	}
 
 	@Override

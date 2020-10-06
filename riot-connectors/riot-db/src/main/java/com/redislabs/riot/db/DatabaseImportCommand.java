@@ -7,17 +7,17 @@ import java.util.Map;
 import javax.sql.DataSource;
 
 import org.springframework.batch.item.ItemProcessor;
+import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.database.JdbcCursorItemReader;
 import org.springframework.batch.item.database.builder.JdbcCursorItemReaderBuilder;
 import org.springframework.jdbc.core.ColumnMapRowMapper;
 
 import com.redislabs.riot.AbstractImportCommand;
-import com.redislabs.riot.Transfer;
 
 import picocli.CommandLine;
 
 @CommandLine.Command(name = "import", aliases = { "i" }, description = "Import from a database")
-public class DatabaseImportCommand extends AbstractImportCommand {
+public class DatabaseImportCommand extends AbstractImportCommand<Map<String, Object>, Map<String, Object>> {
 
 	@CommandLine.Parameters(arity = "1", description = "SQL SELECT statement", paramLabel = "SQL")
 	private String sql;
@@ -35,7 +35,7 @@ public class DatabaseImportCommand extends AbstractImportCommand {
 	private boolean verifyCursorPosition;
 
 	@Override
-	protected List<Transfer<Object, Object>> transfers() throws Exception {
+	protected List<ItemReader<Map<String, Object>>> readers() throws Exception {
 		DataSource dataSource = options.dataSource();
 		JdbcCursorItemReaderBuilder<Map<String, Object>> builder = new JdbcCursorItemReaderBuilder<>();
 		builder.dataSource(dataSource);
@@ -54,9 +54,9 @@ public class DatabaseImportCommand extends AbstractImportCommand {
 		builder.useSharedExtendedConnection(useSharedExtendedConnection);
 		builder.verifyCursorPosition(verifyCursorPosition);
 		JdbcCursorItemReader<Map<String, Object>> reader = builder.build();
+		reader.setName(options.name(dataSource));
 		reader.afterPropertiesSet();
-		return Collections
-				.singletonList(transfer("Importing from " + options.name(dataSource), reader, SourceType.OBJECT_MAP));
+		return Collections.singletonList(reader);
 	}
 
 	@Override

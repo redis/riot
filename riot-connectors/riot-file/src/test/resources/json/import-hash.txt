@@ -1,1 +1,1 @@
-❯ riot-file import https://raw.githubusercontent.com/rethinkdb/beerthink/master/data/beers.json --command hmset --keyspace beer --keys id
+❯ riot-file import https://raw.githubusercontent.com/rethinkdb/beerthink/master/data/beers.json hmset --keyspace beer --keys id

@@ -1,1 +1,0 @@
-❯ riot-file import /tmp/riot-keyvalues.json --key-values

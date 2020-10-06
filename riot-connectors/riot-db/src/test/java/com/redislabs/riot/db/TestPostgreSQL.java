@@ -29,6 +29,7 @@ import com.redislabs.riot.test.DataPopulator;
 @SuppressWarnings("rawtypes")
 public class TestPostgreSQL extends DbTest {
 
+	@SuppressWarnings("deprecation")
 	@Container
 	private static final PostgreSQLContainer postgreSQL = new PostgreSQLContainer();
 

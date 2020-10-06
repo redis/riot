@@ -1,8 +1,8 @@
 package com.redislabs.riot;
 
-import java.util.Map;
+import java.util.Collections;
+import java.util.List;
 
-import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.redis.RedisKeyValueItemReader;
 import org.springframework.batch.item.redis.support.KeyValue;
@@ -18,13 +18,20 @@ public abstract class AbstractExportCommand<O> extends AbstractTransferCommand<K
 	@CommandLine.Option(names = "--key-regex", defaultValue = "\\w+:(?<id>.+)", description = "Regex for key-field extraction (default: ${DEFAULT-VALUE})", paramLabel = "<str>")
 	private String keyRegex;
 
-	protected ItemReader<KeyValue<String>> reader() {
-		return configure(RedisKeyValueItemReader.builder().scanCount(options.getScanCount())
-				.scanMatch(options.getScanMatch()).batch(options.getBatchSize())
-				.queueCapacity(options.getQueueCapacity()).threads(options.getThreads())).build();
+	@Override
+	protected String taskName() {
+		return "Exporting";
 	}
 
-	protected ItemProcessor<KeyValue<String>, Map<String, String>> keyValueMapItemProcessor() {
+	@Override
+	protected List<ItemReader<KeyValue<String>>> readers() {
+		RedisKeyValueItemReader<String> reader = getApp().configure(RedisKeyValueItemReader.builder()
+				.scanCount(options.getScanCount()).scanMatch(options.getScanMatch()).batch(options.getBatchSize())
+				.queueCapacity(options.getQueueCapacity()).threads(options.getThreads())).build();
+		return Collections.singletonList(reader);
+	}
+
+	protected KeyValueMapItemProcessor keyValueMapItemProcessor() {
 		return KeyValueMapItemProcessor.builder().keyRegex(keyRegex).build();
 	}
 

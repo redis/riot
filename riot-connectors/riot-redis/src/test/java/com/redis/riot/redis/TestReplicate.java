@@ -1,5 +1,7 @@
 package com.redis.riot.redis;
 
+import java.util.concurrent.CompletableFuture;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -89,13 +91,7 @@ public class TestReplicate extends BaseTest {
 		CommandLine.ParseResult parseResult = commandLine.parseArgs(commandArgs);
 		ReplicateCommand command = parseResult.asCommandLineList().get(1).getCommand();
 		Transfer<KeyDump<String>, KeyDump<String>> transfer = command.transfers().get(0);
-		new Thread(() -> {
-			try {
-				command.execute(transfer);
-			} catch (Exception e) {
-				log.error("Could not execute transfer", e);
-			}
-		}).start();
+		CompletableFuture<Void> future = command.execute(transfer);
 		Thread.sleep(400);
 		RedisCommands<String, String> commands = commands();
 		int count = 39;
@@ -114,5 +110,6 @@ public class TestReplicate extends BaseTest {
 		Long targetSize = targetConnection.sync().dbsize();
 		Assertions.assertEquals(sourceSize, targetSize);
 		targetConnection.close();
+		future.cancel(false);
 	}
 }
