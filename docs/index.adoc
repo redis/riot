@@ -1,0 +1,27 @@
+= RIOT
+:source-highlighter: coderay
+:icons: font
+:imagesdir: images
+:linkattrs:
+:sectanchors:
+:docinfo: shared-head,private-head
+:site-base-url: https://redislabs-solution-architects.github.io/riot/
+ifdef::env-github[]
+:caution-caption: :fire:
+:important-caption: :heavy_exclamation_mark:
+:note-caption: :information_source:
+:tip-caption: :bulb:
+:warning-caption: :warning:
+endif::[]
+
+[quote]
+Get data in and out of Redis
+
+image:riot.svg[RIOT,width=800]
+
+Redis Input/Output Tools (RIOT) is a set of import/export command line utilities for Redis:
+
+* {site-base-url}/riot-gen.html[RIOT Gen]: generate sample Redis datasets for new feature development and proof of concept.
+* {site-base-url}/riot-db.html[RIOT DB]: migrate from an RDBMS to Redis, RediSearch, RedisJSON, ...
+* {site-base-url}/riot-file.html[RIOT File]: bulk import/export data from/to files.
+* {site-base-url}/riot-redis.html[RIOT Redis]: live replication from any Redis database (including AWS Elasticache) to another Redis database.

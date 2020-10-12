@@ -1,0 +1,135 @@
+= {app-name}
+:project-repo: Redislabs-Solution-Architects/riot
+:repo-url: https://github.com/{project-repo}
+:app-name: RIOT Gen
+:app: riot-gen
+:resources: ../{app}/src/test/resources
+:toc: left
+:numbered:
+:toclevels: 2
+:toc-title: Contents
+:source-highlighter: coderay
+:icons: font
+:resources: ../{app}/src/test/resources
+:imagesdir: images
+:linkattrs:
+:sectanchors:
+:docinfo: shared-head,private-head
+ifdef::env-github[]
+:caution-caption: :fire:
+:important-caption: :heavy_exclamation_mark:
+:note-caption: :information_source:
+:tip-caption: :bulb:
+:warning-caption: :warning:
+endif::[]
+
+== Overview
+
+*{app-name}* generates random data using the https://github.com/DiUS/java-faker[Faker] library.
+
+All supported Faker data types are listed <<faker-data-types,below>>.
+
+== Examples
+
+.Generating hashes
+[source,shell]
+----
+include::{resources}/import-hmset.txt[]
+----
+
+.Generating sets
+[source,shell]
+----
+include::{resources}/import-sadd.txt[]
+----
+
+include::import.adoc[]
+
+
+== RediSearch Index Introspection
+
+.Introspect RediSearch index
+[source,shell]
+----
+include::{resources}/index-introspection.txt[]
+----
+
+[#faker-data-types]
+== Faker data types
+
+* *address*: buildingNumber city cityName cityPrefix citySuffix country countryCode firstName fullAddress lastName latitude longitude secondaryAddress state stateAbbr streetAddress streetAddressNumber streetName streetPrefix streetSuffix timeZone zipCode
+* *ancient*: god hero primordial titan
+* *animal*: name
+* *app*: author name version
+* *artist*: name
+* *avatar*: image
+* *aviation*: METAR aircraft airport
+* *backToTheFuture*: character date quote
+* *beer*: hop malt name style yeast
+* *book*: author genre publisher title
+* *bool*: bool
+* *buffy*: bigBads celebrities characters episodes quotes
+* *business*: creditCardExpiry creditCardNumber creditCardType
+* *cat*: breed name registry
+* *chuckNorris*: fact
+* *code*: asin ean13 ean8 gtin13 gtin8 imei isbn10 isbn13 isbnGroup isbnGs1 isbnRegistrant
+* *color*: hex name
+* *commerce*: color department material price productName promotionCode
+* *company*: bs buzzword catchPhrase domainName domainSuffix industry logo name profession suffix url
+* *country*: capital countryCode2 countryCode3 currency currencyCode flag name
+* *crypto*: md5 sha1 sha256 sha512
+* *currency*: code name
+* *date*: birthday
+* *demographic*: demonym educationalAttainment maritalStatus race sex
+* *dog*: age breed coatLength gender memePhrase name size sound
+* *dragonBall*: character
+* *dune*: character planet quote saying title
+* *educator*: campus course secondarySchool university
+* *elderScrolls*: city creature dragon firstName lastName quote race region
+* *esports*: event game league player team
+* *file*: extension fileName mimeType
+* *finance*: bic createCountryCodeToBasicBankAccountNumberPatternMap creditCard iban randomCreditCardType
+* *food*: dish fruit ingredient measurement spice sushi vegetable
+* *friends*: character location quote
+* *funnyName*: name
+* *gameOfThrones*: character city dragon house quote
+* *hacker*: abbreviation adjective ingverb noun verb
+* *harryPotter*: book character location quote
+* *hipster*: word
+* *hitchhikersGuideToTheGalaxy*: character location marvinQuote planet quote specie starship
+* *hobbit*: character location quote thorinsCompany
+* *howIMetYourMother*: catchPhrase character highFive quote
+* *idNumber*: invalid invalidSvSeSsn ssnValid valid validSvSeSsn
+* *internet*: avatar domainName domainSuffix domainWord emailAddress image ipV4Address ipV4Cidr ipV6Address ipV6Cidr macAddress password privateIpV4Address publicIpV4Address safeEmailAddress slug url userAgentAny uuid
+* *job*: field keySkills position seniority title
+* *leagueOfLegends*: champion location masteries quote rank summonerSpell
+* *lebowski*: actor character quote
+* *lordOfTheRings*: character location
+* *lorem*: character characters paragraph sentence word words
+* *matz*: quote
+* *medical*: diseaseName hospitalName medicineName symptoms
+* *music*: chord genre instrument key
+* *name*: bloodGroup firstName fullName lastName name nameWithMiddle prefix suffix title username
+* *nation*: capitalCity flag language nationality
+* *number*: digit randomDigit randomDigitNotZero randomNumber
+* *overwatch*: hero location quote
+* *phoneNumber*: cellPhone extension phoneNumber subscriberNumber
+* *pokemon*: location name
+* *princessBride*: character quote
+* *relationships*: any direct extended inLaw parent sibling spouse
+* *rickAndMorty*: character location quote
+* *robin*: quote
+* *rockBand*: name
+* *shakespeare*: asYouLikeItQuote hamletQuote kingRichardIIIQuote romeoAndJulietQuote
+* *slackEmoji*: activity celebration custom emoji foodAndDrink nature objectsAndSymbols people travelAndPlaces
+* *space*: agency agencyAbbreviation company constellation distanceMeasurement galaxy meteorite moon nasaSpaceCraft nebula planet star starCluster
+* *starTrek*: character location specie villain
+* *stock*: nsdqSymbol nyseSymbol
+* *superhero*: descriptor name power prefix suffix
+* *team*: creature name sport state
+* *twinPeaks*: character location quote
+* *university*: name prefix suffix
+* *weather*: description temperatureCelsius temperatureFahrenheit
+* *witcher*: character location monster quote school witcher
+* *yoda*: quote
+* *zelda*: character game

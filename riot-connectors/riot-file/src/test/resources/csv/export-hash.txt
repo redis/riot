@@ -1,1 +1,0 @@
-❯ riot-file export /tmp/beers.csv --pattern beer:* --key-regex "beer:(?<id>.*)" --fields id name brewery_id abv --header --delimiter '|'

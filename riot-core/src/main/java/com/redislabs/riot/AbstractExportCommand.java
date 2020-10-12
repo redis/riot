@@ -20,7 +20,7 @@ public abstract class AbstractExportCommand<O> extends AbstractTransferCommand<K
 
 	@Override
 	protected String taskName() {
-		return "Exporting";
+		return "Exporting from";
 	}
 
 	@Override
@@ -28,6 +28,7 @@ public abstract class AbstractExportCommand<O> extends AbstractTransferCommand<K
 		RedisKeyValueItemReader<String> reader = getApp().configure(RedisKeyValueItemReader.builder()
 				.scanCount(options.getScanCount()).scanMatch(options.getScanMatch()).batch(options.getBatchSize())
 				.queueCapacity(options.getQueueCapacity()).threads(options.getThreads())).build();
+		reader.setName(String.valueOf(getApp().getRedisConnectionOptions().getRedisURI()));
 		return Collections.singletonList(reader);
 	}
 

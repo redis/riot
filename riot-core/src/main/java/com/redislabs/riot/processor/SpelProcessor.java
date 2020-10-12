@@ -29,6 +29,8 @@ public class SpelProcessor implements ItemProcessor<Map<String, Object>, Map<Str
 	private final StandardEvaluationContext context;
 	private final Map<String, Expression> expressions = new LinkedHashMap<>();
 	private final AtomicLong index = new AtomicLong();
+	@SuppressWarnings("unused")
+	private StatefulConnection<String, String> connection;
 
 	public SpelProcessor(StatefulConnection<String, String> connection,
 			Function<StatefulConnection<String, String>, BaseRedisCommands<String, String>> commands,
@@ -37,6 +39,8 @@ public class SpelProcessor implements ItemProcessor<Map<String, Object>, Map<Str
 		Assert.notNull(commands, "A connection -> commands function is required.");
 		Assert.notNull(dateFormat, "A DateFormat instance is required.");
 		Assert.isTrue(fields != null && !fields.isEmpty(), "At least one field is required.");
+		// keep a reference to the connection object to avoid GC reclaiming it
+		this.connection = connection;
 		this.context = new StandardEvaluationContext();
 		context.setVariable("date", dateFormat);
 		context.setVariable("index", index);

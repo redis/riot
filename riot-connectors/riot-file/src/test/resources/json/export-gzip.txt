@@ -1,1 +1,0 @@
-❯ riot-file export /tmp/beers.json.gz --pattern beer:* --fields id name brewery_id abv

@@ -6,9 +6,9 @@ import picocli.CommandLine;
 @Getter
 public class RedisExportOptions {
 
-	@CommandLine.Option(names = "--count", defaultValue = "1000", description = "SCAN COUNT option (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
+	@CommandLine.Option(names = "--scan-count", defaultValue = "1000", description = "SCAN COUNT option (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
 	private long scanCount;
-	@CommandLine.Option(names = "--pattern", defaultValue = "*", description = "SCAN pattern (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
+	@CommandLine.Option(names = "--scan-pattern", defaultValue = "*", description = "SCAN pattern (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
 	private String scanMatch;
 	@CommandLine.Option(names = "--reader-queue", defaultValue = "10000", description = "Capacity of the reader queue (default: ${DEFAULT-VALUE})", paramLabel = "<int>", hidden = true)
 	private int queueCapacity;

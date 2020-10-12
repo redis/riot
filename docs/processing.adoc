@@ -1,0 +1,15 @@
+{app-name} can process records with field expressions.
+
+You can specify field expressions to produce key/value pairs using the https://docs.spring.io/spring/docs/current/spring-framework-reference/core.html#expressions[Spring Expression Language] (SpEL): `field1=<exp>`, `field2=<exp>`, ...
+
+For example the expression `--spel field1='  generates a field named `field1` with always the same value `foo`: 
+
+The input record is accessed through its field names (e.g. `field3=field1+field2`).
+
+The processor also exposes the following variables that can be called with the `#` prefix:
+
+* `redis`: Redis connection to issue any command, e.g. `name=#redis.hgetall('person1').lastName`
+* `date`: date parser/formatter, e.g. `epoch=#date.parse(mydate).getTime()`
+* `index`: sequence number of the item being generated, e.g. `id=#index`
+
+

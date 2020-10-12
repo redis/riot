@@ -7,15 +7,17 @@ ifndef::env-github[:icons: font]
 // URIs
 :project-repo: Redislabs-Solution-Architects/riot
 :repo-url: https://github.com/{project-repo}
+:imagesdir: docs/images
+:site-base-url: https://redislabs-solution-architects.github.io/riot/
 // GitHub customization
 ifdef::env-github[]
 :badges:
 :tag: master
 :!toc-title:
-:tip-caption: :bulb:
-:note-caption: :paperclip:
-:important-caption: :heavy_exclamation_mark:
 :caution-caption: :fire:
+:important-caption: :heavy_exclamation_mark:
+:note-caption: :paperclip:
+:tip-caption: :bulb:
 :warning-caption: :warning:
 endif::[]
 
@@ -27,108 +29,14 @@ image:https://github.com/Redislabs-Solution-Architects/riot/workflows/CI/badge.s
 image:https://snyk.io/test/github/Redislabs-Solution-Architects/riot/badge.svg?targetFile=build.gradle["Known Vulnerabilities", link="https://snyk.io/test/github/Redislabs-Solution-Architects/riot?targetFile=build.gradle"]
 endif::[]
 
-RIOT is a set of import/export tools for Redis:
+[quote]
+Get data in and out of Redis
 
-* https://redislabs-solution-architects.github.io/riot/db.html[RIOT DB]: Import/export of relational databases
-* https://redislabs-solution-architects.github.io/riot/file.html[RIOT File]: Import/export of delimited (CSV), fixed-length, JSON, and XML files
-* https://redislabs-solution-architects.github.io/riot/gen.html[RIOT Gen]: Generate random datasets
-* https://redislabs-solution-architects.github.io/riot/redis.html[RIOT Redis]: Data replication between Redis databases
+image:riot.svg[RIOT,width=800]
 
-== Getting Started
+Redis Input/Output Tools (RIOT) is a set of import/export command line utilities for Redis:
 
-=== Download and Run
-
-Download the {repo-url}/releases/latest[latest release] and unzip the archive.
-
-Launch the `bin/riot-*` script and follow the usage information provided.
-
-=== Build and Run
-
-[source,shell]
-----
-❯ git clone https://github.com/Redislabs-Solution-Architects/riot.git
-❯ cd riot
-❯ ./riot-db
-❯ ./riot-file
-❯ ./riot-gen
-❯ ./riot-redis
-----
-
-=== Install via Homebrew
-
-[source,shell]
-----
-❯ brew install jruaux/tap/riot-db
-❯ brew install jruaux/tap/riot-file
-❯ brew install jruaux/tap/riot-gen
-❯ brew install jruaux/tap/riot-redis
-----
-
-=== Tab Completion
-
-RIOT has command line completion in Bash or ZSH Unix shells. The Unix shell will complete a command or option when users type the first few letters then press the TAB key.
-
-Run the following command to set up completion:
-[source,shell]
-----
-❯ source <(riot-* generate-completion)
-----
-
-== Connecting
-
-Redis connection options are the same as `redis-cli`:
-[source]
-----
-  -h, --hostname=<host>     Server hostname (default: 127.0.0.1)
-  -p, --port=<port>         Server port (default: 6379)
-  -s, --socket=<socket>     Server socket (overrides hostname and port)
-  -a, --pass[=<password>]   Password to use when connecting to the server
-  -u, --uri=<uri>           Server URI
-  -n, --db=<int>            Database number
-  -c, --cluster             Enable cluster mode
-  -t, --tls                 Establish a secure TLS connection
-----
-
-The Redis URI syntax is described https://github.com/lettuce-io/lettuce-core/wiki/Redis-URI-and-connection-details#uri-syntax[here].
-
-== Architecture
-
-RIOT reads records from a source (file, database, Redis, data generator) and writes them to a target (file, database, Redis).
-
-image::images/architecture.png[]
-
-In most cases some processing needs to happen in order to adapt input records to the output.
-
-For example records from  delimited files are string maps (key/value pairs where values are character strings) that look
-pretty much exactly like Redis hashes.
-
-However you still need to extract keys from those records, i.e. one or more fields should be used to construct the
-corresponding Redis keys.
-
-image::images/mapping.png[]
-
-== Processors
-
-RIOT can process records with field expressions.
-
-You can specify field expressions to process key/value pairs using the https://docs.spring.io/spring/docs/current/spring-framework-reference/core.html#expressions[Spring Expression Language] (SpEL): `field1=<exp>`, `field2=<exp>`, ...
-
-The input record is accessed through its field names (e.g. `field3=field1+field2`).
-
-The processor also exposes the following variables that can be called with the `#` prefix:
-
-* `redis`: Redis connection to issue any command, e.g. `name=#redis.hgetall('person1').lastName`
-* `date`: date parser/formatter, e.g. `epoch=#date.parse(mydate).getTime()`
-* `index`: sequence number e.g. `id=#index`
-
-== Metrics
-
-Use the `--metrics` option to show latency metrics:
-[source,shell]
-----
-❯ riot-file --metrics ...
-
-{[local:any -> localhost/127.0.0.1:6379, commandType=SET]=[count=401, timeUnit=MICROSECONDS, firstResponse=[min=116, max=7274, percentiles={50.0=197, 90.0=458, 95.0=606, 99.0=1081, 99.9=7274}], completion=[min=128, max=8519, percentiles={50.0=219, 90.0=489, 95.0=634, 99.0=1122, 99.9=8519}]]}
-{[local:any -> localhost/127.0.0.1:6379, commandType=SET]=[count=1403, timeUnit=MICROSECONDS, firstResponse=[min=48, max=704, percentiles={50.0=99, 90.0=156, 95.0=183, 99.0=280, 99.9=573}], completion=[min=49, max=909, percentiles={50.0=108, 90.0=171, 95.0=205, 99.0=317, 99.9=581}]]}
-{[local:any -> localhost/127.0.0.1:6379, commandType=SET]=[count=1684, timeUnit=MICROSECONDS, firstResponse=[min=56, max=516, percentiles={50.0=80, 90.0=124, 95.0=142, 99.0=183, 99.9=391}], completion=[min=58, max=520, percentiles={50.0=82, 90.0=127, 95.0=146, 99.0=188, 99.9=403}]]}
-----
+* {site-base-url}/riot-gen.html[RIOT Gen]: generate sample Redis datasets for new feature development and proof of concept.
+* {site-base-url}/riot-db.html[RIOT DB]: migrate from an RDBMS to Redis, RediSearch, RedisJSON, ...
+* {site-base-url}/riot-file.html[RIOT File]: bulk import/export data from/to files.
+* {site-base-url}/riot-redis.html[RIOT Redis]: live replication from any Redis database (including AWS Elasticache) to another Redis database.

@@ -30,7 +30,7 @@ public abstract class AbstractTransferCommand<I, O> extends HelpCommand {
 	private int threads = 1;
 	@CommandLine.Option(names = { "-b",
 			"--batch" }, description = "Number of items in each batch (default: ${DEFAULT-VALUE})", paramLabel = "<size>")
-	private int batchSize = 50;
+	private int batch = 50;
 	@CommandLine.Option(names = "--max", description = "Max number of items to read", paramLabel = "<count>")
 	private Integer maxItemCount;
 
@@ -123,8 +123,8 @@ public abstract class AbstractTransferCommand<I, O> extends HelpCommand {
 	protected abstract ItemWriter<O> writer() throws Exception;
 
 	protected Transfer<I, O> transfer(ItemReader<I> reader, ItemProcessor<I, O> processor, ItemWriter<O> writer) {
-		return Transfer.<I, O>builder().reader(reader).processor(processor).writer(writer).batchSize(batchSize)
-				.threadCount(threads).build();
+		return Transfer.<I, O>builder().reader(reader).processor(processor).writer(writer).batch(batch).threads(threads)
+				.build();
 	}
 
 	private String name(ItemReader<I> reader) {

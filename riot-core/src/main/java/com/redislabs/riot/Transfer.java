@@ -25,21 +25,20 @@ public class Transfer<I, O> {
 	@Getter
 	private final ItemReader<I> reader;
 	@Getter
-	private final ItemWriter<O> writer;
+	private final ItemWriter<? extends O> writer;
 	private final List<BatchTransfer<I>> threads;
 
 	@Builder
-	public Transfer(ItemReader<I> reader, ItemProcessor<I, O> processor, ItemWriter<O> writer, int threadCount,
-			int batchSize) {
+	public Transfer(ItemReader<I> reader, ItemProcessor<I, O> processor, ItemWriter<O> writer, int threads, int batch) {
 		Assert.notNull(reader, "A reader instance is required.");
 		Assert.notNull(writer, "A writer instance is required.");
-		Assert.isTrue(threadCount > 0, "Thread count must be greater than 0.");
-		Assert.isTrue(batchSize > 0, "Batch size must be greater than 0.");
+		Assert.isTrue(threads > 0, "Thread count must be greater than 0.");
+		Assert.isTrue(batch > 0, "Batch size must be greater than 0.");
 		this.reader = reader;
 		this.writer = writer;
-		this.threads = new ArrayList<>(threadCount);
-		for (int index = 0; index < threadCount; index++) {
-			threads.add(new BatchTransfer<>(reader(), writer(processor, writer), batchSize));
+		this.threads = new ArrayList<>(threads);
+		for (int index = 0; index < threads; index++) {
+			this.threads.add(new BatchTransfer<>(reader(), writer(processor, writer), batch));
 		}
 	}
 
@@ -48,7 +47,7 @@ public class Transfer<I, O> {
 		if (processor == null) {
 			return (ItemWriter<I>) writer;
 		}
-		return new ProcessingItemWriter<>(processor, writer);
+		return new ProcessingItemWriter<I, O>(processor, writer);
 	}
 
 	@SuppressWarnings("rawtypes")

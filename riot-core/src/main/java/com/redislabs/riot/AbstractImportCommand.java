@@ -34,7 +34,7 @@ import picocli.CommandLine.Command;
 
 @Command(subcommands = { EvalshaCommand.class, ExpireCommand.class, GeoaddCommand.class, HmsetCommand.class,
 		LpushCommand.class, NoopCommand.class, RpushCommand.class, SaddCommand.class, SetCommand.class,
-		XaddCommand.class, ZaddCommand.class }, subcommandsRepeatable = true)
+		XaddCommand.class, ZaddCommand.class }, subcommandsRepeatable = true, synopsisSubcommandLabel = "[REDIS COMMAND]", commandListHeading = "Redis commands:%n")
 public abstract class AbstractImportCommand<I, O> extends AbstractTransferCommand<I, O> {
 
 	/*
@@ -54,7 +54,7 @@ public abstract class AbstractImportCommand<I, O> extends AbstractTransferComman
 
 	@Override
 	protected String taskName() {
-		return "Importing";
+		return "Importing from";
 	}
 
 	protected ItemProcessor<Map<String, Object>, Map<String, Object>> mapProcessor() {
@@ -77,21 +77,23 @@ public abstract class AbstractImportCommand<I, O> extends AbstractTransferComman
 		return compositeItemProcessor;
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	protected ItemWriter<O> writer() throws Exception {
 		Assert.notNull(redisCommands, "RedisCommands not set");
-		List<ItemWriter<O>> writers = new ArrayList<>();
+		List<AbstractRedisItemWriter<String, String, O>> writers = new ArrayList<>();
 		for (AbstractRedisCommand<O> redisCommand : redisCommands) {
 			AbstractRedisItemWriter<String, String, O> writer = redisCommand.writer();
 			getApp().configure(writer);
 			writers.add(writer);
 		}
+		if (writers.isEmpty()) {
+			throw new IllegalArgumentException("No Redis command specified");
+		}
 		if (writers.size() == 1) {
-			return writers.get(0);
+			return (ItemWriter<O>) writers.get(0);
 		}
 		CompositeItemWriter<O> writer = new CompositeItemWriter<>();
-		writer.setDelegates((List) writers);
+		writer.setDelegates(new ArrayList<>(writers));
 		return writer;
 	}
 
