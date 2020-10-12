@@ -13,21 +13,21 @@ import io.lettuce.core.GeoArgs;
 public class TestCsv extends AbstractFileTest {
 
 	@Test
-	public void importHash() throws Exception {
+	public void importHmset() throws Exception {
 		executeFile("/csv/import-hmset.txt");
 		List<String> keys = commands().keys("beer:*");
 		Assertions.assertEquals(COUNT, keys.size());
 	}
 
 	@Test
-	public void importMultiHash() throws Exception {
+	public void importGlobHmset() throws Exception {
 		executeFile("/csv/import-glob-hmset.txt");
 		List<String> keys = commands().keys("beer:*");
 		Assertions.assertEquals(COUNT, keys.size());
 	}
 
 	@Test
-	public void importGeo() throws Exception {
+	public void importGeoadd() throws Exception {
 		executeFile("/csv/import-geoadd.txt");
 		Set<String> results = commands().georadius("airportgeo", -122.4194, 37.7749, 20, GeoArgs.Unit.mi);
 		Assertions.assertTrue(results.contains("3469"));
@@ -36,7 +36,7 @@ public class TestCsv extends AbstractFileTest {
 	}
 
 	@Test
-	public void importProcessorHashDateFormat() throws Exception {
+	public void importProcessorHmset() throws Exception {
 		executeFile("/csv/import-processor-hmset.txt");
 		List<String> keys = commands().keys("event:*");
 		Assertions.assertEquals(568, keys.size());
