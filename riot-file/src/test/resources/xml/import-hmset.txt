@@ -1,1 +1,1 @@
-❯ riot-file import https://raw.githubusercontent.com/Redislabs-Solution-Architects/riot/master/riot-connectors/riot-file/src/test/resources/xml/trades.xml hmset --keyspace trade --keys id
+❯ riot-file import https://raw.githubusercontent.com/Redislabs-Solution-Architects/riot/master/riot-file/src/test/resources/xml/trades.xml hmset --keyspace trade --keys id
