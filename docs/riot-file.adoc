@@ -25,7 +25,7 @@ endif::[]
 
 == Overview
 
-*{app-name}* lets you import/export data from local or remote files in multiple file formats like CSV, fixed-width, JSON, and XML.
+*{app-name}* lets you import/export local or remote files in many formats like CSV, fixed-width, JSON, and XML.
 
 include::getting_started.adoc[]
 
