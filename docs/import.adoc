@@ -1,10 +1,10 @@
 You can specify one or many Redis commands as targets of the import:
 
 .Import into hashes
-`import ... hmset --keyspace blah --keys id`
+`❯ {app} import ... hmset --keyspace blah --keys id`
 
 .Import into hashes *and* set TTL on the key
-`import ... hmset --keyspace blah --keys id expire --keyspace blah --keys id` 
+`❯ {app} import ... hmset --keyspace blah --keys id expire --keyspace blah --keys id` 
 
 .Import into hashes *and* set TTL *and* add to a set named `myset`
-`import ... hmset --keyspace blah --keys id expire --keyspace blah --keys id sadd --keyspace myset --members id`
+`❯ {app} import ... hmset --keyspace blah --keys id expire --keyspace blah --keys id sadd --keyspace myset --members id`
