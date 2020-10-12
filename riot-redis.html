@@ -449,7 +449,6 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <ul class="sectlevel1">
 <li><a href="#_overview">1. Overview</a></li>
 <li><a href="#_architecture">2. Architecture</a></li>
-<li><a href="#_examples">3. Examples</a></li>
 </ul>
 </div>
 </div>
@@ -458,10 +457,27 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="_overview"><a class="anchor" href="#_overview"></a>1. Overview</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><strong>RIOT Redis</strong> is a migration tool that allows for replicating data between two Redis databases.</p>
+<p>Most database migration tools available today are offline in nature. Migrating data from AWS ElastiCache to Redis Enterprise Cloud for example means backing up your Elasticache data to an AWS S3 bucket and importing it into Redis Enterprise Cloud using its UI.</p>
 </div>
 <div class="paragraph">
-<p>Most database migration tools available today are offline in nature. Migrating data from AWS ElastiCache to Redis Enterprise Cloud for example means backing up your Elasticache data to an AWS S3 bucket and importing it into Redis Enterprise Cloud using its UI. This implies some downtime and might result in data loss. Other available techniques include creating point-in-time snapshots of the source Redis server &amp; applying the changes to the destination servers to keep both servers in sync. It might sound like a good approach but can be challenging when you have to maintain dozens of scripts to implement the migration strategy.</p>
+<p>This implies some downtime and might result in data loss.</p>
+</div>
+<div class="paragraph">
+<p>Other available techniques include creating point-in-time snapshots of the source Redis server &amp; applying the changes to the destination servers to keep both servers in sync.</p>
+</div>
+<div class="paragraph">
+<p>It might sound like a good approach but can be challenging when you have to maintain dozens of scripts to implement the migration strategy.</p>
+</div>
+<div class="paragraph">
+<p><strong>RIOT Redis</strong> is a migration tool that allows for seamless live replication between two Redis databases.</p>
+</div>
+<div class="paragraph">
+<p>Here is an example of a live replication from a source Redis running on localhost and port 6379, to a target Redis running on localhost and port 6380:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="shell">❯ riot-redis -h source -p 6379 replicate -h target -p 6380 --live</code></pre>
+</div>
 </div>
 </div>
 </div>
@@ -528,22 +544,11 @@ The live replication mechanism does not guarantee data consistency. Redis sends 
 </div>
 </div>
 </div>
-<div class="sect1">
-<h2 id="_examples"><a class="anchor" href="#_examples"></a>3. Examples</h2>
-<div class="sectionbody">
-<div class="listingblock">
-<div class="title">Live replication from localhost:6379 to localhost:6380</div>
-<div class="content">
-<pre class="CodeRay highlight"><code data-lang="shell">❯ riot-redis -h source -p 6379 replicate -h target -p 6380 --live</code></pre>
-</div>
-</div>
-</div>
-</div>
 </div>
 <div id="footer">
 <div id="footer-text">
 Version 2.2.1<br>
-Last updated 2020-10-11 22:53:36 -0700
+Last updated 2020-10-11 22:58:29 -0700
 </div>
 </div>
 <style>
