@@ -25,9 +25,22 @@ endif::[]
 
 == Overview
 
-*{app-name}* is a migration tool that allows for replicating data between two Redis databases.
+Most database migration tools available today are offline in nature. Migrating data from AWS ElastiCache to Redis Enterprise Cloud for example means backing up your Elasticache data to an AWS S3 bucket and importing it into Redis Enterprise Cloud using its UI.
 
-Most database migration tools available today are offline in nature. Migrating data from AWS ElastiCache to Redis Enterprise Cloud for example means backing up your Elasticache data to an AWS S3 bucket and importing it into Redis Enterprise Cloud using its UI. This implies some downtime and might result in data loss. Other available techniques include creating point-in-time snapshots of the source Redis server & applying the changes to the destination servers to keep both servers in sync. It might sound like a good approach but can be challenging when you have to maintain dozens of scripts to implement the migration strategy.
+This implies some downtime and might result in data loss.
+
+Other available techniques include creating point-in-time snapshots of the source Redis server & applying the changes to the destination servers to keep both servers in sync.
+
+It might sound like a good approach but can be challenging when you have to maintain dozens of scripts to implement the migration strategy.
+
+*{app-name}* is a migration tool that allows for seamless live replication between two Redis databases.
+
+Here is an example of a live replication from a source Redis running on localhost and port 6379, to a target Redis running on localhost and port 6380:
+
+[source,shell]
+----
+include::{resources}/replicate-live.txt[]
+----
 
 == Architecture
 
@@ -47,11 +60,3 @@ image::replication.png[]
 TIP: Live replication makes use of keyspace notifications. Make sure the source Redis database has keyspace notifications enabled using `notify-keyspace-events = KA` in `redis.conf` or via CONFIG SET.
 
 WARNING: The live replication mechanism does not guarantee data consistency. Redis sends keyspace notifications over pub/sub which does not provide	guaranteed delivery. It is possible that {app-name} can miss some notifications in case of network failures for example.   
-
-== Examples
-
-.Live replication from localhost:6379 to localhost:6380
-[source,shell]
-----
-include::{resources}/replicate-live.txt[]
-----
