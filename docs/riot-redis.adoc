@@ -35,12 +35,17 @@ It might sound like a good approach but can be challenging when you have to main
 
 *{app-name}* is a migration tool that allows for seamless live replication between two Redis databases.
 
+include::getting_started.adoc[]
+
+== Example
+
 Here is an example of a live replication from a source Redis running on localhost and port 6379, to a target Redis running on localhost and port 6380:
 
 [source,shell]
 ----
 include::{resources}/replicate-live.txt[]
 ----
+
 
 == Architecture
 

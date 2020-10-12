@@ -27,6 +27,8 @@ endif::[]
 
 *{app-name}* lets you import/export data from relational databases.
 
+include::getting_started.adoc[]
+
 == Drivers
 
 {app-name} includes drivers for the most common RDBMSs:

@@ -29,6 +29,8 @@ endif::[]
 
 All supported Faker data types are listed <<faker-data-types,below>>.
 
+include::getting_started.adoc[]
+
 == Examples
 
 .Generating hashes
