@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.10">
-<title>RIOT Gen</title>
+<title>Untitled</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /* Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -435,291 +435,32 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 #footer-text{color:rgba(0,0,0,.6);font-size:.9em}}
 @media amzn-kf8{#header,#content,#footnotes,#footer{padding:0}}
 </style>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 <body class="article">
 <div id="header">
-<h1>RIOT Gen</h1>
-<div class="details">
-<span id="revnumber">version 2.2.0</span>
-</div>
 </div>
 <div id="content">
-<div class="sect1">
-<h2 id="overview"><a class="anchor" href="#overview"></a>Overview</h2>
-<div class="sectionbody">
 <div class="paragraph">
-<p><strong>riot-gen</strong> generates random data using the <a href="https://github.com/DiUS/java-faker">Faker</a> library.</p>
+<p>You can specify one or many Redis commands as targets of the import:</p>
 </div>
 <div class="paragraph">
-<p>All supported Faker data types are listed <a href="#faker-data-types">below</a>.</p>
+<div class="title">Import into hashes</div>
+<p><code>import &#8230;&#8203; hmset --keyspace blah --keys id</code></p>
 </div>
-<div class="listingblock">
-<div class="title">Generate hashes</div>
-<div class="content">
-<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">❯ riot-gen -h localhost -p 6379 import id=#index firstName=name.firstName lastName=name.lastName address=address.fullAddress --max 100 -c hmset --keyspace person --keys id</code></pre>
+<div class="paragraph">
+<div class="title">Import into hashes <strong>and</strong> set TTL on the key</div>
+<p><code>import &#8230;&#8203; hmset --keyspace blah --keys id expire --keyspace blah --keys id</code></p>
 </div>
-</div>
-<div class="listingblock">
-<div class="title">Generate sets</div>
-<div class="content">
-<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">❯ riot-gen import name=gameOfThrones.character --max 10000 --command sadd --members name --keyspace got:characters</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="title">Introspect RediSearch index</div>
-<div class="content">
-<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">❯ riot-gen import --faker-index beerIntrospection --max 100 -c hmset --keyspace beer --keys id</code></pre>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="faker-data-types"><a class="anchor" href="#faker-data-types"></a>Faker data types</h2>
-<div class="sectionbody">
-<div class="ulist">
-<ul>
-<li>
-<p><strong>address</strong>: buildingNumber city cityName cityPrefix citySuffix country countryCode firstName fullAddress lastName latitude longitude secondaryAddress state stateAbbr streetAddress streetAddressNumber streetName streetPrefix streetSuffix timeZone zipCode</p>
-</li>
-<li>
-<p><strong>ancient</strong>: god hero primordial titan</p>
-</li>
-<li>
-<p><strong>animal</strong>: name</p>
-</li>
-<li>
-<p><strong>app</strong>: author name version</p>
-</li>
-<li>
-<p><strong>artist</strong>: name</p>
-</li>
-<li>
-<p><strong>avatar</strong>: image</p>
-</li>
-<li>
-<p><strong>aviation</strong>: METAR aircraft airport</p>
-</li>
-<li>
-<p><strong>backToTheFuture</strong>: character date quote</p>
-</li>
-<li>
-<p><strong>beer</strong>: hop malt name style yeast</p>
-</li>
-<li>
-<p><strong>book</strong>: author genre publisher title</p>
-</li>
-<li>
-<p><strong>bool</strong>: bool</p>
-</li>
-<li>
-<p><strong>buffy</strong>: bigBads celebrities characters episodes quotes</p>
-</li>
-<li>
-<p><strong>business</strong>: creditCardExpiry creditCardNumber creditCardType</p>
-</li>
-<li>
-<p><strong>cat</strong>: breed name registry</p>
-</li>
-<li>
-<p><strong>chuckNorris</strong>: fact</p>
-</li>
-<li>
-<p><strong>code</strong>: asin ean13 ean8 gtin13 gtin8 imei isbn10 isbn13 isbnGroup isbnGs1 isbnRegistrant</p>
-</li>
-<li>
-<p><strong>color</strong>: hex name</p>
-</li>
-<li>
-<p><strong>commerce</strong>: color department material price productName promotionCode</p>
-</li>
-<li>
-<p><strong>company</strong>: bs buzzword catchPhrase domainName domainSuffix industry logo name profession suffix url</p>
-</li>
-<li>
-<p><strong>country</strong>: capital countryCode2 countryCode3 currency currencyCode flag name</p>
-</li>
-<li>
-<p><strong>crypto</strong>: md5 sha1 sha256 sha512</p>
-</li>
-<li>
-<p><strong>currency</strong>: code name</p>
-</li>
-<li>
-<p><strong>date</strong>: birthday</p>
-</li>
-<li>
-<p><strong>demographic</strong>: demonym educationalAttainment maritalStatus race sex</p>
-</li>
-<li>
-<p><strong>dog</strong>: age breed coatLength gender memePhrase name size sound</p>
-</li>
-<li>
-<p><strong>dragonBall</strong>: character</p>
-</li>
-<li>
-<p><strong>dune</strong>: character planet quote saying title</p>
-</li>
-<li>
-<p><strong>educator</strong>: campus course secondarySchool university</p>
-</li>
-<li>
-<p><strong>elderScrolls</strong>: city creature dragon firstName lastName quote race region</p>
-</li>
-<li>
-<p><strong>esports</strong>: event game league player team</p>
-</li>
-<li>
-<p><strong>file</strong>: extension fileName mimeType</p>
-</li>
-<li>
-<p><strong>finance</strong>: bic createCountryCodeToBasicBankAccountNumberPatternMap creditCard iban randomCreditCardType</p>
-</li>
-<li>
-<p><strong>food</strong>: dish fruit ingredient measurement spice sushi vegetable</p>
-</li>
-<li>
-<p><strong>friends</strong>: character location quote</p>
-</li>
-<li>
-<p><strong>funnyName</strong>: name</p>
-</li>
-<li>
-<p><strong>gameOfThrones</strong>: character city dragon house quote</p>
-</li>
-<li>
-<p><strong>hacker</strong>: abbreviation adjective ingverb noun verb</p>
-</li>
-<li>
-<p><strong>harryPotter</strong>: book character location quote</p>
-</li>
-<li>
-<p><strong>hipster</strong>: word</p>
-</li>
-<li>
-<p><strong>hitchhikersGuideToTheGalaxy</strong>: character location marvinQuote planet quote specie starship</p>
-</li>
-<li>
-<p><strong>hobbit</strong>: character location quote thorinsCompany</p>
-</li>
-<li>
-<p><strong>howIMetYourMother</strong>: catchPhrase character highFive quote</p>
-</li>
-<li>
-<p><strong>idNumber</strong>: invalid invalidSvSeSsn ssnValid valid validSvSeSsn</p>
-</li>
-<li>
-<p><strong>internet</strong>: avatar domainName domainSuffix domainWord emailAddress image ipV4Address ipV4Cidr ipV6Address ipV6Cidr macAddress password privateIpV4Address publicIpV4Address safeEmailAddress slug url userAgentAny uuid</p>
-</li>
-<li>
-<p><strong>job</strong>: field keySkills position seniority title</p>
-</li>
-<li>
-<p><strong>leagueOfLegends</strong>: champion location masteries quote rank summonerSpell</p>
-</li>
-<li>
-<p><strong>lebowski</strong>: actor character quote</p>
-</li>
-<li>
-<p><strong>lordOfTheRings</strong>: character location</p>
-</li>
-<li>
-<p><strong>lorem</strong>: character characters paragraph sentence word words</p>
-</li>
-<li>
-<p><strong>matz</strong>: quote</p>
-</li>
-<li>
-<p><strong>medical</strong>: diseaseName hospitalName medicineName symptoms</p>
-</li>
-<li>
-<p><strong>music</strong>: chord genre instrument key</p>
-</li>
-<li>
-<p><strong>name</strong>: bloodGroup firstName fullName lastName name nameWithMiddle prefix suffix title username</p>
-</li>
-<li>
-<p><strong>nation</strong>: capitalCity flag language nationality</p>
-</li>
-<li>
-<p><strong>number</strong>: digit randomDigit randomDigitNotZero randomNumber</p>
-</li>
-<li>
-<p><strong>overwatch</strong>: hero location quote</p>
-</li>
-<li>
-<p><strong>phoneNumber</strong>: cellPhone extension phoneNumber subscriberNumber</p>
-</li>
-<li>
-<p><strong>pokemon</strong>: location name</p>
-</li>
-<li>
-<p><strong>princessBride</strong>: character quote</p>
-</li>
-<li>
-<p><strong>relationships</strong>: any direct extended inLaw parent sibling spouse</p>
-</li>
-<li>
-<p><strong>rickAndMorty</strong>: character location quote</p>
-</li>
-<li>
-<p><strong>robin</strong>: quote</p>
-</li>
-<li>
-<p><strong>rockBand</strong>: name</p>
-</li>
-<li>
-<p><strong>shakespeare</strong>: asYouLikeItQuote hamletQuote kingRichardIIIQuote romeoAndJulietQuote</p>
-</li>
-<li>
-<p><strong>slackEmoji</strong>: activity celebration custom emoji foodAndDrink nature objectsAndSymbols people travelAndPlaces</p>
-</li>
-<li>
-<p><strong>space</strong>: agency agencyAbbreviation company constellation distanceMeasurement galaxy meteorite moon nasaSpaceCraft nebula planet star starCluster</p>
-</li>
-<li>
-<p><strong>starTrek</strong>: character location specie villain</p>
-</li>
-<li>
-<p><strong>stock</strong>: nsdqSymbol nyseSymbol</p>
-</li>
-<li>
-<p><strong>superhero</strong>: descriptor name power prefix suffix</p>
-</li>
-<li>
-<p><strong>team</strong>: creature name sport state</p>
-</li>
-<li>
-<p><strong>twinPeaks</strong>: character location quote</p>
-</li>
-<li>
-<p><strong>university</strong>: name prefix suffix</p>
-</li>
-<li>
-<p><strong>weather</strong>: description temperatureCelsius temperatureFahrenheit</p>
-</li>
-<li>
-<p><strong>witcher</strong>: character location monster quote school witcher</p>
-</li>
-<li>
-<p><strong>yoda</strong>: quote</p>
-</li>
-<li>
-<p><strong>zelda</strong>: character game</p>
-</li>
-</ul>
-</div>
-</div>
+<div class="paragraph">
+<div class="title">Import into hashes <strong>and</strong> set TTL <strong>and</strong> add to a set named <code>myset</code></div>
+<p><code>import &#8230;&#8203; hmset --keyspace blah --keys id expire --keyspace blah --keys id sadd --keyspace myset --members id</code></p>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 2.2.0<br>
-Last updated 2020-09-21 16:04:33 -0700
+Version 2.2.1<br>
+Last updated 2020-10-11 22:08:55 -0700
 </div>
 </div>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/styles/github.min.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/highlight.min.js"></script>
-<script>hljs.initHighlighting()</script>
 </body>
 </html>

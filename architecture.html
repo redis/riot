@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.10">
-<title>RIOT DB</title>
+<title>RIOT Architecture</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /* Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -439,141 +439,42 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="article">
 <div id="header">
-<h1>RIOT DB</h1>
+<h1>RIOT Architecture</h1>
 <div class="details">
-<span id="revnumber">version 2.2.0</span>
+<span id="revnumber">version 2.2.1</span>
 </div>
 </div>
 <div id="content">
-<div class="sect1">
-<h2 id="overview"><a class="anchor" href="#overview"></a>Overview</h2>
-<div class="sectionbody">
 <div class="paragraph">
-<p><strong>riot-db</strong> connects to any SQL databases with a JDBC driver and includes drivers for the most common database systems:</p>
+<p>RIOT reads records from a source (file, database, Redis, data generator) and writes them to a target (file, database, Redis).</p>
 </div>
-<div class="admonitionblock tip">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-tip" title="Tip"></i>
-</td>
-<td class="content">
-<div class="paragraph">
-<p>For non-included databases you must install the corresponding JDBC driver under the <code>lib</code> directory and modify the RIOT <code>CLASSPATH</code>:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>*nix: <code>bin/riot-db</code> &#8594; <code>CLASSPATH=$APP_HOME/lib/myjdbc.jar:$APP_HOME/lib/…</code></p>
-</li>
-<li>
-<p>Windows: <code>bin\riot-db.bat</code> &#8594; <code>set CLASSPATH=%APP_HOME%\lib\myjdbc.jar;%APP_HOME%\lib\…</code></p>
-</li>
-</ul>
-</div>
-</td>
-</tr>
-</table>
-</div>
-<div class="paragraph">
-<p>For reference here are links to common database systems and related JDBC driver documentation:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p><a href="https://docs.oracle.com/cd/E11882_01/appdev.112/e13995/oracle/jdbc/OracleDriver.html">Oracle</a></p>
-<div class="paragraph">
-<p><code>jdbc:oracle:thin:@myhost:1521:orcl</code></p>
-</div>
-</li>
-<li>
-<p><a href="https://www.ibm.com/support/knowledgecenter/en/SSEPGG_11.5.0/com.ibm.db2.luw.apdv.java.doc/src/tpc/imjcc_r0052342.html">IBM Db2</a></p>
-<div class="paragraph">
-<p><code>jdbc:db2://host:port/database</code></p>
-</div>
-</li>
-<li>
-<p><a href="https://docs.microsoft.com/en-us/sql/connect/jdbc/building-the-connection-url?view=sql-server-2017">MS SQL Server</a></p>
-<div class="paragraph">
-<p><code>jdbc:sqlserver://[serverName[\instanceName][:portNumber]][;property=value[;property=value]]</code></p>
-</div>
-</li>
-<li>
-<p><a href="https://dev.mysql.com/doc/connector-j/8.0/en/connector-j-reference-jdbc-url-format.html">MySQL</a></p>
-<div class="paragraph">
-<p><code>jdbc:mysql://[host]:[port][/database][?properties]</code></p>
-</div>
-</li>
-<li>
-<p><a href="https://www.postgresql.org/docs/7.4/jdbc-use.html">PostgreSQL</a></p>
-<div class="paragraph">
-<p><code>jdbc:postgresql://host:port/database</code></p>
-</div>
-</li>
-<li>
-<p><a href="https://www.sqlitetutorial.net/sqlite-java/sqlite-jdbc-driver/">SQLite</a></p>
-<div class="paragraph">
-<p><code>jdbc:sqlite:sqlite_database_file_path</code></p>
-</div>
-</li>
-</ul>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-<div class="sectionbody">
-<div class="listingblock">
-<div class="title">Import from PostgreSQL</div>
+<div class="imageblock">
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">❯ riot-db -h localhost -p 6379 import "SELECT * FROM orders" --url jdbc:postgresql://host:port/database --username appuser --password passwd --command hmset --keyspace order --keys order_id</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="title">Export to PostgreSQL</div>
-<div class="content">
-<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">❯ riot-db export "INSERT INTO mytable (id, field1, field2) VALUES (CAST(:id AS SMALLINT), :field1, :field2)" --url jdbc:postgresql://host:port/database --username appuser --password passwd --pattern "hash:*" --key-regex "hash:(?&lt;id&gt;.*)"</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="title">Import from PostgreSQL to JSON strings</div>
-<div class="content">
-<pre class="highlightjs highlight"><code data-lang="shell" class="language-shell hljs">❯ riot-db -h localhost -p 6379 import "SELECT * FROM orders" --url jdbc:postgresql://host:port/database --username appuser --password passwd --command set --keyspace order --keys order_id</code></pre>
+<img src="images/architecture.png" alt="architecture">
 </div>
 </div>
 <div class="paragraph">
-<p>This will produce Redis strings that look like this:</p>
+<p>In most cases some processing needs to happen in order to adapt input records to the output.</p>
 </div>
-<div class="listingblock">
+<div class="paragraph">
+<p>For example records from  delimited files are string maps (key/value pairs where values are character strings) that look
+pretty much exactly like Redis hashes.</p>
+</div>
+<div class="paragraph">
+<p>However you still need to extract keys from those records, i.e. one or more fields should be used to construct the
+corresponding Redis keys.</p>
+</div>
+<div class="imageblock">
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="json" class="language-json hljs">{
-	"order_id": 10248,
-	"customer_id": "VINET",
-	"employee_id": 5,
-	"order_date": "1996-07-04",
-	"required_date": "1996-08-01",
-	"shipped_date": "1996-07-16",
-	"ship_via": 3,
-	"freight": 32.38,
-	"ship_name": "Vins et alcools Chevalier",
-	"ship_address": "59 rue de l'Abbaye",
-	"ship_city": "Reims",
-	"ship_postal_code": "51100",
-	"ship_country": "France"
-}</code></pre>
-</div>
-</div>
+<img src="images/mapping.png" alt="mapping">
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 2.2.0<br>
-Last updated 2020-09-21 16:03:24 -0700
+Version 2.2.1<br>
+Last updated 2020-10-11 22:30:07 -0700
 </div>
 </div>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/styles/github.min.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/highlight.min.js"></script>
-<script>hljs.initHighlighting()</script>
 </body>
 </html>
