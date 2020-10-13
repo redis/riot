@@ -3,15 +3,19 @@ package com.redislabs.riot;
 import java.io.File;
 import java.time.Duration;
 
+import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
+import org.springframework.batch.item.redis.support.RedisConnectionBuilder;
+
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.SslOptions;
+import io.lettuce.core.api.StatefulConnection;
 import io.lettuce.core.cluster.ClusterClientOptions;
 import io.lettuce.core.event.DefaultEventPublisherOptions;
 import io.lettuce.core.event.metrics.CommandLatencyEvent;
+import io.lettuce.core.metrics.CommandLatencyCollector;
 import io.lettuce.core.metrics.DefaultCommandLatencyCollectorOptions;
 import io.lettuce.core.resource.ClientResources;
 import io.lettuce.core.resource.DefaultClientResources;
-import lombok.Getter;
 import picocli.CommandLine.Option;
 
 public class RedisConnectionOptions {
@@ -25,9 +29,11 @@ public class RedisConnectionOptions {
 	@Option(names = { "-s",
 			"--socket" }, description = "Server socket (overrides hostname and port)", paramLabel = "<socket>")
 	private String socket;
+	@Option(names = "--user", description = "Used to send ACL style 'AUTH username pass'. Needs password.", paramLabel = "<username>")
+	private String username;
 	@Option(names = { "-a",
 			"--pass" }, arity = "0..1", interactive = true, description = "Password to use when connecting to the server", paramLabel = "<password>")
-	private String password;
+	private char[] password;
 	@Option(names = { "-u", "--uri" }, description = "Server URI", paramLabel = "<uri>")
 	private RedisURI redisURI;
 	@Option(names = { "-o",
@@ -36,7 +42,6 @@ public class RedisConnectionOptions {
 	@Option(names = { "-n",
 			"--db" }, defaultValue = "0", description = "Database number (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
 	private int database;
-	@Getter
 	@Option(names = { "-c", "--cluster" }, description = "Enable cluster mode")
 	private boolean cluster;
 	@Option(names = { "-t", "--tls" }, description = "Establish a secure TLS connection")
@@ -51,7 +56,6 @@ public class RedisConnectionOptions {
 	private String truststorePassword;
 	@Option(names = { "-l", "--latency" }, description = "Show latency metrics")
 	private boolean showMetrics;
-	@Getter
 	@Option(names = { "-m",
 			"--pool" }, defaultValue = "8", description = "Max pool connections (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
 	private int poolMaxTotal;
@@ -61,7 +65,17 @@ public class RedisConnectionOptions {
 	private String clientName;
 
 	public RedisURI getRedisURI() {
-		RedisURI uri = redisURI();
+		RedisURI uri = redisURI;
+		if (uri == null) {
+			uri = new RedisURI();
+			uri.setHost(host);
+			uri.setPort(port);
+			uri.setSocket(socket);
+			uri.setSsl(tls);
+		}
+		if (username != null) {
+			uri.setUsername(username);
+		}
 		if (password != null) {
 			uri.setPassword(password);
 		}
@@ -75,34 +89,22 @@ public class RedisConnectionOptions {
 		return uri;
 	}
 
-	private RedisURI redisURI() {
-		if (redisURI == null) {
-			RedisURI uri = new RedisURI();
-			uri.setHost(host);
-			uri.setPort(port);
-			uri.setSocket(socket);
-			uri.setSsl(tls);
-			return uri;
-		}
-		return redisURI;
-	}
-
-	public ClientResources getClientResources() {
+	private ClientResources clientResources() {
 		if (showMetrics) {
-			DefaultClientResources.Builder clientResourcesBuilder = DefaultClientResources.builder();
-			clientResourcesBuilder
-					.commandLatencyCollectorOptions(DefaultCommandLatencyCollectorOptions.builder().enable().build());
-			clientResourcesBuilder.commandLatencyPublisherOptions(
+			DefaultClientResources.Builder builder = DefaultClientResources.builder();
+			builder.commandLatencyRecorder(
+					CommandLatencyCollector.create(DefaultCommandLatencyCollectorOptions.builder().enable().build()));
+			builder.commandLatencyPublisherOptions(
 					DefaultEventPublisherOptions.builder().eventEmitInterval(Duration.ofSeconds(1)).build());
-			ClientResources resources = clientResourcesBuilder.build();
+			ClientResources resources = builder.build();
 			resources.eventBus().get().filter(redisEvent -> redisEvent instanceof CommandLatencyEvent)
 					.cast(CommandLatencyEvent.class).subscribe(e -> System.out.println(e.getLatencies()));
-			return clientResourcesBuilder.build();
+			return builder.build();
 		}
 		return null;
 	}
 
-	public ClusterClientOptions getClientOptions() {
+	private ClusterClientOptions clientOptions() {
 		SslOptions.Builder sslOptionsBuilder = SslOptions.builder();
 		if (keystore != null) {
 			if (keystorePassword == null) {
@@ -120,6 +122,17 @@ public class RedisConnectionOptions {
 		}
 		return ClusterClientOptions.builder().autoReconnect(!noAutoReconnect).sslOptions(sslOptionsBuilder.build())
 				.build();
+	}
+
+	private GenericObjectPoolConfig<StatefulConnection<String, String>> poolConfig() {
+		GenericObjectPoolConfig<StatefulConnection<String, String>> poolConfig = new GenericObjectPoolConfig<>();
+		poolConfig.setMaxTotal(poolMaxTotal);
+		return poolConfig;
+	}
+
+	public <B extends RedisConnectionBuilder<B>> B configure(RedisConnectionBuilder<B> builder) {
+		return builder.redisURI(getRedisURI()).cluster(cluster).clientResources(clientResources())
+				.clientOptions(clientOptions()).poolConfig(poolConfig());
 	}
 
 }

@@ -8,13 +8,17 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemStreamSupport;
 import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.item.redis.support.AbstractRedisItemWriter;
+import org.springframework.batch.item.redis.support.RedisConnectionBuilder;
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
 
 import io.lettuce.core.RedisURI;
+import io.lettuce.core.api.StatefulConnection;
 import lombok.extern.slf4j.Slf4j;
 import me.tongfei.progressbar.ProgressBar;
 import me.tongfei.progressbar.ProgressBarBuilder;
@@ -33,10 +37,6 @@ public abstract class AbstractTransferCommand<I, O> extends HelpCommand {
 	private int batch = 50;
 	@CommandLine.Option(names = "--max", description = "Max number of items to read", paramLabel = "<count>")
 	private Integer maxItemCount;
-
-	protected RiotApp getApp() {
-		return app;
-	}
 
 	protected Long flushPeriod() {
 		return null;
@@ -145,4 +145,35 @@ public abstract class AbstractTransferCommand<I, O> extends HelpCommand {
 		}
 		return redisURI.getHost();
 	}
+
+	protected RedisURI getRedisURI() {
+		return app.getRedisConnectionOptions().getRedisURI();
+	}
+
+	protected <B extends RedisConnectionBuilder<B>> B configure(RedisConnectionBuilder<B> builder) {
+		return configure(builder, app.getRedisConnectionOptions());
+	}
+
+	protected <B extends RedisConnectionBuilder<B>> B configure(RedisConnectionBuilder<B> builder,
+			RedisConnectionOptions redisConnectionOptions) {
+		return redisConnectionOptions.configure(builder);
+	}
+
+	protected <T extends AbstractRedisItemWriter<String, String, O>> T configure(T writer) throws Exception {
+		return configure(writer, app.getRedisConnectionOptions());
+	}
+
+	protected <T extends AbstractRedisItemWriter<String, String, O>> T configure(T writer,
+			RedisConnectionOptions redisConnectionOptions) throws Exception {
+		RedisConnectionBuilder<?> builder = new RedisConnectionBuilder<>();
+		redisConnectionOptions.configure(builder);
+		GenericObjectPool<StatefulConnection<String, String>> pool = builder.pool();
+		try (StatefulConnection<String, String> connection = pool.borrowObject()) {
+		}
+		writer.setPool(pool);
+		writer.setCommands(builder.async());
+		writer.setCommandTimeout(builder.timeout());
+		return writer;
+	}
+
 }

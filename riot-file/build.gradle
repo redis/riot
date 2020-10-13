@@ -4,42 +4,23 @@ plugins {
 
 archivesBaseName = 'riot-file'
 
-bootJar {
-    enabled = false
-}
-
-jar {
-    enabled = true
-}
-
-ext {
-    set('springCloudVersion', "Hoxton.SR5")
-}
-
 dependencies {
     implementation project(':riot-core')
     annotationProcessor 'info.picocli:picocli-codegen:4.5.1'
-    implementation 'org.slf4j:slf4j-jdk14'
-    compileOnly 'org.projectlombok:lombok'
-    annotationProcessor 'org.projectlombok:lombok'
-    implementation 'org.springframework.cloud:spring-cloud-aws-context'
-    implementation 'org.springframework.cloud:spring-cloud-aws-autoconfigure'
-    implementation 'org.springframework.cloud:spring-cloud-gcp-starter-storage'
+    compileOnly 'org.projectlombok:lombok:1.18.14'
+    annotationProcessor 'org.projectlombok:lombok:1.18.14'
+    implementation 'org.springframework.cloud:spring-cloud-aws-context:2.2.4.RELEASE'
+    implementation 'org.springframework.cloud:spring-cloud-aws-autoconfigure:2.2.4.RELEASE'
+    implementation 'org.springframework.cloud:spring-cloud-gcp-starter-storage:1.2.5.RELEASE'
     implementation 'org.ruaux:spring-batch-resource:1.1.1'
-    implementation 'org.springframework:spring-oxm'
-    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
+    implementation 'org.springframework:spring-oxm:5.2.9.RELEASE'
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.11.3'
     testImplementation project(':riot-test')
     testImplementation 'org.ruaux:spring-batch-faker:1.0.1'
 }
 
 configurations {
     all*.exclude module: 'spring-boot-starter-logging'
-}
-
-dependencyManagement {
-    imports {
-        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
-    }
 }
 
 application {

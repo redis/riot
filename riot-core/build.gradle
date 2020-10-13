@@ -4,31 +4,24 @@ plugins {
 
 archivesBaseName = 'riot-core'
 
-bootJar {
-    enabled = false
-}
-
-jar {
-    enabled = true
-}
-
 test {
     useJUnitPlatform()
 }
 
 dependencies {
-    compileOnly 'org.projectlombok:lombok'
-    annotationProcessor 'org.projectlombok:lombok'
+    api 'org.slf4j:slf4j-jdk14:1.7.30'
+    compileOnly 'org.projectlombok:lombok:1.18.14'
+    annotationProcessor 'org.projectlombok:lombok:1.18.14'
     api 'info.picocli:picocli:4.5.1'
     annotationProcessor 'info.picocli:picocli-codegen:4.5.1'
-    api 'com.redislabs:spring-batch-redis:2.2.9'
+    api 'com.redislabs:spring-batch-redis:2.2.10'
     implementation 'me.tongfei:progressbar:0.9.0'
-    implementation 'org.apache.commons:commons-lang3'
+    implementation 'org.apache.commons:commons-lang3:3.11'
     implementation 'org.latencyutils:LatencyUtils:2.0.3'
-    implementation 'org.slf4j:slf4j-api'
-    api 'org.springframework.batch:spring-batch-core'
-    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
-    testImplementation 'org.junit.jupiter:junit-jupiter-engine'
+    implementation 'org.slf4j:slf4j-api:1.7.30'
+    api 'org.springframework.batch:spring-batch-core:4.2.4.RELEASE'
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.11.3'
+    testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
 }
 
 jar {

@@ -25,10 +25,10 @@ public abstract class AbstractExportCommand<O> extends AbstractTransferCommand<K
 
 	@Override
 	protected List<ItemReader<KeyValue<String>>> readers() {
-		RedisKeyValueItemReader<String> reader = getApp().configure(RedisKeyValueItemReader.builder()
+		RedisKeyValueItemReader<String> reader = configure(RedisKeyValueItemReader.builder()
 				.scanCount(options.getScanCount()).scanMatch(options.getScanMatch()).batch(options.getBatchSize())
 				.queueCapacity(options.getQueueCapacity()).threads(options.getThreads())).build();
-		reader.setName(String.valueOf(getApp().getRedisConnectionOptions().getRedisURI()));
+		reader.setName(String.valueOf(getRedisURI()));
 		return Collections.singletonList(reader);
 	}
 

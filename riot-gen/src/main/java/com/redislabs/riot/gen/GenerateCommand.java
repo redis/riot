@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.faker.FakerItemReader;
@@ -22,10 +21,7 @@ import com.redislabs.lettusearch.index.field.GeoField;
 import com.redislabs.lettusearch.index.field.TagField;
 import com.redislabs.lettusearch.index.field.TextField;
 import com.redislabs.riot.AbstractImportCommand;
-import com.redislabs.riot.RedisConnectionOptions;
 
-import io.lettuce.core.cluster.ClusterClientOptions;
-import io.lettuce.core.resource.ClientResources;
 import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine;
 
@@ -82,14 +78,7 @@ public class GenerateCommand extends AbstractImportCommand<Map<String, Object>, 
 		if (fakerIndex == null) {
 			return fields;
 		}
-		GenericObjectPoolConfig<StatefulRediSearchConnection<String, String>> poolConfig = new GenericObjectPoolConfig<>();
-		RedisConnectionOptions redis = getApp().getRedisConnectionOptions();
-		poolConfig.setMaxTotal(redis.getPoolMaxTotal());
-		RediSearchClient client = rediSearchClient(redis);
-		ClusterClientOptions clientOptions = redis.getClientOptions();
-		if (clientOptions != null) {
-			client.setOptions(clientOptions);
-		}
+		RediSearchClient client = RediSearchClient.create(getRedisURI());
 		StatefulRediSearchConnection<String, String> connection = client.connect();
 		RediSearchCommands<String, String> commands = connection.sync();
 		IndexInfo<String> info = RediSearchUtils.getInfo(commands.ftInfo(fakerIndex));
@@ -98,14 +87,6 @@ public class GenerateCommand extends AbstractImportCommand<Map<String, Object>, 
 		}
 		log.info("Introspected fields: {}", String.join(" ", fakerArgs(fields)));
 		return fields;
-	}
-
-	private RediSearchClient rediSearchClient(RedisConnectionOptions redis) {
-		ClientResources clientResources = redis.getClientResources();
-		if (clientResources == null) {
-			return RediSearchClient.create(redis.getRedisURI());
-		}
-		return RediSearchClient.create(clientResources, redis.getRedisURI());
 	}
 
 }

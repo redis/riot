@@ -34,7 +34,8 @@ import picocli.CommandLine.Command;
 
 @Command(subcommands = { EvalshaCommand.class, ExpireCommand.class, GeoaddCommand.class, HmsetCommand.class,
 		LpushCommand.class, NoopCommand.class, RpushCommand.class, SaddCommand.class, SetCommand.class,
-		XaddCommand.class, ZaddCommand.class }, subcommandsRepeatable = true, synopsisSubcommandLabel = "[REDIS COMMAND]", commandListHeading = "Redis commands:%n")
+		XaddCommand.class,
+		ZaddCommand.class }, subcommandsRepeatable = true, synopsisSubcommandLabel = "[REDIS COMMAND]", commandListHeading = "Redis commands:%n")
 public abstract class AbstractImportCommand<I, O> extends AbstractTransferCommand<I, O> {
 
 	/*
@@ -60,7 +61,7 @@ public abstract class AbstractImportCommand<I, O> extends AbstractTransferComman
 	protected ItemProcessor<Map<String, Object>, Map<String, Object>> mapProcessor() {
 		List<ItemProcessor<Map<String, Object>, Map<String, Object>>> processors = new ArrayList<>();
 		if (!spel.isEmpty()) {
-			processors.add(getApp().configure(SpelProcessor.builder().dateFormat(new SimpleDateFormat(dateFormat))
+			processors.add(configure(SpelProcessor.builder().dateFormat(new SimpleDateFormat(dateFormat))
 					.variables(variables).fields(spel)).build());
 		}
 		if (!regexes.isEmpty()) {
@@ -82,9 +83,7 @@ public abstract class AbstractImportCommand<I, O> extends AbstractTransferComman
 		Assert.notNull(redisCommands, "RedisCommands not set");
 		List<AbstractRedisItemWriter<String, String, O>> writers = new ArrayList<>();
 		for (AbstractRedisCommand<O> redisCommand : redisCommands) {
-			AbstractRedisItemWriter<String, String, O> writer = redisCommand.writer();
-			getApp().configure(writer);
-			writers.add(writer);
+			writers.add(configure(redisCommand.writer()));
 		}
 		if (writers.isEmpty()) {
 			throw new IllegalArgumentException("No Redis command specified");

@@ -4,14 +4,6 @@ plugins {
 
 archivesBaseName = 'riot-redis'
 
-bootJar {
-    enabled = false
-}
-
-jar {
-    enabled = true
-}
-
 test {
     useJUnitPlatform()
 }
@@ -19,9 +11,8 @@ test {
 dependencies {
     implementation project(':riot-core')
     annotationProcessor 'info.picocli:picocli-codegen:4.5.1'
-    implementation 'org.slf4j:slf4j-jdk14'
-    compileOnly 'org.projectlombok:lombok'
-    annotationProcessor 'org.projectlombok:lombok'
+    compileOnly 'org.projectlombok:lombok:1.18.14'
+    annotationProcessor 'org.projectlombok:lombok:1.18.14'
     implementation 'org.latencyutils:LatencyUtils:2.0.3'
     testImplementation project(':riot-test')
 }

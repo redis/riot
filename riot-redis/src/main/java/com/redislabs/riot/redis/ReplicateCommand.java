@@ -39,17 +39,17 @@ public class ReplicateCommand extends AbstractTransferCommand<KeyDump<String>, K
 	}
 
 	private RedisKeyDumpItemReader<String> reader() {
-		RedisKeyDumpItemReader<String> reader = getApp().configure(RedisKeyDumpItemReader.builder()
+		RedisKeyDumpItemReader<String> reader = configure(RedisKeyDumpItemReader.builder()
 				.scanCount(options.getScanCount()).scanMatch(options.getScanMatch()).batch(options.getBatchSize())
 				.threads(options.getThreads()).queueCapacity(options.getQueueCapacity()).live(live)).build();
-		reader.setName(String.valueOf(getApp().getRedisConnectionOptions().getRedisURI()));
+		reader.setName(String.valueOf(getRedisURI()));
 		return reader;
 	}
 
 	@Override
 	protected RedisKeyDumpItemWriter<String, String> writer() {
-		RedisKeyDumpItemWriter<String, String> writer = getApp()
-				.configure(RedisKeyDumpItemWriter.builder().replace(true), targetRedis).build();
+		RedisKeyDumpItemWriter<String, String> writer = configure(RedisKeyDumpItemWriter.builder().replace(true),
+				targetRedis).build();
 		writer.setName(String.valueOf(targetRedis.getRedisURI()));
 		return writer;
 	}

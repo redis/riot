@@ -28,7 +28,7 @@ public class TestXml extends AbstractFileTest {
 		Assertions.assertEquals("XYZ0001", trade1.get("isin"));
 	}
 
-	@SuppressWarnings("incomplete-switch")
+	@SuppressWarnings({ "incomplete-switch", "rawtypes", "unchecked" })
 	@Test
 	public void exportHash() throws Exception {
 		DataPopulator.builder().connection(connection()).build().run();

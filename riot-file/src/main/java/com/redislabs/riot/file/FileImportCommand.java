@@ -210,12 +210,11 @@ public class FileImportCommand extends AbstractImportCommand {
 		return (ItemProcessor) mapProcessor();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	protected ItemWriter writer() throws Exception {
 		if (getRedisCommands().isEmpty()) {
-			RedisKeyValueItemWriter<String, String> writer = new RedisKeyValueItemWriter<String, String>();
-			getApp().configure(writer);
-			return writer;
+			return configure(new RedisKeyValueItemWriter<String, String>());
 		}
 		return super.writer();
 	}

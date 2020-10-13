@@ -6,9 +6,6 @@ import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
-import org.apache.commons.pool2.impl.GenericObjectPool;
-import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
-import org.springframework.batch.item.redis.support.AbstractRedisItemWriter;
 import org.springframework.batch.item.redis.support.RedisConnectionBuilder;
 
 import com.redislabs.riot.redis.AbstractRedisCommand;
@@ -46,12 +43,9 @@ public class RiotApp implements Runnable {
 	@Getter
 	@Option(names = { "-i", "--info" }, description = "Set log level to info")
 	private boolean info;
+	@Getter
 	@ArgGroup(heading = "Redis connection options%n", exclusive = false)
 	private RedisConnectionOptions redisConnectionOptions = new RedisConnectionOptions();
-
-	public RedisConnectionOptions getRedisConnectionOptions() {
-		return redisConnectionOptions;
-	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public int execute(String... args) {
@@ -134,46 +128,22 @@ public class RiotApp implements Runnable {
 		return Level.SEVERE;
 	}
 
-	public <B extends RedisConnectionBuilder<B>> B configure(RedisConnectionBuilder<B> builder) {
-		return configure(builder, redisConnectionOptions);
-	}
-
-	public <B extends RedisConnectionBuilder<B>> B configure(RedisConnectionBuilder<B> builder,
-			RedisConnectionOptions redisConnectionOptions) {
-		GenericObjectPoolConfig<StatefulConnection<String, String>> poolConfig = new GenericObjectPoolConfig<>();
-		poolConfig.setMaxTotal(redisConnectionOptions.getPoolMaxTotal());
-		return builder.redisURI(redisConnectionOptions.getRedisURI()).cluster(redisConnectionOptions.isCluster())
-				.clientResources(redisConnectionOptions.getClientResources())
-				.clientOptions(redisConnectionOptions.getClientOptions()).poolConfig(poolConfig);
-	}
-
 	public StatefulConnection<String, String> connection() {
 		RedisConnectionBuilder<?> connectionBuilder = new RedisConnectionBuilder<>();
-		configure(connectionBuilder);
+		redisConnectionOptions.configure(connectionBuilder);
 		return connectionBuilder.connection();
 	}
 
 	public BaseRedisCommands<String, String> sync(StatefulConnection<String, String> connection) {
 		RedisConnectionBuilder<?> connectionBuilder = new RedisConnectionBuilder<>();
-		configure(connectionBuilder);
+		redisConnectionOptions.configure(connectionBuilder);
 		return connectionBuilder.sync().apply(connection);
 	}
 
 	public BaseRedisAsyncCommands<String, String> async(StatefulConnection<String, String> connection) {
 		RedisConnectionBuilder<?> connectionBuilder = new RedisConnectionBuilder<>();
-		configure(connectionBuilder);
+		redisConnectionOptions.configure(connectionBuilder);
 		return connectionBuilder.async().apply(connection);
-	}
-
-	public void configure(AbstractRedisItemWriter<String, String, ?> writer) throws Exception {
-		RedisConnectionBuilder<?> builder = new RedisConnectionBuilder<>();
-		configure(builder);
-		GenericObjectPool<StatefulConnection<String, String>> pool = builder.pool();
-		try (StatefulConnection<String, String> connection = pool.borrowObject()) {
-		}
-		writer.setPool(pool);
-		writer.setCommands(builder.async());
-		writer.setCommandTimeout(builder.timeout());
 	}
 
 }
