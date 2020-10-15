@@ -6,7 +6,7 @@ archivesBaseName = 'riot-file'
 
 dependencies {
     implementation project(':riot-core')
-    annotationProcessor 'info.picocli:picocli-codegen:4.5.1'
+    annotationProcessor 'info.picocli:picocli-codegen:4.5.2'
     compileOnly 'org.projectlombok:lombok:1.18.14'
     annotationProcessor 'org.projectlombok:lombok:1.18.14'
     implementation 'org.springframework.cloud:spring-cloud-aws-context:2.2.4.RELEASE'
