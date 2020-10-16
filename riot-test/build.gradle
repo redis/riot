@@ -4,7 +4,7 @@ plugins {
 
 dependencies {
     implementation project(':riot-core')
-    compileOnly 'org.projectlombok:lombok:1.18.14'
+    compileOnly 'org.projectlombok:lombok:1.18.16'
     annotationProcessor 'org.projectlombok:lombok:1.18.14'
     implementation 'org.codehaus.plexus:plexus-utils:3.3.0'
     api 'org.junit.jupiter:junit-jupiter-api:5.7.0'
