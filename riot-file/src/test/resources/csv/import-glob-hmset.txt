@@ -1,1 +1,1 @@
-❯ riot-file import https://raw.githubusercontent.com/Redislabs-Solution-Architects/riot/master/riot-file/src/test/resources/csv/beers1.csv https://raw.githubusercontent.com/Redislabs-Solution-Architects/riot/master/riot-file/src/test/resources/csv/beers2.csv --header hmset --keyspace beer --keys id
+❯ riot-file import https://raw.githubusercontent.com/redis-developer/riot/master/riot-file/src/test/resources/csv/beers1.csv https://raw.githubusercontent.com/redis-developer/riot/master/riot-file/src/test/resources/csv/beers2.csv --header hmset --keyspace beer --keys id
