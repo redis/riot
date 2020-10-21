@@ -442,7 +442,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="header">
 <h1>RIOT Gen</h1>
 <div class="details">
-<span id="revnumber">version 2.2.4-SNAPSHOT</span>
+<span id="revnumber">version 2.2.4</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Contents</div>
@@ -480,7 +480,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="sect3">
 <h4 id="_download_and_run"><a class="anchor" href="#_download_and_run"></a>2.1.1. Download and Run</h4>
 <div class="paragraph">
-<p>Download the <a href="https://github.com/Redislabs-Solution-Architects/riot/releases/latest">latest release</a> and unzip the archive.</p>
+<p>Download the <a href="https://github.com/redis-developer/riot/releases/latest">latest release</a> and unzip the archive.</p>
 </div>
 <div class="paragraph">
 <p>Launch the <code>bin/riot-gen</code> script and follow the usage information provided.</p>
@@ -490,28 +490,44 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h4 id="_build_and_run"><a class="anchor" href="#_build_and_run"></a>2.1.2. Build and Run</h4>
 <div class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="source">❯ git clone https://github.com/Redislabs-Solution-Architects/riot.git
+<pre class="CodeRay highlight"><code data-lang="source">❯ git clone https://github.com/redis-developer/riot.git
 ❯ cd riot/riot-gen
 ❯ ./riot-gen</code></pre>
 </div>
 </div>
-<div class="sect4">
-<h5 id="_install_via_homebrew_macos"><a class="anchor" href="#_install_via_homebrew_macos"></a>Install via Homebrew (macOS)</h5>
+</div>
+<div class="sect3">
+<h4 id="_install_via_homebrew_macos"><a class="anchor" href="#_install_via_homebrew_macos"></a>2.1.3. Install via Homebrew (macOS)</h4>
 <div class="paragraph">
 <p><code>brew install jruaux/tap/riot-gen</code></p>
 </div>
 </div>
 </div>
-</div>
 <div class="sect2">
 <h3 id="_usage"><a class="anchor" href="#_usage"></a>2.2. Usage</h3>
-<div class="sect3">
-<h4 id="_help"><a class="anchor" href="#_help"></a>2.2.1. Help</h4>
+<div class="listingblock">
+<div class="content">
+<pre>❯ riot-gen
+Usage: riot-gen [OPTIONS] [COMMAND]
+      --help                Show this help message and exit.
+  -V, --version             Print version information and exit.
+  -q, --quiet               Log errors only
+  -d, --debug               Log in debug mode (includes normal stacktrace)
+  -i, --info                Set log level to info</pre>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
 <div class="paragraph">
-<p><code>riot-gen --help</code></p>
+<p>You can use <code>--help</code> on any subcommand:</p>
 </div>
 <div class="paragraph">
-<p>You can also use <code>--help</code> on any subcommand:</p>
+<p><code>❯ riot-gen --help</code></p>
 </div>
 <div class="paragraph">
 <p><code>❯ riot-gen import --help</code></p>
@@ -519,27 +535,31 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="paragraph">
 <p><code>❯ riot-gen import &#8230;&#8203; hmset --help</code></p>
 </div>
+</td>
+</tr>
+</table>
 </div>
-<div class="sect3">
-<h4 id="_redis_connection"><a class="anchor" href="#_redis_connection"></a>2.2.2. Redis connection</h4>
 <div class="paragraph">
 <p>Redis connection options are the same as <code>redis-cli</code>:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code>  -h, --hostname=&lt;host&gt;     Server hostname (default: 127.0.0.1)
+<pre>  -h, --hostname=&lt;host&gt;     Server hostname (default: 127.0.0.1)
   -p, --port=&lt;port&gt;         Server port (default: 6379)
   -s, --socket=&lt;socket&gt;     Server socket (overrides hostname and port)
+      --user=&lt;username&gt;     Used to send ACL style 'AUTH username pass'. Needs password.
   -a, --pass[=&lt;password&gt;]   Password to use when connecting to the server
   -u, --uri=&lt;uri&gt;           Server URI
-  -n, --db=&lt;int&gt;            Database number
+  -o, --timeout=&lt;sec&gt;       Redis command timeout (default: 60)
+  -n, --db=&lt;int&gt;            Database number (default: 0)
   -c, --cluster             Enable cluster mode
-  -t, --tls                 Establish a secure TLS connection</code></pre>
+  -t, --tls                 Establish a secure TLS connection
+  -l, --latency             Show latency metrics
+  -m, --pool=&lt;int&gt;          Max pool connections (default: 8)</pre>
 </div>
 </div>
 <div class="paragraph">
-<p>The Redis URI syntax is described <a href="https://github.com/lettuce-io/lettuce-core/wiki/Redis-URI-and-connection-details#uri-syntax">here</a>.</p>
-</div>
+<p>Redis URI syntax is described <a href="https://github.com/lettuce-io/lettuce-core/wiki/Redis-URI-and-connection-details#uri-syntax">here</a>.</p>
 </div>
 </div>
 </div>
@@ -827,8 +847,8 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 2.2.4-SNAPSHOT<br>
-Last updated 2020-10-12 14:27:51 -0700
+Version 2.2.4<br>
+Last updated 2020-10-20 22:43:23 -0700
 </div>
 </div>
 <style>
