@@ -19,6 +19,7 @@ import org.springframework.util.Assert;
 
 import io.lettuce.core.api.StatefulConnection;
 import io.lettuce.core.api.sync.BaseRedisCommands;
+import io.lettuce.core.codec.StringCodec;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
@@ -93,7 +94,11 @@ public class SpelProcessor implements ItemProcessor<Map<String, Object>, Map<Str
 
 	@Setter
 	@Accessors(fluent = true)
-	public static class SpelProcessorBuilder extends RedisConnectionBuilder<SpelProcessorBuilder> {
+	public static class SpelProcessorBuilder extends RedisConnectionBuilder<String, String, SpelProcessorBuilder> {
+
+		public SpelProcessorBuilder() {
+			super(StringCodec.UTF8);
+		}
 
 		private DateFormat dateFormat;
 		private Map<String, String> variables;

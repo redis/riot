@@ -14,6 +14,7 @@ import io.lettuce.core.RedisURI;
 import io.lettuce.core.api.StatefulConnection;
 import io.lettuce.core.api.async.BaseRedisAsyncCommands;
 import io.lettuce.core.api.sync.BaseRedisCommands;
+import io.lettuce.core.codec.StringCodec;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import io.netty.util.internal.logging.JdkLoggerFactory;
 import lombok.Getter;
@@ -129,21 +130,27 @@ public class RiotApp implements Runnable {
 	}
 
 	public StatefulConnection<String, String> connection() {
-		RedisConnectionBuilder<?> connectionBuilder = new RedisConnectionBuilder<>();
-		redisConnectionOptions.configure(connectionBuilder);
-		return connectionBuilder.connection();
+		RedisConnectionBuilder<String, String, ?> connectionBuilder = new RedisConnectionBuilder<>(StringCodec.UTF8);
+		return redisConnectionOptions.configure(connectionBuilder).connection();
+	}
+
+	public RedisConnectionBuilder<String, String, ?> connectionBuilder() {
+		return connectionBuilder(redisConnectionOptions);
+	}
+
+	public RedisConnectionBuilder<String, String, ?> connectionBuilder(RedisConnectionOptions redisConnectionOptions) {
+		RedisConnectionBuilder<String, String, ?> connectionBuilder = new RedisConnectionBuilder<>(StringCodec.UTF8);
+		return redisConnectionOptions.configure(connectionBuilder);
 	}
 
 	public BaseRedisCommands<String, String> sync(StatefulConnection<String, String> connection) {
-		RedisConnectionBuilder<?> connectionBuilder = new RedisConnectionBuilder<>();
-		redisConnectionOptions.configure(connectionBuilder);
-		return connectionBuilder.sync().apply(connection);
+		RedisConnectionBuilder<String, String, ?> connectionBuilder = new RedisConnectionBuilder<>(StringCodec.UTF8);
+		return redisConnectionOptions.configure(connectionBuilder).sync().apply(connection);
 	}
 
 	public BaseRedisAsyncCommands<String, String> async(StatefulConnection<String, String> connection) {
-		RedisConnectionBuilder<?> connectionBuilder = new RedisConnectionBuilder<>();
-		redisConnectionOptions.configure(connectionBuilder);
-		return connectionBuilder.async().apply(connection);
+		RedisConnectionBuilder<String, String, ?> connectionBuilder = new RedisConnectionBuilder<>(StringCodec.UTF8);
+		return redisConnectionOptions.configure(connectionBuilder).async().apply(connection);
 	}
 
 }

@@ -1,6 +1,4 @@
 = {app-name}
-:project-repo: Redislabs-Solution-Architects/riot
-:repo-url: https://github.com/{project-repo}
 :app-name: RIOT Gen
 :app: riot-gen
 :resources: ../{app}/src/test/resources
@@ -10,7 +8,6 @@
 :toc-title: Contents
 :source-highlighter: coderay
 :icons: font
-:resources: ../{app}/src/test/resources
 :imagesdir: images
 :linkattrs:
 :sectanchors:

@@ -130,8 +130,9 @@ public class RedisConnectionOptions {
 		return poolConfig;
 	}
 
-	public <B extends RedisConnectionBuilder<B>> B configure(RedisConnectionBuilder<B> builder) {
-		return builder.redisURI(getRedisURI()).cluster(cluster).clientResources(clientResources())
+	public <B extends RedisConnectionBuilder<String, String, B>> B configure(
+			RedisConnectionBuilder<String, String, B> builder) {
+		return builder.uri(getRedisURI()).cluster(cluster).clientResources(clientResources())
 				.clientOptions(clientOptions()).poolConfig(poolConfig());
 	}
 

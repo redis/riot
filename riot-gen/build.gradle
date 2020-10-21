@@ -11,9 +11,9 @@ test {
 dependencies {
     implementation project(':riot-core')
     implementation 'com.redislabs:lettusearch:2.4.3'
-    annotationProcessor 'info.picocli:picocli-codegen:4.5.1'
-    compileOnly 'org.projectlombok:lombok:1.18.14'
-    annotationProcessor 'org.projectlombok:lombok:1.18.14'
+    annotationProcessor 'info.picocli:picocli-codegen:4.5.2'
+    compileOnly 'org.projectlombok:lombok:1.18.16'
+    annotationProcessor 'org.projectlombok:lombok:1.18.16'
     implementation 'org.ruaux:spring-batch-faker:1.0.1'
     testImplementation project(':riot-test')
 }

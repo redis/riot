@@ -1,12 +1,13 @@
 package com.redislabs.riot.redis;
 
+import org.springframework.batch.item.redis.support.AbstractRedisItemWriter;
 import org.springframework.core.convert.converter.Converter;
 
 import io.lettuce.core.RedisFuture;
 import io.lettuce.core.api.async.BaseRedisAsyncCommands;
 import lombok.Setter;
 
-public abstract class AbstractKeyWriter<K, V, T> extends AbstractRedisWriter<K, V, T> {
+public abstract class AbstractKeyWriter<K, V, T> extends AbstractRedisItemWriter<K, V, T> {
 
 	@Setter
 	private Converter<T, K> keyConverter;

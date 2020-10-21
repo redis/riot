@@ -33,13 +33,20 @@ release {
 asciidoctor {
     baseDir = "docs"
     sourceDir = "docs"
+    resources {
+        from("${sourceDir}/images") {
+            exclude '*.excalidraw'
+            into 'images'
+        }
+    }
+    
     outputOptions {
         separateOutputDirs = false
     }
 }
 
 gitPublish {
-    repoUri = 'git@github.com:Redislabs-Solution-Architects/riot.git'
+    repoUri = 'git@github.com:redis-developer/riot.git'
     referenceRepoUri = 'file:///Users/jruaux/git/riot/'
     branch = 'gh-pages'
     contents {

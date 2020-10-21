@@ -10,9 +10,9 @@ test {
 
 dependencies {
     implementation project(':riot-core')
-    compileOnly 'org.projectlombok:lombok:1.18.14'
-    annotationProcessor 'org.projectlombok:lombok:1.18.14'
-    annotationProcessor 'info.picocli:picocli-codegen:4.5.1'
+    compileOnly 'org.projectlombok:lombok:1.18.16'
+    annotationProcessor 'org.projectlombok:lombok:1.18.16'
+    annotationProcessor 'info.picocli:picocli-codegen:4.5.2'
     implementation 'org.springframework.boot:spring-boot-autoconfigure:2.3.4.RELEASE'
     implementation 'org.springframework.batch:spring-batch-core:4.2.4.RELEASE'
     implementation 'org.springframework:spring-jdbc:5.2.9.RELEASE'
@@ -21,13 +21,13 @@ dependencies {
     implementation 'com.microsoft.sqlserver:mssql-jdbc:8.4.1.jre8'
     implementation 'com.oracle.ojdbc:ojdbc8:19.3.0.0'
     implementation 'mysql:mysql-connector-java:8.0.22'
-    implementation 'org.postgresql:postgresql:42.2.17'
+    implementation 'org.postgresql:postgresql:42.2.18'
     implementation 'org.xerial:sqlite-jdbc:3.32.3.2'
     testImplementation project(':riot-test')
     testImplementation 'org.testcontainers:postgresql:1.15.0-rc2'
     testImplementation 'org.testcontainers:oracle-xe:1.15.0-rc2'
-    testCompileOnly 'org.projectlombok:lombok:1.18.14'
-    testAnnotationProcessor 'org.projectlombok:lombok:1.18.14'
+    testCompileOnly 'org.projectlombok:lombok:1.18.16'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.16'
 }
 
 configurations {

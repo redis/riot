@@ -43,7 +43,6 @@ public abstract class AbstractImportCommand<I, O> extends AbstractTransferComman
 	 */
 	@Getter
 	private List<AbstractRedisCommand<O>> redisCommands = new ArrayList<>();
-
 	@CommandLine.Option(arity = "1..*", names = "--spel", description = "SpEL expression to produce a field", paramLabel = "<field=exp>")
 	private Map<String, String> spel = new HashMap<>();
 	@CommandLine.Option(arity = "1..*", names = "--spel-var", description = "Register a variable in the SpEL processor context", paramLabel = "<v=exp>")

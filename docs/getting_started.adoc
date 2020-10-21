@@ -4,7 +4,7 @@
 
 ==== Download and Run
 
-Download the {repo-url}/releases/latest[latest release] and unzip the archive.
+Download the https://github.com/redis-developer/riot/releases/latest[latest release] and unzip the archive.
 
 Launch the `bin/{app}` script and follow the usage information provided.
 
@@ -12,34 +12,54 @@ Launch the `bin/{app}` script and follow the usage information provided.
 
 [subs="attributes",source,shell]
 ----
-❯ git clone https://github.com/Redislabs-Solution-Architects/riot.git
+❯ git clone https://github.com/redis-developer/riot.git
 ❯ cd riot/{app}
 ❯ ./{app}
 ----
 
-===== Install via Homebrew (macOS) 
+==== Install via Homebrew (macOS) 
 
 `brew install jruaux/tap/{app}`
 
 === Usage
 
-==== Help
+[subs="attributes"]
+----
+❯ {app}
+Usage: {app} [OPTIONS] [COMMAND]
+      --help                Show this help message and exit.
+  -V, --version             Print version information and exit.
+  -q, --quiet               Log errors only
+  -d, --debug               Log in debug mode (includes normal stacktrace)
+  -i, --info                Set log level to info
+----
 
-`{app} --help`
+[TIP,subs="attributes"]
+====
+You can use `--help` on any subcommand:
 
-==== Redis connection
+`❯ {app} --help`
+
+`❯ {app} import --help`
+
+`❯ {app} import ... hmset --help`
+====
 
 Redis connection options are the same as `redis-cli`:
-[source]
 ----
   -h, --hostname=<host>     Server hostname (default: 127.0.0.1)
   -p, --port=<port>         Server port (default: 6379)
   -s, --socket=<socket>     Server socket (overrides hostname and port)
+      --user=<username>     Used to send ACL style 'AUTH username pass'. Needs password.
   -a, --pass[=<password>]   Password to use when connecting to the server
   -u, --uri=<uri>           Server URI
-  -n, --db=<int>            Database number
+  -o, --timeout=<sec>       Redis command timeout (default: 60)
+  -n, --db=<int>            Database number (default: 0)
   -c, --cluster             Enable cluster mode
   -t, --tls                 Establish a secure TLS connection
+  -l, --latency             Show latency metrics
+  -m, --pool=<int>          Max pool connections (default: 8)
 ----
 
-The Redis URI syntax is described https://github.com/lettuce-io/lettuce-core/wiki/Redis-URI-and-connection-details#uri-syntax[here].
+Redis URI syntax is described https://github.com/lettuce-io/lettuce-core/wiki/Redis-URI-and-connection-details#uri-syntax[here].
+

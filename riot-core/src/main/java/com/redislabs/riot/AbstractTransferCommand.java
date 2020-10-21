@@ -3,10 +3,6 @@ package com.redislabs.riot;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.springframework.batch.item.ItemProcessor;
@@ -37,10 +33,6 @@ public abstract class AbstractTransferCommand<I, O> extends HelpCommand {
 	private int batch = 50;
 	@CommandLine.Option(names = "--max", description = "Max number of items to read", paramLabel = "<count>")
 	private Integer maxItemCount;
-
-	protected Long flushPeriod() {
-		return null;
-	}
 
 	@Override
 	public void run() {
@@ -86,18 +78,7 @@ public abstract class AbstractTransferCommand<I, O> extends HelpCommand {
 	}
 
 	public CompletableFuture<Void> execute(Transfer<I, O> transfer) {
-		CompletableFuture<Void> future = transfer.execute();
-		Long flushPeriod = flushPeriod();
-		if (flushPeriod != null) {
-			ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-			ScheduledFuture<?> flushFuture = scheduler.scheduleAtFixedRate(transfer::flush, flushPeriod, flushPeriod,
-					TimeUnit.MILLISECONDS);
-			future.whenComplete((r, t) -> {
-				scheduler.shutdown();
-				flushFuture.cancel(true);
-			});
-		}
-		return future;
+		return transfer.execute();
 	}
 
 	public List<Transfer<I, O>> transfers() throws Exception {
@@ -116,9 +97,9 @@ public abstract class AbstractTransferCommand<I, O> extends HelpCommand {
 
 	protected abstract String taskName();
 
-	protected abstract List<? extends ItemReader<I>> readers() throws Exception;
+	protected abstract List<ItemReader<I>> readers() throws Exception;
 
-	protected abstract ItemProcessor<I, O> processor();
+	protected abstract ItemProcessor<I, O> processor() throws Exception;
 
 	protected abstract ItemWriter<O> writer() throws Exception;
 
@@ -150,12 +131,13 @@ public abstract class AbstractTransferCommand<I, O> extends HelpCommand {
 		return app.getRedisConnectionOptions().getRedisURI();
 	}
 
-	protected <B extends RedisConnectionBuilder<B>> B configure(RedisConnectionBuilder<B> builder) {
+	protected <B extends RedisConnectionBuilder<String, String, B>> B configure(
+			RedisConnectionBuilder<String, String, B> builder) {
 		return configure(builder, app.getRedisConnectionOptions());
 	}
 
-	protected <B extends RedisConnectionBuilder<B>> B configure(RedisConnectionBuilder<B> builder,
-			RedisConnectionOptions redisConnectionOptions) {
+	protected <B extends RedisConnectionBuilder<String, String, B>> B configure(
+			RedisConnectionBuilder<String, String, B> builder, RedisConnectionOptions redisConnectionOptions) {
 		return redisConnectionOptions.configure(builder);
 	}
 
@@ -165,14 +147,13 @@ public abstract class AbstractTransferCommand<I, O> extends HelpCommand {
 
 	protected <T extends AbstractRedisItemWriter<String, String, O>> T configure(T writer,
 			RedisConnectionOptions redisConnectionOptions) throws Exception {
-		RedisConnectionBuilder<?> builder = new RedisConnectionBuilder<>();
-		redisConnectionOptions.configure(builder);
+		RedisConnectionBuilder<String, String, ?> builder = app.connectionBuilder(redisConnectionOptions);
 		GenericObjectPool<StatefulConnection<String, String>> pool = builder.pool();
 		try (StatefulConnection<String, String> connection = pool.borrowObject()) {
 		}
 		writer.setPool(pool);
 		writer.setCommands(builder.async());
-		writer.setCommandTimeout(builder.timeout());
+		writer.setCommandTimeout(builder.uri().getTimeout());
 		return writer;
 	}
 

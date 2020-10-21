@@ -5,7 +5,6 @@
 :linkattrs:
 :sectanchors:
 :docinfo: shared-head,private-head
-:site-base-url: https://redislabs-solution-architects.github.io/riot/
 ifdef::env-github[]
 :caution-caption: :fire:
 :important-caption: :heavy_exclamation_mark:
@@ -21,7 +20,21 @@ image:riot.svg[RIOT,width=800]
 
 Redis Input/Output Tools (RIOT) is a set of import/export command line utilities for Redis:
 
-* {site-base-url}/riot-gen.html[RIOT Gen]: generate sample Redis datasets for new feature development and proof of concept.
-* {site-base-url}/riot-db.html[RIOT DB]: migrate from an RDBMS to Redis, RediSearch, RedisJSON, ...
-* {site-base-url}/riot-file.html[RIOT File]: bulk import/export data from/to files.
-* {site-base-url}/riot-redis.html[RIOT Redis]: live replication from any Redis database (including AWS Elasticache) to another Redis database.
+* link:riot-gen.html[RIOT Gen]: generate sample Redis datasets for new feature development and proof of concept.
+* link:riot-db.html[RIOT DB]: migrate from an RDBMS to Redis, RediSearch, RedisJSON, ...
+* link:riot-file.html[RIOT File]: bulk import/export data from/to files.
+* link:riot-redis.html[RIOT Redis]: live replication from any Redis database (including AWS Elasticache) to another Redis database.
+
+== Architecture
+
+RIOT reads records from a source (file, database, Redis, data generator) and writes them to a target (file, database, Redis).
+
+image::architecture.png[]
+
+In most cases some processing needs to happen in order to adapt input records to the output.
+
+For example records from  delimited files are string maps (key/value pairs where values are character strings) that look pretty much exactly like Redis hashes.
+
+However you still need to extract keys from those records, i.e. one or more fields should be used to construct the corresponding Redis keys.
+
+image::mapping.png[]
