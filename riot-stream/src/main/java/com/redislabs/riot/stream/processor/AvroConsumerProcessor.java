@@ -9,17 +9,18 @@ import org.springframework.core.convert.converter.Converter;
 
 import lombok.Builder;
 
-public class AvroConsumerProcessor<K> extends AbstractConsumerProcessor<K, GenericRecord> {
+public class AvroConsumerProcessor<K> extends AbstractConsumerProcessor<K, Object> {
 
 	@Builder
-	public AvroConsumerProcessor(Converter<ConsumerRecord<K, GenericRecord>, String> keyConverter) {
+	public AvroConsumerProcessor(Converter<ConsumerRecord<K, Object>, String> keyConverter) {
 		super(keyConverter);
 	}
 
 	@Override
-	protected Map<String, Object> map(GenericRecord value) {
+	protected Map<String, Object> map(Object value) {
+		GenericRecord record = (GenericRecord) value;
 		Map<String, Object> map = new HashMap<>();
-		value.getSchema().getFields().forEach(field -> map.put(field.name(), value.get(field.name())));
+		record.getSchema().getFields().forEach(field -> map.put(field.name(), record.get(field.name())));
 		return map;
 	}
 

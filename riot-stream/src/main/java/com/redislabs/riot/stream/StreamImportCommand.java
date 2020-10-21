@@ -24,9 +24,9 @@ import picocli.CommandLine.Mixin;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
-@SuppressWarnings("rawtypes")
 @Command(name = "import", description = "Import Kafka topics into Redis streams")
-public class StreamImportCommand extends AbstractFlushingTransferCommand<ConsumerRecord, StreamMessage> {
+public class StreamImportCommand
+		extends AbstractFlushingTransferCommand<ConsumerRecord<String, Object>, StreamMessage<String, String>> {
 
 	@Option(names = "--key", description = "Target stream key (default: same as topic)", paramLabel = "<string>")
 	private String key;
@@ -45,31 +45,29 @@ public class StreamImportCommand extends AbstractFlushingTransferCommand<Consume
 	}
 
 	@Override
-	protected List<ItemReader<ConsumerRecord>> readers() throws Exception {
+	protected List<ItemReader<ConsumerRecord<String, Object>>> readers() throws Exception {
 		return topics.stream().map(this::reader).collect(Collectors.toList());
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	protected ItemProcessor processor() {
+	protected ItemProcessor<ConsumerRecord<String, Object>, StreamMessage<String, String>> processor() {
 		switch (kafkaOptions.getSerde()) {
 		case JSON:
-			return new JsonConsumerProcessor(keyConverter());
+			return new JsonConsumerProcessor<String>(keyConverter());
 		default:
-			return new AvroConsumerProcessor(keyConverter());
+			return new AvroConsumerProcessor<String>(keyConverter());
 		}
 	}
 
-	private Converter<ConsumerRecord, String> keyConverter() {
+	private Converter<ConsumerRecord<String, Object>, String> keyConverter() {
 		if (key == null) {
 			return r -> r.topic();
 		}
 		return r -> key;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	protected ItemWriter writer() throws Exception {
+	protected ItemWriter<StreamMessage<String, String>> writer() throws Exception {
 		return configure(RedisStreamItemWriter.builder().converter(xAddArgsConverter())).build();
 	}
 
@@ -83,9 +81,10 @@ public class StreamImportCommand extends AbstractFlushingTransferCommand<Consume
 		return m -> args;
 	}
 
-	private KafkaItemReader reader(String topic) {
-		return new KafkaItemReaderBuilder().partitions(0).consumerProperties(kafkaOptions.consumerProperties())
-				.partitions(0).name(topic).saveState(false).topic(topic).build();
+	private KafkaItemReader<String, Object> reader(String topic) {
+		return new KafkaItemReaderBuilder<String, Object>().partitions(0)
+				.consumerProperties(kafkaOptions.consumerProperties()).partitions(0).name(topic).saveState(false)
+				.topic(topic).build();
 	}
 
 }

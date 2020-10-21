@@ -7,16 +7,17 @@ import org.springframework.core.convert.converter.Converter;
 
 import lombok.Builder;
 
-public class JsonConsumerProcessor<K> extends AbstractConsumerProcessor<K, Map<String, Object>> {
+public class JsonConsumerProcessor<K> extends AbstractConsumerProcessor<K, Object> {
 
 	@Builder
-	public JsonConsumerProcessor(Converter<ConsumerRecord<K, Map<String, Object>>, String> keyConverter) {
+	public JsonConsumerProcessor(Converter<ConsumerRecord<K, Object>, String> keyConverter) {
 		super(keyConverter);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	protected Map<String, Object> map(Map<String, Object> value) {
-		return value;
+	protected Map<String, Object> map(Object value) {
+		return (Map<String, Object>) value;
 	}
 
 }
