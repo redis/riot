@@ -739,7 +739,7 @@ Use <code>-</code> to read from standard input.
 <div class="listingblock">
 <div class="title">CSV import to geo set</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="shell">❯ riot-file import http://redis-developer.github.io/riot/airports.dat --fields AirportID Name City Country IATA ICAO Latitude Longitude Altitude Timezone DST Tz Type Source geoadd --keyspace airportgeo --members AirportID --lon Longitude --lat Latitude</code></pre>
+<pre class="CodeRay highlight"><code data-lang="shell">❯ riot-file import http://redis-developer.github.io/riot/airports.csv --header geoadd --keyspace airportgeo --members AirportID --lon Longitude --lat Latitude</code></pre>
 </div>
 </div>
 </div>
