@@ -19,7 +19,6 @@ import org.springframework.batch.item.file.separator.DefaultRecordSeparatorPolic
 import org.springframework.batch.item.file.transform.AbstractLineTokenizer;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.batch.item.file.transform.FixedLengthTokenizer;
-import org.springframework.batch.item.file.transform.Range;
 import org.springframework.batch.item.json.JacksonJsonObjectReader;
 import org.springframework.batch.item.json.JsonItemReader;
 import org.springframework.batch.item.json.builder.JsonItemReaderBuilder;
@@ -36,12 +35,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.redislabs.riot.AbstractImportCommand;
 
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import picocli.CommandLine;
+import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
-import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
 @Slf4j
@@ -53,37 +50,8 @@ public class FileImportCommand extends AbstractImportCommand {
 	private String[] files;
 	@Mixin
 	protected FileOptions fileOptions = new FileOptions();
-	@Option(names = "--fields", arity = "1..*", description = "Delimited/FW field names", paramLabel = "<names>")
-	private String[] names;
-	@Getter
-	@Option(names = { "-h", "--header" }, description = "Delimited/FW first line contains field names")
-	private boolean header;
-	@Option(names = "--delimiter", description = "Delimiter character", paramLabel = "<string>")
-	private String delimiter;
-	@CommandLine.Option(names = "--skip", description = "Delimited/FW lines to skip at start", paramLabel = "<count>")
-	private Integer linesToSkip;
-	@CommandLine.Option(names = "--include", arity = "1..*", description = "Delimited/FW field indices to include (0-based)", paramLabel = "<index>")
-	private int[] includedFields = new int[0];
-	@CommandLine.Option(names = "--ranges", arity = "1..*", description = "Fixed-width column ranges", paramLabel = "<int>")
-	private Range[] columnRanges = new Range[0];
-	@CommandLine.Option(names = "--quote", description = "Escape character for delimited files (default: ${DEFAULT-VALUE})", paramLabel = "<char>")
-	private Character quoteCharacter = DelimitedLineTokenizer.DEFAULT_QUOTE_CHARACTER;
-
-	private String delimiter(String file) {
-		if (delimiter == null) {
-			String extension = FileOptions.extension(file);
-			if (extension != null) {
-				switch (extension) {
-				case FileOptions.EXT_TSV:
-					return DelimitedLineTokenizer.DELIMITER_TAB;
-				case FileOptions.EXT_CSV:
-					return DelimitedLineTokenizer.DELIMITER_COMMA;
-				}
-			}
-			return DelimitedLineTokenizer.DELIMITER_COMMA;
-		}
-		return delimiter;
-	}
+	@ArgGroup(exclusive = false, heading = "Flat file options%n")
+	protected FlatFileOptions flatFileOptions = new FlatFileOptions();
 
 	@Override
 	protected List<ItemReader> readers() throws IOException {
@@ -143,16 +111,16 @@ public class FileImportCommand extends AbstractImportCommand {
 		switch (fileType) {
 		case DELIMITED:
 			DelimitedLineTokenizer tokenizer = new DelimitedLineTokenizer();
-			tokenizer.setDelimiter(delimiter(file));
-			tokenizer.setQuoteCharacter(quoteCharacter);
-			if (includedFields.length > 0) {
-				tokenizer.setIncludedFields(includedFields);
+			tokenizer.setDelimiter(flatFileOptions.delimiter(file));
+			tokenizer.setQuoteCharacter(flatFileOptions.getQuoteCharacter());
+			if (flatFileOptions.getIncludedFields().length > 0) {
+				tokenizer.setIncludedFields(flatFileOptions.getIncludedFields());
 			}
 			return flatFileReader(resource, tokenizer);
 		case FIXED:
 			FixedLengthTokenizer fixedLengthTokenizer = new FixedLengthTokenizer();
-			Assert.notEmpty(columnRanges, "Column ranges are required");
-			fixedLengthTokenizer.setColumns(columnRanges);
+			Assert.notEmpty(flatFileOptions.getColumnRanges(), "Column ranges are required");
+			fixedLengthTokenizer.setColumns(flatFileOptions.getColumnRanges());
 			return flatFileReader(resource, fixedLengthTokenizer);
 		case JSON:
 			if (getRedisCommands().isEmpty()) {
@@ -169,15 +137,15 @@ public class FileImportCommand extends AbstractImportCommand {
 	}
 
 	private FlatFileItemReader<Map<String, Object>> flatFileReader(Resource resource, AbstractLineTokenizer tokenizer) {
-		tokenizer.setNames(names == null ? new String[0] : names);
+		tokenizer.setNames(flatFileOptions.getNames() == null ? new String[0] : flatFileOptions.getNames());
 		return new FlatFileItemReaderBuilder<Map<String, Object>>().name("flat-file-reader").resource(resource)
-				.encoding(fileOptions.getEncoding()).lineTokenizer(tokenizer).linesToSkip(linesToSkip()).strict(true)
-				.saveState(false).fieldSetMapper(new MapFieldSetMapper())
-				.recordSeparatorPolicy(new DefaultRecordSeparatorPolicy())
+				.encoding(fileOptions.getEncoding()).lineTokenizer(tokenizer)
+				.linesToSkip(flatFileOptions.getLinesToSkip()).strict(true).saveState(false)
+				.fieldSetMapper(new MapFieldSetMapper()).recordSeparatorPolicy(new DefaultRecordSeparatorPolicy())
 				.skippedLinesCallback(new HeaderCallbackHandler(tokenizer)).build();
 	}
 
-	private class HeaderCallbackHandler implements LineCallbackHandler {
+	private static class HeaderCallbackHandler implements LineCallbackHandler {
 
 		private AbstractLineTokenizer tokenizer;
 
@@ -190,16 +158,6 @@ public class FileImportCommand extends AbstractImportCommand {
 			log.debug("Found header {}", line);
 			tokenizer.setNames(tokenizer.tokenize(line).getValues());
 		}
-	}
-
-	private int linesToSkip() {
-		if (linesToSkip == null) {
-			if (header) {
-				return 1;
-			}
-			return 0;
-		}
-		return linesToSkip;
 	}
 
 	@Override

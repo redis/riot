@@ -1,26 +1,28 @@
 package com.redislabs.riot.redis;
 
-import io.lettuce.core.api.sync.BaseRedisCommands;
-import io.lettuce.core.metrics.CommandMetrics;
-import io.lettuce.core.metrics.DefaultCommandLatencyCollectorOptions;
-import org.HdrHistogram.Histogram;
-import org.LatencyUtils.LatencyStats;
-import picocli.CommandLine;
-
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 
-@CommandLine.Command(name = "latency", aliases = {"l"}, description = "Calculate latency stats")
+import org.HdrHistogram.Histogram;
+import org.LatencyUtils.LatencyStats;
+
+import io.lettuce.core.api.sync.BaseRedisCommands;
+import io.lettuce.core.metrics.CommandMetrics;
+import io.lettuce.core.metrics.DefaultCommandLatencyCollectorOptions;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
+
+@Command(name = "latency", aliases = {"l"}, description = "Calculate latency stats")
 public class LatencyCommand extends AbstractRedisCommand {
 
-    @CommandLine.Option(names = "--iterations", description = "Number of latency tests (default: ${DEFAULT-VALUE})", paramLabel = "<count>")
+    @Option(names = "--iterations", description = "Number of latency tests (default: ${DEFAULT-VALUE})", paramLabel = "<count>")
     private int iterations = 1000;
-    @CommandLine.Option(names = "--sleep", description = "Sleep duration between calls (default: ${DEFAULT-VALUE})", paramLabel = "<ms>")
+    @Option(names = "--sleep", description = "Sleep duration between calls (default: ${DEFAULT-VALUE})", paramLabel = "<ms>")
     private long sleep = 1;
-    @CommandLine.Option(names = "--unit", description = "Latency unit (default: ${DEFAULT-VALUE})", paramLabel = "<unit>")
+    @Option(names = "--unit", description = "Latency unit (default: ${DEFAULT-VALUE})", paramLabel = "<unit>")
     private TimeUnit unit = TimeUnit.MILLISECONDS;
-    @CommandLine.Option(names = "--show-distribution", description = "Show latency distribution")
+    @Option(names = "--show-distribution", description = "Show latency distribution")
     private boolean showDistribution = false;
 
 

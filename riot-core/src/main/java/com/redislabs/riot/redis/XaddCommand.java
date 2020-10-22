@@ -4,17 +4,17 @@ import java.util.Map;
 
 import org.springframework.vault.support.JsonMapFlattener;
 
-import picocli.CommandLine;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 @Command(name = "xadd")
 public class XaddCommand extends AbstractKeyCommand {
 
-	@CommandLine.Option(names = "--id", description = "Stream entry ID field", paramLabel = "<field>")
+	@Option(names = "--id", description = "Stream entry ID field", paramLabel = "<field>")
 	private String idField;
-	@CommandLine.Option(names = "--maxlen", description = "Stream maxlen", paramLabel = "<int>")
+	@Option(names = "--maxlen", description = "Stream maxlen", paramLabel = "<int>")
 	private Long maxlen;
-	@CommandLine.Option(names = "--trim", description = "Stream efficient trimming ('~' flag)")
+	@Option(names = "--trim", description = "Stream efficient trimming ('~' flag)")
 	private boolean approximateTrimming;
 
 	@Override

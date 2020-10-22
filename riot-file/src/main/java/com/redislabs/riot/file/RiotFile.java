@@ -5,8 +5,9 @@ import org.springframework.batch.item.file.transform.Range;
 import com.redislabs.riot.RiotApp;
 
 import picocli.CommandLine;
+import picocli.CommandLine.Command;
 
-@CommandLine.Command(name = "riot-file", subcommands = { FileImportCommand.class, FileExportCommand.class })
+@Command(name = "riot-file", subcommands = { FileImportCommand.class, FileExportCommand.class })
 public class RiotFile extends RiotApp {
 
 	@Override

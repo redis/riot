@@ -11,16 +11,19 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import com.redislabs.riot.AbstractExportCommand;
 import com.redislabs.riot.processor.KeyValueMapItemProcessor;
 
-import picocli.CommandLine;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Mixin;
+import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
 
-@CommandLine.Command(name = "export", aliases = "e", description = "Export to a database")
+@Command(name = "export", aliases = "e", description = "Export to a database")
 public class DatabaseExportCommand extends AbstractExportCommand<Map<String, Object>> {
 
-	@CommandLine.Parameters(arity = "1", description = "SQL INSERT statement", paramLabel = "SQL")
+	@Parameters(arity = "1", description = "SQL INSERT statement", paramLabel = "SQL")
 	private String sql;
-	@CommandLine.Mixin
+	@Mixin
 	private DatabaseOptions options = new DatabaseOptions();
-	@CommandLine.Option(names = "--no-assert-updates", description = "Disable insert verification")
+	@Option(names = "--no-assert-updates", description = "Disable insert verification")
 	private boolean noAssertUpdates;
 
 	@Override

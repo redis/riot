@@ -1,10 +1,10 @@
 package com.redislabs.riot.file;
 
-import org.springframework.batch.item.file.mapping.FieldSetMapper;
-import org.springframework.batch.item.file.transform.FieldSet;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import org.springframework.batch.item.file.mapping.FieldSetMapper;
+import org.springframework.batch.item.file.transform.FieldSet;
 
 public class MapFieldSetMapper implements FieldSetMapper<Map<String, Object>> {
 

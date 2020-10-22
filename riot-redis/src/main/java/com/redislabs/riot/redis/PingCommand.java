@@ -2,10 +2,10 @@ package com.redislabs.riot.redis;
 
 import io.lettuce.core.api.sync.BaseRedisCommands;
 import lombok.extern.slf4j.Slf4j;
-import picocli.CommandLine;
+import picocli.CommandLine.Command;
 
 @Slf4j
-@CommandLine.Command(name = "ping", aliases = {"p"}, description = "Execute PING command")
+@Command(name = "ping", aliases = {"p"}, description = "Execute PING command")
 public class PingCommand extends AbstractRedisCommand {
 
     @Override

@@ -47,7 +47,7 @@ public class Transfer<I, O> {
 		if (processor == null) {
 			return (ItemWriter<I>) writer;
 		}
-		return new ProcessingItemWriter<I, O>(processor, writer);
+		return new ProcessingItemWriter<>(processor, writer);
 	}
 
 	@SuppressWarnings("rawtypes")

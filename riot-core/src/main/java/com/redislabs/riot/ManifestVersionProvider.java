@@ -1,12 +1,12 @@
 package com.redislabs.riot;
 
-import picocli.CommandLine.IVersionProvider;
-
 import java.io.IOException;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
+
+import picocli.CommandLine.IVersionProvider;
 
 /**
  * {@link IVersionProvider} implementation that returns version information from

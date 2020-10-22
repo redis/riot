@@ -10,8 +10,8 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.redislabs.riot.convert.ObjectMapperConverter;
 
-import picocli.CommandLine;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 @Command(name = "set")
 public class SetCommand extends AbstractKeyCommand {
@@ -20,11 +20,11 @@ public class SetCommand extends AbstractKeyCommand {
 		RAW, XML, JSON
 	}
 
-	@CommandLine.Option(names = "--format", defaultValue = "JSON", description = "Serialization: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})", paramLabel = "<fmt>")
-	private StringFormat format;
-	@CommandLine.Option(names = "--field", description = "String value field", paramLabel = "<field>")
+	@Option(names = "--format", description = "Serialization: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})", paramLabel = "<fmt>")
+	private StringFormat format = StringFormat.JSON;
+	@Option(names = "--field", description = "String value field", paramLabel = "<field>")
 	private String field;
-	@CommandLine.Option(names = "--root", description = "XML root element name", paramLabel = "<name>")
+	@Option(names = "--root", description = "XML root element name", paramLabel = "<name>")
 	private String root;
 
 	@Override

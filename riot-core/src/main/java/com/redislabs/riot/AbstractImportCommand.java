@@ -29,8 +29,8 @@ import com.redislabs.riot.redis.XaddCommand;
 import com.redislabs.riot.redis.ZaddCommand;
 
 import lombok.Getter;
-import picocli.CommandLine;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 @Command(subcommands = { EvalshaCommand.class, ExpireCommand.class, GeoaddCommand.class, HmsetCommand.class,
 		LpushCommand.class, NoopCommand.class, RpushCommand.class, SaddCommand.class, SetCommand.class,
@@ -43,13 +43,13 @@ public abstract class AbstractImportCommand<I, O> extends AbstractTransferComman
 	 */
 	@Getter
 	private List<AbstractRedisCommand<O>> redisCommands = new ArrayList<>();
-	@CommandLine.Option(arity = "1..*", names = "--spel", description = "SpEL expression to produce a field", paramLabel = "<field=exp>")
+	@Option(arity = "1..*", names = "--spel", description = "SpEL expression to produce a field", paramLabel = "<field=exp>")
 	private Map<String, String> spel = new HashMap<>();
-	@CommandLine.Option(arity = "1..*", names = "--spel-var", description = "Register a variable in the SpEL processor context", paramLabel = "<v=exp>")
+	@Option(arity = "1..*", names = "--spel-var", description = "Register a variable in the SpEL processor context", paramLabel = "<v=exp>")
 	private Map<String, String> variables = new HashMap<>();
-	@CommandLine.Option(arity = "1..*", names = "--regex", description = "Extract named values from source field using regex", paramLabel = "<field=exp>")
+	@Option(arity = "1..*", names = "--regex", description = "Extract named values from source field using regex", paramLabel = "<field=exp>")
 	private Map<String, String> regexes = new HashMap<>();
-	@CommandLine.Option(names = "--date-format", description = "Processor date format (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
+	@Option(names = "--date-format", description = "Processor date format (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
 	private String dateFormat = new SimpleDateFormat().toPattern();
 
 	@Override

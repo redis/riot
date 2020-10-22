@@ -2,9 +2,9 @@ package com.redislabs.riot.stream;
 
 import com.redislabs.riot.RiotApp;
 
-import picocli.CommandLine;
+import picocli.CommandLine.Command;
 
-@CommandLine.Command(name = "riot-stream", subcommands = { StreamImportCommand.class, StreamExportCommand.class })
+@Command(name = "riot-stream", subcommands = { StreamImportCommand.class, StreamExportCommand.class })
 public class RiotStream extends RiotApp {
 
 	public static void main(String[] args) {

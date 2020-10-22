@@ -30,9 +30,9 @@ public class StreamImportCommand
 
 	@Option(names = "--key", description = "Target stream key (default: same as topic)", paramLabel = "<string>")
 	private String key;
-	@CommandLine.Option(names = "--maxlen", description = "Stream maxlen", paramLabel = "<int>")
+	@Option(names = "--maxlen", description = "Stream maxlen", paramLabel = "<int>")
 	private Long maxlen;
-	@CommandLine.Option(names = "--trim", description = "Stream efficient trimming ('~' flag)")
+	@Option(names = "--trim", description = "Stream efficient trimming ('~' flag)")
 	private boolean approximateTrimming;
 	@Parameters(arity = "1..*", description = "One ore more topics to read from", paramLabel = "TOPIC")
 	private List<String> topics;
@@ -53,15 +53,15 @@ public class StreamImportCommand
 	protected ItemProcessor<ConsumerRecord<String, Object>, StreamMessage<String, String>> processor() {
 		switch (kafkaOptions.getSerde()) {
 		case JSON:
-			return new JsonConsumerProcessor<String>(keyConverter());
+			return new JsonConsumerProcessor<>(keyConverter());
 		default:
-			return new AvroConsumerProcessor<String>(keyConverter());
+			return new AvroConsumerProcessor<>(keyConverter());
 		}
 	}
 
 	private Converter<ConsumerRecord<String, Object>, String> keyConverter() {
 		if (key == null) {
-			return r -> r.topic();
+			return ConsumerRecord::topic;
 		}
 		return r -> key;
 	}

@@ -3,6 +3,11 @@ package com.redislabs.riot;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.springframework.batch.item.ItemProcessor;
@@ -18,20 +23,22 @@ import io.lettuce.core.api.StatefulConnection;
 import lombok.extern.slf4j.Slf4j;
 import me.tongfei.progressbar.ProgressBar;
 import me.tongfei.progressbar.ProgressBarBuilder;
-import picocli.CommandLine;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
+import picocli.CommandLine.ParentCommand;
 
 @Slf4j
-@CommandLine.Command(abbreviateSynopsis = true, sortOptions = false)
+@Command(abbreviateSynopsis = true, sortOptions = false)
 public abstract class AbstractTransferCommand<I, O> extends HelpCommand {
 
-	@CommandLine.ParentCommand
+	@ParentCommand
 	private RiotApp app;
-	@CommandLine.Option(names = "--threads", description = "Thread count (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
+	@Option(names = "--threads", description = "Thread count (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
 	private int threads = 1;
-	@CommandLine.Option(names = { "-b",
+	@Option(names = { "-b",
 			"--batch" }, description = "Number of items in each batch (default: ${DEFAULT-VALUE})", paramLabel = "<size>")
 	private int batch = 50;
-	@CommandLine.Option(names = "--max", description = "Max number of items to read", paramLabel = "<count>")
+	@Option(names = "--max", description = "Max number of items to read", paramLabel = "<count>")
 	private Integer maxItemCount;
 
 	@Override
@@ -63,16 +70,20 @@ public abstract class AbstractTransferCommand<I, O> extends HelpCommand {
 			builder.setTaskName(taskName() + " " + name(transfer.getReader()));
 			builder.showSpeed();
 			try (ProgressBar progressBar = builder.build()) {
-				while (!future.isDone()) {
+				ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+				ScheduledFuture<?> progressFuture = scheduler
+						.scheduleAtFixedRate(() -> progressBar.stepTo(transfer.count()), 0, 100, TimeUnit.MILLISECONDS);
+				try {
+					future.get();
+				} catch (InterruptedException e) {
+					// ignore
+				} catch (ExecutionException e) {
+					log.error("Error during transfer", e);
+				} finally {
+					scheduler.shutdown();
+					progressFuture.cancel(true);
 					progressBar.stepTo(transfer.count());
-					try {
-						Thread.sleep(100);
-					} catch (InterruptedException e) {
-						return;
-					}
 				}
-				progressBar.stepTo(transfer.count());
-				progressBar.close();
 			}
 		}
 	}

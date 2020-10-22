@@ -3,10 +3,10 @@ package com.redislabs.riot.redis;
 import io.lettuce.core.api.sync.BaseRedisCommands;
 import io.lettuce.core.api.sync.RedisServerCommands;
 import lombok.extern.slf4j.Slf4j;
-import picocli.CommandLine;
+import picocli.CommandLine.Command;
 
 @Slf4j
-@CommandLine.Command(name = "info", aliases = {"i"}, description = "Display INFO command output")
+@Command(name = "info", aliases = {"i"}, description = "Display INFO command output")
 public class InfoCommand extends AbstractRedisCommand {
 
     @Override

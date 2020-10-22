@@ -1,7 +1,5 @@
 package com.redislabs.riot;
 
-import org.apache.commons.lang3.exception.ExceptionUtils;
-
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.time.Instant;
@@ -13,6 +11,8 @@ import java.time.format.DateTimeFormatterBuilder;
 import java.time.temporal.ChronoField;
 import java.util.logging.Formatter;
 import java.util.logging.LogRecord;
+
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
 public class OneLineLogFormat extends Formatter {
 

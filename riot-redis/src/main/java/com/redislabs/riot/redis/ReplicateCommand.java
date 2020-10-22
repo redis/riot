@@ -44,8 +44,8 @@ public class ReplicateCommand extends AbstractFlushingTransferCommand<KeyDump<St
 	@Override
 	protected List<ItemReader<KeyDump<String>>> readers() throws Exception {
 		RedisKeyDumpItemReader<String> reader = configure(RedisKeyDumpItemReader.builder()
-				.scanCount(options.getScanCount()).scanMatch(options.getScanMatch()).batch(options.getBatchSize())
-				.threads(options.getThreads()).queueCapacity(options.getQueueCapacity()).live(live)).build();
+				.scanCount(options.getScanCount()).scanMatch(options.getScanMatch()).batch(options.getReaderBatchSize())
+				.threads(options.getReaderThreads()).queueCapacity(options.getQueueCapacity()).live(live)).build();
 		reader.setName(String.valueOf(getRedisURI()));
 		return Collections.singletonList(reader);
 	}

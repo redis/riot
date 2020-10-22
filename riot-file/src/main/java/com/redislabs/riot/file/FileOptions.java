@@ -33,7 +33,7 @@ import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
 
 import lombok.Getter;
-import picocli.CommandLine;
+import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Option;
 
 public class FileOptions {
@@ -54,9 +54,9 @@ public class FileOptions {
 	@Getter
 	@Option(names = "--encoding", description = "File encoding (default: ${DEFAULT-VALUE})", paramLabel = "<charset>")
 	private String encoding = Charset.defaultCharset().name();
-	@CommandLine.ArgGroup(exclusive = false, heading = "S3 options%n")
+	@ArgGroup(exclusive = false, heading = "S3 options%n")
 	private S3Options s3 = new S3Options();
-	@CommandLine.ArgGroup(exclusive = false, heading = "GCS options%n")
+	@ArgGroup(exclusive = false, heading = "GCS options%n")
 	private GcsOptions gcs = new GcsOptions();
 
 	public String fileName(Resource resource) throws IOException {

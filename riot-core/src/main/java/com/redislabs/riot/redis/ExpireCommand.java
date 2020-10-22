@@ -2,16 +2,16 @@ package com.redislabs.riot.redis;
 
 import java.util.Map;
 
-import picocli.CommandLine;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 @Command(name = "expire")
 public class ExpireCommand extends AbstractKeyCommand {
 
-	@CommandLine.Option(names = "--ttl", description = "EXPIRE timeout field", paramLabel = "<field>")
+	@Option(names = "--ttl", description = "EXPIRE timeout field", paramLabel = "<field>")
 	private String timeoutField;
-	@CommandLine.Option(names = "--ttl-default", defaultValue = "60", description = "EXPIRE default timeout (default: ${DEFAULT-VALUE})", paramLabel = "<sec>")
-	private long timeoutDefault;
+	@Option(names = "--ttl-default", description = "EXPIRE default timeout (default: ${DEFAULT-VALUE})", paramLabel = "<sec>")
+	private long timeoutDefault = 60;
 
 	@Override
 	protected AbstractKeyWriter<String, String, Map<String, Object>> keyWriter() {

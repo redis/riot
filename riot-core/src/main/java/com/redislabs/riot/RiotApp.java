@@ -12,7 +12,6 @@ import com.redislabs.riot.redis.AbstractRedisCommand;
 
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.api.StatefulConnection;
-import io.lettuce.core.api.async.BaseRedisAsyncCommands;
 import io.lettuce.core.api.sync.BaseRedisCommands;
 import io.lettuce.core.codec.StringCodec;
 import io.netty.util.internal.logging.InternalLoggerFactory;
@@ -134,10 +133,6 @@ public class RiotApp implements Runnable {
 		return redisConnectionOptions.configure(connectionBuilder).connection();
 	}
 
-	public RedisConnectionBuilder<String, String, ?> connectionBuilder() {
-		return connectionBuilder(redisConnectionOptions);
-	}
-
 	public RedisConnectionBuilder<String, String, ?> connectionBuilder(RedisConnectionOptions redisConnectionOptions) {
 		RedisConnectionBuilder<String, String, ?> connectionBuilder = new RedisConnectionBuilder<>(StringCodec.UTF8);
 		return redisConnectionOptions.configure(connectionBuilder);
@@ -146,11 +141,6 @@ public class RiotApp implements Runnable {
 	public BaseRedisCommands<String, String> sync(StatefulConnection<String, String> connection) {
 		RedisConnectionBuilder<String, String, ?> connectionBuilder = new RedisConnectionBuilder<>(StringCodec.UTF8);
 		return redisConnectionOptions.configure(connectionBuilder).sync().apply(connection);
-	}
-
-	public BaseRedisAsyncCommands<String, String> async(StatefulConnection<String, String> connection) {
-		RedisConnectionBuilder<String, String, ?> connectionBuilder = new RedisConnectionBuilder<>(StringCodec.UTF8);
-		return redisConnectionOptions.configure(connectionBuilder).async().apply(connection);
 	}
 
 }

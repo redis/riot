@@ -21,11 +21,10 @@ import picocli.CommandLine.Option;
 public class RedisConnectionOptions {
 
 	@Option(names = { "-h",
-			"--hostname" }, defaultValue = "127.0.0.1", description = "Server hostname (default: ${DEFAULT-VALUE})", paramLabel = "<host>")
-	private String host;
-	@Option(names = { "-p",
-			"--port" }, defaultValue = "6379", description = "Server port (default: ${DEFAULT-VALUE})", paramLabel = "<port>")
-	private int port;
+			"--hostname" }, description = "Server hostname (default: ${DEFAULT-VALUE})", paramLabel = "<host>")
+	private String host = "127.0.0.1";
+	@Option(names = { "-p", "--port" }, description = "Server port (default: ${DEFAULT-VALUE})", paramLabel = "<port>")
+	private int port = 6379;
 	@Option(names = { "-s",
 			"--socket" }, description = "Server socket (overrides hostname and port)", paramLabel = "<socket>")
 	private String socket;
@@ -37,11 +36,10 @@ public class RedisConnectionOptions {
 	@Option(names = { "-u", "--uri" }, description = "Server URI", paramLabel = "<uri>")
 	private RedisURI redisURI;
 	@Option(names = { "-o",
-			"--timeout" }, defaultValue = "60", description = "Redis command timeout (default: ${DEFAULT-VALUE})", paramLabel = "<sec>")
-	private long timeout;
-	@Option(names = { "-n",
-			"--db" }, defaultValue = "0", description = "Database number (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
-	private int database;
+			"--timeout" }, description = "Redis command timeout (default: ${DEFAULT-VALUE})", paramLabel = "<sec>")
+	private long timeout = 60;
+	@Option(names = { "-n", "--db" }, description = "Database number (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
+	private int database = 0;
 	@Option(names = { "-c", "--cluster" }, description = "Enable cluster mode")
 	private boolean cluster;
 	@Option(names = { "-t", "--tls" }, description = "Establish a secure TLS connection")
@@ -57,12 +55,12 @@ public class RedisConnectionOptions {
 	@Option(names = { "-l", "--latency" }, description = "Show latency metrics")
 	private boolean showMetrics;
 	@Option(names = { "-m",
-			"--pool" }, defaultValue = "8", description = "Max pool connections (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
-	private int poolMaxTotal;
+			"--pool" }, description = "Max pool connections (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
+	private int poolMaxTotal = 8;
 	@Option(names = "--no-auto-reconnect", description = "Disable auto-reconnect", hidden = true)
 	private boolean noAutoReconnect;
-	@Option(names = "--client-name", defaultValue = "RIOT", description = "Client name (default: ${DEFAULT-VALUE})", hidden = true)
-	private String clientName;
+	@Option(names = "--client-name", description = "Client name (default: ${DEFAULT-VALUE})", hidden = true)
+	private String clientName = "riot";
 
 	public RedisURI getRedisURI() {
 		RedisURI uri = redisURI;

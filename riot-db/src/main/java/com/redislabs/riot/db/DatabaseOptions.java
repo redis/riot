@@ -1,11 +1,13 @@
 package com.redislabs.riot.db;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
-import picocli.CommandLine.Option;
+import java.sql.SQLException;
 
 import javax.sql.DataSource;
-import java.sql.SQLException;
+
+import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
+
+import lombok.extern.slf4j.Slf4j;
+import picocli.CommandLine.Option;
 
 @Slf4j
 public class DatabaseOptions {

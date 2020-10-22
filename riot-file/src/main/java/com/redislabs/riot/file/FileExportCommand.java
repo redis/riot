@@ -15,23 +15,25 @@ import org.springframework.core.io.WritableResource;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.redislabs.riot.AbstractExportCommand;
 
-import picocli.CommandLine;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Mixin;
+import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
 
 @Command(name = "export", description = "Export Redis data to a JSON or XML file")
 public class FileExportCommand extends AbstractExportCommand<KeyValue<String>> {
 
-	@CommandLine.Parameters(arity = "1", description = "File path or URL", paramLabel = "FILE")
+	@Parameters(arity = "1", description = "File path or URL", paramLabel = "FILE")
 	protected String file;
-	@CommandLine.Mixin
+	@Mixin
 	protected FileOptions fileOptions = new FileOptions();
-	@CommandLine.Option(names = "--append", description = "Append to file if it exists")
+	@Option(names = "--append", description = "Append to file if it exists")
 	private boolean append;
-	@CommandLine.Option(names = "--root", description = "XML root element tag name (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
+	@Option(names = "--root", description = "XML root element tag name (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
 	private String rootName = "root";
-	@CommandLine.Option(names = "--element", description = "XML element tag name (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
+	@Option(names = "--element", description = "XML element tag name (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
 	private String elementName = "record";
-	@CommandLine.Option(names = "--line-sep", description = "String to separate lines (default: system default)", paramLabel = "<string>")
+	@Option(names = "--line-sep", description = "String to separate lines (default: system default)", paramLabel = "<string>")
 	private String lineSeparator = FlatFileItemWriter.DEFAULT_LINE_SEPARATOR;
 
 	@Override

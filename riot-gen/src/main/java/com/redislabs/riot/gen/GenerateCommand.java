@@ -23,19 +23,21 @@ import com.redislabs.lettusearch.index.field.TextField;
 import com.redislabs.riot.AbstractImportCommand;
 
 import lombok.extern.slf4j.Slf4j;
-import picocli.CommandLine;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
 
 @Slf4j
-@CommandLine.Command(name = "import", aliases = { "i" }, description = "Import generated data")
+@Command(name = "import", aliases = { "i" }, description = "Import generated data")
 public class GenerateCommand extends AbstractImportCommand<Map<String, Object>, Map<String, Object>> {
 
-	@CommandLine.Parameters(description = "SpEL expressions", paramLabel = "SPEL")
+	@Parameters(description = "SpEL expressions", paramLabel = "SPEL")
 	private Map<String, String> fakerFields = new LinkedHashMap<>();
-	@CommandLine.Option(names = "--faker-index", description = "Use given search index to introspect Faker fields", paramLabel = "<index>")
+	@Option(names = "--faker-index", description = "Use given search index to introspect Faker fields", paramLabel = "<index>")
 	private String fakerIndex;
-	@CommandLine.Option(names = "--locale", description = "Faker locale (default: ${DEFAULT-VALUE})", paramLabel = "<tag>")
+	@Option(names = "--locale", description = "Faker locale (default: ${DEFAULT-VALUE})", paramLabel = "<tag>")
 	private Locale locale = Locale.ENGLISH;
-	@CommandLine.Option(names = "--metadata", description = "Include metadata (index, partition)")
+	@Option(names = "--metadata", description = "Include metadata (index, partition)")
 	private boolean includeMetadata;
 
 	@Override

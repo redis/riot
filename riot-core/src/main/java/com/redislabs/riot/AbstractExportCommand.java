@@ -16,8 +16,8 @@ public abstract class AbstractExportCommand<O> extends AbstractTransferCommand<K
 
 	@Mixin
 	private RedisExportOptions options = new RedisExportOptions();
-	@Option(names = "--key-regex", defaultValue = "\\w+:(?<id>.+)", description = "Regex for key-field extraction (default: ${DEFAULT-VALUE})", paramLabel = "<str>")
-	private String keyRegex;
+	@Option(names = "--key-regex", description = "Regex for key-field extraction (default: ${DEFAULT-VALUE})", paramLabel = "<str>")
+	private String keyRegex = "\\w+:(?<id>.+)";
 
 	@Override
 	protected String taskName() {
@@ -27,8 +27,8 @@ public abstract class AbstractExportCommand<O> extends AbstractTransferCommand<K
 	@Override
 	protected List<ItemReader<KeyValue<String>>> readers() {
 		RedisKeyValueItemReader<String> reader = configure(RedisKeyValueItemReader.builder()
-				.scanCount(options.getScanCount()).scanMatch(options.getScanMatch()).batch(options.getBatchSize())
-				.queueCapacity(options.getQueueCapacity()).threads(options.getThreads())).build();
+				.scanCount(options.getScanCount()).scanMatch(options.getScanMatch()).batch(options.getReaderBatchSize())
+				.queueCapacity(options.getQueueCapacity()).threads(options.getReaderThreads())).build();
 		reader.setName(String.valueOf(getRedisURI()));
 		return Collections.singletonList(reader);
 	}

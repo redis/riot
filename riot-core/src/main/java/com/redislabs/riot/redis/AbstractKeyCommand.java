@@ -10,21 +10,21 @@ import com.redislabs.riot.convert.FieldExtractor;
 import com.redislabs.riot.convert.KeyMaker;
 import com.redislabs.riot.convert.ObjectToNumberConverter;
 
-import picocli.CommandLine;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 @Command
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public abstract class AbstractKeyCommand extends AbstractRedisCommand<Map<String, Object>> {
 
-	@CommandLine.Option(names = { "-s",
-			"--separator" }, defaultValue = ":", description = "Key separator (default: ${DEFAULT-VALUE})", paramLabel = "<str>")
-	private String keySeparator;
-	@CommandLine.Option(names = { "-p", "--keyspace" }, description = "Keyspace prefix", paramLabel = "<str>")
+	@Option(names = { "-s",
+			"--separator" }, description = "Key separator (default: ${DEFAULT-VALUE})", paramLabel = "<str>")
+	private String keySeparator = ":";
+	@Option(names = { "-p", "--keyspace" }, description = "Keyspace prefix", paramLabel = "<str>")
 	private String keyspace;
-	@CommandLine.Option(names = { "-k", "--keys" }, arity = "1..*", description = "Key fields", paramLabel = "<fields>")
+	@Option(names = { "-k", "--keys" }, arity = "1..*", description = "Key fields", paramLabel = "<fields>")
 	private String[] keys = new String[0];
-	@CommandLine.Option(names = { "-r",
+	@Option(names = { "-r",
 			"--remove" }, description = "Remove fields the first time they are used (key or member fields)")
 	private boolean removeFields;
 

@@ -1,15 +1,16 @@
 package com.redislabs.riot.file;
 
-import com.redislabs.riot.test.BaseTest;
-import org.junit.jupiter.api.BeforeAll;
-import org.springframework.batch.item.ExecutionContext;
-import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.junit.jupiter.api.BeforeAll;
+import org.springframework.batch.item.ExecutionContext;
+import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
+
+import com.redislabs.riot.test.BaseTest;
 
 public class AbstractFileTest extends BaseTest {
 

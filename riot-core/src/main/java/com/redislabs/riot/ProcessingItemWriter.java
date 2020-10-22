@@ -1,12 +1,12 @@
 package com.redislabs.riot;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.support.AbstractItemStreamItemWriter;
 import org.springframework.util.ClassUtils;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class ProcessingItemWriter<I, O> extends AbstractItemStreamItemWriter<I> {
 

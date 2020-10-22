@@ -73,7 +73,7 @@ public class StreamExportCommand
 
 	private Converter<StreamMessage<String, String>, String> topicConverter() {
 		if (topic == null) {
-			return m -> m.getStream();
+			return StreamMessage::getStream;
 		}
 		return m -> topic;
 	}

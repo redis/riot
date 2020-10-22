@@ -2,15 +2,15 @@ package com.redislabs.riot.redis;
 
 import java.util.Map;
 
-import picocli.CommandLine;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 @Command(name = "geoadd")
 public class GeoaddCommand extends AbstractCollectionCommand {
 
-	@CommandLine.Option(names = "--lon", description = "Longitude field", paramLabel = "<field>")
+	@Option(names = "--lon", description = "Longitude field", paramLabel = "<field>")
 	private String longitudeField;
-	@CommandLine.Option(names = "--lat", description = "Latitude field", paramLabel = "<field>")
+	@Option(names = "--lat", description = "Latitude field", paramLabel = "<field>")
 	private String latitudeField;
 
 	@Override

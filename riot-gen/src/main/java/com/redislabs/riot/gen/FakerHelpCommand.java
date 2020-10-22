@@ -1,16 +1,17 @@
 package com.redislabs.riot.gen;
 
-import com.github.javafaker.Faker;
-import picocli.CommandLine;
-import picocli.CommandLine.Command;
-import picocli.CommandLine.Help;
-import picocli.CommandLine.IHelpCommandInitializable2;
-
 import java.io.PrintWriter;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import com.github.javafaker.Faker;
+
+import picocli.CommandLine;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Help;
+import picocli.CommandLine.IHelpCommandInitializable2;
 
 @Command(name = "faker-help", header = "Displays help information about Faker", synopsisHeading = "%nUsage: ", helpCommand = true)
 public class FakerHelpCommand implements IHelpCommandInitializable2, Runnable {
