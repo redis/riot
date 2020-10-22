@@ -730,7 +730,7 @@ Use <code>-</code> to read from standard input.
 <div class="listingblock">
 <div class="title">CSV import example</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="shell">❯ riot-file -h localhost -p 6379 import https://raw.githubusercontent.com/redis-developer/riot/master/riot-file/src/test/resources/csv/beers.csv --header hmset --keyspace beer --keys id</code></pre>
+<pre class="CodeRay highlight"><code data-lang="shell">❯ riot-file -h localhost -p 6379 import http://redis-developer.github.io/riot/beers.csv --header hmset --keyspace beer --keys id</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -739,7 +739,7 @@ Use <code>-</code> to read from standard input.
 <div class="listingblock">
 <div class="title">CSV import to geo set</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="shell">❯ riot-file import https://raw.githubusercontent.com/jpatokal/openflights/master/data/airports.dat --fields AirportID Name City Country IATA ICAO Latitude Longitude Altitude Timezone DST Tz Type Source geoadd --keyspace airportgeo --members AirportID --lon Longitude --lat Latitude</code></pre>
+<pre class="CodeRay highlight"><code data-lang="shell">❯ riot-file import http://redis-developer.github.io/riot/airports.dat --fields AirportID Name City Country IATA ICAO Latitude Longitude Altitude Timezone DST Tz Type Source geoadd --keyspace airportgeo --members AirportID --lon Longitude --lat Latitude</code></pre>
 </div>
 </div>
 </div>
@@ -770,7 +770,7 @@ Use <code>-</code> to read from standard input.
 <div class="listingblock">
 <div class="title">JSON import example</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="shell">❯ riot-file import https://raw.githubusercontent.com/rethinkdb/beerthink/master/data/beers.json hmset --keyspace beer --keys id</code></pre>
+<pre class="CodeRay highlight"><code data-lang="shell">❯ riot-file import http://redis-developer.github.io/riot/beers.json hmset --keyspace beer --keys id</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -850,7 +850,7 @@ field[2]=3</pre>
 <div class="listingblock">
 <div class="title">XML import example</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="shell">❯ riot-file import https://raw.githubusercontent.com/redis-developer/riot/master/riot-file/src/test/resources/xml/trades.xml hmset --keyspace trade --keys id</code></pre>
+<pre class="CodeRay highlight"><code data-lang="shell">❯ riot-file import http://redis-developer.github.io/riot/trades.xml hmset --keyspace trade --keys id</code></pre>
 </div>
 </div>
 </div>
