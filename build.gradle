@@ -38,6 +38,18 @@ asciidoctor {
             exclude '*.excalidraw'
             into 'images'
         }
+        from("riot-file/src/test/resources/csv") {
+        	include '*.csv'
+        	into '.'
+        }
+        from("riot-file/src/test/resources/json") {
+        	include '*.json'
+        	into '.'
+        }
+        from("riot-file/src/test/resources/xml") {
+        	include '*.xml'
+        	into '.'
+        }
     }
     
     outputOptions {

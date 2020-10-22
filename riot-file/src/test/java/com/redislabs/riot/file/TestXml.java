@@ -20,7 +20,7 @@ import io.lettuce.core.api.sync.RedisCommands;
 public class TestXml extends AbstractFileTest {
 
 	@Test
-	public void importHash() throws Exception {
+	public void importHmset() throws Exception {
 		executeFile("/xml/import-hmset.txt");
 		List<String> keys = commands().keys("trade:*");
 		Assertions.assertEquals(3, keys.size());
@@ -30,7 +30,7 @@ public class TestXml extends AbstractFileTest {
 
 	@SuppressWarnings({ "incomplete-switch", "rawtypes", "unchecked" })
 	@Test
-	public void exportHash() throws Exception {
+	public void export() throws Exception {
 		DataPopulator.builder().connection(connection()).build().run();
 		Path file = tempFile("redis.xml");
 		executeFile("/xml/export.txt");
