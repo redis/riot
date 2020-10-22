@@ -44,6 +44,8 @@ public class RedisConnectionOptions {
 	private boolean cluster;
 	@Option(names = { "-t", "--tls" }, description = "Establish a secure TLS connection")
 	private boolean tls;
+	@Option(names = { "--no-verify-peer" }, description = "Do not verify peers when using TLS")
+	private boolean noVerifyPeer;
 	@Option(names = "--ks", description = "Path to keystore", paramLabel = "<file>", hidden = true)
 	private File keystore;
 	@Option(names = "--ks-password", arity = "0..1", interactive = true, description = "Keystore password", paramLabel = "<pwd>", hidden = true)
@@ -70,6 +72,9 @@ public class RedisConnectionOptions {
 			uri.setPort(port);
 			uri.setSocket(socket);
 			uri.setSsl(tls);
+		}
+		if (noVerifyPeer) {
+			uri.setVerifyPeer(false);
 		}
 		if (username != null) {
 			uri.setUsername(username);
