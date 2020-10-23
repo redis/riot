@@ -1,4 +1,5 @@
 = RIOT
+:favicon: images/favicon.svg
 :source-highlighter: coderay
 :icons: font
 :imagesdir: images
