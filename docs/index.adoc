@@ -20,9 +20,9 @@ image:riot.svg[RIOT,width=800]
 
 Redis Input/Output Tools (RIOT) is a set of import/export command line utilities for Redis:
 
-* link:riot-gen.html[RIOT Gen]: generate sample Redis datasets for new feature development and proof of concept.
 * link:riot-db.html[RIOT DB]: migrate from an RDBMS to Redis, RediSearch, RedisJSON, ...
 * link:riot-file.html[RIOT File]: file import and export.
+* link:riot-gen.html[RIOT Gen]: generate sample Redis datasets for new feature development and proof of concept.
 * link:riot-redis.html[RIOT Redis]: live replication from any Redis database (including AWS Elasticache) to another Redis database.
 * link:riot-stream.html[RIOT Stream]: Kafka import and export.
 
