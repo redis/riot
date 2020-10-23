@@ -30,10 +30,10 @@
      inkscape:current-layer="layer1"
      inkscape:document-rotation="0"
      showgrid="false"
-     inkscape:window-width="1920"
-     inkscape:window-height="1035"
+     inkscape:window-width="1792"
+     inkscape:window-height="1075"
      inkscape:window-x="0"
-     inkscape:window-y="63"
+     inkscape:window-y="23"
      inkscape:window-maximized="0"
      fit-margin-top="0"
      fit-margin-left="0"
@@ -47,7 +47,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -56,13 +56,6 @@
      inkscape:groupmode="layer"
      id="layer1"
      transform="translate(-12.095239,-15.875)">
-    <rect
-       style="fill:#ffffff;stroke-width:0.264583"
-       id="rect14"
-       width="107.34524"
-       height="39.309525"
-       x="45.357143"
-       y="127.75595" />
     <rect
        style="fill:#5d594f;fill-opacity:1;stroke-width:0.264583"
        id="rect855"
