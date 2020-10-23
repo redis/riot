@@ -18,10 +18,10 @@
      id="defs271" />
   <sodipodi:namedview
      id="base"
-     pagecolor="#5d594f"
+     pagecolor="#ffffff"
      bordercolor="#666666"
      borderopacity="1.0"
-     inkscape:pageopacity="1"
+     inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.98994949"
      inkscape:cx="109.9857"
@@ -56,14 +56,6 @@
      inkscape:groupmode="layer"
      id="layer1"
      transform="translate(-103.72717,-127.79504)">
-    <rect
-       style="fill:#5d594f;fill-opacity:1;stroke-width:0.264583"
-       id="rect1172"
-       width="51.048477"
-       height="37.952274"
-       x="92.468933"
-       y="123.58498"
-       ry="13.040175" />
     <g
        id="g41"
        transform="matrix(0.45798555,0,0,1,71.822998,112.27823)"
