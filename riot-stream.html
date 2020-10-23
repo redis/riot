@@ -5,8 +5,8 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.10">
-<meta name="application-name" content="RIOT Gen">
-<title>RIOT Gen</title>
+<meta name="application-name" content="RIOT Stream">
+<title>RIOT Stream</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /* Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -440,7 +440,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="article toc2 toc-left">
 <div id="header">
-<h1>RIOT Gen</h1>
+<h1>RIOT Stream</h1>
 <div class="details">
 <span id="revnumber">version 2.2.7</span>
 </div>
@@ -454,9 +454,9 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_usage">2.2. Usage</a></li>
 </ul>
 </li>
-<li><a href="#_examples">3. Examples</a></li>
-<li><a href="#_redisearch_index_introspection">4. RediSearch Index Introspection</a></li>
-<li><a href="#faker-data-types">5. Faker data types</a></li>
+<li><a href="#_formats">3. Formats</a></li>
+<li><a href="#_import">4. Import</a></li>
+<li><a href="#_export">5. Export</a></li>
 </ul>
 </div>
 </div>
@@ -465,10 +465,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="_overview"><a class="anchor" href="#_overview"></a>1. Overview</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><strong>RIOT Gen</strong> generates random data using the <a href="https://github.com/DiUS/java-faker">Faker</a> library.</p>
-</div>
-<div class="paragraph">
-<p>All supported Faker data types are listed <a href="#faker-data-types">below</a>.</p>
+<p><strong>RIOT Stream</strong> lets you import/export data from Kafka topics.</p>
 </div>
 </div>
 </div>
@@ -483,7 +480,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p>Download the <a href="https://github.com/redis-developer/riot/releases/latest">latest release</a> and unzip the archive.</p>
 </div>
 <div class="paragraph">
-<p>Launch the <code>bin/riot-gen</code> script and follow the usage information provided.</p>
+<p>Launch the <code>bin/riot-stream</code> script and follow the usage information provided.</p>
 </div>
 </div>
 <div class="sect3">
@@ -491,15 +488,15 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="source">❯ git clone https://github.com/redis-developer/riot.git
-❯ cd riot/riot-gen
-❯ ./riot-gen</code></pre>
+❯ cd riot/riot-stream
+❯ ./riot-stream</code></pre>
 </div>
 </div>
 </div>
 <div class="sect3">
 <h4 id="_install_via_homebrew_macos"><a class="anchor" href="#_install_via_homebrew_macos"></a>2.1.3. Install via Homebrew (macOS)</h4>
 <div class="paragraph">
-<p><code>brew install jruaux/tap/riot-gen</code></p>
+<p><code>brew install jruaux/tap/riot-stream</code></p>
 </div>
 </div>
 </div>
@@ -507,8 +504,8 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h3 id="_usage"><a class="anchor" href="#_usage"></a>2.2. Usage</h3>
 <div class="listingblock">
 <div class="content">
-<pre>❯ riot-gen
-Usage: riot-gen [OPTIONS] [COMMAND]
+<pre>❯ riot-stream
+Usage: riot-stream [OPTIONS] [COMMAND]
       --help                Show this help message and exit.
   -V, --version             Print version information and exit.
   -q, --quiet               Log errors only
@@ -527,13 +524,13 @@ Usage: riot-gen [OPTIONS] [COMMAND]
 <p>You can use <code>--help</code> on any subcommand:</p>
 </div>
 <div class="paragraph">
-<p><code>❯ riot-gen --help</code></p>
+<p><code>❯ riot-stream --help</code></p>
 </div>
 <div class="paragraph">
-<p><code>❯ riot-gen import --help</code></p>
+<p><code>❯ riot-stream import --help</code></p>
 </div>
 <div class="paragraph">
-<p><code>❯ riot-gen import &#8230;&#8203; hmset --help</code></p>
+<p><code>❯ riot-stream import &#8230;&#8203; hmset --help</code></p>
 </div>
 </td>
 </tr>
@@ -565,282 +562,36 @@ Usage: riot-gen [OPTIONS] [COMMAND]
 </div>
 </div>
 <div class="sect1">
-<h2 id="_examples"><a class="anchor" href="#_examples"></a>3. Examples</h2>
+<h2 id="_formats"><a class="anchor" href="#_formats"></a>3. Formats</h2>
 <div class="sectionbody">
-<div class="listingblock">
-<div class="title">Generating hashes</div>
-<div class="content">
-<pre class="CodeRay highlight"><code data-lang="shell">❯ riot-gen -h localhost -p 6379 import id=#index firstName=name.firstName lastName=name.lastName address=address.fullAddress --max 100 hmset --keyspace person --keys id</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="title">Generating sets</div>
-<div class="content">
-<pre class="CodeRay highlight"><code data-lang="shell">❯ riot-gen import name=gameOfThrones.character --max 10000 sadd --members name --keyspace got:characters</code></pre>
-</div>
-</div>
 <div class="paragraph">
-<p>You can specify one or many Redis commands as targets of the import:</p>
-</div>
-<div class="paragraph">
-<div class="title">Import into hashes</div>
-<p><code>❯ riot-gen import &#8230;&#8203; hmset --keyspace blah --keys id</code></p>
-</div>
-<div class="paragraph">
-<div class="title">Import into hashes <strong>and</strong> set TTL on the key</div>
-<p><code>❯ riot-gen import &#8230;&#8203; hmset --keyspace blah --keys id expire --keyspace blah --keys id</code></p>
-</div>
-<div class="paragraph">
-<div class="title">Import into hashes <strong>and</strong> set TTL <strong>and</strong> add to a set named <code>myset</code></div>
-<p><code>❯ riot-gen import &#8230;&#8203; hmset --keyspace blah --keys id expire --keyspace blah --keys id sadd --keyspace myset --members id</code></p>
+<p><strong>RIOT Stream</strong> supports JSON and Avro de/serializers.</p>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_redisearch_index_introspection"><a class="anchor" href="#_redisearch_index_introspection"></a>4. RediSearch Index Introspection</h2>
+<h2 id="_import"><a class="anchor" href="#_import"></a>4. Import</h2>
 <div class="sectionbody">
+<div class="paragraph">
+<p>Use the <code>import</code> command to import messages from Kafka topics.</p>
+</div>
 <div class="listingblock">
-<div class="title">Introspect RediSearch index</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="shell">❯ riot-gen import --faker-index beerIntrospection --max 100 hmset --keyspace beer --keys id</code></pre>
+<pre class="CodeRay highlight"><code data-lang="shell">❯ riot-stream -h localhost -p 6379 import topic1 --broker localhost:9092</code></pre>
 </div>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="faker-data-types"><a class="anchor" href="#faker-data-types"></a>5. Faker data types</h2>
+<h2 id="_export"><a class="anchor" href="#_export"></a>5. Export</h2>
 <div class="sectionbody">
-<div class="ulist">
-<ul>
-<li>
-<p><strong>address</strong>: buildingNumber city cityName cityPrefix citySuffix country countryCode firstName fullAddress lastName latitude longitude secondaryAddress state stateAbbr streetAddress streetAddressNumber streetName streetPrefix streetSuffix timeZone zipCode</p>
-</li>
-<li>
-<p><strong>ancient</strong>: god hero primordial titan</p>
-</li>
-<li>
-<p><strong>animal</strong>: name</p>
-</li>
-<li>
-<p><strong>app</strong>: author name version</p>
-</li>
-<li>
-<p><strong>artist</strong>: name</p>
-</li>
-<li>
-<p><strong>avatar</strong>: image</p>
-</li>
-<li>
-<p><strong>aviation</strong>: METAR aircraft airport</p>
-</li>
-<li>
-<p><strong>backToTheFuture</strong>: character date quote</p>
-</li>
-<li>
-<p><strong>beer</strong>: hop malt name style yeast</p>
-</li>
-<li>
-<p><strong>book</strong>: author genre publisher title</p>
-</li>
-<li>
-<p><strong>bool</strong>: bool</p>
-</li>
-<li>
-<p><strong>buffy</strong>: bigBads celebrities characters episodes quotes</p>
-</li>
-<li>
-<p><strong>business</strong>: creditCardExpiry creditCardNumber creditCardType</p>
-</li>
-<li>
-<p><strong>cat</strong>: breed name registry</p>
-</li>
-<li>
-<p><strong>chuckNorris</strong>: fact</p>
-</li>
-<li>
-<p><strong>code</strong>: asin ean13 ean8 gtin13 gtin8 imei isbn10 isbn13 isbnGroup isbnGs1 isbnRegistrant</p>
-</li>
-<li>
-<p><strong>color</strong>: hex name</p>
-</li>
-<li>
-<p><strong>commerce</strong>: color department material price productName promotionCode</p>
-</li>
-<li>
-<p><strong>company</strong>: bs buzzword catchPhrase domainName domainSuffix industry logo name profession suffix url</p>
-</li>
-<li>
-<p><strong>country</strong>: capital countryCode2 countryCode3 currency currencyCode flag name</p>
-</li>
-<li>
-<p><strong>crypto</strong>: md5 sha1 sha256 sha512</p>
-</li>
-<li>
-<p><strong>currency</strong>: code name</p>
-</li>
-<li>
-<p><strong>date</strong>: birthday</p>
-</li>
-<li>
-<p><strong>demographic</strong>: demonym educationalAttainment maritalStatus race sex</p>
-</li>
-<li>
-<p><strong>dog</strong>: age breed coatLength gender memePhrase name size sound</p>
-</li>
-<li>
-<p><strong>dragonBall</strong>: character</p>
-</li>
-<li>
-<p><strong>dune</strong>: character planet quote saying title</p>
-</li>
-<li>
-<p><strong>educator</strong>: campus course secondarySchool university</p>
-</li>
-<li>
-<p><strong>elderScrolls</strong>: city creature dragon firstName lastName quote race region</p>
-</li>
-<li>
-<p><strong>esports</strong>: event game league player team</p>
-</li>
-<li>
-<p><strong>file</strong>: extension fileName mimeType</p>
-</li>
-<li>
-<p><strong>finance</strong>: bic createCountryCodeToBasicBankAccountNumberPatternMap creditCard iban randomCreditCardType</p>
-</li>
-<li>
-<p><strong>food</strong>: dish fruit ingredient measurement spice sushi vegetable</p>
-</li>
-<li>
-<p><strong>friends</strong>: character location quote</p>
-</li>
-<li>
-<p><strong>funnyName</strong>: name</p>
-</li>
-<li>
-<p><strong>gameOfThrones</strong>: character city dragon house quote</p>
-</li>
-<li>
-<p><strong>hacker</strong>: abbreviation adjective ingverb noun verb</p>
-</li>
-<li>
-<p><strong>harryPotter</strong>: book character location quote</p>
-</li>
-<li>
-<p><strong>hipster</strong>: word</p>
-</li>
-<li>
-<p><strong>hitchhikersGuideToTheGalaxy</strong>: character location marvinQuote planet quote specie starship</p>
-</li>
-<li>
-<p><strong>hobbit</strong>: character location quote thorinsCompany</p>
-</li>
-<li>
-<p><strong>howIMetYourMother</strong>: catchPhrase character highFive quote</p>
-</li>
-<li>
-<p><strong>idNumber</strong>: invalid invalidSvSeSsn ssnValid valid validSvSeSsn</p>
-</li>
-<li>
-<p><strong>internet</strong>: avatar domainName domainSuffix domainWord emailAddress image ipV4Address ipV4Cidr ipV6Address ipV6Cidr macAddress password privateIpV4Address publicIpV4Address safeEmailAddress slug url userAgentAny uuid</p>
-</li>
-<li>
-<p><strong>job</strong>: field keySkills position seniority title</p>
-</li>
-<li>
-<p><strong>leagueOfLegends</strong>: champion location masteries quote rank summonerSpell</p>
-</li>
-<li>
-<p><strong>lebowski</strong>: actor character quote</p>
-</li>
-<li>
-<p><strong>lordOfTheRings</strong>: character location</p>
-</li>
-<li>
-<p><strong>lorem</strong>: character characters paragraph sentence word words</p>
-</li>
-<li>
-<p><strong>matz</strong>: quote</p>
-</li>
-<li>
-<p><strong>medical</strong>: diseaseName hospitalName medicineName symptoms</p>
-</li>
-<li>
-<p><strong>music</strong>: chord genre instrument key</p>
-</li>
-<li>
-<p><strong>name</strong>: bloodGroup firstName fullName lastName name nameWithMiddle prefix suffix title username</p>
-</li>
-<li>
-<p><strong>nation</strong>: capitalCity flag language nationality</p>
-</li>
-<li>
-<p><strong>number</strong>: digit randomDigit randomDigitNotZero randomNumber</p>
-</li>
-<li>
-<p><strong>overwatch</strong>: hero location quote</p>
-</li>
-<li>
-<p><strong>phoneNumber</strong>: cellPhone extension phoneNumber subscriberNumber</p>
-</li>
-<li>
-<p><strong>pokemon</strong>: location name</p>
-</li>
-<li>
-<p><strong>princessBride</strong>: character quote</p>
-</li>
-<li>
-<p><strong>relationships</strong>: any direct extended inLaw parent sibling spouse</p>
-</li>
-<li>
-<p><strong>rickAndMorty</strong>: character location quote</p>
-</li>
-<li>
-<p><strong>robin</strong>: quote</p>
-</li>
-<li>
-<p><strong>rockBand</strong>: name</p>
-</li>
-<li>
-<p><strong>shakespeare</strong>: asYouLikeItQuote hamletQuote kingRichardIIIQuote romeoAndJulietQuote</p>
-</li>
-<li>
-<p><strong>slackEmoji</strong>: activity celebration custom emoji foodAndDrink nature objectsAndSymbols people travelAndPlaces</p>
-</li>
-<li>
-<p><strong>space</strong>: agency agencyAbbreviation company constellation distanceMeasurement galaxy meteorite moon nasaSpaceCraft nebula planet star starCluster</p>
-</li>
-<li>
-<p><strong>starTrek</strong>: character location specie villain</p>
-</li>
-<li>
-<p><strong>stock</strong>: nsdqSymbol nyseSymbol</p>
-</li>
-<li>
-<p><strong>superhero</strong>: descriptor name power prefix suffix</p>
-</li>
-<li>
-<p><strong>team</strong>: creature name sport state</p>
-</li>
-<li>
-<p><strong>twinPeaks</strong>: character location quote</p>
-</li>
-<li>
-<p><strong>university</strong>: name prefix suffix</p>
-</li>
-<li>
-<p><strong>weather</strong>: description temperatureCelsius temperatureFahrenheit</p>
-</li>
-<li>
-<p><strong>witcher</strong>: character location monster quote school witcher</p>
-</li>
-<li>
-<p><strong>yoda</strong>: quote</p>
-</li>
-<li>
-<p><strong>zelda</strong>: character game</p>
-</li>
-</ul>
+<div class="paragraph">
+<p>Use the <code>export</code> command to export Redis streams to Kafka topics.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="shell">❯ riot-stream -h localhost -p 6379 export stream1 --broker localhost:9092</code></pre>
+</div>
 </div>
 </div>
 </div>
@@ -848,7 +599,7 @@ Usage: riot-gen [OPTIONS] [COMMAND]
 <div id="footer">
 <div id="footer-text">
 Version 2.2.7<br>
-Last updated 2020-10-20 22:43:23 -0700
+Last updated 2020-10-22 22:32:12 -0700
 </div>
 </div>
 <style>
