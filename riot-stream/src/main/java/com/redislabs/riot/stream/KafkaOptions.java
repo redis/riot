@@ -41,7 +41,7 @@ public class KafkaOptions {
 	private Map<String, String> properties = new LinkedHashMap<>();
 	@Getter
 	@Option(names = "--serde", description = "Serializer/Deserializer: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})", paramLabel = "<serde>")
-	private SerDe serde = SerDe.AVRO;
+	private SerDe serde = SerDe.JSON;
 
 	public Properties consumerProperties() {
 		KafkaProperties kafkaProperties = kafkaProperties();

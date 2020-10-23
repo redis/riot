@@ -19,6 +19,7 @@ import com.redislabs.lettusearch.index.field.TagField;
 import com.redislabs.lettusearch.index.field.TextField;
 import com.redislabs.lettusearch.search.Document;
 import com.redislabs.lettusearch.search.SearchResults;
+import com.redislabs.riot.RiotApp;
 import com.redislabs.riot.test.BaseTest;
 
 import io.lettuce.core.Range;
@@ -30,8 +31,8 @@ public class TestGen extends BaseTest {
 	private RediSearchClient searchClient;
 
 	@Override
-	protected int execute(String[] args) throws Exception {
-		return new RiotGen().execute(args);
+	protected RiotApp app() {
+		return new RiotGen();
 	}
 
 	@Override
@@ -84,7 +85,7 @@ public class TestGen extends BaseTest {
 		List<StreamMessage<String, String>> messages = commands().xrange("teststream:1", Range.unbounded());
 		Assertions.assertTrue(messages.size() > 0);
 	}
-	
+
 	@BeforeEach
 	public void setupSearch() {
 		searchClient = RediSearchClient.create(RedisURI.create(redis.getHost(), redis.getFirstMappedPort()));
@@ -108,7 +109,7 @@ public class TestGen extends BaseTest {
 				.field(NumericField.<String>builder().name(FIELD_OUNCES).sortable(true).build()).build();
 		StatefulRediSearchConnection<String, String> connection = searchClient.connect();
 		RediSearchCommands<String, String> searchCommands = connection.sync();
-		searchCommands.create(INDEX, schema, CreateOptions.<String,String>builder().prefixes("beer:").build());
+		searchCommands.create(INDEX, schema, CreateOptions.<String, String>builder().prefixes("beer:").build());
 		executeFile("/index-introspection.txt");
 		SearchResults<String, String> results = searchCommands.search(INDEX, "*");
 		Assertions.assertEquals(100, results.getCount());

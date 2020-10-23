@@ -18,7 +18,6 @@ import com.redislabs.riot.stream.processor.JsonConsumerProcessor;
 
 import io.lettuce.core.StreamMessage;
 import io.lettuce.core.XAddArgs;
-import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
 import picocli.CommandLine.Option;
@@ -38,6 +37,11 @@ public class StreamImportCommand
 	private List<String> topics;
 	@Mixin
 	private KafkaOptions kafkaOptions = new KafkaOptions();
+	
+	@Override
+	protected boolean flushingEnabled() {
+		return true;
+	}
 
 	@Override
 	protected String taskName() {

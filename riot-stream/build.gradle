@@ -25,6 +25,7 @@ dependencies {
     implementation 'io.confluent:kafka-protobuf-serializer:6.0.0'
     implementation 'org.springframework.boot:spring-boot-autoconfigure:2.3.4.RELEASE'
     testImplementation project(':riot-test')
+    testImplementation 'org.testcontainers:kafka:1.15.0-rc2'
 }
 
 configurations {

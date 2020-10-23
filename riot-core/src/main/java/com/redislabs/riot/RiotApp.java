@@ -47,43 +47,28 @@ public class RiotApp implements Runnable {
 	@ArgGroup(heading = "Redis connection options%n", exclusive = false)
 	private RedisConnectionOptions redisConnectionOptions = new RedisConnectionOptions();
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public int execute(String... args) {
 		try {
 			CommandLine commandLine = commandLine();
-			ParseResult parsed = commandLine.parseArgs(args);
-			InternalLoggerFactory.setDefaultFactory(JdkLoggerFactory.INSTANCE);
-			LogManager.getLogManager().reset();
-			Logger activeLogger = Logger.getLogger(ROOT_LOGGER);
-			ConsoleHandler handler = new ConsoleHandler();
-			handler.setLevel(Level.ALL);
-			handler.setFormatter(new OneLineLogFormat(isDebug()));
-			activeLogger.addHandler(handler);
-			Logger.getLogger(ROOT_LOGGER).setLevel(rootLoggingLevel());
-			Logger logger = Logger.getLogger("com.redislabs");
-			logger.setLevel(packageLoggingLevel());
-			ParseResult subcommand = parsed.subcommand();
-			if (subcommand != null) {
-				Object command = subcommand.commandSpec().userObject();
-				if (AbstractImportCommand.class.isAssignableFrom(command.getClass())) {
-					AbstractImportCommand<?, ?> importCommand = (AbstractImportCommand<?, ?>) command;
-					List<ParseResult> parsedRedisCommands = subcommand.subcommands();
-					for (ParseResult parsedRedisCommand : parsedRedisCommands) {
-						if (parsedRedisCommand.isUsageHelpRequested()) {
-							return commandLine.getExecutionStrategy().execute(parsedRedisCommand);
-						}
-						importCommand.getRedisCommands()
-								.add((AbstractRedisCommand) parsedRedisCommand.commandSpec().userObject());
-					}
-					commandLine.setExecutionStrategy(new RunFirst());
-					return commandLine.getExecutionStrategy().execute(subcommand);
-				}
-			}
-			return commandLine.getExecutionStrategy().execute(parsed);
+			ParseResult parseResult = parse(commandLine, args);
+			initializeLogging();
+			return commandLine.getExecutionStrategy().execute(parseResult);
 		} catch (PicocliException e) {
 			System.err.println(e.getMessage());
 			return 1;
 		}
+	}
+
+	private void initializeLogging() {
+		InternalLoggerFactory.setDefaultFactory(JdkLoggerFactory.INSTANCE);
+		LogManager.getLogManager().reset();
+		Logger activeLogger = Logger.getLogger(ROOT_LOGGER);
+		ConsoleHandler handler = new ConsoleHandler();
+		handler.setLevel(Level.ALL);
+		handler.setFormatter(new OneLineLogFormat(isDebug()));
+		activeLogger.addHandler(handler);
+		Logger.getLogger(ROOT_LOGGER).setLevel(rootLoggingLevel());
+		Logger.getLogger("com.redislabs").setLevel(packageLoggingLevel());
 	}
 
 	public CommandLine commandLine() {
@@ -91,6 +76,29 @@ public class RiotApp implements Runnable {
 		registerConverters(commandLine);
 		commandLine.setCaseInsensitiveEnumValuesAllowed(true);
 		return commandLine;
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public ParseResult parse(CommandLine commandLine, String[] args) {
+		ParseResult parseResult = commandLine.parseArgs(args);
+		ParseResult subcommand = parseResult.subcommand();
+		if (subcommand != null) {
+			Object command = subcommand.commandSpec().userObject();
+			if (AbstractImportCommand.class.isAssignableFrom(command.getClass())) {
+				AbstractImportCommand<?, ?> importCommand = (AbstractImportCommand<?, ?>) command;
+				List<ParseResult> parsedRedisCommands = subcommand.subcommands();
+				for (ParseResult parsedRedisCommand : parsedRedisCommands) {
+					if (parsedRedisCommand.isUsageHelpRequested()) {
+						return parsedRedisCommand;
+					}
+					importCommand.getRedisCommands()
+							.add((AbstractRedisCommand) parsedRedisCommand.commandSpec().userObject());
+				}
+				commandLine.setExecutionStrategy(new RunFirst());
+				return subcommand;
+			}
+		}
+		return parseResult;
 	}
 
 	protected void registerConverters(CommandLine commandLine) {

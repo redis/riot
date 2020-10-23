@@ -53,7 +53,7 @@ public abstract class AbstractTransferCommand<I, O> extends HelpCommand {
 		for (Transfer<I, O> transfer : transfers) {
 			CompletableFuture<Void> future;
 			try {
-				future = execute(transfer);
+				future = transfer.execute();
 			} catch (Exception e) {
 				log.error("Could not initialize transfer", e);
 				continue;
@@ -86,10 +86,6 @@ public abstract class AbstractTransferCommand<I, O> extends HelpCommand {
 				}
 			}
 		}
-	}
-
-	public CompletableFuture<Void> execute(Transfer<I, O> transfer) {
-		return transfer.execute();
 	}
 
 	public List<Transfer<I, O>> transfers() throws Exception {

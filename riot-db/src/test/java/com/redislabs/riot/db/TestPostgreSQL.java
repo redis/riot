@@ -20,6 +20,7 @@ import org.springframework.batch.item.redis.support.DataType;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
@@ -29,9 +30,9 @@ import com.redislabs.riot.test.DataPopulator;
 @SuppressWarnings("rawtypes")
 public class TestPostgreSQL extends DbTest {
 
-	@SuppressWarnings("deprecation")
 	@Container
-	private static final PostgreSQLContainer postgreSQL = new PostgreSQLContainer();
+	private static final PostgreSQLContainer postgreSQL = new PostgreSQLContainer(
+			DockerImageName.parse(PostgreSQLContainer.IMAGE).withTag(PostgreSQLContainer.DEFAULT_TAG));
 
 	@Test
 	public void testExport() throws Exception {

@@ -14,6 +14,7 @@ import org.springframework.batch.item.redis.support.RedisItemReader;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.junit.jupiter.Container;
 
+import com.redislabs.riot.RiotApp;
 import com.redislabs.riot.Transfer;
 import com.redislabs.riot.redis.ReplicateCommand;
 import com.redislabs.riot.redis.RiotRedis;
@@ -24,7 +25,6 @@ import io.lettuce.core.RedisClient;
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.api.sync.RedisCommands;
-import picocli.CommandLine;
 
 @SuppressWarnings({ "rawtypes" })
 public class TestReplicate extends BaseTest {
@@ -36,8 +36,8 @@ public class TestReplicate extends BaseTest {
 	private RedisClient targetClient;
 
 	@Override
-	protected int execute(String[] args) {
-		return new RiotRedis().execute(args);
+	protected RiotApp app() {
+		return new RiotRedis();
 	}
 
 	@Override
@@ -85,13 +85,9 @@ public class TestReplicate extends BaseTest {
 		StatefulRedisConnection<String, String> targetConnection = targetClient.connect();
 		targetConnection.sync().flushall();
 		DataPopulator.builder().connection(connection()).build().run();
-		String[] commandArgs = args("/replicate-live.txt");
-		RiotRedis riotRedis = new RiotRedis();
-		CommandLine commandLine = riotRedis.commandLine();
-		CommandLine.ParseResult parseResult = commandLine.parseArgs(commandArgs);
-		ReplicateCommand command = parseResult.asCommandLineList().get(1).getCommand();
+		ReplicateCommand command = (ReplicateCommand) command("/replicate-live.txt");
 		Transfer<KeyDump<String>, KeyDump<String>> transfer = command.transfers().get(0);
-		CompletableFuture<Void> future = command.execute(transfer);
+		CompletableFuture<Void> future = transfer.execute();
 		Thread.sleep(400);
 		RedisCommands<String, String> commands = commands();
 		int count = 39;

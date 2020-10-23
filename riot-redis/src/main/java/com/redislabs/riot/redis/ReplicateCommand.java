@@ -29,11 +29,8 @@ public class ReplicateCommand extends AbstractFlushingTransferCommand<KeyDump<St
 	private boolean live;
 
 	@Override
-	protected Long flushPeriod() {
-		if (live) {
-			return super.flushPeriod();
-		}
-		return null;
+	protected boolean flushingEnabled() {
+		return live;
 	}
 
 	@Override

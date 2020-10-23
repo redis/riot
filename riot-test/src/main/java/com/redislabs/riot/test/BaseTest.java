@@ -12,10 +12,14 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
+import com.redislabs.riot.RiotApp;
+
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.api.sync.RedisCommands;
+import picocli.CommandLine;
+import picocli.CommandLine.ParseResult;
 
 @Testcontainers
 @SuppressWarnings("rawtypes")
@@ -70,8 +74,10 @@ public abstract class BaseTest {
 	}
 
 	protected int executeFile(String filename) throws Exception {
-		return execute(args(filename));
+		return app().execute(args(filename));
 	}
+
+	protected abstract RiotApp app();
 
 	protected String[] args(String filename) throws Exception {
 		try (InputStream inputStream = getClass().getResourceAsStream(filename)) {
@@ -84,8 +90,6 @@ public abstract class BaseTest {
 		return RedisURI.create(redis.getHost(), redis.getFirstMappedPort());
 	}
 
-	protected abstract int execute(String[] args) throws Exception;
-
 	protected String commandPrefix() {
 		return COMMAND_PREAMBLE + " " + applicationName();
 	}
@@ -97,6 +101,13 @@ public abstract class BaseTest {
 			return command.substring(commandPrefix().length());
 		}
 		return command;
+	}
+
+	protected Object command(String file) throws Exception {
+		RiotApp app = app();
+		CommandLine commandLine = app.commandLine();
+		ParseResult parseResult = app.parse(commandLine, args(file));
+		return parseResult.subcommand().commandSpec().commandLine().getCommand();
 	}
 
 }

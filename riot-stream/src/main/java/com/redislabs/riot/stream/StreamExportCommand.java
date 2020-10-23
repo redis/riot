@@ -42,6 +42,11 @@ public class StreamExportCommand
 	private String topic;
 	@Mixin
 	private KafkaOptions kafkaOptions = new KafkaOptions();
+	
+	@Override
+	protected boolean flushingEnabled() {
+		return true;
+	}
 
 	@Override
 	protected String taskName() {

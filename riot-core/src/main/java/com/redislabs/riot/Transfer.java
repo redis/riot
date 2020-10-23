@@ -27,6 +27,19 @@ public class Transfer<I, O> {
 	@Getter
 	private final ItemWriter<? extends O> writer;
 	private final List<BatchTransfer<I>> threads;
+	private final List<ExecutionHook> executionHooks = new ArrayList<>();
+
+	public interface ExecutionHook {
+
+		void pre();
+
+		void post();
+
+	}
+
+	public void addExecutionHook(ExecutionHook hook) {
+		this.executionHooks.add(hook);
+	}
 
 	@Builder
 	public Transfer(ItemReader<I> reader, ItemProcessor<I, O> processor, ItemWriter<O> writer, int threads, int batch) {
@@ -61,6 +74,7 @@ public class Transfer<I, O> {
 			log.debug("Opening reader");
 			((ItemStream) reader).open(executionContext);
 		}
+		executionHooks.forEach(ExecutionHook::pre);
 		CompletableFuture[] futures = new CompletableFuture[threads.size()];
 		for (int index = 0; index < threads.size(); index++) {
 			futures[index] = CompletableFuture.runAsync(threads.get(index));
@@ -75,6 +89,7 @@ public class Transfer<I, O> {
 				log.debug("Closing writer");
 				((ItemStream) writer).close();
 			}
+			executionHooks.forEach(ExecutionHook::post);
 		});
 		return future;
 	}
