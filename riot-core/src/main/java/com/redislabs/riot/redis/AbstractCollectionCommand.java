@@ -2,6 +2,8 @@ package com.redislabs.riot.redis;
 
 import java.util.Map;
 
+import org.springframework.batch.item.redis.support.AbstractCollectionCommandItemWriterBuilder;
+
 import picocli.CommandLine.Option;
 
 public abstract class AbstractCollectionCommand extends AbstractKeyCommand {
@@ -12,13 +14,9 @@ public abstract class AbstractCollectionCommand extends AbstractKeyCommand {
 			"--members" }, arity = "1..*", description = "Member field names for collections", paramLabel = "<fields>")
 	private String[] memberFields = new String[0];
 
-	@Override
-	protected AbstractCollectionWriter<String, String, Map<String, Object>> keyWriter() {
-		AbstractCollectionWriter<String, String, Map<String, Object>> writer = collectionWriter();
-		writer.setMemberIdConverter(idMaker(memberSpace, memberFields));
-		return writer;
+	protected <B extends AbstractCollectionCommandItemWriterBuilder<String, String, Map<String, Object>, B>> B configure(
+			B builder) throws Exception {
+		return super.configure(builder).memberIdConverter(idMaker(memberSpace, memberFields));
 	}
-
-	protected abstract AbstractCollectionWriter<String, String, Map<String, Object>> collectionWriter();
 
 }

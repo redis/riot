@@ -9,30 +9,20 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemStreamSupport;
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.batch.item.redis.support.AbstractRedisItemWriter;
-import org.springframework.batch.item.redis.support.RedisConnectionBuilder;
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
 
-import io.lettuce.core.RedisURI;
-import io.lettuce.core.api.StatefulConnection;
 import lombok.extern.slf4j.Slf4j;
 import me.tongfei.progressbar.ProgressBar;
 import me.tongfei.progressbar.ProgressBarBuilder;
-import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
-import picocli.CommandLine.ParentCommand;
 
 @Slf4j
-@Command(abbreviateSynopsis = true, sortOptions = false)
-public abstract class AbstractTransferCommand<I, O> extends HelpCommand {
+public abstract class AbstractTransferCommand<I, O> extends RiotCommand {
 
-	@ParentCommand
-	private RiotApp app;
 	@Option(names = "--threads", description = "Thread count (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
 	private int threads = 1;
 	@Option(names = { "-b",
@@ -122,46 +112,6 @@ public abstract class AbstractTransferCommand<I, O> extends HelpCommand {
 			return name.substring(0, name.length() - 1);
 		}
 		return "";
-	}
-
-	protected String toString(RedisURI redisURI) {
-		if (redisURI.getSocket() != null) {
-			return redisURI.getSocket();
-		}
-		if (redisURI.getSentinelMasterId() != null) {
-			return redisURI.getSentinelMasterId();
-		}
-		return redisURI.getHost();
-	}
-
-	protected RedisURI getRedisURI() {
-		return app.getRedisConnectionOptions().getRedisURI();
-	}
-
-	protected <B extends RedisConnectionBuilder<String, String, B>> B configure(
-			RedisConnectionBuilder<String, String, B> builder) {
-		return configure(builder, app.getRedisConnectionOptions());
-	}
-
-	protected <B extends RedisConnectionBuilder<String, String, B>> B configure(
-			RedisConnectionBuilder<String, String, B> builder, RedisConnectionOptions redisConnectionOptions) {
-		return redisConnectionOptions.configure(builder);
-	}
-
-	protected <T extends AbstractRedisItemWriter<String, String, O>> T configure(T writer) throws Exception {
-		return configure(writer, app.getRedisConnectionOptions());
-	}
-
-	protected <T extends AbstractRedisItemWriter<String, String, O>> T configure(T writer,
-			RedisConnectionOptions redisConnectionOptions) throws Exception {
-		RedisConnectionBuilder<String, String, ?> builder = app.connectionBuilder(redisConnectionOptions);
-		GenericObjectPool<StatefulConnection<String, String>> pool = builder.pool();
-		try (StatefulConnection<String, String> connection = pool.borrowObject()) {
-		}
-		writer.setPool(pool);
-		writer.setCommands(builder.async());
-		writer.setCommandTimeout(builder.uri().getTimeout());
-		return writer;
 	}
 
 }

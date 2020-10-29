@@ -1,25 +1,27 @@
 package com.redislabs.riot.processor;
 
-import com.redislabs.riot.convert.CollectionToStringMapConverter;
-import com.redislabs.riot.convert.RegexNamedGroupsExtractor;
-import com.redislabs.riot.convert.StreamToStringMapConverter;
-import com.redislabs.riot.convert.StringToStringMapConverter;
-import com.redislabs.riot.convert.ZsetToStringMapConverter;
-import io.lettuce.core.ScoredValue;
-import io.lettuce.core.StreamMessage;
-import lombok.Setter;
-import lombok.experimental.Accessors;
-import org.springframework.batch.item.ItemProcessor;
-import org.springframework.batch.item.redis.support.KeyValue;
-import org.springframework.core.convert.converter.Converter;
-import org.springframework.util.Assert;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class KeyValueMapItemProcessor implements ItemProcessor<KeyValue<String>, Map<String, Object>> {
+import org.springframework.batch.item.ItemProcessor;
+import org.springframework.batch.item.redis.support.DataStructure;
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.util.Assert;
+
+import com.redislabs.riot.convert.CollectionToStringMapConverter;
+import com.redislabs.riot.convert.RegexNamedGroupsExtractor;
+import com.redislabs.riot.convert.StreamToStringMapConverter;
+import com.redislabs.riot.convert.StringToStringMapConverter;
+import com.redislabs.riot.convert.ZsetToStringMapConverter;
+
+import io.lettuce.core.ScoredValue;
+import io.lettuce.core.StreamMessage;
+import lombok.Setter;
+import lombok.experimental.Accessors;
+
+public class DataStructureMapItemProcessor implements ItemProcessor<DataStructure<String>, Map<String, Object>> {
 
 	private final Converter<String, Map<String, String>> keyFieldsExtractor;
 	private final Converter<Map<String, String>, Map<String, String>> hashConverter;
@@ -30,7 +32,7 @@ public class KeyValueMapItemProcessor implements ItemProcessor<KeyValue<String>,
 	private final Converter<String, Map<String, String>> stringConverter;
 	private final Converter<Object, Map<String, String>> defaultConverter;
 
-	public KeyValueMapItemProcessor(Converter<String, Map<String, String>> keyFieldsExtractor,
+	public DataStructureMapItemProcessor(Converter<String, Map<String, String>> keyFieldsExtractor,
 			Converter<Map<String, String>, Map<String, String>> hashConverter,
 			Converter<List<String>, Map<String, String>> listConverter,
 			Converter<Set<String>, Map<String, String>> setConverter,
@@ -49,7 +51,7 @@ public class KeyValueMapItemProcessor implements ItemProcessor<KeyValue<String>,
 	}
 
 	@Override
-	public Map<String, Object> process(KeyValue<String> item) {
+	public Map<String, Object> process(DataStructure<String> item) {
 		Map<String, Object> map = new HashMap<>(keyFieldsExtractor.convert(item.getKey()));
 		Map<String, String> valueMap = map(item);
 		if (valueMap != null) {
@@ -59,7 +61,7 @@ public class KeyValueMapItemProcessor implements ItemProcessor<KeyValue<String>,
 	}
 
 	@SuppressWarnings("unchecked")
-	private Map<String, String> map(KeyValue<String> item) {
+	private Map<String, String> map(DataStructure<String> item) {
 		switch (item.getType()) {
 		case HASH:
 			return hashConverter.convert((Map<String, String>) item.getValue());
@@ -78,17 +80,17 @@ public class KeyValueMapItemProcessor implements ItemProcessor<KeyValue<String>,
 		}
 	}
 
-	public static KeyValueItemProcessorBuilder builder() {
-		return new KeyValueItemProcessorBuilder();
+	public static DataStructureItemProcessorBuilder builder() {
+		return new DataStructureItemProcessorBuilder();
 	}
 
 	@Accessors(fluent = true)
 	@Setter
-	public static class KeyValueItemProcessorBuilder {
+	public static class DataStructureItemProcessorBuilder {
 
 		private String keyRegex;
 
-		public KeyValueMapItemProcessor build() {
+		public DataStructureMapItemProcessor build() {
 			Assert.notNull(keyRegex, "Key regex is required.");
 			RegexNamedGroupsExtractor keyFieldsExtractor = RegexNamedGroupsExtractor.builder().regex(keyRegex).build();
 			StreamToStringMapConverter streamConverter = StreamToStringMapConverter.builder().build();
@@ -98,7 +100,7 @@ public class KeyValueMapItemProcessor implements ItemProcessor<KeyValue<String>,
 					.<Set<String>>builder().build();
 			ZsetToStringMapConverter zsetConverter = ZsetToStringMapConverter.builder().build();
 			Converter<String, Map<String, String>> stringConverter = StringToStringMapConverter.builder().build();
-			return new KeyValueMapItemProcessor(keyFieldsExtractor, o -> o, listConverter, setConverter,
+			return new DataStructureMapItemProcessor(keyFieldsExtractor, o -> o, listConverter, setConverter,
 					streamConverter, stringConverter, zsetConverter, o -> null);
 		}
 

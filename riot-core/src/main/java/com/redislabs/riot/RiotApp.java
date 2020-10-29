@@ -6,14 +6,9 @@ import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
-import org.springframework.batch.item.redis.support.RedisConnectionBuilder;
-
 import com.redislabs.riot.redis.AbstractRedisCommand;
 
 import io.lettuce.core.RedisURI;
-import io.lettuce.core.api.StatefulConnection;
-import io.lettuce.core.api.sync.BaseRedisCommands;
-import io.lettuce.core.codec.StringCodec;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import io.netty.util.internal.logging.JdkLoggerFactory;
 import lombok.Getter;
@@ -134,21 +129,6 @@ public class RiotApp implements Runnable {
 			return Level.FINE;
 		}
 		return Level.SEVERE;
-	}
-
-	public StatefulConnection<String, String> connection() {
-		RedisConnectionBuilder<String, String, ?> connectionBuilder = new RedisConnectionBuilder<>(StringCodec.UTF8);
-		return redisConnectionOptions.configure(connectionBuilder).connection();
-	}
-
-	public RedisConnectionBuilder<String, String, ?> connectionBuilder(RedisConnectionOptions redisConnectionOptions) {
-		RedisConnectionBuilder<String, String, ?> connectionBuilder = new RedisConnectionBuilder<>(StringCodec.UTF8);
-		return redisConnectionOptions.configure(connectionBuilder);
-	}
-
-	public BaseRedisCommands<String, String> sync(StatefulConnection<String, String> connection) {
-		RedisConnectionBuilder<String, String, ?> connectionBuilder = new RedisConnectionBuilder<>(StringCodec.UTF8);
-		return redisConnectionOptions.configure(connectionBuilder).sync().apply(connection);
 	}
 
 }

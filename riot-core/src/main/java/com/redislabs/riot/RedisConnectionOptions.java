@@ -4,7 +4,6 @@ import java.io.File;
 import java.time.Duration;
 
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
-import org.springframework.batch.item.redis.support.RedisConnectionBuilder;
 
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.SslOptions;
@@ -16,6 +15,7 @@ import io.lettuce.core.metrics.CommandLatencyCollector;
 import io.lettuce.core.metrics.DefaultCommandLatencyCollectorOptions;
 import io.lettuce.core.resource.ClientResources;
 import io.lettuce.core.resource.DefaultClientResources;
+import lombok.Getter;
 import picocli.CommandLine.Option;
 
 public class RedisConnectionOptions {
@@ -40,6 +40,7 @@ public class RedisConnectionOptions {
 	private long timeout = 60;
 	@Option(names = { "-n", "--db" }, description = "Database number (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
 	private int database = 0;
+	@Getter
 	@Option(names = { "-c", "--cluster" }, description = "Enable cluster mode")
 	private boolean cluster;
 	@Option(names = { "-t", "--tls" }, description = "Establish a secure TLS connection")
@@ -64,7 +65,7 @@ public class RedisConnectionOptions {
 	@Option(names = "--client-name", description = "Client name (default: ${DEFAULT-VALUE})", hidden = true)
 	private String clientName = "riot";
 
-	public RedisURI getRedisURI() {
+	public RedisURI redisURI() {
 		RedisURI uri = redisURI;
 		if (uri == null) {
 			uri = new RedisURI();
@@ -92,7 +93,7 @@ public class RedisConnectionOptions {
 		return uri;
 	}
 
-	private ClientResources clientResources() {
+	public ClientResources clientResources() {
 		if (showMetrics) {
 			DefaultClientResources.Builder builder = DefaultClientResources.builder();
 			builder.commandLatencyRecorder(
@@ -107,7 +108,7 @@ public class RedisConnectionOptions {
 		return null;
 	}
 
-	private ClusterClientOptions clientOptions() {
+	public ClusterClientOptions clientOptions() {
 		SslOptions.Builder sslOptionsBuilder = SslOptions.builder();
 		if (keystore != null) {
 			if (keystorePassword == null) {
@@ -127,16 +128,10 @@ public class RedisConnectionOptions {
 				.build();
 	}
 
-	private GenericObjectPoolConfig<StatefulConnection<String, String>> poolConfig() {
+	public GenericObjectPoolConfig<StatefulConnection<String, String>> poolConfig() {
 		GenericObjectPoolConfig<StatefulConnection<String, String>> poolConfig = new GenericObjectPoolConfig<>();
 		poolConfig.setMaxTotal(poolMaxTotal);
 		return poolConfig;
-	}
-
-	public <B extends RedisConnectionBuilder<String, String, B>> B configure(
-			RedisConnectionBuilder<String, String, B> builder) {
-		return builder.uri(getRedisURI()).cluster(cluster).clientResources(clientResources())
-				.clientOptions(clientOptions()).poolConfig(poolConfig());
 	}
 
 }

@@ -2,6 +2,8 @@ package com.redislabs.riot.redis;
 
 import java.util.Map;
 
+import org.springframework.batch.item.redis.RedisExpireItemWriter;
+
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
@@ -14,10 +16,9 @@ public class ExpireCommand extends AbstractKeyCommand {
 	private long timeoutDefault = 60;
 
 	@Override
-	protected AbstractKeyWriter<String, String, Map<String, Object>> keyWriter() {
-		Expire<String, String, Map<String, Object>> writer = new Expire<>();
-		writer.setTimeoutConverter(numberFieldExtractor(Long.class, timeoutField, timeoutDefault));
-		return writer;
+	public RedisExpireItemWriter<String, String, Map<String, Object>> writer() throws Exception {
+		return configure(RedisExpireItemWriter.<Map<String, Object>>builder()
+				.timeoutConverter(numberFieldExtractor(Long.class, timeoutField, timeoutDefault))).build();
 	}
 
 }

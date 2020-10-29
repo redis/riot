@@ -9,8 +9,8 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.redis.support.KeyDump;
+import org.springframework.batch.item.redis.support.KeyValueItemReader;
 import org.springframework.batch.item.redis.support.LiveKeyItemReader;
-import org.springframework.batch.item.redis.support.RedisItemReader;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.junit.jupiter.Container;
 
@@ -96,7 +96,7 @@ public class TestReplicate extends BaseTest {
 			Thread.sleep(1);
 		}
 		Thread.sleep(200);
-		RedisItemReader<String, KeyDump<String>> reader = (RedisItemReader<String, KeyDump<String>>) transfer
+		KeyValueItemReader<String, KeyDump<String>> reader = (KeyValueItemReader<String, KeyDump<String>>) transfer
 				.getReader();
 		LiveKeyItemReader<String, String> keyReader = (LiveKeyItemReader<String, String>) reader.getKeyReader();
 		log.info("Stopping LiveKeyItemReader");

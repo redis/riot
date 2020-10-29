@@ -6,7 +6,7 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.springframework.batch.item.redis.support.KeyValue;
+import org.springframework.batch.item.redis.support.DataStructure;
 import org.springframework.batch.item.xml.XmlItemReader;
 import org.springframework.batch.item.xml.XmlObjectReader;
 import org.springframework.batch.item.xml.support.XmlItemReaderBuilder;
@@ -34,17 +34,17 @@ public class TestXml extends AbstractFileTest {
 		DataPopulator.builder().connection(connection()).build().run();
 		Path file = tempFile("redis.xml");
 		executeFile("/xml/export.txt");
-		XmlItemReaderBuilder<KeyValue> builder = new XmlItemReaderBuilder<>();
+		XmlItemReaderBuilder<DataStructure> builder = new XmlItemReaderBuilder<>();
 		builder.name("xml-file-reader");
 		builder.resource(new FileSystemResource(file));
-		XmlObjectReader<KeyValue> xmlObjectReader = new XmlObjectReader<>(KeyValue.class);
+		XmlObjectReader<DataStructure> xmlObjectReader = new XmlObjectReader<>(DataStructure.class);
 		xmlObjectReader.setMapper(new XmlMapper());
 		builder.xmlObjectReader(xmlObjectReader);
-		XmlItemReader<KeyValue<String>> reader = (XmlItemReader) builder.build();
-		List<KeyValue<String>> records = readAll(reader);
+		XmlItemReader<DataStructure<String>> reader = (XmlItemReader) builder.build();
+		List<DataStructure<String>> records = readAll(reader);
 		Assertions.assertEquals(commands().dbsize(), records.size());
 		RedisCommands<String, String> commands = commands();
-		for (KeyValue<String> record : records) {
+		for (DataStructure<String> record : records) {
 			String key = record.getKey();
 			switch (record.getType()) {
 			case HASH:

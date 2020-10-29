@@ -8,13 +8,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.core.convert.support.ConverterFactory;
 
 import com.redislabs.riot.convert.CompositeConverter;
-import com.redislabs.riot.convert.FieldExtractor;
+import com.redislabs.riot.convert.MapFieldExtractor;
 
 public class TestCompositeConverter {
 
 	@Test
 	public void testCompositeConverter() {
-		CompositeConverter converter = new CompositeConverter(FieldExtractor.builder().field("myField").build(),
+		CompositeConverter converter = new CompositeConverter(MapFieldExtractor.builder().field("myField").build(),
 				ConverterFactory.getStringToNumberConverter(Double.class));
 		Map<String, String> map = new HashMap<>();
 		map.put("myField", "123.456");

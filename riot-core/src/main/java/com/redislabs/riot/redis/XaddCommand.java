@@ -2,8 +2,12 @@ package com.redislabs.riot.redis;
 
 import java.util.Map;
 
+import org.springframework.batch.item.redis.RedisStreamItemWriter;
+import org.springframework.batch.item.redis.support.ConstantConverter;
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.vault.support.JsonMapFlattener;
 
+import io.lettuce.core.XAddArgs;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
@@ -18,13 +22,35 @@ public class XaddCommand extends AbstractKeyCommand {
 	private boolean approximateTrimming;
 
 	@Override
-	protected AbstractKeyWriter<String, String, Map<String, Object>> keyWriter() {
-		Xadd<String, String, Map<String, Object>> writer = new Xadd<>();
-		writer.setApproximateTrimming(approximateTrimming);
-		writer.setMaxlen(maxlen);
-		writer.setIdConverter(stringFieldExtractor(idField));
-		writer.setBodyConverter(JsonMapFlattener::flattenToStringMap);
-		return writer;
+	public RedisStreamItemWriter<String, String, Map<String, Object>> writer() throws Exception {
+		return configure(RedisStreamItemWriter.<Map<String, Object>>builder().argsConverter(argsConverter())
+				.bodyConverter(JsonMapFlattener::flattenToStringMap)).build();
 	}
 
+	private Converter<Map<String, Object>, XAddArgs> argsConverter() {
+		if (idField == null) {
+			return new ConstantConverter<>(xAddArgs());
+		}
+		return new XAddArgsConverter();
+	}
+
+	private XAddArgs xAddArgs() {
+		XAddArgs args = new XAddArgs();
+		if (maxlen != null) {
+			args.maxlen(maxlen);
+		}
+		args.approximateTrimming(approximateTrimming);
+		return args;
+	}
+
+	class XAddArgsConverter implements Converter<Map<String, Object>, XAddArgs> {
+
+		private final Converter<Map<String, Object>, String> idExtractor = stringFieldExtractor(idField);
+
+		@Override
+		public XAddArgs convert(Map<String, Object> source) {
+			return xAddArgs().id(idExtractor.convert(source));
+		}
+
+	}
 }

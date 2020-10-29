@@ -5,16 +5,16 @@ import java.util.Collection;
 import java.util.Map;
 
 import org.springframework.batch.item.ItemProcessor;
-import org.springframework.batch.item.redis.support.KeyValue;
+import org.springframework.batch.item.redis.support.DataStructure;
 
 import io.lettuce.core.ScoredValue;
 import io.lettuce.core.StreamMessage;
 
-public class JsonKeyValueItemProcessor implements ItemProcessor<KeyValue<String>, KeyValue<String>> {
+public class JsonDataStructureItemProcessor implements ItemProcessor<DataStructure<String>, DataStructure<String>> {
 
 	@SuppressWarnings({ "unchecked", "incomplete-switch" })
 	@Override
-	public KeyValue<String> process(KeyValue<String> item) throws Exception {
+	public DataStructure<String> process(DataStructure<String> item) throws Exception {
 		switch (item.getType()) {
 		case ZSET:
 			Collection<Map<String, Object>> zset = (Collection<Map<String, Object>>) item.getValue();

@@ -16,7 +16,7 @@ import org.springframework.util.Assert;
 import com.redislabs.riot.processor.MapProcessor;
 import com.redislabs.riot.processor.SpelProcessor;
 import com.redislabs.riot.redis.AbstractRedisCommand;
-import com.redislabs.riot.redis.EvalshaCommand;
+import com.redislabs.riot.redis.EvalCommand;
 import com.redislabs.riot.redis.ExpireCommand;
 import com.redislabs.riot.redis.GeoaddCommand;
 import com.redislabs.riot.redis.HmsetCommand;
@@ -32,7 +32,7 @@ import lombok.Getter;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
-@Command(subcommands = { EvalshaCommand.class, ExpireCommand.class, GeoaddCommand.class, HmsetCommand.class,
+@Command(subcommands = { EvalCommand.class, ExpireCommand.class, GeoaddCommand.class, HmsetCommand.class,
 		LpushCommand.class, NoopCommand.class, RpushCommand.class, SaddCommand.class, SetCommand.class,
 		XaddCommand.class,
 		ZaddCommand.class }, subcommandsRepeatable = true, synopsisSubcommandLabel = "[REDIS COMMAND]", commandListHeading = "Redis commands:%n")
@@ -57,7 +57,7 @@ public abstract class AbstractImportCommand<I, O> extends AbstractTransferComman
 		return "Importing from";
 	}
 
-	protected ItemProcessor<Map<String, Object>, Map<String, Object>> mapProcessor() {
+	protected ItemProcessor<Map<String, Object>, Map<String, Object>> mapProcessor() throws Exception {
 		List<ItemProcessor<Map<String, Object>, Map<String, Object>>> processors = new ArrayList<>();
 		if (!spel.isEmpty()) {
 			processors.add(configure(SpelProcessor.builder().dateFormat(new SimpleDateFormat(dateFormat))
@@ -82,7 +82,7 @@ public abstract class AbstractImportCommand<I, O> extends AbstractTransferComman
 		Assert.notNull(redisCommands, "RedisCommands not set");
 		List<AbstractRedisItemWriter<String, String, O>> writers = new ArrayList<>();
 		for (AbstractRedisCommand<O> redisCommand : redisCommands) {
-			writers.add(configure(redisCommand.writer()));
+			writers.add(redisCommand.writer());
 		}
 		if (writers.isEmpty()) {
 			throw new IllegalArgumentException("No Redis command specified");

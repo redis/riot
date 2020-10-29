@@ -7,7 +7,7 @@ import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.file.FlatFileItemWriter;
 import org.springframework.batch.item.json.JacksonJsonObjectMarshaller;
 import org.springframework.batch.item.json.JsonObjectMarshaller;
-import org.springframework.batch.item.redis.support.KeyValue;
+import org.springframework.batch.item.redis.support.DataStructure;
 import org.springframework.batch.item.resource.support.JsonResourceItemWriterBuilder;
 import org.springframework.batch.item.xml.support.XmlResourceItemWriterBuilder;
 import org.springframework.core.io.WritableResource;
@@ -21,7 +21,7 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
 @Command(name = "export", description = "Export Redis data to a JSON or XML file")
-public class FileExportCommand extends AbstractExportCommand<KeyValue<String>> {
+public class FileExportCommand extends AbstractExportCommand<DataStructure<String>> {
 
 	@Parameters(arity = "1", description = "File path or URL", paramLabel = "FILE")
 	protected String file;
@@ -37,12 +37,12 @@ public class FileExportCommand extends AbstractExportCommand<KeyValue<String>> {
 	private String lineSeparator = FlatFileItemWriter.DEFAULT_LINE_SEPARATOR;
 
 	@Override
-	protected ItemWriter<KeyValue<String>> writer() throws IOException {
+	protected ItemWriter<DataStructure<String>> writer() throws IOException {
 		FileType fileType = fileOptions.fileType(file);
 		WritableResource resource = fileOptions.outputResource(file);
 		switch (fileType) {
 		case JSON:
-			JsonResourceItemWriterBuilder<KeyValue<String>> jsonWriterBuilder = new JsonResourceItemWriterBuilder<>();
+			JsonResourceItemWriterBuilder<DataStructure<String>> jsonWriterBuilder = new JsonResourceItemWriterBuilder<>();
 			jsonWriterBuilder.name("json-resource-item-writer");
 			jsonWriterBuilder.append(append);
 			jsonWriterBuilder.encoding(fileOptions.getEncoding());
@@ -52,7 +52,7 @@ public class FileExportCommand extends AbstractExportCommand<KeyValue<String>> {
 			jsonWriterBuilder.saveState(false);
 			return jsonWriterBuilder.build();
 		case XML:
-			XmlResourceItemWriterBuilder<KeyValue<String>> xmlWriterBuilder = new XmlResourceItemWriterBuilder<>();
+			XmlResourceItemWriterBuilder<DataStructure<String>> xmlWriterBuilder = new XmlResourceItemWriterBuilder<>();
 			xmlWriterBuilder.name("xml-resource-item-writer");
 			xmlWriterBuilder.append(append);
 			xmlWriterBuilder.encoding(fileOptions.getEncoding());
@@ -67,16 +67,16 @@ public class FileExportCommand extends AbstractExportCommand<KeyValue<String>> {
 		}
 	}
 
-	private JsonObjectMarshaller<KeyValue<String>> xmlMarshaller() {
+	private JsonObjectMarshaller<DataStructure<String>> xmlMarshaller() {
 		XmlMapper mapper = new XmlMapper();
 		mapper.setConfig(mapper.getSerializationConfig().withRootName(elementName));
-		JacksonJsonObjectMarshaller<KeyValue<String>> marshaller = new JacksonJsonObjectMarshaller<>();
+		JacksonJsonObjectMarshaller<DataStructure<String>> marshaller = new JacksonJsonObjectMarshaller<>();
 		marshaller.setObjectMapper(mapper);
 		return marshaller;
 	}
 
 	@Override
-	protected ItemProcessor<KeyValue<String>, KeyValue<String>> processor() {
+	protected ItemProcessor<DataStructure<String>, DataStructure<String>> processor() {
 		return null;
 	}
 

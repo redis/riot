@@ -22,8 +22,8 @@ import org.springframework.batch.item.file.transform.FixedLengthTokenizer;
 import org.springframework.batch.item.json.JacksonJsonObjectReader;
 import org.springframework.batch.item.json.JsonItemReader;
 import org.springframework.batch.item.json.builder.JsonItemReaderBuilder;
-import org.springframework.batch.item.redis.RedisKeyValueItemWriter;
-import org.springframework.batch.item.redis.support.KeyValue;
+import org.springframework.batch.item.redis.RedisDataStructureItemWriter;
+import org.springframework.batch.item.redis.support.DataStructure;
 import org.springframework.batch.item.support.AbstractItemStreamItemReader;
 import org.springframework.batch.item.xml.XmlItemReader;
 import org.springframework.batch.item.xml.XmlObjectReader;
@@ -42,9 +42,8 @@ import picocli.CommandLine.Mixin;
 import picocli.CommandLine.Parameters;
 
 @Slf4j
-@SuppressWarnings("rawtypes")
 @Command(name = "import", description = "Import file(s) into Redis")
-public class FileImportCommand extends AbstractImportCommand {
+public class FileImportCommand extends AbstractImportCommand<Object, Object> {
 
 	@Parameters(arity = "1..*", description = "One ore more files or URLs", paramLabel = "FILE")
 	private String[] files;
@@ -54,7 +53,7 @@ public class FileImportCommand extends AbstractImportCommand {
 	protected FlatFileOptions flatFileOptions = new FlatFileOptions();
 
 	@Override
-	protected List<ItemReader> readers() throws IOException {
+	protected List<ItemReader<Object>> readers() throws IOException {
 		List<String> fileList = new ArrayList<>();
 		for (String file : files) {
 			if (fileOptions.isFile(file)) {
@@ -75,11 +74,11 @@ public class FileImportCommand extends AbstractImportCommand {
 				fileList.add(file);
 			}
 		}
-		List<ItemReader> readers = new ArrayList<>(fileList.size());
+		List<ItemReader<Object>> readers = new ArrayList<>(fileList.size());
 		for (String file : fileList) {
 			FileType fileType = fileOptions.fileType(file);
 			Resource resource = fileOptions.inputResource(file);
-			AbstractItemStreamItemReader reader = reader(file, fileType, resource);
+			AbstractItemStreamItemReader<Object> reader = reader(file, fileType, resource);
 			reader.setName(fileOptions.fileName(resource));
 			readers.add(reader);
 		}
@@ -106,7 +105,8 @@ public class FileImportCommand extends AbstractImportCommand {
 		return xmlReaderBuilder.build();
 	}
 
-	protected AbstractItemStreamItemReader reader(String file, FileType fileType, Resource resource)
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	protected AbstractItemStreamItemReader<Object> reader(String file, FileType fileType, Resource resource)
 			throws IOException {
 		switch (fileType) {
 		case DELIMITED:
@@ -116,22 +116,22 @@ public class FileImportCommand extends AbstractImportCommand {
 			if (flatFileOptions.getIncludedFields().length > 0) {
 				tokenizer.setIncludedFields(flatFileOptions.getIncludedFields());
 			}
-			return flatFileReader(resource, tokenizer);
+			return (FlatFileItemReader) flatFileReader(resource, tokenizer);
 		case FIXED:
 			FixedLengthTokenizer fixedLengthTokenizer = new FixedLengthTokenizer();
 			Assert.notEmpty(flatFileOptions.getColumnRanges(), "Column ranges are required");
 			fixedLengthTokenizer.setColumns(flatFileOptions.getColumnRanges());
-			return flatFileReader(resource, fixedLengthTokenizer);
+			return (FlatFileItemReader) flatFileReader(resource, fixedLengthTokenizer);
 		case JSON:
 			if (getRedisCommands().isEmpty()) {
-				return jsonReader(resource, KeyValue.class);
+				return (JsonItemReader) jsonReader(resource, DataStructure.class);
 			}
-			return jsonReader(resource, Map.class);
+			return (JsonItemReader) jsonReader(resource, Map.class);
 		case XML:
 			if (getRedisCommands().isEmpty()) {
-				return xmlReader(resource, KeyValue.class);
+				return (XmlItemReader) xmlReader(resource, DataStructure.class);
 			}
-			return xmlReader(resource, Map.class);
+			return (XmlItemReader) xmlReader(resource, Map.class);
 		}
 		throw new IllegalArgumentException("Unsupported file type: " + fileType);
 	}
@@ -160,19 +160,20 @@ public class FileImportCommand extends AbstractImportCommand {
 		}
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
-	protected ItemProcessor processor() {
+	protected ItemProcessor<Object, Object> processor() throws Exception {
 		if (getRedisCommands().isEmpty()) {
-			return (ItemProcessor) new JsonKeyValueItemProcessor();
+			return (ItemProcessor) new JsonDataStructureItemProcessor();
 		}
 		return (ItemProcessor) mapProcessor();
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	protected ItemWriter writer() throws Exception {
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	protected ItemWriter<Object> writer() throws Exception {
 		if (getRedisCommands().isEmpty()) {
-			return configure(new RedisKeyValueItemWriter<String, String>());
+			return (ItemWriter) configure(RedisDataStructureItemWriter.builder()).build();
 		}
 		return super.writer();
 	}

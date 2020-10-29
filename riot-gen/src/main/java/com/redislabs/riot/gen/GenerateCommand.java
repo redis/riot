@@ -48,7 +48,7 @@ public class GenerateCommand extends AbstractImportCommand<Map<String, Object>, 
 	}
 
 	@Override
-	protected ItemProcessor<Map<String, Object>, Map<String, Object>> processor() {
+	protected ItemProcessor<Map<String, Object>, Map<String, Object>> processor() throws Exception {
 		return mapProcessor();
 	}
 
@@ -80,7 +80,7 @@ public class GenerateCommand extends AbstractImportCommand<Map<String, Object>, 
 		if (fakerIndex == null) {
 			return fields;
 		}
-		RediSearchClient client = RediSearchClient.create(getRedisURI());
+		RediSearchClient client = RediSearchClient.create(getRedisConnectionOptions().redisURI());
 		StatefulRediSearchConnection<String, String> connection = client.connect();
 		RediSearchCommands<String, String> commands = connection.sync();
 		IndexInfo<String> info = RediSearchUtils.getInfo(commands.ftInfo(fakerIndex));

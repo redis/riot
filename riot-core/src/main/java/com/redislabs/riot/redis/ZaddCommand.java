@@ -2,6 +2,8 @@ package com.redislabs.riot.redis;
 
 import java.util.Map;
 
+import org.springframework.batch.item.redis.RedisSortedSetItemWriter;
+
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
@@ -14,10 +16,9 @@ public class ZaddCommand extends AbstractCollectionCommand {
 	private double scoreDefault = 1;
 
 	@Override
-	protected Zadd<String, String, Map<String, Object>> collectionWriter() {
-		Zadd<String, String, Map<String, Object>> writer = new Zadd<>();
-		writer.setScoreConverter(numberFieldExtractor(Double.class, scoreField, scoreDefault));
-		return writer;
+	public RedisSortedSetItemWriter<String, String, Map<String, Object>> writer() throws Exception {
+		return configure(RedisSortedSetItemWriter.<Map<String, Object>>builder()
+				.scoreConverter(numberFieldExtractor(Double.class, scoreField, scoreDefault))).build();
 	}
 
 }

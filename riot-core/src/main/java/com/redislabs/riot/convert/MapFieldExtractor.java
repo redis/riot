@@ -2,16 +2,17 @@ package com.redislabs.riot.convert;
 
 import java.util.Map;
 
+import org.springframework.batch.item.redis.support.ConstantConverter;
 import org.springframework.core.convert.converter.Converter;
 
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
-public abstract class FieldExtractor implements Converter<Map<String, Object>, Object> {
+public abstract class MapFieldExtractor implements Converter<Map<String, Object>, Object> {
 
 	protected final String field;
 
-	protected FieldExtractor(String field) {
+	protected MapFieldExtractor(String field) {
 		this.field = field;
 	}
 
@@ -39,23 +40,23 @@ public abstract class FieldExtractor implements Converter<Map<String, Object>, O
 				if (defaultValue == null) {
 					return null;
 				}
-				return new ConstantFieldExtractor(defaultValue);
+				return new ConstantConverter<>(defaultValue);
 			}
 			if (defaultValue == null) {
 				if (remove) {
-					return new RemovingFieldExtractor(field);
+					return new RemovingMapFieldExtractor(field);
 				}
-				return new SimpleFieldExtractor(field);
+				return new SimpleMapFieldExtractor(field);
 
 			}
-			return new DefaultingFieldExtractor(field, defaultValue);
+			return new DefaultingMapFieldExtractor(field, defaultValue);
 		}
 
 	}
 
-	static class RemovingFieldExtractor extends FieldExtractor {
+	static class RemovingMapFieldExtractor extends MapFieldExtractor {
 
-		protected RemovingFieldExtractor(String field) {
+		protected RemovingMapFieldExtractor(String field) {
 			super(field);
 		}
 
@@ -66,9 +67,9 @@ public abstract class FieldExtractor implements Converter<Map<String, Object>, O
 
 	}
 
-	static class SimpleFieldExtractor extends FieldExtractor {
+	static class SimpleMapFieldExtractor extends MapFieldExtractor {
 
-		protected SimpleFieldExtractor(String field) {
+		protected SimpleMapFieldExtractor(String field) {
 			super(field);
 		}
 
@@ -78,11 +79,11 @@ public abstract class FieldExtractor implements Converter<Map<String, Object>, O
 		}
 	}
 
-	static class DefaultingFieldExtractor extends SimpleFieldExtractor {
+	static class DefaultingMapFieldExtractor extends SimpleMapFieldExtractor {
 
 		private final Object defaultValue;
 
-		protected DefaultingFieldExtractor(String field, Object defaultValue) {
+		protected DefaultingMapFieldExtractor(String field, Object defaultValue) {
 			super(field);
 			this.defaultValue = defaultValue;
 		}

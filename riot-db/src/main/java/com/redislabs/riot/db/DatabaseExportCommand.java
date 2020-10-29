@@ -9,7 +9,7 @@ import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilde
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 
 import com.redislabs.riot.AbstractExportCommand;
-import com.redislabs.riot.processor.KeyValueMapItemProcessor;
+import com.redislabs.riot.processor.DataStructureMapItemProcessor;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
@@ -21,6 +21,8 @@ public class DatabaseExportCommand extends AbstractExportCommand<Map<String, Obj
 
 	@Parameters(arity = "1", description = "SQL INSERT statement", paramLabel = "SQL")
 	private String sql;
+	@Option(names = "--key-regex", description = "Regex for key-field extraction (default: ${DEFAULT-VALUE})", paramLabel = "<str>")
+	private String keyRegex = "\\w+:(?<id>.+)";
 	@Mixin
 	private DatabaseOptions options = new DatabaseOptions();
 	@Option(names = "--no-assert-updates", description = "Disable insert verification")
@@ -40,8 +42,8 @@ public class DatabaseExportCommand extends AbstractExportCommand<Map<String, Obj
 	}
 
 	@Override
-	protected KeyValueMapItemProcessor processor() {
-		return keyValueMapItemProcessor();
+	protected DataStructureMapItemProcessor processor() {
+		return DataStructureMapItemProcessor.builder().keyRegex(keyRegex).build();
 	}
 
 }

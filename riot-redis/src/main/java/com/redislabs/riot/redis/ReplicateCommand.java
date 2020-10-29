@@ -5,8 +5,8 @@ import java.util.List;
 
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
-import org.springframework.batch.item.redis.RedisKeyDumpItemReader;
-import org.springframework.batch.item.redis.RedisKeyDumpItemWriter;
+import org.springframework.batch.item.redis.RedisDumpItemReader;
+import org.springframework.batch.item.redis.RedisDumpItemWriter;
 import org.springframework.batch.item.redis.support.KeyDump;
 
 import com.redislabs.riot.AbstractFlushingTransferCommand;
@@ -40,18 +40,18 @@ public class ReplicateCommand extends AbstractFlushingTransferCommand<KeyDump<St
 
 	@Override
 	protected List<ItemReader<KeyDump<String>>> readers() throws Exception {
-		RedisKeyDumpItemReader<String> reader = configure(RedisKeyDumpItemReader.builder()
-				.scanCount(options.getScanCount()).scanMatch(options.getScanMatch()).batch(options.getReaderBatchSize())
+		RedisDumpItemReader<String> reader = configure(RedisDumpItemReader.builder().scanCount(options.getScanCount())
+				.scanMatch(options.getScanMatch()).batch(options.getReaderBatchSize())
 				.threads(options.getReaderThreads()).queueCapacity(options.getQueueCapacity()).live(live)).build();
-		reader.setName(String.valueOf(getRedisURI()));
+		reader.setName(toString(getRedisConnectionOptions().redisURI()));
 		return Collections.singletonList(reader);
 	}
 
 	@Override
-	protected RedisKeyDumpItemWriter<String, String> writer() {
-		RedisKeyDumpItemWriter<String, String> writer = configure(RedisKeyDumpItemWriter.builder().replace(true),
-				targetRedis).build();
-		writer.setName(String.valueOf(targetRedis.getRedisURI()));
+	protected RedisDumpItemWriter<String, String> writer() throws Exception {
+		RedisDumpItemWriter<String, String> writer = configure(RedisDumpItemWriter.builder().replace(true), targetRedis)
+				.build();
+		writer.setName(toString(targetRedis.redisURI()));
 		return writer;
 	}
 

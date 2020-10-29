@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.batch.item.json.JacksonJsonObjectReader;
 import org.springframework.batch.item.json.JsonItemReader;
 import org.springframework.batch.item.json.builder.JsonItemReaderBuilder;
-import org.springframework.batch.item.redis.support.KeyValue;
+import org.springframework.batch.item.redis.support.DataStructure;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.InputStreamResource;
 
@@ -22,27 +22,27 @@ public class TestJson extends AbstractFileTest {
 
 	@Test
 	public void exportRedis() throws Exception {
-		List<KeyValue> records = doExportRedis();
+		List<DataStructure> records = exportToList();
 		Assertions.assertEquals(commands().dbsize(), records.size());
 	}
 
-	private List<KeyValue> doExportRedis() throws Exception {
+	private List<DataStructure> exportToList() throws Exception {
 		Path file = tempFile("redis.json");
 		DataPopulator.builder().connection(connection()).build().run();
 		executeFile("/json/export.txt");
-		JsonItemReaderBuilder<KeyValue> builder = new JsonItemReaderBuilder<>();
-		builder.name("json-keyvalues-file-reader");
+		JsonItemReaderBuilder<DataStructure> builder = new JsonItemReaderBuilder<>();
+		builder.name("json-data-structure-file-reader");
 		builder.resource(new FileSystemResource(file));
-		JacksonJsonObjectReader<KeyValue> objectReader = new JacksonJsonObjectReader<>(KeyValue.class);
+		JacksonJsonObjectReader<DataStructure> objectReader = new JacksonJsonObjectReader<>(DataStructure.class);
 		objectReader.setMapper(new ObjectMapper());
 		builder.jsonObjectReader(objectReader);
-		JsonItemReader<KeyValue> reader = builder.build();
+		JsonItemReader<DataStructure> reader = builder.build();
 		return readAll(reader);
 	}
 
 	@Test
-	public void importKeyValues() throws Exception {
-		List<KeyValue> records = doExportRedis();
+	public void importDataStructures() throws Exception {
+		List<DataStructure> records = exportToList();
 		commands().flushall();
 		executeFile("/json/import.txt");
 		Assertions.assertEquals(records.size(), commands().dbsize());

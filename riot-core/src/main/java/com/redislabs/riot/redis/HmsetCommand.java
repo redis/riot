@@ -2,6 +2,7 @@ package com.redislabs.riot.redis;
 
 import java.util.Map;
 
+import org.springframework.batch.item.redis.RedisHashItemWriter;
 import org.springframework.vault.support.JsonMapFlattener;
 
 import picocli.CommandLine.Command;
@@ -10,10 +11,10 @@ import picocli.CommandLine.Command;
 public class HmsetCommand extends AbstractKeyCommand {
 
 	@Override
-	protected AbstractKeyWriter<String, String, Map<String, Object>> keyWriter() {
-		Hmset<String, String, Map<String, Object>> writer = new Hmset<>();
-		writer.setMapConverter(JsonMapFlattener::flattenToStringMap);
-		return writer;
+	public RedisHashItemWriter<String, String, Map<String, Object>> writer() throws Exception {
+		return configure(
+				RedisHashItemWriter.<Map<String, Object>>builder().mapConverter(JsonMapFlattener::flattenToStringMap))
+						.build();
 	}
 
 }

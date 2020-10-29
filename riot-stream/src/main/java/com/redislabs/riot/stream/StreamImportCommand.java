@@ -1,22 +1,24 @@
 package com.redislabs.riot.stream;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.apache.avro.generic.GenericRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.redis.RedisStreamItemWriter;
+import org.springframework.batch.item.redis.support.ConstantConverter;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.vault.support.JsonMapFlattener;
 
 import com.redislabs.riot.AbstractFlushingTransferCommand;
 import com.redislabs.riot.stream.kafka.KafkaItemReader;
 import com.redislabs.riot.stream.kafka.KafkaItemReaderBuilder;
-import com.redislabs.riot.stream.processor.AvroConsumerProcessor;
-import com.redislabs.riot.stream.processor.JsonConsumerProcessor;
 
-import io.lettuce.core.StreamMessage;
 import io.lettuce.core.XAddArgs;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
@@ -25,7 +27,7 @@ import picocli.CommandLine.Parameters;
 
 @Command(name = "import", description = "Import Kafka topics into Redis streams")
 public class StreamImportCommand
-		extends AbstractFlushingTransferCommand<ConsumerRecord<String, Object>, StreamMessage<String, String>> {
+		extends AbstractFlushingTransferCommand<ConsumerRecord<String, Object>, ConsumerRecord<String, Object>> {
 
 	@Option(names = "--key", description = "Target stream key (default: same as topic)", paramLabel = "<string>")
 	private String key;
@@ -37,7 +39,7 @@ public class StreamImportCommand
 	private List<String> topics;
 	@Mixin
 	private KafkaOptions kafkaOptions = new KafkaOptions();
-	
+
 	@Override
 	protected boolean flushingEnabled() {
 		return true;
@@ -54,13 +56,46 @@ public class StreamImportCommand
 	}
 
 	@Override
-	protected ItemProcessor<ConsumerRecord<String, Object>, StreamMessage<String, String>> processor() {
+	protected ItemProcessor<ConsumerRecord<String, Object>, ConsumerRecord<String, Object>> processor() {
+		return null;
+	}
+
+	@Override
+	protected ItemWriter<ConsumerRecord<String, Object>> writer() throws Exception {
+		Converter<ConsumerRecord<String, Object>, String> keyConverter = keyConverter();
+		return configure(RedisStreamItemWriter.<ConsumerRecord<String, Object>>builder().keyConverter(keyConverter)
+				.argsConverter(new ConstantConverter<>(xAddArgs())).bodyConverter(bodyConverter())).build();
+	}
+
+	private Converter<ConsumerRecord<String, Object>, Map<String, String>> bodyConverter() {
 		switch (kafkaOptions.getSerde()) {
 		case JSON:
-			return new JsonConsumerProcessor<>(keyConverter());
+			return new JsonToMapConverter();
 		default:
-			return new AvroConsumerProcessor<>(keyConverter());
+			return new AvroToMapConverter();
 		}
+	}
+
+	static class JsonToMapConverter implements Converter<ConsumerRecord<String, Object>, Map<String, String>> {
+
+		@Override
+		@SuppressWarnings("unchecked")
+		public Map<String, String> convert(ConsumerRecord<String, Object> source) {
+			return JsonMapFlattener.flattenToStringMap((Map<String, Object>) source.value());
+		}
+
+	}
+
+	static class AvroToMapConverter implements Converter<ConsumerRecord<String, Object>, Map<String, String>> {
+
+		@Override
+		public Map<String, String> convert(ConsumerRecord<String, Object> source) {
+			GenericRecord record = (GenericRecord) source.value();
+			Map<String, Object> map = new HashMap<>();
+			record.getSchema().getFields().forEach(field -> map.put(field.name(), record.get(field.name())));
+			return JsonMapFlattener.flattenToStringMap(map);
+		}
+
 	}
 
 	private Converter<ConsumerRecord<String, Object>, String> keyConverter() {
@@ -70,19 +105,14 @@ public class StreamImportCommand
 		return r -> key;
 	}
 
-	@Override
-	protected ItemWriter<StreamMessage<String, String>> writer() throws Exception {
-		return configure(RedisStreamItemWriter.builder().converter(xAddArgsConverter())).build();
-	}
-
-	private Converter<StreamMessage<String, String>, XAddArgs> xAddArgsConverter() {
+	private XAddArgs xAddArgs() {
 		if (maxlen == null) {
 			return null;
 		}
 		XAddArgs args = new XAddArgs();
 		args.maxlen(maxlen);
 		args.approximateTrimming(approximateTrimming);
-		return m -> args;
+		return args;
 	}
 
 	private KafkaItemReader<String, Object> reader(String topic) {

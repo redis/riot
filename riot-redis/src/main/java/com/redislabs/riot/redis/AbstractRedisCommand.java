@@ -1,23 +1,31 @@
 package com.redislabs.riot.redis;
 
-import com.redislabs.riot.HelpCommand;
-import com.redislabs.riot.RiotApp;
+import org.springframework.batch.item.redis.support.RedisConnectionBuilder;
+
+import com.redislabs.riot.RiotCommand;
 
 import io.lettuce.core.api.StatefulConnection;
 import io.lettuce.core.api.sync.BaseRedisCommands;
+import io.lettuce.core.codec.StringCodec;
+import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine.Command;
-import picocli.CommandLine.ParentCommand;
 
+@Slf4j
 @Command
-public abstract class AbstractRedisCommand extends HelpCommand {
+public abstract class AbstractRedisCommand extends RiotCommand {
 
-	@ParentCommand
-	private RiotApp app;
-
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public void run() {
-		StatefulConnection<String, String> connection = app.connection();
-		BaseRedisCommands<String, String> commands = app.sync(connection);
+		RedisConnectionBuilder<String, String, ?> builder;
+		try {
+			builder = (RedisConnectionBuilder) configure(new RedisConnectionBuilder(StringCodec.UTF8));
+		} catch (Exception e) {
+			log.error("Could not connect to Redis", e);
+			return;
+		}
+		StatefulConnection<String, String> connection = builder.connection();
+		BaseRedisCommands<String, String> commands = builder.sync().apply(connection);
 		execute(commands);
 	}
 

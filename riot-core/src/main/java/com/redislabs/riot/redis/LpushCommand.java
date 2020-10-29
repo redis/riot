@@ -2,14 +2,17 @@ package com.redislabs.riot.redis;
 
 import java.util.Map;
 
+import org.springframework.batch.item.redis.RedisListItemWriter;
+import org.springframework.batch.item.redis.RedisListItemWriter.RedisListItemWriterBuilder.PushDirection;
+
 import picocli.CommandLine.Command;
 
 @Command(name = "lpush")
 public class LpushCommand extends AbstractCollectionCommand {
 
 	@Override
-	protected Lpush<String, String, Map<String, Object>> collectionWriter() {
-		return new Lpush<>();
+	public RedisListItemWriter<String, String, Map<String, Object>> writer() throws Exception {
+		return configure(RedisListItemWriter.<Map<String, Object>>builder().direction(PushDirection.LEFT)).build();
 	}
 
 }

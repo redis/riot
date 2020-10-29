@@ -2,8 +2,8 @@ package com.redislabs.riot.stream;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.batch.item.ItemProcessor;
@@ -42,7 +42,7 @@ public class StreamExportCommand
 	private String topic;
 	@Mixin
 	private KafkaOptions kafkaOptions = new KafkaOptions();
-	
+
 	@Override
 	protected boolean flushingEnabled() {
 		return true;
@@ -55,10 +55,14 @@ public class StreamExportCommand
 
 	@Override
 	protected List<ItemReader<StreamMessage<String, String>>> readers() throws Exception {
-		return streams.stream().map(this::reader).collect(Collectors.toList());
+		List<ItemReader<StreamMessage<String, String>>> readers = new ArrayList<>();
+		for (String stream : streams) {
+			readers.add(reader(stream));
+		}
+		return readers;
 	}
 
-	private ItemReader<StreamMessage<String, String>> reader(String stream) {
+	private ItemReader<StreamMessage<String, String>> reader(String stream) throws Exception {
 		XReadArgs args = new XReadArgs();
 		args.block(block);
 		StreamOffset<String> offset = StreamOffset.from(stream, this.offset);

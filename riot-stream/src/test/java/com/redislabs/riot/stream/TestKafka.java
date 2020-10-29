@@ -72,7 +72,7 @@ public class TestKafka extends BaseTest {
 			future.get();
 		}
 		StreamImportCommand command = (StreamImportCommand) command("/import.txt");
-		Transfer<ConsumerRecord<String, Object>, StreamMessage<String, String>> transfer = command.transfers().get(0);
+		Transfer<ConsumerRecord<String, Object>, ConsumerRecord<String, Object>> transfer = command.transfers().get(0);
 		CompletableFuture<Void> future = transfer.execute();
 		Thread.sleep(200);
 		List<StreamMessage<String, String>> messages = commands().xrange("topic1", Range.create("-", "+"));

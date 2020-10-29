@@ -11,7 +11,7 @@ import org.springframework.batch.item.ItemStream;
 import org.springframework.batch.item.ItemStreamReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.redis.support.BatchTransfer;
-import org.springframework.batch.item.redis.support.RedisItemReader;
+import org.springframework.batch.item.redis.support.KeyValueItemReader;
 import org.springframework.batch.item.support.SynchronizedItemStreamReader;
 import org.springframework.util.Assert;
 
@@ -104,8 +104,8 @@ public class Transfer<I, O> {
 	}
 
 	public void flush() {
-		if (reader instanceof RedisItemReader) {
-			((RedisItemReader<?, ?>) reader).flush();
+		if (reader instanceof KeyValueItemReader) {
+			((KeyValueItemReader<?, ?>) reader).flush();
 		}
 		for (BatchTransfer<I> thread : threads) {
 			try {
