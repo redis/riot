@@ -1,31 +1,29 @@
 package com.redislabs.riot.convert;
 
-import org.springframework.core.convert.ConversionFailedException;
-import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.core.convert.converter.Converter;
-import org.springframework.core.convert.support.ConverterFactory;
+import org.springframework.util.NumberUtils;
 
 public class ObjectToNumberConverter<T extends Number> implements Converter<Object, T> {
 
-	private TypeDescriptor targetTypeDescriptor;
-	private Converter<Number, T> numberConverter;
-	private Converter<String, T> stringConverter;
+    private final Class<T> targetType;
 
-	public ObjectToNumberConverter(Class<T> targetType) {
-		this.targetTypeDescriptor = TypeDescriptor.valueOf(targetType);
-		this.numberConverter = ConverterFactory.getNumberToNumberConverter(targetType);
-		this.stringConverter = ConverterFactory.getStringToNumberConverter(targetType);
-	}
+    public ObjectToNumberConverter(Class<T> targetType) {
+        this.targetType = targetType;
+    }
 
-	@Override
-	public T convert(Object source) {
-		if (source instanceof Number) {
-			return numberConverter.convert((Number) source);
-		}
-		if (source instanceof String) {
-			return stringConverter.convert((String) source);
-		}
-		throw new ConversionFailedException(TypeDescriptor.forObject(source), targetTypeDescriptor, source, null);
-	}
+    @Override
+    public T convert(Object source) {
+        if (source instanceof Number) {
+            return NumberUtils.convertNumberToTargetClass((Number) source, targetType);
+        }
+        if (source instanceof String) {
+            String string = (String) source;
+            if (string.isEmpty()) {
+                return null;
+            }
+            return NumberUtils.parseNumber(string, targetType);
+        }
+        return null;
+    }
 
 }

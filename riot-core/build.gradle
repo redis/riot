@@ -19,7 +19,7 @@ dependencies {
     implementation 'org.apache.commons:commons-lang3:3.11'
     implementation 'org.latencyutils:LatencyUtils:2.0.3'
     implementation 'org.slf4j:slf4j-api:1.7.30'
-    api 'org.springframework.batch:spring-batch-core:4.2.4.RELEASE'
+    api 'org.springframework.batch:spring-batch-core:4.3.0'
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.11.3'
     testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
 }

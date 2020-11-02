@@ -1,15 +1,17 @@
 package com.redislabs.riot.convert;
 
-import lombok.Builder;
-import org.springframework.core.convert.converter.Converter;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import org.springframework.batch.item.redis.support.ConstantConverter;
+import org.springframework.core.convert.converter.Converter;
+
+import lombok.Builder;
 
 @Builder
 public class StringToStringMapConverter implements Converter<String, Map<String, String>> {
 
-    public static final Converter<String, String> DEFAULT_KEY_EXTRACTOR = s -> "value";
+    public static final Converter<String, String> DEFAULT_KEY_EXTRACTOR = new ConstantConverter<>("value");
 
     @Builder.Default
     private final Converter<String, String> keyExtractor = DEFAULT_KEY_EXTRACTOR;
@@ -20,4 +22,5 @@ public class StringToStringMapConverter implements Converter<String, Map<String,
         result.put(keyExtractor.convert(source), source);
         return result;
     }
+
 }

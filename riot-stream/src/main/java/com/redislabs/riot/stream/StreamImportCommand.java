@@ -13,9 +13,10 @@ import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.redis.RedisStreamItemWriter;
 import org.springframework.batch.item.redis.support.ConstantConverter;
 import org.springframework.core.convert.converter.Converter;
-import org.springframework.vault.support.JsonMapFlattener;
 
 import com.redislabs.riot.AbstractFlushingTransferCommand;
+import com.redislabs.riot.convert.MapFlattener;
+import com.redislabs.riot.convert.ObjectToStringConverter;
 import com.redislabs.riot.stream.kafka.KafkaItemReader;
 import com.redislabs.riot.stream.kafka.KafkaItemReaderBuilder;
 
@@ -27,98 +28,107 @@ import picocli.CommandLine.Parameters;
 
 @Command(name = "import", description = "Import Kafka topics into Redis streams")
 public class StreamImportCommand
-		extends AbstractFlushingTransferCommand<ConsumerRecord<String, Object>, ConsumerRecord<String, Object>> {
+        extends AbstractFlushingTransferCommand<ConsumerRecord<String, Object>, ConsumerRecord<String, Object>> {
 
-	@Option(names = "--key", description = "Target stream key (default: same as topic)", paramLabel = "<string>")
-	private String key;
-	@Option(names = "--maxlen", description = "Stream maxlen", paramLabel = "<int>")
-	private Long maxlen;
-	@Option(names = "--trim", description = "Stream efficient trimming ('~' flag)")
-	private boolean approximateTrimming;
-	@Parameters(arity = "1..*", description = "One ore more topics to read from", paramLabel = "TOPIC")
-	private List<String> topics;
-	@Mixin
-	private KafkaOptions kafkaOptions = new KafkaOptions();
+    @Option(names = "--key", description = "Target stream key (default: same as topic)", paramLabel = "<string>")
+    private String key;
 
-	@Override
-	protected boolean flushingEnabled() {
-		return true;
-	}
+    @Option(names = "--maxlen", description = "Stream maxlen", paramLabel = "<int>")
+    private Long maxlen;
 
-	@Override
-	protected String taskName() {
-		return "Streaming from";
-	}
+    @Option(names = "--trim", description = "Stream efficient trimming ('~' flag)")
+    private boolean approximateTrimming;
 
-	@Override
-	protected List<ItemReader<ConsumerRecord<String, Object>>> readers() throws Exception {
-		return topics.stream().map(this::reader).collect(Collectors.toList());
-	}
+    @Parameters(arity = "1..*", description = "One ore more topics to read from", paramLabel = "TOPIC")
+    private List<String> topics;
 
-	@Override
-	protected ItemProcessor<ConsumerRecord<String, Object>, ConsumerRecord<String, Object>> processor() {
-		return null;
-	}
+    @Mixin
+    private KafkaOptions kafkaOptions = new KafkaOptions();
 
-	@Override
-	protected ItemWriter<ConsumerRecord<String, Object>> writer() throws Exception {
-		Converter<ConsumerRecord<String, Object>, String> keyConverter = keyConverter();
-		return configure(RedisStreamItemWriter.<ConsumerRecord<String, Object>>builder().keyConverter(keyConverter)
-				.argsConverter(new ConstantConverter<>(xAddArgs())).bodyConverter(bodyConverter())).build();
-	}
+    @Override
+    protected boolean flushingEnabled() {
+        return true;
+    }
 
-	private Converter<ConsumerRecord<String, Object>, Map<String, String>> bodyConverter() {
-		switch (kafkaOptions.getSerde()) {
-		case JSON:
-			return new JsonToMapConverter();
-		default:
-			return new AvroToMapConverter();
-		}
-	}
+    @Override
+    protected String taskName() {
+        return "Streaming from";
+    }
 
-	static class JsonToMapConverter implements Converter<ConsumerRecord<String, Object>, Map<String, String>> {
+    @Override
+    protected List<ItemReader<ConsumerRecord<String, Object>>> readers() throws Exception {
+        return topics.stream().map(this::reader).collect(Collectors.toList());
+    }
 
-		@Override
-		@SuppressWarnings("unchecked")
-		public Map<String, String> convert(ConsumerRecord<String, Object> source) {
-			return JsonMapFlattener.flattenToStringMap((Map<String, Object>) source.value());
-		}
+    @Override
+    protected ItemProcessor<ConsumerRecord<String, Object>, ConsumerRecord<String, Object>> processor() {
+        return null;
+    }
 
-	}
+    @Override
+    protected ItemWriter<ConsumerRecord<String, Object>> writer() throws Exception {
+        Converter<ConsumerRecord<String, Object>, String> keyConverter = keyConverter();
+        return configure(RedisStreamItemWriter.<ConsumerRecord<String, Object>> builder().keyConverter(keyConverter)
+                .argsConverter(new ConstantConverter<>(xAddArgs())).bodyConverter(bodyConverter())).build();
+    }
 
-	static class AvroToMapConverter implements Converter<ConsumerRecord<String, Object>, Map<String, String>> {
+    private Converter<ConsumerRecord<String, Object>, Map<String, String>> bodyConverter() {
+        switch (kafkaOptions.getSerde()) {
+            case JSON:
+                return new JsonToMapConverter();
+            default:
+                return new AvroToMapConverter();
+        }
+    }
 
-		@Override
-		public Map<String, String> convert(ConsumerRecord<String, Object> source) {
-			GenericRecord record = (GenericRecord) source.value();
-			Map<String, Object> map = new HashMap<>();
-			record.getSchema().getFields().forEach(field -> map.put(field.name(), record.get(field.name())));
-			return JsonMapFlattener.flattenToStringMap(map);
-		}
+    static class JsonToMapConverter implements Converter<ConsumerRecord<String, Object>, Map<String, String>> {
 
-	}
+        private Converter<Map<String, Object>, Map<String, String>> flattener = new MapFlattener<String>(
+                new ObjectToStringConverter());
 
-	private Converter<ConsumerRecord<String, Object>, String> keyConverter() {
-		if (key == null) {
-			return ConsumerRecord::topic;
-		}
-		return r -> key;
-	}
+        @Override
+        @SuppressWarnings("unchecked")
+        public Map<String, String> convert(ConsumerRecord<String, Object> source) {
+            return flattener.convert((Map<String, Object>) source.value());
+        }
 
-	private XAddArgs xAddArgs() {
-		if (maxlen == null) {
-			return null;
-		}
-		XAddArgs args = new XAddArgs();
-		args.maxlen(maxlen);
-		args.approximateTrimming(approximateTrimming);
-		return args;
-	}
+    }
 
-	private KafkaItemReader<String, Object> reader(String topic) {
-		return new KafkaItemReaderBuilder<String, Object>().partitions(0)
-				.consumerProperties(kafkaOptions.consumerProperties()).partitions(0).name(topic).saveState(false)
-				.topic(topic).build();
-	}
+    static class AvroToMapConverter implements Converter<ConsumerRecord<String, Object>, Map<String, String>> {
+
+        private Converter<Map<String, Object>, Map<String, String>> flattener = new MapFlattener<String>(
+                new ObjectToStringConverter());
+
+        @Override
+        public Map<String, String> convert(ConsumerRecord<String, Object> source) {
+            GenericRecord record = (GenericRecord) source.value();
+            Map<String, Object> map = new HashMap<>();
+            record.getSchema().getFields().forEach(field -> map.put(field.name(), record.get(field.name())));
+            return flattener.convert(map);
+        }
+
+    }
+
+    private Converter<ConsumerRecord<String, Object>, String> keyConverter() {
+        if (key == null) {
+            return ConsumerRecord::topic;
+        }
+        return new ConstantConverter<>(key);
+    }
+
+    private XAddArgs xAddArgs() {
+        if (maxlen == null) {
+            return null;
+        }
+        XAddArgs args = new XAddArgs();
+        args.maxlen(maxlen);
+        args.approximateTrimming(approximateTrimming);
+        return args;
+    }
+
+    private KafkaItemReader<String, Object> reader(String topic) {
+        return new KafkaItemReaderBuilder<String, Object>().partitions(0).consumerProperties(kafkaOptions.consumerProperties())
+                .partitions(0).name(topic).saveState(false).topic(topic).build();
+    }
 
 }
