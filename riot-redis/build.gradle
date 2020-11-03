@@ -10,6 +10,7 @@ test {
 
 dependencies {
     implementation project(':riot-core')
+    implementation 'org.slf4j:slf4j-jdk14:1.7.30'
     annotationProcessor 'info.picocli:picocli-codegen:4.5.2'
     compileOnly 'org.projectlombok:lombok:1.18.16'
     annotationProcessor 'org.projectlombok:lombok:1.18.16'

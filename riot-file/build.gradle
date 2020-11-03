@@ -12,11 +12,10 @@ dependencies {
     implementation 'org.springframework.cloud:spring-cloud-aws-context:2.2.4.RELEASE'
     implementation 'org.springframework.cloud:spring-cloud-aws-autoconfigure:2.2.4.RELEASE'
     implementation 'org.springframework.cloud:spring-cloud-gcp-starter-storage:1.2.5.RELEASE'
-    implementation 'org.ruaux:spring-batch-resource:1.1.1'
+    implementation 'org.ruaux:spring-batch-resource:1.2.2'
     implementation 'org.springframework:spring-oxm:5.3.0'
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.11.3'
     testImplementation project(':riot-test')
-    testImplementation 'org.ruaux:spring-batch-faker:1.0.1'
 }
 
 configurations {

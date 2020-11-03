@@ -1,6 +1,5 @@
 package com.redislabs.riot.gen;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -9,7 +8,6 @@ import java.util.Map;
 
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
-import org.springframework.batch.item.faker.FakerItemReader;
 
 import com.redislabs.lettusearch.RediSearchClient;
 import com.redislabs.lettusearch.RediSearchCommands;
@@ -22,73 +20,62 @@ import com.redislabs.lettusearch.index.field.TagField;
 import com.redislabs.lettusearch.index.field.TextField;
 import com.redislabs.riot.AbstractImportCommand;
 
-import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
-@Slf4j
 @Command(name = "import", aliases = { "i" }, description = "Import generated data")
 public class GenerateCommand extends AbstractImportCommand<Map<String, Object>, Map<String, Object>> {
 
-	@Parameters(description = "SpEL expressions", paramLabel = "SPEL")
-	private Map<String, String> fakerFields = new LinkedHashMap<>();
-	@Option(names = "--faker-index", description = "Use given search index to introspect Faker fields", paramLabel = "<index>")
-	private String fakerIndex;
-	@Option(names = "--locale", description = "Faker locale (default: ${DEFAULT-VALUE})", paramLabel = "<tag>")
-	private Locale locale = Locale.ENGLISH;
-	@Option(names = "--metadata", description = "Include metadata (index, partition)")
-	private boolean includeMetadata;
+    @Parameters(description = "SpEL expressions", paramLabel = "SPEL")
+    private Map<String, String> fakerFields = new LinkedHashMap<>();
 
-	@Override
-	protected List<ItemReader<Map<String, Object>>> readers() throws Exception {
-		FakerItemReader reader = FakerItemReader.builder().locale(locale).includeMetadata(includeMetadata)
-				.fields(fakerFields()).build();
-		return Collections.singletonList(reader);
-	}
+    @Option(names = "--faker-index", description = "Use given search index to introspect Faker fields", paramLabel = "<index>")
+    private String fakerIndex;
 
-	@Override
-	protected ItemProcessor<Map<String, Object>, Map<String, Object>> processor() throws Exception {
-		return mapProcessor();
-	}
+    @Option(names = "--locale", description = "Faker locale (default: ${DEFAULT-VALUE})", paramLabel = "<tag>")
+    private Locale locale = Locale.ENGLISH;
 
-	private String expression(Field<String> field) {
-		if (field instanceof TextField) {
-			return "lorem.paragraph";
-		}
-		if (field instanceof TagField) {
-			return "number.digits(10)";
-		}
-		if (field instanceof GeoField) {
-			return "address.longitude.concat(',').concat(address.latitude)";
-		}
-		return "number.randomDouble(3,-1000,1000)";
-	}
+    @Option(names = "--metadata", description = "Include metadata (index, partition)")
+    private boolean includeMetadata;
 
-	private String quotes(String field, String expression) {
-		return "\"" + field + "=" + expression + "\"";
-	}
+    @Override
+    protected List<ItemReader<Map<String, Object>>> readers() throws Exception {
+        return Collections.singletonList(
+                FakerItemReader.builder().locale(locale).includeMetadata(includeMetadata).fields(fakerFields()).build());
+    }
 
-	private List<String> fakerArgs(Map<String, String> fakerFields) {
-		List<String> args = new ArrayList<>();
-		fakerFields.forEach((k, v) -> args.add(quotes(k, v)));
-		return args;
-	}
+    @Override
+    protected ItemProcessor<Map<String, Object>, Map<String, Object>> processor() throws Exception {
+        return mapProcessor();
+    }
 
-	private Map<String, String> fakerFields() {
-		Map<String, String> fields = new LinkedHashMap<>(fakerFields);
-		if (fakerIndex == null) {
-			return fields;
-		}
-		RediSearchClient client = RediSearchClient.create(getRedisConnectionOptions().redisURI());
-		StatefulRediSearchConnection<String, String> connection = client.connect();
-		RediSearchCommands<String, String> commands = connection.sync();
-		IndexInfo<String> info = RediSearchUtils.getInfo(commands.ftInfo(fakerIndex));
-		for (Field<String> field : info.getFields()) {
-			fields.put(field.getName(), expression(field));
-		}
-		log.info("Introspected fields: {}", String.join(" ", fakerArgs(fields)));
-		return fields;
-	}
+    private String expression(Field<String> field) {
+        if (field instanceof TextField) {
+            return "lorem.paragraph";
+        }
+        if (field instanceof TagField) {
+            return "number.digits(10)";
+        }
+        if (field instanceof GeoField) {
+            return "address.longitude.concat(',').concat(address.latitude)";
+        }
+        return "number.randomDouble(3,-1000,1000)";
+    }
+
+    private Map<String, String> fakerFields() {
+        Map<String, String> fields = new LinkedHashMap<>(fakerFields);
+        if (fakerIndex == null) {
+            return fields;
+        }
+        RediSearchClient client = RediSearchClient.create(getRedisConnectionOptions().redisURI());
+        StatefulRediSearchConnection<String, String> connection = client.connect();
+        RediSearchCommands<String, String> commands = connection.sync();
+        IndexInfo<String> info = RediSearchUtils.getInfo(commands.ftInfo(fakerIndex));
+        for (Field<String> field : info.getFields()) {
+            fields.put(field.getName(), expression(field));
+        }
+        return fields;
+    }
 
 }
