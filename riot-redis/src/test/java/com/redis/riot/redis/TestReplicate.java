@@ -8,7 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.batch.item.redis.support.KeyDump;
+import org.springframework.batch.item.redis.support.KeyValue;
 import org.springframework.batch.item.redis.support.KeyValueItemReader;
 import org.springframework.batch.item.redis.support.LiveKeyItemReader;
 import org.testcontainers.containers.GenericContainer;
@@ -86,7 +86,7 @@ public class TestReplicate extends BaseTest {
 		targetConnection.sync().flushall();
 		DataPopulator.builder().connection(connection()).build().run();
 		ReplicateCommand command = (ReplicateCommand) command("/replicate-live.txt");
-		Transfer<KeyDump<String>, KeyDump<String>> transfer = command.transfers().get(0);
+		Transfer<KeyValue<String,byte[]>, KeyValue<String,byte[]>> transfer = command.transfers().get(0);
 		CompletableFuture<Void> future = transfer.execute();
 		Thread.sleep(400);
 		RedisCommands<String, String> commands = commands();
@@ -96,7 +96,7 @@ public class TestReplicate extends BaseTest {
 			Thread.sleep(1);
 		}
 		Thread.sleep(200);
-		KeyValueItemReader<String, KeyDump<String>> reader = (KeyValueItemReader<String, KeyDump<String>>) transfer
+		KeyValueItemReader<String, KeyValue<String,byte[]>> reader = (KeyValueItemReader<String, KeyValue<String,byte[]>>) transfer
 				.getReader();
 		LiveKeyItemReader<String, String> keyReader = (LiveKeyItemReader<String, String>) reader.getKeyReader();
 		log.info("Stopping LiveKeyItemReader");
