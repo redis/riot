@@ -14,17 +14,17 @@ public class ProcessingItemWriter<I, O> extends AbstractItemStreamItemWriter<I> 
     private final ItemWriter<O> writer;
 
     public ProcessingItemWriter(ItemProcessor<I, O> processor, ItemWriter<O> writer) {
-        setName(ClassUtils.getShortName(getClass()));
-        this.processor = processor;
-        this.writer = writer;
+	setName(ClassUtils.getShortName(getClass()));
+	this.processor = processor;
+	this.writer = writer;
     }
 
     @Override
     public void write(List<? extends I> items) throws Exception {
-        List<O> targetItems = new ArrayList<>(items.size());
-        for (I item : items) {
-            targetItems.add(processor.process(item));
-        }
-        writer.write(targetItems);
+	List<O> targetItems = new ArrayList<>(items.size());
+	for (I item : items) {
+	    targetItems.add(processor.process(item));
+	}
+	writer.write(targetItems);
     }
 }

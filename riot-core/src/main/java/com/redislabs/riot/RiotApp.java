@@ -23,112 +23,117 @@ import picocli.CommandLine.RunFirst;
 @Command(usageHelpAutoWidth = true, sortOptions = false, versionProvider = ManifestVersionProvider.class, subcommands = HiddenGenerateCompletion.class, abbreviateSynopsis = true)
 public class RiotApp implements Runnable {
 
-	private static final String ROOT_LOGGER = "";
+    private static final String ROOT_LOGGER = "";
 
-	@Option(names = { "--help" }, usageHelp = true, description = "Show this help message and exit.")
-	private boolean helpRequested;
-	@Option(names = { "-V", "--version" }, versionHelp = true, description = "Print version information and exit.")
-	private boolean versionRequested;
-	@Getter
-	@Option(names = { "-q", "--quiet" }, description = "Log errors only")
-	private boolean quiet;
-	@Getter
-	@Option(names = { "-d", "--debug" }, description = "Log in debug mode (includes normal stacktrace)")
-	private boolean debug;
-	@Getter
-	@Option(names = { "-i", "--info" }, description = "Set log level to info")
-	private boolean info;
-	@Getter
-	@ArgGroup(heading = "Redis connection options%n", exclusive = false)
-	private RedisConnectionOptions redisConnectionOptions = new RedisConnectionOptions();
+    @Option(names = { "--help" }, usageHelp = true, description = "Show this help message and exit.")
+    private boolean helpRequested;
+    @Option(names = { "-V", "--version" }, versionHelp = true, description = "Print version information and exit.")
+    private boolean versionRequested;
+    @Option(names = { "-q", "--quiet" }, description = "Log errors only")
+    private boolean quiet;
+    @Option(names = { "-w", "--warn" }, description = "Set log level to warn")
+    private boolean warn;
+    @Option(names = { "-i", "--info" }, description = "Set log level to info")
+    private boolean info;
+    @Option(names = { "-d", "--debug" }, description = "Log in debug mode (includes normal stacktrace)")
+    private boolean debug;
+    @Getter
+    @ArgGroup(heading = "Redis connection options%n", exclusive = false)
+    private RedisConnectionOptions redisConnectionOptions = new RedisConnectionOptions();
 
-	public int execute(String... args) {
-		try {
-			CommandLine commandLine = commandLine();
-			ParseResult parseResult = parse(commandLine, args);
-			initializeLogging();
-			return commandLine.getExecutionStrategy().execute(parseResult);
-		} catch (PicocliException e) {
-			System.err.println(e.getMessage());
-			return 1;
-		}
+    public int execute(String... args) {
+	try {
+	    CommandLine commandLine = commandLine();
+	    ParseResult parseResult = parse(commandLine, args);
+	    initializeLogging();
+	    return commandLine.getExecutionStrategy().execute(parseResult);
+	} catch (PicocliException e) {
+	    System.err.println(e.getMessage());
+	    return 1;
 	}
+    }
 
-	private void initializeLogging() {
-		InternalLoggerFactory.setDefaultFactory(JdkLoggerFactory.INSTANCE);
-		LogManager.getLogManager().reset();
-		Logger activeLogger = Logger.getLogger(ROOT_LOGGER);
-		ConsoleHandler handler = new ConsoleHandler();
-		handler.setLevel(Level.ALL);
-		handler.setFormatter(new OneLineLogFormat(isDebug()));
-		activeLogger.addHandler(handler);
-		Logger.getLogger(ROOT_LOGGER).setLevel(rootLoggingLevel());
-		Logger.getLogger("com.redislabs").setLevel(packageLoggingLevel());
-	}
+    private void initializeLogging() {
+	InternalLoggerFactory.setDefaultFactory(JdkLoggerFactory.INSTANCE);
+	LogManager.getLogManager().reset();
+	Logger activeLogger = Logger.getLogger(ROOT_LOGGER);
+	ConsoleHandler handler = new ConsoleHandler();
+	handler.setLevel(Level.ALL);
+	handler.setFormatter(new OneLineLogFormat(debug));
+	activeLogger.addHandler(handler);
+	Logger.getLogger(ROOT_LOGGER).setLevel(rootLoggingLevel());
+	Logger.getLogger("com.redislabs").setLevel(packageLoggingLevel());
+    }
 
-	public CommandLine commandLine() {
-		CommandLine commandLine = new CommandLine(this);
-		registerConverters(commandLine);
-		commandLine.setCaseInsensitiveEnumValuesAllowed(true);
-		return commandLine;
-	}
+    public CommandLine commandLine() {
+	CommandLine commandLine = new CommandLine(this);
+	registerConverters(commandLine);
+	commandLine.setCaseInsensitiveEnumValuesAllowed(true);
+	return commandLine;
+    }
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public ParseResult parse(CommandLine commandLine, String[] args) {
-		ParseResult parseResult = commandLine.parseArgs(args);
-		ParseResult subcommand = parseResult.subcommand();
-		if (subcommand != null) {
-			Object command = subcommand.commandSpec().userObject();
-			if (AbstractImportCommand.class.isAssignableFrom(command.getClass())) {
-				AbstractImportCommand<?, ?> importCommand = (AbstractImportCommand<?, ?>) command;
-				List<ParseResult> parsedRedisCommands = subcommand.subcommands();
-				for (ParseResult parsedRedisCommand : parsedRedisCommands) {
-					if (parsedRedisCommand.isUsageHelpRequested()) {
-						return parsedRedisCommand;
-					}
-					importCommand.getRedisCommands()
-							.add((AbstractRedisCommand) parsedRedisCommand.commandSpec().userObject());
-				}
-				commandLine.setExecutionStrategy(new RunFirst());
-				return subcommand;
-			}
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public ParseResult parse(CommandLine commandLine, String[] args) {
+	ParseResult parseResult = commandLine.parseArgs(args);
+	ParseResult subcommand = parseResult.subcommand();
+	if (subcommand != null) {
+	    Object command = subcommand.commandSpec().userObject();
+	    if (AbstractImportCommand.class.isAssignableFrom(command.getClass())) {
+		AbstractImportCommand<?, ?> importCommand = (AbstractImportCommand<?, ?>) command;
+		List<ParseResult> parsedRedisCommands = subcommand.subcommands();
+		for (ParseResult parsedRedisCommand : parsedRedisCommands) {
+		    if (parsedRedisCommand.isUsageHelpRequested()) {
+			return parsedRedisCommand;
+		    }
+		    importCommand.getRedisCommands()
+			    .add((AbstractRedisCommand) parsedRedisCommand.commandSpec().userObject());
 		}
-		return parseResult;
+		commandLine.setExecutionStrategy(new RunFirst());
+		return subcommand;
+	    }
 	}
+	return parseResult;
+    }
 
-	protected void registerConverters(CommandLine commandLine) {
-		commandLine.registerConverter(RedisURI.class, new RedisURIConverter());
-	}
+    protected void registerConverters(CommandLine commandLine) {
+	commandLine.registerConverter(RedisURI.class, new RedisURIConverter());
+    }
 
-	@Override
-	public void run() {
-		CommandLine.usage(this, System.out);
-	}
+    @Override
+    public void run() {
+	CommandLine.usage(this, System.out);
+    }
 
-	private Level packageLoggingLevel() {
-		if (isQuiet()) {
-			return Level.OFF;
-		}
-		if (isInfo()) {
-			return Level.FINE;
-		}
-		if (isDebug()) {
-			return Level.FINEST;
-		}
-		return Level.INFO;
+    private Level packageLoggingLevel() {
+	if (quiet) {
+	    return Level.OFF;
 	}
+	if (warn) {
+	    return Level.WARNING;
+	}
+	if (info) {
+	    return Level.FINE;
+	}
+	if (debug) {
+	    return Level.FINEST;
+	}
+	return Level.INFO;
+    }
 
-	private Level rootLoggingLevel() {
-		if (isQuiet()) {
-			return Level.OFF;
-		}
-		if (isInfo()) {
-			return Level.INFO;
-		}
-		if (isDebug()) {
-			return Level.FINE;
-		}
-		return Level.SEVERE;
+    private Level rootLoggingLevel() {
+	if (quiet) {
+	    return Level.OFF;
 	}
+	if (warn) {
+	    return Level.WARNING;
+	}
+	if (info) {
+	    return Level.INFO;
+	}
+	if (debug) {
+	    return Level.FINE;
+	}
+	return Level.SEVERE;
+    }
 
 }

@@ -41,10 +41,10 @@ public class ReplicateCommand
 
     @Override
     protected List<ItemReader<KeyValue<String, byte[]>>> readers() throws Exception {
-	RedisDumpItemReader<String> reader = configure(RedisDumpItemReader.builder().scanCount(options.getScanCount())
-		.scanMatch(options.getScanMatch()).batch(options.getReaderBatchSize())
+	RedisDumpItemReader<String, String> reader = configure(RedisDumpItemReader.builder()
+		.scanCount(options.getScanCount()).scanMatch(options.getScanMatch()).batch(options.getReaderBatchSize())
 		.threads(options.getReaderThreads()).queueCapacity(options.getQueueCapacity()).live(live)).build();
-	reader.setName(toString(getRedisConnectionOptions().redisURI()));
+	reader.setName(toString(redisURI()));
 	return Collections.singletonList(reader);
     }
 

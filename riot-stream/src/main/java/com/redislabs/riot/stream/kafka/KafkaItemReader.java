@@ -52,158 +52,158 @@ import org.springframework.util.Assert;
  */
 public class KafkaItemReader<K, V> extends AbstractItemCountingItemStreamItemReader<ConsumerRecord<K, V>> {
 
-	private static final String TOPIC_PARTITION_OFFSETS = "topic.partition.offsets";
+    private static final String TOPIC_PARTITION_OFFSETS = "topic.partition.offsets";
 
-	private static final long DEFAULT_POLL_TIMEOUT = 30L;
+    private static final long DEFAULT_POLL_TIMEOUT = 30L;
 
-	private List<TopicPartition> topicPartitions;
+    private List<TopicPartition> topicPartitions;
 
-	private Map<TopicPartition, Long> partitionOffsets;
+    private Map<TopicPartition, Long> partitionOffsets;
 
-	private KafkaConsumer<K, V> kafkaConsumer;
+    private KafkaConsumer<K, V> kafkaConsumer;
 
-	private Properties consumerProperties;
+    private Properties consumerProperties;
 
-	private Iterator<ConsumerRecord<K, V>> consumerRecords;
+    private Iterator<ConsumerRecord<K, V>> consumerRecords;
 
-	private Duration pollTimeout = Duration.ofSeconds(DEFAULT_POLL_TIMEOUT);
+    private Duration pollTimeout = Duration.ofSeconds(DEFAULT_POLL_TIMEOUT);
 
-	private boolean saveState = true;
+    private boolean saveState = true;
 
-	/**
-	 * Create a new {@link KafkaItemReader}.
-	 * <p>
-	 * <strong>{@code consumerProperties} must contain the following keys:
-	 * 'bootstrap.servers', 'group.id', 'key.deserializer' and 'value.deserializer'
-	 * </strong>
-	 * </p>
-	 * .
-	 * 
-	 * @param consumerProperties properties of the consumer
-	 * @param topicName          name of the topic to read data from
-	 * @param partitions         list of partitions to read data from
-	 */
-	public KafkaItemReader(Properties consumerProperties, String topicName, Integer... partitions) {
-		this(consumerProperties, topicName, Arrays.asList(partitions));
+    /**
+     * Create a new {@link KafkaItemReader}.
+     * <p>
+     * <strong>{@code consumerProperties} must contain the following keys:
+     * 'bootstrap.servers', 'group.id', 'key.deserializer' and 'value.deserializer'
+     * </strong>
+     * </p>
+     * .
+     * 
+     * @param consumerProperties properties of the consumer
+     * @param topicName          name of the topic to read data from
+     * @param partitions         list of partitions to read data from
+     */
+    public KafkaItemReader(Properties consumerProperties, String topicName, Integer... partitions) {
+	this(consumerProperties, topicName, Arrays.asList(partitions));
+    }
+
+    /**
+     * Create a new {@link KafkaItemReader}.
+     * <p>
+     * <strong>{@code consumerProperties} must contain the following keys:
+     * 'bootstrap.servers', 'group.id', 'key.deserializer' and 'value.deserializer'
+     * </strong>
+     * </p>
+     * .
+     * 
+     * @param consumerProperties properties of the consumer
+     * @param topicName          name of the topic to read data from
+     * @param partitions         list of partitions to read data from
+     */
+    public KafkaItemReader(Properties consumerProperties, String topicName, List<Integer> partitions) {
+	Assert.notNull(consumerProperties, "Consumer properties must not be null");
+	Assert.isTrue(consumerProperties.containsKey(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG),
+		ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG + " property must be provided");
+	Assert.isTrue(consumerProperties.containsKey(ConsumerConfig.GROUP_ID_CONFIG),
+		ConsumerConfig.GROUP_ID_CONFIG + " property must be provided");
+	Assert.isTrue(consumerProperties.containsKey(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG),
+		ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG + " property must be provided");
+	Assert.isTrue(consumerProperties.containsKey(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG),
+		ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG + " property must be provided");
+	this.consumerProperties = consumerProperties;
+	Assert.hasLength(topicName, "Topic name must not be null or empty");
+	Assert.isTrue(!partitions.isEmpty(), "At least one partition must be provided");
+	this.topicPartitions = new ArrayList<>();
+	for (Integer partition : partitions) {
+	    this.topicPartitions.add(new TopicPartition(topicName, partition));
 	}
+    }
 
-	/**
-	 * Create a new {@link KafkaItemReader}.
-	 * <p>
-	 * <strong>{@code consumerProperties} must contain the following keys:
-	 * 'bootstrap.servers', 'group.id', 'key.deserializer' and 'value.deserializer'
-	 * </strong>
-	 * </p>
-	 * .
-	 * 
-	 * @param consumerProperties properties of the consumer
-	 * @param topicName          name of the topic to read data from
-	 * @param partitions         list of partitions to read data from
-	 */
-	public KafkaItemReader(Properties consumerProperties, String topicName, List<Integer> partitions) {
-		Assert.notNull(consumerProperties, "Consumer properties must not be null");
-		Assert.isTrue(consumerProperties.containsKey(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG),
-				ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG + " property must be provided");
-		Assert.isTrue(consumerProperties.containsKey(ConsumerConfig.GROUP_ID_CONFIG),
-				ConsumerConfig.GROUP_ID_CONFIG + " property must be provided");
-		Assert.isTrue(consumerProperties.containsKey(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG),
-				ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG + " property must be provided");
-		Assert.isTrue(consumerProperties.containsKey(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG),
-				ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG + " property must be provided");
-		this.consumerProperties = consumerProperties;
-		Assert.hasLength(topicName, "Topic name must not be null or empty");
-		Assert.isTrue(!partitions.isEmpty(), "At least one partition must be provided");
-		this.topicPartitions = new ArrayList<>();
-		for (Integer partition : partitions) {
-			this.topicPartitions.add(new TopicPartition(topicName, partition));
-		}
-	}
+    /**
+     * Set a timeout for the consumer topic polling duration. Default to 30 seconds.
+     * 
+     * @param pollTimeout for the consumer poll operation
+     */
+    public void setPollTimeout(Duration pollTimeout) {
+	Assert.notNull(pollTimeout, "pollTimeout must not be null");
+	Assert.isTrue(!pollTimeout.isZero(), "pollTimeout must not be zero");
+	Assert.isTrue(!pollTimeout.isNegative(), "pollTimeout must not be negative");
+	this.pollTimeout = pollTimeout;
+    }
 
-	/**
-	 * Set a timeout for the consumer topic polling duration. Default to 30 seconds.
-	 * 
-	 * @param pollTimeout for the consumer poll operation
-	 */
-	public void setPollTimeout(Duration pollTimeout) {
-		Assert.notNull(pollTimeout, "pollTimeout must not be null");
-		Assert.isTrue(!pollTimeout.isZero(), "pollTimeout must not be zero");
-		Assert.isTrue(!pollTimeout.isNegative(), "pollTimeout must not be negative");
-		this.pollTimeout = pollTimeout;
-	}
+    /**
+     * Set the flag that determines whether to save internal data for
+     * {@link ExecutionContext}. Only switch this to false if you don't want to save
+     * any state from this stream, and you don't need it to be restartable. Always
+     * set it to false if the reader is being used in a concurrent environment.
+     * 
+     * @param saveState flag value (default true).
+     */
+    public void setSaveState(boolean saveState) {
+	this.saveState = saveState;
+    }
 
-	/**
-	 * Set the flag that determines whether to save internal data for
-	 * {@link ExecutionContext}. Only switch this to false if you don't want to save
-	 * any state from this stream, and you don't need it to be restartable. Always
-	 * set it to false if the reader is being used in a concurrent environment.
-	 * 
-	 * @param saveState flag value (default true).
-	 */
-	public void setSaveState(boolean saveState) {
-		this.saveState = saveState;
-	}
+    /**
+     * The flag that determines whether to save internal state for restarts.
+     * 
+     * @return true if the flag was set
+     */
+    public boolean isSaveState() {
+	return this.saveState;
+    }
 
-	/**
-	 * The flag that determines whether to save internal state for restarts.
-	 * 
-	 * @return true if the flag was set
-	 */
-	public boolean isSaveState() {
-		return this.saveState;
+    @SuppressWarnings("unchecked")
+    @Override
+    public void open(ExecutionContext executionContext) throws ItemStreamException {
+	this.kafkaConsumer = new KafkaConsumer<>(this.consumerProperties);
+	this.partitionOffsets = new HashMap<>();
+	for (TopicPartition topicPartition : this.topicPartitions) {
+	    this.partitionOffsets.put(topicPartition, 0L);
 	}
+	if (this.saveState && executionContext.containsKey(TOPIC_PARTITION_OFFSETS)) {
+	    Map<TopicPartition, Long> offsets = (Map<TopicPartition, Long>) executionContext
+		    .get(TOPIC_PARTITION_OFFSETS);
+	    for (Map.Entry<TopicPartition, Long> entry : offsets.entrySet()) {
+		this.partitionOffsets.put(entry.getKey(), entry.getValue() == 0 ? 0 : entry.getValue() + 1);
+	    }
+	}
+	this.kafkaConsumer.assign(this.topicPartitions);
+	this.partitionOffsets.forEach(this.kafkaConsumer::seek);
+	super.open(executionContext);
+    }
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public void open(ExecutionContext executionContext) throws ItemStreamException {
-		this.kafkaConsumer = new KafkaConsumer<>(this.consumerProperties);
-		this.partitionOffsets = new HashMap<>();
-		for (TopicPartition topicPartition : this.topicPartitions) {
-			this.partitionOffsets.put(topicPartition, 0L);
-		}
-		if (this.saveState && executionContext.containsKey(TOPIC_PARTITION_OFFSETS)) {
-			Map<TopicPartition, Long> offsets = (Map<TopicPartition, Long>) executionContext
-					.get(TOPIC_PARTITION_OFFSETS);
-			for (Map.Entry<TopicPartition, Long> entry : offsets.entrySet()) {
-				this.partitionOffsets.put(entry.getKey(), entry.getValue() == 0 ? 0 : entry.getValue() + 1);
-			}
-		}
-		this.kafkaConsumer.assign(this.topicPartitions);
-		this.partitionOffsets.forEach(this.kafkaConsumer::seek);
-		super.open(executionContext);
-	}
+    @Override
+    protected void doOpen() throws Exception {
+	// already done in open()
+    }
 
-	@Override
-	protected void doOpen() throws Exception {
-		// already done in open()
+    @Override
+    protected ConsumerRecord<K, V> doRead() throws Exception {
+	if (this.consumerRecords == null || !this.consumerRecords.hasNext()) {
+	    this.consumerRecords = this.kafkaConsumer.poll(this.pollTimeout).iterator();
 	}
+	if (this.consumerRecords.hasNext()) {
+	    ConsumerRecord<K, V> record = this.consumerRecords.next();
+	    this.partitionOffsets.put(new TopicPartition(record.topic(), record.partition()), record.offset());
+	    return record;
+	} else {
+	    return null;
+	}
+    }
 
-	@Override
-	protected ConsumerRecord<K, V> doRead() throws Exception {
-		if (this.consumerRecords == null || !this.consumerRecords.hasNext()) {
-			this.consumerRecords = this.kafkaConsumer.poll(this.pollTimeout).iterator();
-		}
-		if (this.consumerRecords.hasNext()) {
-			ConsumerRecord<K, V> record = this.consumerRecords.next();
-			this.partitionOffsets.put(new TopicPartition(record.topic(), record.partition()), record.offset());
-			return record;
-		} else {
-			return null;
-		}
+    @Override
+    public void update(ExecutionContext executionContext) {
+	if (this.saveState) {
+	    executionContext.put(TOPIC_PARTITION_OFFSETS, new HashMap<>(this.partitionOffsets));
 	}
+	this.kafkaConsumer.commitSync();
+    }
 
-	@Override
-	public void update(ExecutionContext executionContext) {
-		if (this.saveState) {
-			executionContext.put(TOPIC_PARTITION_OFFSETS, new HashMap<>(this.partitionOffsets));
-		}
-		this.kafkaConsumer.commitSync();
+    @Override
+    protected void doClose() throws Exception {
+	if (this.kafkaConsumer != null) {
+	    this.kafkaConsumer.close();
 	}
-
-	@Override
-	protected void doClose() throws Exception {
-		if (this.kafkaConsumer != null) {
-			this.kafkaConsumer.close();
-		}
-	}
+    }
 
 }

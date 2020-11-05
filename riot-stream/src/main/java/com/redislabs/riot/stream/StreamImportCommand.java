@@ -28,7 +28,7 @@ import picocli.CommandLine.Parameters;
 
 @Command(name = "import", description = "Import Kafka topics into Redis streams")
 public class StreamImportCommand
-        extends AbstractFlushingTransferCommand<ConsumerRecord<String, Object>, ConsumerRecord<String, Object>> {
+	extends AbstractFlushingTransferCommand<ConsumerRecord<String, Object>, ConsumerRecord<String, Object>> {
 
     @Option(names = "--key", description = "Target stream key (default: same as topic)", paramLabel = "<string>")
     private String key;
@@ -47,88 +47,89 @@ public class StreamImportCommand
 
     @Override
     protected boolean flushingEnabled() {
-        return true;
+	return true;
     }
 
     @Override
     protected String taskName() {
-        return "Streaming from";
+	return "Streaming from";
     }
 
     @Override
     protected List<ItemReader<ConsumerRecord<String, Object>>> readers() throws Exception {
-        return topics.stream().map(this::reader).collect(Collectors.toList());
+	return topics.stream().map(this::reader).collect(Collectors.toList());
     }
 
     @Override
     protected ItemProcessor<ConsumerRecord<String, Object>, ConsumerRecord<String, Object>> processor() {
-        return null;
+	return null;
     }
 
     @Override
     protected ItemWriter<ConsumerRecord<String, Object>> writer() throws Exception {
-        Converter<ConsumerRecord<String, Object>, String> keyConverter = keyConverter();
-        return configure(RedisStreamItemWriter.<ConsumerRecord<String, Object>> builder().keyConverter(keyConverter)
-                .argsConverter(new ConstantConverter<>(xAddArgs())).bodyConverter(bodyConverter())).build();
+	Converter<ConsumerRecord<String, Object>, String> keyConverter = keyConverter();
+	return configure(RedisStreamItemWriter.<ConsumerRecord<String, Object>>builder().keyConverter(keyConverter)
+		.argsConverter(new ConstantConverter<>(xAddArgs())).bodyConverter(bodyConverter())).build();
     }
 
     private Converter<ConsumerRecord<String, Object>, Map<String, String>> bodyConverter() {
-        switch (kafkaOptions.getSerde()) {
-            case JSON:
-                return new JsonToMapConverter();
-            default:
-                return new AvroToMapConverter();
-        }
+	switch (kafkaOptions.getSerde()) {
+	case JSON:
+	    return new JsonToMapConverter();
+	default:
+	    return new AvroToMapConverter();
+	}
     }
 
     static class JsonToMapConverter implements Converter<ConsumerRecord<String, Object>, Map<String, String>> {
 
-        private Converter<Map<String, Object>, Map<String, String>> flattener = new MapFlattener<String>(
-                new ObjectToStringConverter());
+	private Converter<Map<String, Object>, Map<String, String>> flattener = new MapFlattener<String>(
+		new ObjectToStringConverter());
 
-        @Override
-        @SuppressWarnings("unchecked")
-        public Map<String, String> convert(ConsumerRecord<String, Object> source) {
-            return flattener.convert((Map<String, Object>) source.value());
-        }
+	@Override
+	@SuppressWarnings("unchecked")
+	public Map<String, String> convert(ConsumerRecord<String, Object> source) {
+	    return flattener.convert((Map<String, Object>) source.value());
+	}
 
     }
 
     static class AvroToMapConverter implements Converter<ConsumerRecord<String, Object>, Map<String, String>> {
 
-        private Converter<Map<String, Object>, Map<String, String>> flattener = new MapFlattener<String>(
-                new ObjectToStringConverter());
+	private Converter<Map<String, Object>, Map<String, String>> flattener = new MapFlattener<String>(
+		new ObjectToStringConverter());
 
-        @Override
-        public Map<String, String> convert(ConsumerRecord<String, Object> source) {
-            GenericRecord record = (GenericRecord) source.value();
-            Map<String, Object> map = new HashMap<>();
-            record.getSchema().getFields().forEach(field -> map.put(field.name(), record.get(field.name())));
-            return flattener.convert(map);
-        }
+	@Override
+	public Map<String, String> convert(ConsumerRecord<String, Object> source) {
+	    GenericRecord record = (GenericRecord) source.value();
+	    Map<String, Object> map = new HashMap<>();
+	    record.getSchema().getFields().forEach(field -> map.put(field.name(), record.get(field.name())));
+	    return flattener.convert(map);
+	}
 
     }
 
     private Converter<ConsumerRecord<String, Object>, String> keyConverter() {
-        if (key == null) {
-            return ConsumerRecord::topic;
-        }
-        return new ConstantConverter<>(key);
+	if (key == null) {
+	    return ConsumerRecord::topic;
+	}
+	return new ConstantConverter<>(key);
     }
 
     private XAddArgs xAddArgs() {
-        if (maxlen == null) {
-            return null;
-        }
-        XAddArgs args = new XAddArgs();
-        args.maxlen(maxlen);
-        args.approximateTrimming(approximateTrimming);
-        return args;
+	if (maxlen == null) {
+	    return null;
+	}
+	XAddArgs args = new XAddArgs();
+	args.maxlen(maxlen);
+	args.approximateTrimming(approximateTrimming);
+	return args;
     }
 
     private KafkaItemReader<String, Object> reader(String topic) {
-        return new KafkaItemReaderBuilder<String, Object>().partitions(0).consumerProperties(kafkaOptions.consumerProperties())
-                .partitions(0).name(topic).saveState(false).topic(topic).build();
+	return new KafkaItemReaderBuilder<String, Object>().partitions(0)
+		.consumerProperties(kafkaOptions.consumerProperties()).partitions(0).name(topic).saveState(false)
+		.topic(topic).build();
     }
 
 }

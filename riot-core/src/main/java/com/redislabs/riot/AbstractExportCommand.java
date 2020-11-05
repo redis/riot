@@ -12,22 +12,22 @@ import picocli.CommandLine.Mixin;
 
 public abstract class AbstractExportCommand<O> extends AbstractTransferCommand<DataStructure<String>, O> {
 
-	@Mixin
-	private RedisExportOptions options = new RedisExportOptions();
+    @Mixin
+    private RedisExportOptions options = new RedisExportOptions();
 
-	@Override
-	protected String taskName() {
-		return "Exporting from";
-	}
+    @Override
+    protected String taskName() {
+	return "Exporting from";
+    }
 
-	@Override
-	protected List<ItemReader<DataStructure<String>>> readers() throws Exception {
-		RedisDataStructureItemReaderBuilder<String, String> builder = configure(RedisDataStructureItemReader.builder()
-				.scanCount(options.getScanCount()).scanMatch(options.getScanMatch()).batch(options.getReaderBatchSize())
-				.queueCapacity(options.getQueueCapacity()).threads(options.getReaderThreads()));
-		RedisDataStructureItemReader<String> reader = builder.build();
-		reader.setName(toString(builder.uri()));
-		return Collections.singletonList(reader);
-	}
+    @Override
+    protected List<ItemReader<DataStructure<String>>> readers() throws Exception {
+	RedisDataStructureItemReaderBuilder<String, String> builder = configure(RedisDataStructureItemReader.builder()
+		.scanCount(options.getScanCount()).scanMatch(options.getScanMatch()).batch(options.getReaderBatchSize())
+		.queueCapacity(options.getQueueCapacity()).threads(options.getReaderThreads()));
+	RedisDataStructureItemReader<String, String> reader = builder.build();
+	reader.setName(toString(builder.uri()));
+	return Collections.singletonList(reader);
+    }
 
 }

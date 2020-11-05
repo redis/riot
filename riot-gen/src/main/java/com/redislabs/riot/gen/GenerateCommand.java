@@ -29,53 +29,57 @@ public class GenerateCommand extends AbstractImportCommand<Map<String, Object>, 
 
     @Parameters(description = "SpEL expressions", paramLabel = "SPEL")
     private Map<String, String> fakerFields = new LinkedHashMap<>();
-
-    @Option(names = "--faker-index", description = "Use given search index to introspect Faker fields", paramLabel = "<index>")
+    @Option(names = "--introspect", description = "Use given search index to introspect Faker fields", paramLabel = "<index>")
     private String fakerIndex;
-
     @Option(names = "--locale", description = "Faker locale (default: ${DEFAULT-VALUE})", paramLabel = "<tag>")
     private Locale locale = Locale.ENGLISH;
-
     @Option(names = "--metadata", description = "Include metadata (index, partition)")
     private boolean includeMetadata;
+    @Option(names = "--start", description = "Start index (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
+    private long start = 0;
+    @Option(names = "--end", description = "End index (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
+    private long end = 1000;
 
     @Override
     protected List<ItemReader<Map<String, Object>>> readers() throws Exception {
-        return Collections.singletonList(
-                FakerItemReader.builder().locale(locale).includeMetadata(includeMetadata).fields(fakerFields()).build());
+	FakerItemReader reader = FakerItemReader.builder().locale(locale).includeMetadata(includeMetadata)
+		.fields(fakerFields()).start(start).end(end).build();
+	long count = end - start;
+	reader.setMaxItemCount(Math.toIntExact(count));
+	return Collections.singletonList(reader);
     }
 
     @Override
     protected ItemProcessor<Map<String, Object>, Map<String, Object>> processor() throws Exception {
-        return mapProcessor();
+	return mapProcessor();
     }
 
     private String expression(Field<String> field) {
-        if (field instanceof TextField) {
-            return "lorem.paragraph";
-        }
-        if (field instanceof TagField) {
-            return "number.digits(10)";
-        }
-        if (field instanceof GeoField) {
-            return "address.longitude.concat(',').concat(address.latitude)";
-        }
-        return "number.randomDouble(3,-1000,1000)";
+	if (field instanceof TextField) {
+	    return "lorem.paragraph";
+	}
+	if (field instanceof TagField) {
+	    return "number.digits(10)";
+	}
+	if (field instanceof GeoField) {
+	    return "address.longitude.concat(',').concat(address.latitude)";
+	}
+	return "number.randomDouble(3,-1000,1000)";
     }
 
     private Map<String, String> fakerFields() {
-        Map<String, String> fields = new LinkedHashMap<>(fakerFields);
-        if (fakerIndex == null) {
-            return fields;
-        }
-        RediSearchClient client = RediSearchClient.create(getRedisConnectionOptions().redisURI());
-        StatefulRediSearchConnection<String, String> connection = client.connect();
-        RediSearchCommands<String, String> commands = connection.sync();
-        IndexInfo<String> info = RediSearchUtils.getInfo(commands.ftInfo(fakerIndex));
-        for (Field<String> field : info.getFields()) {
-            fields.put(field.getName(), expression(field));
-        }
-        return fields;
+	Map<String, String> fields = new LinkedHashMap<>(fakerFields);
+	if (fakerIndex == null) {
+	    return fields;
+	}
+	RediSearchClient client = RediSearchClient.create(redisURI());
+	StatefulRediSearchConnection<String, String> connection = client.connect();
+	RediSearchCommands<String, String> commands = connection.sync();
+	IndexInfo<String> info = RediSearchUtils.getInfo(commands.ftInfo(fakerIndex));
+	for (Field<String> field : info.getFields()) {
+	    fields.put(field.getName(), expression(field));
+	}
+	return fields;
     }
 
 }

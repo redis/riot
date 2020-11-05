@@ -44,7 +44,7 @@ public class TestGen extends BaseTest {
 	public void genFakerHash() throws Exception {
 		executeFile("/import-hmset.txt");
 		List<String> keys = commands().keys("person:*");
-		Assertions.assertEquals(100, keys.size());
+		Assertions.assertEquals(1000, keys.size());
 		Map<String, String> person = commands().hgetall(keys.get(0));
 		Assertions.assertTrue(person.containsKey("firstName"));
 		Assertions.assertTrue(person.containsKey("lastName"));
@@ -112,7 +112,7 @@ public class TestGen extends BaseTest {
 		searchCommands.create(INDEX, schema, CreateOptions.<String, String>builder().prefixes("beer:").build());
 		executeFile("/index-introspection.txt");
 		SearchResults<String, String> results = searchCommands.search(INDEX, "*");
-		Assertions.assertEquals(100, results.getCount());
+		Assertions.assertEquals(1000, results.getCount());
 		Document<String, String> doc1 = results.get(0);
 		Assertions.assertNotNull(doc1.get(FIELD_ABV));
 	}

@@ -1,8 +1,12 @@
 package com.redislabs.riot.gen;
 
-import com.github.javafaker.Faker;
-import lombok.Builder;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import org.springframework.batch.item.ItemReader;
+import org.springframework.batch.item.redis.support.ProgressReporter;
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
@@ -11,67 +15,98 @@ import org.springframework.expression.spel.support.SimpleEvaluationContext;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.stream.Collectors;
+import com.github.javafaker.Faker;
+
+import lombok.Builder;
 
 /**
  * {@link ItemReader} that generates HashMaps using Faker.
  *
  * @author Julien Ruaux
  */
-public class FakerItemReader extends AbstractItemCountingItemStreamItemReader<Map<String, Object>> {
+public class FakerItemReader extends AbstractItemCountingItemStreamItemReader<Map<String, Object>>
+	implements ProgressReporter {
 
     public final static String FIELD_INDEX = "index";
 
     private final Locale locale;
     private final boolean includeMetadata;
     private final Map<String, String> spelFields;
+    private final long start;
+    private final long end;
 
+    private Integer maxItemCount;
     private EvaluationContext context;
     private Map<String, Expression> expressions;
 
     @Builder
-    public FakerItemReader(Locale locale, boolean includeMetadata, Map<String, String> fields) {
-        Assert.notNull(fields, "Fields are required.");
-        setName(ClassUtils.getShortName(getClass()));
-        this.locale = locale;
-        this.includeMetadata = includeMetadata;
-        this.spelFields = fields;
+    public FakerItemReader(Locale locale, boolean includeMetadata, Map<String, String> fields, long start, long end) {
+	Assert.notNull(fields, "Fields are required.");
+	Assert.isTrue(end > start, "End index must be strictly greater than start index");
+	setName(ClassUtils.getShortName(getClass()));
+	this.locale = locale;
+	this.includeMetadata = includeMetadata;
+	this.spelFields = fields;
+	this.start = start;
+	this.end = end;
+    }
+
+    @Override
+    public void setMaxItemCount(int count) {
+	this.maxItemCount = count;
+	super.setMaxItemCount(count);
+    }
+
+    @Override
+    public Long getTotal() {
+	if (maxItemCount == null) {
+	    return null;
+	}
+	return (long) maxItemCount;
+    }
+
+    @Override
+    public long getDone() {
+	return getCurrentItemCount();
     }
 
     @Override
     protected void doOpen() {
-        this.context = new SimpleEvaluationContext.Builder(new ReflectivePropertyAccessor()).withInstanceMethods().withRootObject(new Faker(locale())).build();
-        SpelExpressionParser parser = new SpelExpressionParser();
-        this.expressions = spelFields.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> parser.parseExpression(e.getValue())));
+	this.context = new SimpleEvaluationContext.Builder(new ReflectivePropertyAccessor()).withInstanceMethods()
+		.withRootObject(new Faker(locale())).build();
+	SpelExpressionParser parser = new SpelExpressionParser();
+	this.expressions = spelFields.entrySet().stream()
+		.collect(Collectors.toMap(Map.Entry::getKey, e -> parser.parseExpression(e.getValue())));
     }
 
     private Locale locale() {
-        if (locale == null) {
-            return Locale.getDefault();
-        }
-        return locale;
+	if (locale == null) {
+	    return Locale.getDefault();
+	}
+	return locale;
     }
 
     @Override
     protected void doClose() {
-        this.expressions.clear();
-        this.context = null;
+	this.expressions.clear();
+	this.context = null;
     }
 
     @Override
     protected Map<String, Object> doRead() {
-        Map<String, Object> map = new HashMap<>();
-        if (includeMetadata) {
-            map.put(FIELD_INDEX, getCurrentItemCount());
-        }
-        context.setVariable(FIELD_INDEX, getCurrentItemCount());
-        for (String field : expressions.keySet()) {
-            map.put(field, expressions.get(field).getValue(context));
-        }
-        return map;
+	Map<String, Object> map = new HashMap<>();
+	if (includeMetadata) {
+	    map.put(FIELD_INDEX, index());
+	}
+	context.setVariable(FIELD_INDEX, index());
+	for (String field : expressions.keySet()) {
+	    map.put(field, expressions.get(field).getValue(context));
+	}
+	return map;
+    }
+
+    private long index() {
+	return start + (getCurrentItemCount() % (end - start));
     }
 
 }

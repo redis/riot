@@ -39,7 +39,7 @@ public class SpringBatchFakerTests {
         Map<String, String> fields = new HashMap<>();
         fields.put("firstName", "name.firstName");
         fields.put("lastName", "name.lastName");
-        FakerItemReader reader = FakerItemReader.builder().fields(fields).build();
+        FakerItemReader reader = FakerItemReader.builder().fields(fields).end(count).build();
         reader.setMaxItemCount(count);
         List<Map<String, Object>> items = new ArrayList<>();
         run("reader", reader, items::addAll);
@@ -55,12 +55,12 @@ public class SpringBatchFakerTests {
         Map<String, String> fields = new HashMap<>();
         fields.put("firstName", "name.firstName");
         fields.put("lastName", "name.lastName");
-        FakerItemReader reader = FakerItemReader.builder().fields(fields).includeMetadata(true).build();
+        FakerItemReader reader = FakerItemReader.builder().fields(fields).includeMetadata(true).end(count).build();
         reader.setMaxItemCount(count);
         List<Map<String, Object>> items = new ArrayList<>();
         run("metadata", reader, items::addAll);
         Assert.assertEquals(count, items.size());
-        Assert.assertEquals((Integer) 1, (Integer) items.get(0).get(FakerItemReader.FIELD_INDEX));
+        Assert.assertEquals(1L, items.get(0).get(FakerItemReader.FIELD_INDEX));
     }
 
 

@@ -33,66 +33,66 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 @Command(subcommands = { EvalCommand.class, ExpireCommand.class, GeoaddCommand.class, HmsetCommand.class,
-		LpushCommand.class, NoopCommand.class, RpushCommand.class, SaddCommand.class, SetCommand.class,
-		XaddCommand.class,
-		ZaddCommand.class }, subcommandsRepeatable = true, synopsisSubcommandLabel = "[REDIS COMMAND]", commandListHeading = "Redis commands:%n")
+	LpushCommand.class, NoopCommand.class, RpushCommand.class, SaddCommand.class, SetCommand.class,
+	XaddCommand.class,
+	ZaddCommand.class }, subcommandsRepeatable = true, synopsisSubcommandLabel = "[REDIS COMMAND]", commandListHeading = "Redis commands:%n")
 public abstract class AbstractImportCommand<I, O> extends AbstractTransferCommand<I, O> {
 
-	/*
-	 * Initialized manually during command parsing
-	 */
-	@Getter
-	private List<AbstractRedisCommand<O>> redisCommands = new ArrayList<>();
-	@Option(arity = "1..*", names = "--spel", description = "SpEL expression to produce a field", paramLabel = "<field=exp>")
-	private Map<String, String> spel = new HashMap<>();
-	@Option(arity = "1..*", names = "--spel-var", description = "Register a variable in the SpEL processor context", paramLabel = "<v=exp>")
-	private Map<String, String> variables = new HashMap<>();
-	@Option(arity = "1..*", names = "--regex", description = "Extract named values from source field using regex", paramLabel = "<field=exp>")
-	private Map<String, String> regexes = new HashMap<>();
-	@Option(names = "--date-format", description = "Processor date format (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
-	private String dateFormat = new SimpleDateFormat().toPattern();
+    /*
+     * Initialized manually during command parsing
+     */
+    @Getter
+    private List<AbstractRedisCommand<O>> redisCommands = new ArrayList<>();
+    @Option(arity = "1..*", names = "--spel", description = "SpEL expression to produce a field", paramLabel = "<f=exp>")
+    private Map<String, String> spel = new HashMap<>();
+    @Option(arity = "1..*", names = "--var", description = "Register a variable in the SpEL processor context", paramLabel = "<v=exp>")
+    private Map<String, String> variables = new HashMap<>();
+    @Option(arity = "1..*", names = "--regex", description = "Extract named values from source field using regex", paramLabel = "<f=exp>")
+    private Map<String, String> regexes = new HashMap<>();
+    @Option(names = "--date", description = "Processor date format (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
+    private String dateFormat = new SimpleDateFormat().toPattern();
 
-	@Override
-	protected String taskName() {
-		return "Importing from";
-	}
+    @Override
+    protected String taskName() {
+	return "Importing from";
+    }
 
-	protected ItemProcessor<Map<String, Object>, Map<String, Object>> mapProcessor() throws Exception {
-		List<ItemProcessor<Map<String, Object>, Map<String, Object>>> processors = new ArrayList<>();
-		if (!spel.isEmpty()) {
-			processors.add(configure(SpelProcessor.builder().dateFormat(new SimpleDateFormat(dateFormat))
-					.variables(variables).fields(spel)).build());
-		}
-		if (!regexes.isEmpty()) {
-			processors.add(MapProcessor.builder().regexes(regexes).build());
-		}
-		if (processors.isEmpty()) {
-			return null;
-		}
-		if (processors.size() == 1) {
-			return processors.get(0);
-		}
-		CompositeItemProcessor<Map<String, Object>, Map<String, Object>> compositeItemProcessor = new CompositeItemProcessor<>();
-		compositeItemProcessor.setDelegates(processors);
-		return compositeItemProcessor;
+    protected ItemProcessor<Map<String, Object>, Map<String, Object>> mapProcessor() throws Exception {
+	List<ItemProcessor<Map<String, Object>, Map<String, Object>>> processors = new ArrayList<>();
+	if (!spel.isEmpty()) {
+	    processors.add(configure(SpelProcessor.builder().dateFormat(new SimpleDateFormat(dateFormat))
+		    .variables(variables).fields(spel)).build());
 	}
+	if (!regexes.isEmpty()) {
+	    processors.add(MapProcessor.builder().regexes(regexes).build());
+	}
+	if (processors.isEmpty()) {
+	    return null;
+	}
+	if (processors.size() == 1) {
+	    return processors.get(0);
+	}
+	CompositeItemProcessor<Map<String, Object>, Map<String, Object>> compositeItemProcessor = new CompositeItemProcessor<>();
+	compositeItemProcessor.setDelegates(processors);
+	return compositeItemProcessor;
+    }
 
-	@Override
-	protected ItemWriter<O> writer() throws Exception {
-		Assert.notNull(redisCommands, "RedisCommands not set");
-		List<AbstractRedisItemWriter<String, String, O>> writers = new ArrayList<>();
-		for (AbstractRedisCommand<O> redisCommand : redisCommands) {
-			writers.add(redisCommand.writer());
-		}
-		if (writers.isEmpty()) {
-			throw new IllegalArgumentException("No Redis command specified");
-		}
-		if (writers.size() == 1) {
-			return (ItemWriter<O>) writers.get(0);
-		}
-		CompositeItemWriter<O> writer = new CompositeItemWriter<>();
-		writer.setDelegates(new ArrayList<>(writers));
-		return writer;
+    @Override
+    protected ItemWriter<O> writer() throws Exception {
+	Assert.notNull(redisCommands, "RedisCommands not set");
+	List<AbstractRedisItemWriter<String, String, O>> writers = new ArrayList<>();
+	for (AbstractRedisCommand<O> redisCommand : redisCommands) {
+	    writers.add(redisCommand.writer());
 	}
+	if (writers.isEmpty()) {
+	    throw new IllegalArgumentException("No Redis command specified");
+	}
+	if (writers.size() == 1) {
+	    return (ItemWriter<O>) writers.get(0);
+	}
+	CompositeItemWriter<O> writer = new CompositeItemWriter<>();
+	writer.setDelegates(new ArrayList<>(writers));
+	return writer;
+    }
 
 }

@@ -31,7 +31,7 @@ import picocli.CommandLine.Parameters;
 
 @Command(name = "export", description = "Import Redis streams into Kafka topics")
 public class StreamExportCommand
-        extends AbstractFlushingTransferCommand<StreamMessage<String, String>, ProducerRecord<String, Object>> {
+	extends AbstractFlushingTransferCommand<StreamMessage<String, String>, ProducerRecord<String, Object>> {
 
     @Parameters(arity = "1..*", description = "One ore more streams to read from", paramLabel = "STREAM")
     private List<String> streams;
@@ -50,53 +50,54 @@ public class StreamExportCommand
 
     @Override
     protected boolean flushingEnabled() {
-        return true;
+	return true;
     }
 
     @Override
     protected String taskName() {
-        return "Streaming from";
+	return "Streaming from";
     }
 
     @Override
     protected List<ItemReader<StreamMessage<String, String>>> readers() throws Exception {
-        List<ItemReader<StreamMessage<String, String>>> readers = new ArrayList<>();
-        for (String stream : streams) {
-            readers.add(reader(stream));
-        }
-        return readers;
+	List<ItemReader<StreamMessage<String, String>>> readers = new ArrayList<>();
+	for (String stream : streams) {
+	    readers.add(reader(stream));
+	}
+	return readers;
     }
 
     private ItemReader<StreamMessage<String, String>> reader(String stream) throws Exception {
-        XReadArgs args = new XReadArgs();
-        args.block(block);
-        StreamOffset<String> offset = StreamOffset.from(stream, this.offset);
-        return configure(RedisStreamItemReader.builder().args(args).offset(offset)).build();
+	XReadArgs args = new XReadArgs();
+	args.block(block);
+	StreamOffset<String> offset = StreamOffset.from(stream, this.offset);
+	return configure(RedisStreamItemReader.builder().args(args).offset(offset)).build();
     }
 
     @Override
     protected ItemProcessor<StreamMessage<String, String>, ProducerRecord<String, Object>> processor()
-            throws FileNotFoundException, IOException, RestClientException {
-        switch (kafkaOptions.getSerde()) {
-            case JSON:
-                return new JsonProducerProcessor(topicConverter());
-            default:
-                return new AvroProducerProcessor(topicConverter());
-        }
+	    throws FileNotFoundException, IOException, RestClientException {
+	switch (kafkaOptions.getSerde()) {
+	case JSON:
+	    return new JsonProducerProcessor(topicConverter());
+	default:
+	    return new AvroProducerProcessor(topicConverter());
+	}
     }
 
     private Converter<StreamMessage<String, String>, String> topicConverter() {
-        if (topic == null) {
-            return StreamMessage::getStream;
-        }
-        return new ConstantConverter<>(topic);
+	if (topic == null) {
+	    return StreamMessage::getStream;
+	}
+	return new ConstantConverter<>(topic);
     }
 
     @Override
     protected ItemWriter<ProducerRecord<String, Object>> writer() throws Exception {
-        return KafkaItemWriter.<String> builder()
-                .kafkaTemplate(new KafkaTemplate<>(new DefaultKafkaProducerFactory<>(kafkaOptions.producerProperties())))
-                .build();
+	return KafkaItemWriter.<String>builder()
+		.kafkaTemplate(
+			new KafkaTemplate<>(new DefaultKafkaProducerFactory<>(kafkaOptions.producerProperties())))
+		.build();
     }
 
 }
