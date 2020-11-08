@@ -15,7 +15,7 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.InputStreamResource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.redislabs.riot.test.DataPopulator;
+import com.redislabs.riot.test.DataGenerator;
 
 @SuppressWarnings("rawtypes")
 public class TestJson extends AbstractFileTest {
@@ -28,7 +28,7 @@ public class TestJson extends AbstractFileTest {
 
     private List<DataStructure> exportToList() throws Exception {
 	Path file = tempFile("redis.json");
-	DataPopulator.builder().connection(connection()).build().run();
+	DataGenerator.builder().connection(connection()).build().run();
 	executeFile("/json/export.txt");
 	JsonItemReaderBuilder<DataStructure> builder = new JsonItemReaderBuilder<>();
 	builder.name("json-data-structure-file-reader");

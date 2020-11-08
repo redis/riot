@@ -3,6 +3,10 @@ package com.redislabs.riot;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
@@ -26,6 +30,11 @@ public class Transfer<I, O> implements ProgressReporter {
     @Getter
     private final ItemWriter<? extends O> writer;
     private final List<BatchTransfer<I>> threads;
+    private Long flushPeriod;
+
+    public void setFlushPeriod(long flushPeriod) {
+	this.flushPeriod = flushPeriod;
+    }
 
     @Builder
     public Transfer(ItemReader<I> reader, ItemProcessor<I, O> processor, ItemWriter<O> writer, int threads, int batch) {
@@ -55,7 +64,14 @@ public class Transfer<I, O> implements ProgressReporter {
 	for (int index = 0; index < threads.size(); index++) {
 	    futures[index] = CompletableFuture.runAsync(threads.get(index));
 	}
-	return CompletableFuture.allOf(futures);
+	CompletableFuture<Void> future = CompletableFuture.allOf(futures);
+	if (flushPeriod != null) {
+	    ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+	    ScheduledFuture<?> flushFuture = scheduler.scheduleAtFixedRate(this::flush, flushPeriod, flushPeriod,
+		    TimeUnit.MILLISECONDS);
+	    future.whenComplete((v, t) -> flushFuture.cancel(true));
+	}
+	return future;
     }
 
     private ItemReader<I> reader() {
@@ -67,7 +83,7 @@ public class Transfer<I, O> implements ProgressReporter {
 	return reader;
     }
 
-    public void flush() {
+    private void flush() {
 	if (reader instanceof KeyValueItemReader) {
 	    ((KeyValueItemReader<?, ?, ?>) reader).flush();
 	}
@@ -90,10 +106,7 @@ public class Transfer<I, O> implements ProgressReporter {
 
     @Override
     public long getDone() {
-	if (reader instanceof ProgressReporter) {
-	    return ((ProgressReporter) reader).getDone();
-	}
-	return threads.stream().mapToLong(BatchTransfer::getCount).sum();
+	return threads.stream().mapToLong(BatchTransfer::getDone).sum();
     }
 
 }

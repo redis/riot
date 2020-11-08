@@ -1,17 +1,21 @@
 package com.redislabs.riot.redis;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.redis.RedisDumpItemReader;
 import org.springframework.batch.item.redis.RedisDumpItemWriter;
+import org.springframework.batch.item.redis.support.KeyItemReader;
 import org.springframework.batch.item.redis.support.KeyValue;
+import org.springframework.batch.item.redis.support.LiveKeyItemReader;
+import org.springframework.batch.item.redis.support.LiveKeyItemReader.LiveKeyItemReaderBuilder;
 
-import com.redislabs.riot.AbstractFlushingTransferCommand;
+import com.redislabs.riot.AbstractTransferCommand;
 import com.redislabs.riot.RedisConnectionOptions;
 import com.redislabs.riot.RedisExportOptions;
+import com.redislabs.riot.Transfer;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
@@ -19,8 +23,7 @@ import picocli.CommandLine.Option;
 
 @Command(name = "replicate", aliases = {
 	"r" }, description = "Replicate a source Redis database in a target Redis database")
-public class ReplicateCommand
-	extends AbstractFlushingTransferCommand<KeyValue<String, byte[]>, KeyValue<String, byte[]>> {
+public class ReplicateCommand extends AbstractTransferCommand<KeyValue<String, byte[]>, KeyValue<String, byte[]>> {
 
     @Mixin
     private RedisConnectionOptions targetRedis = new RedisConnectionOptions();
@@ -28,11 +31,10 @@ public class ReplicateCommand
     private RedisExportOptions options = new RedisExportOptions();
     @Option(names = "--live", description = "Enable live replication")
     private boolean live;
-
-    @Override
-    protected boolean flushingEnabled() {
-	return live;
-    }
+    @Option(names = "--notification-queue", description = "Capacity of the keyspace notification queue (default: ${DEFAULT-VALUE})", paramLabel = "<int>", hidden = true)
+    private int notificationQueueCapacity = LiveKeyItemReaderBuilder.DEFAULT_QUEUE_CAPACITY;
+    @Option(names = "--flush-interval", description = "Duration between notification queue flushes (default: ${DEFAULT-VALUE})", paramLabel = "<ms>")
+    private long flushPeriod = 50;
 
     @Override
     protected String taskName() {
@@ -41,11 +43,23 @@ public class ReplicateCommand
 
     @Override
     protected List<ItemReader<KeyValue<String, byte[]>>> readers() throws Exception {
-	RedisDumpItemReader<String, String> reader = configure(RedisDumpItemReader.builder()
-		.scanCount(options.getScanCount()).scanMatch(options.getScanMatch()).batch(options.getReaderBatchSize())
-		.threads(options.getReaderThreads()).queueCapacity(options.getQueueCapacity()).live(live)).build();
+	List<ItemReader<KeyValue<String, byte[]>>> readers = new ArrayList<>();
+	readers.add(reader(
+		configure(KeyItemReader.builder().scanCount(options.getScanCount()).scanMatch(options.getScanMatch()))
+			.build()));
+	if (live) {
+	    readers.add(reader(configure(LiveKeyItemReader.builder().scanMatch(options.getScanMatch())
+		    .queueCapacity(notificationQueueCapacity)).build()));
+	}
+	return readers;
+    }
+
+    private RedisDumpItemReader<String, String> reader(ItemReader<String> keyReader) throws Exception {
+	RedisDumpItemReader<String, String> reader = configure(
+		RedisDumpItemReader.builder().keyReader(keyReader).batch(options.getReaderBatchSize())
+			.threads(options.getReaderThreads()).queueCapacity(options.getQueueCapacity())).build();
 	reader.setName(toString(redisURI()));
-	return Collections.singletonList(reader);
+	return reader;
     }
 
     @Override
@@ -59,6 +73,15 @@ public class ReplicateCommand
     @Override
     protected ItemProcessor<KeyValue<String, byte[]>, KeyValue<String, byte[]>> processor() {
 	return null;
+    }
+
+    @Override
+    public List<Transfer<KeyValue<String, byte[]>, KeyValue<String, byte[]>>> transfers() throws Exception {
+	List<Transfer<KeyValue<String, byte[]>, KeyValue<String, byte[]>>> transfers = super.transfers();
+	if (live) {
+	    transfers.get(1).setFlushPeriod(flushPeriod);
+	}
+	return transfers;
     }
 
 }

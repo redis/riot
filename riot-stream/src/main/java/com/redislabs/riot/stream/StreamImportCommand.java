@@ -14,7 +14,6 @@ import org.springframework.batch.item.redis.RedisStreamItemWriter;
 import org.springframework.batch.item.redis.support.ConstantConverter;
 import org.springframework.core.convert.converter.Converter;
 
-import com.redislabs.riot.AbstractFlushingTransferCommand;
 import com.redislabs.riot.convert.MapFlattener;
 import com.redislabs.riot.convert.ObjectToStringConverter;
 import com.redislabs.riot.stream.kafka.KafkaItemReader;
@@ -22,33 +21,21 @@ import com.redislabs.riot.stream.kafka.KafkaItemReaderBuilder;
 
 import io.lettuce.core.XAddArgs;
 import picocli.CommandLine.Command;
-import picocli.CommandLine.Mixin;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
 @Command(name = "import", description = "Import Kafka topics into Redis streams")
 public class StreamImportCommand
-	extends AbstractFlushingTransferCommand<ConsumerRecord<String, Object>, ConsumerRecord<String, Object>> {
+	extends AbstractStreamCommand<ConsumerRecord<String, Object>, ConsumerRecord<String, Object>> {
 
     @Option(names = "--key", description = "Target stream key (default: same as topic)", paramLabel = "<string>")
     private String key;
-
     @Option(names = "--maxlen", description = "Stream maxlen", paramLabel = "<int>")
     private Long maxlen;
-
     @Option(names = "--trim", description = "Stream efficient trimming ('~' flag)")
     private boolean approximateTrimming;
-
     @Parameters(arity = "1..*", description = "One ore more topics to read from", paramLabel = "TOPIC")
     private List<String> topics;
-
-    @Mixin
-    private KafkaOptions kafkaOptions = new KafkaOptions();
-
-    @Override
-    protected boolean flushingEnabled() {
-	return true;
-    }
 
     @Override
     protected String taskName() {

@@ -13,7 +13,7 @@ import org.springframework.batch.item.xml.support.XmlItemReaderBuilder;
 import org.springframework.core.io.FileSystemResource;
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.redislabs.riot.test.DataPopulator;
+import com.redislabs.riot.test.DataGenerator;
 
 import io.lettuce.core.api.sync.RedisCommands;
 
@@ -31,7 +31,7 @@ public class TestXml extends AbstractFileTest {
     @SuppressWarnings({ "incomplete-switch", "rawtypes", "unchecked" })
     @Test
     public void export() throws Exception {
-	DataPopulator.builder().connection(connection()).build().run();
+	DataGenerator.builder().connection(connection()).build().run();
 	Path file = tempFile("redis.xml");
 	executeFile("/xml/export.txt");
 	XmlItemReaderBuilder<DataStructure> builder = new XmlItemReaderBuilder<>();

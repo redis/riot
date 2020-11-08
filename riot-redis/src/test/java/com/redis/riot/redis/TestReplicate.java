@@ -1,5 +1,6 @@
 package com.redis.riot.redis;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import org.junit.jupiter.api.AfterEach;
@@ -19,7 +20,7 @@ import com.redislabs.riot.Transfer;
 import com.redislabs.riot.redis.ReplicateCommand;
 import com.redislabs.riot.redis.RiotRedis;
 import com.redislabs.riot.test.BaseTest;
-import com.redislabs.riot.test.DataPopulator;
+import com.redislabs.riot.test.DataGenerator;
 
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.RedisURI;
@@ -62,7 +63,7 @@ public class TestReplicate extends BaseTest {
     @Test
     public void replicate() throws Exception {
 	targetClient.connect().sync().flushall();
-	DataPopulator.builder().connection(connection()).build().run();
+	DataGenerator.builder().connection(connection()).build().run();
 	Long sourceSize = commands().dbsize();
 	Assertions.assertTrue(sourceSize > 0);
 	executeFile("/replicate.txt");
@@ -84,11 +85,11 @@ public class TestReplicate extends BaseTest {
 	connection.close();
 	StatefulRedisConnection<String, String> targetConnection = targetClient.connect();
 	targetConnection.sync().flushall();
-	DataPopulator.builder().connection(connection()).build().run();
+	DataGenerator.builder().connection(connection()).build().run();
 	ReplicateCommand command = (ReplicateCommand) command("/replicate-live.txt");
-	Transfer<KeyValue<String, byte[]>, KeyValue<String, byte[]>> transfer = command.transfers().get(0);
-	command.open(transfer);
-	CompletableFuture<Void> future = transfer.executeAsync();
+	List<Transfer<KeyValue<String, byte[]>, KeyValue<String, byte[]>>> transfers = command.transfers();
+	transfers.forEach(command::open);
+	CompletableFuture<Void> future = command.executeAsync(transfers);
 	Thread.sleep(400);
 	RedisCommands<String, String> commands = commands();
 	int count = 39;
@@ -97,8 +98,8 @@ public class TestReplicate extends BaseTest {
 	    Thread.sleep(1);
 	}
 	Thread.sleep(200);
-	KeyValueItemReader<String, String, KeyValue<String, byte[]>> reader = (KeyValueItemReader<String, String, KeyValue<String, byte[]>>) transfer
-		.getReader();
+	KeyValueItemReader<String, String, KeyValue<String, byte[]>> reader = (KeyValueItemReader<String, String, KeyValue<String, byte[]>>) transfers
+		.get(1).getReader();
 	LiveKeyItemReader<String, String> keyReader = (LiveKeyItemReader<String, String>) reader.getKeyReader();
 	log.info("Stopping LiveKeyItemReader");
 	keyReader.stop();
@@ -108,6 +109,6 @@ public class TestReplicate extends BaseTest {
 	Assertions.assertEquals(sourceSize, targetSize);
 	targetConnection.close();
 	future.cancel(false);
-	command.close(transfer);
+	transfers.forEach(command::close);
     }
 }

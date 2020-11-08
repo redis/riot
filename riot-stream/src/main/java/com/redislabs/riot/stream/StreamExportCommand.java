@@ -15,7 +15,6 @@ import org.springframework.core.convert.converter.Converter;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 
-import com.redislabs.riot.AbstractFlushingTransferCommand;
 import com.redislabs.riot.stream.kafka.KafkaItemWriter;
 import com.redislabs.riot.stream.processor.AvroProducerProcessor;
 import com.redislabs.riot.stream.processor.JsonProducerProcessor;
@@ -25,33 +24,21 @@ import io.lettuce.core.StreamMessage;
 import io.lettuce.core.XReadArgs;
 import io.lettuce.core.XReadArgs.StreamOffset;
 import picocli.CommandLine.Command;
-import picocli.CommandLine.Mixin;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
 @Command(name = "export", description = "Import Redis streams into Kafka topics")
 public class StreamExportCommand
-	extends AbstractFlushingTransferCommand<StreamMessage<String, String>, ProducerRecord<String, Object>> {
+	extends AbstractStreamCommand<StreamMessage<String, String>, ProducerRecord<String, Object>> {
 
     @Parameters(arity = "1..*", description = "One ore more streams to read from", paramLabel = "STREAM")
     private List<String> streams;
-
     @Option(names = "--block", description = "XREAD block time in millis (default: ${DEFAULT-VALUE})", hidden = true, paramLabel = "<ms>")
     private long block = 100;
-
     @Option(names = "--offset", description = "XREAD offset (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
     private String offset = "0-0";
-
     @Option(names = "--topic", description = "Target topic key (default: same as stream)", paramLabel = "<string>")
     private String topic;
-
-    @Mixin
-    private KafkaOptions kafkaOptions = new KafkaOptions();
-
-    @Override
-    protected boolean flushingEnabled() {
-	return true;
-    }
 
     @Override
     protected String taskName() {

@@ -24,7 +24,7 @@ import org.testcontainers.utility.DockerImageName;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
-import com.redislabs.riot.test.DataPopulator;
+import com.redislabs.riot.test.DataGenerator;
 
 @Testcontainers
 @SuppressWarnings("rawtypes")
@@ -41,7 +41,7 @@ public class TestPostgreSQL extends DbTest {
 		Statement statement = connection.createStatement();
 		statement.execute("CREATE TABLE mytable (id smallint NOT NULL, field1 bpchar, field2 bpchar)");
 		statement.execute("ALTER TABLE ONLY mytable ADD CONSTRAINT pk_mytable PRIMARY KEY (id)");
-		DataPopulator.builder().connection(connection()).dataTypes(Collections.singletonList(DataType.HASH)).build()
+		DataGenerator.builder().connection(connection()).dataTypes(Collections.singletonList(DataType.HASH)).build()
 				.run();
 		executeFile("/postgresql/export.txt");
 		statement.execute("SELECT COUNT(*) AS count FROM mytable");

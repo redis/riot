@@ -3,11 +3,6 @@ package com.redislabs.riot;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemProcessor;
@@ -18,8 +13,6 @@ import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
 
 import lombok.extern.slf4j.Slf4j;
-import me.tongfei.progressbar.ProgressBar;
-import me.tongfei.progressbar.ProgressBarBuilder;
 import picocli.CommandLine.Option;
 
 @Slf4j
@@ -42,41 +35,21 @@ public abstract class AbstractTransferCommand<I, O> extends RiotCommand {
 	    log.error("Could not create transfer", e);
 	    return;
 	}
+	transfers.forEach(this::open);
+	executeAsync(transfers).join();
+	transfers.forEach(this::close);
+    }
+
+    public CompletableFuture<Void> executeAsync(List<Transfer<I, O>> transfers) {
+	List<CompletableFuture<Void>> futures = new ArrayList<>();
 	for (Transfer<I, O> transfer : transfers) {
-	    open(transfer);
-	    CompletableFuture<Void> future;
-	    try {
-		future = transfer.executeAsync();
-	    } catch (Exception e) {
-		log.error("Could not initialize transfer", e);
-		continue;
-	    }
-	    ProgressBarBuilder builder = new ProgressBarBuilder();
-	    Long total = transfer.getTotal();
-	    if (total != null) {
-		builder.setInitialMax(total);
-	    }
-	    builder.setTaskName(taskName() + " " + name(transfer.getReader()));
-	    builder.showSpeed();
-	    try (ProgressBar progressBar = builder.build()) {
-		ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-		ScheduledFuture<?> progressFuture = scheduler.scheduleAtFixedRate(
-			() -> progressBar.stepTo(transfer.getDone()), 0, 100, TimeUnit.MILLISECONDS);
-		try {
-		    future.get();
-		} catch (InterruptedException e) {
-		    // ignore
-		    log.error("Interrupted", e);
-		} catch (ExecutionException e) {
-		    log.error("Error during transfer", e);
-		} finally {
-		    scheduler.shutdown();
-		    progressFuture.cancel(true);
-		    progressBar.stepTo(transfer.getDone());
-		    close(transfer);
-		}
-	    }
+	    CompletableFuture<Void> transferFuture = transfer.executeAsync();
+	    String taskName = taskName() + " " + name(transfer.getReader());
+	    TransferProgressMonitor progressMonitor = new TransferProgressMonitor(transfer, taskName);
+	    transferFuture.whenComplete((k, t) -> progressMonitor.stop());
+	    futures.add(CompletableFuture.allOf(transferFuture, CompletableFuture.runAsync(progressMonitor)));
 	}
+	return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
     }
 
     public void open(Transfer<I, O> transfer) {
@@ -111,7 +84,8 @@ public abstract class AbstractTransferCommand<I, O> extends RiotCommand {
 		    ((AbstractItemCountingItemStreamItemReader<I>) reader).setMaxItemCount(maxItemCount);
 		}
 	    }
-	    transfers.add(transfer(reader, processor(), writer()));
+	    transfers.add(Transfer.<I, O>builder().reader(reader).processor(processor()).writer(writer()).batch(batch)
+		    .threads(threads).build());
 	}
 	return transfers;
     }
@@ -123,11 +97,6 @@ public abstract class AbstractTransferCommand<I, O> extends RiotCommand {
     protected abstract ItemProcessor<I, O> processor() throws Exception;
 
     protected abstract ItemWriter<O> writer() throws Exception;
-
-    protected Transfer<I, O> transfer(ItemReader<I> reader, ItemProcessor<I, O> processor, ItemWriter<O> writer) {
-	return Transfer.<I, O>builder().reader(reader).processor(processor).writer(writer).batch(batch).threads(threads)
-		.build();
-    }
 
     private String name(ItemReader<I> reader) {
 	if (reader instanceof ItemStreamSupport) {

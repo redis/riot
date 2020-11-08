@@ -61,8 +61,7 @@ public class RiotApp implements Runnable {
 	handler.setLevel(Level.ALL);
 	handler.setFormatter(new OneLineLogFormat(debug));
 	activeLogger.addHandler(handler);
-	Logger.getLogger(ROOT_LOGGER).setLevel(rootLoggingLevel());
-	Logger.getLogger("com.redislabs").setLevel(packageLoggingLevel());
+	Logger.getLogger(ROOT_LOGGER).setLevel(loggingLevel());
     }
 
     public CommandLine commandLine() {
@@ -104,34 +103,18 @@ public class RiotApp implements Runnable {
 	CommandLine.usage(this, System.out);
     }
 
-    private Level packageLoggingLevel() {
-	if (quiet) {
-	    return Level.OFF;
-	}
-	if (warn) {
-	    return Level.WARNING;
-	}
-	if (info) {
-	    return Level.FINE;
-	}
+    private Level loggingLevel() {
 	if (debug) {
-	    return Level.FINEST;
-	}
-	return Level.INFO;
-    }
-
-    private Level rootLoggingLevel() {
-	if (quiet) {
-	    return Level.OFF;
-	}
-	if (warn) {
-	    return Level.WARNING;
+	    return Level.FINE;
 	}
 	if (info) {
 	    return Level.INFO;
 	}
-	if (debug) {
-	    return Level.FINE;
+	if (warn) {
+	    return Level.WARNING;
+	}
+	if (quiet) {
+	    return Level.OFF;
 	}
 	return Level.SEVERE;
     }
