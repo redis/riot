@@ -10,21 +10,21 @@ import com.redislabs.riot.test.BaseTest;
 
 public class DbTest extends BaseTest {
 
-	@Override
-	protected RiotApp app() {
-		return new RiotDb();
-	}
+    @Override
+    protected RiotApp app() {
+	return new RiotDb();
+    }
 
-	protected String applicationName() {
-		return "riot-db";
-	}
+    protected String applicationName() {
+	return "riot-db";
+    }
 
-	@SuppressWarnings("rawtypes")
-	protected DataSource dataSource(JdbcDatabaseContainer container) {
-		DataSourceProperties properties = new DataSourceProperties();
-		properties.setUrl(container.getJdbcUrl());
-		properties.setUsername(container.getUsername());
-		properties.setPassword(container.getPassword());
-		return properties.initializeDataSourceBuilder().build();
-	}
+    @SuppressWarnings("rawtypes")
+    protected DataSource dataSource(JdbcDatabaseContainer container) {
+	DataSourceProperties properties = new DataSourceProperties();
+	properties.setUrl(container.getJdbcUrl());
+	properties.setUsername(container.getUsername());
+	properties.setPassword(container.getPassword());
+	return properties.initializeDataSourceBuilder().build();
+    }
 }

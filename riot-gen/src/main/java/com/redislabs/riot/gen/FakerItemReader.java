@@ -6,8 +6,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.batch.item.ItemReader;
-import org.springframework.batch.item.redis.support.ProgressReporter;
-import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
+import org.springframework.batch.item.redis.support.AbstractProgressReportingItemReader;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
@@ -24,8 +23,7 @@ import lombok.Builder;
  *
  * @author Julien Ruaux
  */
-public class FakerItemReader extends AbstractItemCountingItemStreamItemReader<Map<String, Object>>
-	implements ProgressReporter {
+public class FakerItemReader extends AbstractProgressReportingItemReader<Map<String, Object>> {
 
     public final static String FIELD_INDEX = "index";
 
@@ -35,7 +33,6 @@ public class FakerItemReader extends AbstractItemCountingItemStreamItemReader<Ma
     private final long start;
     private final long end;
 
-    private Integer maxItemCount;
     private EvaluationContext context;
     private Map<String, Expression> expressions;
 
@@ -49,25 +46,6 @@ public class FakerItemReader extends AbstractItemCountingItemStreamItemReader<Ma
 	this.spelFields = fields;
 	this.start = start;
 	this.end = end;
-    }
-
-    @Override
-    public void setMaxItemCount(int count) {
-	this.maxItemCount = count;
-	super.setMaxItemCount(count);
-    }
-
-    @Override
-    public Long getTotal() {
-	if (maxItemCount == null) {
-	    return null;
-	}
-	return (long) maxItemCount;
-    }
-
-    @Override
-    public long getDone() {
-	return getCurrentItemCount();
     }
 
     @Override

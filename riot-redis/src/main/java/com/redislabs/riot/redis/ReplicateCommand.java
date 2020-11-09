@@ -37,29 +37,26 @@ public class ReplicateCommand extends AbstractTransferCommand<KeyValue<String, b
     private long flushPeriod = 50;
 
     @Override
-    protected String taskName() {
-	return "Replicating from";
-    }
-
-    @Override
     protected List<ItemReader<KeyValue<String, byte[]>>> readers() throws Exception {
 	List<ItemReader<KeyValue<String, byte[]>>> readers = new ArrayList<>();
-	readers.add(reader(
+	RedisDumpItemReader<String, String> reader = reader(
 		configure(KeyItemReader.builder().scanCount(options.getScanCount()).scanMatch(options.getScanMatch()))
-			.build()));
+			.build());
+	reader.setName(String.format("Scanning %s", options.getScanMatch()));
+	readers.add(reader);
 	if (live) {
-	    readers.add(reader(configure(LiveKeyItemReader.builder().scanMatch(options.getScanMatch())
-		    .queueCapacity(notificationQueueCapacity)).build()));
+	    LiveKeyItemReader<String, String> liveKeyReader = configure(LiveKeyItemReader.builder()
+		    .scanMatch(options.getScanMatch()).queueCapacity(notificationQueueCapacity)).build();
+	    RedisDumpItemReader<String, String> liveReader = reader(liveKeyReader);
+	    liveReader.setName(String.format("Listening to %s", liveKeyReader.getPubSubPattern()));
+	    readers.add(liveReader);
 	}
 	return readers;
     }
 
     private RedisDumpItemReader<String, String> reader(ItemReader<String> keyReader) throws Exception {
-	RedisDumpItemReader<String, String> reader = configure(
-		RedisDumpItemReader.builder().keyReader(keyReader).batch(options.getReaderBatchSize())
-			.threads(options.getReaderThreads()).queueCapacity(options.getQueueCapacity())).build();
-	reader.setName(toString(redisURI()));
-	return reader;
+	return configure(RedisDumpItemReader.builder().keyReader(keyReader).batch(options.getReaderBatchSize())
+		.threads(options.getReaderThreads()).queueCapacity(options.getQueueCapacity())).build();
     }
 
     @Override
@@ -76,12 +73,17 @@ public class ReplicateCommand extends AbstractTransferCommand<KeyValue<String, b
     }
 
     @Override
-    public List<Transfer<KeyValue<String, byte[]>, KeyValue<String, byte[]>>> transfers() throws Exception {
+    public List<Transfer<KeyValue<String, byte[]>, KeyValue<String, byte[]>>> transfers() {
 	List<Transfer<KeyValue<String, byte[]>, KeyValue<String, byte[]>>> transfers = super.transfers();
 	if (live) {
 	    transfers.get(1).setFlushPeriod(flushPeriod);
 	}
 	return transfers;
+    }
+
+    @Override
+    protected String transferNameFormat() {
+	return "%s";
     }
 
 }

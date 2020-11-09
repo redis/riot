@@ -41,11 +41,6 @@ public class StreamExportCommand
     private String topic;
 
     @Override
-    protected String taskName() {
-	return "Streaming from";
-    }
-
-    @Override
     protected List<ItemReader<StreamMessage<String, String>>> readers() throws Exception {
 	List<ItemReader<StreamMessage<String, String>>> readers = new ArrayList<>();
 	for (String stream : streams) {

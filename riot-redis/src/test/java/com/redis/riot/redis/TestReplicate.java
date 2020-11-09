@@ -1,6 +1,5 @@
 package com.redis.riot.redis;
 
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import org.junit.jupiter.api.AfterEach;
@@ -9,14 +8,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.batch.item.redis.support.KeyValue;
-import org.springframework.batch.item.redis.support.KeyValueItemReader;
-import org.springframework.batch.item.redis.support.LiveKeyItemReader;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.junit.jupiter.Container;
 
 import com.redislabs.riot.RiotApp;
-import com.redislabs.riot.Transfer;
 import com.redislabs.riot.redis.ReplicateCommand;
 import com.redislabs.riot.redis.RiotRedis;
 import com.redislabs.riot.test.BaseTest;
@@ -77,7 +72,6 @@ public class TestReplicate extends BaseTest {
 	return super.process(processedCommand);
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     public void replicateLive() throws Exception {
 	StatefulRedisConnection<String, String> connection = connection();
@@ -87,9 +81,7 @@ public class TestReplicate extends BaseTest {
 	targetConnection.sync().flushall();
 	DataGenerator.builder().connection(connection()).build().run();
 	ReplicateCommand command = (ReplicateCommand) command("/replicate-live.txt");
-	List<Transfer<KeyValue<String, byte[]>, KeyValue<String, byte[]>>> transfers = command.transfers();
-	transfers.forEach(command::open);
-	CompletableFuture<Void> future = command.executeAsync(transfers);
+	CompletableFuture<Void> future = command.executeAsync();
 	Thread.sleep(400);
 	RedisCommands<String, String> commands = commands();
 	int count = 39;
@@ -98,17 +90,12 @@ public class TestReplicate extends BaseTest {
 	    Thread.sleep(1);
 	}
 	Thread.sleep(200);
-	KeyValueItemReader<String, String, KeyValue<String, byte[]>> reader = (KeyValueItemReader<String, String, KeyValue<String, byte[]>>) transfers
-		.get(1).getReader();
-	LiveKeyItemReader<String, String> keyReader = (LiveKeyItemReader<String, String>) reader.getKeyReader();
-	log.info("Stopping LiveKeyItemReader");
-	keyReader.stop();
+	log.info("Stopping transfer");
+	future.cancel(true);
 	Long sourceSize = commands.dbsize();
 	Assertions.assertTrue(sourceSize > 0);
 	Long targetSize = targetConnection.sync().dbsize();
 	Assertions.assertEquals(sourceSize, targetSize);
 	targetConnection.close();
-	future.cancel(false);
-	transfers.forEach(command::close);
     }
 }

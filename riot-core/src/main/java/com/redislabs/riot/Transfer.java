@@ -8,8 +8,10 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
+import org.springframework.batch.item.ItemStream;
 import org.springframework.batch.item.ItemStreamReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.redis.support.BatchTransfer;
@@ -26,8 +28,8 @@ import lombok.extern.slf4j.Slf4j;
 public class Transfer<I, O> implements ProgressReporter {
 
     @Getter
+    private final String name;
     private final ItemReader<I> reader;
-    @Getter
     private final ItemWriter<? extends O> writer;
     private final List<BatchTransfer<I>> threads;
     private Long flushPeriod;
@@ -37,16 +39,42 @@ public class Transfer<I, O> implements ProgressReporter {
     }
 
     @Builder
-    public Transfer(ItemReader<I> reader, ItemProcessor<I, O> processor, ItemWriter<O> writer, int threads, int batch) {
+    public Transfer(String name, ItemReader<I> reader, ItemProcessor<I, O> processor, ItemWriter<O> writer, int threads,
+	    int batch) {
+	Assert.notNull(name, "A transfer name is required.");
 	Assert.notNull(reader, "A reader instance is required.");
 	Assert.notNull(writer, "A writer instance is required.");
 	Assert.isTrue(threads > 0, "Thread count must be greater than 0.");
 	Assert.isTrue(batch > 0, "Batch size must be greater than 0.");
+	this.name = name;
 	this.reader = reader;
 	this.writer = writer;
 	this.threads = new ArrayList<>(threads);
 	for (int index = 0; index < threads; index++) {
 	    this.threads.add(new BatchTransfer<>(reader(), writer(processor, writer), batch));
+	}
+    }
+
+    public void open(ExecutionContext executionContext) {
+	if (writer instanceof ItemStream) {
+	    log.debug("Opening writer");
+	    ((ItemStream) writer).open(executionContext);
+	}
+	if (reader instanceof ItemStream) {
+	    log.debug("Opening reader");
+	    ((ItemStream) reader).open(executionContext);
+	}
+
+    }
+
+    public void close() {
+	if (reader instanceof ItemStream) {
+	    log.debug("Closing reader");
+	    ((ItemStream) reader).close();
+	}
+	if (writer instanceof ItemStream) {
+	    log.debug("Closing writer");
+	    ((ItemStream) writer).close();
 	}
     }
 

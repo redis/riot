@@ -52,11 +52,6 @@ public abstract class AbstractImportCommand<I, O> extends AbstractTransferComman
     @Option(names = "--date", description = "Processor date format (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
     private String dateFormat = new SimpleDateFormat().toPattern();
 
-    @Override
-    protected String taskName() {
-	return "Importing from";
-    }
-
     protected ItemProcessor<Map<String, Object>, Map<String, Object>> mapProcessor() throws Exception {
 	List<ItemProcessor<Map<String, Object>, Map<String, Object>>> processors = new ArrayList<>();
 	if (!spel.isEmpty()) {
@@ -93,6 +88,11 @@ public abstract class AbstractImportCommand<I, O> extends AbstractTransferComman
 	CompositeItemWriter<O> writer = new CompositeItemWriter<>();
 	writer.setDelegates(new ArrayList<>(writers));
 	return writer;
+    }
+
+    @Override
+    protected String transferNameFormat() {
+	return "Importing from %s";
     }
 
 }

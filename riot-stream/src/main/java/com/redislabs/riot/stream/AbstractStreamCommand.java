@@ -20,10 +20,15 @@ public abstract class AbstractStreamCommand<I, O> extends AbstractTransferComman
     private long flushPeriod = 50;
 
     @Override
-    public List<Transfer<I, O>> transfers() throws Exception {
+    public List<Transfer<I, O>> transfers() {
 	List<Transfer<I, O>> transfers = super.transfers();
 	transfers.forEach(t -> t.setFlushPeriod(flushPeriod));
 	return transfers;
+    }
+
+    @Override
+    protected String transferNameFormat() {
+	return "Streaming from %s";
     }
 
 }

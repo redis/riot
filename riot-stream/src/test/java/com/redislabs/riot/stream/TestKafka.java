@@ -10,7 +10,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;
@@ -30,7 +29,6 @@ import org.testcontainers.utility.DockerImageName;
 
 import com.google.common.collect.ImmutableMap;
 import com.redislabs.riot.RiotApp;
-import com.redislabs.riot.Transfer;
 import com.redislabs.riot.test.BaseTest;
 
 import io.lettuce.core.Range;
@@ -72,14 +70,12 @@ public class TestKafka extends BaseTest {
 	    future.get();
 	}
 	StreamImportCommand command = (StreamImportCommand) command("/import.txt");
-	Transfer<ConsumerRecord<String, Object>, ConsumerRecord<String, Object>> transfer = command.transfers().get(0);
-	command.open(transfer);
-	CompletableFuture<Void> future = transfer.executeAsync();
+	CompletableFuture<Void> future = command.executeAsync();
 	Thread.sleep(200);
 	List<StreamMessage<String, String>> messages = commands().xrange("topic1", Range.create("-", "+"));
 	Assertions.assertEquals(count, messages.size());
 	messages.forEach(m -> Assertions.assertEquals(map(), m.getBody()));
-	future.cancel(false);
+	future.cancel(true);
     }
 
     private Map<String, String> map() {
@@ -97,9 +93,7 @@ public class TestKafka extends BaseTest {
 	    commands().xadd(stream, map());
 	}
 	StreamExportCommand command = (StreamExportCommand) command("/export.txt");
-	Transfer<StreamMessage<String, String>, ProducerRecord<String, Object>> transfer = command.transfers().get(0);
-	command.open(transfer);
-	CompletableFuture<Void> future = transfer.executeAsync();
+	CompletableFuture<Void> future = command.executeAsync();
 	Thread.sleep(200);
 	KafkaConsumer<String, Map<String, Object>> consumer = new KafkaConsumer<>(
 		ImmutableMap.of(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafka.getBootstrapServers(),
@@ -110,9 +104,7 @@ public class TestKafka extends BaseTest {
 	ConsumerRecords<String, Map<String, Object>> records = consumer.poll(Duration.ofSeconds(30));
 	Assertions.assertEquals(count, records.count());
 	records.forEach(r -> Assertions.assertEquals(map(), r.value()));
-	future.cancel(false);
-	command.close(transfer);
-
+	future.cancel(true);
     }
 
 }

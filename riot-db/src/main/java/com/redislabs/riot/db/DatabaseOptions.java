@@ -22,16 +22,16 @@ public class DatabaseOptions {
     private String password;
 
     public DataSource dataSource() {
-        DataSourceProperties properties = new DataSourceProperties();
-        properties.setUrl(url);
-        properties.setDriverClassName(driver);
-        properties.setUsername(username);
-        properties.setPassword(password);
-        log.debug("Initializing datasource: driver={} url={}", driver, url);
-        return properties.initializeDataSourceBuilder().build();
+	DataSourceProperties properties = new DataSourceProperties();
+	properties.setUrl(url);
+	properties.setDriverClassName(driver);
+	properties.setUsername(username);
+	properties.setPassword(password);
+	log.debug("Initializing datasource: driver={} url={}", driver, url);
+	return properties.initializeDataSourceBuilder().build();
     }
 
     public String name(DataSource dataSource) throws SQLException {
-        return dataSource.getConnection().getMetaData().getDatabaseProductName();
+	return dataSource.getConnection().getMetaData().getDatabaseProductName();
     }
 }

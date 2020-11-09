@@ -17,11 +17,6 @@ public abstract class AbstractExportCommand<O> extends AbstractTransferCommand<D
     private RedisExportOptions options = new RedisExportOptions();
 
     @Override
-    protected String taskName() {
-	return "Exporting from";
-    }
-
-    @Override
     protected List<ItemReader<DataStructure<String>>> readers() throws Exception {
 	KeyItemReader<String, String> keyReader = configure(
 		KeyItemReader.builder().scanCount(options.getScanCount()).scanMatch(options.getScanMatch())).build();
@@ -31,6 +26,11 @@ public abstract class AbstractExportCommand<O> extends AbstractTransferCommand<D
 	RedisDataStructureItemReader<String, String> reader = builder.build();
 	reader.setName(toString(builder.uri()));
 	return Collections.singletonList(reader);
+    }
+
+    @Override
+    protected String transferNameFormat() {
+	return "Exporting from %s";
     }
 
 }

@@ -7,10 +7,10 @@ import java.util.concurrent.CompletableFuture;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
-import org.springframework.batch.item.ItemStream;
 import org.springframework.batch.item.ItemStreamSupport;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
+import org.springframework.util.ClassUtils;
 
 import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine.Option;
@@ -28,75 +28,58 @@ public abstract class AbstractTransferCommand<I, O> extends RiotCommand {
 
     @Override
     public void run() {
-	List<Transfer<I, O>> transfers;
 	try {
-	    transfers = transfers();
+	    executeAsync().join();
 	} catch (Exception e) {
-	    log.error("Could not create transfer", e);
-	    return;
+	    log.error("Could not execute command", e);
 	}
-	transfers.forEach(this::open);
-	executeAsync(transfers).join();
-	transfers.forEach(this::close);
     }
 
-    public CompletableFuture<Void> executeAsync(List<Transfer<I, O>> transfers) {
+    public CompletableFuture<Void> executeAsync() {
+	List<Transfer<I, O>> transfers = transfers();
+	ExecutionContext executionContext = new ExecutionContext();
+	transfers.forEach(t -> t.open(executionContext));
 	List<CompletableFuture<Void>> futures = new ArrayList<>();
 	for (Transfer<I, O> transfer : transfers) {
-	    CompletableFuture<Void> transferFuture = transfer.executeAsync();
-	    String taskName = taskName() + " " + name(transfer.getReader());
-	    TransferProgressMonitor progressMonitor = new TransferProgressMonitor(transfer, taskName);
-	    transferFuture.whenComplete((k, t) -> progressMonitor.stop());
-	    futures.add(CompletableFuture.allOf(transferFuture, CompletableFuture.runAsync(progressMonitor)));
+	    futures.add(transfer.executeAsync());
 	}
-	return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+	CompletableFuture<Void> execution = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+	CompletableFuture<Void> progress = CompletableFuture.runAsync(new ProgressMonitor(transfers));
+	execution.whenComplete((k, t) -> progress.cancel(true));
+	execution.whenComplete((k, v) -> transfers.forEach(Transfer::close));
+	return execution;
     }
 
-    public void open(Transfer<I, O> transfer) {
-	ExecutionContext executionContext = new ExecutionContext();
-	if (transfer.getWriter() instanceof ItemStream) {
-	    log.debug("Opening writer");
-	    ((ItemStream) transfer.getWriter()).open(executionContext);
-	}
-	if (transfer.getReader() instanceof ItemStream) {
-	    log.debug("Opening reader");
-	    ((ItemStream) transfer.getReader()).open(executionContext);
-	}
-    }
-
-    public void close(Transfer<I, O> transfer) {
-	if (transfer.getReader() instanceof ItemStream) {
-	    log.debug("Closing reader");
-	    ((ItemStream) transfer.getReader()).close();
-	}
-	if (transfer.getWriter() instanceof ItemStream) {
-	    log.debug("Closing writer");
-	    ((ItemStream) transfer.getWriter()).close();
-	}
-    }
-
-    public List<Transfer<I, O>> transfers() throws Exception {
+    public List<Transfer<I, O>> transfers() {
 	List<Transfer<I, O>> transfers = new ArrayList<>();
-	for (ItemReader<I> reader : readers()) {
-	    if (maxItemCount != null) {
-		if (reader instanceof AbstractItemCountingItemStreamItemReader) {
-		    log.debug("Configuring reader with maxItemCount={}", maxItemCount);
-		    ((AbstractItemCountingItemStreamItemReader<I>) reader).setMaxItemCount(maxItemCount);
+	try {
+	    for (ItemReader<I> reader : readers()) {
+		try {
+		    transfers.add(transfer(reader));
+		} catch (Exception e) {
+		    log.error("Could not create transfer", e);
 		}
 	    }
-	    transfers.add(Transfer.<I, O>builder().reader(reader).processor(processor()).writer(writer()).batch(batch)
-		    .threads(threads).build());
+	} catch (Exception e) {
+	    log.error("Could not create readers", e);
 	}
 	return transfers;
     }
 
-    protected abstract String taskName();
+    private Transfer<I, O> transfer(ItemReader<I> reader) throws Exception {
+	if (maxItemCount != null) {
+	    if (reader instanceof AbstractItemCountingItemStreamItemReader) {
+		log.debug("Configuring reader with maxItemCount={}", maxItemCount);
+		((AbstractItemCountingItemStreamItemReader<I>) reader).setMaxItemCount(maxItemCount);
+	    }
+	}
+	String readerName = name(reader);
+	String name = String.format(transferNameFormat(), readerName);
+	return Transfer.<I, O>builder().name(name).reader(reader).processor(processor()).writer(writer()).batch(batch)
+		.threads(threads).build();
+    }
 
-    protected abstract List<ItemReader<I>> readers() throws Exception;
-
-    protected abstract ItemProcessor<I, O> processor() throws Exception;
-
-    protected abstract ItemWriter<O> writer() throws Exception;
+    protected abstract String transferNameFormat();
 
     private String name(ItemReader<I> reader) {
 	if (reader instanceof ItemStreamSupport) {
@@ -104,7 +87,14 @@ public abstract class AbstractTransferCommand<I, O> extends RiotCommand {
 	    String name = ((ItemStreamSupport) reader).getExecutionContextKey("");
 	    return name.substring(0, name.length() - 1);
 	}
-	return "";
+	return ClassUtils.getShortName(reader.getClass());
+
     }
+
+    protected abstract List<ItemReader<I>> readers() throws Exception;
+
+    protected abstract ItemProcessor<I, O> processor() throws Exception;
+
+    protected abstract ItemWriter<O> writer() throws Exception;
 
 }

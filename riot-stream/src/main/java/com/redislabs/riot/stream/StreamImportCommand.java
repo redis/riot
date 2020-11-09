@@ -38,11 +38,6 @@ public class StreamImportCommand
     private List<String> topics;
 
     @Override
-    protected String taskName() {
-	return "Streaming from";
-    }
-
-    @Override
     protected List<ItemReader<ConsumerRecord<String, Object>>> readers() throws Exception {
 	return topics.stream().map(this::reader).collect(Collectors.toList());
     }
