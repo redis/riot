@@ -29,7 +29,7 @@ public class ReplicateCommand extends AbstractTransferCommand<KeyValue<byte[]>, 
     private RedisExportOptions options = new RedisExportOptions();
     @Option(names = "--live", description = "Enable live replication")
     private boolean live;
-    @Option(names = "--notification-queue", description = "Capacity of the keyspace notification queue (default: ${DEFAULT-VALUE})", paramLabel = "<int>", hidden = true)
+    @Option(names = "--notification-queue", description = "Capacity of the keyspace notification queue (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
     private int notificationQueueCapacity = KeyValueItemReaderBuilder.DEFAULT_QUEUE_CAPACITY;
     @Option(names = "--flush-interval", description = "Duration between notification queue flushes (default: ${DEFAULT-VALUE})", paramLabel = "<ms>")
     private long flushPeriod = 50;
