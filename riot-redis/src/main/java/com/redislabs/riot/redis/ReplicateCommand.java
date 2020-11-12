@@ -30,7 +30,7 @@ public class ReplicateCommand extends AbstractTransferCommand<KeyValue<byte[]>, 
     @Option(names = "--live", description = "Enable live replication")
     private boolean live;
     @Option(names = "--notification-queue", description = "Capacity of the keyspace notification queue (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
-    private int notificationQueueCapacity = KeyValueItemReaderBuilder.DEFAULT_QUEUE_CAPACITY;
+    private int notificationQueueCapacity = KeyValueItemReaderBuilder.DEFAULT_NOTIFICATION_QUEUE_CAPACITY;
     @Option(names = "--flush-interval", description = "Duration between notification queue flushes (default: ${DEFAULT-VALUE})", paramLabel = "<ms>")
     private long flushPeriod = 50;
 
