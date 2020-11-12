@@ -28,12 +28,12 @@ public class RiotCommand extends HelpCommand {
 	return app.getRedisConnectionOptions().redisURI();
     }
 
-    public <B extends RedisConnectionBuilder<String, String, B>> B configure(B builder) throws Exception {
+    public <B extends RedisConnectionBuilder<B>> B configure(B builder) throws Exception {
 	return configure(builder, app.getRedisConnectionOptions());
     }
 
-    protected <B extends RedisConnectionBuilder<String, String, B>> B configure(B builder,
-	    RedisConnectionOptions options) throws Exception {
+    protected <B extends RedisConnectionBuilder<B>> B configure(B builder, RedisConnectionOptions options)
+	    throws Exception {
 	builder.uri(options.redisURI()).cluster(options.isCluster()).clientResources(options.clientResources())
 		.clientOptions(options.clientOptions()).poolConfig(options.poolConfig());
 	GenericObjectPool<StatefulConnection<String, String>> pool = builder.pool();

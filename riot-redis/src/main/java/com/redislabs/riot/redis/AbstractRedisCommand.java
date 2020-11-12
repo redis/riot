@@ -6,7 +6,6 @@ import com.redislabs.riot.RiotCommand;
 
 import io.lettuce.core.api.StatefulConnection;
 import io.lettuce.core.api.sync.BaseRedisCommands;
-import io.lettuce.core.codec.StringCodec;
 import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine.Command;
 
@@ -14,21 +13,21 @@ import picocli.CommandLine.Command;
 @Command
 public abstract class AbstractRedisCommand extends RiotCommand {
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	@Override
-	public void run() {
-		RedisConnectionBuilder<String, String, ?> builder;
-		try {
-			builder = (RedisConnectionBuilder) configure(new RedisConnectionBuilder(StringCodec.UTF8));
-		} catch (Exception e) {
-			log.error("Could not connect to Redis", e);
-			return;
-		}
-		StatefulConnection<String, String> connection = builder.connection();
-		BaseRedisCommands<String, String> commands = builder.sync().apply(connection);
-		execute(commands);
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @Override
+    public void run() {
+	RedisConnectionBuilder<?> builder;
+	try {
+	    builder = (RedisConnectionBuilder) configure(new RedisConnectionBuilder());
+	} catch (Exception e) {
+	    log.error("Could not connect to Redis", e);
+	    return;
 	}
+	StatefulConnection<String, String> connection = builder.connection();
+	BaseRedisCommands<String, String> commands = builder.sync().apply(connection);
+	execute(commands);
+    }
 
-	protected abstract void execute(BaseRedisCommands<String, String> commands);
+    protected abstract void execute(BaseRedisCommands<String, String> commands);
 
 }

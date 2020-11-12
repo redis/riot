@@ -32,12 +32,14 @@ public class FakerItemReader extends AbstractProgressReportingItemReader<Map<Str
     private final Map<String, String> spelFields;
     private final long start;
     private final long end;
+    private final long sleep;
 
     private EvaluationContext context;
     private Map<String, Expression> expressions;
 
     @Builder
-    public FakerItemReader(Locale locale, boolean includeMetadata, Map<String, String> fields, long start, long end) {
+    public FakerItemReader(Locale locale, boolean includeMetadata, Map<String, String> fields, long start, long end,
+	    long sleep) {
 	Assert.notNull(fields, "Fields are required.");
 	Assert.isTrue(end > start, "End index must be strictly greater than start index");
 	setName(ClassUtils.getShortName(getClass()));
@@ -46,6 +48,7 @@ public class FakerItemReader extends AbstractProgressReportingItemReader<Map<Str
 	this.spelFields = fields;
 	this.start = start;
 	this.end = end;
+	this.sleep = sleep;
     }
 
     @Override
@@ -71,7 +74,10 @@ public class FakerItemReader extends AbstractProgressReportingItemReader<Map<Str
     }
 
     @Override
-    protected Map<String, Object> doRead() {
+    protected Map<String, Object> doRead() throws InterruptedException {
+	if (sleep > 0) {
+	    Thread.sleep(sleep);
+	}
 	Map<String, Object> map = new HashMap<>();
 	if (includeMetadata) {
 	    map.put(FIELD_INDEX, index());

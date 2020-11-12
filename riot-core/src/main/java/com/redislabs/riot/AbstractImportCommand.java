@@ -72,10 +72,9 @@ public abstract class AbstractImportCommand<I, O> extends AbstractTransferComman
 	return compositeItemProcessor;
     }
 
-    @Override
     protected ItemWriter<O> writer() throws Exception {
 	Assert.notNull(redisCommands, "RedisCommands not set");
-	List<AbstractRedisItemWriter<String, String, O>> writers = new ArrayList<>();
+	List<AbstractRedisItemWriter<O>> writers = new ArrayList<>();
 	for (AbstractRedisCommand<O> redisCommand : redisCommands) {
 	    writers.add(redisCommand.writer());
 	}

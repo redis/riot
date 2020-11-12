@@ -37,6 +37,8 @@ public class RiotApp implements Runnable {
     private boolean info;
     @Option(names = { "-d", "--debug" }, description = "Log in debug mode (includes normal stacktrace)")
     private boolean debug;
+    @Option(names = "--stacktrace", description = "Print out the stacktrace for all exceptions.")
+    private boolean stacktrace;
     @Getter
     @ArgGroup(heading = "Redis connection options%n", exclusive = false)
     private RedisConnectionOptions redisConnectionOptions = new RedisConnectionOptions();
@@ -59,7 +61,7 @@ public class RiotApp implements Runnable {
 	Logger activeLogger = Logger.getLogger(ROOT_LOGGER);
 	ConsoleHandler handler = new ConsoleHandler();
 	handler.setLevel(Level.ALL);
-	handler.setFormatter(new OneLineLogFormat(debug));
+	handler.setFormatter(new OneLineLogFormat(debug || stacktrace));
 	activeLogger.addHandler(handler);
 	Logger.getLogger(ROOT_LOGGER).setLevel(loggingLevel());
     }

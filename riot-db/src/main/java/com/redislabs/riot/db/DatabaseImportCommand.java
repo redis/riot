@@ -6,10 +6,9 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
-import org.springframework.batch.item.ItemProcessor;
-import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.database.JdbcCursorItemReader;
 import org.springframework.batch.item.database.builder.JdbcCursorItemReaderBuilder;
+import org.springframework.batch.item.redis.support.Transfer;
 import org.springframework.jdbc.core.ColumnMapRowMapper;
 
 import com.redislabs.riot.AbstractImportCommand;
@@ -38,7 +37,7 @@ public class DatabaseImportCommand extends AbstractImportCommand<Map<String, Obj
     private boolean verifyCursorPosition;
 
     @Override
-    protected List<ItemReader<Map<String, Object>>> readers() throws Exception {
+    protected List<Transfer<Map<String, Object>, Map<String, Object>>> transfers() throws Exception {
 	DataSource dataSource = options.dataSource();
 	JdbcCursorItemReaderBuilder<Map<String, Object>> builder = new JdbcCursorItemReaderBuilder<>();
 	builder.dataSource(dataSource);
@@ -59,12 +58,7 @@ public class DatabaseImportCommand extends AbstractImportCommand<Map<String, Obj
 	JdbcCursorItemReader<Map<String, Object>> reader = builder.build();
 	reader.setName(options.name(dataSource));
 	reader.afterPropertiesSet();
-	return Collections.singletonList(reader);
-    }
-
-    @Override
-    protected ItemProcessor<Map<String, Object>, Map<String, Object>> processor() throws Exception {
-	return mapProcessor();
+	return Collections.singletonList(transfer(reader, mapProcessor(), writer()));
     }
 
 }

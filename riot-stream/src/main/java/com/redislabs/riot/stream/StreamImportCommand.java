@@ -1,17 +1,15 @@
 package com.redislabs.riot.stream;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.apache.avro.generic.GenericRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.springframework.batch.item.ItemProcessor;
-import org.springframework.batch.item.ItemReader;
-import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.redis.RedisStreamItemWriter;
 import org.springframework.batch.item.redis.support.ConstantConverter;
+import org.springframework.batch.item.redis.support.Transfer;
 import org.springframework.core.convert.converter.Converter;
 
 import com.redislabs.riot.convert.MapFlattener;
@@ -28,30 +26,29 @@ import picocli.CommandLine.Parameters;
 public class StreamImportCommand
 	extends AbstractStreamCommand<ConsumerRecord<String, Object>, ConsumerRecord<String, Object>> {
 
+    @Parameters(arity = "1..*", description = "One ore more topics to read from", paramLabel = "TOPIC")
+    private List<String> topics;
     @Option(names = "--key", description = "Target stream key (default: same as topic)", paramLabel = "<string>")
     private String key;
     @Option(names = "--maxlen", description = "Stream maxlen", paramLabel = "<int>")
     private Long maxlen;
     @Option(names = "--trim", description = "Stream efficient trimming ('~' flag)")
     private boolean approximateTrimming;
-    @Parameters(arity = "1..*", description = "One ore more topics to read from", paramLabel = "TOPIC")
-    private List<String> topics;
 
     @Override
-    protected List<ItemReader<ConsumerRecord<String, Object>>> readers() throws Exception {
-	return topics.stream().map(this::reader).collect(Collectors.toList());
-    }
-
-    @Override
-    protected ItemProcessor<ConsumerRecord<String, Object>, ConsumerRecord<String, Object>> processor() {
-	return null;
-    }
-
-    @Override
-    protected ItemWriter<ConsumerRecord<String, Object>> writer() throws Exception {
-	Converter<ConsumerRecord<String, Object>, String> keyConverter = keyConverter();
-	return configure(RedisStreamItemWriter.<ConsumerRecord<String, Object>>builder().keyConverter(keyConverter)
-		.argsConverter(new ConstantConverter<>(xAddArgs())).bodyConverter(bodyConverter())).build();
+    protected List<Transfer<ConsumerRecord<String, Object>, ConsumerRecord<String, Object>>> transfers()
+	    throws Exception {
+	List<Transfer<ConsumerRecord<String, Object>, ConsumerRecord<String, Object>>> transfers = new ArrayList<>();
+	RedisStreamItemWriter<ConsumerRecord<String, Object>> writer = configure(
+		RedisStreamItemWriter.<ConsumerRecord<String, Object>>builder().keyConverter(keyConverter())
+			.argsConverter(new ConstantConverter<>(xAddArgs())).bodyConverter(bodyConverter())).build();
+	for (String topic : topics) {
+	    KafkaItemReader<String, Object> reader = new KafkaItemReaderBuilder<String, Object>().partitions(0)
+		    .consumerProperties(kafkaOptions.consumerProperties()).partitions(0).name(topic).saveState(false)
+		    .topic(topic).build();
+	    transfers.add(transfer(reader, null, writer));
+	}
+	return transfers;
     }
 
     private Converter<ConsumerRecord<String, Object>, Map<String, String>> bodyConverter() {
@@ -106,12 +103,6 @@ public class StreamImportCommand
 	args.maxlen(maxlen);
 	args.approximateTrimming(approximateTrimming);
 	return args;
-    }
-
-    private KafkaItemReader<String, Object> reader(String topic) {
-	return new KafkaItemReaderBuilder<String, Object>().partitions(0)
-		.consumerProperties(kafkaOptions.consumerProperties()).partitions(0).name(topic).saveState(false)
-		.topic(topic).build();
     }
 
 }

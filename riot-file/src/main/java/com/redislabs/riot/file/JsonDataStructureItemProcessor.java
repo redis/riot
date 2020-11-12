@@ -10,11 +10,11 @@ import org.springframework.batch.item.redis.support.DataStructure;
 import io.lettuce.core.ScoredValue;
 import io.lettuce.core.StreamMessage;
 
-public class JsonDataStructureItemProcessor implements ItemProcessor<DataStructure<String>, DataStructure<String>> {
+public class JsonDataStructureItemProcessor implements ItemProcessor<DataStructure, DataStructure> {
 
     @SuppressWarnings({ "unchecked", "incomplete-switch" })
     @Override
-    public DataStructure<String> process(DataStructure<String> item) throws Exception {
+    public DataStructure process(DataStructure item) throws Exception {
 	switch (item.getType()) {
 	case ZSET:
 	    Collection<Map<String, Object>> zset = (Collection<Map<String, Object>>) item.getValue();

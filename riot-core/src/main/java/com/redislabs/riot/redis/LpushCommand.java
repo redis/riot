@@ -10,9 +10,9 @@ import picocli.CommandLine.Command;
 @Command(name = "lpush")
 public class LpushCommand extends AbstractCollectionCommand {
 
-	@Override
-	public RedisListItemWriter<String, String, Map<String, Object>> writer() throws Exception {
-		return configure(RedisListItemWriter.<Map<String, Object>>builder().direction(PushDirection.LEFT)).build();
-	}
+    @Override
+    public RedisListItemWriter<Map<String, Object>> writer() throws Exception {
+	return configure(RedisListItemWriter.<Map<String, Object>>builder().direction(PushDirection.LEFT)).build();
+    }
 
 }

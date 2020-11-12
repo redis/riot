@@ -27,18 +27,18 @@ public class EvalCommand extends AbstractRedisCommand<Map<String, Object>> {
     private ScriptOutputType outputType = ScriptOutputType.STATUS;
 
     @Override
-    public RedisEvalItemWriter<String, String, Map<String, Object>> writer() throws Exception {
-        return configure(RedisEvalItemWriter.<Map<String, Object>> builder().sha(sha).outputType(outputType)
-                .keysConverter(mapToArrayConverter(keys)).argsConverter(mapToArrayConverter(args))).build();
+    public RedisEvalItemWriter<Map<String, Object>> writer() throws Exception {
+	return configure(RedisEvalItemWriter.<Map<String, Object>>builder().sha(sha).outputType(outputType)
+		.keysConverter(mapToArrayConverter(keys)).argsConverter(mapToArrayConverter(args))).build();
     }
 
     @SuppressWarnings("unchecked")
     private MapToStringArrayConverter mapToArrayConverter(String[] fields) {
-        Converter<Map<String, Object>, String>[] extractors = new Converter[fields.length];
-        for (int index = 0; index < fields.length; index++) {
-            extractors[index] = stringFieldExtractor(fields[index]);
-        }
-        return new MapToStringArrayConverter(extractors);
+	Converter<Map<String, Object>, String>[] extractors = new Converter[fields.length];
+	for (int index = 0; index < fields.length; index++) {
+	    extractors[index] = stringFieldExtractor(fields[index]);
+	}
+	return new MapToStringArrayConverter(extractors);
     }
 
 }

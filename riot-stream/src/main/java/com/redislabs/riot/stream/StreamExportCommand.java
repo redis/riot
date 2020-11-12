@@ -8,9 +8,9 @@ import java.util.List;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
-import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.redis.RedisStreamItemReader;
 import org.springframework.batch.item.redis.support.ConstantConverter;
+import org.springframework.batch.item.redis.support.Transfer;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -41,12 +41,18 @@ public class StreamExportCommand
     private String topic;
 
     @Override
-    protected List<ItemReader<StreamMessage<String, String>>> readers() throws Exception {
-	List<ItemReader<StreamMessage<String, String>>> readers = new ArrayList<>();
+    protected List<Transfer<StreamMessage<String, String>, ProducerRecord<String, Object>>> transfers()
+	    throws Exception {
+	List<Transfer<StreamMessage<String, String>, ProducerRecord<String, Object>>> transfers = new ArrayList<>();
+	ItemProcessor<StreamMessage<String, String>, ProducerRecord<String, Object>> processor = processor();
+	KafkaItemWriter<String> writer = KafkaItemWriter.<String>builder()
+		.kafkaTemplate(
+			new KafkaTemplate<>(new DefaultKafkaProducerFactory<>(kafkaOptions.producerProperties())))
+		.build();
 	for (String stream : streams) {
-	    readers.add(reader(stream));
+	    transfers.add(transfer(reader(stream), processor, writer));
 	}
-	return readers;
+	return transfers;
     }
 
     private ItemReader<StreamMessage<String, String>> reader(String stream) throws Exception {
@@ -56,8 +62,7 @@ public class StreamExportCommand
 	return configure(RedisStreamItemReader.builder().args(args).offset(offset)).build();
     }
 
-    @Override
-    protected ItemProcessor<StreamMessage<String, String>, ProducerRecord<String, Object>> processor()
+    private ItemProcessor<StreamMessage<String, String>, ProducerRecord<String, Object>> processor()
 	    throws FileNotFoundException, IOException, RestClientException {
 	switch (kafkaOptions.getSerde()) {
 	case JSON:
@@ -72,14 +77,6 @@ public class StreamExportCommand
 	    return StreamMessage::getStream;
 	}
 	return new ConstantConverter<>(topic);
-    }
-
-    @Override
-    protected ItemWriter<ProducerRecord<String, Object>> writer() throws Exception {
-	return KafkaItemWriter.<String>builder()
-		.kafkaTemplate(
-			new KafkaTemplate<>(new DefaultKafkaProducerFactory<>(kafkaOptions.producerProperties())))
-		.build();
     }
 
 }

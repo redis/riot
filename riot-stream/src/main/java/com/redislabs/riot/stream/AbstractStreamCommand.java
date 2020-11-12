@@ -1,9 +1,11 @@
 package com.redislabs.riot.stream;
 
-import java.util.List;
+import org.springframework.batch.item.ItemProcessor;
+import org.springframework.batch.item.ItemReader;
+import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.item.redis.support.Transfer;
 
 import com.redislabs.riot.AbstractTransferCommand;
-import com.redislabs.riot.Transfer;
 
 import lombok.Getter;
 import picocli.CommandLine.Command;
@@ -20,10 +22,11 @@ public abstract class AbstractStreamCommand<I, O> extends AbstractTransferComman
     private long flushPeriod = 50;
 
     @Override
-    public List<Transfer<I, O>> transfers() {
-	List<Transfer<I, O>> transfers = super.transfers();
-	transfers.forEach(t -> t.setFlushPeriod(flushPeriod));
-	return transfers;
+    protected Transfer<I, O> transfer(ItemReader<I> reader, ItemProcessor<I, O> processor, ItemWriter<O> writer)
+	    throws Exception {
+	Transfer<I, O> transfer = super.transfer(reader, processor, writer);
+	transfer.setFlushPeriod(flushPeriod);
+	return transfer;
     }
 
     @Override

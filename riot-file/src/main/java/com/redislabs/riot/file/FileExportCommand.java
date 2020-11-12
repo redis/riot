@@ -21,7 +21,7 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
 @Command(name = "export", description = "Export Redis data to a JSON or XML file")
-public class FileExportCommand extends AbstractExportCommand<DataStructure<String>> {
+public class FileExportCommand extends AbstractExportCommand<DataStructure> {
 
     @Parameters(arity = "1", description = "File path or URL", paramLabel = "FILE")
     protected String file;
@@ -37,12 +37,12 @@ public class FileExportCommand extends AbstractExportCommand<DataStructure<Strin
     private String lineSeparator = FlatFileItemWriter.DEFAULT_LINE_SEPARATOR;
 
     @Override
-    protected ItemWriter<DataStructure<String>> writer() throws IOException {
+    protected ItemWriter<DataStructure> writer() throws IOException {
 	FileType fileType = fileOptions.fileType(file);
 	WritableResource resource = fileOptions.outputResource(file);
 	switch (fileType) {
 	case JSON:
-	    JsonResourceItemWriterBuilder<DataStructure<String>> jsonWriterBuilder = new JsonResourceItemWriterBuilder<>();
+	    JsonResourceItemWriterBuilder<DataStructure> jsonWriterBuilder = new JsonResourceItemWriterBuilder<>();
 	    jsonWriterBuilder.name("json-resource-item-writer");
 	    jsonWriterBuilder.append(append);
 	    jsonWriterBuilder.encoding(fileOptions.getEncoding());
@@ -52,7 +52,7 @@ public class FileExportCommand extends AbstractExportCommand<DataStructure<Strin
 	    jsonWriterBuilder.saveState(false);
 	    return jsonWriterBuilder.build();
 	case XML:
-	    XmlResourceItemWriterBuilder<DataStructure<String>> xmlWriterBuilder = new XmlResourceItemWriterBuilder<>();
+	    XmlResourceItemWriterBuilder<DataStructure> xmlWriterBuilder = new XmlResourceItemWriterBuilder<>();
 	    xmlWriterBuilder.name("xml-resource-item-writer");
 	    xmlWriterBuilder.append(append);
 	    xmlWriterBuilder.encoding(fileOptions.getEncoding());
@@ -67,16 +67,16 @@ public class FileExportCommand extends AbstractExportCommand<DataStructure<Strin
 	}
     }
 
-    private JsonObjectMarshaller<DataStructure<String>> xmlMarshaller() {
+    private JsonObjectMarshaller<DataStructure> xmlMarshaller() {
 	XmlMapper mapper = new XmlMapper();
 	mapper.setConfig(mapper.getSerializationConfig().withRootName(elementName));
-	JacksonJsonObjectMarshaller<DataStructure<String>> marshaller = new JacksonJsonObjectMarshaller<>();
+	JacksonJsonObjectMarshaller<DataStructure> marshaller = new JacksonJsonObjectMarshaller<>();
 	marshaller.setObjectMapper(mapper);
 	return marshaller;
     }
 
     @Override
-    protected ItemProcessor<DataStructure<String>, DataStructure<String>> processor() {
+    protected ItemProcessor<DataStructure, DataStructure> processor() {
 	return null;
     }
 

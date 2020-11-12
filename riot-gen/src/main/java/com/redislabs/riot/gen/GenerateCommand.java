@@ -6,8 +6,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import org.springframework.batch.item.ItemProcessor;
-import org.springframework.batch.item.ItemReader;
+import org.springframework.batch.item.redis.support.Transfer;
 
 import com.redislabs.lettusearch.RediSearchClient;
 import com.redislabs.lettusearch.RediSearchCommands;
@@ -39,19 +38,16 @@ public class GenerateCommand extends AbstractImportCommand<Map<String, Object>, 
     private long start = 0;
     @Option(names = "--end", description = "End index (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
     private long end = 1000;
+    @Option(names = "--sleep", description = "Duration in ms to sleep before each item generation (default: ${DEFAULT-VALUE})", paramLabel = "<ms>")
+    private long sleep = 0;
 
     @Override
-    protected List<ItemReader<Map<String, Object>>> readers() throws Exception {
+    protected List<Transfer<Map<String, Object>, Map<String, Object>>> transfers() throws Exception {
 	FakerItemReader reader = FakerItemReader.builder().locale(locale).includeMetadata(includeMetadata)
-		.fields(fakerFields()).start(start).end(end).build();
+		.fields(fakerFields()).start(start).end(end).sleep(sleep).build();
 	long count = end - start;
 	reader.setMaxItemCount(Math.toIntExact(count));
-	return Collections.singletonList(reader);
-    }
-
-    @Override
-    protected ItemProcessor<Map<String, Object>, Map<String, Object>> processor() throws Exception {
-	return mapProcessor();
+	return Collections.singletonList(transfer(reader, mapProcessor(), writer()));
     }
 
     private String expression(Field<String> field) {

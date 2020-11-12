@@ -23,7 +23,7 @@ import io.lettuce.core.StreamMessage;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
-public class DataStructureMapItemProcessor implements ItemProcessor<DataStructure<String>, Map<String, Object>> {
+public class DataStructureMapItemProcessor implements ItemProcessor<DataStructure, Map<String, Object>> {
 
     private final Converter<String, Map<String, String>> keyFieldsExtractor;
 
@@ -42,76 +42,76 @@ public class DataStructureMapItemProcessor implements ItemProcessor<DataStructur
     private final Converter<Object, Map<String, String>> defaultConverter;
 
     public DataStructureMapItemProcessor(Converter<String, Map<String, String>> keyFieldsExtractor,
-            Converter<Map<String, String>, Map<String, String>> hashConverter,
-            Converter<List<String>, Map<String, String>> listConverter,
-            Converter<Set<String>, Map<String, String>> setConverter,
-            Converter<List<StreamMessage<String, String>>, Map<String, String>> streamConverter,
-            Converter<String, Map<String, String>> stringConverter,
-            Converter<List<ScoredValue<String>>, Map<String, String>> zsetConverter,
-            Converter<Object, Map<String, String>> defaultConverter) {
-        this.keyFieldsExtractor = keyFieldsExtractor;
-        this.hashConverter = hashConverter;
-        this.listConverter = listConverter;
-        this.setConverter = setConverter;
-        this.streamConverter = streamConverter;
-        this.stringConverter = stringConverter;
-        this.zsetConverter = zsetConverter;
-        this.defaultConverter = defaultConverter;
+	    Converter<Map<String, String>, Map<String, String>> hashConverter,
+	    Converter<List<String>, Map<String, String>> listConverter,
+	    Converter<Set<String>, Map<String, String>> setConverter,
+	    Converter<List<StreamMessage<String, String>>, Map<String, String>> streamConverter,
+	    Converter<String, Map<String, String>> stringConverter,
+	    Converter<List<ScoredValue<String>>, Map<String, String>> zsetConverter,
+	    Converter<Object, Map<String, String>> defaultConverter) {
+	this.keyFieldsExtractor = keyFieldsExtractor;
+	this.hashConverter = hashConverter;
+	this.listConverter = listConverter;
+	this.setConverter = setConverter;
+	this.streamConverter = streamConverter;
+	this.stringConverter = stringConverter;
+	this.zsetConverter = zsetConverter;
+	this.defaultConverter = defaultConverter;
     }
 
     @Override
-    public Map<String, Object> process(DataStructure<String> item) {
-        Map<String, Object> map = new HashMap<>(keyFieldsExtractor.convert(item.getKey()));
-        Map<String, String> valueMap = map(item);
-        if (valueMap != null) {
-            map.putAll(valueMap);
-        }
-        return map;
+    public Map<String, Object> process(DataStructure item) {
+	Map<String, Object> map = new HashMap<>(keyFieldsExtractor.convert(item.getKey()));
+	Map<String, String> valueMap = map(item);
+	if (valueMap != null) {
+	    map.putAll(valueMap);
+	}
+	return map;
     }
 
     @SuppressWarnings("unchecked")
-    private Map<String, String> map(DataStructure<String> item) {
-        switch (item.getType()) {
-            case HASH:
-                return hashConverter.convert((Map<String, String>) item.getValue());
-            case LIST:
-                return listConverter.convert((List<String>) item.getValue());
-            case SET:
-                return setConverter.convert((Set<String>) item.getValue());
-            case ZSET:
-                return zsetConverter.convert((List<ScoredValue<String>>) item.getValue());
-            case STREAM:
-                return streamConverter.convert((List<StreamMessage<String, String>>) item.getValue());
-            case STRING:
-                return stringConverter.convert((String) item.getValue());
-            default:
-                return defaultConverter.convert(item.getValue());
-        }
+    private Map<String, String> map(DataStructure item) {
+	switch (item.getType()) {
+	case HASH:
+	    return hashConverter.convert((Map<String, String>) item.getValue());
+	case LIST:
+	    return listConverter.convert((List<String>) item.getValue());
+	case SET:
+	    return setConverter.convert((Set<String>) item.getValue());
+	case ZSET:
+	    return zsetConverter.convert((List<ScoredValue<String>>) item.getValue());
+	case STREAM:
+	    return streamConverter.convert((List<StreamMessage<String, String>>) item.getValue());
+	case STRING:
+	    return stringConverter.convert((String) item.getValue());
+	default:
+	    return defaultConverter.convert(item.getValue());
+	}
     }
 
     public static DataStructureItemProcessorBuilder builder() {
-        return new DataStructureItemProcessorBuilder();
+	return new DataStructureItemProcessorBuilder();
     }
 
     @Accessors(fluent = true)
     @Setter
     public static class DataStructureItemProcessorBuilder {
 
-        private String keyRegex;
+	private String keyRegex;
 
-        public DataStructureMapItemProcessor build() {
-            Assert.notNull(keyRegex, "Key regex is required.");
-            RegexNamedGroupsExtractor keyFieldsExtractor = RegexNamedGroupsExtractor.builder().regex(keyRegex).build();
-            StreamToStringMapConverter streamConverter = StreamToStringMapConverter.builder().build();
-            CollectionToStringMapConverter<List<String>> listConverter = CollectionToStringMapConverter.<List<String>> builder()
-                    .build();
-            CollectionToStringMapConverter<Set<String>> setConverter = CollectionToStringMapConverter.<Set<String>> builder()
-                    .build();
-            ZsetToStringMapConverter zsetConverter = ZsetToStringMapConverter.builder().build();
-            Converter<String, Map<String, String>> stringConverter = StringToStringMapConverter.builder().build();
-            return new DataStructureMapItemProcessor(keyFieldsExtractor, new IdemConverter<>(), listConverter, setConverter,
-                    streamConverter, stringConverter, zsetConverter, new ConstantConverter<>(null));
-        }
+	public DataStructureMapItemProcessor build() {
+	    Assert.notNull(keyRegex, "Key regex is required.");
+	    RegexNamedGroupsExtractor keyFieldsExtractor = RegexNamedGroupsExtractor.builder().regex(keyRegex).build();
+	    StreamToStringMapConverter streamConverter = StreamToStringMapConverter.builder().build();
+	    CollectionToStringMapConverter<List<String>> listConverter = CollectionToStringMapConverter
+		    .<List<String>>builder().build();
+	    CollectionToStringMapConverter<Set<String>> setConverter = CollectionToStringMapConverter
+		    .<Set<String>>builder().build();
+	    ZsetToStringMapConverter zsetConverter = ZsetToStringMapConverter.builder().build();
+	    Converter<String, Map<String, String>> stringConverter = StringToStringMapConverter.builder().build();
+	    return new DataStructureMapItemProcessor(keyFieldsExtractor, new IdemConverter<>(), listConverter,
+		    setConverter, streamConverter, stringConverter, zsetConverter, new ConstantConverter<>(null));
+	}
 
     }
 

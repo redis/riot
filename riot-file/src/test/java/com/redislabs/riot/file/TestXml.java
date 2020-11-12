@@ -40,11 +40,11 @@ public class TestXml extends AbstractFileTest {
 	XmlObjectReader<DataStructure> xmlObjectReader = new XmlObjectReader<>(DataStructure.class);
 	xmlObjectReader.setMapper(new XmlMapper());
 	builder.xmlObjectReader(xmlObjectReader);
-	XmlItemReader<DataStructure<String>> reader = (XmlItemReader) builder.build();
-	List<DataStructure<String>> records = readAll(reader);
+	XmlItemReader<DataStructure> reader = (XmlItemReader) builder.build();
+	List<DataStructure> records = readAll(reader);
 	Assertions.assertEquals(commands().dbsize(), records.size());
 	RedisCommands<String, String> commands = commands();
-	for (DataStructure<String> record : records) {
+	for (DataStructure record : records) {
 	    String key = record.getKey();
 	    switch (record.getType()) {
 	    case HASH:

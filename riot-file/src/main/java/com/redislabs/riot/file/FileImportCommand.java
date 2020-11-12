@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.batch.item.ItemProcessor;
-import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.LineCallbackHandler;
@@ -24,6 +23,7 @@ import org.springframework.batch.item.json.JsonItemReader;
 import org.springframework.batch.item.json.builder.JsonItemReaderBuilder;
 import org.springframework.batch.item.redis.RedisDataStructureItemWriter;
 import org.springframework.batch.item.redis.support.DataStructure;
+import org.springframework.batch.item.redis.support.Transfer;
 import org.springframework.batch.item.support.AbstractItemStreamItemReader;
 import org.springframework.batch.item.xml.XmlItemReader;
 import org.springframework.batch.item.xml.XmlObjectReader;
@@ -53,7 +53,7 @@ public class FileImportCommand extends AbstractImportCommand<Object, Object> {
     protected FlatFileOptions flatFileOptions = new FlatFileOptions();
 
     @Override
-    protected List<ItemReader<Object>> readers() throws IOException {
+    protected List<Transfer<Object, Object>> transfers() throws Exception {
 	List<String> fileList = new ArrayList<>();
 	for (String file : files) {
 	    if (fileOptions.isFile(file)) {
@@ -74,15 +74,17 @@ public class FileImportCommand extends AbstractImportCommand<Object, Object> {
 		fileList.add(file);
 	    }
 	}
-	List<ItemReader<Object>> readers = new ArrayList<>(fileList.size());
+	List<Transfer<Object, Object>> transfers = new ArrayList<>(fileList.size());
+	ItemProcessor<Object, Object> processor = processor();
+	ItemWriter<Object> writer = writer();
 	for (String file : fileList) {
 	    FileType fileType = fileOptions.fileType(file);
 	    Resource resource = fileOptions.inputResource(file);
 	    AbstractItemStreamItemReader<Object> reader = reader(file, fileType, resource);
 	    reader.setName(fileOptions.fileName(resource));
-	    readers.add(reader);
+	    transfers.add(transfer(reader, processor, writer));
 	}
-	return readers;
+	return transfers;
     }
 
     protected <T> JsonItemReader<T> jsonReader(Resource resource, Class<T> clazz) {
@@ -161,7 +163,6 @@ public class FileImportCommand extends AbstractImportCommand<Object, Object> {
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    @Override
     protected ItemProcessor<Object, Object> processor() throws Exception {
 	if (getRedisCommands().isEmpty()) {
 	    return (ItemProcessor) new JsonDataStructureItemProcessor();
