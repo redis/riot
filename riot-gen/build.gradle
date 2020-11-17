@@ -16,7 +16,7 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok:1.18.16'
     implementation 'com.github.javafaker:javafaker:1.0.2'
     testImplementation project(':riot-test')
-	testImplementation('org.springframework.boot:spring-boot-starter-test:2.3.5.RELEASE') {
+	testImplementation('org.springframework.boot:spring-boot-starter-test:2.4.0') {
 		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
 	}    
     testImplementation 'org.springframework.batch:spring-batch-test:4.3.0'

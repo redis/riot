@@ -25,6 +25,7 @@ import org.springframework.util.ResourceUtils;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.google.auth.oauth2.GoogleCredentials;
@@ -120,11 +121,11 @@ public class FileOptions {
 	return !(isGcs(file) || isS3(file) || ResourceUtils.isUrl(file) || isConsole(file));
     }
 
-    private Resource resource(String file, boolean readOnly) throws IOException {
-	if (isGcs(file)) {
-	    return new GoogleStorageResource(gcsStorage(readOnly), file);
+    private Resource resource(String location, boolean readOnly) throws IOException {
+	if (isGcs(location)) {
+	    return new GoogleStorageResource(gcsStorage(readOnly), location);
 	}
-	if (isS3(file)) {
+	if (isS3(location)) {
 	    AmazonS3ClientBuilder clientBuilder = AmazonS3Client.builder();
 	    if (s3.getRegion() != null) {
 		clientBuilder.withRegion(s3.getRegion());
@@ -133,14 +134,19 @@ public class FileOptions {
 		clientBuilder.withCredentials(new SimpleAWSCredentialsProvider(s3.getCredentials().getAccessKey(),
 			s3.getCredentials().getSecretKey()));
 	    }
-	    SimpleStorageProtocolResolver resolver = new SimpleStorageProtocolResolver(clientBuilder.build());
+	    SimpleStorageProtocolResolver resolver = new SimpleStorageProtocolResolver() {
+		@Override
+		public AmazonS3 getAmazonS3() {
+		    return clientBuilder.build();
+		}
+	    };
 	    resolver.afterPropertiesSet();
-	    return resolver.resolve(file, new DefaultResourceLoader());
+	    return resolver.resolve(location, new DefaultResourceLoader());
 	}
-	if (ResourceUtils.isUrl(file)) {
-	    return new UncustomizedUrlResource(file);
+	if (ResourceUtils.isUrl(location)) {
+	    return new UncustomizedUrlResource(location);
 	}
-	return new FileSystemResource(file);
+	return new FileSystemResource(location);
     }
 
     private boolean isS3(String file) {
