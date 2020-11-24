@@ -11,16 +11,16 @@ import lombok.Builder;
 @Builder
 public class StringToStringMapConverter implements Converter<String, Map<String, String>> {
 
-    public static final Converter<String, String> DEFAULT_KEY_EXTRACTOR = new ConstantConverter<>("value");
+	public static final Converter<String, String> DEFAULT_KEY_EXTRACTOR = new ConstantConverter<>("value");
 
-    @Builder.Default
-    private final Converter<String, String> keyExtractor = DEFAULT_KEY_EXTRACTOR;
+	@Builder.Default
+	private final Converter<String, String> keyExtractor = DEFAULT_KEY_EXTRACTOR;
 
-    @Override
-    public Map<String, String> convert(String source) {
-        Map<String, String> result = new HashMap<>();
-        result.put(keyExtractor.convert(source), source);
-        return result;
-    }
+	@Override
+	public Map<String, String> convert(String source) {
+		Map<String, String> result = new HashMap<>();
+		result.put(keyExtractor.convert(source), source);
+		return result;
+	}
 
 }

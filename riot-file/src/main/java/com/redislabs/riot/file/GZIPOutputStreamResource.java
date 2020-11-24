@@ -8,12 +8,12 @@ import org.springframework.batch.item.resource.OutputStreamResource;
 
 public class GZIPOutputStreamResource extends OutputStreamResource {
 
-    public GZIPOutputStreamResource(OutputStream outStream) throws IOException {
-	super(new GZIPOutputStream(outStream));
-    }
+	public GZIPOutputStreamResource(OutputStream outStream) throws IOException {
+		super(new GZIPOutputStream(outStream));
+	}
 
-    public GZIPOutputStreamResource(OutputStream outStream, String desc) throws IOException {
-	super(new GZIPOutputStream(outStream), desc);
-    }
+	public GZIPOutputStreamResource(OutputStream outStream, String desc) throws IOException {
+		super(new GZIPOutputStream(outStream), desc);
+	}
 
 }

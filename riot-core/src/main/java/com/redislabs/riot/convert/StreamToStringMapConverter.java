@@ -11,19 +11,19 @@ import java.util.Map;
 @Builder
 public class StreamToStringMapConverter implements Converter<List<StreamMessage<String, String>>, Map<String, String>> {
 
-    public static final String DEFAULT_KEY_FORMAT = "%s.%s";
+	public static final String DEFAULT_KEY_FORMAT = "%s.%s";
 
-    @Builder.Default
-    private final String keyFormat = DEFAULT_KEY_FORMAT;
+	@Builder.Default
+	private final String keyFormat = DEFAULT_KEY_FORMAT;
 
-    @Override
-    public Map<String, String> convert(List<StreamMessage<String, String>> source) {
-        Map<String, String> result = new HashMap<>();
-        for (StreamMessage<String, String> message : source) {
-            for (Map.Entry<String,String> entry : message.getBody().entrySet()) {
-                 result.put(String.format(keyFormat, message.getId(), entry.getKey()), entry.getValue());
-            }
-        }
-        return result;
-    }
+	@Override
+	public Map<String, String> convert(List<StreamMessage<String, String>> source) {
+		Map<String, String> result = new HashMap<>();
+		for (StreamMessage<String, String> message : source) {
+			for (Map.Entry<String, String> entry : message.getBody().entrySet()) {
+				result.put(String.format(keyFormat, message.getId(), entry.getKey()), entry.getValue());
+			}
+		}
+		return result;
+	}
 }

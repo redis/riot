@@ -9,9 +9,9 @@ import picocli.CommandLine.Command;
 @Command(name = "sadd")
 public class SaddCommand extends AbstractCollectionCommand {
 
-    @Override
-    public RedisSetItemWriter<Map<String, Object>> writer() throws Exception {
-	return configure(RedisSetItemWriter.<Map<String, Object>>builder()).build();
-    }
+	@Override
+	public RedisSetItemWriter<Map<String, Object>> writer() throws Exception {
+		return configure(RedisSetItemWriter.<Map<String, Object>>builder()).build();
+	}
 
 }

@@ -7,18 +7,18 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 
 public class ObjectMapperConverter<T> implements Converter<T, String> {
 
-    private final ObjectWriter writer;
+	private final ObjectWriter writer;
 
-    public ObjectMapperConverter(ObjectWriter writer) {
-        this.writer = writer;
-    }
+	public ObjectMapperConverter(ObjectWriter writer) {
+		this.writer = writer;
+	}
 
-    @Override
-    public String convert(T source) {
-        try {
-            return writer.writeValueAsString(source);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException("Could not convert object to XML", e);
-        }
-    }
+	@Override
+	public String convert(T source) {
+		try {
+			return writer.writeValueAsString(source);
+		} catch (JsonProcessingException e) {
+			throw new RuntimeException("Could not convert object to XML", e);
+		}
+	}
 }

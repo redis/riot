@@ -8,8 +8,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @EnableBatchProcessing
 public class BatchTestApplication {
 
-    public static void main(String[] args) {
-        SpringApplication.run(BatchTestApplication.class, args);
-    }
+	public static void main(String[] args) {
+		SpringApplication.run(BatchTestApplication.class, args);
+	}
 
 }

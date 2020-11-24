@@ -12,10 +12,10 @@ import picocli.CommandLine.Command;
 @Command(name = "hmset")
 public class HmsetCommand extends AbstractKeyCommand {
 
-    @Override
-    public RedisHashItemWriter<Map<String, Object>> writer() throws Exception {
-	return configure(RedisHashItemWriter.<Map<String, Object>>builder()
-		.mapConverter(new MapFlattener<>(new ObjectToStringConverter()))).build();
-    }
+	@Override
+	public RedisHashItemWriter<Map<String, Object>> writer() throws Exception {
+		return configure(RedisHashItemWriter.<Map<String, Object>>builder()
+				.mapConverter(new MapFlattener<>(new ObjectToStringConverter()))).build();
+	}
 
 }

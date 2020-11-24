@@ -26,56 +26,56 @@ import picocli.CommandLine.Parameters;
 @Command(name = "import", aliases = { "i" }, description = "Import generated data")
 public class GenerateCommand extends AbstractImportCommand<Map<String, Object>, Map<String, Object>> {
 
-    @Parameters(description = "SpEL expressions", paramLabel = "SPEL")
-    private Map<String, String> fakerFields = new LinkedHashMap<>();
-    @Option(names = "--introspect", description = "Use given search index to introspect Faker fields", paramLabel = "<index>")
-    private String fakerIndex;
-    @Option(names = "--locale", description = "Faker locale (default: ${DEFAULT-VALUE})", paramLabel = "<tag>")
-    private Locale locale = Locale.ENGLISH;
-    @Option(names = "--metadata", description = "Include metadata (index, partition)")
-    private boolean includeMetadata;
-    @Option(names = "--start", description = "Start index (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
-    private long start = 0;
-    @Option(names = "--end", description = "End index (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
-    private long end = 1000;
-    @Option(names = "--sleep", description = "Duration in ms to sleep before each item generation (default: ${DEFAULT-VALUE})", paramLabel = "<ms>")
-    private long sleep = 0;
+	@Parameters(description = "SpEL expressions", paramLabel = "SPEL")
+	private Map<String, String> fakerFields = new LinkedHashMap<>();
+	@Option(names = "--introspect", description = "Use given search index to introspect Faker fields", paramLabel = "<index>")
+	private String fakerIndex;
+	@Option(names = "--locale", description = "Faker locale (default: ${DEFAULT-VALUE})", paramLabel = "<tag>")
+	private Locale locale = Locale.ENGLISH;
+	@Option(names = "--metadata", description = "Include metadata (index, partition)")
+	private boolean includeMetadata;
+	@Option(names = "--start", description = "Start index (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
+	private long start = 0;
+	@Option(names = "--end", description = "End index (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
+	private long end = 1000;
+	@Option(names = "--sleep", description = "Duration in ms to sleep before each item generation (default: ${DEFAULT-VALUE})", paramLabel = "<ms>")
+	private long sleep = 0;
 
-    @Override
-    protected List<Transfer<Map<String, Object>, Map<String, Object>>> transfers() throws Exception {
-	FakerItemReader reader = FakerItemReader.builder().locale(locale).includeMetadata(includeMetadata)
-		.fields(fakerFields()).start(start).end(end).sleep(sleep).build();
-	long count = end - start;
-	reader.setMaxItemCount(Math.toIntExact(count));
-	return Collections.singletonList(transfer(reader, mapProcessor(), writer()));
-    }
+	@Override
+	protected List<Transfer<Map<String, Object>, Map<String, Object>>> transfers() throws Exception {
+		FakerItemReader reader = FakerItemReader.builder().locale(locale).includeMetadata(includeMetadata)
+				.fields(fakerFields()).start(start).end(end).sleep(sleep).build();
+		long count = end - start;
+		reader.setMaxItemCount(Math.toIntExact(count));
+		return Collections.singletonList(transfer(reader, mapProcessor(), writer()).build());
+	}
 
-    private String expression(Field<String> field) {
-	if (field instanceof TextField) {
-	    return "lorem.paragraph";
+	private String expression(Field<String> field) {
+		if (field instanceof TextField) {
+			return "lorem.paragraph";
+		}
+		if (field instanceof TagField) {
+			return "number.digits(10)";
+		}
+		if (field instanceof GeoField) {
+			return "address.longitude.concat(',').concat(address.latitude)";
+		}
+		return "number.randomDouble(3,-1000,1000)";
 	}
-	if (field instanceof TagField) {
-	    return "number.digits(10)";
-	}
-	if (field instanceof GeoField) {
-	    return "address.longitude.concat(',').concat(address.latitude)";
-	}
-	return "number.randomDouble(3,-1000,1000)";
-    }
 
-    private Map<String, String> fakerFields() {
-	Map<String, String> fields = new LinkedHashMap<>(fakerFields);
-	if (fakerIndex == null) {
-	    return fields;
+	private Map<String, String> fakerFields() {
+		Map<String, String> fields = new LinkedHashMap<>(fakerFields);
+		if (fakerIndex == null) {
+			return fields;
+		}
+		RediSearchClient client = RediSearchClient.create(redisURI());
+		StatefulRediSearchConnection<String, String> connection = client.connect();
+		RediSearchCommands<String, String> commands = connection.sync();
+		IndexInfo<String> info = RediSearchUtils.getInfo(commands.ftInfo(fakerIndex));
+		for (Field<String> field : info.getFields()) {
+			fields.put(field.getName(), expression(field));
+		}
+		return fields;
 	}
-	RediSearchClient client = RediSearchClient.create(redisURI());
-	StatefulRediSearchConnection<String, String> connection = client.connect();
-	RediSearchCommands<String, String> commands = connection.sync();
-	IndexInfo<String> info = RediSearchUtils.getInfo(commands.ftInfo(fakerIndex));
-	for (Field<String> field : info.getFields()) {
-	    fields.put(field.getName(), expression(field));
-	}
-	return fields;
-    }
 
 }

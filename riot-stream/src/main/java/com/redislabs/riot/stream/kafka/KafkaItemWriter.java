@@ -15,17 +15,17 @@ import lombok.NonNull;
  */
 public class KafkaItemWriter<K> extends AbstractItemStreamItemWriter<ProducerRecord<K, Object>> {
 
-    private final KafkaTemplate<K, Object> kafkaTemplate;
+	private final KafkaTemplate<K, Object> kafkaTemplate;
 
-    @Builder
-    public KafkaItemWriter(@NonNull KafkaTemplate<K, Object> kafkaTemplate) {
-	this.kafkaTemplate = kafkaTemplate;
-    }
-
-    @Override
-    public void write(List<? extends ProducerRecord<K, Object>> items) throws Exception {
-	for (ProducerRecord<K, Object> item : items) {
-	    this.kafkaTemplate.send(item);
+	@Builder
+	public KafkaItemWriter(@NonNull KafkaTemplate<K, Object> kafkaTemplate) {
+		this.kafkaTemplate = kafkaTemplate;
 	}
-    }
+
+	@Override
+	public void write(List<? extends ProducerRecord<K, Object>> items) throws Exception {
+		for (ProducerRecord<K, Object> item : items) {
+			this.kafkaTemplate.send(item);
+		}
+	}
 }

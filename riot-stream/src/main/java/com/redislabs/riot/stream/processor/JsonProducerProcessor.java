@@ -8,13 +8,13 @@ import io.lettuce.core.StreamMessage;
 
 public class JsonProducerProcessor extends AbstractProducerProcessor {
 
-    public JsonProducerProcessor(Converter<StreamMessage<String, String>, String> topicConverter) {
-	super(topicConverter);
-    }
+	public JsonProducerProcessor(Converter<StreamMessage<String, String>, String> topicConverter) {
+		super(topicConverter);
+	}
 
-    @Override
-    protected Map<String, String> value(StreamMessage<String, String> message) {
-	return message.getBody();
-    }
+	@Override
+	protected Map<String, String> value(StreamMessage<String, String> message) {
+		return message.getBody();
+	}
 
 }

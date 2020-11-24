@@ -29,54 +29,54 @@ import picocli.CommandLine.Parameters;
 
 @Command(name = "export", description = "Import Redis streams into Kafka topics")
 public class StreamExportCommand
-	extends AbstractStreamCommand<StreamMessage<String, String>, ProducerRecord<String, Object>> {
+		extends AbstractStreamCommand<StreamMessage<String, String>, ProducerRecord<String, Object>> {
 
-    @Parameters(arity = "1..*", description = "One ore more streams to read from", paramLabel = "STREAM")
-    private List<String> streams;
-    @Option(names = "--block", description = "XREAD block time in millis (default: ${DEFAULT-VALUE})", hidden = true, paramLabel = "<ms>")
-    private long block = 100;
-    @Option(names = "--offset", description = "XREAD offset (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
-    private String offset = "0-0";
-    @Option(names = "--topic", description = "Target topic key (default: same as stream)", paramLabel = "<string>")
-    private String topic;
+	@Parameters(arity = "1..*", description = "One ore more streams to read from", paramLabel = "STREAM")
+	private List<String> streams;
+	@Option(names = "--block", description = "XREAD block time in millis (default: ${DEFAULT-VALUE})", hidden = true, paramLabel = "<ms>")
+	private long block = 100;
+	@Option(names = "--offset", description = "XREAD offset (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
+	private String offset = "0-0";
+	@Option(names = "--topic", description = "Target topic key (default: same as stream)", paramLabel = "<string>")
+	private String topic;
 
-    @Override
-    protected List<Transfer<StreamMessage<String, String>, ProducerRecord<String, Object>>> transfers()
-	    throws Exception {
-	List<Transfer<StreamMessage<String, String>, ProducerRecord<String, Object>>> transfers = new ArrayList<>();
-	ItemProcessor<StreamMessage<String, String>, ProducerRecord<String, Object>> processor = processor();
-	KafkaItemWriter<String> writer = KafkaItemWriter.<String>builder()
-		.kafkaTemplate(
-			new KafkaTemplate<>(new DefaultKafkaProducerFactory<>(kafkaOptions.producerProperties())))
-		.build();
-	for (String stream : streams) {
-	    transfers.add(transfer(reader(stream), processor, writer));
+	@Override
+	protected List<Transfer<StreamMessage<String, String>, ProducerRecord<String, Object>>> transfers()
+			throws Exception {
+		List<Transfer<StreamMessage<String, String>, ProducerRecord<String, Object>>> transfers = new ArrayList<>();
+		ItemProcessor<StreamMessage<String, String>, ProducerRecord<String, Object>> processor = processor();
+		KafkaItemWriter<String> writer = KafkaItemWriter.<String>builder()
+				.kafkaTemplate(
+						new KafkaTemplate<>(new DefaultKafkaProducerFactory<>(kafkaOptions.producerProperties())))
+				.build();
+		for (String stream : streams) {
+			transfers.add(transfer(reader(stream), processor, writer).build());
+		}
+		return transfers;
 	}
-	return transfers;
-    }
 
-    private ItemReader<StreamMessage<String, String>> reader(String stream) throws Exception {
-	XReadArgs args = new XReadArgs();
-	args.block(block);
-	StreamOffset<String> offset = StreamOffset.from(stream, this.offset);
-	return configure(RedisStreamItemReader.builder().args(args).offset(offset)).build();
-    }
-
-    private ItemProcessor<StreamMessage<String, String>, ProducerRecord<String, Object>> processor()
-	    throws FileNotFoundException, IOException, RestClientException {
-	switch (kafkaOptions.getSerde()) {
-	case JSON:
-	    return new JsonProducerProcessor(topicConverter());
-	default:
-	    return new AvroProducerProcessor(topicConverter());
+	private ItemReader<StreamMessage<String, String>> reader(String stream) throws Exception {
+		XReadArgs args = new XReadArgs();
+		args.block(block);
+		StreamOffset<String> offset = StreamOffset.from(stream, this.offset);
+		return configure(RedisStreamItemReader.builder().args(args).offset(offset)).build();
 	}
-    }
 
-    private Converter<StreamMessage<String, String>, String> topicConverter() {
-	if (topic == null) {
-	    return StreamMessage::getStream;
+	private ItemProcessor<StreamMessage<String, String>, ProducerRecord<String, Object>> processor()
+			throws FileNotFoundException, IOException, RestClientException {
+		switch (kafkaOptions.getSerde()) {
+		case JSON:
+			return new JsonProducerProcessor(topicConverter());
+		default:
+			return new AvroProducerProcessor(topicConverter());
+		}
 	}
-	return new ConstantConverter<>(topic);
-    }
+
+	private Converter<StreamMessage<String, String>, String> topicConverter() {
+		if (topic == null) {
+			return StreamMessage::getStream;
+		}
+		return new ConstantConverter<>(topic);
+	}
 
 }

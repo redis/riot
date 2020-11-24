@@ -7,8 +7,8 @@ import picocli.CommandLine.Command;
 @Command(name = "riot-gen", subcommands = { GenerateCommand.class, FakerHelpCommand.class })
 public class RiotGen extends RiotApp {
 
-    public static void main(String[] args) {
-	System.exit(new RiotGen().execute(args));
-    }
+	public static void main(String[] args) {
+		System.exit(new RiotGen().execute(args));
+	}
 
 }
