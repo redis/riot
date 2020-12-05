@@ -5,11 +5,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.batch.item.ItemProcessor;
-import org.springframework.batch.item.ItemReader;
-import org.springframework.batch.item.redis.RedisStreamItemReader;
-import org.springframework.batch.item.redis.support.ConstantConverter;
+import org.springframework.batch.item.redis.StreamItemReader;
 import org.springframework.batch.item.redis.support.Transfer;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
@@ -20,9 +19,12 @@ import com.redislabs.riot.stream.processor.AvroProducerProcessor;
 import com.redislabs.riot.stream.processor.JsonProducerProcessor;
 
 import io.confluent.kafka.schemaregistry.client.rest.exceptions.RestClientException;
+import io.lettuce.core.AbstractRedisClient;
+import io.lettuce.core.RedisURI;
 import io.lettuce.core.StreamMessage;
 import io.lettuce.core.XReadArgs;
 import io.lettuce.core.XReadArgs.StreamOffset;
+import io.lettuce.core.api.StatefulConnection;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
@@ -41,7 +43,8 @@ public class StreamExportCommand
 	private String topic;
 
 	@Override
-	protected List<Transfer<StreamMessage<String, String>, ProducerRecord<String, Object>>> transfers()
+	protected List<Transfer<StreamMessage<String, String>, ProducerRecord<String, Object>>> transfers(RedisURI uri,
+			AbstractRedisClient client, GenericObjectPoolConfig<StatefulConnection<String, String>> poolConfig)
 			throws Exception {
 		List<Transfer<StreamMessage<String, String>, ProducerRecord<String, Object>>> transfers = new ArrayList<>();
 		ItemProcessor<StreamMessage<String, String>, ProducerRecord<String, Object>> processor = processor();
@@ -50,16 +53,14 @@ public class StreamExportCommand
 						new KafkaTemplate<>(new DefaultKafkaProducerFactory<>(kafkaOptions.producerProperties())))
 				.build();
 		for (String stream : streams) {
-			transfers.add(transfer(reader(stream), processor, writer).build());
+			XReadArgs args = new XReadArgs();
+			args.block(block);
+			StreamOffset<String> offset = StreamOffset.from(stream, this.offset);
+			StreamItemReader reader = StreamItemReader.builder().client(client).poolConfig(poolConfig).args(args)
+					.offset(offset).build();
+			transfers.add(transfer(reader, processor, writer));
 		}
 		return transfers;
-	}
-
-	private ItemReader<StreamMessage<String, String>> reader(String stream) throws Exception {
-		XReadArgs args = new XReadArgs();
-		args.block(block);
-		StreamOffset<String> offset = StreamOffset.from(stream, this.offset);
-		return configure(RedisStreamItemReader.builder().args(args).offset(offset)).build();
 	}
 
 	private ItemProcessor<StreamMessage<String, String>, ProducerRecord<String, Object>> processor()
@@ -76,7 +77,7 @@ public class StreamExportCommand
 		if (topic == null) {
 			return StreamMessage::getStream;
 		}
-		return new ConstantConverter<>(topic);
+		return s -> topic;
 	}
 
 }

@@ -2,7 +2,6 @@ package com.redislabs.riot.convert;
 
 import java.util.Map;
 
-import org.springframework.batch.item.redis.support.ConstantConverter;
 import org.springframework.core.convert.converter.Converter;
 
 import lombok.Setter;
@@ -40,7 +39,7 @@ public abstract class MapFieldExtractor implements Converter<Map<String, Object>
 				if (defaultValue == null) {
 					return null;
 				}
-				return new ConstantConverter<>(defaultValue);
+				return s -> defaultValue;
 			}
 			if (defaultValue == null) {
 				if (remove) {

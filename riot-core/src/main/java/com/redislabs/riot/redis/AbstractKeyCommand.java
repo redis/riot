@@ -2,7 +2,7 @@ package com.redislabs.riot.redis;
 
 import java.util.Map;
 
-import org.springframework.batch.item.redis.support.AbstractKeyCommandItemWriterBuilder;
+import org.springframework.batch.item.redis.support.AbstractKeyCommandItemWriter.AbstractKeyCommandItemWriterBuilder;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -15,9 +15,8 @@ public abstract class AbstractKeyCommand extends AbstractRedisCommand<Map<String
 	@Option(names = { "-k", "--keys" }, arity = "1..*", description = "Key fields", paramLabel = "<fields>")
 	private String[] keys = new String[0];
 
-	protected <B extends AbstractKeyCommandItemWriterBuilder<Map<String, Object>, B>> B configure(B builder)
-			throws Exception {
-		return super.configure(builder).keyConverter(idMaker(keyspace, keys));
+	protected <B extends AbstractKeyCommandItemWriterBuilder<Map<String, Object>, B>> B configure(B builder) {
+		return builder.keyConverter(idMaker(keyspace, keys));
 	}
 
 }

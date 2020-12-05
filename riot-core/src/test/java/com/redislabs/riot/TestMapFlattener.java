@@ -7,7 +7,6 @@ import java.util.Map;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import com.redislabs.riot.convert.IdemConverter;
 import com.redislabs.riot.convert.MapFlattener;
 
 public class TestMapFlattener {
@@ -18,7 +17,7 @@ public class TestMapFlattener {
 		Map<String, Object> expected = new HashMap<>();
 		expected.putAll(map("1.1", "1.1", "1.2", "1.2"));
 		expected.putAll(map("2.1", "2.1", "2.2", "2.2"));
-		MapFlattener<Object> flattener = new MapFlattener<>(new IdemConverter<>());
+		MapFlattener<Object> flattener = new MapFlattener<>(s -> s);
 		Assertions.assertEquals(expected, flattener.convert(map));
 	}
 
@@ -28,7 +27,7 @@ public class TestMapFlattener {
 		Map<String, Object> expected = new HashMap<>();
 		expected.putAll(map("1[0]", "1.1", "1[1]", "1.2"));
 		expected.putAll(map("2[0]", "2.1", "2[1]", "2.2"));
-		MapFlattener<Object> flattener = new MapFlattener<>(new IdemConverter<>());
+		MapFlattener<Object> flattener = new MapFlattener<>(s -> s);
 		Assertions.assertEquals(expected, flattener.convert(map));
 	}
 
@@ -38,7 +37,7 @@ public class TestMapFlattener {
 		Map<String, Object> expected = new HashMap<>();
 		expected.putAll(map("1[0]", "1.1", "1[1]", "1.2"));
 		expected.putAll(map("2.1", "2.1", "2.2", "2.2"));
-		MapFlattener<Object> flattener = new MapFlattener<>(new IdemConverter<>());
+		MapFlattener<Object> flattener = new MapFlattener<>(s -> s);
 		Assertions.assertEquals(expected, flattener.convert(map));
 	}
 

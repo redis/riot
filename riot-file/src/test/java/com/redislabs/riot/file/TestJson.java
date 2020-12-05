@@ -23,12 +23,12 @@ public class TestJson extends AbstractFileTest {
 	@Test
 	public void exportRedis() throws Exception {
 		List<DataStructure> records = exportToList();
-		Assertions.assertEquals(commands().dbsize(), records.size());
+		Assertions.assertEquals(sync.dbsize(), records.size());
 	}
 
 	private List<DataStructure> exportToList() throws Exception {
 		Path file = tempFile("redis.json");
-		DataGenerator.builder().connection(connection()).build().run();
+		DataGenerator.builder().client(client).build().run();
 		executeFile("/json/export.txt");
 		JsonItemReaderBuilder<DataStructure> builder = new JsonItemReaderBuilder<>();
 		builder.name("json-data-structure-file-reader");
@@ -43,9 +43,9 @@ public class TestJson extends AbstractFileTest {
 	@Test
 	public void importDataStructures() throws Exception {
 		List<DataStructure> records = exportToList();
-		commands().flushall();
+		sync.flushall();
 		executeFile("/json/import.txt");
-		Assertions.assertEquals(records.size(), commands().dbsize());
+		Assertions.assertEquals(records.size(), sync.dbsize());
 	}
 
 	@Test
@@ -63,14 +63,14 @@ public class TestJson extends AbstractFileTest {
 		builder.jsonObjectReader(objectReader);
 		JsonItemReader<Map> reader = builder.build();
 		List<Map> records = readAll(reader);
-		Assertions.assertEquals(commands().keys("beer:*").size(), records.size());
+		Assertions.assertEquals(sync.keys("beer:*").size(), records.size());
 	}
 
 	@Test
 	public void importElastic() throws Exception {
 		executeFile("/json/import-elastic.txt");
-		Assertions.assertEquals(2, commands().keys("estest:*").size());
-		Map<String, String> doc1 = commands().hgetall("estest:doc1");
+		Assertions.assertEquals(2, sync.keys("estest:*").size());
+		Map<String, String> doc1 = sync.hgetall("estest:doc1");
 		Assertions.assertEquals("ruan", doc1.get("_source.name"));
 		Assertions.assertEquals("3", doc1.get("_source.articles[1]"));
 	}
@@ -78,9 +78,9 @@ public class TestJson extends AbstractFileTest {
 	@Test
 	public void importHash() throws Exception {
 		executeFile("/json/import-hmset.txt");
-		List<String> keys = commands().keys("beer:*");
+		List<String> keys = sync.keys("beer:*");
 		Assertions.assertEquals(4432, keys.size());
-		Map<String, String> beer1 = commands().hgetall("beer:1");
+		Map<String, String> beer1 = sync.hgetall("beer:1");
 		Assertions.assertEquals("Hocus Pocus", beer1.get("name"));
 	}
 }

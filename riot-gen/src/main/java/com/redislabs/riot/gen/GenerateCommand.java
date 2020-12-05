@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.springframework.batch.item.redis.support.Transfer;
 
 import com.redislabs.lettusearch.RediSearchClient;
@@ -17,14 +18,17 @@ import com.redislabs.lettusearch.index.field.Field;
 import com.redislabs.lettusearch.index.field.GeoField;
 import com.redislabs.lettusearch.index.field.TagField;
 import com.redislabs.lettusearch.index.field.TextField;
-import com.redislabs.riot.AbstractImportCommand;
+import com.redislabs.riot.AbstractMapImportCommand;
 
+import io.lettuce.core.AbstractRedisClient;
+import io.lettuce.core.RedisURI;
+import io.lettuce.core.api.StatefulConnection;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
 @Command(name = "import", aliases = { "i" }, description = "Import generated data")
-public class GenerateCommand extends AbstractImportCommand<Map<String, Object>, Map<String, Object>> {
+public class GenerateCommand extends AbstractMapImportCommand<Map<String, Object>, Map<String, Object>> {
 
 	@Parameters(description = "SpEL expressions", paramLabel = "SPEL")
 	private Map<String, String> fakerFields = new LinkedHashMap<>();
@@ -42,12 +46,14 @@ public class GenerateCommand extends AbstractImportCommand<Map<String, Object>, 
 	private long sleep = 0;
 
 	@Override
-	protected List<Transfer<Map<String, Object>, Map<String, Object>>> transfers() throws Exception {
+	protected List<Transfer<Map<String, Object>, Map<String, Object>>> transfers(RedisURI uri,
+			AbstractRedisClient client, GenericObjectPoolConfig<StatefulConnection<String, String>> poolConfig)
+			throws Exception {
 		FakerItemReader reader = FakerItemReader.builder().locale(locale).includeMetadata(includeMetadata)
-				.fields(fakerFields()).start(start).end(end).sleep(sleep).build();
+				.fields(fakerFields(uri)).start(start).end(end).sleep(sleep).build();
 		long count = end - start;
 		reader.setMaxItemCount(Math.toIntExact(count));
-		return Collections.singletonList(transfer(reader, mapProcessor(), writer()).build());
+		return Collections.singletonList(transfer(reader, mapProcessor(client), writer(client, poolConfig)));
 	}
 
 	private String expression(Field<String> field) {
@@ -63,12 +69,12 @@ public class GenerateCommand extends AbstractImportCommand<Map<String, Object>, 
 		return "number.randomDouble(3,-1000,1000)";
 	}
 
-	private Map<String, String> fakerFields() {
+	private Map<String, String> fakerFields(RedisURI uri) {
 		Map<String, String> fields = new LinkedHashMap<>(fakerFields);
 		if (fakerIndex == null) {
 			return fields;
 		}
-		RediSearchClient client = RediSearchClient.create(redisURI());
+		RediSearchClient client = RediSearchClient.create(uri);
 		StatefulRediSearchConnection<String, String> connection = client.connect();
 		RediSearchCommands<String, String> commands = connection.sync();
 		IndexInfo<String> info = RediSearchUtils.getInfo(commands.ftInfo(fakerIndex));

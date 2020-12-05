@@ -2,13 +2,12 @@ package com.redislabs.riot.redis;
 
 import java.util.Map;
 
-import org.springframework.batch.item.redis.support.AbstractRedisItemWriter;
 import org.springframework.batch.item.redis.support.KeyMaker;
-import org.springframework.batch.item.redis.support.RedisConnectionBuilder;
 import org.springframework.core.convert.converter.Converter;
 
 import com.redislabs.riot.AbstractImportCommand;
 import com.redislabs.riot.HelpCommand;
+import com.redislabs.riot.RedisCommand;
 import com.redislabs.riot.convert.CompositeConverter;
 import com.redislabs.riot.convert.MapFieldExtractor;
 import com.redislabs.riot.convert.ObjectToNumberConverter;
@@ -19,10 +18,10 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.ParentCommand;
 
 @Command(sortOptions = false, abbreviateSynopsis = true)
-public abstract class AbstractRedisCommand<O> extends HelpCommand {
+public abstract class AbstractRedisCommand<O> extends HelpCommand implements RedisCommand<O> {
 
 	@ParentCommand
-	private AbstractImportCommand<?, O> parentCommand;
+	private AbstractImportCommand<?, O> parent;
 
 	@Option(names = { "-s",
 			"--separator" }, description = "Key separator (default: ${DEFAULT-VALUE})", paramLabel = "<str>")
@@ -31,12 +30,6 @@ public abstract class AbstractRedisCommand<O> extends HelpCommand {
 	@Option(names = { "-r",
 			"--remove" }, description = "Remove fields the first time they are used (key or member fields)")
 	private boolean removeFields;
-
-	public abstract AbstractRedisItemWriter<O> writer() throws Exception;
-
-	protected <B extends RedisConnectionBuilder<B>> B configure(B builder) throws Exception {
-		return parentCommand.configure(builder);
-	}
 
 	protected Converter<Map<String, Object>, Double> doubleFieldExtractor(String field) {
 		return numberFieldExtractor(Double.class, field, null);

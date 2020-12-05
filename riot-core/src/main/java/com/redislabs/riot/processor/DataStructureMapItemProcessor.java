@@ -6,13 +6,11 @@ import java.util.Map;
 import java.util.Set;
 
 import org.springframework.batch.item.ItemProcessor;
-import org.springframework.batch.item.redis.support.ConstantConverter;
 import org.springframework.batch.item.redis.support.DataStructure;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.util.Assert;
 
 import com.redislabs.riot.convert.CollectionToStringMapConverter;
-import com.redislabs.riot.convert.IdemConverter;
 import com.redislabs.riot.convert.RegexNamedGroupsExtractor;
 import com.redislabs.riot.convert.StreamToStringMapConverter;
 import com.redislabs.riot.convert.StringToStringMapConverter;
@@ -26,19 +24,12 @@ import lombok.experimental.Accessors;
 public class DataStructureMapItemProcessor implements ItemProcessor<DataStructure, Map<String, Object>> {
 
 	private final Converter<String, Map<String, String>> keyFieldsExtractor;
-
 	private final Converter<Map<String, String>, Map<String, String>> hashConverter;
-
 	private final Converter<List<StreamMessage<String, String>>, Map<String, String>> streamConverter;
-
 	private final Converter<List<String>, Map<String, String>> listConverter;
-
 	private final Converter<Set<String>, Map<String, String>> setConverter;
-
 	private final Converter<List<ScoredValue<String>>, Map<String, String>> zsetConverter;
-
 	private final Converter<String, Map<String, String>> stringConverter;
-
 	private final Converter<Object, Map<String, String>> defaultConverter;
 
 	public DataStructureMapItemProcessor(Converter<String, Map<String, String>> keyFieldsExtractor,
@@ -109,8 +100,8 @@ public class DataStructureMapItemProcessor implements ItemProcessor<DataStructur
 					.<Set<String>>builder().build();
 			ZsetToStringMapConverter zsetConverter = ZsetToStringMapConverter.builder().build();
 			Converter<String, Map<String, String>> stringConverter = StringToStringMapConverter.builder().build();
-			return new DataStructureMapItemProcessor(keyFieldsExtractor, new IdemConverter<>(), listConverter,
-					setConverter, streamConverter, stringConverter, zsetConverter, new ConstantConverter<>(null));
+			return new DataStructureMapItemProcessor(keyFieldsExtractor, c -> c, listConverter, setConverter,
+					streamConverter, stringConverter, zsetConverter, c -> null);
 		}
 
 	}

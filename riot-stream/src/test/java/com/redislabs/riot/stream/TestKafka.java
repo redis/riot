@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -70,9 +71,9 @@ public class TestKafka extends BaseTest {
 			future.get();
 		}
 		StreamImportCommand command = (StreamImportCommand) command("/import.txt");
-		command.execute();
+		command.run();
 		Thread.sleep(200);
-		List<StreamMessage<String, String>> messages = commands().xrange("topic1", Range.create("-", "+"));
+		List<StreamMessage<String, String>> messages = sync.xrange("topic1", Range.create("-", "+"));
 		Assertions.assertEquals(count, messages.size());
 		messages.forEach(m -> Assertions.assertEquals(map(), m.getBody()));
 	}
@@ -89,10 +90,11 @@ public class TestKafka extends BaseTest {
 		String stream = "stream1";
 		int count = 100;
 		for (int index = 0; index < count; index++) {
-			commands().xadd(stream, map());
+			sync.xadd(stream, map());
 		}
 		StreamExportCommand command = (StreamExportCommand) command("/export.txt");
-		MultiTransferExecution execution = command.execute();
+		MultiTransferExecution execution = command.execution();
+		CompletableFuture<Void> future = execution.start();
 		Thread.sleep(200);
 		KafkaConsumer<String, Map<String, Object>> consumer = new KafkaConsumer<>(
 				ImmutableMap.of(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafka.getBootstrapServers(),
@@ -103,7 +105,7 @@ public class TestKafka extends BaseTest {
 		ConsumerRecords<String, Map<String, Object>> records = consumer.poll(Duration.ofSeconds(30));
 		Assertions.assertEquals(count, records.count());
 		records.forEach(r -> Assertions.assertEquals(map(), r.value()));
-		execution.getFuture().cancel(true);
+		future.cancel(true);
 	}
 
 }

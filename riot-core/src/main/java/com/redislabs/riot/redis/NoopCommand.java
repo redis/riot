@@ -2,17 +2,21 @@ package com.redislabs.riot.redis;
 
 import java.util.Map;
 
-import org.springframework.batch.item.redis.RedisNoOpItemWriter;
-import org.springframework.batch.item.redis.support.AbstractRedisItemWriter;
+import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
+import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.item.redis.NoOpItemWriter;
 
+import io.lettuce.core.AbstractRedisClient;
+import io.lettuce.core.api.StatefulConnection;
 import picocli.CommandLine.Command;
 
 @Command(name = "noop")
 public class NoopCommand extends AbstractRedisCommand<Map<String, Object>> {
 
 	@Override
-	public AbstractRedisItemWriter<Map<String, Object>> writer() throws Exception {
-		return configure(RedisNoOpItemWriter.<Map<String, Object>>builder()).build();
+	public ItemWriter<Map<String, Object>> writer(AbstractRedisClient client,
+			GenericObjectPoolConfig<StatefulConnection<String, String>> poolConfig) throws Exception {
+		return NoOpItemWriter.<Map<String, Object>>builder().client(client).poolConfig(poolConfig).build();
 	}
 
 }

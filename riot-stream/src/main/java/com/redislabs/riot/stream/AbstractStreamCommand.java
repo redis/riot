@@ -1,12 +1,11 @@
 package com.redislabs.riot.stream;
 
 import java.time.Duration;
-import java.time.temporal.ChronoUnit;
 
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.batch.item.redis.support.Transfer.TransferBuilder;
+import org.springframework.batch.item.redis.support.Transfer;
 
 import com.redislabs.riot.AbstractTransferCommand;
 
@@ -25,9 +24,11 @@ public abstract class AbstractStreamCommand<I, O> extends AbstractTransferComman
 	private long flushInterval = 50;
 
 	@Override
-	protected TransferBuilder<I, O> transfer(ItemReader<I> reader, ItemProcessor<I, O> processor, ItemWriter<O> writer)
+	protected Transfer<I, O> transfer(ItemReader<I> reader, ItemProcessor<I, O> processor, ItemWriter<O> writer)
 			throws Exception {
-		return super.transfer(reader, processor, writer).flushInterval(Duration.of(flushInterval, ChronoUnit.MILLIS));
+		Transfer<I, O> transfer = super.transfer(reader, processor, writer);
+		transfer.getOptions().setFlushInterval(Duration.ofMillis(flushInterval));
+		return transfer;
 	}
 
 	@Override

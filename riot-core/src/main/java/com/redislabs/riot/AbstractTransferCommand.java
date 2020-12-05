@@ -1,21 +1,25 @@
 package com.redislabs.riot;
 
-import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemStreamSupport;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.redis.support.BoundedItemReader;
 import org.springframework.batch.item.redis.support.MultiTransferExecution;
+import org.springframework.batch.item.redis.support.MultiTransferExecutionListenerAdapter;
 import org.springframework.batch.item.redis.support.Transfer;
-import org.springframework.batch.item.redis.support.Transfer.TransferBuilder;
 import org.springframework.batch.item.redis.support.TransferExecution;
 import org.springframework.batch.item.redis.support.TransferExecutionListener;
+import org.springframework.batch.item.redis.support.TransferOptions;
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
 import org.springframework.util.ClassUtils;
 
+import io.lettuce.core.AbstractRedisClient;
+import io.lettuce.core.RedisURI;
+import io.lettuce.core.api.StatefulConnection;
 import lombok.extern.slf4j.Slf4j;
 import me.tongfei.progressbar.ProgressBar;
 import me.tongfei.progressbar.ProgressBarBuilder;
@@ -35,50 +39,74 @@ public abstract class AbstractTransferCommand<I, O> extends RiotCommand {
 	@Override
 	public void run() {
 		try {
-			execute().getFuture().join();
+			execution().start().get();
 		} catch (Exception e) {
 			log.error("Could not execute command", e);
 		}
 	}
 
-	public MultiTransferExecution execute() throws Exception {
-		List<TransferExecution<I, O>> executions = new ArrayList<>();
-		for (Transfer<I, O> transfer : transfers()) {
-			TransferExecution<I, O> execution = transfer.execute();
-			ProgressBarBuilder builder = new ProgressBarBuilder();
-			ItemReader<I> reader = transfer.getReader();
-			if (reader instanceof BoundedItemReader) {
-				builder.setInitialMax(((BoundedItemReader<I>) reader).available());
+	public MultiTransferExecution execution() throws Exception {
+		RedisOptions redisOptions = getRiotApp().getRedisOptions();
+		AbstractRedisClient client = redisOptions.client();
+		List<Transfer<I, O>> transfers = transfers(redisOptions.redisURI(), client, redisOptions.poolConfig());
+		MultiTransferExecution execution = new MultiTransferExecution(transfers);
+		configure(execution);
+		execution.addListener(new MultiTransferExecutionListenerAdapter() {
+			@Override
+			public void onStart(TransferExecution<?, ?> execution) {
+				if (getRiotApp().isDisableProgress()) {
+					return;
+				}
+				execution.addListener(new ProgressReporter(execution));
 			}
-			builder.setTaskName(transfer.getName());
-			builder.showSpeed();
-			ProgressBar progressBar = builder.build();
-			execution.addListener(new TransferExecutionListener() {
 
-				@Override
-				public void onProgress(long count) {
-					progressBar.stepTo(count);
-				}
+			@Override
+			public void onComplete() {
+				client.shutdown();
+				client.getResources().shutdown();
+			}
 
-				@Override
-				public void onError(Throwable throwable) {
-					log.error("{}: ", throwable);
-				}
-
-				@Override
-				public void onComplete() {
-					progressBar.close();
-
-				}
-			});
-			executions.add(execution);
-		}
-		return new MultiTransferExecution(executions);
+		});
+		return execution;
 	}
 
-	protected abstract List<Transfer<I, O>> transfers() throws Exception;
+	protected void configure(MultiTransferExecution execution) {
+	}
 
-	protected TransferBuilder<I, O> transfer(ItemReader<I> reader, ItemProcessor<I, O> processor, ItemWriter<O> writer)
+	private class ProgressReporter implements TransferExecutionListener {
+
+		private final ProgressBar progressBar;
+
+		public ProgressReporter(TransferExecution<?, ?> execution) {
+			ProgressBarBuilder builder = new ProgressBarBuilder();
+			if (execution.getTransfer().getReader() instanceof BoundedItemReader) {
+				builder.setInitialMax(((BoundedItemReader<?>) execution.getTransfer().getReader()).available());
+			}
+			builder.setTaskName(execution.getTransfer().getName());
+			builder.showSpeed();
+			this.progressBar = builder.build();
+		}
+
+		public void onUpdate(long count) {
+			progressBar.stepTo(count);
+		}
+
+		@Override
+		public void onError(Throwable throwable) {
+			log.error("{}: ", throwable);
+		}
+
+		@Override
+		public void onComplete() {
+			progressBar.close();
+
+		}
+	}
+
+	protected abstract List<Transfer<I, O>> transfers(RedisURI uri, AbstractRedisClient client,
+			GenericObjectPoolConfig<StatefulConnection<String, String>> poolConfig) throws Exception;
+
+	protected Transfer<I, O> transfer(ItemReader<I> reader, ItemProcessor<I, O> processor, ItemWriter<O> writer)
 			throws Exception {
 		if (maxItemCount != null) {
 			if (reader instanceof AbstractItemCountingItemStreamItemReader) {
@@ -88,8 +116,8 @@ public abstract class AbstractTransferCommand<I, O> extends RiotCommand {
 		}
 		String readerName = name(reader);
 		String name = String.format(transferNameFormat(), readerName);
-		return Transfer.<I, O>builder().name(name).reader(reader).processor(processor).writer(writer).batch(batch)
-				.threads(threads);
+		return Transfer.<I, O>builder().name(name).reader(reader).processor(processor).writer(writer)
+				.options(TransferOptions.builder().batch(batch).threads(threads).build()).build();
 	}
 
 	protected abstract String transferNameFormat();

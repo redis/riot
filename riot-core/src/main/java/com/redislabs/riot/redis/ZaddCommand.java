@@ -2,8 +2,12 @@ package com.redislabs.riot.redis;
 
 import java.util.Map;
 
-import org.springframework.batch.item.redis.RedisSortedSetItemWriter;
+import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
+import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.item.redis.SortedSetItemWriter;
 
+import io.lettuce.core.AbstractRedisClient;
+import io.lettuce.core.api.StatefulConnection;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
@@ -16,8 +20,9 @@ public class ZaddCommand extends AbstractCollectionCommand {
 	private double scoreDefault = 1;
 
 	@Override
-	public RedisSortedSetItemWriter<Map<String, Object>> writer() throws Exception {
-		return configure(RedisSortedSetItemWriter.<Map<String, Object>>builder()
+	public ItemWriter<Map<String, Object>> writer(AbstractRedisClient client,
+			GenericObjectPoolConfig<StatefulConnection<String, String>> poolConfig) throws Exception {
+		return configure(SortedSetItemWriter.<Map<String, Object>>builder().client(client).poolConfig(poolConfig)
 				.scoreConverter(numberFieldExtractor(Double.class, scoreField, scoreDefault))).build();
 	}
 

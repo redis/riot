@@ -30,7 +30,10 @@ public abstract class BaseTest {
 	private static final int REDIS_PORT = 6379;
 	private static final DockerImageName DOCKER_IMAGE_NAME = DockerImageName.parse("redislabs/redisearch:latest");
 
-	private RedisClient client;
+	protected RedisURI redisURI;
+	protected RedisClient client;
+	protected StatefulRedisConnection<String, String> connection;
+	protected RedisCommands<String, String> sync;
 
 	@Container
 	protected static final GenericContainer redis = redisContainer();
@@ -42,27 +45,25 @@ public abstract class BaseTest {
 
 	@BeforeEach
 	public void setup() {
-		client = RedisClient.create(RedisURI.create(redis.getHost(), redis.getFirstMappedPort()));
-		client.connect().sync().flushall();
-	}
-
-	protected StatefulRedisConnection<String, String> connection() {
-		return client.connect();
-	}
-
-	protected RedisCommands<String, String> commands() {
-		return client.connect().sync();
+		redisURI = redisURI(redis);
+		client = RedisClient.create(redisURI);
+		connection = client.connect();
+		sync = connection.sync();
+		sync.flushall();
 	}
 
 	@AfterEach
 	public void teardown() {
-		if (client != null) {
-			client.shutdown();
-		}
+		connection.close();
+		client.shutdown();
 	}
 
 	protected String process(String command) {
-		return connectionArgs(redis) + removeConnectionArgs(command);
+		return baseArgs() + " " + connectionArgs(redis) + removeConnectionArgs(command);
+	}
+
+	private String baseArgs() {
+		return "--no-progress --debug";
 	}
 
 	private String removeConnectionArgs(String command) {

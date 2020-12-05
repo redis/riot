@@ -40,8 +40,11 @@ public class RiotApp implements Runnable {
 	@Option(names = "--stacktrace", description = "Print out the stacktrace for all exceptions.")
 	private boolean stacktrace;
 	@Getter
+	@Option(names = "--no-progress", description = "Disable progress bars", hidden = true)
+	private boolean disableProgress;
+	@Getter
 	@ArgGroup(heading = "Redis connection options%n", exclusive = false)
-	private RedisConnectionOptions redisConnectionOptions = new RedisConnectionOptions();
+	private RedisOptions redisOptions = new RedisOptions();
 
 	public int execute(String... args) {
 		try {
@@ -64,6 +67,10 @@ public class RiotApp implements Runnable {
 		handler.setFormatter(new OneLineLogFormat(debug || stacktrace));
 		activeLogger.addHandler(handler);
 		Logger.getLogger(ROOT_LOGGER).setLevel(loggingLevel());
+		if (debug) {
+			Logger.getLogger("io.lettuce").setLevel(Level.INFO);
+			Logger.getLogger("io.netty").setLevel(Level.INFO);
+		}
 	}
 
 	public CommandLine commandLine() {

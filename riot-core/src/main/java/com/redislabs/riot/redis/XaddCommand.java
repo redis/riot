@@ -2,14 +2,17 @@ package com.redislabs.riot.redis;
 
 import java.util.Map;
 
-import org.springframework.batch.item.redis.RedisStreamItemWriter;
-import org.springframework.batch.item.redis.support.ConstantConverter;
+import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
+import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.item.redis.StreamItemWriter;
 import org.springframework.core.convert.converter.Converter;
 
 import com.redislabs.riot.convert.MapFlattener;
 import com.redislabs.riot.convert.ObjectToStringConverter;
 
+import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.XAddArgs;
+import io.lettuce.core.api.StatefulConnection;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
@@ -26,16 +29,20 @@ public class XaddCommand extends AbstractKeyCommand {
 	private boolean approximateTrimming;
 
 	@Override
-	public RedisStreamItemWriter<Map<String, Object>> writer() throws Exception {
-		return configure(RedisStreamItemWriter.<Map<String, Object>>builder().argsConverter(argsConverter())
-				.bodyConverter(new MapFlattener<>(new ObjectToStringConverter()))).build();
+	public ItemWriter<Map<String, Object>> writer(AbstractRedisClient client,
+			GenericObjectPoolConfig<StatefulConnection<String, String>> poolConfig) throws Exception {
+		return configure(StreamItemWriter.<Map<String, Object>>builder().client(client).poolConfig(poolConfig)
+				.argsConverter(argsConverter()).bodyConverter(new MapFlattener<>(new ObjectToStringConverter())))
+						.build();
 	}
 
 	private Converter<Map<String, Object>, XAddArgs> argsConverter() {
 		if (idField == null) {
-			return new ConstantConverter<>(xAddArgs());
+			XAddArgs args = xAddArgs();
+			return s -> args;
 		}
-		return new XAddArgsConverter();
+		Converter<Map<String, Object>, String> idExtractor = stringFieldExtractor(idField);
+		return s -> xAddArgs().id(idExtractor.convert(s));
 	}
 
 	private XAddArgs xAddArgs() {
@@ -45,17 +52,6 @@ public class XaddCommand extends AbstractKeyCommand {
 		}
 		args.approximateTrimming(approximateTrimming);
 		return args;
-	}
-
-	class XAddArgsConverter implements Converter<Map<String, Object>, XAddArgs> {
-
-		private final Converter<Map<String, Object>, String> idExtractor = stringFieldExtractor(idField);
-
-		@Override
-		public XAddArgs convert(Map<String, Object> source) {
-			return xAddArgs().id(idExtractor.convert(source));
-		}
-
 	}
 
 }

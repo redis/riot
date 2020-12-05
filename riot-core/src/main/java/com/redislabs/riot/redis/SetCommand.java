@@ -2,7 +2,9 @@ package com.redislabs.riot.redis;
 
 import java.util.Map;
 
-import org.springframework.batch.item.redis.RedisStringItemWriter;
+import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
+import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.item.redis.StringItemWriter;
 import org.springframework.core.convert.converter.Converter;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -11,6 +13,8 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.redislabs.riot.convert.ObjectMapperConverter;
 
+import io.lettuce.core.AbstractRedisClient;
+import io.lettuce.core.api.StatefulConnection;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
@@ -29,9 +33,10 @@ public class SetCommand extends AbstractKeyCommand {
 	private String root;
 
 	@Override
-	public RedisStringItemWriter<Map<String, Object>> writer() throws Exception {
-		return configure(RedisStringItemWriter.<Map<String, Object>>builder().valueConverter(stringValueConverter()))
-				.build();
+	public ItemWriter<Map<String, Object>> writer(AbstractRedisClient client,
+			GenericObjectPoolConfig<StatefulConnection<String, String>> poolConfig) throws Exception {
+		return configure(StringItemWriter.<Map<String, Object>>builder().client(client).poolConfig(poolConfig)
+				.valueConverter(stringValueConverter())).build();
 	}
 
 	private Converter<Map<String, Object>, String> stringValueConverter() {

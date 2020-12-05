@@ -2,16 +2,21 @@ package com.redislabs.riot.redis;
 
 import java.util.Map;
 
-import org.springframework.batch.item.redis.RedisSetItemWriter;
+import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
+import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.item.redis.SetItemWriter;
 
+import io.lettuce.core.AbstractRedisClient;
+import io.lettuce.core.api.StatefulConnection;
 import picocli.CommandLine.Command;
 
 @Command(name = "sadd")
 public class SaddCommand extends AbstractCollectionCommand {
 
 	@Override
-	public RedisSetItemWriter<Map<String, Object>> writer() throws Exception {
-		return configure(RedisSetItemWriter.<Map<String, Object>>builder()).build();
+	public ItemWriter<Map<String, Object>> writer(AbstractRedisClient client,
+			GenericObjectPoolConfig<StatefulConnection<String, String>> poolConfig) throws Exception {
+		return configure(SetItemWriter.<Map<String, Object>>builder().client(client).poolConfig(poolConfig)).build();
 	}
 
 }

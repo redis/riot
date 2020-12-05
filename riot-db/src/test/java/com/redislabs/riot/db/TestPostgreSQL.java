@@ -41,8 +41,7 @@ public class TestPostgreSQL extends DbTest {
 		Statement statement = connection.createStatement();
 		statement.execute("CREATE TABLE mytable (id smallint NOT NULL, field1 bpchar, field2 bpchar)");
 		statement.execute("ALTER TABLE ONLY mytable ADD CONSTRAINT pk_mytable PRIMARY KEY (id)");
-		DataGenerator.builder().connection(connection()).dataTypes(Collections.singletonList(DataType.HASH)).build()
-				.run();
+		DataGenerator.builder().client(client).dataTypes(Collections.singletonList(DataType.HASH)).build().run();
 		executeFile("/postgresql/export.txt");
 		statement.execute("SELECT COUNT(*) AS count FROM mytable");
 		ResultSet countResultSet = statement.getResultSet();
@@ -54,7 +53,7 @@ public class TestPostgreSQL extends DbTest {
 			Assertions.assertEquals(index, resultSet.getInt("id"));
 			index++;
 		}
-		Assertions.assertEquals(commands().dbsize().longValue(), index);
+		Assertions.assertEquals(sync.dbsize().longValue(), index);
 	}
 
 	@Test
@@ -68,11 +67,11 @@ public class TestPostgreSQL extends DbTest {
 		executeFile("/postgresql/import.txt");
 		Statement statement = connection.createStatement();
 		statement.execute("SELECT COUNT(*) AS count FROM orders");
-		List<String> keys = commands().keys("order:*");
+		List<String> keys = sync.keys("order:*");
 		ResultSet resultSet = statement.getResultSet();
 		resultSet.next();
 		Assertions.assertEquals(resultSet.getLong("count"), keys.size());
-		Map<String, String> order = commands().hgetall("order:10248");
+		Map<String, String> order = sync.hgetall("order:10248");
 		Assert.assertEquals("10248", order.get("order_id"));
 		Assert.assertEquals("VINET", order.get("customer_id"));
 		connection.close();
@@ -93,7 +92,7 @@ public class TestPostgreSQL extends DbTest {
 		long count = 0;
 		while (resultSet.next()) {
 			int orderId = resultSet.getInt("order_id");
-			String order = commands().get("order:" + orderId);
+			String order = sync.get("order:" + orderId);
 			ObjectMapper mapper = new ObjectMapper();
 			ObjectReader reader = mapper.readerFor(Map.class);
 			Map<String, Object> orderMap = reader.readValue(order);
@@ -105,7 +104,7 @@ public class TestPostgreSQL extends DbTest {
 			Assert.assertEquals(resultSet.getFloat("freight"), ((Double) orderMap.get("freight")).floatValue(), 0);
 			count++;
 		}
-		List<String> keys = commands().keys("order:*");
+		List<String> keys = sync.keys("order:*");
 		Assertions.assertEquals(count, keys.size());
 		connection.close();
 	}

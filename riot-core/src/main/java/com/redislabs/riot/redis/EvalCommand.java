@@ -2,12 +2,16 @@ package com.redislabs.riot.redis;
 
 import java.util.Map;
 
-import org.springframework.batch.item.redis.RedisEvalItemWriter;
+import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
+import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.item.redis.EvalItemWriter;
 import org.springframework.core.convert.converter.Converter;
 
 import com.redislabs.riot.convert.MapToStringArrayConverter;
 
+import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.ScriptOutputType;
+import io.lettuce.core.api.StatefulConnection;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
@@ -27,9 +31,11 @@ public class EvalCommand extends AbstractRedisCommand<Map<String, Object>> {
 	private ScriptOutputType outputType = ScriptOutputType.STATUS;
 
 	@Override
-	public RedisEvalItemWriter<Map<String, Object>> writer() throws Exception {
-		return configure(RedisEvalItemWriter.<Map<String, Object>>builder().sha(sha).outputType(outputType)
-				.keysConverter(mapToArrayConverter(keys)).argsConverter(mapToArrayConverter(args))).build();
+	public ItemWriter<Map<String, Object>> writer(AbstractRedisClient client,
+			GenericObjectPoolConfig<StatefulConnection<String, String>> poolConfig) throws Exception {
+		return EvalItemWriter.<Map<String, Object>>builder().client(client).poolConfig(poolConfig).sha(sha)
+				.outputType(outputType).keysConverter(mapToArrayConverter(keys))
+				.argsConverter(mapToArrayConverter(args)).build();
 	}
 
 	@SuppressWarnings("unchecked")

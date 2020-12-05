@@ -22,16 +22,16 @@ public class TestXml extends AbstractFileTest {
 	@Test
 	public void importHmset() throws Exception {
 		executeFile("/xml/import-hmset.txt");
-		List<String> keys = commands().keys("trade:*");
+		List<String> keys = sync.keys("trade:*");
 		Assertions.assertEquals(3, keys.size());
-		Map<String, String> trade1 = commands().hgetall("trade:1");
+		Map<String, String> trade1 = sync.hgetall("trade:1");
 		Assertions.assertEquals("XYZ0001", trade1.get("isin"));
 	}
 
 	@SuppressWarnings({ "incomplete-switch", "rawtypes", "unchecked" })
 	@Test
 	public void export() throws Exception {
-		DataGenerator.builder().connection(connection()).build().run();
+		DataGenerator.builder().client(client).build().run();
 		Path file = tempFile("redis.xml");
 		executeFile("/xml/export.txt");
 		XmlItemReaderBuilder<DataStructure> builder = new XmlItemReaderBuilder<>();
@@ -42,8 +42,8 @@ public class TestXml extends AbstractFileTest {
 		builder.xmlObjectReader(xmlObjectReader);
 		XmlItemReader<DataStructure> reader = (XmlItemReader) builder.build();
 		List<DataStructure> records = readAll(reader);
-		Assertions.assertEquals(commands().dbsize(), records.size());
-		RedisCommands<String, String> commands = commands();
+		Assertions.assertEquals(sync.dbsize(), records.size());
+		RedisCommands<String, String> commands = sync;
 		for (DataStructure record : records) {
 			String key = record.getKey();
 			switch (record.getType()) {

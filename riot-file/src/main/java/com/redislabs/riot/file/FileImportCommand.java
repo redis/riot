@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.file.FlatFileItemReader;
@@ -21,7 +22,7 @@ import org.springframework.batch.item.file.transform.FixedLengthTokenizer;
 import org.springframework.batch.item.json.JacksonJsonObjectReader;
 import org.springframework.batch.item.json.JsonItemReader;
 import org.springframework.batch.item.json.builder.JsonItemReaderBuilder;
-import org.springframework.batch.item.redis.RedisDataStructureItemWriter;
+import org.springframework.batch.item.redis.DataStructureItemWriter;
 import org.springframework.batch.item.redis.support.DataStructure;
 import org.springframework.batch.item.redis.support.Transfer;
 import org.springframework.batch.item.support.AbstractItemStreamItemReader;
@@ -33,8 +34,11 @@ import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.redislabs.riot.AbstractImportCommand;
+import com.redislabs.riot.AbstractMapImportCommand;
 
+import io.lettuce.core.AbstractRedisClient;
+import io.lettuce.core.RedisURI;
+import io.lettuce.core.api.StatefulConnection;
 import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
@@ -43,7 +47,7 @@ import picocli.CommandLine.Parameters;
 
 @Slf4j
 @Command(name = "import", description = "Import file(s) into Redis")
-public class FileImportCommand extends AbstractImportCommand<Object, Object> {
+public class FileImportCommand extends AbstractMapImportCommand<Object, Object> {
 
 	@Parameters(arity = "1..*", description = "One ore more files or URLs", paramLabel = "FILE")
 	private String[] files;
@@ -52,8 +56,10 @@ public class FileImportCommand extends AbstractImportCommand<Object, Object> {
 	@ArgGroup(exclusive = false, heading = "Flat file options%n")
 	protected FlatFileOptions flatFileOptions = new FlatFileOptions();
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
-	protected List<Transfer<Object, Object>> transfers() throws Exception {
+	protected List<Transfer<Object, Object>> transfers(RedisURI uri, AbstractRedisClient client,
+			GenericObjectPoolConfig<StatefulConnection<String, String>> poolConfig) throws Exception {
 		List<String> fileList = new ArrayList<>();
 		for (String file : files) {
 			if (fileOptions.isFile(file)) {
@@ -75,14 +81,15 @@ public class FileImportCommand extends AbstractImportCommand<Object, Object> {
 			}
 		}
 		List<Transfer<Object, Object>> transfers = new ArrayList<>(fileList.size());
-		ItemProcessor<Object, Object> processor = processor();
-		ItemWriter<Object> writer = writer();
+		ItemProcessor<Object, Object> processor = getRedisCommands().isEmpty()
+				? (ItemProcessor) new JsonDataStructureItemProcessor()
+				: (ItemProcessor) mapProcessor(client);
 		for (String file : fileList) {
 			FileType fileType = fileOptions.fileType(file);
 			Resource resource = fileOptions.inputResource(file);
 			AbstractItemStreamItemReader<Object> reader = reader(file, fileType, resource);
 			reader.setName(fileOptions.filename(resource));
-			transfers.add(transfer(reader, processor, writer).build());
+			transfers.add(transfer(reader, processor, writer(client, poolConfig)));
 		}
 		return transfers;
 	}
@@ -162,21 +169,14 @@ public class FileImportCommand extends AbstractImportCommand<Object, Object> {
 		}
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	protected ItemProcessor<Object, Object> processor() throws Exception {
-		if (getRedisCommands().isEmpty()) {
-			return (ItemProcessor) new JsonDataStructureItemProcessor();
-		}
-		return (ItemProcessor) mapProcessor();
-	}
-
 	@Override
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	protected ItemWriter<Object> writer() throws Exception {
+	protected ItemWriter<Object> writer(AbstractRedisClient client,
+			GenericObjectPoolConfig<StatefulConnection<String, String>> poolConfig) throws Exception {
 		if (getRedisCommands().isEmpty()) {
-			return (ItemWriter) configure(RedisDataStructureItemWriter.builder()).build();
+			return (ItemWriter) DataStructureItemWriter.builder().client(client).poolConfig(poolConfig).build();
 		}
-		return super.writer();
+		return super.writer(client, poolConfig);
 	}
 
 }

@@ -1,11 +1,15 @@
 package com.redis.riot.redis;
 
+import org.junit.Assert;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.batch.item.redis.DataStructureItemReader;
+import org.springframework.batch.item.redis.DatabaseComparator;
+import org.springframework.batch.item.redis.LiveKeyDumpItemReader;
+import org.springframework.batch.item.redis.support.DataStructureReader;
+import org.springframework.batch.item.redis.support.LiveKeyItemReader;
 import org.springframework.batch.item.redis.support.MultiTransferExecution;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -24,11 +28,12 @@ import io.lettuce.core.api.sync.RedisCommands;
 @SuppressWarnings({ "rawtypes" })
 public class TestReplicate extends BaseTest {
 
-	private final static Logger log = LoggerFactory.getLogger(TestReplicate.class);
-
 	@Container
 	private static final GenericContainer targetRedis = redisContainer();
+	private RedisURI targetRedisURI;
 	private RedisClient targetClient;
+	private StatefulRedisConnection<String, String> targetConnection;
+	private RedisCommands<String, String> targetSync;
 
 	@Override
 	protected RiotApp app() {
@@ -42,26 +47,33 @@ public class TestReplicate extends BaseTest {
 
 	@BeforeEach
 	public void setupTarget() {
-		RedisURI targetRedisURI = redisURI(targetRedis);
+		targetRedisURI = redisURI(targetRedis);
 		targetClient = RedisClient.create(targetRedisURI);
-		targetClient.connect().sync().flushall();
+		targetConnection = targetClient.connect();
+		targetSync = targetConnection.sync();
+		targetSync.flushall();
 	}
 
 	@AfterEach
 	public void teardownTarget() {
-		if (targetClient != null) {
-			targetClient.shutdown();
-		}
+		targetSync = null;
+		targetConnection.close();
+		targetClient.shutdown();
 	}
 
 	@Test
 	public void replicate() throws Exception {
-		targetClient.connect().sync().flushall();
-		DataGenerator.builder().connection(connection()).build().run();
-		Long sourceSize = commands().dbsize();
+		targetSync.flushall();
+		DataGenerator.builder().client(client).build().run();
+		Long sourceSize = sync.dbsize();
 		Assertions.assertTrue(sourceSize > 0);
 		executeFile("/replicate.txt");
-		Assertions.assertEquals(sourceSize, targetClient.connect().sync().dbsize());
+		Assertions.assertEquals(sourceSize, targetSync.dbsize());
+		DataStructureItemReader sourceReader = DataStructureItemReader.builder().client(client).build();
+		DataStructureReader targetReader = DataStructureReader.builder().client(targetClient).build();
+		DatabaseComparator comparator = DatabaseComparator.builder().left(sourceReader).right(targetReader).build();
+		comparator.execution().start().get();
+		Assert.assertEquals(Math.toIntExact(sync.dbsize()), comparator.getOk().size());
 	}
 
 	@Override
@@ -73,28 +85,25 @@ public class TestReplicate extends BaseTest {
 
 	@Test
 	public void replicateLive() throws Exception {
-		StatefulRedisConnection<String, String> connection = connection();
-		connection.sync().configSet("notify-keyspace-events", "AK");
-		connection.close();
-		StatefulRedisConnection<String, String> targetConnection = targetClient.connect();
-		targetConnection.sync().flushall();
-		DataGenerator.builder().connection(connection()).build().run();
+		sync.configSet("notify-keyspace-events", "AK");
+		DataGenerator.builder().client(client).build().run();
 		ReplicateCommand command = (ReplicateCommand) command("/replicate-live.txt");
-		MultiTransferExecution execution = command.execute();
+		MultiTransferExecution execution = command.execution();
+		execution.start();
 		Thread.sleep(400);
-		RedisCommands<String, String> commands = commands();
 		int count = 39;
 		for (int index = 0; index < count; index++) {
-			commands.set("livestring:" + index, "value" + index);
+			sync.set("livestring:" + index, "value" + index);
 			Thread.sleep(1);
 		}
-		Thread.sleep(200);
-		log.info("Stopping transfer");
-		execution.getFuture().cancel(true);
-		Long sourceSize = commands.dbsize();
+		Thread.sleep(100);
+		LiveKeyDumpItemReader reader = (LiveKeyDumpItemReader) execution.getExecutions().get(1).getTransfer()
+				.getReader();
+		LiveKeyItemReader keyReader = (LiveKeyItemReader) reader.getKeyReader();
+		keyReader.stop();
+		Long sourceSize = sync.dbsize();
 		Assertions.assertTrue(sourceSize > 0);
-		Long targetSize = targetConnection.sync().dbsize();
+		Long targetSize = targetSync.dbsize();
 		Assertions.assertEquals(sourceSize, targetSize);
-		targetConnection.close();
 	}
 }

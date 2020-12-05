@@ -43,9 +43,9 @@ public class TestGen extends BaseTest {
 	@Test
 	public void genFakerHash() throws Exception {
 		executeFile("/import-hmset.txt");
-		List<String> keys = commands().keys("person:*");
+		List<String> keys = sync.keys("person:*");
 		Assertions.assertEquals(1000, keys.size());
-		Map<String, String> person = commands().hgetall(keys.get(0));
+		Map<String, String> person = sync.hgetall(keys.get(0));
 		Assertions.assertTrue(person.containsKey("firstName"));
 		Assertions.assertTrue(person.containsKey("lastName"));
 		Assertions.assertTrue(person.containsKey("address"));
@@ -53,9 +53,9 @@ public class TestGen extends BaseTest {
 
 	public void genFakerScriptProcessorHash() throws Exception {
 		executeFile("/script-processor.txt");
-		List<String> keys = commands().keys("person:*");
+		List<String> keys = sync.keys("person:*");
 		Assertions.assertEquals(100, keys.size());
-		Map<String, String> person = commands().hgetall(keys.get(0));
+		Map<String, String> person = sync.hgetall(keys.get(0));
 		Assertions.assertTrue(person.containsKey("firstName"));
 		Assertions.assertTrue(person.containsKey("lastName"));
 		Assertions.assertTrue(person.containsKey("address"));
@@ -65,7 +65,7 @@ public class TestGen extends BaseTest {
 	@Test
 	public void genFakerSet() throws Exception {
 		executeFile("/import-sadd.txt");
-		Set<String> names = commands().smembers("got:characters");
+		Set<String> names = sync.smembers("got:characters");
 		Assertions.assertTrue(names.size() > 10);
 		Assertions.assertTrue(names.contains("Lysa Meadows"));
 	}
@@ -73,16 +73,16 @@ public class TestGen extends BaseTest {
 	@Test
 	public void genFakerZset() throws Exception {
 		executeFile("/import-zadd.txt");
-		List<String> keys = commands().keys("leases:*");
+		List<String> keys = sync.keys("leases:*");
 		Assertions.assertTrue(keys.size() > 100);
 		String key = keys.get(0);
-		Assertions.assertTrue(commands().zcard(key) > 0);
+		Assertions.assertTrue(sync.zcard(key) > 0);
 	}
 
 	@Test
 	public void genFakerStream() throws Exception {
 		executeFile("/import-xadd.txt");
-		List<StreamMessage<String, String>> messages = commands().xrange("teststream:1", Range.unbounded());
+		List<StreamMessage<String, String>> messages = sync.xrange("teststream:1", Range.unbounded());
 		Assertions.assertTrue(messages.size() > 0);
 	}
 
@@ -99,7 +99,7 @@ public class TestGen extends BaseTest {
 		String FIELD_NAME = "name";
 		String FIELD_STYLE = "style";
 		String FIELD_OUNCES = "ounces";
-		commands().flushall();
+		sync.flushall();
 		Schema<String> schema = Schema.<String>builder()
 				.field(TagField.<String>builder().name(FIELD_ID).sortable(true).build())
 				.field(TextField.<String>builder().name(FIELD_NAME).sortable(true).build())

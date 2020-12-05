@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.avro.generic.GenericRecord;
+import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.springframework.batch.item.redis.RedisStreamItemWriter;
-import org.springframework.batch.item.redis.support.ConstantConverter;
+import org.springframework.batch.item.redis.StreamItemWriter;
 import org.springframework.batch.item.redis.support.Transfer;
 import org.springframework.core.convert.converter.Converter;
 
@@ -17,7 +17,10 @@ import com.redislabs.riot.convert.ObjectToStringConverter;
 import com.redislabs.riot.stream.kafka.KafkaItemReader;
 import com.redislabs.riot.stream.kafka.KafkaItemReaderBuilder;
 
+import io.lettuce.core.AbstractRedisClient;
+import io.lettuce.core.RedisURI;
 import io.lettuce.core.XAddArgs;
+import io.lettuce.core.api.StatefulConnection;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
@@ -36,17 +39,19 @@ public class StreamImportCommand
 	private boolean approximateTrimming;
 
 	@Override
-	protected List<Transfer<ConsumerRecord<String, Object>, ConsumerRecord<String, Object>>> transfers()
+	protected List<Transfer<ConsumerRecord<String, Object>, ConsumerRecord<String, Object>>> transfers(RedisURI uri,
+			AbstractRedisClient client, GenericObjectPoolConfig<StatefulConnection<String, String>> poolConfig)
 			throws Exception {
 		List<Transfer<ConsumerRecord<String, Object>, ConsumerRecord<String, Object>>> transfers = new ArrayList<>();
-		RedisStreamItemWriter<ConsumerRecord<String, Object>> writer = configure(
-				RedisStreamItemWriter.<ConsumerRecord<String, Object>>builder().keyConverter(keyConverter())
-						.argsConverter(new ConstantConverter<>(xAddArgs())).bodyConverter(bodyConverter())).build();
+		XAddArgs xAddArgs = xAddArgs();
+		StreamItemWriter<ConsumerRecord<String, Object>> writer = StreamItemWriter
+				.<ConsumerRecord<String, Object>>builder().client(client).poolConfig(poolConfig)
+				.keyConverter(keyConverter()).argsConverter(s -> xAddArgs).bodyConverter(bodyConverter()).build();
 		for (String topic : topics) {
 			KafkaItemReader<String, Object> reader = new KafkaItemReaderBuilder<String, Object>().partitions(0)
 					.consumerProperties(kafkaOptions.consumerProperties()).partitions(0).name(topic).saveState(false)
 					.topic(topic).build();
-			transfers.add(transfer(reader, null, writer).build());
+			transfers.add(transfer(reader, null, writer));
 		}
 		return transfers;
 	}
@@ -92,7 +97,7 @@ public class StreamImportCommand
 		if (key == null) {
 			return ConsumerRecord::topic;
 		}
-		return new ConstantConverter<>(key);
+		return s -> key;
 	}
 
 	private XAddArgs xAddArgs() {
