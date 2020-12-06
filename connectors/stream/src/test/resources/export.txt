@@ -1,0 +1,1 @@
+❯ riot-stream -h localhost -p 6379 export stream1 --broker localhost:9092

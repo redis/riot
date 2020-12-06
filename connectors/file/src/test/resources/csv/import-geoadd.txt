@@ -1,0 +1,1 @@
+❯ riot-file import https://redis-developer.github.io/riot/airports.csv --header geoadd --keyspace airportgeo --members AirportID --lon Longitude --lat Latitude
