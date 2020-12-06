@@ -1,0 +1,8 @@
+[
+ {"key":"string:615","ttl":-1,"value":"value:615","type":"STRING"},
+ {"key":"hash:511","ttl":-1,"value":{"field1":"value511","field2":"value511"},"type":"HASH"},
+ {"key":"list:1","ttl":-1,"value":["member:991","member:981"],"type":"LIST"}, 
+ {"key":"set:2","ttl":-1,"value":["member:2","member:3"],"type":"SET"}, 
+ {"key":"zset:0","ttl":-1,"value":[{"value":"member:1","score":1.0},{"value":"member:2","score":2.0}],"type":"ZSET"},
+ {"key":"stream:0","ttl":-1,"value":[{"stream":"stream:0","id":"1602190921109-0","body":{"field1":"value0","field2":"value0"}}],"type":"STREAM"}
+]
