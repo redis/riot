@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.redis.StreamItemReader;
@@ -14,17 +13,16 @@ import org.springframework.core.convert.converter.Converter;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 
+import com.redislabs.riot.RedisOptions;
 import com.redislabs.riot.stream.kafka.KafkaItemWriter;
 import com.redislabs.riot.stream.processor.AvroProducerProcessor;
 import com.redislabs.riot.stream.processor.JsonProducerProcessor;
 
 import io.confluent.kafka.schemaregistry.client.rest.exceptions.RestClientException;
 import io.lettuce.core.AbstractRedisClient;
-import io.lettuce.core.RedisURI;
 import io.lettuce.core.StreamMessage;
 import io.lettuce.core.XReadArgs;
 import io.lettuce.core.XReadArgs.StreamOffset;
-import io.lettuce.core.api.StatefulConnection;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
@@ -43,9 +41,8 @@ public class StreamExportCommand
 	private String topic;
 
 	@Override
-	protected List<Transfer<StreamMessage<String, String>, ProducerRecord<String, Object>>> transfers(RedisURI uri,
-			AbstractRedisClient client, GenericObjectPoolConfig<StatefulConnection<String, String>> poolConfig)
-			throws Exception {
+	protected List<Transfer<StreamMessage<String, String>, ProducerRecord<String, Object>>> transfers(
+			RedisOptions redisOptions, AbstractRedisClient client) throws Exception {
 		List<Transfer<StreamMessage<String, String>, ProducerRecord<String, Object>>> transfers = new ArrayList<>();
 		ItemProcessor<StreamMessage<String, String>, ProducerRecord<String, Object>> processor = processor();
 		KafkaItemWriter<String> writer = KafkaItemWriter.<String>builder()
@@ -56,8 +53,8 @@ public class StreamExportCommand
 			XReadArgs args = new XReadArgs();
 			args.block(block);
 			StreamOffset<String> offset = StreamOffset.from(stream, this.offset);
-			StreamItemReader reader = StreamItemReader.builder().client(client).poolConfig(poolConfig).args(args)
-					.offset(offset).build();
+			StreamItemReader reader = StreamItemReader.builder().client(client).poolConfig(redisOptions.poolConfig())
+					.args(args).offset(offset).build();
 			transfers.add(transfer(reader, processor, writer));
 		}
 		return transfers;

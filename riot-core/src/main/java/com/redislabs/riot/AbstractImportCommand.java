@@ -3,7 +3,6 @@ package com.redislabs.riot;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.support.CompositeItemWriter;
 import org.springframework.util.Assert;
@@ -21,7 +20,6 @@ import com.redislabs.riot.redis.XaddCommand;
 import com.redislabs.riot.redis.ZaddCommand;
 
 import io.lettuce.core.AbstractRedisClient;
-import io.lettuce.core.api.StatefulConnection;
 import lombok.Getter;
 import picocli.CommandLine.Command;
 
@@ -37,12 +35,11 @@ public abstract class AbstractImportCommand<I, O> extends AbstractTransferComman
 	@Getter
 	private List<RedisCommand<O>> redisCommands = new ArrayList<>();
 
-	protected ItemWriter<O> writer(AbstractRedisClient client,
-			GenericObjectPoolConfig<StatefulConnection<String, String>> poolConfig) throws Exception {
+	protected ItemWriter<O> writer(AbstractRedisClient client, RedisOptions redisOptions) throws Exception {
 		Assert.notNull(redisCommands, "RedisCommands not set");
 		List<ItemWriter<O>> writers = new ArrayList<>();
 		for (RedisCommand<O> redisCommand : redisCommands) {
-			writers.add(redisCommand.writer(client, poolConfig));
+			writers.add(redisCommand.writer(client, redisOptions));
 		}
 		if (writers.isEmpty()) {
 			throw new IllegalArgumentException("No Redis command specified");

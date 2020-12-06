@@ -18,15 +18,31 @@ import io.lettuce.core.metrics.CommandLatencyCollector;
 import io.lettuce.core.metrics.DefaultCommandLatencyCollectorOptions;
 import io.lettuce.core.resource.ClientResources;
 import io.lettuce.core.resource.DefaultClientResources;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Builder.Default;
+import lombok.NoArgsConstructor;
 import picocli.CommandLine.Option;
 
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class RedisOptions {
 
+	public static final String DEFAULT_HOST = "127.0.0.1";
+	public static final int DEFAULT_PORT = 6379;
+	public static final int DEFAULT_DATABASE = 0;
+	public static final int DEFAULT_TIMEOUT = 60;
+	public static final int DEFAULT_POOL_MAX_TOTAL = 8;
+	public static final String DEFAULT_CLIENT_NAME = "riot";
+
+	@Default
 	@Option(names = { "-h",
 			"--hostname" }, description = "Server hostname (default: ${DEFAULT-VALUE})", paramLabel = "<host>")
-	private String host = "127.0.0.1";
+	private String host = DEFAULT_HOST;
+	@Default
 	@Option(names = { "-p", "--port" }, description = "Server port (default: ${DEFAULT-VALUE})", paramLabel = "<port>")
-	private int port = 6379;
+	private int port = DEFAULT_PORT;
 	@Option(names = { "-s",
 			"--socket" }, description = "Server socket (overrides hostname and port)", paramLabel = "<socket>")
 	private String socket;
@@ -37,11 +53,13 @@ public class RedisOptions {
 	private char[] password;
 	@Option(names = { "-u", "--uri" }, description = "Server URI", paramLabel = "<uri>")
 	private RedisURI redisURI;
+	@Default
 	@Option(names = { "-o",
 			"--timeout" }, description = "Redis command timeout (default: ${DEFAULT-VALUE})", paramLabel = "<sec>")
-	private long timeout = 60;
+	private long timeout = DEFAULT_TIMEOUT;
+	@Default
 	@Option(names = { "-n", "--db" }, description = "Database number (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
-	private int database = 0;
+	private int database = DEFAULT_DATABASE;
 	@Option(names = { "-c", "--cluster" }, description = "Enable cluster mode")
 	private boolean cluster;
 	@Option(names = { "-t", "--tls" }, description = "Establish a secure TLS connection")
@@ -58,13 +76,15 @@ public class RedisOptions {
 	private String truststorePassword;
 	@Option(names = { "-l", "--latency" }, description = "Show latency metrics")
 	private boolean showMetrics;
+	@Default
 	@Option(names = { "-m",
 			"--pool" }, description = "Max pool connections (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
-	private int poolMaxTotal = 8;
+	private int poolMaxTotal = DEFAULT_POOL_MAX_TOTAL;
 	@Option(names = "--no-auto-reconnect", description = "Disable auto-reconnect", hidden = true)
 	private boolean noAutoReconnect;
+	@Default
 	@Option(names = "--client-name", description = "Client name (default: ${DEFAULT-VALUE})", hidden = true)
-	private String clientName = "riot";
+	private String clientName = DEFAULT_CLIENT_NAME;
 
 	public RedisURI redisURI() {
 		RedisURI uri = redisURI;

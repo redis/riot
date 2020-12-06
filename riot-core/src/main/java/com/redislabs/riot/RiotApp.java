@@ -25,7 +25,7 @@ public class RiotApp implements Runnable {
 
 	private static final String ROOT_LOGGER = "";
 
-	@Option(names = { "--help" }, usageHelp = true, description = "Show this help message and exit.")
+	@Option(names = { "-H", "--help" }, usageHelp = true, description = "Show this help message and exit.")
 	private boolean helpRequested;
 	@Option(names = { "-V", "--version" }, versionHelp = true, description = "Print version information and exit.")
 	private boolean versionRequested;
@@ -37,11 +37,8 @@ public class RiotApp implements Runnable {
 	private boolean info;
 	@Option(names = { "-d", "--debug" }, description = "Log in debug mode (includes normal stacktrace)")
 	private boolean debug;
-	@Option(names = "--stacktrace", description = "Print out the stacktrace for all exceptions.")
+	@Option(names = { "-S", "--stacktrace" }, description = "Print out the stacktrace for all exceptions.")
 	private boolean stacktrace;
-	@Getter
-	@Option(names = "--no-progress", description = "Disable progress bars", hidden = true)
-	private boolean disableProgress;
 	@Getter
 	@ArgGroup(heading = "Redis connection options%n", exclusive = false)
 	private RedisOptions redisOptions = new RedisOptions();

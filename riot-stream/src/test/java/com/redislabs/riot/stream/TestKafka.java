@@ -93,7 +93,7 @@ public class TestKafka extends BaseTest {
 			sync.xadd(stream, map());
 		}
 		StreamExportCommand command = (StreamExportCommand) command("/export.txt");
-		MultiTransferExecution execution = command.execution();
+		MultiTransferExecution execution = command.execution(redisOptions());
 		CompletableFuture<Void> future = execution.start();
 		Thread.sleep(200);
 		KafkaConsumer<String, Map<String, Object>> consumer = new KafkaConsumer<>(

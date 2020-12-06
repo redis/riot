@@ -6,21 +6,19 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.avro.generic.GenericRecord;
-import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.batch.item.redis.StreamItemWriter;
 import org.springframework.batch.item.redis.support.Transfer;
 import org.springframework.core.convert.converter.Converter;
 
+import com.redislabs.riot.RedisOptions;
 import com.redislabs.riot.convert.MapFlattener;
 import com.redislabs.riot.convert.ObjectToStringConverter;
 import com.redislabs.riot.stream.kafka.KafkaItemReader;
 import com.redislabs.riot.stream.kafka.KafkaItemReaderBuilder;
 
 import io.lettuce.core.AbstractRedisClient;
-import io.lettuce.core.RedisURI;
 import io.lettuce.core.XAddArgs;
-import io.lettuce.core.api.StatefulConnection;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
@@ -39,13 +37,12 @@ public class StreamImportCommand
 	private boolean approximateTrimming;
 
 	@Override
-	protected List<Transfer<ConsumerRecord<String, Object>, ConsumerRecord<String, Object>>> transfers(RedisURI uri,
-			AbstractRedisClient client, GenericObjectPoolConfig<StatefulConnection<String, String>> poolConfig)
-			throws Exception {
+	protected List<Transfer<ConsumerRecord<String, Object>, ConsumerRecord<String, Object>>> transfers(
+			RedisOptions redisOptions, AbstractRedisClient client) throws Exception {
 		List<Transfer<ConsumerRecord<String, Object>, ConsumerRecord<String, Object>>> transfers = new ArrayList<>();
 		XAddArgs xAddArgs = xAddArgs();
 		StreamItemWriter<ConsumerRecord<String, Object>> writer = StreamItemWriter
-				.<ConsumerRecord<String, Object>>builder().client(client).poolConfig(poolConfig)
+				.<ConsumerRecord<String, Object>>builder().client(client).poolConfig(redisOptions.poolConfig())
 				.keyConverter(keyConverter()).argsConverter(s -> xAddArgs).bodyConverter(bodyConverter()).build();
 		for (String topic : topics) {
 			KafkaItemReader<String, Object> reader = new KafkaItemReaderBuilder<String, Object>().partitions(0)

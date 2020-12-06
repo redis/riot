@@ -14,8 +14,7 @@ import picocli.CommandLine.Command;
 public abstract class AbstractRedisCommand extends RiotCommand {
 
 	@Override
-	public void run() {
-		RedisOptions redisOptions = getRiotApp().getRedisOptions();
+	protected void execute(RedisOptions redisOptions) throws Exception {
 		AbstractRedisClient client = null;
 		try {
 			client = redisOptions.client();

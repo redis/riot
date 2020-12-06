@@ -2,27 +2,20 @@ package com.redislabs.riot;
 
 import java.util.List;
 
-import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemStreamSupport;
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.batch.item.redis.support.BoundedItemReader;
 import org.springframework.batch.item.redis.support.MultiTransferExecution;
 import org.springframework.batch.item.redis.support.MultiTransferExecutionListenerAdapter;
 import org.springframework.batch.item.redis.support.Transfer;
 import org.springframework.batch.item.redis.support.TransferExecution;
-import org.springframework.batch.item.redis.support.TransferExecutionListener;
 import org.springframework.batch.item.redis.support.TransferOptions;
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
 import org.springframework.util.ClassUtils;
 
 import io.lettuce.core.AbstractRedisClient;
-import io.lettuce.core.RedisURI;
-import io.lettuce.core.api.StatefulConnection;
 import lombok.extern.slf4j.Slf4j;
-import me.tongfei.progressbar.ProgressBar;
-import me.tongfei.progressbar.ProgressBarBuilder;
 import picocli.CommandLine.Option;
 
 @Slf4j
@@ -35,26 +28,23 @@ public abstract class AbstractTransferCommand<I, O> extends RiotCommand {
 	private int batch = 50;
 	@Option(names = "--max", description = "Max number of items to read", paramLabel = "<count>")
 	private Integer maxItemCount;
+	@Option(names = "--no-progress", description = "Disable progress bars")
+	private boolean disableProgress;
 
 	@Override
-	public void run() {
-		try {
-			execution().start().get();
-		} catch (Exception e) {
-			log.error("Could not execute command", e);
-		}
+	protected void execute(RedisOptions redisOptions) throws Exception {
+		execution(redisOptions).start().get();
 	}
 
-	public MultiTransferExecution execution() throws Exception {
-		RedisOptions redisOptions = getRiotApp().getRedisOptions();
+	public MultiTransferExecution execution(RedisOptions redisOptions) throws Exception {
 		AbstractRedisClient client = redisOptions.client();
-		List<Transfer<I, O>> transfers = transfers(redisOptions.redisURI(), client, redisOptions.poolConfig());
+		List<Transfer<I, O>> transfers = transfers(redisOptions, client);
 		MultiTransferExecution execution = new MultiTransferExecution(transfers);
 		configure(execution);
 		execution.addListener(new MultiTransferExecutionListenerAdapter() {
 			@Override
 			public void onStart(TransferExecution<?, ?> execution) {
-				if (getRiotApp().isDisableProgress()) {
+				if (disableProgress) {
 					return;
 				}
 				execution.addListener(new ProgressReporter(execution));
@@ -73,38 +63,8 @@ public abstract class AbstractTransferCommand<I, O> extends RiotCommand {
 	protected void configure(MultiTransferExecution execution) {
 	}
 
-	private class ProgressReporter implements TransferExecutionListener {
-
-		private final ProgressBar progressBar;
-
-		public ProgressReporter(TransferExecution<?, ?> execution) {
-			ProgressBarBuilder builder = new ProgressBarBuilder();
-			if (execution.getTransfer().getReader() instanceof BoundedItemReader) {
-				builder.setInitialMax(((BoundedItemReader<?>) execution.getTransfer().getReader()).available());
-			}
-			builder.setTaskName(execution.getTransfer().getName());
-			builder.showSpeed();
-			this.progressBar = builder.build();
-		}
-
-		public void onUpdate(long count) {
-			progressBar.stepTo(count);
-		}
-
-		@Override
-		public void onError(Throwable throwable) {
-			log.error("{}: ", throwable);
-		}
-
-		@Override
-		public void onComplete() {
-			progressBar.close();
-
-		}
-	}
-
-	protected abstract List<Transfer<I, O>> transfers(RedisURI uri, AbstractRedisClient client,
-			GenericObjectPoolConfig<StatefulConnection<String, String>> poolConfig) throws Exception;
+	protected abstract List<Transfer<I, O>> transfers(RedisOptions redisOptions, AbstractRedisClient client)
+			throws Exception;
 
 	protected Transfer<I, O> transfer(ItemReader<I> reader, ItemProcessor<I, O> processor, ItemWriter<O> writer)
 			throws Exception {

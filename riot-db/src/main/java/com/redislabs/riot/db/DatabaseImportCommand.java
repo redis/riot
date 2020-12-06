@@ -6,17 +6,15 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
-import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.springframework.batch.item.database.JdbcCursorItemReader;
 import org.springframework.batch.item.database.builder.JdbcCursorItemReaderBuilder;
 import org.springframework.batch.item.redis.support.Transfer;
 import org.springframework.jdbc.core.ColumnMapRowMapper;
 
 import com.redislabs.riot.AbstractMapImportCommand;
+import com.redislabs.riot.RedisOptions;
 
 import io.lettuce.core.AbstractRedisClient;
-import io.lettuce.core.RedisURI;
-import io.lettuce.core.api.StatefulConnection;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
 import picocli.CommandLine.Option;
@@ -41,9 +39,8 @@ public class DatabaseImportCommand extends AbstractMapImportCommand<Map<String, 
 	private boolean verifyCursorPosition;
 
 	@Override
-	protected List<Transfer<Map<String, Object>, Map<String, Object>>> transfers(RedisURI uri,
-			AbstractRedisClient client, GenericObjectPoolConfig<StatefulConnection<String, String>> poolConfig)
-			throws Exception {
+	protected List<Transfer<Map<String, Object>, Map<String, Object>>> transfers(RedisOptions redisOptions,
+			AbstractRedisClient client) throws Exception {
 		DataSource dataSource = options.dataSource();
 		JdbcCursorItemReaderBuilder<Map<String, Object>> builder = new JdbcCursorItemReaderBuilder<>();
 		builder.dataSource(dataSource);
@@ -64,7 +61,7 @@ public class DatabaseImportCommand extends AbstractMapImportCommand<Map<String, 
 		JdbcCursorItemReader<Map<String, Object>> reader = builder.build();
 		reader.setName(options.name(dataSource));
 		reader.afterPropertiesSet();
-		return Collections.singletonList(transfer(reader, mapProcessor(client), writer(client, poolConfig)));
+		return Collections.singletonList(transfer(reader, mapProcessor(client), writer(client, redisOptions)));
 	}
 
 }

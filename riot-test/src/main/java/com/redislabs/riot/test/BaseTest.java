@@ -12,6 +12,7 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
+import com.redislabs.riot.RedisOptions;
 import com.redislabs.riot.RiotApp;
 
 import io.lettuce.core.RedisClient;
@@ -58,16 +59,21 @@ public abstract class BaseTest {
 		client.shutdown();
 	}
 
+	protected RedisOptions redisOptions() {
+		return RedisOptions.builder().host(redisURI.getHost()).port(redisURI.getPort()).build();
+	}
+
 	protected String process(String command) {
-		return baseArgs() + " " + connectionArgs(redis) + removeConnectionArgs(command);
+		return baseArgs() + " " + connectionArgs(redis) + filter(command);
 	}
 
 	private String baseArgs() {
-		return "--no-progress --debug";
+		return "--debug";
 	}
 
-	private String removeConnectionArgs(String command) {
-		return command.replace("-h localhost -p 6379", "");
+	private String filter(String command) {
+		String filtered = command.replace("-h localhost -p 6379", "");
+		return filtered.replaceAll("\b(import|export|replicate)\b", "$1 --no-progress");
 	}
 
 	protected String connectionArgs(GenericContainer redis) {

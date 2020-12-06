@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.springframework.batch.item.redis.support.Transfer;
 
 import com.redislabs.lettusearch.RediSearchClient;
@@ -19,10 +18,10 @@ import com.redislabs.lettusearch.index.field.GeoField;
 import com.redislabs.lettusearch.index.field.TagField;
 import com.redislabs.lettusearch.index.field.TextField;
 import com.redislabs.riot.AbstractMapImportCommand;
+import com.redislabs.riot.RedisOptions;
 
 import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.RedisURI;
-import io.lettuce.core.api.StatefulConnection;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
@@ -46,14 +45,13 @@ public class GenerateCommand extends AbstractMapImportCommand<Map<String, Object
 	private long sleep = 0;
 
 	@Override
-	protected List<Transfer<Map<String, Object>, Map<String, Object>>> transfers(RedisURI uri,
-			AbstractRedisClient client, GenericObjectPoolConfig<StatefulConnection<String, String>> poolConfig)
-			throws Exception {
+	protected List<Transfer<Map<String, Object>, Map<String, Object>>> transfers(RedisOptions redisOptions,
+			AbstractRedisClient client) throws Exception {
 		FakerItemReader reader = FakerItemReader.builder().locale(locale).includeMetadata(includeMetadata)
-				.fields(fakerFields(uri)).start(start).end(end).sleep(sleep).build();
+				.fields(fakerFields(redisOptions.redisURI())).start(start).end(end).sleep(sleep).build();
 		long count = end - start;
 		reader.setMaxItemCount(Math.toIntExact(count));
-		return Collections.singletonList(transfer(reader, mapProcessor(client), writer(client, poolConfig)));
+		return Collections.singletonList(transfer(reader, mapProcessor(client), writer(client, redisOptions)));
 	}
 
 	private String expression(Field<String> field) {

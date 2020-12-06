@@ -88,7 +88,7 @@ public class TestReplicate extends BaseTest {
 		sync.configSet("notify-keyspace-events", "AK");
 		DataGenerator.builder().client(client).build().run();
 		ReplicateCommand command = (ReplicateCommand) command("/replicate-live.txt");
-		MultiTransferExecution execution = command.execution();
+		MultiTransferExecution execution = command.execution(redisOptions());
 		execution.start();
 		Thread.sleep(400);
 		int count = 39;
