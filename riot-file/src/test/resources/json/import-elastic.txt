@@ -1,1 +1,0 @@
-❯ riot-file import https://redis-developer.github.io/riot/es_test-index.json hmset --keyspace estest --keys _id

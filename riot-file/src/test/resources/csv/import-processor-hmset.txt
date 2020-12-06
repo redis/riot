@@ -1,1 +1,0 @@
-❯ riot-file import  https://redis-developer.github.io/riot/lacity.csv --date "MM/dd/yyyy HH:mm:ss a" --spel "EventStartDate=remove('Event Start Date')" "EpochStart=#date.parse(EventStartDate).getTime()" "index=#index" --header hmset --keyspace event --keys Id

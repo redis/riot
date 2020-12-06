@@ -2,7 +2,7 @@
 :favicon: images/favicon.svg
 :app-name: RIOT Redis
 :app: riot-redis
-:resources: ../{app}/src/test/resources
+:resources: ../connectors/redis/src/test/resources
 :toc: left
 :numbered:
 :toclevels: 2

@@ -2,7 +2,7 @@
 :favicon: images/favicon.svg
 :app-name: RIOT File
 :app: riot-file
-:resources: ../{app}/src/test/resources
+:resources: ../connectors/file/src/test/resources
 :toc: left
 :numbered:
 :toclevels: 2

@@ -1,0 +1,30 @@
+plugins {
+    id 'application'
+}
+
+archivesBaseName = 'riot-redis'
+
+test {
+    useJUnitPlatform()
+}
+
+dependencies {
+    implementation project(':core')
+    implementation 'org.latencyutils:LatencyUtils:2.0.3'
+    testImplementation project(':test')
+}
+
+configurations {
+    all*.exclude module: 'spring-boot-starter-logging'
+}
+
+application {
+    mainClassName = 'com.redislabs.riot.redis.RiotRedis'
+    applicationName = 'riot-redis'
+}
+
+eclipse {
+    project {
+        name = 'riot-redis'
+	}
+}

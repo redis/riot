@@ -1,5 +1,0 @@
-#!/bin/sh -e
-
-gradle -q --console plain installDist
-
-./build/install/riot-gen/bin/riot-gen "$@"

@@ -2,7 +2,7 @@
 :favicon: images/favicon.svg
 :app-name: RIOT Stream
 :app: riot-stream
-:resources: ../{app}/src/test/resources
+:resources: ../connectors/stream/src/test/resources
 :toc: left
 :numbered:
 :toclevels: 2

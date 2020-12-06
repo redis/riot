@@ -2,7 +2,7 @@
 :favicon: images/favicon.svg
 :app-name: RIOT DB
 :app: riot-db
-:resources: ../{app}/src/test/resources
+:resources: ../connectors/db/src/test/resources
 :toc: left
 :numbered:
 :toclevels: 2

@@ -3,6 +3,8 @@ plugins {
     id 'org.asciidoctor.jvm.convert' version '3.3.0'
     id 'org.ajoberstar.git-publish' version '3.0.0'
     id 'com.github.ben-manes.versions' version '0.36.0'
+	id 'org.springframework.boot' version '2.4.0'
+	id 'io.spring.dependency-management' version '1.0.10.RELEASE'    
 }
 
 repositories {
@@ -14,6 +16,9 @@ repositories {
 subprojects {
     group = 'com.redislabs.riot'
     apply plugin: 'java'
+    apply plugin: 'eclipse'
+    apply plugin: 'org.springframework.boot'
+    apply plugin: 'io.spring.dependency-management'
     sourceCompatibility = '1.8'
     targetCompatibility = '1.8'
     repositories {
@@ -23,6 +28,21 @@ subprojects {
     }
     tasks.withType(Tar) {
         compression = Compression.GZIP
+    }
+    bootJar {
+        enabled = false
+    }
+    jar {
+        enabled = true
+    }
+    dependencies {
+    	compileOnly 'org.projectlombok:lombok'
+    	annotationProcessor 'org.projectlombok:lombok'
+        implementation 'info.picocli:picocli:4.5.2'
+        annotationProcessor 'info.picocli:picocli-codegen:4.5.2'
+    	testCompileOnly 'org.projectlombok:lombok'
+    	testAnnotationProcessor 'org.projectlombok:lombok'
+    	implementation 'org.slf4j:slf4j-jdk14'
     }
 }
 

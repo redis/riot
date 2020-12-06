@@ -1,0 +1,48 @@
+plugins {
+    id 'application'
+}
+
+archivesBaseName = 'riot-stream'
+
+
+repositories {
+    jcenter()
+    mavenCentral()
+    mavenLocal()
+    maven {
+        url "https://packages.confluent.io/maven"
+    }
+}
+
+dependencies {
+    implementation project(':core')
+    annotationProcessor 'info.picocli:picocli-codegen:4.5.2'
+    compileOnly 'org.projectlombok:lombok:'
+    annotationProcessor 'org.projectlombok:lombok'
+    implementation 'org.springframework.kafka:spring-kafka'
+    implementation 'org.apache.avro:avro:1.10.0'
+    implementation 'io.confluent:kafka-avro-serializer:6.0.1'
+    implementation 'io.confluent:kafka-protobuf-serializer:6.0.1'
+    implementation 'org.springframework.boot:spring-boot-autoconfigure'
+    testImplementation project(':test')
+    testImplementation 'org.testcontainers:kafka:1.15.0'
+}
+
+configurations {
+    all*.exclude module: 'spring-boot-starter-logging'
+}
+
+application {
+    mainClassName = 'com.redislabs.riot.stream.RiotStream'
+    applicationName = 'riot-stream'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+eclipse {
+    project {
+        name = 'riot-stream'
+	}
+}

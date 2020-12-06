@@ -1,0 +1,37 @@
+plugins {
+    id 'java-library'
+}
+
+archivesBaseName = 'riot-core'
+
+test {
+    useJUnitPlatform()
+}
+
+dependencies {
+    implementation 'org.slf4j:slf4j-jdk14'
+    api 'com.redislabs:spring-batch-redis:2.5.8'
+    implementation 'me.tongfei:progressbar:0.9.0'
+    implementation 'org.apache.commons:commons-lang3:'
+    implementation 'org.latencyutils:LatencyUtils:2.0.3'
+    implementation 'org.slf4j:slf4j-api'
+    api 'org.springframework.batch:spring-batch-core'
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
+    testImplementation 'org.junit.jupiter:junit-jupiter-engine'
+}
+
+jar {
+    manifest {
+        attributes("Implementation-Title": "RIOT", "Implementation-Version": archiveVersion)
+    }
+}
+
+configurations {
+    all*.exclude module : 'spring-boot-starter-logging'
+}
+
+eclipse {
+    project {
+        name = 'riot-core'
+	}
+}

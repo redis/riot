@@ -1,0 +1,40 @@
+plugins {
+    id 'application'
+}
+
+archivesBaseName = 'riot-db'
+
+test {
+    useJUnitPlatform()
+}
+
+dependencies {
+    implementation project(':core')
+    testImplementation project(':test')    
+    implementation 'org.springframework.boot:spring-boot-autoconfigure'
+    implementation 'org.springframework:spring-jdbc'
+    implementation 'com.zaxxer:HikariCP'
+    implementation 'com.ibm.db2:jcc:11.5.5.0'
+    implementation 'com.microsoft.sqlserver:mssql-jdbc:8.4.1.jre8'
+    implementation 'com.oracle.ojdbc:ojdbc8:19.3.0.0'
+    implementation 'mysql:mysql-connector-java:8.0.22'
+    implementation 'org.postgresql:postgresql:42.2.18'
+    implementation 'org.xerial:sqlite-jdbc:3.32.3.2'
+    testImplementation 'org.testcontainers:postgresql:1.15.0'
+    testImplementation 'org.testcontainers:oracle-xe:1.15.0'
+}
+
+configurations {
+    all*.exclude module: 'spring-boot-starter-logging'
+}
+
+application {
+    mainClassName = 'com.redislabs.riot.db.RiotDb'
+    applicationName = 'riot-db'
+}
+
+eclipse {
+    project {
+        name = 'riot-db'
+	}
+}
