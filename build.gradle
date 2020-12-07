@@ -3,8 +3,8 @@ plugins {
     id 'org.asciidoctor.jvm.convert' version '3.3.0'
     id 'org.ajoberstar.git-publish' version '3.0.0'
     id 'com.github.ben-manes.versions' version '0.36.0'
-	id 'org.springframework.boot' version '2.4.0'
-	id 'io.spring.dependency-management' version '1.0.10.RELEASE'    
+    id 'org.springframework.boot' version '2.4.0'
+    id 'io.spring.dependency-management' version '1.0.10.RELEASE'    
 }
 
 repositories {
@@ -16,9 +16,11 @@ repositories {
 subprojects {
     group = 'com.redislabs.riot'
     apply plugin: 'java'
+    apply plugin: 'java-library'
     apply plugin: 'eclipse'
     apply plugin: 'org.springframework.boot'
     apply plugin: 'io.spring.dependency-management'
+    archivesBaseName = 'riot-' + project.name
     sourceCompatibility = '1.8'
     targetCompatibility = '1.8'
     repositories {
@@ -36,13 +38,40 @@ subprojects {
         enabled = true
     }
     dependencies {
-    	compileOnly 'org.projectlombok:lombok'
-    	annotationProcessor 'org.projectlombok:lombok'
+        compileOnly 'org.projectlombok:lombok'
+        annotationProcessor 'org.projectlombok:lombok'
         implementation 'info.picocli:picocli:4.5.2'
         annotationProcessor 'info.picocli:picocli-codegen:4.5.2'
-    	testCompileOnly 'org.projectlombok:lombok'
-    	testAnnotationProcessor 'org.projectlombok:lombok'
-    	implementation 'org.slf4j:slf4j-jdk14'
+        implementation 'org.slf4j:slf4j-api'
+        implementation 'org.slf4j:slf4j-jdk14'
+        testCompileOnly 'org.projectlombok:lombok'
+        testAnnotationProcessor 'org.projectlombok:lombok'
+        testImplementation 'org.junit.jupiter:junit-jupiter-engine'        
+        testImplementation 'org.springframework.batch:spring-batch-test'
+        testImplementation 'org.hsqldb:hsqldb'
+    }
+    configurations {
+        all*.exclude module: 'spring-boot-starter-logging'
+    }
+    test {
+        useJUnitPlatform()
+    }
+    if (project.name != 'connectors') {
+        eclipse {
+            project {
+                name = 'riot-' + project.name
+            }
+        }
+    }
+    if (project.path.contains('connectors')) {
+        apply plugin: 'application'
+        application {
+            applicationName = 'riot-' + project.name
+        } 
+        dependencies {
+            implementation project(':core')
+            testImplementation project(':test')    
+        }
     }
 }
 
@@ -58,17 +87,17 @@ asciidoctor {
             exclude '*.excalidraw'
             into 'images'
         }
-        from("riot-file/src/test/resources/csv") {
-        	include '*.csv'
-        	into '.'
+        from("connectors/file/src/test/resources/csv") {
+            include '*.csv'
+            into '.'
         }
-        from("riot-file/src/test/resources/json") {
-        	include '*.json'
-        	into '.'
+        from("connectors/file/src/test/resources/json") {
+            include '*.json'
+            into '.'
         }
-        from("riot-file/src/test/resources/xml") {
-        	include '*.xml'
-        	into '.'
+        from("connectors/file/src/test/resources/xml") {
+            include '*.xml'
+            into '.'
         }
     }
     

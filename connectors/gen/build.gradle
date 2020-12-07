@@ -1,36 +1,11 @@
-plugins {
-    id 'application'
-}
-
-archivesBaseName = 'riot-gen'
-
-test {
-    useJUnitPlatform()
-}
-
 dependencies {
-    implementation project(':core')
     implementation 'com.redislabs:lettusearch:2.4.4'
     implementation 'com.github.javafaker:javafaker:1.0.2'
-    testImplementation project(':test')
 	testImplementation('org.springframework.boot:spring-boot-starter-test') {
 		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
 	}    
-    testImplementation 'org.springframework.batch:spring-batch-test'
-	testImplementation 'org.hsqldb:hsqldb'
-}
-
-configurations {
-    all*.exclude module: 'spring-boot-starter-logging'
 }
 
 application {
     mainClassName = 'com.redislabs.riot.gen.RiotGen'
-    applicationName = 'riot-gen'
-}
-
-eclipse {
-    project {
-        name = 'riot-gen'
-	}
 }

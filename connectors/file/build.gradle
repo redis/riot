@@ -1,35 +1,12 @@
-plugins {
-    id 'application'
-}
-
-archivesBaseName = 'riot-file'
-
 dependencies {
-    implementation project(':core')
+    implementation 'org.springframework:spring-oxm'
+    implementation 'org.ruaux:spring-batch-resource:1.2.2'
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
     implementation 'org.springframework.cloud:spring-cloud-aws-context:2.2.5.RELEASE'
     implementation 'org.springframework.cloud:spring-cloud-aws-autoconfigure:2.2.5.RELEASE'
     implementation 'org.springframework.cloud:spring-cloud-gcp-starter-storage:1.2.6.RELEASE'
-    implementation 'org.ruaux:spring-batch-resource:1.2.2'
-    implementation 'org.springframework:spring-oxm'
-    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
-    testImplementation project(':test')
-}
-
-configurations {
-    all*.exclude module: 'spring-boot-starter-logging'
 }
 
 application {
     mainClassName = 'com.redislabs.riot.file.RiotFile'
-    applicationName = 'riot-file'
-}
-
-test {
-    useJUnitPlatform()
-}
-
-eclipse {
-    project {
-        name = 'riot-file'
-	}
 }
