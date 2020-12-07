@@ -86,7 +86,7 @@ public class RedisOptions {
 	@Option(names = "--client-name", description = "Client name (default: ${DEFAULT-VALUE})", hidden = true)
 	private String clientName = DEFAULT_CLIENT_NAME;
 
-	public RedisURI redisURI() {
+	public RedisURI uri() {
 		RedisURI uri = redisURI;
 		if (uri == null) {
 			uri = new RedisURI();
@@ -150,11 +150,11 @@ public class RedisOptions {
 
 	public AbstractRedisClient client() {
 		if (cluster) {
-			RedisClusterClient client = RedisClusterClient.create(clientResources(), redisURI());
+			RedisClusterClient client = RedisClusterClient.create(clientResources(), uri());
 			client.setOptions(clientOptions());
 			return client;
 		}
-		RedisClient client = RedisClient.create(clientResources(), redisURI());
+		RedisClient client = RedisClient.create(clientResources(), uri());
 		client.setOptions(clientOptions());
 		return client;
 	}

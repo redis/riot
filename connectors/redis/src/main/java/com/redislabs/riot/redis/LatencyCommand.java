@@ -13,7 +13,7 @@ import io.lettuce.core.metrics.DefaultCommandLatencyCollectorOptions;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
-@Command(name = "latency", aliases = { "l" }, description = "Calculate latency stats")
+@Command(name = "latency", aliases = "l", description = "Calculate latency stats")
 public class LatencyCommand extends AbstractRedisCommand {
 
 	@Option(names = "--iterations", description = "Number of latency tests (default: ${DEFAULT-VALUE})", paramLabel = "<count>")

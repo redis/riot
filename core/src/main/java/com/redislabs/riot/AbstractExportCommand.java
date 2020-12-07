@@ -9,7 +9,6 @@ import org.springframework.batch.item.redis.DataStructureItemReader;
 import org.springframework.batch.item.redis.support.DataStructure;
 import org.springframework.batch.item.redis.support.Transfer;
 
-import io.lettuce.core.AbstractRedisClient;
 import picocli.CommandLine.Mixin;
 
 public abstract class AbstractExportCommand<O> extends AbstractTransferCommand<DataStructure, O> {
@@ -18,11 +17,10 @@ public abstract class AbstractExportCommand<O> extends AbstractTransferCommand<D
 	private RedisExportOptions options = new RedisExportOptions();
 
 	@Override
-	protected List<Transfer<DataStructure, O>> transfers(RedisOptions redisOptions, AbstractRedisClient client)
-			throws Exception {
-		DataStructureItemReader reader = DataStructureItemReader.builder().client(client)
-				.poolConfig(redisOptions.poolConfig()).options(options.readerOptions()).build();
-		reader.setName(toString(redisOptions.redisURI()));
+	protected List<Transfer<DataStructure, O>> transfers(TransferContext context) throws Exception {
+		DataStructureItemReader reader = DataStructureItemReader.builder(context.getClient())
+				.poolConfig(context.getRedisOptions().poolConfig()).options(options.readerOptions()).build();
+		reader.setName(toString(context.getRedisOptions().uri()));
 		return Collections.singletonList(transfer(reader, processor(), writer()));
 	}
 

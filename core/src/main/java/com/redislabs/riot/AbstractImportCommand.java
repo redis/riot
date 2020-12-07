@@ -19,7 +19,6 @@ import com.redislabs.riot.redis.SetCommand;
 import com.redislabs.riot.redis.XaddCommand;
 import com.redislabs.riot.redis.ZaddCommand;
 
-import io.lettuce.core.AbstractRedisClient;
 import lombok.Getter;
 import picocli.CommandLine.Command;
 
@@ -35,11 +34,11 @@ public abstract class AbstractImportCommand<I, O> extends AbstractTransferComman
 	@Getter
 	private List<RedisCommand<O>> redisCommands = new ArrayList<>();
 
-	protected ItemWriter<O> writer(AbstractRedisClient client, RedisOptions redisOptions) throws Exception {
+	protected ItemWriter<O> writer(TransferContext context) throws Exception {
 		Assert.notNull(redisCommands, "RedisCommands not set");
 		List<ItemWriter<O>> writers = new ArrayList<>();
 		for (RedisCommand<O> redisCommand : redisCommands) {
-			writers.add(redisCommand.writer(client, redisOptions));
+			writers.add(redisCommand.writer(context));
 		}
 		if (writers.isEmpty()) {
 			throw new IllegalArgumentException("No Redis command specified");

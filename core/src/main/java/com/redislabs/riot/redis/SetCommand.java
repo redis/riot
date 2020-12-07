@@ -10,14 +10,13 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.redislabs.riot.RedisOptions;
+import com.redislabs.riot.TransferContext;
 import com.redislabs.riot.convert.ObjectMapperConverter;
 
-import io.lettuce.core.AbstractRedisClient;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
-@Command(name = "set", description = "Set keys to hold values from input")
+@Command(name = "set", aliases = "s", description = "Set keys to hold values from input")
 public class SetCommand extends AbstractKeyCommand {
 
 	private enum StringFormat {
@@ -32,10 +31,9 @@ public class SetCommand extends AbstractKeyCommand {
 	private String root;
 
 	@Override
-	public ItemWriter<Map<String, Object>> writer(AbstractRedisClient client, RedisOptions redisOptions)
-			throws Exception {
-		return configure(StringItemWriter.<Map<String, Object>>builder().client(client)
-				.poolConfig(redisOptions.poolConfig()).valueConverter(stringValueConverter())).build();
+	public ItemWriter<Map<String, Object>> writer(TransferContext context) throws Exception {
+		return configure(StringItemWriter.<Map<String, Object>>builder(context.getClient())
+				.poolConfig(context.getRedisOptions().poolConfig()).valueConverter(stringValueConverter())).build();
 	}
 
 	private Converter<Map<String, Object>, String> stringValueConverter() {

@@ -38,7 +38,8 @@ public abstract class AbstractTransferCommand<I, O> extends RiotCommand {
 
 	public MultiTransferExecution execution(RedisOptions redisOptions) throws Exception {
 		AbstractRedisClient client = redisOptions.client();
-		List<Transfer<I, O>> transfers = transfers(redisOptions, client);
+		List<Transfer<I, O>> transfers = transfers(
+				TransferContext.builder().client(client).redisOptions(redisOptions).build());
 		MultiTransferExecution execution = new MultiTransferExecution(transfers);
 		configure(execution);
 		execution.addListener(new MultiTransferExecutionListenerAdapter() {
@@ -63,8 +64,7 @@ public abstract class AbstractTransferCommand<I, O> extends RiotCommand {
 	protected void configure(MultiTransferExecution execution) {
 	}
 
-	protected abstract List<Transfer<I, O>> transfers(RedisOptions redisOptions, AbstractRedisClient client)
-			throws Exception;
+	protected abstract List<Transfer<I, O>> transfers(TransferContext context) throws Exception;
 
 	protected Transfer<I, O> transfer(ItemReader<I> reader, ItemProcessor<I, O> processor, ItemWriter<O> writer)
 			throws Exception {

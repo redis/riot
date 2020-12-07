@@ -6,19 +6,17 @@ import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.redis.ListItemWriter;
 import org.springframework.batch.item.redis.ListItemWriter.ListItemWriterBuilder.PushDirection;
 
-import com.redislabs.riot.RedisOptions;
+import com.redislabs.riot.TransferContext;
 
-import io.lettuce.core.AbstractRedisClient;
 import picocli.CommandLine.Command;
 
-@Command(name = "rpush", description = "Insert values at the tail of lists")
+@Command(name = "rpush", aliases = "r", description = "Insert values at the tail of lists")
 public class RpushCommand extends AbstractCollectionCommand {
 
 	@Override
-	public ItemWriter<Map<String, Object>> writer(AbstractRedisClient client, RedisOptions redisOptions)
-			throws Exception {
-		return configure(ListItemWriter.<Map<String, Object>>builder().client(client)
-				.poolConfig(redisOptions.poolConfig()).direction(PushDirection.RIGHT)).build();
+	public ItemWriter<Map<String, Object>> writer(TransferContext context) throws Exception {
+		return configure(ListItemWriter.<Map<String, Object>>builder(context.getClient())
+				.poolConfig(context.getRedisOptions().poolConfig()).direction(PushDirection.RIGHT)).build();
 	}
 
 }

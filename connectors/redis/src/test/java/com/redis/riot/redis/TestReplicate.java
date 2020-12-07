@@ -5,10 +5,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.batch.item.redis.DataStructureItemReader;
 import org.springframework.batch.item.redis.DatabaseComparator;
 import org.springframework.batch.item.redis.LiveKeyDumpItemReader;
-import org.springframework.batch.item.redis.support.DataStructureReader;
 import org.springframework.batch.item.redis.support.LiveKeyItemReader;
 import org.springframework.batch.item.redis.support.MultiTransferExecution;
 import org.testcontainers.containers.GenericContainer;
@@ -69,9 +67,7 @@ public class TestReplicate extends BaseTest {
 		Assertions.assertTrue(sourceSize > 0);
 		executeFile("/replicate.txt");
 		Assertions.assertEquals(sourceSize, targetSync.dbsize());
-		DataStructureItemReader sourceReader = DataStructureItemReader.builder().client(client).build();
-		DataStructureReader targetReader = DataStructureReader.builder().client(targetClient).build();
-		DatabaseComparator comparator = DatabaseComparator.builder().left(sourceReader).right(targetReader).build();
+		DatabaseComparator comparator = DatabaseComparator.builder(client, targetClient).build();
 		comparator.execution().start().get();
 		Assert.assertEquals(Math.toIntExact(sync.dbsize()), comparator.getOk().size());
 	}

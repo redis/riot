@@ -18,9 +18,8 @@ import com.redislabs.lettusearch.index.field.GeoField;
 import com.redislabs.lettusearch.index.field.TagField;
 import com.redislabs.lettusearch.index.field.TextField;
 import com.redislabs.riot.AbstractMapImportCommand;
-import com.redislabs.riot.RedisOptions;
+import com.redislabs.riot.TransferContext;
 
-import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.RedisURI;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -45,13 +44,13 @@ public class GenerateCommand extends AbstractMapImportCommand<Map<String, Object
 	private long sleep = 0;
 
 	@Override
-	protected List<Transfer<Map<String, Object>, Map<String, Object>>> transfers(RedisOptions redisOptions,
-			AbstractRedisClient client) throws Exception {
+	protected List<Transfer<Map<String, Object>, Map<String, Object>>> transfers(TransferContext context)
+			throws Exception {
 		FakerItemReader reader = FakerItemReader.builder().locale(locale).includeMetadata(includeMetadata)
-				.fields(fakerFields(redisOptions.redisURI())).start(start).end(end).sleep(sleep).build();
+				.fields(fakerFields(context.getRedisOptions().uri())).start(start).end(end).sleep(sleep).build();
 		long count = end - start;
 		reader.setMaxItemCount(Math.toIntExact(count));
-		return Collections.singletonList(transfer(reader, mapProcessor(client), writer(client, redisOptions)));
+		return Collections.singletonList(transfer(reader, mapProcessor(context.getClient()), writer(context)));
 	}
 
 	private String expression(Field<String> field) {

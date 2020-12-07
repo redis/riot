@@ -13,13 +13,12 @@ import org.springframework.core.convert.converter.Converter;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 
-import com.redislabs.riot.RedisOptions;
+import com.redislabs.riot.TransferContext;
 import com.redislabs.riot.stream.kafka.KafkaItemWriter;
 import com.redislabs.riot.stream.processor.AvroProducerProcessor;
 import com.redislabs.riot.stream.processor.JsonProducerProcessor;
 
 import io.confluent.kafka.schemaregistry.client.rest.exceptions.RestClientException;
-import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.StreamMessage;
 import io.lettuce.core.XReadArgs;
 import io.lettuce.core.XReadArgs.StreamOffset;
@@ -42,7 +41,7 @@ public class StreamExportCommand
 
 	@Override
 	protected List<Transfer<StreamMessage<String, String>, ProducerRecord<String, Object>>> transfers(
-			RedisOptions redisOptions, AbstractRedisClient client) throws Exception {
+			TransferContext context) throws Exception {
 		List<Transfer<StreamMessage<String, String>, ProducerRecord<String, Object>>> transfers = new ArrayList<>();
 		ItemProcessor<StreamMessage<String, String>, ProducerRecord<String, Object>> processor = processor();
 		KafkaItemWriter<String> writer = KafkaItemWriter.<String>builder()
@@ -53,8 +52,7 @@ public class StreamExportCommand
 			XReadArgs args = new XReadArgs();
 			args.block(block);
 			StreamOffset<String> offset = StreamOffset.from(stream, this.offset);
-			StreamItemReader reader = StreamItemReader.builder().client(client).poolConfig(redisOptions.poolConfig())
-					.args(args).offset(offset).build();
+			StreamItemReader reader = StreamItemReader.builder(context.getClient()).args(args).offset(offset).build();
 			transfers.add(transfer(reader, processor, writer));
 		}
 		return transfers;

@@ -34,9 +34,8 @@ import org.springframework.util.Assert;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.redislabs.riot.AbstractMapImportCommand;
-import com.redislabs.riot.RedisOptions;
+import com.redislabs.riot.TransferContext;
 
-import io.lettuce.core.AbstractRedisClient;
 import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
@@ -56,8 +55,7 @@ public class FileImportCommand extends AbstractMapImportCommand<Object, Object> 
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
-	protected List<Transfer<Object, Object>> transfers(RedisOptions redisOptions, AbstractRedisClient client)
-			throws Exception {
+	protected List<Transfer<Object, Object>> transfers(TransferContext context) throws Exception {
 		List<String> fileList = new ArrayList<>();
 		for (String file : files) {
 			if (fileOptions.isFile(file)) {
@@ -81,13 +79,13 @@ public class FileImportCommand extends AbstractMapImportCommand<Object, Object> 
 		List<Transfer<Object, Object>> transfers = new ArrayList<>(fileList.size());
 		ItemProcessor<Object, Object> processor = getRedisCommands().isEmpty()
 				? (ItemProcessor) new JsonDataStructureItemProcessor()
-				: (ItemProcessor) mapProcessor(client);
+				: (ItemProcessor) mapProcessor(context.getClient());
 		for (String file : fileList) {
 			FileType fileType = fileOptions.fileType(file);
 			Resource resource = fileOptions.inputResource(file);
 			AbstractItemStreamItemReader<Object> reader = reader(file, fileType, resource);
 			reader.setName(fileOptions.filename(resource));
-			transfers.add(transfer(reader, processor, writer(client, redisOptions)));
+			transfers.add(transfer(reader, processor, writer(context)));
 		}
 		return transfers;
 	}
@@ -169,12 +167,12 @@ public class FileImportCommand extends AbstractMapImportCommand<Object, Object> 
 
 	@Override
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	protected ItemWriter<Object> writer(AbstractRedisClient client, RedisOptions redisOptions) throws Exception {
+	protected ItemWriter<Object> writer(TransferContext context) throws Exception {
 		if (getRedisCommands().isEmpty()) {
-			return (ItemWriter) DataStructureItemWriter.builder().client(client).poolConfig(redisOptions.poolConfig())
-					.build();
+			return (ItemWriter) DataStructureItemWriter.builder(context.getClient())
+					.poolConfig(context.getRedisOptions().poolConfig()).build();
 		}
-		return super.writer(client, redisOptions);
+		return super.writer(context);
 	}
 
 }

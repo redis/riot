@@ -21,6 +21,7 @@ import org.springframework.batch.item.redis.support.TransferOptions;
 import com.redislabs.riot.AbstractTransferCommand;
 import com.redislabs.riot.RedisExportOptions;
 import com.redislabs.riot.RedisOptions;
+import com.redislabs.riot.TransferContext;
 
 import io.lettuce.core.AbstractRedisClient;
 import picocli.CommandLine.Command;
@@ -43,13 +44,12 @@ public class ReplicateCommand extends AbstractTransferCommand<KeyValue<byte[]>, 
 	private long flushInterval = 50;
 
 	@Override
-	protected List<Transfer<KeyValue<byte[]>, KeyValue<byte[]>>> transfers(RedisOptions redisOptions,
-			AbstractRedisClient client) throws Exception {
+	protected List<Transfer<KeyValue<byte[]>, KeyValue<byte[]>>> transfers(TransferContext context) throws Exception {
 		List<Transfer<KeyValue<byte[]>, KeyValue<byte[]>>> transfers = new ArrayList<>();
 		AbstractRedisClient targetClient = targetRedis.client();
 		ReaderOptions readerOptions = options.readerOptions();
-		KeyDumpItemReader reader = KeyDumpItemReader.builder().options(readerOptions).client(client)
-				.poolConfig(redisOptions.poolConfig()).build();
+		KeyDumpItemReader reader = KeyDumpItemReader.builder(context.getClient()).options(readerOptions)
+				.poolConfig(context.getRedisOptions().poolConfig()).build();
 		reader.setName(String.format("Scanning %s", readerOptions.getKeyReaderOptions().getScanMatch()));
 		transfers.add(transfer(reader, null, writer(targetClient)));
 		if (live) {
@@ -57,14 +57,14 @@ public class ReplicateCommand extends AbstractTransferCommand<KeyValue<byte[]>, 
 			TransferOptions transferOptions = TransferOptions.builder().batch(readerTransferOptions.getBatch())
 					.threads(readerTransferOptions.getThreads()).build();
 			LiveKeyReaderOptions liveKeyReaderOptions = LiveKeyReaderOptions.builder()
-					.database(redisOptions.redisURI().getDatabase())
+					.database(context.getRedisOptions().uri().getDatabase())
 					.keyPattern(readerOptions.getKeyReaderOptions().getScanMatch())
 					.queueOptions(QueueOptions.builder().capacity(notificationQueueCapacity).build()).build();
 			LiveReaderOptions liveReaderOptions = LiveReaderOptions.builder()
 					.queueOptions(readerOptions.getQueueOptions()).transferOptions(transferOptions)
 					.liveKeyReaderOptions(liveKeyReaderOptions).build();
-			LiveKeyDumpItemReader liveReader = LiveKeyDumpItemReader.builder().client(client)
-					.poolConfig(redisOptions.poolConfig()).options(liveReaderOptions).build();
+			LiveKeyDumpItemReader liveReader = LiveKeyDumpItemReader.builder(context.getClient())
+					.poolConfig(context.getRedisOptions().poolConfig()).options(liveReaderOptions).build();
 			liveReader.setName("Listening to keyspace");
 			Transfer<KeyValue<byte[]>, KeyValue<byte[]>> liveTransfer = transfer(liveReader, null,
 					writer(targetClient));
@@ -88,9 +88,9 @@ public class ReplicateCommand extends AbstractTransferCommand<KeyValue<byte[]>, 
 	}
 
 	private ItemWriter<KeyValue<byte[]>> writer(AbstractRedisClient targetClient) {
-		KeyDumpItemWriter writer = KeyDumpItemWriter.builder().client(targetClient).poolConfig(targetRedis.poolConfig())
+		KeyDumpItemWriter writer = KeyDumpItemWriter.builder(targetClient).poolConfig(targetRedis.poolConfig())
 				.replace(true).build();
-		writer.setName(toString(targetRedis.redisURI()));
+		writer.setName(toString(targetRedis.uri()));
 		return writer;
 	}
 

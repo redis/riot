@@ -5,13 +5,12 @@ import java.util.Map;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.redis.GeoItemWriter;
 
-import com.redislabs.riot.RedisOptions;
+import com.redislabs.riot.TransferContext;
 
-import io.lettuce.core.AbstractRedisClient;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
-@Command(name = "geoadd", description = "Add geospatial items")
+@Command(name = "geoadd", aliases = "g", description = "Add geospatial items")
 public class GeoaddCommand extends AbstractCollectionCommand {
 
 	@Option(names = "--lon", description = "Longitude field", paramLabel = "<field>")
@@ -20,10 +19,10 @@ public class GeoaddCommand extends AbstractCollectionCommand {
 	private String latitudeField;
 
 	@Override
-	public ItemWriter<Map<String, Object>> writer(AbstractRedisClient client, RedisOptions redisOptions)
-			throws Exception {
-		return configure(GeoItemWriter.<Map<String, Object>>builder().client(client)
-				.poolConfig(redisOptions.poolConfig()).longitudeConverter(doubleFieldExtractor(longitudeField))
+	public ItemWriter<Map<String, Object>> writer(TransferContext context) throws Exception {
+		return configure(GeoItemWriter.<Map<String, Object>>builder(context.getClient())
+				.poolConfig(context.getRedisOptions().poolConfig())
+				.longitudeConverter(doubleFieldExtractor(longitudeField))
 				.latitudeConverter(doubleFieldExtractor(latitudeField))).build();
 	}
 

@@ -6,15 +6,14 @@ import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.redis.EvalItemWriter;
 import org.springframework.core.convert.converter.Converter;
 
-import com.redislabs.riot.RedisOptions;
+import com.redislabs.riot.TransferContext;
 import com.redislabs.riot.convert.MapToStringArrayConverter;
 
-import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.ScriptOutputType;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
-@Command(name = "eval", description = "Evaluate a Lua script with keys and arguments from input")
+@Command(name = "eval", aliases = "e", description = "Evaluate a Lua script with keys and arguments from input")
 public class EvalCommand extends AbstractRedisCommand<Map<String, Object>> {
 
 	@Option(names = "--sha", description = "Digest", paramLabel = "<sha>")
@@ -27,11 +26,10 @@ public class EvalCommand extends AbstractRedisCommand<Map<String, Object>> {
 	private ScriptOutputType outputType = ScriptOutputType.STATUS;
 
 	@Override
-	public ItemWriter<Map<String, Object>> writer(AbstractRedisClient client, RedisOptions redisOptions)
-			throws Exception {
-		return EvalItemWriter.<Map<String, Object>>builder().client(client).poolConfig(redisOptions.poolConfig())
-				.sha(sha).outputType(outputType).keysConverter(mapToArrayConverter(keys))
-				.argsConverter(mapToArrayConverter(args)).build();
+	public ItemWriter<Map<String, Object>> writer(TransferContext context) throws Exception {
+		return EvalItemWriter.<Map<String, Object>>builder(context.getClient())
+				.poolConfig(context.getRedisOptions().poolConfig()).sha(sha).outputType(outputType)
+				.keysConverter(mapToArrayConverter(keys)).argsConverter(mapToArrayConverter(args)).build();
 	}
 
 	@SuppressWarnings("unchecked")
