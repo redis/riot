@@ -1,95 +1,83 @@
 package com.redislabs.riot;
 
-import java.util.List;
-
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.batch.core.ItemWriteListener;
+import org.springframework.batch.core.StepExecutionListener;
+import org.springframework.batch.core.step.builder.AbstractTaskletStepBuilder;
+import org.springframework.batch.core.step.builder.FaultTolerantStepBuilder;
+import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemStreamSupport;
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.batch.item.redis.support.MultiTransferExecution;
-import org.springframework.batch.item.redis.support.MultiTransferExecutionListenerAdapter;
-import org.springframework.batch.item.redis.support.Transfer;
-import org.springframework.batch.item.redis.support.TransferExecution;
-import org.springframework.batch.item.redis.support.TransferOptions;
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
+import org.springframework.core.task.SimpleAsyncTaskExecutor;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.util.ClassUtils;
+import picocli.CommandLine;
 
-import io.lettuce.core.AbstractRedisClient;
-import lombok.extern.slf4j.Slf4j;
-import picocli.CommandLine.Option;
+import java.util.concurrent.ExecutionException;
 
 @Slf4j
-public abstract class AbstractTransferCommand<I, O> extends RiotCommand {
+public abstract class AbstractTransferCommand<I, O> extends AbstractTaskCommand {
 
-	@Option(names = "--threads", description = "Thread count (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
-	private int threads = 1;
-	@Option(names = { "-b",
-			"--batch" }, description = "Number of items in each batch (default: ${DEFAULT-VALUE})", paramLabel = "<size>")
-	private int batch = 50;
-	@Option(names = "--max", description = "Max number of items to read", paramLabel = "<count>")
-	private Integer maxItemCount;
-	@Option(names = "--no-progress", description = "Disable progress bars")
-	private boolean disableProgress;
+    @CommandLine.Option(names = "--no-progress", description = "Disable progress bars")
+    private boolean disableProgress;
+    @CommandLine.Option(names = "--threads", description = "Thread count (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
+    private int threads = 1;
+    @CommandLine.Option(names = {"-b", "--batch"}, description = "Number of items in each batch (default: ${DEFAULT-VALUE})", paramLabel = "<size>")
+    private int chunkSize = 50;
+    @CommandLine.Option(names = "--max", description = "Max number of items to read", paramLabel = "<count>")
+    private Long maxItemCount;
+    @CommandLine.Option(names = "--skip-limit", description ="Max number of failed items to skip before the transfer fails (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
+    private int skipLimit = 0;
 
-	@Override
-	protected void execute(RedisOptions redisOptions) throws Exception {
-		execution(redisOptions).start().get();
-	}
+    protected SimpleStepBuilder<I, O> simpleStep(String name) {
+        return step(name).chunk(chunkSize);
+    }
 
-	public MultiTransferExecution execution(RedisOptions redisOptions) throws Exception {
-		AbstractRedisClient client = redisOptions.client();
-		List<Transfer<I, O>> transfers = transfers(
-				TransferContext.builder().client(client).redisOptions(redisOptions).build());
-		MultiTransferExecution execution = new MultiTransferExecution(transfers);
-		configure(execution);
-		execution.addListener(new MultiTransferExecutionListenerAdapter() {
-			@Override
-			public void onStart(TransferExecution<?, ?> execution) {
-				if (disableProgress) {
-					return;
-				}
-				execution.addListener(new ProgressReporter(execution));
-			}
+    protected final AbstractTaskletStepBuilder<SimpleStepBuilder<I, O>> step(String name, ItemReader<I> reader, ItemProcessor<I, O> processor, ItemWriter<O> writer) throws Exception {
+        return step(simpleStep(name), name, reader, processor, writer);
+    }
 
-			@Override
-			public void onComplete() {
-				client.shutdown();
-				client.getResources().shutdown();
-			}
+    protected final AbstractTaskletStepBuilder<SimpleStepBuilder<I, O>> step(SimpleStepBuilder<I, O> step, String name, ItemReader<I> reader, ItemProcessor<I, O> processor, ItemWriter<O> writer) throws Exception {
+        if (maxItemCount != null) {
+            if (reader instanceof AbstractItemCountingItemStreamItemReader) {
+                log.debug("Configuring reader with maxItemCount={}", maxItemCount);
+                ((AbstractItemCountingItemStreamItemReader<I>) reader).setMaxItemCount(Math.toIntExact(maxItemCount));
+            }
+        }
+        step.reader(reader).processor(processor).writer(writer);
+        if (!disableProgress) {
+            Long size = size();
+            ProgressReporter<I, O> reporter = ProgressReporter.<I, O>builder().taskName(name).max(size == null ? maxItemCount : size).build();
+            step.listener((StepExecutionListener) reporter);
+            step.listener((ItemWriteListener<? super O>) reporter);
+        }
+        FaultTolerantStepBuilder<I, O> ftStep = step.faultTolerant().skipLimit(skipLimit).skip(ExecutionException.class);
+        if (threads > 1) {
+            ftStep.taskExecutor(taskExecutor()).throttleLimit(threads);
+        }
+        return ftStep;
+    }
 
-		});
-		return execution;
-	}
+    private TaskExecutor taskExecutor() {
+        SimpleAsyncTaskExecutor taskExecutor = new SimpleAsyncTaskExecutor();
+        taskExecutor.setConcurrencyLimit(threads);
+        return taskExecutor;
+    }
 
-	protected void configure(MultiTransferExecution execution) {
-	}
+    protected Long size() throws Exception {
+        return null;
+    }
 
-	protected abstract List<Transfer<I, O>> transfers(TransferContext context) throws Exception;
-
-	protected Transfer<I, O> transfer(ItemReader<I> reader, ItemProcessor<I, O> processor, ItemWriter<O> writer)
-			throws Exception {
-		if (maxItemCount != null) {
-			if (reader instanceof AbstractItemCountingItemStreamItemReader) {
-				log.debug("Configuring reader with maxItemCount={}", maxItemCount);
-				((AbstractItemCountingItemStreamItemReader<I>) reader).setMaxItemCount(maxItemCount);
-			}
-		}
-		String readerName = name(reader);
-		String name = String.format(transferNameFormat(), readerName);
-		return Transfer.<I, O>builder().name(name).reader(reader).processor(processor).writer(writer)
-				.options(TransferOptions.builder().batch(batch).threads(threads).build()).build();
-	}
-
-	protected abstract String transferNameFormat();
-
-	private String name(ItemReader<I> reader) {
-		if (reader instanceof ItemStreamSupport) {
-			// this is a hack to get the source name
-			String name = ((ItemStreamSupport) reader).getExecutionContextKey("");
-			return name.substring(0, name.length() - 1);
-		}
-		return ClassUtils.getShortName(reader.getClass());
-
-	}
+    protected String name(ItemReader<I> reader) {
+        if (reader instanceof ItemStreamSupport) {
+            // this is a hack to get the source name
+            String name = ((ItemStreamSupport) reader).getExecutionContextKey("");
+            return name.substring(0, name.length() - 1);
+        }
+        return ClassUtils.getShortName(reader.getClass());
+    }
 
 }

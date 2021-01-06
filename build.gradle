@@ -3,7 +3,7 @@ plugins {
     id 'org.asciidoctor.jvm.convert' version '3.3.0'
     id 'org.ajoberstar.git-publish' version '3.0.0'
     id 'com.github.ben-manes.versions' version '0.36.0'
-    id 'org.springframework.boot' version '2.4.0'
+    id 'org.springframework.boot' version '2.4.1'
     id 'io.spring.dependency-management' version '1.0.10.RELEASE'    
 }
 
@@ -40,8 +40,8 @@ subprojects {
     dependencies {
         compileOnly 'org.projectlombok:lombok'
         annotationProcessor 'org.projectlombok:lombok'
-        implementation 'info.picocli:picocli:4.5.2'
-        annotationProcessor 'info.picocli:picocli-codegen:4.5.2'
+        implementation group: 'info.picocli', name: 'picocli', version: picocli_version
+        annotationProcessor group: 'info.picocli', name: 'picocli-codegen', version: picocli_version
         implementation 'org.slf4j:slf4j-api'
         implementation 'org.slf4j:slf4j-jdk14'
         testCompileOnly 'org.projectlombok:lombok'

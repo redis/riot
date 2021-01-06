@@ -1,43 +1,47 @@
 package com.redislabs.riot;
 
-import org.springframework.batch.item.redis.support.BoundedItemReader;
-import org.springframework.batch.item.redis.support.TransferExecution;
-import org.springframework.batch.item.redis.support.TransferExecutionListener;
-
+import lombok.Builder;
+import lombok.extern.slf4j.Slf4j;
 import me.tongfei.progressbar.ProgressBar;
 import me.tongfei.progressbar.ProgressBarBuilder;
+import org.springframework.batch.core.ExitStatus;
+import org.springframework.batch.core.StepExecution;
+import org.springframework.batch.core.listener.StepListenerSupport;
 
-public class ProgressReporter implements TransferExecutionListener {
+import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 
-	private final ProgressBar progressBar;
+@Slf4j
+@Builder
+public class ProgressReporter<S, T> extends StepListenerSupport<S, T> {
 
-	public ProgressReporter(TransferExecution<?, ?> execution) {
-		ProgressBarBuilder builder = new ProgressBarBuilder();
-		if (execution.getTransfer().getReader() instanceof BoundedItemReader) {
-			builder.setInitialMax(((BoundedItemReader<?>) execution.getTransfer().getReader()).available());
-		}
-		builder.setTaskName(execution.getTransfer().getName());
-		builder.showSpeed();
-		this.progressBar = builder.build();
-	}
+    private final String taskName;
+    private final Long max;
+    private ProgressBar progressBar;
+    private AtomicLong count;
 
-	public void onUpdate(long count) {
-		progressBar.setExtraMessage("");
-		progressBar.stepTo(count);
-	}
+    @Override
+    public void beforeStep(StepExecution stepExecution) {
+        super.beforeStep(stepExecution);
+        count = new AtomicLong();
+        ProgressBarBuilder builder = new ProgressBarBuilder();
+        if (max != null) {
+            builder.setInitialMax(max);
+        }
+        builder.setTaskName(taskName);
+        builder.showSpeed();
+        this.progressBar = builder.build();
+    }
 
-	@Override
-	public void onMessage(String message) {
-		progressBar.setExtraMessage(message);
-	}
+    @Override
+    public ExitStatus afterStep(StepExecution stepExecution) {
+        progressBar.close();
+        return super.afterStep(stepExecution);
+    }
 
-	@Override
-	public void onError(Throwable throwable) {
-	}
-
-	@Override
-	public void onComplete() {
-		progressBar.setExtraMessage("");
-		progressBar.close();
-	}
+    @Override
+    public void afterWrite(List<? extends T> items) {
+        progressBar.stepTo(count.addAndGet(items.size()));
+        super.afterWrite(items);
+    }
 }

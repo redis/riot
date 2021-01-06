@@ -2,8 +2,12 @@ package com.redislabs.riot.test;
 
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.util.logging.Logger;
 
+import io.lettuce.core.support.ConnectionPoolSupport;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.pool2.impl.GenericObjectPool;
+import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.codehaus.plexus.util.cli.CommandLineUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,6 +37,7 @@ public abstract class BaseTest {
 
 	protected RedisURI redisURI;
 	protected RedisClient client;
+	protected GenericObjectPool<StatefulRedisConnection<String, String>> pool;
 	protected StatefulRedisConnection<String, String> connection;
 	protected RedisCommands<String, String> sync;
 
@@ -48,6 +53,7 @@ public abstract class BaseTest {
 	public void setup() {
 		redisURI = redisURI(redis);
 		client = RedisClient.create(redisURI);
+		pool = ConnectionPoolSupport.createGenericObjectPool(client::connect, new GenericObjectPoolConfig<>());
 		connection = client.connect();
 		sync = connection.sync();
 		sync.flushall();
@@ -60,7 +66,10 @@ public abstract class BaseTest {
 	}
 
 	protected RedisOptions redisOptions() {
-		return RedisOptions.builder().host(redisURI.getHost()).port(redisURI.getPort()).build();
+		RedisOptions redisOptions = new RedisOptions();
+		redisOptions.setHost(redisURI.getHost());
+		redisOptions.setPort(redisURI.getPort());
+		return redisOptions;
 	}
 
 	protected String process(String command) {
@@ -68,7 +77,7 @@ public abstract class BaseTest {
 	}
 
 	private String baseArgs() {
-		return "--debug";
+		return "--debug --stacktrace";
 	}
 
 	private String filter(String command) {

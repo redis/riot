@@ -1,9 +1,8 @@
 package com.redislabs.riot.file;
 
-import java.nio.file.Path;
-import java.util.List;
-import java.util.Map;
-
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import com.redislabs.riot.test.DataGenerator;
+import io.lettuce.core.api.sync.RedisCommands;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.batch.item.redis.support.DataStructure;
@@ -12,10 +11,9 @@ import org.springframework.batch.item.xml.XmlObjectReader;
 import org.springframework.batch.item.xml.support.XmlItemReaderBuilder;
 import org.springframework.core.io.FileSystemResource;
 
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.redislabs.riot.test.DataGenerator;
-
-import io.lettuce.core.api.sync.RedisCommands;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Map;
 
 public class TestXml extends AbstractFileTest {
 
@@ -40,11 +38,11 @@ public class TestXml extends AbstractFileTest {
 		XmlObjectReader<DataStructure> xmlObjectReader = new XmlObjectReader<>(DataStructure.class);
 		xmlObjectReader.setMapper(new XmlMapper());
 		builder.xmlObjectReader(xmlObjectReader);
-		XmlItemReader<DataStructure> reader = (XmlItemReader) builder.build();
-		List<DataStructure> records = readAll(reader);
+		XmlItemReader<DataStructure<String>> reader = (XmlItemReader) builder.build();
+		List<DataStructure<String>> records = readAll(reader);
 		Assertions.assertEquals(sync.dbsize(), records.size());
 		RedisCommands<String, String> commands = sync;
-		for (DataStructure record : records) {
+		for (DataStructure<String> record : records) {
 			String key = record.getKey();
 			switch (record.getType()) {
 			case HASH:

@@ -1,102 +1,99 @@
 package com.redislabs.riot.redis;
 
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.springframework.batch.item.ItemWriter;
-import org.springframework.batch.item.redis.KeyDumpItemReader;
-import org.springframework.batch.item.redis.KeyDumpItemWriter;
-import org.springframework.batch.item.redis.LiveKeyDumpItemReader;
-import org.springframework.batch.item.redis.support.KeyValue;
-import org.springframework.batch.item.redis.support.LiveKeyReaderOptions;
-import org.springframework.batch.item.redis.support.LiveReaderOptions;
-import org.springframework.batch.item.redis.support.MultiTransferExecution;
-import org.springframework.batch.item.redis.support.MultiTransferExecutionListenerAdapter;
-import org.springframework.batch.item.redis.support.QueueOptions;
-import org.springframework.batch.item.redis.support.ReaderOptions;
-import org.springframework.batch.item.redis.support.Transfer;
-import org.springframework.batch.item.redis.support.TransferOptions;
-
-import com.redislabs.riot.AbstractTransferCommand;
+import com.redislabs.riot.AbstractFlushingTransferCommand;
 import com.redislabs.riot.RedisExportOptions;
 import com.redislabs.riot.RedisOptions;
-import com.redislabs.riot.TransferContext;
-
 import io.lettuce.core.AbstractRedisClient;
+import io.lettuce.core.RedisClient;
+import io.lettuce.core.cluster.RedisClusterClient;
+import org.springframework.batch.core.job.flow.Flow;
+import org.springframework.batch.core.job.flow.support.SimpleFlow;
+import org.springframework.batch.item.ItemReader;
+import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.item.redis.RedisClusterKeyDumpItemReader;
+import org.springframework.batch.item.redis.RedisClusterKeyDumpItemWriter;
+import org.springframework.batch.item.redis.RedisKeyDumpItemReader;
+import org.springframework.batch.item.redis.RedisKeyDumpItemWriter;
+import org.springframework.batch.item.redis.support.*;
+import org.springframework.core.task.SimpleAsyncTaskExecutor;
+import org.springframework.util.ClassUtils;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
 import picocli.CommandLine.Option;
 
-@Command(name = "replicate", aliases = {
-		"r" }, description = "Replicate a source Redis database in a target Redis database")
-public class ReplicateCommand extends AbstractTransferCommand<KeyValue<byte[]>, KeyValue<byte[]>> {
+@Command(name = "replicate", aliases = "r", description = "Replicate a source Redis database in a target Redis database")
+public class ReplicateCommand extends AbstractFlushingTransferCommand<KeyValue<String, byte[]>, KeyValue<String, byte[]>> {
 
-	@Mixin
-	private RedisOptions targetRedis = new RedisOptions();
-	@Mixin
-	private RedisExportOptions options = new RedisExportOptions();
-	@Option(names = "--live", description = "Enable live replication")
-	private boolean live;
-	@Option(names = "--notif-queue", description = "Capacity of the keyspace notification queue (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
-	private int notificationQueueCapacity = QueueOptions.DEFAULT_CAPACITY;
-	@Option(names = "--flush-interval", description = "Duration between notification queue flushes (default: ${DEFAULT-VALUE})", paramLabel = "<ms>")
-	private long flushInterval = 50;
+    @Mixin
+    private RedisOptions targetRedis = new RedisOptions();
+    @Mixin
+    private RedisExportOptions options = new RedisExportOptions();
+    @Option(names = "--live", description = "Enable live replication")
+    private boolean live;
+    @Option(names = "--notif-queue", description = "Capacity of the keyspace notification queue (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
+    private int notificationQueueCapacity = KeyValueItemReaderBuilder.DEFAULT_NOTIFICATION_QUEUE_CAPACITY;
 
-	@Override
-	protected List<Transfer<KeyValue<byte[]>, KeyValue<byte[]>>> transfers(TransferContext context) throws Exception {
-		List<Transfer<KeyValue<byte[]>, KeyValue<byte[]>>> transfers = new ArrayList<>();
-		AbstractRedisClient targetClient = targetRedis.client();
-		ReaderOptions readerOptions = options.readerOptions();
-		KeyDumpItemReader reader = KeyDumpItemReader.builder(context.getClient()).options(readerOptions)
-				.poolConfig(context.getRedisOptions().poolConfig()).build();
-		reader.setName(String.format("Scanning %s", readerOptions.getKeyReaderOptions().getScanMatch()));
-		transfers.add(transfer(reader, null, writer(targetClient)));
-		if (live) {
-			TransferOptions readerTransferOptions = readerOptions.getTransferOptions();
-			TransferOptions transferOptions = TransferOptions.builder().batch(readerTransferOptions.getBatch())
-					.threads(readerTransferOptions.getThreads()).build();
-			LiveKeyReaderOptions liveKeyReaderOptions = LiveKeyReaderOptions.builder()
-					.database(context.getRedisOptions().uri().getDatabase())
-					.keyPattern(readerOptions.getKeyReaderOptions().getScanMatch())
-					.queueOptions(QueueOptions.builder().capacity(notificationQueueCapacity).build()).build();
-			LiveReaderOptions liveReaderOptions = LiveReaderOptions.builder()
-					.queueOptions(readerOptions.getQueueOptions()).transferOptions(transferOptions)
-					.liveKeyReaderOptions(liveKeyReaderOptions).build();
-			LiveKeyDumpItemReader liveReader = LiveKeyDumpItemReader.builder(context.getClient())
-					.poolConfig(context.getRedisOptions().poolConfig()).options(liveReaderOptions).build();
-			liveReader.setName("Listening to keyspace");
-			Transfer<KeyValue<byte[]>, KeyValue<byte[]>> liveTransfer = transfer(liveReader, null,
-					writer(targetClient));
-			liveTransfer.getOptions().setFlushInterval(Duration.ofMillis(flushInterval));
-			transfers.add(liveTransfer);
-		}
-		return transfers;
-	}
+    private AbstractRedisClient targetClient;
 
-	@Override
-	protected void configure(MultiTransferExecution execution) {
-		KeyDumpItemWriter writer = (KeyDumpItemWriter) execution.getExecutions().get(0).getTransfer().getWriter();
-		execution.addListener(new MultiTransferExecutionListenerAdapter() {
-			@Override
-			public void onComplete() {
-				AbstractRedisClient client = writer.getClient();
-				client.shutdown();
-				client.getResources().shutdown();
-			}
-		});
-	}
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        targetClient = targetRedis.client();
+        super.afterPropertiesSet();
+    }
 
-	private ItemWriter<KeyValue<byte[]>> writer(AbstractRedisClient targetClient) {
-		KeyDumpItemWriter writer = KeyDumpItemWriter.builder(targetClient).poolConfig(targetRedis.poolConfig())
-				.replace(true).build();
-		writer.setName(toString(targetRedis.uri()));
-		return writer;
-	}
+    @Override
+    protected void shutdown() {
+        super.shutdown();
+        targetClient.shutdown();
+        targetClient.getResources().shutdown();
 
-	@Override
-	protected String transferNameFormat() {
-		return "%s";
-	}
+    }
+
+    @Override
+    protected Flow flow() throws Exception {
+        String name = "Scanning " + options.getScanMatch();
+        SimpleFlow flow = flowBuilder(name).start(step(name, reader(), null, writer()).build()).build();
+        if (live) {
+            String liveName = "Listening";
+            AbstractKeyDumpItemReader<String, String, ?> liveReader = liveReader();
+            liveReader.setName("Live" + ClassUtils.getShortName(liveReader.getClass()));
+            SimpleFlow liveFlow = flowBuilder(liveName).start(step(liveName, liveReader, null, writer()).build()).build();
+            return flowBuilder(liveName).split(new SimpleAsyncTaskExecutor()).add(flow, liveFlow).build();
+        }
+        return flow;
+    }
+
+    private ItemReader<KeyValue<String, byte[]>> reader() {
+        if (isCluster()) {
+            return configureScan(RedisClusterKeyDumpItemReader.builder(redisClusterPool(), redisClusterConnection())).build();
+        }
+        return configureScan(RedisKeyDumpItemReader.builder(redisPool(), redisConnection())).build();
+    }
+
+    private AbstractKeyDumpItemReader<String, String, ?> liveReader() {
+        if (isCluster()) {
+            return configureNotification(RedisClusterKeyDumpItemReader.builder(redisClusterPool(), getRedisClusterClient().connectPubSub())).build();
+        }
+        return configureNotification(RedisKeyDumpItemReader.builder(redisPool(), getRedisClient().connectPubSub())).build();
+    }
+
+    private <B extends NotificationKeyValueItemReaderBuilder<B>> B configureNotification(B builder) {
+        return configure(builder.queueCapacity(notificationQueueCapacity).database(getRedisURI().getDatabase()));
+    }
+
+    private <B extends ScanKeyValueItemReaderBuilder<B>> B configureScan(B builder) {
+        return configure(builder.scanCount(options.getScanCount()));
+    }
+
+    private <B extends KeyValueItemReaderBuilder<B>> B configure(B builder) {
+        return builder.keyPattern(options.getScanMatch()).threads(options.getThreads()).chunkSize(options.getBatchSize()).commandTimeout(targetRedis.uri().getTimeout()).queueCapacity(options.getQueueCapacity());
+    }
+
+    private ItemWriter<KeyValue<String, byte[]>> writer() {
+        if (targetRedis.isCluster()) {
+            return RedisClusterKeyDumpItemWriter.builder(targetRedis.pool((RedisClusterClient) targetClient)).replace(true).commandTimeout(getCommandTimeout()).build();
+        }
+        return RedisKeyDumpItemWriter.builder(targetRedis.pool((RedisClient) targetClient)).replace(true).commandTimeout(getCommandTimeout()).build();
+    }
 
 }

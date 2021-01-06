@@ -6,11 +6,11 @@ repositories {
 
 dependencies {
     implementation 'org.springframework.kafka:spring-kafka'
-    implementation 'org.apache.avro:avro:1.10.0'
+    implementation 'org.apache.avro:avro:1.10.1'
     implementation 'io.confluent:kafka-avro-serializer:6.0.1'
     implementation 'io.confluent:kafka-protobuf-serializer:6.0.1'
     implementation 'org.springframework.boot:spring-boot-autoconfigure'
-    testImplementation 'org.testcontainers:kafka:1.15.0'
+    testImplementation group: 'org.testcontainers', name: 'kafka', version: testcontainers_version
 }
 
 application {

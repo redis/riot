@@ -1,8 +1,10 @@
 package com.redislabs.riot;
 
-import org.springframework.batch.item.ItemWriter;
+import io.lettuce.core.RedisFuture;
+
+import java.util.function.BiFunction;
 
 public interface RedisCommand<T> {
 
-	ItemWriter<T> writer(TransferContext context) throws Exception;
+	BiFunction<?, T, RedisFuture<?>> command();
 }

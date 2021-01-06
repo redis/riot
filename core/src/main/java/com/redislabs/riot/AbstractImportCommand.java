@@ -1,59 +1,61 @@
 package com.redislabs.riot;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import com.redislabs.riot.redis.*;
+import io.lettuce.core.api.StatefulRedisConnection;
+import io.lettuce.core.cluster.api.StatefulRedisClusterConnection;
+import lombok.Getter;
+import org.apache.commons.pool2.impl.GenericObjectPool;
+import org.springframework.batch.core.step.builder.AbstractTaskletStepBuilder;
+import org.springframework.batch.core.step.builder.SimpleStepBuilder;
+import org.springframework.batch.item.ItemProcessor;
+import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.item.redis.support.RedisClusterCommandItemWriter;
+import org.springframework.batch.item.redis.support.RedisCommandItemWriter;
 import org.springframework.batch.item.support.CompositeItemWriter;
 import org.springframework.util.Assert;
-
-import com.redislabs.riot.redis.EvalCommand;
-import com.redislabs.riot.redis.ExpireCommand;
-import com.redislabs.riot.redis.GeoaddCommand;
-import com.redislabs.riot.redis.HmsetCommand;
-import com.redislabs.riot.redis.LpushCommand;
-import com.redislabs.riot.redis.NoopCommand;
-import com.redislabs.riot.redis.RpushCommand;
-import com.redislabs.riot.redis.SaddCommand;
-import com.redislabs.riot.redis.SetCommand;
-import com.redislabs.riot.redis.XaddCommand;
-import com.redislabs.riot.redis.ZaddCommand;
-
-import lombok.Getter;
 import picocli.CommandLine.Command;
 
-@Command(subcommands = { EvalCommand.class, ExpireCommand.class, GeoaddCommand.class, HmsetCommand.class,
-		LpushCommand.class, NoopCommand.class, RpushCommand.class, SaddCommand.class, SetCommand.class,
-		XaddCommand.class,
-		ZaddCommand.class }, subcommandsRepeatable = true, synopsisSubcommandLabel = "[REDIS COMMAND]", commandListHeading = "Redis commands:%n")
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+@Command(subcommands = {EvalCommand.class, ExpireCommand.class, GeoaddCommand.class, HmsetCommand.class, LpushCommand.class, NoopCommand.class, RpushCommand.class, SaddCommand.class, SetCommand.class, XaddCommand.class, ZaddCommand.class}, subcommandsRepeatable = true, synopsisSubcommandLabel = "[REDIS COMMAND]", commandListHeading = "Redis commands:%n")
 public abstract class AbstractImportCommand<I, O> extends AbstractTransferCommand<I, O> {
 
-	/*
-	 * Initialized manually during command parsing
-	 */
-	@Getter
-	private List<RedisCommand<O>> redisCommands = new ArrayList<>();
+    /*
+     * Initialized manually during command parsing
+     */
+    @Getter
+    private final List<RedisCommand<O>> redisCommands = new ArrayList<>();
 
-	protected ItemWriter<O> writer(TransferContext context) throws Exception {
-		Assert.notNull(redisCommands, "RedisCommands not set");
-		List<ItemWriter<O>> writers = new ArrayList<>();
-		for (RedisCommand<O> redisCommand : redisCommands) {
-			writers.add(redisCommand.writer(context));
-		}
-		if (writers.isEmpty()) {
-			throw new IllegalArgumentException("No Redis command specified");
-		}
-		if (writers.size() == 1) {
-			return (ItemWriter<O>) writers.get(0);
-		}
-		CompositeItemWriter<O> writer = new CompositeItemWriter<>();
-		writer.setDelegates(new ArrayList<>(writers));
-		return writer;
-	}
+    protected AbstractTaskletStepBuilder<SimpleStepBuilder<I, O>> step(String name, ItemReader<I> reader) throws Exception {
+        return step(name, reader, processor(), writer());
+    }
 
-	@Override
-	protected String transferNameFormat() {
-		return "Importing from %s";
-	}
+    protected abstract ItemProcessor<I, O> processor();
+
+    protected ItemWriter<O> writer() {
+        Assert.notNull(redisCommands, "RedisCommands not set");
+        Assert.isTrue(!redisCommands.isEmpty(), "No Redis command specified");
+        Function<RedisCommand<O>, ItemWriter<O>> writerProvider = writerProvider();
+        if (redisCommands.size() == 1) {
+            return writerProvider.apply(redisCommands.get(0));
+        }
+        CompositeItemWriter<O> compositeWriter = new CompositeItemWriter<>();
+        compositeWriter.setDelegates(redisCommands.stream().map(writerProvider).collect(Collectors.toList()));
+        return compositeWriter;
+    }
+
+    private Function<RedisCommand<O>, ItemWriter<O>> writerProvider() {
+        if (isCluster()) {
+            GenericObjectPool<StatefulRedisClusterConnection<String, String>> pool = redisClusterPool();
+            return c -> RedisClusterCommandItemWriter.builder(pool, c.command()).commandTimeout(getCommandTimeout()).build();
+        }
+        GenericObjectPool<StatefulRedisConnection<String, String>> pool = redisPool();
+        return c -> RedisCommandItemWriter.builder(pool, c.command()).commandTimeout(getCommandTimeout()).build();
+    }
+
 
 }

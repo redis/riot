@@ -1,66 +1,54 @@
 package com.redislabs.riot.db;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
-import javax.sql.DataSource;
-
+import com.redislabs.riot.AbstractImportCommand;
+import com.redislabs.riot.KeyValueProcessingOptions;
+import org.springframework.batch.core.job.flow.Flow;
+import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.database.JdbcCursorItemReader;
 import org.springframework.batch.item.database.builder.JdbcCursorItemReaderBuilder;
-import org.springframework.batch.item.redis.support.Transfer;
 import org.springframework.jdbc.core.ColumnMapRowMapper;
-
-import com.redislabs.riot.AbstractMapImportCommand;
-import com.redislabs.riot.TransferContext;
-
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
-import picocli.CommandLine.Option;
-import picocli.CommandLine.Parameters;
 
-@Command(name = "import", aliases = { "i" }, description = "Import from a database")
-public class DatabaseImportCommand extends AbstractMapImportCommand<Map<String, Object>, Map<String, Object>> {
+import javax.sql.DataSource;
+import java.util.Map;
 
-	@Parameters(arity = "1", description = "SQL SELECT statement", paramLabel = "SQL")
-	private String sql;
-	@Mixin
-	private DatabaseOptions options = new DatabaseOptions();
-	@Option(names = "--fetch", description = "Number of rows to return with each fetch", paramLabel = "<size>")
-	private Integer fetchSize;
-	@Option(names = "--rows", description = "Max number of rows the ResultSet can contain", paramLabel = "<count>")
-	private Integer maxRows;
-	@Option(names = "--query-timeout", description = "The time in milliseconds for the query to timeout", paramLabel = "<ms>")
-	private Integer queryTimeout;
-	@Option(names = "--shared-connection", description = "Use same conn for cursor and other processing", hidden = true)
-	private boolean useSharedExtendedConnection;
-	@Option(names = "--verify", description = "Verify position of ResultSet after RowMapper", hidden = true)
-	private boolean verifyCursorPosition;
+@Command(name = "import", aliases = {"i"}, description = "Import from a database")
+public class DatabaseImportCommand extends AbstractImportCommand<Map<String, Object>, Map<String, Object>> {
 
-	@Override
-	protected List<Transfer<Map<String, Object>, Map<String, Object>>> transfers(TransferContext context)
-			throws Exception {
-		DataSource dataSource = options.dataSource();
-		JdbcCursorItemReaderBuilder<Map<String, Object>> builder = new JdbcCursorItemReaderBuilder<>();
-		builder.dataSource(dataSource);
-		if (fetchSize != null) {
-			builder.fetchSize(fetchSize);
-		}
-		if (maxRows != null) {
-			builder.maxRows(maxRows);
-		}
-		builder.name("database-reader");
-		if (queryTimeout != null) {
-			builder.queryTimeout(queryTimeout);
-		}
-		builder.rowMapper(new ColumnMapRowMapper());
-		builder.sql(sql);
-		builder.useSharedExtendedConnection(useSharedExtendedConnection);
-		builder.verifyCursorPosition(verifyCursorPosition);
-		JdbcCursorItemReader<Map<String, Object>> reader = builder.build();
-		reader.setName(options.name(dataSource));
-		reader.afterPropertiesSet();
-		return Collections.singletonList(transfer(reader, mapProcessor(context.getClient()), writer(context)));
-	}
+    @Mixin
+    private DatabaseImportOptions options = new DatabaseImportOptions();
+    @Mixin
+    private KeyValueProcessingOptions processingOptions = new KeyValueProcessingOptions();
 
+    @Override
+    protected Flow flow() throws Exception {
+        DataSource dataSource = options.dataSource();
+        JdbcCursorItemReaderBuilder<Map<String, Object>> builder = new JdbcCursorItemReaderBuilder<>();
+        builder.saveState(false);
+        builder.dataSource(dataSource);
+        if (options.getFetchSize() != null) {
+            builder.fetchSize(options.getFetchSize());
+        }
+        if (options.getMaxRows() != null) {
+            builder.maxRows(options.getMaxRows());
+        }
+        builder.name("database-reader");
+        if (options.getQueryTimeout() != null) {
+            builder.queryTimeout(options.getQueryTimeout());
+        }
+        builder.rowMapper(new ColumnMapRowMapper());
+        builder.sql(options.getSql());
+        builder.useSharedExtendedConnection(options.isUseSharedExtendedConnection());
+        builder.verifyCursorPosition(options.isVerifyCursorPosition());
+        JdbcCursorItemReader<Map<String, Object>> reader = builder.build();
+        reader.afterPropertiesSet();
+        String name = dataSource.getConnection().getMetaData().getDatabaseProductName();
+        return flow(step("Importing from " + name, reader).build());
+    }
+
+    @Override
+    protected ItemProcessor<Map<String, Object>, Map<String, Object>> processor() {
+        return processingOptions.processor(connection());
+    }
 }

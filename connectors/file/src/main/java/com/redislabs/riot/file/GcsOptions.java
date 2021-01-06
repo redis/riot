@@ -1,11 +1,11 @@
 package com.redislabs.riot.file;
 
-import java.io.File;
-
-import lombok.Getter;
+import lombok.Data;
 import picocli.CommandLine.Option;
 
-@Getter
+import java.io.File;
+
+@Data
 public class GcsOptions {
 
 	@Option(names = "--gcs-key-file", description = "GCS private key (e.g. /usr/local/key.json)", paramLabel = "<file>")

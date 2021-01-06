@@ -1,13 +1,11 @@
 package com.redislabs.riot;
 
 import picocli.CommandLine;
-import picocli.CommandLine.Command;
-import picocli.CommandLine.Option;
 
-@Command(usageHelpAutoWidth = true)
+@CommandLine.Command(usageHelpAutoWidth = true)
 public class HelpCommand implements Runnable {
 
-	@Option(names = "--help", usageHelp = true, description = "Show this help message and exit")
+	@CommandLine.Option(names = "--help", usageHelp = true, description = "Show this help message and exit")
 	private boolean helpRequested;
 
 	@Override

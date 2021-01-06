@@ -1,36 +1,77 @@
 package com.redislabs.riot;
 
-import java.util.Collections;
-import java.util.List;
-
+import io.lettuce.core.RedisFuture;
+import io.lettuce.core.api.async.BaseRedisAsyncCommands;
+import io.lettuce.core.api.async.RedisKeyAsyncCommands;
+import io.lettuce.core.api.async.RedisServerAsyncCommands;
+import org.springframework.batch.core.step.builder.AbstractTaskletStepBuilder;
+import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.item.ItemProcessor;
+import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.batch.item.redis.DataStructureItemReader;
+import org.springframework.batch.item.redis.RedisClusterDataStructureItemReader;
+import org.springframework.batch.item.redis.RedisDataStructureItemReader;
 import org.springframework.batch.item.redis.support.DataStructure;
-import org.springframework.batch.item.redis.support.Transfer;
-
+import org.springframework.batch.item.redis.support.GlobToRegexConverter;
+import org.springframework.batch.item.redis.support.ScanKeyValueItemReaderBuilder;
 import picocli.CommandLine.Mixin;
 
-public abstract class AbstractExportCommand<O> extends AbstractTransferCommand<DataStructure, O> {
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.regex.Pattern;
 
-	@Mixin
-	private RedisExportOptions options = new RedisExportOptions();
+public abstract class AbstractExportCommand<O> extends AbstractTransferCommand<DataStructure<String>, O> {
 
-	@Override
-	protected List<Transfer<DataStructure, O>> transfers(TransferContext context) throws Exception {
-		DataStructureItemReader reader = DataStructureItemReader.builder(context.getClient())
-				.poolConfig(context.getRedisOptions().poolConfig()).options(options.readerOptions()).build();
-		reader.setName(toString(context.getRedisOptions().uri()));
-		return Collections.singletonList(transfer(reader, processor(), writer()));
-	}
+    @Mixin
+    private RedisExportOptions options = new RedisExportOptions();
 
-	protected abstract ItemProcessor<DataStructure, O> processor();
+    protected AbstractTaskletStepBuilder<SimpleStepBuilder<DataStructure<String>, O>> step(ItemProcessor<DataStructure<String>, O> processor, ItemWriter<O> writer) throws Exception {
+        return step("Exporting from " + name(getRedisURI()), reader(), processor, writer);
+    }
 
-	protected abstract ItemWriter<O> writer() throws Exception;
+    protected final ItemReader<DataStructure<String>> reader() {
+        if (isCluster()) {
+            return configure(RedisClusterDataStructureItemReader.builder(redisClusterPool(), getRedisClusterClient().connect())).build();
+        }
+        return configure(RedisDataStructureItemReader.builder(redisPool(), getRedisClient().connect())).build();
+    }
 
-	@Override
-	protected String transferNameFormat() {
-		return "Exporting from %s";
-	}
+    private <B extends ScanKeyValueItemReaderBuilder<B>> B configure(B builder) {
+        return builder.commandTimeout(getCommandTimeout()).chunkSize(options.getBatchSize()).queueCapacity(options.getQueueCapacity()).threads(options.getThreads()).keyPattern(options.getScanMatch()).scanCount(options.getScanCount());
+    }
+
+    @Override
+    protected Long size() throws InterruptedException, ExecutionException, TimeoutException {
+        long commandTimeout = getCommandTimeout().getSeconds();
+        BaseRedisAsyncCommands<String, String> async = async();
+        async.setAutoFlushCommands(false);
+        RedisFuture<Long> dbsizeFuture = ((RedisServerAsyncCommands<String, String>) async).dbsize();
+        List<RedisFuture<String>> keyFutures = new ArrayList<>(options.getSampleSize());
+        // rough estimate of keys matching pattern
+        for (int index = 0; index < options.getSampleSize(); index++) {
+            keyFutures.add(((RedisKeyAsyncCommands<String, String>) async).randomkey());
+        }
+        async.flushCommands();
+        async.setAutoFlushCommands(true);
+        int matchCount = 0;
+        Pattern pattern = Pattern.compile(GlobToRegexConverter.convert(options.getScanMatch()));
+        for (RedisFuture<String> future : keyFutures) {
+            String key = future.get(commandTimeout, TimeUnit.SECONDS);
+            if (key == null) {
+                continue;
+            }
+            if (pattern.matcher(key).matches()) {
+                matchCount++;
+            }
+        }
+        Long dbsize = dbsizeFuture.get(commandTimeout, TimeUnit.SECONDS);
+        if (dbsize == null) {
+            return null;
+        }
+        return dbsize * matchCount / options.getSampleSize();
+    }
 
 }

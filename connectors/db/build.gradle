@@ -7,9 +7,9 @@ dependencies {
     implementation 'com.oracle.ojdbc:ojdbc8:19.3.0.0'
     implementation 'mysql:mysql-connector-java'
     implementation 'org.postgresql:postgresql'
-    implementation 'org.xerial:sqlite-jdbc:3.32.3.2'
-    testImplementation 'org.testcontainers:postgresql:1.15.0'
-    testImplementation 'org.testcontainers:oracle-xe:1.15.0'
+    implementation 'org.xerial:sqlite-jdbc:3.34.0'
+    testImplementation group: 'org.testcontainers', name: 'postgresql', version: testcontainers_version
+    testImplementation group: 'org.testcontainers', name: 'oracle-xe', version: testcontainers_version
 }
 
 application {

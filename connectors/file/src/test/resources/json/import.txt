@@ -1,1 +1,1 @@
-❯ riot-file import /tmp/redis.json
+❯ riot-file import-dump /tmp/redis.json

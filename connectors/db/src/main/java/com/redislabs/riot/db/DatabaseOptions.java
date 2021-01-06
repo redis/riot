@@ -1,15 +1,12 @@
 package com.redislabs.riot.db;
 
-import java.sql.SQLException;
+import lombok.Data;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
+import picocli.CommandLine.Option;
 
 import javax.sql.DataSource;
 
-import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
-
-import lombok.extern.slf4j.Slf4j;
-import picocli.CommandLine.Option;
-
-@Slf4j
+@Data
 public class DatabaseOptions {
 
 	@Option(names = "--driver", description = "Fully qualified name of the JDBC driver", paramLabel = "<class>")
@@ -27,11 +24,7 @@ public class DatabaseOptions {
 		properties.setDriverClassName(driver);
 		properties.setUsername(username);
 		properties.setPassword(password);
-		log.debug("Initializing datasource: driver={} url={}", driver, url);
 		return properties.initializeDataSourceBuilder().build();
 	}
 
-	public String name(DataSource dataSource) throws SQLException {
-		return dataSource.getConnection().getMetaData().getDatabaseProductName();
-	}
 }

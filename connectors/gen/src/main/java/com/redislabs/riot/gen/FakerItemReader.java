@@ -1,28 +1,27 @@
 package com.redislabs.riot.gen;
 
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.stream.Collectors;
-
+import com.github.javafaker.Faker;
+import lombok.Builder;
 import org.springframework.batch.item.ItemReader;
-import org.springframework.batch.item.redis.support.AbstractProgressReportingItemReader;
+import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.SimpleEvaluationContext;
 import org.springframework.util.Assert;
+import org.springframework.util.ClassUtils;
 
-import com.github.javafaker.Faker;
-
-import lombok.Builder;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * {@link ItemReader} that generates HashMaps using Faker.
  *
  * @author Julien Ruaux
  */
-public class FakerItemReader extends AbstractProgressReportingItemReader<Map<String, Object>> {
+public class FakerItemReader extends AbstractItemCountingItemStreamItemReader<Map<String, Object>> {
 
 	public final static String FIELD_INDEX = "index";
 
@@ -41,7 +40,7 @@ public class FakerItemReader extends AbstractProgressReportingItemReader<Map<Str
 			long sleep) {
 		Assert.notNull(fields, "Fields are required.");
 		Assert.isTrue(end > start, "End index must be strictly greater than start index");
-		setName("Faker");
+		setName(ClassUtils.getShortName(getClass()));
 		this.locale = locale;
 		this.includeMetadata = includeMetadata;
 		this.spelFields = fields;

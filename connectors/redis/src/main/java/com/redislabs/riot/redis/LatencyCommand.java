@@ -1,17 +1,16 @@
 package com.redislabs.riot.redis;
 
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.concurrent.TimeUnit;
-
-import org.HdrHistogram.Histogram;
-import org.LatencyUtils.LatencyStats;
-
 import io.lettuce.core.api.sync.BaseRedisCommands;
 import io.lettuce.core.metrics.CommandMetrics;
 import io.lettuce.core.metrics.DefaultCommandLatencyCollectorOptions;
+import org.HdrHistogram.Histogram;
+import org.LatencyUtils.LatencyStats;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
+
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.concurrent.TimeUnit;
 
 @Command(name = "latency", aliases = "l", description = "Calculate latency stats")
 public class LatencyCommand extends AbstractRedisCommand {
