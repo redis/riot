@@ -1,5 +1,4 @@
 plugins {
-    id 'distribution'
     id 'net.researchgate.release' version '2.8.1'
     id 'org.asciidoctor.jvm.convert' version '3.3.0'
     id 'org.ajoberstar.git-publish' version '3.0.0'
@@ -9,9 +8,6 @@ plugins {
     id 'com.github.breadmoirai.github-release' version '2.2.12'
 }
 
-group = 'com.redislabs.riot'
-description = 'RIOT'
-
 repositories {
     jcenter()
     mavenCentral()
@@ -19,7 +15,6 @@ repositories {
 }
 
 subprojects {
-    group = 'com.redislabs.riot'
     apply plugin: 'java'
     apply plugin: 'java-library'
     apply plugin: 'eclipse'
@@ -144,4 +139,6 @@ githubRelease {
     draft true
 }
 
+gitPublishPush.dependsOn asciidoctor
 afterReleaseBuild.dependsOn ":githubRelease"
+afterReleaseBuild.dependsOn gitPublishPush
