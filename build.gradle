@@ -77,12 +77,11 @@ subprojects {
 
 release {
     tagTemplate = 'v${version}'
+    buildTasks = ['releaseBuild']
 }
 
-task build {
-    subprojects.each {
-        dependsOn "${it.path}:build"
-    }
+task releaseBuild {
+    dependsOn subprojects.findResults { it.tasks.findByName('build') }
 }
 
 asciidoctor {
