@@ -42,7 +42,7 @@ public class ReplicateCommand extends AbstractFlushingTransferCommand<KeyValue<S
     }
 
     @Override
-    protected void shutdown() {
+    public void shutdown() {
         super.shutdown();
         targetClient.shutdown();
         targetClient.getResources().shutdown();

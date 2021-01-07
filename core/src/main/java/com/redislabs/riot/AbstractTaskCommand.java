@@ -1,6 +1,7 @@
 package com.redislabs.riot;
 
 import org.springframework.batch.core.Job;
+import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.builder.FlowBuilder;
@@ -48,10 +49,18 @@ public abstract class AbstractTaskCommand extends RiotCommand {
     }
 
     @Override
-    protected void doExecute() throws Exception {
+    protected void execute() throws Exception {
+        factory.getSyncLauncher().run(job(), new JobParameters());
+    }
+
+    private Job job() throws Exception {
         JobBuilder jobBuilder = factory.job(ClassUtils.getShortName(getClass()));
-        Job job = jobBuilder.start(flow()).build().build();
-        factory.getSyncLauncher().run(job, new JobParameters());
+        return jobBuilder.start(flow()).build().build();
+    }
+
+    public JobExecution executeAsync() throws Exception {
+        afterPropertiesSet();
+        return factory.getAsyncLauncher().run(job(), new JobParameters());
     }
 
     protected abstract Flow flow() throws Exception;

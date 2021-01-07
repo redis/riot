@@ -56,9 +56,17 @@ public abstract class RiotCommand extends HelpCommand implements InitializingBea
     @Override
     public void run() {
         try {
+            afterPropertiesSet();
+        } catch (Exception e) {
+            log.error("Could not initialize command", e);
+            return;
+        }
+        try {
             execute();
         } catch (Exception e) {
             log.error("Could not execute command", e);
+        } finally {
+            shutdown();
         }
     }
 
@@ -67,18 +75,11 @@ public abstract class RiotCommand extends HelpCommand implements InitializingBea
         this.client = app.getRedisOptions().client();
     }
 
-    public void execute() throws Exception {
-        afterPropertiesSet();
-        try {
-            doExecute();
-        } finally {
-            shutdown();
+    public void shutdown() {
+        if (client != null) {
+            client.shutdown();
+            client.getResources().shutdown();
         }
-    }
-
-    protected void shutdown() {
-        client.shutdown();
-        client.getResources().shutdown();
     }
 
     protected StatefulRedisConnection<String, String> redisConnection() {
@@ -110,7 +111,7 @@ public abstract class RiotCommand extends HelpCommand implements InitializingBea
         return getRedisClient().connect().async();
     }
 
-    protected abstract void doExecute() throws Exception;
+    protected abstract void execute() throws Exception;
 
     protected String name(RedisURI redisURI) {
         if (redisURI.getSocket() != null) {

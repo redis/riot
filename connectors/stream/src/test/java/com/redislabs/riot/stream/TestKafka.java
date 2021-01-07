@@ -1,15 +1,12 @@
 package com.redislabs.riot.stream;
 
-import java.time.Duration;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Future;
-
+import com.google.common.collect.ImmutableMap;
+import com.redislabs.riot.RiotApp;
+import com.redislabs.riot.test.BaseTest;
+import io.lettuce.core.Range;
+import io.lettuce.core.StreamMessage;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;
@@ -20,6 +17,7 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.springframework.batch.core.JobExecution;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.kafka.support.serializer.JsonSerializer;
 import org.testcontainers.containers.KafkaContainer;
@@ -27,12 +25,9 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
-import com.google.common.collect.ImmutableMap;
-import com.redislabs.riot.RiotApp;
-import com.redislabs.riot.test.BaseTest;
-
-import io.lettuce.core.Range;
-import io.lettuce.core.StreamMessage;
+import java.time.Duration;
+import java.util.*;
+import java.util.concurrent.Future;
 
 @Testcontainers
 public class TestKafka extends BaseTest {
@@ -81,20 +76,27 @@ public class TestKafka extends BaseTest {
 
     @Test
     public void testExport() throws Exception {
+        StreamExportCommand command = (StreamExportCommand) command("/export.txt");
+        JobExecution execution = command.executeAsync();
+        while (!execution.isRunning()) {
+            Thread.sleep(10);
+        }
         String stream = "stream1";
-        int count = 100;
-        for (int index = 0; index < count; index++) {
+        int producedCount = 100;
+        for (int index = 0; index < producedCount; index++) {
             sync.xadd(stream, map());
         }
-        StreamExportCommand command = (StreamExportCommand) command("/export.txt");
-        CompletableFuture<Void> future = CompletableFuture.runAsync(command);
-        Thread.sleep(200);
         KafkaConsumer<String, Map<String, Object>> consumer = new KafkaConsumer<>(ImmutableMap.of(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafka.getBootstrapServers(), ConsumerConfig.GROUP_ID_CONFIG, UUID.randomUUID().toString(), ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest"), new StringDeserializer(), new JsonDeserializer<>());
         consumer.subscribe(Collections.singletonList(stream));
-        ConsumerRecords<String, Map<String, Object>> records = consumer.poll(Duration.ofSeconds(30));
-        Assertions.assertEquals(count, records.count());
-        records.forEach(r -> Assertions.assertEquals(map(), r.value()));
-        future.cancel(true);
+        List<ConsumerRecord<String, Map<String, Object>>> consumerRecords = new ArrayList<>();
+        while (consumerRecords.size() < 100) {
+            ConsumerRecords<String, Map<String, Object>> records = consumer.poll(Duration.ofSeconds(30));
+            records.forEach(consumerRecords::add);
+        }
+        Assertions.assertEquals(producedCount, consumerRecords.size());
+        consumerRecords.forEach(r -> Assertions.assertEquals(map(), r.value()));
+        execution.stop();
+        command.shutdown();
     }
 
 }

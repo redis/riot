@@ -17,13 +17,12 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.item.redis.RedisDataStructureItemReader;
 import org.springframework.batch.item.redis.support.DatabaseComparator;
 import org.springframework.batch.item.redis.support.DatabaseComparison;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.junit.jupiter.Container;
-
-import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @SuppressWarnings({"rawtypes"})
@@ -90,19 +89,23 @@ public class TestReplicate extends BaseTest {
         sync.configSet("notify-keyspace-events", "AK");
         DataGenerator.builder().client(client).build().run();
         ReplicateCommand command = (ReplicateCommand) command("/replicate-live.txt");
-        CompletableFuture<Void> future = CompletableFuture.runAsync(command);
+        JobExecution execution = command.executeAsync();
+        while (!execution.isRunning()) {
+            Thread.sleep(10);
+        }
         long dbsize;
         do {
             dbsize = targetSync.dbsize();
-            Thread.sleep(100);
+            Thread.sleep(10);
         } while (dbsize < 2000);
         int count = 39;
         for (int index = 0; index < count; index++) {
             sync.set("livestring:" + index, "value" + index);
             Thread.sleep(1);
         }
-        Thread.sleep(500);
-        future.cancel(true);
+        Thread.sleep(100);
+        execution.stop();
+        command.shutdown();
         Long sourceSize = sync.dbsize();
         Assertions.assertTrue(sourceSize > 0);
         Long targetSize = targetSync.dbsize();
