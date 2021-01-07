@@ -20,6 +20,7 @@ subprojects {
     apply plugin: 'eclipse'
     apply plugin: 'org.springframework.boot'
     apply plugin: 'io.spring.dependency-management'
+    apply plugin: 'net.researchgate.release'
     archivesBaseName = 'riot-' + project.name
     sourceCompatibility = '1.8'
     targetCompatibility = '1.8'
