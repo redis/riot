@@ -4,7 +4,8 @@ plugins {
     id 'org.ajoberstar.git-publish' version '3.0.0'
     id 'com.github.ben-manes.versions' version '0.36.0'
     id 'org.springframework.boot' version '2.4.1'
-    id 'io.spring.dependency-management' version '1.0.10.RELEASE'    
+    id 'io.spring.dependency-management' version '1.0.10.RELEASE'
+    id 'com.github.breadmoirai.github-release' version '2.2.12'
 }
 
 repositories {
@@ -128,6 +129,15 @@ tasks.named("dependencyUpdates").configure {
     isNonStable(it.candidate.version) && !isNonStable(it.currentVersion)
   }
 
+}
+
+githubRelease {
+    token = project.hasProperty('githubToken') ? project.property('githubToken') : ''
+    owner "redis-developer"
+    repo "riot"
+    releaseAssets "connectors/db/build/distributions/riot-db-${project.version}.zip", "connectors/file/build/distributions/riot-file-${project.version}.zip", "connectors/gen/build/distributions/riot-gen-${project.version}.zip", "connectors/redis/build/distributions/riot-redis-${project.version}.zip", "connectors/stream/build/distributions/riot-stream-${project.version}.zip"
+    body changelog()
+    draft true
 }
 
 afterReleaseBuild.dependsOn gitPublishPush
