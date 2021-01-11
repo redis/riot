@@ -17,19 +17,23 @@ import java.util.logging.Logger;
 @Command(usageHelpAutoWidth = true, sortOptions = false, versionProvider = ManifestVersionProvider.class, subcommands = HiddenGenerateCompletion.class, abbreviateSynopsis = true)
 public class RiotApp implements Runnable {
 
+    @Getter
+    @Spec
+    private Model.CommandSpec commandSpec;
+
     private static final String ROOT_LOGGER = "";
 
     @Option(names = {"-H", "--help"}, usageHelp = true, description = "Show this help message and exit.")
     private boolean helpRequested;
     @Option(names = {"-V", "--version"}, versionHelp = true, description = "Print version information and exit.")
     private boolean versionRequested;
-    @Option(names = {"-q", "--quiet"}, description = "Log errors only")
+    @Option(names = {"-q", "--quiet"}, description = "Log errors only.")
     private boolean quiet;
-    @Option(names = {"-w", "--warn"}, description = "Set log level to warn")
+    @Option(names = {"-w", "--warn"}, description = "Set log level to warn.")
     private boolean warn;
-    @Option(names = {"-i", "--info"}, description = "Set log level to info")
+    @Option(names = {"-i", "--info"}, description = "Set log level to info.")
     private boolean info;
-    @Option(names = {"-d", "--debug"}, description = "Log in debug mode (includes normal stacktrace)")
+    @Option(names = {"-d", "--debug"}, description = "Log in debug mode (includes normal stacktrace).")
     private boolean debug;
     @Option(names = {"-S", "--stacktrace"}, description = "Print out the stacktrace for all exceptions.")
     private boolean stacktrace;

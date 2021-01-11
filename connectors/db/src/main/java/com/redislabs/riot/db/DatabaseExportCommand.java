@@ -25,7 +25,7 @@ public class DatabaseExportCommand extends AbstractExportCommand<Map<String, Obj
         builder.itemSqlParameterSourceProvider(MapSqlParameterSource::new);
         builder.dataSource(dataSource);
         builder.sql(options.getSql());
-        builder.assertUpdates(!options.isNoAssertUpdates());
+        builder.assertUpdates(options.isAssertUpdates());
         JdbcBatchItemWriter<Map<String, Object>> writer = builder.build();
         writer.afterPropertiesSet();
         DataStructureMapItemProcessor processor = DataStructureMapItemProcessor.builder().keyRegex(options.getKeyRegex()).build();

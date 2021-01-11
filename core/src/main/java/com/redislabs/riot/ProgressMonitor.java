@@ -10,13 +10,16 @@ import org.springframework.batch.core.listener.StepListenerSupport;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Supplier;
 
 @Slf4j
 @Builder
-public class ProgressReporter<S, T> extends StepListenerSupport<S, T> {
+public class ProgressMonitor<S, T> extends StepListenerSupport<S, T> {
 
     private final String taskName;
     private final Long max;
+    @Builder.Default
+    private final Supplier<String> extraMessageSupplier = () -> "";
     private ProgressBar progressBar;
     private AtomicLong count;
 
@@ -41,7 +44,9 @@ public class ProgressReporter<S, T> extends StepListenerSupport<S, T> {
 
     @Override
     public void afterWrite(List<? extends T> items) {
-        progressBar.stepTo(count.addAndGet(items.size()));
+        long total = count.addAndGet(items.size());
+        progressBar.stepTo(total);
+        progressBar.setExtraMessage(extraMessageSupplier.get());
         super.afterWrite(items);
     }
 }

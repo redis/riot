@@ -3,7 +3,7 @@ package com.redis.riot.redis;
 import com.redislabs.riot.RiotApp;
 import com.redislabs.riot.redis.ReplicateCommand;
 import com.redislabs.riot.redis.RiotRedis;
-import com.redislabs.riot.test.BaseTest;
+import com.redislabs.riot.test.AbstractStandaloneRedisTest;
 import com.redislabs.riot.test.DataGenerator;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.RedisURI;
@@ -18,15 +18,12 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.batch.core.JobExecution;
-import org.springframework.batch.item.redis.RedisDataStructureItemReader;
-import org.springframework.batch.item.redis.support.DatabaseComparator;
-import org.springframework.batch.item.redis.support.DatabaseComparison;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.junit.jupiter.Container;
 
 @Slf4j
 @SuppressWarnings({"rawtypes"})
-public class TestReplicate extends BaseTest {
+public class TestReplicate extends AbstractStandaloneRedisTest {
 
     @Container
     private static final GenericContainer targetRedis = redisContainer();
@@ -41,14 +38,9 @@ public class TestReplicate extends BaseTest {
         return new RiotRedis();
     }
 
-    @Override
-    protected String applicationName() {
-        return "riot-redis";
-    }
-
     @BeforeEach
     public void setupTarget() {
-        targetRedisURI = redisURI(targetRedis);
+        targetRedisURI = RedisURI.create(targetRedis.getHost(), targetRedis.getFirstMappedPort());
         targetClient = RedisClient.create(targetRedisURI);
         targetPool = ConnectionPoolSupport.createGenericObjectPool(targetClient::connect, new GenericObjectPoolConfig<>());
         targetConnection = targetClient.connect();
@@ -66,28 +58,23 @@ public class TestReplicate extends BaseTest {
     @Test
     public void replicate() throws Exception {
         targetSync.flushall();
-        DataGenerator.builder().client(client).build().run();
+        DataGenerator.builder().commands(sync).build().run();
         Long sourceSize = sync.dbsize();
         Assertions.assertTrue(sourceSize > 0);
         executeFile("/replicate.txt");
         Assertions.assertEquals(sourceSize, targetSync.dbsize());
-        RedisDataStructureItemReader<String, String> left = RedisDataStructureItemReader.builder(pool, connection).build();
-        RedisDataStructureItemReader<String, String> right = RedisDataStructureItemReader.builder(targetPool, targetConnection).build();
-        DatabaseComparator<String> comparator = DatabaseComparator.<String>builder().left(left).right(right).build();
-        DatabaseComparison<String> comparison = comparator.execute();
-        Assertions.assertTrue(comparison.isIdentical());
     }
 
     @Override
     protected String process(String command) {
-        String processedCommand = command.replace("-h source -p 6379", "").replace("-h target -p 6380", connectionArgs(targetRedis));
+        String processedCommand = command.replace("-h source -p 6379", "").replace("-h target -p 6380", connectionArgs(targetRedis.getHost(), targetRedis.getFirstMappedPort()));
         return super.process(processedCommand);
     }
 
     @Test
     public void replicateLive() throws Exception {
         sync.configSet("notify-keyspace-events", "AK");
-        DataGenerator.builder().client(client).build().run();
+        DataGenerator.builder().commands(sync).build().run();
         ReplicateCommand command = (ReplicateCommand) command("/replicate-live.txt");
         JobExecution execution = command.executeAsync();
         while (!execution.isRunning()) {

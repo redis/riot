@@ -41,7 +41,7 @@ public class TestPostgreSQL extends DbTest {
 		Statement statement = connection.createStatement();
 		statement.execute("CREATE TABLE mytable (id smallint NOT NULL, field1 bpchar, field2 bpchar)");
 		statement.execute("ALTER TABLE ONLY mytable ADD CONSTRAINT pk_mytable PRIMARY KEY (id)");
-		DataGenerator.builder().client(client).dataTypes(Collections.singletonList(DataType.HASH)).build().run();
+		DataGenerator.builder().commands(sync).dataTypes(Collections.singletonList(DataType.HASH)).build().run();
 		executeFile("/postgresql/export.txt");
 		statement.execute("SELECT COUNT(*) AS count FROM mytable");
 		ResultSet countResultSet = statement.getResultSet();

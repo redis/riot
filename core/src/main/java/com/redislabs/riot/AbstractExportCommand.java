@@ -1,9 +1,5 @@
 package com.redislabs.riot;
 
-import io.lettuce.core.RedisFuture;
-import io.lettuce.core.api.async.BaseRedisAsyncCommands;
-import io.lettuce.core.api.async.RedisKeyAsyncCommands;
-import io.lettuce.core.api.async.RedisServerAsyncCommands;
 import org.springframework.batch.core.step.builder.AbstractTaskletStepBuilder;
 import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.item.ItemProcessor;
@@ -11,17 +7,11 @@ import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.redis.RedisClusterDataStructureItemReader;
 import org.springframework.batch.item.redis.RedisDataStructureItemReader;
-import org.springframework.batch.item.redis.support.DataStructure;
-import org.springframework.batch.item.redis.support.GlobToRegexConverter;
-import org.springframework.batch.item.redis.support.ScanKeyValueItemReaderBuilder;
+import org.springframework.batch.item.redis.support.*;
 import picocli.CommandLine.Mixin;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.regex.Pattern;
 
 public abstract class AbstractExportCommand<O> extends AbstractTransferCommand<DataStructure<String>, O> {
 
@@ -40,38 +30,19 @@ public abstract class AbstractExportCommand<O> extends AbstractTransferCommand<D
     }
 
     private <B extends ScanKeyValueItemReaderBuilder<B>> B configure(B builder) {
-        return builder.commandTimeout(getCommandTimeout()).chunkSize(options.getBatchSize()).queueCapacity(options.getQueueCapacity()).threads(options.getThreads()).keyPattern(options.getScanMatch()).scanCount(options.getScanCount());
+        return builder.commandTimeout(getCommandTimeout()).chunkSize(options.getBatchSize()).queueCapacity(options.getQueueCapacity()).threadCount(options.getThreads()).keyPattern(options.getScanMatch()).scanCount(options.getScanCount());
     }
 
     @Override
     protected Long size() throws InterruptedException, ExecutionException, TimeoutException {
-        long commandTimeout = getCommandTimeout().getSeconds();
-        BaseRedisAsyncCommands<String, String> async = async();
-        async.setAutoFlushCommands(false);
-        RedisFuture<Long> dbsizeFuture = ((RedisServerAsyncCommands<String, String>) async).dbsize();
-        List<RedisFuture<String>> keyFutures = new ArrayList<>(options.getSampleSize());
-        // rough estimate of keys matching pattern
-        for (int index = 0; index < options.getSampleSize(); index++) {
-            keyFutures.add(((RedisKeyAsyncCommands<String, String>) async).randomkey());
+        if (isCluster()) {
+            return configure(RedisClusterDatasetSizeEstimator.builder(redisClusterConnection())).build().call();
         }
-        async.flushCommands();
-        async.setAutoFlushCommands(true);
-        int matchCount = 0;
-        Pattern pattern = Pattern.compile(GlobToRegexConverter.convert(options.getScanMatch()));
-        for (RedisFuture<String> future : keyFutures) {
-            String key = future.get(commandTimeout, TimeUnit.SECONDS);
-            if (key == null) {
-                continue;
-            }
-            if (pattern.matcher(key).matches()) {
-                matchCount++;
-            }
-        }
-        Long dbsize = dbsizeFuture.get(commandTimeout, TimeUnit.SECONDS);
-        if (dbsize == null) {
-            return null;
-        }
-        return dbsize * matchCount / options.getSampleSize();
+        return configure(RedisDatasetSizeEstimator.builder(redisConnection())).build().call();
+    }
+
+    private <B extends DatasetSizeEstimatorBuilder<B>> B configure(B builder) {
+        return builder.sampleSize(options.getSampleSize()).commandTimeout(getCommandTimeout().getSeconds()).keyPattern(options.getScanMatch());
     }
 
 }

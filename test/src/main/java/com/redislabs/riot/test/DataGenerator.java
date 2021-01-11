@@ -1,8 +1,6 @@
 package com.redislabs.riot.test;
 
-import io.lettuce.core.RedisClient;
-import io.lettuce.core.api.StatefulRedisConnection;
-import io.lettuce.core.api.sync.RedisCommands;
+import io.lettuce.core.api.sync.*;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +16,7 @@ import java.util.Map;
 public class DataGenerator implements Runnable {
 
     @NonNull
-    private RedisClient client;
+    private BaseRedisCommands<String, String> commands;
     @Builder.Default
     private int start = 0;
     @Builder.Default
@@ -35,33 +33,31 @@ public class DataGenerator implements Runnable {
 
     @Override
     public void run() {
-        StatefulRedisConnection<String, String> connection = client.connect();
-        RedisCommands<String, String> commands = connection.sync();
         for (int index = start; index < end; index++) {
             if (dataTypes.contains(DataType.STRING)) {
                 String stringKey = "string:" + index;
-                commands.set(stringKey, "value:" + index);
+                ((RedisStringCommands<String, String>) commands).set(stringKey, "value:" + index);
                 if (expire > 0) {
-                    commands.expireat(stringKey, expire);
+                    ((RedisKeyCommands<String, String>) commands).expireat(stringKey, expire);
                 }
             }
             Map<String, String> hash = new HashMap<>();
             hash.put("field1", "value" + index);
             hash.put("field2", "value" + index);
             if (dataTypes.contains(DataType.HASH)) {
-                commands.hmset("hash:" + index, hash);
+                ((RedisHashCommands<String, String>) commands).hmset("hash:" + index, hash);
             }
             if (dataTypes.contains(DataType.SET)) {
-                commands.sadd("set:" + (index % collectionModulo), "member:" + index);
+                ((RedisSetCommands<String, String>) commands).sadd("set:" + (index % collectionModulo), "member:" + index);
             }
             if (dataTypes.contains(DataType.ZSET)) {
-                commands.zadd("zset:" + (index % collectionModulo), index % zsetScoreModulo, "member:" + index);
+                ((RedisSortedSetCommands<String, String>) commands).zadd("zset:" + (index % collectionModulo), index % zsetScoreModulo, "member:" + index);
             }
             if (dataTypes.contains(DataType.STREAM)) {
-                commands.xadd("stream:" + (index % collectionModulo), hash);
+                ((RedisStreamCommands<String, String>) commands).xadd("stream:" + (index % collectionModulo), hash);
             }
             if (dataTypes.contains(DataType.LIST)) {
-                commands.lpush("list:" + (index % collectionModulo), "member:" + index);
+                ((RedisListCommands<String,String>)commands).lpush("list:" + (index % collectionModulo), "member:" + index);
             }
             if (sleep > 0) {
                 try {
@@ -72,6 +68,5 @@ public class DataGenerator implements Runnable {
                 }
             }
         }
-        connection.close();
     }
 }

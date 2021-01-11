@@ -46,9 +46,13 @@ public class GenerateCommand extends AbstractImportCommand<Map<String, Object>, 
     @Override
     protected Flow flow() throws Exception {
         FakerItemReader reader = FakerItemReader.builder().locale(locale).includeMetadata(includeMetadata).fields(fakerFields(getRedisURI())).start(start).end(end).sleep(sleep).build();
-        long count = end - start;
-        reader.setMaxItemCount(Math.toIntExact(count));
+        reader.setMaxItemCount(Math.toIntExact(size()));
         return flow(step("Generating", reader).build());
+    }
+
+    @Override
+    protected Long size() {
+        return end - start;
     }
 
     private String expression(Field<String> field) {

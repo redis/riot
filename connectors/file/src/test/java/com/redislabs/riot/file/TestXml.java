@@ -29,7 +29,7 @@ public class TestXml extends AbstractFileTest {
 	@SuppressWarnings({ "incomplete-switch", "rawtypes", "unchecked" })
 	@Test
 	public void export() throws Exception {
-		DataGenerator.builder().client(client).build().run();
+		DataGenerator.builder().commands(sync).build().run();
 		Path file = tempFile("redis.xml");
 		executeFile("/xml/export.txt");
 		XmlItemReaderBuilder<DataStructure> builder = new XmlItemReaderBuilder<>();

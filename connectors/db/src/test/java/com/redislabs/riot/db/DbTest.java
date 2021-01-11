@@ -6,9 +6,9 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.testcontainers.containers.JdbcDatabaseContainer;
 
 import com.redislabs.riot.RiotApp;
-import com.redislabs.riot.test.BaseTest;
+import com.redislabs.riot.test.AbstractStandaloneRedisTest;
 
-public class DbTest extends BaseTest {
+public class DbTest extends AbstractStandaloneRedisTest {
 
 	@Override
 	protected RiotApp app() {

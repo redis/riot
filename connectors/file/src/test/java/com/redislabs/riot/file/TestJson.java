@@ -28,7 +28,7 @@ public class TestJson extends AbstractFileTest {
 
 	private List<DataStructure> exportToList() throws Exception {
 		Path file = tempFile("redis.json");
-		DataGenerator.builder().client(client).build().run();
+		DataGenerator.builder().commands(sync).build().run();
 		executeFile("/json/export.txt");
 		JsonItemReaderBuilder<DataStructure> builder = new JsonItemReaderBuilder<>();
 		builder.name("json-data-structure-file-reader");

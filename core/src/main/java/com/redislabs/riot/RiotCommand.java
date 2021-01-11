@@ -34,7 +34,7 @@ public abstract class RiotCommand extends HelpCommand implements InitializingBea
     }
 
     protected RedisURI getRedisURI() {
-        return app.getRedisOptions().uri();
+        return app.getRedisOptions().uris().get(0);
     }
 
     protected Duration getCommandTimeout() {

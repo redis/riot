@@ -20,24 +20,19 @@ import com.redislabs.lettusearch.index.field.TextField;
 import com.redislabs.lettusearch.search.Document;
 import com.redislabs.lettusearch.search.SearchResults;
 import com.redislabs.riot.RiotApp;
-import com.redislabs.riot.test.BaseTest;
+import com.redislabs.riot.test.AbstractStandaloneRedisTest;
 
 import io.lettuce.core.Range;
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.StreamMessage;
 
-public class TestGen extends BaseTest {
+public class TestGen extends AbstractStandaloneRedisTest {
 
 	private RediSearchClient searchClient;
 
 	@Override
 	protected RiotApp app() {
 		return new RiotGen();
-	}
-
-	@Override
-	protected String applicationName() {
-		return "riot-gen";
 	}
 
 	@Test

@@ -1,7 +1,7 @@
 dependencies {
-    api 'com.redislabs:spring-batch-redis:2.6.3'
+    api 'com.redislabs:spring-batch-redis:2.6.8'
     api 'org.springframework.batch:spring-batch-core'
-    implementation 'com.google.code.findbugs:jsr305:3.0.2'
+    compile 'com.google.code.findbugs:jsr305:3.0.2'
     implementation 'me.tongfei:progressbar:0.9.0'
     implementation 'org.apache.commons:commons-lang3'
     implementation 'org.latencyutils:LatencyUtils:2.0.3'

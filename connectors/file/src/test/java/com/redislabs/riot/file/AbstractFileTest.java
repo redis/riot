@@ -11,9 +11,9 @@ import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
 
 import com.redislabs.riot.RiotApp;
-import com.redislabs.riot.test.BaseTest;
+import com.redislabs.riot.test.AbstractStandaloneRedisTest;
 
-public class AbstractFileTest extends BaseTest {
+public class AbstractFileTest extends AbstractStandaloneRedisTest {
 
 	protected final static int COUNT = 2410;
 
@@ -40,11 +40,6 @@ public class AbstractFileTest extends BaseTest {
 	@Override
 	protected RiotApp app() {
 		return new RiotFile();
-	}
-
-	@Override
-	protected String applicationName() {
-		return "riot-file";
 	}
 
 	protected <T> List<T> readAll(AbstractItemCountingItemStreamItemReader<T> reader) throws Exception {

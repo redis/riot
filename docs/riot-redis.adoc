@@ -44,6 +44,19 @@ Here is an example of a live replication from a source Redis running on localhos
 include::{resources}/replicate-live.txt[]
 ----
 
+== Verification
+
+Once replication is complete *{app-name}* will perform a verification step to compare values and TTLs between source and target databases. The output looks like this:
+
+----
+OK:1000 V:0 >:0 <:0 T:0
+----
+
+* `OK`: # identical values
+* `V`: # mismatched values
+* `>`: # keys only present in source database
+* `<`: # keys only present in target database
+* `T`: # keys with TTL difference greater than tolerance
 
 == Architecture
 

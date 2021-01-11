@@ -2,7 +2,7 @@ package com.redislabs.riot.stream;
 
 import com.google.common.collect.ImmutableMap;
 import com.redislabs.riot.RiotApp;
-import com.redislabs.riot.test.BaseTest;
+import com.redislabs.riot.test.AbstractStandaloneRedisTest;
 import io.lettuce.core.Range;
 import io.lettuce.core.StreamMessage;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -30,7 +30,7 @@ import java.util.*;
 import java.util.concurrent.Future;
 
 @Testcontainers
-public class TestKafka extends BaseTest {
+public class TestKafka extends AbstractStandaloneRedisTest {
 
     @Container
     private static final KafkaContainer kafka = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:5.2.1"));
@@ -38,11 +38,6 @@ public class TestKafka extends BaseTest {
     @Override
     protected RiotApp app() {
         return new RiotStream();
-    }
-
-    @Override
-    protected String applicationName() {
-        return "riot-stream";
     }
 
     @Override
