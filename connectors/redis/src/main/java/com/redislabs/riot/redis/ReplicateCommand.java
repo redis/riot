@@ -29,7 +29,7 @@ import java.time.Duration;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
-@Command(name = "replicate", aliases = "r", description = "Replicate a source Redis database in a target Redis database")
+@Command(name = "replicate", description = "Replicate a source Redis database in a target Redis database")
 public class ReplicateCommand extends AbstractFlushingTransferCommand<KeyValue<String, byte[]>, KeyValue<String, byte[]>> {
 
     @Mixin

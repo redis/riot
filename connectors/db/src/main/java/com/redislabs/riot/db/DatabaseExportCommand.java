@@ -12,7 +12,7 @@ import picocli.CommandLine.Mixin;
 import javax.sql.DataSource;
 import java.util.Map;
 
-@Command(name = "export", aliases = "e", description = "Export to a database")
+@Command(name = "export", description = "Export to a database")
 public class DatabaseExportCommand extends AbstractExportCommand<Map<String, Object>> {
 
     @Mixin

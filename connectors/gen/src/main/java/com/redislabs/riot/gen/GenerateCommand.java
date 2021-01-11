@@ -23,7 +23,7 @@ import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 
-@Command(name = "import", aliases = {"i"}, description = "Import generated data")
+@Command(name = "import", description = "Import generated data")
 public class GenerateCommand extends AbstractImportCommand<Map<String, Object>, Map<String, Object>> {
 
     @Parameters(description = "SpEL expressions", paramLabel = "SPEL")

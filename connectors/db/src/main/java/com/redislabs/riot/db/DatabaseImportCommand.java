@@ -13,7 +13,7 @@ import picocli.CommandLine.Mixin;
 import javax.sql.DataSource;
 import java.util.Map;
 
-@Command(name = "import", aliases = {"i"}, description = "Import from a database")
+@Command(name = "import", description = "Import from a database")
 public class DatabaseImportCommand extends AbstractImportCommand<Map<String, Object>, Map<String, Object>> {
 
     @Mixin
