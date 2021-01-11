@@ -42,6 +42,11 @@ public class AbstractFileTest extends AbstractStandaloneRedisTest {
 		return new RiotFile();
 	}
 
+	@Override
+	protected String appName() {
+		return "riot-file";
+	}
+
 	protected <T> List<T> readAll(AbstractItemCountingItemStreamItemReader<T> reader) throws Exception {
 		reader.open(new ExecutionContext());
 		List<T> records = new ArrayList<>();

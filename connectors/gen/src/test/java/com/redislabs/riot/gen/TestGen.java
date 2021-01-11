@@ -35,6 +35,11 @@ public class TestGen extends AbstractStandaloneRedisTest {
 		return new RiotGen();
 	}
 
+	@Override
+	protected String appName() {
+		return "riot-gen";
+	}
+
 	@Test
 	public void genFakerHash() throws Exception {
 		executeFile("/import-hmset.txt");

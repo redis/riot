@@ -17,10 +17,6 @@ import java.util.logging.Logger;
 @Command(usageHelpAutoWidth = true, sortOptions = false, versionProvider = ManifestVersionProvider.class, subcommands = HiddenGenerateCompletion.class, abbreviateSynopsis = true)
 public class RiotApp implements Runnable {
 
-    @Getter
-    @Spec
-    private Model.CommandSpec commandSpec;
-
     private static final String ROOT_LOGGER = "";
 
     @Option(names = {"-H", "--help"}, usageHelp = true, description = "Show this help message and exit.")

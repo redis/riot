@@ -57,6 +57,11 @@ public class TestReplicateCluster extends AbstractRiotTest {
     }
 
     @Override
+    protected String appName() {
+        return "riot-redis";
+    }
+
+    @Override
     protected String connectionArgs() {
         return "-u " + String.join(" ", sourceURIs.stream().map(String::valueOf).collect(Collectors.toList()));
     }

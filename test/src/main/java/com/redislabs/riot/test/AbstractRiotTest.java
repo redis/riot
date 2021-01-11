@@ -15,17 +15,15 @@ public abstract class AbstractRiotTest {
     protected static final int REDIS_PORT = 6379;
     private final static String COMMAND_PREAMBLE = "❯";
 
-    protected String commandPrefix(RiotApp app) {
-        return COMMAND_PREAMBLE + " " + applicationName(app);
+    protected String commandPrefix() {
+        return COMMAND_PREAMBLE + " " + appName();
     }
 
-    private String applicationName(RiotApp app) {
-        return app.getCommandSpec().name();
-    }
+    protected abstract String appName();
 
-    private String removePreamble(RiotApp app, String command) {
-        if (command.startsWith(commandPrefix(app))) {
-            return command.substring(commandPrefix(app).length());
+    private String removePreamble(String command) {
+        if (command.startsWith(commandPrefix())) {
+            return command.substring(commandPrefix().length());
         }
         return command;
     }
@@ -38,20 +36,20 @@ public abstract class AbstractRiotTest {
 
     protected Object command(RiotApp app, String file) throws Exception {
         CommandLine commandLine = app.commandLine();
-        CommandLine.ParseResult parseResult = app.parse(commandLine, args(app, file));
+        CommandLine.ParseResult parseResult = app.parse(commandLine, args(file));
         return parseResult.subcommand().commandSpec().commandLine().getCommand();
     }
 
-    private String[] args(RiotApp app, String filename) throws Exception {
+    private String[] args(String filename) throws Exception {
         try (InputStream inputStream = getClass().getResourceAsStream(filename)) {
             String command = IOUtils.toString(inputStream, Charset.defaultCharset());
-            return CommandLineUtils.translateCommandline(process(removePreamble(app, command)));
+            return CommandLineUtils.translateCommandline(process(removePreamble(command)));
         }
     }
 
     protected int executeFile(String filename) throws Exception {
         RiotApp app = app();
-        return app.execute(args(app, filename));
+        return app.execute(args(filename));
     }
 
     protected String process(String command) {

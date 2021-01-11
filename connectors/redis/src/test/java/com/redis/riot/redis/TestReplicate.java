@@ -38,6 +38,11 @@ public class TestReplicate extends AbstractStandaloneRedisTest {
         return new RiotRedis();
     }
 
+    @Override
+    protected String appName() {
+        return "riot-redis";
+    }
+
     @BeforeEach
     public void setupTarget() {
         targetRedisURI = RedisURI.create(targetRedis.getHost(), targetRedis.getFirstMappedPort());

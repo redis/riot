@@ -15,7 +15,8 @@ public class DbTest extends AbstractStandaloneRedisTest {
 		return new RiotDb();
 	}
 
-	protected String applicationName() {
+	@Override
+	protected String appName() {
 		return "riot-db";
 	}
 

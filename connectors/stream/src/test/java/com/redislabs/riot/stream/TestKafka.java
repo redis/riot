@@ -41,6 +41,11 @@ public class TestKafka extends AbstractStandaloneRedisTest {
     }
 
     @Override
+    protected String appName() {
+        return "riot-stream";
+    }
+
+    @Override
     protected String process(String command) {
         return super.process(command).replace("localhost:9092", kafka.getBootstrapServers());
     }
