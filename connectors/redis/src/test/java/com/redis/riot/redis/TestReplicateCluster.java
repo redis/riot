@@ -16,9 +16,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.batch.core.JobExecution;
-import org.springframework.batch.item.redis.RedisClusterDataStructureItemReader;
-import org.springframework.batch.item.redis.support.KeyComparisonItemWriter;
-import org.springframework.batch.item.redis.support.RedisClusterDatasetSizeEstimator;
 import org.testcontainers.containers.FixedHostPortGenericContainer;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
@@ -69,7 +66,7 @@ public class TestReplicateCluster extends AbstractRiotTest {
     @BeforeEach
     public void setup() throws InterruptedException {
         // wait enought time for all cluster nodes to start and become ready
-        Thread.sleep(5000);
+        Thread.sleep(10000);
         String redisIpAddress = "0.0.0.0";
         sourceURIs = IntStream.rangeClosed(7000, 7005).boxed().map(p -> RedisURI.create(redisIpAddress, p)).collect(Collectors.toList());
         sourceClient = RedisClusterClient.create(sourceURIs);
@@ -99,7 +96,7 @@ public class TestReplicateCluster extends AbstractRiotTest {
     public void replicateLive() throws Exception {
         RedisClusterClient client = RedisClusterClient.create(sourceURIs);
         StatefulRedisClusterConnection<String, String> connection = client.connect();
-        DataGenerator.builder().commands(connection.sync()).end(10000000).build().run();
+        DataGenerator.builder().commands(connection.sync()).end(10000).build().run();
         ReplicateCommand command = (ReplicateCommand) command("/replicate-cluster-live.txt");
         JobExecution execution = command.executeAsync();
         while (!execution.isRunning()) {
