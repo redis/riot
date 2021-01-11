@@ -1,7 +1,6 @@
 <p align="center"><img src="docs/images/riot.svg" alt="riot" height="150px"></p>
 
 [![Latest Release](https://img.shields.io/github/release/redis-developer/riot.svg)](https://github.com/redis-developer/riot/releases/latest)
-[![Build Status](https://github.com/redis-developer/riot/workflows/CI/badge.svg)](https://github.com/redis-developer/riot/workflows/CI/badge.svg)
 [![Known Vulnerabilities](https://snyk.io/test/github/redis-developer/riot/badge.svg?targetFile=build.gradle)](https://snyk.io/test/github/redis-developer/riot?targetFile=build.gradle)
 [![License](https://img.shields.io/github/license/redis-developer/riot.svg)](https://github.com/redis-developer/riot)
 
