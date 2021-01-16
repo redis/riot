@@ -30,7 +30,7 @@ public abstract class AbstractImportCommand<I, O> extends AbstractTransferComman
     @Getter
     private final List<RedisCommand<O>> redisCommands = new ArrayList<>();
 
-    protected AbstractTaskletStepBuilder<SimpleStepBuilder<I, O>> step(String name, ItemReader<I> reader) throws Exception {
+    protected AbstractTaskletStepBuilder<SimpleStepBuilder<I, O>> step(String name, ItemReader<I> reader) {
         return step(name, reader, processor(), writer());
     }
 
@@ -50,11 +50,9 @@ public abstract class AbstractImportCommand<I, O> extends AbstractTransferComman
 
     private Function<RedisCommand<O>, ItemWriter<O>> writerProvider() {
         if (isCluster()) {
-            GenericObjectPool<StatefulRedisClusterConnection<String, String>> pool = redisClusterPool();
-            return c -> RedisClusterCommandItemWriter.builder(pool, c.command()).commandTimeout(getCommandTimeout()).build();
+            return c -> RedisClusterCommandItemWriter.builder((GenericObjectPool<StatefulRedisClusterConnection<String, String>>) pool, c.command()).commandTimeout(getCommandTimeout()).build();
         }
-        GenericObjectPool<StatefulRedisConnection<String, String>> pool = redisPool();
-        return c -> RedisCommandItemWriter.builder(pool, c.command()).commandTimeout(getCommandTimeout()).build();
+        return c -> RedisCommandItemWriter.builder((GenericObjectPool<StatefulRedisConnection<String, String>>) pool, c.command()).commandTimeout(getCommandTimeout()).build();
     }
 
 

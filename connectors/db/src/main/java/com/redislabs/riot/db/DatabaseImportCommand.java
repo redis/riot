@@ -49,6 +49,6 @@ public class DatabaseImportCommand extends AbstractImportCommand<Map<String, Obj
 
     @Override
     protected ItemProcessor<Map<String, Object>, Map<String, Object>> processor() {
-        return processingOptions.processor(connection());
+        return processingOptions.processor(connection);
     }
 }

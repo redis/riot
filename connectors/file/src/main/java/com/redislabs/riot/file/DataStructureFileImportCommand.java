@@ -1,9 +1,12 @@
 package com.redislabs.riot.file;
 
 import com.redislabs.riot.AbstractTransferCommand;
+import io.lettuce.core.api.StatefulRedisConnection;
+import io.lettuce.core.cluster.api.StatefulRedisClusterConnection;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.item.ItemWriter;
@@ -49,9 +52,9 @@ public class DataStructureFileImportCommand extends AbstractTransferCommand<Data
 
     private ItemWriter<DataStructure<String>> writer() {
         if (isCluster()) {
-            return RedisClusterDataStructureItemWriter.builder(redisClusterPool()).commandTimeout(getCommandTimeout()).build();
+            return RedisClusterDataStructureItemWriter.builder((GenericObjectPool<StatefulRedisClusterConnection<String, String>>) pool).commandTimeout(getCommandTimeout()).build();
         }
-        return RedisDataStructureItemWriter.builder(redisPool()).commandTimeout(getCommandTimeout()).build();
+        return RedisDataStructureItemWriter.builder((GenericObjectPool<StatefulRedisConnection<String, String>>) pool).commandTimeout(getCommandTimeout()).build();
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})

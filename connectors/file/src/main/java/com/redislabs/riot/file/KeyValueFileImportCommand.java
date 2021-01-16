@@ -57,7 +57,7 @@ public class KeyValueFileImportCommand extends AbstractFileImportCommand<Map<Str
 
     @Override
     protected ItemProcessor<Map<String, Object>, Map<String, Object>> processor() {
-        return processingOptions.processor(connection());
+        return processingOptions.processor(connection);
     }
 
     private FlatFileItemReader<Map<String, Object>> flatFileReader(Resource resource, AbstractLineTokenizer tokenizer) {

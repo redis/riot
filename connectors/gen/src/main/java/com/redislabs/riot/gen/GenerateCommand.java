@@ -44,15 +44,15 @@ public class GenerateCommand extends AbstractImportCommand<Map<String, Object>, 
     private KeyValueProcessingOptions processingOptions = new KeyValueProcessingOptions();
 
     @Override
-    protected Flow flow() throws Exception {
+    protected Flow flow() {
         FakerItemReader reader = FakerItemReader.builder().locale(locale).includeMetadata(includeMetadata).fields(fakerFields(getRedisURI())).start(start).end(end).sleep(sleep).build();
-        reader.setMaxItemCount(Math.toIntExact(size()));
         return flow(step("Generating", reader).build());
     }
 
     @Override
-    protected Long size() {
-        return end - start;
+    public void shutdown() {
+        connection.close();
+        super.shutdown();
     }
 
     private String expression(Field<String> field) {
@@ -74,17 +74,21 @@ public class GenerateCommand extends AbstractImportCommand<Map<String, Object>, 
             return fields;
         }
         RediSearchClient client = RediSearchClient.create(uri);
-        StatefulRediSearchConnection<String, String> connection = client.connect();
-        RediSearchCommands<String, String> commands = connection.sync();
-        IndexInfo<String> info = RediSearchUtils.getInfo(commands.ftInfo(fakerIndex));
-        for (Field<String> field : info.getFields()) {
-            fields.put(field.getName(), expression(field));
+        try (StatefulRediSearchConnection<String, String> connection = client.connect()) {
+            RediSearchCommands<String, String> commands = connection.sync();
+            IndexInfo<String> info = RediSearchUtils.getInfo(commands.ftInfo(fakerIndex));
+            for (Field<String> field : info.getFields()) {
+                fields.put(field.getName(), expression(field));
+            }
+            return fields;
+        } finally {
+            client.shutdown();
+            client.getResources().shutdown();
         }
-        return fields;
     }
 
     @Override
     protected ItemProcessor<Map<String, Object>, Map<String, Object>> processor() {
-        return processingOptions.processor(connection());
+        return processingOptions.processor(connection);
     }
 }

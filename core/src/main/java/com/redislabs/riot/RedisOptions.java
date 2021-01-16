@@ -1,20 +1,19 @@
 package com.redislabs.riot;
 
-import io.lettuce.core.*;
+import io.lettuce.core.ClientOptions;
+import io.lettuce.core.RedisClient;
+import io.lettuce.core.RedisURI;
+import io.lettuce.core.SslOptions;
 import io.lettuce.core.api.StatefulConnection;
-import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.cluster.ClusterClientOptions;
 import io.lettuce.core.cluster.RedisClusterClient;
-import io.lettuce.core.cluster.api.StatefulRedisClusterConnection;
 import io.lettuce.core.event.DefaultEventPublisherOptions;
 import io.lettuce.core.event.metrics.CommandLatencyEvent;
 import io.lettuce.core.metrics.CommandLatencyCollector;
 import io.lettuce.core.metrics.DefaultCommandLatencyCollectorOptions;
 import io.lettuce.core.resource.ClientResources;
 import io.lettuce.core.resource.DefaultClientResources;
-import io.lettuce.core.support.ConnectionPoolSupport;
 import lombok.Data;
-import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import picocli.CommandLine.Option;
 
@@ -132,11 +131,10 @@ public class RedisOptions {
         return builder.build();
     }
 
-    public AbstractRedisClient client() {
-        if (cluster) {
-            return redisClusterClient();
-        }
-        return redisClient();
+    public RedisClusterClient redisClusterClient() {
+        RedisClusterClient client = RedisClusterClient.create(clientResources(), uris());
+        client.setOptions(ClusterClientOptions.builder().autoReconnect(autoReconnect).sslOptions(sslOptions()).build());
+        return client;
     }
 
     public RedisClient redisClient() {
@@ -145,24 +143,10 @@ public class RedisOptions {
         return client;
     }
 
-    public RedisClusterClient redisClusterClient() {
-        RedisClusterClient client = RedisClusterClient.create(clientResources(), uris());
-        client.setOptions(ClusterClientOptions.builder().autoReconnect(autoReconnect).sslOptions(sslOptions()).build());
-        return client;
-    }
-
-    public GenericObjectPool<StatefulRedisClusterConnection<String, String>> pool(RedisClusterClient client) {
-        return ConnectionPoolSupport.createGenericObjectPool(client::connect, poolConfig());
-    }
-
-    public GenericObjectPool<StatefulRedisConnection<String, String>> pool(RedisClient client) {
-        return ConnectionPoolSupport.createGenericObjectPool(client::connect, poolConfig());
-    }
-
-    private <C extends StatefulConnection<String, String>> GenericObjectPoolConfig<C> poolConfig() {
-        GenericObjectPoolConfig<C> poolConfig = new GenericObjectPoolConfig<>();
-        poolConfig.setMaxTotal(poolMaxTotal);
-        return poolConfig;
+    public <T extends StatefulConnection<String, String>> GenericObjectPoolConfig<T> poolConfig() {
+        GenericObjectPoolConfig<T> config = new GenericObjectPoolConfig<>();
+        config.setMaxTotal(poolMaxTotal);
+        return config;
     }
 
 }

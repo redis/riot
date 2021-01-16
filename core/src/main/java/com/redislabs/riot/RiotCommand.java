@@ -5,10 +5,10 @@ import io.lettuce.core.RedisClient;
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.api.StatefulConnection;
 import io.lettuce.core.api.StatefulRedisConnection;
-import io.lettuce.core.api.async.BaseRedisAsyncCommands;
 import io.lettuce.core.api.sync.BaseRedisCommands;
 import io.lettuce.core.cluster.RedisClusterClient;
 import io.lettuce.core.cluster.api.StatefulRedisClusterConnection;
+import io.lettuce.core.support.ConnectionPoolSupport;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.springframework.beans.factory.InitializingBean;
@@ -23,14 +23,12 @@ public abstract class RiotCommand extends HelpCommand implements InitializingBea
 
     @ParentCommand
     private RiotApp app;
-    private AbstractRedisClient client;
+    protected AbstractRedisClient client;
+    protected GenericObjectPool<? extends StatefulConnection<String, String>> pool;
+    protected StatefulConnection<String, String> connection;
 
-    protected RedisClusterClient getRedisClusterClient() {
-        return (RedisClusterClient) client;
-    }
-
-    protected RedisClient getRedisClient() {
-        return (RedisClient) client;
+    protected boolean isCluster() {
+        return app.getRedisOptions().isCluster();
     }
 
     protected RedisURI getRedisURI() {
@@ -39,18 +37,6 @@ public abstract class RiotCommand extends HelpCommand implements InitializingBea
 
     protected Duration getCommandTimeout() {
         return getRedisURI().getTimeout();
-    }
-
-    protected boolean isCluster() {
-        return app.getRedisOptions().isCluster();
-    }
-
-    protected GenericObjectPool<StatefulRedisConnection<String, String>> redisPool() {
-        return app.getRedisOptions().pool(getRedisClient());
-    }
-
-    protected GenericObjectPool<StatefulRedisClusterConnection<String, String>> redisClusterPool() {
-        return app.getRedisOptions().pool(getRedisClusterClient());
     }
 
     @Override
@@ -72,43 +58,52 @@ public abstract class RiotCommand extends HelpCommand implements InitializingBea
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        this.client = app.getRedisOptions().client();
+        this.client = client(app.getRedisOptions());
+        this.pool = pool(app.getRedisOptions(), client);
+        this.connection = connection(client);
     }
 
+
     public void shutdown() {
+        if (connection != null) {
+            connection.close();
+        }
+        if (pool != null) {
+            pool.close();
+        }
         if (client != null) {
             client.shutdown();
             client.getResources().shutdown();
         }
     }
 
-    protected StatefulRedisConnection<String, String> redisConnection() {
-        return getRedisClient().connect();
-    }
-
-    protected StatefulRedisClusterConnection<String, String> redisClusterConnection() {
-        return getRedisClusterClient().connect();
-    }
-
-    protected StatefulConnection<String, String> connection() {
-        if (isCluster()) {
-            return redisClusterConnection();
+    protected AbstractRedisClient client(RedisOptions redisOptions) {
+        if (redisOptions.isCluster()) {
+            return redisOptions.redisClusterClient();
         }
-        return redisConnection();
+        return redisOptions.redisClient();
     }
 
     protected BaseRedisCommands<String, String> sync() {
-        if (isCluster()) {
-            return getRedisClusterClient().connect().sync();
+        if (connection instanceof StatefulRedisClusterConnection) {
+            return ((StatefulRedisClusterConnection<String, String>) connection).sync();
         }
-        return getRedisClient().connect().sync();
+        return ((StatefulRedisConnection<String, String>) connection).sync();
     }
 
-    protected BaseRedisAsyncCommands<String, String> async() {
-        if (isCluster()) {
-            return getRedisClusterClient().connect().async();
+
+    protected StatefulConnection<String, String> connection(AbstractRedisClient client) {
+        if (client instanceof RedisClusterClient) {
+            return ((RedisClusterClient) client).connect();
         }
-        return getRedisClient().connect().async();
+        return ((RedisClient) client).connect();
+    }
+
+    protected GenericObjectPool<? extends StatefulConnection<String, String>> pool(RedisOptions redisOptions, AbstractRedisClient client) {
+        if (client instanceof RedisClusterClient) {
+            return ConnectionPoolSupport.createGenericObjectPool(((RedisClusterClient) client)::connect, redisOptions.poolConfig());
+        }
+        return ConnectionPoolSupport.createGenericObjectPool(((RedisClient) client)::connect, redisOptions.poolConfig());
     }
 
     protected abstract void execute() throws Exception;

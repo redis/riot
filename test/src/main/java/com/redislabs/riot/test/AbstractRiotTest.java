@@ -59,7 +59,7 @@ public abstract class AbstractRiotTest {
     protected abstract String connectionArgs();
 
     private String baseArgs() {
-        return "--debug --stacktrace";
+        return "--info";
     }
 
     private String filter(String command) {

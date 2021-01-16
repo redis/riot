@@ -6,6 +6,8 @@ import com.redislabs.riot.stream.processor.AvroProducerProcessor;
 import com.redislabs.riot.stream.processor.JsonProducerProcessor;
 import io.lettuce.core.StreamMessage;
 import io.lettuce.core.XReadArgs.StreamOffset;
+import io.lettuce.core.api.StatefulRedisConnection;
+import io.lettuce.core.cluster.api.StatefulRedisClusterConnection;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.flow.Flow;
@@ -55,9 +57,9 @@ public class StreamExportCommand extends AbstractFlushingTransferCommand<StreamM
 
     private ItemReader<StreamMessage<String, String>> reader(StreamOffset<String> offset) {
         if (isCluster()) {
-            return configure(RedisClusterStreamItemReader.builder(redisClusterConnection()), offset).build();
+            return configure(RedisClusterStreamItemReader.builder((StatefulRedisClusterConnection<String, String>) connection), offset).build();
         }
-        return configure(RedisStreamItemReader.builder(redisConnection()), offset).build();
+        return configure(RedisStreamItemReader.builder((StatefulRedisConnection<String, String>) connection), offset).build();
     }
 
     private <B extends AbstractStreamItemReader.StreamItemReaderBuilder<B>> B configure(B builder, StreamOffset<String> offset) {

@@ -1,11 +1,13 @@
 package com.redislabs.riot.db;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.*;
 import picocli.CommandLine;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class DatabaseImportOptions extends DatabaseOptions {
 
     @CommandLine.Parameters(arity = "1", description = "SQL SELECT statement", paramLabel = "SQL")

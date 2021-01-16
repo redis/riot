@@ -20,4 +20,5 @@ public abstract class AbstractRedisCommand extends AbstractTaskCommand {
 
     protected abstract void execute(BaseRedisCommands<String, String> commands);
 
+
 }

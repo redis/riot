@@ -7,8 +7,11 @@ import com.redislabs.riot.stream.kafka.KafkaItemReader;
 import com.redislabs.riot.stream.kafka.KafkaItemReaderBuilder;
 import io.lettuce.core.RedisFuture;
 import io.lettuce.core.XAddArgs;
+import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.api.async.RedisStreamAsyncCommands;
+import io.lettuce.core.cluster.api.StatefulRedisClusterConnection;
 import org.apache.avro.generic.GenericRecord;
+import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.flow.Flow;
@@ -57,9 +60,9 @@ public class StreamImportCommand extends AbstractFlushingTransferCommand<Consume
         XAddArgs xAddArgs = xAddArgs();
         BiFunction<RedisStreamAsyncCommands<String, String>, ConsumerRecord<String, Object>, RedisFuture<?>> command = CommandBuilder.<ConsumerRecord<String, Object>>xadd().keyConverter(keyConverter()).argsConverter(r -> xAddArgs).bodyConverter(bodyConverter()).build();
         if (isCluster()) {
-            return RedisClusterCommandItemWriter.builder(redisClusterPool(), command).build();
+            return RedisClusterCommandItemWriter.builder((GenericObjectPool<StatefulRedisClusterConnection<String, String>>) pool, command).build();
         }
-        return RedisCommandItemWriter.builder(redisPool(), command).build();
+        return RedisCommandItemWriter.builder((GenericObjectPool<StatefulRedisConnection<String, String>>) pool, command).build();
     }
 
     private Converter<ConsumerRecord<String, Object>, Map<String, String>> bodyConverter() {

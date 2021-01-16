@@ -65,17 +65,22 @@ public class TestReplicateCluster extends AbstractRiotTest {
 
     @BeforeEach
     public void setup() throws InterruptedException {
-        // wait enought time for all cluster nodes to start and become ready
+        // wait enough time for all cluster nodes to start and become ready
+        log.info("Waiting 10 sec for cluster to become ready");
         Thread.sleep(10000);
         String redisIpAddress = "0.0.0.0";
         sourceURIs = IntStream.rangeClosed(7000, 7005).boxed().map(p -> RedisURI.create(redisIpAddress, p)).collect(Collectors.toList());
         sourceClient = RedisClusterClient.create(sourceURIs);
+        log.info("Connecting to source cluster");
         sourceConnection = sourceClient.connect();
+        log.info("Flushing source db");
         sourceConnection.sync().flushall();
         IntStream.rangeClosed(7000, 7005).forEach(p -> RedisClient.create(RedisURI.create(redisIpAddress, p)).connect().sync().configSet("notify-keyspace-events", "AK"));
         targetURI = RedisURI.create(targetRedis.getHost(), targetRedis.getFirstMappedPort());
         targetClient = RedisClient.create(targetURI);
+        log.info("Connecting to target");
         targetConnection = targetClient.connect();
+        log.info("Flushing target db");
         targetConnection.sync().flushall();
     }
 
@@ -84,6 +89,8 @@ public class TestReplicateCluster extends AbstractRiotTest {
     public void teardown() {
         sourceConnection.close();
         sourceClient.shutdown();
+        targetConnection.close();
+        targetClient.shutdown();
     }
 
     @Override
@@ -94,9 +101,7 @@ public class TestReplicateCluster extends AbstractRiotTest {
 
     @Test
     public void replicateLive() throws Exception {
-        RedisClusterClient client = RedisClusterClient.create(sourceURIs);
-        StatefulRedisClusterConnection<String, String> connection = client.connect();
-        DataGenerator.builder().commands(connection.sync()).end(10000).build().run();
+        DataGenerator.builder().commands(sourceConnection.sync()).end(10000).build().run();
         ReplicateCommand command = (ReplicateCommand) command("/replicate-cluster-live.txt");
         JobExecution execution = command.executeAsync();
         while (!execution.isRunning()) {
@@ -104,7 +109,7 @@ public class TestReplicateCluster extends AbstractRiotTest {
         }
         int count = 39;
         for (int index = 0; index < count; index++) {
-            connection.sync().set("livestring:" + index, "value" + index);
+            sourceConnection.sync().set("livestring:" + index, "value" + index);
             Thread.sleep(1);
         }
         long sourceSize = sourceConnection.sync().dbsize();
