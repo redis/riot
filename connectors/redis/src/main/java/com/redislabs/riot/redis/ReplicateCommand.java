@@ -1,8 +1,6 @@
 package com.redislabs.riot.redis;
 
-import com.redislabs.riot.AbstractFlushingTransferCommand;
-import com.redislabs.riot.RedisOptions;
-import com.redislabs.riot.RedisReaderOptions;
+import com.redislabs.riot.*;
 import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.api.StatefulConnection;
@@ -15,11 +13,11 @@ import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.springframework.batch.core.job.builder.FlowBuilder;
 import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.core.job.flow.support.SimpleFlow;
-import org.springframework.batch.core.step.builder.AbstractTaskletStepBuilder;
-import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.batch.item.redis.*;
+import org.springframework.batch.item.redis.DataStructureItemReader;
+import org.springframework.batch.item.redis.KeyDumpItemReader;
+import org.springframework.batch.item.redis.KeyDumpItemWriter;
 import org.springframework.batch.item.redis.support.*;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.util.ClassUtils;
@@ -30,7 +28,7 @@ import picocli.CommandLine.Option;
 import java.time.Duration;
 
 @Command(name = "replicate", description = "Replicate a source Redis database to a target Redis database")
-public class ReplicateCommand extends AbstractFlushingTransferCommand<KeyValue<String, byte[]>, KeyValue<String, byte[]>> {
+public class ReplicateCommand extends AbstractTransferCommand<KeyValue<String, byte[]>, KeyValue<String, byte[]>> {
 
     @CommandLine.ArgGroup(exclusive = false, heading = "Target Redis connection options%n")
     private RedisOptions targetRedis = new RedisOptions();
@@ -38,12 +36,14 @@ public class ReplicateCommand extends AbstractFlushingTransferCommand<KeyValue<S
     private RedisReaderOptions options = RedisReaderOptions.builder().build();
     @Option(names = "--live", description = "Enable live replication.")
     private boolean live;
+    @CommandLine.Mixin
+    private FlushingTransferOptions flushingOptions = FlushingTransferOptions.builder().build();
     @Option(names = "--event-queue", description = "Capacity of the keyspace notification event queue (default: ${DEFAULT-VALUE}).", paramLabel = "<size>")
-    private int notificationQueueCapacity = KeyValueItemReaderBuilder.DEFAULT_NOTIFICATION_QUEUE_CAPACITY;
+    private int notificationQueueCapacity = LiveKeyValueItemReaderBuilder.DEFAULT_NOTIFICATION_QUEUE_CAPACITY;
     @Option(names = "--no-verify", description = "Verify target against source dataset after replication. True by default.", negatable = true)
     private boolean verify = true;
     @Option(names = "--ttl-tolerance", description = "Max TTL difference to use for dataset verification (default: ${DEFAULT-VALUE}).", paramLabel = "<sec>")
-    private long ttlTolerance = KeyComparisonItemWriter.KeyComparisonItemWriterBuilder.DEFAULT_TTL_TOLERANCE.getSeconds();
+    private long ttlTolerance = 1;
 
     private AbstractRedisClient targetClient;
     private GenericObjectPool<? extends StatefulConnection<String, String>> targetPool;
@@ -89,23 +89,25 @@ public class ReplicateCommand extends AbstractFlushingTransferCommand<KeyValue<S
     @Override
     protected Flow flow() {
         String name = "Scanning";
-        FlowBuilder<SimpleFlow> flow = flowBuilder(name).start(step(name, sourceKeyDumpReader(), null, targetKeyDumpWriter()).build());
+        StepBuilder<KeyValue<String, byte[]>, KeyValue<String, byte[]>> replicationStep = stepBuilder(name);
+        FlowBuilder<SimpleFlow> flow = flow(name).start(replicationStep.reader(sourceKeyDumpReader()).writer(targetKeyDumpWriter()).build().build());
         if (live) {
-            String liveName = "Listening";
-            AbstractKeyDumpItemReader<String, String, ?> liveReader = liveReader();
+            String liveReplicationName = "Listening";
+            StepBuilder<KeyValue<String, byte[]>, KeyValue<String, byte[]>> liveReplicationStep = stepBuilder(liveReplicationName);
+            KeyDumpItemReader<String, String> liveReader = liveReader();
             liveReader.setName("Live" + ClassUtils.getShortName(liveReader.getClass()));
-            SimpleFlow liveFlow = flowBuilder(liveName).start(step(liveName, liveReader, null, targetKeyDumpWriter(), null).build()).build();
-            flow = flowBuilder(liveName).split(new SimpleAsyncTaskExecutor()).add(flow.build(), liveFlow);
+            SimpleFlow liveFlow = flow(liveReplicationName).start(flushingOptions.configure(liveReplicationStep.reader(liveReader).writer(targetKeyDumpWriter()).build()).build()).build();
+            flow = flow(liveReplicationName).split(new SimpleAsyncTaskExecutor()).add(liveFlow, flow.build());
         }
         if (verify) {
-            KeyComparisonItemWriter<String> writer = comparisonWriter();
-            AbstractTaskletStepBuilder<SimpleStepBuilder<DataStructure<String>, DataStructure<String>>> verificationStep = step("Verifying", sourceDataStructureReader(), null, writer, () -> message(writer));
-            flow = flowBuilder("Replication+Verification").start(flow.build()).next(verificationStep.build());
+            KeyComparisonItemWriter<String, String> writer = comparisonWriter();
+            StepBuilder<DataStructure<String>,DataStructure<String>> verifyStep = stepBuilder("Verifying");
+            flow = flow("Replication+Verification").start(flow.build()).next(verifyStep.reader(sourceDataStructureReader()).writer(writer).extraMessage(() -> message(writer)).build().build());
         }
         return flow.build();
     }
 
-    private String message(KeyComparisonItemWriter<String> writer) {
+    private String message(KeyComparisonItemWriter<String, String> writer) {
         int v = writer.getDiffs().get(KeyComparisonItemWriter.DiffType.VALUE).size();
         int l = writer.getDiffs().get(KeyComparisonItemWriter.DiffType.LEFT_ONLY).size();
         int r = writer.getDiffs().get(KeyComparisonItemWriter.DiffType.LEFT_ONLY).size();
@@ -113,53 +115,56 @@ public class ReplicateCommand extends AbstractFlushingTransferCommand<KeyValue<S
         return String.format(" OK:%s V:%s >:%s <:%s T:%s", writer.getOkCount(), v, l, r, t);
     }
 
-    private KeyComparisonItemWriter<String> comparisonWriter() {
+    private KeyComparisonItemWriter<String, String> comparisonWriter() {
         Duration ttlToleranceDuration = Duration.ofSeconds(ttlTolerance);
         if (targetRedis.isCluster()) {
-            return KeyComparisonItemWriter.builder(RedisClusterDataStructureItemReader.builder((GenericObjectPool<StatefulRedisClusterConnection<String, String>>) targetPool, (StatefulRedisClusterConnection<String, String>) targetConnection).commandTimeout(getTargetCommandTimeout()).build()).ttlTolerance(ttlToleranceDuration).build();
+            DataStructureItemReader<String, String> targetReader = configureScanReader(DataStructureItemReader.builder((GenericObjectPool<StatefulRedisClusterConnection<String, String>>) targetPool, (StatefulRedisClusterConnection<String, String>) targetConnection)).build();
+            return new KeyComparisonItemWriter<>(targetReader, ttlToleranceDuration);
         }
-        return KeyComparisonItemWriter.builder(RedisDataStructureItemReader.builder((GenericObjectPool<StatefulRedisConnection<String, String>>) targetPool, (StatefulRedisConnection<String, String>) targetConnection).commandTimeout(getTargetCommandTimeout()).build()).ttlTolerance(ttlToleranceDuration).build();
+        DataStructureItemReader<String, String> targetReader = configureScanReader(DataStructureItemReader.builder((GenericObjectPool<StatefulRedisConnection<String, String>>) targetPool, (StatefulRedisConnection<String, String>) targetConnection)).build();
+        return new KeyComparisonItemWriter<>(targetReader, ttlToleranceDuration);
     }
 
     private ItemReader<KeyValue<String, byte[]>> sourceKeyDumpReader() {
         if (isCluster()) {
-            return configureScanKeyValueItemReaderBuilder(RedisClusterKeyDumpItemReader.builder((GenericObjectPool<StatefulRedisClusterConnection<String, String>>) pool, (StatefulRedisClusterConnection<String, String>) connection)).build();
+            return configureScanReader(KeyDumpItemReader.builder((GenericObjectPool<StatefulRedisClusterConnection<String, String>>) pool, (StatefulRedisClusterConnection<String, String>) connection)).build();
         }
-        return configureScanKeyValueItemReaderBuilder(RedisKeyDumpItemReader.builder((GenericObjectPool<StatefulRedisConnection<String, String>>) pool, (StatefulRedisConnection<String, String>) connection)).build();
+        return configureScanReader(KeyDumpItemReader.builder((GenericObjectPool<StatefulRedisConnection<String, String>>) pool, (StatefulRedisConnection<String, String>) connection)).build();
     }
 
     private ItemReader<DataStructure<String>> sourceDataStructureReader() {
         if (isCluster()) {
-            return configureScanKeyValueItemReaderBuilder(RedisClusterDataStructureItemReader.builder((GenericObjectPool<StatefulRedisClusterConnection<String, String>>) pool, (StatefulRedisClusterConnection<String, String>) connection)).build();
+            return configureScanReader(DataStructureItemReader.builder((GenericObjectPool<StatefulRedisClusterConnection<String, String>>) pool, (StatefulRedisClusterConnection<String, String>) connection)).build();
         }
-        return configureScanKeyValueItemReaderBuilder(RedisDataStructureItemReader.builder((GenericObjectPool<StatefulRedisConnection<String, String>>) pool, (StatefulRedisConnection<String, String>) connection)).build();
+        return configureScanReader(DataStructureItemReader.builder((GenericObjectPool<StatefulRedisConnection<String, String>>) pool, (StatefulRedisConnection<String, String>) connection)).build();
     }
 
-
-    private AbstractKeyDumpItemReader<String, String, ?> liveReader() {
+    private KeyDumpItemReader<String, String> liveReader() {
         if (isCluster()) {
-            return configureNotificationKeyValueItemReaderBuilder(RedisClusterKeyDumpItemReader.builder((GenericObjectPool<StatefulRedisClusterConnection<String, String>>) pool, (StatefulRedisClusterPubSubConnection<String, String>) pubSubConnection)).build();
+            return configureLiveReader(KeyDumpItemReader.builder((GenericObjectPool<StatefulRedisClusterConnection<String, String>>) pool, (StatefulRedisClusterPubSubConnection<String, String>) pubSubConnection)).build();
         }
-        return configureNotificationKeyValueItemReaderBuilder(RedisKeyDumpItemReader.builder((GenericObjectPool<StatefulRedisConnection<String, String>>) pool, pubSubConnection)).build();
+        return configureLiveReader(KeyDumpItemReader.builder((GenericObjectPool<StatefulRedisConnection<String, String>>) pool, pubSubConnection)).build();
     }
 
-    private <B extends ScanKeyValueItemReaderBuilder<B>> B configureScanKeyValueItemReaderBuilder(B builder) {
-        return configureSourceKeyValueItemReaderBuilder(builder.scanCount(options.getScanCount()).sampleSize(options.getSampleSize()));
+    private <B extends ScanKeyValueItemReaderBuilder<?>> B configureScanReader(B builder) {
+        configureReader(builder.scanMatch(options.getScanMatch()).scanCount(options.getScanCount()).sampleSize(options.getSampleSize()));
+        return builder;
     }
 
-    private <B extends NotificationKeyValueItemReaderBuilder<B>> B configureNotificationKeyValueItemReaderBuilder(B builder) {
-        return configureSourceKeyValueItemReaderBuilder(builder.notificationQueueCapacity(notificationQueueCapacity).database(getRedisURI().getDatabase()));
+    private <B extends LiveKeyValueItemReaderBuilder<?>> B configureLiveReader(B builder) {
+        configureReader(builder.keyPattern(options.getScanMatch()).notificationQueueCapacity(notificationQueueCapacity).database(getRedisURI().getDatabase()).flushingInterval(flushingOptions.getFlushIntervalDuration()).idleTimeout(flushingOptions.getIdleTimeoutDuration()));
+        return builder;
     }
 
-    private <B extends KeyValueItemReaderBuilder<B>> B configureSourceKeyValueItemReaderBuilder(B builder) {
-        return builder.keyPattern(options.getScanMatch()).threadCount(options.getThreads()).chunkSize(options.getBatchSize()).commandTimeout(getCommandTimeout()).queueCapacity(options.getQueueCapacity());
+    private void configureReader(AbstractKeyValueItemReader.AbstractKeyValueItemReaderBuilder<?, ?> builder) {
+        builder.threadCount(options.getThreads()).chunkSize(options.getBatchSize()).commandTimeout(getCommandTimeout()).queueCapacity(options.getQueueCapacity());
     }
 
     private ItemWriter<KeyValue<String, byte[]>> targetKeyDumpWriter() {
         if (targetRedis.isCluster()) {
-            return RedisClusterKeyDumpItemWriter.builder((GenericObjectPool<StatefulRedisClusterConnection<String, String>>) targetPool).replace(true).commandTimeout(getTargetCommandTimeout()).build();
+            return KeyDumpItemWriter.clusterBuilder((GenericObjectPool<StatefulRedisClusterConnection<String, String>>) targetPool).replace(true).commandTimeout(getTargetCommandTimeout()).build();
         }
-        return RedisKeyDumpItemWriter.builder((GenericObjectPool<StatefulRedisConnection<String, String>>) targetPool).replace(true).commandTimeout(getTargetCommandTimeout()).build();
+        return KeyDumpItemWriter.builder((GenericObjectPool<StatefulRedisConnection<String, String>>) targetPool).replace(true).commandTimeout(getTargetCommandTimeout()).build();
     }
 
     private Duration getTargetCommandTimeout() {

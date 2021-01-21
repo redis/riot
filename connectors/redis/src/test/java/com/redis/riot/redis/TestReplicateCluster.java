@@ -22,6 +22,7 @@ import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -33,6 +34,7 @@ public class TestReplicateCluster extends AbstractRiotTest {
 
     private static final String REDIS_CLUSTER_DOCKER_IMAGE_NAME = "grokzen/redis-cluster:latest";
     private static final String REDIS_DOCKER_IMAGE_NAME = "redis:latest";
+    private static final Duration CLUSTER_INIT_WAIT = Duration.ofSeconds(20);
 
     @Container
     @SuppressWarnings("deprecation")
@@ -66,8 +68,8 @@ public class TestReplicateCluster extends AbstractRiotTest {
     @BeforeEach
     public void setup() throws InterruptedException {
         // wait enough time for all cluster nodes to start and become ready
-        log.info("Waiting 10 sec for cluster to become ready");
-        Thread.sleep(10000);
+        log.info("Waiting {} for cluster to become ready", CLUSTER_INIT_WAIT);
+        Thread.sleep(CLUSTER_INIT_WAIT.toMillis());
         String redisIpAddress = "0.0.0.0";
         sourceURIs = IntStream.rangeClosed(7000, 7005).boxed().map(p -> RedisURI.create(redisIpAddress, p)).collect(Collectors.toList());
         sourceClient = RedisClusterClient.create(sourceURIs);
@@ -75,13 +77,21 @@ public class TestReplicateCluster extends AbstractRiotTest {
         sourceConnection = sourceClient.connect();
         log.info("Flushing source db");
         sourceConnection.sync().flushall();
-        IntStream.rangeClosed(7000, 7005).forEach(p -> RedisClient.create(RedisURI.create(redisIpAddress, p)).connect().sync().configSet("notify-keyspace-events", "AK"));
+        IntStream.rangeClosed(7000, 7005).forEach(p -> {
+            RedisClient c = RedisClient.create(RedisURI.create(redisIpAddress, p));
+            StatefulRedisConnection<String, String> connection = c.connect();
+            connection.sync().configSet("notify-keyspace-events", "AK");
+            connection.close();
+            c.shutdown();
+            c.getResources().shutdown();
+        });
         targetURI = RedisURI.create(targetRedis.getHost(), targetRedis.getFirstMappedPort());
         targetClient = RedisClient.create(targetURI);
         log.info("Connecting to target");
         targetConnection = targetClient.connect();
         log.info("Flushing target db");
         targetConnection.sync().flushall();
+        log.info("Flushed target db");
     }
 
 
@@ -101,24 +111,20 @@ public class TestReplicateCluster extends AbstractRiotTest {
 
     @Test
     public void replicateLive() throws Exception {
-        DataGenerator.builder().commands(sourceConnection.sync()).end(10000).build().run();
+        log.info("Genering data");
+        DataGenerator.builder().commands(sourceConnection.async()).end(10000).build().run();
         ReplicateCommand command = (ReplicateCommand) command("/replicate-cluster-live.txt");
+        log.info("Executing ReplicateCommand");
         JobExecution execution = command.executeAsync();
-        while (!execution.isRunning()) {
-            Thread.sleep(10);
-        }
+        Thread.sleep(500);
         int count = 39;
+        log.info("Setting livestring:* keys");
         for (int index = 0; index < count; index++) {
             sourceConnection.sync().set("livestring:" + index, "value" + index);
-            Thread.sleep(1);
         }
-        long sourceSize = sourceConnection.sync().dbsize();
-        do {
-            Thread.sleep(100);
-        } while (targetConnection.sync().dbsize() < sourceSize);
-        execution.stop();
-        command.shutdown();
-        Assertions.assertEquals(sourceSize, targetConnection.sync().dbsize());
+        log.info("Waiting for command execution to complete");
+        awaitTermination(execution);
+        Assertions.assertEquals(sourceConnection.sync().dbsize(), targetConnection.sync().dbsize());
     }
 
 }

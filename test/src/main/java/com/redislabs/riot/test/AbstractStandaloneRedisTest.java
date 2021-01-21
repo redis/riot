@@ -4,6 +4,7 @@ import com.redislabs.riot.RedisOptions;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.api.StatefulRedisConnection;
+import io.lettuce.core.api.async.RedisAsyncCommands;
 import io.lettuce.core.api.sync.RedisCommands;
 import io.lettuce.core.support.ConnectionPoolSupport;
 import org.apache.commons.pool2.impl.GenericObjectPool;
@@ -26,6 +27,7 @@ public abstract class AbstractStandaloneRedisTest extends AbstractRiotTest {
     protected GenericObjectPool<StatefulRedisConnection<String, String>> pool;
     protected StatefulRedisConnection<String, String> connection;
     protected RedisCommands<String, String> sync;
+    protected RedisAsyncCommands<String, String> async;
 
     @Container
     protected static final GenericContainer redis = redisContainer();
@@ -42,6 +44,7 @@ public abstract class AbstractStandaloneRedisTest extends AbstractRiotTest {
         pool = ConnectionPoolSupport.createGenericObjectPool(client::connect, new GenericObjectPoolConfig<>());
         connection = client.connect();
         sync = connection.sync();
+        async = connection.async();
         sync.flushall();
     }
 

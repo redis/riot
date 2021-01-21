@@ -1,1 +1,1 @@
-❯ riot-stream -h localhost -p 6379 export stream1 --broker localhost:9092
+❯ riot-stream -h localhost -p 6379 export stream1 --idle-timeout 500 --broker localhost:9092

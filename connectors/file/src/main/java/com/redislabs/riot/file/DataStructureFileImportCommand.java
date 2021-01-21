@@ -1,6 +1,7 @@
 package com.redislabs.riot.file;
 
 import com.redislabs.riot.AbstractTransferCommand;
+import com.redislabs.riot.StepBuilder;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.cluster.api.StatefulRedisClusterConnection;
 import lombok.Getter;
@@ -11,8 +12,7 @@ import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.json.JsonItemReader;
-import org.springframework.batch.item.redis.RedisClusterDataStructureItemWriter;
-import org.springframework.batch.item.redis.RedisDataStructureItemWriter;
+import org.springframework.batch.item.redis.DataStructureItemWriter;
 import org.springframework.batch.item.redis.support.DataStructure;
 import org.springframework.batch.item.support.AbstractItemStreamItemReader;
 import org.springframework.batch.item.xml.XmlItemReader;
@@ -42,19 +42,20 @@ public class DataStructureFileImportCommand extends AbstractTransferCommand<Data
         for (String file : expandedFiles) {
             FileType fileType = FileUtils.fileType(file);
             Resource resource = FileUtils.inputResource(file, fileOptions);
-            AbstractItemStreamItemReader<DataStructure<String>> reader = reader(file, fileType, resource);
             String name = FileUtils.filename(resource);
+            StepBuilder<DataStructure<String>, DataStructure<String>> step = stepBuilder("Importing file " + name);
+            AbstractItemStreamItemReader<DataStructure<String>> reader = reader(file, fileType, resource);
             reader.setName(name);
-            steps.add(step("Importing file " + name, reader, processor, writer()).build());
+            steps.add(step.reader(reader).processor(processor).writer(writer()).build().build());
         }
         return flow(steps.toArray(new Step[0]));
     }
 
     private ItemWriter<DataStructure<String>> writer() {
         if (isCluster()) {
-            return RedisClusterDataStructureItemWriter.builder((GenericObjectPool<StatefulRedisClusterConnection<String, String>>) pool).commandTimeout(getCommandTimeout()).build();
+            return DataStructureItemWriter.clusterBuilder((GenericObjectPool<StatefulRedisClusterConnection<String, String>>) pool).commandTimeout(getCommandTimeout()).build();
         }
-        return RedisDataStructureItemWriter.builder((GenericObjectPool<StatefulRedisConnection<String, String>>) pool).commandTimeout(getCommandTimeout()).build();
+        return DataStructureItemWriter.builder((GenericObjectPool<StatefulRedisConnection<String, String>>) pool).commandTimeout(getCommandTimeout()).build();
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})

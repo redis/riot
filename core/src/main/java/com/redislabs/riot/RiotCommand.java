@@ -63,7 +63,6 @@ public abstract class RiotCommand extends HelpCommand implements InitializingBea
         this.connection = connection(client);
     }
 
-
     public void shutdown() {
         if (connection != null) {
             connection.close();

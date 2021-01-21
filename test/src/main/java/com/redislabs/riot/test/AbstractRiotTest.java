@@ -3,6 +3,7 @@ package com.redislabs.riot.test;
 import com.redislabs.riot.RiotApp;
 import org.apache.commons.io.IOUtils;
 import org.codehaus.plexus.util.cli.CommandLineUtils;
+import org.springframework.batch.core.JobExecution;
 import picocli.CommandLine;
 
 import java.io.InputStream;
@@ -65,6 +66,12 @@ public abstract class AbstractRiotTest {
     private String filter(String command) {
         String filtered = command.replace(String.format("-h %s -p %s", LOCALHOST, REDIS_PORT), "");
         return filtered.replaceAll("\b(import|export|replicate)\b", "$1 --no-progress");
+    }
+
+    protected void awaitTermination(JobExecution execution) throws InterruptedException {
+        while (execution.isRunning()) {
+            Thread.sleep(10);
+        }
     }
 
 

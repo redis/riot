@@ -1,6 +1,7 @@
 package com.redislabs.riot.stream;
 
-import com.redislabs.riot.AbstractFlushingTransferCommand;
+import com.redislabs.riot.AbstractTransferCommand;
+import com.redislabs.riot.StepBuilder;
 import com.redislabs.riot.convert.MapFlattener;
 import com.redislabs.riot.convert.ObjectToStringConverter;
 import com.redislabs.riot.stream.kafka.KafkaItemReader;
@@ -17,8 +18,7 @@ import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.redis.support.CommandBuilder;
-import org.springframework.batch.item.redis.support.RedisClusterCommandItemWriter;
-import org.springframework.batch.item.redis.support.RedisCommandItemWriter;
+import org.springframework.batch.item.redis.support.CommandItemWriter;
 import org.springframework.core.convert.converter.Converter;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -32,7 +32,7 @@ import java.util.Map;
 import java.util.function.BiFunction;
 
 @Command(name = "import", description = "Import Kafka topics into Redis streams")
-public class StreamImportCommand extends AbstractFlushingTransferCommand<ConsumerRecord<String, Object>, ConsumerRecord<String, Object>> {
+public class StreamImportCommand extends AbstractTransferCommand<ConsumerRecord<String, Object>, ConsumerRecord<String, Object>> {
 
     @Parameters(arity = "1..*", description = "One ore more topics to read from", paramLabel = "TOPIC")
     private List<String> topics;
@@ -46,12 +46,12 @@ public class StreamImportCommand extends AbstractFlushingTransferCommand<Consume
     private boolean approximateTrimming;
 
     @Override
-    protected Flow flow() throws Exception {
+    protected Flow flow() {
         List<Step> steps = new ArrayList<>();
         for (String topic : topics) {
             KafkaItemReader<String, Object> reader = new KafkaItemReaderBuilder<String, Object>().partitions(0).consumerProperties(options.consumerProperties()).partitions(0).name(topic).saveState(false).topic(topic).build();
-            String name = "Importing topic " + topic;
-            steps.add(step(name, reader, null, writer()).build());
+            StepBuilder<ConsumerRecord<String, Object>, ConsumerRecord<String, Object>> step = stepBuilder("Importing topic " + topic);
+            steps.add(step.reader(reader).writer(writer()).build().build());
         }
         return flow(steps.toArray(new Step[0]));
     }
@@ -60,9 +60,9 @@ public class StreamImportCommand extends AbstractFlushingTransferCommand<Consume
         XAddArgs xAddArgs = xAddArgs();
         BiFunction<RedisStreamAsyncCommands<String, String>, ConsumerRecord<String, Object>, RedisFuture<?>> command = CommandBuilder.<ConsumerRecord<String, Object>>xadd().keyConverter(keyConverter()).argsConverter(r -> xAddArgs).bodyConverter(bodyConverter()).build();
         if (isCluster()) {
-            return RedisClusterCommandItemWriter.builder((GenericObjectPool<StatefulRedisClusterConnection<String, String>>) pool, command).build();
+            return CommandItemWriter.<ConsumerRecord<String, Object>>clusterBuilder((GenericObjectPool<StatefulRedisClusterConnection<String, String>>) pool, (BiFunction) command).build();
         }
-        return RedisCommandItemWriter.builder((GenericObjectPool<StatefulRedisConnection<String, String>>) pool, command).build();
+        return CommandItemWriter.<ConsumerRecord<String, Object>>builder((GenericObjectPool<StatefulRedisConnection<String, String>>) pool, (BiFunction) command).build();
     }
 
     private Converter<ConsumerRecord<String, Object>, Map<String, String>> bodyConverter() {

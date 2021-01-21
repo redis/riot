@@ -10,14 +10,14 @@ import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.batch.item.redis.support.RedisClusterCommandItemWriter;
-import org.springframework.batch.item.redis.support.RedisCommandItemWriter;
+import org.springframework.batch.item.redis.support.CommandItemWriter;
 import org.springframework.batch.item.support.CompositeItemWriter;
 import org.springframework.util.Assert;
 import picocli.CommandLine.Command;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -31,7 +31,8 @@ public abstract class AbstractImportCommand<I, O> extends AbstractTransferComman
     private final List<RedisCommand<O>> redisCommands = new ArrayList<>();
 
     protected AbstractTaskletStepBuilder<SimpleStepBuilder<I, O>> step(String name, ItemReader<I> reader) {
-        return step(name, reader, processor(), writer());
+        StepBuilder<I, O> step = stepBuilder(name);
+        return step.reader(reader).processor(processor()).writer(writer()).build();
     }
 
     protected abstract ItemProcessor<I, O> processor();
@@ -50,9 +51,15 @@ public abstract class AbstractImportCommand<I, O> extends AbstractTransferComman
 
     private Function<RedisCommand<O>, ItemWriter<O>> writerProvider() {
         if (isCluster()) {
-            return c -> RedisClusterCommandItemWriter.builder((GenericObjectPool<StatefulRedisClusterConnection<String, String>>) pool, c.command()).commandTimeout(getCommandTimeout()).build();
+            return c -> {
+                CommandItemWriter.CommandItemWriterBuilder<O> builder = CommandItemWriter.<O>clusterBuilder((GenericObjectPool<StatefulRedisClusterConnection<String, String>>) pool, (BiFunction) c.command());
+                return builder.commandTimeout(getCommandTimeout()).build();
+            };
         }
-        return c -> RedisCommandItemWriter.builder((GenericObjectPool<StatefulRedisConnection<String, String>>) pool, c.command()).commandTimeout(getCommandTimeout()).build();
+        return c -> {
+            CommandItemWriter.CommandItemWriterBuilder<O> builder = CommandItemWriter.<O>builder((GenericObjectPool<StatefulRedisConnection<String, String>>) pool, (BiFunction) c.command());
+            return builder.commandTimeout(getCommandTimeout()).build();
+        };
     }
 
 

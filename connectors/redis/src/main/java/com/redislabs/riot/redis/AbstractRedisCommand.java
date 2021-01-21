@@ -12,7 +12,8 @@ public abstract class AbstractRedisCommand extends AbstractTaskCommand {
 
     @Override
     protected Flow flow() {
-        return flow(step(ClassUtils.getShortName(getClass())).tasklet((contribution, chunkContext) -> {
+
+        return flow(jobFactory.step(ClassUtils.getShortName(getClass()) + "-step").tasklet((contribution, chunkContext) -> {
             execute(sync());
             return RepeatStatus.FINISHED;
         }).build());
