@@ -2,6 +2,7 @@ package com.redislabs.riot;
 
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
+import me.tongfei.progressbar.DelegatingProgressBarConsumer;
 import me.tongfei.progressbar.ProgressBar;
 import me.tongfei.progressbar.ProgressBarBuilder;
 import org.springframework.batch.core.ExitStatus;

@@ -1,23 +1,16 @@
 package com.redislabs.riot;
 
 import com.redislabs.riot.redis.AbstractRedisCommand;
-import io.lettuce.core.RedisURI;
-import io.netty.util.internal.logging.InternalLoggerFactory;
-import io.netty.util.internal.logging.JdkLoggerFactory;
 import lombok.Getter;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.core.config.Configurator;
 import picocli.CommandLine;
 import picocli.CommandLine.*;
 
 import java.util.List;
-import java.util.logging.ConsoleHandler;
-import java.util.logging.Level;
-import java.util.logging.LogManager;
-import java.util.logging.Logger;
 
 @Command(usageHelpAutoWidth = true, sortOptions = false, versionProvider = ManifestVersionProvider.class, subcommands = HiddenGenerateCompletion.class, abbreviateSynopsis = true)
 public class RiotApp implements Runnable {
-
-    private static final String ROOT_LOGGER = "";
 
     @Option(names = {"-H", "--help"}, usageHelp = true, description = "Show this help message and exit.")
     private boolean helpRequested;
@@ -41,26 +34,11 @@ public class RiotApp implements Runnable {
         try {
             CommandLine commandLine = commandLine();
             ParseResult parseResult = parse(commandLine, args);
-            initializeLogging();
+            Configurator.setRootLevel(logLevel());
             return commandLine.getExecutionStrategy().execute(parseResult);
         } catch (PicocliException e) {
             System.err.println(e.getMessage());
             return 1;
-        }
-    }
-
-    private void initializeLogging() {
-        InternalLoggerFactory.setDefaultFactory(JdkLoggerFactory.INSTANCE);
-        LogManager.getLogManager().reset();
-        Logger activeLogger = Logger.getLogger(ROOT_LOGGER);
-        ConsoleHandler handler = new ConsoleHandler();
-        handler.setLevel(Level.ALL);
-        handler.setFormatter(new OneLineLogFormat(debug || stacktrace));
-        activeLogger.addHandler(handler);
-        Logger.getLogger(ROOT_LOGGER).setLevel(loggingLevel());
-        if (debug) {
-            Logger.getLogger("io.lettuce").setLevel(Level.INFO);
-            Logger.getLogger("io.netty").setLevel(Level.INFO);
         }
     }
 
@@ -94,7 +72,7 @@ public class RiotApp implements Runnable {
     }
 
     protected void registerConverters(CommandLine commandLine) {
-        commandLine.registerConverter(RedisURI.class, new RedisURIConverter());
+        commandLine.registerConverter(io.lettuce.core.RedisURI.class, new RedisURIConverter());
     }
 
     @Override
@@ -102,20 +80,20 @@ public class RiotApp implements Runnable {
         CommandLine.usage(this, System.out);
     }
 
-    private Level loggingLevel() {
+    private Level logLevel() {
         if (debug) {
-            return Level.FINE;
+            return Level.DEBUG;
         }
         if (info) {
             return Level.INFO;
         }
         if (warn) {
-            return Level.WARNING;
+            return Level.WARN;
         }
         if (quiet) {
-            return Level.OFF;
+            return Level.FATAL;
         }
-        return Level.SEVERE;
+        return Level.ERROR;
     }
 
 }

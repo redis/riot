@@ -11,13 +11,14 @@ import io.lettuce.core.cluster.api.StatefulRedisClusterConnection;
 import io.lettuce.core.support.ConnectionPoolSupport;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.pool2.impl.GenericObjectPool;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.ParentCommand;
 
 import java.time.Duration;
 
-@Slf4j
 @Command(abbreviateSynopsis = true, sortOptions = false)
 public abstract class RiotCommand extends HelpCommand implements InitializingBean {
 
@@ -44,13 +45,13 @@ public abstract class RiotCommand extends HelpCommand implements InitializingBea
         try {
             afterPropertiesSet();
         } catch (Exception e) {
-            log.error("Could not initialize command", e);
+            LoggerFactory.getLogger(RiotCommand.class).error("Could not initialize command", e);
             return;
         }
         try {
             execute();
         } catch (Exception e) {
-            log.error("Could not execute command", e);
+            LoggerFactory.getLogger(RiotCommand.class).error("Could not execute command", e);
         } finally {
             shutdown();
         }

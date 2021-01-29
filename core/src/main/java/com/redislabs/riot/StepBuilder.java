@@ -14,6 +14,7 @@ import org.springframework.batch.item.redis.support.BoundedItemReader;
 import org.springframework.batch.item.redis.support.JobFactory;
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
+import org.springframework.core.task.SyncTaskExecutor;
 
 import java.util.concurrent.ExecutionException;
 import java.util.function.Supplier;
@@ -59,6 +60,8 @@ public class StepBuilder<I, O> {
             SimpleAsyncTaskExecutor taskExecutor = new SimpleAsyncTaskExecutor();
             taskExecutor.setConcurrencyLimit(options.getThreads());
             ftStep.taskExecutor(taskExecutor).throttleLimit(options.getThreads());
+        } else {
+            ftStep.taskExecutor(new SyncTaskExecutor());
         }
         return ftStep;
     }

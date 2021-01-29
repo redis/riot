@@ -49,12 +49,6 @@ public class GenerateCommand extends AbstractImportCommand<Map<String, Object>, 
         return flow(step("Generating", reader).build());
     }
 
-    @Override
-    public void shutdown() {
-        connection.close();
-        super.shutdown();
-    }
-
     private String expression(Field<String> field) {
         if (field instanceof TextField) {
             return "lorem.paragraph";
