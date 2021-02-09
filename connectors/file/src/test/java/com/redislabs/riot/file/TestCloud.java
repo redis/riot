@@ -14,7 +14,7 @@ public class TestCloud extends AbstractFileTest {
 		List<String> keys = sync.keys("beer:*");
 		Assertions.assertEquals(4432, keys.size());
 		Map<String, String> beer1 = sync.hgetall("beer:1");
-		Assertions.assertEquals("Hocus Pocus", beer1.get("name"));
+		Assertions.assertEquals("Hocus Pocus", name(beer1));
 	}
 
 	@Test
@@ -23,6 +23,6 @@ public class TestCloud extends AbstractFileTest {
 		List<String> keys = sync.keys("beer:*");
 		Assertions.assertEquals(4432, keys.size());
 		Map<String, String> beer1 = sync.hgetall("beer:1");
-		Assertions.assertEquals("Hocus Pocus", beer1.get("name"));
+		Assertions.assertEquals("Hocus Pocus", name(beer1));
 	}
 }

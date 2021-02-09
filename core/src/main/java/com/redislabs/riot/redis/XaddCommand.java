@@ -1,11 +1,10 @@
 package com.redislabs.riot.redis;
 
-import com.redislabs.riot.convert.MapFlattener;
-import com.redislabs.riot.convert.ObjectToStringConverter;
 import io.lettuce.core.RedisFuture;
 import io.lettuce.core.XAddArgs;
 import org.springframework.batch.item.redis.support.CommandBuilder;
 import org.springframework.core.convert.converter.Converter;
+import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
@@ -15,6 +14,8 @@ import java.util.function.BiFunction;
 @Command(name = "xadd", aliases = "x", description = "Append entries to streams")
 public class XaddCommand extends AbstractKeyCommand {
 
+    @CommandLine.Mixin
+    private FilteringOptions filteringOptions = FilteringOptions.builder().build();
     @Option(names = "--id", description = "Stream entry ID field", paramLabel = "<field>")
     private String idField;
     @Option(names = "--maxlen", description = "Stream maxlen", paramLabel = "<int>")
@@ -24,7 +25,7 @@ public class XaddCommand extends AbstractKeyCommand {
 
     @Override
     public BiFunction<?, Map<String, Object>, RedisFuture<?>> command() {
-        return configure(CommandBuilder.xadd()).argsConverter(argsConverter()).bodyConverter(new MapFlattener<>(new ObjectToStringConverter())).build();
+        return configure(CommandBuilder.xadd()).argsConverter(argsConverter()).bodyConverter(filteringOptions.converter()).build();
     }
 
     private Converter<Map<String, Object>, XAddArgs> argsConverter() {

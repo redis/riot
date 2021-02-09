@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.springframework.batch.item.ExecutionContext;
@@ -30,6 +31,18 @@ public class AbstractFileTest extends AbstractStandaloneRedisTest {
 			Files.delete(path);
 		}
 		return path;
+	}
+
+	protected static String name(Map<String,String> beer) {
+		return beer.get("name");
+	}
+
+	protected static String style(Map<String,String> beer) {
+		return beer.get("style");
+	}
+
+	protected static double abv(Map<String,String> beer) {
+		return Double.parseDouble(beer.get("abv"));
 	}
 
 	@Override

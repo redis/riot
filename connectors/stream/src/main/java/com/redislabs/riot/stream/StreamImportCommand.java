@@ -2,8 +2,7 @@ package com.redislabs.riot.stream;
 
 import com.redislabs.riot.AbstractTransferCommand;
 import com.redislabs.riot.StepBuilder;
-import com.redislabs.riot.convert.MapFlattener;
-import com.redislabs.riot.convert.ObjectToStringConverter;
+import com.redislabs.riot.redis.FilteringOptions;
 import com.redislabs.riot.stream.kafka.KafkaItemReader;
 import com.redislabs.riot.stream.kafka.KafkaItemReaderBuilder;
 import io.lettuce.core.RedisFuture;
@@ -11,7 +10,6 @@ import io.lettuce.core.XAddArgs;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.api.async.RedisStreamAsyncCommands;
 import io.lettuce.core.cluster.api.StatefulRedisClusterConnection;
-import org.apache.avro.generic.GenericRecord;
 import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.batch.core.Step;
@@ -26,13 +24,13 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
 
 @Command(name = "import", description = "Import Kafka topics into Redis streams")
 public class StreamImportCommand extends AbstractTransferCommand<ConsumerRecord<String, Object>, ConsumerRecord<String, Object>> {
+
 
     @Parameters(arity = "1..*", description = "One ore more topics to read from", paramLabel = "TOPIC")
     private List<String> topics;
@@ -44,6 +42,8 @@ public class StreamImportCommand extends AbstractTransferCommand<ConsumerRecord<
     private Long maxlen;
     @Option(names = "--trim", description = "Stream efficient trimming ('~' flag)")
     private boolean approximateTrimming;
+    @CommandLine.Mixin
+    private FilteringOptions filteringOptions = FilteringOptions.builder().build();
 
     @Override
     protected Flow flow() {
@@ -68,36 +68,10 @@ public class StreamImportCommand extends AbstractTransferCommand<ConsumerRecord<
     private Converter<ConsumerRecord<String, Object>, Map<String, String>> bodyConverter() {
         switch (options.getSerde()) {
             case JSON:
-                return new JsonToMapConverter();
+                return new JsonToMapConverter(filteringOptions.converter());
             default:
-                return new AvroToMapConverter();
+                return new AvroToMapConverter(filteringOptions.converter());
         }
-    }
-
-    static class JsonToMapConverter implements Converter<ConsumerRecord<String, Object>, Map<String, String>> {
-
-        private final Converter<Map<String, Object>, Map<String, String>> flattener = new MapFlattener<>(new ObjectToStringConverter());
-
-        @Override
-        @SuppressWarnings("unchecked")
-        public Map<String, String> convert(ConsumerRecord<String, Object> source) {
-            return flattener.convert((Map<String, Object>) source.value());
-        }
-
-    }
-
-    static class AvroToMapConverter implements Converter<ConsumerRecord<String, Object>, Map<String, String>> {
-
-        private final Converter<Map<String, Object>, Map<String, String>> flattener = new MapFlattener<>(new ObjectToStringConverter());
-
-        @Override
-        public Map<String, String> convert(ConsumerRecord<String, Object> source) {
-            GenericRecord record = (GenericRecord) source.value();
-            Map<String, Object> map = new HashMap<>();
-            record.getSchema().getFields().forEach(field -> map.put(field.name(), record.get(field.name())));
-            return flattener.convert(map);
-        }
-
     }
 
     private Converter<ConsumerRecord<String, Object>, String> keyConverter() {

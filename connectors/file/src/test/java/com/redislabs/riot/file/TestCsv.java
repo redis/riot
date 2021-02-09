@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.sun.tools.javac.comp.Lower;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -17,6 +18,27 @@ public class TestCsv extends AbstractFileTest {
 		executeFile("/csv/import-hmset.txt");
 		List<String> keys = sync.keys("beer:*");
 		Assertions.assertEquals(COUNT, keys.size());
+	}
+
+	@Test
+	public void importHmsetExclude() throws Exception {
+		executeFile("/csv/import-hmset-exclude.txt");
+		Map<String, String> beer1036 = sync.hgetall("beer:1036");
+		Assertions.assertEquals("Lower De Boom", name(beer1036));
+		Assertions.assertEquals("American Barleywine", style(beer1036));
+		Assertions.assertEquals("368", beer1036.get("brewery_id"));
+		Assertions.assertFalse(beer1036.containsKey("row"));
+		Assertions.assertFalse(beer1036.containsKey("ibu"));
+	}
+
+	@Test
+	public void importHmsetInclude() throws Exception {
+		executeFile("/csv/import-hmset-include.txt");
+		Map<String, String> beer1036 = sync.hgetall("beer:1036");
+		Assertions.assertEquals(3, beer1036.size());
+		Assertions.assertEquals("Lower De Boom", name(beer1036));
+		Assertions.assertEquals("American Barleywine", style(beer1036));
+		Assertions.assertEquals(0.099, abv(beer1036));
 	}
 
 	@Test
