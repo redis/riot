@@ -443,7 +443,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="header">
 <h1>RIOT DB</h1>
 <div class="details">
-<span id="revnumber">version 2.4.3</span>
+<span id="revnumber">version 2.5.0</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Contents</div>
@@ -456,7 +456,11 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </ul>
 </li>
 <li><a href="#_drivers">3. Drivers</a></li>
-<li><a href="#_import">4. Import</a></li>
+<li><a href="#_import">4. Import</a>
+<ul class="sectlevel2">
+<li><a href="#_processing">4.1. Processing</a></li>
+</ul>
+</li>
 <li><a href="#_export">5. Export</a></li>
 </ul>
 </div>
@@ -661,6 +665,71 @@ Usage: riot-db [OPTIONS] [COMMAND]
 <div class="title">Import into hashes <strong>and</strong> set TTL <strong>and</strong> add to a set named <code>myset</code></div>
 <p><code>❯ riot-db import &#8230;&#8203; hmset --keyspace blah --keys id expire --keyspace blah --keys id sadd --keyspace myset --members id</code></p>
 </div>
+<div class="sect2">
+<h3 id="_processing"><a class="anchor" href="#_processing"></a>4.1. Processing</h3>
+<div class="paragraph">
+<p>The following processors can be applied to records in that order:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Filters</p>
+</li>
+<li>
+<p>Transforms</p>
+</li>
+<li>
+<p>Regular expressions</p>
+</li>
+</ul>
+</div>
+<div class="sect3">
+<h4 id="_filter"><a class="anchor" href="#_filter"></a>4.1.1. Filter</h4>
+<div class="paragraph">
+<p>Keep records that match a <a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/core.html#expressions">Spring Expression Language</a> (SpEL) boolean expression</p>
+</div>
+<div class="paragraph">
+<p><code>--filter "name matches '[a-zA-Z\\s]+'"</code></p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_transform"><a class="anchor" href="#_transform"></a>4.1.2. Transform</h4>
+<div class="paragraph">
+<p>Produce key/value pairs using SpEL: <code>field1=&lt;exp&gt;</code>, <code>field2=&lt;exp&gt;</code>, &#8230;&#8203;</p>
+</div>
+<div class="paragraph">
+<p>For example <code>--spel field1=' generates a field named `field1</code> with always the same value <code>foo</code>.</p>
+</div>
+<div class="paragraph">
+<p>Input fields are accessed by name (e.g. <code>field3=field1+field2</code>).</p>
+</div>
+<div class="paragraph">
+<p>The processor also exposes the following variables that can be called with the <code>#</code> prefix:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>redis</code> : Redis connection to issue any command, e.g. <code>name=#redis.hgetall('person1').lastName</code></p>
+</li>
+<li>
+<p><code>date</code> : date parser/formatter, e.g. <code>epoch=#date.parse(mydate).getTime()</code></p>
+</li>
+<li>
+<p><code>index</code> : sequence number of the item being generated, e.g. <code>id=#index</code></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_regex"><a class="anchor" href="#_regex"></a>4.1.3. Regex</h4>
+<div class="paragraph">
+<p>Extract patterns from source fields using regular expressions:</p>
+</div>
+<div class="paragraph">
+<p><code>--regex "name=(?&lt;first&gt;\w+)\/(?&lt;last&gt;\w+)"</code></p>
+</div>
+</div>
+</div>
 </div>
 </div>
 <div class="sect1">
@@ -705,8 +774,8 @@ Usage: riot-db [OPTIONS] [COMMAND]
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 2.4.3<br>
-Last updated 2020-12-06 09:51:40 -0800
+Version 2.5.0<br>
+Last updated 2021-02-08 22:55:54 -0800
 </div>
 </div>
 <style>

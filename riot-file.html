@@ -443,7 +443,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="header">
 <h1>RIOT File</h1>
 <div class="details">
-<span id="revnumber">version 2.4.3</span>
+<span id="revnumber">version 2.5.0</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Contents</div>
@@ -455,20 +455,21 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_usage">2.2. Usage</a></li>
 </ul>
 </li>
-<li><a href="#_import">3. Import</a>
+<li><a href="#_importing">3. Importing</a>
 <ul class="sectlevel2">
 <li><a href="#_redis_commands">3.1. Redis Commands</a></li>
 <li><a href="#_file_paths">3.2. File Paths</a></li>
 <li><a href="#_flat_files">3.3. Flat Files</a></li>
 <li><a href="#_json">3.4. JSON</a></li>
 <li><a href="#_xml">3.5. XML</a></li>
-<li><a href="#_redis">3.6. Redis</a></li>
+<li><a href="#_processing">3.6. Processing</a></li>
 </ul>
 </li>
-<li><a href="#_export">4. Export</a>
+<li><a href="#_importing_redis_dumps">4. Importing Redis Dumps</a></li>
+<li><a href="#_exporting">5. Exporting</a>
 <ul class="sectlevel2">
-<li><a href="#_json_2">4.1. JSON</a></li>
-<li><a href="#_xml_2">4.2. XML</a></li>
+<li><a href="#_json_2">5.1. JSON</a></li>
+<li><a href="#_xml_2">5.2. XML</a></li>
 </ul>
 </li>
 </ul>
@@ -576,7 +577,7 @@ Usage: riot-file [OPTIONS] [COMMAND]
 </div>
 </div>
 <div class="sect1">
-<h2 id="_import"><a class="anchor" href="#_import"></a>3. Import</h2>
+<h2 id="_importing"><a class="anchor" href="#_importing"></a>3. Importing</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>Use the <code>import</code> command to import data from files in CSV, fixed-width, JSON, and XML formats.</p>
@@ -856,7 +857,75 @@ field[2]=3</pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_redis"><a class="anchor" href="#_redis"></a>3.6. Redis</h3>
+<h3 id="_processing"><a class="anchor" href="#_processing"></a>3.6. Processing</h3>
+<div class="paragraph">
+<p>The following processors can be applied to records in that order:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Filters</p>
+</li>
+<li>
+<p>Transforms</p>
+</li>
+<li>
+<p>Regular expressions</p>
+</li>
+</ul>
+</div>
+<div class="sect3">
+<h4 id="_filter"><a class="anchor" href="#_filter"></a>3.6.1. Filter</h4>
+<div class="paragraph">
+<p>Keep records that match a <a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/core.html#expressions">Spring Expression Language</a> (SpEL) boolean expression</p>
+</div>
+<div class="paragraph">
+<p><code>--filter "name matches '[a-zA-Z\\s]+'"</code></p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_transform"><a class="anchor" href="#_transform"></a>3.6.2. Transform</h4>
+<div class="paragraph">
+<p>Produce key/value pairs using SpEL: <code>field1=&lt;exp&gt;</code>, <code>field2=&lt;exp&gt;</code>, &#8230;&#8203;</p>
+</div>
+<div class="paragraph">
+<p>For example <code>--spel field1=' generates a field named `field1</code> with always the same value <code>foo</code>.</p>
+</div>
+<div class="paragraph">
+<p>Input fields are accessed by name (e.g. <code>field3=field1+field2</code>).</p>
+</div>
+<div class="paragraph">
+<p>The processor also exposes the following variables that can be called with the <code>#</code> prefix:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>redis</code> : Redis connection to issue any command, e.g. <code>name=#redis.hgetall('person1').lastName</code></p>
+</li>
+<li>
+<p><code>date</code> : date parser/formatter, e.g. <code>epoch=#date.parse(mydate).getTime()</code></p>
+</li>
+<li>
+<p><code>index</code> : sequence number of the item being generated, e.g. <code>id=#index</code></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_regex"><a class="anchor" href="#_regex"></a>3.6.3. Regex</h4>
+<div class="paragraph">
+<p>Extract patterns from source fields using regular expressions:</p>
+</div>
+<div class="paragraph">
+<p><code>--regex "name=(?&lt;first&gt;\w+)\/(?&lt;last&gt;\w+)"</code></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_importing_redis_dumps"><a class="anchor" href="#_importing_redis_dumps"></a>4. Importing Redis Dumps</h2>
+<div class="sectionbody">
 <div class="paragraph">
 <p>RIOT File can also import Redis data structure files in JSON or XML formats (see Export &#8594; Redis to generate such files).</p>
 </div>
@@ -883,15 +952,14 @@ field[2]=3</pre>
 </div>
 </div>
 </div>
-</div>
 <div class="sect1">
-<h2 id="_export"><a class="anchor" href="#_export"></a>4. Export</h2>
+<h2 id="_exporting"><a class="anchor" href="#_exporting"></a>5. Exporting</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>Use the <code>export</code> command to export data from Redis to files in CSV, fixed-width, JSON, or XML formats. These files can be gzip-compressed as well.</p>
 </div>
 <div class="sect2">
-<h3 id="_json_2"><a class="anchor" href="#_json_2"></a>4.1. JSON</h3>
+<h3 id="_json_2"><a class="anchor" href="#_json_2"></a>5.1. JSON</h3>
 <div class="listingblock">
 <div class="title">Compressed JSON export example</div>
 <div class="content">
@@ -900,7 +968,7 @@ field[2]=3</pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_xml_2"><a class="anchor" href="#_xml_2"></a>4.2. XML</h3>
+<h3 id="_xml_2"><a class="anchor" href="#_xml_2"></a>5.2. XML</h3>
 <div class="listingblock">
 <div class="title">XML export example</div>
 <div class="content">
@@ -913,8 +981,8 @@ field[2]=3</pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 2.4.3<br>
-Last updated 2020-12-06 09:51:57 -0800
+Version 2.5.0<br>
+Last updated 2021-02-08 20:57:11 -0800
 </div>
 </div>
 <style>
