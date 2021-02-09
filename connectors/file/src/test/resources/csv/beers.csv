@@ -1,4 +1,4 @@
-,abv,ibu,id,name,style,brewery_id,ounces
+row,abv,ibu,id,name,style,brewery_id,ounces
 0,0.05,,1436,Pub Beer,American Pale Lager,408,12.0
 1,0.066,,2265,Devil's Cup,American Pale Ale (APA),177,12.0
 2,0.071,,2264,Rise of the Phoenix,American IPA,177,12.0

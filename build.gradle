@@ -74,7 +74,7 @@ subprojects {
         apply plugin: 'application'
         application {
             applicationName = 'riot-' + project.name
-        } 
+        }
         dependencies {
             implementation project(':core')
             testImplementation project(':test')    

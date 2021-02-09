@@ -20,6 +20,21 @@ public class TestCsv extends AbstractFileTest {
 	}
 
 	@Test
+	public void importHmsetFilter() throws Exception {
+		executeFile("/csv/import-hmset-filter.txt");
+		List<String> keys = sync.keys("beer:*");
+		Assertions.assertEquals(424, keys.size());
+	}
+
+	@Test
+	public void importHmsetRegex() throws Exception {
+		executeFile("/csv/import-hmset-regex.txt");
+		Map<String, String> airport1 = sync.hgetall("airport:1");
+		Assertions.assertEquals("Pacific", airport1.get("region"));
+		Assertions.assertEquals("Port_Moresby", airport1.get("city"));
+	}
+
+	@Test
 	public void importGlobHmset() throws Exception {
 		executeFile("/csv/import-glob-hmset.txt");
 		List<String> keys = sync.keys("beer:*");

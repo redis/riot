@@ -1,6 +1,7 @@
 package com.redislabs.riot;
 
 import com.redislabs.riot.convert.RegexNamedGroupsExtractor;
+import com.redislabs.riot.processor.FilteringProcessor;
 import com.redislabs.riot.processor.MapProcessor;
 import com.redislabs.riot.processor.SpelProcessor;
 import io.lettuce.core.api.StatefulConnection;
@@ -13,11 +14,12 @@ import picocli.CommandLine.Option;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-@Data
 public class KeyValueProcessingOptions {
 
     @Option(arity = "1..*", names = "--spel", description = "SpEL expression to produce a field", paramLabel = "<f=exp>")
     private Map<String, String> spelFields = new HashMap<>();
+    @Option(arity = "1..*", names = "--filter", description = "SpEL expression to filter records", paramLabel = "<exp>")
+    private List<String> filters = new ArrayList<>();
     @Option(arity = "1..*", names = "--var", description = "Register a variable in the SpEL processor context", paramLabel = "<v=exp>")
     private Map<String, String> variables = new HashMap<>();
     @Option(names = "--date", description = "Processor date format (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
@@ -27,6 +29,9 @@ public class KeyValueProcessingOptions {
 
     public ItemProcessor<Map<String, Object>, Map<String, Object>> processor(StatefulConnection<String, String> connection) {
         List<ItemProcessor<Map<String, Object>, Map<String, Object>>> processors = new ArrayList<>();
+        if (!filters.isEmpty()) {
+            processors.add(new FilteringProcessor(filters));
+        }
         if (!spelFields.isEmpty()) {
             processors.add(new SpelProcessor(connection, new SimpleDateFormat(dateFormat), variables, spelFields));
         }
