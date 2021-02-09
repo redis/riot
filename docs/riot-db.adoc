@@ -76,6 +76,11 @@ include::{resources}/postgresql/import.txt[]
 
 include::import.adoc[]
 
+=== Processing
+
+include::processing.adoc[]
+
+
 == Export
 
 .Export to PostgreSQL

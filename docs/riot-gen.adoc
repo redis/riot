@@ -29,6 +29,10 @@ All supported Faker data types are listed <<faker-data-types,below>>.
 
 include::getting_started.adoc[]
 
+== Processing
+
+include::processing.adoc[]
+
 == Examples
 
 .Generating hashes
