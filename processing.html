@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.10">
-<title>Filter</title>
+<title>Transform</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /* Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -446,32 +446,23 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="ulist">
 <ul>
 <li>
-<p>Filters</p>
-</li>
-<li>
 <p>Transforms</p>
 </li>
 <li>
 <p>Regular expressions</p>
 </li>
+<li>
+<p>Filters</p>
+</li>
 </ul>
-</div>
-<div class="sect3">
-<h4 id="_filter">Filter</h4>
-<div class="paragraph">
-<p>Keep records that match a <a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/core.html#expressions">Spring Expression Language</a> (SpEL) boolean expression</p>
-</div>
-<div class="paragraph">
-<p><code>--filter "name matches '[a-zA-Z\\s]+'"</code></p>
-</div>
 </div>
 <div class="sect3">
 <h4 id="_transform">Transform</h4>
 <div class="paragraph">
-<p>Produce key/value pairs using SpEL: <code>field1=&lt;exp&gt;</code>, <code>field2=&lt;exp&gt;</code>, &#8230;&#8203;</p>
+<p>Produce key/value pairs using <a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/core.html#expressions">Spring Expression Language</a> (SpEL): <code>field1=&lt;exp&gt;</code>, <code>field2=&lt;exp&gt;</code>, &#8230;&#8203;</p>
 </div>
 <div class="paragraph">
-<p>For example <code>--spel field1=' generates a field named `field1</code> with always the same value <code>foo</code>.</p>
+<p>For example <code>--spel "field1='foo'"</code> generates a field named <code>field1</code> with always the same value <code>foo</code>.</p>
 </div>
 <div class="paragraph">
 <p>Input fields are accessed by name (e.g. <code>field3=field1+field2</code>).</p>
@@ -479,18 +470,32 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="paragraph">
 <p>The processor also exposes the following variables that can be called with the <code>#</code> prefix:</p>
 </div>
-<div class="ulist">
-<ul>
-<li>
-<p><code>redis</code> : Redis connection to issue any command, e.g. <code>name=#redis.hgetall('person1').lastName</code></p>
-</li>
-<li>
-<p><code>date</code> : date parser/formatter, e.g. <code>epoch=#date.parse(mydate).getTime()</code></p>
-</li>
-<li>
-<p><code>index</code> : sequence number of the item being generated, e.g. <code>id=#index</code></p>
-</li>
-</ul>
+<div class="sect4">
+<h5 id="_redis">redis</h5>
+<div class="paragraph">
+<p>Redis connection to issue any command:</p>
+</div>
+<div class="paragraph">
+<p><code>--spel "name=#redis.hgetall('person1').lastName"</code></p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_date">date</h5>
+<div class="paragraph">
+<p>Date parser/formatter:</p>
+</div>
+<div class="paragraph">
+<p><code>--spel "epoch=#date.parse(mydate).getTime()"</code></p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_index">index</h5>
+<div class="paragraph">
+<p>Sequence number of the item being generated:</p>
+</div>
+<div class="paragraph">
+<p><code>--spel "id=#index"</code></p>
+</div>
 </div>
 </div>
 <div class="sect3">
@@ -502,11 +507,20 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p><code>--regex "name=(?&lt;first&gt;\w+)\/(?&lt;last&gt;\w+)"</code></p>
 </div>
 </div>
+<div class="sect3">
+<h4 id="_filter">Filter</h4>
+<div class="paragraph">
+<p>Keep records that match a SpEL boolean expression.</p>
+</div>
+<div class="paragraph">
+<p><code>--filter "value matches '\\d+'"</code> will only keep records where the <code>value</code> field is a series of digits.</p>
+</div>
+</div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 2.5.0<br>
-Last updated 2021-02-08 22:38:06 -0800
+Version 2.5.1<br>
+Last updated 2021-02-09 09:53:31 -0800
 </div>
 </div>
 </body>
