@@ -29,7 +29,10 @@ public class FilteringOptions {
         if (includes.length == 0 && excludes.length == 0) {
             return mapFlattener;
         }
-        return new CompositeConverter(mapFlattener, MapFilteringConverter.<String, Object>builder().includes(includes).excludes(excludes).build());
+        MapFilteringConverter.MapFilteringConverterBuilder<String, Object> filtering = MapFilteringConverter.builder();
+        filtering.includes(includes);
+        filtering.excludes(excludes);
+        return new CompositeConverter(mapFlattener, filtering.build());
     }
 
 

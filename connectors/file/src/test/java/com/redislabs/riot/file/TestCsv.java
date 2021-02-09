@@ -1,15 +1,13 @@
 package com.redislabs.riot.file;
 
+import io.lettuce.core.GeoArgs;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import com.sun.tools.javac.comp.Lower;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-
-import io.lettuce.core.GeoArgs;
 
 public class TestCsv extends AbstractFileTest {
 
