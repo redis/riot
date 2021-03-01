@@ -1,14 +1,6 @@
 package com.redislabs.riot.gen;
 
-import com.redislabs.lettusearch.RediSearchClient;
-import com.redislabs.lettusearch.RediSearchCommands;
-import com.redislabs.lettusearch.RediSearchUtils;
-import com.redislabs.lettusearch.StatefulRediSearchConnection;
-import com.redislabs.lettusearch.index.IndexInfo;
-import com.redislabs.lettusearch.index.field.Field;
-import com.redislabs.lettusearch.index.field.GeoField;
-import com.redislabs.lettusearch.index.field.TagField;
-import com.redislabs.lettusearch.index.field.TextField;
+import com.redislabs.lettusearch.*;
 import com.redislabs.riot.AbstractImportCommand;
 import com.redislabs.riot.KeyValueProcessingOptions;
 import io.lettuce.core.RedisURI;
@@ -50,16 +42,16 @@ public class GenerateCommand extends AbstractImportCommand<Map<String, Object>, 
     }
 
     private String expression(Field<String> field) {
-        if (field instanceof TextField) {
-            return "lorem.paragraph";
+        switch (field.getType()) {
+            case TEXT:
+                return "lorem.paragraph";
+            case TAG:
+                return "number.digits(10)";
+            case GEO:
+                return "address.longitude.concat(',').concat(address.latitude)";
+            default:
+                return "number.randomDouble(3,-1000,1000)";
         }
-        if (field instanceof TagField) {
-            return "number.digits(10)";
-        }
-        if (field instanceof GeoField) {
-            return "address.longitude.concat(',').concat(address.latitude)";
-        }
-        return "number.randomDouble(3,-1000,1000)";
     }
 
     private Map<String, String> fakerFields(RedisURI uri) {
