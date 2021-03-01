@@ -61,6 +61,8 @@ public class RedisOptions {
     private File truststore;
     @Option(names = "--ts-password", arity = "0..1", interactive = true, description = "Truststore password.", paramLabel = "<pwd>", hidden = true)
     private String truststorePassword;
+    @Option(names = "--cert", description = "Path to X.509 trusted certificates file in PEM format.", paramLabel = "<file>", hidden = true)
+    private File cert;
     @Option(names = "--latency", description = "Show latency metrics.")
     private boolean showMetrics;
     @Option(names = "--pool-max", description = "Max pool connections (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
@@ -127,6 +129,9 @@ public class RedisOptions {
             } else {
                 builder.truststore(truststore, truststorePassword);
             }
+        }
+        if (cert != null) {
+            builder.trustManager(cert);
         }
         return builder.build();
     }
