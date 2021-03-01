@@ -1,5 +1,5 @@
 dependencies {
-    implementation 'com.redislabs:lettusearch:2.5.0'
+    implementation 'com.redislabs:lettusearch:3.0.1'
     implementation 'com.github.javafaker:javafaker:1.0.2'
 	testImplementation('org.springframework.boot:spring-boot-starter-test') {
 		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
