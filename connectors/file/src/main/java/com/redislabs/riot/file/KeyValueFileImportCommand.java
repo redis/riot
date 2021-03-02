@@ -8,6 +8,7 @@ import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.LineCallbackHandler;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
 import org.springframework.batch.item.file.separator.DefaultRecordSeparatorPolicy;
+import org.springframework.batch.item.file.separator.RecordSeparatorPolicy;
 import org.springframework.batch.item.file.transform.AbstractLineTokenizer;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.batch.item.file.transform.FixedLengthTokenizer;
@@ -62,7 +63,21 @@ public class KeyValueFileImportCommand extends AbstractFileImportCommand<Map<Str
 
     private FlatFileItemReader<Map<String, Object>> flatFileReader(Resource resource, AbstractLineTokenizer tokenizer) {
         tokenizer.setNames(options.getNames().toArray(new String[0]));
-        return new FlatFileItemReaderBuilder<Map<String, Object>>().resource(resource).encoding(getFileOptions().getEncoding()).lineTokenizer(tokenizer).linesToSkip(options.linesToSkip()).strict(true).saveState(false).fieldSetMapper(new MapFieldSetMapper()).recordSeparatorPolicy(new DefaultRecordSeparatorPolicy()).skippedLinesCallback(new HeaderCallbackHandler(tokenizer)).build();
+        FlatFileItemReaderBuilder<Map<String, Object>> builder = new FlatFileItemReaderBuilder<>();
+        builder.resource(resource);
+        builder.encoding(getFileOptions().getEncoding());
+        builder.lineTokenizer(tokenizer);
+        builder.recordSeparatorPolicy(recordSeparatorPolicy());
+        builder.linesToSkip(options.linesToSkip());
+        builder.strict(true);
+        builder.saveState(false);
+        builder.fieldSetMapper(new MapFieldSetMapper());
+        builder.skippedLinesCallback(new HeaderCallbackHandler(tokenizer));
+        return builder.build();
+    }
+
+    private RecordSeparatorPolicy recordSeparatorPolicy() {
+        return new DefaultRecordSeparatorPolicy(options.getQuoteCharacter().toString(), options.getContinuationString());
     }
 
     private static class HeaderCallbackHandler implements LineCallbackHandler {
