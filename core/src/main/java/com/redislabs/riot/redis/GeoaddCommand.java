@@ -8,7 +8,7 @@ import picocli.CommandLine.Option;
 import java.util.Map;
 import java.util.function.BiFunction;
 
-@Command(name = "geoadd", aliases = "g", description = "Add geospatial items")
+@Command(name = "geoadd", description = "Add geospatial items")
 public class GeoaddCommand extends AbstractCollectionCommand {
 
     @Option(names = "--lon", description = "Longitude field", paramLabel = "<field>")

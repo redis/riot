@@ -14,7 +14,7 @@ import picocli.CommandLine.Option;
 import java.util.Map;
 import java.util.function.BiFunction;
 
-@Command(name = "set", aliases = "s", description = "Set keys to hold values from input")
+@Command(name = "set", description = "Set keys to hold values from input")
 public class SetCommand extends AbstractKeyCommand {
 
     private enum StringFormat {

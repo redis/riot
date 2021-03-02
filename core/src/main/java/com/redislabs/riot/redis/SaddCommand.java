@@ -7,7 +7,7 @@ import picocli.CommandLine.Command;
 import java.util.Map;
 import java.util.function.BiFunction;
 
-@Command(name = "sadd", aliases = "a", description = "Add members to sets")
+@Command(name = "sadd", description = "Add members to sets")
 public class SaddCommand extends AbstractCollectionCommand {
 
     @Override

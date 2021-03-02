@@ -11,7 +11,7 @@ import picocli.CommandLine.Option;
 import java.util.Map;
 import java.util.function.BiFunction;
 
-@Command(name = "xadd", aliases = "x", description = "Append entries to streams")
+@Command(name = "xadd", description = "Append entries to streams")
 public class XaddCommand extends AbstractKeyCommand {
 
     @CommandLine.Mixin

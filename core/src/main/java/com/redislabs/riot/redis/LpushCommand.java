@@ -7,7 +7,7 @@ import picocli.CommandLine.Command;
 import java.util.Map;
 import java.util.function.BiFunction;
 
-@Command(name = "lpush", aliases = "l", description = "Insert values at the head of lists")
+@Command(name = "lpush", description = "Insert values at the head of lists")
 public class LpushCommand extends AbstractCollectionCommand {
 
     @Override

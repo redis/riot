@@ -8,7 +8,7 @@ import picocli.CommandLine.Option;
 import java.util.Map;
 import java.util.function.BiFunction;
 
-@Command(name = "zadd", aliases = "z", description = "Add members with scores sorted sets")
+@Command(name = "zadd", description = "Add members with scores sorted sets")
 public class ZaddCommand extends AbstractCollectionCommand {
 
     @Option(names = "--score", description = "Name of the field to use for scores", paramLabel = "<field>")

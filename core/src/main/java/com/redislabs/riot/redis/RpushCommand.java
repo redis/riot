@@ -7,7 +7,7 @@ import picocli.CommandLine.Command;
 import java.util.Map;
 import java.util.function.BiFunction;
 
-@Command(name = "rpush", aliases = "r", description = "Insert values at the tail of lists")
+@Command(name = "rpush", description = "Insert values at the tail of lists")
 public class RpushCommand extends AbstractCollectionCommand {
 
     @Override

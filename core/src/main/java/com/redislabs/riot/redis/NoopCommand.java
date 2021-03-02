@@ -7,7 +7,7 @@ import picocli.CommandLine.Command;
 import java.util.Map;
 import java.util.function.BiFunction;
 
-@Command(name = "noop", aliases = "n", description = "No operation: accepts input and does nothing")
+@Command(name = "noop", description = "No operation: accepts input and does nothing")
 public class NoopCommand extends AbstractRedisCommand<Map<String, Object>> {
 
     @Override

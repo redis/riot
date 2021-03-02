@@ -11,7 +11,7 @@ import picocli.CommandLine.Option;
 import java.util.Map;
 import java.util.function.BiFunction;
 
-@Command(name = "eval", aliases = "e", description = "Evaluate a Lua script with keys and arguments from input")
+@Command(name = "eval", description = "Evaluate a Lua script with keys and arguments from input")
 public class EvalCommand extends AbstractRedisCommand<Map<String, Object>> {
 
     @Option(names = "--sha", description = "Digest", paramLabel = "<sha>")

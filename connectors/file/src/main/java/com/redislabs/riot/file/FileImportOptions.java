@@ -25,6 +25,8 @@ public class FileImportOptions {
     private List<Range> columnRanges = new ArrayList<>();
     @Option(names = "--quote", description = "Escape character for delimited files (default: ${DEFAULT-VALUE})", paramLabel = "<char>")
     private Character quoteCharacter = DelimitedLineTokenizer.DEFAULT_QUOTE_CHARACTER;
+    @Option(names = "--continuation", description = "Line continuation string (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
+    private String continuationString = "\\";
 
     public String delimiter(String file) {
         if (delimiter == null) {

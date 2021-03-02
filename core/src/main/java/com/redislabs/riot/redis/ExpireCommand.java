@@ -8,7 +8,7 @@ import picocli.CommandLine.Option;
 import java.util.Map;
 import java.util.function.BiFunction;
 
-@Command(name = "expire", aliases = "ex", description = "Set timeouts on keys")
+@Command(name = "expire", description = "Set timeouts on keys")
 public class ExpireCommand extends AbstractKeyCommand {
 
     @Option(names = "--ttl", description = "EXPIRE timeout field", paramLabel = "<field>")
