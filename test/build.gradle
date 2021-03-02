@@ -4,6 +4,8 @@ dependencies {
     implementation 'org.junit.jupiter:junit-jupiter-api'
     implementation 'org.junit.jupiter:junit-jupiter-params'
     implementation 'org.junit.jupiter:junit-jupiter-engine'
+    implementation group: 'info.picocli', name: 'picocli', version: picocli_version
+    annotationProcessor group: 'info.picocli', name: 'picocli-codegen', version: picocli_version
     api group: 'org.testcontainers', name: 'testcontainers', version: testcontainers_version
     api group: 'org.testcontainers', name: 'junit-jupiter', version: testcontainers_version
     implementation 'commons-io:commons-io:2.8.0'
