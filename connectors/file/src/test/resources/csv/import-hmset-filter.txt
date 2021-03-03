@@ -1,1 +1,0 @@
-❯ riot-file -h localhost -p 6379 import https://redis-developer.github.io/riot/beers.csv --filter "style == 'American IPA'" --header hmset --keyspace beer --keys id

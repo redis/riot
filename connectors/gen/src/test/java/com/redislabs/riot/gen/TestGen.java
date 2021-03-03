@@ -30,7 +30,7 @@ public class TestGen extends AbstractStandaloneRedisTest {
 
     @Test
     public void genFakerHash() throws Exception {
-        executeFile("/import-hmset.txt");
+        executeFile("/import-hset.txt");
         List<String> keys = sync.keys("person:*");
         Assertions.assertEquals(1000, keys.size());
         Map<String, String> person = sync.hgetall(keys.get(0));

@@ -51,7 +51,7 @@ public class TestJson extends AbstractFileTest {
 	@Test
 	public void exportGzip() throws Exception {
 		Path file = tempFile("beers.json.gz");
-		executeFile("/json/import-hmset.txt");
+		executeFile("/json/import-hset.txt");
 		executeFile("/json/export-gzip.txt");
 		JsonItemReaderBuilder<Map> builder = new JsonItemReaderBuilder<>();
 		builder.name("json-file-reader");
@@ -77,7 +77,7 @@ public class TestJson extends AbstractFileTest {
 
 	@Test
 	public void importHash() throws Exception {
-		executeFile("/json/import-hmset.txt");
+		executeFile("/json/import-hset.txt");
 		List<String> keys = sync.keys("beer:*");
 		Assertions.assertEquals(4432, keys.size());
 		Map<String, String> beer1 = sync.hgetall("beer:1");

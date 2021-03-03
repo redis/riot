@@ -76,7 +76,7 @@ public class DataGenerator implements Runnable {
         hash.put("field1", "value" + index);
         hash.put("field2", "value" + index);
         if (dataTypes.contains(DataType.HASH)) {
-            futures.add(((RedisHashAsyncCommands<String, String>) commands).hmset("hash:" + index, hash));
+            futures.add(((RedisHashAsyncCommands<String, String>) commands).hset("hash:" + index, hash));
         }
         if (dataTypes.contains(DataType.SET)) {
             futures.add(((RedisSetAsyncCommands<String, String>) commands).sadd("set:" + (index % collectionModulo), "member:" + index));

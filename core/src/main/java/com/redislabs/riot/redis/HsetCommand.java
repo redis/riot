@@ -8,15 +8,15 @@ import picocli.CommandLine.Command;
 import java.util.Map;
 import java.util.function.BiFunction;
 
-@Command(name = "hmset", description = "Set hashes from input")
-public class HmsetCommand extends AbstractKeyCommand {
+@Command(name = "hset", description = "Set hashes from input")
+public class HsetCommand extends AbstractKeyCommand {
 
     @CommandLine.Mixin
     private FilteringOptions filtering = FilteringOptions.builder().build();
 
     @Override
     public BiFunction<?, Map<String, Object>, RedisFuture<?>> command() {
-        return configure(CommandBuilder.hmset()).mapConverter(filtering.converter()).build();
+        return configure(CommandBuilder.hset()).mapConverter(filtering.converter()).build();
     }
 
 }

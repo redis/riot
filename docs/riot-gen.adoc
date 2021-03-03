@@ -38,7 +38,7 @@ include::processing.adoc[]
 .Generating hashes
 [source,shell]
 ----
-include::{resources}/import-hmset.txt[]
+include::{resources}/import-hset.txt[]
 ----
 
 .Generating sets

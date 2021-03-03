@@ -87,7 +87,7 @@ The following command imports that CSV file into Redis as hashes using `beer` as
 .CSV import example
 [source,shell]
 ----
-include::{resources}/csv/import-hmset.txt[]
+include::{resources}/csv/import-hset.txt[]
 ----
 
 This creates hashes with keys `beer:1436`, `beer:2265`, ...
@@ -122,7 +122,7 @@ The expected format for JSON files is:
 .JSON import example
 [source,shell]
 ----
-include::{resources}/json/import-hmset.txt[]
+include::{resources}/json/import-hset.txt[]
 ----
 
 JSON records are trees with potentially nested values that need to be flattened when the target is a Redis hash for example.
@@ -194,7 +194,7 @@ Here is a sample XML file that can be imported by {app-name}:
 .XML import example
 [source,shell]
 ----
-include::{resources}/xml/import-hmset.txt[]
+include::{resources}/xml/import-hset.txt[]
 ----
 
 === Processing

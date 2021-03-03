@@ -1,1 +1,1 @@
-❯ riot-file -h localhost -p 6379 import https://redis-developer.github.io/riot/beers.csv --header hmset --keyspace beer --keys id sadd --keyspace breweries --members brewery_id
+❯ riot-file -h localhost -p 6379 import https://redis-developer.github.io/riot/beers.csv --header hset --keyspace beer --keys id sadd --keyspace breweries --members brewery_id

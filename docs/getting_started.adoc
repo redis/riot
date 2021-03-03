@@ -42,7 +42,7 @@ You can use `--help` on any subcommand:
 
 `❯ {app} import --help`
 
-`❯ {app} import ... hmset --help`
+`❯ {app} import ... hset --help`
 ====
 
 Redis connection options are the same as `redis-cli`:

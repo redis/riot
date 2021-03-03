@@ -368,7 +368,7 @@
       "width": 169,
       "height": 75,
       "baseline": 68,
-      "text": "--keyspace actor\n--keys id\n--command hmset"
+      "text": "--keyspace actor\n--keys id\n--command hset"
     }
   ],
   "appState": {

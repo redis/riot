@@ -12,15 +12,15 @@ import java.util.Set;
 public class TestCsv extends AbstractFileTest {
 
 	@Test
-	public void importHmset() throws Exception {
-		executeFile("/csv/import-hmset.txt");
+	public void importHset() throws Exception {
+		executeFile("/csv/import-hset.txt");
 		List<String> keys = sync.keys("beer:*");
 		Assertions.assertEquals(COUNT, keys.size());
 	}
 
 	@Test
-	public void importHmsetExclude() throws Exception {
-		executeFile("/csv/import-hmset-exclude.txt");
+	public void importHsetExclude() throws Exception {
+		executeFile("/csv/import-hset-exclude.txt");
 		Map<String, String> beer1036 = sync.hgetall("beer:1036");
 		Assertions.assertEquals("Lower De Boom", name(beer1036));
 		Assertions.assertEquals("American Barleywine", style(beer1036));
@@ -30,8 +30,8 @@ public class TestCsv extends AbstractFileTest {
 	}
 
 	@Test
-	public void importHmsetInclude() throws Exception {
-		executeFile("/csv/import-hmset-include.txt");
+	public void importHsetInclude() throws Exception {
+		executeFile("/csv/import-hset-include.txt");
 		Map<String, String> beer1036 = sync.hgetall("beer:1036");
 		Assertions.assertEquals(3, beer1036.size());
 		Assertions.assertEquals("Lower De Boom", name(beer1036));
@@ -40,23 +40,23 @@ public class TestCsv extends AbstractFileTest {
 	}
 
 	@Test
-	public void importHmsetFilter() throws Exception {
-		executeFile("/csv/import-hmset-filter.txt");
+	public void importHsetFilter() throws Exception {
+		executeFile("/csv/import-hset-filter.txt");
 		List<String> keys = sync.keys("beer:*");
 		Assertions.assertEquals(424, keys.size());
 	}
 
 	@Test
-	public void importHmsetRegex() throws Exception {
-		executeFile("/csv/import-hmset-regex.txt");
+	public void importHsetRegex() throws Exception {
+		executeFile("/csv/import-hset-regex.txt");
 		Map<String, String> airport1 = sync.hgetall("airport:1");
 		Assertions.assertEquals("Pacific", airport1.get("region"));
 		Assertions.assertEquals("Port_Moresby", airport1.get("city"));
 	}
 
 	@Test
-	public void importGlobHmset() throws Exception {
-		executeFile("/csv/import-glob-hmset.txt");
+	public void importGlobHset() throws Exception {
+		executeFile("/csv/import-glob-hset.txt");
 		List<String> keys = sync.keys("beer:*");
 		Assertions.assertEquals(COUNT, keys.size());
 	}
@@ -71,8 +71,8 @@ public class TestCsv extends AbstractFileTest {
 	}
 
 	@Test
-	public void importProcessorHmset() throws Exception {
-		executeFile("/csv/import-processor-hmset.txt");
+	public void importProcessorHset() throws Exception {
+		executeFile("/csv/import-processor-hset.txt");
 		List<String> keys = sync.keys("event:*");
 		Assertions.assertEquals(568, keys.size());
 		Map<String, String> event = sync.hgetall("event:248206");

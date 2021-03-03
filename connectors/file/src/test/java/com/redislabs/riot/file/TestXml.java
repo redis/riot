@@ -18,8 +18,8 @@ import java.util.Map;
 public class TestXml extends AbstractFileTest {
 
 	@Test
-	public void importHmset() throws Exception {
-		executeFile("/xml/import-hmset.txt");
+	public void importHset() throws Exception {
+		executeFile("/xml/import-hset.txt");
 		List<String> keys = sync.keys("trade:*");
 		Assertions.assertEquals(3, keys.size());
 		Map<String, String> trade1 = sync.hgetall("trade:1");
