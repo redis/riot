@@ -443,7 +443,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="header">
 <h1>RIOT DB</h1>
 <div class="details">
-<span id="revnumber">version 2.6.0</span>
+<span id="revnumber">version 2.6.1</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Contents</div>
@@ -535,7 +535,7 @@ Usage: riot-db [OPTIONS] [COMMAND]
 <p><code>❯ riot-db import --help</code></p>
 </div>
 <div class="paragraph">
-<p><code>❯ riot-db import &#8230;&#8203; hmset --help</code></p>
+<p><code>❯ riot-db import &#8230;&#8203; hset --help</code></p>
 </div>
 </td>
 </tr>
@@ -647,7 +647,7 @@ Usage: riot-db [OPTIONS] [COMMAND]
 <div class="listingblock">
 <div class="title">Import from PostgreSQL</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="shell">❯ riot-db -h localhost -p 6379 import &quot;SELECT * FROM orders&quot; --url jdbc:postgresql://host:port/database --username appuser --password passwd hmset --keyspace order --keys order_id</code></pre>
+<pre class="CodeRay highlight"><code data-lang="shell">❯ riot-db -h localhost -p 6379 import &quot;SELECT * FROM orders&quot; --url jdbc:postgresql://host:port/database --username appuser --password passwd hset --keyspace order --keys order_id</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -655,15 +655,15 @@ Usage: riot-db [OPTIONS] [COMMAND]
 </div>
 <div class="paragraph">
 <div class="title">Import into hashes</div>
-<p><code>❯ riot-db import &#8230;&#8203; hmset --keyspace blah --keys id</code></p>
+<p><code>❯ riot-db import &#8230;&#8203; hset --keyspace blah --keys id</code></p>
 </div>
 <div class="paragraph">
 <div class="title">Import into hashes <strong>and</strong> set TTL on the key</div>
-<p><code>❯ riot-db import &#8230;&#8203; hmset --keyspace blah --keys id expire --keyspace blah --keys id</code></p>
+<p><code>❯ riot-db import &#8230;&#8203; hset --keyspace blah --keys id expire --keyspace blah --keys id</code></p>
 </div>
 <div class="paragraph">
 <div class="title">Import into hashes <strong>and</strong> set TTL <strong>and</strong> add to a set named <code>myset</code></div>
-<p><code>❯ riot-db import &#8230;&#8203; hmset --keyspace blah --keys id expire --keyspace blah --keys id sadd --keyspace myset --members id</code></p>
+<p><code>❯ riot-db import &#8230;&#8203; hset --keyspace blah --keys id expire --keyspace blah --keys id sadd --keyspace myset --members id</code></p>
 </div>
 <div class="sect2">
 <h3 id="_processing"><a class="anchor" href="#_processing"></a>4.1. Processing</h3>
@@ -788,7 +788,7 @@ Usage: riot-db [OPTIONS] [COMMAND]
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 2.6.0<br>
+Version 2.6.1<br>
 Last updated 2021-02-08 22:55:54 -0800
 </div>
 </div>
