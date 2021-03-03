@@ -37,17 +37,12 @@ subprojects {
     jar {
         enabled = true
     }
-    dependencyManagement {
-        imports {
-            mavenBom 'org.apache.logging.log4j:log4j-bom:2.14.0'
-        }
-    }
     dependencies {
         compileOnly 'org.projectlombok:lombok'
         annotationProcessor 'org.projectlombok:lombok'
         testCompileOnly 'org.projectlombok:lombok'
         testAnnotationProcessor 'org.projectlombok:lombok'
-        testImplementation 'org.junit.jupiter:junit-jupiter-engine'        
+        testImplementation 'org.junit.jupiter:junit-jupiter-engine'
         testImplementation 'org.springframework.batch:spring-batch-test'
         testImplementation 'org.hsqldb:hsqldb'
     }
@@ -71,7 +66,8 @@ subprojects {
         }
         dependencies {
             implementation project(':core')
-            testImplementation project(':test')    
+            testImplementation project(':test')
+            implementation 'org.slf4j:slf4j-jdk14'
         }
     }
 }

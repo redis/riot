@@ -1,11 +1,11 @@
 package com.redislabs.riot;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.builder.FlowBuilder;
-import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.core.job.flow.support.SimpleFlow;
 import org.springframework.batch.item.redis.support.JobFactory;
@@ -13,6 +13,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import picocli.CommandLine;
 
+@Slf4j
 @CommandLine.Command
 public abstract class AbstractTaskCommand extends RiotCommand {
 
@@ -49,10 +50,15 @@ public abstract class AbstractTaskCommand extends RiotCommand {
     }
 
     private Job job() throws Exception {
-        JobBuilder jobBuilder = jobFactory.job(ClassUtils.getShortName(getClass()));
-        return jobBuilder.start(flow()).build().build();
+        return jobFactory.job(ClassUtils.getShortName(getClass())).start(flow()).build().build();
     }
 
+    /**
+     * For unit-testing
+     *
+     * @return
+     * @throws Exception
+     */
     public JobExecution executeAsync() throws Exception {
         afterPropertiesSet();
         JobExecution execution = jobFactory.getAsyncLauncher().run(job(), new JobParameters());

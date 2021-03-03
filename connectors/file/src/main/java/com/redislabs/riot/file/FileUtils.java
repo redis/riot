@@ -120,7 +120,7 @@ public class FileUtils {
     }
 
     public static Resource inputResource(String file, FileOptions options) throws IOException {
-        if (FileUtils.isConsole(file)) {
+        if (isConsole(file)) {
             return new StandardInputResource();
         }
         Resource resource = resource(file, options, true);
@@ -237,15 +237,17 @@ public class FileUtils {
     public static String[] expand(String... files) throws IOException {
         List<String> expandedFiles = new ArrayList<>();
         for (String file : files) {
-            if (FileUtils.isFile(file)) {
+            if (isFile(file)) {
                 Path path = Paths.get(file);
                 if (Files.exists(path)) {
                     expandedFiles.add(file);
                 } else {
                     // Path might be glob pattern
                     Path parent = path.getParent();
-                    try (DirectoryStream<Path> stream = Files.newDirectoryStream(parent, path.getFileName().toString())) {
-                        stream.forEach(p -> expandedFiles.add(p.toString()));
+                    if (parent != null) {
+                        try (DirectoryStream<Path> stream = Files.newDirectoryStream(parent, path.getFileName().toString())) {
+                            stream.forEach(p -> expandedFiles.add(p.toString()));
+                        }
                     }
                 }
             } else {
