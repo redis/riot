@@ -8,7 +8,7 @@ import picocli.CommandLine.Command;
 import java.util.Map;
 import java.util.function.BiFunction;
 
-@Command(name = "hset", description = "Set hashes from input")
+@Command(name = "hset", aliases = "hmset", description = "Set hashes from input")
 public class HsetCommand extends AbstractKeyCommand {
 
     @CommandLine.Mixin
