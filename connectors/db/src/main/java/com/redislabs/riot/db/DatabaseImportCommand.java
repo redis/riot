@@ -17,9 +17,11 @@ import java.util.Map;
 public class DatabaseImportCommand extends AbstractImportCommand<Map<String, Object>, Map<String, Object>> {
 
     @Mixin
-    private DatabaseImportOptions options = new DatabaseImportOptions();
+    private DataSourceOptions options = DataSourceOptions.builder().build();
     @Mixin
-    private KeyValueProcessingOptions processingOptions = new KeyValueProcessingOptions();
+    private DatabaseImportOptions importOptions = DatabaseImportOptions.builder().build();
+    @Mixin
+    private KeyValueProcessingOptions processingOptions = KeyValueProcessingOptions.builder().build();
 
     @Override
     protected Flow flow() throws Exception {
@@ -27,24 +29,24 @@ public class DatabaseImportCommand extends AbstractImportCommand<Map<String, Obj
         JdbcCursorItemReaderBuilder<Map<String, Object>> builder = new JdbcCursorItemReaderBuilder<>();
         builder.saveState(false);
         builder.dataSource(dataSource);
-        if (options.getFetchSize() != null) {
-            builder.fetchSize(options.getFetchSize());
+        if (importOptions.getFetchSize() != null) {
+            builder.fetchSize(importOptions.getFetchSize());
         }
-        if (options.getMaxRows() != null) {
-            builder.maxRows(options.getMaxRows());
+        if (importOptions.getMaxRows() != null) {
+            builder.maxRows(importOptions.getMaxRows());
         }
         builder.name("database-reader");
-        if (options.getQueryTimeout() != null) {
-            builder.queryTimeout(options.getQueryTimeout());
+        if (importOptions.getQueryTimeout() != null) {
+            builder.queryTimeout(importOptions.getQueryTimeout());
         }
         builder.rowMapper(new ColumnMapRowMapper());
-        builder.sql(options.getSql());
-        builder.useSharedExtendedConnection(options.isUseSharedExtendedConnection());
-        builder.verifyCursorPosition(options.isVerifyCursorPosition());
+        builder.sql(importOptions.getSql());
+        builder.useSharedExtendedConnection(importOptions.isUseSharedExtendedConnection());
+        builder.verifyCursorPosition(importOptions.isVerifyCursorPosition());
         JdbcCursorItemReader<Map<String, Object>> reader = builder.build();
         reader.afterPropertiesSet();
         String name = dataSource.getConnection().getMetaData().getDatabaseProductName();
-        return flow(step("Importing from " + name, reader).build());
+        return flow(step(name + "-db-import-step", "Importing from " + name, reader).build());
     }
 
     @Override

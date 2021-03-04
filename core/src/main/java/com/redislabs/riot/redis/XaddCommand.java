@@ -11,21 +11,24 @@ import picocli.CommandLine.Option;
 import java.util.Map;
 import java.util.function.BiFunction;
 
-@Command(name = "xadd", description = "Append entries to streams")
+@Command(name = "xadd", description = "Append entries to a stream")
 public class XaddCommand extends AbstractKeyCommand {
 
     @CommandLine.Mixin
     private FilteringOptions filteringOptions = FilteringOptions.builder().build();
+    @SuppressWarnings("unused")
     @Option(names = "--id", description = "Stream entry ID field", paramLabel = "<field>")
     private String idField;
+    @SuppressWarnings("unused")
     @Option(names = "--maxlen", description = "Stream maxlen", paramLabel = "<int>")
     private Long maxlen;
+    @SuppressWarnings("unused")
     @Option(names = "--trim", description = "Stream efficient trimming ('~' flag)")
     private boolean approximateTrimming;
 
     @Override
     public BiFunction<?, Map<String, Object>, RedisFuture<?>> command() {
-        return configure(CommandBuilder.xadd()).argsConverter(argsConverter()).bodyConverter(filteringOptions.converter()).build();
+        return configureKeyCommandBuilder(CommandBuilder.xadd()).argsConverter(argsConverter()).bodyConverter(filteringOptions.converter()).build();
     }
 
     private Converter<Map<String, Object>, XAddArgs> argsConverter() {

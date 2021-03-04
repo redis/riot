@@ -20,10 +20,12 @@ public class GenerateCommand extends AbstractImportCommand<Map<String, Object>, 
 
     @Parameters(description = "SpEL expressions", paramLabel = "SPEL")
     private Map<String, String> fakerFields = new LinkedHashMap<>();
+    @SuppressWarnings("unused")
     @Option(names = "--introspect", description = "Use given search index to introspect Faker fields", paramLabel = "<index>")
     private String fakerIndex;
     @Option(names = "--locale", description = "Faker locale (default: ${DEFAULT-VALUE})", paramLabel = "<tag>")
     private Locale locale = Locale.ENGLISH;
+    @SuppressWarnings("unused")
     @Option(names = "--metadata", description = "Include metadata (index, partition)")
     private boolean includeMetadata;
     @Option(names = "--start", description = "Start index (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
@@ -33,12 +35,12 @@ public class GenerateCommand extends AbstractImportCommand<Map<String, Object>, 
     @Option(names = "--sleep", description = "Duration in ms to sleep before each item generation (default: ${DEFAULT-VALUE})", paramLabel = "<ms>")
     private long sleep = 0;
     @CommandLine.Mixin
-    private KeyValueProcessingOptions processingOptions = new KeyValueProcessingOptions();
+    private KeyValueProcessingOptions processingOptions = KeyValueProcessingOptions.builder().build();
 
     @Override
     protected Flow flow() {
         FakerItemReader reader = FakerItemReader.builder().locale(locale).includeMetadata(includeMetadata).fields(fakerFields(getRedisURI())).start(start).end(end).sleep(sleep).build();
-        return flow(step("Generating", reader).build());
+        return flow(step("generate-step", "Generating", reader).build());
     }
 
     private String expression(Field<String> field) {

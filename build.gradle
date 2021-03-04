@@ -68,6 +68,7 @@ subprojects {
             implementation project(':core')
             testImplementation project(':test')
             implementation 'org.slf4j:slf4j-jdk14'
+            implementation 'org.slf4j:log4j-over-slf4j'
         }
     }
 }

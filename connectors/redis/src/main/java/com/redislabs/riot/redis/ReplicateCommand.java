@@ -31,9 +31,10 @@ import java.time.Duration;
 public class ReplicateCommand extends AbstractTransferCommand<KeyValue<String, byte[]>, KeyValue<String, byte[]>> {
 
     @CommandLine.ArgGroup(exclusive = false, heading = "Target Redis connection options%n")
-    private RedisOptions targetRedis = new RedisOptions();
+    private RedisOptions targetRedis = RedisOptions.builder().build();
     @CommandLine.ArgGroup(exclusive = false, heading = "Source Redis reader options%n")
     private RedisReaderOptions options = RedisReaderOptions.builder().build();
+    @SuppressWarnings("unused")
     @Option(names = "--live", description = "Enable live replication.")
     private boolean live;
     @CommandLine.Mixin
@@ -89,11 +90,11 @@ public class ReplicateCommand extends AbstractTransferCommand<KeyValue<String, b
     @Override
     protected Flow flow() {
         String name = "Scanning";
-        StepBuilder<KeyValue<String, byte[]>, KeyValue<String, byte[]>> replicationStep = stepBuilder(name);
+        StepBuilder<KeyValue<String, byte[]>, KeyValue<String, byte[]>> replicationStep = stepBuilder("scan-replication-step", name);
         FlowBuilder<SimpleFlow> flow = flow(name).start(replicationStep.reader(sourceKeyDumpReader()).writer(targetKeyDumpWriter()).build().build());
         if (live) {
             String liveReplicationName = "Listening";
-            StepBuilder<KeyValue<String, byte[]>, KeyValue<String, byte[]>> liveReplicationStep = stepBuilder(liveReplicationName);
+            StepBuilder<KeyValue<String, byte[]>, KeyValue<String, byte[]>> liveReplicationStep = stepBuilder("live-replication-step", liveReplicationName);
             KeyDumpItemReader<String, String> liveReader = liveReader();
             liveReader.setName("Live" + ClassUtils.getShortName(liveReader.getClass()));
             SimpleFlow liveFlow = flow(liveReplicationName).start(flushingOptions.configure(liveReplicationStep.reader(liveReader).writer(targetKeyDumpWriter()).build()).build()).build();
@@ -101,7 +102,7 @@ public class ReplicateCommand extends AbstractTransferCommand<KeyValue<String, b
         }
         if (verify) {
             KeyComparisonItemWriter<String, String> writer = comparisonWriter();
-            StepBuilder<DataStructure<String>,DataStructure<String>> verifyStep = stepBuilder("Verifying");
+            StepBuilder<DataStructure<String>, DataStructure<String>> verifyStep = stepBuilder("verification-step", "Verifying");
             flow = flow("Replication+Verification").start(flow.build()).next(verifyStep.reader(sourceDataStructureReader()).writer(writer).extraMessage(() -> message(writer)).build().build());
         }
         return flow.build();
@@ -115,6 +116,7 @@ public class ReplicateCommand extends AbstractTransferCommand<KeyValue<String, b
         return String.format(" OK:%s V:%s >:%s <:%s T:%s", writer.getOkCount(), v, l, r, t);
     }
 
+    @SuppressWarnings("unchecked")
     private KeyComparisonItemWriter<String, String> comparisonWriter() {
         Duration ttlToleranceDuration = Duration.ofSeconds(ttlTolerance);
         if (targetRedis.isCluster()) {
@@ -125,6 +127,7 @@ public class ReplicateCommand extends AbstractTransferCommand<KeyValue<String, b
         return new KeyComparisonItemWriter<>(targetReader, ttlToleranceDuration);
     }
 
+    @SuppressWarnings("unchecked")
     private ItemReader<KeyValue<String, byte[]>> sourceKeyDumpReader() {
         if (isCluster()) {
             return configureScanReader(KeyDumpItemReader.builder((GenericObjectPool<StatefulRedisClusterConnection<String, String>>) pool, (StatefulRedisClusterConnection<String, String>) connection)).build();
@@ -132,6 +135,7 @@ public class ReplicateCommand extends AbstractTransferCommand<KeyValue<String, b
         return configureScanReader(KeyDumpItemReader.builder((GenericObjectPool<StatefulRedisConnection<String, String>>) pool, (StatefulRedisConnection<String, String>) connection)).build();
     }
 
+    @SuppressWarnings("unchecked")
     private ItemReader<DataStructure<String>> sourceDataStructureReader() {
         if (isCluster()) {
             return configureScanReader(DataStructureItemReader.builder((GenericObjectPool<StatefulRedisClusterConnection<String, String>>) pool, (StatefulRedisClusterConnection<String, String>) connection)).build();
@@ -139,6 +143,7 @@ public class ReplicateCommand extends AbstractTransferCommand<KeyValue<String, b
         return configureScanReader(DataStructureItemReader.builder((GenericObjectPool<StatefulRedisConnection<String, String>>) pool, (StatefulRedisConnection<String, String>) connection)).build();
     }
 
+    @SuppressWarnings("unchecked")
     private KeyDumpItemReader<String, String> liveReader() {
         if (isCluster()) {
             return configureLiveReader(KeyDumpItemReader.builder((GenericObjectPool<StatefulRedisClusterConnection<String, String>>) pool, (StatefulRedisClusterPubSubConnection<String, String>) pubSubConnection)).build();
@@ -156,10 +161,11 @@ public class ReplicateCommand extends AbstractTransferCommand<KeyValue<String, b
         return builder;
     }
 
-    private void configureReader(AbstractKeyValueItemReader.AbstractKeyValueItemReaderBuilder<?, ?> builder) {
-        builder.threadCount(options.getThreads()).chunkSize(options.getBatchSize()).commandTimeout(getCommandTimeout()).queueCapacity(options.getQueueCapacity());
+    private <B extends AbstractKeyValueItemReader.AbstractKeyValueItemReaderBuilder<?, B>> void configureReader(B builder) {
+        configureCommandTimeoutBuilder(builder.threadCount(options.getThreads()).chunkSize(options.getBatchSize()).queueCapacity(options.getQueueCapacity()));
     }
 
+    @SuppressWarnings("unchecked")
     private ItemWriter<KeyValue<String, byte[]>> targetKeyDumpWriter() {
         if (targetRedis.isCluster()) {
             return KeyDumpItemWriter.clusterBuilder((GenericObjectPool<StatefulRedisClusterConnection<String, String>>) targetPool).replace(true).commandTimeout(getTargetCommandTimeout()).build();

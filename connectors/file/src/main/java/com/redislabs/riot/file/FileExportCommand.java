@@ -2,7 +2,7 @@ package com.redislabs.riot.file;
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.redislabs.riot.AbstractExportCommand;
-import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.json.JacksonJsonObjectMarshaller;
@@ -17,16 +17,17 @@ import picocli.CommandLine.Mixin;
 
 import java.io.IOException;
 
-@Setter
+@Slf4j
 @Command(name = "export", description = "Export Redis data to a JSON or XML file")
 public class FileExportCommand extends AbstractExportCommand<DataStructure<String>> {
 
+    @SuppressWarnings("unused")
     @CommandLine.Parameters(arity = "1", description = "File path or URL", paramLabel = "FILE")
-    protected String file;
+    private String file;
     @Mixin
-    private FileExportOptions options = new FileExportOptions();
+    private FileExportOptions exportOptions = FileExportOptions.builder().build();
     @Mixin
-    private FileOptions fileOptions = new FileOptions();
+    private FileOptions fileOptions = FileOptions.builder().build();
 
     @Override
     protected Flow flow() throws Exception {
@@ -40,23 +41,25 @@ public class FileExportCommand extends AbstractExportCommand<DataStructure<Strin
             case JSON:
                 JsonResourceItemWriterBuilder<DataStructure<String>> jsonWriterBuilder = new JsonResourceItemWriterBuilder<>();
                 jsonWriterBuilder.name("json-resource-item-writer");
-                jsonWriterBuilder.append(options.isAppend());
+                jsonWriterBuilder.append(exportOptions.isAppend());
                 jsonWriterBuilder.encoding(fileOptions.getEncoding());
                 jsonWriterBuilder.jsonObjectMarshaller(new JacksonJsonObjectMarshaller<>());
-                jsonWriterBuilder.lineSeparator(options.getLineSeparator());
+                jsonWriterBuilder.lineSeparator(exportOptions.getLineSeparator());
                 jsonWriterBuilder.resource(resource);
                 jsonWriterBuilder.saveState(false);
+                log.info("Creating JSON writer with {} for file {}", exportOptions, file);
                 return jsonWriterBuilder.build();
             case XML:
                 XmlResourceItemWriterBuilder<DataStructure<String>> xmlWriterBuilder = new XmlResourceItemWriterBuilder<>();
                 xmlWriterBuilder.name("xml-resource-item-writer");
-                xmlWriterBuilder.append(options.isAppend());
+                xmlWriterBuilder.append(exportOptions.isAppend());
                 xmlWriterBuilder.encoding(fileOptions.getEncoding());
                 xmlWriterBuilder.xmlObjectMarshaller(xmlMarshaller());
-                xmlWriterBuilder.lineSeparator(options.getLineSeparator());
-                xmlWriterBuilder.rootName(options.getRootName());
+                xmlWriterBuilder.lineSeparator(exportOptions.getLineSeparator());
+                xmlWriterBuilder.rootName(exportOptions.getRootName());
                 xmlWriterBuilder.resource(resource);
                 xmlWriterBuilder.saveState(false);
+                log.info("Creating XML writer with {} for file {}", exportOptions, file);
                 return xmlWriterBuilder.build();
             default:
                 throw new IllegalArgumentException("Unsupported file type: " + fileType);
@@ -65,7 +68,7 @@ public class FileExportCommand extends AbstractExportCommand<DataStructure<Strin
 
     private JsonObjectMarshaller<DataStructure<String>> xmlMarshaller() {
         XmlMapper mapper = new XmlMapper();
-        mapper.setConfig(mapper.getSerializationConfig().withRootName(options.getElementName()));
+        mapper.setConfig(mapper.getSerializationConfig().withRootName(exportOptions.getElementName()));
         JacksonJsonObjectMarshaller<DataStructure<String>> marshaller = new JacksonJsonObjectMarshaller<>();
         marshaller.setObjectMapper(mapper);
         return marshaller;

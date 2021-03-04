@@ -14,6 +14,7 @@ import java.util.function.BiFunction;
 @Command(name = "eval", description = "Evaluate a Lua script with keys and arguments from input")
 public class EvalCommand extends AbstractRedisCommand<Map<String, Object>> {
 
+    @SuppressWarnings("unused")
     @Option(names = "--sha", description = "Digest", paramLabel = "<sha>")
     private String sha;
     @Option(names = "--keys", arity = "1..*", description = "Key fields", paramLabel = "<names>")

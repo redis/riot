@@ -16,7 +16,7 @@ public class HsetCommand extends AbstractKeyCommand {
 
     @Override
     public BiFunction<?, Map<String, Object>, RedisFuture<?>> command() {
-        return configure(CommandBuilder.hset()).mapConverter(filtering.converter()).build();
+        return configureKeyCommandBuilder(CommandBuilder.hset()).mapConverter(filtering.converter()).build();
     }
 
 }

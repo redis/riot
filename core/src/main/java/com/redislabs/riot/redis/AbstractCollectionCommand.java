@@ -14,10 +14,8 @@ public abstract class AbstractCollectionCommand extends AbstractKeyCommand {
     @Option(names = {"-m", "--members"}, arity = "1..*", description = "Member field names for collections", paramLabel = "<fields>")
     private String[] memberFields = new String[0];
 
-    protected <B extends CommandBuilder.CollectionCommandBuilder<?, Map<String, Object>, B>> B configure(B builder) {
-        super.configure(builder);
-        builder.memberIdConverter(idMaker(memberSpace, memberFields));
-        return builder;
+    protected <B extends CommandBuilder.CollectionCommandBuilder<?, Map<String, Object>, B>> B configureCollectionCommandBuilder(B builder) {
+        return configureKeyCommandBuilder(builder).memberIdConverter(idMaker(memberSpace, memberFields));
     }
 
 }

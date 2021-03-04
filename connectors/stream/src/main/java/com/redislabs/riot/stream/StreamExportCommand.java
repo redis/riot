@@ -29,16 +29,18 @@ import java.util.List;
 @Command(name = "export", description = "Import Redis streams into Kafka topics")
 public class StreamExportCommand extends AbstractTransferCommand<StreamMessage<String, String>, ProducerRecord<String, Object>> {
 
+    @SuppressWarnings("unused")
     @Parameters(arity = "1..*", description = "One ore more streams to read from", paramLabel = "STREAM")
     private List<String> streams;
     @CommandLine.Mixin
-    private KafkaOptions options = new KafkaOptions();
+    private KafkaOptions options = KafkaOptions.builder().build();
     @CommandLine.Mixin
     private FlushingTransferOptions flushingOptions = FlushingTransferOptions.builder().build();
     @Option(names = "--block", description = "XREAD block time in millis (default: ${DEFAULT-VALUE})", hidden = true, paramLabel = "<ms>")
     private long block = 100;
     @Option(names = "--offset", description = "XREAD offset (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
     private String offset = "0-0";
+    @SuppressWarnings("unused")
     @Option(names = "--topic", description = "Target topic key (default: same as stream)", paramLabel = "<string>")
     private String topic;
 
@@ -46,7 +48,7 @@ public class StreamExportCommand extends AbstractTransferCommand<StreamMessage<S
     protected Flow flow() {
         List<Step> steps = new ArrayList<>();
         for (String stream : streams) {
-            StepBuilder<StreamMessage<String, String>, ProducerRecord<String, Object>> step = stepBuilder("Exporting stream " + stream);
+            StepBuilder<StreamMessage<String, String>, ProducerRecord<String, Object>> step = stepBuilder(stream + "-stream-export-step", "Exporting from " + stream);
             steps.add(flushingOptions.configure(step.reader(reader(StreamOffset.from(stream, offset))).processor(processor()).writer(writer()).build()).build());
         }
         return flow(steps.toArray(new Step[0]));

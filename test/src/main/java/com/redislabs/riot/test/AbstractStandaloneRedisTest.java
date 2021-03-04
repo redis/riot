@@ -64,7 +64,7 @@ public abstract class AbstractStandaloneRedisTest extends AbstractRiotTest {
     }
 
     protected RedisOptions redisOptions() {
-        RedisOptions redisOptions = new RedisOptions();
+        RedisOptions redisOptions = RedisOptions.builder().build();
         redisOptions.setHost(redisURI.getHost());
         redisOptions.setPort(redisURI.getPort());
         return redisOptions;

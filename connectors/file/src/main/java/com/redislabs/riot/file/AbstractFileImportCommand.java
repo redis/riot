@@ -2,8 +2,6 @@ package com.redislabs.riot.file;
 
 import com.redislabs.riot.AbstractImportCommand;
 import lombok.Getter;
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.item.support.AbstractItemStreamItemReader;
@@ -15,8 +13,6 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
-@Slf4j
-@Setter
 @Command
 public abstract class AbstractFileImportCommand<T> extends AbstractImportCommand<T, T> {
 
@@ -24,7 +20,7 @@ public abstract class AbstractFileImportCommand<T> extends AbstractImportCommand
     private String[] files = new String[0];
     @Getter
     @CommandLine.Mixin
-    private FileOptions fileOptions = new FileOptions();
+    private FileOptions fileOptions = FileOptions.builder().build();
 
     @Override
     protected Flow flow() throws Exception {
@@ -39,7 +35,7 @@ public abstract class AbstractFileImportCommand<T> extends AbstractImportCommand
             AbstractItemStreamItemReader<T> reader = reader(file, fileType, resource);
             String name = FileUtils.filename(resource);
             reader.setName(name);
-            steps.add(step("Importing file " + name, reader).build());
+            steps.add(step(name + "-file-import-step", "Importing " + name, reader).build());
         }
         return flow(steps.toArray(new Step[0]));
     }

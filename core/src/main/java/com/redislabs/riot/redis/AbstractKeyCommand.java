@@ -14,9 +14,8 @@ public abstract class AbstractKeyCommand extends AbstractRedisCommand<Map<String
     @Option(names = {"-k", "--keys"}, arity = "1..*", description = "Key fields", paramLabel = "<fields>")
     private String[] keys = new String[0];
 
-    protected <B extends CommandBuilder.KeyCommandBuilder<?, Map<String, Object>, B>> B configure(B builder) {
-        builder.keyConverter(idMaker(keyspace, keys));
-        return builder;
+    protected <B extends CommandBuilder.KeyCommandBuilder<?, Map<String, Object>, B>> B configureKeyCommandBuilder(B builder) {
+        return builder.keyConverter(idMaker(keyspace, keys));
     }
 
 }

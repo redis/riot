@@ -1,13 +1,17 @@
 package com.redislabs.riot.db;
 
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import picocli.CommandLine.Option;
 
 import javax.sql.DataSource;
 
-@Data
-public class DatabaseOptions {
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class DataSourceOptions {
 
 	@Option(names = "--driver", description = "Fully qualified name of the JDBC driver", paramLabel = "<class>")
 	private String driver;

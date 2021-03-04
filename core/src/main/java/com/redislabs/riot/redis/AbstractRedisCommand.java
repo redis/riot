@@ -17,6 +17,7 @@ public abstract class AbstractRedisCommand<O> extends HelpCommand implements Red
 
     @CommandLine.Option(names = {"-s", "--separator"}, description = "Key separator (default: ${DEFAULT-VALUE})", paramLabel = "<str>")
     private String keySeparator = ":";
+    @SuppressWarnings("unused")
     @CommandLine.Option(names = {"-r", "--remove"}, description = "Remove key or member fields the first time they are used")
     private boolean removeFields;
 

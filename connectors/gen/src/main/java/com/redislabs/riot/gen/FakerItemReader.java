@@ -37,7 +37,7 @@ public class FakerItemReader extends AbstractItemCountingItemStreamItemReader<Ma
     private Map<String, Expression> expressions;
 
     @Builder
-    public FakerItemReader(Locale locale, boolean includeMetadata, Map<String, String> fields, long start, long end, long sleep) {
+    private FakerItemReader(Locale locale, boolean includeMetadata, Map<String, String> fields, long start, long end, long sleep) {
         Assert.notNull(fields, "Fields are required.");
         Assert.isTrue(end > start, "End index must be strictly greater than start index");
         setName(ClassUtils.getShortName(getClass()));

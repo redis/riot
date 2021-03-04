@@ -18,12 +18,12 @@ public class KafkaItemWriter<K> extends AbstractItemStreamItemWriter<ProducerRec
 	private final KafkaTemplate<K, Object> kafkaTemplate;
 
 	@Builder
-	public KafkaItemWriter(@NonNull KafkaTemplate<K, Object> kafkaTemplate) {
+	private KafkaItemWriter(@NonNull KafkaTemplate<K, Object> kafkaTemplate) {
 		this.kafkaTemplate = kafkaTemplate;
 	}
 
 	@Override
-	public void write(List<? extends ProducerRecord<K, Object>> items) throws Exception {
+	public void write(List<? extends ProducerRecord<K, Object>> items) {
 		for (ProducerRecord<K, Object> item : items) {
 			this.kafkaTemplate.send(item);
 		}

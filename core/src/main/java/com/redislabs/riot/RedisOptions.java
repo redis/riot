@@ -13,7 +13,7 @@ import io.lettuce.core.metrics.CommandLatencyCollector;
 import io.lettuce.core.metrics.DefaultCommandLatencyCollectorOptions;
 import io.lettuce.core.resource.ClientResources;
 import io.lettuce.core.resource.DefaultClientResources;
-import lombok.Data;
+import lombok.*;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import picocli.CommandLine.Option;
 
@@ -22,17 +22,23 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
-@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class RedisOptions {
 
-    public static final String DEFAULT_HOST = "127.0.0.1";
+    public static final String DEFAULT_HOST = "localhost";
     public static final int DEFAULT_PORT = 6379;
     public static final int DEFAULT_DATABASE = 0;
     public static final int DEFAULT_TIMEOUT = 60;
     public static final int DEFAULT_POOL_MAX_TOTAL = 8;
 
+    @Setter
+    @Builder.Default
     @Option(names = {"-h", "--hostname"}, description = "Server hostname (default: ${DEFAULT-VALUE}).", paramLabel = "<host>")
     private String host = DEFAULT_HOST;
+    @Setter
+    @Builder.Default
     @Option(names = {"-p", "--port"}, description = "Server port (default: ${DEFAULT-VALUE}).", paramLabel = "<port>")
     private int port = DEFAULT_PORT;
     @Option(names = {"-s", "--socket"}, description = "Server socket (overrides hostname and port).", paramLabel = "<socket>")
@@ -41,16 +47,21 @@ public class RedisOptions {
     private String username;
     @Option(names = {"-a", "--pass"}, arity = "0..1", interactive = true, description = "Password to use when connecting to the server.", paramLabel = "<password>")
     private char[] password;
+    @Builder.Default
     @Option(names = {"-u", "--uri"}, arity = "0..*", description = "Server URI.", paramLabel = "<uri>")
     private List<RedisURI> uris = new ArrayList<>();
+    @Builder.Default
     @Option(names = "--timeout", description = "Redis command timeout (default: ${DEFAULT-VALUE}).", paramLabel = "<sec>")
     private long timeout = DEFAULT_TIMEOUT;
+    @Builder.Default
     @Option(names = {"-n", "--db"}, description = "Database number (default: ${DEFAULT-VALUE}).", paramLabel = "<db>")
     private int database = DEFAULT_DATABASE;
+    @Getter
     @Option(names = {"-c", "--cluster"}, description = "Enable cluster mode.")
     private boolean cluster;
     @Option(names = "--tls", description = "Establish a secure TLS connection.")
     private boolean tls;
+    @Builder.Default
     @Option(names = "--no-verify-peer", description = "Verify peers when using TLS. True by default.", negatable = true)
     private boolean verifyPeer = true;
     @Option(names = "--ks", description = "Path to keystore.", paramLabel = "<file>", hidden = true)
@@ -65,8 +76,10 @@ public class RedisOptions {
     private File cert;
     @Option(names = "--latency", description = "Show latency metrics.")
     private boolean showMetrics;
+    @Builder.Default
     @Option(names = "--pool-max", description = "Max pool connections (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
     private int poolMaxTotal = DEFAULT_POOL_MAX_TOTAL;
+    @Builder.Default
     @Option(names = "--no-auto-reconnect", description = "Auto reconnect on connection loss. True by default.", negatable = true, hidden = true)
     private boolean autoReconnect = true;
     @Option(names = "--client", description = "Client name used to connect to Redis.")

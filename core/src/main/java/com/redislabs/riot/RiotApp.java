@@ -1,124 +1,130 @@
 package com.redislabs.riot;
 
 import com.redislabs.riot.redis.AbstractRedisCommand;
+import io.lettuce.core.RedisURI;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import io.netty.util.internal.logging.JdkLoggerFactory;
 import lombok.Getter;
+import picocli.AutoComplete;
 import picocli.CommandLine;
 import picocli.CommandLine.*;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.net.URL;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.time.temporal.ChronoField;
+import java.util.Enumeration;
 import java.util.List;
-import java.util.logging.ConsoleHandler;
-import java.util.logging.Level;
-import java.util.logging.LogManager;
-import java.util.logging.Logger;
+import java.util.jar.Attributes;
+import java.util.jar.Manifest;
+import java.util.logging.*;
 
-@Command(usageHelpAutoWidth = true, sortOptions = false, versionProvider = ManifestVersionProvider.class, subcommands = HiddenGenerateCompletion.class, abbreviateSynopsis = true)
-public class RiotApp implements Runnable {
+@Command(sortOptions = false, versionProvider = RiotApp.ManifestVersionProvider.class, subcommands = RiotApp.HiddenGenerateCompletion.class, abbreviateSynopsis = true)
+public class RiotApp extends HelpCommand {
+
+    @Command(hidden = true, name = "generate-completion", usageHelpAutoWidth = true)
+    static class HiddenGenerateCompletion extends AutoComplete.GenerateCompletion {
+    }
 
     private static final String ROOT_LOGGER = "";
 
-    @Option(names = {"-H", "--help"}, usageHelp = true, description = "Show this help message and exit.")
-    private boolean helpRequested;
+    @SuppressWarnings("unused")
     @Option(names = {"-V", "--version"}, versionHelp = true, description = "Print version information and exit.")
     private boolean versionRequested;
+    @Getter
+    @ArgGroup(heading = "Redis connection options%n", exclusive = false)
+    private RedisOptions redisOptions = RedisOptions.builder().build();
     @Option(names = {"-q", "--quiet"}, description = "Log errors only.")
     private boolean quiet;
     @Option(names = {"-w", "--warn"}, description = "Set log level to warn.")
-    private boolean warn;
+    private boolean warning;
     @Option(names = {"-i", "--info"}, description = "Set log level to info.")
     private boolean info;
     @Option(names = {"-d", "--debug"}, description = "Log in debug mode (includes normal stacktrace).")
     private boolean debug;
-    @Getter
-    @ArgGroup(heading = "Redis connection options%n", exclusive = false)
-    private RedisOptions redisOptions = new RedisOptions();
 
-    public int execute(String... args) {
-        CommandLine commandLine = commandLine();
-        ParseResult[] parseResult = new ParseResult[1];
-        try {
-            parseResult[0] = parse(commandLine, args);
-            initializeLogging();
-            return commandLine.getExecutionStrategy().execute(parseResult[0]);
-        } catch (ParameterException ex) {
-            try {
-                return commandLine.getParameterExceptionHandler().handleParseException(ex, args);
-            } catch (Exception ex2) {
-                return handleUnhandled(ex2, ex.getCommandLine(), ex.getCommandLine().getCommandSpec().exitCodeOnInvalidInput());
-            }
-        } catch (ExecutionException ex) {
-            try {
-                Exception cause = ex.getCause() instanceof Exception ? (Exception) ex.getCause() : ex;
-                return commandLine.getExecutionExceptionHandler().handleExecutionException(cause, ex.getCommandLine(), parseResult[0]);
-            } catch (Exception ex2) {
-                return handleUnhandled(ex2, ex.getCommandLine(), ex.getCommandLine().getCommandSpec().exitCodeOnExecutionException());
-            }
-        } catch (Exception ex) {
-            return handleUnhandled(ex, commandLine, commandLine.getCommandSpec().exitCodeOnExecutionException());
-        }
+    private int executionStrategy(ParseResult parseResult) {
+        configureLogging();
+        return new CommandLine.RunLast().execute(parseResult); // default execution strategy
     }
 
-    private static String throwableToColorString(Throwable t, Help.ColorScheme existingColorScheme) {
-        Help.ColorScheme colorScheme = new Help.ColorScheme.Builder(existingColorScheme).applySystemProperties().build();
-        StringWriter stringWriter = new ColoredStackTraceWriter(colorScheme);
-        t.printStackTrace(new PrintWriter(stringWriter));
-        return stringWriter.toString();
+    private int executionStragegyRunFirst(ParseResult parseResult) {
+        configureLogging();
+        return new CommandLine.RunFirst().execute(parseResult);
     }
 
-    static class ColoredStackTraceWriter extends StringWriter {
-        Help.ColorScheme colorScheme;
-
-        public ColoredStackTraceWriter(Help.ColorScheme colorScheme) { this.colorScheme = colorScheme; }
-
-        @Override
-        public void write(String str, int off, int len) {
-            List<Help.Ansi.IStyle> styles = str.startsWith("\t") ? colorScheme.stackTraceStyles() : colorScheme.errorStyles();
-            super.write(colorScheme.apply(str.substring(off, len), styles).toString());
-        }
-    }
-
-    private static int handleUnhandled(Exception ex, CommandLine cmd, int defaultExitCode) {
-        cmd.getErr().print(throwableToColorString(ex, cmd.getColorScheme()));
-        cmd.getErr().flush();
-        return mappedExitCode(ex, cmd.getExitCodeExceptionMapper(), defaultExitCode);
-    }
-
-    private static int mappedExitCode(Throwable t, IExitCodeExceptionMapper mapper, int defaultExitCode) {
-        try {
-            return (mapper != null) ? mapper.getExitCode(t) : defaultExitCode;
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            return defaultExitCode;
-        }
-    }
-
-    private void initializeLogging() {
+    private void configureLogging() {
+        Level level = logLevel();
         InternalLoggerFactory.setDefaultFactory(JdkLoggerFactory.INSTANCE);
         LogManager.getLogManager().reset();
         Logger activeLogger = Logger.getLogger(ROOT_LOGGER);
         ConsoleHandler handler = new ConsoleHandler();
-        handler.setLevel(java.util.logging.Level.ALL);
+        handler.setLevel(Level.ALL);
         handler.setFormatter(new OneLineLogFormat());
         activeLogger.addHandler(handler);
-        Logger.getLogger(ROOT_LOGGER).setLevel(loggingLevel());
-        if (debug) {
-            Logger.getLogger("io.lettuce").setLevel(java.util.logging.Level.INFO);
-            Logger.getLogger("io.netty").setLevel(java.util.logging.Level.INFO);
-        }
+        Logger.getLogger(ROOT_LOGGER).setLevel(level);
     }
 
-    public CommandLine commandLine() {
-        CommandLine commandLine = new CommandLine(this);
+    public int execute(String... args) {
+        return commandLine().execute(args);
+    }
+
+    public RiotCommandLine commandLine() {
+        RiotCommandLine commandLine = new RiotCommandLine(this);
+        commandLine.setExecutionStrategy(this::executionStrategy);
         commandLine.setExecutionExceptionHandler(new PrintExceptionMessageHandler());
         registerConverters(commandLine);
         commandLine.setCaseInsensitiveEnumValuesAllowed(true);
         return commandLine;
     }
 
-    class PrintExceptionMessageHandler implements IExecutionExceptionHandler {
+    private java.util.logging.Level logLevel() {
+        if (debug) {
+            return java.util.logging.Level.FINE;
+        }
+        if (info) {
+            return java.util.logging.Level.INFO;
+        }
+        if (warning) {
+            return java.util.logging.Level.WARNING;
+        }
+        if (quiet) {
+            return java.util.logging.Level.OFF;
+        }
+        return Level.SEVERE;
+    }
+
+    static class OneLineLogFormat extends Formatter {
+
+        private final DateTimeFormatter d = new DateTimeFormatterBuilder().appendValue(ChronoField.HOUR_OF_DAY, 2).appendLiteral(':').appendValue(ChronoField.MINUTE_OF_HOUR, 2).optionalStart().appendLiteral(':').appendValue(ChronoField.SECOND_OF_MINUTE, 2).optionalStart().appendFraction(ChronoField.NANO_OF_SECOND, 3, 3, true).toFormatter();
+        private final ZoneId offset = ZoneOffset.systemDefault();
+
+        @Override
+        public String format(LogRecord record) {
+            String message = formatMessage(record);
+            ZonedDateTime time = Instant.ofEpochMilli(record.getMillis()).atZone(offset);
+            if (record.getThrown() == null) {
+                return String.format("%s %s %s\t: %s%n", time.format(d), record.getLevel().getLocalizedName(), record.getLoggerName(), message);
+            }
+            return String.format("%s %s %s\t: %s%n%s%n", time.format(d), record.getLevel().getLocalizedName(), record.getLoggerName(), message, stackTrace(record));
+        }
+
+        private String stackTrace(LogRecord record) {
+            StringWriter sw = new StringWriter(4096);
+            PrintWriter pw = new PrintWriter(sw);
+            record.getThrown().printStackTrace(pw);
+            return sw.toString();
+        }
+    }
+
+    private static class PrintExceptionMessageHandler implements IExecutionExceptionHandler {
 
         @Override
         public int handleExecutionException(Exception ex, CommandLine cmd, ParseResult parseResult) {
@@ -129,51 +135,84 @@ public class RiotApp implements Runnable {
 
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    public ParseResult parse(CommandLine commandLine, String[] args) {
-        ParseResult parseResult = commandLine.parseArgs(args);
-        ParseResult subcommand = parseResult.subcommand();
-        if (subcommand != null) {
-            Object command = subcommand.commandSpec().userObject();
-            if (AbstractImportCommand.class.isAssignableFrom(command.getClass())) {
-                AbstractImportCommand<?, ?> importCommand = (AbstractImportCommand<?, ?>) command;
-                List<ParseResult> parsedRedisCommands = subcommand.subcommands();
-                for (ParseResult parsedRedisCommand : parsedRedisCommands) {
-                    if (parsedRedisCommand.isUsageHelpRequested()) {
-                        return parsedRedisCommand;
+    private class RiotCommandLine extends CommandLine {
+
+        public RiotCommandLine(Object command) {
+            super(command);
+        }
+
+        @SuppressWarnings({"unchecked", "rawtypes"})
+        @Override
+        public ParseResult parseArgs(String... args) {
+            ParseResult parseResult = super.parseArgs(args);
+            ParseResult subcommand = parseResult.subcommand();
+            if (subcommand != null) {
+                Object command = subcommand.commandSpec().userObject();
+                if (AbstractImportCommand.class.isAssignableFrom(command.getClass())) {
+                    AbstractImportCommand<?, ?> importCommand = (AbstractImportCommand<?, ?>) command;
+                    List<ParseResult> parsedRedisCommands = subcommand.subcommands();
+                    for (ParseResult parsedRedisCommand : parsedRedisCommands) {
+                        if (parsedRedisCommand.isUsageHelpRequested()) {
+                            return parsedRedisCommand;
+                        }
+                        importCommand.getRedisCommands().add((AbstractRedisCommand) parsedRedisCommand.commandSpec().userObject());
                     }
-                    importCommand.getRedisCommands().add((AbstractRedisCommand) parsedRedisCommand.commandSpec().userObject());
+                    setExecutionStrategy(RiotApp.this::executionStragegyRunFirst);
+                    return subcommand;
                 }
-                commandLine.setExecutionStrategy(new RunFirst());
-                return subcommand;
+            }
+            return parseResult;
+        }
+    }
+
+    static class RedisURIConverter implements CommandLine.ITypeConverter<RedisURI> {
+
+        @Override
+        public RedisURI convert(String value) {
+            try {
+                return RedisURI.create(value);
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Invalid Redis connection string", e);
             }
         }
-        return parseResult;
+
     }
 
     protected void registerConverters(CommandLine commandLine) {
         commandLine.registerConverter(io.lettuce.core.RedisURI.class, new RedisURIConverter());
     }
 
-    @Override
-    public void run() {
-        CommandLine.usage(this, System.out);
-    }
+    /**
+     * {@link IVersionProvider} implementation that returns version information from
+     * the jar file's {@code /META-INF/MANIFEST.MF} file.
+     */
+    static class ManifestVersionProvider implements IVersionProvider {
 
-    private java.util.logging.Level loggingLevel() {
-        if (debug) {
-            return java.util.logging.Level.FINE;
+        public String[] getVersion() throws Exception {
+            Enumeration<URL> resources = getClass().getClassLoader().getResources("META-INF/MANIFEST.MF");
+            while (resources.hasMoreElements()) {
+                URL url = resources.nextElement();
+                try {
+                    Manifest manifest = new Manifest(url.openStream());
+                    if (isApplicableManifest(manifest)) {
+                        Attributes attr = manifest.getMainAttributes();
+                        return new String[]{get(attr, "Implementation-Title") + " version \"" + get(attr, "Implementation-Version") + "\""};
+                    }
+                } catch (IOException ex) {
+                    return new String[]{"Unable to read from " + url + ": " + ex};
+                }
+            }
+            return new String[0];
         }
-        if (info) {
-            return java.util.logging.Level.INFO;
+
+        private boolean isApplicableManifest(Manifest manifest) {
+            Attributes attributes = manifest.getMainAttributes();
+            return "RIOT".equals(get(attributes, "Implementation-Title"));
         }
-        if (warn) {
-            return java.util.logging.Level.WARNING;
+
+        private static Object get(Attributes attributes, String key) {
+            return attributes.get(new Attributes.Name(key));
         }
-        if (quiet) {
-            return java.util.logging.Level.OFF;
-        }
-        return Level.SEVERE;
     }
 
 }

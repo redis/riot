@@ -17,6 +17,7 @@ import picocli.CommandLine;
 @CommandLine.Command
 public abstract class AbstractTaskCommand extends RiotCommand {
 
+    @SuppressWarnings("unused")
     @CommandLine.Spec
     private CommandLine.Model.CommandSpec spec;
 

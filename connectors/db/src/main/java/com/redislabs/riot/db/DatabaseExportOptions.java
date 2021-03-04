@@ -4,11 +4,10 @@ import lombok.*;
 import picocli.CommandLine;
 
 @Data
-@EqualsAndHashCode(callSuper = true)
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class DatabaseExportOptions extends DatabaseOptions {
+public class DatabaseExportOptions {
 
     @CommandLine.Parameters(arity = "1", description = "SQL INSERT statement.", paramLabel = "SQL")
     private String sql;

@@ -8,9 +8,10 @@ import picocli.CommandLine.Option;
 import java.util.Map;
 import java.util.function.BiFunction;
 
-@Command(name = "zadd", description = "Add members with scores sorted sets")
+@Command(name = "zadd", description = "Add members with scores to a sorted set")
 public class ZaddCommand extends AbstractCollectionCommand {
 
+    @SuppressWarnings("unused")
     @Option(names = "--score", description = "Name of the field to use for scores", paramLabel = "<field>")
     private String scoreField;
     @Option(names = "--score-default", description = "Score when field not present (default: ${DEFAULT-VALUE})", paramLabel = "<num>")
@@ -18,7 +19,7 @@ public class ZaddCommand extends AbstractCollectionCommand {
 
     @Override
     public BiFunction<?, Map<String, Object>, RedisFuture<?>> command() {
-        return configure(CommandBuilder.zadd()).scoreConverter(numberFieldExtractor(Double.class, scoreField, scoreDefault)).build();
+        return configureCollectionCommandBuilder(CommandBuilder.zadd()).scoreConverter(numberFieldExtractor(Double.class, scoreField, scoreDefault)).build();
     }
 
 }

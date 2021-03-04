@@ -29,10 +29,11 @@ import java.util.Map;
 public class KeyValueFileImportCommand extends AbstractFileImportCommand<Map<String, Object>> {
 
     @CommandLine.Mixin
-    protected FileImportOptions options = new FileImportOptions();
+    protected FileImportOptions options = FileImportOptions.builder().build();
     @CommandLine.Mixin
-    private KeyValueProcessingOptions processingOptions = new KeyValueProcessingOptions();
+    private KeyValueProcessingOptions processingOptions = KeyValueProcessingOptions.builder().build();
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     protected AbstractItemStreamItemReader<Map<String, Object>> reader(String file, FileType fileType, Resource resource) {
         switch (fileType) {
             case DELIMITED:
@@ -42,15 +43,19 @@ public class KeyValueFileImportCommand extends AbstractFileImportCommand<Map<Str
                 if (!options.getIncludedFields().isEmpty()) {
                     tokenizer.setIncludedFields(options.getIncludedFields().stream().mapToInt(i -> i).toArray());
                 }
+                log.info("Creating delimited reader with {} for file {}", options, file);
                 return flatFileReader(resource, tokenizer);
             case FIXED:
                 FixedLengthTokenizer fixedLengthTokenizer = new FixedLengthTokenizer();
                 Assert.notEmpty(options.getColumnRanges(), "Column ranges are required");
                 fixedLengthTokenizer.setColumns(options.getColumnRanges().toArray(new Range[0]));
+                log.info("Creating fixed-width reader with {} for file {}", options, file);
                 return flatFileReader(resource, fixedLengthTokenizer);
             case JSON:
+                log.info("Creating JSON reader for file {}", file);
                 return (JsonItemReader) FileUtils.jsonReader(resource, Map.class);
             case XML:
+                log.info("Creating XML reader for file {}", file);
                 return (XmlItemReader) FileUtils.xmlReader(resource, Map.class);
         }
         throw new IllegalArgumentException("Unsupported file type: " + fileType);
@@ -90,7 +95,7 @@ public class KeyValueFileImportCommand extends AbstractFileImportCommand<Map<Str
 
         @Override
         public void handleLine(String line) {
-            log.debug("Found header {}", line);
+            log.info("Found header {}", line);
             tokenizer.setNames(tokenizer.tokenize(line).getValues());
         }
     }

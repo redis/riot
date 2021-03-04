@@ -5,7 +5,9 @@ import com.redislabs.riot.processor.FilteringProcessor;
 import com.redislabs.riot.processor.MapProcessor;
 import com.redislabs.riot.processor.SpelProcessor;
 import io.lettuce.core.api.StatefulConnection;
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.support.CompositeItemProcessor;
 import org.springframework.core.convert.converter.Converter;
@@ -14,16 +16,24 @@ import picocli.CommandLine.Option;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class KeyValueProcessingOptions {
 
+    @Builder.Default
     @Option(arity = "1..*", names = "--spel", description = "SpEL expression to produce a field", paramLabel = "<f=exp>")
     private Map<String, String> spelFields = new HashMap<>();
+    @Builder.Default
     @Option(arity = "1..*", names = "--var", description = "Register a variable in the SpEL processor context", paramLabel = "<v=exp>")
     private Map<String, String> variables = new HashMap<>();
+    @Builder.Default
     @Option(names = "--date", description = "Processor date format (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
     private String dateFormat = new SimpleDateFormat().toPattern();
+    @Builder.Default
     @Option(arity = "1..*", names = "--regex", description = "Extract named values from source field using regex", paramLabel = "<f=exp>")
     private Map<String, String> regexes = new HashMap<>();
+    @Builder.Default
     @Option(arity = "1..*", names = "--filter", description = "SpEL expression to filter records", paramLabel = "<exp>")
     private List<String> filters = new ArrayList<>();
 

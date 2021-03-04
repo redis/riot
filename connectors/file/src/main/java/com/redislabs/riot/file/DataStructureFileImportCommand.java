@@ -13,6 +13,7 @@ import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.json.JsonItemReader;
 import org.springframework.batch.item.redis.DataStructureItemWriter;
+import org.springframework.batch.item.redis.support.CommandTimeoutBuilder;
 import org.springframework.batch.item.redis.support.DataStructure;
 import org.springframework.batch.item.support.AbstractItemStreamItemReader;
 import org.springframework.batch.item.xml.XmlItemReader;
@@ -20,6 +21,7 @@ import org.springframework.core.io.Resource;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,7 +34,7 @@ public class DataStructureFileImportCommand extends AbstractTransferCommand<Data
     private String[] files = new String[0];
     @Getter
     @CommandLine.Mixin
-    private FileOptions fileOptions = new FileOptions();
+    private FileOptions fileOptions = FileOptions.builder().build();
 
     @Override
     protected Flow flow() throws Exception {
@@ -43,9 +45,9 @@ public class DataStructureFileImportCommand extends AbstractTransferCommand<Data
             FileType fileType = FileUtils.fileType(file);
             Resource resource = FileUtils.inputResource(file, fileOptions);
             String name = FileUtils.filename(resource);
-            StepBuilder<DataStructure<String>, DataStructure<String>> step = stepBuilder("Importing file " + name);
-            AbstractItemStreamItemReader<DataStructure<String>> reader = reader(file, fileType, resource);
+            AbstractItemStreamItemReader<DataStructure<String>> reader = reader(fileType, resource);
             reader.setName(name);
+            StepBuilder<DataStructure<String>, DataStructure<String>> step = stepBuilder(name + "-datastructure-file-import-step", "Importing " + name);
             steps.add(step.reader(reader).processor(processor).writer(writer()).build().build());
         }
         return flow(steps.toArray(new Step[0]));
@@ -53,17 +55,19 @@ public class DataStructureFileImportCommand extends AbstractTransferCommand<Data
 
     private ItemWriter<DataStructure<String>> writer() {
         if (isCluster()) {
-            return DataStructureItemWriter.clusterBuilder((GenericObjectPool<StatefulRedisClusterConnection<String, String>>) pool).commandTimeout(getCommandTimeout()).build();
+            return configureCommandTimeoutBuilder(DataStructureItemWriter.clusterBuilder((GenericObjectPool<StatefulRedisClusterConnection<String, String>>) pool)).build();
         }
-        return DataStructureItemWriter.builder((GenericObjectPool<StatefulRedisConnection<String, String>>) pool).commandTimeout(getCommandTimeout()).build();
+        return configureCommandTimeoutBuilder(DataStructureItemWriter.builder((GenericObjectPool<StatefulRedisConnection<String, String>>) pool)).build();
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
-    protected AbstractItemStreamItemReader<DataStructure<String>> reader(String file, FileType fileType, Resource resource) {
+    protected AbstractItemStreamItemReader<DataStructure<String>> reader(FileType fileType, Resource resource) {
         switch (fileType) {
             case JSON:
+                log.info("Creating JSON data structure reader for file {}", resource);
                 return (JsonItemReader) FileUtils.jsonReader(resource, DataStructure.class);
             case XML:
+                log.info("Creating XML data structure reader for file {}", resource);
                 return (XmlItemReader) FileUtils.xmlReader(resource, DataStructure.class);
         }
         throw new IllegalArgumentException("Unsupported file type: " + fileType);

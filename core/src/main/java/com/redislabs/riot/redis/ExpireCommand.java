@@ -11,6 +11,7 @@ import java.util.function.BiFunction;
 @Command(name = "expire", description = "Set timeouts on keys")
 public class ExpireCommand extends AbstractKeyCommand {
 
+    @SuppressWarnings("unused")
     @Option(names = "--ttl", description = "EXPIRE timeout field", paramLabel = "<field>")
     private String timeoutField;
     @Option(names = "--ttl-default", description = "EXPIRE default timeout (default: ${DEFAULT-VALUE})", paramLabel = "<sec>")
@@ -18,7 +19,7 @@ public class ExpireCommand extends AbstractKeyCommand {
 
     @Override
     public BiFunction<?, Map<String, Object>, RedisFuture<?>> command() {
-        return configure(CommandBuilder.expire()).timeoutConverter(numberFieldExtractor(Long.class, timeoutField, timeoutDefault)).build();
+        return configureKeyCommandBuilder(CommandBuilder.expire()).timeoutConverter(numberFieldExtractor(Long.class, timeoutField, timeoutDefault)).build();
     }
 
 }

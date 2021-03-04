@@ -28,6 +28,7 @@ public class StepBuilder<I, O> {
     private final TransferOptions options;
 
     private String name;
+    private String taskName;
     private ItemReader<I> reader;
     private ItemProcessor<I, O> processor;
     private ItemWriter<O> writer;
@@ -41,13 +42,13 @@ public class StepBuilder<I, O> {
     public SimpleStepBuilder<I, O> build() {
         if (options.getMaxItemCount() != null) {
             if (reader instanceof AbstractItemCountingItemStreamItemReader) {
-                log.debug("Configuring reader with maxItemCount={}", options.getMaxItemCount());
+                log.info("Configuring reader with maxItemCount={}", options.getMaxItemCount());
                 ((AbstractItemCountingItemStreamItemReader<I>) reader).setMaxItemCount(Math.toIntExact(options.getMaxItemCount()));
             }
         }
-        SimpleStepBuilder<I, O> step = jobFactory.step(name + "-step").<I, O>chunk(options.getChunkSize()).reader(reader).processor(processor).writer(writer);
+        SimpleStepBuilder<I, O> step = jobFactory.step(name).<I, O>chunk(options.getChunkSize()).reader(reader).processor(processor).writer(writer);
         if (options.isShowProgress()) {
-            ProgressMonitor.ProgressMonitorBuilder<I, O> monitorBuilder = ProgressMonitor.<I, O>builder().taskName(name).max(max(reader));
+            ProgressMonitor.ProgressMonitorBuilder<I, O> monitorBuilder = ProgressMonitor.<I, O>builder().taskName(taskName).max(max(reader));
             if (extraMessage != null) {
                 monitorBuilder.extraMessageSupplier(extraMessage);
             }

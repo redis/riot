@@ -57,10 +57,10 @@ public class TestKafka extends AbstractStandaloneRedisTest {
         StreamImportCommand command = (StreamImportCommand) command("/import.txt");
         JobExecution execution = command.executeAsync();
         Thread.sleep(500);
-        KafkaProducer<String, Map<String, String>> producer = new KafkaProducer<>(ImmutableMap.of(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafka.getBootstrapServers(), ProducerConfig.CLIENT_ID_CONFIG, UUID.randomUUID().toString()), new StringSerializer(), new JsonSerializer<Map<String, String>>());
+        KafkaProducer<String, Map<String, String>> producer = new KafkaProducer<>(ImmutableMap.of(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafka.getBootstrapServers(), ProducerConfig.CLIENT_ID_CONFIG, UUID.randomUUID().toString()), new StringSerializer(), new JsonSerializer<>());
         int count = 100;
         for (int index = 0; index < count; index++) {
-            ProducerRecord<String, Map<String, String>> record = new ProducerRecord<String, Map<String, String>>("topic1", map());
+            ProducerRecord<String, Map<String, String>> record = new ProducerRecord<>("topic1", map());
             Future<RecordMetadata> future = producer.send(record);
             future.get();
         }

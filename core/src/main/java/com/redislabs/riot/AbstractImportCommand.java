@@ -30,8 +30,8 @@ public abstract class AbstractImportCommand<I, O> extends AbstractTransferComman
     @Getter
     private final List<RedisCommand<O>> redisCommands = new ArrayList<>();
 
-    protected AbstractTaskletStepBuilder<SimpleStepBuilder<I, O>> step(String name, ItemReader<I> reader) {
-        StepBuilder<I, O> step = stepBuilder(name);
+    protected AbstractTaskletStepBuilder<SimpleStepBuilder<I, O>> step(String name, String taskName, ItemReader<I> reader) {
+        StepBuilder<I, O> step = stepBuilder(name, taskName);
         return step.reader(reader).processor(processor()).writer(writer()).build();
     }
 
@@ -51,15 +51,9 @@ public abstract class AbstractImportCommand<I, O> extends AbstractTransferComman
 
     private Function<RedisCommand<O>, ItemWriter<O>> writerProvider() {
         if (isCluster()) {
-            return c -> {
-                CommandItemWriter.CommandItemWriterBuilder<O> builder = CommandItemWriter.<O>clusterBuilder((GenericObjectPool<StatefulRedisClusterConnection<String, String>>) pool, (BiFunction) c.command());
-                return builder.commandTimeout(getCommandTimeout()).build();
-            };
+            return c -> configureCommandTimeoutBuilder(CommandItemWriter.<O>clusterBuilder((GenericObjectPool<StatefulRedisClusterConnection<String, String>>) pool, (BiFunction) c.command())).build();
         }
-        return c -> {
-            CommandItemWriter.CommandItemWriterBuilder<O> builder = CommandItemWriter.<O>builder((GenericObjectPool<StatefulRedisConnection<String, String>>) pool, (BiFunction) c.command());
-            return builder.commandTimeout(getCommandTimeout()).build();
-        };
+        return c -> configureCommandTimeoutBuilder(CommandItemWriter.<O>builder((GenericObjectPool<StatefulRedisConnection<String, String>>) pool, (BiFunction) c.command())).build();
     }
 
 

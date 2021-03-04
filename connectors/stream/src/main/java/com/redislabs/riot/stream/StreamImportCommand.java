@@ -32,14 +32,18 @@ import java.util.function.BiFunction;
 public class StreamImportCommand extends AbstractTransferCommand<ConsumerRecord<String, Object>, ConsumerRecord<String, Object>> {
 
 
+    @SuppressWarnings("unused")
     @Parameters(arity = "1..*", description = "One ore more topics to read from", paramLabel = "TOPIC")
     private List<String> topics;
     @CommandLine.Mixin
-    private KafkaOptions options = new KafkaOptions();
+    private KafkaOptions options = KafkaOptions.builder().build();
+    @SuppressWarnings("unused")
     @Option(names = "--key", description = "Target stream key (default: same as topic)", paramLabel = "<string>")
     private String key;
+    @SuppressWarnings("unused")
     @Option(names = "--maxlen", description = "Stream maxlen", paramLabel = "<int>")
     private Long maxlen;
+    @SuppressWarnings("unused")
     @Option(names = "--trim", description = "Stream efficient trimming ('~' flag)")
     private boolean approximateTrimming;
     @CommandLine.Mixin
@@ -50,12 +54,13 @@ public class StreamImportCommand extends AbstractTransferCommand<ConsumerRecord<
         List<Step> steps = new ArrayList<>();
         for (String topic : topics) {
             KafkaItemReader<String, Object> reader = new KafkaItemReaderBuilder<String, Object>().partitions(0).consumerProperties(options.consumerProperties()).partitions(0).name(topic).saveState(false).topic(topic).build();
-            StepBuilder<ConsumerRecord<String, Object>, ConsumerRecord<String, Object>> step = stepBuilder("Importing topic " + topic);
+            StepBuilder<ConsumerRecord<String, Object>, ConsumerRecord<String, Object>> step = stepBuilder(topic + "-stream-import-step", "Importing from " + topic);
             steps.add(step.reader(reader).writer(writer()).build().build());
         }
         return flow(steps.toArray(new Step[0]));
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     private ItemWriter<ConsumerRecord<String, Object>> writer() {
         XAddArgs xAddArgs = xAddArgs();
         BiFunction<RedisStreamAsyncCommands<String, String>, ConsumerRecord<String, Object>, RedisFuture<?>> command = CommandBuilder.<ConsumerRecord<String, Object>>xadd().keyConverter(keyConverter()).argsConverter(r -> xAddArgs).bodyConverter(bodyConverter()).build();

@@ -37,7 +37,7 @@ public abstract class AbstractRiotTest {
 
     protected Object command(RiotApp app, String file) throws Exception {
         CommandLine commandLine = app.commandLine();
-        CommandLine.ParseResult parseResult = app.parse(commandLine, args(file));
+        CommandLine.ParseResult parseResult = commandLine.parseArgs(args(file));
         return parseResult.subcommand().commandSpec().commandLine().getCommand();
     }
 

@@ -14,7 +14,7 @@ import picocli.CommandLine.Option;
 import java.util.Map;
 import java.util.function.BiFunction;
 
-@Command(name = "set", description = "Set keys to hold values from input")
+@Command(name = "set", description = "Set strings from input")
 public class SetCommand extends AbstractKeyCommand {
 
     private enum StringFormat {
@@ -23,14 +23,16 @@ public class SetCommand extends AbstractKeyCommand {
 
     @Option(names = "--format", description = "Serialization: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})", paramLabel = "<fmt>")
     private StringFormat format = StringFormat.JSON;
+    @SuppressWarnings("unused")
     @Option(names = "--field", description = "Raw value field", paramLabel = "<field>")
     private String field;
+    @SuppressWarnings("unused")
     @Option(names = "--root", description = "XML root element name", paramLabel = "<name>")
     private String root;
 
     @Override
     public BiFunction<?, Map<String, Object>, RedisFuture<?>> command() {
-        return configure(CommandBuilder.set()).valueConverter(stringValueConverter()).build();
+        return configureKeyCommandBuilder(CommandBuilder.set()).valueConverter(stringValueConverter()).build();
     }
 
     private Converter<Map<String, Object>, String> stringValueConverter() {

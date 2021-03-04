@@ -11,4 +11,5 @@ public class RiotRedis extends RiotApp {
 	public static void main(String[] args) {
 		System.exit(new RiotRedis().execute(args));
 	}
+
 }
