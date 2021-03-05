@@ -1,9 +1,6 @@
 package com.redislabs.riot;
 
-import io.lettuce.core.ClientOptions;
-import io.lettuce.core.RedisClient;
-import io.lettuce.core.RedisURI;
-import io.lettuce.core.SslOptions;
+import io.lettuce.core.*;
 import io.lettuce.core.api.StatefulConnection;
 import io.lettuce.core.cluster.ClusterClientOptions;
 import io.lettuce.core.cluster.RedisClusterClient;
@@ -14,7 +11,9 @@ import io.lettuce.core.metrics.DefaultCommandLatencyCollectorOptions;
 import io.lettuce.core.resource.ClientResources;
 import io.lettuce.core.resource.DefaultClientResources;
 import lombok.*;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
+import org.springframework.util.ObjectUtils;
 import picocli.CommandLine.Option;
 
 import java.io.File;
@@ -22,6 +21,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -47,9 +47,8 @@ public class RedisOptions {
     private String username;
     @Option(names = {"-a", "--pass"}, arity = "0..1", interactive = true, description = "Password to use when connecting to the server.", paramLabel = "<password>")
     private char[] password;
-    @Builder.Default
     @Option(names = {"-u", "--uri"}, arity = "0..*", description = "Server URI.", paramLabel = "<uri>")
-    private List<RedisURI> uris = new ArrayList<>();
+    private List<RedisURI> uris;
     @Builder.Default
     @Option(names = "--timeout", description = "Redis command timeout (default: ${DEFAULT-VALUE}).", paramLabel = "<sec>")
     private long timeout = DEFAULT_TIMEOUT;
@@ -86,16 +85,16 @@ public class RedisOptions {
     private String clientName;
 
     public List<RedisURI> uris() {
-        List<RedisURI> uris = new ArrayList<>(this.uris);
-        if (uris.isEmpty()) {
-            RedisURI uri = new RedisURI();
-            uri.setHost(host);
-            uri.setPort(port);
+        List<RedisURI> redisURIs = new ArrayList<>();
+        if (ObjectUtils.isEmpty(uris)) {
+            RedisURI uri = RedisURI.create(host, port);
             uri.setSocket(socket);
             uri.setSsl(tls);
-            uris.add(uri);
+            redisURIs.add(uri);
+        } else {
+            redisURIs.addAll(this.uris);
         }
-        for (RedisURI uri : uris) {
+        for (RedisURI uri : redisURIs) {
             uri.setVerifyPeer(verifyPeer);
             if (username != null) {
                 uri.setUsername(username);
@@ -113,7 +112,7 @@ public class RedisOptions {
                 uri.setClientName(clientName);
             }
         }
-        return uris;
+        return redisURIs;
     }
 
     private ClientResources clientResources() {
@@ -167,4 +166,12 @@ public class RedisOptions {
         return config;
     }
 
+    public AbstractRedisClient client() {
+        if (cluster) {
+            log.info("Creating Redis cluster client: {}", this);
+            return redisClusterClient();
+        }
+        log.info("Creating Redis client: {}", this);
+        return redisClient();
+    }
 }

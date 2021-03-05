@@ -10,6 +10,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
 
+import javax.sql.DataSource;
 import java.util.Map;
 
 @Slf4j
@@ -23,10 +24,13 @@ public class DatabaseExportCommand extends AbstractExportCommand<Map<String, Obj
 
     @Override
     protected Flow flow() throws Exception {
+        log.info("Creating data source: {}", dataSourceOptions);
+        DataSource dataSource = dataSourceOptions.dataSource();
+        String name = dataSource.getConnection().getMetaData().getDatabaseProductName();
+        log.info("Creating {} database writer: {}", name, exportOptions);
         JdbcBatchItemWriterBuilder<Map<String, Object>> builder = new JdbcBatchItemWriterBuilder<>();
         builder.itemSqlParameterSourceProvider(MapSqlParameterSource::new);
-        log.info("Creating data source {}", dataSourceOptions);
-        builder.dataSource(dataSourceOptions.dataSource());
+        builder.dataSource(dataSource);
         builder.sql(exportOptions.getSql());
         builder.assertUpdates(exportOptions.isAssertUpdates());
         JdbcBatchItemWriter<Map<String, Object>> writer = builder.build();

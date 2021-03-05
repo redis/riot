@@ -12,12 +12,12 @@ import org.springframework.batch.item.file.separator.RecordSeparatorPolicy;
 import org.springframework.batch.item.file.transform.AbstractLineTokenizer;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.batch.item.file.transform.FixedLengthTokenizer;
-import org.springframework.batch.item.file.transform.Range;
 import org.springframework.batch.item.json.JsonItemReader;
 import org.springframework.batch.item.support.AbstractItemStreamItemReader;
 import org.springframework.batch.item.xml.XmlItemReader;
 import org.springframework.core.io.Resource;
 import org.springframework.util.Assert;
+import org.springframework.util.ObjectUtils;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -40,15 +40,15 @@ public class KeyValueFileImportCommand extends AbstractFileImportCommand<Map<Str
                 DelimitedLineTokenizer tokenizer = new DelimitedLineTokenizer();
                 tokenizer.setDelimiter(options.delimiter(file));
                 tokenizer.setQuoteCharacter(options.getQuoteCharacter());
-                if (!options.getIncludedFields().isEmpty()) {
-                    tokenizer.setIncludedFields(options.getIncludedFields().stream().mapToInt(i -> i).toArray());
+                if (!ObjectUtils.isEmpty(options.getIncludedFields())) {
+                    tokenizer.setIncludedFields(options.getIncludedFields());
                 }
                 log.info("Creating delimited reader with {} for file {}", options, file);
                 return flatFileReader(resource, tokenizer);
             case FIXED:
                 FixedLengthTokenizer fixedLengthTokenizer = new FixedLengthTokenizer();
                 Assert.notEmpty(options.getColumnRanges(), "Column ranges are required");
-                fixedLengthTokenizer.setColumns(options.getColumnRanges().toArray(new Range[0]));
+                fixedLengthTokenizer.setColumns(options.getColumnRanges());
                 log.info("Creating fixed-width reader with {} for file {}", options, file);
                 return flatFileReader(resource, fixedLengthTokenizer);
             case JSON:
@@ -67,7 +67,9 @@ public class KeyValueFileImportCommand extends AbstractFileImportCommand<Map<Str
     }
 
     private FlatFileItemReader<Map<String, Object>> flatFileReader(Resource resource, AbstractLineTokenizer tokenizer) {
-        tokenizer.setNames(options.getNames().toArray(new String[0]));
+        if (!ObjectUtils.isEmpty(options.getNames())) {
+            tokenizer.setNames(options.getNames());
+        }
         FlatFileItemReaderBuilder<Map<String, Object>> builder = new FlatFileItemReaderBuilder<>();
         builder.resource(resource);
         builder.encoding(getFileOptions().getEncoding());

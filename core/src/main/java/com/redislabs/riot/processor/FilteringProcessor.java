@@ -15,7 +15,7 @@ public class FilteringProcessor implements ItemProcessor<Map<String, Object>, Ma
     private final StandardEvaluationContext context;
     private final List<Expression> expressions;
 
-    public FilteringProcessor(List<String> filters) {
+    public FilteringProcessor(String... filters) {
         this.context = new StandardEvaluationContext();
         context.setPropertyAccessors(Collections.singletonList(new MapAccessor()));
         SpelExpressionParser parser = new SpelExpressionParser();

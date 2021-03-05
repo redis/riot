@@ -6,26 +6,33 @@ import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.item.support.AbstractItemStreamItemReader;
 import org.springframework.core.io.Resource;
+import org.springframework.util.ObjectUtils;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
 @Command
 public abstract class AbstractFileImportCommand<T> extends AbstractImportCommand<T, T> {
 
+    @SuppressWarnings("unused")
     @CommandLine.Parameters(arity = "1..*", description = "One ore more files or URLs", paramLabel = "FILE")
-    private String[] files = new String[0];
+    private String[] files;
     @Getter
     @CommandLine.Mixin
     private FileOptions fileOptions = FileOptions.builder().build();
 
     @Override
     protected Flow flow() throws Exception {
-        String[] expandedFiles = FileUtils.expand(files);
-        if (expandedFiles.length == 0) {
+        List<String> expandedFiles = FileUtils.expand(files);
+        if (ObjectUtils.isEmpty(expandedFiles)) {
             throw new FileNotFoundException("File not found: " + String.join(", ", files));
         }
         List<Step> steps = new ArrayList<>();

@@ -18,9 +18,11 @@ import org.springframework.batch.item.redis.support.DataStructure;
 import org.springframework.batch.item.support.AbstractItemStreamItemReader;
 import org.springframework.batch.item.xml.XmlItemReader;
 import org.springframework.core.io.Resource;
+import org.springframework.util.ObjectUtils;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
+import java.io.FileNotFoundException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +40,10 @@ public class DataStructureFileImportCommand extends AbstractTransferCommand<Data
 
     @Override
     protected Flow flow() throws Exception {
-        String[] expandedFiles = FileUtils.expand(files);
+        List<String> expandedFiles = FileUtils.expand(files);
+        if (ObjectUtils.isEmpty(expandedFiles)) {
+            throw new FileNotFoundException("File not found: " + String.join(", ", files));
+        }
         List<Step> steps = new ArrayList<>();
         DataStructureItemProcessor processor = new DataStructureItemProcessor();
         for (String file : expandedFiles) {

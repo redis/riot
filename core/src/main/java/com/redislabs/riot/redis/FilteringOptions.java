@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.util.ObjectUtils;
 import picocli.CommandLine;
 
 import java.util.Map;
@@ -17,21 +18,23 @@ import java.util.Map;
 @NoArgsConstructor
 public class FilteringOptions {
 
-    @Builder.Default
     @CommandLine.Option(arity = "1..*", names = "--include", description = "Name(s) of fields to include", paramLabel = "<field>")
-    private String[] includes = new String[0];
-    @Builder.Default
+    private String[] includes;
     @CommandLine.Option(arity = "1..*", names = "--exclude", description = "Name(s) of fields to exclude", paramLabel = "<field>")
-    private String[] excludes = new String[0];
+    private String[] excludes;
 
     public Converter<Map<String, Object>, Map<String, String>> converter() {
         MapFlattener<String> mapFlattener = new MapFlattener<>(new ObjectToStringConverter());
-        if (includes.length == 0 && excludes.length == 0) {
+        if (ObjectUtils.isEmpty(includes) && ObjectUtils.isEmpty(excludes)) {
             return mapFlattener;
         }
         MapFilteringConverter.MapFilteringConverterBuilder<String, Object> filtering = MapFilteringConverter.builder();
-        filtering.includes(includes);
-        filtering.excludes(excludes);
+        if (!ObjectUtils.isEmpty(includes)) {
+            filtering.includes(includes);
+        }
+        if (!ObjectUtils.isEmpty(excludes)) {
+            filtering.excludes(excludes);
+        }
         return new CompositeConverter(mapFlattener, filtering.build());
     }
 

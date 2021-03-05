@@ -233,8 +233,10 @@ public class FileUtils {
         return xmlReaderBuilder.build();
     }
 
-
-    public static String[] expand(String... files) throws IOException {
+    public static List<String> expand(String... files) throws IOException {
+        if (files == null) {
+            return null;
+        }
         List<String> expandedFiles = new ArrayList<>();
         for (String file : files) {
             if (isFile(file)) {
@@ -254,7 +256,7 @@ public class FileUtils {
                 expandedFiles.add(file);
             }
         }
-        return expandedFiles.toArray(new String[0]);
+        return expandedFiles;
     }
 
 }

@@ -13,6 +13,7 @@ import org.springframework.boot.autoconfigure.kafka.KafkaProperties.Consumer;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties.Producer;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.kafka.support.serializer.JsonSerializer;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.unit.DataSize;
 import picocli.CommandLine.Option;
 
@@ -36,9 +37,8 @@ public class KafkaOptions {
     @Getter
     @Option(names = "--schema-registry-url", description = "Schema registry URL", paramLabel = "<url>")
     private String schemaRegistryUrl;
-    @Builder.Default
     @Option(names = {"-p", "--property"}, arity = "1..*", description = "Additional consumer properties", paramLabel = "<name=value>")
-    private Map<String, String> properties = new HashMap<>();
+    private Map<String, String> properties;
     @Builder.Default
     @Option(names = "--serde", description = "Serializer/Deserializer: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})", paramLabel = "<serde>")
     private SerDe serde = SerDe.JSON;
@@ -63,7 +63,9 @@ public class KafkaOptions {
         if (schemaRegistryUrl != null) {
             properties.put(AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, schemaRegistryUrl);
         }
-        properties.putAll(this.properties);
+        if (!ObjectUtils.isEmpty(this.properties)) {
+            properties.putAll(this.properties);
+        }
         return properties;
     }
 

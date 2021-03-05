@@ -10,6 +10,7 @@ import io.lettuce.core.StreamMessage;
 import io.lettuce.core.XReadArgs.StreamOffset;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.cluster.api.StatefulRedisClusterConnection;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.flow.Flow;
@@ -18,6 +19,8 @@ import org.springframework.batch.item.redis.StreamItemReader;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.util.Assert;
+import org.springframework.util.ObjectUtils;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -25,19 +28,19 @@ import picocli.CommandLine.Parameters;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
+@Slf4j
 @Command(name = "export", description = "Import Redis streams into Kafka topics")
 public class StreamExportCommand extends AbstractTransferCommand<StreamMessage<String, String>, ProducerRecord<String, Object>> {
 
     @SuppressWarnings("unused")
     @Parameters(arity = "1..*", description = "One ore more streams to read from", paramLabel = "STREAM")
-    private List<String> streams;
+    private String[] streams;
     @CommandLine.Mixin
     private KafkaOptions options = KafkaOptions.builder().build();
     @CommandLine.Mixin
     private FlushingTransferOptions flushingOptions = FlushingTransferOptions.builder().build();
-    @Option(names = "--block", description = "XREAD block time in millis (default: ${DEFAULT-VALUE})", hidden = true, paramLabel = "<ms>")
-    private long block = 100;
     @Option(names = "--offset", description = "XREAD offset (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
     private String offset = "0-0";
     @SuppressWarnings("unused")
@@ -46,6 +49,7 @@ public class StreamExportCommand extends AbstractTransferCommand<StreamMessage<S
 
     @Override
     protected Flow flow() {
+        Assert.isTrue(!ObjectUtils.isEmpty(streams), "No stream specified");
         List<Step> steps = new ArrayList<>();
         for (String stream : streams) {
             StepBuilder<StreamMessage<String, String>, ProducerRecord<String, Object>> step = stepBuilder(stream + "-stream-export-step", "Exporting from " + stream);
@@ -56,13 +60,17 @@ public class StreamExportCommand extends AbstractTransferCommand<StreamMessage<S
 
     private StreamItemReader<String, String> reader(StreamOffset<String> offset) {
         if (isCluster()) {
+            log.info("Creating cluster stream reader with offset {}", offset);
             return StreamItemReader.builder((StatefulRedisClusterConnection<String, String>) connection).offset(offset).build();
         }
+        log.info("Creating stream reader with offset {}", offset);
         return StreamItemReader.builder((StatefulRedisConnection<String, String>) connection).offset(offset).build();
     }
 
     private KafkaItemWriter<String> writer() {
-        return KafkaItemWriter.<String>builder().kafkaTemplate(new KafkaTemplate<>(new DefaultKafkaProducerFactory<>(options.producerProperties()))).build();
+        Map<String, Object> producerProperties = options.producerProperties();
+        log.info("Creating Kafka writer with producer properties {}", producerProperties);
+        return KafkaItemWriter.<String>builder().kafkaTemplate(new KafkaTemplate<>(new DefaultKafkaProducerFactory<>(producerProperties))).build();
     }
 
     private ItemProcessor<StreamMessage<String, String>, ProducerRecord<String, Object>> processor() {

@@ -4,42 +4,28 @@ import com.redislabs.lettusearch.*;
 import com.redislabs.riot.AbstractImportCommand;
 import com.redislabs.riot.KeyValueProcessingOptions;
 import io.lettuce.core.RedisURI;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.item.ItemProcessor;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
-import picocli.CommandLine.Option;
-import picocli.CommandLine.Parameters;
 
 import java.util.LinkedHashMap;
-import java.util.Locale;
 import java.util.Map;
 
+@Slf4j
 @Command(name = "import", description = "Import generated data")
 public class GenerateCommand extends AbstractImportCommand<Map<String, Object>, Map<String, Object>> {
 
-    @Parameters(description = "SpEL expressions", paramLabel = "SPEL")
-    private Map<String, String> fakerFields = new LinkedHashMap<>();
-    @SuppressWarnings("unused")
-    @Option(names = "--introspect", description = "Use given search index to introspect Faker fields", paramLabel = "<index>")
-    private String fakerIndex;
-    @Option(names = "--locale", description = "Faker locale (default: ${DEFAULT-VALUE})", paramLabel = "<tag>")
-    private Locale locale = Locale.ENGLISH;
-    @SuppressWarnings("unused")
-    @Option(names = "--metadata", description = "Include metadata (index, partition)")
-    private boolean includeMetadata;
-    @Option(names = "--start", description = "Start index (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
-    private long start = 0;
-    @Option(names = "--end", description = "End index (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
-    private long end = 1000;
-    @Option(names = "--sleep", description = "Duration in ms to sleep before each item generation (default: ${DEFAULT-VALUE})", paramLabel = "<ms>")
-    private long sleep = 0;
+    @CommandLine.Mixin
+    private GenerateOptions options = GenerateOptions.builder().build();
     @CommandLine.Mixin
     private KeyValueProcessingOptions processingOptions = KeyValueProcessingOptions.builder().build();
 
     @Override
     protected Flow flow() {
-        FakerItemReader reader = FakerItemReader.builder().locale(locale).includeMetadata(includeMetadata).fields(fakerFields(getRedisURI())).start(start).end(end).sleep(sleep).build();
+        log.info("Creating Faker reader with {}", options);
+        FakerItemReader reader = FakerItemReader.builder().locale(options.getLocale()).includeMetadata(options.isIncludeMetadata()).fields(fakerFields(getRedisURI())).start(options.getStart()).end(options.getEnd()).sleep(options.getSleep()).build();
         return flow(step("generate-step", "Generating", reader).build());
     }
 
@@ -57,14 +43,14 @@ public class GenerateCommand extends AbstractImportCommand<Map<String, Object>, 
     }
 
     private Map<String, String> fakerFields(RedisURI uri) {
-        Map<String, String> fields = new LinkedHashMap<>(fakerFields);
-        if (fakerIndex == null) {
+        Map<String, String> fields = options.getFakerFields() == null ? new LinkedHashMap<>() : new LinkedHashMap<>(options.getFakerFields());
+        if (options.getFakerIndex() == null) {
             return fields;
         }
         RediSearchClient client = RediSearchClient.create(uri);
         try (StatefulRediSearchConnection<String, String> connection = client.connect()) {
             RediSearchCommands<String, String> commands = connection.sync();
-            IndexInfo<String> info = RediSearchUtils.getInfo(commands.ftInfo(fakerIndex));
+            IndexInfo<String> info = RediSearchUtils.getInfo(commands.ftInfo(options.getFakerIndex()));
             for (Field<String> field : info.getFields()) {
                 fields.put(field.getName(), expression(field));
             }

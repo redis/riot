@@ -10,6 +10,7 @@ import io.lettuce.core.XAddArgs;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.api.async.RedisStreamAsyncCommands;
 import io.lettuce.core.cluster.api.StatefulRedisClusterConnection;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.batch.core.Step;
@@ -18,6 +19,8 @@ import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.redis.support.CommandBuilder;
 import org.springframework.batch.item.redis.support.CommandItemWriter;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.util.Assert;
+import org.springframework.util.ObjectUtils;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -26,15 +29,17 @@ import picocli.CommandLine.Parameters;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.function.BiFunction;
 
+@Slf4j
 @Command(name = "import", description = "Import Kafka topics into Redis streams")
 public class StreamImportCommand extends AbstractTransferCommand<ConsumerRecord<String, Object>, ConsumerRecord<String, Object>> {
 
 
     @SuppressWarnings("unused")
     @Parameters(arity = "1..*", description = "One ore more topics to read from", paramLabel = "TOPIC")
-    private List<String> topics;
+    private String[] topics;
     @CommandLine.Mixin
     private KafkaOptions options = KafkaOptions.builder().build();
     @SuppressWarnings("unused")
@@ -51,9 +56,13 @@ public class StreamImportCommand extends AbstractTransferCommand<ConsumerRecord<
 
     @Override
     protected Flow flow() {
+        Assert.isTrue(!ObjectUtils.isEmpty(topics), "No topic specified");
         List<Step> steps = new ArrayList<>();
+        Properties consumerProperties = options.consumerProperties();
+        log.info("Using Kafka consumer properties: {}", consumerProperties);
         for (String topic : topics) {
-            KafkaItemReader<String, Object> reader = new KafkaItemReaderBuilder<String, Object>().partitions(0).consumerProperties(options.consumerProperties()).partitions(0).name(topic).saveState(false).topic(topic).build();
+            log.info("Creating Kafka reader for topic {}", topic);
+            KafkaItemReader<String, Object> reader = new KafkaItemReaderBuilder<String, Object>().partitions(0).consumerProperties(consumerProperties).partitions(0).name(topic).saveState(false).topic(topic).build();
             StepBuilder<ConsumerRecord<String, Object>, ConsumerRecord<String, Object>> step = stepBuilder(topic + "-stream-import-step", "Importing from " + topic);
             steps.add(step.reader(reader).writer(writer()).build().build());
         }
@@ -65,8 +74,10 @@ public class StreamImportCommand extends AbstractTransferCommand<ConsumerRecord<
         XAddArgs xAddArgs = xAddArgs();
         BiFunction<RedisStreamAsyncCommands<String, String>, ConsumerRecord<String, Object>, RedisFuture<?>> command = CommandBuilder.<ConsumerRecord<String, Object>>xadd().keyConverter(keyConverter()).argsConverter(r -> xAddArgs).bodyConverter(bodyConverter()).build();
         if (isCluster()) {
+            log.info("Creating cluster stream writer");
             return CommandItemWriter.<ConsumerRecord<String, Object>>clusterBuilder((GenericObjectPool<StatefulRedisClusterConnection<String, String>>) pool, (BiFunction) command).build();
         }
+        log.info("Creating stream writer");
         return CommandItemWriter.<ConsumerRecord<String, Object>>builder((GenericObjectPool<StatefulRedisConnection<String, String>>) pool, (BiFunction) command).build();
     }
 

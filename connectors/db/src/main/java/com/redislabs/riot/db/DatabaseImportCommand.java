@@ -2,6 +2,7 @@ package com.redislabs.riot.db;
 
 import com.redislabs.riot.AbstractImportCommand;
 import com.redislabs.riot.KeyValueProcessingOptions;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.database.JdbcCursorItemReader;
@@ -13,11 +14,12 @@ import picocli.CommandLine.Mixin;
 import javax.sql.DataSource;
 import java.util.Map;
 
+@Slf4j
 @Command(name = "import", description = "Import from a database")
 public class DatabaseImportCommand extends AbstractImportCommand<Map<String, Object>, Map<String, Object>> {
 
     @Mixin
-    private DataSourceOptions options = DataSourceOptions.builder().build();
+    private DataSourceOptions dataSourceOptions = DataSourceOptions.builder().build();
     @Mixin
     private DatabaseImportOptions importOptions = DatabaseImportOptions.builder().build();
     @Mixin
@@ -25,7 +27,10 @@ public class DatabaseImportCommand extends AbstractImportCommand<Map<String, Obj
 
     @Override
     protected Flow flow() throws Exception {
-        DataSource dataSource = options.dataSource();
+        log.info("Creating data source: {}", dataSourceOptions);
+        DataSource dataSource = dataSourceOptions.dataSource();
+        String name = dataSource.getConnection().getMetaData().getDatabaseProductName();
+        log.info("Creating {} database reader: {}", name, importOptions);
         JdbcCursorItemReaderBuilder<Map<String, Object>> builder = new JdbcCursorItemReaderBuilder<>();
         builder.saveState(false);
         builder.dataSource(dataSource);
@@ -35,7 +40,7 @@ public class DatabaseImportCommand extends AbstractImportCommand<Map<String, Obj
         if (importOptions.getMaxRows() != null) {
             builder.maxRows(importOptions.getMaxRows());
         }
-        builder.name("database-reader");
+        builder.name(name + "-database-reader");
         if (importOptions.getQueryTimeout() != null) {
             builder.queryTimeout(importOptions.getQueryTimeout());
         }
@@ -45,7 +50,6 @@ public class DatabaseImportCommand extends AbstractImportCommand<Map<String, Obj
         builder.verifyCursorPosition(importOptions.isVerifyCursorPosition());
         JdbcCursorItemReader<Map<String, Object>> reader = builder.build();
         reader.afterPropertiesSet();
-        String name = dataSource.getConnection().getMetaData().getDatabaseProductName();
         return flow(step(name + "-db-import-step", "Importing from " + name, reader).build());
     }
 

@@ -2,12 +2,14 @@ package com.redislabs.riot.db;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import picocli.CommandLine.Option;
 
 import javax.sql.DataSource;
 
+@Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
