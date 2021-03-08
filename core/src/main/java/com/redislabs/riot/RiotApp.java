@@ -188,21 +188,35 @@ public class RiotApp extends HelpCommand {
      */
     static class ManifestVersionProvider implements IVersionProvider {
 
-        public String[] getVersion() throws Exception {
-            Enumeration<URL> resources = getClass().getClassLoader().getResources("META-INF/MANIFEST.MF");
-            while (resources.hasMoreElements()) {
-                URL url = resources.nextElement();
-                try {
+        @Override
+        public String[] getVersion() {
+            return new String[]{
+                    // @formatter:off
+                    "",
+                    "      ▀        ▄     @|fg(4;1;1) ██████████████████████████|@",
+                    " █ ██ █  ███  ████   @|fg(4;2;1) ██████████████████████████|@",
+                    " ██   █ █   █  █     @|fg(5;4;1) ██████████████████████████|@",
+                    " █    █ █   █  █     @|fg(1;4;1) ██████████████████████████|@",
+                    " █    █  ███    ██   @|fg(0;3;4) ██████████████████████████|@"+ "  v" + getVersionString(),
+                    ""};
+            // @formatter:on
+        }
+
+        private String getVersionString() {
+            try {
+                Enumeration<URL> resources = getClass().getClassLoader().getResources("META-INF/MANIFEST.MF");
+                while (resources.hasMoreElements()) {
+                    URL url = resources.nextElement();
                     Manifest manifest = new Manifest(url.openStream());
                     if (isApplicableManifest(manifest)) {
                         Attributes attr = manifest.getMainAttributes();
-                        return new String[]{get(attr, "Implementation-Title") + " version \"" + get(attr, "Implementation-Version") + "\""};
+                        return String.valueOf(get(attr, "Implementation-Version"));
                     }
-                } catch (IOException ex) {
-                    return new String[]{"Unable to read from " + url + ": " + ex};
                 }
+            } catch (IOException ex) {
+                // ignore
             }
-            return new String[0];
+            return "N/A";
         }
 
         private boolean isApplicableManifest(Manifest manifest) {
