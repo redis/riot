@@ -443,7 +443,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="header">
 <h1>RIOT Gen</h1>
 <div class="details">
-<span id="revnumber">version 2.6.2</span>
+<span id="revnumber">version 2.6.3</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Contents</div>
@@ -498,9 +498,8 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h4 id="_build_and_run"><a class="anchor" href="#_build_and_run"></a>2.1.2. Build and Run</h4>
 <div class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="source">❯ git clone https://github.com/redis-developer/riot.git
-❯ cd riot/riot-gen
-❯ ./riot-gen</code></pre>
+<pre class="CodeRay highlight"><code data-lang="source">git clone https://github.com/redis-developer/riot.git
+./riot-gen</code></pre>
 </div>
 </div>
 </div>
@@ -515,7 +514,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h3 id="_usage"><a class="anchor" href="#_usage"></a>2.2. Usage</h3>
 <div class="listingblock">
 <div class="content">
-<pre>❯ riot-gen
+<pre>riot-gen
 Usage: riot-gen [OPTIONS] [COMMAND]
       --help                Show this help message and exit.
   -V, --version             Print version information and exit.
@@ -535,13 +534,13 @@ Usage: riot-gen [OPTIONS] [COMMAND]
 <p>You can use <code>--help</code> on any subcommand:</p>
 </div>
 <div class="paragraph">
-<p><code>❯ riot-gen --help</code></p>
+<p><code>riot-gen --help</code></p>
 </div>
 <div class="paragraph">
-<p><code>❯ riot-gen import --help</code></p>
+<p><code>riot-gen import --help</code></p>
 </div>
 <div class="paragraph">
-<p><code>❯ riot-gen import &#8230;&#8203; hset --help</code></p>
+<p><code>riot-gen import &#8230;&#8203; hset --help</code></p>
 </div>
 </td>
 </tr>
@@ -561,9 +560,7 @@ Usage: riot-gen [OPTIONS] [COMMAND]
   -o, --timeout=&lt;sec&gt;       Redis command timeout (default: 60)
   -n, --db=&lt;int&gt;            Database number (default: 0)
   -c, --cluster             Enable cluster mode
-  -t, --tls                 Establish a secure TLS connection
-  -l, --latency             Show latency metrics
-  -m, --pool=&lt;int&gt;          Max pool connections (default: 8)</pre>
+  -t, --tls                 Establish a secure TLS connection</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -659,13 +656,13 @@ Usage: riot-gen [OPTIONS] [COMMAND]
 <div class="listingblock">
 <div class="title">Generating hashes</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="shell">❯ riot-gen -h localhost -p 6379 import id=#index firstName=name.firstName lastName=name.lastName address=address.fullAddress hset --keyspace person --keys id</code></pre>
+<pre class="CodeRay highlight"><code data-lang="shell">Unresolved directive in riot-gen.adoc - include::../connectors/gen/src/test/resources/import-hset.txt[]</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="title">Generating sets</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="shell">❯ riot-gen import name=gameOfThrones.character --max 10000 sadd --members name --keyspace got:characters</code></pre>
+<pre class="CodeRay highlight"><code data-lang="shell">Unresolved directive in riot-gen.adoc - include::../connectors/gen/src/test/resources/import-sadd.txt[]</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -673,15 +670,15 @@ Usage: riot-gen [OPTIONS] [COMMAND]
 </div>
 <div class="paragraph">
 <div class="title">Import into hashes</div>
-<p><code>❯ riot-gen import &#8230;&#8203; hset --keyspace blah --keys id</code></p>
+<p><code>riot-gen import &#8230;&#8203; hset --keyspace blah --keys id</code></p>
 </div>
 <div class="paragraph">
 <div class="title">Import into hashes <strong>and</strong> set TTL on the key</div>
-<p><code>❯ riot-gen import &#8230;&#8203; hset --keyspace blah --keys id expire --keyspace blah --keys id</code></p>
+<p><code>riot-gen import &#8230;&#8203; hset --keyspace blah --keys id expire --keyspace blah --keys id</code></p>
 </div>
 <div class="paragraph">
 <div class="title">Import into hashes <strong>and</strong> set TTL <strong>and</strong> add to a set named <code>myset</code></div>
-<p><code>❯ riot-gen import &#8230;&#8203; hset --keyspace blah --keys id expire --keyspace blah --keys id sadd --keyspace myset --members id</code></p>
+<p><code>riot-gen import &#8230;&#8203; hset --keyspace blah --keys id expire --keyspace blah --keys id sadd --keyspace myset --members id</code></p>
 </div>
 </div>
 </div>
@@ -691,7 +688,7 @@ Usage: riot-gen [OPTIONS] [COMMAND]
 <div class="listingblock">
 <div class="title">Introspect RediSearch index</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="shell">❯ riot-gen import --introspect beerIntrospection hset --keyspace beer --keys id</code></pre>
+<pre class="CodeRay highlight"><code data-lang="shell">Unresolved directive in riot-gen.adoc - include::../connectors/gen/src/test/resources/index-introspection.txt[]</code></pre>
 </div>
 </div>
 </div>
@@ -936,7 +933,7 @@ Usage: riot-gen [OPTIONS] [COMMAND]
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 2.6.2<br>
+Version 2.6.3<br>
 Last updated 2021-03-03 08:46:46 -0800
 </div>
 </div>

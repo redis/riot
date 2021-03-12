@@ -443,7 +443,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="header">
 <h1>RIOT Stream</h1>
 <div class="details">
-<span id="revnumber">version 2.6.2</span>
+<span id="revnumber">version 2.6.3</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Contents</div>
@@ -488,9 +488,8 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h4 id="_build_and_run"><a class="anchor" href="#_build_and_run"></a>2.1.2. Build and Run</h4>
 <div class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="source">❯ git clone https://github.com/redis-developer/riot.git
-❯ cd riot/riot-stream
-❯ ./riot-stream</code></pre>
+<pre class="CodeRay highlight"><code data-lang="source">git clone https://github.com/redis-developer/riot.git
+./riot-stream</code></pre>
 </div>
 </div>
 </div>
@@ -505,7 +504,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h3 id="_usage"><a class="anchor" href="#_usage"></a>2.2. Usage</h3>
 <div class="listingblock">
 <div class="content">
-<pre>❯ riot-stream
+<pre>riot-stream
 Usage: riot-stream [OPTIONS] [COMMAND]
       --help                Show this help message and exit.
   -V, --version             Print version information and exit.
@@ -525,13 +524,13 @@ Usage: riot-stream [OPTIONS] [COMMAND]
 <p>You can use <code>--help</code> on any subcommand:</p>
 </div>
 <div class="paragraph">
-<p><code>❯ riot-stream --help</code></p>
+<p><code>riot-stream --help</code></p>
 </div>
 <div class="paragraph">
-<p><code>❯ riot-stream import --help</code></p>
+<p><code>riot-stream import --help</code></p>
 </div>
 <div class="paragraph">
-<p><code>❯ riot-stream import &#8230;&#8203; hset --help</code></p>
+<p><code>riot-stream import &#8230;&#8203; hset --help</code></p>
 </div>
 </td>
 </tr>
@@ -551,9 +550,7 @@ Usage: riot-stream [OPTIONS] [COMMAND]
   -o, --timeout=&lt;sec&gt;       Redis command timeout (default: 60)
   -n, --db=&lt;int&gt;            Database number (default: 0)
   -c, --cluster             Enable cluster mode
-  -t, --tls                 Establish a secure TLS connection
-  -l, --latency             Show latency metrics
-  -m, --pool=&lt;int&gt;          Max pool connections (default: 8)</pre>
+  -t, --tls                 Establish a secure TLS connection</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -578,7 +575,7 @@ Usage: riot-stream [OPTIONS] [COMMAND]
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="shell">❯ riot-stream -h localhost -p 6379 import topic1 --broker localhost:9092</code></pre>
+<pre class="CodeRay highlight"><code data-lang="shell">Unresolved directive in riot-stream.adoc - include::../connectors/stream/src/test/resources/import.txt[]</code></pre>
 </div>
 </div>
 </div>
@@ -591,7 +588,7 @@ Usage: riot-stream [OPTIONS] [COMMAND]
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="shell">❯ riot-stream -h localhost -p 6379 export stream1 --idle-timeout 500 --broker localhost:9092</code></pre>
+<pre class="CodeRay highlight"><code data-lang="shell">Unresolved directive in riot-stream.adoc - include::../connectors/stream/src/test/resources/export.txt[]</code></pre>
 </div>
 </div>
 </div>
@@ -599,7 +596,7 @@ Usage: riot-stream [OPTIONS] [COMMAND]
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 2.6.2<br>
+Version 2.6.3<br>
 Last updated 2020-12-06 09:53:52 -0800
 </div>
 </div>

@@ -443,7 +443,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="header">
 <h1>RIOT File</h1>
 <div class="details">
-<span id="revnumber">version 2.6.2</span>
+<span id="revnumber">version 2.6.3</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Contents</div>
@@ -502,9 +502,8 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h4 id="_build_and_run"><a class="anchor" href="#_build_and_run"></a>2.1.2. Build and Run</h4>
 <div class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="source">❯ git clone https://github.com/redis-developer/riot.git
-❯ cd riot/riot-file
-❯ ./riot-file</code></pre>
+<pre class="CodeRay highlight"><code data-lang="source">git clone https://github.com/redis-developer/riot.git
+./riot-file</code></pre>
 </div>
 </div>
 </div>
@@ -519,7 +518,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h3 id="_usage"><a class="anchor" href="#_usage"></a>2.2. Usage</h3>
 <div class="listingblock">
 <div class="content">
-<pre>❯ riot-file
+<pre>riot-file
 Usage: riot-file [OPTIONS] [COMMAND]
       --help                Show this help message and exit.
   -V, --version             Print version information and exit.
@@ -539,13 +538,13 @@ Usage: riot-file [OPTIONS] [COMMAND]
 <p>You can use <code>--help</code> on any subcommand:</p>
 </div>
 <div class="paragraph">
-<p><code>❯ riot-file --help</code></p>
+<p><code>riot-file --help</code></p>
 </div>
 <div class="paragraph">
-<p><code>❯ riot-file import --help</code></p>
+<p><code>riot-file import --help</code></p>
 </div>
 <div class="paragraph">
-<p><code>❯ riot-file import &#8230;&#8203; hset --help</code></p>
+<p><code>riot-file import &#8230;&#8203; hset --help</code></p>
 </div>
 </td>
 </tr>
@@ -565,9 +564,7 @@ Usage: riot-file [OPTIONS] [COMMAND]
   -o, --timeout=&lt;sec&gt;       Redis command timeout (default: 60)
   -n, --db=&lt;int&gt;            Database number (default: 0)
   -c, --cluster             Enable cluster mode
-  -t, --tls                 Establish a secure TLS connection
-  -l, --latency             Show latency metrics
-  -m, --pool=&lt;int&gt;          Max pool connections (default: 8)</pre>
+  -t, --tls                 Establish a secure TLS connection</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -589,15 +586,15 @@ Usage: riot-file [OPTIONS] [COMMAND]
 </div>
 <div class="paragraph">
 <div class="title">Import into hashes</div>
-<p><code>❯ riot-file import &#8230;&#8203; hset --keyspace blah --keys id</code></p>
+<p><code>riot-file import &#8230;&#8203; hset --keyspace blah --keys id</code></p>
 </div>
 <div class="paragraph">
 <div class="title">Import into hashes <strong>and</strong> set TTL on the key</div>
-<p><code>❯ riot-file import &#8230;&#8203; hset --keyspace blah --keys id expire --keyspace blah --keys id</code></p>
+<p><code>riot-file import &#8230;&#8203; hset --keyspace blah --keys id expire --keyspace blah --keys id</code></p>
 </div>
 <div class="paragraph">
 <div class="title">Import into hashes <strong>and</strong> set TTL <strong>and</strong> add to a set named <code>myset</code></div>
-<p><code>❯ riot-file import &#8230;&#8203; hset --keyspace blah --keys id expire --keyspace blah --keys id sadd --keyspace myset --members id</code></p>
+<p><code>riot-file import &#8230;&#8203; hset --keyspace blah --keys id expire --keyspace blah --keys id sadd --keyspace myset --members id</code></p>
 </div>
 </div>
 <div class="sect2">
@@ -732,7 +729,8 @@ Use <code>-</code> to read from standard input.
 <div class="listingblock">
 <div class="title">CSV import example</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="shell">❯ riot-file -h localhost -p 6379 import https://redis-developer.github.io/riot/beers.csv --header hset --keyspace beer --keys id</code></pre>
+<pre class="CodeRay highlight"><code data-lang="shell">&gt;
+Unresolved directive in riot-file.adoc - include::../connectors/file/src/test/resources/import-hset[]</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -741,7 +739,7 @@ Use <code>-</code> to read from standard input.
 <div class="listingblock">
 <div class="title">CSV import to geo set</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="shell">❯ riot-file import https://redis-developer.github.io/riot/airports.csv --header --skip-limit 1 geoadd --keyspace airportgeo --members AirportID --lon Longitude --lat Latitude</code></pre>
+<pre class="CodeRay highlight"><code data-lang="shell">Unresolved directive in riot-file.adoc - include::../connectors/file/src/test/resources/delimited/import-geoadd[]</code></pre>
 </div>
 </div>
 </div>
@@ -772,7 +770,7 @@ Use <code>-</code> to read from standard input.
 <div class="listingblock">
 <div class="title">JSON import example</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="shell">❯ riot-file import https://redis-developer.github.io/riot/beers.json hset --keyspace beer --keys id</code></pre>
+<pre class="CodeRay highlight"><code data-lang="shell">Unresolved directive in riot-file.adoc - include::../connectors/file/src/test/resources/json/import-hset.txt[]</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -852,7 +850,7 @@ field[2]=3</pre>
 <div class="listingblock">
 <div class="title">XML import example</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="shell">❯ riot-file import https://redis-developer.github.io/riot/trades.xml hset --keyspace trade --keys id</code></pre>
+<pre class="CodeRay highlight"><code data-lang="shell">Unresolved directive in riot-file.adoc - include::../connectors/file/src/test/resources/xml/import-hset.txt[]</code></pre>
 </div>
 </div>
 </div>
@@ -961,7 +959,7 @@ field[2]=3</pre>
 <div class="listingblock">
 <div class="title">Redis JSON import example</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="shell">❯ riot-file import-dump /tmp/redis.json</code></pre>
+<pre class="CodeRay highlight"><code data-lang="shell">Unresolved directive in riot-file.adoc - include::../connectors/file/src/test/resources/json/import.txt[]</code></pre>
 </div>
 </div>
 </div>
@@ -977,7 +975,7 @@ field[2]=3</pre>
 <div class="listingblock">
 <div class="title">Compressed JSON export example</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="shell">❯ riot-file export /tmp/beers.json.gz --scan-match beer:*</code></pre>
+<pre class="CodeRay highlight"><code data-lang="shell">Unresolved directive in riot-file.adoc - include::../connectors/file/src/test/resources/json/export-gzip.txt[]</code></pre>
 </div>
 </div>
 </div>
@@ -986,7 +984,7 @@ field[2]=3</pre>
 <div class="listingblock">
 <div class="title">XML export example</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="shell">❯ riot-file export /tmp/redis.xml</code></pre>
+<pre class="CodeRay highlight"><code data-lang="shell">Unresolved directive in riot-file.adoc - include::../connectors/file/src/test/resources/xml/export.txt[]</code></pre>
 </div>
 </div>
 </div>
@@ -995,8 +993,8 @@ field[2]=3</pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 2.6.2<br>
-Last updated 2021-03-03 08:46:46 -0800
+Version 2.6.3<br>
+Last updated 2021-03-12 14:02:46 -0800
 </div>
 </div>
 <style>

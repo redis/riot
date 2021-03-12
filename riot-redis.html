@@ -443,7 +443,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="header">
 <h1>RIOT Redis</h1>
 <div class="details">
-<span id="revnumber">version 2.6.2</span>
+<span id="revnumber">version 2.6.3</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Contents</div>
@@ -453,11 +453,16 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <ul class="sectlevel2">
 <li><a href="#_install">2.1. Install</a></li>
 <li><a href="#_usage">2.2. Usage</a></li>
+<li><a href="#_replicating">2.3. Replicating</a></li>
+<li><a href="#_verification">2.4. Verification</a></li>
 </ul>
 </li>
-<li><a href="#_example">3. Example</a></li>
-<li><a href="#_verification">4. Verification</a></li>
-<li><a href="#_architecture">5. Architecture</a></li>
+<li><a href="#_architecture">3. Architecture</a>
+<ul class="sectlevel2">
+<li><a href="#_producer">3.1. Producer</a></li>
+<li><a href="#_consumer">3.2. Consumer</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </div>
@@ -500,9 +505,8 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h4 id="_build_and_run"><a class="anchor" href="#_build_and_run"></a>2.1.2. Build and Run</h4>
 <div class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="source">❯ git clone https://github.com/redis-developer/riot.git
-❯ cd riot/riot-redis
-❯ ./riot-redis</code></pre>
+<pre class="CodeRay highlight"><code data-lang="source">git clone https://github.com/redis-developer/riot.git
+./riot-redis</code></pre>
 </div>
 </div>
 </div>
@@ -517,7 +521,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h3 id="_usage"><a class="anchor" href="#_usage"></a>2.2. Usage</h3>
 <div class="listingblock">
 <div class="content">
-<pre>❯ riot-redis
+<pre>riot-redis
 Usage: riot-redis [OPTIONS] [COMMAND]
       --help                Show this help message and exit.
   -V, --version             Print version information and exit.
@@ -537,13 +541,13 @@ Usage: riot-redis [OPTIONS] [COMMAND]
 <p>You can use <code>--help</code> on any subcommand:</p>
 </div>
 <div class="paragraph">
-<p><code>❯ riot-redis --help</code></p>
+<p><code>riot-redis --help</code></p>
 </div>
 <div class="paragraph">
-<p><code>❯ riot-redis import --help</code></p>
+<p><code>riot-redis import --help</code></p>
 </div>
 <div class="paragraph">
-<p><code>❯ riot-redis import &#8230;&#8203; hset --help</code></p>
+<p><code>riot-redis import &#8230;&#8203; hset --help</code></p>
 </div>
 </td>
 </tr>
@@ -563,35 +567,77 @@ Usage: riot-redis [OPTIONS] [COMMAND]
   -o, --timeout=&lt;sec&gt;       Redis command timeout (default: 60)
   -n, --db=&lt;int&gt;            Database number (default: 0)
   -c, --cluster             Enable cluster mode
-  -t, --tls                 Establish a secure TLS connection
-  -l, --latency             Show latency metrics
-  -m, --pool=&lt;int&gt;          Max pool connections (default: 8)</pre>
+  -t, --tls                 Establish a secure TLS connection</pre>
 </div>
 </div>
 <div class="paragraph">
 <p>Redis URI syntax is described <a href="https://github.com/lettuce-io/lettuce-core/wiki/Redis-URI-and-connection-details#uri-syntax">here</a>.</p>
 </div>
 </div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_example"><a class="anchor" href="#_example"></a>3. Example</h2>
-<div class="sectionbody">
+<div class="sect2">
+<h3 id="_replicating"><a class="anchor" href="#_replicating"></a>2.3. Replicating</h3>
 <div class="paragraph">
-<p>Here is an example of a live replication from a source Redis running on localhost and port 6379, to a target Redis running on localhost and port 6380:</p>
+<p>The replication process takes data from a source Redis database and replicates it into a target Redis database. The general usage is:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="shell">❯ riot-redis -h source -p 6379 replicate --idle-timeout 500 -h target -p 6380 --live</code></pre>
+<pre class="CodeRay highlight"><code data-lang="shell">riot-redis -h &lt;src host&gt; -p &lt;src port&gt; replicate -h &lt;dest host&gt; -p &lt;dest port&gt; ...</code></pre>
 </div>
 </div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_verification"><a class="anchor" href="#_verification"></a>4. Verification</h2>
-<div class="sectionbody">
 <div class="paragraph">
-<p>Once replication is complete <strong>RIOT Redis</strong> will perform a verification step to compare values and TTLs between source and target databases. The output looks like this:</p>
+<p>Run <code>riot-redis replicate --help</code> for the complete usage help:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="shell">riot-redis replicate --help
+Usage: riot-redis replicate [OPTIONS]
+Replicate a source Redis database to a target Redis database
+  -H, --help                 Show this help message and exit.
+      --[no-]progress        Show progress bars. True by default.
+      --threads=&lt;int&gt;        Thread count (default: 1).
+  -b, --batch=&lt;size&gt;         Number of items in each batch (default: 50).
+      --max=&lt;count&gt;          Max number of items to read.
+      --skip-limit=&lt;int&gt;     Max number of failed items to skip before the transfer fails (default: 0).
+      --live                 Enable live replication.
+      --flush-interval=&lt;ms&gt;  Max duration between flushes (default: 50).
+      --idle-timeout=&lt;ms&gt;    Min duration of inactivity to consider transfer complete.
+      --event-queue=&lt;size&gt;   Capacity of the keyspace notification event queue (default: 1000).
+      --[no-]verify          Verify target against source dataset after replication. True by default.
+      --ttl-tolerance=&lt;sec&gt;  Max TTL difference to use for dataset verification (default: 1).
+Target Redis connection options
+  -h, --hostname=&lt;host&gt;      Server hostname (default: localhost).
+  -p, --port=&lt;port&gt;          Server port (default: 6379).
+  -s, --socket=&lt;socket&gt;      Server socket (overrides hostname and port).
+      --user=&lt;username&gt;      Used to send ACL style 'AUTH username pass'. Needs password.
+  -a, --pass[=&lt;password&gt;]    Password to use when connecting to the server.
+  -u, --uri[=&lt;uri&gt;...]       Server URI.
+      --timeout=&lt;sec&gt;        Redis command timeout (default: 60).
+  -n, --db=&lt;db&gt;              Database number (default: 0).
+  -c, --cluster              Enable cluster mode.
+      --tls                  Establish a secure TLS connection.
+      --[no-]verify-peer     Verify peers when using TLS. True by default.
+      --latency              Show latency metrics.
+      --pool-max=&lt;int&gt;       Max pool connections (default: 8).
+      --client=&lt;clientName&gt;  Client name used to connect to Redis.
+Source Redis reader options
+      --scan-count=&lt;int&gt;     SCAN COUNT option (default: 1000).
+      --scan-match=&lt;glob&gt;    SCAN MATCH pattern (default: *).
+      --reader-queue=&lt;int&gt;   Capacity of the reader queue (default: 1000).
+      --reader-threads=&lt;int&gt; Number of reader threads (default: 1).
+      --reader-batch=&lt;int&gt;   Number of reader values to process at once (default: 50).</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Example: live replication</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="shell">riot-redis -h source -p 6379 replicate --live -h target -p 6380</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_verification"><a class="anchor" href="#_verification"></a>2.4. Verification</h3>
+<div class="paragraph">
+<p>Once replication is complete (i.e. for snapshot replication when scan is complete, for live replication when no keyspace notification idle) <strong>RIOT Redis</strong> will perform a verification step to compare values and TTLs between source and target databases. The output looks like this:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -619,21 +665,12 @@ Usage: riot-redis [OPTIONS] [COMMAND]
 </div>
 </div>
 </div>
+</div>
 <div class="sect1">
-<h2 id="_architecture"><a class="anchor" href="#_architecture"></a>5. Architecture</h2>
+<h2 id="_architecture"><a class="anchor" href="#_architecture"></a>3. Architecture</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p><strong>RIOT Redis</strong> implements client-side replication using a producer/consumer approach:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>the producer is connected to the source Redis (e.g. ElastiCache) and iterates over keys to read their corresponding values</p>
-</li>
-<li>
-<p>the consumer is connected to the target Redis (e.g. Redis Enterprise Cloud) and writes the key/value tuples previously created</p>
-</li>
-</ul>
 </div>
 <div class="imageblock">
 <div class="content">
@@ -656,6 +693,14 @@ Usage: riot-redis [OPTIONS] [COMMAND]
 </tr>
 </table>
 </div>
+<div class="sect2">
+<h3 id="_producer"><a class="anchor" href="#_producer"></a>3.1. Producer</h3>
+<div class="paragraph">
+<p>The producer is connected to the source Redis (e.g. ElastiCache) database and iterates over keys to be replicated by performing a SCAN and reading the corresponding values with DUMP. This is the snapshot part of the replication process.</p>
+</div>
+<div class="paragraph">
+<p>If live replication is enabled the producer also subscribes to keyspace notifications to generate a continuous stream of keys and corresponding values.</p>
+</div>
 <div class="admonitionblock tip">
 <table>
 <tr>
@@ -663,7 +708,7 @@ Usage: riot-redis [OPTIONS] [COMMAND]
 <i class="fa icon-tip" title="Tip"></i>
 </td>
 <td class="content">
-Live replication makes use of keyspace notifications. Make sure the source Redis database has keyspace notifications enabled using <code>notify-keyspace-events = KA</code> in <code>redis.conf</code> or via CONFIG SET.
+Make sure the source Redis database has keyspace notifications enabled using <code>notify-keyspace-events = KA</code> in <code>redis.conf</code> or via CONFIG SET.
 </td>
 </tr>
 </table>
@@ -680,13 +725,29 @@ The live replication mechanism does not guarantee data consistency. Redis sends 
 </tr>
 </table>
 </div>
+<div class="paragraph">
+<p>Both snapshot and live producer processes make use of <a href="https://redis.io/topics/pipelining">pipelining</a> in order to read values in a batch fashion. Use the <code>--reader-batch</code> option to configure the number of values to be read in a single pipelined call. Each process can be multi-threaded using the <code>--reader-threads</code> option.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_consumer"><a class="anchor" href="#_consumer"></a>3.2. Consumer</h3>
+<div class="paragraph">
+<p>The consumer is responsible for ingesting the keys and values generated by the producer and writing them to the target Redis database (e.g. Redis Enterprise Cloud). For each key/value pair it issues a RESTORE command.</p>
+</div>
+<div class="paragraph">
+<p>The consumer process also makes use of <a href="https://redis.io/topics/pipelining">pipelining</a> in order to write values in a batch fashion. Use the <code>--batch</code> option to configure the number of values to be written in a single pipelined call.</p>
+</div>
+<div class="paragraph">
+<p>Like the consumer the producer process can be multi-threaded, using the <code>--threads</code> option.</p>
+</div>
+</div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 2.6.2<br>
-Last updated 2021-01-10 23:59:19 -0800
+Version 2.6.3<br>
+Last updated 2021-03-12 14:22:57 -0800
 </div>
 </div>
 <style>

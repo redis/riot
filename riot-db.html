@@ -443,7 +443,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="header">
 <h1>RIOT DB</h1>
 <div class="details">
-<span id="revnumber">version 2.6.2</span>
+<span id="revnumber">version 2.6.3</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Contents</div>
@@ -492,9 +492,8 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h4 id="_build_and_run"><a class="anchor" href="#_build_and_run"></a>2.1.2. Build and Run</h4>
 <div class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="source">❯ git clone https://github.com/redis-developer/riot.git
-❯ cd riot/riot-db
-❯ ./riot-db</code></pre>
+<pre class="CodeRay highlight"><code data-lang="source">git clone https://github.com/redis-developer/riot.git
+./riot-db</code></pre>
 </div>
 </div>
 </div>
@@ -509,7 +508,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h3 id="_usage"><a class="anchor" href="#_usage"></a>2.2. Usage</h3>
 <div class="listingblock">
 <div class="content">
-<pre>❯ riot-db
+<pre>riot-db
 Usage: riot-db [OPTIONS] [COMMAND]
       --help                Show this help message and exit.
   -V, --version             Print version information and exit.
@@ -529,13 +528,13 @@ Usage: riot-db [OPTIONS] [COMMAND]
 <p>You can use <code>--help</code> on any subcommand:</p>
 </div>
 <div class="paragraph">
-<p><code>❯ riot-db --help</code></p>
+<p><code>riot-db --help</code></p>
 </div>
 <div class="paragraph">
-<p><code>❯ riot-db import --help</code></p>
+<p><code>riot-db import --help</code></p>
 </div>
 <div class="paragraph">
-<p><code>❯ riot-db import &#8230;&#8203; hset --help</code></p>
+<p><code>riot-db import &#8230;&#8203; hset --help</code></p>
 </div>
 </td>
 </tr>
@@ -555,9 +554,7 @@ Usage: riot-db [OPTIONS] [COMMAND]
   -o, --timeout=&lt;sec&gt;       Redis command timeout (default: 60)
   -n, --db=&lt;int&gt;            Database number (default: 0)
   -c, --cluster             Enable cluster mode
-  -t, --tls                 Establish a secure TLS connection
-  -l, --latency             Show latency metrics
-  -m, --pool=&lt;int&gt;          Max pool connections (default: 8)</pre>
+  -t, --tls                 Establish a secure TLS connection</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -647,7 +644,7 @@ Usage: riot-db [OPTIONS] [COMMAND]
 <div class="listingblock">
 <div class="title">Import from PostgreSQL</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="shell">❯ riot-db -h localhost -p 6379 import &quot;SELECT * FROM orders&quot; --url jdbc:postgresql://host:port/database --username appuser --password passwd hset --keyspace order --keys order_id</code></pre>
+<pre class="CodeRay highlight"><code data-lang="shell">Unresolved directive in riot-db.adoc - include::../connectors/db/src/test/resources/postgresql/import.txt[]</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -655,15 +652,15 @@ Usage: riot-db [OPTIONS] [COMMAND]
 </div>
 <div class="paragraph">
 <div class="title">Import into hashes</div>
-<p><code>❯ riot-db import &#8230;&#8203; hset --keyspace blah --keys id</code></p>
+<p><code>riot-db import &#8230;&#8203; hset --keyspace blah --keys id</code></p>
 </div>
 <div class="paragraph">
 <div class="title">Import into hashes <strong>and</strong> set TTL on the key</div>
-<p><code>❯ riot-db import &#8230;&#8203; hset --keyspace blah --keys id expire --keyspace blah --keys id</code></p>
+<p><code>riot-db import &#8230;&#8203; hset --keyspace blah --keys id expire --keyspace blah --keys id</code></p>
 </div>
 <div class="paragraph">
 <div class="title">Import into hashes <strong>and</strong> set TTL <strong>and</strong> add to a set named <code>myset</code></div>
-<p><code>❯ riot-db import &#8230;&#8203; hset --keyspace blah --keys id expire --keyspace blah --keys id sadd --keyspace myset --members id</code></p>
+<p><code>riot-db import &#8230;&#8203; hset --keyspace blah --keys id expire --keyspace blah --keys id sadd --keyspace myset --members id</code></p>
 </div>
 <div class="sect2">
 <h3 id="_processing"><a class="anchor" href="#_processing"></a>4.1. Processing</h3>
@@ -752,13 +749,13 @@ Usage: riot-db [OPTIONS] [COMMAND]
 <div class="listingblock">
 <div class="title">Export to PostgreSQL</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="shell">❯ riot-db export &quot;INSERT INTO mytable (id, field1, field2) VALUES (CAST(:id AS SMALLINT), :field1, :field2)&quot; --url jdbc:postgresql://host:port/database --username appuser --password passwd --scan-match &quot;hash:*&quot; --key-regex &quot;hash:(?&lt;id&gt;.*)&quot;</code></pre>
+<pre class="CodeRay highlight"><code data-lang="shell">Unresolved directive in riot-db.adoc - include::../connectors/db/src/test/resources/postgresql/export.txt[]</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="title">Import from PostgreSQL to JSON strings</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="shell">❯ riot-db -h localhost -p 6379 import &quot;SELECT * FROM orders&quot; --url jdbc:postgresql://host:port/database --username appuser --password passwd set --keyspace order --keys order_id</code></pre>
+<pre class="CodeRay highlight"><code data-lang="shell">Unresolved directive in riot-db.adoc - include::../connectors/db/src/test/resources/postgresql/import-to-json-strings.txt[]</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -788,7 +785,7 @@ Usage: riot-db [OPTIONS] [COMMAND]
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 2.6.2<br>
+Version 2.6.3<br>
 Last updated 2021-02-08 22:55:54 -0800
 </div>
 </div>
