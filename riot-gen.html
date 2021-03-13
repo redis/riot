@@ -656,13 +656,13 @@ Usage: riot-gen [OPTIONS] [COMMAND]
 <div class="listingblock">
 <div class="title">Generating hashes</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="shell">Unresolved directive in riot-gen.adoc - include::../connectors/gen/src/test/resources/import-hset.txt[]</code></pre>
+<pre class="CodeRay highlight"><code data-lang="shell">riot-gen import id=#index firstName=name.firstName lastName=name.lastName address=address.fullAddress hset --keyspace person --keys id</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="title">Generating sets</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="shell">Unresolved directive in riot-gen.adoc - include::../connectors/gen/src/test/resources/import-sadd.txt[]</code></pre>
+<pre class="CodeRay highlight"><code data-lang="shell">riot-gen import name=gameOfThrones.character --max 10000 sadd --members name --keyspace got:characters</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -688,7 +688,7 @@ Usage: riot-gen [OPTIONS] [COMMAND]
 <div class="listingblock">
 <div class="title">Introspect RediSearch index</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="shell">Unresolved directive in riot-gen.adoc - include::../connectors/gen/src/test/resources/index-introspection.txt[]</code></pre>
+<pre class="CodeRay highlight"><code data-lang="shell">riot-gen import --introspect beerIntrospection hset --keyspace beer --keys id</code></pre>
 </div>
 </div>
 </div>
@@ -934,7 +934,7 @@ Usage: riot-gen [OPTIONS] [COMMAND]
 <div id="footer">
 <div id="footer-text">
 Version 2.6.3<br>
-Last updated 2021-03-03 08:46:46 -0800
+Last updated 2021-03-12 16:18:51 -0800
 </div>
 </div>
 <style>

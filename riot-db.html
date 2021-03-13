@@ -644,7 +644,7 @@ Usage: riot-db [OPTIONS] [COMMAND]
 <div class="listingblock">
 <div class="title">Import from PostgreSQL</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="shell">Unresolved directive in riot-db.adoc - include::../connectors/db/src/test/resources/postgresql/import.txt[]</code></pre>
+<pre class="CodeRay highlight"><code data-lang="shell">riot-db import &quot;SELECT * FROM orders&quot; --url jdbc:postgresql://host:port/database --username appuser --password passwd hset --keyspace order --keys order_id</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -749,13 +749,13 @@ Usage: riot-db [OPTIONS] [COMMAND]
 <div class="listingblock">
 <div class="title">Export to PostgreSQL</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="shell">Unresolved directive in riot-db.adoc - include::../connectors/db/src/test/resources/postgresql/export.txt[]</code></pre>
+<pre class="CodeRay highlight"><code data-lang="shell">riot-db export &quot;INSERT INTO mytable (id, field1, field2) VALUES (CAST(:id AS SMALLINT), :field1, :field2)&quot; --url jdbc:postgresql://host:port/database --username appuser --password passwd --scan-match &quot;hash:*&quot; --key-regex &quot;hash:(?&lt;id&gt;.*)&quot;</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="title">Import from PostgreSQL to JSON strings</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="shell">Unresolved directive in riot-db.adoc - include::../connectors/db/src/test/resources/postgresql/import-to-json-strings.txt[]</code></pre>
+<pre class="CodeRay highlight"><code data-lang="shell">riot-db import &quot;SELECT * FROM orders&quot; --url jdbc:postgresql://host:port/database --username appuser --password passwd set --keyspace order --keys order_id</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -786,7 +786,7 @@ Usage: riot-db [OPTIONS] [COMMAND]
 <div id="footer">
 <div id="footer-text">
 Version 2.6.3<br>
-Last updated 2021-02-08 22:55:54 -0800
+Last updated 2021-03-12 16:12:51 -0800
 </div>
 </div>
 <style>
