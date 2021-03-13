@@ -1,10 +1,9 @@
 package com.redislabs.riot.stream.processor;
 
+import io.lettuce.core.StreamMessage;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.core.convert.converter.Converter;
-
-import io.lettuce.core.StreamMessage;
 
 public abstract class AbstractProducerProcessor
 		implements ItemProcessor<StreamMessage<String, String>, ProducerRecord<String, Object>> {
@@ -16,7 +15,7 @@ public abstract class AbstractProducerProcessor
 	}
 
 	@Override
-	public ProducerRecord<String, Object> process(StreamMessage<String, String> item) throws Exception {
+	public ProducerRecord<String, Object> process(StreamMessage<String, String> item) {
 		return new ProducerRecord<>(topicConverter.convert(item), value(item));
 	}
 

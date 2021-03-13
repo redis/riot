@@ -18,9 +18,9 @@ import java.util.Map;
 @NoArgsConstructor
 public class FilteringOptions {
 
-    @CommandLine.Option(arity = "1..*", names = "--include", description = "Name(s) of fields to include", paramLabel = "<field>")
+    @CommandLine.Option(arity = "1..*", names = "--include", description = "Fields to include", paramLabel = "<field>")
     private String[] includes;
-    @CommandLine.Option(arity = "1..*", names = "--exclude", description = "Name(s) of fields to exclude", paramLabel = "<field>")
+    @CommandLine.Option(arity = "1..*", names = "--exclude", description = "Fields to exclude", paramLabel = "<field>")
     private String[] excludes;
 
     public Converter<Map<String, Object>, Map<String, String>> converter() {

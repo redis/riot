@@ -36,7 +36,6 @@ import java.util.function.BiFunction;
 @Command(name = "import", description = "Import Kafka topics into Redis streams")
 public class StreamImportCommand extends AbstractTransferCommand<ConsumerRecord<String, Object>, ConsumerRecord<String, Object>> {
 
-
     @SuppressWarnings("unused")
     @Parameters(arity = "1..*", description = "One ore more topics to read from", paramLabel = "TOPIC")
     private String[] topics;

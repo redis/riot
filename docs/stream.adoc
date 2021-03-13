@@ -1,37 +1,17 @@
 = {app-name}
-:favicon: images/favicon.svg
 :app-name: RIOT Stream
 :app: riot-stream
 :resources: ../connectors/stream/src/test/resources
-:toc: left
-:numbered:
-:toclevels: 2
-:toc-title: Contents
-:source-highlighter: coderay
-:icons: font
-:imagesdir: images
-:linkattrs:
-:sectanchors:
-:docinfo: shared-head,private-head
-ifdef::env-github[]
-:caution-caption: :fire:
-:important-caption: :heavy_exclamation_mark:
-:note-caption: :information_source:
-:tip-caption: :bulb:
-:warning-caption: :warning:
-endif::[]
-
-== Overview
+include::toc.adoc[]
+include::github.adoc[]
 
 *{app-name}* lets you import/export data from Kafka topics.
 
+== Getting Started
+
 include::getting_started.adoc[]
 
-== Formats
-
-*{app-name}* supports JSON and Avro de/serializers.
-
-== Import
+== Importing
 
 Use the `import` command to import messages from Kafka topics.
 
@@ -40,7 +20,7 @@ Use the `import` command to import messages from Kafka topics.
 include::{resources}/import[]
 ----
 
-== Export
+== Exporting
 
 Use the `export` command to export Redis streams to Kafka topics.
 

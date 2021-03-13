@@ -1,41 +1,37 @@
 = {app-name}
-:favicon: images/favicon.svg
 :app-name: RIOT Redis
 :app: riot-redis
 :resources: ../connectors/redis/src/test/resources
-:toc: left
-:numbered:
-:toclevels: 2
-:toc-title: Contents
-:source-highlighter: coderay
-:icons: font
-:imagesdir: images
-:linkattrs:
-:sectanchors:
-:docinfo: shared-head,private-head
-ifdef::env-github[]
-:caution-caption: :fire:
-:important-caption: :heavy_exclamation_mark:
-:note-caption: :information_source:
-:tip-caption: :bulb:
-:warning-caption: :warning:
-endif::[]
+include::toc.adoc[]
+include::github.adoc[]
 
 == Overview
 
 Most database migration tools available today are offline in nature. Migrating data from AWS ElastiCache to Redis Enterprise Cloud for example means backing up your Elasticache data to an AWS S3 bucket and importing it into Redis Enterprise Cloud using its UI.
 
-This implies some downtime and might result in data loss.
+*{app-name}* is a migration tool that allows for live data migration between any Redis databases:
 
-Other available techniques include creating point-in-time snapshots of the source Redis server & applying the changes to the destination servers to keep both servers in sync.
+[source,shell]
+----
+riot-redis -h source -p 6379 replicate --live -h target -p 6380
+----
 
-It might sound like a good approach but can be challenging when you have to maintain dozens of scripts to implement the migration strategy.
 
-*{app-name}* is a migration tool that allows for seamless live replication between two Redis databases.
+*{app-name}* does not make use of the https://redis.io/commands/replicaof[REPLICAOF] command which is not always available (e.g. ElastiCache), but instead implements client-side replication using DUMP and RESTORE:
+
+image::images/replication.png[]
+
+<1> Key reader: initiates a SCAN and optionally calls SUBSCRIBE to listen for keyspace notifications (live replication).
+
+<2> Value reader: takes the keys and calls DUMP and TTL.
+
+<3> Key/Value writer: takes key/value/ttl tuples and calls RESTORE and EXPIRE.
+
+== Getting Started
 
 include::getting_started.adoc[]
 
-=== Replicating
+== Replicating
 
 The replication process takes data from a source Redis database and replicates it into a target Redis database. The general usage is:
 
@@ -86,12 +82,6 @@ Source Redis reader options
       --reader-batch=<int>   Number of reader values to process at once (default: 50).
 ----
 
-.Example: live replication
-[source,shell]
-----
-riot-redis -h source -p 6379 replicate --live -h target -p 6380
-----
-
 === Verification
 
 Once replication is complete (i.e. for snapshot replication when scan is complete, for live replication when no keyspace notification idle) *{app-name}* will perform a verification step to compare values and TTLs between source and target databases. The output looks like this:
@@ -108,16 +98,7 @@ OK:1000 V:0 >:0 <:0 T:0
 
 == Architecture
 
-**{app-name}** implements client-side replication using a producer/consumer approach:
-
-image::replication.png[]
-
-<1> Key reader: initiates a `SCAN` and optionally calls `SUBSCRIBE` to listen for keyspace notifications (live replication).
-
-<2> Value reader: takes the keys and calls `DUMP` and `TTL`.
-
-<3> Key/Value writer: takes key/value/ttl tuples and calls `RESTORE` and `EXPIRE`.
-
+{app-name} follows a producer/consumer approach.
 
 === Producer
 

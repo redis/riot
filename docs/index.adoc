@@ -1,42 +1,21 @@
 = RIOT
-:favicon: images/favicon.svg
-:source-highlighter: coderay
-:icons: font
-:imagesdir: images
-:linkattrs:
-:sectanchors:
-:docinfo: shared-head,private-head
-ifdef::env-github[]
-:caution-caption: :fire:
-:important-caption: :heavy_exclamation_mark:
-:note-caption: :information_source:
-:tip-caption: :bulb:
-:warning-caption: :warning:
-endif::[]
+include::github.adoc[]
 
 [quote]
 Get data in and out of Redis
 
-image:riot.svg[RIOT,width=800]
+image:images/riot.svg[RIOT,width=800]
 
 Redis Input/Output Tools (RIOT) is a set of import/export command line utilities for Redis:
 
-* link:db[RIOT DB]: migrate from an RDBMS to Redis, RediSearch, RedisJSON, ...
-* link:file[RIOT File]: file import and export.
-* link:gen[RIOT Gen]: generate sample Redis datasets for new feature development and proof of concept.
-* link:redis[RIOT Redis]: live replication from any Redis database (including AWS Elasticache) to another Redis database.
-* link:stream[RIOT Stream]: Kafka import and export.
+* link:db.html[RIOT DB]: migrate from an RDBMS to Redis, RediSearch, RedisJSON, ...
+* link:file.html[RIOT File]: file import and export.
+* link:gen.html[RIOT Gen]: generate sample Redis datasets for new feature development and proof of concept.
+* link:redis.html[RIOT Redis]: live replication from any Redis database (including AWS Elasticache) to another Redis database.
+* link:stream.html[RIOT Stream]: Kafka import and export.
 
 == Architecture
 
+image::images/architecture.png[]
+
 RIOT reads records from a source (file, database, Redis, data generator) and writes them to a target (file, database, Redis).
-
-image::architecture.png[]
-
-In most cases some processing needs to happen in order to adapt input records to the output.
-
-For example records from  delimited files are string maps (key/value pairs where values are character strings) that look pretty much exactly like Redis hashes.
-
-However you still need to extract keys from those records, i.e. one or more fields should be used to construct the corresponding Redis keys.
-
-image::mapping.png[]

@@ -40,5 +40,3 @@ Extract patterns from source fields using regular expressions:
 Keep records that match a SpEL boolean expression.
 
 `--filter "value matches '\\d+'"` will only keep records where the `value` field is a series of digits.
-
-

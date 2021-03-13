@@ -1,65 +1,93 @@
 = {app-name}
-:favicon: images/favicon.svg
 :app-name: RIOT Gen
 :app: riot-gen
 :resources: ../connectors/gen/src/test/resources
-:toc: left
-:numbered:
-:toclevels: 2
-:toc-title: Contents
-:source-highlighter: coderay
-:icons: font
-:imagesdir: images
-:linkattrs:
-:sectanchors:
-:docinfo: shared-head,private-head
-ifdef::env-github[]
-:caution-caption: :fire:
-:important-caption: :heavy_exclamation_mark:
-:note-caption: :information_source:
-:tip-caption: :bulb:
-:warning-caption: :warning:
-endif::[]
+include::toc.adoc[]
+include::github.adoc[]
 
-== Overview
+*{app-name}* is a data generator based on https://github.com/DiUS/java-faker[Faker]:
 
-*{app-name}* generates random data using the https://github.com/DiUS/java-faker[Faker] library.
-
-All supported Faker data types are listed <<faker-data-types,below>>.
-
-include::getting_started.adoc[]
-
-== Processing
-
-include::processing.adoc[]
-
-== Examples
-
-.Generating hashes
 [source,shell]
 ----
 include::{resources}/import-hset[]
 ----
 
-.Generating sets
+All supported Faker data types are listed <<faker-data-types,below>>.
+
+== Getting Started
+
+include::getting_started.adoc[]
+
+== Importing
+
+=== Usage
+
+[source,shell]
+----
+❯ riot-gen import --help
+Usage: riot-gen import [OPTIONS] [SPEL...] [REDIS COMMAND]
+Import generated data
+      [SPEL...]              SpEL expressions
+  -H, --help                 Show this help message and exit.
+      --[no-]progress        Show progress bars. True by default.
+      --threads=<int>        Thread count (default: 1).
+  -b, --batch=<size>         Number of items in each batch (default: 50).
+      --max=<count>          Max number of items to read.
+      --skip-limit=<int>     Max number of failed items to skip before the transfer fails (default: 0).
+      --introspect=<index>   Use given search index to introspect Faker fields
+      --locale=<tag>         Faker locale (default: en)
+      --metadata             Include metadata (index, partition)
+      --start=<int>          Start index (default: 0)
+      --end=<int>            End index (default: 1000)
+      --sleep=<ms>           Duration in ms to sleep before each item generation (default: 0)
+      --process=<f=exp>...   SpEL processors in the form: --process field1="<expression>" field2="<expression>" …
+      --var=<v=exp>...       Register a variable in the SpEL processor context
+      --date=<string>        Processor date format (default: M/d/yy, h:mm a)
+      --filter=<exp>...      Discard records using SpEL boolean expressions
+      --regex=<f=exp>...     Extract named values from source field using regex
+Redis commands:
+  eval         Evaluate a Lua script with keys and arguments from input
+  expire       Set timeouts on keys
+  geoadd       Add members to a geo set
+  hset, hmset  Set hashes from input
+  lpush        Insert values at the head of a list
+  noop         No operation: accepts input and does nothing
+  rpush        Insert values at the tail of a list
+  sadd         Add members to a set
+  set          Set strings from input
+  xadd         Append entries to a stream
+  zadd         Add members with scores to a sorted set
+----
+
+.HSET Example
+[source,shell]
+----
+include::{resources}/import-hset[]
+----
+
+.SADD Example
 [source,shell]
 ----
 include::{resources}/import-sadd[]
 ----
 
-include::import.adoc[]
+=== Processing
 
+include::processing.adoc[]
 
-== RediSearch Index Introspection
+=== Redis Commands
 
-.Introspect RediSearch index
+include::redis-commands.adoc[]
+
+=== Introspecting RediSearch
+
 [source,shell]
 ----
 include::{resources}/index-introspection[]
 ----
 
 [#faker-data-types]
-== Faker data types
+== Faker Fields
 
 * *address*: buildingNumber city cityName cityPrefix citySuffix country countryCode firstName fullAddress lastName latitude longitude secondaryAddress state stateAbbr streetAddress streetAddressNumber streetName streetPrefix streetSuffix timeZone zipCode
 * *ancient*: god hero primordial titan

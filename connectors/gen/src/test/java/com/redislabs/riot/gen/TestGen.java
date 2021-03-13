@@ -81,7 +81,7 @@ public class TestGen extends AbstractStandaloneRedisTest {
 
     @Test
     public void genFakerIndexIntrospection() throws Exception {
-        String INDEX = "beerIntrospection";
+        String INDEX = "beerIdx";
         String FIELD_ID = "id";
         String FIELD_ABV = "abv";
         String FIELD_NAME = "name";

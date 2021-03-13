@@ -94,6 +94,11 @@ asciidoctor {
             into '.'
         }
     }
+    attributes favicon: 'images/favicon.svg',
+            icons: 'font',
+            linkattrs: true,
+            sectanchors: true,
+            docinfo: 'shared-head,private-head'
     outputOptions {
         separateOutputDirs = false
     }
@@ -109,18 +114,16 @@ gitPublish {
 }
 
 def isNonStable = { String version ->
-  def nonStableKeyword = ['PREVIEW'].any { it -> version.toUpperCase().contains(it) }
-  def stableKeyword = ['RELEASE', 'FINAL', 'GA', 'JRE8'].any { it -> version.toUpperCase().contains(it) }
-  def regex = /^[0-9,.v-]+([.-]r)?$/
-  return nonStableKeyword || (!stableKeyword && !(version ==~ regex))
+    def nonStableKeyword = ['PREVIEW'].any { it -> version.toUpperCase().contains(it) }
+    def stableKeyword = ['RELEASE', 'FINAL', 'GA', 'JRE8'].any { it -> version.toUpperCase().contains(it) }
+    def regex = /^[0-9,.v-]+([.-]r)?$/
+    return nonStableKeyword || (!stableKeyword && !(version ==~ regex))
 }
 
 tasks.named("dependencyUpdates").configure {
-
-  rejectVersionIf {
-    isNonStable(it.candidate.version) && !isNonStable(it.currentVersion)
-  }
-
+    rejectVersionIf {
+        isNonStable(it.candidate.version) && !isNonStable(it.currentVersion)
+    }
 }
 
 githubRelease {

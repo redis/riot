@@ -1,5 +1,3 @@
-== Getting Started
-
 === Install
 
 ==== Download and Run
@@ -7,6 +5,13 @@
 Download the https://github.com/redis-developer/riot/releases/latest[latest release] and unzip the archive.
 
 Launch the `bin/{app}` script and follow the usage information provided.
+
+==== Homebrew (macOS)
+
+[subs="attributes",source,shell]
+----
+brew install jruaux/tap/{app}
+----
 
 ==== Build and Run
 
@@ -16,15 +21,11 @@ git clone https://github.com/redis-developer/riot.git
 ./{app}
 ----
 
-==== Install via Homebrew (macOS) 
-
-`brew install jruaux/tap/{app}`
-
 === Usage
 
 [subs="attributes"]
 ----
-{app}
+❯ {app}
 Usage: {app} [OPTIONS] [COMMAND]
       --help                Show this help message and exit.
   -V, --version             Print version information and exit.

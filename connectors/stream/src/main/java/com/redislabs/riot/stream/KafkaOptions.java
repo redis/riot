@@ -35,9 +35,9 @@ public class KafkaOptions {
     @Option(names = "--group", description = "Consumer group id", paramLabel = "<id>")
     private String groupId = "$Default";
     @Getter
-    @Option(names = "--schema-registry-url", description = "Schema registry URL", paramLabel = "<url>")
+    @Option(names = "--registry", description = "Schema registry URL", paramLabel = "<url>")
     private String schemaRegistryUrl;
-    @Option(names = {"-p", "--property"}, arity = "1..*", description = "Additional consumer properties", paramLabel = "<name=value>")
+    @Option(names = {"-p", "--property"}, arity = "1..*", description = "Additional producer/consumer properties", paramLabel = "<k=v>")
     private Map<String, String> properties;
     @Builder.Default
     @Option(names = "--serde", description = "Serializer/Deserializer: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})", paramLabel = "<serde>")
