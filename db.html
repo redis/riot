@@ -448,26 +448,24 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toc" class="toc2">
 <div id="toctitle">Contents</div>
 <ul class="sectlevel1">
-<li><a href="#_overview">1. Overview</a></li>
-<li><a href="#_getting_started">2. Getting Started</a>
+<li><a href="#_getting_started">Getting Started</a>
 <ul class="sectlevel2">
-<li><a href="#_install">2.1. Install</a></li>
-<li><a href="#_usage">2.2. Usage</a></li>
+<li><a href="#_install">Install</a></li>
+<li><a href="#_usage">Usage</a></li>
 </ul>
 </li>
-<li><a href="#_drivers">3. Drivers</a></li>
-<li><a href="#_import">4. Import</a>
+<li><a href="#_drivers">Drivers</a></li>
+<li><a href="#_importing">Importing</a>
 <ul class="sectlevel2">
-<li><a href="#_processing">4.1. Processing</a></li>
+<li><a href="#_processing">Processing</a></li>
 </ul>
 </li>
-<li><a href="#_export">5. Export</a></li>
+<li><a href="#_exporting">Exporting</a></li>
 </ul>
 </div>
 </div>
 <div id="content">
-<div class="sect1">
-<h2 id="_overview"><a class="anchor" href="#_overview"></a>1. Overview</h2>
+<div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
 <p><strong>RIOT DB</strong> lets you import/export data from relational databases.</p>
@@ -475,12 +473,12 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="sect1">
-<h2 id="_getting_started"><a class="anchor" href="#_getting_started"></a>2. Getting Started</h2>
+<h2 id="_getting_started"><a class="anchor" href="#_getting_started"></a>Getting Started</h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_install"><a class="anchor" href="#_install"></a>2.1. Install</h3>
+<h3 id="_install"><a class="anchor" href="#_install"></a>Install</h3>
 <div class="sect3">
-<h4 id="_download_and_run"><a class="anchor" href="#_download_and_run"></a>2.1.1. Download and Run</h4>
+<h4 id="_download_and_run"><a class="anchor" href="#_download_and_run"></a>Download and Run</h4>
 <div class="paragraph">
 <p>Download the <a href="https://github.com/redis-developer/riot/releases/latest">latest release</a> and unzip the archive.</p>
 </div>
@@ -489,26 +487,28 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="sect3">
-<h4 id="_build_and_run"><a class="anchor" href="#_build_and_run"></a>2.1.2. Build and Run</h4>
+<h4 id="_homebrew_macos"><a class="anchor" href="#_homebrew_macos"></a>Homebrew (macOS)</h4>
 <div class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="source">git clone https://github.com/redis-developer/riot.git
-./riot-db</code></pre>
+<pre class="highlight"><code class="language-source" data-lang="source">brew install jruaux/tap/riot-db</code></pre>
 </div>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_install_via_homebrew_macos"><a class="anchor" href="#_install_via_homebrew_macos"></a>2.1.3. Install via Homebrew (macOS)</h4>
-<div class="paragraph">
-<p><code>brew install jruaux/tap/riot-db</code></p>
+<h4 id="_build_and_run"><a class="anchor" href="#_build_and_run"></a>Build and Run</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-source" data-lang="source">git clone https://github.com/redis-developer/riot.git
+./riot-db</code></pre>
+</div>
 </div>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_usage"><a class="anchor" href="#_usage"></a>2.2. Usage</h3>
+<h3 id="_usage"><a class="anchor" href="#_usage"></a>Usage</h3>
 <div class="listingblock">
 <div class="content">
-<pre>riot-db
+<pre>❯ riot-db
 Usage: riot-db [OPTIONS] [COMMAND]
       --help                Show this help message and exit.
   -V, --version             Print version information and exit.
@@ -564,7 +564,7 @@ Usage: riot-db [OPTIONS] [COMMAND]
 </div>
 </div>
 <div class="sect1">
-<h2 id="_drivers"><a class="anchor" href="#_drivers"></a>3. Drivers</h2>
+<h2 id="_drivers"><a class="anchor" href="#_drivers"></a>Drivers</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>RIOT DB includes drivers for the most common RDBMSs:</p>
@@ -636,7 +636,7 @@ Usage: riot-db [OPTIONS] [COMMAND]
 </div>
 </div>
 <div class="sect1">
-<h2 id="_import"><a class="anchor" href="#_import"></a>4. Import</h2>
+<h2 id="_importing"><a class="anchor" href="#_importing"></a>Importing</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>Use the <code>import</code> command to import the result set of a SQL statement.</p>
@@ -644,7 +644,7 @@ Usage: riot-db [OPTIONS] [COMMAND]
 <div class="listingblock">
 <div class="title">Import from PostgreSQL</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="shell">riot-db import &quot;SELECT * FROM orders&quot; --url jdbc:postgresql://host:port/database --username appuser --password passwd hset --keyspace order --keys order_id</code></pre>
+<pre class="highlight"><code class="language-shell" data-lang="shell">riot-db import "SELECT * FROM orders" --url jdbc:postgresql://host:port/database --username appuser --password passwd hset --keyspace order --keys order_id</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -663,7 +663,7 @@ Usage: riot-db [OPTIONS] [COMMAND]
 <p><code>riot-db import &#8230;&#8203; hset --keyspace blah --keys id expire --keyspace blah --keys id sadd --keyspace myset --members id</code></p>
 </div>
 <div class="sect2">
-<h3 id="_processing"><a class="anchor" href="#_processing"></a>4.1. Processing</h3>
+<h3 id="_processing"><a class="anchor" href="#_processing"></a>Processing</h3>
 <div class="paragraph">
 <p>The following processors can be applied to records in that order:</p>
 </div>
@@ -681,7 +681,7 @@ Usage: riot-db [OPTIONS] [COMMAND]
 </ul>
 </div>
 <div class="sect3">
-<h4 id="_transform"><a class="anchor" href="#_transform"></a>4.1.1. Transform</h4>
+<h4 id="_transform"><a class="anchor" href="#_transform"></a>Transform</h4>
 <div class="paragraph">
 <p>Produce key/value pairs using <a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/core.html#expressions">Spring Expression Language</a> (SpEL): <code>field1=&lt;exp&gt;</code>, <code>field2=&lt;exp&gt;</code>, &#8230;&#8203;</p>
 </div>
@@ -723,7 +723,7 @@ Usage: riot-db [OPTIONS] [COMMAND]
 </div>
 </div>
 <div class="sect3">
-<h4 id="_regex"><a class="anchor" href="#_regex"></a>4.1.2. Regex</h4>
+<h4 id="_regex"><a class="anchor" href="#_regex"></a>Regex</h4>
 <div class="paragraph">
 <p>Extract patterns from source fields using regular expressions:</p>
 </div>
@@ -732,7 +732,7 @@ Usage: riot-db [OPTIONS] [COMMAND]
 </div>
 </div>
 <div class="sect3">
-<h4 id="_filter"><a class="anchor" href="#_filter"></a>4.1.3. Filter</h4>
+<h4 id="_filter"><a class="anchor" href="#_filter"></a>Filter</h4>
 <div class="paragraph">
 <p>Keep records that match a SpEL boolean expression.</p>
 </div>
@@ -744,18 +744,18 @@ Usage: riot-db [OPTIONS] [COMMAND]
 </div>
 </div>
 <div class="sect1">
-<h2 id="_export"><a class="anchor" href="#_export"></a>5. Export</h2>
+<h2 id="_exporting"><a class="anchor" href="#_exporting"></a>Exporting</h2>
 <div class="sectionbody">
 <div class="listingblock">
 <div class="title">Export to PostgreSQL</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="shell">riot-db export &quot;INSERT INTO mytable (id, field1, field2) VALUES (CAST(:id AS SMALLINT), :field1, :field2)&quot; --url jdbc:postgresql://host:port/database --username appuser --password passwd --scan-match &quot;hash:*&quot; --key-regex &quot;hash:(?&lt;id&gt;.*)&quot;</code></pre>
+<pre class="highlight"><code class="language-shell" data-lang="shell">riot-db export "INSERT INTO mytable (id, field1, field2) VALUES (CAST(:id AS SMALLINT), :field1, :field2)" --url jdbc:postgresql://host:port/database --username appuser --password passwd --scan-match "hash:*" --key-regex "hash:(?&lt;id&gt;.*)"</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="title">Import from PostgreSQL to JSON strings</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="shell">riot-db import &quot;SELECT * FROM orders&quot; --url jdbc:postgresql://host:port/database --username appuser --password passwd set --keyspace order --keys order_id</code></pre>
+<pre class="highlight"><code class="language-shell" data-lang="shell">riot-db import "SELECT * FROM orders" --url jdbc:postgresql://host:port/database --username appuser --password passwd set --keyspace order --keys order_id</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -763,20 +763,20 @@ Usage: riot-db [OPTIONS] [COMMAND]
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="json">{
-        <span class="key"><span class="delimiter">&quot;</span><span class="content">order_id</span><span class="delimiter">&quot;</span></span>: <span class="integer">10248</span>,
-        <span class="key"><span class="delimiter">&quot;</span><span class="content">customer_id</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">VINET</span><span class="delimiter">&quot;</span></span>,
-        <span class="key"><span class="delimiter">&quot;</span><span class="content">employee_id</span><span class="delimiter">&quot;</span></span>: <span class="integer">5</span>,
-        <span class="key"><span class="delimiter">&quot;</span><span class="content">order_date</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">1996-07-04</span><span class="delimiter">&quot;</span></span>,
-        <span class="key"><span class="delimiter">&quot;</span><span class="content">required_date</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">1996-08-01</span><span class="delimiter">&quot;</span></span>,
-        <span class="key"><span class="delimiter">&quot;</span><span class="content">shipped_date</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">1996-07-16</span><span class="delimiter">&quot;</span></span>,
-        <span class="key"><span class="delimiter">&quot;</span><span class="content">ship_via</span><span class="delimiter">&quot;</span></span>: <span class="integer">3</span>,
-        <span class="key"><span class="delimiter">&quot;</span><span class="content">freight</span><span class="delimiter">&quot;</span></span>: <span class="float">32.38</span>,
-        <span class="key"><span class="delimiter">&quot;</span><span class="content">ship_name</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">Vins et alcools Chevalier</span><span class="delimiter">&quot;</span></span>,
-        <span class="key"><span class="delimiter">&quot;</span><span class="content">ship_address</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">59 rue de l'Abbaye</span><span class="delimiter">&quot;</span></span>,
-        <span class="key"><span class="delimiter">&quot;</span><span class="content">ship_city</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">Reims</span><span class="delimiter">&quot;</span></span>,
-        <span class="key"><span class="delimiter">&quot;</span><span class="content">ship_postal_code</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">51100</span><span class="delimiter">&quot;</span></span>,
-        <span class="key"><span class="delimiter">&quot;</span><span class="content">ship_country</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">France</span><span class="delimiter">&quot;</span></span>
+<pre class="highlight"><code class="language-json" data-lang="json">{
+	"order_id": 10248,
+	"customer_id": "VINET",
+	"employee_id": 5,
+	"order_date": "1996-07-04",
+	"required_date": "1996-08-01",
+	"shipped_date": "1996-07-16",
+	"ship_via": 3,
+	"freight": 32.38,
+	"ship_name": "Vins et alcools Chevalier",
+	"ship_address": "59 rue de l'Abbaye",
+	"ship_city": "Reims",
+	"ship_postal_code": "51100",
+	"ship_country": "France"
 }</code></pre>
 </div>
 </div>
@@ -786,97 +786,8 @@ Usage: riot-db [OPTIONS] [COMMAND]
 <div id="footer">
 <div id="footer-text">
 Version 2.6.3<br>
-Last updated 2021-03-12 16:12:51 -0800
+Last updated 2021-03-12 22:26:10 -0800
 </div>
 </div>
-<style>
-/* Stylesheet for CodeRay to match GitHub theme | MIT License | http://foundation.zurb.com */
-pre.CodeRay{background:#f7f7f8}
-.CodeRay .line-numbers{border-right:1px solid currentColor;opacity:.35;padding:0 .5em 0 0}
-.CodeRay span.line-numbers{display:inline-block;margin-right:.75em}
-.CodeRay .line-numbers strong{color:#000}
-table.CodeRay{border-collapse:separate;border:0;margin-bottom:0;background:none}
-table.CodeRay td{vertical-align:top;line-height:inherit}
-table.CodeRay td.line-numbers{text-align:right}
-table.CodeRay td.code{padding:0 0 0 .75em}
-.CodeRay .debug{color:#fff !important;background:#000080 !important}
-.CodeRay .annotation{color:#007}
-.CodeRay .attribute-name{color:#000080}
-.CodeRay .attribute-value{color:#700}
-.CodeRay .binary{color:#509}
-.CodeRay .comment{color:#998;font-style:italic}
-.CodeRay .char{color:#04d}
-.CodeRay .char .content{color:#04d}
-.CodeRay .char .delimiter{color:#039}
-.CodeRay .class{color:#458;font-weight:bold}
-.CodeRay .complex{color:#a08}
-.CodeRay .constant,.CodeRay .predefined-constant{color:#008080}
-.CodeRay .color{color:#099}
-.CodeRay .class-variable{color:#369}
-.CodeRay .decorator{color:#b0b}
-.CodeRay .definition{color:#099}
-.CodeRay .delimiter{color:#000}
-.CodeRay .doc{color:#970}
-.CodeRay .doctype{color:#34b}
-.CodeRay .doc-string{color:#d42}
-.CodeRay .escape{color:#666}
-.CodeRay .entity{color:#800}
-.CodeRay .error{color:#808}
-.CodeRay .exception{color:inherit}
-.CodeRay .filename{color:#099}
-.CodeRay .function{color:#900;font-weight:bold}
-.CodeRay .global-variable{color:#008080}
-.CodeRay .hex{color:#058}
-.CodeRay .integer,.CodeRay .float{color:#099}
-.CodeRay .include{color:#555}
-.CodeRay .inline{color:#000}
-.CodeRay .inline .inline{background:#ccc}
-.CodeRay .inline .inline .inline{background:#bbb}
-.CodeRay .inline .inline-delimiter{color:#d14}
-.CodeRay .inline-delimiter{color:#d14}
-.CodeRay .important{color:#555;font-weight:bold}
-.CodeRay .interpreted{color:#b2b}
-.CodeRay .instance-variable{color:#008080}
-.CodeRay .label{color:#970}
-.CodeRay .local-variable{color:#963}
-.CodeRay .octal{color:#40e}
-.CodeRay .predefined{color:#369}
-.CodeRay .preprocessor{color:#579}
-.CodeRay .pseudo-class{color:#555}
-.CodeRay .directive{font-weight:bold}
-.CodeRay .type{font-weight:bold}
-.CodeRay .predefined-type{color:inherit}
-.CodeRay .reserved,.CodeRay .keyword {color:#000;font-weight:bold}
-.CodeRay .key{color:#808}
-.CodeRay .key .delimiter{color:#606}
-.CodeRay .key .char{color:#80f}
-.CodeRay .value{color:#088}
-.CodeRay .regexp .delimiter{color:#808}
-.CodeRay .regexp .content{color:#808}
-.CodeRay .regexp .modifier{color:#808}
-.CodeRay .regexp .char{color:#d14}
-.CodeRay .regexp .function{color:#404;font-weight:bold}
-.CodeRay .string{color:#d20}
-.CodeRay .string .string .string{background:#ffd0d0}
-.CodeRay .string .content{color:#d14}
-.CodeRay .string .char{color:#d14}
-.CodeRay .string .delimiter{color:#d14}
-.CodeRay .shell{color:#d14}
-.CodeRay .shell .delimiter{color:#d14}
-.CodeRay .symbol{color:#990073}
-.CodeRay .symbol .content{color:#a60}
-.CodeRay .symbol .delimiter{color:#630}
-.CodeRay .tag{color:#008080}
-.CodeRay .tag-special{color:#d70}
-.CodeRay .variable{color:#036}
-.CodeRay .insert{background:#afa}
-.CodeRay .delete{background:#faa}
-.CodeRay .change{color:#aaf;background:#007}
-.CodeRay .head{color:#f8f;background:#505}
-.CodeRay .insert .insert{color:#080}
-.CodeRay .delete .delete{color:#800}
-.CodeRay .change .change{color:#66f}
-.CodeRay .head .head{color:#f4f}
-</style>
 </body>
 </html>

@@ -446,8 +446,6 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div id="content">
-<div id="preamble">
-<div class="sectionbody">
 <div class="quoteblock">
 <blockquote>
 Get data in and out of Redis
@@ -462,56 +460,27 @@ Get data in and out of Redis
 <div class="ulist">
 <ul>
 <li>
-<p><a href="db">RIOT DB</a>: migrate from an RDBMS to Redis, RediSearch, RedisJSON, &#8230;&#8203;</p>
+<p><a href="db.html">RIOT DB</a>: migrate from an RDBMS to Redis, RediSearch, RedisJSON, &#8230;&#8203;</p>
 </li>
 <li>
-<p><a href="file">RIOT File</a>: file import and export.</p>
+<p><a href="file.html">RIOT File</a>: file import and export.</p>
 </li>
 <li>
-<p><a href="gen">RIOT Gen</a>: generate sample Redis datasets for new feature development and proof of concept.</p>
+<p><a href="gen.html">RIOT Gen</a>: generate sample Redis datasets for new feature development and proof of concept.</p>
 </li>
 <li>
-<p><a href="redis">RIOT Redis</a>: live replication from any Redis database (including AWS Elasticache) to another Redis database.</p>
+<p><a href="redis.html">RIOT Redis</a>: live replication from any Redis database (including AWS Elasticache) to another Redis database.</p>
 </li>
 <li>
-<p><a href="stream">RIOT Stream</a>: Kafka import and export.</p>
+<p><a href="stream.html">RIOT Stream</a>: Kafka import and export.</p>
 </li>
 </ul>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_architecture"><a class="anchor" href="#_architecture"></a>Architecture</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>RIOT reads records from a source (file, database, Redis, data generator) and writes them to a target (file, database, Redis).</p>
-</div>
-<div class="imageblock">
-<div class="content">
-<img src="images/architecture.png" alt="architecture">
-</div>
-</div>
-<div class="paragraph">
-<p>In most cases some processing needs to happen in order to adapt input records to the output.</p>
-</div>
-<div class="paragraph">
-<p>For example records from  delimited files are string maps (key/value pairs where values are character strings) that look pretty much exactly like Redis hashes.</p>
-</div>
-<div class="paragraph">
-<p>However you still need to extract keys from those records, i.e. one or more fields should be used to construct the corresponding Redis keys.</p>
-</div>
-<div class="imageblock">
-<div class="content">
-<img src="images/mapping.png" alt="mapping">
-</div>
-</div>
-</div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
 Version 2.6.3<br>
-Last updated 2021-03-12 16:25:41 -0800
+Last updated 2021-03-12 22:32:32 -0800
 </div>
 </div>
 </body>

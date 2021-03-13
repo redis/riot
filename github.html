@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.10">
 <link rel="icon" type="image/svg" href="images/favicon.svg">
-<title>Transform</title>
+<title>Untitled</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /* Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -442,87 +442,12 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="header">
 </div>
 <div id="content">
-<div class="paragraph">
-<p>The following processors can be applied to records in that order:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>Transforms</p>
-</li>
-<li>
-<p>Regular expressions</p>
-</li>
-<li>
-<p>Filters</p>
-</li>
-</ul>
-</div>
-<div class="sect3">
-<h4 id="_transform"><a class="anchor" href="#_transform"></a>Transform</h4>
-<div class="paragraph">
-<p>Produce key/value pairs using <a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/core.html#expressions">Spring Expression Language</a> (SpEL): <code>field1=&lt;exp&gt;</code>, <code>field2=&lt;exp&gt;</code>, &#8230;&#8203;</p>
-</div>
-<div class="paragraph">
-<p>For example <code>--process "field1='foo'"</code> generates a field named <code>field1</code> with always the same value <code>foo</code>.</p>
-</div>
-<div class="paragraph">
-<p>Input fields are accessed by name (e.g. <code>field3=field1+field2</code>).</p>
-</div>
-<div class="paragraph">
-<p>The processor also exposes the following variables that can be called with the <code>#</code> prefix:</p>
-</div>
-<div class="sect4">
-<h5 id="_redis"><a class="anchor" href="#_redis"></a>redis</h5>
-<div class="paragraph">
-<p>Redis connection to issue any command:</p>
-</div>
-<div class="paragraph">
-<p><code>--process "name=#redis.hgetall('person1').lastName"</code></p>
-</div>
-</div>
-<div class="sect4">
-<h5 id="_date"><a class="anchor" href="#_date"></a>date</h5>
-<div class="paragraph">
-<p>Date parser/formatter:</p>
-</div>
-<div class="paragraph">
-<p><code>--process "epoch=#date.parse(mydate).getTime()"</code></p>
-</div>
-</div>
-<div class="sect4">
-<h5 id="_index"><a class="anchor" href="#_index"></a>index</h5>
-<div class="paragraph">
-<p>Sequence number of the item being generated:</p>
-</div>
-<div class="paragraph">
-<p><code>--process "id=#index"</code></p>
-</div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_regex"><a class="anchor" href="#_regex"></a>Regex</h4>
-<div class="paragraph">
-<p>Extract patterns from source fields using regular expressions:</p>
-</div>
-<div class="paragraph">
-<p><code>--regex "name=(?&lt;first&gt;\w+)\/(?&lt;last&gt;\w+)"</code></p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_filter"><a class="anchor" href="#_filter"></a>Filter</h4>
-<div class="paragraph">
-<p>Keep records that match a SpEL boolean expression.</p>
-</div>
-<div class="paragraph">
-<p><code>--filter "value matches '\\d+'"</code> will only keep records where the <code>value</code> field is a series of digits.</p>
-</div>
-</div>
+
 </div>
 <div id="footer">
 <div id="footer-text">
 Version 2.6.3<br>
-Last updated 2021-03-12 23:03:39 -0800
+Last updated 2021-03-12 21:43:46 -0800
 </div>
 </div>
 </body>

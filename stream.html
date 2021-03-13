@@ -448,22 +448,19 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toc" class="toc2">
 <div id="toctitle">Contents</div>
 <ul class="sectlevel1">
-<li><a href="#_overview">1. Overview</a></li>
-<li><a href="#_getting_started">2. Getting Started</a>
+<li><a href="#_getting_started">Getting Started</a>
 <ul class="sectlevel2">
-<li><a href="#_install">2.1. Install</a></li>
-<li><a href="#_usage">2.2. Usage</a></li>
+<li><a href="#_install">Install</a></li>
+<li><a href="#_usage">Usage</a></li>
 </ul>
 </li>
-<li><a href="#_formats">3. Formats</a></li>
-<li><a href="#_import">4. Import</a></li>
-<li><a href="#_export">5. Export</a></li>
+<li><a href="#_importing">Importing</a></li>
+<li><a href="#_exporting">Exporting</a></li>
 </ul>
 </div>
 </div>
 <div id="content">
-<div class="sect1">
-<h2 id="_overview"><a class="anchor" href="#_overview"></a>1. Overview</h2>
+<div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
 <p><strong>RIOT Stream</strong> lets you import/export data from Kafka topics.</p>
@@ -471,12 +468,12 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="sect1">
-<h2 id="_getting_started"><a class="anchor" href="#_getting_started"></a>2. Getting Started</h2>
+<h2 id="_getting_started"><a class="anchor" href="#_getting_started"></a>Getting Started</h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_install"><a class="anchor" href="#_install"></a>2.1. Install</h3>
+<h3 id="_install"><a class="anchor" href="#_install"></a>Install</h3>
 <div class="sect3">
-<h4 id="_download_and_run"><a class="anchor" href="#_download_and_run"></a>2.1.1. Download and Run</h4>
+<h4 id="_download_and_run"><a class="anchor" href="#_download_and_run"></a>Download and Run</h4>
 <div class="paragraph">
 <p>Download the <a href="https://github.com/redis-developer/riot/releases/latest">latest release</a> and unzip the archive.</p>
 </div>
@@ -485,26 +482,28 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="sect3">
-<h4 id="_build_and_run"><a class="anchor" href="#_build_and_run"></a>2.1.2. Build and Run</h4>
+<h4 id="_homebrew_macos"><a class="anchor" href="#_homebrew_macos"></a>Homebrew (macOS)</h4>
 <div class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="source">git clone https://github.com/redis-developer/riot.git
-./riot-stream</code></pre>
+<pre class="highlight"><code class="language-source" data-lang="source">brew install jruaux/tap/riot-stream</code></pre>
 </div>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_install_via_homebrew_macos"><a class="anchor" href="#_install_via_homebrew_macos"></a>2.1.3. Install via Homebrew (macOS)</h4>
-<div class="paragraph">
-<p><code>brew install jruaux/tap/riot-stream</code></p>
+<h4 id="_build_and_run"><a class="anchor" href="#_build_and_run"></a>Build and Run</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-source" data-lang="source">git clone https://github.com/redis-developer/riot.git
+./riot-stream</code></pre>
+</div>
 </div>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_usage"><a class="anchor" href="#_usage"></a>2.2. Usage</h3>
+<h3 id="_usage"><a class="anchor" href="#_usage"></a>Usage</h3>
 <div class="listingblock">
 <div class="content">
-<pre>riot-stream
+<pre>❯ riot-stream
 Usage: riot-stream [OPTIONS] [COMMAND]
       --help                Show this help message and exit.
   -V, --version             Print version information and exit.
@@ -560,35 +559,27 @@ Usage: riot-stream [OPTIONS] [COMMAND]
 </div>
 </div>
 <div class="sect1">
-<h2 id="_formats"><a class="anchor" href="#_formats"></a>3. Formats</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p><strong>RIOT Stream</strong> supports JSON and Avro de/serializers.</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_import"><a class="anchor" href="#_import"></a>4. Import</h2>
+<h2 id="_importing"><a class="anchor" href="#_importing"></a>Importing</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>Use the <code>import</code> command to import messages from Kafka topics.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="shell">riot-stream import topic1 --broker localhost:9092</code></pre>
+<pre class="highlight"><code class="language-shell" data-lang="shell">riot-stream import topic1 --broker localhost:9092</code></pre>
 </div>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_export"><a class="anchor" href="#_export"></a>5. Export</h2>
+<h2 id="_exporting"><a class="anchor" href="#_exporting"></a>Exporting</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>Use the <code>export</code> command to export Redis streams to Kafka topics.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="shell">riot-stream export stream1 --idle-timeout 500 --broker localhost:9092</code></pre>
+<pre class="highlight"><code class="language-shell" data-lang="shell">riot-stream export stream1 --idle-timeout 500 --broker localhost:9092</code></pre>
 </div>
 </div>
 </div>
@@ -597,97 +588,8 @@ Usage: riot-stream [OPTIONS] [COMMAND]
 <div id="footer">
 <div id="footer-text">
 Version 2.6.3<br>
-Last updated 2021-03-12 16:19:09 -0800
+Last updated 2021-03-12 22:25:52 -0800
 </div>
 </div>
-<style>
-/* Stylesheet for CodeRay to match GitHub theme | MIT License | http://foundation.zurb.com */
-pre.CodeRay{background:#f7f7f8}
-.CodeRay .line-numbers{border-right:1px solid currentColor;opacity:.35;padding:0 .5em 0 0}
-.CodeRay span.line-numbers{display:inline-block;margin-right:.75em}
-.CodeRay .line-numbers strong{color:#000}
-table.CodeRay{border-collapse:separate;border:0;margin-bottom:0;background:none}
-table.CodeRay td{vertical-align:top;line-height:inherit}
-table.CodeRay td.line-numbers{text-align:right}
-table.CodeRay td.code{padding:0 0 0 .75em}
-.CodeRay .debug{color:#fff !important;background:#000080 !important}
-.CodeRay .annotation{color:#007}
-.CodeRay .attribute-name{color:#000080}
-.CodeRay .attribute-value{color:#700}
-.CodeRay .binary{color:#509}
-.CodeRay .comment{color:#998;font-style:italic}
-.CodeRay .char{color:#04d}
-.CodeRay .char .content{color:#04d}
-.CodeRay .char .delimiter{color:#039}
-.CodeRay .class{color:#458;font-weight:bold}
-.CodeRay .complex{color:#a08}
-.CodeRay .constant,.CodeRay .predefined-constant{color:#008080}
-.CodeRay .color{color:#099}
-.CodeRay .class-variable{color:#369}
-.CodeRay .decorator{color:#b0b}
-.CodeRay .definition{color:#099}
-.CodeRay .delimiter{color:#000}
-.CodeRay .doc{color:#970}
-.CodeRay .doctype{color:#34b}
-.CodeRay .doc-string{color:#d42}
-.CodeRay .escape{color:#666}
-.CodeRay .entity{color:#800}
-.CodeRay .error{color:#808}
-.CodeRay .exception{color:inherit}
-.CodeRay .filename{color:#099}
-.CodeRay .function{color:#900;font-weight:bold}
-.CodeRay .global-variable{color:#008080}
-.CodeRay .hex{color:#058}
-.CodeRay .integer,.CodeRay .float{color:#099}
-.CodeRay .include{color:#555}
-.CodeRay .inline{color:#000}
-.CodeRay .inline .inline{background:#ccc}
-.CodeRay .inline .inline .inline{background:#bbb}
-.CodeRay .inline .inline-delimiter{color:#d14}
-.CodeRay .inline-delimiter{color:#d14}
-.CodeRay .important{color:#555;font-weight:bold}
-.CodeRay .interpreted{color:#b2b}
-.CodeRay .instance-variable{color:#008080}
-.CodeRay .label{color:#970}
-.CodeRay .local-variable{color:#963}
-.CodeRay .octal{color:#40e}
-.CodeRay .predefined{color:#369}
-.CodeRay .preprocessor{color:#579}
-.CodeRay .pseudo-class{color:#555}
-.CodeRay .directive{font-weight:bold}
-.CodeRay .type{font-weight:bold}
-.CodeRay .predefined-type{color:inherit}
-.CodeRay .reserved,.CodeRay .keyword {color:#000;font-weight:bold}
-.CodeRay .key{color:#808}
-.CodeRay .key .delimiter{color:#606}
-.CodeRay .key .char{color:#80f}
-.CodeRay .value{color:#088}
-.CodeRay .regexp .delimiter{color:#808}
-.CodeRay .regexp .content{color:#808}
-.CodeRay .regexp .modifier{color:#808}
-.CodeRay .regexp .char{color:#d14}
-.CodeRay .regexp .function{color:#404;font-weight:bold}
-.CodeRay .string{color:#d20}
-.CodeRay .string .string .string{background:#ffd0d0}
-.CodeRay .string .content{color:#d14}
-.CodeRay .string .char{color:#d14}
-.CodeRay .string .delimiter{color:#d14}
-.CodeRay .shell{color:#d14}
-.CodeRay .shell .delimiter{color:#d14}
-.CodeRay .symbol{color:#990073}
-.CodeRay .symbol .content{color:#a60}
-.CodeRay .symbol .delimiter{color:#630}
-.CodeRay .tag{color:#008080}
-.CodeRay .tag-special{color:#d70}
-.CodeRay .variable{color:#036}
-.CodeRay .insert{background:#afa}
-.CodeRay .delete{background:#faa}
-.CodeRay .change{color:#aaf;background:#007}
-.CodeRay .head{color:#f8f;background:#505}
-.CodeRay .insert .insert{color:#080}
-.CodeRay .delete .delete{color:#800}
-.CodeRay .change .change{color:#66f}
-.CodeRay .head .head{color:#f4f}
-</style>
 </body>
 </html>
