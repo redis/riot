@@ -462,7 +462,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p>Produce key/value pairs using <a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/core.html#expressions">Spring Expression Language</a> (SpEL): <code>field1=&lt;exp&gt;</code>, <code>field2=&lt;exp&gt;</code>, &#8230;&#8203;</p>
 </div>
 <div class="paragraph">
-<p>For example <code>--spel "field1='foo'"</code> generates a field named <code>field1</code> with always the same value <code>foo</code>.</p>
+<p>For example <code>--process "field1='foo'"</code> generates a field named <code>field1</code> with always the same value <code>foo</code>.</p>
 </div>
 <div class="paragraph">
 <p>Input fields are accessed by name (e.g. <code>field3=field1+field2</code>).</p>
@@ -476,7 +476,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p>Redis connection to issue any command:</p>
 </div>
 <div class="paragraph">
-<p><code>--spel "name=#redis.hgetall('person1').lastName"</code></p>
+<p><code>--process "name=#redis.hgetall('person1').lastName"</code></p>
 </div>
 </div>
 <div class="sect4">
@@ -485,7 +485,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p>Date parser/formatter:</p>
 </div>
 <div class="paragraph">
-<p><code>--spel "epoch=#date.parse(mydate).getTime()"</code></p>
+<p><code>--process "epoch=#date.parse(mydate).getTime()"</code></p>
 </div>
 </div>
 <div class="sect4">
@@ -494,7 +494,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p>Sequence number of the item being generated:</p>
 </div>
 <div class="paragraph">
-<p><code>--spel "id=#index"</code></p>
+<p><code>--process "id=#index"</code></p>
 </div>
 </div>
 </div>
@@ -520,7 +520,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="footer">
 <div id="footer-text">
 Version 2.6.3<br>
-Last updated 2021-02-09 09:53:31 -0800
+Last updated 2021-03-12 15:36:01 -0800
 </div>
 </div>
 </body>
