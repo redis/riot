@@ -456,11 +456,12 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </li>
 <li><a href="#_importing">Importing</a>
 <ul class="sectlevel2">
-<li><a href="#_examples">Examples</a></li>
+<li><a href="#_usage_2">Usage</a></li>
 <li><a href="#_processing">Processing</a></li>
+<li><a href="#_redis_commands">Redis Commands</a></li>
+<li><a href="#_introspecting_redisearch">Introspecting RediSearch</a></li>
 </ul>
 </li>
-<li><a href="#_introspecting_redisearch">Introspecting RediSearch</a></li>
 <li><a href="#faker-data-types">Faker Fields</a></li>
 </ul>
 </div>
@@ -575,6 +576,8 @@ Usage: riot-gen [OPTIONS] [COMMAND]
 <div class="sect1">
 <h2 id="_importing"><a class="anchor" href="#_importing"></a>Importing</h2>
 <div class="sectionbody">
+<div class="sect2">
+<h3 id="_usage_2"><a class="anchor" href="#_usage_2"></a>Usage</h3>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-shell" data-lang="shell">❯ riot-gen import --help
@@ -612,39 +615,14 @@ Redis commands:
   zadd         Add members with scores to a sorted set</code></pre>
 </div>
 </div>
-<div class="paragraph">
-<p>Redis keys are constructed from input records by concatenating the keyspace prefix and key fields:</p>
-</div>
-<div class="imageblock">
-<div class="content">
-<img src="images/mapping.png" alt="mapping">
-</div>
-</div>
-<div class="paragraph">
-<p>You can specify one or many Redis commands as targets of the import:</p>
-</div>
-<div class="paragraph">
-<div class="title">Import into hashes</div>
-<p><code>riot-gen import &#8230;&#8203; hset --keyspace blah --keys id</code></p>
-</div>
-<div class="paragraph">
-<div class="title">Import into hashes <strong>and</strong> set TTL on the key</div>
-<p><code>riot-gen import &#8230;&#8203; hset --keyspace blah --keys id expire --keyspace blah --keys id</code></p>
-</div>
-<div class="paragraph">
-<div class="title">Import into hashes <strong>and</strong> set TTL <strong>and</strong> add to a set named <code>myset</code></div>
-<p><code>riot-gen import &#8230;&#8203; hset --keyspace blah --keys id expire --keyspace blah --keys id sadd --keyspace myset --members id</code></p>
-</div>
-<div class="sect2">
-<h3 id="_examples"><a class="anchor" href="#_examples"></a>Examples</h3>
 <div class="listingblock">
-<div class="title">Generating hashes</div>
+<div class="title">HSET Example</div>
 <div class="content">
 <pre class="highlight"><code class="language-shell" data-lang="shell">riot-gen import id=#index firstName=name.firstName lastName=name.lastName address=address.fullAddress hset --keyspace person --keys id</code></pre>
 </div>
 </div>
 <div class="listingblock">
-<div class="title">Generating sets</div>
+<div class="title">SADD Example</div>
 <div class="content">
 <pre class="highlight"><code class="language-shell" data-lang="shell">riot-gen import name=gameOfThrones.character --max 10000 sadd --members name --keyspace got:characters</code></pre>
 </div>
@@ -729,14 +707,38 @@ Redis commands:
 </div>
 </div>
 </div>
+<div class="sect2">
+<h3 id="_redis_commands"><a class="anchor" href="#_redis_commands"></a>Redis Commands</h3>
+<div class="paragraph">
+<p>Redis keys are constructed from input records by concatenating the keyspace prefix and key fields:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/mapping.png" alt="mapping">
 </div>
 </div>
-<div class="sect1">
-<h2 id="_introspecting_redisearch"><a class="anchor" href="#_introspecting_redisearch"></a>Introspecting RediSearch</h2>
-<div class="sectionbody">
+<div class="paragraph">
+<p>You can specify one or many Redis commands as targets of the import:</p>
+</div>
+<div class="paragraph">
+<div class="title">Import into hashes</div>
+<p><code>riot-gen import &#8230;&#8203; hset --keyspace blah --keys id</code></p>
+</div>
+<div class="paragraph">
+<div class="title">Import into hashes <strong>and</strong> set TTL on the key</div>
+<p><code>riot-gen import &#8230;&#8203; hset --keyspace blah --keys id expire --keyspace blah --keys id</code></p>
+</div>
+<div class="paragraph">
+<div class="title">Import into hashes <strong>and</strong> set TTL <strong>and</strong> add to a set named <code>myset</code></div>
+<p><code>riot-gen import &#8230;&#8203; hset --keyspace blah --keys id expire --keyspace blah --keys id sadd --keyspace myset --members id</code></p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_introspecting_redisearch"><a class="anchor" href="#_introspecting_redisearch"></a>Introspecting RediSearch</h3>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-shell" data-lang="shell">riot-gen import --introspect beerIdx hset --keyspace beer --keys id</code></pre>
+</div>
 </div>
 </div>
 </div>
@@ -982,7 +984,7 @@ Redis commands:
 <div id="footer">
 <div id="footer-text">
 Version 2.6.3<br>
-Last updated 2021-03-12 22:28:44 -0800
+Last updated 2021-03-13 00:42:08 -0800
 </div>
 </div>
 </body>

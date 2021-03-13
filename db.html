@@ -452,12 +452,14 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <ul class="sectlevel2">
 <li><a href="#_install">Install</a></li>
 <li><a href="#_usage">Usage</a></li>
+<li><a href="#_drivers">Drivers</a></li>
 </ul>
 </li>
-<li><a href="#_drivers">Drivers</a></li>
 <li><a href="#_importing">Importing</a>
 <ul class="sectlevel2">
+<li><a href="#_usage_2">Usage</a></li>
 <li><a href="#_processing">Processing</a></li>
+<li><a href="#_redis_commands">Redis Commands</a></li>
 </ul>
 </li>
 <li><a href="#_exporting">Exporting</a></li>
@@ -561,11 +563,8 @@ Usage: riot-db [OPTIONS] [COMMAND]
 <p>Redis URI syntax is described <a href="https://github.com/lettuce-io/lettuce-core/wiki/Redis-URI-and-connection-details#uri-syntax">here</a>.</p>
 </div>
 </div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_drivers"><a class="anchor" href="#_drivers"></a>Drivers</h2>
-<div class="sectionbody">
+<div class="sect2">
+<h3 id="_drivers"><a class="anchor" href="#_drivers"></a>Drivers</h3>
 <div class="paragraph">
 <p>RIOT DB includes drivers for the most common RDBMSs:</p>
 </div>
@@ -635,40 +634,59 @@ Usage: riot-db [OPTIONS] [COMMAND]
 </div>
 </div>
 </div>
+</div>
 <div class="sect1">
 <h2 id="_importing"><a class="anchor" href="#_importing"></a>Importing</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>Use the <code>import</code> command to import the result set of a SQL statement.</p>
 </div>
+<div class="sect2">
+<h3 id="_usage_2"><a class="anchor" href="#_usage_2"></a>Usage</h3>
 <div class="listingblock">
-<div class="title">Import from PostgreSQL</div>
+<div class="content">
+<pre class="highlight"><code class="language-shell" data-lang="shell">❯ riot-db import --help
+Usage: riot-db import [OPTIONS] SQL [REDIS COMMAND]
+Import from a database
+      SQL                    SQL SELECT statement
+  -H, --help                 Show this help message and exit.
+      --[no-]progress        Show progress bars. True by default.
+      --threads=&lt;int&gt;        Thread count (default: 1).
+  -b, --batch=&lt;size&gt;         Number of items in each batch (default: 50).
+      --max=&lt;count&gt;          Max number of items to read.
+      --skip-limit=&lt;int&gt;     Max number of failed items to skip before the transfer fails (default: 0).
+      --driver=&lt;class&gt;       Fully qualified name of the JDBC driver
+      --url=&lt;string&gt;         JDBC URL to connect to the database
+      --username=&lt;string&gt;    Login username of the database
+      --password[=&lt;pwd&gt;]     Login password of the database
+      --fetch=&lt;size&gt;         Number of rows to return with each fetch
+      --rows=&lt;count&gt;         Max number of rows the ResultSet can contain
+      --query-timeout=&lt;ms&gt;   The time in milliseconds for the query to timeout
+      --process=&lt;f=exp&gt;...   SpEL processors in the form: --process field1=" &lt;expression&gt;" field2="&lt;expression&gt;" …
+      --var=&lt;v=exp&gt;...       Register a variable in the SpEL processor context
+      --date=&lt;string&gt;        Processor date format (default: M/d/yy, h:mm a)
+      --filter=&lt;exp&gt;...      Discard records using SpEL boolean expressions
+      --regex=&lt;f=exp&gt;...     Extract named values from source field using regex
+Redis commands:
+  eval         Evaluate a Lua script with keys and arguments from input
+  expire       Set timeouts on keys
+  geoadd       Add members to a geo set
+  hset, hmset  Set hashes from input
+  lpush        Insert values at the head of a list
+  noop         No operation: accepts input and does nothing
+  rpush        Insert values at the tail of a list
+  sadd         Add members to a set
+  set          Set strings from input
+  xadd         Append entries to a stream
+  zadd         Add members with scores to a sorted set</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">PostgreSQL Example</div>
 <div class="content">
 <pre class="highlight"><code class="language-shell" data-lang="shell">riot-db import "SELECT * FROM orders" --url jdbc:postgresql://host:port/database --username appuser --password passwd hset --keyspace order --keys order_id</code></pre>
 </div>
 </div>
-<div class="paragraph">
-<p>Redis keys are constructed from input records by concatenating the keyspace prefix and key fields:</p>
-</div>
-<div class="imageblock">
-<div class="content">
-<img src="images/mapping.png" alt="mapping">
-</div>
-</div>
-<div class="paragraph">
-<p>You can specify one or many Redis commands as targets of the import:</p>
-</div>
-<div class="paragraph">
-<div class="title">Import into hashes</div>
-<p><code>riot-db import &#8230;&#8203; hset --keyspace blah --keys id</code></p>
-</div>
-<div class="paragraph">
-<div class="title">Import into hashes <strong>and</strong> set TTL on the key</div>
-<p><code>riot-db import &#8230;&#8203; hset --keyspace blah --keys id expire --keyspace blah --keys id</code></p>
-</div>
-<div class="paragraph">
-<div class="title">Import into hashes <strong>and</strong> set TTL <strong>and</strong> add to a set named <code>myset</code></div>
-<p><code>riot-db import &#8230;&#8203; hset --keyspace blah --keys id expire --keyspace blah --keys id sadd --keyspace myset --members id</code></p>
 </div>
 <div class="sect2">
 <h3 id="_processing"><a class="anchor" href="#_processing"></a>Processing</h3>
@@ -749,6 +767,32 @@ Usage: riot-db [OPTIONS] [COMMAND]
 </div>
 </div>
 </div>
+<div class="sect2">
+<h3 id="_redis_commands"><a class="anchor" href="#_redis_commands"></a>Redis Commands</h3>
+<div class="paragraph">
+<p>Redis keys are constructed from input records by concatenating the keyspace prefix and key fields:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/mapping.png" alt="mapping">
+</div>
+</div>
+<div class="paragraph">
+<p>You can specify one or many Redis commands as targets of the import:</p>
+</div>
+<div class="paragraph">
+<div class="title">Import into hashes</div>
+<p><code>riot-db import &#8230;&#8203; hset --keyspace blah --keys id</code></p>
+</div>
+<div class="paragraph">
+<div class="title">Import into hashes <strong>and</strong> set TTL on the key</div>
+<p><code>riot-db import &#8230;&#8203; hset --keyspace blah --keys id expire --keyspace blah --keys id</code></p>
+</div>
+<div class="paragraph">
+<div class="title">Import into hashes <strong>and</strong> set TTL <strong>and</strong> add to a set named <code>myset</code></div>
+<p><code>riot-db import &#8230;&#8203; hset --keyspace blah --keys id expire --keyspace blah --keys id sadd --keyspace myset --members id</code></p>
+</div>
+</div>
 </div>
 </div>
 <div class="sect1">
@@ -794,7 +838,7 @@ Usage: riot-db [OPTIONS] [COMMAND]
 <div id="footer">
 <div id="footer-text">
 Version 2.6.3<br>
-Last updated 2021-03-13 00:06:36 -0800
+Last updated 2021-03-13 00:41:21 -0800
 </div>
 </div>
 </body>
