@@ -730,7 +730,7 @@ Use <code>-</code> to read from standard input.
 <div class="title">CSV import example</div>
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="shell">&gt;
-Unresolved directive in riot-file.adoc - include::../connectors/file/src/test/resources/import-hset[]</code></pre>
+riot-file import http://developer.redislabs.com/riot/beers.csv --header hset --keyspace beer --keys id</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -739,7 +739,7 @@ Unresolved directive in riot-file.adoc - include::../connectors/file/src/test/re
 <div class="listingblock">
 <div class="title">CSV import to geo set</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="shell">Unresolved directive in riot-file.adoc - include::../connectors/file/src/test/resources/delimited/import-geoadd[]</code></pre>
+<pre class="CodeRay highlight"><code data-lang="shell">riot-file import http://developer.redislabs.com/riot/airports.csv --header --skip-limit 1 geoadd --keyspace airportgeo --members AirportID --lon Longitude --lat Latitude</code></pre>
 </div>
 </div>
 </div>
@@ -770,7 +770,7 @@ Unresolved directive in riot-file.adoc - include::../connectors/file/src/test/re
 <div class="listingblock">
 <div class="title">JSON import example</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="shell">Unresolved directive in riot-file.adoc - include::../connectors/file/src/test/resources/json/import-hset.txt[]</code></pre>
+<pre class="CodeRay highlight"><code data-lang="shell">riot-file import http://developer.redislabs.com/riot/beers.json hset --keyspace beer --keys id</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -850,7 +850,7 @@ field[2]=3</pre>
 <div class="listingblock">
 <div class="title">XML import example</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="shell">Unresolved directive in riot-file.adoc - include::../connectors/file/src/test/resources/xml/import-hset.txt[]</code></pre>
+<pre class="CodeRay highlight"><code data-lang="shell">riot-file import http://developer.redislabs.com/riot/trades.xml hset --keyspace trade --keys id</code></pre>
 </div>
 </div>
 </div>
@@ -959,7 +959,7 @@ field[2]=3</pre>
 <div class="listingblock">
 <div class="title">Redis JSON import example</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="shell">Unresolved directive in riot-file.adoc - include::../connectors/file/src/test/resources/json/import.txt[]</code></pre>
+<pre class="CodeRay highlight"><code data-lang="shell">riot-file import http://developer.redislabs.com/riot/beers.json hset --keyspace beer --keys id</code></pre>
 </div>
 </div>
 </div>
@@ -975,7 +975,7 @@ field[2]=3</pre>
 <div class="listingblock">
 <div class="title">Compressed JSON export example</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="shell">Unresolved directive in riot-file.adoc - include::../connectors/file/src/test/resources/json/export-gzip.txt[]</code></pre>
+<pre class="CodeRay highlight"><code data-lang="shell">riot-file export /tmp/beers.json.gz --scan-match beer:*</code></pre>
 </div>
 </div>
 </div>
@@ -984,7 +984,7 @@ field[2]=3</pre>
 <div class="listingblock">
 <div class="title">XML export example</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="shell">Unresolved directive in riot-file.adoc - include::../connectors/file/src/test/resources/xml/export.txt[]</code></pre>
+<pre class="CodeRay highlight"><code data-lang="shell">riot-file export /tmp/redis.xml</code></pre>
 </div>
 </div>
 </div>
@@ -994,7 +994,7 @@ field[2]=3</pre>
 <div id="footer">
 <div id="footer-text">
 Version 2.6.3<br>
-Last updated 2021-03-12 14:02:46 -0800
+Last updated 2021-03-12 16:11:39 -0800
 </div>
 </div>
 <style>
