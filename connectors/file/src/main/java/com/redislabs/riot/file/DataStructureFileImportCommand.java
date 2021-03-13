@@ -47,7 +47,7 @@ public class DataStructureFileImportCommand extends AbstractTransferCommand<Data
         List<Step> steps = new ArrayList<>();
         DataStructureItemProcessor processor = new DataStructureItemProcessor();
         for (String file : expandedFiles) {
-            FileType fileType = FileUtils.fileType(file);
+            FileType fileType = fileOptions.type(file);
             Resource resource = FileUtils.inputResource(file, fileOptions);
             String name = FileUtils.filename(resource);
             AbstractItemStreamItemReader<DataStructure<String>> reader = reader(fileType, resource);

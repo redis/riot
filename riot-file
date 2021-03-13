@@ -1,0 +1,5 @@
+#!/bin/sh -e
+
+./gradlew -q --console plain :connectors:file:installDist
+
+./connectors/file/build/install/riot-file/bin/riot-file "$@"

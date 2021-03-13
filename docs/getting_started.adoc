@@ -12,9 +12,8 @@ Launch the `bin/{app}` script and follow the usage information provided.
 
 [subs="attributes",source,shell]
 ----
-❯ git clone https://github.com/redis-developer/riot.git
-❯ cd riot/{app}
-❯ ./{app}
+git clone https://github.com/redis-developer/riot.git
+./{app}
 ----
 
 ==== Install via Homebrew (macOS) 
@@ -25,7 +24,7 @@ Launch the `bin/{app}` script and follow the usage information provided.
 
 [subs="attributes"]
 ----
-❯ {app}
+{app}
 Usage: {app} [OPTIONS] [COMMAND]
       --help                Show this help message and exit.
   -V, --version             Print version information and exit.
@@ -38,11 +37,11 @@ Usage: {app} [OPTIONS] [COMMAND]
 ====
 You can use `--help` on any subcommand:
 
-`❯ {app} --help`
+`{app} --help`
 
-`❯ {app} import --help`
+`{app} import --help`
 
-`❯ {app} import ... hset --help`
+`{app} import ... hset --help`
 ====
 
 Redis connection options are the same as `redis-cli`:
@@ -57,8 +56,6 @@ Redis connection options are the same as `redis-cli`:
   -n, --db=<int>            Database number (default: 0)
   -c, --cluster             Enable cluster mode
   -t, --tls                 Establish a secure TLS connection
-  -l, --latency             Show latency metrics
-  -m, --pool=<int>          Max pool connections (default: 8)
 ----
 
 Redis URI syntax is described https://github.com/lettuce-io/lettuce-core/wiki/Redis-URI-and-connection-details#uri-syntax[here].

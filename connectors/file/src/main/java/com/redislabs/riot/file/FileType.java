@@ -1,16 +1,16 @@
 package com.redislabs.riot.file;
 
+import lombok.Getter;
+
 public enum FileType {
 
-    DELIMITED(FileUtils.EXT_CSV, FileUtils.EXT_TSV), FIXED(FileUtils.EXT_FW), JSON(FileUtils.EXT_JSON), XML(FileUtils.EXT_XML);
+    CSV("csv"), PSV("psv"), TSV("tsv"), FW("fw"), JSON("json"), XML("xml");
 
-    private final String[] extensions;
+    @Getter
+    private final String extension;
 
-    FileType(String... extensions) {
-        this.extensions = extensions;
+    FileType(String extension) {
+        this.extension = extension;
     }
 
-    public String[] getExtensions() {
-        return extensions;
-    }
 }

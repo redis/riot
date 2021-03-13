@@ -23,7 +23,7 @@ public class TestOracle {
 		Connection connection = dataSource.getConnection();
 		ScriptRunner scriptRunner = ScriptRunner.builder().connection(connection).autoCommit(false).stopOnError(true)
 				.build();
-		InputStream inputStream = TestOracle.class.getClassLoader().getResourceAsStream("oracle/hr.sql");
+		InputStream inputStream = TestOracle.class.getClassLoader().getResourceAsStream("oracle.sql");
 		scriptRunner.runScript(new InputStreamReader(inputStream));
 		Statement statement = connection.createStatement();
 		statement.execute("SELECT COUNT(*) AS count FROM employees");

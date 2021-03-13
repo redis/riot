@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.redislabs.riot.convert.ObjectMapperConverter;
 import io.lettuce.core.RedisFuture;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.item.redis.support.CommandBuilder;
 import org.springframework.core.convert.converter.Converter;
 import picocli.CommandLine.Command;
@@ -14,6 +15,7 @@ import picocli.CommandLine.Option;
 import java.util.Map;
 import java.util.function.BiFunction;
 
+@Slf4j
 @Command(name = "set", description = "Set strings from input")
 public class SetCommand extends AbstractKeyCommand {
 
@@ -38,6 +40,9 @@ public class SetCommand extends AbstractKeyCommand {
     private Converter<Map<String, Object>, String> stringValueConverter() {
         switch (format) {
             case RAW:
+                if (field==null) {
+                    log.warn("Raw value field name not set");
+                }
                 return stringFieldExtractor(field);
             case XML:
                 return new ObjectMapperConverter<>(new XmlMapper().writer().withRootName(root));

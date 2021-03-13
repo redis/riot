@@ -54,7 +54,7 @@ public class TestKafka extends AbstractStandaloneRedisTest {
 
     @Test
     public void testImport() throws Exception {
-        StreamImportCommand command = (StreamImportCommand) command("/import.txt");
+        StreamImportCommand command = (StreamImportCommand) command("import");
         JobExecution execution = command.executeAsync();
         Thread.sleep(500);
         KafkaProducer<String, Map<String, String>> producer = new KafkaProducer<>(ImmutableMap.of(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafka.getBootstrapServers(), ProducerConfig.CLIENT_ID_CONFIG, UUID.randomUUID().toString()), new StringSerializer(), new JsonSerializer<>());
@@ -80,7 +80,7 @@ public class TestKafka extends AbstractStandaloneRedisTest {
 
     @Test
     public void testExport() throws Exception {
-        StreamExportCommand command = (StreamExportCommand) command("/export.txt");
+        StreamExportCommand command = (StreamExportCommand) command("export");
         log.info("Executing export command");
         JobExecution execution = command.executeAsync();
         Thread.sleep(100);

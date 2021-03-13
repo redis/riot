@@ -1,1 +1,0 @@
-❯ riot-file -h localhost -p 6379 import https://redis-developer.github.io/riot/beers.csv --header hset --keyspace beer --keys id --include name style abv

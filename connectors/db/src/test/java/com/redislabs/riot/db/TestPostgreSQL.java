@@ -28,7 +28,7 @@ import com.redislabs.riot.test.DataGenerator;
 
 @Testcontainers
 @SuppressWarnings("rawtypes")
-public class TestPostgreSQL extends DbTest {
+public class TestPostgreSQL extends AbstractDatabaseTest {
 
 	@Container
 	private static final PostgreSQLContainer postgreSQL = new PostgreSQLContainer(
@@ -42,7 +42,7 @@ public class TestPostgreSQL extends DbTest {
 		statement.execute("CREATE TABLE mytable (id smallint NOT NULL, field1 bpchar, field2 bpchar)");
 		statement.execute("ALTER TABLE ONLY mytable ADD CONSTRAINT pk_mytable PRIMARY KEY (id)");
 		DataGenerator.builder().commands(async).dataTypes(Collections.singletonList(DataType.HASH)).build().run();
-		executeFile("/postgresql/export.txt");
+		executeFile("export-postgresql");
 		statement.execute("SELECT COUNT(*) AS count FROM mytable");
 		ResultSet countResultSet = statement.getResultSet();
 		countResultSet.next();
@@ -62,9 +62,9 @@ public class TestPostgreSQL extends DbTest {
 		Connection connection = dataSource.getConnection();
 		ScriptRunner scriptRunner = ScriptRunner.builder().connection(connection).autoCommit(false).stopOnError(true)
 				.build();
-		InputStream inputStream = getClass().getClassLoader().getResourceAsStream("postgresql/northwind.sql");
+		InputStream inputStream = getClass().getClassLoader().getResourceAsStream("northwind.sql");
 		scriptRunner.runScript(new InputStreamReader(inputStream));
-		executeFile("/postgresql/import.txt");
+		executeFile("import-postgresql");
 		Statement statement = connection.createStatement();
 		statement.execute("SELECT COUNT(*) AS count FROM orders");
 		List<String> keys = sync.keys("order:*");
@@ -78,14 +78,14 @@ public class TestPostgreSQL extends DbTest {
 	}
 
 	@Test
-	public void testImportToJsonStrings() throws Exception {
+	public void testImportSet() throws Exception {
 		DataSource dataSource = dataSource(postgreSQL);
 		Connection connection = dataSource.getConnection();
 		ScriptRunner scriptRunner = ScriptRunner.builder().connection(connection).autoCommit(false).stopOnError(true)
 				.build();
-		InputStream inputStream = getClass().getClassLoader().getResourceAsStream("postgresql/northwind.sql");
+		InputStream inputStream = getClass().getClassLoader().getResourceAsStream("northwind.sql");
 		scriptRunner.runScript(new InputStreamReader(inputStream));
-		executeFile("/postgresql/import-to-json-strings.txt");
+		executeFile("import-postgresql-set");
 		Statement statement = connection.createStatement();
 		statement.execute("SELECT * FROM orders");
 		ResultSet resultSet = statement.getResultSet();

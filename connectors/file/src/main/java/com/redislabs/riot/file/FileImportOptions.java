@@ -33,22 +33,6 @@ public class FileImportOptions {
     @Option(names = "--continuation", description = "Line continuation string (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
     private String continuationString = "\\";
 
-    public String delimiter(String file) {
-        if (delimiter == null) {
-            String extension = FileUtils.extension(file);
-            if (extension != null) {
-                switch (extension) {
-                    case FileUtils.EXT_TSV:
-                        return DelimitedLineTokenizer.DELIMITER_TAB;
-                    case FileUtils.EXT_CSV:
-                        return DelimitedLineTokenizer.DELIMITER_COMMA;
-                }
-            }
-            return DelimitedLineTokenizer.DELIMITER_COMMA;
-        }
-        return delimiter;
-    }
-
     public int linesToSkip() {
         if (linesToSkip == null) {
             if (header) {

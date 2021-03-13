@@ -1,0 +1,1 @@
+riot-file import http://developer.redislabs.com/riot/trades.xml hset --keyspace trade --keys id

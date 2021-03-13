@@ -113,7 +113,7 @@ public class TestReplicateCluster extends AbstractRiotTest {
     public void replicateLive() throws Exception {
         log.info("Genering data");
         DataGenerator.builder().commands(sourceConnection.async()).end(10000).build().run();
-        ReplicateCommand command = (ReplicateCommand) command("/replicate-cluster-live.txt");
+        ReplicateCommand command = (ReplicateCommand) command("replicate-cluster-live");
         log.info("Executing ReplicateCommand");
         JobExecution execution = command.executeAsync();
         Thread.sleep(500);

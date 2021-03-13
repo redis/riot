@@ -14,17 +14,12 @@ public abstract class AbstractRiotTest {
 
     protected final static String LOCALHOST = "localhost";
     protected static final int REDIS_PORT = 6379;
-    private final static String COMMAND_PREAMBLE = "❯";
-
-    protected String commandPrefix() {
-        return COMMAND_PREAMBLE + " " + appName();
-    }
 
     protected abstract String appName();
 
     private String removePreamble(String command) {
-        if (command.startsWith(commandPrefix())) {
-            return command.substring(commandPrefix().length());
+        if (command.startsWith(appName())) {
+            return command.substring(appName().length());
         }
         return command;
     }
@@ -42,7 +37,7 @@ public abstract class AbstractRiotTest {
     }
 
     private String[] args(String filename) throws Exception {
-        try (InputStream inputStream = getClass().getResourceAsStream(filename)) {
+        try (InputStream inputStream = getClass().getResourceAsStream("/" + filename)) {
             String command = IOUtils.toString(inputStream, Charset.defaultCharset());
             return CommandLineUtils.translateCommandline(process(removePreamble(command)));
         }

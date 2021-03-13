@@ -36,16 +36,18 @@ public class KeyValueFileImportCommand extends AbstractFileImportCommand<Map<Str
     @SuppressWarnings({"unchecked", "rawtypes"})
     protected AbstractItemStreamItemReader<Map<String, Object>> reader(String file, FileType fileType, Resource resource) {
         switch (fileType) {
-            case DELIMITED:
+            case CSV:
+            case PSV:
+            case TSV:
                 DelimitedLineTokenizer tokenizer = new DelimitedLineTokenizer();
-                tokenizer.setDelimiter(options.delimiter(file));
+                tokenizer.setDelimiter(delimiter(fileType));
                 tokenizer.setQuoteCharacter(options.getQuoteCharacter());
                 if (!ObjectUtils.isEmpty(options.getIncludedFields())) {
                     tokenizer.setIncludedFields(options.getIncludedFields());
                 }
                 log.info("Creating delimited reader with {} for file {}", options, file);
                 return flatFileReader(resource, tokenizer);
-            case FIXED:
+            case FW:
                 FixedLengthTokenizer fixedLengthTokenizer = new FixedLengthTokenizer();
                 Assert.notEmpty(options.getColumnRanges(), "Column ranges are required");
                 fixedLengthTokenizer.setColumns(options.getColumnRanges());
@@ -59,6 +61,20 @@ public class KeyValueFileImportCommand extends AbstractFileImportCommand<Map<Str
                 return (XmlItemReader) FileUtils.xmlReader(resource, Map.class);
         }
         throw new IllegalArgumentException("Unsupported file type: " + fileType);
+    }
+
+    private String delimiter(FileType fileType) {
+        if (options.getDelimiter() != null) {
+            return options.getDelimiter();
+        }
+        switch (fileType) {
+            case TSV:
+                return DelimitedLineTokenizer.DELIMITER_TAB;
+            case PSV:
+                return "|";
+            default:
+                return DelimitedLineTokenizer.DELIMITER_COMMA;
+        }
     }
 
     @Override

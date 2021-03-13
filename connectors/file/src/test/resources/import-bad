@@ -1,0 +1,1 @@
+riot-file import http://developer.redislabs.com/riot/bad.psv --header --delimiter "|" hset --keyspace bad --keys id

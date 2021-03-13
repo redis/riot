@@ -45,8 +45,7 @@ public class ProgressMonitor<S, T> extends StepListenerSupport<S, T> {
 
     @Override
     public void afterWrite(List<? extends T> items) {
-        long total = count.addAndGet(items.size());
-        progressBar.stepTo(total);
+        progressBar.stepTo(count.addAndGet(items.size()));
         progressBar.setExtraMessage(extraMessageSupplier.get());
         super.afterWrite(items);
     }

@@ -30,7 +30,7 @@ public class TestGen extends AbstractStandaloneRedisTest {
 
     @Test
     public void genFakerHash() throws Exception {
-        executeFile("/import-hset.txt");
+        executeFile("import-hset");
         List<String> keys = sync.keys("person:*");
         Assertions.assertEquals(1000, keys.size());
         Map<String, String> person = sync.hgetall(keys.get(0));
@@ -40,7 +40,7 @@ public class TestGen extends AbstractStandaloneRedisTest {
     }
 
     public void genFakerScriptProcessorHash() throws Exception {
-        executeFile("/script-processor.txt");
+        executeFile("script-processor");
         List<String> keys = sync.keys("person:*");
         Assertions.assertEquals(100, keys.size());
         Map<String, String> person = sync.hgetall(keys.get(0));
@@ -52,7 +52,7 @@ public class TestGen extends AbstractStandaloneRedisTest {
 
     @Test
     public void genFakerSet() throws Exception {
-        executeFile("/import-sadd.txt");
+        executeFile("import-sadd");
         Set<String> names = sync.smembers("got:characters");
         Assertions.assertTrue(names.size() > 10);
         Assertions.assertTrue(names.contains("Lysa Meadows"));
@@ -60,7 +60,7 @@ public class TestGen extends AbstractStandaloneRedisTest {
 
     @Test
     public void genFakerZset() throws Exception {
-        executeFile("/import-zadd.txt");
+        executeFile("import-zadd");
         List<String> keys = sync.keys("leases:*");
         Assertions.assertTrue(keys.size() > 100);
         String key = keys.get(0);
@@ -69,7 +69,7 @@ public class TestGen extends AbstractStandaloneRedisTest {
 
     @Test
     public void genFakerStream() throws Exception {
-        executeFile("/import-xadd.txt");
+        executeFile("import-xadd");
         List<StreamMessage<String, String>> messages = sync.xrange("teststream:1", Range.unbounded());
         Assertions.assertTrue(messages.size() > 0);
     }
@@ -91,7 +91,7 @@ public class TestGen extends AbstractStandaloneRedisTest {
         StatefulRediSearchConnection<String, String> connection = searchClient.connect();
         RediSearchCommands<String, String> searchCommands = connection.sync();
         searchCommands.create(INDEX, CreateOptions.<String, String>builder().prefix("beer:").build(), Field.tag(FIELD_ID).sortable(true).build(), Field.text(FIELD_NAME).sortable(true).build(), Field.text(FIELD_STYLE).matcher(Field.Text.PhoneticMatcher.English).sortable(true).build(), Field.numeric(FIELD_ABV).sortable(true).build(), Field.numeric(FIELD_OUNCES).sortable(true).build());
-        executeFile("/index-introspection.txt");
+        executeFile("index-introspection");
         SearchResults<String, String> results = searchCommands.search(INDEX, "*");
         Assertions.assertEquals(1000, results.getCount());
         Document<String, String> doc1 = results.get(0);

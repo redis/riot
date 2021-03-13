@@ -5,6 +5,7 @@ import io.lettuce.core.RedisURI;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import io.netty.util.internal.logging.JdkLoggerFactory;
 import lombok.Getter;
+import org.springframework.core.NestedExceptionUtils;
 import picocli.AutoComplete;
 import picocli.CommandLine;
 import picocli.CommandLine.*;
@@ -49,6 +50,8 @@ public class RiotApp extends HelpCommand {
     private boolean info;
     @Option(names = {"-d", "--debug"}, description = "Log in debug mode (includes normal stacktrace).")
     private boolean debug;
+    @Option(names = "--stacktrace", description = "Print out the stacktrace for all exceptions..")
+    private boolean stacktrace;
 
     private int executionStrategy(ParseResult parseResult) {
         configureLogging();
@@ -67,7 +70,7 @@ public class RiotApp extends HelpCommand {
         Logger activeLogger = Logger.getLogger(ROOT_LOGGER);
         ConsoleHandler handler = new ConsoleHandler();
         handler.setLevel(Level.ALL);
-        handler.setFormatter(new OneLineLogFormat());
+        handler.setFormatter(debug || stacktrace ? new StackTraceOneLineLogFormat() : new OneLineLogFormat());
         activeLogger.addHandler(handler);
         Logger.getLogger(ROOT_LOGGER).setLevel(level);
     }
@@ -101,7 +104,7 @@ public class RiotApp extends HelpCommand {
         return Level.SEVERE;
     }
 
-    static class OneLineLogFormat extends Formatter {
+    static class StackTraceOneLineLogFormat extends Formatter {
 
         private final DateTimeFormatter d = new DateTimeFormatterBuilder().appendValue(ChronoField.HOUR_OF_DAY, 2).appendLiteral(':').appendValue(ChronoField.MINUTE_OF_HOUR, 2).optionalStart().appendLiteral(':').appendValue(ChronoField.SECOND_OF_MINUTE, 2).optionalStart().appendFraction(ChronoField.NANO_OF_SECOND, 3, 3, true).toFormatter();
         private final ZoneId offset = ZoneOffset.systemDefault();
@@ -122,6 +125,22 @@ public class RiotApp extends HelpCommand {
             record.getThrown().printStackTrace(pw);
             return sw.toString();
         }
+    }
+
+    static class OneLineLogFormat extends Formatter {
+
+        @Override
+        public String format(LogRecord record) {
+            String message = formatMessage(record);
+            if (record.getThrown() != null) {
+                Throwable rootCause = NestedExceptionUtils.getRootCause(record.getThrown());
+                if (rootCause != null && rootCause.getMessage() != null) {
+                    return String.format("%s: %s%n", message, rootCause.getMessage());
+                }
+            }
+            return String.format("%s%n", message);
+        }
+
     }
 
     private static class PrintExceptionMessageHandler implements IExecutionExceptionHandler {
@@ -192,14 +211,14 @@ public class RiotApp extends HelpCommand {
         public String[] getVersion() {
             return new String[]{
                     // @formatter:off
-                    "",
-                    "      ▀        ▄     @|fg(4;1;1) ██████████████████████████|@",
-                    " █ ██ █  ███  ████   @|fg(4;2;1) ██████████████████████████|@",
-                    " ██   █ █   █  █     @|fg(5;4;1) ██████████████████████████|@",
-                    " █    █ █   █  █     @|fg(1;4;1) ██████████████████████████|@",
-                    " █    █  ███    ██   @|fg(0;3;4) ██████████████████████████|@"+ "  v" + getVersionString(),
-                    ""};
-            // @formatter:on
+                "",
+                "      ▀        █     @|fg(4;1;1) ██████████████████████████|@",
+                " █ ██ █  ███  ████   @|fg(4;2;1) ██████████████████████████|@",
+                " ██   █ █   █  █     @|fg(5;4;1) ██████████████████████████|@",
+                " █    █ █   █  █     @|fg(1;4;1) ██████████████████████████|@",
+                " █    █  ███    ██   @|fg(0;3;4) ██████████████████████████|@"+ "  v" + getVersionString(),
+                ""};
+                // @formatter:on
         }
 
         private String getVersionString() {

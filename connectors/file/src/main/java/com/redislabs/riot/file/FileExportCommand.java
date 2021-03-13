@@ -35,7 +35,7 @@ public class FileExportCommand extends AbstractExportCommand<DataStructure<Strin
     }
 
     private ItemWriter<DataStructure<String>> writer() throws IOException {
-        FileType fileType = FileUtils.fileType(file);
+        FileType fileType = fileOptions.type(file);
         WritableResource resource = FileUtils.outputResource(file, fileOptions);
         switch (fileType) {
             case JSON:

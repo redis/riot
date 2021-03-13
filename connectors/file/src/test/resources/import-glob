@@ -1,0 +1,1 @@
+riot-file import http://developer.redislabs.com/riot/beers1.csv http://developer.redislabs.com/riot/beers2.csv --header hset --keyspace beer --keys id

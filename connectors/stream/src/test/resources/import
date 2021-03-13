@@ -1,0 +1,1 @@
+riot-stream import topic1 --broker localhost:9092

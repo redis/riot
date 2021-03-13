@@ -1,1 +1,0 @@
-❯ riot-file import https://redis-developer.github.io/riot/trades.xml hset --keyspace trade --keys id

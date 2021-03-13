@@ -1,0 +1,1 @@
+riot-gen import --introspect beerIntrospection hset --keyspace beer --keys id

@@ -1,1 +1,0 @@
-❯ riot-file import https://redis-developer.github.io/riot/beers1.csv https://redis-developer.github.io/riot/beers2.csv --header hset --keyspace beer --keys id

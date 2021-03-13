@@ -49,12 +49,6 @@ public class FileUtils {
     public final static String GS_URI_PREFIX = "gs://";
     public final static String S3_URI_PREFIX = "s3://";
 
-
-    public final static String EXT_CSV = "csv";
-    public final static String EXT_TSV = "tsv";
-    public final static String EXT_FW = "fw";
-    public final static String EXT_JSON = "json";
-    public final static String EXT_XML = "xml";
     private final static Pattern EXTENSION_PATTERN = Pattern.compile("(?i)\\.(?<extension>\\w+)(?<gz>\\.gz)?$");
 
     public static String filename(Resource resource) throws IOException {
@@ -73,18 +67,6 @@ public class FileUtils {
             return path;
         }
         return path.substring(cut + 1);
-    }
-
-    public static FileType fileType(String file) {
-        String extension = extension(file);
-        for (FileType type : FileType.values()) {
-            for (String typeExtension : type.getExtensions()) {
-                if (typeExtension.equals(extension)) {
-                    return type;
-                }
-            }
-        }
-        return FileType.DELIMITED;
     }
 
     public static boolean isGzip(String file) {

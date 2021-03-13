@@ -8,7 +8,7 @@ The following processors can be applied to records in that order:
 
 Produce key/value pairs using https://docs.spring.io/spring/docs/current/spring-framework-reference/core.html#expressions[Spring Expression Language] (SpEL): `field1=<exp>`, `field2=<exp>`, ...
 
-For example `--spel "field1='foo'"` generates a field named `field1` with always the same value `foo`.
+For example `--process "field1='foo'"` generates a field named `field1` with always the same value `foo`.
 
 Input fields are accessed by name (e.g. `field3=field1+field2`).
 
@@ -17,17 +17,17 @@ The processor also exposes the following variables that can be called with the `
 ===== redis
 Redis connection to issue any command:
 
-`--spel "name=#redis.hgetall('person1').lastName"`
+`--process "name=#redis.hgetall('person1').lastName"`
 
 ===== date
 Date parser/formatter:
 
-`--spel "epoch=#date.parse(mydate).getTime()"`
+`--process "epoch=#date.parse(mydate).getTime()"`
 
 ===== index
 Sequence number of the item being generated:
 
-`--spel "id=#index"`
+`--process "id=#index"`
 
 ==== Regex
 

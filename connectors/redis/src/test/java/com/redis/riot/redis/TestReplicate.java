@@ -66,7 +66,7 @@ public class TestReplicate extends AbstractStandaloneRedisTest {
         DataGenerator.builder().commands(async).build().run();
         Long sourceSize = sync.dbsize();
         Assertions.assertTrue(sourceSize > 0);
-        executeFile("/replicate.txt");
+        executeFile("replicate");
         Assertions.assertEquals(sourceSize, targetSync.dbsize());
     }
 
@@ -80,7 +80,7 @@ public class TestReplicate extends AbstractStandaloneRedisTest {
     public void replicateLive() throws Exception {
         sync.configSet("notify-keyspace-events", "AK");
         DataGenerator.builder().commands(async).build().run();
-        ReplicateCommand command = (ReplicateCommand) command("/replicate-live.txt");
+        ReplicateCommand command = (ReplicateCommand) command("replicate-live");
         JobExecution execution = command.executeAsync();
         Thread.sleep(100);
         log.info("Setting livestring keys");

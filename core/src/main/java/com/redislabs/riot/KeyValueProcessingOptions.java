@@ -22,17 +22,17 @@ import java.util.*;
 @AllArgsConstructor
 public class KeyValueProcessingOptions {
 
-    @Option(arity = "1..*", names = "--spel", description = "SpEL expression to produce a field", paramLabel = "<f=exp>")
+    @Option(arity = "1..*", names = "--process", description = "SpEL processors in the form: --process field1=\"<expression>\" field2=\"<expression>\" …", paramLabel = "<f=exp>")
     private Map<String, String> spelFields;
     @Option(arity = "1..*", names = "--var", description = "Register a variable in the SpEL processor context", paramLabel = "<v=exp>")
     private Map<String, String> variables;
     @Builder.Default
     @Option(names = "--date", description = "Processor date format (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
     private String dateFormat = new SimpleDateFormat().toPattern();
+    @Option(arity = "1..*", names = "--filter", description = "Discard records using SpEL boolean expressions", paramLabel = "<exp>")
+    private String[] filters;
     @Option(arity = "1..*", names = "--regex", description = "Extract named values from source field using regex", paramLabel = "<f=exp>")
     private Map<String, String> regexes;
-    @Option(arity = "1..*", names = "--filter", description = "SpEL expression to filter records", paramLabel = "<exp>")
-    private String[] filters;
 
     public ItemProcessor<Map<String, Object>, Map<String, Object>> processor(StatefulConnection<String, String> connection) {
         List<ItemProcessor<Map<String, Object>, Map<String, Object>>> processors = new ArrayList<>();

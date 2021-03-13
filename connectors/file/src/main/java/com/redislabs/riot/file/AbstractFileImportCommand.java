@@ -11,11 +11,6 @@ import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,7 +32,7 @@ public abstract class AbstractFileImportCommand<T> extends AbstractImportCommand
         }
         List<Step> steps = new ArrayList<>();
         for (String file : expandedFiles) {
-            FileType fileType = FileUtils.fileType(file);
+            FileType fileType = fileOptions.type(file);
             Resource resource = FileUtils.inputResource(file, fileOptions);
             AbstractItemStreamItemReader<T> reader = reader(file, fileType, resource);
             String name = FileUtils.filename(resource);
