@@ -5,7 +5,6 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.10">
-<link rel="icon" type="image/svg" href="images/favicon.svg">
 <title>Processing</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
@@ -436,14 +435,13 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 #footer-text{color:rgba(0,0,0,.6);font-size:.9em}}
 @media amzn-kf8{#header,#content,#footnotes,#footer{padding:0}}
 </style>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 <body class="article">
 <div id="header">
 </div>
 <div id="content">
 <div class="sect2">
-<h3 id="_processing"><a class="anchor" href="#_processing"></a>Processing</h3>
+<h3 id="_processing">Processing</h3>
 <div class="paragraph">
 <p>The following processors can be applied to records in that order:</p>
 </div>
@@ -461,13 +459,13 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </ul>
 </div>
 <div class="sect3">
-<h4 id="_transforms"><a class="anchor" href="#_transforms"></a>Transforms</h4>
+<h4 id="_transforms">Transforms</h4>
 <div class="paragraph">
 <p>Produce key/value pairs using <a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/core.html#expressions">Spring Expression Language</a> (SpEL):</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="rouge highlight"><code data-lang="bash"><span class="nt">--process</span> <span class="nv">field1</span><span class="o">=</span><span class="s2">"&lt;exp&gt;"</span> <span class="nv">field2</span><span class="o">=</span><span class="s2">"&lt;exp&gt;"</span> …</code></pre>
+<pre class="highlight"><code class="language-bash" data-lang="bash">--process field1="&lt;exp&gt;" field2="&lt;exp&gt;" …</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -499,18 +497,18 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="sect3">
-<h4 id="_regular_expressions"><a class="anchor" href="#_regular_expressions"></a>Regular Expressions</h4>
+<h4 id="_regular_expressions">Regular Expressions</h4>
 <div class="paragraph">
 <p>Extract patterns from source fields using regular expressions:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="rouge highlight"><code data-lang="bash"><span class="nt">--regex</span> <span class="nv">name</span><span class="o">=</span><span class="s2">"(?&lt;first&gt;</span><span class="se">\w</span><span class="s2">+)</span><span class="se">\/</span><span class="s2">(?&lt;last&gt;</span><span class="se">\w</span><span class="s2">+)"</span></code></pre>
+<pre class="highlight"><code class="language-bash" data-lang="bash">--regex name="(?&lt;first&gt;\w+)\/(?&lt;last&gt;\w+)"</code></pre>
 </div>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_filters"><a class="anchor" href="#_filters"></a>Filters</h4>
+<h4 id="_filters">Filters</h4>
 <div class="paragraph">
 <p>Keep records that match a SpEL boolean expression.</p>
 </div>
@@ -526,216 +524,5 @@ Version 2.6.3<br>
 Last updated 2021-03-13 19:10:02 -0800
 </div>
 </div>
-<style>
-pre.rouge table td { padding: 5px; }
-pre.rouge table pre { margin: 0; }
-pre.rouge .cm {
-  color: #999988;
-  font-style: italic;
-}
-pre.rouge .cp {
-  color: #999999;
-  font-weight: bold;
-}
-pre.rouge .c1 {
-  color: #999988;
-  font-style: italic;
-}
-pre.rouge .cs {
-  color: #999999;
-  font-weight: bold;
-  font-style: italic;
-}
-pre.rouge .c, pre.rouge .ch, pre.rouge .cd, pre.rouge .cpf {
-  color: #999988;
-  font-style: italic;
-}
-pre.rouge .err {
-  color: #a61717;
-  background-color: #e3d2d2;
-}
-pre.rouge .gd {
-  color: #000000;
-  background-color: #ffdddd;
-}
-pre.rouge .ge {
-  color: #000000;
-  font-style: italic;
-}
-pre.rouge .gr {
-  color: #aa0000;
-}
-pre.rouge .gh {
-  color: #999999;
-}
-pre.rouge .gi {
-  color: #000000;
-  background-color: #ddffdd;
-}
-pre.rouge .go {
-  color: #888888;
-}
-pre.rouge .gp {
-  color: #555555;
-}
-pre.rouge .gs {
-  font-weight: bold;
-}
-pre.rouge .gu {
-  color: #aaaaaa;
-}
-pre.rouge .gt {
-  color: #aa0000;
-}
-pre.rouge .kc {
-  color: #000000;
-  font-weight: bold;
-}
-pre.rouge .kd {
-  color: #000000;
-  font-weight: bold;
-}
-pre.rouge .kn {
-  color: #000000;
-  font-weight: bold;
-}
-pre.rouge .kp {
-  color: #000000;
-  font-weight: bold;
-}
-pre.rouge .kr {
-  color: #000000;
-  font-weight: bold;
-}
-pre.rouge .kt {
-  color: #445588;
-  font-weight: bold;
-}
-pre.rouge .k, pre.rouge .kv {
-  color: #000000;
-  font-weight: bold;
-}
-pre.rouge .mf {
-  color: #009999;
-}
-pre.rouge .mh {
-  color: #009999;
-}
-pre.rouge .il {
-  color: #009999;
-}
-pre.rouge .mi {
-  color: #009999;
-}
-pre.rouge .mo {
-  color: #009999;
-}
-pre.rouge .m, pre.rouge .mb, pre.rouge .mx {
-  color: #009999;
-}
-pre.rouge .sb {
-  color: #d14;
-}
-pre.rouge .sc {
-  color: #d14;
-}
-pre.rouge .sd {
-  color: #d14;
-}
-pre.rouge .s2 {
-  color: #d14;
-}
-pre.rouge .se {
-  color: #d14;
-}
-pre.rouge .sh {
-  color: #d14;
-}
-pre.rouge .si {
-  color: #d14;
-}
-pre.rouge .sx {
-  color: #d14;
-}
-pre.rouge .sr {
-  color: #009926;
-}
-pre.rouge .s1 {
-  color: #d14;
-}
-pre.rouge .ss {
-  color: #990073;
-}
-pre.rouge .s, pre.rouge .sa, pre.rouge .dl {
-  color: #d14;
-}
-pre.rouge .na {
-  color: #008080;
-}
-pre.rouge .bp {
-  color: #999999;
-}
-pre.rouge .nb {
-  color: #0086B3;
-}
-pre.rouge .nc {
-  color: #445588;
-  font-weight: bold;
-}
-pre.rouge .no {
-  color: #008080;
-}
-pre.rouge .nd {
-  color: #3c5d5d;
-  font-weight: bold;
-}
-pre.rouge .ni {
-  color: #800080;
-}
-pre.rouge .ne {
-  color: #990000;
-  font-weight: bold;
-}
-pre.rouge .nf, pre.rouge .fm {
-  color: #990000;
-  font-weight: bold;
-}
-pre.rouge .nl {
-  color: #990000;
-  font-weight: bold;
-}
-pre.rouge .nn {
-  color: #555555;
-}
-pre.rouge .nt {
-  color: #000080;
-}
-pre.rouge .vc {
-  color: #008080;
-}
-pre.rouge .vg {
-  color: #008080;
-}
-pre.rouge .vi {
-  color: #008080;
-}
-pre.rouge .nv, pre.rouge .vm {
-  color: #008080;
-}
-pre.rouge .ow {
-  color: #000000;
-  font-weight: bold;
-}
-pre.rouge .o {
-  color: #000000;
-  font-weight: bold;
-}
-pre.rouge .w {
-  color: #bbbbbb;
-}
-pre.rouge {
-  background-color: #f8f8f8;
-}
-</style>
 </body>
 </html>

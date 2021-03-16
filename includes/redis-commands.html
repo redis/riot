@@ -5,7 +5,6 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.10">
-<link rel="icon" type="image/svg" href="images/favicon.svg">
 <title>Redis Commands</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
@@ -436,14 +435,13 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 #footer-text{color:rgba(0,0,0,.6);font-size:.9em}}
 @media amzn-kf8{#header,#content,#footnotes,#footer{padding:0}}
 </style>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 <body class="article">
 <div id="header">
 </div>
 <div id="content">
 <div class="sect2">
-<h3 id="_redis_commands"><a class="anchor" href="#_redis_commands"></a>Redis Commands</h3>
+<h3 id="_redis_commands">Redis Commands</h3>
 <div class="paragraph">
 <p>Redis keys are constructed from input records by concatenating the keyspace prefix and key fields:</p>
 </div>
@@ -458,19 +456,19 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="listingblock">
 <div class="title">Import into hashes</div>
 <div class="content">
-<pre class="rouge highlight"><code data-lang="source">{app} import … hset --keyspace blah --keys id</code></pre>
+<pre class="highlight"><code class="language-source" data-lang="source">{app} import … hset --keyspace blah --keys id</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="title">Import into hashes <strong>and</strong> set TTL on the key</div>
 <div class="content">
-<pre class="rouge highlight"><code data-lang="bash"><span class="o">{</span>app<span class="o">}</span> import … hset <span class="nt">--keyspace</span> blah <span class="nt">--keys</span> <span class="nb">id </span>expire <span class="nt">--keyspace</span> blah <span class="nt">--keys</span> <span class="nb">id</span></code></pre>
+<pre class="highlight"><code class="language-bash" data-lang="bash">{app} import … hset --keyspace blah --keys id expire --keyspace blah --keys id</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="title">Import into hashes <strong>and</strong> set TTL <strong>and</strong> add to a set named <code>myset</code></div>
 <div class="content">
-<pre class="rouge highlight"><code data-lang="source">{app} import … hset --keyspace blah --keys id expire --keyspace blah --keys id sadd --keyspace myset --members id</code></pre>
+<pre class="highlight"><code class="language-source" data-lang="source">{app} import … hset --keyspace blah --keys id expire --keyspace blah --keys id sadd --keyspace myset --members id</code></pre>
 </div>
 </div>
 </div>
@@ -481,216 +479,5 @@ Version 2.6.3<br>
 Last updated 2021-03-13 19:11:26 -0800
 </div>
 </div>
-<style>
-pre.rouge table td { padding: 5px; }
-pre.rouge table pre { margin: 0; }
-pre.rouge .cm {
-  color: #999988;
-  font-style: italic;
-}
-pre.rouge .cp {
-  color: #999999;
-  font-weight: bold;
-}
-pre.rouge .c1 {
-  color: #999988;
-  font-style: italic;
-}
-pre.rouge .cs {
-  color: #999999;
-  font-weight: bold;
-  font-style: italic;
-}
-pre.rouge .c, pre.rouge .ch, pre.rouge .cd, pre.rouge .cpf {
-  color: #999988;
-  font-style: italic;
-}
-pre.rouge .err {
-  color: #a61717;
-  background-color: #e3d2d2;
-}
-pre.rouge .gd {
-  color: #000000;
-  background-color: #ffdddd;
-}
-pre.rouge .ge {
-  color: #000000;
-  font-style: italic;
-}
-pre.rouge .gr {
-  color: #aa0000;
-}
-pre.rouge .gh {
-  color: #999999;
-}
-pre.rouge .gi {
-  color: #000000;
-  background-color: #ddffdd;
-}
-pre.rouge .go {
-  color: #888888;
-}
-pre.rouge .gp {
-  color: #555555;
-}
-pre.rouge .gs {
-  font-weight: bold;
-}
-pre.rouge .gu {
-  color: #aaaaaa;
-}
-pre.rouge .gt {
-  color: #aa0000;
-}
-pre.rouge .kc {
-  color: #000000;
-  font-weight: bold;
-}
-pre.rouge .kd {
-  color: #000000;
-  font-weight: bold;
-}
-pre.rouge .kn {
-  color: #000000;
-  font-weight: bold;
-}
-pre.rouge .kp {
-  color: #000000;
-  font-weight: bold;
-}
-pre.rouge .kr {
-  color: #000000;
-  font-weight: bold;
-}
-pre.rouge .kt {
-  color: #445588;
-  font-weight: bold;
-}
-pre.rouge .k, pre.rouge .kv {
-  color: #000000;
-  font-weight: bold;
-}
-pre.rouge .mf {
-  color: #009999;
-}
-pre.rouge .mh {
-  color: #009999;
-}
-pre.rouge .il {
-  color: #009999;
-}
-pre.rouge .mi {
-  color: #009999;
-}
-pre.rouge .mo {
-  color: #009999;
-}
-pre.rouge .m, pre.rouge .mb, pre.rouge .mx {
-  color: #009999;
-}
-pre.rouge .sb {
-  color: #d14;
-}
-pre.rouge .sc {
-  color: #d14;
-}
-pre.rouge .sd {
-  color: #d14;
-}
-pre.rouge .s2 {
-  color: #d14;
-}
-pre.rouge .se {
-  color: #d14;
-}
-pre.rouge .sh {
-  color: #d14;
-}
-pre.rouge .si {
-  color: #d14;
-}
-pre.rouge .sx {
-  color: #d14;
-}
-pre.rouge .sr {
-  color: #009926;
-}
-pre.rouge .s1 {
-  color: #d14;
-}
-pre.rouge .ss {
-  color: #990073;
-}
-pre.rouge .s, pre.rouge .sa, pre.rouge .dl {
-  color: #d14;
-}
-pre.rouge .na {
-  color: #008080;
-}
-pre.rouge .bp {
-  color: #999999;
-}
-pre.rouge .nb {
-  color: #0086B3;
-}
-pre.rouge .nc {
-  color: #445588;
-  font-weight: bold;
-}
-pre.rouge .no {
-  color: #008080;
-}
-pre.rouge .nd {
-  color: #3c5d5d;
-  font-weight: bold;
-}
-pre.rouge .ni {
-  color: #800080;
-}
-pre.rouge .ne {
-  color: #990000;
-  font-weight: bold;
-}
-pre.rouge .nf, pre.rouge .fm {
-  color: #990000;
-  font-weight: bold;
-}
-pre.rouge .nl {
-  color: #990000;
-  font-weight: bold;
-}
-pre.rouge .nn {
-  color: #555555;
-}
-pre.rouge .nt {
-  color: #000080;
-}
-pre.rouge .vc {
-  color: #008080;
-}
-pre.rouge .vg {
-  color: #008080;
-}
-pre.rouge .vi {
-  color: #008080;
-}
-pre.rouge .nv, pre.rouge .vm {
-  color: #008080;
-}
-pre.rouge .ow {
-  color: #000000;
-  font-weight: bold;
-}
-pre.rouge .o {
-  color: #000000;
-  font-weight: bold;
-}
-pre.rouge .w {
-  color: #bbbbbb;
-}
-pre.rouge {
-  background-color: #f8f8f8;
-}
-</style>
 </body>
 </html>
