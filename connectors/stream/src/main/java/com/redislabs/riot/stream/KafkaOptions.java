@@ -17,7 +17,10 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.util.unit.DataSize;
 import picocli.CommandLine.Option;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Properties;
 
 @Data
 @Builder
@@ -29,15 +32,15 @@ public class KafkaOptions {
         AVRO, JSON
     }
 
-    @Option(names = "--broker", arity = "1..*", description = "One or more brokers in the form host:port", paramLabel = "<server>")
-    private List<String> brokers;
+    @Option(arity = "1..*", names = "--broker", description = "One or more brokers in the form host:port", paramLabel = "<server>")
+    private String[] brokers;
     @Builder.Default
     @Option(names = "--group", description = "Consumer group id", paramLabel = "<id>")
     private String groupId = "$Default";
     @Getter
     @Option(names = "--registry", description = "Schema registry URL", paramLabel = "<url>")
     private String schemaRegistryUrl;
-    @Option(names = {"-p", "--property"}, arity = "1..*", description = "Additional producer/consumer properties", paramLabel = "<k=v>")
+    @Option(arity = "1..*", names = {"-p", "--property"}, description = "Additional producer/consumer properties", paramLabel = "<k=v>")
     private Map<String, String> properties;
     @Builder.Default
     @Option(names = "--serde", description = "Serializer/Deserializer: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})", paramLabel = "<serde>")
@@ -71,7 +74,9 @@ public class KafkaOptions {
 
     private KafkaProperties kafkaProperties() {
         KafkaProperties kafkaProperties = new KafkaProperties();
-        kafkaProperties.setBootstrapServers(brokers);
+        if (!ObjectUtils.isEmpty(brokers)) {
+            kafkaProperties.setBootstrapServers(Arrays.asList(brokers));
+        }
         return kafkaProperties;
     }
 

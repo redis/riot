@@ -20,7 +20,7 @@ import java.util.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class KeyValueProcessingOptions {
+public class ProcessorOptions {
 
     @Option(arity = "1..*", names = "--process", description = "SpEL processors in the form: --process field1=\"<expression>\" field2=\"<expression>\" …", paramLabel = "<f=exp>")
     private Map<String, String> spelFields;
@@ -29,7 +29,7 @@ public class KeyValueProcessingOptions {
     @Builder.Default
     @Option(names = "--date", description = "Processor date format (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
     private String dateFormat = new SimpleDateFormat().toPattern();
-    @Option(arity = "1..*", names = "--filter", description = "Discard records using SpEL boolean expressions", paramLabel = "<exp>")
+    @Option(arity = "1..*",names = "--filter", description = "Discard records using SpEL boolean expressions", paramLabel = "<exp>")
     private String[] filters;
     @Option(arity = "1..*", names = "--regex", description = "Extract named values from source field using regex", paramLabel = "<f=exp>")
     private Map<String, String> regexes;

@@ -19,6 +19,7 @@ import picocli.CommandLine.Option;
 import java.io.File;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
@@ -47,8 +48,8 @@ public class RedisOptions {
     private String username;
     @Option(names = {"-a", "--pass"}, arity = "0..1", interactive = true, description = "Password to use when connecting to the server.", paramLabel = "<password>")
     private char[] password;
-    @Option(names = {"-u", "--uri"}, arity = "0..*", description = "Server URI.", paramLabel = "<uri>")
-    private List<RedisURI> uris;
+    @Option(names = {"-u", "--uri"}, arity = "1..*", description = "Server URI.", paramLabel = "<uri>")
+    private RedisURI[] uris;
     @Builder.Default
     @Option(names = "--timeout", description = "Redis command timeout (default: ${DEFAULT-VALUE}).", paramLabel = "<sec>")
     private long timeout = DEFAULT_TIMEOUT;
@@ -92,7 +93,7 @@ public class RedisOptions {
             uri.setSsl(tls);
             redisURIs.add(uri);
         } else {
-            redisURIs.addAll(this.uris);
+            redisURIs.addAll(Arrays.asList(this.uris));
         }
         for (RedisURI uri : redisURIs) {
             uri.setVerifyPeer(verifyPeer);

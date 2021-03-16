@@ -7,7 +7,7 @@ import com.redislabs.riot.RiotApp;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
-@Command(name = "riot-file", subcommands = {KeyValueFileImportCommand.class, DataStructureFileImportCommand.class, FileExportCommand.class})
+@Command(name = "riot-file", subcommands = {FileImportCommand.class, DumpFileImportCommand.class, FileExportCommand.class})
 public class RiotFile extends RiotApp {
 
     @Override

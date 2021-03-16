@@ -2,8 +2,7 @@ package com.redislabs.riot.gen;
 
 import com.redislabs.lettusearch.*;
 import com.redislabs.riot.AbstractImportCommand;
-import com.redislabs.riot.KeyValueProcessingOptions;
-import io.lettuce.core.RedisURI;
+import com.redislabs.riot.ProcessorOptions;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.item.ItemProcessor;
@@ -20,12 +19,16 @@ public class GenerateCommand extends AbstractImportCommand<Map<String, Object>, 
     @CommandLine.Mixin
     private GenerateOptions options = GenerateOptions.builder().build();
     @CommandLine.Mixin
-    private KeyValueProcessingOptions processingOptions = KeyValueProcessingOptions.builder().build();
+    private ProcessorOptions processingOptions = ProcessorOptions.builder().build();
 
     @Override
     protected Flow flow() {
         log.info("Creating Faker reader with {}", options);
-        FakerItemReader reader = FakerItemReader.builder().locale(options.getLocale()).includeMetadata(options.isIncludeMetadata()).fields(fakerFields(getRedisURI())).start(options.getStart()).end(options.getEnd()).sleep(options.getSleep()).build();
+        Map<String, String> fields = options.getFakerFields() == null ? new LinkedHashMap<>() : new LinkedHashMap<>(options.getFakerFields());
+        if (options.getFakerIndex() != null) {
+            fields.putAll(fieldsFromIndex(options.getFakerIndex()));
+        }
+        FakerItemReader reader = FakerItemReader.builder().locale(options.getLocale()).includeMetadata(options.isIncludeMetadata()).fields(fields).start(options.getStart()).end(options.getEnd()).sleep(options.getSleep()).build();
         return flow(step("generate-step", "Generating", reader).build());
     }
 
@@ -42,23 +45,20 @@ public class GenerateCommand extends AbstractImportCommand<Map<String, Object>, 
         }
     }
 
-    private Map<String, String> fakerFields(RedisURI uri) {
-        Map<String, String> fields = options.getFakerFields() == null ? new LinkedHashMap<>() : new LinkedHashMap<>(options.getFakerFields());
-        if (options.getFakerIndex() == null) {
-            return fields;
-        }
-        RediSearchClient client = RediSearchClient.create(uri);
+    private Map<String, String> fieldsFromIndex(String index) {
+        Map<String, String> fields = new LinkedHashMap<>();
+        RediSearchClient client = RediSearchClient.create(getRedisURI());
         try (StatefulRediSearchConnection<String, String> connection = client.connect()) {
             RediSearchCommands<String, String> commands = connection.sync();
-            IndexInfo<String> info = RediSearchUtils.getInfo(commands.ftInfo(options.getFakerIndex()));
+            IndexInfo<String> info = RediSearchUtils.getInfo(commands.ftInfo(index));
             for (Field<String> field : info.getFields()) {
                 fields.put(field.getName(), expression(field));
             }
-            return fields;
         } finally {
             client.shutdown();
             client.getResources().shutdown();
         }
+        return fields;
     }
 
     @Override

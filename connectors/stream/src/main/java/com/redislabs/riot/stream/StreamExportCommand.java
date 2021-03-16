@@ -35,7 +35,7 @@ import java.util.Map;
 public class StreamExportCommand extends AbstractTransferCommand<StreamMessage<String, String>, ProducerRecord<String, Object>> {
 
     @SuppressWarnings("unused")
-    @Parameters(arity = "1..*", description = "One ore more streams to read from", paramLabel = "STREAM")
+    @Parameters(arity = "0..*", description = "One ore more streams to read from", paramLabel = "STREAM")
     private String[] streams;
     @CommandLine.Mixin
     private KafkaOptions options = KafkaOptions.builder().build();

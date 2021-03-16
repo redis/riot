@@ -11,9 +11,9 @@ import io.lettuce.core.cluster.pubsub.StatefulRedisClusterPubSubConnection;
 import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.pool2.impl.GenericObjectPool;
-import org.springframework.batch.core.job.builder.FlowBuilder;
 import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.core.job.flow.support.SimpleFlow;
+import org.springframework.batch.core.step.tasklet.TaskletStep;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.redis.DataStructureItemReader;
@@ -32,13 +32,17 @@ import java.time.Duration;
 @Command(name = "replicate", description = "Replicate a source Redis database to a target Redis database")
 public class ReplicateCommand extends AbstractTransferCommand<KeyValue<String, byte[]>, KeyValue<String, byte[]>> {
 
+    enum ReplicationMode {
+        SNAPSHOT, LIVE, LIVE_ONLY
+    }
+
     @CommandLine.ArgGroup(exclusive = false, heading = "Target Redis connection options%n")
     private RedisOptions targetRedisOptions = RedisOptions.builder().build();
     @CommandLine.ArgGroup(exclusive = false, heading = "Source Redis reader options%n")
     private RedisReaderOptions readerOptions = RedisReaderOptions.builder().build();
     @SuppressWarnings("unused")
-    @Option(names = "--live", description = "Enable live replication.")
-    private boolean live;
+    @Option(names = "--mode", description = "Replication mode: SNAPSHOT (scan only), LIVE (scan+notifications), LIVE_ONLY (notifications). Default: ${DEFAULT-VALUE}.")
+    private ReplicationMode mode = ReplicationMode.SNAPSHOT;
     @CommandLine.Mixin
     private FlushingTransferOptions flushingOptions = FlushingTransferOptions.builder().build();
     @Option(names = "--event-queue", description = "Capacity of the keyspace notification event queue (default: ${DEFAULT-VALUE}).", paramLabel = "<size>")
@@ -59,7 +63,7 @@ public class ReplicateCommand extends AbstractTransferCommand<KeyValue<String, b
         this.targetPool = pool(targetRedisOptions, targetClient);
         this.targetConnection = connection(targetClient);
         super.afterPropertiesSet();
-        if (live) {
+        if (mode == ReplicationMode.LIVE || mode == ReplicationMode.LIVE_ONLY) {
             this.pubSubConnection = pubSubConnection(client);
         }
     }
@@ -93,24 +97,43 @@ public class ReplicateCommand extends AbstractTransferCommand<KeyValue<String, b
 
     @Override
     protected Flow flow() {
-        String name = "Scanning";
-        StepBuilder<KeyValue<String, byte[]>, KeyValue<String, byte[]>> replicationStep = stepBuilder("scan-replication-step", name);
-        FlowBuilder<SimpleFlow> flow = flow(name).start(replicationStep.reader(sourceKeyDumpReader()).writer(targetKeyDumpWriter()).build().build());
-        if (live) {
-            String liveReplicationName = "Listening";
-            StepBuilder<KeyValue<String, byte[]>, KeyValue<String, byte[]>> liveReplicationStep = stepBuilder("live-replication-step", liveReplicationName);
-            KeyDumpItemReader<String, String> liveReader = liveReader();
-            liveReader.setName("Live" + ClassUtils.getShortName(liveReader.getClass()));
-            log.info("Configuring live transfer with {}", flushingOptions);
-            SimpleFlow liveFlow = flow(liveReplicationName).start(flushingOptions.configure(liveReplicationStep.reader(liveReader).writer(targetKeyDumpWriter()).build()).build()).build();
-            flow = flow(liveReplicationName).split(new SimpleAsyncTaskExecutor()).add(liveFlow, flow.build());
-        }
         if (verify) {
-            KeyComparisonItemWriter<String, String> writer = comparisonWriter();
-            StepBuilder<DataStructure<String>, DataStructure<String>> verifyStep = stepBuilder("verification-step", "Verifying");
-            flow = flow("Replication+Verification").start(flow.build()).next(verifyStep.reader(sourceDataStructureReader()).writer(writer).extraMessage(() -> message(writer)).build().build());
+            return flow("replication-verification-flow").start(replicationFlow()).next(verificationFlow()).build();
         }
-        return flow.build();
+        return replicationFlow();
+    }
+
+    private Flow replicationFlow() {
+        switch (mode) {
+            case LIVE:
+                SimpleFlow notificationFlow = flow("notification-flow").start(notificationStep()).build();
+                SimpleFlow scanFlow = flow("scan-flow").start(scanStep()).build();
+                return flow("live-flow").split(new SimpleAsyncTaskExecutor()).add(notificationFlow, scanFlow).build();
+            case LIVE_ONLY:
+                return flow("live-only-flow").start(notificationStep()).build();
+            default:
+                return flow("snapshot-flow").start(scanStep()).build();
+        }
+    }
+
+    private Flow verificationFlow() {
+        KeyComparisonItemWriter<String, String> writer = comparisonWriter();
+        StepBuilder<DataStructure<String>, DataStructure<String>> verifyStep = stepBuilder("verification-step", "Verifying");
+        TaskletStep verificationStep = verifyStep.reader(sourceDataStructureReader()).writer(writer).extraMessage(() -> message(writer)).build().build();
+        return flow("verification-flow").start(verificationStep).build();
+    }
+
+    private TaskletStep scanStep() {
+        StepBuilder<KeyValue<String, byte[]>, KeyValue<String, byte[]>> replicationStep = stepBuilder("scan-replication-step", "Scanning");
+        return replicationStep.reader(sourceKeyDumpReader()).writer(targetKeyDumpWriter()).build().build();
+    }
+
+    private TaskletStep notificationStep() {
+        StepBuilder<KeyValue<String, byte[]>, KeyValue<String, byte[]>> liveReplicationStep = stepBuilder("live-replication-step", "Listening");
+        KeyDumpItemReader<String, String> liveReader = liveReader();
+        liveReader.setName("Live" + ClassUtils.getShortName(liveReader.getClass()));
+        log.info("Configuring live transfer with {}", flushingOptions);
+        return flushingOptions.configure(liveReplicationStep.reader(liveReader).writer(targetKeyDumpWriter()).build()).build();
     }
 
     private String message(KeyComparisonItemWriter<String, String> writer) {

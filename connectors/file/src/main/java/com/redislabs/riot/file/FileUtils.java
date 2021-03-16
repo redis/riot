@@ -52,6 +52,12 @@ public class FileUtils {
     private final static Pattern EXTENSION_PATTERN = Pattern.compile("(?i)\\.(?<extension>\\w+)(?<gz>\\.gz)?$");
     private static final String STD_IN = "stdin";
     private static final String STD_OUT = "stdout";
+    public static final String EXTENSION_CSV = "csv";
+    public static final String EXTENSION_TSV = "tsv";
+    public static final String EXTENSION_PSV = "psv";
+    public static final String EXTENSION_FW = "fw";
+    public static final String EXTENSION_JSON = "json";
+    public static final String EXTENSION_XML = "xml";
 
     public static String filename(Resource resource) throws IOException {
         if (resource instanceof StandardInputResource) {
@@ -77,27 +83,6 @@ public class FileUtils {
 
     public static String extension(String file) {
         return extensionGroup(file, "extension");
-    }
-
-    /**
-     * Tries to determine the file type using its extension: the extension is changed to upper case and a name match is performed on enum type.
-     *
-     * @return filetype based on exension, or null if file has no extension
-     * @throws IllegalArgumentException if no enum value is found
-     */
-    public static <E extends Enum<E>> E type(Class<E> enumType, E type, String file) throws IllegalArgumentException {
-        if (type != null) {
-            return type;
-        }
-        String extension = extension(file);
-        if (extension == null) {
-            throw new IllegalArgumentException("Could not determine type of file " + file);
-        }
-        try {
-            return E.valueOf(enumType, extension.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Unsupported file extension: " + extension);
-        }
     }
 
     public static String extensionGroup(String file, String group) {

@@ -15,22 +15,17 @@ import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
 
-import java.io.File;
 import java.io.IOException;
 
 @Slf4j
-@Command(name = "export", description = "Export Redis data to a JSON or XML file")
+@Command(name = "export", description = "Export Redis data to JSON or XML files")
 public class FileExportCommand extends AbstractExportCommand<DataStructure<String>> {
-
-    enum FileType {
-        JSON, XML
-    }
 
     @SuppressWarnings("unused")
     @CommandLine.Parameters(arity = "1", description = "File path or URL", paramLabel = "FILE")
     private String file;
     @CommandLine.Option(names = {"-t", "--type"}, description = "File type: ${COMPLETION-CANDIDATES}", paramLabel = "<type>")
-    private FileType type;
+    private DumpFileType type;
     @Mixin
     private FileExportOptions exportOptions = FileExportOptions.builder().build();
     @Mixin
@@ -42,20 +37,9 @@ public class FileExportCommand extends AbstractExportCommand<DataStructure<Strin
     }
 
     private ItemWriter<DataStructure<String>> writer() throws IOException {
-        FileType fileType = FileUtils.type(FileType.class, type, file);
         WritableResource resource = FileUtils.outputResource(file, fileOptions);
+        DumpFileType fileType = type == null ? DumpFileType.of(file) : type;
         switch (fileType) {
-            case JSON:
-                JsonResourceItemWriterBuilder<DataStructure<String>> jsonWriterBuilder = new JsonResourceItemWriterBuilder<>();
-                jsonWriterBuilder.name("json-resource-item-writer");
-                jsonWriterBuilder.append(exportOptions.isAppend());
-                jsonWriterBuilder.encoding(fileOptions.getEncoding());
-                jsonWriterBuilder.jsonObjectMarshaller(new JacksonJsonObjectMarshaller<>());
-                jsonWriterBuilder.lineSeparator(exportOptions.getLineSeparator());
-                jsonWriterBuilder.resource(resource);
-                jsonWriterBuilder.saveState(false);
-                log.info("Creating JSON writer with {} for file {}", exportOptions, file);
-                return jsonWriterBuilder.build();
             case XML:
                 XmlResourceItemWriterBuilder<DataStructure<String>> xmlWriterBuilder = new XmlResourceItemWriterBuilder<>();
                 xmlWriterBuilder.name("xml-resource-item-writer");
@@ -69,7 +53,16 @@ public class FileExportCommand extends AbstractExportCommand<DataStructure<Strin
                 log.info("Creating XML writer with {} for file {}", exportOptions, file);
                 return xmlWriterBuilder.build();
             default:
-                throw new IllegalArgumentException("Unsupported file type: " + fileType);
+                JsonResourceItemWriterBuilder<DataStructure<String>> jsonWriterBuilder = new JsonResourceItemWriterBuilder<>();
+                jsonWriterBuilder.name("json-resource-item-writer");
+                jsonWriterBuilder.append(exportOptions.isAppend());
+                jsonWriterBuilder.encoding(fileOptions.getEncoding());
+                jsonWriterBuilder.jsonObjectMarshaller(new JacksonJsonObjectMarshaller<>());
+                jsonWriterBuilder.lineSeparator(exportOptions.getLineSeparator());
+                jsonWriterBuilder.resource(resource);
+                jsonWriterBuilder.saveState(false);
+                log.info("Creating JSON writer with {} for file {}", exportOptions, file);
+                return jsonWriterBuilder.build();
         }
     }
 

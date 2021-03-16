@@ -12,7 +12,7 @@ Most database migration tools available today are offline in nature. Migrating d
 
 [source,bash]
 ----
-riot-redis -h source -p 6379 replicate --live -h target -p 6380
+riot-redis -h source -p 6379 replicate --mode live -h target -p 6380
 ----
 
 {app-name} does not make use of the https://redis.io/commands/replicaof[REPLICAOF] command which is not always available (e.g. ElastiCache), but instead implements client-side replication using DUMP and RESTORE:

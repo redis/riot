@@ -37,7 +37,7 @@ import java.util.function.BiFunction;
 public class StreamImportCommand extends AbstractTransferCommand<ConsumerRecord<String, Object>, ConsumerRecord<String, Object>> {
 
     @SuppressWarnings("unused")
-    @Parameters(arity = "1..*", description = "One ore more topics to read from", paramLabel = "TOPIC")
+    @Parameters(arity = "0..*", description = "One ore more topics to read from", paramLabel = "TOPIC")
     private String[] topics;
     @CommandLine.Mixin
     private KafkaOptions options = KafkaOptions.builder().build();

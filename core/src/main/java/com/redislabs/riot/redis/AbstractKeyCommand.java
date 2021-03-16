@@ -12,7 +12,7 @@ public abstract class AbstractKeyCommand extends AbstractRedisCommand<Map<String
     @Option(names = {"-p", "--keyspace"}, description = "Keyspace prefix", paramLabel = "<str>")
     private String keyspace = "";
     @Option(names = {"-k", "--keys"}, arity = "1..*", description = "Key fields", paramLabel = "<fields>")
-    private String[] keys = new String[0];
+    private String[] keys;
 
     protected <B extends CommandBuilder.KeyCommandBuilder<?, Map<String, Object>, B>> B configureKeyCommandBuilder(B builder) {
         return builder.keyConverter(idMaker(keyspace, keys));

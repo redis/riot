@@ -8,6 +8,7 @@ import com.redislabs.riot.convert.ObjectToNumberConverter;
 import com.redislabs.riot.convert.ObjectToStringConverter;
 import org.springframework.batch.item.redis.support.KeyMaker;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.util.ObjectUtils;
 import picocli.CommandLine;
 
 import java.util.Map;
@@ -46,13 +47,17 @@ public abstract class AbstractRedisCommand<O> extends HelpCommand implements Red
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     protected KeyMaker<Map<String, Object>> idMaker(String prefix, String[] fields) {
-        Converter[] converters = new Converter[fields.length];
-        for (int index = 0; index < fields.length; index++) {
-            Converter<Map<String, Object>, Object> extractor = MapFieldExtractor.builder().remove(removeFields).field(fields[index]).build();
-            CompositeConverter converter = new CompositeConverter(extractor, new ObjectToStringConverter());
-            converters[index] = converter;
+        KeyMaker.KeyMakerBuilder<Map<String, Object>> builder = KeyMaker.<Map<String, Object>>builder().separator(keySeparator).prefix(prefix);
+        if (!ObjectUtils.isEmpty(fields)) {
+            Converter[] converters = new Converter[fields.length];
+            for (int index = 0; index < fields.length; index++) {
+                Converter<Map<String, Object>, Object> extractor = MapFieldExtractor.builder().remove(removeFields).field(fields[index]).build();
+                CompositeConverter converter = new CompositeConverter(extractor, new ObjectToStringConverter());
+                converters[index] = converter;
+            }
+            builder.converters(converters);
         }
-        return KeyMaker.<Map<String, Object>>builder().separator(keySeparator).prefix(prefix).converters(converters).build();
+        return builder.build();
     }
 
 }

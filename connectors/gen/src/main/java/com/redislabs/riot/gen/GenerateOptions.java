@@ -15,7 +15,7 @@ import java.util.Map;
 @AllArgsConstructor
 public class GenerateOptions {
 
-    @CommandLine.Parameters(description = "SpEL expressions", paramLabel = "SPEL")
+    @CommandLine.Parameters(arity = "0..*", description = "SpEL expressions", paramLabel = "SPEL")
     private Map<String, String> fakerFields;
     @SuppressWarnings("unused")
     @CommandLine.Option(names = "--introspect", description = "Use given search index to introspect Faker fields", paramLabel = "<index>")

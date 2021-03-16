@@ -1,7 +1,7 @@
 package com.redislabs.riot.db;
 
 import com.redislabs.riot.AbstractImportCommand;
-import com.redislabs.riot.KeyValueProcessingOptions;
+import com.redislabs.riot.ProcessorOptions;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.item.ItemProcessor;
@@ -23,7 +23,7 @@ public class DatabaseImportCommand extends AbstractImportCommand<Map<String, Obj
     @Mixin
     private DatabaseImportOptions importOptions = DatabaseImportOptions.builder().build();
     @Mixin
-    private KeyValueProcessingOptions processingOptions = KeyValueProcessingOptions.builder().build();
+    private ProcessorOptions processingOptions = ProcessorOptions.builder().build();
 
     @Override
     protected Flow flow() throws Exception {

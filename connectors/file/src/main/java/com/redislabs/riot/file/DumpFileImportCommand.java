@@ -16,6 +16,7 @@ import org.springframework.batch.item.redis.support.DataStructure;
 import org.springframework.batch.item.support.AbstractItemStreamItemReader;
 import org.springframework.batch.item.xml.XmlItemReader;
 import org.springframework.core.io.Resource;
+import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -26,22 +27,19 @@ import java.util.List;
 
 @Slf4j
 @Setter
-@Command(name = "import-dump", description = "Import data-structure dump file(s) into Redis")
-public class DataStructureFileImportCommand extends AbstractTransferCommand<DataStructure<String>, DataStructure<String>> {
+@Command(name = "import-dump", description = "Import Redis data files into Redis")
+public class DumpFileImportCommand extends AbstractTransferCommand<DataStructure<String>, DataStructure<String>> {
 
-    enum FileType {
-        JSON, XML
-    }
-
-    @CommandLine.Parameters(arity = "1..*", description = "One ore more files or URLs", paramLabel = "FILE")
-    private String[] files = new String[0];
+    @CommandLine.Parameters(arity = "0..*", description = "One ore more files or URLs", paramLabel = "FILE")
+    private String[] files;
     @CommandLine.Option(names = {"-t", "--type"}, description = "File type: ${COMPLETION-CANDIDATES}", paramLabel = "<type>")
-    private FileType type;
+    private DumpFileType type;
     @CommandLine.Mixin
     private FileOptions fileOptions = FileOptions.builder().build();
 
     @Override
     protected Flow flow() throws Exception {
+        Assert.isTrue(!ObjectUtils.isEmpty(files), "No file specified");
         List<String> expandedFiles = FileUtils.expand(files);
         if (ObjectUtils.isEmpty(expandedFiles)) {
             throw new FileNotFoundException("File not found: " + String.join(", ", files));
@@ -49,7 +47,7 @@ public class DataStructureFileImportCommand extends AbstractTransferCommand<Data
         List<Step> steps = new ArrayList<>();
         DataStructureItemProcessor processor = new DataStructureItemProcessor();
         for (String file : expandedFiles) {
-            FileType fileType = FileUtils.type(FileType.class, type, file);
+            DumpFileType fileType = type == null ? DumpFileType.of(file) : type;
             Resource resource = FileUtils.inputResource(file, fileOptions);
             String name = FileUtils.filename(resource);
             AbstractItemStreamItemReader<DataStructure<String>> reader = reader(fileType, resource);
@@ -68,16 +66,15 @@ public class DataStructureFileImportCommand extends AbstractTransferCommand<Data
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
-    protected AbstractItemStreamItemReader<DataStructure<String>> reader(FileType fileType, Resource resource) {
+    protected AbstractItemStreamItemReader<DataStructure<String>> reader(DumpFileType fileType, Resource resource) {
         switch (fileType) {
-            case JSON:
-                log.info("Creating JSON data structure reader for file {}", resource);
-                return (JsonItemReader) FileUtils.jsonReader(resource, DataStructure.class);
             case XML:
                 log.info("Creating XML data structure reader for file {}", resource);
                 return (XmlItemReader) FileUtils.xmlReader(resource, DataStructure.class);
+            default:
+                log.info("Creating JSON data structure reader for file {}", resource);
+                return (JsonItemReader) FileUtils.jsonReader(resource, DataStructure.class);
         }
-        throw new IllegalArgumentException("Unsupported file type: " + fileType);
     }
 
 }
