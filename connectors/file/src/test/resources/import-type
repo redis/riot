@@ -1,1 +1,1 @@
-riot-file import http://developer.redislabs.com/riot/pipe-delimited.dat --type psv --header hset --keyspace sample --keys id
+riot-file import http://developer.redislabs.com/riot/sample.dat --type psv --header hset --keyspace sample --keys id

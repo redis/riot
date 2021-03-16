@@ -82,8 +82,11 @@ task releaseBuild {
 }
 
 asciidoctor {
-    baseDir = "docs"
-    sourceDir = "docs"
+    baseDirFollowsSourceDir()
+    sources {
+        exclude 'includes/**'
+        exclude 'images/**'
+    }
     resources {
         from("${sourceDir}/images") {
             exclude '*.excalidraw'
@@ -94,11 +97,7 @@ asciidoctor {
             into '.'
         }
     }
-    attributes favicon: 'images/favicon.svg',
-            icons: 'font',
-            linkattrs: true,
-            sectanchors: true,
-            docinfo: 'shared-head,private-head'
+    logDocuments = true
     outputOptions {
         separateOutputDirs = false
     }

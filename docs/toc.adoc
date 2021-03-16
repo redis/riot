@@ -1,3 +1,0 @@
-:toc: left
-:toclevels: 2
-:toc-title: Contents

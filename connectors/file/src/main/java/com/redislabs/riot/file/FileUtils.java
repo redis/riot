@@ -50,13 +50,15 @@ public class FileUtils {
     public final static String S3_URI_PREFIX = "s3://";
 
     private final static Pattern EXTENSION_PATTERN = Pattern.compile("(?i)\\.(?<extension>\\w+)(?<gz>\\.gz)?$");
+    private static final String STD_IN = "stdin";
+    private static final String STD_OUT = "stdout";
 
     public static String filename(Resource resource) throws IOException {
         if (resource instanceof StandardInputResource) {
-            return "stdin";
+            return STD_IN;
         }
         if (resource instanceof StandardOutputResource) {
-            return "stdout";
+            return STD_OUT;
         }
         if (resource.isFile()) {
             return resource.getFilename();
@@ -75,6 +77,27 @@ public class FileUtils {
 
     public static String extension(String file) {
         return extensionGroup(file, "extension");
+    }
+
+    /**
+     * Tries to determine the file type using its extension: the extension is changed to upper case and a name match is performed on enum type.
+     *
+     * @return filetype based on exension, or null if file has no extension
+     * @throws IllegalArgumentException if no enum value is found
+     */
+    public static <E extends Enum<E>> E type(Class<E> enumType, E type, String file) throws IllegalArgumentException {
+        if (type != null) {
+            return type;
+        }
+        String extension = extension(file);
+        if (extension == null) {
+            throw new IllegalArgumentException("Could not determine type of file " + file);
+        }
+        try {
+            return E.valueOf(enumType, extension.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Unsupported file extension: " + extension);
+        }
     }
 
     public static String extensionGroup(String file, String group) {
@@ -197,7 +220,7 @@ public class FileUtils {
 
     public static <T> JsonItemReader<T> jsonReader(Resource resource, Class<T> clazz) {
         JsonItemReaderBuilder<T> jsonReaderBuilder = new JsonItemReaderBuilder<>();
-        jsonReaderBuilder.name("json-file-reader");
+        jsonReaderBuilder.name(resource.getFilename() + "-json-file-reader");
         jsonReaderBuilder.resource(resource);
         JacksonJsonObjectReader<T> jsonObjectReader = new JacksonJsonObjectReader<>(clazz);
         jsonObjectReader.setMapper(new ObjectMapper());
@@ -207,7 +230,7 @@ public class FileUtils {
 
     public static <T> XmlItemReader<T> xmlReader(Resource resource, Class<T> clazz) {
         XmlItemReaderBuilder<T> xmlReaderBuilder = new XmlItemReaderBuilder<>();
-        xmlReaderBuilder.name("xml-file-reader");
+        xmlReaderBuilder.name(resource.getFilename() + "-xml-file-reader");
         xmlReaderBuilder.resource(resource);
         XmlObjectReader<T> xmlObjectReader = new XmlObjectReader<>(clazz);
         xmlObjectReader.setMapper(new XmlMapper());

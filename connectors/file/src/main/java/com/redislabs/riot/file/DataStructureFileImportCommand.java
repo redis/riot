@@ -4,7 +4,6 @@ import com.redislabs.riot.AbstractTransferCommand;
 import com.redislabs.riot.StepBuilder;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.cluster.api.StatefulRedisClusterConnection;
-import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.pool2.impl.GenericObjectPool;
@@ -13,7 +12,6 @@ import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.json.JsonItemReader;
 import org.springframework.batch.item.redis.DataStructureItemWriter;
-import org.springframework.batch.item.redis.support.CommandTimeoutBuilder;
 import org.springframework.batch.item.redis.support.DataStructure;
 import org.springframework.batch.item.support.AbstractItemStreamItemReader;
 import org.springframework.batch.item.xml.XmlItemReader;
@@ -23,7 +21,6 @@ import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 import java.io.FileNotFoundException;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,9 +29,14 @@ import java.util.List;
 @Command(name = "import-dump", description = "Import data-structure dump file(s) into Redis")
 public class DataStructureFileImportCommand extends AbstractTransferCommand<DataStructure<String>, DataStructure<String>> {
 
+    enum FileType {
+        JSON, XML
+    }
+
     @CommandLine.Parameters(arity = "1..*", description = "One ore more files or URLs", paramLabel = "FILE")
     private String[] files = new String[0];
-    @Getter
+    @CommandLine.Option(names = {"-t", "--type"}, description = "File type: ${COMPLETION-CANDIDATES}", paramLabel = "<type>")
+    private FileType type;
     @CommandLine.Mixin
     private FileOptions fileOptions = FileOptions.builder().build();
 
@@ -47,7 +49,7 @@ public class DataStructureFileImportCommand extends AbstractTransferCommand<Data
         List<Step> steps = new ArrayList<>();
         DataStructureItemProcessor processor = new DataStructureItemProcessor();
         for (String file : expandedFiles) {
-            FileType fileType = fileOptions.type(file);
+            FileType fileType = FileUtils.type(FileType.class, type, file);
             Resource resource = FileUtils.inputResource(file, fileOptions);
             String name = FileUtils.filename(resource);
             AbstractItemStreamItemReader<DataStructure<String>> reader = reader(fileType, resource);

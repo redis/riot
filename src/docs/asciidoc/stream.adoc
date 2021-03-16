@@ -1,0 +1,37 @@
+= {app-name}
+:app-name: RIOT Stream
+:app: riot-stream
+:resources: ../../../connectors/stream/src/test/resources
+include::includes/preamble.adoc[]
+
+{app-name} lets you import and export data from Kafka topics.
+
+include::includes/getting_started.adoc[]
+
+== Importing
+
+Use the `import` command to import messages from Kafka topics:
+
+[subs="attributes",source,bash]
+----
+{app} import --help
+----
+
+[source,bash]
+----
+include::{resources}/import[]
+----
+
+== Exporting
+
+Use the `export` command to export Redis streams to Kafka topics:
+
+[subs="attributes",source,bash]
+----
+{app} export --help
+----
+
+[source,bash]
+----
+include::{resources}/export[]
+----

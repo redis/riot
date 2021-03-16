@@ -1,0 +1,25 @@
+=== Redis Commands
+
+Redis keys are constructed from input records by concatenating the keyspace prefix and key fields:
+
+image::images/mapping.png[]
+
+You can specify one or many Redis commands as targets of the import:
+
+.Import into hashes
+[subs="attributes",source,bash]
+----
+{app} import … hset --keyspace blah --keys id
+----
+
+.Import into hashes *and* set TTL on the key
+[source,bash]
+----
+{app} import … hset --keyspace blah --keys id expire --keyspace blah --keys id
+----
+
+.Import into hashes *and* set TTL *and* add to a set named `myset`
+[subs="attributes",source,bash]
+----
+{app} import … hset --keyspace blah --keys id expire --keyspace blah --keys id sadd --keyspace myset --members id
+----

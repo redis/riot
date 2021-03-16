@@ -15,10 +15,10 @@ import picocli.CommandLine.Option;
 public class RedisReaderOptions {
 
     @Builder.Default
-    @Option(names = "--scan-count", description = "SCAN COUNT option (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
+    @Option(names = "--count", description = "SCAN COUNT option (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
     private long scanCount = ScanKeyValueItemReaderBuilder.DEFAULT_SCAN_COUNT;
     @Builder.Default
-    @Option(names = "--scan-match", description = "SCAN MATCH pattern (default: ${DEFAULT-VALUE}).", paramLabel = "<glob>")
+    @Option(names = "--match", description = "SCAN MATCH pattern (default: ${DEFAULT-VALUE}).", paramLabel = "<glob>")
     private String scanMatch = ScanKeyValueItemReaderBuilder.DEFAULT_SCAN_MATCH;
     @Builder.Default
     @Option(names = "--reader-queue", description = "Capacity of the reader queue (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")

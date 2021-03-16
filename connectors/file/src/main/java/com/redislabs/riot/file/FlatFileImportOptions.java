@@ -12,7 +12,7 @@ import picocli.CommandLine.Option;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class FileImportOptions {
+public class FlatFileImportOptions {
 
     @Option(names = "--fields", arity = "1..*", description = "Delimited/FW field names", paramLabel = "<names>")
     private String[] names;
@@ -42,5 +42,4 @@ public class FileImportOptions {
         }
         return linesToSkip;
     }
-
 }

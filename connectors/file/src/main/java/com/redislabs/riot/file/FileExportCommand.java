@@ -15,15 +15,22 @@ import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
 
+import java.io.File;
 import java.io.IOException;
 
 @Slf4j
 @Command(name = "export", description = "Export Redis data to a JSON or XML file")
 public class FileExportCommand extends AbstractExportCommand<DataStructure<String>> {
 
+    enum FileType {
+        JSON, XML
+    }
+
     @SuppressWarnings("unused")
     @CommandLine.Parameters(arity = "1", description = "File path or URL", paramLabel = "FILE")
     private String file;
+    @CommandLine.Option(names = {"-t", "--type"}, description = "File type: ${COMPLETION-CANDIDATES}", paramLabel = "<type>")
+    private FileType type;
     @Mixin
     private FileExportOptions exportOptions = FileExportOptions.builder().build();
     @Mixin
@@ -35,7 +42,7 @@ public class FileExportCommand extends AbstractExportCommand<DataStructure<Strin
     }
 
     private ItemWriter<DataStructure<String>> writer() throws IOException {
-        FileType fileType = fileOptions.type(file);
+        FileType fileType = FileUtils.type(FileType.class, type, file);
         WritableResource resource = FileUtils.outputResource(file, fileOptions);
         switch (fileType) {
             case JSON:

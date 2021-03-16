@@ -1,0 +1,10 @@
+:toc: left
+:toclevels: 3
+:toc-title: Contents
+:source-highlighter: rouge
+:favicon: ./images/favicon.svg
+:icons: font
+:linkattrs: true
+:sectanchors: true
+:docinfo: shared-head,private-head
+include::github.adoc[]

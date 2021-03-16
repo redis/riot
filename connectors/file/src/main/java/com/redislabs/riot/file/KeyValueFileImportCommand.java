@@ -1,8 +1,10 @@
 package com.redislabs.riot.file;
 
+import com.redislabs.riot.AbstractImportCommand;
 import com.redislabs.riot.KeyValueProcessingOptions;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.batch.core.Step;
+import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.LineCallbackHandler;
@@ -21,37 +23,69 @@ import org.springframework.util.ObjectUtils;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
-@Setter
-@Command(name = "import", description = "Import file(s) into Redis")
-public class KeyValueFileImportCommand extends AbstractFileImportCommand<Map<String, Object>> {
+@Command(name = "import", description = "Import files (delimited, fixed-width, JSON, XML) into Redis.")
+public class KeyValueFileImportCommand extends AbstractImportCommand<Map<String, Object>, Map<String, Object>> {
 
+    private static final String DELIMITER_PIPE = "|";
+
+    enum FileType {
+        CSV, PSV, TSV, FW, JSON, XML
+    }
+
+    @SuppressWarnings("unused")
+    @CommandLine.Parameters(arity = "1..*", description = "One ore more files or URLs", paramLabel = "FILE")
+    private String[] files;
+    @CommandLine.Option(names = {"-t", "--type"}, description = "File type: ${COMPLETION-CANDIDATES}", paramLabel = "<type>")
+    private FileType type;
     @CommandLine.Mixin
-    protected FileImportOptions options = FileImportOptions.builder().build();
+    private FileOptions fileOptions = FileOptions.builder().build();
+    @CommandLine.Mixin
+    private FlatFileImportOptions flatFileOptions = FlatFileImportOptions.builder().build();
     @CommandLine.Mixin
     private KeyValueProcessingOptions processingOptions = KeyValueProcessingOptions.builder().build();
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    protected AbstractItemStreamItemReader<Map<String, Object>> reader(String file, FileType fileType, Resource resource) {
+    @Override
+    protected Flow flow() throws Exception {
+        List<String> expandedFiles = FileUtils.expand(files);
+        if (ObjectUtils.isEmpty(expandedFiles)) {
+            throw new FileNotFoundException("File not found: " + String.join(", ", files));
+        }
+        List<Step> steps = new ArrayList<>();
+        for (String file : expandedFiles) {
+            FileType fileType = FileUtils.type(FileType.class, type, file);
+            Resource resource = FileUtils.inputResource(file, fileOptions);
+            AbstractItemStreamItemReader<Map<String, Object>> reader = reader(file, fileType, resource);
+            String name = FileUtils.filename(resource);
+            reader.setName(name);
+            steps.add(step(name + "-file-import-step", "Importing " + name, reader).build());
+        }
+        return flow(steps.toArray(new Step[0]));
+    }
+
+    private AbstractItemStreamItemReader<Map<String, Object>> reader(String file, FileType fileType, Resource resource) {
         switch (fileType) {
             case CSV:
             case PSV:
             case TSV:
                 DelimitedLineTokenizer tokenizer = new DelimitedLineTokenizer();
                 tokenizer.setDelimiter(delimiter(fileType));
-                tokenizer.setQuoteCharacter(options.getQuoteCharacter());
-                if (!ObjectUtils.isEmpty(options.getIncludedFields())) {
-                    tokenizer.setIncludedFields(options.getIncludedFields());
+                tokenizer.setQuoteCharacter(flatFileOptions.getQuoteCharacter());
+                if (!ObjectUtils.isEmpty(flatFileOptions.getIncludedFields())) {
+                    tokenizer.setIncludedFields(flatFileOptions.getIncludedFields());
                 }
-                log.info("Creating delimited reader with {} for file {}", options, file);
+                log.info("Creating delimited reader with {} for file {}", flatFileOptions, file);
                 return flatFileReader(resource, tokenizer);
             case FW:
                 FixedLengthTokenizer fixedLengthTokenizer = new FixedLengthTokenizer();
-                Assert.notEmpty(options.getColumnRanges(), "Column ranges are required");
-                fixedLengthTokenizer.setColumns(options.getColumnRanges());
-                log.info("Creating fixed-width reader with {} for file {}", options, file);
+                Assert.notEmpty(flatFileOptions.getColumnRanges(), "Column ranges are required");
+                fixedLengthTokenizer.setColumns(flatFileOptions.getColumnRanges());
+                log.info("Creating fixed-width reader with {} for file {}", flatFileOptions, file);
                 return flatFileReader(resource, fixedLengthTokenizer);
             case JSON:
                 log.info("Creating JSON reader for file {}", file);
@@ -64,14 +98,14 @@ public class KeyValueFileImportCommand extends AbstractFileImportCommand<Map<Str
     }
 
     private String delimiter(FileType fileType) {
-        if (options.getDelimiter() != null) {
-            return options.getDelimiter();
+        if (flatFileOptions.getDelimiter() != null) {
+            return flatFileOptions.getDelimiter();
         }
         switch (fileType) {
             case TSV:
                 return DelimitedLineTokenizer.DELIMITER_TAB;
             case PSV:
-                return "|";
+                return DELIMITER_PIPE;
             default:
                 return DelimitedLineTokenizer.DELIMITER_COMMA;
         }
@@ -83,15 +117,15 @@ public class KeyValueFileImportCommand extends AbstractFileImportCommand<Map<Str
     }
 
     private FlatFileItemReader<Map<String, Object>> flatFileReader(Resource resource, AbstractLineTokenizer tokenizer) {
-        if (!ObjectUtils.isEmpty(options.getNames())) {
-            tokenizer.setNames(options.getNames());
+        if (!ObjectUtils.isEmpty(flatFileOptions.getNames())) {
+            tokenizer.setNames(flatFileOptions.getNames());
         }
         FlatFileItemReaderBuilder<Map<String, Object>> builder = new FlatFileItemReaderBuilder<>();
         builder.resource(resource);
-        builder.encoding(getFileOptions().getEncoding());
+        builder.encoding(fileOptions.getEncoding());
         builder.lineTokenizer(tokenizer);
         builder.recordSeparatorPolicy(recordSeparatorPolicy());
-        builder.linesToSkip(options.linesToSkip());
+        builder.linesToSkip(flatFileOptions.linesToSkip());
         builder.strict(true);
         builder.saveState(false);
         builder.fieldSetMapper(new MapFieldSetMapper());
@@ -100,7 +134,7 @@ public class KeyValueFileImportCommand extends AbstractFileImportCommand<Map<Str
     }
 
     private RecordSeparatorPolicy recordSeparatorPolicy() {
-        return new DefaultRecordSeparatorPolicy(options.getQuoteCharacter().toString(), options.getContinuationString());
+        return new DefaultRecordSeparatorPolicy(flatFileOptions.getQuoteCharacter().toString(), flatFileOptions.getContinuationString());
     }
 
     private static class HeaderCallbackHandler implements LineCallbackHandler {
