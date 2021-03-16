@@ -443,7 +443,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="header">
 <h1>RIOT Redis</h1>
 <div class="details">
-<span id="revnumber">version 2.6.4</span>
+<span id="revnumber">version 2.7.0</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Contents</div>
@@ -483,7 +483,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="rouge highlight"><code data-lang="bash">riot-redis <span class="nt">-h</span> <span class="nb">source</span> <span class="nt">-p</span> 6379 replicate <span class="nt">--live</span> <span class="nt">-h</span> target <span class="nt">-p</span> 6380</code></pre>
+<pre class="rouge highlight"><code data-lang="bash">riot-redis <span class="nt">-h</span> <span class="nb">source</span> <span class="nt">-p</span> 6379 replicate <span class="nt">--mode</span> live <span class="nt">-h</span> target <span class="nt">-p</span> 6380</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -686,8 +686,8 @@ The live replication mechanism does not guarantee data consistency. Redis sends 
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 2.6.4<br>
-Last updated 2021-03-15 23:50:21 -0700
+Version 2.7.0<br>
+Last updated 2021-03-16 00:47:52 -0700
 </div>
 </div>
 <style>
