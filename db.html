@@ -450,15 +450,22 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <ul class="sectlevel1">
 <li><a href="#_getting_started">Getting Started</a>
 <ul class="sectlevel2">
-<li><a href="#_install">Install</a></li>
-<li><a href="#_usage">Usage</a></li>
-<li><a href="#_drivers">Drivers</a></li>
+<li><a href="#_download_and_run">Download and Run</a></li>
+<li><a href="#_homebrew_macos">Homebrew (macOS)</a></li>
+<li><a href="#_build_and_run">Build and Run</a></li>
 </ul>
 </li>
+<li><a href="#_usage">Usage</a></li>
+<li><a href="#_drivers">Drivers</a></li>
 <li><a href="#_importing">Importing</a>
 <ul class="sectlevel2">
-<li><a href="#_usage_2">Usage</a></li>
-<li><a href="#_processing">Processing</a></li>
+<li><a href="#_processing">Processing</a>
+<ul class="sectlevel3">
+<li><a href="#_transforms">Transforms</a></li>
+<li><a href="#_regular_expressions">Regular Expressions</a></li>
+<li><a href="#_filters">Filters</a></li>
+</ul>
+</li>
 <li><a href="#_redis_commands">Redis Commands</a></li>
 </ul>
 </li>
@@ -470,7 +477,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p><strong>RIOT DB</strong> lets you import/export data from relational databases.</p>
+<p>RIOT DB lets you import and export data from relational databases.</p>
 </div>
 </div>
 </div>
@@ -478,9 +485,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="_getting_started"><a class="anchor" href="#_getting_started"></a>Getting Started</h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_install"><a class="anchor" href="#_install"></a>Install</h3>
-<div class="sect3">
-<h4 id="_download_and_run"><a class="anchor" href="#_download_and_run"></a>Download and Run</h4>
+<h3 id="_download_and_run"><a class="anchor" href="#_download_and_run"></a>Download and Run</h3>
 <div class="paragraph">
 <p>Download the <a href="https://github.com/redis-developer/riot/releases/latest">latest release</a> and unzip the archive.</p>
 </div>
@@ -488,35 +493,31 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p>Launch the <code>bin/riot-db</code> script and follow the usage information provided.</p>
 </div>
 </div>
-<div class="sect3">
-<h4 id="_homebrew_macos"><a class="anchor" href="#_homebrew_macos"></a>Homebrew (macOS)</h4>
+<div class="sect2">
+<h3 id="_homebrew_macos"><a class="anchor" href="#_homebrew_macos"></a>Homebrew (macOS)</h3>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-source" data-lang="source">brew install jruaux/tap/riot-db</code></pre>
+<pre class="rouge highlight"><code data-lang="source">brew install jruaux/tap/riot-db</code></pre>
 </div>
 </div>
 </div>
-<div class="sect3">
-<h4 id="_build_and_run"><a class="anchor" href="#_build_and_run"></a>Build and Run</h4>
+<div class="sect2">
+<h3 id="_build_and_run"><a class="anchor" href="#_build_and_run"></a>Build and Run</h3>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-source" data-lang="source">git clone https://github.com/redis-developer/riot.git
+<pre class="rouge highlight"><code data-lang="source">git clone https://github.com/redis-developer/riot.git
 ./riot-db</code></pre>
 </div>
 </div>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_usage"><a class="anchor" href="#_usage"></a>Usage</h3>
+</div>
+<div class="sect1">
+<h2 id="_usage"><a class="anchor" href="#_usage"></a>Usage</h2>
+<div class="sectionbody">
 <div class="listingblock">
 <div class="content">
-<pre>❯ riot-db
-Usage: riot-db [OPTIONS] [COMMAND]
-      --help                Show this help message and exit.
-  -V, --version             Print version information and exit.
-  -q, --quiet               Log errors only
-  -d, --debug               Log in debug mode (includes normal stacktrace)
-  -i, --info                Set log level to info</pre>
+<pre class="rouge highlight"><code data-lang="source">riot-db --help</code></pre>
 </div>
 </div>
 <div class="admonitionblock tip">
@@ -529,42 +530,24 @@ Usage: riot-db [OPTIONS] [COMMAND]
 <div class="paragraph">
 <p>You can use <code>--help</code> on any subcommand:</p>
 </div>
-<div class="paragraph">
-<p><code>riot-db --help</code></p>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="source">riot-db import --help
+riot-db import … hset --help</code></pre>
 </div>
-<div class="paragraph">
-<p><code>riot-db import --help</code></p>
-</div>
-<div class="paragraph">
-<p><code>riot-db import &#8230;&#8203; hset --help</code></p>
 </div>
 </td>
 </tr>
 </table>
 </div>
 <div class="paragraph">
-<p>Redis connection options are the same as <code>redis-cli</code>:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre>  -h, --hostname=&lt;host&gt;     Server hostname (default: 127.0.0.1)
-  -p, --port=&lt;port&gt;         Server port (default: 6379)
-  -s, --socket=&lt;socket&gt;     Server socket (overrides hostname and port)
-      --user=&lt;username&gt;     Used to send ACL style 'AUTH username pass'. Needs password.
-  -a, --pass[=&lt;password&gt;]   Password to use when connecting to the server
-  -u, --uri=&lt;uri&gt;           Server URI
-  -o, --timeout=&lt;sec&gt;       Redis command timeout (default: 60)
-  -n, --db=&lt;int&gt;            Database number (default: 0)
-  -c, --cluster             Enable cluster mode
-  -t, --tls                 Establish a secure TLS connection</pre>
+<p>Redis connection options are the same as <code>redis-cli</code>. URI syntax is described <a href="https://github.com/lettuce-io/lettuce-core/wiki/Redis-URI-and-connection-details#uri-syntax">here</a>.</p>
 </div>
 </div>
-<div class="paragraph">
-<p>Redis URI syntax is described <a href="https://github.com/lettuce-io/lettuce-core/wiki/Redis-URI-and-connection-details#uri-syntax">here</a>.</p>
 </div>
-</div>
-<div class="sect2">
-<h3 id="_drivers"><a class="anchor" href="#_drivers"></a>Drivers</h3>
+<div class="sect1">
+<h2 id="_drivers"><a class="anchor" href="#_drivers"></a>Drivers</h2>
+<div class="sectionbody">
 <div class="paragraph">
 <p>RIOT DB includes drivers for the most common RDBMSs:</p>
 </div>
@@ -634,58 +617,21 @@ Usage: riot-db [OPTIONS] [COMMAND]
 </div>
 </div>
 </div>
-</div>
 <div class="sect1">
 <h2 id="_importing"><a class="anchor" href="#_importing"></a>Importing</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Use the <code>import</code> command to import the result set of a SQL statement.</p>
+<p>Use the <code>import</code> command to import the result set of a SQL statement:</p>
 </div>
-<div class="sect2">
-<h3 id="_usage_2"><a class="anchor" href="#_usage_2"></a>Usage</h3>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-shell" data-lang="shell">❯ riot-db import --help
-Usage: riot-db import [OPTIONS] SQL [REDIS COMMAND]
-Import from a database
-      SQL                    SQL SELECT statement
-  -H, --help                 Show this help message and exit.
-      --[no-]progress        Show progress bars. True by default.
-      --threads=&lt;int&gt;        Thread count (default: 1).
-  -b, --batch=&lt;size&gt;         Number of items in each batch (default: 50).
-      --max=&lt;count&gt;          Max number of items to read.
-      --skip-limit=&lt;int&gt;     Max number of failed items to skip before the transfer fails (default: 0).
-      --driver=&lt;class&gt;       Fully qualified name of the JDBC driver
-      --url=&lt;string&gt;         JDBC URL to connect to the database
-      --username=&lt;string&gt;    Login username of the database
-      --password[=&lt;pwd&gt;]     Login password of the database
-      --fetch=&lt;size&gt;         Number of rows to return with each fetch
-      --rows=&lt;count&gt;         Max number of rows the ResultSet can contain
-      --query-timeout=&lt;ms&gt;   The time in milliseconds for the query to timeout
-      --process=&lt;f=exp&gt;...   SpEL processors in the form: --process field1=" &lt;expression&gt;" field2="&lt;expression&gt;" …
-      --var=&lt;v=exp&gt;...       Register a variable in the SpEL processor context
-      --date=&lt;string&gt;        Processor date format (default: M/d/yy, h:mm a)
-      --filter=&lt;exp&gt;...      Discard records using SpEL boolean expressions
-      --regex=&lt;f=exp&gt;...     Extract named values from source field using regex
-Redis commands:
-  eval         Evaluate a Lua script with keys and arguments from input
-  expire       Set timeouts on keys
-  geoadd       Add members to a geo set
-  hset, hmset  Set hashes from input
-  lpush        Insert values at the head of a list
-  noop         No operation: accepts input and does nothing
-  rpush        Insert values at the tail of a list
-  sadd         Add members to a set
-  set          Set strings from input
-  xadd         Append entries to a stream
-  zadd         Add members with scores to a sorted set</code></pre>
+<pre class="rouge highlight"><code data-lang="source">riot-db import --help</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="title">PostgreSQL Example</div>
 <div class="content">
-<pre class="highlight"><code class="language-shell" data-lang="shell">riot-db import "SELECT * FROM orders" --url jdbc:postgresql://host:port/database --username appuser --password passwd hset --keyspace order --keys order_id</code></pre>
-</div>
+<pre class="rouge highlight"><code data-lang="bash">riot-db import <span class="s2">"SELECT * FROM orders"</span> <span class="nt">--url</span> jdbc:postgresql://host:port/database <span class="nt">--username</span> appuser <span class="nt">--password</span> passwd hset <span class="nt">--keyspace</span> order <span class="nt">--keys</span> order_id</code></pre>
 </div>
 </div>
 <div class="sect2">
@@ -707,9 +653,14 @@ Redis commands:
 </ul>
 </div>
 <div class="sect3">
-<h4 id="_transform"><a class="anchor" href="#_transform"></a>Transform</h4>
+<h4 id="_transforms"><a class="anchor" href="#_transforms"></a>Transforms</h4>
 <div class="paragraph">
-<p>Produce key/value pairs using <a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/core.html#expressions">Spring Expression Language</a> (SpEL): <code>field1=&lt;exp&gt;</code>, <code>field2=&lt;exp&gt;</code>, &#8230;&#8203;</p>
+<p>Produce key/value pairs using <a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/core.html#expressions">Spring Expression Language</a> (SpEL):</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="bash"><span class="nt">--process</span> <span class="nv">field1</span><span class="o">=</span><span class="s2">"&lt;exp&gt;"</span> <span class="nv">field2</span><span class="o">=</span><span class="s2">"&lt;exp&gt;"</span> …</code></pre>
+</div>
 </div>
 <div class="paragraph">
 <p>For example <code>--process "field1='foo'"</code> generates a field named <code>field1</code> with always the same value <code>foo</code>.</p>
@@ -720,50 +671,43 @@ Redis commands:
 <div class="paragraph">
 <p>The processor also exposes the following variables that can be called with the <code>#</code> prefix:</p>
 </div>
-<div class="sect4">
-<h5 id="_redis"><a class="anchor" href="#_redis"></a>redis</h5>
-<div class="paragraph">
-<p>Redis connection to issue any command:</p>
-</div>
-<div class="paragraph">
-<p><code>--process "name=#redis.hgetall('person1').lastName"</code></p>
-</div>
-</div>
-<div class="sect4">
-<h5 id="_date"><a class="anchor" href="#_date"></a>date</h5>
-<div class="paragraph">
-<p>Date parser/formatter:</p>
-</div>
-<div class="paragraph">
-<p><code>--process "epoch=#date.parse(mydate).getTime()"</code></p>
-</div>
-</div>
-<div class="sect4">
-<h5 id="_index"><a class="anchor" href="#_index"></a>index</h5>
-<div class="paragraph">
-<p>Sequence number of the item being generated:</p>
-</div>
-<div class="paragraph">
-<p><code>--process "id=#index"</code></p>
-</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">redis</dt>
+<dd>
+<p>Redis connection to issue any command:
+<code>--process name="#redis.hget('person1','lastName')"</code></p>
+</dd>
+<dt class="hdlist1">date</dt>
+<dd>
+<p>Date parser/formatter:
+<code>--process epoch="#date.parse(mydate).getTime()"</code></p>
+</dd>
+<dt class="hdlist1">index</dt>
+<dd>
+<p>Sequence number of the item being generated: <code>--process "id=#index"</code></p>
+</dd>
+</dl>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_regex"><a class="anchor" href="#_regex"></a>Regex</h4>
+<h4 id="_regular_expressions"><a class="anchor" href="#_regular_expressions"></a>Regular Expressions</h4>
 <div class="paragraph">
 <p>Extract patterns from source fields using regular expressions:</p>
 </div>
-<div class="paragraph">
-<p><code>--regex "name=(?&lt;first&gt;\w+)\/(?&lt;last&gt;\w+)"</code></p>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="bash"><span class="nt">--regex</span> <span class="nv">name</span><span class="o">=</span><span class="s2">"(?&lt;first&gt;</span><span class="se">\w</span><span class="s2">+)</span><span class="se">\/</span><span class="s2">(?&lt;last&gt;</span><span class="se">\w</span><span class="s2">+)"</span></code></pre>
+</div>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_filter"><a class="anchor" href="#_filter"></a>Filter</h4>
+<h4 id="_filters"><a class="anchor" href="#_filters"></a>Filters</h4>
 <div class="paragraph">
 <p>Keep records that match a SpEL boolean expression.</p>
 </div>
 <div class="paragraph">
-<p><code>--filter "value matches '\\d+'"</code> will only keep records where the <code>value</code> field is a series of digits.</p>
+<p>For example <code>--filter "value matches '\\d+'"</code> will only keep records where the <code>value</code> field is a series of digits.</p>
 </div>
 </div>
 </div>
@@ -780,17 +724,23 @@ Redis commands:
 <div class="paragraph">
 <p>You can specify one or many Redis commands as targets of the import:</p>
 </div>
-<div class="paragraph">
+<div class="listingblock">
 <div class="title">Import into hashes</div>
-<p><code>riot-db import &#8230;&#8203; hset --keyspace blah --keys id</code></p>
+<div class="content">
+<pre class="rouge highlight"><code data-lang="source">riot-db import … hset --keyspace blah --keys id</code></pre>
 </div>
-<div class="paragraph">
+</div>
+<div class="listingblock">
 <div class="title">Import into hashes <strong>and</strong> set TTL on the key</div>
-<p><code>riot-db import &#8230;&#8203; hset --keyspace blah --keys id expire --keyspace blah --keys id</code></p>
+<div class="content">
+<pre class="rouge highlight"><code data-lang="bash"><span class="o">{</span>app<span class="o">}</span> import … hset <span class="nt">--keyspace</span> blah <span class="nt">--keys</span> <span class="nb">id </span>expire <span class="nt">--keyspace</span> blah <span class="nt">--keys</span> <span class="nb">id</span></code></pre>
 </div>
-<div class="paragraph">
+</div>
+<div class="listingblock">
 <div class="title">Import into hashes <strong>and</strong> set TTL <strong>and</strong> add to a set named <code>myset</code></div>
-<p><code>riot-db import &#8230;&#8203; hset --keyspace blah --keys id expire --keyspace blah --keys id sadd --keyspace myset --members id</code></p>
+<div class="content">
+<pre class="rouge highlight"><code data-lang="source">riot-db import … hset --keyspace blah --keys id expire --keyspace blah --keys id sadd --keyspace myset --members id</code></pre>
+</div>
 </div>
 </div>
 </div>
@@ -798,16 +748,24 @@ Redis commands:
 <div class="sect1">
 <h2 id="_exporting"><a class="anchor" href="#_exporting"></a>Exporting</h2>
 <div class="sectionbody">
+<div class="paragraph">
+<p>Use the <code>export</code> command to export data from Redis to the database:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="source">riot-db export --help</code></pre>
+</div>
+</div>
 <div class="listingblock">
 <div class="title">Export to PostgreSQL</div>
 <div class="content">
-<pre class="highlight"><code class="language-shell" data-lang="shell">riot-db export "INSERT INTO mytable (id, field1, field2) VALUES (CAST(:id AS SMALLINT), :field1, :field2)" --url jdbc:postgresql://host:port/database --username appuser --password passwd --scan-match "hash:*" --key-regex "hash:(?&lt;id&gt;.*)"</code></pre>
+<pre class="rouge highlight"><code data-lang="bash">riot-db <span class="nb">export</span> <span class="s2">"INSERT INTO mytable (id, field1, field2) VALUES (CAST(:id AS SMALLINT), :field1, :field2)"</span> <span class="nt">--url</span> jdbc:postgresql://host:port/database <span class="nt">--username</span> appuser <span class="nt">--password</span> passwd <span class="nt">--match</span> <span class="s2">"hash:*"</span> <span class="nt">--key-regex</span> <span class="s2">"hash:(?&lt;id&gt;.*)"</span></code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="title">Import from PostgreSQL to JSON strings</div>
 <div class="content">
-<pre class="highlight"><code class="language-shell" data-lang="shell">riot-db import "SELECT * FROM orders" --url jdbc:postgresql://host:port/database --username appuser --password passwd set --keyspace order --keys order_id</code></pre>
+<pre class="rouge highlight"><code data-lang="bash">riot-db import <span class="s2">"SELECT * FROM orders"</span> <span class="nt">--url</span> jdbc:postgresql://host:port/database <span class="nt">--username</span> appuser <span class="nt">--password</span> passwd <span class="nb">set</span> <span class="nt">--keyspace</span> order <span class="nt">--keys</span> order_id</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -815,21 +773,21 @@ Redis commands:
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-json" data-lang="json">{
-	"order_id": 10248,
-	"customer_id": "VINET",
-	"employee_id": 5,
-	"order_date": "1996-07-04",
-	"required_date": "1996-08-01",
-	"shipped_date": "1996-07-16",
-	"ship_via": 3,
-	"freight": 32.38,
-	"ship_name": "Vins et alcools Chevalier",
-	"ship_address": "59 rue de l'Abbaye",
-	"ship_city": "Reims",
-	"ship_postal_code": "51100",
-	"ship_country": "France"
-}</code></pre>
+<pre class="rouge highlight"><code data-lang="json"><span class="p">{</span><span class="w">
+  </span><span class="nl">"order_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">10248</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"customer_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"VINET"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"employee_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"order_date"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1996-07-04"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"required_date"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1996-08-01"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"shipped_date"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1996-07-16"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"ship_via"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"freight"</span><span class="p">:</span><span class="w"> </span><span class="mf">32.38</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"ship_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Vins et alcools Chevalier"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"ship_address"</span><span class="p">:</span><span class="w"> </span><span class="s2">"59 rue de l'Abbaye"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"ship_city"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Reims"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"ship_postal_code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"51100"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"ship_country"</span><span class="p">:</span><span class="w"> </span><span class="s2">"France"</span><span class="w">
+</span><span class="p">}</span></code></pre>
 </div>
 </div>
 </div>
@@ -838,8 +796,219 @@ Redis commands:
 <div id="footer">
 <div id="footer-text">
 Version 2.6.3<br>
-Last updated 2021-03-13 00:41:21 -0800
+Last updated 2021-03-13 18:53:03 -0800
 </div>
 </div>
+<style>
+pre.rouge table td { padding: 5px; }
+pre.rouge table pre { margin: 0; }
+pre.rouge .cm {
+  color: #999988;
+  font-style: italic;
+}
+pre.rouge .cp {
+  color: #999999;
+  font-weight: bold;
+}
+pre.rouge .c1 {
+  color: #999988;
+  font-style: italic;
+}
+pre.rouge .cs {
+  color: #999999;
+  font-weight: bold;
+  font-style: italic;
+}
+pre.rouge .c, pre.rouge .ch, pre.rouge .cd, pre.rouge .cpf {
+  color: #999988;
+  font-style: italic;
+}
+pre.rouge .err {
+  color: #a61717;
+  background-color: #e3d2d2;
+}
+pre.rouge .gd {
+  color: #000000;
+  background-color: #ffdddd;
+}
+pre.rouge .ge {
+  color: #000000;
+  font-style: italic;
+}
+pre.rouge .gr {
+  color: #aa0000;
+}
+pre.rouge .gh {
+  color: #999999;
+}
+pre.rouge .gi {
+  color: #000000;
+  background-color: #ddffdd;
+}
+pre.rouge .go {
+  color: #888888;
+}
+pre.rouge .gp {
+  color: #555555;
+}
+pre.rouge .gs {
+  font-weight: bold;
+}
+pre.rouge .gu {
+  color: #aaaaaa;
+}
+pre.rouge .gt {
+  color: #aa0000;
+}
+pre.rouge .kc {
+  color: #000000;
+  font-weight: bold;
+}
+pre.rouge .kd {
+  color: #000000;
+  font-weight: bold;
+}
+pre.rouge .kn {
+  color: #000000;
+  font-weight: bold;
+}
+pre.rouge .kp {
+  color: #000000;
+  font-weight: bold;
+}
+pre.rouge .kr {
+  color: #000000;
+  font-weight: bold;
+}
+pre.rouge .kt {
+  color: #445588;
+  font-weight: bold;
+}
+pre.rouge .k, pre.rouge .kv {
+  color: #000000;
+  font-weight: bold;
+}
+pre.rouge .mf {
+  color: #009999;
+}
+pre.rouge .mh {
+  color: #009999;
+}
+pre.rouge .il {
+  color: #009999;
+}
+pre.rouge .mi {
+  color: #009999;
+}
+pre.rouge .mo {
+  color: #009999;
+}
+pre.rouge .m, pre.rouge .mb, pre.rouge .mx {
+  color: #009999;
+}
+pre.rouge .sb {
+  color: #d14;
+}
+pre.rouge .sc {
+  color: #d14;
+}
+pre.rouge .sd {
+  color: #d14;
+}
+pre.rouge .s2 {
+  color: #d14;
+}
+pre.rouge .se {
+  color: #d14;
+}
+pre.rouge .sh {
+  color: #d14;
+}
+pre.rouge .si {
+  color: #d14;
+}
+pre.rouge .sx {
+  color: #d14;
+}
+pre.rouge .sr {
+  color: #009926;
+}
+pre.rouge .s1 {
+  color: #d14;
+}
+pre.rouge .ss {
+  color: #990073;
+}
+pre.rouge .s, pre.rouge .sa, pre.rouge .dl {
+  color: #d14;
+}
+pre.rouge .na {
+  color: #008080;
+}
+pre.rouge .bp {
+  color: #999999;
+}
+pre.rouge .nb {
+  color: #0086B3;
+}
+pre.rouge .nc {
+  color: #445588;
+  font-weight: bold;
+}
+pre.rouge .no {
+  color: #008080;
+}
+pre.rouge .nd {
+  color: #3c5d5d;
+  font-weight: bold;
+}
+pre.rouge .ni {
+  color: #800080;
+}
+pre.rouge .ne {
+  color: #990000;
+  font-weight: bold;
+}
+pre.rouge .nf, pre.rouge .fm {
+  color: #990000;
+  font-weight: bold;
+}
+pre.rouge .nl {
+  color: #990000;
+  font-weight: bold;
+}
+pre.rouge .nn {
+  color: #555555;
+}
+pre.rouge .nt {
+  color: #000080;
+}
+pre.rouge .vc {
+  color: #008080;
+}
+pre.rouge .vg {
+  color: #008080;
+}
+pre.rouge .vi {
+  color: #008080;
+}
+pre.rouge .nv, pre.rouge .vm {
+  color: #008080;
+}
+pre.rouge .ow {
+  color: #000000;
+  font-weight: bold;
+}
+pre.rouge .o {
+  color: #000000;
+  font-weight: bold;
+}
+pre.rouge .w {
+  color: #bbbbbb;
+}
+pre.rouge {
+  background-color: #f8f8f8;
+}
+</style>
 </body>
 </html>

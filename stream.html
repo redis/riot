@@ -450,10 +450,12 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <ul class="sectlevel1">
 <li><a href="#_getting_started">Getting Started</a>
 <ul class="sectlevel2">
-<li><a href="#_install">Install</a></li>
-<li><a href="#_usage">Usage</a></li>
+<li><a href="#_download_and_run">Download and Run</a></li>
+<li><a href="#_homebrew_macos">Homebrew (macOS)</a></li>
+<li><a href="#_build_and_run">Build and Run</a></li>
 </ul>
 </li>
+<li><a href="#_usage">Usage</a></li>
 <li><a href="#_importing">Importing</a></li>
 <li><a href="#_exporting">Exporting</a></li>
 </ul>
@@ -463,7 +465,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p><strong>RIOT Stream</strong> lets you import/export data from Kafka topics.</p>
+<p>RIOT Stream lets you import and export data from Kafka topics.</p>
 </div>
 </div>
 </div>
@@ -471,9 +473,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="_getting_started"><a class="anchor" href="#_getting_started"></a>Getting Started</h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_install"><a class="anchor" href="#_install"></a>Install</h3>
-<div class="sect3">
-<h4 id="_download_and_run"><a class="anchor" href="#_download_and_run"></a>Download and Run</h4>
+<h3 id="_download_and_run"><a class="anchor" href="#_download_and_run"></a>Download and Run</h3>
 <div class="paragraph">
 <p>Download the <a href="https://github.com/redis-developer/riot/releases/latest">latest release</a> and unzip the archive.</p>
 </div>
@@ -481,35 +481,31 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p>Launch the <code>bin/riot-stream</code> script and follow the usage information provided.</p>
 </div>
 </div>
-<div class="sect3">
-<h4 id="_homebrew_macos"><a class="anchor" href="#_homebrew_macos"></a>Homebrew (macOS)</h4>
+<div class="sect2">
+<h3 id="_homebrew_macos"><a class="anchor" href="#_homebrew_macos"></a>Homebrew (macOS)</h3>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-source" data-lang="source">brew install jruaux/tap/riot-stream</code></pre>
+<pre class="rouge highlight"><code data-lang="source">brew install jruaux/tap/riot-stream</code></pre>
 </div>
 </div>
 </div>
-<div class="sect3">
-<h4 id="_build_and_run"><a class="anchor" href="#_build_and_run"></a>Build and Run</h4>
+<div class="sect2">
+<h3 id="_build_and_run"><a class="anchor" href="#_build_and_run"></a>Build and Run</h3>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-source" data-lang="source">git clone https://github.com/redis-developer/riot.git
+<pre class="rouge highlight"><code data-lang="source">git clone https://github.com/redis-developer/riot.git
 ./riot-stream</code></pre>
 </div>
 </div>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_usage"><a class="anchor" href="#_usage"></a>Usage</h3>
+</div>
+<div class="sect1">
+<h2 id="_usage"><a class="anchor" href="#_usage"></a>Usage</h2>
+<div class="sectionbody">
 <div class="listingblock">
 <div class="content">
-<pre>❯ riot-stream
-Usage: riot-stream [OPTIONS] [COMMAND]
-      --help                Show this help message and exit.
-  -V, --version             Print version information and exit.
-  -q, --quiet               Log errors only
-  -d, --debug               Log in debug mode (includes normal stacktrace)
-  -i, --info                Set log level to info</pre>
+<pre class="rouge highlight"><code data-lang="source">riot-stream --help</code></pre>
 </div>
 </div>
 <div class="admonitionblock tip">
@@ -522,39 +518,18 @@ Usage: riot-stream [OPTIONS] [COMMAND]
 <div class="paragraph">
 <p>You can use <code>--help</code> on any subcommand:</p>
 </div>
-<div class="paragraph">
-<p><code>riot-stream --help</code></p>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="source">riot-stream import --help
+riot-stream import … hset --help</code></pre>
 </div>
-<div class="paragraph">
-<p><code>riot-stream import --help</code></p>
-</div>
-<div class="paragraph">
-<p><code>riot-stream import &#8230;&#8203; hset --help</code></p>
 </div>
 </td>
 </tr>
 </table>
 </div>
 <div class="paragraph">
-<p>Redis connection options are the same as <code>redis-cli</code>:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre>  -h, --hostname=&lt;host&gt;     Server hostname (default: 127.0.0.1)
-  -p, --port=&lt;port&gt;         Server port (default: 6379)
-  -s, --socket=&lt;socket&gt;     Server socket (overrides hostname and port)
-      --user=&lt;username&gt;     Used to send ACL style 'AUTH username pass'. Needs password.
-  -a, --pass[=&lt;password&gt;]   Password to use when connecting to the server
-  -u, --uri=&lt;uri&gt;           Server URI
-  -o, --timeout=&lt;sec&gt;       Redis command timeout (default: 60)
-  -n, --db=&lt;int&gt;            Database number (default: 0)
-  -c, --cluster             Enable cluster mode
-  -t, --tls                 Establish a secure TLS connection</pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Redis URI syntax is described <a href="https://github.com/lettuce-io/lettuce-core/wiki/Redis-URI-and-connection-details#uri-syntax">here</a>.</p>
-</div>
+<p>Redis connection options are the same as <code>redis-cli</code>. URI syntax is described <a href="https://github.com/lettuce-io/lettuce-core/wiki/Redis-URI-and-connection-details#uri-syntax">here</a>.</p>
 </div>
 </div>
 </div>
@@ -562,11 +537,16 @@ Usage: riot-stream [OPTIONS] [COMMAND]
 <h2 id="_importing"><a class="anchor" href="#_importing"></a>Importing</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Use the <code>import</code> command to import messages from Kafka topics.</p>
+<p>Use the <code>import</code> command to import messages from Kafka topics:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-shell" data-lang="shell">riot-stream import topic1 --broker localhost:9092</code></pre>
+<pre class="rouge highlight"><code data-lang="source">riot-stream import --help</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="bash">riot-stream import topic1 <span class="nt">--broker</span> localhost:9092</code></pre>
 </div>
 </div>
 </div>
@@ -575,11 +555,16 @@ Usage: riot-stream [OPTIONS] [COMMAND]
 <h2 id="_exporting"><a class="anchor" href="#_exporting"></a>Exporting</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Use the <code>export</code> command to export Redis streams to Kafka topics.</p>
+<p>Use the <code>export</code> command to export Redis streams to Kafka topics:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-shell" data-lang="shell">riot-stream export stream1 --idle-timeout 500 --broker localhost:9092</code></pre>
+<pre class="rouge highlight"><code data-lang="source">riot-stream export --help</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="bash">riot-stream <span class="nb">export </span>stream1 <span class="nt">--idle-timeout</span> 500 <span class="nt">--broker</span> localhost:9092</code></pre>
 </div>
 </div>
 </div>
@@ -588,8 +573,219 @@ Usage: riot-stream [OPTIONS] [COMMAND]
 <div id="footer">
 <div id="footer-text">
 Version 2.6.3<br>
-Last updated 2021-03-12 22:25:52 -0800
+Last updated 2021-03-13 18:22:00 -0800
 </div>
 </div>
+<style>
+pre.rouge table td { padding: 5px; }
+pre.rouge table pre { margin: 0; }
+pre.rouge .cm {
+  color: #999988;
+  font-style: italic;
+}
+pre.rouge .cp {
+  color: #999999;
+  font-weight: bold;
+}
+pre.rouge .c1 {
+  color: #999988;
+  font-style: italic;
+}
+pre.rouge .cs {
+  color: #999999;
+  font-weight: bold;
+  font-style: italic;
+}
+pre.rouge .c, pre.rouge .ch, pre.rouge .cd, pre.rouge .cpf {
+  color: #999988;
+  font-style: italic;
+}
+pre.rouge .err {
+  color: #a61717;
+  background-color: #e3d2d2;
+}
+pre.rouge .gd {
+  color: #000000;
+  background-color: #ffdddd;
+}
+pre.rouge .ge {
+  color: #000000;
+  font-style: italic;
+}
+pre.rouge .gr {
+  color: #aa0000;
+}
+pre.rouge .gh {
+  color: #999999;
+}
+pre.rouge .gi {
+  color: #000000;
+  background-color: #ddffdd;
+}
+pre.rouge .go {
+  color: #888888;
+}
+pre.rouge .gp {
+  color: #555555;
+}
+pre.rouge .gs {
+  font-weight: bold;
+}
+pre.rouge .gu {
+  color: #aaaaaa;
+}
+pre.rouge .gt {
+  color: #aa0000;
+}
+pre.rouge .kc {
+  color: #000000;
+  font-weight: bold;
+}
+pre.rouge .kd {
+  color: #000000;
+  font-weight: bold;
+}
+pre.rouge .kn {
+  color: #000000;
+  font-weight: bold;
+}
+pre.rouge .kp {
+  color: #000000;
+  font-weight: bold;
+}
+pre.rouge .kr {
+  color: #000000;
+  font-weight: bold;
+}
+pre.rouge .kt {
+  color: #445588;
+  font-weight: bold;
+}
+pre.rouge .k, pre.rouge .kv {
+  color: #000000;
+  font-weight: bold;
+}
+pre.rouge .mf {
+  color: #009999;
+}
+pre.rouge .mh {
+  color: #009999;
+}
+pre.rouge .il {
+  color: #009999;
+}
+pre.rouge .mi {
+  color: #009999;
+}
+pre.rouge .mo {
+  color: #009999;
+}
+pre.rouge .m, pre.rouge .mb, pre.rouge .mx {
+  color: #009999;
+}
+pre.rouge .sb {
+  color: #d14;
+}
+pre.rouge .sc {
+  color: #d14;
+}
+pre.rouge .sd {
+  color: #d14;
+}
+pre.rouge .s2 {
+  color: #d14;
+}
+pre.rouge .se {
+  color: #d14;
+}
+pre.rouge .sh {
+  color: #d14;
+}
+pre.rouge .si {
+  color: #d14;
+}
+pre.rouge .sx {
+  color: #d14;
+}
+pre.rouge .sr {
+  color: #009926;
+}
+pre.rouge .s1 {
+  color: #d14;
+}
+pre.rouge .ss {
+  color: #990073;
+}
+pre.rouge .s, pre.rouge .sa, pre.rouge .dl {
+  color: #d14;
+}
+pre.rouge .na {
+  color: #008080;
+}
+pre.rouge .bp {
+  color: #999999;
+}
+pre.rouge .nb {
+  color: #0086B3;
+}
+pre.rouge .nc {
+  color: #445588;
+  font-weight: bold;
+}
+pre.rouge .no {
+  color: #008080;
+}
+pre.rouge .nd {
+  color: #3c5d5d;
+  font-weight: bold;
+}
+pre.rouge .ni {
+  color: #800080;
+}
+pre.rouge .ne {
+  color: #990000;
+  font-weight: bold;
+}
+pre.rouge .nf, pre.rouge .fm {
+  color: #990000;
+  font-weight: bold;
+}
+pre.rouge .nl {
+  color: #990000;
+  font-weight: bold;
+}
+pre.rouge .nn {
+  color: #555555;
+}
+pre.rouge .nt {
+  color: #000080;
+}
+pre.rouge .vc {
+  color: #008080;
+}
+pre.rouge .vg {
+  color: #008080;
+}
+pre.rouge .vi {
+  color: #008080;
+}
+pre.rouge .nv, pre.rouge .vm {
+  color: #008080;
+}
+pre.rouge .ow {
+  color: #000000;
+  font-weight: bold;
+}
+pre.rouge .o {
+  color: #000000;
+  font-weight: bold;
+}
+pre.rouge .w {
+  color: #bbbbbb;
+}
+pre.rouge {
+  background-color: #f8f8f8;
+}
+</style>
 </body>
 </html>
