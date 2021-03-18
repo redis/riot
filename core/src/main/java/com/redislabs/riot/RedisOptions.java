@@ -13,6 +13,8 @@ import io.lettuce.core.resource.DefaultClientResources;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
+import org.springframework.batch.item.redis.support.CommandTimeoutBuilder;
+import org.springframework.util.ClassUtils;
 import org.springframework.util.ObjectUtils;
 import picocli.CommandLine.Option;
 
@@ -174,5 +176,11 @@ public class RedisOptions {
         }
         log.info("Creating Redis client: {}", this);
         return redisClient();
+    }
+
+    public <B extends CommandTimeoutBuilder<B>> B configureCommandTimeout(B builder) {
+        Duration commandTimeout = uris().get(0).getTimeout();
+        log.info("Setting {} command timeout to {}", ClassUtils.getShortName(builder.getClass()), commandTimeout);
+        return builder.commandTimeout(commandTimeout);
     }
 }

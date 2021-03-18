@@ -3,7 +3,10 @@ package com.redislabs.riot.test;
 import com.redislabs.riot.RiotApp;
 import org.apache.commons.io.IOUtils;
 import org.codehaus.plexus.util.cli.CommandLineUtils;
+import org.junit.jupiter.api.Assertions;
+import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
+import org.springframework.batch.core.StepExecution;
 import picocli.CommandLine;
 
 import java.io.InputStream;
@@ -66,6 +69,9 @@ public abstract class AbstractRiotTest {
     protected void awaitTermination(JobExecution execution) throws InterruptedException {
         while (execution.isRunning()) {
             Thread.sleep(10);
+        }
+        for (StepExecution stepExecution : execution.getStepExecutions()) {
+            Assertions.assertEquals(ExitStatus.COMPLETED.getExitCode(), stepExecution.getExitStatus().getExitCode());
         }
     }
 

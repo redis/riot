@@ -10,8 +10,6 @@ import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import picocli.CommandLine;
 
-import java.util.List;
-
 @Slf4j
 @CommandLine.Command
 public abstract class AbstractTaskCommand extends RiotCommand {
@@ -45,11 +43,15 @@ public abstract class AbstractTaskCommand extends RiotCommand {
     }
 
     @Override
-    protected void execute() throws Exception {
+    protected int execute() throws Exception {
         JobExecution execution = jobFactory.getSyncLauncher().run(job(), new JobParameters());
-        for (Throwable exception : execution.getAllFailureExceptions()) {
-            log.error("Exception in {}", execution.getJobInstance().getJobName(), exception);
+        int exitCode = 0;
+        for (StepExecution stepExecution : execution.getStepExecutions()) {
+            if (stepExecution.getExitStatus().compareTo(ExitStatus.FAILED) >= 0) {
+                exitCode = 1;
+            }
         }
+        return exitCode;
     }
 
     private Job job() throws Exception {

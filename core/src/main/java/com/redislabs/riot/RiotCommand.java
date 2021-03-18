@@ -49,8 +49,7 @@ public abstract class RiotCommand extends HelpCommand implements InitializingBea
     public Integer call() throws Exception {
         afterPropertiesSet();
         try {
-            execute();
-            return 0;
+            return execute();
         } finally {
             shutdown();
         }
@@ -98,7 +97,7 @@ public abstract class RiotCommand extends HelpCommand implements InitializingBea
         return ConnectionPoolSupport.createGenericObjectPool(((RedisClient) client)::connect, redisOptions.poolConfig());
     }
 
-    protected abstract void execute() throws Exception;
+    protected abstract int execute() throws Exception;
 
     protected String name(RedisURI redisURI) {
         if (redisURI.getSocket() != null) {

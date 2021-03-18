@@ -11,12 +11,17 @@ import io.lettuce.core.cluster.pubsub.StatefulRedisClusterPubSubConnection;
 import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.pool2.impl.GenericObjectPool;
+import org.springframework.batch.core.ExitStatus;
+import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.core.job.flow.support.SimpleFlow;
+import org.springframework.batch.core.listener.StepExecutionListenerSupport;
+import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.core.step.tasklet.TaskletStep;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.redis.DataStructureItemReader;
+import org.springframework.batch.item.redis.DataStructureItemWriter;
 import org.springframework.batch.item.redis.KeyDumpItemReader;
 import org.springframework.batch.item.redis.KeyDumpItemWriter;
 import org.springframework.batch.item.redis.support.*;
@@ -27,13 +32,18 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 import java.time.Duration;
+import java.util.List;
 
 @Slf4j
 @Command(name = "replicate", description = "Replicate a source Redis database to a target Redis database")
 public class ReplicateCommand extends AbstractTransferCommand<KeyValue<String, byte[]>, KeyValue<String, byte[]>> {
 
     enum ReplicationMode {
-        SNAPSHOT, LIVE, LIVE_ONLY
+        SNAPSHOT, LIVE, LIVEONLY
+    }
+
+    enum ReplicationStrategy {
+        DUMP, VALUE
     }
 
     @CommandLine.ArgGroup(exclusive = false, heading = "Target Redis connection options%n")
@@ -41,8 +51,10 @@ public class ReplicateCommand extends AbstractTransferCommand<KeyValue<String, b
     @CommandLine.ArgGroup(exclusive = false, heading = "Source Redis reader options%n")
     private RedisReaderOptions readerOptions = RedisReaderOptions.builder().build();
     @SuppressWarnings("unused")
-    @Option(names = "--mode", description = "Replication mode: SNAPSHOT (scan only), LIVE (scan+notifications), LIVE_ONLY (notifications). Default: ${DEFAULT-VALUE}.")
+    @Option(names = "--mode", description = "Replication mode: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).")
     private ReplicationMode mode = ReplicationMode.SNAPSHOT;
+    @Option(names = "--strategy", description = "Data structure read/write strategy: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).")
+    private ReplicationStrategy type = ReplicationStrategy.DUMP;
     @CommandLine.Mixin
     private FlushingTransferOptions flushingOptions = FlushingTransferOptions.builder().build();
     @Option(names = "--event-queue", description = "Capacity of the keyspace notification event queue (default: ${DEFAULT-VALUE}).", paramLabel = "<size>")
@@ -63,7 +75,7 @@ public class ReplicateCommand extends AbstractTransferCommand<KeyValue<String, b
         this.targetPool = pool(targetRedisOptions, targetClient);
         this.targetConnection = connection(targetClient);
         super.afterPropertiesSet();
-        if (mode == ReplicationMode.LIVE || mode == ReplicationMode.LIVE_ONLY) {
+        if (mode == ReplicationMode.LIVE || mode == ReplicationMode.LIVEONLY) {
             this.pubSubConnection = pubSubConnection(client);
         }
     }
@@ -109,7 +121,7 @@ public class ReplicateCommand extends AbstractTransferCommand<KeyValue<String, b
                 SimpleFlow notificationFlow = flow("notification-flow").start(notificationStep()).build();
                 SimpleFlow scanFlow = flow("scan-flow").start(scanStep()).build();
                 return flow("live-flow").split(new SimpleAsyncTaskExecutor()).add(notificationFlow, scanFlow).build();
-            case LIVE_ONLY:
+            case LIVEONLY:
                 return flow("live-only-flow").start(notificationStep()).build();
             default:
                 return flow("snapshot-flow").start(scanStep()).build();
@@ -118,30 +130,69 @@ public class ReplicateCommand extends AbstractTransferCommand<KeyValue<String, b
 
     private Flow verificationFlow() {
         KeyComparisonItemWriter<String, String> writer = comparisonWriter();
-        StepBuilder<DataStructure<String>, DataStructure<String>> verifyStep = stepBuilder("verification-step", "Verifying");
-        TaskletStep verificationStep = verifyStep.reader(sourceDataStructureReader()).writer(writer).extraMessage(() -> message(writer)).build().build();
+        StepBuilder<DataStructure<String>, DataStructure<String>> stepBuilder = stepBuilder("verification-step", "Verifying");
+        SimpleStepBuilder<DataStructure<String>, DataStructure<String>> step = stepBuilder.reader(sourceDataStructureReader()).writer(writer).extraMessage(() -> extraMessage(writer.getResults())).build();
+        step.listener(new VerificationStepExecutionListener(writer));
+        TaskletStep verificationStep = step.build();
         return flow("verification-flow").start(verificationStep).build();
     }
 
+    private static class VerificationStepExecutionListener extends StepExecutionListenerSupport {
+
+        private final KeyComparisonItemWriter<String, String> writer;
+
+        public VerificationStepExecutionListener(KeyComparisonItemWriter<String, String> writer) {
+            this.writer = writer;
+        }
+
+        @Override
+        public ExitStatus afterStep(StepExecution stepExecution) {
+            if (writer.getResults().isOk()) {
+                return super.afterStep(stepExecution);
+            }
+            log.warn("Verification failed");
+            KeyComparisonResults<String> results = writer.getResults();
+            printDiffs(results.getLeft(), "missing keys");
+            printDiffs(results.getRight(), "extraneous keys");
+            printDiffs(results.getValue(), "mismatched values");
+            printDiffs(results.getTtl(), "mismatched TTLs");
+            return new ExitStatus(ExitStatus.FAILED.getExitCode(), "Verification failed");
+        }
+
+        private void printDiffs(List<String> diffs, String messagePreamble) {
+            if (diffs.isEmpty()) {
+                return;
+            }
+            log.info("{} " + messagePreamble + ": {}", diffs.size(), diffs.subList(0, Math.min(10, diffs.size())));
+        }
+    }
+
+    private String extraMessage(KeyComparisonResults<String> results) {
+        return " " + String.format("OK:%s", results.getOk()) + " " + String.format("V:%s >:%s <:%s T:%s", results.getValue(), results.getLeft(), results.getRight(), results.getTtl());
+    }
+
     private TaskletStep scanStep() {
+        if (type == ReplicationStrategy.VALUE) {
+            StepBuilder<DataStructure<String>, DataStructure<String>> dataStructureReplicationStep = stepBuilder("scan-replication-step", "Scanning");
+            return dataStructureReplicationStep.reader(sourceDataStructureReader()).writer(targetDataStructureWriter()).build().build();
+        }
         StepBuilder<KeyValue<String, byte[]>, KeyValue<String, byte[]>> replicationStep = stepBuilder("scan-replication-step", "Scanning");
         return replicationStep.reader(sourceKeyDumpReader()).writer(targetKeyDumpWriter()).build().build();
     }
 
     private TaskletStep notificationStep() {
+        if (type == ReplicationStrategy.VALUE) {
+            StepBuilder<DataStructure<String>, DataStructure<String>> liveDataStructureReplicationStep = stepBuilder("live-replication-step", "Listening");
+            DataStructureItemReader<String, String> liveDataStructureReader = liveDataStructureReader();
+            liveDataStructureReader.setName("Live" + ClassUtils.getShortName(liveDataStructureReader.getClass()));
+            log.info("Configuring live transfer with {}", flushingOptions);
+            return flushingOptions.configure(liveDataStructureReplicationStep.reader(liveDataStructureReader).writer(targetDataStructureWriter()).build()).build();
+        }
         StepBuilder<KeyValue<String, byte[]>, KeyValue<String, byte[]>> liveReplicationStep = stepBuilder("live-replication-step", "Listening");
-        KeyDumpItemReader<String, String> liveReader = liveReader();
+        KeyDumpItemReader<String, String> liveReader = liveKeyDumpReader();
         liveReader.setName("Live" + ClassUtils.getShortName(liveReader.getClass()));
         log.info("Configuring live transfer with {}", flushingOptions);
         return flushingOptions.configure(liveReplicationStep.reader(liveReader).writer(targetKeyDumpWriter()).build()).build();
-    }
-
-    private String message(KeyComparisonItemWriter<String, String> writer) {
-        int v = writer.getDiffs().get(KeyComparisonItemWriter.DiffType.VALUE).size();
-        int l = writer.getDiffs().get(KeyComparisonItemWriter.DiffType.LEFT_ONLY).size();
-        int r = writer.getDiffs().get(KeyComparisonItemWriter.DiffType.LEFT_ONLY).size();
-        int t = writer.getDiffs().get(KeyComparisonItemWriter.DiffType.TTL).size();
-        return String.format(" OK:%s V:%s >:%s <:%s T:%s", writer.getOkCount(), v, l, r, t);
     }
 
     @SuppressWarnings("unchecked")
@@ -173,11 +224,19 @@ public class ReplicateCommand extends AbstractTransferCommand<KeyValue<String, b
     }
 
     @SuppressWarnings("unchecked")
-    private KeyDumpItemReader<String, String> liveReader() {
+    private KeyDumpItemReader<String, String> liveKeyDumpReader() {
         if (isCluster()) {
             return configureLiveReader(KeyDumpItemReader.builder((GenericObjectPool<StatefulRedisClusterConnection<String, String>>) pool, (StatefulRedisClusterPubSubConnection<String, String>) pubSubConnection)).build();
         }
         return configureLiveReader(KeyDumpItemReader.builder((GenericObjectPool<StatefulRedisConnection<String, String>>) pool, pubSubConnection)).build();
+    }
+
+    @SuppressWarnings("unchecked")
+    private DataStructureItemReader<String, String> liveDataStructureReader() {
+        if (isCluster()) {
+            return configureLiveReader(DataStructureItemReader.builder((GenericObjectPool<StatefulRedisClusterConnection<String, String>>) pool, (StatefulRedisClusterPubSubConnection<String, String>) pubSubConnection)).build();
+        }
+        return configureLiveReader(DataStructureItemReader.builder((GenericObjectPool<StatefulRedisConnection<String, String>>) pool, pubSubConnection)).build();
     }
 
     private <B extends ScanKeyValueItemReaderBuilder<?>> B configureScanReader(B builder) {
@@ -200,16 +259,20 @@ public class ReplicateCommand extends AbstractTransferCommand<KeyValue<String, b
     private ItemWriter<KeyValue<String, byte[]>> targetKeyDumpWriter() {
         if (targetRedisOptions.isCluster()) {
             log.info("Creating Redis cluster key dump writer");
-            return configure(KeyDumpItemWriter.clusterBuilder((GenericObjectPool<StatefulRedisClusterConnection<String, String>>) targetPool)).build();
+            return targetRedisOptions.configureCommandTimeout(KeyDumpItemWriter.clusterBuilder((GenericObjectPool<StatefulRedisClusterConnection<String, String>>) targetPool)).replace(true).build();
         }
         log.info("Creating Redis key dump writer");
-        return configure(KeyDumpItemWriter.builder((GenericObjectPool<StatefulRedisConnection<String, String>>) targetPool)).build();
+        return targetRedisOptions.configureCommandTimeout(KeyDumpItemWriter.builder((GenericObjectPool<StatefulRedisConnection<String, String>>) targetPool)).replace(true).build();
     }
 
-    private KeyDumpItemWriter.KeyDumpItemWriterBuilder<String, String> configure(KeyDumpItemWriter.KeyDumpItemWriterBuilder<String, String> builder) {
-        Duration commandTimeout = targetRedisOptions.uris().get(0).getTimeout();
-        log.info("Setting key dump writer command timeout to {}", commandTimeout);
-        return builder.replace(true).commandTimeout(commandTimeout);
+    @SuppressWarnings("unchecked")
+    private ItemWriter<DataStructure<String>> targetDataStructureWriter() {
+        if (targetRedisOptions.isCluster()) {
+            log.info("Creating Redis cluster data structure writer");
+            return targetRedisOptions.configureCommandTimeout(DataStructureItemWriter.clusterBuilder((GenericObjectPool<StatefulRedisClusterConnection<String, String>>) targetPool)).build();
+        }
+        log.info("Creating Redis data structure writer");
+        return targetRedisOptions.configureCommandTimeout(DataStructureItemWriter.builder((GenericObjectPool<StatefulRedisConnection<String, String>>) targetPool)).build();
     }
 
 }

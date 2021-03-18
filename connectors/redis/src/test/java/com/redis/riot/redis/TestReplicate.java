@@ -17,7 +17,9 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
+import org.springframework.batch.core.StepExecution;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.junit.jupiter.Container;
 
@@ -81,6 +83,23 @@ public class TestReplicate extends AbstractStandaloneRedisTest {
         sync.configSet("notify-keyspace-events", "AK");
         DataGenerator.builder().commands(async).build().run();
         ReplicateCommand command = (ReplicateCommand) command("replicate-live");
+        JobExecution execution = command.executeAsync();
+        Thread.sleep(100);
+        log.info("Setting livestring keys");
+        int count = 39;
+        for (int index = 0; index < count; index++) {
+            sync.set("livestring:" + index, "value" + index);
+        }
+        Thread.sleep(100);
+        awaitTermination(execution);
+        Assertions.assertEquals(sync.dbsize(), targetSync.dbsize());
+    }
+
+    @Test
+    public void replicateLiveValue() throws Exception {
+        sync.configSet("notify-keyspace-events", "AK");
+        DataGenerator.builder().commands(async).build().run();
+        ReplicateCommand command = (ReplicateCommand) command("replicate-live-value");
         JobExecution execution = command.executeAsync();
         Thread.sleep(100);
         log.info("Setting livestring keys");

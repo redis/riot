@@ -32,18 +32,18 @@ public class KafkaOptions {
         AVRO, JSON
     }
 
-    @Option(arity = "1..*", names = "--broker", description = "One or more brokers in the form host:port", paramLabel = "<server>")
+    @Option(arity = "1..*", names = "--broker", description = "One or more brokers in the form host:port.", paramLabel = "<server>")
     private String[] brokers;
     @Builder.Default
-    @Option(names = "--group", description = "Consumer group id", paramLabel = "<id>")
+    @Option(names = "--group", description = "Consumer group id.", paramLabel = "<id>")
     private String groupId = "$Default";
     @Getter
-    @Option(names = "--registry", description = "Schema registry URL", paramLabel = "<url>")
+    @Option(names = "--registry", description = "Schema registry URL.", paramLabel = "<url>")
     private String schemaRegistryUrl;
-    @Option(arity = "1..*", names = {"-p", "--property"}, description = "Additional producer/consumer properties", paramLabel = "<k=v>")
+    @Option(arity = "1..*", names = {"-p", "--property"}, description = "Additional producer/consumer properties.", paramLabel = "<k=v>")
     private Map<String, String> properties;
     @Builder.Default
-    @Option(names = "--serde", description = "Serializer/Deserializer: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})", paramLabel = "<serde>")
+    @Option(names = "--serde", description = "Serializer/Deserializer: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<serde>")
     private SerDe serde = SerDe.JSON;
 
     public Properties consumerProperties() {
