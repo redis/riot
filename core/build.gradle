@@ -1,5 +1,5 @@
 dependencies {
-    api 'com.redislabs:spring-batch-redis:2.9.0'
+    api 'com.redislabs:spring-batch-redis:2.9.1'
     api 'org.springframework.batch:spring-batch-core'
     api 'org.slf4j:slf4j-api'
     compile 'com.google.code.findbugs:jsr305:3.0.2'
