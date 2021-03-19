@@ -5,9 +5,9 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.10">
-<meta name="application-name" content="RIOT DB">
+<meta name="application-name" content="RIOT Redis">
 <link rel="icon" type="image/svg" href="./images/favicon.svg">
-<title>RIOT DB</title>
+<title>RIOT Redis</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /* Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -441,13 +441,14 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="article toc2 toc-left">
 <div id="header">
-<h1>RIOT DB</h1>
+<h1>RIOT Redis</h1>
 <div class="details">
 <span id="revnumber">version 2.8.0</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Contents</div>
 <ul class="sectlevel1">
+<li><a href="#_overview">Overview</a></li>
 <li><a href="#_getting_started">Getting Started</a>
 <ul class="sectlevel2">
 <li><a href="#_download_and_run">Download and Run</a></li>
@@ -456,28 +457,56 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </ul>
 </li>
 <li><a href="#_usage">Usage</a></li>
-<li><a href="#_drivers">Drivers</a></li>
-<li><a href="#_importing">Importing</a>
+<li><a href="#_replicating">Replicating</a>
 <ul class="sectlevel2">
-<li><a href="#_processing">Processing</a>
-<ul class="sectlevel3">
-<li><a href="#_transforms">Transforms</a></li>
-<li><a href="#_regular_expressions">Regular Expressions</a></li>
-<li><a href="#_filters">Filters</a></li>
+<li><a href="#_verification">Verification</a></li>
 </ul>
 </li>
-<li><a href="#_redis_commands">Redis Commands</a></li>
+<li><a href="#_architecture">Architecture</a>
+<ul class="sectlevel2">
+<li><a href="#_producer">Producer</a></li>
+<li><a href="#_consumer">Consumer</a></li>
+<li><a href="#_type_based_replication">Type-Based Replication</a></li>
 </ul>
 </li>
-<li><a href="#_exporting">Exporting</a></li>
 </ul>
 </div>
 </div>
 <div id="content">
-<div id="preamble">
+<div class="sect1">
+<h2 id="_overview"><a class="anchor" href="#_overview"></a>Overview</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>RIOT DB lets you import and export data from relational databases.</p>
+<p>Most database migration tools available today are offline in nature. Migrating data from AWS ElastiCache to Redis Enterprise Cloud for example means backing up your Elasticache data to an AWS S3 bucket and importing it into Redis Enterprise Cloud using its UI.</p>
+</div>
+<div class="paragraph">
+<p>RIOT Redis is a migration tool that allows for live data migration between any Redis databases:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="bash">riot-redis <span class="nt">-h</span> <span class="nb">source</span> <span class="nt">-p</span> 6379 replicate <span class="nt">--mode</span> live <span class="nt">-h</span> target <span class="nt">-p</span> 6380</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>RIOT Redis does not make use of the <a href="https://redis.io/commands/replicaof">REPLICAOF</a> command which is not always available (e.g. ElastiCache), but instead implements client-side replication using DUMP and RESTORE:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="replication.png" alt="replication">
+</div>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Key reader: initiates a SCAN and optionally calls SUBSCRIBE to listen for keyspace notifications (live replication).</p>
+</li>
+<li>
+<p>Value reader: takes the keys and calls DUMP and TTL.</p>
+</li>
+<li>
+<p>Key/Value writer: takes key/value/ttl tuples and calls RESTORE and EXPIRE.</p>
+</li>
+</ol>
 </div>
 </div>
 </div>
@@ -490,14 +519,14 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p>Download the <a href="https://github.com/redis-developer/riot/releases/latest">latest release</a> and unzip the archive.</p>
 </div>
 <div class="paragraph">
-<p>Launch the <code>bin/riot-db</code> script and follow the usage information provided.</p>
+<p>Launch the <code>bin/riot-redis</code> script and follow the usage information provided.</p>
 </div>
 </div>
 <div class="sect2">
 <h3 id="_homebrew_macos"><a class="anchor" href="#_homebrew_macos"></a>Homebrew (macOS)</h3>
 <div class="listingblock">
 <div class="content">
-<pre class="rouge highlight"><code data-lang="source">brew install jruaux/tap/riot-db</code></pre>
+<pre class="rouge highlight"><code data-lang="source">brew install jruaux/tap/riot-redis</code></pre>
 </div>
 </div>
 </div>
@@ -506,7 +535,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="listingblock">
 <div class="content">
 <pre class="rouge highlight"><code data-lang="source">git clone https://github.com/redis-developer/riot.git
-./riot-db</code></pre>
+./riot-redis</code></pre>
 </div>
 </div>
 </div>
@@ -517,7 +546,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="sectionbody">
 <div class="listingblock">
 <div class="content">
-<pre class="rouge highlight"><code data-lang="source">riot-db --help</code></pre>
+<pre class="rouge highlight"><code data-lang="source">riot-redis --help</code></pre>
 </div>
 </div>
 <div class="admonitionblock tip">
@@ -532,8 +561,8 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="rouge highlight"><code data-lang="source">riot-db import --help
-riot-db import … hset --help</code></pre>
+<pre class="rouge highlight"><code data-lang="source">riot-redis import --help
+riot-redis import hset --help</code></pre>
 </div>
 </div>
 </td>
@@ -546,50 +575,72 @@ riot-db import … hset --help</code></pre>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_drivers"><a class="anchor" href="#_drivers"></a>Drivers</h2>
+<h2 id="_replicating"><a class="anchor" href="#_replicating"></a>Replicating</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>RIOT DB includes drivers for the most common RDBMSs:</p>
+<p>The replication process takes data from a source Redis database and replicates it into a target Redis database.</p>
+</div>
+<div class="paragraph">
+<p>The general usage is:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="bash">riot-redis <span class="nt">-h</span> &lt;src host&gt; <span class="nt">-p</span> &lt;src port&gt; replicate <span class="nt">-h</span> &lt;dest host&gt; <span class="nt">-p</span> &lt;dest port&gt; …</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>For the <code>replicate</code> command usage help, run:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="source">riot-redis replicate --help</code></pre>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_verification"><a class="anchor" href="#_verification"></a>Verification</h3>
+<div class="paragraph">
+<p>Once replication is complete (i.e. for snapshot replication when scan is complete, for live replication when no keyspace notification idle) <strong>RIOT Redis</strong> will perform a verification step to compare values and TTLs between source and target databases. The output looks like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>OK:1000 V:0 &gt;:0 &lt;:0 T:0</pre>
+</div>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p><a href="https://docs.oracle.com/cd/E11882_01/appdev.112/e13995/oracle/jdbc/OracleDriver.html">Oracle</a></p>
-<div class="paragraph">
-<p><code>jdbc:oracle:thin:@myhost:1521:orcl</code></p>
-</div>
+<p><code>OK</code>: # identical values</p>
 </li>
 <li>
-<p><a href="https://www.ibm.com/support/knowledgecenter/en/SSEPGG_11.5.0/com.ibm.db2.luw.apdv.java.doc/src/tpc/imjcc_r0052342.html">IBM Db2</a></p>
-<div class="paragraph">
-<p><code>jdbc:db2://host:port/database</code></p>
-</div>
+<p><code>V</code>: # mismatched values</p>
 </li>
 <li>
-<p><a href="https://docs.microsoft.com/en-us/sql/connect/jdbc/building-the-connection-url?view=sql-server-2017">MS SQL Server</a></p>
-<div class="paragraph">
-<p><code>jdbc:sqlserver://[serverName[\instanceName][:portNumber]][;property=value[;property=value]]</code></p>
-</div>
+<p><code>&gt;</code>: # keys only present in source database</p>
 </li>
 <li>
-<p><a href="https://dev.mysql.com/doc/connector-j/8.0/en/connector-j-reference-jdbc-url-format.html">MySQL</a></p>
-<div class="paragraph">
-<p><code>jdbc:mysql://[host]:[port][/database][?properties]</code></p>
-</div>
+<p><code>&lt;</code>: # keys only present in target database</p>
 </li>
 <li>
-<p><a href="https://www.postgresql.org/docs/7.4/jdbc-use.html">PostgreSQL</a></p>
-<div class="paragraph">
-<p><code>jdbc:postgresql://host:port/database</code></p>
-</div>
-</li>
-<li>
-<p><a href="https://www.sqlitetutorial.net/sqlite-java/sqlite-jdbc-driver/">SQLite</a></p>
-<div class="paragraph">
-<p><code>jdbc:sqlite:sqlite_database_file_path</code></p>
-</div>
+<p><code>T</code>: # keys with TTL difference greater than tolerance</p>
 </li>
 </ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_architecture"><a class="anchor" href="#_architecture"></a>Architecture</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>RIOT Redis follows a producer/consumer approach.</p>
+</div>
+<div class="sect2">
+<h3 id="_producer"><a class="anchor" href="#_producer"></a>Producer</h3>
+<div class="paragraph">
+<p>The producer is connected to the source Redis (e.g. ElastiCache) database and iterates over keys to be replicated by performing a SCAN and reading the corresponding values with DUMP. This is the snapshot part of the replication process.</p>
+</div>
+<div class="paragraph">
+<p>If live replication is enabled the producer also subscribes to keyspace notifications to generate a continuous stream of keys and corresponding values.</p>
 </div>
 <div class="admonitionblock tip">
 <table>
@@ -598,196 +649,101 @@ riot-db import … hset --help</code></pre>
 <i class="fa icon-tip" title="Tip"></i>
 </td>
 <td class="content">
-<div class="paragraph">
-<p>For non-included databases you must install the corresponding JDBC driver under the <code>lib</code> directory and modify the RIOT DB <code>CLASSPATH</code>:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>*nix: <code>bin/riot-db</code> &#8594; <code>CLASSPATH=$APP_HOME/lib/myjdbc.jar:$APP_HOME/lib/…</code></p>
-</li>
-<li>
-<p>Windows: <code>bin{app}.bat</code> &#8594; <code>set CLASSPATH=%APP_HOME%\lib\myjdbc.jar;%APP_HOME%\lib\…</code></p>
-</li>
-</ul>
-</div>
+Make sure the source Redis database has keyspace notifications enabled using <code>notify-keyspace-events = KA</code> in <code>redis.conf</code> or via CONFIG SET.
 </td>
 </tr>
 </table>
 </div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+The live replication mechanism does not guarantee data consistency. Redis sends keyspace notifications over pub/sub which does not provide	guaranteed delivery. It is possible that RIOT Redis can miss some notifications in case of network failures for example.
+</td>
+</tr>
+</table>
 </div>
-</div>
-<div class="sect1">
-<h2 id="_importing"><a class="anchor" href="#_importing"></a>Importing</h2>
-<div class="sectionbody">
 <div class="paragraph">
-<p>Use the <code>import</code> command to import the result set of a SQL statement:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="rouge highlight"><code data-lang="source">riot-db import --help</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="title">PostgreSQL Example</div>
-<div class="content">
-<pre class="rouge highlight"><code data-lang="bash">riot-db import <span class="s2">"SELECT * FROM orders"</span> <span class="nt">--url</span> jdbc:postgresql://host:port/database <span class="nt">--username</span> appuser <span class="nt">--password</span> passwd hset <span class="nt">--keyspace</span> order <span class="nt">--keys</span> order_id</code></pre>
+<p>Both snapshot and live producer processes make use of <a href="https://redis.io/topics/pipelining">pipelining</a> in order to read values in a batch fashion. Use the <code>--reader-batch</code> option to configure the number of values to be read in a single pipelined call. Each process can be multi-threaded using the <code>--reader-threads</code> option.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_processing"><a class="anchor" href="#_processing"></a>Processing</h3>
+<h3 id="_consumer"><a class="anchor" href="#_consumer"></a>Consumer</h3>
 <div class="paragraph">
-<p>The following processors can be applied to records in that order:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>Transforms</p>
-</li>
-<li>
-<p>Regular expressions</p>
-</li>
-<li>
-<p>Filters</p>
-</li>
-</ul>
-</div>
-<div class="sect3">
-<h4 id="_transforms"><a class="anchor" href="#_transforms"></a>Transforms</h4>
-<div class="paragraph">
-<p>Produce key/value pairs using <a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/core.html#expressions">Spring Expression Language</a> (SpEL):</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="rouge highlight"><code data-lang="bash"><span class="nt">--process</span> <span class="nv">field1</span><span class="o">=</span><span class="s2">"&lt;exp&gt;"</span> <span class="nv">field2</span><span class="o">=</span><span class="s2">"&lt;exp&gt;"</span> …</code></pre>
-</div>
+<p>The consumer is responsible for ingesting the keys and values generated by the producer and writing them to the target Redis database (e.g. Redis Enterprise Cloud). For each key/value pair it issues a RESTORE command.</p>
 </div>
 <div class="paragraph">
-<p>For example <code>--process "field1='foo'"</code> generates a field named <code>field1</code> with always the same value <code>foo</code>.</p>
+<p>The consumer process also makes use of <a href="https://redis.io/topics/pipelining">pipelining</a> in order to write values in a batch fashion. Use the <code>--batch</code> option to configure the number of values to be written in a single pipelined call.</p>
 </div>
 <div class="paragraph">
-<p>Input fields are accessed by name (e.g. <code>field3=field1+field2</code>).</p>
-</div>
-<div class="paragraph">
-<p>The processor also exposes the following variables that can be called with the <code>#</code> prefix:</p>
-</div>
-<div class="dlist">
-<dl>
-<dt class="hdlist1">redis</dt>
-<dd>
-<p>Redis connection to issue any command:
-<code>--process name="#redis.hget('person1','lastName')"</code></p>
-</dd>
-<dt class="hdlist1">date</dt>
-<dd>
-<p>Date parser/formatter:
-<code>--process epoch="#date.parse(mydate).getTime()"</code></p>
-</dd>
-<dt class="hdlist1">index</dt>
-<dd>
-<p>Sequence number of the item being generated: <code>--process "id=#index"</code></p>
-</dd>
-</dl>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_regular_expressions"><a class="anchor" href="#_regular_expressions"></a>Regular Expressions</h4>
-<div class="paragraph">
-<p>Extract patterns from source fields using regular expressions:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="rouge highlight"><code data-lang="bash"><span class="nt">--regex</span> <span class="nv">name</span><span class="o">=</span><span class="s2">"(?&lt;first&gt;</span><span class="se">\w</span><span class="s2">+)</span><span class="se">\/</span><span class="s2">(?&lt;last&gt;</span><span class="se">\w</span><span class="s2">+)"</span></code></pre>
-</div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_filters"><a class="anchor" href="#_filters"></a>Filters</h4>
-<div class="paragraph">
-<p>Keep records that match a SpEL boolean expression.</p>
-</div>
-<div class="paragraph">
-<p>For example <code>--filter "value matches '\\d+'"</code> will only keep records where the <code>value</code> field is a series of digits.</p>
-</div>
+<p>Like the consumer the producer process can be multi-threaded, using the <code>--threads</code> option.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_redis_commands"><a class="anchor" href="#_redis_commands"></a>Redis Commands</h3>
+<h3 id="_type_based_replication"><a class="anchor" href="#_type_based_replication"></a>Type-Based Replication</h3>
 <div class="paragraph">
-<p>Redis keys are constructed from input records by concatenating the keyspace prefix and key fields:</p>
+<p>With RIOT Redis 2.8.0 another replication mechanism was introduced that uses data structure-specific producers and consumers. For each Redis data type there is a corresponding pair of read/write commands:</p>
 </div>
-<div class="imageblock">
-<div class="content">
-<img src="images/mapping.png" alt="mapping">
-</div>
-</div>
-<div class="paragraph">
-<p>You can specify one or many Redis commands as targets of the import:</p>
-</div>
-<div class="listingblock">
-<div class="title">Import into hashes</div>
-<div class="content">
-<pre class="rouge highlight"><code data-lang="source">riot-db import … hset --keyspace blah --keys id</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="title">Import into hashes <strong>and</strong> set TTL on the key</div>
-<div class="content">
-<pre class="rouge highlight"><code data-lang="bash"><span class="o">{</span>app<span class="o">}</span> import … hset <span class="nt">--keyspace</span> blah <span class="nt">--keys</span> <span class="nb">id </span>expire <span class="nt">--keyspace</span> blah <span class="nt">--keys</span> <span class="nb">id</span></code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="title">Import into hashes <strong>and</strong> set TTL <strong>and</strong> add to a set named <code>myset</code></div>
-<div class="content">
-<pre class="rouge highlight"><code data-lang="source">riot-db import … hset --keyspace blah --keys id expire --keyspace blah --keys id sadd --keyspace myset --members id</code></pre>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_exporting"><a class="anchor" href="#_exporting"></a>Exporting</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>Use the <code>export</code> command to export data from Redis to the database:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="rouge highlight"><code data-lang="source">riot-db export --help</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="title">Export to PostgreSQL</div>
-<div class="content">
-<pre class="rouge highlight"><code data-lang="bash">riot-db <span class="nb">export</span> <span class="s2">"INSERT INTO mytable (id, field1, field2) VALUES (CAST(:id AS SMALLINT), :field1, :field2)"</span> <span class="nt">--url</span> jdbc:postgresql://host:port/database <span class="nt">--username</span> appuser <span class="nt">--password</span> passwd <span class="nt">--match</span> <span class="s2">"hash:*"</span> <span class="nt">--key-regex</span> <span class="s2">"hash:(?&lt;id&gt;.*)"</span></code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="title">Import from PostgreSQL to JSON strings</div>
-<div class="content">
-<pre class="rouge highlight"><code data-lang="bash">riot-db import <span class="s2">"SELECT * FROM orders"</span> <span class="nt">--url</span> jdbc:postgresql://host:port/database <span class="nt">--username</span> appuser <span class="nt">--password</span> passwd <span class="nb">set</span> <span class="nt">--keyspace</span> order <span class="nt">--keys</span> order_id</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>This will produce Redis strings that look like this:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="rouge highlight"><code data-lang="json"><span class="p">{</span><span class="w">
-  </span><span class="nl">"order_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">10248</span><span class="p">,</span><span class="w">
-  </span><span class="nl">"customer_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"VINET"</span><span class="p">,</span><span class="w">
-  </span><span class="nl">"employee_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w">
-  </span><span class="nl">"order_date"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1996-07-04"</span><span class="p">,</span><span class="w">
-  </span><span class="nl">"required_date"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1996-08-01"</span><span class="p">,</span><span class="w">
-  </span><span class="nl">"shipped_date"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1996-07-16"</span><span class="p">,</span><span class="w">
-  </span><span class="nl">"ship_via"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w">
-  </span><span class="nl">"freight"</span><span class="p">:</span><span class="w"> </span><span class="mf">32.38</span><span class="p">,</span><span class="w">
-  </span><span class="nl">"ship_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Vins et alcools Chevalier"</span><span class="p">,</span><span class="w">
-  </span><span class="nl">"ship_address"</span><span class="p">:</span><span class="w"> </span><span class="s2">"59 rue de l'Abbaye"</span><span class="p">,</span><span class="w">
-  </span><span class="nl">"ship_city"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Reims"</span><span class="p">,</span><span class="w">
-  </span><span class="nl">"ship_postal_code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"51100"</span><span class="p">,</span><span class="w">
-  </span><span class="nl">"ship_country"</span><span class="p">:</span><span class="w"> </span><span class="s2">"France"</span><span class="w">
-</span><span class="p">}</span></code></pre>
+<table class="tableblock frame-none grid-none stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Read</th>
+<th class="tableblock halign-left valign-top">Write</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Hash</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>HGETALL</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>HSET</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">List</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>LRANGE</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>RPUSH</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Set</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>SMEMBERS</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>SADD</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Sorted Set</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>ZRANGE</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>ZADD</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Stream</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>XRANGE</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>XADD</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>GET</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>SET</code></p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+This replication strategy is more intensive in terms of CPU, memory, and network for the machines running RIOT Redis. Adjust number of threads, batch, and queue sizes accordingly.
+</td>
+</tr>
+</table>
 </div>
 </div>
 </div>
@@ -796,7 +752,7 @@ riot-db import … hset --help</code></pre>
 <div id="footer">
 <div id="footer-text">
 Version 2.8.0<br>
-Last updated 2021-03-15 23:50:21 -0700
+Last updated 2021-03-18 23:05:39 -0700
 </div>
 </div>
 <style>
