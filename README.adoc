@@ -20,18 +20,25 @@ image:https://img.shields.io/github/license/redis-developer/riot.svg["License", 
 endif::[]
 
 image::https://developer.redislabs.com/riot/images/riot.svg[]
-
-[.lead]
+{empty} +
 Redis Input/Output Tools (RIOT) is a series of utilities designed to help you get data in and out of Redis.
 
-[horizontal]
-http://developer.redislabs.com/riot/db.html[RIOT DB]::
-    Migrate from an RDBMS to Redis, RediSearch, RedisJSON, ...
-http://developer.redislabs.com/riot/file.html[RIOT File]::
-    Bulk import/export data from/to files
-http://developer.redislabs.com/riot/gen.html[RIOT Gen]::
-    Generate sample datasets to test and demo Redis apps
-http://developer.redislabs.com/riot/redis.html[RIOT Redis]::
-    Replicate between Redis databases, including AWS Elasticache
-http://developer.redislabs.com/riot/stream.html[RIOT Stream]::
-    Stream data between Kafka and Redis
+.http://developer.redislabs.com/riot/db.html[RIOT DB]
+
+  Migrate from an RDBMS to Redis, RediSearch, RedisJSON, ...
+
+.http://developer.redislabs.com/riot/file.html[RIOT File]
+
+  Bulk import/export data from/to files
+
+.http://developer.redislabs.com/riot/gen.html[RIOT Gen]
+
+  Generate sample datasets to test and demo Redis apps
+
+.http://developer.redislabs.com/riot/redis.html[RIOT Redis]
+
+  Replicate between Redis databases e.g. Elasticache -> Redis Enterprise
+
+.http://developer.redislabs.com/riot/stream.html[RIOT Stream]
+
+  Stream data between Kafka and Redis
