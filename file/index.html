@@ -629,10 +629,10 @@ Use <code>-</code> to read from standard input.
 <div class="sect2">
 <h3 id="_formats"><a class="anchor" href="#_formats"></a>Formats</h3>
 <div class="paragraph">
-<p>RIOT File supports delimited (CSV) and fixed-length (aka fixed-width) formats.</p>
+<p>RIOT File supports a variety of file formats that can be imported into Redis: delimited (CSV), fixed-length (aka fixed-width), JSON, and XML.</p>
 </div>
 <div class="paragraph">
-<p>If the file has a header containing field names use the <code>--header</code> option. Otherwise specify the field names explicitly using the <code>--fields</code> option.</p>
+<p>For flat file formats (delimited and fixed-length) if the file has a header containing field names use the <code>--header</code> option. Otherwise specify the field names using the <code>--fields</code> option.</p>
 </div>
 <div class="sect3">
 <h4 id="_delimited"><a class="anchor" href="#_delimited"></a>Delimited</h4>
@@ -673,7 +673,7 @@ Use <code>-</code> to read from standard input.
 <td class="tableblock halign-left valign-top"></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">1436</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Pub Beer</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Pale Lager</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">American Pale Lager</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">408</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">12.0</p></td>
 </tr>
@@ -683,36 +683,34 @@ Use <code>-</code> to read from standard input.
 <td class="tableblock halign-left valign-top"></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">2265</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Devil&#8217;s Cup</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">APA</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">American Pale Ale (APA)</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">177</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">12.0</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">…</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0.071</p></td>
 <td class="tableblock halign-left valign-top"></td>
-<td class="tableblock halign-left valign-top"></td>
-<td class="tableblock halign-left valign-top"></td>
-<td class="tableblock halign-left valign-top"></td>
-<td class="tableblock halign-left valign-top"></td>
-<td class="tableblock halign-left valign-top"></td>
-<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2264</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Rise of the Phoenix</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">American IPA</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">177</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">12.0</p></td>
 </tr>
 </tbody>
 </table>
 <div class="paragraph">
-<p>The following command imports that CSV file into Redis as hashes using <code>beer</code> as the key prefix and <code>id</code> as primary key.</p>
+<p>The following command imports that CSV file into Redis as hashes using <code>beer</code> as the key prefix and <code>id</code> as primary key. This creates hashes with keys <code>beer:1436</code>, <code>beer:2265</code>, &#8230;&#8203;</p>
 </div>
 <div class="listingblock">
-<div class="title">CSV import example</div>
 <div class="content">
 <pre class="rouge highlight"><code data-lang="bash">riot-file import http://developer.redislabs.com/riot/beers.csv <span class="nt">--header</span> hset <span class="nt">--keyspace</span> beer <span class="nt">--keys</span> <span class="nb">id</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>This creates hashes with keys <code>beer:1436</code>, <code>beer:2265</code>, &#8230;&#8203;</p>
+<p>This command imports a CSV file into a geo set named <code>airportgeo</code> with airport IDs as members:</p>
 </div>
 <div class="listingblock">
-<div class="title">CSV import to geo set</div>
 <div class="content">
 <pre class="rouge highlight"><code data-lang="bash">riot-file import http://developer.redislabs.com/riot/airports.csv <span class="nt">--header</span> <span class="nt">--skip-limit</span> 1 geoadd <span class="nt">--keyspace</span> airportgeo <span class="nt">--members</span> AirportID <span class="nt">--lon</span> Longitude <span class="nt">--lat</span> Latitude</code></pre>
 </div>
@@ -721,7 +719,7 @@ Use <code>-</code> to read from standard input.
 <div class="sect3">
 <h4 id="_fixed_length"><a class="anchor" href="#_fixed_length"></a>Fixed-Length</h4>
 <div class="paragraph">
-<p>These files have fixed-width fields. The width of each field must be defined using the <code>--ranges</code> option.</p>
+<p>Fixed-length files can be imported by specifying the width of each field using the <code>--ranges</code> option.</p>
 </div>
 </div>
 <div class="sect3">
@@ -1071,7 +1069,7 @@ Use <code>-</code> to read from standard input.
 <div id="footer">
 <div id="footer-text">
 Version 2.8.0<br>
-Last updated 2021-03-19 13:41:28 -0700
+Last updated 2021-03-19 14:38:45 -0700
 </div>
 </div>
 <style>
