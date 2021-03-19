@@ -22,7 +22,6 @@ image:https://snyk.io/test/github/redis-developer/riot/badge.svg?targetFile=buil
 image:https://img.shields.io/github/license/redis-developer/riot.svg["License", link="https://github.com/redis-developer/riot"]
 endif::[]
 
-{empty} +
 [.lead]
 Redis Input/Output Tools (RIOT) is a series of utilities designed to help you get data in and out of Redis.
 
