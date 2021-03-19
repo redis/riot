@@ -46,7 +46,7 @@ public class RedisOptions {
     private int port = DEFAULT_PORT;
     @Option(names = {"-s", "--socket"}, description = "Server socket (overrides hostname and port).", paramLabel = "<socket>")
     private String socket;
-    @Option(names = "--user", description = "Used to send ACL style 'AUTH username pass'. Needs password.", paramLabel = "<username>")
+    @Option(names = "--user", description = "Used to send ACL style 'AUTH username pass'. Needs password.", paramLabel = "<name>")
     private String username;
     @Option(names = {"-a", "--pass"}, arity = "0..1", interactive = true, description = "Password to use when connecting to the server.", paramLabel = "<password>")
     private char[] password;

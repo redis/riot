@@ -51,10 +51,10 @@ public class ReplicateCommand extends AbstractTransferCommand<KeyValue<String, b
     @CommandLine.ArgGroup(exclusive = false, heading = "Source Redis reader options%n")
     private RedisReaderOptions readerOptions = RedisReaderOptions.builder().build();
     @SuppressWarnings("unused")
-    @Option(names = "--mode", description = "Replication mode: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).")
+    @Option(names = "--mode", description = "Replication mode: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<name>")
     private ReplicationMode mode = ReplicationMode.SNAPSHOT;
-    @Option(names = "--strategy", description = "Data structure read/write strategy: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).")
-    private ReplicationStrategy type = ReplicationStrategy.DUMP;
+    @Option(names = "--strategy", description = "Data structure read/write strategy: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<name>")
+    private ReplicationStrategy strategy = ReplicationStrategy.DUMP;
     @CommandLine.Mixin
     private FlushingTransferOptions flushingOptions = FlushingTransferOptions.builder().build();
     @Option(names = "--event-queue", description = "Capacity of the keyspace notification event queue (default: ${DEFAULT-VALUE}).", paramLabel = "<size>")
@@ -172,7 +172,7 @@ public class ReplicateCommand extends AbstractTransferCommand<KeyValue<String, b
     }
 
     private TaskletStep scanStep() {
-        if (type == ReplicationStrategy.VALUE) {
+        if (strategy == ReplicationStrategy.VALUE) {
             StepBuilder<DataStructure<String>, DataStructure<String>> dataStructureReplicationStep = stepBuilder("scan-replication-step", "Scanning");
             return dataStructureReplicationStep.reader(sourceDataStructureReader()).writer(targetDataStructureWriter()).build().build();
         }
@@ -181,7 +181,7 @@ public class ReplicateCommand extends AbstractTransferCommand<KeyValue<String, b
     }
 
     private TaskletStep notificationStep() {
-        if (type == ReplicationStrategy.VALUE) {
+        if (strategy == ReplicationStrategy.VALUE) {
             StepBuilder<DataStructure<String>, DataStructure<String>> liveDataStructureReplicationStep = stepBuilder("live-replication-step", "Listening");
             DataStructureItemReader<String, String> liveDataStructureReader = liveDataStructureReader();
             liveDataStructureReader.setName("Live" + ClassUtils.getShortName(liveDataStructureReader.getClass()));

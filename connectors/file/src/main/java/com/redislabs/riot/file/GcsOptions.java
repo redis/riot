@@ -16,9 +16,9 @@ public class GcsOptions {
 
 	@Option(names = "--gcs-key-file", description = "GCS private key (e.g. /usr/local/key.json)", paramLabel = "<file>")
 	private File credentials;
-	@Option(names = "--gcs-project", description = "GCP project id", paramLabel = "<string>")
+	@Option(names = "--gcs-project", description = "GCP project id", paramLabel = "<id>")
 	private String projectId;
-	@Option(names = "--gcs-key", description = "GCS Base64 encoded key", paramLabel = "<string>")
+	@Option(names = "--gcs-key", arity = "0..1", interactive = true, description = "GCS Base64 encoded key", paramLabel = "<key>")
 	private String encodedKey;
 
 }
