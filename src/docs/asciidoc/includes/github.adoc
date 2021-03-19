@@ -1,7 +1,0 @@
-ifdef::env-github[]
-:caution-caption: :fire:
-:important-caption: :heavy_exclamation_mark:
-:note-caption: :information_source:
-:tip-caption: :bulb:
-:warning-caption: :warning:
-endif::[]
