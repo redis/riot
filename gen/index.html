@@ -481,7 +481,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="rouge highlight"><code>riot-gen import id=#index firstName=name.firstName lastName=name.lastName address=address.fullAddress hset --keyspace person --keys id</code></pre>
+<pre class="rouge highlight"><code data-lang="bash">riot-gen import <span class="nb">id</span><span class="o">=</span><span class="s2">"#index"</span> <span class="nv">firstName</span><span class="o">=</span><span class="s2">"name.firstName"</span> <span class="nv">lastName</span><span class="o">=</span><span class="s2">"name.lastName"</span> <span class="nv">address</span><span class="o">=</span><span class="s2">"address.fullAddress"</span> hset <span class="nt">--keyspace</span> person <span class="nt">--keys</span> <span class="nb">id</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -568,13 +568,13 @@ riot-gen import hset --help</code></pre>
 <div class="listingblock">
 <div class="title">HSET Example</div>
 <div class="content">
-<pre class="rouge highlight"><code data-lang="bash">riot-gen import <span class="nb">id</span><span class="o">=</span><span class="c">#index firstName=name.firstName lastName=name.lastName address=address.fullAddress hset --keyspace person --keys id</span></code></pre>
+<pre class="rouge highlight"><code data-lang="bash">riot-gen import <span class="nb">id</span><span class="o">=</span><span class="s2">"#index"</span> <span class="nv">firstName</span><span class="o">=</span><span class="s2">"name.firstName"</span> <span class="nv">lastName</span><span class="o">=</span><span class="s2">"name.lastName"</span> <span class="nv">address</span><span class="o">=</span><span class="s2">"address.fullAddress"</span> hset <span class="nt">--keyspace</span> person <span class="nt">--keys</span> <span class="nb">id</span></code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="title">SADD Example</div>
 <div class="content">
-<pre class="rouge highlight"><code data-lang="bash">riot-gen import <span class="nv">name</span><span class="o">=</span>gameOfThrones.character <span class="nt">--max</span> 10000 sadd <span class="nt">--members</span> name <span class="nt">--keyspace</span> got:characters</code></pre>
+<pre class="rouge highlight"><code data-lang="bash">riot-gen import <span class="nv">name</span><span class="o">=</span><span class="s2">"gameOfThrones.character"</span> <span class="nt">--max</span> 10000 sadd <span class="nt">--members</span> name <span class="nt">--keyspace</span> got:characters</code></pre>
 </div>
 </div>
 <div class="sect2">
@@ -937,7 +937,7 @@ riot-gen import hset --help</code></pre>
 <div id="footer">
 <div id="footer-text">
 Version 2.8.0<br>
-Last updated 2021-03-19 11:29:45 -0700
+Last updated 2021-03-19 12:59:59 -0700
 </div>
 </div>
 <style>
