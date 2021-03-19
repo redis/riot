@@ -21,6 +21,7 @@ endif::[]
 
 image::https://developer.redislabs.com/riot/images/riot.svg[]
 
+[.lead]
 Redis Input/Output Tools (RIOT) is a series of utilities designed to help you get data in and out of Redis.
 
 [horizontal]
