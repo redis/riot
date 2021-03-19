@@ -1,10 +1,10 @@
 package com.redis.riot.redis;
 
+import com.redislabs.riot.AbstractStandaloneRedisTest;
+import com.redislabs.riot.DataGenerator;
 import com.redislabs.riot.RiotApp;
 import com.redislabs.riot.redis.ReplicateCommand;
 import com.redislabs.riot.redis.RiotRedis;
-import com.redislabs.riot.test.AbstractStandaloneRedisTest;
-import com.redislabs.riot.test.DataGenerator;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.api.StatefulRedisConnection;
@@ -17,9 +17,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
-import org.springframework.batch.core.StepExecution;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.junit.jupiter.Container;
 

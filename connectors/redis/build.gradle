@@ -1,7 +1,23 @@
+apply plugin: 'application'
+
+archivesBaseName = 'riot-redis'
+
 dependencies {
+    implementation project(':core')
     implementation 'org.latencyutils:LatencyUtils:2.0.3'
+    testImplementation project(':connectors:test')
 }
 
 application {
     mainClassName = 'com.redislabs.riot.redis.RiotRedis'
+    applicationName = 'riot-redis'
+}
+
+asciidoctor {
+    outputDir "../../build/docs/asciidoc/redis/"
+    resources {
+        from("${sourceDir}") {
+            include '*.png'
+        }
+    }
 }

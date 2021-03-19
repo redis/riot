@@ -7,4 +7,4 @@
 :linkattrs: true
 :sectanchors: true
 :docinfo: shared-head,private-head
-include::github.adoc[]
+:table-caption!:

@@ -12,7 +12,8 @@ import java.util.zip.GZIPInputStream;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.redislabs.riot.test.DataGenerator;
+import com.redislabs.riot.AbstractStandaloneRedisTest;
+import com.redislabs.riot.DataGenerator;
 import io.lettuce.core.GeoArgs;
 import io.lettuce.core.api.sync.RedisCommands;
 import org.junit.jupiter.api.Assertions;
@@ -26,7 +27,6 @@ import org.springframework.batch.item.redis.support.DataStructure;
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
 
 import com.redislabs.riot.RiotApp;
-import com.redislabs.riot.test.AbstractStandaloneRedisTest;
 import org.springframework.batch.item.xml.XmlItemReader;
 import org.springframework.batch.item.xml.XmlObjectReader;
 import org.springframework.batch.item.xml.support.XmlItemReaderBuilder;

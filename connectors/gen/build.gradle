@@ -1,6 +1,12 @@
+apply plugin: 'application'
+
+archivesBaseName = 'riot-gen'
+
 dependencies {
+    implementation project(':core')
     implementation 'com.redislabs:lettusearch:3.1.1'
     implementation 'com.github.javafaker:javafaker:1.0.2'
+    testImplementation project(':connectors:test')
 	testImplementation('org.springframework.boot:spring-boot-starter-test') {
 		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
 	}    
@@ -8,4 +14,9 @@ dependencies {
 
 application {
     mainClassName = 'com.redislabs.riot.gen.RiotGen'
+    applicationName = 'riot-gen'
+}
+
+asciidoctor {
+    outputDir "../../build/docs/asciidoc/gen/"
 }

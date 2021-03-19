@@ -2,11 +2,11 @@ package com.redislabs.riot.db;
 
 import javax.sql.DataSource;
 
+import com.redislabs.riot.AbstractStandaloneRedisTest;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.testcontainers.containers.JdbcDatabaseContainer;
 
 import com.redislabs.riot.RiotApp;
-import com.redislabs.riot.test.AbstractStandaloneRedisTest;
 
 public abstract class AbstractDatabaseTest extends AbstractStandaloneRedisTest {
 

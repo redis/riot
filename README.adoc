@@ -1,6 +1,7 @@
 = RIOT
 :project-repo: redis-developer/riot
 :uri-repo: https://github.com/{project-repo}
+:site-url: http://developer.redislabs.com/riot
 ifdef::env-github[]
 :badges:
 :tag: master
@@ -19,19 +20,19 @@ image:https://snyk.io/test/github/redis-developer/riot/badge.svg?targetFile=buil
 image:https://img.shields.io/github/license/redis-developer/riot.svg["License", link="https://github.com/redis-developer/riot"]
 endif::[]
 
-image::https://developer.redislabs.com/riot/images/riot.svg[]
+image::{site-url}/riot.svg[]
 
 {empty} +
 [.lead]
 Redis Input/Output Tools (RIOT) is a series of utilities designed to help you get data in and out of Redis.
 
-http://developer.redislabs.com/riot/db.html[RIOT DB]::
+{site-url}/db[RIOT DB]::
     SQL import/export
-http://developer.redislabs.com/riot/file.html[RIOT File]::
+{site-url}/file[RIOT File]::
     File import/export
-http://developer.redislabs.com/riot/gen.html[RIOT Gen]::
+{site-url}/gen[RIOT Gen]::
     Data generator
-http://developer.redislabs.com/riot/redis.html[RIOT Redis]::
+{site-url}/redis[RIOT Redis]::
     Redis to Redis replication
-http://developer.redislabs.com/riot/stream.html[RIOT Stream]::
+{site-url}/stream[RIOT Stream]::
     Stream data between Kafka and Redis

@@ -2,7 +2,7 @@
 
 Redis keys are constructed from input records by concatenating the keyspace prefix and key fields:
 
-image::images/mapping.png[]
+image::mapping.png[]
 
 You can specify one or many Redis commands as targets of the import:
 

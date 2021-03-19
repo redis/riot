@@ -1,10 +1,10 @@
 package com.redis.riot.redis;
 
+import com.redislabs.riot.AbstractRiotTest;
+import com.redislabs.riot.DataGenerator;
 import com.redislabs.riot.RiotApp;
 import com.redislabs.riot.redis.ReplicateCommand;
 import com.redislabs.riot.redis.RiotRedis;
-import com.redislabs.riot.test.AbstractRiotTest;
-import com.redislabs.riot.test.DataGenerator;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.api.StatefulRedisConnection;

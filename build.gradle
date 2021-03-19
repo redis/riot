@@ -17,10 +17,9 @@ repositories {
 subprojects {
     apply plugin: 'java'
     apply plugin: 'java-library'
-    apply plugin: 'eclipse'
     apply plugin: 'org.springframework.boot'
     apply plugin: 'io.spring.dependency-management'
-    archivesBaseName = 'riot-' + project.name
+    apply plugin: 'org.asciidoctor.jvm.convert'
     sourceCompatibility = '1.8'
     targetCompatibility = '1.8'
     repositories {
@@ -52,24 +51,6 @@ subprojects {
     test {
         useJUnitPlatform()
     }
-    if (project.name != 'connectors') {
-        eclipse {
-            project {
-                name = 'riot-' + project.name
-            }
-        }
-    }
-    if (project.path.contains('connectors')) {
-        apply plugin: 'application'
-        application {
-            applicationName = 'riot-' + project.name
-        }
-        dependencies {
-            implementation project(':core')
-            testImplementation project(':test')
-            implementation 'org.slf4j:slf4j-jdk14'
-        }
-    }
 }
 
 release {
@@ -82,24 +63,17 @@ task releaseBuild {
 }
 
 asciidoctor {
-    baseDirFollowsSourceDir()
+    sourceDir "$baseDir"
     sources {
-        exclude 'includes/**'
-        exclude 'images/**'
+        include 'README.adoc'
     }
     resources {
-        from("${sourceDir}/images") {
-            exclude '*.excalidraw'
-            into 'images'
-        }
-        from("connectors/file/src/test/resources/files") {
-            include '*.*'
-            into '.'
+        from ('core/src/docs/asciidoc') {
+            include 'riot.svg'
         }
     }
-    logDocuments = true
-    outputOptions {
-        separateOutputDirs = false
+    doLast {
+        file("${outputDir}/README.html").renameTo("${outputDir}/index.html")
     }
 }
 

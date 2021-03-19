@@ -35,7 +35,7 @@ You can use `--help` on any subcommand:
 [subs="attributes",source,bash]
 ----
 {app} import --help
-{app} import … hset --help
+{app} import hset --help
 ----
 ====
 

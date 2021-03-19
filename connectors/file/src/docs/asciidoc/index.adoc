@@ -1,12 +1,11 @@
 = {app-name}
 :app-name: RIOT File
 :app: riot-file
-:resources: ../../../connectors/file/src/test/resources
-include::includes/preamble.adoc[]
+include::../../core/src/docs/asciidoc/preamble.adoc[]
 
 {app-name} lets you import and export local or remote files in many formats like CSV, JSON, and XML.
 
-include::includes/getting_started.adoc[]
+include::../../core/src/docs/asciidoc/getting_started.adoc[]
 
 == Importing
 
@@ -76,7 +75,7 @@ The following command imports that CSV file into Redis as hashes using `beer` as
 .CSV import example
 [source,bash]
 ----
-include::{resources}/import-csv[]
+include::src/test/resources/import-csv[]
 ----
 
 This creates hashes with keys `beer:1436`, `beer:2265`, ...
@@ -84,7 +83,7 @@ This creates hashes with keys `beer:1436`, `beer:2265`, ...
 .CSV import to geo set
 [source,bash]
 ----
-include::{resources}/import-geoadd[]
+include::src/test/resources/import-geoadd[]
 ----
 
 ==== Fixed-Length
@@ -110,7 +109,7 @@ The expected format for JSON files is:
 .JSON import example
 [source,bash]
 ----
-include::{resources}/import-json[]
+include::src/test/resources/import-json[]
 ----
 
 JSON records are trees with potentially nested values that need to be flattened when the target is a Redis hash for example.
@@ -182,7 +181,7 @@ Here is a sample XML file that can be imported by {app-name}:
 .XML import example
 [source,bash]
 ----
-include::{resources}/import-xml[]
+include::src/test/resources/import-xml[]
 ----
 
 ==== Redis Dumps
@@ -192,12 +191,12 @@ include::{resources}/import-xml[]
 These files look like this:
 [source,json]
 ----
-include::includes/redis-dump.json[]
+include::src/docs/asciidoc/redis-dump.json[]
 ----
 
-include::includes/processing.adoc[]
+include::../../core/src/docs/asciidoc/processing.adoc[]
 
-include::includes/redis-commands.adoc[]
+include::../../core/src/docs/asciidoc/redis-commands.adoc[]
 
 == Exporting
 
@@ -213,11 +212,11 @@ Supported file formats are JSON and XML. Files can be gzip-compressed.
 .Compressed JSON export example
 [source,bash]
 ----
-include::{resources}/export-json-gz[]
+include::src/test/resources/export-json-gz[]
 ----
 
 .XML export example
 [source,bash]
 ----
-include::{resources}/export-xml[]
+include::src/test/resources/export-xml[]
 ----

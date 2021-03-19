@@ -1,2 +1,2 @@
 rootProject.name = 'riot'
-include 'core', 'test', 'connectors:db', 'connectors:file', 'connectors:gen', 'connectors:redis', 'connectors:stream'
+include 'core', 'connectors:test', 'connectors:db', 'connectors:file', 'connectors:gen', 'connectors:redis', 'connectors:stream'

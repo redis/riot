@@ -1,8 +1,8 @@
 package com.redislabs.riot.gen;
 
 import com.redislabs.lettusearch.*;
+import com.redislabs.riot.AbstractStandaloneRedisTest;
 import com.redislabs.riot.RiotApp;
-import com.redislabs.riot.test.AbstractStandaloneRedisTest;
 import io.lettuce.core.Range;
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.StreamMessage;

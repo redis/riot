@@ -1,8 +1,8 @@
 = {app-name}
 :app-name: RIOT Redis
 :app: riot-redis
-:resources: ../../../connectors/redis/src/test/resources
-include::includes/preamble.adoc[]
+:resources: ../../test/resources
+include::../../core/src/docs/asciidoc/preamble.adoc[]
 
 == Overview
 
@@ -17,13 +17,13 @@ riot-redis -h source -p 6379 replicate --mode live -h target -p 6380
 
 {app-name} does not make use of the https://redis.io/commands/replicaof[REPLICAOF] command which is not always available (e.g. ElastiCache), but instead implements client-side replication using DUMP and RESTORE:
 
-image::images/replication.png[]
+image::replication.png[]
 
 1. Key reader: initiates a SCAN and optionally calls SUBSCRIBE to listen for keyspace notifications (live replication).
 2. Value reader: takes the keys and calls DUMP and TTL.
 3. Key/Value writer: takes key/value/ttl tuples and calls RESTORE and EXPIRE.
 
-include::includes/getting_started.adoc[]
+include::../../core/src/docs/asciidoc/getting_started.adoc[]
 
 == Replicating
 
@@ -86,7 +86,6 @@ Like the consumer the producer process can be multi-threaded, using the `--threa
 
 With {app-name} 2.8.0 another replication mechanism was introduced that uses data structure-specific producers and consumers. For each Redis data type there is a corresponding pair of read/write commands:
 
-.Value Replication Commands
 [options="header",cols=",m,m",frame="none",grid="none"]
 |=========================================================
 |Type|Read|Write

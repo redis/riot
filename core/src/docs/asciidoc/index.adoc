@@ -1,10 +1,11 @@
 = RIOT
-include::includes/github.adoc[]
 
 [quote]
 Get data in and out of Redis
 
 image:images/riot.svg[RIOT,width=800]
+
+== Overview
 
 Redis Input/Output Tools (RIOT) is a set of import/export command line utilities for Redis:
 
@@ -14,7 +15,7 @@ Redis Input/Output Tools (RIOT) is a set of import/export command line utilities
 * link:redis.html[RIOT Redis]: live replication from any Redis database (including AWS Elasticache) to another Redis database.
 * link:stream.html[RIOT Stream]: Kafka import and export.
 
-.Architecture
+== Architecture
 
 image::images/architecture.png[]
 

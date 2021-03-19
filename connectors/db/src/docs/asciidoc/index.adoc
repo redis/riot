@@ -1,12 +1,11 @@
 = {app-name}
 :app-name: RIOT DB
 :app: riot-db
-:resources: ../../../connectors/db/src/test/resources
-include::includes/preamble.adoc[]
+include::../../core/src/docs/asciidoc/preamble.adoc[]
 
 {app-name} lets you import and export data from relational databases.
 
-include::includes/getting_started.adoc[]
+include::../../core/src/docs/asciidoc/getting_started.adoc[]
 
 == Drivers
 
@@ -56,12 +55,12 @@ Use the `import` command to import the result set of a SQL statement:
 .PostgreSQL Example
 [source,bash]
 ----
-include::{resources}/import-postgresql[]
+include::src/test/resources/import-postgresql[]
 ----
 
-include::includes/processing.adoc[]
+include::../../core/src/docs/asciidoc/processing.adoc[]
 
-include::includes/redis-commands.adoc[]
+include::../../core/src/docs/asciidoc/redis-commands.adoc[]
 
 == Exporting
 
@@ -75,18 +74,18 @@ Use the `export` command to export data from Redis to the database:
 .Export to PostgreSQL
 [source,bash]
 ----
-include::{resources}/export-postgresql[]
+include::src/test/resources/export-postgresql[]
 ----
 
 .Import from PostgreSQL to JSON strings
 [source,bash]
 ----
-include::{resources}/import-postgresql-set[]
+include::src/test/resources/import-postgresql-set[]
 ----
 
 This will produce Redis strings that look like this:
 
 [source,json]
 ----
-include::includes/order.json[]
+include::src/docs/asciidoc/order.json[]
 ----

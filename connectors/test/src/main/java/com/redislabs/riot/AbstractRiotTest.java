@@ -1,6 +1,5 @@
-package com.redislabs.riot.test;
+package com.redislabs.riot;
 
-import com.redislabs.riot.RiotApp;
 import org.apache.commons.io.IOUtils;
 import org.codehaus.plexus.util.cli.CommandLineUtils;
 import org.junit.jupiter.api.Assertions;

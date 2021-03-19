@@ -1,19 +1,19 @@
 = {app-name}
 :app-name: RIOT Gen
 :app: riot-gen
-:resources: ../../../connectors/gen/src/test/resources
-include::includes/preamble.adoc[]
+:resources: ../../test/resources
+include::../../core/src/docs/asciidoc/preamble.adoc[]
 
 {app-name} is a data generator based on https://github.com/DiUS/java-faker[Faker]:
 
-[source,bash]
+[source]
 ----
-include::{resources}/import-hset[]
+include::src/test/resources/import-hset[]
 ----
 
 All supported Faker data types are listed <<faker-data-types,below>>.
 
-include::includes/getting_started.adoc[]
+include::../../core/src/docs/asciidoc/getting_started.adoc[]
 
 == Importing
 
@@ -27,24 +27,24 @@ Use the `import` command to import generated data:
 .HSET Example
 [source,bash]
 ----
-include::{resources}/import-hset[]
+include::src/test/resources/import-hset[]
 ----
 
 .SADD Example
 [source,bash]
 ----
-include::{resources}/import-sadd[]
+include::src/test/resources/import-sadd[]
 ----
 
-include::includes/processing.adoc[]
+include::../../core/src/docs/asciidoc/processing.adoc[]
 
-include::includes/redis-commands.adoc[]
+include::../../core/src/docs/asciidoc/redis-commands.adoc[]
 
 === Introspecting RediSearch
 
 [source,bash]
 ----
-include::{resources}/index-introspection[]
+include::src/test/resources/index-introspection[]
 ----
 
 [#faker-data-types]

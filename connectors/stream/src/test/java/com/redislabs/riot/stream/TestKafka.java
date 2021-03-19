@@ -1,8 +1,8 @@
 package com.redislabs.riot.stream;
 
 import com.google.common.collect.ImmutableMap;
+import com.redislabs.riot.AbstractStandaloneRedisTest;
 import com.redislabs.riot.RiotApp;
-import com.redislabs.riot.test.AbstractStandaloneRedisTest;
 import io.lettuce.core.Range;
 import io.lettuce.core.StreamMessage;
 import lombok.extern.slf4j.Slf4j;

@@ -1,4 +1,4 @@
-package com.redislabs.riot.test;
+package com.redislabs.riot;
 
 import io.lettuce.core.LettuceFutures;
 import io.lettuce.core.RedisFuture;
