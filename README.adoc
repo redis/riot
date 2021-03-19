@@ -20,7 +20,7 @@ image:https://snyk.io/test/github/redis-developer/riot/badge.svg?targetFile=buil
 image:https://img.shields.io/github/license/redis-developer/riot.svg["License", link="https://github.com/redis-developer/riot"]
 endif::[]
 
-image::{site-url}/riot.svg[]
+image::http://developer.redislabs.com/riot/riot.svg[]
 
 {empty} +
 [.lead]

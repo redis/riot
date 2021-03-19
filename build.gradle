@@ -71,6 +71,9 @@ asciidoctor {
         from ('core/src/docs/asciidoc') {
             include 'riot.svg'
         }
+        from("connectors/file/src/test/resources/files") {
+            include '*.*'
+        }
     }
     doLast {
         file("${outputDir}/README.html").renameTo("${outputDir}/index.html")
