@@ -1,0 +1,29 @@
+[
+	{
+		"_index": "test-index",
+		"_type": "docs",
+		"_id": "doc1",
+		"_score": 1,
+		"_source": {
+			"name": "ruan",
+			"age": 30,
+			"articles": [
+				"1",
+				"3"
+			]
+		}
+	},
+	{
+		"_index": "test-index",
+		"_type": "docs",
+		"_id": "doc2",
+		"_score": 1,
+		"_source": {
+			"name": "stefan",
+			"age": 29,
+			"articles": [
+				"2"
+			]
+		}
+	}
+]
