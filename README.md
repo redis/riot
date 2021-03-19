@@ -1,4 +1,4 @@
-<p align="center"><img src="docs/images/riot.svg" alt="riot" height="150px"></p>
+<p align="center"><img src="src/docs/asciidoc/images/riot.svg" alt="riot" height="150px"></p>
 
 [![Latest Release](https://img.shields.io/github/release/redis-developer/riot.svg)](https://github.com/redis-developer/riot/releases/latest)
 [![Known Vulnerabilities](https://snyk.io/test/github/redis-developer/riot/badge.svg?targetFile=build.gradle)](https://snyk.io/test/github/redis-developer/riot?targetFile=build.gradle)
