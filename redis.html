@@ -466,6 +466,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <ul class="sectlevel2">
 <li><a href="#_producer">Producer</a></li>
 <li><a href="#_consumer">Consumer</a></li>
+<li><a href="#_type_based_replication">Type-Based Replication</a></li>
 </ul>
 </li>
 </ul>
@@ -681,13 +682,78 @@ The live replication mechanism does not guarantee data consistency. Redis sends 
 <p>Like the consumer the producer process can be multi-threaded, using the <code>--threads</code> option.</p>
 </div>
 </div>
+<div class="sect2">
+<h3 id="_type_based_replication"><a class="anchor" href="#_type_based_replication"></a>Type-Based Replication</h3>
+<div class="paragraph">
+<p>With RIOT Redis 2.8.0 another replication mechanism was introduced that uses data structure-specific producers and consumers. For each Redis data type there is a corresponding pair of read/write commands:</p>
+</div>
+<table class="tableblock frame-none grid-none stretch">
+<caption class="title">Table 1. Value Replication Commands</caption>
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Read</th>
+<th class="tableblock halign-left valign-top">Write</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Hash</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>HGETALL</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>HSET</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">List</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>LRANGE</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>RPUSH</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Set</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>SMEMBERS</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>SADD</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Sorted Set</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>ZRANGE</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>ZADD</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Stream</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>XRANGE</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>XADD</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>GET</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>SET</code></p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+This replication strategy is more intensive in terms of CPU, memory, and network for the machines running RIOT Redis. Adjust number of threads, batch, and queue sizes accordingly.
+</td>
+</tr>
+</table>
+</div>
+</div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
 Version 2.8.0<br>
-Last updated 2021-03-18 11:14:31 -0700
+Last updated 2021-03-18 16:59:30 -0700
 </div>
 </div>
 <style>
