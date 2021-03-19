@@ -1,0 +1,5 @@
+#!/bin/sh -e
+
+../../gradlew -q --console plain :connectors:db:installDist
+
+./build/install/riot-db/bin/riot-db "$@"

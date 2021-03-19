@@ -1,5 +1,0 @@
-#!/bin/sh -e
-
-./gradlew -q --console plain :connectors:redis:installDist
-
-./connectors/redis/build/install/riot-redis/bin/riot-redis "$@"

@@ -1,5 +1,0 @@
-#!/bin/sh -e
-
-./gradlew -q --console plain :connectors:gen:installDist
-
-./connectors/gen/build/install/riot-gen/bin/riot-gen "$@"
