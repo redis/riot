@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.10">
 <meta name="application-name" content="RIOT DB">
-<link rel="icon" type="image/svg" href="./images/favicon.svg">
+<link rel="icon" type="image/svg" href="https://developer.redislabs.com/riot/favicon.svg">
 <title>RIOT DB</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
@@ -632,7 +632,7 @@ riot-db import hset --help</code></pre>
 <div class="listingblock">
 <div class="title">PostgreSQL Example</div>
 <div class="content">
-<pre class="rouge highlight"><code data-lang="bash">riot-db import <span class="s2">"SELECT * FROM orders"</span> <span class="nt">--url</span> jdbc:postgresql://host:port/database <span class="nt">--username</span> appuser <span class="nt">--password</span> passwd hset <span class="nt">--keyspace</span> order <span class="nt">--keys</span> order_id</code></pre>
+<pre class="rouge highlight"><code data-lang="bash">riot-db import <span class="s2">"SELECT * FROM orders"</span> <span class="nt">--url</span> <span class="s2">"jdbc:postgresql://host:port/database"</span> <span class="nt">--username</span> appuser <span class="nt">--password</span> passwd hset <span class="nt">--keyspace</span> order <span class="nt">--keys</span> order_id</code></pre>
 </div>
 </div>
 <div class="sect2">
@@ -760,13 +760,13 @@ riot-db import hset --help</code></pre>
 <div class="listingblock">
 <div class="title">Export to PostgreSQL</div>
 <div class="content">
-<pre class="rouge highlight"><code data-lang="bash">riot-db <span class="nb">export</span> <span class="s2">"INSERT INTO mytable (id, field1, field2) VALUES (CAST(:id AS SMALLINT), :field1, :field2)"</span> <span class="nt">--url</span> jdbc:postgresql://host:port/database <span class="nt">--username</span> appuser <span class="nt">--password</span> passwd <span class="nt">--match</span> <span class="s2">"hash:*"</span> <span class="nt">--key-regex</span> <span class="s2">"hash:(?&lt;id&gt;.*)"</span></code></pre>
+<pre class="rouge highlight"><code data-lang="bash">riot-db <span class="nb">export</span> <span class="s2">"INSERT INTO mytable (id, field1, field2) VALUES (CAST(:id AS SMALLINT), :field1, :field2)"</span> <span class="nt">--url</span> <span class="s2">"jdbc:postgresql://host:port/database"</span> <span class="nt">--username</span> appuser <span class="nt">--password</span> passwd <span class="nt">--match</span> <span class="s2">"hash:*"</span> <span class="nt">--key-regex</span> <span class="s2">"hash:(?&lt;id&gt;.*)"</span></code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="title">Import from PostgreSQL to JSON strings</div>
 <div class="content">
-<pre class="rouge highlight"><code data-lang="bash">riot-db import <span class="s2">"SELECT * FROM orders"</span> <span class="nt">--url</span> jdbc:postgresql://host:port/database <span class="nt">--username</span> appuser <span class="nt">--password</span> passwd <span class="nb">set</span> <span class="nt">--keyspace</span> order <span class="nt">--keys</span> order_id</code></pre>
+<pre class="rouge highlight"><code data-lang="bash">riot-db import <span class="s2">"SELECT * FROM orders"</span> <span class="nt">--url</span> <span class="s2">"jdbc:postgresql://host:port/database"</span> <span class="nt">--username</span> appuser <span class="nt">--password</span> passwd <span class="nb">set</span> <span class="nt">--keyspace</span> order <span class="nt">--keys</span> order_id</code></pre>
 </div>
 </div>
 <div class="paragraph">
