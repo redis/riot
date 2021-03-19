@@ -602,7 +602,7 @@ riot-gen import hset --help</code></pre>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="rouge highlight"><code data-lang="bash"><span class="nt">--process</span> <span class="nv">field1</span><span class="o">=</span><span class="s2">"&lt;exp&gt;"</span> <span class="nv">field2</span><span class="o">=</span><span class="s2">"&lt;exp&gt;"</span> …</code></pre>
+<pre class="rouge highlight"><code data-lang="bash"><span class="nt">--process</span> <span class="nv">field1</span><span class="o">=</span><span class="s2">"&lt;exp&gt;"</span> <span class="nv">field2</span><span class="o">=</span><span class="s2">"&lt;exp&gt;"</span> ...</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -614,23 +614,50 @@ riot-gen import hset --help</code></pre>
 <div class="paragraph">
 <p>The processor also exposes the following variables that can be called with the <code>#</code> prefix:</p>
 </div>
-<div class="dlist">
-<dl>
-<dt class="hdlist1">redis</dt>
-<dd>
-<p>Redis connection to issue any command:
-<code>--process name="#redis.hget('person1','lastName')"</code></p>
-</dd>
-<dt class="hdlist1">date</dt>
-<dd>
-<p>Date parser/formatter:
-<code>--process epoch="#date.parse(mydate).getTime()"</code></p>
-</dd>
-<dt class="hdlist1">index</dt>
-<dd>
-<p>Sequence number of the item being generated: <code>--process "id=#index"</code></p>
-</dd>
-</dl>
+<div class="ulist">
+<ul>
+<li>
+<p><code>redis</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Redis connection to issue any command</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="bash"><span class="nt">--process</span> <span class="nv">name</span><span class="o">=</span><span class="s2">"#redis.hget('person1','lastName')"</span></code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>date</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Date parser/formatter</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="bash"><span class="nt">--process</span> <span class="nv">epoch</span><span class="o">=</span><span class="s2">"#date.parse(mydate).getTime()"</span></code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>index</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Sequence number of the item being generated</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="bash"><span class="nt">--process</span> <span class="s2">"id=#index"</span></code></pre>
+</div>
 </div>
 </div>
 <div class="sect3">
@@ -650,7 +677,12 @@ riot-gen import hset --help</code></pre>
 <p>Keep records that match a SpEL boolean expression.</p>
 </div>
 <div class="paragraph">
-<p>For example <code>--filter "value matches '\\d+'"</code> will only keep records where the <code>value</code> field is a series of digits.</p>
+<p>For example this filter will only keep records where the <code>value</code> field is a series of digits:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="bash"><span class="nt">--filter</span> <span class="s2">"value matches '</span><span class="se">\\</span><span class="s2">d+'"</span></code></pre>
+</div>
 </div>
 </div>
 </div>
@@ -670,19 +702,19 @@ riot-gen import hset --help</code></pre>
 <div class="listingblock">
 <div class="title">Import into hashes</div>
 <div class="content">
-<pre class="rouge highlight"><code data-lang="source">riot-gen import … hset --keyspace blah --keys id</code></pre>
+<pre class="rouge highlight"><code data-lang="source">riot-gen import ... hset --keyspace blah --keys id</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="title">Import into hashes <strong>and</strong> set TTL on the key</div>
 <div class="content">
-<pre class="rouge highlight"><code data-lang="bash"><span class="o">{</span>app<span class="o">}</span> import … hset <span class="nt">--keyspace</span> blah <span class="nt">--keys</span> <span class="nb">id </span>expire <span class="nt">--keyspace</span> blah <span class="nt">--keys</span> <span class="nb">id</span></code></pre>
+<pre class="rouge highlight"><code data-lang="source">riot-gen import ... hset --keyspace blah --keys id expire --keyspace blah --keys id</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="title">Import into hashes <strong>and</strong> set TTL <strong>and</strong> add to a set named <code>myset</code></div>
 <div class="content">
-<pre class="rouge highlight"><code data-lang="source">riot-gen import … hset --keyspace blah --keys id expire --keyspace blah --keys id sadd --keyspace myset --members id</code></pre>
+<pre class="rouge highlight"><code data-lang="source">riot-gen import ... hset --keyspace blah --keys id expire --keyspace blah --keys id sadd --keyspace myset --members id</code></pre>
 </div>
 </div>
 </div>
