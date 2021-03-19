@@ -84,7 +84,7 @@ public class RedisOptions {
     @Builder.Default
     @Option(names = "--no-auto-reconnect", description = "Auto reconnect on connection loss. True by default.", negatable = true, hidden = true)
     private boolean autoReconnect = true;
-    @Option(names = "--client", description = "Client name used to connect to Redis.")
+    @Option(names = "--client", description = "Client name used to connect to Redis.", paramLabel = "<name>")
     private String clientName;
 
     public List<RedisURI> uris() {
