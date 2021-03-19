@@ -15,6 +15,7 @@ endif::[]
 
 image::http://developer.redislabs.com/riot/riot.svg[]
 
+{empty} +
 // Badges
 ifdef::badges[]
 image:https://img.shields.io/github/release/redis-developer/riot.svg["Latest Release", link="https://github.com/redis-developer/riot/releases/latest"]
