@@ -515,6 +515,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="listingblock">
 <div class="content">
 <pre class="rouge highlight"><code data-lang="source">git clone https://github.com/redis-developer/riot.git
+cd riot/connectors/file
 ./riot-file</code></pre>
 </div>
 </div>
@@ -641,7 +642,7 @@ Use <code>-</code> to read from standard input.
 <div class="paragraph">
 <p>Let&#8217;s consider this CSV file:</p>
 </div>
-<table class="tableblock frame-all grid-all stretch">
+<table class="tableblock frame-none grid-none stretch">
 <caption class="title"><a href="https://raw.githubusercontent.com/nickhould/craft-beers-dataset/master/data/processed/beers.csv">beers.csv</a></caption>
 <colgroup>
 <col style="width: 12.5%;">
@@ -752,43 +753,36 @@ Use <code>-</code> to read from standard input.
 <div class="paragraph">
 <p>To that end, RIOT File uses a field naming convention to flatten JSON objects and arrays:</p>
 </div>
-<div class="listingblock">
-<div class="title">Nested object</div>
-<div class="content">
-<pre class="rouge highlight"><code data-lang="json"><span class="p">{</span><span class="w">
-  </span><span class="nl">"field"</span><span class="p">:</span><span class="w">
-    </span><span class="p">{</span><span class="w">
-      </span><span class="nl">"sub"</span><span class="p">:</span><span class="w"> </span><span class="s2">"value"</span><span class="w">
-    </span><span class="p">}</span><span class="w">
-</span><span class="p">}</span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>&#8594;</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre>field.sub=value`</pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="title">Array</div>
-<div class="content">
-<pre class="rouge highlight"><code data-lang="json"><span class="p">{</span><span class="w">
-  </span><span class="nl">"field"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">]</span><span class="w">
-</span><span class="p">}</span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>&#8594;</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre>field[0]=1
-field[1]=2
-field[2]=3</pre>
-</div>
-</div>
+<table class="tableblock frame-none grid-none stretch">
+<caption class="title">Nested object</caption>
+<colgroup>
+<col style="width: 45%;">
+<col style="width: 10%;">
+<col style="width: 45%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code><code>{ "field": { "sub": "value" } }</code></code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&#8594;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code><code>field.sub=value</code></code></p></td>
+</tr>
+</tbody>
+</table>
+<table class="tableblock frame-none grid-none stretch">
+<caption class="title">Array</caption>
+<colgroup>
+<col style="width: 45%;">
+<col style="width: 10%;">
+<col style="width: 45%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code><code>{ "field": [1, 2, 3] }</code></code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&#8594;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code><code>field[0]=1 field[1]=2 field[2]=3</code></code></p></td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="sect3">
 <h4 id="_xml"><a class="anchor" href="#_xml"></a>XML</h4>
@@ -1045,7 +1039,7 @@ field[2]=3</pre>
 <div id="footer">
 <div id="footer-text">
 Version 2.8.0<br>
-Last updated 2021-03-18 23:06:38 -0700
+Last updated 2021-03-19 12:12:18 -0700
 </div>
 </div>
 <style>
