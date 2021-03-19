@@ -721,6 +721,11 @@ Use <code>-</code> to read from standard input.
 <div class="paragraph">
 <p>Fixed-length files can be imported by specifying the width of each field using the <code>--ranges</code> option.</p>
 </div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="bash">riot-file import http://developer.redislabs.com/riot/accounts.fw <span class="nt">--ranges</span> 1 9 25 41 53 67 83 <span class="nt">--header</span> hset <span class="nt">--keyspace</span> account <span class="nt">--keys</span> Account</code></pre>
+</div>
+</div>
 </div>
 <div class="sect3">
 <h4 id="_json"><a class="anchor" href="#_json"></a>JSON</h4>
@@ -1069,7 +1074,7 @@ Use <code>-</code> to read from standard input.
 <div id="footer">
 <div id="footer-text">
 Version 2.8.0<br>
-Last updated 2021-03-19 14:38:45 -0700
+Last updated 2021-03-19 16:36:41 -0700
 </div>
 </div>
 <style>
