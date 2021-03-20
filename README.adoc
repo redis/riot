@@ -47,11 +47,11 @@ riot-gen import fact=chuckNorris.fact sadd --keyspace facts --members fact
 == {site-url}/redis[RIOT Redis]: Redis to Redis replication
 [source,bash]
 ----
-riot-redis --uri="redis://source" replicate --uri="redis://target" --mode live
+riot-redis --uri redis://source replicate --uri redis://target --mode live
 ----
 
 == {site-url}/stream[RIOT Stream]: Streaming between Kafka and Redis
 [source,bash]
 ----
-riot-stream import topic --broker="localhost:9092"
+riot-stream import topic --broker localhost:9092
 ----
