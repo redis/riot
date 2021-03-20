@@ -29,19 +29,19 @@ Redis Input/Output Tools (RIOT) is a series of utilities designed to help you ge
 == {site-url}/db[RIOT DB]: SQL import/export
 [source,bash]
 ----
-riot-db import "SELECT * FROM orders" --url="jdbc:oracle:thin@myhost:1521:orcl" hset --keyspace=order --keys=id
+riot-db import "SELECT * FROM emp" --url jdbc:oracle:thin@host:1521:orcl hset -p emp -k id
 ----
 
 == {site-url}/file[RIOT File]: File import/export
 [source,bash]
 ----
-riot-file import beers.csv --header=hset --keyspace=beer --keys=id
+riot-file import beers.csv --header hset --keyspace beer --keys id
 ----
 
 == {site-url}/gen[RIOT Gen]: Data generator
 [source,bash]
 ----
-riot-gen import fact="chuckNorris.fact" sadd --keyspace=facts --members=fact
+riot-gen import fact=chuckNorris.fact sadd --keyspace facts --members fact
 ----
 
 == {site-url}/redis[RIOT Redis]: Redis to Redis replication
