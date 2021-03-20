@@ -458,6 +458,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_usage">Usage</a></li>
 <li><a href="#_importing">Importing</a>
 <ul class="sectlevel2">
+<li><a href="#_redis_commands">Redis Commands</a></li>
 <li><a href="#_processing">Processing</a>
 <ul class="sectlevel3">
 <li><a href="#_transforms">Transforms</a></li>
@@ -465,7 +466,6 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_filters">Filters</a></li>
 </ul>
 </li>
-<li><a href="#_redis_commands">Redis Commands</a></li>
 <li><a href="#_introspecting_redisearch">Introspecting RediSearch</a></li>
 </ul>
 </li>
@@ -578,6 +578,38 @@ riot-gen import hset --help</code></pre>
 </div>
 </div>
 <div class="sect2">
+<h3 id="_redis_commands"><a class="anchor" href="#_redis_commands"></a>Redis Commands</h3>
+<div class="paragraph">
+<p>Redis keys are constructed from input records by concatenating the keyspace prefix and key fields:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="http://developer.redislabs.com/riot/mapping.png" alt="mapping">
+</div>
+</div>
+<div class="paragraph">
+<p>You can specify one or many Redis commands as targets of the import:</p>
+</div>
+<div class="listingblock">
+<div class="title">Import into hashes</div>
+<div class="content">
+<pre class="rouge highlight"><code data-lang="source">riot-gen import ... hset --keyspace blah --keys id</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Import into hashes <strong>and</strong> set TTL on the key</div>
+<div class="content">
+<pre class="rouge highlight"><code data-lang="source">riot-gen import ... hset --keyspace blah --keys id expire --keyspace blah --keys id</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Import into hashes <strong>and</strong> set TTL <strong>and</strong> add to a set named <code>myset</code></div>
+<div class="content">
+<pre class="rouge highlight"><code data-lang="source">riot-gen import ... hset --keyspace blah --keys id expire --keyspace blah --keys id sadd --keyspace myset --members id</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
 <h3 id="_processing"><a class="anchor" href="#_processing"></a>Processing</h3>
 <div class="paragraph">
 <p>The following processors can be applied to records in that order:</p>
@@ -683,38 +715,6 @@ riot-gen import hset --help</code></pre>
 <div class="content">
 <pre class="rouge highlight"><code data-lang="bash"><span class="nt">--filter</span> <span class="s2">"value matches '</span><span class="se">\\</span><span class="s2">d+'"</span></code></pre>
 </div>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_redis_commands"><a class="anchor" href="#_redis_commands"></a>Redis Commands</h3>
-<div class="paragraph">
-<p>Redis keys are constructed from input records by concatenating the keyspace prefix and key fields:</p>
-</div>
-<div class="imageblock">
-<div class="content">
-<img src="http://developer.redislabs.com/riot/mapping.png" alt="mapping">
-</div>
-</div>
-<div class="paragraph">
-<p>You can specify one or many Redis commands as targets of the import:</p>
-</div>
-<div class="listingblock">
-<div class="title">Import into hashes</div>
-<div class="content">
-<pre class="rouge highlight"><code data-lang="source">riot-gen import ... hset --keyspace blah --keys id</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="title">Import into hashes <strong>and</strong> set TTL on the key</div>
-<div class="content">
-<pre class="rouge highlight"><code data-lang="source">riot-gen import ... hset --keyspace blah --keys id expire --keyspace blah --keys id</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="title">Import into hashes <strong>and</strong> set TTL <strong>and</strong> add to a set named <code>myset</code></div>
-<div class="content">
-<pre class="rouge highlight"><code data-lang="source">riot-gen import ... hset --keyspace blah --keys id expire --keyspace blah --keys id sadd --keyspace myset --members id</code></pre>
 </div>
 </div>
 </div>
@@ -969,7 +969,7 @@ riot-gen import hset --help</code></pre>
 <div id="footer">
 <div id="footer-text">
 Version 2.8.1<br>
-Last updated 2021-03-19 12:59:59 -0700
+Last updated 2021-03-19 23:02:50 -0700
 </div>
 </div>
 <style>
