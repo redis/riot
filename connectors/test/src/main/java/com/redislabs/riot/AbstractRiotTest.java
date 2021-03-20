@@ -61,8 +61,7 @@ public abstract class AbstractRiotTest {
     }
 
     private String filter(String command) {
-        String filtered = command.replace(String.format("-h %s -p %s", LOCALHOST, REDIS_PORT), "");
-        return filtered.replaceAll("\b(import|export|replicate)\b", "$1 --no-progress");
+        return command.replace(String.format("-h %s -p %s", LOCALHOST, REDIS_PORT), "");
     }
 
     protected void awaitTermination(JobExecution execution) throws InterruptedException {

@@ -1,7 +1,7 @@
 = {app-name}
 :app-name: RIOT Stream
+:connector: stream
 :app: riot-stream
-:resources: ../../test/resources
 include::../../core/src/docs/asciidoc/preamble.adoc[]
 
 {app-name} lets you import and export data from Kafka topics.

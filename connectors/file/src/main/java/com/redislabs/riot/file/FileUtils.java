@@ -236,7 +236,7 @@ public class FileUtils {
                 } else {
                     // Path might be glob pattern
                     Path parent = path.getParent();
-                    if (parent != null) {
+                    if (parent != null && Files.exists(parent)) {
                         try (DirectoryStream<Path> stream = Files.newDirectoryStream(parent, path.getFileName().toString())) {
                             stream.forEach(p -> expandedFiles.add(p.toString()));
                         }

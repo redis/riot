@@ -1,7 +1,7 @@
 = {app-name}
 :app-name: RIOT Redis
+:connector: redis
 :app: riot-redis
-:resources: ../../test/resources
 include::../../core/src/docs/asciidoc/preamble.adoc[]
 
 == Overview
@@ -33,7 +33,7 @@ The general usage is:
 
 [source,bash]
 ----
-riot-redis -h <src host> -p <src port> replicate -h <dest host> -p <dest port> …
+riot-redis -h <src host> -p <src port> replicate -h <dest host> -p <dest port> ...
 ----
 
 For the `replicate` command usage help, run:

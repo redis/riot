@@ -1,1 +1,1 @@
-riot-gen import id=#index firstName=name.firstName lastName=name.lastName address=address.fullAddress --script "function process(item) { item.address = item.address.toUpperCase(); return item; } process(item);" hset --keyspace person --keys id
+riot-gen import id="#index" firstName="name.firstName" lastName="name.lastName" address="address.fullAddress" --script "function process(item) { item.address = item.address.toUpperCase(); return item; } process(item);" hset --keyspace person --keys id

@@ -1,12 +1,12 @@
 = {app-name}
 :app-name: RIOT Gen
+:connector: gen
 :app: riot-gen
-:resources: ../../test/resources
 include::../../core/src/docs/asciidoc/preamble.adoc[]
 
 {app-name} is a data generator based on https://github.com/DiUS/java-faker[Faker]:
 
-[source]
+[source,bash]
 ----
 include::src/test/resources/import-hset[]
 ----

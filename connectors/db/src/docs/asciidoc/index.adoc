@@ -1,5 +1,6 @@
 = {app-name}
 :app-name: RIOT DB
+:connector: db
 :app: riot-db
 include::../../core/src/docs/asciidoc/preamble.adoc[]
 
@@ -39,8 +40,8 @@ include::../../core/src/docs/asciidoc/getting_started.adoc[]
 ====
 For non-included databases you must install the corresponding JDBC driver under the `lib` directory and modify the {app-name} `CLASSPATH`:
 
-* *nix: `bin/{app}` -> `CLASSPATH=$APP_HOME/lib/myjdbc.jar:$APP_HOME/lib/…`
-* Windows: `bin\{app}.bat` -> `set CLASSPATH=%APP_HOME%\lib\myjdbc.jar;%APP_HOME%\lib\…`
+* *nix: `bin/{app}` -> `CLASSPATH=$APP_HOME/lib/myjdbc.jar:$APP_HOME/lib/...`
+* Windows: `bin\{app}.bat` -> `set CLASSPATH=%APP_HOME%\lib\myjdbc.jar;%APP_HOME%\lib\...`
 ====
 
 == Importing

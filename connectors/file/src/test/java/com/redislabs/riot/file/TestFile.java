@@ -91,6 +91,19 @@ public class TestFile extends AbstractStandaloneRedisTest {
 	}
 
 	@Test
+	public void importFW() throws Exception {
+		executeFile("import-fw");
+		List<String> keys = sync.keys("account:*");
+		Assertions.assertEquals(5, keys.size());
+		Map<String, String> account101 = sync.hgetall("account:101");
+		// Account LastName        FirstName       Balance     CreditLimit   AccountCreated  Rating
+		// 101     Reeves          Keanu           9315.45     10000.00      1/17/1998       A
+		Assertions.assertEquals("Reeves", account101.get("LastName"));
+		Assertions.assertEquals("Keanu", account101.get("FirstName"));
+		Assertions.assertEquals("A", account101.get("Rating"));
+	}
+
+	@Test
 	public void importCSV() throws Exception {
 		executeFile("import-csv");
 		List<String> keys = sync.keys("beer:*");

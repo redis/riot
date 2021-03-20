@@ -2,7 +2,7 @@
 :toclevels: 3
 :toc-title: Contents
 :source-highlighter: rouge
-:favicon: ./images/favicon.svg
+:favicon: https://developer.redislabs.com/riot/favicon.png
 :icons: font
 :linkattrs: true
 :sectanchors: true

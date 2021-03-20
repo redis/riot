@@ -11,9 +11,7 @@ import org.springframework.batch.item.file.LineCallbackHandler;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
 import org.springframework.batch.item.file.separator.DefaultRecordSeparatorPolicy;
 import org.springframework.batch.item.file.separator.RecordSeparatorPolicy;
-import org.springframework.batch.item.file.transform.AbstractLineTokenizer;
-import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
-import org.springframework.batch.item.file.transform.FixedLengthTokenizer;
+import org.springframework.batch.item.file.transform.*;
 import org.springframework.batch.item.json.JsonItemReader;
 import org.springframework.batch.item.support.AbstractItemStreamItemReader;
 import org.springframework.batch.item.xml.XmlItemReader;
@@ -25,6 +23,7 @@ import picocli.CommandLine.Command;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -108,8 +107,14 @@ public class FileImportCommand extends AbstractImportCommand<Map<String, Object>
                 return flatFileReader(resource, tokenizer);
             case FIXED:
                 FixedLengthTokenizer fixedLengthTokenizer = new FixedLengthTokenizer();
+                RangeArrayPropertyEditor editor = new RangeArrayPropertyEditor();
                 Assert.notEmpty(flatFileOptions.getColumnRanges(), "Column ranges are required");
-                fixedLengthTokenizer.setColumns(flatFileOptions.getColumnRanges());
+                editor.setAsText(String.join(",", flatFileOptions.getColumnRanges()));
+                Range[] ranges = (Range[]) editor.getValue();
+                if (ranges.length == 0) {
+                    throw new IllegalArgumentException("Invalid ranges specified: " + Arrays.toString(flatFileOptions.getColumnRanges()));
+                }
+                fixedLengthTokenizer.setColumns(ranges);
                 log.info("Creating fixed-width reader with {} for file {}", flatFileOptions, file);
                 return flatFileReader(resource, fixedLengthTokenizer);
             case XML:
@@ -176,7 +181,12 @@ public class FileImportCommand extends AbstractImportCommand<Map<String, Object>
         @Override
         public void handleLine(String line) {
             log.info("Found header {}", line);
-            tokenizer.setNames(tokenizer.tokenize(line).getValues());
+            FieldSet fieldSet = tokenizer.tokenize(line);
+            List<String> fields = new ArrayList<>();
+            for (int index = 0; index < fieldSet.getFieldCount(); index++) {
+                fields.add(fieldSet.readString(index));
+            }
+            tokenizer.setNames(fields.toArray(new String[0]));
         }
     }
 

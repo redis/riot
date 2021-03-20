@@ -1,1 +1,1 @@
-riot-gen import id=#index category=number.randomDigit xadd --keyspace teststream --keys category
+riot-gen import id="#index" category="number.randomDigit" xadd --keyspace teststream --keys category
