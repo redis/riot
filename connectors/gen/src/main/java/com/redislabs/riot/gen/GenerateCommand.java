@@ -22,7 +22,7 @@ public class GenerateCommand extends AbstractImportCommand<Map<String, Object>, 
     private ProcessorOptions processingOptions = ProcessorOptions.builder().build();
 
     @Override
-    protected Flow flow() {
+    protected Flow flow() throws Exception {
         log.info("Creating Faker reader with {}", options);
         Map<String, String> fields = options.getFakerFields() == null ? new LinkedHashMap<>() : new LinkedHashMap<>(options.getFakerFields());
         if (options.getFakerIndex() != null) {
@@ -62,7 +62,7 @@ public class GenerateCommand extends AbstractImportCommand<Map<String, Object>, 
     }
 
     @Override
-    protected ItemProcessor<Map<String, Object>, Map<String, Object>> processor() {
-        return processingOptions.processor(connection);
+    protected ItemProcessor<Map<String, Object>, Map<String, Object>> processor() throws NoSuchMethodException {
+        return processingOptions.processor(client);
     }
 }

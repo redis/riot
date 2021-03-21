@@ -6,6 +6,8 @@ import io.netty.util.internal.logging.InternalLoggerFactory;
 import io.netty.util.internal.logging.JdkLoggerFactory;
 import lombok.Getter;
 import org.springframework.core.NestedExceptionUtils;
+import org.springframework.expression.Expression;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
 import picocli.AutoComplete;
 import picocli.CommandLine;
 import picocli.CommandLine.*;
@@ -197,8 +199,19 @@ public class RiotApp extends HelpCommand {
 
     }
 
+    static class ExpressionConverter implements CommandLine.ITypeConverter<Expression> {
+
+        private final SpelExpressionParser parser = new SpelExpressionParser();
+
+        @Override
+        public Expression convert(String value) throws Exception {
+            return parser.parseExpression(value);
+        }
+    }
+
     protected void registerConverters(CommandLine commandLine) {
-        commandLine.registerConverter(io.lettuce.core.RedisURI.class, new RedisURIConverter());
+        commandLine.registerConverter(RedisURI.class, new RedisURIConverter());
+        commandLine.registerConverter(Expression.class, new ExpressionConverter());
     }
 
     /**

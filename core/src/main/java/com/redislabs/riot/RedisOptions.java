@@ -2,6 +2,7 @@ package com.redislabs.riot;
 
 import io.lettuce.core.*;
 import io.lettuce.core.api.StatefulConnection;
+import io.lettuce.core.api.sync.BaseRedisCommands;
 import io.lettuce.core.cluster.ClusterClientOptions;
 import io.lettuce.core.cluster.RedisClusterClient;
 import io.lettuce.core.event.DefaultEventPublisherOptions;
@@ -87,6 +88,13 @@ public class RedisOptions {
     @Option(names = "--client", description = "Client name used to connect to Redis.", paramLabel = "<name>")
     private String clientName;
 
+    public static BaseRedisCommands<String, String> commands(AbstractRedisClient client) {
+        if (client instanceof RedisClusterClient) {
+            return ((RedisClusterClient) client).connect().sync();
+        }
+        return ((RedisClient) client).connect().sync();
+    }
+
     public List<RedisURI> uris() {
         List<RedisURI> redisURIs = new ArrayList<>();
         if (ObjectUtils.isEmpty(uris)) {
@@ -163,7 +171,7 @@ public class RedisOptions {
         return client;
     }
 
-    public <T extends StatefulConnection<String, String>> GenericObjectPoolConfig<T> poolConfig() {
+    public <T> GenericObjectPoolConfig<T> poolConfig() {
         GenericObjectPoolConfig<T> config = new GenericObjectPoolConfig<>();
         config.setMaxTotal(poolMaxTotal);
         return config;
@@ -183,4 +191,12 @@ public class RedisOptions {
         log.info("Setting {} command timeout to {}", ClassUtils.getShortName(builder.getClass()), commandTimeout);
         return builder.commandTimeout(commandTimeout);
     }
+
+    public static StatefulConnection<String, String> connection(AbstractRedisClient client) {
+        if (client instanceof RedisClusterClient) {
+            return ((RedisClusterClient) client).connect();
+        }
+        return ((RedisClient) client).connect();
+    }
+
 }

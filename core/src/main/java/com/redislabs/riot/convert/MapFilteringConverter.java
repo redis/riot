@@ -2,6 +2,7 @@ package com.redislabs.riot.convert;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.util.Assert;
+import org.springframework.util.ObjectUtils;
 
 import java.util.*;
 
@@ -17,7 +18,7 @@ public class MapFilteringConverter<K, V> implements Converter<Map<K, V>, Map<K, 
 
     @Override
     public Map<K, V> convert(Map<K, V> source) {
-        Map<K, V> filtered = includes.isEmpty() ? source : new LinkedHashMap<>();
+        Map<K, V> filtered = ObjectUtils.isEmpty(includes) ? source : new LinkedHashMap<>();
         includes.forEach(f -> filtered.put(f, source.get(f)));
         excludes.forEach(filtered::remove);
         return filtered;

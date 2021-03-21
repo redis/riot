@@ -178,9 +178,9 @@ These files look like this:
 include::src/docs/asciidoc/redis-dump.json[]
 ----
 
-include::../../core/src/docs/asciidoc/processing.adoc[]
-
 include::../../core/src/docs/asciidoc/redis-commands.adoc[]
+
+include::../../core/src/docs/asciidoc/processing.adoc[]
 
 == Exporting
 

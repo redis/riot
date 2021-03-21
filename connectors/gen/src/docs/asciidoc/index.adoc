@@ -36,9 +36,9 @@ include::src/test/resources/import-hset[]
 include::src/test/resources/import-sadd[]
 ----
 
-include::../../core/src/docs/asciidoc/processing.adoc[]
-
 include::../../core/src/docs/asciidoc/redis-commands.adoc[]
+
+include::../../core/src/docs/asciidoc/processing.adoc[]
 
 === Introspecting RediSearch
 

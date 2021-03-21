@@ -59,7 +59,7 @@ public abstract class RiotCommand extends HelpCommand implements InitializingBea
     public void afterPropertiesSet() throws Exception {
         this.client = app.getRedisOptions().client();
         this.pool = pool(app.getRedisOptions(), client);
-        this.connection = connection(client);
+        this.connection = RedisOptions.connection(client);
     }
 
     public void shutdown() {
@@ -80,14 +80,6 @@ public abstract class RiotCommand extends HelpCommand implements InitializingBea
             return ((StatefulRedisClusterConnection<String, String>) connection).sync();
         }
         return ((StatefulRedisConnection<String, String>) connection).sync();
-    }
-
-
-    protected StatefulConnection<String, String> connection(AbstractRedisClient client) {
-        if (client instanceof RedisClusterClient) {
-            return ((RedisClusterClient) client).connect();
-        }
-        return ((RedisClient) client).connect();
     }
 
     protected GenericObjectPool<? extends StatefulConnection<String, String>> pool(RedisOptions redisOptions, AbstractRedisClient client) {

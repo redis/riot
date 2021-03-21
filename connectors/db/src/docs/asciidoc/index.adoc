@@ -59,9 +59,9 @@ Use the `import` command to import the result set of a SQL statement:
 include::src/test/resources/import-postgresql[]
 ----
 
-include::../../core/src/docs/asciidoc/processing.adoc[]
-
 include::../../core/src/docs/asciidoc/redis-commands.adoc[]
+
+include::../../core/src/docs/asciidoc/processing.adoc[]
 
 == Exporting
 

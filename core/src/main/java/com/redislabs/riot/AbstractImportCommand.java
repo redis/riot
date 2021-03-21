@@ -30,12 +30,12 @@ public abstract class AbstractImportCommand<I, O> extends AbstractTransferComman
     @Getter
     private final List<RedisCommand<O>> redisCommands = new ArrayList<>();
 
-    protected AbstractTaskletStepBuilder<SimpleStepBuilder<I, O>> step(String name, String taskName, ItemReader<I> reader) {
+    protected AbstractTaskletStepBuilder<SimpleStepBuilder<I, O>> step(String name, String taskName, ItemReader<I> reader) throws Exception {
         StepBuilder<I, O> step = stepBuilder(name, taskName);
         return step.reader(reader).processor(processor()).writer(writer()).build();
     }
 
-    protected abstract ItemProcessor<I, O> processor();
+    protected abstract ItemProcessor<I, O> processor() throws Exception;
 
     protected ItemWriter<O> writer() {
         Assert.notNull(redisCommands, "RedisCommands not set");

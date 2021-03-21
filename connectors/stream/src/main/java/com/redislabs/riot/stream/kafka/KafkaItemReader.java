@@ -77,7 +77,7 @@ public class KafkaItemReader<K, V> extends AbstractItemCountingItemStreamItemRea
         Assert.isTrue(consumerProperties.containsKey(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG), ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG + " property must be provided");
         this.consumerProperties = consumerProperties;
         Assert.hasLength(topicName, "Topic name must not be null or empty");
-        Assert.isTrue(!partitions.isEmpty(), "At least one partition must be provided");
+        Assert.notEmpty(partitions, "At least one partition must be provided");
         this.topicPartitions = new ArrayList<>();
         for (Integer partition : partitions) {
             this.topicPartitions.add(new TopicPartition(topicName, partition));

@@ -73,7 +73,7 @@ public class ReplicateCommand extends AbstractTransferCommand<KeyValue<String, b
     public void afterPropertiesSet() throws Exception {
         this.targetClient = targetRedisOptions.client();
         this.targetPool = pool(targetRedisOptions, targetClient);
-        this.targetConnection = connection(targetClient);
+        this.targetConnection = RedisOptions.connection(targetClient);
         super.afterPropertiesSet();
         if (mode == ReplicationMode.LIVE || mode == ReplicationMode.LIVEONLY) {
             this.pubSubConnection = pubSubConnection(client);

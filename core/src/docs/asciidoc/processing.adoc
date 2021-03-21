@@ -8,41 +8,27 @@ The following processors can be applied to records in that order:
 
 ==== Transforms
 
-Produce key/value pairs using https://docs.spring.io/spring/docs/current/spring-framework-reference/core.html#expressions[Spring Expression Language] (SpEL):
+Transforms allow you to create/update/delete fields using the https://docs.spring.io/spring/docs/current/spring-framework-reference/core.html#expressions[Spring Expression Language] (SpEL):
 
-[source,bash]
-----
---process field1="<exp>" field2="<exp>" ...
-----
+* `field1='foo'` -> generate a field named `field1` containing the string `foo`
+* `temp=(temp-32)*5/9` -> convert temperature from Fahrenheit to Celsius
+* `name=remove(first).concat(remove(last))` -> concatenate `first` and `last` fields and delete them
+* `field2=null` -> delete `field2`
 
-For example `--process "field1='foo'"` generates a field named `field1` with always the same value `foo`.
 
 Input fields are accessed by name (e.g. `field3=field1+field2`).
 
-The processor also exposes the following variables that can be called with the `#` prefix:
+The transform processor also exposes functions and variables that can be accessed using the `#` prefix:
 
-* `redis`
+`date`;; Date parser/formatter (https://docs.oracle.com/javase/7/docs/api/java/text/SimpleDateFormat.html[API doc])
+`geo`;; Convenience method that takes a longitude and a latitude to produce a RediSearch geo-location string in the form: `longitude,latitude`
+`index`;; Sequence number of the item being generated
+`redis`;; Handle to invoke Redis commands (https://lettuce.io/core/release/api/io/lettuce/core/api/sync/RedisCommands.html[API doc])
 
-Redis connection to issue any command
+.Processor Example
 [source,bash]
 ----
---process name="#redis.hget('person1','lastName')"
-----
-
-* `date`
-
-Date parser/formatter
-[source,bash]
-----
---process epoch="#date.parse(mydate).getTime()"
-----
-
-* `index`
-
-Sequence number of the item being generated
-[source,bash]
-----
---process "id=#index"
+--process epoch="#date.parse(mydate).getTime()" location="#geo(lon,lat)" id="#index" name="#redis.hget('person1','lastName')"
 ----
 
 ==== Regular Expressions

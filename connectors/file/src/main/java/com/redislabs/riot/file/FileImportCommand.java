@@ -94,6 +94,7 @@ public class FileImportCommand extends AbstractImportCommand<Map<String, Object>
         return type;
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     private AbstractItemStreamItemReader<Map<String, Object>> reader(String file, FileType fileType, Resource resource) {
         switch (fileType) {
             case DELIMITED:
@@ -145,8 +146,8 @@ public class FileImportCommand extends AbstractImportCommand<Map<String, Object>
     }
 
     @Override
-    protected ItemProcessor<Map<String, Object>, Map<String, Object>> processor() {
-        return processingOptions.processor(connection);
+    protected ItemProcessor<Map<String, Object>, Map<String, Object>> processor() throws NoSuchMethodException {
+        return processingOptions.processor(client);
     }
 
     private FlatFileItemReader<Map<String, Object>> flatFileReader(Resource resource, AbstractLineTokenizer tokenizer) {
