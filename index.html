@@ -440,10 +440,12 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="header">
 <h1>RIOT</h1>
 <div class="details">
-<span id="revnumber">version 2.8.1</span>
+<span id="revnumber">version 2.8.2</span>
 </div>
 </div>
 <div id="content">
+<div id="preamble">
+<div class="sectionbody">
 <div class="imageblock">
 <div class="content">
 <img src="http://developer.redislabs.com/riot/riot.svg" alt="riot">
@@ -452,38 +454,71 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="paragraph">
 <p><br></p>
 </div>
-<div class="paragraph lead">
+<div class="paragraph">
 <p>Redis Input/Output Tools (RIOT) is a series of utilities designed to help you get data in and out of Redis.</p>
 </div>
-<div class="dlist">
-<dl>
-<dt class="hdlist1"><a href="http://developer.redislabs.com/riot/db">RIOT DB</a></dt>
-<dd>
-<p>SQL import/export</p>
-</dd>
-<dt class="hdlist1"><a href="http://developer.redislabs.com/riot/file">RIOT File</a></dt>
-<dd>
-<p>File import/export</p>
-</dd>
-<dt class="hdlist1"><a href="http://developer.redislabs.com/riot/gen">RIOT Gen</a></dt>
-<dd>
-<p>Data generator</p>
-</dd>
-<dt class="hdlist1"><a href="http://developer.redislabs.com/riot/redis">RIOT Redis</a></dt>
-<dd>
-<p>Redis to Redis replication</p>
-</dd>
-<dt class="hdlist1"><a href="http://developer.redislabs.com/riot/stream">RIOT Stream</a></dt>
-<dd>
-<p>Stream data between Kafka and Redis</p>
-</dd>
-</dl>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_riot_db"><a href="http://developer.redislabs.com/riot/db">RIOT DB</a></h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="title">SQL import/export</div>
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">riot-db import "SELECT * FROM emp" --url jdbc:oracle:thin@host:1521:orcl hset -p emp -k id</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_riot_file"><a href="http://developer.redislabs.com/riot/file">RIOT File</a></h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="title">File import/export</div>
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">riot-file import beers.csv --header hset --keyspace beer --keys id</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_riot_gen"><a href="http://developer.redislabs.com/riot/gen">RIOT Gen</a></h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="title">Data generator</div>
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">riot-gen import fact=chuckNorris.fact sadd --keyspace facts --members fact</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_riot_redis"><a href="http://developer.redislabs.com/riot/redis">RIOT Redis</a></h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="title">Redis to Redis replication</div>
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">riot-redis --uri redis://source replicate --uri redis://target --mode live</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_riot_stream"><a href="http://developer.redislabs.com/riot/stream">RIOT Stream</a></h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="title">Streaming between Kafka and Redis</div>
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">riot-stream import topic --broker localhost:9092</code></pre>
+</div>
+</div>
+</div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 2.8.1<br>
-Last updated 2021-03-19 01:16:58 -0700
+Version 2.8.2<br>
+Last updated 2021-03-20 22:16:25 -0700
 </div>
 </div>
 </body>
