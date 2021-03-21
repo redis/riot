@@ -114,6 +114,6 @@ githubRelease {
     draft true
 }
 
-gitPublishPush.dependsOn asciidoctor
 afterReleaseBuild.dependsOn ":githubRelease"
 afterReleaseBuild.dependsOn gitPublishPush
+gitPublishPush.dependsOn asciidoctor
