@@ -115,5 +115,8 @@ githubRelease {
 }
 
 afterReleaseBuild.dependsOn ":githubRelease"
-afterReleaseBuild.dependsOn gitPublishPush
-gitPublishPush.dependsOn asciidoctor
+asciidoctor.shouldRunAfter clean
+build.dependsOn asciidoctor
+gitPublishPush.dependsOn build
+gitPublishPush.shouldRunAfter clean, build
+task deploy(dependsOn: [gitPublishPush]) { shouldRunAfter build }
