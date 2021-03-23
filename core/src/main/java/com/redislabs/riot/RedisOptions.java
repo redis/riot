@@ -1,5 +1,6 @@
 package com.redislabs.riot;
 
+import com.redislabs.lettusearch.RediSearchClient;
 import io.lettuce.core.*;
 import io.lettuce.core.api.StatefulConnection;
 import io.lettuce.core.api.sync.BaseRedisCommands;
@@ -90,7 +91,7 @@ public class RedisOptions {
         if (client instanceof RedisClusterClient) {
             return ((RedisClusterClient) client).connect().sync();
         }
-        return ((RedisClient) client).connect().sync();
+        return ((RediSearchClient) client).connect().sync();
     }
 
     public List<RedisURI> uris() {
@@ -163,8 +164,8 @@ public class RedisOptions {
         return client;
     }
 
-    public RedisClient redisClient() {
-        RedisClient client = RedisClient.create(clientResources(), uris().get(0));
+    public RediSearchClient redisClient() {
+        RediSearchClient client = RediSearchClient.create(clientResources(), uris().get(0));
         client.setOptions(ClientOptions.builder().autoReconnect(autoReconnect).sslOptions(sslOptions()).build());
         return client;
     }
@@ -173,6 +174,13 @@ public class RedisOptions {
         GenericObjectPoolConfig<T> config = new GenericObjectPoolConfig<>();
         config.setMaxTotal(poolMaxTotal);
         return config;
+    }
+
+    public RediSearchClient rediSearchClient() {
+        log.info("Creating RediSearch client: {}", this);
+        RediSearchClient client = RediSearchClient.create(clientResources(), uris().get(0));
+        client.setOptions(ClientOptions.builder().autoReconnect(autoReconnect).sslOptions(sslOptions()).build());
+        return client;
     }
 
     public AbstractRedisClient client() {
@@ -188,7 +196,7 @@ public class RedisOptions {
         if (client instanceof RedisClusterClient) {
             return ((RedisClusterClient) client).connect();
         }
-        return ((RedisClient) client).connect();
+        return ((RediSearchClient) client).connect();
     }
 
 }

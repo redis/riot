@@ -1,5 +1,6 @@
 dependencies {
-    api 'com.redislabs:spring-batch-redis:2.9.4'
+    api 'com.redislabs:lettusearch:3.1.1'
+    api 'com.redislabs:spring-batch-redis:2.9.5-SNAPSHOT'
     api 'org.springframework.batch:spring-batch-core'
     api 'org.slf4j:slf4j-api'
     implementation 'org.slf4j:slf4j-jdk14'

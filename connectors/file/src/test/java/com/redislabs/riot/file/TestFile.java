@@ -12,6 +12,10 @@ import java.util.zip.GZIPInputStream;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import com.redislabs.lettusearch.RediSearchClient;
+import com.redislabs.lettusearch.StatefulRediSearchConnection;
+import com.redislabs.lettusearch.Suggestion;
+import com.redislabs.lettusearch.SuggetOptions;
 import com.redislabs.riot.AbstractStandaloneRedisTest;
 import com.redislabs.riot.DataGenerator;
 import io.lettuce.core.GeoArgs;
@@ -207,6 +211,16 @@ public class TestFile extends AbstractStandaloneRedisTest {
 		}
 		Set<String> breweries = sync.smembers("breweries");
 		Assertions.assertEquals(558, breweries.size());
+	}
+
+	@Test
+	public void importSugadd() throws Exception {
+		executeFile("import-sugadd");
+		RediSearchClient rediSearchClient = RediSearchClient.create(redisURI);
+		StatefulRediSearchConnection<String, String> connection = rediSearchClient.connect();
+		List<Suggestion<String>> suggestions = connection.sync().sugget("names", "Bea", SuggetOptions.builder().withPayloads(true).build());
+		Assertions.assertEquals(5, suggestions.size());
+		Assertions.assertEquals("American Blonde Ale", suggestions.get(0).getPayload());
 	}
 
 	@Test

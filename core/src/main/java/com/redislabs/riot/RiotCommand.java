@@ -1,7 +1,7 @@
 package com.redislabs.riot;
 
+import com.redislabs.lettusearch.RediSearchClient;
 import io.lettuce.core.AbstractRedisClient;
-import io.lettuce.core.RedisClient;
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.api.StatefulConnection;
 import io.lettuce.core.api.StatefulRedisConnection;
@@ -23,7 +23,7 @@ public abstract class RiotCommand extends HelpCommand implements InitializingBea
 
     @SuppressWarnings("unused")
     @ParentCommand
-    private RiotApp app;
+    protected RiotApp app;
     protected AbstractRedisClient client;
     protected GenericObjectPool<? extends StatefulConnection<String, String>> pool;
     protected StatefulConnection<String, String> connection;
@@ -77,7 +77,7 @@ public abstract class RiotCommand extends HelpCommand implements InitializingBea
         if (client instanceof RedisClusterClient) {
             return ConnectionPoolSupport.createGenericObjectPool(((RedisClusterClient) client)::connect, redisOptions.poolConfig());
         }
-        return ConnectionPoolSupport.createGenericObjectPool(((RedisClient) client)::connect, redisOptions.poolConfig());
+        return ConnectionPoolSupport.createGenericObjectPool(((RediSearchClient) client)::connect, redisOptions.poolConfig());
     }
 
     protected abstract int execute() throws Exception;

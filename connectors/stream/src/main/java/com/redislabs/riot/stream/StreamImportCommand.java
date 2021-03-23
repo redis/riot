@@ -16,8 +16,9 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.item.redis.RedisClusterCommandItemWriter;
+import org.springframework.batch.item.redis.RedisCommandItemWriter;
 import org.springframework.batch.item.redis.support.CommandBuilder;
-import org.springframework.batch.item.redis.support.CommandItemWriter;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
@@ -74,19 +75,17 @@ public class StreamImportCommand extends AbstractTransferCommand<ConsumerRecord<
         BiFunction<RedisStreamAsyncCommands<String, String>, ConsumerRecord<String, Object>, RedisFuture<?>> command = CommandBuilder.<ConsumerRecord<String, Object>>xadd().keyConverter(keyConverter()).argsConverter(r -> xAddArgs).bodyConverter(bodyConverter()).build();
         if (isCluster()) {
             log.info("Creating cluster stream writer");
-            return CommandItemWriter.<ConsumerRecord<String, Object>>clusterBuilder((GenericObjectPool<StatefulRedisClusterConnection<String, String>>) pool, (BiFunction) command).build();
+            return new RedisClusterCommandItemWriter<>((GenericObjectPool<StatefulRedisClusterConnection<String, String>>) pool, (BiFunction) command);
         }
         log.info("Creating stream writer");
-        return CommandItemWriter.<ConsumerRecord<String, Object>>builder((GenericObjectPool<StatefulRedisConnection<String, String>>) pool, (BiFunction) command).build();
+        return new RedisCommandItemWriter<>((GenericObjectPool<StatefulRedisConnection<String, String>>) pool, (BiFunction) command);
     }
 
     private Converter<ConsumerRecord<String, Object>, Map<String, String>> bodyConverter() {
-        switch (options.getSerde()) {
-            case JSON:
-                return new JsonToMapConverter(filteringOptions.converter());
-            default:
-                return new AvroToMapConverter(filteringOptions.converter());
+        if (options.getSerde() == KafkaOptions.SerDe.JSON) {
+            return new JsonToMapConverter(filteringOptions.converter());
         }
+        return new AvroToMapConverter(filteringOptions.converter());
     }
 
     private Converter<ConsumerRecord<String, Object>, String> keyConverter() {
