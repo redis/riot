@@ -16,7 +16,7 @@ import org.springframework.batch.item.redis.support.DataStructure;
 import picocli.CommandLine;
 
 @Slf4j
-@CommandLine.Command(name = "replicate-struct", description = "Replicate a source Redis database into a target Redis database using data structure-specific commands")
+@CommandLine.Command(name = "replicate-ds", description = "Replicate a source Redis database into a target Redis database using data structure-specific commands")
 public class DataStructureReplicateCommand extends AbstractReplicateCommand<DataStructure<String>> {
 
     @Override
