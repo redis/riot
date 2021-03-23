@@ -3,7 +3,6 @@ package com.redislabs.riot;
 import java.util.*;
 
 import com.redislabs.riot.convert.*;
-import com.redislabs.riot.processor.FilteringProcessor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -11,7 +10,7 @@ public class TestConverters {
 
     @Test
     public void testCompositeConverter() {
-        CompositeConverter converter = new CompositeConverter(MapFieldExtractor.builder().field("myField").build(), new ObjectToNumberConverter<>(Double.class));
+        CompositeConverter converter = new CompositeConverter(FieldExtractor.builder().field("myField").build(), new ObjectToNumberConverter<>(Double.class));
         Map<String, String> map = new HashMap<>();
         map.put("myField", "123.456");
         Assertions.assertEquals(123.456, converter.convert(map));

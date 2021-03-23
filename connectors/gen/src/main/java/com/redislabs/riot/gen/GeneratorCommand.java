@@ -14,7 +14,7 @@ import java.util.Map;
 
 @Slf4j
 @Command(name = "import", description = "Import generated data")
-public class GenerateCommand extends AbstractImportCommand<Map<String, Object>, Map<String, Object>> {
+public class GeneratorCommand extends AbstractImportCommand<Map<String, Object>, Map<String, Object>> {
 
     @CommandLine.Mixin
     private GenerateOptions options = GenerateOptions.builder().build();

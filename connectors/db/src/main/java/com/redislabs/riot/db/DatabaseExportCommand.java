@@ -1,7 +1,7 @@
 package com.redislabs.riot.db;
 
 import com.redislabs.riot.AbstractExportCommand;
-import com.redislabs.riot.processor.DataStructureMapItemProcessor;
+import com.redislabs.riot.processor.DataStructureItemProcessor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.item.database.JdbcBatchItemWriter;
@@ -35,7 +35,7 @@ public class DatabaseExportCommand extends AbstractExportCommand<Map<String, Obj
         builder.assertUpdates(exportOptions.isAssertUpdates());
         JdbcBatchItemWriter<Map<String, Object>> writer = builder.build();
         writer.afterPropertiesSet();
-        DataStructureMapItemProcessor processor = DataStructureMapItemProcessor.builder().keyRegex(exportOptions.getKeyRegex()).build();
+        DataStructureItemProcessor processor = DataStructureItemProcessor.builder().keyRegex(exportOptions.getKeyRegex()).build();
         return flow(step(processor, writer).build());
     }
 

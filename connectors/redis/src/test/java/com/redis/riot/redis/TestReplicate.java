@@ -3,7 +3,7 @@ package com.redis.riot.redis;
 import com.redislabs.riot.AbstractStandaloneRedisTest;
 import com.redislabs.riot.DataGenerator;
 import com.redislabs.riot.RiotApp;
-import com.redislabs.riot.redis.ReplicateCommand;
+import com.redislabs.riot.redis.AbstractReplicateCommand;
 import com.redislabs.riot.redis.RiotRedis;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.RedisURI;
@@ -80,7 +80,7 @@ public class TestReplicate extends AbstractStandaloneRedisTest {
     public void replicateLive() throws Exception {
         sync.configSet("notify-keyspace-events", "AK");
         DataGenerator.builder().commands(async).build().run();
-        ReplicateCommand command = (ReplicateCommand) command("replicate-live");
+        AbstractReplicateCommand command = (AbstractReplicateCommand) command("replicate-live");
         JobExecution execution = command.executeAsync();
         Thread.sleep(100);
         log.info("Setting livestring keys");
@@ -88,7 +88,7 @@ public class TestReplicate extends AbstractStandaloneRedisTest {
         for (int index = 0; index < count; index++) {
             sync.set("livestring:" + index, "value" + index);
         }
-        Thread.sleep(100);
+        Thread.sleep(500);
         awaitTermination(execution);
         Assertions.assertEquals(sync.dbsize(), targetSync.dbsize());
     }
@@ -97,7 +97,7 @@ public class TestReplicate extends AbstractStandaloneRedisTest {
     public void replicateLiveValue() throws Exception {
         sync.configSet("notify-keyspace-events", "AK");
         DataGenerator.builder().commands(async).build().run();
-        ReplicateCommand command = (ReplicateCommand) command("replicate-live-value");
+        AbstractReplicateCommand command = (AbstractReplicateCommand) command("replicate-live-value");
         JobExecution execution = command.executeAsync();
         Thread.sleep(100);
         log.info("Setting livestring keys");
@@ -105,7 +105,7 @@ public class TestReplicate extends AbstractStandaloneRedisTest {
         for (int index = 0; index < count; index++) {
             sync.set("livestring:" + index, "value" + index);
         }
-        Thread.sleep(100);
+        Thread.sleep(500);
         awaitTermination(execution);
         Assertions.assertEquals(sync.dbsize(), targetSync.dbsize());
     }

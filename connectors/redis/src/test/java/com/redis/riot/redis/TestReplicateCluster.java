@@ -3,7 +3,7 @@ package com.redis.riot.redis;
 import com.redislabs.riot.AbstractRiotTest;
 import com.redislabs.riot.DataGenerator;
 import com.redislabs.riot.RiotApp;
-import com.redislabs.riot.redis.ReplicateCommand;
+import com.redislabs.riot.redis.AbstractReplicateCommand;
 import com.redislabs.riot.redis.RiotRedis;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.RedisURI;
@@ -113,7 +113,7 @@ public class TestReplicateCluster extends AbstractRiotTest {
     public void replicateLive() throws Exception {
         log.info("Genering data");
         DataGenerator.builder().commands(sourceConnection.async()).end(10000).build().run();
-        ReplicateCommand command = (ReplicateCommand) command("replicate-cluster-live");
+        AbstractReplicateCommand command = (AbstractReplicateCommand) command("replicate-cluster-live");
         log.info("Executing ReplicateCommand");
         JobExecution execution = command.executeAsync();
         Thread.sleep(500);

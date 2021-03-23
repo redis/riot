@@ -42,7 +42,7 @@ public class StepBuilder<I, O> {
     public SimpleStepBuilder<I, O> build() {
         if (options.getMaxItemCount() != null) {
             if (reader instanceof AbstractItemCountingItemStreamItemReader) {
-                log.info("Configuring reader with maxItemCount={}", options.getMaxItemCount());
+                log.info("Setting max item count to {} on reader", options.getMaxItemCount());
                 ((AbstractItemCountingItemStreamItemReader<I>) reader).setMaxItemCount(Math.toIntExact(options.getMaxItemCount()));
             }
         }

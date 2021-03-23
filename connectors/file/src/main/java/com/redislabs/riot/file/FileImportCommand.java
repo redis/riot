@@ -7,7 +7,6 @@ import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.file.FlatFileItemReader;
-import org.springframework.batch.item.file.LineCallbackHandler;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
 import org.springframework.batch.item.file.separator.DefaultRecordSeparatorPolicy;
 import org.springframework.batch.item.file.separator.RecordSeparatorPolicy;
@@ -31,12 +30,11 @@ import java.util.Map;
 @Command(name = "import", description = "Import delimited, fixed-width, JSON, or XML files into Redis.")
 public class FileImportCommand extends AbstractImportCommand<Map<String, Object>, Map<String, Object>> {
 
-    enum FileType {
+    private enum FileType {
         DELIMITED, FIXED, JSON, XML
     }
 
     private static final String DELIMITER_PIPE = "|";
-
 
     @SuppressWarnings("unused")
     @CommandLine.Parameters(arity = "0..*", description = "One ore more files or URLs", paramLabel = "FILE")
@@ -169,26 +167,6 @@ public class FileImportCommand extends AbstractImportCommand<Map<String, Object>
 
     private RecordSeparatorPolicy recordSeparatorPolicy() {
         return new DefaultRecordSeparatorPolicy(flatFileOptions.getQuoteCharacter().toString(), flatFileOptions.getContinuationString());
-    }
-
-    private static class HeaderCallbackHandler implements LineCallbackHandler {
-
-        private final AbstractLineTokenizer tokenizer;
-
-        public HeaderCallbackHandler(AbstractLineTokenizer tokenizer) {
-            this.tokenizer = tokenizer;
-        }
-
-        @Override
-        public void handleLine(String line) {
-            log.info("Found header {}", line);
-            FieldSet fieldSet = tokenizer.tokenize(line);
-            List<String> fields = new ArrayList<>();
-            for (int index = 0; index < fieldSet.getFieldCount(); index++) {
-                fields.add(fieldSet.readString(index));
-            }
-            tokenizer.setNames(fields.toArray(new String[0]));
-        }
     }
 
 }

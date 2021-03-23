@@ -11,7 +11,8 @@ import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.json.JsonItemReader;
-import org.springframework.batch.item.redis.DataStructureItemWriter;
+import org.springframework.batch.item.redis.RedisClusterDataStructureItemWriter;
+import org.springframework.batch.item.redis.RedisDataStructureItemWriter;
 import org.springframework.batch.item.redis.support.DataStructure;
 import org.springframework.batch.item.support.AbstractItemStreamItemReader;
 import org.springframework.batch.item.xml.XmlItemReader;
@@ -58,23 +59,22 @@ public class DumpFileImportCommand extends AbstractTransferCommand<DataStructure
         return flow(steps.toArray(new Step[0]));
     }
 
+    @SuppressWarnings("unchecked")
     private ItemWriter<DataStructure<String>> writer() {
         if (isCluster()) {
-            return configureCommandTimeoutBuilder(DataStructureItemWriter.clusterBuilder((GenericObjectPool<StatefulRedisClusterConnection<String, String>>) pool)).build();
+            return new RedisClusterDataStructureItemWriter<>((GenericObjectPool<StatefulRedisClusterConnection<String, String>>) pool);
         }
-        return configureCommandTimeoutBuilder(DataStructureItemWriter.builder((GenericObjectPool<StatefulRedisConnection<String, String>>) pool)).build();
+        return new RedisDataStructureItemWriter<>((GenericObjectPool<StatefulRedisConnection<String, String>>) pool);
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     protected AbstractItemStreamItemReader<DataStructure<String>> reader(DumpFileType fileType, Resource resource) {
-        switch (fileType) {
-            case XML:
-                log.info("Creating XML data structure reader for file {}", resource);
-                return (XmlItemReader) FileUtils.xmlReader(resource, DataStructure.class);
-            default:
-                log.info("Creating JSON data structure reader for file {}", resource);
-                return (JsonItemReader) FileUtils.jsonReader(resource, DataStructure.class);
+        if (fileType == DumpFileType.XML) {
+            log.info("Creating XML data structure reader for file {}", resource);
+            return (XmlItemReader) FileUtils.xmlReader(resource, DataStructure.class);
         }
+        log.info("Creating JSON data structure reader for file {}", resource);
+        return (JsonItemReader) FileUtils.jsonReader(resource, DataStructure.class);
     }
 
 }

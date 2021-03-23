@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class DataStructureMapItemProcessor implements ItemProcessor<DataStructure<String>, Map<String, Object>> {
+public class DataStructureItemProcessor implements ItemProcessor<DataStructure<String>, Map<String, Object>> {
 
     private final Converter<String, Map<String, String>> keyFieldsExtractor;
     private final Converter<Map<String, String>, Map<String, String>> hashConverter;
@@ -26,7 +26,7 @@ public class DataStructureMapItemProcessor implements ItemProcessor<DataStructur
     private final Converter<String, Map<String, String>> stringConverter;
     private final Converter<Object, Map<String, String>> defaultConverter;
 
-    public DataStructureMapItemProcessor(Converter<String, Map<String, String>> keyFieldsExtractor, Converter<Map<String, String>, Map<String, String>> hashConverter, Converter<List<String>, Map<String, String>> listConverter, Converter<Set<String>, Map<String, String>> setConverter, Converter<List<StreamMessage<String, String>>, Map<String, String>> streamConverter, Converter<String, Map<String, String>> stringConverter, Converter<List<ScoredValue<String>>, Map<String, String>> zsetConverter, Converter<Object, Map<String, String>> defaultConverter) {
+    public DataStructureItemProcessor(Converter<String, Map<String, String>> keyFieldsExtractor, Converter<Map<String, String>, Map<String, String>> hashConverter, Converter<List<String>, Map<String, String>> listConverter, Converter<Set<String>, Map<String, String>> setConverter, Converter<List<StreamMessage<String, String>>, Map<String, String>> streamConverter, Converter<String, Map<String, String>> stringConverter, Converter<List<ScoredValue<String>>, Map<String, String>> zsetConverter, Converter<Object, Map<String, String>> defaultConverter) {
         this.keyFieldsExtractor = keyFieldsExtractor;
         this.hashConverter = hashConverter;
         this.listConverter = listConverter;
@@ -39,7 +39,11 @@ public class DataStructureMapItemProcessor implements ItemProcessor<DataStructur
 
     @Override
     public Map<String, Object> process(DataStructure<String> item) {
-        Map<String, Object> map = new HashMap<>(keyFieldsExtractor.convert(item.getKey()));
+        String key = item.getKey();
+        if (key == null) {
+            return null;
+        }
+        Map<String, Object> map = new HashMap<>(keyFieldsExtractor.convert(key));
         Map<String, String> valueMap = map(item);
         if (valueMap != null) {
             map.putAll(valueMap);
@@ -77,7 +81,7 @@ public class DataStructureMapItemProcessor implements ItemProcessor<DataStructur
 
         private String keyRegex;
 
-        public DataStructureMapItemProcessor build() {
+        public DataStructureItemProcessor build() {
             Assert.notNull(keyRegex, "Key regex is required.");
             RegexNamedGroupsExtractor keyFieldsExtractor = RegexNamedGroupsExtractor.builder().regex(keyRegex).build();
             StreamToStringMapConverter streamConverter = StreamToStringMapConverter.builder().build();
@@ -85,9 +89,10 @@ public class DataStructureMapItemProcessor implements ItemProcessor<DataStructur
             CollectionToStringMapConverter<Set<String>> setConverter = CollectionToStringMapConverter.<Set<String>>builder().build();
             ZsetToStringMapConverter zsetConverter = ZsetToStringMapConverter.builder().build();
             Converter<String, Map<String, String>> stringConverter = StringToStringMapConverter.builder().build();
-            return new DataStructureMapItemProcessor(keyFieldsExtractor, c -> c, listConverter, setConverter, streamConverter, stringConverter, zsetConverter, c -> null);
+            return new DataStructureItemProcessor(keyFieldsExtractor, c -> c, listConverter, setConverter, streamConverter, stringConverter, zsetConverter, c -> null);
         }
 
     }
+
 
 }

@@ -3,7 +3,7 @@ package com.redislabs.riot.redis;
 import com.redislabs.riot.HelpCommand;
 import com.redislabs.riot.RedisCommand;
 import com.redislabs.riot.convert.CompositeConverter;
-import com.redislabs.riot.convert.MapFieldExtractor;
+import com.redislabs.riot.convert.FieldExtractor;
 import com.redislabs.riot.convert.ObjectToNumberConverter;
 import com.redislabs.riot.convert.ObjectToStringConverter;
 import org.springframework.batch.item.redis.support.KeyMaker;
@@ -27,7 +27,7 @@ public abstract class AbstractRedisCommand<O> extends HelpCommand implements Red
     }
 
     protected Converter<Map<String, Object>, Object> fieldExtractor(String field, Object defaultValue) {
-        return MapFieldExtractor.builder().field(field).remove(removeFields).defaultValue(defaultValue).build();
+        return FieldExtractor.builder().field(field).remove(removeFields).defaultValue(defaultValue).build();
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
@@ -51,7 +51,7 @@ public abstract class AbstractRedisCommand<O> extends HelpCommand implements Red
         if (!ObjectUtils.isEmpty(fields)) {
             Converter[] converters = new Converter[fields.length];
             for (int index = 0; index < fields.length; index++) {
-                Converter<Map<String, Object>, Object> extractor = MapFieldExtractor.builder().remove(removeFields).field(fields[index]).build();
+                Converter<Map<String, Object>, Object> extractor = FieldExtractor.builder().remove(removeFields).field(fields[index]).build();
                 CompositeConverter converter = new CompositeConverter(extractor, new ObjectToStringConverter());
                 converters[index] = converter;
             }

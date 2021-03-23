@@ -51,9 +51,9 @@ public abstract class AbstractImportCommand<I, O> extends AbstractTransferComman
 
     private Function<RedisCommand<O>, ItemWriter<O>> writerProvider() {
         if (isCluster()) {
-            return c -> configureCommandTimeoutBuilder(CommandItemWriter.<O>clusterBuilder((GenericObjectPool<StatefulRedisClusterConnection<String, String>>) pool, (BiFunction) c.command())).build();
+            return c -> CommandItemWriter.<O>clusterBuilder((GenericObjectPool<StatefulRedisClusterConnection<String, String>>) pool, (BiFunction) c.command()).build();
         }
-        return c -> configureCommandTimeoutBuilder(CommandItemWriter.<O>builder((GenericObjectPool<StatefulRedisConnection<String, String>>) pool, (BiFunction) c.command())).build();
+        return c -> CommandItemWriter.<O>builder((GenericObjectPool<StatefulRedisConnection<String, String>>) pool, (BiFunction) c.command()).build();
     }
 
 

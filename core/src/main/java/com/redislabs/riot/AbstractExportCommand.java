@@ -8,7 +8,9 @@ import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.batch.item.redis.DataStructureItemReader;
+import org.springframework.batch.item.redis.RedisClusterDataStructureItemReader;
+import org.springframework.batch.item.redis.RedisDataStructureItemReader;
+import org.springframework.batch.item.redis.support.AbstractKeyValueItemReader;
 import org.springframework.batch.item.redis.support.DataStructure;
 import org.springframework.batch.item.redis.support.ScanKeyValueItemReaderBuilder;
 import picocli.CommandLine;
@@ -25,13 +27,13 @@ public abstract class AbstractExportCommand<O> extends AbstractTransferCommand<D
     }
 
     protected final ItemReader<DataStructure<String>> reader() {
-        if (isCluster()) {
-            return configureScanKeyValueReaderBuilder(DataStructureItemReader.builder((GenericObjectPool<StatefulRedisClusterConnection<String, String>>) pool, (StatefulRedisClusterConnection<String, String>) connection)).build();
+        if (connection instanceof StatefulRedisClusterConnection) {
+            return configureScanKeyValueReaderBuilder(RedisClusterDataStructureItemReader.builder((GenericObjectPool<StatefulRedisClusterConnection<String, String>>) pool, (StatefulRedisClusterConnection<String, String>) connection)).build();
         }
-        return configureScanKeyValueReaderBuilder(DataStructureItemReader.builder((GenericObjectPool<StatefulRedisConnection<String, String>>) pool, (StatefulRedisConnection<String, String>) connection)).build();
+        return configureScanKeyValueReaderBuilder(RedisDataStructureItemReader.builder((GenericObjectPool<StatefulRedisConnection<String, String>>) pool, (StatefulRedisConnection<String, String>) connection)).build();
     }
 
-    private ScanKeyValueItemReaderBuilder<DataStructureItemReader<String, String>> configureScanKeyValueReaderBuilder(ScanKeyValueItemReaderBuilder<DataStructureItemReader<String, String>> builder) {
+    private <R extends AbstractKeyValueItemReader> ScanKeyValueItemReaderBuilder<R> configureScanKeyValueReaderBuilder(ScanKeyValueItemReaderBuilder<R> builder) {
         return builder.chunkSize(options.getBatchSize()).queueCapacity(options.getQueueCapacity()).threadCount(options.getThreads()).scanMatch(options.getScanMatch()).scanCount(options.getScanCount());
     }
 

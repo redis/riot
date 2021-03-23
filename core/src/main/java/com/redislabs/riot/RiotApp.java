@@ -1,40 +1,24 @@
 package com.redislabs.riot;
 
-import com.redislabs.riot.redis.AbstractRedisCommand;
 import io.lettuce.core.RedisURI;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import io.netty.util.internal.logging.JdkLoggerFactory;
 import lombok.Getter;
-import org.springframework.core.NestedExceptionUtils;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
-import picocli.AutoComplete;
 import picocli.CommandLine;
-import picocli.CommandLine.*;
+import picocli.CommandLine.ArgGroup;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
+import picocli.CommandLine.ParseResult;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.net.URL;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
-import java.time.temporal.ChronoField;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.jar.Attributes;
-import java.util.jar.Manifest;
-import java.util.logging.*;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
 
-@Command(sortOptions = false, versionProvider = RiotApp.ManifestVersionProvider.class, subcommands = RiotApp.HiddenGenerateCompletion.class, abbreviateSynopsis = true)
+@Command(sortOptions = false, versionProvider = ManifestVersionProvider.class, subcommands = GenerateCompletionCommand.class, abbreviateSynopsis = true)
 public class RiotApp extends HelpCommand {
-
-    @Command(hidden = true, name = "generate-completion", usageHelpAutoWidth = true)
-    static class HiddenGenerateCompletion extends AutoComplete.GenerateCompletion {
-    }
 
     private static final String ROOT_LOGGER = "";
 
@@ -82,9 +66,9 @@ public class RiotApp extends HelpCommand {
     }
 
     public RiotCommandLine commandLine() {
-        RiotCommandLine commandLine = new RiotCommandLine(this);
+        RiotCommandLine commandLine = new RiotCommandLine(this, this::executionStragegyRunFirst);
         commandLine.setExecutionStrategy(this::executionStrategy);
-        commandLine.setExecutionExceptionHandler(new PrintExceptionMessageHandler());
+        commandLine.setExecutionExceptionHandler(this::handleExecutionException);
         registerConverters(commandLine);
         commandLine.setCaseInsensitiveEnumValuesAllowed(true);
         return commandLine;
@@ -106,159 +90,16 @@ public class RiotApp extends HelpCommand {
         return Level.SEVERE;
     }
 
-    static class StackTraceOneLineLogFormat extends Formatter {
-
-        private final DateTimeFormatter d = new DateTimeFormatterBuilder().appendValue(ChronoField.HOUR_OF_DAY, 2).appendLiteral(':').appendValue(ChronoField.MINUTE_OF_HOUR, 2).optionalStart().appendLiteral(':').appendValue(ChronoField.SECOND_OF_MINUTE, 2).optionalStart().appendFraction(ChronoField.NANO_OF_SECOND, 3, 3, true).toFormatter();
-        private final ZoneId offset = ZoneOffset.systemDefault();
-
-        @Override
-        public String format(LogRecord record) {
-            String message = formatMessage(record);
-            ZonedDateTime time = Instant.ofEpochMilli(record.getMillis()).atZone(offset);
-            if (record.getThrown() == null) {
-                return String.format("%s %s %s\t: %s%n", time.format(d), record.getLevel().getLocalizedName(), record.getLoggerName(), message);
-            }
-            return String.format("%s %s %s\t: %s%n%s%n", time.format(d), record.getLevel().getLocalizedName(), record.getLoggerName(), message, stackTrace(record));
-        }
-
-        private String stackTrace(LogRecord record) {
-            StringWriter sw = new StringWriter(4096);
-            PrintWriter pw = new PrintWriter(sw);
-            record.getThrown().printStackTrace(pw);
-            return sw.toString();
-        }
-    }
-
-    static class OneLineLogFormat extends Formatter {
-
-        @Override
-        public String format(LogRecord record) {
-            String message = formatMessage(record);
-            if (record.getThrown() != null) {
-                Throwable rootCause = NestedExceptionUtils.getRootCause(record.getThrown());
-                if (rootCause != null && rootCause.getMessage() != null) {
-                    return String.format("%s: %s%n", message, rootCause.getMessage());
-                }
-            }
-            return String.format("%s%n", message);
-        }
-
-    }
-
-    private static class PrintExceptionMessageHandler implements IExecutionExceptionHandler {
-
-        @Override
-        public int handleExecutionException(Exception ex, CommandLine cmd, ParseResult parseResult) {
-            // bold red error message
-            cmd.getErr().println(cmd.getColorScheme().errorText(ex.getMessage()));
-            return cmd.getExitCodeExceptionMapper() != null ? cmd.getExitCodeExceptionMapper().getExitCode(ex) : cmd.getCommandSpec().exitCodeOnExecutionException();
-        }
-
-    }
-
-    private class RiotCommandLine extends CommandLine {
-
-        public RiotCommandLine(Object command) {
-            super(command);
-        }
-
-        @SuppressWarnings({"unchecked", "rawtypes"})
-        @Override
-        public ParseResult parseArgs(String... args) {
-            ParseResult parseResult = super.parseArgs(args);
-            ParseResult subcommand = parseResult.subcommand();
-            if (subcommand != null) {
-                Object command = subcommand.commandSpec().userObject();
-                if (AbstractImportCommand.class.isAssignableFrom(command.getClass())) {
-                    AbstractImportCommand<?, ?> importCommand = (AbstractImportCommand<?, ?>) command;
-                    List<ParseResult> parsedRedisCommands = subcommand.subcommands();
-                    for (ParseResult parsedRedisCommand : parsedRedisCommands) {
-                        if (parsedRedisCommand.isUsageHelpRequested()) {
-                            return parsedRedisCommand;
-                        }
-                        importCommand.getRedisCommands().add((AbstractRedisCommand) parsedRedisCommand.commandSpec().userObject());
-                    }
-                    setExecutionStrategy(RiotApp.this::executionStragegyRunFirst);
-                    return subcommand;
-                }
-            }
-            return parseResult;
-        }
-    }
-
-    static class RedisURIConverter implements CommandLine.ITypeConverter<RedisURI> {
-
-        @Override
-        public RedisURI convert(String value) {
-            try {
-                return RedisURI.create(value);
-            } catch (Exception e) {
-                throw new IllegalArgumentException("Invalid Redis connection string", e);
-            }
-        }
-
-    }
-
-    static class ExpressionConverter implements CommandLine.ITypeConverter<Expression> {
-
-        private final SpelExpressionParser parser = new SpelExpressionParser();
-
-        @Override
-        public Expression convert(String value) throws Exception {
-            return parser.parseExpression(value);
-        }
+    private int handleExecutionException(Exception ex, CommandLine cmd, ParseResult parseResult) {
+        // bold red error message
+        cmd.getErr().println(cmd.getColorScheme().errorText(ex.getMessage()));
+        return cmd.getExitCodeExceptionMapper() != null ? cmd.getExitCodeExceptionMapper().getExitCode(ex) : cmd.getCommandSpec().exitCodeOnExecutionException();
     }
 
     protected void registerConverters(CommandLine commandLine) {
-        commandLine.registerConverter(RedisURI.class, new RedisURIConverter());
-        commandLine.registerConverter(Expression.class, new ExpressionConverter());
-    }
-
-    /**
-     * {@link IVersionProvider} implementation that returns version information from
-     * the jar file's {@code /META-INF/MANIFEST.MF} file.
-     */
-    static class ManifestVersionProvider implements IVersionProvider {
-
-        @Override
-        public String[] getVersion() {
-            return new String[]{
-                    // @formatter:off
-                "",
-                "      ▀        █     @|fg(4;1;1) ██████████████████████████|@",
-                " █ ██ █  ███  ████   @|fg(4;2;1) ██████████████████████████|@",
-                " ██   █ █   █  █     @|fg(5;4;1) ██████████████████████████|@",
-                " █    █ █   █  █     @|fg(1;4;1) ██████████████████████████|@",
-                " █    █  ███    ██   @|fg(0;3;4) ██████████████████████████|@"+ "  v" + getVersionString(),
-                ""};
-                // @formatter:on
-        }
-
-        private String getVersionString() {
-            try {
-                Enumeration<URL> resources = getClass().getClassLoader().getResources("META-INF/MANIFEST.MF");
-                while (resources.hasMoreElements()) {
-                    URL url = resources.nextElement();
-                    Manifest manifest = new Manifest(url.openStream());
-                    if (isApplicableManifest(manifest)) {
-                        Attributes attr = manifest.getMainAttributes();
-                        return String.valueOf(get(attr, "Implementation-Version"));
-                    }
-                }
-            } catch (IOException ex) {
-                // ignore
-            }
-            return "N/A";
-        }
-
-        private boolean isApplicableManifest(Manifest manifest) {
-            Attributes attributes = manifest.getMainAttributes();
-            return "RIOT".equals(get(attributes, "Implementation-Title"));
-        }
-
-        private static Object get(Attributes attributes, String key) {
-            return attributes.get(new Attributes.Name(key));
-        }
+        commandLine.registerConverter(RedisURI.class, RedisURI::create);
+        SpelExpressionParser parser = new SpelExpressionParser();
+        commandLine.registerConverter(Expression.class, parser::parseExpression);
     }
 
 }

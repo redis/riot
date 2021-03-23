@@ -15,7 +15,9 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.item.ItemProcessor;
-import org.springframework.batch.item.redis.StreamItemReader;
+import org.springframework.batch.item.redis.RedisClusterStreamItemReader;
+import org.springframework.batch.item.redis.RedisStreamItemReader;
+import org.springframework.batch.item.redis.support.StreamItemReader;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -58,13 +60,13 @@ public class StreamExportCommand extends AbstractTransferCommand<StreamMessage<S
         return flow(steps.toArray(new Step[0]));
     }
 
-    private StreamItemReader<String, String> reader(StreamOffset<String> offset) {
-        if (isCluster()) {
+    private StreamItemReader<String, String, ?> reader(StreamOffset<String> offset) {
+        if (connection instanceof StatefulRedisClusterConnection) {
             log.info("Creating cluster stream reader with offset {}", offset);
-            return StreamItemReader.builder((StatefulRedisClusterConnection<String, String>) connection).offset(offset).build();
+            return RedisClusterStreamItemReader.builder((StatefulRedisClusterConnection<String, String>) connection).offset(offset).build();
         }
         log.info("Creating stream reader with offset {}", offset);
-        return StreamItemReader.builder((StatefulRedisConnection<String, String>) connection).offset(offset).build();
+        return RedisStreamItemReader.builder((StatefulRedisConnection<String, String>) connection).offset(offset).build();
     }
 
     private KafkaItemWriter<String> writer() {

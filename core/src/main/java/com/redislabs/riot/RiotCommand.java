@@ -11,13 +11,10 @@ import io.lettuce.core.cluster.api.StatefulRedisClusterConnection;
 import io.lettuce.core.support.ConnectionPoolSupport;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.pool2.impl.GenericObjectPool;
-import org.springframework.batch.item.redis.support.CommandTimeoutBuilder;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.util.ClassUtils;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.ParentCommand;
 
-import java.time.Duration;
 import java.util.concurrent.Callable;
 
 @Slf4j
@@ -31,18 +28,8 @@ public abstract class RiotCommand extends HelpCommand implements InitializingBea
     protected GenericObjectPool<? extends StatefulConnection<String, String>> pool;
     protected StatefulConnection<String, String> connection;
 
-    protected boolean isCluster() {
-        return app.getRedisOptions().isCluster();
-    }
-
     protected RedisURI getRedisURI() {
         return app.getRedisOptions().uris().get(0);
-    }
-
-    protected <B extends CommandTimeoutBuilder<B>> B configureCommandTimeoutBuilder(B builder) {
-        Duration commandTimeout = getRedisURI().getTimeout();
-        log.info("Configuring {} with command timeout {}", ClassUtils.getShortName(builder.getClass()), commandTimeout);
-        return builder.commandTimeout(commandTimeout);
     }
 
     @Override
@@ -60,6 +47,10 @@ public abstract class RiotCommand extends HelpCommand implements InitializingBea
         this.client = app.getRedisOptions().client();
         this.pool = pool(app.getRedisOptions(), client);
         this.connection = RedisOptions.connection(client);
+    }
+
+    protected boolean isCluster() {
+        return app.getRedisOptions().isCluster();
     }
 
     public void shutdown() {
