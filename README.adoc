@@ -1,61 +1,19 @@
-= RIOT
-:project-repo: redis-developer/riot
-:uri-repo: https://github.com/{project-repo}
-:site-url: http://developer.redislabs.com/riot
-ifdef::env-github[]
-:badges:
-:tag: master
-:!toc-title:
-:tip-caption: :bulb:
-:note-caption: :paperclip:
-:important-caption: :heavy_exclamation_mark:
-:caution-caption: :fire:
-:warning-caption: :warning:
-endif::[]
-
 image::http://developer.redislabs.com/riot/riot.svg[]
 
-{empty} +
-// Badges
-ifdef::badges[]
+'''
+
 image:https://img.shields.io/github/release/redis-developer/riot.svg["Latest Release", link="https://github.com/redis-developer/riot/releases/latest"]
 image:https://snyk.io/test/github/redis-developer/riot/badge.svg?targetFile=build.gradle["Known Vulnerabilities", link="https://snyk.io/test/github/redis-developer/riot?targetFile=build.gradle"]
 image:https://img.shields.io/github/license/redis-developer/riot.svg["License", link="https://github.com/redis-developer/riot"]
-endif::[]
 
 Redis Input/Output Tools (RIOT) is a series of utilities designed to help you get data in and out of Redis.
 
-== {site-url}/db[RIOT DB]
-.SQL import/export
-[source,bash]
-----
-riot-db import "SELECT * FROM emp" --url jdbc:oracle:thin@host:1521:orcl hset -p emp -k id
-----
+* https://developer.redislabs.com/riot/db[RIOT DB]
 
-== {site-url}/file[RIOT File]
-.File import/export
-[source,bash]
-----
-riot-file import beers.csv --header hset --keyspace beer --keys id
-----
+* https://developer.redislabs.com/riot/file[RIOT File]
 
-== {site-url}/gen[RIOT Gen]
-.Data generator
-[source,bash]
-----
-riot-gen import fact=chuckNorris.fact sadd --keyspace facts --members fact
-----
+* https://developer.redislabs.com/riot/gen[RIOT Gen]
 
-== {site-url}/redis[RIOT Redis]
-.Redis to Redis replication
-[source,bash]
-----
-riot-redis --uri redis://source replicate --uri redis://target --mode live
-----
+* https://developer.redislabs.com/riot/redis[RIOT Redis]
 
-== {site-url}/stream[RIOT Stream]
-.Streaming between Kafka and Redis
-[source,bash]
-----
-riot-stream import topic --broker localhost:9092
-----
+* https://developer.redislabs.com/riot/stream[RIOT Stream]
