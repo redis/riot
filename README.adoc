@@ -1,5 +1,7 @@
 image::http://developer.redislabs.com/riot/riot.svg[]
 
+'''
+
 image:https://img.shields.io/github/release/redis-developer/riot.svg["Latest Release", link="https://github.com/redis-developer/riot/releases/latest"]
 image:https://snyk.io/test/github/redis-developer/riot/badge.svg?targetFile=build.gradle["Known Vulnerabilities", link="https://snyk.io/test/github/redis-developer/riot?targetFile=build.gradle"]
 image:https://img.shields.io/github/license/redis-developer/riot.svg["License", link="https://github.com/redis-developer/riot"]
