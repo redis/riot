@@ -60,7 +60,7 @@ subprojects {
 
 release {
     tagTemplate = 'v${version}'
-    // buildTasks = ['releaseBuild']
+    buildTasks = ['releaseBuild']
 }
 
 task releaseBuild {
@@ -112,6 +112,6 @@ githubRelease {
     draft true
 }
 
-afterReleaseBuild.dependsOn asciidoctor
+gitPublishPush.dependsOn asciidoctor
 afterReleaseBuild.dependsOn ":githubRelease"
 afterReleaseBuild.dependsOn gitPublishPush
