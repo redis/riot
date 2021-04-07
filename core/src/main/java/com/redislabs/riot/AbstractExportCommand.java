@@ -2,6 +2,7 @@ package com.redislabs.riot;
 
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.cluster.api.StatefulRedisClusterConnection;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.springframework.batch.core.step.builder.AbstractTaskletStepBuilder;
 import org.springframework.batch.core.step.builder.SimpleStepBuilder;
@@ -10,12 +11,13 @@ import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.redis.RedisClusterDataStructureItemReader;
 import org.springframework.batch.item.redis.RedisDataStructureItemReader;
-import org.springframework.batch.item.redis.support.AbstractKeyValueItemReader;
 import org.springframework.batch.item.redis.support.DataStructure;
-import org.springframework.batch.item.redis.support.ScanKeyValueItemReaderBuilder;
 import picocli.CommandLine;
 
-public abstract class AbstractExportCommand<O> extends AbstractTransferCommand<DataStructure<String>, O> {
+import java.util.function.Supplier;
+
+@Slf4j
+public abstract class AbstractExportCommand<O> extends AbstractTransferCommand {
 
     @CommandLine.ArgGroup(exclusive = false, heading = "Redis reader options%n")
     private RedisReaderOptions options = RedisReaderOptions.builder().build();
@@ -26,15 +28,16 @@ public abstract class AbstractExportCommand<O> extends AbstractTransferCommand<D
         return step.reader(reader()).processor(processor).writer(writer).build();
     }
 
+    @SuppressWarnings("unchecked")
     protected final ItemReader<DataStructure<String>> reader() {
         if (connection instanceof StatefulRedisClusterConnection) {
-            return configureScanKeyValueReaderBuilder(RedisClusterDataStructureItemReader.builder((GenericObjectPool<StatefulRedisClusterConnection<String, String>>) pool, (StatefulRedisClusterConnection<String, String>) connection)).build();
+            return options.configure(RedisClusterDataStructureItemReader.builder((GenericObjectPool<StatefulRedisClusterConnection<String, String>>) pool, (StatefulRedisClusterConnection<String, String>) connection)).build();
         }
-        return configureScanKeyValueReaderBuilder(RedisDataStructureItemReader.builder((GenericObjectPool<StatefulRedisConnection<String, String>>) pool, (StatefulRedisConnection<String, String>) connection)).build();
+        return options.configure(RedisDataStructureItemReader.builder((GenericObjectPool<StatefulRedisConnection<String, String>>) pool, (StatefulRedisConnection<String, String>) connection)).build();
     }
 
-    private <R extends AbstractKeyValueItemReader> ScanKeyValueItemReaderBuilder<R> configureScanKeyValueReaderBuilder(ScanKeyValueItemReaderBuilder<R> builder) {
-        return builder.chunkSize(options.getBatchSize()).queueCapacity(options.getQueueCapacity()).threadCount(options.getThreads()).scanMatch(options.getScanMatch()).scanCount(options.getScanCount());
+    @Override
+    protected Supplier<Long> initialMax() {
+        return initialMax(options.sizeEstimatorOptions());
     }
-
 }

@@ -5,15 +5,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.redislabs.riot.convert.ObjectMapperConverter;
-import io.lettuce.core.RedisFuture;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.batch.item.redis.support.CommandBuilder;
+import org.springframework.batch.item.redis.support.RedisOperation;
+import org.springframework.batch.item.redis.support.RedisOperationBuilder;
 import org.springframework.core.convert.converter.Converter;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 import java.util.Map;
-import java.util.function.BiFunction;
 
 @Slf4j
 @Command(name = "set", description = "Set strings from input")
@@ -33,14 +32,14 @@ public class SetCommand extends AbstractKeyCommand {
     private String root;
 
     @Override
-    public BiFunction<?, Map<String, Object>, RedisFuture<?>> command() {
-        return configureKeyCommandBuilder(CommandBuilder.set()).valueConverter(stringValueConverter()).build();
+    public RedisOperation<String, String, Map<String, Object>> operation() {
+        return configureKeyCommandBuilder(RedisOperationBuilder.set()).valueConverter(stringValueConverter()).build();
     }
 
     private Converter<Map<String, Object>, String> stringValueConverter() {
         switch (format) {
             case RAW:
-                if (field==null) {
+                if (field == null) {
                     log.warn("Raw value field name not set");
                 }
                 return stringFieldExtractor(field);

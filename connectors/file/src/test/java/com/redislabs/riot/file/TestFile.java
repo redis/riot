@@ -246,51 +246,12 @@ public class TestFile extends AbstractStandaloneRedisTest {
 		Assertions.assertEquals("Hocus Pocus", name(beer1));
 	}
 
-
-	@Test
-	public void exportJSON() throws Exception {
-		List<DataStructure> records = exportToList();
-		Assertions.assertEquals(sync.dbsize(), records.size());
-	}
-
-	private List<DataStructure> exportToList() throws Exception {
-		Path file = tempFile("redis.json");
-		DataGenerator.builder().commands(async).build().run();
-		executeFile("export-json");
-		JsonItemReaderBuilder<DataStructure> builder = new JsonItemReaderBuilder<>();
-		builder.name("json-data-structure-file-reader");
-		builder.resource(new FileSystemResource(file));
-		JacksonJsonObjectReader<DataStructure> objectReader = new JacksonJsonObjectReader<>(DataStructure.class);
-		objectReader.setMapper(new ObjectMapper());
-		builder.jsonObjectReader(objectReader);
-		JsonItemReader<DataStructure> reader = builder.build();
-		return readAll(reader);
-	}
-
 	@Test
 	public void importDump() throws Exception {
 		List<DataStructure> records = exportToList();
 		sync.flushall();
 		executeFile("import-dump");
 		Assertions.assertEquals(records.size(), sync.dbsize());
-	}
-
-	@Test
-	public void exportJsonGz() throws Exception {
-		Path file = tempFile("beers.json.gz");
-		executeFile("import-json");
-		executeFile("export-json-gz");
-		JsonItemReaderBuilder<Map> builder = new JsonItemReaderBuilder<>();
-		builder.name("json-file-reader");
-		FileSystemResource resource = new FileSystemResource(file);
-		builder.resource(
-				new InputStreamResource(new GZIPInputStream(resource.getInputStream()), resource.getDescription()));
-		JacksonJsonObjectReader<Map> objectReader = new JacksonJsonObjectReader<>(Map.class);
-		objectReader.setMapper(new ObjectMapper());
-		builder.jsonObjectReader(objectReader);
-		JsonItemReader<Map> reader = builder.build();
-		List<Map> records = readAll(reader);
-		Assertions.assertEquals(sync.keys("beer:*").size(), records.size());
 	}
 
 	@Test
@@ -319,6 +280,46 @@ public class TestFile extends AbstractStandaloneRedisTest {
 		Assertions.assertEquals(3, keys.size());
 		Map<String, String> trade1 = sync.hgetall("trade:1");
 		Assertions.assertEquals("XYZ0001", trade1.get("isin"));
+	}
+
+
+	@Test
+	public void exportJSON() throws Exception {
+		List<DataStructure> records = exportToList();
+		Assertions.assertEquals(sync.dbsize(), records.size());
+	}
+
+
+	@Test
+	public void exportJsonGz() throws Exception {
+		Path file = tempFile("beers.json.gz");
+		executeFile("import-json");
+		executeFile("export-json-gz");
+		JsonItemReaderBuilder<Map> builder = new JsonItemReaderBuilder<>();
+		builder.name("json-file-reader");
+		FileSystemResource resource = new FileSystemResource(file);
+		builder.resource(
+				new InputStreamResource(new GZIPInputStream(resource.getInputStream()), resource.getDescription()));
+		JacksonJsonObjectReader<Map> objectReader = new JacksonJsonObjectReader<>(Map.class);
+		objectReader.setMapper(new ObjectMapper());
+		builder.jsonObjectReader(objectReader);
+		JsonItemReader<Map> reader = builder.build();
+		List<Map> records = readAll(reader);
+		Assertions.assertEquals(sync.keys("beer:*").size(), records.size());
+	}
+
+	private List<DataStructure> exportToList() throws Exception {
+		Path file = tempFile("redis.json");
+		DataGenerator.builder().commands(async).build().run();
+		executeFile("export-json");
+		JsonItemReaderBuilder<DataStructure> builder = new JsonItemReaderBuilder<>();
+		builder.name("json-data-structure-file-reader");
+		builder.resource(new FileSystemResource(file));
+		JacksonJsonObjectReader<DataStructure> objectReader = new JacksonJsonObjectReader<>(DataStructure.class);
+		objectReader.setMapper(new ObjectMapper());
+		builder.jsonObjectReader(objectReader);
+		JsonItemReader<DataStructure> reader = builder.build();
+		return readAll(reader);
 	}
 
 	@SuppressWarnings({ "incomplete-switch", "rawtypes", "unchecked" })

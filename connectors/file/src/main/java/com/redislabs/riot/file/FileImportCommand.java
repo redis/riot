@@ -39,13 +39,13 @@ public class FileImportCommand extends AbstractImportCommand<Map<String, Object>
     @SuppressWarnings("unused")
     @CommandLine.Parameters(arity = "0..*", description = "One ore more files or URLs", paramLabel = "FILE")
     private String[] files;
-    @CommandLine.Option(names = {"-t", "--type"}, description = "File type: ${COMPLETION-CANDIDATES}", paramLabel = "<type>")
+    @CommandLine.Option(names = {"-t", "--filetype"}, description = "File type: ${COMPLETION-CANDIDATES}", paramLabel = "<type>")
     private FileType type;
     @CommandLine.Mixin
     private FileOptions fileOptions = FileOptions.builder().build();
-    @CommandLine.Mixin
+    @CommandLine.ArgGroup(exclusive = false, heading = "Delimited and fixed-width file options%n")
     private FlatFileImportOptions flatFileOptions = FlatFileImportOptions.builder().build();
-    @CommandLine.Mixin
+    @CommandLine.ArgGroup(exclusive = false, heading = "Processor options%n")
     private ProcessorOptions processingOptions = ProcessorOptions.builder().build();
 
     @Override

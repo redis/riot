@@ -1,12 +1,11 @@
 package com.redislabs.riot.redis;
 
-import io.lettuce.core.RedisFuture;
-import org.springframework.batch.item.redis.support.CommandBuilder;
+import org.springframework.batch.item.redis.support.RedisOperation;
+import org.springframework.batch.item.redis.support.RedisOperationBuilder;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 import java.util.Map;
-import java.util.function.BiFunction;
 
 @Command(name = "geoadd", description = "Add members to a geo set")
 public class GeoaddCommand extends AbstractCollectionCommand {
@@ -19,8 +18,8 @@ public class GeoaddCommand extends AbstractCollectionCommand {
     private String latitudeField;
 
     @Override
-    public BiFunction<?, Map<String, Object>, RedisFuture<?>> command() {
-        return configureCollectionCommandBuilder(CommandBuilder.geoadd()).longitudeConverter(doubleFieldExtractor(longitudeField)).latitudeConverter(doubleFieldExtractor(latitudeField)).build();
+    public RedisOperation<String, String, Map<String, Object>> operation() {
+        return configureCollectionCommandBuilder(RedisOperationBuilder.geoadd()).longitudeConverter(doubleFieldExtractor(longitudeField)).latitudeConverter(doubleFieldExtractor(latitudeField)).build();
     }
 
 }

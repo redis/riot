@@ -2,7 +2,7 @@
 :app-name: RIOT Redis
 :connector: redis
 :app: riot-redis
-include::../../core/src/docs/asciidoc/preamble.adoc[]
+include::../../src/docs/asciidoc/preamble.adoc[]
 
 == Overview
 
@@ -23,7 +23,7 @@ image::replication.png[]
 2. Value reader: takes the keys and calls DUMP and TTL.
 3. Key/Value writer: takes key/value/ttl tuples and calls RESTORE and EXPIRE.
 
-include::../../core/src/docs/asciidoc/getting_started.adoc[]
+include::../../src/docs/asciidoc/getting_started.adoc[]
 
 == Replicating
 

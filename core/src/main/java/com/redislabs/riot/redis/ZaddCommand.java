@@ -1,12 +1,11 @@
 package com.redislabs.riot.redis;
 
-import io.lettuce.core.RedisFuture;
-import org.springframework.batch.item.redis.support.CommandBuilder;
+import org.springframework.batch.item.redis.support.RedisOperation;
+import org.springframework.batch.item.redis.support.RedisOperationBuilder;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 import java.util.Map;
-import java.util.function.BiFunction;
 
 @Command(name = "zadd", description = "Add members with scores to a sorted set")
 public class ZaddCommand extends AbstractCollectionCommand {
@@ -18,8 +17,8 @@ public class ZaddCommand extends AbstractCollectionCommand {
     private double scoreDefault = 1;
 
     @Override
-    public BiFunction<?, Map<String, Object>, RedisFuture<?>> command() {
-        return configureCollectionCommandBuilder(CommandBuilder.zadd()).scoreConverter(numberFieldExtractor(Double.class, scoreField, scoreDefault)).build();
+    public RedisOperation<String, String, Map<String, Object>> operation() {
+        return configureCollectionCommandBuilder(RedisOperationBuilder.zadd()).scoreConverter(numberFieldExtractor(Double.class, scoreField, scoreDefault)).build();
     }
 
 }

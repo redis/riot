@@ -1,5 +1,17 @@
 package com.redislabs.riot.db;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
+import com.redislabs.riot.DataGenerator;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.springframework.batch.item.redis.support.DataType;
+import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
+
+import javax.sql.DataSource;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.sql.Connection;
@@ -10,21 +22,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
-import javax.sql.DataSource;
-
-import com.redislabs.riot.DataGenerator;
-import org.junit.Assert;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-import org.springframework.batch.item.redis.support.DataType;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.utility.DockerImageName;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
 
 @Testcontainers
 @SuppressWarnings("rawtypes")
@@ -56,6 +53,7 @@ public class TestPostgreSQL extends AbstractDatabaseTest {
 		Assertions.assertEquals(sync.dbsize().longValue(), index);
 	}
 
+	@SuppressWarnings("ConstantConditions")
 	@Test
 	public void testImport() throws Exception {
 		DataSource dataSource = dataSource(postgreSQL);
@@ -72,11 +70,12 @@ public class TestPostgreSQL extends AbstractDatabaseTest {
 		resultSet.next();
 		Assertions.assertEquals(resultSet.getLong("count"), keys.size());
 		Map<String, String> order = sync.hgetall("order:10248");
-		Assert.assertEquals("10248", order.get("order_id"));
-		Assert.assertEquals("VINET", order.get("customer_id"));
+		Assertions.assertEquals("10248", order.get("order_id"));
+		Assertions.assertEquals("VINET", order.get("customer_id"));
 		connection.close();
 	}
 
+	@SuppressWarnings("ConstantConditions")
 	@Test
 	public void testImportSet() throws Exception {
 		DataSource dataSource = dataSource(postgreSQL);
@@ -96,12 +95,12 @@ public class TestPostgreSQL extends AbstractDatabaseTest {
 			ObjectMapper mapper = new ObjectMapper();
 			ObjectReader reader = mapper.readerFor(Map.class);
 			Map<String, Object> orderMap = reader.readValue(order);
-			Assert.assertEquals(orderId, orderMap.get("order_id"));
-			Assert.assertEquals(resultSet.getString("customer_id"), orderMap.get("customer_id"));
-			Assert.assertEquals(resultSet.getInt("employee_id"), orderMap.get("employee_id"));
-			Assert.assertEquals(resultSet.getDate("order_date"), java.sql.Date
+			Assertions.assertEquals(orderId, orderMap.get("order_id"));
+			Assertions.assertEquals(resultSet.getString("customer_id"), orderMap.get("customer_id"));
+			Assertions.assertEquals(resultSet.getInt("employee_id"), orderMap.get("employee_id"));
+			Assertions.assertEquals(resultSet.getDate("order_date"), java.sql.Date
 					.valueOf(LocalDate.from(DateTimeFormatter.ISO_DATE.parse((String) orderMap.get("order_date")))));
-			Assert.assertEquals(resultSet.getFloat("freight"), ((Double) orderMap.get("freight")).floatValue(), 0);
+			Assertions.assertEquals(resultSet.getFloat("freight"), ((Double) orderMap.get("freight")).floatValue(), 0);
 			count++;
 		}
 		List<String> keys = sync.keys("order:*");

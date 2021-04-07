@@ -1,1 +1,1 @@
-riot-gen import name="gameOfThrones.character" --max 10000 sadd --keyspace got:characters --members name
+riot-gen import name="gameOfThrones.character" --end 1000 sadd --keyspace got:characters --members name

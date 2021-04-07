@@ -2,11 +2,11 @@
 :app-name: RIOT Stream
 :connector: stream
 :app: riot-stream
-include::../../core/src/docs/asciidoc/preamble.adoc[]
+include::../../src/docs/asciidoc/preamble.adoc[]
 
 {app-name} lets you import and export data from Kafka topics.
 
-include::../../core/src/docs/asciidoc/getting_started.adoc[]
+include::../../src/docs/asciidoc/getting_started.adoc[]
 
 == Importing
 

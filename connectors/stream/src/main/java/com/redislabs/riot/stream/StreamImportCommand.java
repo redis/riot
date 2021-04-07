@@ -5,10 +5,8 @@ import com.redislabs.riot.StepBuilder;
 import com.redislabs.riot.redis.FilteringOptions;
 import com.redislabs.riot.stream.kafka.KafkaItemReader;
 import com.redislabs.riot.stream.kafka.KafkaItemReaderBuilder;
-import io.lettuce.core.RedisFuture;
 import io.lettuce.core.XAddArgs;
 import io.lettuce.core.api.StatefulRedisConnection;
-import io.lettuce.core.api.async.RedisStreamAsyncCommands;
 import io.lettuce.core.cluster.api.StatefulRedisClusterConnection;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.pool2.impl.GenericObjectPool;
@@ -16,9 +14,10 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.batch.item.redis.RedisClusterCommandItemWriter;
-import org.springframework.batch.item.redis.RedisCommandItemWriter;
-import org.springframework.batch.item.redis.support.CommandBuilder;
+import org.springframework.batch.item.redis.RedisClusterOperationItemWriter;
+import org.springframework.batch.item.redis.RedisOperationItemWriter;
+import org.springframework.batch.item.redis.support.RedisOperation;
+import org.springframework.batch.item.redis.support.RedisOperationBuilder;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
@@ -31,11 +30,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.function.BiFunction;
 
 @Slf4j
 @Command(name = "import", description = "Import Kafka topics into Redis streams")
-public class StreamImportCommand extends AbstractTransferCommand<ConsumerRecord<String, Object>, ConsumerRecord<String, Object>> {
+public class StreamImportCommand extends AbstractTransferCommand {
 
     @SuppressWarnings("unused")
     @Parameters(arity = "0..*", description = "One ore more topics to read from", paramLabel = "TOPIC")
@@ -69,16 +67,16 @@ public class StreamImportCommand extends AbstractTransferCommand<ConsumerRecord<
         return flow(steps.toArray(new Step[0]));
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @SuppressWarnings("unchecked")
     private ItemWriter<ConsumerRecord<String, Object>> writer() {
         XAddArgs xAddArgs = xAddArgs();
-        BiFunction<RedisStreamAsyncCommands<String, String>, ConsumerRecord<String, Object>, RedisFuture<?>> command = CommandBuilder.<ConsumerRecord<String, Object>>xadd().keyConverter(keyConverter()).argsConverter(r -> xAddArgs).bodyConverter(bodyConverter()).build();
+        RedisOperation<String, String, ConsumerRecord<String, Object>> operation = RedisOperationBuilder.<String, String, ConsumerRecord<String, Object>>xadd().keyConverter(keyConverter()).argsConverter(r -> xAddArgs).bodyConverter(bodyConverter()).build();
         if (isCluster()) {
             log.info("Creating cluster stream writer");
-            return new RedisClusterCommandItemWriter<>((GenericObjectPool<StatefulRedisClusterConnection<String, String>>) pool, (BiFunction) command);
+            return new RedisClusterOperationItemWriter<>((GenericObjectPool<StatefulRedisClusterConnection<String, String>>) pool, operation);
         }
         log.info("Creating stream writer");
-        return new RedisCommandItemWriter<>((GenericObjectPool<StatefulRedisConnection<String, String>>) pool, (BiFunction) command);
+        return new RedisOperationItemWriter<>((GenericObjectPool<StatefulRedisConnection<String, String>>) pool, operation);
     }
 
     private Converter<ConsumerRecord<String, Object>, Map<String, String>> bodyConverter() {

@@ -10,20 +10,19 @@ import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.batch.item.redis.RedisClusterCommandItemWriter;
-import org.springframework.batch.item.redis.RedisCommandItemWriter;
+import org.springframework.batch.item.redis.RedisClusterOperationItemWriter;
+import org.springframework.batch.item.redis.RedisOperationItemWriter;
 import org.springframework.batch.item.support.CompositeItemWriter;
 import org.springframework.util.Assert;
 import picocli.CommandLine.Command;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Command(subcommands = {EvalCommand.class, ExpireCommand.class, GeoaddCommand.class, HsetCommand.class, LpushCommand.class, NoopCommand.class, RpushCommand.class, SaddCommand.class, SetCommand.class, XaddCommand.class, ZaddCommand.class, SugaddCommand.class}, subcommandsRepeatable = true, synopsisSubcommandLabel = "[REDIS COMMAND]", commandListHeading = "Redis commands:%n")
-public abstract class AbstractImportCommand<I, O> extends AbstractTransferCommand<I, O> {
+public abstract class AbstractImportCommand<I, O> extends AbstractTransferCommand {
 
     /**
      * Initialized manually during command parsing
@@ -41,7 +40,7 @@ public abstract class AbstractImportCommand<I, O> extends AbstractTransferComman
     protected ItemWriter<O> writer() {
         Assert.notNull(redisCommands, "RedisCommands not set");
         Assert.isTrue(!redisCommands.isEmpty(), "No Redis command specified");
-        Function<RedisCommand<O>, ItemWriter<O>> writerProvider = c -> writer(c);
+        Function<RedisCommand<O>, ItemWriter<O>> writerProvider = this::writer;
         if (redisCommands.size() == 1) {
             return writerProvider.apply(redisCommands.get(0));
         }
@@ -50,11 +49,12 @@ public abstract class AbstractImportCommand<I, O> extends AbstractTransferComman
         return compositeWriter;
     }
 
+    @SuppressWarnings("unchecked")
     private ItemWriter<O> writer(RedisCommand<O> c) {
         if (isCluster()) {
-            return new RedisClusterCommandItemWriter<>((GenericObjectPool<StatefulRedisClusterConnection<String, String>>) pool, (BiFunction) c.command());
+            return new RedisClusterOperationItemWriter<>((GenericObjectPool<StatefulRedisClusterConnection<String, String>>) pool, c.operation());
         }
-        return new RedisCommandItemWriter<>((GenericObjectPool<StatefulRedisConnection<String, String>>) pool, (BiFunction) c.command());
+        return new RedisOperationItemWriter<>((GenericObjectPool<StatefulRedisConnection<String, String>>) pool, c.operation());
     }
 
 

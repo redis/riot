@@ -29,11 +29,11 @@ import java.util.List;
 @Slf4j
 @Setter
 @Command(name = "import-dump", description = "Import Redis data files into Redis")
-public class DumpFileImportCommand extends AbstractTransferCommand<DataStructure<String>, DataStructure<String>> {
+public class DumpFileImportCommand extends AbstractTransferCommand {
 
     @CommandLine.Parameters(arity = "0..*", description = "One ore more files or URLs", paramLabel = "FILE")
     private String[] files;
-    @CommandLine.Option(names = {"-t", "--type"}, description = "File type: ${COMPLETION-CANDIDATES}", paramLabel = "<type>")
+    @CommandLine.Option(names = {"-t", "--filetype"}, description = "File type: ${COMPLETION-CANDIDATES}", paramLabel = "<type>")
     private DumpFileType type;
     @CommandLine.Mixin
     private FileOptions fileOptions = FileOptions.builder().build();

@@ -11,6 +11,7 @@ import java.util.Map;
 
 public class DataStructureItemProcessor implements ItemProcessor<DataStructure<String>, DataStructure<String>> {
 
+    @SuppressWarnings("unchecked")
     @Override
     public DataStructure<String> process(DataStructure<String> item) throws Exception {
         switch (item.getType()) {
@@ -20,7 +21,7 @@ public class DataStructureItemProcessor implements ItemProcessor<DataStructure<S
                 for (Map<String, Object> map : zset) {
                     double score = ((Number) map.get("score")).doubleValue();
                     String value = (String) map.get("value");
-                    values.add(ScoredValue.fromNullable(score, value));
+                    values.add((ScoredValue<String>) ScoredValue.fromNullable(score, value));
                 }
                 item.setValue(values);
                 break;

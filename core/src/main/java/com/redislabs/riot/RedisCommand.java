@@ -1,10 +1,9 @@
 package com.redislabs.riot;
 
-import io.lettuce.core.RedisFuture;
-
-import java.util.function.BiFunction;
+import org.springframework.batch.item.redis.support.RedisOperation;
 
 public interface RedisCommand<T> {
 
-	BiFunction<?, T, RedisFuture<?>> command();
+	RedisOperation<String, String, T> operation();
+
 }

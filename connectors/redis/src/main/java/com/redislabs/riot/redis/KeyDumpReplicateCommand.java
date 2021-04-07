@@ -21,12 +21,12 @@ public class KeyDumpReplicateCommand extends AbstractReplicateCommand<KeyValue<S
 
     @Override
     protected ItemReader<KeyValue<String, byte[]>> redisClusterReader(GenericObjectPool<StatefulRedisClusterConnection<String, String>> pool, StatefulRedisClusterConnection<String, String> connection) {
-        return configureScanReader(RedisClusterKeyDumpItemReader.builder(pool, connection)).build();
+        return readerOptions.configureScan(RedisClusterKeyDumpItemReader.builder(pool, connection)).build();
     }
 
     @Override
     protected ItemReader<KeyValue<String, byte[]>> redisReader(GenericObjectPool<StatefulRedisConnection<String, String>> pool, StatefulRedisConnection<String, String> connection) {
-        return configureScanReader(RedisKeyDumpItemReader.builder(pool, connection)).build();
+        return readerOptions.configureScan(RedisKeyDumpItemReader.builder(pool, connection)).build();
     }
 
     @Override

@@ -9,9 +9,7 @@ plugins {
 }
 
 repositories {
-    jcenter()
     mavenCentral()
-    mavenLocal()
 }
 
 subprojects {
@@ -48,6 +46,13 @@ subprojects {
     configurations {
         all*.exclude module: 'spring-boot-starter-logging'
     }
+    configurations.all {
+        resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+            if (details.requested.group == 'io.lettuce') {
+                details.useVersion '6.1.0.RELEASE'
+            }
+        }
+    }
     test {
         useJUnitPlatform()
     }
@@ -55,7 +60,7 @@ subprojects {
 
 release {
     tagTemplate = 'v${version}'
-    buildTasks = ['releaseBuild']
+    // buildTasks = ['releaseBuild']
 }
 
 task releaseBuild {
@@ -63,12 +68,8 @@ task releaseBuild {
 }
 
 asciidoctor {
-    sourceDir "$baseDir"
-    sources {
-        include 'README.adoc'
-    }
     resources {
-        from ('core/src/docs/asciidoc') {
+        from ('src/resources/images') {
             include 'riot.svg'
             include 'architecture.png'
             include 'mapping.png'
@@ -77,9 +78,6 @@ asciidoctor {
         from("connectors/file/src/test/resources/files") {
             include '*.*'
         }
-    }
-    doLast {
-        file("${outputDir}/README.html").renameTo("${outputDir}/index.html")
     }
 }
 
@@ -114,9 +112,6 @@ githubRelease {
     draft true
 }
 
+gitPublishPush.dependsOn asciidoctor
 afterReleaseBuild.dependsOn ":githubRelease"
-asciidoctor.shouldRunAfter clean
-build.dependsOn asciidoctor
-gitPublishPush.dependsOn build
-gitPublishPush.shouldRunAfter clean, build
-task deploy(dependsOn: [gitPublishPush]) { shouldRunAfter build }
+afterReleaseBuild.dependsOn gitPublishPush

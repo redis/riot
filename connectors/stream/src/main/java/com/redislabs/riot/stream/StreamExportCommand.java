@@ -34,7 +34,7 @@ import java.util.Map;
 
 @Slf4j
 @Command(name = "export", description = "Import Redis streams into Kafka topics")
-public class StreamExportCommand extends AbstractTransferCommand<StreamMessage<String, String>, ProducerRecord<String, Object>> {
+public class StreamExportCommand extends AbstractTransferCommand {
 
     @SuppressWarnings("unused")
     @Parameters(arity = "0..*", description = "One ore more streams to read from", paramLabel = "STREAM")

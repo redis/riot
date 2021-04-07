@@ -1,15 +1,14 @@
 package com.redislabs.riot.redis;
 
-import io.lettuce.core.RedisFuture;
 import io.lettuce.core.XAddArgs;
-import org.springframework.batch.item.redis.support.CommandBuilder;
+import org.springframework.batch.item.redis.support.RedisOperation;
+import org.springframework.batch.item.redis.support.RedisOperationBuilder;
 import org.springframework.core.convert.converter.Converter;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 import java.util.Map;
-import java.util.function.BiFunction;
 
 @Command(name = "xadd", description = "Append entries to a stream")
 public class XaddCommand extends AbstractKeyCommand {
@@ -27,8 +26,8 @@ public class XaddCommand extends AbstractKeyCommand {
     private boolean approximateTrimming;
 
     @Override
-    public BiFunction<?, Map<String, Object>, RedisFuture<?>> command() {
-        return configureKeyCommandBuilder(CommandBuilder.xadd()).argsConverter(argsConverter()).bodyConverter(filteringOptions.converter()).build();
+    public RedisOperation<String, String, Map<String, Object>> operation() {
+        return configureKeyCommandBuilder(RedisOperationBuilder.xadd()).argsConverter(argsConverter()).bodyConverter(filteringOptions.converter()).build();
     }
 
     private Converter<Map<String, Object>, XAddArgs> argsConverter() {

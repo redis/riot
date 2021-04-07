@@ -1,12 +1,10 @@
 package com.redislabs.riot.redis;
 
-import io.lettuce.core.RedisFuture;
-import org.springframework.batch.item.redis.support.CommandBuilder;
+import org.springframework.batch.item.redis.support.RedisOperation;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 import java.util.Map;
-import java.util.function.BiFunction;
 
 @Command(name = "sugadd", description = "Add suggestion strings to a RediSearch auto-complete suggestion dictionary")
 public class SugaddCommand extends AbstractKeyCommand {
@@ -22,7 +20,7 @@ public class SugaddCommand extends AbstractKeyCommand {
     private String payload;
 
     @Override
-    public BiFunction<?, Map<String, Object>, RedisFuture<?>> command() {
+    public RedisOperation<String, String, Map<String, Object>> operation() {
         return configureKeyCommandBuilder(new SugaddBuilder<>()).stringConverter(stringFieldExtractor(field)).scoreConverter(numberFieldExtractor(Double.class, scoreField, scoreDefault)).payloadConverter(stringFieldExtractor(payload)).build();
     }
 

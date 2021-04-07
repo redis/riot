@@ -1,16 +1,15 @@
 package com.redislabs.riot.redis;
 
 import com.redislabs.riot.convert.MapToStringArrayConverter;
-import io.lettuce.core.RedisFuture;
 import io.lettuce.core.ScriptOutputType;
-import org.springframework.batch.item.redis.support.CommandBuilder;
+import org.springframework.batch.item.redis.support.RedisOperation;
+import org.springframework.batch.item.redis.support.RedisOperationBuilder;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.util.ObjectUtils;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 import java.util.Map;
-import java.util.function.BiFunction;
 
 @Command(name = "eval", description = "Evaluate a Lua script with keys and arguments from input")
 public class EvalCommand extends AbstractRedisCommand<Map<String, Object>> {
@@ -27,9 +26,11 @@ public class EvalCommand extends AbstractRedisCommand<Map<String, Object>> {
     @Option(names = "--output", description = "Output: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})", paramLabel = "<type>")
     private ScriptOutputType outputType = ScriptOutputType.STATUS;
 
+
     @Override
-    public BiFunction<?, Map<String, Object>, RedisFuture<?>> command() {
-        return CommandBuilder.<Map<String, Object>>eval().sha(sha).outputType(outputType).keysConverter(mapToArrayConverter(keys)).argsConverter(mapToArrayConverter(args)).build();
+    public RedisOperation<String, String, Map<String, Object>> operation() {
+        RedisOperationBuilder.EvalBuilder<String, String, Map<String, Object>> builder = RedisOperationBuilder.eval();
+        return builder.sha(sha).outputType(outputType).keysConverter(mapToArrayConverter(keys)).argsConverter(mapToArrayConverter(args)).build();
     }
 
     @SuppressWarnings("unchecked")

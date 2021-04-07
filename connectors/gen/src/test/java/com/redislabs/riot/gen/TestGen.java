@@ -39,23 +39,14 @@ public class TestGen extends AbstractStandaloneRedisTest {
         Assertions.assertTrue(person.containsKey("address"));
     }
 
-    public void genFakerScriptProcessorHash() throws Exception {
-        executeFile("script-processor");
-        List<String> keys = sync.keys("person:*");
-        Assertions.assertEquals(100, keys.size());
-        Map<String, String> person = sync.hgetall(keys.get(0));
-        Assertions.assertTrue(person.containsKey("firstName"));
-        Assertions.assertTrue(person.containsKey("lastName"));
-        Assertions.assertTrue(person.containsKey("address"));
-        Assertions.assertEquals(person.get("address").toUpperCase(), person.get("address"));
-    }
-
     @Test
     public void genFakerSet() throws Exception {
         executeFile("import-sadd");
         Set<String> names = sync.smembers("got:characters");
         Assertions.assertTrue(names.size() > 10);
-        Assertions.assertTrue(names.contains("Lysa Meadows"));
+        for (String name : names) {
+            Assertions.assertFalse(name.isEmpty());
+        }
     }
 
     @Test
@@ -79,6 +70,7 @@ public class TestGen extends AbstractStandaloneRedisTest {
         searchClient = RediSearchClient.create(RedisURI.create(redis.getHost(), redis.getFirstMappedPort()));
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void genFakerIndexIntrospection() throws Exception {
         String INDEX = "beerIdx";
@@ -91,7 +83,7 @@ public class TestGen extends AbstractStandaloneRedisTest {
         StatefulRediSearchConnection<String, String> connection = searchClient.connect();
         RediSearchCommands<String, String> searchCommands = connection.sync();
         searchCommands.create(INDEX, CreateOptions.<String, String>builder().prefix("beer:").build(), Field.tag(FIELD_ID).sortable(true).build(), Field.text(FIELD_NAME).sortable(true).build(), Field.text(FIELD_STYLE).matcher(Field.Text.PhoneticMatcher.English).sortable(true).build(), Field.numeric(FIELD_ABV).sortable(true).build(), Field.numeric(FIELD_OUNCES).sortable(true).build());
-        executeFile("index-introspection");
+        executeFile("import-infer");
         SearchResults<String, String> results = searchCommands.search(INDEX, "*");
         Assertions.assertEquals(1000, results.getCount());
         Document<String, String> doc1 = results.get(0);

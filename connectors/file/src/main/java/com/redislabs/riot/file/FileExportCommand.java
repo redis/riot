@@ -24,12 +24,12 @@ public class FileExportCommand extends AbstractExportCommand<DataStructure<Strin
     @SuppressWarnings("unused")
     @CommandLine.Parameters(arity = "1", description = "File path or URL", paramLabel = "FILE")
     private String file;
-    @CommandLine.Option(names = {"-t", "--type"}, description = "File type: ${COMPLETION-CANDIDATES}", paramLabel = "<type>")
+    @CommandLine.Option(names = {"-t", "--filetype"}, description = "File type: ${COMPLETION-CANDIDATES}", paramLabel = "<type>")
     private DumpFileType type;
     @Mixin
-    private FileExportOptions exportOptions = FileExportOptions.builder().build();
-    @Mixin
     private FileOptions fileOptions = FileOptions.builder().build();
+    @CommandLine.ArgGroup(exclusive = false, heading = "Export file options%n")
+    private FileExportOptions exportOptions = FileExportOptions.builder().build();
 
     @Override
     protected Flow flow() throws Exception {

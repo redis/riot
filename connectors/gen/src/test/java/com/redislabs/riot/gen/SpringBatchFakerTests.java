@@ -1,11 +1,6 @@
 package com.redislabs.riot.gen;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.batch.core.Job;
@@ -20,6 +15,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@SuppressWarnings("unused")
 @SpringBootTest(classes = BatchTestApplication.class)
 @RunWith(SpringRunner.class)
 public class SpringBatchFakerTests {
@@ -37,14 +38,13 @@ public class SpringBatchFakerTests {
 		Map<String, String> fields = new HashMap<>();
 		fields.put("firstName", "name.firstName");
 		fields.put("lastName", "name.lastName");
-		FakerItemReader reader = FakerItemReader.builder().fields(fields).end(count).build();
-		reader.setMaxItemCount(count);
+		FakerItemReader reader = FakerItemReader.builder().generator(MapGenerator.builder().fields(fields).build()).end(count).build();
 		List<Map<String, Object>> items = new ArrayList<>();
 		run("reader", reader, items::addAll);
-		Assert.assertEquals(count, items.size());
-		Assert.assertFalse(items.get(0).containsKey(FakerItemReader.FIELD_INDEX));
-		Assert.assertTrue(((String) items.get(0).get("firstName")).length() > 0);
-		Assert.assertTrue(((String) items.get(0).get("lastName")).length() > 0);
+		Assertions.assertEquals(count, items.size());
+		Assertions.assertFalse(items.get(0).containsKey(MapGenerator.FIELD_INDEX));
+		Assertions.assertTrue(((String) items.get(0).get("firstName")).length() > 0);
+		Assertions.assertTrue(((String) items.get(0).get("lastName")).length() > 0);
 	}
 
 	@Test
@@ -53,12 +53,11 @@ public class SpringBatchFakerTests {
 		Map<String, String> fields = new HashMap<>();
 		fields.put("firstName", "name.firstName");
 		fields.put("lastName", "name.lastName");
-		FakerItemReader reader = FakerItemReader.builder().fields(fields).includeMetadata(true).end(count).build();
-		reader.setMaxItemCount(count);
+		FakerItemReader reader = FakerItemReader.builder().generator(new MapWithMetadataGenerator(MapGenerator.builder().fields(fields).build())).end(count).build();
 		List<Map<String, Object>> items = new ArrayList<>();
 		run("metadata", reader, items::addAll);
-		Assert.assertEquals(count, items.size());
-		Assert.assertEquals(1L, items.get(0).get(FakerItemReader.FIELD_INDEX));
+		Assertions.assertEquals(count, items.size());
+		Assertions.assertEquals(1L, items.get(0).get(MapGenerator.FIELD_INDEX));
 	}
 
 	private <T> void run(String name, ItemReader<T> reader, ItemWriter<T> writer) throws Exception {

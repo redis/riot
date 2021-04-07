@@ -2,11 +2,11 @@
 :app-name: RIOT DB
 :connector: db
 :app: riot-db
-include::../../core/src/docs/asciidoc/preamble.adoc[]
+include::../../src/docs/asciidoc/preamble.adoc[]
 
 {app-name} lets you import and export data from relational databases.
 
-include::../../core/src/docs/asciidoc/getting_started.adoc[]
+include::../../src/docs/asciidoc/getting_started.adoc[]
 
 == Drivers
 
@@ -59,9 +59,9 @@ Use the `import` command to import the result set of a SQL statement:
 include::src/test/resources/import-postgresql[]
 ----
 
-include::../../core/src/docs/asciidoc/redis-commands.adoc[]
+include::../../src/docs/asciidoc/redis-commands.adoc[]
 
-include::../../core/src/docs/asciidoc/processing.adoc[]
+include::../../src/docs/asciidoc/processing.adoc[]
 
 == Exporting
 

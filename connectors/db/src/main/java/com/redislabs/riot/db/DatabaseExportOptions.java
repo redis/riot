@@ -9,8 +9,6 @@ import picocli.CommandLine;
 @AllArgsConstructor
 public class DatabaseExportOptions {
 
-    @CommandLine.Parameters(arity = "1", description = "SQL INSERT statement.", paramLabel = "SQL")
-    private String sql;
     @Builder.Default
     @CommandLine.Option(names = "--key-regex", description = "Regex for key-field extraction (default: ${DEFAULT-VALUE}).", paramLabel = "<str>")
     private String keyRegex = "\\w+:(?<id>.+)";

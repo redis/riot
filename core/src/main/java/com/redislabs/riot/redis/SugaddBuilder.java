@@ -2,33 +2,33 @@ package com.redislabs.riot.redis;
 
 import com.redislabs.lettusearch.SuggestAsyncCommands;
 import com.redislabs.lettusearch.Suggestion;
-import io.lettuce.core.RedisFuture;
-import lombok.NonNull;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-import org.springframework.batch.item.redis.support.CommandBuilder;
+import org.springframework.batch.item.redis.support.RedisOperation;
+import org.springframework.batch.item.redis.support.RedisOperationBuilder;
 import org.springframework.core.convert.converter.Converter;
-
-import java.util.function.BiFunction;
 
 @Setter
 @Accessors(fluent = true)
-class SugaddBuilder<T> extends CommandBuilder.KeyCommandBuilder<SuggestAsyncCommands<String, String>, T, SugaddBuilder<T>> {
+class SugaddBuilder<T> extends RedisOperationBuilder.AbstractKeyOperationBuilder<String, String, T, SugaddBuilder<T>> {
 
-    @NonNull
     private Converter<T, String> stringConverter;
-    @NonNull
     private Converter<T, Double> scoreConverter;
     private Converter<T, String> payloadConverter;
 
-    public BiFunction<SuggestAsyncCommands<String, String>, T, RedisFuture<?>> build() {
-        return (c, t) -> c.sugadd(key(t), suggestion(t));
+    @SuppressWarnings("unchecked")
+    @Override
+    protected RedisOperation<String, String, T> build(Converter<T, String> keyConverter) {
+        return (c, t) -> ((SuggestAsyncCommands<String, String>) c).sugadd(keyConverter.convert(t), suggestion(t));
     }
 
     private Suggestion<String> suggestion(T value) {
         Suggestion.SuggestionBuilder<String> suggestion = Suggestion.builder();
         suggestion.string(stringConverter.convert(value));
-        suggestion.score(scoreConverter.convert(value));
+        Double score = scoreConverter.convert(value);
+        if (score != null) {
+            suggestion.score(score);
+        }
         if (payloadConverter != null) {
             suggestion.payload(payloadConverter.convert(value));
         }

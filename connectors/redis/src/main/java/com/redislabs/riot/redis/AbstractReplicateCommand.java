@@ -27,14 +27,15 @@ import picocli.CommandLine;
 import picocli.CommandLine.Option;
 
 import java.time.Duration;
+import java.util.function.Supplier;
 
 @Slf4j
-public abstract class AbstractReplicateCommand<T extends KeyValue<String, ?>> extends AbstractTransferCommand<T, T> {
+public abstract class AbstractReplicateCommand<T extends KeyValue<String, ?>> extends AbstractTransferCommand {
 
     @CommandLine.ArgGroup(exclusive = false, heading = "Target Redis connection options%n")
     private RedisOptions targetRedisOptions = RedisOptions.builder().build();
     @CommandLine.ArgGroup(exclusive = false, heading = "Source Redis reader options%n")
-    private RedisReaderOptions readerOptions = RedisReaderOptions.builder().build();
+    protected RedisReaderOptions readerOptions = RedisReaderOptions.builder().build();
     @SuppressWarnings("unused")
     @Option(names = "--mode", description = "Replication mode: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<name>")
     private ReplicationMode mode = ReplicationMode.SNAPSHOT;
@@ -164,9 +165,9 @@ public abstract class AbstractReplicateCommand<T extends KeyValue<String, ?>> ex
     protected abstract ItemWriter<T> redisClusterWriter(GenericObjectPool<StatefulRedisClusterConnection<String, String>> pool, StatefulRedisClusterConnection<String, String> connection);
 
     private Flow verificationFlow() {
-        DataStructureItemReader<String, String, ?> sourceReader = dataStructureReader(pool, connection).build();
+        DataStructureItemReader<String, String, ?> sourceReader = dataStructureReader(pool, connection);
         log.info("Creating key comparator with TTL tolerance of {} seconds", ttlTolerance);
-        DataStructureItemReader<String, String, ?> targetReader = dataStructureReader(targetPool, targetConnection).build();
+        DataStructureItemReader<String, String, ?> targetReader = dataStructureReader(targetPool, targetConnection);
         Duration ttlToleranceDuration = Duration.ofSeconds(ttlTolerance);
         KeyComparisonItemWriter<String, String> writer = new KeyComparisonItemWriter<>(targetReader, ttlToleranceDuration);
         StepBuilder<DataStructure<String>, DataStructure<String>> stepBuilder = stepBuilder("verification-step", "Verifying");
@@ -181,28 +182,20 @@ public abstract class AbstractReplicateCommand<T extends KeyValue<String, ?>> ex
     }
 
     @SuppressWarnings("unchecked")
-    protected ScanKeyValueItemReaderBuilder<? extends DataStructureItemReader<String, String, ?>> dataStructureReader(GenericObjectPool<? extends StatefulConnection<String, String>> pool, StatefulConnection<String, String> connection) {
+    protected DataStructureItemReader<String, String, ?> dataStructureReader(GenericObjectPool<? extends StatefulConnection<String, String>> pool, StatefulConnection<String, String> connection) {
         if (connection instanceof StatefulRedisClusterConnection) {
-            return configureScanReader(RedisClusterDataStructureItemReader.builder((GenericObjectPool<StatefulRedisClusterConnection<String, String>>) pool, (StatefulRedisClusterConnection<String, String>) connection));
+            return readerOptions.configureScan(RedisClusterDataStructureItemReader.builder((GenericObjectPool<StatefulRedisClusterConnection<String, String>>) pool, (StatefulRedisClusterConnection<String, String>) connection)).build();
         }
-        return configureScanReader(RedisDataStructureItemReader.builder((GenericObjectPool<StatefulRedisConnection<String, String>>) pool, (StatefulRedisConnection<String, String>) connection));
+        return readerOptions.configureScan(RedisDataStructureItemReader.builder((GenericObjectPool<StatefulRedisConnection<String, String>>) pool, (StatefulRedisConnection<String, String>) connection)).build();
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    protected <B extends ScanKeyValueItemReaderBuilder> B configureScanReader(B builder) {
-        log.info("Creating scan reader with {}", readerOptions);
-        return (B) configureReader(builder.scanMatch(readerOptions.getScanMatch()).scanCount(readerOptions.getScanCount()).sampleSize(readerOptions.getSampleSize()));
-    }
-
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    protected <B extends LiveKeyValueItemReaderBuilder> B configureLiveReader(B builder) {
+    protected <B extends LiveKeyValueItemReaderBuilder<B>> B configureLiveReader(B builder) {
         log.info("Creating live reader with {}, {}, queueCapacity={}", readerOptions, flushingOptions, notificationQueueCapacity);
-        return (B) configureReader(builder.keyPattern(readerOptions.getScanMatch()).notificationQueueCapacity(notificationQueueCapacity).database(getRedisURI().getDatabase()).flushingInterval(flushingOptions.getFlushIntervalDuration()).idleTimeout(flushingOptions.getIdleTimeoutDuration()));
+        return readerOptions.configure(builder.keyPattern(readerOptions.getScanMatch()).notificationQueueCapacity(notificationQueueCapacity).database(getRedisURI().getDatabase()).flushingInterval(flushingOptions.getFlushIntervalDuration()).idleTimeout(flushingOptions.getIdleTimeoutDuration()));
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    private <B extends AbstractKeyValueItemReader.AbstractKeyValueItemReaderBuilder> B configureReader(B builder) {
-        return (B) builder.threadCount(readerOptions.getThreads()).chunkSize(readerOptions.getBatchSize()).queueCapacity(readerOptions.getQueueCapacity());
+    @Override
+    protected Supplier<Long> initialMax() {
+        return initialMax(readerOptions.sizeEstimatorOptions());
     }
-
 }

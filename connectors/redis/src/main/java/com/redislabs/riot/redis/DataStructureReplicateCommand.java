@@ -21,12 +21,12 @@ public class DataStructureReplicateCommand extends AbstractReplicateCommand<Data
 
     @Override
     protected ItemReader<DataStructure<String>> redisClusterReader(GenericObjectPool<StatefulRedisClusterConnection<String, String>> pool, StatefulRedisClusterConnection<String, String> connection) {
-        return configureScanReader(RedisClusterDataStructureItemReader.builder(pool, connection)).build();
+        return readerOptions.configureScan(RedisClusterDataStructureItemReader.builder(pool, connection)).build();
     }
 
     @Override
     protected ItemReader<DataStructure<String>> redisReader(GenericObjectPool<StatefulRedisConnection<String, String>> pool, StatefulRedisConnection<String, String> connection) {
-        return configureScanReader(RedisDataStructureItemReader.builder(pool, connection)).build();
+        return readerOptions.configureScan(RedisDataStructureItemReader.builder(pool, connection)).build();
     }
 
     @Override

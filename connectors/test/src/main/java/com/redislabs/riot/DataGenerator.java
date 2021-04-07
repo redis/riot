@@ -5,7 +5,6 @@ import io.lettuce.core.RedisFuture;
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.api.async.*;
 import lombok.Builder;
-import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.item.redis.support.DataType;
 
@@ -15,7 +14,6 @@ import java.util.*;
 @Builder
 public class DataGenerator implements Runnable {
 
-    @NonNull
     private BaseRedisAsyncCommands<String, String> commands;
     @Builder.Default
     private int batchSize = 50;
@@ -29,7 +27,6 @@ public class DataGenerator implements Runnable {
     private int collectionModulo = 10;
     @Builder.Default
     private int zsetScoreModulo = 3;
-    @NonNull
     @Builder.Default
     private List<DataType> dataTypes = Arrays.asList(DataType.values());
     private final List<RedisFuture<?>> futures = new ArrayList<>();
@@ -64,6 +61,7 @@ public class DataGenerator implements Runnable {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private void execute(int index) {
         if (dataTypes.contains(DataType.STRING)) {
             String stringKey = "string:" + index;

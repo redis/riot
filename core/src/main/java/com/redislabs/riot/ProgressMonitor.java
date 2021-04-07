@@ -2,7 +2,6 @@ package com.redislabs.riot;
 
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
-import me.tongfei.progressbar.DelegatingProgressBarConsumer;
 import me.tongfei.progressbar.ProgressBar;
 import me.tongfei.progressbar.ProgressBarBuilder;
 import org.springframework.batch.core.ExitStatus;
@@ -18,9 +17,9 @@ import java.util.function.Supplier;
 public class ProgressMonitor<S, T> extends StepListenerSupport<S, T> {
 
     private final String taskName;
-    private final Long max;
-    @Builder.Default
-    private final Supplier<String> extraMessageSupplier = () -> "";
+    private final Integer updateIntervalMillis;
+    private final Supplier<Long> initialMax;
+    private final Supplier<String> extraMessage;
     private ProgressBar progressBar;
     private AtomicLong count;
 
@@ -29,8 +28,14 @@ public class ProgressMonitor<S, T> extends StepListenerSupport<S, T> {
         super.beforeStep(stepExecution);
         count = new AtomicLong();
         ProgressBarBuilder builder = new ProgressBarBuilder();
-        if (max != null) {
-            builder.setInitialMax(max);
+        if (initialMax != null) {
+            Long initialMaxValue = initialMax.get();
+            if (initialMaxValue != null) {
+                builder.setInitialMax(initialMaxValue);
+            }
+        }
+        if (updateIntervalMillis != null) {
+            builder.setUpdateIntervalMillis(updateIntervalMillis);
         }
         builder.setTaskName(taskName);
         builder.showSpeed();
@@ -46,7 +51,9 @@ public class ProgressMonitor<S, T> extends StepListenerSupport<S, T> {
     @Override
     public void afterWrite(List<? extends T> items) {
         progressBar.stepTo(count.addAndGet(items.size()));
-        progressBar.setExtraMessage(extraMessageSupplier.get());
+        if (extraMessage != null) {
+            progressBar.setExtraMessage(extraMessage.get());
+        }
         super.afterWrite(items);
     }
 }

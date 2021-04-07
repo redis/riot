@@ -45,13 +45,12 @@ public abstract class AbstractTaskCommand extends RiotCommand {
     @Override
     protected int execute() throws Exception {
         JobExecution execution = jobFactory.getSyncLauncher().run(job(), new JobParameters());
-        int exitCode = 0;
         for (StepExecution stepExecution : execution.getStepExecutions()) {
             if (stepExecution.getExitStatus().compareTo(ExitStatus.FAILED) >= 0) {
-                exitCode = 1;
+                return 1;
             }
         }
-        return exitCode;
+        return 0;
     }
 
     private Job job() throws Exception {

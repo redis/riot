@@ -8,6 +8,7 @@ import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.database.JdbcCursorItemReader;
 import org.springframework.batch.item.database.builder.JdbcCursorItemReaderBuilder;
 import org.springframework.jdbc.core.ColumnMapRowMapper;
+import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
 
@@ -18,11 +19,13 @@ import java.util.Map;
 @Command(name = "import", description = "Import from a database")
 public class DatabaseImportCommand extends AbstractImportCommand<Map<String, Object>, Map<String, Object>> {
 
+    @CommandLine.Parameters(arity = "1", description = "SQL SELECT statement", paramLabel = "SQL")
+    private String sql;
     @Mixin
     private DataSourceOptions dataSourceOptions = DataSourceOptions.builder().build();
     @Mixin
     private DatabaseImportOptions importOptions = DatabaseImportOptions.builder().build();
-    @Mixin
+    @CommandLine.ArgGroup(exclusive = false, heading = "Processor options%n")
     private ProcessorOptions processingOptions = ProcessorOptions.builder().build();
 
     @Override
@@ -45,7 +48,7 @@ public class DatabaseImportCommand extends AbstractImportCommand<Map<String, Obj
             builder.queryTimeout(importOptions.getQueryTimeout());
         }
         builder.rowMapper(new ColumnMapRowMapper());
-        builder.sql(importOptions.getSql());
+        builder.sql(sql);
         builder.useSharedExtendedConnection(importOptions.isUseSharedExtendedConnection());
         builder.verifyCursorPosition(importOptions.isVerifyCursorPosition());
         JdbcCursorItemReader<Map<String, Object>> reader = builder.build();

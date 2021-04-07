@@ -59,6 +59,7 @@ public abstract class AbstractStandaloneRedisTest extends AbstractRiotTest {
     @AfterEach
     public void teardown() {
         connection.close();
+        client.getResources().shutdown();
         client.shutdown();
     }
 

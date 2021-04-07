@@ -6,30 +6,48 @@ import com.redislabs.riot.ProcessorOptions;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.item.ItemProcessor;
+import org.springframework.batch.item.ItemReader;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.function.Supplier;
 
+@SuppressWarnings("FieldMayBeFinal")
 @Slf4j
 @Command(name = "import", description = "Import generated data")
-public class GeneratorCommand extends AbstractImportCommand<Map<String, Object>, Map<String, Object>> {
+public class GeneratorImportCommand extends AbstractImportCommand<Map<String, Object>, Map<String, Object>> {
 
     @CommandLine.Mixin
     private GenerateOptions options = GenerateOptions.builder().build();
-    @CommandLine.Mixin
+    @CommandLine.ArgGroup(exclusive = false, heading = "Processor options%n")
     private ProcessorOptions processingOptions = ProcessorOptions.builder().build();
 
     @Override
     protected Flow flow() throws Exception {
+        return flow(step("generate-step", "Generating", reader()).build());
+    }
+
+    private ItemReader<Map<String, Object>> reader() {
         log.info("Creating Faker reader with {}", options);
+        FakerItemReader reader = FakerItemReader.builder().generator(generator()).start(options.getStart()).end(options.getEnd()).build();
+        if (options.getSleep() > 0) {
+            return new ThrottledItemReader<>(reader, options.getSleep());
+        }
+        return reader;
+    }
+
+    private Generator<Map<String, Object>> generator() {
         Map<String, String> fields = options.getFakerFields() == null ? new LinkedHashMap<>() : new LinkedHashMap<>(options.getFakerFields());
         if (options.getFakerIndex() != null) {
             fields.putAll(fieldsFromIndex(options.getFakerIndex()));
         }
-        FakerItemReader reader = FakerItemReader.builder().locale(options.getLocale()).includeMetadata(options.isIncludeMetadata()).fields(fields).start(options.getStart()).end(options.getEnd()).sleep(options.getSleep()).build();
-        return flow(step("generate-step", "Generating", reader).build());
+        MapGenerator generator = MapGenerator.builder().locale(options.getLocale()).fields(fields).build();
+        if (options.isIncludeMetadata()) {
+            return new MapWithMetadataGenerator(generator);
+        }
+        return generator;
     }
 
     private String expression(Field<String> field) {
@@ -64,5 +82,10 @@ public class GeneratorCommand extends AbstractImportCommand<Map<String, Object>,
     @Override
     protected ItemProcessor<Map<String, Object>, Map<String, Object>> processor() throws NoSuchMethodException {
         return processingOptions.processor(client);
+    }
+
+    @Override
+    protected Supplier<Long> initialMax() {
+        return () -> options.getEnd() - options.getStart();
     }
 }

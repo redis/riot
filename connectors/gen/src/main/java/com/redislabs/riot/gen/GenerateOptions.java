@@ -18,7 +18,7 @@ public class GenerateOptions {
     @CommandLine.Parameters(arity = "0..*", description = "SpEL expressions", paramLabel = "SPEL")
     private Map<String, String> fakerFields;
     @SuppressWarnings("unused")
-    @CommandLine.Option(names = "--introspect", description = "Use given search index to introspect Faker fields", paramLabel = "<index>")
+    @CommandLine.Option(names = "--infer", description = "Introspect given RediSearch index to introspect Faker fields", paramLabel = "<index>")
     private String fakerIndex;
     @Builder.Default
     @CommandLine.Option(names = "--locale", description = "Faker locale (default: ${DEFAULT-VALUE})", paramLabel = "<tag>")

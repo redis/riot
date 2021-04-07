@@ -2,7 +2,7 @@
 :app-name: RIOT Gen
 :connector: gen
 :app: riot-gen
-include::../../core/src/docs/asciidoc/preamble.adoc[]
+include::../../src/docs/asciidoc/preamble.adoc[]
 
 {app-name} is a data generator based on https://github.com/DiUS/java-faker[Faker]:
 
@@ -13,7 +13,7 @@ include::src/test/resources/import-hset[]
 
 All supported Faker data types are listed <<faker-data-types,below>>.
 
-include::../../core/src/docs/asciidoc/getting_started.adoc[]
+include::../../src/docs/asciidoc/getting_started.adoc[]
 
 == Importing
 
@@ -36,15 +36,15 @@ include::src/test/resources/import-hset[]
 include::src/test/resources/import-sadd[]
 ----
 
-include::../../core/src/docs/asciidoc/redis-commands.adoc[]
+include::../../src/docs/asciidoc/redis-commands.adoc[]
 
-include::../../core/src/docs/asciidoc/processing.adoc[]
+include::../../src/docs/asciidoc/processing.adoc[]
 
 === Introspecting RediSearch
 
 [source,bash]
 ----
-include::src/test/resources/index-introspection[]
+include::src/test/resources/import-infer[]
 ----
 
 [#faker-data-types]
