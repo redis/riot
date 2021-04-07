@@ -443,7 +443,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="header">
 <h1>RIOT Gen</h1>
 <div class="details">
-<span id="revnumber">version 2.9.0</span>
+<span id="revnumber">version 2.9.1-SNAPSHOT</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Contents</div>
@@ -574,7 +574,7 @@ riot-gen import hset --help</code></pre>
 <div class="listingblock">
 <div class="title">SADD Example</div>
 <div class="content">
-<pre class="rouge highlight"><code data-lang="bash">riot-gen import <span class="nv">name</span><span class="o">=</span><span class="s2">"gameOfThrones.character"</span> <span class="nt">--max</span> 10000 sadd <span class="nt">--keyspace</span> got:characters <span class="nt">--members</span> name</code></pre>
+<pre class="rouge highlight"><code data-lang="bash">riot-gen import <span class="nv">name</span><span class="o">=</span><span class="s2">"gameOfThrones.character"</span> <span class="nt">--end</span> 1000 sadd <span class="nt">--keyspace</span> got:characters <span class="nt">--members</span> name</code></pre>
 </div>
 </div>
 <div class="sect2">
@@ -711,7 +711,7 @@ riot-gen import hset --help</code></pre>
 <h3 id="_introspecting_redisearch"><a class="anchor" href="#_introspecting_redisearch"></a>Introspecting RediSearch</h3>
 <div class="listingblock">
 <div class="content">
-<pre class="rouge highlight"><code data-lang="bash">riot-gen import <span class="nt">--introspect</span> beerIdx hset <span class="nt">--keyspace</span> beer <span class="nt">--keys</span> <span class="nb">id</span></code></pre>
+<pre class="rouge highlight"><code data-lang="bash">riot-gen import <span class="nt">--infer</span> beerIdx hset <span class="nt">--keyspace</span> beer <span class="nt">--keys</span> <span class="nb">id</span></code></pre>
 </div>
 </div>
 </div>
@@ -957,8 +957,8 @@ riot-gen import hset --help</code></pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 2.9.0<br>
-Last updated 2021-03-19 23:02:50 -0700
+Version 2.9.1-SNAPSHOT<br>
+Last updated 2021-04-06 16:51:56 -0700
 </div>
 </div>
 <style>

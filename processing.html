@@ -5,9 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.10">
-<meta name="application-name" content="RIOT Stream">
-<link rel="icon" type="image/png" href="https://developer.redislabs.com/riot/favicon.png">
-<title>RIOT Stream</title>
+<title>Processing</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /* Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -437,135 +435,105 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 #footer-text{color:rgba(0,0,0,.6);font-size:.9em}}
 @media amzn-kf8{#header,#content,#footnotes,#footer{padding:0}}
 </style>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
-<body class="article toc2 toc-left">
+<body class="article">
 <div id="header">
-<h1>RIOT Stream</h1>
-<div class="details">
-<span id="revnumber">version 2.9.1-SNAPSHOT</span>
-</div>
-<div id="toc" class="toc2">
-<div id="toctitle">Contents</div>
-<ul class="sectlevel1">
-<li><a href="#_getting_started">Getting Started</a>
-<ul class="sectlevel2">
-<li><a href="#_download_and_run">Download and Run</a></li>
-<li><a href="#_homebrew_macos">Homebrew (macOS)</a></li>
-<li><a href="#_build_and_run">Build and Run</a></li>
-</ul>
-</li>
-<li><a href="#_usage">Usage</a></li>
-<li><a href="#_importing">Importing</a></li>
-<li><a href="#_exporting">Exporting</a></li>
-</ul>
-</div>
 </div>
 <div id="content">
-<div id="preamble">
-<div class="sectionbody">
-<div class="paragraph">
-<p>RIOT Stream lets you import and export data from Kafka topics.</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_getting_started"><a class="anchor" href="#_getting_started"></a>Getting Started</h2>
-<div class="sectionbody">
 <div class="sect2">
-<h3 id="_download_and_run"><a class="anchor" href="#_download_and_run"></a>Download and Run</h3>
+<h3 id="_processing">Processing</h3>
 <div class="paragraph">
-<p>Download the <a href="https://github.com/redis-developer/riot/releases/latest">latest release</a> and unzip the archive.</p>
+<p>The following processors can be applied to records in that order:</p>
 </div>
+<div class="ulist">
+<ul>
+<li>
+<p>Transforms</p>
+</li>
+<li>
+<p>Regular expressions</p>
+</li>
+<li>
+<p>Filters</p>
+</li>
+</ul>
+</div>
+<div class="sect3">
+<h4 id="_transforms">Transforms</h4>
 <div class="paragraph">
-<p>Launch the <code>bin/riot-stream</code> script and follow the usage information provided.</p>
+<p>Transforms allow you to create/update/delete fields using the <a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/core.html#expressions">Spring Expression Language</a> (SpEL):</p>
 </div>
-</div>
-<div class="sect2">
-<h3 id="_homebrew_macos"><a class="anchor" href="#_homebrew_macos"></a>Homebrew (macOS)</h3>
-<div class="listingblock">
-<div class="content">
-<pre class="rouge highlight"><code data-lang="source">brew install jruaux/tap/riot-stream</code></pre>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_build_and_run"><a class="anchor" href="#_build_and_run"></a>Build and Run</h3>
-<div class="listingblock">
-<div class="content">
-<pre class="rouge highlight"><code data-lang="source">git clone https://github.com/redis-developer/riot.git
-cd riot/connectors/stream
-./riot-stream</code></pre>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_usage"><a class="anchor" href="#_usage"></a>Usage</h2>
-<div class="sectionbody">
-<div class="listingblock">
-<div class="content">
-<pre class="rouge highlight"><code data-lang="source">riot-stream --help</code></pre>
-</div>
-</div>
-<div class="admonitionblock tip">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-tip" title="Tip"></i>
-</td>
-<td class="content">
-<div class="paragraph">
-<p>You can use <code>--help</code> on any subcommand:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="rouge highlight"><code data-lang="source">riot-stream import --help
-riot-stream import hset --help</code></pre>
-</div>
-</div>
-</td>
-</tr>
-</table>
+<div class="ulist">
+<ul>
+<li>
+<p><code>field1='foo'</code> &#8594; generate a field named <code>field1</code> containing the string <code>foo</code></p>
+</li>
+<li>
+<p><code>temp=(temp-32)*5/9</code> &#8594; convert temperature from Fahrenheit to Celsius</p>
+</li>
+<li>
+<p><code>name=remove(first).concat(remove(last))</code> &#8594; concatenate <code>first</code> and <code>last</code> fields and delete them</p>
+</li>
+<li>
+<p><code>field2=null</code> &#8594; delete <code>field2</code></p>
+</li>
+</ul>
 </div>
 <div class="paragraph">
-<p>Redis connection options are the same as <code>redis-cli</code>. URI syntax is described <a href="https://github.com/lettuce-io/lettuce-core/wiki/Redis-URI-and-connection-details#uri-syntax">here</a>.</p>
+<p>Input fields are accessed by name (e.g. <code>field3=field1+field2</code>).</p>
 </div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_importing"><a class="anchor" href="#_importing"></a>Importing</h2>
-<div class="sectionbody">
 <div class="paragraph">
-<p>Use the <code>import</code> command to import messages from Kafka topics:</p>
+<p>The transform processor also exposes functions and variables that can be accessed using the <code>#</code> prefix:</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><code>date</code></dt>
+<dd>
+<p>Date parser/formatter (<a href="https://docs.oracle.com/javase/7/docs/api/java/text/SimpleDateFormat.html">API doc</a>)</p>
+</dd>
+<dt class="hdlist1"><code>geo</code></dt>
+<dd>
+<p>Convenience method that takes a longitude and a latitude to produce a RediSearch geo-location string in the form: <code>longitude,latitude</code></p>
+</dd>
+<dt class="hdlist1"><code>index</code></dt>
+<dd>
+<p>Sequence number of the item being generated</p>
+</dd>
+<dt class="hdlist1"><code>redis</code></dt>
+<dd>
+<p>Handle to invoke Redis commands (<a href="https://lettuce.io/core/release/api/io/lettuce/core/api/sync/RedisCommands.html">API doc</a>)</p>
+</dd>
+</dl>
 </div>
 <div class="listingblock">
+<div class="title">Processor Example</div>
 <div class="content">
-<pre class="rouge highlight"><code data-lang="source">riot-stream import --help</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="rouge highlight"><code data-lang="bash">riot-stream import topic1 <span class="nt">--broker</span> localhost:9092</code></pre>
+<pre class="highlight"><code class="language-bash" data-lang="bash">--process epoch="#date.parse(mydate).getTime()" location="#geo(lon,lat)" id="#index" name="#redis.hget('person1','lastName')"</code></pre>
 </div>
 </div>
 </div>
-</div>
-<div class="sect1">
-<h2 id="_exporting"><a class="anchor" href="#_exporting"></a>Exporting</h2>
-<div class="sectionbody">
+<div class="sect3">
+<h4 id="_regular_expressions">Regular Expressions</h4>
 <div class="paragraph">
-<p>Use the <code>export</code> command to export Redis streams to Kafka topics:</p>
+<p>Extract patterns from source fields using regular expressions:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="rouge highlight"><code data-lang="source">riot-stream export --help</code></pre>
+<pre class="highlight"><code class="language-bash" data-lang="bash">--regex name="(?&lt;first&gt;\w+)\/(?&lt;last&gt;\w+)"</code></pre>
 </div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_filters">Filters</h4>
+<div class="paragraph">
+<p>Keep records that match a SpEL boolean expression.</p>
+</div>
+<div class="paragraph">
+<p>For example this filter will only keep records where the <code>value</code> field is a series of digits:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="rouge highlight"><code data-lang="bash">riot-stream <span class="nb">export </span>stream1 <span class="nt">--idle-timeout</span> 500 <span class="nt">--broker</span> localhost:9092</code></pre>
+<pre class="highlight"><code class="language-bash" data-lang="bash">--filter "value matches '\\d+'"</code></pre>
 </div>
 </div>
 </div>
@@ -573,220 +541,9 @@ riot-stream import hset --help</code></pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 2.9.1-SNAPSHOT<br>
-Last updated 2021-04-06 16:50:52 -0700
+Version 2.10.0<br>
+Last updated 2021-03-20 22:10:56 -0700
 </div>
 </div>
-<style>
-pre.rouge table td { padding: 5px; }
-pre.rouge table pre { margin: 0; }
-pre.rouge .cm {
-  color: #999988;
-  font-style: italic;
-}
-pre.rouge .cp {
-  color: #999999;
-  font-weight: bold;
-}
-pre.rouge .c1 {
-  color: #999988;
-  font-style: italic;
-}
-pre.rouge .cs {
-  color: #999999;
-  font-weight: bold;
-  font-style: italic;
-}
-pre.rouge .c, pre.rouge .ch, pre.rouge .cd, pre.rouge .cpf {
-  color: #999988;
-  font-style: italic;
-}
-pre.rouge .err {
-  color: #a61717;
-  background-color: #e3d2d2;
-}
-pre.rouge .gd {
-  color: #000000;
-  background-color: #ffdddd;
-}
-pre.rouge .ge {
-  color: #000000;
-  font-style: italic;
-}
-pre.rouge .gr {
-  color: #aa0000;
-}
-pre.rouge .gh {
-  color: #999999;
-}
-pre.rouge .gi {
-  color: #000000;
-  background-color: #ddffdd;
-}
-pre.rouge .go {
-  color: #888888;
-}
-pre.rouge .gp {
-  color: #555555;
-}
-pre.rouge .gs {
-  font-weight: bold;
-}
-pre.rouge .gu {
-  color: #aaaaaa;
-}
-pre.rouge .gt {
-  color: #aa0000;
-}
-pre.rouge .kc {
-  color: #000000;
-  font-weight: bold;
-}
-pre.rouge .kd {
-  color: #000000;
-  font-weight: bold;
-}
-pre.rouge .kn {
-  color: #000000;
-  font-weight: bold;
-}
-pre.rouge .kp {
-  color: #000000;
-  font-weight: bold;
-}
-pre.rouge .kr {
-  color: #000000;
-  font-weight: bold;
-}
-pre.rouge .kt {
-  color: #445588;
-  font-weight: bold;
-}
-pre.rouge .k, pre.rouge .kv {
-  color: #000000;
-  font-weight: bold;
-}
-pre.rouge .mf {
-  color: #009999;
-}
-pre.rouge .mh {
-  color: #009999;
-}
-pre.rouge .il {
-  color: #009999;
-}
-pre.rouge .mi {
-  color: #009999;
-}
-pre.rouge .mo {
-  color: #009999;
-}
-pre.rouge .m, pre.rouge .mb, pre.rouge .mx {
-  color: #009999;
-}
-pre.rouge .sb {
-  color: #d14;
-}
-pre.rouge .sc {
-  color: #d14;
-}
-pre.rouge .sd {
-  color: #d14;
-}
-pre.rouge .s2 {
-  color: #d14;
-}
-pre.rouge .se {
-  color: #d14;
-}
-pre.rouge .sh {
-  color: #d14;
-}
-pre.rouge .si {
-  color: #d14;
-}
-pre.rouge .sx {
-  color: #d14;
-}
-pre.rouge .sr {
-  color: #009926;
-}
-pre.rouge .s1 {
-  color: #d14;
-}
-pre.rouge .ss {
-  color: #990073;
-}
-pre.rouge .s, pre.rouge .sa, pre.rouge .dl {
-  color: #d14;
-}
-pre.rouge .na {
-  color: #008080;
-}
-pre.rouge .bp {
-  color: #999999;
-}
-pre.rouge .nb {
-  color: #0086B3;
-}
-pre.rouge .nc {
-  color: #445588;
-  font-weight: bold;
-}
-pre.rouge .no {
-  color: #008080;
-}
-pre.rouge .nd {
-  color: #3c5d5d;
-  font-weight: bold;
-}
-pre.rouge .ni {
-  color: #800080;
-}
-pre.rouge .ne {
-  color: #990000;
-  font-weight: bold;
-}
-pre.rouge .nf, pre.rouge .fm {
-  color: #990000;
-  font-weight: bold;
-}
-pre.rouge .nl {
-  color: #990000;
-  font-weight: bold;
-}
-pre.rouge .nn {
-  color: #555555;
-}
-pre.rouge .nt {
-  color: #000080;
-}
-pre.rouge .vc {
-  color: #008080;
-}
-pre.rouge .vg {
-  color: #008080;
-}
-pre.rouge .vi {
-  color: #008080;
-}
-pre.rouge .nv, pre.rouge .vm {
-  color: #008080;
-}
-pre.rouge .ow {
-  color: #000000;
-  font-weight: bold;
-}
-pre.rouge .o {
-  color: #000000;
-  font-weight: bold;
-}
-pre.rouge .w {
-  color: #bbbbbb;
-}
-pre.rouge {
-  background-color: #f8f8f8;
-}
-</style>
 </body>
 </html>
