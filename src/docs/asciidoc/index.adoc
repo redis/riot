@@ -6,12 +6,12 @@ image::http://developer.redislabs.com/riot/riot.svg[]
 
 Redis Input/Output Tools (RIOT) is a series of utilities designed to help you get data in and out of Redis.
 
-https://developer.redislabs.com/riot/db[RIOT DB]:: Import/export from relational databases
+https://developer.redislabs.com/riot/db/[RIOT DB]:: Import/export from relational databases
 
-https://developer.redislabs.com/riot/file[RIOT File]:: Import/export from CSV, JSON, XML files
+https://developer.redislabs.com/riot/file/[RIOT File]:: Import/export from CSV, JSON, XML files
 
-https://developer.redislabs.com/riot/gen[RIOT Gen]:: Redis data generator based on https://github.com/DiUS/java-faker[Faker]
+https://developer.redislabs.com/riot/gen/[RIOT Gen]:: Redis data generator based on https://github.com/DiUS/java-faker[Faker]
 
-https://developer.redislabs.com/riot/redis[RIOT Redis]:: Redis to Redis live replication
+https://developer.redislabs.com/riot/redis/[RIOT Redis]:: Redis to Redis live replication
 
-https://developer.redislabs.com/riot/stream[RIOT Stream]:: Import/export from Apache Kafka
+https://developer.redislabs.com/riot/stream/[RIOT Stream]:: Import/export from Apache Kafka

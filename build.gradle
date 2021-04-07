@@ -112,5 +112,5 @@ githubRelease {
 }
 
 gitPublishPush.dependsOn asciidoctor
-afterReleaseBuild.dependsOn ":githubRelease"
 afterReleaseBuild.dependsOn gitPublishPush
+afterReleaseBuild.dependsOn ":githubRelease"
