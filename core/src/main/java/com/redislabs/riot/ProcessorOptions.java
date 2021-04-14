@@ -19,10 +19,10 @@ import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.util.ObjectUtils;
 import picocli.CommandLine.Option;
 
-import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+@SuppressWarnings("FieldMayBeFinal")
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -72,8 +72,7 @@ public class ProcessorOptions {
         if (variables != null) {
             variables.forEach((k, v) -> context.setVariable(k, parser.parseExpression(v).getValue(context)));
         }
-        Method geoMethod = getClass().getDeclaredMethod("geo", String.class, String.class);
-        context.registerFunction("geo", geoMethod);
+        context.registerFunction("geo", getClass().getDeclaredMethod("geo", String.class, String.class));
         context.setPropertyAccessors(Collections.singletonList(new MapAccessor()));
         return context;
     }

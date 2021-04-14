@@ -46,7 +46,7 @@ public class FileImportCommand extends AbstractImportCommand<Map<String, Object>
     @CommandLine.ArgGroup(exclusive = false, heading = "Delimited and fixed-width file options%n")
     private FlatFileImportOptions flatFileOptions = FlatFileImportOptions.builder().build();
     @CommandLine.ArgGroup(exclusive = false, heading = "Processor options%n")
-    private ProcessorOptions processingOptions = ProcessorOptions.builder().build();
+    private ProcessorOptions processorOptions = ProcessorOptions.builder().build();
 
     @Override
     protected Flow flow() throws Exception {
@@ -145,7 +145,7 @@ public class FileImportCommand extends AbstractImportCommand<Map<String, Object>
 
     @Override
     protected ItemProcessor<Map<String, Object>, Map<String, Object>> processor() throws NoSuchMethodException {
-        return processingOptions.processor(client);
+        return processorOptions.processor(client);
     }
 
     private FlatFileItemReader<Map<String, Object>> flatFileReader(Resource resource, AbstractLineTokenizer tokenizer) {

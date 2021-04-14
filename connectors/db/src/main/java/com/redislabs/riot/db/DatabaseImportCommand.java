@@ -26,7 +26,7 @@ public class DatabaseImportCommand extends AbstractImportCommand<Map<String, Obj
     @Mixin
     private DatabaseImportOptions importOptions = DatabaseImportOptions.builder().build();
     @CommandLine.ArgGroup(exclusive = false, heading = "Processor options%n")
-    private ProcessorOptions processingOptions = ProcessorOptions.builder().build();
+    private ProcessorOptions processorOptions = ProcessorOptions.builder().build();
 
     @Override
     protected Flow flow() throws Exception {
@@ -58,6 +58,6 @@ public class DatabaseImportCommand extends AbstractImportCommand<Map<String, Obj
 
     @Override
     protected ItemProcessor<Map<String, Object>, Map<String, Object>> processor() throws NoSuchMethodException {
-        return processingOptions.processor(client);
+        return processorOptions.processor(client);
     }
 }

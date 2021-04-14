@@ -188,6 +188,13 @@ public class TestFile extends AbstractStandaloneRedisTest {
 	}
 
 	@Test
+	public void importGeoProcessor() throws Exception {
+		executeFile("import-geo-processor");
+		Map<String, String> airport3469 = sync.hgetall("airport:3469");
+		Assertions.assertEquals("-122.375,37.61899948120117", airport3469.get("location"));
+	}
+
+	@Test
 	public void importProcess() throws Exception {
 		executeFile("import-process");
 		List<String> keys = sync.keys("event:*");

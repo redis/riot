@@ -22,7 +22,7 @@ public class GeneratorImportCommand extends AbstractImportCommand<Map<String, Ob
     @CommandLine.Mixin
     private GenerateOptions options = GenerateOptions.builder().build();
     @CommandLine.ArgGroup(exclusive = false, heading = "Processor options%n")
-    private ProcessorOptions processingOptions = ProcessorOptions.builder().build();
+    private ProcessorOptions processorOptions = ProcessorOptions.builder().build();
 
     @Override
     protected Flow flow() throws Exception {
@@ -81,7 +81,7 @@ public class GeneratorImportCommand extends AbstractImportCommand<Map<String, Ob
 
     @Override
     protected ItemProcessor<Map<String, Object>, Map<String, Object>> processor() throws NoSuchMethodException {
-        return processingOptions.processor(client);
+        return processorOptions.processor(client);
     }
 
     @Override
