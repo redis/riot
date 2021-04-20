@@ -1,17 +1,11 @@
 package com.redislabs.riot;
 
-import com.sun.tools.jdeprscan.scan.Scan;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.batch.item.redis.support.AbstractKeyValueItemReader;
-import org.springframework.batch.item.redis.support.DataType;
-import org.springframework.batch.item.redis.support.ScanKeyValueItemReaderBuilder;
-import org.springframework.batch.item.redis.support.ScanSizeEstimator;
+import org.springframework.batch.item.redis.support.*;
 import picocli.CommandLine.Option;
-
-import java.util.function.Supplier;
 
 @Data
 @Builder
@@ -21,10 +15,10 @@ public class RedisReaderOptions {
 
     @Builder.Default
     @Option(names = "--count", description = "SCAN COUNT option (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
-    private long scanCount = ScanKeyValueItemReaderBuilder.DEFAULT_SCAN_COUNT;
+    private long scanCount = AbstractScanKeyValueItemReaderBuilder.DEFAULT_SCAN_COUNT;
     @Builder.Default
     @Option(names = "--match", description = "SCAN MATCH pattern (default: ${DEFAULT-VALUE}).", paramLabel = "<glob>")
-    private String scanMatch = ScanKeyValueItemReaderBuilder.DEFAULT_SCAN_MATCH;
+    private String scanMatch = AbstractScanKeyValueItemReaderBuilder.DEFAULT_SCAN_MATCH;
     @Option(names = "--type", description = "SCAN TYPE option: ${COMPLETION-CANDIDATES}.", paramLabel = "<type>")
     private DataType scanType;
     @Builder.Default
@@ -40,7 +34,7 @@ public class RedisReaderOptions {
     @Option(names = "--sample-size", description = "Number of samples used to estimate dataset size (default: ${DEFAULT-VALUE}).", paramLabel = "<int>", hidden = true)
     private int sampleSize = ScanSizeEstimator.Options.DEFAULT_SAMPLE_SIZE;
 
-    public <B extends ScanKeyValueItemReaderBuilder<B>> B configureScan(B builder) {
+    public <B extends AbstractScanKeyValueItemReaderBuilder> B configureScan(B builder) {
         builder.scanMatch(scanMatch);
         builder.scanCount(scanCount);
         if (scanType != null) {
@@ -49,7 +43,7 @@ public class RedisReaderOptions {
         return configure(builder);
     }
 
-    public <B extends AbstractKeyValueItemReader.KeyValueItemReaderBuilder<B>> B configure(B builder) {
+    public <B extends AbstractKeyValueItemReader.KeyValueItemReaderBuilder> B configure(B builder) {
         builder.threadCount(threads);
         builder.chunkSize(batchSize);
         builder.queueCapacity(queueCapacity);

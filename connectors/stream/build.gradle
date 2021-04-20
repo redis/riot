@@ -16,7 +16,7 @@ dependencies {
     implementation 'io.confluent:kafka-protobuf-serializer:6.1.1'
     implementation 'org.springframework.boot:spring-boot-autoconfigure'
     testImplementation project(':connectors:test')
-    testImplementation group: 'org.testcontainers', name: 'kafka', version: testcontainers_version
+    testImplementation 'org.testcontainers:kafka:1.15.3'
 }
 
 application {

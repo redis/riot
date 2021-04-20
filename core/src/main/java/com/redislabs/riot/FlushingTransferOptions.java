@@ -26,6 +26,14 @@ public class FlushingTransferOptions {
         return Duration.ofMillis(flushInterval);
     }
 
+    public void setIdleTimeout(Duration idleTimeoutDuration) {
+        if (idleTimeoutDuration == null) {
+            this.idleTimeout = null;
+        } else {
+            this.idleTimeout = idleTimeoutDuration.toMillis();
+        }
+    }
+
     public Duration getIdleTimeoutDuration() {
         if (idleTimeout == null) {
             return null;

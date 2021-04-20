@@ -2,6 +2,7 @@ package com.redislabs.riot.db;
 
 import com.redislabs.riot.AbstractImportCommand;
 import com.redislabs.riot.ProcessorOptions;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.item.ItemProcessor;
@@ -16,6 +17,7 @@ import javax.sql.DataSource;
 import java.util.Map;
 
 @Slf4j
+@Data
 @Command(name = "import", description = "Import from a database")
 public class DatabaseImportCommand extends AbstractImportCommand<Map<String, Object>, Map<String, Object>> {
 

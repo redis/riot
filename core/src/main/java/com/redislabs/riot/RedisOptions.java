@@ -1,6 +1,6 @@
 package com.redislabs.riot;
 
-import com.redislabs.lettusearch.RediSearchClient;
+import com.redislabs.mesclun.RedisModulesClient;
 import io.lettuce.core.*;
 import io.lettuce.core.api.StatefulConnection;
 import io.lettuce.core.api.sync.BaseRedisCommands;
@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
+@Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -36,11 +37,9 @@ public class RedisOptions {
     public static final int DEFAULT_TIMEOUT = 60;
     public static final int DEFAULT_POOL_MAX_TOTAL = 8;
 
-    @Setter
     @Builder.Default
     @Option(names = {"-h", "--hostname"}, description = "Server hostname (default: ${DEFAULT-VALUE}).", paramLabel = "<host>")
     private String host = DEFAULT_HOST;
-    @Setter
     @Builder.Default
     @Option(names = {"-p", "--port"}, description = "Server port (default: ${DEFAULT-VALUE}).", paramLabel = "<port>")
     private int port = DEFAULT_PORT;
@@ -58,7 +57,6 @@ public class RedisOptions {
     @Builder.Default
     @Option(names = {"-n", "--db"}, description = "Database number (default: ${DEFAULT-VALUE}).", paramLabel = "<db>")
     private int database = DEFAULT_DATABASE;
-    @Getter
     @Option(names = {"-c", "--cluster"}, description = "Enable cluster mode.")
     private boolean cluster;
     @Option(names = "--tls", description = "Establish a secure TLS connection.")
@@ -91,7 +89,7 @@ public class RedisOptions {
         if (client instanceof RedisClusterClient) {
             return ((RedisClusterClient) client).connect().sync();
         }
-        return ((RediSearchClient) client).connect().sync();
+        return ((RedisModulesClient) client).connect().sync();
     }
 
     public List<RedisURI> uris() {
@@ -164,8 +162,8 @@ public class RedisOptions {
         return client;
     }
 
-    public RediSearchClient redisClient() {
-        RediSearchClient client = RediSearchClient.create(clientResources(), uris().get(0));
+    public RedisModulesClient redisClient() {
+        RedisModulesClient client = RedisModulesClient.create(clientResources(), uris().get(0));
         client.setOptions(ClientOptions.builder().autoReconnect(autoReconnect).sslOptions(sslOptions()).build());
         return client;
     }
@@ -176,9 +174,9 @@ public class RedisOptions {
         return config;
     }
 
-    public RediSearchClient rediSearchClient() {
+    public RedisModulesClient rediSearchClient() {
         log.info("Creating RediSearch client: {}", this);
-        RediSearchClient client = RediSearchClient.create(clientResources(), uris().get(0));
+        RedisModulesClient client = RedisModulesClient.create(clientResources(), uris().get(0));
         client.setOptions(ClientOptions.builder().autoReconnect(autoReconnect).sslOptions(sslOptions()).build());
         return client;
     }
@@ -196,7 +194,7 @@ public class RedisOptions {
         if (client instanceof RedisClusterClient) {
             return ((RedisClusterClient) client).connect();
         }
-        return ((RediSearchClient) client).connect();
+        return ((RedisModulesClient) client).connect();
     }
 
 }

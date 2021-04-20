@@ -2,6 +2,7 @@ package com.redislabs.riot.db;
 
 import com.redislabs.riot.AbstractExportCommand;
 import com.redislabs.riot.processor.DataStructureItemProcessor;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.item.database.JdbcBatchItemWriter;
@@ -15,6 +16,7 @@ import javax.sql.DataSource;
 import java.util.Map;
 
 @Slf4j
+@Data
 @Command(name = "export", description = "Export to a database")
 public class DatabaseExportCommand extends AbstractExportCommand<Map<String, Object>> {
 

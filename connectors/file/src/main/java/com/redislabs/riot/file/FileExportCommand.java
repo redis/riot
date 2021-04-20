@@ -2,6 +2,8 @@ package com.redislabs.riot.file;
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.redislabs.riot.AbstractExportCommand;
+import lombok.Data;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.item.ItemWriter;
@@ -18,10 +20,10 @@ import picocli.CommandLine.Mixin;
 import java.io.IOException;
 
 @Slf4j
+@Data
 @Command(name = "export", description = "Export Redis data to JSON or XML files")
 public class FileExportCommand extends AbstractExportCommand<DataStructure<String>> {
 
-    @SuppressWarnings("unused")
     @CommandLine.Parameters(arity = "1", description = "File path or URL", paramLabel = "FILE")
     private String file;
     @CommandLine.Option(names = {"-t", "--filetype"}, description = "File type: ${COMPLETION-CANDIDATES}", paramLabel = "<type>")

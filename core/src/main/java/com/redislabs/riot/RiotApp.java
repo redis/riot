@@ -4,6 +4,7 @@ import io.lettuce.core.RedisURI;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import io.netty.util.internal.logging.JdkLoggerFactory;
 import lombok.Getter;
+import lombok.Setter;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import picocli.CommandLine;
@@ -28,14 +29,19 @@ public class RiotApp extends HelpCommand {
     @Getter
     @ArgGroup(heading = "Redis connection options%n", exclusive = false)
     private RedisOptions redisOptions = RedisOptions.builder().build();
+    @Setter
     @Option(names = {"-q", "--quiet"}, description = "Log errors only.")
     private boolean quiet;
+    @Setter
     @Option(names = {"-w", "--warn"}, description = "Set log level to warn.")
     private boolean warning;
+    @Setter
     @Option(names = {"-i", "--info"}, description = "Set log level to info.")
     private boolean info;
+    @Setter
     @Option(names = {"-d", "--debug"}, description = "Log in debug mode (includes normal stacktrace).")
     private boolean debug;
+    @Setter
     @Option(names = "--stacktrace", description = "Print out the stacktrace for all exceptions..")
     private boolean stacktrace;
 

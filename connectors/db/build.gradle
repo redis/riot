@@ -14,8 +14,8 @@ dependencies {
     implementation 'org.postgresql:postgresql'
     implementation 'org.xerial:sqlite-jdbc:3.34.0'
     testImplementation project(':connectors:test')
-    testImplementation group: 'org.testcontainers', name: 'postgresql', version: testcontainers_version
-    testImplementation group: 'org.testcontainers', name: 'oracle-xe', version: testcontainers_version
+    testImplementation 'org.testcontainers:postgresql:1.15.3'
+    testImplementation 'org.testcontainers:oracle-xe:1.15.3'
 }
 
 application {

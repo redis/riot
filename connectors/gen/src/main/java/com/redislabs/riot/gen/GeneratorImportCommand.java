@@ -1,6 +1,11 @@
 package com.redislabs.riot.gen;
 
-import com.redislabs.lettusearch.*;
+import com.redislabs.mesclun.RedisModulesClient;
+import com.redislabs.mesclun.StatefulRedisModulesConnection;
+import com.redislabs.mesclun.search.Field;
+import com.redislabs.mesclun.search.IndexInfo;
+import com.redislabs.mesclun.search.RediSearchCommands;
+import com.redislabs.mesclun.search.RediSearchUtils;
 import com.redislabs.riot.AbstractImportCommand;
 import com.redislabs.riot.ProcessorOptions;
 import lombok.extern.slf4j.Slf4j;
@@ -65,10 +70,10 @@ public class GeneratorImportCommand extends AbstractImportCommand<Map<String, Ob
 
     private Map<String, String> fieldsFromIndex(String index) {
         Map<String, String> fields = new LinkedHashMap<>();
-        RediSearchClient client = RediSearchClient.create(getRedisURI());
-        try (StatefulRediSearchConnection<String, String> connection = client.connect()) {
+        RedisModulesClient client = RedisModulesClient.create(getRedisURI());
+        try (StatefulRedisModulesConnection<String, String> connection = client.connect()) {
             RediSearchCommands<String, String> commands = connection.sync();
-            IndexInfo<String> info = RediSearchUtils.getInfo(commands.ftInfo(index));
+            IndexInfo<String, String> info = RediSearchUtils.getInfo(commands.ftInfo(index));
             for (Field<String> field : info.getFields()) {
                 fields.put(field.getName(), expression(field));
             }

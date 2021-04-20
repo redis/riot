@@ -2,6 +2,7 @@ package com.redislabs.riot;
 
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.cluster.api.StatefulRedisClusterConnection;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.springframework.batch.item.redis.support.RedisClusterScanSizeEstimator;
@@ -12,6 +13,7 @@ import picocli.CommandLine;
 import java.util.function.Supplier;
 
 @Slf4j
+@Data
 public abstract class AbstractTransferCommand extends AbstractTaskCommand {
 
     @CommandLine.Mixin

@@ -1,7 +1,6 @@
 package com.redislabs.riot.stream;
 
-import com.redislabs.riot.AbstractTransferCommand;
-import com.redislabs.riot.FlushingTransferOptions;
+import com.redislabs.riot.AbstractFlushingTransferCommand;
 import com.redislabs.riot.StepBuilder;
 import com.redislabs.riot.stream.kafka.KafkaItemWriter;
 import com.redislabs.riot.stream.processor.AvroProducerProcessor;
@@ -10,6 +9,8 @@ import io.lettuce.core.StreamMessage;
 import io.lettuce.core.XReadArgs.StreamOffset;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.cluster.api.StatefulRedisClusterConnection;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.batch.core.Step;
@@ -33,16 +34,16 @@ import java.util.List;
 import java.util.Map;
 
 @Slf4j
+@Data
+@EqualsAndHashCode(callSuper = true)
 @Command(name = "export", description = "Import Redis streams into Kafka topics")
-public class StreamExportCommand extends AbstractTransferCommand {
+public class StreamExportCommand extends AbstractFlushingTransferCommand {
 
     @SuppressWarnings("unused")
     @Parameters(arity = "0..*", description = "One ore more streams to read from", paramLabel = "STREAM")
     private String[] streams;
     @CommandLine.Mixin
     private KafkaOptions options = KafkaOptions.builder().build();
-    @CommandLine.Mixin
-    private FlushingTransferOptions flushingOptions = FlushingTransferOptions.builder().build();
     @Option(names = "--offset", description = "XREAD offset (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
     private String offset = "0-0";
     @SuppressWarnings("unused")
@@ -54,8 +55,9 @@ public class StreamExportCommand extends AbstractTransferCommand {
         Assert.isTrue(!ObjectUtils.isEmpty(streams), "No stream specified");
         List<Step> steps = new ArrayList<>();
         for (String stream : streams) {
+            StreamItemReader<String, String, ?> reader = reader(StreamOffset.from(stream, offset));
             StepBuilder<StreamMessage<String, String>, ProducerRecord<String, Object>> step = stepBuilder(stream + "-stream-export-step", "Exporting from " + stream);
-            steps.add(flushingOptions.configure(step.reader(reader(StreamOffset.from(stream, offset))).processor(processor()).writer(writer()).build()).build());
+            steps.add(configure(step.reader(reader).processor(processor()).writer(writer()).build()).build());
         }
         return flow(steps.toArray(new Step[0]));
     }

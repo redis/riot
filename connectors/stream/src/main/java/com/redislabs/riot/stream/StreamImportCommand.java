@@ -1,6 +1,6 @@
 package com.redislabs.riot.stream;
 
-import com.redislabs.riot.AbstractTransferCommand;
+import com.redislabs.riot.AbstractFlushingTransferCommand;
 import com.redislabs.riot.StepBuilder;
 import com.redislabs.riot.redis.FilteringOptions;
 import com.redislabs.riot.stream.kafka.KafkaItemReader;
@@ -8,6 +8,8 @@ import com.redislabs.riot.stream.kafka.KafkaItemReaderBuilder;
 import io.lettuce.core.XAddArgs;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.cluster.api.StatefulRedisClusterConnection;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -32,8 +34,10 @@ import java.util.Map;
 import java.util.Properties;
 
 @Slf4j
+@Data
+@EqualsAndHashCode(callSuper = true)
 @Command(name = "import", description = "Import Kafka topics into Redis streams")
-public class StreamImportCommand extends AbstractTransferCommand {
+public class StreamImportCommand extends AbstractFlushingTransferCommand {
 
     @SuppressWarnings("unused")
     @Parameters(arity = "0..*", description = "One ore more topics to read from", paramLabel = "TOPIC")
@@ -62,7 +66,7 @@ public class StreamImportCommand extends AbstractTransferCommand {
             log.info("Creating Kafka reader for topic {}", topic);
             KafkaItemReader<String, Object> reader = new KafkaItemReaderBuilder<String, Object>().partitions(0).consumerProperties(consumerProperties).partitions(0).name(topic).saveState(false).topic(topic).build();
             StepBuilder<ConsumerRecord<String, Object>, ConsumerRecord<String, Object>> step = stepBuilder(topic + "-stream-import-step", "Importing from " + topic);
-            steps.add(step.reader(reader).writer(writer()).build().build());
+            steps.add(configure(step.reader(reader).writer(writer()).build()).build());
         }
         return flow(steps.toArray(new Step[0]));
     }

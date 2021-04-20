@@ -41,7 +41,7 @@ public class KafkaItemReaderBuilder<K, V> {
 
 	private List<Integer> partitions = new ArrayList<>();
 
-	private Duration pollTimeout = Duration.ofSeconds(30L);
+	private Duration readTimeout = Duration.ofSeconds(30L);
 
 	private boolean saveState = true;
 
@@ -127,12 +127,11 @@ public class KafkaItemReaderBuilder<K, V> {
 	/**
 	 * Set the pollTimeout for the poll() operations. Default to 30 seconds.
 	 * 
-	 * @param pollTimeout timeout for the poll operation
+	 * @param readTimeout timeout for the poll operation
 	 * @return The current instance of the builder.
-	 * @see KafkaItemReader#setPollTimeout(Duration)
 	 */
-	public KafkaItemReaderBuilder<K, V> pollTimeout(Duration pollTimeout) {
-		this.pollTimeout = pollTimeout;
+	public KafkaItemReaderBuilder<K, V> readTimeout(Duration readTimeout) {
+		this.readTimeout = readTimeout;
 		return this;
 	}
 
@@ -150,13 +149,12 @@ public class KafkaItemReaderBuilder<K, V> {
 		Assert.isTrue(consumerProperties.containsKey(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG),
 				ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG + " property must be provided");
 		Assert.hasLength(topic, "Topic name must not be null or empty");
-		Assert.notNull(pollTimeout, "pollTimeout must not be null");
-		Assert.isTrue(!pollTimeout.isZero(), "pollTimeout must not be zero");
-		Assert.isTrue(!pollTimeout.isNegative(), "pollTimeout must not be negative");
+		Assert.notNull(readTimeout, "readTimeout must not be null");
+		Assert.isTrue(!readTimeout.isZero(), "readTimeout must not be zero");
+		Assert.isTrue(!readTimeout.isNegative(), "readTimeout must not be negative");
 		Assert.isTrue(!partitions.isEmpty(), "At least one partition must be provided");
 
-		KafkaItemReader<K, V> reader = new KafkaItemReader<>(this.consumerProperties, this.topic, this.partitions);
-		reader.setPollTimeout(this.pollTimeout);
+		KafkaItemReader<K, V> reader = new KafkaItemReader<>(this.readTimeout, this.consumerProperties, this.topic, this.partitions);
 		reader.setSaveState(this.saveState);
 		reader.setName(this.name);
 		return reader;

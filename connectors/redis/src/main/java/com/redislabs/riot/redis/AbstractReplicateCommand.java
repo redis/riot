@@ -1,6 +1,9 @@
 package com.redislabs.riot.redis;
 
-import com.redislabs.riot.*;
+import com.redislabs.riot.AbstractFlushingTransferCommand;
+import com.redislabs.riot.RedisOptions;
+import com.redislabs.riot.RedisReaderOptions;
+import com.redislabs.riot.StepBuilder;
 import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.api.StatefulConnection;
@@ -9,6 +12,8 @@ import io.lettuce.core.cluster.RedisClusterClient;
 import io.lettuce.core.cluster.api.StatefulRedisClusterConnection;
 import io.lettuce.core.cluster.pubsub.StatefulRedisClusterPubSubConnection;
 import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.springframework.batch.core.job.flow.Flow;
@@ -24,29 +29,26 @@ import org.springframework.batch.item.support.AbstractItemStreamItemReader;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.util.ClassUtils;
 import picocli.CommandLine;
-import picocli.CommandLine.Option;
 
 import java.time.Duration;
 import java.util.function.Supplier;
 
 @Slf4j
-public abstract class AbstractReplicateCommand<T extends KeyValue<String, ?>> extends AbstractTransferCommand {
+public abstract class AbstractReplicateCommand<T extends KeyValue<String, ?>> extends AbstractFlushingTransferCommand {
 
+    @Getter
+    @Setter
     @CommandLine.ArgGroup(exclusive = false, heading = "Target Redis connection options%n")
     private RedisOptions targetRedisOptions = RedisOptions.builder().build();
+    @Getter
+    @Setter
     @CommandLine.ArgGroup(exclusive = false, heading = "Source Redis reader options%n")
     protected RedisReaderOptions readerOptions = RedisReaderOptions.builder().build();
+    @Getter
+    @Setter
     @SuppressWarnings("unused")
-    @Option(names = "--mode", description = "Replication mode: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<name>")
-    private ReplicationMode mode = ReplicationMode.SNAPSHOT;
     @CommandLine.Mixin
-    private FlushingTransferOptions flushingOptions = FlushingTransferOptions.builder().build();
-    @Option(names = "--event-queue", description = "Capacity of the keyspace notification event queue (default: ${DEFAULT-VALUE}).", paramLabel = "<size>")
-    private int notificationQueueCapacity = LiveKeyValueItemReaderBuilder.DEFAULT_NOTIFICATION_QUEUE_CAPACITY;
-    @Option(names = "--no-verify", description = "Verify target against source dataset after replication. True by default.", negatable = true)
-    private boolean verify = true;
-    @Option(names = "--ttl-tolerance", description = "Max TTL difference to use for dataset verification (default: ${DEFAULT-VALUE}).", paramLabel = "<sec>")
-    private long ttlTolerance = 1;
+    private ReplicationOptions replicationOptions = ReplicationOptions.builder().build();
 
     private AbstractRedisClient targetClient;
     private GenericObjectPool<? extends StatefulConnection<String, String>> targetPool;
@@ -59,7 +61,7 @@ public abstract class AbstractReplicateCommand<T extends KeyValue<String, ?>> ex
         this.targetPool = pool(targetRedisOptions, targetClient);
         this.targetConnection = RedisOptions.connection(targetClient);
         super.afterPropertiesSet();
-        if (mode == ReplicationMode.LIVE || mode == ReplicationMode.LIVEONLY) {
+        if (replicationOptions.getMode() == ReplicationMode.LIVE || replicationOptions.getMode() == ReplicationMode.LIVEONLY) {
             this.pubSubConnection = pubSubConnection(client);
         }
     }
@@ -93,14 +95,14 @@ public abstract class AbstractReplicateCommand<T extends KeyValue<String, ?>> ex
 
     @Override
     protected Flow flow() {
-        if (verify) {
+        if (replicationOptions.isVerify()) {
             return flow("replication-verification-flow").start(replicationFlow()).next(verificationFlow()).build();
         }
         return replicationFlow();
     }
 
     private Flow replicationFlow() {
-        switch (mode) {
+        switch (replicationOptions.getMode()) {
             case LIVE:
                 SimpleFlow notificationFlow = flow("notification-flow").start(notificationStep().build()).build();
                 SimpleFlow scanFlow = flow("scan-flow").start(scanStep()).build();
@@ -124,8 +126,7 @@ public abstract class AbstractReplicateCommand<T extends KeyValue<String, ?>> ex
         if (liveReader instanceof AbstractItemStreamItemReader) {
             ((AbstractItemStreamItemReader) liveReader).setName("Live" + ClassUtils.getShortName(liveReader.getClass()));
         }
-        log.info("Creating live transfer with {}", flushingOptions);
-        return flushingOptions.configure(notificationStep.reader(liveReader).writer(writer(targetPool, targetConnection)).build());
+        return configure(notificationStep.reader(liveReader).writer(writer(targetPool, targetConnection)).build());
     }
 
     @SuppressWarnings("unchecked")
@@ -166,9 +167,9 @@ public abstract class AbstractReplicateCommand<T extends KeyValue<String, ?>> ex
 
     private Flow verificationFlow() {
         DataStructureItemReader<String, String, ?> sourceReader = dataStructureReader(pool, connection);
-        log.info("Creating key comparator with TTL tolerance of {} seconds", ttlTolerance);
+        log.info("Creating key comparator with TTL tolerance of {} seconds", replicationOptions.getTtlTolerance());
         DataStructureItemReader<String, String, ?> targetReader = dataStructureReader(targetPool, targetConnection);
-        Duration ttlToleranceDuration = Duration.ofSeconds(ttlTolerance);
+        Duration ttlToleranceDuration = Duration.ofSeconds(replicationOptions.getTtlTolerance());
         KeyComparisonItemWriter<String, String> writer = new KeyComparisonItemWriter<>(targetReader, ttlToleranceDuration);
         StepBuilder<DataStructure<String>, DataStructure<String>> stepBuilder = stepBuilder("verification-step", "Verifying");
         SimpleStepBuilder<DataStructure<String>, DataStructure<String>> step = stepBuilder.reader(sourceReader).writer(writer).extraMessage(() -> extraMessage(writer.getResults())).build();
@@ -189,9 +190,9 @@ public abstract class AbstractReplicateCommand<T extends KeyValue<String, ?>> ex
         return readerOptions.configureScan(RedisDataStructureItemReader.builder((GenericObjectPool<StatefulRedisConnection<String, String>>) pool, (StatefulRedisConnection<String, String>) connection)).build();
     }
 
-    protected <B extends LiveKeyValueItemReaderBuilder<B>> B configureLiveReader(B builder) {
-        log.info("Creating live reader with {}, {}, queueCapacity={}", readerOptions, flushingOptions, notificationQueueCapacity);
-        return readerOptions.configure(builder.keyPattern(readerOptions.getScanMatch()).notificationQueueCapacity(notificationQueueCapacity).database(getRedisURI().getDatabase()).flushingInterval(flushingOptions.getFlushIntervalDuration()).idleTimeout(flushingOptions.getIdleTimeoutDuration()));
+    protected <B extends AbstractLiveKeyValueItemReaderBuilder> B configureLiveReader(B builder) {
+        log.info("Configuring live reader with {}, queueCapacity={}", readerOptions, replicationOptions.getNotificationQueueCapacity());
+        return (B) readerOptions.configure(builder.keyPattern(readerOptions.getScanMatch()).notificationQueueCapacity(replicationOptions.getNotificationQueueCapacity()).database(getRedisURI().getDatabase()).flushingInterval(flushingTransferOptions.getFlushIntervalDuration()).idleTimeout(flushingTransferOptions.getIdleTimeoutDuration()));
     }
 
     @Override

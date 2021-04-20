@@ -162,7 +162,7 @@ Here is a sample XML file that can be imported by {app-name}:
 </records>
 ----
 
-.XML import example
+.XML Import Example
 [source,bash]
 ----
 include::src/test/resources/import-xml[]
@@ -172,10 +172,10 @@ include::src/test/resources/import-xml[]
 
 {app-name} can also import Redis data structure files in JSON or XML formats (see Export -> Redis to generate such files).
 
-These files look like this:
-[source,json]
+.Dump Import Example
+[source,bash]
 ----
-include::src/docs/asciidoc/redis-dump.json[]
+include::src/test/resources/import-dump
 ----
 
 include::../../src/docs/asciidoc/redis-commands.adoc[]
@@ -203,4 +203,10 @@ include::src/test/resources/export-json-gz[]
 [source,bash]
 ----
 include::src/test/resources/export-xml[]
+----
+
+.JSON Export File Example
+[source,json]
+----
+include::src/docs/asciidoc/redis-dump.json[]
 ----

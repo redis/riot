@@ -4,6 +4,8 @@ import com.redislabs.riot.AbstractTransferCommand;
 import com.redislabs.riot.StepBuilder;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.cluster.api.StatefulRedisClusterConnection;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.pool2.impl.GenericObjectPool;
@@ -27,7 +29,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
-@Setter
+@Data
+@EqualsAndHashCode(callSuper = true)
 @Command(name = "import-dump", description = "Import Redis data files into Redis")
 public class DumpFileImportCommand extends AbstractTransferCommand {
 

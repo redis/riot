@@ -1,10 +1,14 @@
 package com.redislabs.riot;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.*;
 import org.springframework.batch.core.job.builder.FlowBuilder;
+import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.core.job.flow.support.SimpleFlow;
+import org.springframework.batch.core.listener.JobExecutionListenerSupport;
 import org.springframework.batch.item.redis.support.JobFactory;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
@@ -44,29 +48,36 @@ public abstract class AbstractTaskCommand extends RiotCommand {
 
     @Override
     protected int execute() throws Exception {
-        JobExecution execution = jobFactory.getSyncLauncher().run(job(), new JobParameters());
-        for (StepExecution stepExecution : execution.getStepExecutions()) {
-            if (stepExecution.getExitStatus().compareTo(ExitStatus.FAILED) >= 0) {
-                return 1;
+        Job job = job();
+        JobParameters parameters = new JobParameters();
+        if (isExecuteAsync()) {
+            JobExecution execution = jobFactory.getAsyncLauncher().run(job(), parameters);
+            while (!execution.isRunning()) {
+                Thread.sleep(10);
+            }
+        } else {
+            JobExecution execution = jobFactory.getSyncLauncher().run(job, parameters);
+            for (StepExecution stepExecution : execution.getStepExecutions()) {
+                if (stepExecution.getExitStatus().compareTo(ExitStatus.FAILED) >= 0) {
+                    return 1;
+                }
             }
         }
         return 0;
     }
 
     private Job job() throws Exception {
-        return jobFactory.job(ClassUtils.getShortName(getClass())).start(flow()).build().build();
-    }
-
-    /**
-     * For unit-testing
-     */
-    public JobExecution executeAsync() throws Exception {
-        afterPropertiesSet();
-        JobExecution execution = jobFactory.getAsyncLauncher().run(job(), new JobParameters());
-        while (!execution.isRunning()) {
-            Thread.sleep(10);
+        JobBuilder builder = jobFactory.job(ClassUtils.getShortName(getClass()));
+        if (isExecuteAsync()) {
+            builder.listener(new JobExecutionListenerSupport() {
+                @Override
+                public void afterJob(JobExecution jobExecution) {
+                    shutdown();
+                    super.afterJob(jobExecution);
+                }
+            });
         }
-        return execution;
+        return builder.start(flow()).build().build();
     }
 
     protected abstract Flow flow() throws Exception;

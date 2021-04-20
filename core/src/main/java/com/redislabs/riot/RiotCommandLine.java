@@ -1,16 +1,20 @@
 package com.redislabs.riot;
 
 import com.redislabs.riot.redis.AbstractRedisCommand;
+import lombok.Getter;
 import picocli.CommandLine;
 
 import java.util.List;
 
 public class RiotCommandLine extends CommandLine {
 
+    @Getter
+    private final RiotApp app;
     private final IExecutionStrategy executionStrategy;
 
-    public RiotCommandLine(Object command, IExecutionStrategy executionStrategy) {
-        super(command);
+    public RiotCommandLine(RiotApp app, IExecutionStrategy executionStrategy) {
+        super(app);
+        this.app = app;
         this.executionStrategy = executionStrategy;
     }
 

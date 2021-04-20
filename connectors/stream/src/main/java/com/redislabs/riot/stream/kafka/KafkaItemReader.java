@@ -22,11 +22,12 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.TopicPartition;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemStreamException;
-import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
+import org.springframework.batch.item.redis.support.AbstractPollableItemReader;
 import org.springframework.util.Assert;
 
 import java.time.Duration;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p>
@@ -43,17 +44,15 @@ import java.util.*;
  * @author Mahmoud Ben Hassine
  * @since 4.2
  */
-public class KafkaItemReader<K, V> extends AbstractItemCountingItemStreamItemReader<ConsumerRecord<K, V>> {
+public class KafkaItemReader<K, V> extends AbstractPollableItemReader<ConsumerRecord<K, V>> {
 
     private static final String TOPIC_PARTITION_OFFSETS = "topic.partition.offsets";
-    private static final long DEFAULT_POLL_TIMEOUT = 30L;
 
     private final List<TopicPartition> topicPartitions;
     private final Properties consumerProperties;
     private Map<TopicPartition, Long> partitionOffsets;
     private KafkaConsumer<K, V> kafkaConsumer;
     private Iterator<ConsumerRecord<K, V>> consumerRecords;
-    private Duration pollTimeout = Duration.ofSeconds(DEFAULT_POLL_TIMEOUT);
     private boolean saveState = true;
 
     /**
@@ -69,7 +68,8 @@ public class KafkaItemReader<K, V> extends AbstractItemCountingItemStreamItemRea
      * @param topicName          name of the topic to read data from
      * @param partitions         list of partitions to read data from
      */
-    public KafkaItemReader(Properties consumerProperties, String topicName, List<Integer> partitions) {
+    public KafkaItemReader(Duration readTimeout, Properties consumerProperties, String topicName, List<Integer> partitions) {
+        super(readTimeout);
         Assert.notNull(consumerProperties, "Consumer properties must not be null");
         Assert.isTrue(consumerProperties.containsKey(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG), ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG + " property must be provided");
         Assert.isTrue(consumerProperties.containsKey(ConsumerConfig.GROUP_ID_CONFIG), ConsumerConfig.GROUP_ID_CONFIG + " property must be provided");
@@ -82,18 +82,6 @@ public class KafkaItemReader<K, V> extends AbstractItemCountingItemStreamItemRea
         for (Integer partition : partitions) {
             this.topicPartitions.add(new TopicPartition(topicName, partition));
         }
-    }
-
-    /**
-     * Set a timeout for the consumer topic polling duration. Default to 30 seconds.
-     *
-     * @param pollTimeout for the consumer poll operation
-     */
-    public void setPollTimeout(Duration pollTimeout) {
-        Assert.notNull(pollTimeout, "pollTimeout must not be null");
-        Assert.isTrue(!pollTimeout.isZero(), "pollTimeout must not be zero");
-        Assert.isTrue(!pollTimeout.isNegative(), "pollTimeout must not be negative");
-        this.pollTimeout = pollTimeout;
     }
 
     /**
@@ -137,14 +125,9 @@ public class KafkaItemReader<K, V> extends AbstractItemCountingItemStreamItemRea
     }
 
     @Override
-    protected void doOpen() {
-        // already done in open()
-    }
-
-    @Override
-    protected ConsumerRecord<K, V> doRead() {
+    public ConsumerRecord<K, V> poll(long timeout, TimeUnit unit) {
         if (this.consumerRecords == null || !this.consumerRecords.hasNext()) {
-            this.consumerRecords = this.kafkaConsumer.poll(this.pollTimeout).iterator();
+            this.consumerRecords = this.kafkaConsumer.poll(Duration.ofMillis(unit.convert(timeout, TimeUnit.MILLISECONDS))).iterator();
         }
         if (this.consumerRecords.hasNext()) {
             ConsumerRecord<K, V> record = this.consumerRecords.next();
@@ -164,10 +147,10 @@ public class KafkaItemReader<K, V> extends AbstractItemCountingItemStreamItemRea
     }
 
     @Override
-    protected void doClose() {
+    public void close() {
+        super.close();
         if (this.kafkaConsumer != null) {
             this.kafkaConsumer.close();
         }
     }
-
 }

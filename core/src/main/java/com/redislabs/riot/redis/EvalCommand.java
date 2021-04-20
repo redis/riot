@@ -26,7 +26,6 @@ public class EvalCommand extends AbstractRedisCommand<Map<String, Object>> {
     @Option(names = "--output", description = "Output: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})", paramLabel = "<type>")
     private ScriptOutputType outputType = ScriptOutputType.STATUS;
 
-
     @Override
     public RedisOperation<String, String, Map<String, Object>> operation() {
         RedisOperationBuilder.EvalBuilder<String, String, Map<String, Object>> builder = RedisOperationBuilder.eval();

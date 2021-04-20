@@ -3,7 +3,7 @@ plugins {
     id 'org.asciidoctor.jvm.convert' version '3.3.2'
     id 'org.ajoberstar.git-publish' version '3.0.0'
     id 'com.github.ben-manes.versions' version '0.38.0'
-    id 'org.springframework.boot' version '2.4.4'
+    id 'org.springframework.boot' version '2.4.5'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
     id 'com.github.breadmoirai.github-release' version '2.2.12'
 }
@@ -48,7 +48,7 @@ subprojects {
     configurations.all {
         resolutionStrategy.eachDependency { DependencyResolveDetails details ->
             if (details.requested.group == 'io.lettuce') {
-                details.useVersion '6.1.0.RELEASE'
+                details.useVersion '6.1.1.RELEASE'
             }
         }
     }

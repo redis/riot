@@ -1,5 +1,28 @@
 package com.redislabs.riot.file;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import com.redislabs.riot.RiotIntegrationTest;
+import com.redislabs.testcontainers.RedisContainer;
+import io.lettuce.core.GeoArgs;
+import io.lettuce.core.api.sync.*;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.springframework.batch.item.ExecutionContext;
+import org.springframework.batch.item.json.JacksonJsonObjectReader;
+import org.springframework.batch.item.json.JsonItemReader;
+import org.springframework.batch.item.json.builder.JsonItemReaderBuilder;
+import org.springframework.batch.item.redis.support.DataStructure;
+import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
+import org.springframework.batch.item.xml.XmlItemReader;
+import org.springframework.batch.item.xml.XmlObjectReader;
+import org.springframework.batch.item.xml.support.XmlItemReaderBuilder;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.InputStreamResource;
+import picocli.CommandLine;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -10,352 +33,371 @@ import java.util.Map;
 import java.util.Set;
 import java.util.zip.GZIPInputStream;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.redislabs.lettusearch.RediSearchClient;
-import com.redislabs.lettusearch.StatefulRediSearchConnection;
-import com.redislabs.lettusearch.Suggestion;
-import com.redislabs.lettusearch.SuggetOptions;
-import com.redislabs.riot.AbstractStandaloneRedisTest;
-import com.redislabs.riot.DataGenerator;
-import io.lettuce.core.GeoArgs;
-import io.lettuce.core.api.sync.RedisCommands;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.springframework.batch.item.ExecutionContext;
-import org.springframework.batch.item.json.JacksonJsonObjectReader;
-import org.springframework.batch.item.json.JsonItemReader;
-import org.springframework.batch.item.json.builder.JsonItemReaderBuilder;
-import org.springframework.batch.item.redis.support.DataStructure;
-import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
+public class TestFile extends RiotIntegrationTest {
 
-import com.redislabs.riot.RiotApp;
-import org.springframework.batch.item.xml.XmlItemReader;
-import org.springframework.batch.item.xml.XmlObjectReader;
-import org.springframework.batch.item.xml.support.XmlItemReaderBuilder;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.InputStreamResource;
+    protected final static int COUNT = 2410;
 
-public class TestFile extends AbstractStandaloneRedisTest {
+    private static Path tempDir;
 
-	protected final static int COUNT = 2410;
+    @BeforeAll
+    public static void setupAll() throws IOException {
+        tempDir = Files.createTempDirectory(TestFile.class.getName());
+    }
 
-	private static Path tempDir;
+    private String replace(String file) {
+        return file.replace("/tmp", tempDir.toString());
+    }
 
-	@BeforeAll
-	public static void setupAll() throws IOException {
-		tempDir = Files.createTempDirectory(TestFile.class.getName());
-	}
-
-	protected Path tempFile(String filename) throws IOException {
-		Path path = tempDir.resolve(filename);
-		if (Files.exists(path)) {
-			Files.delete(path);
-		}
-		return path;
-	}
-
-	protected static String name(Map<String,String> beer) {
-		return beer.get("name");
-	}
-
-	protected static String style(Map<String,String> beer) {
-		return beer.get("style");
-	}
-
-	protected static double abv(Map<String,String> beer) {
-		return Double.parseDouble(beer.get("abv"));
-	}
-
-	@Override
-	protected String process(String command) {
-		return super.process(command).replace("/tmp", tempDir.toString());
-	}
-
-	@Override
-	protected RiotApp app() {
-		return new RiotFile();
-	}
-
-	@Override
-	protected String appName() {
-		return "riot-file";
-	}
-
-	protected <T> List<T> readAll(AbstractItemCountingItemStreamItemReader<T> reader) throws Exception {
-		reader.open(new ExecutionContext());
-		List<T> records = new ArrayList<>();
-		T record;
-		while ((record = reader.read()) != null) {
-			records.add(record);
-		}
-		reader.close();
-		return records;
-	}
-
-	@Test
-	public void importFW() throws Exception {
-		executeFile("import-fw");
-		List<String> keys = sync.keys("account:*");
-		Assertions.assertEquals(5, keys.size());
-		Map<String, String> account101 = sync.hgetall("account:101");
-		// Account LastName        FirstName       Balance     CreditLimit   AccountCreated  Rating
-		// 101     Reeves          Keanu           9315.45     10000.00      1/17/1998       A
-		Assertions.assertEquals("Reeves", account101.get("LastName"));
-		Assertions.assertEquals("Keanu", account101.get("FirstName"));
-		Assertions.assertEquals("A", account101.get("Rating"));
-	}
-
-	@Test
-	public void importCSV() throws Exception {
-		executeFile("import-csv");
-		List<String> keys = sync.keys("beer:*");
-		Assertions.assertEquals(COUNT, keys.size());
-	}
-
-	@Test
-	public void importPSV() throws Exception {
-		executeFile("import-psv");
-		List<String> keys = sync.keys("sample:*");
-		Assertions.assertEquals(3, keys.size());
-	}
-
-	@Test
-	public void importTSV() throws Exception {
-		executeFile("import-tsv");
-		List<String> keys = sync.keys("sample:*");
-		Assertions.assertEquals(4, keys.size());
-	}
-
-	@Test
-	public void importType() throws Exception {
-		executeFile("import-type");
-		List<String> keys = sync.keys("sample:*");
-		Assertions.assertEquals(3, keys.size());
-	}
-
-	@Test
-	public void importExclude() throws Exception {
-		executeFile("import-exclude");
-		Map<String, String> beer1036 = sync.hgetall("beer:1036");
-		Assertions.assertEquals("Lower De Boom", name(beer1036));
-		Assertions.assertEquals("American Barleywine", style(beer1036));
-		Assertions.assertEquals("368", beer1036.get("brewery_id"));
-		Assertions.assertFalse(beer1036.containsKey("row"));
-		Assertions.assertFalse(beer1036.containsKey("ibu"));
-	}
-
-	@Test
-	public void importInclude() throws Exception {
-		executeFile("import-include");
-		Map<String, String> beer1036 = sync.hgetall("beer:1036");
-		Assertions.assertEquals(3, beer1036.size());
-		Assertions.assertEquals("Lower De Boom", name(beer1036));
-		Assertions.assertEquals("American Barleywine", style(beer1036));
-		Assertions.assertEquals(0.099, abv(beer1036));
-	}
-
-	@Test
-	public void importFilter() throws Exception {
-		executeFile("import-filter");
-		List<String> keys = sync.keys("beer:*");
-		Assertions.assertEquals(424, keys.size());
-	}
-
-	@Test
-	public void importRegex() throws Exception {
-		executeFile("import-regex");
-		Map<String, String> airport1 = sync.hgetall("airport:1");
-		Assertions.assertEquals("Pacific", airport1.get("region"));
-		Assertions.assertEquals("Port_Moresby", airport1.get("city"));
-	}
-
-	@Test
-	public void importGlob() throws Exception {
-		executeFile("import-glob");
-		List<String> keys = sync.keys("beer:*");
-		Assertions.assertEquals(COUNT, keys.size());
-	}
-
-	@Test
-	public void importGeoadd() throws Exception {
-		executeFile("import-geoadd");
-		Set<String> results = sync.georadius("airportgeo", -122.4194, 37.7749, 20, GeoArgs.Unit.mi);
-		Assertions.assertTrue(results.contains("3469"));
-		Assertions.assertTrue(results.contains("10360"));
-		Assertions.assertTrue(results.contains("8982"));
-	}
-
-	@Test
-	public void importGeoProcessor() throws Exception {
-		executeFile("import-geo-processor");
-		Map<String, String> airport3469 = sync.hgetall("airport:3469");
-		Assertions.assertEquals("-122.375,37.61899948120117", airport3469.get("location"));
-	}
-
-	@Test
-	public void importProcess() throws Exception {
-		executeFile("import-process");
-		List<String> keys = sync.keys("event:*");
-		Assertions.assertEquals(568, keys.size());
-		Map<String, String> event = sync.hgetall("event:248206");
-		Instant date = Instant.ofEpochMilli(Long.parseLong(event.get("EpochStart")));
-		Assertions.assertTrue(date.isBefore(Instant.now()));
-		long index = Long.parseLong(event.get("index"));
-		Assertions.assertTrue(index > 0);
-	}
-
-	@Test
-	public void importMultiCommands() throws Exception {
-		executeFile("import-multi-commands");
-		List<String> beers = sync.keys("beer:*");
-		Assertions.assertEquals(2410, beers.size());
-		for (String beer : beers) {
-			Map<String, String> hash = sync.hgetall(beer);
-			Assertions.assertTrue(hash.containsKey("name"));
-			Assertions.assertTrue(hash.containsKey("brewery_id"));
-		}
-		Set<String> breweries = sync.smembers("breweries");
-		Assertions.assertEquals(558, breweries.size());
-	}
-
-	@Test
-	public void importSugadd() throws Exception {
-		executeFile("import-sugadd");
-		RediSearchClient rediSearchClient = RediSearchClient.create(redisURI);
-		StatefulRediSearchConnection<String, String> connection = rediSearchClient.connect();
-		List<Suggestion<String>> suggestions = connection.sync().sugget("names", "Bea", SuggetOptions.builder().withPayloads(true).build());
-		Assertions.assertEquals(5, suggestions.size());
-		Assertions.assertEquals("American Blonde Ale", suggestions.get(0).getPayload());
-	}
-
-	@Test
-	public void importBad() throws Exception {
-		executeFile("import-bad");
-	}
-
-	@Test
-	public void importGCS() throws Exception {
-		executeFile("import-gcs");
-		List<String> keys = sync.keys("beer:*");
-		Assertions.assertEquals(4432, keys.size());
-		Map<String, String> beer1 = sync.hgetall("beer:1");
-		Assertions.assertEquals("Hocus Pocus", name(beer1));
-	}
-
-	@Test
-	public void importS3() throws Exception {
-		executeFile("import-s3");
-		List<String> keys = sync.keys("beer:*");
-		Assertions.assertEquals(4432, keys.size());
-		Map<String, String> beer1 = sync.hgetall("beer:1");
-		Assertions.assertEquals("Hocus Pocus", name(beer1));
-	}
-
-	@Test
-	public void importDump() throws Exception {
-		List<DataStructure> records = exportToList();
-		sync.flushall();
-		executeFile("import-dump");
-		Assertions.assertEquals(records.size(), sync.dbsize());
-	}
-
-	@Test
-	public void importJsonElastic() throws Exception {
-		executeFile("import-json-elastic");
-		Assertions.assertEquals(2, sync.keys("estest:*").size());
-		Map<String, String> doc1 = sync.hgetall("estest:doc1");
-		Assertions.assertEquals("ruan", doc1.get("_source.name"));
-		Assertions.assertEquals("3", doc1.get("_source.articles[1]"));
-	}
-
-	@Test
-	public void importJson() throws Exception {
-		executeFile("import-json");
-		List<String> keys = sync.keys("beer:*");
-		Assertions.assertEquals(4432, keys.size());
-		Map<String, String> beer1 = sync.hgetall("beer:1");
-		Assertions.assertEquals("Hocus Pocus", beer1.get("name"));
-	}
+    protected Path tempFile(String filename) throws IOException {
+        Path path = tempDir.resolve(filename);
+        if (Files.exists(path)) {
+            Files.delete(path);
+        }
+        return path;
+    }
 
 
-	@Test
-	public void importXml() throws Exception {
-		executeFile("import-xml");
-		List<String> keys = sync.keys("trade:*");
-		Assertions.assertEquals(3, keys.size());
-		Map<String, String> trade1 = sync.hgetall("trade:1");
-		Assertions.assertEquals("XYZ0001", trade1.get("isin"));
-	}
+    protected static String name(Map<String, String> beer) {
+        return beer.get("name");
+    }
+
+    protected static String style(Map<String, String> beer) {
+        return beer.get("style");
+    }
+
+    protected static double abv(Map<String, String> beer) {
+        return Double.parseDouble(beer.get("abv"));
+    }
+
+    protected <T> List<T> readAll(AbstractItemCountingItemStreamItemReader<T> reader) throws Exception {
+        reader.open(new ExecutionContext());
+        List<T> records = new ArrayList<>();
+        T record;
+        while ((record = reader.read()) != null) {
+            records.add(record);
+        }
+        reader.close();
+        return records;
+    }
+
+    @Override
+    protected RiotFile app() {
+        return new RiotFile();
+    }
+
+    @ParameterizedTest
+    @MethodSource("containers")
+    public void importFW(RedisContainer container) throws Exception {
+        execute("import-fw", container);
+        RedisKeyCommands<String, String> sync = sync(container);
+        List<String> keys = sync.keys("account:*");
+        Assertions.assertEquals(5, keys.size());
+        RedisHashCommands<String, String> hash = sync(container);
+        Map<String, String> account101 = hash.hgetall("account:101");
+        // Account LastName        FirstName       Balance     CreditLimit   AccountCreated  Rating
+        // 101     Reeves          Keanu           9315.45     10000.00      1/17/1998       A
+        Assertions.assertEquals("Reeves", account101.get("LastName"));
+        Assertions.assertEquals("Keanu", account101.get("FirstName"));
+        Assertions.assertEquals("A", account101.get("Rating"));
+    }
+
+    @ParameterizedTest
+    @MethodSource("containers")
+    public void importCSV(RedisContainer container) throws Exception {
+        execute("import-csv", container);
+        RedisKeyCommands<String, String> sync = sync(container);
+        List<String> keys = sync.keys("beer:*");
+        Assertions.assertEquals(COUNT, keys.size());
+    }
 
 
-	@Test
-	public void exportJSON() throws Exception {
-		List<DataStructure> records = exportToList();
-		Assertions.assertEquals(sync.dbsize(), records.size());
-	}
+    @ParameterizedTest
+    @MethodSource("containers")
+    public void importPSV(RedisContainer container) throws Exception {
+        execute("import-psv", container);
+        RedisKeyCommands<String, String> sync = sync(container);
+        List<String> keys = sync.keys("sample:*");
+        Assertions.assertEquals(3, keys.size());
+    }
+
+    @ParameterizedTest
+    @MethodSource("containers")
+    public void importTSV(RedisContainer container) throws Exception {
+        execute("import-tsv", container);
+        RedisKeyCommands<String, String> sync = sync(container);
+        List<String> keys = sync.keys("sample:*");
+        Assertions.assertEquals(4, keys.size());
+    }
+
+    @ParameterizedTest
+    @MethodSource("containers")
+    public void importType(RedisContainer container) throws Exception {
+        execute("import-type", container);
+        RedisKeyCommands<String, String> sync = sync(container);
+        List<String> keys = sync.keys("sample:*");
+        Assertions.assertEquals(3, keys.size());
+    }
+
+    @ParameterizedTest
+    @MethodSource("containers")
+    public void importExclude(RedisContainer container) throws Exception {
+        execute("import-exclude", container);
+        RedisHashCommands<String, String> sync = sync(container);
+        Map<String, String> beer1036 = sync.hgetall("beer:1036");
+        Assertions.assertEquals("Lower De Boom", name(beer1036));
+        Assertions.assertEquals("American Barleywine", style(beer1036));
+        Assertions.assertEquals("368", beer1036.get("brewery_id"));
+        Assertions.assertFalse(beer1036.containsKey("row"));
+        Assertions.assertFalse(beer1036.containsKey("ibu"));
+    }
+
+    @ParameterizedTest
+    @MethodSource("containers")
+    public void importInclude(RedisContainer container) throws Exception {
+        execute("import-include", container);
+        RedisHashCommands<String, String> sync = sync(container);
+        Map<String, String> beer1036 = sync.hgetall("beer:1036");
+        Assertions.assertEquals(3, beer1036.size());
+        Assertions.assertEquals("Lower De Boom", name(beer1036));
+        Assertions.assertEquals("American Barleywine", style(beer1036));
+        Assertions.assertEquals(0.099, abv(beer1036));
+    }
+
+    @ParameterizedTest
+    @MethodSource("containers")
+    public void importFilter(RedisContainer container) throws Exception {
+        execute("import-filter", container);
+        RedisKeyCommands<String, String> sync = sync(container);
+        List<String> keys = sync.keys("beer:*");
+        Assertions.assertEquals(424, keys.size());
+    }
+
+    @ParameterizedTest
+    @MethodSource("containers")
+    public void importRegex(RedisContainer container) throws Exception {
+        execute("import-regex", container);
+        RedisHashCommands<String, String> sync = sync(container);
+        Map<String, String> airport1 = sync.hgetall("airport:1");
+        Assertions.assertEquals("Pacific", airport1.get("region"));
+        Assertions.assertEquals("Port_Moresby", airport1.get("city"));
+    }
+
+    @ParameterizedTest
+    @MethodSource("containers")
+    public void importGlob(RedisContainer container) throws Exception {
+        execute("import-glob", container);
+        RedisKeyCommands<String, String> sync = sync(container);
+        List<String> keys = sync.keys("beer:*");
+        Assertions.assertEquals(COUNT, keys.size());
+    }
+
+    @ParameterizedTest
+    @MethodSource("containers")
+    public void importGeoadd(RedisContainer container) throws Exception {
+        execute("import-geoadd", container);
+        RedisGeoCommands<String, String> sync = sync(container);
+        Set<String> results = sync.georadius("airportgeo", -122.4194, 37.7749, 20, GeoArgs.Unit.mi);
+        Assertions.assertTrue(results.contains("3469"));
+        Assertions.assertTrue(results.contains("10360"));
+        Assertions.assertTrue(results.contains("8982"));
+    }
+
+    @ParameterizedTest
+    @MethodSource("containers")
+    public void importGeoProcessor(RedisContainer container) throws Exception {
+        execute("import-geo-processor", container);
+        RedisHashCommands<String, String> sync = sync(container);
+        Map<String, String> airport3469 = sync.hgetall("airport:3469");
+        Assertions.assertEquals("-122.375,37.61899948120117", airport3469.get("location"));
+    }
+
+    @ParameterizedTest
+    @MethodSource("containers")
+    public void importProcess(RedisContainer container) throws Exception {
+        execute("import-process", container);
+        RedisKeyCommands<String, String> sync = sync(container);
+        List<String> keys = sync.keys("event:*");
+        Assertions.assertEquals(568, keys.size());
+        RedisHashCommands<String, String> hash = sync(container);
+        Map<String, String> event = hash.hgetall("event:248206");
+        Instant date = Instant.ofEpochMilli(Long.parseLong(event.get("EpochStart")));
+        Assertions.assertTrue(date.isBefore(Instant.now()));
+        long index = Long.parseLong(event.get("index"));
+        Assertions.assertTrue(index > 0);
+    }
+
+    @ParameterizedTest
+    @MethodSource("containers")
+    public void importMultiCommands(RedisContainer container) throws Exception {
+        execute("import-multi-commands", container);
+        RedisKeyCommands<String, String> sync = sync(container);
+        List<String> beers = sync.keys("beer:*");
+        Assertions.assertEquals(2410, beers.size());
+        for (String beer : beers) {
+            Map<String, String> hash = ((RedisHashCommands<String, String>) sync).hgetall(beer);
+            Assertions.assertTrue(hash.containsKey("name"));
+            Assertions.assertTrue(hash.containsKey("brewery_id"));
+        }
+        RedisSetCommands<String, String> set = sync(container);
+        Set<String> breweries = set.smembers("breweries");
+        Assertions.assertEquals(558, breweries.size());
+    }
+
+    @ParameterizedTest
+    @MethodSource("containers")
+    public void importBad(RedisContainer container) throws Exception {
+        execute("import-bad", container);
+    }
+
+    @ParameterizedTest
+    @MethodSource("containers")
+    public void importGCS(RedisContainer container) throws Exception {
+        execute("import-gcs", container);
+        RedisKeyCommands<String, String> sync = sync(container);
+        List<String> keys = sync.keys("beer:*");
+        Assertions.assertEquals(4432, keys.size());
+        Map<String, String> beer1 = ((RedisHashCommands<String, String>) sync).hgetall("beer:1");
+        Assertions.assertEquals("Hocus Pocus", name(beer1));
+    }
+
+    @ParameterizedTest
+    @MethodSource("containers")
+    public void importS3(RedisContainer container) throws Exception {
+        execute("import-s3", container);
+        RedisKeyCommands<String, String> sync = sync(container);
+        List<String> keys = sync.keys("beer:*");
+        Assertions.assertEquals(4432, keys.size());
+        Map<String, String> beer1 = ((RedisHashCommands<String, String>) sync).hgetall("beer:1");
+        Assertions.assertEquals("Hocus Pocus", name(beer1));
+    }
+
+    @ParameterizedTest
+    @MethodSource("containers")
+    public void importDump(RedisContainer container) throws Exception {
+        List<DataStructure> records = exportToList(container);
+        RedisServerCommands<String, String> sync = sync(container);
+        sync.flushall();
+        execute("import-dump", container, this::configureDumpFileImportCommand);
+        Assertions.assertEquals(records.size(), sync.dbsize());
+    }
+
+    private void configureDumpFileImportCommand(CommandLine.ParseResult parseResult) {
+        DumpFileImportCommand command = parseResult.subcommand().commandSpec().commandLine().getCommand();
+        String[] files = command.getFiles();
+        for (int index = 0; index < files.length; index++) {
+            files[index] = replace(files[index]);
+        }
+    }
+
+    private void configureExportCommand(CommandLine.ParseResult parseResult) {
+        FileExportCommand command = parseResult.subcommand().commandSpec().commandLine().getCommand();
+        command.setFile(replace(command.getFile()));
+    }
+
+    @ParameterizedTest
+    @MethodSource("containers")
+    public void importJsonElastic(RedisContainer container) throws Exception {
+        execute("import-json-elastic", container);
+        RedisKeyCommands<String, String> sync = sync(container);
+        Assertions.assertEquals(2, sync.keys("estest:*").size());
+        Map<String, String> doc1 = ((RedisHashCommands<String, String>) sync).hgetall("estest:doc1");
+        Assertions.assertEquals("ruan", doc1.get("_source.name"));
+        Assertions.assertEquals("3", doc1.get("_source.articles[1]"));
+    }
+
+    @ParameterizedTest
+    @MethodSource("containers")
+    public void importJson(RedisContainer container) throws Exception {
+        execute("import-json", container);
+        RedisKeyCommands<String, String> sync = sync(container);
+        List<String> keys = sync.keys("beer:*");
+        Assertions.assertEquals(4432, keys.size());
+        Map<String, String> beer1 = ((RedisHashCommands<String, String>) sync).hgetall("beer:1");
+        Assertions.assertEquals("Hocus Pocus", beer1.get("name"));
+    }
 
 
-	@Test
-	public void exportJsonGz() throws Exception {
-		Path file = tempFile("beers.json.gz");
-		executeFile("import-json");
-		executeFile("export-json-gz");
-		JsonItemReaderBuilder<Map> builder = new JsonItemReaderBuilder<>();
-		builder.name("json-file-reader");
-		FileSystemResource resource = new FileSystemResource(file);
-		builder.resource(
-				new InputStreamResource(new GZIPInputStream(resource.getInputStream()), resource.getDescription()));
-		JacksonJsonObjectReader<Map> objectReader = new JacksonJsonObjectReader<>(Map.class);
-		objectReader.setMapper(new ObjectMapper());
-		builder.jsonObjectReader(objectReader);
-		JsonItemReader<Map> reader = builder.build();
-		List<Map> records = readAll(reader);
-		Assertions.assertEquals(sync.keys("beer:*").size(), records.size());
-	}
+    @ParameterizedTest
+    @MethodSource("containers")
+    public void importXml(RedisContainer container) throws Exception {
+        execute("import-xml", container);
+        RedisKeyCommands<String, String> sync = sync(container);
+        List<String> keys = sync.keys("trade:*");
+        Assertions.assertEquals(3, keys.size());
+        Map<String, String> trade1 = ((RedisHashCommands<String, String>) sync).hgetall("trade:1");
+        Assertions.assertEquals("XYZ0001", trade1.get("isin"));
+    }
 
-	private List<DataStructure> exportToList() throws Exception {
-		Path file = tempFile("redis.json");
-		DataGenerator.builder().commands(async).build().run();
-		executeFile("export-json");
-		JsonItemReaderBuilder<DataStructure> builder = new JsonItemReaderBuilder<>();
-		builder.name("json-data-structure-file-reader");
-		builder.resource(new FileSystemResource(file));
-		JacksonJsonObjectReader<DataStructure> objectReader = new JacksonJsonObjectReader<>(DataStructure.class);
-		objectReader.setMapper(new ObjectMapper());
-		builder.jsonObjectReader(objectReader);
-		JsonItemReader<DataStructure> reader = builder.build();
-		return readAll(reader);
-	}
 
-	@SuppressWarnings({ "incomplete-switch", "rawtypes", "unchecked" })
-	@Test
-	public void exportXml() throws Exception {
-		DataGenerator.builder().commands(async).build().run();
-		Path file = tempFile("redis.xml");
-		executeFile("export-xml");
-		XmlItemReaderBuilder<DataStructure> builder = new XmlItemReaderBuilder<>();
-		builder.name("xml-file-reader");
-		builder.resource(new FileSystemResource(file));
-		XmlObjectReader<DataStructure> xmlObjectReader = new XmlObjectReader<>(DataStructure.class);
-		xmlObjectReader.setMapper(new XmlMapper());
-		builder.xmlObjectReader(xmlObjectReader);
-		XmlItemReader<DataStructure<String>> reader = (XmlItemReader) builder.build();
-		List<DataStructure<String>> records = readAll(reader);
-		Assertions.assertEquals(sync.dbsize(), records.size());
-		RedisCommands<String, String> commands = sync;
-		for (DataStructure<String> record : records) {
-			String key = record.getKey();
-			switch (record.getType()) {
-				case HASH:
-					Assertions.assertEquals(record.getValue(), commands.hgetall(key));
-					break;
-				case STRING:
-					Assertions.assertEquals(record.getValue(), commands.get(key));
-					break;
-			}
-		}
-	}
+    @ParameterizedTest
+    @MethodSource("containers")
+    public void exportJSON(RedisContainer container) throws Exception {
+        List<DataStructure> records = exportToList(container);
+        RedisServerCommands<String, String> sync = sync(container);
+        Assertions.assertEquals(sync.dbsize(), records.size());
+    }
+
+    @ParameterizedTest
+    @MethodSource("containers")
+    public void exportJsonGz(RedisContainer container) throws Exception {
+        Path file = tempFile("beers.json.gz");
+        execute("import-json", container);
+        execute("export-json-gz", container, this::configureExportCommand);
+        JsonItemReaderBuilder<Map> builder = new JsonItemReaderBuilder<>();
+        builder.name("json-file-reader");
+        FileSystemResource resource = new FileSystemResource(file);
+        builder.resource(new InputStreamResource(new GZIPInputStream(resource.getInputStream()), resource.getDescription()));
+        JacksonJsonObjectReader<Map> objectReader = new JacksonJsonObjectReader<>(Map.class);
+        objectReader.setMapper(new ObjectMapper());
+        builder.jsonObjectReader(objectReader);
+        JsonItemReader<Map> reader = builder.build();
+        List<Map> records = readAll(reader);
+        RedisKeyCommands<String, String> sync = sync(container);
+        Assertions.assertEquals(sync.keys("beer:*").size(), records.size());
+    }
+
+
+    private List<DataStructure> exportToList(RedisContainer container) throws Exception {
+        Path file = tempFile("redis.json");
+        dataGenerator(container).build().call();
+        execute("export-json", container, this::configureExportCommand);
+        JsonItemReaderBuilder<DataStructure> builder = new JsonItemReaderBuilder<>();
+        builder.name("json-data-structure-file-reader");
+        builder.resource(new FileSystemResource(file));
+        JacksonJsonObjectReader<DataStructure> objectReader = new JacksonJsonObjectReader<>(DataStructure.class);
+        objectReader.setMapper(new ObjectMapper());
+        builder.jsonObjectReader(objectReader);
+        JsonItemReader<DataStructure> reader = builder.build();
+        return readAll(reader);
+    }
+
+    @ParameterizedTest
+    @MethodSource("containers")
+    public void exportXml(RedisContainer container) throws Exception {
+        dataGenerator(container).build().call();
+        Path file = tempFile("redis.xml");
+        execute("export-xml", container, this::configureExportCommand);
+        XmlItemReaderBuilder<DataStructure> builder = new XmlItemReaderBuilder<>();
+        builder.name("xml-file-reader");
+        builder.resource(new FileSystemResource(file));
+        XmlObjectReader<DataStructure> xmlObjectReader = new XmlObjectReader<>(DataStructure.class);
+        xmlObjectReader.setMapper(new XmlMapper());
+        builder.xmlObjectReader(xmlObjectReader);
+        XmlItemReader<DataStructure<String>> reader = (XmlItemReader) builder.build();
+        List<DataStructure<String>> records = readAll(reader);
+        RedisServerCommands<String, String> sync = sync(container);
+        Assertions.assertEquals(sync.dbsize(), records.size());
+        for (DataStructure<String> record : records) {
+            String key = record.getKey();
+            switch (record.getType()) {
+                case HASH:
+                    Assertions.assertEquals(record.getValue(), ((RedisHashCommands<String, String>) sync).hgetall(key));
+                    break;
+                case STRING:
+                    Assertions.assertEquals(record.getValue(), ((RedisStringCommands<String, String>) sync).get(key));
+                    break;
+            }
+        }
+    }
 
 }
