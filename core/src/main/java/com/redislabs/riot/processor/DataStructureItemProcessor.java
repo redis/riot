@@ -39,11 +39,17 @@ public class DataStructureItemProcessor implements ItemProcessor<DataStructure<S
 
     @Override
     public Map<String, Object> process(DataStructure<String> item) {
-        String key = item.getKey();
-        if (key == null) {
+        if (item.getType() == null) {
             return null;
         }
-        Map<String, Object> map = new HashMap<>(keyFieldsExtractor.convert(key));
+        if (item.getKey() == null) {
+            return null;
+        }
+        Map<String, String> stringMap = keyFieldsExtractor.convert(item.getKey());
+        if (stringMap == null) {
+            return null;
+        }
+        Map<String, Object> map = new HashMap<>(stringMap);
         Map<String, String> valueMap = map(item);
         if (valueMap != null) {
             map.putAll(valueMap);
@@ -54,17 +60,17 @@ public class DataStructureItemProcessor implements ItemProcessor<DataStructure<S
     @SuppressWarnings("unchecked")
     private Map<String, String> map(DataStructure<String> item) {
         switch (item.getType()) {
-            case HASH:
+            case DataStructure.HASH:
                 return hashConverter.convert((Map<String, String>) item.getValue());
-            case LIST:
+            case DataStructure.LIST:
                 return listConverter.convert((List<String>) item.getValue());
-            case SET:
+            case DataStructure.SET:
                 return setConverter.convert((Set<String>) item.getValue());
-            case ZSET:
+            case DataStructure.ZSET:
                 return zsetConverter.convert((List<ScoredValue<String>>) item.getValue());
-            case STREAM:
+            case DataStructure.STREAM:
                 return streamConverter.convert((List<StreamMessage<String, String>>) item.getValue());
-            case STRING:
+            case DataStructure.STRING:
                 return stringConverter.convert((String) item.getValue());
             default:
                 return defaultConverter.convert(item.getValue());

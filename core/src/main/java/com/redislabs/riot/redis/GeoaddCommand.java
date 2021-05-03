@@ -1,7 +1,6 @@
 package com.redislabs.riot.redis;
 
-import org.springframework.batch.item.redis.support.RedisOperation;
-import org.springframework.batch.item.redis.support.RedisOperationBuilder;
+import org.springframework.batch.item.redis.RedisOperation;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
@@ -19,7 +18,7 @@ public class GeoaddCommand extends AbstractCollectionCommand {
 
     @Override
     public RedisOperation<String, String, Map<String, Object>> operation() {
-        return configureCollectionCommandBuilder(RedisOperationBuilder.geoadd()).longitudeConverter(doubleFieldExtractor(longitudeField)).latitudeConverter(doubleFieldExtractor(latitudeField)).build();
+        return configureCollectionCommandBuilder(RedisOperation.geoadd()).longitude(doubleFieldExtractor(longitudeField)).latitude(doubleFieldExtractor(latitudeField)).build();
     }
 
 }

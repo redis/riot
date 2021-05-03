@@ -1,8 +1,7 @@
 package com.redislabs.riot.redis;
 
 import io.lettuce.core.XAddArgs;
-import org.springframework.batch.item.redis.support.RedisOperation;
-import org.springframework.batch.item.redis.support.RedisOperationBuilder;
+import org.springframework.batch.item.redis.RedisOperation;
 import org.springframework.core.convert.converter.Converter;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -27,7 +26,7 @@ public class XaddCommand extends AbstractKeyCommand {
 
     @Override
     public RedisOperation<String, String, Map<String, Object>> operation() {
-        return configureKeyCommandBuilder(RedisOperationBuilder.xadd()).argsConverter(argsConverter()).bodyConverter(filteringOptions.converter()).build();
+        return configureKeyCommandBuilder(RedisOperation.xadd()).args(argsConverter()).body(filteringOptions.converter()).build();
     }
 
     private Converter<Map<String, Object>, XAddArgs> argsConverter() {

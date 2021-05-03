@@ -5,10 +5,6 @@ import com.redislabs.testcontainers.RedisContainer;
 import io.lettuce.core.RedisURI;
 import org.apache.commons.io.IOUtils;
 import org.codehaus.plexus.util.cli.CommandLineUtils;
-import org.junit.jupiter.api.Assertions;
-import org.springframework.batch.core.ExitStatus;
-import org.springframework.batch.core.JobExecution;
-import org.springframework.batch.core.StepExecution;
 import picocli.CommandLine;
 
 import java.io.InputStream;
@@ -29,7 +25,8 @@ public abstract class RiotTest {
         }
     }
 
-    protected int execute(String filename, RedisContainer container, Consumer<CommandLine.ParseResult>... configurators) throws Exception {
+    protected int
+    execute(String filename, RedisContainer container, Consumer<CommandLine.ParseResult>... configurators) throws Exception {
         RiotApp app = app();
         RiotCommandLine commandLine = app.commandLine();
         CommandLine.ParseResult parseResult = commandLine.parseArgs(args(filename));
@@ -46,12 +43,4 @@ public abstract class RiotTest {
         app.getRedisOptions().setCluster(container instanceof RedisClusterContainer);
     }
 
-    protected void awaitTermination(JobExecution execution) throws InterruptedException {
-        while (execution.isRunning()) {
-            Thread.sleep(10);
-        }
-        for (StepExecution stepExecution : execution.getStepExecutions()) {
-            Assertions.assertEquals(ExitStatus.COMPLETED.getExitCode(), stepExecution.getExitStatus().getExitCode());
-        }
-    }
 }

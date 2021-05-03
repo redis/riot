@@ -12,9 +12,9 @@ import java.util.List;
 @Slf4j
 public class VerificationStepExecutionListener extends StepExecutionListenerSupport {
 
-    private final KeyComparisonItemWriter<String, String> writer;
+    private final KeyComparisonItemWriter<String> writer;
 
-    public VerificationStepExecutionListener(KeyComparisonItemWriter<String, String> writer) {
+    public VerificationStepExecutionListener(KeyComparisonItemWriter<String> writer) {
         this.writer = writer;
     }
 

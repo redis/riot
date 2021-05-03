@@ -1,6 +1,6 @@
 package com.redislabs.riot.redis;
 
-import org.springframework.batch.item.redis.support.RedisOperationBuilder;
+import org.springframework.batch.item.redis.support.operation.AbstractCollectionOperation;
 import picocli.CommandLine;
 import picocli.CommandLine.Option;
 
@@ -14,8 +14,8 @@ public abstract class AbstractCollectionCommand extends AbstractKeyCommand {
     @Option(arity = "1..*", names = {"-m", "--members"}, description = "Member field names for collections", paramLabel = "<fields>")
     private String[] memberFields;
 
-    protected <B extends RedisOperationBuilder.AbstractCollectionOperationBuilder<String, String, Map<String, Object>, B>> B configureCollectionCommandBuilder(B builder) {
-        return configureKeyCommandBuilder(builder).memberIdConverter(idMaker(memberSpace, memberFields));
+    protected <B extends AbstractCollectionOperation.CollectionOperationBuilder<Map<String, Object>, B>> B configureCollectionCommandBuilder(B builder) {
+        return configureKeyCommandBuilder(builder).member(idMaker(memberSpace, memberFields));
     }
 
 }

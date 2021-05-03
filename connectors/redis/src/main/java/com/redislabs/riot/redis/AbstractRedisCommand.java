@@ -1,7 +1,15 @@
 package com.redislabs.riot.redis;
 
 import com.redislabs.riot.AbstractTaskCommand;
+import com.redislabs.riot.RedisOptions;
+import io.lettuce.core.AbstractRedisClient;
+import io.lettuce.core.RedisClient;
+import io.lettuce.core.api.StatefulConnection;
+import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.api.sync.BaseRedisCommands;
+import io.lettuce.core.cluster.RedisClusterClient;
+import io.lettuce.core.cluster.api.StatefulRedisClusterConnection;
+import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.util.ClassUtils;
@@ -11,11 +19,20 @@ import picocli.CommandLine.Command;
 public abstract class AbstractRedisCommand extends AbstractTaskCommand {
 
     @Override
-    protected Flow flow() {
+    protected Flow flow(StepBuilderFactory stepBuilderFactory) {
 
-        return flow(jobFactory.step(ClassUtils.getShortName(getClass()) + "-step").tasklet((contribution, chunkContext) -> {
-            execute(sync());
-            return RepeatStatus.FINISHED;
+        return flow(stepBuilderFactory.get(ClassUtils.getShortName(getClass()) + "-step").tasklet((contribution, chunkContext) -> {
+            RedisOptions redisOptions = getRedisOptions();
+            AbstractRedisClient client = redisOptions.client();
+            try {
+                try (StatefulConnection<String, String> connection = redisOptions.isCluster() ? ((RedisClusterClient) client).connect() : ((RedisClient) client).connect()) {
+                    BaseRedisCommands<String, String> commands = redisOptions.isCluster() ? ((StatefulRedisClusterConnection<String, String>) connection).sync() : ((StatefulRedisConnection<String, String>) connection).sync();
+                    execute(commands);
+                    return RepeatStatus.FINISHED;
+                }
+            } finally {
+                RedisOptions.shutdown(client);
+            }
         }).build());
     }
 

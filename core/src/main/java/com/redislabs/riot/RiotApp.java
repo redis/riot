@@ -65,6 +65,10 @@ public class RiotApp extends HelpCommand {
         handler.setFormatter(debug || stacktrace ? new StackTraceOneLineLogFormat() : new OneLineLogFormat());
         activeLogger.addHandler(handler);
         Logger.getLogger(ROOT_LOGGER).setLevel(level);
+//        Logger.getLogger("io.lettuce.core").setLevel(Level.WARNING);
+//        Logger.getLogger("org.springframework.batch.repeat").setLevel(Level.WARNING);
+//        Logger.getLogger("org.springframework.retry.support").setLevel(Level.WARNING);
+//        Logger.getLogger("org.springframework.batch.repeat.support").setLevel(Level.WARNING);
     }
 
     public int execute(String... args) {

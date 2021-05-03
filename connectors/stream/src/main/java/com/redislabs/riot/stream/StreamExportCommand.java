@@ -1,24 +1,23 @@
 package com.redislabs.riot.stream;
 
 import com.redislabs.riot.AbstractFlushingTransferCommand;
-import com.redislabs.riot.StepBuilder;
+import com.redislabs.riot.RedisOptions;
+import com.redislabs.riot.RiotStepBuilder;
 import com.redislabs.riot.stream.kafka.KafkaItemWriter;
 import com.redislabs.riot.stream.processor.AvroProducerProcessor;
 import com.redislabs.riot.stream.processor.JsonProducerProcessor;
 import io.lettuce.core.StreamMessage;
 import io.lettuce.core.XReadArgs.StreamOffset;
-import io.lettuce.core.api.StatefulRedisConnection;
-import io.lettuce.core.cluster.api.StatefulRedisClusterConnection;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.batch.core.Step;
+import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.job.flow.Flow;
+import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemProcessor;
-import org.springframework.batch.item.redis.RedisClusterStreamItemReader;
-import org.springframework.batch.item.redis.RedisStreamItemReader;
-import org.springframework.batch.item.redis.support.StreamItemReader;
+import org.springframework.batch.item.redis.StreamItemReader;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -51,24 +50,26 @@ public class StreamExportCommand extends AbstractFlushingTransferCommand {
     private String topic;
 
     @Override
-    protected Flow flow() {
+    protected Flow flow(StepBuilderFactory stepBuilderFactory) {
         Assert.isTrue(!ObjectUtils.isEmpty(streams), "No stream specified");
         List<Step> steps = new ArrayList<>();
         for (String stream : streams) {
-            StreamItemReader<String, String, ?> reader = reader(StreamOffset.from(stream, offset));
-            StepBuilder<StreamMessage<String, String>, ProducerRecord<String, Object>> step = stepBuilder(stream + "-stream-export-step", "Exporting from " + stream);
+            StreamItemReader<String, String> reader = reader(StreamOffset.from(stream, offset));
+            StepBuilder stepBuilder = stepBuilderFactory.get(stream + "-stream-export-step");
+            RiotStepBuilder<StreamMessage<String, String>, ProducerRecord<String, Object>> step = riotStep(stepBuilder, "Exporting from " + stream);
             steps.add(configure(step.reader(reader).processor(processor()).writer(writer()).build()).build());
         }
         return flow(steps.toArray(new Step[0]));
     }
 
-    private StreamItemReader<String, String, ?> reader(StreamOffset<String> offset) {
-        if (connection instanceof StatefulRedisClusterConnection) {
+    private StreamItemReader<String, String> reader(StreamOffset<String> offset) {
+        RedisOptions redisOptions = getRedisOptions();
+        if (redisOptions.isCluster()) {
             log.info("Creating cluster stream reader with offset {}", offset);
-            return RedisClusterStreamItemReader.builder((StatefulRedisClusterConnection<String, String>) connection).offset(offset).build();
+            return StreamItemReader.client(redisOptions.redisClusterClient()).offset(offset).build();
         }
         log.info("Creating stream reader with offset {}", offset);
-        return RedisStreamItemReader.builder((StatefulRedisConnection<String, String>) connection).offset(offset).build();
+        return StreamItemReader.client(redisOptions.redisClient()).offset(offset).build();
     }
 
     private KafkaItemWriter<String> writer() {

@@ -5,6 +5,7 @@ plugins {
     id 'com.github.ben-manes.versions' version '0.38.0'
     id 'org.springframework.boot' version '2.4.5'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id "io.freefair.lombok" version "6.0.0-m2"
     id 'com.github.breadmoirai.github-release' version '2.2.12'
 }
 
@@ -17,6 +18,7 @@ subprojects {
     apply plugin: 'java-library'
     apply plugin: 'org.springframework.boot'
     apply plugin: 'io.spring.dependency-management'
+    apply plugin: 'io.freefair.lombok'
     apply plugin: 'org.asciidoctor.jvm.convert'
     sourceCompatibility = '1.8'
     targetCompatibility = '1.8'
@@ -29,15 +31,13 @@ subprojects {
     }
     bootJar {
         enabled = false
+        classifier = 'boot'
     }
     jar {
         enabled = true
     }
     dependencies {
-        compileOnly 'org.projectlombok:lombok'
-        annotationProcessor 'org.projectlombok:lombok'
-        testCompileOnly 'org.projectlombok:lombok'
-        testAnnotationProcessor 'org.projectlombok:lombok'
+        compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
         testImplementation 'org.junit.jupiter:junit-jupiter-engine'
         testImplementation 'org.springframework.batch:spring-batch-test'
         testImplementation 'org.hsqldb:hsqldb'

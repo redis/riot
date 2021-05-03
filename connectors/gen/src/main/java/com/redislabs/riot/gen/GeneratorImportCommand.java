@@ -8,8 +8,12 @@ import com.redislabs.mesclun.search.RediSearchCommands;
 import com.redislabs.mesclun.search.RediSearchUtils;
 import com.redislabs.riot.AbstractImportCommand;
 import com.redislabs.riot.ProcessorOptions;
+import com.redislabs.riot.RedisOptions;
+import com.redislabs.riot.RiotStepBuilder;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.job.flow.Flow;
+import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import picocli.CommandLine;
@@ -17,7 +21,6 @@ import picocli.CommandLine.Command;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.function.Supplier;
 
 @SuppressWarnings("FieldMayBeFinal")
 @Slf4j
@@ -30,8 +33,9 @@ public class GeneratorImportCommand extends AbstractImportCommand<Map<String, Ob
     private ProcessorOptions processorOptions = ProcessorOptions.builder().build();
 
     @Override
-    protected Flow flow() throws Exception {
-        return flow(step("generate-step", "Generating", reader()).build());
+    protected Flow flow(StepBuilderFactory stepBuilderFactory) throws Exception {
+        StepBuilder stepBuilder = stepBuilderFactory.get("generate-step");
+        return flow(step(stepBuilder, "Generating", reader()).build());
     }
 
     private ItemReader<Map<String, Object>> reader() {
@@ -70,7 +74,7 @@ public class GeneratorImportCommand extends AbstractImportCommand<Map<String, Ob
 
     private Map<String, String> fieldsFromIndex(String index) {
         Map<String, String> fields = new LinkedHashMap<>();
-        RedisModulesClient client = RedisModulesClient.create(getRedisURI());
+        RedisModulesClient client = RedisModulesClient.create(getRedisOptions().uris().get(0));
         try (StatefulRedisModulesConnection<String, String> connection = client.connect()) {
             RediSearchCommands<String, String> commands = connection.sync();
             IndexInfo<String, String> info = RediSearchUtils.getInfo(commands.ftInfo(index));
@@ -78,19 +82,21 @@ public class GeneratorImportCommand extends AbstractImportCommand<Map<String, Ob
                 fields.put(field.getName(), expression(field));
             }
         } finally {
-            client.shutdown();
-            client.getResources().shutdown();
+            RedisOptions.shutdown(client);
         }
         return fields;
     }
 
     @Override
     protected ItemProcessor<Map<String, Object>, Map<String, Object>> processor() throws NoSuchMethodException {
-        return processorOptions.processor(client);
+        return processorOptions.processor(getRedisOptions());
     }
 
     @Override
-    protected Supplier<Long> initialMax() {
-        return () -> options.getEnd() - options.getStart();
+    protected <I, O> RiotStepBuilder<I, O> riotStep(StepBuilder stepBuilder, String taskName) {
+        RiotStepBuilder<I, O> riotStepBuilder = super.riotStep(stepBuilder, taskName);
+        riotStepBuilder.initialMax(() -> options.getEnd() - options.getStart());
+        return riotStepBuilder;
     }
+
 }

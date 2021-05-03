@@ -2,8 +2,7 @@ package com.redislabs.riot.redis;
 
 import com.redislabs.riot.convert.MapToStringArrayConverter;
 import io.lettuce.core.ScriptOutputType;
-import org.springframework.batch.item.redis.support.RedisOperation;
-import org.springframework.batch.item.redis.support.RedisOperationBuilder;
+import org.springframework.batch.item.redis.RedisOperation;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.util.ObjectUtils;
 import picocli.CommandLine.Command;
@@ -28,12 +27,11 @@ public class EvalCommand extends AbstractRedisCommand<Map<String, Object>> {
 
     @Override
     public RedisOperation<String, String, Map<String, Object>> operation() {
-        RedisOperationBuilder.EvalBuilder<String, String, Map<String, Object>> builder = RedisOperationBuilder.eval();
-        return builder.sha(sha).outputType(outputType).keysConverter(mapToArrayConverter(keys)).argsConverter(mapToArrayConverter(args)).build();
+        return RedisOperation.<Map<String, Object>>eval().sha(sha).output(outputType).keys(converter(keys)).args(converter(args)).build();
     }
 
     @SuppressWarnings("unchecked")
-    private Converter<Map<String, Object>, String[]> mapToArrayConverter(String[] fields) {
+    private Converter<Map<String, Object>, String[]> converter(String[] fields) {
         if (ObjectUtils.isEmpty(fields)) {
             return m -> EMPTY_STRING;
         }

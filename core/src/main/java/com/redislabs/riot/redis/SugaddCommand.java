@@ -1,6 +1,6 @@
 package com.redislabs.riot.redis;
 
-import org.springframework.batch.item.redis.support.RedisOperation;
+import org.springframework.batch.item.redis.RedisOperation;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
@@ -21,7 +21,7 @@ public class SugaddCommand extends AbstractKeyCommand {
 
     @Override
     public RedisOperation<String, String, Map<String, Object>> operation() {
-        return configureKeyCommandBuilder(new SugaddBuilder<>()).stringConverter(stringFieldExtractor(field)).scoreConverter(numberFieldExtractor(Double.class, scoreField, scoreDefault)).payloadConverter(stringFieldExtractor(payload)).build();
+        return configureKeyCommandBuilder(Sugadd.builder()).string(stringFieldExtractor(field)).score(numberFieldExtractor(Double.class, scoreField, scoreDefault)).payload(stringFieldExtractor(payload)).build();
     }
 
 

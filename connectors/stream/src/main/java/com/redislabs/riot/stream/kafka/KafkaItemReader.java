@@ -22,7 +22,8 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.TopicPartition;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemStreamException;
-import org.springframework.batch.item.redis.support.AbstractPollableItemReader;
+import org.springframework.batch.item.redis.support.PollableItemReader;
+import org.springframework.batch.item.support.AbstractItemStreamItemReader;
 import org.springframework.util.Assert;
 
 import java.time.Duration;
@@ -44,7 +45,7 @@ import java.util.concurrent.TimeUnit;
  * @author Mahmoud Ben Hassine
  * @since 4.2
  */
-public class KafkaItemReader<K, V> extends AbstractPollableItemReader<ConsumerRecord<K, V>> {
+public class KafkaItemReader<K, V> extends AbstractItemStreamItemReader<ConsumerRecord<K, V>> implements PollableItemReader<ConsumerRecord<K, V>> {
 
     private static final String TOPIC_PARTITION_OFFSETS = "topic.partition.offsets";
 
@@ -68,8 +69,7 @@ public class KafkaItemReader<K, V> extends AbstractPollableItemReader<ConsumerRe
      * @param topicName          name of the topic to read data from
      * @param partitions         list of partitions to read data from
      */
-    public KafkaItemReader(Duration readTimeout, Properties consumerProperties, String topicName, List<Integer> partitions) {
-        super(readTimeout);
+    public KafkaItemReader(Properties consumerProperties, String topicName, List<Integer> partitions) {
         Assert.notNull(consumerProperties, "Consumer properties must not be null");
         Assert.isTrue(consumerProperties.containsKey(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG), ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG + " property must be provided");
         Assert.isTrue(consumerProperties.containsKey(ConsumerConfig.GROUP_ID_CONFIG), ConsumerConfig.GROUP_ID_CONFIG + " property must be provided");
@@ -136,6 +136,11 @@ public class KafkaItemReader<K, V> extends AbstractPollableItemReader<ConsumerRe
         } else {
             return null;
         }
+    }
+
+    @Override
+    public ConsumerRecord<K, V> read() throws Exception {
+        throw new IllegalAccessException("read method is not supposed to be called");
     }
 
     @Override

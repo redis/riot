@@ -1,18 +1,20 @@
 package com.redislabs.riot;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.*;
+import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.job.builder.FlowBuilder;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.core.job.flow.support.SimpleFlow;
-import org.springframework.batch.core.listener.JobExecutionListenerSupport;
+import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.item.redis.support.JobFactory;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import picocli.CommandLine;
+
+import java.util.function.Function;
 
 @Slf4j
 @CommandLine.Command
@@ -22,7 +24,8 @@ public abstract class AbstractTaskCommand extends RiotCommand {
     @CommandLine.Spec
     private CommandLine.Model.CommandSpec spec;
 
-    protected JobFactory jobFactory;
+    @Setter
+    private ExecutionStrategy executionStrategy = ExecutionStrategy.SYNC;
 
     protected final Flow flow(Step... steps) {
         Assert.notNull(steps, "Steps are required.");
@@ -40,46 +43,56 @@ public abstract class AbstractTaskCommand extends RiotCommand {
     }
 
     @Override
-    public void afterPropertiesSet() throws Exception {
-        jobFactory = new JobFactory();
-        jobFactory.afterPropertiesSet();
-        super.afterPropertiesSet();
+    public Integer call() throws Exception {
+        JobExecution execution = execute();
+        switch (executionStrategy) {
+            case ASYNC:
+                return awaitRunning(execution);
+            default:
+                return exitCode(execution);
+        }
     }
 
-    @Override
-    protected int execute() throws Exception {
-        Job job = job();
-        JobParameters parameters = new JobParameters();
-        if (isExecuteAsync()) {
-            JobExecution execution = jobFactory.getAsyncLauncher().run(job(), parameters);
-            while (!execution.isRunning()) {
+    private int awaitRunning(JobExecution execution) {
+        while (!execution.isRunning()) {
+            try {
                 Thread.sleep(10);
-            }
-        } else {
-            JobExecution execution = jobFactory.getSyncLauncher().run(job, parameters);
-            for (StepExecution stepExecution : execution.getStepExecutions()) {
-                if (stepExecution.getExitStatus().compareTo(ExitStatus.FAILED) >= 0) {
-                    return 1;
-                }
+            } catch (InterruptedException e) {
+                log.debug("Interrupted");
+                return 1;
             }
         }
         return 0;
     }
 
-    private Job job() throws Exception {
-        JobBuilder builder = jobFactory.job(ClassUtils.getShortName(getClass()));
-        if (isExecuteAsync()) {
-            builder.listener(new JobExecutionListenerSupport() {
-                @Override
-                public void afterJob(JobExecution jobExecution) {
-                    shutdown();
-                    super.afterJob(jobExecution);
-                }
-            });
+    private int exitCode(JobExecution execution) {
+        for (StepExecution stepExecution : execution.getStepExecutions()) {
+            if (stepExecution.getExitStatus().compareTo(ExitStatus.FAILED) >= 0) {
+                return 1;
+            }
         }
-        return builder.start(flow()).build().build();
+        return 0;
     }
 
-    protected abstract Flow flow() throws Exception;
+    public enum ExecutionStrategy {
+
+        SYNC(JobFactory::getSyncLauncher), ASYNC(JobFactory::getAsyncLauncher);
+
+        private Function<JobFactory, JobLauncher> launcher;
+
+        ExecutionStrategy(Function<JobFactory, JobLauncher> launcher) {
+            this.launcher = launcher;
+        }
+    }
+
+    private JobExecution execute() throws Exception {
+        JobFactory jobFactory = new JobFactory();
+        jobFactory.afterPropertiesSet();
+        JobBuilder builder = jobFactory.getJobBuilderFactory().get(ClassUtils.getShortName(getClass()));
+        Job job = builder.start(flow(jobFactory.getStepBuilderFactory())).build().build();
+        return executionStrategy.launcher.apply(jobFactory).run(job, new JobParameters());
+    }
+
+    protected abstract Flow flow(StepBuilderFactory stepBuilderFactory) throws Exception;
 
 }

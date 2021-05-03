@@ -1,25 +1,23 @@
 package com.redislabs.riot.stream;
 
 import com.redislabs.riot.AbstractFlushingTransferCommand;
-import com.redislabs.riot.StepBuilder;
+import com.redislabs.riot.RedisOptions;
+import com.redislabs.riot.RiotStepBuilder;
 import com.redislabs.riot.redis.FilteringOptions;
 import com.redislabs.riot.stream.kafka.KafkaItemReader;
 import com.redislabs.riot.stream.kafka.KafkaItemReaderBuilder;
 import io.lettuce.core.XAddArgs;
-import io.lettuce.core.api.StatefulRedisConnection;
-import io.lettuce.core.cluster.api.StatefulRedisClusterConnection;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.batch.core.Step;
+import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.job.flow.Flow;
+import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.batch.item.redis.RedisClusterOperationItemWriter;
-import org.springframework.batch.item.redis.RedisOperationItemWriter;
-import org.springframework.batch.item.redis.support.RedisOperation;
-import org.springframework.batch.item.redis.support.RedisOperationBuilder;
+import org.springframework.batch.item.redis.OperationItemWriter;
+import org.springframework.batch.item.redis.RedisOperation;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
@@ -57,7 +55,7 @@ public class StreamImportCommand extends AbstractFlushingTransferCommand {
     private FilteringOptions filteringOptions = FilteringOptions.builder().build();
 
     @Override
-    protected Flow flow() {
+    protected Flow flow(StepBuilderFactory stepBuilderFactory) {
         Assert.isTrue(!ObjectUtils.isEmpty(topics), "No topic specified");
         List<Step> steps = new ArrayList<>();
         Properties consumerProperties = options.consumerProperties();
@@ -65,7 +63,8 @@ public class StreamImportCommand extends AbstractFlushingTransferCommand {
         for (String topic : topics) {
             log.info("Creating Kafka reader for topic {}", topic);
             KafkaItemReader<String, Object> reader = new KafkaItemReaderBuilder<String, Object>().partitions(0).consumerProperties(consumerProperties).partitions(0).name(topic).saveState(false).topic(topic).build();
-            StepBuilder<ConsumerRecord<String, Object>, ConsumerRecord<String, Object>> step = stepBuilder(topic + "-stream-import-step", "Importing from " + topic);
+            StepBuilder stepBuilder = stepBuilderFactory.get(topic + "-stream-import-step");
+            RiotStepBuilder<ConsumerRecord<String, Object>, ConsumerRecord<String, Object>> step = riotStep(stepBuilder, "Importing from " + topic);
             steps.add(configure(step.reader(reader).writer(writer()).build()).build());
         }
         return flow(steps.toArray(new Step[0]));
@@ -74,13 +73,14 @@ public class StreamImportCommand extends AbstractFlushingTransferCommand {
     @SuppressWarnings("unchecked")
     private ItemWriter<ConsumerRecord<String, Object>> writer() {
         XAddArgs xAddArgs = xAddArgs();
-        RedisOperation<String, String, ConsumerRecord<String, Object>> operation = RedisOperationBuilder.<String, String, ConsumerRecord<String, Object>>xadd().keyConverter(keyConverter()).argsConverter(r -> xAddArgs).bodyConverter(bodyConverter()).build();
-        if (isCluster()) {
+        RedisOperation<String, String, ConsumerRecord<String, Object>> operation = RedisOperation.<ConsumerRecord<String, Object>>xadd().key(keyConverter()).args(r -> xAddArgs).body(bodyConverter()).build();
+        RedisOptions redisOptions = getRedisOptions();
+        if (redisOptions.isCluster()) {
             log.info("Creating cluster stream writer");
-            return new RedisClusterOperationItemWriter<>((GenericObjectPool<StatefulRedisClusterConnection<String, String>>) pool, operation);
+            return OperationItemWriter.operation(operation).client(redisOptions.redisClusterClient()).poolConfig(redisOptions.poolConfig()).build();
         }
         log.info("Creating stream writer");
-        return new RedisOperationItemWriter<>((GenericObjectPool<StatefulRedisConnection<String, String>>) pool, operation);
+        return OperationItemWriter.operation(operation).client(redisOptions.redisClient()).poolConfig(redisOptions.poolConfig()).build();
     }
 
     private Converter<ConsumerRecord<String, Object>, Map<String, String>> bodyConverter() {

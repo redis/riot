@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
 public class TestFile extends RiotIntegrationTest {
@@ -110,7 +111,6 @@ public class TestFile extends RiotIntegrationTest {
         Assertions.assertEquals(COUNT, keys.size());
     }
 
-
     @ParameterizedTest
     @MethodSource("containers")
     public void importPSV(RedisContainer container) throws Exception {
@@ -150,6 +150,20 @@ public class TestFile extends RiotIntegrationTest {
         Assertions.assertFalse(beer1036.containsKey("row"));
         Assertions.assertFalse(beer1036.containsKey("ibu"));
     }
+
+    //    @ParameterizedTest
+    //    @MethodSource("containers")
+    //    public void importExcludeAPI(RedisContainer container) throws Exception {
+    //        // riot-file import http://developer.redislabs.com/riot/beers.csv --header hset --keyspace beer --keys id --exclude row ibu
+    //        FileImportCommand.builder().file("http://developer.redislabs.com/riot/beers.csv").options(FileImportOptions.builder().header(true).build()).
+    //        sync(container);
+    //        Map<String, String> beer1036 = sync.hgetall("beer:1036");
+    //        Assertions.assertEquals("Lower De Boom", name(beer1036));
+    //        Assertions.assertEquals("American Barleywine", style(beer1036));
+    //        Assertions.assertEquals("368", beer1036.get("brewery_id"));
+    //        Assertions.assertFalse(beer1036.containsKey("row"));
+    //        Assertions.assertFalse(beer1036.containsKey("ibu"));
+    //    }
 
     @ParameterizedTest
     @MethodSource("containers")
@@ -228,6 +242,17 @@ public class TestFile extends RiotIntegrationTest {
 
     @ParameterizedTest
     @MethodSource("containers")
+    public void importProcessElvis(RedisContainer container) throws Exception {
+        execute("import-process-elvis", container);
+        RedisKeyCommands<String, String> sync = sync(container);
+        List<String> keys = sync.keys("beer:*");
+        Assertions.assertEquals(COUNT, keys.size());
+        Map<String, String> beer1436 = ((RedisHashCommands<String, String>) sync).hgetall("beer:1436");
+        Assertions.assertEquals("10", beer1436.get("ibu"));
+    }
+
+    @ParameterizedTest
+    @MethodSource("containers")
     public void importMultiCommands(RedisContainer container) throws Exception {
         execute("import-multi-commands", container);
         RedisKeyCommands<String, String> sync = sync(container);
@@ -283,10 +308,7 @@ public class TestFile extends RiotIntegrationTest {
 
     private void configureDumpFileImportCommand(CommandLine.ParseResult parseResult) {
         DumpFileImportCommand command = parseResult.subcommand().commandSpec().commandLine().getCommand();
-        String[] files = command.getFiles();
-        for (int index = 0; index < files.length; index++) {
-            files[index] = replace(files[index]);
-        }
+        command.setFiles(command.getFiles().stream().map(this::replace).collect(Collectors.toList()));
     }
 
     private void configureExportCommand(CommandLine.ParseResult parseResult) {
@@ -389,11 +411,11 @@ public class TestFile extends RiotIntegrationTest {
         Assertions.assertEquals(sync.dbsize(), records.size());
         for (DataStructure<String> record : records) {
             String key = record.getKey();
-            switch (record.getType()) {
-                case HASH:
+            switch (record.getType().toLowerCase()) {
+                case DataStructure.HASH:
                     Assertions.assertEquals(record.getValue(), ((RedisHashCommands<String, String>) sync).hgetall(key));
                     break;
-                case STRING:
+                case DataStructure.STRING:
                     Assertions.assertEquals(record.getValue(), ((RedisStringCommands<String, String>) sync).get(key));
                     break;
             }

@@ -9,7 +9,7 @@ dependencies {
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
     implementation 'org.springframework.cloud:spring-cloud-aws-context:2.2.6.RELEASE'
     implementation 'org.springframework.cloud:spring-cloud-aws-autoconfigure:2.2.6.RELEASE'
-    implementation 'org.springframework.cloud:spring-cloud-gcp-starter-storage:1.2.7.RELEASE'
+    implementation 'org.springframework.cloud:spring-cloud-gcp-starter-storage:1.2.8.RELEASE'
     testImplementation project(':connectors:test')
 }
 

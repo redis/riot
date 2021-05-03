@@ -1,7 +1,6 @@
 package com.redislabs.riot.redis;
 
-import org.springframework.batch.item.redis.support.RedisOperation;
-import org.springframework.batch.item.redis.support.RedisOperationBuilder;
+import org.springframework.batch.item.redis.RedisOperation;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
@@ -18,7 +17,7 @@ public class ZaddCommand extends AbstractCollectionCommand {
 
     @Override
     public RedisOperation<String, String, Map<String, Object>> operation() {
-        return configureCollectionCommandBuilder(RedisOperationBuilder.zadd()).scoreConverter(numberFieldExtractor(Double.class, scoreField, scoreDefault)).build();
+        return configureCollectionCommandBuilder(RedisOperation.zadd()).score(numberFieldExtractor(Double.class, scoreField, scoreDefault)).build();
     }
 
 }

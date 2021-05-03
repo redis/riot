@@ -3,17 +3,21 @@ package com.redislabs.riot;
 import com.redislabs.mesclun.RedisModulesClient;
 import io.lettuce.core.*;
 import io.lettuce.core.api.StatefulConnection;
-import io.lettuce.core.api.sync.BaseRedisCommands;
 import io.lettuce.core.cluster.ClusterClientOptions;
 import io.lettuce.core.cluster.RedisClusterClient;
 import io.lettuce.core.event.DefaultEventPublisherOptions;
 import io.lettuce.core.event.metrics.CommandLatencyEvent;
 import io.lettuce.core.metrics.CommandLatencyCollector;
 import io.lettuce.core.metrics.DefaultCommandLatencyCollectorOptions;
+import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
 import io.lettuce.core.resource.ClientResources;
 import io.lettuce.core.resource.DefaultClientResources;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.springframework.util.ObjectUtils;
 import picocli.CommandLine.Option;
@@ -85,11 +89,31 @@ public class RedisOptions {
     @Option(names = "--client", description = "Client name used to connect to Redis.", paramLabel = "<name>")
     private String clientName;
 
-    public static BaseRedisCommands<String, String> commands(AbstractRedisClient client) {
-        if (client instanceof RedisClusterClient) {
-            return ((RedisClusterClient) client).connect().sync();
+    public static void shutdown(AbstractRedisClient client) {
+        if (client != null) {
+            client.shutdown();
+            client.getResources().shutdown();
         }
-        return ((RedisModulesClient) client).connect().sync();
+    }
+
+    public static void close(StatefulConnection<String, String> connection) {
+        if (connection != null) {
+            connection.close();
+        }
+    }
+
+    public static void close(GenericObjectPool<?> pool) {
+        if (pool != null) {
+            pool.close();
+        }
+    }
+
+    public static StatefulRedisPubSubConnection<String, String> connectPubSub(AbstractRedisClient client) {
+        if (client instanceof RedisClusterClient) {
+            return ((RedisClusterClient) client).connectPubSub();
+        }
+        return ((RedisClient) client).connectPubSub();
+
     }
 
     public List<RedisURI> uris() {
@@ -174,13 +198,6 @@ public class RedisOptions {
         return config;
     }
 
-    public RedisModulesClient rediSearchClient() {
-        log.info("Creating RediSearch client: {}", this);
-        RedisModulesClient client = RedisModulesClient.create(clientResources(), uris().get(0));
-        client.setOptions(ClientOptions.builder().autoReconnect(autoReconnect).sslOptions(sslOptions()).build());
-        return client;
-    }
-
     public AbstractRedisClient client() {
         if (cluster) {
             log.info("Creating Redis cluster client: {}", this);
@@ -190,7 +207,7 @@ public class RedisOptions {
         return redisClient();
     }
 
-    public static StatefulConnection<String, String> connection(AbstractRedisClient client) {
+    public static StatefulConnection<String, String> connect(AbstractRedisClient client) {
         if (client instanceof RedisClusterClient) {
             return ((RedisClusterClient) client).connect();
         }

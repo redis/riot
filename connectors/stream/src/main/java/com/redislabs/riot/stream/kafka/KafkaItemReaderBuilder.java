@@ -16,14 +16,13 @@
 
 package com.redislabs.riot.stream.kafka;
 
-import java.time.Duration;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.springframework.util.Assert;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
-
-import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.springframework.util.Assert;
 
 /**
  * A builder implementation for the {@link KafkaItemReader}.
@@ -40,8 +39,6 @@ public class KafkaItemReaderBuilder<K, V> {
 	private String topic;
 
 	private List<Integer> partitions = new ArrayList<>();
-
-	private Duration readTimeout = Duration.ofSeconds(30L);
 
 	private boolean saveState = true;
 
@@ -124,17 +121,6 @@ public class KafkaItemReaderBuilder<K, V> {
 		return this;
 	}
 
-	/**
-	 * Set the pollTimeout for the poll() operations. Default to 30 seconds.
-	 * 
-	 * @param readTimeout timeout for the poll operation
-	 * @return The current instance of the builder.
-	 */
-	public KafkaItemReaderBuilder<K, V> readTimeout(Duration readTimeout) {
-		this.readTimeout = readTimeout;
-		return this;
-	}
-
 	public KafkaItemReader<K, V> build() {
 		if (this.saveState) {
 			Assert.hasText(this.name, "A name is required when saveState is set to true");
@@ -149,12 +135,9 @@ public class KafkaItemReaderBuilder<K, V> {
 		Assert.isTrue(consumerProperties.containsKey(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG),
 				ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG + " property must be provided");
 		Assert.hasLength(topic, "Topic name must not be null or empty");
-		Assert.notNull(readTimeout, "readTimeout must not be null");
-		Assert.isTrue(!readTimeout.isZero(), "readTimeout must not be zero");
-		Assert.isTrue(!readTimeout.isNegative(), "readTimeout must not be negative");
 		Assert.isTrue(!partitions.isEmpty(), "At least one partition must be provided");
 
-		KafkaItemReader<K, V> reader = new KafkaItemReader<>(this.readTimeout, this.consumerProperties, this.topic, this.partitions);
+		KafkaItemReader<K, V> reader = new KafkaItemReader<>(this.consumerProperties, this.topic, this.partitions);
 		reader.setSaveState(this.saveState);
 		reader.setName(this.name);
 		return reader;

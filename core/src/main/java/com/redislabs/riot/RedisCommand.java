@@ -1,6 +1,6 @@
 package com.redislabs.riot;
 
-import org.springframework.batch.item.redis.support.RedisOperation;
+import org.springframework.batch.item.redis.RedisOperation;
 
 public interface RedisCommand<T> {
 

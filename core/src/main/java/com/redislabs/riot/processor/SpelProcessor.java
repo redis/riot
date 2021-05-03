@@ -1,7 +1,16 @@
 package com.redislabs.riot.processor;
 
+import com.redislabs.riot.RedisOptions;
+import io.lettuce.core.AbstractRedisClient;
+import io.lettuce.core.api.StatefulConnection;
+import io.lettuce.core.api.StatefulRedisConnection;
+import io.lettuce.core.api.sync.BaseRedisCommands;
+import io.lettuce.core.cluster.api.StatefulRedisClusterConnection;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemProcessor;
+import org.springframework.batch.item.ItemStream;
+import org.springframework.batch.item.ItemStreamException;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionInvocationTargetException;
@@ -12,19 +21,48 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Slf4j
-public class SpelProcessor implements ItemProcessor<Map<String, Object>, Map<String, Object>> {
+public class SpelProcessor implements ItemProcessor<Map<String, Object>, Map<String, Object>>, ItemStream {
 
-    private final Map<String, Expression> expressions;
+    private final RedisOptions redisOptions;
     private final EvaluationContext context;
-    private final AtomicLong index;
+    private final Map<String, Expression> expressions;
+    private AbstractRedisClient client;
+    private StatefulConnection<String, String> connection;
+    private AtomicLong index;
 
-    public SpelProcessor(EvaluationContext context, Map<String, Expression> expressions) {
+    public SpelProcessor(RedisOptions redisOptions, EvaluationContext context, Map<String, Expression> expressions) {
         Assert.notNull(context, "A SpEL evaluation context is required.");
         Assert.notEmpty(expressions, "At least one field is required.");
-        this.index = new AtomicLong();
+        this.redisOptions = redisOptions;
         this.context = context;
-        this.context.setVariable("index", index);
         this.expressions = expressions;
+    }
+
+    @Override
+    public void open(ExecutionContext executionContext) throws ItemStreamException {
+        this.client = redisOptions.client();
+        this.connection = RedisOptions.connect(client);
+        this.context.setVariable("redis", sync(connection));
+        this.index = new AtomicLong();
+        this.context.setVariable("index", index);
+    }
+
+    @Override
+    public void update(ExecutionContext executionContext) throws ItemStreamException {
+        // do nothing
+    }
+
+    @Override
+    public void close() throws ItemStreamException {
+        RedisOptions.close(connection);
+        RedisOptions.shutdown(client);
+    }
+
+    private static BaseRedisCommands<String, String> sync(StatefulConnection<String, String> connection) {
+        if (connection instanceof StatefulRedisClusterConnection) {
+            return ((StatefulRedisClusterConnection<String, String>) connection).sync();
+        }
+        return ((StatefulRedisConnection<String, String>) connection).sync();
     }
 
     @Override

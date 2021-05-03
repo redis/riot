@@ -16,8 +16,9 @@ import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
 import io.lettuce.core.support.ConnectionPoolSupport;
 import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
@@ -33,83 +34,84 @@ public abstract class RiotIntegrationTest extends RiotTest {
     @Container
     private static final RedisClusterContainer REDIS_CLUSTER = new RedisClusterContainer().withKeyspaceNotifications();
 
-    protected final Map<RedisContainer, AbstractRedisClient> clients = new HashMap<>();
-    protected final Map<RedisContainer, StatefulConnection<String, String>> connections = new HashMap<>();
-    protected final Map<RedisContainer, StatefulRedisPubSubConnection<String, String>> pubSubConnections = new HashMap<>();
-    protected final Map<RedisContainer, BaseRedisAsyncCommands<String, String>> asyncs = new HashMap<>();
-    protected final Map<RedisContainer, BaseRedisCommands<String, String>> syncs = new HashMap<>();
+    protected static final Map<RedisContainer, AbstractRedisClient> CLIENTS = new HashMap<>();
+    protected static final Map<RedisContainer, GenericObjectPool<? extends StatefulConnection<String, String>>> POOLS = new HashMap<>();
+    protected static final Map<RedisContainer, StatefulConnection<String, String>> CONNECTIONS = new HashMap<>();
+    protected static final Map<RedisContainer, StatefulRedisPubSubConnection<String, String>> PUBSUB_CONNECTIONS = new HashMap<>();
+    protected static final Map<RedisContainer, BaseRedisAsyncCommands<String, String>> ASYNCS = new HashMap<>();
+    protected static final Map<RedisContainer, BaseRedisCommands<String, String>> SYNCS = new HashMap<>();
 
-    @BeforeEach
-    public void setupEach() {
+    @BeforeAll
+    public static void setup() {
         add(REDIS);
         add(REDIS_CLUSTER);
     }
 
-    private void add(RedisContainer container) {
-        String uri = container.getRedisURI();
+    private static void add(RedisContainer container) {
         if (container instanceof RedisClusterContainer) {
-            RedisClusterClient client = RedisClusterClient.create(uri);
-            clients.put(container, client);
+            RedisClusterClient client = RedisClusterClient.create(container.getRedisURI());
+            CLIENTS.put(container, client);
             StatefulRedisClusterConnection<String, String> connection = client.connect();
-            connections.put(container, connection);
-            syncs.put(container, connection.sync());
-            asyncs.put(container, connection.async());
-            pubSubConnections.put(container, client.connectPubSub());
-            return;
+            CONNECTIONS.put(container, connection);
+            SYNCS.put(container, connection.sync());
+            ASYNCS.put(container, connection.async());
+            PUBSUB_CONNECTIONS.put(container, client.connectPubSub());
+            POOLS.put(container, ConnectionPoolSupport.createGenericObjectPool(client::connect, new GenericObjectPoolConfig<>()));
+        } else {
+            RedisClient client = RedisClient.create(container.getRedisURI());
+            CLIENTS.put(container, client);
+            StatefulRedisConnection<String, String> connection = client.connect();
+            CONNECTIONS.put(container, connection);
+            SYNCS.put(container, connection.sync());
+            ASYNCS.put(container, connection.async());
+            PUBSUB_CONNECTIONS.put(container, client.connectPubSub());
+            POOLS.put(container, ConnectionPoolSupport.createGenericObjectPool(client::connect, new GenericObjectPoolConfig<>()));
         }
-        RedisClient client = RedisClient.create(uri);
-        clients.put(container, client);
-        StatefulRedisConnection<String, String> connection = client.connect();
-        connections.put(container, connection);
-        syncs.put(container, connection.sync());
-        asyncs.put(container, connection.async());
-        pubSubConnections.put(container, client.connectPubSub());
     }
 
     @AfterEach
-    public void cleanupEach() {
-        for (BaseRedisCommands<String, String> sync : syncs.values()) {
+    public void flushall() {
+        for (BaseRedisCommands<String, String> sync : SYNCS.values()) {
             ((RedisServerCommands<String, String>) sync).flushall();
         }
-        for (StatefulConnection<String, String> connection : connections.values()) {
-            connection.close();
-        }
-        for (StatefulRedisPubSubConnection<String, String> connection : pubSubConnections.values()) {
-            connection.close();
-        }
-        for (AbstractRedisClient client : clients.values()) {
-            client.shutdown();
-            client.getResources().shutdown();
-        }
-        syncs.clear();
-        asyncs.clear();
-        connections.clear();
-        pubSubConnections.clear();
-        clients.clear();
+    }
+
+    @AfterAll
+    public static void teardown() {
+        CONNECTIONS.values().forEach(RedisOptions::close);
+        PUBSUB_CONNECTIONS.values().forEach(RedisOptions::close);
+        POOLS.values().forEach(RedisOptions::close);
+        CLIENTS.values().forEach(RedisOptions::shutdown);
+        SYNCS.clear();
+        ASYNCS.clear();
+        CONNECTIONS.clear();
+        PUBSUB_CONNECTIONS.clear();
+        POOLS.clear();
+        CLIENTS.clear();
     }
 
     static Stream<RedisContainer> containers() {
         return Stream.of(REDIS, REDIS_CLUSTER);
     }
 
-    protected <T> T sync(RedisContainer container) {
-        return (T) syncs.get(container);
+    static Stream<RedisContainer> standaloneContainer() {
+        return Stream.of(REDIS);
     }
 
-    protected <T> T async(RedisContainer container) {
-        return (T) asyncs.get(container);
+    protected static <T> T sync(RedisContainer container) {
+        return (T) SYNCS.get(container);
     }
 
-    protected <C extends StatefulConnection<String, String>> C connection(RedisContainer container) {
-        return (C) connections.get(container);
+    protected static <T> T async(RedisContainer container) {
+        return (T) ASYNCS.get(container);
     }
 
-    protected <C extends StatefulConnection<String, String>> GenericObjectPool<C> pool(RedisContainer container) {
-        GenericObjectPoolConfig<StatefulConnection<String, String>> config = new GenericObjectPoolConfig<>();
-        if (container instanceof RedisClusterContainer) {
-            return (GenericObjectPool<C>) ConnectionPoolSupport.createGenericObjectPool(((RedisClusterClient) clients.get(container))::connect, config);
-        }
-        return (GenericObjectPool<C>) ConnectionPoolSupport.createGenericObjectPool(((RedisClient) clients.get(container))::connect, config);
+    protected static <C extends StatefulConnection<String, String>> C connection(RedisContainer container) {
+        return (C) CONNECTIONS.get(container);
+    }
+
+    protected static <C extends StatefulConnection<String, String>> GenericObjectPool<C> pool(RedisContainer container) {
+        return (GenericObjectPool<C>) POOLS.get(container);
     }
 
     protected DataGenerator.DataGeneratorBuilder dataGenerator(RedisContainer container) {

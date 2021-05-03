@@ -1,5 +1,7 @@
 package com.redis.riot.redis;
 
+import com.redislabs.riot.AbstractTaskCommand;
+import com.redislabs.riot.RedisOptions;
 import com.redislabs.riot.RiotIntegrationTest;
 import com.redislabs.riot.redis.AbstractReplicateCommand;
 import com.redislabs.riot.redis.ReplicationMode;
@@ -26,7 +28,7 @@ import java.time.Duration;
 
 @Testcontainers
 @Slf4j
-@SuppressWarnings({"rawtypes"})
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class TestReplicate extends RiotIntegrationTest {
 
     @Container
@@ -46,15 +48,24 @@ public class TestReplicate extends RiotIntegrationTest {
     @AfterEach
     public void cleanupTarget() {
         targetConnection.sync().flushall();
-        targetConnection.close();
-        targetClient.shutdown();
-        targetClient.getResources().shutdown();
-
+        RedisOptions.close(targetConnection);
+        RedisOptions.shutdown(targetClient);
     }
 
     @Override
     protected RiotRedis app() {
         return new RiotRedis();
+    }
+
+    private void configureReplicateCommand(CommandLine.ParseResult parseResult, boolean async) {
+        AbstractReplicateCommand command = parseResult.subcommand().commandSpec().commandLine().getCommand();
+        if (async) {
+            command.setExecutionStrategy(AbstractTaskCommand.ExecutionStrategy.ASYNC);
+        }
+        command.getTargetRedisOptions().setUris(new RedisURI[]{RedisURI.create(TARGET.getRedisURI())});
+        if (command.getReplicationOptions().getMode() == ReplicationMode.LIVE) {
+            command.getFlushingTransferOptions().setIdleTimeout(Duration.ofMillis(300));
+        }
     }
 
     @ParameterizedTest
@@ -64,48 +75,39 @@ public class TestReplicate extends RiotIntegrationTest {
         RedisServerCommands<String, String> sync = sync(container);
         Long sourceSize = sync.dbsize();
         Assertions.assertTrue(sourceSize > 0);
-        execute("replicate", container, this::configureReplicateCommand);
+        execute("replicate", container, r -> configureReplicateCommand(r,false));
         Assertions.assertEquals(sourceSize, targetSync.dbsize());
-    }
-
-    private void configureReplicateCommand(CommandLine.ParseResult parseResult) {
-        AbstractReplicateCommand command = parseResult.subcommand().commandSpec().commandLine().getCommand();
-        command.getTargetRedisOptions().setUris(new RedisURI[]{RedisURI.create(TARGET.getRedisURI())});
-        if (command.getReplicationOptions().getMode() == ReplicationMode.LIVE) {
-            command.setExecuteAsync(true);
-            command.getFlushingTransferOptions().setIdleTimeout(Duration.ofMillis(300));
-        }
     }
 
     @ParameterizedTest
     @MethodSource("containers")
     public void replicateLive(RedisContainer container) throws Exception {
-        dataGenerator(container).build().call();
-        execute("replicate-live", container, this::configureReplicateCommand);
-        Thread.sleep(100);
-        RedisStringCommands<String, String> sync = sync(container);
-        log.info("Setting livestring keys");
-        int count = 39;
-        for (int index = 0; index < count; index++) {
-            sync.set("livestring:" + index, "value" + index);
-        }
-        Thread.sleep(600);
-        Assertions.assertEquals(((RedisServerCommands<String, String>) sync).dbsize(), targetSync.dbsize());
+        testLiveReplication(container, "replicate-live");
     }
 
     @ParameterizedTest
     @MethodSource("containers")
     public void replicateLiveValue(RedisContainer container) throws Exception {
+        testLiveReplication(container, "replicate-live-value");
+    }
+
+    private void testLiveReplication(RedisContainer container, String filename) throws Exception {
         dataGenerator(container).build().call();
-        execute("replicate-live-value", container, this::configureReplicateCommand);
-        Thread.sleep(100);
+        execute(filename, container, r -> configureReplicateCommand(r,true));
+        while (targetSync.dbsize() < 100) {
+            Thread.sleep(10);
+        }
         RedisStringCommands<String, String> sync = sync(container);
         log.info("Setting livestring keys");
         int count = 39;
         for (int index = 0; index < count; index++) {
             sync.set("livestring:" + index, "value" + index);
         }
-        Thread.sleep(600);
+        while (targetSync.dbsize() < 2000) {
+            Thread.sleep(10);
+        }
+        Thread.sleep(300);
         Assertions.assertEquals(((RedisServerCommands<String, String>) sync).dbsize(), targetSync.dbsize());
+
     }
 }

@@ -9,7 +9,6 @@ import io.lettuce.core.cluster.api.StatefulRedisClusterConnection;
 import lombok.Builder;
 import lombok.Singular;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.batch.item.redis.support.DataType;
 
 import java.util.*;
 import java.util.concurrent.Callable;

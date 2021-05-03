@@ -3,6 +3,7 @@ package com.redislabs.riot.gen;
 import com.redislabs.mesclun.RedisModulesClient;
 import com.redislabs.mesclun.StatefulRedisModulesConnection;
 import com.redislabs.mesclun.search.*;
+import com.redislabs.riot.RedisOptions;
 import com.redislabs.riot.RiotIntegrationTest;
 import com.redislabs.testcontainers.RedisContainer;
 import com.redislabs.testcontainers.RedisModulesContainer;
@@ -19,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+@SuppressWarnings("unchecked")
 public class TestGen extends RiotIntegrationTest {
 
     @Container
@@ -92,8 +94,7 @@ public class TestGen extends RiotIntegrationTest {
         Document<String, String> doc1 = results.get(0);
         Assertions.assertNotNull(doc1.get(FIELD_ABV));
         connection.close();
-        modulesClient.shutdown();
-        modulesClient.getResources().shutdown();
+        RedisOptions.shutdown(modulesClient);
     }
 
 }

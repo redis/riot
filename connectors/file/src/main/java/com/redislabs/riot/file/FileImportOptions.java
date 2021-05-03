@@ -1,18 +1,17 @@
 package com.redislabs.riot.file;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.Accessors;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
-import org.springframework.batch.item.file.transform.Range;
 import picocli.CommandLine.Option;
 
 @Data
-@Builder
-@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
-public class FlatFileImportOptions {
+@AllArgsConstructor
+public class FileImportOptions extends FileOptions {
+
+    public static final String DEFAULT_CONTINUATION_STRING = "\\";
 
     @Option(names = "--fields", arity = "1..*", description = "Delimited/FW field names", paramLabel = "<names>")
     private String[] names;
@@ -26,12 +25,10 @@ public class FlatFileImportOptions {
     private int[] includedFields;
     @Option(names = "--ranges", arity = "1..*", description = "Fixed-width column ranges", paramLabel = "<string>")
     private String[] columnRanges;
-    @Builder.Default
     @Option(names = "--quote", description = "Escape character for delimited files (default: ${DEFAULT-VALUE})", paramLabel = "<char>")
     private Character quoteCharacter = DelimitedLineTokenizer.DEFAULT_QUOTE_CHARACTER;
-    @Builder.Default
     @Option(names = "--cont", description = "Line continuation string (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
-    private String continuationString = "\\";
+    private String continuationString = DEFAULT_CONTINUATION_STRING;
 
     public int linesToSkip() {
         if (linesToSkip == null) {
@@ -41,5 +38,28 @@ public class FlatFileImportOptions {
             return 0;
         }
         return linesToSkip;
+    }
+
+    public static FileImportOptionsBuilder builder() {
+        return new FileImportOptionsBuilder();
+    }
+
+    @Setter
+    @Accessors(fluent = true)
+    public static class FileImportOptionsBuilder extends FileOptionsBuilder<FileImportOptionsBuilder> {
+
+        private String[] names;
+        private boolean header;
+        private String delimiter;
+        private Integer linesToSkip;
+        private int[] includedFields;
+        private String[] columnRanges;
+        private Character quoteCharacter = DelimitedLineTokenizer.DEFAULT_QUOTE_CHARACTER;
+        private String continuationString = DEFAULT_CONTINUATION_STRING;
+
+        public FileImportOptions build() {
+            return build(new FileImportOptions(names, header, delimiter, linesToSkip, includedFields, columnRanges, quoteCharacter, continuationString));
+        }
+
     }
 }

@@ -3,7 +3,9 @@ package com.redislabs.riot.db;
 import com.redislabs.riot.AbstractExportCommand;
 import com.redislabs.riot.processor.DataStructureItemProcessor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.item.database.JdbcBatchItemWriter;
 import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilder;
@@ -17,6 +19,7 @@ import java.util.Map;
 
 @Slf4j
 @Data
+@EqualsAndHashCode(callSuper = true)
 @Command(name = "export", description = "Export to a database")
 public class DatabaseExportCommand extends AbstractExportCommand<Map<String, Object>> {
 
@@ -28,7 +31,7 @@ public class DatabaseExportCommand extends AbstractExportCommand<Map<String, Obj
     private DatabaseExportOptions exportOptions = DatabaseExportOptions.builder().build();
 
     @Override
-    protected Flow flow() throws Exception {
+    protected Flow flow(StepBuilderFactory stepBuilderFactory) throws Exception {
         log.info("Creating data source: {}", dataSourceOptions);
         DataSource dataSource = dataSourceOptions.dataSource();
         String name = dataSource.getConnection().getMetaData().getDatabaseProductName();
@@ -41,7 +44,7 @@ public class DatabaseExportCommand extends AbstractExportCommand<Map<String, Obj
         JdbcBatchItemWriter<Map<String, Object>> writer = builder.build();
         writer.afterPropertiesSet();
         DataStructureItemProcessor processor = DataStructureItemProcessor.builder().keyRegex(exportOptions.getKeyRegex()).build();
-        return flow(step(processor, writer).build());
+        return flow(step(stepBuilderFactory, processor, writer).build());
     }
 
 }

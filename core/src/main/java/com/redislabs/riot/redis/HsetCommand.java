@@ -1,7 +1,6 @@
 package com.redislabs.riot.redis;
 
-import org.springframework.batch.item.redis.support.RedisOperation;
-import org.springframework.batch.item.redis.support.RedisOperationBuilder;
+import org.springframework.batch.item.redis.RedisOperation;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -13,10 +12,9 @@ public class HsetCommand extends AbstractKeyCommand {
     @CommandLine.Mixin
     private FilteringOptions filtering = FilteringOptions.builder().build();
 
-
     @Override
     public RedisOperation<String, String, Map<String, Object>> operation() {
-        return configureKeyCommandBuilder(RedisOperationBuilder.hset()).mapConverter(filtering.converter()).build();
+        return configureKeyCommandBuilder(RedisOperation.hset()).map(filtering.converter()).build();
     }
 
 }

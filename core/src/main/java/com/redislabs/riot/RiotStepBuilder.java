@@ -1,5 +1,6 @@
 package com.redislabs.riot;
 
+import io.lettuce.core.RedisCommandExecutionException;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
@@ -7,10 +8,10 @@ import org.springframework.batch.core.ItemWriteListener;
 import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.step.builder.FaultTolerantStepBuilder;
 import org.springframework.batch.core.step.builder.SimpleStepBuilder;
+import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.batch.item.redis.support.JobFactory;
 import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
@@ -21,12 +22,11 @@ import java.util.function.Supplier;
 @Slf4j
 @Setter
 @Accessors(fluent = true)
-public class StepBuilder<I, O> {
+public class RiotStepBuilder<I, O> {
 
-    private final JobFactory jobFactory;
+    private final StepBuilder stepBuilder;
     private final TransferOptions options;
 
-    private String name;
     private String taskName;
     private ItemReader<I> reader;
     private ItemProcessor<I, O> processor;
@@ -34,13 +34,13 @@ public class StepBuilder<I, O> {
     private Supplier<String> extraMessage;
     private Supplier<Long> initialMax;
 
-    public StepBuilder(JobFactory jobFactory, TransferOptions options) {
-        this.jobFactory = jobFactory;
+    public RiotStepBuilder(StepBuilder stepBuilder, TransferOptions options) {
+        this.stepBuilder = stepBuilder;
         this.options = options;
     }
 
     public SimpleStepBuilder<I, O> build() {
-        SimpleStepBuilder<I, O> step = jobFactory.step(name).<I, O>chunk(options.getChunkSize()).reader(reader).processor(processor).writer(writer);
+        SimpleStepBuilder<I, O> step = stepBuilder.<I, O>chunk(options.getChunkSize()).reader(reader).processor(processor).writer(writer);
         if (options.isShowProgress()) {
             ProgressMonitor.ProgressMonitorBuilder<I, O> monitorBuilder = ProgressMonitor.builder();
             monitorBuilder.taskName(taskName);
@@ -51,7 +51,7 @@ public class StepBuilder<I, O> {
             step.listener((StepExecutionListener) monitor);
             step.listener((ItemWriteListener<? super O>) monitor);
         }
-        FaultTolerantStepBuilder<I, O> ftStep = step.faultTolerant().skipLimit(options.getSkipLimit()).skip(ExecutionException.class);
+        FaultTolerantStepBuilder<I, O> ftStep = step.faultTolerant().skipLimit(options.getSkipLimit()).skip(RedisCommandExecutionException.class);
         if (options.getThreads() > 1) {
             ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
             taskExecutor.setCorePoolSize(options.getThreads());

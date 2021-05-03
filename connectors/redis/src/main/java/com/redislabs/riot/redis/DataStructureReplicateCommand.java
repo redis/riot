@@ -1,18 +1,13 @@
 package com.redislabs.riot.redis;
 
-import io.lettuce.core.api.StatefulRedisConnection;
-import io.lettuce.core.cluster.api.StatefulRedisClusterConnection;
-import io.lettuce.core.cluster.pubsub.StatefulRedisClusterPubSubConnection;
-import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
+import com.redislabs.riot.RedisOptions;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.batch.item.redis.RedisClusterDataStructureItemReader;
-import org.springframework.batch.item.redis.RedisClusterDataStructureItemWriter;
-import org.springframework.batch.item.redis.RedisDataStructureItemReader;
-import org.springframework.batch.item.redis.RedisDataStructureItemWriter;
+import org.springframework.batch.item.redis.DataStructureItemReader;
+import org.springframework.batch.item.redis.DataStructureItemWriter;
 import org.springframework.batch.item.redis.support.DataStructure;
+import org.springframework.batch.item.redis.support.PollableItemReader;
 import picocli.CommandLine;
 
 @Slf4j
@@ -20,32 +15,23 @@ import picocli.CommandLine;
 public class DataStructureReplicateCommand extends AbstractReplicateCommand<DataStructure<String>> {
 
     @Override
-    protected ItemReader<DataStructure<String>> redisClusterReader(GenericObjectPool<StatefulRedisClusterConnection<String, String>> pool, StatefulRedisClusterConnection<String, String> connection) {
-        return readerOptions.configureScan(RedisClusterDataStructureItemReader.builder(pool, connection)).build();
+    protected ItemReader<DataStructure<String>> reader(RedisOptions redisOptions) {
+        return dataStructureReader();
     }
 
     @Override
-    protected ItemReader<DataStructure<String>> redisReader(GenericObjectPool<StatefulRedisConnection<String, String>> pool, StatefulRedisConnection<String, String> connection) {
-        return readerOptions.configureScan(RedisDataStructureItemReader.builder(pool, connection)).build();
+    protected PollableItemReader<DataStructure<String>> liveReader(RedisOptions redisOptions) {
+        if (redisOptions.isCluster()) {
+            return configure(DataStructureItemReader.client(redisOptions.redisClusterClient()).live()).build();
+        }
+        return configure(DataStructureItemReader.client(redisOptions.redisClient()).live()).build();
     }
 
     @Override
-    protected ItemReader<DataStructure<String>> liveRedisClusterReader(GenericObjectPool<StatefulRedisClusterConnection<String, String>> pool, StatefulRedisClusterPubSubConnection<String, String> pubSubConnection) {
-        return configureLiveReader(RedisClusterDataStructureItemReader.builder(pool, pubSubConnection)).build();
-    }
-
-    @Override
-    protected ItemReader<DataStructure<String>> liveRedisReader(GenericObjectPool<StatefulRedisConnection<String, String>> pool, StatefulRedisPubSubConnection<String, String> pubSubConnection) {
-        return configureLiveReader(RedisDataStructureItemReader.builder(pool, pubSubConnection)).build();
-    }
-
-    @Override
-    protected ItemWriter<DataStructure<String>> redisClusterWriter(GenericObjectPool<StatefulRedisClusterConnection<String, String>> pool, StatefulRedisClusterConnection<String, String> connection) {
-        return new RedisClusterDataStructureItemWriter<>(pool);
-    }
-
-    @Override
-    protected ItemWriter<DataStructure<String>> redisWriter(GenericObjectPool<StatefulRedisConnection<String, String>> pool, StatefulRedisConnection<String, String> connection) {
-        return new RedisDataStructureItemWriter<>(pool);
+    protected ItemWriter<DataStructure<String>> writer(RedisOptions redisOptions) {
+        if (redisOptions.isCluster()) {
+            return DataStructureItemWriter.client(redisOptions.redisClusterClient()).poolConfig(redisOptions.poolConfig()).build();
+        }
+        return DataStructureItemWriter.client(redisOptions.redisClient()).poolConfig(redisOptions.poolConfig()).build();
     }
 }

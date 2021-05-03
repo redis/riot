@@ -1,11 +1,17 @@
 package com.redislabs.riot.stream;
 
 import com.google.common.collect.ImmutableMap;
-import com.redislabs.riot.RiotIntegrationTest;
+import com.redislabs.riot.AbstractTaskCommand;
 import com.redislabs.riot.FlushingTransferOptions;
+import com.redislabs.riot.RiotIntegrationTest;
 import com.redislabs.testcontainers.RedisContainer;
+import io.lettuce.core.LettuceFutures;
 import io.lettuce.core.Range;
+import io.lettuce.core.RedisFuture;
 import io.lettuce.core.StreamMessage;
+import io.lettuce.core.api.async.BaseRedisAsyncCommands;
+import io.lettuce.core.api.async.RedisAsyncCommands;
+import io.lettuce.core.api.async.RedisStreamAsyncCommands;
 import io.lettuce.core.api.sync.RedisStreamCommands;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -32,6 +38,7 @@ import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.Future;
 
+@SuppressWarnings("unchecked")
 @Slf4j
 public class TestKafka extends RiotIntegrationTest {
 
@@ -41,7 +48,7 @@ public class TestKafka extends RiotIntegrationTest {
     }
 
     @Container
-    private final KafkaContainer KAFKA = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:5.2.1"));
+    private final KafkaContainer KAFKA = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka"));
 
     @ParameterizedTest
     @MethodSource("containers")
@@ -61,13 +68,9 @@ public class TestKafka extends RiotIntegrationTest {
     }
 
     private void configureImportCommand(CommandLine.ParseResult parseResult) {
-        StreamImportCommand importCommand = parseResult.subcommand().commandSpec().commandLine().getCommand();
-        configure(importCommand.getFlushingTransferOptions());
-        configure(importCommand.getOptions());
-    }
-
-    private void configure(FlushingTransferOptions flushingTransferOptions) {
-        flushingTransferOptions.setIdleTimeout(Duration.ofMillis(500));
+        StreamImportCommand command = parseResult.subcommand().commandSpec().commandLine().getCommand();
+        command.getFlushingTransferOptions().setIdleTimeout(Duration.ofMillis(500));
+        configure(command.getOptions());
     }
 
     private void configure(KafkaOptions options) {
@@ -75,10 +78,9 @@ public class TestKafka extends RiotIntegrationTest {
     }
 
     private void configureExportCommand(CommandLine.ParseResult parseResult) {
-        StreamExportCommand exportCommand = parseResult.subcommand().commandSpec().commandLine().getCommand();
-        exportCommand.setExecuteAsync(true);
-        configure(exportCommand.getFlushingTransferOptions());
-        configure(exportCommand.getOptions());
+        StreamExportCommand command = parseResult.subcommand().commandSpec().commandLine().getCommand();
+        command.getFlushingTransferOptions().setIdleTimeout(Duration.ofMillis(500));
+        configure(command.getOptions());
     }
 
     private Map<String, String> map() {
@@ -91,14 +93,19 @@ public class TestKafka extends RiotIntegrationTest {
     @ParameterizedTest
     @MethodSource("containers")
     public void testExport(RedisContainer container) throws Exception {
-        execute("export", container, this::configureExportCommand);
         String stream = "stream1";
         int producedCount = 100;
         log.info("Producing {} stream messages", producedCount);
-        RedisStreamCommands<String, String> sync = sync(container);
+        BaseRedisAsyncCommands<String, String> async = async(container);
+        async.setAutoFlushCommands(false);
+        List<RedisFuture<?>> futures = new ArrayList<>();
         for (int index = 0; index < producedCount; index++) {
-            sync.xadd(stream, map());
+            futures.add(((RedisStreamAsyncCommands<String, String>) async).xadd(stream, map()));
         }
+        async.flushCommands();
+        LettuceFutures.awaitAll(Duration.ofSeconds(1), futures.toArray(new RedisFuture[0]));
+        async.setAutoFlushCommands(true);
+        execute("export", container, this::configureExportCommand);
         KafkaConsumer<String, Map<String, Object>> consumer = new KafkaConsumer<>(ImmutableMap.of(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, KAFKA.getBootstrapServers(), ConsumerConfig.GROUP_ID_CONFIG, UUID.randomUUID().toString(), ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest"), new StringDeserializer(), new JsonDeserializer<>());
         consumer.subscribe(Collections.singletonList(stream));
         List<ConsumerRecord<String, Map<String, Object>>> consumerRecords = new ArrayList<>();
