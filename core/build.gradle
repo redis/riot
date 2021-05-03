@@ -1,3 +1,7 @@
+plugins {
+    id 'riot.library-conventions'
+}
+
 dependencies {
     api 'com.redislabs:mesclun:1.2.6'
     api 'com.redislabs:spring-batch-redis:2.12.0'

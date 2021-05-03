@@ -1,80 +1,24 @@
 plugins {
-    id 'net.researchgate.release' version '2.8.1'
-    id 'org.asciidoctor.jvm.convert' version '3.3.2'
+    id 'org.asciidoctor.jvm.convert'
     id 'org.ajoberstar.git-publish' version '3.0.0'
     id 'com.github.ben-manes.versions' version '0.38.0'
-    id 'org.springframework.boot' version '2.4.5'
-    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
-    id "io.freefair.lombok" version "6.0.0-m2"
-    id 'com.github.breadmoirai.github-release' version '2.2.12'
+    id 'org.jreleaser' version '0.2.0'
 }
 
 repositories {
     mavenCentral()
 }
 
-subprojects {
-    apply plugin: 'java'
-    apply plugin: 'java-library'
-    apply plugin: 'org.springframework.boot'
-    apply plugin: 'io.spring.dependency-management'
-    apply plugin: 'io.freefair.lombok'
-    apply plugin: 'org.asciidoctor.jvm.convert'
-    sourceCompatibility = '1.8'
-    targetCompatibility = '1.8'
-    repositories {
-        mavenCentral()
-        mavenLocal()
-    }
-    tasks.withType(Tar) {
-        compression = Compression.GZIP
-    }
-    bootJar {
-        enabled = false
-        classifier = 'boot'
-    }
-    jar {
-        enabled = true
-    }
-    dependencies {
-        compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
-        testImplementation 'org.junit.jupiter:junit-jupiter-engine'
-        testImplementation 'org.springframework.batch:spring-batch-test'
-        testImplementation 'org.hsqldb:hsqldb'
-    }
-    configurations {
-        all*.exclude module: 'spring-boot-starter-logging'
-    }
-    configurations.all {
-        resolutionStrategy.eachDependency { DependencyResolveDetails details ->
-            if (details.requested.group == 'io.lettuce') {
-                details.useVersion '6.1.1.RELEASE'
-            }
-        }
-    }
-    test {
-        useJUnitPlatform()
-    }
-}
-
-release {
-    tagTemplate = 'v${version}'
-    buildTasks = ['releaseBuild']
-}
-
-task releaseBuild {
-    dependsOn subprojects.findResults { it.tasks.findByName('build') }
-}
-
 asciidoctor {
+    sourceDir 'docs'
     resources {
-        from ('src/resources/images') {
+        from ('docs/images') {
             include 'riot.svg'
             include 'architecture.png'
             include 'mapping.png'
             include 'favicon.svg'
         }
-        from("connectors/file/src/test/resources/files") {
+        from("riot-file/src/test/resources/files") {
             include '*.*'
         }
     }
@@ -102,15 +46,18 @@ tasks.named("dependencyUpdates").configure {
     }
 }
 
-githubRelease {
-    token = project.hasProperty('githubToken') ? project.property('githubToken') : ''
-    owner "redis-developer"
-    repo "riot"
-    releaseAssets "connectors/db/build/distributions/riot-db-${project.version}.zip", "connectors/file/build/distributions/riot-file-${project.version}.zip", "connectors/gen/build/distributions/riot-gen-${project.version}.zip", "connectors/redis/build/distributions/riot-redis-${project.version}.zip", "connectors/stream/build/distributions/riot-stream-${project.version}.zip"
-    body changelog()
-    draft true
+jreleaser {
+    release {
+        github {
+            owner = 'redis-developer'
+            overwrite = true
+        }
+    }
+    packagers {
+        brew {
+            active = 'RELEASE'
+        }
+    }
 }
 
 gitPublishPush.dependsOn asciidoctor
-afterReleaseBuild.dependsOn gitPublishPush
-afterReleaseBuild.dependsOn ":githubRelease"

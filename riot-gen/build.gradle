@@ -1,0 +1,24 @@
+plugins {
+    id 'riot.library-conventions'
+    id 'riot.connector-conventions'
+}
+
+archivesBaseName = 'riot-gen'
+
+dependencies {
+    implementation project(':core')
+    implementation 'com.github.javafaker:javafaker:1.0.2'
+    testImplementation project(':test')
+	testImplementation('org.springframework.boot:spring-boot-starter-test') {
+		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+	}    
+}
+
+application {
+    mainClassName = 'com.redislabs.riot.gen.RiotGen'
+    applicationName = 'riot-gen'
+}
+
+asciidoctor {
+    outputDir "../build/docs/asciidoc/gen/"
+}

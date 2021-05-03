@@ -1,0 +1,31 @@
+plugins {
+    id 'riot.library-conventions'
+    id 'riot.connector-conventions'
+}
+
+archivesBaseName = 'riot-db'
+
+dependencies {
+    implementation project(':core')
+    implementation 'org.springframework.boot:spring-boot-autoconfigure'
+    implementation 'org.springframework:spring-jdbc'
+    implementation 'com.zaxxer:HikariCP'
+    implementation 'com.ibm.db2:jcc:11.5.5.0'
+    implementation 'com.microsoft.sqlserver:mssql-jdbc:9.2.1.jre8'
+    implementation 'com.oracle.ojdbc:ojdbc8:19.3.0.0'
+    implementation 'mysql:mysql-connector-java'
+    implementation 'org.postgresql:postgresql'
+    implementation 'org.xerial:sqlite-jdbc:3.34.0'
+    testImplementation project(':test')
+    testImplementation 'org.testcontainers:postgresql:1.15.3'
+    testImplementation 'org.testcontainers:oracle-xe:1.15.3'
+}
+
+application {
+    mainClassName = 'com.redislabs.riot.db.RiotDb'
+    applicationName = 'riot-db'
+}
+
+asciidoctor {
+    outputDir "../build/docs/asciidoc/db/"
+}
