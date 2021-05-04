@@ -5,6 +5,12 @@ plugins {
     id 'org.jreleaser' version '0.2.0'
 }
 
+project.rootProject.ext.theVersion = file('VERSION').text.trim()
+
+allprojects { p ->
+    p.version = p.rootProject.ext.theVersion
+}
+
 repositories {
     mavenCentral()
 }
@@ -47,15 +53,95 @@ tasks.named("dependencyUpdates").configure {
 }
 
 jreleaser {
+    project {
+        name = 'riot'
+        description = 'Redis Input/Output Tools'
+        longDescription = 'Get data in and out of Redis with RIOT'
+        website = 'https://developer.redislabs.com/riot'
+        authors = ['Julien Ruaux']
+        tags = ['redis']
+        license = 'Apache-2.0'
+        java {
+            multiProject = true
+        }
+    }
     release {
         github {
+            username = 'jruaux'
             owner = 'redis-developer'
             overwrite = true
         }
     }
-    packagers {
-        brew {
-            active = 'RELEASE'
+    distributions {
+        db {
+            executable = 'riot-db'
+            brew {
+                active = 'release'
+            }
+            artifacts {
+                artifact {
+                    path = "riot-db/build/distributions/riot-db-${version}.zip"
+                }
+            }
+            java {
+                artifactId = 'riot-db'
+            }
+        }
+        file {
+            executable = 'riot-file'
+            brew {
+                active = 'release'
+            }
+            artifacts {
+                artifact {
+                    path = "riot-file/build/distributions/riot-file-${version}.zip"
+                }
+            }
+            java {
+                artifactId = 'riot-file'
+            }
+        }
+        gen {
+            executable = 'riot-gen'
+            brew {
+                active = 'release'
+            }
+            artifacts {
+                artifact {
+                    path = "riot-gen/build/distributions/riot-gen-${version}.zip"
+                }
+            }
+            java {
+                artifactId = 'riot-gen'
+            }
+        }
+        redis {
+            executable = 'riot-redis'
+            brew {
+                active = 'release'
+            }
+            artifacts {
+                artifact {
+                    path = "riot-redis/build/distributions/riot-redis-${version}.zip"
+                }
+            }
+            java {
+                artifactId = 'riot-redis'
+            }
+        }
+        stream {
+            executable = 'riot-stream'
+            brew {
+                active = 'release'
+            }
+            artifacts {
+                artifact {
+                    path = "riot-stream/build/distributions/riot-stream-${version}.zip"
+                }
+            }
+            java {
+                artifactId = 'riot-stream'
+            }
         }
     }
 }

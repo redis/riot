@@ -8,8 +8,8 @@ dependencies {
     api 'org.springframework.batch:spring-batch-core'
     api 'org.slf4j:slf4j-api'
     implementation 'org.slf4j:slf4j-jdk14'
-    api group: 'info.picocli', name: 'picocli', version: picocli_version
-    annotationProcessor group: 'info.picocli', name: 'picocli-codegen', version: picocli_version
+    api group: 'info.picocli', name: 'picocli', version: picocliVersion
+    annotationProcessor group: 'info.picocli', name: 'picocli-codegen', version: picocliVersion
     implementation 'me.tongfei:progressbar:0.9.1'
     implementation 'org.latencyutils:LatencyUtils:2.0.3'
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'

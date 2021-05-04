@@ -1,2 +1,8 @@
+pluginManagement {
+    repositories {
+        mavenLocal()
+        gradlePluginPortal()
+    }
+}
 rootProject.name = 'riot'
 include 'core', 'test', 'riot-db', 'riot-file', 'riot-gen', 'riot-redis', 'riot-stream'
