@@ -443,7 +443,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="header">
 <h1>RIOT File</h1>
 <div class="details">
-<span id="revnumber">version 2.10.0</span>
+<span id="revnumber">version 2.11.1</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Contents</div>
@@ -515,7 +515,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="listingblock">
 <div class="content">
 <pre class="rouge highlight"><code data-lang="source">git clone https://github.com/redis-developer/riot.git
-cd riot/connectors/file
+cd riot-file
 ./riot-file</code></pre>
 </div>
 </div>
@@ -818,7 +818,7 @@ Use <code>-</code> to read from standard input.
 </div>
 </div>
 <div class="listingblock">
-<div class="title">XML import example</div>
+<div class="title">XML Import Example</div>
 <div class="content">
 <pre class="rouge highlight"><code data-lang="bash">riot-file import http://developer.redislabs.com/riot/trades.xml hset <span class="nt">--keyspace</span> trade <span class="nt">--keys</span> <span class="nb">id</span></code></pre>
 </div>
@@ -829,72 +829,10 @@ Use <code>-</code> to read from standard input.
 <div class="paragraph">
 <p>RIOT File can also import Redis data structure files in JSON or XML formats (see Export &#8594; Redis to generate such files).</p>
 </div>
-<div class="paragraph">
-<p>These files look like this:</p>
-</div>
 <div class="listingblock">
+<div class="title">Dump Import Example</div>
 <div class="content">
-<pre class="rouge highlight"><code data-lang="json"><span class="p">[</span><span class="w">
-  </span><span class="p">{</span><span class="w">
-    </span><span class="nl">"key"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string:615"</span><span class="p">,</span><span class="w">
-    </span><span class="nl">"ttl"</span><span class="p">:</span><span class="w"> </span><span class="mi">-1</span><span class="p">,</span><span class="w">
-    </span><span class="nl">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"value:615"</span><span class="p">,</span><span class="w">
-    </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"STRING"</span><span class="w">
-  </span><span class="p">},</span><span class="w">
-  </span><span class="p">{</span><span class="w">
-    </span><span class="nl">"key"</span><span class="p">:</span><span class="w"> </span><span class="s2">"hash:511"</span><span class="p">,</span><span class="w">
-    </span><span class="nl">"ttl"</span><span class="p">:</span><span class="w"> </span><span class="mi">-1</span><span class="p">,</span><span class="w">
-    </span><span class="nl">"value"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-      </span><span class="nl">"field1"</span><span class="p">:</span><span class="w"> </span><span class="s2">"value511"</span><span class="p">,</span><span class="w">
-      </span><span class="nl">"field2"</span><span class="p">:</span><span class="w"> </span><span class="s2">"value511"</span><span class="w">
-    </span><span class="p">},</span><span class="w">
-    </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"HASH"</span><span class="w">
-  </span><span class="p">},</span><span class="w">
-  </span><span class="p">{</span><span class="w">
-    </span><span class="nl">"key"</span><span class="p">:</span><span class="w"> </span><span class="s2">"list:1"</span><span class="p">,</span><span class="w">
-    </span><span class="nl">"ttl"</span><span class="p">:</span><span class="w"> </span><span class="mi">-1</span><span class="p">,</span><span class="w">
-    </span><span class="nl">"value"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
-      </span><span class="s2">"member:991"</span><span class="p">,</span><span class="w">
-      </span><span class="s2">"member:981"</span><span class="w">
-    </span><span class="p">],</span><span class="w">
-    </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"LIST"</span><span class="w">
-  </span><span class="p">},</span><span class="w">
-  </span><span class="p">{</span><span class="w">
-    </span><span class="nl">"key"</span><span class="p">:</span><span class="w"> </span><span class="s2">"set:2"</span><span class="p">,</span><span class="w">
-    </span><span class="nl">"ttl"</span><span class="p">:</span><span class="w"> </span><span class="mi">-1</span><span class="p">,</span><span class="w">
-    </span><span class="nl">"value"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
-      </span><span class="s2">"member:2"</span><span class="p">,</span><span class="w">
-      </span><span class="s2">"member:3"</span><span class="w">
-    </span><span class="p">],</span><span class="w">
-    </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"SET"</span><span class="w">
-  </span><span class="p">},</span><span class="w">
-  </span><span class="p">{</span><span class="w">
-    </span><span class="nl">"key"</span><span class="p">:</span><span class="w"> </span><span class="s2">"zset:0"</span><span class="p">,</span><span class="w">
-    </span><span class="nl">"ttl"</span><span class="p">:</span><span class="w"> </span><span class="mi">-1</span><span class="p">,</span><span class="w">
-    </span><span class="nl">"value"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
-      </span><span class="p">{</span><span class="w">
-        </span><span class="nl">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"member:1"</span><span class="p">,</span><span class="w">
-        </span><span class="nl">"score"</span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span><span class="w">
-      </span><span class="p">}</span><span class="w">
-    </span><span class="p">],</span><span class="w">
-    </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ZSET"</span><span class="w">
-  </span><span class="p">},</span><span class="w">
-  </span><span class="p">{</span><span class="w">
-    </span><span class="nl">"key"</span><span class="p">:</span><span class="w"> </span><span class="s2">"stream:0"</span><span class="p">,</span><span class="w">
-    </span><span class="nl">"ttl"</span><span class="p">:</span><span class="w"> </span><span class="mi">-1</span><span class="p">,</span><span class="w">
-    </span><span class="nl">"value"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
-      </span><span class="p">{</span><span class="w">
-        </span><span class="nl">"stream"</span><span class="p">:</span><span class="w"> </span><span class="s2">"stream:0"</span><span class="p">,</span><span class="w">
-        </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1602190921109-0"</span><span class="p">,</span><span class="w">
-        </span><span class="nl">"body"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-          </span><span class="nl">"field1"</span><span class="p">:</span><span class="w"> </span><span class="s2">"value0"</span><span class="p">,</span><span class="w">
-          </span><span class="nl">"field2"</span><span class="p">:</span><span class="w"> </span><span class="s2">"value0"</span><span class="w">
-        </span><span class="p">}</span><span class="w">
-      </span><span class="p">}</span><span class="w">
-    </span><span class="p">],</span><span class="w">
-    </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"STREAM"</span><span class="w">
-  </span><span class="p">}</span><span class="w">
-</span><span class="p">]</span></code></pre>
+<pre class="rouge highlight"><code data-lang="bash">include::src/test/resources/import-dump</code></pre>
 </div>
 </div>
 </div>
@@ -1057,13 +995,79 @@ Use <code>-</code> to read from standard input.
 <pre class="rouge highlight"><code data-lang="bash">riot-file <span class="nb">export</span> /tmp/redis.xml</code></pre>
 </div>
 </div>
+<div class="listingblock">
+<div class="title">JSON Export File Example</div>
+<div class="content">
+<pre class="rouge highlight"><code data-lang="json"><span class="p">[</span><span class="w">
+  </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"key"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string:615"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"ttl"</span><span class="p">:</span><span class="w"> </span><span class="mi">-1</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"value:615"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"STRING"</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"key"</span><span class="p">:</span><span class="w"> </span><span class="s2">"hash:511"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"ttl"</span><span class="p">:</span><span class="w"> </span><span class="mi">-1</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"value"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"field1"</span><span class="p">:</span><span class="w"> </span><span class="s2">"value511"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"field2"</span><span class="p">:</span><span class="w"> </span><span class="s2">"value511"</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"HASH"</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"key"</span><span class="p">:</span><span class="w"> </span><span class="s2">"list:1"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"ttl"</span><span class="p">:</span><span class="w"> </span><span class="mi">-1</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"value"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="s2">"member:991"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"member:981"</span><span class="w">
+    </span><span class="p">],</span><span class="w">
+    </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"LIST"</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"key"</span><span class="p">:</span><span class="w"> </span><span class="s2">"set:2"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"ttl"</span><span class="p">:</span><span class="w"> </span><span class="mi">-1</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"value"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="s2">"member:2"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"member:3"</span><span class="w">
+    </span><span class="p">],</span><span class="w">
+    </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"SET"</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"key"</span><span class="p">:</span><span class="w"> </span><span class="s2">"zset:0"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"ttl"</span><span class="p">:</span><span class="w"> </span><span class="mi">-1</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"value"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"member:1"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"score"</span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">],</span><span class="w">
+    </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ZSET"</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"key"</span><span class="p">:</span><span class="w"> </span><span class="s2">"stream:0"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"ttl"</span><span class="p">:</span><span class="w"> </span><span class="mi">-1</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"value"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"stream"</span><span class="p">:</span><span class="w"> </span><span class="s2">"stream:0"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1602190921109-0"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"body"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+          </span><span class="nl">"field1"</span><span class="p">:</span><span class="w"> </span><span class="s2">"value0"</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"field2"</span><span class="p">:</span><span class="w"> </span><span class="s2">"value0"</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">],</span><span class="w">
+    </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"STREAM"</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">]</span></code></pre>
+</div>
+</div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 2.10.0<br>
-Last updated 2021-04-06 16:50:52 -0700
+Version 2.11.1<br>
+Last updated 2021-05-03 12:36:20 -0700
 </div>
 </div>
 <style>
