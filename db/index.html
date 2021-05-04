@@ -452,6 +452,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <ul class="sectlevel2">
 <li><a href="#_download_and_run">Download and Run</a></li>
 <li><a href="#_homebrew_macos">Homebrew (macOS)</a></li>
+<li><a href="#_scoop_windows">Scoop (Windows)</a></li>
 <li><a href="#_build_and_run">Build and Run</a></li>
 </ul>
 </li>
@@ -497,7 +498,16 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h3 id="_homebrew_macos"><a class="anchor" href="#_homebrew_macos"></a>Homebrew (macOS)</h3>
 <div class="listingblock">
 <div class="content">
-<pre class="rouge highlight"><code data-lang="source">brew install jruaux/tap/riot-db</code></pre>
+<pre class="rouge highlight"><code data-lang="source">brew install redis-developer/tap/riot-db</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_scoop_windows"><a class="anchor" href="#_scoop_windows"></a>Scoop (Windows)</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="source">scoop bucket add redis-developer https://github.com/redis-developer/scoop-redis-developer.git
+scoop install riot-db</code></pre>
 </div>
 </div>
 </div>
