@@ -31,7 +31,7 @@ asciidoctor {
 }
 
 gitPublish {
-    repoUri = 'git@github.com:redis-developer/riot.git'
+    repoUri = 'https://github.com/redis-developer/riot.git'
     referenceRepoUri = 'file:///Users/jruaux/git/riot/'
     branch = 'gh-pages'
     contents {
