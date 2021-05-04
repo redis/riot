@@ -77,6 +77,10 @@ jreleaser {
             executable = 'riot-db'
             brew {
                 active = 'release'
+                formulaName = 'riot-db'
+            }
+            scoop {
+                active = 'release'
             }
             artifacts {
                 artifact {
@@ -90,6 +94,10 @@ jreleaser {
         file {
             executable = 'riot-file'
             brew {
+                active = 'release'
+                formulaName = 'riot-file'
+            }
+            scoop {
                 active = 'release'
             }
             artifacts {
@@ -105,6 +113,10 @@ jreleaser {
             executable = 'riot-gen'
             brew {
                 active = 'release'
+                formulaName = 'riot-gen'
+            }
+            scoop {
+                active = 'release'
             }
             artifacts {
                 artifact {
@@ -119,6 +131,10 @@ jreleaser {
             executable = 'riot-redis'
             brew {
                 active = 'release'
+                formulaName = 'riot-redis'
+            }
+            scoop {
+                active = 'release'
             }
             artifacts {
                 artifact {
@@ -132,6 +148,10 @@ jreleaser {
         stream {
             executable = 'riot-stream'
             brew {
+                active = 'release'
+                formulaName = 'riot-stream'
+            }
+            scoop {
                 active = 'release'
             }
             artifacts {
