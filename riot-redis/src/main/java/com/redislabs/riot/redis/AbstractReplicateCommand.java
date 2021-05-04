@@ -65,6 +65,7 @@ public abstract class AbstractReplicateCommand<T extends KeyValue<String, ?>> ex
     private TaskletStep scanStep(StepBuilderFactory stepBuilderFactory) {
         StepBuilder stepBuilder = stepBuilderFactory.get("scan-replication-step");
         RiotStepBuilder<T, T> scanStep = riotStep(stepBuilder, "Scanning");
+        scanStep.initialMax(readerOptions.initialMaxSupplier(getRedisOptions()));
         return scanStep.reader(reader(getRedisOptions())).writer(writer(targetRedisOptions)).build().build();
     }
 
@@ -128,13 +129,6 @@ public abstract class AbstractReplicateCommand<T extends KeyValue<String, ?>> ex
     protected <B extends KeyValueItemReader.KeyValueItemReaderBuilder> B configure(B builder) {
         log.info("Configuring reader with {}", readerOptions);
         return readerOptions.configure(builder);
-    }
-
-    @Override
-    protected <I, O> RiotStepBuilder<I, O> riotStep(StepBuilder stepBuilder, String taskName) {
-        RiotStepBuilder<I, O> riotStepBuilder = super.riotStep(stepBuilder, taskName);
-        riotStepBuilder.initialMax(readerOptions.initialMaxSupplier(getRedisOptions()));
-        return riotStepBuilder;
     }
 
 }
