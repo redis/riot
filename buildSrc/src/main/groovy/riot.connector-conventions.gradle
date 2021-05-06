@@ -1,6 +1,9 @@
 plugins {
     id 'org.asciidoctor.jvm.convert'
     id 'application'
+    id 'java-library'
+    id 'maven-publish'
+    id 'signing'
 }
 
 repositories {
