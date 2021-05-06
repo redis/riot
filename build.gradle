@@ -11,6 +11,14 @@ repositories {
     mavenCentral()
 }
 
+release {
+    failOnCommitNeeded = false
+    failOnPublishNeeded = false
+    failOnSnapshotDependencies = false
+    failOnUnversionedFiles = false
+    failOnUpdateNeeded = false
+}
+
 asciidoctor {
     sourceDir 'docs'
     resources {
@@ -95,6 +103,6 @@ jreleaser {
     }
 }
 
-gitPublishPush.dependsOn asciidoctor
-afterReleaseBuild.dependsOn gitPublishPush
-afterReleaseBuild.dependsOn ":jreleaserFullRelease"
+//gitPublishPush.dependsOn asciidoctor
+//afterReleaseBuild.dependsOn gitPublishPush
+//afterReleaseBuild.dependsOn ":jreleaserFullRelease"
