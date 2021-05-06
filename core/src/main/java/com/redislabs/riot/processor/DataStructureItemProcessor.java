@@ -10,23 +10,20 @@ import org.springframework.batch.item.redis.support.DataStructure;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.util.Assert;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class DataStructureItemProcessor implements ItemProcessor<DataStructure<String>, Map<String, Object>> {
 
     private final Converter<String, Map<String, String>> keyFieldsExtractor;
     private final Converter<Map<String, String>, Map<String, String>> hashConverter;
     private final Converter<List<StreamMessage<String, String>>, Map<String, String>> streamConverter;
-    private final Converter<List<String>, Map<String, String>> listConverter;
-    private final Converter<Set<String>, Map<String, String>> setConverter;
+    private final Converter<Collection<String>, Map<String, String>> listConverter;
+    private final Converter<Collection<String>, Map<String, String>> setConverter;
     private final Converter<List<ScoredValue<String>>, Map<String, String>> zsetConverter;
     private final Converter<String, Map<String, String>> stringConverter;
     private final Converter<Object, Map<String, String>> defaultConverter;
 
-    public DataStructureItemProcessor(Converter<String, Map<String, String>> keyFieldsExtractor, Converter<Map<String, String>, Map<String, String>> hashConverter, Converter<List<String>, Map<String, String>> listConverter, Converter<Set<String>, Map<String, String>> setConverter, Converter<List<StreamMessage<String, String>>, Map<String, String>> streamConverter, Converter<String, Map<String, String>> stringConverter, Converter<List<ScoredValue<String>>, Map<String, String>> zsetConverter, Converter<Object, Map<String, String>> defaultConverter) {
+    public DataStructureItemProcessor(Converter<String, Map<String, String>> keyFieldsExtractor, Converter<Map<String, String>, Map<String, String>> hashConverter, Converter<Collection<String>, Map<String, String>> listConverter, Converter<Collection<String>, Map<String, String>> setConverter, Converter<List<StreamMessage<String, String>>, Map<String, String>> streamConverter, Converter<String, Map<String, String>> stringConverter, Converter<List<ScoredValue<String>>, Map<String, String>> zsetConverter, Converter<Object, Map<String, String>> defaultConverter) {
         this.keyFieldsExtractor = keyFieldsExtractor;
         this.hashConverter = hashConverter;
         this.listConverter = listConverter;
@@ -81,8 +78,8 @@ public class DataStructureItemProcessor implements ItemProcessor<DataStructure<S
         return new DataStructureItemProcessorBuilder();
     }
 
-    @Accessors(fluent = true)
     @Setter
+    @Accessors(fluent = true)
     public static class DataStructureItemProcessorBuilder {
 
         private String keyRegex;
@@ -90,9 +87,9 @@ public class DataStructureItemProcessor implements ItemProcessor<DataStructure<S
         public DataStructureItemProcessor build() {
             Assert.notNull(keyRegex, "Key regex is required.");
             RegexNamedGroupsExtractor keyFieldsExtractor = RegexNamedGroupsExtractor.builder().regex(keyRegex).build();
-            StreamToStringMapConverter streamConverter = new StreamToStringMapConverter();
-            CollectionToStringMapConverter<List<String>> listConverter = new CollectionToStringMapConverter<>();
-            CollectionToStringMapConverter<Set<String>> setConverter = new CollectionToStringMapConverter<>();
+            StreamToStringMapConverter streamConverter = StreamToStringMapConverter.builder().build();
+            CollectionToStringMapConverter listConverter = CollectionToStringMapConverter.builder().build();
+            CollectionToStringMapConverter setConverter = CollectionToStringMapConverter.builder().build();
             ZsetToStringMapConverter zsetConverter = new ZsetToStringMapConverter();
             Converter<String, Map<String, String>> stringConverter = new StringToStringMapConverter();
             return new DataStructureItemProcessor(keyFieldsExtractor, c -> c, listConverter, setConverter, streamConverter, stringConverter, zsetConverter, c -> null);

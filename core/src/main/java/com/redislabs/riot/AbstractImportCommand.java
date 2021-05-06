@@ -1,8 +1,8 @@
 package com.redislabs.riot;
 
 import com.redislabs.riot.redis.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.springframework.batch.core.step.builder.AbstractTaskletStepBuilder;
 import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.core.step.builder.StepBuilder;
@@ -20,14 +20,14 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+@Data
+@EqualsAndHashCode(callSuper = true)
 @Command(subcommands = {EvalCommand.class, ExpireCommand.class, GeoaddCommand.class, HsetCommand.class, LpushCommand.class, NoopCommand.class, RpushCommand.class, SaddCommand.class, SetCommand.class, XaddCommand.class, ZaddCommand.class, SugaddCommand.class}, subcommandsRepeatable = true, synopsisSubcommandLabel = "[REDIS COMMAND]", commandListHeading = "Redis commands:%n")
 public abstract class AbstractImportCommand<I, O> extends AbstractTransferCommand {
 
     /**
      * Initialized manually during command parsing
      */
-    @Setter
-    @Getter
     private List<RedisCommand<O>> redisCommands = new ArrayList<>();
 
     protected AbstractTaskletStepBuilder<SimpleStepBuilder<I, O>> step(StepBuilder stepBuilder, String taskName, ItemReader<I> reader) throws Exception {

@@ -4,6 +4,7 @@ import io.lettuce.core.RedisURI;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import io.netty.util.internal.logging.JdkLoggerFactory;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import picocli.CommandLine;
@@ -18,6 +19,7 @@ import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 @Data
+@EqualsAndHashCode(callSuper = true)
 @Command(sortOptions = false, versionProvider = ManifestVersionProvider.class, subcommands = GenerateCompletionCommand.class, abbreviateSynopsis = true)
 public class RiotApp extends HelpCommand {
 

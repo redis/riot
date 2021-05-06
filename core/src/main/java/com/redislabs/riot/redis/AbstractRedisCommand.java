@@ -6,8 +6,8 @@ import com.redislabs.riot.convert.CompositeConverter;
 import com.redislabs.riot.convert.FieldExtractor;
 import com.redislabs.riot.convert.ObjectToNumberConverter;
 import com.redislabs.riot.convert.ObjectToStringConverter;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.springframework.batch.item.redis.support.KeyMaker;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.util.ObjectUtils;
@@ -15,16 +15,14 @@ import picocli.CommandLine;
 
 import java.util.Map;
 
+@Data
+@EqualsAndHashCode(callSuper = true)
 @CommandLine.Command(sortOptions = false, abbreviateSynopsis = true)
 public abstract class AbstractRedisCommand<O> extends HelpCommand implements RedisCommand<O> {
 
-    @Setter
-    @Getter
     @CommandLine.Option(names = {"-s", "--separator"}, description = "Key separator (default: ${DEFAULT-VALUE})", paramLabel = "<str>")
     private String keySeparator = ":";
     @SuppressWarnings("unused")
-    @Setter
-    @Getter
     @CommandLine.Option(names = {"-r", "--remove"}, description = "Remove key or member fields the first time they are used")
     private boolean removeFields;
 

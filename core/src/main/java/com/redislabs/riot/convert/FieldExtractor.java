@@ -26,8 +26,8 @@ public abstract class FieldExtractor implements Converter<Map<String, Object>, O
 		return new FieldExtractorBuilder();
 	}
 
-	@Accessors(fluent = true)
 	@Setter
+	@Accessors(fluent = true)
 	public static class FieldExtractorBuilder {
 
 		private String field;

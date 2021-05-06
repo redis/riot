@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.function.Consumer;
 
+@SuppressWarnings("unchecked")
 public abstract class AbstractRiotTest {
 
     protected abstract RiotApp app();
@@ -26,8 +27,7 @@ public abstract class AbstractRiotTest {
         }
     }
 
-    protected int
-    execute(String filename, RedisContainer container, Consumer<CommandLine.ParseResult>... configurators) throws Exception {
+    protected int execute(String filename, RedisContainer container, Consumer<CommandLine.ParseResult>... configurators) throws Exception {
         RiotApp app = app();
         RiotCommandLine commandLine = app.commandLine();
         CommandLine.ParseResult parseResult = commandLine.parseArgs(args(filename));

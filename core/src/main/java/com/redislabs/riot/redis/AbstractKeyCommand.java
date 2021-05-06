@@ -1,5 +1,7 @@
 package com.redislabs.riot.redis;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.batch.item.redis.support.operation.AbstractKeyOperation;
@@ -8,15 +10,13 @@ import picocli.CommandLine.Option;
 
 import java.util.Map;
 
+@Data
+@EqualsAndHashCode(callSuper = true)
 @CommandLine.Command
 public abstract class AbstractKeyCommand extends AbstractRedisCommand<Map<String, Object>> {
 
-    @Setter
-    @Getter
     @Option(names = {"-p", "--keyspace"}, description = "Keyspace prefix", paramLabel = "<str>")
     private String keyspace = "";
-    @Setter
-    @Getter
     @Option(names = {"-k", "--keys"}, arity = "1..*", description = "Key fields", paramLabel = "<fields>")
     private String[] keys;
 

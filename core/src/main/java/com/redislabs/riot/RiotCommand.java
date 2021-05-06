@@ -1,8 +1,8 @@
 package com.redislabs.riot;
 
 import io.lettuce.core.RedisURI;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.ParentCommand;
@@ -10,14 +10,14 @@ import picocli.CommandLine.ParentCommand;
 import java.util.concurrent.Callable;
 
 @Slf4j
+@Data
+@EqualsAndHashCode(callSuper = true)
 @Command(abbreviateSynopsis = true, sortOptions = false)
 public abstract class RiotCommand extends HelpCommand implements Callable<Integer> {
 
     @SuppressWarnings("unused")
     @ParentCommand
-    @Setter
-    @Getter
-    public RiotApp app;
+    private RiotApp app;
 
     protected RedisOptions getRedisOptions() {
         return app.getRedisOptions();

@@ -1,7 +1,7 @@
 package com.redislabs.riot;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.*;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
@@ -18,11 +18,11 @@ import picocli.CommandLine;
 import java.util.function.Function;
 
 @Slf4j
+@Data
+@EqualsAndHashCode(callSuper = true)
 @CommandLine.Command
 public abstract class AbstractTaskCommand extends RiotCommand {
 
-    @Setter
-    @Getter
     private ExecutionStrategy executionStrategy = ExecutionStrategy.SYNC;
 
     protected final Flow flow(Step... steps) {

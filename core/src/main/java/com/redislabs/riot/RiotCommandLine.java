@@ -8,7 +8,6 @@ import java.util.List;
 
 public class RiotCommandLine extends CommandLine {
 
-    @Getter
     private final RiotApp app;
     private final IExecutionStrategy executionStrategy;
 

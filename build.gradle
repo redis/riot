@@ -6,6 +6,11 @@ plugins {
     id 'org.jreleaser' version '0.2.0'
 }
 
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
 asciidoctor {
     sourceDir 'docs'
     resources {

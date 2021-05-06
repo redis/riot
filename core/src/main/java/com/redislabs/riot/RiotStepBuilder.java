@@ -39,7 +39,7 @@ public class RiotStepBuilder<I, O> {
         this.options = options;
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public SimpleStepBuilder<I, O> build() {
         SimpleStepBuilder<I, O> step = stepBuilder.<I, O>chunk(options.getChunkSize()).reader(reader).processor(processor).writer(writer);
         if (options.getProgress() != TransferOptions.Progress.NONE) {
