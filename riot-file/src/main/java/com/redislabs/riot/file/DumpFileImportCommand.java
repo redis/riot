@@ -5,7 +5,8 @@ import com.redislabs.riot.AbstractTransferCommand;
 import com.redislabs.riot.RedisOptions;
 import com.redislabs.riot.RiotStepBuilder;
 import io.lettuce.core.cluster.RedisClusterClient;
-import lombok.*;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
@@ -30,17 +31,13 @@ import java.util.List;
 @Slf4j
 @Data
 @EqualsAndHashCode(callSuper = true)
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 @Command(name = "import-dump", description = "Import Redis data files into Redis")
 public class DumpFileImportCommand extends AbstractTransferCommand {
 
     @CommandLine.Parameters(arity = "0..*", description = "One ore more files or URLs", paramLabel = "FILE")
     private List<String> files;
-    @Builder.Default
     @CommandLine.Mixin
-    private DumpFileImportOptions options = DumpFileImportOptions.builder().build();
+    private DumpFileImportOptions options = new DumpFileImportOptions();
 
     @Override
     protected Flow flow(StepBuilderFactory stepBuilderFactory) throws Exception {

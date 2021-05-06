@@ -1,12 +1,9 @@
 package com.redislabs.riot.db;
 
-import lombok.*;
+import lombok.Data;
 import picocli.CommandLine;
 
 @Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class DatabaseImportOptions {
 
     @CommandLine.Option(names = "--fetch", description = "Number of rows to return with each fetch.", paramLabel = "<size>")

@@ -2,7 +2,8 @@ package com.redislabs.riot.file;
 
 import com.redislabs.riot.AbstractImportCommand;
 import com.redislabs.riot.ProcessorOptions;
-import lombok.*;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
@@ -32,9 +33,6 @@ import java.util.Map;
 @Slf4j
 @Data
 @EqualsAndHashCode(callSuper = true)
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 @Command(name = "import", description = "Import delimited, fixed-width, JSON, or XML files into Redis.")
 public class FileImportCommand extends AbstractImportCommand<Map<String, Object>, Map<String, Object>> {
 
@@ -44,18 +42,15 @@ public class FileImportCommand extends AbstractImportCommand<Map<String, Object>
 
     private static final String DELIMITER_PIPE = "|";
 
-    @Singular
     @SuppressWarnings("unused")
     @CommandLine.Parameters(arity = "0..*", description = "One ore more files or URLs", paramLabel = "FILE")
-    private List<String> files;
+    private List<String> files = new ArrayList<>();
     @CommandLine.Option(names = {"-t", "--filetype"}, description = "File type: ${COMPLETION-CANDIDATES}", paramLabel = "<type>")
     private FileType type;
-    @Builder.Default
     @CommandLine.ArgGroup(exclusive = false, heading = "Delimited and fixed-width file options%n")
-    private FileImportOptions options = FileImportOptions.builder().build();
-    @Builder.Default
+    private FileImportOptions options = new FileImportOptions();
     @CommandLine.ArgGroup(exclusive = false, heading = "Processor options%n")
-    private ProcessorOptions processorOptions = ProcessorOptions.builder().build();
+    private ProcessorOptions processorOptions = new ProcessorOptions();
 
     @Override
     protected Flow flow(StepBuilderFactory stepBuilderFactory) throws Exception {

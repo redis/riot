@@ -3,7 +3,7 @@ package com.redislabs.riot.stream;
 import io.confluent.kafka.serializers.AbstractKafkaSchemaSerDeConfig;
 import io.confluent.kafka.serializers.KafkaAvroDeserializer;
 import io.confluent.kafka.serializers.KafkaAvroSerializer;
-import lombok.*;
+import lombok.Data;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.Serializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -23,9 +23,6 @@ import java.util.Map;
 import java.util.Properties;
 
 @Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class KafkaOptions {
 
     public enum SerDe {
@@ -34,15 +31,12 @@ public class KafkaOptions {
 
     @Option(arity = "1..*", names = "--broker", description = "One or more brokers in the form host:port.", paramLabel = "<server>")
     private String[] brokers;
-    @Builder.Default
     @Option(names = "--group", description = "Consumer group id.", paramLabel = "<id>")
     private String groupId = "$Default";
-    @Getter
     @Option(names = "--registry", description = "Schema registry URL.", paramLabel = "<url>")
     private String schemaRegistryUrl;
     @Option(arity = "1..*", names = {"-p", "--property"}, description = "Additional producer/consumer properties.", paramLabel = "<k=v>")
     private Map<String, String> properties;
-    @Builder.Default
     @Option(names = "--serde", description = "Serializer/Deserializer: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<serde>")
     private SerDe serde = SerDe.JSON;
 

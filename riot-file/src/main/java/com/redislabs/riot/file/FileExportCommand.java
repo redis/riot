@@ -28,7 +28,7 @@ public class FileExportCommand extends AbstractExportCommand<DataStructure<Strin
     @CommandLine.Parameters(arity = "1", description = "File path or URL", paramLabel = "FILE")
     private String file;
     @CommandLine.ArgGroup(exclusive = false, heading = "File export options%n")
-    private FileExportOptions options = FileExportOptions.builder().build();
+    private FileExportOptions options = new FileExportOptions();
 
     @Override
     protected Flow flow(StepBuilderFactory stepBuilderFactory) throws Exception {

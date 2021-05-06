@@ -28,11 +28,11 @@ public abstract class AbstractTargetCommand extends AbstractFlushingTransferComm
     private static final String COLORFUL_COMPARE_MESSAGE_FORMAT = "\u001b[31m>%,d \u001b[33mT%,d \u001b[35m≠%,d \u001b[36m⧗%,d \u001b[34m<%,d\u001b[0m";
 
     @CommandLine.ArgGroup(exclusive = false, heading = "Target Redis connection options%n")
-    protected RedisOptions targetRedisOptions = RedisOptions.builder().build();
+    protected RedisOptions targetRedisOptions = new RedisOptions();
     @CommandLine.ArgGroup(exclusive = false, heading = "Source Redis reader options%n")
-    protected RedisReaderOptions readerOptions = RedisReaderOptions.builder().build();
+    protected RedisReaderOptions readerOptions = new RedisReaderOptions();
     @CommandLine.Mixin
-    private CompareOptions compareOptions = CompareOptions.builder().build();
+    private CompareOptions compareOptions = new CompareOptions();
 
     protected void initialMax(RiotStepBuilder<?, ?> step) {
         step.initialMax(readerOptions.initialMaxSupplier(getRedisOptions()));

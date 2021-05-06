@@ -26,9 +26,9 @@ public class DatabaseExportCommand extends AbstractExportCommand<Map<String, Obj
     @CommandLine.Parameters(arity = "1", description = "SQL INSERT statement.", paramLabel = "SQL")
     private String sql;
     @Mixin
-    private DataSourceOptions dataSourceOptions = DataSourceOptions.builder().build();
+    private DataSourceOptions dataSourceOptions = new DataSourceOptions();
     @Mixin
-    private DatabaseExportOptions exportOptions = DatabaseExportOptions.builder().build();
+    private DatabaseExportOptions exportOptions = new DatabaseExportOptions();
 
     @Override
     protected Flow flow(StepBuilderFactory stepBuilderFactory) throws Exception {

@@ -15,7 +15,7 @@ import java.time.Duration;
 public abstract class AbstractFlushingTransferCommand extends AbstractTransferCommand {
 
     @CommandLine.Mixin
-    protected FlushingTransferOptions flushingTransferOptions = FlushingTransferOptions.builder().build();
+    protected FlushingTransferOptions flushingTransferOptions = new FlushingTransferOptions();
 
     public <S, T> FlushingStepBuilder<S, T> configure(SimpleStepBuilder<S, T> step) {
         log.debug("Configuring flushing transfer with {}", flushingTransferOptions);

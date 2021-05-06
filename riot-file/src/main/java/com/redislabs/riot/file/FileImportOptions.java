@@ -1,14 +1,12 @@
 package com.redislabs.riot.file;
 
-import lombok.*;
-import lombok.experimental.Accessors;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import picocli.CommandLine.Option;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-@NoArgsConstructor
-@AllArgsConstructor
 public class FileImportOptions extends FileOptions {
 
     public static final String DEFAULT_CONTINUATION_STRING = "\\";
@@ -40,26 +38,4 @@ public class FileImportOptions extends FileOptions {
         return linesToSkip;
     }
 
-    public static FileImportOptionsBuilder builder() {
-        return new FileImportOptionsBuilder();
-    }
-
-    @Setter
-    @Accessors(fluent = true)
-    public static class FileImportOptionsBuilder extends FileOptionsBuilder<FileImportOptionsBuilder> {
-
-        private String[] names;
-        private boolean header;
-        private String delimiter;
-        private Integer linesToSkip;
-        private int[] includedFields;
-        private String[] columnRanges;
-        private Character quoteCharacter = DelimitedLineTokenizer.DEFAULT_QUOTE_CHARACTER;
-        private String continuationString = DEFAULT_CONTINUATION_STRING;
-
-        public FileImportOptions build() {
-            return build(new FileImportOptions(names, header, delimiter, linesToSkip, includedFields, columnRanges, quoteCharacter, continuationString));
-        }
-
-    }
 }

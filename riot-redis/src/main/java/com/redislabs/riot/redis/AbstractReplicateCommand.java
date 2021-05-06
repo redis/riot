@@ -26,7 +26,7 @@ public abstract class AbstractReplicateCommand<T extends KeyValue<String, ?>> ex
 
     @SuppressWarnings("unused")
     @CommandLine.Mixin
-    private ReplicationOptions replicationOptions = ReplicationOptions.builder().build();
+    private ReplicationOptions replicationOptions = new ReplicationOptions();
 
     @Override
     protected Flow flow(StepBuilderFactory stepBuilderFactory) {

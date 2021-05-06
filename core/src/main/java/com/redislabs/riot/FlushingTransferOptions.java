@@ -1,20 +1,13 @@
 package com.redislabs.riot;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import picocli.CommandLine;
 
 import java.time.Duration;
 
 @Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class FlushingTransferOptions {
 
-    @Builder.Default
     @CommandLine.Option(names = "--flush-interval", description = "Max duration between flushes (default: ${DEFAULT-VALUE})", paramLabel = "<ms>")
     private long flushInterval = 50;
     @CommandLine.Option(names = "--idle-timeout", description = "Min duration of inactivity to consider transfer complete", paramLabel = "<ms>")

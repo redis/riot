@@ -2,13 +2,8 @@ plugins {
     id 'org.asciidoctor.jvm.convert'
     id 'org.ajoberstar.git-publish' version '3.0.0'
     id 'com.github.ben-manes.versions' version '0.38.0'
+    id 'net.researchgate.release' version '2.8.1'
     id 'org.jreleaser' version '0.2.0'
-}
-
-project.rootProject.ext.theVersion = file('VERSION').text.trim()
-
-allprojects { p ->
-    p.version = p.rootProject.ext.theVersion
 }
 
 asciidoctor {
@@ -68,98 +63,33 @@ jreleaser {
             overwrite = true
         }
     }
+    //noinspection GroovyAssignabilityCheck
     distributions {
-        db {
-            executable = 'riot-db'
-            brew {
-                active = 'release'
-                formulaName = 'riot-db'
-            }
-            scoop {
-                active = 'release'
-            }
-            artifacts {
-                artifact {
-                    path = "riot-db/build/distributions/riot-db-${version}.zip"
+        ['db', 'file', 'gen', 'redis', 'stream'].each { n ->
+            "riot-$n" {
+                brew {
+                    active = 'release'
+                    formulaName = "riot-${n}"
                 }
-            }
-            java {
-                artifactId = 'riot-db'
-            }
-        }
-        file {
-            executable = 'riot-file'
-            brew {
-                active = 'release'
-                formulaName = 'riot-file'
-            }
-            scoop {
-                active = 'release'
-            }
-            artifacts {
-                artifact {
-                    path = "riot-file/build/distributions/riot-file-${version}.zip"
+                scoop {
+                    active = 'release'
+                    bucket {
+                        name = 'scoop'
+                    }
                 }
-            }
-            java {
-                artifactId = 'riot-file'
-            }
-        }
-        gen {
-            executable = 'riot-gen'
-            brew {
-                active = 'release'
-                formulaName = 'riot-gen'
-            }
-            scoop {
-                active = 'release'
-            }
-            artifacts {
-                artifact {
-                    path = "riot-gen/build/distributions/riot-gen-${version}.zip"
+                artifacts {
+                    artifact {
+                        path = "{{distributionName}}/build/distributions/{{distributionName}}-{{projectVersion}}.zip"
+                    }
                 }
-            }
-            java {
-                artifactId = 'riot-gen'
-            }
-        }
-        redis {
-            executable = 'riot-redis'
-            brew {
-                active = 'release'
-                formulaName = 'riot-redis'
-            }
-            scoop {
-                active = 'release'
-            }
-            artifacts {
-                artifact {
-                    path = "riot-redis/build/distributions/riot-redis-${version}.zip"
+                java {
+                    artifactId = "riot-${n}"
                 }
-            }
-            java {
-                artifactId = 'riot-redis'
-            }
-        }
-        stream {
-            executable = 'riot-stream'
-            brew {
-                active = 'release'
-                formulaName = 'riot-stream'
-            }
-            scoop {
-                active = 'release'
-            }
-            artifacts {
-                artifact {
-                    path = "riot-stream/build/distributions/riot-stream-${version}.zip"
-                }
-            }
-            java {
-                artifactId = 'riot-stream'
             }
         }
     }
 }
 
 gitPublishPush.dependsOn asciidoctor
+afterReleaseBuild.dependsOn gitPublishPush
+afterReleaseBuild.dependsOn jreleaserFullRelease

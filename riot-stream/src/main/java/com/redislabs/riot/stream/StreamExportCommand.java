@@ -42,7 +42,7 @@ public class StreamExportCommand extends AbstractFlushingTransferCommand {
     @Parameters(arity = "0..*", description = "One ore more streams to read from", paramLabel = "STREAM")
     private String[] streams;
     @CommandLine.Mixin
-    private KafkaOptions options = KafkaOptions.builder().build();
+    private KafkaOptions options = new KafkaOptions();
     @Option(names = "--offset", description = "XREAD offset (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
     private String offset = "0-0";
     @SuppressWarnings("unused")

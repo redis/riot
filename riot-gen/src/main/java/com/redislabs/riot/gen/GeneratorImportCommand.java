@@ -28,9 +28,9 @@ import java.util.Map;
 public class GeneratorImportCommand extends AbstractImportCommand<Map<String, Object>, Map<String, Object>> {
 
     @CommandLine.Mixin
-    private GenerateOptions options = GenerateOptions.builder().build();
+    private GenerateOptions options = new GenerateOptions();
     @CommandLine.ArgGroup(exclusive = false, heading = "Processor options%n")
-    private ProcessorOptions processorOptions = ProcessorOptions.builder().build();
+    private ProcessorOptions processorOptions = new ProcessorOptions();
 
     @Override
     protected Flow flow(StepBuilderFactory stepBuilderFactory) throws Exception {

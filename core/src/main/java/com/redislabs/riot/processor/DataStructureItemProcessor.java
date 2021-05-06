@@ -90,11 +90,11 @@ public class DataStructureItemProcessor implements ItemProcessor<DataStructure<S
         public DataStructureItemProcessor build() {
             Assert.notNull(keyRegex, "Key regex is required.");
             RegexNamedGroupsExtractor keyFieldsExtractor = RegexNamedGroupsExtractor.builder().regex(keyRegex).build();
-            StreamToStringMapConverter streamConverter = StreamToStringMapConverter.builder().build();
-            CollectionToStringMapConverter<List<String>> listConverter = CollectionToStringMapConverter.<List<String>>builder().build();
-            CollectionToStringMapConverter<Set<String>> setConverter = CollectionToStringMapConverter.<Set<String>>builder().build();
-            ZsetToStringMapConverter zsetConverter = ZsetToStringMapConverter.builder().build();
-            Converter<String, Map<String, String>> stringConverter = StringToStringMapConverter.builder().build();
+            StreamToStringMapConverter streamConverter = new StreamToStringMapConverter();
+            CollectionToStringMapConverter<List<String>> listConverter = new CollectionToStringMapConverter<>();
+            CollectionToStringMapConverter<Set<String>> setConverter = new CollectionToStringMapConverter<>();
+            ZsetToStringMapConverter zsetConverter = new ZsetToStringMapConverter();
+            Converter<String, Map<String, String>> stringConverter = new StringToStringMapConverter();
             return new DataStructureItemProcessor(keyFieldsExtractor, c -> c, listConverter, setConverter, streamConverter, stringConverter, zsetConverter, c -> null);
         }
 

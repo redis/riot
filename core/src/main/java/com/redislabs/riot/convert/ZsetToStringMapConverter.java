@@ -8,18 +8,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Builder
 public class ZsetToStringMapConverter implements Converter<List<ScoredValue<String>>, Map<String, String>> {
 
 	public static final String DEFAULT_SCORE_KEY_FORMAT = "score[%s]";
 	public static final String DEFAULT_VALUE_KEY_FORMAT = "value[%s]";
 	public static final String DEFAULT_SCORE_FORMAT = "%s";
 
-	@Builder.Default
 	private final String scoreKeyFormat = DEFAULT_SCORE_KEY_FORMAT;
-	@Builder.Default
 	private final String valueKeyFormat = DEFAULT_VALUE_KEY_FORMAT;
-	@Builder.Default
 	private final String scoreFormat = DEFAULT_SCORE_FORMAT;
 
 	@Override

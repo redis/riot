@@ -1,14 +1,12 @@
 package com.redislabs.riot.file;
 
-import lombok.*;
-import lombok.experimental.Accessors;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.springframework.batch.item.file.FlatFileItemWriter;
 import picocli.CommandLine;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-@NoArgsConstructor
-@AllArgsConstructor
 public class FileExportOptions extends FileOptions {
 
     public static final String DEFAULT_ELEMENT_NAME = "record";
@@ -24,25 +22,5 @@ public class FileExportOptions extends FileOptions {
     private String elementName = DEFAULT_ELEMENT_NAME;
     @CommandLine.Option(names = "--line-sep", description = "String to separate lines (default: system default)", paramLabel = "<string>")
     private String lineSeparator = FlatFileItemWriter.DEFAULT_LINE_SEPARATOR;
-
-    public static FileExportOptionsBuilder builder() {
-        return new FileExportOptionsBuilder();
-    }
-
-    @Setter
-    @Accessors(fluent = true)
-    public static class FileExportOptionsBuilder extends FileOptionsBuilder<FileExportOptionsBuilder> {
-
-        private DumpFileType type;
-        private boolean append;
-        private String rootName = DEFAULT_ROOT_NAME;
-        private String elementName = DEFAULT_ELEMENT_NAME;
-        private String lineSeparator = FlatFileItemWriter.DEFAULT_LINE_SEPARATOR;
-
-        public FileExportOptions build() {
-            return build(new FileExportOptions(type, append, rootName, elementName, lineSeparator));
-        }
-
-    }
 
 }

@@ -17,7 +17,7 @@ brew install redis-developer/tap/{app}
 
 [subs="attributes",source,bash]
 ----
-scoop bucket add redis-developer https://github.com/redis-developer/scoop-redis-developer.git
+scoop bucket add redis-developer https://github.com/redis-developer/scoop.git
 scoop install {app}
 ----
 

@@ -4,18 +4,14 @@ import com.redislabs.riot.convert.CompositeConverter;
 import com.redislabs.riot.convert.MapFilteringConverter;
 import com.redislabs.riot.convert.MapFlattener;
 import com.redislabs.riot.convert.ObjectToStringConverter;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import lombok.Data;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.util.ObjectUtils;
 import picocli.CommandLine;
 
 import java.util.Map;
 
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
+@Data
 public class FilteringOptions {
 
     @CommandLine.Option(arity = "1..*", names = "--include", description = "Fields to include", paramLabel = "<field>")

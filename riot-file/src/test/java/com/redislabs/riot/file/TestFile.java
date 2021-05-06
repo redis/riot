@@ -3,8 +3,10 @@ package com.redislabs.riot.file;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.redislabs.riot.AbstractRiotIntegrationTest;
+import com.redislabs.riot.redis.HsetCommand;
 import com.redislabs.testcontainers.RedisContainer;
 import io.lettuce.core.GeoArgs;
+import io.lettuce.core.RedisURI;
 import io.lettuce.core.api.sync.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -27,10 +29,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
@@ -339,7 +338,6 @@ public class TestFile extends AbstractRiotIntegrationTest {
         Assertions.assertEquals("Hocus Pocus", beer1.get("name"));
     }
 
-
     @ParameterizedTest
     @MethodSource("containers")
     public void importXml(RedisContainer container) throws Exception {
@@ -421,6 +419,27 @@ public class TestFile extends AbstractRiotIntegrationTest {
                     break;
             }
         }
+    }
+
+    @ParameterizedTest
+    @MethodSource("containers")
+    public void importJsonAPI(RedisContainer container) throws Exception {
+        // riot-file import  hset --keyspace beer --keys id
+        FileImportCommand command = new FileImportCommand();
+        command.setFiles(Arrays.asList("http://developer.redislabs.com/riot/beers.json"));
+        HsetCommand hset = new HsetCommand();
+        hset.setKeyspace("beer");
+        hset.setKeys(new String[]{"id"});
+        command.setRedisCommands(Arrays.asList(hset));
+        RiotFile riotFile = new RiotFile();
+        configure(riotFile, container);
+        command.setApp(riotFile);
+        command.call();
+        RedisKeyCommands<String, String> sync = sync(container);
+        List<String> keys = sync.keys("beer:*");
+        Assertions.assertEquals(4432, keys.size());
+        Map<String, String> beer1 = ((RedisHashCommands<String, String>) sync).hgetall("beer:1");
+        Assertions.assertEquals("Hocus Pocus", beer1.get("name"));
     }
 
 }

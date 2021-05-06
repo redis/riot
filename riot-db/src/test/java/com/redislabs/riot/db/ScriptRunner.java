@@ -1,7 +1,6 @@
 package com.redislabs.riot.db;
 
 import lombok.Builder;
-import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -18,13 +17,12 @@ public class ScriptRunner {
 
 	private static final String DEFAULT_DELIMITER = ";";
 
-	@NonNull
-	private Connection connection;
-	private boolean stopOnError;
-	private boolean autoCommit;
+	private final Connection connection;
+	private final boolean stopOnError;
+	private final boolean autoCommit;
 	@Builder.Default
-	private String delimiter = DEFAULT_DELIMITER;
-	private boolean fullLineDelimiter;
+	private final String delimiter = DEFAULT_DELIMITER;
+	private final boolean fullLineDelimiter;
 
 	/**
 	 * Runs an SQL script (read in using the Reader parameter)

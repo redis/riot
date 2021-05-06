@@ -41,7 +41,7 @@ public class StreamImportCommand extends AbstractFlushingTransferCommand {
     @Parameters(arity = "0..*", description = "One ore more topics to read from", paramLabel = "TOPIC")
     private String[] topics;
     @CommandLine.Mixin
-    private KafkaOptions options = KafkaOptions.builder().build();
+    private KafkaOptions options = new KafkaOptions();
     @SuppressWarnings("unused")
     @Option(names = "--key", description = "Target stream key (default: same as topic)", paramLabel = "<string>")
     private String key;
@@ -52,7 +52,7 @@ public class StreamImportCommand extends AbstractFlushingTransferCommand {
     @Option(names = "--trim", description = "Stream efficient trimming ('~' flag)")
     private boolean approximateTrimming;
     @CommandLine.Mixin
-    private FilteringOptions filteringOptions = FilteringOptions.builder().build();
+    private FilteringOptions filteringOptions = new FilteringOptions();
 
     @Override
     protected Flow flow(StepBuilderFactory stepBuilderFactory) {

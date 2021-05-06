@@ -13,6 +13,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.util.List;
 
+@SuppressWarnings("unchecked")
 @Testcontainers
 public class TestSugadd extends AbstractRiotTest {
 

@@ -17,7 +17,7 @@ import picocli.CommandLine;
 public abstract class AbstractExportCommand<O> extends AbstractTransferCommand {
 
     @CommandLine.ArgGroup(exclusive = false, heading = "Redis reader options%n")
-    private RedisReaderOptions options = RedisReaderOptions.builder().build();
+    private RedisReaderOptions options = new RedisReaderOptions();
 
     protected AbstractTaskletStepBuilder<SimpleStepBuilder<DataStructure<String>, O>> step(StepBuilderFactory stepBuilderFactory, ItemProcessor<DataStructure<String>, O> processor, ItemWriter<O> writer) throws Exception {
         String name = name(getRedisOptions().uris().get(0));

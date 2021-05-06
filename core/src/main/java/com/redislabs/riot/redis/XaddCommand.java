@@ -13,7 +13,7 @@ import java.util.Map;
 public class XaddCommand extends AbstractKeyCommand {
 
     @CommandLine.Mixin
-    private FilteringOptions filteringOptions = FilteringOptions.builder().build();
+    private FilteringOptions filteringOptions = new FilteringOptions();
     @SuppressWarnings("unused")
     @Option(names = "--id", description = "Stream entry ID field", paramLabel = "<field>")
     private String idField;

@@ -27,11 +27,11 @@ public class DatabaseImportCommand extends AbstractImportCommand<Map<String, Obj
     @CommandLine.Parameters(arity = "1", description = "SQL SELECT statement", paramLabel = "SQL")
     private String sql;
     @Mixin
-    private DataSourceOptions dataSourceOptions = DataSourceOptions.builder().build();
+    private DataSourceOptions dataSourceOptions = new DataSourceOptions();
     @Mixin
-    private DatabaseImportOptions importOptions = DatabaseImportOptions.builder().build();
+    private DatabaseImportOptions importOptions = new DatabaseImportOptions();
     @CommandLine.ArgGroup(exclusive = false, heading = "Processor options%n")
-    private ProcessorOptions processorOptions = ProcessorOptions.builder().build();
+    private ProcessorOptions processorOptions = new ProcessorOptions();
 
     @Override
     protected Flow flow(StepBuilderFactory stepBuilderFactory) throws Exception {

@@ -3,9 +3,6 @@ package com.redislabs.riot;
 import com.redislabs.mesclun.search.RediSearchUtils;
 import com.redislabs.riot.convert.RegexNamedGroupsExtractor;
 import com.redislabs.riot.processor.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.expression.EvaluationContext;
@@ -18,16 +15,12 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 @SuppressWarnings("FieldMayBeFinal")
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class ProcessorOptions {
 
     @Option(arity = "1..*", names = "--process", description = "SpEL processing expressions in the form: <field>=\"<exp>\"", paramLabel = "<f=exp>")
     private Map<String, Expression> spelFields;
     @Option(arity = "1..*", names = "--var", description = "Register a variable in the SpEL processor context.", paramLabel = "<v=exp>")
     private Map<String, Expression> variables;
-    @Builder.Default
     @Option(names = "--date", description = "Processor date format (default: ${DEFAULT-VALUE}).", paramLabel = "<string>")
     private String dateFormat = new SimpleDateFormat().toPattern();
     @Option(arity = "1..*", names = "--filter", description = "Discard records using SpEL boolean expressions.", paramLabel = "<exp>")

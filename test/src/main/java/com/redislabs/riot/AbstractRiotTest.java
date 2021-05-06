@@ -38,7 +38,7 @@ public abstract class AbstractRiotTest {
         return commandLine.getExecutionStrategy().execute(parseResult);
     }
 
-    private void configure(RiotApp app, RedisContainer container) {
+    protected void configure(RiotApp app, RedisContainer container) {
         app.setInfo(true);
         app.getRedisOptions().setUris(new RedisURI[]{RedisURI.create(container.getRedisURI())});
         app.getRedisOptions().setCluster(container instanceof RedisClusterContainer);

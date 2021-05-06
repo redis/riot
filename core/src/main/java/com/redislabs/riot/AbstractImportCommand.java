@@ -2,6 +2,7 @@ package com.redislabs.riot;
 
 import com.redislabs.riot.redis.*;
 import lombok.Getter;
+import lombok.Setter;
 import org.springframework.batch.core.step.builder.AbstractTaskletStepBuilder;
 import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.core.step.builder.StepBuilder;
@@ -25,8 +26,9 @@ public abstract class AbstractImportCommand<I, O> extends AbstractTransferComman
     /**
      * Initialized manually during command parsing
      */
+    @Setter
     @Getter
-    private final List<RedisCommand<O>> redisCommands = new ArrayList<>();
+    private List<RedisCommand<O>> redisCommands = new ArrayList<>();
 
     protected AbstractTaskletStepBuilder<SimpleStepBuilder<I, O>> step(StepBuilder stepBuilder, String taskName, ItemReader<I> reader) throws Exception {
         RiotStepBuilder<I, O> step = riotStep(stepBuilder, taskName);

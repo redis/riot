@@ -1,5 +1,6 @@
 package com.redislabs.riot;
 
+import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.*;
@@ -20,17 +21,14 @@ import java.util.function.Function;
 @CommandLine.Command
 public abstract class AbstractTaskCommand extends RiotCommand {
 
-    @SuppressWarnings("unused")
-    @CommandLine.Spec
-    private CommandLine.Model.CommandSpec spec;
-
     @Setter
+    @Getter
     private ExecutionStrategy executionStrategy = ExecutionStrategy.SYNC;
 
     protected final Flow flow(Step... steps) {
         Assert.notNull(steps, "Steps are required");
         Assert.isTrue(steps.length > 0, "At least one step is required");
-        FlowBuilder<SimpleFlow> flow = flow(spec.name());
+        FlowBuilder<SimpleFlow> flow = flow(ClassUtils.getShortName(getClass()));
         flow.start(steps[0]);
         for (int index = 1; index < steps.length; index++) {
             flow.next(steps[index]);
