@@ -19,7 +19,7 @@ public class HeaderCallbackHandler implements LineCallbackHandler {
 
     @Override
     public void handleLine(String line) {
-        log.info("Found header {}", line);
+        log.debug("Found header {}", line);
         FieldSet fieldSet = tokenizer.tokenize(line);
         List<String> fields = new ArrayList<>();
         for (int index = 0; index < fieldSet.getFieldCount(); index++) {

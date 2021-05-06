@@ -12,7 +12,7 @@ import picocli.CommandLine;
 
 @Slf4j
 @CommandLine.Command(name = "replicate-ds", description = "Replicate a source Redis database into a target Redis database using data structure-specific commands")
-public class DataStructureReplicateCommand extends AbstractReplicateCommand<DataStructure<String>> {
+public class ReplicateDataStructureCommand extends AbstractReplicateCommand<DataStructure<String>> {
 
     @Override
     protected ItemReader<DataStructure<String>> reader(RedisOptions redisOptions) {

@@ -2,9 +2,14 @@ plugins {
     id 'riot.library-conventions'
 }
 
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
 dependencies {
     api 'com.redislabs:mesclun:1.2.6'
-    api 'com.redislabs:spring-batch-redis:2.12.0'
+    api 'com.redislabs:spring-batch-redis:2.12.2'
     api 'org.springframework.batch:spring-batch-core'
     api 'org.slf4j:slf4j-api'
     implementation 'org.slf4j:slf4j-jdk14'

@@ -8,7 +8,7 @@ import java.util.concurrent.Callable;
 public class HelpCommand {
 
     @SuppressWarnings("unused")
-    @CommandLine.Option(names = {"-H", "--help"}, usageHelp = true, description = "Show this help message and exit.")
+    @CommandLine.Option(names = {"-H", "--help"}, usageHelp = true, description = "Show this help message and exit")
     private boolean helpRequested;
 
 }

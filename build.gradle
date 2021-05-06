@@ -11,10 +11,6 @@ allprojects { p ->
     p.version = p.rootProject.ext.theVersion
 }
 
-repositories {
-    mavenCentral()
-}
-
 asciidoctor {
     sourceDir 'docs'
     resources {

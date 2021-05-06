@@ -28,8 +28,8 @@ public abstract class AbstractTaskCommand extends RiotCommand {
     private ExecutionStrategy executionStrategy = ExecutionStrategy.SYNC;
 
     protected final Flow flow(Step... steps) {
-        Assert.notNull(steps, "Steps are required.");
-        Assert.isTrue(steps.length > 0, "At least one step is required.");
+        Assert.notNull(steps, "Steps are required");
+        Assert.isTrue(steps.length > 0, "At least one step is required");
         FlowBuilder<SimpleFlow> flow = flow(spec.name());
         flow.start(steps[0]);
         for (int index = 1; index < steps.length; index++) {

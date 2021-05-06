@@ -39,7 +39,7 @@ public class GeneratorImportCommand extends AbstractImportCommand<Map<String, Ob
     }
 
     private ItemReader<Map<String, Object>> reader() {
-        log.info("Creating Faker reader with {}", options);
+        log.debug("Creating Faker reader with {}", options);
         FakerItemReader reader = FakerItemReader.builder().generator(generator()).start(options.getStart()).end(options.getEnd()).build();
         if (options.getSleep() > 0) {
             return new ThrottledItemReader<>(reader, options.getSleep());

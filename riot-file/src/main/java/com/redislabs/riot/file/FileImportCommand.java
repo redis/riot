@@ -112,7 +112,7 @@ public class FileImportCommand extends AbstractImportCommand<Map<String, Object>
                 if (!ObjectUtils.isEmpty(options.getIncludedFields())) {
                     tokenizer.setIncludedFields(options.getIncludedFields());
                 }
-                log.info("Creating delimited reader with {} for file {}", options, file);
+                log.debug("Creating delimited reader with {} for file {}", options, file);
                 return flatFileReader(resource, tokenizer);
             case FIXED:
                 FixedLengthTokenizer fixedLengthTokenizer = new FixedLengthTokenizer();
@@ -124,13 +124,13 @@ public class FileImportCommand extends AbstractImportCommand<Map<String, Object>
                     throw new IllegalArgumentException("Invalid ranges specified: " + Arrays.toString(options.getColumnRanges()));
                 }
                 fixedLengthTokenizer.setColumns(ranges);
-                log.info("Creating fixed-width reader with {} for file {}", options, file);
+                log.debug("Creating fixed-width reader with {} for file {}", options, file);
                 return flatFileReader(resource, fixedLengthTokenizer);
             case XML:
-                log.info("Creating XML reader for file {}", file);
+                log.debug("Creating XML reader for file {}", file);
                 return (XmlItemReader) FileUtils.xmlReader(resource, Map.class);
             default:
-                log.info("Creating JSON reader for file {}", file);
+                log.debug("Creating JSON reader for file {}", file);
                 return (JsonItemReader) FileUtils.jsonReader(resource, Map.class);
         }
     }

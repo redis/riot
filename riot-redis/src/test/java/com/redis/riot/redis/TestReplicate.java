@@ -2,7 +2,7 @@ package com.redis.riot.redis;
 
 import com.redislabs.riot.AbstractTaskCommand;
 import com.redislabs.riot.RedisOptions;
-import com.redislabs.riot.RiotIntegrationTest;
+import com.redislabs.riot.AbstractRiotIntegrationTest;
 import com.redislabs.riot.redis.AbstractReplicateCommand;
 import com.redislabs.riot.redis.ReplicationMode;
 import com.redislabs.riot.redis.RiotRedis;
@@ -29,7 +29,7 @@ import java.time.Duration;
 @Testcontainers
 @Slf4j
 @SuppressWarnings({"rawtypes", "unchecked", "BusyWait"})
-public class TestReplicate extends RiotIntegrationTest {
+public class TestReplicate extends AbstractRiotIntegrationTest {
 
     @Container
     private static final RedisStandaloneContainer TARGET = new RedisStandaloneContainer();
@@ -98,7 +98,7 @@ public class TestReplicate extends RiotIntegrationTest {
             Thread.sleep(10);
         }
         RedisStringCommands<String, String> sync = sync(container);
-        log.info("Setting livestring keys");
+        log.debug("Setting livestring keys");
         int count = 39;
         for (int index = 0; index < count; index++) {
             sync.set("livestring:" + index, "value" + index);

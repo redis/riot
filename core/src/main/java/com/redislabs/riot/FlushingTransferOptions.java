@@ -15,9 +15,9 @@ import java.time.Duration;
 public class FlushingTransferOptions {
 
     @Builder.Default
-    @CommandLine.Option(names = "--flush-interval", description = "Max duration between flushes (default: ${DEFAULT-VALUE}).", paramLabel = "<ms>")
+    @CommandLine.Option(names = "--flush-interval", description = "Max duration between flushes (default: ${DEFAULT-VALUE})", paramLabel = "<ms>")
     private long flushInterval = 50;
-    @CommandLine.Option(names = "--idle-timeout", description = "Min duration of inactivity to consider transfer complete.", paramLabel = "<ms>")
+    @CommandLine.Option(names = "--idle-timeout", description = "Min duration of inactivity to consider transfer complete", paramLabel = "<ms>")
     private Long idleTimeout;
 
     public Duration getFlushIntervalDuration() {

@@ -2,7 +2,7 @@ package com.redislabs.riot.file;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.redislabs.riot.RiotIntegrationTest;
+import com.redislabs.riot.AbstractRiotIntegrationTest;
 import com.redislabs.testcontainers.RedisContainer;
 import io.lettuce.core.GeoArgs;
 import io.lettuce.core.api.sync.*;
@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
 @SuppressWarnings("unchecked")
-public class TestFile extends RiotIntegrationTest {
+public class TestFile extends AbstractRiotIntegrationTest {
 
     protected final static int COUNT = 2410;
 

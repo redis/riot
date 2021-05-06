@@ -18,7 +18,7 @@ public abstract class AbstractFlushingTransferCommand extends AbstractTransferCo
     protected FlushingTransferOptions flushingTransferOptions = FlushingTransferOptions.builder().build();
 
     public <S, T> FlushingStepBuilder<S, T> configure(SimpleStepBuilder<S, T> step) {
-        log.info("Configuring flushing transfer with {}", flushingTransferOptions);
+        log.debug("Configuring flushing transfer with {}", flushingTransferOptions);
         FlushingStepBuilder<S, T> builder = new FlushingStepBuilder<>(step).flushingInterval(flushingTransferOptions.getFlushIntervalDuration());
         Duration idleTimeoutDuration = flushingTransferOptions.getIdleTimeoutDuration();
         if (idleTimeoutDuration != null) {

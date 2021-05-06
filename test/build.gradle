@@ -2,6 +2,11 @@ plugins {
     id 'riot.library-conventions'
 }
 
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
 archivesBaseName = 'test'
 
 dependencies {

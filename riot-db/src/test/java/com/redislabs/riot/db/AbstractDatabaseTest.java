@@ -1,13 +1,13 @@
 package com.redislabs.riot.db;
 
-import com.redislabs.riot.RiotIntegrationTest;
+import com.redislabs.riot.AbstractRiotIntegrationTest;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.testcontainers.containers.JdbcDatabaseContainer;
 import picocli.CommandLine;
 
 import javax.sql.DataSource;
 
-public abstract class AbstractDatabaseTest extends RiotIntegrationTest {
+public abstract class AbstractDatabaseTest extends AbstractRiotIntegrationTest {
 
     @Override
     protected RiotDb app() {

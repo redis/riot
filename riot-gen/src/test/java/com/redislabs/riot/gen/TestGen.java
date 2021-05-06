@@ -4,7 +4,7 @@ import com.redislabs.mesclun.RedisModulesClient;
 import com.redislabs.mesclun.StatefulRedisModulesConnection;
 import com.redislabs.mesclun.search.*;
 import com.redislabs.riot.RedisOptions;
-import com.redislabs.riot.RiotIntegrationTest;
+import com.redislabs.riot.AbstractRiotIntegrationTest;
 import com.redislabs.testcontainers.RedisContainer;
 import com.redislabs.testcontainers.RedisModulesContainer;
 import io.lettuce.core.Range;
@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.Set;
 
 @SuppressWarnings("unchecked")
-public class TestGen extends RiotIntegrationTest {
+public class TestGen extends AbstractRiotIntegrationTest {
 
     @Container
     private static final RedisModulesContainer REDIS_MODULES = new RedisModulesContainer();

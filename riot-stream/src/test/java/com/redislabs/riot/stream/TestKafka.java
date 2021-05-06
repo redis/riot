@@ -1,7 +1,7 @@
 package com.redislabs.riot.stream;
 
 import com.google.common.collect.ImmutableMap;
-import com.redislabs.riot.RiotIntegrationTest;
+import com.redislabs.riot.AbstractRiotIntegrationTest;
 import com.redislabs.testcontainers.RedisContainer;
 import io.lettuce.core.LettuceFutures;
 import io.lettuce.core.Range;
@@ -37,7 +37,7 @@ import java.util.concurrent.Future;
 
 @SuppressWarnings("unchecked")
 @Slf4j
-public class TestKafka extends RiotIntegrationTest {
+public class TestKafka extends AbstractRiotIntegrationTest {
 
     @Override
     protected RiotStream app() {
@@ -92,7 +92,7 @@ public class TestKafka extends RiotIntegrationTest {
     public void testExport(RedisContainer container) throws Exception {
         String stream = "stream1";
         int producedCount = 100;
-        log.info("Producing {} stream messages", producedCount);
+        log.debug("Producing {} stream messages", producedCount);
         BaseRedisAsyncCommands<String, String> async = async(container);
         async.setAutoFlushCommands(false);
         List<RedisFuture<?>> futures = new ArrayList<>();

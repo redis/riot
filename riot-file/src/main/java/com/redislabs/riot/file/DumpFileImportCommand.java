@@ -84,10 +84,10 @@ public class DumpFileImportCommand extends AbstractTransferCommand {
     @SuppressWarnings({"unchecked", "rawtypes"})
     protected AbstractItemStreamItemReader<DataStructure<String>> reader(DumpFileType fileType, Resource resource) {
         if (fileType == DumpFileType.XML) {
-            log.info("Creating XML data structure reader for file {}", resource);
+            log.debug("Creating XML data structure reader for file {}", resource);
             return (XmlItemReader) FileUtils.xmlReader(resource, DataStructure.class);
         }
-        log.info("Creating JSON data structure reader for file {}", resource);
+        log.debug("Creating JSON data structure reader for file {}", resource);
         return (JsonItemReader) FileUtils.jsonReader(resource, DataStructure.class);
     }
 

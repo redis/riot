@@ -11,7 +11,7 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.function.Consumer;
 
-public abstract class RiotTest {
+public abstract class AbstractRiotTest {
 
     protected abstract RiotApp app();
 

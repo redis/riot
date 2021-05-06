@@ -15,7 +15,7 @@ import org.springframework.batch.item.ItemWriter;
 import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
-import java.util.concurrent.ExecutionException;
+import java.time.Duration;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.function.Supplier;
 
@@ -39,17 +39,19 @@ public class RiotStepBuilder<I, O> {
         this.options = options;
     }
 
+    @SuppressWarnings("unchecked")
     public SimpleStepBuilder<I, O> build() {
         SimpleStepBuilder<I, O> step = stepBuilder.<I, O>chunk(options.getChunkSize()).reader(reader).processor(processor).writer(writer);
-        if (options.isShowProgress()) {
-            ProgressMonitor.ProgressMonitorBuilder<I, O> monitorBuilder = ProgressMonitor.builder();
+        if (options.getProgress() != TransferOptions.Progress.NONE) {
+            ProgressMonitor.ProgressMonitorBuilder monitorBuilder = ProgressMonitor.builder();
+            monitorBuilder.style(options.getProgress());
             monitorBuilder.taskName(taskName);
             monitorBuilder.initialMax(initialMax);
-            monitorBuilder.updateIntervalMillis(options.getProgressUpdateIntervalMillis());
+            monitorBuilder.updateInterval(Duration.ofMillis(options.getProgressUpdateIntervalMillis()));
             monitorBuilder.extraMessage(extraMessage);
-            ProgressMonitor<I, O> monitor = monitorBuilder.build();
+            ProgressMonitor monitor = monitorBuilder.build();
             step.listener((StepExecutionListener) monitor);
-            step.listener((ItemWriteListener<? super O>) monitor);
+            step.listener((ItemWriteListener) monitor);
         }
         FaultTolerantStepBuilder<I, O> ftStep = step.faultTolerant().skipLimit(options.getSkipLimit()).skip(RedisCommandExecutionException.class);
         if (options.getThreads() > 1) {
@@ -59,7 +61,7 @@ public class RiotStepBuilder<I, O> {
             taskExecutor.setQueueCapacity(options.getThreads());
             taskExecutor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
             taskExecutor.afterPropertiesSet();
-            log.info("Created pooled task executor of size {}", taskExecutor.getCorePoolSize());
+            log.debug("Created pooled task executor of size {}", taskExecutor.getCorePoolSize());
             ftStep.taskExecutor(taskExecutor).throttleLimit(options.getThreads());
         } else {
             ftStep.taskExecutor(new SyncTaskExecutor());

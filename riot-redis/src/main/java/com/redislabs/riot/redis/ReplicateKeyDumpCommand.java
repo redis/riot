@@ -12,13 +12,14 @@ import picocli.CommandLine;
 
 @Slf4j
 @CommandLine.Command(name = "replicate", description = "Replicate a source Redis database to a target Redis database using DUMP & RESTORE")
-public class KeyDumpReplicateCommand extends AbstractReplicateCommand<KeyValue<String, byte[]>> {
+public class ReplicateKeyDumpCommand extends AbstractReplicateCommand<KeyValue<String, byte[]>> {
+
     @Override
     protected ItemReader<KeyValue<String, byte[]>> reader(RedisOptions redisOptions) {
         if (redisOptions.isCluster()) {
-            return configure(KeyDumpItemReader.client(redisOptions.redisClusterClient()).poolConfig(redisOptions.poolConfig())).build();
+            return readerOptions.configure(KeyDumpItemReader.client(redisOptions.redisClusterClient()).poolConfig(redisOptions.poolConfig())).build();
         }
-        return configure(KeyDumpItemReader.client(redisOptions.redisClient()).poolConfig(redisOptions.poolConfig())).build();
+        return readerOptions.configure(KeyDumpItemReader.client(redisOptions.redisClient()).poolConfig(redisOptions.poolConfig())).build();
     }
 
     @Override

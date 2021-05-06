@@ -35,10 +35,10 @@ public class DatabaseImportCommand extends AbstractImportCommand<Map<String, Obj
 
     @Override
     protected Flow flow(StepBuilderFactory stepBuilderFactory) throws Exception {
-        log.info("Creating data source: {}", dataSourceOptions);
+        log.debug("Creating data source: {}", dataSourceOptions);
         DataSource dataSource = dataSourceOptions.dataSource();
         String name = dataSource.getConnection().getMetaData().getDatabaseProductName();
-        log.info("Creating {} database reader: {}", name, importOptions);
+        log.debug("Creating {} database reader: {}", name, importOptions);
         JdbcCursorItemReaderBuilder<Map<String, Object>> builder = new JdbcCursorItemReaderBuilder<>();
         builder.saveState(false);
         builder.dataSource(dataSource);

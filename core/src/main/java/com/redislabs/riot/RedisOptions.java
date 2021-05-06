@@ -200,10 +200,10 @@ public class RedisOptions {
 
     public AbstractRedisClient client() {
         if (cluster) {
-            log.info("Creating Redis cluster client: {}", this);
+            log.debug("Creating Redis cluster client: {}", this);
             return redisClusterClient();
         }
-        log.info("Creating Redis client: {}", this);
+        log.debug("Creating Redis client: {}", this);
         return redisClient();
     }
 

@@ -64,11 +64,9 @@ public class RiotApp extends HelpCommand {
         handler.setLevel(Level.ALL);
         handler.setFormatter(debug || stacktrace ? new StackTraceOneLineLogFormat() : new OneLineLogFormat());
         activeLogger.addHandler(handler);
-        Logger.getLogger(ROOT_LOGGER).setLevel(level);
-//        Logger.getLogger("io.lettuce.core").setLevel(Level.WARNING);
-//        Logger.getLogger("org.springframework.batch.repeat").setLevel(Level.WARNING);
-//        Logger.getLogger("org.springframework.retry.support").setLevel(Level.WARNING);
-//        Logger.getLogger("org.springframework.batch.repeat.support").setLevel(Level.WARNING);
+        Logger.getLogger(ROOT_LOGGER).setLevel(logLevel());
+        Logger.getLogger("com.redislabs.riot").setLevel(riotLogLevel());
+        Logger.getLogger("org.springframework.batch.item.redis").setLevel(riotLogLevel());
     }
 
     public int execute(String... args) {
@@ -84,20 +82,36 @@ public class RiotApp extends HelpCommand {
         return commandLine;
     }
 
-    private java.util.logging.Level logLevel() {
+    private Level logLevel() {
         if (debug) {
-            return java.util.logging.Level.FINE;
+            return Level.FINE;
         }
         if (info) {
-            return java.util.logging.Level.INFO;
+            return Level.INFO;
         }
         if (warning) {
-            return java.util.logging.Level.WARNING;
+            return Level.SEVERE;
         }
         if (quiet) {
-            return java.util.logging.Level.OFF;
+            return Level.OFF;
         }
-        return Level.SEVERE;
+        return Level.WARNING;
+    }
+
+    private Level riotLogLevel() {
+        if (debug) {
+            return Level.FINER;
+        }
+        if (info) {
+            return Level.FINE;
+        }
+        if (warning) {
+            return Level.WARNING;
+        }
+        if (quiet) {
+            return Level.SEVERE;
+        }
+        return Level.INFO;
     }
 
     private int handleExecutionException(Exception ex, CommandLine cmd, ParseResult parseResult) {

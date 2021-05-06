@@ -48,7 +48,7 @@ public class FileExportCommand extends AbstractExportCommand<DataStructure<Strin
             xmlWriterBuilder.rootName(options.getRootName());
             xmlWriterBuilder.resource(resource);
             xmlWriterBuilder.saveState(false);
-            log.info("Creating XML writer with {} for file {}", options, file);
+            log.debug("Creating XML writer with {} for file {}", options, file);
             return xmlWriterBuilder.build();
         }
         JsonResourceItemWriterBuilder<DataStructure<String>> jsonWriterBuilder = new JsonResourceItemWriterBuilder<>();
@@ -59,7 +59,7 @@ public class FileExportCommand extends AbstractExportCommand<DataStructure<Strin
         jsonWriterBuilder.lineSeparator(options.getLineSeparator());
         jsonWriterBuilder.resource(resource);
         jsonWriterBuilder.saveState(false);
-        log.info("Creating JSON writer with {} for file {}", options, file);
+        log.debug("Creating JSON writer with {} for file {}", options, file);
         return jsonWriterBuilder.build();
     }
 

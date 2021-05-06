@@ -28,7 +28,7 @@ import java.util.stream.Stream;
 
 @SuppressWarnings("unchecked")
 @Testcontainers
-public abstract class RiotIntegrationTest extends RiotTest {
+public abstract class AbstractRiotIntegrationTest extends AbstractRiotTest {
 
     @Container
     private static final RedisStandaloneContainer REDIS = new RedisStandaloneContainer().withKeyspaceNotifications();

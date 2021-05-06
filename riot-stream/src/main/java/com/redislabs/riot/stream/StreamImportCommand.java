@@ -59,9 +59,9 @@ public class StreamImportCommand extends AbstractFlushingTransferCommand {
         Assert.isTrue(!ObjectUtils.isEmpty(topics), "No topic specified");
         List<Step> steps = new ArrayList<>();
         Properties consumerProperties = options.consumerProperties();
-        log.info("Using Kafka consumer properties: {}", consumerProperties);
+        log.debug("Using Kafka consumer properties: {}", consumerProperties);
         for (String topic : topics) {
-            log.info("Creating Kafka reader for topic {}", topic);
+            log.debug("Creating Kafka reader for topic {}", topic);
             KafkaItemReader<String, Object> reader = new KafkaItemReaderBuilder<String, Object>().partitions(0).consumerProperties(consumerProperties).partitions(0).name(topic).saveState(false).topic(topic).build();
             StepBuilder stepBuilder = stepBuilderFactory.get(topic + "-stream-import-step");
             RiotStepBuilder<ConsumerRecord<String, Object>, ConsumerRecord<String, Object>> step = riotStep(stepBuilder, "Importing from " + topic);
@@ -75,10 +75,10 @@ public class StreamImportCommand extends AbstractFlushingTransferCommand {
         RedisOperation<String, String, ConsumerRecord<String, Object>> operation = RedisOperation.<ConsumerRecord<String, Object>>xadd().key(keyConverter()).args(r -> xAddArgs).body(bodyConverter()).build();
         RedisOptions redisOptions = getRedisOptions();
         if (redisOptions.isCluster()) {
-            log.info("Creating cluster stream writer");
+            log.debug("Creating cluster stream writer");
             return OperationItemWriter.operation(operation).client(redisOptions.redisClusterClient()).poolConfig(redisOptions.poolConfig()).build();
         }
-        log.info("Creating stream writer");
+        log.debug("Creating stream writer");
         return OperationItemWriter.operation(operation).client(redisOptions.redisClient()).poolConfig(redisOptions.poolConfig()).build();
     }
 

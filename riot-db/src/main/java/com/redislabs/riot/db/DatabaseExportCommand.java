@@ -32,10 +32,10 @@ public class DatabaseExportCommand extends AbstractExportCommand<Map<String, Obj
 
     @Override
     protected Flow flow(StepBuilderFactory stepBuilderFactory) throws Exception {
-        log.info("Creating data source: {}", dataSourceOptions);
+        log.debug("Creating data source: {}", dataSourceOptions);
         DataSource dataSource = dataSourceOptions.dataSource();
         String name = dataSource.getConnection().getMetaData().getDatabaseProductName();
-        log.info("Creating {} database writer: {}", name, exportOptions);
+        log.debug("Creating {} database writer: {}", name, exportOptions);
         JdbcBatchItemWriterBuilder<Map<String, Object>> builder = new JdbcBatchItemWriterBuilder<>();
         builder.itemSqlParameterSourceProvider(MapSqlParameterSource::new);
         builder.dataSource(dataSource);

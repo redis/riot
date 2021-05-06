@@ -12,7 +12,7 @@ import picocli.CommandLine;
 public abstract class AbstractTransferCommand extends AbstractTaskCommand {
 
     @CommandLine.Mixin
-    private TransferOptions transferOptions = TransferOptions.builder().build();
+    protected TransferOptions transferOptions = TransferOptions.builder().build();
 
     protected <I, O> RiotStepBuilder<I, O> riotStep(StepBuilder stepBuilder, String taskName) {
         return new RiotStepBuilder<I, O>(stepBuilder, transferOptions).taskName(taskName);

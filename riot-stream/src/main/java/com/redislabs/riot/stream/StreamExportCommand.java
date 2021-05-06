@@ -65,16 +65,16 @@ public class StreamExportCommand extends AbstractFlushingTransferCommand {
     private StreamItemReader<String, String> reader(StreamOffset<String> offset) {
         RedisOptions redisOptions = getRedisOptions();
         if (redisOptions.isCluster()) {
-            log.info("Creating cluster stream reader with offset {}", offset);
+            log.debug("Creating cluster stream reader with offset {}", offset);
             return StreamItemReader.client(redisOptions.redisClusterClient()).offset(offset).build();
         }
-        log.info("Creating stream reader with offset {}", offset);
+        log.debug("Creating stream reader with offset {}", offset);
         return StreamItemReader.client(redisOptions.redisClient()).offset(offset).build();
     }
 
     private KafkaItemWriter<String> writer() {
         Map<String, Object> producerProperties = options.producerProperties();
-        log.info("Creating Kafka writer with producer properties {}", producerProperties);
+        log.debug("Creating Kafka writer with producer properties {}", producerProperties);
         return KafkaItemWriter.<String>builder().kafkaTemplate(new KafkaTemplate<>(new DefaultKafkaProducerFactory<>(producerProperties))).build();
     }
 

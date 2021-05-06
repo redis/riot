@@ -4,7 +4,7 @@ import com.redislabs.mesclun.RedisModulesClient;
 import com.redislabs.mesclun.StatefulRedisModulesConnection;
 import com.redislabs.mesclun.search.Suggestion;
 import com.redislabs.mesclun.search.SuggetOptions;
-import com.redislabs.riot.RiotTest;
+import com.redislabs.riot.AbstractRiotTest;
 import com.redislabs.testcontainers.RedisModulesContainer;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -14,7 +14,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import java.util.List;
 
 @Testcontainers
-public class TestSugadd extends RiotTest {
+public class TestSugadd extends AbstractRiotTest {
 
     @Container
     private static final RedisModulesContainer REDIS_MODULES = new RedisModulesContainer();
