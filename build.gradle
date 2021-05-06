@@ -92,4 +92,4 @@ jreleaser {
 
 gitPublishPush.dependsOn asciidoctor
 afterReleaseBuild.dependsOn gitPublishPush
-afterReleaseBuild.dependsOn jreleaserFullRelease
+afterReleaseBuild.dependsOn ":jreleaseFullRelease"
