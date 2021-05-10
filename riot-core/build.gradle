@@ -1,5 +1,6 @@
 plugins {
-    id 'riot.library-conventions'
+    id 'riot.java-conventions'
+    id 'riot.publish-conventions'
 }
 
 repositories {

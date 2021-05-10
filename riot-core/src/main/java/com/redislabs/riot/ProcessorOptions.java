@@ -3,6 +3,7 @@ package com.redislabs.riot;
 import com.redislabs.mesclun.search.RediSearchUtils;
 import com.redislabs.riot.convert.RegexNamedGroupsExtractor;
 import com.redislabs.riot.processor.*;
+import lombok.Data;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.expression.EvaluationContext;
@@ -14,7 +15,7 @@ import picocli.CommandLine.Option;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-@SuppressWarnings("FieldMayBeFinal")
+@Data
 public class ProcessorOptions {
 
     @Option(arity = "1..*", names = "--process", description = "SpEL processing expressions in the form: <field>=\"<exp>\"", paramLabel = "<f=exp>")

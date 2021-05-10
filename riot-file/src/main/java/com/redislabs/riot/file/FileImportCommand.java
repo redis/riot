@@ -67,10 +67,9 @@ public class FileImportCommand extends AbstractImportCommand<Map<String, Object>
             }
             Resource resource = options.inputResource(file);
             AbstractItemStreamItemReader<Map<String, Object>> reader = reader(file, fileType, resource);
-            String name = FileUtils.filename(resource);
-            reader.setName(name);
-            StepBuilder stepBuilder = stepBuilderFactory.get(name + "-file-import-step");
-            steps.add(step(stepBuilder, "Importing " + name, reader).build());
+            reader.setName(file + "-reader");
+            StepBuilder stepBuilder = stepBuilderFactory.get(file + "-file-import-step");
+            steps.add(step(stepBuilder, "Importing " + file, reader).build());
         }
         return flow(steps.toArray(new Step[0]));
     }

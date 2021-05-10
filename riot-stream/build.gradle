@@ -1,9 +1,8 @@
 plugins {
-    id 'riot.library-conventions'
+    id 'riot.java-conventions'
+    id 'riot.publish-conventions'
     id 'riot.connector-conventions'
 }
-
-archivesBaseName = 'riot-stream'
 
 repositories {
     maven {
@@ -12,13 +11,11 @@ repositories {
 }
 
 dependencies {
-    implementation project(':core')
     implementation 'org.springframework.kafka:spring-kafka'
     implementation 'org.apache.avro:avro:1.10.2'
     implementation 'io.confluent:kafka-avro-serializer:6.1.1'
     implementation 'io.confluent:kafka-protobuf-serializer:6.1.1'
     implementation 'org.springframework.boot:spring-boot-autoconfigure'
-    testImplementation project(':test')
     testImplementation 'org.testcontainers:kafka:1.15.3'
 }
 

@@ -1,14 +1,11 @@
 plugins {
-    id 'riot.library-conventions'
+    id 'riot.java-conventions'
+    id 'riot.publish-conventions'
     id 'riot.connector-conventions'
 }
 
-archivesBaseName = 'riot-gen'
-
 dependencies {
-    implementation project(':core')
     implementation 'com.github.javafaker:javafaker:1.0.2'
-    testImplementation project(':test')
 	testImplementation('org.springframework.boot:spring-boot-starter-test') {
 		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
 	}    

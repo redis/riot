@@ -5,8 +5,6 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import org.springframework.batch.item.json.JacksonJsonObjectReader;
 import org.springframework.batch.item.json.JsonItemReader;
 import org.springframework.batch.item.json.builder.JsonItemReaderBuilder;
-import org.springframework.batch.item.resource.StandardInputResource;
-import org.springframework.batch.item.resource.StandardOutputResource;
 import org.springframework.batch.item.xml.XmlItemReader;
 import org.springframework.batch.item.xml.XmlObjectReader;
 import org.springframework.batch.item.xml.support.XmlItemReaderBuilder;
@@ -29,32 +27,12 @@ public class FileUtils {
     public final static String S3_URI_PREFIX = "s3://";
 
     private final static Pattern EXTENSION_PATTERN = Pattern.compile("(?i)\\.(?<extension>\\w+)(?<gz>\\.gz)?$");
-    private static final String STD_IN = "stdin";
-    private static final String STD_OUT = "stdout";
     public static final String EXTENSION_CSV = "csv";
     public static final String EXTENSION_TSV = "tsv";
     public static final String EXTENSION_PSV = "psv";
     public static final String EXTENSION_FW = "fw";
     public static final String EXTENSION_JSON = "json";
     public static final String EXTENSION_XML = "xml";
-
-    public static String filename(Resource resource) throws IOException {
-        if (resource instanceof StandardInputResource) {
-            return STD_IN;
-        }
-        if (resource instanceof StandardOutputResource) {
-            return STD_OUT;
-        }
-        if (resource.isFile()) {
-            return resource.getFilename();
-        }
-        String path = resource.getURI().getPath();
-        int cut = path.lastIndexOf('/');
-        if (cut == -1) {
-            return path;
-        }
-        return path.substring(cut + 1);
-    }
 
     public static boolean isGzip(String file) {
         return extensionGroup(file, "gz") != null;

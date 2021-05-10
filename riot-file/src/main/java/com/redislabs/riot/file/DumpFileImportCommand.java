@@ -51,11 +51,10 @@ public class DumpFileImportCommand extends AbstractTransferCommand {
         for (String file : expandedFiles) {
             DumpFileType fileType = fileType(file);
             Resource resource = options.inputResource(file);
-            String name = FileUtils.filename(resource);
             AbstractItemStreamItemReader<DataStructure<String>> reader = reader(fileType, resource);
-            reader.setName(name);
-            StepBuilder stepBuilder = stepBuilderFactory.get(name + "-datastructure-file-import-step");
-            RiotStepBuilder<DataStructure<String>, DataStructure<String>> step = riotStep(stepBuilder, "Importing " + name);
+            reader.setName(file + "-reader");
+            StepBuilder stepBuilder = stepBuilderFactory.get(file + "-datastructure-file-import-step");
+            RiotStepBuilder<DataStructure<String>, DataStructure<String>> step = riotStep(stepBuilder, "Importing " + file);
             steps.add(step.reader(reader).processor(processor).writer(writer()).build().build());
         }
         return flow(steps.toArray(new Step[0]));

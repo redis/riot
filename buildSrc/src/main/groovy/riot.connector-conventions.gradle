@@ -1,14 +1,16 @@
 plugins {
-    id 'net.researchgate.release'
     id 'org.asciidoctor.jvm.convert'
     id 'application'
-    id 'java-library'
-    id 'maven-publish'
-    id 'signing'
 }
 
 repositories {
+    mavenLocal()
     mavenCentral()
+}
+
+dependencies {
+    api project(':riot-core')
+    testImplementation project(':test')
 }
 
 tasks.withType(Tar) {

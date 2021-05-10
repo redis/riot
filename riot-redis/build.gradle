@@ -1,14 +1,11 @@
 plugins {
-    id 'riot.library-conventions'
+    id 'riot.java-conventions'
+    id 'riot.publish-conventions'
     id 'riot.connector-conventions'
 }
 
-archivesBaseName = 'riot-redis'
-
 dependencies {
-    implementation project(':core')
     implementation 'org.latencyutils:LatencyUtils:2.0.3'
-    testImplementation project(':test')
 }
 
 application {

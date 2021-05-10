@@ -1,0 +1,56 @@
+plugins {
+    id 'maven-publish'
+    id 'signing'
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            versionMapping {
+                usage('java-api') {
+                    fromResolutionOf('runtimeClasspath')
+                }
+                usage('java-runtime') {
+                    fromResolutionResult()
+                }
+            }
+            pom {
+                name = 'RIOT Core'
+                description = 'RIOT Core module '
+                url = 'https://github.com/redis-developer/riot'
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'jruaux'
+                        name = 'Julien Ruaux'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git://github.com/redis-developer/riot.git'
+                    developerConnection = 'scm:git:git@github.com:redis-developer/riot.git'
+                    url = 'https://github.com/redis-developer/riot'
+                }
+            }
+        }
+    }
+}
+
+signing {
+    sign publishing.publications.mavenJava
+}

@@ -12,6 +12,7 @@ bootJar {
     enabled = false
     classifier = 'boot'
 }
+
 jar {
     enabled = true
 }
@@ -26,9 +27,11 @@ dependencies {
     testImplementation 'org.springframework.batch:spring-batch-test'
     testImplementation 'org.hsqldb:hsqldb'
 }
+
 configurations {
     all*.exclude module: 'spring-boot-starter-logging'
 }
+
 configurations.all {
     resolutionStrategy.eachDependency { DependencyResolveDetails details ->
         if (details.requested.group == 'io.lettuce') {
@@ -36,6 +39,7 @@ configurations.all {
         }
     }
 }
+
 test {
     useJUnitPlatform()
 }

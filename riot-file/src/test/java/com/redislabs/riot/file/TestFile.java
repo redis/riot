@@ -6,7 +6,6 @@ import com.redislabs.riot.AbstractRiotIntegrationTest;
 import com.redislabs.riot.redis.HsetCommand;
 import com.redislabs.testcontainers.RedisContainer;
 import io.lettuce.core.GeoArgs;
-import io.lettuce.core.RedisURI;
 import io.lettuce.core.api.sync.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -440,6 +439,15 @@ public class TestFile extends AbstractRiotIntegrationTest {
         Assertions.assertEquals(4432, keys.size());
         Map<String, String> beer1 = ((RedisHashCommands<String, String>) sync).hgetall("beer:1");
         Assertions.assertEquals("Hocus Pocus", beer1.get("name"));
+    }
+
+    @ParameterizedTest
+    @MethodSource("containers")
+    public void importJSONGzip(RedisContainer container) throws Exception {
+        execute("import-json-gz", container);
+        RedisKeyCommands<String, String> sync = sync(container);
+        List<String> keys = sync.keys("beer:*");
+        Assertions.assertEquals(30409, keys.size());
     }
 
 }

@@ -83,7 +83,7 @@ public abstract class AbstractTaskCommand extends RiotCommand {
         }
     }
 
-    private JobExecution execute() throws Exception {
+    public JobExecution execute() throws Exception {
         JobFactory jobFactory = new JobFactory();
         jobFactory.afterPropertiesSet();
         JobBuilder builder = jobFactory.getJobBuilderFactory().get(ClassUtils.getShortName(getClass()));

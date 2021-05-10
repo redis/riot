@@ -1,12 +1,10 @@
 plugins {
-    id 'riot.library-conventions'
+    id 'riot.java-conventions'
+    id 'riot.publish-conventions'
     id 'riot.connector-conventions'
 }
 
-archivesBaseName = 'riot-db'
-
 dependencies {
-    implementation project(':core')
     implementation 'org.springframework.boot:spring-boot-autoconfigure'
     implementation 'org.springframework:spring-jdbc'
     implementation 'com.zaxxer:HikariCP'
@@ -16,7 +14,6 @@ dependencies {
     implementation 'mysql:mysql-connector-java'
     implementation 'org.postgresql:postgresql'
     implementation 'org.xerial:sqlite-jdbc:3.34.0'
-    testImplementation project(':test')
     testImplementation 'org.testcontainers:postgresql:1.15.3'
     testImplementation 'org.testcontainers:oracle-xe:1.15.3'
 }
