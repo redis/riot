@@ -5,13 +5,14 @@
 :project-group:   com.redislabs
 :project-version: 2.11.5
 
-image::http://developer.redislabs.com/riot/riot.svg[]
 image:https://img.shields.io/github/license/{project-owner}/{project-name}.svg["License", link="https://github.com/{project-owner}/{project-name}"]
 image:https://img.shields.io/github/release/{project-owner}/{project-name}.svg["Latest", link="https://github.com/{project-owner}/{project-name}/releases/latest"]
 image:https://github.com/{project-owner}/{project-name}/actions/workflows/gradle.yml/badge.svg["Build", link="https://github.com/{project-owner}/{project-name}/actions/workflows/gradle.yml"]
 image:https://codecov.io/gh/{project-owner}/{project-name}/branch/master/graph/badge.svg?token=LDK7BAJLJI["Coverage", link="https://codecov.io/gh/{project-owner}/{project-name}"]
 
 ---
+
+image::http://developer.redislabs.com/riot/riot.svg[]
 
 Redis Input/Output Tools (RIOT) is a series of utilities designed to help you get data in and out of Redis.
 
