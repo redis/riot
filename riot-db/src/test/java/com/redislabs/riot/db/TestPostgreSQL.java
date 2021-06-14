@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.redislabs.riot.DataType;
 import com.redislabs.testcontainers.RedisContainer;
+import com.redislabs.testcontainers.RedisServer;
 import io.lettuce.core.api.sync.RedisHashCommands;
 import io.lettuce.core.api.sync.RedisKeyCommands;
 import io.lettuce.core.api.sync.RedisServerCommands;
@@ -65,7 +66,7 @@ public class TestPostgreSQL extends AbstractDatabaseTest {
 
     @ParameterizedTest
     @MethodSource("containers")
-    public void testExport(RedisContainer container) throws Exception {
+    public void testExport(RedisServer container) throws Exception {
         Statement statement = connection.createStatement();
         statement.execute("CREATE TABLE mytable (id smallint NOT NULL, field1 bpchar, field2 bpchar)");
         statement.execute("ALTER TABLE ONLY mytable ADD CONSTRAINT pk_mytable PRIMARY KEY (id)");
@@ -87,7 +88,7 @@ public class TestPostgreSQL extends AbstractDatabaseTest {
 
     @ParameterizedTest
     @MethodSource("containers")
-    public void testImport(RedisContainer container) throws Exception {
+    public void testImport(RedisServer container) throws Exception {
         execute("import-postgresql", container, r -> configureImportCommand(r, POSTGRESQL));
         Statement statement = connection.createStatement();
         statement.execute("SELECT COUNT(*) AS count FROM orders");
@@ -103,7 +104,7 @@ public class TestPostgreSQL extends AbstractDatabaseTest {
 
     @ParameterizedTest
     @MethodSource("containers")
-    public void testImportSet(RedisContainer container) throws Exception {
+    public void testImportSet(RedisServer container) throws Exception {
         execute("import-postgresql-set", container, r -> configureImportCommand(r, POSTGRESQL));
         Statement statement = connection.createStatement();
         statement.execute("SELECT * FROM orders");

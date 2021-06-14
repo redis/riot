@@ -2,14 +2,21 @@ package com.redislabs.riot.gen;
 
 import com.redislabs.mesclun.RedisModulesClient;
 import com.redislabs.mesclun.StatefulRedisModulesConnection;
-import com.redislabs.mesclun.search.*;
-import com.redislabs.riot.RedisOptions;
+import com.redislabs.mesclun.search.CreateOptions;
+import com.redislabs.mesclun.search.Document;
+import com.redislabs.mesclun.search.Field;
+import com.redislabs.mesclun.search.SearchResults;
 import com.redislabs.riot.AbstractRiotIntegrationTest;
-import com.redislabs.testcontainers.RedisContainer;
+import com.redislabs.riot.RedisOptions;
 import com.redislabs.testcontainers.RedisModulesContainer;
+import com.redislabs.testcontainers.RedisServer;
 import io.lettuce.core.Range;
 import io.lettuce.core.StreamMessage;
-import io.lettuce.core.api.sync.*;
+import io.lettuce.core.api.sync.RedisHashCommands;
+import io.lettuce.core.api.sync.RedisKeyCommands;
+import io.lettuce.core.api.sync.RedisSetCommands;
+import io.lettuce.core.api.sync.RedisSortedSetCommands;
+import io.lettuce.core.api.sync.RedisStreamCommands;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -33,7 +40,7 @@ public class TestGen extends AbstractRiotIntegrationTest {
 
     @ParameterizedTest
     @MethodSource("containers")
-    public void genFakerHash(RedisContainer container) throws Exception {
+    public void genFakerHash(RedisServer container) throws Exception {
         execute("import-hset", container);
         RedisKeyCommands<String, String> sync = sync(container);
         List<String> keys = sync.keys("person:*");
@@ -46,7 +53,7 @@ public class TestGen extends AbstractRiotIntegrationTest {
 
     @ParameterizedTest
     @MethodSource("containers")
-    public void genFakerSet(RedisContainer container) throws Exception {
+    public void genFakerSet(RedisServer container) throws Exception {
         execute("import-sadd", container);
         RedisSetCommands<String, String> sync = sync(container);
         Set<String> names = sync.smembers("got:characters");
@@ -58,7 +65,7 @@ public class TestGen extends AbstractRiotIntegrationTest {
 
     @ParameterizedTest
     @MethodSource("containers")
-    public void genFakerZset(RedisContainer container) throws Exception {
+    public void genFakerZset(RedisServer container) throws Exception {
         execute("import-zadd", container);
         RedisKeyCommands<String, String> sync = sync(container);
         List<String> keys = sync.keys("leases:*");
@@ -69,7 +76,7 @@ public class TestGen extends AbstractRiotIntegrationTest {
 
     @ParameterizedTest
     @MethodSource("containers")
-    public void genFakerStream(RedisContainer container) throws Exception {
+    public void genFakerStream(RedisServer container) throws Exception {
         execute("import-xadd", container);
         RedisStreamCommands<String, String> sync = sync(container);
         List<StreamMessage<String, String>> messages = sync.xrange("teststream:1", Range.unbounded());

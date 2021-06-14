@@ -7,7 +7,7 @@ import com.redislabs.riot.redis.AbstractReplicateCommand;
 import com.redislabs.riot.redis.ReplicationMode;
 import com.redislabs.riot.redis.RiotRedis;
 import com.redislabs.testcontainers.RedisContainer;
-import com.redislabs.testcontainers.RedisStandaloneContainer;
+import com.redislabs.testcontainers.RedisServer;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.api.StatefulRedisConnection;
@@ -32,7 +32,7 @@ import java.time.Duration;
 public class TestReplicate extends AbstractRiotIntegrationTest {
 
     @Container
-    private static final RedisStandaloneContainer TARGET = new RedisStandaloneContainer();
+    private static final RedisContainer TARGET = new RedisContainer();
 
     private RedisClient targetClient;
     private StatefulRedisConnection<String, String> targetConnection;
@@ -70,7 +70,7 @@ public class TestReplicate extends AbstractRiotIntegrationTest {
 
     @ParameterizedTest
     @MethodSource("containers")
-    void replicate(RedisContainer container) throws Throwable {
+    void replicate(RedisServer container) throws Throwable {
         dataGenerator(container).build().call();
         RedisServerCommands<String, String> sync = sync(container);
         Long sourceSize = sync.dbsize();
@@ -81,17 +81,17 @@ public class TestReplicate extends AbstractRiotIntegrationTest {
 
     @ParameterizedTest
     @MethodSource("containers")
-    public void replicateLive(RedisContainer container) throws Exception {
+    public void replicateLive(RedisServer container) throws Exception {
         testLiveReplication(container, "replicate-live");
     }
 
     @ParameterizedTest
     @MethodSource("containers")
-    public void replicateLiveValue(RedisContainer container) throws Exception {
+    public void replicateLiveValue(RedisServer container) throws Exception {
         testLiveReplication(container, "replicate-live-value");
     }
 
-    private void testLiveReplication(RedisContainer container, String filename) throws Exception {
+    private void testLiveReplication(RedisServer container, String filename) throws Exception {
         dataGenerator(container).build().call();
         execute(filename, container, r -> configureReplicateCommand(r,true));
         while (targetSync.dbsize() < 100) {

@@ -32,6 +32,8 @@ cd {app}
 
 == Usage
 
+=== Help
+
 [subs="attributes",source,bash]
 ----
 {app} --help
@@ -48,4 +50,14 @@ You can use `--help` on any subcommand:
 ----
 ====
 
+=== Redis Connection
+
+[subs="attributes",source,bash]
+----
+{app} --help
+----
+
+[TIP,subs="attributes"]
+====
 Redis connection options are the same as `redis-cli`. URI syntax is described https://github.com/lettuce-io/lettuce-core/wiki/Redis-URI-and-connection-details#uri-syntax[here].
+====

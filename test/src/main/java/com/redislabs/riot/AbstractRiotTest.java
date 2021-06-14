@@ -2,6 +2,7 @@ package com.redislabs.riot;
 
 import com.redislabs.testcontainers.RedisClusterContainer;
 import com.redislabs.testcontainers.RedisContainer;
+import com.redislabs.testcontainers.RedisServer;
 import io.lettuce.core.RedisURI;
 import org.apache.commons.io.IOUtils;
 import org.codehaus.plexus.util.cli.CommandLineUtils;
@@ -27,7 +28,7 @@ public abstract class AbstractRiotTest {
         }
     }
 
-    protected int execute(String filename, RedisContainer container, Consumer<CommandLine.ParseResult>... configurators) throws Exception {
+    protected int execute(String filename, RedisServer container, Consumer<CommandLine.ParseResult>... configurators) throws Exception {
         RiotApp app = app();
         RiotCommandLine commandLine = app.commandLine();
         CommandLine.ParseResult parseResult = commandLine.parseArgs(args(filename));
@@ -38,7 +39,7 @@ public abstract class AbstractRiotTest {
         return commandLine.getExecutionStrategy().execute(parseResult);
     }
 
-    protected void configure(RiotApp app, RedisContainer container) {
+    protected void configure(RiotApp app, RedisServer container) {
         app.setInfo(true);
         app.getRedisOptions().setUris(new RedisURI[]{RedisURI.create(container.getRedisURI())});
         app.getRedisOptions().setCluster(container instanceof RedisClusterContainer);

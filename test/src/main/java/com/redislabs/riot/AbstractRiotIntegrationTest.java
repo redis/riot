@@ -2,7 +2,7 @@ package com.redislabs.riot;
 
 import com.redislabs.testcontainers.RedisClusterContainer;
 import com.redislabs.testcontainers.RedisContainer;
-import com.redislabs.testcontainers.RedisStandaloneContainer;
+import com.redislabs.testcontainers.RedisServer;
 import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.api.StatefulConnection;
@@ -31,16 +31,16 @@ import java.util.stream.Stream;
 public abstract class AbstractRiotIntegrationTest extends AbstractRiotTest {
 
     @Container
-    private static final RedisStandaloneContainer REDIS = new RedisStandaloneContainer().withKeyspaceNotifications();
+    private static final RedisContainer REDIS = new RedisContainer().withKeyspaceNotifications();
     @Container
     private static final RedisClusterContainer REDIS_CLUSTER = new RedisClusterContainer().withKeyspaceNotifications();
 
-    protected static final Map<RedisContainer, AbstractRedisClient> CLIENTS = new HashMap<>();
-    protected static final Map<RedisContainer, GenericObjectPool<? extends StatefulConnection<String, String>>> POOLS = new HashMap<>();
-    protected static final Map<RedisContainer, StatefulConnection<String, String>> CONNECTIONS = new HashMap<>();
-    protected static final Map<RedisContainer, StatefulRedisPubSubConnection<String, String>> PUBSUB_CONNECTIONS = new HashMap<>();
-    protected static final Map<RedisContainer, BaseRedisAsyncCommands<String, String>> ASYNCS = new HashMap<>();
-    protected static final Map<RedisContainer, BaseRedisCommands<String, String>> SYNCS = new HashMap<>();
+    protected static final Map<RedisServer, AbstractRedisClient> CLIENTS = new HashMap<>();
+    protected static final Map<RedisServer, GenericObjectPool<? extends StatefulConnection<String, String>>> POOLS = new HashMap<>();
+    protected static final Map<RedisServer, StatefulConnection<String, String>> CONNECTIONS = new HashMap<>();
+    protected static final Map<RedisServer, StatefulRedisPubSubConnection<String, String>> PUBSUB_CONNECTIONS = new HashMap<>();
+    protected static final Map<RedisServer, BaseRedisAsyncCommands<String, String>> ASYNCS = new HashMap<>();
+    protected static final Map<RedisServer, BaseRedisCommands<String, String>> SYNCS = new HashMap<>();
 
     @BeforeAll
     public static void setup() {
@@ -48,7 +48,7 @@ public abstract class AbstractRiotIntegrationTest extends AbstractRiotTest {
         add(REDIS_CLUSTER);
     }
 
-    private static void add(RedisContainer container) {
+    private static void add(RedisServer container) {
         if (container instanceof RedisClusterContainer) {
             RedisClusterClient client = RedisClusterClient.create(container.getRedisURI());
             CLIENTS.put(container, client);
@@ -91,7 +91,7 @@ public abstract class AbstractRiotIntegrationTest extends AbstractRiotTest {
         CLIENTS.clear();
     }
 
-    static Stream<RedisContainer> containers() {
+    static Stream<RedisServer> containers() {
         return Stream.of(REDIS, REDIS_CLUSTER);
     }
 
@@ -99,23 +99,23 @@ public abstract class AbstractRiotIntegrationTest extends AbstractRiotTest {
         return Stream.of(REDIS);
     }
 
-    protected static <T> T sync(RedisContainer container) {
+    protected static <T> T sync(RedisServer container) {
         return (T) SYNCS.get(container);
     }
 
-    protected static <T> T async(RedisContainer container) {
+    protected static <T> T async(RedisServer container) {
         return (T) ASYNCS.get(container);
     }
 
-    protected static <C extends StatefulConnection<String, String>> C connection(RedisContainer container) {
+    protected static <C extends StatefulConnection<String, String>> C connection(RedisServer container) {
         return (C) CONNECTIONS.get(container);
     }
 
-    protected static <C extends StatefulConnection<String, String>> GenericObjectPool<C> pool(RedisContainer container) {
+    protected static <C extends StatefulConnection<String, String>> GenericObjectPool<C> pool(RedisServer container) {
         return (GenericObjectPool<C>) POOLS.get(container);
     }
 
-    protected DataGenerator.DataGeneratorBuilder dataGenerator(RedisContainer container) {
+    protected DataGenerator.DataGeneratorBuilder dataGenerator(RedisServer container) {
         return DataGenerator.builder(connection(container));
     }
 

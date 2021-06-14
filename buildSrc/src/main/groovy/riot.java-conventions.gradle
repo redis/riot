@@ -4,8 +4,19 @@ plugins {
     id 'io.spring.dependency-management'
 }
 
+sourceCompatibility = "1.8"
+targetCompatibility = "1.8"
+
 repositories {
     mavenCentral()
+    maven {
+        name = "GitHubPackages"
+        url = uri("https://maven.pkg.github.com/redis-developer/registry")
+        credentials {
+            username = project.findProperty("github.username") ?: System.getenv("GITHUB_USERNAME")
+            password = project.findProperty("github.token") ?: System.getenv("GITHUB_TOKEN")
+        }
+    }
 }
 
 bootJar {
@@ -42,4 +53,8 @@ configurations.all {
 
 test {
     useJUnitPlatform()
+    testLogging {
+        events "failed"
+        exceptionFormat "full"
+    }
 }

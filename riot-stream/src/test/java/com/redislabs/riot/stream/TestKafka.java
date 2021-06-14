@@ -2,7 +2,7 @@ package com.redislabs.riot.stream;
 
 import com.google.common.collect.ImmutableMap;
 import com.redislabs.riot.AbstractRiotIntegrationTest;
-import com.redislabs.testcontainers.RedisContainer;
+import com.redislabs.testcontainers.RedisServer;
 import io.lettuce.core.LettuceFutures;
 import io.lettuce.core.Range;
 import io.lettuce.core.RedisFuture;
@@ -32,7 +32,12 @@ import org.testcontainers.utility.DockerImageName;
 import picocli.CommandLine;
 
 import java.time.Duration;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.Future;
 
 @SuppressWarnings("unchecked")
@@ -49,7 +54,7 @@ public class TestKafka extends AbstractRiotIntegrationTest {
 
     @ParameterizedTest
     @MethodSource("containers")
-    public void testImport(RedisContainer container) throws Exception {
+    public void testImport(RedisServer container) throws Exception {
         KafkaProducer<String, Map<String, String>> producer = new KafkaProducer<>(ImmutableMap.of(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, KAFKA.getBootstrapServers(), ProducerConfig.CLIENT_ID_CONFIG, UUID.randomUUID().toString()), new StringSerializer(), new JsonSerializer<>());
         int count = 100;
         for (int index = 0; index < count; index++) {
@@ -89,7 +94,7 @@ public class TestKafka extends AbstractRiotIntegrationTest {
 
     @ParameterizedTest
     @MethodSource("containers")
-    public void testExport(RedisContainer container) throws Exception {
+    public void testExport(RedisServer container) throws Exception {
         String stream = "stream1";
         int producedCount = 100;
         log.debug("Producing {} stream messages", producedCount);
