@@ -1,0 +1,27 @@
+repositories {
+    maven {
+        url "https://packages.confluent.io/maven"
+    }
+}
+
+application {
+    mainClassName = 'com.redislabs.riot.stream.RiotStream'
+}
+
+manifest {
+    attributes('Main-Class': application.mainClassName)
+}
+
+bootDistZip.enabled = false
+bootDistTar.enabled = false
+
+dependencies {
+    api project(':riot-core')
+    implementation 'org.springframework.kafka:spring-kafka'
+    implementation 'org.springframework.boot:spring-boot-autoconfigure'
+    implementation 'org.apache.avro:avro:1.10.2'
+    implementation 'io.confluent:kafka-avro-serializer:6.2.0'
+    implementation 'io.confluent:kafka-protobuf-serializer:6.2.0'
+    testImplementation project(':riot-test')
+    testImplementation group: 'org.testcontainers', name: 'kafka', version: testcontainersVersion
+}

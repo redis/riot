@@ -1,2 +1,60 @@
+buildscript {
+    repositories {
+        gradlePluginPortal()
+        mavenCentral()
+        mavenLocal()
+    }
+    dependencies {
+        classpath "org.kordamp.gradle:java-project-gradle-plugin:$kordampPluginVersion"
+        classpath "org.kordamp.gradle:kordamp-parentbuild:$kordampBuildVersion"
+        classpath "io.github.gradle-nexus:publish-plugin:$nexusPluginVersion"
+        classpath "org.jreleaser:jreleaser-gradle-plugin:$jreleaserPluginVersion"
+        classpath "org.springframework.boot:spring-boot-gradle-plugin:2.5.1"
+        classpath "io.spring.gradle:dependency-management-plugin:1.0.11.RELEASE"
+    }
+}
+apply plugin: 'org.kordamp.gradle.kordamp-parentbuild'
+
 rootProject.name = 'riot'
-include 'riot-core', 'test', 'riot-db', 'riot-file', 'riot-gen', 'riot-redis', 'riot-stream'
+
+projects {
+    directories = ['core', 'connectors']
+
+    plugins {
+        all {
+            id 'idea'
+        }
+        path(':') {
+            id 'org.kordamp.gradle.java-project'
+            id 'org.jreleaser'
+            id 'io.github.gradle-nexus.publish-plugin'
+        }
+        dirs(['core', 'connectors']) {
+            id 'java-library'
+            id 'org.springframework.boot'
+            id 'io.spring.dependency-management'
+        }
+        dirs(['connectors']) {
+            id 'application'
+        }
+    }
+}
+
+enforce {
+    mergeStrategy = 'append'
+
+    rule(enforcer.rules.ForceDependencies) { r ->
+        r.dependencies.addAll "info.picocli:picocli:$picocliVersion",
+                "org.hdrhistogram:HdrHistogram:2.1.12",
+                "com.google.api:gax:1.60.1",
+                "com.google.api.grpc:proto-google-common-protos:2.0.1",
+                "com.google.code.findbugs:jsr305:3.0.2",
+                "com.google.errorprone:error_prone_annotations:2.4.0",
+                "com.google.guava:guava:30.0-android",
+                "com.google.http-client:google-http-client:$googleHttpVersion",
+                "com.google.http-client:google-http-client-jackson2:$googleHttpVersion",
+                "com.google.protobuf:protobuf-java:$protobufVersion",
+                "com.google.protobuf:protobuf-java-util:$protobufVersion",
+                "io.grpc:grpc-context:1.34.0"
+    }
+}

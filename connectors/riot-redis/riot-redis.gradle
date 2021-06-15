@@ -1,0 +1,24 @@
+application {
+    mainClassName = 'com.redislabs.riot.redis.RiotRedis'
+}
+
+manifest {
+    attributes('Main-Class': application.mainClassName)
+}
+
+bootDistZip.enabled = false
+bootDistTar.enabled = false
+
+dependencies {
+    api project(':riot-core')
+    implementation 'org.latencyutils:LatencyUtils:2.0.3'
+    testImplementation project(':riot-test')
+}
+
+//asciidoctor {
+//    resources {
+//        from("${sourceDir}") {
+//            include '*.png'
+//        }
+//    }
+//}

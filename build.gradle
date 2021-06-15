@@ -1,73 +1,112 @@
-plugins {
-    id 'jacoco'
-    id 'io.github.gradle-nexus.publish-plugin' version '1.1.0'
-    id 'org.jreleaser' version '0.4.0'
-    id 'com.github.ben-manes.versions' version '0.39.0'
-    id 'org.asciidoctor.jvm.convert'
-    id 'org.ajoberstar.git-publish' version '3.0.0'
-}
+config {
+    info {
+        description = 'Redis Input/Output Tools'
+        inceptionYear = '2020'
+        vendor = 'Redis Labs'
+        tags = ['redis', 'data', 'import', 'export', 'generator', 'file', 'sql', 'replication']
+        links {
+            website      = 'https://github.com/redis-developer/${project.rootProject.name}'
+            issueTracker = 'https://github.com/redis-developer/${project.rootProject.name}/issues'
+            scm          = 'https://github.com/redis-developer/${project.rootProject.name}.git'
+        }
 
-repositories {
-    mavenCentral()
-    maven {
-        name = "GitHubPackages"
-        url = uri("https://maven.pkg.github.com/redis-developer/registry")
-        credentials {
-            username = project.findProperty("github.username") ?: System.getenv("GITHUB_USERNAME")
-            password = project.findProperty("github.token") ?: System.getenv("GITHUB_TOKEN")
+        scm {
+            url                 = "https://github.com/redis-developer/${project.rootProject.name}"
+            connection          = "scm:git:https://github.com/redis-developer/${project.rootProject.name}.git"
+            developerConnection = "scm:git:git@github.com:redis-developer/${project.rootProject.name}.git"
+        }
+
+        specification {
+            enabled = true
+        }
+
+        implementation {
+            enabled = true
+        }
+
+        people {
+            person {
+                id    = 'jruaux'
+                name  = 'Julien Ruaux'
+                roles = ['developer', 'author']
+            }
+        }
+    }
+
+    licensing {
+        enabled = false
+        licenses {
+            license {
+                id = 'Apache-2.0'
+            }
+        }
+    }
+
+    docs {
+        javadoc {
+            autoLinks {
+                enabled = false
+            }
         }
     }
 }
 
-asciidoctor {
-    sourceDir 'docs'
-    resources {
-        from ('docs/images') {
-            include 'riot.svg'
-            include 'architecture.png'
-            include 'mapping.png'
-            include 'favicon.svg'
+allprojects {
+    repositories {
+        gradlePluginPortal()
+        mavenCentral()
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/redis-developer/registry")
+            credentials {
+                username = project.findProperty("github.username") ?: System.getenv("GITHUB_USERNAME")
+                password = project.findProperty("github.token") ?: System.getenv("GITHUB_TOKEN")
+            }
         }
-        from("riot-file/src/test/resources/files") {
-            include '*.*'
+    }
+
+    tasks.withType(GenerateModuleMetadata) {
+        enabled = false
+    }
+}
+
+subprojects {
+    config {
+        info {
+            description = project.project_description
         }
     }
-}
 
-gitPublish {
-    repoUri = 'https://github.com/redis-developer/riot.git'
-    referenceRepoUri = 'file:///Users/jruaux/git/riot/'
-    branch = 'gh-pages'
-    contents {
-        from 'build/docs/asciidoc'
+    dependencies {
+        compileOnly 'org.projectlombok:lombok'
+        annotationProcessor 'org.projectlombok:lombok'
+        testImplementation 'org.projectlombok:lombok'
+        testAnnotationProcessor 'org.projectlombok:lombok'
+    }
+
+    configurations {
+        all*.exclude module: 'spring-boot-starter-logging'
+    }
+
+    test {
+        useJUnitPlatform()
+    }
+
+    bootJar {
+        enabled = false
+    }
+
+    jar {
+        enabled = true
+        archiveClassifier = ''
     }
 }
 
-sourceCompatibility = '1.8'
-targetCompatibility = '1.8'
-
-def isNonStable = { String version ->
-    def nonStableKeyword = ['PREVIEW'].any { it -> version.toUpperCase().contains(it) }
-    def stableKeyword = ['RELEASE', 'FINAL', 'GA', 'JRE8'].any { it -> version.toUpperCase().contains(it) }
-    def regex = /^[0-9,.v-]+([.-]r)?$/
-    return nonStableKeyword || (!stableKeyword && !(version ==~ regex))
-}
-
-tasks.named("dependencyUpdates").configure {
-    rejectVersionIf {
-        isNonStable(it.candidate.version) && !isNonStable(it.currentVersion)
-    }
-}
 
 jreleaser {
     project {
-        name = 'riot'
-        description = 'Redis Input/Output Tools'
         longDescription = 'Get data in and out of Redis with RIOT'
         website = 'https://developer.redislabs.com/riot'
-        authors = ['Julien Ruaux']
-        tags = ['redis']
-        license = 'Apache-2.0'
         copyright = '2021 Julien Ruaux'
         java {
             multiProject = true
@@ -75,18 +114,16 @@ jreleaser {
     }
     release {
         github {
-            username = 'jruaux'
             owner = 'redis-developer'
             overwrite = true
         }
     }
-    //noinspection GroovyAssignabilityCheck
     distributions {
-        ['db', 'file', 'gen', 'redis', 'stream'].each { n ->
-            "riot-$n" {
+        ['riot-db', 'riot-file', 'riot-gen', 'riot-redis', 'riot-stream'].each { n ->
+            "$n" {
                 brew {
                     active = 'release'
-                    formulaName = "riot-${n}"
+                    formulaName = "${n}"
                 }
                 scoop {
                     active = 'release'
@@ -96,11 +133,8 @@ jreleaser {
                 }
                 artifacts {
                     artifact {
-                        path = "{{distributionName}}/build/distributions/{{distributionName}}-{{projectVersion}}.zip"
+                        path = "connectors/{{distributionName}}/build/distributions/{{distributionName}}-{{projectVersion}}.zip"
                     }
-                }
-                java {
-                    artifactId = "riot-${n}"
                 }
             }
         }
@@ -112,5 +146,3 @@ nexusPublishing {
         sonatype()
     }
 }
-
-gitPublishPush.dependsOn asciidoctor
