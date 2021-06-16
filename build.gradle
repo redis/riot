@@ -5,14 +5,14 @@ config {
         vendor = 'Redis Labs'
         tags = ['redis', 'data', 'import', 'export', 'generator', 'file', 'sql', 'replication']
         links {
-            website      = 'https://github.com/redis-developer/${project.rootProject.name}'
+            website = 'https://github.com/redis-developer/${project.rootProject.name}'
             issueTracker = 'https://github.com/redis-developer/${project.rootProject.name}/issues'
-            scm          = 'https://github.com/redis-developer/${project.rootProject.name}.git'
+            scm = 'https://github.com/redis-developer/${project.rootProject.name}.git'
         }
 
         scm {
-            url                 = "https://github.com/redis-developer/${project.rootProject.name}"
-            connection          = "scm:git:https://github.com/redis-developer/${project.rootProject.name}.git"
+            url = "https://github.com/redis-developer/${project.rootProject.name}"
+            connection = "scm:git:https://github.com/redis-developer/${project.rootProject.name}.git"
             developerConnection = "scm:git:git@github.com:redis-developer/${project.rootProject.name}.git"
         }
 
@@ -26,8 +26,8 @@ config {
 
         people {
             person {
-                id    = 'jruaux'
-                name  = 'Julien Ruaux'
+                id = 'jruaux'
+                name = 'Julien Ruaux'
                 roles = ['developer', 'author']
             }
         }
@@ -63,6 +63,7 @@ allprojects {
                 password = project.findProperty("github.token") ?: System.getenv("GITHUB_TOKEN")
             }
         }
+        mavenLocal()
     }
 
     tasks.withType(GenerateModuleMetadata) {

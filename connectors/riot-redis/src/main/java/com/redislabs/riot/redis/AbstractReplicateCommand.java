@@ -22,7 +22,7 @@ import picocli.CommandLine;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Slf4j
-public abstract class AbstractReplicateCommand<T extends KeyValue<String, ?>> extends AbstractTargetCommand {
+public abstract class AbstractReplicateCommand<T extends KeyValue<?>> extends AbstractTargetCommand {
 
     @SuppressWarnings("unused")
     @CommandLine.Mixin

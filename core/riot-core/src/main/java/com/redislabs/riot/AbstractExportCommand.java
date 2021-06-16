@@ -19,14 +19,14 @@ public abstract class AbstractExportCommand<O> extends AbstractTransferCommand {
     @CommandLine.ArgGroup(exclusive = false, heading = "Redis reader options%n")
     private RedisReaderOptions options = new RedisReaderOptions();
 
-    protected AbstractTaskletStepBuilder<SimpleStepBuilder<DataStructure<String>, O>> step(StepBuilderFactory stepBuilderFactory, ItemProcessor<DataStructure<String>, O> processor, ItemWriter<O> writer) throws Exception {
+    protected AbstractTaskletStepBuilder<SimpleStepBuilder<DataStructure, O>> step(StepBuilderFactory stepBuilderFactory, ItemProcessor<DataStructure, O> processor, ItemWriter<O> writer) throws Exception {
         String name = name(getRedisOptions().uris().get(0));
         StepBuilder stepBuilder = stepBuilderFactory.get(name + "-export-step");
-        RiotStepBuilder<DataStructure<String>, O> step = riotStep(stepBuilder, "Exporting from " + name);
+        RiotStepBuilder<DataStructure, O> step = riotStep(stepBuilder, "Exporting from " + name);
         return step.reader(reader()).processor(processor).writer(writer).build();
     }
 
-    protected final DataStructureItemReader<String, String> reader() {
+    protected final DataStructureItemReader reader() {
         RedisOptions redisOptions = getRedisOptions();
         if (redisOptions.isCluster()) {
             RedisClusterClient client = redisOptions.redisClusterClient();

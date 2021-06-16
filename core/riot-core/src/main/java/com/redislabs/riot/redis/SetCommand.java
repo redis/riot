@@ -6,7 +6,8 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.redislabs.riot.convert.ObjectMapperConverter;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.batch.item.redis.RedisOperation;
+import org.springframework.batch.item.redis.OperationItemWriter;
+import org.springframework.batch.item.redis.support.operation.Set;
 import org.springframework.core.convert.converter.Converter;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -31,8 +32,8 @@ public class SetCommand extends AbstractKeyCommand {
     private String root;
 
     @Override
-    public RedisOperation<String, String, Map<String, Object>> operation() {
-        return configureKeyCommandBuilder(RedisOperation.set()).value(stringValueConverter()).build();
+    public OperationItemWriter.RedisOperation<Map<String, Object>> operation() {
+        return new Set<>(key(), stringValueConverter());
     }
 
     private Converter<Map<String, Object>, String> stringValueConverter() {

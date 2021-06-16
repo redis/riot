@@ -39,23 +39,23 @@ public abstract class AbstractTargetCommand extends AbstractFlushingTransferComm
     }
 
     protected Flow verificationFlow(StepBuilderFactory stepBuilderFactory) {
-        KeyValueItemReader<String, DataStructure<String>> sourceReader = dataStructureReader();
+        KeyValueItemReader<DataStructure> sourceReader = dataStructureReader();
         log.debug("Creating key comparator with TTL tolerance of {} seconds", compareOptions.getTtlTolerance());
-        DataStructureValueReader<String, String> targetValueReader = targetDataStructureValueReader();
-        KeyComparisonResultCounter<String> counter = new KeyComparisonResultCounter<>();
+        DataStructureValueReader targetValueReader = targetDataStructureValueReader();
+        KeyComparisonResultCounter counter = new KeyComparisonResultCounter();
         KeyComparisonItemWriter.KeyComparisonItemWriterBuilder writerBuilder = KeyComparisonItemWriter.valueReader(targetValueReader);
         writerBuilder.resultHandler(counter);
         if (compareOptions.isShowDiffs()) {
             writerBuilder.resultHandler(this::log);
         }
         writerBuilder.ttlTolerance(compareOptions.getTtlToleranceDuration());
-        KeyComparisonItemWriter<String> writer = writerBuilder.build();
+        KeyComparisonItemWriter writer = writerBuilder.build();
         StepBuilder verificationStepBuilder = stepBuilderFactory.get("verification-step");
-        RiotStepBuilder<DataStructure<String>, DataStructure<String>> stepBuilder = riotStep(verificationStepBuilder, "Verifying");
+        RiotStepBuilder<DataStructure, DataStructure> stepBuilder = riotStep(verificationStepBuilder, "Verifying");
         initialMax(stepBuilder);
         stepBuilder.reader(sourceReader).writer(writer);
         stepBuilder.extraMessage(() -> extraMessage(counter));
-        SimpleStepBuilder<DataStructure<String>, DataStructure<String>> step = stepBuilder.build();
+        SimpleStepBuilder<DataStructure, DataStructure> step = stepBuilder.build();
         step.listener(new StepExecutionListenerSupport() {
             @Override
             public ExitStatus afterStep(StepExecution stepExecution) {
@@ -77,7 +77,7 @@ public abstract class AbstractTargetCommand extends AbstractFlushingTransferComm
         return flow("verification-flow").start(verificationStep).build();
     }
 
-    private String extraMessage(KeyComparisonResultCounter<String> counter) {
+    private String extraMessage(KeyComparisonResultCounter counter) {
         Long[] counts = counter.get(KeyComparisonItemWriter.Result.SOURCE, KeyComparisonItemWriter.Result.TYPE, KeyComparisonItemWriter.Result.VALUE, KeyComparisonItemWriter.Result.TTL, KeyComparisonItemWriter.Result.TARGET);
         return " " + String.format(extraMessageFormat(), (Object[]) counts);
     }
@@ -91,7 +91,7 @@ public abstract class AbstractTargetCommand extends AbstractFlushingTransferComm
         }
     }
 
-    private void log(DataStructure<String> source, DataStructure<String> target, KeyComparisonItemWriter.Result result) {
+    private void log(DataStructure source, DataStructure target, KeyComparisonItemWriter.Result result) {
         switch (result) {
             case OK:
                 return;
@@ -113,7 +113,7 @@ public abstract class AbstractTargetCommand extends AbstractFlushingTransferComm
         }
     }
 
-    protected KeyValueItemReader<String, DataStructure<String>> dataStructureReader() {
+    protected KeyValueItemReader<DataStructure> dataStructureReader() {
         RedisOptions redisOptions = getRedisOptions();
         if (redisOptions.isCluster()) {
             return readerOptions.configure(DataStructureItemReader.client(redisOptions.redisClusterClient()).poolConfig(redisOptions.poolConfig())).build();
@@ -121,7 +121,7 @@ public abstract class AbstractTargetCommand extends AbstractFlushingTransferComm
         return readerOptions.configure(DataStructureItemReader.client(redisOptions.redisClient()).poolConfig(redisOptions.poolConfig())).build();
     }
 
-    protected DataStructureValueReader<String, String> targetDataStructureValueReader() {
+    protected DataStructureValueReader targetDataStructureValueReader() {
         if (targetRedisOptions.isCluster()) {
             return DataStructureValueReader.client(targetRedisOptions.redisClusterClient()).poolConfig(targetRedisOptions.poolConfig()).build();
         }

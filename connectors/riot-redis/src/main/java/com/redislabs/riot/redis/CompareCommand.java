@@ -12,7 +12,7 @@ import picocli.CommandLine;
 @EqualsAndHashCode(callSuper = true)
 @Slf4j
 @CommandLine.Command(name = "compare", description = "Compare a target Redis database with a source Redis database and prints the differences")
-public class CompareCommand<T extends KeyValue<String, ?>> extends AbstractTargetCommand {
+public class CompareCommand<T extends KeyValue<?>> extends AbstractTargetCommand {
 
     @Override
     protected Flow flow(StepBuilderFactory stepBuilderFactory) {

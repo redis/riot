@@ -1,6 +1,17 @@
 package com.redislabs.riot;
 
-import com.redislabs.riot.redis.*;
+import com.redislabs.riot.redis.EvalCommand;
+import com.redislabs.riot.redis.ExpireCommand;
+import com.redislabs.riot.redis.GeoaddCommand;
+import com.redislabs.riot.redis.HsetCommand;
+import com.redislabs.riot.redis.LpushCommand;
+import com.redislabs.riot.redis.NoopCommand;
+import com.redislabs.riot.redis.RpushCommand;
+import com.redislabs.riot.redis.SaddCommand;
+import com.redislabs.riot.redis.SetCommand;
+import com.redislabs.riot.redis.SugaddCommand;
+import com.redislabs.riot.redis.XaddCommand;
+import com.redislabs.riot.redis.ZaddCommand;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.springframework.batch.core.step.builder.AbstractTaskletStepBuilder;
@@ -10,7 +21,6 @@ import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.redis.OperationItemWriter;
-import org.springframework.batch.item.redis.RedisOperation;
 import org.springframework.batch.item.support.CompositeItemWriter;
 import org.springframework.util.Assert;
 import picocli.CommandLine.Command;
@@ -40,7 +50,7 @@ public abstract class AbstractImportCommand<I, O> extends AbstractTransferComman
     protected ItemWriter<O> writer() {
         Assert.notNull(redisCommands, "RedisCommands not set");
         Assert.isTrue(!redisCommands.isEmpty(), "No Redis command specified");
-        Function<RedisOperation<String, String, O>, ItemWriter<O>> writerProvider = this::writer;
+        Function<OperationItemWriter.RedisOperation<O>, ItemWriter<O>> writerProvider = this::writer;
         if (redisCommands.size() == 1) {
             return writerProvider.apply(redisCommands.get(0).operation());
         }
@@ -49,7 +59,7 @@ public abstract class AbstractImportCommand<I, O> extends AbstractTransferComman
         return compositeWriter;
     }
 
-    private ItemWriter<O> writer(RedisOperation<String, String, O> operation) {
+    private ItemWriter<O> writer(OperationItemWriter.RedisOperation<O> operation) {
         OperationItemWriter.OperationItemWriterBuilder<O> writer = OperationItemWriter.operation(operation);
         RedisOptions redisOptions = getRedisOptions();
         if (redisOptions.isCluster()) {

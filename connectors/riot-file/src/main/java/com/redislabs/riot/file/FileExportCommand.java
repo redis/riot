@@ -23,7 +23,7 @@ import java.io.IOException;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Command(name = "export", description = "Export Redis data to JSON or XML files")
-public class FileExportCommand extends AbstractExportCommand<DataStructure<String>> {
+public class FileExportCommand extends AbstractExportCommand<DataStructure> {
 
     @CommandLine.Parameters(arity = "1", description = "File path or URL", paramLabel = "FILE")
     private String file;
@@ -35,11 +35,11 @@ public class FileExportCommand extends AbstractExportCommand<DataStructure<Strin
         return flow(step(stepBuilderFactory,null, writer()).build());
     }
 
-    private ItemWriter<DataStructure<String>> writer() throws IOException {
+    private ItemWriter<DataStructure> writer() throws IOException {
         WritableResource resource = options.outputResource(file);
         DumpFileType fileType = fileType();
         if (fileType == DumpFileType.XML) {
-            XmlResourceItemWriterBuilder<DataStructure<String>> xmlWriterBuilder = new XmlResourceItemWriterBuilder<>();
+            XmlResourceItemWriterBuilder<DataStructure> xmlWriterBuilder = new XmlResourceItemWriterBuilder<>();
             xmlWriterBuilder.name("xml-resource-item-writer");
             xmlWriterBuilder.append(options.isAppend());
             xmlWriterBuilder.encoding(options.getEncoding().name());
@@ -51,7 +51,7 @@ public class FileExportCommand extends AbstractExportCommand<DataStructure<Strin
             log.debug("Creating XML writer with {} for file {}", options, file);
             return xmlWriterBuilder.build();
         }
-        JsonResourceItemWriterBuilder<DataStructure<String>> jsonWriterBuilder = new JsonResourceItemWriterBuilder<>();
+        JsonResourceItemWriterBuilder<DataStructure> jsonWriterBuilder = new JsonResourceItemWriterBuilder<>();
         jsonWriterBuilder.name("json-resource-item-writer");
         jsonWriterBuilder.append(options.isAppend());
         jsonWriterBuilder.encoding(options.getEncoding().name());
@@ -70,10 +70,10 @@ public class FileExportCommand extends AbstractExportCommand<DataStructure<Strin
         return options.getType();
     }
 
-    private JsonObjectMarshaller<DataStructure<String>> xmlMarshaller() {
+    private JsonObjectMarshaller<DataStructure> xmlMarshaller() {
         XmlMapper mapper = new XmlMapper();
         mapper.setConfig(mapper.getSerializationConfig().withRootName(options.getElementName()));
-        JacksonJsonObjectMarshaller<DataStructure<String>> marshaller = new JacksonJsonObjectMarshaller<>();
+        JacksonJsonObjectMarshaller<DataStructure> marshaller = new JacksonJsonObjectMarshaller<>();
         marshaller.setObjectMapper(mapper);
         return marshaller;
     }

@@ -12,15 +12,15 @@ import picocli.CommandLine;
 
 @Slf4j
 @CommandLine.Command(name = "replicate-ds", description = "Replicate a source Redis database into a target Redis database using data structure-specific commands")
-public class ReplicateDataStructureCommand extends AbstractReplicateCommand<DataStructure<String>> {
+public class ReplicateDataStructureCommand extends AbstractReplicateCommand<DataStructure> {
 
     @Override
-    protected ItemReader<DataStructure<String>> reader(RedisOptions redisOptions) {
+    protected ItemReader<DataStructure> reader(RedisOptions redisOptions) {
         return dataStructureReader();
     }
 
     @Override
-    protected PollableItemReader<DataStructure<String>> liveReader(RedisOptions redisOptions) {
+    protected PollableItemReader<DataStructure> liveReader(RedisOptions redisOptions) {
         if (redisOptions.isCluster()) {
             return configure(DataStructureItemReader.client(redisOptions.redisClusterClient()).live()).build();
         }
@@ -28,7 +28,7 @@ public class ReplicateDataStructureCommand extends AbstractReplicateCommand<Data
     }
 
     @Override
-    protected ItemWriter<DataStructure<String>> writer(RedisOptions redisOptions) {
+    protected ItemWriter<DataStructure> writer(RedisOptions redisOptions) {
         if (redisOptions.isCluster()) {
             return DataStructureItemWriter.client(redisOptions.redisClusterClient()).poolConfig(redisOptions.poolConfig()).build();
         }

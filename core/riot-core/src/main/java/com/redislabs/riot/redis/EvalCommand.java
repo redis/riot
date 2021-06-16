@@ -2,7 +2,7 @@ package com.redislabs.riot.redis;
 
 import com.redislabs.riot.convert.MapToStringArrayConverter;
 import io.lettuce.core.ScriptOutputType;
-import org.springframework.batch.item.redis.RedisOperation;
+import org.springframework.batch.item.redis.support.operation.Eval;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.util.ObjectUtils;
 import picocli.CommandLine.Command;
@@ -26,8 +26,8 @@ public class EvalCommand extends AbstractRedisCommand<Map<String, Object>> {
     private ScriptOutputType outputType = ScriptOutputType.STATUS;
 
     @Override
-    public RedisOperation<String, String, Map<String, Object>> operation() {
-        return RedisOperation.<Map<String, Object>>eval().sha(sha).output(outputType).keys(converter(keys)).args(converter(args)).build();
+    public Eval<Map<String, Object>> operation() {
+        return new Eval<>(sha, outputType, converter(keys), converter(args));
     }
 
     @SuppressWarnings("unchecked")

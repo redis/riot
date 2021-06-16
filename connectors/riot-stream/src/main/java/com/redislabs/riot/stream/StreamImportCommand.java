@@ -17,7 +17,7 @@ import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.redis.OperationItemWriter;
-import org.springframework.batch.item.redis.RedisOperation;
+import org.springframework.batch.item.redis.support.operation.Xadd;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
@@ -71,8 +71,7 @@ public class StreamImportCommand extends AbstractFlushingTransferCommand {
     }
 
     private ItemWriter<ConsumerRecord<String, Object>> writer() {
-        XAddArgs xAddArgs = xAddArgs();
-        RedisOperation<String, String, ConsumerRecord<String, Object>> operation = RedisOperation.<ConsumerRecord<String, Object>>xadd().key(keyConverter()).args(r -> xAddArgs).body(bodyConverter()).build();
+        OperationItemWriter.RedisOperation<ConsumerRecord<String, Object>> operation = new Xadd<>(keyConverter(), bodyConverter(), xAddArgs());
         RedisOptions redisOptions = getRedisOptions();
         if (redisOptions.isCluster()) {
             log.debug("Creating cluster stream writer");

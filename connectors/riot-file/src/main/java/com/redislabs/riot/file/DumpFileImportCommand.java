@@ -51,10 +51,10 @@ public class DumpFileImportCommand extends AbstractTransferCommand {
         for (String file : expandedFiles) {
             DumpFileType fileType = fileType(file);
             Resource resource = options.inputResource(file);
-            AbstractItemStreamItemReader<DataStructure<String>> reader = reader(fileType, resource);
+            AbstractItemStreamItemReader<DataStructure> reader = reader(fileType, resource);
             reader.setName(file + "-reader");
             StepBuilder stepBuilder = stepBuilderFactory.get(file + "-datastructure-file-import-step");
-            RiotStepBuilder<DataStructure<String>, DataStructure<String>> step = riotStep(stepBuilder, "Importing " + file);
+            RiotStepBuilder<DataStructure, DataStructure> step = riotStep(stepBuilder, "Importing " + file);
             steps.add(step.reader(reader).processor(processor).writer(writer()).build().build());
         }
         return flow(steps.toArray(new Step[0]));
@@ -67,7 +67,7 @@ public class DumpFileImportCommand extends AbstractTransferCommand {
         return options.getType();
     }
 
-    private ItemWriter<DataStructure<String>> writer() {
+    private ItemWriter<DataStructure> writer() {
         RedisOptions redisOptions = getRedisOptions();
         if (redisOptions.isCluster()) {
             RedisClusterClient client = redisOptions.redisClusterClient();
@@ -78,7 +78,7 @@ public class DumpFileImportCommand extends AbstractTransferCommand {
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
-    protected AbstractItemStreamItemReader<DataStructure<String>> reader(DumpFileType fileType, Resource resource) {
+    protected AbstractItemStreamItemReader<DataStructure> reader(DumpFileType fileType, Resource resource) {
         if (fileType == DumpFileType.XML) {
             log.debug("Creating XML data structure reader for file {}", resource);
             return (XmlItemReader) FileUtils.xmlReader(resource, DataStructure.class);

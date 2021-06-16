@@ -1,6 +1,7 @@
 package com.redislabs.riot.redis;
 
-import org.springframework.batch.item.redis.RedisOperation;
+import org.springframework.batch.item.redis.OperationItemWriter;
+import org.springframework.batch.item.redis.support.operation.Sadd;
 import picocli.CommandLine.Command;
 
 import java.util.Map;
@@ -9,8 +10,8 @@ import java.util.Map;
 public class SaddCommand extends AbstractCollectionCommand {
 
     @Override
-    public RedisOperation<String, String, Map<String, Object>> operation() {
-        return configureCollectionCommandBuilder(RedisOperation.sadd()).build();
+    public OperationItemWriter.RedisOperation<Map<String, Object>> operation() {
+        return new Sadd<>(key(), member());
     }
 
 }

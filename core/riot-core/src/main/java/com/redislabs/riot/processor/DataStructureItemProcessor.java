@@ -12,7 +12,7 @@ import org.springframework.util.Assert;
 
 import java.util.*;
 
-public class DataStructureItemProcessor implements ItemProcessor<DataStructure<String>, Map<String, Object>> {
+public class DataStructureItemProcessor implements ItemProcessor<DataStructure, Map<String, Object>> {
 
     private final Converter<String, Map<String, String>> keyFieldsExtractor;
     private final Converter<Map<String, String>, Map<String, String>> hashConverter;
@@ -35,7 +35,7 @@ public class DataStructureItemProcessor implements ItemProcessor<DataStructure<S
     }
 
     @Override
-    public Map<String, Object> process(DataStructure<String> item) {
+    public Map<String, Object> process(DataStructure item) {
         if (item.getType() == null) {
             return null;
         }
@@ -55,7 +55,7 @@ public class DataStructureItemProcessor implements ItemProcessor<DataStructure<S
     }
 
     @SuppressWarnings("unchecked")
-    private Map<String, String> map(DataStructure<String> item) {
+    private Map<String, String> map(DataStructure item) {
         switch (item.getType()) {
             case DataStructure.HASH:
                 return hashConverter.convert((Map<String, String>) item.getValue());

@@ -12,10 +12,10 @@ import picocli.CommandLine;
 
 @Slf4j
 @CommandLine.Command(name = "replicate", description = "Replicate a source Redis database to a target Redis database using DUMP & RESTORE")
-public class ReplicateKeyDumpCommand extends AbstractReplicateCommand<KeyValue<String, byte[]>> {
+public class ReplicateKeyDumpCommand extends AbstractReplicateCommand<KeyValue<byte[]>> {
 
     @Override
-    protected ItemReader<KeyValue<String, byte[]>> reader(RedisOptions redisOptions) {
+    protected ItemReader<KeyValue<byte[]>> reader(RedisOptions redisOptions) {
         if (redisOptions.isCluster()) {
             return readerOptions.configure(KeyDumpItemReader.client(redisOptions.redisClusterClient()).poolConfig(redisOptions.poolConfig())).build();
         }
@@ -23,7 +23,7 @@ public class ReplicateKeyDumpCommand extends AbstractReplicateCommand<KeyValue<S
     }
 
     @Override
-    protected PollableItemReader<KeyValue<String, byte[]>> liveReader(RedisOptions redisOptions) {
+    protected PollableItemReader<KeyValue<byte[]>> liveReader(RedisOptions redisOptions) {
         if (redisOptions.isCluster()) {
             return configure(KeyDumpItemReader.client(redisOptions.redisClusterClient()).poolConfig(redisOptions.poolConfig()).live()).build();
         }
@@ -31,7 +31,7 @@ public class ReplicateKeyDumpCommand extends AbstractReplicateCommand<KeyValue<S
     }
 
     @Override
-    protected ItemWriter<KeyValue<String, byte[]>> writer(RedisOptions redisOptions) {
+    protected ItemWriter<KeyValue<byte[]>> writer(RedisOptions redisOptions) {
         if (redisOptions.isCluster()) {
             return KeyDumpItemWriter.client(redisOptions.redisClusterClient()).poolConfig(redisOptions.poolConfig()).build();
         }

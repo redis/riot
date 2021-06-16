@@ -1,6 +1,6 @@
 package com.redislabs.riot.redis;
 
-import org.springframework.batch.item.redis.RedisOperation;
+import org.springframework.batch.item.redis.support.operation.Noop;
 import picocli.CommandLine.Command;
 
 import java.util.Map;
@@ -9,8 +9,8 @@ import java.util.Map;
 public class NoopCommand extends AbstractRedisCommand<Map<String, Object>> {
 
     @Override
-    public RedisOperation<String, String, Map<String, Object>> operation() {
-        return RedisOperation.noop();
+    public Noop<Map<String, Object>> operation() {
+        return new Noop<>();
     }
 
 }

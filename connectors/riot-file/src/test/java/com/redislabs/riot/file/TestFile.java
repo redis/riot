@@ -412,11 +412,11 @@ public class TestFile extends AbstractRiotIntegrationTest {
         XmlObjectReader<DataStructure> xmlObjectReader = new XmlObjectReader<>(DataStructure.class);
         xmlObjectReader.setMapper(new XmlMapper());
         builder.xmlObjectReader(xmlObjectReader);
-        XmlItemReader<DataStructure<String>> reader = (XmlItemReader) builder.build();
-        List<DataStructure<String>> records = readAll(reader);
+        XmlItemReader<DataStructure> reader = (XmlItemReader) builder.build();
+        List<DataStructure> records = readAll(reader);
         RedisServerCommands<String, String> sync = sync(container);
         Assertions.assertEquals(sync.dbsize(), records.size());
-        for (DataStructure<String> record : records) {
+        for (DataStructure record : records) {
             String key = record.getKey();
             switch (record.getType().toLowerCase()) {
                 case DataStructure.HASH:

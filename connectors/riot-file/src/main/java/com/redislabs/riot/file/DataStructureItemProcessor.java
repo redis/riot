@@ -9,11 +9,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
-public class DataStructureItemProcessor implements ItemProcessor<DataStructure<String>, DataStructure<String>> {
+public class DataStructureItemProcessor implements ItemProcessor<DataStructure, DataStructure> {
 
     @SuppressWarnings("unchecked")
     @Override
-    public DataStructure<String> process(DataStructure<String> item) throws Exception {
+    public DataStructure process(DataStructure item) throws Exception {
         String type = item.getType().toLowerCase();
         if (type.equals(DataStructure.ZSET)) {
             Collection<Map<String, Object>> zset = (Collection<Map<String, Object>>) item.getValue();

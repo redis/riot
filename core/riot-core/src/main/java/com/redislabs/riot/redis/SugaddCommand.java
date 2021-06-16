@@ -1,6 +1,6 @@
 package com.redislabs.riot.redis;
 
-import org.springframework.batch.item.redis.RedisOperation;
+import org.springframework.batch.item.redis.OperationItemWriter;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
@@ -18,10 +18,12 @@ public class SugaddCommand extends AbstractKeyCommand {
     private double scoreDefault = 1;
     @Option(names = "--payload", description = "Field containing the payload", paramLabel = "<field>")
     private String payload;
+    @Option(names = "--increment", description = "Increment the existing suggestion by the score instead of replacing the score")
+    private boolean increment;
 
     @Override
-    public RedisOperation<String, String, Map<String, Object>> operation() {
-        return configureKeyCommandBuilder(Sugadd.builder()).string(stringFieldExtractor(field)).score(numberFieldExtractor(Double.class, scoreField, scoreDefault)).payload(stringFieldExtractor(payload)).build();
+    public OperationItemWriter.RedisOperation<Map<String, Object>> operation() {
+        return new Sugadd<>(key(), stringFieldExtractor(field), numberFieldExtractor(Double.class, scoreField, scoreDefault), stringFieldExtractor(payload), increment);
     }
 
 

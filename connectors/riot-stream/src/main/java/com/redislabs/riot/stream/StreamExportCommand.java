@@ -54,7 +54,7 @@ public class StreamExportCommand extends AbstractFlushingTransferCommand {
         Assert.isTrue(!ObjectUtils.isEmpty(streams), "No stream specified");
         List<Step> steps = new ArrayList<>();
         for (String stream : streams) {
-            StreamItemReader<String, String> reader = reader(StreamOffset.from(stream, offset));
+            StreamItemReader reader = reader(StreamOffset.from(stream, offset));
             StepBuilder stepBuilder = stepBuilderFactory.get(stream + "-stream-export-step");
             RiotStepBuilder<StreamMessage<String, String>, ProducerRecord<String, Object>> step = riotStep(stepBuilder, "Exporting from " + stream);
             steps.add(configure(step.reader(reader).processor(processor()).writer(writer()).build()).build());
@@ -62,7 +62,7 @@ public class StreamExportCommand extends AbstractFlushingTransferCommand {
         return flow(steps.toArray(new Step[0]));
     }
 
-    private StreamItemReader<String, String> reader(StreamOffset<String> offset) {
+    private StreamItemReader reader(StreamOffset<String> offset) {
         RedisOptions redisOptions = getRedisOptions();
         if (redisOptions.isCluster()) {
             log.debug("Creating cluster stream reader with offset {}", offset);
