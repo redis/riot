@@ -1,0 +1,35 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en_US" lang="en_US">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>CompareCommand xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../stylesheet.css" />
+</head>
+<body>
+<pre>
+<a class="jxr_linenumber" name="L1" href="#L1">1</a>   <strong class="jxr_keyword">package</strong> com.redislabs.riot.redis;
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   
+<a class="jxr_linenumber" name="L3" href="#L3">3</a>   <strong class="jxr_keyword">import</strong> lombok.Data;
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <strong class="jxr_keyword">import</strong> lombok.EqualsAndHashCode;
+<a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">import</strong> lombok.extern.slf4j.Slf4j;
+<a class="jxr_linenumber" name="L6" href="#L6">6</a>   <strong class="jxr_keyword">import</strong> org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> org.springframework.batch.core.job.flow.Flow;
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> org.springframework.batch.item.redis.support.KeyValue;
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> picocli.CommandLine;
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  @Data
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  @EqualsAndHashCode(callSuper = <strong class="jxr_keyword">true</strong>)
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  @Slf4j
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  @CommandLine.Command(name = <span class="jxr_string">"compare"</span>, description = <span class="jxr_string">"Compare a target Redis database with a source Redis database and prints the differences"</span>)
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> CompareCommand&lt;T <strong class="jxr_keyword">extends</strong> KeyValue&lt;?&gt;&gt; <strong class="jxr_keyword">extends</strong> <a name="AbstractTargetCommand" href="../../../../com/redislabs/riot/redis/AbstractTargetCommand.html#AbstractTargetCommand">AbstractTargetCommand</a> {
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>      @Override
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>      <strong class="jxr_keyword">protected</strong> Flow flow(StepBuilderFactory stepBuilderFactory) {
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>          <strong class="jxr_keyword">return</strong> verificationFlow(stepBuilderFactory);
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>      }
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  }
+</pre>
+<hr/>
+<div id="footer"></div>
+</body>
+</html>

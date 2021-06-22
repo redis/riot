@@ -1,0 +1,90 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en_US" lang="en_US">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>AbstractReplicateCommand xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../stylesheet.css" />
+</head>
+<body>
+<pre>
+<a class="jxr_linenumber" name="L1" href="#L1">1</a>   <strong class="jxr_keyword">package</strong> com.redislabs.riot.redis;
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   
+<a class="jxr_linenumber" name="L3" href="#L3">3</a>   <strong class="jxr_keyword">import</strong> com.redislabs.riot.RedisOptions;
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <strong class="jxr_keyword">import</strong> com.redislabs.riot.RiotStepBuilder;
+<a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">import</strong> lombok.Data;
+<a class="jxr_linenumber" name="L6" href="#L6">6</a>   <strong class="jxr_keyword">import</strong> lombok.EqualsAndHashCode;
+<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> lombok.extern.slf4j.Slf4j;
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> org.springframework.batch.core.job.flow.Flow;
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> org.springframework.batch.core.job.flow.support.SimpleFlow;
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> org.springframework.batch.core.step.builder.StepBuilder;
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> org.springframework.batch.core.step.tasklet.TaskletStep;
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> org.springframework.batch.item.ItemReader;
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> org.springframework.batch.item.ItemWriter;
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> org.springframework.batch.item.redis.support.FlushingStepBuilder;
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> org.springframework.batch.item.redis.support.KeyValue;
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> org.springframework.batch.item.redis.support.KeyValueItemReader;
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">import</strong> org.springframework.batch.item.redis.support.PollableItemReader;
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">import</strong> org.springframework.core.task.SimpleAsyncTaskExecutor;
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">import</strong> picocli.CommandLine;
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  @Data
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  @EqualsAndHashCode(callSuper = <strong class="jxr_keyword">true</strong>)
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  @Slf4j
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">class</strong> AbstractReplicateCommand&lt;T <strong class="jxr_keyword">extends</strong> KeyValue&lt;?&gt;&gt; <strong class="jxr_keyword">extends</strong> <a name="AbstractTargetCommand" href="../../../../com/redislabs/riot/redis/AbstractTargetCommand.html#AbstractTargetCommand">AbstractTargetCommand</a> {
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>  
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>      @SuppressWarnings(<span class="jxr_string">"unused"</span>)
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>      @CommandLine.Mixin
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>      <strong class="jxr_keyword">private</strong> <a name="ReplicationOptions" href="../../../../com/redislabs/riot/redis/Replicati<a name="ReplicationOptions" href="../../../../com/redislabs/riot/redis/ReplicationOptions.html#ReplicationOptions">ReplicationOptions</a>licationOptions">ReplicationOptions</a> replicationOptions = <strong class="jxr_keyword">new</strong> <a name="ReplicationOptions" href="../../../../com/redislabs/riot/redis/ReplicationOptions.html#ReplicationOptions">ReplicationOptions</a>();
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>  
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>      @Override
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>      <strong class="jxr_keyword">protected</strong> Flow flow(StepBuilderFactory stepBuilderFactory) {
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>          <strong class="jxr_keyword">if</strong> (replicationOptions.isVerify()) {
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>              <strong class="jxr_keyword">return</strong> flow(<span class="jxr_string">"replication-verification-flow"</span>).start(replicationFlow(stepBuilderFactory)).next(verificationFlow(stepBuilderFactory)).build();
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>          }
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>          <strong class="jxr_keyword">return</strong> replicationFlow(stepBuilderFactory);
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>      }
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>  
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>      <strong class="jxr_keyword">private</strong> Flow replicationFlow(StepBuilderFactory stepBuilderFactory) {
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>          <strong class="jxr_keyword">switch</strong> (replicationOptions.getMode()) {
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>              <strong class="jxr_keyword">case</strong> LIVE:
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>                  SimpleFlow notificationFlow = flow(<span class="jxr_string">"notification-flow"</span>).start(notificationStep(stepBuilderFactory).build()).build();
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>                  SimpleFlow scanFlow = flow(<span class="jxr_string">"scan-flow"</span>).start(scanStep(stepBuilderFactory)).build();
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>                  <strong class="jxr_keyword">return</strong> flow(<span class="jxr_string">"live-flow"</span>).split(<strong class="jxr_keyword">new</strong> SimpleAsyncTaskExecutor()).add(notificationFlow, scanFlow).build();
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>              <strong class="jxr_keyword">case</strong> LIVEONLY:
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>                  <strong class="jxr_keyword">return</strong> flow(<span class="jxr_string">"live-only-flow"</span>).start(notificationStep(stepBuilderFactory).build()).build();
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>              <strong class="jxr_keyword">default</strong>:
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>                  <strong class="jxr_keyword">return</strong> flow(<span class="jxr_string">"snapshot-flow"</span>).start(scanStep(stepBuilderFactory)).build();
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>          }
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>      }
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>  
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>      <strong class="jxr_keyword">private</strong> TaskletStep scanStep(StepBuilderFactory stepBuilderFactory) {
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>          StepBuilder stepBuilder = stepBuilderFactory.get(<span class="jxr_string">"scan-replication-step"</span>);
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>          RiotStepBuilder&lt;T, T&gt; scanStep = riotStep(stepBuilder, <span class="jxr_string">"Scanning"</span>);
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>          initialMax(scanStep);
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>          <strong class="jxr_keyword">return</strong> scanStep.reader(reader(getRedisOptions())).writer(writer(targetRedisOptions)).build().build();
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>      }
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>  
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>      <strong class="jxr_keyword">private</strong> FlushingStepBuilder&lt;T, T&gt; notificationStep(StepBuilderFactory stepBuilderFactory) {
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>          StepBuilder stepBuilder = stepBuilderFactory.get(<span class="jxr_string">"live-replication-step"</span>);
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>          RiotStepBuilder&lt;T, T&gt; notificationStep = riotStep(stepBuilder, <span class="jxr_string">"Listening"</span>);
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>          <strong class="jxr_keyword">return</strong> configure(notificationStep.reader(liveReader(getRedisOptions())).writer(writer(targetRedisOptions)).build());
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>      }
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>  
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">abstract</strong> ItemReader&lt;T&gt; reader(<a name="RedisOptions" href="../../../../com/redislabs/riot/RedisOptions.html#RedisOptions">RedisOptions</a> redisOptions);
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>  
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">abstract</strong> PollableItemReader&lt;T&gt; liveReader(<a name="RedisOptions" href="../../../../com/redislabs/riot/RedisOptions.html#RedisOptions">RedisOptions</a> redisOptions);
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>  
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">abstract</strong> ItemWriter&lt;T&gt; writer(<a name="RedisOptions" href="../../../../com/redislabs/riot/RedisOptions.html#RedisOptions">RedisOptions</a> redisOptions);
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>  
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>      @SuppressWarnings({<span class="jxr_string">"rawtypes"</span>, <span class="jxr_string">"unchecked"</span>})
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>      <strong class="jxr_keyword">protected</strong> &lt;B <strong class="jxr_keyword">extends</strong> KeyValueItemReader.LiveKeyValueItemReaderBuilder&gt; B configure(B builder) {
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>          log.debug(<span class="jxr_string">"Configuring live reader with {}, queueCapacity={}"</span>, readerOptions, replicationOptions.getNotificationQueueCapacity());
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>          <strong class="jxr_keyword">return</strong> (B) readerOptions.configure(builder.keyPattern(readerOptions.getScanMatch()).queueCapacity(replicationOptions.getNotificationQueueCapacity()).database(getRedisOptions().uris().get(0).getDatabase()).flushingInterval(flushingTransferOptions.getFlushIntervalDuration()).idleTimeout(flushingTransferOptions.getIdleTimeoutDuration()));
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>      }
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>  
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>  }
+</pre>
+<hr/>
+<div id="footer"></div>
+</body>
+</html>

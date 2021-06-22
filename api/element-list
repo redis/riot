@@ -1,0 +1,10 @@
+com.redislabs.riot
+com.redislabs.riot.convert
+com.redislabs.riot.db
+com.redislabs.riot.file
+com.redislabs.riot.gen
+com.redislabs.riot.processor
+com.redislabs.riot.redis
+com.redislabs.riot.stream
+com.redislabs.riot.stream.kafka
+com.redislabs.riot.stream.processor
