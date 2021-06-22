@@ -50,6 +50,7 @@ config {
             enabled = false
         }
     }
+
 }
 
 allprojects {
