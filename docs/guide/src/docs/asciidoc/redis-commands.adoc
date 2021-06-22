@@ -9,19 +9,19 @@ You can specify one or many Redis commands as targets of the import:
 .Import into hashes
 [subs="attributes,+quotes"]
 ....
-[green]#{connector}# import ... [yellow]*hset* --keyspace blah --keys id
+[green]#{connector}# import ... [olive]*hset* --keyspace blah --keys id
 ....
 
 .Import into hashes *and* set TTL on the key
 [subs="attributes,+quotes"]
 ....
-[green]#{connector}# import ... [yellow]*hset* --keyspace blah --keys id [yellow]*expire* --keyspace blah --keys id
+[green]#{connector}# import ... [olive]*hset* --keyspace blah --keys id [olive]*expire* --keyspace blah --keys id
 ....
 
 .Import into hashes *and* set TTL *and* add to a set named `myset`
 [subs="attributes,+quotes"]
 ....
-[green]#{connector}# import ... [yellow]*hset* --keyspace blah --keys id [yellow]*expire* --keyspace blah --keys id [yellow]*sadd* --keyspace myset --members id
+[green]#{connector}# import ... [olive]*hset* --keyspace blah --keys id [olive]*expire* --keyspace blah --keys id [olive]*sadd* --keyspace myset --members id
 ....
 
 [IMPORTANT,subs="attributes"]
@@ -32,6 +32,6 @@ In this example the redis options will not be taken into account:
 
 [subs="attributes,+quotes"]
 ....
-[green]#{connector}# import ... [yellow]*hset* [.line-through]#[red]*-h myredis.com -p 6380*#
+[green]#{connector}# import ... [olive]*hset* [.line-through]#[red]*-h myredis.com -p 6380*#
 ....
 ====

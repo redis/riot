@@ -50,7 +50,7 @@ The `import` command reads rows from a SQL resultset and writes them to Redis. T
 
 [subs=+quotes]
 ----
-[green]#riot-db# -h <redis host> -p <redis port> import --url <jdbc url> [yellow]#SQL# [REDIS COMMAND...]
+[green]#riot-db# -h <redis host> -p <redis port> import --url <jdbc url> [olive]#SQL# [REDIS COMMAND...]
 ----
 
 To show the full usage, run:
@@ -76,7 +76,7 @@ The `export` command reads data from a Redis database and writes it to a SQL dat
 
 [subs=+quotes]
 ----
-[green]#riot-db# -h <redis host> -p <redis port> export --url <jdbc url> [yellow]#SQL#
+[green]#riot-db# -h <redis host> -p <redis port> export --url <jdbc url> [olive]#SQL#
 ----
 
 To show the full usage, run:

@@ -14,7 +14,7 @@ The `import` command generates data and writes it to Redis. The general usage is
 
 [subs=+quotes]
 ....
-[green]#riot-gen# -h <host> -p <port> import [yellow]#SPEL#... [REDIS COMMAND...]
+[green]#riot-gen# -h <host> -p <port> import [olive]#SPEL#... [REDIS COMMAND...]
 ....
 
 where SPEL is a https://docs.spring.io/spring/docs/current/spring-framework-reference/core.html#expressions[Spring Expression Language] field in the form `field="expression"`.

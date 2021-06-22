@@ -14,7 +14,7 @@ The `import` command reads data from files and writes it to Redis. The general u
 
 [subs="attributes,+quotes"]
 ....
-[green]#riot-file# -h <host> -p <port> import [yellow]#FILE#... [REDIS COMMAND...]
+[green]#riot-file# -h <host> -p <port> import [olive]#FILE#... [REDIS COMMAND...]
 ....
 
 To show the full usage, run:
