@@ -10,7 +10,7 @@ image:https://img.shields.io/github/release/{project-owner}/{project-name}.svg["
 image:https://github.com/{project-owner}/{project-name}/actions/workflows/gradle.yml/badge.svg["Build", link="https://github.com/{project-owner}/{project-name}/actions/workflows/gradle.yml"]
 image:https://codecov.io/gh/{project-owner}/{project-name}/branch/master/graph/badge.svg?token=LDK7BAJLJI["Coverage", link="https://codecov.io/gh/{project-owner}/{project-name}"]
 
-image::http://developer.redislabs.com/riot/riot.svg[]
+image::docs/guide/src/docs/resources/images/riot.svg[]
 
 ---
 
