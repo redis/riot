@@ -116,7 +116,7 @@ public abstract class AbstractRiotIntegrationTest extends AbstractRiotTest {
     }
 
     protected DataGenerator.DataGeneratorBuilder dataGenerator(RedisServer container) {
-        return DataGenerator.builder(connection(container));
+        return DataGenerator.connection(connection(container));
     }
 
 

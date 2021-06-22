@@ -6,8 +6,6 @@ import io.lettuce.core.api.StatefulConnection;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.api.async.*;
 import io.lettuce.core.cluster.api.StatefulRedisClusterConnection;
-import lombok.Builder;
-import lombok.Singular;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
@@ -15,35 +13,74 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
-@Builder
 public class DataGenerator implements Callable<Long> {
 
-    private static final int DEFAULT_START = 0;
-    private static final int DEFAULT_END = 1000;
-    private static final boolean DEFAULT_EXPIRE = true;
-    private static final int DEFAULT_BATCH_SIZE = 50;
-    private static final int DEFAULT_MAX_EXPIRE = 100000;
-
     private final StatefulConnection<String, String> connection;
-    @Builder.Default
-    private final int start = DEFAULT_START;
-    @Builder.Default
-    private final int end = DEFAULT_END;
+    private final int start;
+    private final int end;
     private final long sleep;
-    @Builder.Default
-    private final int maxExpire = DEFAULT_MAX_EXPIRE;
-    @Builder.Default
-    private final int batchSize = DEFAULT_BATCH_SIZE;
-    @Singular
+    private final int maxExpire;
+    private final int batchSize;
     private final Set<DataType> dataTypes;
 
-    @SuppressWarnings("unused")
-    private static DataGeneratorBuilder builder() {
-        throw new IllegalArgumentException("builder() method is private");
+    public DataGenerator(StatefulConnection<String, String> connection, int start, int end, long sleep, int maxExpire, int batchSize, Set<DataType> dataTypes) {
+        this.connection = connection;
+        this.start = start;
+        this.end = end;
+        this.sleep = sleep;
+        this.maxExpire = maxExpire;
+        this.batchSize = batchSize;
+        this.dataTypes = dataTypes;
     }
 
-    public static DataGeneratorBuilder builder(StatefulConnection<String,String> connection) {
-        return new DataGeneratorBuilder().connection(connection);
+    public static DataGeneratorBuilder connection(StatefulConnection<String,String> connection) {
+        return new DataGeneratorBuilder(connection);
+    }
+
+    public static class DataGeneratorBuilder {
+
+        private static final int DEFAULT_START = 0;
+        private static final int DEFAULT_END = 1000;
+        private static final long DEFAULT_SLEEP = 0;
+        private static final int DEFAULT_BATCH_SIZE = 50;
+        private static final int DEFAULT_MAX_EXPIRE = 100000;
+
+        private final StatefulConnection<String, String> connection;
+        private int start = DEFAULT_START;
+        private int end = DEFAULT_END;
+        private long sleep = DEFAULT_SLEEP;
+        private int maxExpire = DEFAULT_MAX_EXPIRE;
+        private int batchSize = DEFAULT_BATCH_SIZE;
+        private Set<DataType> dataTypes = new HashSet<>(Arrays.asList(DataType.values()));
+
+        public DataGeneratorBuilder(StatefulConnection<String, String> connection) {
+            this.connection = connection;
+        }
+
+        public DataGenerator build() {
+            return new DataGenerator(connection, start, end, sleep, maxExpire, batchSize, dataTypes);
+        }
+
+        public DataGeneratorBuilder dataTypes(DataType... dataTypes) {
+            this.dataTypes = new HashSet<>(Arrays.asList(dataTypes));
+            return this;
+        }
+
+        public DataGeneratorBuilder start(int start) {
+            this.start = start;
+            return this;
+        }
+
+        public DataGeneratorBuilder end(int end) {
+            this.end = end;
+            return this;
+        }
+
+        public DataGeneratorBuilder sleep(long sleep) {
+            this.sleep = sleep;
+            return this;
+        }
+
     }
 
     @Override
@@ -133,11 +170,7 @@ public class DataGenerator implements Callable<Long> {
     }
 
     private boolean contains(DataType type) {
-        if (dataTypes.isEmpty()) {
-            return true;
-        }
         return dataTypes.contains(type);
     }
-
 
 }

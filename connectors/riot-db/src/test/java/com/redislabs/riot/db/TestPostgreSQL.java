@@ -3,7 +3,6 @@ package com.redislabs.riot.db;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.redislabs.riot.DataType;
-import com.redislabs.testcontainers.RedisContainer;
 import com.redislabs.testcontainers.RedisServer;
 import io.lettuce.core.api.sync.RedisHashCommands;
 import io.lettuce.core.api.sync.RedisKeyCommands;
@@ -30,7 +29,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -70,7 +68,7 @@ public class TestPostgreSQL extends AbstractDatabaseTest {
         Statement statement = connection.createStatement();
         statement.execute("CREATE TABLE mytable (id smallint NOT NULL, field1 bpchar, field2 bpchar)");
         statement.execute("ALTER TABLE ONLY mytable ADD CONSTRAINT pk_mytable PRIMARY KEY (id)");
-        dataGenerator(container).dataTypes(Collections.singletonList(DataType.HASH)).build().call();
+        dataGenerator(container).dataTypes(DataType.HASH).build().call();
         execute("export-postgresql", container, r -> configureExportCommand(r, POSTGRESQL));
         statement.execute("SELECT COUNT(*) AS count FROM mytable");
         ResultSet countResultSet = statement.getResultSet();
