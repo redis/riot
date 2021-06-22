@@ -5,7 +5,7 @@ import io.lettuce.core.api.sync.RedisServerCommands;
 import picocli.CommandLine.Command;
 
 @Command(name = "info", description = "Display INFO command output")
-public class InfoCommand extends AbstractRedisCommand {
+public class InfoCommand extends AbstractUtilityCommand {
 
 	@Override
 	@SuppressWarnings("unchecked")

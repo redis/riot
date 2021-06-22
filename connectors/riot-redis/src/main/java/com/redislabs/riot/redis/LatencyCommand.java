@@ -13,7 +13,7 @@ import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 
 @Command(name = "latency", description = "Calculate latency stats")
-public class LatencyCommand extends AbstractRedisCommand {
+public class LatencyCommand extends AbstractUtilityCommand {
 
 	@Option(names = "--iterations", description = "Number of latency tests (default: ${DEFAULT-VALUE})", paramLabel = "<count>")
 	private int iterations = 1000;

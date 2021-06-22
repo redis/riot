@@ -16,7 +16,7 @@ import org.springframework.util.ClassUtils;
 import picocli.CommandLine.Command;
 
 @Command
-public abstract class AbstractRedisCommand extends AbstractTaskCommand {
+public abstract class AbstractUtilityCommand extends AbstractTaskCommand {
 
     @Override
     protected Flow flow(StepBuilderFactory stepBuilderFactory) {

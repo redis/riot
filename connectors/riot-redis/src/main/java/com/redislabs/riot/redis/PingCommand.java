@@ -4,7 +4,7 @@ import io.lettuce.core.api.sync.BaseRedisCommands;
 import picocli.CommandLine.Command;
 
 @Command(name = "ping", description = "Execute PING command")
-public class PingCommand extends AbstractRedisCommand {
+public class PingCommand extends AbstractUtilityCommand {
 
 	@Override
 	protected void execute(BaseRedisCommands<String, String> commands) {
