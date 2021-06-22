@@ -9,3 +9,12 @@ dependencies {
     api group: 'org.testcontainers', name: 'junit-jupiter', version: testcontainersVersion
     implementation 'commons-io:commons-io:2.8.0'
 }
+
+jar {
+    enabled = true
+    archiveClassifier = ''
+}
+
+bootJar {
+    enabled = false
+}
