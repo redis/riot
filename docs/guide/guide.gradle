@@ -1,3 +1,18 @@
-plugins {
-    id 'org.kordamp.gradle.guide'
+configurations {
+    asciidoctorExtensions
+}
+
+dependencies {
+    asciidoctorExtensions 'com.bmuschko:asciidoctorj-tabbed-code-extension:0.3'
+}
+
+guide {
+    groovydocApiDir = 'api'
+}
+
+asciidoctor {
+    configurations 'asciidoctorExtensions'
+    attributes = [
+            'source-highlighter': 'prettify'
+    ]
 }

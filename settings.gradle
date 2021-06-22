@@ -10,6 +10,7 @@ buildscript {
         classpath "org.kordamp.gradle:guide-gradle-plugin:$kordampPluginVersion"
         classpath "io.github.gradle-nexus:publish-plugin:$nexusPluginVersion"
         classpath "org.jreleaser:jreleaser-gradle-plugin:$jreleaserPluginVersion"
+        classpath "org.ajoberstar:gradle-git-publish:$gitPublishPluginVersion"
         classpath "io.freefair.gradle:lombok-plugin:6.0.0-m2"
         classpath "org.springframework.boot:spring-boot-gradle-plugin:2.5.1"
         classpath "io.spring.gradle:dependency-management-plugin:1.0.11.RELEASE"
@@ -31,6 +32,10 @@ projects {
             id 'org.kordamp.gradle.java-project'
             id 'org.jreleaser'
             id 'io.github.gradle-nexus.publish-plugin'
+        }
+        path(':guide') {
+            id 'org.kordamp.gradle.guide'
+            id 'org.ajoberstar.git-publish'
         }
         dirs(['core', 'connectors']) {
             id 'java-library'
