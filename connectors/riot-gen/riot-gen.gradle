@@ -6,9 +6,6 @@ manifest {
     attributes('Main-Class': application.mainClassName)
 }
 
-bootDistZip.enabled = false
-bootDistTar.enabled = false
-
 dependencies {
     api project(':riot-core')
     implementation 'com.github.javafaker:javafaker:1.0.2'
@@ -17,3 +14,23 @@ dependencies {
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
     }
 }
+
+configurations {
+    all*.exclude module: 'spring-boot-starter-logging'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+bootJar {
+    enabled = false
+}
+
+jar {
+    enabled = true
+    archiveClassifier = ''
+}
+
+bootDistZip.enabled = false
+bootDistTar.enabled = false

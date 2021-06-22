@@ -18,7 +18,7 @@ import java.util.*;
 @Data
 public class ProcessorOptions {
 
-    @Option(arity = "1..*", names = "--process", description = "SpEL processing expressions in the form: <field>=\"<exp>\"", paramLabel = "<f=exp>")
+    @Option(arity = "1..*", names = "--process", description = "SpEL expressions in the form field1=\"exp\" field2=\"exp\"...", paramLabel = "<f=exp>")
     private Map<String, Expression> spelFields;
     @Option(arity = "1..*", names = "--var", description = "Register a variable in the SpEL processor context.", paramLabel = "<v=exp>")
     private Map<String, Expression> variables;

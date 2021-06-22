@@ -1,4 +1,4 @@
-=== Processing
+= Processing
 
 The following processors can be applied to records in that order:
 
@@ -6,7 +6,7 @@ The following processors can be applied to records in that order:
 * Regular expressions
 * Filters
 
-==== Transforms
+== Transforms
 
 Transforms allow you to create/update/delete fields using the https://docs.spring.io/spring/docs/current/spring-framework-reference/core.html#expressions[Spring Expression Language] (SpEL):
 
@@ -14,7 +14,6 @@ Transforms allow you to create/update/delete fields using the https://docs.sprin
 * `temp=(temp-32)*5/9` -> convert temperature from Fahrenheit to Celsius
 * `name=remove(first).concat(remove(last))` -> concatenate `first` and `last` fields and delete them
 * `field2=null` -> delete `field2`
-
 
 Input fields are accessed by name (e.g. `field3=field1+field2`).
 
@@ -26,27 +25,27 @@ The transform processor also exposes functions and variables that can be accesse
 `redis`;; Handle to invoke Redis commands (https://lettuce.io/core/release/api/io/lettuce/core/api/sync/RedisCommands.html[API doc])
 
 .Processor Example
-[source,bash]
-----
---process epoch="#date.parse(mydate).getTime()" location="#geo(lon,lat)" id="#index" name="#redis.hget('person1','lastName')"
-----
+[subs="attributes,+quotes"]
+....
+[green]#{connector}# import --process epoch=[yellow]#"#date.parse(mydate).getTime()"# location=[yellow]#"#geo(lon,lat)"# id=[yellow]#"#index"# name=[yellow]#"#redis.hget('person1','lastName')"# ...
+....
 
-==== Regular Expressions
+== Regular Expressions
 
 Extract patterns from source fields using regular expressions:
+[subs="attributes,+quotes"]
+....
+[green]#{connector}# import --regex name=[yellow]#"(?<first>\w+)\/(?<last>\w+)"# ...
+....
 
-[source,bash]
-----
---regex name="(?<first>\w+)\/(?<last>\w+)"
-----
-
-==== Filters
+== Filters
 
 Keep records that match a SpEL boolean expression.
 
 For example this filter will only keep records where the `value` field is a series of digits:
-[source,bash]
-----
---filter "value matches '\\d+'"
-----
+
+[subs="attributes,+quotes"]
+....
+[green]#{connector}# import --filter "value matches '\\d+'" ...
+....
 

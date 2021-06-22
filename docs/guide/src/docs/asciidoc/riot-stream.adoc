@@ -1,0 +1,53 @@
+[[_riot_stream]]
+= RIOT Stream
+:connector: riot-stream
+:connector-title: RIOT Stream
+:test-resources: ../../../../../connectors/riot-stream/src/test/resources
+
+{connector-title} lets you import and export data from Kafka topics.
+
+include::getting-started.adoc[leveloffset=+1]
+
+== Importing
+
+The `import` command reads messages from a Kafka topic and writes them to a Redis stream. The general usage is:
+
+[subs=+quotes]
+....
+[green]#riot-stream# -h <redis host> -p <redis port> import --broker <host:port> [yellow]#TOPIC#...
+....
+
+To show the full usage, run:
+
+[subs="attributes,+quotes"]
+....
+[green]#{connector}# import --help
+....
+
+.Import example
+[source,bash]
+----
+include::{test-resources}/import[]
+----
+
+== Exporting
+
+The `export` command reads message from a Redis stream and writes them to a Kafka topic. The general usage is:
+
+[subs=+quotes]
+....
+[green]#riot-stream# -h <redis host> -p <redis port> export --broker <host:port> [yellow]#STREAM#...
+....
+
+To show the full usage, run:
+
+[subs="attributes,+quotes"]
+....
+[green]#{connector}# export --help
+....
+
+.Export example
+[source,bash]
+----
+include::{test-resources}/export[]
+----

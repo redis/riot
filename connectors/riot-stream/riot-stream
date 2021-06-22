@@ -1,5 +1,0 @@
-#!/bin/sh -e
-
-../gradlew -q --console plain :riot-stream:installDist
-
-./build/install/riot-stream/bin/riot-stream "$@"

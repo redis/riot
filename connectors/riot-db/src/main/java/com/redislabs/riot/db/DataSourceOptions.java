@@ -1,12 +1,10 @@
 package com.redislabs.riot.db;
 
-import lombok.Data;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import picocli.CommandLine.Option;
 
 import javax.sql.DataSource;
 
-@Data
 public class DataSourceOptions {
 
     @Option(names = "--driver", description = "Fully qualified name of the JDBC driver", paramLabel = "<class>")
@@ -17,6 +15,38 @@ public class DataSourceOptions {
     private String username;
     @Option(names = "--password", arity = "0..1", interactive = true, description = "Login password of the database", paramLabel = "<pwd>")
     private String password;
+
+    public String getDriver() {
+        return driver;
+    }
+
+    public void setDriver(String driver) {
+        this.driver = driver;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
     public DataSource dataSource() {
         DataSourceProperties properties = new DataSourceProperties();

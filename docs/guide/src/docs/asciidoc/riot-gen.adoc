@@ -1,0 +1,77 @@
+[[_riot_gen]]
+= RIOT Gen
+:connector: riot-gen
+:connector-title: RIOT Gen
+:test-resources: ../../../../../connectors/riot-gen/src/test/resources
+
+{connector-title} is a data generator based on https://github.com/DiUS/java-faker[Faker].
+
+include::getting-started.adoc[leveloffset=+1]
+
+== Importing
+
+The `import` command generates data and writes it to Redis. The general usage is:
+
+[subs=+quotes]
+....
+[green]#riot-gen# -h <host> -p <port> import [yellow]#SPEL#... [REDIS COMMAND...]
+....
+
+where SPEL is a https://docs.spring.io/spring/docs/current/spring-framework-reference/core.html#expressions[Spring Expression Language] field in the form `field="expression"`.
+
+To show the full usage, run:
+
+[subs="attributes,+quotes"]
+....
+[green]#{connector}# import --help
+....
+
+.Hash generator example
+[source,bash]
+----
+include::{test-resources}/import-hset[]
+----
+
+.Set generator example
+[source,bash]
+----
+include::{test-resources}/import-sadd[]
+----
+
+include::redis-commands.adoc[leveloffset=+2]
+
+include::processing.adoc[leveloffset=+2]
+
+=== RediSearch
+
+You can infer generator fields from a RediSearch index using the `--infer` option:
+
+[source,bash]
+----
+include::{test-resources}/import-infer[]
+----
+
+[[_faker_fields]]
+== Faker Fields
+
+Run this command to display the list of available Faker providers:
+
+[subs="attributes,+quotes"]
+....
+[green]#{connector}# faker-help
+....
+
+Most providers don't take any arguments and can be called directly, for example:
+
+[subs="attributes,+quotes"]
+....
+[green]#{connector}# import firstName="name.firstName"
+....
+
+Some providers take parameters, for example:
+[subs="attributes,+quotes"]
+....
+[green]#{connector}# import lease="number.digits(2)"
+....
+
+Refer to the link specified for each provider for complete documentation.

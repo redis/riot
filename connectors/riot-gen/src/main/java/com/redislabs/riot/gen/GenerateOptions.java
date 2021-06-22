@@ -9,7 +9,7 @@ import java.util.Map;
 @Data
 public class GenerateOptions {
 
-    @CommandLine.Parameters(arity = "0..*", description = "SpEL expressions", paramLabel = "SPEL")
+    @CommandLine.Parameters(arity = "0..*", description = "SpEL expressions in the form field1=\"exp\" field2=\"exp\"...", paramLabel = "SPEL")
     private Map<String, String> fakerFields;
     @SuppressWarnings("unused")
     @CommandLine.Option(names = "--infer", description = "Introspect given RediSearch index to introspect Faker fields", paramLabel = "<index>")

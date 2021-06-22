@@ -5,20 +5,23 @@ buildscript {
         mavenLocal()
     }
     dependencies {
+        classpath "org.kordamp.gradle:guide-gradle-plugin:$kordampPluginVersion"
         classpath "org.kordamp.gradle:java-project-gradle-plugin:$kordampPluginVersion"
         classpath "org.kordamp.gradle:kordamp-parentbuild:$kordampBuildVersion"
         classpath "io.github.gradle-nexus:publish-plugin:$nexusPluginVersion"
         classpath "org.jreleaser:jreleaser-gradle-plugin:$jreleaserPluginVersion"
+        classpath "io.freefair.gradle:lombok-plugin:6.0.0-m2"
         classpath "org.springframework.boot:spring-boot-gradle-plugin:2.5.1"
         classpath "io.spring.gradle:dependency-management-plugin:1.0.11.RELEASE"
     }
 }
+
 apply plugin: 'org.kordamp.gradle.kordamp-parentbuild'
 
 rootProject.name = 'riot'
 
 projects {
-    directories = ['core', 'connectors']
+    directories = ['core', 'connectors', 'docs']
 
     plugins {
         all {
@@ -33,6 +36,7 @@ projects {
             id 'java-library'
             id 'org.springframework.boot'
             id 'io.spring.dependency-management'
+            id 'io.freefair.lombok'
         }
         dirs(['connectors']) {
             id 'application'

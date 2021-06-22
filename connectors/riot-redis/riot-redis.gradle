@@ -6,14 +6,31 @@ manifest {
     attributes('Main-Class': application.mainClassName)
 }
 
-bootDistZip.enabled = false
-bootDistTar.enabled = false
-
 dependencies {
     api project(':riot-core')
     implementation 'org.latencyutils:LatencyUtils:2.0.3'
     testImplementation project(':riot-test')
 }
+
+configurations {
+    all*.exclude module: 'spring-boot-starter-logging'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+bootJar {
+    enabled = false
+}
+
+jar {
+    enabled = true
+    archiveClassifier = ''
+}
+
+bootDistZip.enabled = false
+bootDistTar.enabled = false
 
 //asciidoctor {
 //    resources {

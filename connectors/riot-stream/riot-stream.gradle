@@ -12,9 +12,6 @@ manifest {
     attributes('Main-Class': application.mainClassName)
 }
 
-bootDistZip.enabled = false
-bootDistTar.enabled = false
-
 dependencies {
     api project(':riot-core')
     implementation 'org.springframework.kafka:spring-kafka'
@@ -25,3 +22,23 @@ dependencies {
     testImplementation project(':riot-test')
     testImplementation group: 'org.testcontainers', name: 'kafka', version: testcontainersVersion
 }
+
+configurations {
+    all*.exclude module: 'spring-boot-starter-logging'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+bootJar {
+    enabled = false
+}
+
+jar {
+    enabled = true
+    archiveClassifier = ''
+}
+
+bootDistZip.enabled = false
+bootDistTar.enabled = false

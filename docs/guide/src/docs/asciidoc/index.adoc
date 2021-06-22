@@ -1,0 +1,12 @@
+= {project-title}
+:author: {project-author}
+:revnumber: {project-version}
+:toclevels: 3
+:docinfo1:
+
+include::{includedir}/introduction.adoc[leveloffset=+1]
+include::{includedir}/riot-db.adoc[leveloffset=+1]
+include::{includedir}/riot-file.adoc[leveloffset=+1]
+include::{includedir}/riot-gen.adoc[leveloffset=+1]
+include::{includedir}/riot-redis.adoc[leveloffset=+1]
+include::{includedir}/riot-stream.adoc[leveloffset=+1]
