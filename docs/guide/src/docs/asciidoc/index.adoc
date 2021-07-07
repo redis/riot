@@ -4,9 +4,11 @@
 :toclevels: 3
 :docinfo1:
 
-include::{includedir}/introduction.adoc[leveloffset=+1]
-include::{includedir}/riot-db.adoc[leveloffset=+1]
-include::{includedir}/riot-file.adoc[leveloffset=+1]
-include::{includedir}/riot-gen.adoc[leveloffset=+1]
-include::{includedir}/riot-redis.adoc[leveloffset=+1]
-include::{includedir}/riot-stream.adoc[leveloffset=+1]
+:leveloffset: 1
+include::{includedir}/introduction.adoc[]
+
+include::{includedir}/riot-db.adoc[]
+include::{includedir}/riot-file.adoc[]
+include::{includedir}/riot-gen.adoc[]
+include::{includedir}/riot-redis.adoc[]
+include::{includedir}/riot-stream.adoc[]

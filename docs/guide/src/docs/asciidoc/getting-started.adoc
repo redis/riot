@@ -36,12 +36,41 @@ cd riot/bin
 
 == Usage
 
-To display usage help run the following command:
+To display usage help, run the following command:
 
-[subs="attributes,+quotes"]
+[subs="specialcharacters,attributes,+quotes",source,bash]
 ....
 [green]#{connector}# --help
+Usage: **{connector}** [OPTIONS] [COMMAND]
+  [olive]#-H#, [olive]#--help#                Show this help message and exit
+  [olive]#-V#, [olive]#--version#             Print version information and exit.
+  [olive]#-q#, [olive]#--quiet#               Log errors only.
+  [olive]#-w#, [olive]#--warn#                Set log level to warn.
+  [olive]#-i#, [olive]#--info#                Set log level to info.
+  [olive]#-d#, [olive]#--debug#               Log in debug mode (includes normal stacktrace).
+      [olive]#--stacktrace#          Print out the stacktrace for all exceptions.
+Redis connection options
+  [olive]#-h#, [olive]#--hostname#=<host>     Server hostname (default: localhost).
+  [olive]#-p#, [olive]#--port#=<port>         Server port (default: 6379).
+  [olive]#-s#, [olive]#--socket#=<socket>     Server socket (overrides hostname and port).
+      [olive]#--user#=<name>         Used to send ACL style 'AUTH username pass'. Needs password.
+  [olive]#-a#, [olive]#--pass#[=<password>]   Password to use when connecting to the server.
+  [olive]#-u#, [olive]#--uri#=<uri>...        Server URI.
+      --timeout=<sec>       Redis command timeout (default: 60).
+  [olive]#-n#, [olive]#--db#=<db>             Database number (default: 0).
+  [olive]#-c#, [olive]#--cluster#             Enable cluster mode.
+      [olive]#--tls#                 Establish a secure TLS connection.
+      [olive]#--[no-]verify-peer#    Verify peers when using TLS. True by default.
+      [olive]#--latency#             Show latency metrics.
+      [olive]#--pool-max#=<int>      Max pool connections (default: 8).
+      [olive]#--client#=<name>       Client name used to connect to Redis.
+Commands:
+  ...
 ....
+
+Redis connection options are the same as `redis-cli`.
+
+For Redis URI syntax see https://github.com/lettuce-io/lettuce-core/wiki/Redis-URI-and-connection-details#uri-syntax[here].
 
 [TIP,subs="attributes"]
 ====
@@ -52,15 +81,4 @@ You can use `--help` on any subcommand:
 [green]#{connector}# import --help
 [green]#{connector}# import hset --help
 ....
-====
-
-.Redis connection options
-[subs="attributes,+quotes"]
-....
-[green]#{connector}# -h myredis.com -p 6380 ...
-....
-
-[TIP,subs="attributes"]
-====
-Redis connection options are the same as `redis-cli`. URI syntax is described https://github.com/lettuce-io/lettuce-core/wiki/Redis-URI-and-connection-details#uri-syntax[here].
 ====

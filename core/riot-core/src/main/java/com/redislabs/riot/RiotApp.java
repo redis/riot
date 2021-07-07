@@ -38,7 +38,7 @@ public class RiotApp extends HelpCommand {
     private boolean info;
     @Option(names = {"-d", "--debug"}, description = "Log in debug mode (includes normal stacktrace).")
     private boolean debug;
-    @Option(names = "--stacktrace", description = "Print out the stacktrace for all exceptions..")
+    @Option(names = "--stacktrace", description = "Print out the stacktrace for all exceptions.")
     private boolean stacktrace;
 
     private int executionStrategy(ParseResult parseResult) {
