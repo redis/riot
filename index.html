@@ -10,82 +10,6 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <link rel="stylesheet" href="./asciidoctor.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-<style>
-.hidden {
-    display: none;
-}
-
-.switch {
-    border-width: 1px 1px 0 1px;
-    border-style: solid;
-    border-color: #7a2518;
-    display: inline-block;
-}
-
-.switch--item {
-    padding: 10px;
-    background-color: #ffffff;
-    color: #7a2518;
-    display: inline-block;
-    cursor: pointer;
-}
-
-.switch--item.selected {
-    background-color: #7a2519;
-    color: #ffffff;
-}
-
-</style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/zepto/1.2.0/zepto.min.js"></script>
-<script type="text/javascript">
-function addBlockSwitches() {
-    $('.primary').each(function() {
-        primary = $(this);
-        createSwitchItem(primary, createBlockSwitch(primary)).item.addClass("selected");
-        primary.children('.title').remove();
-    });
-    $('.secondary').each(function(idx, node) {
-        secondary = $(node);
-        primary = findPrimary(secondary);
-        switchItem = createSwitchItem(secondary, primary.children('.switch'));
-        switchItem.content.addClass('hidden');
-        findPrimary(secondary).append(switchItem.content);
-        secondary.remove();
-    });
-}
-
-function createBlockSwitch(primary) {
-    blockSwitch = $('<div class="switch"></div>');
-    primary.prepend(blockSwitch);
-    return blockSwitch;
-}
-
-function findPrimary(secondary) {
-    candidate = secondary.prev();
-    while (!candidate.is('.primary')) {
-        candidate = candidate.prev();
-    }
-    return candidate;
-}
-
-function createSwitchItem(block, blockSwitch) {
-    blockName = block.children('.title').text();
-    content = block.children('.content').first().append(block.next('.colist'));
-    item = $('<div class="switch--item">' + blockName + '</div>');
-    item.on('click', '', content, function(e) {
-        $(this).addClass('selected');
-        $(this).siblings().removeClass('selected');
-        e.data.siblings('.content').addClass('hidden');
-        e.data.removeClass('hidden');
-    });
-    blockSwitch.append(item);
-    return {'item': item, 'content': content};
-}
-
-$(addBlockSwitches);
-
-</script>
-
 </head>
 <body class="book toc2 toc-left">
 <div id="header">
@@ -271,12 +195,43 @@ cd riot/bin
 <div class="sect3">
 <h4 id="_usage"><a class="anchor" href="#_usage"></a>2.1.2. Usage</h4>
 <div class="paragraph">
-<p>To display usage help run the following command:</p>
+<p>To display usage help, run the following command:</p>
 </div>
 <div class="literalblock">
 <div class="content">
-<pre><span class="green">riot-db</span> --help</pre>
+<pre><span class="green">riot-db</span> --help
+Usage: <strong>riot-db</strong> [OPTIONS] [COMMAND]
+  <span class="olive">-H</span>, <span class="olive">--help</span>                Show this help message and exit
+  <span class="olive">-V</span>, <span class="olive">--version</span>             Print version information and exit.
+  <span class="olive">-q</span>, <span class="olive">--quiet</span>               Log errors only.
+  <span class="olive">-w</span>, <span class="olive">--warn</span>                Set log level to warn.
+  <span class="olive">-i</span>, <span class="olive">--info</span>                Set log level to info.
+  <span class="olive">-d</span>, <span class="olive">--debug</span>               Log in debug mode (includes normal stacktrace).
+      <span class="olive">--stacktrace</span>          Print out the stacktrace for all exceptions.
+Redis connection options
+  <span class="olive">-h</span>, <span class="olive">--hostname</span>=&lt;host&gt;     Server hostname (default: localhost).
+  <span class="olive">-p</span>, <span class="olive">--port</span>=&lt;port&gt;         Server port (default: 6379).
+  <span class="olive">-s</span>, <span class="olive">--socket</span>=&lt;socket&gt;     Server socket (overrides hostname and port).
+      <span class="olive">--user</span>=&lt;name&gt;         Used to send ACL style 'AUTH username pass'. Needs password.
+  <span class="olive">-a</span>, <span class="olive">--pass</span>[=&lt;password&gt;]   Password to use when connecting to the server.
+  <span class="olive">-u</span>, <span class="olive">--uri</span>=&lt;uri&gt;...        Server URI.
+      --timeout=&lt;sec&gt;       Redis command timeout (default: 60).
+  <span class="olive">-n</span>, <span class="olive">--db</span>=&lt;db&gt;             Database number (default: 0).
+  <span class="olive">-c</span>, <span class="olive">--cluster</span>             Enable cluster mode.
+      <span class="olive">--tls</span>                 Establish a secure TLS connection.
+      <span class="olive">--[no-]verify-peer</span>    Verify peers when using TLS. True by default.
+      <span class="olive">--latency</span>             Show latency metrics.
+      <span class="olive">--pool-max</span>=&lt;int&gt;      Max pool connections (default: 8).
+      <span class="olive">--client</span>=&lt;name&gt;       Client name used to connect to Redis.
+Commands:
+  ...</pre>
 </div>
+</div>
+<div class="paragraph">
+<p>Redis connection options are the same as <code>redis-cli</code>.</p>
+</div>
+<div class="paragraph">
+<p>For Redis URI syntax see <a href="https://github.com/lettuce-io/lettuce-core/wiki/Redis-URI-and-connection-details#uri-syntax">here</a>.</p>
 </div>
 <div class="admonitionblock tip">
 <table>
@@ -293,26 +248,6 @@ cd riot/bin
 <pre><span class="green">riot-db</span> import --help
 <span class="green">riot-db</span> import hset --help</pre>
 </div>
-</div>
-</td>
-</tr>
-</table>
-</div>
-<div class="literalblock">
-<div class="title">Redis connection options</div>
-<div class="content">
-<pre><span class="green">riot-db</span> -h myredis.com -p 6380 ...</pre>
-</div>
-</div>
-<div class="admonitionblock tip">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-tip" title="Tip"></i>
-</td>
-<td class="content">
-<div class="paragraph">
-<p>Redis connection options are the same as <code>redis-cli</code>. URI syntax is described <a href="https://github.com/lettuce-io/lettuce-core/wiki/Redis-URI-and-connection-details#uri-syntax">here</a>.</p>
 </div>
 </td>
 </tr>
@@ -675,12 +610,43 @@ cd riot/bin
 <div class="sect3">
 <h4 id="_usage_2"><a class="anchor" href="#_usage_2"></a>3.1.2. Usage</h4>
 <div class="paragraph">
-<p>To display usage help run the following command:</p>
+<p>To display usage help, run the following command:</p>
 </div>
 <div class="literalblock">
 <div class="content">
-<pre><span class="green">riot-file</span> --help</pre>
+<pre><span class="green">riot-file</span> --help
+Usage: <strong>riot-file</strong> [OPTIONS] [COMMAND]
+  <span class="olive">-H</span>, <span class="olive">--help</span>                Show this help message and exit
+  <span class="olive">-V</span>, <span class="olive">--version</span>             Print version information and exit.
+  <span class="olive">-q</span>, <span class="olive">--quiet</span>               Log errors only.
+  <span class="olive">-w</span>, <span class="olive">--warn</span>                Set log level to warn.
+  <span class="olive">-i</span>, <span class="olive">--info</span>                Set log level to info.
+  <span class="olive">-d</span>, <span class="olive">--debug</span>               Log in debug mode (includes normal stacktrace).
+      <span class="olive">--stacktrace</span>          Print out the stacktrace for all exceptions.
+Redis connection options
+  <span class="olive">-h</span>, <span class="olive">--hostname</span>=&lt;host&gt;     Server hostname (default: localhost).
+  <span class="olive">-p</span>, <span class="olive">--port</span>=&lt;port&gt;         Server port (default: 6379).
+  <span class="olive">-s</span>, <span class="olive">--socket</span>=&lt;socket&gt;     Server socket (overrides hostname and port).
+      <span class="olive">--user</span>=&lt;name&gt;         Used to send ACL style 'AUTH username pass'. Needs password.
+  <span class="olive">-a</span>, <span class="olive">--pass</span>[=&lt;password&gt;]   Password to use when connecting to the server.
+  <span class="olive">-u</span>, <span class="olive">--uri</span>=&lt;uri&gt;...        Server URI.
+      --timeout=&lt;sec&gt;       Redis command timeout (default: 60).
+  <span class="olive">-n</span>, <span class="olive">--db</span>=&lt;db&gt;             Database number (default: 0).
+  <span class="olive">-c</span>, <span class="olive">--cluster</span>             Enable cluster mode.
+      <span class="olive">--tls</span>                 Establish a secure TLS connection.
+      <span class="olive">--[no-]verify-peer</span>    Verify peers when using TLS. True by default.
+      <span class="olive">--latency</span>             Show latency metrics.
+      <span class="olive">--pool-max</span>=&lt;int&gt;      Max pool connections (default: 8).
+      <span class="olive">--client</span>=&lt;name&gt;       Client name used to connect to Redis.
+Commands:
+  ...</pre>
 </div>
+</div>
+<div class="paragraph">
+<p>Redis connection options are the same as <code>redis-cli</code>.</p>
+</div>
+<div class="paragraph">
+<p>For Redis URI syntax see <a href="https://github.com/lettuce-io/lettuce-core/wiki/Redis-URI-and-connection-details#uri-syntax">here</a>.</p>
 </div>
 <div class="admonitionblock tip">
 <table>
@@ -697,26 +663,6 @@ cd riot/bin
 <pre><span class="green">riot-file</span> import --help
 <span class="green">riot-file</span> import hset --help</pre>
 </div>
-</div>
-</td>
-</tr>
-</table>
-</div>
-<div class="literalblock">
-<div class="title">Redis connection options</div>
-<div class="content">
-<pre><span class="green">riot-file</span> -h myredis.com -p 6380 ...</pre>
-</div>
-</div>
-<div class="admonitionblock tip">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-tip" title="Tip"></i>
-</td>
-<td class="content">
-<div class="paragraph">
-<p>Redis connection options are the same as <code>redis-cli</code>. URI syntax is described <a href="https://github.com/lettuce-io/lettuce-core/wiki/Redis-URI-and-connection-details#uri-syntax">here</a>.</p>
 </div>
 </td>
 </tr>
@@ -1334,12 +1280,43 @@ cd riot/bin
 <div class="sect3">
 <h4 id="_usage_3"><a class="anchor" href="#_usage_3"></a>4.1.2. Usage</h4>
 <div class="paragraph">
-<p>To display usage help run the following command:</p>
+<p>To display usage help, run the following command:</p>
 </div>
 <div class="literalblock">
 <div class="content">
-<pre><span class="green">riot-gen</span> --help</pre>
+<pre><span class="green">riot-gen</span> --help
+Usage: <strong>riot-gen</strong> [OPTIONS] [COMMAND]
+  <span class="olive">-H</span>, <span class="olive">--help</span>                Show this help message and exit
+  <span class="olive">-V</span>, <span class="olive">--version</span>             Print version information and exit.
+  <span class="olive">-q</span>, <span class="olive">--quiet</span>               Log errors only.
+  <span class="olive">-w</span>, <span class="olive">--warn</span>                Set log level to warn.
+  <span class="olive">-i</span>, <span class="olive">--info</span>                Set log level to info.
+  <span class="olive">-d</span>, <span class="olive">--debug</span>               Log in debug mode (includes normal stacktrace).
+      <span class="olive">--stacktrace</span>          Print out the stacktrace for all exceptions.
+Redis connection options
+  <span class="olive">-h</span>, <span class="olive">--hostname</span>=&lt;host&gt;     Server hostname (default: localhost).
+  <span class="olive">-p</span>, <span class="olive">--port</span>=&lt;port&gt;         Server port (default: 6379).
+  <span class="olive">-s</span>, <span class="olive">--socket</span>=&lt;socket&gt;     Server socket (overrides hostname and port).
+      <span class="olive">--user</span>=&lt;name&gt;         Used to send ACL style 'AUTH username pass'. Needs password.
+  <span class="olive">-a</span>, <span class="olive">--pass</span>[=&lt;password&gt;]   Password to use when connecting to the server.
+  <span class="olive">-u</span>, <span class="olive">--uri</span>=&lt;uri&gt;...        Server URI.
+      --timeout=&lt;sec&gt;       Redis command timeout (default: 60).
+  <span class="olive">-n</span>, <span class="olive">--db</span>=&lt;db&gt;             Database number (default: 0).
+  <span class="olive">-c</span>, <span class="olive">--cluster</span>             Enable cluster mode.
+      <span class="olive">--tls</span>                 Establish a secure TLS connection.
+      <span class="olive">--[no-]verify-peer</span>    Verify peers when using TLS. True by default.
+      <span class="olive">--latency</span>             Show latency metrics.
+      <span class="olive">--pool-max</span>=&lt;int&gt;      Max pool connections (default: 8).
+      <span class="olive">--client</span>=&lt;name&gt;       Client name used to connect to Redis.
+Commands:
+  ...</pre>
 </div>
+</div>
+<div class="paragraph">
+<p>Redis connection options are the same as <code>redis-cli</code>.</p>
+</div>
+<div class="paragraph">
+<p>For Redis URI syntax see <a href="https://github.com/lettuce-io/lettuce-core/wiki/Redis-URI-and-connection-details#uri-syntax">here</a>.</p>
 </div>
 <div class="admonitionblock tip">
 <table>
@@ -1356,26 +1333,6 @@ cd riot/bin
 <pre><span class="green">riot-gen</span> import --help
 <span class="green">riot-gen</span> import hset --help</pre>
 </div>
-</div>
-</td>
-</tr>
-</table>
-</div>
-<div class="literalblock">
-<div class="title">Redis connection options</div>
-<div class="content">
-<pre><span class="green">riot-gen</span> -h myredis.com -p 6380 ...</pre>
-</div>
-</div>
-<div class="admonitionblock tip">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-tip" title="Tip"></i>
-</td>
-<td class="content">
-<div class="paragraph">
-<p>Redis connection options are the same as <code>redis-cli</code>. URI syntax is described <a href="https://github.com/lettuce-io/lettuce-core/wiki/Redis-URI-and-connection-details#uri-syntax">here</a>.</p>
 </div>
 </td>
 </tr>
@@ -1689,12 +1646,43 @@ cd riot/bin
 <div class="sect3">
 <h4 id="_usage_4"><a class="anchor" href="#_usage_4"></a>5.1.2. Usage</h4>
 <div class="paragraph">
-<p>To display usage help run the following command:</p>
+<p>To display usage help, run the following command:</p>
 </div>
 <div class="literalblock">
 <div class="content">
-<pre><span class="green">riot-redis</span> --help</pre>
+<pre><span class="green">riot-redis</span> --help
+Usage: <strong>riot-redis</strong> [OPTIONS] [COMMAND]
+  <span class="olive">-H</span>, <span class="olive">--help</span>                Show this help message and exit
+  <span class="olive">-V</span>, <span class="olive">--version</span>             Print version information and exit.
+  <span class="olive">-q</span>, <span class="olive">--quiet</span>               Log errors only.
+  <span class="olive">-w</span>, <span class="olive">--warn</span>                Set log level to warn.
+  <span class="olive">-i</span>, <span class="olive">--info</span>                Set log level to info.
+  <span class="olive">-d</span>, <span class="olive">--debug</span>               Log in debug mode (includes normal stacktrace).
+      <span class="olive">--stacktrace</span>          Print out the stacktrace for all exceptions.
+Redis connection options
+  <span class="olive">-h</span>, <span class="olive">--hostname</span>=&lt;host&gt;     Server hostname (default: localhost).
+  <span class="olive">-p</span>, <span class="olive">--port</span>=&lt;port&gt;         Server port (default: 6379).
+  <span class="olive">-s</span>, <span class="olive">--socket</span>=&lt;socket&gt;     Server socket (overrides hostname and port).
+      <span class="olive">--user</span>=&lt;name&gt;         Used to send ACL style 'AUTH username pass'. Needs password.
+  <span class="olive">-a</span>, <span class="olive">--pass</span>[=&lt;password&gt;]   Password to use when connecting to the server.
+  <span class="olive">-u</span>, <span class="olive">--uri</span>=&lt;uri&gt;...        Server URI.
+      --timeout=&lt;sec&gt;       Redis command timeout (default: 60).
+  <span class="olive">-n</span>, <span class="olive">--db</span>=&lt;db&gt;             Database number (default: 0).
+  <span class="olive">-c</span>, <span class="olive">--cluster</span>             Enable cluster mode.
+      <span class="olive">--tls</span>                 Establish a secure TLS connection.
+      <span class="olive">--[no-]verify-peer</span>    Verify peers when using TLS. True by default.
+      <span class="olive">--latency</span>             Show latency metrics.
+      <span class="olive">--pool-max</span>=&lt;int&gt;      Max pool connections (default: 8).
+      <span class="olive">--client</span>=&lt;name&gt;       Client name used to connect to Redis.
+Commands:
+  ...</pre>
 </div>
+</div>
+<div class="paragraph">
+<p>Redis connection options are the same as <code>redis-cli</code>.</p>
+</div>
+<div class="paragraph">
+<p>For Redis URI syntax see <a href="https://github.com/lettuce-io/lettuce-core/wiki/Redis-URI-and-connection-details#uri-syntax">here</a>.</p>
 </div>
 <div class="admonitionblock tip">
 <table>
@@ -1711,26 +1699,6 @@ cd riot/bin
 <pre><span class="green">riot-redis</span> import --help
 <span class="green">riot-redis</span> import hset --help</pre>
 </div>
-</div>
-</td>
-</tr>
-</table>
-</div>
-<div class="literalblock">
-<div class="title">Redis connection options</div>
-<div class="content">
-<pre><span class="green">riot-redis</span> -h myredis.com -p 6380 ...</pre>
-</div>
-</div>
-<div class="admonitionblock tip">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-tip" title="Tip"></i>
-</td>
-<td class="content">
-<div class="paragraph">
-<p>Redis connection options are the same as <code>redis-cli</code>. URI syntax is described <a href="https://github.com/lettuce-io/lettuce-core/wiki/Redis-URI-and-connection-details#uri-syntax">here</a>.</p>
 </div>
 </td>
 </tr>
@@ -1960,12 +1928,43 @@ cd riot/bin
 <div class="sect3">
 <h4 id="_usage_5"><a class="anchor" href="#_usage_5"></a>6.1.2. Usage</h4>
 <div class="paragraph">
-<p>To display usage help run the following command:</p>
+<p>To display usage help, run the following command:</p>
 </div>
 <div class="literalblock">
 <div class="content">
-<pre><span class="green">riot-stream</span> --help</pre>
+<pre><span class="green">riot-stream</span> --help
+Usage: <strong>riot-stream</strong> [OPTIONS] [COMMAND]
+  <span class="olive">-H</span>, <span class="olive">--help</span>                Show this help message and exit
+  <span class="olive">-V</span>, <span class="olive">--version</span>             Print version information and exit.
+  <span class="olive">-q</span>, <span class="olive">--quiet</span>               Log errors only.
+  <span class="olive">-w</span>, <span class="olive">--warn</span>                Set log level to warn.
+  <span class="olive">-i</span>, <span class="olive">--info</span>                Set log level to info.
+  <span class="olive">-d</span>, <span class="olive">--debug</span>               Log in debug mode (includes normal stacktrace).
+      <span class="olive">--stacktrace</span>          Print out the stacktrace for all exceptions.
+Redis connection options
+  <span class="olive">-h</span>, <span class="olive">--hostname</span>=&lt;host&gt;     Server hostname (default: localhost).
+  <span class="olive">-p</span>, <span class="olive">--port</span>=&lt;port&gt;         Server port (default: 6379).
+  <span class="olive">-s</span>, <span class="olive">--socket</span>=&lt;socket&gt;     Server socket (overrides hostname and port).
+      <span class="olive">--user</span>=&lt;name&gt;         Used to send ACL style 'AUTH username pass'. Needs password.
+  <span class="olive">-a</span>, <span class="olive">--pass</span>[=&lt;password&gt;]   Password to use when connecting to the server.
+  <span class="olive">-u</span>, <span class="olive">--uri</span>=&lt;uri&gt;...        Server URI.
+      --timeout=&lt;sec&gt;       Redis command timeout (default: 60).
+  <span class="olive">-n</span>, <span class="olive">--db</span>=&lt;db&gt;             Database number (default: 0).
+  <span class="olive">-c</span>, <span class="olive">--cluster</span>             Enable cluster mode.
+      <span class="olive">--tls</span>                 Establish a secure TLS connection.
+      <span class="olive">--[no-]verify-peer</span>    Verify peers when using TLS. True by default.
+      <span class="olive">--latency</span>             Show latency metrics.
+      <span class="olive">--pool-max</span>=&lt;int&gt;      Max pool connections (default: 8).
+      <span class="olive">--client</span>=&lt;name&gt;       Client name used to connect to Redis.
+Commands:
+  ...</pre>
 </div>
+</div>
+<div class="paragraph">
+<p>Redis connection options are the same as <code>redis-cli</code>.</p>
+</div>
+<div class="paragraph">
+<p>For Redis URI syntax see <a href="https://github.com/lettuce-io/lettuce-core/wiki/Redis-URI-and-connection-details#uri-syntax">here</a>.</p>
 </div>
 <div class="admonitionblock tip">
 <table>
@@ -1982,26 +1981,6 @@ cd riot/bin
 <pre><span class="green">riot-stream</span> import --help
 <span class="green">riot-stream</span> import hset --help</pre>
 </div>
-</div>
-</td>
-</tr>
-</table>
-</div>
-<div class="literalblock">
-<div class="title">Redis connection options</div>
-<div class="content">
-<pre><span class="green">riot-stream</span> -h myredis.com -p 6380 ...</pre>
-</div>
-</div>
-<div class="admonitionblock tip">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-tip" title="Tip"></i>
-</td>
-<td class="content">
-<div class="paragraph">
-<p>Redis connection options are the same as <code>redis-cli</code>. URI syntax is described <a href="https://github.com/lettuce-io/lettuce-core/wiki/Redis-URI-and-connection-details#uri-syntax">here</a>.</p>
 </div>
 </td>
 </tr>
@@ -2065,7 +2044,7 @@ cd riot/bin
 <div id="footer">
 <div id="footer-text">
 Version 2.12.0<br>
-Last updated 2021-06-21 15:24:01 -0700
+Last updated 2021-07-08 00:04:38 +0200
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css">
