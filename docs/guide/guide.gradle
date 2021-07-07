@@ -1,5 +1,2 @@
 asciidoctor {
-    attributes = [
-            'source-highlighter': 'prettify'
-    ]
 }
