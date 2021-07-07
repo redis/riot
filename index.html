@@ -168,7 +168,7 @@
 <h5 id="_homebrew_macos"><a class="anchor" href="#_homebrew_macos"></a>Homebrew (macOS)</h5>
 <div class="listingblock">
 <div class="content">
-<pre class="prettyprint highlight linenums"><code data-lang="source">brew install redis-developer/tap/riot-db</code></pre>
+<pre class="CodeRay highlight"><code data-lang="source">brew install redis-developer/tap/riot-db</code></pre>
 </div>
 </div>
 </div>
@@ -176,7 +176,7 @@
 <h5 id="_scoop_windows"><a class="anchor" href="#_scoop_windows"></a>Scoop (Windows)</h5>
 <div class="listingblock">
 <div class="content">
-<pre class="prettyprint highlight linenums"><code data-lang="source">scoop bucket add redis-developer https://github.com/redis-developer/scoop.git
+<pre class="CodeRay highlight"><code data-lang="source">scoop bucket add redis-developer https://github.com/redis-developer/scoop.git
 scoop install riot-db</code></pre>
 </div>
 </div>
@@ -185,7 +185,7 @@ scoop install riot-db</code></pre>
 <h5 id="_clone_and_run"><a class="anchor" href="#_clone_and_run"></a>Clone and run</h5>
 <div class="listingblock">
 <div class="content">
-<pre class="prettyprint highlight linenums"><code data-lang="source">git clone https://github.com/redis-developer/riot.git
+<pre class="CodeRay highlight"><code data-lang="source">git clone https://github.com/redis-developer/riot.git
 cd riot/bin
 ./riot-db</code></pre>
 </div>
@@ -346,7 +346,7 @@ Commands:
 <div class="listingblock">
 <div class="title">PostgreSQL Example</div>
 <div class="content">
-<pre class="prettyprint highlight"><code data-lang="bash">riot-db import "SELECT * FROM orders" --url "jdbc:postgresql://host:port/database" --username appuser --password passwd hset --keyspace order --keys order_id</code></pre>
+<pre class="CodeRay highlight"><code data-lang="bash">riot-db import &quot;SELECT * FROM orders&quot; --url &quot;jdbc:postgresql://host:port/database&quot; --username appuser --password passwd hset --keyspace order --keys order_id</code></pre>
 </div>
 </div>
 <div class="sect3">
@@ -523,13 +523,13 @@ Commands:
 <div class="listingblock">
 <div class="title">Export to PostgreSQL</div>
 <div class="content">
-<pre class="prettyprint highlight"><code data-lang="bash">riot-db export "INSERT INTO mytable (id, field1, field2) VALUES (CAST(:id AS SMALLINT), :field1, :field2)" --url "jdbc:postgresql://host:port/database" --username appuser --password passwd --match "hash:*" --key-regex "hash:(?&lt;id&gt;.*)"</code></pre>
+<pre class="CodeRay highlight"><code data-lang="bash">riot-db export &quot;INSERT INTO mytable (id, field1, field2) VALUES (CAST(:id AS SMALLINT), :field1, :field2)&quot; --url &quot;jdbc:postgresql://host:port/database&quot; --username appuser --password passwd --match &quot;hash:*&quot; --key-regex &quot;hash:(?&lt;id&gt;.*)&quot;</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="title">Import from PostgreSQL to JSON strings</div>
 <div class="content">
-<pre class="prettyprint highlight"><code data-lang="bash">riot-db import "SELECT * FROM orders" --url "jdbc:postgresql://host:port/database" --username appuser --password passwd set --keyspace order --keys order_id</code></pre>
+<pre class="CodeRay highlight"><code data-lang="bash">riot-db import &quot;SELECT * FROM orders&quot; --url &quot;jdbc:postgresql://host:port/database&quot; --username appuser --password passwd set --keyspace order --keys order_id</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -537,20 +537,20 @@ Commands:
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="prettyprint highlight"><code data-lang="json">{
-  "order_id": 10248,
-  "customer_id": "VINET",
-  "employee_id": 5,
-  "order_date": "1996-07-04",
-  "required_date": "1996-08-01",
-  "shipped_date": "1996-07-16",
-  "ship_via": 3,
-  "freight": 32.38,
-  "ship_name": "Vins et alcools Chevalier",
-  "ship_address": "59 rue de l'Abbaye",
-  "ship_city": "Reims",
-  "ship_postal_code": "51100",
-  "ship_country": "France"
+<pre class="CodeRay highlight"><code data-lang="json">{
+  <span class="key"><span class="delimiter">&quot;</span><span class="content">order_id</span><span class="delimiter">&quot;</span></span>: <span class="integer">10248</span>,
+  <span class="key"><span class="delimiter">&quot;</span><span class="content">customer_id</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">VINET</span><span class="delimiter">&quot;</span></span>,
+  <span class="key"><span class="delimiter">&quot;</span><span class="content">employee_id</span><span class="delimiter">&quot;</span></span>: <span class="integer">5</span>,
+  <span class="key"><span class="delimiter">&quot;</span><span class="content">order_date</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">1996-07-04</span><span class="delimiter">&quot;</span></span>,
+  <span class="key"><span class="delimiter">&quot;</span><span class="content">required_date</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">1996-08-01</span><span class="delimiter">&quot;</span></span>,
+  <span class="key"><span class="delimiter">&quot;</span><span class="content">shipped_date</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">1996-07-16</span><span class="delimiter">&quot;</span></span>,
+  <span class="key"><span class="delimiter">&quot;</span><span class="content">ship_via</span><span class="delimiter">&quot;</span></span>: <span class="integer">3</span>,
+  <span class="key"><span class="delimiter">&quot;</span><span class="content">freight</span><span class="delimiter">&quot;</span></span>: <span class="float">32.38</span>,
+  <span class="key"><span class="delimiter">&quot;</span><span class="content">ship_name</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">Vins et alcools Chevalier</span><span class="delimiter">&quot;</span></span>,
+  <span class="key"><span class="delimiter">&quot;</span><span class="content">ship_address</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">59 rue de l'Abbaye</span><span class="delimiter">&quot;</span></span>,
+  <span class="key"><span class="delimiter">&quot;</span><span class="content">ship_city</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">Reims</span><span class="delimiter">&quot;</span></span>,
+  <span class="key"><span class="delimiter">&quot;</span><span class="content">ship_postal_code</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">51100</span><span class="delimiter">&quot;</span></span>,
+  <span class="key"><span class="delimiter">&quot;</span><span class="content">ship_country</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">France</span><span class="delimiter">&quot;</span></span>
 }</code></pre>
 </div>
 </div>
@@ -583,7 +583,7 @@ Commands:
 <h5 id="_homebrew_macos_2"><a class="anchor" href="#_homebrew_macos_2"></a>Homebrew (macOS)</h5>
 <div class="listingblock">
 <div class="content">
-<pre class="prettyprint highlight linenums"><code data-lang="source">brew install redis-developer/tap/riot-file</code></pre>
+<pre class="CodeRay highlight"><code data-lang="source">brew install redis-developer/tap/riot-file</code></pre>
 </div>
 </div>
 </div>
@@ -591,7 +591,7 @@ Commands:
 <h5 id="_scoop_windows_2"><a class="anchor" href="#_scoop_windows_2"></a>Scoop (Windows)</h5>
 <div class="listingblock">
 <div class="content">
-<pre class="prettyprint highlight linenums"><code data-lang="source">scoop bucket add redis-developer https://github.com/redis-developer/scoop.git
+<pre class="CodeRay highlight"><code data-lang="source">scoop bucket add redis-developer https://github.com/redis-developer/scoop.git
 scoop install riot-file</code></pre>
 </div>
 </div>
@@ -600,7 +600,7 @@ scoop install riot-file</code></pre>
 <h5 id="_clone_and_run_2"><a class="anchor" href="#_clone_and_run_2"></a>Clone and run</h5>
 <div class="listingblock">
 <div class="content">
-<pre class="prettyprint highlight linenums"><code data-lang="source">git clone https://github.com/redis-developer/riot.git
+<pre class="CodeRay highlight"><code data-lang="source">git clone https://github.com/redis-developer/riot.git
 cd riot/bin
 ./riot-file</code></pre>
 </div>
@@ -842,7 +842,7 @@ Use <code>-</code> to read from standard input.
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="prettyprint highlight"><code data-lang="bash">riot-file import http://developer.redislabs.com/riot/beers.csv --header hset --keyspace beer --keys id</code></pre>
+<pre class="CodeRay highlight"><code data-lang="bash">riot-file import http://developer.redislabs.com/riot/beers.csv --header hset --keyspace beer --keys id</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -850,7 +850,7 @@ Use <code>-</code> to read from standard input.
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="prettyprint highlight"><code data-lang="bash">riot-file import http://developer.redislabs.com/riot/airports.csv --header --skip-limit 1 geoadd --keyspace airportgeo --members AirportID --lon Longitude --lat Latitude</code></pre>
+<pre class="CodeRay highlight"><code data-lang="bash">riot-file import http://developer.redislabs.com/riot/airports.csv --header --skip-limit 1 geoadd --keyspace airportgeo --members AirportID --lon Longitude --lat Latitude</code></pre>
 </div>
 </div>
 </div>
@@ -861,7 +861,7 @@ Use <code>-</code> to read from standard input.
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="prettyprint highlight"><code data-lang="bash">riot-file import http://developer.redislabs.com/riot/accounts.fw --ranges 1 9 25 41 53 67 83 --header hset --keyspace account --keys Account</code></pre>
+<pre class="CodeRay highlight"><code data-lang="bash">riot-file import http://developer.redislabs.com/riot/accounts.fw --ranges 1 9 25 41 53 67 83 --header hset --keyspace account --keys Account</code></pre>
 </div>
 </div>
 </div>
@@ -872,12 +872,12 @@ Use <code>-</code> to read from standard input.
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="prettyprint highlight"><code data-lang="json">[
+<pre class="CodeRay highlight"><code data-lang="json">[
   {
-    "...": "..."
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">...</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">...</span><span class="delimiter">&quot;</span></span>
   },
   {
-    "...": "..."
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">...</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">...</span><span class="delimiter">&quot;</span></span>
   }
 ]</code></pre>
 </div>
@@ -885,7 +885,7 @@ Use <code>-</code> to read from standard input.
 <div class="listingblock">
 <div class="title">JSON import example</div>
 <div class="content">
-<pre class="prettyprint highlight"><code data-lang="bash">riot-file import http://developer.redislabs.com/riot/beers.json hset --keyspace beer --keys id</code></pre>
+<pre class="CodeRay highlight"><code data-lang="bash">riot-file import http://developer.redislabs.com/riot/beers.json hset --keyspace beer --keys id</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -932,33 +932,33 @@ Use <code>-</code> to read from standard input.
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="prettyprint highlight"><code data-lang="xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
-&lt;records&gt;
-    &lt;trade&gt;
-        &lt;isin&gt;XYZ0001&lt;/isin&gt;
-        &lt;quantity&gt;5&lt;/quantity&gt;
-        &lt;price&gt;11.39&lt;/price&gt;
-        &lt;customer&gt;Customer1&lt;/customer&gt;
-    &lt;/trade&gt;
-    &lt;trade&gt;
-        &lt;isin&gt;XYZ0002&lt;/isin&gt;
-        &lt;quantity&gt;2&lt;/quantity&gt;
-        &lt;price&gt;72.99&lt;/price&gt;
-        &lt;customer&gt;Customer2c&lt;/customer&gt;
-    &lt;/trade&gt;
-    &lt;trade&gt;
-        &lt;isin&gt;XYZ0003&lt;/isin&gt;
-        &lt;quantity&gt;9&lt;/quantity&gt;
-        &lt;price&gt;99.99&lt;/price&gt;
-        &lt;customer&gt;Customer3&lt;/customer&gt;
-    &lt;/trade&gt;
-&lt;/records&gt;</code></pre>
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="preprocessor">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<span class="tag">&lt;records&gt;</span>
+    <span class="tag">&lt;trade&gt;</span>
+        <span class="tag">&lt;isin&gt;</span>XYZ0001<span class="tag">&lt;/isin&gt;</span>
+        <span class="tag">&lt;quantity&gt;</span>5<span class="tag">&lt;/quantity&gt;</span>
+        <span class="tag">&lt;price&gt;</span>11.39<span class="tag">&lt;/price&gt;</span>
+        <span class="tag">&lt;customer&gt;</span>Customer1<span class="tag">&lt;/customer&gt;</span>
+    <span class="tag">&lt;/trade&gt;</span>
+    <span class="tag">&lt;trade&gt;</span>
+        <span class="tag">&lt;isin&gt;</span>XYZ0002<span class="tag">&lt;/isin&gt;</span>
+        <span class="tag">&lt;quantity&gt;</span>2<span class="tag">&lt;/quantity&gt;</span>
+        <span class="tag">&lt;price&gt;</span>72.99<span class="tag">&lt;/price&gt;</span>
+        <span class="tag">&lt;customer&gt;</span>Customer2c<span class="tag">&lt;/customer&gt;</span>
+    <span class="tag">&lt;/trade&gt;</span>
+    <span class="tag">&lt;trade&gt;</span>
+        <span class="tag">&lt;isin&gt;</span>XYZ0003<span class="tag">&lt;/isin&gt;</span>
+        <span class="tag">&lt;quantity&gt;</span>9<span class="tag">&lt;/quantity&gt;</span>
+        <span class="tag">&lt;price&gt;</span>99.99<span class="tag">&lt;/price&gt;</span>
+        <span class="tag">&lt;customer&gt;</span>Customer3<span class="tag">&lt;/customer&gt;</span>
+    <span class="tag">&lt;/trade&gt;</span>
+<span class="tag">&lt;/records&gt;</span></code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="title">XML Import Example</div>
 <div class="content">
-<pre class="prettyprint highlight"><code data-lang="bash">riot-file import http://developer.redislabs.com/riot/trades.xml hset --keyspace trade --keys id</code></pre>
+<pre class="CodeRay highlight"><code data-lang="bash">riot-file import http://developer.redislabs.com/riot/trades.xml hset --keyspace trade --keys id</code></pre>
 </div>
 </div>
 </div>
@@ -970,7 +970,7 @@ Use <code>-</code> to read from standard input.
 <div class="listingblock">
 <div class="title">Dump Import Example</div>
 <div class="content">
-<pre class="prettyprint highlight"><code data-lang="bash">riot-file import-dump /tmp/redis.json</code></pre>
+<pre class="CodeRay highlight"><code data-lang="bash">riot-file import-dump /tmp/redis.json</code></pre>
 </div>
 </div>
 </div>
@@ -1149,77 +1149,77 @@ Use <code>-</code> to read from standard input.
 <div class="listingblock">
 <div class="title">Compressed JSON export example</div>
 <div class="content">
-<pre class="prettyprint highlight"><code data-lang="bash">riot-file export /tmp/beers.json.gz --match beer:*</code></pre>
+<pre class="CodeRay highlight"><code data-lang="bash">riot-file export /tmp/beers.json.gz --match beer:*</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="title">XML export example</div>
 <div class="content">
-<pre class="prettyprint highlight"><code data-lang="bash">riot-file export /tmp/redis.xml</code></pre>
+<pre class="CodeRay highlight"><code data-lang="bash">riot-file export /tmp/redis.xml</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="title">Exported file example</div>
 <div class="content">
-<pre class="prettyprint highlight"><code data-lang="json">[
+<pre class="CodeRay highlight"><code data-lang="json">[
   {
-    "key": "string:615",
-    "ttl": -1,
-    "value": "value:615",
-    "type": "STRING"
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">key</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">string:615</span><span class="delimiter">&quot;</span></span>,
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">ttl</span><span class="delimiter">&quot;</span></span>: <span class="integer">-1</span>,
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">value</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">value:615</span><span class="delimiter">&quot;</span></span>,
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">type</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">STRING</span><span class="delimiter">&quot;</span></span>
   },
   {
-    "key": "hash:511",
-    "ttl": -1,
-    "value": {
-      "field1": "value511",
-      "field2": "value511"
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">key</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">hash:511</span><span class="delimiter">&quot;</span></span>,
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">ttl</span><span class="delimiter">&quot;</span></span>: <span class="integer">-1</span>,
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">value</span><span class="delimiter">&quot;</span></span>: {
+      <span class="key"><span class="delimiter">&quot;</span><span class="content">field1</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">value511</span><span class="delimiter">&quot;</span></span>,
+      <span class="key"><span class="delimiter">&quot;</span><span class="content">field2</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">value511</span><span class="delimiter">&quot;</span></span>
     },
-    "type": "HASH"
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">type</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">HASH</span><span class="delimiter">&quot;</span></span>
   },
   {
-    "key": "list:1",
-    "ttl": -1,
-    "value": [
-      "member:991",
-      "member:981"
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">key</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">list:1</span><span class="delimiter">&quot;</span></span>,
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">ttl</span><span class="delimiter">&quot;</span></span>: <span class="integer">-1</span>,
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">value</span><span class="delimiter">&quot;</span></span>: [
+      <span class="string"><span class="delimiter">&quot;</span><span class="content">member:991</span><span class="delimiter">&quot;</span></span>,
+      <span class="string"><span class="delimiter">&quot;</span><span class="content">member:981</span><span class="delimiter">&quot;</span></span>
     ],
-    "type": "LIST"
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">type</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">LIST</span><span class="delimiter">&quot;</span></span>
   },
   {
-    "key": "set:2",
-    "ttl": -1,
-    "value": [
-      "member:2",
-      "member:3"
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">key</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">set:2</span><span class="delimiter">&quot;</span></span>,
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">ttl</span><span class="delimiter">&quot;</span></span>: <span class="integer">-1</span>,
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">value</span><span class="delimiter">&quot;</span></span>: [
+      <span class="string"><span class="delimiter">&quot;</span><span class="content">member:2</span><span class="delimiter">&quot;</span></span>,
+      <span class="string"><span class="delimiter">&quot;</span><span class="content">member:3</span><span class="delimiter">&quot;</span></span>
     ],
-    "type": "SET"
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">type</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">SET</span><span class="delimiter">&quot;</span></span>
   },
   {
-    "key": "zset:0",
-    "ttl": -1,
-    "value": [
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">key</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">zset:0</span><span class="delimiter">&quot;</span></span>,
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">ttl</span><span class="delimiter">&quot;</span></span>: <span class="integer">-1</span>,
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">value</span><span class="delimiter">&quot;</span></span>: [
       {
-        "value": "member:1",
-        "score": 1.0
+        <span class="key"><span class="delimiter">&quot;</span><span class="content">value</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">member:1</span><span class="delimiter">&quot;</span></span>,
+        <span class="key"><span class="delimiter">&quot;</span><span class="content">score</span><span class="delimiter">&quot;</span></span>: <span class="float">1.0</span>
       }
     ],
-    "type": "ZSET"
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">type</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">ZSET</span><span class="delimiter">&quot;</span></span>
   },
   {
-    "key": "stream:0",
-    "ttl": -1,
-    "value": [
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">key</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">stream:0</span><span class="delimiter">&quot;</span></span>,
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">ttl</span><span class="delimiter">&quot;</span></span>: <span class="integer">-1</span>,
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">value</span><span class="delimiter">&quot;</span></span>: [
       {
-        "stream": "stream:0",
-        "id": "1602190921109-0",
-        "body": {
-          "field1": "value0",
-          "field2": "value0"
+        <span class="key"><span class="delimiter">&quot;</span><span class="content">stream</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">stream:0</span><span class="delimiter">&quot;</span></span>,
+        <span class="key"><span class="delimiter">&quot;</span><span class="content">id</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">1602190921109-0</span><span class="delimiter">&quot;</span></span>,
+        <span class="key"><span class="delimiter">&quot;</span><span class="content">body</span><span class="delimiter">&quot;</span></span>: {
+          <span class="key"><span class="delimiter">&quot;</span><span class="content">field1</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">value0</span><span class="delimiter">&quot;</span></span>,
+          <span class="key"><span class="delimiter">&quot;</span><span class="content">field2</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">value0</span><span class="delimiter">&quot;</span></span>
         }
       }
     ],
-    "type": "STREAM"
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">type</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">STREAM</span><span class="delimiter">&quot;</span></span>
   }
 ]</code></pre>
 </div>
@@ -1253,7 +1253,7 @@ Use <code>-</code> to read from standard input.
 <h5 id="_homebrew_macos_3"><a class="anchor" href="#_homebrew_macos_3"></a>Homebrew (macOS)</h5>
 <div class="listingblock">
 <div class="content">
-<pre class="prettyprint highlight linenums"><code data-lang="source">brew install redis-developer/tap/riot-gen</code></pre>
+<pre class="CodeRay highlight"><code data-lang="source">brew install redis-developer/tap/riot-gen</code></pre>
 </div>
 </div>
 </div>
@@ -1261,7 +1261,7 @@ Use <code>-</code> to read from standard input.
 <h5 id="_scoop_windows_3"><a class="anchor" href="#_scoop_windows_3"></a>Scoop (Windows)</h5>
 <div class="listingblock">
 <div class="content">
-<pre class="prettyprint highlight linenums"><code data-lang="source">scoop bucket add redis-developer https://github.com/redis-developer/scoop.git
+<pre class="CodeRay highlight"><code data-lang="source">scoop bucket add redis-developer https://github.com/redis-developer/scoop.git
 scoop install riot-gen</code></pre>
 </div>
 </div>
@@ -1270,7 +1270,7 @@ scoop install riot-gen</code></pre>
 <h5 id="_clone_and_run_3"><a class="anchor" href="#_clone_and_run_3"></a>Clone and run</h5>
 <div class="listingblock">
 <div class="content">
-<pre class="prettyprint highlight linenums"><code data-lang="source">git clone https://github.com/redis-developer/riot.git
+<pre class="CodeRay highlight"><code data-lang="source">git clone https://github.com/redis-developer/riot.git
 cd riot/bin
 ./riot-gen</code></pre>
 </div>
@@ -1364,13 +1364,13 @@ Commands:
 <div class="listingblock">
 <div class="title">Hash generator example</div>
 <div class="content">
-<pre class="prettyprint highlight"><code data-lang="bash">riot-gen import id="#index" firstName="name.firstName" lastName="name.lastName" address="address.fullAddress" hset --keyspace person --keys id</code></pre>
+<pre class="CodeRay highlight"><code data-lang="bash">riot-gen import id=&quot;#index&quot; firstName=&quot;name.firstName&quot; lastName=&quot;name.lastName&quot; address=&quot;address.fullAddress&quot; hset --keyspace person --keys id</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="title">Set generator example</div>
 <div class="content">
-<pre class="prettyprint highlight"><code data-lang="bash">riot-gen import name="gameOfThrones.character" --end 1000 sadd --keyspace got:characters --members name</code></pre>
+<pre class="CodeRay highlight"><code data-lang="bash">riot-gen import name=&quot;gameOfThrones.character&quot; --end 1000 sadd --keyspace got:characters --members name</code></pre>
 </div>
 </div>
 <div class="sect3">
@@ -1532,7 +1532,7 @@ Commands:
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="prettyprint highlight"><code data-lang="bash">riot-gen import --infer beerIdx hset --keyspace beer --keys id</code></pre>
+<pre class="CodeRay highlight"><code data-lang="bash">riot-gen import --infer beerIdx hset --keyspace beer --keys id</code></pre>
 </div>
 </div>
 </div>
@@ -1619,7 +1619,7 @@ Commands:
 <h5 id="_homebrew_macos_4"><a class="anchor" href="#_homebrew_macos_4"></a>Homebrew (macOS)</h5>
 <div class="listingblock">
 <div class="content">
-<pre class="prettyprint highlight linenums"><code data-lang="source">brew install redis-developer/tap/riot-redis</code></pre>
+<pre class="CodeRay highlight"><code data-lang="source">brew install redis-developer/tap/riot-redis</code></pre>
 </div>
 </div>
 </div>
@@ -1627,7 +1627,7 @@ Commands:
 <h5 id="_scoop_windows_4"><a class="anchor" href="#_scoop_windows_4"></a>Scoop (Windows)</h5>
 <div class="listingblock">
 <div class="content">
-<pre class="prettyprint highlight linenums"><code data-lang="source">scoop bucket add redis-developer https://github.com/redis-developer/scoop.git
+<pre class="CodeRay highlight"><code data-lang="source">scoop bucket add redis-developer https://github.com/redis-developer/scoop.git
 scoop install riot-redis</code></pre>
 </div>
 </div>
@@ -1636,7 +1636,7 @@ scoop install riot-redis</code></pre>
 <h5 id="_clone_and_run_4"><a class="anchor" href="#_clone_and_run_4"></a>Clone and run</h5>
 <div class="listingblock">
 <div class="content">
-<pre class="prettyprint highlight linenums"><code data-lang="source">git clone https://github.com/redis-developer/riot.git
+<pre class="CodeRay highlight"><code data-lang="source">git clone https://github.com/redis-developer/riot.git
 cd riot/bin
 ./riot-redis</code></pre>
 </div>
@@ -1901,7 +1901,7 @@ The live replication mechanism does not guarantee data consistency. Redis sends 
 <h5 id="_homebrew_macos_5"><a class="anchor" href="#_homebrew_macos_5"></a>Homebrew (macOS)</h5>
 <div class="listingblock">
 <div class="content">
-<pre class="prettyprint highlight linenums"><code data-lang="source">brew install redis-developer/tap/riot-stream</code></pre>
+<pre class="CodeRay highlight"><code data-lang="source">brew install redis-developer/tap/riot-stream</code></pre>
 </div>
 </div>
 </div>
@@ -1909,7 +1909,7 @@ The live replication mechanism does not guarantee data consistency. Redis sends 
 <h5 id="_scoop_windows_5"><a class="anchor" href="#_scoop_windows_5"></a>Scoop (Windows)</h5>
 <div class="listingblock">
 <div class="content">
-<pre class="prettyprint highlight linenums"><code data-lang="source">scoop bucket add redis-developer https://github.com/redis-developer/scoop.git
+<pre class="CodeRay highlight"><code data-lang="source">scoop bucket add redis-developer https://github.com/redis-developer/scoop.git
 scoop install riot-stream</code></pre>
 </div>
 </div>
@@ -1918,7 +1918,7 @@ scoop install riot-stream</code></pre>
 <h5 id="_clone_and_run_5"><a class="anchor" href="#_clone_and_run_5"></a>Clone and run</h5>
 <div class="listingblock">
 <div class="content">
-<pre class="prettyprint highlight linenums"><code data-lang="source">git clone https://github.com/redis-developer/riot.git
+<pre class="CodeRay highlight"><code data-lang="source">git clone https://github.com/redis-developer/riot.git
 cd riot/bin
 ./riot-stream</code></pre>
 </div>
@@ -2009,7 +2009,7 @@ Commands:
 <div class="listingblock">
 <div class="title">Import example</div>
 <div class="content">
-<pre class="prettyprint highlight"><code data-lang="bash">riot-stream import topic1 --broker localhost:9092</code></pre>
+<pre class="CodeRay highlight"><code data-lang="bash">riot-stream import topic1 --broker localhost:9092</code></pre>
 </div>
 </div>
 </div>
@@ -2034,7 +2034,7 @@ Commands:
 <div class="listingblock">
 <div class="title">Export example</div>
 <div class="content">
-<pre class="prettyprint highlight"><code data-lang="bash">riot-stream export stream1 --idle-timeout 500 --broker localhost:9092</code></pre>
+<pre class="CodeRay highlight"><code data-lang="bash">riot-stream export stream1 --idle-timeout 500 --broker localhost:9092</code></pre>
 </div>
 </div>
 </div>
@@ -2047,7 +2047,6 @@ Version 2.12.0<br>
 Last updated 2021-07-08 00:04:38 +0200
 </div>
 </div>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/run_prettify.min.js"></script>
+<link rel="stylesheet" href="./coderay-asciidoctor.css">
 </body>
 </html>
