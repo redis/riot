@@ -1,2 +1,7 @@
 asciidoctor {
+    resources {
+        from("../../connectors/riot-file/src/test/resources/files") {
+            include '*.*'
+        }
+    }
 }
