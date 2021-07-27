@@ -67,7 +67,6 @@ allprojects {
         }
         mavenLocal()
     }
-
     tasks.withType(GenerateModuleMetadata) {
         enabled = false
     }
@@ -78,90 +77,5 @@ subprojects {
         info {
             description = project.project_description
         }
-    }
-}
-
-
-jreleaser {
-    project {
-        longDescription = 'Get data in and out of Redis with RIOT'
-        website = 'https://developer.redislabs.com/riot'
-        copyright = '2021 Julien Ruaux'
-        java {
-            multiProject = true
-        }
-    }
-    release {
-        github {
-            owner = 'redis-developer'
-            overwrite = true
-            changelog {
-                enabled = true
-                formatted = 'ALWAYS'
-                change = '- {{commitShortHash}} {{commitTitle}}'
-                labeler {
-                    label = 'feature'
-                    title = 'Resolves #'
-                    body = 'Resolves #'
-                }
-                labeler {
-                    label = 'issue'
-                    title = 'Fixes #'
-                    body = 'Fixes #'
-                }
-                labeler {
-                    label = 'issue'
-                    title = 'Relates to #'
-                    body = 'Relates to #'
-                }
-                labeler {
-                    label = 'task'
-                    title = '[chore]'
-                }
-                category {
-                    title = '🚀 Features'
-                    labels = ['feature']
-                }
-                category {
-                    title = '✅ Issues'
-                    labels = ['issue']
-                }
-                category {
-                    title = '🧰 Tasks'
-                    labels = ['task']
-                }
-                replacer {
-                    search = '\\[chore\\]\\s'
-                    replace = ''
-                }
-            }
-        }
-    }
-    distributions {
-        ['riot-db', 'riot-file', 'riot-gen', 'riot-redis', 'riot-stream'].each { n ->
-            "$n" {
-                brew {
-                    active = 'release'
-                    formulaName = "${n}"
-                }
-                scoop {
-                    active = 'release'
-                    bucket {
-                        name = 'scoop'
-                    }
-                }
-                artifacts {
-                    artifact {
-                        path = "connectors/{{distributionName}}/build/distributions/{{distributionName}}-{{projectVersion}}.zip"
-                    }
-                }
-            }
-        }
-    }
-}
-
-nexusPublishing {
-    repositories {
-        sonatype()
     }
 }

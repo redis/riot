@@ -8,7 +8,6 @@ buildscript {
         classpath "org.kordamp.gradle:kordamp-parentbuild:$kordampBuildVersion"
         classpath "org.kordamp.gradle:java-project-gradle-plugin:$kordampPluginVersion"
         classpath "org.kordamp.gradle:guide-gradle-plugin:$kordampPluginVersion"
-        classpath "io.github.gradle-nexus:publish-plugin:$nexusPluginVersion"
         classpath "org.jreleaser:jreleaser-gradle-plugin:$jreleaserPluginVersion"
         classpath "org.ajoberstar:gradle-git-publish:$gitPublishPluginVersion"
         classpath "io.freefair.gradle:lombok-plugin:6.0.0-m2"
@@ -31,7 +30,6 @@ projects {
         path(':') {
             id 'org.kordamp.gradle.java-project'
             id 'org.jreleaser'
-            id 'io.github.gradle-nexus.publish-plugin'
         }
         path(':guide') {
             id 'org.kordamp.gradle.guide'

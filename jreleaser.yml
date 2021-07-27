@@ -1,0 +1,100 @@
+project:
+  name: riot
+  description: Redis Input/Output Tools
+  longDescription: Get data in and out of Redis with RIOT
+  website: https://developer.redislabs.com/riot
+  authors:
+    - Julien Ruaux
+  license: Apache-2.0
+  java:
+    groupId: com.redislabs
+    version: 8
+    multiProject: true
+  extraProperties:
+    inceptionYear: 2020
+
+release:
+  github:
+    branch: master
+    username: jruaux
+    overwrite: true
+    changelog:
+      sort: DESC
+      formatted: ALWAYS
+      change: '- {{commitShortHash}} {{commitTitle}}'
+      labelers:
+        - label: 'feature'
+          title: 'Resolves #'
+          body: 'Resolves #'
+        - label: 'issue'
+          title: 'Fixes #'
+          body: 'Fixes #'
+        - label: 'issue'
+          title: 'Relates to #'
+          body: 'Relates to #'
+        - label: 'task'
+          title: '[chore]'
+      categories:
+        - title: '🚀 Features'
+          labels:
+            - 'feature'
+        - title: '✅ Issues'
+          labels:
+            - 'issue'
+        - title: '🧰 Tasks'
+          labels:
+            - 'task'
+      replacers:
+        - search: '\[chore\] '
+          replace: ''
+
+distributions:
+  riot-db:
+    brew:
+      active: release
+    scoop:
+      active: release
+      bucket:
+        name: scoop
+    artifacts:
+      - path: connectors/{{distributionName}}/build/distributions/{{distributionName}}-{{projectVersion}}.zip
+
+  riot-file:
+    brew:
+      active: release
+    scoop:
+      active: release
+      bucket:
+        name: scoop
+    artifacts:
+      - path: connectors/{{distributionName}}/build/distributions/{{distributionName}}-{{projectVersion}}.zip
+
+  riot-gen:
+    brew:
+      active: release
+    scoop:
+      active: release
+      bucket:
+        name: scoop
+    artifacts:
+      - path: connectors/{{distributionName}}/build/distributions/{{distributionName}}-{{projectVersion}}.zip
+
+  riot-redis:
+    brew:
+      active: release
+    scoop:
+      active: release
+      bucket:
+        name: scoop
+    artifacts:
+      - path: connectors/{{distributionName}}/build/distributions/{{distributionName}}-{{projectVersion}}.zip
+
+  riot-stream:
+    brew:
+      active: release
+    scoop:
+      active: release
+      bucket:
+        name: scoop
+    artifacts:
+      - path: connectors/{{distributionName}}/build/distributions/{{distributionName}}-{{projectVersion}}.zip
