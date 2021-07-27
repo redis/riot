@@ -1,6 +1,7 @@
 package com.redislabs.riot;
 
 import io.lettuce.core.RedisCommandExecutionException;
+import io.lettuce.core.RedisCommandTimeoutException;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
@@ -9,6 +10,10 @@ import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.step.builder.FaultTolerantStepBuilder;
 import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.core.step.builder.StepBuilder;
+import org.springframework.batch.core.step.skip.AlwaysSkipItemSkipPolicy;
+import org.springframework.batch.core.step.skip.LimitCheckingItemSkipPolicy;
+import org.springframework.batch.core.step.skip.NeverSkipItemSkipPolicy;
+import org.springframework.batch.core.step.skip.SkipPolicy;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
@@ -53,7 +58,7 @@ public class RiotStepBuilder<I, O> {
             step.listener((StepExecutionListener) monitor);
             step.listener((ItemWriteListener) monitor);
         }
-        FaultTolerantStepBuilder<I, O> ftStep = step.faultTolerant().skipLimit(options.getSkipLimit()).skip(RedisCommandExecutionException.class);
+        FaultTolerantStepBuilder<I, O> ftStep = step.faultTolerant().skipPolicy(skipPolicy(options.getSkipPolicy())).skipLimit(options.getSkipLimit()).skip(RedisCommandExecutionException.class).skip(RedisCommandTimeoutException.class);
         if (options.getThreads() > 1) {
             ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
             taskExecutor.setCorePoolSize(options.getThreads());
@@ -67,6 +72,17 @@ public class RiotStepBuilder<I, O> {
             ftStep.taskExecutor(new SyncTaskExecutor());
         }
         return ftStep;
+    }
+
+    private SkipPolicy skipPolicy(TransferOptions.SkipPolicy policy) {
+        switch (policy) {
+            case ALWAYS:
+                return new AlwaysSkipItemSkipPolicy();
+            case NEVER:
+                return new NeverSkipItemSkipPolicy();
+            default:
+                return new LimitCheckingItemSkipPolicy();
+        }
     }
 
 }

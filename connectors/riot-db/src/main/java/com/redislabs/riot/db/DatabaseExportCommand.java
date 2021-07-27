@@ -37,7 +37,7 @@ public class DatabaseExportCommand extends AbstractExportCommand<Map<String, Obj
         String name = dataSource.getConnection().getMetaData().getDatabaseProductName();
         log.debug("Creating {} database writer: {}", name, exportOptions);
         JdbcBatchItemWriterBuilder<Map<String, Object>> builder = new JdbcBatchItemWriterBuilder<>();
-        builder.itemSqlParameterSourceProvider(MapSqlParameterSource::new);
+        builder.itemSqlParameterSourceProvider(NullableMapSqlParameterSource::new);
         builder.dataSource(dataSource);
         builder.sql(sql);
         builder.assertUpdates(exportOptions.isAssertUpdates());

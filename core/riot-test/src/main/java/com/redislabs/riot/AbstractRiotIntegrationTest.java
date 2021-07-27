@@ -44,29 +44,30 @@ public abstract class AbstractRiotIntegrationTest extends AbstractRiotTest {
 
     @BeforeAll
     public static void setup() {
-        add(REDIS);
-        add(REDIS_CLUSTER);
+        add(REDIS, REDIS_CLUSTER);
     }
 
-    private static void add(RedisServer container) {
-        if (container instanceof RedisClusterContainer) {
-            RedisClusterClient client = RedisClusterClient.create(container.getRedisURI());
-            CLIENTS.put(container, client);
-            StatefulRedisClusterConnection<String, String> connection = client.connect();
-            CONNECTIONS.put(container, connection);
-            SYNCS.put(container, connection.sync());
-            ASYNCS.put(container, connection.async());
-            PUBSUB_CONNECTIONS.put(container, client.connectPubSub());
-            POOLS.put(container, ConnectionPoolSupport.createGenericObjectPool(client::connect, new GenericObjectPoolConfig<>()));
-        } else {
-            RedisClient client = RedisClient.create(container.getRedisURI());
-            CLIENTS.put(container, client);
-            StatefulRedisConnection<String, String> connection = client.connect();
-            CONNECTIONS.put(container, connection);
-            SYNCS.put(container, connection.sync());
-            ASYNCS.put(container, connection.async());
-            PUBSUB_CONNECTIONS.put(container, client.connectPubSub());
-            POOLS.put(container, ConnectionPoolSupport.createGenericObjectPool(client::connect, new GenericObjectPoolConfig<>()));
+    private static void add(RedisServer... containers) {
+        for (RedisServer container : containers) {
+            if (container instanceof RedisClusterContainer) {
+                RedisClusterClient client = RedisClusterClient.create(container.getRedisURI());
+                CLIENTS.put(container, client);
+                StatefulRedisClusterConnection<String, String> connection = client.connect();
+                CONNECTIONS.put(container, connection);
+                SYNCS.put(container, connection.sync());
+                ASYNCS.put(container, connection.async());
+                PUBSUB_CONNECTIONS.put(container, client.connectPubSub());
+                POOLS.put(container, ConnectionPoolSupport.createGenericObjectPool(client::connect, new GenericObjectPoolConfig<>()));
+            } else {
+                RedisClient client = RedisClient.create(container.getRedisURI());
+                CLIENTS.put(container, client);
+                StatefulRedisConnection<String, String> connection = client.connect();
+                CONNECTIONS.put(container, connection);
+                SYNCS.put(container, connection.sync());
+                ASYNCS.put(container, connection.async());
+                PUBSUB_CONNECTIONS.put(container, client.connectPubSub());
+                POOLS.put(container, ConnectionPoolSupport.createGenericObjectPool(client::connect, new GenericObjectPoolConfig<>()));
+            }
         }
     }
 

@@ -10,6 +10,10 @@ public class TransferOptions {
         ASCII, COLOR, BW, NONE
     }
 
+    public enum SkipPolicy {
+        ALWAYS, NEVER, LIMIT
+    }
+
     @CommandLine.Option(names = "--progress", description = "Progress style: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})")
     private Progress progress = Progress.COLOR;
     @CommandLine.Option(names = "--progress-interval", description = "Progress update interval in milliseconds (default: ${DEFAULT-VALUE})", paramLabel = "<ms>", hidden = true)
@@ -18,7 +22,9 @@ public class TransferOptions {
     private int threads = 1;
     @CommandLine.Option(names = {"-b", "--batch"}, description = "Number of items in each batch (default: ${DEFAULT-VALUE})", paramLabel = "<size>")
     private int chunkSize = 50;
-    @CommandLine.Option(names = "--skip-limit", description = "Max number of failed items to skip before the transfer fails (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
-    private int skipLimit = 0;
+    @CommandLine.Option(names="--skip-policy", description = "Policy to determine if some processing should be skipped: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})", paramLabel = "<policy>")
+    private SkipPolicy skipPolicy = SkipPolicy.ALWAYS;
+    @CommandLine.Option(names = "--skip-limit", description = "For LIMIT policy, max number of failed items to skip before considering the transfer has failed (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
+    private int skipLimit = 10;
 
 }

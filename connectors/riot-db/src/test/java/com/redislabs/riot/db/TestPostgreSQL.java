@@ -29,6 +29,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -78,6 +79,37 @@ public class TestPostgreSQL extends AbstractDatabaseTest {
         int index = 0;
         while (resultSet.next()) {
             Assertions.assertEquals(index, resultSet.getInt("id"));
+            index++;
+        }
+        RedisServerCommands<String, String> sync = sync(container);
+        Assertions.assertEquals(sync.dbsize().longValue(), index);
+    }
+
+
+    @ParameterizedTest
+    @MethodSource("containers")
+    public void testExportNullValues(RedisServer container) throws Exception {
+        Statement statement = connection.createStatement();
+        statement.execute("CREATE TABLE mytable (id smallint NOT NULL, field1 bpchar, field2 bpchar)");
+        statement.execute("ALTER TABLE ONLY mytable ADD CONSTRAINT pk_mytable PRIMARY KEY (id)");
+        RedisHashCommands<String, String> hash = sync(container);
+        Map<String, String> hash1 = new HashMap<>();
+        hash1.put("field1", "value1");
+        hash1.put("field2", "value2");
+        hash.hmset("hash:1", hash1);
+        Map<String, String> hash2 = new HashMap<>();
+        hash2.put("field2", "value2");
+        hash.hmset("hash:2", hash2);
+        execute("export-postgresql", container, r -> configureExportCommand(r, POSTGRESQL));
+        statement.execute("SELECT COUNT(*) AS count FROM mytable");
+        ResultSet countResultSet = statement.getResultSet();
+        countResultSet.next();
+        Assertions.assertEquals(2, countResultSet.getInt(1));
+        statement.execute("SELECT * from mytable ORDER BY id ASC");
+        ResultSet resultSet = statement.getResultSet();
+        int index = 0;
+        while (resultSet.next()) {
+            Assertions.assertEquals(index + 1, resultSet.getInt("id"));
             index++;
         }
         RedisServerCommands<String, String> sync = sync(container);
