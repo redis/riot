@@ -6,9 +6,9 @@
 :project-version: 2.12.0
 :site-url:        https://developer.redislabs.com/riot/index.html
 
-image:https://img.shields.io/github/license/{project-owner}/{project-name}.svg["License", link="https://github.com/{project-owner}/{project-name}"]
+image:https://img.shields.io/github/workflow/status/{project-owner}/{project-name}/EarlyAccess?logo=github["Build Status", link="https://github.com/{project-owner}/{project-name}/actions"]
 image:https://img.shields.io/github/release/{project-owner}/{project-name}.svg["Latest", link="https://github.com/{project-owner}/{project-name}/releases/latest"]
-image:https://github.com/{project-owner}/{project-name}/actions/workflows/gradle.yml/badge.svg["Build", link="https://github.com/{project-owner}/{project-name}/actions/workflows/gradle.yml"]
+image:https://github.com/{project-owner}/{project-name}/actions/workflows/build.yml/badge.svg["Build", link="https://github.com/{project-owner}/{project-name}/actions/workflows/build.yml"]
 image:https://codecov.io/gh/{project-owner}/{project-name}/branch/master/graph/badge.svg?token=LDK7BAJLJI["Coverage", link="https://codecov.io/gh/{project-owner}/{project-name}"]
 
 image::docs/guide/src/docs/resources/images/riot.svg[]
