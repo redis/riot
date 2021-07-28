@@ -35,7 +35,17 @@ jobs:
             ${{ runner.os }}-gradlew-
 
       - name: Build
-        run: ./gradlew -Prelease=true build -S
+        run: ./gradlew -Prelease=true build aggregateJacocoReport -S
+
+      - name: Show Reports
+        uses: actions/upload-artifact@v1
+        if: failure()
+        with:
+          name: reports-${{ runner.os }}
+          path: build/
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v1
 
       - name: Version
         id: vars
