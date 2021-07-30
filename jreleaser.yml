@@ -52,7 +52,6 @@ announce:
   slack:
     active: ALWAYS
     channel: '#field-engineering-announcements'
-    message: ' {{projectNameCapitalized}} {{projectVersion}} has been released! {{releaseNotesUrl}}'
 
 distributions:
   riot-db:
