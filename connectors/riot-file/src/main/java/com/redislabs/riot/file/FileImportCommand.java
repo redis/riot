@@ -8,13 +8,19 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.job.flow.Flow;
+import org.springframework.batch.core.step.builder.FaultTolerantStepBuilder;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.file.FlatFileItemReader;
+import org.springframework.batch.item.file.FlatFileParseException;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
 import org.springframework.batch.item.file.separator.DefaultRecordSeparatorPolicy;
 import org.springframework.batch.item.file.separator.RecordSeparatorPolicy;
-import org.springframework.batch.item.file.transform.*;
+import org.springframework.batch.item.file.transform.AbstractLineTokenizer;
+import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
+import org.springframework.batch.item.file.transform.FixedLengthTokenizer;
+import org.springframework.batch.item.file.transform.Range;
+import org.springframework.batch.item.file.transform.RangeArrayPropertyEditor;
 import org.springframework.batch.item.json.JsonItemReader;
 import org.springframework.batch.item.support.AbstractItemStreamItemReader;
 import org.springframework.batch.item.xml.XmlItemReader;
@@ -69,7 +75,9 @@ public class FileImportCommand extends AbstractImportCommand<Map<String, Object>
             AbstractItemStreamItemReader<Map<String, Object>> reader = reader(file, fileType, resource);
             reader.setName(file + "-reader");
             StepBuilder stepBuilder = stepBuilderFactory.get(file + "-file-import-step");
-            steps.add(step(stepBuilder, "Importing " + file, reader).build());
+            FaultTolerantStepBuilder<Map<String, Object>, Map<String, Object>> step = step(stepBuilder, "Importing " + file, reader);
+            step.skip(FlatFileParseException.class);
+            steps.add(step.build());
         }
         return flow(steps.toArray(new Step[0]));
     }

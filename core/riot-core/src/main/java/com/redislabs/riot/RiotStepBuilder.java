@@ -22,6 +22,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.time.Duration;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeoutException;
 import java.util.function.Supplier;
 
 @Slf4j
@@ -45,7 +46,7 @@ public class RiotStepBuilder<I, O> {
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public SimpleStepBuilder<I, O> build() {
+    public FaultTolerantStepBuilder<I, O> build() {
         SimpleStepBuilder<I, O> step = stepBuilder.<I, O>chunk(options.getChunkSize()).reader(reader).processor(processor).writer(writer);
         if (options.getProgress() != TransferOptions.Progress.NONE) {
             ProgressMonitor.ProgressMonitorBuilder monitorBuilder = ProgressMonitor.builder();
@@ -58,7 +59,7 @@ public class RiotStepBuilder<I, O> {
             step.listener((StepExecutionListener) monitor);
             step.listener((ItemWriteListener) monitor);
         }
-        FaultTolerantStepBuilder<I, O> ftStep = step.faultTolerant().skipPolicy(skipPolicy(options.getSkipPolicy())).skipLimit(options.getSkipLimit()).skip(RedisCommandExecutionException.class).skip(RedisCommandTimeoutException.class);
+        FaultTolerantStepBuilder<I, O> ftStep = step.faultTolerant().skipPolicy(skipPolicy(options.getSkipPolicy())).skipLimit(options.getSkipLimit()).skip(RedisCommandExecutionException.class).skip(RedisCommandTimeoutException.class).skip(TimeoutException.class);
         if (options.getThreads() > 1) {
             ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
             taskExecutor.setCorePoolSize(options.getThreads());
