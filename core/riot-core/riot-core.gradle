@@ -1,6 +1,7 @@
 dependencies {
     api 'com.redislabs:mesclun:1.3.3'
-    api 'com.redislabs:spring-batch-redis:2.13.4'
+    api 'org.apache.commons:commons-pool2'
+    api 'com.redislabs:spring-batch-redis:2.14.0'
     api 'org.springframework.batch:spring-batch-core'
     api 'org.slf4j:slf4j-api'
     implementation 'org.slf4j:slf4j-jdk14'
