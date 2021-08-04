@@ -12,6 +12,7 @@ import com.redislabs.riot.redis.SetCommand;
 import com.redislabs.riot.redis.SugaddCommand;
 import com.redislabs.riot.redis.XaddCommand;
 import com.redislabs.riot.redis.ZaddCommand;
+import io.lettuce.core.codec.StringCodec;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.springframework.batch.core.step.builder.FaultTolerantStepBuilder;
@@ -49,7 +50,7 @@ public abstract class AbstractImportCommand<I, O> extends AbstractTransferComman
     protected ItemWriter<O> writer() {
         Assert.notNull(redisCommands, "RedisCommands not set");
         Assert.isTrue(!redisCommands.isEmpty(), "No Redis command specified");
-        Function<OperationItemWriter.RedisOperation<O>, ItemWriter<O>> writerProvider = this::writer;
+        Function<OperationItemWriter.RedisOperation<String, String, O>, ItemWriter<O>> writerProvider = this::writer;
         if (redisCommands.size() == 1) {
             return writerProvider.apply(redisCommands.get(0).operation());
         }
@@ -58,8 +59,8 @@ public abstract class AbstractImportCommand<I, O> extends AbstractTransferComman
         return compositeWriter;
     }
 
-    private ItemWriter<O> writer(OperationItemWriter.RedisOperation<O> operation) {
-        OperationItemWriter.OperationItemWriterBuilder<O> writer = OperationItemWriter.operation(operation);
+    private ItemWriter<O> writer(OperationItemWriter.RedisOperation<String, String, O> operation) {
+        OperationItemWriter.OperationItemWriterBuilder<String, String, O> writer = OperationItemWriter.operation(operation).codec(StringCodec.UTF8);
         RedisOptions redisOptions = getRedisOptions();
         if (redisOptions.isCluster()) {
             return writer.client(redisOptions.redisClusterClient()).poolConfig(redisOptions.poolConfig()).build();

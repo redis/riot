@@ -4,6 +4,6 @@ import org.springframework.batch.item.redis.OperationItemWriter;
 
 public interface RedisCommand<T> {
 
-	OperationItemWriter.RedisOperation<T> operation();
+    OperationItemWriter.RedisOperation<String, String, T> operation();
 
 }

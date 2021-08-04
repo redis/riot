@@ -26,7 +26,7 @@ public class EvalCommand extends AbstractRedisCommand<Map<String, Object>> {
     private ScriptOutputType outputType = ScriptOutputType.STATUS;
 
     @Override
-    public Eval<Map<String, Object>> operation() {
+    public Eval<String, String, Map<String, Object>> operation() {
         return new Eval<>(sha, outputType, converter(keys), converter(args));
     }
 

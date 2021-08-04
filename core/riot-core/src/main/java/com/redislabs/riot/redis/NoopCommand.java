@@ -9,7 +9,7 @@ import java.util.Map;
 public class NoopCommand extends AbstractRedisCommand<Map<String, Object>> {
 
     @Override
-    public Noop<Map<String, Object>> operation() {
+    public Noop<String, String, Map<String, Object>> operation() {
         return new Noop<>();
     }
 

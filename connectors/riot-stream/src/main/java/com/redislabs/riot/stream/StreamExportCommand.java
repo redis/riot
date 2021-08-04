@@ -57,7 +57,7 @@ public class StreamExportCommand extends AbstractFlushingTransferCommand {
             StreamItemReader reader = reader(StreamOffset.from(stream, offset));
             StepBuilder stepBuilder = stepBuilderFactory.get(stream + "-stream-export-step");
             RiotStepBuilder<StreamMessage<String, String>, ProducerRecord<String, Object>> step = riotStep(stepBuilder, "Exporting from " + stream);
-            steps.add(configure(step.reader(reader).processor(processor()).writer(writer()).build()).build());
+            steps.add(step.reader(reader).processor(processor()).writer(writer()).flushingOptions(flushingTransferOptions).build().build());
         }
         return flow(steps.toArray(new Step[0]));
     }

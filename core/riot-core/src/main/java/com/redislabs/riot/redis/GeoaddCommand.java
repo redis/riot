@@ -18,7 +18,7 @@ public class GeoaddCommand extends AbstractCollectionCommand {
     private String latitudeField;
 
     @Override
-    public OperationItemWriter.RedisOperation<Map<String, Object>> operation() {
+    public OperationItemWriter.RedisOperation<String, String, Map<String, Object>> operation() {
         return new Geoadd<>(key(), member(), doubleFieldExtractor(longitudeField), doubleFieldExtractor(latitudeField));
     }
 

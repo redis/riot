@@ -8,11 +8,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.core.job.flow.support.SimpleFlow;
+import org.springframework.batch.core.step.builder.FaultTolerantStepBuilder;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.core.step.tasklet.TaskletStep;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.batch.item.redis.support.FlushingStepBuilder;
 import org.springframework.batch.item.redis.support.KeyValue;
 import org.springframework.batch.item.redis.support.KeyValueItemReader;
 import org.springframework.batch.item.redis.support.PollableItemReader;
@@ -56,10 +56,10 @@ public abstract class AbstractReplicateCommand<T extends KeyValue<?>> extends Ab
         return scanStep.reader(reader(getRedisOptions())).writer(writer(targetRedisOptions)).build().build();
     }
 
-    private FlushingStepBuilder<T, T> notificationStep(StepBuilderFactory stepBuilderFactory) {
+    private FaultTolerantStepBuilder<T, T> notificationStep(StepBuilderFactory stepBuilderFactory) {
         StepBuilder stepBuilder = stepBuilderFactory.get("live-replication-step");
         RiotStepBuilder<T, T> notificationStep = riotStep(stepBuilder, "Listening");
-        return configure(notificationStep.reader(liveReader(getRedisOptions())).writer(writer(targetRedisOptions)).build());
+        return notificationStep.reader(liveReader(getRedisOptions())).writer(writer(targetRedisOptions)).flushingOptions(flushingTransferOptions).build();
     }
 
     protected abstract ItemReader<T> reader(RedisOptions redisOptions);
@@ -71,7 +71,7 @@ public abstract class AbstractReplicateCommand<T extends KeyValue<?>> extends Ab
     @SuppressWarnings({"rawtypes", "unchecked"})
     protected <B extends KeyValueItemReader.LiveKeyValueItemReaderBuilder> B configure(B builder) {
         log.debug("Configuring live reader with {}, queueCapacity={}", readerOptions, replicationOptions.getNotificationQueueCapacity());
-        return (B) readerOptions.configure(builder.keyPattern(readerOptions.getScanMatch()).queueCapacity(replicationOptions.getNotificationQueueCapacity()).database(getRedisOptions().uris().get(0).getDatabase()).flushingInterval(flushingTransferOptions.getFlushIntervalDuration()).idleTimeout(flushingTransferOptions.getIdleTimeoutDuration()));
+        return (B) readerOptions.configure(builder.keyPatterns(readerOptions.getScanMatch()).queueCapacity(replicationOptions.getNotificationQueueCapacity()).database(getRedisOptions().uris().get(0).getDatabase()).flushingInterval(flushingTransferOptions.getFlushIntervalDuration()).idleTimeout(flushingTransferOptions.getIdleTimeoutDuration()));
     }
 
 }

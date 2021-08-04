@@ -8,7 +8,7 @@ import org.springframework.batch.item.redis.support.operation.AbstractKeyOperati
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.util.Assert;
 
-public class Sugadd<T> extends AbstractKeyOperation<T, String> {
+public class Sugadd<T> extends AbstractKeyOperation<String, String, T, String> {
 
     private final Converter<T, Double> score;
     private final Converter<T, String> payload;

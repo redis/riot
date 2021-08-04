@@ -22,7 +22,7 @@ public class XaddCommand extends AbstractKeyCommand {
     private boolean approximateTrimming;
 
     @Override
-    public OperationItemWriter.RedisOperation<Map<String, Object>> operation() {
+    public OperationItemWriter.RedisOperation<String, String, Map<String, Object>> operation() {
         XAddArgs args = new XAddArgs();
         if (maxlen != null) {
             args.maxlen(maxlen);
