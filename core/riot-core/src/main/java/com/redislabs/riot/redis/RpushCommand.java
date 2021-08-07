@@ -10,7 +10,7 @@ import java.util.Map;
 public class RpushCommand extends AbstractCollectionCommand {
 
     @Override
-    public OperationItemWriter.RedisOperation<Map<String, Object>> operation() {
+    public OperationItemWriter.RedisOperation<String, String, Map<String, Object>> operation() {
         return new Rpush<>(key(), member(), t -> false, t -> false);
     }
 

@@ -17,6 +17,7 @@ import org.springframework.batch.core.step.skip.SkipPolicy;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.item.redis.support.FlushingStepBuilder;
 import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
@@ -39,6 +40,7 @@ public class RiotStepBuilder<I, O> {
     private ItemWriter<O> writer;
     private Supplier<String> extraMessage;
     private Supplier<Long> initialMax;
+    private FlushingTransferOptions flushingOptions;
 
     public RiotStepBuilder(StepBuilder stepBuilder, TransferOptions options) {
         this.stepBuilder = stepBuilder;
@@ -59,7 +61,7 @@ public class RiotStepBuilder<I, O> {
             step.listener((StepExecutionListener) monitor);
             step.listener((ItemWriteListener) monitor);
         }
-        FaultTolerantStepBuilder<I, O> ftStep = step.faultTolerant().skipPolicy(skipPolicy(options.getSkipPolicy())).skipLimit(options.getSkipLimit()).skip(RedisCommandExecutionException.class).skip(RedisCommandTimeoutException.class).skip(TimeoutException.class);
+        FaultTolerantStepBuilder<I, O> ftStep = faultTolerant(step).skipPolicy(skipPolicy(options.getSkipPolicy())).skipLimit(options.getSkipLimit()).skip(RedisCommandExecutionException.class).skip(RedisCommandTimeoutException.class).skip(TimeoutException.class);
         if (options.getThreads() > 1) {
             ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
             taskExecutor.setCorePoolSize(options.getThreads());
@@ -73,6 +75,17 @@ public class RiotStepBuilder<I, O> {
             ftStep.taskExecutor(new SyncTaskExecutor());
         }
         return ftStep;
+    }
+
+    private FaultTolerantStepBuilder<I, O> faultTolerant(SimpleStepBuilder<I, O> step) {
+        if (flushingOptions == null) {
+            return step.faultTolerant();
+        }
+        FlushingStepBuilder<I, O> builder = new FlushingStepBuilder<>(step).flushingInterval(flushingOptions.getFlushIntervalDuration());
+        if (flushingOptions.getIdleTimeoutDuration() != null) {
+            builder.idleTimeout(flushingOptions.getIdleTimeoutDuration());
+        }
+        return builder;
     }
 
     private SkipPolicy skipPolicy(TransferOptions.SkipPolicy policy) {

@@ -7,6 +7,7 @@ import com.redislabs.riot.redis.FilteringOptions;
 import com.redislabs.riot.stream.kafka.KafkaItemReader;
 import com.redislabs.riot.stream.kafka.KafkaItemReaderBuilder;
 import io.lettuce.core.XAddArgs;
+import io.lettuce.core.codec.StringCodec;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
@@ -65,20 +66,20 @@ public class StreamImportCommand extends AbstractFlushingTransferCommand {
             KafkaItemReader<String, Object> reader = new KafkaItemReaderBuilder<String, Object>().partitions(0).consumerProperties(consumerProperties).partitions(0).name(topic).saveState(false).topic(topic).build();
             StepBuilder stepBuilder = stepBuilderFactory.get(topic + "-stream-import-step");
             RiotStepBuilder<ConsumerRecord<String, Object>, ConsumerRecord<String, Object>> step = riotStep(stepBuilder, "Importing from " + topic);
-            steps.add(configure(step.reader(reader).writer(writer()).build()).build());
+            steps.add(step.reader(reader).writer(writer()).flushingOptions(flushingTransferOptions).build().build());
         }
         return flow(steps.toArray(new Step[0]));
     }
 
     private ItemWriter<ConsumerRecord<String, Object>> writer() {
-        OperationItemWriter.RedisOperation<ConsumerRecord<String, Object>> operation = new Xadd<>(keyConverter(), bodyConverter(), xAddArgs());
+        OperationItemWriter.RedisOperation<String, String, ConsumerRecord<String, Object>> operation = new Xadd<>(keyConverter(), bodyConverter(), xAddArgs());
         RedisOptions redisOptions = getRedisOptions();
         if (redisOptions.isCluster()) {
             log.debug("Creating cluster stream writer");
-            return OperationItemWriter.operation(operation).client(redisOptions.redisClusterClient()).poolConfig(redisOptions.poolConfig()).build();
+            return OperationItemWriter.operation(operation).codec(StringCodec.UTF8).client(redisOptions.redisClusterClient()).poolConfig(redisOptions.poolConfig()).build();
         }
         log.debug("Creating stream writer");
-        return OperationItemWriter.operation(operation).client(redisOptions.redisClient()).poolConfig(redisOptions.poolConfig()).build();
+        return OperationItemWriter.operation(operation).codec(StringCodec.UTF8).client(redisOptions.redisClient()).poolConfig(redisOptions.poolConfig()).build();
     }
 
     private Converter<ConsumerRecord<String, Object>, Map<String, String>> bodyConverter() {

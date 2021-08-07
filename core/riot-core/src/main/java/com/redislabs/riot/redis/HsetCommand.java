@@ -18,7 +18,7 @@ public class HsetCommand extends AbstractKeyCommand {
     private FilteringOptions filtering = new FilteringOptions();
 
     @Override
-    public OperationItemWriter.RedisOperation<Map<String, Object>> operation() {
+    public OperationItemWriter.RedisOperation<String, String, Map<String, Object>> operation() {
         return new Hset<>(key(), filtering.converter());
     }
 

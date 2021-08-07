@@ -16,7 +16,7 @@ public class ZaddCommand extends AbstractCollectionCommand {
     private double scoreDefault = 1;
 
     @Override
-    public Zadd<Map<String, Object>> operation() {
+    public Zadd<String, String, Map<String, Object>> operation() {
         return new Zadd<>(key(), member(), numberFieldExtractor(Double.class, scoreField, scoreDefault));
     }
 

@@ -22,7 +22,7 @@ public class SugaddCommand extends AbstractKeyCommand {
     private boolean increment;
 
     @Override
-    public OperationItemWriter.RedisOperation<Map<String, Object>> operation() {
+    public OperationItemWriter.RedisOperation<String, String, Map<String, Object>> operation() {
         return new Sugadd<>(key(), stringFieldExtractor(field), numberFieldExtractor(Double.class, scoreField, scoreDefault), stringFieldExtractor(payload), increment);
     }
 

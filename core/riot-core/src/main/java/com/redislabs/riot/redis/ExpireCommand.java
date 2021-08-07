@@ -17,7 +17,7 @@ public class ExpireCommand extends AbstractKeyCommand {
     private long timeoutDefault = 60;
 
     @Override
-    public OperationItemWriter.RedisOperation<Map<String, Object>> operation() {
+    public OperationItemWriter.RedisOperation<String, String, Map<String, Object>> operation() {
         return new Expire<>(key(), numberFieldExtractor(Long.class, timeoutField, timeoutDefault));
     }
 

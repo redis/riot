@@ -10,7 +10,7 @@ import java.util.Map;
 public class SaddCommand extends AbstractCollectionCommand {
 
     @Override
-    public OperationItemWriter.RedisOperation<Map<String, Object>> operation() {
+    public OperationItemWriter.RedisOperation<String, String, Map<String, Object>> operation() {
         return new Sadd<>(key(), member());
     }
 
