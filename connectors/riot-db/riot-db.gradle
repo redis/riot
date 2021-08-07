@@ -11,12 +11,12 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-autoconfigure'
     implementation 'org.springframework:spring-jdbc'
     implementation 'com.zaxxer:HikariCP'
-    implementation 'com.ibm.db2:jcc:11.5.5.0'
-    implementation 'com.microsoft.sqlserver:mssql-jdbc:9.2.1.jre8'
+    implementation 'com.ibm.db2:jcc:11.5.6.0'
+    implementation 'com.microsoft.sqlserver:mssql-jdbc:9.4.0.jre8'
     implementation 'com.oracle.ojdbc:ojdbc8:19.3.0.0'
     implementation 'mysql:mysql-connector-java'
     implementation 'org.postgresql:postgresql'
-    implementation 'org.xerial:sqlite-jdbc:3.34.0'
+    implementation 'org.xerial:sqlite-jdbc:3.36.0.1'
     testImplementation project(':riot-test')
     testImplementation group: 'com.redislabs.testcontainers', name: 'postgresql', version: testcontainersVersion
     testImplementation group: 'com.redislabs.testcontainers', name: 'oracle-xe', version: testcontainersVersion

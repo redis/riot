@@ -9,7 +9,7 @@ buildscript {
         classpath "org.kordamp.gradle:java-project-gradle-plugin:$kordampPluginVersion"
         classpath "org.kordamp.gradle:guide-gradle-plugin:$kordampPluginVersion"
         classpath "io.freefair.gradle:lombok-plugin:6.0.0-m2"
-        classpath "org.springframework.boot:spring-boot-gradle-plugin:2.5.1"
+        classpath "org.springframework.boot:spring-boot-gradle-plugin:2.5.3"
         classpath "io.spring.gradle:dependency-management-plugin:1.0.11.RELEASE"
     }
 }
