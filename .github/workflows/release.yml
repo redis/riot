@@ -37,9 +37,9 @@ jobs:
       - name: Set release version
         run: |
           VERSION=${{ github.event.inputs.version }}
-          sed -i -e "s/^version\=.*/version=$VERSION/g" gradle.properties
+          echo $VERSION > VERSION
           sed -i -e "s/^\:project-version\:\ .*/:project-version: $VERSION/g" README.adoc
-          git add gradle.properties
+          git add VERSION
           git add README.adoc
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config --global user.name "GitHub Action"
@@ -56,7 +56,10 @@ jobs:
           GPG_SECRET_KEY: ${{ secrets.GPG_SECRET_KEY }}
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: |
-          ./gradlew -Prelease=true -Pfull-release=true build -S
+          ./gradlew -Prelease=true -Pfull-release=true \
+          -PsonatypeUsername=${{ secrets.SONATYPE_USERNAME }} \
+          -PsonatypePassword=${{ secrets.SONATYPE_PASSWORD }} \
+          build publishToSonatype createGuide -S
 
       - name: Assemble
         uses: jreleaser/release-action@v1
@@ -88,5 +91,8 @@ jobs:
             out/jreleaser/trace.log
             out/jreleaser/output.properties
 
-      - name: Guide
-        run: ./gradlew createGuide gitPublishPush -S
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs/guide/build/docs/asciidoc

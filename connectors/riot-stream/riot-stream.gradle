@@ -20,7 +20,7 @@ dependencies {
     implementation 'io.confluent:kafka-avro-serializer:6.2.0'
     implementation 'io.confluent:kafka-protobuf-serializer:6.2.0'
     testImplementation project(':riot-test')
-    testImplementation group: 'org.testcontainers', name: 'kafka', version: testcontainersVersion
+    testImplementation group: 'com.redislabs.testcontainers', name: 'kafka', version: testcontainersVersion
 }
 
 configurations {

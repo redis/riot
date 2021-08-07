@@ -6,7 +6,7 @@ dependencies {
     api 'org.junit.jupiter:junit-jupiter-engine'
     annotationProcessor group: 'info.picocli', name: 'picocli-codegen', version: picocliVersion
     api 'com.redislabs:testcontainers-redis:1.1.6'
-    api group: 'org.testcontainers', name: 'junit-jupiter', version: testcontainersVersion
+    api group: 'com.redislabs.testcontainers', name: 'junit-jupiter', version: testcontainersVersion
     implementation 'commons-io:commons-io:2.8.0'
 }
 

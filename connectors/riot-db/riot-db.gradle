@@ -18,8 +18,8 @@ dependencies {
     implementation 'org.postgresql:postgresql'
     implementation 'org.xerial:sqlite-jdbc:3.34.0'
     testImplementation project(':riot-test')
-    testImplementation group: 'org.testcontainers', name: 'postgresql', version: testcontainersVersion
-    testImplementation group: 'org.testcontainers', name: 'oracle-xe', version: testcontainersVersion
+    testImplementation group: 'com.redislabs.testcontainers', name: 'postgresql', version: testcontainersVersion
+    testImplementation group: 'com.redislabs.testcontainers', name: 'oracle-xe', version: testcontainersVersion
 }
 
 configurations {

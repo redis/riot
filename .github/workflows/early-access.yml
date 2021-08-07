@@ -37,19 +37,12 @@ jobs:
       - name: Build
         run: ./gradlew -Prelease=true build aggregateJacocoReport -S
 
-      - name: Show Reports
-        uses: actions/upload-artifact@v1
-        if: failure()
-        with:
-          name: reports-${{ runner.os }}
-          path: build/
-
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1
 
       - name: Version
         id: vars
-        run: echo ::set-output name=version::$(grep "version" gradle.properties | cut -d'=' -f2 | tr -d " ")
+        run: echo ::set-output name=version::$(cat VERSION)
 
       - name: Assemble
         uses: jreleaser/release-action@v1
