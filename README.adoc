@@ -6,7 +6,7 @@
 :project-version: 2.12.0
 :site-url:        https://developer.redislabs.com/riot/index.html
 
-image:https://img.shields.io/github/workflow/status/{project-owner}/{project-name}/EarlyAccess?logo=github["Build Status", link="https://github.com/{project-owner}/{project-name}/actions/workflows/early-access.yml"]
+image:https://github.com/{project-owner}/{project-name}/actions/workflows/early-access.yml/badge.svg["Build Status", link="https://github.com/{project-owner}/{project-name}/actions/workflows/early-access.yml"]
 image:https://img.shields.io/github/release/{project-owner}/{project-name}.svg["Latest", link="https://github.com/{project-owner}/{project-name}/releases/latest"]
 image:https://codecov.io/gh/{project-owner}/{project-name}/branch/master/graph/badge.svg?token=LDK7BAJLJI["Coverage", link="https://codecov.io/gh/{project-owner}/{project-name}"]
 
