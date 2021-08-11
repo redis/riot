@@ -59,7 +59,7 @@ jobs:
           ./gradlew -Prelease=true -Pfull-release=true \
           -PsonatypeUsername=${{ secrets.SONATYPE_USERNAME }} \
           -PsonatypePassword=${{ secrets.SONATYPE_PASSWORD }} \
-          build publishToSonatype createGuide -S
+          build publishToSonatype closeAndReleaseSonatypeStagingRepository createGuide -S
 
       - name: Assemble
         uses: jreleaser/release-action@v1
