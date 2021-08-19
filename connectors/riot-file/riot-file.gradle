@@ -19,22 +19,5 @@ dependencies {
     testImplementation project(':riot-test')
 }
 
-configurations {
-    all*.exclude module: 'spring-boot-starter-logging'
-}
-
-test {
-    useJUnitPlatform()
-}
-
-bootJar {
-    enabled = false
-}
-
-jar {
-    enabled = true
-    archiveClassifier = ''
-}
-
 bootDistZip.enabled = false
 bootDistTar.enabled = false

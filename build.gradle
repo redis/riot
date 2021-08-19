@@ -70,4 +70,33 @@ subprojects {
             description = project.project_description
         }
     }
+
+    license {
+        exclude('build/**')
+    }
+
+    dependencies {
+        testImplementation "org.junit.jupiter:junit-jupiter"
+        testImplementation "org.junit.jupiter:junit-jupiter-params"
+
+        testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
+    }
+
+    test {
+        useJUnitPlatform()
+    }
+
+    bootJar {
+        enabled = false
+    }
+
+    jar {
+        enabled = true
+        archiveClassifier = ''
+    }
+
+    configurations {
+        all*.exclude module: 'spring-boot-starter-logging'
+    }
+
 }
