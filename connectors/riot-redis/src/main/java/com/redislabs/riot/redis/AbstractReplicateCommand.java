@@ -11,6 +11,7 @@ import org.springframework.batch.core.job.flow.support.SimpleFlow;
 import org.springframework.batch.core.step.builder.FaultTolerantStepBuilder;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.core.step.tasklet.TaskletStep;
+import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.redis.support.KeyValue;
@@ -39,11 +40,11 @@ public abstract class AbstractReplicateCommand<T extends KeyValue<?>> extends Ab
     private Flow replicationFlow(StepBuilderFactory stepBuilderFactory) {
         switch (replicationOptions.getMode()) {
             case LIVE:
-                SimpleFlow notificationFlow = flow("notification-flow").start(notificationStep(stepBuilderFactory).build()).build();
+                SimpleFlow notificationFlow = flow("notification-flow").start(liveStep(stepBuilderFactory).build()).build();
                 SimpleFlow scanFlow = flow("scan-flow").start(scanStep(stepBuilderFactory)).build();
                 return flow("live-flow").split(new SimpleAsyncTaskExecutor()).add(notificationFlow, scanFlow).build();
             case LIVEONLY:
-                return flow("live-only-flow").start(notificationStep(stepBuilderFactory).build()).build();
+                return flow("live-only-flow").start(liveStep(stepBuilderFactory).build()).build();
             default:
                 return flow("snapshot-flow").start(scanStep(stepBuilderFactory)).build();
         }
@@ -53,13 +54,17 @@ public abstract class AbstractReplicateCommand<T extends KeyValue<?>> extends Ab
         StepBuilder stepBuilder = stepBuilderFactory.get("scan-replication-step");
         RiotStepBuilder<T, T> scanStep = riotStep(stepBuilder, "Scanning");
         initialMax(scanStep);
-        return scanStep.reader(reader(getRedisOptions())).writer(writer(targetRedisOptions)).build().build();
+        return scanStep.reader(reader(getRedisOptions())).processor(keyProcessor()).writer(writer(targetRedisOptions)).build().build();
     }
 
-    private FaultTolerantStepBuilder<T, T> notificationStep(StepBuilderFactory stepBuilderFactory) {
+    private ItemProcessor<T, T> keyProcessor() {
+        return keyProcessorOptions.processor(getRedisOptions(), targetRedisOptions);
+    }
+
+    private FaultTolerantStepBuilder<T, T> liveStep(StepBuilderFactory stepBuilderFactory) {
         StepBuilder stepBuilder = stepBuilderFactory.get("live-replication-step");
         RiotStepBuilder<T, T> notificationStep = riotStep(stepBuilder, "Listening");
-        return notificationStep.reader(liveReader(getRedisOptions())).writer(writer(targetRedisOptions)).flushingOptions(flushingTransferOptions).build();
+        return notificationStep.reader(liveReader(getRedisOptions())).processor(keyProcessor()).writer(writer(targetRedisOptions)).flushingOptions(flushingTransferOptions).build();
     }
 
     protected abstract ItemReader<T> reader(RedisOptions redisOptions);

@@ -7,7 +7,7 @@ import com.redislabs.mesclun.search.Field;
 import com.redislabs.mesclun.search.IndexInfo;
 import com.redislabs.mesclun.search.RediSearchUtils;
 import com.redislabs.riot.AbstractImportCommand;
-import com.redislabs.riot.ProcessorOptions;
+import com.redislabs.riot.MapProcessorOptions;
 import com.redislabs.riot.RedisOptions;
 import com.redislabs.riot.RiotStepBuilder;
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +30,7 @@ public class GeneratorImportCommand extends AbstractImportCommand<Map<String, Ob
     @CommandLine.Mixin
     private GenerateOptions options = new GenerateOptions();
     @CommandLine.ArgGroup(exclusive = false, heading = "Processor options%n")
-    private ProcessorOptions processorOptions = new ProcessorOptions();
+    private MapProcessorOptions processorOptions = new MapProcessorOptions();
 
     @Override
     protected Flow flow(StepBuilderFactory stepBuilderFactory) throws Exception {

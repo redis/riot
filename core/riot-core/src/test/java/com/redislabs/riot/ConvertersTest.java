@@ -6,7 +6,7 @@ import com.redislabs.riot.convert.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class TestConverters {
+public class ConvertersTest {
 
     @Test
     public void testCompositeConverter() {

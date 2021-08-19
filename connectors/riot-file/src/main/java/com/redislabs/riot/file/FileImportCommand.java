@@ -1,7 +1,7 @@
 package com.redislabs.riot.file;
 
 import com.redislabs.riot.AbstractImportCommand;
-import com.redislabs.riot.ProcessorOptions;
+import com.redislabs.riot.MapProcessorOptions;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
@@ -56,7 +56,7 @@ public class FileImportCommand extends AbstractImportCommand<Map<String, Object>
     @CommandLine.ArgGroup(exclusive = false, heading = "Delimited and fixed-width file options%n")
     private FileImportOptions options = new FileImportOptions();
     @CommandLine.ArgGroup(exclusive = false, heading = "Processor options%n")
-    private ProcessorOptions processorOptions = new ProcessorOptions();
+    private MapProcessorOptions processorOptions = new MapProcessorOptions();
 
     @Override
     protected Flow flow(StepBuilderFactory stepBuilderFactory) throws Exception {

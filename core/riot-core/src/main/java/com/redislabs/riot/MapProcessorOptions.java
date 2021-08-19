@@ -16,7 +16,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Data
-public class ProcessorOptions {
+public class MapProcessorOptions {
 
     @Option(arity = "1..*", names = "--process", description = "SpEL expressions in the form field1=\"exp\" field2=\"exp\"...", paramLabel = "<f=exp>")
     private Map<String, Expression> spelFields;

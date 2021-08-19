@@ -1,7 +1,10 @@
 package com.redislabs.riot;
 
 import com.redislabs.mesclun.RedisModulesClient;
-import io.lettuce.core.*;
+import io.lettuce.core.AbstractRedisClient;
+import io.lettuce.core.ClientOptions;
+import io.lettuce.core.RedisURI;
+import io.lettuce.core.SslOptions;
 import io.lettuce.core.api.StatefulConnection;
 import io.lettuce.core.cluster.ClusterClientOptions;
 import io.lettuce.core.cluster.RedisClusterClient;
@@ -9,7 +12,6 @@ import io.lettuce.core.event.DefaultEventPublisherOptions;
 import io.lettuce.core.event.metrics.CommandLatencyEvent;
 import io.lettuce.core.metrics.CommandLatencyCollector;
 import io.lettuce.core.metrics.DefaultCommandLatencyCollectorOptions;
-import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
 import io.lettuce.core.resource.ClientResources;
 import io.lettuce.core.resource.DefaultClientResources;
 import lombok.Data;
@@ -95,14 +97,6 @@ public class RedisOptions {
         }
     }
 
-    public static StatefulRedisPubSubConnection<String, String> connectPubSub(AbstractRedisClient client) {
-        if (client instanceof RedisClusterClient) {
-            return ((RedisClusterClient) client).connectPubSub();
-        }
-        return ((RedisClient) client).connectPubSub();
-
-    }
-
     public List<RedisURI> uris() {
         List<RedisURI> redisURIs = new ArrayList<>();
         if (ObjectUtils.isEmpty(uris)) {
@@ -111,7 +105,7 @@ public class RedisOptions {
             uri.setSsl(tls);
             redisURIs.add(uri);
         } else {
-            redisURIs.addAll(Arrays.asList(this.uris));
+            redisURIs.addAll(Arrays.asList(uris));
         }
         for (RedisURI uri : redisURIs) {
             uri.setVerifyPeer(verifyPeer);

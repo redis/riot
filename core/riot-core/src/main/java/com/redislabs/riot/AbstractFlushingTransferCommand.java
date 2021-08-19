@@ -12,5 +12,7 @@ public abstract class AbstractFlushingTransferCommand extends AbstractTransferCo
 
     @CommandLine.Mixin
     protected FlushingTransferOptions flushingTransferOptions = new FlushingTransferOptions();
+    @CommandLine.Mixin
+    protected KeyValueProcessorOptions keyProcessorOptions = new KeyValueProcessorOptions();
 
 }
