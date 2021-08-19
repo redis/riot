@@ -81,6 +81,19 @@ public class TestReplicate extends AbstractRiotIntegrationTest {
 
     @ParameterizedTest
     @MethodSource("containers")
+    void replicateKeyProcessor(RedisServer container) throws Throwable {
+        dataGenerator(container).build().call();
+        RedisServerCommands<String, String> sync = sync(container);
+        Long sourceSize = sync.dbsize();
+        Assertions.assertTrue(sourceSize > 0);
+        execute("replicate-key-processor", container, r -> configureReplicateCommand(r,false));
+        Assertions.assertEquals(sourceSize, targetSync.dbsize());
+        RedisStringCommands<String,String> stringCommands = sync(container);
+        Assertions.assertEquals(stringCommands.get("string:123"), targetSync.get("0:string:123"));
+    }
+
+    @ParameterizedTest
+    @MethodSource("containers")
     public void replicateLive(RedisServer container) throws Exception {
         testLiveReplication(container, "replicate-live");
     }
