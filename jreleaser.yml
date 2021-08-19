@@ -54,8 +54,6 @@ release:
       hide:
         categories:
           - 'Merge'
-        contributors:
-          - 'GitHub'
       replacers:
         - search: '\[chore\] '
         - search: '\[deps\] '
