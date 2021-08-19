@@ -22,6 +22,8 @@ release:
       sort: DESC
       formatted: ALWAYS
       format: '- {{commitShortHash}} {{commitTitle}}'
+      contributors:
+        format: '- {{contributorName}}{{#contributorUsernameAsLink}} ({{.}}){{/contributorUsernameAsLink}}'
       labelers:
         - label: 'feature'
           title: 'Resolves #'
@@ -49,11 +51,14 @@ release:
         - title: '⚙️ Dependencies'
           labels:
             - 'dependencies'
+      hide:
+        categories:
+          - 'Merge'
+        contributors:
+          - 'GitHub'
       replacers:
         - search: '\[chore\] '
-          replace: ''
         - search: '\[deps\] '
-          replace: ''
 
 announce:
   slack:
@@ -110,3 +115,7 @@ distributions:
         name: scoop
     artifacts:
       - path: connectors/{{distributionName}}/build/distributions/{{distributionName}}-{{projectVersion}}.zip
+
+files:
+  artifacts:
+    - path: VERSION
