@@ -57,23 +57,23 @@ public class RedisOptions {
     private boolean cluster;
     @Option(names = "--tls", description = "Establish a secure TLS connection.")
     private boolean tls;
-    @Option(names = "--no-verify-peer", description = "Verify peers when using TLS. True by default.", negatable = true)
+    @Option(names = "--insecure", description = "Allow insecure TLS connection by skipping cert validation.")
     private boolean verifyPeer = true;
-    @Option(names = "--ks", description = "Path to keystore.", paramLabel = "<file>", hidden = true)
+    @Option(names = "--ks", description = "Path to keystore.", paramLabel = "<file>")
     private File keystore;
-    @Option(names = "--ks-password", arity = "0..1", interactive = true, description = "Keystore password.", paramLabel = "<pwd>", hidden = true)
+    @Option(names = "--ks-password", arity = "0..1", interactive = true, description = "Keystore password.", paramLabel = "<pwd>")
     private String keystorePassword;
-    @Option(names = "--ts", description = "Path to truststore.", paramLabel = "<file>", hidden = true)
+    @Option(names = "--ts", description = "Path to truststore.", paramLabel = "<file>")
     private File truststore;
-    @Option(names = "--ts-password", arity = "0..1", interactive = true, description = "Truststore password.", paramLabel = "<pwd>", hidden = true)
+    @Option(names = "--ts-password", arity = "0..1", interactive = true, description = "Truststore password.", paramLabel = "<pwd>")
     private String truststorePassword;
-    @Option(names = "--cert", description = "Path to X.509 trusted certificates file in PEM format.", paramLabel = "<file>", hidden = true)
+    @Option(names = "--cert", description = "X.509 certificate collection in PEM format.", paramLabel = "<file>")
     private File cert;
     @Option(names = "--latency", description = "Show latency metrics.")
     private boolean showMetrics;
     @Option(names = "--pool-max", description = "Max pool connections (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
     private int poolMaxTotal = DEFAULT_POOL_MAX_TOTAL;
-    @Option(names = "--no-auto-reconnect", description = "Auto reconnect on connection loss. True by default.", negatable = true, hidden = true)
+    @Option(names = "--no-auto-reconnect", description = "Auto reconnect on connection loss. True by default.", negatable = true)
     private boolean autoReconnect = true;
     @Option(names = "--client", description = "Client name used to connect to Redis.", paramLabel = "<name>")
     private String clientName;
