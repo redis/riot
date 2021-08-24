@@ -1,5 +1,5 @@
 application {
-    mainClassName = 'com.redislabs.riot.db.RiotDb'
+    mainClassName = 'com.redis.riot.db.RiotDb'
 }
 
 manifest {

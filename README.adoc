@@ -2,9 +2,9 @@
 :linkattrs:
 :project-owner:   redis-developer
 :project-name:    riot
-:project-group:   com.redislabs
+:project-group:   com.redis
 :project-version: 2.12.0
-:site-url:        https://developer.redislabs.com/riot/index.html
+:site-url:        https://developer.redis.com/riot/index.html
 
 image:https://github.com/{project-owner}/{project-name}/actions/workflows/early-access.yml/badge.svg["Build Status", link="https://github.com/{project-owner}/{project-name}/actions/workflows/early-access.yml"]
 image:https://img.shields.io/github/release/{project-owner}/{project-name}.svg["Latest", link="https://github.com/{project-owner}/{project-name}/releases/latest"]

@@ -2,12 +2,12 @@ project:
   name: riot
   description: Redis Input/Output Tools
   longDescription: Get data in and out of Redis with RIOT
-  website: https://developer.redislabs.com/riot
+  website: https://developer.redis.com/riot
   authors:
     - Julien Ruaux
   license: Apache-2.0
   java:
-    groupId: com.redislabs
+    groupId: com.redis
     version: 8
     multiProject: true
   extraProperties:
@@ -15,7 +15,6 @@ project:
 
 release:
   github:
-    branch: master
     username: jruaux
     overwrite: true
     changelog:

@@ -2,7 +2,7 @@ config {
     info {
         description = 'Redis Input/Output Tools'
         inceptionYear = '2020'
-        vendor = 'Redis Labs'
+        vendor = 'Redis'
         tags = ['redis', 'data', 'import', 'export', 'generator', 'file', 'sql', 'replication']
         links {
             website = 'https://github.com/redis-developer/${project.rootProject.name}'

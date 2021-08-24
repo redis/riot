@@ -5,7 +5,7 @@ repositories {
 }
 
 application {
-    mainClassName = 'com.redislabs.riot.stream.RiotStream'
+    mainClassName = 'com.redis.riot.stream.RiotStream'
 }
 
 manifest {

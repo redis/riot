@@ -1,11 +1,8 @@
 package com.redis.riot.redis;
 
-import com.redislabs.riot.AbstractTaskCommand;
-import com.redislabs.riot.RedisOptions;
-import com.redislabs.riot.AbstractRiotIntegrationTest;
-import com.redislabs.riot.redis.AbstractReplicateCommand;
-import com.redislabs.riot.redis.ReplicationMode;
-import com.redislabs.riot.redis.RiotRedis;
+import com.redis.riot.AbstractTaskCommand;
+import com.redis.riot.RedisOptions;
+import com.redis.riot.AbstractRiotIntegrationTest;
 import com.redislabs.testcontainers.RedisContainer;
 import com.redislabs.testcontainers.RedisServer;
 import io.lettuce.core.RedisClient;
@@ -75,7 +72,7 @@ public class TestReplicate extends AbstractRiotIntegrationTest {
         RedisServerCommands<String, String> sync = sync(container);
         Long sourceSize = sync.dbsize();
         Assertions.assertTrue(sourceSize > 0);
-        execute("replicate", container, r -> configureReplicateCommand(r,false));
+        execute("replicate", container, r -> configureReplicateCommand(r, false));
         Assertions.assertEquals(sourceSize, targetSync.dbsize());
     }
 

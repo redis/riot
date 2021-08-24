@@ -1,5 +1,5 @@
 application {
-    mainClassName = 'com.redislabs.riot.file.RiotFile'
+    mainClassName = 'com.redis.riot.file.RiotFile'
 }
 
 manifest {

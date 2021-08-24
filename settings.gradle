@@ -5,12 +5,12 @@ buildscript {
         mavenLocal()
     }
     dependencies {
-        classpath "com.redislabs.gradle:redislabs-parentbuild:$redislabsBuildVersion"
+        classpath "com.redislabs.gradle:redislabs-parentbuild:$redisBuildVersion"
         classpath "org.kordamp.gradle:java-project-gradle-plugin:$kordampPluginVersion"
         classpath "org.kordamp.gradle:guide-gradle-plugin:$kordampPluginVersion"
-        classpath "io.freefair.gradle:lombok-plugin:6.0.0-m2"
-        classpath "org.springframework.boot:spring-boot-gradle-plugin:2.5.3"
-        classpath "io.spring.gradle:dependency-management-plugin:1.0.11.RELEASE"
+        classpath "io.freefair.gradle:lombok-plugin:$lombokPluginVersion"
+        classpath "org.springframework.boot:spring-boot-gradle-plugin:$bootPluginVersion"
+        classpath "io.spring.gradle:dependency-management-plugin:$dependencyPluginVersion"
     }
 }
 
