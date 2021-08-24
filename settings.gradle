@@ -5,7 +5,7 @@ buildscript {
         mavenLocal()
     }
     dependencies {
-        classpath "com.redislabs.gradle:redislabs-parentbuild:$redisBuildVersion"
+        classpath "com.redis.gradle:redis-parentbuild:$redisBuildVersion"
         classpath "org.kordamp.gradle:java-project-gradle-plugin:$kordampPluginVersion"
         classpath "org.kordamp.gradle:guide-gradle-plugin:$kordampPluginVersion"
         classpath "io.freefair.gradle:lombok-plugin:$lombokPluginVersion"
@@ -14,7 +14,7 @@ buildscript {
     }
 }
 
-apply plugin: 'com.redislabs.gradle.redislabs-parentbuild'
+apply plugin: 'com.redis.gradle.redis-parentbuild'
 
 rootProject.name = 'riot'
 
