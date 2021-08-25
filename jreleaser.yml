@@ -71,7 +71,8 @@ distributions:
       bucket:
         name: scoop
     artifacts:
-      - path: connectors/{{distributionName}}/build/distributions/{{distributionName}}-{{projectVersion}}.zip
+      - path: 'connectors/{{distributionName}}/build/distributions/{{distributionName}}-{{projectVersion}}.zip'
+        transform: '{{distributionName}}-{{projectEffectiveVersion}}.zip'
 
   riot-file:
     brew:
@@ -81,7 +82,8 @@ distributions:
       bucket:
         name: scoop
     artifacts:
-      - path: connectors/{{distributionName}}/build/distributions/{{distributionName}}-{{projectVersion}}.zip
+      - path: 'connectors/{{distributionName}}/build/distributions/{{distributionName}}-{{projectVersion}}.zip'
+        transform: '{{distributionName}}-{{projectEffectiveVersion}}.zip'
 
   riot-gen:
     brew:
@@ -91,7 +93,8 @@ distributions:
       bucket:
         name: scoop
     artifacts:
-      - path: connectors/{{distributionName}}/build/distributions/{{distributionName}}-{{projectVersion}}.zip
+      - path: 'connectors/{{distributionName}}/build/distributions/{{distributionName}}-{{projectVersion}}.zip'
+        transform: '{{distributionName}}-{{projectEffectiveVersion}}.zip'
 
   riot-redis:
     brew:
@@ -101,7 +104,8 @@ distributions:
       bucket:
         name: scoop
     artifacts:
-      - path: connectors/{{distributionName}}/build/distributions/{{distributionName}}-{{projectVersion}}.zip
+      - path: 'connectors/{{distributionName}}/build/distributions/{{distributionName}}-{{projectVersion}}.zip'
+        transform: '{{distributionName}}-{{projectEffectiveVersion}}.zip'
 
   riot-stream:
     brew:
@@ -111,7 +115,8 @@ distributions:
       bucket:
         name: scoop
     artifacts:
-      - path: connectors/{{distributionName}}/build/distributions/{{distributionName}}-{{projectVersion}}.zip
+      - path: 'connectors/{{distributionName}}/build/distributions/{{distributionName}}-{{projectVersion}}.zip'
+        transform: '{{distributionName}}-{{projectEffectiveVersion}}.zip'
 
 files:
   artifacts:
