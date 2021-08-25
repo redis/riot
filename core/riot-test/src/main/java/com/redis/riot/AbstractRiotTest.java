@@ -1,7 +1,7 @@
 package com.redis.riot;
 
-import com.redislabs.testcontainers.RedisClusterContainer;
-import com.redislabs.testcontainers.RedisServer;
+import com.redis.testcontainers.RedisClusterContainer;
+import com.redis.testcontainers.RedisServer;
 import io.lettuce.core.RedisURI;
 import org.apache.commons.io.IOUtils;
 import org.codehaus.plexus.util.cli.CommandLineUtils;

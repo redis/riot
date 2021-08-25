@@ -1,7 +1,7 @@
 package com.redis.riot.redis;
 
-import com.redislabs.mesclun.api.async.RedisModulesAsyncCommands;
-import com.redislabs.mesclun.search.SugaddOptions;
+import com.redis.lettucemod.api.async.RedisModulesAsyncCommands;
+import com.redis.lettucemod.search.SugaddOptions;
 import io.lettuce.core.RedisFuture;
 import io.lettuce.core.api.async.BaseRedisAsyncCommands;
 import org.springframework.batch.item.redis.support.operation.AbstractKeyOperation;
@@ -32,12 +32,12 @@ public class Sugadd<T> extends AbstractKeyOperation<String, String, T, String> {
         if (payload == null && !increment) {
             return ((RedisModulesAsyncCommands<String, String>) commands).sugadd(key, value, score);
         }
-        SugaddOptions<String> options = new SugaddOptions<>();
-        options.setIncrement(increment);
+        SugaddOptions.SugaddOptionsBuilder<String, String> options = SugaddOptions.builder();
+        options.increment(increment);
         if (payload != null) {
-            options.setPayload(payload.convert(item));
+            options.payload(payload.convert(item));
         }
-        return ((RedisModulesAsyncCommands<String, String>) commands).sugadd(key, value, score, options);
+        return ((RedisModulesAsyncCommands<String, String>) commands).sugadd(key, value, score, options.build());
     }
 
 }

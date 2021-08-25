@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.redis.riot.AbstractRiotIntegrationTest;
 import com.redis.riot.redis.HsetCommand;
-import com.redislabs.testcontainers.RedisServer;
+import com.redis.testcontainers.RedisServer;
 import io.lettuce.core.GeoArgs;
 import io.lettuce.core.api.sync.RedisGeoCommands;
 import io.lettuce.core.api.sync.RedisHashCommands;
@@ -33,11 +33,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
@@ -158,20 +154,6 @@ public class TestFile extends AbstractRiotIntegrationTest {
         Assertions.assertFalse(beer1036.containsKey("row"));
         Assertions.assertFalse(beer1036.containsKey("ibu"));
     }
-
-    //    @ParameterizedTest
-    //    @MethodSource("containers")
-    //    public void importExcludeAPI(RedisServer container) throws Exception {
-    //        // riot-file import http://developer.redis.com/riot/beers.csv --header hset --keyspace beer --keys id --exclude row ibu
-    //        FileImportCommand.builder().file("http://developer.redis.com/riot/beers.csv").options(FileImportOptions.builder().header(true).build()).
-    //        sync(container);
-    //        Map<String, String> beer1036 = sync.hgetall("beer:1036");
-    //        Assertions.assertEquals("Lower De Boom", name(beer1036));
-    //        Assertions.assertEquals("American Barleywine", style(beer1036));
-    //        Assertions.assertEquals("368", beer1036.get("brewery_id"));
-    //        Assertions.assertFalse(beer1036.containsKey("row"));
-    //        Assertions.assertFalse(beer1036.containsKey("ibu"));
-    //    }
 
     @ParameterizedTest
     @MethodSource("containers")
@@ -366,6 +348,7 @@ public class TestFile extends AbstractRiotIntegrationTest {
         Assertions.assertEquals(sync.dbsize(), records.size());
     }
 
+    @SuppressWarnings("rawtypes")
     @ParameterizedTest
     @MethodSource("containers")
     public void exportJsonGz(RedisServer container) throws Exception {
@@ -412,7 +395,7 @@ public class TestFile extends AbstractRiotIntegrationTest {
         XmlObjectReader<DataStructure> xmlObjectReader = new XmlObjectReader<>(DataStructure.class);
         xmlObjectReader.setMapper(new XmlMapper());
         builder.xmlObjectReader(xmlObjectReader);
-        XmlItemReader<DataStructure> reader = (XmlItemReader) builder.build();
+        XmlItemReader<DataStructure> reader = builder.build();
         List<DataStructure> records = readAll(reader);
         RedisServerCommands<String, String> sync = sync(container);
         Assertions.assertEquals(sync.dbsize(), records.size());
@@ -434,11 +417,11 @@ public class TestFile extends AbstractRiotIntegrationTest {
     public void importJsonAPI(RedisServer container) throws Exception {
         // riot-file import  hset --keyspace beer --keys id
         FileImportCommand command = new FileImportCommand();
-        command.setFiles(Arrays.asList("http://developer.redis.com/riot/beers.json"));
+        command.setFiles(Collections.singletonList("http://developer.redis.com/riot/beers.json"));
         HsetCommand hset = new HsetCommand();
         hset.setKeyspace("beer");
         hset.setKeys(new String[]{"id"});
-        command.setRedisCommands(Arrays.asList(hset));
+        command.setRedisCommands(Collections.singletonList(hset));
         RiotFile riotFile = new RiotFile();
         configure(riotFile, container);
         command.setApp(riotFile);

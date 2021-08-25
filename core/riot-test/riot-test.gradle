@@ -2,7 +2,7 @@ dependencies {
     implementation project(':riot-core')
     implementation 'org.codehaus.plexus:plexus-utils:3.4.0'
     annotationProcessor group: 'info.picocli', name: 'picocli-codegen', version: picocliVersion
-    api 'com.redislabs.testcontainers:testcontainers-redis:1.2.0'
+    api 'com.redislabs.testcontainers:testcontainers-redis:1.3.2'
     api group: 'com.redislabs.testcontainers', name: 'junit-jupiter', version: testcontainersVersion
     implementation 'commons-io:commons-io:2.11.0'
 }

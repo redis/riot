@@ -1,11 +1,11 @@
 package com.redis.riot.file;
 
 import com.redis.riot.AbstractRiotTest;
-import com.redislabs.mesclun.RedisModulesClient;
-import com.redislabs.mesclun.api.StatefulRedisModulesConnection;
-import com.redislabs.mesclun.search.Suggestion;
-import com.redislabs.mesclun.search.SuggetOptions;
-import com.redislabs.testcontainers.RedisModulesContainer;
+import com.redis.lettucemod.RedisModulesClient;
+import com.redis.lettucemod.api.StatefulRedisModulesConnection;
+import com.redis.lettucemod.search.Suggestion;
+import com.redis.lettucemod.search.SuggetOptions;
+import com.redis.testcontainers.RedisModulesContainer;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.junit.jupiter.Container;

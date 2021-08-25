@@ -1,8 +1,8 @@
 package com.redis.riot;
 
-import com.redislabs.testcontainers.RedisClusterContainer;
-import com.redislabs.testcontainers.RedisContainer;
-import com.redislabs.testcontainers.RedisServer;
+import com.redis.testcontainers.RedisClusterContainer;
+import com.redis.testcontainers.RedisContainer;
+import com.redis.testcontainers.RedisServer;
 import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.api.StatefulConnection;

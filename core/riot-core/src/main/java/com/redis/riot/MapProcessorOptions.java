@@ -1,7 +1,7 @@
 package com.redis.riot;
 
 import com.redis.riot.processor.*;
-import com.redislabs.mesclun.search.RediSearchUtils;
+import com.redis.lettucemod.search.RediSearchUtils;
 import com.redis.riot.convert.RegexNamedGroupsExtractor;
 import lombok.Data;
 import org.springframework.batch.item.ItemProcessor;

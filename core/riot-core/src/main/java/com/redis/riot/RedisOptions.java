@@ -1,6 +1,6 @@
 package com.redis.riot;
 
-import com.redislabs.mesclun.RedisModulesClient;
+import com.redis.lettucemod.RedisModulesClient;
 import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.ClientOptions;
 import io.lettuce.core.RedisURI;

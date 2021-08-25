@@ -2,7 +2,7 @@ package com.redis.riot.stream;
 
 import com.google.common.collect.ImmutableMap;
 import com.redis.riot.AbstractRiotIntegrationTest;
-import com.redislabs.testcontainers.RedisServer;
+import com.redis.testcontainers.RedisServer;
 import io.lettuce.core.LettuceFutures;
 import io.lettuce.core.Range;
 import io.lettuce.core.RedisFuture;

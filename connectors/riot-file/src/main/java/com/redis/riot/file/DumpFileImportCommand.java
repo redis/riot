@@ -1,9 +1,9 @@
 package com.redis.riot.file;
 
+import com.redis.lettucemod.RedisModulesClient;
 import com.redis.riot.AbstractTransferCommand;
 import com.redis.riot.RedisOptions;
 import com.redis.riot.RiotStepBuilder;
-import com.redislabs.mesclun.RedisModulesClient;
 import io.lettuce.core.cluster.RedisClusterClient;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -13,11 +13,9 @@ import org.springframework.batch.core.configuration.annotation.StepBuilderFactor
 import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.batch.item.json.JsonItemReader;
 import org.springframework.batch.item.redis.DataStructureItemWriter;
 import org.springframework.batch.item.redis.support.DataStructure;
 import org.springframework.batch.item.support.AbstractItemStreamItemReader;
-import org.springframework.batch.item.xml.XmlItemReader;
 import org.springframework.core.io.Resource;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
@@ -77,14 +75,13 @@ public class DumpFileImportCommand extends AbstractTransferCommand {
         return DataStructureItemWriter.client(client).poolConfig(redisOptions.poolConfig()).build();
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
     protected AbstractItemStreamItemReader<DataStructure> reader(DumpFileType fileType, Resource resource) {
         if (fileType == DumpFileType.XML) {
             log.debug("Creating XML data structure reader for file {}", resource);
-            return (XmlItemReader) FileUtils.xmlReader(resource, DataStructure.class);
+            return FileUtils.xmlReader(resource, DataStructure.class);
         }
         log.debug("Creating JSON data structure reader for file {}", resource);
-        return (JsonItemReader) FileUtils.jsonReader(resource, DataStructure.class);
+        return FileUtils.jsonReader(resource, DataStructure.class);
     }
 
 }

@@ -1,6 +1,6 @@
 package com.redis.riot;
 
-import com.redislabs.mesclun.RedisModulesClient;
+import com.redis.lettucemod.RedisModulesClient;
 import io.lettuce.core.cluster.RedisClusterClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
@@ -37,8 +37,8 @@ public abstract class AbstractExportCommand<O> extends AbstractTransferCommand {
     }
 
     @Override
-    protected <I, O> RiotStepBuilder<I, O> riotStep(StepBuilder stepBuilder, String taskName) {
-        RiotStepBuilder<I, O> riotStepBuilder = super.riotStep(stepBuilder, taskName);
+    protected <S, T> RiotStepBuilder<S, T> riotStep(StepBuilder stepBuilder, String taskName) {
+        RiotStepBuilder<S, T> riotStepBuilder = super.riotStep(stepBuilder, taskName);
         riotStepBuilder.initialMax(options.initialMaxSupplier(getRedisOptions()));
         return riotStepBuilder;
     }

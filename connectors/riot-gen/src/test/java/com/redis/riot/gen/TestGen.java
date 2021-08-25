@@ -1,15 +1,15 @@
 package com.redis.riot.gen;
 
 import com.redis.riot.RedisOptions;
-import com.redislabs.mesclun.RedisModulesClient;
-import com.redislabs.mesclun.api.StatefulRedisModulesConnection;
-import com.redislabs.mesclun.search.CreateOptions;
-import com.redislabs.mesclun.search.Document;
-import com.redislabs.mesclun.search.Field;
-import com.redislabs.mesclun.search.SearchResults;
+import com.redis.lettucemod.RedisModulesClient;
+import com.redis.lettucemod.api.StatefulRedisModulesConnection;
+import com.redis.lettucemod.search.CreateOptions;
+import com.redis.lettucemod.search.Document;
+import com.redis.lettucemod.search.Field;
+import com.redis.lettucemod.search.SearchResults;
 import com.redis.riot.AbstractRiotIntegrationTest;
-import com.redislabs.testcontainers.RedisModulesContainer;
-import com.redislabs.testcontainers.RedisServer;
+import com.redis.testcontainers.RedisModulesContainer;
+import com.redis.testcontainers.RedisServer;
 import io.lettuce.core.Range;
 import io.lettuce.core.StreamMessage;
 import io.lettuce.core.api.sync.RedisHashCommands;

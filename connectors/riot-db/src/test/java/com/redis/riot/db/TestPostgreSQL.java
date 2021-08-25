@@ -3,7 +3,7 @@ package com.redis.riot.db;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.redis.riot.DataType;
-import com.redislabs.testcontainers.RedisServer;
+import com.redis.testcontainers.RedisServer;
 import io.lettuce.core.api.sync.RedisHashCommands;
 import io.lettuce.core.api.sync.RedisKeyCommands;
 import io.lettuce.core.api.sync.RedisServerCommands;
@@ -20,6 +20,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
 import javax.sql.DataSource;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -47,7 +48,11 @@ public class TestPostgreSQL extends AbstractDatabaseTest {
         dataSource = dataSource(POSTGRESQL);
         connection = dataSource.getConnection();
         ScriptRunner scriptRunner = ScriptRunner.builder().connection(connection).autoCommit(false).stopOnError(true).build();
-        InputStream inputStream = TestPostgreSQL.class.getClassLoader().getResourceAsStream("northwind.sql");
+        String file = "northwind.sql";
+        InputStream inputStream = TestPostgreSQL.class.getClassLoader().getResourceAsStream(file);
+        if (inputStream == null) {
+            throw new FileNotFoundException(file);
+        }
         scriptRunner.runScript(new InputStreamReader(inputStream));
     }
 
