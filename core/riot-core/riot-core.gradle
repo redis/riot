@@ -1,7 +1,7 @@
 dependencies {
-    api 'com.redislabs:lettucemod:1.5.0'
+    api 'com.redis:lettucemod:1.5.1'
     api 'org.apache.commons:commons-pool2'
-    api 'com.redislabs:spring-batch-redis:2.16.0'
+    api 'com.redis:spring-batch-redis:2.16.1'
     api 'org.springframework.batch:spring-batch-core'
     api 'org.slf4j:slf4j-api'
     implementation 'org.slf4j:slf4j-jdk14'

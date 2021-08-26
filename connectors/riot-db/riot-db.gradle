@@ -18,8 +18,8 @@ dependencies {
     implementation 'org.postgresql:postgresql'
     implementation 'org.xerial:sqlite-jdbc:3.36.0.1'
     testImplementation project(':riot-test')
-    testImplementation group: 'com.redislabs.testcontainers', name: 'postgresql', version: testcontainersVersion
-    testImplementation group: 'com.redislabs.testcontainers', name: 'oracle-xe', version: testcontainersVersion
+    testImplementation group: 'com.redis.testcontainers', name: 'postgresql', version: testcontainersVersion
+    testImplementation group: 'com.redis.testcontainers', name: 'oracle-xe', version: testcontainersVersion
 }
 
 bootDistZip.enabled = false
