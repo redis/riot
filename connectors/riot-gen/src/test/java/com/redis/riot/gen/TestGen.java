@@ -94,7 +94,7 @@ public class TestGen extends AbstractRiotIntegrationTest {
         String FIELD_OUNCES = "ounces";
         RedisModulesClient modulesClient = RedisModulesClient.create(REDIS_MODULES.getRedisURI());
         StatefulRedisModulesConnection<String, String> connection = modulesClient.connect();
-        connection.sync().create(INDEX, CreateOptions.<String, String>builder().prefix("beer:").build(), Field.tag(FIELD_ID).sortable(true).build(), Field.text(FIELD_NAME).sortable(true).build(), Field.text(FIELD_STYLE).matcher(Field.Text.PhoneticMatcher.English).sortable(true).build(), Field.numeric(FIELD_ABV).sortable(true).build(), Field.numeric(FIELD_OUNCES).sortable(true).build());
+        connection.sync().create(INDEX, CreateOptions.<String, String>builder().prefix("beer:").build(), Field.tag(FIELD_ID).sortable().build(), Field.text(FIELD_NAME).sortable().build(), Field.text(FIELD_STYLE).matcher(Field.Text.PhoneticMatcher.English).sortable().build(), Field.numeric(FIELD_ABV).sortable().build(), Field.numeric(FIELD_OUNCES).sortable().build());
         execute("import-infer", REDIS_MODULES);
         SearchResults<String, String> results = connection.sync().search(INDEX, "*");
         Assertions.assertEquals(1000, results.getCount());
