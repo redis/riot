@@ -8,7 +8,7 @@ manifest {
 
 dependencies {
     api project(':riot-core')
-    implementation 'org.latencyutils:LatencyUtils:2.0.3'
+    implementation group: 'org.latencyutils', name: 'LatencyUtils', version: latencyutilsVersion
     testImplementation project(':riot-test')
 }
 

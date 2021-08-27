@@ -16,9 +16,9 @@ dependencies {
     api project(':riot-core')
     implementation 'org.springframework.kafka:spring-kafka'
     implementation 'org.springframework.boot:spring-boot-autoconfigure'
-    implementation 'org.apache.avro:avro:1.10.2'
-    implementation 'io.confluent:kafka-avro-serializer:6.2.0'
-    implementation 'io.confluent:kafka-protobuf-serializer:6.2.0'
+    implementation group: 'org.apache.avro', name: 'avro', version: avroVersion
+    implementation group: 'io.confluent', name: 'kafka-avro-serializer', version: kafkaVersion
+    implementation group: 'io.confluent', name: 'kafka-protobuf-serializer', version: kafkaVersion
     testImplementation project(':riot-test')
     testImplementation group: 'com.redis.testcontainers', name: 'kafka', version: testcontainersVersion
 }
