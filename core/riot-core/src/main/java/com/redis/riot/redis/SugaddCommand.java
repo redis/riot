@@ -1,6 +1,9 @@
 package com.redis.riot.redis;
 
-import org.springframework.batch.item.redis.OperationItemWriter;
+import com.redis.lettucemod.api.search.Suggestion;
+import org.springframework.batch.item.redis.support.RedisOperation;
+import org.springframework.batch.item.redis.support.operation.Sugadd;
+import org.springframework.core.convert.converter.Converter;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
@@ -22,8 +25,37 @@ public class SugaddCommand extends AbstractKeyCommand {
     private boolean increment;
 
     @Override
-    public OperationItemWriter.RedisOperation<String, String, Map<String, Object>> operation() {
-        return new Sugadd<>(key(), stringFieldExtractor(field), numberFieldExtractor(Double.class, scoreField, scoreDefault), stringFieldExtractor(payload), increment);
+    public RedisOperation<String, String, Map<String, Object>> operation() {
+        return Sugadd.key(key()).suggestion(suggestion()).increment(increment).build();
+    }
+
+    private Converter<Map<String, Object>, Suggestion<String>> suggestion() {
+        Converter<Map<String, Object>, String> string = stringFieldExtractor(field);
+        Converter<Map<String, Object>, Double> score = numberFieldExtractor(Double.class, scoreField, scoreDefault);
+        Converter<Map<String, Object>, String> payload = stringFieldExtractor(this.payload);
+        return new SuggestionConverter(string, score, payload);
+    }
+
+    private static class SuggestionConverter implements Converter<Map<String,Object>, Suggestion<String>> {
+
+        private Converter<Map<String, Object>, String> string;
+        private Converter<Map<String, Object>, Double> score;
+        private Converter<Map<String, Object>, String> payload;
+
+        public SuggestionConverter(Converter<Map<String, Object>, String> string, Converter<Map<String, Object>, Double> score, Converter<Map<String, Object>, String> payload) {
+            this.string = string;
+            this.score = score;
+            this.payload = payload;
+        }
+
+        @Override
+        public Suggestion<String> convert(Map<String, Object> source) {
+            Suggestion<String> suggestion = new Suggestion<>();
+            suggestion.setString(string.convert(source));
+            suggestion.setScore(score.convert(source));
+            suggestion.setPayload(payload.convert(source));
+            return suggestion;
+        }
     }
 
 

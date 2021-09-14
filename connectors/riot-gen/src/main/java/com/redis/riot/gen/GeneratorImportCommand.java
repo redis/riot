@@ -1,15 +1,15 @@
 package com.redis.riot.gen;
 
+import com.redis.lettucemod.RedisModulesClient;
+import com.redis.lettucemod.Utils;
+import com.redis.lettucemod.api.StatefulRedisModulesConnection;
+import com.redis.lettucemod.api.search.Field;
+import com.redis.lettucemod.api.search.IndexInfo;
+import com.redis.lettucemod.api.sync.RediSearchCommands;
 import com.redis.riot.AbstractImportCommand;
 import com.redis.riot.MapProcessorOptions;
 import com.redis.riot.RedisOptions;
 import com.redis.riot.RiotStepBuilder;
-import com.redis.lettucemod.RedisModulesClient;
-import com.redis.lettucemod.api.StatefulRedisModulesConnection;
-import com.redis.lettucemod.api.sync.RediSearchCommands;
-import com.redis.lettucemod.search.Field;
-import com.redis.lettucemod.search.IndexInfo;
-import com.redis.lettucemod.search.RediSearchUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.job.flow.Flow;
@@ -77,7 +77,7 @@ public class GeneratorImportCommand extends AbstractImportCommand<Map<String, Ob
         RedisModulesClient client = RedisModulesClient.create(getRedisOptions().uris().get(0));
         try (StatefulRedisModulesConnection<String, String> connection = client.connect()) {
             RediSearchCommands<String, String> commands = connection.sync();
-            IndexInfo info = RediSearchUtils.indexInfo(commands.indexInfo(index));
+            IndexInfo info = Utils.indexInfo(commands.indexInfo(index));
             for (Field field : info.getFields()) {
                 fields.put(field.getName(), expression(field));
             }

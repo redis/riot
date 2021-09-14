@@ -2,7 +2,7 @@ package com.redis.riot.redis;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.springframework.batch.item.redis.OperationItemWriter;
+import org.springframework.batch.item.redis.support.RedisOperation;
 import org.springframework.batch.item.redis.support.operation.Hset;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -18,8 +18,8 @@ public class HsetCommand extends AbstractKeyCommand {
     private FilteringOptions filtering = new FilteringOptions();
 
     @Override
-    public OperationItemWriter.RedisOperation<String, String, Map<String, Object>> operation() {
-        return new Hset<>(key(), filtering.converter());
+    public RedisOperation<String, String, Map<String, Object>> operation() {
+        return Hset.key(key()).map(filtering.converter()).build();
     }
 
 }

@@ -8,7 +8,7 @@ import com.redis.riot.convert.ObjectToNumberConverter;
 import com.redis.riot.convert.ObjectToStringConverter;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.springframework.batch.item.redis.support.KeyMaker;
+import org.springframework.batch.item.redis.support.convert.KeyMaker;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.util.ObjectUtils;
 import picocli.CommandLine;

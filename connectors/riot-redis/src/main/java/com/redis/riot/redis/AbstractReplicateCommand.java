@@ -36,8 +36,11 @@ public abstract class AbstractReplicateCommand<T extends KeyValue<?>> extends Ab
     @Override
     protected Flow flow(StepBuilderFactory stepBuilderFactory) {
         // Verification cannot be done if a processor is set
-        if (replicationOptions.isVerify() && keyValueProcessor() == null) {
-            return flow("replication-verification-flow").start(replicationFlow(stepBuilderFactory)).next(verificationFlow(stepBuilderFactory)).build();
+        if (replicationOptions.isVerify()) {
+            if (keyValueProcessor() == null) {
+                return flow("replication-verification-flow").start(replicationFlow(stepBuilderFactory)).next(verificationFlow(stepBuilderFactory)).build();
+            }
+            log.info("Key processor enabled, skipping verification");
         }
         return replicationFlow(stepBuilderFactory);
     }

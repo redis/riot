@@ -1,6 +1,6 @@
 package com.redis.riot.redis;
 
-import org.springframework.batch.item.redis.OperationItemWriter;
+import org.springframework.batch.item.redis.support.RedisOperation;
 import org.springframework.batch.item.redis.support.operation.Expire;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -17,8 +17,8 @@ public class ExpireCommand extends AbstractKeyCommand {
     private long timeoutDefault = 60;
 
     @Override
-    public OperationItemWriter.RedisOperation<String, String, Map<String, Object>> operation() {
-        return new Expire<>(key(), numberFieldExtractor(Long.class, timeoutField, timeoutDefault));
+    public RedisOperation<String, String, Map<String, Object>> operation() {
+        return Expire.key(key()).<String>millis(numberFieldExtractor(Long.class, timeoutField, timeoutDefault)).build();
     }
 
 }

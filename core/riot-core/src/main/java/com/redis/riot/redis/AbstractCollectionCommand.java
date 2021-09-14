@@ -1,6 +1,6 @@
 package com.redis.riot.redis;
 
-import org.springframework.batch.item.redis.support.KeyMaker;
+import org.springframework.batch.item.redis.support.convert.KeyMaker;
 import picocli.CommandLine;
 import picocli.CommandLine.Option;
 

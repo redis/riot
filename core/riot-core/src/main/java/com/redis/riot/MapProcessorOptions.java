@@ -1,8 +1,12 @@
 package com.redis.riot;
 
-import com.redis.riot.processor.*;
-import com.redis.lettucemod.search.RediSearchUtils;
+import com.redis.lettucemod.Utils;
 import com.redis.riot.convert.RegexNamedGroupsExtractor;
+import com.redis.riot.processor.CompositeItemStreamItemProcessor;
+import com.redis.riot.processor.FilteringProcessor;
+import com.redis.riot.processor.MapAccessor;
+import com.redis.riot.processor.MapProcessor;
+import com.redis.riot.processor.SpelProcessor;
 import lombok.Data;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.core.convert.converter.Converter;
@@ -13,7 +17,11 @@ import org.springframework.util.ObjectUtils;
 import picocli.CommandLine.Option;
 
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 @Data
 public class MapProcessorOptions {
@@ -55,7 +63,7 @@ public class MapProcessorOptions {
                 context.setVariable(variable, variables.get(variable).getValue(context));
             }
         }
-        context.registerFunction("geo", RediSearchUtils.GeoLocation.class.getDeclaredMethod("toString", String.class, String.class));
+        context.registerFunction("geo", Utils.GeoLocation.class.getDeclaredMethod("toString", String.class, String.class));
         context.setPropertyAccessors(Collections.singletonList(new MapAccessor()));
         return context;
     }

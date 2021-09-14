@@ -7,7 +7,6 @@ import com.redis.riot.redis.FilteringOptions;
 import com.redis.riot.stream.kafka.KafkaItemReader;
 import com.redis.riot.stream.kafka.KafkaItemReaderBuilder;
 import io.lettuce.core.XAddArgs;
-import io.lettuce.core.codec.StringCodec;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
@@ -72,14 +71,8 @@ public class StreamImportCommand extends AbstractFlushingTransferCommand {
     }
 
     private ItemWriter<ConsumerRecord<String, Object>> writer() {
-        OperationItemWriter.RedisOperation<String, String, ConsumerRecord<String, Object>> operation = new Xadd<>(keyConverter(), bodyConverter(), xAddArgs());
         RedisOptions redisOptions = getRedisOptions();
-        if (redisOptions.isCluster()) {
-            log.debug("Creating cluster stream writer");
-            return OperationItemWriter.operation(operation).codec(StringCodec.UTF8).client(redisOptions.redisClusterClient()).poolConfig(redisOptions.poolConfig()).build();
-        }
-        log.debug("Creating stream writer");
-        return OperationItemWriter.operation(operation).codec(StringCodec.UTF8).client(redisOptions.redisClient()).poolConfig(redisOptions.poolConfig()).build();
+        return OperationItemWriter.client(redisOptions.client()).operation(Xadd.key(keyConverter()).body(bodyConverter()).args(xAddArgs()).build()).poolConfig(redisOptions.poolConfig()).build();
     }
 
     private Converter<ConsumerRecord<String, Object>, Map<String, String>> bodyConverter() {

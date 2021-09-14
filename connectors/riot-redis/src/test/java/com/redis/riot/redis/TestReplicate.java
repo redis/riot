@@ -118,6 +118,5 @@ public class TestReplicate extends AbstractRiotIntegrationTest {
         }
         Thread.sleep(300);
         Assertions.assertEquals(((RedisServerCommands<String, String>) sync).dbsize(), targetSync.dbsize());
-
     }
 }

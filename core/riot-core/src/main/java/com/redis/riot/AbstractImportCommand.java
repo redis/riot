@@ -12,7 +12,6 @@ import com.redis.riot.redis.SetCommand;
 import com.redis.riot.redis.SugaddCommand;
 import com.redis.riot.redis.XaddCommand;
 import com.redis.riot.redis.ZaddCommand;
-import io.lettuce.core.codec.StringCodec;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.springframework.batch.core.step.builder.FaultTolerantStepBuilder;
@@ -21,6 +20,7 @@ import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.redis.OperationItemWriter;
+import org.springframework.batch.item.redis.support.RedisOperation;
 import org.springframework.batch.item.support.CompositeItemWriter;
 import org.springframework.util.Assert;
 import picocli.CommandLine.Command;
@@ -50,7 +50,7 @@ public abstract class AbstractImportCommand<I, O> extends AbstractTransferComman
     protected ItemWriter<O> writer() {
         Assert.notNull(redisCommands, "RedisCommands not set");
         Assert.isTrue(!redisCommands.isEmpty(), "No Redis command specified");
-        Function<OperationItemWriter.RedisOperation<String, String, O>, ItemWriter<O>> writerProvider = this::writer;
+        Function<RedisOperation<String, String, O>, ItemWriter<O>> writerProvider = this::writer;
         if (redisCommands.size() == 1) {
             return writerProvider.apply(redisCommands.get(0).operation());
         }
@@ -59,13 +59,9 @@ public abstract class AbstractImportCommand<I, O> extends AbstractTransferComman
         return compositeWriter;
     }
 
-    private ItemWriter<O> writer(OperationItemWriter.RedisOperation<String, String, O> operation) {
-        OperationItemWriter.OperationItemWriterBuilder<String, String, O> writer = OperationItemWriter.operation(operation).codec(StringCodec.UTF8);
+    private ItemWriter<O> writer(RedisOperation<String, String, O> operation) {
         RedisOptions redisOptions = getRedisOptions();
-        if (redisOptions.isCluster()) {
-            return writer.client(redisOptions.redisClusterClient()).poolConfig(redisOptions.poolConfig()).build();
-        }
-        return writer.client(redisOptions.redisClient()).poolConfig(redisOptions.poolConfig()).build();
+        return OperationItemWriter.client(redisOptions.client()).operation(operation).poolConfig(redisOptions.poolConfig()).build();
     }
 
 
