@@ -52,7 +52,7 @@ public class TestKafka extends AbstractRiotIntegrationTest {
     @Container
     private final KafkaContainer KAFKA = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka"));
 
-    @ParameterizedTest
+    @ParameterizedTest(name = "{displayName} - {index}: {0}")
     @MethodSource("containers")
     public void testImport(RedisServer container) throws Exception {
         KafkaProducer<String, Map<String, String>> producer = new KafkaProducer<>(ImmutableMap.of(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, KAFKA.getBootstrapServers(), ProducerConfig.CLIENT_ID_CONFIG, UUID.randomUUID().toString()), new StringSerializer(), new JsonSerializer<>());
@@ -92,7 +92,7 @@ public class TestKafka extends AbstractRiotIntegrationTest {
         return map;
     }
 
-    @ParameterizedTest
+    @ParameterizedTest(name = "{displayName} - {index}: {0}")
     @MethodSource("containers")
     public void testExport(RedisServer container) throws Exception {
         String stream = "stream1";

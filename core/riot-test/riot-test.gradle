@@ -5,4 +5,5 @@ dependencies {
     api group: 'com.redis.testcontainers', name: 'testcontainers-redis', version: testcontainersRedisVersion
     api group: 'com.redis.testcontainers', name: 'junit-jupiter', version: testcontainersVersion
     implementation group: 'commons-io', name: 'commons-io', version: commonsIoVersion
+    api group: 'com.redis', name: 'spring-batch-redis-test', version: batchRedisVersion
 }

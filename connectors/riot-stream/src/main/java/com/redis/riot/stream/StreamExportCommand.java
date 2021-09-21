@@ -66,10 +66,10 @@ public class StreamExportCommand extends AbstractFlushingTransferCommand {
         RedisOptions redisOptions = getRedisOptions();
         if (redisOptions.isCluster()) {
             log.debug("Creating cluster stream reader with offset {}", offset);
-            return StreamItemReader.client(redisOptions.redisClusterClient()).offset(offset).build();
+            return StreamItemReader.client(redisOptions.clusterClient()).offset(offset).build();
         }
         log.debug("Creating stream reader with offset {}", offset);
-        return StreamItemReader.client(redisOptions.redisClient()).offset(offset).build();
+        return StreamItemReader.client(redisOptions.client()).offset(offset).build();
     }
 
     private KafkaItemWriter<String> writer() {
@@ -79,12 +79,10 @@ public class StreamExportCommand extends AbstractFlushingTransferCommand {
     }
 
     private ItemProcessor<StreamMessage<String, String>, ProducerRecord<String, Object>> processor() {
-        switch (options.getSerde()) {
-            case JSON:
-                return new JsonProducerProcessor(topicConverter());
-            default:
-                return new AvroProducerProcessor(topicConverter());
+        if (options.getSerde() == KafkaOptions.SerDe.JSON) {
+            return new JsonProducerProcessor(topicConverter());
         }
+        return new AvroProducerProcessor(topicConverter());
     }
 
     private Converter<StreamMessage<String, String>, String> topicConverter() {

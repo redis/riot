@@ -22,16 +22,16 @@ public class ReplicateDataStructureCommand extends AbstractReplicateCommand<Data
     @Override
     protected PollableItemReader<DataStructure> liveReader(RedisOptions redisOptions) {
         if (redisOptions.isCluster()) {
-            return configure(DataStructureItemReader.client(redisOptions.redisClusterClient()).live()).build();
+            return configure(DataStructureItemReader.client(redisOptions.clusterClient()).live()).build();
         }
-        return configure(DataStructureItemReader.client(redisOptions.redisClient()).live()).build();
+        return configure(DataStructureItemReader.client(redisOptions.client()).live()).build();
     }
 
     @Override
     protected ItemWriter<DataStructure> writer(RedisOptions redisOptions) {
         if (redisOptions.isCluster()) {
-            return DataStructureItemWriter.client(redisOptions.redisClusterClient()).poolConfig(redisOptions.poolConfig()).build();
+            return DataStructureItemWriter.client(redisOptions.clusterClient()).poolConfig(redisOptions.poolConfig()).build();
         }
-        return DataStructureItemWriter.client(redisOptions.redisClient()).poolConfig(redisOptions.poolConfig()).build();
+        return DataStructureItemWriter.client(redisOptions.client()).poolConfig(redisOptions.poolConfig()).build();
     }
 }

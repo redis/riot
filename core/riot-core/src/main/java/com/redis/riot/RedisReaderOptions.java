@@ -1,8 +1,8 @@
 package com.redis.riot;
 
+import com.redis.lettucemod.RedisModulesClient;
+import com.redis.lettucemod.cluster.RedisModulesClusterClient;
 import io.lettuce.core.AbstractRedisClient;
-import io.lettuce.core.RedisClient;
-import io.lettuce.core.cluster.RedisClusterClient;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.item.redis.support.KeyValueItemReader;
@@ -30,6 +30,7 @@ public class RedisReaderOptions {
     @Option(names = "--sample-size", description = "Number of samples used to estimate dataset size (default: ${DEFAULT-VALUE}).", paramLabel = "<int>", hidden = true)
     private int sampleSize = 100;
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     public <B extends KeyValueItemReader.KeyValueItemReaderBuilder> B configure(B builder) {
         builder.scanMatch(scanMatch);
         builder.scanCount(scanCount);
@@ -39,6 +40,7 @@ public class RedisReaderOptions {
         return (B) configure((KeyValueItemReader.AbstractKeyValueItemReaderBuilder) builder);
     }
 
+    @SuppressWarnings("rawtypes")
     public <B extends KeyValueItemReader.AbstractKeyValueItemReaderBuilder> B configure(B builder) {
         builder.threads(threads);
         builder.chunkSize(batchSize);
@@ -56,8 +58,8 @@ public class RedisReaderOptions {
 
     public Supplier<Long> initialMaxSupplier(RedisOptions redisOptions) {
         return () -> {
-            AbstractRedisClient client = redisOptions.client();
-            ScanSizeEstimator.ScanSizeEstimatorBuilder builder = redisOptions.isCluster() ? ScanSizeEstimator.client((RedisClusterClient) client) : ScanSizeEstimator.client((RedisClient) client);
+            AbstractRedisClient client = redisOptions.redisClient();
+            ScanSizeEstimator.ScanSizeEstimatorBuilder builder = redisOptions.isCluster() ? ScanSizeEstimator.client((RedisModulesClusterClient) client) : ScanSizeEstimator.client((RedisModulesClient) client);
             ScanSizeEstimator estimator = builder.poolConfig(redisOptions.poolConfig()).build();
             try {
                 return estimator.estimate(estimateOptions());

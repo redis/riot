@@ -2,7 +2,6 @@ package com.redis.riot.db;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
-import com.redis.riot.DataType;
 import com.redis.testcontainers.RedisServer;
 import io.lettuce.core.api.sync.RedisHashCommands;
 import io.lettuce.core.api.sync.RedisKeyCommands;
@@ -14,12 +13,12 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.springframework.batch.item.redis.support.DataStructure;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
-import javax.sql.DataSource;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -40,13 +39,11 @@ public class TestPostgreSQL extends AbstractDatabaseTest {
 
     @Container
     private static final PostgreSQLContainer POSTGRESQL = new PostgreSQLContainer(DockerImageName.parse(PostgreSQLContainer.IMAGE).withTag(PostgreSQLContainer.DEFAULT_TAG));
-    private static DataSource dataSource;
     private static Connection connection;
 
     @BeforeAll
     public static void setupAll() throws SQLException, IOException {
-        dataSource = dataSource(POSTGRESQL);
-        connection = dataSource.getConnection();
+        connection = dataSource(POSTGRESQL).getConnection();
         ScriptRunner scriptRunner = ScriptRunner.builder().connection(connection).autoCommit(false).stopOnError(true).build();
         String file = "northwind.sql";
         InputStream inputStream = TestPostgreSQL.class.getClassLoader().getResourceAsStream(file);
@@ -68,13 +65,13 @@ public class TestPostgreSQL extends AbstractDatabaseTest {
 
     }
 
-    @ParameterizedTest
+    @ParameterizedTest(name = "{displayName} - {index}: {0}")
     @MethodSource("containers")
     public void testExport(RedisServer container) throws Exception {
         Statement statement = connection.createStatement();
         statement.execute("CREATE TABLE mytable (id smallint NOT NULL, field1 bpchar, field2 bpchar)");
         statement.execute("ALTER TABLE ONLY mytable ADD CONSTRAINT pk_mytable PRIMARY KEY (id)");
-        dataGenerator(container).dataTypes(DataType.HASH).build().call();
+        dataGenerator(container).dataTypes(DataStructure.HASH).build().call();
         execute("export-postgresql", container, r -> configureExportCommand(r, POSTGRESQL));
         statement.execute("SELECT COUNT(*) AS count FROM mytable");
         ResultSet countResultSet = statement.getResultSet();
@@ -91,7 +88,7 @@ public class TestPostgreSQL extends AbstractDatabaseTest {
     }
 
 
-    @ParameterizedTest
+    @ParameterizedTest(name = "{displayName} - {index}: {0}")
     @MethodSource("containers")
     public void testExportNullValues(RedisServer container) throws Exception {
         Statement statement = connection.createStatement();
@@ -121,7 +118,7 @@ public class TestPostgreSQL extends AbstractDatabaseTest {
         Assertions.assertEquals(sync.dbsize().longValue(), index);
     }
 
-    @ParameterizedTest
+    @ParameterizedTest(name = "{displayName} - {index}: {0}")
     @MethodSource("containers")
     public void testImport(RedisServer container) throws Exception {
         execute("import-postgresql", container, r -> configureImportCommand(r, POSTGRESQL));
@@ -137,7 +134,7 @@ public class TestPostgreSQL extends AbstractDatabaseTest {
         Assertions.assertEquals("VINET", order.get("customer_id"));
     }
 
-    @ParameterizedTest
+    @ParameterizedTest(name = "{displayName} - {index}: {0}")
     @MethodSource("containers")
     public void testImportSet(RedisServer container) throws Exception {
         execute("import-postgresql-set", container, r -> configureImportCommand(r, POSTGRESQL));

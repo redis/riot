@@ -23,7 +23,7 @@ public abstract class AbstractUtilityCommand extends AbstractTaskCommand {
 
         return flow(stepBuilderFactory.get(ClassUtils.getShortName(getClass()) + "-step").tasklet((contribution, chunkContext) -> {
             RedisOptions redisOptions = getRedisOptions();
-            AbstractRedisClient client = redisOptions.client();
+            AbstractRedisClient client = redisOptions.redisClient();
             try {
                 try (StatefulConnection<String, String> connection = redisOptions.isCluster() ? ((RedisClusterClient) client).connect() : ((RedisClient) client).connect()) {
                     BaseRedisCommands<String, String> commands = redisOptions.isCluster() ? ((StatefulRedisClusterConnection<String, String>) connection).sync() : ((StatefulRedisConnection<String, String>) connection).sync();

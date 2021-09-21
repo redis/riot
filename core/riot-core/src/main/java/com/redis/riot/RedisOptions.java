@@ -1,6 +1,7 @@
 package com.redis.riot;
 
 import com.redis.lettucemod.RedisModulesClient;
+import com.redis.lettucemod.cluster.RedisModulesClusterClient;
 import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.ClientOptions;
 import io.lettuce.core.RedisURI;
@@ -161,13 +162,13 @@ public class RedisOptions {
         return builder.build();
     }
 
-    public RedisClusterClient redisClusterClient() {
-        RedisClusterClient client = RedisClusterClient.create(clientResources(), uris());
+    public RedisModulesClusterClient clusterClient() {
+        RedisModulesClusterClient client = RedisModulesClusterClient.create(clientResources(), uris());
         client.setOptions(ClusterClientOptions.builder().autoReconnect(autoReconnect).sslOptions(sslOptions()).build());
         return client;
     }
 
-    public RedisModulesClient redisClient() {
+    public RedisModulesClient client() {
         RedisModulesClient client = RedisModulesClient.create(clientResources(), uris().get(0));
         client.setOptions(ClientOptions.builder().autoReconnect(autoReconnect).sslOptions(sslOptions()).build());
         return client;
@@ -179,13 +180,13 @@ public class RedisOptions {
         return config;
     }
 
-    public AbstractRedisClient client() {
+    public AbstractRedisClient redisClient() {
         if (cluster) {
             log.debug("Creating Redis cluster client: {}", this);
-            return redisClusterClient();
+            return clusterClient();
         }
         log.debug("Creating Redis client: {}", this);
-        return redisClient();
+        return client();
     }
 
     public static StatefulConnection<String, String> connect(AbstractRedisClient client) {

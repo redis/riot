@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
+@SuppressWarnings("NullableProblems")
 @Slf4j
 public class SpelProcessor implements ItemProcessor<Map<String, Object>, Map<String, Object>>, ItemStream {
 
@@ -40,7 +41,7 @@ public class SpelProcessor implements ItemProcessor<Map<String, Object>, Map<Str
 
     @Override
     public void open(ExecutionContext executionContext) throws ItemStreamException {
-        this.client = redisOptions.client();
+        this.client = redisOptions.redisClient();
         this.connection = RedisOptions.connect(client);
         this.context.setVariable("redis", sync(connection));
         this.index = new AtomicLong();

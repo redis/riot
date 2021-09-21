@@ -72,7 +72,7 @@ public class StreamImportCommand extends AbstractFlushingTransferCommand {
 
     private ItemWriter<ConsumerRecord<String, Object>> writer() {
         RedisOptions redisOptions = getRedisOptions();
-        return OperationItemWriter.client(redisOptions.client()).operation(Xadd.key(keyConverter()).body(bodyConverter()).args(xAddArgs()).build()).poolConfig(redisOptions.poolConfig()).build();
+        return OperationItemWriter.client(redisOptions.redisClient()).operation(Xadd.key(keyConverter()).body(bodyConverter()).args(xAddArgs()).build()).poolConfig(redisOptions.poolConfig()).build();
     }
 
     private Converter<ConsumerRecord<String, Object>, Map<String, String>> bodyConverter() {

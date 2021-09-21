@@ -1,16 +1,16 @@
 package com.redis.riot;
 
+import com.redis.lettucemod.RedisModulesClient;
+import com.redis.lettucemod.cluster.RedisModulesClusterClient;
 import com.redis.testcontainers.RedisClusterContainer;
 import com.redis.testcontainers.RedisContainer;
 import com.redis.testcontainers.RedisServer;
 import io.lettuce.core.AbstractRedisClient;
-import io.lettuce.core.RedisClient;
 import io.lettuce.core.api.StatefulConnection;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.api.async.BaseRedisAsyncCommands;
 import io.lettuce.core.api.sync.BaseRedisCommands;
 import io.lettuce.core.api.sync.RedisServerCommands;
-import io.lettuce.core.cluster.RedisClusterClient;
 import io.lettuce.core.cluster.api.StatefulRedisClusterConnection;
 import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
 import io.lettuce.core.support.ConnectionPoolSupport;
@@ -19,6 +19,7 @@ import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.springframework.batch.item.redis.test.DataGenerator;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
@@ -50,7 +51,7 @@ public abstract class AbstractRiotIntegrationTest extends AbstractRiotTest {
     private static void add(RedisServer... containers) {
         for (RedisServer container : containers) {
             if (container instanceof RedisClusterContainer) {
-                RedisClusterClient client = RedisClusterClient.create(container.getRedisURI());
+                RedisModulesClusterClient client = RedisModulesClusterClient.create(container.getRedisURI());
                 CLIENTS.put(container, client);
                 StatefulRedisClusterConnection<String, String> connection = client.connect();
                 CONNECTIONS.put(container, connection);
@@ -59,7 +60,7 @@ public abstract class AbstractRiotIntegrationTest extends AbstractRiotTest {
                 PUBSUB_CONNECTIONS.put(container, client.connectPubSub());
                 POOLS.put(container, ConnectionPoolSupport.createGenericObjectPool(client::connect, new GenericObjectPoolConfig<>()));
             } else {
-                RedisClient client = RedisClient.create(container.getRedisURI());
+                RedisModulesClient client = RedisModulesClient.create(container.getRedisURI());
                 CLIENTS.put(container, client);
                 StatefulRedisConnection<String, String> connection = client.connect();
                 CONNECTIONS.put(container, connection);
@@ -117,7 +118,10 @@ public abstract class AbstractRiotIntegrationTest extends AbstractRiotTest {
     }
 
     protected DataGenerator.DataGeneratorBuilder dataGenerator(RedisServer container) {
-        return DataGenerator.connection(connection(container));
+        if (container.isCluster()) {
+            return DataGenerator.client((RedisModulesClusterClient) CLIENTS.get(container));
+        }
+        return DataGenerator.client((RedisModulesClient) CLIENTS.get(container));
     }
 
 

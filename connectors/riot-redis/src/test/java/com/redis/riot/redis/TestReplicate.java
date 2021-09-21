@@ -65,7 +65,7 @@ public class TestReplicate extends AbstractRiotIntegrationTest {
         }
     }
 
-    @ParameterizedTest
+    @ParameterizedTest(name = "{displayName} - {index}: {0}")
     @MethodSource("containers")
     void replicate(RedisServer container) throws Throwable {
         dataGenerator(container).build().call();
@@ -76,7 +76,7 @@ public class TestReplicate extends AbstractRiotIntegrationTest {
         Assertions.assertEquals(sourceSize, targetSync.dbsize());
     }
 
-    @ParameterizedTest
+    @ParameterizedTest(name = "{displayName} - {index}: {0}")
     @MethodSource("containers")
     void replicateKeyProcessor(RedisServer container) throws Throwable {
         dataGenerator(container).build().call();
@@ -89,13 +89,13 @@ public class TestReplicate extends AbstractRiotIntegrationTest {
         Assertions.assertEquals(stringCommands.get("string:123"), targetSync.get("0:string:123"));
     }
 
-    @ParameterizedTest
+    @ParameterizedTest(name = "{displayName} - {index}: {0}")
     @MethodSource("containers")
     public void replicateLive(RedisServer container) throws Exception {
         testLiveReplication(container, "replicate-live");
     }
 
-    @ParameterizedTest
+    @ParameterizedTest(name = "{displayName} - {index}: {0}")
     @MethodSource("containers")
     public void replicateLiveValue(RedisServer container) throws Exception {
         testLiveReplication(container, "replicate-live-value");

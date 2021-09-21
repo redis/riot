@@ -17,24 +17,24 @@ public class ReplicateKeyDumpCommand extends AbstractReplicateCommand<KeyValue<b
     @Override
     protected ItemReader<KeyValue<byte[]>> reader(RedisOptions redisOptions) {
         if (redisOptions.isCluster()) {
-            return readerOptions.configure(KeyDumpItemReader.client(redisOptions.redisClusterClient()).poolConfig(redisOptions.poolConfig())).build();
+            return readerOptions.configure(KeyDumpItemReader.client(redisOptions.clusterClient()).poolConfig(redisOptions.poolConfig())).build();
         }
-        return readerOptions.configure(KeyDumpItemReader.client(redisOptions.redisClient()).poolConfig(redisOptions.poolConfig())).build();
+        return readerOptions.configure(KeyDumpItemReader.client(redisOptions.client()).poolConfig(redisOptions.poolConfig())).build();
     }
 
     @Override
     protected PollableItemReader<KeyValue<byte[]>> liveReader(RedisOptions redisOptions) {
         if (redisOptions.isCluster()) {
-            return configure(KeyDumpItemReader.client(redisOptions.redisClusterClient()).poolConfig(redisOptions.poolConfig()).live()).build();
+            return configure(KeyDumpItemReader.client(redisOptions.clusterClient()).poolConfig(redisOptions.poolConfig()).live()).build();
         }
-        return configure(KeyDumpItemReader.client(redisOptions.redisClient()).poolConfig(redisOptions.poolConfig()).live()).build();
+        return configure(KeyDumpItemReader.client(redisOptions.client()).poolConfig(redisOptions.poolConfig()).live()).build();
     }
 
     @Override
     protected ItemWriter<KeyValue<byte[]>> writer(RedisOptions redisOptions) {
         if (redisOptions.isCluster()) {
-            return KeyDumpItemWriter.client(redisOptions.redisClusterClient()).poolConfig(redisOptions.poolConfig()).build();
+            return KeyDumpItemWriter.client(redisOptions.clusterClient()).poolConfig(redisOptions.poolConfig()).build();
         }
-        return KeyDumpItemWriter.client(redisOptions.redisClient()).poolConfig(redisOptions.poolConfig()).build();
+        return KeyDumpItemWriter.client(redisOptions.client()).poolConfig(redisOptions.poolConfig()).build();
     }
 }

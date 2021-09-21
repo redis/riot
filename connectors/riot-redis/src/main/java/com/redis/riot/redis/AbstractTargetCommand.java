@@ -13,7 +13,11 @@ import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.core.step.tasklet.TaskletStep;
 import org.springframework.batch.item.redis.DataStructureItemReader;
-import org.springframework.batch.item.redis.support.*;
+import org.springframework.batch.item.redis.support.DataStructure;
+import org.springframework.batch.item.redis.support.DataStructureValueReader;
+import org.springframework.batch.item.redis.support.KeyComparisonItemWriter;
+import org.springframework.batch.item.redis.support.KeyComparisonResultCounter;
+import org.springframework.batch.item.redis.support.KeyValueItemReader;
 import picocli.CommandLine;
 
 @Data
@@ -22,7 +26,7 @@ import picocli.CommandLine;
 public abstract class AbstractTargetCommand extends AbstractFlushingTransferCommand {
 
     private static final String ASCII_COMPARE_MESSAGE_FORMAT = ">%,d T%,d ≠%,d ⧗%,d <%,d";
-    private static final String COLORFUL_COMPARE_MESSAGE_FORMAT = "\u001b[31m>%,d \u001b[33mT%,d \u001b[35m≠%,d \u001b[36m⧗%,d \u001b[34m<%,d\u001b[0m";
+    private static final String COLORFUL_COMPARE_MESSAGE_FORMAT = "\u001b[31m>%,d \u001b[33mT%,d \u001b[35m≠%,d \u001b[36m⧗%,d\u001b[0m";
 
     @CommandLine.ArgGroup(exclusive = false, heading = "Target Redis connection options%n")
     protected RedisOptions targetRedisOptions = new RedisOptions();
@@ -43,7 +47,7 @@ public abstract class AbstractTargetCommand extends AbstractFlushingTransferComm
         KeyComparisonItemWriter.KeyComparisonItemWriterBuilder writerBuilder = KeyComparisonItemWriter.valueReader(targetValueReader);
         writerBuilder.resultHandler(counter);
         if (compareOptions.isShowDiffs()) {
-            writerBuilder.resultHandler(this::logComparisonResult);
+            writerBuilder.resultHandler(new MismatchPrinter());
         }
         writerBuilder.ttlTolerance(compareOptions.getTtlToleranceDuration());
         KeyComparisonItemWriter writer = writerBuilder.build();
@@ -67,7 +71,7 @@ public abstract class AbstractTargetCommand extends AbstractFlushingTransferComm
                     log.debug("Verification interrupted");
                     return null;
                 }
-                log.warn("Verification failed: identical={}, missing={}, extraneous={}, values={}, ttls={}, types={}", (Object[]) counter.get(KeyComparisonItemWriter.Result.OK, KeyComparisonItemWriter.Result.SOURCE, KeyComparisonItemWriter.Result.TARGET, KeyComparisonItemWriter.Result.VALUE, KeyComparisonItemWriter.Result.TTL, KeyComparisonItemWriter.Result.TYPE));
+                log.warn("Verification failed: OK={} Missing={} Values={} TTLs={} Types={}", (Object[]) counter.get(KeyComparisonItemWriter.Status.OK, KeyComparisonItemWriter.Status.MISSING, KeyComparisonItemWriter.Status.VALUE, KeyComparisonItemWriter.Status.TTL, KeyComparisonItemWriter.Status.TYPE));
                 return new ExitStatus(ExitStatus.FAILED.getExitCode(), "Verification failed");
             }
         });
@@ -76,7 +80,7 @@ public abstract class AbstractTargetCommand extends AbstractFlushingTransferComm
     }
 
     private String extraMessage(KeyComparisonResultCounter counter) {
-        Long[] counts = counter.get(KeyComparisonItemWriter.Result.SOURCE, KeyComparisonItemWriter.Result.TYPE, KeyComparisonItemWriter.Result.VALUE, KeyComparisonItemWriter.Result.TTL, KeyComparisonItemWriter.Result.TARGET);
+        Long[] counts = counter.get(KeyComparisonItemWriter.Status.MISSING, KeyComparisonItemWriter.Status.TYPE, KeyComparisonItemWriter.Status.VALUE, KeyComparisonItemWriter.Status.TTL);
         return " " + String.format(extraMessageFormat(), (Object[]) counts);
     }
 
@@ -87,41 +91,19 @@ public abstract class AbstractTargetCommand extends AbstractFlushingTransferComm
         return ASCII_COMPARE_MESSAGE_FORMAT;
     }
 
-    private void logComparisonResult(DataStructure source, DataStructure target, KeyComparisonItemWriter.Result result) {
-        switch (result) {
-            case OK:
-                break;
-            case SOURCE:
-                log.warn("Key {} is missing from target", source.getKey());
-                break;
-            case TARGET:
-                log.warn("Key {} in target but not in source", target.getKey());
-                break;
-            case TTL:
-                log.warn("Key {} has different TTLs: source={} target={}", source.getKey(), source.getAbsoluteTTL(), target.getAbsoluteTTL());
-                break;
-            case TYPE:
-                log.warn("Key {} has different types: source={} target={}", source.getKey(), source.getType(), target.getType());
-                break;
-            case VALUE:
-                log.warn("Key {} has different values: source={} target={}", source.getKey(), source.getValue(), target.getValue());
-                break;
-        }
-    }
-
     protected KeyValueItemReader<DataStructure> dataStructureReader() {
         RedisOptions redisOptions = getRedisOptions();
         if (redisOptions.isCluster()) {
-            return readerOptions.configure(DataStructureItemReader.client(redisOptions.redisClusterClient()).poolConfig(redisOptions.poolConfig())).build();
+            return readerOptions.configure(DataStructureItemReader.client(redisOptions.clusterClient()).poolConfig(redisOptions.poolConfig())).build();
         }
-        return readerOptions.configure(DataStructureItemReader.client(redisOptions.redisClient()).poolConfig(redisOptions.poolConfig())).build();
+        return readerOptions.configure(DataStructureItemReader.client(redisOptions.client()).poolConfig(redisOptions.poolConfig())).build();
     }
 
     protected DataStructureValueReader targetDataStructureValueReader() {
         if (targetRedisOptions.isCluster()) {
-            return DataStructureValueReader.client(targetRedisOptions.redisClusterClient()).poolConfig(targetRedisOptions.poolConfig()).build();
+            return DataStructureValueReader.client(targetRedisOptions.clusterClient()).poolConfig(targetRedisOptions.poolConfig()).build();
         }
-        return DataStructureValueReader.client(targetRedisOptions.redisClient()).poolConfig(targetRedisOptions.poolConfig()).build();
+        return DataStructureValueReader.client(targetRedisOptions.client()).poolConfig(targetRedisOptions.poolConfig()).build();
     }
 
 }

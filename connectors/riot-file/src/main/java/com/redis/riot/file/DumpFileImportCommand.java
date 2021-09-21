@@ -1,10 +1,8 @@
 package com.redis.riot.file;
 
-import com.redis.lettucemod.RedisModulesClient;
 import com.redis.riot.AbstractTransferCommand;
 import com.redis.riot.RedisOptions;
 import com.redis.riot.RiotStepBuilder;
-import io.lettuce.core.cluster.RedisClusterClient;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
@@ -68,11 +66,9 @@ public class DumpFileImportCommand extends AbstractTransferCommand {
     private ItemWriter<DataStructure> writer() {
         RedisOptions redisOptions = getRedisOptions();
         if (redisOptions.isCluster()) {
-            RedisClusterClient client = redisOptions.redisClusterClient();
-            return DataStructureItemWriter.client(client).poolConfig(redisOptions.poolConfig()).build();
+            return DataStructureItemWriter.client(redisOptions.clusterClient()).poolConfig(redisOptions.poolConfig()).build();
         }
-        RedisModulesClient client = redisOptions.redisClient();
-        return DataStructureItemWriter.client(client).poolConfig(redisOptions.poolConfig()).build();
+        return DataStructureItemWriter.client(redisOptions.client()).poolConfig(redisOptions.poolConfig()).build();
     }
 
     protected AbstractItemStreamItemReader<DataStructure> reader(DumpFileType fileType, Resource resource) {

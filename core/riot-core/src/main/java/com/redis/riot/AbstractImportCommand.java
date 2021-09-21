@@ -61,7 +61,7 @@ public abstract class AbstractImportCommand<I, O> extends AbstractTransferComman
 
     private ItemWriter<O> writer(RedisOperation<String, String, O> operation) {
         RedisOptions redisOptions = getRedisOptions();
-        return OperationItemWriter.client(redisOptions.client()).operation(operation).poolConfig(redisOptions.poolConfig()).build();
+        return OperationItemWriter.client(redisOptions.redisClient()).operation(operation).poolConfig(redisOptions.poolConfig()).build();
     }
 
 

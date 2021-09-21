@@ -10,6 +10,7 @@ dependencies {
     api project(':riot-core')
     implementation group: 'org.latencyutils', name: 'LatencyUtils', version: latencyutilsVersion
     testImplementation project(':riot-test')
+    implementation group: 'org.apache.commons', name: 'commons-lang3', version: commonsLangVersion
 }
 
 bootDistZip.enabled = false
