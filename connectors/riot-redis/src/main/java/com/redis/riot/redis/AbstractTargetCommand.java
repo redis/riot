@@ -16,6 +16,7 @@ import org.springframework.batch.item.redis.DataStructureItemReader;
 import org.springframework.batch.item.redis.support.DataStructure;
 import org.springframework.batch.item.redis.support.DataStructureValueReader;
 import org.springframework.batch.item.redis.support.KeyComparisonItemWriter;
+import org.springframework.batch.item.redis.support.KeyComparisonMismatchPrinter;
 import org.springframework.batch.item.redis.support.KeyComparisonResultCounter;
 import org.springframework.batch.item.redis.support.KeyValueItemReader;
 import picocli.CommandLine;
@@ -47,7 +48,7 @@ public abstract class AbstractTargetCommand extends AbstractFlushingTransferComm
         KeyComparisonItemWriter.KeyComparisonItemWriterBuilder writerBuilder = KeyComparisonItemWriter.valueReader(targetValueReader);
         writerBuilder.resultHandler(counter);
         if (compareOptions.isShowDiffs()) {
-            writerBuilder.resultHandler(new MismatchPrinter());
+            writerBuilder.resultHandler(new KeyComparisonMismatchPrinter());
         }
         writerBuilder.ttlTolerance(compareOptions.getTtlToleranceDuration());
         KeyComparisonItemWriter writer = writerBuilder.build();
