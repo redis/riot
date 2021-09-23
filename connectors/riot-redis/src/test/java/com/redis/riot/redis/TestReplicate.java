@@ -28,7 +28,7 @@ import java.time.Instant;
 @SuppressWarnings({"rawtypes", "unchecked", "BusyWait"})
 public class TestReplicate extends AbstractRiotIntegrationTest {
 
-    private final static Duration REPLICATION_TIMEOUT = Duration.ofSeconds(5);
+    private final static Duration REPLICATION_TIMEOUT = Duration.ofSeconds(10);
 
     @Container
     private static final RedisContainer TARGET = new RedisContainer();
