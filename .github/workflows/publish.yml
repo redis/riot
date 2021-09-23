@@ -35,6 +35,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradlew-
 
+      - name: Set release version
+        run: |
+          VERSION=${{ github.event.inputs.version }}
+          echo $VERSION > VERSION
+
       - name: Build
         env:
           GPG_KEY_ID: ${{ secrets.GPG_KEY_ID }}
