@@ -15,7 +15,7 @@ public abstract class AbstractRedisCommandCommand extends AbstractRiotCommand {
     @Override
     protected Flow flow(StepBuilderFactory stepBuilderFactory) {
 
-        return flow(stepBuilderFactory.get(spec.name() + "-step").tasklet((contribution, chunkContext) -> {
+        return flow(stepBuilderFactory.get(commandName() + "-step").tasklet((contribution, chunkContext) -> {
             try (StatefulRedisModulesConnection<String, String> connection = getRedisOptions().connect()) {
                 RedisModulesCommands<String, String> commands = connection.sync();
                 execute(commands);

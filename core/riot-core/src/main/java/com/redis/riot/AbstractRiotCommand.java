@@ -37,7 +37,9 @@ public abstract class AbstractRiotCommand extends HelpCommand implements Callabl
     private RiotApp app;
 
     @CommandLine.Spec
-    protected CommandLine.Model.CommandSpec spec;
+    private CommandLine.Model.CommandSpec spec;
+
+    private String commandName;
 
     private ExecutionStrategy executionStrategy = ExecutionStrategy.SYNC;
 
@@ -58,12 +60,23 @@ public abstract class AbstractRiotCommand extends HelpCommand implements Callabl
     protected final Flow flow(Step... steps) {
         Assert.notNull(steps, "Steps are required");
         Assert.isTrue(steps.length > 0, "At least one step is required");
-        FlowBuilder<SimpleFlow> flow = flow(spec.name()+"-flow");
+        FlowBuilder<SimpleFlow> flow = flow(commandName() + "-flow");
         flow.start(steps[0]);
         for (int index = 1; index < steps.length; index++) {
             flow.next(steps[index]);
         }
         return flow.build();
+    }
+
+    public void setCommandName(String name) {
+        this.commandName = name;
+    }
+
+    protected String commandName() {
+        if (spec == null) {
+            return commandName;
+        }
+        return spec.name();
     }
 
     protected final FlowBuilder<SimpleFlow> flow(String name) {
@@ -114,7 +127,7 @@ public abstract class AbstractRiotCommand extends HelpCommand implements Callabl
     public JobExecution execute() throws Exception {
         JobFactory jobFactory = new JobFactory();
         jobFactory.afterPropertiesSet();
-        JobBuilder builder = jobFactory.getJobBuilderFactory().get(spec.name());
+        JobBuilder builder = jobFactory.getJobBuilderFactory().get(commandName());
         Job job = builder.listener(this).start(flow(jobFactory.getStepBuilderFactory())).build().build();
         return executionStrategy.launcher.apply(jobFactory).run(job, new JobParameters());
     }
