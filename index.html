@@ -16,7 +16,7 @@
 <h1>RIOT Guide</h1>
 <div class="details">
 <span id="author" class="author">Julien Ruaux</span><br>
-<span id="revnumber">version 2.12.0</span>
+<span id="revnumber">version 2.13.1-SNAPSHOT</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -842,7 +842,7 @@ Use <code>-</code> to read from standard input.
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="bash">riot-file import http://developer.redislabs.com/riot/beers.csv --header hset --keyspace beer --keys id</code></pre>
+<pre class="CodeRay highlight"><code data-lang="bash">riot-file import http://developer.redis.com/riot/beers.csv --header hset --keyspace beer --keys id</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -850,7 +850,7 @@ Use <code>-</code> to read from standard input.
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="bash">riot-file import http://developer.redislabs.com/riot/airports.csv --header --skip-limit 1 geoadd --keyspace airportgeo --members AirportID --lon Longitude --lat Latitude</code></pre>
+<pre class="CodeRay highlight"><code data-lang="bash">riot-file import http://developer.redis.com/riot/airports.csv --header --skip-limit 3 geoadd --keyspace airportgeo --members AirportID --lon Longitude --lat Latitude</code></pre>
 </div>
 </div>
 </div>
@@ -861,7 +861,7 @@ Use <code>-</code> to read from standard input.
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="bash">riot-file import http://developer.redislabs.com/riot/accounts.fw --ranges 1 9 25 41 53 67 83 --header hset --keyspace account --keys Account</code></pre>
+<pre class="CodeRay highlight"><code data-lang="bash">riot-file import http://developer.redis.com/riot/accounts.fw --ranges 1 9 25 41 53 67 83 --header hset --keyspace account --keys Account</code></pre>
 </div>
 </div>
 </div>
@@ -885,7 +885,7 @@ Use <code>-</code> to read from standard input.
 <div class="listingblock">
 <div class="title">JSON import example</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="bash">riot-file import http://developer.redislabs.com/riot/beers.json hset --keyspace beer --keys id</code></pre>
+<pre class="CodeRay highlight"><code data-lang="bash">riot-file import http://developer.redis.com/riot/beers.json hset --keyspace beer --keys id</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -958,7 +958,7 @@ Use <code>-</code> to read from standard input.
 <div class="listingblock">
 <div class="title">XML Import Example</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="bash">riot-file import http://developer.redislabs.com/riot/trades.xml hset --keyspace trade --keys id</code></pre>
+<pre class="CodeRay highlight"><code data-lang="bash">riot-file import http://developer.redis.com/riot/trades.xml hset --keyspace trade --keys id</code></pre>
 </div>
 </div>
 </div>
@@ -2043,8 +2043,8 @@ Commands:
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 2.12.0<br>
-Last updated 2021-07-08 00:04:38 +0200
+Version 2.13.1-SNAPSHOT<br>
+Last updated 2021-09-23 05:52:51 UTC
 </div>
 </div>
 <link rel="stylesheet" href="./coderay-asciidoctor.css">
