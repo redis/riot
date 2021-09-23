@@ -19,6 +19,7 @@ import org.springframework.batch.core.job.flow.support.SimpleFlow;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.item.redis.support.JobFactory;
 import org.springframework.util.Assert;
+import org.springframework.util.ClassUtils;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.ParentCommand;
@@ -38,8 +39,6 @@ public abstract class AbstractRiotCommand extends HelpCommand implements Callabl
 
     @CommandLine.Spec
     private CommandLine.Model.CommandSpec spec;
-
-    private String commandName;
 
     private ExecutionStrategy executionStrategy = ExecutionStrategy.SYNC;
 
@@ -68,13 +67,9 @@ public abstract class AbstractRiotCommand extends HelpCommand implements Callabl
         return flow.build();
     }
 
-    public void setCommandName(String name) {
-        this.commandName = name;
-    }
-
     protected String commandName() {
         if (spec == null) {
-            return commandName;
+            return ClassUtils.getShortName(getClass());
         }
         return spec.name();
     }

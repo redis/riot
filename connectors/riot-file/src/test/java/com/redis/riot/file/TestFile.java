@@ -425,7 +425,6 @@ public class TestFile extends AbstractRiotIntegrationTest {
         RiotFile riotFile = new RiotFile();
         configure(riotFile, container);
         command.setApp(riotFile);
-        command.setCommandName("import");
         command.call();
         RedisKeyCommands<String, String> sync = sync(container);
         List<String> keys = sync.keys("beer:*");
