@@ -1,10 +1,16 @@
 package com.redis.riot.redis;
 
-import com.redis.riot.*;
+import com.redis.riot.AbstractTransferCommand;
+import com.redis.riot.RedisOptions;
+import com.redis.riot.RedisReaderOptions;
+import com.redis.riot.RiotStepBuilder;
+import com.redis.riot.TransferOptions;
+import io.lettuce.core.AbstractRedisClient;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.ExitStatus;
+import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.job.flow.Flow;
@@ -24,7 +30,7 @@ import picocli.CommandLine;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Slf4j
-public abstract class AbstractTargetCommand extends AbstractFlushingTransferCommand {
+public abstract class AbstractTargetCommand extends AbstractTransferCommand {
 
     private static final String ASCII_COMPARE_MESSAGE_FORMAT = ">%,d T%,d ≠%,d ⧗%,d <%,d";
     private static final String COLORFUL_COMPARE_MESSAGE_FORMAT = "\u001b[31m>%,d \u001b[33mT%,d \u001b[35m≠%,d \u001b[36m⧗%,d\u001b[0m";
@@ -35,6 +41,12 @@ public abstract class AbstractTargetCommand extends AbstractFlushingTransferComm
     protected RedisReaderOptions readerOptions = new RedisReaderOptions();
     @CommandLine.Mixin
     private CompareOptions compareOptions = new CompareOptions();
+
+    @Override
+    public void afterJob(JobExecution jobExecution) {
+        targetRedisOptions.shutdown();
+        super.afterJob(jobExecution);
+    }
 
     protected void initialMax(RiotStepBuilder<?, ?> step) {
         step.initialMax(readerOptions.initialMaxSupplier(getRedisOptions()));
@@ -93,18 +105,12 @@ public abstract class AbstractTargetCommand extends AbstractFlushingTransferComm
     }
 
     protected KeyValueItemReader<DataStructure> dataStructureReader() {
-        RedisOptions redisOptions = getRedisOptions();
-        if (redisOptions.isCluster()) {
-            return readerOptions.configure(DataStructureItemReader.client(redisOptions.clusterClient()).poolConfig(redisOptions.poolConfig())).build();
-        }
-        return readerOptions.configure(DataStructureItemReader.client(redisOptions.client()).poolConfig(redisOptions.poolConfig())).build();
+        AbstractRedisClient client = getRedisOptions().client();
+        return readerOptions.configure(new DataStructureItemReader.DataStructureItemReaderBuilder(client, new DataStructureValueReader.DataStructureValueReaderBuilder(client).build()).poolConfig(getRedisOptions().poolConfig())).build();
     }
 
     protected DataStructureValueReader targetDataStructureValueReader() {
-        if (targetRedisOptions.isCluster()) {
-            return DataStructureValueReader.client(targetRedisOptions.clusterClient()).poolConfig(targetRedisOptions.poolConfig()).build();
-        }
-        return DataStructureValueReader.client(targetRedisOptions.client()).poolConfig(targetRedisOptions.poolConfig()).build();
+        return new DataStructureValueReader.DataStructureValueReaderBuilder(targetRedisOptions.client()).poolConfig(targetRedisOptions.poolConfig()).build();
     }
 
 }

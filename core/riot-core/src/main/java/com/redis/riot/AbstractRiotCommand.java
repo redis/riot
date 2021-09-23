@@ -1,9 +1,16 @@
 package com.redis.riot;
 
+import io.lettuce.core.RedisURI;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.batch.core.*;
+import org.springframework.batch.core.ExitStatus;
+import org.springframework.batch.core.Job;
+import org.springframework.batch.core.JobExecution;
+import org.springframework.batch.core.JobExecutionListener;
+import org.springframework.batch.core.JobParameters;
+import org.springframework.batch.core.Step;
+import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.job.builder.FlowBuilder;
 import org.springframework.batch.core.job.builder.JobBuilder;
@@ -13,17 +20,37 @@ import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.item.redis.support.JobFactory;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
-import picocli.CommandLine;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.ParentCommand;
 
+import java.util.concurrent.Callable;
 import java.util.function.Function;
 
 @Slf4j
 @Data
 @EqualsAndHashCode(callSuper = true)
-@CommandLine.Command
-public abstract class AbstractTaskCommand extends RiotCommand {
+@Command(abbreviateSynopsis = true, sortOptions = false)
+public abstract class AbstractRiotCommand extends HelpCommand implements Callable<Integer>, JobExecutionListener {
+
+    @SuppressWarnings("unused")
+    @ParentCommand
+    private RiotApp app;
 
     private ExecutionStrategy executionStrategy = ExecutionStrategy.SYNC;
+
+    protected RedisOptions getRedisOptions() {
+        return app.getRedisOptions();
+    }
+
+    protected String name(RedisURI redisURI) {
+        if (redisURI.getSocket() != null) {
+            return redisURI.getSocket();
+        }
+        if (redisURI.getSentinelMasterId() != null) {
+            return redisURI.getSentinelMasterId();
+        }
+        return redisURI.getHost();
+    }
 
     protected final Flow flow(Step... steps) {
         Assert.notNull(steps, "Steps are required");
@@ -87,10 +114,20 @@ public abstract class AbstractTaskCommand extends RiotCommand {
         JobFactory jobFactory = new JobFactory();
         jobFactory.afterPropertiesSet();
         JobBuilder builder = jobFactory.getJobBuilderFactory().get(ClassUtils.getShortName(getClass()));
-        Job job = builder.start(flow(jobFactory.getStepBuilderFactory())).build().build();
+        Job job = builder.listener(this).start(flow(jobFactory.getStepBuilderFactory())).build().build();
         return executionStrategy.launcher.apply(jobFactory).run(job, new JobParameters());
     }
 
     protected abstract Flow flow(StepBuilderFactory stepBuilderFactory) throws Exception;
+
+    @Override
+    public void afterJob(JobExecution jobExecution) {
+        getRedisOptions().shutdown();
+    }
+
+    @Override
+    public void beforeJob(JobExecution jobExecution) {
+        // do nothing
+    }
 
 }

@@ -1,7 +1,7 @@
 package com.redis.riot.stream;
 
-import com.redis.riot.AbstractFlushingTransferCommand;
-import com.redis.riot.RedisOptions;
+import com.redis.riot.AbstractTransferCommand;
+import com.redis.riot.FlushingTransferOptions;
 import com.redis.riot.RiotStepBuilder;
 import com.redis.riot.stream.kafka.KafkaItemWriter;
 import com.redis.riot.stream.processor.AvroProducerProcessor;
@@ -36,8 +36,10 @@ import java.util.Map;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Command(name = "export", description = "Import Redis streams into Kafka topics")
-public class StreamExportCommand extends AbstractFlushingTransferCommand {
+public class StreamExportCommand extends AbstractTransferCommand {
 
+    @CommandLine.Mixin
+    private FlushingTransferOptions flushingTransferOptions = new FlushingTransferOptions();
     @SuppressWarnings("unused")
     @Parameters(arity = "0..*", description = "One ore more streams to read from", paramLabel = "STREAM")
     private String[] streams;
@@ -63,13 +65,7 @@ public class StreamExportCommand extends AbstractFlushingTransferCommand {
     }
 
     private StreamItemReader reader(StreamOffset<String> offset) {
-        RedisOptions redisOptions = getRedisOptions();
-        if (redisOptions.isCluster()) {
-            log.debug("Creating cluster stream reader with offset {}", offset);
-            return StreamItemReader.client(redisOptions.clusterClient()).offset(offset).build();
-        }
-        log.debug("Creating stream reader with offset {}", offset);
-        return StreamItemReader.client(redisOptions.client()).offset(offset).build();
+        return new StreamItemReader.StreamItemReaderBuilder(getRedisOptions().client(), offset).build();
     }
 
     private KafkaItemWriter<String> writer() {

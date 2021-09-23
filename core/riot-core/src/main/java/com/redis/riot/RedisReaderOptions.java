@@ -58,7 +58,7 @@ public class RedisReaderOptions {
 
     public Supplier<Long> initialMaxSupplier(RedisOptions redisOptions) {
         return () -> {
-            AbstractRedisClient client = redisOptions.redisClient();
+            AbstractRedisClient client = redisOptions.client();
             ScanSizeEstimator.ScanSizeEstimatorBuilder builder = redisOptions.isCluster() ? ScanSizeEstimator.client((RedisModulesClusterClient) client) : ScanSizeEstimator.client((RedisModulesClient) client);
             ScanSizeEstimator estimator = builder.poolConfig(redisOptions.poolConfig()).build();
             try {
@@ -66,8 +66,6 @@ public class RedisReaderOptions {
             } catch (Exception e) {
                 log.warn("Could not estimate scan size", e);
                 return null;
-            } finally {
-                RedisOptions.shutdown(client);
             }
         };
     }

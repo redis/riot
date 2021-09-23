@@ -1,6 +1,7 @@
 package com.redis.riot.stream;
 
-import com.redis.riot.AbstractFlushingTransferCommand;
+import com.redis.riot.AbstractTransferCommand;
+import com.redis.riot.FlushingTransferOptions;
 import com.redis.riot.RedisOptions;
 import com.redis.riot.RiotStepBuilder;
 import com.redis.riot.redis.FilteringOptions;
@@ -35,8 +36,10 @@ import java.util.Properties;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Command(name = "import", description = "Import Kafka topics into Redis streams")
-public class StreamImportCommand extends AbstractFlushingTransferCommand {
+public class StreamImportCommand extends AbstractTransferCommand {
 
+    @CommandLine.Mixin
+    private FlushingTransferOptions flushingTransferOptions = new FlushingTransferOptions();
     @SuppressWarnings("unused")
     @Parameters(arity = "0..*", description = "One ore more topics to read from", paramLabel = "TOPIC")
     private String[] topics;
@@ -72,7 +75,7 @@ public class StreamImportCommand extends AbstractFlushingTransferCommand {
 
     private ItemWriter<ConsumerRecord<String, Object>> writer() {
         RedisOptions redisOptions = getRedisOptions();
-        return OperationItemWriter.client(redisOptions.redisClient()).operation(Xadd.key(keyConverter()).body(bodyConverter()).args(xAddArgs()).build()).poolConfig(redisOptions.poolConfig()).build();
+        return OperationItemWriter.client(redisOptions.client()).operation(Xadd.key(keyConverter()).body(bodyConverter()).args(xAddArgs()).build()).poolConfig(redisOptions.poolConfig()).build();
     }
 
     private Converter<ConsumerRecord<String, Object>, Map<String, String>> bodyConverter() {

@@ -1,12 +1,12 @@
 package com.redis.riot;
 
 import com.redis.lettucemod.RedisModulesClient;
+import com.redis.lettucemod.api.StatefulRedisModulesConnection;
 import com.redis.lettucemod.cluster.RedisModulesClusterClient;
 import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.ClientOptions;
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.SslOptions;
-import io.lettuce.core.api.StatefulConnection;
 import io.lettuce.core.cluster.ClusterClientOptions;
 import io.lettuce.core.cluster.RedisClusterClient;
 import io.lettuce.core.event.DefaultEventPublisherOptions;
@@ -17,7 +17,6 @@ import io.lettuce.core.resource.ClientResources;
 import io.lettuce.core.resource.DefaultClientResources;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.springframework.util.ObjectUtils;
 import picocli.CommandLine.Option;
@@ -79,22 +78,12 @@ public class RedisOptions {
     @Option(names = "--client", description = "Client name used to connect to Redis.", paramLabel = "<name>")
     private String clientName;
 
-    public static void shutdown(AbstractRedisClient client) {
+    private AbstractRedisClient client;
+
+    public void shutdown() {
         if (client != null) {
             client.shutdown();
             client.getResources().shutdown();
-        }
-    }
-
-    public static void close(StatefulConnection<String, String> connection) {
-        if (connection != null) {
-            connection.close();
-        }
-    }
-
-    public static void close(GenericObjectPool<?> pool) {
-        if (pool != null) {
-            pool.close();
         }
     }
 
@@ -162,16 +151,24 @@ public class RedisOptions {
         return builder.build();
     }
 
-    public RedisModulesClusterClient clusterClient() {
-        RedisModulesClusterClient client = RedisModulesClusterClient.create(clientResources(), uris());
-        client.setOptions(ClusterClientOptions.builder().autoReconnect(autoReconnect).sslOptions(sslOptions()).build());
-        return client;
+    public RedisModulesClusterClient redisModulesClusterClient() {
+        if (client == null) {
+            log.debug("Creating Redis cluster client: {}", this);
+            RedisModulesClusterClient clusterClient = RedisModulesClusterClient.create(clientResources(), uris());
+            clusterClient.setOptions(ClusterClientOptions.builder().autoReconnect(autoReconnect).sslOptions(sslOptions()).build());
+            client = clusterClient;
+        }
+        return (RedisModulesClusterClient) client;
     }
 
-    public RedisModulesClient client() {
-        RedisModulesClient client = RedisModulesClient.create(clientResources(), uris().get(0));
-        client.setOptions(ClientOptions.builder().autoReconnect(autoReconnect).sslOptions(sslOptions()).build());
-        return client;
+    public RedisModulesClient redisModulesClient() {
+        if (client == null) {
+            log.debug("Creating Redis client: {}", this);
+            RedisModulesClient redisClient = RedisModulesClient.create(clientResources(), uris().get(0));
+            redisClient.setOptions(ClientOptions.builder().autoReconnect(autoReconnect).sslOptions(sslOptions()).build());
+            this.client = redisClient;
+        }
+        return (RedisModulesClient) client;
     }
 
     public <T> GenericObjectPoolConfig<T> poolConfig() {
@@ -180,18 +177,17 @@ public class RedisOptions {
         return config;
     }
 
-    public AbstractRedisClient redisClient() {
+    public AbstractRedisClient client() {
         if (cluster) {
-            log.debug("Creating Redis cluster client: {}", this);
-            return clusterClient();
+            return redisModulesClusterClient();
         }
-        log.debug("Creating Redis client: {}", this);
-        return client();
+        return redisModulesClient();
     }
 
-    public static StatefulConnection<String, String> connect(AbstractRedisClient client) {
+    public StatefulRedisModulesConnection<String, String> connect() {
+        AbstractRedisClient client = client();
         if (client instanceof RedisClusterClient) {
-            return ((RedisClusterClient) client).connect();
+            return ((RedisModulesClusterClient) client).connect();
         }
         return ((RedisModulesClient) client).connect();
     }

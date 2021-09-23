@@ -2,6 +2,7 @@ package com.redis.riot;
 
 import com.redis.lettucemod.RedisModulesClient;
 import com.redis.lettucemod.cluster.RedisModulesClusterClient;
+import io.lettuce.core.AbstractRedisClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.step.builder.AbstractTaskletStepBuilder;
@@ -11,6 +12,7 @@ import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.redis.DataStructureItemReader;
 import org.springframework.batch.item.redis.support.DataStructure;
+import org.springframework.batch.item.redis.support.DataStructureValueReader;
 import picocli.CommandLine;
 
 @Slf4j
@@ -27,13 +29,8 @@ public abstract class AbstractExportCommand<O> extends AbstractTransferCommand {
     }
 
     protected final DataStructureItemReader reader() {
-        RedisOptions redisOptions = getRedisOptions();
-        if (redisOptions.isCluster()) {
-            RedisModulesClusterClient client = redisOptions.clusterClient();
-            return options.configure(DataStructureItemReader.client(client)).build();
-        }
-        RedisModulesClient client = redisOptions.client();
-        return options.configure(DataStructureItemReader.client(client)).build();
+        AbstractRedisClient client = getRedisOptions().client();
+        return options.configure(new DataStructureItemReader.DataStructureItemReaderBuilder(client, new DataStructureValueReader.DataStructureValueReaderBuilder(client).build())).build();
     }
 
     @Override

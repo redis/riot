@@ -1,13 +1,13 @@
 package com.redis.riot.redis;
 
-import io.lettuce.core.api.sync.BaseRedisCommands;
+import com.redis.lettucemod.api.sync.RedisModulesCommands;
 import picocli.CommandLine.Command;
 
 @Command(name = "ping", description = "Execute PING command")
-public class PingCommand extends AbstractUtilityCommand {
+public class PingCommand extends AbstractRedisCommandCommand {
 
 	@Override
-	protected void execute(BaseRedisCommands<String, String> commands) {
+	protected void execute(RedisModulesCommands<String, String> commands) {
 		System.out.println("Received ping reply: " + commands.ping());
 	}
 

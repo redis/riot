@@ -9,7 +9,7 @@ import picocli.CommandLine;
 @Slf4j
 @Data
 @EqualsAndHashCode(callSuper = true)
-public abstract class AbstractTransferCommand extends AbstractTaskCommand {
+public abstract class AbstractTransferCommand extends AbstractRiotCommand {
 
     @CommandLine.Mixin
     protected TransferOptions transferOptions = new TransferOptions();

@@ -1,5 +1,6 @@
 package com.redis.riot.redis;
 
+import com.redis.riot.FlushingTransferOptions;
 import com.redis.riot.KeyValueProcessorOptions;
 import com.redis.riot.RedisOptions;
 import com.redis.riot.RiotStepBuilder;
@@ -26,6 +27,8 @@ import picocli.CommandLine;
 @Slf4j
 public abstract class AbstractReplicateCommand<T extends KeyValue<?>> extends AbstractTargetCommand {
 
+    @CommandLine.Mixin
+    private FlushingTransferOptions flushingTransferOptions = new FlushingTransferOptions();
     @SuppressWarnings("unused")
     @CommandLine.Mixin
     private ReplicationOptions replicationOptions = new ReplicationOptions();

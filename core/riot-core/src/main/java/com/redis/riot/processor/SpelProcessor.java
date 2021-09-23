@@ -1,7 +1,6 @@
 package com.redis.riot.processor;
 
 import com.redis.riot.RedisOptions;
-import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.api.StatefulConnection;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.api.sync.BaseRedisCommands;
@@ -27,7 +26,6 @@ public class SpelProcessor implements ItemProcessor<Map<String, Object>, Map<Str
     private final RedisOptions redisOptions;
     private final EvaluationContext context;
     private final Map<String, Expression> expressions;
-    private AbstractRedisClient client;
     private StatefulConnection<String, String> connection;
     private AtomicLong index;
 
@@ -41,8 +39,7 @@ public class SpelProcessor implements ItemProcessor<Map<String, Object>, Map<Str
 
     @Override
     public void open(ExecutionContext executionContext) throws ItemStreamException {
-        this.client = redisOptions.redisClient();
-        this.connection = RedisOptions.connect(client);
+        this.connection = redisOptions.connect();
         this.context.setVariable("redis", sync(connection));
         this.index = new AtomicLong();
         this.context.setVariable("index", index);
@@ -55,8 +52,9 @@ public class SpelProcessor implements ItemProcessor<Map<String, Object>, Map<Str
 
     @Override
     public void close() throws ItemStreamException {
-        RedisOptions.close(connection);
-        RedisOptions.shutdown(client);
+        if (connection != null) {
+            connection.close();
+        }
     }
 
     private static BaseRedisCommands<String, String> sync(StatefulConnection<String, String> connection) {

@@ -101,7 +101,8 @@ public class TestGen extends AbstractRiotIntegrationTest {
         Document<String, String> doc1 = results.get(0);
         Assertions.assertNotNull(doc1.get(FIELD_ABV));
         connection.close();
-        RedisOptions.shutdown(modulesClient);
+        modulesClient.shutdown();
+        modulesClient.getResources().shutdown();
     }
 
 }

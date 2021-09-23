@@ -1,12 +1,14 @@
 package com.redis.riot.redis;
 
 import com.redis.riot.RedisOptions;
+import io.lettuce.core.AbstractRedisClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.redis.DataStructureItemReader;
 import org.springframework.batch.item.redis.DataStructureItemWriter;
 import org.springframework.batch.item.redis.support.DataStructure;
+import org.springframework.batch.item.redis.support.DataStructureValueReader;
 import org.springframework.batch.item.redis.support.PollableItemReader;
 import picocli.CommandLine;
 
@@ -21,17 +23,12 @@ public class ReplicateDataStructureCommand extends AbstractReplicateCommand<Data
 
     @Override
     protected PollableItemReader<DataStructure> liveReader(RedisOptions redisOptions) {
-        if (redisOptions.isCluster()) {
-            return configure(DataStructureItemReader.client(redisOptions.clusterClient()).live()).build();
-        }
-        return configure(DataStructureItemReader.client(redisOptions.client()).live()).build();
+        AbstractRedisClient client = redisOptions.client();
+        return configure(new DataStructureItemReader.DataStructureItemReaderBuilder(client, new DataStructureValueReader.DataStructureValueReaderBuilder(client).build()).live()).build();
     }
 
     @Override
     protected ItemWriter<DataStructure> writer(RedisOptions redisOptions) {
-        if (redisOptions.isCluster()) {
-            return DataStructureItemWriter.client(redisOptions.clusterClient()).poolConfig(redisOptions.poolConfig()).build();
-        }
-        return DataStructureItemWriter.client(redisOptions.client()).poolConfig(redisOptions.poolConfig()).build();
+        return new DataStructureItemWriter.DataStructureItemWriterBuilder(redisOptions.client()).poolConfig(redisOptions.poolConfig()).build();
     }
 }

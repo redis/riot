@@ -1,8 +1,7 @@
 package com.redis.riot.redis;
 
-import com.redis.riot.AbstractTaskCommand;
-import com.redis.riot.RedisOptions;
 import com.redis.riot.AbstractRiotIntegrationTest;
+import com.redis.riot.AbstractRiotCommand;
 import com.redis.testcontainers.RedisContainer;
 import com.redis.testcontainers.RedisServer;
 import io.lettuce.core.RedisClient;
@@ -22,11 +21,14 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import picocli.CommandLine;
 
 import java.time.Duration;
+import java.time.Instant;
 
 @Testcontainers
 @Slf4j
 @SuppressWarnings({"rawtypes", "unchecked", "BusyWait"})
 public class TestReplicate extends AbstractRiotIntegrationTest {
+
+    private final static Duration REPLICATION_TIMEOUT = Duration.ofSeconds(5);
 
     @Container
     private static final RedisContainer TARGET = new RedisContainer();
@@ -45,8 +47,9 @@ public class TestReplicate extends AbstractRiotIntegrationTest {
     @AfterEach
     public void cleanupTarget() {
         targetConnection.sync().flushall();
-        RedisOptions.close(targetConnection);
-        RedisOptions.shutdown(targetClient);
+        targetConnection.close();
+        targetClient.shutdown();
+        targetClient.getResources().shutdown();
     }
 
     @Override
@@ -57,7 +60,7 @@ public class TestReplicate extends AbstractRiotIntegrationTest {
     private void configureReplicateCommand(CommandLine.ParseResult parseResult, boolean async) {
         AbstractReplicateCommand command = parseResult.subcommand().commandSpec().commandLine().getCommand();
         if (async) {
-            command.setExecutionStrategy(AbstractTaskCommand.ExecutionStrategy.ASYNC);
+            command.setExecutionStrategy(AbstractRiotCommand.ExecutionStrategy.ASYNC);
         }
         command.getTargetRedisOptions().setUris(new RedisURI[]{RedisURI.create(TARGET.getRedisURI())});
         if (command.getReplicationOptions().getMode() == ReplicationMode.LIVE) {
@@ -83,9 +86,9 @@ public class TestReplicate extends AbstractRiotIntegrationTest {
         RedisServerCommands<String, String> sync = sync(container);
         Long sourceSize = sync.dbsize();
         Assertions.assertTrue(sourceSize > 0);
-        execute("replicate-key-processor", container, r -> configureReplicateCommand(r,false));
+        execute("replicate-key-processor", container, r -> configureReplicateCommand(r, false));
         Assertions.assertEquals(sourceSize, targetSync.dbsize());
-        RedisStringCommands<String,String> stringCommands = sync(container);
+        RedisStringCommands<String, String> stringCommands = sync(container);
         Assertions.assertEquals(stringCommands.get("string:123"), targetSync.get("0:string:123"));
     }
 
@@ -103,7 +106,7 @@ public class TestReplicate extends AbstractRiotIntegrationTest {
 
     private void testLiveReplication(RedisServer container, String filename) throws Exception {
         dataGenerator(container).build().call();
-        execute(filename, container, r -> configureReplicateCommand(r,true));
+        execute(filename, container, r -> configureReplicateCommand(r, true));
         while (targetSync.dbsize() < 100) {
             Thread.sleep(10);
         }
@@ -113,10 +116,15 @@ public class TestReplicate extends AbstractRiotIntegrationTest {
         for (int index = 0; index < count; index++) {
             sync.set("livestring:" + index, "value" + index);
         }
-        while (targetSync.dbsize() < 2000) {
+        Instant start = Instant.now();
+        long sourceSize = ((RedisServerCommands<String, String>) sync).dbsize();
+        while (targetSync.dbsize() != sourceSize && isActive(start, REPLICATION_TIMEOUT)) {
             Thread.sleep(10);
         }
-        Thread.sleep(300);
-        Assertions.assertEquals(((RedisServerCommands<String, String>) sync).dbsize(), targetSync.dbsize());
+        Assertions.assertEquals(sourceSize, targetSync.dbsize());
+    }
+
+    private boolean isActive(Instant start, Duration timeout) {
+        return Duration.between(start, Instant.now()).compareTo(timeout) < 0;
     }
 }

@@ -81,10 +81,11 @@ public abstract class AbstractRiotIntegrationTest extends AbstractRiotTest {
 
     @AfterAll
     public static void teardown() {
-        CONNECTIONS.values().forEach(RedisOptions::close);
-        PUBSUB_CONNECTIONS.values().forEach(RedisOptions::close);
-        POOLS.values().forEach(RedisOptions::close);
-        CLIENTS.values().forEach(RedisOptions::shutdown);
+        CONNECTIONS.values().forEach(StatefulConnection::close);
+        PUBSUB_CONNECTIONS.values().forEach(StatefulConnection::close);
+        POOLS.values().forEach(GenericObjectPool::close);
+        CLIENTS.values().forEach(AbstractRedisClient::shutdown);
+        CLIENTS.values().forEach(c -> c.getResources().shutdown());
         SYNCS.clear();
         ASYNCS.clear();
         CONNECTIONS.clear();

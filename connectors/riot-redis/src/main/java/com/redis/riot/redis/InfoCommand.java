@@ -1,16 +1,14 @@
 package com.redis.riot.redis;
 
-import io.lettuce.core.api.sync.BaseRedisCommands;
-import io.lettuce.core.api.sync.RedisServerCommands;
+import com.redis.lettucemod.api.sync.RedisModulesCommands;
 import picocli.CommandLine.Command;
 
 @Command(name = "info", description = "Display INFO command output")
-public class InfoCommand extends AbstractUtilityCommand {
+public class InfoCommand extends AbstractRedisCommandCommand {
 
 	@Override
-	@SuppressWarnings("unchecked")
-	protected void execute(BaseRedisCommands<String, String> commands) {
-		System.out.println(((RedisServerCommands<String, String>) commands).info());
+	protected void execute(RedisModulesCommands<String, String> commands) {
+		System.out.println(commands.info());
 	}
 
 }

@@ -1,7 +1,6 @@
 package com.redis.riot.file;
 
 import com.redis.riot.AbstractTransferCommand;
-import com.redis.riot.RedisOptions;
 import com.redis.riot.RiotStepBuilder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -64,11 +63,7 @@ public class DumpFileImportCommand extends AbstractTransferCommand {
     }
 
     private ItemWriter<DataStructure> writer() {
-        RedisOptions redisOptions = getRedisOptions();
-        if (redisOptions.isCluster()) {
-            return DataStructureItemWriter.client(redisOptions.clusterClient()).poolConfig(redisOptions.poolConfig()).build();
-        }
-        return DataStructureItemWriter.client(redisOptions.client()).poolConfig(redisOptions.poolConfig()).build();
+        return new DataStructureItemWriter.DataStructureItemWriterBuilder(getRedisOptions().client()).poolConfig(getRedisOptions().poolConfig()).build();
     }
 
     protected AbstractItemStreamItemReader<DataStructure> reader(DumpFileType fileType, Resource resource) {
