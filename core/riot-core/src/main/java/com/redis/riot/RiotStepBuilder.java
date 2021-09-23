@@ -1,7 +1,5 @@
 package com.redis.riot;
 
-import io.lettuce.core.RedisCommandExecutionException;
-import io.lettuce.core.RedisCommandTimeoutException;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
@@ -18,12 +16,12 @@ import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.redis.support.FlushingStepBuilder;
+import org.springframework.batch.item.redis.support.KeyValueItemReader;
 import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.time.Duration;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeoutException;
 import java.util.function.Supplier;
 
 @Slf4j
@@ -61,7 +59,7 @@ public class RiotStepBuilder<I, O> {
             step.listener((StepExecutionListener) monitor);
             step.listener((ItemWriteListener) monitor);
         }
-        FaultTolerantStepBuilder<I, O> ftStep = faultTolerant(step).skipPolicy(skipPolicy(options.getSkipPolicy())).skipLimit(options.getSkipLimit()).skip(RedisCommandExecutionException.class).skip(RedisCommandTimeoutException.class).skip(TimeoutException.class);
+        FaultTolerantStepBuilder<I, O> ftStep = faultTolerant(step).skipPolicy(skipPolicy(options.getSkipPolicy()));
         if (options.getThreads() > 1) {
             ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
             taskExecutor.setCorePoolSize(options.getThreads());
@@ -95,7 +93,7 @@ public class RiotStepBuilder<I, O> {
             case NEVER:
                 return new NeverSkipItemSkipPolicy();
             default:
-                return new LimitCheckingItemSkipPolicy();
+                return new LimitCheckingItemSkipPolicy(options.getSkipLimit(), KeyValueItemReader.KeyValueItemReaderBuilder.DEFAULT_SKIPPABLE_EXCEPTIONS);
         }
     }
 
