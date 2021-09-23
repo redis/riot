@@ -7,8 +7,8 @@ on:
         description: "Release version"
         required: true
 jobs:
-  release:
-    name: Release
+  publish:
+    name: Publish
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
