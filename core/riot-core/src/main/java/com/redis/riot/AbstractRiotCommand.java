@@ -19,7 +19,7 @@ import org.springframework.batch.core.job.flow.support.SimpleFlow;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.item.redis.support.JobFactory;
 import org.springframework.util.Assert;
-import org.springframework.util.ClassUtils;
+import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.ParentCommand;
 
@@ -35,6 +35,9 @@ public abstract class AbstractRiotCommand extends HelpCommand implements Callabl
     @SuppressWarnings("unused")
     @ParentCommand
     private RiotApp app;
+
+    @CommandLine.Spec
+    protected CommandLine.Model.CommandSpec spec;
 
     private ExecutionStrategy executionStrategy = ExecutionStrategy.SYNC;
 
@@ -55,7 +58,7 @@ public abstract class AbstractRiotCommand extends HelpCommand implements Callabl
     protected final Flow flow(Step... steps) {
         Assert.notNull(steps, "Steps are required");
         Assert.isTrue(steps.length > 0, "At least one step is required");
-        FlowBuilder<SimpleFlow> flow = flow(ClassUtils.getShortName(getClass()));
+        FlowBuilder<SimpleFlow> flow = flow(spec.name()+"-flow");
         flow.start(steps[0]);
         for (int index = 1; index < steps.length; index++) {
             flow.next(steps[index]);
@@ -70,12 +73,10 @@ public abstract class AbstractRiotCommand extends HelpCommand implements Callabl
     @Override
     public Integer call() throws Exception {
         JobExecution execution = execute();
-        switch (executionStrategy) {
-            case ASYNC:
-                return awaitRunning(execution);
-            default:
-                return exitCode(execution);
+        if (executionStrategy == ExecutionStrategy.ASYNC) {
+            return awaitRunning(execution);
         }
+        return exitCode(execution);
     }
 
     private int awaitRunning(JobExecution execution) {
@@ -103,7 +104,7 @@ public abstract class AbstractRiotCommand extends HelpCommand implements Callabl
 
         SYNC(JobFactory::getSyncLauncher), ASYNC(JobFactory::getAsyncLauncher);
 
-        private Function<JobFactory, JobLauncher> launcher;
+        private final Function<JobFactory, JobLauncher> launcher;
 
         ExecutionStrategy(Function<JobFactory, JobLauncher> launcher) {
             this.launcher = launcher;
@@ -113,7 +114,7 @@ public abstract class AbstractRiotCommand extends HelpCommand implements Callabl
     public JobExecution execute() throws Exception {
         JobFactory jobFactory = new JobFactory();
         jobFactory.afterPropertiesSet();
-        JobBuilder builder = jobFactory.getJobBuilderFactory().get(ClassUtils.getShortName(getClass()));
+        JobBuilder builder = jobFactory.getJobBuilderFactory().get(spec.name());
         Job job = builder.listener(this).start(flow(jobFactory.getStepBuilderFactory())).build().build();
         return executionStrategy.launcher.apply(jobFactory).run(job, new JobParameters());
     }

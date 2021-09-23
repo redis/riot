@@ -19,6 +19,7 @@ import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.redis.support.KeyValue;
 import org.springframework.batch.item.redis.support.KeyValueItemReader;
 import org.springframework.batch.item.redis.support.PollableItemReader;
+import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import picocli.CommandLine;
 
@@ -35,17 +36,24 @@ public abstract class AbstractReplicateCommand<T extends KeyValue<?>> extends Ab
     @CommandLine.Mixin
     protected KeyValueProcessorOptions keyValueProcessorOptions = new KeyValueProcessorOptions();
 
-
     @Override
     protected Flow flow(StepBuilderFactory stepBuilderFactory) {
-        // Verification cannot be done if a processor is set
         if (replicationOptions.isVerify()) {
-            if (keyValueProcessor() == null) {
-                return flow("replication-verification-flow").start(replicationFlow(stepBuilderFactory)).next(verificationFlow(stepBuilderFactory)).build();
-            }
-            log.info("Key processor enabled, skipping verification");
+            return flow("replication-verification-flow").start(replicationFlow(stepBuilderFactory)).next(verificationFlow(stepBuilderFactory)).build();
         }
         return replicationFlow(stepBuilderFactory);
+    }
+
+    @Override
+    protected Flow verificationFlow(StepBuilderFactory stepBuilderFactory) {
+        if (keyValueProcessor() == null) {
+            return super.verificationFlow(stepBuilderFactory);
+        }
+        // Verification cannot be done if a processor is set
+        return flow(stepBuilderFactory.get("skipped-verification-notification-step").tasklet((contribution, chunkContext) -> {
+            log.info("Key processor enabled, skipping verification");
+            return RepeatStatus.FINISHED;
+        }).build());
     }
 
     private Flow replicationFlow(StepBuilderFactory stepBuilderFactory) {
