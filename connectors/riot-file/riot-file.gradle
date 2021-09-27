@@ -19,5 +19,6 @@ dependencies {
     testImplementation project(':riot-test')
 }
 
+bootStartScripts.enabled = false
 bootDistZip.enabled = false
 bootDistTar.enabled = false

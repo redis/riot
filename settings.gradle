@@ -5,7 +5,7 @@ buildscript {
         mavenLocal()
     }
     dependencies {
-        classpath "com.redis.gradle:redis-parentbuild:$redisBuildVersion"
+        classpath "org.kordamp.gradle:kordamp-parentbuild:$kordampBuildVersion"
         classpath "org.kordamp.gradle:java-project-gradle-plugin:$kordampPluginVersion"
         classpath "org.kordamp.gradle:guide-gradle-plugin:$kordampPluginVersion"
         classpath "io.freefair.gradle:lombok-plugin:$lombokPluginVersion"
@@ -14,7 +14,7 @@ buildscript {
     }
 }
 
-apply plugin: 'com.redis.gradle.redis-parentbuild'
+apply plugin: 'org.kordamp.gradle.kordamp-parentbuild'
 
 rootProject.name = 'riot'
 
@@ -57,6 +57,7 @@ enforce {
                 "com.google.protobuf:protobuf-java:$protobufVersion",
                 "com.google.protobuf:protobuf-java-util:$protobufVersion",
                 "org.hdrhistogram:HdrHistogram:2.1.12",
-                "com.google.code.findbugs:jsr305:3.0.2"
+                "com.google.code.findbugs:jsr305:3.0.2",
+                "org.apache.commons:commons-compress:1.21"
     }
 }

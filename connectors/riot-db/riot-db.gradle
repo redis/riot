@@ -22,5 +22,6 @@ dependencies {
     testImplementation group: 'com.redis.testcontainers', name: 'oracle-xe', version: testcontainersVersion
 }
 
+bootStartScripts.enabled = false
 bootDistZip.enabled = false
 bootDistTar.enabled = false
