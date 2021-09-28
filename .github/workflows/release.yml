@@ -15,7 +15,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Release
-        uses: redis-field-engineering/redis-release-version-action@v1
+        uses: redis-field-engineering/redis-version-action@v1
         with:
           version: ${{ github.event.inputs.version }}
 
