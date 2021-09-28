@@ -11,6 +11,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+
       - name: Build
         uses: redis-field-engineering/redis-build-action@v1
         with:
