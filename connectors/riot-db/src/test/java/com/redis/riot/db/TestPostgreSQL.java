@@ -65,7 +65,7 @@ public class TestPostgreSQL extends AbstractDatabaseTest {
 
     }
 
-    @ParameterizedTest(name = "{displayName} - {index}: {0}")
+    @ParameterizedTest
     @MethodSource("containers")
     public void testExport(RedisServer container) throws Exception {
         Statement statement = connection.createStatement();
@@ -88,7 +88,7 @@ public class TestPostgreSQL extends AbstractDatabaseTest {
     }
 
 
-    @ParameterizedTest(name = "{displayName} - {index}: {0}")
+    @ParameterizedTest
     @MethodSource("containers")
     public void testExportNullValues(RedisServer container) throws Exception {
         Statement statement = connection.createStatement();
@@ -118,7 +118,7 @@ public class TestPostgreSQL extends AbstractDatabaseTest {
         Assertions.assertEquals(sync.dbsize().longValue(), index);
     }
 
-    @ParameterizedTest(name = "{displayName} - {index}: {0}")
+    @ParameterizedTest
     @MethodSource("containers")
     public void testImport(RedisServer container) throws Exception {
         execute("import-postgresql", container, r -> configureImportCommand(r, POSTGRESQL));
@@ -134,7 +134,7 @@ public class TestPostgreSQL extends AbstractDatabaseTest {
         Assertions.assertEquals("VINET", order.get("customer_id"));
     }
 
-    @ParameterizedTest(name = "{displayName} - {index}: {0}")
+    @ParameterizedTest
     @MethodSource("containers")
     public void testImportSet(RedisServer container) throws Exception {
         execute("import-postgresql-set", container, r -> configureImportCommand(r, POSTGRESQL));

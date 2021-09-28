@@ -38,7 +38,7 @@ public class TestGen extends AbstractRiotIntegrationTest {
         return new RiotGen();
     }
 
-    @ParameterizedTest(name = "{displayName} - {index}: {0}")
+    @ParameterizedTest
     @MethodSource("containers")
     public void genFakerHash(RedisServer container) throws Exception {
         execute("import-hset", container);
@@ -51,7 +51,7 @@ public class TestGen extends AbstractRiotIntegrationTest {
         Assertions.assertTrue(person.containsKey("address"));
     }
 
-    @ParameterizedTest(name = "{displayName} - {index}: {0}")
+    @ParameterizedTest
     @MethodSource("containers")
     public void genFakerSet(RedisServer container) throws Exception {
         execute("import-sadd", container);
@@ -63,7 +63,7 @@ public class TestGen extends AbstractRiotIntegrationTest {
         }
     }
 
-    @ParameterizedTest(name = "{displayName} - {index}: {0}")
+    @ParameterizedTest
     @MethodSource("containers")
     public void genFakerZset(RedisServer container) throws Exception {
         execute("import-zadd", container);
@@ -74,7 +74,7 @@ public class TestGen extends AbstractRiotIntegrationTest {
         Assertions.assertTrue(((RedisSortedSetCommands<String, String>) sync).zcard(key) > 0);
     }
 
-    @ParameterizedTest(name = "{displayName} - {index}: {0}")
+    @ParameterizedTest
     @MethodSource("containers")
     public void genFakerStream(RedisServer container) throws Exception {
         execute("import-xadd", container);

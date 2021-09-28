@@ -90,7 +90,7 @@ public class TestFile extends AbstractRiotIntegrationTest {
         return new RiotFile();
     }
 
-    @ParameterizedTest(name = "{displayName} - {index}: {0}")
+    @ParameterizedTest
     @MethodSource("containers")
     public void importFW(RedisServer container) throws Exception {
         execute("import-fw", container);
@@ -106,7 +106,7 @@ public class TestFile extends AbstractRiotIntegrationTest {
         Assertions.assertEquals("A", account101.get("Rating"));
     }
 
-    @ParameterizedTest(name = "{displayName} - {index}: {0}")
+    @ParameterizedTest
     @MethodSource("containers")
     public void importCSV(RedisServer container) throws Exception {
         execute("import-csv", container);
@@ -115,7 +115,7 @@ public class TestFile extends AbstractRiotIntegrationTest {
         Assertions.assertEquals(COUNT, keys.size());
     }
 
-    @ParameterizedTest(name = "{displayName} - {index}: {0}")
+    @ParameterizedTest
     @MethodSource("containers")
     public void importPSV(RedisServer container) throws Exception {
         execute("import-psv", container);
@@ -124,7 +124,7 @@ public class TestFile extends AbstractRiotIntegrationTest {
         Assertions.assertEquals(3, keys.size());
     }
 
-    @ParameterizedTest(name = "{displayName} - {index}: {0}")
+    @ParameterizedTest
     @MethodSource("containers")
     public void importTSV(RedisServer container) throws Exception {
         execute("import-tsv", container);
@@ -133,7 +133,7 @@ public class TestFile extends AbstractRiotIntegrationTest {
         Assertions.assertEquals(4, keys.size());
     }
 
-    @ParameterizedTest(name = "{displayName} - {index}: {0}")
+    @ParameterizedTest
     @MethodSource("containers")
     public void importType(RedisServer container) throws Exception {
         execute("import-type", container);
@@ -142,7 +142,7 @@ public class TestFile extends AbstractRiotIntegrationTest {
         Assertions.assertEquals(3, keys.size());
     }
 
-    @ParameterizedTest(name = "{displayName} - {index}: {0}")
+    @ParameterizedTest
     @MethodSource("containers")
     public void importExclude(RedisServer container) throws Exception {
         execute("import-exclude", container);
@@ -155,7 +155,7 @@ public class TestFile extends AbstractRiotIntegrationTest {
         Assertions.assertFalse(beer1036.containsKey("ibu"));
     }
 
-    @ParameterizedTest(name = "{displayName} - {index}: {0}")
+    @ParameterizedTest
     @MethodSource("containers")
     public void importInclude(RedisServer container) throws Exception {
         execute("import-include", container);
@@ -167,7 +167,7 @@ public class TestFile extends AbstractRiotIntegrationTest {
         Assertions.assertEquals(0.099, abv(beer1036));
     }
 
-    @ParameterizedTest(name = "{displayName} - {index}: {0}")
+    @ParameterizedTest
     @MethodSource("containers")
     public void importFilter(RedisServer container) throws Exception {
         execute("import-filter", container);
@@ -176,7 +176,7 @@ public class TestFile extends AbstractRiotIntegrationTest {
         Assertions.assertEquals(424, keys.size());
     }
 
-    @ParameterizedTest(name = "{displayName} - {index}: {0}")
+    @ParameterizedTest
     @MethodSource("containers")
     public void importRegex(RedisServer container) throws Exception {
         execute("import-regex", container);
@@ -186,7 +186,7 @@ public class TestFile extends AbstractRiotIntegrationTest {
         Assertions.assertEquals("Port_Moresby", airport1.get("city"));
     }
 
-    @ParameterizedTest(name = "{displayName} - {index}: {0}")
+    @ParameterizedTest
     @MethodSource("containers")
     public void importGlob(RedisServer container) throws Exception {
         execute("import-glob", container);
@@ -195,7 +195,7 @@ public class TestFile extends AbstractRiotIntegrationTest {
         Assertions.assertEquals(COUNT, keys.size());
     }
 
-    @ParameterizedTest(name = "{displayName} - {index}: {0}")
+    @ParameterizedTest
     @MethodSource("containers")
     public void importGeoadd(RedisServer container) throws Exception {
         execute("import-geoadd", container);
@@ -206,7 +206,7 @@ public class TestFile extends AbstractRiotIntegrationTest {
         Assertions.assertTrue(results.contains("8982"));
     }
 
-    @ParameterizedTest(name = "{displayName} - {index}: {0}")
+    @ParameterizedTest
     @MethodSource("containers")
     public void importGeoProcessor(RedisServer container) throws Exception {
         execute("import-geo-processor", container);
@@ -215,7 +215,7 @@ public class TestFile extends AbstractRiotIntegrationTest {
         Assertions.assertEquals("-122.375,37.61899948120117", airport3469.get("location"));
     }
 
-    @ParameterizedTest(name = "{displayName} - {index}: {0}")
+    @ParameterizedTest
     @MethodSource("containers")
     public void importProcess(RedisServer container) throws Exception {
         execute("import-process", container);
@@ -230,7 +230,7 @@ public class TestFile extends AbstractRiotIntegrationTest {
         Assertions.assertTrue(index > 0);
     }
 
-    @ParameterizedTest(name = "{displayName} - {index}: {0}")
+    @ParameterizedTest
     @MethodSource("containers")
     public void importProcessElvis(RedisServer container) throws Exception {
         execute("import-process-elvis", container);
@@ -241,7 +241,7 @@ public class TestFile extends AbstractRiotIntegrationTest {
         Assertions.assertEquals("10", beer1436.get("ibu"));
     }
 
-    @ParameterizedTest(name = "{displayName} - {index}: {0}")
+    @ParameterizedTest
     @MethodSource("containers")
     public void importMultiCommands(RedisServer container) throws Exception {
         execute("import-multi-commands", container);
@@ -258,13 +258,13 @@ public class TestFile extends AbstractRiotIntegrationTest {
         Assertions.assertEquals(558, breweries.size());
     }
 
-    @ParameterizedTest(name = "{displayName} - {index}: {0}")
+    @ParameterizedTest
     @MethodSource("containers")
     public void importBad(RedisServer container) throws Exception {
         execute("import-bad", container);
     }
 
-    @ParameterizedTest(name = "{displayName} - {index}: {0}")
+    @ParameterizedTest
     @MethodSource("containers")
     public void importGCS(RedisServer container) throws Exception {
         execute("import-gcs", container);
@@ -275,7 +275,7 @@ public class TestFile extends AbstractRiotIntegrationTest {
         Assertions.assertEquals("Hocus Pocus", name(beer1));
     }
 
-    @ParameterizedTest(name = "{displayName} - {index}: {0}")
+    @ParameterizedTest
     @MethodSource("containers")
     public void importS3(RedisServer container) throws Exception {
         execute("import-s3", container);
@@ -286,7 +286,7 @@ public class TestFile extends AbstractRiotIntegrationTest {
         Assertions.assertEquals("Hocus Pocus", name(beer1));
     }
 
-    @ParameterizedTest(name = "{displayName} - {index}: {0}")
+    @ParameterizedTest
     @MethodSource("containers")
     public void importDump(RedisServer container) throws Exception {
         List<DataStructure> records = exportToList(container);
@@ -306,7 +306,7 @@ public class TestFile extends AbstractRiotIntegrationTest {
         command.setFile(replace(command.getFile()));
     }
 
-    @ParameterizedTest(name = "{displayName} - {index}: {0}")
+    @ParameterizedTest
     @MethodSource("containers")
     public void importJsonElastic(RedisServer container) throws Exception {
         execute("import-json-elastic", container);
@@ -317,7 +317,7 @@ public class TestFile extends AbstractRiotIntegrationTest {
         Assertions.assertEquals("3", doc1.get("_source.articles[1]"));
     }
 
-    @ParameterizedTest(name = "{displayName} - {index}: {0}")
+    @ParameterizedTest
     @MethodSource("containers")
     public void importJson(RedisServer container) throws Exception {
         execute("import-json", container);
@@ -328,7 +328,7 @@ public class TestFile extends AbstractRiotIntegrationTest {
         Assertions.assertEquals("Hocus Pocus", beer1.get("name"));
     }
 
-    @ParameterizedTest(name = "{displayName} - {index}: {0}")
+    @ParameterizedTest
     @MethodSource("containers")
     public void importXml(RedisServer container) throws Exception {
         execute("import-xml", container);
@@ -340,7 +340,7 @@ public class TestFile extends AbstractRiotIntegrationTest {
     }
 
 
-    @ParameterizedTest(name = "{displayName} - {index}: {0}")
+    @ParameterizedTest
     @MethodSource("containers")
     public void exportJSON(RedisServer container) throws Exception {
         List<DataStructure> records = exportToList(container);
@@ -349,7 +349,7 @@ public class TestFile extends AbstractRiotIntegrationTest {
     }
 
     @SuppressWarnings("rawtypes")
-    @ParameterizedTest(name = "{displayName} - {index}: {0}")
+    @ParameterizedTest
     @MethodSource("containers")
     public void exportJsonGz(RedisServer container) throws Exception {
         Path file = tempFile("beers.json.gz");
@@ -383,7 +383,7 @@ public class TestFile extends AbstractRiotIntegrationTest {
         return readAll(reader);
     }
 
-    @ParameterizedTest(name = "{displayName} - {index}: {0}")
+    @ParameterizedTest
     @MethodSource("containers")
     public void exportXml(RedisServer container) throws Exception {
         dataGenerator(container).build().call();
@@ -412,7 +412,7 @@ public class TestFile extends AbstractRiotIntegrationTest {
         }
     }
 
-    @ParameterizedTest(name = "{displayName} - {index}: {0}")
+    @ParameterizedTest
     @MethodSource("containers")
     public void importJsonAPI(RedisServer container) throws Exception {
         // riot-file import  hset --keyspace beer --keys id
@@ -433,7 +433,7 @@ public class TestFile extends AbstractRiotIntegrationTest {
         Assertions.assertEquals("Hocus Pocus", beer1.get("name"));
     }
 
-    @ParameterizedTest(name = "{displayName} - {index}: {0}")
+    @ParameterizedTest
     @MethodSource("containers")
     public void importJSONGzip(RedisServer container) throws Exception {
         execute("import-json-gz", container);
