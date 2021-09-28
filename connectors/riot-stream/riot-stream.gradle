@@ -24,5 +24,3 @@ dependencies {
 }
 
 bootStartScripts.enabled = false
-bootDistZip.enabled = false
-bootDistTar.enabled = false
