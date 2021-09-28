@@ -7,85 +7,20 @@ on:
 jobs:
   earlyaccess:
     name: EarlyAccess
-    if: github.repository == 'redis-developer/riot' && startsWith(github.event.head_commit.message, 'Releasing version') != true
+    if: startsWith(github.event.head_commit.message, 'Releasing version') != true
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-
-      - name: Set up Java
-        uses: actions/setup-java@v2
-        with:
-          java-version: 11
-          distribution: 'zulu'
-
-      - uses: actions/cache@v2
-        with:
-          path: ~/.gradle/caches
-          key: ${{ runner.os }}-gradle-cache-${{ hashFiles('**/*.gradle') }}-${{ hashFiles('**/gradle.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
-
-      - uses: actions/cache@v2
-        with:
-          path: ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-wrapper-${{ hashFiles('**/gradlew') }}
-          restore-keys: |
-            ${{ runner.os }}-gradlew-
-
-      - name: Build
-        run: ./gradlew -Prelease=true build -S
-
-      - name: Jacoco
-        run: ./gradlew -Prelease=true aggregateJacocoReport -S
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v1
-
-      - name: Version
-        id: vars
-        run: echo ::set-output name=version::$(cat VERSION)
-
-      - name: Deploy
-        env:
-          GITHUB_USERNAME: jruaux
-          GPG_KEY_ID: ${{ secrets.GPG_KEY_ID }}
-          GPG_SECRET_KEY: ${{ secrets.GPG_SECRET_KEY }}
-          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
-        run: |
-          ./gradlew -Prelease=true -Pfull-release=true \
-          -PsonatypeUsername=${{ secrets.SONATYPE_USERNAME }} \
-          -PsonatypePassword=${{ secrets.SONATYPE_PASSWORD }} \
-          build publishToSonatype closeAndReleaseSonatypeStagingRepository -S
-
-      - name: Assemble
-        uses: jreleaser/release-action@v1
-        with:
-          arguments: assemble
-        env:
-          JRELEASER_PROJECT_VERSION: ${{ steps.vars.outputs.version }}
-          JRELEASER_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Release
-        uses: jreleaser/release-action@v1
+        uses: redis-field-engineering/redis-release-action@v1
         with:
-          arguments: full-release
-        env:
-          JRELEASER_PROJECT_VERSION: ${{ steps.vars.outputs.version }}
-          JRELEASER_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          JRELEASER_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
-          JRELEASER_GPG_PUBLIC_KEY: ${{ secrets.GPG_PUBLIC_KEY }}
-          JRELEASER_GPG_SECRET_KEY: ${{ secrets.GPG_SECRET_KEY }}
-          JRELEASER_DOCKER_DEFAULT_PASSWORD: ${{ secrets.JRELEASER_DOCKER_PASSWORD }}
-          JRELEASER_SLACK_WEBHOOK: ${{ secrets.JRELEASER_SLACK_WEBHOOK }}
-
-      - name: JReleaser output
-        if: always()
-        uses: actions/upload-artifact@v2
-        with:
-          name: artifact
-          path: |
-            out/jreleaser/trace.log
-            out/jreleaser/output.properties
+          gpg-key-id: ${{ secrets.GPG_KEY_ID }}
+          gpg-public-key: ${{ secrets.GPG_PUBLIC_KEY }}
+          gpg-secret-key: ${{ secrets.GPG_SECRET_KEY }}
+          gpg-passphrase: ${{ secrets.GPG_PASSPHRASE }}
+          sonatype-username: ${{ secrets.SONATYPE_USERNAME }}
+          sonatype-password: ${{ secrets.SONATYPE_PASSWORD }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          slack-webhook: ${{ secrets.JRELEASER_SLACK_WEBHOOK }}
