@@ -15,15 +15,24 @@ project:
 
 release:
   github:
-    username: jruaux
     overwrite: true
+    sign: true
     changelog:
-      sort: DESC
       formatted: ALWAYS
       format: '- {{commitShortHash}} {{commitTitle}}'
       contributors:
-        enabled: false
+        format: '- {{contributorName}}{{#contributorUsernameAsLink}} ({{.}}){{/contributorUsernameAsLink}}'
       labelers:
+        - label: 'merge_pull'
+          title: 'Merge pull'
+        - label: 'merge_branch'
+          title: 'Merge branch'
+        - label: 'translation'
+          title: '[translation]'
+        - label: 'task'
+          title: '[chore]'
+        - label: 'dependencies'
+          title: '[deps]'
         - label: 'feature'
           title: 'Resolves #'
           body: 'Resolves #'
@@ -33,11 +42,11 @@ release:
         - label: 'issue'
           title: 'Relates to #'
           body: 'Relates to #'
-        - label: 'task'
-          title: '[chore]'
-        - label: 'dependencies'
-          title: '[deps]'
       categories:
+        - title: 'Merge'
+          labels:
+            - 'merge_pull'
+            - 'merge_branch'
         - title: '🚀 Features'
           labels:
             - 'feature'
@@ -47,15 +56,29 @@ release:
         - title: '🧰 Tasks'
           labels:
             - 'task'
-        - title: '⚙️ Dependencies'
+        - title: '🌐 Translation'
+          labels:
+            - 'translation'
+        - title: '⚙️  Dependencies'
           labels:
             - 'dependencies'
       hide:
         categories:
           - 'Merge'
+        contributors:
+          - 'GitHub'
       replacers:
         - search: '\[chore\] '
         - search: '\[deps\] '
+        - search: '\[translation\] '
+
+signing:
+  active: always
+  armored: true
+  files: false
+
+checksum:
+  files: false
 
 announce:
   slack:

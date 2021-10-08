@@ -19,13 +19,8 @@ jobs:
         with:
           version: ${{ github.event.inputs.version }}
 
-      - name: CreateGuide
-        run: |
-          ./gradlew -Prelease=true -Pfull-release=true \
-          createGuide -S
-
       - name: Release
-        uses: redis-field-engineering/redis-release-action@v2
+        uses: redis-field-engineering/redis-release-action@v1
         with:
           gpg-key-id: ${{ secrets.GPG_KEY_ID }}
           gpg-public-key: ${{ secrets.GPG_PUBLIC_KEY }}
@@ -33,11 +28,13 @@ jobs:
           gpg-passphrase: ${{ secrets.GPG_PASSPHRASE }}
           sonatype-username: ${{ secrets.SONATYPE_USERNAME }}
           sonatype-password: ${{ secrets.SONATYPE_PASSWORD }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets..GIT_ACCESS_TOKEN }}
           slack-webhook: ${{ secrets.JRELEASER_SLACK_WEBHOOK }}
 
-      - name: Publish
-        uses: peaceiris/actions-gh-pages@v3
+      - name: Upload test reports
+        if: failure()
+        uses: actions/upload-artifact@v2
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./docs/guide/build/docs/asciidoc
+          name: test-reports
+          path: |
+            build/reports/aggregate-tests/
