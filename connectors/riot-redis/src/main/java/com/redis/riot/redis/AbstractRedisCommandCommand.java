@@ -1,12 +1,13 @@
 package com.redis.riot.redis;
 
-import com.redis.lettucemod.api.StatefulRedisModulesConnection;
-import com.redis.lettucemod.api.sync.RedisModulesCommands;
-import com.redis.riot.AbstractRiotCommand;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.repeat.RepeatStatus;
-import org.springframework.util.ClassUtils;
+
+import com.redis.lettucemod.api.StatefulRedisModulesConnection;
+import com.redis.lettucemod.api.sync.RedisModulesCommands;
+import com.redis.riot.AbstractRiotCommand;
+
 import picocli.CommandLine.Command;
 
 @Command

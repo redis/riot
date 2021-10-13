@@ -1,12 +1,11 @@
 package com.redis.riot.gen;
 
-import lombok.Builder;
+import java.util.Map;
+
 import org.springframework.batch.item.ItemReader;
-import org.springframework.expression.EvaluationContext;
-import org.springframework.expression.Expression;
 import org.springframework.util.Assert;
 
-import java.util.Map;
+import lombok.Builder;
 
 /**
  * {@link ItemReader} that generates HashMaps using Faker.
@@ -19,8 +18,6 @@ public class FakerItemReader implements ItemReader<Map<String, Object>> {
     private final long end;
     private final Generator<Map<String, Object>> generator;
 
-    private EvaluationContext context;
-    private Map<String, Expression> expressions;
     private long currentItemCount;
 
     @Builder

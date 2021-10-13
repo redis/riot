@@ -28,7 +28,7 @@ public class FileOptions {
     @ArgGroup(exclusive = false, heading = "Google Cloud Storage options%n")
     private GcsOptions gcs = new GcsOptions();
 
-    @SuppressWarnings({"unchecked", "FieldCanBeLocal"})
+    @SuppressWarnings("unchecked")
     public static class FileOptionsBuilder<B extends FileOptionsBuilder<B>> {
 
         protected Charset encoding = DEFAULT_ENCODING;

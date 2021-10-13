@@ -71,7 +71,6 @@ public abstract class AbstractTargetCommand extends AbstractTransferCommand {
         stepBuilder.extraMessage(() -> extraMessage(counter));
         SimpleStepBuilder<DataStructure, DataStructure> step = stepBuilder.build();
         step.listener(new StepExecutionListenerSupport() {
-            @SuppressWarnings("NullableProblems")
             @Override
             public ExitStatus afterStep(StepExecution stepExecution) {
                 if (counter.isOK()) {
@@ -79,7 +78,7 @@ public abstract class AbstractTargetCommand extends AbstractTransferCommand {
                     return super.afterStep(stepExecution);
                 }
                 try {
-                    Thread.sleep(transferOptions.getProgressUpdateIntervalMillis());
+                    Thread.sleep(getTransferOptions().getProgressUpdateIntervalMillis());
                 } catch (InterruptedException e) {
                     log.debug("Verification interrupted");
                     return null;
@@ -98,7 +97,7 @@ public abstract class AbstractTargetCommand extends AbstractTransferCommand {
     }
 
     private String extraMessageFormat() {
-        if (transferOptions.getProgress() == TransferOptions.Progress.COLOR) {
+        if (getTransferOptions().getProgress() == TransferOptions.Progress.COLOR) {
             return COLORFUL_COMPARE_MESSAGE_FORMAT;
         }
         return ASCII_COMPARE_MESSAGE_FORMAT;

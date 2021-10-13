@@ -1,6 +1,15 @@
 package com.redis.riot.gen;
 
-import com.redis.riot.RedisOptions;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.testcontainers.junit.jupiter.Container;
+
 import com.redis.lettucemod.RedisModulesClient;
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
 import com.redis.lettucemod.api.search.CreateOptions;
@@ -10,6 +19,7 @@ import com.redis.lettucemod.api.search.SearchResults;
 import com.redis.riot.AbstractRiotIntegrationTest;
 import com.redis.testcontainers.RedisModulesContainer;
 import com.redis.testcontainers.RedisServer;
+
 import io.lettuce.core.Range;
 import io.lettuce.core.StreamMessage;
 import io.lettuce.core.api.sync.RedisHashCommands;
@@ -17,15 +27,6 @@ import io.lettuce.core.api.sync.RedisKeyCommands;
 import io.lettuce.core.api.sync.RedisSetCommands;
 import io.lettuce.core.api.sync.RedisSortedSetCommands;
 import io.lettuce.core.api.sync.RedisStreamCommands;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.MethodSource;
-import org.testcontainers.junit.jupiter.Container;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 @SuppressWarnings("unchecked")
 public class TestGen extends AbstractRiotIntegrationTest {
@@ -83,7 +84,6 @@ public class TestGen extends AbstractRiotIntegrationTest {
         Assertions.assertTrue(messages.size() > 0);
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     public void genFakerIndexIntrospection() throws Exception {
         String INDEX = "beerIdx";

@@ -7,12 +7,10 @@ import java.util.List;
 
 public class RiotCommandLine extends CommandLine {
 
-    private final RiotApp app;
     private final IExecutionStrategy executionStrategy;
 
     public RiotCommandLine(RiotApp app, IExecutionStrategy executionStrategy) {
         super(app);
-        this.app = app;
         this.executionStrategy = executionStrategy;
     }
 

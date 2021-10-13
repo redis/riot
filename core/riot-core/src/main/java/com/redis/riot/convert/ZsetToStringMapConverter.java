@@ -1,12 +1,12 @@
 package com.redis.riot.convert;
 
-import io.lettuce.core.ScoredValue;
-import lombok.Builder;
-import org.springframework.core.convert.converter.Converter;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.springframework.core.convert.converter.Converter;
+
+import io.lettuce.core.ScoredValue;
 
 public class ZsetToStringMapConverter implements Converter<List<ScoredValue<String>>, Map<String, String>> {
 

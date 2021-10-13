@@ -1,6 +1,5 @@
 package com.redis.riot;
 
-import com.redis.riot.processor.KeyValueKeyProcessor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.batch.item.ItemProcessor;
@@ -9,7 +8,8 @@ import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
-@SuppressWarnings("ConstantConditions")
+import com.redis.riot.processor.KeyValueKeyProcessor;
+
 public class ProcessorsTest {
 
     @Test

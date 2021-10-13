@@ -1,9 +1,5 @@
 package com.redis.riot;
 
-import com.redis.lettucemod.RedisModulesClient;
-import com.redis.lettucemod.cluster.RedisModulesClusterClient;
-import io.lettuce.core.AbstractRedisClient;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.step.builder.AbstractTaskletStepBuilder;
 import org.springframework.batch.core.step.builder.SimpleStepBuilder;
@@ -13,9 +9,10 @@ import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.redis.DataStructureItemReader;
 import org.springframework.batch.item.redis.support.DataStructure;
 import org.springframework.batch.item.redis.support.DataStructureValueReader;
+
+import io.lettuce.core.AbstractRedisClient;
 import picocli.CommandLine;
 
-@Slf4j
 public abstract class AbstractExportCommand<O> extends AbstractTransferCommand {
 
     @CommandLine.ArgGroup(exclusive = false, heading = "Redis reader options%n")

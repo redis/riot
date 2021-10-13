@@ -25,7 +25,7 @@ import java.time.Instant;
 
 @Testcontainers
 @Slf4j
-@SuppressWarnings({"rawtypes", "unchecked", "BusyWait"})
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class TestReplicate extends AbstractRiotIntegrationTest {
 
     private final static Duration REPLICATION_TIMEOUT = Duration.ofSeconds(10);

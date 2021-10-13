@@ -19,7 +19,8 @@ public class FilteringOptions {
     @CommandLine.Option(arity = "1..*", names = "--exclude", description = "Fields to exclude", paramLabel = "<field>")
     private String[] excludes;
 
-    public Converter<Map<String, Object>, Map<String, String>> converter() {
+    @SuppressWarnings("unchecked")
+	public Converter<Map<String, Object>, Map<String, String>> converter() {
         MapFlattener<String> mapFlattener = new MapFlattener<>(new ObjectToStringConverter());
         if (ObjectUtils.isEmpty(includes) && ObjectUtils.isEmpty(excludes)) {
             return mapFlattener;

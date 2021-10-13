@@ -16,10 +16,9 @@ public class ConvertersTest {
         Assertions.assertEquals(123.456, converter.convert(map));
     }
 
-    @SuppressWarnings({"unchecked", "ConstantConditions"})
     @Test
     public void testMapFilteringConverter() {
-        Map<String, Object> source = new LinkedHashMap<>();
+        Map<String, String> source = new LinkedHashMap<>();
         source.put("field1", "value1");
         source.put("field2", "value2");
         source.put("field3", "value3");

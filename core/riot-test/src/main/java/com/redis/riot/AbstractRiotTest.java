@@ -17,7 +17,6 @@ public abstract class AbstractRiotTest {
 
     protected abstract RiotApp app();
 
-    @SuppressWarnings("ConstantConditions")
     protected String[] args(String filename) throws Exception {
         try (InputStream inputStream = getClass().getResourceAsStream("/" + filename)) {
             String command = IOUtils.toString(inputStream, Charset.defaultCharset());

@@ -1,11 +1,9 @@
 package com.redis.riot.processor;
 
-import com.redis.riot.RedisOptions;
-import io.lettuce.core.api.StatefulConnection;
-import io.lettuce.core.api.StatefulRedisConnection;
-import io.lettuce.core.api.sync.BaseRedisCommands;
-import io.lettuce.core.cluster.api.StatefulRedisClusterConnection;
-import lombok.extern.slf4j.Slf4j;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
+
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemStream;
@@ -15,11 +13,14 @@ import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionInvocationTargetException;
 import org.springframework.util.Assert;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
+import com.redis.riot.RedisOptions;
 
-@SuppressWarnings("NullableProblems")
+import io.lettuce.core.api.StatefulConnection;
+import io.lettuce.core.api.StatefulRedisConnection;
+import io.lettuce.core.api.sync.BaseRedisCommands;
+import io.lettuce.core.cluster.api.StatefulRedisClusterConnection;
+import lombok.extern.slf4j.Slf4j;
+
 @Slf4j
 public class SpelProcessor implements ItemProcessor<Map<String, Object>, Map<String, Object>>, ItemStream {
 

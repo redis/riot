@@ -20,7 +20,6 @@ import picocli.CommandLine.Command;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-@SuppressWarnings("FieldMayBeFinal")
 @Slf4j
 @Command(name = "import", description = "Import generated data using the Spring Expression Language (SpEL)")
 public class GeneratorImportCommand extends AbstractImportCommand<Map<String, Object>, Map<String, Object>> {

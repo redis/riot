@@ -25,7 +25,7 @@ public class MapFilteringConverter<K, V> implements Converter<Map<K, V>, Map<K, 
     }
 
     public static <K, V> MapFilteringConverterBuilder<K, V> builder() {
-        return new MapFilteringConverterBuilder();
+        return new MapFilteringConverterBuilder<>();
     }
 
     public static class MapFilteringConverterBuilder<K, V> {
@@ -33,20 +33,22 @@ public class MapFilteringConverter<K, V> implements Converter<Map<K, V>, Map<K, 
         private List<K> includes = new ArrayList<>();
         private List<K> excludes = new ArrayList<>();
 
-        public MapFilteringConverterBuilder includes(K... fields) {
+        @SuppressWarnings("unchecked")
+		public MapFilteringConverterBuilder<K, V> includes(K... fields) {
             Assert.notNull(fields, "Fields cannot be null");
             this.includes = Arrays.asList(fields);
             return this;
         }
 
-        public MapFilteringConverterBuilder excludes(K... fields) {
+        @SuppressWarnings("unchecked")
+		public MapFilteringConverterBuilder<K, V> excludes(K... fields) {
             Assert.notNull(fields, "Fields cannot be null");
             this.excludes = Arrays.asList(fields);
             return this;
         }
 
-        public MapFilteringConverter build() {
-            return new MapFilteringConverter(new LinkedHashSet<>(includes), new LinkedHashSet<>(excludes));
+        public MapFilteringConverter<K, V> build() {
+            return new MapFilteringConverter<>(new LinkedHashSet<>(includes), new LinkedHashSet<>(excludes));
         }
 
     }
