@@ -21,7 +21,7 @@ release:
       formatted: ALWAYS
       format: '- {{commitShortHash}} {{commitTitle}}'
       contributors:
-        format: '- {{contributorName}}{{#contributorUsernameAsLink}} ({{.}}){{/contributorUsernameAsLink}}'
+        enabled: false
       labelers:
         - label: 'merge_pull'
           title: 'Merge pull'
