@@ -17,6 +17,7 @@ import org.springframework.util.ObjectUtils;
 import com.redis.riot.AbstractTransferCommand;
 import com.redis.riot.FlushingTransferOptions;
 import com.redis.riot.RedisOptions;
+import com.redis.riot.RedisWriterOptions;
 import com.redis.riot.RiotStepBuilder;
 import com.redis.riot.redis.FilteringOptions;
 import com.redis.riot.stream.kafka.KafkaItemReader;
@@ -30,6 +31,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine;
+import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
@@ -54,6 +56,8 @@ public class StreamImportCommand extends AbstractTransferCommand {
 	private boolean approximateTrimming;
 	@CommandLine.Mixin
 	private FilteringOptions filteringOptions = new FilteringOptions();
+	@ArgGroup(exclusive = false, heading = "Writer options%n")
+	private RedisWriterOptions writerOptions = new RedisWriterOptions();
 
 	@Override
 	protected Flow flow(JobFactory jobFactory) {
@@ -71,13 +75,15 @@ public class StreamImportCommand extends AbstractTransferCommand {
 					"Importing from " + topic);
 			steps.add(step.reader(reader).writer(writer()).flushingOptions(flushingTransferOptions).build().build());
 		}
-		return flow(steps.toArray(new Step[0]));
+		return flow("stream-import-flow", steps.toArray(new Step[0]));
 	}
 
 	private ItemWriter<ConsumerRecord<String, Object>> writer() {
 		RedisOptions redisOptions = getRedisOptions();
-		return RedisItemWriter.operation(Xadd.key(keyConverter()).body(bodyConverter()).args(xAddArgs()).build())
-				.client(redisOptions.client()).poolConfig(redisOptions.poolConfig()).build();
+		return writerOptions.configure(
+				RedisItemWriter.operation(Xadd.key(keyConverter()).body(bodyConverter()).args(xAddArgs()).build())
+						.client(redisOptions.client()).poolConfig(poolConfig(writerOptions.getPoolMax())))
+				.build();
 	}
 
 	private Converter<ConsumerRecord<String, Object>, Map<String, String>> bodyConverter() {

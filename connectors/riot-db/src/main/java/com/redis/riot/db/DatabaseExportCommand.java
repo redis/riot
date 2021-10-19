@@ -47,8 +47,9 @@ public class DatabaseExportCommand extends AbstractExportCommand<Map<String, Obj
 		writer.afterPropertiesSet();
 		DataStructureItemProcessor processor = DataStructureItemProcessor.builder()
 				.keyRegex(exportOptions.getKeyRegex()).build();
-		return flow(step(jobFactory.step("db-export-step"), String.format("Exporting to %s", dbName), processor, writer)
-				.build());
+		return flow("db-export-flow",
+				step(jobFactory.step("db-export-step"), String.format("Exporting to %s", dbName), processor, writer)
+						.build());
 	}
 
 }

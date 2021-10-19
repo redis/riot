@@ -1,6 +1,7 @@
 package com.redis.riot.redis;
 
 import com.redis.lettucemod.api.sync.RedisModulesCommands;
+
 import picocli.CommandLine.Command;
 
 @Command(name = "ping", description = "Execute PING command")
@@ -12,7 +13,7 @@ public class PingCommand extends AbstractRedisCommandCommand {
 	}
 
 	@Override
-	protected String getStepName() {
-		return "ping-redis-command-step";
+	protected String name() {
+		return "ping";
 	}
 }

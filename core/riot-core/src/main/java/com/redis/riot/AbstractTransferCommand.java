@@ -1,5 +1,6 @@
 package com.redis.riot;
 
+import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.springframework.batch.core.step.builder.StepBuilder;
 
 import lombok.Data;
@@ -16,5 +17,11 @@ public abstract class AbstractTransferCommand extends AbstractRiotCommand {
     protected <I, O> RiotStepBuilder<I, O> riotStep(StepBuilder stepBuilder, String taskName) {
         return new RiotStepBuilder<I, O>(stepBuilder, transferOptions).taskName(taskName);
     }
+    
+	protected <T> GenericObjectPoolConfig<T> poolConfig(int poolMaxTotal) {
+		GenericObjectPoolConfig<T> config = new GenericObjectPoolConfig<>();
+		config.setMaxTotal(poolMaxTotal);
+		return config;
+	}
 
 }

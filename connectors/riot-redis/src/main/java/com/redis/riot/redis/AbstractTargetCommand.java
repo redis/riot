@@ -23,7 +23,6 @@ import com.redis.spring.batch.support.KeyComparisonMismatchPrinter;
 import com.redis.spring.batch.support.KeyComparisonResultCounter;
 import com.redis.spring.batch.support.job.JobFactory;
 
-import io.lettuce.core.AbstractRedisClient;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
@@ -34,12 +33,13 @@ import picocli.CommandLine;
 @Slf4j
 public abstract class AbstractTargetCommand extends AbstractTransferCommand {
 
+	private static final int COMPARATOR_POOL_MAX = 8;
 	private static final String ASCII_COMPARE_MESSAGE_FORMAT = ">%,d T%,d ≠%,d ⧗%,d <%,d";
 	private static final String COLORFUL_COMPARE_MESSAGE_FORMAT = "\u001b[31m>%,d \u001b[33mT%,d \u001b[35m≠%,d \u001b[36m⧗%,d\u001b[0m";
 
 	@CommandLine.ArgGroup(exclusive = false, heading = "Target Redis connection options%n")
 	protected RedisOptions targetRedisOptions = new RedisOptions();
-	@CommandLine.ArgGroup(exclusive = false, heading = "Source Redis reader options%n")
+	@CommandLine.ArgGroup(exclusive = false, heading = "Reader options%n")
 	protected RedisReaderOptions readerOptions = new RedisReaderOptions();
 	@CommandLine.Mixin
 	private CompareOptions compareOptions = new CompareOptions();
@@ -57,7 +57,8 @@ public abstract class AbstractTargetCommand extends AbstractTransferCommand {
 	protected Flow verificationFlow(JobFactory jobFactory) {
 		RedisItemReader<String, DataStructure<String>> sourceReader = dataStructureReader();
 		log.debug("Creating key comparator with TTL tolerance of {} seconds", compareOptions.getTtlTolerance());
-		DataStructureValueReader<String, String> targetValueReader = targetDataStructureValueReader();
+		DataStructureValueReader<String, String> targetValueReader = DataStructureValueReader
+				.client(targetRedisOptions.client()).poolConfig(poolConfig(COMPARATOR_POOL_MAX)).build();
 		KeyComparisonResultCounter<String> counter = new KeyComparisonResultCounter<>();
 		KeyComparisonItemWriterBuilder<String> writerBuilder = KeyComparisonItemWriter.valueReader(targetValueReader);
 		writerBuilder.resultHandler(counter);
@@ -111,14 +112,8 @@ public abstract class AbstractTargetCommand extends AbstractTransferCommand {
 	}
 
 	protected RedisItemReader<String, DataStructure<String>> dataStructureReader() {
-		AbstractRedisClient client = getRedisOptions().client();
-		return readerOptions.configure(RedisItemReader.dataStructure(client).poolConfig(getRedisOptions().poolConfig()))
-				.build();
-	}
-
-	protected DataStructureValueReader<String, String> targetDataStructureValueReader() {
-		return DataStructureValueReader.client(targetRedisOptions.client()).poolConfig(targetRedisOptions.poolConfig())
-				.build();
+		return readerOptions.configure(RedisItemReader.dataStructure(getRedisOptions().client())
+				.poolConfig(poolConfig(readerOptions.getPoolMax()))).build();
 	}
 
 }

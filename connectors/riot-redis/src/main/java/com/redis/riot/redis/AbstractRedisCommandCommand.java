@@ -15,18 +15,19 @@ public abstract class AbstractRedisCommandCommand extends AbstractRiotCommand {
 
 	@Override
 	protected Flow flow(JobFactory jobFactory) {
-
-		return flow(jobFactory.step(getStepName()).tasklet((contribution, chunkContext) -> {
-			try (StatefulRedisModulesConnection<String, String> connection = getRedisOptions().connect()) {
-				RedisModulesCommands<String, String> commands = connection.sync();
-				execute(commands);
-				return RepeatStatus.FINISHED;
-			}
-		}).build());
+		String name = name();
+		return flow(name + "-redis-command-flow",
+				jobFactory.step(name + "-redis-command-step").tasklet((contribution, chunkContext) -> {
+					try (StatefulRedisModulesConnection<String, String> connection = getRedisOptions().connect()) {
+						RedisModulesCommands<String, String> commands = connection.sync();
+						execute(commands);
+						return RepeatStatus.FINISHED;
+					}
+				}).build());
 	}
 
 	protected abstract void execute(RedisModulesCommands<String, String> commands) throws InterruptedException;
 
-	protected abstract String getStepName();
+	protected abstract String name();
 
 }

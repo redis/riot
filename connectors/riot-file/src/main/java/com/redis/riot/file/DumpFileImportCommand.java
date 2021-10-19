@@ -16,6 +16,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
 import com.redis.riot.AbstractTransferCommand;
+import com.redis.riot.RedisWriterOptions;
 import com.redis.riot.RiotStepBuilder;
 import com.redis.spring.batch.RedisItemWriter;
 import com.redis.spring.batch.support.DataStructure;
@@ -25,6 +26,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine;
+import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 
 @Slf4j
@@ -37,6 +39,8 @@ public class DumpFileImportCommand extends AbstractTransferCommand {
 	private List<String> files;
 	@CommandLine.Mixin
 	private DumpFileImportOptions options = new DumpFileImportOptions();
+	@ArgGroup(exclusive = false, heading = "Writer options%n")
+	private RedisWriterOptions writerOptions = new RedisWriterOptions();
 
 	@Override
 	protected Flow flow(JobFactory jobFactory) throws Exception {
@@ -52,12 +56,12 @@ public class DumpFileImportCommand extends AbstractTransferCommand {
 			Resource resource = options.inputResource(file);
 			AbstractItemStreamItemReader<DataStructure<String>> reader = reader(fileType, resource);
 			reader.setName(file + "-reader");
-			StepBuilder stepBuilder = jobFactory.step(file + "-datastructure-file-import-step");
+			StepBuilder stepBuilder = jobFactory.step(file + "-dump-file-import-step");
 			RiotStepBuilder<DataStructure<String>, DataStructure<String>> step = riotStep(stepBuilder,
 					"Importing " + file);
 			steps.add(step.reader(reader).processor(processor).writer(writer()).build().build());
 		}
-		return flow(steps.toArray(new Step[0]));
+		return flow("dump-file-import-flow", steps.toArray(new Step[0]));
 	}
 
 	private DumpFileType fileType(String file) {
@@ -68,8 +72,8 @@ public class DumpFileImportCommand extends AbstractTransferCommand {
 	}
 
 	private ItemWriter<DataStructure<String>> writer() {
-		return RedisItemWriter.dataStructure(getRedisOptions().client()).poolConfig(getRedisOptions().poolConfig())
-				.build();
+		return writerOptions.configure(RedisItemWriter.dataStructure(getRedisOptions().client())
+				.poolConfig(poolConfig(writerOptions.getPoolMax()))).build();
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })

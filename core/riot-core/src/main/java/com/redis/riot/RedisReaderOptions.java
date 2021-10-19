@@ -31,6 +31,8 @@ public class RedisReaderOptions {
 	private int batchSize = RedisItemReaderBuilder.DEFAULT_CHUNK_SIZE;
 	@Option(names = "--sample-size", description = "Number of samples used to estimate dataset size (default: ${DEFAULT-VALUE}).", paramLabel = "<int>", hidden = true)
 	private int sampleSize = 100;
+	@Option(names = "--reader-pool", description = "Max pool connections for reader process (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
+	private int poolMax = 8;
 
 	@SuppressWarnings("unchecked")
 	public <B extends ScanRedisItemReaderBuilder<?, ?>> B configure(B builder) {
@@ -64,7 +66,7 @@ public class RedisReaderOptions {
 			ScanSizeEstimator.ScanSizeEstimatorBuilder builder = redisOptions.isCluster()
 					? ScanSizeEstimator.client((RedisModulesClusterClient) client)
 					: ScanSizeEstimator.client((RedisModulesClient) client);
-			ScanSizeEstimator estimator = builder.poolConfig(redisOptions.poolConfig()).build();
+			ScanSizeEstimator estimator = builder.build();
 			try {
 				return estimator.estimate(estimateOptions());
 			} catch (Exception e) {

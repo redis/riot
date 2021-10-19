@@ -36,7 +36,7 @@ public class FileExportCommand extends AbstractExportCommand<DataStructure<Strin
 	@Override
 	protected Flow flow(JobFactory jobFactory) throws Exception {
 		StepBuilder step = jobFactory.step("file-export-step");
-		return flow(step(step, String.format("Exporting to %s", file), writer()).build());
+		return flow("file-export-flow", step(step, String.format("Exporting to %s", file), writer()).build());
 	}
 
 	private ItemWriter<DataStructure<String>> writer() throws IOException {

@@ -30,12 +30,16 @@ import com.redis.spring.batch.support.RedisOperation;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Command(subcommands = {EvalCommand.class, ExpireCommand.class, GeoaddCommand.class, HsetCommand.class, LpushCommand.class, NoopCommand.class, RpushCommand.class, SaddCommand.class, SetCommand.class, XaddCommand.class, ZaddCommand.class, SugaddCommand.class}, subcommandsRepeatable = true, synopsisSubcommandLabel = "[REDIS COMMAND...]", commandListHeading = "Redis commands:%n")
 public abstract class AbstractImportCommand<I, O> extends AbstractTransferCommand {
+	
+	@ArgGroup(exclusive = false, heading = "Writer options%n")
+	private RedisWriterOptions writerOptions = new RedisWriterOptions();
 
     /**
      * Initialized manually during command parsing
@@ -62,8 +66,7 @@ public abstract class AbstractImportCommand<I, O> extends AbstractTransferComman
     }
 
     private ItemWriter<O> writer(RedisOperation<String, String, O> operation) {
-        RedisOptions redisOptions = getRedisOptions();
-        return RedisItemWriter.operation(operation).client(redisOptions.client()).poolConfig(redisOptions.poolConfig()).build();
+        return writerOptions.configure(RedisItemWriter.operation(operation).client(getRedisOptions().client()).poolConfig(poolConfig(writerOptions.getPoolMax()))).build();
     }
 
 

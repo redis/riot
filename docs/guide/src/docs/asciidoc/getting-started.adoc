@@ -60,9 +60,8 @@ Redis connection options
   [olive]#-n#, [olive]#--db#=<db>             Database number (default: 0).
   [olive]#-c#, [olive]#--cluster#             Enable cluster mode.
       [olive]#--tls#                 Establish a secure TLS connection.
-      [olive]#--[no-]verify-peer#    Verify peers when using TLS. True by default.
+      [olive]#--insecure#    Allow insecure TLS connection by skipping cert validation.
       [olive]#--latency#             Show latency metrics.
-      [olive]#--pool-max#=<int>      Max pool connections (default: 8).
       [olive]#--client#=<name>       Client name used to connect to Redis.
 Commands:
   ...

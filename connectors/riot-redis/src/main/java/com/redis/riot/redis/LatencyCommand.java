@@ -51,7 +51,7 @@ public class LatencyCommand extends AbstractRedisCommandCommand {
     }
     
     @Override
-    protected String getStepName() {
-    	return "latency-redis-command-step";
+    protected String name() {
+    	return "latency";
     }
 }

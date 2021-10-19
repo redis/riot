@@ -24,9 +24,7 @@ import com.redis.spring.batch.support.job.JobFactory;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
-import picocli.CommandLine;
 import picocli.CommandLine.Command;
-import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.ParentCommand;
 
 @Slf4j
@@ -38,41 +36,21 @@ public abstract class AbstractRiotCommand extends HelpCommand implements Callabl
 	@ParentCommand
 	private RiotApp app;
 
-	@CommandLine.Spec
-	private CommandSpec spec;
-
 	private ExecutionStrategy executionStrategy = ExecutionStrategy.SYNC;
 
 	protected RedisOptions getRedisOptions() {
 		return app.getRedisOptions();
 	}
 
-//    protected String name(RedisURI redisURI) {
-//        if (redisURI.getSocket() != null) {
-//            return redisURI.getSocket();
-//        }
-//        if (redisURI.getSentinelMasterId() != null) {
-//            return redisURI.getSentinelMasterId();
-//        }
-//        return redisURI.getHost();
-//    }
-
-	protected final Flow flow(Step... steps) {
+	protected final Flow flow(String name, Step... steps) {
 		Assert.notEmpty(steps, "Steps are required");
-		FlowBuilder<SimpleFlow> flow = new FlowBuilder<>(commandName() + "-flow");
+		FlowBuilder<SimpleFlow> flow = new FlowBuilder<>(name);
 		Iterator<Step> iterator = Arrays.asList(steps).iterator();
 		flow.start(iterator.next());
 		while (iterator.hasNext()) {
 			flow.next(iterator.next());
 		}
 		return flow.build();
-	}
-
-	protected String commandName() {
-		if (spec == null) {
-			return ClassUtils.getShortName(getClass());
-		}
-		return spec.name();
 	}
 
 	@Override
@@ -98,7 +76,7 @@ public abstract class AbstractRiotCommand extends HelpCommand implements Callabl
 
 	public JobExecutionWrapper execute() throws Exception {
 		JobFactory jf = JobFactory.inMemory();
-		JobBuilder builder = jf.job(commandName());
+		JobBuilder builder = jf.job(ClassUtils.getShortName(getClass()));
 		Job job = builder.listener(this).start(flow(jf)).build().build();
 		JobParameters parameters = new JobParameters();
 		if (executionStrategy == ExecutionStrategy.SYNC) {

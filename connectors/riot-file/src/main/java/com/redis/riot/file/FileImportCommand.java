@@ -76,13 +76,13 @@ public class FileImportCommand extends AbstractImportCommand<Map<String, Object>
 			Resource resource = options.inputResource(file);
 			AbstractItemStreamItemReader<Map<String, Object>> reader = reader(file, fileType, resource);
 			reader.setName(file + "-reader");
-			StepBuilder stepBuilder = jobFactory.step(file + commandName() + "-import-step");
+			StepBuilder stepBuilder = jobFactory.step(file + "-file-import-step");
 			FaultTolerantStepBuilder<Map<String, Object>, Map<String, Object>> step = step(stepBuilder,
 					"Importing " + file, reader);
 			step.skip(FlatFileParseException.class);
 			steps.add(step.build());
 		}
-		return flow(steps.toArray(new Step[0]));
+		return flow("file-import-flow", steps.toArray(new Step[0]));
 	}
 
 	private FileType type(String file) {

@@ -64,7 +64,7 @@ public class StreamExportCommand extends AbstractTransferCommand {
 			steps.add(step.reader(reader).processor(processor()).writer(writer())
 					.flushingOptions(flushingTransferOptions).build().build());
 		}
-		return flow(steps.toArray(new Step[0]));
+		return flow("stream-export-flow", steps.toArray(new Step[0]));
 	}
 
 	private RedisStreamItemReader<String, String> reader(StreamOffset<String> offset) {
