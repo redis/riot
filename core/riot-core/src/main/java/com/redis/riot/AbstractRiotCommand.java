@@ -1,9 +1,9 @@
 package com.redis.riot;
 
-import io.lettuce.core.RedisURI;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.extern.slf4j.Slf4j;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.concurrent.Callable;
+
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
@@ -11,21 +11,23 @@ import org.springframework.batch.core.JobExecutionListener;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.StepExecution;
-import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.job.builder.FlowBuilder;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.core.job.flow.support.SimpleFlow;
-import org.springframework.batch.core.launch.JobLauncher;
-import org.springframework.batch.item.redis.support.JobFactory;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
+
+import com.redis.spring.batch.support.job.JobExecutionWrapper;
+import com.redis.spring.batch.support.job.JobFactory;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.ParentCommand;
-
-import java.util.concurrent.Callable;
-import java.util.function.Function;
 
 @Slf4j
 @Data
@@ -33,110 +35,88 @@ import java.util.function.Function;
 @Command(abbreviateSynopsis = true, sortOptions = false)
 public abstract class AbstractRiotCommand extends HelpCommand implements Callable<Integer>, JobExecutionListener {
 
-    @SuppressWarnings("unused")
-    @ParentCommand
-    private RiotApp app;
+	@ParentCommand
+	private RiotApp app;
 
-    @CommandLine.Spec
-    private CommandLine.Model.CommandSpec spec;
+	@CommandLine.Spec
+	private CommandSpec spec;
 
-    private ExecutionStrategy executionStrategy = ExecutionStrategy.SYNC;
+	private ExecutionStrategy executionStrategy = ExecutionStrategy.SYNC;
 
-    protected RedisOptions getRedisOptions() {
-        return app.getRedisOptions();
-    }
+	protected RedisOptions getRedisOptions() {
+		return app.getRedisOptions();
+	}
 
-    protected String name(RedisURI redisURI) {
-        if (redisURI.getSocket() != null) {
-            return redisURI.getSocket();
-        }
-        if (redisURI.getSentinelMasterId() != null) {
-            return redisURI.getSentinelMasterId();
-        }
-        return redisURI.getHost();
-    }
+//    protected String name(RedisURI redisURI) {
+//        if (redisURI.getSocket() != null) {
+//            return redisURI.getSocket();
+//        }
+//        if (redisURI.getSentinelMasterId() != null) {
+//            return redisURI.getSentinelMasterId();
+//        }
+//        return redisURI.getHost();
+//    }
 
-    protected final Flow flow(Step... steps) {
-        Assert.notNull(steps, "Steps are required");
-        Assert.isTrue(steps.length > 0, "At least one step is required");
-        FlowBuilder<SimpleFlow> flow = flow(commandName() + "-flow");
-        flow.start(steps[0]);
-        for (int index = 1; index < steps.length; index++) {
-            flow.next(steps[index]);
-        }
-        return flow.build();
-    }
+	protected final Flow flow(Step... steps) {
+		Assert.notEmpty(steps, "Steps are required");
+		FlowBuilder<SimpleFlow> flow = new FlowBuilder<>(commandName() + "-flow");
+		Iterator<Step> iterator = Arrays.asList(steps).iterator();
+		flow.start(iterator.next());
+		while (iterator.hasNext()) {
+			flow.next(iterator.next());
+		}
+		return flow.build();
+	}
 
-    protected String commandName() {
-        if (spec == null) {
-            return ClassUtils.getShortName(getClass());
-        }
-        return spec.name();
-    }
+	protected String commandName() {
+		if (spec == null) {
+			return ClassUtils.getShortName(getClass());
+		}
+		return spec.name();
+	}
 
-    protected final FlowBuilder<SimpleFlow> flow(String name) {
-        return new FlowBuilder<>(name + "-flow");
-    }
+	@Override
+	public Integer call() throws Exception {
+		return exitCode(execute());
+	}
 
-    @Override
-    public Integer call() throws Exception {
-        JobExecution execution = execute();
-        if (executionStrategy == ExecutionStrategy.ASYNC) {
-            return awaitRunning(execution);
-        }
-        return exitCode(execution);
-    }
+	private int exitCode(JobExecutionWrapper execution) {
+		for (StepExecution stepExecution : execution.getJobExecution().getStepExecutions()) {
+			if (stepExecution.getExitStatus().compareTo(ExitStatus.FAILED) >= 0) {
+				log.error(stepExecution.getExitStatus().getExitDescription());
+				return 1;
+			}
+		}
+		return 0;
+	}
 
-    private int awaitRunning(JobExecution execution) {
-        while (!execution.isRunning()) {
-            try {
-                Thread.sleep(10);
-            } catch (InterruptedException e) {
-                log.debug("Interrupted");
-                return 1;
-            }
-        }
-        return 0;
-    }
+	public enum ExecutionStrategy {
 
-    private int exitCode(JobExecution execution) {
-        for (StepExecution stepExecution : execution.getStepExecutions()) {
-            if (stepExecution.getExitStatus().compareTo(ExitStatus.FAILED) >= 0) {
-                return 1;
-            }
-        }
-        return 0;
-    }
+		SYNC, ASYNC
 
-    public enum ExecutionStrategy {
+	}
 
-        SYNC(JobFactory::getSyncLauncher), ASYNC(JobFactory::getAsyncLauncher);
+	public JobExecutionWrapper execute() throws Exception {
+		JobFactory jf = JobFactory.inMemory();
+		JobBuilder builder = jf.job(commandName());
+		Job job = builder.listener(this).start(flow(jf)).build().build();
+		JobParameters parameters = new JobParameters();
+		if (executionStrategy == ExecutionStrategy.SYNC) {
+			return jf.run(job, parameters);
+		}
+		return jf.runAsync(job, parameters).awaitRunning();
+	}
 
-        private final Function<JobFactory, JobLauncher> launcher;
+	protected abstract Flow flow(JobFactory jobFactory) throws Exception;
 
-        ExecutionStrategy(Function<JobFactory, JobLauncher> launcher) {
-            this.launcher = launcher;
-        }
-    }
+	@Override
+	public void afterJob(JobExecution jobExecution) {
+		getRedisOptions().shutdown();
+	}
 
-    public JobExecution execute() throws Exception {
-        JobFactory jobFactory = new JobFactory();
-        jobFactory.afterPropertiesSet();
-        JobBuilder builder = jobFactory.getJobBuilderFactory().get(commandName());
-        Job job = builder.listener(this).start(flow(jobFactory.getStepBuilderFactory())).build().build();
-        return executionStrategy.launcher.apply(jobFactory).run(job, new JobParameters());
-    }
-
-    protected abstract Flow flow(StepBuilderFactory stepBuilderFactory) throws Exception;
-
-    @Override
-    public void afterJob(JobExecution jobExecution) {
-        getRedisOptions().shutdown();
-    }
-
-    @Override
-    public void beforeJob(JobExecution jobExecution) {
-        // do nothing
-    }
+	@Override
+	public void beforeJob(JobExecution jobExecution) {
+		// do nothing
+	}
 
 }

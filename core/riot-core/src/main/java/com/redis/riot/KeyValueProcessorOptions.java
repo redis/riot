@@ -1,19 +1,21 @@
 package com.redis.riot;
 
-import com.redis.riot.processor.CompositeItemStreamItemProcessor;
-import com.redis.riot.processor.KeyValueKeyProcessor;
-import com.redis.riot.processor.KeyValueTTLProcessor;
-import lombok.Data;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.batch.item.ItemProcessor;
-import org.springframework.batch.item.redis.support.KeyValue;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.common.TemplateParserContext;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
-import picocli.CommandLine.Option;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.redis.riot.processor.CompositeItemStreamItemProcessor;
+import com.redis.riot.processor.KeyValueKeyProcessor;
+import com.redis.riot.processor.KeyValueTTLProcessor;
+import com.redis.spring.batch.support.KeyValue;
+
+import lombok.Data;
+import picocli.CommandLine.Option;
 
 @Data
 public class KeyValueProcessorOptions {
@@ -23,7 +25,7 @@ public class KeyValueProcessorOptions {
     @Option(names = "--ttl-process", description = "SpEL expression to transform each key TTL", paramLabel = "<exp>")
     private String ttlProcessor;
 
-    public <T extends KeyValue<?>> ItemProcessor<T, T> processor(RedisOptions sourceRedis, RedisOptions targetRedis) {
+    public <T extends KeyValue<String, ?>> ItemProcessor<T, T> processor(RedisOptions sourceRedis, RedisOptions targetRedis) {
         SpelExpressionParser parser = new SpelExpressionParser();
         List<ItemProcessor<T, T>> processors = new ArrayList<>();
         if (keyProcessor != null) {

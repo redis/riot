@@ -2,33 +2,30 @@ package com.redis.riot.redis;
 
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.batch.item.redis.DataStructureItemReader;
-import org.springframework.batch.item.redis.DataStructureItemWriter;
-import org.springframework.batch.item.redis.support.DataStructure;
-import org.springframework.batch.item.redis.support.DataStructureValueReader;
-import org.springframework.batch.item.redis.support.PollableItemReader;
 
 import com.redis.riot.RedisOptions;
+import com.redis.spring.batch.RedisItemReader;
+import com.redis.spring.batch.RedisItemWriter;
+import com.redis.spring.batch.support.DataStructure;
+import com.redis.spring.batch.support.PollableItemReader;
 
-import io.lettuce.core.AbstractRedisClient;
 import picocli.CommandLine;
 
 @CommandLine.Command(name = "replicate-ds", description = "Replicate a source Redis database into a target Redis database using data structure-specific commands")
-public class ReplicateDataStructureCommand extends AbstractReplicateCommand<DataStructure> {
+public class ReplicateDataStructureCommand extends AbstractReplicateCommand<DataStructure<String>> {
 
-    @Override
-    protected ItemReader<DataStructure> reader(RedisOptions redisOptions) {
-        return dataStructureReader();
-    }
+	@Override
+	protected ItemReader<DataStructure<String>> reader(RedisOptions redisOptions) {
+		return dataStructureReader();
+	}
 
-    @Override
-    protected PollableItemReader<DataStructure> liveReader(RedisOptions redisOptions) {
-        AbstractRedisClient client = redisOptions.client();
-        return configure(new DataStructureItemReader.DataStructureItemReaderBuilder(client, new DataStructureValueReader.DataStructureValueReaderBuilder(client).build()).live()).build();
-    }
+	@Override
+	protected PollableItemReader<DataStructure<String>> liveReader(RedisOptions redisOptions) {
+		return configure(RedisItemReader.dataStructure(redisOptions.client()).live()).build();
+	}
 
-    @Override
-    protected ItemWriter<DataStructure> writer(RedisOptions redisOptions) {
-        return new DataStructureItemWriter.DataStructureItemWriterBuilder(redisOptions.client()).poolConfig(redisOptions.poolConfig()).build();
-    }
+	@Override
+	protected ItemWriter<DataStructure<String>> writer(RedisOptions redisOptions) {
+		return RedisItemWriter.dataStructure(redisOptions.client()).poolConfig(redisOptions.poolConfig()).build();
+	}
 }

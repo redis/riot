@@ -1,5 +1,13 @@
 package com.redis.riot.gen;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import org.springframework.batch.core.job.flow.Flow;
+import org.springframework.batch.core.step.builder.StepBuilder;
+import org.springframework.batch.item.ItemProcessor;
+import org.springframework.batch.item.ItemReader;
+
 import com.redis.lettucemod.Utils;
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
 import com.redis.lettucemod.api.search.Field;
@@ -8,17 +16,11 @@ import com.redis.lettucemod.api.sync.RediSearchCommands;
 import com.redis.riot.AbstractImportCommand;
 import com.redis.riot.MapProcessorOptions;
 import com.redis.riot.RiotStepBuilder;
+import com.redis.spring.batch.support.job.JobFactory;
+
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
-import org.springframework.batch.core.job.flow.Flow;
-import org.springframework.batch.core.step.builder.StepBuilder;
-import org.springframework.batch.item.ItemProcessor;
-import org.springframework.batch.item.ItemReader;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
-
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 @Slf4j
 @Command(name = "import", description = "Import generated data using the Spring Expression Language (SpEL)")
@@ -30,8 +32,8 @@ public class GeneratorImportCommand extends AbstractImportCommand<Map<String, Ob
     private MapProcessorOptions processorOptions = new MapProcessorOptions();
 
     @Override
-    protected Flow flow(StepBuilderFactory stepBuilderFactory) throws Exception {
-        StepBuilder stepBuilder = stepBuilderFactory.get("generate-step");
+    protected Flow flow(JobFactory jobFactory) throws Exception {
+        StepBuilder stepBuilder = jobFactory.step("generator-import-step");
         return flow(step(stepBuilder, "Generating", reader()).build());
     }
 

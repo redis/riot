@@ -11,4 +11,9 @@ public class InfoCommand extends AbstractRedisCommandCommand {
 		System.out.println(commands.info());
 	}
 
+	@Override
+	protected String getStepName() {
+		return "info-redis-command-step";
+	}
+
 }

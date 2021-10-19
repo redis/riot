@@ -11,4 +11,8 @@ public class PingCommand extends AbstractRedisCommandCommand {
 		System.out.println("Received ping reply: " + commands.ping());
 	}
 
+	@Override
+	protected String getStepName() {
+		return "ping-redis-command-step";
+	}
 }

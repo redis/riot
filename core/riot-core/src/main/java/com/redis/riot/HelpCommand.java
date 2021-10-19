@@ -7,8 +7,7 @@ import picocli.CommandLine;
 @CommandLine.Command(usageHelpAutoWidth = true)
 public class HelpCommand {
 
-    @SuppressWarnings("unused")
-    @CommandLine.Option(names = {"-H", "--help"}, usageHelp = true, description = "Show this help message and exit")
-    private boolean helpRequested;
+	@CommandLine.Option(names = { "-H", "--help" }, usageHelp = true, description = "Show this help message and exit")
+	private boolean helpRequested;
 
 }

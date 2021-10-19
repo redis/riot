@@ -1,10 +1,25 @@
 package com.redis.riot;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Stream;
+
+import org.apache.commons.pool2.impl.GenericObjectPool;
+import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+
 import com.redis.lettucemod.RedisModulesClient;
 import com.redis.lettucemod.cluster.RedisModulesClusterClient;
+import com.redis.spring.batch.DataGenerator;
+import com.redis.spring.batch.DataGenerator.DataGeneratorBuilder;
 import com.redis.testcontainers.RedisClusterContainer;
 import com.redis.testcontainers.RedisContainer;
 import com.redis.testcontainers.RedisServer;
+
 import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.api.StatefulConnection;
 import io.lettuce.core.api.StatefulRedisConnection;
@@ -14,18 +29,6 @@ import io.lettuce.core.api.sync.RedisServerCommands;
 import io.lettuce.core.cluster.api.StatefulRedisClusterConnection;
 import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
 import io.lettuce.core.support.ConnectionPoolSupport;
-import org.apache.commons.pool2.impl.GenericObjectPool;
-import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.springframework.batch.item.redis.test.DataGenerator;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.stream.Stream;
 
 @SuppressWarnings("unchecked")
 @Testcontainers
@@ -118,7 +121,7 @@ public abstract class AbstractRiotIntegrationTest extends AbstractRiotTest {
         return (GenericObjectPool<C>) POOLS.get(container);
     }
 
-    protected DataGenerator.DataGeneratorBuilder dataGenerator(RedisServer container) {
+    protected DataGeneratorBuilder dataGenerator(RedisServer container) {
         if (container.isCluster()) {
             return DataGenerator.client((RedisModulesClusterClient) CLIENTS.get(container));
         }

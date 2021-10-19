@@ -1,5 +1,18 @@
 package com.redis.riot;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import org.springframework.batch.core.step.builder.FaultTolerantStepBuilder;
+import org.springframework.batch.core.step.builder.StepBuilder;
+import org.springframework.batch.item.ItemProcessor;
+import org.springframework.batch.item.ItemReader;
+import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.item.support.CompositeItemWriter;
+import org.springframework.util.Assert;
+
 import com.redis.riot.redis.EvalCommand;
 import com.redis.riot.redis.ExpireCommand;
 import com.redis.riot.redis.GeoaddCommand;
@@ -12,23 +25,12 @@ import com.redis.riot.redis.SetCommand;
 import com.redis.riot.redis.SugaddCommand;
 import com.redis.riot.redis.XaddCommand;
 import com.redis.riot.redis.ZaddCommand;
+import com.redis.spring.batch.RedisItemWriter;
+import com.redis.spring.batch.support.RedisOperation;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.springframework.batch.core.step.builder.FaultTolerantStepBuilder;
-import org.springframework.batch.core.step.builder.StepBuilder;
-import org.springframework.batch.item.ItemProcessor;
-import org.springframework.batch.item.ItemReader;
-import org.springframework.batch.item.ItemWriter;
-import org.springframework.batch.item.redis.OperationItemWriter;
-import org.springframework.batch.item.redis.support.RedisOperation;
-import org.springframework.batch.item.support.CompositeItemWriter;
-import org.springframework.util.Assert;
 import picocli.CommandLine.Command;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -61,7 +63,7 @@ public abstract class AbstractImportCommand<I, O> extends AbstractTransferComman
 
     private ItemWriter<O> writer(RedisOperation<String, String, O> operation) {
         RedisOptions redisOptions = getRedisOptions();
-        return OperationItemWriter.client(redisOptions.client()).operation(operation).poolConfig(redisOptions.poolConfig()).build();
+        return RedisItemWriter.operation(operation).client(redisOptions.client()).poolConfig(redisOptions.poolConfig()).build();
     }
 
 

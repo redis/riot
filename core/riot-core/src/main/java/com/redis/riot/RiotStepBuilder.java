@@ -1,8 +1,9 @@
 package com.redis.riot;
 
-import lombok.Setter;
-import lombok.experimental.Accessors;
-import lombok.extern.slf4j.Slf4j;
+import java.time.Duration;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.function.Supplier;
+
 import org.springframework.batch.core.ItemWriteListener;
 import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.step.builder.FaultTolerantStepBuilder;
@@ -15,14 +16,15 @@ import org.springframework.batch.core.step.skip.SkipPolicy;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.batch.item.redis.support.FlushingStepBuilder;
-import org.springframework.batch.item.redis.support.KeyValueItemReader;
 import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
-import java.time.Duration;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.function.Supplier;
+import com.redis.spring.batch.support.FlushingStepBuilder;
+import com.redis.spring.batch.support.RedisItemReaderBuilder;
+
+import lombok.Setter;
+import lombok.experimental.Accessors;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Setter
@@ -93,7 +95,7 @@ public class RiotStepBuilder<I, O> {
             case NEVER:
                 return new NeverSkipItemSkipPolicy();
             default:
-                return new LimitCheckingItemSkipPolicy(options.getSkipLimit(), KeyValueItemReader.KeyValueItemReaderBuilder.DEFAULT_SKIPPABLE_EXCEPTIONS);
+                return new LimitCheckingItemSkipPolicy(options.getSkipLimit(), RedisItemReaderBuilder.DEFAULT_SKIPPABLE_EXCEPTIONS);
         }
     }
 

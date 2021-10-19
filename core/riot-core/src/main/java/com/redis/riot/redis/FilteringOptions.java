@@ -1,15 +1,17 @@
 package com.redis.riot.redis;
 
+import java.util.Map;
+
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.util.ObjectUtils;
+
 import com.redis.riot.convert.CompositeConverter;
 import com.redis.riot.convert.MapFilteringConverter;
 import com.redis.riot.convert.MapFlattener;
 import com.redis.riot.convert.ObjectToStringConverter;
-import lombok.Data;
-import org.springframework.core.convert.converter.Converter;
-import org.springframework.util.ObjectUtils;
-import picocli.CommandLine;
 
-import java.util.Map;
+import lombok.Data;
+import picocli.CommandLine;
 
 @Data
 public class FilteringOptions {

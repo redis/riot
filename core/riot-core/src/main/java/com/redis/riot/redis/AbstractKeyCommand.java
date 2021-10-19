@@ -1,12 +1,13 @@
 package com.redis.riot.redis;
 
+import java.util.Map;
+
+import com.redis.spring.batch.support.convert.KeyMaker;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.springframework.batch.item.redis.support.convert.KeyMaker;
 import picocli.CommandLine;
 import picocli.CommandLine.Option;
-
-import java.util.Map;
 
 @Data
 @EqualsAndHashCode(callSuper = true)

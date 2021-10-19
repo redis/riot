@@ -1,13 +1,14 @@
 package com.redis.riot.redis;
 
+import java.util.Map;
+
+import com.redis.spring.batch.support.RedisOperation;
+import com.redis.spring.batch.support.operation.Hset;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.springframework.batch.item.redis.support.RedisOperation;
-import org.springframework.batch.item.redis.support.operation.Hset;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
-
-import java.util.Map;
 
 @Data
 @EqualsAndHashCode(callSuper = true)

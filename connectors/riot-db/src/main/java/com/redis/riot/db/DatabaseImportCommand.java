@@ -1,22 +1,25 @@
 package com.redis.riot.db;
 
-import com.redis.riot.AbstractImportCommand;
-import com.redis.riot.MapProcessorOptions;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import java.util.Map;
+
+import javax.sql.DataSource;
+
 import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.database.JdbcCursorItemReader;
 import org.springframework.batch.item.database.builder.JdbcCursorItemReaderBuilder;
 import org.springframework.jdbc.core.ColumnMapRowMapper;
+
+import com.redis.riot.AbstractImportCommand;
+import com.redis.riot.MapProcessorOptions;
+import com.redis.spring.batch.support.job.JobFactory;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
-
-import javax.sql.DataSource;
-import java.util.Map;
 
 @Slf4j
 @Data
@@ -34,7 +37,7 @@ public class DatabaseImportCommand extends AbstractImportCommand<Map<String, Obj
     private MapProcessorOptions processorOptions = new MapProcessorOptions();
 
     @Override
-    protected Flow flow(StepBuilderFactory stepBuilderFactory) throws Exception {
+    protected Flow flow(JobFactory jobFactory) throws Exception {
         log.debug("Creating data source: {}", dataSourceOptions);
         DataSource dataSource = dataSourceOptions.dataSource();
         String name = dataSource.getConnection().getMetaData().getDatabaseProductName();
@@ -58,7 +61,7 @@ public class DatabaseImportCommand extends AbstractImportCommand<Map<String, Obj
         builder.verifyCursorPosition(importOptions.isVerifyCursorPosition());
         JdbcCursorItemReader<Map<String, Object>> reader = builder.build();
         reader.afterPropertiesSet();
-        return flow(step(stepBuilderFactory.get(name + "-db-import-step"), "Importing from " + name, reader).build());
+        return flow(step(jobFactory.step(name + "-db-import-step"), "Importing from " + name, reader).build());
     }
 
     @Override

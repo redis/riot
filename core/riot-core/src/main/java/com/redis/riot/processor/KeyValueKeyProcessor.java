@@ -1,11 +1,12 @@
 package com.redis.riot.processor;
 
 import org.springframework.batch.item.ItemProcessor;
-import org.springframework.batch.item.redis.support.KeyValue;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 
-public class KeyValueKeyProcessor<T extends KeyValue<?>> implements ItemProcessor<T, T> {
+import com.redis.spring.batch.support.KeyValue;
+
+public class KeyValueKeyProcessor<T extends KeyValue<String, ?>> implements ItemProcessor<T, T> {
 
     private final Expression expression;
     private final EvaluationContext context;
