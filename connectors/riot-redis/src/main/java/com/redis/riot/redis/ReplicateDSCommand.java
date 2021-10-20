@@ -11,8 +11,8 @@ import com.redis.spring.batch.support.ScanRedisItemReaderBuilder;
 import io.lettuce.core.AbstractRedisClient;
 import picocli.CommandLine;
 
-@CommandLine.Command(name = "replicate-ds", description = "Replicate a source Redis database into a target Redis database using data structure-specific commands")
-public class ReplicateDataStructureCommand extends AbstractReplicateCommand<DataStructure<String>> {
+@CommandLine.Command(name = "replicate-ds", description = "Replicate a source Redis DB to a target Redis DB using data structure-specific commands")
+public class ReplicateDSCommand extends AbstractReplicateCommand<DataStructure<String>> {
 
 	@Override
 	protected ScanRedisItemReaderBuilder<DataStructure<String>, DataStructureValueReader<String, String>> reader(
