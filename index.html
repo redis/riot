@@ -16,7 +16,7 @@
 <h1>RIOT Guide</h1>
 <div class="details">
 <span id="author" class="author">Julien Ruaux</span><br>
-<span id="revnumber">version 2.13.0</span>
+<span id="revnumber">version 2.14.0</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -219,9 +219,8 @@ Redis connection options
   <span class="olive">-n</span>, <span class="olive">--db</span>=&lt;db&gt;             Database number (default: 0).
   <span class="olive">-c</span>, <span class="olive">--cluster</span>             Enable cluster mode.
       <span class="olive">--tls</span>                 Establish a secure TLS connection.
-      <span class="olive">--[no-]verify-peer</span>    Verify peers when using TLS. True by default.
+      <span class="olive">--insecure</span>    Allow insecure TLS connection by skipping cert validation.
       <span class="olive">--latency</span>             Show latency metrics.
-      <span class="olive">--pool-max</span>=&lt;int&gt;      Max pool connections (default: 8).
       <span class="olive">--client</span>=&lt;name&gt;       Client name used to connect to Redis.
 Commands:
   ...</pre>
@@ -523,7 +522,7 @@ Commands:
 <div class="listingblock">
 <div class="title">Export to PostgreSQL</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="bash">riot-db export &quot;INSERT INTO mytable (id, field1, field2) VALUES (CAST(:id AS SMALLINT), :field1, :field2)&quot; --url &quot;jdbc:postgresql://host:port/database&quot; --username appuser --password passwd --match &quot;hash:*&quot; --key-regex &quot;hash:(?&lt;id&gt;.*)&quot;</code></pre>
+<pre class="CodeRay highlight"><code data-lang="bash">riot-db export &quot;INSERT INTO mytable (id, field1, field2) VALUES (CAST(:id AS SMALLINT), :field1, :field2)&quot; --url &quot;jdbc:postgresql://host:port/database&quot; --username appuser --password passwd --scan-match &quot;hash:*&quot; --key-regex &quot;hash:(?&lt;id&gt;.*)&quot;</code></pre>
 </div>
 </div>
 <div class="listingblock">
@@ -634,9 +633,8 @@ Redis connection options
   <span class="olive">-n</span>, <span class="olive">--db</span>=&lt;db&gt;             Database number (default: 0).
   <span class="olive">-c</span>, <span class="olive">--cluster</span>             Enable cluster mode.
       <span class="olive">--tls</span>                 Establish a secure TLS connection.
-      <span class="olive">--[no-]verify-peer</span>    Verify peers when using TLS. True by default.
+      <span class="olive">--insecure</span>    Allow insecure TLS connection by skipping cert validation.
       <span class="olive">--latency</span>             Show latency metrics.
-      <span class="olive">--pool-max</span>=&lt;int&gt;      Max pool connections (default: 8).
       <span class="olive">--client</span>=&lt;name&gt;       Client name used to connect to Redis.
 Commands:
   ...</pre>
@@ -1149,7 +1147,7 @@ Use <code>-</code> to read from standard input.
 <div class="listingblock">
 <div class="title">Compressed JSON export example</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="bash">riot-file export /tmp/beers.json.gz --match beer:*</code></pre>
+<pre class="CodeRay highlight"><code data-lang="bash">riot-file export /tmp/beers.json.gz --scan-match beer:*</code></pre>
 </div>
 </div>
 <div class="listingblock">
@@ -1304,9 +1302,8 @@ Redis connection options
   <span class="olive">-n</span>, <span class="olive">--db</span>=&lt;db&gt;             Database number (default: 0).
   <span class="olive">-c</span>, <span class="olive">--cluster</span>             Enable cluster mode.
       <span class="olive">--tls</span>                 Establish a secure TLS connection.
-      <span class="olive">--[no-]verify-peer</span>    Verify peers when using TLS. True by default.
+      <span class="olive">--insecure</span>    Allow insecure TLS connection by skipping cert validation.
       <span class="olive">--latency</span>             Show latency metrics.
-      <span class="olive">--pool-max</span>=&lt;int&gt;      Max pool connections (default: 8).
       <span class="olive">--client</span>=&lt;name&gt;       Client name used to connect to Redis.
 Commands:
   ...</pre>
@@ -1670,9 +1667,8 @@ Redis connection options
   <span class="olive">-n</span>, <span class="olive">--db</span>=&lt;db&gt;             Database number (default: 0).
   <span class="olive">-c</span>, <span class="olive">--cluster</span>             Enable cluster mode.
       <span class="olive">--tls</span>                 Establish a secure TLS connection.
-      <span class="olive">--[no-]verify-peer</span>    Verify peers when using TLS. True by default.
+      <span class="olive">--insecure</span>    Allow insecure TLS connection by skipping cert validation.
       <span class="olive">--latency</span>             Show latency metrics.
-      <span class="olive">--pool-max</span>=&lt;int&gt;      Max pool connections (default: 8).
       <span class="olive">--client</span>=&lt;name&gt;       Client name used to connect to Redis.
 Commands:
   ...</pre>
@@ -1724,10 +1720,22 @@ Commands:
 <pre><span class="green">riot-redis</span> replicate --help</pre>
 </div>
 </div>
+<div class="listingblock">
+<div class="title">Simple replication example</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash">riot-redis -h source -p 6379 replicate -h target -p 6380 --batch 10</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Live replication example</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash">riot-redis -h source -p 6379 replicate -h target -p 6380 --mode live</code></pre>
+</div>
+</div>
 <div class="sect3">
 <h4 id="_type_based_replication"><a class="anchor" href="#_type_based_replication"></a>5.2.1. Type-Based Replication</h4>
 <div class="paragraph">
-<p>RIOT Redis 2.8 introduced another replication command called <code>replicate-ds</code> that uses data structure-specific producers and consumers. Each Redis data structure type has a corresponding pair of read/write commands:</p>
+<p>RIOT Redis 2.8 introduced another type of replication that uses data structure-specific producers and consumers where each Redis data structure type has a corresponding pair of read/write commands:</p>
 </div>
 <table class="tableblock frame-none grid-none stretch">
 <colgroup>
@@ -1775,6 +1783,15 @@ Commands:
 </tr>
 </tbody>
 </table>
+<div class="paragraph">
+<p>To select this replication mechanism pass <code>--type ds</code> option to the <code>replicate</code> command:</p>
+</div>
+<div class="listingblock">
+<div class="title">Live type-based replication example</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash">riot-redis -h source -p 6379 replicate --type ds -h target -p 6380 --mode live</code></pre>
+</div>
+</div>
 <div class="admonitionblock warning">
 <table>
 <tr>
@@ -1952,9 +1969,8 @@ Redis connection options
   <span class="olive">-n</span>, <span class="olive">--db</span>=&lt;db&gt;             Database number (default: 0).
   <span class="olive">-c</span>, <span class="olive">--cluster</span>             Enable cluster mode.
       <span class="olive">--tls</span>                 Establish a secure TLS connection.
-      <span class="olive">--[no-]verify-peer</span>    Verify peers when using TLS. True by default.
+      <span class="olive">--insecure</span>    Allow insecure TLS connection by skipping cert validation.
       <span class="olive">--latency</span>             Show latency metrics.
-      <span class="olive">--pool-max</span>=&lt;int&gt;      Max pool connections (default: 8).
       <span class="olive">--client</span>=&lt;name&gt;       Client name used to connect to Redis.
 Commands:
   ...</pre>
@@ -2043,8 +2059,8 @@ Commands:
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 2.13.0<br>
-Last updated 2021-09-23 05:56:08 UTC
+Version 2.14.0<br>
+Last updated 2021-11-06 22:12:57 UTC
 </div>
 </div>
 <link rel="stylesheet" href="./coderay-asciidoctor.css">
