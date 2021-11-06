@@ -17,7 +17,6 @@ import io.lettuce.core.ClientOptions;
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.SslOptions;
 import io.lettuce.core.cluster.ClusterClientOptions;
-import io.lettuce.core.cluster.RedisClusterClient;
 import io.lettuce.core.event.DefaultEventPublisherOptions;
 import io.lettuce.core.event.metrics.CommandLatencyEvent;
 import io.lettuce.core.metrics.CommandLatencyCollector;
@@ -82,6 +81,7 @@ public class RedisOptions {
 	private AbstractRedisClient client;
 
 	public void shutdown() {
+
 		if (client != null) {
 			client.shutdown();
 			client.getResources().shutdown();
@@ -127,8 +127,8 @@ public class RedisOptions {
 			builder.commandLatencyPublisherOptions(
 					DefaultEventPublisherOptions.builder().eventEmitInterval(Duration.ofSeconds(1)).build());
 			ClientResources resources = builder.build();
-			resources.eventBus().get().filter(redisEvent -> redisEvent instanceof CommandLatencyEvent)
-					.cast(CommandLatencyEvent.class).subscribe(e -> System.out.println(e.getLatencies()));
+			resources.eventBus().get().filter(CommandLatencyEvent.class::isInstance).cast(CommandLatencyEvent.class)
+					.subscribe(e -> log.info(e.getLatencies().toString()));
 		}
 		return builder.build();
 	}
@@ -155,18 +155,25 @@ public class RedisOptions {
 		return builder.build();
 	}
 
-	public RedisModulesClusterClient redisModulesClusterClient() {
+	public StatefulRedisModulesConnection<String, String> connect() {
+		if (cluster) {
+			return clusterClient().connect();
+		}
+		return client().connect();
+	}
+
+	public RedisModulesClusterClient clusterClient() {
 		if (client == null) {
 			log.debug("Creating Redis cluster client: {}", this);
 			RedisModulesClusterClient clusterClient = RedisModulesClusterClient.create(clientResources(), uris());
 			clusterClient.setOptions(
 					ClusterClientOptions.builder().autoReconnect(autoReconnect).sslOptions(sslOptions()).build());
-			client = clusterClient;
+			this.client = clusterClient;
 		}
 		return (RedisModulesClusterClient) client;
 	}
 
-	public RedisModulesClient redisModulesClient() {
+	public RedisModulesClient client() {
 		if (client == null) {
 			log.debug("Creating Redis client: {}", this);
 			RedisModulesClient redisClient = RedisModulesClient.create(clientResources(), uris().get(0));
@@ -175,21 +182,6 @@ public class RedisOptions {
 			this.client = redisClient;
 		}
 		return (RedisModulesClient) client;
-	}
-
-	public AbstractRedisClient client() {
-		if (cluster) {
-			return redisModulesClusterClient();
-		}
-		return redisModulesClient();
-	}
-
-	public StatefulRedisModulesConnection<String, String> connect() {
-		AbstractRedisClient client = client();
-		if (client instanceof RedisClusterClient) {
-			return ((RedisModulesClusterClient) client).connect();
-		}
-		return ((RedisModulesClient) client).connect();
 	}
 
 }

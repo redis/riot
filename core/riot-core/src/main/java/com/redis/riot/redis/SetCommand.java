@@ -12,11 +12,13 @@ import com.redis.riot.convert.ObjectMapperConverter;
 import com.redis.spring.batch.support.RedisOperation;
 import com.redis.spring.batch.support.operation.Set;
 
+import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 @Slf4j
+@EqualsAndHashCode(callSuper = true)
 @Command(name = "set", description = "Set strings from input")
 public class SetCommand extends AbstractKeyCommand {
 

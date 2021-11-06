@@ -15,12 +15,12 @@ import picocli.CommandLine.Command;
 @Command(name = "hset", aliases = "hmset", description = "Set hashes from input")
 public class HsetCommand extends AbstractKeyCommand {
 
-    @CommandLine.Mixin
-    private FilteringOptions filtering = new FilteringOptions();
+	@CommandLine.Mixin
+	private FilteringOptions filtering = new FilteringOptions();
 
-    @Override
-    public RedisOperation<String, String, Map<String, Object>> operation() {
-        return Hset.key(key()).map(filtering.converter()).build();
-    }
+	@Override
+	public RedisOperation<String, String, Map<String, Object>> operation() {
+		return Hset.key(key()).map(filtering.converter()).build();
+	}
 
 }

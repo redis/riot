@@ -1,6 +1,8 @@
 package com.redis.riot.redis;
 
 import java.time.Duration;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -10,10 +12,10 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import com.redis.riot.AbstractRiotCommand;
-import com.redis.riot.AbstractRiotCommand.ExecutionStrategy;
+import com.redis.lettucemod.api.sync.RedisModulesCommands;
 import com.redis.riot.AbstractRiotIntegrationTest;
-import com.redis.spring.batch.support.Timer;
+import com.redis.riot.redis.ReplicationOptions.ReplicationMode;
+import com.redis.spring.batch.support.compare.KeyComparisonResults;
 import com.redis.testcontainers.RedisContainer;
 import com.redis.testcontainers.RedisServer;
 
@@ -22,17 +24,13 @@ import io.lettuce.core.RedisURI;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.api.sync.RedisCommands;
 import io.lettuce.core.api.sync.RedisServerCommands;
-import io.lettuce.core.api.sync.RedisStringCommands;
-import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine;
-import picocli.CommandLine.ParseResult;
 
 @Testcontainers
-@Slf4j
-@SuppressWarnings({ "rawtypes", "unchecked" })
-public class TestReplicate extends AbstractRiotIntegrationTest {
+@SuppressWarnings("unchecked")
+class TestReplicate extends AbstractRiotIntegrationTest {
 
-	private final static Duration REPLICATION_TIMEOUT = Duration.ofSeconds(1);
+	private static final Duration IDLE_TIMEOUT = Duration.ofSeconds(10);
 
 	@Container
 	private static final RedisContainer TARGET = new RedisContainer();
@@ -49,7 +47,7 @@ public class TestReplicate extends AbstractRiotIntegrationTest {
 	}
 
 	@AfterEach
-	public void cleanupTarget() {
+	public void cleanupTarget() throws InterruptedException {
 		targetConnection.sync().flushall();
 		targetConnection.close();
 		targetClient.shutdown();
@@ -61,75 +59,70 @@ public class TestReplicate extends AbstractRiotIntegrationTest {
 		return new RiotRedis();
 	}
 
-	private void configureReplicateCommandAsync(ParseResult parseResult) {
-		configureReplicateCommand(parseResult, ExecutionStrategy.ASYNC);
-	}
-
-	private void configureReplicateCommandSync(CommandLine.ParseResult parseResult) {
-		configureReplicateCommand(parseResult, ExecutionStrategy.SYNC);
-	}
-
-	private void configureReplicateCommand(CommandLine.ParseResult parseResult,
-			AbstractRiotCommand.ExecutionStrategy strategy) {
-		AbstractReplicateCommand command = parseResult.subcommand().commandSpec().commandLine().getCommand();
-		if (strategy == ExecutionStrategy.ASYNC) {
-			command.setExecutionStrategy(AbstractRiotCommand.ExecutionStrategy.ASYNC);
-		}
+	private void configureReplicateCommand(CommandLine.ParseResult parseResult) {
+		ReplicateCommand command = parseResult.subcommand().commandSpec().commandLine().getCommand();
 		command.getTargetRedisOptions().setUris(new RedisURI[] { RedisURI.create(TARGET.getRedisURI()) });
 		if (command.getReplicationOptions().getMode() == ReplicationMode.LIVE) {
-			command.getFlushingTransferOptions().setIdleTimeout(Duration.ofMillis(300));
+			command.getFlushingTransferOptions().setIdleTimeout(IDLE_TIMEOUT);
+			command.getReplicationOptions().setNotificationQueueCapacity(100000);
 		}
 	}
 
 	@ParameterizedTest
 	@MethodSource("containers")
-	void replicate(RedisServer container) throws Throwable {
-		dataGenerator(container).build().call();
-		RedisServerCommands<String, String> sync = sync(container);
-		Long sourceSize = sync.dbsize();
-		Assertions.assertTrue(sourceSize > 0);
-		execute("replicate", container, this::configureReplicateCommandSync);
-		Assertions.assertEquals(sourceSize, targetSync.dbsize());
+	public void replicate(RedisServer redis) throws Throwable {
+		String name = "replicate";
+		execute(dataGenerator(redis, name));
+		RedisModulesCommands<String, String> sync = sync(redis);
+		Assertions.assertTrue(sync.dbsize() > 0);
+		execute("replicate", redis, this::configureReplicateCommand);
+		compare(name, redis);
 	}
 
 	@ParameterizedTest
 	@MethodSource("containers")
-	void replicateKeyProcessor(RedisServer container) throws Throwable {
-		dataGenerator(container).build().call();
-		RedisServerCommands<String, String> sync = sync(container);
+	public void replicateKeyProcessor(RedisServer redis) throws Throwable {
+		RedisModulesCommands<String, String> sync = sync(redis);
+		execute(dataGenerator(redis, "replicate-key-processor").end(200));
 		Long sourceSize = sync.dbsize();
 		Assertions.assertTrue(sourceSize > 0);
-		execute("replicate-key-processor", container, this::configureReplicateCommandSync);
+		execute("replicate-key-processor", redis, this::configureReplicateCommand);
 		Assertions.assertEquals(sourceSize, targetSync.dbsize());
-		RedisStringCommands<String, String> stringCommands = sync(container);
-		Assertions.assertEquals(stringCommands.get("string:123"), targetSync.get("0:string:123"));
+		Assertions.assertEquals(sync.get("string:123"), targetSync.get("0:string:123"));
 	}
 
 	@ParameterizedTest
 	@MethodSource("containers")
 	public void replicateLive(RedisServer container) throws Exception {
-		testLiveReplication(container, "replicate-live");
+		runLiveReplication("replicate-live", container);
 	}
 
 	@ParameterizedTest
 	@MethodSource("containers")
-	public void replicateLiveValue(RedisServer container) throws Exception {
-		testLiveReplication(container, "replicate-live-value");
+	public void replicateDSLive(RedisServer container) throws Exception {
+		runLiveReplication("replicate-ds-live", container);
 	}
 
-	private void testLiveReplication(RedisServer container, String filename) throws Exception {
-		dataGenerator(container).build().call();
-		execute(filename, container, this::configureReplicateCommandAsync);
-		new Timer(REPLICATION_TIMEOUT, 10).await(() -> targetSync.dbsize() >= 300);
-		RedisStringCommands<String, String> sync = sync(container);
-		log.debug("Setting livestring keys");
-		int count = 39;
-		for (int index = 0; index < count; index++) {
-			sync.set("livestring:" + index, "value" + index);
-		}
-		long sourceSize = ((RedisServerCommands<String, String>) sync).dbsize();
-		new Timer(REPLICATION_TIMEOUT, 10).await(() -> targetSync.dbsize() == sourceSize);
-		Assertions.assertEquals(sourceSize, targetSync.dbsize());
+	private void runLiveReplication(String filename, RedisServer source) throws Exception {
+		execute(dataGenerator(source, filename).end(3000));
+		ExecutorService executor = Executors.newSingleThreadExecutor();
+		executor.submit(() -> {
+			try {
+				Thread.sleep(500);
+				dataGenerator(source, "live-" + filename).chunkSize(1).between(3000, 5000).build();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		});
+		execute(filename, source, this::configureReplicateCommand);
+		compare(filename, source);
+	}
+
+	private void compare(String name, RedisServer redis) throws Exception {
+		RedisServerCommands<String, String> sourceSync = sync(redis);
+		Assertions.assertEquals(sourceSync.dbsize(), targetSync.dbsize());
+		KeyComparisonResults results = keyComparator(client(redis), targetClient).id(name).build().call();
+		Assertions.assertTrue(results.isOK());
 	}
 
 }

@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.flow.Flow;
-import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.json.JsonItemReader;
 import org.springframework.batch.item.support.AbstractItemStreamItemReader;
@@ -16,11 +15,12 @@ import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
 import com.redis.riot.AbstractTransferCommand;
+import com.redis.riot.RedisOptions;
 import com.redis.riot.RedisWriterOptions;
 import com.redis.riot.RiotStepBuilder;
 import com.redis.spring.batch.RedisItemWriter;
+import com.redis.spring.batch.RedisItemWriter.DataStructureItemWriterBuilder;
 import com.redis.spring.batch.support.DataStructure;
-import com.redis.spring.batch.support.job.JobFactory;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -35,6 +35,8 @@ import picocli.CommandLine.Command;
 @Command(name = "import-dump", description = "Import Redis data files into Redis")
 public class DumpFileImportCommand extends AbstractTransferCommand {
 
+	private static final String NAME = "dump-file-import";
+
 	@CommandLine.Parameters(arity = "0..*", description = "One ore more files or URLs", paramLabel = "FILE")
 	private List<String> files;
 	@CommandLine.Mixin
@@ -43,7 +45,7 @@ public class DumpFileImportCommand extends AbstractTransferCommand {
 	private RedisWriterOptions writerOptions = new RedisWriterOptions();
 
 	@Override
-	protected Flow flow(JobFactory jobFactory) throws Exception {
+	protected Flow flow() throws Exception {
 		Assert.isTrue(!ObjectUtils.isEmpty(files), "No file specified");
 		List<String> expandedFiles = FileUtils.expand(files);
 		if (ObjectUtils.isEmpty(expandedFiles)) {
@@ -55,13 +57,12 @@ public class DumpFileImportCommand extends AbstractTransferCommand {
 			DumpFileType fileType = fileType(file);
 			Resource resource = options.inputResource(file);
 			AbstractItemStreamItemReader<DataStructure<String>> reader = reader(fileType, resource);
-			reader.setName(file + "-reader");
-			StepBuilder stepBuilder = jobFactory.step(file + "-dump-file-import-step");
-			RiotStepBuilder<DataStructure<String>, DataStructure<String>> step = riotStep(stepBuilder,
+			reader.setName(file + "-" + NAME + "-reader");
+			RiotStepBuilder<DataStructure<String>, DataStructure<String>> step = riotStep(file + "-" + NAME,
 					"Importing " + file);
 			steps.add(step.reader(reader).processor(processor).writer(writer()).build().build());
 		}
-		return flow("dump-file-import-flow", steps.toArray(new Step[0]));
+		return flow(NAME, steps.toArray(new Step[0]));
 	}
 
 	private DumpFileType fileType(String file) {
@@ -72,8 +73,14 @@ public class DumpFileImportCommand extends AbstractTransferCommand {
 	}
 
 	private ItemWriter<DataStructure<String>> writer() {
-		return writerOptions.configure(RedisItemWriter.dataStructure(getRedisOptions().client())
-				.poolConfig(poolConfig(writerOptions.getPoolMax()))).build();
+		return writerOptions.configureWriter(dataStructureWriter(getRedisOptions())).build();
+	}
+
+	private DataStructureItemWriterBuilder<String, String> dataStructureWriter(RedisOptions options) {
+		if (options.isCluster()) {
+			return RedisItemWriter.client(options.clusterClient()).dataStructure();
+		}
+		return RedisItemWriter.client(options.client()).dataStructure();
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })

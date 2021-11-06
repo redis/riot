@@ -3,15 +3,13 @@ package com.redis.riot.redis;
 import java.util.Map;
 
 import org.springframework.core.convert.converter.Converter;
-import org.springframework.util.ObjectUtils;
 
 import com.redis.riot.HelpCommand;
 import com.redis.riot.RedisCommand;
 import com.redis.riot.convert.CompositeConverter;
-import com.redis.riot.convert.FieldExtractor;
+import com.redis.riot.convert.FieldExtractorFactory;
+import com.redis.riot.convert.IdConverterBuilder;
 import com.redis.riot.convert.ObjectToNumberConverter;
-import com.redis.riot.convert.ObjectToStringConverter;
-import com.redis.spring.batch.support.convert.KeyMaker;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -30,44 +28,26 @@ public abstract class AbstractRedisCommand<O> extends HelpCommand implements Red
 	private boolean removeFields;
 
 	protected Converter<Map<String, Object>, Double> doubleFieldExtractor(String field) {
-		return numberFieldExtractor(Double.class, field, null);
+		Converter<Map<String, Object>, Object> extractor = fieldExtractorFactory().field(field);
+		return new CompositeConverter<>(extractor, new ObjectToNumberConverter<>(Double.class));
 	}
 
-	protected Converter<Map<String, Object>, Object> fieldExtractor(String field, Object defaultValue) {
-		return FieldExtractor.builder().field(field).remove(removeFields).defaultValue(defaultValue).build();
-	}
-
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	protected Converter<Map<String, Object>, String> stringFieldExtractor(String field) {
-		Converter<Map<String, Object>, String> extractor = (Converter) fieldExtractor(field, null);
-		if (extractor == null) {
-			return null;
-		}
-		return new CompositeConverter(extractor, new ObjectToStringConverter());
+		return fieldExtractorFactory().string(field);
 	}
 
-	@SuppressWarnings("unchecked")
-	protected <T extends Number> Converter<Map<String, Object>, T> numberFieldExtractor(Class<T> targetType,
-			String field, T defaultValue) {
-		Converter<Map<String, Object>, Object> extractor = fieldExtractor(field, defaultValue);
-		return new CompositeConverter(extractor, new ObjectToNumberConverter<>(targetType));
+	private FieldExtractorFactory fieldExtractorFactory() {
+		return new FieldExtractorFactory().remove(removeFields);
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	protected KeyMaker<Map<String, Object>> idMaker(String prefix, String[] fields) {
-		KeyMaker.KeyMakerBuilder<Map<String, Object>> builder = KeyMaker.<Map<String, Object>>builder()
-				.separator(keySeparator).prefix(prefix);
-		if (!ObjectUtils.isEmpty(fields)) {
-			Converter[] converters = new Converter[fields.length];
-			for (int index = 0; index < fields.length; index++) {
-				Converter<Map<String, Object>, Object> extractor = FieldExtractor.builder().remove(removeFields)
-						.field(fields[index]).build();
-				CompositeConverter converter = new CompositeConverter(extractor, new ObjectToStringConverter());
-				converters[index] = converter;
-			}
-			builder.converters(converters);
-		}
-		return builder.build();
+	protected <T extends Number> Converter<Map<String, Object>, T> numberExtractor(String field, Class<T> targetType,
+			T defaultValue) {
+		Converter<Map<String, Object>, Object> extractor = fieldExtractorFactory().field(field, defaultValue);
+		return new CompositeConverter<>(extractor, new ObjectToNumberConverter<>(targetType));
+	}
+
+	protected Converter<Map<String, Object>, String> idMaker(String prefix, String... fields) {
+		return new IdConverterBuilder().remove(removeFields).prefix(prefix).fields(fields).build();
 	}
 
 }

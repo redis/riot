@@ -23,7 +23,7 @@ projects {
 
     plugins {
         all {
-            id 'idea'
+            id 'eclipse'
         }
         path(':') {
             id 'org.kordamp.gradle.java-project'

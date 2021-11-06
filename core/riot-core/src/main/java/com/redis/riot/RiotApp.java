@@ -41,13 +41,11 @@ public class RiotApp extends HelpCommand {
 	@Option(names = "--stacktrace", description = "Print out the stacktrace for all exceptions.")
 	private boolean stacktrace;
 
-	@SuppressWarnings("deprecation")
 	private int executionStrategy(ParseResult parseResult) {
 		configureLogging();
 		return new CommandLine.RunLast().execute(parseResult); // default execution strategy
 	}
 
-	@SuppressWarnings("deprecation")
 	private int executionStragegyRunFirst(ParseResult parseResult) {
 		configureLogging();
 		return new CommandLine.RunFirst().execute(parseResult);
@@ -63,7 +61,7 @@ public class RiotApp extends HelpCommand {
 		activeLogger.addHandler(handler);
 		Logger.getLogger(ROOT_LOGGER).setLevel(logLevel());
 		Logger.getLogger("com.redis.riot").setLevel(riotLogLevel());
-		Logger.getLogger("org.springframework.batch.item.redis").setLevel(riotLogLevel());
+		Logger.getLogger("com.redis.spring.batch").setLevel(riotLogLevel());
 	}
 
 	public int execute(String... args) {
@@ -76,6 +74,7 @@ public class RiotApp extends HelpCommand {
 		commandLine.setExecutionExceptionHandler(this::handleExecutionException);
 		registerConverters(commandLine);
 		commandLine.setCaseInsensitiveEnumValuesAllowed(true);
+		commandLine.setUnmatchedOptionsAllowedAsOptionParameters(false);
 		return commandLine;
 	}
 

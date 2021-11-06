@@ -7,7 +7,6 @@ import java.util.Map;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.flow.Flow;
-import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
@@ -21,12 +20,9 @@ import com.redis.riot.RiotStepBuilder;
 import com.redis.riot.stream.kafka.KafkaItemWriter;
 import com.redis.riot.stream.processor.AvroProducerProcessor;
 import com.redis.riot.stream.processor.JsonProducerProcessor;
-import com.redis.spring.batch.RedisItemReader;
-import com.redis.spring.batch.support.RedisStreamItemReader;
-import com.redis.spring.batch.support.job.JobFactory;
+import com.redis.spring.batch.support.StreamItemReader;
 
 import io.lettuce.core.StreamMessage;
-import io.lettuce.core.XReadArgs.StreamOffset;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
@@ -41,6 +37,7 @@ import picocli.CommandLine.Parameters;
 @Command(name = "export", description = "Import Redis streams into Kafka topics")
 public class StreamExportCommand extends AbstractTransferCommand {
 
+	private static final String NAME = "stream-export";
 	@CommandLine.Mixin
 	private FlushingTransferOptions flushingTransferOptions = new FlushingTransferOptions();
 	@Parameters(arity = "0..*", description = "One ore more streams to read from", paramLabel = "STREAM")
@@ -53,22 +50,17 @@ public class StreamExportCommand extends AbstractTransferCommand {
 	private String topic;
 
 	@Override
-	protected Flow flow(JobFactory jobFactory) {
+	protected Flow flow() throws Exception {
 		Assert.isTrue(!ObjectUtils.isEmpty(streams), "No stream specified");
 		List<Step> steps = new ArrayList<>();
 		for (String stream : streams) {
-			RedisStreamItemReader<String, String> reader = reader(StreamOffset.from(stream, offset));
-			StepBuilder stepBuilder = jobFactory.step(stream + "-stream-export-step");
-			RiotStepBuilder<StreamMessage<String, String>, ProducerRecord<String, Object>> step = riotStep(stepBuilder,
-					"Exporting from " + stream);
+			StreamItemReader<String, String> reader = reader(getRedisOptions()).stream(stream).build();
+			RiotStepBuilder<StreamMessage<String, String>, ProducerRecord<String, Object>> step = riotStep(
+					stream + "-" + NAME, "Exporting from " + stream);
 			steps.add(step.reader(reader).processor(processor()).writer(writer())
 					.flushingOptions(flushingTransferOptions).build().build());
 		}
-		return flow("stream-export-flow", steps.toArray(new Step[0]));
-	}
-
-	private RedisStreamItemReader<String, String> reader(StreamOffset<String> offset) {
-		return RedisItemReader.scan(offset).client(getRedisOptions().client()).build();
+		return flow(NAME, steps.toArray(new Step[0]));
 	}
 
 	private KafkaItemWriter<String> writer() {

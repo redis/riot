@@ -34,9 +34,21 @@ To show the full usage, run:
 [green]#{connector}# replicate --help
 ....
 
+.Simple replication example
+[source,bash]
+----
+include::{test-resources}/replicate[]
+----
+
+.Live replication example
+[source,bash]
+----
+include::{test-resources}/replicate-live[]
+----
+
 === Type-Based Replication
 
-{connector-title} 2.8 introduced another replication command called `replicate-ds` that uses data structure-specific producers and consumers. Each Redis data structure type has a corresponding pair of read/write commands:
+{connector-title} 2.8 introduced another type of replication that uses data structure-specific producers and consumers where each Redis data structure type has a corresponding pair of read/write commands:
 
 [options="header",cols=",m,m",frame="none",grid="none"]
 |=========================================================
@@ -50,6 +62,15 @@ To show the full usage, run:
 |String|GET|SET
 
 |=========================================================
+
+To select this replication mechanism pass `--type ds` option to the `replicate` command:
+
+.Live type-based replication example
+[source,bash]
+----
+include::{test-resources}/replicate-ds-live[]
+----
+
 
 WARNING: This replication strategy is more intensive in terms of CPU, memory, and network for the machines running {connector-title}. Adjust number of threads, batch, and queue sizes accordingly.
 

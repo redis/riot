@@ -4,7 +4,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.springframework.batch.core.job.flow.Flow;
-import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 
@@ -16,7 +15,6 @@ import com.redis.lettucemod.api.sync.RediSearchCommands;
 import com.redis.riot.AbstractImportCommand;
 import com.redis.riot.MapProcessorOptions;
 import com.redis.riot.RiotStepBuilder;
-import com.redis.spring.batch.support.job.JobFactory;
 
 import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine;
@@ -26,15 +24,16 @@ import picocli.CommandLine.Command;
 @Command(name = "import", description = "Import generated data using the Spring Expression Language (SpEL)")
 public class GeneratorImportCommand extends AbstractImportCommand<Map<String, Object>, Map<String, Object>> {
 
+	private static final String NAME = "generator-import";
+
 	@CommandLine.Mixin
 	private GenerateOptions options = new GenerateOptions();
 	@CommandLine.ArgGroup(exclusive = false, heading = "Processor options%n")
 	private MapProcessorOptions processorOptions = new MapProcessorOptions();
 
 	@Override
-	protected Flow flow(JobFactory jobFactory) throws Exception {
-		return flow("generator-import-flow",
-				step(jobFactory.step("generator-import-step"), "Generating", reader()).build());
+	protected Flow flow() throws Exception {
+		return flow(NAME, step(NAME, "Generating", reader()).build());
 	}
 
 	private ItemReader<Map<String, Object>> reader() {
@@ -91,8 +90,8 @@ public class GeneratorImportCommand extends AbstractImportCommand<Map<String, Ob
 	}
 
 	@Override
-	protected <I, O> RiotStepBuilder<I, O> riotStep(StepBuilder stepBuilder, String taskName) {
-		RiotStepBuilder<I, O> riotStepBuilder = super.riotStep(stepBuilder, taskName);
+	protected <I, O> RiotStepBuilder<I, O> riotStep(String name, String taskName) throws Exception {
+		RiotStepBuilder<I, O> riotStepBuilder = super.riotStep(name, taskName);
 		riotStepBuilder.initialMax(() -> options.getEnd() - options.getStart());
 		return riotStepBuilder;
 	}

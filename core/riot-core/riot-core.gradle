@@ -10,6 +10,8 @@ dependencies {
     implementation group: 'me.tongfei', name: 'progressbar', version: progressbarVersion
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
     api group: 'com.google.code.findbugs', name: 'jsr305', version: jsr305Version
+    testAnnotationProcessor group: 'info.picocli', name: 'picocli-codegen', version: picocliVersion
+    testImplementation "org.junit.jupiter:junit-jupiter"
 }
 
 jar {
@@ -17,3 +19,19 @@ jar {
         attributes("Implementation-Title": "RIOT", "Implementation-Version": archiveVersion)
     }
 }
+
+task testsJar(type: Jar, dependsOn: testClasses) {
+    classifier = 'tests'
+    from sourceSets.test.output
+}
+
+configurations {
+    tests
+}
+
+artifacts {
+    tests testsJar
+    archives testsJar
+}
+
+jar.finalizedBy(testsJar)

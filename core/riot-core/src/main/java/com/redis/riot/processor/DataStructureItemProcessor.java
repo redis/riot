@@ -107,7 +107,7 @@ public class DataStructureItemProcessor implements ItemProcessor<DataStructure<S
 			StreamToStringMapConverter streamConverter = StreamToStringMapConverter.builder().build();
 			CollectionToStringMapConverter listConverter = CollectionToStringMapConverter.builder().build();
 			CollectionToStringMapConverter setConverter = CollectionToStringMapConverter.builder().build();
-			ZsetToStringMapConverter zsetConverter = new ZsetToStringMapConverter();
+			ZsetToStringMapConverter zsetConverter = ZsetToStringMapConverter.builder().build();
 			Converter<String, Map<String, String>> stringConverter = new StringToStringMapConverter();
 			return new DataStructureItemProcessor(keyFieldsExtractor, c -> c, listConverter, setConverter,
 					streamConverter, stringConverter, zsetConverter, c -> null);

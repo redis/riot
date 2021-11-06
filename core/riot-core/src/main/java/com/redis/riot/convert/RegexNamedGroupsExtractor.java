@@ -1,8 +1,5 @@
 package com.redis.riot.convert;
 
-import lombok.Builder;
-import org.springframework.core.convert.converter.Converter;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -10,9 +7,13 @@ import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.springframework.core.convert.converter.Converter;
+
+import lombok.Builder;
+
 public class RegexNamedGroupsExtractor implements Converter<String, Map<String, String>> {
 
-	private final static String NAMED_GROUPS = "\\(\\?<([a-zA-Z][a-zA-Z0-9]*)>";
+	private static final String NAMED_GROUPS = "\\(\\?<([a-zA-Z][a-zA-Z0-9]*)>";
 
 	private final Pattern pattern;
 	private final Set<String> namedGroups;

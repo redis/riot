@@ -8,10 +8,10 @@ import java.util.logging.LogRecord;
 public class OneLineLogFormat extends Formatter {
 
     @Override
-    public String format(LogRecord record) {
-        String message = formatMessage(record);
-        if (record.getThrown() != null) {
-            Throwable rootCause = NestedExceptionUtils.getRootCause(record.getThrown());
+    public String format(LogRecord logRecord) {
+        String message = formatMessage(logRecord);
+        if (logRecord.getThrown() != null) {
+            Throwable rootCause = NestedExceptionUtils.getRootCause(logRecord.getThrown());
             if (rootCause != null && rootCause.getMessage() != null) {
                 return String.format("%s: %s%n", message, rootCause.getMessage());
             }

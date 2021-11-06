@@ -25,7 +25,7 @@ import java.util.Map;
 @SuppressWarnings("unused")
 @SpringBootTest(classes = BatchTestApplication.class)
 @RunWith(SpringRunner.class)
-@EnableAutoConfiguration(exclude= DataSourceAutoConfiguration.class)
+@EnableAutoConfiguration(exclude = DataSourceAutoConfiguration.class)
 public class SpringBatchFakerTests {
 
 	@Autowired
@@ -41,7 +41,8 @@ public class SpringBatchFakerTests {
 		Map<String, String> fields = new HashMap<>();
 		fields.put("firstName", "name.firstName");
 		fields.put("lastName", "name.lastName");
-		FakerItemReader reader = FakerItemReader.builder().generator(MapGenerator.builder().fields(fields).build()).end(count).build();
+		FakerItemReader reader = FakerItemReader.builder().generator(MapGenerator.builder().fields(fields).build())
+				.end(count).build();
 		List<Map<String, Object>> items = new ArrayList<>();
 		run("reader", reader, items::addAll);
 		Assertions.assertEquals(count, items.size());
@@ -56,7 +57,9 @@ public class SpringBatchFakerTests {
 		Map<String, String> fields = new HashMap<>();
 		fields.put("firstName", "name.firstName");
 		fields.put("lastName", "name.lastName");
-		FakerItemReader reader = FakerItemReader.builder().generator(new MapWithMetadataGenerator(MapGenerator.builder().fields(fields).build())).end(count).build();
+		FakerItemReader reader = FakerItemReader.builder()
+				.generator(new MapWithMetadataGenerator(MapGenerator.builder().fields(fields).build())).end(count)
+				.build();
 		List<Map<String, Object>> items = new ArrayList<>();
 		run("metadata", reader, items::addAll);
 		Assertions.assertEquals(count, items.size());
@@ -64,8 +67,8 @@ public class SpringBatchFakerTests {
 	}
 
 	private <T> void run(String name, ItemReader<T> reader, ItemWriter<T> writer) throws Exception {
-		TaskletStep step = stepBuilderFactory.get(name + "-step").<T, T>chunk(50).reader(reader).writer(writer).build();
-		Job job = jobBuilderFactory.get(name + "-job").start(step).build();
+		TaskletStep step = stepBuilderFactory.get(name).<T, T>chunk(50).reader(reader).writer(writer).build();
+		Job job = jobBuilderFactory.get(name).start(step).build();
 		jobLauncher.run(job, new JobParameters());
 	}
 

@@ -1,7 +1,10 @@
 package com.redis.riot;
 
-import com.redis.spring.batch.RedisItemWriter.RedisItemWriterBuilder;
+import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 
+import com.redis.spring.batch.RedisItemWriter.BaseRedisItemWriterBuilder;
+
+import io.lettuce.core.api.StatefulConnection;
 import lombok.Data;
 import picocli.CommandLine.Option;
 
@@ -15,16 +18,19 @@ public class RedisWriterOptions {
 	@Option(names = "--wait-timeout", description = "Timeout in millis for WAIT command (default: ${DEFAULT-VALUE}).", paramLabel = "<ms>")
 	private long waitTimeout = 300;
 	@Option(names = "--writer-pool", description = "Max pool connections (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
-	private int poolMax = 8;
+	private int poolMaxTotal = 8;
 
-	public <B extends RedisItemWriterBuilder<String, String, ?>> B configure(B writer) {
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public <B extends BaseRedisItemWriterBuilder> B configureWriter(B writer) {
 		if (waitReplicas > 0) {
 			writer.waitForReplication(waitReplicas, waitTimeout);
 		}
 		if (multiExec) {
 			writer.multiExec();
 		}
+		GenericObjectPoolConfig<StatefulConnection<String, String>> poolConfig = new GenericObjectPoolConfig<>();
+		poolConfig.setMaxTotal(poolMaxTotal);
+		writer.poolConfig(poolConfig);
 		return writer;
 	}
-
 }

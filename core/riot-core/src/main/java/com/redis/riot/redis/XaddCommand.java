@@ -6,10 +6,12 @@ import com.redis.spring.batch.support.RedisOperation;
 import com.redis.spring.batch.support.operation.Xadd;
 
 import io.lettuce.core.XAddArgs;
+import lombok.EqualsAndHashCode;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
+@EqualsAndHashCode(callSuper = true)
 @Command(name = "xadd", description = "Append entries to a stream")
 public class XaddCommand extends AbstractKeyCommand {
 

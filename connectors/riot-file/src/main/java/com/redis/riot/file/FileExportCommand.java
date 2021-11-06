@@ -3,7 +3,6 @@ package com.redis.riot.file;
 import java.io.IOException;
 
 import org.springframework.batch.core.job.flow.Flow;
-import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.json.JacksonJsonObjectMarshaller;
 import org.springframework.batch.item.json.JsonObjectMarshaller;
@@ -14,7 +13,6 @@ import org.springframework.core.io.WritableResource;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.redis.riot.AbstractExportCommand;
 import com.redis.spring.batch.support.DataStructure;
-import com.redis.spring.batch.support.job.JobFactory;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -28,15 +26,16 @@ import picocli.CommandLine.Command;
 @Command(name = "export", description = "Export Redis data to JSON or XML files")
 public class FileExportCommand extends AbstractExportCommand<DataStructure<String>> {
 
+	private static final String NAME = "file-export";
+
 	@CommandLine.Parameters(arity = "1", description = "File path or URL", paramLabel = "FILE")
 	private String file;
 	@CommandLine.ArgGroup(exclusive = false, heading = "File export options%n")
 	private FileExportOptions options = new FileExportOptions();
 
 	@Override
-	protected Flow flow(JobFactory jobFactory) throws Exception {
-		StepBuilder step = jobFactory.step("file-export-step");
-		return flow("file-export-flow", step(step, String.format("Exporting to %s", file), writer()).build());
+	protected Flow flow() throws Exception {
+		return flow(NAME, step(NAME, String.format("Exporting to %s", file), writer()).build());
 	}
 
 	private ItemWriter<DataStructure<String>> writer() throws IOException {

@@ -35,7 +35,6 @@ import org.springframework.batch.item.support.AbstractItemStreamItemReader;
 import org.springframework.util.Assert;
 
 import com.redis.spring.batch.support.PollableItemReader;
-import com.redis.spring.batch.support.State;
 
 /**
  * <p>
@@ -63,8 +62,7 @@ public class KafkaItemReader<K, V> extends AbstractItemStreamItemReader<Consumer
 	private KafkaConsumer<K, V> kafkaConsumer;
 	private Iterator<ConsumerRecord<K, V>> consumerRecords;
 	private boolean saveState = true;
-
-	private State state;
+	private boolean open;
 
 	/**
 	 * Create a new {@link KafkaItemReader}.
@@ -137,7 +135,7 @@ public class KafkaItemReader<K, V> extends AbstractItemStreamItemReader<Consumer
 		this.kafkaConsumer.assign(this.topicPartitions);
 		this.partitionOffsets.forEach(this.kafkaConsumer::seek);
 		super.open(executionContext);
-		this.state = State.OPEN;
+		open = true;
 	}
 
 	@Override
@@ -174,11 +172,11 @@ public class KafkaItemReader<K, V> extends AbstractItemStreamItemReader<Consumer
 		if (this.kafkaConsumer != null) {
 			this.kafkaConsumer.close();
 		}
-		this.state = State.CLOSED;
+		open = false;
 	}
 
 	@Override
-	public State getState() {
-		return state;
+	public boolean isOpen() {
+		return open;
 	}
 }

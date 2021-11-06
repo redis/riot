@@ -5,9 +5,11 @@ import java.util.Map;
 import com.redis.spring.batch.support.RedisOperation;
 import com.redis.spring.batch.support.operation.Expire;
 
+import lombok.EqualsAndHashCode;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
+@EqualsAndHashCode(callSuper = true)
 @Command(name = "expire", description = "Set timeouts on keys")
 public class ExpireCommand extends AbstractKeyCommand {
 
@@ -18,7 +20,7 @@ public class ExpireCommand extends AbstractKeyCommand {
 
 	@Override
 	public RedisOperation<String, String, Map<String, Object>> operation() {
-		return Expire.key(key()).<String>millis(numberFieldExtractor(Long.class, timeoutField, timeoutDefault)).build();
+		return Expire.key(key()).millis(numberExtractor(timeoutField, Long.class, timeoutDefault)).build();
 	}
 
 }

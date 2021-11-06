@@ -9,13 +9,15 @@ import com.redis.riot.convert.MapToStringArrayConverter;
 import com.redis.spring.batch.support.operation.Eval;
 
 import io.lettuce.core.ScriptOutputType;
+import lombok.EqualsAndHashCode;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
+@EqualsAndHashCode(callSuper = true)
 @Command(name = "eval", description = "Evaluate a Lua script with keys and arguments from input")
 public class EvalCommand extends AbstractRedisCommand<Map<String, Object>> {
 
-	private final static String[] EMPTY_STRING = new String[0];
+	private static final String[] EMPTY_STRING = new String[0];
 
 	@Option(names = "--sha", description = "Digest", paramLabel = "<sha>")
 	private String sha;

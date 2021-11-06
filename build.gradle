@@ -78,6 +78,10 @@ subprojects {
     dependencies {
         testImplementation "org.junit.jupiter:junit-jupiter"
         testImplementation "org.junit.jupiter:junit-jupiter-params"
+        testImplementation group: 'commons-io', name: 'commons-io', version: commonsIoVersion
+        testImplementation group: 'org.codehaus.plexus', name: 'plexus-utils', version:plexusVersion    
+        testImplementation group: 'com.redis.testcontainers', name: 'testcontainers-redis', version: testcontainersRedisVersion
+        testImplementation group: 'com.redis.testcontainers', name: 'junit-jupiter', version: testcontainersVersion
 
         testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
     }

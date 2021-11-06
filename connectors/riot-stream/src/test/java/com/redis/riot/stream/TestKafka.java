@@ -1,16 +1,14 @@
 package com.redis.riot.stream;
 
-import com.google.common.collect.ImmutableMap;
-import com.redis.riot.AbstractRiotIntegrationTest;
-import com.redis.testcontainers.RedisServer;
-import io.lettuce.core.LettuceFutures;
-import io.lettuce.core.Range;
-import io.lettuce.core.RedisFuture;
-import io.lettuce.core.StreamMessage;
-import io.lettuce.core.api.async.BaseRedisAsyncCommands;
-import io.lettuce.core.api.async.RedisStreamAsyncCommands;
-import io.lettuce.core.api.sync.RedisStreamCommands;
-import lombok.extern.slf4j.Slf4j;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.Future;
+
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -29,22 +27,27 @@ import org.springframework.kafka.support.serializer.JsonSerializer;
 import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.utility.DockerImageName;
-import picocli.CommandLine;
 
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.Future;
+import com.google.common.collect.ImmutableMap;
+import com.redis.lettucemod.api.async.RedisModulesAsyncCommands;
+import com.redis.lettucemod.api.sync.RedisModulesCommands;
+import com.redis.riot.AbstractRiotIntegrationTest;
+import com.redis.testcontainers.RedisServer;
+
+import io.lettuce.core.LettuceFutures;
+import io.lettuce.core.Range;
+import io.lettuce.core.RedisFuture;
+import io.lettuce.core.StreamMessage;
+import lombok.extern.slf4j.Slf4j;
+import picocli.CommandLine;
 
 @SuppressWarnings("unchecked")
 @Slf4j
 public class TestKafka extends AbstractRiotIntegrationTest {
 
-    @Override
+    private static final long IDLE_TIMEOUT = 1000;
+
+	@Override
     protected RiotStream app() {
         return new RiotStream();
     }
@@ -63,7 +66,7 @@ public class TestKafka extends AbstractRiotIntegrationTest {
             future.get();
         }
         execute("import", container, this::configureImportCommand);
-        RedisStreamCommands<String, String> sync = sync(container);
+        RedisModulesCommands<String, String> sync = sync(container);
         List<StreamMessage<String, String>> messages = sync.xrange("topic1", Range.create("-", "+"));
         Assertions.assertEquals(count, messages.size());
         messages.forEach(m -> Assertions.assertEquals(map(), m.getBody()));
@@ -71,7 +74,7 @@ public class TestKafka extends AbstractRiotIntegrationTest {
 
     private void configureImportCommand(CommandLine.ParseResult parseResult) {
         StreamImportCommand command = parseResult.subcommand().commandSpec().commandLine().getCommand();
-        command.getFlushingTransferOptions().setIdleTimeout(Duration.ofMillis(500));
+        command.getFlushingTransferOptions().setIdleTimeout(Duration.ofMillis(IDLE_TIMEOUT));
         configure(command.getOptions());
     }
 
@@ -81,7 +84,7 @@ public class TestKafka extends AbstractRiotIntegrationTest {
 
     private void configureExportCommand(CommandLine.ParseResult parseResult) {
         StreamExportCommand command = parseResult.subcommand().commandSpec().commandLine().getCommand();
-        command.getFlushingTransferOptions().setIdleTimeout(Duration.ofMillis(500));
+        command.getFlushingTransferOptions().setIdleTimeout(Duration.ofMillis(IDLE_TIMEOUT));
         configure(command.getOptions());
     }
 
@@ -98,11 +101,11 @@ public class TestKafka extends AbstractRiotIntegrationTest {
         String stream = "stream1";
         int producedCount = 100;
         log.debug("Producing {} stream messages", producedCount);
-        BaseRedisAsyncCommands<String, String> async = async(container);
+        RedisModulesAsyncCommands<String, String> async = async(container);
         async.setAutoFlushCommands(false);
         List<RedisFuture<?>> futures = new ArrayList<>();
         for (int index = 0; index < producedCount; index++) {
-            futures.add(((RedisStreamAsyncCommands<String, String>) async).xadd(stream, map()));
+            futures.add(async.xadd(stream, map()));
         }
         async.flushCommands();
         LettuceFutures.awaitAll(Duration.ofSeconds(1), futures.toArray(new RedisFuture[0]));

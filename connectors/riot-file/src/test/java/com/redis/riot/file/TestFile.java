@@ -29,6 +29,7 @@ import org.springframework.core.io.InputStreamResource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import com.redis.lettucemod.api.sync.RedisModulesCommands;
 import com.redis.riot.AbstractRiotIntegrationTest;
 import com.redis.riot.redis.HsetCommand;
 import com.redis.spring.batch.support.DataStructure;
@@ -40,7 +41,6 @@ import io.lettuce.core.api.sync.RedisHashCommands;
 import io.lettuce.core.api.sync.RedisKeyCommands;
 import io.lettuce.core.api.sync.RedisServerCommands;
 import io.lettuce.core.api.sync.RedisSetCommands;
-import io.lettuce.core.api.sync.RedisStringCommands;
 import picocli.CommandLine;
 
 @SuppressWarnings("unchecked")
@@ -97,7 +97,7 @@ public class TestFile extends AbstractRiotIntegrationTest {
 
 	@ParameterizedTest
 	@MethodSource("containers")
-	public void importFW(RedisServer container) throws Exception {
+	void importFW(RedisServer container) throws Exception {
 		execute("import-fw", container);
 		RedisKeyCommands<String, String> sync = sync(container);
 		List<String> keys = sync.keys("account:*");
@@ -113,7 +113,7 @@ public class TestFile extends AbstractRiotIntegrationTest {
 
 	@ParameterizedTest
 	@MethodSource("containers")
-	public void importCSV(RedisServer container) throws Exception {
+	void importCSV(RedisServer container) throws Exception {
 		execute("import-csv", container);
 		RedisKeyCommands<String, String> sync = sync(container);
 		List<String> keys = sync.keys("beer:*");
@@ -122,7 +122,7 @@ public class TestFile extends AbstractRiotIntegrationTest {
 
 	@ParameterizedTest
 	@MethodSource("containers")
-	public void importPSV(RedisServer container) throws Exception {
+	void importPSV(RedisServer container) throws Exception {
 		execute("import-psv", container);
 		RedisKeyCommands<String, String> sync = sync(container);
 		List<String> keys = sync.keys("sample:*");
@@ -131,7 +131,7 @@ public class TestFile extends AbstractRiotIntegrationTest {
 
 	@ParameterizedTest
 	@MethodSource("containers")
-	public void importTSV(RedisServer container) throws Exception {
+	void importTSV(RedisServer container) throws Exception {
 		execute("import-tsv", container);
 		RedisKeyCommands<String, String> sync = sync(container);
 		List<String> keys = sync.keys("sample:*");
@@ -140,7 +140,7 @@ public class TestFile extends AbstractRiotIntegrationTest {
 
 	@ParameterizedTest
 	@MethodSource("containers")
-	public void importType(RedisServer container) throws Exception {
+	void importType(RedisServer container) throws Exception {
 		execute("import-type", container);
 		RedisKeyCommands<String, String> sync = sync(container);
 		List<String> keys = sync.keys("sample:*");
@@ -149,7 +149,7 @@ public class TestFile extends AbstractRiotIntegrationTest {
 
 	@ParameterizedTest
 	@MethodSource("containers")
-	public void importExclude(RedisServer container) throws Exception {
+	void importExclude(RedisServer container) throws Exception {
 		execute("import-exclude", container);
 		RedisHashCommands<String, String> sync = sync(container);
 		Map<String, String> beer1036 = sync.hgetall("beer:1036");
@@ -162,7 +162,7 @@ public class TestFile extends AbstractRiotIntegrationTest {
 
 	@ParameterizedTest
 	@MethodSource("containers")
-	public void importInclude(RedisServer container) throws Exception {
+	void importInclude(RedisServer container) throws Exception {
 		execute("import-include", container);
 		RedisHashCommands<String, String> sync = sync(container);
 		Map<String, String> beer1036 = sync.hgetall("beer:1036");
@@ -174,7 +174,7 @@ public class TestFile extends AbstractRiotIntegrationTest {
 
 	@ParameterizedTest
 	@MethodSource("containers")
-	public void importFilter(RedisServer container) throws Exception {
+	void importFilter(RedisServer container) throws Exception {
 		execute("import-filter", container);
 		RedisKeyCommands<String, String> sync = sync(container);
 		List<String> keys = sync.keys("beer:*");
@@ -183,7 +183,7 @@ public class TestFile extends AbstractRiotIntegrationTest {
 
 	@ParameterizedTest
 	@MethodSource("containers")
-	public void importRegex(RedisServer container) throws Exception {
+	void importRegex(RedisServer container) throws Exception {
 		execute("import-regex", container);
 		RedisHashCommands<String, String> sync = sync(container);
 		Map<String, String> airport1 = sync.hgetall("airport:1");
@@ -193,7 +193,7 @@ public class TestFile extends AbstractRiotIntegrationTest {
 
 	@ParameterizedTest
 	@MethodSource("containers")
-	public void importGlob(RedisServer container) throws Exception {
+	void importGlob(RedisServer container) throws Exception {
 		execute("import-glob", container);
 		RedisKeyCommands<String, String> sync = sync(container);
 		List<String> keys = sync.keys("beer:*");
@@ -202,7 +202,7 @@ public class TestFile extends AbstractRiotIntegrationTest {
 
 	@ParameterizedTest
 	@MethodSource("containers")
-	public void importGeoadd(RedisServer container) throws Exception {
+	void importGeoadd(RedisServer container) throws Exception {
 		execute("import-geoadd", container);
 		RedisGeoCommands<String, String> sync = sync(container);
 		Set<String> results = sync.georadius("airportgeo", -122.4194, 37.7749, 20, GeoArgs.Unit.mi);
@@ -213,7 +213,7 @@ public class TestFile extends AbstractRiotIntegrationTest {
 
 	@ParameterizedTest
 	@MethodSource("containers")
-	public void importGeoProcessor(RedisServer container) throws Exception {
+	void importGeoProcessor(RedisServer container) throws Exception {
 		execute("import-geo-processor", container);
 		RedisHashCommands<String, String> sync = sync(container);
 		Map<String, String> airport3469 = sync.hgetall("airport:3469");
@@ -222,7 +222,7 @@ public class TestFile extends AbstractRiotIntegrationTest {
 
 	@ParameterizedTest
 	@MethodSource("containers")
-	public void importProcess(RedisServer container) throws Exception {
+	void importProcess(RedisServer container) throws Exception {
 		execute("import-process", container);
 		RedisKeyCommands<String, String> sync = sync(container);
 		List<String> keys = sync.keys("event:*");
@@ -237,7 +237,7 @@ public class TestFile extends AbstractRiotIntegrationTest {
 
 	@ParameterizedTest
 	@MethodSource("containers")
-	public void importProcessElvis(RedisServer container) throws Exception {
+	void importProcessElvis(RedisServer container) throws Exception {
 		execute("import-process-elvis", container);
 		RedisKeyCommands<String, String> sync = sync(container);
 		List<String> keys = sync.keys("beer:*");
@@ -248,7 +248,7 @@ public class TestFile extends AbstractRiotIntegrationTest {
 
 	@ParameterizedTest
 	@MethodSource("containers")
-	public void importMultiCommands(RedisServer container) throws Exception {
+	void importMultiCommands(RedisServer container) throws Exception {
 		execute("import-multi-commands", container);
 		RedisKeyCommands<String, String> sync = sync(container);
 		List<String> beers = sync.keys("beer:*");
@@ -265,13 +265,13 @@ public class TestFile extends AbstractRiotIntegrationTest {
 
 	@ParameterizedTest
 	@MethodSource("containers")
-	public void importBad(RedisServer container) throws Exception {
-		execute("import-bad", container);
+	void importBad(RedisServer container) throws Exception {
+		Assertions.assertEquals(0, execute("import-bad", container));
 	}
 
 	@ParameterizedTest
 	@MethodSource("containers")
-	public void importGCS(RedisServer container) throws Exception {
+	void importGCS(RedisServer container) throws Exception {
 		execute("import-gcs", container);
 		RedisKeyCommands<String, String> sync = sync(container);
 		List<String> keys = sync.keys("beer:*");
@@ -282,7 +282,7 @@ public class TestFile extends AbstractRiotIntegrationTest {
 
 	@ParameterizedTest
 	@MethodSource("containers")
-	public void importS3(RedisServer container) throws Exception {
+	void importS3(RedisServer container) throws Exception {
 		execute("import-s3", container);
 		RedisKeyCommands<String, String> sync = sync(container);
 		List<String> keys = sync.keys("beer:*");
@@ -294,8 +294,8 @@ public class TestFile extends AbstractRiotIntegrationTest {
 	@SuppressWarnings("rawtypes")
 	@ParameterizedTest
 	@MethodSource("containers")
-	public void importDump(RedisServer container) throws Exception {
-		List<DataStructure> records = exportToList(container);
+	void importDump(RedisServer container) throws Exception {
+		List<DataStructure> records = exportToList("import-dump", container);
 		RedisServerCommands<String, String> sync = sync(container);
 		sync.flushall();
 		execute("import-dump", container, this::configureDumpFileImportCommand);
@@ -314,7 +314,7 @@ public class TestFile extends AbstractRiotIntegrationTest {
 
 	@ParameterizedTest
 	@MethodSource("containers")
-	public void importJsonElastic(RedisServer container) throws Exception {
+	void importJsonElastic(RedisServer container) throws Exception {
 		execute("import-json-elastic", container);
 		RedisKeyCommands<String, String> sync = sync(container);
 		Assertions.assertEquals(2, sync.keys("estest:*").size());
@@ -325,7 +325,7 @@ public class TestFile extends AbstractRiotIntegrationTest {
 
 	@ParameterizedTest
 	@MethodSource("containers")
-	public void importJson(RedisServer container) throws Exception {
+	void importJson(RedisServer container) throws Exception {
 		execute("import-json", container);
 		RedisKeyCommands<String, String> sync = sync(container);
 		List<String> keys = sync.keys("beer:*");
@@ -336,7 +336,7 @@ public class TestFile extends AbstractRiotIntegrationTest {
 
 	@ParameterizedTest
 	@MethodSource("containers")
-	public void importXml(RedisServer container) throws Exception {
+	void importXml(RedisServer container) throws Exception {
 		execute("import-xml", container);
 		RedisKeyCommands<String, String> sync = sync(container);
 		List<String> keys = sync.keys("trade:*");
@@ -348,8 +348,8 @@ public class TestFile extends AbstractRiotIntegrationTest {
 	@SuppressWarnings("rawtypes")
 	@ParameterizedTest
 	@MethodSource("containers")
-	public void exportJSON(RedisServer container) throws Exception {
-		List<DataStructure> records = exportToList(container);
+	void exportJSON(RedisServer container) throws Exception {
+		List<DataStructure> records = exportToList("export-json", container);
 		RedisServerCommands<String, String> sync = sync(container);
 		Assertions.assertEquals(sync.dbsize(), records.size());
 	}
@@ -357,7 +357,7 @@ public class TestFile extends AbstractRiotIntegrationTest {
 	@SuppressWarnings("rawtypes")
 	@ParameterizedTest
 	@MethodSource("containers")
-	public void exportJsonGz(RedisServer container) throws Exception {
+	void exportJsonGz(RedisServer container) throws Exception {
 		Path file = tempFile("beers.json.gz");
 		execute("import-json", container);
 		execute("export-json-gz", container, this::configureExportCommand);
@@ -376,10 +376,10 @@ public class TestFile extends AbstractRiotIntegrationTest {
 	}
 
 	@SuppressWarnings("rawtypes")
-	private List<DataStructure> exportToList(RedisServer container) throws Exception {
+	private List<DataStructure> exportToList(String name, RedisServer redis) throws Exception {
 		Path file = tempFile("redis.json");
-		dataGenerator(container).build().call();
-		execute("export-json", container, this::configureExportCommand);
+		dataGenerator(redis, name).build().call();
+		execute("export-json", redis, this::configureExportCommand);
 		JsonItemReaderBuilder<DataStructure> builder = new JsonItemReaderBuilder<>();
 		builder.name("json-data-structure-file-reader");
 		builder.resource(new FileSystemResource(file));
@@ -393,10 +393,10 @@ public class TestFile extends AbstractRiotIntegrationTest {
 	@SuppressWarnings("rawtypes")
 	@ParameterizedTest
 	@MethodSource("containers")
-	public void exportXml(RedisServer container) throws Exception {
-		dataGenerator(container).build().call();
+	void exportXml(RedisServer redis) throws Exception {
+		dataGenerator(redis, "file-export-xml").build().call();
 		Path file = tempFile("redis.xml");
-		execute("export-xml", container, this::configureExportCommand);
+		execute("export-xml", redis, this::configureExportCommand);
 		XmlItemReaderBuilder<DataStructure> builder = new XmlItemReaderBuilder<>();
 		builder.name("xml-file-reader");
 		builder.resource(new FileSystemResource(file));
@@ -405,16 +405,16 @@ public class TestFile extends AbstractRiotIntegrationTest {
 		builder.xmlObjectReader(xmlObjectReader);
 		XmlItemReader<DataStructure> reader = builder.build();
 		List<DataStructure> records = readAll(reader);
-		RedisServerCommands<String, String> sync = sync(container);
+		RedisModulesCommands<String, String> sync = sync(redis);
 		Assertions.assertEquals(sync.dbsize(), records.size());
 		for (DataStructure<String> record : records) {
 			String key = record.getKey();
 			switch (record.getType().toLowerCase()) {
 			case DataStructure.HASH:
-				Assertions.assertEquals(record.getValue(), ((RedisHashCommands<String, String>) sync).hgetall(key));
+				Assertions.assertEquals(record.getValue(), sync.hgetall(key));
 				break;
 			case DataStructure.STRING:
-				Assertions.assertEquals(record.getValue(), ((RedisStringCommands<String, String>) sync).get(key));
+				Assertions.assertEquals(record.getValue(), sync.get(key));
 				break;
 			}
 		}
@@ -422,7 +422,7 @@ public class TestFile extends AbstractRiotIntegrationTest {
 
 	@ParameterizedTest
 	@MethodSource("containers")
-	public void importJsonAPI(RedisServer container) throws Exception {
+	void importJsonAPI(RedisServer container) throws Exception {
 		// riot-file import hset --keyspace beer --keys id
 		FileImportCommand command = new FileImportCommand();
 		command.setFiles(Collections.singletonList("http://developer.redis.com/riot/beers.json"));
@@ -443,7 +443,7 @@ public class TestFile extends AbstractRiotIntegrationTest {
 
 	@ParameterizedTest
 	@MethodSource("containers")
-	public void importJSONGzip(RedisServer container) throws Exception {
+	void importJSONGzip(RedisServer container) throws Exception {
 		execute("import-json-gz", container);
 		RedisKeyCommands<String, String> sync = sync(container);
 		List<String> keys = sync.keys("beer:*");

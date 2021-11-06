@@ -9,7 +9,6 @@ import java.util.Map;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.core.step.builder.FaultTolerantStepBuilder;
-import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.FlatFileParseException;
@@ -30,7 +29,6 @@ import org.springframework.util.ObjectUtils;
 
 import com.redis.riot.AbstractImportCommand;
 import com.redis.riot.MapProcessorOptions;
-import com.redis.spring.batch.support.job.JobFactory;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -48,6 +46,7 @@ public class FileImportCommand extends AbstractImportCommand<Map<String, Object>
 		DELIMITED, FIXED, JSON, XML
 	}
 
+	private static final String NAME = "file-import";
 	private static final String DELIMITER_PIPE = "|";
 
 	@CommandLine.Parameters(arity = "0..*", description = "One ore more files or URLs", paramLabel = "FILE")
@@ -61,7 +60,7 @@ public class FileImportCommand extends AbstractImportCommand<Map<String, Object>
 	private MapProcessorOptions processorOptions = new MapProcessorOptions();
 
 	@Override
-	protected Flow flow(JobFactory jobFactory) throws Exception {
+	protected Flow flow() throws Exception {
 		Assert.isTrue(!ObjectUtils.isEmpty(files), "No file specified");
 		List<String> expandedFiles = FileUtils.expand(files);
 		if (ObjectUtils.isEmpty(expandedFiles)) {
@@ -75,14 +74,13 @@ public class FileImportCommand extends AbstractImportCommand<Map<String, Object>
 			}
 			Resource resource = options.inputResource(file);
 			AbstractItemStreamItemReader<Map<String, Object>> reader = reader(file, fileType, resource);
-			reader.setName(file + "-reader");
-			StepBuilder stepBuilder = jobFactory.step(file + "-file-import-step");
-			FaultTolerantStepBuilder<Map<String, Object>, Map<String, Object>> step = step(stepBuilder,
+			reader.setName(file + "-" + NAME + "-reader");
+			FaultTolerantStepBuilder<Map<String, Object>, Map<String, Object>> step = step(file + "-" + NAME,
 					"Importing " + file, reader);
 			step.skip(FlatFileParseException.class);
 			steps.add(step.build());
 		}
-		return flow("file-import-flow", steps.toArray(new Step[0]));
+		return flow(NAME, steps.toArray(new Step[0]));
 	}
 
 	private FileType type(String file) {
@@ -90,16 +88,18 @@ public class FileImportCommand extends AbstractImportCommand<Map<String, Object>
 			String extension = FileUtils.extension(file);
 			if (extension != null) {
 				switch (extension.toLowerCase()) {
-				case FileUtils.EXTENSION_CSV:
-				case FileUtils.EXTENSION_PSV:
-				case FileUtils.EXTENSION_TSV:
-					return FileType.DELIMITED;
 				case FileUtils.EXTENSION_FW:
 					return FileType.FIXED;
 				case FileUtils.EXTENSION_JSON:
 					return FileType.JSON;
 				case FileUtils.EXTENSION_XML:
 					return FileType.XML;
+				case FileUtils.EXTENSION_CSV:
+				case FileUtils.EXTENSION_PSV:
+				case FileUtils.EXTENSION_TSV:
+					return FileType.DELIMITED;
+				default:
+					return null;
 				}
 			}
 			return null;
@@ -145,17 +145,19 @@ public class FileImportCommand extends AbstractImportCommand<Map<String, Object>
 	private String delimiter(String file) {
 		if (options.getDelimiter() == null) {
 			String extension = FileUtils.extension(file);
-			if (extension != null) {
-				switch (extension.toLowerCase()) {
-				case FileUtils.EXTENSION_CSV:
-					return DelimitedLineTokenizer.DELIMITER_COMMA;
-				case FileUtils.EXTENSION_PSV:
-					return DELIMITER_PIPE;
-				case FileUtils.EXTENSION_TSV:
-					return DelimitedLineTokenizer.DELIMITER_TAB;
-				}
+			if (extension == null) {
+				throw new IllegalArgumentException("Could not determine delimiter for extension " + extension);
 			}
-			throw new IllegalArgumentException("Could not determine delimiter for extension " + extension);
+			switch (extension.toLowerCase()) {
+			case FileUtils.EXTENSION_CSV:
+				return DelimitedLineTokenizer.DELIMITER_COMMA;
+			case FileUtils.EXTENSION_PSV:
+				return DELIMITER_PIPE;
+			case FileUtils.EXTENSION_TSV:
+				return DelimitedLineTokenizer.DELIMITER_TAB;
+			default:
+				throw new IllegalArgumentException("Unknown extension: " + extension);
+			}
 		}
 		return options.getDelimiter();
 	}
@@ -174,12 +176,22 @@ public class FileImportCommand extends AbstractImportCommand<Map<String, Object>
 		builder.encoding(options.getEncoding().name());
 		builder.lineTokenizer(tokenizer);
 		builder.recordSeparatorPolicy(recordSeparatorPolicy());
-		builder.linesToSkip(options.linesToSkip());
+		builder.linesToSkip(linesToSkip());
 		builder.strict(true);
 		builder.saveState(false);
 		builder.fieldSetMapper(new MapFieldSetMapper());
 		builder.skippedLinesCallback(new HeaderCallbackHandler(tokenizer));
 		return builder.build();
+	}
+
+	private int linesToSkip() {
+		if (options.getLinesToSkip() == null) {
+			if (options.isHeader()) {
+				return 1;
+			}
+			return 0;
+		}
+		return options.getLinesToSkip();
 	}
 
 	private RecordSeparatorPolicy recordSeparatorPolicy() {

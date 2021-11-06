@@ -3,7 +3,6 @@ package com.redis.riot.redis;
 import org.springframework.batch.core.job.flow.Flow;
 
 import com.redis.spring.batch.support.KeyValue;
-import com.redis.spring.batch.support.job.JobFactory;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -15,8 +14,8 @@ import picocli.CommandLine;
 public class CompareCommand<T extends KeyValue<String, ?>> extends AbstractTargetCommand {
 
 	@Override
-	protected Flow flow(JobFactory jobFactory) {
-		return verificationFlow(jobFactory);
+	protected Flow flow() throws Exception {
+		return verificationFlow();
 	}
 
 }

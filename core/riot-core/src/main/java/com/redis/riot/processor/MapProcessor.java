@@ -1,6 +1,7 @@
 package com.redis.riot.processor;
 
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.core.convert.converter.Converter;
@@ -15,12 +16,12 @@ public class MapProcessor implements ItemProcessor<Map<String, Object>, Map<Stri
 
 	@Override
 	public Map<String, Object> process(Map<String, Object> item) {
-		for (String field : extractors.keySet()) {
-			Object value = item.get(field);
+		for (Entry<String, Converter<String, Map<String, String>>> extractor : extractors.entrySet()) {
+			Object value = item.get(extractor.getKey());
 			if (value == null) {
 				continue;
 			}
-			item.putAll(extractors.get(field).convert(value.toString()));
+			item.putAll(extractor.getValue().convert(value.toString()));
 		}
 		return item;
 	}

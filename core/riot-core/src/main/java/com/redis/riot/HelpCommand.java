@@ -1,9 +1,7 @@
 package com.redis.riot;
 
-import lombok.Data;
 import picocli.CommandLine;
 
-@Data
 @CommandLine.Command(usageHelpAutoWidth = true)
 public class HelpCommand {
 
