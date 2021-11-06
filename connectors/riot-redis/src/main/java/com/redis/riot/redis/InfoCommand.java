@@ -2,14 +2,16 @@ package com.redis.riot.redis;
 
 import com.redis.lettucemod.api.sync.RedisModulesCommands;
 
+import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine.Command;
 
+@Slf4j
 @Command(name = "info", description = "Display INFO command output")
 public class InfoCommand extends AbstractRedisCommandCommand {
 
 	@Override
 	protected void execute(RedisModulesCommands<String, String> commands) {
-		System.out.println(commands.info());
+		log.info(commands.info());
 	}
 
 	@Override

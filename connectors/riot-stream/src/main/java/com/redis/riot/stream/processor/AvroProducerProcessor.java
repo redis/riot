@@ -28,9 +28,9 @@ public class AvroProducerProcessor extends AbstractProducerProcessor {
 			}
 			this.schema = fields.endRecord();
 		}
-		GenericRecord record = new GenericData.Record(schema);
-		message.getBody().forEach(record::put);
-		return record;
+		GenericRecord avroRecord = new GenericData.Record(schema);
+		message.getBody().forEach(avroRecord::put);
+		return avroRecord;
 	}
 
 }

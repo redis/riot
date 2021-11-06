@@ -34,6 +34,8 @@ import java.util.Properties;
  */
 public class KafkaItemReaderBuilder<K, V> {
 
+	private static final String PROPERTY_MUST_BE_PROVIDED = " property must be provided";
+
 	private Properties consumerProperties;
 
 	private String topic;
@@ -127,13 +129,13 @@ public class KafkaItemReaderBuilder<K, V> {
 		}
 		Assert.notNull(consumerProperties, "Consumer properties must not be null");
 		Assert.isTrue(consumerProperties.containsKey(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG),
-				ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG + " property must be provided");
+				ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG + PROPERTY_MUST_BE_PROVIDED);
 		Assert.isTrue(consumerProperties.containsKey(ConsumerConfig.GROUP_ID_CONFIG),
-				ConsumerConfig.GROUP_ID_CONFIG + " property must be provided");
+				ConsumerConfig.GROUP_ID_CONFIG + PROPERTY_MUST_BE_PROVIDED);
 		Assert.isTrue(consumerProperties.containsKey(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG),
-				ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG + " property must be provided");
+				ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG + PROPERTY_MUST_BE_PROVIDED);
 		Assert.isTrue(consumerProperties.containsKey(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG),
-				ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG + " property must be provided");
+				ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG + PROPERTY_MUST_BE_PROVIDED);
 		Assert.hasLength(topic, "Topic name must not be null or empty");
 		Assert.isTrue(!partitions.isEmpty(), "At least one partition must be provided");
 

@@ -56,6 +56,8 @@ public class KafkaItemReader<K, V> extends AbstractItemStreamItemReader<Consumer
 
 	private static final String TOPIC_PARTITION_OFFSETS = "topic.partition.offsets";
 
+	private static final String PROPERTY_MUST_BE_PROVIDED = " property must be provided";
+
 	private final List<TopicPartition> topicPartitions;
 	private final Properties consumerProperties;
 	private Map<TopicPartition, Long> partitionOffsets;
@@ -80,13 +82,13 @@ public class KafkaItemReader<K, V> extends AbstractItemStreamItemReader<Consumer
 	public KafkaItemReader(Properties consumerProperties, String topicName, List<Integer> partitions) {
 		Assert.notNull(consumerProperties, "Consumer properties must not be null");
 		Assert.isTrue(consumerProperties.containsKey(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG),
-				ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG + " property must be provided");
+				ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG + PROPERTY_MUST_BE_PROVIDED);
 		Assert.isTrue(consumerProperties.containsKey(ConsumerConfig.GROUP_ID_CONFIG),
-				ConsumerConfig.GROUP_ID_CONFIG + " property must be provided");
+				ConsumerConfig.GROUP_ID_CONFIG + PROPERTY_MUST_BE_PROVIDED);
 		Assert.isTrue(consumerProperties.containsKey(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG),
-				ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG + " property must be provided");
+				ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG + PROPERTY_MUST_BE_PROVIDED);
 		Assert.isTrue(consumerProperties.containsKey(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG),
-				ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG + " property must be provided");
+				ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG + PROPERTY_MUST_BE_PROVIDED);
 		this.consumerProperties = consumerProperties;
 		Assert.hasLength(topicName, "Topic name must not be null or empty");
 		Assert.notEmpty(partitions, "At least one partition must be provided");
@@ -128,8 +130,10 @@ public class KafkaItemReader<K, V> extends AbstractItemStreamItemReader<Consumer
 		if (this.saveState && executionContext.containsKey(TOPIC_PARTITION_OFFSETS)) {
 			Map<TopicPartition, Long> offsets = (Map<TopicPartition, Long>) executionContext
 					.get(TOPIC_PARTITION_OFFSETS);
-			for (Map.Entry<TopicPartition, Long> entry : offsets.entrySet()) {
-				this.partitionOffsets.put(entry.getKey(), entry.getValue() == 0 ? 0 : entry.getValue() + 1);
+			if (offsets != null) {
+				for (Map.Entry<TopicPartition, Long> entry : offsets.entrySet()) {
+					this.partitionOffsets.put(entry.getKey(), entry.getValue() == 0 ? 0 : entry.getValue() + 1);
+				}
 			}
 		}
 		this.kafkaConsumer.assign(this.topicPartitions);
@@ -145,9 +149,10 @@ public class KafkaItemReader<K, V> extends AbstractItemStreamItemReader<Consumer
 					.poll(Duration.ofMillis(unit.convert(timeout, TimeUnit.MILLISECONDS))).iterator();
 		}
 		if (this.consumerRecords.hasNext()) {
-			ConsumerRecord<K, V> record = this.consumerRecords.next();
-			this.partitionOffsets.put(new TopicPartition(record.topic(), record.partition()), record.offset());
-			return record;
+			ConsumerRecord<K, V> consumerRecord = this.consumerRecords.next();
+			this.partitionOffsets.put(new TopicPartition(consumerRecord.topic(), consumerRecord.partition()),
+					consumerRecord.offset());
+			return consumerRecord;
 		} else {
 			return null;
 		}

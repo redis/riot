@@ -43,7 +43,7 @@ import picocli.CommandLine;
 
 @SuppressWarnings("unchecked")
 @Slf4j
-public class TestKafka extends AbstractRiotIntegrationTest {
+class TestKafka extends AbstractRiotIntegrationTest {
 
     private static final long IDLE_TIMEOUT = 1000;
 
@@ -57,7 +57,7 @@ public class TestKafka extends AbstractRiotIntegrationTest {
 
     @ParameterizedTest
     @MethodSource("containers")
-    public void testImport(RedisServer container) throws Exception {
+    void testImport(RedisServer container) throws Exception {
         KafkaProducer<String, Map<String, String>> producer = new KafkaProducer<>(ImmutableMap.of(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, KAFKA.getBootstrapServers(), ProducerConfig.CLIENT_ID_CONFIG, UUID.randomUUID().toString()), new StringSerializer(), new JsonSerializer<>());
         int count = 100;
         for (int index = 0; index < count; index++) {
@@ -97,7 +97,7 @@ public class TestKafka extends AbstractRiotIntegrationTest {
 
     @ParameterizedTest
     @MethodSource("containers")
-    public void testExport(RedisServer container) throws Exception {
+    void testExport(RedisServer container) throws Exception {
         String stream = "stream1";
         int producedCount = 100;
         log.debug("Producing {} stream messages", producedCount);

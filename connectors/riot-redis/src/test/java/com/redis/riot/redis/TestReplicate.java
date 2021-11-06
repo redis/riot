@@ -70,7 +70,7 @@ class TestReplicate extends AbstractRiotIntegrationTest {
 
 	@ParameterizedTest
 	@MethodSource("containers")
-	public void replicate(RedisServer redis) throws Throwable {
+	void replicate(RedisServer redis) throws Throwable {
 		String name = "replicate";
 		execute(dataGenerator(redis, name));
 		RedisModulesCommands<String, String> sync = sync(redis);
@@ -81,7 +81,7 @@ class TestReplicate extends AbstractRiotIntegrationTest {
 
 	@ParameterizedTest
 	@MethodSource("containers")
-	public void replicateKeyProcessor(RedisServer redis) throws Throwable {
+	void replicateKeyProcessor(RedisServer redis) throws Throwable {
 		RedisModulesCommands<String, String> sync = sync(redis);
 		execute(dataGenerator(redis, "replicate-key-processor").end(200));
 		Long sourceSize = sync.dbsize();
@@ -93,13 +93,13 @@ class TestReplicate extends AbstractRiotIntegrationTest {
 
 	@ParameterizedTest
 	@MethodSource("containers")
-	public void replicateLive(RedisServer container) throws Exception {
+	void replicateLive(RedisServer container) throws Exception {
 		runLiveReplication("replicate-live", container);
 	}
 
 	@ParameterizedTest
 	@MethodSource("containers")
-	public void replicateDSLive(RedisServer container) throws Exception {
+	void replicateDSLive(RedisServer container) throws Exception {
 		runLiveReplication("replicate-ds-live", container);
 	}
 

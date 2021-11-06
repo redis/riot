@@ -17,9 +17,9 @@ public class AvroToMapConverter implements Converter<ConsumerRecord<String, Obje
 
     @Override
     public Map<String, String> convert(ConsumerRecord<String, Object> source) {
-        GenericRecord record = (GenericRecord) source.value();
+        GenericRecord avroRecord = (GenericRecord) source.value();
         Map<String, Object> map = new HashMap<>();
-        record.getSchema().getFields().forEach(field -> map.put(field.name(), record.get(field.name())));
+        avroRecord.getSchema().getFields().forEach(field -> map.put(field.name(), avroRecord.get(field.name())));
         return flattener.convert(map);
     }
 
