@@ -16,11 +16,13 @@ import com.redis.riot.AbstractImportCommand;
 import com.redis.riot.MapProcessorOptions;
 import com.redis.riot.RiotStepBuilder;
 
+import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 @Slf4j
+@EqualsAndHashCode(callSuper = true)
 @Command(name = "import", description = "Import generated data using the Spring Expression Language (SpEL)")
 public class GeneratorImportCommand extends AbstractImportCommand<Map<String, Object>, Map<String, Object>> {
 

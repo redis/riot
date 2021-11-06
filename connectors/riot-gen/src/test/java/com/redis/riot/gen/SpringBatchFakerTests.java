@@ -1,5 +1,10 @@
 package com.redis.riot.gen;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -17,16 +22,10 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-@SuppressWarnings("unused")
 @SpringBootTest(classes = BatchTestApplication.class)
 @RunWith(SpringRunner.class)
 @EnableAutoConfiguration(exclude = DataSourceAutoConfiguration.class)
-public class SpringBatchFakerTests {
+class SpringBatchFakerTests {
 
 	@Autowired
 	private JobLauncher jobLauncher;
@@ -36,7 +35,7 @@ public class SpringBatchFakerTests {
 	private StepBuilderFactory stepBuilderFactory;
 
 	@Test
-	public void testReader() throws Exception {
+	void testReader() throws Exception {
 		int count = 100;
 		Map<String, String> fields = new HashMap<>();
 		fields.put("firstName", "name.firstName");
@@ -52,7 +51,7 @@ public class SpringBatchFakerTests {
 	}
 
 	@Test
-	public void testIncludeMetadata() throws Exception {
+	void testIncludeMetadata() throws Exception {
 		int count = 100;
 		Map<String, String> fields = new HashMap<>();
 		fields.put("firstName", "name.firstName");

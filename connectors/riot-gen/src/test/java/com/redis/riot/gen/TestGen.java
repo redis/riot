@@ -29,7 +29,7 @@ import io.lettuce.core.api.sync.RedisSortedSetCommands;
 import io.lettuce.core.api.sync.RedisStreamCommands;
 
 @SuppressWarnings("unchecked")
-public class TestGen extends AbstractRiotIntegrationTest {
+class TestGen extends AbstractRiotIntegrationTest {
 
 	@Container
 	private static final RedisModulesContainer REDIS_MODULES = new RedisModulesContainer("preview");
