@@ -7,6 +7,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.convert.converter.Converter;
 
+import com.redis.riot.convert.FieldExtractorFactory.MissingFieldException;
+
 class IdConverterBuilderTests {
 
 	@Test
@@ -51,6 +53,19 @@ class IdConverterBuilderTests {
 		String separator = "~][]:''~";
 		Assertions.assertEquals(prefix + separator + store + separator + sku, new IdConverterBuilder().prefix(prefix)
 				.separator(separator).fields("store", "sku").build().convert(map));
+	}
+
+	@Test
+	void testNullCheck() {
+		String prefix = "inventory";
+		Map<String, Object> map = new HashMap<>();
+		String store = "403";
+		map.put("store", store);
+		map.put("sku", null);
+		map.put("name", "La fin du monde");
+		Converter<Map<String, Object>, String> converter = new IdConverterBuilder().prefix(prefix)
+				.fields("store", "sku").build();
+		Assertions.assertThrows(MissingFieldException.class, () -> converter.convert(map));
 	}
 
 }

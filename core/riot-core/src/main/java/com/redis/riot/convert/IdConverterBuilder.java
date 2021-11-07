@@ -16,13 +16,13 @@ public class IdConverterBuilder {
 
 	@Setter
 	private String separator = DEFAULT_SEPARATOR;
-	private final FieldExtractorFactory fieldExtractorBuilder = new FieldExtractorFactory();
+	private final FieldExtractorFactory extractorFactory = new FieldExtractorFactory().nullCheck(true);
 	@Setter
 	private String prefix;
 	private final List<String> fields = new ArrayList<>();
 
 	public IdConverterBuilder remove(boolean remove) {
-		this.fieldExtractorBuilder.remove(remove);
+		this.extractorFactory.remove(remove);
 		return this;
 	}
 
@@ -43,7 +43,7 @@ public class IdConverterBuilder {
 			return s -> prefix;
 		}
 		if (fields.size() == 1) {
-			Converter<Map<String, Object>, String> extractor = fieldExtractorBuilder.string(fields.get(0));
+			Converter<Map<String, Object>, String> extractor = extractorFactory.string(fields.get(0));
 			if (prefix == null) {
 				return extractor::convert;
 			}
@@ -54,7 +54,7 @@ public class IdConverterBuilder {
 			stringConverters.add(s -> prefix);
 		}
 		for (String field : fields) {
-			stringConverters.add(fieldExtractorBuilder.string(field));
+			stringConverters.add(extractorFactory.string(field));
 		}
 		return new ConcatenatingConverter(separator, stringConverters);
 	}

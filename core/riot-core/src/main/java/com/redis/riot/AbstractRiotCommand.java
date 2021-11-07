@@ -8,7 +8,6 @@ import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobExecutionListener;
 import org.springframework.batch.core.Step;
-import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.job.builder.FlowBuilder;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.job.flow.Flow;
@@ -20,13 +19,11 @@ import org.springframework.util.ClassUtils;
 import com.redis.spring.batch.builder.JobRepositoryBuilder;
 import com.redis.spring.batch.support.JobRunner;
 
-import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.ParentCommand;
 import picocli.CommandLine.Spec;
 
-@Slf4j
 @Command(abbreviateSynopsis = true, sortOptions = false)
 public abstract class AbstractRiotCommand extends HelpCommand implements Callable<Integer> {
 
@@ -76,11 +73,8 @@ public abstract class AbstractRiotCommand extends HelpCommand implements Callabl
 	}
 
 	private int exitCode(JobExecution execution) {
-		for (StepExecution stepExecution : execution.getStepExecutions()) {
-			if (stepExecution.getExitStatus().compareTo(ExitStatus.FAILED) >= 0) {
-				log.error(stepExecution.getExitStatus().getExitDescription());
-				return 1;
-			}
+		if (execution.getExitStatus().compareTo(ExitStatus.FAILED) >= 0) {
+			return 1;
 		}
 		return 0;
 	}
