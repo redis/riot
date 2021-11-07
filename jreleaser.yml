@@ -21,7 +21,7 @@ release:
       formatted: ALWAYS
       format: '- {{commitShortHash}} {{commitTitle}}'
       contributors:
-        enabled: false
+        format: '- {{contributorName}}{{#contributorUsernameAsLink}} ({{.}}){{/contributorUsernameAsLink}}'
       labelers:
         - label: 'merge_pull'
           title: 'Merge pull'
@@ -33,6 +33,8 @@ release:
           title: '[chore]'
         - label: 'dependencies'
           title: '[deps]'
+        - label: 'build'
+          title: '[build]'
         - label: 'feature'
           title: 'Resolves #'
           body: 'Resolves #'
@@ -42,6 +44,8 @@ release:
         - label: 'issue'
           title: 'Relates to #'
           body: 'Relates to #'
+        - label: 'allcontributors'
+          title: 'docs: update'
       categories:
         - title: 'Merge'
           labels:
@@ -62,15 +66,24 @@ release:
         - title: '⚙️  Dependencies'
           labels:
             - 'dependencies'
+        - title: '🛠  Build'
+          labels:
+            - 'build'
+        - title: 'allcontributors'
+          labels:
+            - 'allcontributors'
       hide:
         categories:
           - 'Merge'
+          - 'allcontributors'
         contributors:
           - 'GitHub'
+          - 'allcontributors'
       replacers:
         - search: '\[chore\] '
         - search: '\[deps\] '
         - search: '\[translation\] '
+        - search: '\[build\] '
 
 signing:
   active: always
