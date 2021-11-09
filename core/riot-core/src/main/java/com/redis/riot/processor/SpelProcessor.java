@@ -5,6 +5,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemStream;
@@ -20,10 +22,10 @@ import io.lettuce.core.api.StatefulConnection;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.api.sync.BaseRedisCommands;
 import io.lettuce.core.cluster.api.StatefulRedisClusterConnection;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 public class SpelProcessor implements ItemProcessor<Map<String, Object>, Map<String, Object>>, ItemStream {
+
+	private static final Logger log = LoggerFactory.getLogger(SpelProcessor.class);
 
 	private final RedisOptions redisOptions;
 	private final EvaluationContext context;

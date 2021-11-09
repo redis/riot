@@ -1,13 +1,16 @@
 package com.redis.riot.redis;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.redis.lettucemod.api.sync.RedisModulesCommands;
 
-import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine.Command;
 
-@Slf4j
 @Command(name = "ping", description = "Execute PING command")
 public class PingCommand extends AbstractRedisCommandCommand {
+
+	private static final Logger log = LoggerFactory.getLogger(PingCommand.class);
 
 	@Override
 	protected void execute(RedisModulesCommands<String, String> commands) {

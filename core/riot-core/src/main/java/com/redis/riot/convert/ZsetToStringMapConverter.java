@@ -7,22 +7,28 @@ import java.util.Map;
 import org.springframework.core.convert.converter.Converter;
 
 import io.lettuce.core.ScoredValue;
-import lombok.Builder;
-import lombok.Builder.Default;
 
-@Builder
 public class ZsetToStringMapConverter implements Converter<List<ScoredValue<String>>, Map<String, String>> {
 
 	public static final String DEFAULT_SCORE_KEY_FORMAT = "score[%s]";
 	public static final String DEFAULT_VALUE_KEY_FORMAT = "value[%s]";
 	public static final String DEFAULT_SCORE_FORMAT = "%s";
 
-	@Default
 	private String scoreKeyFormat = DEFAULT_SCORE_KEY_FORMAT;
-	@Default
 	private String valueKeyFormat = DEFAULT_VALUE_KEY_FORMAT;
-	@Default
 	private String scoreFormat = DEFAULT_SCORE_FORMAT;
+
+	public void setScoreKeyFormat(String scoreKeyFormat) {
+		this.scoreKeyFormat = scoreKeyFormat;
+	}
+
+	public void setValueKeyFormat(String valueKeyFormat) {
+		this.valueKeyFormat = valueKeyFormat;
+	}
+
+	public void setScoreFormat(String scoreFormat) {
+		this.scoreFormat = scoreFormat;
+	}
 
 	@Override
 	public Map<String, String> convert(List<ScoredValue<String>> source) {

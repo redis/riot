@@ -3,6 +3,8 @@ package com.redis.riot.gen;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
@@ -16,15 +18,13 @@ import com.redis.riot.AbstractImportCommand;
 import com.redis.riot.MapProcessorOptions;
 import com.redis.riot.RiotStepBuilder;
 
-import lombok.EqualsAndHashCode;
-import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
-@Slf4j
-@EqualsAndHashCode(callSuper = true)
 @Command(name = "import", description = "Import generated data using the Spring Expression Language (SpEL)")
 public class GeneratorImportCommand extends AbstractImportCommand<Map<String, Object>, Map<String, Object>> {
+
+	private static final Logger log = LoggerFactory.getLogger(GeneratorImportCommand.class);
 
 	private static final String NAME = "generator-import";
 
@@ -40,8 +40,9 @@ public class GeneratorImportCommand extends AbstractImportCommand<Map<String, Ob
 
 	private ItemReader<Map<String, Object>> reader() {
 		log.debug("Creating Faker reader with {}", options);
-		FakerItemReader reader = FakerItemReader.builder().generator(generator()).start(options.getStart())
-				.end(options.getEnd()).build();
+		FakerItemReader reader = new FakerItemReader(generator());
+		reader.setStart(options.getStart());
+		reader.setEnd(options.getEnd());
 		if (options.getSleep() > 0) {
 			return new ThrottledItemReader<>(reader, options.getSleep());
 		}

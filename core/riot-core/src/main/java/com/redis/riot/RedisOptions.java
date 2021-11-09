@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.ObjectUtils;
 
 import com.redis.lettucemod.RedisModulesClient;
@@ -23,13 +25,11 @@ import io.lettuce.core.metrics.CommandLatencyCollector;
 import io.lettuce.core.metrics.DefaultCommandLatencyCollectorOptions;
 import io.lettuce.core.resource.ClientResources;
 import io.lettuce.core.resource.DefaultClientResources;
-import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine.Option;
 
-@Slf4j
-@Data
 public class RedisOptions {
+
+	private static final Logger log = LoggerFactory.getLogger(RedisOptions.class);
 
 	public static final String DEFAULT_HOST = "localhost";
 	public static final int DEFAULT_PORT = 6379;
@@ -80,8 +80,167 @@ public class RedisOptions {
 
 	private AbstractRedisClient client;
 
-	public void shutdown() {
+	public boolean isCluster() {
+		return cluster;
+	}
 
+	public String getHost() {
+		return host;
+	}
+
+	public void setHost(String host) {
+		this.host = host;
+	}
+
+	public int getPort() {
+		return port;
+	}
+
+	public void setPort(int port) {
+		this.port = port;
+	}
+
+	public String getSocket() {
+		return socket;
+	}
+
+	public void setSocket(String socket) {
+		this.socket = socket;
+	}
+
+	public String getUsername() {
+		return username;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
+	}
+
+	public char[] getPassword() {
+		return password;
+	}
+
+	public void setPassword(char[] password) {
+		this.password = password;
+	}
+
+	public RedisURI[] getUris() {
+		return uris;
+	}
+
+	public void setUris(RedisURI[] uris) {
+		this.uris = uris;
+	}
+
+	public long getTimeout() {
+		return timeout;
+	}
+
+	public void setTimeout(long timeout) {
+		this.timeout = timeout;
+	}
+
+	public int getDatabase() {
+		return database;
+	}
+
+	public void setDatabase(int database) {
+		this.database = database;
+	}
+
+	public boolean isTls() {
+		return tls;
+	}
+
+	public void setTls(boolean tls) {
+		this.tls = tls;
+	}
+
+	public boolean isVerifyPeer() {
+		return verifyPeer;
+	}
+
+	public void setVerifyPeer(boolean verifyPeer) {
+		this.verifyPeer = verifyPeer;
+	}
+
+	public File getKeystore() {
+		return keystore;
+	}
+
+	public void setKeystore(File keystore) {
+		this.keystore = keystore;
+	}
+
+	public String getKeystorePassword() {
+		return keystorePassword;
+	}
+
+	public void setKeystorePassword(String keystorePassword) {
+		this.keystorePassword = keystorePassword;
+	}
+
+	public File getTruststore() {
+		return truststore;
+	}
+
+	public void setTruststore(File truststore) {
+		this.truststore = truststore;
+	}
+
+	public String getTruststorePassword() {
+		return truststorePassword;
+	}
+
+	public void setTruststorePassword(String truststorePassword) {
+		this.truststorePassword = truststorePassword;
+	}
+
+	public File getCert() {
+		return cert;
+	}
+
+	public void setCert(File cert) {
+		this.cert = cert;
+	}
+
+	public boolean isShowMetrics() {
+		return showMetrics;
+	}
+
+	public void setShowMetrics(boolean showMetrics) {
+		this.showMetrics = showMetrics;
+	}
+
+	public boolean isAutoReconnect() {
+		return autoReconnect;
+	}
+
+	public void setAutoReconnect(boolean autoReconnect) {
+		this.autoReconnect = autoReconnect;
+	}
+
+	public String getClientName() {
+		return clientName;
+	}
+
+	public void setClientName(String clientName) {
+		this.clientName = clientName;
+	}
+
+	public AbstractRedisClient getClient() {
+		return client;
+	}
+
+	public void setClient(AbstractRedisClient client) {
+		this.client = client;
+	}
+
+	public void setCluster(boolean cluster) {
+		this.cluster = cluster;
+	}
+
+	public void shutdown() {
 		if (client != null) {
 			client.shutdown();
 			client.getResources().shutdown();

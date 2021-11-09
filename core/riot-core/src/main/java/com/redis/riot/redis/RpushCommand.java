@@ -12,7 +12,7 @@ public class RpushCommand extends AbstractCollectionCommand {
 
 	@Override
 	public RedisOperation<String, String, Map<String, Object>> operation() {
-		return Rpush.key(key()).members(members()).build();
+		return Rpush.<String, String, Map<String, Object>>key(key()).member(member()).build();
 	}
 
 }

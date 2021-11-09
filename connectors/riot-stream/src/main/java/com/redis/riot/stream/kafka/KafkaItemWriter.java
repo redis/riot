@@ -5,9 +5,7 @@ import java.util.List;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.batch.item.support.AbstractItemStreamItemWriter;
 import org.springframework.kafka.core.KafkaTemplate;
-
-import lombok.Builder;
-import lombok.NonNull;
+import org.springframework.util.Assert;
 
 /**
  * @author Julien Ruaux
@@ -17,8 +15,8 @@ public class KafkaItemWriter<K> extends AbstractItemStreamItemWriter<ProducerRec
 
 	private final KafkaTemplate<K, Object> kafkaTemplate;
 
-	@Builder
-	private KafkaItemWriter(@NonNull KafkaTemplate<K, Object> kafkaTemplate) {
+	public KafkaItemWriter(KafkaTemplate<K, Object> kafkaTemplate) {
+		Assert.notNull(kafkaTemplate, "A Kafka template is required");
 		this.kafkaTemplate = kafkaTemplate;
 	}
 

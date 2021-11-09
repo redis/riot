@@ -2,10 +2,8 @@ package com.redis.riot.redis;
 
 import java.time.Duration;
 
-import lombok.Data;
 import picocli.CommandLine;
 
-@Data
 public class CompareOptions {
 
 	public static final long DEFAULT_TTL_TOLERANCE_IN_SECONDS = 1;
@@ -17,5 +15,21 @@ public class CompareOptions {
 
 	public Duration getTtlToleranceDuration() {
 		return Duration.ofSeconds(ttlTolerance);
+	}
+
+	public long getTtlTolerance() {
+		return ttlTolerance;
+	}
+
+	public void setTtlTolerance(long ttlTolerance) {
+		this.ttlTolerance = ttlTolerance;
+	}
+
+	public boolean isShowDiffs() {
+		return showDiffs;
+	}
+
+	public void setShowDiffs(boolean showDiffs) {
+		this.showDiffs = showDiffs;
 	}
 }

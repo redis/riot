@@ -1,30 +1,32 @@
 package com.redis.riot.file;
 
-import lombok.extern.slf4j.Slf4j;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.file.LineCallbackHandler;
 import org.springframework.batch.item.file.transform.AbstractLineTokenizer;
 import org.springframework.batch.item.file.transform.FieldSet;
 
-import java.util.ArrayList;
-import java.util.List;
-
-@Slf4j
 public class HeaderCallbackHandler implements LineCallbackHandler {
 
-    private final AbstractLineTokenizer tokenizer;
+	private static final Logger log = LoggerFactory.getLogger(HeaderCallbackHandler.class);
 
-    public HeaderCallbackHandler(AbstractLineTokenizer tokenizer) {
-        this.tokenizer = tokenizer;
-    }
+	private final AbstractLineTokenizer tokenizer;
 
-    @Override
-    public void handleLine(String line) {
-        log.debug("Found header {}", line);
-        FieldSet fieldSet = tokenizer.tokenize(line);
-        List<String> fields = new ArrayList<>();
-        for (int index = 0; index < fieldSet.getFieldCount(); index++) {
-            fields.add(fieldSet.readString(index));
-        }
-        tokenizer.setNames(fields.toArray(new String[0]));
-    }
+	public HeaderCallbackHandler(AbstractLineTokenizer tokenizer) {
+		this.tokenizer = tokenizer;
+	}
+
+	@Override
+	public void handleLine(String line) {
+		log.debug("Found header {}", line);
+		FieldSet fieldSet = tokenizer.tokenize(line);
+		List<String> fields = new ArrayList<>();
+		for (int index = 0; index < fieldSet.getFieldCount(); index++) {
+			fields.add(fieldSet.readString(index));
+		}
+		tokenizer.setNames(fields.toArray(new String[0]));
+	}
 }

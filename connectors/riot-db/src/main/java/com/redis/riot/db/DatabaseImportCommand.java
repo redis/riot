@@ -5,6 +5,8 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.database.JdbcCursorItemReader;
@@ -14,18 +16,14 @@ import org.springframework.jdbc.core.ColumnMapRowMapper;
 import com.redis.riot.AbstractImportCommand;
 import com.redis.riot.MapProcessorOptions;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
 
-@Slf4j
-@Data
-@EqualsAndHashCode(callSuper = true)
 @Command(name = "import", description = "Import from a database")
 public class DatabaseImportCommand extends AbstractImportCommand<Map<String, Object>, Map<String, Object>> {
+
+	private static final Logger log = LoggerFactory.getLogger(DatabaseImportCommand.class);
 
 	private static final String NAME = "db-import";
 
@@ -37,6 +35,10 @@ public class DatabaseImportCommand extends AbstractImportCommand<Map<String, Obj
 	private DatabaseImportOptions importOptions = new DatabaseImportOptions();
 	@CommandLine.ArgGroup(exclusive = false, heading = "Processor options%n")
 	private MapProcessorOptions processorOptions = new MapProcessorOptions();
+
+	public DataSourceOptions getDataSourceOptions() {
+		return dataSourceOptions;
+	}
 
 	@Override
 	protected Flow flow() throws Exception {

@@ -102,5 +102,8 @@ subprojects {
     configurations {
         all*.exclude module: 'spring-boot-starter-logging'
     }
+    
+    sourceCompatibility = 8
+    targetCompatibility = 8
 
 }

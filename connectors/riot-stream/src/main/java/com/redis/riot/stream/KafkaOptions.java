@@ -20,10 +20,8 @@ import org.springframework.util.unit.DataSize;
 import io.confluent.kafka.serializers.AbstractKafkaSchemaSerDeConfig;
 import io.confluent.kafka.serializers.KafkaAvroDeserializer;
 import io.confluent.kafka.serializers.KafkaAvroSerializer;
-import lombok.Data;
 import picocli.CommandLine.Option;
 
-@Data
 public class KafkaOptions {
 
 	public enum SerDe {
@@ -41,6 +39,46 @@ public class KafkaOptions {
 	private Map<String, String> properties;
 	@Option(names = "--serde", description = "Serializer/Deserializer: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<serde>")
 	private SerDe serde = SerDe.JSON;
+
+	public String[] getBrokers() {
+		return brokers;
+	}
+
+	public void setBrokers(String[] brokers) {
+		this.brokers = brokers;
+	}
+
+	public String getGroupId() {
+		return groupId;
+	}
+
+	public void setGroupId(String groupId) {
+		this.groupId = groupId;
+	}
+
+	public String getSchemaRegistryUrl() {
+		return schemaRegistryUrl;
+	}
+
+	public void setSchemaRegistryUrl(String schemaRegistryUrl) {
+		this.schemaRegistryUrl = schemaRegistryUrl;
+	}
+
+	public Map<String, String> getProperties() {
+		return properties;
+	}
+
+	public void setProperties(Map<String, String> properties) {
+		this.properties = properties;
+	}
+
+	public SerDe getSerde() {
+		return serde;
+	}
+
+	public void setSerde(SerDe serde) {
+		this.serde = serde;
+	}
 
 	public Properties consumerProperties() {
 		KafkaProperties kafkaProperties = kafkaProperties();

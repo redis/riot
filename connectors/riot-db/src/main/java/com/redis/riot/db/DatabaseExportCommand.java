@@ -5,6 +5,8 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.item.database.JdbcBatchItemWriter;
 import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilder;
@@ -12,18 +14,14 @@ import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilde
 import com.redis.riot.AbstractExportCommand;
 import com.redis.riot.processor.DataStructureItemProcessor;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
 
-@Slf4j
-@Data
-@EqualsAndHashCode(callSuper = true)
 @Command(name = "export", description = "Export to a database")
 public class DatabaseExportCommand extends AbstractExportCommand<Map<String, Object>> {
+
+	private static final Logger log = LoggerFactory.getLogger(DatabaseExportCommand.class);
 
 	private static final String NAME = "db-export";
 
@@ -33,6 +31,14 @@ public class DatabaseExportCommand extends AbstractExportCommand<Map<String, Obj
 	private DataSourceOptions dataSourceOptions = new DataSourceOptions();
 	@Mixin
 	private DatabaseExportOptions exportOptions = new DatabaseExportOptions();
+
+	public DatabaseExportOptions getExportOptions() {
+		return exportOptions;
+	}
+
+	public DataSourceOptions getDataSourceOptions() {
+		return dataSourceOptions;
+	}
 
 	@Override
 	protected Flow flow() throws Exception {
@@ -48,8 +54,7 @@ public class DatabaseExportCommand extends AbstractExportCommand<Map<String, Obj
 			builder.assertUpdates(exportOptions.isAssertUpdates());
 			JdbcBatchItemWriter<Map<String, Object>> writer = builder.build();
 			writer.afterPropertiesSet();
-			DataStructureItemProcessor processor = DataStructureItemProcessor.builder()
-					.keyRegex(exportOptions.getKeyRegex()).build();
+			DataStructureItemProcessor processor = DataStructureItemProcessor.of(exportOptions.getKeyRegex());
 			return flow(NAME, step(NAME, String.format("Exporting to %s", dbName), processor, writer).build());
 		}
 	}

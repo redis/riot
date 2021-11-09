@@ -39,7 +39,7 @@ import io.lettuce.core.support.ConnectionPoolSupport;
 
 @SuppressWarnings("unchecked")
 @Testcontainers
-public abstract class AbstractRiotIntegrationTest extends AbstractRiotTest {
+public abstract class AbstractRiotIntegrationTests extends AbstractRiotTests {
 
 	@Container
 	private static final RedisContainer REDIS = new RedisContainer().withKeyspaceNotifications();

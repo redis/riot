@@ -6,6 +6,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.core.step.builder.FaultTolerantStepBuilder;
@@ -30,21 +32,17 @@ import org.springframework.util.ObjectUtils;
 import com.redis.riot.AbstractImportCommand;
 import com.redis.riot.MapProcessorOptions;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
-@Slf4j
-@Data
-@EqualsAndHashCode(callSuper = true)
 @Command(name = "import", description = "Import delimited, fixed-width, JSON, or XML files into Redis.")
 public class FileImportCommand extends AbstractImportCommand<Map<String, Object>, Map<String, Object>> {
 
 	private enum FileType {
 		DELIMITED, FIXED, JSON, XML
 	}
+
+	private static final Logger log = LoggerFactory.getLogger(FileImportCommand.class);
 
 	private static final String NAME = "file-import";
 	private static final String DELIMITER_PIPE = "|";
@@ -58,6 +56,30 @@ public class FileImportCommand extends AbstractImportCommand<Map<String, Object>
 	private FileImportOptions options = new FileImportOptions();
 	@CommandLine.ArgGroup(exclusive = false, heading = "Processor options%n")
 	private MapProcessorOptions processorOptions = new MapProcessorOptions();
+
+	public List<String> getFiles() {
+		return files;
+	}
+
+	public void setFiles(List<String> files) {
+		this.files = files;
+	}
+
+	public FileType getType() {
+		return type;
+	}
+
+	public void setType(FileType type) {
+		this.type = type;
+	}
+
+	public FileImportOptions getOptions() {
+		return options;
+	}
+
+	public MapProcessorOptions getProcessorOptions() {
+		return processorOptions;
+	}
 
 	@Override
 	protected Flow flow() throws Exception {

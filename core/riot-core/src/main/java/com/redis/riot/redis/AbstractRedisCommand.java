@@ -11,13 +11,10 @@ import com.redis.riot.convert.FieldExtractorFactory;
 import com.redis.riot.convert.IdConverterBuilder;
 import com.redis.riot.convert.ObjectToNumberConverter;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
 import picocli.CommandLine;
+import picocli.CommandLine.Command;
 
-@Data
-@EqualsAndHashCode(callSuper = true)
-@CommandLine.Command(sortOptions = false, abbreviateSynopsis = true)
+@Command(sortOptions = false, abbreviateSynopsis = true)
 public abstract class AbstractRedisCommand<O> extends HelpCommand implements RedisCommand<O> {
 
 	@CommandLine.Option(names = { "-s",
@@ -39,7 +36,7 @@ public abstract class AbstractRedisCommand<O> extends HelpCommand implements Red
 	}
 
 	private FieldExtractorFactory fieldExtractorFactory() {
-		return new FieldExtractorFactory().remove(removeFields).nullCheck(!ignoreMissingFields);
+		return FieldExtractorFactory.builder().remove(removeFields).nullCheck(!ignoreMissingFields).build();
 	}
 
 	protected <T extends Number> Converter<Map<String, Object>, T> numberExtractor(String field, Class<T> targetType,

@@ -1,28 +1,51 @@
 package com.redis.riot.db;
 
-import lombok.Builder;
-import lombok.extern.slf4j.Slf4j;
-
 import java.io.IOException;
 import java.io.LineNumberReader;
 import java.io.Reader;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Tool to run database scripts
  */
-@Slf4j
-@Builder
 public class ScriptRunner {
+
+	private static final Logger log = LoggerFactory.getLogger(ScriptRunner.class);
 
 	private static final String DEFAULT_DELIMITER = ";";
 
 	private final Connection connection;
-	private final boolean stopOnError;
-	private final boolean autoCommit;
-	@Builder.Default
-	private final String delimiter = DEFAULT_DELIMITER;
-	private final boolean fullLineDelimiter;
+	private boolean stopOnError;
+	private boolean autoCommit;
+	private String delimiter = DEFAULT_DELIMITER;
+	private boolean fullLineDelimiter;
+
+	public ScriptRunner(Connection connection) {
+		this.connection = connection;
+	}
+
+	public void setStopOnError(boolean stopOnError) {
+		this.stopOnError = stopOnError;
+	}
+
+	public void setAutoCommit(boolean autoCommit) {
+		this.autoCommit = autoCommit;
+	}
+
+	public void setDelimiter(String delimiter) {
+		this.delimiter = delimiter;
+	}
+
+	public void setFullLineDelimiter(boolean fullLineDelimiter) {
+		this.fullLineDelimiter = fullLineDelimiter;
+	}
 
 	/**
 	 * Runs an SQL script (read in using the Reader parameter)

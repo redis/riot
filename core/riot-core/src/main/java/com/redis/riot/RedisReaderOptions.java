@@ -3,6 +3,8 @@ package com.redis.riot;
 import java.util.function.Supplier;
 
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.redis.spring.batch.RedisItemReader;
 import com.redis.spring.batch.builder.RedisItemReaderBuilder;
@@ -12,13 +14,11 @@ import com.redis.spring.batch.support.ScanKeyItemReader;
 import com.redis.spring.batch.support.ScanSizeEstimator.ScanSizeEstimatorBuilder;
 
 import io.lettuce.core.api.StatefulConnection;
-import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine.Option;
 
-@Slf4j
-@Data
 public class RedisReaderOptions {
+
+	private static final Logger log = LoggerFactory.getLogger(RedisReaderOptions.class);
 
 	@Option(names = "--scan-count", description = "SCAN COUNT option (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
 	private long scanCount = ScanKeyItemReader.DEFAULT_SCAN_COUNT;
@@ -37,13 +37,77 @@ public class RedisReaderOptions {
 	@Option(names = "--reader-pool", description = "Max pool connections for reader process (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
 	private int poolMaxTotal = 8;
 
+	public long getScanCount() {
+		return scanCount;
+	}
+
+	public void setScanCount(long scanCount) {
+		this.scanCount = scanCount;
+	}
+
+	public String getScanMatch() {
+		return scanMatch;
+	}
+
+	public void setScanMatch(String scanMatch) {
+		this.scanMatch = scanMatch;
+	}
+
+	public Type getScanType() {
+		return scanType;
+	}
+
+	public void setScanType(Type scanType) {
+		this.scanType = scanType;
+	}
+
+	public int getQueueCapacity() {
+		return queueCapacity;
+	}
+
+	public void setQueueCapacity(int queueCapacity) {
+		this.queueCapacity = queueCapacity;
+	}
+
+	public int getThreads() {
+		return threads;
+	}
+
+	public void setThreads(int threads) {
+		this.threads = threads;
+	}
+
+	public int getBatchSize() {
+		return batchSize;
+	}
+
+	public void setBatchSize(int batchSize) {
+		this.batchSize = batchSize;
+	}
+
+	public int getSampleSize() {
+		return sampleSize;
+	}
+
+	public void setSampleSize(int sampleSize) {
+		this.sampleSize = sampleSize;
+	}
+
+	public int getPoolMaxTotal() {
+		return poolMaxTotal;
+	}
+
+	public void setPoolMaxTotal(int poolMaxTotal) {
+		this.poolMaxTotal = poolMaxTotal;
+	}
+
 	@SuppressWarnings("rawtypes")
 	public <B extends ScanRedisItemReaderBuilder> B configureScanReader(B builder) {
 		log.info("Configuring scan reader with {} {} {}", scanCount, scanMatch, scanType);
-		builder.scanMatch(scanMatch);
-		builder.scanCount(scanCount);
+		builder.match(scanMatch);
+		builder.count(scanCount);
 		if (scanType != null) {
-			builder.scanType(scanType.name().toLowerCase());
+			builder.type(scanType.name().toLowerCase());
 		}
 		return configureReader(builder);
 	}

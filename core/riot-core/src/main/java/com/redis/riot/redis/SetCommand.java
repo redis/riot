@@ -2,6 +2,8 @@ package com.redis.riot.redis;
 
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.convert.converter.Converter;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -12,19 +14,17 @@ import com.redis.riot.convert.ObjectMapperConverter;
 import com.redis.spring.batch.support.RedisOperation;
 import com.redis.spring.batch.support.operation.Set;
 
-import lombok.EqualsAndHashCode;
-import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
-@Slf4j
-@EqualsAndHashCode(callSuper = true)
 @Command(name = "set", description = "Set strings from input")
 public class SetCommand extends AbstractKeyCommand {
 
 	private enum StringFormat {
 		RAW, XML, JSON
 	}
+
+	private static final Logger log = LoggerFactory.getLogger(SetCommand.class);
 
 	@Option(names = "--format", description = "Serialization: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})", paramLabel = "<fmt>")
 	private StringFormat format = StringFormat.JSON;
@@ -35,7 +35,7 @@ public class SetCommand extends AbstractKeyCommand {
 
 	@Override
 	public RedisOperation<String, String, Map<String, Object>> operation() {
-		return Set.key(key()).value(stringValueConverter()).build();
+		return Set.<String, String, Map<String, Object>>key(key()).value(stringValueConverter()).build();
 	}
 
 	private Converter<Map<String, Object>, String> stringValueConverter() {

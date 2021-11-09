@@ -4,15 +4,18 @@ import java.util.Map;
 
 import org.springframework.core.convert.converter.Converter;
 
-import lombok.Setter;
-import lombok.experimental.Accessors;
-
-@Setter
-@Accessors(fluent = true)
 public class FieldExtractorFactory {
 
 	private boolean remove;
 	private boolean nullCheck;
+
+	public void setRemove(boolean remove) {
+		this.remove = remove;
+	}
+
+	public void setNullCheck(boolean nullCheck) {
+		this.nullCheck = nullCheck;
+	}
 
 	public Converter<Map<String, Object>, Object> field(String field) {
 		Converter<Map<String, Object>, Object> extractor = extractor(field);
@@ -87,6 +90,33 @@ public class FieldExtractorFactory {
 			return value;
 		}
 
+	}
+
+	public static FieldExtractorFactoryBuilder builder() {
+		return new FieldExtractorFactoryBuilder();
+	}
+
+	public static class FieldExtractorFactoryBuilder {
+
+		private boolean remove;
+		private boolean nullCheck;
+
+		public FieldExtractorFactoryBuilder remove(boolean remove) {
+			this.remove = remove;
+			return this;
+		}
+
+		public FieldExtractorFactoryBuilder nullCheck(boolean nullCheck) {
+			this.nullCheck = nullCheck;
+			return this;
+		}
+
+		public FieldExtractorFactory build() {
+			FieldExtractorFactory factory = new FieldExtractorFactory();
+			factory.setRemove(remove);
+			factory.setNullCheck(nullCheck);
+			return factory;
+		}
 	}
 
 }

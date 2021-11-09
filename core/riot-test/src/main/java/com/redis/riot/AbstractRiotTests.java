@@ -19,7 +19,7 @@ import io.lettuce.core.RedisURI;
 import picocli.CommandLine;
 
 @SuppressWarnings("unchecked")
-public abstract class AbstractRiotTest {
+public abstract class AbstractRiotTests {
 
 	protected abstract RiotApp app();
 
@@ -50,7 +50,7 @@ public abstract class AbstractRiotTest {
 	}
 
 	protected void configure(RiotApp app, RedisServer container) {
-		app.setInfo(true);
+		app.getLoggingOptions().setInfo(true);
 		app.getRedisOptions().setUris(new RedisURI[] { RedisURI.create(container.getRedisURI()) });
 		app.getRedisOptions().setCluster(container instanceof RedisClusterContainer);
 	}

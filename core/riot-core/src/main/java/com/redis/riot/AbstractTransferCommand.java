@@ -7,16 +7,12 @@ import com.redis.spring.batch.RedisItemWriter.OperationItemWriterBuilder;
 import com.redis.spring.batch.support.ScanSizeEstimator;
 import com.redis.spring.batch.support.ScanSizeEstimator.ScanSizeEstimatorBuilder;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
 import picocli.CommandLine;
 
-@Data
-@EqualsAndHashCode(callSuper = true)
 public abstract class AbstractTransferCommand extends AbstractRiotCommand {
 
 	@CommandLine.Mixin
-	private TransferOptions transferOptions = new TransferOptions();
+	protected TransferOptions transferOptions = new TransferOptions();
 
 	protected <I, O> RiotStepBuilder<I, O> riotStep(String name, String taskName) throws Exception {
 		return new RiotStepBuilder<I, O>(getJobRunner().step(name), transferOptions).taskName(taskName);

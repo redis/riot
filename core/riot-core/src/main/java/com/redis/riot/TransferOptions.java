@@ -1,9 +1,7 @@
 package com.redis.riot;
 
-import lombok.Data;
 import picocli.CommandLine;
 
-@Data
 public class TransferOptions {
 
 	public enum Progress {
@@ -27,5 +25,53 @@ public class TransferOptions {
 	private SkipPolicy skipPolicy = SkipPolicy.LIMIT;
 	@CommandLine.Option(names = "--skip-limit", description = "For LIMIT policy, max number of failed items to skip before considering the transfer has failed (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
 	private int skipLimit = 3;
+
+	public Progress getProgress() {
+		return progress;
+	}
+
+	public long getProgressUpdateIntervalMillis() {
+		return progressUpdateIntervalMillis;
+	}
+
+	public int getThreads() {
+		return threads;
+	}
+
+	public int getChunkSize() {
+		return chunkSize;
+	}
+
+	public SkipPolicy getSkipPolicy() {
+		return skipPolicy;
+	}
+
+	public int getSkipLimit() {
+		return skipLimit;
+	}
+
+	public void setProgress(Progress progress) {
+		this.progress = progress;
+	}
+
+	public void setProgressUpdateIntervalMillis(long progressUpdateIntervalMillis) {
+		this.progressUpdateIntervalMillis = progressUpdateIntervalMillis;
+	}
+
+	public void setThreads(int threads) {
+		this.threads = threads;
+	}
+
+	public void setChunkSize(int chunkSize) {
+		this.chunkSize = chunkSize;
+	}
+
+	public void setSkipPolicy(SkipPolicy skipPolicy) {
+		this.skipPolicy = skipPolicy;
+	}
+
+	public void setSkipLimit(int skipLimit) {
+		this.skipLimit = skipLimit;
+	}
 
 }

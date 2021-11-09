@@ -1,5 +1,6 @@
 package com.redis.riot.redis;
 
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepExecution;
@@ -24,15 +25,11 @@ import com.redis.spring.batch.support.compare.KeyComparisonItemWriter;
 import com.redis.spring.batch.support.compare.KeyComparisonLogger;
 import com.redis.spring.batch.support.compare.KeyComparisonResults;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine;
 
-@Data
-@EqualsAndHashCode(callSuper = true)
-@Slf4j
 public abstract class AbstractTargetCommand extends AbstractTransferCommand {
+
+	private static final Logger log = LoggerFactory.getLogger(AbstractTargetCommand.class);
 
 	private static final String COMPARE_MESSAGE_ASCII = " >%,d T%,d ≠%,d ⧗%,d <%,d";
 	private static final String COMPARE_MESSAGE_COLOR = " \u001b[31m>%,d \u001b[33mT%,d \u001b[35m≠%,d \u001b[36m⧗%,d\u001b[0m";
@@ -44,6 +41,18 @@ public abstract class AbstractTargetCommand extends AbstractTransferCommand {
 	protected RedisReaderOptions readerOptions = new RedisReaderOptions();
 	@CommandLine.Mixin
 	private CompareOptions compareOptions = new CompareOptions();
+
+	public RedisOptions getTargetRedisOptions() {
+		return targetRedisOptions;
+	}
+
+	public RedisReaderOptions getReaderOptions() {
+		return readerOptions;
+	}
+
+	public CompareOptions getCompareOptions() {
+		return compareOptions;
+	}
 
 	@Override
 	protected JobBuilder configureJob(JobBuilder job) {
@@ -61,7 +70,7 @@ public abstract class AbstractTargetCommand extends AbstractTransferCommand {
 		DataStructureValueReader<String, String> targetValueReader = dataStructureValueReader(targetRedisOptions)
 				.poolConfig(readerOptions.poolConfig()).build();
 		KeyComparisonItemWriter<String> writer = KeyComparisonItemWriter.valueReader(targetValueReader)
-				.ttlTolerance(compareOptions.getTtlToleranceDuration()).build();
+				.tolerance(compareOptions.getTtlToleranceDuration()).build();
 		if (compareOptions.isShowDiffs()) {
 			writer.addListener(new KeyComparisonLogger(LoggerFactory.getLogger(getClass())));
 		}
@@ -79,7 +88,7 @@ public abstract class AbstractTargetCommand extends AbstractTransferCommand {
 					return super.afterStep(stepExecution);
 				}
 				try {
-					Thread.sleep(getTransferOptions().getProgressUpdateIntervalMillis());
+					Thread.sleep(transferOptions.getProgressUpdateIntervalMillis());
 				} catch (InterruptedException e) {
 					log.debug("Verification interrupted");
 					Thread.currentThread().interrupt();
@@ -108,7 +117,7 @@ public abstract class AbstractTargetCommand extends AbstractTransferCommand {
 	}
 
 	private String extraMessageFormat() {
-		if (getTransferOptions().getProgress() == TransferOptions.Progress.COLOR) {
+		if (transferOptions.getProgress() == TransferOptions.Progress.COLOR) {
 			return COMPARE_MESSAGE_COLOR;
 		}
 		return COMPARE_MESSAGE_ASCII;

@@ -11,10 +11,8 @@ import com.redis.riot.convert.MapFilteringConverter.MapFilteringConverterBuilder
 import com.redis.riot.convert.MapFlattener;
 import com.redis.riot.convert.ObjectToStringConverter;
 
-import lombok.Data;
 import picocli.CommandLine;
 
-@Data
 public class FilteringOptions {
 
 	@CommandLine.Option(arity = "1..*", names = "--include", description = "Fields to include", paramLabel = "<field>")

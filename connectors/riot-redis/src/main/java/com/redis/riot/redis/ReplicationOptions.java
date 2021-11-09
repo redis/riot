@@ -2,10 +2,8 @@ package com.redis.riot.redis;
 
 import com.redis.spring.batch.support.LiveKeyItemReader;
 
-import lombok.Data;
 import picocli.CommandLine;
 
-@Data
 public class ReplicationOptions {
 
 	public enum ReplicationType {
@@ -24,4 +22,37 @@ public class ReplicationOptions {
 	private int notificationQueueCapacity = LiveKeyItemReader.DEFAULT_QUEUE_CAPACITY;
 	@CommandLine.Option(names = "--no-verify", description = "Verify target against source dataset after replication. True by default", negatable = true)
 	private boolean verify = true;
+
+	public ReplicationMode getMode() {
+		return mode;
+	}
+
+	public void setMode(ReplicationMode mode) {
+		this.mode = mode;
+	}
+
+	public ReplicationType getType() {
+		return type;
+	}
+
+	public void setType(ReplicationType type) {
+		this.type = type;
+	}
+
+	public int getNotificationQueueCapacity() {
+		return notificationQueueCapacity;
+	}
+
+	public void setNotificationQueueCapacity(int notificationQueueCapacity) {
+		this.notificationQueueCapacity = notificationQueueCapacity;
+	}
+
+	public boolean isVerify() {
+		return verify;
+	}
+
+	public void setVerify(boolean verify) {
+		this.verify = verify;
+	}
+
 }

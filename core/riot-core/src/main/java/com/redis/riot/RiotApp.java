@@ -11,16 +11,13 @@ import org.springframework.expression.spel.standard.SpelExpressionParser;
 import io.lettuce.core.RedisURI;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import io.netty.util.internal.logging.JdkLoggerFactory;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
 import picocli.CommandLine;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Mixin;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.ParseResult;
 
-@Data
-@EqualsAndHashCode(callSuper = true)
 @Command(sortOptions = false, versionProvider = ManifestVersionProvider.class, subcommands = GenerateCompletionCommand.class, abbreviateSynopsis = true)
 public class RiotApp extends HelpCommand {
 
@@ -30,16 +27,16 @@ public class RiotApp extends HelpCommand {
 	private boolean versionRequested;
 	@ArgGroup(heading = "Redis connection options%n", exclusive = false)
 	private RedisOptions redisOptions = new RedisOptions();
-	@Option(names = { "-q", "--quiet" }, description = "Log errors only.")
-	private boolean quiet;
-	@Option(names = { "-w", "--warn" }, description = "Set log level to warn.")
-	private boolean warning;
-	@Option(names = { "-i", "--info" }, description = "Set log level to info.")
-	private boolean info;
-	@Option(names = { "-d", "--debug" }, description = "Log in debug mode (includes normal stacktrace).")
-	private boolean debug;
-	@Option(names = "--stacktrace", description = "Print out the stacktrace for all exceptions.")
-	private boolean stacktrace;
+	@Mixin
+	private LoggingOptions loggingOptions = new LoggingOptions();
+
+	public RedisOptions getRedisOptions() {
+		return redisOptions;
+	}
+
+	public LoggingOptions getLoggingOptions() {
+		return loggingOptions;
+	}
 
 	private int executionStrategy(ParseResult parseResult) {
 		configureLogging();
@@ -57,11 +54,10 @@ public class RiotApp extends HelpCommand {
 		Logger activeLogger = Logger.getLogger(ROOT_LOGGER);
 		ConsoleHandler handler = new ConsoleHandler();
 		handler.setLevel(Level.ALL);
-		handler.setFormatter(debug || stacktrace ? new StackTraceOneLineLogFormat() : new OneLineLogFormat());
+		handler.setFormatter(loggingOptions.isStacktrace() ? new StackTraceOneLineLogFormat() : new OneLineLogFormat());
 		activeLogger.addHandler(handler);
-		Logger.getLogger(ROOT_LOGGER).setLevel(logLevel());
-		Logger.getLogger("com.redis.riot").setLevel(riotLogLevel());
-		Logger.getLogger("com.redis.spring.batch").setLevel(riotLogLevel());
+		Logger.getLogger(ROOT_LOGGER).setLevel(loggingOptions.getLevel());
+		Logger.getLogger("com.redis").setLevel(loggingOptions.getRiotLevel());
 	}
 
 	public int execute(String... args) {
@@ -76,38 +72,6 @@ public class RiotApp extends HelpCommand {
 		commandLine.setCaseInsensitiveEnumValuesAllowed(true);
 		commandLine.setUnmatchedOptionsAllowedAsOptionParameters(false);
 		return commandLine;
-	}
-
-	private Level logLevel() {
-		if (debug) {
-			return Level.FINE;
-		}
-		if (info) {
-			return Level.INFO;
-		}
-		if (warning) {
-			return Level.SEVERE;
-		}
-		if (quiet) {
-			return Level.OFF;
-		}
-		return Level.WARNING;
-	}
-
-	private Level riotLogLevel() {
-		if (debug) {
-			return Level.FINER;
-		}
-		if (info) {
-			return Level.FINE;
-		}
-		if (warning) {
-			return Level.WARNING;
-		}
-		if (quiet) {
-			return Level.SEVERE;
-		}
-		return Level.INFO;
 	}
 
 	private int handleExecutionException(Exception ex, CommandLine cmd, ParseResult parseResult) {

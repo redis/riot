@@ -13,7 +13,7 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import com.redis.lettucemod.api.sync.RedisModulesCommands;
-import com.redis.riot.AbstractRiotIntegrationTest;
+import com.redis.riot.AbstractRiotIntegrationTests;
 import com.redis.riot.redis.ReplicationOptions.ReplicationMode;
 import com.redis.spring.batch.support.compare.KeyComparisonResults;
 import com.redis.testcontainers.RedisContainer;
@@ -28,7 +28,7 @@ import picocli.CommandLine;
 
 @Testcontainers
 @SuppressWarnings("unchecked")
-class TestReplicate extends AbstractRiotIntegrationTest {
+class TestReplicate extends AbstractRiotIntegrationTests {
 
 	private static final Duration IDLE_TIMEOUT = Duration.ofSeconds(10);
 

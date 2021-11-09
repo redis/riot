@@ -6,23 +6,17 @@ import java.util.Map;
 
 import org.springframework.core.convert.converter.Converter;
 
-import lombok.Setter;
-import lombok.experimental.Accessors;
-
-@Accessors(fluent = true)
 public class IdConverterBuilder {
 
 	public static final String DEFAULT_SEPARATOR = ":";
 
-	@Setter
 	private String separator = DEFAULT_SEPARATOR;
-	private final FieldExtractorFactory extractorFactory = new FieldExtractorFactory().nullCheck(true);
-	@Setter
 	private String prefix;
+	private final FieldExtractorFactory extractorFactory = FieldExtractorFactory.builder().nullCheck(true).build();
 	private final List<String> fields = new ArrayList<>();
 
 	public IdConverterBuilder remove(boolean remove) {
-		this.extractorFactory.remove(remove);
+		this.extractorFactory.setRemove(remove);
 		return this;
 	}
 
@@ -32,6 +26,16 @@ public class IdConverterBuilder {
 				this.fields.add(field);
 			}
 		}
+		return this;
+	}
+
+	public IdConverterBuilder prefix(String prefix) {
+		this.prefix = prefix;
+		return this;
+	}
+
+	public IdConverterBuilder separator(String separator) {
+		this.separator = separator;
 		return this;
 	}
 

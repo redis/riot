@@ -4,6 +4,8 @@ import java.time.Duration;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.function.Supplier;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.ItemWriteListener;
 import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.step.builder.FaultTolerantStepBuilder;
@@ -14,21 +16,18 @@ import org.springframework.batch.core.step.skip.NeverSkipItemSkipPolicy;
 import org.springframework.batch.core.step.skip.SkipPolicy;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
+import org.springframework.batch.item.ItemStreamReader;
 import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.item.support.SynchronizedItemStreamReader;
 import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import com.redis.spring.batch.RedisItemReader;
 import com.redis.spring.batch.support.FlushingStepBuilder;
 
-import lombok.Setter;
-import lombok.experimental.Accessors;
-import lombok.extern.slf4j.Slf4j;
-
-@Slf4j
-@Setter
-@Accessors(fluent = true)
 public class RiotStepBuilder<I, O> {
+
+	private static final Logger log = LoggerFactory.getLogger(RiotStepBuilder.class);
 
 	private final StepBuilder stepBuilder;
 	private final TransferOptions options;
@@ -44,6 +43,41 @@ public class RiotStepBuilder<I, O> {
 	public RiotStepBuilder(StepBuilder stepBuilder, TransferOptions options) {
 		this.stepBuilder = stepBuilder;
 		this.options = options;
+	}
+
+	public RiotStepBuilder<I, O> taskName(String taskName) {
+		this.taskName = taskName;
+		return this;
+	}
+
+	public RiotStepBuilder<I, O> reader(ItemReader<I> reader) {
+		this.reader = reader;
+		return this;
+	}
+
+	public RiotStepBuilder<I, O> processor(ItemProcessor<I, O> processor) {
+		this.processor = processor;
+		return this;
+	}
+
+	public RiotStepBuilder<I, O> writer(ItemWriter<O> writer) {
+		this.writer = writer;
+		return this;
+	}
+
+	public RiotStepBuilder<I, O> extraMessage(Supplier<String> extraMessage) {
+		this.extraMessage = extraMessage;
+		return this;
+	}
+
+	public RiotStepBuilder<I, O> initialMax(Supplier<Long> initialMax) {
+		this.initialMax = initialMax;
+		return this;
+	}
+
+	public RiotStepBuilder<I, O> flushingOptions(FlushingTransferOptions flushingOptions) {
+		this.flushingOptions = flushingOptions;
+		return this;
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -63,6 +97,11 @@ public class RiotStepBuilder<I, O> {
 		}
 		FaultTolerantStepBuilder<I, O> ftStep = faultTolerant(step).skipPolicy(skipPolicy(options.getSkipPolicy()));
 		if (options.getThreads() > 1) {
+			if (reader instanceof ItemStreamReader) {
+				SynchronizedItemStreamReader<I> synchronizedReader = new SynchronizedItemStreamReader<>();
+				synchronizedReader.setDelegate((ItemStreamReader<I>) reader);
+				ftStep.reader(synchronizedReader);
+			}
 			ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
 			taskExecutor.setCorePoolSize(options.getThreads());
 			taskExecutor.setMaxPoolSize(options.getThreads());

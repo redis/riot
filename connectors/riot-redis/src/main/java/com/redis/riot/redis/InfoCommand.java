@@ -1,13 +1,16 @@
 package com.redis.riot.redis;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.redis.lettucemod.api.sync.RedisModulesCommands;
 
-import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine.Command;
 
-@Slf4j
 @Command(name = "info", description = "Display INFO command output")
 public class InfoCommand extends AbstractRedisCommandCommand {
+
+	private static final Logger log = LoggerFactory.getLogger(InfoCommand.class);
 
 	@Override
 	protected void execute(RedisModulesCommands<String, String> commands) {

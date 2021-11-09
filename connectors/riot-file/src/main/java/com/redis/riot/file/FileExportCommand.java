@@ -2,6 +2,8 @@ package com.redis.riot.file;
 
 import java.io.IOException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.json.JacksonJsonObjectMarshaller;
@@ -14,17 +16,13 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.redis.riot.AbstractExportCommand;
 import com.redis.spring.batch.support.DataStructure;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
-@Slf4j
-@Data
-@EqualsAndHashCode(callSuper = true)
 @Command(name = "export", description = "Export Redis data to JSON or XML files")
 public class FileExportCommand extends AbstractExportCommand<DataStructure<String>> {
+
+	private static final Logger log = LoggerFactory.getLogger(FileExportCommand.class);
 
 	private static final String NAME = "file-export";
 
@@ -32,6 +30,18 @@ public class FileExportCommand extends AbstractExportCommand<DataStructure<Strin
 	private String file;
 	@CommandLine.ArgGroup(exclusive = false, heading = "File export options%n")
 	private FileExportOptions options = new FileExportOptions();
+
+	public String getFile() {
+		return file;
+	}
+
+	public void setFile(String file) {
+		this.file = file;
+	}
+
+	public FileExportOptions getOptions() {
+		return options;
+	}
 
 	@Override
 	protected Flow flow() throws Exception {

@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.item.ItemProcessor;
@@ -23,19 +25,15 @@ import com.redis.riot.stream.processor.JsonProducerProcessor;
 import com.redis.spring.batch.support.StreamItemReader;
 
 import io.lettuce.core.StreamMessage;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
-@Slf4j
-@Data
-@EqualsAndHashCode(callSuper = true)
 @Command(name = "export", description = "Import Redis streams into Kafka topics")
 public class StreamExportCommand extends AbstractTransferCommand {
+
+	private static final Logger log = LoggerFactory.getLogger(StreamExportCommand.class);
 
 	private static final String NAME = "stream-export";
 	@CommandLine.Mixin
@@ -48,6 +46,46 @@ public class StreamExportCommand extends AbstractTransferCommand {
 	private String offset = "0-0";
 	@Option(names = "--topic", description = "Target topic key (default: same as stream)", paramLabel = "<string>")
 	private String topic;
+
+	public FlushingTransferOptions getFlushingTransferOptions() {
+		return flushingTransferOptions;
+	}
+
+	public void setFlushingTransferOptions(FlushingTransferOptions flushingTransferOptions) {
+		this.flushingTransferOptions = flushingTransferOptions;
+	}
+
+	public String[] getStreams() {
+		return streams;
+	}
+
+	public void setStreams(String[] streams) {
+		this.streams = streams;
+	}
+
+	public KafkaOptions getOptions() {
+		return options;
+	}
+
+	public void setOptions(KafkaOptions options) {
+		this.options = options;
+	}
+
+	public String getOffset() {
+		return offset;
+	}
+
+	public void setOffset(String offset) {
+		this.offset = offset;
+	}
+
+	public String getTopic() {
+		return topic;
+	}
+
+	public void setTopic(String topic) {
+		this.topic = topic;
+	}
 
 	@Override
 	protected Flow flow() throws Exception {
@@ -66,8 +104,7 @@ public class StreamExportCommand extends AbstractTransferCommand {
 	private KafkaItemWriter<String> writer() {
 		Map<String, Object> producerProperties = options.producerProperties();
 		log.debug("Creating Kafka writer with producer properties {}", producerProperties);
-		return KafkaItemWriter.<String>builder()
-				.kafkaTemplate(new KafkaTemplate<>(new DefaultKafkaProducerFactory<>(producerProperties))).build();
+		return new KafkaItemWriter<>(new KafkaTemplate<>(new DefaultKafkaProducerFactory<>(producerProperties)));
 	}
 
 	private ItemProcessor<StreamMessage<String, String>, ProducerRecord<String, Object>> processor() {

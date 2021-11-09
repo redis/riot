@@ -12,7 +12,7 @@ public class LpushCommand extends AbstractCollectionCommand {
 
 	@Override
 	public RedisOperation<String, String, Map<String, Object>> operation() {
-		return Lpush.key(key()).members(members()).build();
+		return Lpush.<String, String, Map<String, Object>>key(key()).member(member()).build();
 	}
 
 }

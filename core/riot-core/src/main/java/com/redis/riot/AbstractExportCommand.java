@@ -8,10 +8,8 @@ import org.springframework.batch.item.ItemWriter;
 import com.redis.spring.batch.RedisItemReader;
 import com.redis.spring.batch.support.DataStructure;
 
-import lombok.EqualsAndHashCode;
 import picocli.CommandLine;
 
-@EqualsAndHashCode(callSuper = true)
 public abstract class AbstractExportCommand<O> extends AbstractTransferCommand {
 
 	@CommandLine.ArgGroup(exclusive = false, heading = "Reader options%n")

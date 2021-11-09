@@ -9,11 +9,9 @@ import com.redis.spring.batch.support.RedisOperation;
 import com.redis.spring.batch.support.convert.SuggestionConverter;
 import com.redis.spring.batch.support.operation.Sugadd;
 
-import lombok.EqualsAndHashCode;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
-@EqualsAndHashCode(callSuper = true)
 @Command(name = "sugadd", description = "Add suggestion strings to a RediSearch auto-complete suggestion dictionary")
 public class SugaddCommand extends AbstractKeyCommand {
 
@@ -30,7 +28,8 @@ public class SugaddCommand extends AbstractKeyCommand {
 
 	@Override
 	public RedisOperation<String, String, Map<String, Object>> operation() {
-		return Sugadd.key(key()).suggestion(suggestion()).increment(increment).build();
+		return Sugadd.<String, String, Map<String, Object>>key(key()).suggestion(suggestion()).increment(increment)
+				.build();
 	}
 
 	private Converter<Map<String, Object>, Suggestion<String>> suggestion() {

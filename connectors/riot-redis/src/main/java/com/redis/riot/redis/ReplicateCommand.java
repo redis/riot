@@ -1,5 +1,7 @@
 package com.redis.riot.redis;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.job.builder.FlowBuilder;
 import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.core.job.flow.support.SimpleFlow;
@@ -18,17 +20,13 @@ import com.redis.spring.batch.RedisItemWriter.BaseRedisItemWriterBuilder;
 import com.redis.spring.batch.RedisItemWriter.OperationItemWriterBuilder;
 import com.redis.spring.batch.builder.ScanRedisItemReaderBuilder;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine;
 import picocli.CommandLine.ArgGroup;
 
-@Data
-@EqualsAndHashCode(callSuper = true)
-@Slf4j
 @CommandLine.Command(name = "replicate", description = "Replicate a source Redis DB to a target Redis DB")
 public class ReplicateCommand extends AbstractTargetCommand {
+
+	private static final Logger log = LoggerFactory.getLogger(ReplicateCommand.class);
 
 	private static final String SKIPPED_VERIFICATION_NAME = "skipped-verification-notification";
 
@@ -46,6 +44,22 @@ public class ReplicateCommand extends AbstractTargetCommand {
 	private KeyValueProcessorOptions processorOptions = new KeyValueProcessorOptions();
 	@ArgGroup(exclusive = false, heading = "Writer options%n")
 	private RedisWriterOptions writerOptions = new RedisWriterOptions();
+
+	public FlushingTransferOptions getFlushingTransferOptions() {
+		return flushingTransferOptions;
+	}
+
+	public ReplicationOptions getReplicationOptions() {
+		return replicationOptions;
+	}
+
+	public KeyValueProcessorOptions getProcessorOptions() {
+		return processorOptions;
+	}
+
+	public RedisWriterOptions getWriterOptions() {
+		return writerOptions;
+	}
 
 	@Override
 	protected Flow flow() throws Exception {

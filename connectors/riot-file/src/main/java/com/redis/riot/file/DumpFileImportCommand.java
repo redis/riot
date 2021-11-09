@@ -4,6 +4,8 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.item.ItemWriter;
@@ -22,18 +24,14 @@ import com.redis.spring.batch.RedisItemWriter;
 import com.redis.spring.batch.RedisItemWriter.DataStructureItemWriterBuilder;
 import com.redis.spring.batch.support.DataStructure;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 
-@Slf4j
-@Data
-@EqualsAndHashCode(callSuper = true)
 @Command(name = "import-dump", description = "Import Redis data files into Redis")
 public class DumpFileImportCommand extends AbstractTransferCommand {
+
+	private static final Logger log = LoggerFactory.getLogger(DumpFileImportCommand.class);
 
 	private static final String NAME = "dump-file-import";
 
@@ -43,6 +41,22 @@ public class DumpFileImportCommand extends AbstractTransferCommand {
 	private DumpFileImportOptions options = new DumpFileImportOptions();
 	@ArgGroup(exclusive = false, heading = "Writer options%n")
 	private RedisWriterOptions writerOptions = new RedisWriterOptions();
+
+	public List<String> getFiles() {
+		return files;
+	}
+
+	public void setFiles(List<String> files) {
+		this.files = files;
+	}
+
+	public DumpFileImportOptions getOptions() {
+		return options;
+	}
+
+	public RedisWriterOptions getWriterOptions() {
+		return writerOptions;
+	}
 
 	@Override
 	protected Flow flow() throws Exception {

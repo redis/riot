@@ -10,12 +10,12 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import com.redis.lettucemod.RedisModulesClient;
 import com.redis.lettucemod.api.search.Suggestion;
 import com.redis.lettucemod.api.search.SuggetOptions;
-import com.redis.riot.AbstractRiotTest;
+import com.redis.riot.AbstractRiotTests;
 import com.redis.testcontainers.RedisModulesContainer;
 
 @SuppressWarnings("unchecked")
 @Testcontainers
-class TestSugadd extends AbstractRiotTest {
+class TestSugadd extends AbstractRiotTests {
 
 	@Container
 	private static final RedisModulesContainer REDIS = new RedisModulesContainer("preview");

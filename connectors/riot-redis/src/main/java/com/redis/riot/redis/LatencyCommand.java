@@ -6,18 +6,20 @@ import java.util.concurrent.TimeUnit;
 
 import org.HdrHistogram.Histogram;
 import org.LatencyUtils.LatencyStats;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.redis.lettucemod.api.sync.RedisModulesCommands;
 
 import io.lettuce.core.metrics.CommandMetrics;
 import io.lettuce.core.metrics.DefaultCommandLatencyCollectorOptions;
-import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
-@Slf4j
 @Command(name = "latency", description = "Calculate latency stats")
 public class LatencyCommand extends AbstractRedisCommandCommand {
+
+	private static final Logger log = LoggerFactory.getLogger(LatencyCommand.class);
 
 	@Option(names = "--iterations", description = "Number of latency tests (default: ${DEFAULT-VALUE})", paramLabel = "<count>")
 	private int iterations = 1000;

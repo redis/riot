@@ -7,8 +7,6 @@ import org.springframework.batch.item.support.AbstractItemCountingItemStreamItem
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 
-import lombok.Builder;
-
 /**
  * {@link ItemReader} that generates HashMaps using Faker.
  *
@@ -16,19 +14,32 @@ import lombok.Builder;
  */
 public class FakerItemReader extends AbstractItemCountingItemStreamItemReader<Map<String, Object>> {
 
-	private final long start;
-	private final long end;
+	public static final long DEFAULT_START = 0;
+	public static final long DEFAULT_END = 1000;
+
+	private long start = DEFAULT_START;
+	private long end = DEFAULT_END;
 	private final Generator<Map<String, Object>> generator;
 
-	@Builder
-	private FakerItemReader(Generator<Map<String, Object>> generator, long start, long end) {
+	public FakerItemReader(Generator<Map<String, Object>> generator) {
 		setName(ClassUtils.getShortName(FakerItemReader.class));
 		Assert.notNull(generator, "A generator is required");
-		Assert.isTrue(end > start, "End index must be strictly greater than start index");
-		setMaxItemCount(Math.toIntExact(end - start));
+		setMaxItemCount();
 		this.generator = generator;
+	}
+
+	public void setStart(long start) {
 		this.start = start;
+		setMaxItemCount();
+	}
+
+	public void setEnd(long end) {
 		this.end = end;
+		setMaxItemCount();
+	}
+
+	private void setMaxItemCount() {
+		setMaxItemCount(Math.toIntExact(end - start));
 	}
 
 	@Override

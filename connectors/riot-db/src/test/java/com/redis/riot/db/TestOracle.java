@@ -21,8 +21,9 @@ public class TestOracle {
 		properties.setPassword("mysecurepassword");
 		DataSource dataSource = properties.initializeDataSourceBuilder().build();
 		Connection connection = dataSource.getConnection();
-		ScriptRunner scriptRunner = ScriptRunner.builder().connection(connection).autoCommit(false).stopOnError(true)
-				.build();
+		ScriptRunner scriptRunner = new ScriptRunner(connection);
+		scriptRunner.setAutoCommit(false);
+		scriptRunner.setStopOnError(true);
 		InputStream inputStream = TestOracle.class.getClassLoader().getResourceAsStream("oracle.sql");
 		scriptRunner.runScript(new InputStreamReader(inputStream));
 		Statement statement = connection.createStatement();

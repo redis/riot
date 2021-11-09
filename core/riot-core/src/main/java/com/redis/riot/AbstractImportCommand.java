@@ -26,13 +26,9 @@ import com.redis.riot.redis.ZaddCommand;
 import com.redis.spring.batch.RedisItemWriter.RedisItemWriterBuilder;
 import com.redis.spring.batch.support.RedisOperation;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 
-@Data
-@EqualsAndHashCode(callSuper = true)
 @Command(subcommands = { EvalCommand.class, ExpireCommand.class, GeoaddCommand.class, HsetCommand.class,
 		LpushCommand.class, NoopCommand.class, RpushCommand.class, SaddCommand.class, SetCommand.class,
 		XaddCommand.class, ZaddCommand.class,
@@ -46,6 +42,14 @@ public abstract class AbstractImportCommand<I, O> extends AbstractTransferComman
 	 * Initialized manually during command parsing
 	 */
 	private List<RedisCommand<O>> redisCommands = new ArrayList<>();
+
+	public List<RedisCommand<O>> getRedisCommands() {
+		return redisCommands;
+	}
+
+	public void setRedisCommands(List<RedisCommand<O>> redisCommands) {
+		this.redisCommands = redisCommands;
+	}
 
 	protected FaultTolerantStepBuilder<I, O> step(String name, String taskName, ItemReader<I> reader) throws Exception {
 		RiotStepBuilder<I, O> step = riotStep(name, taskName);

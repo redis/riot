@@ -5,10 +5,8 @@ import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import com.redis.spring.batch.RedisItemWriter.BaseRedisItemWriterBuilder;
 
 import io.lettuce.core.api.StatefulConnection;
-import lombok.Data;
 import picocli.CommandLine.Option;
 
-@Data
 public class RedisWriterOptions {
 
 	@Option(names = "--multi-exec", description = "Enable MULTI/EXEC writes.")
@@ -19,6 +17,38 @@ public class RedisWriterOptions {
 	private long waitTimeout = 300;
 	@Option(names = "--writer-pool", description = "Max pool connections (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
 	private int poolMaxTotal = 8;
+
+	public boolean isMultiExec() {
+		return multiExec;
+	}
+
+	public void setMultiExec(boolean multiExec) {
+		this.multiExec = multiExec;
+	}
+
+	public int getWaitReplicas() {
+		return waitReplicas;
+	}
+
+	public void setWaitReplicas(int waitReplicas) {
+		this.waitReplicas = waitReplicas;
+	}
+
+	public long getWaitTimeout() {
+		return waitTimeout;
+	}
+
+	public void setWaitTimeout(long waitTimeout) {
+		this.waitTimeout = waitTimeout;
+	}
+
+	public int getPoolMaxTotal() {
+		return poolMaxTotal;
+	}
+
+	public void setPoolMaxTotal(int poolMaxTotal) {
+		this.poolMaxTotal = poolMaxTotal;
+	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public <B extends BaseRedisItemWriterBuilder> B configureWriter(B writer) {

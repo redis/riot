@@ -23,10 +23,8 @@ import com.redis.riot.processor.MapAccessor;
 import com.redis.riot.processor.MapProcessor;
 import com.redis.riot.processor.SpelProcessor;
 
-import lombok.Data;
 import picocli.CommandLine.Option;
 
-@Data
 public class MapProcessorOptions {
 
 	@Option(arity = "1..*", names = "--process", description = "SpEL expressions in the form field1=\"exp\" field2=\"exp\"...", paramLabel = "<f=exp>")
@@ -40,6 +38,46 @@ public class MapProcessorOptions {
 	@Option(arity = "1..*", names = "--regex", description = "Extract named values from source field using regex.", paramLabel = "<f=exp>")
 	private Map<String, String> regexes;
 
+	public Map<String, Expression> getSpelFields() {
+		return spelFields;
+	}
+
+	public void setSpelFields(Map<String, Expression> spelFields) {
+		this.spelFields = spelFields;
+	}
+
+	public Map<String, Expression> getVariables() {
+		return variables;
+	}
+
+	public void setVariables(Map<String, Expression> variables) {
+		this.variables = variables;
+	}
+
+	public String getDateFormat() {
+		return dateFormat;
+	}
+
+	public void setDateFormat(String dateFormat) {
+		this.dateFormat = dateFormat;
+	}
+
+	public String[] getFilters() {
+		return filters;
+	}
+
+	public void setFilters(String[] filters) {
+		this.filters = filters;
+	}
+
+	public Map<String, String> getRegexes() {
+		return regexes;
+	}
+
+	public void setRegexes(Map<String, String> regexes) {
+		this.regexes = regexes;
+	}
+
 	public ItemProcessor<Map<String, Object>, Map<String, Object>> processor(RedisOptions redisOptions)
 			throws NoSuchMethodException {
 		List<ItemProcessor<Map<String, Object>, Map<String, Object>>> processors = new ArrayList<>();
@@ -50,7 +88,7 @@ public class MapProcessorOptions {
 		}
 		if (!ObjectUtils.isEmpty(regexes)) {
 			Map<String, Converter<String, Map<String, String>>> fields = new LinkedHashMap<>();
-			regexes.forEach((f, r) -> fields.put(f, RegexNamedGroupsExtractor.builder().regex(r).build()));
+			regexes.forEach((f, r) -> fields.put(f, RegexNamedGroupsExtractor.of(r)));
 			processors.add(new MapProcessor(fields));
 		}
 		if (!ObjectUtils.isEmpty(filters)) {

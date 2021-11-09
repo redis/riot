@@ -10,7 +10,7 @@ dependencies {
     api project(':riot-core')
     implementation 'org.springframework.boot:spring-boot-autoconfigure'
     implementation 'org.springframework:spring-jdbc'
-    implementation 'com.zaxxer:HikariCP'
+//    implementation 'com.zaxxer:HikariCP'
     implementation group: 'com.ibm.db2', name: 'jcc', version: db2Version
     implementation group: 'com.microsoft.sqlserver', name: 'mssql-jdbc', version: mssqlVersion
     implementation group: 'com.oracle.ojdbc', name: 'ojdbc8', version: oracleVersion

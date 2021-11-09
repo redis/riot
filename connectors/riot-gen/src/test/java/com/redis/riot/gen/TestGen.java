@@ -16,7 +16,7 @@ import com.redis.lettucemod.api.search.CreateOptions;
 import com.redis.lettucemod.api.search.Document;
 import com.redis.lettucemod.api.search.Field;
 import com.redis.lettucemod.api.search.SearchResults;
-import com.redis.riot.AbstractRiotIntegrationTest;
+import com.redis.riot.AbstractRiotIntegrationTests;
 import com.redis.testcontainers.RedisModulesContainer;
 import com.redis.testcontainers.RedisServer;
 
@@ -29,7 +29,7 @@ import io.lettuce.core.api.sync.RedisSortedSetCommands;
 import io.lettuce.core.api.sync.RedisStreamCommands;
 
 @SuppressWarnings("unchecked")
-class TestGen extends AbstractRiotIntegrationTest {
+class TestGen extends AbstractRiotIntegrationTests {
 
 	@Container
 	private static final RedisModulesContainer REDIS_MODULES = new RedisModulesContainer("preview");

@@ -40,8 +40,8 @@ class SpringBatchFakerTests {
 		Map<String, String> fields = new HashMap<>();
 		fields.put("firstName", "name.firstName");
 		fields.put("lastName", "name.lastName");
-		FakerItemReader reader = FakerItemReader.builder().generator(MapGenerator.builder().fields(fields).build())
-				.end(count).build();
+		FakerItemReader reader = new FakerItemReader(MapGenerator.builder().fields(fields).build());
+		reader.setEnd(count);
 		List<Map<String, Object>> items = new ArrayList<>();
 		run("reader", reader, items::addAll);
 		Assertions.assertEquals(count, items.size());
@@ -56,9 +56,9 @@ class SpringBatchFakerTests {
 		Map<String, String> fields = new HashMap<>();
 		fields.put("firstName", "name.firstName");
 		fields.put("lastName", "name.lastName");
-		FakerItemReader reader = FakerItemReader.builder()
-				.generator(new MapWithMetadataGenerator(MapGenerator.builder().fields(fields).build())).end(count)
-				.build();
+		FakerItemReader reader = new FakerItemReader(
+				new MapWithMetadataGenerator(MapGenerator.builder().fields(fields).build()));
+		reader.setEnd(count);
 		List<Map<String, Object>> items = new ArrayList<>();
 		run("metadata", reader, items::addAll);
 		Assertions.assertEquals(count, items.size());
