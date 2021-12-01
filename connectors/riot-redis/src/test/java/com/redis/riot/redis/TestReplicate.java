@@ -1,29 +1,25 @@
 package com.redis.riot.redis;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.MethodSource;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import com.redis.lettucemod.api.sync.RedisModulesCommands;
 import com.redis.riot.AbstractRiotIntegrationTests;
 import com.redis.riot.redis.ReplicationOptions.ReplicationMode;
 import com.redis.spring.batch.support.compare.KeyComparisonResults;
 import com.redis.testcontainers.RedisContainer;
 import com.redis.testcontainers.RedisServer;
+import com.redis.testcontainers.junit.jupiter.RedisTestContext;
+import com.redis.testcontainers.junit.jupiter.RedisTestContextsSource;
 
-import io.lettuce.core.RedisClient;
 import io.lettuce.core.RedisURI;
-import io.lettuce.core.api.StatefulRedisConnection;
-import io.lettuce.core.api.sync.RedisCommands;
-import io.lettuce.core.api.sync.RedisServerCommands;
 import picocli.CommandLine;
 
 @Testcontainers
@@ -33,25 +29,14 @@ class TestReplicate extends AbstractRiotIntegrationTests {
 	private static final Duration IDLE_TIMEOUT = Duration.ofSeconds(10);
 
 	@Container
-	private static final RedisContainer TARGET = new RedisContainer();
+	private static final RedisContainer TARGET = new RedisContainer(
+			RedisContainer.DEFAULT_IMAGE_NAME.withTag(RedisContainer.DEFAULT_TAG));
 
-	private RedisClient targetClient;
-	private StatefulRedisConnection<String, String> targetConnection;
-	private RedisCommands<String, String> targetSync;
-
-	@BeforeEach
-	public void setupTarget() {
-		targetClient = RedisClient.create(TARGET.getRedisURI());
-		targetConnection = targetClient.connect();
-		targetSync = targetConnection.sync();
-	}
-
-	@AfterEach
-	public void cleanupTarget() throws InterruptedException {
-		targetConnection.sync().flushall();
-		targetConnection.close();
-		targetClient.shutdown();
-		targetClient.getResources().shutdown();
+	@Override
+	protected Collection<RedisServer> servers() {
+		Collection<RedisServer> servers = new ArrayList<>(super.servers());
+		servers.add(TARGET);
+		return servers;
 	}
 
 	@Override
@@ -69,41 +54,40 @@ class TestReplicate extends AbstractRiotIntegrationTests {
 	}
 
 	@ParameterizedTest
-	@MethodSource("containers")
-	void replicate(RedisServer redis) throws Throwable {
+	@RedisTestContextsSource
+	void replicate(RedisTestContext redis) throws Throwable {
 		String name = "replicate";
 		execute(dataGenerator(redis, name));
-		RedisModulesCommands<String, String> sync = sync(redis);
-		Assertions.assertTrue(sync.dbsize() > 0);
+		Assertions.assertTrue(redis.sync().dbsize() > 0);
 		execute("replicate", redis, this::configureReplicateCommand);
 		compare(name, redis);
 	}
 
 	@ParameterizedTest
-	@MethodSource("containers")
-	void replicateKeyProcessor(RedisServer redis) throws Throwable {
-		RedisModulesCommands<String, String> sync = sync(redis);
+	@RedisTestContextsSource
+	void replicateKeyProcessor(RedisTestContext redis) throws Throwable {
 		execute(dataGenerator(redis, "replicate-key-processor").end(200));
-		Long sourceSize = sync.dbsize();
+		Long sourceSize = redis.sync().dbsize();
 		Assertions.assertTrue(sourceSize > 0);
 		execute("replicate-key-processor", redis, this::configureReplicateCommand);
-		Assertions.assertEquals(sourceSize, targetSync.dbsize());
-		Assertions.assertEquals(sync.get("string:123"), targetSync.get("0:string:123"));
+		RedisTestContext target = getContext(TARGET);
+		Assertions.assertEquals(sourceSize, target.sync().dbsize());
+		Assertions.assertEquals(redis.sync().get("string:123"), target.sync().get("0:string:123"));
 	}
 
 	@ParameterizedTest
-	@MethodSource("containers")
-	void replicateLive(RedisServer container) throws Exception {
+	@RedisTestContextsSource
+	void replicateLive(RedisTestContext container) throws Exception {
 		runLiveReplication("replicate-live", container);
 	}
 
 	@ParameterizedTest
-	@MethodSource("containers")
-	void replicateDSLive(RedisServer container) throws Exception {
+	@RedisTestContextsSource
+	void replicateDSLive(RedisTestContext container) throws Exception {
 		runLiveReplication("replicate-ds-live", container);
 	}
 
-	private void runLiveReplication(String filename, RedisServer source) throws Exception {
+	private void runLiveReplication(String filename, RedisTestContext source) throws Exception {
 		execute(dataGenerator(source, filename).end(3000));
 		ExecutorService executor = Executors.newSingleThreadExecutor();
 		executor.submit(() -> {
@@ -112,16 +96,17 @@ class TestReplicate extends AbstractRiotIntegrationTests {
 				dataGenerator(source, "live-" + filename).chunkSize(1).between(3000, 5000).build();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
 		});
 		execute(filename, source, this::configureReplicateCommand);
 		compare(filename, source);
 	}
 
-	private void compare(String name, RedisServer redis) throws Exception {
-		RedisServerCommands<String, String> sourceSync = sync(redis);
-		Assertions.assertEquals(sourceSync.dbsize(), targetSync.dbsize());
-		KeyComparisonResults results = keyComparator(client(redis), targetClient).id(name).build().call();
+	private void compare(String name, RedisTestContext redis) throws Exception {
+		Assertions.assertEquals(redis.sync().dbsize(), getContext(TARGET).sync().dbsize());
+		KeyComparisonResults results = keyComparator(redis, getContext(TARGET)).id(name).build().call();
 		Assertions.assertTrue(results.isOK());
 	}
 

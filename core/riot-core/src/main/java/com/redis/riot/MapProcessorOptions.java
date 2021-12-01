@@ -15,7 +15,7 @@ import org.springframework.expression.Expression;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.util.ObjectUtils;
 
-import com.redis.lettucemod.Utils;
+import com.redis.lettucemod.RedisModulesUtils;
 import com.redis.riot.convert.RegexNamedGroupsExtractor;
 import com.redis.riot.processor.CompositeItemStreamItemProcessor;
 import com.redis.riot.processor.FilteringProcessor;
@@ -106,7 +106,7 @@ public class MapProcessorOptions {
 			}
 		}
 		context.registerFunction("geo",
-				Utils.GeoLocation.class.getDeclaredMethod("toString", String.class, String.class));
+				RedisModulesUtils.GeoLocation.class.getDeclaredMethod("toString", String.class, String.class));
 		context.setPropertyAccessors(Collections.singletonList(new MapAccessor()));
 		return context;
 	}

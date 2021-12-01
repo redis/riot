@@ -5,3 +5,9 @@ asciidoctor {
         }
     }
 }
+
+eclipse {
+    project {
+        name = 'riot-guide'
+    }
+}

@@ -75,7 +75,7 @@ public class LoggingOptions {
 
 	public Level getRiotLevel() {
 		if (debug) {
-			return Level.FINER;
+			return Level.FINEST;
 		}
 		if (info) {
 			return Level.FINE;

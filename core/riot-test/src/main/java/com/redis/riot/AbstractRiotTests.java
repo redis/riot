@@ -12,14 +12,14 @@ import org.opentest4j.AssertionFailedError;
 import org.springframework.batch.core.JobExecution;
 
 import com.redis.spring.batch.support.generator.Generator.GeneratorBuilder;
-import com.redis.testcontainers.RedisClusterContainer;
-import com.redis.testcontainers.RedisServer;
+import com.redis.testcontainers.junit.jupiter.AbstractTestcontainersRedisTestBase;
+import com.redis.testcontainers.junit.jupiter.RedisTestContext;
 
 import io.lettuce.core.RedisURI;
 import picocli.CommandLine;
 
 @SuppressWarnings("unchecked")
-public abstract class AbstractRiotTests {
+public abstract class AbstractRiotTests extends AbstractTestcontainersRedisTestBase {
 
 	protected abstract RiotApp app();
 
@@ -33,7 +33,7 @@ public abstract class AbstractRiotTests {
 		}
 	}
 
-	protected int execute(String filename, RedisServer redis, Consumer<CommandLine.ParseResult>... configurators)
+	protected int execute(String filename, RedisTestContext redis, Consumer<CommandLine.ParseResult>... configurators)
 			throws Exception {
 		RiotApp app = app();
 		RiotCommandLine commandLine = app.commandLine();
@@ -49,10 +49,9 @@ public abstract class AbstractRiotTests {
 		return result;
 	}
 
-	protected void configure(RiotApp app, RedisServer container) {
-		app.getLoggingOptions().setInfo(true);
-		app.getRedisOptions().setUris(new RedisURI[] { RedisURI.create(container.getRedisURI()) });
-		app.getRedisOptions().setCluster(container instanceof RedisClusterContainer);
+	protected void configure(RiotApp app, RedisTestContext redis) {
+		app.getRedisOptions().setUris(new RedisURI[] { RedisURI.create(redis.getRedisURI()) });
+		app.getRedisOptions().setCluster(redis.isCluster());
 	}
 
 	protected void execute(GeneratorBuilder generator) throws Exception {

@@ -4,7 +4,7 @@ import java.util.Map;
 
 import org.springframework.core.convert.converter.Converter;
 
-import com.redis.lettucemod.api.search.Suggestion;
+import com.redis.lettucemod.search.Suggestion;
 import com.redis.spring.batch.support.RedisOperation;
 import com.redis.spring.batch.support.convert.SuggestionConverter;
 import com.redis.spring.batch.support.operation.Sugadd;

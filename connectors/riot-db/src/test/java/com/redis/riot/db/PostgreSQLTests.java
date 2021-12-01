@@ -19,7 +19,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.MethodSource;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -29,7 +28,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.redis.lettucemod.api.sync.RedisModulesCommands;
 import com.redis.spring.batch.support.DataStructure.Type;
-import com.redis.testcontainers.RedisServer;
+import com.redis.testcontainers.junit.jupiter.RedisTestContext;
+import com.redis.testcontainers.junit.jupiter.RedisTestContextsSource;
 
 @Testcontainers
 @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -69,8 +69,8 @@ public class PostgreSQLTests extends AbstractDatabaseTests {
 	}
 
 	@ParameterizedTest
-	@MethodSource("containers")
-	void testExport(RedisServer redis) throws Exception {
+	@RedisTestContextsSource
+	void testExport(RedisTestContext redis) throws Exception {
 		try (Statement statement = connection.createStatement()) {
 			statement.execute("CREATE TABLE mytable (id smallint NOT NULL, field1 bpchar, field2 bpchar)");
 			statement.execute("ALTER TABLE ONLY mytable ADD CONSTRAINT pk_mytable PRIMARY KEY (id)");
@@ -86,18 +86,17 @@ public class PostgreSQLTests extends AbstractDatabaseTests {
 				Assertions.assertEquals(index, resultSet.getInt("id"));
 				index++;
 			}
-			RedisModulesCommands<String, String> sync = sync(redis);
-			Assertions.assertEquals(sync.dbsize(), index - 1);
+			Assertions.assertEquals(redis.sync().dbsize(), index - 1);
 		}
 	}
 
 	@ParameterizedTest
-	@MethodSource("containers")
-	void testExportNullValues(RedisServer container) throws Exception {
+	@RedisTestContextsSource
+	void testExportNullValues(RedisTestContext redis) throws Exception {
 		try (Statement statement = connection.createStatement()) {
 			statement.execute("CREATE TABLE mytable (id smallint NOT NULL, field1 bpchar, field2 bpchar)");
 			statement.execute("ALTER TABLE ONLY mytable ADD CONSTRAINT pk_mytable PRIMARY KEY (id)");
-			RedisModulesCommands<String, String> sync = sync(container);
+			RedisModulesCommands<String, String> sync = redis.sync();
 			Map<String, String> hash1 = new HashMap<>();
 			hash1.put("field1", "value1");
 			hash1.put("field2", "value2");
@@ -105,7 +104,7 @@ public class PostgreSQLTests extends AbstractDatabaseTests {
 			Map<String, String> hash2 = new HashMap<>();
 			hash2.put("field2", "value2");
 			sync.hmset("hash:2", hash2);
-			execute("export-postgresql", container, r -> configureExportCommand(r, POSTGRESQL));
+			execute("export-postgresql", redis, r -> configureExportCommand(r, POSTGRESQL));
 			statement.execute("SELECT COUNT(*) AS count FROM mytable");
 			ResultSet countResultSet = statement.getResultSet();
 			countResultSet.next();
@@ -122,12 +121,12 @@ public class PostgreSQLTests extends AbstractDatabaseTests {
 	}
 
 	@ParameterizedTest
-	@MethodSource("containers")
-	void testImport(RedisServer container) throws Exception {
-		execute("import-postgresql", container, r -> configureImportCommand(r, POSTGRESQL));
+	@RedisTestContextsSource
+	void testImport(RedisTestContext redis) throws Exception {
+		execute("import-postgresql", redis, r -> configureImportCommand(r, POSTGRESQL));
 		try (Statement statement = connection.createStatement()) {
 			statement.execute("SELECT COUNT(*) AS count FROM orders");
-			RedisModulesCommands<String, String> sync = sync(container);
+			RedisModulesCommands<String, String> sync = redis.sync();
 			List<String> keys = sync.keys("order:*");
 			ResultSet resultSet = statement.getResultSet();
 			resultSet.next();
@@ -139,12 +138,12 @@ public class PostgreSQLTests extends AbstractDatabaseTests {
 	}
 
 	@ParameterizedTest
-	@MethodSource("containers")
-	void testMultiThreadedImport(RedisServer container) throws Exception {
-		execute("import-postgresql-multithreaded", container, r -> configureImportCommand(r, POSTGRESQL));
+	@RedisTestContextsSource
+	void testMultiThreadedImport(RedisTestContext redis) throws Exception {
+		execute("import-postgresql-multithreaded", redis, r -> configureImportCommand(r, POSTGRESQL));
 		try (Statement statement = connection.createStatement()) {
 			statement.execute("SELECT COUNT(*) AS count FROM orders");
-			RedisModulesCommands<String, String> sync = sync(container);
+			RedisModulesCommands<String, String> sync = redis.sync();
 			List<String> keys = sync.keys("order:*");
 			ResultSet resultSet = statement.getResultSet();
 			resultSet.next();
@@ -156,13 +155,13 @@ public class PostgreSQLTests extends AbstractDatabaseTests {
 	}
 
 	@ParameterizedTest
-	@MethodSource("containers")
-	void testImportSet(RedisServer container) throws Exception {
-		execute("import-postgresql-set", container, r -> configureImportCommand(r, POSTGRESQL));
+	@RedisTestContextsSource
+	void testImportSet(RedisTestContext redis) throws Exception {
+		execute("import-postgresql-set", redis, r -> configureImportCommand(r, POSTGRESQL));
 		try (Statement statement = connection.createStatement()) {
 			statement.execute("SELECT * FROM orders");
 			ResultSet resultSet = statement.getResultSet();
-			RedisModulesCommands<String, String> sync = sync(container);
+			RedisModulesCommands<String, String> sync = redis.sync();
 			long count = 0;
 			while (resultSet.next()) {
 				int orderId = resultSet.getInt("order_id");

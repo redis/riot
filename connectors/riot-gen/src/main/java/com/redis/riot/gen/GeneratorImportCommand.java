@@ -9,11 +9,11 @@ import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 
-import com.redis.lettucemod.Utils;
+import com.redis.lettucemod.RedisModulesUtils;
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
-import com.redis.lettucemod.api.search.Field;
-import com.redis.lettucemod.api.search.IndexInfo;
 import com.redis.lettucemod.api.sync.RediSearchCommands;
+import com.redis.lettucemod.search.Field;
+import com.redis.lettucemod.search.IndexInfo;
 import com.redis.riot.AbstractImportCommand;
 import com.redis.riot.MapProcessorOptions;
 import com.redis.riot.RiotStepBuilder;
@@ -79,7 +79,7 @@ public class GeneratorImportCommand extends AbstractImportCommand<Map<String, Ob
 		Map<String, String> fields = new LinkedHashMap<>();
 		try (StatefulRedisModulesConnection<String, String> connection = getRedisOptions().connect()) {
 			RediSearchCommands<String, String> commands = connection.sync();
-			IndexInfo info = Utils.indexInfo(commands.indexInfo(index));
+			IndexInfo info = RedisModulesUtils.indexInfo(commands.indexInfo(index));
 			for (Field field : info.getFields()) {
 				fields.put(field.getName(), expression(field));
 			}

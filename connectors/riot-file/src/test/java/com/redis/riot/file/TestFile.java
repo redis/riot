@@ -15,7 +15,6 @@ import java.util.zip.GZIPInputStream;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.json.JacksonJsonObjectReader;
 import org.springframework.batch.item.json.JsonItemReader;
@@ -33,7 +32,8 @@ import com.redis.lettucemod.api.sync.RedisModulesCommands;
 import com.redis.riot.AbstractRiotIntegrationTests;
 import com.redis.riot.redis.HsetCommand;
 import com.redis.spring.batch.support.DataStructure;
-import com.redis.testcontainers.RedisServer;
+import com.redis.testcontainers.junit.jupiter.RedisTestContext;
+import com.redis.testcontainers.junit.jupiter.RedisTestContextsSource;
 
 import io.lettuce.core.GeoArgs;
 import io.lettuce.core.api.sync.RedisGeoCommands;
@@ -96,13 +96,13 @@ public class TestFile extends AbstractRiotIntegrationTests {
 	}
 
 	@ParameterizedTest
-	@MethodSource("containers")
-	void importFW(RedisServer container) throws Exception {
-		execute("import-fw", container);
-		RedisKeyCommands<String, String> sync = sync(container);
+	@RedisTestContextsSource
+	void importFW(RedisTestContext redis) throws Exception {
+		execute("import-fw", redis);
+		RedisKeyCommands<String, String> sync = redis.sync();
 		List<String> keys = sync.keys("account:*");
 		Assertions.assertEquals(5, keys.size());
-		RedisHashCommands<String, String> hash = sync(container);
+		RedisHashCommands<String, String> hash = redis.sync();
 		Map<String, String> account101 = hash.hgetall("account:101");
 		// Account LastName FirstName Balance CreditLimit AccountCreated Rating
 		// 101 Reeves Keanu 9315.45 10000.00 1/17/1998 A
@@ -112,46 +112,46 @@ public class TestFile extends AbstractRiotIntegrationTests {
 	}
 
 	@ParameterizedTest
-	@MethodSource("containers")
-	void importCSV(RedisServer container) throws Exception {
-		execute("import-csv", container);
-		RedisKeyCommands<String, String> sync = sync(container);
+	@RedisTestContextsSource
+	void importCSV(RedisTestContext redis) throws Exception {
+		execute("import-csv", redis);
+		RedisKeyCommands<String, String> sync = redis.sync();
 		List<String> keys = sync.keys("beer:*");
 		Assertions.assertEquals(COUNT, keys.size());
 	}
 
 	@ParameterizedTest
-	@MethodSource("containers")
-	void importPSV(RedisServer container) throws Exception {
-		execute("import-psv", container);
-		RedisKeyCommands<String, String> sync = sync(container);
+	@RedisTestContextsSource
+	void importPSV(RedisTestContext redis) throws Exception {
+		execute("import-psv", redis);
+		RedisKeyCommands<String, String> sync = redis.sync();
 		List<String> keys = sync.keys("sample:*");
 		Assertions.assertEquals(3, keys.size());
 	}
 
 	@ParameterizedTest
-	@MethodSource("containers")
-	void importTSV(RedisServer container) throws Exception {
-		execute("import-tsv", container);
-		RedisKeyCommands<String, String> sync = sync(container);
+	@RedisTestContextsSource
+	void importTSV(RedisTestContext redis) throws Exception {
+		execute("import-tsv", redis);
+		RedisKeyCommands<String, String> sync = redis.sync();
 		List<String> keys = sync.keys("sample:*");
 		Assertions.assertEquals(4, keys.size());
 	}
 
 	@ParameterizedTest
-	@MethodSource("containers")
-	void importType(RedisServer container) throws Exception {
-		execute("import-type", container);
-		RedisKeyCommands<String, String> sync = sync(container);
+	@RedisTestContextsSource
+	void importType(RedisTestContext redis) throws Exception {
+		execute("import-type", redis);
+		RedisKeyCommands<String, String> sync = redis.sync();
 		List<String> keys = sync.keys("sample:*");
 		Assertions.assertEquals(3, keys.size());
 	}
 
 	@ParameterizedTest
-	@MethodSource("containers")
-	void importExclude(RedisServer container) throws Exception {
-		execute("import-exclude", container);
-		RedisHashCommands<String, String> sync = sync(container);
+	@RedisTestContextsSource
+	void importExclude(RedisTestContext redis) throws Exception {
+		execute("import-exclude", redis);
+		RedisHashCommands<String, String> sync = redis.sync();
 		Map<String, String> beer1036 = sync.hgetall("beer:1036");
 		Assertions.assertEquals("Lower De Boom", name(beer1036));
 		Assertions.assertEquals("American Barleywine", style(beer1036));
@@ -161,10 +161,10 @@ public class TestFile extends AbstractRiotIntegrationTests {
 	}
 
 	@ParameterizedTest
-	@MethodSource("containers")
-	void importInclude(RedisServer container) throws Exception {
-		execute("import-include", container);
-		RedisHashCommands<String, String> sync = sync(container);
+	@RedisTestContextsSource
+	void importInclude(RedisTestContext redis) throws Exception {
+		execute("import-include", redis);
+		RedisHashCommands<String, String> sync = redis.sync();
 		Map<String, String> beer1036 = sync.hgetall("beer:1036");
 		Assertions.assertEquals(3, beer1036.size());
 		Assertions.assertEquals("Lower De Boom", name(beer1036));
@@ -173,38 +173,38 @@ public class TestFile extends AbstractRiotIntegrationTests {
 	}
 
 	@ParameterizedTest
-	@MethodSource("containers")
-	void importFilter(RedisServer container) throws Exception {
-		execute("import-filter", container);
-		RedisKeyCommands<String, String> sync = sync(container);
+	@RedisTestContextsSource
+	void importFilter(RedisTestContext redis) throws Exception {
+		execute("import-filter", redis);
+		RedisKeyCommands<String, String> sync = redis.sync();
 		List<String> keys = sync.keys("beer:*");
 		Assertions.assertEquals(424, keys.size());
 	}
 
 	@ParameterizedTest
-	@MethodSource("containers")
-	void importRegex(RedisServer container) throws Exception {
-		execute("import-regex", container);
-		RedisHashCommands<String, String> sync = sync(container);
+	@RedisTestContextsSource
+	void importRegex(RedisTestContext redis) throws Exception {
+		execute("import-regex", redis);
+		RedisHashCommands<String, String> sync = redis.sync();
 		Map<String, String> airport1 = sync.hgetall("airport:1");
 		Assertions.assertEquals("Pacific", airport1.get("region"));
 		Assertions.assertEquals("Port_Moresby", airport1.get("city"));
 	}
 
 	@ParameterizedTest
-	@MethodSource("containers")
-	void importGlob(RedisServer container) throws Exception {
-		execute("import-glob", container);
-		RedisKeyCommands<String, String> sync = sync(container);
+	@RedisTestContextsSource
+	void importGlob(RedisTestContext redis) throws Exception {
+		execute("import-glob", redis);
+		RedisKeyCommands<String, String> sync = redis.sync();
 		List<String> keys = sync.keys("beer:*");
 		Assertions.assertEquals(COUNT, keys.size());
 	}
 
 	@ParameterizedTest
-	@MethodSource("containers")
-	void importGeoadd(RedisServer container) throws Exception {
-		execute("import-geoadd", container);
-		RedisGeoCommands<String, String> sync = sync(container);
+	@RedisTestContextsSource
+	void importGeoadd(RedisTestContext redis) throws Exception {
+		execute("import-geoadd", redis);
+		RedisGeoCommands<String, String> sync = redis.sync();
 		Set<String> results = sync.georadius("airportgeo", -122.4194, 37.7749, 20, GeoArgs.Unit.mi);
 		Assertions.assertTrue(results.contains("3469"));
 		Assertions.assertTrue(results.contains("10360"));
@@ -212,22 +212,22 @@ public class TestFile extends AbstractRiotIntegrationTests {
 	}
 
 	@ParameterizedTest
-	@MethodSource("containers")
-	void importGeoProcessor(RedisServer container) throws Exception {
-		execute("import-geo-processor", container);
-		RedisHashCommands<String, String> sync = sync(container);
+	@RedisTestContextsSource
+	void importGeoProcessor(RedisTestContext redis) throws Exception {
+		execute("import-geo-processor", redis);
+		RedisHashCommands<String, String> sync = redis.sync();
 		Map<String, String> airport3469 = sync.hgetall("airport:3469");
 		Assertions.assertEquals("-122.375,37.61899948120117", airport3469.get("location"));
 	}
 
 	@ParameterizedTest
-	@MethodSource("containers")
-	void importProcess(RedisServer container) throws Exception {
-		execute("import-process", container);
-		RedisKeyCommands<String, String> sync = sync(container);
+	@RedisTestContextsSource
+	void importProcess(RedisTestContext redis) throws Exception {
+		execute("import-process", redis);
+		RedisKeyCommands<String, String> sync = redis.sync();
 		List<String> keys = sync.keys("event:*");
 		Assertions.assertEquals(568, keys.size());
-		RedisHashCommands<String, String> hash = sync(container);
+		RedisHashCommands<String, String> hash = redis.sync();
 		Map<String, String> event = hash.hgetall("event:248206");
 		Instant date = Instant.ofEpochMilli(Long.parseLong(event.get("EpochStart")));
 		Assertions.assertTrue(date.isBefore(Instant.now()));
@@ -236,10 +236,10 @@ public class TestFile extends AbstractRiotIntegrationTests {
 	}
 
 	@ParameterizedTest
-	@MethodSource("containers")
-	void importProcessElvis(RedisServer container) throws Exception {
-		execute("import-process-elvis", container);
-		RedisKeyCommands<String, String> sync = sync(container);
+	@RedisTestContextsSource
+	void importProcessElvis(RedisTestContext redis) throws Exception {
+		execute("import-process-elvis", redis);
+		RedisKeyCommands<String, String> sync = redis.sync();
 		List<String> keys = sync.keys("beer:*");
 		Assertions.assertEquals(COUNT, keys.size());
 		Map<String, String> beer1436 = ((RedisHashCommands<String, String>) sync).hgetall("beer:1436");
@@ -247,10 +247,10 @@ public class TestFile extends AbstractRiotIntegrationTests {
 	}
 
 	@ParameterizedTest
-	@MethodSource("containers")
-	void importMultiCommands(RedisServer container) throws Exception {
-		execute("import-multi-commands", container);
-		RedisKeyCommands<String, String> sync = sync(container);
+	@RedisTestContextsSource
+	void importMultiCommands(RedisTestContext redis) throws Exception {
+		execute("import-multi-commands", redis);
+		RedisKeyCommands<String, String> sync = redis.sync();
 		List<String> beers = sync.keys("beer:*");
 		Assertions.assertEquals(2410, beers.size());
 		for (String beer : beers) {
@@ -258,22 +258,22 @@ public class TestFile extends AbstractRiotIntegrationTests {
 			Assertions.assertTrue(hash.containsKey("name"));
 			Assertions.assertTrue(hash.containsKey("brewery_id"));
 		}
-		RedisSetCommands<String, String> set = sync(container);
+		RedisSetCommands<String, String> set = redis.sync();
 		Set<String> breweries = set.smembers("breweries");
 		Assertions.assertEquals(558, breweries.size());
 	}
 
 	@ParameterizedTest
-	@MethodSource("containers")
-	void importBad(RedisServer container) throws Exception {
-		Assertions.assertEquals(0, execute("import-bad", container));
+	@RedisTestContextsSource
+	void importBad(RedisTestContext redis) throws Exception {
+		Assertions.assertEquals(0, execute("import-bad", redis));
 	}
 
 	@ParameterizedTest
-	@MethodSource("containers")
-	void importGCS(RedisServer container) throws Exception {
-		execute("import-gcs", container);
-		RedisKeyCommands<String, String> sync = sync(container);
+	@RedisTestContextsSource
+	void importGCS(RedisTestContext redis) throws Exception {
+		execute("import-gcs", redis);
+		RedisKeyCommands<String, String> sync = redis.sync();
 		List<String> keys = sync.keys("beer:*");
 		Assertions.assertEquals(4432, keys.size());
 		Map<String, String> beer1 = ((RedisHashCommands<String, String>) sync).hgetall("beer:1");
@@ -281,10 +281,10 @@ public class TestFile extends AbstractRiotIntegrationTests {
 	}
 
 	@ParameterizedTest
-	@MethodSource("containers")
-	void importS3(RedisServer container) throws Exception {
-		execute("import-s3", container);
-		RedisKeyCommands<String, String> sync = sync(container);
+	@RedisTestContextsSource
+	void importS3(RedisTestContext redis) throws Exception {
+		execute("import-s3", redis);
+		RedisKeyCommands<String, String> sync = redis.sync();
 		List<String> keys = sync.keys("beer:*");
 		Assertions.assertEquals(4432, keys.size());
 		Map<String, String> beer1 = ((RedisHashCommands<String, String>) sync).hgetall("beer:1");
@@ -293,12 +293,12 @@ public class TestFile extends AbstractRiotIntegrationTests {
 
 	@SuppressWarnings("rawtypes")
 	@ParameterizedTest
-	@MethodSource("containers")
-	void importDump(RedisServer container) throws Exception {
-		List<DataStructure> records = exportToList("import-dump", container);
-		RedisServerCommands<String, String> sync = sync(container);
+	@RedisTestContextsSource
+	void importDump(RedisTestContext redis) throws Exception {
+		List<DataStructure> records = exportToList("import-dump", redis);
+		RedisServerCommands<String, String> sync = redis.sync();
 		sync.flushall();
-		execute("import-dump", container, this::configureDumpFileImportCommand);
+		execute("import-dump", redis, this::configureDumpFileImportCommand);
 		Assertions.assertEquals(records.size(), sync.dbsize());
 	}
 
@@ -313,10 +313,10 @@ public class TestFile extends AbstractRiotIntegrationTests {
 	}
 
 	@ParameterizedTest
-	@MethodSource("containers")
-	void importJsonElastic(RedisServer container) throws Exception {
-		execute("import-json-elastic", container);
-		RedisKeyCommands<String, String> sync = sync(container);
+	@RedisTestContextsSource
+	void importJsonElastic(RedisTestContext redis) throws Exception {
+		execute("import-json-elastic", redis);
+		RedisKeyCommands<String, String> sync = redis.sync();
 		Assertions.assertEquals(2, sync.keys("estest:*").size());
 		Map<String, String> doc1 = ((RedisHashCommands<String, String>) sync).hgetall("estest:doc1");
 		Assertions.assertEquals("ruan", doc1.get("_source.name"));
@@ -324,10 +324,10 @@ public class TestFile extends AbstractRiotIntegrationTests {
 	}
 
 	@ParameterizedTest
-	@MethodSource("containers")
-	void importJson(RedisServer container) throws Exception {
-		execute("import-json", container);
-		RedisKeyCommands<String, String> sync = sync(container);
+	@RedisTestContextsSource
+	void importJson(RedisTestContext redis) throws Exception {
+		execute("import-json", redis);
+		RedisKeyCommands<String, String> sync = redis.sync();
 		List<String> keys = sync.keys("beer:*");
 		Assertions.assertEquals(4432, keys.size());
 		Map<String, String> beer1 = ((RedisHashCommands<String, String>) sync).hgetall("beer:1");
@@ -335,10 +335,10 @@ public class TestFile extends AbstractRiotIntegrationTests {
 	}
 
 	@ParameterizedTest
-	@MethodSource("containers")
-	void importXml(RedisServer container) throws Exception {
-		execute("import-xml", container);
-		RedisKeyCommands<String, String> sync = sync(container);
+	@RedisTestContextsSource
+	void importXml(RedisTestContext redis) throws Exception {
+		execute("import-xml", redis);
+		RedisKeyCommands<String, String> sync = redis.sync();
 		List<String> keys = sync.keys("trade:*");
 		Assertions.assertEquals(3, keys.size());
 		Map<String, String> trade1 = ((RedisHashCommands<String, String>) sync).hgetall("trade:1");
@@ -347,20 +347,20 @@ public class TestFile extends AbstractRiotIntegrationTests {
 
 	@SuppressWarnings("rawtypes")
 	@ParameterizedTest
-	@MethodSource("containers")
-	void exportJSON(RedisServer container) throws Exception {
-		List<DataStructure> records = exportToList("export-json", container);
-		RedisServerCommands<String, String> sync = sync(container);
+	@RedisTestContextsSource
+	void exportJSON(RedisTestContext redis) throws Exception {
+		List<DataStructure> records = exportToList("export-json", redis);
+		RedisServerCommands<String, String> sync = redis.sync();
 		Assertions.assertEquals(sync.dbsize(), records.size());
 	}
 
 	@SuppressWarnings("rawtypes")
 	@ParameterizedTest
-	@MethodSource("containers")
-	void exportJsonGz(RedisServer container) throws Exception {
+	@RedisTestContextsSource
+	void exportJsonGz(RedisTestContext redis) throws Exception {
 		Path file = tempFile("beers.json.gz");
-		execute("import-json", container);
-		execute("export-json-gz", container, this::configureExportCommand);
+		execute("import-json", redis);
+		execute("export-json-gz", redis, this::configureExportCommand);
 		JsonItemReaderBuilder<Map> builder = new JsonItemReaderBuilder<>();
 		builder.name("json-file-reader");
 		FileSystemResource resource = new FileSystemResource(file);
@@ -371,12 +371,12 @@ public class TestFile extends AbstractRiotIntegrationTests {
 		builder.jsonObjectReader(objectReader);
 		JsonItemReader<Map> reader = builder.build();
 		List<Map> records = readAll(reader);
-		RedisKeyCommands<String, String> sync = sync(container);
+		RedisKeyCommands<String, String> sync = redis.sync();
 		Assertions.assertEquals(sync.keys("beer:*").size(), records.size());
 	}
 
 	@SuppressWarnings("rawtypes")
-	private List<DataStructure> exportToList(String name, RedisServer redis) throws Exception {
+	private List<DataStructure> exportToList(String name, RedisTestContext redis) throws Exception {
 		Path file = tempFile("redis.json");
 		dataGenerator(redis, name).build().call();
 		execute("export-json", redis, this::configureExportCommand);
@@ -392,8 +392,8 @@ public class TestFile extends AbstractRiotIntegrationTests {
 
 	@SuppressWarnings("rawtypes")
 	@ParameterizedTest
-	@MethodSource("containers")
-	void exportXml(RedisServer redis) throws Exception {
+	@RedisTestContextsSource
+	void exportXml(RedisTestContext redis) throws Exception {
 		dataGenerator(redis, "file-export-xml").build().call();
 		Path file = tempFile("redis.xml");
 		execute("export-xml", redis, this::configureExportCommand);
@@ -405,7 +405,7 @@ public class TestFile extends AbstractRiotIntegrationTests {
 		builder.xmlObjectReader(xmlObjectReader);
 		XmlItemReader<DataStructure> reader = builder.build();
 		List<DataStructure> records = readAll(reader);
-		RedisModulesCommands<String, String> sync = sync(redis);
+		RedisModulesCommands<String, String> sync = redis.sync();
 		Assertions.assertEquals(sync.dbsize(), records.size());
 		for (DataStructure<String> record : records) {
 			String key = record.getKey();
@@ -421,8 +421,8 @@ public class TestFile extends AbstractRiotIntegrationTests {
 	}
 
 	@ParameterizedTest
-	@MethodSource("containers")
-	void importJsonAPI(RedisServer container) throws Exception {
+	@RedisTestContextsSource
+	void importJsonAPI(RedisTestContext redis) throws Exception {
 		// riot-file import hset --keyspace beer --keys id
 		FileImportCommand command = new FileImportCommand();
 		command.setFiles(Collections.singletonList("http://developer.redis.com/riot/beers.json"));
@@ -431,10 +431,10 @@ public class TestFile extends AbstractRiotIntegrationTests {
 		hset.setKeys(new String[] { "id" });
 		command.setRedisCommands(Collections.singletonList(hset));
 		RiotFile riotFile = new RiotFile();
-		configure(riotFile, container);
+		configure(riotFile, redis);
 		command.setApp(riotFile);
 		command.call();
-		RedisKeyCommands<String, String> sync = sync(container);
+		RedisKeyCommands<String, String> sync = redis.sync();
 		List<String> keys = sync.keys("beer:*");
 		Assertions.assertEquals(4432, keys.size());
 		Map<String, String> beer1 = ((RedisHashCommands<String, String>) sync).hgetall("beer:1");
@@ -442,10 +442,10 @@ public class TestFile extends AbstractRiotIntegrationTests {
 	}
 
 	@ParameterizedTest
-	@MethodSource("containers")
-	void importJSONGzip(RedisServer container) throws Exception {
-		execute("import-json-gz", container);
-		RedisKeyCommands<String, String> sync = sync(container);
+	@RedisTestContextsSource
+	void importJSONGzip(RedisTestContext redis) throws Exception {
+		execute("import-json-gz", redis);
+		RedisKeyCommands<String, String> sync = redis.sync();
 		List<String> keys = sync.keys("beer:*");
 		Assertions.assertEquals(30409, keys.size());
 	}
