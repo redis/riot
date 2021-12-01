@@ -8,20 +8,18 @@ import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.job.flow.Flow;
-import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.database.JdbcCursorItemReader;
 import org.springframework.batch.item.database.builder.JdbcCursorItemReaderBuilder;
 import org.springframework.jdbc.core.ColumnMapRowMapper;
 
 import com.redis.riot.AbstractImportCommand;
-import com.redis.riot.MapProcessorOptions;
 
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
 
 @Command(name = "import", description = "Import from a database")
-public class DatabaseImportCommand extends AbstractImportCommand<Map<String, Object>, Map<String, Object>> {
+public class DatabaseImportCommand extends AbstractImportCommand {
 
 	private static final Logger log = LoggerFactory.getLogger(DatabaseImportCommand.class);
 
@@ -33,8 +31,6 @@ public class DatabaseImportCommand extends AbstractImportCommand<Map<String, Obj
 	private DataSourceOptions dataSourceOptions = new DataSourceOptions();
 	@Mixin
 	private DatabaseImportOptions importOptions = new DatabaseImportOptions();
-	@CommandLine.ArgGroup(exclusive = false, heading = "Processor options%n")
-	private MapProcessorOptions processorOptions = new MapProcessorOptions();
 
 	public DataSourceOptions getDataSourceOptions() {
 		return dataSourceOptions;
@@ -70,8 +66,4 @@ public class DatabaseImportCommand extends AbstractImportCommand<Map<String, Obj
 		}
 	}
 
-	@Override
-	protected ItemProcessor<Map<String, Object>, Map<String, Object>> processor() throws NoSuchMethodException {
-		return processorOptions.processor(getRedisOptions());
-	}
 }

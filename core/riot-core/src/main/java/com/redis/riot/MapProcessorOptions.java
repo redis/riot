@@ -1,5 +1,6 @@
 package com.redis.riot;
 
+import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -8,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.expression.EvaluationContext;
@@ -15,7 +18,7 @@ import org.springframework.expression.Expression;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.util.ObjectUtils;
 
-import com.redis.lettucemod.RedisModulesUtils;
+import com.redis.lettucemod.RedisModulesUtils.GeoLocation;
 import com.redis.riot.convert.RegexNamedGroupsExtractor;
 import com.redis.riot.processor.CompositeItemStreamItemProcessor;
 import com.redis.riot.processor.FilteringProcessor;
@@ -26,6 +29,8 @@ import com.redis.riot.processor.SpelProcessor;
 import picocli.CommandLine.Option;
 
 public class MapProcessorOptions {
+
+	private static final Logger log = LoggerFactory.getLogger(MapProcessorOptions.class);
 
 	@Option(arity = "1..*", names = "--process", description = "SpEL expressions in the form field1=\"exp\" field2=\"exp\"...", paramLabel = "<f=exp>")
 	private Map<String, Expression> spelFields;
@@ -78,8 +83,7 @@ public class MapProcessorOptions {
 		this.regexes = regexes;
 	}
 
-	public ItemProcessor<Map<String, Object>, Map<String, Object>> processor(RedisOptions redisOptions)
-			throws NoSuchMethodException {
+	public ItemProcessor<Map<String, Object>, Map<String, Object>> processor(RedisOptions redisOptions) {
 		List<ItemProcessor<Map<String, Object>, Map<String, Object>>> processors = new ArrayList<>();
 		if (!ObjectUtils.isEmpty(spelFields)) {
 			StandardEvaluationContext context = new StandardEvaluationContext();
@@ -97,7 +101,7 @@ public class MapProcessorOptions {
 		return CompositeItemStreamItemProcessor.delegates(processors);
 	}
 
-	private EvaluationContext context() throws NoSuchMethodException {
+	private EvaluationContext context() {
 		StandardEvaluationContext context = new StandardEvaluationContext();
 		context.setVariable("date", new SimpleDateFormat(dateFormat));
 		if (variables != null) {
@@ -105,8 +109,12 @@ public class MapProcessorOptions {
 				context.setVariable(variable.getKey(), variable.getValue().getValue(context));
 			}
 		}
-		context.registerFunction("geo",
-				RedisModulesUtils.GeoLocation.class.getDeclaredMethod("toString", String.class, String.class));
+		try {
+			Method geoMethod = GeoLocation.class.getDeclaredMethod("toString", String.class, String.class);
+			context.registerFunction("geo", geoMethod);
+		} catch (Exception e) {
+			log.warn("Could not register geo function", e);
+		}
 		context.setPropertyAccessors(Collections.singletonList(new MapAccessor()));
 		return context;
 	}

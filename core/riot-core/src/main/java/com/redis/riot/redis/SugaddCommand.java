@@ -12,7 +12,7 @@ import com.redis.spring.batch.support.operation.Sugadd;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
-@Command(name = "sugadd", description = "Add suggestion strings to a RediSearch auto-complete suggestion dictionary")
+@Command(name = "ft.sugadd", description = "Add suggestion strings to a RediSearch auto-complete suggestion dictionary")
 public class SugaddCommand extends AbstractKeyCommand {
 
 	@Option(names = "--field", required = true, description = "Field containing the strings to add", paramLabel = "<field>")

@@ -44,7 +44,7 @@ import io.lettuce.core.api.sync.RedisSetCommands;
 import picocli.CommandLine;
 
 @SuppressWarnings("unchecked")
-public class TestFile extends AbstractRiotIntegrationTests {
+public class RiotFileRedisTests extends AbstractRiotIntegrationTests {
 
 	protected final static int COUNT = 2410;
 
@@ -52,7 +52,7 @@ public class TestFile extends AbstractRiotIntegrationTests {
 
 	@BeforeAll
 	public static void setupAll() throws IOException {
-		tempDir = Files.createTempDirectory(TestFile.class.getName());
+		tempDir = Files.createTempDirectory(RiotFileRedisTests.class.getName());
 	}
 
 	private String replace(String file) {

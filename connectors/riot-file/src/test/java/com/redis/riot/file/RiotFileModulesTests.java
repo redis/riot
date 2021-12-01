@@ -9,6 +9,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.redis.lettucemod.api.sync.RedisModulesCommands;
 import com.redis.lettucemod.search.Suggestion;
 import com.redis.lettucemod.search.SuggetOptions;
 import com.redis.riot.AbstractRiotTests;
@@ -19,7 +21,7 @@ import com.redis.testcontainers.junit.jupiter.RedisTestContextsSource;
 
 @SuppressWarnings("unchecked")
 @Testcontainers
-class TestSugadd extends AbstractRiotTests {
+class RiotFileModulesTests extends AbstractRiotTests {
 
 	@Container
 	private static final RedisModulesContainer REDIS = new RedisModulesContainer(
@@ -28,6 +30,11 @@ class TestSugadd extends AbstractRiotTests {
 	@Override
 	protected Collection<RedisServer> servers() {
 		return Arrays.asList(REDIS);
+	}
+
+	@Override
+	protected RiotFile app() {
+		return new RiotFile();
 	}
 
 	@ParameterizedTest
@@ -40,8 +47,16 @@ class TestSugadd extends AbstractRiotTests {
 		Assertions.assertEquals("American Blonde Ale", suggestions.get(0).getPayload());
 	}
 
-	@Override
-	protected RiotFile app() {
-		return new RiotFile();
+	@ParameterizedTest
+	@RedisTestContextsSource
+	void importJsonElasticJsonSet(RedisTestContext redis) throws Exception {
+		execute("import-json-elastic-jsonset", redis);
+		RedisModulesCommands<String, String> sync = redis.sync();
+		Assertions.assertEquals(2, sync.keys("elastic:*").size());
+		ObjectMapper mapper = new ObjectMapper();
+		String doc1 = sync.jsonGet("elastic:doc1");
+		String expected = "{\"_index\":\"test-index\",\"_type\":\"docs\",\"_id\":\"doc1\",\"_score\":1,\"_source\":{\"name\":\"ruan\",\"age\":30,\"articles\":[\"1\",\"3\"]}}";
+		Assertions.assertEquals(mapper.readTree(expected), mapper.readTree(doc1));
 	}
+
 }

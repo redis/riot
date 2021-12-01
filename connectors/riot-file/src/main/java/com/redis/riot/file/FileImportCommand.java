@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.core.step.builder.FaultTolerantStepBuilder;
-import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.FlatFileParseException;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
@@ -30,13 +29,12 @@ import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
 import com.redis.riot.AbstractImportCommand;
-import com.redis.riot.MapProcessorOptions;
 
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 @Command(name = "import", description = "Import delimited, fixed-width, JSON, or XML files into Redis.")
-public class FileImportCommand extends AbstractImportCommand<Map<String, Object>, Map<String, Object>> {
+public class FileImportCommand extends AbstractImportCommand {
 
 	private enum FileType {
 		DELIMITED, FIXED, JSON, XML
@@ -54,8 +52,6 @@ public class FileImportCommand extends AbstractImportCommand<Map<String, Object>
 	private FileType type;
 	@CommandLine.ArgGroup(exclusive = false, heading = "Delimited and fixed-width file options%n")
 	private FileImportOptions options = new FileImportOptions();
-	@CommandLine.ArgGroup(exclusive = false, heading = "Processor options%n")
-	private MapProcessorOptions processorOptions = new MapProcessorOptions();
 
 	public List<String> getFiles() {
 		return files;
@@ -77,10 +73,6 @@ public class FileImportCommand extends AbstractImportCommand<Map<String, Object>
 		return options;
 	}
 
-	public MapProcessorOptions getProcessorOptions() {
-		return processorOptions;
-	}
-
 	@Override
 	protected Flow flow() throws Exception {
 		Assert.isTrue(!ObjectUtils.isEmpty(files), "No file specified");
@@ -98,7 +90,7 @@ public class FileImportCommand extends AbstractImportCommand<Map<String, Object>
 			AbstractItemStreamItemReader<Map<String, Object>> reader = reader(file, fileType, resource);
 			reader.setName(file + "-" + NAME + "-reader");
 			FaultTolerantStepBuilder<Map<String, Object>, Map<String, Object>> step = step(file + "-" + NAME,
-					"Importing " + file, reader);
+					"Importing " + resource.getFilename(), reader);
 			step.skip(FlatFileParseException.class);
 			steps.add(step.build());
 		}
@@ -182,11 +174,6 @@ public class FileImportCommand extends AbstractImportCommand<Map<String, Object>
 			}
 		}
 		return options.getDelimiter();
-	}
-
-	@Override
-	protected ItemProcessor<Map<String, Object>, Map<String, Object>> processor() throws NoSuchMethodException {
-		return processorOptions.processor(getRedisOptions());
 	}
 
 	private FlatFileItemReader<Map<String, Object>> flatFileReader(Resource resource, AbstractLineTokenizer tokenizer) {

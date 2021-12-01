@@ -6,7 +6,6 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.job.flow.Flow;
-import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 
 import com.redis.lettucemod.RedisModulesUtils;
@@ -15,14 +14,13 @@ import com.redis.lettucemod.api.sync.RediSearchCommands;
 import com.redis.lettucemod.search.Field;
 import com.redis.lettucemod.search.IndexInfo;
 import com.redis.riot.AbstractImportCommand;
-import com.redis.riot.MapProcessorOptions;
 import com.redis.riot.RiotStepBuilder;
 
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 @Command(name = "import", description = "Import generated data using the Spring Expression Language (SpEL)")
-public class GeneratorImportCommand extends AbstractImportCommand<Map<String, Object>, Map<String, Object>> {
+public class GeneratorImportCommand extends AbstractImportCommand {
 
 	private static final Logger log = LoggerFactory.getLogger(GeneratorImportCommand.class);
 
@@ -30,8 +28,6 @@ public class GeneratorImportCommand extends AbstractImportCommand<Map<String, Ob
 
 	@CommandLine.Mixin
 	private GenerateOptions options = new GenerateOptions();
-	@CommandLine.ArgGroup(exclusive = false, heading = "Processor options%n")
-	private MapProcessorOptions processorOptions = new MapProcessorOptions();
 
 	@Override
 	protected Flow flow() throws Exception {
@@ -85,11 +81,6 @@ public class GeneratorImportCommand extends AbstractImportCommand<Map<String, Ob
 			}
 		}
 		return fields;
-	}
-
-	@Override
-	protected ItemProcessor<Map<String, Object>, Map<String, Object>> processor() throws NoSuchMethodException {
-		return processorOptions.processor(getRedisOptions());
 	}
 
 	@Override

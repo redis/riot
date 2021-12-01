@@ -1,0 +1,1 @@
+riot-file import http://developer.redis.com/riot/es_test-index.json json.set --keyspace elastic --keys _id
