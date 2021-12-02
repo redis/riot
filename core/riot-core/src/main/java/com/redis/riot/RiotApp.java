@@ -48,7 +48,7 @@ public class RiotApp extends HelpCommand {
 		return new CommandLine.RunFirst().execute(parseResult);
 	}
 
-	private void configureLogging() {
+	protected void configureLogging() {
 		InternalLoggerFactory.setDefaultFactory(JdkLoggerFactory.INSTANCE);
 		LogManager.getLogManager().reset();
 		Logger activeLogger = Logger.getLogger(ROOT_LOGGER);
