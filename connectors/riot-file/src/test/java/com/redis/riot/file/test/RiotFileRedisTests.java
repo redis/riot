@@ -1,4 +1,4 @@
-package com.redis.riot.file;
+package com.redis.riot.file.test;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -20,9 +20,6 @@ import org.springframework.batch.item.json.JacksonJsonObjectReader;
 import org.springframework.batch.item.json.JsonItemReader;
 import org.springframework.batch.item.json.builder.JsonItemReaderBuilder;
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
-import org.springframework.batch.item.xml.XmlItemReader;
-import org.springframework.batch.item.xml.XmlObjectReader;
-import org.springframework.batch.item.xml.support.XmlItemReaderBuilder;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.InputStreamResource;
 
@@ -30,6 +27,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.redis.lettucemod.api.sync.RedisModulesCommands;
 import com.redis.riot.AbstractRiotIntegrationTests;
+import com.redis.riot.file.DumpFileImportCommand;
+import com.redis.riot.file.FileExportCommand;
+import com.redis.riot.file.FileImportCommand;
+import com.redis.riot.file.RiotFile;
+import com.redis.riot.file.resource.XmlItemReader;
+import com.redis.riot.file.resource.XmlItemReaderBuilder;
+import com.redis.riot.file.resource.XmlObjectReader;
 import com.redis.riot.redis.HsetCommand;
 import com.redis.spring.batch.support.DataStructure;
 import com.redis.testcontainers.junit.jupiter.RedisTestContext;

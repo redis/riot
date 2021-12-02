@@ -1,4 +1,4 @@
-package com.redis.riot.file;
+package com.redis.riot.file.test;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -14,6 +14,7 @@ import com.redis.lettucemod.api.sync.RedisModulesCommands;
 import com.redis.lettucemod.search.Suggestion;
 import com.redis.lettucemod.search.SuggetOptions;
 import com.redis.riot.AbstractRiotTests;
+import com.redis.riot.file.RiotFile;
 import com.redis.testcontainers.RedisModulesContainer;
 import com.redis.testcontainers.RedisServer;
 import com.redis.testcontainers.junit.jupiter.RedisTestContext;

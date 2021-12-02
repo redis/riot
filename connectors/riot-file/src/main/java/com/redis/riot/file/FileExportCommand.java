@@ -1,19 +1,17 @@
 package com.redis.riot.file;
 
-import java.io.IOException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.json.JacksonJsonObjectMarshaller;
 import org.springframework.batch.item.json.JsonObjectMarshaller;
-import org.springframework.batch.item.resource.support.JsonResourceItemWriterBuilder;
-import org.springframework.batch.item.xml.support.XmlResourceItemWriterBuilder;
 import org.springframework.core.io.WritableResource;
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.redis.riot.AbstractExportCommand;
+import com.redis.riot.file.resource.JsonResourceItemWriterBuilder;
+import com.redis.riot.file.resource.XmlResourceItemWriterBuilder;
 import com.redis.spring.batch.support.DataStructure;
 
 import picocli.CommandLine;
@@ -45,11 +43,12 @@ public class FileExportCommand extends AbstractExportCommand<DataStructure<Strin
 
 	@Override
 	protected Flow flow() throws Exception {
-		return flow(NAME, step(NAME, String.format("Exporting to %s", file), writer()).build());
+		WritableResource resource = options.outputResource(file);
+		String taskName = String.format("Exporting %s", resource.getFilename());
+		return flow(NAME, step(NAME, taskName, writer(resource)).build());
 	}
 
-	private ItemWriter<DataStructure<String>> writer() throws IOException {
-		WritableResource resource = options.outputResource(file);
+	private ItemWriter<DataStructure<String>> writer(WritableResource resource) {
 		DumpFileType fileType = fileType();
 		if (fileType == DumpFileType.XML) {
 			XmlResourceItemWriterBuilder<DataStructure<String>> xmlWriterBuilder = new XmlResourceItemWriterBuilder<>();

@@ -1,15 +1,20 @@
 package com.redis.riot.file;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.charset.Charset;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
-import org.springframework.batch.item.resource.StandardInputResource;
-import org.springframework.batch.item.resource.StandardOutputResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.WritableResource;
 import org.springframework.util.Assert;
 import org.springframework.util.ResourceUtils;
+
+import com.redis.riot.file.resource.FilenameInputStreamResource;
+import com.redis.riot.file.resource.OutputStreamResource;
+import com.redis.riot.file.resource.UncustomizedUrlResource;
 
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Option;
@@ -100,26 +105,29 @@ public class FileOptions {
 
 	public Resource inputResource(String file) throws IOException {
 		if (FileUtils.isConsole(file)) {
-			return new StandardInputResource();
+			return new FilenameInputStreamResource(System.in, "stdin", "Standard Input");
 		}
 		Resource resource = resource(file, true);
 		if (gzip || FileUtils.isGzip(file)) {
-			return new GZIPInputStreamResource(resource.getInputStream(), resource.getDescription());
+			GZIPInputStream gzipInputStream = new GZIPInputStream(resource.getInputStream());
+			return new FilenameInputStreamResource(gzipInputStream, resource.getFilename(), resource.getDescription());
 		}
 		return resource;
 	}
 
 	public WritableResource outputResource(String file) throws IOException {
 		if (FileUtils.isConsole(file)) {
-			return new StandardOutputResource();
+			return new OutputStreamResource(System.out, "stdout", "Standard Output");
 		}
 		Resource resource = resource(file, false);
 		Assert.isInstanceOf(WritableResource.class, resource);
-		WritableResource writable = (WritableResource) resource;
+		WritableResource writableResource = (WritableResource) resource;
 		if (gzip || FileUtils.isGzip(file)) {
-			return new GZIPOutputStreamResource(writable.getOutputStream(), writable.getDescription());
+			OutputStream outputStream = writableResource.getOutputStream();
+			return new OutputStreamResource(new GZIPOutputStream(outputStream), resource.getFilename(),
+					resource.getDescription());
 		}
-		return writable;
+		return writableResource;
 	}
 
 	private Resource resource(String location, boolean readOnly) throws IOException {

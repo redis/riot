@@ -14,14 +14,14 @@ import java.util.regex.Pattern;
 import org.springframework.batch.item.json.JacksonJsonObjectReader;
 import org.springframework.batch.item.json.JsonItemReader;
 import org.springframework.batch.item.json.builder.JsonItemReaderBuilder;
-import org.springframework.batch.item.xml.XmlItemReader;
-import org.springframework.batch.item.xml.XmlObjectReader;
-import org.springframework.batch.item.xml.support.XmlItemReaderBuilder;
 import org.springframework.core.io.Resource;
 import org.springframework.util.ResourceUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import com.redis.riot.file.resource.XmlItemReader;
+import com.redis.riot.file.resource.XmlItemReaderBuilder;
+import com.redis.riot.file.resource.XmlObjectReader;
 
 public interface FileUtils {
 

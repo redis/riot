@@ -4,6 +4,9 @@ import org.springframework.cloud.aws.core.io.s3.SimpleStorageProtocolResolver;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
 
+import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.AWSCredentialsProvider;
+import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
@@ -59,5 +62,27 @@ public class S3Options {
 		};
 		resolver.afterPropertiesSet();
 		return resolver.resolve(location, new DefaultResourceLoader());
+	}
+
+	private static class SimpleAWSCredentialsProvider implements AWSCredentialsProvider {
+
+		private final String accessKey;
+		private final String secretKey;
+
+		public SimpleAWSCredentialsProvider(String accessKey, String secretKey) {
+			this.accessKey = accessKey;
+			this.secretKey = secretKey;
+		}
+
+		@Override
+		public AWSCredentials getCredentials() {
+			return new BasicAWSCredentials(accessKey, secretKey);
+		}
+
+		@Override
+		public void refresh() {
+			// do nothing
+		}
+
 	}
 }

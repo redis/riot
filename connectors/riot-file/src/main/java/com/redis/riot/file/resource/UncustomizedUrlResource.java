@@ -1,4 +1,4 @@
-package com.redis.riot.file;
+package com.redis.riot.file.resource;
 
 import org.springframework.core.io.UrlResource;
 

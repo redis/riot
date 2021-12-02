@@ -2,7 +2,9 @@ package com.redis.riot.file;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,7 +13,6 @@ import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.json.JsonItemReader;
 import org.springframework.batch.item.support.AbstractItemStreamItemReader;
-import org.springframework.batch.item.xml.XmlItemReader;
 import org.springframework.core.io.Resource;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
@@ -20,10 +21,13 @@ import com.redis.riot.AbstractTransferCommand;
 import com.redis.riot.RedisOptions;
 import com.redis.riot.RedisWriterOptions;
 import com.redis.riot.RiotStepBuilder;
+import com.redis.riot.file.resource.XmlItemReader;
 import com.redis.spring.batch.RedisItemWriter;
 import com.redis.spring.batch.RedisItemWriter.DataStructureItemWriterBuilder;
 import com.redis.spring.batch.support.DataStructure;
 
+import io.lettuce.core.ScoredValue;
+import io.lettuce.core.StreamMessage;
 import picocli.CommandLine;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
@@ -66,7 +70,6 @@ public class DumpFileImportCommand extends AbstractTransferCommand {
 			throw new FileNotFoundException("File not found: " + String.join(", ", files));
 		}
 		List<Step> steps = new ArrayList<>();
-		DataStructureItemProcessor processor = new DataStructureItemProcessor();
 		for (String file : expandedFiles) {
 			DumpFileType fileType = fileType(file);
 			Resource resource = options.inputResource(file);
@@ -74,9 +77,33 @@ public class DumpFileImportCommand extends AbstractTransferCommand {
 			reader.setName(file + "-" + NAME + "-reader");
 			RiotStepBuilder<DataStructure<String>, DataStructure<String>> step = riotStep(file + "-" + NAME,
 					"Importing " + file);
-			steps.add(step.reader(reader).processor(processor).writer(writer()).build().build());
+			steps.add(step.reader(reader).processor(this::processDataStructure).writer(writer()).build().build());
 		}
 		return flow(NAME, steps.toArray(new Step[0]));
+	}
+
+	@SuppressWarnings("unchecked")
+	private DataStructure<String> processDataStructure(DataStructure<String> item) {
+		String type = item.getType().toLowerCase();
+		if (DataStructure.ZSET.equals(type)) {
+			Collection<Map<String, Object>> zset = (Collection<Map<String, Object>>) item.getValue();
+			Collection<ScoredValue<String>> values = new ArrayList<>(zset.size());
+			for (Map<String, Object> map : zset) {
+				double score = ((Number) map.get("score")).doubleValue();
+				String value = (String) map.get("value");
+				values.add((ScoredValue<String>) ScoredValue.fromNullable(score, value));
+			}
+			item.setValue(values);
+		} else if (DataStructure.STREAM.equals(type)) {
+			Collection<Map<String, Object>> stream = (Collection<Map<String, Object>>) item.getValue();
+			Collection<StreamMessage<String, String>> messages = new ArrayList<>(stream.size());
+			for (Map<String, Object> message : stream) {
+				messages.add(new StreamMessage<>((String) message.get("stream"), (String) message.get("id"),
+						(Map<String, String>) message.get("body")));
+			}
+			item.setValue(messages);
+		}
+		return item;
 	}
 
 	private DumpFileType fileType(String file) {

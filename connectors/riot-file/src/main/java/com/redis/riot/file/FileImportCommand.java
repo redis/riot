@@ -3,6 +3,7 @@ package com.redis.riot.file;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -13,22 +14,25 @@ import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.core.step.builder.FaultTolerantStepBuilder;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.FlatFileParseException;
+import org.springframework.batch.item.file.LineCallbackHandler;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
+import org.springframework.batch.item.file.mapping.FieldSetMapper;
 import org.springframework.batch.item.file.separator.DefaultRecordSeparatorPolicy;
 import org.springframework.batch.item.file.separator.RecordSeparatorPolicy;
 import org.springframework.batch.item.file.transform.AbstractLineTokenizer;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
+import org.springframework.batch.item.file.transform.FieldSet;
 import org.springframework.batch.item.file.transform.FixedLengthTokenizer;
 import org.springframework.batch.item.file.transform.Range;
 import org.springframework.batch.item.file.transform.RangeArrayPropertyEditor;
 import org.springframework.batch.item.json.JsonItemReader;
 import org.springframework.batch.item.support.AbstractItemStreamItemReader;
-import org.springframework.batch.item.xml.XmlItemReader;
 import org.springframework.core.io.Resource;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
 import com.redis.riot.AbstractImportCommand;
+import com.redis.riot.file.resource.XmlItemReader;
 
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -206,6 +210,44 @@ public class FileImportCommand extends AbstractImportCommand {
 	private RecordSeparatorPolicy recordSeparatorPolicy() {
 		return new DefaultRecordSeparatorPolicy(options.getQuoteCharacter().toString(),
 				options.getContinuationString());
+	}
+
+	private static class MapFieldSetMapper implements FieldSetMapper<Map<String, Object>> {
+
+		@Override
+		public Map<String, Object> mapFieldSet(FieldSet fieldSet) {
+			Map<String, Object> fields = new HashMap<>();
+			String[] names = fieldSet.getNames();
+			for (int index = 0; index < names.length; index++) {
+				String name = names[index];
+				String value = fieldSet.readString(index);
+				if (value == null || value.length() == 0) {
+					continue;
+				}
+				fields.put(name, value);
+			}
+			return fields;
+		}
+	}
+
+	private static class HeaderCallbackHandler implements LineCallbackHandler {
+
+		private final AbstractLineTokenizer tokenizer;
+
+		public HeaderCallbackHandler(AbstractLineTokenizer tokenizer) {
+			this.tokenizer = tokenizer;
+		}
+
+		@Override
+		public void handleLine(String line) {
+			log.debug("Found header {}", line);
+			FieldSet fieldSet = tokenizer.tokenize(line);
+			List<String> fields = new ArrayList<>();
+			for (int index = 0; index < fieldSet.getFieldCount(); index++) {
+				fields.add(fieldSet.readString(index));
+			}
+			tokenizer.setNames(fields.toArray(new String[0]));
+		}
 	}
 
 }
