@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 import com.redis.spring.batch.RedisItemReader;
 import com.redis.spring.batch.builder.RedisItemReaderBuilder;
 import com.redis.spring.batch.builder.ScanRedisItemReaderBuilder;
-import com.redis.spring.batch.support.DataStructure.Type;
+import com.redis.spring.batch.support.DataStructure;
 import com.redis.spring.batch.support.ScanKeyItemReader;
 import com.redis.spring.batch.support.ScanSizeEstimator.ScanSizeEstimatorBuilder;
 
@@ -18,6 +18,21 @@ import picocli.CommandLine.Option;
 
 public class RedisReaderOptions {
 
+	public enum ScanType {
+		STRING(DataStructure.STRING), LIST(DataStructure.LIST), SET(DataStructure.SET), ZSET(DataStructure.ZSET),
+		HASH(DataStructure.HASH), STREAM(DataStructure.STREAM);
+
+		private String name;
+
+		private ScanType(String name) {
+			this.name = name;
+		}
+
+		public String getName() {
+			return name;
+		}
+	}
+
 	private static final Logger log = LoggerFactory.getLogger(RedisReaderOptions.class);
 
 	@Option(names = "--scan-count", description = "SCAN COUNT option (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
@@ -25,7 +40,7 @@ public class RedisReaderOptions {
 	@Option(names = "--scan-match", description = "SCAN MATCH pattern (default: ${DEFAULT-VALUE}).", paramLabel = "<glob>")
 	private String scanMatch = ScanKeyItemReader.DEFAULT_SCAN_MATCH;
 	@Option(names = "--scan-type", description = "SCAN TYPE option: ${COMPLETION-CANDIDATES}.", paramLabel = "<type>")
-	private Type scanType;
+	private ScanType scanType;
 	@Option(names = "--reader-queue", description = "Capacity of the reader queue (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
 	private int queueCapacity = RedisItemReader.DEFAULT_QUEUE_CAPACITY;
 	@Option(names = "--reader-threads", description = "Number of reader threads (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
@@ -53,11 +68,7 @@ public class RedisReaderOptions {
 		this.scanMatch = scanMatch;
 	}
 
-	public Type getScanType() {
-		return scanType;
-	}
-
-	public void setScanType(Type scanType) {
+	public void setScanType(ScanType scanType) {
 		this.scanType = scanType;
 	}
 
@@ -107,7 +118,7 @@ public class RedisReaderOptions {
 		builder.match(scanMatch);
 		builder.count(scanCount);
 		if (scanType != null) {
-			builder.type(scanType.name().toLowerCase());
+			builder.type(scanType.getName());
 		}
 		return configureReader(builder);
 	}
@@ -133,7 +144,7 @@ public class RedisReaderOptions {
 	public ScanSizeEstimatorBuilder configureEstimator(ScanSizeEstimatorBuilder builder) {
 		builder.match(scanMatch).sampleSize(sampleSize);
 		if (scanType != null) {
-			builder.type(scanType.name().toLowerCase());
+			builder.type(scanType.getName());
 		}
 		return builder;
 	}
