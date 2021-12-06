@@ -13,25 +13,3 @@ dependencies {
     testAnnotationProcessor group: 'info.picocli', name: 'picocli-codegen', version: picocliVersion
     testImplementation "org.junit.jupiter:junit-jupiter"
 }
-
-jar {
-    manifest {
-        attributes("Implementation-Title": "RIOT", "Implementation-Version": archiveVersion)
-    }
-}
-
-task testsJar(type: Jar, dependsOn: testClasses) {
-    classifier = 'tests'
-    from sourceSets.test.output
-}
-
-configurations {
-    tests
-}
-
-artifacts {
-    tests testsJar
-    archives testsJar
-}
-
-jar.finalizedBy(testsJar)

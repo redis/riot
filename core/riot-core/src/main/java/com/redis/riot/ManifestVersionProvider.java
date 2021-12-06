@@ -48,7 +48,7 @@ public class ManifestVersionProvider implements CommandLine.IVersionProvider {
 
 	private boolean isApplicableManifest(Manifest manifest) {
 		Attributes attributes = manifest.getMainAttributes();
-		return "RIOT".equals(get(attributes, "Implementation-Title"));
+		return "riot".equals(get(attributes, "Implementation-Title"));
 	}
 
 	private static Object get(Attributes attributes, String key) {

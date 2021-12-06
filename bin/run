@@ -10,6 +10,6 @@ connector="$1"
 shift
 (
 cd ..
-./gradlew -q --console plain :$connector:installDist
+./gradlew -Prelease=true -q --console plain :$connector:installDist
 ./connectors/$connector/build/install/$connector/bin/$connector $@
 )
