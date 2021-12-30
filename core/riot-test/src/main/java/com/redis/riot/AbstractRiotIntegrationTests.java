@@ -14,7 +14,7 @@ import com.redis.spring.batch.support.generator.Generator.GeneratorBuilder;
 import com.redis.testcontainers.RedisClusterContainer;
 import com.redis.testcontainers.RedisContainer;
 import com.redis.testcontainers.RedisServer;
-import com.redis.testcontainers.junit.jupiter.RedisTestContext;
+import com.redis.testcontainers.junit.RedisTestContext;
 
 @Testcontainers
 public abstract class AbstractRiotIntegrationTests extends AbstractRiotTests {

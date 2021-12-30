@@ -1,14 +1,16 @@
 package com.redis.riot.stream;
 
-import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.batch.core.Step;
-import org.springframework.batch.core.job.flow.Flow;
+import org.springframework.batch.core.Job;
+import org.springframework.batch.core.job.builder.JobBuilder;
+import org.springframework.batch.core.job.builder.SimpleJobBuilder;
+import org.springframework.batch.core.step.tasklet.TaskletStep;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
@@ -39,7 +41,7 @@ public class StreamExportCommand extends AbstractTransferCommand {
 	@CommandLine.Mixin
 	private FlushingTransferOptions flushingTransferOptions = new FlushingTransferOptions();
 	@Parameters(arity = "0..*", description = "One ore more streams to read from", paramLabel = "STREAM")
-	private String[] streams;
+	private List<String> streams;
 	@CommandLine.Mixin
 	private KafkaOptions options = new KafkaOptions();
 	@Option(names = "--offset", description = "XREAD offset (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
@@ -55,11 +57,11 @@ public class StreamExportCommand extends AbstractTransferCommand {
 		this.flushingTransferOptions = flushingTransferOptions;
 	}
 
-	public String[] getStreams() {
+	public List<String> getStreams() {
 		return streams;
 	}
 
-	public void setStreams(String[] streams) {
+	public void setStreams(List<String> streams) {
 		this.streams = streams;
 	}
 
@@ -88,17 +90,22 @@ public class StreamExportCommand extends AbstractTransferCommand {
 	}
 
 	@Override
-	protected Flow flow() throws Exception {
+	protected Job job(JobBuilder jobBuilder) throws Exception {
 		Assert.isTrue(!ObjectUtils.isEmpty(streams), "No stream specified");
-		List<Step> steps = new ArrayList<>();
-		for (String stream : streams) {
-			StreamItemReader<String, String> reader = reader(getRedisOptions()).stream(stream).build();
-			RiotStepBuilder<StreamMessage<String, String>, ProducerRecord<String, Object>> step = riotStep(
-					stream + "-" + NAME, "Exporting from " + stream);
-			steps.add(step.reader(reader).processor(processor()).writer(writer())
-					.flushingOptions(flushingTransferOptions).build().build());
+		Iterator<String> streamIterator = streams.iterator();
+		SimpleJobBuilder simpleJobBuilder = jobBuilder.start(streamExportStep(streamIterator.next()));
+		while (streamIterator.hasNext()) {
+			simpleJobBuilder.next(streamExportStep(streamIterator.next()));
 		}
-		return flow(NAME, steps.toArray(new Step[0]));
+		return simpleJobBuilder.build();
+	}
+
+	private TaskletStep streamExportStep(String stream) throws Exception {
+		StreamItemReader<String, String> reader = reader(getRedisOptions()).stream(stream).build();
+		RiotStepBuilder<StreamMessage<String, String>, ProducerRecord<String, Object>> step = riotStep(
+				stream + "-" + NAME, "Exporting from " + stream);
+		return step.reader(reader).processor(processor()).writer(writer()).flushingOptions(flushingTransferOptions)
+				.build().build();
 	}
 
 	private KafkaItemWriter<String> writer() {

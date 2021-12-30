@@ -12,8 +12,8 @@ import org.opentest4j.AssertionFailedError;
 import org.springframework.batch.core.JobExecution;
 
 import com.redis.spring.batch.support.generator.Generator.GeneratorBuilder;
-import com.redis.testcontainers.junit.jupiter.AbstractTestcontainersRedisTestBase;
-import com.redis.testcontainers.junit.jupiter.RedisTestContext;
+import com.redis.testcontainers.junit.AbstractTestcontainersRedisTestBase;
+import com.redis.testcontainers.junit.RedisTestContext;
 
 import io.lettuce.core.RedisURI;
 import picocli.CommandLine;

@@ -6,13 +6,13 @@ import java.util.Enumeration;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
-import picocli.CommandLine;
+import picocli.CommandLine.IVersionProvider;
 
 /**
  * {@link picocli.CommandLine.IVersionProvider} implementation that returns
  * version information from the jar file's {@code /META-INF/MANIFEST.MF} file.
  */
-public class ManifestVersionProvider implements CommandLine.IVersionProvider {
+public class ManifestVersionProvider implements IVersionProvider {
 
 	@Override
 	public String[] getVersion() throws Exception {

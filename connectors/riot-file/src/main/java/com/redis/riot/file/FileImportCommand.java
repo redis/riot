@@ -4,14 +4,16 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.batch.core.Step;
-import org.springframework.batch.core.job.flow.Flow;
-import org.springframework.batch.core.step.builder.FaultTolerantStepBuilder;
+import org.springframework.batch.core.Job;
+import org.springframework.batch.core.job.builder.JobBuilder;
+import org.springframework.batch.core.job.builder.SimpleJobBuilder;
+import org.springframework.batch.core.step.tasklet.TaskletStep;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.FlatFileParseException;
 import org.springframework.batch.item.file.LineCallbackHandler;
@@ -78,27 +80,30 @@ public class FileImportCommand extends AbstractImportCommand {
 	}
 
 	@Override
-	protected Flow flow() throws Exception {
+	protected Job job(JobBuilder jobBuilder) throws Exception {
 		Assert.isTrue(!ObjectUtils.isEmpty(files), "No file specified");
 		List<String> expandedFiles = FileUtils.expand(files);
 		if (ObjectUtils.isEmpty(expandedFiles)) {
 			throw new FileNotFoundException("File not found: " + String.join(", ", files));
 		}
-		List<Step> steps = new ArrayList<>();
-		for (String file : expandedFiles) {
-			FileType fileType = type(file);
-			if (fileType == null) {
-				throw new IllegalArgumentException("Could not determine type of file " + file);
-			}
-			Resource resource = options.inputResource(file);
-			AbstractItemStreamItemReader<Map<String, Object>> reader = reader(file, fileType, resource);
-			reader.setName(file + "-" + NAME + "-reader");
-			FaultTolerantStepBuilder<Map<String, Object>, Map<String, Object>> step = step(file + "-" + NAME,
-					"Importing " + resource.getFilename(), reader);
-			step.skip(FlatFileParseException.class);
-			steps.add(step.build());
+		Iterator<String> fileIterator = expandedFiles.iterator();
+		SimpleJobBuilder simpleJobBuilder = jobBuilder.start(fileImportStep(fileIterator.next()));
+		while (fileIterator.hasNext()) {
+			simpleJobBuilder.next(fileImportStep(fileIterator.next()));
 		}
-		return flow(NAME, steps.toArray(new Step[0]));
+		return simpleJobBuilder.build();
+	}
+
+	private TaskletStep fileImportStep(String file) throws Exception {
+		FileType fileType = type(file);
+		if (fileType == null) {
+			throw new IllegalArgumentException("Could not determine type of file " + file);
+		}
+		Resource resource = options.inputResource(file);
+		AbstractItemStreamItemReader<Map<String, Object>> reader = reader(file, fileType, resource);
+		reader.setName(file + "-" + NAME + "-reader");
+		return step(file + "-" + NAME, "Importing " + resource.getFilename(), reader).skip(FlatFileParseException.class)
+				.build();
 	}
 
 	private FileType type(String file) {

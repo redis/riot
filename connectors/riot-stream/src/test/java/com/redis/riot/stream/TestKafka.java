@@ -37,8 +37,8 @@ import com.google.common.collect.ImmutableMap;
 import com.redis.lettucemod.api.async.RedisModulesAsyncCommands;
 import com.redis.lettucemod.api.sync.RedisModulesCommands;
 import com.redis.riot.AbstractRiotIntegrationTests;
-import com.redis.testcontainers.junit.jupiter.RedisTestContext;
-import com.redis.testcontainers.junit.jupiter.RedisTestContextsSource;
+import com.redis.testcontainers.junit.RedisTestContext;
+import com.redis.testcontainers.junit.RedisTestContextsSource;
 
 import io.lettuce.core.LettuceFutures;
 import io.lettuce.core.Range;

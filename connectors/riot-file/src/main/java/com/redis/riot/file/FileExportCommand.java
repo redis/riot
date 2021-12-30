@@ -2,7 +2,8 @@ package com.redis.riot.file;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.batch.core.job.flow.Flow;
+import org.springframework.batch.core.Job;
+import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.json.JacksonJsonObjectMarshaller;
 import org.springframework.batch.item.json.JsonObjectMarshaller;
@@ -42,10 +43,10 @@ public class FileExportCommand extends AbstractExportCommand<DataStructure<Strin
 	}
 
 	@Override
-	protected Flow flow() throws Exception {
+	protected Job job(JobBuilder jobBuilder) throws Exception {
 		WritableResource resource = options.outputResource(file);
 		String taskName = String.format("Exporting %s", resource.getFilename());
-		return flow(NAME, step(NAME, taskName, writer(resource)).build());
+		return jobBuilder.start(step(NAME, taskName, writer(resource)).build()).build();
 	}
 
 	private ItemWriter<DataStructure<String>> writer(WritableResource resource) {

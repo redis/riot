@@ -24,6 +24,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import com.redis.spring.batch.RedisItemReader;
 import com.redis.spring.batch.support.FlushingStepBuilder;
+import com.redis.spring.batch.support.PollableItemReader;
 
 public class RiotStepBuilder<I, O> {
 
@@ -97,11 +98,7 @@ public class RiotStepBuilder<I, O> {
 		}
 		FaultTolerantStepBuilder<I, O> ftStep = faultTolerant(step).skipPolicy(skipPolicy(options.getSkipPolicy()));
 		if (options.getThreads() > 1) {
-			if (reader instanceof ItemStreamReader) {
-				SynchronizedItemStreamReader<I> synchronizedReader = new SynchronizedItemStreamReader<>();
-				synchronizedReader.setDelegate((ItemStreamReader<I>) reader);
-				ftStep.reader(synchronizedReader);
-			}
+			ftStep.reader(synchronize(reader));
 			ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
 			taskExecutor.setCorePoolSize(options.getThreads());
 			taskExecutor.setMaxPoolSize(options.getThreads());
@@ -114,6 +111,20 @@ public class RiotStepBuilder<I, O> {
 			ftStep.taskExecutor(new SyncTaskExecutor());
 		}
 		return ftStep;
+	}
+
+	private ItemReader<I> synchronize(ItemReader<I> reader) {
+		if (reader instanceof PollableItemReader) {
+			SynchronizedPollableItemReader<I> pollableReader = new SynchronizedPollableItemReader<>();
+			pollableReader.setDelegate((PollableItemReader<I>) reader);
+			return pollableReader;
+		}
+		if (reader instanceof ItemStreamReader) {
+			SynchronizedItemStreamReader<I> streamReader = new SynchronizedItemStreamReader<>();
+			streamReader.setDelegate((ItemStreamReader<I>) reader);
+			return streamReader;
+		}
+		return reader;
 	}
 
 	private FaultTolerantStepBuilder<I, O> faultTolerant(SimpleStepBuilder<I, O> step) {

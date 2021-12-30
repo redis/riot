@@ -1,8 +1,6 @@
 dependencies {
     implementation project(':riot-core')
-    implementation group: 'org.codehaus.plexus', name: 'plexus-utils', version:plexusVersion
-    annotationProcessor group: 'info.picocli', name: 'picocli-codegen', version: picocliVersion
-    api group: 'com.redis.testcontainers', name: 'testcontainers-redis-junit-jupiter', version: testcontainersRedisVersion
-    api group: 'org.awaitility', name: 'awaitility', version: awaitilityVersion
     implementation group: 'commons-io', name: 'commons-io', version: commonsIoVersion
+    implementation group: 'org.codehaus.plexus', name: 'plexus-utils', version:plexusVersion
+    api group: 'com.redis.testcontainers', name: 'testcontainers-redis-junit', version: testcontainersRedisVersion
 }

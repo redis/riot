@@ -16,8 +16,8 @@ import com.redis.riot.redis.ReplicationOptions.ReplicationMode;
 import com.redis.spring.batch.support.compare.KeyComparisonResults;
 import com.redis.testcontainers.RedisContainer;
 import com.redis.testcontainers.RedisServer;
-import com.redis.testcontainers.junit.jupiter.RedisTestContext;
-import com.redis.testcontainers.junit.jupiter.RedisTestContextsSource;
+import com.redis.testcontainers.junit.RedisTestContext;
+import com.redis.testcontainers.junit.RedisTestContextsSource;
 
 import io.lettuce.core.RedisURI;
 import picocli.CommandLine;
@@ -79,6 +79,12 @@ class TestReplicate extends AbstractRiotIntegrationTests {
 	@RedisTestContextsSource
 	void replicateLive(RedisTestContext container) throws Exception {
 		runLiveReplication("replicate-live", container);
+	}
+
+	@ParameterizedTest
+	@RedisTestContextsSource
+	void replicateLiveThreads(RedisTestContext container) throws Exception {
+		runLiveReplication("replicate-live-threads", container);
 	}
 
 	@ParameterizedTest

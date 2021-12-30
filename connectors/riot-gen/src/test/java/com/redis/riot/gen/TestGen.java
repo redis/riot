@@ -15,12 +15,12 @@ import com.redis.lettucemod.search.CreateOptions;
 import com.redis.lettucemod.search.Document;
 import com.redis.lettucemod.search.Field;
 import com.redis.lettucemod.search.Field.TextField.PhoneticMatcher;
-import com.redis.lettucemod.search.SearchResults;
 import com.redis.riot.AbstractRiotIntegrationTests;
+import com.redis.lettucemod.search.SearchResults;
 import com.redis.testcontainers.RedisModulesContainer;
 import com.redis.testcontainers.RedisServer;
-import com.redis.testcontainers.junit.jupiter.RedisTestContext;
-import com.redis.testcontainers.junit.jupiter.RedisTestContextsSource;
+import com.redis.testcontainers.junit.RedisTestContext;
+import com.redis.testcontainers.junit.RedisTestContextsSource;
 
 import io.lettuce.core.Range;
 import io.lettuce.core.StreamMessage;

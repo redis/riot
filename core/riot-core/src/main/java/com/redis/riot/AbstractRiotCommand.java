@@ -1,19 +1,12 @@
 package com.redis.riot;
 
-import java.util.Arrays;
-import java.util.Iterator;
 import java.util.concurrent.Callable;
 
-import org.springframework.batch.core.ExitStatus;
+import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
-import org.springframework.batch.core.JobExecutionListener;
-import org.springframework.batch.core.Step;
-import org.springframework.batch.core.job.builder.FlowBuilder;
 import org.springframework.batch.core.job.builder.JobBuilder;
-import org.springframework.batch.core.job.flow.Flow;
-import org.springframework.batch.core.job.flow.support.SimpleFlow;
+import org.springframework.batch.core.listener.JobExecutionListenerSupport;
 import org.springframework.batch.core.step.builder.StepBuilder;
-import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 
 import com.redis.spring.batch.builder.JobRepositoryBuilder;
@@ -56,24 +49,13 @@ public abstract class AbstractRiotCommand extends HelpCommand implements Callabl
 		return getJobRunner().step(name);
 	}
 
-	protected final Flow flow(String name, Step... steps) {
-		Assert.notEmpty(steps, "Steps are required");
-		FlowBuilder<SimpleFlow> flow = new FlowBuilder<>(name);
-		Iterator<Step> iterator = Arrays.asList(steps).iterator();
-		flow.start(iterator.next());
-		while (iterator.hasNext()) {
-			flow.next(iterator.next());
-		}
-		return flow.build();
-	}
-
 	@Override
 	public Integer call() throws Exception {
 		return exitCode(execute());
 	}
 
 	private int exitCode(JobExecution execution) {
-		if (execution.getExitStatus().compareTo(ExitStatus.FAILED) >= 0) {
+		if (execution.getStatus().isUnsuccessful()) {
 			return 1;
 		}
 		return 0;
@@ -81,11 +63,18 @@ public abstract class AbstractRiotCommand extends HelpCommand implements Callabl
 
 	public JobExecution execute() throws Exception {
 		JobRunner runner = getJobRunner();
-		return runner.run(configureJob(runner.job(commandName())).start(flow()).build().build());
+		return runner.run(job(configureJob(runner.job(commandName()))));
 	}
 
+	protected abstract Job job(JobBuilder jobBuilder) throws Exception;
+
 	protected JobBuilder configureJob(JobBuilder job) {
-		return job.listener(new CleanupJobExecutionListener(getRedisOptions()));
+		return job.listener(new JobExecutionListenerSupport() {
+			@Override
+			public void afterJob(JobExecution jobExecution) {
+				getRedisOptions().shutdown();
+			}
+		});
 	}
 
 	private String commandName() {
@@ -94,28 +83,6 @@ public abstract class AbstractRiotCommand extends HelpCommand implements Callabl
 		}
 		return commandSpec.name();
 	}
-
-	protected static class CleanupJobExecutionListener implements JobExecutionListener {
-
-		private final RedisOptions redisOptions;
-
-		public CleanupJobExecutionListener(RedisOptions redisOptions) {
-			this.redisOptions = redisOptions;
-		}
-
-		@Override
-		public void beforeJob(JobExecution jobExecution) {
-			// do nothing
-		}
-
-		@Override
-		public void afterJob(JobExecution jobExecution) {
-			redisOptions.shutdown();
-		}
-
-	}
-
-	protected abstract Flow flow() throws Exception;
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	protected <B extends JobRepositoryBuilder> B configureJobRepository(B builder) throws Exception {

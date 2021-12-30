@@ -7,7 +7,8 @@ import javax.sql.DataSource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.batch.core.job.flow.Flow;
+import org.springframework.batch.core.Job;
+import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.item.database.JdbcBatchItemWriter;
 import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilder;
 
@@ -41,12 +42,12 @@ public class DatabaseExportCommand extends AbstractExportCommand<Map<String, Obj
 	}
 
 	@Override
-	protected Flow flow() throws Exception {
-		log.info("Creating data source: {}", dataSourceOptions);
+	protected Job job(JobBuilder jobBuilder) throws Exception {
+		log.debug("Creating data source with {}", dataSourceOptions);
 		DataSource dataSource = dataSourceOptions.dataSource();
 		try (Connection connection = dataSource.getConnection()) {
 			String dbName = connection.getMetaData().getDatabaseProductName();
-			log.info("Creating {} database writer: {}", dbName, exportOptions);
+			log.debug("Creating writer for database {} with {}", dbName, exportOptions);
 			JdbcBatchItemWriterBuilder<Map<String, Object>> builder = new JdbcBatchItemWriterBuilder<>();
 			builder.itemSqlParameterSourceProvider(NullableMapSqlParameterSource::new);
 			builder.dataSource(dataSource);
@@ -55,7 +56,8 @@ public class DatabaseExportCommand extends AbstractExportCommand<Map<String, Obj
 			JdbcBatchItemWriter<Map<String, Object>> writer = builder.build();
 			writer.afterPropertiesSet();
 			DataStructureItemProcessor processor = DataStructureItemProcessor.of(exportOptions.getKeyRegex());
-			return flow(NAME, step(NAME, String.format("Exporting to %s", dbName), processor, writer).build());
+			return jobBuilder.start(step(NAME, String.format("Exporting to %s", dbName), processor, writer).build())
+					.build();
 		}
 	}
 

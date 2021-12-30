@@ -28,8 +28,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.redis.lettucemod.api.sync.RedisModulesCommands;
 import com.redis.spring.batch.support.generator.Generator.Type;
-import com.redis.testcontainers.junit.jupiter.RedisTestContext;
-import com.redis.testcontainers.junit.jupiter.RedisTestContextsSource;
+import com.redis.testcontainers.junit.RedisTestContext;
+import com.redis.testcontainers.junit.RedisTestContextsSource;
 
 @Testcontainers
 @SuppressWarnings({ "rawtypes", "unchecked" })

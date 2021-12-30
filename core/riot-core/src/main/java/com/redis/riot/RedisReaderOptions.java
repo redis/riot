@@ -114,7 +114,7 @@ public class RedisReaderOptions {
 
 	@SuppressWarnings("rawtypes")
 	public <B extends ScanRedisItemReaderBuilder> B configureScanReader(B builder) {
-		log.info("Configuring scan reader with {} {} {}", scanCount, scanMatch, scanType);
+		log.debug("Configuring scan reader with {} {} {}", scanCount, scanMatch, scanType);
 		builder.match(scanMatch);
 		builder.count(scanCount);
 		if (scanType != null) {
@@ -125,7 +125,7 @@ public class RedisReaderOptions {
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public <B extends RedisItemReaderBuilder> B configureReader(B builder) {
-		log.info("Configuring reader with threads: {},  batch-size: {}, queue-capacity: {}", threads, batchSize,
+		log.debug("Configuring reader with threads: {},  batch-size: {}, queue-capacity: {}", threads, batchSize,
 				queueCapacity);
 		builder.threads(threads);
 		builder.chunkSize(batchSize);
@@ -137,22 +137,18 @@ public class RedisReaderOptions {
 	public GenericObjectPoolConfig<StatefulConnection<String, String>> poolConfig() {
 		GenericObjectPoolConfig<StatefulConnection<String, String>> config = new GenericObjectPoolConfig<>();
 		config.setMaxTotal(poolMaxTotal);
-		log.info("Configuring reader with pool config {}", config);
+		log.debug("Configuring reader with pool config {}", config);
 		return config;
-	}
-
-	public ScanSizeEstimatorBuilder configureEstimator(ScanSizeEstimatorBuilder builder) {
-		builder.match(scanMatch).sampleSize(sampleSize);
-		if (scanType != null) {
-			builder.type(scanType.getName());
-		}
-		return builder;
 	}
 
 	public Supplier<Long> initialMaxSupplier(ScanSizeEstimatorBuilder estimator) {
 		return () -> {
 			try {
-				return configureEstimator(estimator).build().call();
+				estimator.match(scanMatch).sampleSize(sampleSize);
+				if (scanType != null) {
+					estimator.type(scanType.getName());
+				}
+				return estimator.build().call();
 			} catch (Exception e) {
 				log.warn("Could not estimate scan size", e);
 				return null;

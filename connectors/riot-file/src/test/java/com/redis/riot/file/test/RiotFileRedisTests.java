@@ -36,8 +36,8 @@ import com.redis.riot.file.resource.XmlItemReaderBuilder;
 import com.redis.riot.file.resource.XmlObjectReader;
 import com.redis.riot.redis.HsetCommand;
 import com.redis.spring.batch.support.DataStructure;
-import com.redis.testcontainers.junit.jupiter.RedisTestContext;
-import com.redis.testcontainers.junit.jupiter.RedisTestContextsSource;
+import com.redis.testcontainers.junit.RedisTestContext;
+import com.redis.testcontainers.junit.RedisTestContextsSource;
 
 import io.lettuce.core.GeoArgs;
 import io.lettuce.core.api.sync.RedisGeoCommands;

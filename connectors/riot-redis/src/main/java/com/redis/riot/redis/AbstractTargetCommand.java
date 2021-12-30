@@ -3,14 +3,13 @@ package com.redis.riot.redis;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.ExitStatus;
+import org.springframework.batch.core.JobExecution;
+import org.springframework.batch.core.Step;
 import org.springframework.batch.core.StepExecution;
-import org.springframework.batch.core.job.builder.FlowBuilder;
 import org.springframework.batch.core.job.builder.JobBuilder;
-import org.springframework.batch.core.job.flow.Flow;
-import org.springframework.batch.core.job.flow.support.SimpleFlow;
+import org.springframework.batch.core.listener.JobExecutionListenerSupport;
 import org.springframework.batch.core.listener.StepExecutionListenerSupport;
 import org.springframework.batch.core.step.builder.SimpleStepBuilder;
-import org.springframework.batch.core.step.tasklet.TaskletStep;
 
 import com.redis.riot.AbstractTransferCommand;
 import com.redis.riot.RedisOptions;
@@ -56,14 +55,20 @@ public abstract class AbstractTargetCommand extends AbstractTransferCommand {
 
 	@Override
 	protected JobBuilder configureJob(JobBuilder job) {
-		return super.configureJob(job).listener(new CleanupJobExecutionListener(targetRedisOptions));
+		return super.configureJob(job).listener(new JobExecutionListenerSupport() {
+
+			@Override
+			public void afterJob(JobExecution jobExecution) {
+				targetRedisOptions.shutdown();
+			}
+		});
 	}
 
 	protected void initialMax(RiotStepBuilder<?, ?> step) {
 		step.initialMax(readerOptions.initialMaxSupplier(estimator()));
 	}
 
-	protected Flow verificationFlow() throws Exception {
+	protected Step verificationStep() throws Exception {
 		RedisItemReader<String, DataStructure<String>> sourceReader = readerOptions
 				.configureScanReader(configureJobRepository(reader(getRedisOptions()).dataStructure())).build();
 		log.debug("Creating key comparator with TTL tolerance of {} seconds", compareOptions.getTtlTolerance());
@@ -83,16 +88,19 @@ public abstract class AbstractTargetCommand extends AbstractTransferCommand {
 		step.listener(new StepExecutionListenerSupport() {
 			@Override
 			public ExitStatus afterStep(StepExecution stepExecution) {
+				if (stepExecution.getStatus().isUnsuccessful()) {
+					return null;
+				}
 				if (writer.getResults().isOK()) {
 					log.info("Verification completed - all OK");
-					return super.afterStep(stepExecution);
+					return ExitStatus.COMPLETED;
 				}
 				try {
 					Thread.sleep(transferOptions.getProgressUpdateIntervalMillis());
 				} catch (InterruptedException e) {
 					log.debug("Verification interrupted");
 					Thread.currentThread().interrupt();
-					return null;
+					return ExitStatus.STOPPED;
 				}
 				KeyComparisonResults results = writer.getResults();
 				log.warn("Verification failed: OK={} Missing={} Values={} TTLs={} Types={}", results.getOK(),
@@ -100,8 +108,7 @@ public abstract class AbstractTargetCommand extends AbstractTransferCommand {
 				return new ExitStatus(ExitStatus.FAILED.getExitCode(), "Verification failed");
 			}
 		});
-		TaskletStep verificationStep = step.build();
-		return new FlowBuilder<SimpleFlow>(VERIFICATION_NAME).start(verificationStep).build();
+		return step.build();
 	}
 
 	private DataStructureValueReaderBuilder<String, String> dataStructureValueReader(RedisOptions redisOptions) {

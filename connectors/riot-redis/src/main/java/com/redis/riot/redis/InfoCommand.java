@@ -14,7 +14,9 @@ public class InfoCommand extends AbstractRedisCommandCommand {
 
 	@Override
 	protected void execute(RedisModulesCommands<String, String> commands) {
-		log.info(commands.info());
+		if (log.isInfoEnabled()) {
+			log.info(commands.info());
+		}
 	}
 
 	@Override

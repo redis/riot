@@ -17,6 +17,8 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.ParseResult;
+import picocli.CommandLine.RunFirst;
+import picocli.CommandLine.RunLast;
 
 @Command(sortOptions = false, versionProvider = ManifestVersionProvider.class, subcommands = GenerateCompletionCommand.class, abbreviateSynopsis = true)
 public class RiotApp extends HelpCommand {
@@ -40,12 +42,12 @@ public class RiotApp extends HelpCommand {
 
 	private int executionStrategy(ParseResult parseResult) {
 		configureLogging();
-		return new CommandLine.RunLast().execute(parseResult); // default execution strategy
+		return new RunLast().execute(parseResult); // default execution strategy
 	}
 
 	private int executionStragegyRunFirst(ParseResult parseResult) {
 		configureLogging();
-		return new CommandLine.RunFirst().execute(parseResult);
+		return new RunFirst().execute(parseResult);
 	}
 
 	protected void configureLogging() {

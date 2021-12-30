@@ -1,6 +1,8 @@
 package com.redis.riot.redis;
 
-import org.springframework.batch.core.job.flow.Flow;
+import org.springframework.batch.core.Job;
+import org.springframework.batch.core.Step;
+import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.repeat.RepeatStatus;
 
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
@@ -13,15 +15,15 @@ import picocli.CommandLine.Command;
 public abstract class AbstractRedisCommandCommand extends AbstractRiotCommand {
 
 	@Override
-	protected Flow flow() throws Exception {
+	protected Job job(JobBuilder jobBuilder) throws Exception {
 		String name = name();
-		return flow(name, step(name).tasklet((contribution, chunkContext) -> {
+		Step step = step(name).tasklet((contribution, chunkContext) -> {
 			try (StatefulRedisModulesConnection<String, String> connection = getRedisOptions().connect()) {
-				RedisModulesCommands<String, String> commands = connection.sync();
-				execute(commands);
+				execute(connection.sync());
 				return RepeatStatus.FINISHED;
 			}
-		}).build());
+		}).build();
+		return jobBuilder.start(step).build();
 	}
 
 	protected abstract void execute(RedisModulesCommands<String, String> commands) throws InterruptedException;

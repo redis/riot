@@ -64,7 +64,6 @@ public class KafkaItemReader<K, V> extends AbstractItemStreamItemReader<Consumer
 	private KafkaConsumer<K, V> kafkaConsumer;
 	private Iterator<ConsumerRecord<K, V>> consumerRecords;
 	private boolean saveState = true;
-	private boolean open;
 
 	/**
 	 * Create a new {@link KafkaItemReader}.
@@ -139,7 +138,6 @@ public class KafkaItemReader<K, V> extends AbstractItemStreamItemReader<Consumer
 		this.kafkaConsumer.assign(this.topicPartitions);
 		this.partitionOffsets.forEach(this.kafkaConsumer::seek);
 		super.open(executionContext);
-		open = true;
 	}
 
 	@Override
@@ -177,11 +175,6 @@ public class KafkaItemReader<K, V> extends AbstractItemStreamItemReader<Consumer
 		if (this.kafkaConsumer != null) {
 			this.kafkaConsumer.close();
 		}
-		open = false;
 	}
 
-	@Override
-	public boolean isOpen() {
-		return open;
-	}
 }

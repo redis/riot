@@ -1,11 +1,13 @@
 package com.redis.riot.db;
 
-import com.redis.riot.AbstractRiotIntegrationTests;
+import javax.sql.DataSource;
+
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.testcontainers.containers.JdbcDatabaseContainer;
-import picocli.CommandLine;
 
-import javax.sql.DataSource;
+import com.redis.riot.AbstractRiotIntegrationTests;
+
+import picocli.CommandLine;
 
 public abstract class AbstractDatabaseTests extends AbstractRiotIntegrationTests {
 

@@ -1,6 +1,6 @@
 package com.redis.riot.stream;
 
-import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -8,8 +8,10 @@ import java.util.Properties;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.batch.core.Step;
-import org.springframework.batch.core.job.flow.Flow;
+import org.springframework.batch.core.Job;
+import org.springframework.batch.core.job.builder.JobBuilder;
+import org.springframework.batch.core.job.builder.SimpleJobBuilder;
+import org.springframework.batch.core.step.tasklet.TaskletStep;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
@@ -40,7 +42,7 @@ public class StreamImportCommand extends AbstractTransferCommand {
 	@CommandLine.Mixin
 	private FlushingTransferOptions flushingTransferOptions = new FlushingTransferOptions();
 	@Parameters(arity = "0..*", description = "One ore more topics to read from", paramLabel = "TOPIC")
-	private String[] topics;
+	private List<String> topics;
 	@CommandLine.Mixin
 	private KafkaOptions options = new KafkaOptions();
 	@Option(names = "--key", description = "Target stream key (default: same as topic)", paramLabel = "<string>")
@@ -62,11 +64,11 @@ public class StreamImportCommand extends AbstractTransferCommand {
 		this.flushingTransferOptions = flushingTransferOptions;
 	}
 
-	public String[] getTopics() {
+	public List<String> getTopics() {
 		return topics;
 	}
 
-	public void setTopics(String[] topics) {
+	public void setTopics(List<String> topics) {
 		this.topics = topics;
 	}
 
@@ -119,26 +121,29 @@ public class StreamImportCommand extends AbstractTransferCommand {
 	}
 
 	@Override
-	protected Flow flow() throws Exception {
+	protected Job job(JobBuilder jobBuilder) throws Exception {
 		Assert.isTrue(!ObjectUtils.isEmpty(topics), "No topic specified");
-		List<Step> steps = new ArrayList<>();
-		Properties consumerProperties = options.consumerProperties();
-		log.debug("Using Kafka consumer properties: {}", consumerProperties);
-		for (String topic : topics) {
-			log.debug("Creating Kafka reader for topic {}", topic);
-			KafkaItemReader<String, Object> reader = new KafkaItemReaderBuilder<String, Object>().partitions(0)
-					.consumerProperties(consumerProperties).partitions(0).name(topic).saveState(false).topic(topic)
-					.build();
-			RiotStepBuilder<ConsumerRecord<String, Object>, ConsumerRecord<String, Object>> step = riotStep(
-					topic + "-" + NAME, "Importing from " + topic);
-			Xadd<String, String, ConsumerRecord<String, Object>> xadd = Xadd
-					.<String, String, ConsumerRecord<String, Object>>key(keyConverter()).body(bodyConverter())
-					.args(xAddArgs()).build();
-			RedisItemWriter<String, String, ConsumerRecord<String, Object>> writer = writerOptions
-					.configureWriter(writer(getRedisOptions()).operation(xadd)).build();
-			steps.add(step.reader(reader).writer(writer).flushingOptions(flushingTransferOptions).build().build());
+		Iterator<String> topicIterator = topics.iterator();
+		SimpleJobBuilder simpleJobBuilder = jobBuilder.start(topicImportStep(topicIterator.next()));
+		while (topicIterator.hasNext()) {
+			simpleJobBuilder.next(topicImportStep(topicIterator.next()));
 		}
-		return flow(NAME, steps.toArray(new Step[0]));
+		return simpleJobBuilder.build();
+	}
+
+	private TaskletStep topicImportStep(String topic) throws Exception {
+		Properties consumerProperties = options.consumerProperties();
+		log.debug("Creating Kafka reader for topic {} with {}", topic, consumerProperties);
+		KafkaItemReader<String, Object> reader = new KafkaItemReaderBuilder<String, Object>().partitions(0)
+				.consumerProperties(consumerProperties).partitions(0).name(topic).saveState(false).topic(topic).build();
+		RiotStepBuilder<ConsumerRecord<String, Object>, ConsumerRecord<String, Object>> step = riotStep(
+				topic + "-" + NAME, "Importing from " + topic);
+		Xadd<String, String, ConsumerRecord<String, Object>> xadd = Xadd
+				.<String, String, ConsumerRecord<String, Object>>key(keyConverter()).body(bodyConverter())
+				.args(xAddArgs()).build();
+		RedisItemWriter<String, String, ConsumerRecord<String, Object>> writer = writerOptions
+				.configureWriter(writer(getRedisOptions()).operation(xadd)).build();
+		return step.reader(reader).writer(writer).flushingOptions(flushingTransferOptions).build().build();
 	}
 
 	private Converter<ConsumerRecord<String, Object>, Map<String, String>> bodyConverter() {

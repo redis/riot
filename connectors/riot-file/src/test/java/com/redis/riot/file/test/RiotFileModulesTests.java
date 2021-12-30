@@ -17,8 +17,8 @@ import com.redis.riot.AbstractRiotTests;
 import com.redis.riot.file.RiotFile;
 import com.redis.testcontainers.RedisModulesContainer;
 import com.redis.testcontainers.RedisServer;
-import com.redis.testcontainers.junit.jupiter.RedisTestContext;
-import com.redis.testcontainers.junit.jupiter.RedisTestContextsSource;
+import com.redis.testcontainers.junit.RedisTestContext;
+import com.redis.testcontainers.junit.RedisTestContextsSource;
 
 @SuppressWarnings("unchecked")
 @Testcontainers

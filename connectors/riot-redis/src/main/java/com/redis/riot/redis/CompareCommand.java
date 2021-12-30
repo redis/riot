@@ -1,6 +1,7 @@
 package com.redis.riot.redis;
 
-import org.springframework.batch.core.job.flow.Flow;
+import org.springframework.batch.core.Job;
+import org.springframework.batch.core.job.builder.JobBuilder;
 
 import picocli.CommandLine.Command;
 
@@ -8,8 +9,8 @@ import picocli.CommandLine.Command;
 public class CompareCommand extends AbstractTargetCommand {
 
 	@Override
-	protected Flow flow() throws Exception {
-		return verificationFlow();
+	protected Job job(JobBuilder jobBuilder) throws Exception {
+		return jobBuilder.start(verificationStep()).build();
 	}
 
 }

@@ -5,7 +5,9 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.batch.core.job.flow.Flow;
+import org.springframework.batch.core.Job;
+import org.springframework.batch.core.job.builder.JobBuilder;
+import org.springframework.batch.core.step.tasklet.TaskletStep;
 import org.springframework.batch.item.ItemReader;
 
 import com.redis.lettucemod.RedisModulesUtils;
@@ -30,8 +32,9 @@ public class GeneratorImportCommand extends AbstractImportCommand {
 	private GenerateOptions options = new GenerateOptions();
 
 	@Override
-	protected Flow flow() throws Exception {
-		return flow(NAME, step(NAME, "Generating", reader()).build());
+	protected Job job(JobBuilder jobBuilder) throws Exception {
+		TaskletStep step = step(NAME, "Generating", reader()).build();
+		return jobBuilder.start(step).build();
 	}
 
 	private ItemReader<Map<String, Object>> reader() {

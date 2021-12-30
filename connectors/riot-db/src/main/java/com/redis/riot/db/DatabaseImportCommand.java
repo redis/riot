@@ -7,7 +7,8 @@ import javax.sql.DataSource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.batch.core.job.flow.Flow;
+import org.springframework.batch.core.Job;
+import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.item.database.JdbcCursorItemReader;
 import org.springframework.batch.item.database.builder.JdbcCursorItemReaderBuilder;
 import org.springframework.jdbc.core.ColumnMapRowMapper;
@@ -37,7 +38,7 @@ public class DatabaseImportCommand extends AbstractImportCommand {
 	}
 
 	@Override
-	protected Flow flow() throws Exception {
+	protected Job job(JobBuilder jobBuilder) throws Exception {
 		log.debug("Creating data source: {}", dataSourceOptions);
 		DataSource dataSource = dataSourceOptions.dataSource();
 		try (Connection connection = dataSource.getConnection()) {
@@ -62,7 +63,7 @@ public class DatabaseImportCommand extends AbstractImportCommand {
 			builder.verifyCursorPosition(importOptions.isVerifyCursorPosition());
 			JdbcCursorItemReader<Map<String, Object>> reader = builder.build();
 			reader.afterPropertiesSet();
-			return flow(NAME, step(NAME, "Importing from " + name, reader).build());
+			return jobBuilder.start(step(NAME, "Importing from " + name, reader).build()).build();
 		}
 	}
 
