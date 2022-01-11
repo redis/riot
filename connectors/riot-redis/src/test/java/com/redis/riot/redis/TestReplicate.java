@@ -8,7 +8,6 @@ import java.util.concurrent.Executors;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import com.redis.riot.AbstractRiotIntegrationTests;
@@ -28,14 +27,20 @@ class TestReplicate extends AbstractRiotIntegrationTests {
 
 	private static final Duration IDLE_TIMEOUT = Duration.ofSeconds(10);
 
-	@Container
-	private static final RedisContainer TARGET = new RedisContainer(
+	private final RedisContainer targetRedis = new RedisContainer(
 			RedisContainer.DEFAULT_IMAGE_NAME.withTag(RedisContainer.DEFAULT_TAG));
 
 	@Override
-	protected Collection<RedisServer> servers() {
-		Collection<RedisServer> servers = new ArrayList<>(super.servers());
-		servers.add(TARGET);
+	protected Collection<RedisTestContext> getRedisTestContexts() {
+		Collection<RedisTestContext> redisTestContexts = new ArrayList<>(super.getRedisTestContexts());
+		redisTestContexts.removeIf(c -> c.getServer() == targetRedis);
+		return redisTestContexts;
+	}
+
+	@Override
+	protected Collection<RedisServer> redisServers() {
+		Collection<RedisServer> servers = new ArrayList<>(super.redisServers());
+		servers.add(targetRedis);
 		return servers;
 	}
 
@@ -46,7 +51,7 @@ class TestReplicate extends AbstractRiotIntegrationTests {
 
 	private void configureReplicateCommand(CommandLine.ParseResult parseResult) {
 		ReplicateCommand command = parseResult.subcommand().commandSpec().commandLine().getCommand();
-		command.getTargetRedisOptions().setUris(new RedisURI[] { RedisURI.create(TARGET.getRedisURI()) });
+		command.getTargetRedisOptions().setUris(new RedisURI[] { RedisURI.create(targetRedis.getRedisURI()) });
 		if (command.getReplicationOptions().getMode() == ReplicationMode.LIVE) {
 			command.getFlushingTransferOptions().setIdleTimeout(IDLE_TIMEOUT);
 			command.getReplicationOptions().setNotificationQueueCapacity(100000);
@@ -70,7 +75,7 @@ class TestReplicate extends AbstractRiotIntegrationTests {
 		Long sourceSize = redis.sync().dbsize();
 		Assertions.assertTrue(sourceSize > 0);
 		execute("replicate-key-processor", redis, this::configureReplicateCommand);
-		RedisTestContext target = getContext(TARGET);
+		RedisTestContext target = getRedisTestContext(targetRedis);
 		Assertions.assertEquals(sourceSize, target.sync().dbsize());
 		Assertions.assertEquals(redis.sync().get("string:123"), target.sync().get("0:string:123"));
 	}
@@ -111,8 +116,8 @@ class TestReplicate extends AbstractRiotIntegrationTests {
 	}
 
 	private void compare(String name, RedisTestContext redis) throws Exception {
-		Assertions.assertEquals(redis.sync().dbsize(), getContext(TARGET).sync().dbsize());
-		KeyComparisonResults results = keyComparator(redis, getContext(TARGET)).id(name).build().call();
+		Assertions.assertEquals(redis.sync().dbsize(), getRedisTestContext(targetRedis).sync().dbsize());
+		KeyComparisonResults results = keyComparator(redis, getRedisTestContext(targetRedis)).id(name).build().call();
 		Assertions.assertTrue(results.isOK());
 	}
 

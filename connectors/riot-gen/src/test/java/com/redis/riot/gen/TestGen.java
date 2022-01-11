@@ -7,16 +7,16 @@ import java.util.Map;
 import java.util.Set;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.testcontainers.junit.jupiter.Container;
 
 import com.redis.lettucemod.search.CreateOptions;
 import com.redis.lettucemod.search.Document;
 import com.redis.lettucemod.search.Field;
 import com.redis.lettucemod.search.Field.TextField.PhoneticMatcher;
-import com.redis.riot.AbstractRiotIntegrationTests;
 import com.redis.lettucemod.search.SearchResults;
+import com.redis.riot.AbstractRiotIntegrationTests;
 import com.redis.testcontainers.RedisModulesContainer;
 import com.redis.testcontainers.RedisServer;
 import com.redis.testcontainers.junit.RedisTestContext;
@@ -33,14 +33,13 @@ import io.lettuce.core.api.sync.RedisStreamCommands;
 @SuppressWarnings("unchecked")
 class TestGen extends AbstractRiotIntegrationTests {
 
-	@Container
-	private static final RedisModulesContainer REDIS_MODULES = new RedisModulesContainer(
-			RedisModulesContainer.DEFAULT_IMAGE_NAME.withTag("preview"));
+	private final RedisModulesContainer redisMod = new RedisModulesContainer(
+			RedisModulesContainer.DEFAULT_IMAGE_NAME.withTag(RedisModulesContainer.DEFAULT_TAG));
 
 	@Override
-	protected Collection<RedisServer> servers() {
-		Collection<RedisServer> servers = new ArrayList<>(super.servers());
-		servers.add(REDIS_MODULES);
+	protected Collection<RedisServer> redisServers() {
+		Collection<RedisServer> servers = new ArrayList<>(super.redisServers());
+		servers.add(redisMod);
 		return servers;
 	}
 
@@ -96,7 +95,8 @@ class TestGen extends AbstractRiotIntegrationTests {
 
 	@Test
 	void genFakerIndexIntrospection() throws Exception {
-		RedisTestContext redismod = new RedisTestContext(REDIS_MODULES);
+		Assumptions.assumeTrue(redisMod.isActive());
+		RedisTestContext redismod = new RedisTestContext(redisMod);
 		String INDEX = "beerIdx";
 		String FIELD_ID = "id";
 		String FIELD_ABV = "abv";

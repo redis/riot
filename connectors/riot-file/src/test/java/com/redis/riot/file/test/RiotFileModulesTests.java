@@ -6,8 +6,6 @@ import java.util.List;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.redis.lettucemod.api.sync.RedisModulesCommands;
@@ -21,16 +19,12 @@ import com.redis.testcontainers.junit.RedisTestContext;
 import com.redis.testcontainers.junit.RedisTestContextsSource;
 
 @SuppressWarnings("unchecked")
-@Testcontainers
 class RiotFileModulesTests extends AbstractRiotTests {
 
-	@Container
-	private static final RedisModulesContainer REDIS = new RedisModulesContainer(
-			RedisModulesContainer.DEFAULT_IMAGE_NAME.withTag("preview"));
-
 	@Override
-	protected Collection<RedisServer> servers() {
-		return Arrays.asList(REDIS);
+	protected Collection<RedisServer> redisServers() {
+		return Arrays.asList(new RedisModulesContainer(
+				RedisModulesContainer.DEFAULT_IMAGE_NAME.withTag(RedisModulesContainer.DEFAULT_TAG)));
 	}
 
 	@Override

@@ -3,9 +3,6 @@ package com.redis.riot;
 import java.util.Arrays;
 import java.util.Collection;
 
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
-
 import com.redis.spring.batch.support.KeyComparator;
 import com.redis.spring.batch.support.KeyComparator.KeyComparatorBuilder;
 import com.redis.spring.batch.support.KeyComparator.RightComparatorBuilder;
@@ -16,25 +13,17 @@ import com.redis.testcontainers.RedisContainer;
 import com.redis.testcontainers.RedisServer;
 import com.redis.testcontainers.junit.RedisTestContext;
 
-@Testcontainers
 public abstract class AbstractRiotIntegrationTests extends AbstractRiotTests {
 
-	@Container
-	private static final RedisContainer REDIS = new RedisContainer(
+	private final RedisContainer redis = new RedisContainer(
 			RedisContainer.DEFAULT_IMAGE_NAME.withTag(RedisContainer.DEFAULT_TAG)).withKeyspaceNotifications();
-	@Container
-	private static final RedisClusterContainer REDIS_CLUSTER = new RedisClusterContainer(
+	private final RedisClusterContainer redisCluster = new RedisClusterContainer(
 			RedisClusterContainer.DEFAULT_IMAGE_NAME.withTag(RedisClusterContainer.DEFAULT_TAG))
 					.withKeyspaceNotifications();
 
 	@Override
-	protected Collection<RedisServer> servers() {
-		return Arrays.asList(REDIS, REDIS_CLUSTER);
-	}
-
-	@Override
-	protected Collection<RedisServer> testServers() {
-		return Arrays.asList(REDIS, REDIS_CLUSTER);
+	protected Collection<RedisServer> redisServers() {
+		return Arrays.asList(redis, redisCluster);
 	}
 
 	protected GeneratorBuilder dataGenerator(RedisTestContext redis, String id) throws Exception {
