@@ -28,7 +28,7 @@ jobs:
           gpg-passphrase: ${{ secrets.GPG_PASSPHRASE }}
           sonatype-username: ${{ secrets.SONATYPE_USERNAME }}
           sonatype-password: ${{ secrets.SONATYPE_PASSWORD }}
-          github-token: ${{ secrets.GIT_ACCESS_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           slack-webhook: ${{ secrets.JRELEASER_SLACK_WEBHOOK }}
 
       - name: Upload test reports
@@ -46,5 +46,5 @@ jobs:
       - name: Publish
         uses: peaceiris/actions-gh-pages@v3
         with:
-          github_token: ${{ secrets.GIT_ACCESS_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./docs/guide/build/docs/asciidoc
