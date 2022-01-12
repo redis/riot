@@ -1,12 +1,12 @@
-[[_riot_gen]]
-= RIOT Gen
-:connector: riot-gen
-:connector-title: RIOT Gen
-:test-resources: ../../../../../connectors/riot-gen/src/test/resources
+= {project-title}
 
-{connector-title} is a data generator based on https://github.com/DiUS/java-faker[Faker].
+== Introduction
 
-include::getting-started.adoc[leveloffset=+1]
+{project-title} is a data generator for Redis based on https://github.com/DiUS/java-faker[Faker].
+
+It supports https://redis.io[Redis] and https://redis.com/redis-enterprise-software/overview/[Redis Enterprise] in either standalone or https://redis.io/topics/cluster-tutorial[cluster] deployments.
+
+include::{includedir}/getting-started.adoc[leveloffset=+1]
 
 == Importing
 
@@ -21,9 +21,9 @@ where SPEL is a https://docs.spring.io/spring/docs/current/spring-framework-refe
 
 To show the full usage, run:
 
-[subs="attributes,+quotes"]
+[subs="+quotes"]
 ....
-[green]#{connector}# import --help
+[green]#riot-gen# import --help
 ....
 
 .Hash generator example
@@ -38,9 +38,9 @@ include::{test-resources}/import-hset[]
 include::{test-resources}/import-sadd[]
 ----
 
-include::redis-commands.adoc[leveloffset=+2]
+include::{includedir}/redis-commands.adoc[leveloffset=+2]
 
-include::processing.adoc[leveloffset=+2]
+include::{includedir}/processing.adoc[leveloffset=+2]
 
 === RediSearch
 
@@ -56,22 +56,22 @@ include::{test-resources}/import-infer[]
 
 Run this command to display the list of available Faker providers:
 
-[subs="attributes,+quotes"]
+[subs="+quotes"]
 ....
-[green]#{connector}# faker-help
+[green]#riot-gen# faker-help
 ....
 
 Most providers don't take any arguments and can be called directly, for example:
 
-[subs="attributes,+quotes"]
+[subs="+quotes"]
 ....
-[green]#{connector}# import firstName="name.firstName"
+[green]#riot-gen# import firstName="name.firstName"
 ....
 
 Some providers take parameters, for example:
-[subs="attributes,+quotes"]
+[subs="+quotes"]
 ....
-[green]#{connector}# import lease="number.digits(2)"
+[green]#riot-gen# import lease="number.digits(2)"
 ....
 
 Refer to the link specified for each provider for complete documentation.

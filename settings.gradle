@@ -7,9 +7,9 @@ buildscript {
     dependencies {
         classpath "org.kordamp.gradle:kordamp-parentbuild:$kordampBuildVersion"
         classpath "org.kordamp.gradle:java-project-gradle-plugin:$kordampPluginVersion"
-        classpath "org.kordamp.gradle:guide-gradle-plugin:$kordampPluginVersion"
         classpath "org.springframework.boot:spring-boot-gradle-plugin:$bootPluginVersion"
         classpath "io.spring.gradle:dependency-management-plugin:$dependencyPluginVersion"
+        classpath "org.asciidoctor:asciidoctor-gradle-jvm:$asciidoctorPluginVersion"
     }
 }
 
@@ -23,12 +23,10 @@ projects {
     plugins {
         all {
             id 'eclipse'
+            id 'org.asciidoctor.jvm.convert'
         }
         path(':') {
             id 'org.kordamp.gradle.java-project'
-        }
-        path(':guide') {
-            id 'org.kordamp.gradle.guide'
         }
         dirs(['core', 'connectors', 'docs']) {
             id 'java-library'
@@ -40,6 +38,7 @@ projects {
         }
     }
 }
+
 
 enforce {
     enabled = false

@@ -1,12 +1,10 @@
-[[_riot_stream]]
-= RIOT Stream
-:connector: riot-stream
-:connector-title: RIOT Stream
-:test-resources: ../../../../../connectors/riot-stream/src/test/resources
+= {project-title}
 
-{connector-title} lets you import and export data from Kafka topics.
+== Introduction
 
-include::getting-started.adoc[leveloffset=+1]
+{project-title} is a command-line utility that lets you import and export data from Kafka topics.
+
+include::{includedir}/getting-started.adoc[leveloffset=+1]
 
 == Importing
 
@@ -21,7 +19,7 @@ To show the full usage, run:
 
 [subs="attributes,+quotes"]
 ....
-[green]#{connector}# import --help
+[green]#riot-stream# import --help
 ....
 
 .Import example
@@ -41,9 +39,9 @@ The `export` command reads message from a Redis stream and writes them to a Kafk
 
 To show the full usage, run:
 
-[subs="attributes,+quotes"]
+[subs="+quotes"]
 ....
-[green]#{connector}# export --help
+[green]#riot-redis# export --help
 ....
 
 .Export example

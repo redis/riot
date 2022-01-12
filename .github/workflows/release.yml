@@ -41,10 +41,10 @@ jobs:
 
       - name: Generate Docs
         run: |
-          ./gradlew -Prelease=true -Pfull-release=true createGuide -S
+          ./gradlew asciidoctor -S
 
       - name: Publish
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./docs/guide/build/docs/asciidoc
+          publish_dir: ./build/docs/asciidoc

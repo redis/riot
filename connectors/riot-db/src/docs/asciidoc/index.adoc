@@ -1,16 +1,16 @@
-[[_riot_db]]
-= RIOT DB
-:connector: riot-db
-:connector-title: RIOT DB
-:test-resources: ../../../../../connectors/riot-db/src/test/resources
+= {project-title}
 
-{connector-title} lets you import and export data from relational databases.
+== Introduction
 
-include::getting-started.adoc[leveloffset=+1]
+{project-title} is a database import/export tool for Redis built on top of the https://github.com/redis-developer/lettucemod/[LettuceMod] Java driver. 
 
-== Drivers
+It supports https://redis.io[Redis] and https://redis.com/redis-enterprise-software/overview/[Redis Enterprise] in either standalone or https://redis.io/topics/cluster-tutorial[cluster] deployments.
 
-{connector-title} includes drivers for the most common RDBMSs:
+include::{includedir}/getting-started.adoc[leveloffset=+1]
+
+== JDBC Drivers
+
+{project-title} includes JDBC drivers for the most common RDBMSs:
 
 * https://docs.oracle.com/cd/E11882_01/appdev.112/e13995/oracle/jdbc/OracleDriver.html[Oracle]
 +
@@ -48,16 +48,16 @@ For non-included databases you must install the corresponding JDBC driver under 
 
 The `import` command reads rows from a SQL resultset and writes them to Redis. The general usage is:
 
-[subs=+quotes]
+[subs="+quotes"]
 ----
 [green]#riot-db# -h <redis host> -p <redis port> import --url <jdbc url> [olive]#SQL# [REDIS COMMAND...]
 ----
 
 To show the full usage, run:
 
-[subs="attributes,+quotes"]
+[subs="+quotes"]
 ----
-[green]#{connector}# import --help
+[green]#riot-db# import --help
 ----
 
 .PostgreSQL Example
@@ -66,24 +66,24 @@ To show the full usage, run:
 include::{test-resources}/import-postgresql[]
 ----
 
-include::redis-commands.adoc[leveloffset=+2]
+include::{includedir}/redis-commands.adoc[leveloffset=+2]
 
-include::processing.adoc[leveloffset=+2]
+include::{includedir}/processing.adoc[leveloffset=+2]
 
 == Exporting
 
 The `export` command reads data from a Redis database and writes it to a SQL database. The general usage is:
 
-[subs=+quotes]
+[subs="+quotes"]
 ----
 [green]#riot-db# -h <redis host> -p <redis port> export --url <jdbc url> [olive]#SQL#
 ----
 
 To show the full usage, run:
 
-[subs="attributes,+quotes"]
+[subs="+quotes"]
 ----
-[green]#{connector}# export --help
+[green]#riot-db# export --help
 ----
 
 .Export to PostgreSQL
@@ -102,5 +102,5 @@ This will produce Redis strings that look like this:
 
 [source,json]
 ----
-include::../resources/order.json[]
+include::src/docs/resources/order.json[]
 ----

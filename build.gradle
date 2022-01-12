@@ -103,4 +103,28 @@ subprojects {
     sourceCompatibility = 8
     targetCompatibility = 8
 
+    asciidoctor {
+	    inProcess = JAVA_EXEC
+	    forkOptions {
+	        jvmArgs("--add-opens","java.base/sun.nio.ch=ALL-UNNAMED","--add-opens","java.base/java.io=ALL-UNNAMED")
+	    }
+	    resources {
+	    	from('../../core/riot-core/src/docs/resources/images') {
+	     		include '**/*.png'
+	   		}
+	    }
+	    attributes \
+        'icons': 'font',
+        'includedir': '../../core/riot-core/src/docs/asciidoc',
+        'sectanchors': 'true',
+        'source-highlighter': 'coderay',
+        'coderay-linenums-mode': 'table',
+        'test-resources': 'src/test/resources',
+        'toc': 'left',
+        'numbered': 'true',
+        'linkattrs': 'true',
+        'linkcss': 'true',
+        'project-name': project.name,
+        'project-title': config.info.description
+	}
 }

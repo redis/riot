@@ -4,6 +4,7 @@ asciidoctor {
             include '*.*'
         }
     }
+    outputDir = '../../build/docs/asciidoc/'
 }
 
 eclipse {

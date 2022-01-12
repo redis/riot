@@ -1,0 +1,31 @@
+name: Publish
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release version"
+        required: true
+jobs:
+  release:
+    name: Publish
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Set release version
+        run: |
+          VERSION=${{ inputs.version }}
+          echo $VERSION > VERSION
+        shell: bash
+
+      - name: Generate Docs
+        run: |
+          ./gradlew asciidoctor -S
+
+      - name: Publish
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build/docs/asciidoc

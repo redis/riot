@@ -13,3 +13,12 @@ dependencies {
 }
 
 bootStartScripts.enabled = false
+
+asciidoctor {
+    resources {
+    	from('src/docs/resources/images') {
+     		include '**/*.png'
+   		}
+    }
+    outputDir = '../../build/docs/asciidoc/riot-redis'
+}

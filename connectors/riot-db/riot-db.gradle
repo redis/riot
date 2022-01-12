@@ -22,3 +22,7 @@ dependencies {
 }
 
 bootStartScripts.enabled = false
+
+asciidoctor {
+    outputDir = '../../build/docs/asciidoc/riot-db'
+}
