@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 2.0.10">
+<title>RIOT-File</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
+<link rel="stylesheet" href="./asciidoctor.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body class="article toc2 toc-left">
+<div id="header">
+<h1>RIOT-File</h1>
+<div class="details">
+<span id="revnumber">version </span>
+</div>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_introduction">1. Introduction</a></li>
+<li><a href="#_getting-started">2. Getting Started</a>
+<ul class="sectlevel2">
+<li><a href="#_install">2.1. Install</a></li>
+<li><a href="#_usage">2.2. Usage</a></li>
+</ul>
+</li>
+<li><a href="#_importing">3. Importing</a>
+<ul class="sectlevel2">
+<li><a href="#_paths">3.1. Paths</a></li>
+<li><a href="#_formats">3.2. Formats</a></li>
+<li><a href="#_redis-commands">3.3. Redis Commands</a></li>
+<li><a href="#_processing">3.4. Processing</a></li>
+</ul>
+</li>
+<li><a href="#_exporting">4. Exporting</a></li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div class="sect1">
+<h2 id="_introduction"><a class="anchor" href="#_introduction"></a>1. Introduction</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>RIOT-File is a file import/export tool for Redis built on top of the <a href="https://github.com/redis-developer/lettucemod/">LettuceMod</a> Java driver.</p>
+</div>
+<div class="paragraph">
+<p>It supports <a href="https://redis.io">Redis</a> and <a href="https://redis.com/redis-enterprise-software/overview/">Redis Enterprise</a> in either standalone or <a href="https://redis.io/topics/cluster-tutorial">cluster</a> deployments.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_getting-started"><a class="anchor" href="#_getting-started"></a>2. Getting Started</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_install"><a class="anchor" href="#_install"></a>2.1. Install</h3>
+<div class="paragraph">
+<p>RIOT-File can be installed in different ways depending on your environment and preference.</p>
+</div>
+<div class="sect3">
+<h4 id="_download_and_run"><a class="anchor" href="#_download_and_run"></a>2.1.1. Download and Run</h4>
+<div class="paragraph">
+<p>Download the <a href="https://github.com/redis-developer/riot/releases/latest">latest release</a>, unzip and copy to the desired location.</p>
+</div>
+<div class="paragraph">
+<p>Launch the <code>bin/riot-file</code> script and follow the usage information provided.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_homebrew_macos"><a class="anchor" href="#_homebrew_macos"></a>2.1.2. Homebrew (macOS)</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="source">brew install redis-developer/tap/riot-file</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_scoop_windows"><a class="anchor" href="#_scoop_windows"></a>2.1.3. Scoop (Windows)</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="source">scoop bucket add redis-developer https://github.com/redis-developer/scoop.git
+scoop install riot-file</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_clone_and_run"><a class="anchor" href="#_clone_and_run"></a>2.1.4. Clone and run</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="source">git clone https://github.com/redis-developer/riot.git
+cd riot/bin
+./riot-file</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_usage"><a class="anchor" href="#_usage"></a>2.2. Usage</h3>
+<div class="paragraph">
+<p>To display usage help, run the following command:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre><span class="green">riot-file</span> --help
+Usage: <strong>riot-file</strong> [OPTIONS] [COMMAND]
+  <span class="olive">-H</span>, <span class="olive">--help</span>                Show this help message and exit
+  <span class="olive">-V</span>, <span class="olive">--version</span>             Print version information and exit.
+  <span class="olive">-q</span>, <span class="olive">--quiet</span>               Log errors only.
+  <span class="olive">-w</span>, <span class="olive">--warn</span>                Set log level to warn.
+  <span class="olive">-i</span>, <span class="olive">--info</span>                Set log level to info.
+  <span class="olive">-d</span>, <span class="olive">--debug</span>               Log in debug mode (includes normal stacktrace).
+      <span class="olive">--stacktrace</span>          Print out the stacktrace for all exceptions.
+Redis connection options
+  <span class="olive">-h</span>, <span class="olive">--hostname</span>=&lt;host&gt;     Server hostname (default: localhost).
+  <span class="olive">-p</span>, <span class="olive">--port</span>=&lt;port&gt;         Server port (default: 6379).
+  <span class="olive">-s</span>, <span class="olive">--socket</span>=&lt;socket&gt;     Server socket (overrides hostname and port).
+      <span class="olive">--user</span>=&lt;name&gt;         Used to send ACL style 'AUTH username pass'. Needs password.
+  <span class="olive">-a</span>, <span class="olive">--pass</span>[=&lt;password&gt;]   Password to use when connecting to the server.
+  <span class="olive">-u</span>, <span class="olive">--uri</span>=&lt;uri&gt;...        Server URI.
+      --timeout=&lt;sec&gt;       Redis command timeout (default: 60).
+  <span class="olive">-n</span>, <span class="olive">--db</span>=&lt;db&gt;             Database number (default: 0).
+  <span class="olive">-c</span>, <span class="olive">--cluster</span>             Enable cluster mode.
+      <span class="olive">--tls</span>                 Establish a secure TLS connection.
+      <span class="olive">--insecure</span>            Allow insecure TLS connection by skipping cert validation.</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Redis connection options are the same as <code>redis-cli</code>.</p>
+</div>
+<div class="paragraph">
+<p>For Redis URI syntax see <a href="https://github.com/lettuce-io/lettuce-core/wiki/Redis-URI-and-connection-details#uri-syntax">here</a>.</p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>You can use <code>--help</code> on any subcommand:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre><span class="green">riot-file</span> <span class="red">command</span> --help
+<span class="green">riot-file</span> command <span class="red">subcommand</span> --help</pre>
+</div>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_importing"><a class="anchor" href="#_importing"></a>3. Importing</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The <code>import</code> command reads data from files and writes it to Redis. The general usage is:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre><span class="green">riot-file</span> -h &lt;host&gt; -p &lt;port&gt; import <span class="olive">FILE</span>... [REDIS COMMAND...]</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>To show the full usage, run:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre><span class="green">riot-file</span> import --help</pre>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_paths"><a class="anchor" href="#_paths"></a>3.1. Paths</h3>
+<div class="paragraph">
+<p>Paths can include <a href="https://man7.org/linux/man-pages/man7/glob.7.html">wildcard patterns</a>.</p>
+</div>
+<div class="paragraph">
+<p>RIOT-File will try to determine the file type from its extension (e.g. <code>.csv</code> or <code>.json</code>), but you can specify it explicity using the <code>--filetype</code> option.</p>
+</div>
+<div class="paragraph">
+<p>Gzipped files are supported and the extension before <code>.gz</code> is used (e.g. <code>myfile.json.gz</code> &#8594; JSON type).</p>
+</div>
+<div class="ulist">
+<div class="title">Examples</div>
+<ul>
+<li>
+<p><code>/path/file.csv</code></p>
+</li>
+<li>
+<p><code>/path/file-*.csv</code></p>
+</li>
+<li>
+<p><code>/path/file.json</code></p>
+</li>
+<li>
+<p><code>http://data.com/file.csv</code></p>
+</li>
+<li>
+<p><code>http://data.com/file.json.gz</code></p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+Use <code>-</code> to read from standard input.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>For AWS S3 buckets you can specify access and secret keys as well as the region for the bucket.</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre><span class="green">riot-file</span> import s3://my-bucket/path/file.json --s3-region us-west-1 --s3-access xxxxxx --s3-secret xxxxxx</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>For Google Cloud Storage you can specify credentials and project id for the bucket:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre><span class="green">riot-file</span> import gs://my-bucket/path/file.json --gcs-key-file key.json --gcs-project-id my-gcp-project</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_formats"><a class="anchor" href="#_formats"></a>3.2. Formats</h3>
+<div class="paragraph">
+<p>RIOT-File supports a variety of file formats that can be imported into Redis:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Delimited (CSV, TSV, PSV)</p>
+</li>
+<li>
+<p>Fixed-length aka fixed-width</p>
+</li>
+<li>
+<p>JSON</p>
+</li>
+<li>
+<p>XML</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>For flat file formats (delimited and fixed-length) you can use the <code>--header</code> option to automatically extract field names from the header. Otherwise specify the field names using the <code>--fields</code> option.</p>
+</div>
+<div class="sect3">
+<h4 id="_delimited"><a class="anchor" href="#_delimited"></a>3.2.1. Delimited</h4>
+<div class="paragraph">
+<p>The default delimiter character is comma (<code>,</code>). It can be changed with the <code>--delimiter</code> option.</p>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s consider this CSV file:</p>
+</div>
+<table class="tableblock frame-none grid-none stretch">
+<caption class="title">Table 1. <a href="https://raw.githubusercontent.com/nickhould/craft-beers-dataset/master/data/processed/beers.csv">beers.csv</a></caption>
+<colgroup>
+<col style="width: 4.7619%;">
+<col style="width: 4.7619%;">
+<col style="width: 4.7619%;">
+<col style="width: 4.7619%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 7.619%;">
+<col style="width: 6.6668%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top"></th>
+<th class="tableblock halign-left valign-top">abv</th>
+<th class="tableblock halign-left valign-top">ibu</th>
+<th class="tableblock halign-left valign-top">id</th>
+<th class="tableblock halign-left valign-top">name</th>
+<th class="tableblock halign-left valign-top">style</th>
+<th class="tableblock halign-left valign-top">brewery_id</th>
+<th class="tableblock halign-left valign-top">ounces</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0.05</p></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1436</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Pub Beer</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">American Pale Lager</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">408</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">12.0</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0.066</p></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2265</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Devil&#8217;s Cup</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">American Pale Ale (APA)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">177</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">12.0</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0.071</p></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2264</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Rise of the Phoenix</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">American IPA</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">177</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">12.0</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>The following command imports that CSV file into Redis as hashes using <code>beer</code> as the key prefix and <code>id</code> as primary key. This creates hashes with keys <code>beer:1436</code>, <code>beer:2265</code>, &#8230;&#8203;</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash">riot-file import http://developer.redis.com/riot/beers.csv --header hset --keyspace beer --keys id</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This command imports a CSV file into a geo set named <code>airportgeo</code> with airport IDs as members:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash">riot-file import http://developer.redis.com/riot/airports.csv --header --skip-limit 3 geoadd --keyspace airportgeo --members AirportID --lon Longitude --lat Latitude</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_fixed_length"><a class="anchor" href="#_fixed_length"></a>3.2.2. Fixed-Length</h4>
+<div class="paragraph">
+<p>Fixed-length files can be imported by specifying the width of each field using the <code>--ranges</code> option.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash">riot-file import http://developer.redis.com/riot/accounts.fw --ranges 1 9 25 41 53 67 83 --header hset --keyspace account --keys Account</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_json"><a class="anchor" href="#_json"></a>3.2.3. JSON</h4>
+<div class="paragraph">
+<p>The expected format for JSON files is:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="json">[
+  {
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">...</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">...</span><span class="delimiter">&quot;</span></span>
+  },
+  {
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">...</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">...</span><span class="delimiter">&quot;</span></span>
+  }
+]</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">JSON import example</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash">riot-file import http://developer.redis.com/riot/beers.json hset --keyspace beer --keys id</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>JSON records are trees with potentially nested values that need to be flattened when the target is a Redis hash for example.</p>
+</div>
+<div class="paragraph">
+<p>To that end, RIOT-File uses a field naming convention to flatten JSON objects and arrays:</p>
+</div>
+<table class="tableblock frame-none grid-none stretch">
+<caption class="title">Table 2. Nested object</caption>
+<colgroup>
+<col style="width: 45%;">
+<col style="width: 10%;">
+<col style="width: 45%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code><code>{ "field": { "sub": "value" } }</code></code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&#8594;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code><code>field.sub=value</code></code></p></td>
+</tr>
+</tbody>
+</table>
+<table class="tableblock frame-none grid-none stretch">
+<caption class="title">Table 3. Array</caption>
+<colgroup>
+<col style="width: 45%;">
+<col style="width: 10%;">
+<col style="width: 45%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code><code>{ "field": [1, 2, 3] }</code></code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&#8594;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code><code>field[0]=1 field[1]=2 field[2]=3</code></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_xml"><a class="anchor" href="#_xml"></a>3.2.4. XML</h4>
+<div class="paragraph">
+<p>Here is a sample XML file that can be imported by RIOT-File:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="preprocessor">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<span class="tag">&lt;records&gt;</span>
+    <span class="tag">&lt;trade&gt;</span>
+        <span class="tag">&lt;isin&gt;</span>XYZ0001<span class="tag">&lt;/isin&gt;</span>
+        <span class="tag">&lt;quantity&gt;</span>5<span class="tag">&lt;/quantity&gt;</span>
+        <span class="tag">&lt;price&gt;</span>11.39<span class="tag">&lt;/price&gt;</span>
+        <span class="tag">&lt;customer&gt;</span>Customer1<span class="tag">&lt;/customer&gt;</span>
+    <span class="tag">&lt;/trade&gt;</span>
+    <span class="tag">&lt;trade&gt;</span>
+        <span class="tag">&lt;isin&gt;</span>XYZ0002<span class="tag">&lt;/isin&gt;</span>
+        <span class="tag">&lt;quantity&gt;</span>2<span class="tag">&lt;/quantity&gt;</span>
+        <span class="tag">&lt;price&gt;</span>72.99<span class="tag">&lt;/price&gt;</span>
+        <span class="tag">&lt;customer&gt;</span>Customer2c<span class="tag">&lt;/customer&gt;</span>
+    <span class="tag">&lt;/trade&gt;</span>
+    <span class="tag">&lt;trade&gt;</span>
+        <span class="tag">&lt;isin&gt;</span>XYZ0003<span class="tag">&lt;/isin&gt;</span>
+        <span class="tag">&lt;quantity&gt;</span>9<span class="tag">&lt;/quantity&gt;</span>
+        <span class="tag">&lt;price&gt;</span>99.99<span class="tag">&lt;/price&gt;</span>
+        <span class="tag">&lt;customer&gt;</span>Customer3<span class="tag">&lt;/customer&gt;</span>
+    <span class="tag">&lt;/trade&gt;</span>
+<span class="tag">&lt;/records&gt;</span></code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">XML Import Example</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash">riot-file import http://developer.redis.com/riot/trades.xml hset --keyspace trade --keys id</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_redis_dumps"><a class="anchor" href="#_redis_dumps"></a>3.2.5. Redis Dumps</h4>
+<div class="paragraph">
+<p>RIOT-File can also import Redis data structure files in JSON or XML formats (see Export &#8594; Redis to generate such files).</p>
+</div>
+<div class="listingblock">
+<div class="title">Dump Import Example</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash">riot-file import-dump /tmp/redis.json</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_redis-commands"><a class="anchor" href="#_redis-commands"></a>3.3. Redis Commands</h3>
+<div class="paragraph">
+<p>Redis keys are constructed from input records by concatenating the keyspace prefix and key fields:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="mapping.png" alt="mapping">
+</div>
+</div>
+<div class="paragraph">
+<p>You can specify one or many Redis commands as targets of the import:</p>
+</div>
+<div class="literalblock">
+<div class="title">Import into hashes</div>
+<div class="content">
+<pre><span class="green">riot-file</span> import ... <strong class="olive">hset</strong> --keyspace blah --keys id</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="title">Import into hashes <strong>and</strong> set TTL on the key</div>
+<div class="content">
+<pre><span class="green">riot-file</span> import ... <strong class="olive">hset</strong> --keyspace blah --keys id <strong class="olive">expire</strong> --keyspace blah --keys id</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="title">Import into hashes <strong>and</strong> set TTL <strong>and</strong> add to a set named <code>myset</code></div>
+<div class="content">
+<pre><span class="green">riot-file</span> import ... <strong class="olive">hset</strong> --keyspace blah --keys id <strong class="olive">expire</strong> --keyspace blah --keys id <strong class="olive">sadd</strong> --keyspace myset --members id</pre>
+</div>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Redis connection options apply to the root command (riot-file) and not to subcommands.</p>
+</div>
+<div class="paragraph">
+<p>In this example the redis options will not be taken into account:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre><span class="green">riot-file</span> import ... <strong class="olive">hset</strong> <span class="line-through"><strong class="red">-h myredis.com -p 6380</strong></span></pre>
+</div>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_processing"><a class="anchor" href="#_processing"></a>3.4. Processing</h3>
+<div class="paragraph">
+<p>The following processors can be applied to records in that order:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Transforms</p>
+</li>
+<li>
+<p>Regular expressions</p>
+</li>
+<li>
+<p>Filters</p>
+</li>
+</ul>
+</div>
+<div class="sect3">
+<h4 id="_transforms"><a class="anchor" href="#_transforms"></a>3.4.1. Transforms</h4>
+<div class="paragraph">
+<p>Transforms allow you to create/update/delete fields using the <a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/core.html#expressions">Spring Expression Language</a> (SpEL):</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>field1='foo'</code> &#8594; generate a field named <code>field1</code> containing the string <code>foo</code></p>
+</li>
+<li>
+<p><code>temp=(temp-32)*5/9</code> &#8594; convert temperature from Fahrenheit to Celsius</p>
+</li>
+<li>
+<p><code>name=remove(first).concat(remove(last))</code> &#8594; concatenate <code>first</code> and <code>last</code> fields and delete them</p>
+</li>
+<li>
+<p><code>field2=null</code> &#8594; delete <code>field2</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Input fields are accessed by name (e.g. <code>field3=field1+field2</code>).</p>
+</div>
+<div class="paragraph">
+<p>The transform processor also exposes functions and variables that can be accessed using the <code>#</code> prefix:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>date</code>: Date parser/formatter (<a href="https://docs.oracle.com/javase/7/docs/api/java/text/SimpleDateFormat.html">API doc</a>)</p>
+</li>
+<li>
+<p><code>geo</code>: Convenience method that takes a longitude and a latitude to produce a RediSearch geo-location string in the form <code>longitude,latitude</code></p>
+</li>
+<li>
+<p><code>index</code>: Sequence number of the item being generated</p>
+</li>
+<li>
+<p><code>redis</code>: Handle to invoke Redis commands (<a href="https://lettuce.io/core/release/api/io/lettuce/core/api/sync/RedisCommands.html">API doc</a>)</p>
+</li>
+</ul>
+</div>
+<div class="literalblock">
+<div class="title">Processor Example</div>
+<div class="content">
+<pre><span class="green">riot-file</span> import --process epoch=<span class="olive">"#date.parse(mydate).getTime()"</span> location=<span class="olive">"#geo(lon,lat)"</span> id=<span class="olive">"#index"</span> name=<span class="olive">"#redis.hget('person1','lastName')"</span> ...</pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_regular_expressions"><a class="anchor" href="#_regular_expressions"></a>3.4.2. Regular Expressions</h4>
+<div class="paragraph">
+<p>Extract patterns from source fields using regular expressions:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre><span class="green">riot-file</span> import --regex name=<span class="olive">"(?<first>\w+)\/(?<last>\w+)"</span> ...</pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_filters"><a class="anchor" href="#_filters"></a>3.4.3. Filters</h4>
+<div class="paragraph">
+<p>Keep records that match a SpEL boolean expression.</p>
+</div>
+<div class="paragraph">
+<p>For example this filter will only keep records where the <code>value</code> field is a series of digits:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre><span class="green">riot-file</span> import --filter "value matches '\\d+'" ...</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_exporting"><a class="anchor" href="#_exporting"></a>4. Exporting</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The <code>export</code> command reads data from a Redis database and writes it to a JSON or XML file, potentially gzip-compressed. The general usage is:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre><span class="green">riot-file</span> -h &lt;host&gt; -p &lt;port&gt; export FILE</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>To show the full usage, run:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre><span class="green">riot-file</span> export --help</pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Compressed JSON export example</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash">riot-file export /tmp/beers.json.gz --scan-match beer:*</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">XML export example</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash">riot-file export /tmp/redis.xml</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Exported file example</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="json">[
+  {
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">key</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">string:615</span><span class="delimiter">&quot;</span></span>,
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">ttl</span><span class="delimiter">&quot;</span></span>: <span class="integer">-1</span>,
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">value</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">value:615</span><span class="delimiter">&quot;</span></span>,
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">type</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">STRING</span><span class="delimiter">&quot;</span></span>
+  },
+  {
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">key</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">hash:511</span><span class="delimiter">&quot;</span></span>,
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">ttl</span><span class="delimiter">&quot;</span></span>: <span class="integer">-1</span>,
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">value</span><span class="delimiter">&quot;</span></span>: {
+      <span class="key"><span class="delimiter">&quot;</span><span class="content">field1</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">value511</span><span class="delimiter">&quot;</span></span>,
+      <span class="key"><span class="delimiter">&quot;</span><span class="content">field2</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">value511</span><span class="delimiter">&quot;</span></span>
+    },
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">type</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">HASH</span><span class="delimiter">&quot;</span></span>
+  },
+  {
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">key</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">list:1</span><span class="delimiter">&quot;</span></span>,
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">ttl</span><span class="delimiter">&quot;</span></span>: <span class="integer">-1</span>,
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">value</span><span class="delimiter">&quot;</span></span>: [
+      <span class="string"><span class="delimiter">&quot;</span><span class="content">member:991</span><span class="delimiter">&quot;</span></span>,
+      <span class="string"><span class="delimiter">&quot;</span><span class="content">member:981</span><span class="delimiter">&quot;</span></span>
+    ],
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">type</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">LIST</span><span class="delimiter">&quot;</span></span>
+  },
+  {
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">key</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">set:2</span><span class="delimiter">&quot;</span></span>,
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">ttl</span><span class="delimiter">&quot;</span></span>: <span class="integer">-1</span>,
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">value</span><span class="delimiter">&quot;</span></span>: [
+      <span class="string"><span class="delimiter">&quot;</span><span class="content">member:2</span><span class="delimiter">&quot;</span></span>,
+      <span class="string"><span class="delimiter">&quot;</span><span class="content">member:3</span><span class="delimiter">&quot;</span></span>
+    ],
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">type</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">SET</span><span class="delimiter">&quot;</span></span>
+  },
+  {
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">key</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">zset:0</span><span class="delimiter">&quot;</span></span>,
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">ttl</span><span class="delimiter">&quot;</span></span>: <span class="integer">-1</span>,
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">value</span><span class="delimiter">&quot;</span></span>: [
+      {
+        <span class="key"><span class="delimiter">&quot;</span><span class="content">value</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">member:1</span><span class="delimiter">&quot;</span></span>,
+        <span class="key"><span class="delimiter">&quot;</span><span class="content">score</span><span class="delimiter">&quot;</span></span>: <span class="float">1.0</span>
+      }
+    ],
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">type</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">ZSET</span><span class="delimiter">&quot;</span></span>
+  },
+  {
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">key</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">stream:0</span><span class="delimiter">&quot;</span></span>,
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">ttl</span><span class="delimiter">&quot;</span></span>: <span class="integer">-1</span>,
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">value</span><span class="delimiter">&quot;</span></span>: [
+      {
+        <span class="key"><span class="delimiter">&quot;</span><span class="content">stream</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">stream:0</span><span class="delimiter">&quot;</span></span>,
+        <span class="key"><span class="delimiter">&quot;</span><span class="content">id</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">1602190921109-0</span><span class="delimiter">&quot;</span></span>,
+        <span class="key"><span class="delimiter">&quot;</span><span class="content">body</span><span class="delimiter">&quot;</span></span>: {
+          <span class="key"><span class="delimiter">&quot;</span><span class="content">field1</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">value0</span><span class="delimiter">&quot;</span></span>,
+          <span class="key"><span class="delimiter">&quot;</span><span class="content">field2</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">value0</span><span class="delimiter">&quot;</span></span>
+        }
+      }
+    ],
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">type</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">STREAM</span><span class="delimiter">&quot;</span></span>
+  }
+]</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+Version <br>
+Last updated 2022-01-13 00:54:05 UTC
+</div>
+</div>
+<link rel="stylesheet" href="./coderay-asciidoctor.css">
+</body>
+</html>

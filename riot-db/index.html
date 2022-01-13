@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 2.0.10">
+<title>RIOT-DB</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
+<link rel="stylesheet" href="./asciidoctor.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body class="article toc2 toc-left">
+<div id="header">
+<h1>RIOT-DB</h1>
+<div class="details">
+<span id="revnumber">version </span>
+</div>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_introduction">1. Introduction</a></li>
+<li><a href="#_getting-started">2. Getting Started</a>
+<ul class="sectlevel2">
+<li><a href="#_install">2.1. Install</a></li>
+<li><a href="#_usage">2.2. Usage</a></li>
+</ul>
+</li>
+<li><a href="#_jdbc_drivers">3. JDBC Drivers</a></li>
+<li><a href="#_importing">4. Importing</a>
+<ul class="sectlevel2">
+<li><a href="#_redis-commands">4.1. Redis Commands</a></li>
+<li><a href="#_processing">4.2. Processing</a></li>
+</ul>
+</li>
+<li><a href="#_exporting">5. Exporting</a></li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div class="sect1">
+<h2 id="_introduction"><a class="anchor" href="#_introduction"></a>1. Introduction</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>RIOT-DB is a database import/export tool for Redis built on top of the <a href="https://github.com/redis-developer/lettucemod/">LettuceMod</a> Java driver.</p>
+</div>
+<div class="paragraph">
+<p>It supports <a href="https://redis.io">Redis</a> and <a href="https://redis.com/redis-enterprise-software/overview/">Redis Enterprise</a> in either standalone or <a href="https://redis.io/topics/cluster-tutorial">cluster</a> deployments.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_getting-started"><a class="anchor" href="#_getting-started"></a>2. Getting Started</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_install"><a class="anchor" href="#_install"></a>2.1. Install</h3>
+<div class="paragraph">
+<p>RIOT-DB can be installed in different ways depending on your environment and preference.</p>
+</div>
+<div class="sect3">
+<h4 id="_download_and_run"><a class="anchor" href="#_download_and_run"></a>2.1.1. Download and Run</h4>
+<div class="paragraph">
+<p>Download the <a href="https://github.com/redis-developer/riot/releases/latest">latest release</a>, unzip and copy to the desired location.</p>
+</div>
+<div class="paragraph">
+<p>Launch the <code>bin/riot-db</code> script and follow the usage information provided.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_homebrew_macos"><a class="anchor" href="#_homebrew_macos"></a>2.1.2. Homebrew (macOS)</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="source">brew install redis-developer/tap/riot-db</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_scoop_windows"><a class="anchor" href="#_scoop_windows"></a>2.1.3. Scoop (Windows)</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="source">scoop bucket add redis-developer https://github.com/redis-developer/scoop.git
+scoop install riot-db</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_clone_and_run"><a class="anchor" href="#_clone_and_run"></a>2.1.4. Clone and run</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="source">git clone https://github.com/redis-developer/riot.git
+cd riot/bin
+./riot-db</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_usage"><a class="anchor" href="#_usage"></a>2.2. Usage</h3>
+<div class="paragraph">
+<p>To display usage help, run the following command:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre><span class="green">riot-db</span> --help
+Usage: <strong>riot-db</strong> [OPTIONS] [COMMAND]
+  <span class="olive">-H</span>, <span class="olive">--help</span>                Show this help message and exit
+  <span class="olive">-V</span>, <span class="olive">--version</span>             Print version information and exit.
+  <span class="olive">-q</span>, <span class="olive">--quiet</span>               Log errors only.
+  <span class="olive">-w</span>, <span class="olive">--warn</span>                Set log level to warn.
+  <span class="olive">-i</span>, <span class="olive">--info</span>                Set log level to info.
+  <span class="olive">-d</span>, <span class="olive">--debug</span>               Log in debug mode (includes normal stacktrace).
+      <span class="olive">--stacktrace</span>          Print out the stacktrace for all exceptions.
+Redis connection options
+  <span class="olive">-h</span>, <span class="olive">--hostname</span>=&lt;host&gt;     Server hostname (default: localhost).
+  <span class="olive">-p</span>, <span class="olive">--port</span>=&lt;port&gt;         Server port (default: 6379).
+  <span class="olive">-s</span>, <span class="olive">--socket</span>=&lt;socket&gt;     Server socket (overrides hostname and port).
+      <span class="olive">--user</span>=&lt;name&gt;         Used to send ACL style 'AUTH username pass'. Needs password.
+  <span class="olive">-a</span>, <span class="olive">--pass</span>[=&lt;password&gt;]   Password to use when connecting to the server.
+  <span class="olive">-u</span>, <span class="olive">--uri</span>=&lt;uri&gt;...        Server URI.
+      --timeout=&lt;sec&gt;       Redis command timeout (default: 60).
+  <span class="olive">-n</span>, <span class="olive">--db</span>=&lt;db&gt;             Database number (default: 0).
+  <span class="olive">-c</span>, <span class="olive">--cluster</span>             Enable cluster mode.
+      <span class="olive">--tls</span>                 Establish a secure TLS connection.
+      <span class="olive">--insecure</span>            Allow insecure TLS connection by skipping cert validation.</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Redis connection options are the same as <code>redis-cli</code>.</p>
+</div>
+<div class="paragraph">
+<p>For Redis URI syntax see <a href="https://github.com/lettuce-io/lettuce-core/wiki/Redis-URI-and-connection-details#uri-syntax">here</a>.</p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>You can use <code>--help</code> on any subcommand:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre><span class="green">riot-db</span> <span class="red">command</span> --help
+<span class="green">riot-db</span> command <span class="red">subcommand</span> --help</pre>
+</div>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_jdbc_drivers"><a class="anchor" href="#_jdbc_drivers"></a>3. JDBC Drivers</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>RIOT-DB includes JDBC drivers for the most common RDBMSs:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://docs.oracle.com/cd/E11882_01/appdev.112/e13995/oracle/jdbc/OracleDriver.html">Oracle</a></p>
+<div class="paragraph">
+<p><code>jdbc:oracle:thin:@myhost:1521:orcl</code></p>
+</div>
+</li>
+<li>
+<p><a href="https://www.ibm.com/support/knowledgecenter/en/SSEPGG_11.5.0/com.ibm.db2.luw.apdv.java.doc/src/tpc/imjcc_r0052342.html">IBM Db2</a></p>
+<div class="paragraph">
+<p><code>jdbc:db2://host:port/database</code></p>
+</div>
+</li>
+<li>
+<p><a href="https://docs.microsoft.com/en-us/sql/connect/jdbc/building-the-connection-url?view=sql-server-2017">MS SQL Server</a></p>
+<div class="paragraph">
+<p><code>jdbc:sqlserver://[serverName[\instanceName][:portNumber]][;property=value[;property=value]]</code></p>
+</div>
+</li>
+<li>
+<p><a href="https://dev.mysql.com/doc/connector-j/8.0/en/connector-j-reference-jdbc-url-format.html">MySQL</a></p>
+<div class="paragraph">
+<p><code>jdbc:mysql://[host]:[port][/database][?properties]</code></p>
+</div>
+</li>
+<li>
+<p><a href="https://www.postgresql.org/docs/7.4/jdbc-use.html">PostgreSQL</a></p>
+<div class="paragraph">
+<p><code>jdbc:postgresql://host:port/database</code></p>
+</div>
+</li>
+<li>
+<p><a href="https://www.sqlitetutorial.net/sqlite-java/sqlite-jdbc-driver/">SQLite</a></p>
+<div class="paragraph">
+<p><code>jdbc:sqlite:sqlite_database_file_path</code></p>
+</div>
+</li>
+</ul>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>For non-included databases you must install the corresponding JDBC driver under the <code>lib</code> directory and modify the <code>CLASSPATH</code>:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>*nix: <code>bin/riot-db</code> &#8594; <code>CLASSPATH=$APP_HOME/lib/myjdbc.jar:$APP_HOME/lib/&#8230;&#8203;</code></p>
+</li>
+<li>
+<p>Windows: <code>bin\riot-db.bat</code> &#8594; <code>set CLASSPATH=%APP_HOME%\lib\myjdbc.jar;%APP_HOME%\lib...</code></p>
+</li>
+</ul>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_importing"><a class="anchor" href="#_importing"></a>4. Importing</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The <code>import</code> command reads rows from a SQL resultset and writes them to Redis. The general usage is:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre><span class="green">riot-db</span> -h &lt;redis host&gt; -p &lt;redis port&gt; import --url &lt;jdbc url&gt; <span class="olive">SQL</span> [REDIS COMMAND...]</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>To show the full usage, run:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre><span class="green">riot-db</span> import --help</pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">PostgreSQL Example</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash">riot-db import &quot;SELECT * FROM orders&quot; --url &quot;jdbc:postgresql://host:port/database&quot; --username appuser --password passwd hset --keyspace order --keys order_id</code></pre>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_redis-commands"><a class="anchor" href="#_redis-commands"></a>4.1. Redis Commands</h3>
+<div class="paragraph">
+<p>Redis keys are constructed from input records by concatenating the keyspace prefix and key fields:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="mapping.png" alt="mapping">
+</div>
+</div>
+<div class="paragraph">
+<p>You can specify one or many Redis commands as targets of the import:</p>
+</div>
+<div class="literalblock">
+<div class="title">Import into hashes</div>
+<div class="content">
+<pre><span class="green">riot-db</span> import ... <strong class="olive">hset</strong> --keyspace blah --keys id</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="title">Import into hashes <strong>and</strong> set TTL on the key</div>
+<div class="content">
+<pre><span class="green">riot-db</span> import ... <strong class="olive">hset</strong> --keyspace blah --keys id <strong class="olive">expire</strong> --keyspace blah --keys id</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="title">Import into hashes <strong>and</strong> set TTL <strong>and</strong> add to a set named <code>myset</code></div>
+<div class="content">
+<pre><span class="green">riot-db</span> import ... <strong class="olive">hset</strong> --keyspace blah --keys id <strong class="olive">expire</strong> --keyspace blah --keys id <strong class="olive">sadd</strong> --keyspace myset --members id</pre>
+</div>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Redis connection options apply to the root command (riot-db) and not to subcommands.</p>
+</div>
+<div class="paragraph">
+<p>In this example the redis options will not be taken into account:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre><span class="green">riot-db</span> import ... <strong class="olive">hset</strong> <span class="line-through"><strong class="red">-h myredis.com -p 6380</strong></span></pre>
+</div>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_processing"><a class="anchor" href="#_processing"></a>4.2. Processing</h3>
+<div class="paragraph">
+<p>The following processors can be applied to records in that order:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Transforms</p>
+</li>
+<li>
+<p>Regular expressions</p>
+</li>
+<li>
+<p>Filters</p>
+</li>
+</ul>
+</div>
+<div class="sect3">
+<h4 id="_transforms"><a class="anchor" href="#_transforms"></a>4.2.1. Transforms</h4>
+<div class="paragraph">
+<p>Transforms allow you to create/update/delete fields using the <a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/core.html#expressions">Spring Expression Language</a> (SpEL):</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>field1='foo'</code> &#8594; generate a field named <code>field1</code> containing the string <code>foo</code></p>
+</li>
+<li>
+<p><code>temp=(temp-32)*5/9</code> &#8594; convert temperature from Fahrenheit to Celsius</p>
+</li>
+<li>
+<p><code>name=remove(first).concat(remove(last))</code> &#8594; concatenate <code>first</code> and <code>last</code> fields and delete them</p>
+</li>
+<li>
+<p><code>field2=null</code> &#8594; delete <code>field2</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Input fields are accessed by name (e.g. <code>field3=field1+field2</code>).</p>
+</div>
+<div class="paragraph">
+<p>The transform processor also exposes functions and variables that can be accessed using the <code>#</code> prefix:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>date</code>: Date parser/formatter (<a href="https://docs.oracle.com/javase/7/docs/api/java/text/SimpleDateFormat.html">API doc</a>)</p>
+</li>
+<li>
+<p><code>geo</code>: Convenience method that takes a longitude and a latitude to produce a RediSearch geo-location string in the form <code>longitude,latitude</code></p>
+</li>
+<li>
+<p><code>index</code>: Sequence number of the item being generated</p>
+</li>
+<li>
+<p><code>redis</code>: Handle to invoke Redis commands (<a href="https://lettuce.io/core/release/api/io/lettuce/core/api/sync/RedisCommands.html">API doc</a>)</p>
+</li>
+</ul>
+</div>
+<div class="literalblock">
+<div class="title">Processor Example</div>
+<div class="content">
+<pre><span class="green">riot-db</span> import --process epoch=<span class="olive">"#date.parse(mydate).getTime()"</span> location=<span class="olive">"#geo(lon,lat)"</span> id=<span class="olive">"#index"</span> name=<span class="olive">"#redis.hget('person1','lastName')"</span> ...</pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_regular_expressions"><a class="anchor" href="#_regular_expressions"></a>4.2.2. Regular Expressions</h4>
+<div class="paragraph">
+<p>Extract patterns from source fields using regular expressions:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre><span class="green">riot-db</span> import --regex name=<span class="olive">"(?<first>\w+)\/(?<last>\w+)"</span> ...</pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_filters"><a class="anchor" href="#_filters"></a>4.2.3. Filters</h4>
+<div class="paragraph">
+<p>Keep records that match a SpEL boolean expression.</p>
+</div>
+<div class="paragraph">
+<p>For example this filter will only keep records where the <code>value</code> field is a series of digits:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre><span class="green">riot-db</span> import --filter "value matches '\\d+'" ...</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_exporting"><a class="anchor" href="#_exporting"></a>5. Exporting</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The <code>export</code> command reads data from a Redis database and writes it to a SQL database. The general usage is:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre><span class="green">riot-db</span> -h &lt;redis host&gt; -p &lt;redis port&gt; export --url &lt;jdbc url&gt; <span class="olive">SQL</span></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>To show the full usage, run:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre><span class="green">riot-db</span> export --help</pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Export to PostgreSQL</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash">riot-db export &quot;INSERT INTO mytable (id, field1, field2) VALUES (CAST(:id AS SMALLINT), :field1, :field2)&quot; --url &quot;jdbc:postgresql://host:port/database&quot; --username appuser --password passwd --scan-match &quot;hash:*&quot; --key-regex &quot;hash:(?&lt;id&gt;.*)&quot;</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Import from PostgreSQL to JSON strings</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash">riot-db import &quot;SELECT * FROM orders&quot; --url &quot;jdbc:postgresql://host:port/database&quot; --username appuser --password passwd set --keyspace order --keys order_id</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This will produce Redis strings that look like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="json">{
+  <span class="key"><span class="delimiter">&quot;</span><span class="content">order_id</span><span class="delimiter">&quot;</span></span>: <span class="integer">10248</span>,
+  <span class="key"><span class="delimiter">&quot;</span><span class="content">customer_id</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">VINET</span><span class="delimiter">&quot;</span></span>,
+  <span class="key"><span class="delimiter">&quot;</span><span class="content">employee_id</span><span class="delimiter">&quot;</span></span>: <span class="integer">5</span>,
+  <span class="key"><span class="delimiter">&quot;</span><span class="content">order_date</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">1996-07-04</span><span class="delimiter">&quot;</span></span>,
+  <span class="key"><span class="delimiter">&quot;</span><span class="content">required_date</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">1996-08-01</span><span class="delimiter">&quot;</span></span>,
+  <span class="key"><span class="delimiter">&quot;</span><span class="content">shipped_date</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">1996-07-16</span><span class="delimiter">&quot;</span></span>,
+  <span class="key"><span class="delimiter">&quot;</span><span class="content">ship_via</span><span class="delimiter">&quot;</span></span>: <span class="integer">3</span>,
+  <span class="key"><span class="delimiter">&quot;</span><span class="content">freight</span><span class="delimiter">&quot;</span></span>: <span class="float">32.38</span>,
+  <span class="key"><span class="delimiter">&quot;</span><span class="content">ship_name</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">Vins et alcools Chevalier</span><span class="delimiter">&quot;</span></span>,
+  <span class="key"><span class="delimiter">&quot;</span><span class="content">ship_address</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">59 rue de l'Abbaye</span><span class="delimiter">&quot;</span></span>,
+  <span class="key"><span class="delimiter">&quot;</span><span class="content">ship_city</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">Reims</span><span class="delimiter">&quot;</span></span>,
+  <span class="key"><span class="delimiter">&quot;</span><span class="content">ship_postal_code</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">51100</span><span class="delimiter">&quot;</span></span>,
+  <span class="key"><span class="delimiter">&quot;</span><span class="content">ship_country</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">France</span><span class="delimiter">&quot;</span></span>
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+Version <br>
+Last updated 2022-01-13 00:54:05 UTC
+</div>
+</div>
+<link rel="stylesheet" href="./coderay-asciidoctor.css">
+</body>
+</html>

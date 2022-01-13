@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 2.0.10">
+<title>RIOT-Redis</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
+<link rel="stylesheet" href="./asciidoctor.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body class="article toc2 toc-left">
+<div id="header">
+<h1>RIOT-Redis</h1>
+<div class="details">
+<span id="revnumber">version </span>
+</div>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_introduction">1. Introduction</a></li>
+<li><a href="#_getting-started">2. Getting Started</a>
+<ul class="sectlevel2">
+<li><a href="#_install">2.1. Install</a></li>
+<li><a href="#_usage">2.2. Usage</a></li>
+</ul>
+</li>
+<li><a href="#_replicating">3. Replicating</a>
+<ul class="sectlevel2">
+<li><a href="#_type_based_replication">3.1. Type-Based Replication</a></li>
+<li><a href="#_verification">3.2. Verification</a></li>
+</ul>
+</li>
+<li><a href="#_architecture">4. Architecture</a>
+<ul class="sectlevel2">
+<li><a href="#_producer">4.1. Producer</a></li>
+<li><a href="#_consumer">4.2. Consumer</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div class="sect1">
+<h2 id="_introduction"><a class="anchor" href="#_introduction"></a>1. Introduction</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>RIOT-Redis is a data migration tool for Redis.</p>
+</div>
+<div class="paragraph">
+<p>Most Redis migration tools available today are offline in nature. Migrating data from AWS ElastiCache to Redis Enterprise Cloud for example means backing up your Elasticache data to an AWS S3 bucket and importing it into Redis Enterprise Cloud using its UI. RIOT-Redis allows for live data migration between any Redis databases.</p>
+</div>
+<div class="paragraph">
+<p>RIOT-Redis does not make use of the <a href="https://redis.io/commands/replicaof">REPLICAOF</a> command which is not always available (see <a href="https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/RestrictedCommands.html">ElastiCache restrictions</a>). Instead it implements client-side replication using DUMP and RESTORE:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="replication.png" alt="replication">
+</div>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Key reader: initiates a SCAN and optionally calls SUBSCRIBE to listen for keyspace notifications (live replication).</p>
+</li>
+<li>
+<p>Value reader: takes the keys and calls DUMP and TTL.</p>
+</li>
+<li>
+<p>Key/Value writer: takes key/value/ttl tuples and calls RESTORE and EXPIRE.</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_getting-started"><a class="anchor" href="#_getting-started"></a>2. Getting Started</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_install"><a class="anchor" href="#_install"></a>2.1. Install</h3>
+<div class="paragraph">
+<p>RIOT-Redis can be installed in different ways depending on your environment and preference.</p>
+</div>
+<div class="sect3">
+<h4 id="_download_and_run"><a class="anchor" href="#_download_and_run"></a>2.1.1. Download and Run</h4>
+<div class="paragraph">
+<p>Download the <a href="https://github.com/redis-developer/riot/releases/latest">latest release</a>, unzip and copy to the desired location.</p>
+</div>
+<div class="paragraph">
+<p>Launch the <code>bin/riot-redis</code> script and follow the usage information provided.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_homebrew_macos"><a class="anchor" href="#_homebrew_macos"></a>2.1.2. Homebrew (macOS)</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="source">brew install redis-developer/tap/riot-redis</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_scoop_windows"><a class="anchor" href="#_scoop_windows"></a>2.1.3. Scoop (Windows)</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="source">scoop bucket add redis-developer https://github.com/redis-developer/scoop.git
+scoop install riot-redis</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_clone_and_run"><a class="anchor" href="#_clone_and_run"></a>2.1.4. Clone and run</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="source">git clone https://github.com/redis-developer/riot.git
+cd riot/bin
+./riot-redis</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_usage"><a class="anchor" href="#_usage"></a>2.2. Usage</h3>
+<div class="paragraph">
+<p>To display usage help, run the following command:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre><span class="green">riot-redis</span> --help
+Usage: <strong>riot-redis</strong> [OPTIONS] [COMMAND]
+  <span class="olive">-H</span>, <span class="olive">--help</span>                Show this help message and exit
+  <span class="olive">-V</span>, <span class="olive">--version</span>             Print version information and exit.
+  <span class="olive">-q</span>, <span class="olive">--quiet</span>               Log errors only.
+  <span class="olive">-w</span>, <span class="olive">--warn</span>                Set log level to warn.
+  <span class="olive">-i</span>, <span class="olive">--info</span>                Set log level to info.
+  <span class="olive">-d</span>, <span class="olive">--debug</span>               Log in debug mode (includes normal stacktrace).
+      <span class="olive">--stacktrace</span>          Print out the stacktrace for all exceptions.
+Redis connection options
+  <span class="olive">-h</span>, <span class="olive">--hostname</span>=&lt;host&gt;     Server hostname (default: localhost).
+  <span class="olive">-p</span>, <span class="olive">--port</span>=&lt;port&gt;         Server port (default: 6379).
+  <span class="olive">-s</span>, <span class="olive">--socket</span>=&lt;socket&gt;     Server socket (overrides hostname and port).
+      <span class="olive">--user</span>=&lt;name&gt;         Used to send ACL style 'AUTH username pass'. Needs password.
+  <span class="olive">-a</span>, <span class="olive">--pass</span>[=&lt;password&gt;]   Password to use when connecting to the server.
+  <span class="olive">-u</span>, <span class="olive">--uri</span>=&lt;uri&gt;...        Server URI.
+      --timeout=&lt;sec&gt;       Redis command timeout (default: 60).
+  <span class="olive">-n</span>, <span class="olive">--db</span>=&lt;db&gt;             Database number (default: 0).
+  <span class="olive">-c</span>, <span class="olive">--cluster</span>             Enable cluster mode.
+      <span class="olive">--tls</span>                 Establish a secure TLS connection.
+      <span class="olive">--insecure</span>            Allow insecure TLS connection by skipping cert validation.</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Redis connection options are the same as <code>redis-cli</code>.</p>
+</div>
+<div class="paragraph">
+<p>For Redis URI syntax see <a href="https://github.com/lettuce-io/lettuce-core/wiki/Redis-URI-and-connection-details#uri-syntax">here</a>.</p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>You can use <code>--help</code> on any subcommand:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre><span class="green">riot-redis</span> <span class="red">command</span> --help
+<span class="green">riot-redis</span> command <span class="red">subcommand</span> --help</pre>
+</div>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_replicating"><a class="anchor" href="#_replicating"></a>3. Replicating</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The <code>replicate</code> command reads data from a source Redis database and writes it to a target Redis database. The general usage is:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre><span class="green">riot-redis</span> -h &lt;src host&gt; -p &lt;src port&gt; replicate -h &lt;dest host&gt; -p &lt;dest port&gt;</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>To show the full usage, run:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre><span class="green">riot-redis</span> replicate --help</pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Simple replication example</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash">riot-redis -h source -p 6379 replicate -h target -p 6380 --batch 10</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Live replication example</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash">riot-redis -h source -p 6379 replicate -h target -p 6380 --mode live</code></pre>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_type_based_replication"><a class="anchor" href="#_type_based_replication"></a>3.1. Type-Based Replication</h3>
+<div class="paragraph">
+<p>RIOT-Redis includes another type of replication that uses data structure-specific producers and consumers where each Redis data structure type has a corresponding pair of read/write commands:</p>
+</div>
+<table class="tableblock frame-none grid-none stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Read</th>
+<th class="tableblock halign-left valign-top">Write</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Hash</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>HGETALL</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>HSET</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">List</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>LRANGE</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>RPUSH</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Set</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>SMEMBERS</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>SADD</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Sorted Set</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>ZRANGE</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>ZADD</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Stream</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>XRANGE</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>XADD</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>GET</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>SET</code></p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>To select this replication mechanism pass <code>--type ds</code> option to the <code>replicate</code> command:</p>
+</div>
+<div class="listingblock">
+<div class="title">Live type-based replication example</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash">riot-redis -h source -p 6379 replicate --type ds -h target -p 6380 --mode live</code></pre>
+</div>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+This replication strategy is more intensive in terms of CPU, memory, and network for the machines running RIOT-Redis. Adjust number of threads, batch, and queue sizes accordingly.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_verification"><a class="anchor" href="#_verification"></a>3.2. Verification</h3>
+<div class="paragraph">
+<p>Once replication is complete (i.e. for snapshot replication when scan is complete, for live replication when no keyspace notification idle) RIOT-Redis will perform a verification step. This step iterates over keys in the source database and compares values and TTLs between source and target databases. The output looks like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>&gt;1,234 T2,345 ≠3,456 ⧗4,567 &lt;5,678</pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>&gt;</code>: # keys only present in source database</p>
+</li>
+<li>
+<p><code>T</code>: # mismatched data structure types</p>
+</li>
+<li>
+<p><code>≠</code>: # mismatched values</p>
+</li>
+<li>
+<p><code>⧗</code>: # keys with TTL delta greater than tolerance</p>
+</li>
+<li>
+<p><code>&lt;</code>: # keys only present in target database</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_architecture"><a class="anchor" href="#_architecture"></a>4. Architecture</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>RIOT-Redis follows a producer/consumer approach.</p>
+</div>
+<div class="sect2">
+<h3 id="_producer"><a class="anchor" href="#_producer"></a>4.1. Producer</h3>
+<div class="paragraph">
+<p>The producer is connected to the source Redis (e.g. ElastiCache) database and iterates over keys to be replicated by performing a SCAN and reading the corresponding values with DUMP. This is the snapshot part of the replication process.</p>
+</div>
+<div class="paragraph">
+<p>If live replication is enabled the producer also subscribes to keyspace notifications to generate a continuous stream of keys and corresponding values.</p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+Make sure the source Redis database has keyspace notifications enabled using <code>notify-keyspace-events = KA</code> in <code>redis.conf</code> or via CONFIG SET.
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+The live replication mechanism does not guarantee data consistency. Redis sends keyspace notifications over pub/sub which does not provide	guaranteed delivery. It is possible that RIOT-Redis can miss some notifications in case of network failures for example.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Both snapshot and live producer processes make use of <a href="https://redis.io/topics/pipelining">pipelining</a> in order to read values in a batch fashion. Use the <code>--reader-batch</code> option to configure the number of values to be read in a single pipelined call. Each process can be multi-threaded using the <code>--reader-threads</code> option.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_consumer"><a class="anchor" href="#_consumer"></a>4.2. Consumer</h3>
+<div class="paragraph">
+<p>The consumer is responsible for ingesting the keys and values generated by the producer and writing them to the target Redis database (e.g. Redis Enterprise Cloud). For each key/value pair it issues a RESTORE command.</p>
+</div>
+<div class="paragraph">
+<p>The consumer process also makes use of <a href="https://redis.io/topics/pipelining">pipelining</a> in order to write values in a batch fashion. Use the <code>--batch</code> option to configure the number of values to be written in a single pipelined call.</p>
+</div>
+<div class="paragraph">
+<p>Like the consumer the producer process can be multi-threaded, using the <code>--threads</code> option.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+Version <br>
+Last updated 2022-01-13 00:54:05 UTC
+</div>
+</div>
+<link rel="stylesheet" href="./coderay-asciidoctor.css">
+</body>
+</html>
