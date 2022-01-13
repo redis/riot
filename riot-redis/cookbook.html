@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 2.0.10">
+<title>RIOT-Redis Cookbook</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
+<link rel="stylesheet" href="./asciidoctor.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body class="article toc2 toc-left">
+<div id="header">
+<h1>RIOT-Redis Cookbook</h1>
+<div class="details">
+<span id="revnumber">version 2.15.0</span>
+</div>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#elasticache">1. Migrating from Elasticache to Redis Enterprise</a>
+<ul class="sectlevel2">
+<li><a href="#_prerequisites">1.1. Prerequisites</a></li>
+<li><a href="#_setup">1.2. Setup</a></li>
+<li><a href="#_performing_migration">1.3. Performing Migration</a></li>
+<li><a href="#_important_considerations">1.4. Important Considerations</a></li>
+<li><a href="#_troubleshooting">1.5. Troubleshooting</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>This cookbook contains various recipes using RIOT-Redis.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="elasticache"><a class="anchor" href="#elasticache"></a>1. Migrating from Elasticache to Redis Enterprise</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This recipe contains step-by-step instructions to perform migrations from AWS Elasticache to Redis Enterprise.</p>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+Please note that the tool used in this recipe (RIOT-Redis) is NEITHER recommended NOR officially supported by Redis, Inc.
+</td>
+</tr>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_prerequisites"><a class="anchor" href="#_prerequisites"></a>1.1. Prerequisites</h3>
+<div class="paragraph">
+<p>For this recipe you will require the following resources:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>AWS ElastiCache: <em>Primary Endpoint</em> in case of Single Master and <em>Configuration Endpoint</em> in case of Clustered EC. Refer to <a href="https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/Endpoints.html">this link</a> to learn more</p>
+</li>
+<li>
+<p>Redis Enterprise: hosted on Cloud or On-Prem</p>
+</li>
+<li>
+<p>An Amazon EC2 instance</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_setup"><a class="anchor" href="#_setup"></a>1.2. Setup</h3>
+<div class="sect3">
+<h4 id="_elasticache"><a class="anchor" href="#_elasticache"></a>1.2.1. Elasticache</h4>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="title">Keyspace Notifications</div>
+<div class="paragraph">
+<p>For live (online) migrations you need to <a href="https://aws.amazon.com/premiumsupport/knowledge-center/elasticache-redis-keyspace-notifications/">enable keyspace notifications</a> on your Elasticache instance.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_migration_host"><a class="anchor" href="#_migration_host"></a>1.2.2. Migration Host</h4>
+<div class="paragraph">
+<p>To run the migration tool we will need an EC2 instance.</p>
+</div>
+<div class="paragraph">
+<p>You can either create a new EC2 instance or leverage an existing one if available. In the example below we first create an instance on AWS Cloud Platform. The most common scenario is to access an ElastiCache cluster from an Amazon EC2 instance in the same Amazon Virtual Private Cloud (Amazon VPC). We have used Ubuntu 16.04 LTS for this setup but you can choose any Ubuntu or Debian distribution of your choice.</p>
+</div>
+<div class="paragraph">
+<p>SSH to this EC2 instance from your laptop:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="console">ssh -i “public key” &lt;AWS EC2 Instance&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Install <code>redis-cli</code> on this new instance by running this command:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="console">sudo apt update
+sudo apt install -y redis-tools</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Use <code>redis-cli</code> to check connectivity with the Elasticache database:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="console">redis-cli -h &lt;elasticache primary endpoint&gt; -p 6379</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Ensure that the above command allows you to connect to the remote Elasticache database successfully.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_installing_riot_redis"><a class="anchor" href="#_installing_riot_redis"></a>1.2.3. Installing RIOT-Redis</h4>
+<div class="paragraph">
+<p>Now let&#8217;s install RIOT-Redis on the EC2 instance we set up previously.</p>
+</div>
+<div class="paragraph">
+<p>RIOT-Redis requires Java and the easiest option is to use the version packaged with Ubuntu. By default Ubuntu 18.04 includes Open JDK 11.</p>
+</div>
+<div class="paragraph">
+<p>To install this version, first update the package index:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="console">sudo apt update</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Next, check if Java is already installed:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="console">java -version</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If Java is not currently installed, you’ll see the following output:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="console">Command 'java' not found, but can be installed with:
+
+sudo apt install default-jre
+sudo apt install openjdk-11-jre-headless
+sudo apt install openjdk-8-jre-headless</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Execute the following command to install the default Java Runtime Environment (JRE), which will install the JRE from OpenJDK 11:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="console">sudo apt install default-jre</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Verify the installation with:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="console">java -version</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You should see output similar to the following:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="console">openjdk version &quot;11.0.11&quot; 2021-04-20
+OpenJDK Runtime Environment (build 11.0.11+9-Ubuntu-0ubuntu2.18.04)
+OpenJDK 64-Bit Server VM (build 11.0.11+9-Ubuntu-0ubuntu2.18.04, mixed mode, sharing))</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Download the <a href="https://github.com/redis-developer/riot/releases/latest">latest release</a>, unzip, and copy to the desired location.</p>
+</div>
+<div class="paragraph">
+<p>Now launch the <code>bin/riot-redis</code> script and follow the usage information provided.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_performing_migration"><a class="anchor" href="#_performing_migration"></a>1.3. Performing Migration</h3>
+<div class="paragraph">
+<p>We are now all set to begin the migration process for these different scenarios:</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">EC Single Master to Redis Enterprise (RE)</dt>
+</dl>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="console">riot-redis -h &lt;source EC host&gt; -p &lt;source EC port&gt; replicate -h &lt;target RE host&gt; -p &lt;target RE port&gt; --pass &lt;RE password&gt;</code></pre>
+</div>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">Clustered EC to RE/RE Cloud</dt>
+</dl>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="console">riot-redis -h &lt;source EC host&gt; -p &lt;source EC port&gt; <strong><span class="blue">--cluster</span></strong> replicate -h &lt;target RE host&gt; -p &lt;target RE port&gt; --pass &lt;RE password&gt;</code></pre>
+</div>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">EC Single Master to RE (with specific DB namespace)</dt>
+</dl>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="console">riot-redis -h &lt;source EC host&gt; -p &lt;source EC port&gt; <strong><span class="blue">--db &lt;index&gt;</span></strong> replicate -h &lt;target RE host&gt; -p &lt;target RE port&gt; --pass &lt;RE password&gt;</code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<code>--cluster</code> is an important parameter used ONLY for ElastiCache whenever cluster-mode is enabled. Do note that the source database is specified first and the target database is specified after the replicate command and it is applicable for all the scenarios.
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>In case ElastiCache is configured with <a href="https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/auth.html">AUTH TOKEN enabled</a>, you need to pass <code>--tls</code> as well as <code>--pass</code> option:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="console">riot-redis -h &lt;source EC host&gt; -p &lt;source EC port&gt; --cluster <strong><span class="blue">--tls --pass &lt;token&gt;</span></strong> replicate -h &lt;target RE host&gt; -p &lt;target RE port&gt; --pass &lt;RE password&gt;</code></pre>
+</div>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_important_considerations"><a class="anchor" href="#_important_considerations"></a>1.4. Important Considerations</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>As stated earlier, this tool is not officially supported by Redis Inc.</p>
+</li>
+<li>
+<p>It is recommended to test migration in UAT before production use.</p>
+</li>
+<li>
+<p>Once migration is completed, ensure that application traffic gets redirected to Redis Enterprise Endpoint successfully.</p>
+</li>
+<li>
+<p>It is recommended to perform the migration process during low traffic so as to avoid chances of data loss.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_troubleshooting"><a class="anchor" href="#_troubleshooting"></a>1.5. Troubleshooting</h3>
+<div class="sect3">
+<h4 id="_authentication_required"><a class="anchor" href="#_authentication_required"></a>1.5.1. Authentication Required</h4>
+<div class="paragraph">
+<p>You might face this error message while running the migration tool:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="console">Could not write record: NOAUTH
+Authentication required</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This issue occurs when you fail to supply the <code>--pass &lt;password&gt;</code> parameter while running the <code>riot-redis replicate</code> command.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+Version 2.15.0<br>
+Last updated 2022-01-13 05:57:21 UTC
+</div>
+</div>
+<link rel="stylesheet" href="./coderay-asciidoctor.css">
+</body>
+</html>
