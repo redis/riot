@@ -23,6 +23,8 @@ RIOT-File:: link:{site-url}/riot-file/index.html[Documentation]
 
 RIOT-Gen:: link:{site-url}/riot-gen/index.html[Documentation]
 
-RIOT-Redis:: link:{site-url}/riot-redis/index.html[Documentation] link:{site-url}/riot-redis/cookbook.html[Cookbook]
+RIOT-Redis:: link:{site-url}/riot-redis/index.html[Documentation]
++
+link:{site-url}/riot-redis/cookbook.html[Cookbook]
 
 RIOT-Stream:: link:{site-url}/riot-stream/index.html[Documentation]
