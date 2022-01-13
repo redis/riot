@@ -85,14 +85,6 @@ release:
         - search: '\[translation\] '
         - search: '\[build\] '
 
-signing:
-  active: always
-  armored: true
-  files: false
-
-checksum:
-  files: false
-
 announce:
   slack:
     active: release
