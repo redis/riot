@@ -8,7 +8,7 @@ project:
   license: Apache-2.0
   java:
     groupId: com.redis
-    version: 17
+    version: 8
     multiProject: true
   extraProperties:
     inceptionYear: 2020
