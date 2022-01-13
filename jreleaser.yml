@@ -16,7 +16,6 @@ project:
 release:
   github:
     overwrite: true
-    sign: true
     changelog:
       formatted: ALWAYS
       format: '- {{commitShortHash}} {{commitTitle}}'
