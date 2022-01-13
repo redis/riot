@@ -1,9 +1,14 @@
 = RIOT
 
-Redis Input/Output Tools (RIOT) is a series of utilities designed to help you get data in and out of Redis:
+Redis Input/Output Tools (RIOT) is a series of utilities designed to help you get data in and out of Redis.
 
-* link:riot-db/index.html[RIOT-DB]: Import/export SQL databases
-* link:riot-file/index.html[RIOT-File]: Import/export CSV, JSON, XML files
-* link:riot-gen/index.html[RIOT-Gen]: Data generator
-* link:riot-redis/index.html[RIOT-Redis]: Redis to Redis live replication
-* link:riot-stream/index.html[RIOT-Stream]: Import/export Kafka messages
+[horizontal]
+RIOT-DB:: link:riot-db/index.html[Documentation]
+
+RIOT-File:: link:riot-file/index.html[Documentation]
+
+RIOT-Gen:: link:riot-gen/index.html[Documentation]
+
+RIOT-Redis:: link:riot-redis/index.html[Documentation] link:riot-redis/cookbook.html[Cookbook]
+
+RIOT-Stream:: link:riot-stream/index.html[Documentation]

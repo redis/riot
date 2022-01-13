@@ -61,7 +61,7 @@ To show the full usage, run:
 ----
 
 .PostgreSQL Example
-[source,bash]
+[source,console]
 ----
 include::{test-resources}/import-postgresql[]
 ----
@@ -87,13 +87,13 @@ To show the full usage, run:
 ----
 
 .Export to PostgreSQL
-[source,bash]
+[source,console]
 ----
 include::{test-resources}/export-postgresql[]
 ----
 
 .Import from PostgreSQL to JSON strings
-[source,bash]
+[source,console]
 ----
 include::{test-resources}/import-postgresql-set[]
 ----
@@ -102,5 +102,5 @@ This will produce Redis strings that look like this:
 
 [source,json]
 ----
-include::src/docs/resources/order.json[]
+include::../resources/order.json[]
 ----

@@ -82,13 +82,13 @@ Let's consider this CSV file:
 
 The following command imports that CSV file into Redis as hashes using `beer` as the key prefix and `id` as primary key. This creates hashes with keys `beer:1436`, `beer:2265`, ...
 
-[source,bash]
+[source,console]
 ----
 include::{test-resources}/import-csv[]
 ----
 
 This command imports a CSV file into a geo set named `airportgeo` with airport IDs as members:
-[source,bash]
+[source,console]
 ----
 include::{test-resources}/import-geoadd[]
 ----
@@ -97,7 +97,7 @@ include::{test-resources}/import-geoadd[]
 
 Fixed-length files can be imported by specifying the width of each field using the `--ranges` option.
 
-[source,bash]
+[source,console]
 ----
 include::{test-resources}/import-fw[]
 ----
@@ -119,7 +119,7 @@ The expected format for JSON files is:
 ----
 
 .JSON import example
-[source,bash]
+[source,console]
 ----
 include::{test-resources}/import-json[]
 ----
@@ -174,7 +174,7 @@ Here is a sample XML file that can be imported by {project-title}:
 ----
 
 .XML Import Example
-[source,bash]
+[source,console]
 ----
 include::{test-resources}/import-xml[]
 ----
@@ -184,7 +184,7 @@ include::{test-resources}/import-xml[]
 {project-title} can also import Redis data structure files in JSON or XML formats (see Export -> Redis to generate such files).
 
 .Dump Import Example
-[source,bash]
+[source,console]
 ----
 include::{test-resources}/import-dump[]
 ----
@@ -210,13 +210,13 @@ To show the full usage, run:
 ....
 
 .Compressed JSON export example
-[source,bash]
+[source,console]
 ----
 include::{test-resources}/export-json-gz[]
 ----
 
 .XML export example
-[source,bash]
+[source,console]
 ----
 include::{test-resources}/export-xml[]
 ----
@@ -224,5 +224,5 @@ include::{test-resources}/export-xml[]
 .Exported file example
 [source,json]
 ----
-include::src/docs/resources/redis-dump.json[]
+include::../resources/redis-dump.json[]
 ----

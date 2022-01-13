@@ -18,5 +18,5 @@ dependencies {
 bootStartScripts.enabled = false
 
 asciidoctor {
-    outputDir = '../../build/docs/asciidoc/riot-gen'
+    outputDir = "$rootDir/build/docs/asciidoc/riot-gen"
 }

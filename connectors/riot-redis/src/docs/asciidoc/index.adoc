@@ -33,13 +33,13 @@ To show the full usage, run:
 ....
 
 .Simple replication example
-[source,bash]
+[source,console]
 ----
 include::{test-resources}/replicate[]
 ----
 
 .Live replication example
-[source,bash]
+[source,console]
 ----
 include::{test-resources}/replicate-live[]
 ----
@@ -64,11 +64,10 @@ include::{test-resources}/replicate-live[]
 To select this replication mechanism pass `--type ds` option to the `replicate` command:
 
 .Live type-based replication example
-[source,bash]
+[source,console]
 ----
 include::{test-resources}/replicate-ds-live[]
 ----
-
 
 WARNING: This replication strategy is more intensive in terms of CPU, memory, and network for the machines running {project-title}. Adjust number of threads, batch, and queue sizes accordingly.
 

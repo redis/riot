@@ -1,0 +1,5 @@
+= {project-title} Cookbook
+
+This cookbook contains various recipes using {project-title}.
+
+include::elasticache.adoc[leveloffset=1]

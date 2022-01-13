@@ -10,20 +10,20 @@ include::{includedir}/getting-started.adoc[leveloffset=+1]
 
 The `import` command reads messages from a Kafka topic and writes them to a Redis stream. The general usage is:
 
-[subs=+quotes]
+[subs="+quotes"]
 ....
 [green]#riot-stream# -h <redis host> -p <redis port> import --broker <host:port> [olive]#TOPIC#...
 ....
 
 To show the full usage, run:
 
-[subs="attributes,+quotes"]
+[subs="+quotes"]
 ....
 [green]#riot-stream# import --help
 ....
 
 .Import example
-[source,bash]
+[source,console]
 ----
 include::{test-resources}/import[]
 ----
@@ -32,7 +32,7 @@ include::{test-resources}/import[]
 
 The `export` command reads message from a Redis stream and writes them to a Kafka topic. The general usage is:
 
-[subs=+quotes]
+[subs="+quotes"]
 ....
 [green]#riot-stream# -h <redis host> -p <redis port> export --broker <host:port> [olive]#STREAM#...
 ....
@@ -41,11 +41,11 @@ To show the full usage, run:
 
 [subs="+quotes"]
 ....
-[green]#riot-redis# export --help
+[green]#riot-stream# export --help
 ....
 
 .Export example
-[source,bash]
+[source,console]
 ----
 include::{test-resources}/export[]
 ----

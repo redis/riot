@@ -109,17 +109,19 @@ subprojects {
 	        jvmArgs("--add-opens","java.base/sun.nio.ch=ALL-UNNAMED","--add-opens","java.base/java.io=ALL-UNNAMED")
 	    }
 	    resources {
-	    	from('../../core/riot-core/src/docs/resources/images') {
+	    	from("$rootDir/core/riot-core/src/docs/resources/images") {
 	     		include '**/*.png'
 	   		}
 	    }
+	    baseDirFollowsSourceFile()
 	    attributes \
         'icons': 'font',
-        'includedir': '../../core/riot-core/src/docs/asciidoc',
+        'docinfo1': '',
+        'includedir': "$rootDir/core/riot-core/src/docs/asciidoc",
         'sectanchors': 'true',
         'source-highlighter': 'coderay',
         'coderay-linenums-mode': 'table',
-        'test-resources': 'src/test/resources',
+        'test-resources': "$projectDir/src/test/resources",
         'toc': 'left',
         'numbered': 'true',
         'linkattrs': 'true',

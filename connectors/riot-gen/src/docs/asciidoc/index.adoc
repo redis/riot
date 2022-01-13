@@ -27,13 +27,13 @@ To show the full usage, run:
 ....
 
 .Hash generator example
-[source,bash]
+[source,console]
 ----
 include::{test-resources}/import-hset[]
 ----
 
 .Set generator example
-[source,bash]
+[source,console]
 ----
 include::{test-resources}/import-sadd[]
 ----
@@ -46,7 +46,7 @@ include::{includedir}/processing.adoc[leveloffset=+2]
 
 You can infer generator fields from a RediSearch index using the `--infer` option:
 
-[source,bash]
+[source,console]
 ----
 include::{test-resources}/import-infer[]
 ----

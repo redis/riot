@@ -20,5 +20,5 @@ asciidoctor {
      		include '**/*.png'
    		}
     }
-    outputDir = '../../build/docs/asciidoc/riot-redis'
+    outputDir = "$rootDir/build/docs/asciidoc/riot-redis"
 }

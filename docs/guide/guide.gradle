@@ -1,10 +1,10 @@
 asciidoctor {
     resources {
-        from("../../connectors/riot-file/src/test/resources/files") {
+        from("$rootDir/connectors/riot-file/src/test/resources/files") {
             include '*.*'
         }
     }
-    outputDir = '../../build/docs/asciidoc/'
+    outputDir = "$rootDir/build/docs/asciidoc"
 }
 
 eclipse {
