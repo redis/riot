@@ -16,7 +16,7 @@ jobs:
 
       - name: Set release version
         run: |
-          VERSION=${{ inputs.version }}
+          VERSION=${{ github.event.inputs.version }}
           echo $VERSION > VERSION
         shell: bash
 
