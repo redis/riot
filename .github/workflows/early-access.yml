@@ -22,7 +22,7 @@ jobs:
           gpg-passphrase: ${{ secrets.GPG_PASSPHRASE }}
           sonatype-username: ${{ secrets.SONATYPE_USERNAME }}
           sonatype-password: ${{ secrets.SONATYPE_PASSWORD }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GIT_ACCESS_TOKEN }}
           slack-webhook: ${{ secrets.JRELEASER_SLACK_WEBHOOK }}
 
       - name: Upload test reports

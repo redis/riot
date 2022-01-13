@@ -28,8 +28,17 @@ jobs:
           gpg-passphrase: ${{ secrets.GPG_PASSPHRASE }}
           sonatype-username: ${{ secrets.SONATYPE_USERNAME }}
           sonatype-password: ${{ secrets.SONATYPE_PASSWORD }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GIT_ACCESS_TOKEN }}
           slack-webhook: ${{ secrets.JRELEASER_SLACK_WEBHOOK }}
+
+      - name: JReleaser output
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: artifact
+          path: |
+            out/jreleaser/trace.log
+            out/jreleaser/output.properties
 
       - name: Upload test reports
         if: failure()
@@ -46,5 +55,5 @@ jobs:
       - name: Publish
         uses: peaceiris/actions-gh-pages@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.GIT_ACCESS_TOKEN }}
           publish_dir: ./build/docs/asciidoc
