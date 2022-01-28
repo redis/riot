@@ -27,7 +27,7 @@ public abstract class AbstractExportCommand<O> extends AbstractTransferCommand {
 	}
 
 	private final RedisItemReader<String, DataStructure<String>> reader() throws Exception {
-		return options.configureScanReader(configureJobRepository(reader(getRedisOptions()).dataStructure())).build();
+		return options.configureScanReader(configureJobRepository(reader(getRedisOptions()).dataStructureIntrospect())).build();
 	}
 
 	@Override

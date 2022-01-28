@@ -21,7 +21,7 @@ import com.redis.spring.batch.RedisItemReader;
 import com.redis.spring.batch.compare.KeyComparisonItemWriter;
 import com.redis.spring.batch.compare.KeyComparisonLogger;
 import com.redis.spring.batch.compare.KeyComparisonResults;
-import com.redis.spring.batch.reader.DataStructureValueReader;
+import com.redis.spring.batch.reader.DataStructureIntrospectingValueReader;
 import com.redis.spring.batch.support.RedisConnectionBuilder;
 
 import io.lettuce.core.codec.StringCodec;
@@ -71,9 +71,10 @@ public abstract class AbstractTargetCommand extends AbstractTransferCommand {
 
 	protected Step verificationStep() throws Exception {
 		RedisItemReader<String, DataStructure<String>> sourceReader = readerOptions
-				.configureScanReader(configureJobRepository(reader(getRedisOptions()).dataStructure())).build();
+				.configureScanReader(configureJobRepository(reader(getRedisOptions()).dataStructureIntrospect()))
+				.build();
 		log.debug("Creating key comparator with TTL tolerance of {} seconds", compareOptions.getTtlTolerance());
-		DataStructureValueReader<String, String> targetValueReader = dataStructureValueReader(targetRedisOptions);
+		DataStructureIntrospectingValueReader targetValueReader = dataStructureValueReader(targetRedisOptions);
 		KeyComparisonItemWriter<String> writer = KeyComparisonItemWriter.valueReader(targetValueReader)
 				.tolerance(compareOptions.getTtlToleranceDuration()).build();
 		if (compareOptions.isShowDiffs()) {
@@ -111,10 +112,10 @@ public abstract class AbstractTargetCommand extends AbstractTransferCommand {
 		return step.build();
 	}
 
-	private DataStructureValueReader<String, String> dataStructureValueReader(RedisOptions redisOptions) {
+	private DataStructureIntrospectingValueReader dataStructureValueReader(RedisOptions redisOptions) {
 		RedisConnectionBuilder<String, String, ?> builder = new RedisConnectionBuilder<>(redisOptions.client(),
 				StringCodec.UTF8);
-		return new DataStructureValueReader<>(builder.connectionSupplier(), readerOptions.poolConfig(),
+		return new DataStructureIntrospectingValueReader(builder.connectionSupplier(), readerOptions.poolConfig(),
 				builder.async());
 	}
 

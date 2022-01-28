@@ -11,7 +11,7 @@ import org.codehaus.plexus.util.cli.CommandLineUtils;
 import org.opentest4j.AssertionFailedError;
 import org.springframework.batch.core.JobExecution;
 
-import com.redis.spring.batch.generator.Generator.GeneratorBuilder;
+import com.redis.spring.batch.generator.Generator;
 import com.redis.testcontainers.junit.AbstractTestcontainersRedisTestBase;
 import com.redis.testcontainers.junit.RedisTestContext;
 
@@ -55,7 +55,7 @@ public abstract class AbstractRiotTests extends AbstractTestcontainersRedisTestB
 		app.getRedisOptions().setCluster(redis.isCluster());
 	}
 
-	protected void execute(GeneratorBuilder generator) throws Exception {
+	protected void execute(Generator.Builder generator) throws Exception {
 		awaitTermination(generator.build().call());
 	}
 

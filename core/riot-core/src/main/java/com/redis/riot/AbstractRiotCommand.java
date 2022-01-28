@@ -66,13 +66,7 @@ public abstract class AbstractRiotCommand extends HelpCommand implements Callabl
 
 	public JobExecution execute() throws Exception {
 		JobRunner runner = getJobRunner();
-		JobExecution execution = runner.run(job(configureJob(runner.job(commandName()))));
-		Awaitility.await().timeout(Duration.ofMinutes(1))
-				.until(() -> !execution.isRunning() || execution.getStatus().isUnsuccessful());
-		if (execution.getStatus().isUnsuccessful()) {
-			throw new JobExecutionException(String.format("Status of job %s", execution.getJobInstance().getJobName()));
-		}
-		return execution;
+		return getJobRunner().run(job(configureJob(runner.job(commandName()))));
 	}
 
 	protected abstract Job job(JobBuilder jobBuilder) throws Exception;

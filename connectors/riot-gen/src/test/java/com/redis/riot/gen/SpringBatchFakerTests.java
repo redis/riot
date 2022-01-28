@@ -22,6 +22,8 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import com.redis.spring.batch.support.JobRunner;
+
 @SpringBootTest(classes = BatchTestApplication.class)
 @RunWith(SpringRunner.class)
 @EnableAutoConfiguration(exclude = DataSourceAutoConfiguration.class)
@@ -68,7 +70,7 @@ class SpringBatchFakerTests {
 	private <T> void run(String name, ItemReader<T> reader, ItemWriter<T> writer) throws Exception {
 		TaskletStep step = stepBuilderFactory.get(name).<T, T>chunk(50).reader(reader).writer(writer).build();
 		Job job = jobBuilderFactory.get(name).start(step).build();
-		jobLauncher.run(job, new JobParameters());
+		JobRunner.awaitTermination(jobLauncher.run(job, new JobParameters()));
 	}
 
 }

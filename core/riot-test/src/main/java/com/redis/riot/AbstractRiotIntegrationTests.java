@@ -6,8 +6,8 @@ import java.util.Collection;
 import com.redis.spring.batch.compare.KeyComparator;
 import com.redis.spring.batch.compare.KeyComparator.KeyComparatorBuilder;
 import com.redis.spring.batch.compare.KeyComparator.RightComparatorBuilder;
+import com.redis.spring.batch.generator.Generator;
 import com.redis.spring.batch.generator.Generator.ClientGeneratorBuilder;
-import com.redis.spring.batch.generator.Generator.GeneratorBuilder;
 import com.redis.testcontainers.RedisClusterContainer;
 import com.redis.testcontainers.RedisContainer;
 import com.redis.testcontainers.RedisServer;
@@ -26,7 +26,7 @@ public abstract class AbstractRiotIntegrationTests extends AbstractRiotTests {
 		return Arrays.asList(redis, redisCluster);
 	}
 
-	protected GeneratorBuilder generator(RedisTestContext redis, String id) throws Exception {
+	protected Generator.Builder generator(RedisTestContext redis, String id) throws Exception {
 		return new ClientGeneratorBuilder(redis.getClient()).id(redis.getRedisURI() + "-" + id).inMemoryJobs();
 	}
 

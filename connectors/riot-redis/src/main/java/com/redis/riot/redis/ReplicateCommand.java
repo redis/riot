@@ -148,7 +148,7 @@ public class ReplicateCommand extends AbstractTargetCommand {
 	private ScanRedisItemReaderBuilder reader(RedisItemReader.Builder reader) {
 		switch (replicationOptions.getType()) {
 		case DS:
-			return reader.dataStructure();
+			return reader.dataStructureIntrospect();
 		case DUMP:
 			return reader.keyDump();
 		default:
