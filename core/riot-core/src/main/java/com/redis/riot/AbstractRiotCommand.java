@@ -1,9 +1,12 @@
 package com.redis.riot;
 
+import java.time.Duration;
 import java.util.concurrent.Callable;
 
+import org.awaitility.Awaitility;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
+import org.springframework.batch.core.JobExecutionException;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.listener.JobExecutionListenerSupport;
 import org.springframework.batch.core.step.builder.StepBuilder;
@@ -63,7 +66,13 @@ public abstract class AbstractRiotCommand extends HelpCommand implements Callabl
 
 	public JobExecution execute() throws Exception {
 		JobRunner runner = getJobRunner();
-		return runner.run(job(configureJob(runner.job(commandName()))));
+		JobExecution execution = runner.run(job(configureJob(runner.job(commandName()))));
+		Awaitility.await().timeout(Duration.ofMinutes(1))
+				.until(() -> !execution.isRunning() || execution.getStatus().isUnsuccessful());
+		if (execution.getStatus().isUnsuccessful()) {
+			throw new JobExecutionException(String.format("Status of job %s", execution.getJobInstance().getJobName()));
+		}
+		return execution;
 	}
 
 	protected abstract Job job(JobBuilder jobBuilder) throws Exception;
