@@ -27,7 +27,7 @@ import org.testcontainers.utility.DockerImageName;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.redis.lettucemod.api.sync.RedisModulesCommands;
-import com.redis.spring.batch.support.generator.Generator.Type;
+import com.redis.spring.batch.DataStructure.Type;
 import com.redis.testcontainers.junit.RedisTestContext;
 import com.redis.testcontainers.junit.RedisTestContextsSource;
 
@@ -74,7 +74,7 @@ public class PostgreSQLTests extends AbstractDatabaseTests {
 		try (Statement statement = connection.createStatement()) {
 			statement.execute("CREATE TABLE mytable (id smallint NOT NULL, field1 bpchar, field2 bpchar)");
 			statement.execute("ALTER TABLE ONLY mytable ADD CONSTRAINT pk_mytable PRIMARY KEY (id)");
-			dataGenerator(redis, "postgre-export").type(Type.HASH).build().call();
+			generator(redis, "postgre-export").type(Type.HASH).build().call();
 			execute("export-postgresql", redis, r -> configureExportCommand(r, POSTGRESQL));
 			statement.execute("SELECT COUNT(*) AS count FROM mytable");
 			ResultSet countResultSet = statement.getResultSet();

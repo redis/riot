@@ -24,7 +24,7 @@ import com.redis.riot.RiotStepBuilder;
 import com.redis.riot.stream.kafka.KafkaItemWriter;
 import com.redis.riot.stream.processor.AvroProducerProcessor;
 import com.redis.riot.stream.processor.JsonProducerProcessor;
-import com.redis.spring.batch.support.StreamItemReader;
+import com.redis.spring.batch.reader.StreamItemReader;
 
 import io.lettuce.core.StreamMessage;
 import picocli.CommandLine;

@@ -2,7 +2,7 @@ package com.redis.riot;
 
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 
-import com.redis.spring.batch.RedisItemWriter.BaseRedisItemWriterBuilder;
+import com.redis.spring.batch.writer.AbstractRedisItemWriterBuilder;
 
 import io.lettuce.core.api.StatefulConnection;
 import picocli.CommandLine.Option;
@@ -51,7 +51,7 @@ public class RedisWriterOptions {
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public <B extends BaseRedisItemWriterBuilder> B configureWriter(B writer) {
+	public <B extends AbstractRedisItemWriterBuilder> B configureWriter(B writer) {
 		if (waitReplicas > 0) {
 			writer.waitForReplication(waitReplicas, waitTimeout);
 		}

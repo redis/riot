@@ -9,7 +9,7 @@ import org.springframework.batch.core.listener.JobExecutionListenerSupport;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.util.ClassUtils;
 
-import com.redis.spring.batch.builder.JobRepositoryBuilder;
+import com.redis.spring.batch.support.JobRepositoryBuilder;
 import com.redis.spring.batch.support.JobRunner;
 
 import picocli.CommandLine.Command;

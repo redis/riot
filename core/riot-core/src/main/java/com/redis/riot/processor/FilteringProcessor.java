@@ -1,14 +1,14 @@
 package com.redis.riot.processor;
 
-import org.springframework.batch.item.ItemProcessor;
-import org.springframework.expression.Expression;
-import org.springframework.expression.spel.standard.SpelExpressionParser;
-import org.springframework.expression.spel.support.StandardEvaluationContext;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+
+import org.springframework.batch.item.ItemProcessor;
+import org.springframework.expression.Expression;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
 
 public class FilteringProcessor implements ItemProcessor<Map<String, Object>, Map<String, Object>> {
 

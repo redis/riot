@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -35,7 +36,8 @@ import com.redis.riot.file.resource.XmlItemReader;
 import com.redis.riot.file.resource.XmlItemReaderBuilder;
 import com.redis.riot.file.resource.XmlObjectReader;
 import com.redis.riot.redis.HsetCommand;
-import com.redis.spring.batch.support.DataStructure;
+import com.redis.spring.batch.DataStructure;
+import com.redis.spring.batch.DataStructure.Type;
 import com.redis.testcontainers.junit.RedisTestContext;
 import com.redis.testcontainers.junit.RedisTestContextsSource;
 
@@ -49,6 +51,9 @@ import picocli.CommandLine;
 
 @SuppressWarnings("unchecked")
 public class RiotFileIntegrationTests extends AbstractRiotIntegrationTests {
+
+	private static final Type[] EXPORT_TYPES = EnumSet.complementOf(EnumSet.of(Type.NONE, Type.HYPERLOGLOG))
+			.toArray(new Type[0]);
 
 	protected final static int COUNT = 2410;
 
@@ -382,7 +387,7 @@ public class RiotFileIntegrationTests extends AbstractRiotIntegrationTests {
 	@SuppressWarnings("rawtypes")
 	private List<DataStructure> exportToList(String name, RedisTestContext redis) throws Exception {
 		Path file = tempFile("redis.json");
-		dataGenerator(redis, name).build().call();
+		generator(redis, name).types(EXPORT_TYPES).build().call();
 		execute("export-json", redis, this::configureExportCommand);
 		JsonItemReaderBuilder<DataStructure> builder = new JsonItemReaderBuilder<>();
 		builder.name("json-data-structure-file-reader");
@@ -398,7 +403,7 @@ public class RiotFileIntegrationTests extends AbstractRiotIntegrationTests {
 	@ParameterizedTest
 	@RedisTestContextsSource
 	void exportXml(RedisTestContext redis) throws Exception {
-		dataGenerator(redis, "file-export-xml").build().call();
+		generator(redis, "file-export-xml").types(EXPORT_TYPES).build().call();
 		Path file = tempFile("redis.xml");
 		execute("export-xml", redis, this::configureExportCommand);
 		XmlItemReaderBuilder<DataStructure> builder = new XmlItemReaderBuilder<>();
@@ -413,12 +418,14 @@ public class RiotFileIntegrationTests extends AbstractRiotIntegrationTests {
 		Assertions.assertEquals(sync.dbsize(), records.size());
 		for (DataStructure<String> record : records) {
 			String key = record.getKey();
-			switch (record.getType().toLowerCase()) {
-			case DataStructure.HASH:
+			switch (record.getType()) {
+			case HASH:
 				Assertions.assertEquals(record.getValue(), sync.hgetall(key));
 				break;
-			case DataStructure.STRING:
+			case STRING:
 				Assertions.assertEquals(record.getValue(), sync.get(key));
+				break;
+			default:
 				break;
 			}
 		}

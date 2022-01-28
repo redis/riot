@@ -12,7 +12,7 @@ import org.springframework.expression.spel.support.StandardEvaluationContext;
 import com.redis.riot.processor.CompositeItemStreamItemProcessor;
 import com.redis.riot.processor.KeyValueKeyProcessor;
 import com.redis.riot.processor.KeyValueTTLProcessor;
-import com.redis.spring.batch.support.KeyValue;
+import com.redis.spring.batch.KeyValue;
 
 import picocli.CommandLine.Option;
 

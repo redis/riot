@@ -13,7 +13,7 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.redis.riot.AbstractExportCommand;
 import com.redis.riot.file.resource.JsonResourceItemWriterBuilder;
 import com.redis.riot.file.resource.XmlResourceItemWriterBuilder;
-import com.redis.spring.batch.support.DataStructure;
+import com.redis.spring.batch.DataStructure;
 
 import picocli.CommandLine;
 import picocli.CommandLine.Command;

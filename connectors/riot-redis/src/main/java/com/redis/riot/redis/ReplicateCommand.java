@@ -12,7 +12,6 @@ import org.springframework.batch.core.job.builder.JobFlowBuilder;
 import org.springframework.batch.core.job.builder.SimpleJobBuilder;
 import org.springframework.batch.core.job.flow.support.SimpleFlow;
 import org.springframework.batch.core.step.tasklet.TaskletStep;
-import org.springframework.batch.item.ItemWriter;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 
 import com.redis.riot.FlushingTransferOptions;
@@ -20,10 +19,10 @@ import com.redis.riot.KeyValueProcessorOptions;
 import com.redis.riot.RedisWriterOptions;
 import com.redis.riot.RiotStepBuilder;
 import com.redis.spring.batch.RedisItemReader;
-import com.redis.spring.batch.RedisItemReader.ItemReaderBuilder;
-import com.redis.spring.batch.RedisItemWriter.BaseRedisItemWriterBuilder;
-import com.redis.spring.batch.RedisItemWriter.OperationItemWriterBuilder;
-import com.redis.spring.batch.builder.ScanRedisItemReaderBuilder;
+import com.redis.spring.batch.RedisItemWriter;
+import com.redis.spring.batch.RedisItemWriter.OperationBuilder;
+import com.redis.spring.batch.reader.ScanRedisItemReaderBuilder;
+import com.redis.spring.batch.writer.AbstractRedisItemWriterBuilder;
 
 import picocli.CommandLine;
 import picocli.CommandLine.ArgGroup;
@@ -122,15 +121,13 @@ public class ReplicateCommand extends AbstractTargetCommand {
 		return step.processor(processorOptions.processor(getRedisOptions(), targetRedisOptions)).writer(writer());
 	}
 
-	@SuppressWarnings("rawtypes")
-	private ItemWriter writer() {
+	private RedisItemWriter<String, String, ?> writer() {
 		log.debug("Configuring writer with {}", targetRedisOptions);
-		OperationItemWriterBuilder<String, String> writer = writer(targetRedisOptions);
+		OperationBuilder<String, String> writer = writer(targetRedisOptions);
 		return writerOptions.configureWriter(redisWriter(writer)).build();
 	}
 
-	@SuppressWarnings("rawtypes")
-	private BaseRedisItemWriterBuilder redisWriter(OperationItemWriterBuilder<String, String> builder) {
+	private AbstractRedisItemWriterBuilder<String, String, ?, ?> redisWriter(OperationBuilder<String, String> builder) {
 		switch (replicationOptions.getType()) {
 		case DS:
 			return builder.dataStructure();
@@ -148,7 +145,7 @@ public class ReplicateCommand extends AbstractTargetCommand {
 	}
 
 	@SuppressWarnings("rawtypes")
-	private ScanRedisItemReaderBuilder reader(ItemReaderBuilder reader) {
+	private ScanRedisItemReaderBuilder reader(RedisItemReader.Builder reader) {
 		switch (replicationOptions.getType()) {
 		case DS:
 			return reader.dataStructure();

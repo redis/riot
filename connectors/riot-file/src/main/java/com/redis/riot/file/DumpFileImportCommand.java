@@ -25,9 +25,9 @@ import com.redis.riot.RedisOptions;
 import com.redis.riot.RedisWriterOptions;
 import com.redis.riot.RiotStepBuilder;
 import com.redis.riot.file.resource.XmlItemReader;
+import com.redis.spring.batch.DataStructure;
 import com.redis.spring.batch.RedisItemWriter;
-import com.redis.spring.batch.RedisItemWriter.DataStructureItemWriterBuilder;
-import com.redis.spring.batch.support.DataStructure;
+import com.redis.spring.batch.RedisItemWriter.DataStructureBuilder;
 
 import io.lettuce.core.ScoredValue;
 import io.lettuce.core.StreamMessage;
@@ -92,8 +92,8 @@ public class DumpFileImportCommand extends AbstractTransferCommand {
 
 	@SuppressWarnings("unchecked")
 	private DataStructure<String> processDataStructure(DataStructure<String> item) {
-		String type = item.getType().toLowerCase();
-		if (DataStructure.ZSET.equals(type)) {
+		switch (item.getType()) {
+		case ZSET:
 			Collection<Map<String, Object>> zset = (Collection<Map<String, Object>>) item.getValue();
 			Collection<ScoredValue<String>> values = new ArrayList<>(zset.size());
 			for (Map<String, Object> map : zset) {
@@ -102,7 +102,8 @@ public class DumpFileImportCommand extends AbstractTransferCommand {
 				values.add((ScoredValue<String>) ScoredValue.fromNullable(score, value));
 			}
 			item.setValue(values);
-		} else if (DataStructure.STREAM.equals(type)) {
+			break;
+		case STREAM:
 			Collection<Map<String, Object>> stream = (Collection<Map<String, Object>>) item.getValue();
 			Collection<StreamMessage<String, String>> messages = new ArrayList<>(stream.size());
 			for (Map<String, Object> message : stream) {
@@ -110,6 +111,9 @@ public class DumpFileImportCommand extends AbstractTransferCommand {
 						(Map<String, String>) message.get("body")));
 			}
 			item.setValue(messages);
+			break;
+		default:
+			break;
 		}
 		return item;
 	}
@@ -125,11 +129,11 @@ public class DumpFileImportCommand extends AbstractTransferCommand {
 		return writerOptions.configureWriter(dataStructureWriter(getRedisOptions())).build();
 	}
 
-	private DataStructureItemWriterBuilder<String, String> dataStructureWriter(RedisOptions options) {
+	private DataStructureBuilder<String, String> dataStructureWriter(RedisOptions options) {
 		if (options.isCluster()) {
-			return RedisItemWriter.client(options.clusterClient()).dataStructure();
+			return RedisItemWriter.client(options.redisModulesClusterClient()).dataStructure();
 		}
-		return RedisItemWriter.client(options.client()).dataStructure();
+		return RedisItemWriter.client(options.redisModulesClient()).dataStructure();
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })

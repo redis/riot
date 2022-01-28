@@ -2,9 +2,9 @@ package com.redis.riot.redis;
 
 import java.util.Map;
 
-import com.redis.spring.batch.support.RedisOperation;
-import com.redis.spring.batch.support.convert.GeoValueConverter;
-import com.redis.spring.batch.support.operation.Geoadd;
+import com.redis.spring.batch.convert.GeoValueConverter;
+import com.redis.spring.batch.writer.RedisOperation;
+import com.redis.spring.batch.writer.operation.Geoadd;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;

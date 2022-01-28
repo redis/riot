@@ -16,7 +16,8 @@ import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.redis.riot.file.resource.XmlResourceItemWriter;
 import com.redis.riot.file.resource.XmlResourceItemWriterBuilder;
-import com.redis.spring.batch.support.DataStructure;
+import com.redis.spring.batch.DataStructure;
+import com.redis.spring.batch.DataStructure.Type;
 
 class TestXmlItemWriter {
 
@@ -36,13 +37,13 @@ class TestXmlItemWriter {
 		DataStructure<String> item1 = new DataStructure<>();
 		item1.setKey("key1");
 		item1.setAbsoluteTTL(123l);
-		item1.setType(DataStructure.HASH);
+		item1.setType(Type.HASH);
 		Map<String, String> hash1 = Map.of("field1", "value1", "field2", "value2");
 		item1.setValue(hash1);
 		DataStructure<String> item2 = new DataStructure<>();
 		item2.setKey("key2");
 		item2.setAbsoluteTTL(456l);
-		item2.setType(DataStructure.STREAM);
+		item2.setType(Type.STREAM);
 		Map<String, String> hash2 = Map.of("field1", "value1", "field2", "value2");
 		item2.setValue(hash2);
 		writer.write(Arrays.asList(item1, item2));

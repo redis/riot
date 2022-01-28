@@ -4,7 +4,7 @@ import org.springframework.batch.item.ItemProcessor;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 
-import com.redis.spring.batch.support.KeyValue;
+import com.redis.spring.batch.KeyValue;
 
 public class KeyValueKeyProcessor<T extends KeyValue<String, ?>> implements ItemProcessor<T, T> {
 

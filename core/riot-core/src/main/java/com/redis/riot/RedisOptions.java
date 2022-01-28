@@ -228,14 +228,6 @@ public class RedisOptions {
 		this.clientName = clientName;
 	}
 
-	public AbstractRedisClient getClient() {
-		return client;
-	}
-
-	public void setClient(AbstractRedisClient client) {
-		this.client = client;
-	}
-
 	public void setCluster(boolean cluster) {
 		this.cluster = cluster;
 	}
@@ -316,12 +308,19 @@ public class RedisOptions {
 
 	public StatefulRedisModulesConnection<String, String> connect() {
 		if (cluster) {
-			return clusterClient().connect();
+			return redisModulesClusterClient().connect();
 		}
-		return client().connect();
+		return redisModulesClient().connect();
 	}
 
-	public RedisModulesClusterClient clusterClient() {
+	public AbstractRedisClient client() {
+		if (cluster) {
+			return redisModulesClusterClient();
+		}
+		return redisModulesClient();
+	}
+
+	public RedisModulesClusterClient redisModulesClusterClient() {
 		if (client == null) {
 			log.debug("Creating Redis cluster client: {}", this);
 			RedisModulesClusterClient clusterClient = RedisModulesClusterClient.create(clientResources(), uris());
@@ -332,7 +331,7 @@ public class RedisOptions {
 		return (RedisModulesClusterClient) client;
 	}
 
-	public RedisModulesClient client() {
+	public RedisModulesClient redisModulesClient() {
 		if (client == null) {
 			log.debug("Creating Redis client: {}", this);
 			RedisModulesClient redisClient = RedisModulesClient.create(clientResources(), uris().get(0));

@@ -2,8 +2,8 @@ package com.redis.riot.redis;
 
 import java.util.Map;
 
-import com.redis.spring.batch.support.RedisOperation;
-import com.redis.spring.batch.support.operation.Lpush;
+import com.redis.spring.batch.writer.RedisOperation;
+import com.redis.spring.batch.writer.operation.Lpush;
 
 import picocli.CommandLine.Command;
 

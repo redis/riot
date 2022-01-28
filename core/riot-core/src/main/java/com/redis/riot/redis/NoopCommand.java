@@ -4,7 +4,7 @@ import java.util.Map;
 
 import com.redis.riot.HelpCommand;
 import com.redis.riot.RedisCommand;
-import com.redis.spring.batch.support.operation.Noop;
+import com.redis.spring.batch.writer.operation.Noop;
 
 import picocli.CommandLine.Command;
 

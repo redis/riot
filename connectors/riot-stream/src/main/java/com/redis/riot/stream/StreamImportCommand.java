@@ -24,7 +24,7 @@ import com.redis.riot.redis.FilteringOptions;
 import com.redis.riot.stream.kafka.KafkaItemReader;
 import com.redis.riot.stream.kafka.KafkaItemReaderBuilder;
 import com.redis.spring.batch.RedisItemWriter;
-import com.redis.spring.batch.support.operation.Xadd;
+import com.redis.spring.batch.writer.operation.Xadd;
 
 import io.lettuce.core.XAddArgs;
 import picocli.CommandLine;

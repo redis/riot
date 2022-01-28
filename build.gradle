@@ -82,9 +82,6 @@ subprojects {
     
     test {
         useJUnitPlatform()
-        environment "skipRedisModulesTests", project.hasProperty('skipRedisModulesTests') ? project.property('skipRedisModulesTests') : System.env['skipRedisModulesTests']
-        environment "skipRedisClusterTests", project.hasProperty('skipRedisClusterTests') ? project.property('skipRedisClusterTests') : System.env['skipRedisClusterTests']
-        environment "skipRedisEnterpriseTests", project.hasProperty('skipRedisEnterpriseTests') ? project.property('skipRedisEnterpriseTests') : System.env['skipRedisEnterpriseTests']
     }
 
     bootJar {

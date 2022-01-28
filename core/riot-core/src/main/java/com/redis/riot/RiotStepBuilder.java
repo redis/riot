@@ -23,8 +23,8 @@ import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import com.redis.spring.batch.RedisItemReader;
-import com.redis.spring.batch.support.FlushingStepBuilder;
-import com.redis.spring.batch.support.PollableItemReader;
+import com.redis.spring.batch.reader.FlushingStepBuilder;
+import com.redis.spring.batch.reader.PollableItemReader;
 
 public class RiotStepBuilder<I, O> {
 

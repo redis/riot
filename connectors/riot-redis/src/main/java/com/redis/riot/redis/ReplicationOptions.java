@@ -1,6 +1,6 @@
 package com.redis.riot.redis;
 
-import com.redis.spring.batch.support.LiveKeyItemReader;
+import com.redis.spring.batch.reader.LiveKeyItemReader;
 
 import picocli.CommandLine;
 

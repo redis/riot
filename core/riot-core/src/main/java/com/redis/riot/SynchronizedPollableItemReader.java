@@ -10,7 +10,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
-import com.redis.spring.batch.support.PollableItemReader;
+import com.redis.spring.batch.reader.PollableItemReader;
 
 public class SynchronizedPollableItemReader<T> implements PollableItemReader<T>, InitializingBean {
 

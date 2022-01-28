@@ -25,8 +25,8 @@ import com.redis.riot.redis.SetCommand;
 import com.redis.riot.redis.SugaddCommand;
 import com.redis.riot.redis.XaddCommand;
 import com.redis.riot.redis.ZaddCommand;
-import com.redis.spring.batch.RedisItemWriter.RedisItemWriterBuilder;
-import com.redis.spring.batch.support.RedisOperation;
+import com.redis.spring.batch.RedisItemWriter.Builder;
+import com.redis.spring.batch.writer.RedisOperation;
 
 import picocli.CommandLine;
 import picocli.CommandLine.ArgGroup;
@@ -80,7 +80,7 @@ public abstract class AbstractImportCommand extends AbstractTransferCommand {
 		return writerOptions.configureWriter(writer(command.operation())).build();
 	}
 
-	private RedisItemWriterBuilder<String, String, Map<String, Object>> writer(
+	private Builder<String, String, Map<String, Object>> writer(
 			RedisOperation<String, String, Map<String, Object>> operation) {
 		return writer(getRedisOptions()).operation(operation);
 	}

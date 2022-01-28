@@ -5,8 +5,8 @@ import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemWriter;
 
+import com.redis.spring.batch.DataStructure;
 import com.redis.spring.batch.RedisItemReader;
-import com.redis.spring.batch.support.DataStructure;
 
 import picocli.CommandLine.ArgGroup;
 

@@ -11,8 +11,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.redis.riot.convert.ObjectMapperConverter;
-import com.redis.spring.batch.support.RedisOperation;
-import com.redis.spring.batch.support.operation.Set;
+import com.redis.spring.batch.writer.RedisOperation;
+import com.redis.spring.batch.writer.operation.Set;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;

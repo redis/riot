@@ -1,10 +1,16 @@
 package com.redis.riot.convert;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
-
-import java.util.*;
 
 public class MapFilteringConverter<K, V> implements Converter<Map<K, V>, Map<K, V>> {
 

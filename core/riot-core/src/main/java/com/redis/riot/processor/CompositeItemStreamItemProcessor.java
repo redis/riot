@@ -1,12 +1,12 @@
 package com.redis.riot.processor;
 
+import java.util.List;
+
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemStream;
 import org.springframework.batch.item.ItemStreamException;
 import org.springframework.batch.item.support.CompositeItemProcessor;
-
-import java.util.List;
 
 public class CompositeItemStreamItemProcessor<I, O> extends CompositeItemProcessor<I, O> implements ItemStream {
 

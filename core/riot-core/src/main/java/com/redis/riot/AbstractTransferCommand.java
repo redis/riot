@@ -1,11 +1,11 @@
 package com.redis.riot;
 
 import com.redis.spring.batch.RedisItemReader;
-import com.redis.spring.batch.RedisItemReader.ItemReaderBuilder;
+import com.redis.spring.batch.RedisItemReader.Builder;
 import com.redis.spring.batch.RedisItemWriter;
-import com.redis.spring.batch.RedisItemWriter.OperationItemWriterBuilder;
-import com.redis.spring.batch.support.ScanSizeEstimator;
-import com.redis.spring.batch.support.ScanSizeEstimator.ScanSizeEstimatorBuilder;
+import com.redis.spring.batch.RedisItemWriter.OperationBuilder;
+import com.redis.spring.batch.RedisScanSizeEstimator;
+import com.redis.spring.batch.RedisScanSizeEstimator.ScanSizeEstimatorBuilder;
 
 import picocli.CommandLine;
 
@@ -18,26 +18,26 @@ public abstract class AbstractTransferCommand extends AbstractRiotCommand {
 		return new RiotStepBuilder<I, O>(getJobRunner().step(name), transferOptions).taskName(taskName);
 	}
 
-	protected ItemReaderBuilder reader(RedisOptions redisOptions) {
+	protected Builder reader(RedisOptions redisOptions) {
 		if (redisOptions.isCluster()) {
-			return RedisItemReader.client(redisOptions.clusterClient());
+			return RedisItemReader.client(redisOptions.redisModulesClusterClient());
 		}
-		return RedisItemReader.client(redisOptions.client());
+		return RedisItemReader.client(redisOptions.redisModulesClient());
 	}
 
-	protected OperationItemWriterBuilder<String, String> writer(RedisOptions redisOptions) {
+	protected OperationBuilder<String, String> writer(RedisOptions redisOptions) {
 		if (redisOptions.isCluster()) {
-			return RedisItemWriter.client(redisOptions.clusterClient());
+			return RedisItemWriter.client(redisOptions.redisModulesClusterClient());
 		}
-		return RedisItemWriter.client(redisOptions.client());
+		return RedisItemWriter.client(redisOptions.redisModulesClient());
 	}
 
 	protected ScanSizeEstimatorBuilder estimator() {
 		RedisOptions redisOptions = getRedisOptions();
 		if (redisOptions.isCluster()) {
-			return ScanSizeEstimator.client(redisOptions.clusterClient());
+			return RedisScanSizeEstimator.client(redisOptions.redisModulesClusterClient());
 		}
-		return ScanSizeEstimator.client(redisOptions.client());
+		return RedisScanSizeEstimator.client(redisOptions.redisModulesClient());
 	}
 
 }

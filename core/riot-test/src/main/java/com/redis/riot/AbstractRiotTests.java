@@ -11,7 +11,7 @@ import org.codehaus.plexus.util.cli.CommandLineUtils;
 import org.opentest4j.AssertionFailedError;
 import org.springframework.batch.core.JobExecution;
 
-import com.redis.spring.batch.support.generator.Generator.GeneratorBuilder;
+import com.redis.spring.batch.generator.Generator.GeneratorBuilder;
 import com.redis.testcontainers.junit.AbstractTestcontainersRedisTestBase;
 import com.redis.testcontainers.junit.RedisTestContext;
 

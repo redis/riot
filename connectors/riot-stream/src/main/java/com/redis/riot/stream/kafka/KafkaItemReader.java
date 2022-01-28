@@ -34,7 +34,7 @@ import org.springframework.batch.item.ItemStreamException;
 import org.springframework.batch.item.support.AbstractItemStreamItemReader;
 import org.springframework.util.Assert;
 
-import com.redis.spring.batch.support.PollableItemReader;
+import com.redis.spring.batch.reader.PollableItemReader;
 
 /**
  * <p>

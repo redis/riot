@@ -12,7 +12,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 import com.redis.riot.AbstractRiotIntegrationTests;
 import com.redis.riot.redis.ReplicationOptions.ReplicationMode;
-import com.redis.spring.batch.support.compare.KeyComparisonResults;
+import com.redis.spring.batch.compare.KeyComparisonResults;
 import com.redis.testcontainers.RedisContainer;
 import com.redis.testcontainers.RedisServer;
 import com.redis.testcontainers.junit.RedisTestContext;
@@ -31,10 +31,8 @@ class TestReplicate extends AbstractRiotIntegrationTests {
 			RedisContainer.DEFAULT_IMAGE_NAME.withTag(RedisContainer.DEFAULT_TAG));
 
 	@Override
-	protected Collection<RedisTestContext> getRedisTestContexts() {
-		Collection<RedisTestContext> redisTestContexts = new ArrayList<>(super.getRedisTestContexts());
-		redisTestContexts.removeIf(c -> c.getServer() == targetRedis);
-		return redisTestContexts;
+	protected Collection<RedisServer> testRedisServers() {
+		return super.redisServers();
 	}
 
 	@Override
@@ -62,20 +60,33 @@ class TestReplicate extends AbstractRiotIntegrationTests {
 	@RedisTestContextsSource
 	void replicate(RedisTestContext redis) throws Throwable {
 		String name = "replicate";
-		execute(dataGenerator(redis, name));
+		execute(generator(redis, name));
 		Assertions.assertTrue(redis.sync().dbsize() > 0);
-		execute("replicate", redis, this::configureReplicateCommand);
+		execute(name, redis, this::configureReplicateCommand);
+		compare(name, redis);
+	}
+
+	@ParameterizedTest
+	@RedisTestContextsSource
+	void replicateHyperLogLog(RedisTestContext redis) throws Throwable {
+		String name = "replicate-hll";
+		String key = "crawled:20171124";
+		String value = "http://www.google.com/";
+		redis.sync().pfadd(key, value);
+		Assertions.assertTrue(redis.sync().dbsize() > 0);
+		execute(name, redis, this::configureReplicateCommand);
 		compare(name, redis);
 	}
 
 	@ParameterizedTest
 	@RedisTestContextsSource
 	void replicateKeyProcessor(RedisTestContext redis) throws Throwable {
-		execute(dataGenerator(redis, "replicate-key-processor").end(200));
+		String name = "replicate-key-processor";
+		execute(generator(redis, name).end(200));
 		Long sourceSize = redis.sync().dbsize();
 		Assertions.assertTrue(sourceSize > 0);
-		execute("replicate-key-processor", redis, this::configureReplicateCommand);
-		RedisTestContext target = getRedisTestContext(targetRedis);
+		execute(name, redis, this::configureReplicateCommand);
+		RedisTestContext target = getContext(targetRedis);
 		Assertions.assertEquals(sourceSize, target.sync().dbsize());
 		Assertions.assertEquals(redis.sync().get("string:123"), target.sync().get("0:string:123"));
 	}
@@ -99,12 +110,12 @@ class TestReplicate extends AbstractRiotIntegrationTests {
 	}
 
 	private void runLiveReplication(String filename, RedisTestContext source) throws Exception {
-		execute(dataGenerator(source, filename).end(3000));
+		execute(generator(source, filename).end(3000));
 		ExecutorService executor = Executors.newSingleThreadExecutor();
 		executor.submit(() -> {
 			try {
 				Thread.sleep(500);
-				dataGenerator(source, "live-" + filename).chunkSize(1).between(3000, 5000).build();
+				generator(source, "live-" + filename).chunkSize(1).between(3000, 5000).build();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			} catch (Exception e) {
@@ -116,8 +127,8 @@ class TestReplicate extends AbstractRiotIntegrationTests {
 	}
 
 	private void compare(String name, RedisTestContext redis) throws Exception {
-		Assertions.assertEquals(redis.sync().dbsize(), getRedisTestContext(targetRedis).sync().dbsize());
-		KeyComparisonResults results = keyComparator(redis, getRedisTestContext(targetRedis)).id(name).build().call();
+		Assertions.assertEquals(redis.sync().dbsize(), getContext(targetRedis).sync().dbsize());
+		KeyComparisonResults results = keyComparator(redis, getContext(targetRedis)).id(name).build().call();
 		Assertions.assertTrue(results.isOK());
 	}
 

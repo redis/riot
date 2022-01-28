@@ -7,11 +7,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.redis.spring.batch.RedisItemReader;
-import com.redis.spring.batch.builder.RedisItemReaderBuilder;
-import com.redis.spring.batch.builder.ScanRedisItemReaderBuilder;
-import com.redis.spring.batch.support.DataStructure;
-import com.redis.spring.batch.support.ScanKeyItemReader;
-import com.redis.spring.batch.support.ScanSizeEstimator.ScanSizeEstimatorBuilder;
+import com.redis.spring.batch.RedisScanSizeEstimator.ScanSizeEstimatorBuilder;
+import com.redis.spring.batch.reader.RedisItemReaderBuilder;
+import com.redis.spring.batch.reader.ScanKeyItemReader;
+import com.redis.spring.batch.reader.ScanRedisItemReaderBuilder;
 
 import io.lettuce.core.api.StatefulConnection;
 import picocli.CommandLine.Option;
@@ -19,18 +18,7 @@ import picocli.CommandLine.Option;
 public class RedisReaderOptions {
 
 	public enum ScanType {
-		STRING(DataStructure.STRING), LIST(DataStructure.LIST), SET(DataStructure.SET), ZSET(DataStructure.ZSET),
-		HASH(DataStructure.HASH), STREAM(DataStructure.STREAM);
-
-		private String name;
-
-		private ScanType(String name) {
-			this.name = name;
-		}
-
-		public String getName() {
-			return name;
-		}
+		STRING, LIST, SET, ZSET, HASH, STREAM
 	}
 
 	private static final Logger log = LoggerFactory.getLogger(RedisReaderOptions.class);
@@ -118,7 +106,7 @@ public class RedisReaderOptions {
 		builder.match(scanMatch);
 		builder.count(scanCount);
 		if (scanType != null) {
-			builder.type(scanType.getName());
+			builder.type(scanType.name().toLowerCase());
 		}
 		return configureReader(builder);
 	}
@@ -146,7 +134,7 @@ public class RedisReaderOptions {
 			try {
 				estimator.match(scanMatch).sampleSize(sampleSize);
 				if (scanType != null) {
-					estimator.type(scanType.getName());
+					estimator.type(scanType.name().toLowerCase());
 				}
 				return estimator.build().call();
 			} catch (Exception e) {

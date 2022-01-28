@@ -2,8 +2,8 @@ package com.redis.riot.redis;
 
 import java.util.Map;
 
-import com.redis.spring.batch.support.convert.ScoredValueConverter;
-import com.redis.spring.batch.support.operation.Zadd;
+import com.redis.spring.batch.convert.ScoredValueConverter;
+import com.redis.spring.batch.writer.operation.Zadd;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;

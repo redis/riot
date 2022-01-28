@@ -95,7 +95,7 @@ class TestGen extends AbstractRiotIntegrationTests {
 
 	@Test
 	void genFakerIndexIntrospection() throws Exception {
-		Assumptions.assumeTrue(redisMod.isActive());
+		Assumptions.assumeTrue(redisMod.isEnabled());
 		RedisTestContext redismod = new RedisTestContext(redisMod);
 		String INDEX = "beerIdx";
 		String FIELD_ID = "id";

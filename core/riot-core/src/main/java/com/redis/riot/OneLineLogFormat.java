@@ -1,9 +1,9 @@
 package com.redis.riot;
 
-import org.springframework.core.NestedExceptionUtils;
-
 import java.util.logging.Formatter;
 import java.util.logging.LogRecord;
+
+import org.springframework.core.NestedExceptionUtils;
 
 public class OneLineLogFormat extends Formatter {
 

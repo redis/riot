@@ -6,7 +6,7 @@ import org.springframework.core.convert.converter.Converter;
 import org.springframework.util.ObjectUtils;
 
 import com.redis.riot.convert.MapToStringArrayConverter;
-import com.redis.spring.batch.support.operation.Eval;
+import com.redis.spring.batch.writer.operation.Eval;
 
 import io.lettuce.core.ScriptOutputType;
 import picocli.CommandLine.Command;

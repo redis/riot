@@ -5,9 +5,9 @@ import java.util.Map;
 import org.springframework.core.convert.converter.Converter;
 
 import com.redis.lettucemod.search.Suggestion;
-import com.redis.spring.batch.support.RedisOperation;
-import com.redis.spring.batch.support.convert.SuggestionConverter;
-import com.redis.spring.batch.support.operation.Sugadd;
+import com.redis.spring.batch.convert.SuggestionConverter;
+import com.redis.spring.batch.writer.RedisOperation;
+import com.redis.spring.batch.writer.operation.Sugadd;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;

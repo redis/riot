@@ -13,7 +13,7 @@ import com.redis.riot.convert.RegexNamedGroupsExtractor;
 import com.redis.riot.convert.StreamToStringMapConverter;
 import com.redis.riot.convert.StringToStringMapConverter;
 import com.redis.riot.convert.ZsetToStringMapConverter;
-import com.redis.spring.batch.support.DataStructure;
+import com.redis.spring.batch.DataStructure;
 
 import io.lettuce.core.ScoredValue;
 import io.lettuce.core.StreamMessage;
@@ -84,17 +84,17 @@ public class DataStructureItemProcessor implements ItemProcessor<DataStructure<S
 	@SuppressWarnings("unchecked")
 	private Map<String, String> map(DataStructure<String> item) {
 		switch (item.getType()) {
-		case DataStructure.HASH:
+		case HASH:
 			return hashConverter.convert((Map<String, String>) item.getValue());
-		case DataStructure.LIST:
+		case LIST:
 			return listConverter.convert((List<String>) item.getValue());
-		case DataStructure.SET:
+		case SET:
 			return setConverter.convert((Set<String>) item.getValue());
-		case DataStructure.ZSET:
+		case ZSET:
 			return zsetConverter.convert((List<ScoredValue<String>>) item.getValue());
-		case DataStructure.STREAM:
+		case STREAM:
 			return streamConverter.convert((List<StreamMessage<String, String>>) item.getValue());
-		case DataStructure.STRING:
+		case STRING:
 			return stringConverter.convert((String) item.getValue());
 		default:
 			return defaultConverter.convert(item.getValue());

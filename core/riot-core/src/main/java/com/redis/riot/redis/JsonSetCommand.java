@@ -5,8 +5,8 @@ import java.util.Map;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import com.redis.spring.batch.support.RedisOperation;
-import com.redis.spring.batch.support.operation.JsonSet;
+import com.redis.spring.batch.writer.RedisOperation;
+import com.redis.spring.batch.writer.operation.JsonSet;
 
 import picocli.CommandLine.Command;
 

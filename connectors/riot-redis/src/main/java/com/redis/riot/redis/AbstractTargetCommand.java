@@ -16,14 +16,15 @@ import com.redis.riot.RedisOptions;
 import com.redis.riot.RedisReaderOptions;
 import com.redis.riot.RiotStepBuilder;
 import com.redis.riot.TransferOptions;
+import com.redis.spring.batch.DataStructure;
 import com.redis.spring.batch.RedisItemReader;
-import com.redis.spring.batch.support.DataStructure;
-import com.redis.spring.batch.support.DataStructureValueReader;
-import com.redis.spring.batch.support.DataStructureValueReader.DataStructureValueReaderBuilder;
-import com.redis.spring.batch.support.compare.KeyComparisonItemWriter;
-import com.redis.spring.batch.support.compare.KeyComparisonLogger;
-import com.redis.spring.batch.support.compare.KeyComparisonResults;
+import com.redis.spring.batch.compare.KeyComparisonItemWriter;
+import com.redis.spring.batch.compare.KeyComparisonLogger;
+import com.redis.spring.batch.compare.KeyComparisonResults;
+import com.redis.spring.batch.reader.DataStructureValueReader;
+import com.redis.spring.batch.support.RedisConnectionBuilder;
 
+import io.lettuce.core.codec.StringCodec;
 import picocli.CommandLine;
 
 public abstract class AbstractTargetCommand extends AbstractTransferCommand {
@@ -72,8 +73,7 @@ public abstract class AbstractTargetCommand extends AbstractTransferCommand {
 		RedisItemReader<String, DataStructure<String>> sourceReader = readerOptions
 				.configureScanReader(configureJobRepository(reader(getRedisOptions()).dataStructure())).build();
 		log.debug("Creating key comparator with TTL tolerance of {} seconds", compareOptions.getTtlTolerance());
-		DataStructureValueReader<String, String> targetValueReader = dataStructureValueReader(targetRedisOptions)
-				.poolConfig(readerOptions.poolConfig()).build();
+		DataStructureValueReader<String, String> targetValueReader = dataStructureValueReader(targetRedisOptions);
 		KeyComparisonItemWriter<String> writer = KeyComparisonItemWriter.valueReader(targetValueReader)
 				.tolerance(compareOptions.getTtlToleranceDuration()).build();
 		if (compareOptions.isShowDiffs()) {
@@ -111,11 +111,11 @@ public abstract class AbstractTargetCommand extends AbstractTransferCommand {
 		return step.build();
 	}
 
-	private DataStructureValueReaderBuilder<String, String> dataStructureValueReader(RedisOptions redisOptions) {
-		if (redisOptions.isCluster()) {
-			return DataStructureValueReader.client(redisOptions.clusterClient());
-		}
-		return DataStructureValueReader.client(redisOptions.client());
+	private DataStructureValueReader<String, String> dataStructureValueReader(RedisOptions redisOptions) {
+		RedisConnectionBuilder<String, String, ?> builder = new RedisConnectionBuilder<>(redisOptions.client(),
+				StringCodec.UTF8);
+		return new DataStructureValueReader<>(builder.connectionSupplier(), readerOptions.poolConfig(),
+				builder.async());
 	}
 
 	private String extraMessage(KeyComparisonResults results) {
