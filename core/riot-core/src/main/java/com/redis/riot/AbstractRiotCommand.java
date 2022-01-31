@@ -1,12 +1,9 @@
 package com.redis.riot;
 
-import java.time.Duration;
 import java.util.concurrent.Callable;
 
-import org.awaitility.Awaitility;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
-import org.springframework.batch.core.JobExecutionException;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.listener.JobExecutionListenerSupport;
 import org.springframework.batch.core.step.builder.StepBuilder;
@@ -87,8 +84,7 @@ public abstract class AbstractRiotCommand extends HelpCommand implements Callabl
 		return commandSpec.name();
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	protected <B extends JobRepositoryBuilder> B configureJobRepository(B builder) throws Exception {
+	protected <K, V, B extends JobRepositoryBuilder<K, V, B>> B configureJobRepository(B builder) throws Exception {
 		JobRunner runner = getJobRunner();
 		return (B) builder.jobRepository(runner.getJobRepository()).transactionManager(runner.getTransactionManager());
 	}

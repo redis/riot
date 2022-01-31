@@ -28,6 +28,7 @@ import com.redis.riot.redis.ZaddCommand;
 import com.redis.spring.batch.RedisItemWriter.Builder;
 import com.redis.spring.batch.writer.RedisOperation;
 
+import io.lettuce.core.codec.StringCodec;
 import picocli.CommandLine;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
@@ -82,7 +83,7 @@ public abstract class AbstractImportCommand extends AbstractTransferCommand {
 
 	private Builder<String, String, Map<String, Object>> writer(
 			RedisOperation<String, String, Map<String, Object>> operation) {
-		return writer(getRedisOptions()).operation(operation);
+		return writer(getRedisOptions(), StringCodec.UTF8).operation(operation);
 	}
 
 }

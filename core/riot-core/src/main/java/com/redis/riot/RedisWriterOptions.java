@@ -50,15 +50,14 @@ public class RedisWriterOptions {
 		this.poolMaxTotal = poolMaxTotal;
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public <B extends AbstractRedisItemWriterBuilder> B configureWriter(B writer) {
+	public <K, V, B extends AbstractRedisItemWriterBuilder<K, V, ?, B>> B configureWriter(B writer) {
 		if (waitReplicas > 0) {
 			writer.waitForReplication(waitReplicas, waitTimeout);
 		}
 		if (multiExec) {
 			writer.multiExec();
 		}
-		GenericObjectPoolConfig<StatefulConnection<String, String>> poolConfig = new GenericObjectPoolConfig<>();
+		GenericObjectPoolConfig<StatefulConnection<K, V>> poolConfig = new GenericObjectPoolConfig<>();
 		poolConfig.setMaxTotal(poolMaxTotal);
 		writer.poolConfig(poolConfig);
 		return writer;

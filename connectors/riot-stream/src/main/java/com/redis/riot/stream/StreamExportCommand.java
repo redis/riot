@@ -27,6 +27,7 @@ import com.redis.riot.stream.processor.JsonProducerProcessor;
 import com.redis.spring.batch.reader.StreamItemReader;
 
 import io.lettuce.core.StreamMessage;
+import io.lettuce.core.codec.StringCodec;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -101,7 +102,7 @@ public class StreamExportCommand extends AbstractTransferCommand {
 	}
 
 	private TaskletStep streamExportStep(String stream) throws Exception {
-		StreamItemReader<String, String> reader = reader(getRedisOptions()).stream(stream).build();
+		StreamItemReader<String, String> reader = reader(getRedisOptions(), StringCodec.UTF8).stream(stream).build();
 		RiotStepBuilder<StreamMessage<String, String>, ProducerRecord<String, Object>> step = riotStep(
 				stream + "-" + NAME, "Exporting from " + stream);
 		return step.reader(reader).processor(processor()).writer(writer()).flushingOptions(flushingTransferOptions)

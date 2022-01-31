@@ -22,8 +22,8 @@ import com.redis.spring.batch.RedisItemReader;
 import com.redis.spring.batch.RedisItemWriter;
 import com.redis.spring.batch.RedisItemWriter.OperationBuilder;
 import com.redis.spring.batch.reader.ScanRedisItemReaderBuilder;
-import com.redis.spring.batch.writer.AbstractRedisItemWriterBuilder;
 
+import io.lettuce.core.codec.ByteArrayCodec;
 import picocli.CommandLine;
 import picocli.CommandLine.ArgGroup;
 
@@ -96,7 +96,7 @@ public class ReplicateCommand extends AbstractTargetCommand {
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private TaskletStep scanStep() throws Exception {
-		RedisItemReader reader = reader().build();
+		RedisItemReader<byte[], ?> reader = reader().build();
 		reader.setName("redis-scan-reader");
 		RiotStepBuilder scanStep = riotStep("scan-replication-step", "Scanning");
 		initialMax(scanStep);
@@ -105,15 +105,14 @@ public class ReplicateCommand extends AbstractTargetCommand {
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private TaskletStep liveReplicationStep() throws Exception {
-		RedisItemReader reader = reader().live().keyPatterns(readerOptions.getScanMatch())
+		RedisItemReader<byte[], ?> reader = reader().live().keyPatterns(readerOptions.getScanMatch())
 				.notificationQueueCapacity(replicationOptions.getNotificationQueueCapacity())
 				.database(getRedisOptions().uris().get(0).getDatabase())
 				.flushingInterval(flushingTransferOptions.getFlushIntervalDuration())
 				.idleTimeout(flushingTransferOptions.getIdleTimeoutDuration()).build();
 		reader.setName("redis-live-reader");
-		return configure(
-				riotStep("live-replication-step", "Listening").reader(reader).flushingOptions(flushingTransferOptions))
-						.build().build();
+		RiotStepBuilder liveStep = riotStep("live-replication-step", "Listening");
+		return configure(liveStep.reader(reader).flushingOptions(flushingTransferOptions)).build().build();
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -121,34 +120,29 @@ public class ReplicateCommand extends AbstractTargetCommand {
 		return step.processor(processorOptions.processor(getRedisOptions(), targetRedisOptions)).writer(writer());
 	}
 
-	private RedisItemWriter<String, String, ?> writer() {
+	private RedisItemWriter<byte[], byte[], ?> writer() {
 		log.debug("Configuring writer with {}", targetRedisOptions);
-		OperationBuilder<String, String> writer = writer(targetRedisOptions);
-		return writerOptions.configureWriter(redisWriter(writer)).build();
-	}
-
-	private AbstractRedisItemWriterBuilder<String, String, ?, ?> redisWriter(OperationBuilder<String, String> builder) {
+		OperationBuilder<byte[], byte[]> builder = writer(targetRedisOptions, ByteArrayCodec.INSTANCE);
 		switch (replicationOptions.getType()) {
 		case DS:
-			return builder.dataStructure();
+			return writerOptions.configureWriter(builder.dataStructure()).build();
 		case DUMP:
-			return builder.keyDump();
+			return writerOptions.configureWriter(builder.keyDump()).build();
 		default:
 			break;
 		}
 		throw new IllegalArgumentException("Unknown replication type: " + replicationOptions.getType());
 	}
 
-	@SuppressWarnings("rawtypes")
-	private ScanRedisItemReaderBuilder reader() throws Exception {
-		return readerOptions.configureScanReader(configureJobRepository(reader(reader(getRedisOptions()))));
+	private ScanRedisItemReaderBuilder<byte[], byte[], ?> reader() throws Exception {
+		return readerOptions.configureScanReader(
+				configureJobRepository(reader(reader(getRedisOptions(), ByteArrayCodec.INSTANCE))));
 	}
 
-	@SuppressWarnings("rawtypes")
-	private ScanRedisItemReaderBuilder reader(RedisItemReader.Builder reader) {
+	private ScanRedisItemReaderBuilder<byte[], byte[], ?> reader(RedisItemReader.Builder<byte[], byte[]> reader) {
 		switch (replicationOptions.getType()) {
 		case DS:
-			return reader.dataStructureIntrospect();
+			return reader.dataStructure();
 		case DUMP:
 			return reader.keyDump();
 		default:

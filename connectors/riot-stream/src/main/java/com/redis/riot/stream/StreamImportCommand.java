@@ -27,6 +27,7 @@ import com.redis.spring.batch.RedisItemWriter;
 import com.redis.spring.batch.writer.operation.Xadd;
 
 import io.lettuce.core.XAddArgs;
+import io.lettuce.core.codec.StringCodec;
 import picocli.CommandLine;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
@@ -142,7 +143,7 @@ public class StreamImportCommand extends AbstractTransferCommand {
 				.<String, String, ConsumerRecord<String, Object>>key(keyConverter()).body(bodyConverter())
 				.args(xAddArgs()).build();
 		RedisItemWriter<String, String, ConsumerRecord<String, Object>> writer = writerOptions
-				.configureWriter(writer(getRedisOptions()).operation(xadd)).build();
+				.configureWriter(writer(getRedisOptions(), StringCodec.UTF8).operation(xadd)).build();
 		return step.reader(reader).writer(writer).flushingOptions(flushingTransferOptions).build().build();
 	}
 

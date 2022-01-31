@@ -31,7 +31,7 @@ public class KeyValueProcessorOptions {
 		return ttlProcessor;
 	}
 
-	public <T extends KeyValue<String, ?>> ItemProcessor<T, T> processor(RedisOptions sourceRedis,
+	public <T extends KeyValue<byte[], ?>> ItemProcessor<T, T> processor(RedisOptions sourceRedis,
 			RedisOptions targetRedis) {
 		SpelExpressionParser parser = new SpelExpressionParser();
 		List<ItemProcessor<T, T>> processors = new ArrayList<>();

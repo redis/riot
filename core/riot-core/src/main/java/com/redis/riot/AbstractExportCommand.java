@@ -7,6 +7,7 @@ import org.springframework.batch.item.ItemWriter;
 
 import com.redis.spring.batch.DataStructure;
 import com.redis.spring.batch.RedisItemReader;
+import com.redis.spring.batch.reader.ScanRedisItemReaderBuilder;
 
 import picocli.CommandLine.ArgGroup;
 
@@ -27,7 +28,9 @@ public abstract class AbstractExportCommand<O> extends AbstractTransferCommand {
 	}
 
 	private final RedisItemReader<String, DataStructure<String>> reader() throws Exception {
-		return options.configureScanReader(configureJobRepository(reader(getRedisOptions()).dataStructureIntrospect())).build();
+		ScanRedisItemReaderBuilder<String, String, DataStructure<String>> builder = configureJobRepository(
+				stringReader(getRedisOptions()).dataStructure());
+		return options.configureScanReader(builder).build();
 	}
 
 	@Override

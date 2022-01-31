@@ -6,6 +6,7 @@ import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.redis.spring.batch.KeyValue;
 import com.redis.spring.batch.RedisItemReader;
 import com.redis.spring.batch.RedisScanSizeEstimator.ScanSizeEstimatorBuilder;
 import com.redis.spring.batch.reader.RedisItemReaderBuilder;
@@ -100,8 +101,8 @@ public class RedisReaderOptions {
 		this.poolMaxTotal = poolMaxTotal;
 	}
 
-	@SuppressWarnings("rawtypes")
-	public <B extends ScanRedisItemReaderBuilder> B configureScanReader(B builder) {
+	public <K, V, T extends KeyValue<K, ?>> ScanRedisItemReaderBuilder<K, V, T> configureScanReader(
+			ScanRedisItemReaderBuilder<K, V, T> builder) {
 		log.debug("Configuring scan reader with {} {} {}", scanCount, scanMatch, scanType);
 		builder.match(scanMatch);
 		builder.count(scanCount);
@@ -111,8 +112,7 @@ public class RedisReaderOptions {
 		return configureReader(builder);
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public <B extends RedisItemReaderBuilder> B configureReader(B builder) {
+	public <K, V, B extends RedisItemReaderBuilder<K, V, ?, B>> B configureReader(B builder) {
 		log.debug("Configuring reader with threads: {},  batch-size: {}, queue-capacity: {}", threads, batchSize,
 				queueCapacity);
 		builder.threads(threads);
@@ -122,8 +122,8 @@ public class RedisReaderOptions {
 		return builder;
 	}
 
-	public GenericObjectPoolConfig<StatefulConnection<String, String>> poolConfig() {
-		GenericObjectPoolConfig<StatefulConnection<String, String>> config = new GenericObjectPoolConfig<>();
+	public <K, V> GenericObjectPoolConfig<StatefulConnection<K, V>> poolConfig() {
+		GenericObjectPoolConfig<StatefulConnection<K, V>> config = new GenericObjectPoolConfig<>();
 		config.setMaxTotal(poolMaxTotal);
 		log.debug("Configuring reader with pool config {}", config);
 		return config;

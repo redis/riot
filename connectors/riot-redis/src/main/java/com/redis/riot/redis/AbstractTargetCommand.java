@@ -21,9 +21,10 @@ import com.redis.spring.batch.RedisItemReader;
 import com.redis.spring.batch.compare.KeyComparisonItemWriter;
 import com.redis.spring.batch.compare.KeyComparisonLogger;
 import com.redis.spring.batch.compare.KeyComparisonResults;
-import com.redis.spring.batch.reader.DataStructureIntrospectingValueReader;
+import com.redis.spring.batch.reader.DataStructureValueReader;
 import com.redis.spring.batch.support.RedisConnectionBuilder;
 
+import io.lettuce.core.codec.RedisCodec;
 import io.lettuce.core.codec.StringCodec;
 import picocli.CommandLine;
 
@@ -70,12 +71,12 @@ public abstract class AbstractTargetCommand extends AbstractTransferCommand {
 	}
 
 	protected Step verificationStep() throws Exception {
-		RedisItemReader<String, DataStructure<String>> sourceReader = readerOptions
-				.configureScanReader(configureJobRepository(reader(getRedisOptions()).dataStructureIntrospect()))
-				.build();
+		RedisItemReader<String, DataStructure<String>> sourceReader = readerOptions.configureScanReader(
+				configureJobRepository(reader(getRedisOptions(), StringCodec.UTF8).dataStructure())).build();
 		log.debug("Creating key comparator with TTL tolerance of {} seconds", compareOptions.getTtlTolerance());
-		DataStructureIntrospectingValueReader targetValueReader = dataStructureValueReader(targetRedisOptions);
-		KeyComparisonItemWriter<String> writer = KeyComparisonItemWriter.valueReader(targetValueReader)
+		DataStructureValueReader<String, String> targetValueReader = dataStructureValueReader(targetRedisOptions,
+				StringCodec.UTF8);
+		KeyComparisonItemWriter writer = KeyComparisonItemWriter.valueReader(targetValueReader)
 				.tolerance(compareOptions.getTtlToleranceDuration()).build();
 		if (compareOptions.isShowDiffs()) {
 			writer.addListener(new KeyComparisonLogger(LoggerFactory.getLogger(getClass())));
@@ -112,10 +113,10 @@ public abstract class AbstractTargetCommand extends AbstractTransferCommand {
 		return step.build();
 	}
 
-	private DataStructureIntrospectingValueReader dataStructureValueReader(RedisOptions redisOptions) {
-		RedisConnectionBuilder<String, String, ?> builder = new RedisConnectionBuilder<>(redisOptions.client(),
-				StringCodec.UTF8);
-		return new DataStructureIntrospectingValueReader(builder.connectionSupplier(), readerOptions.poolConfig(),
+	private <K, V> DataStructureValueReader<K, V> dataStructureValueReader(RedisOptions redisOptions,
+			RedisCodec<K, V> codec) {
+		RedisConnectionBuilder<K, V, ?> builder = new RedisConnectionBuilder<>(redisOptions.client(), codec);
+		return new DataStructureValueReader<K, V>(builder.connectionSupplier(), readerOptions.poolConfig(),
 				builder.async());
 	}
 

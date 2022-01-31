@@ -7,6 +7,8 @@ import com.redis.spring.batch.RedisItemWriter.OperationBuilder;
 import com.redis.spring.batch.RedisScanSizeEstimator;
 import com.redis.spring.batch.RedisScanSizeEstimator.ScanSizeEstimatorBuilder;
 
+import io.lettuce.core.codec.RedisCodec;
+import io.lettuce.core.codec.StringCodec;
 import picocli.CommandLine;
 
 public abstract class AbstractTransferCommand extends AbstractRiotCommand {
@@ -18,18 +20,22 @@ public abstract class AbstractTransferCommand extends AbstractRiotCommand {
 		return new RiotStepBuilder<I, O>(getJobRunner().step(name), transferOptions).taskName(taskName);
 	}
 
-	protected Builder reader(RedisOptions redisOptions) {
-		if (redisOptions.isCluster()) {
-			return RedisItemReader.client(redisOptions.redisModulesClusterClient());
-		}
-		return RedisItemReader.client(redisOptions.redisModulesClient());
+	protected Builder<String, String> stringReader(RedisOptions redisOptions) {
+		return reader(redisOptions, StringCodec.UTF8);
 	}
 
-	protected OperationBuilder<String, String> writer(RedisOptions redisOptions) {
+	protected <K, V> Builder<K, V> reader(RedisOptions redisOptions, RedisCodec<K, V> codec) {
 		if (redisOptions.isCluster()) {
-			return RedisItemWriter.client(redisOptions.redisModulesClusterClient());
+			return RedisItemReader.client(redisOptions.redisModulesClusterClient(), codec);
 		}
-		return RedisItemWriter.client(redisOptions.redisModulesClient());
+		return RedisItemReader.client(redisOptions.redisModulesClient(), codec);
+	}
+
+	protected <K, V> OperationBuilder<K, V> writer(RedisOptions redisOptions, RedisCodec<K, V> codec) {
+		if (redisOptions.isCluster()) {
+			return RedisItemWriter.client(redisOptions.redisModulesClusterClient(), codec);
+		}
+		return RedisItemWriter.client(redisOptions.redisModulesClient(), codec);
 	}
 
 	protected ScanSizeEstimatorBuilder estimator() {

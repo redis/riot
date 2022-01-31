@@ -6,20 +6,26 @@ import org.springframework.expression.Expression;
 
 import com.redis.spring.batch.KeyValue;
 
-public class KeyValueKeyProcessor<T extends KeyValue<String, ?>> implements ItemProcessor<T, T> {
+import io.lettuce.core.codec.ByteArrayCodec;
+import io.lettuce.core.codec.StringCodec;
 
-    private final Expression expression;
-    private final EvaluationContext context;
+public class KeyValueKeyProcessor<T extends KeyValue<byte[], ?>> implements ItemProcessor<T, T> {
 
-    public KeyValueKeyProcessor(Expression expression, EvaluationContext context) {
-        this.expression = expression;
-        this.context = context;
-    }
+	private final Expression expression;
+	private final EvaluationContext context;
 
-    @Override
-    public T process(T item) {
-        item.setKey(expression.getValue(context, item, String.class));
-        return item;
-    }
+	public KeyValueKeyProcessor(Expression expression, EvaluationContext context) {
+		this.expression = expression;
+		this.context = context;
+	}
+
+	@Override
+	public T process(T item) {
+		KeyValue<String, ?> stringKeyValue = new KeyValue<>(
+				StringCodec.UTF8.decodeKey(ByteArrayCodec.INSTANCE.encodeKey(item.getKey())), item.getValue());
+		String newKey = expression.getValue(context, stringKeyValue, String.class);
+		item.setKey(ByteArrayCodec.INSTANCE.decodeKey(StringCodec.UTF8.encodeKey(newKey)));
+		return item;
+	}
 
 }
