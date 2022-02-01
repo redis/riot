@@ -59,7 +59,67 @@
 <p>RIOT-File can be installed in different ways depending on your environment and preference.</p>
 </div>
 <div class="paragraph">
-<p>include:download-run.adoc[leveloffset=1]</p>
+<p>RIOT-File requires Java and the easiest option is to use the version packaged with Ubuntu. By default Ubuntu 18.04 includes Open JDK 11.</p>
+</div>
+<div class="paragraph">
+<p>To install this version, first update the package index:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="console">sudo apt update</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Next, check if Java is already installed:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="console">java -version</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If Java is not currently installed, you’ll see the following output:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="console">Command 'java' not found, but can be installed with:
+
+sudo apt install default-jre
+sudo apt install openjdk-11-jre-headless
+sudo apt install openjdk-8-jre-headless</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Execute the following command to install the default Java Runtime Environment (JRE), which will install the JRE from OpenJDK 11:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="console">sudo apt install default-jre</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Verify the installation with:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="console">java -version</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You should see output similar to the following:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="console">openjdk version &quot;11.0.11&quot; 2021-04-20
+OpenJDK Runtime Environment (build 11.0.11+9-Ubuntu-0ubuntu2.18.04)
+OpenJDK 64-Bit Server VM (build 11.0.11+9-Ubuntu-0ubuntu2.18.04, mixed mode, sharing))</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Download the <a href="https://github.com/redis-developer/riot/releases/latest">latest release</a>, unzip, and copy to the desired location.</p>
+</div>
+<div class="paragraph">
+<p>Now launch the <code>bin/riot-file</code> script and follow the usage information provided.</p>
 </div>
 <div class="sect3">
 <h4 id="_homebrew_macos"><a class="anchor" href="#_homebrew_macos"></a>2.1.1. Homebrew (macOS)</h4>
@@ -707,7 +767,7 @@ Use <code>-</code> to read from standard input.
 <div id="footer">
 <div id="footer-text">
 Version 2.15.1<br>
-Last updated 2022-01-31 22:19:01 UTC
+Last updated 2022-02-01 06:20:42 UTC
 </div>
 </div>
 <link rel="stylesheet" href="./coderay-asciidoctor.css">

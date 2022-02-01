@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 2.0.10">
+<title>Compare Redis Databases</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
+<link rel="stylesheet" href="./asciidoctor.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body id="compare" class="article toc2 toc-left">
+<div id="header">
+<h1>Compare Redis Databases</h1>
+<div class="details">
+<span id="revnumber">version 2.15.1</span>
+</div>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_prerequisites">1. Prerequisites</a></li>
+<li><a href="#_installing_riot_redis">2. Installing RIOT-Redis</a></li>
+<li><a href="#_performing_comparison">3. Performing Comparison</a></li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>This recipe shows you how to use RIOT-Redis to compare two Redis databases.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_prerequisites"><a class="anchor" href="#_prerequisites"></a>1. Prerequisites</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>For this recipe you will require the following:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Left-side Redis database</p>
+</li>
+<li>
+<p>Right-side Redis database</p>
+</li>
+<li>
+<p>RIOT-Redis host machine</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_installing_riot_redis"><a class="anchor" href="#_installing_riot_redis"></a>2. Installing RIOT-Redis</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Let&#8217;s install RIOT-Redis on a host machine. This can be any machine with access to left and right Redis databases.</p>
+</div>
+<div class="paragraph">
+<p>RIOT-Redis requires Java and the easiest option is to use the version packaged with Ubuntu. By default Ubuntu 18.04 includes Open JDK 11.</p>
+</div>
+<div class="paragraph">
+<p>To install this version, first update the package index:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="console">sudo apt update</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Next, check if Java is already installed:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="console">java -version</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If Java is not currently installed, you’ll see the following output:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="console">Command 'java' not found, but can be installed with:
+
+sudo apt install default-jre
+sudo apt install openjdk-11-jre-headless
+sudo apt install openjdk-8-jre-headless</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Execute the following command to install the default Java Runtime Environment (JRE), which will install the JRE from OpenJDK 11:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="console">sudo apt install default-jre</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Verify the installation with:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="console">java -version</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You should see output similar to the following:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="console">openjdk version &quot;11.0.11&quot; 2021-04-20
+OpenJDK Runtime Environment (build 11.0.11+9-Ubuntu-0ubuntu2.18.04)
+OpenJDK 64-Bit Server VM (build 11.0.11+9-Ubuntu-0ubuntu2.18.04, mixed mode, sharing))</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Download the <a href="https://github.com/redis-developer/riot/releases/latest">latest release</a>, unzip, and copy to the desired location.</p>
+</div>
+<div class="paragraph">
+<p>Now launch the <code>bin/riot-redis</code> script and follow the usage information provided.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_performing_comparison"><a class="anchor" href="#_performing_comparison"></a>3. Performing Comparison</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>We are now all set to begin the comparison process.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="console">riot-redis -h &lt;left host&gt; -p &lt;left port&gt; compare -h &lt;right host&gt; -p &lt;right port&gt;</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+Version 2.15.1<br>
+Last updated 2022-02-01 06:20:42 UTC
+</div>
+</div>
+<link rel="stylesheet" href="./coderay-asciidoctor.css">
+</body>
+</html>

@@ -19,13 +19,26 @@
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#elasticache">1. Migrating from Elasticache to Redis Enterprise</a>
+<li><a href="#elasticache">1. Elasticache &#8594; Redis Enterprise Migration</a>
 <ul class="sectlevel2">
-<li><a href="#_prerequisites">1.1. Prerequisites</a></li>
-<li><a href="#_setup">1.2. Setup</a></li>
-<li><a href="#_performing_migration">1.3. Performing Migration</a></li>
-<li><a href="#_important_considerations">1.4. Important Considerations</a></li>
-<li><a href="#_troubleshooting">1.5. Troubleshooting</a></li>
+<li><a href="#_setup">1.1. Setup</a></li>
+<li><a href="#_performing_migration">1.2. Performing Migration</a></li>
+<li><a href="#_important_considerations">1.3. Important Considerations</a></li>
+<li><a href="#_troubleshooting">1.4. Troubleshooting</a></li>
+</ul>
+</li>
+<li><a href="#compare">2. Compare Redis Databases</a>
+<ul class="sectlevel2">
+<li><a href="#_prerequisites_2">2.1. Prerequisites</a></li>
+<li><a href="#_installing_riot_redis_2">2.2. Installing RIOT-Redis</a></li>
+<li><a href="#_performing_comparison">2.3. Performing Comparison</a></li>
+</ul>
+</li>
+<li><a href="#latency">3. Measuring Latency</a>
+<ul class="sectlevel2">
+<li><a href="#_prerequisites_3">3.1. Prerequisites</a></li>
+<li><a href="#_installing_riot_redis_3">3.2. Installing RIOT-Redis</a></li>
+<li><a href="#_calculating_latency">3.3. Calculating Latency</a></li>
 </ul>
 </li>
 </ul>
@@ -35,15 +48,28 @@
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>This cookbook contains various recipes using RIOT-Redis.</p>
+<p>This cookbook contains various recipes for RIOT-Redis.</p>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="elasticache"><a class="anchor" href="#elasticache"></a>1. Migrating from Elasticache to Redis Enterprise</h2>
+<h2 id="elasticache"><a class="anchor" href="#elasticache"></a>1. Elasticache &#8594; Redis Enterprise Migration</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>This recipe contains step-by-step instructions to perform migrations from AWS Elasticache to Redis Enterprise.</p>
+<p>This recipe contains step-by-step instructions to migrate an Elasticache (EC) database to <a href="https://redis.com/redis-enterprise-software/overview/">Redis Enterprise</a> (RE).</p>
+</div>
+<div class="paragraph">
+<p>The following scenarios are covered:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>One-time (snapshot) migration</p>
+</li>
+<li>
+<p>Online (live) migration</p>
+</li>
+</ul>
 </div>
 <div class="admonitionblock warning">
 <table>
@@ -58,14 +84,19 @@ Please note that the tool used in this recipe (RIOT-Redis) is NEITHER recommende
 </table>
 </div>
 <div class="sect2">
-<h3 id="_prerequisites"><a class="anchor" href="#_prerequisites"></a>1.1. Prerequisites</h3>
+<h3 id="_setup"><a class="anchor" href="#_setup"></a>1.1. Setup</h3>
+<div class="sect3">
+<h4 id="_prerequisites"><a class="anchor" href="#_prerequisites"></a>1.1.1. Prerequisites</h4>
 <div class="paragraph">
 <p>For this recipe you will require the following resources:</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p>AWS ElastiCache: <em>Primary Endpoint</em> in case of Single Master and <em>Configuration Endpoint</em> in case of Clustered EC. Refer to <a href="https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/Endpoints.html">this link</a> to learn more</p>
+<p>AWS ElastiCache: <em>Primary Endpoint</em> in case of Single Master and <em>Configuration Endpoint</em> in case of Clustered EC.</p>
+<div class="paragraph">
+<p>Refer to <a href="https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/Endpoints.html">this link</a> to learn more</p>
+</div>
 </li>
 <li>
 <p>Redis Enterprise: hosted on Cloud or On-Prem</p>
@@ -75,11 +106,6 @@ Please note that the tool used in this recipe (RIOT-Redis) is NEITHER recommende
 </li>
 </ul>
 </div>
-</div>
-<div class="sect2">
-<h3 id="_setup"><a class="anchor" href="#_setup"></a>1.2. Setup</h3>
-<div class="sect3">
-<h4 id="_elasticache"><a class="anchor" href="#_elasticache"></a>1.2.1. Elasticache</h4>
 <div class="admonitionblock important">
 <table>
 <tr>
@@ -89,7 +115,7 @@ Please note that the tool used in this recipe (RIOT-Redis) is NEITHER recommende
 <td class="content">
 <div class="title">Keyspace Notifications</div>
 <div class="paragraph">
-<p>For live (online) migrations you need to <a href="https://aws.amazon.com/premiumsupport/knowledge-center/elasticache-redis-keyspace-notifications/">enable keyspace notifications</a> on your Elasticache instance.</p>
+<p>For live migrations you need to <a href="https://aws.amazon.com/premiumsupport/knowledge-center/elasticache-redis-keyspace-notifications/">enable keyspace notifications</a> on your Elasticache instance.</p>
 </div>
 </td>
 </tr>
@@ -97,7 +123,7 @@ Please note that the tool used in this recipe (RIOT-Redis) is NEITHER recommende
 </div>
 </div>
 <div class="sect3">
-<h4 id="_migration_host"><a class="anchor" href="#_migration_host"></a>1.2.2. Migration Host</h4>
+<h4 id="_migration_host"><a class="anchor" href="#_migration_host"></a>1.1.2. Migration Host</h4>
 <div class="paragraph">
 <p>To run the migration tool we will need an EC2 instance.</p>
 </div>
@@ -134,9 +160,9 @@ sudo apt install -y redis-tools</code></pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_installing_riot_redis"><a class="anchor" href="#_installing_riot_redis"></a>1.2.3. Installing RIOT-Redis</h4>
+<h4 id="_installing_riot_redis"><a class="anchor" href="#_installing_riot_redis"></a>1.1.3. Installing RIOT-Redis</h4>
 <div class="paragraph">
-<p>Now let&#8217;s install RIOT-Redis on the EC2 instance we set up previously.</p>
+<p>Let&#8217;s install RIOT-Redis on the EC2 instance we set up previously.</p>
 </div>
 <div class="paragraph">
 <p>RIOT-Redis requires Java and the easiest option is to use the version packaged with Ubuntu. By default Ubuntu 18.04 includes Open JDK 11.</p>
@@ -204,38 +230,50 @@ OpenJDK 64-Bit Server VM (build 11.0.11+9-Ubuntu-0ubuntu2.18.04, mixed mode, sha
 </div>
 </div>
 <div class="sect2">
-<h3 id="_performing_migration"><a class="anchor" href="#_performing_migration"></a>1.3. Performing Migration</h3>
+<h3 id="_performing_migration"><a class="anchor" href="#_performing_migration"></a>1.2. Performing Migration</h3>
 <div class="paragraph">
-<p>We are now all set to begin the migration process for these different scenarios:</p>
+<p>We are now all set to begin the migration process. The options you will use depend on your source and target databases, as well as the replication mode (snapshot or live).</p>
 </div>
-<div class="dlist">
-<dl>
-<dt class="hdlist1">EC Single Master to Redis Enterprise (RE)</dt>
-</dl>
-</div>
+<div class="sect3">
+<h4 id="_ec_single_master_re"><a class="anchor" href="#_ec_single_master_re"></a>1.2.1. EC Single Master &#8594; RE</h4>
 <div class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="console">riot-redis -h &lt;source EC host&gt; -p &lt;source EC port&gt; replicate -h &lt;target RE host&gt; -p &lt;target RE port&gt; --pass &lt;RE password&gt;</code></pre>
 </div>
 </div>
-<div class="dlist">
-<dl>
-<dt class="hdlist1">Clustered EC to RE/RE Cloud</dt>
-</dl>
 </div>
+<div class="sect3">
+<h4 id="_live_ec_single_master_re"><a class="anchor" href="#_live_ec_single_master_re"></a>1.2.2. Live EC Single Master &#8594; RE</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="console">riot-redis -h &lt;source EC host&gt; -p &lt;source EC port&gt; replicate <strong><span class="blue">--mode live</span></strong> -h &lt;target RE host&gt; -p &lt;target RE port&gt; --pass &lt;RE password&gt;</code></pre>
+</div>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>In case ElastiCache is configured with <a href="https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/auth.html">AUTH TOKEN enabled</a>, you need to pass <code>--tls</code> as well as <code>--pass</code> option:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="console">riot-redis -h &lt;source EC host&gt; -p &lt;source EC port&gt; <strong><span class="blue">--tls --pass &lt;token&gt;</span></strong> replicate -h &lt;target RE host&gt; -p &lt;target RE port&gt; --pass &lt;RE password&gt;</code></pre>
+</div>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_ec_cluster_re"><a class="anchor" href="#_ec_cluster_re"></a>1.2.3. EC Cluster &#8594; RE</h4>
 <div class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="console">riot-redis -h &lt;source EC host&gt; -p &lt;source EC port&gt; <strong><span class="blue">--cluster</span></strong> replicate -h &lt;target RE host&gt; -p &lt;target RE port&gt; --pass &lt;RE password&gt;</code></pre>
-</div>
-</div>
-<div class="dlist">
-<dl>
-<dt class="hdlist1">EC Single Master to RE (with specific DB namespace)</dt>
-</dl>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="CodeRay highlight"><code data-lang="console">riot-redis -h &lt;source EC host&gt; -p &lt;source EC port&gt; <strong><span class="blue">--db &lt;index&gt;</span></strong> replicate -h &lt;target RE host&gt; -p &lt;target RE port&gt; --pass &lt;RE password&gt;</code></pre>
 </div>
 </div>
 <div class="admonitionblock note">
@@ -250,28 +288,34 @@ OpenJDK 64-Bit Server VM (build 11.0.11+9-Ubuntu-0ubuntu2.18.04, mixed mode, sha
 </tr>
 </table>
 </div>
-<div class="admonitionblock important">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-important" title="Important"></i>
-</td>
-<td class="content">
-<div class="paragraph">
-<p>In case ElastiCache is configured with <a href="https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/auth.html">AUTH TOKEN enabled</a>, you need to pass <code>--tls</code> as well as <code>--pass</code> option:</p>
 </div>
+<div class="sect3">
+<h4 id="_ec_single_master_re_with_specific_db_namespace"><a class="anchor" href="#_ec_single_master_re_with_specific_db_namespace"></a>1.2.4. EC Single Master &#8594; RE (with specific DB namespace)</h4>
 <div class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="console">riot-redis -h &lt;source EC host&gt; -p &lt;source EC port&gt; --cluster <strong><span class="blue">--tls --pass &lt;token&gt;</span></strong> replicate -h &lt;target RE host&gt; -p &lt;target RE port&gt; --pass &lt;RE password&gt;</code></pre>
+<pre class="CodeRay highlight"><code data-lang="console">riot-redis -h &lt;source EC host&gt; -p &lt;source EC port&gt; <strong><span class="blue">--db &lt;index&gt;</span></strong> replicate -h &lt;target RE host&gt; -p &lt;target RE port&gt; --pass &lt;RE password&gt;</code></pre>
 </div>
 </div>
-</td>
-</tr>
-</table>
+</div>
+<div class="sect3">
+<h4 id="_ec_single_master_re_with_oss_cluster"><a class="anchor" href="#_ec_single_master_re_with_oss_cluster"></a>1.2.5. EC Single Master &#8594; RE with OSS Cluster</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="console">riot-redis -h &lt;source EC host&gt; -p &lt;source EC port&gt; replicate -h &lt;target RE host&gt; -p &lt;target RE port&gt; --pass &lt;RE password&gt; <strong><span class="blue">--cluster</span></strong></code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_live_ec_cluster_re_with_oss_cluster"><a class="anchor" href="#_live_ec_cluster_re_with_oss_cluster"></a>1.2.6. Live EC Cluster &#8594; RE with OSS Cluster</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="console">riot-redis -h &lt;source EC host&gt; -p &lt;source EC port&gt; <strong><span class="blue">--cluster</span></strong> replicate <strong><span class="blue">--mode live</span></strong> -h &lt;target RE host&gt; -p &lt;target RE port&gt; --pass &lt;RE password&gt; <strong><span class="blue">--cluster</span></strong></code></pre>
+</div>
+</div>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_important_considerations"><a class="anchor" href="#_important_considerations"></a>1.4. Important Considerations</h3>
+<h3 id="_important_considerations"><a class="anchor" href="#_important_considerations"></a>1.3. Important Considerations</h3>
 <div class="ulist">
 <ul>
 <li>
@@ -290,9 +334,9 @@ OpenJDK 64-Bit Server VM (build 11.0.11+9-Ubuntu-0ubuntu2.18.04, mixed mode, sha
 </div>
 </div>
 <div class="sect2">
-<h3 id="_troubleshooting"><a class="anchor" href="#_troubleshooting"></a>1.5. Troubleshooting</h3>
+<h3 id="_troubleshooting"><a class="anchor" href="#_troubleshooting"></a>1.4. Troubleshooting</h3>
 <div class="sect3">
-<h4 id="_authentication_required"><a class="anchor" href="#_authentication_required"></a>1.5.1. Authentication Required</h4>
+<h4 id="_authentication_required"><a class="anchor" href="#_authentication_required"></a>1.4.1. Authentication Required</h4>
 <div class="paragraph">
 <p>You might face this error message while running the migration tool:</p>
 </div>
@@ -309,11 +353,230 @@ Authentication required</code></pre>
 </div>
 </div>
 </div>
+<div class="sect1">
+<h2 id="compare"><a class="anchor" href="#compare"></a>2. Compare Redis Databases</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This recipe shows you how to use RIOT-Redis to compare two Redis databases.</p>
+</div>
+<div class="sect2">
+<h3 id="_prerequisites_2"><a class="anchor" href="#_prerequisites_2"></a>2.1. Prerequisites</h3>
+<div class="paragraph">
+<p>For this recipe you will require the following:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Left-side Redis database</p>
+</li>
+<li>
+<p>Right-side Redis database</p>
+</li>
+<li>
+<p>RIOT-Redis host machine</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_installing_riot_redis_2"><a class="anchor" href="#_installing_riot_redis_2"></a>2.2. Installing RIOT-Redis</h3>
+<div class="paragraph">
+<p>Let&#8217;s install RIOT-Redis on a host machine. This can be any machine with access to left and right Redis databases.</p>
+</div>
+<div class="paragraph">
+<p>RIOT-Redis requires Java and the easiest option is to use the version packaged with Ubuntu. By default Ubuntu 18.04 includes Open JDK 11.</p>
+</div>
+<div class="paragraph">
+<p>To install this version, first update the package index:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="console">sudo apt update</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Next, check if Java is already installed:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="console">java -version</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If Java is not currently installed, you’ll see the following output:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="console">Command 'java' not found, but can be installed with:
+
+sudo apt install default-jre
+sudo apt install openjdk-11-jre-headless
+sudo apt install openjdk-8-jre-headless</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Execute the following command to install the default Java Runtime Environment (JRE), which will install the JRE from OpenJDK 11:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="console">sudo apt install default-jre</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Verify the installation with:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="console">java -version</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You should see output similar to the following:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="console">openjdk version &quot;11.0.11&quot; 2021-04-20
+OpenJDK Runtime Environment (build 11.0.11+9-Ubuntu-0ubuntu2.18.04)
+OpenJDK 64-Bit Server VM (build 11.0.11+9-Ubuntu-0ubuntu2.18.04, mixed mode, sharing))</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Download the <a href="https://github.com/redis-developer/riot/releases/latest">latest release</a>, unzip, and copy to the desired location.</p>
+</div>
+<div class="paragraph">
+<p>Now launch the <code>bin/riot-redis</code> script and follow the usage information provided.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_performing_comparison"><a class="anchor" href="#_performing_comparison"></a>2.3. Performing Comparison</h3>
+<div class="paragraph">
+<p>We are now all set to begin the comparison process.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="console">riot-redis -h &lt;left host&gt; -p &lt;left port&gt; compare -h &lt;right host&gt; -p &lt;right port&gt;</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="latency"><a class="anchor" href="#latency"></a>3. Measuring Latency</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This recipe shows you how to measure client-side latency to a Redis database using RIOT-Redis.</p>
+</div>
+<div class="sect2">
+<h3 id="_prerequisites_3"><a class="anchor" href="#_prerequisites_3"></a>3.1. Prerequisites</h3>
+<div class="paragraph">
+<p>For this recipe you will require the following:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Redis database</p>
+</li>
+<li>
+<p>RIOT-Redis host machine</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_installing_riot_redis_3"><a class="anchor" href="#_installing_riot_redis_3"></a>3.2. Installing RIOT-Redis</h3>
+<div class="paragraph">
+<p>Let&#8217;s install RIOT-Redis on a host machine. This can be any machine with network access to the Redis databases.</p>
+</div>
+<div class="paragraph">
+<p>RIOT-Redis requires Java and the easiest option is to use the version packaged with Ubuntu. By default Ubuntu 18.04 includes Open JDK 11.</p>
+</div>
+<div class="paragraph">
+<p>To install this version, first update the package index:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="console">sudo apt update</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Next, check if Java is already installed:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="console">java -version</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If Java is not currently installed, you’ll see the following output:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="console">Command 'java' not found, but can be installed with:
+
+sudo apt install default-jre
+sudo apt install openjdk-11-jre-headless
+sudo apt install openjdk-8-jre-headless</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Execute the following command to install the default Java Runtime Environment (JRE), which will install the JRE from OpenJDK 11:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="console">sudo apt install default-jre</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Verify the installation with:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="console">java -version</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You should see output similar to the following:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="console">openjdk version &quot;11.0.11&quot; 2021-04-20
+OpenJDK Runtime Environment (build 11.0.11+9-Ubuntu-0ubuntu2.18.04)
+OpenJDK 64-Bit Server VM (build 11.0.11+9-Ubuntu-0ubuntu2.18.04, mixed mode, sharing))</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Download the <a href="https://github.com/redis-developer/riot/releases/latest">latest release</a>, unzip, and copy to the desired location.</p>
+</div>
+<div class="paragraph">
+<p>Now launch the <code>bin/riot-redis</code> script and follow the usage information provided.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_calculating_latency"><a class="anchor" href="#_calculating_latency"></a>3.3. Calculating Latency</h3>
+<div class="paragraph">
+<p>We are now all set to begin the latency calculation process.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="console">riot-redis -h &lt;host&gt; -p &lt;port&gt; latency</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>When the latency tests are finished you will see statistics like these:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="console">[min=0, max=19, percentiles={50.0=1, 90.0=3, 95.0=6, 99.0=10, 99.9=17}]</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
 </div>
 <div id="footer">
 <div id="footer-text">
 Version 2.15.1<br>
-Last updated 2022-01-31 22:19:01 UTC
+Last updated 2022-02-01 06:20:42 UTC
 </div>
 </div>
 <link rel="stylesheet" href="./coderay-asciidoctor.css">

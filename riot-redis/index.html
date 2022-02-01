@@ -26,10 +26,11 @@
 <li><a href="#_usage">2.2. Usage</a></li>
 </ul>
 </li>
-<li><a href="#_replicating">3. Replicating</a>
+<li><a href="#_replication">3. Replication</a>
 <ul class="sectlevel2">
-<li><a href="#_type_based_replication">3.1. Type-Based Replication</a></li>
-<li><a href="#_verification">3.2. Verification</a></li>
+<li><a href="#live-replication">3.1. Live Replication</a></li>
+<li><a href="#type-based-replication">3.2. Type-Based Replication</a></li>
+<li><a href="#_verification">3.3. Verification</a></li>
 </ul>
 </li>
 <li><a href="#_architecture">4. Architecture</a>
@@ -83,7 +84,67 @@
 <p>RIOT-Redis can be installed in different ways depending on your environment and preference.</p>
 </div>
 <div class="paragraph">
-<p>include:download-run.adoc[leveloffset=1]</p>
+<p>RIOT-Redis requires Java and the easiest option is to use the version packaged with Ubuntu. By default Ubuntu 18.04 includes Open JDK 11.</p>
+</div>
+<div class="paragraph">
+<p>To install this version, first update the package index:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="console">sudo apt update</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Next, check if Java is already installed:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="console">java -version</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If Java is not currently installed, you’ll see the following output:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="console">Command 'java' not found, but can be installed with:
+
+sudo apt install default-jre
+sudo apt install openjdk-11-jre-headless
+sudo apt install openjdk-8-jre-headless</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Execute the following command to install the default Java Runtime Environment (JRE), which will install the JRE from OpenJDK 11:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="console">sudo apt install default-jre</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Verify the installation with:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="console">java -version</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You should see output similar to the following:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="console">openjdk version &quot;11.0.11&quot; 2021-04-20
+OpenJDK Runtime Environment (build 11.0.11+9-Ubuntu-0ubuntu2.18.04)
+OpenJDK 64-Bit Server VM (build 11.0.11+9-Ubuntu-0ubuntu2.18.04, mixed mode, sharing))</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Download the <a href="https://github.com/redis-developer/riot/releases/latest">latest release</a>, unzip, and copy to the desired location.</p>
+</div>
+<div class="paragraph">
+<p>Now launch the <code>bin/riot-redis</code> script and follow the usage information provided.</p>
 </div>
 <div class="sect3">
 <h4 id="_homebrew_macos"><a class="anchor" href="#_homebrew_macos"></a>2.1.1. Homebrew (macOS)</h4>
@@ -173,26 +234,70 @@ Redis connection options
 </div>
 </div>
 <div class="sect1">
-<h2 id="_replicating"><a class="anchor" href="#_replicating"></a>3. Replicating</h2>
+<h2 id="_replication"><a class="anchor" href="#_replication"></a>3. Replication</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>The <code>replicate</code> command reads data from a source Redis database and writes it to a target Redis database. The general usage is:</p>
-</div>
-<div class="literalblock">
-<div class="content">
-<pre><span class="green">riot-redis</span> -h &lt;src host&gt; -p &lt;src port&gt; replicate -h &lt;dest host&gt; -p &lt;dest port&gt;</pre>
-</div>
+<p>The <code>replicate</code> command reads data from a source Redis database and writes it to a target Redis database.</p>
 </div>
 <div class="paragraph">
+<p>The general usage is:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="console"><span class="green">riot-redis</span> &lt;source&gt; replicate &lt;target&gt; --mode &lt;snapshot|live&gt; --type &lt;dump|ds&gt;</code></pre>
+</div>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">Source and target options</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p><code>-h &lt;host&gt;</code>: Redis server hostname</p>
+</li>
+<li>
+<p><code>-p &lt;port&gt;</code>: Redis server port</p>
+</li>
+<li>
+<p><code>--cluster</code>: enable cluster mode</p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1">Replication mode</dt>
+<dd>
+<p><code>--mode</code> specifies whether to perform a <code>snapshot</code> (one-time) or <code>live</code> (online) migration.</p>
+</dd>
+<dt class="hdlist1">Replication type</dt>
+<dd>
+<p><code>--type</code> specifies how data is read from the source and written to the target</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>dump</code> (default) refers to DUMP &amp; RESTORE</p>
+</li>
+<li>
+<p><code>ds</code> is for <a href="#type-based-replication">type-based replication</a></p>
+<div class="paragraph">
+<p>If your target Redis database does not support the <code>RESTORE</code> command (e.g. CRDB) then you need to use the <code>ds</code> replication type.</p>
+</div>
+</li>
+</ul>
+</div>
+</dd>
+</dl>
+</div>
+<div id="replicate-usage" class="paragraph">
 <p>To show the full usage, run:</p>
 </div>
-<div class="literalblock">
+<div class="listingblock">
 <div class="content">
-<pre><span class="green">riot-redis</span> replicate --help</pre>
+<pre class="CodeRay highlight"><code data-lang="console"><span class="green">riot-redis</span> replicate --help</code></pre>
 </div>
 </div>
 <div class="listingblock">
-<div class="title">Simple replication example</div>
+<div class="title">Snapshot replication example</div>
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="console">riot-redis -h source -p 6379 replicate -h target -p 6380 --batch 10</code></pre>
 </div>
@@ -204,11 +309,53 @@ Redis connection options
 </div>
 </div>
 <div class="sect2">
-<h3 id="_type_based_replication"><a class="anchor" href="#_type_based_replication"></a>3.1. Type-Based Replication</h3>
+<h3 id="live-replication"><a class="anchor" href="#live-replication"></a>3.1. Live Replication</h3>
 <div class="paragraph">
-<p>RIOT-Redis includes another type of replication that uses data structure-specific producers and consumers where each Redis data structure type has a corresponding pair of read/write commands:</p>
+<p>In live replication mode RIOT-Redis listens for changes happening on the source database using keyspace notifications. Each time a key is modified, RIOT-Redis reads the corresponding value and propagates that change to the target database.</p>
 </div>
-<table class="tableblock frame-none grid-none stretch">
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+Make sure the source Redis database has keyspace notifications enabled using <code>notify-keyspace-events = KA</code> in <code>redis.conf</code> or via CONFIG SET.
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+The live replication mechanism does not guarantee data consistency. Redis sends keyspace notifications over pub/sub which does not provide	guaranteed delivery. It is possible that RIOT-Redis can miss some notifications in case of network failures for example.
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+Depending on the type, size, and rate of change of data structures on the source it is possible that RIOT-Redis cannot keep up with the change stream. For example if a big set is repeatedly updated, RIOT-Redis will need to read the whole set on each update and transfer it over to the target database. If the set is big enough RIOT-Redis could fall behind and eventually the internal queue would fill up and this would lead to updates being dropped. Some preliminary sizing using Redis statistics and big-keys is recommended for these migrations. If you need assistance please contact your Redis account team.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="type-based-replication"><a class="anchor" href="#type-based-replication"></a>3.2. Type-Based Replication</h3>
+<div class="paragraph">
+<p>If the target Redis database does not support the RESTORE command (e.g. <a href="https://redis.com/redis-enterprise/technology/active-active-geo-distribution/">CRDB</a>), RIOT-Redis includes another type of replication where each Redis data structure type has a corresponding pair of read/write commands:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 33.3333%;">
 <col style="width: 33.3333%;">
@@ -223,34 +370,34 @@ Redis connection options
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Hash</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>HGETALL</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>HSET</code></p></td>
+<th class="tableblock halign-left valign-top"><p class="tableblock">Hash</p></th>
+<td class="tableblock halign-left valign-top"><p class="tableblock">HGETALL</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">HSET</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">List</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>LRANGE</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>RPUSH</code></p></td>
+<th class="tableblock halign-left valign-top"><p class="tableblock">List</p></th>
+<td class="tableblock halign-left valign-top"><p class="tableblock">LRANGE</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">RPUSH</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Set</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>SMEMBERS</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>SADD</code></p></td>
+<th class="tableblock halign-left valign-top"><p class="tableblock">Set</p></th>
+<td class="tableblock halign-left valign-top"><p class="tableblock">SMEMBERS</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">SADD</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Sorted Set</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>ZRANGE</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>ZADD</code></p></td>
+<th class="tableblock halign-left valign-top"><p class="tableblock">Sorted Set</p></th>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ZRANGE</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ZADD</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Stream</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>XRANGE</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>XADD</code></p></td>
+<th class="tableblock halign-left valign-top"><p class="tableblock">Stream</p></th>
+<td class="tableblock halign-left valign-top"><p class="tableblock">XRANGE</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">XADD</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>GET</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>SET</code></p></td>
+<th class="tableblock halign-left valign-top"><p class="tableblock">String</p></th>
+<td class="tableblock halign-left valign-top"><p class="tableblock">GET</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">SET</p></td>
 </tr>
 </tbody>
 </table>
@@ -258,7 +405,7 @@ Redis connection options
 <p>To select this replication mechanism pass <code>--type ds</code> option to the <code>replicate</code> command:</p>
 </div>
 <div class="listingblock">
-<div class="title">Live type-based replication example</div>
+<div class="title">Type-based, live replication example</div>
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="console">riot-redis -h source -p 6379 replicate --type ds -h target -p 6380 --mode live</code></pre>
 </div>
@@ -277,9 +424,23 @@ This replication strategy is more intensive in terms of CPU, memory, and network
 </div>
 </div>
 <div class="sect2">
-<h3 id="_verification"><a class="anchor" href="#_verification"></a>3.2. Verification</h3>
+<h3 id="_verification"><a class="anchor" href="#_verification"></a>3.3. Verification</h3>
 <div class="paragraph">
-<p>Once replication is complete (i.e. for snapshot replication when scan is complete, for live replication when no keyspace notification idle) RIOT-Redis will perform a verification step. This step iterates over keys in the source database and compares values and TTLs between source and target databases. The output looks like this:</p>
+<p>Once replication is complete RIOT-Redis will perform a verification step by iterates over keys in the source database and comparing values and TTLs between source and target databases.</p>
+</div>
+<div class="paragraph">
+<p>The verification step happens automatically after the scan is complete (snapshot replication), or for live replication when keyspace notifications have become idled (see <a href="#replicate-usage">replication usage</a>).</p>
+</div>
+<div class="paragraph">
+<p>Verification can also be run on-demand using the <code>compare</code> command:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="console">riot-redis compare --help</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The output looks like this:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -322,30 +483,6 @@ This replication strategy is more intensive in terms of CPU, memory, and network
 <div class="paragraph">
 <p>If live replication is enabled the producer also subscribes to keyspace notifications to generate a continuous stream of keys and corresponding values.</p>
 </div>
-<div class="admonitionblock tip">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-tip" title="Tip"></i>
-</td>
-<td class="content">
-Make sure the source Redis database has keyspace notifications enabled using <code>notify-keyspace-events = KA</code> in <code>redis.conf</code> or via CONFIG SET.
-</td>
-</tr>
-</table>
-</div>
-<div class="admonitionblock warning">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-warning" title="Warning"></i>
-</td>
-<td class="content">
-The live replication mechanism does not guarantee data consistency. Redis sends keyspace notifications over pub/sub which does not provide	guaranteed delivery. It is possible that RIOT-Redis can miss some notifications in case of network failures for example.
-</td>
-</tr>
-</table>
-</div>
 <div class="paragraph">
 <p>Both snapshot and live producer processes make use of <a href="https://redis.io/topics/pipelining">pipelining</a> in order to read values in a batch fashion. Use the <code>--reader-batch</code> option to configure the number of values to be read in a single pipelined call. Each process can be multi-threaded using the <code>--reader-threads</code> option.</p>
 </div>
@@ -368,7 +505,7 @@ The live replication mechanism does not guarantee data consistency. Redis sends 
 <div id="footer">
 <div id="footer-text">
 Version 2.15.1<br>
-Last updated 2022-01-31 22:19:01 UTC
+Last updated 2022-02-01 06:20:42 UTC
 </div>
 </div>
 <link rel="stylesheet" href="./coderay-asciidoctor.css">
