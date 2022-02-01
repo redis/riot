@@ -1,0 +1,33 @@
+[[latency]]
+= Measuring Latency
+
+This recipe shows you how to measure client-side latency to a Redis database using {project-title}.
+
+== Prerequisites
+
+For this recipe you will require the following:
+ 
+* Redis database
+* {project-title} host machine
+
+== Installing {project-title}
+
+Let's install {project-title} on a host machine. This can be any machine with network access to the Redis databases.
+
+include::{includedir}/download-run.adoc[leveloffset=3]
+
+== Calculating Latency
+
+We are now all set to begin the latency calculation process.
+
+[source,console]
+----
+riot-redis -h <host> -p <port> latency
+----
+
+When the latency tests are finished you will see statistics like these:
+
+[source,console]
+----
+[min=0, max=19, percentiles={50.0=1, 90.0=3, 95.0=6, 99.0=10, 99.9=17}]
+----

@@ -5,7 +5,7 @@
 
 {project-title} can be installed in different ways depending on your environment and preference.
 
-include:download-run.adoc[leveloffset=1]
+include::{includedir}/download-run.adoc[leveloffset=1]
 
 === Homebrew (macOS)
 

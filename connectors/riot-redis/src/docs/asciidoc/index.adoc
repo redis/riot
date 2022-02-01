@@ -16,23 +16,43 @@ image::replication.png[]
 
 include::{includedir}/getting-started.adoc[leveloffset=+1]
 
-== Replicating
+== Replication
 
-The `replicate` command reads data from a source Redis database and writes it to a target Redis database. The general usage is:
+The `replicate` command reads data from a source Redis database and writes it to a target Redis database.
 
-[subs=+quotes]
-....
-[green]#riot-redis# -h <src host> -p <src port> replicate -h <dest host> -p <dest port>
-....
+The general usage is:
 
+[source,console,subs=+quotes]
+----
+[green]#riot-redis# <source> replicate <target> --mode <snapshot|live> --type <dump|ds>
+----
+
+Source and target options::
+
+* `-h <host>`: Redis server hostname
+* `-p <port>`: Redis server port 
+* `--cluster`: enable cluster mode
+
+Replication mode::
+`--mode` specifies whether to perform a `snapshot` (one-time) or `live` (online) migration.
+
+Replication type::
+`--type` specifies how data is read from the source and written to the target
++
+* `dump` (default) refers to DUMP & RESTORE
+* `ds` is for <<type-based-replication,type-based replication>>
++
+If your target Redis database does not support the `RESTORE` command (e.g. CRDB) then you need to use the `ds` replication type.
+
+[[replicate-usage]]
 To show the full usage, run:
 
-[subs="+quotes"]
-....
+[source,console,subs="+quotes"]
+----
 [green]#riot-redis# replicate --help
-....
+----
 
-.Simple replication example
+.Snapshot replication example
 [source,console]
 ----
 include::{test-resources}/replicate[]
@@ -44,11 +64,24 @@ include::{test-resources}/replicate[]
 include::{test-resources}/replicate-live[]
 ----
 
+[[live-replication]]
+=== Live Replication
+
+In live replication mode {project-title} listens for changes happening on the source database using keyspace notifications. Each time a key is modified, {project-title} reads the corresponding value and propagates that change to the target database.
+
+TIP: Make sure the source Redis database has keyspace notifications enabled using `notify-keyspace-events = KA` in `redis.conf` or via CONFIG SET.
+
+WARNING: The live replication mechanism does not guarantee data consistency. Redis sends keyspace notifications over pub/sub which does not provide	guaranteed delivery. It is possible that {project-title} can miss some notifications in case of network failures for example.
+
+IMPORTANT: Depending on the type, size, and rate of change of data structures on the source it is possible that {project-title} cannot keep up with the change stream. For example if a big set is repeatedly updated, {project-title} will need to read the whole set on each update and transfer it over to the target database. If the set is big enough {project-title} could fall behind and eventually the internal queue would fill up and this would lead to updates being dropped. Some preliminary sizing using Redis statistics and big-keys is recommended for these migrations. If you need assistance please contact your Redis account team.
+
+
+[[type-based-replication]]
 === Type-Based Replication
 
-{project-title} includes another type of replication that uses data structure-specific producers and consumers where each Redis data structure type has a corresponding pair of read/write commands:
+If the target Redis database does not support the RESTORE command (e.g. https://redis.com/redis-enterprise/technology/active-active-geo-distribution/[CRDB]), {project-title} includes another type of replication where each Redis data structure type has a corresponding pair of read/write commands:
 
-[options="header",cols=",m,m",frame="none",grid="none"]
+[%header,cols="h,1,1"]
 |=========================================================
 |Type|Read|Write
 
@@ -63,7 +96,7 @@ include::{test-resources}/replicate-live[]
 
 To select this replication mechanism pass `--type ds` option to the `replicate` command:
 
-.Live type-based replication example
+.Type-based, live replication example
 [source,console]
 ----
 include::{test-resources}/replicate-ds-live[]
@@ -73,7 +106,17 @@ WARNING: This replication strategy is more intensive in terms of CPU, memory, an
 
 === Verification
 
-Once replication is complete (i.e. for snapshot replication when scan is complete, for live replication when no keyspace notification idle) {project-title} will perform a verification step. This step iterates over keys in the source database and compares values and TTLs between source and target databases. The output looks like this:
+Once replication is complete {project-title} will perform a verification step by iterates over keys in the source database and comparing values and TTLs between source and target databases.
+
+The verification step happens automatically after the scan is complete (snapshot replication), or for live replication when keyspace notifications have become idled (see <<replicate-usage, replication usage>>).
+
+Verification can also be run on-demand using the `compare` command:
+[source,console]
+----
+riot-redis compare --help
+----
+
+The output looks like this:
 
 ----
 >1,234 T2,345 ≠3,456 ⧗4,567 <5,678
@@ -94,10 +137,6 @@ Once replication is complete (i.e. for snapshot replication when scan is complet
 The producer is connected to the source Redis (e.g. ElastiCache) database and iterates over keys to be replicated by performing a SCAN and reading the corresponding values with DUMP. This is the snapshot part of the replication process.
 
 If live replication is enabled the producer also subscribes to keyspace notifications to generate a continuous stream of keys and corresponding values.
-
-TIP: Make sure the source Redis database has keyspace notifications enabled using `notify-keyspace-events = KA` in `redis.conf` or via CONFIG SET.
-
-WARNING: The live replication mechanism does not guarantee data consistency. Redis sends keyspace notifications over pub/sub which does not provide	guaranteed delivery. It is possible that {project-title} can miss some notifications in case of network failures for example.
 
 Both snapshot and live producer processes make use of https://redis.io/topics/pipelining[pipelining] in order to read values in a batch fashion. Use the `--reader-batch` option to configure the number of values to be read in a single pipelined call. Each process can be multi-threaded using the `--reader-threads` option.
 
