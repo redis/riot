@@ -106,7 +106,7 @@ WARNING: This replication strategy is more intensive in terms of CPU, memory, an
 
 === Verification
 
-Once replication is complete {project-title} will perform a verification step by iterates over keys in the source database and comparing values and TTLs between source and target databases.
+Once replication is complete {project-title} will perform a verification step by iterating over keys in the source database and comparing values and TTLs between source and target databases.
 
 The verification step happens automatically after the scan is complete (snapshot replication), or for live replication when keyspace notifications have become idled (see <<replicate-usage, replication usage>>).
 

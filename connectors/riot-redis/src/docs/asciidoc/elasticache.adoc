@@ -10,6 +10,8 @@ The following scenarios are covered:
 
 WARNING: Please note that the tool used in this recipe ({project-title}) is NEITHER recommended NOR officially supported by Redis, Inc.
 
+IMPORTANT: It is recommended to read the https://developer.redis.com/riot/riot-redis/[{project-title} documentation] to familiarize yourself with its usage and architecture.
+
 == Setup
 
 === Prerequisites
@@ -25,7 +27,7 @@ Refer to https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/Endpoints.h
 [IMPORTANT]
 .Keyspace Notifications
 ====
-For live migrations you need to https://aws.amazon.com/premiumsupport/knowledge-center/elasticache-redis-keyspace-notifications/[enable keyspace notifications] on your Elasticache instance.
+For a https://developer.redis.com/riot/riot-redis/#live-replication[live migration] you need to https://aws.amazon.com/premiumsupport/knowledge-center/elasticache-redis-keyspace-notifications/[enable keyspace notifications] on your Elasticache instance.
 ====
 
 === Migration Host
