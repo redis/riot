@@ -108,6 +108,13 @@ distributions:
       active: release
       bucket:
         name: scoop
+    docker:
+      active: always
+      registries:
+        - serverName: DEFAULT
+          username: jruaux
+      labels:
+        'org.opencontainers.image.title': '{{distributionName}}'
     artifacts:
       - path: 'connectors/{{distributionName}}/build/distributions/{{distributionName}}-{{projectVersion}}.zip'
         transform: '{{distributionName}}-{{projectEffectiveVersion}}.zip'
