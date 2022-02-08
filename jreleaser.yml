@@ -113,6 +113,7 @@ distributions:
       registries:
         - serverName: DEFAULT
           username: jruaux
+          repositoryName: jruaux
       labels:
         'org.opencontainers.image.title': '{{distributionName}}'
     artifacts:
