@@ -24,6 +24,7 @@ jobs:
           sonatype-password: ${{ secrets.SONATYPE_PASSWORD }}
           github-token: ${{ secrets.GIT_ACCESS_TOKEN }}
           slack-webhook: ${{ secrets.JRELEASER_SLACK_WEBHOOK }}
+          docker-password: ${{ secrets.JRELEASER_DOCKER_PASSWORD }}
 
       - name: Upload test reports
         if: failure()
