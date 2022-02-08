@@ -117,7 +117,6 @@ distributions:
         'org.opencontainers.image.title': '{{distributionName}}'
     artifacts:
       - path: 'connectors/{{distributionName}}/build/distributions/{{distributionName}}-{{projectVersion}}.zip'
-        transform: '{{distributionName}}-{{projectEffectiveVersion}}.zip'
 
   riot-gen:
     brew:
