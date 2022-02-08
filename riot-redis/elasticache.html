@@ -14,7 +14,7 @@
 <div id="header">
 <h1>Elasticache &#8594; Redis Enterprise Migration</h1>
 <div class="details">
-<span id="revnumber">version 2.15.1</span>
+<span id="revnumber">version 2.15.2</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -76,6 +76,18 @@ Please note that the tool used in this recipe (RIOT-Redis) is NEITHER recommende
 </tr>
 </table>
 </div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+It is recommended to read the <a href="https://developer.redis.com/riot/riot-redis/">RIOT-Redis documentation</a> to familiarize yourself with its usage and architecture.
+</td>
+</tr>
+</table>
+</div>
 </div>
 </div>
 <div class="sect1">
@@ -111,7 +123,7 @@ Please note that the tool used in this recipe (RIOT-Redis) is NEITHER recommende
 <td class="content">
 <div class="title">Keyspace Notifications</div>
 <div class="paragraph">
-<p>For live migrations you need to <a href="https://aws.amazon.com/premiumsupport/knowledge-center/elasticache-redis-keyspace-notifications/">enable keyspace notifications</a> on your Elasticache instance.</p>
+<p>For a <a href="https://developer.redis.com/riot/riot-redis/#live-replication">live migration</a> you need to <a href="https://aws.amazon.com/premiumsupport/knowledge-center/elasticache-redis-keyspace-notifications/">enable keyspace notifications</a> on your Elasticache instance.</p>
 </div>
 </td>
 </tr>
@@ -357,8 +369,8 @@ Authentication required</code></pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 2.15.1<br>
-Last updated 2022-02-01 06:20:42 UTC
+Version 2.15.2<br>
+Last updated 2022-02-08 07:00:48 UTC
 </div>
 </div>
 <link rel="stylesheet" href="./coderay-asciidoctor.css">
