@@ -88,69 +88,46 @@ announce:
   slack:
     active: release
     channel: '#field-engineering-announcements'
+    
+packagers:
+  brew:
+    active: release
+  scoop:
+    active: release
+    bucket:
+      name: scoop
+  docker:
+    active: always
+    registries:
+      - serverName: DEFAULT
+        username: jruaux
+        repositoryName: jruaux
+    imageNames:
+      - 'jruaux/{{distributionName}}:{{tagName}}'
+      - 'jruaux/{{distributionName}}:latest'
+    labels:
+      'org.opencontainers.image.title': '{{distributionName}}'
 
 distributions:
   riot-db:
-    brew:
-      active: release
-    scoop:
-      active: release
-      bucket:
-        name: scoop
     artifacts:
       - path: 'connectors/{{distributionName}}/build/distributions/{{distributionName}}-{{projectVersion}}.zip'
-        transform: '{{distributionName}}-{{projectEffectiveVersion}}.zip'
 
   riot-file:
-    brew:
-      active: release
-    scoop:
-      active: release
-      bucket:
-        name: scoop
-    docker:
-      active: always
-      registries:
-        - serverName: DEFAULT
-          username: jruaux
-          repositoryName: jruaux
-      labels:
-        'org.opencontainers.image.title': '{{distributionName}}'
     artifacts:
       - path: 'connectors/{{distributionName}}/build/distributions/{{distributionName}}-{{projectVersion}}.zip'
 
   riot-gen:
-    brew:
-      active: release
-    scoop:
-      active: release
-      bucket:
-        name: scoop
     artifacts:
       - path: 'connectors/{{distributionName}}/build/distributions/{{distributionName}}-{{projectVersion}}.zip'
-        transform: '{{distributionName}}-{{projectEffectiveVersion}}.zip'
 
   riot-redis:
-    brew:
-      active: release
-    scoop:
-      active: release
-      bucket:
-        name: scoop
     artifacts:
       - path: 'connectors/{{distributionName}}/build/distributions/{{distributionName}}-{{projectVersion}}.zip'
-        transform: '{{distributionName}}-{{projectEffectiveVersion}}.zip'
 
   riot-stream:
-    brew:
-      active: release
-    scoop:
-      active: release
-      bucket:
-        name: scoop
     artifacts:
       - path: 'connectors/{{distributionName}}/build/distributions/{{distributionName}}-{{projectVersion}}.zip'
-        transform: '{{distributionName}}-{{projectEffectiveVersion}}.zip'
 
 files:
   artifacts:
