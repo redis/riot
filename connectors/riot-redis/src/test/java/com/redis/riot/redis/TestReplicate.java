@@ -68,6 +68,16 @@ class TestReplicate extends AbstractRiotIntegrationTests {
 
 	@ParameterizedTest
 	@RedisTestContextsSource
+	void replicateDryRun(RedisTestContext redis) throws Throwable {
+		String name = "replicate-dry-run";
+		execute(generator(redis, name));
+		Assertions.assertTrue(redis.sync().dbsize() > 0);
+		execute(name, redis, this::configureReplicateCommand);
+		Assertions.assertEquals(0, getContext(targetRedis).sync().dbsize());
+	}
+
+	@ParameterizedTest
+	@RedisTestContextsSource
 	void replicateHyperLogLog(RedisTestContext redis) throws Throwable {
 		String name = "replicate-hll";
 		String key = "crawled:20171124";

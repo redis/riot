@@ -1,5 +1,6 @@
 package com.redis.riot.redis;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -12,6 +13,7 @@ import org.springframework.batch.core.job.builder.JobFlowBuilder;
 import org.springframework.batch.core.job.builder.SimpleJobBuilder;
 import org.springframework.batch.core.job.flow.support.SimpleFlow;
 import org.springframework.batch.core.step.tasklet.TaskletStep;
+import org.springframework.batch.item.ItemWriter;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 
 import com.redis.riot.FlushingTransferOptions;
@@ -19,7 +21,6 @@ import com.redis.riot.KeyValueProcessorOptions;
 import com.redis.riot.RedisWriterOptions;
 import com.redis.riot.RiotStepBuilder;
 import com.redis.spring.batch.RedisItemReader;
-import com.redis.spring.batch.RedisItemWriter;
 import com.redis.spring.batch.RedisItemWriter.OperationBuilder;
 import com.redis.spring.batch.reader.ScanRedisItemReaderBuilder;
 
@@ -85,11 +86,15 @@ public class ReplicateCommand extends AbstractTargetCommand {
 
 	protected Optional<Step> optionalVerificationStep() throws Exception {
 		if (replicationOptions.isVerify()) {
-			if (processorOptions.getKeyProcessor() == null) {
-				return Optional.of(verificationStep());
+			if (replicationOptions.isDryRun()) {
+				return Optional.empty();
 			}
-			// Verification cannot be done if a processor is set
-			log.warn("Key processor enabled, verification will be skipped");
+			if (processorOptions.getKeyProcessor() != null) {
+				// Verification cannot be done if a processor is set
+				log.warn("Key processor enabled, verification will be skipped");
+				return Optional.empty();
+			}
+			return Optional.of(verificationStep());
 		}
 		return Optional.empty();
 	}
@@ -120,7 +125,11 @@ public class ReplicateCommand extends AbstractTargetCommand {
 		return step.processor(processorOptions.processor(getRedisOptions(), targetRedisOptions)).writer(writer());
 	}
 
-	private RedisItemWriter<byte[], byte[], ?> writer() {
+	private ItemWriter<?> writer() {
+		if (replicationOptions.isDryRun()) {
+			log.debug("Using no-op writer");
+			return new NoOpItemWriter<Object>();
+		}
 		log.debug("Configuring writer with {}", targetRedisOptions);
 		OperationBuilder<byte[], byte[]> builder = writer(targetRedisOptions, ByteArrayCodec.INSTANCE);
 		switch (replicationOptions.getType()) {
@@ -132,6 +141,14 @@ public class ReplicateCommand extends AbstractTargetCommand {
 			break;
 		}
 		throw new IllegalArgumentException("Unknown replication type: " + replicationOptions.getType());
+	}
+
+	private static class NoOpItemWriter<T> implements ItemWriter<T> {
+
+		@Override
+		public void write(List<? extends T> items) throws Exception {
+			// Do nothing
+		}
 	}
 
 	private ScanRedisItemReaderBuilder<byte[], byte[], ?> reader() throws Exception {

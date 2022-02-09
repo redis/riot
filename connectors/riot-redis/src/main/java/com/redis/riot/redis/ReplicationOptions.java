@@ -22,6 +22,8 @@ public class ReplicationOptions {
 	private int notificationQueueCapacity = LiveKeyItemReader.DEFAULT_QUEUE_CAPACITY;
 	@CommandLine.Option(names = "--no-verify", description = "Verify target against source dataset after replication. True by default", negatable = true)
 	private boolean verify = true;
+	@CommandLine.Option(names = "--dry-run", description = "Disable writes and only perform reads")
+	private boolean dryRun;
 
 	public ReplicationMode getMode() {
 		return mode;
@@ -53,6 +55,14 @@ public class ReplicationOptions {
 
 	public void setVerify(boolean verify) {
 		this.verify = verify;
+	}
+
+	public boolean isDryRun() {
+		return dryRun;
+	}
+
+	public void setDryRun(boolean dryRun) {
+		this.dryRun = dryRun;
 	}
 
 }
