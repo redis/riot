@@ -116,7 +116,7 @@ public abstract class AbstractTargetCommand extends AbstractTransferCommand {
 	private <K, V> DataStructureValueReader<K, V> dataStructureValueReader(RedisOptions redisOptions,
 			RedisCodec<K, V> codec) {
 		RedisConnectionBuilder<K, V, ?> builder = new RedisConnectionBuilder<>(redisOptions.client(), codec);
-		return new DataStructureValueReader<K, V>(builder.connectionSupplier(), readerOptions.poolConfig(),
+		return new DataStructureValueReader<>(builder.connectionSupplier(), readerOptions.poolConfig(),
 				builder.async());
 	}
 

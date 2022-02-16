@@ -1,5 +1,5 @@
 [[elasticache]]
-= Elasticache -> Redis Enterprise Migration
+= Migrate from Elasticache
 
 This recipe contains step-by-step instructions to migrate an Elasticache (EC) database to https://redis.com/redis-enterprise-software/overview/[Redis Enterprise] (RE).
 

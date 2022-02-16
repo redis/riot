@@ -5,8 +5,6 @@
 
 {project-title} can be installed in different ways depending on your environment and preference.
 
-include::{includedir}/download-run.adoc[leveloffset=1]
-
 === Homebrew (macOS)
 
 [subs="attributes",source,console]
@@ -20,6 +18,17 @@ brew install redis-developer/tap/{project-name}
 ----
 scoop bucket add redis-developer https://github.com/redis-developer/scoop.git
 scoop install {project-name}
+----
+
+=== Download and run (Linux)
+
+include::{includedir}/download-run.adoc[leveloffset=+3]
+
+=== Docker
+
+[subs="attributes",source,console]
+----
+docker run jruaux/{project-name} [OPTIONS] [COMMAND]
 ----
 
 === Clone and run

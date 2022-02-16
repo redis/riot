@@ -107,7 +107,7 @@ subprojects {
 	    }
 	    resources {
 	    	from("$rootDir/core/riot-core/src/docs/resources/images") {
-	     		include '**/*.png'
+	     		include '**/*'
 	   		}
 	    }
 	    baseDirFollowsSourceFile()
