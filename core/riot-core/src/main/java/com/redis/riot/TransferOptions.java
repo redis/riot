@@ -12,7 +12,7 @@ public class TransferOptions {
 		ALWAYS, NEVER, LIMIT
 	}
 
-	@CommandLine.Option(names = "--progress-style", description = "Style for the progress bar: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})")
+	@CommandLine.Option(names = "--progress", description = "Style of progress bar: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})", paramLabel = "<style>")
 	private Progress progress = Progress.COLOR;
 	@CommandLine.Option(names = "--progress-interval", description = "Progress update interval in milliseconds (default: ${DEFAULT-VALUE})", paramLabel = "<ms>", hidden = true)
 	private long progressUpdateIntervalMillis = 300;
