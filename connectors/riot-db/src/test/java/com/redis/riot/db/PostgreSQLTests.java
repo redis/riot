@@ -79,14 +79,16 @@ public class PostgreSQLTests extends AbstractDatabaseTests {
 			statement.execute("SELECT COUNT(*) AS count FROM mytable");
 			ResultSet countResultSet = statement.getResultSet();
 			countResultSet.next();
-			statement.execute("SELECT * from mytable ORDER BY id ASC");
+			statement.execute("SELECT * from mytable");
 			ResultSet resultSet = statement.getResultSet();
-			long index = 1;
+			long count = 0;
 			while (resultSet.next()) {
-				Assertions.assertEquals(index, resultSet.getInt("id"));
-				index++;
+				Assertions.assertTrue(resultSet.getInt("id") >= 0);
+				Assertions.assertNotNull(resultSet.getString("field1"));
+				Assertions.assertNotNull(resultSet.getString("field2"));
+				count++;
 			}
-			Assertions.assertEquals(redis.sync().dbsize(), index - 1);
+			Assertions.assertEquals(redis.sync().dbsize(), count);
 		}
 	}
 
