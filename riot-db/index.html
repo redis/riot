@@ -34,6 +34,12 @@
 </ul>
 </li>
 <li><a href="#_exporting">5. Exporting</a></li>
+<li><a href="#_architecture">6. Architecture</a>
+<ul class="sectlevel2">
+<li><a href="#batch">6.1. Batching</a></li>
+<li><a href="#threads">6.2. Multi-threading</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </div>
@@ -42,7 +48,7 @@
 <h2 id="_introduction"><a class="anchor" href="#_introduction"></a>1. Introduction</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>RIOT-DB is a database import/export tool for Redis built on top of the <a href="https://github.com/redis-developer/lettucemod/">LettuceMod</a> Java driver.</p>
+<p>RIOT-DB is a database import/export tool for Redis built on top of <a href="https://github.com/redis-developer/lettucemod/">LettuceMod</a>.</p>
 </div>
 <div class="paragraph">
 <p>It supports <a href="https://redis.io">Redis</a> and <a href="https://redis.com/redis-enterprise-software/overview/">Redis Enterprise</a> in either standalone or <a href="https://redis.io/topics/cluster-tutorial">cluster</a> deployments.</p>
@@ -520,11 +526,42 @@ Redis connection options
 </div>
 </div>
 </div>
+<div class="sect1">
+<h2 id="_architecture"><a class="anchor" href="#_architecture"></a>6. Architecture</h2>
+<div class="sectionbody">
+<div class="imageblock">
+<div class="content">
+<img src="architecture.svg" alt="architecture">
+</div>
+</div>
+<div class="paragraph">
+<p>RIOT-DB processes data in batch fashion: a fixed number of records (batch AKA chunk) is read, processed, and written at a time. Then the cycle is repeated until there&#8217;s no more data on the source.</p>
+</div>
+<div class="sect2">
+<h3 id="batch"><a class="anchor" href="#batch"></a>6.1. Batching</h3>
+<div class="paragraph">
+<p>The default batch size is 50, which means that an execution step reads 50 items at a time from the source, processes them, and finally writes then to the target. If the target is Redis, writing is done in a single command <a href="https://redis.io/topics/pipelining">pipeline</a> to minimize the number of roundtrips to the server.</p>
+</div>
+<div class="paragraph">
+<p>You can change the batch size (and hence pipeline size) using the <code>--batch</code> option. The optimal batch size in terms of processing throughput depends on a few factors like record size and command types (see <a href="https://stackoverflow.com/a/32165090">here</a> for details).</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="threads"><a class="anchor" href="#threads"></a>6.2. Multi-threading</h3>
+<div class="paragraph">
+<p>It is possible to parallelize processing by using multiple threads. In that configuration, each chunk of items is read, processed, and written in a separate thread of execution.</p>
+</div>
+<div class="paragraph">
+<p>To set the number of threads use the <code>--threads</code> option.</p>
+</div>
+</div>
+</div>
+</div>
 </div>
 <div id="footer">
 <div id="footer-text">
 Version 2.15.4<br>
-Last updated 2022-02-17 00:29:07 UTC
+Last updated 2022-02-17 07:15:05 UTC
 </div>
 </div>
 <link rel="stylesheet" href="./coderay-asciidoctor.css">
