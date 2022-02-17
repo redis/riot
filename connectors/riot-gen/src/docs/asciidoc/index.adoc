@@ -75,3 +75,5 @@ Some providers take parameters, for example:
 ....
 
 Refer to the link specified for each provider for complete documentation.
+
+include::{includedir}/architecture.adoc[leveloffset=+1]

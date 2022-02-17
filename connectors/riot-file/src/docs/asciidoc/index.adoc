@@ -2,7 +2,7 @@
 
 == Introduction
 
-{project-title} is a file import/export tool for Redis built on top of the https://github.com/redis-developer/lettucemod/[LettuceMod] Java driver.
+{project-title} is a file import/export tool for Redis built on top of https://github.com/redis-developer/lettucemod/[LettuceMod].
 
 It supports https://redis.io[Redis] and https://redis.com/redis-enterprise-software/overview/[Redis Enterprise] in either standalone or https://redis.io/topics/cluster-tutorial[cluster] deployments.
 
@@ -10,14 +10,12 @@ include::{includedir}/getting-started.adoc[leveloffset=+1]
 
 == Importing
 
-The `import` command reads data from files and writes it to Redis. The general usage is:
+The `import` command reads from files and writes to Redis:
 
 [subs="+quotes"]
 ....
 [green]#riot-file# -h <host> -p <port> import [olive]#FILE#... [REDIS COMMAND...]
 ....
-
-include::{includedir}/scaling.adoc
 
 To show the full usage, run:
 
@@ -228,3 +226,5 @@ include::{test-resources}/export-xml[]
 ----
 include::../resources/redis-dump.json[]
 ----
+
+include::{includedir}/architecture.adoc[leveloffset=+1]

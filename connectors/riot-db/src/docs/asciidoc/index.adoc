@@ -2,7 +2,7 @@
 
 == Introduction
 
-{project-title} is a database import/export tool for Redis built on top of the https://github.com/redis-developer/lettucemod/[LettuceMod] Java driver. 
+{project-title} is a database import/export tool for Redis built on top of https://github.com/redis-developer/lettucemod/[LettuceMod]. 
 
 It supports https://redis.io[Redis] and https://redis.com/redis-enterprise-software/overview/[Redis Enterprise] in either standalone or https://redis.io/topics/cluster-tutorial[cluster] deployments.
 
@@ -104,3 +104,5 @@ This will produce Redis strings that look like this:
 ----
 include::../resources/order.json[]
 ----
+
+include::{includedir}/architecture.adoc[leveloffset=+1]

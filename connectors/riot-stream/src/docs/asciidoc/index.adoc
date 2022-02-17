@@ -49,3 +49,5 @@ To show the full usage, run:
 ----
 include::{test-resources}/export[]
 ----
+
+include::{includedir}/architecture.adoc[leveloffset=+1]
