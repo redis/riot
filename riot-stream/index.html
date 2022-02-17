@@ -14,7 +14,7 @@
 <div id="header">
 <h1>RIOT-Stream</h1>
 <div class="details">
-<span id="revnumber">version 2.15.2</span>
+<span id="revnumber">version 2.15.4</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -48,6 +48,25 @@
 <div class="paragraph">
 <p>RIOT-Stream can be installed in different ways depending on your environment and preference.</p>
 </div>
+<div class="sect3">
+<h4 id="_homebrew_macos"><a class="anchor" href="#_homebrew_macos"></a>2.1.1. Homebrew (macOS)</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="source">brew install redis-developer/tap/riot-stream</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_scoop_windows"><a class="anchor" href="#_scoop_windows"></a>2.1.2. Scoop (Windows)</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="source">scoop bucket add redis-developer https://github.com/redis-developer/scoop.git
+scoop install riot-stream</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_download_and_run_linux"><a class="anchor" href="#_download_and_run_linux"></a>2.1.3. Download and run (Linux)</h4>
 <div class="paragraph">
 <p>RIOT-Stream requires Java and the easiest option is to use the version packaged with Ubuntu. By default Ubuntu 18.04 includes Open JDK 11.</p>
 </div>
@@ -111,25 +130,17 @@ OpenJDK 64-Bit Server VM (build 11.0.11+9-Ubuntu-0ubuntu2.18.04, mixed mode, sha
 <div class="paragraph">
 <p>Now launch the <code>bin/riot-stream</code> script and follow the usage information provided.</p>
 </div>
+</div>
 <div class="sect3">
-<h4 id="_homebrew_macos"><a class="anchor" href="#_homebrew_macos"></a>2.1.1. Homebrew (macOS)</h4>
+<h4 id="_docker"><a class="anchor" href="#_docker"></a>2.1.4. Docker</h4>
 <div class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="source">brew install redis-developer/tap/riot-stream</code></pre>
+<pre class="CodeRay highlight"><code data-lang="source">docker run jruaux/riot-stream [OPTIONS] [COMMAND]</code></pre>
 </div>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_scoop_windows"><a class="anchor" href="#_scoop_windows"></a>2.1.2. Scoop (Windows)</h4>
-<div class="listingblock">
-<div class="content">
-<pre class="CodeRay highlight"><code data-lang="source">scoop bucket add redis-developer https://github.com/redis-developer/scoop.git
-scoop install riot-stream</code></pre>
-</div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_clone_and_run"><a class="anchor" href="#_clone_and_run"></a>2.1.3. Clone and run</h4>
+<h4 id="_clone_and_run"><a class="anchor" href="#_clone_and_run"></a>2.1.5. Clone and run</h4>
 <div class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="source">git clone https://github.com/redis-developer/riot.git
@@ -255,8 +266,8 @@ Redis connection options
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 2.15.2<br>
-Last updated 2022-02-08 07:00:48 UTC
+Version 2.15.4<br>
+Last updated 2022-02-17 00:29:07 UTC
 </div>
 </div>
 <link rel="stylesheet" href="./coderay-asciidoctor.css">
