@@ -87,7 +87,7 @@ Can be smaller than the number of threads
 
 Performance tuning is an art but {project-title} offers some facilities to identify potential bottlenecks. In addition to the <<batch,batch>> and <<threads,threads>> options you have the `--dry-run` option which disables writing to the target Redis database so that you can tune <<reader-options,reading>> in isolation. Add that option to your existing `replicate` command-line to compare replication speeds with and without writing to the target Redis database:
 
-[source,console,subs=+quotes]
+[source,console,subs="attributes,+quotes"]
 ----
 [green]#riot-redis# <source> replicate <target> ... [red]#--dry-run#
 ----
@@ -101,7 +101,7 @@ The verification step happens automatically after the scan is complete (snapshot
 Verification can also be run on-demand using the `compare` command:
 [source,console]
 ----
-riot-redis compare --help
+riot-redis -h <left host> -p <left port> compare -h <right host> -p <right port>
 ----
 
 The output looks like this:
@@ -117,6 +117,13 @@ The output looks like this:
 * `<`: # keys only present in target database
 
 include::{includedir}/architecture.adoc[leveloffset=+1]
+
+To show which keys are different use the `--show-diffs` option:
+
+[source,console,subs="attributes,+quotes"]
+----
+riot-redis -h <left host> -p <left port> compare -h <right host> -p <right port> [red]#--show-diffs#
+----
 
 === Reader
 

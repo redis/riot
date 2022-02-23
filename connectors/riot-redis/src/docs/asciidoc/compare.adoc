@@ -26,3 +26,10 @@ We are now all set to begin the comparison process.
 riot-redis -h <left host> -p <left port> compare -h <right host> -p <right port>
 ----
 
+To show which keys are different use the `--show-diffs` option:
+
+[source,console,subs="attributes,+quotes"]
+----
+riot-redis -h <left host> -p <left port> compare -h <right host> -p <right port> [red]#--show-diffs#
+----
+
