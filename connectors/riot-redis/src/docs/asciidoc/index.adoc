@@ -4,23 +4,43 @@
 
 {project-title} is a data migration tool for Redis.
 
-Most Redis migration tools available today are offline in nature. Migrating data from AWS ElastiCache to Redis Enterprise Cloud for example means backing up your Elasticache data to an AWS S3 bucket and importing it into Redis Enterprise Cloud using its UI. {project-title} allows for live data migration between any Redis databases.
+Most Redis migration tools available today are offline in nature.
+Migrating data from AWS ElastiCache to Redis Enterprise Cloud for example means backing up your Elasticache data to an AWS S3 bucket and importing it into Redis Enterprise Cloud using its UI.
+{project-title} allows for live data migration between any Redis databases.
 
-{project-title} does not make use of the https://redis.io/commands/replicaof[REPLICAOF] command which is not always available (see https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/RestrictedCommands.html[ElastiCache restrictions]). Instead it implements <<_architecture,client-side replication>> using DUMP & RESTORE.
+{project-title} does not make use of the https://redis.io/commands/replicaof[REPLICAOF] command which is not always available (see https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/RestrictedCommands.html[ElastiCache restrictions]).
+Instead it implements <<_architecture,client-side replication>> using DUMP & RESTORE.
 
-include::{includedir}/getting-started.adoc[leveloffset=+1]
+[[_getting-started]]
+== Getting Started
+
+include::{includedir}/_getting-started.adoc[leveloffset=+1]
+
+Available commands:
+[source,console,subs="quotes"]
+----
+replicate   Replicate a source Redis DB to a target Redis DB
+compare     Compare 2 Redis databases and print the differences
+info        Display INFO command output
+latency     Calculate latency stats
+ping        Execute PING command
+----
+
+
+[[replication]]
+== Replication
+
+The `replicate` command replicates data from a source Redis database to a target Redis database.
 
 [[replication-usage]]
-=== Replication
-
-The general usage for the replicate command is:
+=== Usage
 
 [source,console,subs=+quotes]
 ----
 [green]#riot-redis# <source> replicate <target> --mode <snapshot|live> --type <dump|ds> [OPTIONS]
 ----
 
-.Full usage help
+For the full usage, run:
 [source,console,subs="+quotes"]
 ----
 [green]#riot-redis# replicate --help
@@ -38,7 +58,7 @@ include::{test-resources}/replicate[]
 include::{test-resources}/replicate-live[]
 ----
 
-==== Source and target options
+=== Source and target options
 `-h <host>`::
     Redis server hostname
 `-p <port>`::
@@ -46,7 +66,7 @@ include::{test-resources}/replicate-live[]
 `--cluster`::
     Enable cluster mode
 
-==== Replication mode
+=== Replication mode
 `--mode snapshot`::
     Initial replication using key scan
 `--mode liveonly`::
@@ -54,14 +74,14 @@ include::{test-resources}/replicate-live[]
 `--mode live`::
     Initial + continuous replication using key scan and keyspace notifications in parallel
 
-==== Replication type
+=== Replication type
 `--type dump`::
     DUMP on source, RESTORE on target
 `--type ds`::
     <<type-based-replication,Type-based replication>>
 
 [[reader-options]]
-==== Reader options
+=== Reader options
 `--scan-count`::
     How many keys to read at once on each call to https://redis.io/commands/scan#the-count-option[SCAN]
 `--scan-match`::
@@ -85,11 +105,13 @@ Can be smaller than the number of threads
 
 === Performance Tuning
 
-Performance tuning is an art but {project-title} offers some facilities to identify potential bottlenecks. In addition to the <<batch,batch>> and <<threads,threads>> options you have the `--dry-run` option which disables writing to the target Redis database so that you can tune <<reader-options,reading>> in isolation. Add that option to your existing `replicate` command-line to compare replication speeds with and without writing to the target Redis database:
+Performance tuning is an art but {project-title} offers some facilities to identify potential bottlenecks.
+In addition to the <<batch,batch>> and <<threads,threads>> options you have the `--dry-run` option which disables writing to the target Redis database so that you can tune <<reader-options,reading>> in isolation.
+Add that option to your existing `replicate` command-line to compare replication speeds with and without writing to the target Redis database:
 
-[source,console,subs="attributes,+quotes"]
+[source,console,subs="attributes"]
 ----
-[green]#riot-redis# <source> replicate <target> ... [red]#--dry-run#
+riot-redis ... replicate ... --dry-run
 ----
 
 === Verification
@@ -116,20 +138,29 @@ The output looks like this:
 * `⧗`: # keys with TTL delta greater than tolerance
 * `<`: # keys only present in target database
 
-include::{includedir}/architecture.adoc[leveloffset=+1]
-
 To show which keys are different use the `--show-diffs` option:
 
-[source,console,subs="attributes,+quotes"]
+[source,console,subs="attributes"]
 ----
-riot-redis -h <left host> -p <left port> compare -h <right host> -p <right port> [red]#--show-diffs#
+{project-name} ... compare ... --show-diffs
 ----
+
+=== Progress
+
+Each process (scan, and event listener in case of live replication) has a corresponding status bar that shows the process name and its progress:
+* Scanning: percentage of keys that have been replicated => replicated / total. The total number of keys is calculated when the process starts and it can change by the time it is finished (for example in case keys are deleted or added during the replication), so the progress bar is only a rough indicator.
+* Listening: progress is indefinite as total number of keys is unknown
+
+== Architecture
+
+include::{includedir}/_architecture.adoc[leveloffset=+1]
 
 === Reader
 
 image::reader-architecture.svg[]
 
-<1> Scan for keys in the source Redis database. If live replication is enabled the reader also subscribes to keyspace notifications to generate a continuous stream of keys.
+<1> Scan for keys in the source Redis database.
+If live replication is enabled the reader also subscribes to keyspace notifications to generate a continuous stream of keys.
 
 <2> Reader threads iterate over the keys to read corresponding values and TTLs.
 
@@ -138,15 +169,22 @@ image::reader-architecture.svg[]
 [[live-replication]]
 === Live Replication
 
-In live replication mode {project-title} listens for changes happening on the source database using keyspace notifications. Each time a key is modified, {project-title} reads the corresponding value and propagates that change to the target database.
+In live replication mode {project-title} listens for changes happening on the source database using keyspace notifications.
+Each time a key is modified, {project-title} reads the corresponding value and propagates that change to the target database.
 
 TIP: Make sure the source Redis database has keyspace notifications enabled using `notify-keyspace-events = KA` in `redis.conf` or via CONFIG SET.
 
 [WARNING]
 ====
-The live replication mechanism does not guarantee data consistency. Redis sends keyspace notifications over pub/sub which does not provide	guaranteed delivery. It is possible that {project-title} can miss some notifications in case of network failures for example.
+The live replication mechanism does not guarantee data consistency.
+Redis sends keyspace notifications over pub/sub which does not provide guaranteed delivery.
+It is possible that {project-title} can miss some notifications in case of network failures for example.
 
-Also, depending on the type, size, and rate of change of data structures on the source it is possible that {project-title} cannot keep up with the change stream. For example if a big set is repeatedly updated, {project-title} will need to read the whole set on each update and transfer it over to the target database. With a big-enough set, {project-title} could fall behind, the internal queue could fill up, and lead to updates being dropped. Some preliminary sizing using Redis statistics and big-keys is recommended for these migrations. If you need assistance please contact your Redis account team.
+Also, depending on the type, size, and rate of change of data structures on the source it is possible that {project-title} cannot keep up with the change stream.
+For example if a big set is repeatedly updated, {project-title} will need to read the whole set on each update and transfer it over to the target database.
+With a big-enough set, {project-title} could fall behind, the internal queue could fill up, and lead to updates being dropped.
+Some preliminary sizing using Redis statistics and big-keys is recommended for these migrations.
+If you need assistance please contact your Redis account team.
 ====
 
 [[dump-and-restore]]
@@ -188,4 +226,5 @@ To select this replication mechanism pass `--type ds` option to the `replicate` 
 include::{test-resources}/replicate-ds-live[]
 ----
 
-WARNING: This replication strategy is more intensive in terms of CPU, memory, and network for the machines running {project-title}. Adjust number of threads, batch, and queue sizes accordingly.
+WARNING: This replication strategy is more intensive in terms of CPU, memory, and network for the machines running {project-title}.
+Adjust number of threads, batch, and queue sizes accordingly.

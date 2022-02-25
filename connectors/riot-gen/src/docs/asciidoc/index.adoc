@@ -6,25 +6,30 @@
 
 It supports https://redis.io[Redis] and https://redis.com/redis-enterprise-software/overview/[Redis Enterprise] in either standalone or https://redis.io/topics/cluster-tutorial[cluster] deployments.
 
-include::{includedir}/getting-started.adoc[leveloffset=+1]
+[[_getting-started]]
+== Getting Started
+
+include::{includedir}/_getting-started.adoc[leveloffset=+1]
 
 == Importing
 
-The `import` command generates data and writes it to Redis. The general usage is:
+The `import` command generates data and writes it to Redis.
+
+=== Usage
 
 [subs=+quotes]
-....
+----
 [green]#riot-gen# -h <host> -p <port> import [olive]#SPEL#... [REDIS COMMAND...]
-....
+----
 
 where SPEL is a https://docs.spring.io/spring/docs/current/spring-framework-reference/core.html#expressions[Spring Expression Language] field in the form `field="expression"`.
 
 To show the full usage, run:
 
 [subs="+quotes"]
-....
+----
 [green]#riot-gen# import --help
-....
+----
 
 .Hash generator example
 [source,console]
@@ -38,9 +43,13 @@ include::{test-resources}/import-hset[]
 include::{test-resources}/import-sadd[]
 ----
 
-include::{includedir}/redis-commands.adoc[leveloffset=+2]
+=== Redis Commands
 
-include::{includedir}/processing.adoc[leveloffset=+2]
+include::{includedir}/_redis-commands.adoc[leveloffset=+2]
+
+=== Processing
+
+include::{includedir}/_processing.adoc[leveloffset=+2]
 
 === RediSearch
 
@@ -57,23 +66,25 @@ include::{test-resources}/import-infer[]
 Run this command to display the list of available Faker providers:
 
 [subs="+quotes"]
-....
+----
 [green]#riot-gen# faker-help
-....
+----
 
 Most providers don't take any arguments and can be called directly, for example:
 
 [subs="+quotes"]
-....
+----
 [green]#riot-gen# import firstName="name.firstName"
-....
+----
 
 Some providers take parameters, for example:
 [subs="+quotes"]
-....
+----
 [green]#riot-gen# import lease="number.digits(2)"
-....
+----
 
 Refer to the link specified for each provider for complete documentation.
 
-include::{includedir}/architecture.adoc[leveloffset=+1]
+== Architecture
+
+include::{includedir}/_architecture.adoc[leveloffset=+1]

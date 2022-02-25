@@ -6,7 +6,10 @@
 
 It supports https://redis.io[Redis] and https://redis.com/redis-enterprise-software/overview/[Redis Enterprise] in either standalone or https://redis.io/topics/cluster-tutorial[cluster] deployments.
 
-include::{includedir}/getting-started.adoc[leveloffset=+1]
+[[_getting-started]]
+== Getting Started
+
+include::{includedir}/_getting-started.adoc[leveloffset=+1]
 
 == JDBC Drivers
 
@@ -46,7 +49,9 @@ For non-included databases you must install the corresponding JDBC driver under 
 
 == Importing
 
-The `import` command reads rows from a SQL resultset and writes them to Redis. The general usage is:
+The `import` command reads rows from a SQL resultset and writes them to Redis.
+
+=== Usage
 
 [subs="+quotes"]
 ----
@@ -66,21 +71,24 @@ To show the full usage, run:
 include::{test-resources}/import-postgresql[]
 ----
 
-include::{includedir}/redis-commands.adoc[leveloffset=+2]
+=== Redis Commands
 
-include::{includedir}/processing.adoc[leveloffset=+2]
+include::{includedir}/_redis-commands.adoc[leveloffset=+2]
+
+=== Processing
+
+include::{includedir}/_processing.adoc[leveloffset=+2]
 
 == Exporting
 
-The `export` command reads data from a Redis database and writes it to a SQL database. The general usage is:
-
+The `export` command reads data from a Redis database and writes it to a SQL database.
+The general usage is:
 [subs="+quotes"]
 ----
 [green]#riot-db# -h <redis host> -p <redis port> export --url <jdbc url> [olive]#SQL#
 ----
 
 To show the full usage, run:
-
 [subs="+quotes"]
 ----
 [green]#riot-db# export --help
@@ -99,10 +107,11 @@ include::{test-resources}/import-postgresql-set[]
 ----
 
 This will produce Redis strings that look like this:
-
 [source,json]
 ----
 include::../resources/order.json[]
 ----
 
-include::{includedir}/architecture.adoc[leveloffset=+1]
+== Architecture
+
+include::{includedir}/_architecture.adoc[leveloffset=+1]

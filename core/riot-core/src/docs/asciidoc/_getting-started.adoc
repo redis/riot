@@ -1,6 +1,3 @@
-[[_getting-started]]
-= Getting Started
-
 == Install
 
 {project-title} can be installed in different ways depending on your environment and preference.
@@ -22,7 +19,7 @@ scoop install {project-name}
 
 === Download and run (Linux)
 
-include::{includedir}/download-run.adoc[leveloffset=+3]
+include::{includedir}/_download-run.adoc[leveloffset=+3]
 
 === Docker
 
@@ -45,7 +42,7 @@ cd riot/bin
 To display usage help, run the following command:
 
 [subs="specialcharacters,attributes,+quotes",source,console]
-....
+----
 [green]#{project-name}# --help
 Usage: **{project-name}** [OPTIONS] [COMMAND]
   [olive]#-H#, [olive]#--help#                Show this help message and exit
@@ -67,7 +64,7 @@ Redis connection options
   [olive]#-c#, [olive]#--cluster#             Enable cluster mode.
       [olive]#--tls#                 Establish a secure TLS connection.
       [olive]#--insecure#            Allow insecure TLS connection by skipping cert validation.
-....
+----
 
 Redis connection options are the same as `redis-cli`.
 
@@ -78,8 +75,8 @@ For Redis URI syntax see https://github.com/lettuce-io/lettuce-core/wiki/Redis-U
 You can use `--help` on any subcommand:
 
 [subs="attributes,+quotes"]
-....
+----
 [green]#{project-name}# [red]#command# --help
 [green]#{project-name}# command [red]#subcommand# --help
-....
+----
 ====

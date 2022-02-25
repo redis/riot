@@ -4,23 +4,27 @@
 
 {project-title} is a command-line utility that lets you import and export data from Kafka topics.
 
-include::{includedir}/getting-started.adoc[leveloffset=+1]
+[[_getting-started]]
+== Getting Started
+
+include::{includedir}/_getting-started.adoc[leveloffset=+1]
 
 == Importing
 
-The `import` command reads messages from a Kafka topic and writes them to a Redis stream. The general usage is:
+The `import` command reads messages from a Kafka topic and writes them to a Redis stream.
 
+The general usage is:
 [subs="+quotes"]
-....
+----
 [green]#riot-stream# -h <redis host> -p <redis port> import --broker <host:port> [olive]#TOPIC#...
-....
+----
 
 To show the full usage, run:
 
 [subs="+quotes"]
-....
+----
 [green]#riot-stream# import --help
-....
+----
 
 .Import example
 [source,console]
@@ -30,19 +34,20 @@ include::{test-resources}/import[]
 
 == Exporting
 
-The `export` command reads message from a Redis stream and writes them to a Kafka topic. The general usage is:
+The `export` command reads message from a Redis stream and writes them to a Kafka topic.
+The general usage is:
 
 [subs="+quotes"]
-....
+----
 [green]#riot-stream# -h <redis host> -p <redis port> export --broker <host:port> [olive]#STREAM#...
-....
+----
 
 To show the full usage, run:
 
 [subs="+quotes"]
-....
+----
 [green]#riot-stream# export --help
-....
+----
 
 .Export example
 [source,console]
@@ -50,4 +55,6 @@ To show the full usage, run:
 include::{test-resources}/export[]
 ----
 
-include::{includedir}/architecture.adoc[leveloffset=+1]
+== Architecture
+
+include::{includedir}/_architecture.adoc[leveloffset=+1]

@@ -1,6 +1,3 @@
-[[_redis-commands]]
-= Redis Commands
-
 Redis keys are constructed from input records by concatenating the keyspace prefix and key fields:
 
 image::mapping.png[]
@@ -9,21 +6,21 @@ You can specify one or many Redis commands as targets of the import:
 
 .Import into hashes
 [subs="attributes,+quotes"]
-....
+----
 [green]#{project-name}# import ... [olive]*hset* --keyspace blah --keys id
-....
+----
 
 .Import into hashes *and* set TTL on the key
 [subs="attributes,+quotes"]
-....
+----
 [green]#{project-name}# import ... [olive]*hset* --keyspace blah --keys id [olive]*expire* --keyspace blah --keys id
-....
+----
 
 .Import into hashes *and* set TTL *and* add to a set named `myset`
 [subs="attributes,+quotes"]
-....
+----
 [green]#{project-name}# import ... [olive]*hset* --keyspace blah --keys id [olive]*expire* --keyspace blah --keys id [olive]*sadd* --keyspace myset --members id
-....
+----
 
 [IMPORTANT,subs="attributes"]
 ====
@@ -32,7 +29,7 @@ Redis connection options apply to the root command ({project-name}) and not to s
 In this example the redis options will not be taken into account:
 
 [subs="attributes,+quotes"]
-....
+----
 [green]#{project-name}# import ... [olive]*hset* [.line-through]#[red]*-h myredis.com -p 6380*#
-....
+----
 ====

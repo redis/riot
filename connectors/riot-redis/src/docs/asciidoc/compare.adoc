@@ -13,9 +13,10 @@ For this recipe you will require the following:
 
 == Installing {project-title}
 
-Let's install {project-title} on a host machine. This can be any machine with access to left and right Redis databases.
+Let's install {project-title} on a host machine.
+This can be any machine with access to left and right Redis databases.
 
-include::{includedir}/download-run.adoc[leveloffset=3]
+include::{includedir}/_download-run.adoc[leveloffset=2]
 
 == Performing Comparison
 
@@ -30,6 +31,6 @@ To show which keys are different use the `--show-diffs` option:
 
 [source,console,subs="attributes,+quotes"]
 ----
-riot-redis -h <left host> -p <left port> compare -h <right host> -p <right port> [red]#--show-diffs#
+{project-name} ... compare ... [red]#--show-diffs#
 ----
 

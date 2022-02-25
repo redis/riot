@@ -1,6 +1,3 @@
-[[_processing]]
-= Processing
-
 The following processors can be applied to records in that order:
 
 * Transforms
@@ -27,17 +24,17 @@ The transform processor also exposes functions and variables that can be accesse
 
 .Processor Example
 [subs="attributes,+quotes"]
-....
+----
 [green]#{project-name}# import --process epoch=[olive]#"#date.parse(mydate).getTime()"# location=[olive]#"#geo(lon,lat)"# id=[olive]#"#index"# name=[olive]#"#redis.hget('person1','lastName')"# ...
-....
+----
 
 == Regular Expressions
 
 Extract patterns from source fields using regular expressions:
 [subs="attributes,+quotes"]
-....
+----
 [green]#{project-name}# import --regex name=[olive]#"(?<first>\w+)\/(?<last>\w+)"# ...
-....
+----
 
 == Filters
 
@@ -46,6 +43,6 @@ Keep records that match a SpEL boolean expression.
 For example this filter will only keep records where the `value` field is a series of digits:
 
 [subs="attributes,+quotes"]
-....
+----
 [green]#{project-name}# import --filter "value matches '\\d+'" ...
-....
+----

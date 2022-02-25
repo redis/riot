@@ -12,9 +12,10 @@ For this recipe you will require the following:
 
 == Installing {project-title}
 
-Let's install {project-title} on a host machine. This can be any machine with network access to the Redis databases.
+Let's install {project-title} on a host machine.
+This can be any machine with network access to the Redis databases.
 
-include::{includedir}/download-run.adoc[leveloffset=3]
+include::{includedir}/_download-run.adoc[leveloffset=3]
 
 == Calculating Latency
 

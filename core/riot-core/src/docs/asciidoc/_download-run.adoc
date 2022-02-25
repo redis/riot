@@ -1,4 +1,5 @@
-{project-title} requires Java and the easiest option is to use the version packaged with Ubuntu. By default Ubuntu 18.04 includes Open JDK 11.
+{project-title} requires Java and the easiest option is to use the version packaged with Ubuntu.
+By default Ubuntu 18.04 includes Open JDK 11.
 
 To install this version, first update the package index:
 
