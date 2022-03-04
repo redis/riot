@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.job.builder.JobBuilder;
+import org.springframework.batch.core.step.builder.FaultTolerantStepBuilder;
 import org.springframework.batch.core.step.tasklet.TaskletStep;
 import org.springframework.batch.item.ItemReader;
 
@@ -16,7 +17,7 @@ import com.redis.lettucemod.api.sync.RediSearchCommands;
 import com.redis.lettucemod.search.Field;
 import com.redis.lettucemod.search.IndexInfo;
 import com.redis.riot.AbstractImportCommand;
-import com.redis.riot.RiotStepBuilder;
+import com.redis.riot.RiotStep;
 
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -87,10 +88,9 @@ public class GeneratorImportCommand extends AbstractImportCommand {
 	}
 
 	@Override
-	protected <I, O> RiotStepBuilder<I, O> riotStep(String name, String taskName) throws Exception {
-		RiotStepBuilder<I, O> riotStepBuilder = super.riotStep(name, taskName);
-		riotStepBuilder.initialMax(() -> options.getEnd() - options.getStart());
-		return riotStepBuilder;
+	public <I, O> FaultTolerantStepBuilder<I, O> step(RiotStep<I, O> riotStep) throws Exception {
+		riotStep.setInitialMax(() -> options.getEnd() - options.getStart());
+		return super.step(riotStep);
 	}
 
 }

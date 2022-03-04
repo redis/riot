@@ -38,8 +38,8 @@ public class JsonResourceItemWriterBuilder<T> {
 	private FlatFileFooterCallback footerCallback;
 
 	private String name;
-	private String encoding = JsonResourceItemWriter.DEFAULT_CHARSET;
-	private String lineSeparator = JsonResourceItemWriter.DEFAULT_LINE_SEPARATOR;
+	private String encoding = AbstractResourceItemWriter.DEFAULT_CHARSET;
+	private String lineSeparator = AbstractResourceItemWriter.DEFAULT_LINE_SEPARATOR;
 
 	private boolean append = false;
 	private boolean saveState = true;
@@ -211,22 +211,22 @@ public class JsonResourceItemWriterBuilder<T> {
 			Assert.hasText(this.name, "A name is required when saveState is true");
 		}
 
-		JsonResourceItemWriter<T> JsonResourceItemWriter = new JsonResourceItemWriter<>(this.resource,
+		JsonResourceItemWriter<T> jsonResourceItemWriter = new JsonResourceItemWriter<>(this.resource,
 				this.jsonObjectMarshaller);
 
-		JsonResourceItemWriter.setName(this.name);
-		JsonResourceItemWriter.setAppendAllowed(this.append);
-		JsonResourceItemWriter.setEncoding(this.encoding);
+		jsonResourceItemWriter.setName(this.name);
+		jsonResourceItemWriter.setAppendAllowed(this.append);
+		jsonResourceItemWriter.setEncoding(this.encoding);
 		if (this.headerCallback != null) {
-			JsonResourceItemWriter.setHeaderCallback(this.headerCallback);
+			jsonResourceItemWriter.setHeaderCallback(this.headerCallback);
 		}
 		if (this.footerCallback != null) {
-			JsonResourceItemWriter.setFooterCallback(this.footerCallback);
+			jsonResourceItemWriter.setFooterCallback(this.footerCallback);
 		}
-		JsonResourceItemWriter.setLineSeparator(this.lineSeparator);
-		JsonResourceItemWriter.setSaveState(this.saveState);
-		JsonResourceItemWriter.setShouldDeleteIfEmpty(this.shouldDeleteIfEmpty);
-		JsonResourceItemWriter.setShouldDeleteIfExists(this.shouldDeleteIfExists);
-		return JsonResourceItemWriter;
+		jsonResourceItemWriter.setLineSeparator(this.lineSeparator);
+		jsonResourceItemWriter.setSaveState(this.saveState);
+		jsonResourceItemWriter.setShouldDeleteIfEmpty(this.shouldDeleteIfEmpty);
+		jsonResourceItemWriter.setShouldDeleteIfExists(this.shouldDeleteIfExists);
+		return jsonResourceItemWriter;
 	}
 }

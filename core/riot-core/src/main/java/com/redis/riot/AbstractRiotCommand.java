@@ -6,7 +6,6 @@ import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.listener.JobExecutionListenerSupport;
-import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.util.ClassUtils;
 
 import com.redis.spring.batch.support.JobRepositoryBuilder;
@@ -43,10 +42,6 @@ public abstract class AbstractRiotCommand extends HelpCommand implements Callabl
 			this.jobRunner = new JobRunner(bean.getObject(), bean.getTransactionManager());
 		}
 		return jobRunner;
-	}
-
-	protected StepBuilder step(String name) throws Exception {
-		return getJobRunner().step(name);
 	}
 
 	@Override

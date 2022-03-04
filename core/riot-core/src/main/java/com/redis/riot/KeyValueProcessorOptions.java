@@ -2,6 +2,7 @@ package com.redis.riot;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.expression.EvaluationContext;
@@ -31,7 +32,7 @@ public class KeyValueProcessorOptions {
 		return ttlProcessor;
 	}
 
-	public <T extends KeyValue<byte[], ?>> ItemProcessor<T, T> processor(RedisOptions sourceRedis,
+	public <T extends KeyValue<byte[], ?>> Optional<ItemProcessor<T, T>> processor(RedisOptions sourceRedis,
 			RedisOptions targetRedis) {
 		SpelExpressionParser parser = new SpelExpressionParser();
 		List<ItemProcessor<T, T>> processors = new ArrayList<>();

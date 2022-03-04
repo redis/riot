@@ -3,6 +3,7 @@ package com.redis.riot;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.batch.core.step.builder.FaultTolerantStepBuilder;
@@ -60,10 +61,11 @@ public abstract class AbstractImportCommand extends AbstractTransferCommand {
 
 	protected FaultTolerantStepBuilder<Map<String, Object>, Map<String, Object>> step(String name, String taskName,
 			ItemReader<Map<String, Object>> reader) throws Exception {
-		RiotStepBuilder<Map<String, Object>, Map<String, Object>> step = riotStep(name, taskName);
-		ItemProcessor<Map<String, Object>, Map<String, Object>> processor = processorOptions
+		RiotStep.Builder<Map<String, Object>, Map<String, Object>> step = RiotStep.builder();
+		step.name(name).taskName(taskName);
+		Optional<ItemProcessor<Map<String, Object>, Map<String, Object>>> processor = processorOptions
 				.processor(getRedisOptions());
-		return step.reader(reader).processor(processor).writer(writer()).build();
+		return step(step.reader(reader).processor(processor).writer(writer()).build());
 	}
 
 	private ItemWriter<Map<String, Object>> writer() {

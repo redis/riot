@@ -2,6 +2,7 @@ package com.redis.riot;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 import org.slf4j.Logger;
@@ -13,6 +14,7 @@ import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.util.Assert;
 
 import com.redis.riot.TransferOptions.Progress;
+import com.redis.spring.batch.support.Utils;
 
 import me.tongfei.progressbar.ProgressBar;
 import me.tongfei.progressbar.ProgressBarBuilder;
@@ -26,11 +28,11 @@ public class ProgressMonitor implements StepExecutionListener, ItemWriteListener
 	private final TransferOptions.Progress style;
 	private final String taskName;
 	private final Duration updateInterval;
-	private final Supplier<Long> initialMax;
+	private final Optional<Supplier<Long>> initialMax;
 	protected ProgressBar progressBar;
 
 	public ProgressMonitor(TransferOptions.Progress style, String taskName, Duration updateInterval,
-			Supplier<Long> initialMax) {
+			Optional<Supplier<Long>> initialMax) {
 		Assert.notNull(style, "A progress style is required");
 		Assert.notNull(taskName, "A task name is required");
 		Assert.notNull(updateInterval, "Update interval is required");
@@ -46,8 +48,8 @@ public class ProgressMonitor implements StepExecutionListener, ItemWriteListener
 	public void beforeStep(StepExecution stepExecution) {
 		ProgressBarBuilder builder = new ProgressBarBuilder();
 		builder.setStyle(progressBarStyle());
-		if (initialMax != null) {
-			Long initialMaxValue = initialMax.get();
+		if (initialMax.isPresent()) {
+			Long initialMaxValue = initialMax.get().get();
 			if (initialMaxValue != null) {
 				log.debug("Setting initial max to {}", initialMaxValue);
 				builder.setInitialMax(initialMaxValue);
@@ -100,7 +102,7 @@ public class ProgressMonitor implements StepExecutionListener, ItemWriteListener
 		private final Supplier<String> extraMessage;
 
 		public ExtraMessageProgressMonitor(TransferOptions.Progress style, String taskName, Duration updateInterval,
-				Supplier<Long> initialMax, Supplier<String> extraMessage) {
+				Optional<Supplier<Long>> initialMax, Supplier<String> extraMessage) {
 			super(style, taskName, updateInterval, initialMax);
 			this.extraMessage = extraMessage;
 		}
@@ -120,9 +122,9 @@ public class ProgressMonitor implements StepExecutionListener, ItemWriteListener
 
 		private Progress style;
 		private String taskName;
-		private Duration updateInterval;
-		private Supplier<Long> initialMax;
-		private Supplier<String> extraMessage;
+		private Duration updateInterval = Duration.ofMillis(300);
+		private Optional<Supplier<Long>> initialMax = Optional.empty();
+		private Optional<Supplier<String>> extraMessage = Optional.empty();
 
 		public ProgressMonitor.ProgressMonitorBuilder style(Progress style) {
 			this.style = style;
@@ -135,25 +137,37 @@ public class ProgressMonitor implements StepExecutionListener, ItemWriteListener
 		}
 
 		public ProgressMonitor.ProgressMonitorBuilder updateInterval(Duration updateInterval) {
+			Utils.assertPositive(updateInterval, "Update interval");
 			this.updateInterval = updateInterval;
 			return this;
 		}
 
-		public ProgressMonitor.ProgressMonitorBuilder initialMax(Supplier<Long> initialMax) {
+		public ProgressMonitor.ProgressMonitorBuilder initialMax(Optional<Supplier<Long>> initialMax) {
 			this.initialMax = initialMax;
 			return this;
 		}
 
-		public ProgressMonitor.ProgressMonitorBuilder extraMessage(Supplier<String> extraMessage) {
+		public ProgressMonitor.ProgressMonitorBuilder initialMax(Supplier<Long> initialMax) {
+			Assert.notNull(initialMax, "InitialMax supplier must not be null");
+			this.initialMax = Optional.of(initialMax);
+			return this;
+		}
+
+		public ProgressMonitor.ProgressMonitorBuilder extraMessage(Optional<Supplier<String>> extraMessage) {
 			this.extraMessage = extraMessage;
 			return this;
 		}
 
+		public ProgressMonitor.ProgressMonitorBuilder extraMessage(Supplier<String> extraMessage) {
+			this.extraMessage = Optional.of(extraMessage);
+			return this;
+		}
+
 		public ProgressMonitor build() {
-			if (extraMessage == null) {
-				return new ProgressMonitor(style, taskName, updateInterval, initialMax);
+			if (extraMessage.isPresent()) {
+				return new ExtraMessageProgressMonitor(style, taskName, updateInterval, initialMax, extraMessage.get());
 			}
-			return new ExtraMessageProgressMonitor(style, taskName, updateInterval, initialMax, extraMessage);
+			return new ProgressMonitor(style, taskName, updateInterval, initialMax);
 		}
 
 	}

@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +14,7 @@ import org.springframework.batch.core.Job;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.job.builder.SimpleJobBuilder;
 import org.springframework.batch.core.step.tasklet.TaskletStep;
+import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.json.JsonItemReader;
 import org.springframework.batch.item.support.AbstractItemStreamItemReader;
@@ -23,7 +25,7 @@ import org.springframework.util.ObjectUtils;
 import com.redis.riot.AbstractTransferCommand;
 import com.redis.riot.RedisOptions;
 import com.redis.riot.RedisWriterOptions;
-import com.redis.riot.RiotStepBuilder;
+import com.redis.riot.RiotStep;
 import com.redis.riot.file.resource.XmlItemReader;
 import com.redis.spring.batch.DataStructure;
 import com.redis.spring.batch.RedisItemWriter;
@@ -85,9 +87,11 @@ public class DumpFileImportCommand extends AbstractTransferCommand {
 		Resource resource = options.inputResource(file);
 		AbstractItemStreamItemReader<DataStructure<String>> reader = reader(fileType, resource);
 		reader.setName(file + "-" + NAME + "-reader");
-		RiotStepBuilder<DataStructure<String>, DataStructure<String>> step = riotStep(file + "-" + NAME,
-				"Importing " + file);
-		return step.reader(reader).processor(this::processDataStructure).writer(writer()).build().build();
+		RiotStep.Builder<DataStructure<String>, DataStructure<String>> step = RiotStep.builder();
+		step.name(file + "-" + NAME).taskName("Importing " + file);
+		Optional<ItemProcessor<DataStructure<String>, DataStructure<String>>> processor = Optional
+				.of(this::processDataStructure);
+		return step(step.reader(reader).processor(processor).writer(writer()).build()).build();
 	}
 
 	@SuppressWarnings("unchecked")

@@ -14,10 +14,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Set Version
-        uses: redis-field-engineering/redis-version-action@v1
-        with:
-          version: ${{ github.event.inputs.version }}
+      - name: Version
+        run: |
+          echo ${{ github.event.inputs.version }} > VERSION
 
       - name: Release
         uses: redis-field-engineering/redis-release-action@v2
@@ -48,6 +47,11 @@ jobs:
           name: test-reports
           path: |
             build/reports/aggregate-tests/
+
+      - name: Set Version
+        uses: redis-field-engineering/redis-version-action@v2
+        with:
+          version: ${{ github.event.inputs.version }}
 
       - name: Generate Docs
         run: |

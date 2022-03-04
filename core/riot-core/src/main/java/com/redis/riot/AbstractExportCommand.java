@@ -1,5 +1,7 @@
 package com.redis.riot;
 
+import java.util.Optional;
+
 import org.springframework.batch.core.step.builder.AbstractTaskletStepBuilder;
 import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.item.ItemProcessor;
@@ -17,27 +19,17 @@ public abstract class AbstractExportCommand<O> extends AbstractTransferCommand {
 	private RedisReaderOptions options = new RedisReaderOptions();
 
 	protected AbstractTaskletStepBuilder<SimpleStepBuilder<DataStructure<String>, O>> step(String name, String taskName,
-			ItemWriter<O> writer) throws Exception {
-		return step(name, taskName, null, writer);
-	}
-
-	protected AbstractTaskletStepBuilder<SimpleStepBuilder<DataStructure<String>, O>> step(String name, String taskName,
-			ItemProcessor<DataStructure<String>, O> processor, ItemWriter<O> writer) throws Exception {
-		RiotStepBuilder<DataStructure<String>, O> step = riotStep(name, taskName);
-		return step.reader(reader()).processor(processor).writer(writer).build();
+			Optional<ItemProcessor<DataStructure<String>, O>> processor, ItemWriter<O> writer) throws Exception {
+		RiotStep.Builder<DataStructure<String>, O> step = RiotStep.builder();
+		step.name(name).taskName(taskName);
+		step.initialMax(options.initialMaxSupplier(estimator()));
+		return step(step.reader(reader()).processor(processor).writer(writer).build());
 	}
 
 	private final RedisItemReader<String, DataStructure<String>> reader() throws Exception {
 		ScanRedisItemReaderBuilder<String, String, DataStructure<String>> builder = configureJobRepository(
 				stringReader(getRedisOptions()).dataStructure());
 		return options.configureScanReader(builder).build();
-	}
-
-	@Override
-	protected <S, T> RiotStepBuilder<S, T> riotStep(String name, String taskName) throws Exception {
-		RiotStepBuilder<S, T> riotStepBuilder = super.riotStep(name, taskName);
-		riotStepBuilder.initialMax(options.initialMaxSupplier(estimator()));
-		return riotStepBuilder;
 	}
 
 }

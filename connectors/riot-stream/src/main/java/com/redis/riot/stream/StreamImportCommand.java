@@ -19,11 +19,10 @@ import org.springframework.util.ObjectUtils;
 import com.redis.riot.AbstractTransferCommand;
 import com.redis.riot.FlushingTransferOptions;
 import com.redis.riot.RedisWriterOptions;
-import com.redis.riot.RiotStepBuilder;
+import com.redis.riot.RiotStep;
 import com.redis.riot.redis.FilteringOptions;
 import com.redis.riot.stream.kafka.KafkaItemReader;
 import com.redis.riot.stream.kafka.KafkaItemReaderBuilder;
-import com.redis.spring.batch.RedisItemWriter;
 import com.redis.spring.batch.writer.operation.Xadd;
 
 import io.lettuce.core.XAddArgs;
@@ -137,14 +136,15 @@ public class StreamImportCommand extends AbstractTransferCommand {
 		log.debug("Creating Kafka reader for topic {} with {}", topic, consumerProperties);
 		KafkaItemReader<String, Object> reader = new KafkaItemReaderBuilder<String, Object>().partitions(0)
 				.consumerProperties(consumerProperties).partitions(0).name(topic).saveState(false).topic(topic).build();
-		RiotStepBuilder<ConsumerRecord<String, Object>, ConsumerRecord<String, Object>> step = riotStep(
-				topic + "-" + NAME, "Importing from " + topic);
+		RiotStep.Builder<ConsumerRecord<String, Object>, ConsumerRecord<String, Object>> step = RiotStep.builder();
+		step.name(topic + "-" + NAME);
+		step.taskName("Importing from " + topic);
+		step.reader(reader);
 		Xadd<String, String, ConsumerRecord<String, Object>> xadd = Xadd
 				.<String, String, ConsumerRecord<String, Object>>key(keyConverter()).body(bodyConverter())
 				.args(xAddArgs()).build();
-		RedisItemWriter<String, String, ConsumerRecord<String, Object>> writer = writerOptions
-				.configureWriter(writer(getRedisOptions(), StringCodec.UTF8).operation(xadd)).build();
-		return step.reader(reader).writer(writer).flushingOptions(flushingTransferOptions).build().build();
+		step.writer(writerOptions.configureWriter(writer(getRedisOptions(), StringCodec.UTF8).operation(xadd)).build());
+		return flushingTransferOptions.configure(step(step.build())).build();
 	}
 
 	private Converter<ConsumerRecord<String, Object>, Map<String, String>> bodyConverter() {

@@ -3,6 +3,7 @@ package com.redis.riot.stream;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.slf4j.Logger;
@@ -20,11 +21,10 @@ import org.springframework.util.ObjectUtils;
 
 import com.redis.riot.AbstractTransferCommand;
 import com.redis.riot.FlushingTransferOptions;
-import com.redis.riot.RiotStepBuilder;
+import com.redis.riot.RiotStep;
 import com.redis.riot.stream.kafka.KafkaItemWriter;
 import com.redis.riot.stream.processor.AvroProducerProcessor;
 import com.redis.riot.stream.processor.JsonProducerProcessor;
-import com.redis.spring.batch.reader.StreamItemReader;
 
 import io.lettuce.core.StreamMessage;
 import io.lettuce.core.codec.StringCodec;
@@ -102,11 +102,13 @@ public class StreamExportCommand extends AbstractTransferCommand {
 	}
 
 	private TaskletStep streamExportStep(String stream) throws Exception {
-		StreamItemReader<String, String> reader = reader(getRedisOptions(), StringCodec.UTF8).stream(stream).build();
-		RiotStepBuilder<StreamMessage<String, String>, ProducerRecord<String, Object>> step = riotStep(
-				stream + "-" + NAME, "Exporting from " + stream);
-		return step.reader(reader).processor(processor()).writer(writer()).flushingOptions(flushingTransferOptions)
-				.build().build();
+		RiotStep.Builder<StreamMessage<String, String>, ProducerRecord<String, Object>> step = RiotStep.builder();
+		step.name(stream + "-" + NAME);
+		step.taskName("Exporting from " + stream);
+		step.reader(reader(getRedisOptions(), StringCodec.UTF8).stream(stream).build());
+		step.processor(Optional.of(processor()));
+		step.writer(writer());
+		return flushingTransferOptions.configure(step(step.build())).build();
 	}
 
 	private KafkaItemWriter<String> writer() {

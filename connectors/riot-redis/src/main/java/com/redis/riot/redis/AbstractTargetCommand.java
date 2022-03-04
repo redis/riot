@@ -14,7 +14,7 @@ import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import com.redis.riot.AbstractTransferCommand;
 import com.redis.riot.RedisOptions;
 import com.redis.riot.RedisReaderOptions;
-import com.redis.riot.RiotStepBuilder;
+import com.redis.riot.RiotStep;
 import com.redis.riot.TransferOptions;
 import com.redis.spring.batch.DataStructure;
 import com.redis.spring.batch.RedisItemReader;
@@ -66,10 +66,6 @@ public abstract class AbstractTargetCommand extends AbstractTransferCommand {
 		});
 	}
 
-	protected void initialMax(RiotStepBuilder<?, ?> step) {
-		step.initialMax(readerOptions.initialMaxSupplier(estimator()));
-	}
-
 	protected Step verificationStep() throws Exception {
 		RedisItemReader<String, DataStructure<String>> sourceReader = readerOptions.configureScanReader(
 				configureJobRepository(reader(getRedisOptions(), StringCodec.UTF8).dataStructure())).build();
@@ -81,12 +77,11 @@ public abstract class AbstractTargetCommand extends AbstractTransferCommand {
 		if (compareOptions.isShowDiffs()) {
 			writer.addListener(new KeyComparisonLogger(LoggerFactory.getLogger(getClass())));
 		}
-		RiotStepBuilder<DataStructure<String>, DataStructure<String>> stepBuilder = riotStep(VERIFICATION_NAME,
-				"Verifying");
-		initialMax(stepBuilder);
-		stepBuilder.reader(sourceReader).writer(writer);
-		stepBuilder.extraMessage(() -> extraMessage(writer.getResults()));
-		SimpleStepBuilder<DataStructure<String>, DataStructure<String>> step = stepBuilder.build();
+		RiotStep.Builder<DataStructure<String>, DataStructure<String>> riotStep = RiotStep
+				.<DataStructure<String>, DataStructure<String>>builder().name(VERIFICATION_NAME).taskName("Verifying");
+		riotStep.reader(sourceReader).writer(writer).extraMessage(() -> extraMessage(writer.getResults()));
+		initialMax(riotStep);
+		SimpleStepBuilder<DataStructure<String>, DataStructure<String>> step = step(riotStep.build());
 		step.listener(new StepExecutionListenerSupport() {
 			@Override
 			public ExitStatus afterStep(StepExecution stepExecution) {
@@ -111,6 +106,10 @@ public abstract class AbstractTargetCommand extends AbstractTransferCommand {
 			}
 		});
 		return step.build();
+	}
+
+	protected <I, O> RiotStep.Builder<I, O> initialMax(RiotStep.Builder<I, O> riotStep) {
+		return riotStep.initialMax(readerOptions.initialMaxSupplier(estimator()));
 	}
 
 	private <K, V> DataStructureValueReader<K, V> dataStructureValueReader(RedisOptions redisOptions,

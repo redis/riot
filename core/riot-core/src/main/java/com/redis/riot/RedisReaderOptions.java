@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import com.redis.spring.batch.KeyValue;
 import com.redis.spring.batch.RedisItemReader;
-import com.redis.spring.batch.RedisScanSizeEstimator.ScanSizeEstimatorBuilder;
+import com.redis.spring.batch.RedisScanSizeEstimator;
 import com.redis.spring.batch.reader.RedisItemReaderBuilder;
 import com.redis.spring.batch.reader.ScanKeyItemReader;
 import com.redis.spring.batch.reader.ScanRedisItemReaderBuilder;
@@ -129,7 +129,7 @@ public class RedisReaderOptions {
 		return config;
 	}
 
-	public Supplier<Long> initialMaxSupplier(ScanSizeEstimatorBuilder estimator) {
+	public Supplier<Long> initialMaxSupplier(RedisScanSizeEstimator.Builder estimator) {
 		return () -> {
 			try {
 				estimator.match(scanMatch).sampleSize(sampleSize);

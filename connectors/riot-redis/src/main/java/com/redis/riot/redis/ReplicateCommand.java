@@ -19,7 +19,7 @@ import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import com.redis.riot.FlushingTransferOptions;
 import com.redis.riot.KeyValueProcessorOptions;
 import com.redis.riot.RedisWriterOptions;
-import com.redis.riot.RiotStepBuilder;
+import com.redis.riot.RiotStep;
 import com.redis.spring.batch.RedisItemReader;
 import com.redis.spring.batch.RedisItemWriter.OperationBuilder;
 import com.redis.spring.batch.reader.ScanRedisItemReaderBuilder;
@@ -63,11 +63,11 @@ public class ReplicateCommand extends AbstractTargetCommand {
 		Optional<Step> verificationStep = optionalVerificationStep();
 		switch (replicationOptions.getMode()) {
 		case LIVE:
-			SimpleFlow notificationFlow = new FlowBuilder<SimpleFlow>("live-replication-flow")
-					.start(liveReplicationStep()).build();
+			SimpleFlow liveFlow = new FlowBuilder<SimpleFlow>("live-replication-flow").start(liveReplicationStep())
+					.build();
 			SimpleFlow scanFlow = new FlowBuilder<SimpleFlow>("scan-replication-flow").start(scanStep()).build();
 			SimpleFlow replicationFlow = new FlowBuilder<SimpleFlow>("replication-flow")
-					.split(new SimpleAsyncTaskExecutor()).add(notificationFlow, scanFlow).build();
+					.split(new SimpleAsyncTaskExecutor()).add(liveFlow, scanFlow).build();
 			JobFlowBuilder jobFlowBuilder = jobBuilder.start(replicationFlow);
 			verificationStep.ifPresent(jobFlowBuilder::next);
 			return jobFlowBuilder.build().build();
@@ -101,34 +101,35 @@ public class ReplicateCommand extends AbstractTargetCommand {
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private TaskletStep scanStep() throws Exception {
+		RiotStep.Builder riotStep = RiotStep.builder().name("scan-replication-step").taskName("Scanning");
 		RedisItemReader<byte[], ?> reader = reader().build();
 		reader.setName("redis-scan-reader");
-		RiotStepBuilder scanStep = riotStep("scan-replication-step", "Scanning");
-		initialMax(scanStep);
-		return configure(scanStep.reader(reader)).build().build();
+		riotStep.reader(reader);
+		initialMax(riotStep);
+		return step(configure(riotStep).build()).build();
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private TaskletStep liveReplicationStep() throws Exception {
-		RedisItemReader<byte[], ?> reader = reader().live().keyPatterns(readerOptions.getScanMatch())
-				.notificationQueueCapacity(replicationOptions.getNotificationQueueCapacity())
-				.database(getRedisOptions().uris().get(0).getDatabase())
-				.flushingInterval(flushingTransferOptions.getFlushIntervalDuration())
-				.idleTimeout(flushingTransferOptions.getIdleTimeoutDuration()).build();
+		RedisItemReader<byte[], ?> reader = flushingTransferOptions
+				.configure(reader().live().keyPatterns(readerOptions.getScanMatch())
+						.notificationQueueCapacity(replicationOptions.getNotificationQueueCapacity())
+						.database(getRedisOptions().uris().get(0).getDatabase()))
+				.build();
 		reader.setName("redis-live-reader");
-		RiotStepBuilder liveStep = riotStep("live-replication-step", "Listening");
-		return configure(liveStep.reader(reader).flushingOptions(flushingTransferOptions)).build().build();
+		RiotStep.Builder liveStep = RiotStep.builder().name("live-replication-step").taskName("Listening");
+		return flushingTransferOptions.configure(step(configure(liveStep.reader(reader)).build())).build();
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private RiotStepBuilder configure(RiotStepBuilder step) {
+	private RiotStep.Builder configure(RiotStep.Builder step) {
 		return step.processor(processorOptions.processor(getRedisOptions(), targetRedisOptions)).writer(writer());
 	}
 
 	private ItemWriter<?> writer() {
 		if (replicationOptions.isDryRun()) {
 			log.debug("Using no-op writer");
-			return new NoOpItemWriter<Object>();
+			return new NoOpItemWriter<>();
 		}
 		log.debug("Configuring writer with {}", targetRedisOptions);
 		OperationBuilder<byte[], byte[]> builder = writer(targetRedisOptions, ByteArrayCodec.INSTANCE);

@@ -17,11 +17,11 @@ public class FlatResourceItemWriterBuilder<T> {
 
 	private WritableResource resource;
 
-	private String lineSeparator = FlatResourceItemWriter.DEFAULT_LINE_SEPARATOR;
+	private String lineSeparator = AbstractResourceItemWriter.DEFAULT_LINE_SEPARATOR;
 
 	private LineAggregator<T> lineAggregator;
 
-	private String encoding = FlatResourceItemWriter.DEFAULT_CHARSET;
+	private String encoding = AbstractResourceItemWriter.DEFAULT_CHARSET;
 
 	private boolean shouldDeleteIfExists = true;
 

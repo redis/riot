@@ -9,7 +9,7 @@ public class GenerateOptions {
 
 	@CommandLine.Parameters(arity = "0..*", description = "SpEL expressions in the form field1=\"exp\" field2=\"exp\"...", paramLabel = "SPEL")
 	private Map<String, String> fakerFields;
-	@CommandLine.Option(names = "--infer", description = "Introspect given RediSearch index to introspect Faker fields", paramLabel = "<index>")
+	@CommandLine.Option(names = "--infer", description = "Introspect given RediSearch index to infer Faker fields", paramLabel = "<name>")
 	private String fakerIndex;
 	@CommandLine.Option(names = "--locale", description = "Faker locale (default: ${DEFAULT-VALUE})", paramLabel = "<tag>")
 	private Locale locale = Locale.ENGLISH;

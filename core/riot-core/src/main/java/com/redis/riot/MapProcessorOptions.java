@@ -8,6 +8,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,7 +84,7 @@ public class MapProcessorOptions {
 		this.regexes = regexes;
 	}
 
-	public ItemProcessor<Map<String, Object>, Map<String, Object>> processor(RedisOptions redisOptions) {
+	public Optional<ItemProcessor<Map<String, Object>, Map<String, Object>>> processor(RedisOptions redisOptions) {
 		List<ItemProcessor<Map<String, Object>, Map<String, Object>>> processors = new ArrayList<>();
 		if (!ObjectUtils.isEmpty(spelFields)) {
 			StandardEvaluationContext context = new StandardEvaluationContext();

@@ -17,7 +17,7 @@ public abstract class AbstractRedisCommandCommand extends AbstractRiotCommand {
 	@Override
 	protected Job job(JobBuilder jobBuilder) throws Exception {
 		String name = name();
-		Step step = step(name).tasklet((contribution, chunkContext) -> {
+		Step step = getJobRunner().step(name).tasklet((contribution, chunkContext) -> {
 			try (StatefulRedisModulesConnection<String, String> connection = getRedisOptions().connect()) {
 				execute(connection.sync());
 				return RepeatStatus.FINISHED;

@@ -216,22 +216,22 @@ public class XmlResourceItemWriterBuilder<T> {
 			Assert.hasText(this.name, "A name is required when saveState is true");
 		}
 
-		XmlResourceItemWriter<T> XmlResourceItemWriter = new XmlResourceItemWriter<>(this.resource, this.rootName,
+		XmlResourceItemWriter<T> xmlResourceItemWriter = new XmlResourceItemWriter<>(this.resource, this.rootName,
 				this.xmlObjectMarshaller);
 
-		XmlResourceItemWriter.setName(this.name);
-		XmlResourceItemWriter.setAppendAllowed(this.append);
-		XmlResourceItemWriter.setEncoding(this.encoding);
+		xmlResourceItemWriter.setName(this.name);
+		xmlResourceItemWriter.setAppendAllowed(this.append);
+		xmlResourceItemWriter.setEncoding(this.encoding);
 		if (this.headerCallback != null) {
-			XmlResourceItemWriter.setHeaderCallback(this.headerCallback);
+			xmlResourceItemWriter.setHeaderCallback(this.headerCallback);
 		}
 		if (this.footerCallback != null) {
-			XmlResourceItemWriter.setFooterCallback(this.footerCallback);
+			xmlResourceItemWriter.setFooterCallback(this.footerCallback);
 		}
-		XmlResourceItemWriter.setLineSeparator(this.lineSeparator);
-		XmlResourceItemWriter.setSaveState(this.saveState);
-		XmlResourceItemWriter.setShouldDeleteIfEmpty(this.shouldDeleteIfEmpty);
-		XmlResourceItemWriter.setShouldDeleteIfExists(this.shouldDeleteIfExists);
-		return XmlResourceItemWriter;
+		xmlResourceItemWriter.setLineSeparator(this.lineSeparator);
+		xmlResourceItemWriter.setSaveState(this.saveState);
+		xmlResourceItemWriter.setShouldDeleteIfEmpty(this.shouldDeleteIfEmpty);
+		xmlResourceItemWriter.setShouldDeleteIfExists(this.shouldDeleteIfExists);
+		return xmlResourceItemWriter;
 	}
 }
