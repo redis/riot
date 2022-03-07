@@ -89,7 +89,7 @@ public class ReplicateCommand extends AbstractTargetCommand {
 			if (replicationOptions.isDryRun()) {
 				return Optional.empty();
 			}
-			if (processorOptions.getKeyProcessor() != null) {
+			if (processorOptions.getKeyProcessor().isPresent()) {
 				// Verification cannot be done if a processor is set
 				log.warn("Key processor enabled, verification will be skipped");
 				return Optional.empty();

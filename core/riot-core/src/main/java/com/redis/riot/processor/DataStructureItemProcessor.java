@@ -83,18 +83,21 @@ public class DataStructureItemProcessor implements ItemProcessor<DataStructure<S
 
 	@SuppressWarnings("unchecked")
 	private Map<String, String> map(DataStructure<String> item) {
-		switch (item.getType()) {
-		case HASH:
+		if (item.getType() == null) {
+			throw new IllegalArgumentException("DataStructure type is null");
+		}
+		switch (item.getType().toLowerCase()) {
+		case DataStructure.TYPE_HASH:
 			return hashConverter.convert((Map<String, String>) item.getValue());
-		case LIST:
+		case DataStructure.TYPE_LIST:
 			return listConverter.convert((List<String>) item.getValue());
-		case SET:
+		case DataStructure.TYPE_SET:
 			return setConverter.convert((Set<String>) item.getValue());
-		case ZSET:
+		case DataStructure.TYPE_ZSET:
 			return zsetConverter.convert((List<ScoredValue<String>>) item.getValue());
-		case STREAM:
+		case DataStructure.TYPE_STREAM:
 			return streamConverter.convert((List<StreamMessage<String, String>>) item.getValue());
-		case STRING:
+		case DataStructure.TYPE_STRING:
 			return stringConverter.convert((String) item.getValue());
 		default:
 			return defaultConverter.convert(item.getValue());

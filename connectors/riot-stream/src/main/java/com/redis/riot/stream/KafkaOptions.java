@@ -3,6 +3,7 @@ package com.redis.riot.stream;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 
 import org.apache.kafka.common.serialization.Deserializer;
@@ -33,7 +34,7 @@ public class KafkaOptions {
 	@Option(names = "--group", description = "Consumer group id.", paramLabel = "<id>")
 	private String groupId = "$Default";
 	@Option(names = "--registry", description = "Schema registry URL.", paramLabel = "<url>")
-	private String schemaRegistryUrl;
+	private Optional<String> schemaRegistryUrl = Optional.empty();
 	@Option(arity = "1..*", names = { "-p",
 			"--property" }, description = "Additional producer/consumer properties.", paramLabel = "<k=v>")
 	private Map<String, String> properties;
@@ -56,12 +57,8 @@ public class KafkaOptions {
 		this.groupId = groupId;
 	}
 
-	public String getSchemaRegistryUrl() {
-		return schemaRegistryUrl;
-	}
-
 	public void setSchemaRegistryUrl(String schemaRegistryUrl) {
-		this.schemaRegistryUrl = schemaRegistryUrl;
+		this.schemaRegistryUrl = Optional.of(schemaRegistryUrl);
 	}
 
 	public Map<String, String> getProperties() {
@@ -97,7 +94,7 @@ public class KafkaOptions {
 
 	private Map<String, Object> properties() {
 		Map<String, Object> allProperties = new LinkedHashMap<>();
-		if (schemaRegistryUrl != null) {
+		if (schemaRegistryUrl.isPresent()) {
 			allProperties.put(AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, schemaRegistryUrl);
 		}
 		if (!ObjectUtils.isEmpty(this.properties)) {

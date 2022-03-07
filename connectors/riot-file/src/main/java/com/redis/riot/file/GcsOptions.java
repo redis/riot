@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Base64;
+import java.util.Optional;
 
 import org.springframework.cloud.gcp.autoconfigure.storage.GcpStorageAutoConfiguration;
 import org.springframework.cloud.gcp.core.GcpScope;
@@ -20,49 +21,37 @@ import picocli.CommandLine.Option;
 public class GcsOptions {
 
 	@Option(names = "--gcs-key-file", description = "GCS private key (e.g. /usr/local/key.json)", paramLabel = "<file>")
-	private File credentials;
+	private Optional<File> credentials = Optional.empty();
 	@Option(names = "--gcs-project", description = "GCP project id", paramLabel = "<id>")
-	private String projectId;
+	private Optional<String> projectId = Optional.empty();
 	@Option(names = "--gcs-key", arity = "0..1", interactive = true, description = "GCS Base64 encoded key", paramLabel = "<key>")
-	private String encodedKey;
-
-	public File getCredentials() {
-		return credentials;
-	}
+	private Optional<String> encodedKey = Optional.empty();
 
 	public void setCredentials(File credentials) {
-		this.credentials = credentials;
-	}
-
-	public String getProjectId() {
-		return projectId;
+		this.credentials = Optional.of(credentials);
 	}
 
 	public void setProjectId(String projectId) {
-		this.projectId = projectId;
-	}
-
-	public String getEncodedKey() {
-		return encodedKey;
+		this.projectId = Optional.of(projectId);
 	}
 
 	public void setEncodedKey(String encodedKey) {
-		this.encodedKey = encodedKey;
+		this.encodedKey = Optional.of(encodedKey);
 	}
 
 	public GoogleStorageResource resource(String locationUri, boolean readOnly) throws IOException {
 		StorageOptions.Builder builder = StorageOptions.newBuilder().setProjectId(ServiceOptions.getDefaultProjectId())
 				.setHeaderProvider(new UserAgentHeaderProvider(GcpStorageAutoConfiguration.class));
-		if (credentials != null) {
-			builder.setCredentials(GoogleCredentials.fromStream(Files.newInputStream(credentials.toPath()))
+		if (credentials.isPresent()) {
+			builder.setCredentials(GoogleCredentials.fromStream(Files.newInputStream(credentials.get().toPath()))
 					.createScoped((readOnly ? GcpScope.STORAGE_READ_ONLY : GcpScope.STORAGE_READ_WRITE).getUrl()));
 		}
-		if (encodedKey != null) {
-			builder.setCredentials(
-					GoogleCredentials.fromStream(new ByteArrayInputStream(Base64.getDecoder().decode(encodedKey))));
+		if (encodedKey.isPresent()) {
+			builder.setCredentials(GoogleCredentials
+					.fromStream(new ByteArrayInputStream(Base64.getDecoder().decode(encodedKey.get()))));
 		}
-		if (projectId != null) {
-			builder.setProjectId(projectId);
+		if (projectId.isPresent()) {
+			builder.setProjectId(projectId.get());
 		}
 		return new GoogleStorageResource(builder.build().getService(), locationUri);
 	}

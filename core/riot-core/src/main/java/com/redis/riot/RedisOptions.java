@@ -5,6 +5,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,12 +44,12 @@ public class RedisOptions {
 	private int port = DEFAULT_PORT;
 	@Option(names = { "-s",
 			"--socket" }, description = "Server socket (overrides hostname and port).", paramLabel = "<socket>")
-	private String socket;
+	private Optional<String> socket = Optional.empty();
 	@Option(names = "--user", description = "Used to send ACL style 'AUTH username pass'. Needs password.", paramLabel = "<name>")
-	private String username;
+	private Optional<String> username = Optional.empty();
 	@Option(names = { "-a",
 			"--pass" }, arity = "0..1", interactive = true, description = "Password to use when connecting to the server.", paramLabel = "<password>")
-	private char[] password;
+	private Optional<char[]> password = Optional.empty();
 	@Option(names = { "-u", "--uri" }, arity = "1..*", description = "Server URI.", paramLabel = "<uri>")
 	private RedisURI[] uris;
 	@Option(names = "--timeout", description = "Redis command timeout (default: ${DEFAULT-VALUE}).", paramLabel = "<sec>")
@@ -62,21 +63,21 @@ public class RedisOptions {
 	@Option(names = "--insecure", description = "Allow insecure TLS connection by skipping cert validation.")
 	private boolean verifyPeer = true;
 	@Option(names = "--ks", description = "Path to keystore.", paramLabel = "<file>")
-	private File keystore;
+	private Optional<File> keystore = Optional.empty();
 	@Option(names = "--ks-password", arity = "0..1", interactive = true, description = "Keystore password.", paramLabel = "<pwd>")
-	private String keystorePassword;
+	private Optional<String> keystorePassword = Optional.empty();
 	@Option(names = "--ts", description = "Path to truststore.", paramLabel = "<file>")
-	private File truststore;
+	private Optional<File> truststore = Optional.empty();
 	@Option(names = "--ts-password", arity = "0..1", interactive = true, description = "Truststore password.", paramLabel = "<pwd>")
-	private String truststorePassword;
+	private Optional<String> truststorePassword = Optional.empty();
 	@Option(names = "--cert", description = "X.509 certificate collection in PEM format.", paramLabel = "<file>")
-	private File cert;
+	private Optional<File> cert = Optional.empty();
 	@Option(names = "--latency", description = "Show latency metrics.")
 	private boolean showMetrics;
 	@Option(names = "--no-auto-reconnect", description = "Auto reconnect on connection loss. True by default.", negatable = true)
 	private boolean autoReconnect = true;
 	@Option(names = "--client", description = "Client name used to connect to Redis.", paramLabel = "<name>")
-	private String clientName;
+	private Optional<String> clientName = Optional.empty();
 
 	private AbstractRedisClient client;
 
@@ -100,32 +101,16 @@ public class RedisOptions {
 		this.port = port;
 	}
 
-	public String getSocket() {
-		return socket;
-	}
-
 	public void setSocket(String socket) {
-		this.socket = socket;
-	}
-
-	public String getUsername() {
-		return username;
+		this.socket = Optional.of(socket);
 	}
 
 	public void setUsername(String username) {
-		this.username = username;
-	}
-
-	public char[] getPassword() {
-		return password;
+		this.username = Optional.of(username);
 	}
 
 	public void setPassword(char[] password) {
-		this.password = password;
-	}
-
-	public RedisURI[] getUris() {
-		return uris;
+		this.password = Optional.of(password);
 	}
 
 	public void setUris(RedisURI[] uris) {
@@ -164,44 +149,24 @@ public class RedisOptions {
 		this.verifyPeer = verifyPeer;
 	}
 
-	public File getKeystore() {
-		return keystore;
-	}
-
 	public void setKeystore(File keystore) {
-		this.keystore = keystore;
-	}
-
-	public String getKeystorePassword() {
-		return keystorePassword;
+		this.keystore = Optional.of(keystore);
 	}
 
 	public void setKeystorePassword(String keystorePassword) {
-		this.keystorePassword = keystorePassword;
-	}
-
-	public File getTruststore() {
-		return truststore;
+		this.keystorePassword = Optional.of(keystorePassword);
 	}
 
 	public void setTruststore(File truststore) {
-		this.truststore = truststore;
-	}
-
-	public String getTruststorePassword() {
-		return truststorePassword;
+		this.truststore = Optional.of(truststore);
 	}
 
 	public void setTruststorePassword(String truststorePassword) {
-		this.truststorePassword = truststorePassword;
-	}
-
-	public File getCert() {
-		return cert;
+		this.truststorePassword = Optional.of(truststorePassword);
 	}
 
 	public void setCert(File cert) {
-		this.cert = cert;
+		this.cert = Optional.of(cert);
 	}
 
 	public boolean isShowMetrics() {
@@ -220,12 +185,8 @@ public class RedisOptions {
 		this.autoReconnect = autoReconnect;
 	}
 
-	public String getClientName() {
-		return clientName;
-	}
-
 	public void setClientName(String clientName) {
-		this.clientName = clientName;
+		this.clientName = Optional.of(clientName);
 	}
 
 	public void setCluster(boolean cluster) {
@@ -243,7 +204,9 @@ public class RedisOptions {
 		List<RedisURI> redisURIs = new ArrayList<>();
 		if (ObjectUtils.isEmpty(uris)) {
 			RedisURI uri = RedisURI.create(host, port);
-			uri.setSocket(socket);
+			if (socket.isPresent()) {
+				uri.setSocket(socket.get());
+			}
 			uri.setSsl(tls);
 			redisURIs.add(uri);
 		} else {
@@ -251,11 +214,11 @@ public class RedisOptions {
 		}
 		for (RedisURI uri : redisURIs) {
 			uri.setVerifyPeer(verifyPeer);
-			if (username != null) {
-				uri.setUsername(username);
+			if (username.isPresent()) {
+				uri.setUsername(username.get());
 			}
-			if (password != null) {
-				uri.setPassword(password);
+			if (password.isPresent()) {
+				uri.setPassword(password.get());
 			}
 			if (database != uri.getDatabase()) {
 				uri.setDatabase(database);
@@ -263,8 +226,8 @@ public class RedisOptions {
 			if (timeout != uri.getTimeout().getSeconds()) {
 				uri.setTimeout(Duration.ofSeconds(timeout));
 			}
-			if (clientName != null) {
-				uri.setClientName(clientName);
+			if (clientName.isPresent()) {
+				uri.setClientName(clientName.get());
 			}
 		}
 		return redisURIs;
@@ -286,22 +249,22 @@ public class RedisOptions {
 
 	private SslOptions sslOptions() {
 		SslOptions.Builder builder = SslOptions.builder();
-		if (keystore != null) {
-			if (keystorePassword == null) {
-				builder.keystore(keystore);
+		if (keystore.isPresent()) {
+			if (keystorePassword.isPresent()) {
+				builder.keystore(keystore.get(), keystorePassword.get().toCharArray());
 			} else {
-				builder.keystore(keystore, keystorePassword.toCharArray());
+				builder.keystore(keystore.get());
 			}
 		}
-		if (truststore != null) {
-			if (truststorePassword == null) {
-				builder.truststore(truststore);
+		if (truststore.isPresent()) {
+			if (truststorePassword.isPresent()) {
+				builder.truststore(truststore.get(), truststorePassword.get());
 			} else {
-				builder.truststore(truststore, truststorePassword);
+				builder.truststore(truststore.get());
 			}
 		}
-		if (cert != null) {
-			builder.trustManager(cert);
+		if (cert.isPresent()) {
+			builder.trustManager(cert.get());
 		}
 		return builder.build();
 	}

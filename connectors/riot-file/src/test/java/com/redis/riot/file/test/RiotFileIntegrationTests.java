@@ -1,10 +1,6 @@
 package com.redis.riot.file.test;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
@@ -26,7 +22,6 @@ import org.springframework.batch.item.json.builder.JsonItemReaderBuilder;
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.InputStreamResource;
-import org.springframework.util.StreamUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
@@ -419,10 +414,10 @@ public class RiotFileIntegrationTests extends AbstractRiotIntegrationTests {
 		for (DataStructure<String> record : records) {
 			String key = record.getKey();
 			switch (record.getType()) {
-			case HASH:
+			case DataStructure.TYPE_HASH:
 				Assertions.assertEquals(record.getValue(), sync.hgetall(key));
 				break;
-			case STRING:
+			case DataStructure.TYPE_STRING:
 				Assertions.assertEquals(record.getValue(), sync.get(key));
 				break;
 			default:
@@ -436,7 +431,7 @@ public class RiotFileIntegrationTests extends AbstractRiotIntegrationTests {
 	void importJsonAPI(RedisTestContext redis) throws Exception {
 		// riot-file import hset --keyspace beer --keys id
 		FileImportCommand command = new FileImportCommand();
-		command.setFiles(Collections.singletonList("http://developer.redis.com/riot/beers.json"));
+		command.setFiles(Collections.singletonList("https://storage.googleapis.com/jrx/beers.json"));
 		HsetCommand hset = new HsetCommand();
 		hset.setKeyspace("beer");
 		hset.setKeys(new String[] { "id" });
@@ -459,20 +454,6 @@ public class RiotFileIntegrationTests extends AbstractRiotIntegrationTests {
 		RedisKeyCommands<String, String> sync = redis.sync();
 		List<String> keys = sync.keys("beer:*");
 		Assertions.assertEquals(30409, keys.size());
-	}
-
-	public static void main(String[] args) throws MalformedURLException, IOException {
-		System.out.println(System.getProperties());
-		URL url = new URL("http://developer.redis.com/riot/beers.csv");
-		HttpURLConnection.setFollowRedirects(false);
-		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-		connection.setConnectTimeout(5000); // 5 seconds connectTimeout
-		connection.setReadTimeout(5000); // 5 seconds socketTimeout
-		// Connect
-		connection.connect(); // Without this
-		InputStream inputStream = connection.getInputStream();
-		int read = StreamUtils.drain(inputStream);
-		System.out.println("Read " + read + " bytes");
 	}
 
 }

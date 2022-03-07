@@ -1,1 +1,1 @@
-riot-file import http://developer.redis.com/riot/trades.xml hset --keyspace trade --keys id
+riot-file import https://storage.googleapis.com/jrx/trades.xml hset --keyspace trade --keys id

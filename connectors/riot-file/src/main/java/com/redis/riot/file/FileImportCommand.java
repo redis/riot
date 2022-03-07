@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,13 +50,12 @@ public class FileImportCommand extends AbstractImportCommand {
 	private static final Logger log = LoggerFactory.getLogger(FileImportCommand.class);
 
 	private static final String NAME = "file-import";
-	private static final String DELIMITER_PIPE = "|";
 
 	@CommandLine.Parameters(arity = "0..*", description = "One ore more files or URLs", paramLabel = "FILE")
 	private List<String> files = new ArrayList<>();
 	@CommandLine.Option(names = { "-t",
 			"--filetype" }, description = "File type: ${COMPLETION-CANDIDATES}", paramLabel = "<type>")
-	private FileType type;
+	private Optional<FileType> type = Optional.empty();
 	@CommandLine.ArgGroup(exclusive = false, heading = "Delimited and fixed-width file options%n")
 	private FileImportOptions options = new FileImportOptions();
 
@@ -67,12 +67,12 @@ public class FileImportCommand extends AbstractImportCommand {
 		this.files = files;
 	}
 
-	public FileType getType() {
+	public Optional<FileType> getType() {
 		return type;
 	}
 
 	public void setType(FileType type) {
-		this.type = type;
+		this.type = Optional.of(type);
 	}
 
 	public FileImportOptions getOptions() {
@@ -95,39 +95,39 @@ public class FileImportCommand extends AbstractImportCommand {
 	}
 
 	private TaskletStep fileImportStep(String file) throws Exception {
-		FileType fileType = type(file);
-		if (fileType == null) {
+		Optional<FileType> fileType = type(file);
+		if (fileType.isEmpty()) {
 			throw new IllegalArgumentException("Could not determine type of file " + file);
 		}
 		Resource resource = options.inputResource(file);
-		AbstractItemStreamItemReader<Map<String, Object>> reader = reader(file, fileType, resource);
+		AbstractItemStreamItemReader<Map<String, Object>> reader = reader(file, fileType.get(), resource);
 		reader.setName(file + "-" + NAME + "-reader");
 		return step(file + "-" + NAME, "Importing " + resource.getFilename(), reader).skip(FlatFileParseException.class)
 				.build();
 	}
 
-	private FileType type(String file) {
-		if (type == null) {
-			String extension = FileUtils.extension(file);
-			if (extension != null) {
-				switch (extension.toLowerCase()) {
-				case FileUtils.EXTENSION_FW:
-					return FileType.FIXED;
-				case FileUtils.EXTENSION_JSON:
-					return FileType.JSON;
-				case FileUtils.EXTENSION_XML:
-					return FileType.XML;
-				case FileUtils.EXTENSION_CSV:
-				case FileUtils.EXTENSION_PSV:
-				case FileUtils.EXTENSION_TSV:
-					return FileType.DELIMITED;
-				default:
-					return null;
-				}
-			}
-			return null;
+	private Optional<FileType> type(String file) {
+		if (type.isPresent()) {
+			return type;
 		}
-		return type;
+		Optional<String> extension = FileUtils.extension(file);
+		if (extension.isPresent()) {
+			switch (extension.get().toLowerCase()) {
+			case FileUtils.EXTENSION_FW:
+				return Optional.of(FileType.FIXED);
+			case FileUtils.EXTENSION_JSON:
+				return Optional.of(FileType.JSON);
+			case FileUtils.EXTENSION_XML:
+				return Optional.of(FileType.XML);
+			case FileUtils.EXTENSION_CSV:
+			case FileUtils.EXTENSION_PSV:
+			case FileUtils.EXTENSION_TSV:
+				return Optional.of(FileType.DELIMITED);
+			default:
+				return Optional.empty();
+			}
+		}
+		return Optional.empty();
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -136,7 +136,7 @@ public class FileImportCommand extends AbstractImportCommand {
 		switch (fileType) {
 		case DELIMITED:
 			DelimitedLineTokenizer tokenizer = new DelimitedLineTokenizer();
-			tokenizer.setDelimiter(delimiter(file));
+			tokenizer.setDelimiter(options.delimiter(file));
 			tokenizer.setQuoteCharacter(options.getQuoteCharacter());
 			if (!ObjectUtils.isEmpty(options.getIncludedFields())) {
 				tokenizer.setIncludedFields(options.getIncludedFields());
@@ -165,26 +165,6 @@ public class FileImportCommand extends AbstractImportCommand {
 		}
 	}
 
-	private String delimiter(String file) {
-		if (options.getDelimiter() == null) {
-			String extension = FileUtils.extension(file);
-			if (extension == null) {
-				throw new IllegalArgumentException("Could not determine delimiter for extension " + extension);
-			}
-			switch (extension.toLowerCase()) {
-			case FileUtils.EXTENSION_CSV:
-				return DelimitedLineTokenizer.DELIMITER_COMMA;
-			case FileUtils.EXTENSION_PSV:
-				return DELIMITER_PIPE;
-			case FileUtils.EXTENSION_TSV:
-				return DelimitedLineTokenizer.DELIMITER_TAB;
-			default:
-				throw new IllegalArgumentException("Unknown extension: " + extension);
-			}
-		}
-		return options.getDelimiter();
-	}
-
 	private FlatFileItemReader<Map<String, Object>> flatFileReader(Resource resource, AbstractLineTokenizer tokenizer) {
 		if (!ObjectUtils.isEmpty(options.getNames())) {
 			tokenizer.setNames(options.getNames());
@@ -194,22 +174,12 @@ public class FileImportCommand extends AbstractImportCommand {
 		builder.encoding(options.getEncoding().name());
 		builder.lineTokenizer(tokenizer);
 		builder.recordSeparatorPolicy(recordSeparatorPolicy());
-		builder.linesToSkip(linesToSkip());
+		builder.linesToSkip(options.getLinesToSkip());
 		builder.strict(true);
 		builder.saveState(false);
 		builder.fieldSetMapper(new MapFieldSetMapper());
 		builder.skippedLinesCallback(new HeaderCallbackHandler(tokenizer));
 		return builder.build();
-	}
-
-	private int linesToSkip() {
-		if (options.getLinesToSkip() == null) {
-			if (options.isHeader()) {
-				return 1;
-			}
-			return 0;
-		}
-		return options.getLinesToSkip();
 	}
 
 	private RecordSeparatorPolicy recordSeparatorPolicy() {

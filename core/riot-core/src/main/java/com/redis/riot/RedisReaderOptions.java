@@ -1,5 +1,6 @@
 package com.redis.riot;
 
+import java.util.Optional;
 import java.util.function.Supplier;
 
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
@@ -18,18 +19,14 @@ import picocli.CommandLine.Option;
 
 public class RedisReaderOptions {
 
-	public enum ScanType {
-		STRING, LIST, SET, ZSET, HASH, STREAM
-	}
-
 	private static final Logger log = LoggerFactory.getLogger(RedisReaderOptions.class);
 
 	@Option(names = "--scan-count", description = "SCAN COUNT option (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
 	private long scanCount = ScanKeyItemReader.DEFAULT_SCAN_COUNT;
 	@Option(names = "--scan-match", description = "SCAN MATCH pattern (default: ${DEFAULT-VALUE}).", paramLabel = "<glob>")
 	private String scanMatch = ScanKeyItemReader.DEFAULT_SCAN_MATCH;
-	@Option(names = "--scan-type", description = "SCAN TYPE option: ${COMPLETION-CANDIDATES}.", paramLabel = "<type>")
-	private ScanType scanType;
+	@Option(names = "--scan-type", description = "SCAN TYPE option", paramLabel = "<type>")
+	private Optional<String> scanType = Optional.empty();
 	@Option(names = "--reader-queue", description = "Capacity of the reader queue (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
 	private int queueCapacity = RedisItemReader.DEFAULT_QUEUE_CAPACITY;
 	@Option(names = "--reader-threads", description = "Number of reader threads (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
@@ -57,8 +54,8 @@ public class RedisReaderOptions {
 		this.scanMatch = scanMatch;
 	}
 
-	public void setScanType(ScanType scanType) {
-		this.scanType = scanType;
+	public void setScanType(String scanType) {
+		this.scanType = Optional.of(scanType);
 	}
 
 	public int getQueueCapacity() {
@@ -106,8 +103,8 @@ public class RedisReaderOptions {
 		log.debug("Configuring scan reader with {} {} {}", scanCount, scanMatch, scanType);
 		builder.match(scanMatch);
 		builder.count(scanCount);
-		if (scanType != null) {
-			builder.type(scanType.name().toLowerCase());
+		if (scanType.isPresent()) {
+			builder.type(scanType.get().toLowerCase());
 		}
 		return configureReader(builder);
 	}
@@ -133,8 +130,8 @@ public class RedisReaderOptions {
 		return () -> {
 			try {
 				estimator.match(scanMatch).sampleSize(sampleSize);
-				if (scanType != null) {
-					estimator.type(scanType.name().toLowerCase());
+				if (scanType.isPresent()) {
+					estimator.type(scanType.get().toLowerCase());
 				}
 				return estimator.build().call();
 			} catch (Exception e) {

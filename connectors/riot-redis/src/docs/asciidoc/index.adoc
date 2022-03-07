@@ -73,6 +73,8 @@ include::{test-resources}/replicate-live[]
     Continuous replication using keyspace notifications (only keys that change are replicated)
 `--mode live`::
     Initial + continuous replication using key scan and keyspace notifications in parallel
+    
+TIP: Make sure the source database has keyspace notifications enabled using `notify-keyspace-events = KA` in `redis.conf` or via CONFIG SET.
 
 === Replication type
 `--type dump`::
@@ -171,8 +173,6 @@ If live replication is enabled the reader also subscribes to keyspace notificati
 
 In live replication mode {project-title} listens for changes happening on the source database using keyspace notifications.
 Each time a key is modified, {project-title} reads the corresponding value and propagates that change to the target database.
-
-TIP: Make sure the source Redis database has keyspace notifications enabled using `notify-keyspace-events = KA` in `redis.conf` or via CONFIG SET.
 
 [WARNING]
 ====

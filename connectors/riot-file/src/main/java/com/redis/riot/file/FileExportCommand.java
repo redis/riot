@@ -79,10 +79,11 @@ public class FileExportCommand extends AbstractExportCommand<DataStructure<Strin
 	}
 
 	private DumpFileType fileType() {
-		if (options.getType() == null) {
-			return DumpFileType.of(file);
+		Optional<DumpFileType> type = options.getType();
+		if (type.isPresent()) {
+			return type.get();
 		}
-		return options.getType();
+		return DumpFileType.of(file);
 	}
 
 	private JsonObjectMarshaller<DataStructure<String>> xmlMarshaller() {

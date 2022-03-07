@@ -2,6 +2,7 @@ package com.redis.riot.gen;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,10 +51,11 @@ public class GeneratorImportCommand extends AbstractImportCommand {
 	}
 
 	private Generator<Map<String, Object>> generator() {
-		Map<String, String> fields = options.getFakerFields() == null ? new LinkedHashMap<>()
-				: new LinkedHashMap<>(options.getFakerFields());
-		if (options.getFakerIndex() != null) {
-			fields.putAll(fieldsFromIndex(options.getFakerIndex()));
+		Map<String, String> fakerFields = options.getFakerFields();
+		Map<String, String> fields = fakerFields == null ? new LinkedHashMap<>() : new LinkedHashMap<>(fakerFields);
+		Optional<String> fakerIndex = options.getFakerIndex();
+		if (fakerIndex.isPresent()) {
+			fields.putAll(fieldsFromIndex(fakerIndex.get()));
 		}
 		MapGenerator generator = MapGenerator.builder().locale(options.getLocale()).fields(fields).build();
 		if (options.isIncludeMetadata()) {

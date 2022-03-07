@@ -48,7 +48,7 @@ public class StreamExportCommand extends AbstractTransferCommand {
 	@Option(names = "--offset", description = "XREAD offset (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
 	private String offset = "0-0";
 	@Option(names = "--topic", description = "Target topic key (default: same as stream)", paramLabel = "<string>")
-	private String topic;
+	private Optional<String> topic = Optional.empty();
 
 	public FlushingTransferOptions getFlushingTransferOptions() {
 		return flushingTransferOptions;
@@ -82,12 +82,8 @@ public class StreamExportCommand extends AbstractTransferCommand {
 		this.offset = offset;
 	}
 
-	public String getTopic() {
-		return topic;
-	}
-
 	public void setTopic(String topic) {
-		this.topic = topic;
+		this.topic = Optional.of(topic);
 	}
 
 	@Override
@@ -125,10 +121,10 @@ public class StreamExportCommand extends AbstractTransferCommand {
 	}
 
 	private Converter<StreamMessage<String, String>, String> topicConverter() {
-		if (topic == null) {
-			return StreamMessage::getStream;
+		if (topic.isPresent()) {
+			return s -> topic.get();
 		}
-		return s -> topic;
+		return StreamMessage::getStream;
 	}
 
 }

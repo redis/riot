@@ -2,6 +2,7 @@ package com.redis.riot.gen;
 
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 
 import picocli.CommandLine;
 
@@ -10,7 +11,7 @@ public class GenerateOptions {
 	@CommandLine.Parameters(arity = "0..*", description = "SpEL expressions in the form field1=\"exp\" field2=\"exp\"...", paramLabel = "SPEL")
 	private Map<String, String> fakerFields;
 	@CommandLine.Option(names = "--infer", description = "Introspect given RediSearch index to infer Faker fields", paramLabel = "<name>")
-	private String fakerIndex;
+	private Optional<String> fakerIndex = Optional.empty();
 	@CommandLine.Option(names = "--locale", description = "Faker locale (default: ${DEFAULT-VALUE})", paramLabel = "<tag>")
 	private Locale locale = Locale.ENGLISH;
 	@CommandLine.Option(names = "--metadata", description = "Include metadata (index, partition)")
@@ -30,12 +31,12 @@ public class GenerateOptions {
 		this.fakerFields = fakerFields;
 	}
 
-	public String getFakerIndex() {
+	public Optional<String> getFakerIndex() {
 		return fakerIndex;
 	}
 
 	public void setFakerIndex(String fakerIndex) {
-		this.fakerIndex = fakerIndex;
+		this.fakerIndex = Optional.of(fakerIndex);
 	}
 
 	public Locale getLocale() {

@@ -47,20 +47,10 @@ public class DatabaseImportCommand extends AbstractImportCommand {
 			JdbcCursorItemReaderBuilder<Map<String, Object>> builder = new JdbcCursorItemReaderBuilder<>();
 			builder.saveState(false);
 			builder.dataSource(dataSource);
-			if (importOptions.getFetchSize() != null) {
-				builder.fetchSize(importOptions.getFetchSize());
-			}
-			if (importOptions.getMaxRows() != null) {
-				builder.maxRows(importOptions.getMaxRows());
-			}
 			builder.name(name + "-database-reader");
-			if (importOptions.getQueryTimeout() != null) {
-				builder.queryTimeout(importOptions.getQueryTimeout());
-			}
 			builder.rowMapper(new ColumnMapRowMapper());
 			builder.sql(sql);
-			builder.useSharedExtendedConnection(importOptions.isUseSharedExtendedConnection());
-			builder.verifyCursorPosition(importOptions.isVerifyCursorPosition());
+			importOptions.configure(builder);
 			JdbcCursorItemReader<Map<String, Object>> reader = builder.build();
 			reader.afterPropertiesSet();
 			return jobBuilder.start(step(NAME, "Importing from " + name, reader).build()).build();

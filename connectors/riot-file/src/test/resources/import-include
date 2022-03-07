@@ -1,1 +1,1 @@
-riot-file import http://developer.redis.com/riot/beers.csv --header hset --keyspace beer --keys id --include name style abv
+riot-file import https://storage.googleapis.com/jrx/beers.csv --header hset --keyspace beer --keys id --include name style abv

@@ -3,6 +3,7 @@ package com.redis.riot.stream;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -46,9 +47,9 @@ public class StreamImportCommand extends AbstractTransferCommand {
 	@CommandLine.Mixin
 	private KafkaOptions options = new KafkaOptions();
 	@Option(names = "--key", description = "Target stream key (default: same as topic)", paramLabel = "<string>")
-	private String key;
+	private Optional<String> key = Optional.empty();
 	@Option(names = "--maxlen", description = "Stream maxlen", paramLabel = "<int>")
-	private Long maxlen;
+	private Optional<Long> maxlen = Optional.empty();
 	@Option(names = "--trim", description = "Stream efficient trimming ('~' flag)")
 	private boolean approximateTrimming;
 	@CommandLine.Mixin
@@ -80,20 +81,12 @@ public class StreamImportCommand extends AbstractTransferCommand {
 		this.options = options;
 	}
 
-	public String getKey() {
-		return key;
-	}
-
 	public void setKey(String key) {
-		this.key = key;
+		this.key = Optional.of(key);
 	}
 
-	public Long getMaxlen() {
-		return maxlen;
-	}
-
-	public void setMaxlen(Long maxlen) {
-		this.maxlen = maxlen;
+	public void setMaxlen(long maxlen) {
+		this.maxlen = Optional.of(maxlen);
 	}
 
 	public boolean isApproximateTrimming() {
@@ -155,18 +148,18 @@ public class StreamImportCommand extends AbstractTransferCommand {
 	}
 
 	private Converter<ConsumerRecord<String, Object>, String> keyConverter() {
-		if (key == null) {
-			return ConsumerRecord::topic;
+		if (key.isPresent()) {
+			return s -> key.get();
 		}
-		return s -> key;
+		return ConsumerRecord::topic;
 	}
 
 	private XAddArgs xAddArgs() {
-		if (maxlen == null) {
+		if (maxlen.isEmpty()) {
 			return null;
 		}
 		XAddArgs args = new XAddArgs();
-		args.maxlen(maxlen);
+		args.maxlen(maxlen.get());
 		args.approximateTrimming(approximateTrimming);
 		return args;
 	}

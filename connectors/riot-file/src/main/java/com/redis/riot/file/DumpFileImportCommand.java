@@ -96,37 +96,35 @@ public class DumpFileImportCommand extends AbstractTransferCommand {
 
 	@SuppressWarnings("unchecked")
 	private DataStructure<String> processDataStructure(DataStructure<String> item) {
-		switch (item.getType()) {
-		case ZSET:
-			Collection<Map<String, Object>> zset = (Collection<Map<String, Object>>) item.getValue();
-			Collection<ScoredValue<String>> values = new ArrayList<>(zset.size());
-			for (Map<String, Object> map : zset) {
-				double score = ((Number) map.get("score")).doubleValue();
-				String value = (String) map.get("value");
-				values.add((ScoredValue<String>) ScoredValue.fromNullable(score, value));
+		if (item.getType() != null) {
+			if (item.getType().equalsIgnoreCase(DataStructure.TYPE_ZSET)) {
+				Collection<Map<String, Object>> zset = (Collection<Map<String, Object>>) item.getValue();
+				Collection<ScoredValue<String>> values = new ArrayList<>(zset.size());
+				for (Map<String, Object> map : zset) {
+					double score = ((Number) map.get("score")).doubleValue();
+					String value = (String) map.get("value");
+					values.add((ScoredValue<String>) ScoredValue.fromNullable(score, value));
+				}
+				item.setValue(values);
+			} else if (item.getType().equalsIgnoreCase(DataStructure.TYPE_STREAM)) {
+				Collection<Map<String, Object>> stream = (Collection<Map<String, Object>>) item.getValue();
+				Collection<StreamMessage<String, String>> messages = new ArrayList<>(stream.size());
+				for (Map<String, Object> message : stream) {
+					messages.add(new StreamMessage<>((String) message.get("stream"), (String) message.get("id"),
+							(Map<String, String>) message.get("body")));
+				}
+				item.setValue(messages);
 			}
-			item.setValue(values);
-			break;
-		case STREAM:
-			Collection<Map<String, Object>> stream = (Collection<Map<String, Object>>) item.getValue();
-			Collection<StreamMessage<String, String>> messages = new ArrayList<>(stream.size());
-			for (Map<String, Object> message : stream) {
-				messages.add(new StreamMessage<>((String) message.get("stream"), (String) message.get("id"),
-						(Map<String, String>) message.get("body")));
-			}
-			item.setValue(messages);
-			break;
-		default:
-			break;
 		}
 		return item;
 	}
 
 	private DumpFileType fileType(String file) {
-		if (options.getType() == null) {
-			return DumpFileType.of(file);
+		Optional<DumpFileType> type = options.getType();
+		if (type.isPresent()) {
+			return type.get();
 		}
-		return options.getType();
+		return DumpFileType.of(file);
 	}
 
 	private ItemWriter<DataStructure<String>> writer() {

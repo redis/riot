@@ -1,12 +1,3 @@
-asciidoctor {
-    resources {
-        from("$rootDir/connectors/riot-file/src/test/resources/files") {
-            include '*.*'
-        }
-    }
-    outputDir = "$rootDir/build/docs/asciidoc"
-}
-
 eclipse {
     project {
         name = 'riot-guide'

@@ -1,5 +1,7 @@
 package com.redis.riot.file;
 
+import java.util.Optional;
+
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 
 import picocli.CommandLine.Option;
@@ -7,15 +9,16 @@ import picocli.CommandLine.Option;
 public class FileImportOptions extends FileOptions {
 
 	public static final String DEFAULT_CONTINUATION_STRING = "\\";
+	private static final String DELIMITER_PIPE = "|";
 
 	@Option(names = "--fields", arity = "1..*", description = "Delimited/FW field names", paramLabel = "<names>")
 	private String[] names;
 	@Option(names = { "-h", "--header" }, description = "Delimited/FW first line contains field names")
 	private boolean header;
 	@Option(names = "--delimiter", description = "Delimiter character", paramLabel = "<string>")
-	private String delimiter;
+	private Optional<String> delimiter = Optional.empty();
 	@Option(names = "--skip", description = "Delimited/FW lines to skip at start", paramLabel = "<count>")
-	private Integer linesToSkip;
+	private Optional<Integer> linesToSkip = Optional.empty();
 	@Option(names = "--include", arity = "1..*", description = "Delimited/FW field indices to include (0-based)", paramLabel = "<index>")
 	private int[] includedFields;
 	@Option(names = "--ranges", arity = "1..*", description = "Fixed-width column ranges", paramLabel = "<string>")
@@ -41,20 +44,12 @@ public class FileImportOptions extends FileOptions {
 		this.header = header;
 	}
 
-	public String getDelimiter() {
-		return delimiter;
-	}
-
 	public void setDelimiter(String delimiter) {
-		this.delimiter = delimiter;
+		this.delimiter = Optional.of(delimiter);
 	}
 
-	public Integer getLinesToSkip() {
-		return linesToSkip;
-	}
-
-	public void setLinesToSkip(Integer linesToSkip) {
-		this.linesToSkip = linesToSkip;
+	public void setLinesToSkip(int linesToSkip) {
+		this.linesToSkip = Optional.of(linesToSkip);
 	}
 
 	public int[] getIncludedFields() {
@@ -87,6 +82,36 @@ public class FileImportOptions extends FileOptions {
 
 	public void setContinuationString(String continuationString) {
 		this.continuationString = continuationString;
+	}
+
+	public int getLinesToSkip() {
+		if (linesToSkip.isPresent()) {
+			return linesToSkip.get();
+		}
+		if (header) {
+			return 1;
+		}
+		return 0;
+	}
+
+	public String delimiter(String file) {
+		if (delimiter.isPresent()) {
+			return delimiter.get();
+		}
+		Optional<String> extension = FileUtils.extension(file);
+		if (extension.isEmpty()) {
+			throw new IllegalArgumentException("Could not determine delimiter for extension " + extension);
+		}
+		switch (extension.get().toLowerCase()) {
+		case FileUtils.EXTENSION_CSV:
+			return DelimitedLineTokenizer.DELIMITER_COMMA;
+		case FileUtils.EXTENSION_PSV:
+			return DELIMITER_PIPE;
+		case FileUtils.EXTENSION_TSV:
+			return DelimitedLineTokenizer.DELIMITER_TAB;
+		default:
+			throw new IllegalArgumentException("Unknown extension: " + extension);
+		}
 	}
 
 }

@@ -1,5 +1,7 @@
 package com.redis.riot.file;
 
+import java.util.Optional;
+
 import org.springframework.batch.item.support.AbstractFileItemWriter;
 
 import picocli.CommandLine;
@@ -11,7 +13,7 @@ public class FileExportOptions extends FileOptions {
 
 	@CommandLine.Option(names = { "-t",
 			"--filetype" }, description = "File type: ${COMPLETION-CANDIDATES}", paramLabel = "<type>")
-	private DumpFileType type;
+	private Optional<DumpFileType> type = Optional.empty();
 	@CommandLine.Option(names = "--append", description = "Append to file if it exists")
 	private boolean append;
 	@CommandLine.Option(names = "--root", description = "XML root element tag name (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
@@ -21,12 +23,12 @@ public class FileExportOptions extends FileOptions {
 	@CommandLine.Option(names = "--line-sep", description = "String to separate lines (default: system default)", paramLabel = "<string>")
 	private String lineSeparator = AbstractFileItemWriter.DEFAULT_LINE_SEPARATOR;
 
-	public DumpFileType getType() {
+	public Optional<DumpFileType> getType() {
 		return type;
 	}
 
 	public void setType(DumpFileType type) {
-		this.type = type;
+		this.type = Optional.of(type);
 	}
 
 	public boolean isAppend() {

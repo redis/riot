@@ -23,7 +23,7 @@ import picocli.CommandLine.IHelpCommandInitializable2;
 public class FakerHelpCommand implements IHelpCommandInitializable2, Runnable {
 
 	@CommandLine.Parameters(description = "Name of the Faker provider to show help for", paramLabel = "<name>")
-	private String provider;
+	private Optional<String> provider = Optional.empty();
 
 	private static final List<String> EXCLUDES = Arrays.asList("instance", "options");
 
@@ -34,12 +34,8 @@ public class FakerHelpCommand implements IHelpCommandInitializable2, Runnable {
 		Stream<Method> methods = Arrays.stream(Faker.class.getDeclaredMethods())
 				.filter(m -> !EXCLUDES.contains(m.getName()))
 				.filter(m -> m.getReturnType().getPackage().equals(Faker.class.getPackage()));
-		if (provider == null) {
-			outWriter.println("Run 'riot-gen faker-help <provider>' for documentation on a specific Faker provider:");
-			methods.sorted(Comparator.comparing(Method::getName)).forEach(
-					p -> outWriter.println("  " + p.getName() + " " + url(ClassUtils.getShortName(p.getReturnType()))));
-		} else {
-			Optional<Method> method = methods.filter(m -> m.getName().equals(provider)).findFirst();
+		if (provider.isPresent()) {
+			Optional<Method> method = methods.filter(m -> m.getName().equals(provider.get())).findFirst();
 			if (method.isPresent()) {
 				Class<?> type = method.get().getReturnType();
 				String shortName = ClassUtils.getShortName(type);
@@ -50,6 +46,10 @@ public class FakerHelpCommand implements IHelpCommandInitializable2, Runnable {
 			} else {
 				outWriter.println("No such field: " + provider);
 			}
+		} else {
+			outWriter.println("Run 'riot-gen faker-help <provider>' for documentation on a specific Faker provider:");
+			methods.sorted(Comparator.comparing(Method::getName)).forEach(
+					p -> outWriter.println("  " + p.getName() + " " + url(ClassUtils.getShortName(p.getReturnType()))));
 		}
 	}
 

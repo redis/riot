@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.expression.EvaluationContext;
+import org.springframework.expression.Expression;
 import org.springframework.expression.common.TemplateParserContext;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
@@ -20,32 +21,28 @@ import picocli.CommandLine.Option;
 public class KeyValueProcessorOptions {
 
 	@Option(names = "--key-process", description = "SpEL expression to transform each key", paramLabel = "<exp>")
-	private String keyProcessor;
+	private Optional<String> keyProcessor = Optional.empty();
 	@Option(names = "--ttl-process", description = "SpEL expression to transform each key TTL", paramLabel = "<exp>")
-	private String ttlProcessor;
-
-	public String getKeyProcessor() {
+	private Optional<String> ttlProcessor = Optional.empty();
+	
+	public Optional<String> getKeyProcessor() {
 		return keyProcessor;
-	}
-
-	public String getTtlProcessor() {
-		return ttlProcessor;
 	}
 
 	public <T extends KeyValue<byte[], ?>> Optional<ItemProcessor<T, T>> processor(RedisOptions sourceRedis,
 			RedisOptions targetRedis) {
 		SpelExpressionParser parser = new SpelExpressionParser();
 		List<ItemProcessor<T, T>> processors = new ArrayList<>();
-		if (keyProcessor != null) {
+		if (keyProcessor.isPresent()) {
 			EvaluationContext context = new StandardEvaluationContext();
 			context.setVariable("src", sourceRedis.uris().get(0));
 			context.setVariable("dest", targetRedis.uris().get(0));
-			processors.add(new KeyValueKeyProcessor<>(parser.parseExpression(keyProcessor, new TemplateParserContext()),
-					context));
+			Expression expression = parser.parseExpression(keyProcessor.get(), new TemplateParserContext());
+			processors.add(new KeyValueKeyProcessor<>(expression, context));
 		}
-		if (ttlProcessor != null) {
-			processors.add(
-					new KeyValueTTLProcessor<>(parser.parseExpression(ttlProcessor), new StandardEvaluationContext()));
+		if (ttlProcessor.isPresent()) {
+			Expression expression = parser.parseExpression(ttlProcessor.get());
+			processors.add(new KeyValueTTLProcessor<>(expression, new StandardEvaluationContext()));
 		}
 		return CompositeItemStreamItemProcessor.delegates(processors);
 	}

@@ -8,6 +8,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -37,19 +38,19 @@ public interface FileUtils {
 	public static final String EXTENSION_XML = "xml";
 
 	public static boolean isGzip(String file) {
-		return extensionGroup(file, "gz") != null;
+		return extensionGroup(file, "gz").isPresent();
 	}
 
-	public static String extension(String file) {
+	public static Optional<String> extension(String file) {
 		return extensionGroup(file, "extension");
 	}
 
-	public static String extensionGroup(String file, String group) {
+	public static Optional<String> extensionGroup(String file, String group) {
 		Matcher matcher = EXTENSION_PATTERN.matcher(file);
 		if (matcher.find()) {
-			return matcher.group(group);
+			return Optional.ofNullable(matcher.group(group));
 		}
-		return null;
+		return Optional.empty();
 	}
 
 	public static boolean isFile(String file) {
