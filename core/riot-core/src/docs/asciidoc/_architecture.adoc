@@ -10,7 +10,7 @@ The default batch size is 50, which means that an execution step reads 50 items 
 If the target is Redis, writing is done in a single command https://redis.io/topics/pipelining[pipeline] to minimize the number of roundtrips to the server.
 
 You can change the batch size (and hence pipeline size) using the `--batch` option.
-The optimal batch size in terms of processing throughput depends on a few factors like record size and command types (see https://stackoverflow.com/a/32165090[here] for details).
+The optimal batch size in terms of throughput depends on a few factors like record size and command types (see https://stackoverflow.com/a/32165090[here] for details).
 
 [[threads]]
 == Multi-threading

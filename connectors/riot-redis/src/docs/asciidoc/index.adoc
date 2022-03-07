@@ -182,7 +182,7 @@ It is possible that {project-title} can miss some notifications in case of netwo
 
 Also, depending on the type, size, and rate of change of data structures on the source it is possible that {project-title} cannot keep up with the change stream.
 For example if a big set is repeatedly updated, {project-title} will need to read the whole set on each update and transfer it over to the target database.
-With a big-enough set, {project-title} could fall behind, the internal queue could fill up, and lead to updates being dropped.
+With a big-enough set, {project-title} could fall behind and the internal queue could fill up leading up to updates being dropped.
 Some preliminary sizing using Redis statistics and big-keys is recommended for these migrations.
 If you need assistance please contact your Redis account team.
 ====
