@@ -103,9 +103,7 @@ public class RedisReaderOptions {
 		log.debug("Configuring scan reader with {} {} {}", scanCount, scanMatch, scanType);
 		builder.match(scanMatch);
 		builder.count(scanCount);
-		if (scanType.isPresent()) {
-			builder.type(scanType.get().toLowerCase());
-		}
+		scanType.ifPresent(builder::type);
 		return configureReader(builder);
 	}
 
@@ -130,9 +128,7 @@ public class RedisReaderOptions {
 		return () -> {
 			try {
 				estimator.match(scanMatch).sampleSize(sampleSize);
-				if (scanType.isPresent()) {
-					estimator.type(scanType.get().toLowerCase());
-				}
+				scanType.ifPresent(estimator::type);
 				return estimator.build().call();
 			} catch (Exception e) {
 				log.warn("Could not estimate scan size", e);

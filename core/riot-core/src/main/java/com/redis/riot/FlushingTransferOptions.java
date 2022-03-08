@@ -1,7 +1,7 @@
 package com.redis.riot;
 
 import java.time.Duration;
-import java.util.OptionalLong;
+import java.util.Optional;
 
 import org.springframework.batch.core.step.builder.FaultTolerantStepBuilder;
 import org.springframework.util.Assert;
@@ -17,7 +17,7 @@ public class FlushingTransferOptions {
 	@CommandLine.Option(names = "--flush-interval", description = "Max duration between flushes (default: ${DEFAULT-VALUE})", paramLabel = "<ms>")
 	private long flushInterval = 50;
 	@CommandLine.Option(names = "--idle-timeout", description = "Min duration of inactivity to consider transfer complete", paramLabel = "<ms>")
-	private OptionalLong idleTimeout = OptionalLong.empty();
+	private Optional<Long> idleTimeout = Optional.empty();
 
 	public void setFlushInterval(Duration flushInterval) {
 		Assert.notNull(flushInterval, "Flush interval must not be null");
@@ -26,7 +26,7 @@ public class FlushingTransferOptions {
 
 	public void setIdleTimeout(Duration idleTimeoutDuration) {
 		Assert.notNull(idleTimeoutDuration, "Duration must not be null");
-		this.idleTimeout = OptionalLong.of(idleTimeoutDuration.toMillis());
+		this.idleTimeout = Optional.of(idleTimeoutDuration.toMillis());
 	}
 
 	private Duration getFlushInterval() {

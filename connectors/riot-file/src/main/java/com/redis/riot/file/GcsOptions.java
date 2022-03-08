@@ -50,9 +50,7 @@ public class GcsOptions {
 			builder.setCredentials(GoogleCredentials
 					.fromStream(new ByteArrayInputStream(Base64.getDecoder().decode(encodedKey.get()))));
 		}
-		if (projectId.isPresent()) {
-			builder.setProjectId(projectId.get());
-		}
+		projectId.ifPresent(builder::setProjectId);
 		return new GoogleStorageResource(builder.build().getService(), locationUri);
 	}
 

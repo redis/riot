@@ -48,13 +48,13 @@ public class ProgressMonitor implements StepExecutionListener, ItemWriteListener
 	public void beforeStep(StepExecution stepExecution) {
 		ProgressBarBuilder builder = new ProgressBarBuilder();
 		builder.setStyle(progressBarStyle());
-		if (initialMax.isPresent()) {
-			Long initialMaxValue = initialMax.get().get();
+		initialMax.ifPresent(m -> {
+			Long initialMaxValue = m.get();
 			if (initialMaxValue != null) {
 				log.debug("Setting initial max to {}", initialMaxValue);
 				builder.setInitialMax(initialMaxValue);
 			}
-		}
+		});
 		log.debug("Setting update interval to {}", updateInterval);
 		builder.setUpdateIntervalMillis(Math.toIntExact(updateInterval.toMillis()));
 		log.debug("Setting task name to {}", taskName);

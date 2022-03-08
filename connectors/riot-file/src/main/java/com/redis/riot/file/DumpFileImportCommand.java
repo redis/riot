@@ -83,7 +83,7 @@ public class DumpFileImportCommand extends AbstractTransferCommand {
 	}
 
 	private TaskletStep fileImportStep(String file) throws Exception {
-		DumpFileType fileType = fileType(file);
+		DumpFileType fileType = DumpFileType.of(file, options.getType());
 		Resource resource = options.inputResource(file);
 		AbstractItemStreamItemReader<DataStructure<String>> reader = reader(fileType, resource);
 		reader.setName(file + "-" + NAME + "-reader");
@@ -117,14 +117,6 @@ public class DumpFileImportCommand extends AbstractTransferCommand {
 			}
 		}
 		return item;
-	}
-
-	private DumpFileType fileType(String file) {
-		Optional<DumpFileType> type = options.getType();
-		if (type.isPresent()) {
-			return type.get();
-		}
-		return DumpFileType.of(file);
 	}
 
 	private ItemWriter<DataStructure<String>> writer() {

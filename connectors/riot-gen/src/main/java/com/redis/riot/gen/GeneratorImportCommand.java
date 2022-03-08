@@ -54,9 +54,7 @@ public class GeneratorImportCommand extends AbstractImportCommand {
 		Map<String, String> fakerFields = options.getFakerFields();
 		Map<String, String> fields = fakerFields == null ? new LinkedHashMap<>() : new LinkedHashMap<>(fakerFields);
 		Optional<String> fakerIndex = options.getFakerIndex();
-		if (fakerIndex.isPresent()) {
-			fields.putAll(fieldsFromIndex(fakerIndex.get()));
-		}
+		fakerIndex.ifPresent(i -> fields.putAll(fieldsFromIndex(i)));
 		MapGenerator generator = MapGenerator.builder().locale(options.getLocale()).fields(fields).build();
 		if (options.isIncludeMetadata()) {
 			return new MapWithMetadataGenerator(generator);

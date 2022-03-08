@@ -39,9 +39,7 @@ public class S3Options {
 
 	public Resource resource(String location) {
 		AmazonS3ClientBuilder clientBuilder = AmazonS3Client.builder();
-		if (region.isPresent()) {
-			clientBuilder.withRegion(region.get());
-		}
+		region.ifPresent(clientBuilder::withRegion);
 		if (accessKey.isPresent()) {
 			Assert.isTrue(secretKey.isPresent(), "Secret key is missing");
 			clientBuilder.withCredentials(new SimpleAWSCredentialsProvider(accessKey.get(), secretKey.get()));

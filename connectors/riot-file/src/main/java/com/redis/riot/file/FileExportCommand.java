@@ -52,7 +52,7 @@ public class FileExportCommand extends AbstractExportCommand<DataStructure<Strin
 	}
 
 	private ItemWriter<DataStructure<String>> writer(WritableResource resource) {
-		DumpFileType fileType = fileType();
+		DumpFileType fileType = DumpFileType.of(file, options.getType());
 		if (fileType == DumpFileType.XML) {
 			XmlResourceItemWriterBuilder<DataStructure<String>> xmlWriterBuilder = new XmlResourceItemWriterBuilder<>();
 			xmlWriterBuilder.name("xml-resource-item-writer");
@@ -76,14 +76,6 @@ public class FileExportCommand extends AbstractExportCommand<DataStructure<Strin
 		jsonWriterBuilder.saveState(false);
 		log.debug("Creating JSON writer with {} for file {}", options, file);
 		return jsonWriterBuilder.build();
-	}
-
-	private DumpFileType fileType() {
-		Optional<DumpFileType> type = options.getType();
-		if (type.isPresent()) {
-			return type.get();
-		}
-		return DumpFileType.of(file);
 	}
 
 	private JsonObjectMarshaller<DataStructure<String>> xmlMarshaller() {

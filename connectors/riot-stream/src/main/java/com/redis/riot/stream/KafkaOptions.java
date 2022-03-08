@@ -34,7 +34,7 @@ public class KafkaOptions {
 	@Option(names = "--group", description = "Consumer group id.", paramLabel = "<id>")
 	private String groupId = "$Default";
 	@Option(names = "--registry", description = "Schema registry URL.", paramLabel = "<url>")
-	private Optional<String> schemaRegistryUrl = Optional.empty();
+	private Optional<String> registryUrl = Optional.empty();
 	@Option(arity = "1..*", names = { "-p",
 			"--property" }, description = "Additional producer/consumer properties.", paramLabel = "<k=v>")
 	private Map<String, String> properties;
@@ -58,7 +58,7 @@ public class KafkaOptions {
 	}
 
 	public void setSchemaRegistryUrl(String schemaRegistryUrl) {
-		this.schemaRegistryUrl = Optional.of(schemaRegistryUrl);
+		this.registryUrl = Optional.of(schemaRegistryUrl);
 	}
 
 	public Map<String, String> getProperties() {
@@ -94,9 +94,7 @@ public class KafkaOptions {
 
 	private Map<String, Object> properties() {
 		Map<String, Object> allProperties = new LinkedHashMap<>();
-		if (schemaRegistryUrl.isPresent()) {
-			allProperties.put(AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, schemaRegistryUrl);
-		}
+		registryUrl.ifPresent(u -> allProperties.put(AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, u));
 		if (!ObjectUtils.isEmpty(this.properties)) {
 			allProperties.putAll(this.properties);
 		}

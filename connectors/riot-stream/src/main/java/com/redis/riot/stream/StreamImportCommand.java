@@ -4,7 +4,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.OptionalLong;
 import java.util.Properties;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -26,6 +25,7 @@ import com.redis.riot.redis.FilteringOptions;
 import com.redis.riot.stream.kafka.KafkaItemReader;
 import com.redis.riot.stream.kafka.KafkaItemReaderBuilder;
 import com.redis.spring.batch.writer.operation.Xadd;
+import com.redis.spring.batch.writer.operation.Xadd.XaddBuilder;
 
 import io.lettuce.core.XAddArgs;
 import io.lettuce.core.codec.StringCodec;
@@ -50,7 +50,7 @@ public class StreamImportCommand extends AbstractTransferCommand {
 	@Option(names = "--key", description = "Target stream key (default: same as topic)", paramLabel = "<string>")
 	private Optional<String> key = Optional.empty();
 	@Option(names = "--maxlen", description = "Stream maxlen", paramLabel = "<int>")
-	private OptionalLong maxlen = OptionalLong.empty();
+	private Optional<Long> maxlen = Optional.empty();
 	@Option(names = "--trim", description = "Stream efficient trimming ('~' flag)")
 	private boolean approximateTrimming;
 	@CommandLine.Mixin
@@ -87,7 +87,7 @@ public class StreamImportCommand extends AbstractTransferCommand {
 	}
 
 	public void setMaxlen(long maxlen) {
-		this.maxlen = OptionalLong.of(maxlen);
+		this.maxlen = Optional.of(maxlen);
 	}
 
 	public boolean isApproximateTrimming() {
@@ -134,10 +134,11 @@ public class StreamImportCommand extends AbstractTransferCommand {
 		step.name(topic + "-" + NAME);
 		step.taskName("Importing from " + topic);
 		step.reader(reader);
-		Xadd<String, String, ConsumerRecord<String, Object>> xadd = Xadd
-				.<String, String, ConsumerRecord<String, Object>>key(keyConverter()).body(bodyConverter())
-				.args(xAddArgs()).build();
-		step.writer(writerOptions.configureWriter(writer(getRedisOptions(), StringCodec.UTF8).operation(xadd)).build());
+		XaddBuilder<String, String, ConsumerRecord<String, Object>> xadd = Xadd
+				.<String, String, ConsumerRecord<String, Object>>key(keyConverter()).body(bodyConverter());
+		xAddArgs().ifPresent(xadd::args);
+		step.writer(writerOptions.configureWriter(writer(getRedisOptions(), StringCodec.UTF8).operation(xadd.build()))
+				.build());
 		return flushingTransferOptions.configure(step(step.build())).build();
 	}
 
@@ -155,14 +156,14 @@ public class StreamImportCommand extends AbstractTransferCommand {
 		return ConsumerRecord::topic;
 	}
 
-	private XAddArgs xAddArgs() {
+	private Optional<XAddArgs> xAddArgs() {
 		if (maxlen.isEmpty()) {
-			return null;
+			return Optional.empty();
 		}
 		XAddArgs args = new XAddArgs();
-		args.maxlen(maxlen.getAsLong());
+		args.maxlen(maxlen.get());
 		args.approximateTrimming(approximateTrimming);
-		return args;
+		return Optional.of(args);
 	}
 
 }

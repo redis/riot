@@ -204,9 +204,7 @@ public class RedisOptions {
 		List<RedisURI> redisURIs = new ArrayList<>();
 		if (ObjectUtils.isEmpty(uris)) {
 			RedisURI uri = RedisURI.create(host, port);
-			if (socket.isPresent()) {
-				uri.setSocket(socket.get());
-			}
+			socket.ifPresent(uri::setSocket);
 			uri.setSsl(tls);
 			redisURIs.add(uri);
 		} else {
@@ -214,21 +212,15 @@ public class RedisOptions {
 		}
 		for (RedisURI uri : redisURIs) {
 			uri.setVerifyPeer(verifyPeer);
-			if (username.isPresent()) {
-				uri.setUsername(username.get());
-			}
-			if (password.isPresent()) {
-				uri.setPassword(password.get());
-			}
+			username.ifPresent(uri::setUsername);
+			password.ifPresent(uri::setPassword);
 			if (database != uri.getDatabase()) {
 				uri.setDatabase(database);
 			}
 			if (timeout != uri.getTimeout().getSeconds()) {
 				uri.setTimeout(Duration.ofSeconds(timeout));
 			}
-			if (clientName.isPresent()) {
-				uri.setClientName(clientName.get());
-			}
+			clientName.ifPresent(uri::setClientName);
 		}
 		return redisURIs;
 	}
@@ -263,9 +255,7 @@ public class RedisOptions {
 				builder.truststore(truststore.get());
 			}
 		}
-		if (cert.isPresent()) {
-			builder.trustManager(cert.get());
-		}
+		cert.ifPresent(builder::trustManager);
 		return builder.build();
 	}
 

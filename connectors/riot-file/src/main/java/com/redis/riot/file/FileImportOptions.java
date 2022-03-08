@@ -1,7 +1,6 @@
 package com.redis.riot.file;
 
 import java.util.Optional;
-import java.util.OptionalInt;
 
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 
@@ -19,7 +18,7 @@ public class FileImportOptions extends FileOptions {
 	@Option(names = "--delimiter", description = "Delimiter character", paramLabel = "<string>")
 	private Optional<String> delimiter = Optional.empty();
 	@Option(names = "--skip", description = "Delimited/FW lines to skip at start", paramLabel = "<count>")
-	private OptionalInt linesToSkip = OptionalInt.empty();
+	private Optional<Integer> linesToSkip = Optional.empty();
 	@Option(names = "--include", arity = "1..*", description = "Delimited/FW field indices to include (0-based)", paramLabel = "<index>")
 	private int[] includedFields;
 	@Option(names = "--ranges", arity = "1..*", description = "Fixed-width column ranges", paramLabel = "<string>")
@@ -50,7 +49,7 @@ public class FileImportOptions extends FileOptions {
 	}
 
 	public void setLinesToSkip(int linesToSkip) {
-		this.linesToSkip = OptionalInt.of(linesToSkip);
+		this.linesToSkip = Optional.of(linesToSkip);
 	}
 
 	public int[] getIncludedFields() {
@@ -87,7 +86,7 @@ public class FileImportOptions extends FileOptions {
 
 	public int getLinesToSkip() {
 		if (linesToSkip.isPresent()) {
-			return linesToSkip.getAsInt();
+			return linesToSkip.get();
 		}
 		if (header) {
 			return 1;
