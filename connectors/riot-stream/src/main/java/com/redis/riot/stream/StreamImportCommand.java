@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.OptionalLong;
 import java.util.Properties;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -49,7 +50,7 @@ public class StreamImportCommand extends AbstractTransferCommand {
 	@Option(names = "--key", description = "Target stream key (default: same as topic)", paramLabel = "<string>")
 	private Optional<String> key = Optional.empty();
 	@Option(names = "--maxlen", description = "Stream maxlen", paramLabel = "<int>")
-	private Optional<Long> maxlen = Optional.empty();
+	private OptionalLong maxlen = OptionalLong.empty();
 	@Option(names = "--trim", description = "Stream efficient trimming ('~' flag)")
 	private boolean approximateTrimming;
 	@CommandLine.Mixin
@@ -86,7 +87,7 @@ public class StreamImportCommand extends AbstractTransferCommand {
 	}
 
 	public void setMaxlen(long maxlen) {
-		this.maxlen = Optional.of(maxlen);
+		this.maxlen = OptionalLong.of(maxlen);
 	}
 
 	public boolean isApproximateTrimming() {
@@ -159,7 +160,7 @@ public class StreamImportCommand extends AbstractTransferCommand {
 			return null;
 		}
 		XAddArgs args = new XAddArgs();
-		args.maxlen(maxlen.get());
+		args.maxlen(maxlen.getAsLong());
 		args.approximateTrimming(approximateTrimming);
 		return args;
 	}
