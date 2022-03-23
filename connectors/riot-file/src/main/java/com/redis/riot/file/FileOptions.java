@@ -64,45 +64,6 @@ public class FileOptions {
 		this.gcs = gcs;
 	}
 
-	@SuppressWarnings("unchecked")
-	public static class FileOptionsBuilder<B extends FileOptionsBuilder<B>> {
-
-		protected Charset encoding = DEFAULT_ENCODING;
-		protected boolean gzip;
-		protected S3Options s3;
-		protected GcsOptions gcs;
-
-		public B encoding(Charset encoding) {
-			Assert.notNull(encoding, "Encoding must not be null");
-			this.encoding = encoding;
-			return (B) this;
-		}
-
-		public B gzip(boolean gzip) {
-			this.gzip = gzip;
-			return (B) this;
-		}
-
-		public B s3(S3Options s3) {
-			this.s3 = s3;
-			return (B) this;
-		}
-
-		public B gcs(GcsOptions gcs) {
-			this.gcs = gcs;
-			return (B) this;
-		}
-
-		protected <T extends FileOptions> T build(T options) {
-			options.setEncoding(encoding);
-			options.setGcs(gcs);
-			options.setGzip(gzip);
-			options.setS3(s3);
-			return options;
-		}
-
-	}
-
 	public Resource inputResource(String file) throws IOException {
 		if (FileUtils.isConsole(file)) {
 			return new FilenameInputStreamResource(System.in, "stdin", "Standard Input");
