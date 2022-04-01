@@ -23,7 +23,7 @@ public class KeyValueTTLProcessor<T extends KeyValue<byte[], ?>> implements Item
 	public T process(T item) {
 		KeyValue<String, ?> stringKeyValue = new KeyValue<>(
 				StringCodec.UTF8.decodeKey(ByteArrayCodec.INSTANCE.encodeKey(item.getKey())), item.getValue());
-		item.setAbsoluteTTL(expression.getValue(context, stringKeyValue, Long.class));
+		item.setTtl(expression.getValue(context, stringKeyValue, Long.class));
 		return item;
 	}
 

@@ -35,13 +35,13 @@ class TestXmlItemWriter {
 		writer.open(new ExecutionContext());
 		DataStructure<String> item1 = new DataStructure<>();
 		item1.setKey("key1");
-		item1.setAbsoluteTTL(123l);
+		item1.setTtl(123l);
 		item1.setType(DataStructure.TYPE_HASH);
 		Map<String, String> hash1 = Map.of("field1", "value1", "field2", "value2");
 		item1.setValue(hash1);
 		DataStructure<String> item2 = new DataStructure<>();
 		item2.setKey("key2");
-		item2.setAbsoluteTTL(456l);
+		item2.setTtl(456l);
 		item2.setType(DataStructure.TYPE_STREAM);
 		Map<String, String> hash2 = Map.of("field1", "value1", "field2", "value2");
 		item2.setValue(hash2);
@@ -52,8 +52,8 @@ class TestXmlItemWriter {
 		Assertions.assertEquals(2, keyValues.size());
 		Assertions.assertEquals(item1.getKey(), keyValues.get(0).getKey());
 		Assertions.assertEquals(item2.getKey(), keyValues.get(1).getKey());
-		Assertions.assertEquals(item1.getAbsoluteTTL(), keyValues.get(0).getAbsoluteTTL());
-		Assertions.assertEquals(item2.getAbsoluteTTL(), keyValues.get(1).getAbsoluteTTL());
+		Assertions.assertEquals(item1.getTtl(), keyValues.get(0).getTtl());
+		Assertions.assertEquals(item2.getTtl(), keyValues.get(1).getTtl());
 		Assertions.assertEquals(item1.getValue(), keyValues.get(0).getValue());
 		Assertions.assertEquals(item2.getValue(), keyValues.get(1).getValue());
 
