@@ -16,8 +16,7 @@ public abstract class AbstractDatabaseTests extends AbstractRiotIntegrationTests
 		return new RiotDb();
 	}
 
-	@SuppressWarnings("rawtypes")
-	protected static DataSource dataSource(JdbcDatabaseContainer container) {
+	protected static DataSource dataSource(JdbcDatabaseContainer<?> container) {
 		DataSourceProperties properties = new DataSourceProperties();
 		properties.setUrl(container.getJdbcUrl());
 		properties.setUsername(container.getUsername());
