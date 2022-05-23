@@ -55,7 +55,7 @@ announce:
   slack:
     active: release
     channel: '#field-engineering-announcements'
-    message: '🚀 RIOT {{projectVersion}} has been released! {{releaseNotesUrl}}'
+    message: '🧨 RIOT {{projectVersion}} has been released! {{releaseNotesUrl}}'
     
 packagers:
   brew:
