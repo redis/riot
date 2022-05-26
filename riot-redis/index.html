@@ -14,7 +14,7 @@
 <div id="header">
 <h1>RIOT-Redis</h1>
 <div class="details">
-<span id="revnumber">version 2.15.4</span>
+<span id="revnumber">version 2.15.5</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -24,19 +24,28 @@
 <ul class="sectlevel2">
 <li><a href="#_install">2.1. Install</a></li>
 <li><a href="#_usage">2.2. Usage</a></li>
-<li><a href="#replication-usage">2.3. Replication</a></li>
-<li><a href="#_performance_tuning">2.4. Performance Tuning</a></li>
-<li><a href="#_verification">2.5. Verification</a></li>
 </ul>
 </li>
-<li><a href="#_architecture">3. Architecture</a>
+<li><a href="#replication">3. Replication</a>
 <ul class="sectlevel2">
-<li><a href="#batch">3.1. Batching</a></li>
-<li><a href="#threads">3.2. Multi-threading</a></li>
-<li><a href="#_reader">3.3. Reader</a></li>
-<li><a href="#live-replication">3.4. Live Replication</a></li>
-<li><a href="#dump-and-restore">3.5. Dump &amp; Restore</a></li>
-<li><a href="#type-based-replication">3.6. Type-Based Replication</a></li>
+<li><a href="#replication-usage">3.1. Usage</a></li>
+<li><a href="#_source_and_target_options">3.2. Source and target options</a></li>
+<li><a href="#_replication_mode">3.3. Replication mode</a></li>
+<li><a href="#_replication_type">3.4. Replication type</a></li>
+<li><a href="#reader-options">3.5. Reader options</a></li>
+<li><a href="#_performance_tuning">3.6. Performance Tuning</a></li>
+<li><a href="#_verification">3.7. Verification</a></li>
+<li><a href="#_progress">3.8. Progress</a></li>
+</ul>
+</li>
+<li><a href="#_architecture">4. Architecture</a>
+<ul class="sectlevel2">
+<li><a href="#batch">4.1. Batching</a></li>
+<li><a href="#threads">4.2. Multi-threading</a></li>
+<li><a href="#_reader">4.3. Reader</a></li>
+<li><a href="#live-replication">4.4. Live Replication</a></li>
+<li><a href="#dump-and-restore">4.5. Dump &amp; Restore</a></li>
+<li><a href="#type-based-replication">4.6. Type-Based Replication</a></li>
 </ul>
 </li>
 </ul>
@@ -50,10 +59,13 @@
 <p>RIOT-Redis is a data migration tool for Redis.</p>
 </div>
 <div class="paragraph">
-<p>Most Redis migration tools available today are offline in nature. Migrating data from AWS ElastiCache to Redis Enterprise Cloud for example means backing up your Elasticache data to an AWS S3 bucket and importing it into Redis Enterprise Cloud using its UI. RIOT-Redis allows for live data migration between any Redis databases.</p>
+<p>Most Redis migration tools available today are offline in nature.
+Migrating data from AWS ElastiCache to Redis Enterprise Cloud for example means backing up your Elasticache data to an AWS S3 bucket and importing it into Redis Enterprise Cloud using its UI.
+RIOT-Redis allows for live data migration between any Redis databases.</p>
 </div>
 <div class="paragraph">
-<p>RIOT-Redis does not make use of the <a href="https://redis.io/commands/replicaof">REPLICAOF</a> command which is not always available (see <a href="https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/RestrictedCommands.html">ElastiCache restrictions</a>). Instead it implements <a href="#_architecture">client-side replication</a> using DUMP &amp; RESTORE.</p>
+<p>RIOT-Redis does not make use of the <a href="https://redis.io/commands/replicaof">REPLICAOF</a> command which is not always available (see <a href="https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/RestrictedCommands.html">ElastiCache restrictions</a>).
+Instead it implements <a href="#_architecture">client-side replication</a> using DUMP &amp; RESTORE.</p>
 </div>
 </div>
 </div>
@@ -85,7 +97,8 @@ scoop install riot-redis</code></pre>
 <div class="sect3">
 <h4 id="_download_and_run_linux"><a class="anchor" href="#_download_and_run_linux"></a>2.1.3. Download and run (Linux)</h4>
 <div class="paragraph">
-<p>RIOT-Redis requires Java and the easiest option is to use the version packaged with Ubuntu. By default Ubuntu 18.04 includes Open JDK 11.</p>
+<p>RIOT-Redis requires Java and the easiest option is to use the version packaged with Ubuntu.
+By default Ubuntu 18.04 includes Open JDK 11.</p>
 </div>
 <div class="paragraph">
 <p>To install this version, first update the package index:</p>
@@ -172,9 +185,32 @@ cd riot/bin
 <div class="paragraph">
 <p>To display usage help, run the following command:</p>
 </div>
-<div class="literalblock">
+<div class="listingblock">
 <div class="content">
-<pre><span class="green">riot-redis</span> --help
+<pre class="CodeRay highlight"><code data-lang="source"><table class="CodeRay"><tr>
+  <td class="line-numbers"><pre>1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+</pre></td>
+  <td class="code"><pre><span class="green">riot-redis</span> --help
 Usage: <strong>riot-redis</strong> [OPTIONS] [COMMAND]
   <span class="olive">-H</span>, <span class="olive">--help</span>                Show this help message and exit
   <span class="olive">-V</span>, <span class="olive">--version</span>             Print version information and exit.
@@ -194,7 +230,8 @@ Redis connection options
   <span class="olive">-n</span>, <span class="olive">--db</span>=&lt;db&gt;             Database number (default: 0).
   <span class="olive">-c</span>, <span class="olive">--cluster</span>             Enable cluster mode.
       <span class="olive">--tls</span>                 Establish a secure TLS connection.
-      <span class="olive">--insecure</span>            Allow insecure TLS connection by skipping cert validation.</pre>
+      <span class="olive">--insecure</span>            Allow insecure TLS connection by skipping cert validation.</pre></td>
+</tr></table></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -213,7 +250,7 @@ Redis connection options
 <div class="paragraph">
 <p>You can use <code>--help</code> on any subcommand:</p>
 </div>
-<div class="literalblock">
+<div class="listingblock">
 <div class="content">
 <pre><span class="green">riot-redis</span> <span class="red">command</span> --help
 <span class="green">riot-redis</span> command <span class="red">subcommand</span> --help</pre>
@@ -223,19 +260,38 @@ Redis connection options
 </tr>
 </table>
 </div>
+<div class="paragraph">
+<p>Available commands:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="console">replicate   Replicate a source Redis DB to a target Redis DB
+compare     Compare 2 Redis databases and print the differences
+info        Display INFO command output
+latency     Calculate latency stats
+ping        Execute PING command</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="replication"><a class="anchor" href="#replication"></a>3. Replication</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The <code>replicate</code> command replicates data from a source Redis database to a target Redis database.</p>
 </div>
 <div class="sect2">
-<h3 id="replication-usage"><a class="anchor" href="#replication-usage"></a>2.3. Replication</h3>
-<div class="paragraph">
-<p>The general usage for the replicate command is:</p>
-</div>
+<h3 id="replication-usage"><a class="anchor" href="#replication-usage"></a>3.1. Usage</h3>
 <div class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="console"><span class="green">riot-redis</span> &lt;source&gt; replicate &lt;target&gt; --mode &lt;snapshot|live&gt; --type &lt;dump|ds&gt; [OPTIONS]</code></pre>
 </div>
 </div>
+<div class="paragraph">
+<p>For the full usage, run:</p>
+</div>
 <div class="listingblock">
-<div class="title">Full usage help</div>
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="console"><span class="green">riot-redis</span> replicate --help</code></pre>
 </div>
@@ -252,8 +308,9 @@ Redis connection options
 <pre class="CodeRay highlight"><code data-lang="console">riot-redis -h source -p 6379 replicate -h target -p 6380 --mode live</code></pre>
 </div>
 </div>
-<div class="sect3">
-<h4 id="_source_and_target_options"><a class="anchor" href="#_source_and_target_options"></a>2.3.1. Source and target options</h4>
+</div>
+<div class="sect2">
+<h3 id="_source_and_target_options"><a class="anchor" href="#_source_and_target_options"></a>3.2. Source and target options</h3>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><code>-h &lt;host&gt;</code></dt>
@@ -271,8 +328,8 @@ Redis connection options
 </dl>
 </div>
 </div>
-<div class="sect3">
-<h4 id="_replication_mode"><a class="anchor" href="#_replication_mode"></a>2.3.2. Replication mode</h4>
+<div class="sect2">
+<h3 id="_replication_mode"><a class="anchor" href="#_replication_mode"></a>3.3. Replication mode</h3>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><code>--mode snapshot</code></dt>
@@ -289,9 +346,21 @@ Redis connection options
 </dd>
 </dl>
 </div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+Make sure the source database has keyspace notifications enabled using <code>notify-keyspace-events = KA</code> in <code>redis.conf</code> or via CONFIG SET.
+</td>
+</tr>
+</table>
 </div>
-<div class="sect3">
-<h4 id="_replication_type"><a class="anchor" href="#_replication_type"></a>2.3.3. Replication type</h4>
+</div>
+<div class="sect2">
+<h3 id="_replication_type"><a class="anchor" href="#_replication_type"></a>3.4. Replication type</h3>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><code>--type dump</code></dt>
@@ -305,8 +374,8 @@ Redis connection options
 </dl>
 </div>
 </div>
-<div class="sect3">
-<h4 id="reader-options"><a class="anchor" href="#reader-options"></a>2.3.4. Reader options</h4>
+<div class="sect2">
+<h3 id="reader-options"><a class="anchor" href="#reader-options"></a>3.5. Reader options</h3>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><code>--scan-count</code></dt>
@@ -349,20 +418,21 @@ Redis connection options
 </dl>
 </div>
 </div>
-</div>
 <div class="sect2">
-<h3 id="_performance_tuning"><a class="anchor" href="#_performance_tuning"></a>2.4. Performance Tuning</h3>
+<h3 id="_performance_tuning"><a class="anchor" href="#_performance_tuning"></a>3.6. Performance Tuning</h3>
 <div class="paragraph">
-<p>Performance tuning is an art but RIOT-Redis offers some facilities to identify potential bottlenecks. In addition to the <a href="#batch">batch</a> and <a href="#threads">threads</a> options you have the <code>--dry-run</code> option which disables writing to the target Redis database so that you can tune <a href="#reader-options">reading</a> in isolation. Add that option to your existing <code>replicate</code> command-line to compare replication speeds with and without writing to the target Redis database:</p>
+<p>Performance tuning is an art but RIOT-Redis offers some facilities to identify potential bottlenecks.
+In addition to the <a href="#batch">batch</a> and <a href="#threads">threads</a> options you have the <code>--dry-run</code> option which disables writing to the target Redis database so that you can tune <a href="#reader-options">reading</a> in isolation.
+Add that option to your existing <code>replicate</code> command-line to compare replication speeds with and without writing to the target Redis database:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="console"><span class="green">riot-redis</span> &lt;source&gt; replicate &lt;target&gt; ... <span class="red">--dry-run</span></code></pre>
+<pre class="CodeRay highlight"><code data-lang="console">riot-redis ... replicate ... --dry-run</code></pre>
 </div>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_verification"><a class="anchor" href="#_verification"></a>2.5. Verification</h3>
+<h3 id="_verification"><a class="anchor" href="#_verification"></a>3.7. Verification</h3>
 <div class="paragraph">
 <p>Once replication is complete RIOT-Redis will perform a verification step by iterating over keys in the source database and comparing values and TTLs between source and target databases.</p>
 </div>
@@ -374,7 +444,7 @@ Redis connection options
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="console">riot-redis compare --help</code></pre>
+<pre class="CodeRay highlight"><code data-lang="console">riot-redis -h &lt;left host&gt; -p &lt;left port&gt; compare -h &lt;right host&gt; -p &lt;right port&gt;</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -404,11 +474,27 @@ Redis connection options
 </li>
 </ul>
 </div>
+<div class="paragraph">
+<p>To show which keys are different use the <code>--show-diffs</code> option:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="console">riot-redis ... compare ... --show-diffs</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_progress"><a class="anchor" href="#_progress"></a>3.8. Progress</h3>
+<div class="paragraph">
+<p>Each process (scan, and event listener in case of live replication) has a corresponding status bar that shows the process name and its progress:
+* Scanning: percentage of keys that have been replicated &#8658; replicated / total. The total number of keys is calculated when the process starts and it can change by the time it is finished (for example in case keys are deleted or added during the replication), so the progress bar is only a rough indicator.
+* Listening: progress is indefinite as total number of keys is unknown</p>
+</div>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_architecture"><a class="anchor" href="#_architecture"></a>3. Architecture</h2>
+<h2 id="_architecture"><a class="anchor" href="#_architecture"></a>4. Architecture</h2>
 <div class="sectionbody">
 <div class="imageblock">
 <div class="content">
@@ -416,28 +502,32 @@ Redis connection options
 </div>
 </div>
 <div class="paragraph">
-<p>RIOT-Redis processes data in batch fashion: a fixed number of records (batch AKA chunk) is read, processed, and written at a time. Then the cycle is repeated until there&#8217;s no more data on the source.</p>
+<p>RIOT-Redis processes data in batch fashion: a fixed number of records (batch AKA chunk) is read, processed, and written at a time.
+Then the cycle is repeated until there&#8217;s no more data on the source.</p>
 </div>
 <div class="sect2">
-<h3 id="batch"><a class="anchor" href="#batch"></a>3.1. Batching</h3>
+<h3 id="batch"><a class="anchor" href="#batch"></a>4.1. Batching</h3>
 <div class="paragraph">
-<p>The default batch size is 50, which means that an execution step reads 50 items at a time from the source, processes them, and finally writes then to the target. If the target is Redis, writing is done in a single command <a href="https://redis.io/topics/pipelining">pipeline</a> to minimize the number of roundtrips to the server.</p>
+<p>The default batch size is 50, which means that an execution step reads 50 items at a time from the source, processes them, and finally writes then to the target.
+If the target is Redis, writing is done in a single command <a href="https://redis.io/topics/pipelining">pipeline</a> to minimize the number of roundtrips to the server.</p>
 </div>
 <div class="paragraph">
-<p>You can change the batch size (and hence pipeline size) using the <code>--batch</code> option. The optimal batch size in terms of processing throughput depends on a few factors like record size and command types (see <a href="https://stackoverflow.com/a/32165090">here</a> for details).</p>
+<p>You can change the batch size (and hence pipeline size) using the <code>--batch</code> option.
+The optimal batch size in terms of throughput depends on a few factors like record size and command types (see <a href="https://stackoverflow.com/a/32165090">here</a> for details).</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="threads"><a class="anchor" href="#threads"></a>3.2. Multi-threading</h3>
+<h3 id="threads"><a class="anchor" href="#threads"></a>4.2. Multi-threading</h3>
 <div class="paragraph">
-<p>It is possible to parallelize processing by using multiple threads. In that configuration, each chunk of items is read, processed, and written in a separate thread of execution.</p>
+<p>It is possible to parallelize processing by using multiple threads.
+In that configuration, each chunk of items is read, processed, and written in a separate thread of execution.</p>
 </div>
 <div class="paragraph">
 <p>To set the number of threads use the <code>--threads</code> option.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_reader"><a class="anchor" href="#_reader"></a>3.3. Reader</h3>
+<h3 id="_reader"><a class="anchor" href="#_reader"></a>4.3. Reader</h3>
 <div class="imageblock">
 <div class="content">
 <img src="reader-architecture.svg" alt="reader architecture">
@@ -447,7 +537,8 @@ Redis connection options
 <table>
 <tr>
 <td><i class="conum" data-value="1"></i><b>1</b></td>
-<td>Scan for keys in the source Redis database. If live replication is enabled the reader also subscribes to keyspace notifications to generate a continuous stream of keys.</td>
+<td>Scan for keys in the source Redis database.
+If live replication is enabled the reader also subscribes to keyspace notifications to generate a continuous stream of keys.</td>
 </tr>
 <tr>
 <td><i class="conum" data-value="2"></i><b>2</b></td>
@@ -461,21 +552,10 @@ Redis connection options
 </div>
 </div>
 <div class="sect2">
-<h3 id="live-replication"><a class="anchor" href="#live-replication"></a>3.4. Live Replication</h3>
+<h3 id="live-replication"><a class="anchor" href="#live-replication"></a>4.4. Live Replication</h3>
 <div class="paragraph">
-<p>In live replication mode RIOT-Redis listens for changes happening on the source database using keyspace notifications. Each time a key is modified, RIOT-Redis reads the corresponding value and propagates that change to the target database.</p>
-</div>
-<div class="admonitionblock tip">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-tip" title="Tip"></i>
-</td>
-<td class="content">
-Make sure the source Redis database has keyspace notifications enabled using <code>notify-keyspace-events = KA</code> in <code>redis.conf</code> or via CONFIG SET.
-</td>
-</tr>
-</table>
+<p>In live replication mode RIOT-Redis listens for changes happening on the source database using keyspace notifications.
+Each time a key is modified, RIOT-Redis reads the corresponding value and propagates that change to the target database.</p>
 </div>
 <div class="admonitionblock warning">
 <table>
@@ -485,10 +565,16 @@ Make sure the source Redis database has keyspace notifications enabled using <co
 </td>
 <td class="content">
 <div class="paragraph">
-<p>The live replication mechanism does not guarantee data consistency. Redis sends keyspace notifications over pub/sub which does not provide	guaranteed delivery. It is possible that RIOT-Redis can miss some notifications in case of network failures for example.</p>
+<p>The live replication mechanism does not guarantee data consistency.
+Redis sends keyspace notifications over pub/sub which does not provide guaranteed delivery.
+It is possible that RIOT-Redis can miss some notifications in case of network failures for example.</p>
 </div>
 <div class="paragraph">
-<p>Also, depending on the type, size, and rate of change of data structures on the source it is possible that RIOT-Redis cannot keep up with the change stream. For example if a big set is repeatedly updated, RIOT-Redis will need to read the whole set on each update and transfer it over to the target database. With a big-enough set, RIOT-Redis could fall behind, the internal queue could fill up, and lead to updates being dropped. Some preliminary sizing using Redis statistics and big-keys is recommended for these migrations. If you need assistance please contact your Redis account team.</p>
+<p>Also, depending on the type, size, and rate of change of data structures on the source it is possible that RIOT-Redis cannot keep up with the change stream.
+For example if a big set is repeatedly updated, RIOT-Redis will need to read the whole set on each update and transfer it over to the target database.
+With a big-enough set, RIOT-Redis could fall behind and the internal queue could fill up leading up to updates being dropped.
+Some preliminary sizing using Redis statistics and big-keys is recommended for these migrations.
+If you need assistance please contact your Redis account team.</p>
 </div>
 </td>
 </tr>
@@ -496,7 +582,7 @@ Make sure the source Redis database has keyspace notifications enabled using <co
 </div>
 </div>
 <div class="sect2">
-<h3 id="dump-and-restore"><a class="anchor" href="#dump-and-restore"></a>3.5. Dump &amp; Restore</h3>
+<h3 id="dump-and-restore"><a class="anchor" href="#dump-and-restore"></a>4.5. Dump &amp; Restore</h3>
 <div class="paragraph">
 <p>The default replication mechanism in RIOT-Redis is DUMP &amp; RESTORE:</p>
 </div>
@@ -523,7 +609,7 @@ Make sure the source Redis database has keyspace notifications enabled using <co
 </div>
 </div>
 <div class="sect2">
-<h3 id="type-based-replication"><a class="anchor" href="#type-based-replication"></a>3.6. Type-Based Replication</h3>
+<h3 id="type-based-replication"><a class="anchor" href="#type-based-replication"></a>4.6. Type-Based Replication</h3>
 <div class="paragraph">
 <p>If the target Redis database does not support the RESTORE command (e.g. <a href="https://redis.com/redis-enterprise/technology/active-active-geo-distribution/">CRDB</a>), RIOT-Redis includes another type of replication where each Redis data structure type has a corresponding pair of read/write commands:</p>
 </div>
@@ -589,7 +675,8 @@ Make sure the source Redis database has keyspace notifications enabled using <co
 <i class="fa icon-warning" title="Warning"></i>
 </td>
 <td class="content">
-This replication strategy is more intensive in terms of CPU, memory, and network for the machines running RIOT-Redis. Adjust number of threads, batch, and queue sizes accordingly.
+This replication strategy is more intensive in terms of CPU, memory, and network for the machines running RIOT-Redis.
+Adjust number of threads, batch, and queue sizes accordingly.
 </td>
 </tr>
 </table>
@@ -600,8 +687,8 @@ This replication strategy is more intensive in terms of CPU, memory, and network
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 2.15.4<br>
-Last updated 2022-02-17 07:15:05 UTC
+Version 2.15.5<br>
+Last updated 2022-05-26 05:10:35 UTC
 </div>
 </div>
 <link rel="stylesheet" href="./coderay-asciidoctor.css">

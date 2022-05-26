@@ -14,7 +14,7 @@
 <div id="header">
 <h1>Migrate from Elasticache</h1>
 <div class="details">
-<span id="revnumber">version 2.15.4</span>
+<span id="revnumber">version 2.15.5</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -136,7 +136,10 @@ It is recommended to read the <a href="https://developer.redis.com/riot/riot-red
 <p>To run the migration tool we will need an EC2 instance.</p>
 </div>
 <div class="paragraph">
-<p>You can either create a new EC2 instance or leverage an existing one if available. In the example below we first create an instance on AWS Cloud Platform. The most common scenario is to access an ElastiCache cluster from an Amazon EC2 instance in the same Amazon Virtual Private Cloud (Amazon VPC). We have used Ubuntu 16.04 LTS for this setup but you can choose any Ubuntu or Debian distribution of your choice.</p>
+<p>You can either create a new EC2 instance or leverage an existing one if available.
+In the example below we first create an instance on AWS Cloud Platform.
+The most common scenario is to access an ElastiCache cluster from an Amazon EC2 instance in the same Amazon Virtual Private Cloud (Amazon VPC).
+We have used Ubuntu 16.04 LTS for this setup but you can choose any Ubuntu or Debian distribution of your choice.</p>
 </div>
 <div class="paragraph">
 <p>SSH to this EC2 instance from your laptop:</p>
@@ -173,7 +176,8 @@ sudo apt install -y redis-tools</code></pre>
 <p>Let&#8217;s install RIOT-Redis on the EC2 instance we set up previously.</p>
 </div>
 <div class="paragraph">
-<p>RIOT-Redis requires Java and the easiest option is to use the version packaged with Ubuntu. By default Ubuntu 18.04 includes Open JDK 11.</p>
+<p>RIOT-Redis requires Java and the easiest option is to use the version packaged with Ubuntu.
+By default Ubuntu 18.04 includes Open JDK 11.</p>
 </div>
 <div class="paragraph">
 <p>To install this version, first update the package index:</p>
@@ -242,7 +246,8 @@ OpenJDK 64-Bit Server VM (build 11.0.11+9-Ubuntu-0ubuntu2.18.04, mixed mode, sha
 <h2 id="_performing_migration"><a class="anchor" href="#_performing_migration"></a>2. Performing Migration</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>We are now all set to begin the migration process. The options you will use depend on your source and target databases, as well as the replication mode (snapshot or live).</p>
+<p>We are now all set to begin the migration process.
+The options you will use depend on your source and target databases, as well as the replication mode (snapshot or live).</p>
 </div>
 <div class="sect2">
 <h3 id="_ec_single_master_re"><a class="anchor" href="#_ec_single_master_re"></a>2.1. EC Single Master &#8594; RE</h3>
@@ -293,7 +298,8 @@ OpenJDK 64-Bit Server VM (build 11.0.11+9-Ubuntu-0ubuntu2.18.04, mixed mode, sha
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-<code>--cluster</code> is an important parameter used ONLY for ElastiCache whenever cluster-mode is enabled. Do note that the source database is specified first and the target database is specified after the replicate command and it is applicable for all the scenarios.
+<code>--cluster</code> is an important parameter used ONLY for ElastiCache whenever cluster-mode is enabled.
+Do note that the source database is specified first and the target database is specified after the replicate command and it is applicable for all the scenarios.
 </td>
 </tr>
 </table>
@@ -369,8 +375,8 @@ Authentication required</code></pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 2.15.4<br>
-Last updated 2022-02-17 07:15:05 UTC
+Version 2.15.5<br>
+Last updated 2022-05-26 05:10:35 UTC
 </div>
 </div>
 <link rel="stylesheet" href="./coderay-asciidoctor.css">

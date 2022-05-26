@@ -14,7 +14,7 @@
 <div id="header">
 <h1>RIOT-DB</h1>
 <div class="details">
-<span id="revnumber">version 2.15.4</span>
+<span id="revnumber">version 2.15.5</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -29,8 +29,9 @@
 <li><a href="#_jdbc_drivers">3. JDBC Drivers</a></li>
 <li><a href="#_importing">4. Importing</a>
 <ul class="sectlevel2">
-<li><a href="#_redis-commands">4.1. Redis Commands</a></li>
-<li><a href="#_processing">4.2. Processing</a></li>
+<li><a href="#_usage_2">4.1. Usage</a></li>
+<li><a href="#_redis_commands">4.2. Redis Commands</a></li>
+<li><a href="#_processing">4.3. Processing</a></li>
 </ul>
 </li>
 <li><a href="#_exporting">5. Exporting</a></li>
@@ -83,7 +84,8 @@ scoop install riot-db</code></pre>
 <div class="sect3">
 <h4 id="_download_and_run_linux"><a class="anchor" href="#_download_and_run_linux"></a>2.1.3. Download and run (Linux)</h4>
 <div class="paragraph">
-<p>RIOT-DB requires Java and the easiest option is to use the version packaged with Ubuntu. By default Ubuntu 18.04 includes Open JDK 11.</p>
+<p>RIOT-DB requires Java and the easiest option is to use the version packaged with Ubuntu.
+By default Ubuntu 18.04 includes Open JDK 11.</p>
 </div>
 <div class="paragraph">
 <p>To install this version, first update the package index:</p>
@@ -170,9 +172,32 @@ cd riot/bin
 <div class="paragraph">
 <p>To display usage help, run the following command:</p>
 </div>
-<div class="literalblock">
+<div class="listingblock">
 <div class="content">
-<pre><span class="green">riot-db</span> --help
+<pre class="CodeRay highlight"><code data-lang="source"><table class="CodeRay"><tr>
+  <td class="line-numbers"><pre>1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+</pre></td>
+  <td class="code"><pre><span class="green">riot-db</span> --help
 Usage: <strong>riot-db</strong> [OPTIONS] [COMMAND]
   <span class="olive">-H</span>, <span class="olive">--help</span>                Show this help message and exit
   <span class="olive">-V</span>, <span class="olive">--version</span>             Print version information and exit.
@@ -192,7 +217,8 @@ Redis connection options
   <span class="olive">-n</span>, <span class="olive">--db</span>=&lt;db&gt;             Database number (default: 0).
   <span class="olive">-c</span>, <span class="olive">--cluster</span>             Enable cluster mode.
       <span class="olive">--tls</span>                 Establish a secure TLS connection.
-      <span class="olive">--insecure</span>            Allow insecure TLS connection by skipping cert validation.</pre>
+      <span class="olive">--insecure</span>            Allow insecure TLS connection by skipping cert validation.</pre></td>
+</tr></table></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -211,7 +237,7 @@ Redis connection options
 <div class="paragraph">
 <p>You can use <code>--help</code> on any subcommand:</p>
 </div>
-<div class="literalblock">
+<div class="listingblock">
 <div class="content">
 <pre><span class="green">riot-db</span> <span class="red">command</span> --help
 <span class="green">riot-db</span> command <span class="red">subcommand</span> --help</pre>
@@ -300,8 +326,10 @@ Redis connection options
 <h2 id="_importing"><a class="anchor" href="#_importing"></a>4. Importing</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>The <code>import</code> command reads rows from a SQL resultset and writes them to Redis. The general usage is:</p>
+<p>The <code>import</code> command reads rows from a SQL resultset and writes them to Redis.</p>
 </div>
+<div class="sect2">
+<h3 id="_usage_2"><a class="anchor" href="#_usage_2"></a>4.1. Usage</h3>
 <div class="listingblock">
 <div class="content">
 <pre><span class="green">riot-db</span> -h &lt;redis host&gt; -p &lt;redis port&gt; import --url &lt;jdbc url&gt; <span class="olive">SQL</span> [REDIS COMMAND...]</pre>
@@ -321,8 +349,9 @@ Redis connection options
 <pre class="CodeRay highlight"><code data-lang="console">riot-db import &quot;SELECT * FROM orders&quot; --url &quot;jdbc:postgresql://host:port/database&quot; --username appuser --password passwd hset --keyspace order --keys order_id</code></pre>
 </div>
 </div>
+</div>
 <div class="sect2">
-<h3 id="_redis-commands"><a class="anchor" href="#_redis-commands"></a>4.1. Redis Commands</h3>
+<h3 id="_redis_commands"><a class="anchor" href="#_redis_commands"></a>4.2. Redis Commands</h3>
 <div class="paragraph">
 <p>Redis keys are constructed from input records by concatenating the keyspace prefix and key fields:</p>
 </div>
@@ -334,19 +363,19 @@ Redis connection options
 <div class="paragraph">
 <p>You can specify one or many Redis commands as targets of the import:</p>
 </div>
-<div class="literalblock">
+<div class="listingblock">
 <div class="title">Import into hashes</div>
 <div class="content">
 <pre><span class="green">riot-db</span> import ... <strong class="olive">hset</strong> --keyspace blah --keys id</pre>
 </div>
 </div>
-<div class="literalblock">
+<div class="listingblock">
 <div class="title">Import into hashes <strong>and</strong> set TTL on the key</div>
 <div class="content">
 <pre><span class="green">riot-db</span> import ... <strong class="olive">hset</strong> --keyspace blah --keys id <strong class="olive">expire</strong> --keyspace blah --keys id</pre>
 </div>
 </div>
-<div class="literalblock">
+<div class="listingblock">
 <div class="title">Import into hashes <strong>and</strong> set TTL <strong>and</strong> add to a set named <code>myset</code></div>
 <div class="content">
 <pre><span class="green">riot-db</span> import ... <strong class="olive">hset</strong> --keyspace blah --keys id <strong class="olive">expire</strong> --keyspace blah --keys id <strong class="olive">sadd</strong> --keyspace myset --members id</pre>
@@ -365,7 +394,7 @@ Redis connection options
 <div class="paragraph">
 <p>In this example the redis options will not be taken into account:</p>
 </div>
-<div class="literalblock">
+<div class="listingblock">
 <div class="content">
 <pre><span class="green">riot-db</span> import ... <strong class="olive">hset</strong> <span class="line-through"><strong class="red">-h myredis.com -p 6380</strong></span></pre>
 </div>
@@ -376,7 +405,7 @@ Redis connection options
 </div>
 </div>
 <div class="sect2">
-<h3 id="_processing"><a class="anchor" href="#_processing"></a>4.2. Processing</h3>
+<h3 id="_processing"><a class="anchor" href="#_processing"></a>4.3. Processing</h3>
 <div class="paragraph">
 <p>The following processors can be applied to records in that order:</p>
 </div>
@@ -394,7 +423,7 @@ Redis connection options
 </ul>
 </div>
 <div class="sect3">
-<h4 id="_transforms"><a class="anchor" href="#_transforms"></a>4.2.1. Transforms</h4>
+<h4 id="_transforms"><a class="anchor" href="#_transforms"></a>4.3.1. Transforms</h4>
 <div class="paragraph">
 <p>Transforms allow you to create/update/delete fields using the <a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/core.html#expressions">Spring Expression Language</a> (SpEL):</p>
 </div>
@@ -436,7 +465,7 @@ Redis connection options
 </li>
 </ul>
 </div>
-<div class="literalblock">
+<div class="listingblock">
 <div class="title">Processor Example</div>
 <div class="content">
 <pre><span class="green">riot-db</span> import --process epoch=<span class="olive">"#date.parse(mydate).getTime()"</span> location=<span class="olive">"#geo(lon,lat)"</span> id=<span class="olive">"#index"</span> name=<span class="olive">"#redis.hget('person1','lastName')"</span> ...</pre>
@@ -444,25 +473,25 @@ Redis connection options
 </div>
 </div>
 <div class="sect3">
-<h4 id="_regular_expressions"><a class="anchor" href="#_regular_expressions"></a>4.2.2. Regular Expressions</h4>
+<h4 id="_regular_expressions"><a class="anchor" href="#_regular_expressions"></a>4.3.2. Regular Expressions</h4>
 <div class="paragraph">
 <p>Extract patterns from source fields using regular expressions:</p>
 </div>
-<div class="literalblock">
+<div class="listingblock">
 <div class="content">
 <pre><span class="green">riot-db</span> import --regex name=<span class="olive">"(?<first>\w+)\/(?<last>\w+)"</span> ...</pre>
 </div>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_filters"><a class="anchor" href="#_filters"></a>4.2.3. Filters</h4>
+<h4 id="_filters"><a class="anchor" href="#_filters"></a>4.3.3. Filters</h4>
 <div class="paragraph">
 <p>Keep records that match a SpEL boolean expression.</p>
 </div>
 <div class="paragraph">
 <p>For example this filter will only keep records where the <code>value</code> field is a series of digits:</p>
 </div>
-<div class="literalblock">
+<div class="listingblock">
 <div class="content">
 <pre><span class="green">riot-db</span> import --filter "value matches '\\d+'" ...</pre>
 </div>
@@ -475,7 +504,8 @@ Redis connection options
 <h2 id="_exporting"><a class="anchor" href="#_exporting"></a>5. Exporting</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>The <code>export</code> command reads data from a Redis database and writes it to a SQL database. The general usage is:</p>
+<p>The <code>export</code> command reads data from a Redis database and writes it to a SQL database.
+The general usage is:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -535,21 +565,25 @@ Redis connection options
 </div>
 </div>
 <div class="paragraph">
-<p>RIOT-DB processes data in batch fashion: a fixed number of records (batch AKA chunk) is read, processed, and written at a time. Then the cycle is repeated until there&#8217;s no more data on the source.</p>
+<p>RIOT-DB processes data in batch fashion: a fixed number of records (batch AKA chunk) is read, processed, and written at a time.
+Then the cycle is repeated until there&#8217;s no more data on the source.</p>
 </div>
 <div class="sect2">
 <h3 id="batch"><a class="anchor" href="#batch"></a>6.1. Batching</h3>
 <div class="paragraph">
-<p>The default batch size is 50, which means that an execution step reads 50 items at a time from the source, processes them, and finally writes then to the target. If the target is Redis, writing is done in a single command <a href="https://redis.io/topics/pipelining">pipeline</a> to minimize the number of roundtrips to the server.</p>
+<p>The default batch size is 50, which means that an execution step reads 50 items at a time from the source, processes them, and finally writes then to the target.
+If the target is Redis, writing is done in a single command <a href="https://redis.io/topics/pipelining">pipeline</a> to minimize the number of roundtrips to the server.</p>
 </div>
 <div class="paragraph">
-<p>You can change the batch size (and hence pipeline size) using the <code>--batch</code> option. The optimal batch size in terms of processing throughput depends on a few factors like record size and command types (see <a href="https://stackoverflow.com/a/32165090">here</a> for details).</p>
+<p>You can change the batch size (and hence pipeline size) using the <code>--batch</code> option.
+The optimal batch size in terms of throughput depends on a few factors like record size and command types (see <a href="https://stackoverflow.com/a/32165090">here</a> for details).</p>
 </div>
 </div>
 <div class="sect2">
 <h3 id="threads"><a class="anchor" href="#threads"></a>6.2. Multi-threading</h3>
 <div class="paragraph">
-<p>It is possible to parallelize processing by using multiple threads. In that configuration, each chunk of items is read, processed, and written in a separate thread of execution.</p>
+<p>It is possible to parallelize processing by using multiple threads.
+In that configuration, each chunk of items is read, processed, and written in a separate thread of execution.</p>
 </div>
 <div class="paragraph">
 <p>To set the number of threads use the <code>--threads</code> option.</p>
@@ -560,8 +594,8 @@ Redis connection options
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 2.15.4<br>
-Last updated 2022-02-17 07:15:05 UTC
+Version 2.15.5<br>
+Last updated 2022-05-26 05:10:35 UTC
 </div>
 </div>
 <link rel="stylesheet" href="./coderay-asciidoctor.css">
