@@ -22,6 +22,7 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
+import org.awaitility.Awaitility;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -35,7 +36,6 @@ import org.testcontainers.utility.DockerImageName;
 
 import com.google.common.collect.ImmutableMap;
 import com.redis.lettucemod.api.async.RedisModulesAsyncCommands;
-import com.redis.lettucemod.api.sync.RedisModulesCommands;
 import com.redis.riot.AbstractRiotIntegrationTests;
 import com.redis.testcontainers.junit.RedisTestContext;
 import com.redis.testcontainers.junit.RedisTestContextsSource;
@@ -43,7 +43,6 @@ import com.redis.testcontainers.junit.RedisTestContextsSource;
 import io.lettuce.core.LettuceFutures;
 import io.lettuce.core.Range;
 import io.lettuce.core.RedisFuture;
-import io.lettuce.core.StreamMessage;
 import picocli.CommandLine;
 
 @SuppressWarnings("unchecked")
@@ -86,10 +85,8 @@ class TestKafka extends AbstractRiotIntegrationTests {
 			future.get();
 		}
 		execute("import", redis, this::configureImportCommand);
-		RedisModulesCommands<String, String> sync = redis.sync();
-		List<StreamMessage<String, String>> messages = sync.xrange("topic1", Range.create("-", "+"));
-		Assertions.assertEquals(count, messages.size());
-		messages.forEach(m -> Assertions.assertEquals(map(), m.getBody()));
+		Awaitility.await().until(() -> redis.sync().xrange("topic1", Range.create("-", "+")).size() == count);
+		redis.sync().xrange("topic1", Range.create("-", "+")).forEach(m -> Assertions.assertEquals(map(), m.getBody()));
 	}
 
 	private void configureImportCommand(CommandLine.ParseResult parseResult) {
