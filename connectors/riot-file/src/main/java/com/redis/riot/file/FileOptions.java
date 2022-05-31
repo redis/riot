@@ -69,6 +69,7 @@ public class FileOptions {
 			return new FilenameInputStreamResource(System.in, "stdin", "Standard Input");
 		}
 		Resource resource = resource(file, true);
+		Assert.isTrue(resource.exists(), "Input resource must exist: " + file);
 		if (gzip || FileUtils.isGzip(file)) {
 			GZIPInputStream gzipInputStream = new GZIPInputStream(resource.getInputStream());
 			return new FilenameInputStreamResource(gzipInputStream, resource.getFilename(), resource.getDescription());
