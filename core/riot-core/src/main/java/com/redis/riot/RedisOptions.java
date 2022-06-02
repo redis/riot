@@ -295,4 +295,16 @@ public class RedisOptions {
 		return (RedisModulesClient) client;
 	}
 
+	@Override
+	public String toString() {
+		return "RedisOptions [host=" + host + ", port=" + port + ", socket=" + socket + ", username=" + username
+				+ ", password=" + password + ", uris=" + Arrays.toString(uris) + ", timeout=" + timeout + ", database="
+				+ database + ", cluster=" + cluster + ", tls=" + tls + ", verifyPeer=" + verifyPeer + ", keystore="
+				+ keystore + ", keystorePassword=" + keystorePassword + ", truststore=" + truststore
+				+ ", truststorePassword=" + truststorePassword + ", cert=" + cert + ", showMetrics=" + showMetrics
+				+ ", autoReconnect=" + autoReconnect + ", clientName=" + clientName + "]";
+	}
+	
+	
+
 }

@@ -28,25 +28,29 @@ public class ManifestVersionProvider implements IVersionProvider {
                 // @formatter:on
 	}
 
-	private String getVersionString() throws IOException {
-		Enumeration<URL> resources = ManifestVersionProvider.class.getClassLoader()
-				.getResources("META-INF/MANIFEST.MF");
-		while (resources.hasMoreElements()) {
-			URL url = resources.nextElement();
-			try {
-				Manifest manifest = new Manifest(url.openStream());
-				if (isApplicableManifest(manifest)) {
-					Attributes attr = manifest.getMainAttributes();
-					return String.valueOf(get(attr, "Implementation-Version"));
+	public static String getVersionString() {
+		try {
+			Enumeration<URL> resources = ManifestVersionProvider.class.getClassLoader()
+					.getResources("META-INF/MANIFEST.MF");
+			while (resources.hasMoreElements()) {
+				URL url = resources.nextElement();
+				try {
+					Manifest manifest = new Manifest(url.openStream());
+					if (isApplicableManifest(manifest)) {
+						Attributes attr = manifest.getMainAttributes();
+						return String.valueOf(get(attr, "Implementation-Version"));
+					}
+				} catch (IOException ex) {
+					return "Unable to read from " + url + ": " + ex;
 				}
-			} catch (IOException ex) {
-				return "Unable to read from " + url + ": " + ex;
 			}
+		} catch (IOException e) {
+			// Fail silently
 		}
 		return "N/A";
 	}
 
-	private boolean isApplicableManifest(Manifest manifest) {
+	private static boolean isApplicableManifest(Manifest manifest) {
 		Attributes attributes = manifest.getMainAttributes();
 		return "riot".equals(get(attributes, "Implementation-Title"));
 	}

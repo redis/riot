@@ -5,6 +5,7 @@ import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
+import org.slf4j.LoggerFactory;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 
@@ -14,6 +15,7 @@ import io.netty.util.internal.logging.JdkLoggerFactory;
 import picocli.CommandLine;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.IExecutionStrategy;
 import picocli.CommandLine.Mixin;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.ParseResult;
@@ -22,6 +24,8 @@ import picocli.CommandLine.RunLast;
 
 @Command(sortOptions = false, versionProvider = ManifestVersionProvider.class, subcommands = GenerateCompletionCommand.class, abbreviateSynopsis = true)
 public class RiotApp extends HelpCommand {
+
+	private static final org.slf4j.Logger log = LoggerFactory.getLogger(RiotApp.class);
 
 	private static final String ROOT_LOGGER = "";
 
@@ -41,13 +45,18 @@ public class RiotApp extends HelpCommand {
 	}
 
 	private int executionStrategy(ParseResult parseResult) {
-		configureLogging();
-		return new RunLast().execute(parseResult); // default execution strategy
+		return execute(new RunLast(), parseResult); // default execution strategy
 	}
 
 	private int executionStragegyRunFirst(ParseResult parseResult) {
+		return execute(new RunFirst(), parseResult);
+	}
+
+	private int execute(IExecutionStrategy strategy, ParseResult parseResult) {
 		configureLogging();
-		return new RunFirst().execute(parseResult);
+		log.debug("Running {} {} with {}", parseResult.commandSpec().name(), ManifestVersionProvider.getVersionString(),
+				parseResult.originalArgs());
+		return strategy.execute(parseResult);
 	}
 
 	protected void configureLogging() {
@@ -59,7 +68,8 @@ public class RiotApp extends HelpCommand {
 		handler.setFormatter(loggingOptions.isStacktrace() ? new StackTraceOneLineLogFormat() : new OneLineLogFormat());
 		activeLogger.addHandler(handler);
 		Logger.getLogger(ROOT_LOGGER).setLevel(loggingOptions.getLevel());
-		Logger.getLogger("com.redis").setLevel(loggingOptions.getRiotLevel());
+		Logger.getLogger("com.redis.riot").setLevel(loggingOptions.getRiotLevel());
+		Logger.getLogger("com.redis.spring.batch").setLevel(loggingOptions.getRiotLevel());
 	}
 
 	public int execute(String... args) {
