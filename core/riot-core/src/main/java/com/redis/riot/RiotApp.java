@@ -67,9 +67,60 @@ public class RiotApp extends HelpCommand {
 		handler.setLevel(Level.ALL);
 		handler.setFormatter(loggingOptions.isStacktrace() ? new StackTraceOneLineLogFormat() : new OneLineLogFormat());
 		activeLogger.addHandler(handler);
-		Logger.getLogger(ROOT_LOGGER).setLevel(loggingOptions.getLevel());
-		Logger.getLogger("com.redis.riot").setLevel(loggingOptions.getRiotLevel());
-		Logger.getLogger("com.redis.spring.batch").setLevel(loggingOptions.getRiotLevel());
+		Logger.getLogger(ROOT_LOGGER).setLevel(getLogLevel());
+		Logger.getLogger("com.redis.riot").setLevel(getRiotLogLevel());
+		Logger.getLogger("com.redis.spring.batch").setLevel(getRiotLogLevel());
+		Logger.getLogger("org.springframework.batch.core.step.item.ChunkMonitor").setLevel(getSpringLevel());
+		Logger.getLogger("org.springframework.batch.core.step.builder.FaultTolerantStepBuilder")
+				.setLevel(getSpringLevel());
+	}
+
+	private Level getSpringLevel() {
+		if (loggingOptions.isDebug()) {
+			return Level.INFO;
+		}
+		if (loggingOptions.isInfo()) {
+			return Level.WARNING;
+		}
+		if (loggingOptions.isWarning()) {
+			return Level.SEVERE;
+		}
+		if (loggingOptions.isQuiet()) {
+			return Level.OFF;
+		}
+		return Level.SEVERE;
+	}
+
+	private Level getLogLevel() {
+		if (loggingOptions.isDebug()) {
+			return Level.FINE;
+		}
+		if (loggingOptions.isInfo()) {
+			return Level.INFO;
+		}
+		if (loggingOptions.isWarning()) {
+			return Level.SEVERE;
+		}
+		if (loggingOptions.isQuiet()) {
+			return Level.OFF;
+		}
+		return Level.WARNING;
+	}
+
+	private Level getRiotLogLevel() {
+		if (loggingOptions.isDebug()) {
+			return Level.FINEST;
+		}
+		if (loggingOptions.isInfo()) {
+			return Level.FINE;
+		}
+		if (loggingOptions.isWarning()) {
+			return Level.WARNING;
+		}
+		if (loggingOptions.isQuiet()) {
+			return Level.SEVERE;
+		}
+		return Level.INFO;
 	}
 
 	public int execute(String... args) {

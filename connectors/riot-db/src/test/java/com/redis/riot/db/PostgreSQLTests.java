@@ -27,7 +27,8 @@ import org.testcontainers.utility.DockerImageName;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.redis.lettucemod.api.sync.RedisModulesCommands;
-import com.redis.spring.batch.generator.Generator.Type;
+import com.redis.spring.batch.DataStructure.Type;
+import com.redis.spring.batch.support.RandomDataStructureItemReader;
 import com.redis.testcontainers.junit.RedisTestContext;
 import com.redis.testcontainers.junit.RedisTestContextsSource;
 
@@ -74,7 +75,7 @@ public class PostgreSQLTests extends AbstractDatabaseTests {
 		try (Statement statement = connection.createStatement()) {
 			statement.execute("CREATE TABLE mytable (id smallint NOT NULL, field1 bpchar, field2 bpchar)");
 			statement.execute("ALTER TABLE ONLY mytable ADD CONSTRAINT pk_mytable PRIMARY KEY (id)");
-			generator(redis, "postgre-export").type(Type.HASH).build().call();
+			generate(RandomDataStructureItemReader.builder().types(Type.HASH).build(), redis);
 			execute("export-postgresql", redis, r -> configureExportCommand(r, POSTGRESQL));
 			statement.execute("SELECT COUNT(*) AS count FROM mytable");
 			ResultSet countResultSet = statement.getResultSet();
@@ -102,10 +103,10 @@ public class PostgreSQLTests extends AbstractDatabaseTests {
 			Map<String, String> hash1 = new HashMap<>();
 			hash1.put("field1", "value1");
 			hash1.put("field2", "value2");
-			sync.hmset("hash:1", hash1);
+			sync.hmset("generated:1", hash1);
 			Map<String, String> hash2 = new HashMap<>();
 			hash2.put("field2", "value2");
-			sync.hmset("hash:2", hash2);
+			sync.hmset("generated:2", hash2);
 			execute("export-postgresql", redis, r -> configureExportCommand(r, POSTGRESQL));
 			statement.execute("SELECT COUNT(*) AS count FROM mytable");
 			ResultSet countResultSet = statement.getResultSet();

@@ -99,7 +99,7 @@ public class MapProcessorOptions {
 		if (!ObjectUtils.isEmpty(filters)) {
 			processors.add(new FilteringProcessor(filters));
 		}
-		return CompositeItemStreamItemProcessor.delegates(processors);
+		return CompositeItemStreamItemProcessor.delegates(processors.toArray(ItemProcessor[]::new));
 	}
 
 	private EvaluationContext context() {

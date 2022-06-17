@@ -1,8 +1,11 @@
 package com.redis.riot;
 
+import java.time.Duration;
+
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 
-import com.redis.spring.batch.writer.AbstractRedisItemWriterBuilder;
+import com.redis.spring.batch.RedisItemWriter;
+import com.redis.spring.batch.RedisItemWriter.WaitForReplication;
 
 import io.lettuce.core.api.StatefulConnection;
 import picocli.CommandLine.Option;
@@ -50,9 +53,10 @@ public class RedisWriterOptions {
 		this.poolMaxTotal = poolMaxTotal;
 	}
 
-	public <K, V, B extends AbstractRedisItemWriterBuilder<K, V, ?, B>> B configureWriter(B writer) {
+	public <K, V, B extends RedisItemWriter.AbstractBuilder<K, V, ?, B>> B configureWriter(B writer) {
 		if (waitReplicas > 0) {
-			writer.waitForReplication(waitReplicas, waitTimeout);
+			writer.waitForReplication(WaitForReplication.builder().replicas(waitReplicas)
+					.timeout(Duration.ofMillis(waitTimeout)).build());
 		}
 		if (multiExec) {
 			writer.multiExec();

@@ -1,6 +1,5 @@
 package com.redis.riot.processor;
 
-import org.springframework.batch.item.ItemProcessor;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 
@@ -9,7 +8,7 @@ import com.redis.spring.batch.KeyValue;
 import io.lettuce.core.codec.ByteArrayCodec;
 import io.lettuce.core.codec.StringCodec;
 
-public class KeyValueKeyProcessor<T extends KeyValue<byte[], ?>> implements ItemProcessor<T, T> {
+public class KeyValueKeyProcessor<T extends KeyValue<byte[], ?>> extends AbstractKeyValueProcessor<T> {
 
 	private final Expression expression;
 	private final EvaluationContext context;
@@ -20,12 +19,9 @@ public class KeyValueKeyProcessor<T extends KeyValue<byte[], ?>> implements Item
 	}
 
 	@Override
-	public T process(T item) {
-		KeyValue<String, ?> stringKeyValue = new KeyValue<>(
-				StringCodec.UTF8.decodeKey(ByteArrayCodec.INSTANCE.encodeKey(item.getKey())), item.getValue());
-		String newKey = expression.getValue(context, stringKeyValue, String.class);
-		item.setKey(ByteArrayCodec.INSTANCE.decodeKey(StringCodec.UTF8.encodeKey(newKey)));
-		return item;
+	protected void process(T item, KeyValue<String, Object> kv) {
+		String key = expression.getValue(context, kv, String.class);
+		item.setKey(ByteArrayCodec.INSTANCE.decodeKey(StringCodec.UTF8.encodeKey(key)));
 	}
 
 }

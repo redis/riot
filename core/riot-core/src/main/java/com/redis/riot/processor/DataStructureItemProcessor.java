@@ -14,6 +14,7 @@ import com.redis.riot.convert.StreamToStringMapConverter;
 import com.redis.riot.convert.StringToStringMapConverter;
 import com.redis.riot.convert.ZsetToStringMapConverter;
 import com.redis.spring.batch.DataStructure;
+import com.redis.spring.batch.DataStructure.Type;
 
 import io.lettuce.core.ScoredValue;
 import io.lettuce.core.StreamMessage;
@@ -83,21 +84,18 @@ public class DataStructureItemProcessor implements ItemProcessor<DataStructure<S
 
 	@SuppressWarnings("unchecked")
 	private Map<String, String> map(DataStructure<String> item) {
-		if (item.getType() == null) {
-			throw new IllegalArgumentException("DataStructure type is null");
-		}
-		switch (item.getType().toLowerCase()) {
-		case DataStructure.TYPE_HASH:
+		switch (Type.of(item.getType())) {
+		case HASH:
 			return hashConverter.convert((Map<String, String>) item.getValue());
-		case DataStructure.TYPE_LIST:
+		case LIST:
 			return listConverter.convert((List<String>) item.getValue());
-		case DataStructure.TYPE_SET:
+		case SET:
 			return setConverter.convert((Set<String>) item.getValue());
-		case DataStructure.TYPE_ZSET:
+		case ZSET:
 			return zsetConverter.convert((List<ScoredValue<String>>) item.getValue());
-		case DataStructure.TYPE_STREAM:
+		case STREAM:
 			return streamConverter.convert((List<StreamMessage<String, String>>) item.getValue());
-		case DataStructure.TYPE_STRING:
+		case STRING:
 			return stringConverter.convert((String) item.getValue());
 		default:
 			return defaultConverter.convert(item.getValue());

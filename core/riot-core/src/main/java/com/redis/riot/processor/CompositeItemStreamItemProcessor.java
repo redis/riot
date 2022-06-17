@@ -1,5 +1,6 @@
 package com.redis.riot.processor;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -46,15 +47,16 @@ public class CompositeItemStreamItemProcessor<I, O> extends CompositeItemProcess
 		this.delegates = delegates;
 	}
 
-	public static <I, O> Optional<ItemProcessor<I, O>> delegates(List<? extends ItemProcessor<I, O>> delegates) {
-		if (delegates.isEmpty()) {
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public static <I, O> Optional<ItemProcessor<I, O>> delegates(ItemProcessor... delegates) {
+		if (delegates.length == 0) {
 			return Optional.empty();
 		}
-		if (delegates.size() == 1) {
-			return Optional.of(delegates.get(0));
+		if (delegates.length == 1) {
+			return Optional.of(delegates[0]);
 		}
 		CompositeItemStreamItemProcessor<I, O> processor = new CompositeItemStreamItemProcessor<>();
-		processor.setDelegates(delegates);
+		processor.setDelegates((List) Arrays.asList(delegates));
 		return Optional.of(processor);
 	}
 

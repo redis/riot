@@ -8,7 +8,6 @@ import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.listener.JobExecutionListenerSupport;
 import org.springframework.util.ClassUtils;
 
-import com.redis.spring.batch.support.JobRepositoryBuilder;
 import com.redis.spring.batch.support.JobRunner;
 
 import picocli.CommandLine.Command;
@@ -36,10 +35,7 @@ public abstract class AbstractRiotCommand extends HelpCommand implements Callabl
 
 	protected JobRunner getJobRunner() throws Exception {
 		if (jobRunner == null) {
-			@SuppressWarnings("deprecation")
-			org.springframework.batch.core.repository.support.MapJobRepositoryFactoryBean bean = new org.springframework.batch.core.repository.support.MapJobRepositoryFactoryBean();
-			bean.afterPropertiesSet();
-			this.jobRunner = new JobRunner(bean.getObject(), bean.getTransactionManager());
+			jobRunner = JobRunner.inMemory();
 		}
 		return jobRunner;
 	}
@@ -77,11 +73,6 @@ public abstract class AbstractRiotCommand extends HelpCommand implements Callabl
 			return ClassUtils.getShortName(getClass());
 		}
 		return commandSpec.name();
-	}
-
-	protected <K, V, B extends JobRepositoryBuilder<K, V, B>> B configureJobRepository(B builder) throws Exception {
-		JobRunner runner = getJobRunner();
-		return (B) builder.jobRepository(runner.getJobRepository()).transactionManager(runner.getTransactionManager());
 	}
 
 }

@@ -304,7 +304,5 @@ public class RedisOptions {
 				+ ", truststorePassword=" + truststorePassword + ", cert=" + cert + ", showMetrics=" + showMetrics
 				+ ", autoReconnect=" + autoReconnect + ", clientName=" + clientName + "]";
 	}
-	
-	
 
 }

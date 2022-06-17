@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.job.builder.JobBuilder;
-import org.springframework.batch.core.step.builder.FaultTolerantStepBuilder;
 import org.springframework.batch.core.step.tasklet.TaskletStep;
 import org.springframework.batch.item.ItemReader;
 
@@ -18,25 +17,29 @@ import com.redis.lettucemod.api.sync.RediSearchCommands;
 import com.redis.lettucemod.search.Field;
 import com.redis.lettucemod.search.IndexInfo;
 import com.redis.riot.AbstractImportCommand;
-import com.redis.riot.RiotStep;
 
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
-@Command(name = "import", description = "Import generated data using the Spring Expression Language (SpEL)")
-public class GeneratorImportCommand extends AbstractImportCommand {
+@Command(name = "faker", description = "Import Faker data using the Spring Expression Language (SpEL)")
+public class FakerGeneratorCommand extends AbstractImportCommand {
 
-	private static final Logger log = LoggerFactory.getLogger(GeneratorImportCommand.class);
+	private static final Logger log = LoggerFactory.getLogger(FakerGeneratorCommand.class);
 
-	private static final String NAME = "generator-import";
+	private static final String NAME = "faker-import";
 
 	@CommandLine.Mixin
-	private GenerateOptions options = new GenerateOptions();
+	private FakerGeneratorOptions options = new FakerGeneratorOptions();
 
 	@Override
 	protected Job job(JobBuilder jobBuilder) throws Exception {
 		TaskletStep step = step(NAME, "Generating", reader()).build();
 		return jobBuilder.start(step).build();
+	}
+
+	@Override
+	protected Long initialMax() {
+		return (long) options.getEnd() - options.getStart();
 	}
 
 	private ItemReader<Map<String, Object>> reader() {
@@ -51,9 +54,9 @@ public class GeneratorImportCommand extends AbstractImportCommand {
 	}
 
 	private Generator<Map<String, Object>> generator() {
-		Map<String, String> fakerFields = options.getFakerFields();
+		Map<String, String> fakerFields = options.getFields();
 		Map<String, String> fields = fakerFields == null ? new LinkedHashMap<>() : new LinkedHashMap<>(fakerFields);
-		Optional<String> fakerIndex = options.getFakerIndex();
+		Optional<String> fakerIndex = options.getRedisearchIndex();
 		fakerIndex.ifPresent(i -> fields.putAll(fieldsFromIndex(i)));
 		MapGenerator generator = MapGenerator.builder().locale(options.getLocale()).fields(fields).build();
 		if (options.isIncludeMetadata()) {
@@ -85,12 +88,6 @@ public class GeneratorImportCommand extends AbstractImportCommand {
 			}
 		}
 		return fields;
-	}
-
-	@Override
-	public <I, O> FaultTolerantStepBuilder<I, O> step(RiotStep<I, O> riotStep) throws Exception {
-		riotStep.setInitialMax(() -> options.getEnd() - options.getStart());
-		return super.step(riotStep);
 	}
 
 }

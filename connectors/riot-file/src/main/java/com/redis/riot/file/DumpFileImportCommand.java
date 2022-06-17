@@ -6,7 +6,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +13,6 @@ import org.springframework.batch.core.Job;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.job.builder.SimpleJobBuilder;
 import org.springframework.batch.core.step.tasklet.TaskletStep;
-import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.json.JsonItemReader;
 import org.springframework.batch.item.support.AbstractItemStreamItemReader;
@@ -28,6 +26,7 @@ import com.redis.riot.RedisWriterOptions;
 import com.redis.riot.RiotStep;
 import com.redis.riot.file.resource.XmlItemReader;
 import com.redis.spring.batch.DataStructure;
+import com.redis.spring.batch.DataStructure.Type;
 import com.redis.spring.batch.RedisItemWriter;
 import com.redis.spring.batch.RedisItemWriter.DataStructureBuilder;
 
@@ -87,17 +86,15 @@ public class DumpFileImportCommand extends AbstractTransferCommand {
 		Resource resource = options.inputResource(file);
 		AbstractItemStreamItemReader<DataStructure<String>> reader = reader(fileType, resource);
 		reader.setName(file + "-" + NAME + "-reader");
-		RiotStep.Builder<DataStructure<String>, DataStructure<String>> step = RiotStep.builder();
-		step.name(file + "-" + NAME).taskName("Importing " + file);
-		Optional<ItemProcessor<DataStructure<String>, DataStructure<String>>> processor = Optional
-				.of(this::processDataStructure);
-		return step(step.reader(reader).processor(processor).writer(writer()).build()).build();
+		return step(RiotStep.reader(reader).writer(writer()).name(file + "-" + NAME).taskName("Importing " + file)
+				.processor(this::processDataStructure).build()).build();
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "incomplete-switch" })
 	private DataStructure<String> processDataStructure(DataStructure<String> item) {
 		if (item.getType() != null) {
-			if (item.getType().equalsIgnoreCase(DataStructure.TYPE_ZSET)) {
+			switch (Type.of(item.getType())) {
+			case ZSET:
 				Collection<Map<String, Object>> zset = (Collection<Map<String, Object>>) item.getValue();
 				Collection<ScoredValue<String>> values = new ArrayList<>(zset.size());
 				for (Map<String, Object> map : zset) {
@@ -106,7 +103,8 @@ public class DumpFileImportCommand extends AbstractTransferCommand {
 					values.add((ScoredValue<String>) ScoredValue.fromNullable(score, value));
 				}
 				item.setValue(values);
-			} else if (item.getType().equalsIgnoreCase(DataStructure.TYPE_STREAM)) {
+				break;
+			case STREAM:
 				Collection<Map<String, Object>> stream = (Collection<Map<String, Object>>) item.getValue();
 				Collection<StreamMessage<String, String>> messages = new ArrayList<>(stream.size());
 				for (Map<String, Object> message : stream) {
@@ -114,6 +112,7 @@ public class DumpFileImportCommand extends AbstractTransferCommand {
 							(Map<String, String>) message.get("body")));
 				}
 				item.setValue(messages);
+				break;
 			}
 		}
 		return item;
@@ -124,10 +123,7 @@ public class DumpFileImportCommand extends AbstractTransferCommand {
 	}
 
 	private DataStructureBuilder<String, String> dataStructureWriter(RedisOptions options) {
-		if (options.isCluster()) {
-			return RedisItemWriter.client(options.redisModulesClusterClient()).dataStructure();
-		}
-		return RedisItemWriter.client(options.redisModulesClient()).dataStructure();
+		return RedisItemWriter.client(options.client()).string().dataStructure();
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })

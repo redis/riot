@@ -3,11 +3,9 @@ package com.redis.riot;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.batch.core.step.builder.FaultTolerantStepBuilder;
-import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.support.CompositeItemWriter;
@@ -26,7 +24,7 @@ import com.redis.riot.redis.SetCommand;
 import com.redis.riot.redis.SugaddCommand;
 import com.redis.riot.redis.XaddCommand;
 import com.redis.riot.redis.ZaddCommand;
-import com.redis.spring.batch.RedisItemWriter.Builder;
+import com.redis.spring.batch.RedisItemWriter;
 import com.redis.spring.batch.writer.RedisOperation;
 
 import io.lettuce.core.codec.StringCodec;
@@ -61,11 +59,12 @@ public abstract class AbstractImportCommand extends AbstractTransferCommand {
 
 	protected FaultTolerantStepBuilder<Map<String, Object>, Map<String, Object>> step(String name, String taskName,
 			ItemReader<Map<String, Object>> reader) throws Exception {
-		RiotStep.Builder<Map<String, Object>, Map<String, Object>> step = RiotStep.builder();
-		step.name(name).taskName(taskName);
-		Optional<ItemProcessor<Map<String, Object>, Map<String, Object>>> processor = processorOptions
-				.processor(getRedisOptions());
-		return step(step.reader(reader).processor(processor).writer(writer()).build());
+		return step(RiotStep.reader(reader).writer(writer()).processor(processorOptions.processor(getRedisOptions()))
+				.name(name).taskName(taskName).max(this::initialMax).build());
+	}
+
+	protected Long initialMax() {
+		return null;
 	}
 
 	private ItemWriter<Map<String, Object>> writer() {
@@ -83,7 +82,7 @@ public abstract class AbstractImportCommand extends AbstractTransferCommand {
 		return writerOptions.configureWriter(writer(command.operation())).build();
 	}
 
-	private Builder<String, String, Map<String, Object>> writer(
+	private RedisItemWriter.Builder<String, String, Map<String, Object>> writer(
 			RedisOperation<String, String, Map<String, Object>> operation) {
 		return writer(getRedisOptions(), StringCodec.UTF8).operation(operation);
 	}

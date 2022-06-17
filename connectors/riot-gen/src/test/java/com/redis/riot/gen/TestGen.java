@@ -51,7 +51,7 @@ class TestGen extends AbstractRiotIntegrationTests {
 	@ParameterizedTest
 	@RedisTestContextsSource
 	void genFakerHash(RedisTestContext redis) throws Exception {
-		execute("import-hset", redis);
+		execute("faker-hset", redis);
 		RedisKeyCommands<String, String> sync = redis.sync();
 		List<String> keys = sync.keys("person:*");
 		Assertions.assertEquals(1000, keys.size());
@@ -64,7 +64,7 @@ class TestGen extends AbstractRiotIntegrationTests {
 	@ParameterizedTest
 	@RedisTestContextsSource
 	void genFakerSet(RedisTestContext redis) throws Exception {
-		execute("import-sadd", redis);
+		execute("faker-sadd", redis);
 		RedisSetCommands<String, String> sync = redis.sync();
 		Set<String> names = sync.smembers("got:characters");
 		Assertions.assertTrue(names.size() > 10);
@@ -76,7 +76,7 @@ class TestGen extends AbstractRiotIntegrationTests {
 	@ParameterizedTest
 	@RedisTestContextsSource
 	void genFakerZset(RedisTestContext redis) throws Exception {
-		execute("import-zadd", redis);
+		execute("faker-zadd", redis);
 		RedisKeyCommands<String, String> sync = redis.sync();
 		List<String> keys = sync.keys("leases:*");
 		Assertions.assertTrue(keys.size() > 100);
@@ -87,7 +87,7 @@ class TestGen extends AbstractRiotIntegrationTests {
 	@ParameterizedTest
 	@RedisTestContextsSource
 	void genFakerStream(RedisTestContext redis) throws Exception {
-		execute("import-xadd", redis);
+		execute("faker-xadd", redis);
 		RedisStreamCommands<String, String> sync = redis.sync();
 		List<StreamMessage<String, String>> messages = sync.xrange("teststream:1", Range.unbounded());
 		Assertions.assertTrue(messages.size() > 0);
@@ -107,7 +107,7 @@ class TestGen extends AbstractRiotIntegrationTests {
 				Field.tag(FIELD_ID).sortable().build(), Field.text(FIELD_NAME).sortable().build(),
 				Field.text(FIELD_STYLE).matcher(PhoneticMatcher.ENGLISH).sortable().build(),
 				Field.numeric(FIELD_ABV).sortable().build(), Field.numeric(FIELD_OUNCES).sortable().build());
-		execute("import-infer", redismod);
+		execute("faker-infer", redismod);
 		SearchResults<String, String> results = redismod.sync().search(INDEX, "*");
 		Assertions.assertEquals(1000, results.getCount());
 		Document<String, String> doc1 = results.get(0);

@@ -20,14 +20,13 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import com.redis.riot.TransferOptions.Progress;
 import com.redis.spring.batch.RedisItemReader;
-import com.redis.spring.batch.RedisItemReader.Builder;
+import com.redis.spring.batch.RedisItemReader.TypeBuilder;
 import com.redis.spring.batch.RedisItemWriter;
 import com.redis.spring.batch.RedisItemWriter.OperationBuilder;
 import com.redis.spring.batch.RedisScanSizeEstimator;
 import com.redis.spring.batch.reader.PollableItemReader;
 
 import io.lettuce.core.codec.RedisCodec;
-import io.lettuce.core.codec.StringCodec;
 import picocli.CommandLine;
 
 public abstract class AbstractTransferCommand extends AbstractRiotCommand {
@@ -37,30 +36,20 @@ public abstract class AbstractTransferCommand extends AbstractRiotCommand {
 	@CommandLine.Mixin
 	protected TransferOptions transferOptions = new TransferOptions();
 
-	protected Builder<String, String> stringReader(RedisOptions redisOptions) {
-		return reader(redisOptions, StringCodec.UTF8);
+	protected TypeBuilder<String, String> stringReader(RedisOptions redisOptions) {
+		return RedisItemReader.client(redisOptions.client()).string();
 	}
 
-	protected <K, V> Builder<K, V> reader(RedisOptions redisOptions, RedisCodec<K, V> codec) {
-		if (redisOptions.isCluster()) {
-			return RedisItemReader.client(redisOptions.redisModulesClusterClient(), codec);
-		}
-		return RedisItemReader.client(redisOptions.redisModulesClient(), codec);
+	protected <K, V> TypeBuilder<K, V> reader(RedisOptions redisOptions, RedisCodec<K, V> codec) {
+		return RedisItemReader.client(redisOptions.client()).codec(codec);
 	}
 
 	protected <K, V> OperationBuilder<K, V> writer(RedisOptions redisOptions, RedisCodec<K, V> codec) {
-		if (redisOptions.isCluster()) {
-			return RedisItemWriter.client(redisOptions.redisModulesClusterClient(), codec);
-		}
-		return RedisItemWriter.client(redisOptions.redisModulesClient(), codec);
+		return RedisItemWriter.client(redisOptions.client()).codec(codec);
 	}
 
 	protected RedisScanSizeEstimator.Builder estimator() {
-		RedisOptions redisOptions = getRedisOptions();
-		if (redisOptions.isCluster()) {
-			return RedisScanSizeEstimator.client(redisOptions.redisModulesClusterClient());
-		}
-		return RedisScanSizeEstimator.client(redisOptions.redisModulesClient());
+		return RedisScanSizeEstimator.client(getRedisOptions().client());
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -72,9 +61,9 @@ public abstract class AbstractTransferCommand extends AbstractRiotCommand {
 			ProgressMonitor.ProgressMonitorBuilder monitorBuilder = ProgressMonitor.builder();
 			monitorBuilder.style(transferOptions.getProgress());
 			monitorBuilder.taskName(riotStep.getTaskName());
-			monitorBuilder.initialMax(riotStep.getInitialMax());
+			monitorBuilder.initialMax(riotStep.getMax());
 			monitorBuilder.updateInterval(Duration.ofMillis(transferOptions.getProgressUpdateIntervalMillis()));
-			monitorBuilder.extraMessage(riotStep.getExtraMessage());
+			monitorBuilder.extraMessage(riotStep.getMessage());
 			ProgressMonitor monitor = monitorBuilder.build();
 			step.listener((StepExecutionListener) monitor);
 			step.listener((ItemWriteListener) monitor);

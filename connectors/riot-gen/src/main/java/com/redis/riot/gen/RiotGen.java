@@ -4,7 +4,8 @@ import com.redis.riot.RiotApp;
 
 import picocli.CommandLine.Command;
 
-@Command(name = "riot-gen", subcommands = { GeneratorImportCommand.class, FakerHelpCommand.class })
+@Command(name = "riot-gen", subcommands = { FakerGeneratorCommand.class, FakerHelpCommand.class,
+		DataStructureGeneratorCommand.class })
 public class RiotGen extends RiotApp {
 
 	public static void main(String[] args) {

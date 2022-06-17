@@ -36,6 +36,7 @@ import com.redis.riot.file.resource.XmlItemReaderBuilder;
 import com.redis.riot.file.resource.XmlObjectReader;
 import com.redis.riot.redis.HsetCommand;
 import com.redis.spring.batch.DataStructure;
+import com.redis.spring.batch.DataStructure.Type;
 import com.redis.testcontainers.junit.RedisTestContext;
 import com.redis.testcontainers.junit.RedisTestContextsSource;
 
@@ -299,7 +300,7 @@ public class RiotFileIntegrationTests extends AbstractRiotIntegrationTests {
 	@ParameterizedTest
 	@RedisTestContextsSource
 	void importDump(RedisTestContext redis) throws Exception {
-		List<DataStructure> records = exportToList("import-dump", redis);
+		List<DataStructure> records = exportToList(redis);
 		RedisServerCommands<String, String> sync = redis.sync();
 		sync.flushall();
 		execute("import-dump", redis, this::configureDumpFileImportCommand);
@@ -353,7 +354,7 @@ public class RiotFileIntegrationTests extends AbstractRiotIntegrationTests {
 	@ParameterizedTest
 	@RedisTestContextsSource
 	void exportJSON(RedisTestContext redis) throws Exception {
-		List<DataStructure> records = exportToList("export-json", redis);
+		List<DataStructure> records = exportToList(redis);
 		RedisServerCommands<String, String> sync = redis.sync();
 		Assertions.assertEquals(sync.dbsize(), records.size());
 	}
@@ -380,9 +381,9 @@ public class RiotFileIntegrationTests extends AbstractRiotIntegrationTests {
 	}
 
 	@SuppressWarnings("rawtypes")
-	private List<DataStructure> exportToList(String name, RedisTestContext redis) throws Exception {
+	private List<DataStructure> exportToList(RedisTestContext redis) throws Exception {
 		Path file = tempFile("redis.json");
-		generator(redis, name).build().call();
+		generate(redis);
 		execute("export-json", redis, this::configureExportCommand);
 		JsonItemReaderBuilder<DataStructure> builder = new JsonItemReaderBuilder<>();
 		builder.name("json-data-structure-file-reader");
@@ -398,7 +399,7 @@ public class RiotFileIntegrationTests extends AbstractRiotIntegrationTests {
 	@ParameterizedTest
 	@RedisTestContextsSource
 	void exportXml(RedisTestContext redis) throws Exception {
-		generator(redis, "file-export-xml").build().call();
+		generate(redis);
 		Path file = tempFile("redis.xml");
 		execute("export-xml", redis, this::configureExportCommand);
 		XmlItemReaderBuilder<DataStructure> builder = new XmlItemReaderBuilder<>();
@@ -413,11 +414,11 @@ public class RiotFileIntegrationTests extends AbstractRiotIntegrationTests {
 		Assertions.assertEquals(sync.dbsize(), records.size());
 		for (DataStructure<String> record : records) {
 			String key = record.getKey();
-			switch (record.getType()) {
-			case DataStructure.TYPE_HASH:
+			switch (Type.of(record.getType())) {
+			case HASH:
 				Assertions.assertEquals(record.getValue(), sync.hgetall(key));
 				break;
-			case DataStructure.TYPE_STRING:
+			case STRING:
 				Assertions.assertEquals(record.getValue(), sync.get(key));
 				break;
 			default:

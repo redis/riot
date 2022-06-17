@@ -1,6 +1,7 @@
 package com.redis.riot;
 
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Supplier;
 
 import org.springframework.batch.item.ItemProcessor;
@@ -10,13 +11,13 @@ import org.springframework.util.Assert;
 
 public class RiotStep<I, O> {
 
-	private String name;
-	private String taskName;
-	private ItemReader<I> reader;
-	private Optional<ItemProcessor<I, O>> processor = Optional.empty();
-	private ItemWriter<O> writer;
-	private Optional<Supplier<String>> extraMessage = Optional.empty();
-	private Optional<Supplier<Long>> initialMax = Optional.empty();
+	private final String name;
+	private final String taskName;
+	private final ItemReader<I> reader;
+	private final Optional<ItemProcessor<I, O>> processor;
+	private final ItemWriter<O> writer;
+	private final Optional<Supplier<String>> message;
+	private final Optional<Supplier<Long>> max;
 
 	private RiotStep(Builder<I, O> builder) {
 		this.name = builder.name;
@@ -24,8 +25,8 @@ public class RiotStep<I, O> {
 		this.reader = builder.reader;
 		this.processor = builder.processor;
 		this.writer = builder.writer;
-		this.extraMessage = builder.extraMessage;
-		this.initialMax = builder.initialMax;
+		this.message = builder.message;
+		this.max = builder.max;
 	}
 
 	public String getName() {
@@ -36,16 +37,8 @@ public class RiotStep<I, O> {
 		return taskName;
 	}
 
-	public void setTaskName(String taskName) {
-		this.taskName = taskName;
-	}
-
 	public ItemReader<I> getReader() {
 		return reader;
-	}
-
-	public void setReader(ItemReader<I> reader) {
-		this.reader = reader;
 	}
 
 	public Optional<ItemProcessor<I, O>> getProcessor() {
@@ -56,44 +49,42 @@ public class RiotStep<I, O> {
 		return writer;
 	}
 
-	public void setWriter(ItemWriter<O> writer) {
-		this.writer = writer;
+	public Optional<Supplier<String>> getMessage() {
+		return message;
 	}
 
-	public Optional<Supplier<String>> getExtraMessage() {
-		return extraMessage;
+	public Optional<Supplier<Long>> getMax() {
+		return max;
 	}
 
-	public void setExtraMessage(Optional<Supplier<String>> extraMessage) {
-		this.extraMessage = extraMessage;
+	public static <I> WriterBuilder<I> reader(ItemReader<I> reader) {
+		return new WriterBuilder<>(reader);
 	}
 
-	public Optional<Supplier<Long>> getInitialMax() {
-		return initialMax;
-	}
+	public static class WriterBuilder<I> {
+		private final ItemReader<I> reader;
 
-	public void setInitialMax(Supplier<Long> initialMax) {
-		this.initialMax = Optional.of(initialMax);
-	}
+		public WriterBuilder(ItemReader<I> reader) {
+			this.reader = reader;
+		}
 
-	public void setInitialMax(Optional<Supplier<Long>> initialMax) {
-		this.initialMax = initialMax;
-	}
-
-	public static <I, O> Builder<I, O> builder() {
-		return new Builder<>();
+		public <O> Builder<I, O> writer(ItemWriter<O> writer) {
+			return new Builder<>(reader, writer);
+		}
 	}
 
 	public static final class Builder<I, O> {
-		private String name;
+		private final ItemReader<I> reader;
+		private final ItemWriter<O> writer;
+		private String name = UUID.randomUUID().toString();
 		private String taskName;
-		private ItemReader<I> reader;
 		private Optional<ItemProcessor<I, O>> processor = Optional.empty();
-		private ItemWriter<O> writer;
-		private Optional<Supplier<String>> extraMessage = Optional.empty();
-		private Optional<Supplier<Long>> initialMax = Optional.empty();
+		private Optional<Supplier<String>> message = Optional.empty();
+		private Optional<Supplier<Long>> max = Optional.empty();
 
-		private Builder() {
+		public Builder(ItemReader<I> reader, ItemWriter<O> writer) {
+			this.reader = reader;
+			this.writer = writer;
 		}
 
 		public Builder<I, O> name(String name) {
@@ -103,11 +94,6 @@ public class RiotStep<I, O> {
 
 		public Builder<I, O> taskName(String taskName) {
 			this.taskName = taskName;
-			return this;
-		}
-
-		public Builder<I, O> reader(ItemReader<I> reader) {
-			this.reader = reader;
 			return this;
 		}
 
@@ -122,20 +108,15 @@ public class RiotStep<I, O> {
 			return this;
 		}
 
-		public Builder<I, O> writer(ItemWriter<O> writer) {
-			this.writer = writer;
+		public Builder<I, O> message(Supplier<String> message) {
+			Assert.notNull(message, "Extra message supplier must not be null");
+			this.message = Optional.of(message);
 			return this;
 		}
 
-		public Builder<I, O> extraMessage(Supplier<String> extraMessage) {
-			Assert.notNull(extraMessage, "Extra message supplier must not be null");
-			this.extraMessage = Optional.of(extraMessage);
-			return this;
-		}
-
-		public Builder<I, O> initialMax(Supplier<Long> initialMax) {
-			Assert.notNull(initialMax, "Initial max must not be null");
-			this.initialMax = Optional.of(initialMax);
+		public Builder<I, O> max(Supplier<Long> max) {
+			Assert.notNull(max, "Initial max must not be null");
+			this.max = Optional.of(max);
 			return this;
 		}
 

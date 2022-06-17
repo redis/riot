@@ -1,5 +1,6 @@
 package com.redis.riot.redis;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -13,17 +14,28 @@ import org.springframework.batch.core.job.builder.JobFlowBuilder;
 import org.springframework.batch.core.job.builder.SimpleJobBuilder;
 import org.springframework.batch.core.job.flow.support.SimpleFlow;
 import org.springframework.batch.core.step.tasklet.TaskletStep;
+import org.springframework.batch.item.ItemProcessor;
+import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
+import org.springframework.expression.EvaluationContext;
+import org.springframework.expression.common.TemplateParserContext;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
 
 import com.redis.riot.FlushingTransferOptions;
 import com.redis.riot.KeyValueProcessorOptions;
 import com.redis.riot.RedisWriterOptions;
 import com.redis.riot.RiotStep;
+import com.redis.riot.RiotStep.Builder;
+import com.redis.riot.processor.CompositeItemStreamItemProcessor;
+import com.redis.riot.processor.KeyValueKeyProcessor;
+import com.redis.riot.processor.KeyValueTTLProcessor;
+import com.redis.spring.batch.KeyValue;
 import com.redis.spring.batch.RedisItemReader;
 import com.redis.spring.batch.RedisItemWriter.OperationBuilder;
-import com.redis.spring.batch.reader.ScanRedisItemReaderBuilder;
 
+import io.lettuce.core.XAddArgs;
 import io.lettuce.core.codec.ByteArrayCodec;
 import picocli.CommandLine;
 import picocli.CommandLine.ArgGroup;
@@ -99,17 +111,32 @@ public class ReplicateCommand extends AbstractTargetCommand {
 		return Optional.empty();
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private TaskletStep scanStep() throws Exception {
-		RiotStep.Builder riotStep = RiotStep.builder().name("scan-replication-step").taskName("Scanning");
 		RedisItemReader<byte[], ?> reader = reader().build();
 		reader.setName("redis-scan-reader");
-		riotStep.reader(reader);
-		initialMax(riotStep);
-		return step(configure(riotStep).build()).build();
+		return step(riotStep(reader).name("scan-replication-step").taskName("Scanning").max(this::initialMax).build())
+				.build();
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private <T extends KeyValue<byte[], ?>> Builder<T, T> riotStep(ItemReader<T> reader) {
+		ItemWriter<T> writer = writer();
+		return RiotStep.reader(reader).writer(writer).processor(processor());
+	}
+
+	private <T extends KeyValue<byte[], ?>> Optional<ItemProcessor<T, T>> processor() {
+		SpelExpressionParser parser = new SpelExpressionParser();
+		List<ItemProcessor<KeyValue<byte[], ?>, KeyValue<byte[], ?>>> processors = new ArrayList<>();
+		processorOptions.getKeyProcessor().ifPresent(p -> {
+			EvaluationContext context = new StandardEvaluationContext();
+			context.setVariable("src", getRedisOptions().uris().get(0));
+			context.setVariable("dest", targetRedisOptions.uris().get(0));
+			processors.add(new KeyValueKeyProcessor<>(parser.parseExpression(p, new TemplateParserContext()), context));
+		});
+		processorOptions.getTtlProcessor().ifPresent(p -> processors
+				.add(new KeyValueTTLProcessor<>(parser.parseExpression(p), new StandardEvaluationContext())));
+		return CompositeItemStreamItemProcessor.delegates(processors.toArray(ItemProcessor[]::new));
+	}
+
 	private TaskletStep liveReplicationStep() throws Exception {
 		RedisItemReader<byte[], ?> reader = flushingTransferOptions
 				.configure(reader().live().keyPatterns(readerOptions.getScanMatch())
@@ -117,16 +144,12 @@ public class ReplicateCommand extends AbstractTargetCommand {
 						.database(getRedisOptions().uris().get(0).getDatabase()))
 				.build();
 		reader.setName("redis-live-reader");
-		RiotStep.Builder liveStep = RiotStep.builder().name("live-replication-step").taskName("Listening");
-		return flushingTransferOptions.configure(step(configure(liveStep.reader(reader)).build())).build();
+		return flushingTransferOptions
+				.configure(step(riotStep(reader).name("live-replication-step").taskName("Listening").build())).build();
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private RiotStep.Builder configure(RiotStep.Builder step) {
-		return step.processor(processorOptions.processor(getRedisOptions(), targetRedisOptions)).writer(writer());
-	}
-
-	private ItemWriter<?> writer() {
+	@SuppressWarnings("unchecked")
+	private <T extends KeyValue<byte[], ?>> ItemWriter<T> writer() {
 		if (replicationOptions.isDryRun()) {
 			log.debug("Using no-op writer");
 			return new NoOpItemWriter<>();
@@ -135,9 +158,10 @@ public class ReplicateCommand extends AbstractTargetCommand {
 		OperationBuilder<byte[], byte[]> builder = writer(targetRedisOptions, ByteArrayCodec.INSTANCE);
 		switch (replicationOptions.getType()) {
 		case DS:
-			return writerOptions.configureWriter(builder.dataStructure()).build();
+			return (ItemWriter<T>) writerOptions
+					.configureWriter(builder.dataStructure().xaddArgs(m -> new XAddArgs().id(m.getId()))).build();
 		case DUMP:
-			return writerOptions.configureWriter(builder.keyDump()).build();
+			return (ItemWriter<T>) writerOptions.configureWriter(builder.keyDump()).build();
 		default:
 			break;
 		}
@@ -152,12 +176,11 @@ public class ReplicateCommand extends AbstractTargetCommand {
 		}
 	}
 
-	private ScanRedisItemReaderBuilder<byte[], byte[], ?> reader() throws Exception {
-		return readerOptions.configureScanReader(
-				configureJobRepository(reader(reader(getRedisOptions(), ByteArrayCodec.INSTANCE))));
+	private RedisItemReader.Builder<byte[], byte[], ?> reader() {
+		return readerOptions.configureScanReader(reader(reader(getRedisOptions(), ByteArrayCodec.INSTANCE)));
 	}
 
-	private ScanRedisItemReaderBuilder<byte[], byte[], ?> reader(RedisItemReader.Builder<byte[], byte[]> reader) {
+	private RedisItemReader.Builder<byte[], byte[], ?> reader(RedisItemReader.TypeBuilder<byte[], byte[]> reader) {
 		switch (replicationOptions.getType()) {
 		case DS:
 			return reader.dataStructure();

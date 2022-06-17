@@ -7,7 +7,7 @@ import org.springframework.batch.core.step.builder.FaultTolerantStepBuilder;
 import org.springframework.util.Assert;
 
 import com.redis.spring.batch.KeyValue;
-import com.redis.spring.batch.reader.LiveRedisItemReaderBuilder;
+import com.redis.spring.batch.reader.LiveRedisItemReader;
 import com.redis.spring.batch.step.FlushingSimpleStepBuilder;
 
 import picocli.CommandLine;
@@ -40,8 +40,8 @@ public class FlushingTransferOptions {
 		return builder;
 	}
 
-	public <K, V, T extends KeyValue<K, ?>> LiveRedisItemReaderBuilder<K, V, T> configure(
-			LiveRedisItemReaderBuilder<K, V, T> reader) {
+	public <K, V, T extends KeyValue<K, ?>> LiveRedisItemReader.Builder<K, V, T> configure(
+			LiveRedisItemReader.Builder<K, V, T> reader) {
 		reader.flushingInterval(getFlushInterval());
 		idleTimeout.ifPresent(t -> reader.idleTimeout(Duration.ofMillis(t)));
 		return reader;

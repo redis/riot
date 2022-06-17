@@ -13,6 +13,7 @@ import org.springframework.batch.core.Job;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.job.builder.SimpleJobBuilder;
 import org.springframework.batch.core.step.tasklet.TaskletStep;
+import org.springframework.batch.item.ItemWriter;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
@@ -130,16 +131,16 @@ public class StreamImportCommand extends AbstractTransferCommand {
 		log.debug("Creating Kafka reader for topic {} with {}", topic, consumerProperties);
 		KafkaItemReader<String, Object> reader = new KafkaItemReaderBuilder<String, Object>().partitions(0)
 				.consumerProperties(consumerProperties).partitions(0).name(topic).saveState(false).topic(topic).build();
-		RiotStep.Builder<ConsumerRecord<String, Object>, ConsumerRecord<String, Object>> step = RiotStep.builder();
-		step.name(topic + "-" + NAME);
-		step.taskName("Importing from " + topic);
-		step.reader(reader);
+		return flushingTransferOptions.configure(step(RiotStep.reader(reader).writer(writer()).name(topic + "-" + NAME)
+				.taskName("Importing from " + topic).build())).build();
+	}
+
+	private ItemWriter<ConsumerRecord<String, Object>> writer() {
 		XaddBuilder<String, String, ConsumerRecord<String, Object>> xadd = Xadd
 				.<String, String, ConsumerRecord<String, Object>>key(keyConverter()).body(bodyConverter());
 		xAddArgs().ifPresent(xadd::args);
-		step.writer(writerOptions.configureWriter(writer(getRedisOptions(), StringCodec.UTF8).operation(xadd.build()))
-				.build());
-		return flushingTransferOptions.configure(step(step.build())).build();
+		return writerOptions.configureWriter(writer(getRedisOptions(), StringCodec.UTF8).operation(xadd.build()))
+				.build();
 	}
 
 	private Converter<ConsumerRecord<String, Object>, Map<String, String>> bodyConverter() {

@@ -15,6 +15,7 @@ import com.redis.riot.AbstractTransferCommand;
 import com.redis.riot.RedisOptions;
 import com.redis.riot.RedisReaderOptions;
 import com.redis.riot.RiotStep;
+import com.redis.riot.RiotStep.Builder;
 import com.redis.riot.TransferOptions;
 import com.redis.spring.batch.DataStructure;
 import com.redis.spring.batch.RedisItemReader;
@@ -67,8 +68,9 @@ public abstract class AbstractTargetCommand extends AbstractTransferCommand {
 	}
 
 	protected Step verificationStep() throws Exception {
-		RedisItemReader<String, DataStructure<String>> sourceReader = readerOptions.configureScanReader(
-				configureJobRepository(reader(getRedisOptions(), StringCodec.UTF8).dataStructure())).build();
+		RedisItemReader<String, DataStructure<String>> sourceReader = readerOptions
+				.configureScanReader(reader(getRedisOptions(), StringCodec.UTF8).dataStructure())
+				.jobRunner(getJobRunner()).build();
 		log.debug("Creating key comparator with TTL tolerance of {} seconds", compareOptions.getTtlTolerance());
 		DataStructureValueReader<String, String> targetValueReader = dataStructureValueReader(targetRedisOptions,
 				StringCodec.UTF8);
@@ -77,10 +79,9 @@ public abstract class AbstractTargetCommand extends AbstractTransferCommand {
 		if (compareOptions.isShowDiffs()) {
 			writer.addListener(new KeyComparisonLogger(LoggerFactory.getLogger(getClass())));
 		}
-		RiotStep.Builder<DataStructure<String>, DataStructure<String>> riotStep = RiotStep
-				.<DataStructure<String>, DataStructure<String>>builder().name(VERIFICATION_NAME).taskName("Verifying");
-		riotStep.reader(sourceReader).writer(writer).extraMessage(() -> extraMessage(writer.getResults()));
-		initialMax(riotStep);
+		Builder<DataStructure<String>, DataStructure<String>> riotStep = RiotStep.reader(sourceReader).writer(writer)
+				.name(VERIFICATION_NAME).taskName("Verifying").max(this::initialMax)
+				.message(() -> extraMessage(writer.getResults()));
 		SimpleStepBuilder<DataStructure<String>, DataStructure<String>> step = step(riotStep.build());
 		step.listener(new StepExecutionListenerSupport() {
 			@Override
@@ -108,8 +109,16 @@ public abstract class AbstractTargetCommand extends AbstractTransferCommand {
 		return step.build();
 	}
 
-	protected <I, O> RiotStep.Builder<I, O> initialMax(RiotStep.Builder<I, O> riotStep) {
-		return riotStep.initialMax(readerOptions.initialMaxSupplier(estimator()));
+	protected Long initialMax() {
+		com.redis.spring.batch.RedisScanSizeEstimator.Builder estimator = estimator()
+				.match(readerOptions.getScanMatch()).sampleSize(readerOptions.getSampleSize());
+		readerOptions.getScanType().ifPresent(estimator::type);
+		try {
+			return estimator.build().call();
+		} catch (Exception e) {
+			log.warn("Could not estimate scan size", e);
+			return null;
+		}
 	}
 
 	private <K, V> DataStructureValueReader<K, V> dataStructureValueReader(RedisOptions redisOptions,

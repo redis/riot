@@ -98,13 +98,10 @@ public class StreamExportCommand extends AbstractTransferCommand {
 	}
 
 	private TaskletStep streamExportStep(String stream) throws Exception {
-		RiotStep.Builder<StreamMessage<String, String>, ProducerRecord<String, Object>> step = RiotStep.builder();
-		step.name(stream + "-" + NAME);
-		step.taskName("Exporting from " + stream);
-		step.reader(reader(getRedisOptions(), StringCodec.UTF8).stream(stream).build());
-		step.processor(Optional.of(processor()));
-		step.writer(writer());
-		return flushingTransferOptions.configure(step(step.build())).build();
+		return flushingTransferOptions.configure(step(
+				RiotStep.reader(reader(getRedisOptions(), StringCodec.UTF8).stream(stream).build()).writer(writer())
+						.processor(processor()).name(stream + "-" + NAME).taskName("Exporting from " + stream).build()))
+				.build();
 	}
 
 	private KafkaItemWriter<String> writer() {

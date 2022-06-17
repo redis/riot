@@ -1,7 +1,5 @@
 package com.redis.riot;
 
-import java.util.logging.Level;
-
 import picocli.CommandLine.Option;
 
 public class LoggingOptions {
@@ -55,38 +53,6 @@ public class LoggingOptions {
 
 	public void setStacktrace(boolean stacktrace) {
 		this.stacktrace = stacktrace;
-	}
-
-	public Level getLevel() {
-		if (debug) {
-			return Level.FINE;
-		}
-		if (info) {
-			return Level.INFO;
-		}
-		if (warning) {
-			return Level.SEVERE;
-		}
-		if (quiet) {
-			return Level.OFF;
-		}
-		return Level.WARNING;
-	}
-
-	public Level getRiotLevel() {
-		if (debug) {
-			return Level.FINEST;
-		}
-		if (info) {
-			return Level.FINE;
-		}
-		if (warning) {
-			return Level.WARNING;
-		}
-		if (quiet) {
-			return Level.SEVERE;
-		}
-		return Level.INFO;
 	}
 
 }

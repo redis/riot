@@ -6,10 +6,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 @EnableBatchProcessing
-public class BatchTestApplication {
+public class FakerReaderTestApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(BatchTestApplication.class, args);
+		SpringApplication.run(FakerReaderTestApplication.class, args);
 	}
 
 }

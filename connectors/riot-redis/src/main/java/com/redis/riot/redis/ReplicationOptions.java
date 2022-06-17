@@ -1,6 +1,6 @@
 package com.redis.riot.redis;
 
-import com.redis.spring.batch.reader.LiveKeyItemReader;
+import com.redis.spring.batch.reader.AbstractKeyspaceNotificationItemReader;
 
 import picocli.CommandLine;
 
@@ -19,7 +19,7 @@ public class ReplicationOptions {
 	@CommandLine.Option(names = "--type", description = "Replication type: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})", paramLabel = "<name>")
 	private ReplicationType type = ReplicationType.DUMP;
 	@CommandLine.Option(names = "--event-queue", description = "Capacity of the keyspace notification event queue (default: ${DEFAULT-VALUE})", paramLabel = "<size>")
-	private int notificationQueueCapacity = LiveKeyItemReader.DEFAULT_QUEUE_CAPACITY;
+	private int notificationQueueCapacity = AbstractKeyspaceNotificationItemReader.DEFAULT_QUEUE_CAPACITY;
 	@CommandLine.Option(names = "--no-verify", description = "Verify target against source dataset after replication. True by default", negatable = true)
 	private boolean verify = true;
 	@CommandLine.Option(names = "--dry-run", description = "Disable writes and only perform reads")

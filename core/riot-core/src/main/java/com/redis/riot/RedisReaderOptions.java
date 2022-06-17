@@ -1,7 +1,6 @@
 package com.redis.riot;
 
 import java.util.Optional;
-import java.util.function.Supplier;
 
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.slf4j.Logger;
@@ -9,10 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import com.redis.spring.batch.KeyValue;
 import com.redis.spring.batch.RedisItemReader;
-import com.redis.spring.batch.RedisScanSizeEstimator;
-import com.redis.spring.batch.reader.RedisItemReaderBuilder;
 import com.redis.spring.batch.reader.ScanKeyItemReader;
-import com.redis.spring.batch.reader.ScanRedisItemReaderBuilder;
 
 import io.lettuce.core.api.StatefulConnection;
 import picocli.CommandLine.Option;
@@ -52,6 +48,10 @@ public class RedisReaderOptions {
 
 	public void setScanMatch(String scanMatch) {
 		this.scanMatch = scanMatch;
+	}
+
+	public Optional<String> getScanType() {
+		return scanType;
 	}
 
 	public void setScanType(String scanType) {
@@ -98,8 +98,8 @@ public class RedisReaderOptions {
 		this.poolMaxTotal = poolMaxTotal;
 	}
 
-	public <K, V, T extends KeyValue<K, ?>> ScanRedisItemReaderBuilder<K, V, T> configureScanReader(
-			ScanRedisItemReaderBuilder<K, V, T> builder) {
+	public <K, V, T extends KeyValue<K, ?>> RedisItemReader.Builder<K, V, T> configureScanReader(
+			RedisItemReader.Builder<K, V, T> builder) {
 		log.debug("Configuring scan reader with {} {} {}", scanCount, scanMatch, scanType);
 		builder.match(scanMatch);
 		builder.count(scanCount);
@@ -107,7 +107,7 @@ public class RedisReaderOptions {
 		return configureReader(builder);
 	}
 
-	public <K, V, B extends RedisItemReaderBuilder<K, V, ?, B>> B configureReader(B builder) {
+	public <K, V, B extends RedisItemReader.AbstractBuilder<K, V, ?, B>> B configureReader(B builder) {
 		log.debug("Configuring reader with threads: {},  batch-size: {}, queue-capacity: {}", threads, batchSize,
 				queueCapacity);
 		builder.threads(threads);
@@ -122,19 +122,6 @@ public class RedisReaderOptions {
 		config.setMaxTotal(poolMaxTotal);
 		log.debug("Configuring reader with pool config {}", config);
 		return config;
-	}
-
-	public Supplier<Long> initialMaxSupplier(RedisScanSizeEstimator.Builder estimator) {
-		return () -> {
-			try {
-				estimator.match(scanMatch).sampleSize(sampleSize);
-				scanType.ifPresent(estimator::type);
-				return estimator.build().call();
-			} catch (Exception e) {
-				log.warn("Could not estimate scan size", e);
-				return null;
-			}
-		};
 	}
 
 }
