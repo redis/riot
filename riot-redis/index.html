@@ -14,7 +14,7 @@
 <div id="header">
 <h1>RIOT-Redis</h1>
 <div class="details">
-<span id="revnumber">version 2.15.5</span>
+<span id="revnumber">version 2.16.0</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -305,7 +305,7 @@ ping        Execute PING command</code></pre>
 <div class="listingblock">
 <div class="title">Live replication example</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="console">riot-redis -h source -p 6379 replicate -h target -p 6380 --mode live</code></pre>
+<pre class="CodeRay highlight"><code data-lang="console">riot-redis --info -h source -p 6379 replicate -h target -p 6380 --mode live</code></pre>
 </div>
 </div>
 </div>
@@ -665,7 +665,7 @@ If you need assistance please contact your Redis account team.</p>
 <div class="listingblock">
 <div class="title">Type-based, live replication example</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="console">riot-redis -h source -p 6379 replicate --type ds -h target -p 6380 --mode live</code></pre>
+<pre class="CodeRay highlight"><code data-lang="console">riot-redis -h source -p 6379 replicate -h target -p 6380 --type ds --mode live</code></pre>
 </div>
 </div>
 <div class="admonitionblock warning">
@@ -687,8 +687,8 @@ Adjust number of threads, batch, and queue sizes accordingly.
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 2.15.5<br>
-Last updated 2022-05-26 05:36:41 UTC
+Version 2.16.0<br>
+Last updated 2022-06-25 18:28:55 UTC
 </div>
 </div>
 <link rel="stylesheet" href="./coderay-asciidoctor.css">

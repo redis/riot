@@ -14,7 +14,7 @@
 <div id="header">
 <h1>RIOT-DB</h1>
 <div class="details">
-<span id="revnumber">version 2.15.5</span>
+<span id="revnumber">version 2.16.0</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -523,7 +523,7 @@ The general usage is:</p>
 <div class="listingblock">
 <div class="title">Export to PostgreSQL</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="console">riot-db export &quot;INSERT INTO mytable (id, field1, field2) VALUES (CAST(:id AS SMALLINT), :field1, :field2)&quot; --url &quot;jdbc:postgresql://host:port/database&quot; --username appuser --password passwd --scan-match &quot;hash:*&quot; --key-regex &quot;hash:(?&lt;id&gt;.*)&quot;</code></pre>
+<pre class="CodeRay highlight"><code data-lang="console">riot-db export &quot;INSERT INTO mytable (id, field1, field2) VALUES (CAST(:id AS SMALLINT), :field1, :field2)&quot; --url &quot;jdbc:postgresql://host:port/database&quot; --username appuser --password passwd --scan-match &quot;generated:*&quot; --key-regex &quot;generated:(?&lt;id&gt;.*)&quot;</code></pre>
 </div>
 </div>
 <div class="listingblock">
@@ -594,8 +594,8 @@ In that configuration, each chunk of items is read, processed, and written in a 
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 2.15.5<br>
-Last updated 2022-05-26 05:36:41 UTC
+Version 2.16.0<br>
+Last updated 2022-06-25 18:28:55 UTC
 </div>
 </div>
 <link rel="stylesheet" href="./coderay-asciidoctor.css">
