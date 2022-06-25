@@ -10,4 +10,5 @@ dependencies {
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
     implementation 'org.slf4j:slf4j-jdk14'
     implementation group: 'org.awaitility', name: 'awaitility', version: awaitilityVersion
+    testImplementation 'org.junit.jupiter:junit-jupiter-engine'
 }

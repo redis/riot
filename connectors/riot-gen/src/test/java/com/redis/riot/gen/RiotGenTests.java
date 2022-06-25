@@ -16,6 +16,10 @@ import com.redis.lettucemod.search.Document;
 import com.redis.lettucemod.search.Field;
 import com.redis.lettucemod.search.Field.TextField.PhoneticMatcher;
 import com.redis.lettucemod.search.SearchResults;
+import com.redis.lettucemod.timeseries.MRangeOptions;
+import com.redis.lettucemod.timeseries.RangeResult;
+import com.redis.lettucemod.timeseries.Sample;
+import com.redis.lettucemod.timeseries.TimeRange;
 import com.redis.riot.AbstractRiotIntegrationTests;
 import com.redis.testcontainers.RedisModulesContainer;
 import com.redis.testcontainers.RedisServer;
@@ -31,7 +35,7 @@ import io.lettuce.core.api.sync.RedisSortedSetCommands;
 import io.lettuce.core.api.sync.RedisStreamCommands;
 
 @SuppressWarnings("unchecked")
-class TestGen extends AbstractRiotIntegrationTests {
+class RiotGenTests extends AbstractRiotIntegrationTests {
 
 	private final RedisModulesContainer redisMod = new RedisModulesContainer(
 			RedisModulesContainer.DEFAULT_IMAGE_NAME.withTag(RedisModulesContainer.DEFAULT_TAG));
@@ -50,7 +54,7 @@ class TestGen extends AbstractRiotIntegrationTests {
 
 	@ParameterizedTest
 	@RedisTestContextsSource
-	void genFakerHash(RedisTestContext redis) throws Exception {
+	void testFakerHash(RedisTestContext redis) throws Exception {
 		execute("faker-hset", redis);
 		RedisKeyCommands<String, String> sync = redis.sync();
 		List<String> keys = sync.keys("person:*");
@@ -63,7 +67,7 @@ class TestGen extends AbstractRiotIntegrationTests {
 
 	@ParameterizedTest
 	@RedisTestContextsSource
-	void genFakerSet(RedisTestContext redis) throws Exception {
+	void testFakerSet(RedisTestContext redis) throws Exception {
 		execute("faker-sadd", redis);
 		RedisSetCommands<String, String> sync = redis.sync();
 		Set<String> names = sync.smembers("got:characters");
@@ -75,7 +79,7 @@ class TestGen extends AbstractRiotIntegrationTests {
 
 	@ParameterizedTest
 	@RedisTestContextsSource
-	void genFakerZset(RedisTestContext redis) throws Exception {
+	void testFakerZset(RedisTestContext redis) throws Exception {
 		execute("faker-zadd", redis);
 		RedisKeyCommands<String, String> sync = redis.sync();
 		List<String> keys = sync.keys("leases:*");
@@ -86,7 +90,7 @@ class TestGen extends AbstractRiotIntegrationTests {
 
 	@ParameterizedTest
 	@RedisTestContextsSource
-	void genFakerStream(RedisTestContext redis) throws Exception {
+	void testFakerStream(RedisTestContext redis) throws Exception {
 		execute("faker-xadd", redis);
 		RedisStreamCommands<String, String> sync = redis.sync();
 		List<StreamMessage<String, String>> messages = sync.xrange("teststream:1", Range.unbounded());
@@ -94,7 +98,7 @@ class TestGen extends AbstractRiotIntegrationTests {
 	}
 
 	@Test
-	void genFakerIndexIntrospection() throws Exception {
+	void testFakerIndexIntrospection() throws Exception {
 		Assumptions.assumeTrue(redisMod.isEnabled());
 		RedisTestContext redismod = new RedisTestContext(redisMod);
 		String INDEX = "beerIdx";
@@ -113,6 +117,23 @@ class TestGen extends AbstractRiotIntegrationTests {
 		Document<String, String> doc1 = results.get(0);
 		Assertions.assertNotNull(doc1.get(FIELD_ABV));
 		redismod.close();
+	}
+
+	@Test
+	void testFakerTsAdd() throws Exception {
+		RedisTestContext redis = getContext(redisMod);
+		execute("faker-tsadd", redis);
+		List<Sample> samples = redis.sync().range("ts:gen", TimeRange.unbounded(), null);
+		Assertions.assertEquals(10, samples.size());
+	}
+
+	@Test
+	void testFakerTsAddWithOptions() throws Exception {
+		RedisTestContext redis = getContext(redisMod);
+		execute("faker-tsadd-options", redis);
+		List<RangeResult<String, String>> results = redis.sync().mrange(TimeRange.unbounded(),
+				MRangeOptions.<String, String>filters("character1=Einstein").build());
+		Assertions.assertFalse(results.isEmpty());
 	}
 
 }

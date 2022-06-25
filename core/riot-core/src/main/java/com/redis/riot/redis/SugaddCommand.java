@@ -1,6 +1,7 @@
 package com.redis.riot.redis;
 
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.core.convert.converter.Converter;
 
@@ -18,11 +19,11 @@ public class SugaddCommand extends AbstractKeyCommand {
 	@Option(names = "--field", required = true, description = "Field containing the strings to add", paramLabel = "<field>")
 	private String field;
 	@Option(names = "--score", description = "Name of the field to use for scores", paramLabel = "<field>")
-	private String scoreField;
+	private Optional<String> scoreField = Optional.empty();
 	@Option(names = "--score-default", description = "Score when field not present (default: ${DEFAULT-VALUE})", paramLabel = "<num>")
 	private double scoreDefault = 1;
 	@Option(names = "--payload", description = "Field containing the payload", paramLabel = "<field>")
-	private String payload;
+	private Optional<String> payload = Optional.empty();
 	@Option(names = "--increment", description = "Increment the existing suggestion by the score instead of replacing the score")
 	private boolean increment;
 
@@ -34,7 +35,7 @@ public class SugaddCommand extends AbstractKeyCommand {
 
 	private Converter<Map<String, Object>, Suggestion<String>> suggestion() {
 		return new SuggestionConverter<>(stringFieldExtractor(field),
-				numberExtractor(scoreField, Double.class, scoreDefault), stringFieldExtractor(this.payload));
+				numberExtractor(scoreField, Double.class, scoreDefault), stringFieldExtractor(payload));
 	}
 
 }

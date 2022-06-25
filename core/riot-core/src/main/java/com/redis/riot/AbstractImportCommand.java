@@ -22,6 +22,7 @@ import com.redis.riot.redis.RpushCommand;
 import com.redis.riot.redis.SaddCommand;
 import com.redis.riot.redis.SetCommand;
 import com.redis.riot.redis.SugaddCommand;
+import com.redis.riot.redis.TsAddCommand;
 import com.redis.riot.redis.XaddCommand;
 import com.redis.riot.redis.ZaddCommand;
 import com.redis.spring.batch.RedisItemWriter;
@@ -34,8 +35,8 @@ import picocli.CommandLine.Command;
 
 @Command(subcommands = { EvalCommand.class, ExpireCommand.class, GeoaddCommand.class, HsetCommand.class,
 		LpushCommand.class, NoopCommand.class, RpushCommand.class, SaddCommand.class, SetCommand.class,
-		XaddCommand.class, ZaddCommand.class, SugaddCommand.class,
-		JsonSetCommand.class }, subcommandsRepeatable = true, synopsisSubcommandLabel = "[REDIS COMMAND...]", commandListHeading = "Redis commands:%n")
+		XaddCommand.class, ZaddCommand.class, SugaddCommand.class, JsonSetCommand.class,
+		TsAddCommand.class }, subcommandsRepeatable = true, synopsisSubcommandLabel = "[REDIS COMMAND...]", commandListHeading = "Redis commands:%n")
 public abstract class AbstractImportCommand extends AbstractTransferCommand {
 
 	@CommandLine.ArgGroup(exclusive = false, heading = "Processor options%n")
