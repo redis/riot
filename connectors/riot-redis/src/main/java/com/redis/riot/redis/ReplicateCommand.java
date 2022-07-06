@@ -128,8 +128,8 @@ public class ReplicateCommand extends AbstractTargetCommand {
 		List<ItemProcessor<KeyValue<byte[], ?>, KeyValue<byte[], ?>>> processors = new ArrayList<>();
 		processorOptions.getKeyProcessor().ifPresent(p -> {
 			EvaluationContext context = new StandardEvaluationContext();
-			context.setVariable("src", getRedisOptions().uris().get(0));
-			context.setVariable("dest", targetRedisOptions.uris().get(0));
+			context.setVariable("src", getRedisOptions().uri());
+			context.setVariable("dest", targetRedisOptions.uri());
 			processors.add(new KeyValueKeyProcessor<>(parser.parseExpression(p, new TemplateParserContext()), context));
 		});
 		processorOptions.getTtlProcessor().ifPresent(p -> processors
@@ -141,7 +141,7 @@ public class ReplicateCommand extends AbstractTargetCommand {
 		RedisItemReader<byte[], ?> reader = flushingTransferOptions
 				.configure(reader().live().keyPatterns(readerOptions.getScanMatch())
 						.notificationQueueCapacity(replicationOptions.getNotificationQueueCapacity())
-						.database(getRedisOptions().uris().get(0).getDatabase()))
+						.database(getRedisOptions().uri().getDatabase()))
 				.build();
 		reader.setName("redis-live-reader");
 		return flushingTransferOptions

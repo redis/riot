@@ -50,7 +50,7 @@ class TestReplicate extends AbstractRiotIntegrationTests {
 
 	private void configureReplicateCommand(CommandLine.ParseResult parseResult) {
 		ReplicateCommand command = parseResult.subcommand().commandSpec().commandLine().getCommand();
-		command.getTargetRedisOptions().setUris(new RedisURI[] { RedisURI.create(targetRedis.getRedisURI()) });
+		command.getTargetRedisOptions().setUri(RedisURI.create(targetRedis.getRedisURI()));
 		if (command.getReplicationOptions().getMode() == ReplicationMode.LIVE) {
 			command.getFlushingTransferOptions().setIdleTimeout(IDLE_TIMEOUT);
 			command.getReplicationOptions().setNotificationQueueCapacity(100000);
