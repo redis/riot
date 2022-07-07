@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.awaitility.Awaitility;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -144,6 +145,7 @@ public class PostgreSQLTests extends AbstractDatabaseTests {
 	@RedisTestContextsSource
 	void testImportNoop(RedisTestContext redis) throws Exception {
 		execute("import-postgresql-noop", redis, r -> configureImportCommand(r, POSTGRESQL));
+		Assertions.assertEquals(0, redis.sync().dbsize());
 	}
 
 	@ParameterizedTest
@@ -156,7 +158,7 @@ public class PostgreSQLTests extends AbstractDatabaseTests {
 			List<String> keys = sync.keys("order:*");
 			ResultSet resultSet = statement.getResultSet();
 			resultSet.next();
-			Assertions.assertEquals(resultSet.getLong("count"), keys.size());
+			Awaitility.await().until(() -> resultSet.getLong("count") == keys.size());
 			Map<String, String> order = sync.hgetall("order:10248");
 			Assertions.assertEquals("10248", order.get("order_id"));
 			Assertions.assertEquals("VINET", order.get("customer_id"));
