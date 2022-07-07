@@ -20,7 +20,7 @@ dependencies {
     implementation group: 'io.confluent', name: 'kafka-avro-serializer', version: kafkaVersion
     implementation group: 'io.confluent', name: 'kafka-protobuf-serializer', version: kafkaVersion
     testImplementation project(':riot-test')
-    testImplementation group: 'com.redis.testcontainers', name: 'kafka', version: testcontainersVersion
+    testImplementation group: 'org.testcontainers', name: 'kafka', version: testcontainersVersion
 }
 
 bootStartScripts.enabled = false
