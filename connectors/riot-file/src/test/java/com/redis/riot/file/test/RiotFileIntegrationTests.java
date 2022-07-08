@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
+import org.awaitility.Awaitility;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -106,7 +107,7 @@ public class RiotFileIntegrationTests extends AbstractRiotIntegrationTests {
 		execute("import-fw", redis);
 		RedisKeyCommands<String, String> sync = redis.sync();
 		List<String> keys = sync.keys("account:*");
-		Assertions.assertEquals(5, keys.size());
+		Awaitility.await().until(() -> keys.size() == 5);
 		RedisHashCommands<String, String> hash = redis.sync();
 		Map<String, String> account101 = hash.hgetall("account:101");
 		// Account LastName FirstName Balance CreditLimit AccountCreated Rating
