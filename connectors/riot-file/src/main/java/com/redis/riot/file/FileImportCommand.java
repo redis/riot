@@ -1,6 +1,7 @@
 package com.redis.riot.file;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -95,15 +96,9 @@ public class FileImportCommand extends AbstractImportCommand {
 	}
 
 	private TaskletStep fileImportStep(String file) throws Exception {
-		Optional<FileType> fileType = type(file);
-		if (fileType.isEmpty()) {
-			throw new IllegalArgumentException("Could not determine type of file " + file);
-		}
-		Resource resource = options.inputResource(file);
-		AbstractItemStreamItemReader<Map<String, Object>> reader = reader(file, fileType.get(), resource);
+		AbstractItemStreamItemReader<Map<String, Object>> reader = reader(file);
 		reader.setName(file + "-" + NAME + "-reader");
-		return step(file + "-" + NAME, "Importing " + resource.getFilename(), reader).skip(FlatFileParseException.class)
-				.build();
+		return step(file + "-" + NAME, "Importing " + file, reader).skip(FlatFileParseException.class).build();
 	}
 
 	private Optional<FileType> type(String file) {
@@ -131,8 +126,13 @@ public class FileImportCommand extends AbstractImportCommand {
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public AbstractItemStreamItemReader<Map<String, Object>> reader(String file, FileType fileType, Resource resource) {
-		switch (fileType) {
+	public AbstractItemStreamItemReader<Map<String, Object>> reader(String file) throws IOException {
+		Optional<FileType> fileType = type(file);
+		if (fileType.isEmpty()) {
+			throw new IllegalArgumentException("Could not determine type of file " + file);
+		}
+		Resource resource = options.inputResource(file);
+		switch (fileType.get()) {
 		case DELIMITED:
 			DelimitedLineTokenizer tokenizer = new DelimitedLineTokenizer();
 			tokenizer.setDelimiter(options.delimiter(file));
