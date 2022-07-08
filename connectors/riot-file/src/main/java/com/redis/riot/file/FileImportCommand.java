@@ -131,8 +131,7 @@ public class FileImportCommand extends AbstractImportCommand {
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private AbstractItemStreamItemReader<Map<String, Object>> reader(String file, FileType fileType,
-			Resource resource) {
+	public AbstractItemStreamItemReader<Map<String, Object>> reader(String file, FileType fileType, Resource resource) {
 		switch (fileType) {
 		case DELIMITED:
 			DelimitedLineTokenizer tokenizer = new DelimitedLineTokenizer();
