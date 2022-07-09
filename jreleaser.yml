@@ -50,6 +50,8 @@ release:
       hide:
         categories:
           - 'Merge'
+      replacers:
+        - search: 'deps: '
 
 announce:
   slack:
