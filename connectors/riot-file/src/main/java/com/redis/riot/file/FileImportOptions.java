@@ -94,11 +94,10 @@ public class FileImportOptions extends FileOptions {
 		return 0;
 	}
 
-	public String delimiter(String file) {
+	public String delimiter(Optional<String> extension) {
 		if (delimiter.isPresent()) {
 			return delimiter.get();
 		}
-		Optional<String> extension = FileUtils.extension(file);
 		if (extension.isEmpty()) {
 			throw new IllegalArgumentException("Could not determine delimiter for extension " + extension);
 		}
