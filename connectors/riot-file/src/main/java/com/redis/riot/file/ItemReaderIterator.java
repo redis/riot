@@ -1,4 +1,4 @@
-package com.redis.riot;
+package com.redis.riot.file;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;

@@ -35,7 +35,6 @@ import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
 import com.redis.riot.AbstractImportCommand;
-import com.redis.riot.ItemReaderIterator;
 import com.redis.riot.file.resource.XmlItemReader;
 
 import picocli.CommandLine;
