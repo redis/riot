@@ -43,7 +43,7 @@ import picocli.CommandLine.Command;
 @Command(name = "import", description = "Import delimited, fixed-width, JSON, or XML files into Redis.")
 public class FileImportCommand extends AbstractImportCommand {
 
-	private enum FileType {
+	public enum FileType {
 		DELIMITED, FIXED, JSON, XML
 	}
 
