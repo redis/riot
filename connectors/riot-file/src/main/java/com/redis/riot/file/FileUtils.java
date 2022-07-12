@@ -1,12 +1,13 @@
 package com.redis.riot.file;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -16,6 +17,7 @@ import org.springframework.batch.item.json.JacksonJsonObjectReader;
 import org.springframework.batch.item.json.JsonItemReader;
 import org.springframework.batch.item.json.builder.JsonItemReaderBuilder;
 import org.springframework.core.io.Resource;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.ResourceUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -89,31 +91,25 @@ public interface FileUtils {
 		return xmlReaderBuilder.build();
 	}
 
-	public static List<String> expand(List<String> files) throws IOException {
-		if (files == null) {
-			return Collections.emptyList();
-		}
-		List<String> expandedFiles = new ArrayList<>();
-		for (String file : files) {
-			if (isFile(file)) {
-				Path path = Paths.get(file);
-				if (Files.exists(path)) {
-					expandedFiles.add(file);
-				} else {
-					// Path might be glob pattern
-					Path parent = path.getParent();
-					if (parent != null && Files.exists(parent)) {
-						try (DirectoryStream<Path> stream = Files.newDirectoryStream(parent,
-								path.getFileName().toString())) {
-							stream.forEach(p -> expandedFiles.add(p.toString()));
-						}
+	public static List<String> expand(String file) throws IOException {
+		if (isFile(file)) {
+			Path path = Paths.get(file);
+			if (!Files.exists(path)) {
+				List<String> expandedFiles = new ArrayList<>();
+				// Path might be glob pattern
+				Path parent = path.getParent();
+				if (parent != null && Files.exists(parent)) {
+					try (DirectoryStream<Path> stream = Files.newDirectoryStream(parent,
+							path.getFileName().toString())) {
+						stream.forEach(p -> expandedFiles.add(p.toString()));
 					}
 				}
-			} else {
-				expandedFiles.add(file);
+				if (ObjectUtils.isEmpty(expandedFiles)) {
+					throw new FileNotFoundException("File not found: " + file);
+				}
 			}
 		}
-		return expandedFiles;
+		return Arrays.asList(file);
 	}
 
 }

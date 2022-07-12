@@ -1,6 +1,5 @@
 package com.redis.riot.file;
 
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -69,16 +68,23 @@ public class DumpFileImportCommand extends AbstractTransferCommand {
 	@Override
 	protected Job job(JobBuilder jobBuilder) throws Exception {
 		Assert.isTrue(!ObjectUtils.isEmpty(files), "No file specified");
-		List<String> expandedFiles = FileUtils.expand(files);
-		if (ObjectUtils.isEmpty(expandedFiles)) {
-			throw new FileNotFoundException("File not found: " + String.join(", ", files));
-		}
-		Iterator<String> fileIterator = expandedFiles.iterator();
-		SimpleJobBuilder simpleJobBuilder = jobBuilder.start(fileImportStep(fileIterator.next()));
-		while (fileIterator.hasNext()) {
-			simpleJobBuilder.next(fileImportStep(fileIterator.next()));
+		List<TaskletStep> steps = fileImportSteps();
+		Iterator<TaskletStep> stepIterator = steps.iterator();
+		SimpleJobBuilder simpleJobBuilder = jobBuilder.start(stepIterator.next());
+		while (stepIterator.hasNext()) {
+			simpleJobBuilder.next(stepIterator.next());
 		}
 		return simpleJobBuilder.build();
+	}
+
+	private List<TaskletStep> fileImportSteps() throws Exception {
+		List<TaskletStep> steps = new ArrayList<>();
+		for (String file : files) {
+			for (String expandedFile : FileUtils.expand(file)) {
+				steps.add(fileImportStep(expandedFile));
+			}
+		}
+		return steps;
 	}
 
 	private TaskletStep fileImportStep(String file) throws Exception {

@@ -1,15 +1,12 @@
 package com.redis.riot.file;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -18,7 +15,6 @@ import org.springframework.batch.core.Job;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.job.builder.SimpleJobBuilder;
 import org.springframework.batch.core.step.tasklet.TaskletStep;
-import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.FlatFileParseException;
 import org.springframework.batch.item.file.LineCallbackHandler;
@@ -39,6 +35,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
 import com.redis.riot.AbstractImportCommand;
+import com.redis.riot.ItemReaderIterator;
 import com.redis.riot.file.resource.XmlItemReader;
 
 import picocli.CommandLine;
@@ -63,6 +60,14 @@ public class FileImportCommand extends AbstractImportCommand {
 	@CommandLine.ArgGroup(exclusive = false, heading = "Delimited and fixed-width file options%n")
 	private FileImportOptions options = new FileImportOptions();
 
+	public FileImportCommand() {
+	}
+
+	private FileImportCommand(Builder builder) {
+		this.type = builder.fileType;
+		this.options = builder.options;
+	}
+
 	public List<String> getFiles() {
 		return files;
 	}
@@ -85,7 +90,18 @@ public class FileImportCommand extends AbstractImportCommand {
 
 	@Override
 	protected Job job(JobBuilder jobBuilder) throws Exception {
-		Iterator<TaskletStep> iterator = fileImportSteps().iterator();
+		Assert.isTrue(!ObjectUtils.isEmpty(files), "No file specified");
+		List<TaskletStep> steps = new ArrayList<>();
+		for (String file : files) {
+			for (Resource resource : resources(file)) {
+				AbstractItemStreamItemReader<Map<String, Object>> reader = reader(resource);
+				String name = resource.getDescription() + "-" + NAME;
+				reader.setName(name + "-reader");
+				steps.add(step(name, "Importing " + resource.getFilename(), reader).skip(FlatFileParseException.class)
+						.build());
+			}
+		}
+		Iterator<TaskletStep> iterator = steps.iterator();
 		SimpleJobBuilder simpleJobBuilder = jobBuilder.start(iterator.next());
 		while (iterator.hasNext()) {
 			simpleJobBuilder.next(iterator.next());
@@ -93,32 +109,16 @@ public class FileImportCommand extends AbstractImportCommand {
 		return simpleJobBuilder.build();
 	}
 
-	private List<TaskletStep> fileImportSteps() throws Exception {
-		Map<Resource, ItemReader<Map<String, Object>>> readers = readers();
-		List<TaskletStep> steps = new ArrayList<>();
-		for (Entry<Resource, ItemReader<Map<String, Object>>> entry : readers.entrySet()) {
-			Resource resource = entry.getKey();
-			ItemReader<Map<String, Object>> reader = entry.getValue();
-			steps.add(step(resource.getDescription() + "-" + NAME, "Importing " + resource.getFilename(), reader)
-					.skip(FlatFileParseException.class).build());
+	private List<Resource> resources(String file) throws IOException {
+		List<Resource> resources = new ArrayList<>();
+		for (String expandedFile : FileUtils.expand(file)) {
+			resources.add(resource(expandedFile));
 		}
-		return steps;
+		return resources;
 	}
 
-	public Map<Resource, ItemReader<Map<String, Object>>> readers() throws IOException {
-		Assert.isTrue(!ObjectUtils.isEmpty(files), "No file specified");
-		List<String> expandedFiles = FileUtils.expand(files);
-		if (ObjectUtils.isEmpty(expandedFiles)) {
-			throw new FileNotFoundException("File not found: " + String.join(", ", files));
-		}
-		Map<Resource, ItemReader<Map<String, Object>>> readers = new LinkedHashMap<>();
-		for (String file : expandedFiles) {
-			Resource resource = options.inputResource(file);
-			AbstractItemStreamItemReader<Map<String, Object>> reader = reader(resource);
-			reader.setName(file + "-" + NAME + "-reader");
-			readers.put(resource, reader);
-		}
-		return readers;
+	private Resource resource(String file) throws IOException {
+		return options.inputResource(file);
 	}
 
 	private Optional<FileType> type(Optional<String> extension) {
@@ -145,7 +145,7 @@ public class FileImportCommand extends AbstractImportCommand {
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public AbstractItemStreamItemReader<Map<String, Object>> reader(Resource resource) {
+	private AbstractItemStreamItemReader<Map<String, Object>> reader(Resource resource) {
 		Optional<String> extension = FileUtils.extension(resource.getFilename());
 		Optional<FileType> fileType = type(extension);
 		if (fileType.isEmpty()) {
@@ -241,6 +241,60 @@ public class FileImportCommand extends AbstractImportCommand {
 			}
 			tokenizer.setNames(fields.toArray(new String[0]));
 		}
+	}
+
+	public static Builder builder() {
+		return new Builder();
+	}
+
+	public static class Builder {
+
+		private FileImportOptions options = new FileImportOptions();
+		private Optional<FileType> fileType = Optional.empty();
+
+		public Builder options(FileImportOptions options) {
+			Assert.notNull(options, "Options must not be null");
+			this.options = options;
+			return this;
+		}
+
+		public Builder type(FileType fileType) {
+			Assert.notNull(fileType, "File type must not be null");
+			this.fileType = Optional.of(fileType);
+			return this;
+		}
+
+		public FileImportCommand build() {
+			return new FileImportCommand(this);
+		}
+
+	}
+
+	/**
+	 * 
+	 * @param files Files to create readers for
+	 * @return List of readers for the given files, which might contain wildcards
+	 * @throws IOException
+	 */
+	public List<AbstractItemStreamItemReader<Map<String, Object>>> readers(String... files) throws IOException {
+		List<AbstractItemStreamItemReader<Map<String, Object>>> readers = new ArrayList<>();
+		for (String file : files) {
+			for (String expandedFile : FileUtils.expand(file)) {
+				readers.add(reader(resource(expandedFile)));
+			}
+		}
+		return readers;
+	}
+
+	/**
+	 * 
+	 * @param file the file to create a reader for (can be CSV, Fixed-width, JSON,
+	 *             XML)
+	 * @return Reader for the given file
+	 * @throws Exception
+	 */
+	public Iterator<Map<String, Object>> read(String file) throws Exception {
+		return new ItemReaderIterator<>(reader(resource(file)));
 	}
 
 }

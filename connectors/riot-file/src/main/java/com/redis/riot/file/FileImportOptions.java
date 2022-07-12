@@ -28,6 +28,22 @@ public class FileImportOptions extends FileOptions {
 	@Option(names = "--cont", description = "Line continuation string (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
 	private String continuationString = DEFAULT_CONTINUATION_STRING;
 
+	public FileImportOptions() {
+
+	}
+
+	private FileImportOptions(Builder builder) {
+		super(builder);
+		this.names = builder.names;
+		this.header = builder.header;
+		this.delimiter = builder.delimiter;
+		this.linesToSkip = builder.linesToSkip;
+		this.includedFields = builder.includedFields;
+		this.columnRanges = builder.columnRanges;
+		this.quoteCharacter = builder.quoteCharacter;
+		this.continuationString = builder.continuationString;
+	}
+
 	public String[] getNames() {
 		return names;
 	}
@@ -110,6 +126,68 @@ public class FileImportOptions extends FileOptions {
 			return DelimitedLineTokenizer.DELIMITER_TAB;
 		default:
 			throw new IllegalArgumentException("Unknown extension: " + extension);
+		}
+	}
+
+	public static Builder builder() {
+		return new Builder();
+	}
+
+	public static final class Builder extends FileOptions.Builder<Builder> {
+		private String[] names;
+		private boolean header;
+		private Optional<String> delimiter = Optional.empty();
+		private Optional<Integer> linesToSkip = Optional.empty();
+		private int[] includedFields;
+		private String[] columnRanges;
+		private Character quoteCharacter = DelimitedLineTokenizer.DEFAULT_QUOTE_CHARACTER;
+		private String continuationString = DEFAULT_CONTINUATION_STRING;
+
+		private Builder() {
+		}
+
+		public Builder names(String[] names) {
+			this.names = names;
+			return this;
+		}
+
+		public Builder header(boolean header) {
+			this.header = header;
+			return this;
+		}
+
+		public Builder delimiter(Optional<String> delimiter) {
+			this.delimiter = delimiter;
+			return this;
+		}
+
+		public Builder linesToSkip(Optional<Integer> linesToSkip) {
+			this.linesToSkip = linesToSkip;
+			return this;
+		}
+
+		public Builder includedFields(int[] includedFields) {
+			this.includedFields = includedFields;
+			return this;
+		}
+
+		public Builder columnRanges(String[] columnRanges) {
+			this.columnRanges = columnRanges;
+			return this;
+		}
+
+		public Builder quoteCharacter(Character quoteCharacter) {
+			this.quoteCharacter = quoteCharacter;
+			return this;
+		}
+
+		public Builder continuationString(String continuationString) {
+			this.continuationString = continuationString;
+			return this;
+		}
+
+		public FileImportOptions build() {
+			return new FileImportOptions(this);
 		}
 	}
 

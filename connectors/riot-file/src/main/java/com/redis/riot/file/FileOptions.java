@@ -32,6 +32,16 @@ public class FileOptions {
 	@ArgGroup(exclusive = false, heading = "Google Cloud Storage options%n")
 	private GcsOptions gcs = new GcsOptions();
 
+	public FileOptions() {
+	}
+
+	protected FileOptions(Builder<?> builder) {
+		this.encoding = builder.encoding;
+		this.gzip = builder.gzip;
+		this.s3 = builder.s3;
+		this.gcs = builder.gcs;
+	}
+
 	public Charset getEncoding() {
 		return encoding;
 	}
@@ -103,6 +113,39 @@ public class FileOptions {
 			return new UncustomizedUrlResource(location);
 		}
 		return new FileSystemResource(location);
+	}
+
+	public static class Builder<B extends Builder<B>> {
+
+		private Charset encoding = DEFAULT_ENCODING;
+		private boolean gzip;
+		private S3Options s3 = new S3Options();
+		private GcsOptions gcs = new GcsOptions();
+
+		@SuppressWarnings("unchecked")
+		public B encoding(Charset encoding) {
+			this.encoding = encoding;
+			return (B) this;
+		}
+
+		@SuppressWarnings("unchecked")
+		public B gzip(boolean gzip) {
+			this.gzip = gzip;
+			return (B) this;
+		}
+
+		@SuppressWarnings("unchecked")
+		public B s3(S3Options s3) {
+			this.s3 = s3;
+			return (B) this;
+		}
+
+		@SuppressWarnings("unchecked")
+		public B gcs(GcsOptions gcs) {
+			this.gcs = gcs;
+			return (B) this;
+		}
+
 	}
 
 }
