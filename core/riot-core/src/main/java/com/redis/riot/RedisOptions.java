@@ -32,7 +32,9 @@ public class RedisOptions {
 
 	public static final String DEFAULT_HOST = "localhost";
 	public static final int DEFAULT_PORT = 6379;
-
+	//
+	public static final int DEFAULT_DB = 0;
+	//
 	@Option(names = { "-h",
 			"--hostname" }, description = "Server hostname (default: ${DEFAULT-VALUE}).", paramLabel = "<host>")
 	private String host = DEFAULT_HOST;
@@ -51,7 +53,9 @@ public class RedisOptions {
 	@Option(names = "--timeout", description = "Redis command timeout (default: ${DEFAULT-VALUE}).", paramLabel = "<sec>")
 	private OptionalLong timeout = OptionalLong.empty();
 	@Option(names = { "-n", "--db" }, description = "Database number (default: ${DEFAULT-VALUE}).", paramLabel = "<db>")
-	private OptionalInt database = OptionalInt.empty();
+	//
+	private int database = DEFAULT_DB;
+	//
 	@Option(names = { "-c", "--cluster" }, description = "Enable cluster mode.")
 	private boolean cluster;
 	@Option(names = "--tls", description = "Establish a secure TLS connection.")
@@ -118,7 +122,7 @@ public class RedisOptions {
 	}
 
 	public void setDatabase(int database) {
-		this.database = OptionalInt.of(database);
+		this.database = database;
 	}
 
 	public void setTls(boolean tls) {
@@ -187,7 +191,7 @@ public class RedisOptions {
 		socket.ifPresent(redisURI::setSocket);
 		username.ifPresent(redisURI::setUsername);
 		password.ifPresent(redisURI::setPassword);
-		database.ifPresent(redisURI::setDatabase);
+		redisURI.setDatabase(this.database);
 		timeout.ifPresent(t -> redisURI.setTimeout(Duration.ofSeconds(t)));
 		clientName.ifPresent(redisURI::setClientName);
 		return redisURI;
