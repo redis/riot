@@ -21,7 +21,7 @@ jobs:
           echo ${{ github.event.inputs.version }} > VERSION
 
       - name: Release
-        uses: redis-field-engineering/redis-release-action@v2
+        uses: redis-field-engineering/redis-release-action@v3
         with:
           gpg-key-id: ${{ secrets.GPG_KEY_ID }}
           gpg-public-key: ${{ secrets.GPG_PUBLIC_KEY }}
@@ -35,7 +35,7 @@ jobs:
 
       - name: JReleaser output
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: artifact
           path: |
@@ -44,7 +44,7 @@ jobs:
 
       - name: Upload test reports
         if: failure()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: test-reports
           path: |

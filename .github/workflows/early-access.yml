@@ -16,7 +16,7 @@ jobs:
           fetch-depth: 0
 
       - name: Release
-        uses: redis-field-engineering/redis-release-action@v2
+        uses: redis-field-engineering/redis-release-action@v3
         with:
           gpg-key-id: ${{ secrets.GPG_KEY_ID }}
           gpg-public-key: ${{ secrets.GPG_PUBLIC_KEY }}
@@ -28,9 +28,18 @@ jobs:
           slack-webhook: ${{ secrets.JRELEASER_SLACK_WEBHOOK }}
           docker-password: ${{ secrets.JRELEASER_DOCKER_PASSWORD }}
 
+      - name: JReleaser output
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: artifact
+          path: |
+            out/jreleaser/trace.log
+            out/jreleaser/output.properties
+
       - name: Upload test reports
         if: failure()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: test-reports
           path: |
