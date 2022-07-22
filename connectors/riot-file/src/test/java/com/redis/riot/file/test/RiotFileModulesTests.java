@@ -36,7 +36,7 @@ class RiotFileModulesTests extends AbstractRiotTests {
 	@RedisTestContextsSource
 	void importSugadd(RedisTestContext redis) throws Exception {
 		execute("import-sugadd", redis);
-		List<Suggestion<String>> suggestions = redis.sync().sugget("names", "Bea",
+		List<Suggestion<String>> suggestions = redis.sync().ftSugget("names", "Bea",
 				SuggetOptions.builder().withPayloads(true).build());
 		Assertions.assertEquals(5, suggestions.size());
 		Assertions.assertEquals("American Blonde Ale", suggestions.get(0).getPayload());

@@ -65,7 +65,7 @@ public class FakerGeneratorCommand extends AbstractImportCommand {
 		return generator;
 	}
 
-	private String expression(Field field) {
+	private String expression(Field<String> field) {
 		switch (field.getType()) {
 		case TEXT:
 			return "lorem.paragraph";
@@ -82,8 +82,8 @@ public class FakerGeneratorCommand extends AbstractImportCommand {
 		Map<String, String> fields = new LinkedHashMap<>();
 		try (StatefulRedisModulesConnection<String, String> connection = getRedisOptions().connect()) {
 			RediSearchCommands<String, String> commands = connection.sync();
-			IndexInfo info = RedisModulesUtils.indexInfo(commands.indexInfo(index));
-			for (Field field : info.getFields()) {
+			IndexInfo info = RedisModulesUtils.indexInfo(commands.ftInfo(index));
+			for (Field<String> field : info.getFields()) {
 				fields.put(field.getName(), expression(field));
 			}
 		}

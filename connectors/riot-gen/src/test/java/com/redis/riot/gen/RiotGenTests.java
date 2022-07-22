@@ -14,8 +14,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import com.redis.lettucemod.search.CreateOptions;
 import com.redis.lettucemod.search.Document;
 import com.redis.lettucemod.search.Field;
-import com.redis.lettucemod.search.Field.TextField.PhoneticMatcher;
 import com.redis.lettucemod.search.SearchResults;
+import com.redis.lettucemod.search.TextField.PhoneticMatcher;
 import com.redis.lettucemod.timeseries.MRangeOptions;
 import com.redis.lettucemod.timeseries.RangeResult;
 import com.redis.lettucemod.timeseries.Sample;
@@ -107,12 +107,12 @@ class RiotGenTests extends AbstractRiotIntegrationTests {
 		String FIELD_NAME = "name";
 		String FIELD_STYLE = "style";
 		String FIELD_OUNCES = "ounces";
-		redismod.sync().create(INDEX, CreateOptions.<String, String>builder().prefix("beer:").build(),
+		redismod.sync().ftCreate(INDEX, CreateOptions.<String, String>builder().prefix("beer:").build(),
 				Field.tag(FIELD_ID).sortable().build(), Field.text(FIELD_NAME).sortable().build(),
 				Field.text(FIELD_STYLE).matcher(PhoneticMatcher.ENGLISH).sortable().build(),
 				Field.numeric(FIELD_ABV).sortable().build(), Field.numeric(FIELD_OUNCES).sortable().build());
 		execute("faker-infer", redismod);
-		SearchResults<String, String> results = redismod.sync().search(INDEX, "*");
+		SearchResults<String, String> results = redismod.sync().ftSearch(INDEX, "*");
 		Assertions.assertEquals(1000, results.getCount());
 		Document<String, String> doc1 = results.get(0);
 		Assertions.assertNotNull(doc1.get(FIELD_ABV));
@@ -123,7 +123,7 @@ class RiotGenTests extends AbstractRiotIntegrationTests {
 	void testFakerTsAdd() throws Exception {
 		RedisTestContext redis = getContext(redisMod);
 		execute("faker-tsadd", redis);
-		List<Sample> samples = redis.sync().range("ts:gen", TimeRange.unbounded(), null);
+		List<Sample> samples = redis.sync().tsRange("ts:gen", TimeRange.unbounded(), null);
 		Assertions.assertEquals(10, samples.size());
 	}
 
@@ -131,7 +131,7 @@ class RiotGenTests extends AbstractRiotIntegrationTests {
 	void testFakerTsAddWithOptions() throws Exception {
 		RedisTestContext redis = getContext(redisMod);
 		execute("faker-tsadd-options", redis);
-		List<RangeResult<String, String>> results = redis.sync().mrange(TimeRange.unbounded(),
+		List<RangeResult<String, String>> results = redis.sync().tsMrange(TimeRange.unbounded(),
 				MRangeOptions.<String, String>filters("character1=Einstein").build());
 		Assertions.assertFalse(results.isEmpty());
 	}
