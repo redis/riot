@@ -3,8 +3,6 @@ package com.redis.riot;
 import java.io.File;
 import java.time.Duration;
 import java.util.Optional;
-import java.util.OptionalInt;
-import java.util.OptionalLong;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,9 +47,9 @@ public class RedisOptions {
 	@Option(names = { "-u", "--uri" }, description = "Server URI.", paramLabel = "<uri>")
 	private RedisURI uri;
 	@Option(names = "--timeout", description = "Redis command timeout (default: ${DEFAULT-VALUE}).", paramLabel = "<sec>")
-	private OptionalLong timeout = OptionalLong.empty();
+	private Optional<Long> timeout = Optional.empty();
 	@Option(names = { "-n", "--db" }, description = "Database number (default: ${DEFAULT-VALUE}).", paramLabel = "<db>")
-	private OptionalInt database = OptionalInt.empty();
+	private Optional<Integer> database = Optional.empty();
 	@Option(names = { "-c", "--cluster" }, description = "Enable cluster mode.")
 	private boolean cluster;
 	@Option(names = "--tls", description = "Establish a secure TLS connection.")
@@ -114,11 +112,11 @@ public class RedisOptions {
 	}
 
 	public void setTimeout(long timeout) {
-		this.timeout = OptionalLong.of(timeout);
+		this.timeout = Optional.of(timeout);
 	}
 
 	public void setDatabase(int database) {
-		this.database = OptionalInt.of(database);
+		this.database = Optional.of(database);
 	}
 
 	public void setTls(boolean tls) {
