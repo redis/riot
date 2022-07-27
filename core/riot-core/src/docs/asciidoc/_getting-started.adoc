@@ -28,15 +28,6 @@ include::{includedir}/_download-run.adoc[leveloffset=+3]
 docker run jruaux/{project-name} [OPTIONS] [COMMAND]
 ----
 
-=== Clone and run
-
-[subs="attributes",source,console]
-----
-git clone https://github.com/redis-developer/riot.git
-cd riot/bin
-./{project-name}
-----
-
 == Usage
 
 To display usage help, run the following command:

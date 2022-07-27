@@ -2,7 +2,7 @@
 
 == Introduction
 
-{project-title} is a data generator for Redis based on https://github.com/DiUS/java-faker[Faker].
+{project-title} is a data generator for Redis.
 
 It supports https://redis.io[Redis] and https://redis.com/redis-enterprise-software/overview/[Redis Enterprise] in either standalone or https://redis.io/topics/cluster-tutorial[cluster] deployments.
 
@@ -11,15 +11,26 @@ It supports https://redis.io[Redis] and https://redis.com/redis-enterprise-softw
 
 include::{includedir}/_getting-started.adoc[leveloffset=+1]
 
-== Importing
+== Random Data-Structure Generator
 
-The `import` command generates data and writes it to Redis.
+The `ds` subcommand generates random data for Redis data-structures (set, list, zset, stream, string, hash), RedisJSON, and RedisTimeSeries.
 
 === Usage
 
 [subs=+quotes]
 ----
-[green]#riot-gen# -h <host> -p <port> import [olive]#SPEL#... [REDIS COMMAND...]
+[green]#riot-gen# -h <host> -p <port> ds [OPTIONS]
+----
+
+== Faker Generator
+
+The `faker` subcommand generates data using https://github.com/DiUS/java-faker[Faker] and writes it to Redis.
+
+=== Usage
+
+[subs=+quotes]
+----
+[green]#riot-gen# -h <host> -p <port> faker [olive]#SPEL#... [REDIS COMMAND...]
 ----
 
 where SPEL is a https://docs.spring.io/spring/docs/current/spring-framework-reference/core.html#expressions[Spring Expression Language] field in the form `field="expression"`.
@@ -28,19 +39,19 @@ To show the full usage, run:
 
 [subs="+quotes"]
 ----
-[green]#riot-gen# import --help
+[green]#riot-gen# faker --help
 ----
 
 .Hash generator example
 [source,console]
 ----
-include::{test-resources}/import-hset[]
+include::{test-resources}/faker-hset[]
 ----
 
 .Set generator example
 [source,console]
 ----
-include::{test-resources}/import-sadd[]
+include::{test-resources}/faker-sadd[]
 ----
 
 === Redis Commands
@@ -57,7 +68,7 @@ You can infer generator fields from a RediSearch index using the `--infer` optio
 
 [source,console]
 ----
-include::{test-resources}/import-infer[]
+include::{test-resources}/faker-infer[]
 ----
 
 [[_faker_fields]]
@@ -74,13 +85,13 @@ Most providers don't take any arguments and can be called directly, for example:
 
 [subs="+quotes"]
 ----
-[green]#riot-gen# import firstName="name.firstName"
+[green]#riot-gen# faker firstName="name.firstName"
 ----
 
 Some providers take parameters, for example:
 [subs="+quotes"]
 ----
-[green]#riot-gen# import lease="number.digits(2)"
+[green]#riot-gen# faker lease="number.digits(2)"
 ----
 
 Refer to the link specified for each provider for complete documentation.

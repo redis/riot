@@ -29,13 +29,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.redis.lettucemod.api.sync.RedisModulesCommands;
 import com.redis.spring.batch.DataStructure.Type;
-import com.redis.spring.batch.support.RandomDataStructureItemReader;
+import com.redis.spring.batch.reader.RandomDataStructureItemReader;
 import com.redis.testcontainers.junit.RedisTestContext;
 import com.redis.testcontainers.junit.RedisTestContextsSource;
 
 @Testcontainers
 @SuppressWarnings({ "rawtypes", "unchecked" })
-public class PostgreSQLTests extends AbstractDatabaseTests {
+public class PostgresTests extends AbstractDatabaseTests {
 
 	private static final DockerImageName POSTGRE_DOCKER_IMAGE_NAME = DockerImageName.parse(PostgreSQLContainer.IMAGE)
 			.withTag(PostgreSQLContainer.DEFAULT_TAG);
@@ -51,7 +51,7 @@ public class PostgreSQLTests extends AbstractDatabaseTests {
 		scriptRunner.setAutoCommit(false);
 		scriptRunner.setStopOnError(true);
 		String file = "northwind.sql";
-		InputStream inputStream = PostgreSQLTests.class.getClassLoader().getResourceAsStream(file);
+		InputStream inputStream = PostgresTests.class.getClassLoader().getResourceAsStream(file);
 		if (inputStream == null) {
 			throw new FileNotFoundException(file);
 		}
@@ -104,10 +104,10 @@ public class PostgreSQLTests extends AbstractDatabaseTests {
 			Map<String, String> hash1 = new HashMap<>();
 			hash1.put("field1", "value1");
 			hash1.put("field2", "value2");
-			sync.hmset("generated:1", hash1);
+			sync.hmset("gen:hash:1", hash1);
 			Map<String, String> hash2 = new HashMap<>();
 			hash2.put("field2", "value2");
-			sync.hmset("generated:2", hash2);
+			sync.hmset("gen:hash:2", hash2);
 			execute("export-postgresql", redis, r -> configureExportCommand(r, POSTGRESQL));
 			statement.execute("SELECT COUNT(*) AS count FROM mytable");
 			ResultSet countResultSet = statement.getResultSet();

@@ -96,30 +96,29 @@ public class DumpFileImportCommand extends AbstractTransferCommand {
 				.processor(this::processDataStructure).build()).build();
 	}
 
-	@SuppressWarnings({ "unchecked", "incomplete-switch" })
+	@SuppressWarnings("unchecked")
 	private DataStructure<String> processDataStructure(DataStructure<String> item) {
-		if (item.getType() != null) {
-			switch (Type.of(item.getType())) {
-			case ZSET:
-				Collection<Map<String, Object>> zset = (Collection<Map<String, Object>>) item.getValue();
-				Collection<ScoredValue<String>> values = new ArrayList<>(zset.size());
-				for (Map<String, Object> map : zset) {
-					double score = ((Number) map.get("score")).doubleValue();
-					String value = (String) map.get("value");
-					values.add((ScoredValue<String>) ScoredValue.fromNullable(score, value));
-				}
-				item.setValue(values);
-				break;
-			case STREAM:
-				Collection<Map<String, Object>> stream = (Collection<Map<String, Object>>) item.getValue();
-				Collection<StreamMessage<String, String>> messages = new ArrayList<>(stream.size());
-				for (Map<String, Object> message : stream) {
-					messages.add(new StreamMessage<>((String) message.get("stream"), (String) message.get("id"),
-							(Map<String, String>) message.get("body")));
-				}
-				item.setValue(messages);
-				break;
+		if (item.getType() == null) {
+			return item;
+		}
+		Type type = Type.of(item.getType());
+		if (type == Type.ZSET) {
+			Collection<Map<String, Object>> zset = (Collection<Map<String, Object>>) item.getValue();
+			Collection<ScoredValue<String>> values = new ArrayList<>(zset.size());
+			for (Map<String, Object> map : zset) {
+				double score = ((Number) map.get("score")).doubleValue();
+				String value = (String) map.get("value");
+				values.add((ScoredValue<String>) ScoredValue.fromNullable(score, value));
 			}
+			item.setValue(values);
+		} else if (type == Type.STREAM) {
+			Collection<Map<String, Object>> stream = (Collection<Map<String, Object>>) item.getValue();
+			Collection<StreamMessage<String, String>> messages = new ArrayList<>(stream.size());
+			for (Map<String, Object> message : stream) {
+				messages.add(new StreamMessage<>((String) message.get("stream"), (String) message.get("id"),
+						(Map<String, String>) message.get("body")));
+			}
+			item.setValue(messages);
 		}
 		return item;
 	}

@@ -39,14 +39,14 @@ public class FakerGeneratorCommand extends AbstractImportCommand {
 
 	@Override
 	protected Long initialMax() {
-		return (long) options.getEnd() - options.getStart();
+		return (long) options.getCount();
 	}
 
 	private ItemReader<Map<String, Object>> reader() {
 		log.debug("Creating Faker reader with {}", options);
 		FakerItemReader reader = new FakerItemReader(generator());
 		reader.setStart(options.getStart());
-		reader.setEnd(options.getEnd());
+		reader.setCount(options.getCount());
 		if (options.getSleep() > 0) {
 			return new ThrottledItemReader<>(reader, options.getSleep());
 		}

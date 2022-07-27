@@ -13,7 +13,7 @@ public class MapWithMetadataGenerator implements Generator<Map<String, Object>> 
 	}
 
 	@Override
-	public Map<String, Object> next(long index) {
+	public Map<String, Object> next(int index) {
 		Map<String, Object> map = parent.next(index);
 		map.put(MapGenerator.FIELD_INDEX, index);
 		map.put(FIELD_THREAD, Thread.currentThread().getId());

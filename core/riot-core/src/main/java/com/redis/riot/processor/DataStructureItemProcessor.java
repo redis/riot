@@ -84,7 +84,11 @@ public class DataStructureItemProcessor implements ItemProcessor<DataStructure<S
 
 	@SuppressWarnings("unchecked")
 	private Map<String, String> map(DataStructure<String> item) {
-		switch (Type.of(item.getType())) {
+		Type type = Type.of(item.getType());
+		if (type == null) {
+			return defaultConverter.convert(item.getValue());
+		}
+		switch (type) {
 		case HASH:
 			return hashConverter.convert((Map<String, String>) item.getValue());
 		case LIST:

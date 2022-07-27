@@ -26,7 +26,7 @@ public class MapGenerator implements Generator<Map<String, Object>> {
 	}
 
 	@Override
-	public Map<String, Object> next(long index) {
+	public Map<String, Object> next(int index) {
 		Map<String, Object> map = new HashMap<>();
 		context.setVariable(FIELD_INDEX, index);
 		for (Entry<String, Expression> expression : expressions.entrySet()) {

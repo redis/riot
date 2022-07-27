@@ -13,7 +13,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 import com.redis.riot.AbstractRiotIntegrationTests;
 import com.redis.riot.redis.ReplicationOptions.ReplicationMode;
-import com.redis.spring.batch.support.RandomDataStructureItemReader;
+import com.redis.spring.batch.reader.RandomDataStructureItemReader;
 import com.redis.testcontainers.RedisContainer;
 import com.redis.testcontainers.RedisServer;
 import com.redis.testcontainers.junit.RedisTestContext;
@@ -87,7 +87,7 @@ class TestReplicate extends AbstractRiotIntegrationTests {
 	@ParameterizedTest
 	@RedisTestContextsSource
 	void replicateKeyProcessor(RedisTestContext redis) throws Throwable {
-		generate(RandomDataStructureItemReader.builder().end(200).build(), redis);
+		generate(RandomDataStructureItemReader.builder().count(200).build(), redis);
 		Long sourceSize = redis.sync().dbsize();
 		Assertions.assertTrue(sourceSize > 0);
 		execute("replicate-key-processor", redis, this::configureReplicateCommand);
@@ -115,11 +115,11 @@ class TestReplicate extends AbstractRiotIntegrationTests {
 	}
 
 	private void runLiveReplication(String filename, RedisTestContext source) throws Exception {
-		generate(RandomDataStructureItemReader.builder().end(3000).build(), source);
+		generate(RandomDataStructureItemReader.builder().count(3000).build(), source);
 		ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 		executor.schedule(() -> {
 			try {
-				generate(1, RandomDataStructureItemReader.builder().between(3000, 5000).build(), source);
+				generate(1, RandomDataStructureItemReader.builder().start(3000).count(2000).build(), source);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

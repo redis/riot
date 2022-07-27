@@ -8,8 +8,8 @@ import org.springframework.batch.item.ItemReader;
 
 import com.redis.spring.batch.DataStructure;
 import com.redis.spring.batch.RedisItemWriter;
+import com.redis.spring.batch.reader.RandomDataStructureItemReader;
 import com.redis.spring.batch.support.JobRunner;
-import com.redis.spring.batch.support.RandomDataStructureItemReader;
 import com.redis.testcontainers.RedisClusterContainer;
 import com.redis.testcontainers.RedisContainer;
 import com.redis.testcontainers.RedisServer;

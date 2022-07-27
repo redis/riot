@@ -43,7 +43,7 @@ class FakerReaderTests {
 		fields.put("firstName", "name.firstName");
 		fields.put("lastName", "name.lastName");
 		FakerItemReader reader = new FakerItemReader(MapGenerator.builder().fields(fields).build());
-		reader.setEnd(count);
+		reader.setCount(count);
 		List<Map<String, Object>> items = new ArrayList<>();
 		run("reader", reader, items::addAll);
 		Assertions.assertEquals(count, items.size());
@@ -60,11 +60,11 @@ class FakerReaderTests {
 		fields.put("lastName", "name.lastName");
 		FakerItemReader reader = new FakerItemReader(
 				new MapWithMetadataGenerator(MapGenerator.builder().fields(fields).build()));
-		reader.setEnd(count);
+		reader.setCount(count);
 		List<Map<String, Object>> items = new ArrayList<>();
 		run("metadata", reader, items::addAll);
 		Assertions.assertEquals(count, items.size());
-		Assertions.assertEquals(1L, items.get(0).get(MapGenerator.FIELD_INDEX));
+		Assertions.assertEquals(1, items.get(0).get(MapGenerator.FIELD_INDEX));
 	}
 
 	private <T> void run(String name, ItemReader<T> reader, ItemWriter<T> writer) throws Exception {

@@ -5,9 +5,9 @@ import picocli.CommandLine;
 public class GeneratorOptions {
 
 	@CommandLine.Option(names = "--start", description = "Start index (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
-	protected int start = 0;
-	@CommandLine.Option(names = "--end", description = "End index (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
-	protected int end = 1000;
+	protected int start = 1;
+	@CommandLine.Option(names = "--count", description = "Number of items to generate (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
+	protected int count = 1000;
 	@CommandLine.Option(names = "--sleep", description = "Duration in ms to sleep before each item generation (default: ${DEFAULT-VALUE})", paramLabel = "<ms>")
 	private long sleep = 0;
 
@@ -19,12 +19,12 @@ public class GeneratorOptions {
 		this.start = start;
 	}
 
-	public int getEnd() {
-		return end;
+	public int getCount() {
+		return count;
 	}
 
-	public void setEnd(int end) {
-		this.end = end;
+	public void setCount(int count) {
+		this.count = count;
 	}
 
 	public long getSleep() {

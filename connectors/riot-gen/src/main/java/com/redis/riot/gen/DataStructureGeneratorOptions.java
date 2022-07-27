@@ -1,14 +1,14 @@
 package com.redis.riot.gen;
 
-import static com.redis.spring.batch.support.RandomDataStructureItemReader.DEFAULT_COLLECTION_CARDINALITY;
-import static com.redis.spring.batch.support.RandomDataStructureItemReader.DEFAULT_KEYSPACE;
-import static com.redis.spring.batch.support.RandomDataStructureItemReader.DEFAULT_STRING_VALUE_SIZE;
-import static com.redis.spring.batch.support.RandomDataStructureItemReader.DEFAULT_ZSET_SCORE;
+import static com.redis.spring.batch.reader.RandomDataStructureItemReader.DEFAULT_COLLECTION_CARDINALITY;
+import static com.redis.spring.batch.reader.RandomDataStructureItemReader.DEFAULT_KEYSPACE;
+import static com.redis.spring.batch.reader.RandomDataStructureItemReader.DEFAULT_STRING_VALUE_SIZE;
+import static com.redis.spring.batch.reader.RandomDataStructureItemReader.DEFAULT_ZSET_SCORE;
 
 import java.util.OptionalInt;
 
 import com.redis.spring.batch.DataStructure.Type;
-import com.redis.spring.batch.support.RandomDataStructureItemReader;
+import com.redis.spring.batch.reader.RandomDataStructureItemReader;
 
 import picocli.CommandLine.Option;
 

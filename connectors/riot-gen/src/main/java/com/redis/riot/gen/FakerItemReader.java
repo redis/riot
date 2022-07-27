@@ -14,37 +14,32 @@ import org.springframework.util.ClassUtils;
  */
 public class FakerItemReader extends AbstractItemCountingItemStreamItemReader<Map<String, Object>> {
 
-	public static final long DEFAULT_START = 0;
-	public static final long DEFAULT_END = 1000;
+	public static final int DEFAULT_START = 1;
+	public static final int DEFAULT_COUNT = 1000;
 
-	private long start = DEFAULT_START;
-	private long end = DEFAULT_END;
+	private int start = DEFAULT_START;
+	private int count = DEFAULT_COUNT;
 	private final Generator<Map<String, Object>> generator;
 
 	public FakerItemReader(Generator<Map<String, Object>> generator) {
 		setName(ClassUtils.getShortName(FakerItemReader.class));
 		Assert.notNull(generator, "A generator is required");
-		setMaxItemCount();
+		setMaxItemCount(count);
 		this.generator = generator;
 	}
 
-	public void setStart(long start) {
+	public void setStart(int start) {
 		this.start = start;
-		setMaxItemCount();
 	}
 
-	public void setEnd(long end) {
-		this.end = end;
-		setMaxItemCount();
-	}
-
-	private void setMaxItemCount() {
-		setMaxItemCount(Math.toIntExact(end - start));
+	public void setCount(int count) {
+		this.count = count;
+		setMaxItemCount(count);
 	}
 
 	@Override
 	protected Map<String, Object> doRead() throws Exception {
-		return generator.next(start + (getCurrentItemCount() % (end - start)));
+		return generator.next(start + ((getCurrentItemCount() - 1) % count));
 	}
 
 	@Override

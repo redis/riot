@@ -11,8 +11,7 @@ import com.redis.riot.RedisWriterOptions;
 import com.redis.riot.RiotStep;
 import com.redis.spring.batch.DataStructure;
 import com.redis.spring.batch.RedisItemWriter;
-import com.redis.spring.batch.support.RandomDataStructureItemReader;
-import com.redis.spring.batch.support.RandomDataStructureItemReader.Builder;
+import com.redis.spring.batch.reader.RandomDataStructureItemReader;
 import com.redis.spring.batch.support.Range;
 
 import picocli.CommandLine;
@@ -40,11 +39,12 @@ public class DataStructureGeneratorCommand extends AbstractTransferCommand {
 				.build();
 		log.debug("Creating random data structure reader with {}", options);
 		return jobBuilder.start(step(RiotStep.reader(reader()).writer(writer).name(NAME).taskName("Generating")
-				.max(() -> (long) options.getEnd() - options.getStart()).build()).build()).build();
+				.max(() -> (long) options.getCount()).build()).build()).build();
 	}
 
 	private ItemReader<DataStructure<String>> reader() {
-		Builder reader = RandomDataStructureItemReader.builder().between(options.getStart(), options.getEnd())
+		RandomDataStructureItemReader.Builder reader = RandomDataStructureItemReader.builder().start(options.getStart())
+				.count(options.getCount())
 				.collectionCardinality(
 						Range.between(options.getMinCollectionCardinality(), options.getMaxCollectionCardinality()))
 				.keyspace(options.getKeyspace())
