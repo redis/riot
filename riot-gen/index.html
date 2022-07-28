@@ -26,19 +26,24 @@
 <li><a href="#_usage">2.2. Usage</a></li>
 </ul>
 </li>
-<li><a href="#_importing">3. Importing</a>
+<li><a href="#_random_data_structure_generator">3. Random Data-Structure Generator</a>
 <ul class="sectlevel2">
 <li><a href="#_usage_2">3.1. Usage</a></li>
-<li><a href="#_redis_commands">3.2. Redis Commands</a></li>
-<li><a href="#_processing">3.3. Processing</a></li>
-<li><a href="#_redisearch">3.4. RediSearch</a></li>
 </ul>
 </li>
-<li><a href="#_faker_fields">4. Faker Fields</a></li>
-<li><a href="#_architecture">5. Architecture</a>
+<li><a href="#_faker_generator">4. Faker Generator</a>
 <ul class="sectlevel2">
-<li><a href="#batch">5.1. Batching</a></li>
-<li><a href="#threads">5.2. Multi-threading</a></li>
+<li><a href="#_usage_3">4.1. Usage</a></li>
+<li><a href="#_redis_commands">4.2. Redis Commands</a></li>
+<li><a href="#_processing">4.3. Processing</a></li>
+<li><a href="#_redisearch">4.4. RediSearch</a></li>
+</ul>
+</li>
+<li><a href="#_faker_fields">5. Faker Fields</a></li>
+<li><a href="#_architecture">6. Architecture</a>
+<ul class="sectlevel2">
+<li><a href="#batch">6.1. Batching</a></li>
+<li><a href="#threads">6.2. Multi-threading</a></li>
 </ul>
 </li>
 </ul>
@@ -49,7 +54,7 @@
 <h2 id="_introduction"><a class="anchor" href="#_introduction"></a>1. Introduction</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>RIOT-Gen is a data generator for Redis based on <a href="https://github.com/DiUS/java-faker">Faker</a>.</p>
+<p>RIOT-Gen is a data generator for Redis.</p>
 </div>
 <div class="paragraph">
 <p>It supports <a href="https://redis.io">Redis</a> and <a href="https://redis.com/redis-enterprise-software/overview/">Redis Enterprise</a> in either standalone or <a href="https://redis.io/topics/cluster-tutorial">cluster</a> deployments.</p>
@@ -156,16 +161,6 @@ OpenJDK 64-Bit Server VM (build 11.0.11+9-Ubuntu-0ubuntu2.18.04, mixed mode, sha
 </div>
 </div>
 </div>
-<div class="sect3">
-<h4 id="_clone_and_run"><a class="anchor" href="#_clone_and_run"></a>2.1.5. Clone and run</h4>
-<div class="listingblock">
-<div class="content">
-<pre class="CodeRay highlight"><code data-lang="source">git clone https://github.com/redis-developer/riot.git
-cd riot/bin
-./riot-gen</code></pre>
-</div>
-</div>
-</div>
 </div>
 <div class="sect2">
 <h3 id="_usage"><a class="anchor" href="#_usage"></a>2.2. Usage</h3>
@@ -251,16 +246,32 @@ Redis connection options
 </div>
 </div>
 <div class="sect1">
-<h2 id="_importing"><a class="anchor" href="#_importing"></a>3. Importing</h2>
+<h2 id="_random_data_structure_generator"><a class="anchor" href="#_random_data_structure_generator"></a>3. Random Data-Structure Generator</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>The <code>import</code> command generates data and writes it to Redis.</p>
+<p>The <code>ds</code> subcommand generates random data for Redis data-structures (set, list, zset, stream, string, hash), RedisJSON, and RedisTimeSeries.</p>
 </div>
 <div class="sect2">
 <h3 id="_usage_2"><a class="anchor" href="#_usage_2"></a>3.1. Usage</h3>
 <div class="listingblock">
 <div class="content">
-<pre><span class="green">riot-gen</span> -h &lt;host&gt; -p &lt;port&gt; import <span class="olive">SPEL</span>... [REDIS COMMAND...]</pre>
+<pre><span class="green">riot-gen</span> -h &lt;host&gt; -p &lt;port&gt; ds [OPTIONS]</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_faker_generator"><a class="anchor" href="#_faker_generator"></a>4. Faker Generator</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The <code>faker</code> subcommand generates data using <a href="https://github.com/DiUS/java-faker">Faker</a> and writes it to Redis.</p>
+</div>
+<div class="sect2">
+<h3 id="_usage_3"><a class="anchor" href="#_usage_3"></a>4.1. Usage</h3>
+<div class="listingblock">
+<div class="content">
+<pre><span class="green">riot-gen</span> -h &lt;host&gt; -p &lt;port&gt; faker <span class="olive">SPEL</span>... [REDIS COMMAND...]</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -271,24 +282,24 @@ Redis connection options
 </div>
 <div class="listingblock">
 <div class="content">
-<pre><span class="green">riot-gen</span> import --help</pre>
+<pre><span class="green">riot-gen</span> faker --help</pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="title">Hash generator example</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="console">Unresolved directive in index.adoc - include::/home/runner/work/riot/riot/connectors/riot-gen/src/test/resources/import-hset[]</code></pre>
+<pre class="CodeRay highlight"><code data-lang="console">riot-gen faker id=&quot;#index&quot; firstName=&quot;name.firstName&quot; lastName=&quot;name.lastName&quot; address=&quot;address.fullAddress&quot; hset --keyspace person --keys id</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="title">Set generator example</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="console">Unresolved directive in index.adoc - include::/home/runner/work/riot/riot/connectors/riot-gen/src/test/resources/import-sadd[]</code></pre>
+<pre class="CodeRay highlight"><code data-lang="console">riot-gen faker name=&quot;gameOfThrones.character&quot; --count 1000 sadd --keyspace got:characters --members name</code></pre>
 </div>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_redis_commands"><a class="anchor" href="#_redis_commands"></a>3.2. Redis Commands</h3>
+<h3 id="_redis_commands"><a class="anchor" href="#_redis_commands"></a>4.2. Redis Commands</h3>
 <div class="paragraph">
 <p>Redis keys are constructed from input records by concatenating the keyspace prefix and key fields:</p>
 </div>
@@ -342,7 +353,7 @@ Redis connection options
 </div>
 </div>
 <div class="sect2">
-<h3 id="_processing"><a class="anchor" href="#_processing"></a>3.3. Processing</h3>
+<h3 id="_processing"><a class="anchor" href="#_processing"></a>4.3. Processing</h3>
 <div class="paragraph">
 <p>The following processors can be applied to records in that order:</p>
 </div>
@@ -360,7 +371,7 @@ Redis connection options
 </ul>
 </div>
 <div class="sect3">
-<h4 id="_transforms"><a class="anchor" href="#_transforms"></a>3.3.1. Transforms</h4>
+<h4 id="_transforms"><a class="anchor" href="#_transforms"></a>4.3.1. Transforms</h4>
 <div class="paragraph">
 <p>Transforms allow you to create/update/delete fields using the <a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/core.html#expressions">Spring Expression Language</a> (SpEL):</p>
 </div>
@@ -410,7 +421,7 @@ Redis connection options
 </div>
 </div>
 <div class="sect3">
-<h4 id="_regular_expressions"><a class="anchor" href="#_regular_expressions"></a>3.3.2. Regular Expressions</h4>
+<h4 id="_regular_expressions"><a class="anchor" href="#_regular_expressions"></a>4.3.2. Regular Expressions</h4>
 <div class="paragraph">
 <p>Extract patterns from source fields using regular expressions:</p>
 </div>
@@ -421,7 +432,7 @@ Redis connection options
 </div>
 </div>
 <div class="sect3">
-<h4 id="_filters"><a class="anchor" href="#_filters"></a>3.3.3. Filters</h4>
+<h4 id="_filters"><a class="anchor" href="#_filters"></a>4.3.3. Filters</h4>
 <div class="paragraph">
 <p>Keep records that match a SpEL boolean expression.</p>
 </div>
@@ -436,20 +447,20 @@ Redis connection options
 </div>
 </div>
 <div class="sect2">
-<h3 id="_redisearch"><a class="anchor" href="#_redisearch"></a>3.4. RediSearch</h3>
+<h3 id="_redisearch"><a class="anchor" href="#_redisearch"></a>4.4. RediSearch</h3>
 <div class="paragraph">
 <p>You can infer generator fields from a RediSearch index using the <code>--infer</code> option:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="console">Unresolved directive in index.adoc - include::/home/runner/work/riot/riot/connectors/riot-gen/src/test/resources/import-infer[]</code></pre>
+<pre class="CodeRay highlight"><code data-lang="console">riot-gen faker --infer beerIdx hset --keyspace beer --keys id</code></pre>
 </div>
 </div>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_faker_fields"><a class="anchor" href="#_faker_fields"></a>4. Faker Fields</h2>
+<h2 id="_faker_fields"><a class="anchor" href="#_faker_fields"></a>5. Faker Fields</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>Run this command to display the list of available Faker providers:</p>
@@ -464,7 +475,7 @@ Redis connection options
 </div>
 <div class="listingblock">
 <div class="content">
-<pre><span class="green">riot-gen</span> import firstName="name.firstName"</pre>
+<pre><span class="green">riot-gen</span> faker firstName="name.firstName"</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -472,7 +483,7 @@ Redis connection options
 </div>
 <div class="listingblock">
 <div class="content">
-<pre><span class="green">riot-gen</span> import lease="number.digits(2)"</pre>
+<pre><span class="green">riot-gen</span> faker lease="number.digits(2)"</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -481,7 +492,7 @@ Redis connection options
 </div>
 </div>
 <div class="sect1">
-<h2 id="_architecture"><a class="anchor" href="#_architecture"></a>5. Architecture</h2>
+<h2 id="_architecture"><a class="anchor" href="#_architecture"></a>6. Architecture</h2>
 <div class="sectionbody">
 <div class="imageblock">
 <div class="content">
@@ -493,7 +504,7 @@ Redis connection options
 Then the cycle is repeated until there&#8217;s no more data on the source.</p>
 </div>
 <div class="sect2">
-<h3 id="batch"><a class="anchor" href="#batch"></a>5.1. Batching</h3>
+<h3 id="batch"><a class="anchor" href="#batch"></a>6.1. Batching</h3>
 <div class="paragraph">
 <p>The default batch size is 50, which means that an execution step reads 50 items at a time from the source, processes them, and finally writes then to the target.
 If the target is Redis, writing is done in a single command <a href="https://redis.io/topics/pipelining">pipeline</a> to minimize the number of roundtrips to the server.</p>
@@ -504,7 +515,7 @@ The optimal batch size in terms of throughput depends on a few factors like reco
 </div>
 </div>
 <div class="sect2">
-<h3 id="threads"><a class="anchor" href="#threads"></a>5.2. Multi-threading</h3>
+<h3 id="threads"><a class="anchor" href="#threads"></a>6.2. Multi-threading</h3>
 <div class="paragraph">
 <p>It is possible to parallelize processing by using multiple threads.
 In that configuration, each chunk of items is read, processed, and written in a separate thread of execution.</p>
@@ -519,7 +530,7 @@ In that configuration, each chunk of items is read, processed, and written in a 
 <div id="footer">
 <div id="footer-text">
 Version 2.16.1<br>
-Last updated 2022-07-22 05:55:19 UTC
+Last updated 2022-07-28 03:05:27 UTC
 </div>
 </div>
 <link rel="stylesheet" href="./coderay-asciidoctor.css">

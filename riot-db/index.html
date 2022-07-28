@@ -156,16 +156,6 @@ OpenJDK 64-Bit Server VM (build 11.0.11+9-Ubuntu-0ubuntu2.18.04, mixed mode, sha
 </div>
 </div>
 </div>
-<div class="sect3">
-<h4 id="_clone_and_run"><a class="anchor" href="#_clone_and_run"></a>2.1.5. Clone and run</h4>
-<div class="listingblock">
-<div class="content">
-<pre class="CodeRay highlight"><code data-lang="source">git clone https://github.com/redis-developer/riot.git
-cd riot/bin
-./riot-db</code></pre>
-</div>
-</div>
-</div>
 </div>
 <div class="sect2">
 <h3 id="_usage"><a class="anchor" href="#_usage"></a>2.2. Usage</h3>
@@ -523,7 +513,7 @@ The general usage is:</p>
 <div class="listingblock">
 <div class="title">Export to PostgreSQL</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="console">riot-db export &quot;INSERT INTO mytable (id, field1, field2) VALUES (CAST(:id AS SMALLINT), :field1, :field2)&quot; --url &quot;jdbc:postgresql://host:port/database&quot; --username appuser --password passwd --scan-match &quot;generated:*&quot; --key-regex &quot;generated:(?&lt;id&gt;.*)&quot;</code></pre>
+<pre class="CodeRay highlight"><code data-lang="console">riot-db export &quot;INSERT INTO mytable (id, field1, field2) VALUES (CAST(:id AS SMALLINT), :field1, :field2)&quot; --url &quot;jdbc:postgresql://host:port/database&quot; --username appuser --password passwd --scan-match &quot;gen:hash:*&quot; --key-regex &quot;gen:hash:(?&lt;id&gt;.*)&quot;</code></pre>
 </div>
 </div>
 <div class="listingblock">
@@ -595,7 +585,7 @@ In that configuration, each chunk of items is read, processed, and written in a 
 <div id="footer">
 <div id="footer-text">
 Version 2.16.1<br>
-Last updated 2022-07-22 05:55:19 UTC
+Last updated 2022-07-28 03:05:27 UTC
 </div>
 </div>
 <link rel="stylesheet" href="./coderay-asciidoctor.css">
