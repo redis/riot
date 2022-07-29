@@ -1,0 +1,1 @@
+riot-gen ds --types string hash json timeseries

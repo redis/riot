@@ -9,6 +9,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 
+import com.redis.spring.batch.support.DoubleRange;
+import com.redis.spring.batch.support.IntRange;
+
 import io.lettuce.core.RedisURI;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import io.netty.util.internal.logging.JdkLoggerFactory;
@@ -146,6 +149,8 @@ public class RiotApp extends HelpCommand {
 
 	protected void registerConverters(CommandLine commandLine) {
 		commandLine.registerConverter(RedisURI.class, RedisURI::create);
+		commandLine.registerConverter(IntRange.class, new IntRangeTypeConverter());
+		commandLine.registerConverter(DoubleRange.class, new DoubleRangeTypeConverter());
 		SpelExpressionParser parser = new SpelExpressionParser();
 		commandLine.registerConverter(Expression.class, parser::parseExpression);
 	}

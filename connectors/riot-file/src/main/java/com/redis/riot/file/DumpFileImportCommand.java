@@ -101,7 +101,7 @@ public class DumpFileImportCommand extends AbstractTransferCommand {
 		if (item.getType() == null) {
 			return item;
 		}
-		Type type = Type.of(item.getType());
+		Type type = item.getType();
 		if (type == Type.ZSET) {
 			Collection<Map<String, Object>> zset = (Collection<Map<String, Object>>) item.getValue();
 			Collection<ScoredValue<String>> values = new ArrayList<>(zset.size());

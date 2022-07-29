@@ -54,7 +54,7 @@ class RiotGenTests extends AbstractRiotIntegrationTests {
 
 	@ParameterizedTest
 	@RedisTestContextsSource
-	void testFakerHash(RedisTestContext redis) throws Exception {
+	void fakerHash(RedisTestContext redis) throws Exception {
 		execute("faker-hset", redis);
 		RedisKeyCommands<String, String> sync = redis.sync();
 		List<String> keys = sync.keys("person:*");
@@ -67,7 +67,7 @@ class RiotGenTests extends AbstractRiotIntegrationTests {
 
 	@ParameterizedTest
 	@RedisTestContextsSource
-	void testFakerSet(RedisTestContext redis) throws Exception {
+	void fakerSet(RedisTestContext redis) throws Exception {
 		execute("faker-sadd", redis);
 		RedisSetCommands<String, String> sync = redis.sync();
 		Set<String> names = sync.smembers("got:characters");
@@ -79,7 +79,7 @@ class RiotGenTests extends AbstractRiotIntegrationTests {
 
 	@ParameterizedTest
 	@RedisTestContextsSource
-	void testFakerZset(RedisTestContext redis) throws Exception {
+	void fakerZset(RedisTestContext redis) throws Exception {
 		execute("faker-zadd", redis);
 		RedisKeyCommands<String, String> sync = redis.sync();
 		List<String> keys = sync.keys("leases:*");
@@ -90,7 +90,7 @@ class RiotGenTests extends AbstractRiotIntegrationTests {
 
 	@ParameterizedTest
 	@RedisTestContextsSource
-	void testFakerStream(RedisTestContext redis) throws Exception {
+	void fakerStream(RedisTestContext redis) throws Exception {
 		execute("faker-xadd", redis);
 		RedisStreamCommands<String, String> sync = redis.sync();
 		List<StreamMessage<String, String>> messages = sync.xrange("teststream:1", Range.unbounded());
@@ -98,7 +98,7 @@ class RiotGenTests extends AbstractRiotIntegrationTests {
 	}
 
 	@Test
-	void testFakerIndexIntrospection() throws Exception {
+	void fakerInfer() throws Exception {
 		Assumptions.assumeTrue(redisMod.isEnabled());
 		RedisTestContext redismod = new RedisTestContext(redisMod);
 		String INDEX = "beerIdx";
@@ -120,7 +120,7 @@ class RiotGenTests extends AbstractRiotIntegrationTests {
 	}
 
 	@Test
-	void testFakerTsAdd() throws Exception {
+	void fakerTsAdd() throws Exception {
 		RedisTestContext redis = getContext(redisMod);
 		execute("faker-tsadd", redis);
 		List<Sample> samples = redis.sync().tsRange("ts:gen", TimeRange.unbounded(), null);
@@ -128,12 +128,19 @@ class RiotGenTests extends AbstractRiotIntegrationTests {
 	}
 
 	@Test
-	void testFakerTsAddWithOptions() throws Exception {
+	void fakerTsAddWithOptions() throws Exception {
 		RedisTestContext redis = getContext(redisMod);
 		execute("faker-tsadd-options", redis);
 		List<RangeResult<String, String>> results = redis.sync().tsMrange(TimeRange.unbounded(),
 				MRangeOptions.<String, String>filters("character1=Einstein").build());
 		Assertions.assertFalse(results.isEmpty());
+	}
+	
+	@Test
+	void ds() throws Exception {
+		RedisTestContext redis = getContext(redisMod);
+		execute("ds", redis);
+		Assertions.assertEquals(1000, redis.sync().dbsize());
 	}
 
 }

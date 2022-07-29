@@ -8,7 +8,7 @@ import org.springframework.batch.item.ItemReader;
 
 import com.redis.spring.batch.DataStructure;
 import com.redis.spring.batch.RedisItemWriter;
-import com.redis.spring.batch.reader.RandomDataStructureItemReader;
+import com.redis.spring.batch.reader.DataStructureGeneratorItemReader;
 import com.redis.spring.batch.support.JobRunner;
 import com.redis.testcontainers.RedisClusterContainer;
 import com.redis.testcontainers.RedisContainer;
@@ -31,7 +31,7 @@ public abstract class AbstractRiotIntegrationTests extends AbstractRiotTests {
 	}
 
 	protected void generate(RedisTestContext redis) throws Exception {
-		generate(RandomDataStructureItemReader.builder().build(), redis);
+		generate(DataStructureGeneratorItemReader.builder().build(), redis);
 	}
 
 	protected void generate(ItemReader<DataStructure<String>> reader, RedisTestContext redis) throws Exception {

@@ -1,5 +1,7 @@
 package com.redis.riot.gen;
 
+import java.util.Optional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
@@ -10,9 +12,9 @@ import com.redis.riot.AbstractTransferCommand;
 import com.redis.riot.RedisWriterOptions;
 import com.redis.riot.RiotStep;
 import com.redis.spring.batch.DataStructure;
+import com.redis.spring.batch.DataStructure.Type;
 import com.redis.spring.batch.RedisItemWriter;
-import com.redis.spring.batch.reader.RandomDataStructureItemReader;
-import com.redis.spring.batch.support.Range;
+import com.redis.spring.batch.reader.DataStructureGeneratorItemReader;
 
 import picocli.CommandLine;
 import picocli.CommandLine.ArgGroup;
@@ -43,20 +45,19 @@ public class DataStructureGeneratorCommand extends AbstractTransferCommand {
 	}
 
 	private ItemReader<DataStructure<String>> reader() {
-		RandomDataStructureItemReader.Builder reader = RandomDataStructureItemReader.builder().start(options.getStart())
-				.count(options.getCount())
-				.collectionCardinality(
-						Range.between(options.getMinCollectionCardinality(), options.getMaxCollectionCardinality()))
-				.keyspace(options.getKeyspace())
-				.stringValueSize(Range.between(options.getMinStringSize(), options.getMaxStringSize()))
-				.types(options.getTypes())
-				.zsetScore(Range.between(options.getMinZsetScore(), options.getMaxZsetScore()));
-		if (options.getMinExpiration().isPresent() && options.getMaxExpiration().isPresent()) {
-			reader.expiration(
-					Range.between(options.getMinExpiration().getAsInt(), options.getMaxExpiration().getAsInt()));
-		}
-		if (options.getSleep() > 0) {
-			return new ThrottledItemReader<>(reader.build(), options.getSleep());
+		DataStructureGeneratorItemReader.Builder reader = DataStructureGeneratorItemReader.builder()
+				.start(options.getStart()).count(options.getCount()).streamSize(options.getStreamSize())
+				.streamFieldCount(options.getStreamFieldCount()).streamFieldSize(options.getStreamFieldSize())
+				.listSize(options.getListSize()).setSize(options.getSetSize()).zsetSize(options.getZsetSize())
+				.timeseriesSize(options.getTimeseriesSize()).keyspace(options.getKeyspace())
+				.stringSize(options.getStringSize()).types(options.getTypes().toArray(Type[]::new))
+				.zsetScore(options.getZsetScore()).hashSize(options.getHashSize())
+				.hashFieldSize(options.getHashFieldSize()).jsonFieldCount(options.getJsonSize())
+				.jsonFieldSize(options.getJsonFieldSize());
+		options.getExpiration().ifPresent(reader::expiration);
+		Optional<Long> sleep = options.getSleep();
+		if (sleep.isPresent() && sleep.get() > 0) {
+			return new ThrottledItemReader<>(reader.build(), sleep.get());
 		}
 		return reader.build();
 	}

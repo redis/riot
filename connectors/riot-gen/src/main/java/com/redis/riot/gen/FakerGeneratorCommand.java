@@ -47,8 +47,9 @@ public class FakerGeneratorCommand extends AbstractImportCommand {
 		FakerItemReader reader = new FakerItemReader(generator());
 		reader.setStart(options.getStart());
 		reader.setCount(options.getCount());
-		if (options.getSleep() > 0) {
-			return new ThrottledItemReader<>(reader, options.getSleep());
+		Optional<Long> sleep = options.getSleep();
+		if (sleep.isPresent() && sleep.get() > 0) {
+			return new ThrottledItemReader<>(reader, sleep.get());
 		}
 		return reader;
 	}

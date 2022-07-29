@@ -37,7 +37,6 @@ import com.redis.riot.file.resource.XmlItemReaderBuilder;
 import com.redis.riot.file.resource.XmlObjectReader;
 import com.redis.riot.redis.HsetCommand;
 import com.redis.spring.batch.DataStructure;
-import com.redis.spring.batch.DataStructure.Type;
 import com.redis.testcontainers.junit.RedisTestContext;
 import com.redis.testcontainers.junit.RedisTestContextsSource;
 
@@ -415,7 +414,7 @@ public class RiotFileIntegrationTests extends AbstractRiotIntegrationTests {
 		Assertions.assertEquals(sync.dbsize(), records.size());
 		for (DataStructure<String> record : records) {
 			String key = record.getKey();
-			switch (Type.of(record.getType())) {
+			switch (record.getType()) {
 			case HASH:
 				Assertions.assertEquals(record.getValue(), sync.hgetall(key));
 				break;
