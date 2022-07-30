@@ -47,7 +47,9 @@ import picocli.CommandLine;
 @SuppressWarnings("unchecked")
 class FileIntegrationTests extends AbstractRiotIntegrationTests {
 
-	protected final static int COUNT = 2410;
+	public static final String BEERS_JSON_URL = "https://storage.googleapis.com/jrx/beers.json";
+	public static final int BEER_CSV_COUNT = 2410;
+	public static final int BEER_JSON_COUNT = 216;
 
 	private static Path tempDir;
 
@@ -118,7 +120,7 @@ class FileIntegrationTests extends AbstractRiotIntegrationTests {
 		execute("import-csv", redis);
 		RedisKeyCommands<String, String> sync = redis.sync();
 		List<String> keys = sync.keys("beer:*");
-		Assertions.assertEquals(COUNT, keys.size());
+		Assertions.assertEquals(BEER_CSV_COUNT, keys.size());
 	}
 
 	@ParameterizedTest
@@ -198,7 +200,7 @@ class FileIntegrationTests extends AbstractRiotIntegrationTests {
 		execute("import-glob", redis);
 		RedisKeyCommands<String, String> sync = redis.sync();
 		List<String> keys = sync.keys("beer:*");
-		Assertions.assertEquals(COUNT, keys.size());
+		Assertions.assertEquals(BEER_CSV_COUNT, keys.size());
 	}
 
 	@ParameterizedTest
@@ -206,10 +208,10 @@ class FileIntegrationTests extends AbstractRiotIntegrationTests {
 	void importGeoadd(RedisTestContext redis) throws Exception {
 		execute("import-geoadd", redis);
 		RedisGeoCommands<String, String> sync = redis.sync();
-		Set<String> results = sync.georadius("airportgeo", -122.4194, 37.7749, 20, GeoArgs.Unit.mi);
-		Assertions.assertTrue(results.contains("3469"));
-		Assertions.assertTrue(results.contains("10360"));
-		Assertions.assertTrue(results.contains("8982"));
+		Set<String> results = sync.georadius("airportgeo", -21, 64, 200, GeoArgs.Unit.mi);
+		Assertions.assertTrue(results.contains("18"));
+		Assertions.assertTrue(results.contains("19"));
+		Assertions.assertTrue(results.contains("11"));
 	}
 
 	@ParameterizedTest
@@ -217,8 +219,8 @@ class FileIntegrationTests extends AbstractRiotIntegrationTests {
 	void importGeoProcessor(RedisTestContext redis) throws Exception {
 		execute("import-geo-processor", redis);
 		RedisHashCommands<String, String> sync = redis.sync();
-		Map<String, String> airport3469 = sync.hgetall("airport:3469");
-		Assertions.assertEquals("-122.375,37.61899948120117", airport3469.get("location"));
+		Map<String, String> airport3469 = sync.hgetall("airport:18");
+		Assertions.assertEquals("-21.9405994415,64.1299972534", airport3469.get("location"));
 	}
 
 	@ParameterizedTest
@@ -242,7 +244,7 @@ class FileIntegrationTests extends AbstractRiotIntegrationTests {
 		execute("import-process-elvis", redis);
 		RedisKeyCommands<String, String> sync = redis.sync();
 		List<String> keys = sync.keys("beer:*");
-		Assertions.assertEquals(COUNT, keys.size());
+		Assertions.assertEquals(BEER_CSV_COUNT, keys.size());
 		Map<String, String> beer1436 = ((RedisHashCommands<String, String>) sync).hgetall("beer:1436");
 		Assertions.assertEquals("10", beer1436.get("ibu"));
 	}
@@ -253,7 +255,7 @@ class FileIntegrationTests extends AbstractRiotIntegrationTests {
 		execute("import-multi-commands", redis);
 		RedisKeyCommands<String, String> sync = redis.sync();
 		List<String> beers = sync.keys("beer:*");
-		Assertions.assertEquals(2410, beers.size());
+		Assertions.assertEquals(BEER_CSV_COUNT, beers.size());
 		for (String beer : beers) {
 			Map<String, String> hash = ((RedisHashCommands<String, String>) sync).hgetall(beer);
 			Assertions.assertTrue(hash.containsKey("name"));
@@ -330,7 +332,7 @@ class FileIntegrationTests extends AbstractRiotIntegrationTests {
 		execute("import-json", redis);
 		RedisKeyCommands<String, String> sync = redis.sync();
 		List<String> keys = sync.keys("beer:*");
-		Assertions.assertEquals(4432, keys.size());
+		Assertions.assertEquals(BEER_JSON_COUNT, keys.size());
 		Map<String, String> beer1 = ((RedisHashCommands<String, String>) sync).hgetall("beer:1");
 		Assertions.assertEquals("Hocus Pocus", beer1.get("name"));
 	}
@@ -428,7 +430,7 @@ class FileIntegrationTests extends AbstractRiotIntegrationTests {
 	void importJsonAPI(RedisTestContext redis) throws Exception {
 		// riot-file import hset --keyspace beer --keys id
 		FileImportCommand command = new FileImportCommand();
-		command.setFiles(Collections.singletonList("https://storage.googleapis.com/jrx/beers.json"));
+		command.setFiles(Collections.singletonList(BEERS_JSON_URL));
 		HsetCommand hset = new HsetCommand();
 		hset.setKeyspace("beer");
 		hset.setKeys(new String[] { "id" });
@@ -439,7 +441,7 @@ class FileIntegrationTests extends AbstractRiotIntegrationTests {
 		command.call();
 		RedisKeyCommands<String, String> sync = redis.sync();
 		List<String> keys = sync.keys("beer:*");
-		Assertions.assertEquals(4432, keys.size());
+		Assertions.assertEquals(BEER_JSON_COUNT, keys.size());
 		Map<String, String> beer1 = ((RedisHashCommands<String, String>) sync).hgetall("beer:1");
 		Assertions.assertEquals("Hocus Pocus", beer1.get("name"));
 	}
@@ -450,7 +452,7 @@ class FileIntegrationTests extends AbstractRiotIntegrationTests {
 		execute("import-json-gz", redis);
 		RedisKeyCommands<String, String> sync = redis.sync();
 		List<String> keys = sync.keys("beer:*");
-		Assertions.assertEquals(30409, keys.size());
+		Assertions.assertEquals(BEER_JSON_COUNT, keys.size());
 	}
 
 }
