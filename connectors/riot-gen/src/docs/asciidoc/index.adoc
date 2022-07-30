@@ -13,7 +13,7 @@ include::{includedir}/_getting-started.adoc[leveloffset=+1]
 
 == Random Data-Structure Generator
 
-The `ds` subcommand generates random data for Redis data-structures (set, list, zset, stream, string, hash), RedisJSON, and RedisTimeSeries.
+The `ds` subcommand generates random data for Redis data-structures (set, list, zset, stream, string, hash), as well as RedisJSON and RedisTimeSeries.
 
 === Usage
 

@@ -1,5 +1,7 @@
 = {project-title}
 
+WARNING: {project-title} has been deprecated in favor of the https://github.com/redis-field-engineering/redis-kafka-connect[Redis Kafka Connector].
+
 == Introduction
 
 {project-title} is a command-line utility that lets you import and export data from Kafka topics.
