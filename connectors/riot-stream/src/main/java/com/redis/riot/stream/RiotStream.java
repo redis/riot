@@ -4,6 +4,7 @@ import com.redis.riot.RiotApp;
 
 import picocli.CommandLine.Command;
 
+@Deprecated
 @Command(name = "riot-stream", subcommands = { StreamImportCommand.class, StreamExportCommand.class })
 public class RiotStream extends RiotApp {
 

@@ -1,4 +1,4 @@
-package com.redis.riot.file.test;
+package com.redis.riot.file;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -12,14 +12,13 @@ import com.redis.lettucemod.api.sync.RedisModulesCommands;
 import com.redis.lettucemod.search.Suggestion;
 import com.redis.lettucemod.search.SuggetOptions;
 import com.redis.riot.AbstractRiotTests;
-import com.redis.riot.file.RiotFile;
 import com.redis.testcontainers.RedisModulesContainer;
 import com.redis.testcontainers.RedisServer;
 import com.redis.testcontainers.junit.RedisTestContext;
 import com.redis.testcontainers.junit.RedisTestContextsSource;
 
 @SuppressWarnings("unchecked")
-class RiotFileModulesTests extends AbstractRiotTests {
+class ModulesTests extends AbstractRiotTests {
 
 	@Override
 	protected Collection<RedisServer> redisServers() {
@@ -44,7 +43,7 @@ class RiotFileModulesTests extends AbstractRiotTests {
 
 	@ParameterizedTest
 	@RedisTestContextsSource
-	void importJsonElasticJsonSet(RedisTestContext redis) throws Exception {
+	void importElasticJSON(RedisTestContext redis) throws Exception {
 		execute("import-json-elastic-jsonset", redis);
 		RedisModulesCommands<String, String> sync = redis.sync();
 		Assertions.assertEquals(2, sync.keys("elastic:*").size());

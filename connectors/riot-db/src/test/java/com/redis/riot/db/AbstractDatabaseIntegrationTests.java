@@ -9,7 +9,7 @@ import com.redis.riot.AbstractRiotIntegrationTests;
 
 import picocli.CommandLine;
 
-public abstract class AbstractDatabaseTests extends AbstractRiotIntegrationTests {
+public abstract class AbstractDatabaseIntegrationTests extends AbstractRiotIntegrationTests {
 
 	@Override
 	protected RiotDb app() {

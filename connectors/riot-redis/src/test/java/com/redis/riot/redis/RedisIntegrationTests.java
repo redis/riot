@@ -24,7 +24,7 @@ import picocli.CommandLine;
 
 @Testcontainers
 @SuppressWarnings("unchecked")
-class TestReplicate extends AbstractRiotIntegrationTests {
+class RedisIntegrationTests extends AbstractRiotIntegrationTests {
 
 	private static final Duration IDLE_TIMEOUT = Duration.ofSeconds(10);
 
@@ -115,6 +115,7 @@ class TestReplicate extends AbstractRiotIntegrationTests {
 	}
 
 	private void runLiveReplication(String filename, RedisTestContext source) throws Exception {
+		source.sync().configSet("notify-keyspace-events", "AK");
 		generate(DataStructureGeneratorItemReader.builder().count(3000).build(), source);
 		ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 		executor.schedule(() -> {

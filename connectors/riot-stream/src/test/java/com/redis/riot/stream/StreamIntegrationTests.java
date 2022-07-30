@@ -25,6 +25,7 @@ import org.apache.kafka.common.serialization.StringSerializer;
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,9 +47,10 @@ import io.lettuce.core.RedisFuture;
 import picocli.CommandLine;
 
 @SuppressWarnings("unchecked")
-class TestKafka extends AbstractRiotIntegrationTests {
+@Disabled
+class StreamIntegrationTests extends AbstractRiotIntegrationTests {
 
-	private static final Logger log = LoggerFactory.getLogger(TestKafka.class);
+	private static final Logger log = LoggerFactory.getLogger(StreamIntegrationTests.class);
 
 	@Container
 	private static final KafkaContainer KAFKA = new KafkaContainer(

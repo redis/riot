@@ -1,4 +1,4 @@
-package com.redis.riot.file.test;
+package com.redis.riot.file;
 
 import java.nio.file.Files;
 import java.nio.file.Path;

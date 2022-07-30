@@ -35,7 +35,7 @@ import com.redis.testcontainers.junit.RedisTestContextsSource;
 
 @Testcontainers
 @SuppressWarnings({ "rawtypes", "unchecked" })
-public class PostgresTests extends AbstractDatabaseTests {
+public class PostgresIntegrationTests extends AbstractDatabaseIntegrationTests {
 
 	private static final DockerImageName POSTGRE_DOCKER_IMAGE_NAME = DockerImageName.parse(PostgreSQLContainer.IMAGE)
 			.withTag(PostgreSQLContainer.DEFAULT_TAG);
@@ -51,7 +51,7 @@ public class PostgresTests extends AbstractDatabaseTests {
 		scriptRunner.setAutoCommit(false);
 		scriptRunner.setStopOnError(true);
 		String file = "northwind.sql";
-		InputStream inputStream = PostgresTests.class.getClassLoader().getResourceAsStream(file);
+		InputStream inputStream = PostgresIntegrationTests.class.getClassLoader().getResourceAsStream(file);
 		if (inputStream == null) {
 			throw new FileNotFoundException(file);
 		}

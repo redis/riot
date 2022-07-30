@@ -1,4 +1,4 @@
-package com.redis.riot.file.test;
+package com.redis.riot.file;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -9,13 +9,10 @@ import org.springframework.batch.item.NonTransientResourceException;
 import org.springframework.batch.item.ParseException;
 import org.springframework.batch.item.UnexpectedInputException;
 
-import com.redis.riot.file.FileImportCommand;
-import com.redis.riot.file.FileImportOptions;
-
-class RiotFileTests {
+class FileTests {
 
 	@Test
-	void testJSONImport() throws UnexpectedInputException, ParseException, NonTransientResourceException, Exception {
+	void importJSON() throws UnexpectedInputException, ParseException, NonTransientResourceException, Exception {
 		FileImportCommand command = FileImportCommand.builder().build();
 		Iterator<Map<String, Object>> iterator = command.read("https://storage.googleapis.com/jrx/beers.json");
 		Assertions.assertTrue(iterator.hasNext());
@@ -30,7 +27,7 @@ class RiotFileTests {
 	}
 
 	@Test
-	void testCSVImport() throws UnexpectedInputException, ParseException, NonTransientResourceException, Exception {
+	void importCSV() throws UnexpectedInputException, ParseException, NonTransientResourceException, Exception {
 		FileImportCommand command = FileImportCommand.builder()
 				.options(FileImportOptions.builder().header(true).build()).build();
 		Iterator<Map<String, Object>> iterator = command.read("https://storage.googleapis.com/jrx/beers.csv");

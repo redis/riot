@@ -1,4 +1,4 @@
-package com.redis.riot.file.test;
+package com.redis.riot.file;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -28,10 +28,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.redis.lettucemod.api.sync.RedisModulesCommands;
 import com.redis.riot.AbstractRiotIntegrationTests;
-import com.redis.riot.file.DumpFileImportCommand;
-import com.redis.riot.file.FileExportCommand;
-import com.redis.riot.file.FileImportCommand;
-import com.redis.riot.file.RiotFile;
 import com.redis.riot.file.resource.XmlItemReader;
 import com.redis.riot.file.resource.XmlItemReaderBuilder;
 import com.redis.riot.file.resource.XmlObjectReader;
@@ -49,15 +45,15 @@ import io.lettuce.core.api.sync.RedisSetCommands;
 import picocli.CommandLine;
 
 @SuppressWarnings("unchecked")
-public class RiotFileIntegrationTests extends AbstractRiotIntegrationTests {
+class FileIntegrationTests extends AbstractRiotIntegrationTests {
 
 	protected final static int COUNT = 2410;
 
 	private static Path tempDir;
 
 	@BeforeAll
-	public static void setupAll() throws IOException {
-		tempDir = Files.createTempDirectory(RiotFileIntegrationTests.class.getName());
+	public void setupAll() throws IOException {
+		tempDir = Files.createTempDirectory(FileIntegrationTests.class.getName());
 	}
 
 	private String replace(String file) {
@@ -319,7 +315,7 @@ public class RiotFileIntegrationTests extends AbstractRiotIntegrationTests {
 
 	@ParameterizedTest
 	@RedisTestContextsSource
-	void importJsonElastic(RedisTestContext redis) throws Exception {
+	void importJSONElastic(RedisTestContext redis) throws Exception {
 		execute("import-json-elastic", redis);
 		RedisKeyCommands<String, String> sync = redis.sync();
 		Assertions.assertEquals(2, sync.keys("estest:*").size());
@@ -330,7 +326,7 @@ public class RiotFileIntegrationTests extends AbstractRiotIntegrationTests {
 
 	@ParameterizedTest
 	@RedisTestContextsSource
-	void importJson(RedisTestContext redis) throws Exception {
+	void importJSON(RedisTestContext redis) throws Exception {
 		execute("import-json", redis);
 		RedisKeyCommands<String, String> sync = redis.sync();
 		List<String> keys = sync.keys("beer:*");
@@ -341,7 +337,7 @@ public class RiotFileIntegrationTests extends AbstractRiotIntegrationTests {
 
 	@ParameterizedTest
 	@RedisTestContextsSource
-	void importXml(RedisTestContext redis) throws Exception {
+	void importXML(RedisTestContext redis) throws Exception {
 		execute("import-xml", redis);
 		RedisKeyCommands<String, String> sync = redis.sync();
 		List<String> keys = sync.keys("trade:*");
@@ -362,7 +358,7 @@ public class RiotFileIntegrationTests extends AbstractRiotIntegrationTests {
 	@SuppressWarnings("rawtypes")
 	@ParameterizedTest
 	@RedisTestContextsSource
-	void exportJsonGz(RedisTestContext redis) throws Exception {
+	void exportJSONGz(RedisTestContext redis) throws Exception {
 		Path file = tempFile("beers.json.gz");
 		execute("import-json", redis);
 		execute("export-json-gz", redis, this::configureExportCommand);
