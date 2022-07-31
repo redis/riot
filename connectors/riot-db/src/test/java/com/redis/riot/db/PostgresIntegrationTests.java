@@ -72,7 +72,7 @@ public class PostgresIntegrationTests extends AbstractDatabaseIntegrationTests {
 
 	@ParameterizedTest
 	@RedisTestContextsSource
-	void testExport(RedisTestContext redis) throws Exception {
+	void export(RedisTestContext redis) throws Exception {
 		try (Statement statement = connection.createStatement()) {
 			statement.execute("CREATE TABLE mytable (id smallint NOT NULL, field1 bpchar, field2 bpchar)");
 			statement.execute("ALTER TABLE ONLY mytable ADD CONSTRAINT pk_mytable PRIMARY KEY (id)");
@@ -96,7 +96,7 @@ public class PostgresIntegrationTests extends AbstractDatabaseIntegrationTests {
 
 	@ParameterizedTest
 	@RedisTestContextsSource
-	void testExportNullValues(RedisTestContext redis) throws Exception {
+	void nullValueExport(RedisTestContext redis) throws Exception {
 		try (Statement statement = connection.createStatement()) {
 			statement.execute("CREATE TABLE mytable (id smallint NOT NULL, field1 bpchar, field2 bpchar)");
 			statement.execute("ALTER TABLE ONLY mytable ADD CONSTRAINT pk_mytable PRIMARY KEY (id)");
@@ -104,10 +104,10 @@ public class PostgresIntegrationTests extends AbstractDatabaseIntegrationTests {
 			Map<String, String> hash1 = new HashMap<>();
 			hash1.put("field1", "value1");
 			hash1.put("field2", "value2");
-			sync.hmset("gen:hash:1", hash1);
+			sync.hmset("gen:1", hash1);
 			Map<String, String> hash2 = new HashMap<>();
 			hash2.put("field2", "value2");
-			sync.hmset("gen:hash:2", hash2);
+			sync.hmset("gen:2", hash2);
 			execute("export-postgresql", redis, r -> configureExportCommand(r, POSTGRESQL));
 			statement.execute("SELECT COUNT(*) AS count FROM mytable");
 			ResultSet countResultSet = statement.getResultSet();
@@ -126,7 +126,7 @@ public class PostgresIntegrationTests extends AbstractDatabaseIntegrationTests {
 
 	@ParameterizedTest
 	@RedisTestContextsSource
-	void testImport(RedisTestContext redis) throws Exception {
+	void hashImport(RedisTestContext redis) throws Exception {
 		execute("import-postgresql", redis, r -> configureImportCommand(r, POSTGRESQL));
 		try (Statement statement = connection.createStatement()) {
 			statement.execute("SELECT COUNT(*) AS count FROM orders");
@@ -143,14 +143,14 @@ public class PostgresIntegrationTests extends AbstractDatabaseIntegrationTests {
 
 	@ParameterizedTest
 	@RedisTestContextsSource
-	void testImportNoop(RedisTestContext redis) throws Exception {
+	void noopImport(RedisTestContext redis) throws Exception {
 		execute("import-postgresql-noop", redis, r -> configureImportCommand(r, POSTGRESQL));
 		Assertions.assertEquals(0, redis.sync().dbsize());
 	}
 
 	@ParameterizedTest
 	@RedisTestContextsSource
-	void testMultiThreadedImport(RedisTestContext redis) throws Exception {
+	void multiThreadedImport(RedisTestContext redis) throws Exception {
 		execute("import-postgresql-multithreaded", redis, r -> configureImportCommand(r, POSTGRESQL));
 		try (Statement statement = connection.createStatement()) {
 			statement.execute("SELECT COUNT(*) AS count FROM orders");
@@ -167,7 +167,7 @@ public class PostgresIntegrationTests extends AbstractDatabaseIntegrationTests {
 
 	@ParameterizedTest
 	@RedisTestContextsSource
-	void testImportSet(RedisTestContext redis) throws Exception {
+	void setImport(RedisTestContext redis) throws Exception {
 		execute("import-postgresql-set", redis, r -> configureImportCommand(r, POSTGRESQL));
 		try (Statement statement = connection.createStatement()) {
 			statement.execute("SELECT * FROM orders");

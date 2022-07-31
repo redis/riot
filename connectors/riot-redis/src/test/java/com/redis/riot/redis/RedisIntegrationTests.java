@@ -87,7 +87,7 @@ class RedisIntegrationTests extends AbstractRiotIntegrationTests {
 	@ParameterizedTest
 	@RedisTestContextsSource
 	void replicateKeyProcessor(RedisTestContext redis) throws Throwable {
-		generate(DataStructureGeneratorItemReader.builder().count(200).build(), redis);
+		generate(DataStructureGeneratorItemReader.builder().maxItemCount(200).build(), redis);
 		Long sourceSize = redis.sync().dbsize();
 		Assertions.assertTrue(sourceSize > 0);
 		execute("replicate-key-processor", redis, this::configureReplicateCommand);
@@ -116,11 +116,13 @@ class RedisIntegrationTests extends AbstractRiotIntegrationTests {
 
 	private void runLiveReplication(String filename, RedisTestContext source) throws Exception {
 		source.sync().configSet("notify-keyspace-events", "AK");
-		generate(DataStructureGeneratorItemReader.builder().count(3000).build(), source);
+		generate(DataStructureGeneratorItemReader.builder().maxItemCount(3000).build(), source);
 		ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 		executor.schedule(() -> {
 			try {
-				generate(1, DataStructureGeneratorItemReader.builder().start(3000).count(2000).build(), source);
+				generate(1,
+						DataStructureGeneratorItemReader.builder().currentItemCount(3000).maxItemCount(2000).build(),
+						source);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

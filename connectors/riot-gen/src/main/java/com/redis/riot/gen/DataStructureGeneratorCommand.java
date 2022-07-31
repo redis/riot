@@ -46,9 +46,10 @@ public class DataStructureGeneratorCommand extends AbstractTransferCommand {
 
 	private ItemReader<DataStructure<String>> reader() {
 		DataStructureGeneratorItemReader.Builder reader = DataStructureGeneratorItemReader.builder()
-				.start(options.getStart()).count(options.getCount()).streamSize(options.getStreamSize())
-				.streamFieldCount(options.getStreamFieldCount()).streamFieldSize(options.getStreamFieldSize())
-				.listSize(options.getListSize()).setSize(options.getSetSize()).zsetSize(options.getZsetSize())
+				.currentItemCount(options.getStart() - 1).maxItemCount(options.getCount())
+				.streamSize(options.getStreamSize()).streamFieldCount(options.getStreamFieldCount())
+				.streamFieldSize(options.getStreamFieldSize()).listSize(options.getListSize())
+				.setSize(options.getSetSize()).zsetSize(options.getZsetSize())
 				.timeseriesSize(options.getTimeseriesSize()).keyspace(options.getKeyspace())
 				.stringSize(options.getStringSize()).types(options.getTypes().toArray(Type[]::new))
 				.zsetScore(options.getZsetScore()).hashSize(options.getHashSize())
