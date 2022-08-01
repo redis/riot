@@ -2,6 +2,7 @@ package com.redis.riot.gen;
 
 import static com.redis.spring.batch.reader.DataStructureGeneratorItemReader.*;
 
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -43,6 +44,8 @@ public class DataStructureGeneratorOptions extends GeneratorOptions {
 	private IntRange stringSize = DEFAULT_STRING_SIZE;
 	@Option(names = "--ts-size", description = "Number of samples in timeseries (default: ${DEFAULT-VALUE}).", paramLabel = "<range>")
 	private IntRange timeseriesSize = DEFAULT_TIMESERIES_SIZE;
+	@Option(names = "--ts-time", description = "Start time for samples in timeseries, e.g. 2007-12-03T10:15:30.00Z (default: now).", paramLabel = "<epoch>")
+	private Optional<Instant> timeseriesStartTime = Optional.empty();
 	@Option(names = "--zset-size", description = "Number of elements in sorted sets (default: ${DEFAULT-VALUE}).", paramLabel = "<range>")
 	private IntRange zsetSize = DEFAULT_ZSET_SIZE;
 	@Option(names = "--zset-score", description = "Score of sorted sets (default: ${DEFAULT-VALUE}).", paramLabel = "<range>")
@@ -170,6 +173,14 @@ public class DataStructureGeneratorOptions extends GeneratorOptions {
 
 	public void setTimeseriesSize(IntRange timeseriesSize) {
 		this.timeseriesSize = timeseriesSize;
+	}
+
+	public Optional<Instant> getTimeseriesStartTime() {
+		return timeseriesStartTime;
+	}
+
+	public void setTimeseriesStartTime(Optional<Instant> timeseriesStartTime) {
+		this.timeseriesStartTime = timeseriesStartTime;
 	}
 
 	public void setTypes(List<Type> types) {

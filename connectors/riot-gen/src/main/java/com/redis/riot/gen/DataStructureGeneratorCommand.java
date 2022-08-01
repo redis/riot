@@ -55,6 +55,7 @@ public class DataStructureGeneratorCommand extends AbstractTransferCommand {
 				.zsetScore(options.getZsetScore()).hashSize(options.getHashSize())
 				.hashFieldSize(options.getHashFieldSize()).jsonFieldCount(options.getJsonSize())
 				.jsonFieldSize(options.getJsonFieldSize());
+		options.getTimeseriesStartTime().ifPresent(t -> reader.timeseriesStartTime(t.toEpochMilli()));
 		options.getExpiration().ifPresent(reader::expiration);
 		Optional<Long> sleep = options.getSleep();
 		if (sleep.isPresent() && sleep.get() > 0) {
