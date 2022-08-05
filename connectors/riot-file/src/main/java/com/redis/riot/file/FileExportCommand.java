@@ -2,8 +2,6 @@ package com.redis.riot.file;
 
 import java.util.Optional;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.item.ItemWriter;
@@ -23,8 +21,6 @@ import picocli.CommandLine.Parameters;
 
 @Command(name = "export", description = "Export Redis data to JSON or XML files")
 public class FileExportCommand extends AbstractExportCommand<DataStructure<String>> {
-
-	private static final Logger log = LoggerFactory.getLogger(FileExportCommand.class);
 
 	private static final String NAME = "file-export";
 
@@ -65,7 +61,6 @@ public class FileExportCommand extends AbstractExportCommand<DataStructure<Strin
 			xmlWriterBuilder.rootName(options.getRootName());
 			xmlWriterBuilder.resource(resource);
 			xmlWriterBuilder.saveState(false);
-			log.debug("Creating XML writer with {} for file {}", options, file);
 			return xmlWriterBuilder.build();
 		case JSON:
 			JsonResourceItemWriterBuilder<DataStructure<String>> jsonWriterBuilder = new JsonResourceItemWriterBuilder<>();
@@ -76,7 +71,6 @@ public class FileExportCommand extends AbstractExportCommand<DataStructure<Strin
 			jsonWriterBuilder.lineSeparator(options.getLineSeparator());
 			jsonWriterBuilder.resource(resource);
 			jsonWriterBuilder.saveState(false);
-			log.debug("Creating JSON writer with {} for file {}", options, file);
 			return jsonWriterBuilder.build();
 		default:
 			throw new UnsupportedOperationException("Unsupported file type: " + type);

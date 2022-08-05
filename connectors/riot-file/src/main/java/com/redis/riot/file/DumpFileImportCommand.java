@@ -6,8 +6,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.job.builder.SimpleJobBuilder;
@@ -38,8 +36,6 @@ import picocli.CommandLine.Parameters;
 
 @Command(name = "import-dump", description = "Import Redis data files into Redis")
 public class DumpFileImportCommand extends AbstractTransferCommand {
-
-	private static final Logger log = LoggerFactory.getLogger(DumpFileImportCommand.class);
 
 	private static final String NAME = "dump-file-import";
 
@@ -134,10 +130,8 @@ public class DumpFileImportCommand extends AbstractTransferCommand {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	protected AbstractItemStreamItemReader<DataStructure<String>> reader(DumpFileType fileType, Resource resource) {
 		if (fileType == DumpFileType.XML) {
-			log.debug("Creating XML data structure reader for file {}", resource);
 			return (XmlItemReader) FileUtils.xmlReader(resource, DataStructure.class);
 		}
-		log.debug("Creating JSON data structure reader for file {}", resource);
 		return (JsonItemReader) FileUtils.jsonReader(resource, DataStructure.class);
 	}
 

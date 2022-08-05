@@ -4,10 +4,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.job.builder.SimpleJobBuilder;
@@ -36,7 +36,7 @@ import picocli.CommandLine.Parameters;
 @Command(name = "export", description = "Import Redis streams into Kafka topics")
 public class StreamExportCommand extends AbstractTransferCommand {
 
-	private static final Logger log = LoggerFactory.getLogger(StreamExportCommand.class);
+	private static final Logger log = Logger.getLogger(StreamExportCommand.class.getName());
 
 	private static final String NAME = "stream-export";
 	@Mixin
@@ -106,7 +106,7 @@ public class StreamExportCommand extends AbstractTransferCommand {
 
 	private KafkaItemWriter<String> writer() {
 		Map<String, Object> producerProperties = options.producerProperties();
-		log.debug("Creating Kafka writer with producer properties {}", producerProperties);
+		log.log(Level.FINE, "Creating Kafka writer with producer properties {0}", producerProperties);
 		return new KafkaItemWriter<>(new KafkaTemplate<>(new DefaultKafkaProducerFactory<>(producerProperties)));
 	}
 

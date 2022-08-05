@@ -7,9 +7,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.job.builder.SimpleJobBuilder;
@@ -44,7 +44,8 @@ import picocli.CommandLine.Parameters;
 @Command(name = "import", description = "Import delimited, fixed-width, JSON, or XML files into Redis.")
 public class FileImportCommand extends AbstractImportCommand {
 
-	private static final Logger log = LoggerFactory.getLogger(FileImportCommand.class);
+	private static final Logger log = Logger.getLogger(FileImportCommand.class.getName());
+
 	private static final String NAME = "file-import";
 	private static final String DELIMITER_PIPE = "|";
 
@@ -142,7 +143,7 @@ public class FileImportCommand extends AbstractImportCommand {
 			if (!ObjectUtils.isEmpty(options.getIncludedFields())) {
 				tokenizer.setIncludedFields(options.getIncludedFields());
 			}
-			log.debug("Creating delimited reader with {} for {}", options, resource);
+			log.log(Level.FINE, "Creating delimited reader with {0} for {1}", new Object[] { options, resource });
 			return flatFileReader(resource, tokenizer);
 		case FIXED:
 			FixedLengthTokenizer fixedLengthTokenizer = new FixedLengthTokenizer();
@@ -154,13 +155,13 @@ public class FileImportCommand extends AbstractImportCommand {
 				throw new IllegalArgumentException("Invalid ranges specified: " + options.getColumnRanges());
 			}
 			fixedLengthTokenizer.setColumns(ranges);
-			log.debug("Creating fixed-width reader with {} for {}", options, resource);
+			log.log(Level.FINE, "Creating fixed-width reader with {0} for {1}", new Object[] { options, resource });
 			return flatFileReader(resource, fixedLengthTokenizer);
 		case XML:
-			log.debug("Creating XML reader for {}", resource);
+			log.log(Level.FINE, "Creating XML reader for {0}", resource);
 			return (XmlItemReader) FileUtils.xmlReader(resource, Map.class);
 		case JSON:
-			log.debug("Creating JSON reader for {}", resource);
+			log.log(Level.FINE, "Creating JSON reader for {0}", resource);
 			return (JsonItemReader) FileUtils.jsonReader(resource, Map.class);
 		default:
 			throw new UnsupportedOperationException("Unsupported file type: " + type);
@@ -230,7 +231,7 @@ public class FileImportCommand extends AbstractImportCommand {
 
 		@Override
 		public void handleLine(String line) {
-			log.debug("Found header {}", line);
+			log.log(Level.FINE, "Found header: {0}", line);
 			FieldSet fieldSet = tokenizer.tokenize(line);
 			List<String> fields = new ArrayList<>();
 			for (int index = 0; index < fieldSet.getFieldCount(); index++) {

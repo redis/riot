@@ -5,10 +5,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.job.builder.SimpleJobBuilder;
@@ -39,7 +39,7 @@ import picocli.CommandLine.Parameters;
 @Command(name = "import", description = "Import Kafka topics into Redis streams")
 public class StreamImportCommand extends AbstractTransferCommand {
 
-	private static final Logger log = LoggerFactory.getLogger(StreamImportCommand.class);
+	private static final Logger log = Logger.getLogger(StreamImportCommand.class.getName());
 
 	private static final String NAME = "stream-import";
 	@Mixin
@@ -128,7 +128,7 @@ public class StreamImportCommand extends AbstractTransferCommand {
 
 	private TaskletStep topicImportStep(String topic) throws Exception {
 		Properties consumerProperties = options.consumerProperties();
-		log.debug("Creating Kafka reader for topic {} with {}", topic, consumerProperties);
+		log.log(Level.FINE, "Creating Kafka reader for topic {0} with {1}", new Object[] { topic, consumerProperties });
 		KafkaItemReader<String, Object> reader = new KafkaItemReaderBuilder<String, Object>().partitions(0)
 				.consumerProperties(consumerProperties).partitions(0).name(topic).saveState(false).topic(topic).build();
 		return flushingTransferOptions.configure(step(RiotStep.reader(reader).writer(writer()).name(topic + "-" + NAME)
