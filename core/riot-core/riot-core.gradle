@@ -1,14 +1,12 @@
 dependencies {
-    api 'org.slf4j:slf4j-api'
     api group: 'com.redis', name: 'lettucemod', version: lettucemodVersion
-    api 'org.apache.commons:commons-pool2'
     api group: 'com.redis', name: 'spring-batch-redis', version: batchRedisVersion
-    api 'org.springframework.batch:spring-batch-core'
     api group: 'info.picocli', name: 'picocli', version: picocliVersion
     annotationProcessor group: 'info.picocli', name: 'picocli-codegen', version: picocliVersion
+    api 'org.apache.commons:commons-pool2'
+    api 'org.springframework.batch:spring-batch-core'
     implementation group: 'me.tongfei', name: 'progressbar', version: progressbarVersion
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
-    implementation 'org.slf4j:slf4j-jdk14'
     implementation group: 'org.awaitility', name: 'awaitility', version: awaitilityVersion
     testImplementation 'org.junit.jupiter:junit-jupiter-engine'
 }

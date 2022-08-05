@@ -17,6 +17,7 @@ dependencies {
     implementation 'org.postgresql:postgresql'
     implementation group: 'org.xerial', name: 'sqlite-jdbc', version: sqliteVersion
     testImplementation project(':riot-test')
+    testImplementation 'org.slf4j:slf4j-simple'
     testImplementation group: 'org.testcontainers', name: 'postgresql', version: testcontainersVersion
     testImplementation group: 'org.testcontainers', name: 'oracle-xe', version: testcontainersVersion
 }

@@ -28,8 +28,8 @@ import com.redis.riot.stream.processor.JsonProducerProcessor;
 
 import io.lettuce.core.StreamMessage;
 import io.lettuce.core.codec.StringCodec;
-import picocli.CommandLine;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Mixin;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
@@ -39,11 +39,11 @@ public class StreamExportCommand extends AbstractTransferCommand {
 	private static final Logger log = LoggerFactory.getLogger(StreamExportCommand.class);
 
 	private static final String NAME = "stream-export";
-	@CommandLine.Mixin
+	@Mixin
 	private FlushingTransferOptions flushingTransferOptions = new FlushingTransferOptions();
 	@Parameters(arity = "0..*", description = "One ore more streams to read from", paramLabel = "STREAM")
 	private List<String> streams;
-	@CommandLine.Mixin
+	@Mixin
 	private KafkaOptions options = new KafkaOptions();
 	@Option(names = "--offset", description = "XREAD offset (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
 	private String offset = "0-0";

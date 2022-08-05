@@ -1,5 +1,6 @@
 package com.redis.riot.redis;
 
+import java.util.Arrays;
 import java.util.Map;
 
 import org.springframework.core.convert.converter.Converter;
@@ -11,13 +12,13 @@ import com.redis.riot.convert.MapFilteringConverter.MapFilteringConverterBuilder
 import com.redis.riot.convert.MapFlattener;
 import com.redis.riot.convert.ObjectToStringConverter;
 
-import picocli.CommandLine;
+import picocli.CommandLine.Option;
 
 public class FilteringOptions {
 
-	@CommandLine.Option(arity = "1..*", names = "--include", description = "Fields to include", paramLabel = "<field>")
+	@Option(arity = "1..*", names = "--include", description = "Fields to include", paramLabel = "<field>")
 	private String[] includes;
-	@CommandLine.Option(arity = "1..*", names = "--exclude", description = "Fields to exclude", paramLabel = "<field>")
+	@Option(arity = "1..*", names = "--exclude", description = "Fields to exclude", paramLabel = "<field>")
 	private String[] excludes;
 
 	public Converter<Map<String, Object>, Map<String, String>> converter() {
@@ -34,6 +35,28 @@ public class FilteringOptions {
 			filtering.excludes(excludes);
 		}
 		return new CompositeConverter<>(mapFlattener, filtering.build());
+	}
+
+	public String[] getIncludes() {
+		return includes;
+	}
+
+	@Override
+	public String toString() {
+		return "FilteringOptions [includes=" + Arrays.toString(includes) + ", excludes=" + Arrays.toString(excludes)
+				+ "]";
+	}
+
+	public void setIncludes(String[] includes) {
+		this.includes = includes;
+	}
+
+	public String[] getExcludes() {
+		return excludes;
+	}
+
+	public void setExcludes(String[] excludes) {
+		this.excludes = excludes;
 	}
 
 }

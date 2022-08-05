@@ -1,35 +1,22 @@
 package com.redis.riot.file;
 
-import java.util.Optional;
-
 import org.springframework.batch.item.support.AbstractFileItemWriter;
 
-import picocli.CommandLine;
+import picocli.CommandLine.Option;
 
-public class FileExportOptions extends FileOptions {
+public class FileExportOptions extends DumpFileOptions {
 
 	public static final String DEFAULT_ELEMENT_NAME = "record";
 	public static final String DEFAULT_ROOT_NAME = "root";
 
-	@CommandLine.Option(names = { "-t",
-			"--filetype" }, description = "File type: ${COMPLETION-CANDIDATES}", paramLabel = "<type>")
-	private Optional<DumpFileType> type = Optional.empty();
-	@CommandLine.Option(names = "--append", description = "Append to file if it exists")
+	@Option(names = "--append", description = "Append to file if it exists")
 	private boolean append;
-	@CommandLine.Option(names = "--root", description = "XML root element tag name (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
+	@Option(names = "--root", description = "XML root element tag name (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
 	private String rootName = DEFAULT_ROOT_NAME;
-	@CommandLine.Option(names = "--element", description = "XML element tag name (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
+	@Option(names = "--element", description = "XML element tag name (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
 	private String elementName = DEFAULT_ELEMENT_NAME;
-	@CommandLine.Option(names = "--line-sep", description = "String to separate lines (default: system default)", paramLabel = "<string>")
+	@Option(names = "--line-sep", description = "String to separate lines (default: system default)", paramLabel = "<string>")
 	private String lineSeparator = AbstractFileItemWriter.DEFAULT_LINE_SEPARATOR;
-
-	public Optional<DumpFileType> getType() {
-		return type;
-	}
-
-	public void setType(DumpFileType type) {
-		this.type = Optional.of(type);
-	}
 
 	public boolean isAppend() {
 		return append;
@@ -61,6 +48,13 @@ public class FileExportOptions extends FileOptions {
 
 	public void setLineSeparator(String lineSeparator) {
 		this.lineSeparator = lineSeparator;
+	}
+
+	@Override
+	public String toString() {
+		return "FileExportOptions [type=" + type + ", append=" + append + ", rootName=" + rootName + ", elementName="
+				+ elementName + ", lineSeparator=" + lineSeparator + ", encoding=" + encoding + ", gzip=" + gzip
+				+ ", s3=" + s3 + ", gcs=" + gcs + "]";
 	}
 
 }

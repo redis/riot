@@ -2,15 +2,15 @@ package com.redis.riot.gen;
 
 import java.util.Optional;
 
-import picocli.CommandLine;
+import picocli.CommandLine.Option;
 
 public class GeneratorOptions {
 
-	@CommandLine.Option(names = "--start", description = "Start index (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
+	@Option(names = "--start", description = "Start index (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
 	protected int start = 1;
-	@CommandLine.Option(names = "--count", description = "Number of items to generate (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
+	@Option(names = "--count", description = "Number of items to generate (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
 	protected int count = 1000;
-	@CommandLine.Option(names = "--sleep", description = "Duration in ms to sleep before each item generation (default: ${DEFAULT-VALUE})", paramLabel = "<ms>")
+	@Option(names = "--sleep", description = "Duration in ms to sleep before each item generation (default: ${DEFAULT-VALUE})", paramLabel = "<ms>")
 	private Optional<Long> sleep = Optional.empty();
 
 	public int getStart() {
@@ -35,6 +35,11 @@ public class GeneratorOptions {
 
 	public void setSleep(long sleep) {
 		this.sleep = Optional.of(sleep);
+	}
+
+	@Override
+	public String toString() {
+		return "GeneratorOptions [start=" + start + ", count=" + count + ", sleep=" + sleep + "]";
 	}
 
 }

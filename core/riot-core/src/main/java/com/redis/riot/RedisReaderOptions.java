@@ -1,10 +1,10 @@
 package com.redis.riot;
 
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.redis.spring.batch.KeyValue;
 import com.redis.spring.batch.RedisItemReader;
@@ -15,7 +15,7 @@ import picocli.CommandLine.Option;
 
 public class RedisReaderOptions {
 
-	private static final Logger log = LoggerFactory.getLogger(RedisReaderOptions.class);
+	private static final Logger log = Logger.getLogger(RedisReaderOptions.class.getName());
 
 	@Option(names = "--scan-count", description = "SCAN COUNT option (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
 	private long scanCount = ScanKeyItemReader.DEFAULT_SCAN_COUNT;
@@ -100,7 +100,8 @@ public class RedisReaderOptions {
 
 	public <K, V, T extends KeyValue<K, ?>> RedisItemReader.Builder<K, V, T> configureScanReader(
 			RedisItemReader.Builder<K, V, T> builder) {
-		log.debug("Configuring scan reader with {} {} {}", scanCount, scanMatch, scanType);
+		log.log(Level.FINE, "Configuring scan reader with {0} {1} {2}",
+				new Object[] { scanCount, scanMatch, scanType });
 		builder.match(scanMatch);
 		builder.count(scanCount);
 		scanType.ifPresent(builder::type);
@@ -108,8 +109,8 @@ public class RedisReaderOptions {
 	}
 
 	public <K, V, B extends RedisItemReader.AbstractBuilder<K, V, ?, B>> B configureReader(B builder) {
-		log.debug("Configuring reader with threads: {},  batch-size: {}, queue-capacity: {}", threads, batchSize,
-				queueCapacity);
+		log.log(Level.FINE, "Configuring reader with threads: {0},  batch-size: {1}, queue-capacity: {2}",
+				new Object[] { threads, batchSize, queueCapacity });
 		builder.threads(threads);
 		builder.chunkSize(batchSize);
 		builder.valueQueueCapacity(queueCapacity);
@@ -120,8 +121,15 @@ public class RedisReaderOptions {
 	public <K, V> GenericObjectPoolConfig<StatefulConnection<K, V>> poolConfig() {
 		GenericObjectPoolConfig<StatefulConnection<K, V>> config = new GenericObjectPoolConfig<>();
 		config.setMaxTotal(poolMaxTotal);
-		log.debug("Configuring reader with pool config {}", config);
+		log.log(Level.FINE, "Configuring reader with pool config {0}", config);
 		return config;
+	}
+
+	@Override
+	public String toString() {
+		return "RedisReaderOptions [scanCount=" + scanCount + ", scanMatch=" + scanMatch + ", scanType=" + scanType
+				+ ", queueCapacity=" + queueCapacity + ", threads=" + threads + ", batchSize=" + batchSize
+				+ ", sampleSize=" + sampleSize + ", poolMaxTotal=" + poolMaxTotal + "]";
 	}
 
 }

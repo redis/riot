@@ -2,11 +2,11 @@ package com.redis.riot.db;
 
 import java.sql.Connection;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.sql.DataSource;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.item.database.JdbcCursorItemReader;
@@ -15,18 +15,18 @@ import org.springframework.jdbc.core.ColumnMapRowMapper;
 
 import com.redis.riot.AbstractImportCommand;
 
-import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
+import picocli.CommandLine.Parameters;
 
 @Command(name = "import", description = "Import from a database")
 public class DatabaseImportCommand extends AbstractImportCommand {
 
-	private static final Logger log = LoggerFactory.getLogger(DatabaseImportCommand.class);
+	private static final Logger log = Logger.getLogger(DatabaseImportCommand.class.getName());
 
 	private static final String NAME = "db-import";
 
-	@CommandLine.Parameters(arity = "1", description = "SQL SELECT statement", paramLabel = "SQL")
+	@Parameters(arity = "1", description = "SQL SELECT statement", paramLabel = "SQL")
 	private String sql;
 	@Mixin
 	private DataSourceOptions dataSourceOptions = new DataSourceOptions();
@@ -39,11 +39,11 @@ public class DatabaseImportCommand extends AbstractImportCommand {
 
 	@Override
 	protected Job job(JobBuilder jobBuilder) throws Exception {
-		log.debug("Creating data source: {}", dataSourceOptions);
+		log.log(Level.FINE, "Creating data source: {0}", dataSourceOptions);
 		DataSource dataSource = dataSourceOptions.dataSource();
 		try (Connection connection = dataSource.getConnection()) {
 			String name = connection.getMetaData().getDatabaseProductName();
-			log.debug("Creating {} database reader: {}", name, importOptions);
+			log.log(Level.FINE, "Creating {0} database reader: {1}", new Object[] { name, importOptions });
 			JdbcCursorItemReaderBuilder<Map<String, Object>> builder = new JdbcCursorItemReaderBuilder<>();
 			builder.saveState(false);
 			builder.dataSource(dataSource);

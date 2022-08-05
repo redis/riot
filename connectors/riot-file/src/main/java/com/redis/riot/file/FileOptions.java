@@ -24,13 +24,13 @@ public class FileOptions {
 	public static final Charset DEFAULT_ENCODING = Charset.defaultCharset();
 
 	@Option(names = "--encoding", description = "File encoding (default: ${DEFAULT-VALUE})", paramLabel = "<charset>")
-	private Charset encoding = DEFAULT_ENCODING;
+	protected Charset encoding = DEFAULT_ENCODING;
 	@Option(names = { "-z", "--gzip" }, description = "File is gzip compressed")
-	private boolean gzip;
+	protected boolean gzip;
 	@ArgGroup(exclusive = false, heading = "Amazon Simple Storage Service options%n")
-	private S3Options s3 = new S3Options();
+	protected S3Options s3 = new S3Options();
 	@ArgGroup(exclusive = false, heading = "Google Cloud Storage options%n")
-	private GcsOptions gcs = new GcsOptions();
+	protected GcsOptions gcs = new GcsOptions();
 
 	public FileOptions() {
 	}

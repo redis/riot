@@ -3,9 +3,8 @@ package com.redis.riot;
 import java.io.File;
 import java.time.Duration;
 import java.util.Optional;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.redis.lettucemod.RedisModulesClient;
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
@@ -26,7 +25,7 @@ import picocli.CommandLine.Option;
 
 public class RedisOptions {
 
-	private static final Logger log = LoggerFactory.getLogger(RedisOptions.class);
+	private static final Logger log = Logger.getLogger(RedisOptions.class.getName());
 
 	public static final String DEFAULT_HOST = "localhost";
 	public static final int DEFAULT_PORT = 6379;
@@ -241,7 +240,7 @@ public class RedisOptions {
 
 	public RedisModulesClusterClient redisModulesClusterClient() {
 		if (client == null) {
-			log.debug("Creating Redis cluster client: {}", this);
+			log.log(Level.FINE, "Creating Redis cluster client: {0}", this);
 			RedisModulesClusterClient clusterClient = RedisModulesClusterClient.create(clientResources(), uri());
 			clusterClient.setOptions(
 					ClusterClientOptions.builder().autoReconnect(autoReconnect).sslOptions(sslOptions()).build());
@@ -252,7 +251,7 @@ public class RedisOptions {
 
 	public RedisModulesClient redisModulesClient() {
 		if (client == null) {
-			log.debug("Creating Redis client: {}", this);
+			log.log(Level.FINE, "Creating Redis client: {0}", this);
 			RedisModulesClient redisClient = RedisModulesClient.create(clientResources(), uri());
 			redisClient
 					.setOptions(ClientOptions.builder().autoReconnect(autoReconnect).sslOptions(sslOptions()).build());
@@ -268,7 +267,7 @@ public class RedisOptions {
 				+ ", cluster=" + cluster + ", tls=" + tls + ", insecure=" + insecure + ", keystore=" + keystore
 				+ ", keystorePassword=" + keystorePassword + ", truststore=" + truststore + ", truststorePassword="
 				+ truststorePassword + ", cert=" + cert + ", showMetrics=" + showMetrics + ", autoReconnect="
-				+ autoReconnect + ", clientName=" + clientName + "]";
+				+ autoReconnect + ", clientName=" + clientName + ", client=" + client + "]";
 	}
 
 }

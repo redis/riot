@@ -3,9 +3,9 @@ package com.redis.riot.gen;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.step.tasklet.TaskletStep;
@@ -18,17 +18,17 @@ import com.redis.lettucemod.search.Field;
 import com.redis.lettucemod.search.IndexInfo;
 import com.redis.riot.AbstractImportCommand;
 
-import picocli.CommandLine;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Mixin;
 
 @Command(name = "faker", description = "Import Faker data using the Spring Expression Language (SpEL)")
 public class FakerGeneratorCommand extends AbstractImportCommand {
 
-	private static final Logger log = LoggerFactory.getLogger(FakerGeneratorCommand.class);
+	private static final Logger log = Logger.getLogger(FakerGeneratorCommand.class.getName());
 
 	private static final String NAME = "faker-import";
 
-	@CommandLine.Mixin
+	@Mixin
 	private FakerGeneratorOptions options = new FakerGeneratorOptions();
 
 	@Override
@@ -43,7 +43,7 @@ public class FakerGeneratorCommand extends AbstractImportCommand {
 	}
 
 	private ItemReader<Map<String, Object>> reader() {
-		log.debug("Creating Faker reader with {}", options);
+		log.log(Level.FINE, "Creating Faker reader with {0}", options);
 		FakerItemReader reader = new FakerItemReader(generator());
 		reader.setStart(options.getStart());
 		reader.setCount(options.getCount());

@@ -31,26 +31,29 @@ public interface FileUtils {
 	public static final String GS_URI_PREFIX = "gs://";
 	public static final String S3_URI_PREFIX = "s3://";
 
-	public static final Pattern EXTENSION_PATTERN = Pattern.compile("(?i)\\.(?<extension>\\w+)(?<gz>\\.gz)?$");
-	public static final String EXTENSION_CSV = "csv";
-	public static final String EXTENSION_TSV = "tsv";
-	public static final String EXTENSION_PSV = "psv";
-	public static final String EXTENSION_FW = "fw";
-	public static final String EXTENSION_JSON = "json";
-	public static final String EXTENSION_XML = "xml";
+	public static final Pattern EXTENSION_PATTERN = Pattern.compile("(?i)\\.(?<extension>\\w+)(?:\\.(?<gz>gz))?$");
 
 	public static boolean isGzip(String file) {
 		return extensionGroup(file, "gz").isPresent();
 	}
 
-	public static Optional<String> extension(String file) {
-		return extensionGroup(file, "extension");
+	public static Optional<FileExtension> extension(Resource resource) {
+		return extensionGroup(resource.getFilename(), "extension");
 	}
 
-	public static Optional<String> extensionGroup(String file, String group) {
+	public static Optional<FileExtension> extensionGroup(String file, String group) {
 		Matcher matcher = EXTENSION_PATTERN.matcher(file);
 		if (matcher.find()) {
-			return Optional.ofNullable(matcher.group(group));
+			String extensionString = matcher.group(group);
+			if (extensionString == null) {
+				return Optional.empty();
+			}
+			try {
+				return Optional.of(FileExtension.valueOf(extensionString.toUpperCase()));
+			} catch (Exception e) {
+				// do nothing
+			}
+			return Optional.empty();
 		}
 		return Optional.empty();
 	}

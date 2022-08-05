@@ -2,7 +2,6 @@ package com.redis.riot.file;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -35,35 +34,29 @@ import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
 import com.redis.riot.AbstractImportCommand;
+import com.redis.riot.file.FileImportOptions.FileType;
 import com.redis.riot.file.resource.XmlItemReader;
 
-import picocli.CommandLine;
+import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Parameters;
 
 @Command(name = "import", description = "Import delimited, fixed-width, JSON, or XML files into Redis.")
 public class FileImportCommand extends AbstractImportCommand {
 
-	public enum FileType {
-		DELIMITED, FIXED, JSON, XML
-	}
-
 	private static final Logger log = LoggerFactory.getLogger(FileImportCommand.class);
-
 	private static final String NAME = "file-import";
+	private static final String DELIMITER_PIPE = "|";
 
-	@CommandLine.Parameters(arity = "0..*", description = "One ore more files or URLs", paramLabel = "FILE")
+	@Parameters(arity = "0..*", description = "One ore more files or URLs", paramLabel = "FILE")
 	private List<String> files = new ArrayList<>();
-	@CommandLine.Option(names = { "-t",
-			"--filetype" }, description = "File type: ${COMPLETION-CANDIDATES}", paramLabel = "<type>")
-	private Optional<FileType> type = Optional.empty();
-	@CommandLine.ArgGroup(exclusive = false, heading = "Delimited and fixed-width file options%n")
+	@ArgGroup(exclusive = false, heading = "Delimited and fixed-width file options%n")
 	private FileImportOptions options = new FileImportOptions();
 
 	public FileImportCommand() {
 	}
 
 	private FileImportCommand(Builder builder) {
-		this.type = builder.fileType;
 		this.options = builder.options;
 	}
 
@@ -73,14 +66,6 @@ public class FileImportCommand extends AbstractImportCommand {
 
 	public void setFiles(List<String> files) {
 		this.files = files;
-	}
-
-	public Optional<FileType> getType() {
-		return type;
-	}
-
-	public void setType(FileType type) {
-		this.type = Optional.of(type);
 	}
 
 	public FileImportOptions getOptions() {
@@ -120,40 +105,39 @@ public class FileImportCommand extends AbstractImportCommand {
 		return options.inputResource(file);
 	}
 
-	private Optional<FileType> type(Optional<String> extension) {
+	private FileType type(Optional<FileExtension> extension) {
+		Optional<FileType> type = options.getType();
 		if (type.isPresent()) {
-			return type;
+			return type.get();
 		}
-		if (extension.isEmpty()) {
-			return Optional.empty();
+		if (extension.isPresent()) {
+			switch (extension.get()) {
+			case FW:
+				return FileType.FIXED;
+			case JSON:
+				return FileType.JSON;
+			case XML:
+				return FileType.XML;
+			case CSV:
+			case PSV:
+			case TSV:
+				return FileType.DELIMITED;
+			default:
+				throw new UnknownFileTypeException("Unknown file extension: " + extension);
+			}
 		}
-		switch (extension.get().toLowerCase()) {
-		case FileUtils.EXTENSION_FW:
-			return Optional.of(FileType.FIXED);
-		case FileUtils.EXTENSION_JSON:
-			return Optional.of(FileType.JSON);
-		case FileUtils.EXTENSION_XML:
-			return Optional.of(FileType.XML);
-		case FileUtils.EXTENSION_CSV:
-		case FileUtils.EXTENSION_PSV:
-		case FileUtils.EXTENSION_TSV:
-			return Optional.of(FileType.DELIMITED);
-		default:
-			return Optional.empty();
-		}
+		throw new UnknownFileTypeException("Could not determine file type");
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private AbstractItemStreamItemReader<Map<String, Object>> reader(Resource resource) {
-		Optional<String> extension = FileUtils.extension(resource.getFilename());
-		Optional<FileType> fileType = type(extension);
-		if (fileType.isEmpty()) {
-			throw new IllegalArgumentException("Could not determine file type for " + resource);
-		}
-		switch (fileType.get()) {
+		Optional<FileExtension> extension = FileUtils.extension(resource);
+		FileType type = type(extension);
+		switch (type) {
 		case DELIMITED:
 			DelimitedLineTokenizer tokenizer = new DelimitedLineTokenizer();
-			tokenizer.setDelimiter(options.delimiter(extension));
+			options.getDelimiter().ifPresentOrElse(tokenizer::setDelimiter,
+					() -> tokenizer.setDelimiter(delimiter(extension.get())));
 			tokenizer.setQuoteCharacter(options.getQuoteCharacter());
 			if (!ObjectUtils.isEmpty(options.getIncludedFields())) {
 				tokenizer.setIncludedFields(options.getIncludedFields());
@@ -167,8 +151,7 @@ public class FileImportCommand extends AbstractImportCommand {
 			editor.setAsText(String.join(",", options.getColumnRanges()));
 			Range[] ranges = (Range[]) editor.getValue();
 			if (ranges.length == 0) {
-				throw new IllegalArgumentException(
-						"Invalid ranges specified: " + Arrays.toString(options.getColumnRanges()));
+				throw new IllegalArgumentException("Invalid ranges specified: " + options.getColumnRanges());
 			}
 			fixedLengthTokenizer.setColumns(ranges);
 			log.debug("Creating fixed-width reader with {} for {}", options, resource);
@@ -176,15 +159,30 @@ public class FileImportCommand extends AbstractImportCommand {
 		case XML:
 			log.debug("Creating XML reader for {}", resource);
 			return (XmlItemReader) FileUtils.xmlReader(resource, Map.class);
-		default:
+		case JSON:
 			log.debug("Creating JSON reader for {}", resource);
 			return (JsonItemReader) FileUtils.jsonReader(resource, Map.class);
+		default:
+			throw new UnsupportedOperationException("Unsupported file type: " + type);
+		}
+	}
+
+	private String delimiter(FileExtension extension) {
+		switch (extension) {
+		case CSV:
+			return DelimitedLineTokenizer.DELIMITER_COMMA;
+		case PSV:
+			return DELIMITER_PIPE;
+		case TSV:
+			return DelimitedLineTokenizer.DELIMITER_TAB;
+		default:
+			throw new IllegalArgumentException("Unknown extension: " + extension);
 		}
 	}
 
 	private FlatFileItemReader<Map<String, Object>> flatFileReader(Resource resource, AbstractLineTokenizer tokenizer) {
 		if (!ObjectUtils.isEmpty(options.getNames())) {
-			tokenizer.setNames(options.getNames());
+			tokenizer.setNames(options.getNames().toArray(String[]::new));
 		}
 		FlatFileItemReaderBuilder<Map<String, Object>> builder = new FlatFileItemReaderBuilder<>();
 		builder.resource(resource);
@@ -249,17 +247,10 @@ public class FileImportCommand extends AbstractImportCommand {
 	public static class Builder {
 
 		private FileImportOptions options = new FileImportOptions();
-		private Optional<FileType> fileType = Optional.empty();
 
 		public Builder options(FileImportOptions options) {
 			Assert.notNull(options, "Options must not be null");
 			this.options = options;
-			return this;
-		}
-
-		public Builder type(FileType fileType) {
-			Assert.notNull(fileType, "File type must not be null");
-			this.fileType = Optional.of(fileType);
 			return this;
 		}
 

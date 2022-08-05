@@ -66,4 +66,11 @@ public class RedisWriterOptions {
 		writer.poolConfig(poolConfig);
 		return writer;
 	}
+
+	@Override
+	public String toString() {
+		return "RedisWriterOptions [multiExec=" + multiExec + ", waitReplicas=" + waitReplicas + ", waitTimeout="
+				+ waitTimeout + ", poolMaxTotal=" + poolMaxTotal + "]";
+	}
+
 }

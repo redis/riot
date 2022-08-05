@@ -2,7 +2,7 @@ package com.redis.riot.redis;
 
 import com.redis.spring.batch.reader.AbstractKeyspaceNotificationItemReader;
 
-import picocli.CommandLine;
+import picocli.CommandLine.Option;
 
 public class ReplicationOptions {
 
@@ -14,15 +14,15 @@ public class ReplicationOptions {
 		SNAPSHOT, LIVE, LIVEONLY
 	}
 
-	@CommandLine.Option(names = "--mode", description = "Replication mode: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})", paramLabel = "<name>")
+	@Option(names = "--mode", description = "Replication mode: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})", paramLabel = "<name>")
 	private ReplicationMode mode = ReplicationMode.SNAPSHOT;
-	@CommandLine.Option(names = "--type", description = "Replication type: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})", paramLabel = "<name>")
+	@Option(names = "--type", description = "Replication type: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})", paramLabel = "<name>")
 	private ReplicationType type = ReplicationType.DUMP;
-	@CommandLine.Option(names = "--event-queue", description = "Capacity of the keyspace notification event queue (default: ${DEFAULT-VALUE})", paramLabel = "<size>")
+	@Option(names = "--event-queue", description = "Capacity of the keyspace notification event queue (default: ${DEFAULT-VALUE})", paramLabel = "<size>")
 	private int notificationQueueCapacity = AbstractKeyspaceNotificationItemReader.DEFAULT_QUEUE_CAPACITY;
-	@CommandLine.Option(names = "--no-verify", description = "Verify target against source dataset after replication. True by default", negatable = true)
+	@Option(names = "--no-verify", description = "Verify target against source dataset after replication. True by default", negatable = true)
 	private boolean verify = true;
-	@CommandLine.Option(names = "--dry-run", description = "Disable writes and only perform reads")
+	@Option(names = "--dry-run", description = "Disable writes and only perform reads")
 	private boolean dryRun;
 
 	public ReplicationMode getMode() {

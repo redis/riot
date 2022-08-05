@@ -29,7 +29,6 @@ import com.redis.spring.batch.RedisItemWriter;
 import com.redis.spring.batch.writer.RedisOperation;
 
 import io.lettuce.core.codec.StringCodec;
-import picocli.CommandLine;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 
@@ -39,7 +38,7 @@ import picocli.CommandLine.Command;
 		TsAddCommand.class }, subcommandsRepeatable = true, synopsisSubcommandLabel = "[REDIS COMMAND...]", commandListHeading = "Redis commands:%n")
 public abstract class AbstractImportCommand extends AbstractTransferCommand {
 
-	@CommandLine.ArgGroup(exclusive = false, heading = "Processor options%n")
+	@ArgGroup(exclusive = false, heading = "Processor options%n")
 	private MapProcessorOptions processorOptions = new MapProcessorOptions();
 
 	@ArgGroup(exclusive = false, heading = "Writer options%n")

@@ -54,4 +54,10 @@ public class GcsOptions {
 		return new GoogleStorageResource(builder.build().getService(), locationUri);
 	}
 
+	@Override
+	public String toString() {
+		return "GcsOptions [credentials=" + credentials + ", projectId=" + projectId + ", encodedKey=" + encodedKey
+				+ "]";
+	}
+
 }

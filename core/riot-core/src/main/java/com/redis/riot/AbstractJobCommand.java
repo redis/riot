@@ -16,7 +16,7 @@ import picocli.CommandLine.ParentCommand;
 import picocli.CommandLine.Spec;
 
 @Command(abbreviateSynopsis = true, sortOptions = false)
-public abstract class AbstractRiotCommand extends HelpCommand implements Callable<Integer> {
+public abstract class AbstractJobCommand extends HelpCommand implements Callable<Integer> {
 
 	@Spec
 	private CommandSpec commandSpec;
@@ -53,7 +53,8 @@ public abstract class AbstractRiotCommand extends HelpCommand implements Callabl
 	}
 
 	public JobExecution execute() throws Exception {
-		return getJobRunner().run(job(configureJob(getJobRunner().job(commandName()))));
+		Job job = job(configureJob(getJobRunner().job(commandName())));
+		return getJobRunner().run(job);
 	}
 
 	protected abstract Job job(JobBuilder jobBuilder) throws Exception;

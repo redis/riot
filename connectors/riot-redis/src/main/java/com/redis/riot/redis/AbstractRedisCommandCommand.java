@@ -7,12 +7,12 @@ import org.springframework.batch.repeat.RepeatStatus;
 
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
 import com.redis.lettucemod.api.sync.RedisModulesCommands;
-import com.redis.riot.AbstractRiotCommand;
+import com.redis.riot.AbstractJobCommand;
 
 import picocli.CommandLine.Command;
 
 @Command
-public abstract class AbstractRedisCommandCommand extends AbstractRiotCommand {
+public abstract class AbstractRedisCommandCommand extends AbstractJobCommand {
 
 	@Override
 	protected Job job(JobBuilder jobBuilder) throws Exception {

@@ -1,9 +1,9 @@
 package com.redis.riot.gen;
 
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.item.ItemReader;
@@ -16,18 +16,18 @@ import com.redis.spring.batch.DataStructure.Type;
 import com.redis.spring.batch.RedisItemWriter;
 import com.redis.spring.batch.reader.DataStructureGeneratorItemReader;
 
-import picocli.CommandLine;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Mixin;
 
 @Command(name = "ds", description = "Import randomly-generated data structures")
 public class DataStructureGeneratorCommand extends AbstractTransferCommand {
 
-	private static final Logger log = LoggerFactory.getLogger(DataStructureGeneratorCommand.class);
+	private static final Logger log = Logger.getLogger(DataStructureGeneratorCommand.class.getName());
 
 	private static final String NAME = "random-import";
 
-	@CommandLine.Mixin
+	@Mixin
 	private DataStructureGeneratorOptions options = new DataStructureGeneratorOptions();
 
 	@ArgGroup(exclusive = false, heading = "Writer options%n")
@@ -39,7 +39,7 @@ public class DataStructureGeneratorCommand extends AbstractTransferCommand {
 				.configureWriter(
 						RedisItemWriter.client(getRedisOptions().client()).string().dataStructure().xaddArgs(m -> null))
 				.build();
-		log.debug("Creating random data structure reader with {}", options);
+		log.log(Level.FINE, "Creating random data structure reader with {0}", options);
 		return jobBuilder.start(step(RiotStep.reader(reader()).writer(writer).name(NAME).taskName("Generating")
 				.max(() -> (long) options.getCount()).build()).build()).build();
 	}

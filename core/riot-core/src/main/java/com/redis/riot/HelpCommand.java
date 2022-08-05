@@ -1,11 +1,12 @@
 package com.redis.riot;
 
-import picocli.CommandLine;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
-@CommandLine.Command(usageHelpAutoWidth = true)
+@Command(usageHelpAutoWidth = true)
 public class HelpCommand {
 
-	@CommandLine.Option(names = { "-H", "--help" }, usageHelp = true, description = "Show this help message and exit")
+	@Option(names = { "-H", "--help" }, usageHelp = true, description = "Show this help message and exit")
 	private boolean helpRequested;
 
 }

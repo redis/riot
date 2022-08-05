@@ -19,4 +19,9 @@ public class KeyValueProcessorOptions {
 		return ttlProcessor;
 	}
 
+	@Override
+	public String toString() {
+		return "KeyValueProcessorOptions [keyProcessor=" + keyProcessor + ", ttlProcessor=" + ttlProcessor + "]";
+	}
+
 }

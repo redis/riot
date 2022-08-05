@@ -1,7 +1,7 @@
 package com.redis.riot.redis;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.redis.lettucemod.api.sync.RedisModulesCommands;
 
@@ -10,11 +10,11 @@ import picocli.CommandLine.Command;
 @Command(name = "info", description = "Display INFO command output")
 public class InfoCommand extends AbstractRedisCommandCommand {
 
-	private static final Logger log = LoggerFactory.getLogger(InfoCommand.class);
+	private static final Logger log = Logger.getLogger(InfoCommand.class.getName());
 
 	@Override
 	protected void execute(RedisModulesCommands<String, String> commands) {
-		if (log.isInfoEnabled()) {
+		if (log.isLoggable(Level.INFO)) {
 			log.info(commands.info());
 		}
 	}

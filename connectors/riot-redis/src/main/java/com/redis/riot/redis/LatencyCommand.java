@@ -3,11 +3,11 @@ package com.redis.riot.redis;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.HdrHistogram.Histogram;
 import org.LatencyUtils.LatencyStats;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.redis.lettucemod.api.sync.RedisModulesCommands;
 
@@ -19,7 +19,7 @@ import picocli.CommandLine.Option;
 @Command(name = "latency", description = "Calculate latency stats")
 public class LatencyCommand extends AbstractRedisCommandCommand {
 
-	private static final Logger log = LoggerFactory.getLogger(LatencyCommand.class);
+	private static final Logger log = Logger.getLogger(LatencyCommand.class.getName());
 
 	@Option(names = "--iterations", description = "Number of latency tests (default: ${DEFAULT-VALUE})", paramLabel = "<count>")
 	private int iterations = 1000;
@@ -52,7 +52,9 @@ public class LatencyCommand extends AbstractRedisCommandCommand {
 			CommandMetrics.CommandLatency latency = new CommandMetrics.CommandLatency(
 					unit.convert(histogram.getMinValue(), TimeUnit.NANOSECONDS),
 					unit.convert(histogram.getMaxValue(), TimeUnit.NANOSECONDS), percentiles);
-			log.info(latency.toString());
+			if (log.isLoggable(Level.INFO)) {
+				log.info(latency.toString());
+			}
 		}
 	}
 

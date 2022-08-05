@@ -30,9 +30,9 @@ import com.redis.spring.batch.writer.operation.Xadd.XaddBuilder;
 
 import io.lettuce.core.XAddArgs;
 import io.lettuce.core.codec.StringCodec;
-import picocli.CommandLine;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Mixin;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
@@ -42,11 +42,11 @@ public class StreamImportCommand extends AbstractTransferCommand {
 	private static final Logger log = LoggerFactory.getLogger(StreamImportCommand.class);
 
 	private static final String NAME = "stream-import";
-	@CommandLine.Mixin
+	@Mixin
 	private FlushingTransferOptions flushingTransferOptions = new FlushingTransferOptions();
 	@Parameters(arity = "0..*", description = "One ore more topics to read from", paramLabel = "TOPIC")
 	private List<String> topics;
-	@CommandLine.Mixin
+	@Mixin
 	private KafkaOptions options = new KafkaOptions();
 	@Option(names = "--key", description = "Target stream key (default: same as topic)", paramLabel = "<string>")
 	private Optional<String> key = Optional.empty();
@@ -54,7 +54,7 @@ public class StreamImportCommand extends AbstractTransferCommand {
 	private Optional<Long> maxlen = Optional.empty();
 	@Option(names = "--trim", description = "Stream efficient trimming ('~' flag)")
 	private boolean approximateTrimming;
-	@CommandLine.Mixin
+	@Mixin
 	private FilteringOptions filteringOptions = new FilteringOptions();
 	@ArgGroup(exclusive = false, heading = "Writer options%n")
 	private RedisWriterOptions writerOptions = new RedisWriterOptions();

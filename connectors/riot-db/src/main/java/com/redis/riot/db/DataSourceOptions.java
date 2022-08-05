@@ -57,4 +57,10 @@ public class DataSourceOptions {
 		return properties.initializeDataSourceBuilder().build();
 	}
 
+	@Override
+	public String toString() {
+		return "DataSourceOptions [driver=" + driver + ", url=" + url + ", username=" + username + ", password="
+				+ password + "]";
+	}
+
 }

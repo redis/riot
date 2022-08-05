@@ -1,8 +1,8 @@
 package com.redis.riot;
 
 import picocli.AutoComplete;
-import picocli.CommandLine;
+import picocli.CommandLine.Command;
 
-@CommandLine.Command(hidden = true, name = "generate-completion", usageHelpAutoWidth = true)
+@Command(hidden = true, name = "generate-completion", usageHelpAutoWidth = true)
 public class GenerateCompletionCommand extends AutoComplete.GenerateCompletion {
 }

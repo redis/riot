@@ -3,15 +3,16 @@ package com.redis.riot;
 import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.expression.EvaluationContext;
@@ -31,7 +32,7 @@ import picocli.CommandLine.Option;
 
 public class MapProcessorOptions {
 
-	private static final Logger log = LoggerFactory.getLogger(MapProcessorOptions.class);
+	private static final Logger log = Logger.getLogger(MapProcessorOptions.class.getName());
 
 	@Option(arity = "1..*", names = "--process", description = "SpEL expressions in the form field1=\"exp\" field2=\"exp\"...", paramLabel = "<f=exp>")
 	private Map<String, Expression> spelFields;
@@ -114,10 +115,16 @@ public class MapProcessorOptions {
 			Method geoMethod = GeoLocation.class.getDeclaredMethod("toString", String.class, String.class);
 			context.registerFunction("geo", geoMethod);
 		} catch (Exception e) {
-			log.warn("Could not register geo function", e);
+			log.log(Level.WARNING, "Could not register geo function", e);
 		}
 		context.setPropertyAccessors(Collections.singletonList(new MapAccessor()));
 		return context;
+	}
+
+	@Override
+	public String toString() {
+		return "MapProcessorOptions [spelFields=" + spelFields + ", variables=" + variables + ", dateFormat="
+				+ dateFormat + ", filters=" + Arrays.toString(filters) + ", regexes=" + regexes + "]";
 	}
 
 }

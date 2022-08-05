@@ -12,20 +12,22 @@ import com.redis.riot.convert.FieldExtractorFactory;
 import com.redis.riot.convert.IdConverterBuilder;
 import com.redis.riot.convert.ObjectToNumberConverter;
 
-import picocli.CommandLine;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Mixin;
 
 @Command(sortOptions = false, abbreviateSynopsis = true)
 public abstract class AbstractRedisCommand<O> extends HelpCommand implements RedisCommand<O> {
 
-	@CommandLine.Option(names = { "-s",
-			"--separator" }, description = "Key separator (default: ${DEFAULT-VALUE})", paramLabel = "<str>")
-	private String keySeparator = ":";
-	@CommandLine.Option(names = { "-r",
-			"--remove" }, description = "Remove key or member fields the first time they are used")
-	private boolean removeFields;
-	@CommandLine.Option(names = "--ignore-missing", description = "Ignore missing fields")
-	private boolean ignoreMissingFields;
+	@Mixin
+	private RedisCommandOptions commandOptions = new RedisCommandOptions();
+
+	public RedisCommandOptions getCommandOptions() {
+		return commandOptions;
+	}
+
+	public void setCommandOptions(RedisCommandOptions commandOptions) {
+		this.commandOptions = commandOptions;
+	}
 
 	protected Converter<Map<String, Object>, Double> doubleFieldExtractor(String field) {
 		Converter<Map<String, Object>, Object> extractor = fieldExtractorFactory().field(field);
@@ -44,7 +46,8 @@ public abstract class AbstractRedisCommand<O> extends HelpCommand implements Red
 	}
 
 	private FieldExtractorFactory fieldExtractorFactory() {
-		return FieldExtractorFactory.builder().remove(removeFields).nullCheck(!ignoreMissingFields).build();
+		return FieldExtractorFactory.builder().remove(commandOptions.isRemoveFields())
+				.nullCheck(!commandOptions.isIgnoreMissingFields()).build();
 	}
 
 	protected <T extends Number> Converter<Map<String, Object>, T> numberExtractor(Optional<String> field,
@@ -67,7 +70,8 @@ public abstract class AbstractRedisCommand<O> extends HelpCommand implements Red
 	}
 
 	protected Converter<Map<String, Object>, String> idMaker(String prefix, String... fields) {
-		return new IdConverterBuilder().remove(removeFields).prefix(prefix).fields(fields).build();
+		return new IdConverterBuilder().separator(commandOptions.getKeySeparator())
+				.remove(commandOptions.isRemoveFields()).prefix(prefix).fields(fields).build();
 	}
 
 }

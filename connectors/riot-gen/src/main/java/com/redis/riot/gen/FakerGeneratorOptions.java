@@ -4,17 +4,18 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
-import picocli.CommandLine;
+import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
 
 public class FakerGeneratorOptions extends GeneratorOptions {
 
-	@CommandLine.Parameters(arity = "0..*", description = "SpEL expressions in the form field1=\"exp\" field2=\"exp\"...", paramLabel = "SPEL")
+	@Parameters(arity = "0..*", description = "SpEL expressions in the form field1=\"exp\" field2=\"exp\"...", paramLabel = "SPEL")
 	private Map<String, String> fields;
-	@CommandLine.Option(names = "--infer", description = "Introspect given RediSearch index to infer Faker fields", paramLabel = "<name>")
+	@Option(names = "--infer", description = "Introspect given RediSearch index to infer Faker fields", paramLabel = "<name>")
 	private Optional<String> redisearchIndex = Optional.empty();
-	@CommandLine.Option(names = "--locale", description = "Faker locale (default: ${DEFAULT-VALUE})", paramLabel = "<tag>")
+	@Option(names = "--locale", description = "Faker locale (default: ${DEFAULT-VALUE})", paramLabel = "<tag>")
 	private Locale locale = Locale.ENGLISH;
-	@CommandLine.Option(names = "--metadata", description = "Include metadata (index, partition)")
+	@Option(names = "--metadata", description = "Include metadata (index, partition)")
 	private boolean includeMetadata;
 
 	public Map<String, String> getFields() {
@@ -47,6 +48,12 @@ public class FakerGeneratorOptions extends GeneratorOptions {
 
 	public void setIncludeMetadata(boolean includeMetadata) {
 		this.includeMetadata = includeMetadata;
+	}
+
+	@Override
+	public String toString() {
+		return "FakerGeneratorOptions [fields=" + fields + ", redisearchIndex=" + redisearchIndex + ", locale=" + locale
+				+ ", includeMetadata=" + includeMetadata + ", start=" + start + ", count=" + count + "]";
 	}
 
 }

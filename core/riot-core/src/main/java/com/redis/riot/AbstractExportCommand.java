@@ -1,9 +1,9 @@
 package com.redis.riot;
 
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.step.builder.AbstractTaskletStepBuilder;
 import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.item.ItemProcessor;
@@ -16,7 +16,7 @@ import picocli.CommandLine.ArgGroup;
 
 public abstract class AbstractExportCommand<O> extends AbstractTransferCommand {
 
-	private static final Logger log = LoggerFactory.getLogger(AbstractExportCommand.class);
+	private static final Logger log = Logger.getLogger(AbstractExportCommand.class.getName());
 
 	@ArgGroup(exclusive = false, heading = "Reader options%n")
 	private RedisReaderOptions options = new RedisReaderOptions();
@@ -31,7 +31,7 @@ public abstract class AbstractExportCommand<O> extends AbstractTransferCommand {
 		try {
 			return estimator().build().call();
 		} catch (Exception e) {
-			log.warn("Could not estimate scan size", e);
+			log.log(Level.WARNING, "Could not estimate scan size", e);
 			return null;
 		}
 	}

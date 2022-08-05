@@ -432,8 +432,8 @@ class FileIntegrationTests extends AbstractRiotIntegrationTests {
 		FileImportCommand command = new FileImportCommand();
 		command.setFiles(Collections.singletonList(BEERS_JSON_URL));
 		HsetCommand hset = new HsetCommand();
-		hset.setKeyspace("beer");
-		hset.setKeys(new String[] { "id" });
+		hset.getKeyOptions().setKeyspace("beer");
+		hset.getKeyOptions().setKeys(new String[] { "id" });
 		command.setRedisCommands(Collections.singletonList(hset));
 		RiotFile riotFile = new RiotFile();
 		configure(riotFile, redis);

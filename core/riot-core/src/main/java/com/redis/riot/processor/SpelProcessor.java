@@ -4,9 +4,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemStream;
@@ -25,7 +25,7 @@ import io.lettuce.core.cluster.api.StatefulRedisClusterConnection;
 
 public class SpelProcessor implements ItemProcessor<Map<String, Object>, Map<String, Object>>, ItemStream {
 
-	private static final Logger log = LoggerFactory.getLogger(SpelProcessor.class);
+	private static final Logger log = Logger.getLogger(SpelProcessor.class.getName());
 
 	private final RedisOptions redisOptions;
 	private final EvaluationContext context;
@@ -81,7 +81,7 @@ public class SpelProcessor implements ItemProcessor<Map<String, Object>, Map<Str
 						map.put(entry.getKey(), value);
 					}
 				} catch (ExpressionInvocationTargetException e) {
-					log.error("Error while evaluating field {}", entry.getKey(), e);
+					log.log(Level.SEVERE, e, () -> "Error while evaluating field " + entry.getKey());
 					throw e;
 				}
 			}

@@ -1,6 +1,6 @@
 package com.redis.riot;
 
-import picocli.CommandLine;
+import picocli.CommandLine.Option;
 
 public class TransferOptions {
 
@@ -12,18 +12,18 @@ public class TransferOptions {
 		ALWAYS, NEVER, LIMIT
 	}
 
-	@CommandLine.Option(names = "--progress", description = "Style of progress bar: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})", paramLabel = "<style>")
+	@Option(names = "--progress", description = "Style of progress bar: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})", paramLabel = "<style>")
 	private Progress progress = Progress.COLOR;
-	@CommandLine.Option(names = "--progress-interval", description = "Progress update interval in milliseconds (default: ${DEFAULT-VALUE})", paramLabel = "<ms>", hidden = true)
+	@Option(names = "--progress-interval", description = "Progress update interval in milliseconds (default: ${DEFAULT-VALUE})", paramLabel = "<ms>", hidden = true)
 	private long progressUpdateIntervalMillis = 300;
-	@CommandLine.Option(names = "--threads", description = "Thread count (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
+	@Option(names = "--threads", description = "Thread count (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
 	private int threads = 1;
-	@CommandLine.Option(names = { "-b",
+	@Option(names = { "-b",
 			"--batch" }, description = "Number of items in each batch (default: ${DEFAULT-VALUE})", paramLabel = "<size>")
 	private int chunkSize = 50;
-	@CommandLine.Option(names = "--skip-policy", description = "Policy to determine if some processing should be skipped: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})", paramLabel = "<name>")
+	@Option(names = "--skip-policy", description = "Policy to determine if some processing should be skipped: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})", paramLabel = "<name>")
 	private SkipPolicy skipPolicy = SkipPolicy.LIMIT;
-	@CommandLine.Option(names = "--skip-limit", description = "For LIMIT policy, max number of failed items to skip before considering the transfer has failed (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
+	@Option(names = "--skip-limit", description = "For LIMIT policy, max number of failed items to skip before considering the transfer has failed (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
 	private int skipLimit = 3;
 
 	public Progress getProgress() {
@@ -72,6 +72,13 @@ public class TransferOptions {
 
 	public void setSkipLimit(int skipLimit) {
 		this.skipLimit = skipLimit;
+	}
+
+	@Override
+	public String toString() {
+		return "TransferOptions [progress=" + progress + ", progressUpdateIntervalMillis="
+				+ progressUpdateIntervalMillis + ", threads=" + threads + ", chunkSize=" + chunkSize + ", skipPolicy="
+				+ skipPolicy + ", skipLimit=" + skipLimit + "]";
 	}
 
 }

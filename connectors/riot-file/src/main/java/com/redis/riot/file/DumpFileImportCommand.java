@@ -31,9 +31,10 @@ import com.redis.spring.batch.RedisItemWriter.DataStructureBuilder;
 
 import io.lettuce.core.ScoredValue;
 import io.lettuce.core.StreamMessage;
-import picocli.CommandLine;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Mixin;
+import picocli.CommandLine.Parameters;
 
 @Command(name = "import-dump", description = "Import Redis data files into Redis")
 public class DumpFileImportCommand extends AbstractTransferCommand {
@@ -42,10 +43,10 @@ public class DumpFileImportCommand extends AbstractTransferCommand {
 
 	private static final String NAME = "dump-file-import";
 
-	@CommandLine.Parameters(arity = "0..*", description = "One ore more files or URLs", paramLabel = "FILE")
+	@Parameters(arity = "0..*", description = "One ore more files or URLs", paramLabel = "FILE")
 	private List<String> files;
-	@CommandLine.Mixin
-	private DumpFileImportOptions options = new DumpFileImportOptions();
+	@Mixin
+	private DumpFileOptions options = new DumpFileOptions();
 	@ArgGroup(exclusive = false, heading = "Writer options%n")
 	private RedisWriterOptions writerOptions = new RedisWriterOptions();
 
@@ -57,7 +58,7 @@ public class DumpFileImportCommand extends AbstractTransferCommand {
 		this.files = files;
 	}
 
-	public DumpFileImportOptions getOptions() {
+	public DumpFileOptions getOptions() {
 		return options;
 	}
 
@@ -88,9 +89,8 @@ public class DumpFileImportCommand extends AbstractTransferCommand {
 	}
 
 	private TaskletStep fileImportStep(String file) throws Exception {
-		DumpFileType fileType = DumpFileType.of(file, options.getType());
 		Resource resource = options.inputResource(file);
-		AbstractItemStreamItemReader<DataStructure<String>> reader = reader(fileType, resource);
+		AbstractItemStreamItemReader<DataStructure<String>> reader = reader(options.type(resource), resource);
 		reader.setName(file + "-" + NAME + "-reader");
 		return step(RiotStep.reader(reader).writer(writer()).name(file + "-" + NAME).taskName("Importing " + file)
 				.processor(this::processDataStructure).build()).build();

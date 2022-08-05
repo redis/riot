@@ -7,20 +7,19 @@ import com.redis.spring.batch.writer.RedisOperation;
 import com.redis.spring.batch.writer.operation.Geoadd;
 
 import picocli.CommandLine.Command;
-import picocli.CommandLine.Option;
+import picocli.CommandLine.Mixin;
 
 @Command(name = "geoadd", description = "Add members to a geo set")
 public class GeoaddCommand extends AbstractCollectionCommand {
 
-	@Option(names = "--lon", description = "Longitude field", paramLabel = "<field>")
-	private String longitudeField;
-	@Option(names = "--lat", description = "Latitude field", paramLabel = "<field>")
-	private String latitudeField;
+	@Mixin
+	private GeoaddOptions options = new GeoaddOptions();
 
 	@Override
 	public RedisOperation<String, String, Map<String, Object>> operation() {
 		return Geoadd.<String, String, Map<String, Object>>key(key()).value(new GeoValueConverter<>(member(),
-				doubleFieldExtractor(longitudeField), doubleFieldExtractor(latitudeField))).build();
+				doubleFieldExtractor(options.getLongitudeField()), doubleFieldExtractor(options.getLatitudeField())))
+				.build();
 	}
 
 }

@@ -191,4 +191,15 @@ public class DataStructureGeneratorOptions extends GeneratorOptions {
 		this.expiration = expiration;
 	}
 
+	@Override
+	public String toString() {
+		return "DataStructureGeneratorOptions [keyspace=" + keyspace + ", types=" + types + ", expiration=" + expiration
+				+ ", hashSize=" + hashSize + ", hashFieldSize=" + hashFieldSize + ", jsonSize=" + jsonSize
+				+ ", jsonFieldSize=" + jsonFieldSize + ", listSize=" + listSize + ", setSize=" + setSize
+				+ ", streamSize=" + streamSize + ", streamFieldCount=" + streamFieldCount + ", streamFieldSize="
+				+ streamFieldSize + ", stringSize=" + stringSize + ", timeseriesSize=" + timeseriesSize
+				+ ", timeseriesStartTime=" + timeseriesStartTime + ", zsetSize=" + zsetSize + ", zsetScore=" + zsetScore
+				+ ", start=" + start + ", count=" + count + "]";
+	}
+
 }

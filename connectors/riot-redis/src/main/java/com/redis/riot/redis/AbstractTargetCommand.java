@@ -1,7 +1,8 @@
 package com.redis.riot.redis;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.Step;
@@ -27,21 +28,22 @@ import com.redis.spring.batch.support.RedisConnectionBuilder;
 
 import io.lettuce.core.codec.RedisCodec;
 import io.lettuce.core.codec.StringCodec;
-import picocli.CommandLine;
+import picocli.CommandLine.ArgGroup;
+import picocli.CommandLine.Mixin;
 
 public abstract class AbstractTargetCommand extends AbstractTransferCommand {
 
-	private static final Logger log = LoggerFactory.getLogger(AbstractTargetCommand.class);
+	private static final Logger log = Logger.getLogger(AbstractTargetCommand.class.getName());
 
 	private static final String COMPARE_MESSAGE_ASCII = " >%,d T%,d ≠%,d ⧗%,d <%,d";
 	private static final String COMPARE_MESSAGE_COLOR = " \u001b[31m>%,d \u001b[33mT%,d \u001b[35m≠%,d \u001b[36m⧗%,d\u001b[0m";
 	private static final String VERIFICATION_NAME = "verification";
 
-	@CommandLine.ArgGroup(exclusive = false, heading = "Target Redis connection options%n")
+	@ArgGroup(exclusive = false, heading = "Target Redis connection options%n")
 	protected RedisOptions targetRedisOptions = new RedisOptions();
-	@CommandLine.ArgGroup(exclusive = false, heading = "Reader options%n")
+	@ArgGroup(exclusive = false, heading = "Reader options%n")
 	protected RedisReaderOptions readerOptions = new RedisReaderOptions();
-	@CommandLine.Mixin
+	@Mixin
 	private CompareOptions compareOptions = new CompareOptions();
 
 	public RedisOptions getTargetRedisOptions() {
@@ -71,13 +73,14 @@ public abstract class AbstractTargetCommand extends AbstractTransferCommand {
 		RedisItemReader<String, DataStructure<String>> sourceReader = readerOptions
 				.configureScanReader(reader(getRedisOptions(), StringCodec.UTF8).dataStructure())
 				.jobRunner(getJobRunner()).build();
-		log.debug("Creating key comparator with TTL tolerance of {} seconds", compareOptions.getTtlTolerance());
+		log.log(Level.FINE, "Creating key comparator with TTL tolerance of {0} seconds",
+				compareOptions.getTtlTolerance());
 		DataStructureValueReader<String, String> targetValueReader = dataStructureValueReader(targetRedisOptions,
 				StringCodec.UTF8);
 		KeyComparisonItemWriter writer = KeyComparisonItemWriter.valueReader(targetValueReader)
 				.tolerance(compareOptions.getTtlToleranceDuration()).build();
 		if (compareOptions.isShowDiffs()) {
-			writer.addListener(new KeyComparisonLogger(LoggerFactory.getLogger(getClass())));
+			writer.addListener(new KeyComparisonLogger(java.util.logging.Logger.getLogger(getClass().getName())));
 		}
 		Builder<DataStructure<String>, DataStructure<String>> riotStep = RiotStep.reader(sourceReader).writer(writer)
 				.name(VERIFICATION_NAME).taskName("Verifying").max(this::initialMax)
@@ -96,13 +99,14 @@ public abstract class AbstractTargetCommand extends AbstractTransferCommand {
 				try {
 					Thread.sleep(transferOptions.getProgressUpdateIntervalMillis());
 				} catch (InterruptedException e) {
-					log.debug("Verification interrupted");
+					log.fine("Verification interrupted");
 					Thread.currentThread().interrupt();
 					return ExitStatus.STOPPED;
 				}
 				KeyComparisonResults results = writer.getResults();
-				log.warn("Verification failed: OK={} Missing={} Values={} TTLs={} Types={}", results.getOK(),
-						results.getMissing(), results.getValue(), results.getTTL(), results.getType());
+				log.log(Level.WARNING, "Verification failed: OK={0} Missing={1} Values={2} TTLs={3} Types={4}",
+						new Object[] { results.getOK(), results.getMissing(), results.getValue(), results.getTTL(),
+								results.getType() });
 				return new ExitStatus(ExitStatus.FAILED.getExitCode(), "Verification failed");
 			}
 		});
@@ -116,7 +120,7 @@ public abstract class AbstractTargetCommand extends AbstractTransferCommand {
 		try {
 			return estimator.build().call();
 		} catch (Exception e) {
-			log.warn("Could not estimate scan size", e);
+			log.log(Level.WARNING, "Could not estimate scan size", e);
 			return null;
 		}
 	}

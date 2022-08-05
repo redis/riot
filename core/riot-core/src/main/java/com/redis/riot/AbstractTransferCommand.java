@@ -2,9 +2,9 @@ package com.redis.riot;
 
 import java.time.Duration;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.ItemWriteListener;
 import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.step.builder.FaultTolerantStepBuilder;
@@ -27,13 +27,13 @@ import com.redis.spring.batch.RedisScanSizeEstimator;
 import com.redis.spring.batch.reader.PollableItemReader;
 
 import io.lettuce.core.codec.RedisCodec;
-import picocli.CommandLine;
+import picocli.CommandLine.Mixin;
 
-public abstract class AbstractTransferCommand extends AbstractRiotCommand {
+public abstract class AbstractTransferCommand extends AbstractJobCommand {
 
-	private static final Logger log = LoggerFactory.getLogger(AbstractTransferCommand.class);
+	private static final Logger log = Logger.getLogger(AbstractTransferCommand.class.getName());
 
-	@CommandLine.Mixin
+	@Mixin
 	protected TransferOptions transferOptions = new TransferOptions();
 
 	protected TypeBuilder<String, String> stringReader(RedisOptions redisOptions) {
@@ -78,7 +78,7 @@ public abstract class AbstractTransferCommand extends AbstractRiotCommand {
 			taskExecutor.setQueueCapacity(transferOptions.getThreads());
 			taskExecutor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
 			taskExecutor.afterPropertiesSet();
-			log.debug("Created pooled task executor of size {}", taskExecutor.getCorePoolSize());
+			log.log(Level.FINE, "Created pooled task executor of size {0}", taskExecutor.getCorePoolSize());
 			ftStep.taskExecutor(taskExecutor).throttleLimit(transferOptions.getThreads());
 		} else {
 			ftStep.taskExecutor(new SyncTaskExecutor());

@@ -18,11 +18,12 @@ import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Help;
 import picocli.CommandLine.IHelpCommandInitializable2;
+import picocli.CommandLine.Parameters;
 
 @Command(name = "faker-help", header = "Displays help information about Faker", synopsisHeading = "%nUsage: ", helpCommand = true)
 public class FakerHelpCommand implements IHelpCommandInitializable2, Runnable {
 
-	@CommandLine.Parameters(description = "Name of the Faker provider to show help for", paramLabel = "<name>")
+	@Parameters(description = "Name of the Faker provider to show help for", paramLabel = "<name>")
 	private Optional<String> provider = Optional.empty();
 
 	private static final List<String> EXCLUDES = Arrays.asList("instance", "options");

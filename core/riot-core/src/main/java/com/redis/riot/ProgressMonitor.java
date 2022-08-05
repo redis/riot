@@ -5,8 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.ItemWriteListener;
 import org.springframework.batch.core.StepExecution;
@@ -22,8 +21,6 @@ import me.tongfei.progressbar.ProgressBarStyle;
 
 @SuppressWarnings("rawtypes")
 public class ProgressMonitor implements StepExecutionListener, ItemWriteListener {
-
-	private static final Logger log = LoggerFactory.getLogger(ProgressMonitor.class);
 
 	private final TransferOptions.Progress style;
 	private final String taskName;
@@ -51,17 +48,13 @@ public class ProgressMonitor implements StepExecutionListener, ItemWriteListener
 		initialMax.ifPresent(m -> {
 			Long initialMaxValue = m.get();
 			if (initialMaxValue != null) {
-				log.debug("Setting initial max to {}", initialMaxValue);
 				builder.setInitialMax(initialMaxValue);
 			}
 		});
-		log.debug("Setting update interval to {}", updateInterval);
 		builder.setUpdateIntervalMillis(Math.toIntExact(updateInterval.toMillis()));
-		log.debug("Setting task name to {}", taskName);
 		builder.setTaskName(taskName);
 		builder.showSpeed();
-		log.debug("Opening progress bar");
-		this.progressBar = builder.build();
+		progressBar = builder.build();
 	}
 
 	private ProgressBarStyle progressBarStyle() {
@@ -76,9 +69,10 @@ public class ProgressMonitor implements StepExecutionListener, ItemWriteListener
 	}
 
 	@Override
-	public ExitStatus afterStep(StepExecution stepExecution) {
-		log.debug("Closing progress bar");
-		progressBar.close();
+	public synchronized ExitStatus afterStep(StepExecution stepExecution) {
+		if (stepExecution.getStatus() != BatchStatus.FAILED) {
+			progressBar.close();
+		}
 		return null;
 	}
 

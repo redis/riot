@@ -75,4 +75,10 @@ public class S3Options {
 		}
 
 	}
+
+	@Override
+	public String toString() {
+		return "S3Options [accessKey=" + accessKey + ", secretKey=" + secretKey + ", region=" + region + "]";
+	}
+
 }

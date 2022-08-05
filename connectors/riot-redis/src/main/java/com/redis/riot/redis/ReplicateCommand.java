@@ -3,9 +3,9 @@ package com.redis.riot.redis;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.builder.FlowBuilder;
@@ -37,19 +37,20 @@ import com.redis.spring.batch.RedisItemWriter.OperationBuilder;
 
 import io.lettuce.core.XAddArgs;
 import io.lettuce.core.codec.ByteArrayCodec;
-import picocli.CommandLine;
 import picocli.CommandLine.ArgGroup;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Mixin;
 
-@CommandLine.Command(name = "replicate", description = "Replicate a source Redis DB to a target Redis DB")
+@Command(name = "replicate", description = "Replicate a source Redis DB to a target Redis DB")
 public class ReplicateCommand extends AbstractTargetCommand {
 
-	private static final Logger log = LoggerFactory.getLogger(ReplicateCommand.class);
+	private static final Logger log = Logger.getLogger(ReplicateCommand.class.getName());
 
-	@CommandLine.Mixin
+	@Mixin
 	private FlushingTransferOptions flushingTransferOptions = new FlushingTransferOptions();
-	@CommandLine.Mixin
+	@Mixin
 	private ReplicationOptions replicationOptions = new ReplicationOptions();
-	@CommandLine.Mixin
+	@Mixin
 	private KeyValueProcessorOptions processorOptions = new KeyValueProcessorOptions();
 	@ArgGroup(exclusive = false, heading = "Writer options%n")
 	private RedisWriterOptions writerOptions = new RedisWriterOptions();
@@ -103,7 +104,7 @@ public class ReplicateCommand extends AbstractTargetCommand {
 			}
 			if (processorOptions.getKeyProcessor().isPresent()) {
 				// Verification cannot be done if a processor is set
-				log.warn("Key processor enabled, verification will be skipped");
+				log.warning("Key processor enabled, verification will be skipped");
 				return Optional.empty();
 			}
 			return Optional.of(verificationStep());
@@ -151,10 +152,10 @@ public class ReplicateCommand extends AbstractTargetCommand {
 	@SuppressWarnings("unchecked")
 	private <T extends KeyValue<byte[], ?>> ItemWriter<T> writer() {
 		if (replicationOptions.isDryRun()) {
-			log.debug("Using no-op writer");
+			log.fine("Using no-op writer");
 			return new NoOpItemWriter<>();
 		}
-		log.debug("Configuring writer with {}", targetRedisOptions);
+		log.log(Level.FINE, "Configuring writer with {0}", targetRedisOptions);
 		OperationBuilder<byte[], byte[]> builder = writer(targetRedisOptions, ByteArrayCodec.INSTANCE);
 		switch (replicationOptions.getType()) {
 		case DS:

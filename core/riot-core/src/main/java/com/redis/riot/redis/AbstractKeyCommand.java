@@ -5,34 +5,24 @@ import java.util.Map;
 import org.springframework.core.convert.converter.Converter;
 
 import picocli.CommandLine.Command;
-import picocli.CommandLine.Option;
+import picocli.CommandLine.Mixin;
 
 @Command
 public abstract class AbstractKeyCommand extends AbstractRedisCommand<Map<String, Object>> {
 
-	@Option(names = { "-p", "--keyspace" }, description = "Keyspace prefix", paramLabel = "<str>")
-	private String keyspace = "";
-	@Option(names = { "-k", "--keys" }, arity = "1..*", description = "Key fields", paramLabel = "<fields>")
-	private String[] keys;
-
-	public String[] getKeys() {
-		return keys;
-	}
-
-	public void setKeys(String[] keys) {
-		this.keys = keys;
-	}
-
-	public String getKeyspace() {
-		return keyspace;
-	}
-
-	public void setKeyspace(String keyspace) {
-		this.keyspace = keyspace;
-	}
+	@Mixin
+	private KeyOptions keyOptions = new KeyOptions();
 
 	protected Converter<Map<String, Object>, String> key() {
-		return idMaker(keyspace, keys);
+		return idMaker(keyOptions.getKeyspace(), keyOptions.getKeys());
+	}
+
+	public KeyOptions getKeyOptions() {
+		return keyOptions;
+	}
+
+	public void setKeyOptions(KeyOptions keyOptions) {
+		this.keyOptions = keyOptions;
 	}
 
 }

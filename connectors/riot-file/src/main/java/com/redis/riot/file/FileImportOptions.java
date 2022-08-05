@@ -1,5 +1,8 @@
 package com.redis.riot.file;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
@@ -8,11 +11,16 @@ import picocli.CommandLine.Option;
 
 public class FileImportOptions extends FileOptions {
 
-	public static final String DEFAULT_CONTINUATION_STRING = "\\";
-	private static final String DELIMITER_PIPE = "|";
+	public enum FileType {
+		DELIMITED, FIXED, JSON, XML
+	}
 
+	public static final String DEFAULT_CONTINUATION_STRING = "\\";
+
+	@Option(names = { "-t", "--filetype" }, description = "File type: ${COMPLETION-CANDIDATES}", paramLabel = "<type>")
+	private Optional<FileType> type = Optional.empty();
 	@Option(names = "--fields", arity = "1..*", description = "Delimited/FW field names", paramLabel = "<names>")
-	private String[] names;
+	private List<String> names = new ArrayList<>();
 	@Option(names = { "-h", "--header" }, description = "Delimited/FW first line contains field names")
 	private boolean header;
 	@Option(names = "--delimiter", description = "Delimiter character", paramLabel = "<string>")
@@ -22,18 +30,18 @@ public class FileImportOptions extends FileOptions {
 	@Option(names = "--include", arity = "1..*", description = "Delimited/FW field indices to include (0-based)", paramLabel = "<index>")
 	private int[] includedFields;
 	@Option(names = "--ranges", arity = "1..*", description = "Fixed-width column ranges", paramLabel = "<string>")
-	private String[] columnRanges;
+	private List<String> columnRanges = new ArrayList<>();
 	@Option(names = "--quote", description = "Escape character for delimited files (default: ${DEFAULT-VALUE})", paramLabel = "<char>")
 	private Character quoteCharacter = DelimitedLineTokenizer.DEFAULT_QUOTE_CHARACTER;
 	@Option(names = "--cont", description = "Line continuation string (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
 	private String continuationString = DEFAULT_CONTINUATION_STRING;
 
 	public FileImportOptions() {
-
 	}
 
 	private FileImportOptions(Builder builder) {
 		super(builder);
+		this.type = builder.type;
 		this.names = builder.names;
 		this.header = builder.header;
 		this.delimiter = builder.delimiter;
@@ -44,12 +52,20 @@ public class FileImportOptions extends FileOptions {
 		this.continuationString = builder.continuationString;
 	}
 
-	public String[] getNames() {
+	public List<String> getNames() {
 		return names;
 	}
 
-	public void setNames(String[] names) {
-		this.names = names;
+	public Optional<FileType> getType() {
+		return type;
+	}
+
+	public void setType(FileType type) {
+		this.type = Optional.of(type);
+	}
+
+	public void setNames(String... names) {
+		this.names = Arrays.asList(names);
 	}
 
 	public boolean isHeader() {
@@ -72,16 +88,20 @@ public class FileImportOptions extends FileOptions {
 		return includedFields;
 	}
 
-	public void setIncludedFields(int[] includedFields) {
+	public void setIncludedFields(int... includedFields) {
 		this.includedFields = includedFields;
 	}
 
-	public String[] getColumnRanges() {
+	public List<String> getColumnRanges() {
 		return columnRanges;
 	}
 
-	public void setColumnRanges(String[] columnRanges) {
-		this.columnRanges = columnRanges;
+	public void setColumnRanges(String... columnRanges) {
+		this.columnRanges = Arrays.asList(columnRanges);
+	}
+
+	public Optional<String> getDelimiter() {
+		return delimiter;
 	}
 
 	public Character getQuoteCharacter() {
@@ -110,44 +130,31 @@ public class FileImportOptions extends FileOptions {
 		return 0;
 	}
 
-	public String delimiter(Optional<String> extension) {
-		if (delimiter.isPresent()) {
-			return delimiter.get();
-		}
-		if (extension.isEmpty()) {
-			throw new IllegalArgumentException("Could not determine delimiter for extension " + extension);
-		}
-		switch (extension.get().toLowerCase()) {
-		case FileUtils.EXTENSION_CSV:
-			return DelimitedLineTokenizer.DELIMITER_COMMA;
-		case FileUtils.EXTENSION_PSV:
-			return DELIMITER_PIPE;
-		case FileUtils.EXTENSION_TSV:
-			return DelimitedLineTokenizer.DELIMITER_TAB;
-		default:
-			throw new IllegalArgumentException("Unknown extension: " + extension);
-		}
-	}
-
 	public static Builder builder() {
 		return new Builder();
 	}
 
 	public static final class Builder extends FileOptions.Builder<Builder> {
-		private String[] names;
+		private Optional<FileType> type = Optional.empty();
+		private List<String> names = new ArrayList<>();
 		private boolean header;
 		private Optional<String> delimiter = Optional.empty();
 		private Optional<Integer> linesToSkip = Optional.empty();
 		private int[] includedFields;
-		private String[] columnRanges;
+		private List<String> columnRanges = new ArrayList<>();
 		private Character quoteCharacter = DelimitedLineTokenizer.DEFAULT_QUOTE_CHARACTER;
 		private String continuationString = DEFAULT_CONTINUATION_STRING;
 
 		private Builder() {
 		}
 
-		public Builder names(String[] names) {
-			this.names = names;
+		public Builder type(FileType type) {
+			this.type = Optional.of(type);
+			return this;
+		}
+
+		public Builder names(String... names) {
+			this.names = Arrays.asList(names);
 			return this;
 		}
 
@@ -166,13 +173,13 @@ public class FileImportOptions extends FileOptions {
 			return this;
 		}
 
-		public Builder includedFields(int[] includedFields) {
+		public Builder includedFields(int... includedFields) {
 			this.includedFields = includedFields;
 			return this;
 		}
 
-		public Builder columnRanges(String[] columnRanges) {
-			this.columnRanges = columnRanges;
+		public Builder columnRanges(String... columnRanges) {
+			this.columnRanges = Arrays.asList(columnRanges);
 			return this;
 		}
 
@@ -189,6 +196,15 @@ public class FileImportOptions extends FileOptions {
 		public FileImportOptions build() {
 			return new FileImportOptions(this);
 		}
+	}
+
+	@Override
+	public String toString() {
+		return "FileImportOptions [type=" + type + ", names=" + names + ", header=" + header + ", delimiter="
+				+ delimiter + ", linesToSkip=" + linesToSkip + ", includedFields=" + Arrays.toString(includedFields)
+				+ ", columnRanges=" + columnRanges + ", quoteCharacter=" + quoteCharacter + ", continuationString="
+				+ continuationString + ", encoding=" + encoding + ", gzip=" + gzip + ", s3=" + s3 + ", gcs=" + gcs
+				+ "]";
 	}
 
 }

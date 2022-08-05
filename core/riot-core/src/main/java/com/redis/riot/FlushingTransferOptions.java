@@ -10,13 +10,13 @@ import com.redis.spring.batch.KeyValue;
 import com.redis.spring.batch.reader.LiveRedisItemReader;
 import com.redis.spring.batch.step.FlushingSimpleStepBuilder;
 
-import picocli.CommandLine;
+import picocli.CommandLine.Option;
 
 public class FlushingTransferOptions {
 
-	@CommandLine.Option(names = "--flush-interval", description = "Max duration between flushes (default: ${DEFAULT-VALUE})", paramLabel = "<ms>")
+	@Option(names = "--flush-interval", description = "Max duration between flushes (default: ${DEFAULT-VALUE})", paramLabel = "<ms>")
 	private long flushInterval = 50;
-	@CommandLine.Option(names = "--idle-timeout", description = "Min duration of inactivity to consider transfer complete", paramLabel = "<ms>")
+	@Option(names = "--idle-timeout", description = "Min duration of inactivity to consider transfer complete", paramLabel = "<ms>")
 	private Optional<Long> idleTimeout = Optional.empty();
 
 	public void setFlushInterval(Duration flushInterval) {
@@ -45,6 +45,11 @@ public class FlushingTransferOptions {
 		reader.flushingInterval(getFlushInterval());
 		idleTimeout.ifPresent(t -> reader.idleTimeout(Duration.ofMillis(t)));
 		return reader;
+	}
+
+	@Override
+	public String toString() {
+		return "FlushingTransferOptions [flushInterval=" + flushInterval + ", idleTimeout=" + idleTimeout + "]";
 	}
 
 }
