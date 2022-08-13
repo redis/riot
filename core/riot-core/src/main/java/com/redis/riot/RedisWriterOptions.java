@@ -4,7 +4,7 @@ import java.time.Duration;
 
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 
-import com.redis.spring.batch.RedisItemWriter;
+import com.redis.spring.batch.RedisItemWriter.Builder;
 import com.redis.spring.batch.RedisItemWriter.WaitForReplication;
 
 import io.lettuce.core.api.StatefulConnection;
@@ -12,6 +12,8 @@ import picocli.CommandLine.Option;
 
 public class RedisWriterOptions {
 
+	@Option(names = "--dry-run", description = "Enable dummy writes")
+	private boolean dryRun;
 	@Option(names = "--multi-exec", description = "Enable MULTI/EXEC writes.")
 	private boolean multiExec;
 	@Option(names = "--wait-replicas", description = "Number of replicas for WAIT command (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
@@ -20,6 +22,14 @@ public class RedisWriterOptions {
 	private long waitTimeout = 300;
 	@Option(names = "--writer-pool", description = "Max pool connections (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
 	private int poolMaxTotal = 8;
+
+	public boolean isDryRun() {
+		return dryRun;
+	}
+
+	public void setDryRun(boolean dryRun) {
+		this.dryRun = dryRun;
+	}
 
 	public boolean isMultiExec() {
 		return multiExec;
@@ -53,10 +63,9 @@ public class RedisWriterOptions {
 		this.poolMaxTotal = poolMaxTotal;
 	}
 
-	public <K, V, B extends RedisItemWriter.AbstractBuilder<K, V, ?, B>> B configureWriter(B writer) {
+	public <K, V, T> Builder<K, V, T> configure(Builder<K, V, T> writer) {
 		if (waitReplicas > 0) {
-			writer.waitForReplication(WaitForReplication.builder().replicas(waitReplicas)
-					.timeout(Duration.ofMillis(waitTimeout)).build());
+			writer.waitForReplication(WaitForReplication.of(waitReplicas, Duration.ofMillis(waitTimeout)));
 		}
 		if (multiExec) {
 			writer.multiExec();

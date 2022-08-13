@@ -9,7 +9,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -28,6 +27,7 @@ import com.redis.riot.processor.MapAccessor;
 import com.redis.riot.processor.MapProcessor;
 import com.redis.riot.processor.SpelProcessor;
 
+import io.lettuce.core.AbstractRedisClient;
 import picocli.CommandLine.Option;
 
 public class MapProcessorOptions {
@@ -85,12 +85,12 @@ public class MapProcessorOptions {
 		this.regexes = regexes;
 	}
 
-	public Optional<ItemProcessor<Map<String, Object>, Map<String, Object>>> processor(RedisOptions redisOptions) {
+	public ItemProcessor<Map<String, Object>, Map<String, Object>> processor(AbstractRedisClient redisClient) {
 		List<ItemProcessor<Map<String, Object>, Map<String, Object>>> processors = new ArrayList<>();
 		if (!ObjectUtils.isEmpty(spelFields)) {
 			StandardEvaluationContext context = new StandardEvaluationContext();
 			context.setVariable("date", dateFormat);
-			processors.add(new SpelProcessor(redisOptions, context(), spelFields));
+			processors.add(new SpelProcessor(redisClient, context(), spelFields));
 		}
 		if (!ObjectUtils.isEmpty(regexes)) {
 			Map<String, Converter<String, Map<String, String>>> fields = new LinkedHashMap<>();

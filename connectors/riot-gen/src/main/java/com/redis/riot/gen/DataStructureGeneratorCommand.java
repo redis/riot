@@ -5,10 +5,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.springframework.batch.core.Job;
-import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.item.ItemReader;
 
 import com.redis.riot.AbstractTransferCommand;
+import com.redis.riot.JobCommandContext;
 import com.redis.riot.RedisWriterOptions;
 import com.redis.riot.RiotStep;
 import com.redis.spring.batch.DataStructure;
@@ -34,14 +34,12 @@ public class DataStructureGeneratorCommand extends AbstractTransferCommand {
 	private RedisWriterOptions writerOptions = new RedisWriterOptions();
 
 	@Override
-	protected Job job(JobBuilder jobBuilder) throws Exception {
+	protected Job createJob(JobCommandContext context) throws Exception {
 		RedisItemWriter<String, String, DataStructure<String>> writer = writerOptions
-				.configureWriter(
-						RedisItemWriter.client(getRedisOptions().client()).string().dataStructure().xaddArgs(m -> null))
-				.build();
+				.configure(RedisItemWriter.dataStructure(context.getRedisClient())).build();
 		log.log(Level.FINE, "Creating random data structure reader with {0}", options);
-		return jobBuilder.start(step(RiotStep.reader(reader()).writer(writer).name(NAME).taskName("Generating")
-				.max(() -> (long) options.getCount()).build()).build()).build();
+		return context.getJobRunner().job(NAME).start(step(context, RiotStep.reader(reader()).writer(writer).name(NAME)
+				.taskName("Generating").max(() -> (long) options.getCount()).build()).build()).build();
 	}
 
 	private ItemReader<DataStructure<String>> reader() {

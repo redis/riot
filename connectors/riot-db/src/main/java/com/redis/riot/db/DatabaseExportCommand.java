@@ -1,20 +1,20 @@
 package com.redis.riot.db;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Map;
-import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.sql.DataSource;
 
 import org.springframework.batch.core.Job;
-import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.database.JdbcBatchItemWriter;
 import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilder;
 
 import com.redis.riot.AbstractExportCommand;
+import com.redis.riot.JobCommandContext;
 import com.redis.riot.processor.DataStructureItemProcessor;
 import com.redis.spring.batch.DataStructure;
 
@@ -45,7 +45,7 @@ public class DatabaseExportCommand extends AbstractExportCommand<Map<String, Obj
 	}
 
 	@Override
-	protected Job job(JobBuilder jobBuilder) throws Exception {
+	protected Job createJob(JobCommandContext context) throws SQLException {
 		log.log(Level.FINE, "Creating data source with {0}", dataSourceOptions);
 		DataSource dataSource = dataSourceOptions.dataSource();
 		try (Connection connection = dataSource.getConnection()) {
@@ -58,9 +58,10 @@ public class DatabaseExportCommand extends AbstractExportCommand<Map<String, Obj
 			builder.assertUpdates(exportOptions.isAssertUpdates());
 			JdbcBatchItemWriter<Map<String, Object>> writer = builder.build();
 			writer.afterPropertiesSet();
-			Optional<ItemProcessor<DataStructure<String>, Map<String, Object>>> processor = Optional
-					.of(DataStructureItemProcessor.of(exportOptions.getKeyRegex()));
-			return jobBuilder.start(step(NAME, String.format("Exporting to %s", dbName), processor, writer).build())
+			ItemProcessor<DataStructure<String>, Map<String, Object>> processor = DataStructureItemProcessor
+					.of(exportOptions.getKeyRegex());
+			return context.getJobRunner().job(context.getName())
+					.start(step(context, NAME, String.format("Exporting to %s", dbName), processor, writer).build())
 					.build();
 		}
 	}

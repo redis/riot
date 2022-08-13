@@ -2,10 +2,11 @@ package com.redis.riot.redis;
 
 import java.util.Map;
 
+import org.springframework.batch.item.ItemStreamException;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import com.redis.spring.batch.writer.RedisOperation;
 import com.redis.spring.batch.writer.operation.JsonSet;
 
 import picocli.CommandLine.Command;
@@ -13,14 +14,14 @@ import picocli.CommandLine.Command;
 @Command(name = "json.set", description = "Add JSON documents to RedisJSON")
 public class JsonSetCommand extends AbstractKeyCommand {
 
-	public RedisOperation<String, String, Map<String, Object>> operation() {
+	public JsonSet<String, String, Map<String, Object>> operation() {
 		ObjectMapper mapper = new ObjectMapper();
 		ObjectWriter jsonWriter = mapper.writerFor(Map.class);
-		return JsonSet.<String, String, Map<String, Object>>key(key()).path("$").value(source -> {
+		return JsonSet.<String, Map<String, Object>>key(key()).path("$").value(source -> {
 			try {
 				return jsonWriter.writeValueAsString(source);
 			} catch (JsonProcessingException e) {
-				throw new RuntimeException("Could not serialize to JSON", e);
+				throw new ItemStreamException("Could not serialize to JSON", e);
 			}
 		}).build();
 	}

@@ -2,7 +2,6 @@ package com.redis.riot.redis;
 
 import java.util.Map;
 
-import com.redis.spring.batch.writer.RedisOperation;
 import com.redis.spring.batch.writer.operation.Hset;
 
 import picocli.CommandLine.Command;
@@ -23,8 +22,8 @@ public class HsetCommand extends AbstractKeyCommand {
 	}
 
 	@Override
-	public RedisOperation<String, String, Map<String, Object>> operation() {
-		return Hset.<String, String, Map<String, Object>>key(key()).map(options.converter()).build();
+	public Hset<String, String, Map<String, Object>> operation() {
+		return Hset.<String, Map<String, Object>>key(key()).map(options.converter()).build();
 	}
 
 }

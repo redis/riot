@@ -7,7 +7,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.springframework.batch.core.Job;
-import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.step.tasklet.TaskletStep;
 import org.springframework.batch.item.ItemReader;
 
@@ -17,6 +16,8 @@ import com.redis.lettucemod.api.sync.RediSearchCommands;
 import com.redis.lettucemod.search.Field;
 import com.redis.lettucemod.search.IndexInfo;
 import com.redis.riot.AbstractImportCommand;
+import com.redis.riot.JobCommandContext;
+import com.redis.riot.RedisOptions;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
@@ -32,9 +33,9 @@ public class FakerGeneratorCommand extends AbstractImportCommand {
 	private FakerGeneratorOptions options = new FakerGeneratorOptions();
 
 	@Override
-	protected Job job(JobBuilder jobBuilder) throws Exception {
-		TaskletStep step = step(NAME, "Generating", reader()).build();
-		return jobBuilder.start(step).build();
+	protected Job createJob(JobCommandContext context) throws Exception {
+		TaskletStep step = step(context, NAME, "Generating", reader(context)).build();
+		return context.getJobRunner().job(NAME).start(step).build();
 	}
 
 	@Override
@@ -42,9 +43,9 @@ public class FakerGeneratorCommand extends AbstractImportCommand {
 		return (long) options.getCount();
 	}
 
-	private ItemReader<Map<String, Object>> reader() {
+	private ItemReader<Map<String, Object>> reader(JobCommandContext context) {
 		log.log(Level.FINE, "Creating Faker reader with {0}", options);
-		FakerItemReader reader = new FakerItemReader(generator());
+		FakerItemReader reader = new FakerItemReader(generator(context));
 		reader.setStart(options.getStart());
 		reader.setCount(options.getCount());
 		Optional<Long> sleep = options.getSleep();
@@ -54,11 +55,20 @@ public class FakerGeneratorCommand extends AbstractImportCommand {
 		return reader;
 	}
 
-	private Generator<Map<String, Object>> generator() {
-		Map<String, String> fakerFields = options.getFields();
-		Map<String, String> fields = fakerFields == null ? new LinkedHashMap<>() : new LinkedHashMap<>(fakerFields);
-		Optional<String> fakerIndex = options.getRedisearchIndex();
-		fakerIndex.ifPresent(i -> fields.putAll(fieldsFromIndex(i)));
+	private void addFieldsFromIndex(JobCommandContext context, String index, Map<String, String> fields) {
+		try (StatefulRedisModulesConnection<String, String> connection = RedisOptions
+				.connect(context.getRedisClient())) {
+			RediSearchCommands<String, String> commands = connection.sync();
+			IndexInfo info = RedisModulesUtils.indexInfo(commands.ftInfo(index));
+			for (Field<String> field : info.getFields()) {
+				fields.put(field.getName(), expression(field));
+			}
+		}
+	}
+
+	private Generator<Map<String, Object>> generator(JobCommandContext context) {
+		Map<String, String> fields = new LinkedHashMap<>(options.getFields());
+		options.getRedisearchIndex().ifPresent(index -> addFieldsFromIndex(context, index, fields));
 		MapGenerator generator = MapGenerator.builder().locale(options.getLocale()).fields(fields).build();
 		if (options.isIncludeMetadata()) {
 			return new MapWithMetadataGenerator(generator);
@@ -77,18 +87,6 @@ public class FakerGeneratorCommand extends AbstractImportCommand {
 		default:
 			return "number.randomDouble(3,-1000,1000)";
 		}
-	}
-
-	private Map<String, String> fieldsFromIndex(String index) {
-		Map<String, String> fields = new LinkedHashMap<>();
-		try (StatefulRedisModulesConnection<String, String> connection = getRedisOptions().connect()) {
-			RediSearchCommands<String, String> commands = connection.sync();
-			IndexInfo info = RedisModulesUtils.indexInfo(commands.ftInfo(index));
-			for (Field<String> field : info.getFields()) {
-				fields.put(field.getName(), expression(field));
-			}
-		}
-		return fields;
 	}
 
 }

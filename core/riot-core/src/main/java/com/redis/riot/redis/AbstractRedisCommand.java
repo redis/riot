@@ -5,7 +5,7 @@ import java.util.Optional;
 
 import org.springframework.core.convert.converter.Converter;
 
-import com.redis.riot.HelpCommand;
+import com.redis.riot.HelpOptions;
 import com.redis.riot.RedisCommand;
 import com.redis.riot.convert.CompositeConverter;
 import com.redis.riot.convert.FieldExtractorFactory;
@@ -15,9 +15,11 @@ import com.redis.riot.convert.ObjectToNumberConverter;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
 
-@Command(sortOptions = false, abbreviateSynopsis = true)
-public abstract class AbstractRedisCommand<O> extends HelpCommand implements RedisCommand<O> {
+@Command
+public abstract class AbstractRedisCommand<O> implements RedisCommand<O> {
 
+	@Mixin
+	private HelpOptions helpOptions = new HelpOptions();
 	@Mixin
 	private RedisCommandOptions commandOptions = new RedisCommandOptions();
 

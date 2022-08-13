@@ -1,8 +1,11 @@
 package com.redis.riot.gen;
 
+import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+
+import org.springframework.util.Assert;
 
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
@@ -10,7 +13,7 @@ import picocli.CommandLine.Parameters;
 public class FakerGeneratorOptions extends GeneratorOptions {
 
 	@Parameters(arity = "0..*", description = "SpEL expressions in the form field1=\"exp\" field2=\"exp\"...", paramLabel = "SPEL")
-	private Map<String, String> fields;
+	private Map<String, String> fields = new LinkedHashMap<>();
 	@Option(names = "--infer", description = "Introspect given RediSearch index to infer Faker fields", paramLabel = "<name>")
 	private Optional<String> redisearchIndex = Optional.empty();
 	@Option(names = "--locale", description = "Faker locale (default: ${DEFAULT-VALUE})", paramLabel = "<tag>")
@@ -22,8 +25,9 @@ public class FakerGeneratorOptions extends GeneratorOptions {
 		return fields;
 	}
 
-	public void setFields(Map<String, String> fakerFields) {
-		this.fields = fakerFields;
+	public void setFields(Map<String, String> fields) {
+		Assert.notNull(fields, "Fields must not be null");
+		this.fields = fields;
 	}
 
 	public Optional<String> getRedisearchIndex() {
@@ -39,6 +43,7 @@ public class FakerGeneratorOptions extends GeneratorOptions {
 	}
 
 	public void setLocale(Locale locale) {
+		Assert.notNull(locale, "Locale must not be null");
 		this.locale = locale;
 	}
 

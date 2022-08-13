@@ -8,7 +8,7 @@ import com.redis.lettucemod.api.sync.RedisModulesCommands;
 import picocli.CommandLine.Command;
 
 @Command(name = "ping", description = "Execute PING command")
-public class PingCommand extends AbstractRedisCommandCommand {
+public class PingCommand extends AbstractRedisCommand {
 
 	private static final Logger log = Logger.getLogger(PingCommand.class.getName());
 

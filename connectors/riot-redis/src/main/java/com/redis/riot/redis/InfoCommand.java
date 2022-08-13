@@ -8,7 +8,7 @@ import com.redis.lettucemod.api.sync.RedisModulesCommands;
 import picocli.CommandLine.Command;
 
 @Command(name = "info", description = "Display INFO command output")
-public class InfoCommand extends AbstractRedisCommandCommand {
+public class InfoCommand extends AbstractRedisCommand {
 
 	private static final Logger log = Logger.getLogger(InfoCommand.class.getName());
 

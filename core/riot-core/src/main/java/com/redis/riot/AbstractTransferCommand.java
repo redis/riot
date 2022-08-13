@@ -2,14 +2,18 @@ package com.redis.riot;
 
 import java.time.Duration;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.springframework.batch.core.ItemWriteListener;
 import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.step.builder.FaultTolerantStepBuilder;
 import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.core.step.skip.AlwaysSkipItemSkipPolicy;
+import org.springframework.batch.core.step.skip.LimitCheckingItemSkipPolicy;
 import org.springframework.batch.core.step.skip.NeverSkipItemSkipPolicy;
 import org.springframework.batch.core.step.skip.SkipPolicy;
 import org.springframework.batch.item.ItemReader;
@@ -19,14 +23,11 @@ import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import com.redis.riot.TransferOptions.Progress;
-import com.redis.spring.batch.RedisItemReader;
-import com.redis.spring.batch.RedisItemReader.TypeBuilder;
-import com.redis.spring.batch.RedisItemWriter;
-import com.redis.spring.batch.RedisItemWriter.OperationBuilder;
 import com.redis.spring.batch.RedisScanSizeEstimator;
 import com.redis.spring.batch.reader.PollableItemReader;
 
-import io.lettuce.core.codec.RedisCodec;
+import io.lettuce.core.RedisCommandExecutionException;
+import io.lettuce.core.RedisCommandTimeoutException;
 import picocli.CommandLine.Mixin;
 
 public abstract class AbstractTransferCommand extends AbstractJobCommand {
@@ -36,27 +37,14 @@ public abstract class AbstractTransferCommand extends AbstractJobCommand {
 	@Mixin
 	protected TransferOptions transferOptions = new TransferOptions();
 
-	protected TypeBuilder<String, String> stringReader(RedisOptions redisOptions) {
-		return RedisItemReader.client(redisOptions.client()).string();
-	}
-
-	protected <K, V> TypeBuilder<K, V> reader(RedisOptions redisOptions, RedisCodec<K, V> codec) {
-		return RedisItemReader.client(redisOptions.client()).codec(codec);
-	}
-
-	protected <K, V> OperationBuilder<K, V> writer(RedisOptions redisOptions, RedisCodec<K, V> codec) {
-		return RedisItemWriter.client(redisOptions.client()).codec(codec);
-	}
-
-	protected RedisScanSizeEstimator.Builder estimator() {
-		return RedisScanSizeEstimator.client(getRedisOptions().client());
+	protected RedisScanSizeEstimator.Builder estimator(JobCommandContext context) {
+		return RedisScanSizeEstimator.client(context.getRedisClient());
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public <I, O> FaultTolerantStepBuilder<I, O> step(RiotStep<I, O> riotStep) throws Exception {
-		SimpleStepBuilder<I, O> step = chunk(riotStep.getName(), transferOptions.getChunkSize());
-		step.reader(riotStep.getReader()).writer(riotStep.getWriter());
-		riotStep.getProcessor().ifPresent(step::processor);
+	public <I, O> FaultTolerantStepBuilder<I, O> step(JobCommandContext context, RiotStep<I, O> riotStep) {
+		SimpleStepBuilder<I, O> step = chunk(context, riotStep.getName(), transferOptions.getChunkSize());
+		step.reader(riotStep.getReader()).writer(riotStep.getWriter()).processor(riotStep.getProcessor());
 		if (transferOptions.getProgress() != Progress.NONE) {
 			ProgressMonitor.ProgressMonitorBuilder monitorBuilder = ProgressMonitor.builder();
 			monitorBuilder.style(transferOptions.getProgress());
@@ -86,8 +74,8 @@ public abstract class AbstractTransferCommand extends AbstractJobCommand {
 		return ftStep;
 	}
 
-	protected <I, O> SimpleStepBuilder<I, O> chunk(String name, int chunkSize) throws Exception {
-		return getJobRunner().step(name).chunk(chunkSize);
+	protected <I, O> SimpleStepBuilder<I, O> chunk(JobCommandContext context, String name, int chunkSize) {
+		return context.getJobRunner().step(name).chunk(chunkSize);
 	}
 
 	private <I> ItemReader<I> synchronize(ItemReader<I> reader) {
@@ -115,7 +103,9 @@ public abstract class AbstractTransferCommand extends AbstractJobCommand {
 		case NEVER:
 			return new NeverSkipItemSkipPolicy();
 		default:
-			return RedisItemReader.limitCheckingSkipPolicy(transferOptions.getSkipLimit());
+			return new LimitCheckingItemSkipPolicy(transferOptions.getSkipLimit(),
+					Stream.of(RedisCommandExecutionException.class, RedisCommandTimeoutException.class,
+							TimeoutException.class).collect(Collectors.toMap(t -> t, t -> true)));
 		}
 	}
 

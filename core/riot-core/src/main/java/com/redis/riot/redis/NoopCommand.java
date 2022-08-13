@@ -2,18 +2,22 @@ package com.redis.riot.redis;
 
 import java.util.Map;
 
-import com.redis.riot.HelpCommand;
+import com.redis.riot.HelpOptions;
 import com.redis.riot.RedisCommand;
 import com.redis.spring.batch.writer.operation.Noop;
 
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Mixin;
 
-@Command(name = "noop", description = "No operation: accepts input and does nothing", sortOptions = false, abbreviateSynopsis = true)
-public class NoopCommand extends HelpCommand implements RedisCommand<Map<String, Object>> {
+@Command(name = "noop", description = "No operation: accepts input and does nothing")
+public class NoopCommand implements RedisCommand<Map<String, Object>> {
 
-    @Override
-    public Noop<String, String, Map<String, Object>> operation() {
-        return new Noop<>();
-    }
+	@Mixin
+	private HelpOptions helpOptions = new HelpOptions();
+
+	@Override
+	public Noop<String, String, Map<String, Object>> operation() {
+		return new Noop<>();
+	}
 
 }

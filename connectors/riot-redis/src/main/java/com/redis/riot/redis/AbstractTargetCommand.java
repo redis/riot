@@ -4,15 +4,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.springframework.batch.core.ExitStatus;
-import org.springframework.batch.core.JobExecution;
+import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.StepExecution;
-import org.springframework.batch.core.job.builder.JobBuilder;
-import org.springframework.batch.core.listener.JobExecutionListenerSupport;
 import org.springframework.batch.core.listener.StepExecutionListenerSupport;
 import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 
 import com.redis.riot.AbstractTransferCommand;
+import com.redis.riot.JobCommandContext;
 import com.redis.riot.RedisOptions;
 import com.redis.riot.RedisReaderOptions;
 import com.redis.riot.RiotStep;
@@ -20,14 +19,11 @@ import com.redis.riot.RiotStep.Builder;
 import com.redis.riot.TransferOptions;
 import com.redis.spring.batch.DataStructure;
 import com.redis.spring.batch.RedisItemReader;
+import com.redis.spring.batch.RedisScanSizeEstimator;
 import com.redis.spring.batch.compare.KeyComparisonItemWriter;
 import com.redis.spring.batch.compare.KeyComparisonLogger;
 import com.redis.spring.batch.compare.KeyComparisonResults;
-import com.redis.spring.batch.reader.DataStructureValueReader;
-import com.redis.spring.batch.support.RedisConnectionBuilder;
 
-import io.lettuce.core.codec.RedisCodec;
-import io.lettuce.core.codec.StringCodec;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Mixin;
 
@@ -40,7 +36,7 @@ public abstract class AbstractTargetCommand extends AbstractTransferCommand {
 	private static final String VERIFICATION_NAME = "verification";
 
 	@ArgGroup(exclusive = false, heading = "Target Redis connection options%n")
-	protected RedisOptions targetRedisOptions = new RedisOptions();
+	private RedisOptions targetRedisOptions = new RedisOptions();
 	@ArgGroup(exclusive = false, heading = "Reader options%n")
 	protected RedisReaderOptions readerOptions = new RedisReaderOptions();
 	@Mixin
@@ -59,33 +55,36 @@ public abstract class AbstractTargetCommand extends AbstractTransferCommand {
 	}
 
 	@Override
-	protected JobBuilder configureJob(JobBuilder job) {
-		return super.configureJob(job).listener(new JobExecutionListenerSupport() {
-
-			@Override
-			public void afterJob(JobExecution jobExecution) {
-				targetRedisOptions.shutdown();
-			}
-		});
+	protected Job createJob(JobCommandContext context) throws Exception {
+		return createJob(new TargetCommandContext(context, targetRedisOptions));
 	}
 
-	protected Step verificationStep() throws Exception {
+	protected abstract Job createJob(TargetCommandContext context);
+
+	@Override
+	protected RedisScanSizeEstimator.Builder estimator(JobCommandContext context) {
+		return super.estimator(context).match(readerOptions.getScanMatch()).sampleSize(readerOptions.getSampleSize())
+				.type(readerOptions.getScanType());
+	}
+
+	protected Step verificationStep(TargetCommandContext context) {
 		RedisItemReader<String, DataStructure<String>> sourceReader = readerOptions
-				.configureScanReader(reader(getRedisOptions(), StringCodec.UTF8).dataStructure())
-				.jobRunner(getJobRunner()).build();
+				.configure(RedisItemReader.dataStructure(context.getRedisClient())).jobRunner(context.getJobRunner())
+				.build();
+		RedisItemReader<String, DataStructure<String>> targetReader = readerOptions
+				.configure(RedisItemReader.dataStructure(context.getTargetRedisClient())).build();
 		log.log(Level.FINE, "Creating key comparator with TTL tolerance of {0} seconds",
 				compareOptions.getTtlTolerance());
-		DataStructureValueReader<String, String> targetValueReader = dataStructureValueReader(targetRedisOptions,
-				StringCodec.UTF8);
-		KeyComparisonItemWriter writer = KeyComparisonItemWriter.valueReader(targetValueReader)
+		KeyComparisonItemWriter writer = KeyComparisonItemWriter.valueReader(targetReader.getValueReader())
 				.tolerance(compareOptions.getTtlToleranceDuration()).build();
 		if (compareOptions.isShowDiffs()) {
 			writer.addListener(new KeyComparisonLogger(java.util.logging.Logger.getLogger(getClass().getName())));
 		}
+		RedisScanSizeEstimator estimator = estimator(context).build();
 		Builder<DataStructure<String>, DataStructure<String>> riotStep = RiotStep.reader(sourceReader).writer(writer)
-				.name(VERIFICATION_NAME).taskName("Verifying").max(this::initialMax)
+				.name(VERIFICATION_NAME).taskName("Verifying").max(estimator::execute)
 				.message(() -> extraMessage(writer.getResults()));
-		SimpleStepBuilder<DataStructure<String>, DataStructure<String>> step = step(riotStep.build());
+		SimpleStepBuilder<DataStructure<String>, DataStructure<String>> step = step(context, riotStep.build());
 		step.listener(new StepExecutionListenerSupport() {
 			@Override
 			public ExitStatus afterStep(StepExecution stepExecution) {
@@ -111,25 +110,6 @@ public abstract class AbstractTargetCommand extends AbstractTransferCommand {
 			}
 		});
 		return step.build();
-	}
-
-	protected Long initialMax() {
-		com.redis.spring.batch.RedisScanSizeEstimator.Builder estimator = estimator()
-				.match(readerOptions.getScanMatch()).sampleSize(readerOptions.getSampleSize());
-		readerOptions.getScanType().ifPresent(estimator::type);
-		try {
-			return estimator.build().call();
-		} catch (Exception e) {
-			log.log(Level.WARNING, "Could not estimate scan size", e);
-			return null;
-		}
-	}
-
-	private <K, V> DataStructureValueReader<K, V> dataStructureValueReader(RedisOptions redisOptions,
-			RedisCodec<K, V> codec) {
-		RedisConnectionBuilder<K, V, ?> builder = new RedisConnectionBuilder<>(redisOptions.client(), codec);
-		return new DataStructureValueReader<>(builder.connectionSupplier(), readerOptions.poolConfig(),
-				builder.async());
 	}
 
 	private String extraMessage(KeyComparisonResults results) {

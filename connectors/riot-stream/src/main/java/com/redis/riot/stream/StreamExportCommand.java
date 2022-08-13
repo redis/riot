@@ -9,7 +9,6 @@ import java.util.logging.Logger;
 
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.batch.core.Job;
-import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.job.builder.SimpleJobBuilder;
 import org.springframework.batch.core.step.tasklet.TaskletStep;
 import org.springframework.batch.item.ItemProcessor;
@@ -21,13 +20,14 @@ import org.springframework.util.ObjectUtils;
 
 import com.redis.riot.AbstractTransferCommand;
 import com.redis.riot.FlushingTransferOptions;
+import com.redis.riot.JobCommandContext;
 import com.redis.riot.RiotStep;
 import com.redis.riot.stream.kafka.KafkaItemWriter;
 import com.redis.riot.stream.processor.AvroProducerProcessor;
 import com.redis.riot.stream.processor.JsonProducerProcessor;
+import com.redis.spring.batch.RedisItemReader;
 
 import io.lettuce.core.StreamMessage;
-import io.lettuce.core.codec.StringCodec;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
 import picocli.CommandLine.Option;
@@ -87,19 +87,20 @@ public class StreamExportCommand extends AbstractTransferCommand {
 	}
 
 	@Override
-	protected Job job(JobBuilder jobBuilder) throws Exception {
+	protected Job createJob(JobCommandContext context) throws Exception {
 		Assert.isTrue(!ObjectUtils.isEmpty(streams), "No stream specified");
 		Iterator<String> streamIterator = streams.iterator();
-		SimpleJobBuilder simpleJobBuilder = jobBuilder.start(streamExportStep(streamIterator.next()));
+		SimpleJobBuilder simpleJobBuilder = context.getJobRunner().job(NAME)
+				.start(streamExportStep(context, streamIterator.next()));
 		while (streamIterator.hasNext()) {
-			simpleJobBuilder.next(streamExportStep(streamIterator.next()));
+			simpleJobBuilder.next(streamExportStep(context, streamIterator.next()));
 		}
 		return simpleJobBuilder.build();
 	}
 
-	private TaskletStep streamExportStep(String stream) throws Exception {
-		return flushingTransferOptions.configure(step(
-				RiotStep.reader(reader(getRedisOptions(), StringCodec.UTF8).stream(stream).build()).writer(writer())
+	private TaskletStep streamExportStep(JobCommandContext context, String stream) {
+		return flushingTransferOptions.configure(step(context,
+				RiotStep.reader(RedisItemReader.stream(context.getRedisClient(), stream).build()).writer(writer())
 						.processor(processor()).name(stream + "-" + NAME).taskName("Exporting from " + stream).build()))
 				.build();
 	}

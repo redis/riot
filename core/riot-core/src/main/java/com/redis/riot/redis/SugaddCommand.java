@@ -6,7 +6,6 @@ import org.springframework.core.convert.converter.Converter;
 
 import com.redis.lettucemod.search.Suggestion;
 import com.redis.spring.batch.convert.SuggestionConverter;
-import com.redis.spring.batch.writer.RedisOperation;
 import com.redis.spring.batch.writer.operation.Sugadd;
 
 import picocli.CommandLine.Command;
@@ -19,9 +18,9 @@ public class SugaddCommand extends AbstractKeyCommand {
 	private SugaddOptions options = new SugaddOptions();
 
 	@Override
-	public RedisOperation<String, String, Map<String, Object>> operation() {
-		return Sugadd.<String, String, Map<String, Object>>key(key()).suggestion(suggestion())
-				.increment(options.isIncrement()).build();
+	public Sugadd<String, String, Map<String, Object>> operation() {
+		return Sugadd.<String, Map<String, Object>>key(key()).suggestion(suggestion()).increment(options.isIncrement())
+				.build();
 	}
 
 	private Converter<Map<String, Object>, Suggestion<String>> suggestion() {

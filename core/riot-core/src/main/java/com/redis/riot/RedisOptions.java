@@ -3,8 +3,6 @@ package com.redis.riot;
 import java.io.File;
 import java.time.Duration;
 import java.util.Optional;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.redis.lettucemod.RedisModulesClient;
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
@@ -16,7 +14,6 @@ import io.lettuce.core.RedisURI;
 import io.lettuce.core.SslOptions;
 import io.lettuce.core.cluster.ClusterClientOptions;
 import io.lettuce.core.event.DefaultEventPublisherOptions;
-import io.lettuce.core.event.metrics.CommandLatencyEvent;
 import io.lettuce.core.metrics.CommandLatencyCollector;
 import io.lettuce.core.metrics.DefaultCommandLatencyCollectorOptions;
 import io.lettuce.core.resource.ClientResources;
@@ -24,8 +21,6 @@ import io.lettuce.core.resource.DefaultClientResources;
 import picocli.CommandLine.Option;
 
 public class RedisOptions {
-
-	private static final Logger log = Logger.getLogger(RedisOptions.class.getName());
 
 	public static final String DEFAULT_HOST = "localhost";
 	public static final int DEFAULT_PORT = 6379;
@@ -71,8 +66,6 @@ public class RedisOptions {
 	private boolean autoReconnect = true;
 	@Option(names = "--client", description = "Client name used to connect to Redis.", paramLabel = "<name>")
 	private Optional<String> clientName = Optional.empty();
-
-	private AbstractRedisClient client;
 
 	public boolean isCluster() {
 		return cluster;
@@ -170,13 +163,6 @@ public class RedisOptions {
 		this.cluster = cluster;
 	}
 
-	public void shutdown() {
-		if (client != null) {
-			client.shutdown();
-			client.getResources().shutdown();
-		}
-	}
-
 	public RedisURI uri() {
 		RedisURI redisURI = uri == null ? RedisURI.create(host, port) : uri;
 		insecure.ifPresent(b -> redisURI.setVerifyPeer(!b));
@@ -190,21 +176,18 @@ public class RedisOptions {
 		return redisURI;
 	}
 
-	private ClientResources clientResources() {
+	public ClientResources clientResources() {
 		DefaultClientResources.Builder builder = DefaultClientResources.builder();
 		if (showMetrics) {
 			builder.commandLatencyRecorder(
 					CommandLatencyCollector.create(DefaultCommandLatencyCollectorOptions.builder().enable().build()));
 			builder.commandLatencyPublisherOptions(
 					DefaultEventPublisherOptions.builder().eventEmitInterval(Duration.ofSeconds(1)).build());
-			ClientResources resources = builder.build();
-			resources.eventBus().get().filter(CommandLatencyEvent.class::isInstance).cast(CommandLatencyEvent.class)
-					.subscribe(e -> log.info(e.getLatencies().toString()));
 		}
 		return builder.build();
 	}
 
-	private SslOptions sslOptions() {
+	public SslOptions sslOptions() {
 		SslOptions.Builder builder = SslOptions.builder();
 		if (keystore.isPresent()) {
 			if (keystorePassword.isPresent()) {
@@ -224,40 +207,16 @@ public class RedisOptions {
 		return builder.build();
 	}
 
-	public StatefulRedisModulesConnection<String, String> connect() {
-		if (cluster) {
-			return redisModulesClusterClient().connect();
-		}
-		return redisModulesClient().connect();
-	}
-
 	public AbstractRedisClient client() {
 		if (cluster) {
-			return redisModulesClusterClient();
-		}
-		return redisModulesClient();
-	}
-
-	public RedisModulesClusterClient redisModulesClusterClient() {
-		if (client == null) {
-			log.log(Level.FINE, "Creating Redis cluster client: {0}", this);
-			RedisModulesClusterClient clusterClient = RedisModulesClusterClient.create(clientResources(), uri());
-			clusterClient.setOptions(
+			RedisModulesClusterClient client = RedisModulesClusterClient.create(clientResources(), uri());
+			client.setOptions(
 					ClusterClientOptions.builder().autoReconnect(autoReconnect).sslOptions(sslOptions()).build());
-			this.client = clusterClient;
+			return client;
 		}
-		return (RedisModulesClusterClient) client;
-	}
-
-	public RedisModulesClient redisModulesClient() {
-		if (client == null) {
-			log.log(Level.FINE, "Creating Redis client: {0}", this);
-			RedisModulesClient redisClient = RedisModulesClient.create(clientResources(), uri());
-			redisClient
-					.setOptions(ClientOptions.builder().autoReconnect(autoReconnect).sslOptions(sslOptions()).build());
-			this.client = redisClient;
-		}
-		return (RedisModulesClient) client;
+		RedisModulesClient client = RedisModulesClient.create(clientResources(), uri());
+		client.setOptions(ClientOptions.builder().autoReconnect(autoReconnect).sslOptions(sslOptions()).build());
+		return client;
 	}
 
 	@Override
@@ -267,7 +226,14 @@ public class RedisOptions {
 				+ ", cluster=" + cluster + ", tls=" + tls + ", insecure=" + insecure + ", keystore=" + keystore
 				+ ", keystorePassword=" + keystorePassword + ", truststore=" + truststore + ", truststorePassword="
 				+ truststorePassword + ", cert=" + cert + ", showMetrics=" + showMetrics + ", autoReconnect="
-				+ autoReconnect + ", clientName=" + clientName + ", client=" + client + "]";
+				+ autoReconnect + ", clientName=" + clientName + "]";
+	}
+
+	public static StatefulRedisModulesConnection<String, String> connect(AbstractRedisClient client) {
+		if (client instanceof RedisModulesClusterClient) {
+			return ((RedisModulesClusterClient) client).connect();
+		}
+		return ((RedisModulesClient) client).connect();
 	}
 
 }

@@ -49,6 +49,7 @@ public abstract class AbstractRiotTests extends AbstractTestcontainersRedisTestB
 	}
 
 	protected void configure(RiotApp app, RedisTestContext redis) {
+		app.getLoggingOptions().setInfo(true);
 		app.getLoggingOptions().setStacktrace(true);
 		app.getRedisOptions().setUri(RedisURI.create(redis.getRedisURI()));
 		app.getRedisOptions().setCluster(redis.isCluster());

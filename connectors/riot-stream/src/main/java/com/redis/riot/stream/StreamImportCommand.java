@@ -10,7 +10,6 @@ import java.util.logging.Logger;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.batch.core.Job;
-import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.job.builder.SimpleJobBuilder;
 import org.springframework.batch.core.step.tasklet.TaskletStep;
 import org.springframework.batch.item.ItemWriter;
@@ -20,16 +19,17 @@ import org.springframework.util.ObjectUtils;
 
 import com.redis.riot.AbstractTransferCommand;
 import com.redis.riot.FlushingTransferOptions;
+import com.redis.riot.JobCommandContext;
 import com.redis.riot.RedisWriterOptions;
 import com.redis.riot.RiotStep;
 import com.redis.riot.redis.FilteringOptions;
 import com.redis.riot.stream.kafka.KafkaItemReader;
 import com.redis.riot.stream.kafka.KafkaItemReaderBuilder;
+import com.redis.spring.batch.RedisItemWriter;
 import com.redis.spring.batch.writer.operation.Xadd;
-import com.redis.spring.batch.writer.operation.Xadd.XaddBuilder;
+import com.redis.spring.batch.writer.operation.Xadd.Builder;
 
 import io.lettuce.core.XAddArgs;
-import io.lettuce.core.codec.StringCodec;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
@@ -116,31 +116,30 @@ public class StreamImportCommand extends AbstractTransferCommand {
 	}
 
 	@Override
-	protected Job job(JobBuilder jobBuilder) throws Exception {
+	protected Job createJob(JobCommandContext context) throws Exception {
 		Assert.isTrue(!ObjectUtils.isEmpty(topics), "No topic specified");
 		Iterator<String> topicIterator = topics.iterator();
-		SimpleJobBuilder simpleJobBuilder = jobBuilder.start(topicImportStep(topicIterator.next()));
+		SimpleJobBuilder simpleJobBuilder = context.getJobRunner().job(NAME)
+				.start(topicImportStep(context, topicIterator.next()));
 		while (topicIterator.hasNext()) {
-			simpleJobBuilder.next(topicImportStep(topicIterator.next()));
+			simpleJobBuilder.next(topicImportStep(context, topicIterator.next()));
 		}
 		return simpleJobBuilder.build();
 	}
 
-	private TaskletStep topicImportStep(String topic) throws Exception {
+	private TaskletStep topicImportStep(JobCommandContext context, String topic) {
 		Properties consumerProperties = options.consumerProperties();
 		log.log(Level.FINE, "Creating Kafka reader for topic {0} with {1}", new Object[] { topic, consumerProperties });
 		KafkaItemReader<String, Object> reader = new KafkaItemReaderBuilder<String, Object>().partitions(0)
 				.consumerProperties(consumerProperties).partitions(0).name(topic).saveState(false).topic(topic).build();
-		return flushingTransferOptions.configure(step(RiotStep.reader(reader).writer(writer()).name(topic + "-" + NAME)
-				.taskName("Importing from " + topic).build())).build();
+		return flushingTransferOptions.configure(step(context, RiotStep.reader(reader).writer(writer(context))
+				.name(topic + "-" + NAME).taskName("Importing from " + topic).build())).build();
 	}
 
-	private ItemWriter<ConsumerRecord<String, Object>> writer() {
-		XaddBuilder<String, String, ConsumerRecord<String, Object>> xadd = Xadd
-				.<String, String, ConsumerRecord<String, Object>>key(keyConverter()).body(bodyConverter());
+	private ItemWriter<ConsumerRecord<String, Object>> writer(JobCommandContext context) {
+		Builder<String, String, ConsumerRecord<String, Object>> xadd = Xadd.key(keyConverter()).body(bodyConverter());
 		xAddArgs().ifPresent(xadd::args);
-		return writerOptions.configureWriter(writer(getRedisOptions(), StringCodec.UTF8).operation(xadd.build()))
-				.build();
+		return writerOptions.configure(RedisItemWriter.operation(context.getRedisClient(), xadd.build())).build();
 	}
 
 	private Converter<ConsumerRecord<String, Object>, Map<String, String>> bodyConverter() {

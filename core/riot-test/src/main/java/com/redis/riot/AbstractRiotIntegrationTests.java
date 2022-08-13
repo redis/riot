@@ -44,9 +44,8 @@ public abstract class AbstractRiotIntegrationTests extends AbstractRiotTests {
 	protected void generate(int chunkSize, ItemReader<DataStructure<String>> reader, RedisTestContext redis)
 			throws Exception {
 		JobRunner jobRunner = JobRunner.inMemory();
-		RedisItemWriter<String, String, DataStructure<String>> writer = RedisItemWriter.client(redis.getClient())
-				.string().dataStructure().xaddArgs(m -> null).build();
-		awaitTermination(jobRunner.run(UUID.randomUUID().toString(), chunkSize, reader, writer));
+		awaitTermination(jobRunner.run(UUID.randomUUID().toString(), chunkSize, reader,
+				RedisItemWriter.dataStructure(redis.getClient()).build()));
 	}
 
 }

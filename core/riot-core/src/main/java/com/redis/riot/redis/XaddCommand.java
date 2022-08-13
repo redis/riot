@@ -2,7 +2,6 @@ package com.redis.riot.redis;
 
 import java.util.Map;
 
-import com.redis.spring.batch.writer.RedisOperation;
 import com.redis.spring.batch.writer.operation.Xadd;
 
 import io.lettuce.core.XAddArgs;
@@ -16,12 +15,12 @@ public class XaddCommand extends AbstractKeyCommand {
 	private XaddOptions options = new XaddOptions();
 
 	@Override
-	public RedisOperation<String, String, Map<String, Object>> operation() {
+	public Xadd<String, String, Map<String, Object>> operation() {
 		XAddArgs args = new XAddArgs();
 		options.getMaxlen().ifPresent(args::maxlen);
 		args.approximateTrimming(options.isApproximateTrimming());
-		return Xadd.<String, String, Map<String, Object>>key(key()).body(options.getFilteringOptions().converter())
-				.args(args).build();
+		return Xadd.<String, Map<String, Object>>key(key()).body(options.getFilteringOptions().converter()).args(args)
+				.build();
 	}
 
 }

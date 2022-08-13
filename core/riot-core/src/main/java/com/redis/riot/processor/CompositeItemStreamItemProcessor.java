@@ -2,7 +2,6 @@ package com.redis.riot.processor;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemProcessor;
@@ -48,16 +47,16 @@ public class CompositeItemStreamItemProcessor<I, O> extends CompositeItemProcess
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public static <I, O> Optional<ItemProcessor<I, O>> delegates(ItemProcessor... delegates) {
+	public static <I, O> ItemProcessor<I, O> delegates(ItemProcessor... delegates) {
 		if (delegates.length == 0) {
-			return Optional.empty();
+			return null;
 		}
 		if (delegates.length == 1) {
-			return Optional.of(delegates[0]);
+			return delegates[0];
 		}
 		CompositeItemStreamItemProcessor<I, O> processor = new CompositeItemStreamItemProcessor<>();
 		processor.setDelegates((List) Arrays.asList(delegates));
-		return Optional.of(processor);
+		return processor;
 	}
 
 }

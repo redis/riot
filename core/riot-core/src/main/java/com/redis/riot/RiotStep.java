@@ -14,7 +14,7 @@ public class RiotStep<I, O> {
 	private final String name;
 	private final String taskName;
 	private final ItemReader<I> reader;
-	private final Optional<ItemProcessor<I, O>> processor;
+	private final ItemProcessor<I, O> processor;
 	private final ItemWriter<O> writer;
 	private final Optional<Supplier<String>> message;
 	private final Optional<Supplier<Long>> max;
@@ -41,7 +41,7 @@ public class RiotStep<I, O> {
 		return reader;
 	}
 
-	public Optional<ItemProcessor<I, O>> getProcessor() {
+	public ItemProcessor<I, O> getProcessor() {
 		return processor;
 	}
 
@@ -78,7 +78,7 @@ public class RiotStep<I, O> {
 		private final ItemWriter<O> writer;
 		private String name = UUID.randomUUID().toString();
 		private String taskName;
-		private Optional<ItemProcessor<I, O>> processor = Optional.empty();
+		private ItemProcessor<I, O> processor;
 		private Optional<Supplier<String>> message = Optional.empty();
 		private Optional<Supplier<Long>> max = Optional.empty();
 
@@ -97,14 +97,8 @@ public class RiotStep<I, O> {
 			return this;
 		}
 
-		public Builder<I, O> processor(Optional<ItemProcessor<I, O>> processor) {
-			this.processor = processor;
-			return this;
-		}
-
 		public Builder<I, O> processor(ItemProcessor<I, O> processor) {
-			Assert.notNull(processor, "Processor must not be null");
-			this.processor = Optional.of(processor);
+			this.processor = processor;
 			return this;
 		}
 

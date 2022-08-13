@@ -1,9 +1,6 @@
 package com.redis.riot.file;
 
-import java.util.Optional;
-
 import org.springframework.batch.core.Job;
-import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.json.JacksonJsonObjectMarshaller;
 import org.springframework.batch.item.json.JsonObjectMarshaller;
@@ -11,6 +8,7 @@ import org.springframework.core.io.WritableResource;
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.redis.riot.AbstractExportCommand;
+import com.redis.riot.JobCommandContext;
 import com.redis.riot.file.resource.JsonResourceItemWriterBuilder;
 import com.redis.riot.file.resource.XmlResourceItemWriterBuilder;
 import com.redis.spring.batch.DataStructure;
@@ -42,10 +40,11 @@ public class FileExportCommand extends AbstractExportCommand<DataStructure<Strin
 	}
 
 	@Override
-	protected Job job(JobBuilder jobBuilder) throws Exception {
+	protected Job createJob(JobCommandContext context) throws Exception {
 		WritableResource resource = options.outputResource(file);
 		String taskName = String.format("Exporting %s", resource.getFilename());
-		return jobBuilder.start(step(NAME, taskName, Optional.empty(), writer(resource)).build()).build();
+		return context.getJobRunner().job(NAME).start(step(context, NAME, taskName, null, writer(resource)).build())
+				.build();
 	}
 
 	private ItemWriter<DataStructure<String>> writer(WritableResource resource) {

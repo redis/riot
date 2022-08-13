@@ -2,7 +2,6 @@ package com.redis.riot.redis;
 
 import java.util.Map;
 
-import com.redis.spring.batch.writer.RedisOperation;
 import com.redis.spring.batch.writer.operation.Lpush;
 
 import picocli.CommandLine.Command;
@@ -11,8 +10,8 @@ import picocli.CommandLine.Command;
 public class LpushCommand extends AbstractCollectionCommand {
 
 	@Override
-	public RedisOperation<String, String, Map<String, Object>> operation() {
-		return Lpush.<String, String, Map<String, Object>>key(key()).member(member()).build();
+	public Lpush<String, String, Map<String, Object>> operation() {
+		return Lpush.<String, Map<String, Object>>key(key()).member(member()).build();
 	}
 
 }

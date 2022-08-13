@@ -14,13 +14,17 @@ import picocli.CommandLine;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.IExecutionStrategy;
+import picocli.CommandLine.Mixin;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.ParseResult;
 import picocli.CommandLine.RunFirst;
 import picocli.CommandLine.RunLast;
 
-@Command(sortOptions = false, versionProvider = ManifestVersionProvider.class, subcommands = GenerateCompletionCommand.class, abbreviateSynopsis = true)
-public class RiotApp extends HelpCommand {
+@Command(versionProvider = ManifestVersionProvider.class, subcommands = GenerateCompletionCommand.class)
+public class RiotApp {
+
+	@Mixin
+	private HelpOptions helpOptions = new HelpOptions();
 
 	@Option(names = { "-V", "--version" }, versionHelp = true, description = "Print version information and exit.")
 	private boolean versionRequested;

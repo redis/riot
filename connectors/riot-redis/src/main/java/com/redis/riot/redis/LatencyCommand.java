@@ -17,7 +17,7 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 @Command(name = "latency", description = "Calculate latency stats")
-public class LatencyCommand extends AbstractRedisCommandCommand {
+public class LatencyCommand extends AbstractRedisCommand {
 
 	private static final Logger log = Logger.getLogger(LatencyCommand.class.getName());
 

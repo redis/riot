@@ -30,14 +30,14 @@ ping        Execute PING command
 [[replication]]
 == Replication
 
-The `replicate` command replicates data from a source Redis database to a target Redis database.
+The `replicate` and `replicate-ds` commands replicate data from a source Redis database to a target Redis database.
 
 [[replication-usage]]
 === Usage
 
 [source,console,subs=+quotes]
 ----
-[green]#riot-redis# <source> replicate <target> --mode <snapshot|live> --type <dump|ds> [OPTIONS]
+[green]#riot-redis# <source> <replicate|replicate-ds> <target> --mode <snapshot|live> [OPTIONS]
 ----
 
 For the full usage, run:
@@ -76,12 +76,6 @@ include::{test-resources}/replicate-live[]
     
 TIP: Make sure the source database has keyspace notifications enabled using `notify-keyspace-events = KA` in `redis.conf` or via CONFIG SET.
 
-=== Replication type
-`--type dump`::
-    DUMP on source, RESTORE on target
-`--type ds`::
-    <<type-based-replication,Type-based replication>>
-
 [[reader-options]]
 === Reader options
 `--scan-count`::
@@ -104,6 +98,8 @@ Queue size should be at least *#threads * batch*, for example `--reader-threads 
     Size of the connection pool shared by reader threads.
 +
 Can be smaller than the number of threads
+
+=== 
 
 === Performance Tuning
 
@@ -218,7 +214,7 @@ If the target Redis database does not support the RESTORE command (e.g. https://
 
 |=========================================================
 
-To select this replication mechanism pass `--type ds` option to the `replicate` command:
+To select this replication mechanism use the `replicate-ds` command:
 
 .Type-based, live replication example
 [source,console]

@@ -1,9 +1,9 @@
 package com.redis.riot;
 
-import com.redis.spring.batch.writer.RedisOperation;
+import com.redis.spring.batch.writer.Operation;
 
 public interface RedisCommand<T> {
 
-	RedisOperation<String, String, T> operation();
+	Operation<String, String, T> operation();
 
 }

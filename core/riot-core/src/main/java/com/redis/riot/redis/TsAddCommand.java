@@ -11,7 +11,6 @@ import com.redis.lettucemod.timeseries.AddOptions;
 import com.redis.lettucemod.timeseries.AddOptions.Builder;
 import com.redis.lettucemod.timeseries.Label;
 import com.redis.spring.batch.convert.SampleConverter;
-import com.redis.spring.batch.writer.RedisOperation;
 import com.redis.spring.batch.writer.operation.TsAdd;
 
 import picocli.CommandLine.Command;
@@ -24,9 +23,9 @@ public class TsAddCommand extends AbstractKeyCommand {
 	private TsAddOptions options = new TsAddOptions();
 
 	@Override
-	public RedisOperation<String, String, Map<String, Object>> operation() {
-		return TsAdd.<String, String, Map<String, Object>>key(key())
-				.sample(new SampleConverter<>(numberExtractor(options.getTimestampField(), Long.class, null),
+	public TsAdd<String, String, Map<String, Object>> operation() {
+		return TsAdd.<String, Map<String, Object>>key(key())
+				.<String>sample(new SampleConverter<>(numberExtractor(options.getTimestampField(), Long.class, null),
 						numberExtractor(options.getValueField(), Double.class)))
 				.options(new AddOptionsConverter()).build();
 	}

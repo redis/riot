@@ -9,6 +9,8 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import com.redis.riot.AbstractRiotIntegrationTests;
@@ -25,6 +27,8 @@ import picocli.CommandLine;
 @Testcontainers
 @SuppressWarnings("unchecked")
 class RedisIntegrationTests extends AbstractRiotIntegrationTests {
+
+	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	private static final Duration IDLE_TIMEOUT = Duration.ofSeconds(10);
 
@@ -49,7 +53,7 @@ class RedisIntegrationTests extends AbstractRiotIntegrationTests {
 	}
 
 	private void configureReplicateCommand(CommandLine.ParseResult parseResult) {
-		ReplicateCommand command = parseResult.subcommand().commandSpec().commandLine().getCommand();
+		AbstractReplicateCommand<?> command = parseResult.subcommand().commandSpec().commandLine().getCommand();
 		command.getTargetRedisOptions().setUri(RedisURI.create(targetRedis.getRedisURI()));
 		if (command.getReplicationOptions().getMode() == ReplicationMode.LIVE) {
 			command.getFlushingTransferOptions().setIdleTimeout(IDLE_TIMEOUT);
@@ -119,12 +123,12 @@ class RedisIntegrationTests extends AbstractRiotIntegrationTests {
 		generate(DataStructureGeneratorItemReader.builder().maxItemCount(3000).build(), source);
 		ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 		executor.schedule(() -> {
+			DataStructureGeneratorItemReader reader = DataStructureGeneratorItemReader.builder().currentItemCount(3000)
+					.maxItemCount(2000).build();
 			try {
-				generate(1,
-						DataStructureGeneratorItemReader.builder().currentItemCount(3000).maxItemCount(2000).build(),
-						source);
+				generate(1, reader, source);
 			} catch (Exception e) {
-				e.printStackTrace();
+				log.error("Could not generate data", e);
 			}
 		}, 500, TimeUnit.MILLISECONDS);
 		execute(filename, source, this::configureReplicateCommand);

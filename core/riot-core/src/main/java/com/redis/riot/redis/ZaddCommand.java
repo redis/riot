@@ -16,7 +16,7 @@ public class ZaddCommand extends AbstractCollectionCommand {
 
 	@Override
 	public Zadd<String, String, Map<String, Object>> operation() {
-		return Zadd.<String, String, Map<String, Object>>key(key()).value(new ScoredValueConverter<>(member(),
+		return Zadd.<String, Map<String, Object>>key(key()).value(new ScoredValueConverter<>(member(),
 				numberExtractor(options.getScoreField(), Double.class, options.getScoreDefault()))).build();
 	}
 

@@ -7,10 +7,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.batch.core.Job;
-import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.job.builder.SimpleJobBuilder;
 import org.springframework.batch.core.step.tasklet.TaskletStep;
-import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.json.JsonItemReader;
 import org.springframework.batch.item.support.AbstractItemStreamItemReader;
 import org.springframework.core.io.Resource;
@@ -18,14 +16,14 @@ import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
 import com.redis.riot.AbstractTransferCommand;
-import com.redis.riot.RedisOptions;
+import com.redis.riot.JobCommandContext;
 import com.redis.riot.RedisWriterOptions;
 import com.redis.riot.RiotStep;
 import com.redis.riot.file.resource.XmlItemReader;
 import com.redis.spring.batch.DataStructure;
 import com.redis.spring.batch.DataStructure.Type;
 import com.redis.spring.batch.RedisItemWriter;
-import com.redis.spring.batch.RedisItemWriter.DataStructureBuilder;
+import com.redis.spring.batch.RedisItemWriter.Builder;
 
 import io.lettuce.core.ScoredValue;
 import io.lettuce.core.StreamMessage;
@@ -63,33 +61,27 @@ public class DumpFileImportCommand extends AbstractTransferCommand {
 	}
 
 	@Override
-	protected Job job(JobBuilder jobBuilder) throws Exception {
+	protected Job createJob(JobCommandContext context) throws Exception {
 		Assert.isTrue(!ObjectUtils.isEmpty(files), "No file specified");
-		List<TaskletStep> steps = fileImportSteps();
+		List<TaskletStep> steps = new ArrayList<>();
+		for (String file : files) {
+			for (String expandedFile : FileUtils.expand(file)) {
+				String name = expandedFile + "-" + NAME;
+				Resource resource = options.inputResource(expandedFile);
+				AbstractItemStreamItemReader<DataStructure<String>> reader = reader(options.type(resource), resource);
+				reader.setName(name + "-reader");
+				steps.add(step(context,
+						RiotStep.reader(reader).writer(writer(context).build()).name(name)
+								.taskName("Importing " + expandedFile).processor(this::processDataStructure).build())
+						.build());
+			}
+		}
 		Iterator<TaskletStep> stepIterator = steps.iterator();
-		SimpleJobBuilder simpleJobBuilder = jobBuilder.start(stepIterator.next());
+		SimpleJobBuilder simpleJobBuilder = context.getJobRunner().job(context.getName()).start(stepIterator.next());
 		while (stepIterator.hasNext()) {
 			simpleJobBuilder.next(stepIterator.next());
 		}
 		return simpleJobBuilder.build();
-	}
-
-	private List<TaskletStep> fileImportSteps() throws Exception {
-		List<TaskletStep> steps = new ArrayList<>();
-		for (String file : files) {
-			for (String expandedFile : FileUtils.expand(file)) {
-				steps.add(fileImportStep(expandedFile));
-			}
-		}
-		return steps;
-	}
-
-	private TaskletStep fileImportStep(String file) throws Exception {
-		Resource resource = options.inputResource(file);
-		AbstractItemStreamItemReader<DataStructure<String>> reader = reader(options.type(resource), resource);
-		reader.setName(file + "-" + NAME + "-reader");
-		return step(RiotStep.reader(reader).writer(writer()).name(file + "-" + NAME).taskName("Importing " + file)
-				.processor(this::processDataStructure).build()).build();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -119,12 +111,8 @@ public class DumpFileImportCommand extends AbstractTransferCommand {
 		return item;
 	}
 
-	private ItemWriter<DataStructure<String>> writer() {
-		return writerOptions.configureWriter(dataStructureWriter(getRedisOptions())).build();
-	}
-
-	private DataStructureBuilder<String, String> dataStructureWriter(RedisOptions options) {
-		return RedisItemWriter.client(options.client()).string().dataStructure();
+	private Builder<String, String, DataStructure<String>> writer(JobCommandContext context) {
+		return writerOptions.configure(RedisItemWriter.dataStructure(context.getRedisClient()));
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })

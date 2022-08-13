@@ -26,9 +26,8 @@ import com.redis.riot.redis.TsAddCommand;
 import com.redis.riot.redis.XaddCommand;
 import com.redis.riot.redis.ZaddCommand;
 import com.redis.spring.batch.RedisItemWriter;
-import com.redis.spring.batch.writer.RedisOperation;
+import com.redis.spring.batch.writer.Operation;
 
-import io.lettuce.core.codec.StringCodec;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 
@@ -57,34 +56,35 @@ public abstract class AbstractImportCommand extends AbstractTransferCommand {
 		this.redisCommands = redisCommands;
 	}
 
-	protected FaultTolerantStepBuilder<Map<String, Object>, Map<String, Object>> step(String name, String taskName,
-			ItemReader<Map<String, Object>> reader) throws Exception {
-		return step(RiotStep.reader(reader).writer(writer()).processor(processorOptions.processor(getRedisOptions()))
-				.name(name).taskName(taskName).max(this::initialMax).build());
+	protected FaultTolerantStepBuilder<Map<String, Object>, Map<String, Object>> step(JobCommandContext context,
+			String name, String taskName, ItemReader<Map<String, Object>> reader) {
+		Assert.notNull(redisCommands, "RedisCommands not set");
+		Assert.isTrue(!redisCommands.isEmpty(), "No Redis command specified");
+		ItemWriter<Map<String, Object>> writer = writer(context);
+		return step(context,
+				RiotStep.reader(reader).writer(writer).processor(processorOptions.processor(context.getRedisClient()))
+						.name(name).taskName(taskName).max(this::initialMax).build());
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private ItemWriter<Map<String, Object>> writer(JobCommandContext context) {
+		List<ItemWriter<Map<String, Object>>> writers = redisCommands.stream().map(RedisCommand::operation)
+				.map(o -> writer(context, o)).collect(Collectors.toList());
+		if (writers.size() == 1) {
+			return writers.get(0);
+		}
+		CompositeItemWriter<Map<String, Object>> writer = new CompositeItemWriter<>();
+		writer.setDelegates((List) writers);
+		return writer;
+	}
+
+	private RedisItemWriter<String, String, Map<String, Object>> writer(JobCommandContext context,
+			Operation<String, String, Map<String, Object>> operation) {
+		return writerOptions.configure(RedisItemWriter.operation(context.getRedisClient(), operation)).build();
 	}
 
 	protected Long initialMax() {
 		return null;
-	}
-
-	private ItemWriter<Map<String, Object>> writer() {
-		Assert.notNull(redisCommands, "RedisCommands not set");
-		Assert.isTrue(!redisCommands.isEmpty(), "No Redis command specified");
-		if (redisCommands.size() == 1) {
-			return writer(redisCommands.get(0));
-		}
-		CompositeItemWriter<Map<String, Object>> compositeWriter = new CompositeItemWriter<>();
-		compositeWriter.setDelegates(redisCommands.stream().map(this::writer).collect(Collectors.toList()));
-		return compositeWriter;
-	}
-
-	private ItemWriter<Map<String, Object>> writer(RedisCommand<Map<String, Object>> command) {
-		return writerOptions.configureWriter(writer(command.operation())).build();
-	}
-
-	private RedisItemWriter.Builder<String, String, Map<String, Object>> writer(
-			RedisOperation<String, String, Map<String, Object>> operation) {
-		return writer(getRedisOptions(), StringCodec.UTF8).operation(operation);
 	}
 
 }

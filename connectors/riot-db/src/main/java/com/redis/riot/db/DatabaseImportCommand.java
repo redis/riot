@@ -8,12 +8,12 @@ import java.util.logging.Logger;
 import javax.sql.DataSource;
 
 import org.springframework.batch.core.Job;
-import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.item.database.JdbcCursorItemReader;
 import org.springframework.batch.item.database.builder.JdbcCursorItemReaderBuilder;
 import org.springframework.jdbc.core.ColumnMapRowMapper;
 
 import com.redis.riot.AbstractImportCommand;
+import com.redis.riot.JobCommandContext;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
@@ -38,7 +38,7 @@ public class DatabaseImportCommand extends AbstractImportCommand {
 	}
 
 	@Override
-	protected Job job(JobBuilder jobBuilder) throws Exception {
+	protected Job createJob(JobCommandContext context) throws Exception {
 		log.log(Level.FINE, "Creating data source: {0}", dataSourceOptions);
 		DataSource dataSource = dataSourceOptions.dataSource();
 		try (Connection connection = dataSource.getConnection()) {
@@ -53,7 +53,8 @@ public class DatabaseImportCommand extends AbstractImportCommand {
 			importOptions.configure(builder);
 			JdbcCursorItemReader<Map<String, Object>> reader = builder.build();
 			reader.afterPropertiesSet();
-			return jobBuilder.start(step(NAME, "Importing from " + name, reader).build()).build();
+			return context.getJobRunner().job(context.getName())
+					.start(step(context, NAME, "Importing from " + name, reader).build()).build();
 		}
 	}
 

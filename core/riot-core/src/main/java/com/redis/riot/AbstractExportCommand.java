@@ -1,9 +1,5 @@
 package com.redis.riot;
 
-import java.util.Optional;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import org.springframework.batch.core.step.builder.AbstractTaskletStepBuilder;
 import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.item.ItemProcessor;
@@ -11,33 +7,22 @@ import org.springframework.batch.item.ItemWriter;
 
 import com.redis.spring.batch.DataStructure;
 import com.redis.spring.batch.RedisItemReader;
+import com.redis.spring.batch.RedisScanSizeEstimator;
 
 import picocli.CommandLine.ArgGroup;
 
 public abstract class AbstractExportCommand<O> extends AbstractTransferCommand {
 
-	private static final Logger log = Logger.getLogger(AbstractExportCommand.class.getName());
-
 	@ArgGroup(exclusive = false, heading = "Reader options%n")
 	private RedisReaderOptions options = new RedisReaderOptions();
 
-	protected AbstractTaskletStepBuilder<SimpleStepBuilder<DataStructure<String>, O>> step(String name, String taskName,
-			Optional<ItemProcessor<DataStructure<String>, O>> processor, ItemWriter<O> writer) throws Exception {
-		return step(RiotStep.reader(reader()).writer(writer).processor(processor).name(name).taskName(taskName)
-				.max(this::initialMax).build());
-	}
-
-	private Long initialMax() {
-		try {
-			return estimator().build().call();
-		} catch (Exception e) {
-			log.log(Level.WARNING, "Could not estimate scan size", e);
-			return null;
-		}
-	}
-
-	private final RedisItemReader<String, DataStructure<String>> reader() throws Exception {
-		return options.configureScanReader(stringReader(getRedisOptions()).dataStructure()).build();
+	protected AbstractTaskletStepBuilder<SimpleStepBuilder<DataStructure<String>, O>> step(JobCommandContext context,
+			String name, String taskName, ItemProcessor<DataStructure<String>, O> processor, ItemWriter<O> writer) {
+		RedisItemReader<String, DataStructure<String>> reader = options
+				.configure(RedisItemReader.dataStructure(context.getRedisClient())).build();
+		RedisScanSizeEstimator estimator = estimator(context).build();
+		return step(context, RiotStep.reader(reader).writer(writer).processor(processor).name(name).taskName(taskName)
+				.max(estimator::execute).build());
 	}
 
 }

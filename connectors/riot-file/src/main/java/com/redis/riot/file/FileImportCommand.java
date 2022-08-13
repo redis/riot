@@ -11,7 +11,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.springframework.batch.core.Job;
-import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.job.builder.SimpleJobBuilder;
 import org.springframework.batch.core.step.tasklet.TaskletStep;
 import org.springframework.batch.item.file.FlatFileItemReader;
@@ -34,6 +33,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
 import com.redis.riot.AbstractImportCommand;
+import com.redis.riot.JobCommandContext;
 import com.redis.riot.file.FileImportOptions.FileType;
 import com.redis.riot.file.resource.XmlItemReader;
 
@@ -74,7 +74,7 @@ public class FileImportCommand extends AbstractImportCommand {
 	}
 
 	@Override
-	protected Job job(JobBuilder jobBuilder) throws Exception {
+	protected Job createJob(JobCommandContext context) throws Exception {
 		Assert.isTrue(!ObjectUtils.isEmpty(files), "No file specified");
 		List<TaskletStep> steps = new ArrayList<>();
 		for (String file : files) {
@@ -82,12 +82,12 @@ public class FileImportCommand extends AbstractImportCommand {
 				AbstractItemStreamItemReader<Map<String, Object>> reader = reader(resource);
 				String name = resource.getDescription() + "-" + NAME;
 				reader.setName(name + "-reader");
-				steps.add(step(name, "Importing " + resource.getFilename(), reader).skip(FlatFileParseException.class)
-						.build());
+				steps.add(step(context, name, "Importing " + resource.getFilename(), reader)
+						.skip(FlatFileParseException.class).build());
 			}
 		}
 		Iterator<TaskletStep> iterator = steps.iterator();
-		SimpleJobBuilder simpleJobBuilder = jobBuilder.start(iterator.next());
+		SimpleJobBuilder simpleJobBuilder = context.getJobRunner().job(NAME).start(iterator.next());
 		while (iterator.hasNext()) {
 			simpleJobBuilder.next(iterator.next());
 		}
