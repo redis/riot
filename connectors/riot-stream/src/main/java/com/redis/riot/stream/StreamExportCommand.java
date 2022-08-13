@@ -99,9 +99,10 @@ public class StreamExportCommand extends AbstractTransferCommand {
 	}
 
 	private TaskletStep streamExportStep(JobCommandContext context, String stream) {
-		return flushingTransferOptions.configure(step(context,
-				RiotStep.reader(RedisItemReader.stream(context.getRedisClient(), stream).build()).writer(writer())
-						.processor(processor()).name(stream + "-" + NAME).taskName("Exporting from " + stream).build()))
+		return flushingTransferOptions
+				.configure(step(context.getJobRunner().step(stream + "-" + NAME),
+						RiotStep.reader(RedisItemReader.stream(context.getRedisClient(), stream).build())
+								.writer(writer()).processor(processor()).taskName("Exporting from " + stream).build()))
 				.build();
 	}
 

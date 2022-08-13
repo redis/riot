@@ -29,7 +29,7 @@ public class RiotCommandLine extends CommandLine {
 						return parsedRedisCommand;
 					}
 					importCommand.getRedisCommands()
-							.add((RedisCommand<Map<String, Object>>) parsedRedisCommand.commandSpec().userObject());
+							.add((OperationCommand<Map<String, Object>>) parsedRedisCommand.commandSpec().userObject());
 				}
 				setExecutionStrategy(executionStrategy);
 				return subcommand;

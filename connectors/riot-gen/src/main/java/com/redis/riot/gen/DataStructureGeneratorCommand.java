@@ -38,8 +38,10 @@ public class DataStructureGeneratorCommand extends AbstractTransferCommand {
 		RedisItemWriter<String, String, DataStructure<String>> writer = writerOptions
 				.configure(RedisItemWriter.dataStructure(context.getRedisClient())).build();
 		log.log(Level.FINE, "Creating random data structure reader with {0}", options);
-		return context.getJobRunner().job(NAME).start(step(context, RiotStep.reader(reader()).writer(writer).name(NAME)
-				.taskName("Generating").max(() -> (long) options.getCount()).build()).build()).build();
+		return context
+				.getJobRunner().job(NAME).start(step(context.getJobRunner().step(NAME), RiotStep.reader(reader())
+						.writer(writer).taskName("Generating").max(() -> (long) options.getCount()).build()).build())
+				.build();
 	}
 
 	private ItemReader<DataStructure<String>> reader() {

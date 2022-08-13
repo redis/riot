@@ -82,9 +82,9 @@ public abstract class AbstractTargetCommand extends AbstractTransferCommand {
 		}
 		RedisScanSizeEstimator estimator = estimator(context).build();
 		Builder<DataStructure<String>, DataStructure<String>> riotStep = RiotStep.reader(sourceReader).writer(writer)
-				.name(VERIFICATION_NAME).taskName("Verifying").max(estimator::execute)
-				.message(() -> extraMessage(writer.getResults()));
-		SimpleStepBuilder<DataStructure<String>, DataStructure<String>> step = step(context, riotStep.build());
+				.taskName("Verifying").max(estimator::execute).message(() -> extraMessage(writer.getResults()));
+		SimpleStepBuilder<DataStructure<String>, DataStructure<String>> step = step(
+				context.getJobRunner().step(VERIFICATION_NAME), riotStep.build());
 		step.listener(new StepExecutionListenerSupport() {
 			@Override
 			public ExitStatus afterStep(StepExecution stepExecution) {

@@ -8,7 +8,7 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
 
 @Command
-public abstract class AbstractKeyCommand extends AbstractRedisCommand<Map<String, Object>> {
+public abstract class AbstractKeyCommand extends AbstractOperationCommand<Map<String, Object>> {
 
 	@Mixin
 	private KeyOptions keyOptions = new KeyOptions();

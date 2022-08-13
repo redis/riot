@@ -112,8 +112,8 @@ public abstract class AbstractReplicateCommand<T extends KeyValue<byte[], ?>> ex
 	private TaskletStep scanStep(TargetCommandContext context) {
 		RedisItemReader.Builder<byte[], byte[], T> reader = reader(context, "scan-reader");
 		RedisItemWriter<byte[], byte[], T> writer = createWriter(context).build();
-		return step(context, RiotStep.reader(reader.build()).writer(writer).processor(processor(context))
-				.name("snapshot-replication").taskName("Scanning").max(estimator(context).build()::execute).build())
+		return step(context.getJobRunner().step("snapshot-replication"), RiotStep.reader(reader.build()).writer(writer)
+				.processor(processor(context)).taskName("Scanning").max(estimator(context).build()::execute).build())
 				.build();
 	}
 
@@ -123,8 +123,8 @@ public abstract class AbstractReplicateCommand<T extends KeyValue<byte[], ?>> ex
 				.database(context.getRedisOptions().uri().getDatabase());
 		RedisItemWriter<byte[], byte[], T> writer = createWriter(context).build();
 		RiotStep<T, T> step = RiotStep.reader(flushingTransferOptions.configure(reader).build()).writer(writer)
-				.processor(processor(context)).name("live-replication").taskName("Listening").build();
-		return flushingTransferOptions.configure(step(context, step)).build();
+				.processor(processor(context)).taskName("Listening").build();
+		return flushingTransferOptions.configure(step(context.getJobRunner().step("live-replication"), step)).build();
 	}
 
 	private RedisItemWriter.Builder<byte[], byte[], T> createWriter(TargetCommandContext context) {

@@ -6,7 +6,7 @@ import java.util.Optional;
 import org.springframework.core.convert.converter.Converter;
 
 import com.redis.riot.HelpOptions;
-import com.redis.riot.RedisCommand;
+import com.redis.riot.OperationCommand;
 import com.redis.riot.convert.CompositeConverter;
 import com.redis.riot.convert.FieldExtractorFactory;
 import com.redis.riot.convert.IdConverterBuilder;
@@ -16,7 +16,7 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
 
 @Command
-public abstract class AbstractRedisCommand<O> implements RedisCommand<O> {
+public abstract class AbstractOperationCommand<O> implements OperationCommand<O> {
 
 	@Mixin
 	private HelpOptions helpOptions = new HelpOptions();

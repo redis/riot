@@ -132,8 +132,10 @@ public class StreamImportCommand extends AbstractTransferCommand {
 		log.log(Level.FINE, "Creating Kafka reader for topic {0} with {1}", new Object[] { topic, consumerProperties });
 		KafkaItemReader<String, Object> reader = new KafkaItemReaderBuilder<String, Object>().partitions(0)
 				.consumerProperties(consumerProperties).partitions(0).name(topic).saveState(false).topic(topic).build();
-		return flushingTransferOptions.configure(step(context, RiotStep.reader(reader).writer(writer(context))
-				.name(topic + "-" + NAME).taskName("Importing from " + topic).build())).build();
+		return flushingTransferOptions
+				.configure(step(context.getJobRunner().step(topic + "-" + NAME),
+						RiotStep.reader(reader).writer(writer(context)).taskName("Importing from " + topic).build()))
+				.build();
 	}
 
 	private ItemWriter<ConsumerRecord<String, Object>> writer(JobCommandContext context) {

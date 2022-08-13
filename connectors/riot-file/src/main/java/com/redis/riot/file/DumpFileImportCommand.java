@@ -70,10 +70,10 @@ public class DumpFileImportCommand extends AbstractTransferCommand {
 				Resource resource = options.inputResource(expandedFile);
 				AbstractItemStreamItemReader<DataStructure<String>> reader = reader(options.type(resource), resource);
 				reader.setName(name + "-reader");
-				steps.add(step(context,
-						RiotStep.reader(reader).writer(writer(context).build()).name(name)
+				steps.add(
+						step(context.getJobRunner().step(name), RiotStep.reader(reader).writer(writer(context).build())
 								.taskName("Importing " + expandedFile).processor(this::processDataStructure).build())
-						.build());
+								.build());
 			}
 		}
 		Iterator<TaskletStep> stepIterator = steps.iterator();

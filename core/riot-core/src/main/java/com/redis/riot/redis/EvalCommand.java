@@ -12,7 +12,7 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
 
 @Command(name = "eval", description = "Evaluate a Lua script with keys and arguments from input")
-public class EvalCommand extends AbstractRedisCommand<Map<String, Object>> {
+public class EvalCommand extends AbstractOperationCommand<Map<String, Object>> {
 
 	private static final String[] EMPTY_STRING = new String[0];
 

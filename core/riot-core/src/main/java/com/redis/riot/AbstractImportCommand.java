@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.batch.core.step.builder.FaultTolerantStepBuilder;
+import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.support.CompositeItemWriter;
@@ -46,29 +47,30 @@ public abstract class AbstractImportCommand extends AbstractTransferCommand {
 	/**
 	 * Initialized manually during command parsing
 	 */
-	private List<RedisCommand<Map<String, Object>>> redisCommands = new ArrayList<>();
+	private List<OperationCommand<Map<String, Object>>> redisCommands = new ArrayList<>();
 
-	public List<RedisCommand<Map<String, Object>>> getRedisCommands() {
+	public List<OperationCommand<Map<String, Object>>> getRedisCommands() {
 		return redisCommands;
 	}
 
-	public void setRedisCommands(List<RedisCommand<Map<String, Object>>> redisCommands) {
+	public void setRedisCommands(List<OperationCommand<Map<String, Object>>> redisCommands) {
 		this.redisCommands = redisCommands;
 	}
 
 	protected FaultTolerantStepBuilder<Map<String, Object>, Map<String, Object>> step(JobCommandContext context,
 			String name, String taskName, ItemReader<Map<String, Object>> reader) {
+		StepBuilder step = context.getJobRunner().step(name);
 		Assert.notNull(redisCommands, "RedisCommands not set");
 		Assert.isTrue(!redisCommands.isEmpty(), "No Redis command specified");
 		ItemWriter<Map<String, Object>> writer = writer(context);
-		return step(context,
+		return step(step,
 				RiotStep.reader(reader).writer(writer).processor(processorOptions.processor(context.getRedisClient()))
-						.name(name).taskName(taskName).max(this::initialMax).build());
+						.taskName(taskName).max(this::initialMax).build());
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private ItemWriter<Map<String, Object>> writer(JobCommandContext context) {
-		List<ItemWriter<Map<String, Object>>> writers = redisCommands.stream().map(RedisCommand::operation)
+		List<ItemWriter<Map<String, Object>>> writers = redisCommands.stream().map(OperationCommand::operation)
 				.map(o -> writer(context, o)).collect(Collectors.toList());
 		if (writers.size() == 1) {
 			return writers.get(0);

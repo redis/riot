@@ -21,8 +21,8 @@ public abstract class AbstractExportCommand<O> extends AbstractTransferCommand {
 		RedisItemReader<String, DataStructure<String>> reader = options
 				.configure(RedisItemReader.dataStructure(context.getRedisClient())).build();
 		RedisScanSizeEstimator estimator = estimator(context).build();
-		return step(context, RiotStep.reader(reader).writer(writer).processor(processor).name(name).taskName(taskName)
-				.max(estimator::execute).build());
+		return step(context.getJobRunner().step(name), RiotStep.reader(reader).writer(writer).processor(processor)
+				.taskName(taskName).max(estimator::execute).build());
 	}
 
 }

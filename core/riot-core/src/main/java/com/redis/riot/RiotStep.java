@@ -1,7 +1,6 @@
 package com.redis.riot;
 
 import java.util.Optional;
-import java.util.UUID;
 import java.util.function.Supplier;
 
 import org.springframework.batch.item.ItemProcessor;
@@ -11,7 +10,6 @@ import org.springframework.util.Assert;
 
 public class RiotStep<I, O> {
 
-	private final String name;
 	private final String taskName;
 	private final ItemReader<I> reader;
 	private final ItemProcessor<I, O> processor;
@@ -20,17 +18,12 @@ public class RiotStep<I, O> {
 	private final Optional<Supplier<Long>> max;
 
 	private RiotStep(Builder<I, O> builder) {
-		this.name = builder.name;
 		this.taskName = builder.taskName;
 		this.reader = builder.reader;
 		this.processor = builder.processor;
 		this.writer = builder.writer;
 		this.message = builder.message;
 		this.max = builder.max;
-	}
-
-	public String getName() {
-		return name;
 	}
 
 	public String getTaskName() {
@@ -76,7 +69,6 @@ public class RiotStep<I, O> {
 	public static final class Builder<I, O> {
 		private final ItemReader<I> reader;
 		private final ItemWriter<O> writer;
-		private String name = UUID.randomUUID().toString();
 		private String taskName;
 		private ItemProcessor<I, O> processor;
 		private Optional<Supplier<String>> message = Optional.empty();
@@ -85,11 +77,6 @@ public class RiotStep<I, O> {
 		public Builder(ItemReader<I> reader, ItemWriter<O> writer) {
 			this.reader = reader;
 			this.writer = writer;
-		}
-
-		public Builder<I, O> name(String name) {
-			this.name = name;
-			return this;
 		}
 
 		public Builder<I, O> taskName(String taskName) {

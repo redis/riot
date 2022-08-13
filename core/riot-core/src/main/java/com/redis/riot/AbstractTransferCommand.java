@@ -12,6 +12,7 @@ import org.springframework.batch.core.ItemWriteListener;
 import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.step.builder.FaultTolerantStepBuilder;
 import org.springframework.batch.core.step.builder.SimpleStepBuilder;
+import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.core.step.skip.AlwaysSkipItemSkipPolicy;
 import org.springframework.batch.core.step.skip.LimitCheckingItemSkipPolicy;
 import org.springframework.batch.core.step.skip.NeverSkipItemSkipPolicy;
@@ -42,8 +43,8 @@ public abstract class AbstractTransferCommand extends AbstractJobCommand {
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public <I, O> FaultTolerantStepBuilder<I, O> step(JobCommandContext context, RiotStep<I, O> riotStep) {
-		SimpleStepBuilder<I, O> step = chunk(context, riotStep.getName(), transferOptions.getChunkSize());
+	public <I, O> FaultTolerantStepBuilder<I, O> step(StepBuilder stepBuilder, RiotStep<I, O> riotStep) {
+		SimpleStepBuilder<I, O> step = stepBuilder.chunk(transferOptions.getChunkSize());
 		step.reader(riotStep.getReader()).writer(riotStep.getWriter()).processor(riotStep.getProcessor());
 		if (transferOptions.getProgress() != Progress.NONE) {
 			ProgressMonitor.ProgressMonitorBuilder monitorBuilder = ProgressMonitor.builder();
@@ -72,10 +73,6 @@ public abstract class AbstractTransferCommand extends AbstractJobCommand {
 			ftStep.taskExecutor(new SyncTaskExecutor());
 		}
 		return ftStep;
-	}
-
-	protected <I, O> SimpleStepBuilder<I, O> chunk(JobCommandContext context, String name, int chunkSize) {
-		return context.getJobRunner().step(name).chunk(chunkSize);
 	}
 
 	private <I> ItemReader<I> synchronize(ItemReader<I> reader) {
