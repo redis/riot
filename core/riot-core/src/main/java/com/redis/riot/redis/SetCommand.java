@@ -31,7 +31,7 @@ public class SetCommand extends AbstractKeyCommand {
 		case RAW:
 			Optional<String> field = options.getField();
 			if (field.isEmpty()) {
-				throw new RuntimeException("Raw value field name not set");
+				throw new IllegalArgumentException("Raw value field name not set");
 			}
 			return stringFieldExtractor(field.get());
 		case XML:
