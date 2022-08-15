@@ -40,7 +40,7 @@ public class FileExportCommand extends AbstractExportCommand {
 	}
 
 	@Override
-	protected Job createJob(JobCommandContext context) throws Exception {
+	protected Job job(JobCommandContext context) throws Exception {
 		WritableResource resource = options.outputResource(file);
 		String task = String.format("Exporting %s", resource.getFilename());
 		return job(context, NAME, step(context, NAME, reader(context), null, writer(resource)), task);

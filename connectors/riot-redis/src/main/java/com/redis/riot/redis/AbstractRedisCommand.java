@@ -19,7 +19,7 @@ import picocli.CommandLine.Command;
 public abstract class AbstractRedisCommand extends AbstractJobCommand {
 
 	@Override
-	protected Job createJob(JobCommandContext context) throws Exception {
+	protected Job job(JobCommandContext context) throws Exception {
 		String name = name();
 		RedisCommandTasklet tasklet = new RedisCommandTasklet(context.getRedisClient());
 		return job(context, name, tasklet).build();

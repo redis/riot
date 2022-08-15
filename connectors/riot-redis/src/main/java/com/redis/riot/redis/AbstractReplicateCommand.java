@@ -69,7 +69,7 @@ public abstract class AbstractReplicateCommand<T extends KeyValue<byte[], ?>> ex
 	}
 
 	@Override
-	protected Job createJob(TargetCommandContext context) {
+	protected Job job(TargetCommandContext context) {
 		switch (replicationOptions.getMode()) {
 		case LIVE:
 			SimpleFlow liveFlow = new FlowBuilder<SimpleFlow>("live-replication-live-flow")

@@ -54,11 +54,11 @@ public abstract class AbstractTargetCommand extends AbstractTransferCommand {
 	}
 
 	@Override
-	protected Job createJob(JobCommandContext context) throws Exception {
-		return createJob(new TargetCommandContext(context, targetRedisOptions));
+	protected Job job(JobCommandContext context) throws Exception {
+		return job(new TargetCommandContext(context, targetRedisOptions));
 	}
 
-	protected abstract Job createJob(TargetCommandContext context);
+	protected abstract Job job(TargetCommandContext context);
 
 	@Override
 	protected RedisScanSizeEstimator.Builder estimator(JobCommandContext context) {

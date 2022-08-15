@@ -10,7 +10,7 @@ public class CompareCommand extends AbstractTargetCommand {
 	private static final String NAME = "compare";
 
 	@Override
-	protected Job createJob(TargetCommandContext context) {
+	protected Job job(TargetCommandContext context) {
 		return context.job(NAME).start(verificationStep(context)).build();
 	}
 

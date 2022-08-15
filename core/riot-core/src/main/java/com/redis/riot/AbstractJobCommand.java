@@ -7,7 +7,6 @@ import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.builder.SimpleJobBuilder;
 import org.springframework.batch.core.step.tasklet.Tasklet;
-import org.springframework.util.ClassUtils;
 
 import com.redis.spring.batch.support.JobRunner;
 
@@ -33,17 +32,15 @@ public abstract class AbstractJobCommand implements Callable<Integer> {
 
 	@Override
 	public Integer call() throws Exception {
-		String name = commandSpec == null ? ClassUtils.getShortName(getClass()) : commandSpec.name();
 		JobRunner jobRunner = JobRunner.inMemory();
-		JobCommandContext context = new JobCommandContext(name, jobRunner, app.getRedisOptions());
-		JobExecution execution = jobRunner.run(createJob(context));
+		JobExecution execution = jobRunner.run(job(new JobCommandContext(jobRunner, app.getRedisOptions())));
 		if (execution.getStatus().isUnsuccessful()) {
 			return 1;
 		}
 		return 0;
 	}
 
-	protected abstract Job createJob(JobCommandContext context) throws Exception;
+	protected abstract Job job(JobCommandContext context) throws Exception;
 
 	protected SimpleJobBuilder job(JobCommandContext context, String name, Step step) {
 		return context.job(name).start(step);

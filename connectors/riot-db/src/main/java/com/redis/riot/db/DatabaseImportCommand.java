@@ -39,7 +39,7 @@ public class DatabaseImportCommand extends AbstractImportCommand {
 	}
 
 	@Override
-	protected Job createJob(JobCommandContext context) throws Exception {
+	protected Job job(JobCommandContext context) throws Exception {
 		log.log(Level.FINE, "Creating data source: {0}", dataSourceOptions);
 		DataSource dataSource = dataSourceOptions.dataSource();
 		try (Connection connection = dataSource.getConnection()) {

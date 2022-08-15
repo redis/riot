@@ -75,7 +75,7 @@ public class FileImportCommand extends AbstractImportCommand {
 	}
 
 	@Override
-	protected Job createJob(JobCommandContext context) throws Exception {
+	protected Job job(JobCommandContext context) throws Exception {
 		Assert.isTrue(!ObjectUtils.isEmpty(files), "No file specified");
 		List<TaskletStep> steps = new ArrayList<>();
 		for (String file : files) {

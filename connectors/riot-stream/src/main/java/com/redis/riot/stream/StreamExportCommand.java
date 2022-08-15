@@ -88,7 +88,7 @@ public class StreamExportCommand extends AbstractTransferCommand {
 	}
 
 	@Override
-	protected Job createJob(JobCommandContext context) throws Exception {
+	protected Job job(JobCommandContext context) throws Exception {
 		Assert.isTrue(!ObjectUtils.isEmpty(streams), "No stream specified");
 		Iterator<String> streamIterator = streams.iterator();
 		SimpleJobBuilder simpleJobBuilder = job(context, NAME, step(context, streamIterator.next()));

@@ -45,7 +45,7 @@ public class DatabaseExportCommand extends AbstractExportCommand {
 	}
 
 	@Override
-	protected Job createJob(JobCommandContext context) throws SQLException {
+	protected Job job(JobCommandContext context) throws SQLException {
 		log.log(Level.FINE, "Creating data source with {0}", dataSourceOptions);
 		DataSource dataSource = dataSourceOptions.dataSource();
 		try (Connection connection = dataSource.getConnection()) {

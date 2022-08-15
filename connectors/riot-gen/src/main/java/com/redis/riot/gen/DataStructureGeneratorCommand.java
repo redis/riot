@@ -34,7 +34,7 @@ public class DataStructureGeneratorCommand extends AbstractTransferCommand {
 	private RedisWriterOptions writerOptions = new RedisWriterOptions();
 
 	@Override
-	protected Job createJob(JobCommandContext context) throws Exception {
+	protected Job job(JobCommandContext context) throws Exception {
 		RedisItemWriter<String, String, DataStructure<String>> writer = writerOptions
 				.configure(RedisItemWriter.dataStructure(context.getRedisClient())).build();
 		log.log(Level.FINE, "Creating random data structure reader with {0}", options);

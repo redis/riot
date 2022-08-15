@@ -33,7 +33,7 @@ public class FakerGeneratorCommand extends AbstractImportCommand {
 	private FakerGeneratorOptions options = new FakerGeneratorOptions();
 
 	@Override
-	protected Job createJob(JobCommandContext context) throws Exception {
+	protected Job job(JobCommandContext context) throws Exception {
 		SimpleStepBuilder<Map<String, Object>, Map<String, Object>> step = step(context, NAME, reader(context));
 		return job(context, NAME, step, options.configure(progressMonitor()).task("Generating").build());
 	}

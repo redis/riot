@@ -117,7 +117,7 @@ public class StreamImportCommand extends AbstractTransferCommand {
 	}
 
 	@Override
-	protected Job createJob(JobCommandContext context) throws Exception {
+	protected Job job(JobCommandContext context) throws Exception {
 		Assert.isTrue(!ObjectUtils.isEmpty(topics), "No topic specified");
 		Iterator<String> topicIterator = topics.iterator();
 		SimpleJobBuilder simpleJobBuilder = job(context, NAME, topicImportStep(context, topicIterator.next()));
