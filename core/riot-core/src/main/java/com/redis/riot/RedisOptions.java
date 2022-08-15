@@ -176,7 +176,7 @@ public class RedisOptions {
 		return redisURI;
 	}
 
-	public ClientResources clientResources() {
+	private ClientResources clientResources() {
 		DefaultClientResources.Builder builder = DefaultClientResources.builder();
 		if (showMetrics) {
 			builder.commandLatencyRecorder(

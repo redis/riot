@@ -1,5 +1,6 @@
 package com.redis.riot.redis;
 
+import com.redis.riot.JobCommandContext;
 import com.redis.spring.batch.DataStructure;
 import com.redis.spring.batch.RedisItemReader;
 import com.redis.spring.batch.RedisItemWriter;
@@ -17,7 +18,7 @@ public class ReplicateDSCommand extends AbstractReplicateCommand<DataStructure<b
 	}
 
 	@Override
-	protected RedisItemReader.Builder<byte[], byte[], DataStructure<byte[]>> reader(TargetCommandContext context) {
+	protected RedisItemReader.Builder<byte[], byte[], DataStructure<byte[]>> reader(JobCommandContext context) {
 		return RedisItemReader.dataStructure(context.getRedisClient(), ByteArrayCodec.INSTANCE);
 	}
 

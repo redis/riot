@@ -1,5 +1,6 @@
 package com.redis.riot.redis;
 
+import com.redis.riot.JobCommandContext;
 import com.redis.spring.batch.KeyValue;
 import com.redis.spring.batch.RedisItemReader;
 import com.redis.spring.batch.RedisItemWriter;
@@ -16,7 +17,7 @@ public class ReplicateCommand extends AbstractReplicateCommand<KeyValue<byte[], 
 	}
 
 	@Override
-	protected RedisItemReader.Builder<byte[], byte[], KeyValue<byte[], byte[]>> reader(TargetCommandContext context) {
+	protected RedisItemReader.Builder<byte[], byte[], KeyValue<byte[], byte[]>> reader(JobCommandContext context) {
 		return RedisItemReader.keyDump(context.getRedisClient(), ByteArrayCodec.INSTANCE);
 	}
 

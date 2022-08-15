@@ -4,7 +4,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.springframework.batch.core.ExitStatus;
-import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.listener.StepExecutionListenerSupport;
@@ -22,6 +21,7 @@ import com.redis.spring.batch.RedisScanSizeEstimator;
 import com.redis.spring.batch.compare.KeyComparisonItemWriter;
 import com.redis.spring.batch.compare.KeyComparisonLogger;
 import com.redis.spring.batch.compare.KeyComparisonResults;
+import com.redis.spring.batch.support.JobRunner;
 
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Mixin;
@@ -54,11 +54,9 @@ public abstract class AbstractTargetCommand extends AbstractTransferCommand {
 	}
 
 	@Override
-	protected Job job(JobCommandContext context) throws Exception {
-		return job(new TargetCommandContext(context, targetRedisOptions));
+	protected JobCommandContext context(JobRunner jobRunner, RedisOptions redisOptions) {
+		return new TargetCommandContext(jobRunner, redisOptions, targetRedisOptions);
 	}
-
-	protected abstract Job job(TargetCommandContext context);
 
 	@Override
 	protected RedisScanSizeEstimator.Builder estimator(JobCommandContext context) {
@@ -66,12 +64,13 @@ public abstract class AbstractTargetCommand extends AbstractTransferCommand {
 				.type(readerOptions.getScanType());
 	}
 
-	protected Step verificationStep(TargetCommandContext context) {
+	protected Step verificationStep(JobCommandContext context) {
 		RedisItemReader<String, DataStructure<String>> sourceReader = readerOptions
 				.configure(RedisItemReader.dataStructure(context.getRedisClient())).jobRunner(context.getJobRunner())
 				.build();
 		RedisItemReader<String, DataStructure<String>> targetReader = readerOptions
-				.configure(RedisItemReader.dataStructure(context.getTargetRedisClient())).build();
+				.configure(RedisItemReader.dataStructure(((TargetCommandContext) context).getTargetRedisClient()))
+				.build();
 		log.log(Level.FINE, "Creating key comparator with TTL tolerance of {0} seconds",
 				compareOptions.getTtlTolerance());
 		KeyComparisonItemWriter writer = KeyComparisonItemWriter.valueReader(targetReader.getValueReader())

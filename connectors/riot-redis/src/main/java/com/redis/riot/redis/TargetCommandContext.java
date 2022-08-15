@@ -11,10 +11,6 @@ public class TargetCommandContext extends JobCommandContext {
 	private final RedisOptions targetRedisOptions;
 	private final AbstractRedisClient targetRedisClient;
 
-	public TargetCommandContext(JobCommandContext context, RedisOptions targetRedisOptions) {
-		this(context.getJobRunner(), context.getRedisOptions(), targetRedisOptions);
-	}
-
 	public TargetCommandContext(JobRunner jobRunner, RedisOptions redisOptions, RedisOptions targetRedisOptions) {
 		super(jobRunner, redisOptions);
 		this.targetRedisOptions = targetRedisOptions;

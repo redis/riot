@@ -23,6 +23,7 @@ import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
 import com.redis.riot.FlushingTransferOptions;
+import com.redis.riot.JobCommandContext;
 import com.redis.riot.KeyValueProcessorOptions;
 import com.redis.riot.ProgressMonitor;
 import com.redis.riot.RedisWriterOptions;
@@ -69,7 +70,7 @@ public abstract class AbstractReplicateCommand<T extends KeyValue<byte[], ?>> ex
 	}
 
 	@Override
-	protected Job job(TargetCommandContext context) {
+	protected Job job(JobCommandContext context) {
 		switch (replicationOptions.getMode()) {
 		case LIVE:
 			SimpleFlow liveFlow = new FlowBuilder<SimpleFlow>("live-replication-live-flow")
@@ -90,13 +91,13 @@ public abstract class AbstractReplicateCommand<T extends KeyValue<byte[], ?>> ex
 		}
 	}
 
-	private Job job(TargetCommandContext context, String name, Function<TargetCommandContext, Step> step) {
+	private Job job(JobCommandContext context, String name, Function<JobCommandContext, Step> step) {
 		SimpleJobBuilder job = context.job(name).start(step.apply(context));
 		optionalVerificationStep(context).ifPresent(job::next);
 		return job.build();
 	}
 
-	protected Optional<Step> optionalVerificationStep(TargetCommandContext context) {
+	protected Optional<Step> optionalVerificationStep(JobCommandContext context) {
 		if (replicationOptions.isVerify()) {
 			if (writerOptions.isDryRun()) {
 				return Optional.empty();
@@ -111,7 +112,7 @@ public abstract class AbstractReplicateCommand<T extends KeyValue<byte[], ?>> ex
 		return Optional.empty();
 	}
 
-	private TaskletStep scanStep(TargetCommandContext context) {
+	private TaskletStep scanStep(JobCommandContext context) {
 		RedisItemReader<byte[], T> reader = reader(context, "scan-reader").build();
 		RedisItemWriter<byte[], byte[], T> writer = createWriter(context).build();
 		RedisScanSizeEstimator estimator = estimator(context).build();
@@ -119,7 +120,7 @@ public abstract class AbstractReplicateCommand<T extends KeyValue<byte[], ?>> ex
 		return step(step(context, "snapshot-replication", reader, processor(context), writer), monitor).build();
 	}
 
-	private TaskletStep liveReplicationStep(TargetCommandContext context) {
+	private TaskletStep liveReplicationStep(JobCommandContext context) {
 		RedisItemReader<byte[], T> reader = flushingTransferOptions.configure(reader(context, "redis-live-reader")
 				.live().notificationQueueCapacity(replicationOptions.getNotificationQueueCapacity())
 				.database(context.getRedisOptions().uri().getDatabase())).build();
@@ -130,28 +131,29 @@ public abstract class AbstractReplicateCommand<T extends KeyValue<byte[], ?>> ex
 		return step(step, monitor).build();
 	}
 
-	private RedisItemWriter.Builder<byte[], byte[], T> createWriter(TargetCommandContext context) {
+	private RedisItemWriter.Builder<byte[], byte[], T> createWriter(JobCommandContext context) {
 		if (writerOptions.isDryRun()) {
-			return RedisItemWriter.operation(context.getTargetRedisClient(), ByteArrayCodec.INSTANCE, new Noop<>());
+			return RedisItemWriter.operation(((TargetCommandContext) context).getTargetRedisClient(),
+					ByteArrayCodec.INSTANCE, new Noop<>());
 		}
-		return writerOptions.configure(writer(context));
+		return writerOptions.configure(writer((TargetCommandContext) context));
 	}
 
-	private RedisItemReader.Builder<byte[], byte[], T> reader(TargetCommandContext context, String name) {
+	private RedisItemReader.Builder<byte[], byte[], T> reader(JobCommandContext context, String name) {
 		return readerOptions.configure(reader(context)).name(name);
 	}
 
 	protected abstract RedisItemWriter.Builder<byte[], byte[], T> writer(TargetCommandContext context);
 
-	protected abstract RedisItemReader.Builder<byte[], byte[], T> reader(TargetCommandContext context);
+	protected abstract RedisItemReader.Builder<byte[], byte[], T> reader(JobCommandContext context);
 
-	private ItemProcessor<T, T> processor(TargetCommandContext context) {
+	private ItemProcessor<T, T> processor(JobCommandContext context) {
 		SpelExpressionParser parser = new SpelExpressionParser();
 		List<ItemProcessor<? extends KeyValue<byte[], ?>, ? extends KeyValue<byte[], ?>>> processors = new ArrayList<>();
 		processorOptions.getKeyProcessor().ifPresent(p -> {
 			EvaluationContext evaluationContext = new StandardEvaluationContext();
 			evaluationContext.setVariable("src", context.getRedisOptions().uri());
-			evaluationContext.setVariable("dest", context.getTargetRedisOptions().uri());
+			evaluationContext.setVariable("dest", ((TargetCommandContext) context).getTargetRedisOptions().uri());
 			Expression expression = parser.parseExpression(p, new TemplateParserContext());
 			processors.add(new KeyValueKeyProcessor<>(expression, evaluationContext));
 		});

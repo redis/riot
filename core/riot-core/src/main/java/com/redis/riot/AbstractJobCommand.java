@@ -33,11 +33,15 @@ public abstract class AbstractJobCommand implements Callable<Integer> {
 	@Override
 	public Integer call() throws Exception {
 		JobRunner jobRunner = JobRunner.inMemory();
-		JobExecution execution = jobRunner.run(job(new JobCommandContext(jobRunner, app.getRedisOptions())));
+		JobExecution execution = jobRunner.run(job(context(jobRunner, app.getRedisOptions())));
 		if (execution.getStatus().isUnsuccessful()) {
 			return 1;
 		}
 		return 0;
+	}
+
+	protected JobCommandContext context(JobRunner jobRunner, RedisOptions redisOptions) {
+		return new JobCommandContext(jobRunner, redisOptions);
 	}
 
 	protected abstract Job job(JobCommandContext context) throws Exception;
