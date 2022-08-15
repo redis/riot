@@ -107,6 +107,14 @@ subprojects {
         all*.exclude module: 'spring-boot-starter-logging'
     }
     
+    configurations.all {
+		resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+			if (details.requested.name == 'lettuce-core' ) {
+				details.useVersion lettuceVersion
+			}
+		}
+	}
+    
     sourceCompatibility = 8
     targetCompatibility = 8
 
