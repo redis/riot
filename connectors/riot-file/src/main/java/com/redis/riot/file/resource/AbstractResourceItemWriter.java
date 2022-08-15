@@ -16,9 +16,21 @@
 
 package com.redis.riot.file.resource;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.batch.item.*;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.Writer;
+import java.nio.channels.Channels;
+import java.nio.channels.WritableByteChannel;
+import java.nio.charset.UnsupportedCharsetException;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import org.springframework.batch.item.ExecutionContext;
+import org.springframework.batch.item.ItemStream;
+import org.springframework.batch.item.ItemStreamException;
+import org.springframework.batch.item.WriteFailedException;
+import org.springframework.batch.item.WriterNotOpenException;
 import org.springframework.batch.item.file.FlatFileFooterCallback;
 import org.springframework.batch.item.file.FlatFileHeaderCallback;
 import org.springframework.batch.item.file.ResourceAwareItemWriterItemStream;
@@ -27,14 +39,6 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.WritableResource;
 import org.springframework.util.Assert;
-
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.Writer;
-import java.nio.channels.Channels;
-import java.nio.channels.WritableByteChannel;
-import java.nio.charset.UnsupportedCharsetException;
-import java.util.List;
 
 /**
  * Base class for item writers that write data to a file or stream. This class
@@ -60,7 +64,7 @@ public abstract class AbstractResourceItemWriter<T> extends AbstractItemStreamIt
 
 	public static final boolean DEFAULT_TRANSACTIONAL = true;
 
-	protected static final Log logger = LogFactory.getLog(AbstractResourceItemWriter.class);
+	protected static final Logger logger = Logger.getLogger(AbstractResourceItemWriter.class.getName());
 
 	public static final String DEFAULT_LINE_SEPARATOR = System.getProperty("line.separator");
 
@@ -218,8 +222,8 @@ public abstract class AbstractResourceItemWriter<T> extends AbstractItemStreamIt
 			throw new WriterNotOpenException("Writer must be open before it can be written to");
 		}
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("Writing to file with " + items.size() + " items.");
+		if (logger.isLoggable(Level.FINE)) {
+			logger.fine("Writing to file with " + items.size() + " items.");
 		}
 
 		OutputState state = getOutputState();
