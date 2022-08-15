@@ -18,8 +18,7 @@ import me.tongfei.progressbar.ProgressBar;
 import me.tongfei.progressbar.ProgressBarBuilder;
 import me.tongfei.progressbar.ProgressBarStyle;
 
-@SuppressWarnings("rawtypes")
-public class ProgressMonitor implements StepExecutionListener, ItemWriteListener {
+public class ProgressMonitor implements StepExecutionListener, ItemWriteListener<Object> {
 
 	public enum Style {
 		ASCII, COLOR, BW, NONE
@@ -74,17 +73,17 @@ public class ProgressMonitor implements StepExecutionListener, ItemWriteListener
 	}
 
 	@Override
-	public void beforeWrite(List items) {
+	public void beforeWrite(List<? extends Object> items) {
 		// do nothing
 	}
 
 	@Override
-	public void afterWrite(List items) {
+	public void afterWrite(List<? extends Object> items) {
 		progressBar.stepBy(items.size());
 	}
 
 	@Override
-	public void onWriteError(Exception exception, List items) {
+	public void onWriteError(Exception exception, List<? extends Object> items) {
 		// do nothing
 	}
 
@@ -98,7 +97,7 @@ public class ProgressMonitor implements StepExecutionListener, ItemWriteListener
 		}
 
 		@Override
-		public void afterWrite(List items) {
+		public void afterWrite(List<? extends Object> items) {
 			super.afterWrite(items);
 			progressBar.setExtraMessage(extraMessage.get());
 		}

@@ -56,7 +56,6 @@ public abstract class AbstractTransferCommand extends AbstractJobCommand {
 		return progressOptions.monitor();
 	}
 
-	@SuppressWarnings("unchecked")
 	protected <I, O> FaultTolerantStepBuilder<I, O> step(SimpleStepBuilder<I, O> step, ProgressMonitor monitor) {
 		if (transferOptions.getThreads() > 1) {
 			ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
@@ -72,7 +71,7 @@ public abstract class AbstractTransferCommand extends AbstractJobCommand {
 		}
 		if (progressOptions.isEnabled()) {
 			step.listener((StepExecutionListener) monitor);
-			step.listener((ItemWriteListener<O>) monitor);
+			step.listener((ItemWriteListener<Object>) monitor);
 		}
 		return step.faultTolerant().skipPolicy(skipPolicy(transferOptions.getSkipPolicy()));
 	}
