@@ -8,5 +8,6 @@ dependencies {
     implementation group: 'me.tongfei', name: 'progressbar', version: progressbarVersion
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
     implementation group: 'org.awaitility', name: 'awaitility', version: awaitilityVersion
+    runtimeOnly 'org.slf4j:slf4j-jdk14'
     testImplementation 'org.junit.jupiter:junit-jupiter-engine'
 }

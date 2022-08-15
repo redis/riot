@@ -8,16 +8,15 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Tool to run database scripts
  */
 public class ScriptRunner {
 
-	private static final Logger log = LoggerFactory.getLogger(ScriptRunner.class);
+	private static final Logger log = Logger.getLogger(ScriptRunner.class.getName());
 
 	private static final String DEFAULT_DELIMITER = ";";
 
@@ -84,7 +83,7 @@ public class ScriptRunner {
 			}
 			String trimmedLine = line.trim();
 			if (trimmedLine.startsWith("--")) {
-				log.debug(trimmedLine);
+				log.fine(trimmedLine);
 			} else if (trimmedLine.length() < 1 || trimmedLine.startsWith("//")) {
 				// Do nothing
 			} else if (trimmedLine.length() < 1 || trimmedLine.startsWith("--")) {
@@ -95,7 +94,7 @@ public class ScriptRunner {
 				command.append(" ");
 				Statement statement = conn.createStatement();
 
-				log.debug(command.toString());
+				log.fine(command.toString());
 
 				boolean hasResults = false;
 				if (stopOnError) {
@@ -104,7 +103,7 @@ public class ScriptRunner {
 					try {
 						statement.execute(command.toString());
 					} catch (SQLException e) {
-						log.error("Error executing: {}", command, e);
+						log.log(Level.SEVERE, "Error executing: " + command, e);
 					}
 				}
 
