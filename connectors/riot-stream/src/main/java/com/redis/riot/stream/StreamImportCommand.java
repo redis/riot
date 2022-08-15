@@ -11,6 +11,7 @@ import java.util.logging.Logger;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.job.builder.SimpleJobBuilder;
+import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.core.step.tasklet.TaskletStep;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.core.convert.converter.Converter;
@@ -20,8 +21,8 @@ import org.springframework.util.ObjectUtils;
 import com.redis.riot.AbstractTransferCommand;
 import com.redis.riot.FlushingTransferOptions;
 import com.redis.riot.JobCommandContext;
+import com.redis.riot.ProgressMonitor;
 import com.redis.riot.RedisWriterOptions;
-import com.redis.riot.RiotStep;
 import com.redis.riot.redis.FilteringOptions;
 import com.redis.riot.stream.kafka.KafkaItemReader;
 import com.redis.riot.stream.kafka.KafkaItemReaderBuilder;
@@ -119,8 +120,7 @@ public class StreamImportCommand extends AbstractTransferCommand {
 	protected Job createJob(JobCommandContext context) throws Exception {
 		Assert.isTrue(!ObjectUtils.isEmpty(topics), "No topic specified");
 		Iterator<String> topicIterator = topics.iterator();
-		SimpleJobBuilder simpleJobBuilder = context.getJobRunner().job(NAME)
-				.start(topicImportStep(context, topicIterator.next()));
+		SimpleJobBuilder simpleJobBuilder = job(context, NAME, topicImportStep(context, topicIterator.next()));
 		while (topicIterator.hasNext()) {
 			simpleJobBuilder.next(topicImportStep(context, topicIterator.next()));
 		}
@@ -130,12 +130,13 @@ public class StreamImportCommand extends AbstractTransferCommand {
 	private TaskletStep topicImportStep(JobCommandContext context, String topic) {
 		Properties consumerProperties = options.consumerProperties();
 		log.log(Level.FINE, "Creating Kafka reader for topic {0} with {1}", new Object[] { topic, consumerProperties });
+		String name = topic + "-" + NAME;
 		KafkaItemReader<String, Object> reader = new KafkaItemReaderBuilder<String, Object>().partitions(0)
 				.consumerProperties(consumerProperties).partitions(0).name(topic).saveState(false).topic(topic).build();
-		return flushingTransferOptions
-				.configure(step(context.getJobRunner().step(topic + "-" + NAME),
-						RiotStep.reader(reader).writer(writer(context)).taskName("Importing from " + topic).build()))
-				.build();
+		SimpleStepBuilder<ConsumerRecord<String, Object>, ConsumerRecord<String, Object>> step = flushingTransferOptions
+				.configure(step(context, name, reader, null, writer(context)));
+		ProgressMonitor monitor = progressMonitor().task("Importing from " + topic).build();
+		return step(step, monitor).build();
 	}
 
 	private ItemWriter<ConsumerRecord<String, Object>> writer(JobCommandContext context) {

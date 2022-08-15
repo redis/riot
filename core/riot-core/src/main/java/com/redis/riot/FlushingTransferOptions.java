@@ -3,7 +3,7 @@ package com.redis.riot;
 import java.time.Duration;
 import java.util.Optional;
 
-import org.springframework.batch.core.step.builder.FaultTolerantStepBuilder;
+import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.util.Assert;
 
 import com.redis.spring.batch.KeyValue;
@@ -33,7 +33,7 @@ public class FlushingTransferOptions {
 		return Duration.ofMillis(flushInterval);
 	}
 
-	public <I, O> FlushingSimpleStepBuilder<I, O> configure(FaultTolerantStepBuilder<I, O> step) {
+	public <I, O> FlushingSimpleStepBuilder<I, O> configure(SimpleStepBuilder<I, O> step) {
 		FlushingSimpleStepBuilder<I, O> builder = new FlushingSimpleStepBuilder<>(step)
 				.flushingInterval(getFlushInterval());
 		idleTimeout.ifPresent(t -> builder.idleTimeout(Duration.ofMillis(t)));

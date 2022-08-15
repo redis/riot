@@ -12,7 +12,6 @@ import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.util.Assert;
 
-import com.redis.riot.TransferOptions.Progress;
 import com.redis.spring.batch.support.Utils;
 
 import me.tongfei.progressbar.ProgressBar;
@@ -22,23 +21,21 @@ import me.tongfei.progressbar.ProgressBarStyle;
 @SuppressWarnings("rawtypes")
 public class ProgressMonitor implements StepExecutionListener, ItemWriteListener {
 
-	private final TransferOptions.Progress style;
-	private final String taskName;
+	public enum Style {
+		ASCII, COLOR, BW, NONE
+	}
+
+	private final Style style;
+	private final String task;
 	private final Duration updateInterval;
 	private final Optional<Supplier<Long>> initialMax;
 	protected ProgressBar progressBar;
 
-	public ProgressMonitor(TransferOptions.Progress style, String taskName, Duration updateInterval,
-			Optional<Supplier<Long>> initialMax) {
-		Assert.notNull(style, "A progress style is required");
-		Assert.notNull(taskName, "A task name is required");
-		Assert.notNull(updateInterval, "Update interval is required");
-		Assert.isTrue(!updateInterval.isZero(), "Update interval must not be zero");
-		Assert.isTrue(!updateInterval.isNegative(), "Update interval must be greater than zero");
-		this.style = style;
-		this.taskName = taskName;
-		this.updateInterval = updateInterval;
-		this.initialMax = initialMax;
+	private ProgressMonitor(Builder builder) {
+		this.style = builder.style;
+		this.task = builder.task;
+		this.updateInterval = builder.updateInterval;
+		this.initialMax = builder.initialMax;
 	}
 
 	@Override
@@ -52,7 +49,7 @@ public class ProgressMonitor implements StepExecutionListener, ItemWriteListener
 			}
 		});
 		builder.setUpdateIntervalMillis(Math.toIntExact(updateInterval.toMillis()));
-		builder.setTaskName(taskName);
+		builder.setTaskName(task);
 		builder.showSpeed();
 		progressBar = builder.build();
 	}
@@ -95,10 +92,9 @@ public class ProgressMonitor implements StepExecutionListener, ItemWriteListener
 
 		private final Supplier<String> extraMessage;
 
-		public ExtraMessageProgressMonitor(TransferOptions.Progress style, String taskName, Duration updateInterval,
-				Optional<Supplier<Long>> initialMax, Supplier<String> extraMessage) {
-			super(style, taskName, updateInterval, initialMax);
-			this.extraMessage = extraMessage;
+		public ExtraMessageProgressMonitor(Builder builder) {
+			super(builder);
+			this.extraMessage = builder.extraMessage.get();
 		}
 
 		@Override
@@ -108,60 +104,49 @@ public class ProgressMonitor implements StepExecutionListener, ItemWriteListener
 		}
 	}
 
-	public static ProgressMonitorBuilder builder() {
-		return new ProgressMonitorBuilder();
+	public static Builder style(Style style) {
+		return new Builder(style);
 	}
 
-	public static class ProgressMonitorBuilder {
+	public static class Builder {
 
-		private Progress style;
-		private String taskName;
+		private final Style style;
+		private String task;
 		private Duration updateInterval = Duration.ofMillis(300);
 		private Optional<Supplier<Long>> initialMax = Optional.empty();
 		private Optional<Supplier<String>> extraMessage = Optional.empty();
 
-		public ProgressMonitor.ProgressMonitorBuilder style(Progress style) {
+		public Builder(Style style) {
 			this.style = style;
+		}
+
+		public ProgressMonitor.Builder task(String task) {
+			this.task = task;
 			return this;
 		}
 
-		public ProgressMonitor.ProgressMonitorBuilder taskName(String taskName) {
-			this.taskName = taskName;
-			return this;
-		}
-
-		public ProgressMonitor.ProgressMonitorBuilder updateInterval(Duration updateInterval) {
+		public ProgressMonitor.Builder updateInterval(Duration updateInterval) {
 			Utils.assertPositive(updateInterval, "Update interval");
 			this.updateInterval = updateInterval;
 			return this;
 		}
 
-		public ProgressMonitor.ProgressMonitorBuilder initialMax(Optional<Supplier<Long>> initialMax) {
-			this.initialMax = initialMax;
-			return this;
-		}
-
-		public ProgressMonitor.ProgressMonitorBuilder initialMax(Supplier<Long> initialMax) {
+		public ProgressMonitor.Builder initialMax(Supplier<Long> initialMax) {
 			Assert.notNull(initialMax, "InitialMax supplier must not be null");
 			this.initialMax = Optional.of(initialMax);
 			return this;
 		}
 
-		public ProgressMonitor.ProgressMonitorBuilder extraMessage(Optional<Supplier<String>> extraMessage) {
-			this.extraMessage = extraMessage;
-			return this;
-		}
-
-		public ProgressMonitor.ProgressMonitorBuilder extraMessage(Supplier<String> extraMessage) {
+		public ProgressMonitor.Builder extraMessage(Supplier<String> extraMessage) {
 			this.extraMessage = Optional.of(extraMessage);
 			return this;
 		}
 
 		public ProgressMonitor build() {
 			if (extraMessage.isPresent()) {
-				return new ExtraMessageProgressMonitor(style, taskName, updateInterval, initialMax, extraMessage.get());
+				return new ExtraMessageProgressMonitor(this);
 			}
-			return new ProgressMonitor(style, taskName, updateInterval, initialMax);
+			return new ProgressMonitor(this);
 		}
 
 	}

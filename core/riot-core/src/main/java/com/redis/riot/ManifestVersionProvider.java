@@ -3,8 +3,11 @@ package com.redis.riot;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Enumeration;
+import java.util.Optional;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import picocli.CommandLine.IVersionProvider;
 
@@ -13,6 +16,8 @@ import picocli.CommandLine.IVersionProvider;
  * version information from the jar file's {@code /META-INF/MANIFEST.MF} file.
  */
 public class ManifestVersionProvider implements IVersionProvider {
+
+	private static final Logger log = Logger.getLogger(ManifestVersionProvider.class.getName());
 
 	@Override
 	public String[] getVersion() throws Exception {
@@ -33,21 +38,29 @@ public class ManifestVersionProvider implements IVersionProvider {
 			Enumeration<URL> resources = ManifestVersionProvider.class.getClassLoader()
 					.getResources("META-INF/MANIFEST.MF");
 			while (resources.hasMoreElements()) {
-				URL url = resources.nextElement();
-				try {
-					Manifest manifest = new Manifest(url.openStream());
-					if (isApplicableManifest(manifest)) {
-						Attributes attr = manifest.getMainAttributes();
-						return String.valueOf(get(attr, "Implementation-Version"));
-					}
-				} catch (IOException ex) {
-					return "Unable to read from " + url + ": " + ex;
+				Optional<String> version = version(resources.nextElement());
+				if (version.isPresent()) {
+					return version.get();
 				}
 			}
 		} catch (IOException e) {
 			// Fail silently
 		}
 		return "N/A";
+	}
+
+	private static Optional<String> version(URL url) {
+		try {
+			Manifest manifest = new Manifest(url.openStream());
+			if (isApplicableManifest(manifest)) {
+				Attributes attr = manifest.getMainAttributes();
+				return Optional.of(String.valueOf(get(attr, "Implementation-Version")));
+			}
+			return Optional.empty();
+		} catch (IOException ex) {
+			log.log(Level.WARNING, ex, () -> String.format("Unable to read from %s", url));
+			return Optional.of("!!!");
+		}
 	}
 
 	private static boolean isApplicableManifest(Manifest manifest) {

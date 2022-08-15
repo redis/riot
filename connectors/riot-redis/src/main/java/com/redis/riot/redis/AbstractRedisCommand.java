@@ -1,7 +1,6 @@
 package com.redis.riot.redis;
 
 import org.springframework.batch.core.Job;
-import org.springframework.batch.core.Step;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.tasklet.Tasklet;
@@ -23,8 +22,7 @@ public abstract class AbstractRedisCommand extends AbstractJobCommand {
 	protected Job createJob(JobCommandContext context) throws Exception {
 		String name = name();
 		RedisCommandTasklet tasklet = new RedisCommandTasklet(context.getRedisClient());
-		Step step = context.getJobRunner().step(name).tasklet(tasklet).build();
-		return context.getJobRunner().job(name).start(step).build();
+		return job(context, name, tasklet).build();
 	}
 
 	private class RedisCommandTasklet implements Tasklet {

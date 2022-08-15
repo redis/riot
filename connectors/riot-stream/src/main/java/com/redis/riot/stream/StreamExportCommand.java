@@ -10,6 +10,7 @@ import java.util.logging.Logger;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.job.builder.SimpleJobBuilder;
+import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.core.step.tasklet.TaskletStep;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.core.convert.converter.Converter;
@@ -21,11 +22,11 @@ import org.springframework.util.ObjectUtils;
 import com.redis.riot.AbstractTransferCommand;
 import com.redis.riot.FlushingTransferOptions;
 import com.redis.riot.JobCommandContext;
-import com.redis.riot.RiotStep;
 import com.redis.riot.stream.kafka.KafkaItemWriter;
 import com.redis.riot.stream.processor.AvroProducerProcessor;
 import com.redis.riot.stream.processor.JsonProducerProcessor;
 import com.redis.spring.batch.RedisItemReader;
+import com.redis.spring.batch.reader.StreamItemReader;
 
 import io.lettuce.core.StreamMessage;
 import picocli.CommandLine.Command;
@@ -90,20 +91,19 @@ public class StreamExportCommand extends AbstractTransferCommand {
 	protected Job createJob(JobCommandContext context) throws Exception {
 		Assert.isTrue(!ObjectUtils.isEmpty(streams), "No stream specified");
 		Iterator<String> streamIterator = streams.iterator();
-		SimpleJobBuilder simpleJobBuilder = context.getJobRunner().job(NAME)
-				.start(streamExportStep(context, streamIterator.next()));
+		SimpleJobBuilder simpleJobBuilder = job(context, NAME, step(context, streamIterator.next()));
 		while (streamIterator.hasNext()) {
-			simpleJobBuilder.next(streamExportStep(context, streamIterator.next()));
+			simpleJobBuilder.next(step(context, streamIterator.next()));
 		}
 		return simpleJobBuilder.build();
 	}
 
-	private TaskletStep streamExportStep(JobCommandContext context, String stream) {
-		return flushingTransferOptions
-				.configure(step(context.getJobRunner().step(stream + "-" + NAME),
-						RiotStep.reader(RedisItemReader.stream(context.getRedisClient(), stream).build())
-								.writer(writer()).processor(processor()).taskName("Exporting from " + stream).build()))
-				.build();
+	private TaskletStep step(JobCommandContext context, String stream) {
+		String name = stream + "-" + NAME;
+		StreamItemReader<String, String> reader = RedisItemReader.stream(context.getRedisClient(), stream).build();
+		SimpleStepBuilder<StreamMessage<String, String>, ProducerRecord<String, Object>> step = flushingTransferOptions
+				.configure(step(context, name, reader, processor(), writer()));
+		return step(step, progressMonitor().task("Exporting from " + stream).build()).build();
 	}
 
 	private KafkaItemWriter<String> writer() {

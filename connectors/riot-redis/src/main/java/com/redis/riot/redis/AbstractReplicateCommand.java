@@ -3,6 +3,7 @@ package com.redis.riot.redis;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.logging.Logger;
 
 import org.springframework.batch.core.Job;
@@ -11,6 +12,7 @@ import org.springframework.batch.core.job.builder.FlowBuilder;
 import org.springframework.batch.core.job.builder.JobFlowBuilder;
 import org.springframework.batch.core.job.builder.SimpleJobBuilder;
 import org.springframework.batch.core.job.flow.support.SimpleFlow;
+import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.core.step.tasklet.TaskletStep;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
@@ -22,15 +24,15 @@ import org.springframework.expression.spel.support.StandardEvaluationContext;
 
 import com.redis.riot.FlushingTransferOptions;
 import com.redis.riot.KeyValueProcessorOptions;
+import com.redis.riot.ProgressMonitor;
 import com.redis.riot.RedisWriterOptions;
-import com.redis.riot.RiotStep;
 import com.redis.riot.processor.CompositeItemStreamItemProcessor;
 import com.redis.riot.processor.KeyValueKeyProcessor;
 import com.redis.riot.processor.KeyValueTTLProcessor;
 import com.redis.spring.batch.KeyValue;
 import com.redis.spring.batch.RedisItemReader;
 import com.redis.spring.batch.RedisItemWriter;
-import com.redis.spring.batch.reader.LiveRedisItemReader.Builder;
+import com.redis.spring.batch.RedisScanSizeEstimator;
 import com.redis.spring.batch.writer.operation.Noop;
 
 import io.lettuce.core.codec.ByteArrayCodec;
@@ -68,7 +70,6 @@ public abstract class AbstractReplicateCommand<T extends KeyValue<byte[], ?>> ex
 
 	@Override
 	protected Job createJob(TargetCommandContext context) {
-		Optional<Step> verificationStep = optionalVerificationStep(context);
 		switch (replicationOptions.getMode()) {
 		case LIVE:
 			SimpleFlow liveFlow = new FlowBuilder<SimpleFlow>("live-replication-live-flow")
@@ -77,21 +78,22 @@ public abstract class AbstractReplicateCommand<T extends KeyValue<byte[], ?>> ex
 					.build();
 			SimpleFlow replicationFlow = new FlowBuilder<SimpleFlow>("live-replication-flow")
 					.split(new SimpleAsyncTaskExecutor()).add(liveFlow, scanFlow).build();
-			JobFlowBuilder liveJob = context.getJobRunner().job("live-replication").start(replicationFlow);
-			verificationStep.ifPresent(liveJob::next);
+			JobFlowBuilder liveJob = context.job("live-replication").start(replicationFlow);
+			optionalVerificationStep(context).ifPresent(liveJob::next);
 			return liveJob.build().build();
 		case LIVEONLY:
-			SimpleJobBuilder liveonlyJob = context.getJobRunner().job("liveonly-replication")
-					.start(liveReplicationStep(context));
-			verificationStep.ifPresent(liveonlyJob::next);
-			return liveonlyJob.build();
+			return job(context, "liveonly-replication", this::liveReplicationStep);
 		case SNAPSHOT:
-			SimpleJobBuilder snapshotJob = context.getJobRunner().job("snapshot-replication").start(scanStep(context));
-			verificationStep.ifPresent(snapshotJob::next);
-			return snapshotJob.build();
+			return job(context, "snapshot-replication", this::scanStep);
 		default:
 			throw new IllegalArgumentException("Unknown replication mode: " + replicationOptions.getMode());
 		}
+	}
+
+	private Job job(TargetCommandContext context, String name, Function<TargetCommandContext, Step> step) {
+		SimpleJobBuilder job = context.job(name).start(step.apply(context));
+		optionalVerificationStep(context).ifPresent(job::next);
+		return job.build();
 	}
 
 	protected Optional<Step> optionalVerificationStep(TargetCommandContext context) {
@@ -110,21 +112,22 @@ public abstract class AbstractReplicateCommand<T extends KeyValue<byte[], ?>> ex
 	}
 
 	private TaskletStep scanStep(TargetCommandContext context) {
-		RedisItemReader.Builder<byte[], byte[], T> reader = reader(context, "scan-reader");
+		RedisItemReader<byte[], T> reader = reader(context, "scan-reader").build();
 		RedisItemWriter<byte[], byte[], T> writer = createWriter(context).build();
-		return step(context.getJobRunner().step("snapshot-replication"), RiotStep.reader(reader.build()).writer(writer)
-				.processor(processor(context)).taskName("Scanning").max(estimator(context).build()::execute).build())
-				.build();
+		RedisScanSizeEstimator estimator = estimator(context).build();
+		ProgressMonitor monitor = progressMonitor().task("Scanning").initialMax(estimator::execute).build();
+		return step(step(context, "snapshot-replication", reader, processor(context), writer), monitor).build();
 	}
 
 	private TaskletStep liveReplicationStep(TargetCommandContext context) {
-		Builder<byte[], byte[], T> reader = reader(context, "redis-live-reader").live()
-				.notificationQueueCapacity(replicationOptions.getNotificationQueueCapacity())
-				.database(context.getRedisOptions().uri().getDatabase());
+		RedisItemReader<byte[], T> reader = flushingTransferOptions.configure(reader(context, "redis-live-reader")
+				.live().notificationQueueCapacity(replicationOptions.getNotificationQueueCapacity())
+				.database(context.getRedisOptions().uri().getDatabase())).build();
 		RedisItemWriter<byte[], byte[], T> writer = createWriter(context).build();
-		RiotStep<T, T> step = RiotStep.reader(flushingTransferOptions.configure(reader).build()).writer(writer)
-				.processor(processor(context)).taskName("Listening").build();
-		return flushingTransferOptions.configure(step(context.getJobRunner().step("live-replication"), step)).build();
+		SimpleStepBuilder<T, T> step = flushingTransferOptions
+				.configure(step(context, "live-replication", reader, processor(context), writer));
+		ProgressMonitor monitor = progressMonitor().task("Listening").build();
+		return step(step, monitor).build();
 	}
 
 	private RedisItemWriter.Builder<byte[], byte[], T> createWriter(TargetCommandContext context) {

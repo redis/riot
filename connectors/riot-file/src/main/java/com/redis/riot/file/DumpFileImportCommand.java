@@ -9,6 +9,7 @@ import java.util.Map;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.job.builder.SimpleJobBuilder;
 import org.springframework.batch.core.step.tasklet.TaskletStep;
+import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.json.JsonItemReader;
 import org.springframework.batch.item.support.AbstractItemStreamItemReader;
 import org.springframework.core.io.Resource;
@@ -17,13 +18,12 @@ import org.springframework.util.ObjectUtils;
 
 import com.redis.riot.AbstractTransferCommand;
 import com.redis.riot.JobCommandContext;
+import com.redis.riot.ProgressMonitor;
 import com.redis.riot.RedisWriterOptions;
-import com.redis.riot.RiotStep;
 import com.redis.riot.file.resource.XmlItemReader;
 import com.redis.spring.batch.DataStructure;
 import com.redis.spring.batch.DataStructure.Type;
 import com.redis.spring.batch.RedisItemWriter;
-import com.redis.spring.batch.RedisItemWriter.Builder;
 
 import io.lettuce.core.ScoredValue;
 import io.lettuce.core.StreamMessage;
@@ -69,50 +69,54 @@ public class DumpFileImportCommand extends AbstractTransferCommand {
 				String name = expandedFile + "-" + NAME;
 				Resource resource = options.inputResource(expandedFile);
 				AbstractItemStreamItemReader<DataStructure<String>> reader = reader(options.type(resource), resource);
-				reader.setName(name + "-reader");
-				steps.add(
-						step(context.getJobRunner().step(name), RiotStep.reader(reader).writer(writer(context).build())
-								.taskName("Importing " + expandedFile).processor(this::processDataStructure).build())
-								.build());
+				reader.setName(name);
+				ProgressMonitor monitor = progressMonitor().task("Importing " + expandedFile).build();
+				DataStructureProcessor processor = new DataStructureProcessor();
+				RedisItemWriter<String, String, DataStructure<String>> writer = writerOptions
+						.configure(RedisItemWriter.dataStructure(context.getRedisClient())).build();
+				steps.add(step(step(context, name, reader, processor, writer), monitor).build());
 			}
 		}
 		Iterator<TaskletStep> stepIterator = steps.iterator();
-		SimpleJobBuilder simpleJobBuilder = context.getJobRunner().job(context.getName()).start(stepIterator.next());
+		SimpleJobBuilder job = job(context, NAME, stepIterator.next());
 		while (stepIterator.hasNext()) {
-			simpleJobBuilder.next(stepIterator.next());
+			job.next(stepIterator.next());
 		}
-		return simpleJobBuilder.build();
+		return job.build();
 	}
 
-	@SuppressWarnings("unchecked")
-	private DataStructure<String> processDataStructure(DataStructure<String> item) {
-		if (item.getType() == null) {
+	private static class DataStructureProcessor implements ItemProcessor<DataStructure<String>, DataStructure<String>> {
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public DataStructure<String> process(DataStructure<String> item) throws Exception {
+			if (item.getType() == null) {
+				return item;
+			}
+			Type type = item.getType();
+			if (type == Type.ZSET) {
+				Collection<Map<String, Object>> zset = (Collection<Map<String, Object>>) item.getValue();
+				Collection<ScoredValue<String>> values = new ArrayList<>(zset.size());
+				for (Map<String, Object> map : zset) {
+					double score = ((Number) map.get("score")).doubleValue();
+					String value = (String) map.get("value");
+					values.add((ScoredValue<String>) ScoredValue.fromNullable(score, value));
+				}
+				item.setValue(values);
+				return item;
+			}
+			if (type == Type.STREAM) {
+				Collection<Map<String, Object>> stream = (Collection<Map<String, Object>>) item.getValue();
+				Collection<StreamMessage<String, String>> messages = new ArrayList<>(stream.size());
+				for (Map<String, Object> message : stream) {
+					messages.add(new StreamMessage<>((String) message.get("stream"), (String) message.get("id"),
+							(Map<String, String>) message.get("body")));
+				}
+				item.setValue(messages);
+				return item;
+			}
 			return item;
 		}
-		Type type = item.getType();
-		if (type == Type.ZSET) {
-			Collection<Map<String, Object>> zset = (Collection<Map<String, Object>>) item.getValue();
-			Collection<ScoredValue<String>> values = new ArrayList<>(zset.size());
-			for (Map<String, Object> map : zset) {
-				double score = ((Number) map.get("score")).doubleValue();
-				String value = (String) map.get("value");
-				values.add((ScoredValue<String>) ScoredValue.fromNullable(score, value));
-			}
-			item.setValue(values);
-		} else if (type == Type.STREAM) {
-			Collection<Map<String, Object>> stream = (Collection<Map<String, Object>>) item.getValue();
-			Collection<StreamMessage<String, String>> messages = new ArrayList<>(stream.size());
-			for (Map<String, Object> message : stream) {
-				messages.add(new StreamMessage<>((String) message.get("stream"), (String) message.get("id"),
-						(Map<String, String>) message.get("body")));
-			}
-			item.setValue(messages);
-		}
-		return item;
-	}
-
-	private Builder<String, String, DataStructure<String>> writer(JobCommandContext context) {
-		return writerOptions.configure(RedisItemWriter.dataStructure(context.getRedisClient()));
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })

@@ -1,5 +1,8 @@
 package com.redis.riot;
 
+import org.springframework.batch.core.job.builder.JobBuilder;
+import org.springframework.batch.core.step.builder.StepBuilder;
+
 import com.redis.spring.batch.support.JobRunner;
 
 import io.lettuce.core.AbstractRedisClient;
@@ -38,6 +41,14 @@ public class JobCommandContext implements AutoCloseable {
 	public void close() throws Exception {
 		redisClient.shutdown();
 		redisClient.getResources().shutdown();
+	}
+
+	public JobBuilder job(String name) {
+		return jobRunner.job(name);
+	}
+
+	public StepBuilder step(String name) {
+		return jobRunner.step(name);
 	}
 
 }

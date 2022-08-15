@@ -2,6 +2,8 @@ package com.redis.riot.gen;
 
 import java.util.Optional;
 
+import com.redis.riot.ProgressMonitor.Builder;
+
 import picocli.CommandLine.Option;
 
 public class GeneratorOptions {
@@ -35,6 +37,10 @@ public class GeneratorOptions {
 
 	public void setSleep(long sleep) {
 		this.sleep = Optional.of(sleep);
+	}
+
+	public Builder configure(Builder monitor) {
+		return monitor.initialMax(() -> (long) count);
 	}
 
 	@Override

@@ -18,7 +18,7 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Parameters;
 
 @Command(name = "export", description = "Export Redis data to JSON or XML files")
-public class FileExportCommand extends AbstractExportCommand<DataStructure<String>> {
+public class FileExportCommand extends AbstractExportCommand {
 
 	private static final String NAME = "file-export";
 
@@ -42,9 +42,8 @@ public class FileExportCommand extends AbstractExportCommand<DataStructure<Strin
 	@Override
 	protected Job createJob(JobCommandContext context) throws Exception {
 		WritableResource resource = options.outputResource(file);
-		String taskName = String.format("Exporting %s", resource.getFilename());
-		return context.getJobRunner().job(NAME).start(step(context, NAME, taskName, null, writer(resource)).build())
-				.build();
+		String task = String.format("Exporting %s", resource.getFilename());
+		return job(context, NAME, step(context, NAME, reader(context), null, writer(resource)), task);
 	}
 
 	private ItemWriter<DataStructure<String>> writer(WritableResource resource) {

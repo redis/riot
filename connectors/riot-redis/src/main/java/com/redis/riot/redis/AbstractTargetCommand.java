@@ -12,11 +12,10 @@ import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 
 import com.redis.riot.AbstractTransferCommand;
 import com.redis.riot.JobCommandContext;
+import com.redis.riot.ProgressMonitor;
+import com.redis.riot.ProgressMonitor.Style;
 import com.redis.riot.RedisOptions;
 import com.redis.riot.RedisReaderOptions;
-import com.redis.riot.RiotStep;
-import com.redis.riot.RiotStep.Builder;
-import com.redis.riot.TransferOptions;
 import com.redis.spring.batch.DataStructure;
 import com.redis.spring.batch.RedisItemReader;
 import com.redis.spring.batch.RedisScanSizeEstimator;
@@ -80,11 +79,8 @@ public abstract class AbstractTargetCommand extends AbstractTransferCommand {
 		if (compareOptions.isShowDiffs()) {
 			writer.addListener(new KeyComparisonLogger(java.util.logging.Logger.getLogger(getClass().getName())));
 		}
-		RedisScanSizeEstimator estimator = estimator(context).build();
-		Builder<DataStructure<String>, DataStructure<String>> riotStep = RiotStep.reader(sourceReader).writer(writer)
-				.taskName("Verifying").max(estimator::execute).message(() -> extraMessage(writer.getResults()));
-		SimpleStepBuilder<DataStructure<String>, DataStructure<String>> step = step(
-				context.getJobRunner().step(VERIFICATION_NAME), riotStep.build());
+		SimpleStepBuilder<DataStructure<String>, DataStructure<String>> step = step(context, VERIFICATION_NAME,
+				sourceReader, null, writer);
 		step.listener(new StepExecutionListenerSupport() {
 			@Override
 			public ExitStatus afterStep(StepExecution stepExecution) {
@@ -96,7 +92,7 @@ public abstract class AbstractTargetCommand extends AbstractTransferCommand {
 					return ExitStatus.COMPLETED;
 				}
 				try {
-					Thread.sleep(transferOptions.getProgressUpdateIntervalMillis());
+					Thread.sleep(progressOptions.getUpdateIntervalMillis());
 				} catch (InterruptedException e) {
 					log.fine("Verification interrupted");
 					Thread.currentThread().interrupt();
@@ -109,7 +105,9 @@ public abstract class AbstractTargetCommand extends AbstractTransferCommand {
 				return new ExitStatus(ExitStatus.FAILED.getExitCode(), "Verification failed");
 			}
 		});
-		return step.build();
+		ProgressMonitor monitor = progressMonitor().task("Verifying").initialMax(estimator(context).build()::execute)
+				.extraMessage(() -> extraMessage(writer.getResults())).build();
+		return step(step, monitor).build();
 	}
 
 	private String extraMessage(KeyComparisonResults results) {
@@ -118,7 +116,7 @@ public abstract class AbstractTargetCommand extends AbstractTransferCommand {
 	}
 
 	private String extraMessageFormat() {
-		if (transferOptions.getProgress() == TransferOptions.Progress.COLOR) {
+		if (progressOptions.getStyle() == Style.COLOR) {
 			return COMPARE_MESSAGE_COLOR;
 		}
 		return COMPARE_MESSAGE_ASCII;

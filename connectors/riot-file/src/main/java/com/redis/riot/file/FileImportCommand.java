@@ -34,6 +34,7 @@ import org.springframework.util.ObjectUtils;
 
 import com.redis.riot.AbstractImportCommand;
 import com.redis.riot.JobCommandContext;
+import com.redis.riot.ProgressMonitor;
 import com.redis.riot.file.FileImportOptions.FileType;
 import com.redis.riot.file.resource.XmlItemReader;
 
@@ -81,17 +82,17 @@ public class FileImportCommand extends AbstractImportCommand {
 			for (Resource resource : resources(file)) {
 				AbstractItemStreamItemReader<Map<String, Object>> reader = reader(resource);
 				String name = resource.getDescription() + "-" + NAME;
-				reader.setName(name + "-reader");
-				steps.add(step(context, name, "Importing " + resource.getFilename(), reader)
-						.skip(FlatFileParseException.class).build());
+				reader.setName(name);
+				ProgressMonitor monitor = progressMonitor().task("Importing " + resource.getFilename()).build();
+				steps.add(step(step(context, name, reader), monitor).skip(FlatFileParseException.class).build());
 			}
 		}
 		Iterator<TaskletStep> iterator = steps.iterator();
-		SimpleJobBuilder simpleJobBuilder = context.getJobRunner().job(NAME).start(iterator.next());
+		SimpleJobBuilder job = job(context, NAME, iterator.next());
 		while (iterator.hasNext()) {
-			simpleJobBuilder.next(iterator.next());
+			job.next(iterator.next());
 		}
-		return simpleJobBuilder.build();
+		return job.build();
 	}
 
 	private List<Resource> resources(String file) throws IOException {

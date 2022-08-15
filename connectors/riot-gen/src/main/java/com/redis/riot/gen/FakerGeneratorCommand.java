@@ -7,7 +7,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.springframework.batch.core.Job;
-import org.springframework.batch.core.step.tasklet.TaskletStep;
+import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.item.ItemReader;
 
 import com.redis.lettucemod.RedisModulesUtils;
@@ -34,13 +34,8 @@ public class FakerGeneratorCommand extends AbstractImportCommand {
 
 	@Override
 	protected Job createJob(JobCommandContext context) throws Exception {
-		TaskletStep step = step(context, NAME, "Generating", reader(context)).build();
-		return context.getJobRunner().job(NAME).start(step).build();
-	}
-
-	@Override
-	protected Long initialMax() {
-		return (long) options.getCount();
+		SimpleStepBuilder<Map<String, Object>, Map<String, Object>> step = step(context, NAME, reader(context));
+		return job(context, NAME, step, options.configure(progressMonitor()).task("Generating").build());
 	}
 
 	private ItemReader<Map<String, Object>> reader(JobCommandContext context) {

@@ -23,7 +23,7 @@ import picocli.CommandLine.Mixin;
 import picocli.CommandLine.Parameters;
 
 @Command(name = "export", description = "Export to a database")
-public class DatabaseExportCommand extends AbstractExportCommand<Map<String, Object>> {
+public class DatabaseExportCommand extends AbstractExportCommand {
 
 	private static Logger log = Logger.getLogger(DatabaseExportCommand.class.getName());
 
@@ -60,9 +60,8 @@ public class DatabaseExportCommand extends AbstractExportCommand<Map<String, Obj
 			writer.afterPropertiesSet();
 			ItemProcessor<DataStructure<String>, Map<String, Object>> processor = DataStructureItemProcessor
 					.of(exportOptions.getKeyRegex());
-			return context.getJobRunner().job(context.getName())
-					.start(step(context, NAME, String.format("Exporting to %s", dbName), processor, writer).build())
-					.build();
+			String task = String.format("Exporting to %s", dbName);
+			return job(context, NAME, step(context, NAME, reader(context), processor, writer), task);
 		}
 	}
 

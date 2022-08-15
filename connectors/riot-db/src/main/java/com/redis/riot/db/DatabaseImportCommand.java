@@ -14,6 +14,7 @@ import org.springframework.jdbc.core.ColumnMapRowMapper;
 
 import com.redis.riot.AbstractImportCommand;
 import com.redis.riot.JobCommandContext;
+import com.redis.riot.ProgressMonitor;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
@@ -53,8 +54,8 @@ public class DatabaseImportCommand extends AbstractImportCommand {
 			importOptions.configure(builder);
 			JdbcCursorItemReader<Map<String, Object>> reader = builder.build();
 			reader.afterPropertiesSet();
-			return context.getJobRunner().job(context.getName())
-					.start(step(context, NAME, "Importing from " + name, reader).build()).build();
+			ProgressMonitor monitor = progressMonitor().task("Importing from " + name).build();
+			return job(context, NAME, reader, monitor);
 		}
 	}
 

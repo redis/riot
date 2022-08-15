@@ -5,8 +5,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.springframework.batch.core.step.builder.FaultTolerantStepBuilder;
-import org.springframework.batch.core.step.builder.StepBuilder;
+import org.springframework.batch.core.Job;
+import org.springframework.batch.core.step.builder.SimpleStepBuilder;
+import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.support.CompositeItemWriter;
@@ -27,7 +28,6 @@ import com.redis.riot.redis.TsAddCommand;
 import com.redis.riot.redis.XaddCommand;
 import com.redis.riot.redis.ZaddCommand;
 import com.redis.spring.batch.RedisItemWriter;
-import com.redis.spring.batch.writer.Operation;
 
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
@@ -57,21 +57,17 @@ public abstract class AbstractImportCommand extends AbstractTransferCommand {
 		this.redisCommands = redisCommands;
 	}
 
-	protected FaultTolerantStepBuilder<Map<String, Object>, Map<String, Object>> step(JobCommandContext context,
-			String name, String taskName, ItemReader<Map<String, Object>> reader) {
-		StepBuilder step = context.getJobRunner().step(name);
-		Assert.notNull(redisCommands, "RedisCommands not set");
-		Assert.isTrue(!redisCommands.isEmpty(), "No Redis command specified");
-		ItemWriter<Map<String, Object>> writer = writer(context);
-		return step(step,
-				RiotStep.reader(reader).writer(writer).processor(processorOptions.processor(context.getRedisClient()))
-						.taskName(taskName).max(this::initialMax).build());
+	protected ItemProcessor<Map<String, Object>, Map<String, Object>> processor(JobCommandContext context) {
+		return processorOptions.processor(context.getRedisClient());
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private ItemWriter<Map<String, Object>> writer(JobCommandContext context) {
+	protected ItemWriter<Map<String, Object>> writer(JobCommandContext context) {
+		Assert.notNull(redisCommands, "RedisCommands not set");
+		Assert.isTrue(!redisCommands.isEmpty(), "No Redis command specified");
 		List<ItemWriter<Map<String, Object>>> writers = redisCommands.stream().map(OperationCommand::operation)
-				.map(o -> writer(context, o)).collect(Collectors.toList());
+				.map(o -> writerOptions.configure(RedisItemWriter.operation(context.getRedisClient(), o)).build())
+				.collect(Collectors.toList());
 		if (writers.size() == 1) {
 			return writers.get(0);
 		}
@@ -80,13 +76,14 @@ public abstract class AbstractImportCommand extends AbstractTransferCommand {
 		return writer;
 	}
 
-	private RedisItemWriter<String, String, Map<String, Object>> writer(JobCommandContext context,
-			Operation<String, String, Map<String, Object>> operation) {
-		return writerOptions.configure(RedisItemWriter.operation(context.getRedisClient(), operation)).build();
+	protected Job job(JobCommandContext context, String name, ItemReader<Map<String, Object>> reader,
+			ProgressMonitor monitor) {
+		return job(context, name, step(context, name, reader), monitor);
 	}
 
-	protected Long initialMax() {
-		return null;
+	protected SimpleStepBuilder<Map<String, Object>, Map<String, Object>> step(JobCommandContext context, String name,
+			ItemReader<Map<String, Object>> reader) {
+		return step(context, name, reader, processor(context), writer(context));
 	}
 
 }

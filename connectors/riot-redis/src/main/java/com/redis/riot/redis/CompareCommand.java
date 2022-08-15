@@ -11,7 +11,7 @@ public class CompareCommand extends AbstractTargetCommand {
 
 	@Override
 	protected Job createJob(TargetCommandContext context) {
-		return context.getJobRunner().job(NAME).start(verificationStep(context)).build();
+		return context.job(NAME).start(verificationStep(context)).build();
 	}
 
 }

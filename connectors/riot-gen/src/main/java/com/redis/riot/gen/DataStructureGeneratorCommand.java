@@ -9,8 +9,8 @@ import org.springframework.batch.item.ItemReader;
 
 import com.redis.riot.AbstractTransferCommand;
 import com.redis.riot.JobCommandContext;
+import com.redis.riot.ProgressMonitor;
 import com.redis.riot.RedisWriterOptions;
-import com.redis.riot.RiotStep;
 import com.redis.spring.batch.DataStructure;
 import com.redis.spring.batch.DataStructure.Type;
 import com.redis.spring.batch.RedisItemWriter;
@@ -38,10 +38,8 @@ public class DataStructureGeneratorCommand extends AbstractTransferCommand {
 		RedisItemWriter<String, String, DataStructure<String>> writer = writerOptions
 				.configure(RedisItemWriter.dataStructure(context.getRedisClient())).build();
 		log.log(Level.FINE, "Creating random data structure reader with {0}", options);
-		return context
-				.getJobRunner().job(NAME).start(step(context.getJobRunner().step(NAME), RiotStep.reader(reader())
-						.writer(writer).taskName("Generating").max(() -> (long) options.getCount()).build()).build())
-				.build();
+		ProgressMonitor monitor = options.configure(progressMonitor()).task("Generating").build();
+		return job(context, NAME, step(context, NAME, reader(), null, writer), monitor);
 	}
 
 	private ItemReader<DataStructure<String>> reader() {
