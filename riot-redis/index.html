@@ -14,7 +14,7 @@
 <div id="header">
 <h1>RIOT-Redis</h1>
 <div class="details">
-<span id="revnumber">version 2.16.2</span>
+<span id="revnumber">version 2.17.0</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -31,11 +31,10 @@
 <li><a href="#replication-usage">3.1. Usage</a></li>
 <li><a href="#_source_and_target_options">3.2. Source and target options</a></li>
 <li><a href="#_replication_mode">3.3. Replication mode</a></li>
-<li><a href="#_replication_type">3.4. Replication type</a></li>
-<li><a href="#reader-options">3.5. Reader options</a></li>
-<li><a href="#_performance_tuning">3.6. Performance Tuning</a></li>
-<li><a href="#_verification">3.7. Verification</a></li>
-<li><a href="#_progress">3.8. Progress</a></li>
+<li><a href="#reader-options">3.4. Reader options</a></li>
+<li><a href="#_performance_tuning">3.5. Performance Tuning</a></li>
+<li><a href="#_verification">3.6. Verification</a></li>
+<li><a href="#_progress">3.7. Progress</a></li>
 </ul>
 </li>
 <li><a href="#_architecture">4. Architecture</a>
@@ -179,48 +178,8 @@ OpenJDK 64-Bit Server VM (build 11.0.11+9-Ubuntu-0ubuntu2.18.04, mixed mode, sha
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="source"><table class="CodeRay"><tr>
   <td class="line-numbers"><pre>1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
-14
-15
-16
-17
-18
-19
-20
-21
 </pre></td>
-  <td class="code"><pre><span class="green">riot-redis</span> --help
-Usage: <strong>riot-redis</strong> [OPTIONS] [COMMAND]
-  <span class="olive">-H</span>, <span class="olive">--help</span>                Show this help message and exit
-  <span class="olive">-V</span>, <span class="olive">--version</span>             Print version information and exit.
-  <span class="olive">-q</span>, <span class="olive">--quiet</span>               Log errors only.
-  <span class="olive">-w</span>, <span class="olive">--warn</span>                Set log level to warn.
-  <span class="olive">-i</span>, <span class="olive">--info</span>                Set log level to info.
-  <span class="olive">-d</span>, <span class="olive">--debug</span>               Log in debug mode (includes normal stacktrace).
-      <span class="olive">--stacktrace</span>          Print out the stacktrace for all exceptions.
-Redis connection options
-  <span class="olive">-h</span>, <span class="olive">--hostname</span>=&lt;host&gt;     Server hostname (default: localhost).
-  <span class="olive">-p</span>, <span class="olive">--port</span>=&lt;port&gt;         Server port (default: 6379).
-  <span class="olive">-s</span>, <span class="olive">--socket</span>=&lt;socket&gt;     Server socket (overrides hostname and port).
-      <span class="olive">--user</span>=&lt;name&gt;         Used to send ACL style 'AUTH username pass'. Needs password.
-  <span class="olive">-a</span>, <span class="olive">--pass</span>[=&lt;password&gt;]   Password to use when connecting to the server.
-  <span class="olive">-u</span>, <span class="olive">--uri</span>=&lt;uri&gt;...        Server URI.
-      --timeout=&lt;sec&gt;       Redis command timeout (default: 60).
-  <span class="olive">-n</span>, <span class="olive">--db</span>=&lt;db&gt;             Database number (default: 0).
-  <span class="olive">-c</span>, <span class="olive">--cluster</span>             Enable cluster mode.
-      <span class="olive">--tls</span>                 Establish a secure TLS connection.
-      <span class="olive">--insecure</span>            Allow insecure TLS connection by skipping cert validation.</pre></td>
+  <td class="code"><pre><span class="green">riot-redis</span> --help</pre></td>
 </tr></table></code></pre>
 </div>
 </div>
@@ -269,13 +228,13 @@ ping        Execute PING command</code></pre>
 <h2 id="replication"><a class="anchor" href="#replication"></a>3. Replication</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>The <code>replicate</code> command replicates data from a source Redis database to a target Redis database.</p>
+<p>The <code>replicate</code> and <code>replicate-ds</code> commands replicate data from a source Redis database to a target Redis database.</p>
 </div>
 <div class="sect2">
 <h3 id="replication-usage"><a class="anchor" href="#replication-usage"></a>3.1. Usage</h3>
 <div class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="console"><span class="green">riot-redis</span> &lt;source&gt; replicate &lt;target&gt; --mode &lt;snapshot|live&gt; --type &lt;dump|ds&gt; [OPTIONS]</code></pre>
+<pre class="CodeRay highlight"><code data-lang="console"><span class="green">riot-redis</span> &lt;source&gt; &lt;replicate|replicate-ds&gt; &lt;target&gt; --mode &lt;snapshot|live&gt; [OPTIONS]</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -350,22 +309,7 @@ Make sure the source database has keyspace notifications enabled using <code>not
 </div>
 </div>
 <div class="sect2">
-<h3 id="_replication_type"><a class="anchor" href="#_replication_type"></a>3.4. Replication type</h3>
-<div class="dlist">
-<dl>
-<dt class="hdlist1"><code>--type dump</code></dt>
-<dd>
-<p>DUMP on source, RESTORE on target</p>
-</dd>
-<dt class="hdlist1"><code>--type ds</code></dt>
-<dd>
-<p><a href="#type-based-replication">Type-based replication</a></p>
-</dd>
-</dl>
-</div>
-</div>
-<div class="sect2">
-<h3 id="reader-options"><a class="anchor" href="#reader-options"></a>3.5. Reader options</h3>
+<h3 id="reader-options"><a class="anchor" href="#reader-options"></a>3.4. Reader options</h3>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><code>--scan-count</code></dt>
@@ -407,9 +351,12 @@ Make sure the source database has keyspace notifications enabled using <code>not
 </dd>
 </dl>
 </div>
+<div class="paragraph">
+<p>===</p>
+</div>
 </div>
 <div class="sect2">
-<h3 id="_performance_tuning"><a class="anchor" href="#_performance_tuning"></a>3.6. Performance Tuning</h3>
+<h3 id="_performance_tuning"><a class="anchor" href="#_performance_tuning"></a>3.5. Performance Tuning</h3>
 <div class="paragraph">
 <p>Performance tuning is an art but RIOT-Redis offers some facilities to identify potential bottlenecks.
 In addition to the <a href="#batch">batch</a> and <a href="#threads">threads</a> options you have the <code>--dry-run</code> option which disables writing to the target Redis database so that you can tune <a href="#reader-options">reading</a> in isolation.
@@ -422,7 +369,7 @@ Add that option to your existing <code>replicate</code> command-line to compare 
 </div>
 </div>
 <div class="sect2">
-<h3 id="_verification"><a class="anchor" href="#_verification"></a>3.7. Verification</h3>
+<h3 id="_verification"><a class="anchor" href="#_verification"></a>3.6. Verification</h3>
 <div class="paragraph">
 <p>Once replication is complete RIOT-Redis will perform a verification step by iterating over keys in the source database and comparing values and TTLs between source and target databases.</p>
 </div>
@@ -474,7 +421,7 @@ Add that option to your existing <code>replicate</code> command-line to compare 
 </div>
 </div>
 <div class="sect2">
-<h3 id="_progress"><a class="anchor" href="#_progress"></a>3.8. Progress</h3>
+<h3 id="_progress"><a class="anchor" href="#_progress"></a>3.7. Progress</h3>
 <div class="paragraph">
 <p>Each process (scan, and event listener in case of live replication) has a corresponding status bar that shows the process name and its progress:
 * Scanning: percentage of keys that have been replicated &#8658; replicated / total. The total number of keys is calculated when the process starts and it can change by the time it is finished (for example in case keys are deleted or added during the replication), so the progress bar is only a rough indicator.
@@ -650,12 +597,12 @@ If you need assistance please contact your Redis account team.</p>
 </tbody>
 </table>
 <div class="paragraph">
-<p>To select this replication mechanism pass <code>--type ds</code> option to the <code>replicate</code> command:</p>
+<p>To select this replication mechanism use the <code>replicate-ds</code> command:</p>
 </div>
 <div class="listingblock">
 <div class="title">Type-based, live replication example</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="console">riot-redis -h source -p 6379 replicate -h target -p 6380 --type ds --mode live</code></pre>
+<pre class="CodeRay highlight"><code data-lang="console">riot-redis -h source -p 6379 replicate-ds -h target -p 6380 --mode live</code></pre>
 </div>
 </div>
 <div class="admonitionblock warning">
@@ -677,8 +624,8 @@ Adjust number of threads, batch, and queue sizes accordingly.
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 2.16.2<br>
-Last updated 2022-08-01 21:30:59 UTC
+Version 2.17.0<br>
+Last updated 2022-08-16 14:07:34 UTC
 </div>
 </div>
 <link rel="stylesheet" href="./coderay-asciidoctor.css">
