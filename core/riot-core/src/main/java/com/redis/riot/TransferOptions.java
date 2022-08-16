@@ -15,7 +15,7 @@ public class TransferOptions {
 	private int chunkSize = 50;
 	@Option(names = "--skip-policy", description = "Policy to determine if some processing should be skipped: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})", paramLabel = "<name>")
 	private SkipPolicy skipPolicy = SkipPolicy.LIMIT;
-	@Option(names = "--skip-limit", description = "For LIMIT policy, max number of failed items to skip before considering the transfer has failed (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
+	@Option(names = "--skip-limit", description = "LIMIT skip policy: max number of failed items before considering the transfer has failed (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
 	private int skipLimit = 3;
 
 	public int getThreads() {

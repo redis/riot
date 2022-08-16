@@ -29,11 +29,11 @@ public class RiotApp {
 	@Option(names = { "-V", "--version" }, versionHelp = true, description = "Print version information and exit.")
 	private boolean versionRequested;
 
-	@ArgGroup(heading = "Redis connection options%n", exclusive = false)
-	private RedisOptions redisOptions = new RedisOptions();
-
 	@ArgGroup(heading = "Logging options%n", exclusive = false)
 	private LoggingOptions loggingOptions = new LoggingOptions();
+
+	@ArgGroup(heading = "Redis connection options%n", exclusive = false)
+	private RedisOptions redisOptions = new RedisOptions();
 
 	public RedisOptions getRedisOptions() {
 		return redisOptions;

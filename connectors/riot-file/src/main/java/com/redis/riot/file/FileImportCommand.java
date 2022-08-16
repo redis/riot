@@ -42,7 +42,7 @@ import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Parameters;
 
-@Command(name = "import", description = "Import delimited, fixed-width, JSON, or XML files into Redis.")
+@Command(name = "import", description = "Import CSV/JSON/XML files into Redis.")
 public class FileImportCommand extends AbstractImportCommand {
 
 	private static final Logger log = Logger.getLogger(FileImportCommand.class.getName());

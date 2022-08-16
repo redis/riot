@@ -40,9 +40,9 @@ public class RedisOptions {
 	private Optional<char[]> password = Optional.empty();
 	@Option(names = { "-u", "--uri" }, description = "Server URI.", paramLabel = "<uri>")
 	private RedisURI uri;
-	@Option(names = "--timeout", description = "Redis command timeout (default: ${DEFAULT-VALUE}).", paramLabel = "<sec>")
+	@Option(names = "--timeout", description = "Redis command timeout.", paramLabel = "<sec>")
 	private Optional<Long> timeout = Optional.empty();
-	@Option(names = { "-n", "--db" }, description = "Database number (default: ${DEFAULT-VALUE}).", paramLabel = "<db>")
+	@Option(names = { "-n", "--db" }, description = "Database number.", paramLabel = "<db>")
 	private Optional<Integer> database = Optional.empty();
 	@Option(names = { "-c", "--cluster" }, description = "Enable cluster mode.")
 	private boolean cluster;
@@ -163,6 +163,7 @@ public class RedisOptions {
 		this.cluster = cluster;
 	}
 
+	@SuppressWarnings("deprecation")
 	public RedisURI uri() {
 		RedisURI redisURI = uri == null ? RedisURI.create(host, port) : uri;
 		insecure.ifPresent(b -> redisURI.setVerifyPeer(!b));

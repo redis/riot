@@ -8,11 +8,11 @@ import picocli.CommandLine.Option;
 
 public class GeneratorOptions {
 
-	@Option(names = "--start", description = "Start index (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
+	@Option(names = "--start", description = "Start index (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
 	protected int start = 1;
-	@Option(names = "--count", description = "Number of items to generate (default: ${DEFAULT-VALUE})", paramLabel = "<int>")
+	@Option(names = "--count", description = "Number of items to generate (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
 	protected int count = 1000;
-	@Option(names = "--sleep", description = "Duration in ms to sleep before each item generation (default: ${DEFAULT-VALUE})", paramLabel = "<ms>")
+	@Option(names = "--sleep", description = "Duration in ms to sleep before each item generation.", paramLabel = "<ms>")
 	private Optional<Long> sleep = Optional.empty();
 
 	public int getStart() {
