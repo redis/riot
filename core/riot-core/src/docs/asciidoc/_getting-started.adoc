@@ -35,26 +35,6 @@ To display usage help, run the following command:
 [subs="specialcharacters,attributes,+quotes",source,console]
 ----
 [green]#{project-name}# --help
-Usage: **{project-name}** [OPTIONS] [COMMAND]
-  [olive]#-H#, [olive]#--help#                Show this help message and exit
-  [olive]#-V#, [olive]#--version#             Print version information and exit.
-  [olive]#-q#, [olive]#--quiet#               Log errors only.
-  [olive]#-w#, [olive]#--warn#                Set log level to warn.
-  [olive]#-i#, [olive]#--info#                Set log level to info.
-  [olive]#-d#, [olive]#--debug#               Log in debug mode (includes normal stacktrace).
-      [olive]#--stacktrace#          Print out the stacktrace for all exceptions.
-Redis connection options
-  [olive]#-h#, [olive]#--hostname#=<host>     Server hostname (default: localhost).
-  [olive]#-p#, [olive]#--port#=<port>         Server port (default: 6379).
-  [olive]#-s#, [olive]#--socket#=<socket>     Server socket (overrides hostname and port).
-      [olive]#--user#=<name>         Used to send ACL style 'AUTH username pass'. Needs password.
-  [olive]#-a#, [olive]#--pass#[=<password>]   Password to use when connecting to the server.
-  [olive]#-u#, [olive]#--uri#=<uri>...        Server URI.
-      --timeout=<sec>       Redis command timeout (default: 60).
-  [olive]#-n#, [olive]#--db#=<db>             Database number (default: 0).
-  [olive]#-c#, [olive]#--cluster#             Enable cluster mode.
-      [olive]#--tls#                 Establish a secure TLS connection.
-      [olive]#--insecure#            Allow insecure TLS connection by skipping cert validation.
 ----
 
 Redis connection options are the same as `redis-cli`.
