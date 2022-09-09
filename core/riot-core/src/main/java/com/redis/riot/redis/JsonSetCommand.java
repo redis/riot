@@ -17,7 +17,7 @@ public class JsonSetCommand extends AbstractKeyCommand {
 	public JsonSet<String, String, Map<String, Object>> operation() {
 		ObjectMapper mapper = new ObjectMapper();
 		ObjectWriter jsonWriter = mapper.writerFor(Map.class);
-		return JsonSet.<String, Map<String, Object>>key(key()).path("$").value(source -> {
+		return JsonSet.<String, Map<String, Object>>key(key()).value(source -> {
 			try {
 				return jsonWriter.writeValueAsString(source);
 			} catch (JsonProcessingException e) {

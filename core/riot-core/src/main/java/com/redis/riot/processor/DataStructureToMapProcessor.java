@@ -13,13 +13,13 @@ import com.redis.riot.convert.RegexNamedGroupsExtractor;
 import com.redis.riot.convert.StreamToStringMapConverter;
 import com.redis.riot.convert.StringToStringMapConverter;
 import com.redis.riot.convert.ZsetToStringMapConverter;
-import com.redis.spring.batch.DataStructure;
-import com.redis.spring.batch.DataStructure.Type;
+import com.redis.spring.batch.common.DataStructure;
+import com.redis.spring.batch.common.DataStructure.Type;
 
 import io.lettuce.core.ScoredValue;
 import io.lettuce.core.StreamMessage;
 
-public class DataStructureItemProcessor implements ItemProcessor<DataStructure<String>, Map<String, Object>> {
+public class DataStructureToMapProcessor implements ItemProcessor<DataStructure<String>, Map<String, Object>> {
 
 	private final Converter<String, Map<String, String>> keyFieldsExtractor;
 	private Converter<Map<String, String>, Map<String, String>> hashConverter = s -> s;
@@ -30,7 +30,7 @@ public class DataStructureItemProcessor implements ItemProcessor<DataStructure<S
 	private Converter<String, Map<String, String>> stringConverter = new StringToStringMapConverter();
 	private Converter<Object, Map<String, String>> defaultConverter = s -> null;
 
-	public DataStructureItemProcessor(Converter<String, Map<String, String>> keyFieldsExtractor) {
+	public DataStructureToMapProcessor(Converter<String, Map<String, String>> keyFieldsExtractor) {
 		this.keyFieldsExtractor = keyFieldsExtractor;
 	}
 
@@ -63,7 +63,7 @@ public class DataStructureItemProcessor implements ItemProcessor<DataStructure<S
 	}
 
 	@Override
-	public Map<String, Object> process(DataStructure<String> item) {
+	public Map<String, Object> process(DataStructure<String> item) throws Exception {
 		if (item.getType() == null) {
 			return null;
 		}
@@ -106,9 +106,8 @@ public class DataStructureItemProcessor implements ItemProcessor<DataStructure<S
 		}
 	}
 
-	public static DataStructureItemProcessor of(String keyRegex) {
-		RegexNamedGroupsExtractor keyFieldsExtractor = RegexNamedGroupsExtractor.of(keyRegex);
-		return new DataStructureItemProcessor(keyFieldsExtractor);
+	public static DataStructureToMapProcessor of(String keyRegex) {
+		return new DataStructureToMapProcessor(RegexNamedGroupsExtractor.of(keyRegex));
 	}
 
 }

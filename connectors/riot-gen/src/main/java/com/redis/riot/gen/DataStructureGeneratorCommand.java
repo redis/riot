@@ -11,9 +11,9 @@ import com.redis.riot.AbstractTransferCommand;
 import com.redis.riot.JobCommandContext;
 import com.redis.riot.ProgressMonitor;
 import com.redis.riot.RedisWriterOptions;
-import com.redis.spring.batch.DataStructure;
-import com.redis.spring.batch.DataStructure.Type;
 import com.redis.spring.batch.RedisItemWriter;
+import com.redis.spring.batch.common.DataStructure;
+import com.redis.spring.batch.common.DataStructure.Type;
 import com.redis.spring.batch.reader.DataStructureGeneratorItemReader;
 
 import picocli.CommandLine.ArgGroup;
@@ -35,8 +35,8 @@ public class DataStructureGeneratorCommand extends AbstractTransferCommand {
 
 	@Override
 	protected Job job(JobCommandContext context) throws Exception {
-		RedisItemWriter<String, String, DataStructure<String>> writer = writerOptions
-				.configure(RedisItemWriter.dataStructure(context.getRedisClient())).build();
+		RedisItemWriter<String, String, DataStructure<String>> writer = RedisItemWriter.dataStructure(context.pool())
+				.options(writerOptions.writerOptions()).build();
 		log.log(Level.FINE, "Creating random data structure reader with {0}", options);
 		ProgressMonitor monitor = options.configure(progressMonitor()).task("Generating").build();
 		return job(context, NAME, step(context, NAME, reader(), null, writer), monitor);
@@ -53,10 +53,9 @@ public class DataStructureGeneratorCommand extends AbstractTransferCommand {
 				.zsetScore(options.getZsetScore()).hashSize(options.getHashSize())
 				.hashFieldSize(options.getHashFieldSize()).jsonFieldCount(options.getJsonSize())
 				.jsonFieldSize(options.getJsonFieldSize());
-		options.getTimeseriesStartTime().ifPresent(t -> reader.timeseriesStartTime(t.toEpochMilli()));
-		options.getExpiration().ifPresent(reader::expiration);
+		options.configureReader(reader);
 		Optional<Long> sleep = options.getSleep();
-		if (sleep.isPresent() && sleep.get() > 0) {
+		if (sleep.isPresent()) {
 			return new ThrottledItemReader<>(reader.build(), sleep.get());
 		}
 		return reader.build();

@@ -20,11 +20,11 @@ import picocli.CommandLine.Option;
 
 public class GcsOptions {
 
-	@Option(names = "--gcs-key-file", description = "GCS private key (e.g. /usr/local/key.json)", paramLabel = "<file>")
+	@Option(names = "--gcs-key-file", description = "GCS private key (e.g. /usr/local/key.json).", paramLabel = "<file>")
 	private Optional<File> credentials = Optional.empty();
-	@Option(names = "--gcs-project", description = "GCP project id", paramLabel = "<id>")
+	@Option(names = "--gcs-project", description = "GCP project id.", paramLabel = "<id>")
 	private Optional<String> projectId = Optional.empty();
-	@Option(names = "--gcs-key", arity = "0..1", interactive = true, description = "GCS Base64 encoded key", paramLabel = "<key>")
+	@Option(names = "--gcs-key", arity = "0..1", interactive = true, description = "GCS Base64 encoded key.", paramLabel = "<key>")
 	private Optional<String> encodedKey = Optional.empty();
 
 	public void setCredentials(File credentials) {

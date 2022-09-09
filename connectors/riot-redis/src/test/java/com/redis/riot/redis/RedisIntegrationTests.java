@@ -30,7 +30,7 @@ class RedisIntegrationTests extends AbstractRiotIntegrationTests {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
-	private static final Duration IDLE_TIMEOUT = Duration.ofSeconds(10);
+	private static final Duration IDLE_TIMEOUT = Duration.ofSeconds(3);
 
 	private final RedisContainer targetRedis = new RedisContainer(
 			RedisContainer.DEFAULT_IMAGE_NAME.withTag(RedisContainer.DEFAULT_TAG));
@@ -124,7 +124,7 @@ class RedisIntegrationTests extends AbstractRiotIntegrationTests {
 		ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 		executor.schedule(() -> {
 			DataStructureGeneratorItemReader reader = DataStructureGeneratorItemReader.builder().currentItemCount(3000)
-					.maxItemCount(2000).build();
+					.maxItemCount(5000).build();
 			try {
 				generate(1, reader, source);
 			} catch (Exception e) {

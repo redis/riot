@@ -11,7 +11,7 @@ import com.redis.riot.AbstractExportCommand;
 import com.redis.riot.JobCommandContext;
 import com.redis.riot.file.resource.JsonResourceItemWriterBuilder;
 import com.redis.riot.file.resource.XmlResourceItemWriterBuilder;
-import com.redis.spring.batch.DataStructure;
+import com.redis.spring.batch.common.DataStructure;
 
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;

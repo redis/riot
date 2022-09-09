@@ -16,9 +16,9 @@ import picocli.CommandLine.Option;
 
 public class FilteringOptions {
 
-	@Option(arity = "1..*", names = "--include", description = "Fields to include", paramLabel = "<field>")
+	@Option(arity = "1..*", names = "--include", description = "Fields to include.", paramLabel = "<field>")
 	private String[] includes;
-	@Option(arity = "1..*", names = "--exclude", description = "Fields to exclude", paramLabel = "<field>")
+	@Option(arity = "1..*", names = "--exclude", description = "Fields to exclude.", paramLabel = "<field>")
 	private String[] excludes;
 
 	public Converter<Map<String, Object>, Map<String, String>> converter() {

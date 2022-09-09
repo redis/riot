@@ -21,13 +21,13 @@ public class LatencyCommand extends AbstractRedisCommand {
 
 	private static final Logger log = Logger.getLogger(LatencyCommand.class.getName());
 
-	@Option(names = "--iterations", description = "Number of latency tests (default: ${DEFAULT-VALUE})", paramLabel = "<count>")
+	@Option(names = "--iterations", description = "Number of latency tests (default: ${DEFAULT-VALUE}).", paramLabel = "<count>")
 	private int iterations = 1000;
-	@Option(names = "--sleep", description = "Sleep duration between calls (default: ${DEFAULT-VALUE})", paramLabel = "<ms>")
+	@Option(names = "--sleep", description = "Sleep duration between calls (default: ${DEFAULT-VALUE}).", paramLabel = "<ms>")
 	private long sleep = 1;
-	@Option(names = "--unit", description = "Latency unit (default: ${DEFAULT-VALUE})", paramLabel = "<unit>")
+	@Option(names = "--unit", description = "Latency unit (default: ${DEFAULT-VALUE}).", paramLabel = "<unit>")
 	private TimeUnit unit = TimeUnit.MILLISECONDS;
-	@Option(names = "--show-distribution", description = "Show latency distribution")
+	@Option(names = "--show-distribution", description = "Show latency distribution.")
 	private boolean showDistribution = false;
 
 	@Override

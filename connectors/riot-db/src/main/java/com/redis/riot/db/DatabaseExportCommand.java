@@ -15,8 +15,8 @@ import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilde
 
 import com.redis.riot.AbstractExportCommand;
 import com.redis.riot.JobCommandContext;
-import com.redis.riot.processor.DataStructureItemProcessor;
-import com.redis.spring.batch.DataStructure;
+import com.redis.riot.processor.DataStructureToMapProcessor;
+import com.redis.spring.batch.common.DataStructure;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
@@ -58,7 +58,7 @@ public class DatabaseExportCommand extends AbstractExportCommand {
 			builder.assertUpdates(exportOptions.isAssertUpdates());
 			JdbcBatchItemWriter<Map<String, Object>> writer = builder.build();
 			writer.afterPropertiesSet();
-			ItemProcessor<DataStructure<String>, Map<String, Object>> processor = DataStructureItemProcessor
+			ItemProcessor<DataStructure<String>, Map<String, Object>> processor = DataStructureToMapProcessor
 					.of(exportOptions.getKeyRegex());
 			String task = String.format("Exporting to %s", dbName);
 			return job(context, NAME, step(context, NAME, reader(context), processor, writer), task);

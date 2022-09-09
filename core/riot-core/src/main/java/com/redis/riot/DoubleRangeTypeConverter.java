@@ -1,6 +1,6 @@
 package com.redis.riot;
 
-import com.redis.spring.batch.support.DoubleRange;
+import com.redis.spring.batch.common.DoubleRange;
 
 import picocli.CommandLine.ITypeConverter;
 

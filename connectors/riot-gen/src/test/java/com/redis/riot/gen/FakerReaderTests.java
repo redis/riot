@@ -22,7 +22,7 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import com.redis.spring.batch.support.JobRunner;
+import com.redis.spring.batch.common.JobRunner;
 
 @SpringBootTest(classes = FakerReaderTestApplication.class)
 @RunWith(SpringRunner.class)

@@ -10,11 +10,11 @@ public class SetOptions {
 		RAW, XML, JSON
 	}
 
-	@Option(names = "--format", description = "Serialization: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})", paramLabel = "<fmt>")
+	@Option(names = "--format", description = "Serialization: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<fmt>")
 	private StringFormat format = StringFormat.JSON;
-	@Option(names = "--field", description = "Raw value field", paramLabel = "<field>")
+	@Option(names = "--field", description = "Raw value field.", paramLabel = "<field>")
 	private Optional<String> field = Optional.empty();
-	@Option(names = "--root", description = "XML root element name", paramLabel = "<name>")
+	@Option(names = "--root", description = "XML root element name.", paramLabel = "<name>")
 	private String root;
 
 	public StringFormat getFormat() {

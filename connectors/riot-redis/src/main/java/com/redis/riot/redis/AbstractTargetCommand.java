@@ -1,9 +1,11 @@
 package com.redis.riot.redis;
 
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.springframework.batch.core.ExitStatus;
+import org.springframework.batch.core.ItemWriteListener;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.listener.StepExecutionListenerSupport;
@@ -15,13 +17,14 @@ import com.redis.riot.ProgressMonitor;
 import com.redis.riot.ProgressMonitor.Style;
 import com.redis.riot.RedisOptions;
 import com.redis.riot.RedisReaderOptions;
-import com.redis.spring.batch.DataStructure;
 import com.redis.spring.batch.RedisItemReader;
-import com.redis.spring.batch.RedisScanSizeEstimator;
-import com.redis.spring.batch.compare.KeyComparisonItemWriter;
-import com.redis.spring.batch.compare.KeyComparisonLogger;
-import com.redis.spring.batch.compare.KeyComparisonResults;
-import com.redis.spring.batch.support.JobRunner;
+import com.redis.spring.batch.common.JobRunner;
+import com.redis.spring.batch.reader.KeyComparison;
+import com.redis.spring.batch.reader.KeyComparison.Status;
+import com.redis.spring.batch.reader.ScanSizeEstimator;
+import com.redis.spring.batch.writer.KeyComparisonCountItemWriter;
+import com.redis.spring.batch.writer.KeyComparisonCountItemWriter.Results;
+import com.redis.spring.batch.writer.KeyComparisonLogger;
 
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Mixin;
@@ -36,8 +39,10 @@ public abstract class AbstractTargetCommand extends AbstractTransferCommand {
 
 	@ArgGroup(exclusive = false, heading = "Target Redis connection options%n")
 	private RedisOptions targetRedisOptions = new RedisOptions();
+
 	@ArgGroup(exclusive = false, heading = "Reader options%n")
 	protected RedisReaderOptions readerOptions = new RedisReaderOptions();
+
 	@Mixin
 	private CompareOptions compareOptions = new CompareOptions();
 
@@ -58,60 +63,87 @@ public abstract class AbstractTargetCommand extends AbstractTransferCommand {
 		return new TargetCommandContext(jobRunner, redisOptions, targetRedisOptions);
 	}
 
-	@Override
-	protected RedisScanSizeEstimator.Builder estimator(JobCommandContext context) {
-		return super.estimator(context).match(readerOptions.getScanMatch()).sampleSize(readerOptions.getSampleSize())
-				.type(readerOptions.getScanType());
+	protected ScanSizeEstimator estimator(JobCommandContext context) {
+		return ScanSizeEstimator.builder(context.pool()).options(readerOptions.estimatorOptions()).build();
 	}
 
-	protected Step verificationStep(JobCommandContext context) {
-		RedisItemReader<String, DataStructure<String>> sourceReader = readerOptions
-				.configure(RedisItemReader.dataStructure(context.getRedisClient())).jobRunner(context.getJobRunner())
-				.build();
-		RedisItemReader<String, DataStructure<String>> targetReader = readerOptions
-				.configure(RedisItemReader.dataStructure(((TargetCommandContext) context).getTargetRedisClient()))
-				.build();
+	private static class KeyComparisonWriteListener implements ItemWriteListener<KeyComparison<String>> {
+
+		private final KeyComparisonLogger logger;
+
+		public KeyComparisonWriteListener(KeyComparisonLogger logger) {
+			this.logger = logger;
+		}
+
+		@Override
+		public void onWriteError(Exception exception, List<? extends KeyComparison<String>> items) {
+			// do nothing
+		}
+
+		@Override
+		public void beforeWrite(List<? extends KeyComparison<String>> items) {
+			// do nothing
+		}
+
+		@Override
+		public void afterWrite(List<? extends KeyComparison<String>> items) {
+			items.forEach(logger::log);
+		}
+	}
+
+	private class KeyComparisonStepListener extends StepExecutionListenerSupport {
+
+		private final KeyComparisonCountItemWriter<String> writer;
+
+		public KeyComparisonStepListener(KeyComparisonCountItemWriter<String> writer) {
+			this.writer = writer;
+		}
+
+		@Override
+		public ExitStatus afterStep(StepExecution stepExecution) {
+			if (stepExecution.getStatus().isUnsuccessful()) {
+				return null;
+			}
+			Results results = writer.getResults();
+			if (results.getTotalCount() == results.getCount(Status.OK)) {
+				log.info("Verification completed - all OK");
+				return ExitStatus.COMPLETED;
+			}
+			try {
+				Thread.sleep(progressOptions.getUpdateIntervalMillis());
+			} catch (InterruptedException e) {
+				log.fine("Verification interrupted");
+				Thread.currentThread().interrupt();
+				return ExitStatus.STOPPED;
+			}
+			log.log(Level.WARNING, "Verification failed: OK={0} Missing={1} Values={2} TTLs={3} Types={4}",
+					new Object[] { results.getCount(Status.OK), results.getCount(Status.MISSING),
+							results.getCount(Status.VALUE), results.getCount(Status.TTL),
+							results.getCount(Status.TYPE) });
+			return new ExitStatus(ExitStatus.FAILED.getExitCode(), "Verification failed");
+		}
+	}
+
+	protected Step verificationStep(TargetCommandContext context) {
 		log.log(Level.FINE, "Creating key comparator with TTL tolerance of {0} seconds",
 				compareOptions.getTtlTolerance());
-		KeyComparisonItemWriter writer = KeyComparisonItemWriter.valueReader(targetReader.getValueReader())
-				.tolerance(compareOptions.getTtlToleranceDuration()).build();
+		RedisItemReader<String, KeyComparison<String>> reader = RedisItemReader.comparator(context.getJobRunner(),
+				context.pool(), context.targetPool(), compareOptions.getTtlToleranceDuration()).build();
+		KeyComparisonCountItemWriter<String> writer = new KeyComparisonCountItemWriter<>();
+		SimpleStepBuilder<KeyComparison<String>, KeyComparison<String>> step = step(context, VERIFICATION_NAME, reader,
+				null, writer);
 		if (compareOptions.isShowDiffs()) {
-			writer.addListener(new KeyComparisonLogger(java.util.logging.Logger.getLogger(getClass().getName())));
+			step.listener(new KeyComparisonWriteListener(new KeyComparisonLogger(log)));
 		}
-		SimpleStepBuilder<DataStructure<String>, DataStructure<String>> step = step(context, VERIFICATION_NAME,
-				sourceReader, null, writer);
-		step.listener(new StepExecutionListenerSupport() {
-			@Override
-			public ExitStatus afterStep(StepExecution stepExecution) {
-				if (stepExecution.getStatus().isUnsuccessful()) {
-					return null;
-				}
-				if (writer.getResults().isOK()) {
-					log.info("Verification completed - all OK");
-					return ExitStatus.COMPLETED;
-				}
-				try {
-					Thread.sleep(progressOptions.getUpdateIntervalMillis());
-				} catch (InterruptedException e) {
-					log.fine("Verification interrupted");
-					Thread.currentThread().interrupt();
-					return ExitStatus.STOPPED;
-				}
-				KeyComparisonResults results = writer.getResults();
-				log.log(Level.WARNING, "Verification failed: OK={0} Missing={1} Values={2} TTLs={3} Types={4}",
-						new Object[] { results.getOK(), results.getMissing(), results.getValue(), results.getTTL(),
-								results.getType() });
-				return new ExitStatus(ExitStatus.FAILED.getExitCode(), "Verification failed");
-			}
-		});
-		ProgressMonitor monitor = progressMonitor().task("Verifying").initialMax(estimator(context).build()::execute)
+		step.listener(new KeyComparisonStepListener(writer));
+		ProgressMonitor monitor = progressMonitor().task("Verifying").initialMax(estimator(context)::execute)
 				.extraMessage(() -> extraMessage(writer.getResults())).build();
 		return step(step, monitor).build();
 	}
 
-	private String extraMessage(KeyComparisonResults results) {
-		return String.format(extraMessageFormat(), results.getMissing(), results.getType(), results.getValue(),
-				results.getTTL());
+	private String extraMessage(Results results) {
+		return String.format(extraMessageFormat(), results.getCount(Status.MISSING), results.getCount(Status.TYPE),
+				results.getCount(Status.VALUE), results.getCount(Status.TTL));
 	}
 
 	private String extraMessageFormat() {

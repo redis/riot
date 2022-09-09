@@ -12,7 +12,7 @@ import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.util.Assert;
 
-import com.redis.spring.batch.support.Utils;
+import com.redis.spring.batch.common.Utils;
 
 import me.tongfei.progressbar.ProgressBar;
 import me.tongfei.progressbar.ProgressBarBuilder;

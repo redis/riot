@@ -6,13 +6,13 @@ import io.lettuce.core.ScriptOutputType;
 import picocli.CommandLine.Option;
 
 public class EvalOptions {
-	@Option(names = "--sha", description = "Digest", paramLabel = "<sha>")
+	@Option(names = "--sha", description = "Digest.", paramLabel = "<sha>")
 	private String sha;
-	@Option(arity = "1..*", names = "--keys", description = "Key fields", paramLabel = "<names>")
+	@Option(arity = "1..*", names = "--keys", description = "Key fields.", paramLabel = "<names>")
 	private String[] keys;
-	@Option(arity = "1..*", names = "--args", description = "Arg fields", paramLabel = "<names>")
+	@Option(arity = "1..*", names = "--args", description = "Arg fields.", paramLabel = "<names>")
 	private String[] args;
-	@Option(names = "--output", description = "Output: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})", paramLabel = "<type>")
+	@Option(names = "--output", description = "Output: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<type>")
 	private ScriptOutputType outputType = ScriptOutputType.STATUS;
 
 	public String getSha() {

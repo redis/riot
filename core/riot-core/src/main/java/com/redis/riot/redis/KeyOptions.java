@@ -4,9 +4,9 @@ import picocli.CommandLine.Option;
 
 public class KeyOptions {
 
-	@Option(names = { "-p", "--keyspace" }, description = "Keyspace prefix", paramLabel = "<str>")
+	@Option(names = { "-p", "--keyspace" }, description = "Keyspace prefix.", paramLabel = "<str>")
 	private String keyspace = "";
-	@Option(names = { "-k", "--keys" }, arity = "1..*", description = "Key fields", paramLabel = "<fields>")
+	@Option(names = { "-k", "--keys" }, arity = "1..*", description = "Key fields.", paramLabel = "<fields>")
 	private String[] keys;
 
 	public String[] getKeys() {

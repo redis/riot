@@ -4,18 +4,29 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.UUID;
 
+import org.apache.commons.pool2.impl.GenericObjectPool;
+import org.junit.jupiter.api.BeforeAll;
+import org.springframework.batch.core.Job;
+import org.springframework.batch.core.JobExecution;
+import org.springframework.batch.core.JobExecutionException;
+import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.item.ItemReader;
+import org.springframework.batch.item.ItemStreamSupport;
+import org.springframework.batch.item.ItemWriter;
 import org.springframework.util.unit.DataSize;
 
 import com.redis.enterprise.Database;
-import com.redis.spring.batch.DataStructure;
 import com.redis.spring.batch.RedisItemWriter;
+import com.redis.spring.batch.common.DataStructure;
+import com.redis.spring.batch.common.JobRunner;
+import com.redis.spring.batch.common.RedisConnectionPoolBuilder;
 import com.redis.spring.batch.reader.DataStructureGeneratorItemReader;
-import com.redis.spring.batch.support.JobRunner;
 import com.redis.testcontainers.RedisContainer;
 import com.redis.testcontainers.RedisEnterpriseContainer;
 import com.redis.testcontainers.RedisServer;
 import com.redis.testcontainers.junit.RedisTestContext;
+
+import io.lettuce.core.api.StatefulConnection;
 
 public abstract class AbstractRiotIntegrationTests extends AbstractRiotTests {
 
@@ -28,24 +39,47 @@ public abstract class AbstractRiotIntegrationTests extends AbstractRiotTests {
 			RedisEnterpriseContainer.DEFAULT_IMAGE_NAME.withTag("latest"))
 			.withDatabase(Database.name("RiotTests").memory(DataSize.ofMegabytes(90)).ossCluster(true).build());
 
+	private JobRunner jobRunner;
+
+	@BeforeAll
+	private void setupJobRunner() throws Exception {
+		jobRunner = JobRunner.inMemory();
+	}
+
 	@Override
 	protected Collection<RedisServer> redisServers() {
 		return Arrays.asList(redisContainer, redisEnterpriseContainer);
 	}
 
-	protected void generate(RedisTestContext redis) throws Exception {
+	protected void generate(RedisTestContext redis) throws JobExecutionException {
 		generate(DataStructureGeneratorItemReader.builder().build(), redis);
 	}
 
-	protected void generate(ItemReader<DataStructure<String>> reader, RedisTestContext redis) throws Exception {
+	protected void generate(ItemReader<DataStructure<String>> reader, RedisTestContext redis)
+			throws JobExecutionException {
 		generate(DEFAULT_BATCH_SIZE, reader, redis);
 	}
 
+	protected <T> JobExecution run(String name, int chunkSize, ItemReader<T> reader, ItemWriter<T> writer)
+			throws JobExecutionException {
+		Job job = jobRunner.job(name).start(step(name, chunkSize, reader, writer).build()).build();
+		return jobRunner.run(job);
+	}
+
 	protected void generate(int chunkSize, ItemReader<DataStructure<String>> reader, RedisTestContext redis)
-			throws Exception {
-		JobRunner jobRunner = JobRunner.inMemory();
-		awaitTermination(jobRunner.run(UUID.randomUUID().toString(), chunkSize, reader,
-				RedisItemWriter.dataStructure(redis.getClient()).build()));
+			throws JobExecutionException {
+		run(UUID.randomUUID().toString(), chunkSize, reader, RedisItemWriter.dataStructure(pool(redis)).build());
+	}
+
+	protected <T> SimpleStepBuilder<T, T> step(String name, int chunkSize, ItemReader<T> reader, ItemWriter<T> writer) {
+		if (reader instanceof ItemStreamSupport) {
+			((ItemStreamSupport) reader).setName(name + "-reader");
+		}
+		return jobRunner.step(name).<T, T>chunk(chunkSize).reader(reader).writer(writer);
+	}
+
+	protected GenericObjectPool<StatefulConnection<String, String>> pool(RedisTestContext redis) {
+		return RedisConnectionPoolBuilder.create().pool(redis.getClient());
 	}
 
 }

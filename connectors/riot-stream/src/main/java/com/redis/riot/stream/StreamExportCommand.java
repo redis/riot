@@ -10,7 +10,6 @@ import java.util.logging.Logger;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.job.builder.SimpleJobBuilder;
-import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.core.step.tasklet.TaskletStep;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.core.convert.converter.Converter;
@@ -27,7 +26,10 @@ import com.redis.riot.stream.processor.AvroProducerProcessor;
 import com.redis.riot.stream.processor.JsonProducerProcessor;
 import com.redis.spring.batch.RedisItemReader;
 import com.redis.spring.batch.reader.StreamItemReader;
+import com.redis.spring.batch.reader.StreamReaderOptions;
+import com.redis.spring.batch.step.FlushingSimpleStepBuilder;
 
+import io.lettuce.core.Consumer;
 import io.lettuce.core.StreamMessage;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
@@ -40,14 +42,19 @@ public class StreamExportCommand extends AbstractTransferCommand {
 	private static final Logger log = Logger.getLogger(StreamExportCommand.class.getName());
 
 	private static final String NAME = "stream-export";
+
 	@Mixin
 	private FlushingTransferOptions flushingTransferOptions = new FlushingTransferOptions();
+
 	@Parameters(arity = "0..*", description = "One ore more streams to read from", paramLabel = "STREAM")
 	private List<String> streams;
+
 	@Mixin
 	private KafkaOptions options = new KafkaOptions();
+
 	@Option(names = "--offset", description = "XREAD offset (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
 	private String offset = "0-0";
+
 	@Option(names = "--topic", description = "Target topic key (default: same as stream)", paramLabel = "<string>")
 	private Optional<String> topic = Optional.empty();
 
@@ -100,9 +107,12 @@ public class StreamExportCommand extends AbstractTransferCommand {
 
 	private TaskletStep step(JobCommandContext context, String stream) {
 		String name = stream + "-" + NAME;
-		StreamItemReader<String, String> reader = RedisItemReader.stream(context.getRedisClient(), stream).build();
-		SimpleStepBuilder<StreamMessage<String, String>, ProducerRecord<String, Object>> step = flushingTransferOptions
-				.configure(step(context, name, reader, processor(), writer()));
+		StreamItemReader<String, String> reader = RedisItemReader
+				.stream(context.pool(), stream, Consumer.from(options.getGroupId(), "consumer1"))
+				.options(StreamReaderOptions.builder().offset(offset).build()).build();
+		FlushingSimpleStepBuilder<StreamMessage<String, String>, ProducerRecord<String, Object>> step = new FlushingSimpleStepBuilder<>(
+				step(context, name, reader, processor(), writer()));
+		step.options(flushingTransferOptions.flushingOptions());
 		return step(step, progressMonitor().task("Exporting from " + stream).build()).build();
 	}
 

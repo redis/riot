@@ -1,123 +1,73 @@
 package com.redis.riot;
 
 import java.util.Optional;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
+import com.redis.spring.batch.reader.QueueOptions;
+import com.redis.spring.batch.reader.ReaderOptions;
+import com.redis.spring.batch.reader.ScanReaderOptions;
+import com.redis.spring.batch.reader.ScanSizeEstimatorOptions;
 
-import com.redis.spring.batch.KeyValue;
-import com.redis.spring.batch.RedisItemReader;
-import com.redis.spring.batch.RedisItemReader.Builder;
-import com.redis.spring.batch.reader.ScanKeyItemReader;
-
-import io.lettuce.core.api.StatefulConnection;
 import picocli.CommandLine.Option;
 
 public class RedisReaderOptions {
 
-	private static final Logger log = Logger.getLogger(RedisReaderOptions.class.getName());
+	@Option(names = "--reader-queue", description = "Capacity of the reader queue (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
+	private int queueCapacity = QueueOptions.DEFAULT_CAPACITY;
+
+	@Option(names = "--reader-threads", description = "Number of reader threads (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
+	private int threads = ReaderOptions.DEFAULT_THREADS;
+
+	@Option(names = "--reader-batch", description = "Number of reader values to process at once (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
+	private int batchSize = ReaderOptions.DEFAULT_CHUNK_SIZE;
+
+	@Option(names = "--reader-skip-policy", description = "Policy to determine if some reading should be skipped: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<name>")
+	private StepSkipPolicy skipPolicy = StepSkipPolicy.NEVER;
+
+	@Option(names = "--reader-skip-limit", description = "LIMIT skip policy: max number of failed items before considering reader has failed (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
+	private int skipLimit = ReaderOptions.DEFAULT_SKIP_LIMIT;
+
+	@Option(names = "--scan-match", description = "SCAN MATCH pattern (default: ${DEFAULT-VALUE}).", paramLabel = "<glob>")
+	private String match = ScanReaderOptions.DEFAULT_MATCH;
 
 	@Option(names = "--scan-count", description = "SCAN COUNT option (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
-	private long scanCount = ScanKeyItemReader.DEFAULT_SCAN_COUNT;
-	@Option(names = "--scan-match", description = "SCAN MATCH pattern (default: ${DEFAULT-VALUE}).", paramLabel = "<glob>")
-	private String scanMatch = ScanKeyItemReader.DEFAULT_SCAN_MATCH;
-	@Option(names = "--scan-type", description = "SCAN TYPE option", paramLabel = "<type>")
-	private Optional<String> scanType = Optional.empty();
-	@Option(names = "--reader-queue", description = "Capacity of the reader queue (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
-	private int queueCapacity = RedisItemReader.DEFAULT_QUEUE_CAPACITY;
-	@Option(names = "--reader-threads", description = "Number of reader threads (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
-	private int threads = RedisItemReader.DEFAULT_THREADS;
-	@Option(names = "--reader-batch", description = "Number of reader values to process at once (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
-	private int batchSize = RedisItemReader.DEFAULT_CHUNK_SIZE;
-	@Option(names = "--sample-size", description = "Number of samples used to estimate dataset size (default: ${DEFAULT-VALUE}).", paramLabel = "<int>", hidden = true)
-	private int sampleSize = 100;
-	@Option(names = "--reader-pool", description = "Max pool connections for reader process (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
-	private int poolMaxTotal = 8;
+	private long count = ScanReaderOptions.DEFAULT_COUNT;
 
-	public long getScanCount() {
-		return scanCount;
+	@Option(names = "--scan-type", description = "SCAN TYPE option.", paramLabel = "<type>")
+	private Optional<String> type = Optional.empty();
+
+	public String getMatch() {
+		return match;
 	}
 
-	public void setScanCount(long scanCount) {
-		this.scanCount = scanCount;
+	public void setMatch(String match) {
+		this.match = match;
 	}
 
-	public String getScanMatch() {
-		return scanMatch;
+	public long getCount() {
+		return count;
 	}
 
-	public void setScanMatch(String scanMatch) {
-		this.scanMatch = scanMatch;
+	public void setCount(long count) {
+		this.count = count;
 	}
 
-	public Optional<String> getScanType() {
-		return scanType;
+	public Optional<String> getType() {
+		return type;
 	}
 
-	public void setScanType(String scanType) {
-		this.scanType = Optional.of(scanType);
+	public void setType(Optional<String> type) {
+		this.type = type;
 	}
 
-	public int getQueueCapacity() {
-		return queueCapacity;
+	public ScanReaderOptions readerOptions() {
+		return ScanReaderOptions.builder().chunkSize(batchSize)
+				.queueOptions(QueueOptions.builder().capacity(queueCapacity).build()).threads(threads)
+				.skipPolicy(skipPolicy.getSkipPolicy()).skipLimit(skipLimit).match(match).count(count).type(type)
+				.build();
 	}
 
-	public void setQueueCapacity(int queueCapacity) {
-		this.queueCapacity = queueCapacity;
-	}
-
-	public int getThreads() {
-		return threads;
-	}
-
-	public void setThreads(int threads) {
-		this.threads = threads;
-	}
-
-	public int getBatchSize() {
-		return batchSize;
-	}
-
-	public void setBatchSize(int batchSize) {
-		this.batchSize = batchSize;
-	}
-
-	public int getSampleSize() {
-		return sampleSize;
-	}
-
-	public void setSampleSize(int sampleSize) {
-		this.sampleSize = sampleSize;
-	}
-
-	public int getPoolMaxTotal() {
-		return poolMaxTotal;
-	}
-
-	public void setPoolMaxTotal(int poolMaxTotal) {
-		this.poolMaxTotal = poolMaxTotal;
-	}
-
-	public <K, V, T extends KeyValue<K, ?>> Builder<K, V, T> configure(Builder<K, V, T> builder) {
-		log.log(Level.FINE, "Configuring reader with {0}", this);
-		builder.threads(threads);
-		builder.chunkSize(batchSize);
-		builder.valueQueueCapacity(queueCapacity);
-		GenericObjectPoolConfig<StatefulConnection<K, V>> poolConfig = new GenericObjectPoolConfig<>();
-		poolConfig.setMaxTotal(poolMaxTotal);
-		builder.poolConfig(poolConfig);
-		builder.match(scanMatch);
-		builder.count(scanCount);
-		scanType.ifPresent(builder::type);
-		return builder;
-	}
-
-	@Override
-	public String toString() {
-		return "RedisReaderOptions [scanCount=" + scanCount + ", scanMatch=" + scanMatch + ", scanType=" + scanType
-				+ ", queueCapacity=" + queueCapacity + ", threads=" + threads + ", batchSize=" + batchSize
-				+ ", sampleSize=" + sampleSize + ", poolMaxTotal=" + poolMaxTotal + "]";
+	public ScanSizeEstimatorOptions estimatorOptions() {
+		return ScanSizeEstimatorOptions.builder().match(match).sampleSize(count).type(type).build();
 	}
 
 }

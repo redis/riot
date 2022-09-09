@@ -11,7 +11,6 @@ import java.util.logging.Logger;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.job.builder.SimpleJobBuilder;
-import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.core.step.tasklet.TaskletStep;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.core.convert.converter.Converter;
@@ -27,6 +26,7 @@ import com.redis.riot.redis.FilteringOptions;
 import com.redis.riot.stream.kafka.KafkaItemReader;
 import com.redis.riot.stream.kafka.KafkaItemReaderBuilder;
 import com.redis.spring.batch.RedisItemWriter;
+import com.redis.spring.batch.step.FlushingSimpleStepBuilder;
 import com.redis.spring.batch.writer.operation.Xadd;
 import com.redis.spring.batch.writer.operation.Xadd.Builder;
 
@@ -133,8 +133,9 @@ public class StreamImportCommand extends AbstractTransferCommand {
 		String name = topic + "-" + NAME;
 		KafkaItemReader<String, Object> reader = new KafkaItemReaderBuilder<String, Object>().partitions(0)
 				.consumerProperties(consumerProperties).partitions(0).name(topic).saveState(false).topic(topic).build();
-		SimpleStepBuilder<ConsumerRecord<String, Object>, ConsumerRecord<String, Object>> step = flushingTransferOptions
-				.configure(step(context, name, reader, null, writer(context)));
+		FlushingSimpleStepBuilder<ConsumerRecord<String, Object>, ConsumerRecord<String, Object>> step = new FlushingSimpleStepBuilder<>(
+				step(context, name, reader, null, writer(context)));
+		step.options(flushingTransferOptions.flushingOptions());
 		ProgressMonitor monitor = progressMonitor().task("Importing from " + topic).build();
 		return step(step, monitor).build();
 	}
@@ -142,7 +143,7 @@ public class StreamImportCommand extends AbstractTransferCommand {
 	private ItemWriter<ConsumerRecord<String, Object>> writer(JobCommandContext context) {
 		Builder<String, String, ConsumerRecord<String, Object>> xadd = Xadd.key(keyConverter()).body(bodyConverter());
 		xAddArgs().ifPresent(xadd::args);
-		return writerOptions.configure(RedisItemWriter.operation(context.getRedisClient(), xadd.build())).build();
+		return RedisItemWriter.operation(context.pool(), xadd.build()).options(writerOptions.writerOptions()).build();
 	}
 
 	private Converter<ConsumerRecord<String, Object>, Map<String, String>> bodyConverter() {

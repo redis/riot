@@ -4,10 +4,10 @@ import picocli.CommandLine.Option;
 
 public class CollectionOptions {
 
-	@Option(names = "--member-space", description = "Keyspace prefix for member IDs", paramLabel = "<str>")
+	@Option(names = "--member-space", description = "Keyspace prefix for member IDs.", paramLabel = "<str>")
 	private String memberSpace;
 	@Option(arity = "1..*", names = { "-m",
-			"--members" }, description = "Member field names for collections", paramLabel = "<fields>")
+			"--members" }, description = "Member field names for collections.", paramLabel = "<fields>")
 	private String[] memberFields;
 
 	public String[] getMemberFields() {

@@ -3,20 +3,17 @@ package com.redis.riot;
 import java.time.Duration;
 import java.util.Optional;
 
-import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.util.Assert;
 
-import com.redis.spring.batch.KeyValue;
-import com.redis.spring.batch.reader.LiveRedisItemReader;
-import com.redis.spring.batch.step.FlushingSimpleStepBuilder;
+import com.redis.spring.batch.step.FlushingOptions;
 
 import picocli.CommandLine.Option;
 
 public class FlushingTransferOptions {
 
-	@Option(names = "--flush-interval", description = "Max duration between flushes (default: ${DEFAULT-VALUE})", paramLabel = "<ms>")
-	private long flushInterval = 50;
-	@Option(names = "--idle-timeout", description = "Min duration of inactivity to consider transfer complete", paramLabel = "<ms>")
+	@Option(names = "--flush-interval", description = "Max duration between flushes (default: ${DEFAULT-VALUE}).", paramLabel = "<ms>")
+	private long flushInterval = FlushingOptions.DEFAULT_FLUSHING_INTERVAL.toMillis();
+	@Option(names = "--idle-timeout", description = "Min duration of inactivity to consider transfer complete.", paramLabel = "<ms>")
 	private Optional<Long> idleTimeout = Optional.empty();
 
 	public void setFlushInterval(Duration flushInterval) {
@@ -29,27 +26,14 @@ public class FlushingTransferOptions {
 		this.idleTimeout = Optional.of(idleTimeoutDuration.toMillis());
 	}
 
-	private Duration getFlushInterval() {
-		return Duration.ofMillis(flushInterval);
-	}
-
-	public <I, O> FlushingSimpleStepBuilder<I, O> configure(SimpleStepBuilder<I, O> step) {
-		FlushingSimpleStepBuilder<I, O> builder = new FlushingSimpleStepBuilder<>(step)
-				.flushingInterval(getFlushInterval());
-		idleTimeout.ifPresent(t -> builder.idleTimeout(Duration.ofMillis(t)));
-		return builder;
-	}
-
-	public <K, V, T extends KeyValue<K, ?>> LiveRedisItemReader.Builder<K, V, T> configure(
-			LiveRedisItemReader.Builder<K, V, T> reader) {
-		reader.flushingInterval(getFlushInterval());
-		idleTimeout.ifPresent(t -> reader.idleTimeout(Duration.ofMillis(t)));
-		return reader;
-	}
-
 	@Override
 	public String toString() {
 		return "FlushingTransferOptions [flushInterval=" + flushInterval + ", idleTimeout=" + idleTimeout + "]";
+	}
+
+	public FlushingOptions flushingOptions() {
+		return FlushingOptions.builder().interval(Duration.ofMillis(flushInterval))
+				.timeout(idleTimeout.map(Duration::ofMillis)).build();
 	}
 
 }

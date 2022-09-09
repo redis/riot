@@ -6,9 +6,10 @@ import java.util.logging.Logger;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 
-import com.redis.spring.batch.support.DoubleRange;
-import com.redis.spring.batch.support.IntRange;
+import com.redis.spring.batch.common.DoubleRange;
+import com.redis.spring.batch.common.IntRange;
 
+import io.lettuce.core.ReadFrom;
 import io.lettuce.core.RedisURI;
 import picocli.CommandLine;
 import picocli.CommandLine.ArgGroup;
@@ -82,6 +83,7 @@ public class RiotApp {
 		commandLine.registerConverter(DoubleRange.class, new DoubleRangeTypeConverter());
 		SpelExpressionParser parser = new SpelExpressionParser();
 		commandLine.registerConverter(Expression.class, parser::parseExpression);
+		commandLine.registerConverter(ReadFrom.class, ReadFrom::valueOf);
 	}
 
 }

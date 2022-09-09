@@ -9,9 +9,9 @@ public class XaddOptions {
 
 	@Mixin
 	private FilteringOptions filteringOptions = new FilteringOptions();
-	@Option(names = "--maxlen", description = "Stream maxlen", paramLabel = "<int>")
+	@Option(names = "--maxlen", description = "Stream maxlen.", paramLabel = "<int>")
 	private Optional<Long> maxlen = Optional.empty();
-	@Option(names = "--trim", description = "Stream efficient trimming ('~' flag)")
+	@Option(names = "--trim", description = "Stream efficient trimming ('~' flag).")
 	private boolean approximateTrimming;
 
 	public FilteringOptions getFilteringOptions() {

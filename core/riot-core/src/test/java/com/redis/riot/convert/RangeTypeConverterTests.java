@@ -5,8 +5,8 @@ import org.junit.jupiter.api.Test;
 
 import com.redis.riot.DoubleRangeTypeConverter;
 import com.redis.riot.IntRangeTypeConverter;
-import com.redis.spring.batch.support.DoubleRange;
-import com.redis.spring.batch.support.IntRange;
+import com.redis.spring.batch.common.DoubleRange;
+import com.redis.spring.batch.common.IntRange;
 
 class RangeTypeConverterTests {
 

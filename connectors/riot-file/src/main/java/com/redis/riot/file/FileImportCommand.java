@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -107,39 +106,13 @@ public class FileImportCommand extends AbstractImportCommand {
 		return options.inputResource(file);
 	}
 
-	private FileType type(Optional<FileExtension> extension) {
-		Optional<FileType> type = options.getType();
-		if (type.isPresent()) {
-			return type.get();
-		}
-		if (extension.isPresent()) {
-			switch (extension.get()) {
-			case FW:
-				return FileType.FIXED;
-			case JSON:
-				return FileType.JSON;
-			case XML:
-				return FileType.XML;
-			case CSV:
-			case PSV:
-			case TSV:
-				return FileType.DELIMITED;
-			default:
-				throw new UnknownFileTypeException("Unknown file extension: " + extension);
-			}
-		}
-		throw new UnknownFileTypeException("Could not determine file type");
-	}
-
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private AbstractItemStreamItemReader<Map<String, Object>> reader(Resource resource) {
-		Optional<FileExtension> extension = FileUtils.extension(resource);
-		FileType type = type(extension);
+		FileType type = options.getType().orElseGet(() -> type(resource));
 		switch (type) {
 		case DELIMITED:
 			DelimitedLineTokenizer tokenizer = new DelimitedLineTokenizer();
-			options.getDelimiter().ifPresentOrElse(tokenizer::setDelimiter,
-					() -> tokenizer.setDelimiter(delimiter(extension.get())));
+			tokenizer.setDelimiter(options.getDelimiter().orElseGet(() -> delimiter(extension(resource))));
 			tokenizer.setQuoteCharacter(options.getQuoteCharacter());
 			if (!ObjectUtils.isEmpty(options.getIncludedFields())) {
 				tokenizer.setIncludedFields(options.getIncludedFields());
@@ -167,6 +140,29 @@ public class FileImportCommand extends AbstractImportCommand {
 		default:
 			throw new UnsupportedOperationException("Unsupported file type: " + type);
 		}
+	}
+
+	private FileType type(Resource resource) {
+		FileExtension extension = extension(resource);
+		switch (extension) {
+		case FW:
+			return FileType.FIXED;
+		case JSON:
+			return FileType.JSON;
+		case XML:
+			return FileType.XML;
+		case CSV:
+		case PSV:
+		case TSV:
+			return FileType.DELIMITED;
+		default:
+			throw new UnknownFileTypeException("Unknown file extension: " + extension);
+		}
+	}
+
+	private FileExtension extension(Resource resource) {
+		return FileUtils.extension(resource)
+				.orElseThrow(() -> new UnknownFileTypeException("Could not determine file type"));
 	}
 
 	private String delimiter(FileExtension extension) {

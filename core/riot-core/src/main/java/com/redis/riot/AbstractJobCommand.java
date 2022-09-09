@@ -8,7 +8,7 @@ import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.builder.SimpleJobBuilder;
 import org.springframework.batch.core.step.tasklet.Tasklet;
 
-import com.redis.spring.batch.support.JobRunner;
+import com.redis.spring.batch.common.JobRunner;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
@@ -33,11 +33,13 @@ public abstract class AbstractJobCommand implements Callable<Integer> {
 	@Override
 	public Integer call() throws Exception {
 		JobRunner jobRunner = JobRunner.inMemory();
-		JobExecution execution = jobRunner.run(job(context(jobRunner, app.getRedisOptions())));
-		if (execution.getStatus().isUnsuccessful()) {
-			return 1;
+		try (JobCommandContext context = context(jobRunner, app.getRedisOptions())) {
+			JobExecution execution = jobRunner.run(job(context));
+			if (execution.getStatus().isUnsuccessful()) {
+				return 1;
+			}
+			return 0;
 		}
-		return 0;
 	}
 
 	protected JobCommandContext context(JobRunner jobRunner, RedisOptions redisOptions) {

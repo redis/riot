@@ -6,9 +6,9 @@ import picocli.CommandLine.Option;
 
 public class ZaddOptions {
 
-	@Option(names = "--score", description = "Name of the field to use for scores", paramLabel = "<field>")
+	@Option(names = "--score", description = "Name of the field to use for scores.", paramLabel = "<field>")
 	private Optional<String> scoreField = Optional.empty();
-	@Option(names = "--score-default", description = "Score when field not present (default: ${DEFAULT-VALUE})", paramLabel = "<num>")
+	@Option(names = "--score-default", description = "Score when field not present (default: ${DEFAULT-VALUE}).", paramLabel = "<num>")
 	private double scoreDefault = 1;
 
 	public Optional<String> getScoreField() {

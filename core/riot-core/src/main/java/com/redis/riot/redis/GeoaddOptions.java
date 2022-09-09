@@ -4,9 +4,9 @@ import picocli.CommandLine.Option;
 
 public class GeoaddOptions {
 
-	@Option(names = "--lon", description = "Longitude field", paramLabel = "<field>")
+	@Option(names = "--lon", description = "Longitude field.", paramLabel = "<field>")
 	private String longitudeField;
-	@Option(names = "--lat", description = "Latitude field", paramLabel = "<field>")
+	@Option(names = "--lat", description = "Latitude field.", paramLabel = "<field>")
 	private String latitudeField;
 
 	public String getLongitudeField() {

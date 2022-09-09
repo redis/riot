@@ -10,9 +10,7 @@ import org.springframework.batch.core.Job;
 import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.step.builder.FaultTolerantStepBuilder;
 import org.springframework.batch.core.step.builder.SimpleStepBuilder;
-import org.springframework.batch.core.step.skip.AlwaysSkipItemSkipPolicy;
 import org.springframework.batch.core.step.skip.LimitCheckingItemSkipPolicy;
-import org.springframework.batch.core.step.skip.NeverSkipItemSkipPolicy;
 import org.springframework.batch.core.step.skip.SkipPolicy;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
@@ -22,8 +20,6 @@ import org.springframework.batch.item.support.SynchronizedItemStreamReader;
 import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
-import com.redis.spring.batch.RedisScanSizeEstimator;
-import com.redis.spring.batch.RedisScanSizeEstimator.Builder;
 import com.redis.spring.batch.reader.PollableItemReader;
 
 import io.lettuce.core.RedisCommandExecutionException;
@@ -36,10 +32,6 @@ public abstract class AbstractTransferCommand extends AbstractJobCommand {
 	private TransferOptions transferOptions = new TransferOptions();
 	@Mixin
 	protected ProgressMonitorOptions progressOptions = new ProgressMonitorOptions();
-
-	protected Builder estimator(JobCommandContext context) {
-		return RedisScanSizeEstimator.client(context.getRedisClient());
-	}
 
 	protected <I, O> SimpleStepBuilder<I, O> step(JobCommandContext context, String name, ItemReader<I> reader,
 			ItemProcessor<I, O> processor, ItemWriter<O> writer) {
@@ -73,7 +65,14 @@ public abstract class AbstractTransferCommand extends AbstractJobCommand {
 			step.listener((StepExecutionListener) monitor);
 			step.listener((ItemWriteListener<Object>) monitor);
 		}
-		return step.faultTolerant().skipPolicy(skipPolicy(transferOptions.getSkipPolicy()));
+		SkipPolicy skipPolicy = transferOptions.getSkipPolicy().getSkipPolicy();
+		if (skipPolicy instanceof LimitCheckingItemSkipPolicy) {
+			LimitCheckingItemSkipPolicy limitSkipPolicy = (LimitCheckingItemSkipPolicy) skipPolicy;
+			limitSkipPolicy.setSkippableExceptionMap(
+					Stream.of(RedisCommandExecutionException.class, RedisCommandTimeoutException.class,
+							TimeoutException.class).collect(Collectors.toMap(t -> t, t -> true)));
+		}
+		return step.faultTolerant().skipPolicy(transferOptions.getSkipPolicy().getSkipPolicy());
 	}
 
 	private <I> ItemReader<I> synchronize(ItemReader<I> reader) {
@@ -94,19 +93,6 @@ public abstract class AbstractTransferCommand extends AbstractJobCommand {
 
 	protected <I, O> FaultTolerantStepBuilder<I, O> faultTolerant(SimpleStepBuilder<I, O> step) {
 		return step.faultTolerant();
-	}
-
-	private SkipPolicy skipPolicy(TransferOptions.SkipPolicy policy) {
-		switch (policy) {
-		case ALWAYS:
-			return new AlwaysSkipItemSkipPolicy();
-		case NEVER:
-			return new NeverSkipItemSkipPolicy();
-		default:
-			return new LimitCheckingItemSkipPolicy(transferOptions.getSkipLimit(),
-					Stream.of(RedisCommandExecutionException.class, RedisCommandTimeoutException.class,
-							TimeoutException.class).collect(Collectors.toMap(t -> t, t -> true)));
-		}
 	}
 
 }

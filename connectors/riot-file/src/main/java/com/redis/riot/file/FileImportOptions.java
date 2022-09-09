@@ -17,23 +17,23 @@ public class FileImportOptions extends FileOptions {
 
 	public static final String DEFAULT_CONTINUATION_STRING = "\\";
 
-	@Option(names = { "-t", "--filetype" }, description = "File type: ${COMPLETION-CANDIDATES}", paramLabel = "<type>")
+	@Option(names = { "-t", "--filetype" }, description = "File type: ${COMPLETION-CANDIDATES}.", paramLabel = "<type>")
 	private Optional<FileType> type = Optional.empty();
-	@Option(names = "--fields", arity = "1..*", description = "Delimited/FW field names", paramLabel = "<names>")
+	@Option(names = "--fields", arity = "1..*", description = "Delimited/FW field names.", paramLabel = "<names>")
 	private List<String> names = new ArrayList<>();
-	@Option(names = { "-h", "--header" }, description = "Delimited/FW first line contains field names")
+	@Option(names = { "-h", "--header" }, description = "Delimited/FW first line contains field names.")
 	private boolean header;
-	@Option(names = "--delimiter", description = "Delimiter character", paramLabel = "<string>")
+	@Option(names = "--delimiter", description = "Delimiter character.", paramLabel = "<string>")
 	private Optional<String> delimiter = Optional.empty();
-	@Option(names = "--skip", description = "Delimited/FW lines to skip at start", paramLabel = "<count>")
+	@Option(names = "--skip", description = "Delimited/FW lines to skip at start.", paramLabel = "<count>")
 	private Optional<Integer> linesToSkip = Optional.empty();
-	@Option(names = "--include", arity = "1..*", description = "Delimited/FW field indices to include (0-based)", paramLabel = "<index>")
+	@Option(names = "--include", arity = "1..*", description = "Delimited/FW field indices to include (0-based).", paramLabel = "<index>")
 	private int[] includedFields;
-	@Option(names = "--ranges", arity = "1..*", description = "Fixed-width column ranges", paramLabel = "<string>")
+	@Option(names = "--ranges", arity = "1..*", description = "Fixed-width column ranges.", paramLabel = "<string>")
 	private List<String> columnRanges = new ArrayList<>();
-	@Option(names = "--quote", description = "Escape character for delimited files (default: ${DEFAULT-VALUE})", paramLabel = "<char>")
+	@Option(names = "--quote", description = "Escape character for delimited files (default: ${DEFAULT-VALUE}).", paramLabel = "<char>")
 	private Character quoteCharacter = DelimitedLineTokenizer.DEFAULT_QUOTE_CHARACTER;
-	@Option(names = "--cont", description = "Line continuation string (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
+	@Option(names = "--cont", description = "Line continuation string (default: ${DEFAULT-VALUE}).", paramLabel = "<string>")
 	private String continuationString = DEFAULT_CONTINUATION_STRING;
 
 	public FileImportOptions() {

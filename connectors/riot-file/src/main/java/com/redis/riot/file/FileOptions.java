@@ -23,9 +23,9 @@ public class FileOptions {
 
 	public static final Charset DEFAULT_ENCODING = Charset.defaultCharset();
 
-	@Option(names = "--encoding", description = "File encoding (default: ${DEFAULT-VALUE})", paramLabel = "<charset>")
+	@Option(names = "--encoding", description = "File encoding (default: ${DEFAULT-VALUE}).", paramLabel = "<charset>")
 	protected Charset encoding = DEFAULT_ENCODING;
-	@Option(names = { "-z", "--gzip" }, description = "File is gzip compressed")
+	@Option(names = { "-z", "--gzip" }, description = "File is gzip compressed.")
 	protected boolean gzip;
 	@ArgGroup(exclusive = false, heading = "Amazon Simple Storage Service options%n")
 	protected S3Options s3 = new S3Options();

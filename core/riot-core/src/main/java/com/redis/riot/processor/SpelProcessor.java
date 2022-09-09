@@ -5,65 +5,23 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemProcessor;
-import org.springframework.batch.item.ItemStream;
-import org.springframework.batch.item.ItemStreamException;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.util.Assert;
 
-import com.redis.riot.RedisOptions;
+public class SpelProcessor implements ItemProcessor<Map<String, Object>, Map<String, Object>> {
 
-import io.lettuce.core.AbstractRedisClient;
-import io.lettuce.core.api.StatefulConnection;
-import io.lettuce.core.api.StatefulRedisConnection;
-import io.lettuce.core.api.sync.BaseRedisCommands;
-import io.lettuce.core.cluster.api.StatefulRedisClusterConnection;
-
-public class SpelProcessor implements ItemProcessor<Map<String, Object>, Map<String, Object>>, ItemStream {
-
-	private final AbstractRedisClient redisClient;
 	private final EvaluationContext context;
 	private final Map<String, Expression> expressions;
-	private StatefulConnection<String, String> connection;
-	private AtomicLong index;
+	private final AtomicLong index = new AtomicLong();
 
-	public SpelProcessor(AbstractRedisClient redisClient, EvaluationContext context,
-			Map<String, Expression> expressions) {
-		Assert.notNull(redisClient, "A Redis client is required.");
+	public SpelProcessor(EvaluationContext context, Map<String, Expression> expressions) {
 		Assert.notNull(context, "A SpEL evaluation context is required.");
 		Assert.notEmpty(expressions, "At least one field is required.");
-		this.redisClient = redisClient;
 		this.context = context;
 		this.expressions = expressions;
-	}
-
-	@Override
-	public void open(ExecutionContext executionContext) throws ItemStreamException {
-		this.connection = RedisOptions.connect(redisClient);
-		this.context.setVariable("redis", sync(connection));
-		this.index = new AtomicLong();
 		this.context.setVariable("index", index);
-	}
-
-	@Override
-	public void update(ExecutionContext executionContext) throws ItemStreamException {
-		// do nothing
-	}
-
-	@Override
-	public void close() throws ItemStreamException {
-		if (connection != null) {
-			connection.close();
-		}
-	}
-
-	private static BaseRedisCommands<String, String> sync(StatefulConnection<String, String> connection) {
-		if (connection instanceof StatefulRedisClusterConnection) {
-			return ((StatefulRedisClusterConnection<String, String>) connection).sync();
-		}
-		return ((StatefulRedisConnection<String, String>) connection).sync();
 	}
 
 	@Override

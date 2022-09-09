@@ -1,16 +1,30 @@
 package com.redis.riot.gen;
 
-import static com.redis.spring.batch.reader.DataStructureGeneratorItemReader.*;
+import static com.redis.spring.batch.reader.DataStructureGeneratorItemReader.DEFAULT_HASH_FIELD_SIZE;
+import static com.redis.spring.batch.reader.DataStructureGeneratorItemReader.DEFAULT_HASH_SIZE;
+import static com.redis.spring.batch.reader.DataStructureGeneratorItemReader.DEFAULT_JSON_FIELD_COUNT;
+import static com.redis.spring.batch.reader.DataStructureGeneratorItemReader.DEFAULT_JSON_FIELD_SIZE;
+import static com.redis.spring.batch.reader.DataStructureGeneratorItemReader.DEFAULT_KEYSPACE;
+import static com.redis.spring.batch.reader.DataStructureGeneratorItemReader.DEFAULT_LIST_SIZE;
+import static com.redis.spring.batch.reader.DataStructureGeneratorItemReader.DEFAULT_SET_SIZE;
+import static com.redis.spring.batch.reader.DataStructureGeneratorItemReader.DEFAULT_STREAM_FIELD_COUNT;
+import static com.redis.spring.batch.reader.DataStructureGeneratorItemReader.DEFAULT_STREAM_FIELD_SIZE;
+import static com.redis.spring.batch.reader.DataStructureGeneratorItemReader.DEFAULT_STREAM_SIZE;
+import static com.redis.spring.batch.reader.DataStructureGeneratorItemReader.DEFAULT_STRING_SIZE;
+import static com.redis.spring.batch.reader.DataStructureGeneratorItemReader.DEFAULT_TIMESERIES_SIZE;
+import static com.redis.spring.batch.reader.DataStructureGeneratorItemReader.DEFAULT_ZSET_SCORE;
+import static com.redis.spring.batch.reader.DataStructureGeneratorItemReader.DEFAULT_ZSET_SIZE;
 
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import com.redis.spring.batch.DataStructure.Type;
+import com.redis.spring.batch.common.DataStructure.Type;
+import com.redis.spring.batch.common.DoubleRange;
+import com.redis.spring.batch.common.IntRange;
 import com.redis.spring.batch.reader.DataStructureGeneratorItemReader;
-import com.redis.spring.batch.support.DoubleRange;
-import com.redis.spring.batch.support.IntRange;
+import com.redis.spring.batch.reader.DataStructureGeneratorItemReader.Builder;
 
 import picocli.CommandLine.Option;
 
@@ -200,6 +214,12 @@ public class DataStructureGeneratorOptions extends GeneratorOptions {
 				+ streamFieldSize + ", stringSize=" + stringSize + ", timeseriesSize=" + timeseriesSize
 				+ ", timeseriesStartTime=" + timeseriesStartTime + ", zsetSize=" + zsetSize + ", zsetScore=" + zsetScore
 				+ ", start=" + start + ", count=" + count + "]";
+	}
+
+	public Builder configureReader(Builder reader) {
+		timeseriesStartTime.ifPresent(t -> reader.timeseriesStartTime(t.toEpochMilli()));
+		expiration.ifPresent(reader::expiration);
+		return reader;
 	}
 
 }

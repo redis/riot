@@ -10,14 +10,13 @@ import org.springframework.batch.core.Job;
 import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.item.ItemReader;
 
-import com.redis.lettucemod.RedisModulesUtils;
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
 import com.redis.lettucemod.api.sync.RediSearchCommands;
 import com.redis.lettucemod.search.Field;
 import com.redis.lettucemod.search.IndexInfo;
+import com.redis.lettucemod.util.RedisModulesUtils;
 import com.redis.riot.AbstractImportCommand;
 import com.redis.riot.JobCommandContext;
-import com.redis.riot.RedisOptions;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
@@ -51,8 +50,7 @@ public class FakerGeneratorCommand extends AbstractImportCommand {
 	}
 
 	private void addFieldsFromIndex(JobCommandContext context, String index, Map<String, String> fields) {
-		try (StatefulRedisModulesConnection<String, String> connection = RedisOptions
-				.connect(context.getRedisClient())) {
+		try (StatefulRedisModulesConnection<String, String> connection = context.connection()) {
 			RediSearchCommands<String, String> commands = connection.sync();
 			IndexInfo info = RedisModulesUtils.indexInfo(commands.ftInfo(index));
 			for (Field<String> field : info.getFields()) {

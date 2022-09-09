@@ -1,38 +1,15 @@
 package com.redis.riot;
 
-import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-import org.springframework.batch.item.ItemProcessor;
-import org.springframework.core.convert.converter.Converter;
-import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
-import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.util.ObjectUtils;
 
-import com.redis.lettucemod.RedisModulesUtils.GeoLocation;
-import com.redis.riot.convert.RegexNamedGroupsExtractor;
-import com.redis.riot.processor.CompositeItemStreamItemProcessor;
-import com.redis.riot.processor.FilteringProcessor;
-import com.redis.riot.processor.MapAccessor;
-import com.redis.riot.processor.MapProcessor;
-import com.redis.riot.processor.SpelProcessor;
-
-import io.lettuce.core.AbstractRedisClient;
 import picocli.CommandLine.Option;
 
 public class MapProcessorOptions {
-
-	private static final Logger log = Logger.getLogger(MapProcessorOptions.class.getName());
 
 	@Option(arity = "1..*", names = "--process", description = "SpEL expressions in the form field1=\"exp\" field2=\"exp\"...", paramLabel = "<f=exp>")
 	private Map<String, Expression> spelFields;
@@ -85,46 +62,26 @@ public class MapProcessorOptions {
 		this.regexes = regexes;
 	}
 
-	public ItemProcessor<Map<String, Object>, Map<String, Object>> processor(AbstractRedisClient redisClient) {
-		List<ItemProcessor<Map<String, Object>, Map<String, Object>>> processors = new ArrayList<>();
-		if (!ObjectUtils.isEmpty(spelFields)) {
-			StandardEvaluationContext context = new StandardEvaluationContext();
-			context.setVariable("date", dateFormat);
-			processors.add(new SpelProcessor(redisClient, context(), spelFields));
-		}
-		if (!ObjectUtils.isEmpty(regexes)) {
-			Map<String, Converter<String, Map<String, String>>> fields = new LinkedHashMap<>();
-			regexes.forEach((f, r) -> fields.put(f, RegexNamedGroupsExtractor.of(r)));
-			processors.add(new MapProcessor(fields));
-		}
-		if (!ObjectUtils.isEmpty(filters)) {
-			processors.add(new FilteringProcessor(filters));
-		}
-		return CompositeItemStreamItemProcessor.delegates(processors.toArray(ItemProcessor[]::new));
-	}
-
-	private EvaluationContext context() {
-		StandardEvaluationContext context = new StandardEvaluationContext();
-		context.setVariable("date", new SimpleDateFormat(dateFormat));
-		if (variables != null) {
-			for (Entry<String, Expression> variable : variables.entrySet()) {
-				context.setVariable(variable.getKey(), variable.getValue().getValue(context));
-			}
-		}
-		try {
-			Method geoMethod = GeoLocation.class.getDeclaredMethod("toString", String.class, String.class);
-			context.registerFunction("geo", geoMethod);
-		} catch (Exception e) {
-			log.log(Level.WARNING, "Could not register geo function", e);
-		}
-		context.setPropertyAccessors(Collections.singletonList(new MapAccessor()));
-		return context;
-	}
-
 	@Override
 	public String toString() {
 		return "MapProcessorOptions [spelFields=" + spelFields + ", variables=" + variables + ", dateFormat="
 				+ dateFormat + ", filters=" + Arrays.toString(filters) + ", regexes=" + regexes + "]";
+	}
+
+	public boolean hasRegexes() {
+		return !ObjectUtils.isEmpty(regexes);
+	}
+
+	public boolean hasFilters() {
+		return !ObjectUtils.isEmpty(filters);
+	}
+
+	public boolean hasVariables() {
+		return !ObjectUtils.isEmpty(variables);
+	}
+
+	public boolean hasSpelFields() {
+		return !ObjectUtils.isEmpty(spelFields);
 	}
 
 }

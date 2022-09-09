@@ -1,25 +1,30 @@
 package com.redis.riot;
 
+import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 
-import com.redis.spring.batch.DataStructure;
 import com.redis.spring.batch.RedisItemReader;
+import com.redis.spring.batch.common.DataStructure;
+import com.redis.spring.batch.reader.ScanSizeEstimator;
 
+import io.lettuce.core.api.StatefulConnection;
 import picocli.CommandLine.ArgGroup;
 
 public abstract class AbstractExportCommand extends AbstractTransferCommand {
 
 	@ArgGroup(exclusive = false, heading = "Reader options%n")
-	private RedisReaderOptions redisReaderOptions = new RedisReaderOptions();
+	private RedisReaderOptions readerArgs = new RedisReaderOptions();
 
 	protected RedisItemReader<String, DataStructure<String>> reader(JobCommandContext context) {
-		return redisReaderOptions.configure(RedisItemReader.dataStructure(context.getRedisClient())).build();
+		GenericObjectPool<StatefulConnection<String, String>> pool = context.pool();
+		return RedisItemReader.dataStructure(pool, context.getJobRunner()).options(readerArgs.readerOptions()).build();
 	}
 
 	protected <I, O> Job job(JobCommandContext context, String name, SimpleStepBuilder<I, O> step, String task) {
-		ProgressMonitor monitor = progressMonitor().task(task).initialMax(estimator(context).build()::execute).build();
-		return super.job(context, name, step, monitor);
+		ScanSizeEstimator estimator = ScanSizeEstimator.builder(context.pool()).options(readerArgs.estimatorOptions())
+				.build();
+		return super.job(context, name, step, progressMonitor().task(task).initialMax(estimator::execute).build());
 	}
 
 }

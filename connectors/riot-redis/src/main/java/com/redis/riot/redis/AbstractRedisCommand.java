@@ -10,9 +10,7 @@ import com.redis.lettucemod.api.StatefulRedisModulesConnection;
 import com.redis.lettucemod.api.sync.RedisModulesCommands;
 import com.redis.riot.AbstractJobCommand;
 import com.redis.riot.JobCommandContext;
-import com.redis.riot.RedisOptions;
 
-import io.lettuce.core.AbstractRedisClient;
 import picocli.CommandLine.Command;
 
 @Command
@@ -21,21 +19,21 @@ public abstract class AbstractRedisCommand extends AbstractJobCommand {
 	@Override
 	protected Job job(JobCommandContext context) throws Exception {
 		String name = name();
-		RedisCommandTasklet tasklet = new RedisCommandTasklet(context.getRedisClient());
+		RedisCommandTasklet tasklet = new RedisCommandTasklet(context);
 		return job(context, name, tasklet).build();
 	}
 
 	private class RedisCommandTasklet implements Tasklet {
 
-		private final AbstractRedisClient redisClient;
+		private final JobCommandContext context;
 
-		public RedisCommandTasklet(AbstractRedisClient redisClient) {
-			this.redisClient = redisClient;
+		public RedisCommandTasklet(JobCommandContext context) {
+			this.context = context;
 		}
 
 		@Override
 		public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
-			try (StatefulRedisModulesConnection<String, String> connection = RedisOptions.connect(redisClient)) {
+			try (StatefulRedisModulesConnection<String, String> connection = context.connection()) {
 				AbstractRedisCommand.this.execute(connection.sync());
 				return RepeatStatus.FINISHED;
 			}

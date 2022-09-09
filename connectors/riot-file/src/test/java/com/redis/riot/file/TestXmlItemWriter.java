@@ -16,8 +16,8 @@ import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.redis.riot.file.resource.XmlResourceItemWriter;
 import com.redis.riot.file.resource.XmlResourceItemWriterBuilder;
-import com.redis.spring.batch.DataStructure;
-import com.redis.spring.batch.DataStructure.Type;
+import com.redis.spring.batch.common.DataStructure;
+import com.redis.spring.batch.common.DataStructure.Type;
 
 class TestXmlItemWriter {
 

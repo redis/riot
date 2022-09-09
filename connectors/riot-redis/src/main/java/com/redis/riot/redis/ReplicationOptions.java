@@ -1,6 +1,8 @@
 package com.redis.riot.redis;
 
-import com.redis.spring.batch.reader.AbstractKeyspaceNotificationItemReader;
+import java.util.Optional;
+
+import com.redis.spring.batch.reader.QueueOptions;
 
 import picocli.CommandLine.Option;
 
@@ -10,12 +12,17 @@ public class ReplicationOptions {
 		SNAPSHOT, LIVE, LIVEONLY
 	}
 
-	@Option(names = "--mode", description = "Replication mode: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})", paramLabel = "<name>")
+	@Option(names = "--mode", description = "Replication mode: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<name>")
 	private ReplicationMode mode = ReplicationMode.SNAPSHOT;
-	@Option(names = "--event-queue", description = "Capacity of the keyspace notification event queue (default: ${DEFAULT-VALUE})", paramLabel = "<size>")
-	private int notificationQueueCapacity = AbstractKeyspaceNotificationItemReader.DEFAULT_QUEUE_CAPACITY;
-	@Option(names = "--no-verify", description = "Verify target against source dataset after replication. True by default", negatable = true)
+
+	@Option(names = "--event-queue", description = "Capacity of the keyspace notification event queue (default: ${DEFAULT-VALUE}).", paramLabel = "<size>")
+	private int notificationQueueCapacity = QueueOptions.DEFAULT_CAPACITY;
+
+	@Option(names = "--no-verify", description = "Verify target against source dataset after replication (default: true).", negatable = true)
 	private boolean verify = true;
+
+	@Option(names = "--key-process", description = "SpEL expression to transform each key.", paramLabel = "<exp>")
+	private Optional<String> keyProcessor = Optional.empty();
 
 	public ReplicationMode getMode() {
 		return mode;
@@ -39,6 +46,14 @@ public class ReplicationOptions {
 
 	public void setVerify(boolean verify) {
 		this.verify = verify;
+	}
+
+	public Optional<String> getKeyProcessor() {
+		return keyProcessor;
+	}
+
+	public void setKeyProcessor(Optional<String> keyProcessor) {
+		this.keyProcessor = keyProcessor;
 	}
 
 }

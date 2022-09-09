@@ -21,9 +21,9 @@ import com.redis.riot.JobCommandContext;
 import com.redis.riot.ProgressMonitor;
 import com.redis.riot.RedisWriterOptions;
 import com.redis.riot.file.resource.XmlItemReader;
-import com.redis.spring.batch.DataStructure;
-import com.redis.spring.batch.DataStructure.Type;
 import com.redis.spring.batch.RedisItemWriter;
+import com.redis.spring.batch.common.DataStructure;
+import com.redis.spring.batch.common.DataStructure.Type;
 
 import io.lettuce.core.ScoredValue;
 import io.lettuce.core.StreamMessage;
@@ -72,8 +72,8 @@ public class DumpFileImportCommand extends AbstractTransferCommand {
 				reader.setName(name);
 				ProgressMonitor monitor = progressMonitor().task("Importing " + expandedFile).build();
 				DataStructureProcessor processor = new DataStructureProcessor();
-				RedisItemWriter<String, String, DataStructure<String>> writer = writerOptions
-						.configure(RedisItemWriter.dataStructure(context.getRedisClient())).build();
+				RedisItemWriter<String, String, DataStructure<String>> writer = RedisItemWriter
+						.dataStructure(context.pool()).options(writerOptions.writerOptions()).build();
 				steps.add(step(step(context, name, reader, processor, writer), monitor).build());
 			}
 		}

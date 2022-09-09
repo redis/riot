@@ -6,15 +6,15 @@ import picocli.CommandLine.Option;
 
 public class SugaddOptions {
 
-	@Option(names = "--field", required = true, description = "Field containing the strings to add", paramLabel = "<field>")
+	@Option(names = "--field", required = true, description = "Field containing the strings to add.", paramLabel = "<field>")
 	private String field;
-	@Option(names = "--score", description = "Name of the field to use for scores", paramLabel = "<field>")
+	@Option(names = "--score", description = "Name of the field to use for scores.", paramLabel = "<field>")
 	private Optional<String> scoreField = Optional.empty();
-	@Option(names = "--score-default", description = "Score when field not present (default: ${DEFAULT-VALUE})", paramLabel = "<num>")
+	@Option(names = "--score-default", description = "Score when field not present (default: ${DEFAULT-VALUE}).", paramLabel = "<num>")
 	private double scoreDefault = 1;
-	@Option(names = "--payload", description = "Field containing the payload", paramLabel = "<field>")
+	@Option(names = "--payload", description = "Field containing the payload.", paramLabel = "<field>")
 	private Optional<String> payload = Optional.empty();
-	@Option(names = "--increment", description = "Increment the existing suggestion by the score instead of replacing the score")
+	@Option(names = "--increment", description = "Increment the existing suggestion by the score instead of replacing the score.")
 	private boolean increment;
 
 	public String getField() {

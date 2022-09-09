@@ -4,68 +4,95 @@ import java.io.File;
 import java.time.Duration;
 import java.util.Optional;
 
-import com.redis.lettucemod.RedisModulesClient;
-import com.redis.lettucemod.api.StatefulRedisModulesConnection;
-import com.redis.lettucemod.cluster.RedisModulesClusterClient;
+import com.redis.lettucemod.util.RedisClientOptions;
+import com.redis.lettucemod.util.RedisClientOptions.Builder;
+import com.redis.spring.batch.common.RedisConnectionPoolOptions;
 
-import io.lettuce.core.AbstractRedisClient;
-import io.lettuce.core.ClientOptions;
 import io.lettuce.core.RedisURI;
-import io.lettuce.core.SslOptions;
-import io.lettuce.core.cluster.ClusterClientOptions;
+import io.lettuce.core.SslVerifyMode;
 import io.lettuce.core.event.DefaultEventPublisherOptions;
 import io.lettuce.core.metrics.CommandLatencyCollector;
 import io.lettuce.core.metrics.DefaultCommandLatencyCollectorOptions;
-import io.lettuce.core.resource.ClientResources;
-import io.lettuce.core.resource.DefaultClientResources;
 import picocli.CommandLine.Option;
 
 public class RedisOptions {
 
-	public static final String DEFAULT_HOST = "localhost";
-	public static final int DEFAULT_PORT = 6379;
+	public enum ReadFrom {
+
+		MASTER, MASTER_PREFERRED, UPSTREAM, UPSTREAM_PREFERRED, REPLICA_PREFERRED, REPLICA, LOWEST_LATENCY, ANY,
+		ANY_REPLICA
+	}
+
+	public static final Duration DEFAULT_METRICS_STEP = Duration.ofSeconds(5);
 
 	@Option(names = { "-h",
 			"--hostname" }, description = "Server hostname (default: ${DEFAULT-VALUE}).", paramLabel = "<host>")
-	private String host = DEFAULT_HOST;
+	private String host = RedisClientOptions.DEFAULT_HOST;
+
 	@Option(names = { "-p", "--port" }, description = "Server port (default: ${DEFAULT-VALUE}).", paramLabel = "<port>")
-	private int port = DEFAULT_PORT;
+	private int port = RedisClientOptions.DEFAULT_PORT;
+
 	@Option(names = { "-s",
 			"--socket" }, description = "Server socket (overrides hostname and port).", paramLabel = "<socket>")
 	private Optional<String> socket = Optional.empty();
+
 	@Option(names = "--user", description = "Used to send ACL style 'AUTH username pass'. Needs password.", paramLabel = "<name>")
-	private Optional<String> username = Optional.empty();
+	private String username;
+
 	@Option(names = { "-a",
 			"--pass" }, arity = "0..1", interactive = true, description = "Password to use when connecting to the server.", paramLabel = "<password>")
-	private Optional<char[]> password = Optional.empty();
+	private char[] password;
+
 	@Option(names = { "-u", "--uri" }, description = "Server URI.", paramLabel = "<uri>")
 	private RedisURI uri;
+
 	@Option(names = "--timeout", description = "Redis command timeout.", paramLabel = "<sec>")
 	private Optional<Long> timeout = Optional.empty();
+
 	@Option(names = { "-n", "--db" }, description = "Database number.", paramLabel = "<db>")
-	private Optional<Integer> database = Optional.empty();
+	private int database;
+
 	@Option(names = { "-c", "--cluster" }, description = "Enable cluster mode.")
 	private boolean cluster;
+
 	@Option(names = "--tls", description = "Establish a secure TLS connection.")
-	private Optional<Boolean> tls = Optional.empty();
-	@Option(names = "--insecure", description = "Allow insecure TLS connection by skipping cert validation.")
-	private Optional<Boolean> insecure = Optional.empty();
+	private boolean tls;
+
+	@Option(names = "--tls-verify", description = "How to verify peers when using TLS: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<name>")
+	private SslVerifyMode tlsVerifyMode = RedisClientOptions.DEFAULT_SSL_VERIFY_MODE;
+
 	@Option(names = "--ks", description = "Path to keystore.", paramLabel = "<file>")
 	private Optional<File> keystore = Optional.empty();
+
 	@Option(names = "--ks-password", arity = "0..1", interactive = true, description = "Keystore password.", paramLabel = "<pwd>")
 	private Optional<String> keystorePassword = Optional.empty();
+
 	@Option(names = "--ts", description = "Path to truststore.", paramLabel = "<file>")
 	private Optional<File> truststore = Optional.empty();
+
 	@Option(names = "--ts-password", arity = "0..1", interactive = true, description = "Truststore password.", paramLabel = "<pwd>")
 	private Optional<String> truststorePassword = Optional.empty();
+
 	@Option(names = "--cert", description = "X.509 certificate collection in PEM format.", paramLabel = "<file>")
 	private Optional<File> cert = Optional.empty();
-	@Option(names = "--latency", description = "Show latency metrics.")
+
+	@Option(names = "--metrics", description = "Show latency metrics.")
 	private boolean showMetrics;
-	@Option(names = "--no-auto-reconnect", description = "Auto reconnect on connection loss. True by default.", negatable = true)
+
+	@Option(names = "--metrics-step", description = "Metrics publish interval (default: ${DEFAULT-VALUE}).", paramLabel = "<secs>", hidden = true)
+	private long metricsStep = DEFAULT_METRICS_STEP.toSeconds();
+
+	@Option(names = "--no-auto-reconnect", description = "Auto reconnect on connection loss (default: ${DEFAULT-VALUE}).", negatable = true)
 	private boolean autoReconnect = true;
+
 	@Option(names = "--client", description = "Client name used to connect to Redis.", paramLabel = "<name>")
 	private Optional<String> clientName = Optional.empty();
+
+	@Option(names = "--pool", description = "Max pool connections (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
+	private int poolMaxTotal = 8;
+
+	@Option(names = "--read-from", description = "Which nodes to read data from: ${COMPLETION-CANDIDATES}.", paramLabel = "<name>")
+	private Optional<ReadFrom> readFrom = Optional.empty();
 
 	public boolean isCluster() {
 		return cluster;
@@ -92,11 +119,11 @@ public class RedisOptions {
 	}
 
 	public void setUsername(String username) {
-		this.username = Optional.of(username);
+		this.username = username;
 	}
 
 	public void setPassword(char[] password) {
-		this.password = Optional.of(password);
+		this.password = password;
 	}
 
 	public void setUri(RedisURI uri) {
@@ -108,15 +135,15 @@ public class RedisOptions {
 	}
 
 	public void setDatabase(int database) {
-		this.database = Optional.of(database);
+		this.database = database;
 	}
 
 	public void setTls(boolean tls) {
-		this.tls = Optional.of(tls);
+		this.tls = tls;
 	}
 
-	public void setInsecure(boolean insecure) {
-		this.insecure = Optional.of(insecure);
+	public void setTlsVerifyMode(SslVerifyMode tlsVerifyMode) {
+		this.tlsVerifyMode = tlsVerifyMode;
 	}
 
 	public void setKeystore(File keystore) {
@@ -133,6 +160,118 @@ public class RedisOptions {
 
 	public void setTruststorePassword(String truststorePassword) {
 		this.truststorePassword = Optional.of(truststorePassword);
+	}
+
+	public Optional<String> getSocket() {
+		return socket;
+	}
+
+	public void setSocket(Optional<String> socket) {
+		this.socket = socket;
+	}
+
+	public Optional<Long> getTimeout() {
+		return timeout;
+	}
+
+	public void setTimeout(Optional<Long> timeout) {
+		this.timeout = timeout;
+	}
+
+	public Optional<File> getKeystore() {
+		return keystore;
+	}
+
+	public void setKeystore(Optional<File> keystore) {
+		this.keystore = keystore;
+	}
+
+	public Optional<String> getKeystorePassword() {
+		return keystorePassword;
+	}
+
+	public void setKeystorePassword(Optional<String> keystorePassword) {
+		this.keystorePassword = keystorePassword;
+	}
+
+	public Optional<File> getTruststore() {
+		return truststore;
+	}
+
+	public void setTruststore(Optional<File> truststore) {
+		this.truststore = truststore;
+	}
+
+	public Optional<String> getTruststorePassword() {
+		return truststorePassword;
+	}
+
+	public void setTruststorePassword(Optional<String> truststorePassword) {
+		this.truststorePassword = truststorePassword;
+	}
+
+	public Optional<File> getCert() {
+		return cert;
+	}
+
+	public void setCert(Optional<File> cert) {
+		this.cert = cert;
+	}
+
+	public long getMetricsStep() {
+		return metricsStep;
+	}
+
+	public void setMetricsStep(long metricsStep) {
+		this.metricsStep = metricsStep;
+	}
+
+	public Optional<String> getClientName() {
+		return clientName;
+	}
+
+	public void setClientName(Optional<String> clientName) {
+		this.clientName = clientName;
+	}
+
+	public int getPoolMaxTotal() {
+		return poolMaxTotal;
+	}
+
+	public void setPoolMaxTotal(int poolMaxTotal) {
+		this.poolMaxTotal = poolMaxTotal;
+	}
+
+	public Optional<ReadFrom> getReadFrom() {
+		return readFrom;
+	}
+
+	public void setReadFrom(Optional<ReadFrom> readFrom) {
+		this.readFrom = readFrom;
+	}
+
+	public String getUsername() {
+		return username;
+	}
+
+	public char[] getPassword() {
+		return password;
+	}
+
+	public RedisURI getUri() {
+		return uri;
+	}
+
+	public int getDatabase() {
+		return database;
+	}
+
+	public boolean isTls() {
+		return tls;
+	}
+
+	public SslVerifyMode getTlsVerifyMode() {
+		return tlsVerifyMode;
 	}
 
 	public void setCert(File cert) {
@@ -163,78 +302,38 @@ public class RedisOptions {
 		this.cluster = cluster;
 	}
 
-	@SuppressWarnings("deprecation")
-	public RedisURI uri() {
-		RedisURI redisURI = uri == null ? RedisURI.create(host, port) : uri;
-		insecure.ifPresent(b -> redisURI.setVerifyPeer(!b));
-		tls.ifPresent(redisURI::setSsl);
-		socket.ifPresent(redisURI::setSocket);
-		username.ifPresent(redisURI::setUsername);
-		password.ifPresent(redisURI::setPassword);
-		database.ifPresent(redisURI::setDatabase);
-		timeout.ifPresent(t -> redisURI.setTimeout(Duration.ofSeconds(t)));
-		clientName.ifPresent(redisURI::setClientName);
-		return redisURI;
-	}
-
-	private ClientResources clientResources() {
-		DefaultClientResources.Builder builder = DefaultClientResources.builder();
+	public RedisClientOptions redisClientOptions() {
+		Builder options = RedisClientOptions.builder();
+		options.autoReconnect(autoReconnect);
+		options.clientName(clientName);
+		options.cluster(cluster);
 		if (showMetrics) {
-			builder.commandLatencyRecorder(
+			options.commandLatencyRecorder(
 					CommandLatencyCollector.create(DefaultCommandLatencyCollectorOptions.builder().enable().build()));
-			builder.commandLatencyPublisherOptions(
-					DefaultEventPublisherOptions.builder().eventEmitInterval(Duration.ofSeconds(1)).build());
+			options.commandLatencyPublisherOptions(
+					DefaultEventPublisherOptions.builder().eventEmitInterval(Duration.ofSeconds(metricsStep)).build());
 		}
-		return builder.build();
+		options.database(database);
+		options.host(host);
+		options.password(password);
+		options.port(port);
+		options.socket(socket);
+		options.ssl(tls);
+		options.sslVerifyMode(tlsVerifyMode);
+		timeout.ifPresent(options::timeoutInSeconds);
+		options.uri(uri);
+		options.username(username);
+		options.keystore(keystore);
+		options.keystorePassword(keystorePassword);
+		options.truststore(truststore);
+		options.truststorePassword(truststorePassword);
+		options.cert(cert);
+		return options.build();
 	}
 
-	public SslOptions sslOptions() {
-		SslOptions.Builder builder = SslOptions.builder();
-		if (keystore.isPresent()) {
-			if (keystorePassword.isPresent()) {
-				builder.keystore(keystore.get(), keystorePassword.get().toCharArray());
-			} else {
-				builder.keystore(keystore.get());
-			}
-		}
-		if (truststore.isPresent()) {
-			if (truststorePassword.isPresent()) {
-				builder.truststore(truststore.get(), truststorePassword.get());
-			} else {
-				builder.truststore(truststore.get());
-			}
-		}
-		cert.ifPresent(builder::trustManager);
-		return builder.build();
-	}
-
-	public AbstractRedisClient client() {
-		if (cluster) {
-			RedisModulesClusterClient client = RedisModulesClusterClient.create(clientResources(), uri());
-			client.setOptions(
-					ClusterClientOptions.builder().autoReconnect(autoReconnect).sslOptions(sslOptions()).build());
-			return client;
-		}
-		RedisModulesClient client = RedisModulesClient.create(clientResources(), uri());
-		client.setOptions(ClientOptions.builder().autoReconnect(autoReconnect).sslOptions(sslOptions()).build());
-		return client;
-	}
-
-	@Override
-	public String toString() {
-		return "RedisOptions [host=" + host + ", port=" + port + ", socket=" + socket + ", username=" + username
-				+ ", password=" + password + ", uri=" + uri + ", timeout=" + timeout + ", database=" + database
-				+ ", cluster=" + cluster + ", tls=" + tls + ", insecure=" + insecure + ", keystore=" + keystore
-				+ ", keystorePassword=" + keystorePassword + ", truststore=" + truststore + ", truststorePassword="
-				+ truststorePassword + ", cert=" + cert + ", showMetrics=" + showMetrics + ", autoReconnect="
-				+ autoReconnect + ", clientName=" + clientName + "]";
-	}
-
-	public static StatefulRedisModulesConnection<String, String> connect(AbstractRedisClient client) {
-		if (client instanceof RedisModulesClusterClient) {
-			return ((RedisModulesClusterClient) client).connect();
-		}
-		return ((RedisModulesClient) client).connect();
+	public RedisConnectionPoolOptions poolOptions() {
+		return RedisConnectionPoolOptions.builder().maxTotal(poolMaxTotal)
+				.readFrom(readFrom.map(ReadFrom::name).map(io.lettuce.core.ReadFrom::valueOf)).build();
 	}
 
 }

@@ -28,7 +28,7 @@ import org.testcontainers.utility.DockerImageName;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.redis.lettucemod.api.sync.RedisModulesCommands;
-import com.redis.spring.batch.DataStructure.Type;
+import com.redis.spring.batch.common.DataStructure.Type;
 import com.redis.spring.batch.reader.DataStructureGeneratorItemReader;
 import com.redis.testcontainers.junit.RedisTestContext;
 import com.redis.testcontainers.junit.RedisTestContextsSource;

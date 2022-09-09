@@ -9,13 +9,13 @@ public class FileExportOptions extends DumpFileOptions {
 	public static final String DEFAULT_ELEMENT_NAME = "record";
 	public static final String DEFAULT_ROOT_NAME = "root";
 
-	@Option(names = "--append", description = "Append to file if it exists")
+	@Option(names = "--append", description = "Append to file if it exists.")
 	private boolean append;
-	@Option(names = "--root", description = "XML root element tag name (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
+	@Option(names = "--root", description = "XML root element tag name (default: ${DEFAULT-VALUE}).", paramLabel = "<string>")
 	private String rootName = DEFAULT_ROOT_NAME;
-	@Option(names = "--element", description = "XML element tag name (default: ${DEFAULT-VALUE})", paramLabel = "<string>")
+	@Option(names = "--element", description = "XML element tag name (default: ${DEFAULT-VALUE}).", paramLabel = "<string>")
 	private String elementName = DEFAULT_ELEMENT_NAME;
-	@Option(names = "--line-sep", description = "String to separate lines (default: system default)", paramLabel = "<string>")
+	@Option(names = "--line-sep", description = "String to separate lines (default: system default).", paramLabel = "<string>")
 	private String lineSeparator = AbstractFileItemWriter.DEFAULT_LINE_SEPARATOR;
 
 	public boolean isAppend() {

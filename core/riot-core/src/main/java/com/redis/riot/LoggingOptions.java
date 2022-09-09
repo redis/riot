@@ -37,7 +37,7 @@ public class LoggingOptions {
 	@Option(names = "--stacktrace", description = "Print out the stacktrace for all exceptions.")
 	private boolean stacktrace;
 
-	public Level getLogLevel() {
+	public Level logLevel() {
 		if (debug) {
 			return Level.FINE;
 		}
@@ -61,7 +61,27 @@ public class LoggingOptions {
 		handler.setLevel(Level.ALL);
 		handler.setFormatter(stacktrace || debug ? new StackTraceOneLineLogFormat() : new OneLineLogFormat());
 		activeLogger.addHandler(handler);
-		Logger.getLogger(ROOT_LOGGER).setLevel(getLogLevel());
+		Logger.getLogger(ROOT_LOGGER).setLevel(logLevel());
+	}
+
+	public void setDebug(boolean debug) {
+		this.debug = debug;
+	}
+
+	public void setInfo(boolean info) {
+		this.info = info;
+	}
+
+	public void setQuiet(boolean quiet) {
+		this.quiet = quiet;
+	}
+
+	public void setWarning(boolean warning) {
+		this.warning = warning;
+	}
+
+	public void setStacktrace(boolean stacktrace) {
+		this.stacktrace = stacktrace;
 	}
 
 	static class OneLineLogFormat extends Formatter {
@@ -107,26 +127,6 @@ public class LoggingOptions {
 			logRecord.getThrown().printStackTrace(pw);
 			return sw.toString();
 		}
-	}
-
-	public void setDebug(boolean debug) {
-		this.debug = debug;
-	}
-
-	public void setInfo(boolean info) {
-		this.info = info;
-	}
-
-	public void setQuiet(boolean quiet) {
-		this.quiet = quiet;
-	}
-
-	public void setWarning(boolean warning) {
-		this.warning = warning;
-	}
-
-	public void setStacktrace(boolean stacktrace) {
-		this.stacktrace = stacktrace;
 	}
 
 }

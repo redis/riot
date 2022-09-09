@@ -8,7 +8,7 @@ import picocli.CommandLine.Option;
 
 public class DumpFileOptions extends FileOptions {
 
-	@Option(names = { "-t", "--filetype" }, description = "File type: ${COMPLETION-CANDIDATES}", paramLabel = "<type>")
+	@Option(names = { "-t", "--filetype" }, description = "File type: ${COMPLETION-CANDIDATES}.", paramLabel = "<type>")
 	protected Optional<DumpFileType> type = Optional.empty();
 
 	public Optional<DumpFileType> getType() {
@@ -30,18 +30,18 @@ public class DumpFileOptions extends FileOptions {
 			return type.get();
 		}
 		Optional<FileExtension> extension = FileUtils.extension(resource);
-		if (extension.isEmpty()) {
-			throw new UnknownFileTypeException("Unknown file extension");
-		}
-		switch (extension.get()) {
+		return type(extension.orElseThrow(() -> new UnknownFileTypeException("Unknown file extension")));
+	}
+
+	private DumpFileType type(FileExtension extension) {
+		switch (extension) {
 		case XML:
 			return DumpFileType.XML;
 		case JSON:
 			return DumpFileType.JSON;
 		default:
-			throw new UnsupportedOperationException("Unsupported file extension: " + extension.get());
+			throw new UnsupportedOperationException("Unsupported file extension: " + extension);
 		}
-
 	}
 
 }
