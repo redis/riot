@@ -13,7 +13,7 @@ import com.redis.spring.batch.writer.operation.Xadd;
 import io.lettuce.core.codec.ByteArrayCodec;
 import picocli.CommandLine.Command;
 
-@Command(name = "replicate-ds", description = "Replicate a source Redis DB to a target Redis DB using DUMP+RESTORE")
+@Command(name = "replicate-ds", description = "Replicate a source Redis DB to a target Redis DB using type-specific commands")
 public class ReplicateDSCommand extends AbstractReplicateCommand<DataStructure<byte[]>> {
 
 	@Override

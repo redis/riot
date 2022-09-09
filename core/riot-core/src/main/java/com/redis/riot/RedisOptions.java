@@ -321,7 +321,9 @@ public class RedisOptions {
 		options.ssl(tls);
 		options.sslVerifyMode(tlsVerifyMode);
 		timeout.ifPresent(options::timeoutInSeconds);
-		options.uri(uri);
+		if (uri != null) {
+			options.uri(uri);
+		}
 		options.username(username);
 		options.keystore(keystore);
 		options.keystorePassword(keystorePassword);
