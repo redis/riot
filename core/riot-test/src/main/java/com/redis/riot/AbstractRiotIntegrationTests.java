@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.UUID;
 
-import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.junit.jupiter.api.BeforeAll;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
@@ -17,16 +16,14 @@ import org.springframework.util.unit.DataSize;
 
 import com.redis.enterprise.Database;
 import com.redis.spring.batch.RedisItemWriter;
+import com.redis.spring.batch.common.ConnectionPoolBuilder;
 import com.redis.spring.batch.common.DataStructure;
 import com.redis.spring.batch.common.JobRunner;
-import com.redis.spring.batch.common.RedisConnectionPoolBuilder;
 import com.redis.spring.batch.reader.DataStructureGeneratorItemReader;
 import com.redis.testcontainers.RedisContainer;
 import com.redis.testcontainers.RedisEnterpriseContainer;
 import com.redis.testcontainers.RedisServer;
 import com.redis.testcontainers.junit.RedisTestContext;
-
-import io.lettuce.core.api.StatefulConnection;
 
 public abstract class AbstractRiotIntegrationTests extends AbstractRiotTests {
 
@@ -68,7 +65,8 @@ public abstract class AbstractRiotIntegrationTests extends AbstractRiotTests {
 
 	protected void generate(int chunkSize, ItemReader<DataStructure<String>> reader, RedisTestContext redis)
 			throws JobExecutionException {
-		run(UUID.randomUUID().toString(), chunkSize, reader, RedisItemWriter.dataStructure(pool(redis)).build());
+		run(UUID.randomUUID().toString(), chunkSize, reader,
+				RedisItemWriter.dataStructure(ConnectionPoolBuilder.create(redis.getClient()).build()).build());
 	}
 
 	protected <T> SimpleStepBuilder<T, T> step(String name, int chunkSize, ItemReader<T> reader, ItemWriter<T> writer) {
@@ -76,10 +74,6 @@ public abstract class AbstractRiotIntegrationTests extends AbstractRiotTests {
 			((ItemStreamSupport) reader).setName(name + "-reader");
 		}
 		return jobRunner.step(name).<T, T>chunk(chunkSize).reader(reader).writer(writer);
-	}
-
-	protected GenericObjectPool<StatefulConnection<String, String>> pool(RedisTestContext redis) {
-		return RedisConnectionPoolBuilder.create().pool(redis.getClient());
 	}
 
 }

@@ -26,6 +26,7 @@ import com.redis.spring.batch.writer.KeyComparisonCountItemWriter;
 import com.redis.spring.batch.writer.KeyComparisonCountItemWriter.Results;
 import com.redis.spring.batch.writer.KeyComparisonLogger;
 
+import io.lettuce.core.codec.StringCodec;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Mixin;
 
@@ -128,7 +129,7 @@ public abstract class AbstractTargetCommand extends AbstractTransferCommand {
 		log.log(Level.FINE, "Creating key comparator with TTL tolerance of {0} seconds",
 				compareOptions.getTtlTolerance());
 		RedisItemReader<String, KeyComparison<String>> reader = RedisItemReader.comparator(context.getJobRunner(),
-				context.pool(), context.targetPool(), compareOptions.getTtlToleranceDuration()).build();
+				context.pool(), context.targetPool(StringCodec.UTF8), compareOptions.getTtlToleranceDuration()).build();
 		KeyComparisonCountItemWriter<String> writer = new KeyComparisonCountItemWriter<>();
 		SimpleStepBuilder<KeyComparison<String>, KeyComparison<String>> step = step(context, VERIFICATION_NAME, reader,
 				null, writer);
