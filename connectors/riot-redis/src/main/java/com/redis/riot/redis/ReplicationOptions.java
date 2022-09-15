@@ -2,6 +2,7 @@ package com.redis.riot.redis;
 
 import java.util.Optional;
 
+import com.redis.spring.batch.common.IntRange;
 import com.redis.spring.batch.reader.QueueOptions;
 
 import picocli.CommandLine.Option;
@@ -24,12 +25,23 @@ public class ReplicationOptions {
 	@Option(names = "--key-process", description = "SpEL expression to transform each key.", paramLabel = "<exp>")
 	private Optional<String> keyProcessor = Optional.empty();
 
+	@Option(names = "--key-slot", description = "Key slot range filter for keyspace notifications.", paramLabel = "<range>")
+	private Optional<IntRange> keySlot = Optional.empty();
+
 	public ReplicationMode getMode() {
 		return mode;
 	}
 
 	public void setMode(ReplicationMode mode) {
 		this.mode = mode;
+	}
+
+	public Optional<IntRange> getKeySlot() {
+		return keySlot;
+	}
+
+	public void setKeySlot(Optional<IntRange> keySlot) {
+		this.keySlot = keySlot;
 	}
 
 	public int getNotificationQueueCapacity() {
@@ -54,6 +66,10 @@ public class ReplicationOptions {
 
 	public void setKeyProcessor(Optional<String> keyProcessor) {
 		this.keyProcessor = keyProcessor;
+	}
+
+	public QueueOptions notificationQueueOptions() {
+		return QueueOptions.builder().capacity(notificationQueueCapacity).build();
 	}
 
 }

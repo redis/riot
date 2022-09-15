@@ -29,20 +29,25 @@ import com.redis.riot.processor.KeyValueProcessor;
 import com.redis.spring.batch.RedisItemReader;
 import com.redis.spring.batch.RedisItemWriter;
 import com.redis.spring.batch.common.KeyValue;
+import com.redis.spring.batch.reader.KeySlotPredicate;
+import com.redis.spring.batch.reader.LiveReaderBuilder;
 import com.redis.spring.batch.reader.LiveReaderOptions;
+import com.redis.spring.batch.reader.LiveReaderOptions.Builder;
 import com.redis.spring.batch.reader.LiveRedisItemReader;
-import com.redis.spring.batch.reader.QueueOptions;
-import com.redis.spring.batch.reader.ScanReaderOptions;
+import com.redis.spring.batch.reader.ScanReaderBuilder;
 import com.redis.spring.batch.reader.ScanSizeEstimator;
 import com.redis.spring.batch.step.FlushingSimpleStepBuilder;
-import com.redis.spring.batch.writer.WriterOptions;
+import com.redis.spring.batch.writer.WriterBuilder;
 import com.redis.spring.batch.writer.operation.Noop;
 
 import io.lettuce.core.codec.ByteArrayCodec;
+import io.lettuce.core.codec.RedisCodec;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Mixin;
 
 public abstract class AbstractReplicateCommand<T extends KeyValue<byte[]>> extends AbstractTargetCommand {
+
+	protected static final RedisCodec<byte[], byte[]> CODEC = ByteArrayCodec.INSTANCE;
 
 	private static final Logger log = Logger.getLogger(AbstractReplicateCommand.class.getName());
 
@@ -110,18 +115,22 @@ public abstract class AbstractReplicateCommand<T extends KeyValue<byte[]>> exten
 	}
 
 	private TaskletStep scanStep(TargetCommandContext context) {
-		RedisItemReader<byte[], T> reader = scanReader(context, readerOptions.readerOptions());
+		RedisItemReader<byte[], T> reader = scanReader(context).options(readerOptions.readerOptions()).build();
 		reader.setName("scan-reader");
-		RedisItemWriter<byte[], byte[], T> writer = checkWriter(context, writerOptions.writerOptions());
+		RedisItemWriter<byte[], byte[], T> writer = checkWriter(context).options(writerOptions.writerOptions()).build();
 		ScanSizeEstimator estimator = estimator(context);
 		ProgressMonitor monitor = progressMonitor().task("Scanning").initialMax(estimator::execute).build();
 		return step(step(context, "snapshot-replication", reader, processor(context), writer), monitor).build();
 	}
 
 	private TaskletStep liveStep(TargetCommandContext context) {
-		LiveRedisItemReader<byte[], T> reader = liveReader(context, readerOptions.getMatch(), liveReaderOptions());
+		LiveReaderBuilder<byte[], byte[], T> readerBuilder = liveReader(context, readerOptions.getMatch());
+		readerBuilder.options(liveReaderOptions());
+		replicationOptions.getKeySlot()
+				.ifPresent(s -> readerBuilder.keyFilter(KeySlotPredicate.of(CODEC, s.getMin(), s.getMax())));
+		LiveRedisItemReader<byte[], T> reader = readerBuilder.build();
 		reader.setName("live-reader");
-		RedisItemWriter<byte[], byte[], T> writer = checkWriter(context, writerOptions.writerOptions());
+		RedisItemWriter<byte[], byte[], T> writer = checkWriter(context).options(writerOptions.writerOptions()).build();
 		FlushingSimpleStepBuilder<T, T> step = new FlushingSimpleStepBuilder<>(
 				step(context, "live-replication", reader, processor(context), writer))
 				.options(flushingTransferOptions.flushingOptions());
@@ -130,27 +139,24 @@ public abstract class AbstractReplicateCommand<T extends KeyValue<byte[]>> exten
 	}
 
 	private LiveReaderOptions liveReaderOptions() {
-		return LiveReaderOptions.builder(readerOptions.readerOptions())
-				.flushingOptions(flushingTransferOptions.flushingOptions())
-				.notificationQueueOptions(
-						QueueOptions.builder().capacity(replicationOptions.getNotificationQueueCapacity()).build())
-				.build();
+		Builder builder = LiveReaderOptions.builder(readerOptions.readerOptions());
+		builder.flushingOptions(flushingTransferOptions.flushingOptions());
+		builder.notificationQueueOptions(replicationOptions.notificationQueueOptions());
+		return builder.build();
 	}
 
-	private RedisItemWriter<byte[], byte[], T> checkWriter(TargetCommandContext context, WriterOptions options) {
+	private WriterBuilder<byte[], byte[], T> checkWriter(TargetCommandContext context) {
 		if (writerOptions.isDryRun()) {
-			return RedisItemWriter.operation(context.targetPool(ByteArrayCodec.INSTANCE), new Noop<byte[], byte[], T>())
-					.options(options).build();
+			return RedisItemWriter.operation(context.targetPool(CODEC), new Noop<byte[], byte[], T>());
 		}
-		return writer(context, options);
+		return writer(context);
 	}
 
-	protected abstract RedisItemReader<byte[], T> scanReader(JobCommandContext context, ScanReaderOptions options);
+	protected abstract ScanReaderBuilder<byte[], byte[], T> scanReader(JobCommandContext context);
 
-	protected abstract LiveRedisItemReader<byte[], T> liveReader(JobCommandContext context, String keyPattern,
-			LiveReaderOptions options);
+	protected abstract LiveReaderBuilder<byte[], byte[], T> liveReader(JobCommandContext context, String keyPattern);
 
-	protected abstract RedisItemWriter<byte[], byte[], T> writer(TargetCommandContext context, WriterOptions options);
+	protected abstract WriterBuilder<byte[], byte[], T> writer(TargetCommandContext context);
 
 	private ItemProcessor<T, T> processor(TargetCommandContext context) {
 		SpelExpressionParser parser = new SpelExpressionParser();

@@ -3,6 +3,7 @@ package com.redis.riot.redis;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -22,6 +23,7 @@ import com.redis.testcontainers.junit.RedisTestContext;
 import com.redis.testcontainers.junit.RedisTestContextsSource;
 
 import io.lettuce.core.RedisURI;
+import io.lettuce.core.cluster.SlotHash;
 import picocli.CommandLine;
 
 @Testcontainers
@@ -55,7 +57,8 @@ class RedisIntegrationTests extends AbstractRiotIntegrationTests {
 	private void configureReplicateCommand(CommandLine.ParseResult parseResult) {
 		AbstractReplicateCommand<?> command = parseResult.subcommand().commandSpec().commandLine().getCommand();
 		command.getTargetRedisOptions().setUri(RedisURI.create(targetRedis.getRedisURI()));
-		if (command.getReplicationOptions().getMode() == ReplicationMode.LIVE) {
+		ReplicationMode mode = command.getReplicationOptions().getMode();
+		if (mode == ReplicationMode.LIVE || mode == ReplicationMode.LIVEONLY) {
 			command.getFlushingTransferOptions().setIdleTimeout(IDLE_TIMEOUT);
 			command.getReplicationOptions().setNotificationQueueCapacity(100000);
 		}
@@ -104,6 +107,26 @@ class RedisIntegrationTests extends AbstractRiotIntegrationTests {
 	@RedisTestContextsSource
 	void replicateLive(RedisTestContext container) throws Exception {
 		runLiveReplication("replicate-live", container);
+	}
+
+	@ParameterizedTest
+	@RedisTestContextsSource
+	void replicateLiveKeySlot(RedisTestContext source) throws Exception {
+		source.sync().configSet("notify-keyspace-events", "AK");
+		ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+		executor.schedule(() -> {
+			try {
+				generate(1, DataStructureGeneratorItemReader.builder().maxItemCount(300).build(), source);
+			} catch (Exception e) {
+				log.error("Could not generate data", e);
+			}
+		}, 500, TimeUnit.MILLISECONDS);
+		execute("replicate-live-keyslot", source, this::configureReplicateCommand);
+		List<String> keys = getContext(targetRedis).sync().keys("*");
+		for (String key : keys) {
+			int slot = SlotHash.getSlot(key);
+			Assertions.assertTrue(slot >= 0 && slot <= 8000);
+		}
 	}
 
 	@ParameterizedTest
