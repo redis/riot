@@ -66,20 +66,29 @@ public class RedisOptions {
 	@Option(names = "--tls-verify", description = "How to verify peers when using TLS: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<name>")
 	private SslVerifyMode tlsVerifyMode = RedisURIBuilder.DEFAULT_SSL_VERIFY_MODE;
 
-	@Option(names = "--ks", description = "Path to keystore.", paramLabel = "<file>")
+	@Option(names = "--ks", description = "Path to keystore.", paramLabel = "<file>", hidden = true)
 	private Optional<File> keystore = Optional.empty();
 
-	@Option(names = "--ks-password", arity = "0..1", interactive = true, description = "Keystore password.", paramLabel = "<pwd>")
+	@Option(names = "--ks-password", arity = "0..1", interactive = true, description = "Keystore password.", paramLabel = "<pwd>", hidden = true)
 	private char[] keystorePassword;
 
-	@Option(names = "--ts", description = "Path to truststore.", paramLabel = "<file>")
+	@Option(names = "--ts", description = "Path to truststore.", paramLabel = "<file>", hidden = true)
 	private Optional<File> truststore = Optional.empty();
 
-	@Option(names = "--ts-password", arity = "0..1", interactive = true, description = "Truststore password.", paramLabel = "<pwd>")
+	@Option(names = "--ts-password", arity = "0..1", interactive = true, description = "Truststore password.", paramLabel = "<pwd>", hidden = true)
 	private char[] truststorePassword;
 
-	@Option(names = "--cert", description = "X.509 certificate collection in PEM format.", paramLabel = "<file>")
-	private Optional<File> cert = Optional.empty();
+	@Option(names = "--cert", description = "X.509 certificate chain file to authenticate with (PEM format).", paramLabel = "<file>")
+	private File keyCert;
+
+	@Option(names = "--key", description = "PKCS#8 private key file to authenticate with (PEM format).", paramLabel = "<file>")
+	private Optional<File> key = Optional.empty();
+
+	@Option(names = "--key-password", arity = "0..1", interactive = true, description = "Password of the private key file, or null if it's not password-protected.", paramLabel = "<pwd>")
+	private char[] keyPassword;
+
+	@Option(names = "--cacert", description = "X.509 CA certificate file to verify with.", paramLabel = "<file>")
+	private Optional<File> trustedCerts = Optional.empty();
 
 	@Option(names = "--metrics", description = "Show latency metrics.")
 	private boolean showMetrics;
@@ -207,12 +216,16 @@ public class RedisOptions {
 		return truststorePassword;
 	}
 
-	public Optional<File> getCert() {
-		return cert;
+	public Optional<File> getTrustedCerts() {
+		return trustedCerts;
 	}
 
-	public void setCert(Optional<File> cert) {
-		this.cert = cert;
+	public void setTrustedCerts(Optional<File> trustedCerts) {
+		this.trustedCerts = trustedCerts;
+	}
+
+	public void setTrustedCerts(File certs) {
+		this.trustedCerts = Optional.of(certs);
 	}
 
 	public long getMetricsStep() {
@@ -271,10 +284,6 @@ public class RedisOptions {
 		return tlsVerifyMode;
 	}
 
-	public void setCert(File cert) {
-		this.cert = Optional.of(cert);
-	}
-
 	public boolean isShowMetrics() {
 		return showMetrics;
 	}
@@ -318,22 +327,25 @@ public class RedisOptions {
 	}
 
 	public AbstractRedisClient client() {
-		ClientBuilder options = ClientBuilder.create(uri());
-		options.autoReconnect(autoReconnect);
-		options.cluster(cluster);
+		ClientBuilder builder = ClientBuilder.create(uri());
+		builder.autoReconnect(autoReconnect);
+		builder.cluster(cluster);
 		if (showMetrics) {
-			options.commandLatencyRecorder(
+			builder.commandLatencyRecorder(
 					CommandLatencyCollector.create(DefaultCommandLatencyCollectorOptions.builder().enable().build()));
-			options.commandLatencyPublisherOptions(
+			builder.commandLatencyPublisherOptions(
 					DefaultEventPublisherOptions.builder().eventEmitInterval(Duration.ofSeconds(metricsStep)).build());
 		}
 
-		options.keystore(keystore);
-		options.keystorePassword(keystorePassword);
-		options.truststore(truststore);
-		options.truststorePassword(truststorePassword);
-		options.cert(cert);
-		return options.build();
+		builder.keystore(keystore);
+		builder.keystorePassword(keystorePassword);
+		builder.truststore(truststore);
+		builder.truststorePassword(truststorePassword);
+		builder.trustManager(trustedCerts);
+		builder.key(key);
+		builder.keyCert(keyCert);
+		builder.keyPassword(keyPassword);
+		return builder.build();
 	}
 
 	public GenericObjectPool<StatefulConnection<String, String>> pool(AbstractRedisClient client) {
