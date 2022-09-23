@@ -73,6 +73,10 @@ public class FileImportCommand extends AbstractImportCommand {
 		return options;
 	}
 
+	public void setOptions(FileImportOptions options) {
+		this.options = options;
+	}
+
 	@Override
 	protected Job job(JobCommandContext context) throws Exception {
 		Assert.isTrue(!ObjectUtils.isEmpty(files), "No file specified");

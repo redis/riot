@@ -33,6 +33,14 @@ public abstract class AbstractTransferCommand extends AbstractJobCommand {
 	@Mixin
 	protected ProgressMonitorOptions progressOptions = new ProgressMonitorOptions();
 
+	public void setTransferOptions(TransferOptions transferOptions) {
+		this.transferOptions = transferOptions;
+	}
+
+	public void setProgressOptions(ProgressMonitorOptions progressOptions) {
+		this.progressOptions = progressOptions;
+	}
+
 	protected <I, O> SimpleStepBuilder<I, O> step(JobCommandContext context, String name, ItemReader<I> reader,
 			ItemProcessor<I, O> processor, ItemWriter<O> writer) {
 		return context.step(name).<I, O>chunk(transferOptions.getChunkSize()).reader(synchronize(reader))

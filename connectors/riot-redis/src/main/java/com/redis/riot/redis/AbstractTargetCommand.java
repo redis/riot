@@ -51,8 +51,16 @@ public abstract class AbstractTargetCommand extends AbstractTransferCommand {
 		return targetRedisOptions;
 	}
 
+	public void setTargetRedisOptions(RedisOptions targetRedisOptions) {
+		this.targetRedisOptions = targetRedisOptions;
+	}
+
 	public RedisReaderOptions getReaderOptions() {
 		return readerOptions;
+	}
+
+	public void setReaderOptions(RedisReaderOptions readerOptions) {
+		this.readerOptions = readerOptions;
 	}
 
 	public CompareOptions getCompareOptions() {

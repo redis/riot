@@ -33,6 +33,22 @@ public class DataStructureGeneratorCommand extends AbstractTransferCommand {
 	@ArgGroup(exclusive = false, heading = "Writer options%n")
 	private RedisWriterOptions writerOptions = new RedisWriterOptions();
 
+	public DataStructureGeneratorOptions getOptions() {
+		return options;
+	}
+
+	public void setOptions(DataStructureGeneratorOptions options) {
+		this.options = options;
+	}
+
+	public RedisWriterOptions getWriterOptions() {
+		return writerOptions;
+	}
+
+	public void setWriterOptions(RedisWriterOptions writerOptions) {
+		this.writerOptions = writerOptions;
+	}
+
 	@Override
 	protected Job job(JobCommandContext context) throws Exception {
 		RedisItemWriter<String, String, DataStructure<String>> writer = RedisItemWriter.dataStructure(context.pool())

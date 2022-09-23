@@ -64,12 +64,24 @@ public abstract class AbstractReplicateCommand<T extends KeyValue<byte[]>> exten
 		return flushingTransferOptions;
 	}
 
+	public void setFlushingTransferOptions(FlushingTransferOptions flushingTransferOptions) {
+		this.flushingTransferOptions = flushingTransferOptions;
+	}
+
 	public ReplicationOptions getReplicationOptions() {
 		return replicationOptions;
 	}
 
+	public void setReplicationOptions(ReplicationOptions replicationOptions) {
+		this.replicationOptions = replicationOptions;
+	}
+
 	public RedisWriterOptions getWriterOptions() {
 		return writerOptions;
+	}
+
+	public void setWriterOptions(RedisWriterOptions writerOptions) {
+		this.writerOptions = writerOptions;
 	}
 
 	@Override

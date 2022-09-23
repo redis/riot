@@ -34,14 +34,30 @@ public class DatabaseExportCommand extends AbstractExportCommand {
 	@Mixin
 	private DataSourceOptions dataSourceOptions = new DataSourceOptions();
 	@Mixin
-	private DatabaseExportOptions exportOptions = new DatabaseExportOptions();
+	private DatabaseExportOptions options = new DatabaseExportOptions();
 
-	public DatabaseExportOptions getExportOptions() {
-		return exportOptions;
+	public DatabaseExportOptions getOptions() {
+		return options;
+	}
+
+	public void setOptions(DatabaseExportOptions exportOptions) {
+		this.options = exportOptions;
 	}
 
 	public DataSourceOptions getDataSourceOptions() {
 		return dataSourceOptions;
+	}
+
+	public void setDataSourceOptions(DataSourceOptions dataSourceOptions) {
+		this.dataSourceOptions = dataSourceOptions;
+	}
+
+	public String getSql() {
+		return sql;
+	}
+
+	public void setSql(String sql) {
+		this.sql = sql;
 	}
 
 	@Override
@@ -50,16 +66,16 @@ public class DatabaseExportCommand extends AbstractExportCommand {
 		DataSource dataSource = dataSourceOptions.dataSource();
 		try (Connection connection = dataSource.getConnection()) {
 			String dbName = connection.getMetaData().getDatabaseProductName();
-			log.log(Level.FINE, "Creating writer for database {0} with {1}", new Object[] { dbName, exportOptions });
+			log.log(Level.FINE, "Creating writer for database {0} with {1}", new Object[] { dbName, options });
 			JdbcBatchItemWriterBuilder<Map<String, Object>> builder = new JdbcBatchItemWriterBuilder<>();
 			builder.itemSqlParameterSourceProvider(NullableMapSqlParameterSource::new);
 			builder.dataSource(dataSource);
 			builder.sql(sql);
-			builder.assertUpdates(exportOptions.isAssertUpdates());
+			builder.assertUpdates(options.isAssertUpdates());
 			JdbcBatchItemWriter<Map<String, Object>> writer = builder.build();
 			writer.afterPropertiesSet();
 			ItemProcessor<DataStructure<String>, Map<String, Object>> processor = DataStructureToMapProcessor
-					.of(exportOptions.getKeyRegex());
+					.of(options.getKeyRegex());
 			String task = String.format("Exporting to %s", dbName);
 			return job(context, NAME, step(context, NAME, reader(context), processor, writer), task);
 		}

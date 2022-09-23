@@ -38,6 +38,18 @@ public class DatabaseImportCommand extends AbstractImportCommand {
 		return dataSourceOptions;
 	}
 
+	public void setDataSourceOptions(DataSourceOptions dataSourceOptions) {
+		this.dataSourceOptions = dataSourceOptions;
+	}
+
+	public DatabaseImportOptions getImportOptions() {
+		return importOptions;
+	}
+
+	public void setImportOptions(DatabaseImportOptions importOptions) {
+		this.importOptions = importOptions;
+	}
+
 	@Override
 	protected Job job(JobCommandContext context) throws Exception {
 		log.log(Level.FINE, "Creating data source: {0}", dataSourceOptions);

@@ -56,7 +56,7 @@ public abstract class AbstractImportCommand extends AbstractTransferCommand {
 	private MapProcessorOptions processorOptions = new MapProcessorOptions();
 
 	@ArgGroup(exclusive = false, heading = "Writer options%n")
-	private RedisWriterOptions writerArgs = new RedisWriterOptions();
+	private RedisWriterOptions writerOptions = new RedisWriterOptions();
 
 	/**
 	 * Initialized manually during command parsing
@@ -65,6 +65,22 @@ public abstract class AbstractImportCommand extends AbstractTransferCommand {
 
 	public List<OperationCommand<Map<String, Object>>> getRedisCommands() {
 		return redisCommands;
+	}
+
+	public MapProcessorOptions getProcessorOptions() {
+		return processorOptions;
+	}
+
+	public void setProcessorOptions(MapProcessorOptions processorOptions) {
+		this.processorOptions = processorOptions;
+	}
+
+	public RedisWriterOptions getWriterOptions() {
+		return writerOptions;
+	}
+
+	public void setWriterOptions(RedisWriterOptions writerOptions) {
+		this.writerOptions = writerOptions;
 	}
 
 	public void setRedisCommands(List<OperationCommand<Map<String, Object>>> redisCommands) {
@@ -117,7 +133,7 @@ public abstract class AbstractImportCommand extends AbstractTransferCommand {
 
 	private ItemWriter<Map<String, Object>> writer(JobCommandContext context,
 			Operation<String, String, Map<String, Object>> operation) {
-		return RedisItemWriter.operation(context.pool(), operation).options(writerArgs.writerOptions()).build();
+		return RedisItemWriter.operation(context.pool(), operation).options(writerOptions.writerOptions()).build();
 	}
 
 	protected Job job(JobCommandContext context, String name, ItemReader<Map<String, Object>> reader,

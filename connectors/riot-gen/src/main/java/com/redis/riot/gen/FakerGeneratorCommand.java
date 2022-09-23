@@ -31,6 +31,14 @@ public class FakerGeneratorCommand extends AbstractImportCommand {
 	@Mixin
 	private FakerGeneratorOptions options = new FakerGeneratorOptions();
 
+	public FakerGeneratorOptions getOptions() {
+		return options;
+	}
+
+	public void setOptions(FakerGeneratorOptions options) {
+		this.options = options;
+	}
+
 	@Override
 	protected Job job(JobCommandContext context) throws Exception {
 		SimpleStepBuilder<Map<String, Object>, Map<String, Object>> step = step(context, NAME, reader(context));

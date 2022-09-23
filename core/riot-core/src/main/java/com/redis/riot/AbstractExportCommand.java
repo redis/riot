@@ -12,16 +12,20 @@ import picocli.CommandLine.ArgGroup;
 public abstract class AbstractExportCommand extends AbstractTransferCommand {
 
 	@ArgGroup(exclusive = false, heading = "Reader options%n")
-	private RedisReaderOptions readerArgs = new RedisReaderOptions();
+	private RedisReaderOptions readerOptions = new RedisReaderOptions();
+
+	public void setReaderOptions(RedisReaderOptions readerOptions) {
+		this.readerOptions = readerOptions;
+	}
 
 	protected RedisItemReader<String, DataStructure<String>> reader(JobCommandContext context) {
-		return RedisItemReader.dataStructure(context.pool(), context.getJobRunner()).options(readerArgs.readerOptions())
-				.build();
+		return RedisItemReader.dataStructure(context.pool(), context.getJobRunner())
+				.options(readerOptions.readerOptions()).build();
 	}
 
 	protected <I, O> Job job(JobCommandContext context, String name, SimpleStepBuilder<I, O> step, String task) {
-		ScanSizeEstimator estimator = ScanSizeEstimator.builder(context.pool()).options(readerArgs.estimatorOptions())
-				.build();
+		ScanSizeEstimator estimator = ScanSizeEstimator.builder(context.pool())
+				.options(readerOptions.estimatorOptions()).build();
 		return super.job(context, name, step, progressMonitor().task(task).initialMax(estimator::execute).build());
 	}
 

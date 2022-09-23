@@ -39,6 +39,10 @@ public class FileExportCommand extends AbstractExportCommand {
 		return options;
 	}
 
+	public void setOptions(FileExportOptions options) {
+		this.options = options;
+	}
+
 	@Override
 	protected Job job(JobCommandContext context) throws Exception {
 		WritableResource resource = options.outputResource(file);

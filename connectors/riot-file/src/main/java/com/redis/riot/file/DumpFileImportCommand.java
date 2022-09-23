@@ -39,8 +39,10 @@ public class DumpFileImportCommand extends AbstractTransferCommand {
 
 	@Parameters(arity = "0..*", description = "One ore more files or URLs", paramLabel = "FILE")
 	private List<String> files;
+
 	@Mixin
 	private DumpFileOptions options = new DumpFileOptions();
+
 	@ArgGroup(exclusive = false, heading = "Writer options%n")
 	private RedisWriterOptions writerOptions = new RedisWriterOptions();
 
@@ -56,8 +58,16 @@ public class DumpFileImportCommand extends AbstractTransferCommand {
 		return options;
 	}
 
+	public void setOptions(DumpFileOptions options) {
+		this.options = options;
+	}
+
 	public RedisWriterOptions getWriterOptions() {
 		return writerOptions;
+	}
+
+	public void setWriterOptions(RedisWriterOptions writerOptions) {
+		this.writerOptions = writerOptions;
 	}
 
 	@Override
