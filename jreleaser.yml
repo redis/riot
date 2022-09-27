@@ -2,7 +2,8 @@ project:
   name: riot
   description: Redis Input/Output Tools
   longDescription: Get data in and out of Redis with RIOT
-  website: https://developer.redis.com/riot
+  links:
+    homepage: https://developer.redis.com/riot
   authors:
     - Julien Ruaux
   license: Apache-2.0
@@ -10,8 +11,7 @@ project:
     groupId: com.redis
     version: 17
     multiProject: true
-  extraProperties:
-    inceptionYear: 2020
+  inceptionYear: 2020
   tags:
     - 'redis'
     - 'data'
