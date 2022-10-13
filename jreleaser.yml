@@ -71,7 +71,7 @@ packagers:
     repository:
       active: always
       commitMessage: '{{distributionName}} {{tagName}}'
-      name: '{{distributionName}}'
+      name: '{{distributionName}}-docker'
     registries:
       - serverName: DEFAULT
     imageNames:
