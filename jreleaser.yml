@@ -74,6 +74,7 @@ packagers:
       name: '{{distributionName}}-docker'
     registries:
       - serverName: DEFAULT
+        repositoryName: fieldengineering
     imageNames:
       - 'fieldengineering/{{distributionName}}:{{tagName}}'
       - 'fieldengineering/{{distributionName}}:latest'
