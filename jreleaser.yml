@@ -98,10 +98,6 @@ distributions:
     artifacts:
       - path: 'connectors/{{distributionName}}/build/distributions/{{distributionName}}-{{projectVersion}}.zip'
 
-  riot-stream:
-    artifacts:
-      - path: 'connectors/{{distributionName}}/build/distributions/{{distributionName}}-{{projectVersion}}.zip'
-
 files:
   artifacts:
     - path: VERSION

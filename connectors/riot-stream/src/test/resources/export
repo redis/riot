@@ -1,1 +1,0 @@
-riot-stream export stream1 --idle-timeout 500 --broker localhost:9092

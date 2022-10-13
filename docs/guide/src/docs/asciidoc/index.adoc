@@ -12,6 +12,4 @@ Redis Input/Output Tools (RIOT) is a series of utilities designed to help you ge
 
 |*RIOT-Redis* |Redis -> Redis migration|link:riot-redis/index.html[Documentation] | link:riot-redis/cookbook.html[Cookbook]
 
-|*RIOT-Stream*|Kafka import/export|link:riot-stream/index.html[Documentation]|
-
 |===
