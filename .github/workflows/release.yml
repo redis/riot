@@ -21,7 +21,7 @@ jobs:
           echo ${{ github.event.inputs.version }} > VERSION
 
       - name: Release
-        uses: redis-field-engineering/redis-release-action@v3
+        uses: redis-field-engineering/redis-release-action@v4
         with:
           gpg-key-id: ${{ secrets.GPG_KEY_ID }}
           gpg-public-key: ${{ secrets.GPG_PUBLIC_KEY }}
@@ -30,8 +30,9 @@ jobs:
           sonatype-username: ${{ secrets.SONATYPE_USERNAME }}
           sonatype-password: ${{ secrets.SONATYPE_PASSWORD }}
           github-token: ${{ secrets.GIT_ACCESS_TOKEN }}
-          slack-webhook: ${{ secrets.JRELEASER_SLACK_WEBHOOK }}
-          docker-password: ${{ secrets.JRELEASER_DOCKER_PASSWORD }}
+          slack-webhook: ${{ secrets.SLACK_WEBHOOK }}
+          docker-username: ${{ secrets.DOCKER_USERNAME }}
+          docker-password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: JReleaser output
         if: always()

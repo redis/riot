@@ -25,7 +25,7 @@ include::{includedir}/_download-run.adoc[leveloffset=+3]
 
 [subs="attributes",source,console]
 ----
-docker run jruaux/{project-name} [OPTIONS] [COMMAND]
+docker run fieldengineering/{project-name} [OPTIONS] [COMMAND]
 ----
 
 == Usage

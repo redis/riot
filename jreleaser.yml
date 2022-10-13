@@ -68,13 +68,15 @@ packagers:
       name: scoop
   docker:
     active: always
+    repository:
+      active: always
+      commitMessage: '{{distributionName}} {{tagName}}'
+      name: {{distributionName}}
     registries:
       - serverName: DEFAULT
-        username: jruaux
-        repositoryName: jruaux
     imageNames:
-      - 'jruaux/{{distributionName}}:{{tagName}}'
-      - 'jruaux/{{distributionName}}:latest'
+      - 'fieldengineering/{{distributionName}}:{{tagName}}'
+      - 'fieldengineering/{{distributionName}}:latest'
     labels:
       'org.opencontainers.image.title': '{{distributionName}}'
 
