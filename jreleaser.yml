@@ -69,14 +69,12 @@ packagers:
   docker:
     active: always
     repository:
-      active: always
-      commitMessage: '{{distributionName}} {{tagName}}'
-      name: '{{distributionName}}-docker'
+      active: never
     registries:
       - serverName: DEFAULT
         repositoryName: fieldengineering
     imageNames:
-      - 'fieldengineering/{{distributionName}}:{{tagName}}'
+      - 'fieldengineering/{{distributionName}}:{{projectVersion}}'
       - 'fieldengineering/{{distributionName}}:latest'
     labels:
       'org.opencontainers.image.title': '{{distributionName}}'
