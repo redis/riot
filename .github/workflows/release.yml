@@ -11,18 +11,10 @@ jobs:
     name: Release
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
-      - name: Version
-        run: |
-          echo ${{ github.event.inputs.version }} > VERSION
-
       - name: Release
-        uses: redis-field-engineering/redis-release-action@v4
+        uses: redis-field-engineering/redis-release-action@v1
         with:
+          version: ${{ github.event.inputs.version }}
           gpg-key-id: ${{ secrets.GPG_KEY_ID }}
           gpg-public-key: ${{ secrets.GPG_PUBLIC_KEY }}
           gpg-secret-key: ${{ secrets.GPG_SECRET_KEY }}
@@ -33,28 +25,6 @@ jobs:
           slack-webhook: ${{ secrets.SLACK_WEBHOOK }}
           docker-username: ${{ secrets.DOCKER_USERNAME }}
           docker-password: ${{ secrets.DOCKER_PASSWORD }}
-
-      - name: JReleaser output
-        if: always()
-        uses: actions/upload-artifact@v3
-        with:
-          name: artifact
-          path: |
-            out/jreleaser/trace.log
-            out/jreleaser/output.properties
-
-      - name: Upload test reports
-        if: failure()
-        uses: actions/upload-artifact@v3
-        with:
-          name: test-reports
-          path: |
-            build/reports/aggregate-tests/
-
-      - name: Set Version
-        uses: redis-field-engineering/redis-version-action@v2
-        with:
-          version: ${{ github.event.inputs.version }}
 
       - name: Generate Docs
         run: |
