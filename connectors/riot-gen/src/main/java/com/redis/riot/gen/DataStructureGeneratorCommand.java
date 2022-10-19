@@ -1,6 +1,5 @@
 package com.redis.riot.gen;
 
-import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -70,10 +69,6 @@ public class DataStructureGeneratorCommand extends AbstractTransferCommand {
 				.hashFieldSize(options.getHashFieldSize()).jsonFieldCount(options.getJsonSize())
 				.jsonFieldSize(options.getJsonFieldSize());
 		options.configureReader(reader);
-		Optional<Long> sleep = options.getSleep();
-		if (sleep.isPresent()) {
-			return new ThrottledItemReader<>(reader.build(), sleep.get());
-		}
 		return reader.build();
 	}
 

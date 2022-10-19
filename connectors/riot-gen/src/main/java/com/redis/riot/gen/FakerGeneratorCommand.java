@@ -2,7 +2,6 @@ package com.redis.riot.gen;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -50,10 +49,6 @@ public class FakerGeneratorCommand extends AbstractImportCommand {
 		FakerItemReader reader = new FakerItemReader(generator(context));
 		reader.setStart(options.getStart());
 		reader.setCount(options.getCount());
-		Optional<Long> sleep = options.getSleep();
-		if (sleep.isPresent() && sleep.get() > 0) {
-			return new ThrottledItemReader<>(reader, sleep.get());
-		}
 		return reader;
 	}
 

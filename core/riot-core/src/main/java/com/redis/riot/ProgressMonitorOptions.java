@@ -10,9 +10,9 @@ import picocli.CommandLine.Option;
 public class ProgressMonitorOptions {
 
 	@Option(names = "--progress", description = "Style of progress bar: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}),", paramLabel = "<style>")
-	private Style style = Style.COLOR;
+	private Style style = Style.BAR;
 	@Option(names = "--progress-interval", description = "Progress update interval in milliseconds (default: ${DEFAULT-VALUE}).", paramLabel = "<ms>", hidden = true)
-	private long updateIntervalMillis = 300;
+	private long updateIntervalMillis = 30;
 
 	public Style getStyle() {
 		return style;

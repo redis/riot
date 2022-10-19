@@ -1,5 +1,6 @@
 package com.redis.riot;
 
+import java.time.Duration;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
@@ -29,12 +30,12 @@ import picocli.CommandLine.Mixin;
 public abstract class AbstractTransferCommand extends AbstractJobCommand {
 
 	@Mixin
-	private TransferOptions transferOptions = new TransferOptions();
+	private TransferOptions options = new TransferOptions();
 	@Mixin
 	protected ProgressMonitorOptions progressOptions = new ProgressMonitorOptions();
 
 	public void setTransferOptions(TransferOptions transferOptions) {
-		this.transferOptions = transferOptions;
+		this.options = transferOptions;
 	}
 
 	public void setProgressOptions(ProgressMonitorOptions progressOptions) {
@@ -43,8 +44,15 @@ public abstract class AbstractTransferCommand extends AbstractJobCommand {
 
 	protected <I, O> SimpleStepBuilder<I, O> step(JobCommandContext context, String name, ItemReader<I> reader,
 			ItemProcessor<I, O> processor, ItemWriter<O> writer) {
-		return context.step(name).<I, O>chunk(transferOptions.getChunkSize()).reader(synchronize(reader))
+		return context.step(name).<I, O>chunk(options.getChunkSize()).reader(throttle(synchronize(reader)))
 				.processor(processor).writer(writer);
+	}
+
+	private <I> ItemReader<I> throttle(ItemReader<I> reader) {
+		if (reader instanceof PollableItemReader) {
+			return reader;
+		}
+		return ThrottledItemReader.create(reader, Duration.ofMillis(options.getSleep()));
 	}
 
 	protected <I, O> Job job(JobCommandContext context, String name, SimpleStepBuilder<I, O> step,
@@ -57,15 +65,15 @@ public abstract class AbstractTransferCommand extends AbstractJobCommand {
 	}
 
 	protected <I, O> FaultTolerantStepBuilder<I, O> step(SimpleStepBuilder<I, O> step, ProgressMonitor monitor) {
-		if (transferOptions.getThreads() > 1) {
+		if (options.getThreads() > 1) {
 			ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
-			taskExecutor.setCorePoolSize(transferOptions.getThreads());
-			taskExecutor.setMaxPoolSize(transferOptions.getThreads());
-			taskExecutor.setQueueCapacity(transferOptions.getThreads());
+			taskExecutor.setCorePoolSize(options.getThreads());
+			taskExecutor.setMaxPoolSize(options.getThreads());
+			taskExecutor.setQueueCapacity(options.getThreads());
 			taskExecutor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
 			taskExecutor.afterPropertiesSet();
 			step.taskExecutor(taskExecutor);
-			step.throttleLimit(transferOptions.getThreads());
+			step.throttleLimit(options.getThreads());
 		} else {
 			step.taskExecutor(new SyncTaskExecutor());
 		}
@@ -73,18 +81,18 @@ public abstract class AbstractTransferCommand extends AbstractJobCommand {
 			step.listener((StepExecutionListener) monitor);
 			step.listener((ItemWriteListener<Object>) monitor);
 		}
-		SkipPolicy skipPolicy = transferOptions.getSkipPolicy().getSkipPolicy();
+		SkipPolicy skipPolicy = options.getSkipPolicy().getSkipPolicy();
 		if (skipPolicy instanceof LimitCheckingItemSkipPolicy) {
 			LimitCheckingItemSkipPolicy limitSkipPolicy = (LimitCheckingItemSkipPolicy) skipPolicy;
 			limitSkipPolicy.setSkippableExceptionMap(
 					Stream.of(RedisCommandExecutionException.class, RedisCommandTimeoutException.class,
 							TimeoutException.class).collect(Collectors.toMap(t -> t, t -> true)));
 		}
-		return step.faultTolerant().skipPolicy(transferOptions.getSkipPolicy().getSkipPolicy());
+		return step.faultTolerant().skipPolicy(options.getSkipPolicy().getSkipPolicy());
 	}
 
 	private <I> ItemReader<I> synchronize(ItemReader<I> reader) {
-		if (transferOptions.getThreads() > 1) {
+		if (options.getThreads() > 1) {
 			if (reader instanceof PollableItemReader) {
 				SynchronizedPollableItemReader<I> pollableReader = new SynchronizedPollableItemReader<>();
 				pollableReader.setDelegate((PollableItemReader<I>) reader);

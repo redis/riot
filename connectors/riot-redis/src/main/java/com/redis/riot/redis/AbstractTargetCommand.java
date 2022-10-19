@@ -156,7 +156,7 @@ public abstract class AbstractTargetCommand extends AbstractTransferCommand {
 	}
 
 	private String extraMessageFormat() {
-		if (progressOptions.getStyle() == Style.COLOR) {
+		if (progressOptions.getStyle() == Style.BAR || progressOptions.getStyle() == Style.BLOCK) {
 			return COMPARE_MESSAGE_COLOR;
 		}
 		return COMPARE_MESSAGE_ASCII;

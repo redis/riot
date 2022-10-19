@@ -21,7 +21,7 @@ import me.tongfei.progressbar.ProgressBarStyle;
 public class ProgressMonitor implements StepExecutionListener, ItemWriteListener<Object> {
 
 	public enum Style {
-		ASCII, COLOR, BW, NONE
+		BLOCK, BAR, UNICODE, ASCII, NONE
 	}
 
 	private final Style style;
@@ -57,10 +57,12 @@ public class ProgressMonitor implements StepExecutionListener, ItemWriteListener
 		switch (style) {
 		case ASCII:
 			return ProgressBarStyle.ASCII;
-		case BW:
+		case UNICODE:
 			return ProgressBarStyle.UNICODE_BLOCK;
-		default:
+		case BLOCK:
 			return ProgressBarStyle.COLORFUL_UNICODE_BLOCK;
+		default:
+			return ProgressBarStyle.COLORFUL_UNICODE_BAR;
 		}
 	}
 
