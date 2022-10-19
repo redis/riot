@@ -35,7 +35,7 @@ import io.lettuce.core.api.sync.RedisSortedSetCommands;
 import io.lettuce.core.api.sync.RedisStreamCommands;
 
 @SuppressWarnings("unchecked")
-class GenIntegrationTests extends AbstractRiotIntegrationTests {
+class RiotGenIntegrationTests extends AbstractRiotIntegrationTests {
 
 	private final RedisModulesContainer redisMod = new RedisModulesContainer(
 			RedisModulesContainer.DEFAULT_IMAGE_NAME.withTag(RedisModulesContainer.DEFAULT_TAG));

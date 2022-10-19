@@ -31,15 +31,13 @@ public abstract class AbstractTransferCommand extends AbstractJobCommand {
 
 	@Mixin
 	private TransferOptions options = new TransferOptions();
-	@Mixin
-	protected ProgressMonitorOptions progressOptions = new ProgressMonitorOptions();
 
-	public void setTransferOptions(TransferOptions transferOptions) {
-		this.options = transferOptions;
+	public TransferOptions getTransferOptions() {
+		return options;
 	}
 
-	public void setProgressOptions(ProgressMonitorOptions progressOptions) {
-		this.progressOptions = progressOptions;
+	public void setTransferOptions(TransferOptions options) {
+		this.options = options;
 	}
 
 	protected <I, O> SimpleStepBuilder<I, O> step(JobCommandContext context, String name, ItemReader<I> reader,
@@ -61,7 +59,7 @@ public abstract class AbstractTransferCommand extends AbstractJobCommand {
 	}
 
 	protected ProgressMonitor.Builder progressMonitor() {
-		return progressOptions.monitor();
+		return options.progressMonitor();
 	}
 
 	protected <I, O> FaultTolerantStepBuilder<I, O> step(SimpleStepBuilder<I, O> step, ProgressMonitor monitor) {
@@ -77,7 +75,7 @@ public abstract class AbstractTransferCommand extends AbstractJobCommand {
 		} else {
 			step.taskExecutor(new SyncTaskExecutor());
 		}
-		if (progressOptions.isEnabled()) {
+		if (options.isProgressEnabled()) {
 			step.listener((StepExecutionListener) monitor);
 			step.listener((ItemWriteListener<Object>) monitor);
 		}

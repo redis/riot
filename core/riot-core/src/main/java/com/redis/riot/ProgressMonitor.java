@@ -20,11 +20,7 @@ import me.tongfei.progressbar.ProgressBarStyle;
 
 public class ProgressMonitor implements StepExecutionListener, ItemWriteListener<Object> {
 
-	public enum Style {
-		BLOCK, BAR, UNICODE, ASCII, NONE
-	}
-
-	private final Style style;
+	private final ProgressStyle style;
 	private final String task;
 	private final Duration updateInterval;
 	private final Optional<Supplier<Long>> initialMax;
@@ -105,19 +101,19 @@ public class ProgressMonitor implements StepExecutionListener, ItemWriteListener
 		}
 	}
 
-	public static Builder style(Style style) {
+	public static Builder style(ProgressStyle style) {
 		return new Builder(style);
 	}
 
 	public static class Builder {
 
-		private final Style style;
+		private final ProgressStyle style;
 		private String task;
 		private Duration updateInterval = Duration.ofMillis(300);
 		private Optional<Supplier<Long>> initialMax = Optional.empty();
 		private Optional<Supplier<String>> extraMessage = Optional.empty();
 
-		public Builder(Style style) {
+		public Builder(ProgressStyle style) {
 			this.style = style;
 		}
 

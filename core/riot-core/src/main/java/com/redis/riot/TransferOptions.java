@@ -1,5 +1,9 @@
 package com.redis.riot;
 
+import java.time.Duration;
+
+import com.redis.riot.ProgressMonitor.Builder;
+
 import picocli.CommandLine.Option;
 
 public class TransferOptions {
@@ -19,6 +23,36 @@ public class TransferOptions {
 
 	@Option(names = "--skip-limit", description = "LIMIT skip policy: max number of failed items before considering the transfer has failed (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
 	private int skipLimit = 3;
+
+	@Option(names = "--progress", description = "Style of progress bar: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}),", paramLabel = "<style>")
+	private ProgressStyle progressStyle = ProgressStyle.BAR;
+
+	@Option(names = "--progress-interval", description = "Progress update interval in milliseconds (default: ${DEFAULT-VALUE}).", paramLabel = "<ms>", hidden = true)
+	private long progressUpdateInterval = 30;
+
+	public ProgressStyle getProgressStyle() {
+		return progressStyle;
+	}
+
+	public long getProgressUpdateInterval() {
+		return progressUpdateInterval;
+	}
+
+	public void setProgressStyle(ProgressStyle style) {
+		this.progressStyle = style;
+	}
+
+	public void setProgressUpdateInterval(long millis) {
+		this.progressUpdateInterval = millis;
+	}
+
+	public Builder progressMonitor() {
+		return ProgressMonitor.style(progressStyle).updateInterval(Duration.ofMillis(progressUpdateInterval));
+	}
+
+	public boolean isProgressEnabled() {
+		return getProgressStyle() != ProgressStyle.NONE;
+	}
 
 	public long getSleep() {
 		return sleep;

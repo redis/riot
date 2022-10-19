@@ -31,6 +31,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.redis.lettucemod.api.sync.RedisModulesCommands;
 import com.redis.riot.AbstractRiotIntegrationTests;
+import com.redis.riot.ProgressStyle;
 import com.redis.riot.file.resource.XmlItemReader;
 import com.redis.riot.file.resource.XmlItemReaderBuilder;
 import com.redis.riot.file.resource.XmlObjectReader;
@@ -48,7 +49,7 @@ import io.lettuce.core.api.sync.RedisSetCommands;
 import picocli.CommandLine;
 
 @SuppressWarnings("unchecked")
-class FileIntegrationTests extends AbstractRiotIntegrationTests {
+class RiotFileIntegrationTests extends AbstractRiotIntegrationTests {
 
 	public static final String BEERS_JSON_URL = "https://storage.googleapis.com/jrx/beers.json";
 	public static final int BEER_CSV_COUNT = 2410;
@@ -58,7 +59,7 @@ class FileIntegrationTests extends AbstractRiotIntegrationTests {
 
 	@BeforeAll
 	public void setupAll() throws IOException {
-		tempDir = Files.createTempDirectory(FileIntegrationTests.class.getName());
+		tempDir = Files.createTempDirectory(RiotFileIntegrationTests.class.getName());
 	}
 
 	private String replace(String file) {
@@ -449,6 +450,7 @@ class FileIntegrationTests extends AbstractRiotIntegrationTests {
 	void importJsonAPI(RedisTestContext redis) throws Exception {
 		// riot-file import hset --keyspace beer --keys id
 		FileImportCommand command = new FileImportCommand();
+		command.getTransferOptions().setProgressStyle(ProgressStyle.NONE);
 		command.getOptions().setFiles(Collections.singletonList(BEERS_JSON_URL));
 		HsetCommand hset = new HsetCommand();
 		hset.getKeyOptions().setKeyspace("beer");

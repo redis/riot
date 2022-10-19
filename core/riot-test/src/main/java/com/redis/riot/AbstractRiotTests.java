@@ -37,6 +37,14 @@ public abstract class AbstractRiotTests extends AbstractTestcontainersRedisTestB
 		RiotApp app = app();
 		RiotCommandLine commandLine = app.commandLine();
 		CommandLine.ParseResult parseResult = commandLine.parseArgs(args(filename));
+		Object command = parseResult.subcommand().commandSpec().commandLine().getCommand();
+		if (command instanceof OperationCommand) {
+			command = parseResult.subcommand().commandSpec().parent().commandLine().getCommand();
+		}
+		if (command instanceof AbstractTransferCommand) {
+			AbstractTransferCommand transferCommand = (AbstractTransferCommand) command;
+			transferCommand.getTransferOptions().setProgressStyle(ProgressStyle.NONE);
+		}
 		configure(app, redis);
 		for (Consumer<CommandLine.ParseResult> configurator : configurators) {
 			configurator.accept(parseResult);

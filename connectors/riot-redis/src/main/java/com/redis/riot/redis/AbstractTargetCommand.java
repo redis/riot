@@ -14,7 +14,7 @@ import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import com.redis.riot.AbstractTransferCommand;
 import com.redis.riot.JobCommandContext;
 import com.redis.riot.ProgressMonitor;
-import com.redis.riot.ProgressMonitor.Style;
+import com.redis.riot.ProgressStyle;
 import com.redis.riot.RedisOptions;
 import com.redis.riot.RedisReaderOptions;
 import com.redis.spring.batch.RedisItemReader;
@@ -119,7 +119,7 @@ public abstract class AbstractTargetCommand extends AbstractTransferCommand {
 				return ExitStatus.COMPLETED;
 			}
 			try {
-				Thread.sleep(progressOptions.getUpdateIntervalMillis());
+				Thread.sleep(getTransferOptions().getProgressUpdateInterval());
 			} catch (InterruptedException e) {
 				log.fine("Verification interrupted");
 				Thread.currentThread().interrupt();
@@ -156,7 +156,8 @@ public abstract class AbstractTargetCommand extends AbstractTransferCommand {
 	}
 
 	private String extraMessageFormat() {
-		if (progressOptions.getStyle() == Style.BAR || progressOptions.getStyle() == Style.BLOCK) {
+		ProgressStyle progressStyle = getTransferOptions().getProgressStyle();
+		if (progressStyle == ProgressStyle.BAR || progressStyle == ProgressStyle.BLOCK) {
 			return COMPARE_MESSAGE_COLOR;
 		}
 		return COMPARE_MESSAGE_ASCII;

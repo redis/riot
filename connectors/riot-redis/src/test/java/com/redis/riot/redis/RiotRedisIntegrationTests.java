@@ -28,7 +28,7 @@ import picocli.CommandLine;
 
 @Testcontainers
 @SuppressWarnings("unchecked")
-class RedisIntegrationTests extends AbstractRiotIntegrationTests {
+class RiotRedisIntegrationTests extends AbstractRiotIntegrationTests {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 

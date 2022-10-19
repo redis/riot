@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeAll;
-import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobExecutionException;
 import org.springframework.batch.core.step.builder.SimpleStepBuilder;
@@ -59,8 +58,7 @@ public abstract class AbstractRiotIntegrationTests extends AbstractRiotTests {
 
 	protected <T> JobExecution run(String name, int chunkSize, ItemReader<T> reader, ItemWriter<T> writer)
 			throws JobExecutionException {
-		Job job = jobRunner.job(name).start(step(name, chunkSize, reader, writer).build()).build();
-		return jobRunner.run(job);
+		return jobRunner.run(jobRunner.job(name).start(step(name, chunkSize, reader, writer).build()).build());
 	}
 
 	protected void generate(int chunkSize, ItemReader<DataStructure<String>> reader, RedisTestContext redis)
