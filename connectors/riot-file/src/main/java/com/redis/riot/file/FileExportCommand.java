@@ -15,6 +15,7 @@ import com.redis.spring.batch.common.DataStructure;
 
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Mixin;
 import picocli.CommandLine.Parameters;
 
 @Command(name = "export", description = "Export Redis data to JSON or XML files")
@@ -24,6 +25,10 @@ public class FileExportCommand extends AbstractExportCommand {
 
 	@Parameters(arity = "1", description = "File path or URL", paramLabel = "FILE")
 	private String file;
+
+	@Mixin
+	private DumpFileOptions dumpFileOptions = new DumpFileOptions();
+
 	@ArgGroup(exclusive = false, heading = "File export options%n")
 	private FileExportOptions options = new FileExportOptions();
 
@@ -51,7 +56,7 @@ public class FileExportCommand extends AbstractExportCommand {
 	}
 
 	private ItemWriter<DataStructure<String>> writer(WritableResource resource) {
-		DumpFileType type = options.type(resource);
+		DumpFileType type = dumpFileOptions.type(resource);
 		switch (type) {
 		case XML:
 			XmlResourceItemWriterBuilder<DataStructure<String>> xmlWriterBuilder = new XmlResourceItemWriterBuilder<>();

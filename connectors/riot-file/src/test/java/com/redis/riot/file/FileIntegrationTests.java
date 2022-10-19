@@ -1,10 +1,12 @@
 package com.redis.riot.file;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +25,7 @@ import org.springframework.batch.item.json.builder.JsonItemReaderBuilder;
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.util.FileCopyUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
@@ -197,10 +200,25 @@ class FileIntegrationTests extends AbstractRiotIntegrationTests {
 	@ParameterizedTest
 	@RedisTestContextsSource
 	void importGlob(RedisTestContext redis) throws Exception {
-		execute("import-glob", redis);
+		execute("import-glob", redis, this::configureImportGlob);
 		RedisKeyCommands<String, String> sync = redis.sync();
 		List<String> keys = sync.keys("beer:*");
 		Assertions.assertEquals(BEER_CSV_COUNT, keys.size());
+	}
+
+	private void configureImportGlob(CommandLine.ParseResult parseResult) {
+		FileImportCommand command = parseResult.subcommand().commandSpec().parent().commandLine().getCommand();
+		try {
+			Path dir = Files.createTempDirectory("import-glob");
+			FileCopyUtils.copy(getClass().getClassLoader().getResourceAsStream("files/beers1.csv"),
+					Files.newOutputStream(dir.resolve("beers1.csv")));
+			FileCopyUtils.copy(getClass().getClassLoader().getResourceAsStream("files/beers2.csv"),
+					Files.newOutputStream(dir.resolve("beers2.csv")));
+			File file = new File(command.getOptions().getFiles().get(0));
+			command.getOptions().setFiles(Arrays.asList(dir.resolve(file.getName()).toString()));
+		} catch (IOException e) {
+			throw new RuntimeException("Could not configure import-glob", e);
+		}
 	}
 
 	@ParameterizedTest
@@ -307,7 +325,8 @@ class FileIntegrationTests extends AbstractRiotIntegrationTests {
 
 	private void configureDumpFileImportCommand(CommandLine.ParseResult parseResult) {
 		DumpFileImportCommand command = parseResult.subcommand().commandSpec().commandLine().getCommand();
-		command.setFiles(command.getFiles().stream().map(this::replace).collect(Collectors.toList()));
+		FileImportOptions options = command.getOptions();
+		options.setFiles(options.getFiles().stream().map(this::replace).collect(Collectors.toList()));
 	}
 
 	private void configureExportCommand(CommandLine.ParseResult parseResult) {
@@ -430,7 +449,7 @@ class FileIntegrationTests extends AbstractRiotIntegrationTests {
 	void importJsonAPI(RedisTestContext redis) throws Exception {
 		// riot-file import hset --keyspace beer --keys id
 		FileImportCommand command = new FileImportCommand();
-		command.setFiles(Collections.singletonList(BEERS_JSON_URL));
+		command.getOptions().setFiles(Collections.singletonList(BEERS_JSON_URL));
 		HsetCommand hset = new HsetCommand();
 		hset.getKeyOptions().setKeyspace("beer");
 		hset.getKeyOptions().setKeys(new String[] { "id" });

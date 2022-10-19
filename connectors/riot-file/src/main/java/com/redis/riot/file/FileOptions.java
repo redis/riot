@@ -74,14 +74,24 @@ public class FileOptions {
 		this.gcs = gcs;
 	}
 
-	public Resource inputResource(String file) throws IOException {
+	public Resource inputResource(String file) {
 		if (FileUtils.isConsole(file)) {
 			return new FilenameInputStreamResource(System.in, "stdin", "Standard Input");
 		}
-		Resource resource = resource(file, true);
+		Resource resource;
+		try {
+			resource = resource(file, true);
+		} catch (IOException e) {
+			throw new RuntimeIOException("Could not read file " + file, e);
+		}
 		Assert.isTrue(resource.exists(), "Input resource must exist: " + file);
 		if (gzip || FileUtils.isGzip(file)) {
-			GZIPInputStream gzipInputStream = new GZIPInputStream(resource.getInputStream());
+			GZIPInputStream gzipInputStream;
+			try {
+				gzipInputStream = new GZIPInputStream(resource.getInputStream());
+			} catch (IOException e) {
+				throw new RuntimeIOException("Could not open input stream", e);
+			}
 			return new FilenameInputStreamResource(gzipInputStream, resource.getFilename(), resource.getDescription());
 		}
 		return resource;

@@ -6,7 +6,7 @@ import org.springframework.core.io.Resource;
 
 import picocli.CommandLine.Option;
 
-public class DumpFileOptions extends FileOptions {
+public class DumpFileOptions {
 
 	@Option(names = { "-t", "--filetype" }, description = "File type: ${COMPLETION-CANDIDATES}.", paramLabel = "<type>")
 	protected Optional<DumpFileType> type = Optional.empty();
@@ -21,16 +21,15 @@ public class DumpFileOptions extends FileOptions {
 
 	@Override
 	public String toString() {
-		return "DumpFileOptions [type=" + type + ", encoding=" + encoding + ", gzip=" + gzip + ", s3=" + s3 + ", gcs="
-				+ gcs + "]";
+		return "DumpFileOptions [type=" + type + "]";
 	}
 
 	public DumpFileType type(Resource resource) {
 		if (type.isPresent()) {
 			return type.get();
 		}
-		Optional<FileExtension> extension = FileUtils.extension(resource);
-		return type(extension.orElseThrow(() -> new UnknownFileTypeException("Unknown file extension")));
+		FileExtension extension = FileUtils.extension(resource);
+		return type(extension);
 	}
 
 	private DumpFileType type(FileExtension extension) {

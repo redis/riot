@@ -4,7 +4,7 @@ import org.springframework.batch.item.support.AbstractFileItemWriter;
 
 import picocli.CommandLine.Option;
 
-public class FileExportOptions extends DumpFileOptions {
+public class FileExportOptions extends FileOptions {
 
 	public static final String DEFAULT_ELEMENT_NAME = "record";
 	public static final String DEFAULT_ROOT_NAME = "root";
@@ -52,9 +52,9 @@ public class FileExportOptions extends DumpFileOptions {
 
 	@Override
 	public String toString() {
-		return "FileExportOptions [type=" + type + ", append=" + append + ", rootName=" + rootName + ", elementName="
-				+ elementName + ", lineSeparator=" + lineSeparator + ", encoding=" + encoding + ", gzip=" + gzip
-				+ ", s3=" + s3 + ", gcs=" + gcs + "]";
+		return "FileExportOptions [append=" + append + ", rootName=" + rootName + ", elementName=" + elementName
+				+ ", lineSeparator=" + lineSeparator + ", encoding=" + encoding + ", gzip=" + gzip + ", s3=" + s3
+				+ ", gcs=" + gcs + "]";
 	}
 
 }
