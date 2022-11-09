@@ -15,7 +15,7 @@ import com.redis.riot.convert.ObjectToNumberConverter;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
 
-@Command
+@Command(sortOptions = false, sortSynopsis = false)
 public abstract class AbstractOperationCommand<O> implements OperationCommand<O> {
 
 	@Mixin

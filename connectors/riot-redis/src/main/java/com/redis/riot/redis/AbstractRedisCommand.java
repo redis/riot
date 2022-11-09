@@ -11,9 +11,6 @@ import com.redis.lettucemod.api.sync.RedisModulesCommands;
 import com.redis.riot.AbstractJobCommand;
 import com.redis.riot.JobCommandContext;
 
-import picocli.CommandLine.Command;
-
-@Command
 public abstract class AbstractRedisCommand extends AbstractJobCommand {
 
 	@Override

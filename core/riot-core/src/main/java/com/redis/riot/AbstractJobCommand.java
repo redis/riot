@@ -16,7 +16,7 @@ import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.ParentCommand;
 import picocli.CommandLine.Spec;
 
-@Command
+@Command(sortSynopsis = false, sortOptions = false)
 public abstract class AbstractJobCommand implements Callable<Integer> {
 
 	@Spec

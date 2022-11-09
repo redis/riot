@@ -4,10 +4,8 @@ import java.util.Map;
 
 import org.springframework.core.convert.converter.Converter;
 
-import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
 
-@Command
 public abstract class AbstractCollectionCommand extends AbstractKeyCommand {
 
 	@Mixin
