@@ -12,8 +12,8 @@ import java.util.stream.Collectors;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.item.ItemProcessor;
-import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
 import org.springframework.batch.item.support.CompositeItemWriter;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
@@ -136,13 +136,13 @@ public abstract class AbstractImportCommand extends AbstractTransferCommand {
 		return RedisItemWriter.operation(context.pool(), operation).options(writerOptions.writerOptions()).build();
 	}
 
-	protected Job job(JobCommandContext context, String name, ItemReader<Map<String, Object>> reader,
-			ProgressMonitor monitor) {
+	protected Job job(JobCommandContext context, String name,
+			AbstractItemCountingItemStreamItemReader<Map<String, Object>> reader, ProgressMonitor monitor) {
 		return job(context, name, step(context, name, reader), monitor);
 	}
 
 	protected SimpleStepBuilder<Map<String, Object>, Map<String, Object>> step(JobCommandContext context, String name,
-			ItemReader<Map<String, Object>> reader) {
+			AbstractItemCountingItemStreamItemReader<Map<String, Object>> reader) {
 		return step(context, name, reader, processor(context), writer(context));
 	}
 

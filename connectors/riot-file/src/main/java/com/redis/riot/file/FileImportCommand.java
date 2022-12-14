@@ -28,6 +28,7 @@ import org.springframework.batch.item.file.transform.FixedLengthTokenizer;
 import org.springframework.batch.item.file.transform.Range;
 import org.springframework.batch.item.file.transform.RangeArrayPropertyEditor;
 import org.springframework.batch.item.json.JsonItemReader;
+import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
 import org.springframework.core.io.Resource;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
@@ -50,8 +51,19 @@ public class FileImportCommand extends AbstractImportCommand {
 	private static final String NAME = "file-import";
 	private static final String DELIMITER_PIPE = "|";
 
+	@Mixin
+	private FileImportOptions options = new FileImportOptions();
+	@ArgGroup(exclusive = false, heading = "Flat file options%n")
+	private FlatFileOptions flatFileOptions = new FlatFileOptions();
 	@Option(names = { "-t", "--filetype" }, description = "File type: ${COMPLETION-CANDIDATES}.", paramLabel = "<type>")
 	private Optional<FileType> fileType = Optional.empty();
+
+	public FileImportCommand() {
+	}
+
+	private FileImportCommand(Builder builder) {
+		this.flatFileOptions = builder.flatFileOptions;
+	}
 
 	public Optional<FileType> getFileType() {
 		return fileType;
@@ -59,19 +71,6 @@ public class FileImportCommand extends AbstractImportCommand {
 
 	public void setFileType(FileType fileType) {
 		this.fileType = Optional.of(fileType);
-	}
-
-	@Mixin
-	private FileImportOptions options = new FileImportOptions();
-
-	@ArgGroup(exclusive = false, heading = "Flat file options%n")
-	private FlatFileOptions flatFileOptions = new FlatFileOptions();
-
-	public FileImportCommand() {
-	}
-
-	private FileImportCommand(Builder builder) {
-		this.flatFileOptions = builder.flatFileOptions;
 	}
 
 	public FileImportOptions getOptions() {
@@ -101,7 +100,7 @@ public class FileImportCommand extends AbstractImportCommand {
 	}
 
 	private TaskletStep step(JobCommandContext context, Resource resource) {
-		ItemReader<Map<String, Object>> reader = reader(resource);
+		AbstractItemCountingItemStreamItemReader<Map<String, Object>> reader = reader(resource);
 		String name = resource.getDescription() + "-" + NAME;
 		if (reader instanceof ItemStreamSupport) {
 			((ItemStreamSupport) reader).setName(name);
@@ -111,7 +110,7 @@ public class FileImportCommand extends AbstractImportCommand {
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private ItemReader<Map<String, Object>> reader(Resource resource) {
+	private AbstractItemCountingItemStreamItemReader<Map<String, Object>> reader(Resource resource) {
 		FileType type = getFileType().orElseGet(() -> type(resource));
 		switch (type) {
 		case DELIMITED:
@@ -193,6 +192,7 @@ public class FileImportCommand extends AbstractImportCommand {
 		builder.saveState(false);
 		builder.fieldSetMapper(new MapFieldSetMapper());
 		builder.skippedLinesCallback(new HeaderCallbackHandler(tokenizer));
+		flatFileOptions.getMaxItemCount().ifPresent(builder::maxItemCount);
 		return builder.build();
 	}
 

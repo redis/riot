@@ -27,7 +27,7 @@ public class FilteringOptions {
 		if (ObjectUtils.isEmpty(includes) && ObjectUtils.isEmpty(excludes)) {
 			return mapFlattener;
 		}
-		MapFilteringConverterBuilder<String, String> filtering = MapFilteringConverter.builder();
+		MapFilteringConverterBuilder filtering = MapFilteringConverter.builder();
 		if (!ObjectUtils.isEmpty(includes)) {
 			filtering.includes(includes);
 		}

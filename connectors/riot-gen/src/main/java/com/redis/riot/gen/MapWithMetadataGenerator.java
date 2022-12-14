@@ -12,6 +12,7 @@ public class MapWithMetadataGenerator implements Generator<Map<String, Object>> 
 		this.parent = parent;
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public Map<String, Object> next(int index) {
 		Map<String, Object> map = parent.next(index);

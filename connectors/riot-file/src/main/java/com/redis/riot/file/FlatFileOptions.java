@@ -13,6 +13,8 @@ public class FlatFileOptions {
 
 	public static final String DEFAULT_CONTINUATION_STRING = "\\";
 
+	@Option(names = "--max", description = "Max number of lines to import.", paramLabel = "<count>")
+	private Optional<Integer> maxItemCount = Optional.empty();
 	@Option(names = "--fields", arity = "1..*", description = "Delimited/FW field names.", paramLabel = "<names>")
 	private List<String> names = new ArrayList<>();
 	@Option(names = { "-h", "--header" }, description = "Delimited/FW first line contains field names.")
@@ -34,6 +36,7 @@ public class FlatFileOptions {
 	}
 
 	private FlatFileOptions(Builder builder) {
+		this.maxItemCount = builder.maxItemCount;
 		this.names = builder.names;
 		this.header = builder.header;
 		this.delimiter = builder.delimiter;
@@ -42,6 +45,14 @@ public class FlatFileOptions {
 		this.columnRanges = builder.columnRanges;
 		this.quoteCharacter = builder.quoteCharacter;
 		this.continuationString = builder.continuationString;
+	}
+
+	public Optional<Integer> getMaxItemCount() {
+		return maxItemCount;
+	}
+
+	public void setMaxItemCount(int count) {
+		this.maxItemCount = Optional.of(count);
 	}
 
 	public List<String> getNames() {
@@ -119,6 +130,7 @@ public class FlatFileOptions {
 	}
 
 	public static final class Builder extends FileOptions.Builder<Builder> {
+		private Optional<Integer> maxItemCount = Optional.empty();
 		private List<String> names = new ArrayList<>();
 		private boolean header;
 		private Optional<String> delimiter = Optional.empty();
@@ -129,6 +141,11 @@ public class FlatFileOptions {
 		private String continuationString = DEFAULT_CONTINUATION_STRING;
 
 		private Builder() {
+		}
+
+		public Builder max(int count) {
+			this.maxItemCount = Optional.of(count);
+			return this;
 		}
 
 		public Builder names(String... names) {
@@ -178,9 +195,10 @@ public class FlatFileOptions {
 
 	@Override
 	public String toString() {
-		return "FlatFileOptions [names=" + names + ", header=" + header + ", delimiter=" + delimiter + ", linesToSkip="
-				+ linesToSkip + ", includedFields=" + Arrays.toString(includedFields) + ", columnRanges=" + columnRanges
-				+ ", quoteCharacter=" + quoteCharacter + ", continuationString=" + continuationString + "]";
+		return "FlatFileOptions [names=" + names + ", max=" + maxItemCount + ", header=" + header + ", delimiter="
+				+ delimiter + ", linesToSkip=" + linesToSkip + ", includedFields=" + Arrays.toString(includedFields)
+				+ ", columnRanges=" + columnRanges + ", quoteCharacter=" + quoteCharacter + ", continuationString="
+				+ continuationString + "]";
 	}
 
 }

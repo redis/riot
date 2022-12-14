@@ -7,7 +7,7 @@ import java.util.logging.Logger;
 
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.step.builder.SimpleStepBuilder;
-import org.springframework.batch.item.ItemReader;
+import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
 
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
 import com.redis.lettucemod.api.sync.RediSearchCommands;
@@ -44,7 +44,7 @@ public class FakerGeneratorCommand extends AbstractImportCommand {
 		return job(context, NAME, step, options.configure(progressMonitor()).task("Generating").build());
 	}
 
-	private ItemReader<Map<String, Object>> reader(JobCommandContext context) {
+	private AbstractItemCountingItemStreamItemReader<Map<String, Object>> reader(JobCommandContext context) {
 		log.log(Level.FINE, "Creating Faker reader with {0}", options);
 		FakerItemReader reader = new FakerItemReader(generator(context));
 		reader.setStart(options.getStart());
