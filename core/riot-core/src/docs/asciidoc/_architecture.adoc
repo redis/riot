@@ -17,5 +17,7 @@ The optimal batch size in terms of throughput depends on a few factors like reco
 
 It is possible to parallelize processing by using multiple threads.
 In that configuration, each chunk of items is read, processed, and written in a separate thread of execution.
+This is different from partitioning where items would be read by multiple readers.
+RIOT does not support partitioning at this time.
 
 To set the number of threads use the `--threads` option.
