@@ -63,6 +63,8 @@ public class FileImportCommand extends AbstractImportCommand {
 
 	private FileImportCommand(Builder builder) {
 		this.flatFileOptions = builder.flatFileOptions;
+		this.fileType = builder.fileType;
+		this.options = builder.options;
 	}
 
 	public Optional<FileType> getFileType() {
@@ -223,10 +225,27 @@ public class FileImportCommand extends AbstractImportCommand {
 	public static class Builder {
 
 		private FlatFileOptions flatFileOptions = new FlatFileOptions();
+		private FileImportOptions options = new FileImportOptions();
+		private Optional<FileType> fileType = Optional.empty();
 
 		public Builder flatFileOptions(FlatFileOptions options) {
 			Assert.notNull(options, "FlatFileOptions must not be null");
 			this.flatFileOptions = options;
+			return this;
+		}
+
+		public Builder options(FileImportOptions options) {
+			Assert.notNull(options, "FileImportOptions must not be null");
+			this.options = options;
+			return this;
+		}
+
+		public Builder fileType(FileType type) {
+			return fileType(Optional.of(type));
+		}
+
+		public Builder fileType(Optional<FileType> type) {
+			this.fileType = type;
 			return this;
 		}
 

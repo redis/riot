@@ -144,7 +144,11 @@ public class FlatFileOptions {
 		}
 
 		public Builder max(int count) {
-			this.maxItemCount = Optional.of(count);
+			return max(Optional.of(count));
+		}
+
+		public Builder max(Optional<Integer> count) {
+			this.maxItemCount = count;
 			return this;
 		}
 
@@ -158,9 +162,17 @@ public class FlatFileOptions {
 			return this;
 		}
 
+		public Builder delimiter(String delimiter) {
+			return delimiter(Optional.of(delimiter));
+		}
+
 		public Builder delimiter(Optional<String> delimiter) {
 			this.delimiter = delimiter;
 			return this;
+		}
+
+		public Builder linesToSkip(int linesToSkip) {
+			return linesToSkip(Optional.of(linesToSkip));
 		}
 
 		public Builder linesToSkip(Optional<Integer> linesToSkip) {
