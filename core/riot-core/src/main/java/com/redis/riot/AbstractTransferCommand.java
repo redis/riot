@@ -3,6 +3,7 @@ package com.redis.riot;
 import java.time.Duration;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeoutException;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -84,7 +85,7 @@ public abstract class AbstractTransferCommand extends AbstractJobCommand {
 			LimitCheckingItemSkipPolicy limitSkipPolicy = (LimitCheckingItemSkipPolicy) skipPolicy;
 			limitSkipPolicy.setSkippableExceptionMap(
 					Stream.of(RedisCommandExecutionException.class, RedisCommandTimeoutException.class,
-							TimeoutException.class).collect(Collectors.toMap(t -> t, t -> true)));
+							TimeoutException.class).collect(Collectors.toMap(Function.identity(), t -> true)));
 		}
 		return step.faultTolerant().skipPolicy(options.getSkipPolicy().getSkipPolicy());
 	}

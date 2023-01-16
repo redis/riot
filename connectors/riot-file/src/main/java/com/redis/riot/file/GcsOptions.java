@@ -21,14 +21,14 @@ import picocli.CommandLine.Option;
 public class GcsOptions {
 
 	@Option(names = "--gcs-key-file", description = "GCS private key (e.g. /usr/local/key.json).", paramLabel = "<file>")
-	private Optional<File> credentials = Optional.empty();
+	private Optional<File> keyFile = Optional.empty();
 	@Option(names = "--gcs-project", description = "GCP project id.", paramLabel = "<id>")
 	private Optional<String> projectId = Optional.empty();
 	@Option(names = "--gcs-key", arity = "0..1", interactive = true, description = "GCS Base64 encoded key.", paramLabel = "<key>")
 	private Optional<String> encodedKey = Optional.empty();
 
-	public void setCredentials(File credentials) {
-		this.credentials = Optional.of(credentials);
+	public void setKeyFile(File credentials) {
+		this.keyFile = Optional.of(credentials);
 	}
 
 	public void setProjectId(String projectId) {
@@ -42,8 +42,8 @@ public class GcsOptions {
 	public GoogleStorageResource resource(String locationUri, boolean readOnly) throws IOException {
 		StorageOptions.Builder builder = StorageOptions.newBuilder().setProjectId(ServiceOptions.getDefaultProjectId())
 				.setHeaderProvider(new UserAgentHeaderProvider(GcpStorageAutoConfiguration.class));
-		if (credentials.isPresent()) {
-			builder.setCredentials(GoogleCredentials.fromStream(Files.newInputStream(credentials.get().toPath()))
+		if (keyFile.isPresent()) {
+			builder.setCredentials(GoogleCredentials.fromStream(Files.newInputStream(keyFile.get().toPath()))
 					.createScoped((readOnly ? GcpScope.STORAGE_READ_ONLY : GcpScope.STORAGE_READ_WRITE).getUrl()));
 		}
 		if (encodedKey.isPresent()) {
@@ -56,8 +56,7 @@ public class GcsOptions {
 
 	@Override
 	public String toString() {
-		return "GcsOptions [credentials=" + credentials + ", projectId=" + projectId + ", encodedKey=" + encodedKey
-				+ "]";
+		return "GcsOptions [credentials=" + keyFile + ", projectId=" + projectId + ", encodedKey=" + encodedKey + "]";
 	}
 
 }
