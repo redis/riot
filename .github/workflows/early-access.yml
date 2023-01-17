@@ -1,23 +1,18 @@
-name: EarlyAccess
+name: 'Early Access'
+
 on:
   push:
     branches: [ master ]
+
 jobs:
   earlyaccess:
-    name: EarlyAccess
-    if: startsWith(github.event.head_commit.message, 'Releasing version') != true
-    runs-on: ubuntu-latest
-    steps:
-    - name: Release
-      uses: redis-field-engineering/redis-release-action@v1
-      with:
-        gpg-key-id: ${{ secrets.GPG_KEY_ID }}
-        gpg-public-key: ${{ secrets.GPG_PUBLIC_KEY }}
-        gpg-secret-key: ${{ secrets.GPG_SECRET_KEY }}
-        gpg-passphrase: ${{ secrets.GPG_PASSPHRASE }}
-        sonatype-username: ${{ secrets.SONATYPE_USERNAME }}
-        sonatype-password: ${{ secrets.SONATYPE_PASSWORD }}
-        github-token: ${{ secrets.GIT_ACCESS_TOKEN }}
-        slack-webhook: ${{ secrets.SLACK_WEBHOOK }}
-        docker-username: ${{ secrets.DOCKER_USERNAME }}
-        docker-password: ${{ secrets.DOCKER_PASSWORD }}
+    name: 'Early Access'
+    if: github.repository == 'redis-developer/riot' && startsWith(github.event.head_commit.message, 'Releasing version') != true
+    uses: redis-field-engineering/redis-github-workflows/.github/workflows/early-access.yml@main
+    secrets:
+      github-token: ${{ secrets.GIT_ACCESS_TOKEN }}
+      gpg-passphrase: ${{ secrets.GPG_PASSPHRASE }}
+      gpg-public-key: ${{ secrets.GPG_PUBLIC_KEY }}
+      gpg-secret-key: ${{ secrets.GPG_SECRET_KEY }}
+      docker-username: ${{ secrets.DOCKER_USERNAME }}
+      docker-password: ${{ secrets.DOCKER_PASSWORD }}
