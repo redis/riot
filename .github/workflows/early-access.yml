@@ -9,6 +9,8 @@ jobs:
     name: 'Early Access'
     if: github.repository == 'redis-developer/riot' && startsWith(github.event.head_commit.message, 'Releasing version') != true
     uses: redis-field-engineering/redis-github-workflows/.github/workflows/early-access.yml@main
+    with:
+      jreleaser-arguments: full-release
     secrets:
       github-token: ${{ secrets.GIT_ACCESS_TOKEN }}
       gpg-passphrase: ${{ secrets.GPG_PASSPHRASE }}
