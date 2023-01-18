@@ -66,38 +66,97 @@ packagers:
     active: release
     bucket:
       name: scoop
-  docker:
-    active: always
-    repository:
-      active: never
-    registries:
-      - serverName: DEFAULT
-        repositoryName: fieldengineering
-    imageNames:
-      - 'fieldengineering/{{distributionName}}:{{projectVersion}}'
-      - 'fieldengineering/{{distributionName}}:latest'
-    labels:
-      'org.opencontainers.image.title': '{{distributionName}}'
-    buildx:
-      enabled: true
-      platforms:
-        - 'linux/amd64'
-        - 'linux/arm64'
 
 distributions:
   riot-db:
+    docker:
+      active: ALWAYS
+      repository:
+        active: NEVER
+      registries:
+        - serverName: DEFAULT
+          server: docker.io
+          repositoryName: fieldengineering          
+          username: jrdx
+      imageNames:
+        - 'fieldengineering/{{distributionName}}:{{tagName}}'
+        - 'fieldengineering/{{distributionName}}:latest'
+      labels:
+        'org.opencontainers.image.title': '{{distributionName}}'
+      buildx:
+        enabled: true
+        platforms:
+          - 'linux/amd64'
+          - 'linux/arm64'
     artifacts:
       - path: 'connectors/{{distributionName}}/build/distributions/{{distributionName}}-{{projectVersion}}.zip'
 
   riot-file:
+    docker:
+      active: ALWAYS
+      repository:
+        active: NEVER
+      registries:
+        - serverName: DEFAULT
+          server: docker.io
+          repositoryName: fieldengineering          
+          username: jrdx
+      imageNames:
+        - 'fieldengineering/{{distributionName}}:{{tagName}}'
+        - 'fieldengineering/{{distributionName}}:latest'
+      labels:
+        'org.opencontainers.image.title': '{{distributionName}}'
+      buildx:
+        enabled: true
+        platforms:
+          - 'linux/amd64'
+          - 'linux/arm64'
     artifacts:
       - path: 'connectors/{{distributionName}}/build/distributions/{{distributionName}}-{{projectVersion}}.zip'
 
   riot-gen:
+    docker:
+      active: ALWAYS
+      repository:
+        active: NEVER
+      registries:
+        - serverName: DEFAULT
+          server: docker.io
+          repositoryName: fieldengineering          
+          username: jrdx
+      imageNames:
+        - 'fieldengineering/{{distributionName}}:{{tagName}}'
+        - 'fieldengineering/{{distributionName}}:latest'
+      labels:
+        'org.opencontainers.image.title': '{{distributionName}}'
+      buildx:
+        enabled: true
+        platforms:
+          - 'linux/amd64'
+          - 'linux/arm64'
     artifacts:
       - path: 'connectors/{{distributionName}}/build/distributions/{{distributionName}}-{{projectVersion}}.zip'
 
   riot-redis:
+    docker:
+      active: ALWAYS
+      repository:
+        active: NEVER
+      registries:
+        - serverName: DEFAULT
+          server: docker.io
+          repositoryName: fieldengineering          
+          username: jrdx
+      imageNames:
+        - 'fieldengineering/{{distributionName}}:{{tagName}}'
+        - 'fieldengineering/{{distributionName}}:latest'
+      labels:
+        'org.opencontainers.image.title': '{{distributionName}}'
+      buildx:
+        enabled: true
+        platforms:
+          - 'linux/amd64'
+          - 'linux/arm64'
     artifacts:
       - path: 'connectors/{{distributionName}}/build/distributions/{{distributionName}}-{{projectVersion}}.zip'
 
