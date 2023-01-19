@@ -11,6 +11,7 @@ jobs:
     uses: redis-field-engineering/redis-github-workflows/.github/workflows/early-access.yml@main
     with:
       jreleaser-arguments: full-release
+      java-version: 19
     secrets:
       github-token: ${{ secrets.GIT_ACCESS_TOKEN }}
       gpg-passphrase: ${{ secrets.GPG_PASSPHRASE }}
