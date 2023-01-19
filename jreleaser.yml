@@ -85,15 +85,15 @@ packagers:
       - serverName: DEFAULT
         repositoryName: fieldengineering
     imageNames:
-      - 'fieldengineering/{{distributionName}}:{{projectVersion}}'
+      - 'fieldengineering/{{distributionName}}:{{tagName}}'
       - 'fieldengineering/{{distributionName}}:latest'
     labels:
       'org.opencontainers.image.title': '{{distributionName}}'
-    buildx:
-      enabled: true
-      platforms:
-        - 'linux/amd64'
-        - 'linux/arm64'
+#    buildx:
+#      enabled: true
+#      platforms:
+#        - 'linux/amd64'
+#        - 'linux/arm64'
 
 distributions:
   riot-db:
