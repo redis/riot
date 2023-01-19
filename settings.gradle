@@ -1,14 +1,15 @@
 buildscript {
     repositories {
-        gradlePluginPortal()
-        mavenCentral()
         mavenLocal()
+        mavenCentral()
+        gradlePluginPortal()
     }
     dependencies {
-        classpath "org.kordamp.gradle:kordamp-parentbuild:$kordampBuildVersion"
         classpath "org.kordamp.gradle:java-project-gradle-plugin:$kordampPluginVersion"
+        classpath "org.kordamp.gradle:jacoco-gradle-plugin:$kordampPluginVersion"
+        classpath "org.kordamp.gradle:kordamp-parentbuild:$kordampBuildVersion"
         classpath "org.springframework.boot:spring-boot-gradle-plugin:$bootPluginVersion"
-        classpath "org.asciidoctor:asciidoctor-gradle-jvm:$asciidoctorPluginVersion"
+        classpath "org.asciidoctor:asciidoctor-gradle-jvm:$asciidoctorVersion"
     }
 }
 

@@ -3,23 +3,28 @@ config {
         description = 'Redis Input/Output Tools'
         inceptionYear = '2020'
         vendor = 'Redis'
-        tags = ['redis', 'data', 'import', 'export', 'generator', 'file', 'sql', 'replication']
+        tags = ['redis', 'tool', 'import', 'export', 'replication']
+        
         links {
-            website = 'https://github.com/redis-developer/riot'
-            issueTracker = 'https://github.com/redis-developer/riot/issues'
-            scm = 'https://github.com/redis-developer/riot.git'
+            website = 'https://github.com/redis-developer/${project.rootProject.name}'
+            issueTracker = 'https://github.com/redis-developer/${project.rootProject.name}/issues'
+            scm = 'https://github.com/redis-developer/${project.rootProject.name}.git'
         }
+        
         scm {
             url = "https://github.com/redis-developer/riot"
             connection = "scm:git:https://github.com/redis-developer/riot.git"
             developerConnection = "scm:git:git@github.com:redis-developer/riot.git"
         }
+        
         specification {
             enabled = true
         }
+        
         implementation {
             enabled = true
         }
+        
         people {
             person {
                 id = 'jruaux'
@@ -27,20 +32,9 @@ config {
                 roles = ['developer', 'author']
             }
         }
-        publishing {
-            signing {
-                enabled = true
-            }
-        }
+        
     }
-    licensing {
-        enabled = false
-        licenses {
-            license {
-                id = 'Apache-2.0'
-            }
-        }
-    }
+    
     docs {
         javadoc {
             autoLinks {
@@ -51,21 +45,36 @@ config {
             enabled = false
         }
     }
+    
+    licensing {
+        enabled = false
+        licenses {
+            license {
+                id = 'Apache-2.0'
+            }
+        }
+    }
+
     coverage {
         jacoco {
-            toolVersion = '0.8.8'
+            enabled = true
+            toolVersion = jacocoVersion
         }
     }
 }
 
 allprojects {
     repositories {
-        gradlePluginPortal()
-        mavenCentral()
         mavenLocal()
+        gradlePluginPortal()
     }
+    
     tasks.withType(GenerateModuleMetadata) {
         enabled = false
+    }
+    
+    tasks.withType(JavaCompile) {
+        options.encoding = 'UTF-8'
     }
 }
 
@@ -74,11 +83,6 @@ subprojects {
         info {
             description = project.project_description
         }
-	    coverage {
-	        jacoco {
-	            toolVersion = '0.8.8'
-	        }
-	    }        
     }
 
     license {
@@ -115,9 +119,6 @@ subprojects {
 		}
 	}
     
-    sourceCompatibility = 8
-    targetCompatibility = 8
-
     asciidoctor {
 	    inProcess = JAVA_EXEC
 	    forkOptions {
@@ -145,3 +146,4 @@ subprojects {
         'project-title': config.info.description
 	}
 }
+

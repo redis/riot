@@ -2,5 +2,5 @@ dependencies {
     implementation project(':riot-core')
     implementation group: 'commons-io', name: 'commons-io', version: commonsIoVersion
     implementation group: 'org.codehaus.plexus', name: 'plexus-utils', version:plexusVersion
-    api group: 'com.redis.testcontainers', name: 'testcontainers-redis-junit', version: testcontainersRedisVersion
+    api group: 'com.redis.testcontainers', name: 'testcontainers-redis-junit', version: testcontRedisVersion
 }

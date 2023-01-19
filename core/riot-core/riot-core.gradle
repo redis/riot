@@ -1,6 +1,6 @@
 dependencies {
     api group: 'com.redis', name: 'lettucemod', version: lettucemodVersion
-    api group: 'com.redis', name: 'spring-batch-redis', version: springBatchRedisVersion
+    api group: 'com.redis', name: 'spring-batch-redis', version: batchRedisVersion
     api group: 'info.picocli', name: 'picocli', version: picocliVersion
     annotationProcessor group: 'info.picocli', name: 'picocli-codegen', version: picocliVersion
     api 'org.apache.commons:commons-pool2'
