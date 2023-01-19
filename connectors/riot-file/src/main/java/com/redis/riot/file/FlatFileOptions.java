@@ -14,15 +14,17 @@ public class FlatFileOptions {
 	public static final String DEFAULT_CONTINUATION_STRING = "\\";
 
 	@Option(names = "--max", description = "Max number of lines to import.", paramLabel = "<count>")
-	private Optional<Integer> maxItemCount = Optional.empty();
+	private int maxItemCount;
 	@Option(names = "--fields", arity = "1..*", description = "Delimited/FW field names.", paramLabel = "<names>")
 	private List<String> names = new ArrayList<>();
 	@Option(names = { "-h", "--header" }, description = "Delimited/FW first line contains field names.")
 	private boolean header;
+	@Option(names = "--header-line", description = "Index of header line.")
+	private Optional<Integer> headerLine = Optional.empty();
 	@Option(names = "--delimiter", description = "Delimiter character.", paramLabel = "<string>")
 	private Optional<String> delimiter = Optional.empty();
 	@Option(names = "--skip", description = "Delimited/FW lines to skip at start.", paramLabel = "<count>")
-	private Optional<Integer> linesToSkip = Optional.empty();
+	private int linesToSkip;
 	@Option(names = "--include", arity = "1..*", description = "Delimited/FW field indices to include (0-based).", paramLabel = "<index>")
 	private int[] includedFields;
 	@Option(names = "--ranges", arity = "1..*", description = "Fixed-width column ranges.", paramLabel = "<string>")
@@ -39,6 +41,7 @@ public class FlatFileOptions {
 		this.maxItemCount = builder.maxItemCount;
 		this.names = builder.names;
 		this.header = builder.header;
+		this.headerLine = builder.headerLine;
 		this.delimiter = builder.delimiter;
 		this.linesToSkip = builder.linesToSkip;
 		this.includedFields = builder.includedFields;
@@ -47,12 +50,12 @@ public class FlatFileOptions {
 		this.continuationString = builder.continuationString;
 	}
 
-	public Optional<Integer> getMaxItemCount() {
+	public int getMaxItemCount() {
 		return maxItemCount;
 	}
 
 	public void setMaxItemCount(int count) {
-		this.maxItemCount = Optional.of(count);
+		this.maxItemCount = count;
 	}
 
 	public List<String> getNames() {
@@ -75,8 +78,20 @@ public class FlatFileOptions {
 		this.delimiter = Optional.of(delimiter);
 	}
 
+	public Optional<Integer> getHeaderLine() {
+		return headerLine;
+	}
+
+	public void setHeaderLine(int lineIndex) {
+		this.headerLine = Optional.of(lineIndex);
+	}
+
+	public int getLinesToSkip() {
+		return linesToSkip;
+	}
+
 	public void setLinesToSkip(int linesToSkip) {
-		this.linesToSkip = Optional.of(linesToSkip);
+		this.linesToSkip = linesToSkip;
 	}
 
 	public int[] getIncludedFields() {
@@ -115,26 +130,17 @@ public class FlatFileOptions {
 		this.continuationString = continuationString;
 	}
 
-	public int getLinesToSkip() {
-		if (linesToSkip.isPresent()) {
-			return linesToSkip.get();
-		}
-		if (header) {
-			return 1;
-		}
-		return 0;
-	}
-
 	public static Builder builder() {
 		return new Builder();
 	}
 
 	public static final class Builder extends FileOptions.Builder<Builder> {
-		private Optional<Integer> maxItemCount = Optional.empty();
+		private int maxItemCount;
 		private List<String> names = new ArrayList<>();
 		private boolean header;
+		private Optional<Integer> headerLine = Optional.empty();
 		private Optional<String> delimiter = Optional.empty();
-		private Optional<Integer> linesToSkip = Optional.empty();
+		private int linesToSkip;
 		private int[] includedFields;
 		private List<String> columnRanges = new ArrayList<>();
 		private Character quoteCharacter = DelimitedLineTokenizer.DEFAULT_QUOTE_CHARACTER;
@@ -143,11 +149,16 @@ public class FlatFileOptions {
 		private Builder() {
 		}
 
-		public Builder max(int count) {
-			return max(Optional.of(count));
+		public Builder headerLine(int lineIndex) {
+			return headerLine(Optional.of(lineIndex));
 		}
 
-		public Builder max(Optional<Integer> count) {
+		public Builder headerLine(Optional<Integer> lineIndex) {
+			this.headerLine = lineIndex;
+			return this;
+		}
+
+		public Builder max(int count) {
 			this.maxItemCount = count;
 			return this;
 		}
@@ -172,10 +183,6 @@ public class FlatFileOptions {
 		}
 
 		public Builder linesToSkip(int linesToSkip) {
-			return linesToSkip(Optional.of(linesToSkip));
-		}
-
-		public Builder linesToSkip(Optional<Integer> linesToSkip) {
 			this.linesToSkip = linesToSkip;
 			return this;
 		}
@@ -207,10 +214,10 @@ public class FlatFileOptions {
 
 	@Override
 	public String toString() {
-		return "FlatFileOptions [names=" + names + ", max=" + maxItemCount + ", header=" + header + ", delimiter="
-				+ delimiter + ", linesToSkip=" + linesToSkip + ", includedFields=" + Arrays.toString(includedFields)
-				+ ", columnRanges=" + columnRanges + ", quoteCharacter=" + quoteCharacter + ", continuationString="
-				+ continuationString + "]";
+		return "FlatFileOptions [names=" + names + ", max=" + maxItemCount + ", header=" + header + ", headerLine="
+				+ headerLine + ", delimiter=" + delimiter + ", linesToSkip=" + linesToSkip + ", includedFields="
+				+ Arrays.toString(includedFields) + ", columnRanges=" + columnRanges + ", quoteCharacter="
+				+ quoteCharacter + ", continuationString=" + continuationString + "]";
 	}
 
 }

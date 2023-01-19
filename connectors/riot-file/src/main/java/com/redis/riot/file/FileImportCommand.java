@@ -189,32 +189,58 @@ public class FileImportCommand extends AbstractImportCommand {
 		builder.lineTokenizer(tokenizer);
 		builder.recordSeparatorPolicy(new DefaultRecordSeparatorPolicy(flatFileOptions.getQuoteCharacter().toString(),
 				flatFileOptions.getContinuationString()));
-		builder.linesToSkip(flatFileOptions.getLinesToSkip());
+		builder.linesToSkip(linesToSkip());
 		builder.strict(true);
 		builder.saveState(false);
 		builder.fieldSetMapper(new MapFieldSetMapper());
-		builder.skippedLinesCallback(new HeaderCallbackHandler(tokenizer));
-		flatFileOptions.getMaxItemCount().ifPresent(builder::maxItemCount);
+		builder.skippedLinesCallback(new HeaderCallbackHandler(tokenizer, headerIndex()));
+		if (flatFileOptions.getMaxItemCount() > 0) {
+			builder.maxItemCount(flatFileOptions.getMaxItemCount());
+		}
 		return builder.build();
+	}
+
+	private int headerIndex() {
+		Optional<Integer> headerLine = flatFileOptions.getHeaderLine();
+		if (headerLine.isPresent()) {
+			return headerLine.get();
+		}
+		return linesToSkip() - 1;
+	}
+
+	private int linesToSkip() {
+		if (flatFileOptions.getLinesToSkip() > 0) {
+			return flatFileOptions.getLinesToSkip();
+		}
+		if (flatFileOptions.isHeader()) {
+			return 1;
+		}
+		return 0;
 	}
 
 	private static class HeaderCallbackHandler implements LineCallbackHandler {
 
 		private final AbstractLineTokenizer tokenizer;
+		private final int headerIndex;
+		private int lineIndex;
 
-		public HeaderCallbackHandler(AbstractLineTokenizer tokenizer) {
+		public HeaderCallbackHandler(AbstractLineTokenizer tokenizer, int headerIndex) {
 			this.tokenizer = tokenizer;
+			this.headerIndex = headerIndex;
 		}
 
 		@Override
 		public void handleLine(String line) {
-			log.log(Level.FINE, "Found header: {0}", line);
-			FieldSet fieldSet = tokenizer.tokenize(line);
-			List<String> fields = new ArrayList<>();
-			for (int index = 0; index < fieldSet.getFieldCount(); index++) {
-				fields.add(fieldSet.readString(index));
+			if (lineIndex == headerIndex) {
+				log.log(Level.FINE, "Found header: {0}", line);
+				FieldSet fieldSet = tokenizer.tokenize(line);
+				List<String> fields = new ArrayList<>();
+				for (int index = 0; index < fieldSet.getFieldCount(); index++) {
+					fields.add(fieldSet.readString(index));
+				}
+				tokenizer.setNames(fields.toArray(new String[0]));
 			}
-			tokenizer.setNames(fields.toArray(new String[0]));
+			lineIndex++;
 		}
 	}
 

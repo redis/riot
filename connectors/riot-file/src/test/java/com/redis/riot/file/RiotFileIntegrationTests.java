@@ -129,6 +129,15 @@ class RiotFileIntegrationTests extends AbstractRiotIntegrationTests {
 
 	@ParameterizedTest
 	@RedisTestContextsSource
+	void importCSVSkipLines(RedisTestContext redis) throws Exception {
+		execute("import-csv-skiplines", redis);
+		RedisKeyCommands<String, String> sync = redis.sync();
+		List<String> keys = sync.keys("beer:*");
+		Assertions.assertEquals(BEER_CSV_COUNT - 10, keys.size());
+	}
+
+	@ParameterizedTest
+	@RedisTestContextsSource
 	void importCSVMax(RedisTestContext redis) throws Exception {
 		execute("import-csv-max", redis);
 		RedisKeyCommands<String, String> sync = redis.sync();

@@ -1,8 +1,8 @@
 package com.redis.riot.db;
 
 import java.util.Map;
-import java.util.Optional;
 
+import org.springframework.batch.item.database.AbstractCursorItemReader;
 import org.springframework.batch.item.database.builder.JdbcCursorItemReaderBuilder;
 
 import picocli.CommandLine.Option;
@@ -10,28 +10,32 @@ import picocli.CommandLine.Option;
 public class DatabaseImportOptions {
 
 	@Option(names = "--max", description = "Max number of rows to import.", paramLabel = "<count>")
-	private Optional<Integer> maxItemCount = Optional.empty();
+	private int maxItemCount;
 	@Option(names = "--fetch", description = "Number of rows to return with each fetch.", paramLabel = "<size>")
-	private Optional<Integer> fetchSize = Optional.empty();
+	private int fetchSize = AbstractCursorItemReader.VALUE_NOT_SET;
 	@Option(names = "--rows", description = "Max number of rows the ResultSet can contain.", paramLabel = "<count>")
-	private Optional<Integer> maxResultSetRows = Optional.empty();
+	private int maxResultSetRows = AbstractCursorItemReader.VALUE_NOT_SET;
 	@Option(names = "--query-timeout", description = "The time in milliseconds for the query to timeout.", paramLabel = "<ms>")
-	private Optional<Integer> queryTimeout = Optional.empty();
+	private int queryTimeout = AbstractCursorItemReader.VALUE_NOT_SET;
 	@Option(names = "--shared-connection", description = "Use same connection for cursor and other processing.", hidden = true)
 	private boolean useSharedExtendedConnection;
 	@Option(names = "--verify", description = "Verify position of result set after row mapper.", hidden = true)
 	private boolean verifyCursorPosition;
 
+	public void setMaxItemCount(int maxItemCount) {
+		this.maxItemCount = maxItemCount;
+	}
+
 	public void setFetchSize(int fetchSize) {
-		this.fetchSize = Optional.of(fetchSize);
+		this.fetchSize = fetchSize;
 	}
 
 	public void setMaxResultSetRows(int rows) {
-		this.maxResultSetRows = Optional.of(rows);
+		this.maxResultSetRows = rows;
 	}
 
 	public void setQueryTimeout(int queryTimeout) {
-		this.queryTimeout = Optional.of(queryTimeout);
+		this.queryTimeout = queryTimeout;
 	}
 
 	public void setUseSharedExtendedConnection(boolean useSharedExtendedConnection) {
@@ -43,12 +47,14 @@ public class DatabaseImportOptions {
 	}
 
 	public void configure(JdbcCursorItemReaderBuilder<Map<String, Object>> builder) {
-		fetchSize.ifPresent(builder::fetchSize);
-		maxResultSetRows.ifPresent(builder::maxRows);
-		queryTimeout.ifPresent(builder::queryTimeout);
+		builder.fetchSize(fetchSize);
+		builder.maxRows(maxResultSetRows);
+		builder.queryTimeout(queryTimeout);
 		builder.useSharedExtendedConnection(useSharedExtendedConnection);
 		builder.verifyCursorPosition(verifyCursorPosition);
-		maxItemCount.ifPresent(builder::maxItemCount);
+		if (maxItemCount > 0) {
+			builder.maxItemCount(maxItemCount);
+		}
 	}
 
 	@Override
