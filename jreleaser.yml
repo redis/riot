@@ -77,18 +77,6 @@ packagers:
     active: release
     bucket:
       name: scoop
-  docker:
-    active: always
-    repository:
-      active: never
-    registries:
-      - serverName: DEFAULT
-        repositoryName: fieldengineering
-    imageNames:
-      - 'fieldengineering/{{distributionName}}:{{tagName}}'
-      - 'fieldengineering/{{distributionName}}:latest'
-    labels:
-      'org.opencontainers.image.title': '{{distributionName}}'
 #    buildx:
 #      enabled: true
 #      platforms:
@@ -99,18 +87,70 @@ distributions:
   riot-db:
     artifacts:
       - path: 'connectors/{{distributionName}}/build/distributions/{{distributionName}}-{{projectVersion}}.zip'
+    docker:
+      active: always
+      repository:
+        active: never
+      registries:
+        - serverName: DEFAULT
+          server: docker.io
+          repositoryName: fieldengineering
+      imageNames:
+        - 'fieldengineering/{{distributionName}}:{{tagName}}'
+        - 'fieldengineering/{{distributionName}}:latest'
+      labels:
+        'org.opencontainers.image.title': '{{distributionName}}'
 
   riot-file:
     artifacts:
       - path: 'connectors/{{distributionName}}/build/distributions/{{distributionName}}-{{projectVersion}}.zip'
-
+    docker:
+      active: always
+      repository:
+        active: never
+      registries:
+        - serverName: DEFAULT
+          server: docker.io
+          repositoryName: fieldengineering
+      imageNames:
+        - 'fieldengineering/{{distributionName}}:{{tagName}}'
+        - 'fieldengineering/{{distributionName}}:latest'
+      labels:
+        'org.opencontainers.image.title': '{{distributionName}}'
+      
   riot-gen:
     artifacts:
       - path: 'connectors/{{distributionName}}/build/distributions/{{distributionName}}-{{projectVersion}}.zip'
+    docker:
+      active: always
+      repository:
+        active: never
+      registries:
+        - serverName: DEFAULT
+          server: docker.io
+          repositoryName: fieldengineering
+      imageNames:
+        - 'fieldengineering/{{distributionName}}:{{tagName}}'
+        - 'fieldengineering/{{distributionName}}:latest'
+      labels:
+        'org.opencontainers.image.title': '{{distributionName}}'
 
   riot-redis:
     artifacts:
       - path: 'connectors/{{distributionName}}/build/distributions/{{distributionName}}-{{projectVersion}}.zip'
+    docker:
+      active: always
+      repository:
+        active: never
+      registries:
+        - serverName: DEFAULT
+          server: docker.io
+          repositoryName: fieldengineering
+      imageNames:
+        - 'fieldengineering/{{distributionName}}:{{tagName}}'
+        - 'fieldengineering/{{distributionName}}:latest'
+      labels:
+        'org.opencontainers.image.title': '{{distributionName}}'
 
 files:
   artifacts:
