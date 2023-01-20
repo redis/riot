@@ -18,7 +18,7 @@ apply plugin: 'org.kordamp.gradle.kordamp-parentbuild'
 rootProject.name = 'riot'
 
 projects {
-    directories = ['core', 'connectors', 'docs']
+    directories = ['core', 'connectors']
 
     plugins {
         all {
