@@ -2,6 +2,7 @@ package com.redis.riot.redis;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
@@ -21,8 +22,10 @@ import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemStreamSupport;
 import org.springframework.batch.item.ItemWriter;
+import org.springframework.util.unit.DataSize;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import com.redis.enterprise.Database;
 import com.redis.riot.redis.ReplicationOptions.ReplicationMode;
 import com.redis.spring.batch.RedisItemWriter;
 import com.redis.spring.batch.common.ConnectionPoolBuilder;
@@ -30,6 +33,7 @@ import com.redis.spring.batch.common.DataStructure;
 import com.redis.spring.batch.common.JobRunner;
 import com.redis.spring.batch.reader.DataStructureGeneratorItemReader;
 import com.redis.testcontainers.RedisContainer;
+import com.redis.testcontainers.RedisEnterpriseContainer;
 import com.redis.testcontainers.RedisServer;
 import com.redis.testcontainers.junit.AbstractTestcontainersRedisTestBase;
 import com.redis.testcontainers.junit.RedisTestContext;
@@ -49,6 +53,13 @@ class RiotRedisIntegrationTests extends AbstractTestcontainersRedisTestBase {
 
 	private static final Duration IDLE_TIMEOUT = Duration.ofSeconds(3);
 
+	private final RedisContainer redisContainer = new RedisContainer(
+			RedisContainer.DEFAULT_IMAGE_NAME.withTag(RedisContainer.DEFAULT_TAG));
+
+	private final RedisEnterpriseContainer redisEnterpriseContainer = new RedisEnterpriseContainer(
+			RedisEnterpriseContainer.DEFAULT_IMAGE_NAME.withTag("latest"))
+			.withDatabase(Database.name("RiotTests").memory(DataSize.ofMegabytes(90)).ossCluster(true).build());
+
 	private final RedisContainer targetRedis = new RedisContainer(
 			RedisContainer.DEFAULT_IMAGE_NAME.withTag(RedisContainer.DEFAULT_TAG));
 
@@ -61,12 +72,12 @@ class RiotRedisIntegrationTests extends AbstractTestcontainersRedisTestBase {
 
 	@Override
 	protected Collection<RedisServer> testRedisServers() {
-		return redisServers();
+		return Arrays.asList(redisContainer, redisEnterpriseContainer);
 	}
 
 	@Override
 	protected Collection<RedisServer> redisServers() {
-		Collection<RedisServer> servers = new ArrayList<>();
+		Collection<RedisServer> servers = new ArrayList<>(Arrays.asList(redisContainer, redisEnterpriseContainer));
 		servers.add(targetRedis);
 		return servers;
 	}
