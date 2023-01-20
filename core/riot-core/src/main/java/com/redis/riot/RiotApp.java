@@ -2,14 +2,11 @@ package com.redis.riot;
 
 import java.io.InputStream;
 import java.nio.charset.Charset;
-import java.time.Duration;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.awaitility.Awaitility;
 import org.codehaus.plexus.util.cli.CommandLineUtils;
-import org.springframework.batch.core.JobExecution;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 
@@ -130,10 +127,6 @@ public class RiotApp {
 		loggingOptions.setStacktrace(true);
 		redisOptions.setUri(RedisURI.create(redisURI));
 		redisOptions.setCluster(cluster);
-	}
-
-	protected void awaitTermination(JobExecution execution) {
-		Awaitility.await().timeout(Duration.ofSeconds(60)).until(() -> !execution.isRunning());
 	}
 
 }
