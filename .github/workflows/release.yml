@@ -1,30 +1,51 @@
+
+          
 name: Release
 
 on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Release version"
+        description: 'Release version'
         required: true
+      branch:
+        description: 'Branch'
+        default: 'master'
+        required: true
+
 jobs:
   release:
     name: Release
+    uses: redis-field-engineering/redis-github-workflows/.github/workflows/release.yml@main
+    with:
+      branch: ${{ github.event.inputs.branch }}
+      version: ${{ github.event.inputs.version }}
+    secrets:
+      github-token: ${{ secrets.GIT_ACCESS_TOKEN }}
+      gpg-passphrase: ${{ secrets.GPG_PASSPHRASE }}
+      gpg-public-key: ${{ secrets.GPG_PUBLIC_KEY }}
+      gpg-secret-key: ${{ secrets.GPG_SECRET_KEY }}
+      docker-username: ${{ secrets.DOCKER_USERNAME }}
+      docker-password: ${{ secrets.DOCKER_PASSWORD }}
+      sonatype-username: ${{ secrets.SONATYPE_USERNAME }}
+      sonatype-password: ${{ secrets.SONATYPE_PASSWORD }}
+      slack-webhook: ${{ secrets.SLACK_WEBHOOK }}
+
+  publish-docs:
+    name: Publish Docs
+    needs: release
     runs-on: ubuntu-latest
     steps:
-      - name: Release
-        uses: redis-field-engineering/redis-release-action@v1
+      - name: Checkout
+        uses: actions/checkout@v3
         with:
-          version: ${{ github.event.inputs.version }}
-          gpg-key-id: ${{ secrets.GPG_KEY_ID }}
-          gpg-public-key: ${{ secrets.GPG_PUBLIC_KEY }}
-          gpg-secret-key: ${{ secrets.GPG_SECRET_KEY }}
-          gpg-passphrase: ${{ secrets.GPG_PASSPHRASE }}
-          sonatype-username: ${{ secrets.SONATYPE_USERNAME }}
-          sonatype-password: ${{ secrets.SONATYPE_PASSWORD }}
-          github-token: ${{ secrets.GIT_ACCESS_TOKEN }}
-          slack-webhook: ${{ secrets.SLACK_WEBHOOK }}
-          docker-username: ${{ secrets.DOCKER_USERNAME }}
-          docker-password: ${{ secrets.DOCKER_PASSWORD }}
+          ref: ${{ github.event.inputs.branch }}
+          
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: 17
+          distribution: 'zulu'
 
       - name: Generate Docs
         run: |

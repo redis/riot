@@ -1,9 +1,0 @@
-eclipse {
-    project {
-        name = 'riot-guide'
-    }
-}
-
-asciidoctor {
-    outputDir = "$rootDir/build/docs/asciidoc"
-}

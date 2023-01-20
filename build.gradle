@@ -146,4 +146,3 @@ subprojects {
         'project-title': config.info.description
 	}
 }
-
