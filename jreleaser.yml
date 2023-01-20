@@ -77,20 +77,15 @@ packagers:
     active: release
     bucket:
       name: scoop
-#    buildx:
-#      enabled: true
-#      platforms:
-#        - 'linux/amd64'
-#        - 'linux/arm64'
 
 distributions:
   riot-db:
     artifacts:
       - path: 'connectors/{{distributionName}}/build/distributions/{{distributionName}}-{{projectVersion}}.zip'
     docker:
-      active: always
+      active: ALWAYS
       repository:
-        active: never
+        active: NEVER
       registries:
         - serverName: DEFAULT
           server: docker.io
@@ -105,9 +100,9 @@ distributions:
     artifacts:
       - path: 'connectors/{{distributionName}}/build/distributions/{{distributionName}}-{{projectVersion}}.zip'
     docker:
-      active: always
+      active: ALWAYS
       repository:
-        active: never
+        active: NEVER
       registries:
         - serverName: DEFAULT
           server: docker.io
@@ -122,9 +117,9 @@ distributions:
     artifacts:
       - path: 'connectors/{{distributionName}}/build/distributions/{{distributionName}}-{{projectVersion}}.zip'
     docker:
-      active: always
+      active: ALWAYS
       repository:
-        active: never
+        active: NEVER
       registries:
         - serverName: DEFAULT
           server: docker.io
@@ -139,9 +134,9 @@ distributions:
     artifacts:
       - path: 'connectors/{{distributionName}}/build/distributions/{{distributionName}}-{{projectVersion}}.zip'
     docker:
-      active: always
+      active: ALWAYS
       repository:
-        active: never
+        active: NEVER
       registries:
         - serverName: DEFAULT
           server: docker.io
