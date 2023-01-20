@@ -7,7 +7,7 @@
 
 ++++
 <p align="center">
-  <img alt="RIOT" src="riot.svg">
+  <img alt="RIOT" src="docs/riot.svg">
 
   <p align="center">
     Redis Input/Output Tools (RIOT) is a series of utilities designed to help you get data in and out of Redis.
