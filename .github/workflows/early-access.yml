@@ -17,5 +17,7 @@ jobs:
       gpg-passphrase: ${{ secrets.GPG_PASSPHRASE }}
       gpg-public-key: ${{ secrets.GPG_PUBLIC_KEY }}
       gpg-secret-key: ${{ secrets.GPG_SECRET_KEY }}
+      sonatype-username: ${{ secrets.SONATYPE_USERNAME }}
+      sonatype-password: ${{ secrets.SONATYPE_PASSWORD }}      
       docker-username: ${{ secrets.DOCKER_USERNAME }}
       docker-password: ${{ secrets.DOCKER_PASSWORD }}

@@ -16,7 +16,8 @@ dependencies {
     implementation 'mysql:mysql-connector-java'
     implementation 'org.postgresql:postgresql'
     implementation group: 'org.xerial', name: 'sqlite-jdbc', version: sqliteVersion
-    testImplementation project(':riot-test')
+    testImplementation(testFixtures(project(':riot-core')))
+    testImplementation group: 'com.redis.testcontainers', name: 'testcontainers-redis-junit', version: testcontRedisVersion
     testImplementation group: 'org.testcontainers', name: 'postgresql', version: testcontVersion
     testImplementation group: 'org.testcontainers', name: 'oracle-xe', version: testcontVersion
 }

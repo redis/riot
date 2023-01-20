@@ -9,7 +9,8 @@ manifest {
 dependencies {
     api project(':riot-core')
     implementation group: 'com.github.javafaker', name: 'javafaker', version: fakerVersion
-    testImplementation project(':riot-test')
+    testImplementation(testFixtures(project(':riot-core')))
+    testImplementation group: 'com.redis.testcontainers', name: 'testcontainers-redis-junit', version: testcontRedisVersion
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
     }
