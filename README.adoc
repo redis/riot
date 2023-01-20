@@ -6,15 +6,21 @@
 :project-version: 2.18.5
 :site-url:        https://developer.redis.com/riot
 
+++++
+<p align="center">
+  <img alt="RIOT" src="docs/guide/src/docs/resources/images/riot.svg">
+
+  <p align="center">
+    Redis Input/Output Tools (RIOT) is a series of utilities designed to help you get data in and out of Redis.
+  </p>
+</p>
+++++
+
+'''
+
 image:https://github.com/{project-owner}/{project-name}/actions/workflows/early-access.yml/badge.svg["Build Status", link="https://github.com/{project-owner}/{project-name}/actions/workflows/early-access.yml"]
 image:https://img.shields.io/github/release/{project-owner}/{project-name}.svg["Latest", link="https://github.com/{project-owner}/{project-name}/releases/latest"]
 image:https://codecov.io/gh/{project-owner}/{project-name}/branch/master/graph/badge.svg?token=LDK7BAJLJI["Coverage", link="https://codecov.io/gh/{project-owner}/{project-name}"]
-
-image::docs/guide/src/docs/resources/images/riot.svg[]
-
----
-
-Redis Input/Output Tools (RIOT) is a series of utilities designed to help you get data in and out of Redis.
 
 |===
 
