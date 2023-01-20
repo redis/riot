@@ -11,14 +11,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.redis.lettucemod.api.sync.RedisModulesCommands;
 import com.redis.lettucemod.search.Suggestion;
 import com.redis.lettucemod.search.SuggetOptions;
-import com.redis.riot.AbstractRiotTests;
 import com.redis.testcontainers.RedisModulesContainer;
 import com.redis.testcontainers.RedisServer;
+import com.redis.testcontainers.junit.AbstractTestcontainersRedisTestBase;
 import com.redis.testcontainers.junit.RedisTestContext;
 import com.redis.testcontainers.junit.RedisTestContextsSource;
 
 @SuppressWarnings("unchecked")
-class ModulesTests extends AbstractRiotTests {
+class ModulesTests extends AbstractTestcontainersRedisTestBase {
 
 	@Override
 	protected Collection<RedisServer> redisServers() {
@@ -26,25 +26,25 @@ class ModulesTests extends AbstractRiotTests {
 				RedisModulesContainer.DEFAULT_IMAGE_NAME.withTag(RedisModulesContainer.DEFAULT_TAG)));
 	}
 
-	@Override
-	protected RiotFile app() {
-		return new RiotFile();
-	}
-
 	@ParameterizedTest
 	@RedisTestContextsSource
 	void importSugadd(RedisTestContext redis) throws Exception {
-		execute("import-sugadd", redis);
+		assertExecutionSuccessful(new RiotFile().execute("import-sugadd", redis.getRedisURI(), redis.isCluster()));
 		List<Suggestion<String>> suggestions = redis.sync().ftSugget("names", "Bea",
 				SuggetOptions.builder().withPayloads(true).build());
 		Assertions.assertEquals(5, suggestions.size());
 		Assertions.assertEquals("American Blonde Ale", suggestions.get(0).getPayload());
 	}
 
+	private void assertExecutionSuccessful(int exitCode) {
+		Assertions.assertEquals(0, exitCode);
+	}
+
 	@ParameterizedTest
 	@RedisTestContextsSource
 	void importElasticJSON(RedisTestContext redis) throws Exception {
-		execute("import-json-elastic-jsonset", redis);
+		assertExecutionSuccessful(
+				new RiotFile().execute("import-json-elastic-jsonset", redis.getRedisURI(), redis.isCluster()));
 		RedisModulesCommands<String, String> sync = redis.sync();
 		Assertions.assertEquals(2, sync.keys("elastic:*").size());
 		ObjectMapper mapper = new ObjectMapper();

@@ -9,8 +9,6 @@ manifest {
 dependencies {
     api project(':riot-core')
     implementation group: 'org.latencyutils', name: 'LatencyUtils', version: latencyutilsVersion
-    testImplementation(testFixtures(project(':riot-core')))
-    testImplementation group: 'com.redis.testcontainers', name: 'testcontainers-redis-junit', version: testcontRedisVersion
 }
 
 bootStartScripts.enabled = false

@@ -30,7 +30,6 @@ projects {
         }
         dirs(['core', 'connectors']) {
             id 'java-library'
-            id 'java-test-fixtures'
             id 'org.springframework.boot'
             id 'io.spring.dependency-management'
         }

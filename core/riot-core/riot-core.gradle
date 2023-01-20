@@ -8,9 +8,6 @@ dependencies {
     implementation group: 'me.tongfei', name: 'progressbar', version: progressbarVersion
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
     implementation group: 'org.awaitility', name: 'awaitility', version: awaitilityVersion
+    implementation group: 'org.codehaus.plexus', name: 'plexus-utils', version:plexusVersion
     runtimeOnly 'org.slf4j:slf4j-jdk14'
-    testFixturesApi 'org.junit.jupiter:junit-jupiter-engine'
-    testFixturesApi group: 'commons-io', name: 'commons-io', version: commonsIoVersion
-    testFixturesApi group: 'org.codehaus.plexus', name: 'plexus-utils', version:plexusVersion
-    testFixturesApi group: 'com.redis.testcontainers', name: 'testcontainers-redis-junit', version: testcontRedisVersion
 }

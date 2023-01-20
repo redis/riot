@@ -7,10 +7,13 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
@@ -18,7 +21,13 @@ import org.awaitility.Awaitility;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.springframework.batch.core.JobExecution;
+import org.springframework.batch.core.JobExecutionException;
+import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.item.ExecutionContext;
+import org.springframework.batch.item.ItemReader;
+import org.springframework.batch.item.ItemStreamSupport;
+import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.json.JacksonJsonObjectReader;
 import org.springframework.batch.item.json.JsonItemReader;
 import org.springframework.batch.item.json.builder.JsonItemReaderBuilder;
@@ -26,17 +35,26 @@ import org.springframework.batch.item.support.AbstractItemCountingItemStreamItem
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.util.FileCopyUtils;
+import org.springframework.util.unit.DataSize;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import com.redis.enterprise.Database;
 import com.redis.lettucemod.api.sync.RedisModulesCommands;
-import com.redis.riot.AbstractRiotIntegrationTests;
 import com.redis.riot.ProgressStyle;
 import com.redis.riot.file.resource.XmlItemReader;
 import com.redis.riot.file.resource.XmlItemReaderBuilder;
 import com.redis.riot.file.resource.XmlObjectReader;
 import com.redis.riot.redis.HsetCommand;
+import com.redis.spring.batch.RedisItemWriter;
+import com.redis.spring.batch.common.ConnectionPoolBuilder;
 import com.redis.spring.batch.common.DataStructure;
+import com.redis.spring.batch.common.JobRunner;
+import com.redis.spring.batch.reader.DataStructureGeneratorItemReader;
+import com.redis.testcontainers.RedisContainer;
+import com.redis.testcontainers.RedisEnterpriseContainer;
+import com.redis.testcontainers.RedisServer;
+import com.redis.testcontainers.junit.AbstractTestcontainersRedisTestBase;
 import com.redis.testcontainers.junit.RedisTestContext;
 import com.redis.testcontainers.junit.RedisTestContextsSource;
 
@@ -49,13 +67,61 @@ import io.lettuce.core.api.sync.RedisSetCommands;
 import picocli.CommandLine;
 
 @SuppressWarnings("unchecked")
-class RiotFileIntegrationTests extends AbstractRiotIntegrationTests {
+class RiotFileIntegrationTests extends AbstractTestcontainersRedisTestBase {
 
 	public static final String BEERS_JSON_URL = "https://storage.googleapis.com/jrx/beers.json";
 	public static final int BEER_CSV_COUNT = 2410;
 	public static final int BEER_JSON_COUNT = 216;
 
 	private static Path tempDir;
+
+	private static final int DEFAULT_BATCH_SIZE = 50;
+
+	private final RedisContainer redisContainer = new RedisContainer(
+			RedisContainer.DEFAULT_IMAGE_NAME.withTag(RedisContainer.DEFAULT_TAG));
+
+	private final RedisEnterpriseContainer redisEnterpriseContainer = new RedisEnterpriseContainer(
+			RedisEnterpriseContainer.DEFAULT_IMAGE_NAME.withTag("latest"))
+			.withDatabase(Database.name("RiotTests").memory(DataSize.ofMegabytes(90)).ossCluster(true).build());
+
+	private JobRunner jobRunner;
+
+	@BeforeAll
+	private void setupJobRunner() throws Exception {
+		jobRunner = JobRunner.inMemory();
+	}
+
+	@Override
+	protected Collection<RedisServer> redisServers() {
+		return Arrays.asList(redisContainer, redisEnterpriseContainer);
+	}
+
+	protected void generate(RedisTestContext redis) throws JobExecutionException {
+		generate(DataStructureGeneratorItemReader.builder().build(), redis);
+	}
+
+	protected void generate(ItemReader<DataStructure<String>> reader, RedisTestContext redis)
+			throws JobExecutionException {
+		generate(DEFAULT_BATCH_SIZE, reader, redis);
+	}
+
+	protected <T> JobExecution run(String name, int chunkSize, ItemReader<T> reader, ItemWriter<T> writer)
+			throws JobExecutionException {
+		return jobRunner.run(jobRunner.job(name).start(step(name, chunkSize, reader, writer).build()).build());
+	}
+
+	protected void generate(int chunkSize, ItemReader<DataStructure<String>> reader, RedisTestContext redis)
+			throws JobExecutionException {
+		run(UUID.randomUUID().toString(), chunkSize, reader,
+				RedisItemWriter.dataStructure(ConnectionPoolBuilder.create(redis.getClient()).build()).build());
+	}
+
+	protected <T> SimpleStepBuilder<T, T> step(String name, int chunkSize, ItemReader<T> reader, ItemWriter<T> writer) {
+		if (reader instanceof ItemStreamSupport) {
+			((ItemStreamSupport) reader).setName(name + "-reader");
+		}
+		return jobRunner.step(name).<T, T>chunk(chunkSize).reader(reader).writer(writer);
+	}
 
 	@BeforeAll
 	public void setupAll() throws IOException {
@@ -97,9 +163,11 @@ class RiotFileIntegrationTests extends AbstractRiotIntegrationTests {
 		return records;
 	}
 
-	@Override
-	protected RiotFile app() {
-		return new RiotFile();
+	protected int execute(String filename, RedisTestContext redis, Consumer<CommandLine.ParseResult>... configurators)
+			throws Exception {
+		int exitCode = new RiotFile().execute(filename, redis.getRedisURI(), redis.isCluster(), configurators);
+		Assertions.assertEquals(0, exitCode);
+		return exitCode;
 	}
 
 	@ParameterizedTest
@@ -475,7 +543,7 @@ class RiotFileIntegrationTests extends AbstractRiotIntegrationTests {
 		hset.getKeyOptions().setKeys(new String[] { "id" });
 		command.setRedisCommands(Collections.singletonList(hset));
 		RiotFile riotFile = new RiotFile();
-		configure(riotFile, redis);
+		riotFile.configure(redis.getRedisURI(), redis.isCluster());
 		command.setApp(riotFile);
 		command.call();
 		RedisKeyCommands<String, String> sync = redis.sync();

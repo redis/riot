@@ -8,6 +8,8 @@ import picocli.CommandLine.Option;
 
 public class TransferOptions {
 
+	public static final int DEFAULT_CHUNK_SIZE = 0;
+
 	@Option(names = "--sleep", description = "Duration in ms to sleep before each item read (default: ${DEFAULT-VALUE}).", paramLabel = "<ms>")
 	private long sleep;
 
@@ -16,7 +18,7 @@ public class TransferOptions {
 
 	@Option(names = { "-b",
 			"--batch" }, description = "Number of items in each batch (default: ${DEFAULT-VALUE}).", paramLabel = "<size>")
-	private int chunkSize = 50;
+	private int chunkSize = DEFAULT_CHUNK_SIZE;
 
 	@Option(names = "--skip-policy", description = "Policy to determine if some processing should be skipped: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<name>")
 	private StepSkipPolicy skipPolicy = StepSkipPolicy.LIMIT;

@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Assumptions;
@@ -20,9 +21,9 @@ import com.redis.lettucemod.timeseries.MRangeOptions;
 import com.redis.lettucemod.timeseries.RangeResult;
 import com.redis.lettucemod.timeseries.Sample;
 import com.redis.lettucemod.timeseries.TimeRange;
-import com.redis.riot.AbstractRiotIntegrationTests;
 import com.redis.testcontainers.RedisModulesContainer;
 import com.redis.testcontainers.RedisServer;
+import com.redis.testcontainers.junit.AbstractTestcontainersRedisTestBase;
 import com.redis.testcontainers.junit.RedisTestContext;
 import com.redis.testcontainers.junit.RedisTestContextsSource;
 
@@ -33,23 +34,26 @@ import io.lettuce.core.api.sync.RedisKeyCommands;
 import io.lettuce.core.api.sync.RedisSetCommands;
 import io.lettuce.core.api.sync.RedisSortedSetCommands;
 import io.lettuce.core.api.sync.RedisStreamCommands;
+import picocli.CommandLine;
 
 @SuppressWarnings("unchecked")
-class RiotGenIntegrationTests extends AbstractRiotIntegrationTests {
+class RiotGenIntegrationTests extends AbstractTestcontainersRedisTestBase {
 
 	private final RedisModulesContainer redisMod = new RedisModulesContainer(
 			RedisModulesContainer.DEFAULT_IMAGE_NAME.withTag(RedisModulesContainer.DEFAULT_TAG));
 
 	@Override
 	protected Collection<RedisServer> redisServers() {
-		Collection<RedisServer> servers = new ArrayList<>(super.redisServers());
+		Collection<RedisServer> servers = new ArrayList<>();
 		servers.add(redisMod);
 		return servers;
 	}
 
-	@Override
-	protected RiotGen app() {
-		return new RiotGen();
+	protected int execute(String filename, RedisTestContext redis, Consumer<CommandLine.ParseResult>... configurators)
+			throws Exception {
+		int exitCode = new RiotGen().execute(filename, redis.getRedisURI(), redis.isCluster(), configurators);
+		Assertions.assertEquals(0, exitCode);
+		return exitCode;
 	}
 
 	@ParameterizedTest
