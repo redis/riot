@@ -1,4 +1,3 @@
-= RIOT
 :linkattrs:
 :project-owner:   redis-developer
 :project-name:    riot
