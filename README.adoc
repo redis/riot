@@ -21,28 +21,33 @@ image:https://github.com/{project-owner}/{project-name}/actions/workflows/early-
 image:https://img.shields.io/github/release/{project-owner}/{project-name}.svg["Latest", link="https://github.com/{project-owner}/{project-name}/releases/latest"]
 image:https://codecov.io/gh/{project-owner}/{project-name}/branch/master/graph/badge.svg?token=LDK7BAJLJI["Coverage", link="https://codecov.io/gh/{project-owner}/{project-name}"]
 
-== RIOT-DB
 
+.*RIOT-DB*
+****
 Database import/export
 
 link:{site-url}/riot-db/index.html[Documentation]
+****
 
-== RIOT-File
-
+.*RIOT-File*
+****
 File import/export
 
 link:{site-url}/riot-file/index.html[Documentation]
+****
 
-== RIOT-Gen
-
+.*RIOT-Gen*
+****
 Data generator
 
 link:{site-url}/riot-gen/index.html[Documentation]
+****
 
-== RIOT-Redis
-
+.*RIOT-Redis*
+****
 Redis -> Redis migration
 
 link:{site-url}/riot-redis/index.html[Documentation]
 
 link:{site-url}/riot-redis/cookbook.html[Cookbook]
+****
