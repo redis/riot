@@ -21,3 +21,4 @@ jobs:
       sonatype-password: ${{ secrets.SONATYPE_PASSWORD }}      
       docker-username: ${{ secrets.DOCKER_USERNAME }}
       docker-password: ${{ secrets.DOCKER_PASSWORD }}
+      slack-webhook: ${{ secrets.SLACK_WEBHOOK }}
