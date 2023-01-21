@@ -14,7 +14,7 @@
 <div id="header">
 <h1>RIOT-Redis</h1>
 <div class="details">
-<span id="revnumber">version 2.18.5</span>
+<span id="revnumber">version 2.19.0</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -457,7 +457,9 @@ The optimal batch size in terms of throughput depends on a few factors like reco
 <h3 id="threads"><a class="anchor" href="#threads"></a>4.2. Multi-threading</h3>
 <div class="paragraph">
 <p>It is possible to parallelize processing by using multiple threads.
-In that configuration, each chunk of items is read, processed, and written in a separate thread of execution.</p>
+In that configuration, each chunk of items is read, processed, and written in a separate thread of execution.
+This is different from partitioning where items would be read by multiple readers.
+Here, only one reader is being accessed from multiple threads.</p>
 </div>
 <div class="paragraph">
 <p>To set the number of threads use the <code>--threads</code> option.</p>
@@ -624,8 +626,8 @@ Adjust number of threads, batch, and queue sizes accordingly.
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 2.18.5<br>
-Last updated 2022-10-13 18:28:44 UTC
+Version 2.19.0<br>
+Last updated 2023-01-21 07:17:38 UTC
 </div>
 </div>
 <link rel="stylesheet" href="./coderay-asciidoctor.css">
