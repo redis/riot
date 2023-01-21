@@ -68,15 +68,15 @@ deploy:
 
 announce:
   slack:
-    active: NEVER
+    active: RELEASE
     channel: '#field-engineering-announcements'
     message: '🧨 RIOT {{projectVersion}} has been released! {{releaseNotesUrl}}'
     
 packagers:
   brew:
-    active: release
+    active: RELEASE
   scoop:
-    active: release
+    active: RELEASE
     bucket:
       name: scoop
 
