@@ -13,7 +13,7 @@ dependencies {
     implementation group: 'com.ibm.db2', name: 'jcc', version: db2Version
     implementation group: 'com.microsoft.sqlserver', name: 'mssql-jdbc', version: mssqlVersion
     implementation group: 'com.oracle.ojdbc', name: 'ojdbc8', version: oracleVersion
-    implementation 'mysql:mysql-connector-java'
+    implementation 'com.mysql:mysql-connector-j'
     implementation 'org.postgresql:postgresql'
     implementation group: 'org.xerial', name: 'sqlite-jdbc', version: sqliteVersion
     testImplementation group: 'org.testcontainers', name: 'postgresql', version: testcontVersion
