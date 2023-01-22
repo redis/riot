@@ -16,6 +16,7 @@ import com.redis.spring.batch.common.IntRange;
 import io.lettuce.core.ReadFrom;
 import io.lettuce.core.RedisURI;
 import io.micrometer.core.instrument.util.IOUtils;
+import picocli.AutoComplete;
 import picocli.CommandLine;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
@@ -26,7 +27,7 @@ import picocli.CommandLine.ParseResult;
 import picocli.CommandLine.RunFirst;
 import picocli.CommandLine.RunLast;
 
-@Command(versionProvider = ManifestVersionProvider.class, subcommands = GenerateCompletionCommand.class)
+@Command(versionProvider = ManifestVersionProvider.class, subcommands = AutoComplete.GenerateCompletion.class)
 public class RiotApp {
 
 	@Mixin
