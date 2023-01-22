@@ -7,7 +7,7 @@ import com.redis.riot.RiotApp;
 
 import picocli.CommandLine.Command;
 
-@Command(name = "riot-file", subcommands = { FileImportCommand.class, DumpFileImportCommand.class,
+@Command(name = "riot-file", subcommands = { FileImportCommand.class, FileDumpImportCommand.class,
 		FileExportCommand.class })
 public class RiotFile extends RiotApp {
 

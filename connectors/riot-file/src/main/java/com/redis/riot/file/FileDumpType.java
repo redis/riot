@@ -1,6 +1,6 @@
 package com.redis.riot.file;
 
-public enum DumpFileType {
+public enum FileDumpType {
 
 	JSON, XML
 

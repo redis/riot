@@ -27,7 +27,7 @@ public class FileExportCommand extends AbstractExportCommand {
 	private String file;
 
 	@Mixin
-	private DumpFileOptions dumpFileOptions = new DumpFileOptions();
+	private FileDumpOptions dumpFileOptions = new FileDumpOptions();
 
 	@ArgGroup(exclusive = false, heading = "File export options%n")
 	private FileExportOptions options = new FileExportOptions();
@@ -56,7 +56,7 @@ public class FileExportCommand extends AbstractExportCommand {
 	}
 
 	private ItemWriter<DataStructure<String>> writer(WritableResource resource) {
-		DumpFileType type = dumpFileOptions.type(resource);
+		FileDumpType type = dumpFileOptions.type(resource);
 		switch (type) {
 		case XML:
 			XmlResourceItemWriterBuilder<DataStructure<String>> xmlWriterBuilder = new XmlResourceItemWriterBuilder<>();

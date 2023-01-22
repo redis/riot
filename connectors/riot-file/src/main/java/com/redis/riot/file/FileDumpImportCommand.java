@@ -24,7 +24,7 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
 
 @Command(name = "import-dump", description = "Import Redis data files into Redis")
-public class DumpFileImportCommand extends AbstractTransferCommand {
+public class FileDumpImportCommand extends AbstractTransferCommand {
 
 	private static final String NAME = "dump-file-import";
 
@@ -32,16 +32,16 @@ public class DumpFileImportCommand extends AbstractTransferCommand {
 	private FileImportOptions options = new FileImportOptions();
 
 	@Mixin
-	private DumpFileOptions dumpFileOptions = new DumpFileOptions();
+	private FileDumpOptions dumpFileOptions = new FileDumpOptions();
 
 	@ArgGroup(exclusive = false, heading = "Writer options%n")
 	private RedisWriterOptions writerOptions = new RedisWriterOptions();
 
-	public DumpFileOptions getDumpFileOptions() {
+	public FileDumpOptions getDumpFileOptions() {
 		return dumpFileOptions;
 	}
 
-	public void setDumpFileOptions(DumpFileOptions dumpFileOptions) {
+	public void setDumpFileOptions(FileDumpOptions dumpFileOptions) {
 		this.dumpFileOptions = dumpFileOptions;
 	}
 
@@ -78,8 +78,8 @@ public class DumpFileImportCommand extends AbstractTransferCommand {
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	protected ItemReader<DataStructure<String>> reader(Resource resource) {
-		DumpFileType fileType = dumpFileOptions.type(resource);
-		if (fileType == DumpFileType.XML) {
+		FileDumpType fileType = dumpFileOptions.type(resource);
+		if (fileType == FileDumpType.XML) {
 			return (XmlItemReader) FileUtils.xmlReader(resource, DataStructure.class);
 		}
 		return (JsonItemReader) FileUtils.jsonReader(resource, DataStructure.class);

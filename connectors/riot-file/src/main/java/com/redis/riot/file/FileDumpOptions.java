@@ -6,16 +6,16 @@ import org.springframework.core.io.Resource;
 
 import picocli.CommandLine.Option;
 
-public class DumpFileOptions {
+public class FileDumpOptions {
 
 	@Option(names = { "-t", "--filetype" }, description = "File type: ${COMPLETION-CANDIDATES}.", paramLabel = "<type>")
-	protected Optional<DumpFileType> type = Optional.empty();
+	protected Optional<FileDumpType> type = Optional.empty();
 
-	public Optional<DumpFileType> getType() {
+	public Optional<FileDumpType> getType() {
 		return type;
 	}
 
-	public void setType(DumpFileType type) {
+	public void setType(FileDumpType type) {
 		this.type = Optional.of(type);
 	}
 
@@ -24,7 +24,7 @@ public class DumpFileOptions {
 		return "DumpFileOptions [type=" + type + "]";
 	}
 
-	public DumpFileType type(Resource resource) {
+	public FileDumpType type(Resource resource) {
 		if (type.isPresent()) {
 			return type.get();
 		}
@@ -32,12 +32,12 @@ public class DumpFileOptions {
 		return type(extension);
 	}
 
-	private DumpFileType type(FileExtension extension) {
+	private FileDumpType type(FileExtension extension) {
 		switch (extension) {
 		case XML:
-			return DumpFileType.XML;
+			return FileDumpType.XML;
 		case JSON:
-			return DumpFileType.JSON;
+			return FileDumpType.JSON;
 		default:
 			throw new UnsupportedOperationException("Unsupported file extension: " + extension);
 		}

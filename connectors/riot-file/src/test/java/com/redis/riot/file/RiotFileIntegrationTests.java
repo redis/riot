@@ -411,7 +411,7 @@ class RiotFileIntegrationTests extends AbstractTestcontainersRedisTestBase {
 	}
 
 	private void configureDumpFileImportCommand(CommandLine.ParseResult parseResult) {
-		DumpFileImportCommand command = parseResult.subcommand().commandSpec().commandLine().getCommand();
+		FileDumpImportCommand command = parseResult.subcommand().commandSpec().commandLine().getCommand();
 		FileImportOptions options = command.getOptions();
 		options.setFiles(options.getFiles().stream().map(this::replace).collect(Collectors.toList()));
 	}
