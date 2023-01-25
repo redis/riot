@@ -4,7 +4,7 @@ config {
         inceptionYear = '2020'
         vendor = 'Redis'
         tags = ['redis', 'tool', 'import', 'export', 'replication']
-        
+                
         links {
             website = 'https://github.com/redis-developer/riot'
             issueTracker = 'https://github.com/redis-developer/riot/issues'
@@ -95,7 +95,7 @@ subprojects {
         testImplementation group: 'commons-io', name: 'commons-io', version: commonsIoVersion
         testImplementation group: 'com.redis.testcontainers', name: 'testcontainers-redis-junit', version: testcontRedisVersion
     }
-    
+
     test {
         useJUnitPlatform()
     }

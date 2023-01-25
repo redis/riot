@@ -1,11 +1,9 @@
 name: Build
+
 on:
   pull_request:
+
 jobs:
   build:
-    name: Build
-    if: startsWith(github.event.head_commit.message, 'Releasing version') != true
-    runs-on: ubuntu-latest
-    steps:
-    - name: Build
-      uses: redis-field-engineering/redis-build-action@v1
+    name: 'Build'
+    uses: redis-field-engineering/redis-github-workflows/.github/workflows/build.yml@main
