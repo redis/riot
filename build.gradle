@@ -4,17 +4,17 @@ config {
         inceptionYear = '2020'
         vendor = 'Redis'
         tags = ['redis', 'tool', 'import', 'export', 'replication']
-                
+        
         links {
-            website = 'https://github.com/redis-developer/riot'
-            issueTracker = 'https://github.com/redis-developer/riot/issues'
-            scm = 'https://github.com/redis-developer/riot.git'
+            website      = "https://github.com/redis-developer/${project.rootProject.name}"
+            issueTracker = "https://github.com/redis-developer/${project.rootProject.name}/issues"
+            scm          = "https://github.com/redis-developer/${project.rootProject.name}.git"
         }
         
         scm {
-            url = "https://github.com/redis-developer/riot"
-            connection = "scm:git:https://github.com/redis-developer/riot.git"
-            developerConnection = "scm:git:git@github.com:redis-developer/riot.git"
+            url                 = "https://github.com/redis-developer/${project.rootProject.name}"
+            connection          = "scm:git:https://github.com/redis-developer/${project.rootProject.name}.git"
+            developerConnection = "scm:git:git@github.com:redis-developer/${project.rootProject.name}.git"
         }
         
         specification {
@@ -27,12 +27,11 @@ config {
         
         people {
             person {
-                id = 'jruaux'
-                name = 'Julien Ruaux'
+                id    = 'jruaux'
+                name  = 'Julien Ruaux'
                 roles = ['developer', 'author']
             }
         }
-        
     }
     
     docs {
@@ -54,7 +53,7 @@ config {
             }
         }
     }
-
+    
     coverage {
         jacoco {
             enabled = true
@@ -84,7 +83,7 @@ subprojects {
             description = project.project_description
         }
     }
-
+    
     license {
         exclude('build/**')
     }
@@ -93,9 +92,11 @@ subprojects {
         compileOnly group: 'com.google.code.findbugs', name: 'jsr305', version: jsr305Version
         testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
         testImplementation group: 'commons-io', name: 'commons-io', version: commonsIoVersion
-        testImplementation group: 'com.redis.testcontainers', name: 'testcontainers-redis-junit', version: testcontRedisVersion
+        testImplementation(group: 'com.redis.testcontainers', name: 'testcontainers-redis-junit', version: testcontRedisVersion) {
+            exclude group: 'com.redis', module: 'lettucemod'
+        }
     }
-
+    
     test {
         useJUnitPlatform()
     }
@@ -103,12 +104,12 @@ subprojects {
     bootJar {
         enabled = false
     }
-
+    
     jar {
         enabled = true
         archiveClassifier = ''
     }
-
+    
     configurations {
         all*.exclude module: 'spring-boot-starter-logging'
     }

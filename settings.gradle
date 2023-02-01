@@ -39,7 +39,6 @@ projects {
     }
 }
 
-
 enforce {
     enabled = false
 }
