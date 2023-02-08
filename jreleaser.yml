@@ -56,7 +56,7 @@ signing:
 deploy:
   maven:
     pomchecker:
-      version: early-access
+      version: 1.7.0
     nexus2:
       maven-central:
         active: RELEASE
