@@ -9,7 +9,7 @@ public class RiotCommandLine extends CommandLine {
 
 	private final IExecutionStrategy executionStrategy;
 
-	public RiotCommandLine(RiotApp app, IExecutionStrategy executionStrategy) {
+	public RiotCommandLine(Main app, IExecutionStrategy executionStrategy) {
 		super(app);
 		this.executionStrategy = executionStrategy;
 	}

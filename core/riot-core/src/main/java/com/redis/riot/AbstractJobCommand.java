@@ -16,17 +16,17 @@ import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.ParentCommand;
 import picocli.CommandLine.Spec;
 
-@Command(sortSynopsis = false, sortOptions = false)
+@Command(usageHelpAutoWidth = true)
 public abstract class AbstractJobCommand implements Callable<Integer> {
 
 	@Spec
-	private CommandSpec commandSpec;
+	protected CommandSpec commandSpec;
 	@ParentCommand
-	private RiotApp app;
+	private Main app;
 	@Mixin
 	private HelpOptions helpOptions;
 
-	public void setApp(RiotApp app) {
+	public void setApp(Main app) {
 		this.app = app;
 	}
 

@@ -41,7 +41,7 @@ public class RedisOptions {
 			"--socket" }, description = "Server socket (overrides hostname and port).", paramLabel = "<socket>")
 	private Optional<String> socket = Optional.empty();
 
-	@Option(names = "--user", description = "Used to send ACL style 'AUTH username pass'. Needs password.", paramLabel = "<name>")
+	@Option(names = "--user", description = "ACL style 'AUTH username pass'. Needs password.", paramLabel = "<name>")
 	private String username;
 
 	@Option(names = { "-a",
@@ -63,28 +63,28 @@ public class RedisOptions {
 	@Option(names = "--tls", description = "Establish a secure TLS connection.")
 	private boolean tls;
 
-	@Option(names = "--tls-verify", description = "How to verify peers when using TLS: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<name>")
+	@Option(names = "--tls-verify", description = "TLS peer-verify mode: FULL (default), NONE, CA.", paramLabel = "<name>")
 	private SslVerifyMode tlsVerifyMode = RedisURIBuilder.DEFAULT_SSL_VERIFY_MODE;
 
 	@Option(names = "--ks", description = "Path to keystore.", paramLabel = "<file>", hidden = true)
 	private Optional<File> keystore = Optional.empty();
 
-	@Option(names = "--ks-password", arity = "0..1", interactive = true, description = "Keystore password.", paramLabel = "<pwd>", hidden = true)
+	@Option(names = "--ks-pwd", arity = "0..1", interactive = true, description = "Keystore password.", paramLabel = "<pwd>", hidden = true)
 	private char[] keystorePassword;
 
 	@Option(names = "--ts", description = "Path to truststore.", paramLabel = "<file>", hidden = true)
 	private Optional<File> truststore = Optional.empty();
 
-	@Option(names = "--ts-password", arity = "0..1", interactive = true, description = "Truststore password.", paramLabel = "<pwd>", hidden = true)
+	@Option(names = "--ts-pwd", arity = "0..1", interactive = true, description = "Truststore password.", paramLabel = "<pwd>", hidden = true)
 	private char[] truststorePassword;
 
-	@Option(names = "--cert", description = "X.509 certificate chain file to authenticate with (PEM format).", paramLabel = "<file>")
+	@Option(names = "--cert", description = "X.509 cert chain file to authenticate (PEM).", paramLabel = "<file>")
 	private File keyCert;
 
-	@Option(names = "--key", description = "PKCS#8 private key file to authenticate with (PEM format).", paramLabel = "<file>")
+	@Option(names = "--key", description = "PKCS#8 private key file to authenticate (PEM).", paramLabel = "<file>")
 	private Optional<File> key = Optional.empty();
 
-	@Option(names = "--key-password", arity = "0..1", interactive = true, description = "Password of the private key file, or null if it's not password-protected.", paramLabel = "<pwd>")
+	@Option(names = "--key-pwd", arity = "0..1", interactive = true, description = "Private key password.", paramLabel = "<pwd>")
 	private char[] keyPassword;
 
 	@Option(names = "--cacert", description = "X.509 CA certificate file to verify with.", paramLabel = "<file>")

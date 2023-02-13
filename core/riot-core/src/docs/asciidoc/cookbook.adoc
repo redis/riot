@@ -1,0 +1,9 @@
+= {project-title} Cookbook
+
+This cookbook contains various recipes for {project-title}.
+
+include::elasticache.adoc[leveloffset=1]
+
+include::compare.adoc[leveloffset=1]
+
+include::latency.adoc[leveloffset=1]

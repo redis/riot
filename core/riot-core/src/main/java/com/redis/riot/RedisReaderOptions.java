@@ -11,19 +11,19 @@ import picocli.CommandLine.Option;
 
 public class RedisReaderOptions {
 
-	@Option(names = "--reader-queue", description = "Capacity of the reader queue (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
+	@Option(names = "--read-queue", description = "Capacity of the reader queue (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
 	private int queueCapacity = QueueOptions.DEFAULT_CAPACITY;
 
-	@Option(names = "--reader-threads", description = "Number of reader threads (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
+	@Option(names = "--read-threads", description = "Number of reader threads (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
 	private int threads = ReaderOptions.DEFAULT_THREADS;
 
-	@Option(names = "--reader-batch", description = "Number of reader values to process at once (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
+	@Option(names = "--read-batch", description = "Number of reader values to process at once (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
 	private int batchSize = ReaderOptions.DEFAULT_CHUNK_SIZE;
 
-	@Option(names = "--reader-skip-policy", description = "Policy to determine if some reading should be skipped: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<name>")
+	@Option(names = "--read-skip-policy", description = "Policy to determine if some reading should be skipped: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<p>")
 	private StepSkipPolicy skipPolicy = StepSkipPolicy.NEVER;
 
-	@Option(names = "--reader-skip-limit", description = "LIMIT skip policy: max number of failed items before considering reader has failed (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
+	@Option(names = "--read-skip-limit", description = "LIMIT skip policy: max number of failed items before considering reader has failed (default: ${DEFAULT-VALUE}).", paramLabel = "<l>")
 	private int skipLimit = ReaderOptions.DEFAULT_SKIP_LIMIT;
 
 	@Option(names = "--scan-match", description = "SCAN MATCH pattern (default: ${DEFAULT-VALUE}).", paramLabel = "<glob>")

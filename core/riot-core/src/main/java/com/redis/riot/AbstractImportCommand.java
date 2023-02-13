@@ -20,26 +20,26 @@ import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.util.Assert;
 
 import com.redis.lettucemod.util.GeoLocation;
+import com.redis.riot.command.EvalCommand;
+import com.redis.riot.command.ExpireCommand;
+import com.redis.riot.command.GeoaddCommand;
+import com.redis.riot.command.HsetCommand;
+import com.redis.riot.command.JsonSetCommand;
+import com.redis.riot.command.LpushCommand;
+import com.redis.riot.command.NoopCommand;
+import com.redis.riot.command.RpushCommand;
+import com.redis.riot.command.SaddCommand;
+import com.redis.riot.command.SetCommand;
+import com.redis.riot.command.SugaddCommand;
+import com.redis.riot.command.TsAddCommand;
+import com.redis.riot.command.XaddCommand;
+import com.redis.riot.command.ZaddCommand;
 import com.redis.riot.convert.RegexNamedGroupsExtractor;
 import com.redis.riot.processor.CompositeItemStreamItemProcessor;
 import com.redis.riot.processor.FilteringProcessor;
 import com.redis.riot.processor.MapAccessor;
 import com.redis.riot.processor.MapProcessor;
 import com.redis.riot.processor.SpelProcessor;
-import com.redis.riot.redis.EvalCommand;
-import com.redis.riot.redis.ExpireCommand;
-import com.redis.riot.redis.GeoaddCommand;
-import com.redis.riot.redis.HsetCommand;
-import com.redis.riot.redis.JsonSetCommand;
-import com.redis.riot.redis.LpushCommand;
-import com.redis.riot.redis.NoopCommand;
-import com.redis.riot.redis.RpushCommand;
-import com.redis.riot.redis.SaddCommand;
-import com.redis.riot.redis.SetCommand;
-import com.redis.riot.redis.SugaddCommand;
-import com.redis.riot.redis.TsAddCommand;
-import com.redis.riot.redis.XaddCommand;
-import com.redis.riot.redis.ZaddCommand;
 import com.redis.spring.batch.RedisItemWriter;
 import com.redis.spring.batch.writer.Operation;
 
@@ -54,7 +54,6 @@ public abstract class AbstractImportCommand extends AbstractTransferCommand {
 
 	@ArgGroup(exclusive = false, heading = "Processor options%n")
 	private MapProcessorOptions processorOptions = new MapProcessorOptions();
-
 	@ArgGroup(exclusive = false, heading = "Writer options%n")
 	private RedisWriterOptions writerOptions = new RedisWriterOptions();
 
