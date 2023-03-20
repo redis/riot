@@ -37,10 +37,10 @@ public abstract class AbstractOperationCommand<O> implements OperationCommand<O>
 	}
 
 	protected Converter<Map<String, Object>, String> stringFieldExtractor(Optional<String> field) {
-		if (field.isEmpty()) {
-			return s -> null;
+		if (field.isPresent()) {
+			return stringFieldExtractor(field.get());
 		}
-		return stringFieldExtractor(field.get());
+		return s -> null;
 	}
 
 	protected Converter<Map<String, Object>, String> stringFieldExtractor(String field) {
@@ -54,10 +54,10 @@ public abstract class AbstractOperationCommand<O> implements OperationCommand<O>
 
 	protected <T extends Number> Converter<Map<String, Object>, T> numberExtractor(Optional<String> field,
 			Class<T> targetType, T defaultValue) {
-		if (field.isEmpty()) {
-			return s -> defaultValue;
+		if (field.isPresent()) {
+			return numberExtractor(field.get(), targetType, defaultValue);
 		}
-		return numberExtractor(field.get(), targetType, defaultValue);
+		return s -> defaultValue;
 	}
 
 	protected <T extends Number> Converter<Map<String, Object>, T> numberExtractor(String field, Class<T> targetType) {

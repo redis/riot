@@ -13,16 +13,16 @@ public class CompareOptions {
 	@Option(names = "--show-diffs", description = "Print details of key mismatches during dataset verification.")
 	private boolean showDiffs;
 
-	public Duration getTtlToleranceDuration() {
-		return Duration.ofSeconds(ttlTolerance);
-	}
-
 	public long getTtlTolerance() {
 		return ttlTolerance;
 	}
 
 	public void setTtlTolerance(long ttlTolerance) {
 		this.ttlTolerance = ttlTolerance;
+	}
+
+	public Duration getTtlToleranceDuration() {
+		return Duration.ofSeconds(ttlTolerance);
 	}
 
 	public boolean isShowDiffs() {
@@ -32,4 +32,5 @@ public class CompareOptions {
 	public void setShowDiffs(boolean showDiffs) {
 		this.showDiffs = showDiffs;
 	}
+
 }

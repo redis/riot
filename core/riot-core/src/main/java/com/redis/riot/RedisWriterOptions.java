@@ -1,7 +1,9 @@
 package com.redis.riot;
 
 import java.time.Duration;
+import java.util.Optional;
 
+import com.redis.spring.batch.common.PoolOptions;
 import com.redis.spring.batch.writer.WaitForReplication;
 import com.redis.spring.batch.writer.WriterOptions;
 import com.redis.spring.batch.writer.WriterOptions.Builder;
@@ -15,9 +17,11 @@ public class RedisWriterOptions {
 	@Option(names = "--multi-exec", description = "Enable MULTI/EXEC writes.")
 	private boolean multiExec;
 	@Option(names = "--wait-replicas", description = "Number of replicas for WAIT command (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
-	private int waitReplicas = 0;
+	private int waitReplicas;
 	@Option(names = "--wait-timeout", description = "Timeout in millis for WAIT command (default: ${DEFAULT-VALUE}).", paramLabel = "<ms>")
-	private long waitTimeout = 300;
+	private long waitTimeout = WaitForReplication.DEFAULT_TIMEOUT.toMillis();
+	@Option(names = "--write-pool", description = "Max connections for writer pool (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
+	private int poolMaxTotal = PoolOptions.DEFAULT_MAX_TOTAL;
 
 	public boolean isDryRun() {
 		return dryRun;
@@ -52,12 +56,22 @@ public class RedisWriterOptions {
 	}
 
 	public WriterOptions writerOptions() {
-		Builder options = WriterOptions.builder();
+		Builder builder = WriterOptions.builder();
+		builder.waitForReplication(waitForReplication());
+		builder.multiExec(multiExec);
+		builder.poolOptions(poolOptions());
+		return builder.build();
+	}
+
+	private Optional<WaitForReplication> waitForReplication() {
 		if (waitReplicas > 0) {
-			options.waitForReplication(WaitForReplication.of(waitReplicas, Duration.ofMillis(waitTimeout)));
+			return Optional.of(WaitForReplication.of(waitReplicas, Duration.ofMillis(waitTimeout)));
 		}
-		options.multiExec(multiExec);
-		return options.build();
+		return Optional.empty();
+	}
+
+	private PoolOptions poolOptions() {
+		return PoolOptions.builder().maxTotal(poolMaxTotal).build();
 	}
 
 }

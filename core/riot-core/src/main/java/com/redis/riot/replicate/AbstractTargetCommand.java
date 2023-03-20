@@ -19,14 +19,15 @@ import com.redis.riot.RedisOptions;
 import com.redis.riot.RedisReaderOptions;
 import com.redis.spring.batch.RedisItemReader;
 import com.redis.spring.batch.common.JobRunner;
+import com.redis.spring.batch.reader.KeyComparatorOptions;
 import com.redis.spring.batch.reader.KeyComparison;
 import com.redis.spring.batch.reader.KeyComparison.Status;
+import com.redis.spring.batch.reader.ReaderOptions;
 import com.redis.spring.batch.reader.ScanSizeEstimator;
 import com.redis.spring.batch.writer.KeyComparisonCountItemWriter;
 import com.redis.spring.batch.writer.KeyComparisonCountItemWriter.Results;
 import com.redis.spring.batch.writer.KeyComparisonLogger;
 
-import io.lettuce.core.codec.StringCodec;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Mixin;
 
@@ -73,10 +74,11 @@ public abstract class AbstractTargetCommand extends AbstractTransferCommand {
 	}
 
 	protected ScanSizeEstimator estimator(JobCommandContext context) {
-		return ScanSizeEstimator.builder(context.pool()).options(readerOptions.estimatorOptions()).build();
+		return ScanSizeEstimator.client(context.getRedisClient()).options(readerOptions.scanSizeEstimatorOptions())
+				.build();
 	}
 
-	private static class KeyComparisonWriteListener implements ItemWriteListener<KeyComparison<String>> {
+	private static class KeyComparisonWriteListener implements ItemWriteListener<KeyComparison> {
 
 		private final KeyComparisonLogger logger;
 
@@ -85,26 +87,26 @@ public abstract class AbstractTargetCommand extends AbstractTransferCommand {
 		}
 
 		@Override
-		public void onWriteError(Exception exception, List<? extends KeyComparison<String>> items) {
+		public void onWriteError(Exception exception, List<? extends KeyComparison> items) {
 			// do nothing
 		}
 
 		@Override
-		public void beforeWrite(List<? extends KeyComparison<String>> items) {
+		public void beforeWrite(List<? extends KeyComparison> items) {
 			// do nothing
 		}
 
 		@Override
-		public void afterWrite(List<? extends KeyComparison<String>> items) {
+		public void afterWrite(List<? extends KeyComparison> items) {
 			items.forEach(logger::log);
 		}
 	}
 
 	private class KeyComparisonStepListener extends StepExecutionListenerSupport {
 
-		private final KeyComparisonCountItemWriter<String> writer;
+		private final KeyComparisonCountItemWriter writer;
 
-		public KeyComparisonStepListener(KeyComparisonCountItemWriter<String> writer) {
+		public KeyComparisonStepListener(KeyComparisonCountItemWriter writer) {
 			this.writer = writer;
 		}
 
@@ -136,11 +138,10 @@ public abstract class AbstractTargetCommand extends AbstractTransferCommand {
 	protected Step verificationStep(TargetCommandContext context) {
 		log.log(Level.FINE, "Creating key comparator with TTL tolerance of {0} seconds",
 				compareOptions.getTtlTolerance());
-		RedisItemReader<String, KeyComparison<String>> reader = RedisItemReader.comparator(context.getJobRunner(),
-				context.pool(), context.targetPool(StringCodec.UTF8), compareOptions.getTtlToleranceDuration()).build();
-		KeyComparisonCountItemWriter<String> writer = new KeyComparisonCountItemWriter<>();
-		SimpleStepBuilder<KeyComparison<String>, KeyComparison<String>> step = step(context, VERIFICATION_NAME, reader,
-				null, writer);
+		RedisItemReader<String, KeyComparison> reader = context.reader().comparator(context.getTargetRedisClient())
+				.comparatorOptions(comparatorOptions()).build();
+		KeyComparisonCountItemWriter writer = new KeyComparisonCountItemWriter();
+		SimpleStepBuilder<KeyComparison, KeyComparison> step = step(context, VERIFICATION_NAME, reader, null, writer);
 		if (compareOptions.isShowDiffs()) {
 			step.listener(new KeyComparisonWriteListener(new KeyComparisonLogger(log)));
 		}
@@ -148,6 +149,13 @@ public abstract class AbstractTargetCommand extends AbstractTransferCommand {
 		ProgressMonitor monitor = progressMonitor().task("Verifying").initialMax(estimator(context)::execute)
 				.extraMessage(() -> extraMessage(writer.getResults())).build();
 		return step(step, monitor).build();
+	}
+
+	private KeyComparatorOptions comparatorOptions() {
+		ReaderOptions leftOptions = readerOptions.readerOptions();
+		return KeyComparatorOptions.builder().leftPoolOptions(leftOptions.getPoolOptions())
+				.rightPoolOptions(leftOptions.getPoolOptions()).scanOptions(readerOptions.scanOptions())
+				.ttlTolerance(compareOptions.getTtlToleranceDuration()).build();
 	}
 
 	private String extraMessage(Results results) {

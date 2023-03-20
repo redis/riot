@@ -2,9 +2,14 @@ package com.redis.riot;
 
 import java.util.Optional;
 
+import org.springframework.batch.core.step.skip.SkipPolicy;
+
+import com.redis.spring.batch.common.FaultToleranceOptions;
+import com.redis.spring.batch.common.PoolOptions;
 import com.redis.spring.batch.reader.QueueOptions;
 import com.redis.spring.batch.reader.ReaderOptions;
-import com.redis.spring.batch.reader.ScanReaderOptions;
+import com.redis.spring.batch.reader.ReaderOptions.Builder;
+import com.redis.spring.batch.reader.ScanOptions;
 import com.redis.spring.batch.reader.ScanSizeEstimatorOptions;
 
 import picocli.CommandLine.Option;
@@ -24,16 +29,19 @@ public class RedisReaderOptions {
 	private StepSkipPolicy skipPolicy = StepSkipPolicy.NEVER;
 
 	@Option(names = "--read-skip-limit", description = "LIMIT skip policy: max number of failed items before considering reader has failed (default: ${DEFAULT-VALUE}).", paramLabel = "<l>")
-	private int skipLimit = ReaderOptions.DEFAULT_SKIP_LIMIT;
+	private int skipLimit = FaultToleranceOptions.DEFAULT_SKIP_LIMIT;
 
 	@Option(names = "--scan-match", description = "SCAN MATCH pattern (default: ${DEFAULT-VALUE}).", paramLabel = "<glob>")
-	private String match = ScanReaderOptions.DEFAULT_MATCH;
+	private String match = ScanOptions.DEFAULT_MATCH;
 
 	@Option(names = "--scan-count", description = "SCAN COUNT option (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
-	private long count = ScanReaderOptions.DEFAULT_COUNT;
+	private long count = ScanOptions.DEFAULT_COUNT;
 
 	@Option(names = "--scan-type", description = "SCAN TYPE option.", paramLabel = "<type>")
 	private Optional<String> type = Optional.empty();
+
+	@Option(names = "--read-pool", description = "Max connections for reader pool (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
+	private int poolMaxTotal = PoolOptions.DEFAULT_MAX_TOTAL;
 
 	public String getMatch() {
 		return match;
@@ -59,15 +67,42 @@ public class RedisReaderOptions {
 		this.type = type;
 	}
 
-	public ScanReaderOptions readerOptions() {
-		return ScanReaderOptions.builder().chunkSize(batchSize)
-				.queueOptions(QueueOptions.builder().capacity(queueCapacity).build()).threads(threads)
-				.skipPolicy(skipPolicy.getSkipPolicy()).skipLimit(skipLimit).match(match).count(count).type(type)
-				.build();
+	public ReaderOptions readerOptions() {
+		Builder builder = ReaderOptions.builder();
+		builder.chunkSize(batchSize);
+		builder.threads(threads);
+		builder.faultToleranceOptions(faultToleranceOptions());
+		builder.queueOptions(queueOptions());
+		builder.poolOptions(poolOptions());
+		return builder.build();
 	}
 
-	public ScanSizeEstimatorOptions estimatorOptions() {
-		return ScanSizeEstimatorOptions.builder().match(match).sampleSize(count).type(type).build();
+	private QueueOptions queueOptions() {
+		return QueueOptions.builder().capacity(queueCapacity).build();
+	}
+
+	private PoolOptions poolOptions() {
+		return PoolOptions.builder().maxTotal(poolMaxTotal).build();
+	}
+
+	private FaultToleranceOptions faultToleranceOptions() {
+		return FaultToleranceOptions.builder().skipPolicy(skipPolicy()).skipLimit(skipLimit).build();
+	}
+
+	private SkipPolicy skipPolicy() {
+		return TransferOptions.skipPolicy(skipPolicy, skipLimit);
+	}
+
+	public ScanOptions scanOptions() {
+		return ScanOptions.builder().match(match).count(count).type(type).build();
+	}
+
+	public ScanSizeEstimatorOptions scanSizeEstimatorOptions() {
+		ScanSizeEstimatorOptions.Builder builder = ScanSizeEstimatorOptions.builder();
+		builder.match(match);
+		builder.sampleSize(count);
+		builder.type(type);
+		return builder.build();
 	}
 
 }

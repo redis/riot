@@ -43,7 +43,7 @@ public class TsAddCommand extends AbstractKeyCommand {
 						labelList.add(Label.of(label.getKey(), String.valueOf(source.get(label.getValue()))));
 					}
 				}
-				builder.labels(labelList.toArray(Label[]::new));
+				builder.labels(labelList.toArray(new Label[0]));
 			}
 			return builder.build();
 		}

@@ -51,3 +51,7 @@ asciidoctor {
    		}
     }
 }
+
+compileJava {
+    options.release = 8
+}

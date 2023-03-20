@@ -6,7 +6,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.springframework.batch.core.Job;
-import org.springframework.batch.core.step.builder.SimpleStepBuilder;
+import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
 
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
@@ -16,6 +16,7 @@ import com.redis.lettucemod.search.IndexInfo;
 import com.redis.lettucemod.util.RedisModulesUtils;
 import com.redis.riot.AbstractImportCommand;
 import com.redis.riot.JobCommandContext;
+import com.redis.riot.ProgressMonitor;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
@@ -23,9 +24,8 @@ import picocli.CommandLine.Mixin;
 @Command(name = "faker-import", description = "Import Faker data")
 public class FakerImportCommand extends AbstractImportCommand {
 
+	private static final String COMMAND_NAME = "faker-import";
 	private static final Logger log = Logger.getLogger(FakerImportCommand.class.getName());
-
-	private static final String NAME = "faker-import";
 
 	@Mixin
 	private FakerGeneratorOptions options = new FakerGeneratorOptions();
@@ -39,16 +39,16 @@ public class FakerImportCommand extends AbstractImportCommand {
 	}
 
 	@Override
-	protected Job job(JobCommandContext context) throws Exception {
-		SimpleStepBuilder<Map<String, Object>, Map<String, Object>> step = step(context, NAME, reader(context));
-		return job(context, NAME, step, options.configure(progressMonitor()).task("Generating").build());
+	protected Job job(JobCommandContext context) {
+		JobBuilder job = context.job(COMMAND_NAME);
+		ProgressMonitor monitor = options.configure(progressMonitor()).task("Generating").build();
+		return job.start(step(step(context, COMMAND_NAME, reader(context)), monitor).build()).build();
 	}
 
 	private AbstractItemCountingItemStreamItemReader<Map<String, Object>> reader(JobCommandContext context) {
 		log.log(Level.FINE, "Creating Faker reader with {0}", options);
 		FakerItemReader reader = new FakerItemReader(generator(context));
-		reader.setStart(options.getStart());
-		reader.setCount(options.getCount());
+		options.configure(reader);
 		return reader;
 	}
 

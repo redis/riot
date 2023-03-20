@@ -9,6 +9,7 @@ import java.util.logging.Logger;
 import javax.sql.DataSource;
 
 import org.springframework.batch.core.Job;
+import org.springframework.batch.core.job.builder.JobBuilderException;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.database.JdbcBatchItemWriter;
 import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilder;
@@ -25,6 +26,7 @@ import picocli.CommandLine.Parameters;
 @Command(name = "db-export", description = "Export Redis data to a relational database")
 public class DatabaseExportCommand extends AbstractExportCommand {
 
+	private static final String COMMAND_NAME = "db-import";
 	private static Logger log = Logger.getLogger(DatabaseExportCommand.class.getName());
 
 	@Parameters(arity = "1", description = "SQL INSERT statement.", paramLabel = "SQL")
@@ -59,7 +61,7 @@ public class DatabaseExportCommand extends AbstractExportCommand {
 	}
 
 	@Override
-	protected Job job(JobCommandContext context) throws SQLException {
+	protected Job job(JobCommandContext context) {
 		log.log(Level.FINE, "Creating data source with {0}", dataSourceOptions);
 		DataSource dataSource = dataSourceOptions.dataSource();
 		try (Connection connection = dataSource.getConnection()) {
@@ -75,8 +77,9 @@ public class DatabaseExportCommand extends AbstractExportCommand {
 			ItemProcessor<DataStructure<String>, Map<String, Object>> processor = DataStructureToMapProcessor
 					.of(options.getKeyRegex());
 			String task = String.format("Exporting to %s", dbName);
-			return job(context, commandSpec.name(),
-					step(context, commandSpec.name(), reader(context), processor, writer), task);
+			return job(context, COMMAND_NAME, step(context, COMMAND_NAME, reader(context), processor, writer), task);
+		} catch (SQLException e) {
+			throw new JobBuilderException(e);
 		}
 	}
 

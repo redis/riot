@@ -8,6 +8,7 @@ import java.util.logging.Logger;
 import javax.sql.DataSource;
 
 import org.springframework.batch.core.Job;
+import org.springframework.batch.core.job.builder.JobBuilderException;
 import org.springframework.batch.item.database.JdbcCursorItemReader;
 import org.springframework.batch.item.database.builder.JdbcCursorItemReaderBuilder;
 import org.springframework.jdbc.core.ColumnMapRowMapper;
@@ -23,6 +24,7 @@ import picocli.CommandLine.Parameters;
 @Command(name = "db-import", description = "Import data from a relational database")
 public class DatabaseImportCommand extends AbstractImportCommand {
 
+	private static final String COMMAND_NAME = "db-export";
 	private static final Logger log = Logger.getLogger(DatabaseImportCommand.class.getName());
 
 	@Parameters(arity = "1", description = "SQL SELECT statement", paramLabel = "SQL")
@@ -49,23 +51,25 @@ public class DatabaseImportCommand extends AbstractImportCommand {
 	}
 
 	@Override
-	protected Job job(JobCommandContext context) throws Exception {
+	protected Job job(JobCommandContext context) {
 		log.log(Level.FINE, "Creating data source: {0}", dataSourceOptions);
 		DataSource dataSource = dataSourceOptions.dataSource();
 		try (Connection connection = dataSource.getConnection()) {
-			String name = connection.getMetaData().getDatabaseProductName();
-			log.log(Level.FINE, "Creating {0} database reader: {1}", new Object[] { name, importOptions });
+			String productName = connection.getMetaData().getDatabaseProductName();
+			log.log(Level.FINE, "Creating {0} database reader: {1}", new Object[] { productName, importOptions });
 			JdbcCursorItemReaderBuilder<Map<String, Object>> builder = new JdbcCursorItemReaderBuilder<>();
 			builder.saveState(false);
 			builder.dataSource(dataSource);
-			builder.name(name + "-database-reader");
+			builder.name(productName + "-database-reader");
 			builder.rowMapper(new ColumnMapRowMapper());
 			builder.sql(sql);
 			importOptions.configure(builder);
 			JdbcCursorItemReader<Map<String, Object>> reader = builder.build();
 			reader.afterPropertiesSet();
-			ProgressMonitor monitor = progressMonitor().task("Importing from " + name).build();
-			return job(context, commandSpec.name(), reader, monitor);
+			ProgressMonitor monitor = progressMonitor().task("Importing from " + productName).build();
+			return context.job(COMMAND_NAME).start(step(step(context, COMMAND_NAME, reader), monitor).build()).build();
+		} catch (Exception e) {
+			throw new JobBuilderException(e);
 		}
 	}
 

@@ -4,6 +4,7 @@ import org.springframework.batch.core.Job;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.tasklet.Tasklet;
+import org.springframework.batch.core.step.tasklet.TaskletStep;
 import org.springframework.batch.repeat.RepeatStatus;
 
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
@@ -14,10 +15,11 @@ import com.redis.riot.JobCommandContext;
 abstract class AbstractRedisCommand extends AbstractJobCommand {
 
 	@Override
-	protected Job job(JobCommandContext context) throws Exception {
+	protected Job job(JobCommandContext context) {
 		String name = name();
 		RedisCommandTasklet tasklet = new RedisCommandTasklet(context);
-		return job(context, name, tasklet).build();
+		TaskletStep step = context.step(name).tasklet(tasklet).build();
+		return context.job(name).start(step).build();
 	}
 
 	private class RedisCommandTasklet implements Tasklet {

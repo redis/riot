@@ -30,7 +30,7 @@ public class SetCommand extends AbstractKeyCommand {
 		switch (options.getFormat()) {
 		case RAW:
 			Optional<String> field = options.getField();
-			if (field.isEmpty()) {
+			if (!field.isPresent()) {
 				throw new IllegalArgumentException("Raw value field name not set");
 			}
 			return stringFieldExtractor(field.get());

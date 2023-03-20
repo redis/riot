@@ -14,13 +14,13 @@ public class ReplicationOptions {
 	}
 
 	public enum ReplicationStrategy {
-		DUMP, TYPE
+		DUMP, DS
 	}
 
 	@Option(names = "--mode", description = "Replication mode: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<name>")
 	private ReplicationMode mode = ReplicationMode.SNAPSHOT;
 
-	@Option(names = "--type", description = "Replication type: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<name>")
+	@Option(names = "--type", description = "Replication strategy: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<name>")
 	private ReplicationStrategy strategy = ReplicationStrategy.DUMP;
 
 	@Option(names = "--event-queue", description = "Capacity of the keyspace notification event queue (default: ${DEFAULT-VALUE}).", paramLabel = "<size>")

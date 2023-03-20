@@ -1,1 +1,1 @@
-riot-gen faker --infer beerIdx hset --keyspace beer --keys id
+riot faker-import --infer beerIdx hset --keyspace beer --keys id

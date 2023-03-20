@@ -17,7 +17,6 @@ import com.redis.riot.RedisWriterOptions;
 import com.redis.riot.file.resource.XmlItemReader;
 import com.redis.spring.batch.RedisItemWriter;
 import com.redis.spring.batch.common.DataStructure;
-import com.redis.spring.batch.writer.WriterBuilder;
 
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
@@ -26,6 +25,7 @@ import picocli.CommandLine.Mixin;
 @Command(name = "file-dump-import", description = "Import Redis data files into Redis")
 public class FileDumpImportCommand extends AbstractTransferCommand {
 
+	private static final String COMMAND_NAME = "file-dump-import";
 	@Mixin
 	private FileImportOptions options = new FileImportOptions();
 	@Mixin
@@ -50,9 +50,9 @@ public class FileDumpImportCommand extends AbstractTransferCommand {
 	}
 
 	@Override
-	protected Job job(JobCommandContext context) throws Exception {
+	protected Job job(JobCommandContext context) {
 		Iterator<TaskletStep> stepIterator = options.getResources().map(r -> step(context, r)).iterator();
-		SimpleJobBuilder job = job(context, commandSpec.name(), stepIterator.next());
+		SimpleJobBuilder job = context.job(COMMAND_NAME).start(stepIterator.next());
 		while (stepIterator.hasNext()) {
 			job.next(stepIterator.next());
 		}
@@ -60,15 +60,15 @@ public class FileDumpImportCommand extends AbstractTransferCommand {
 	}
 
 	public TaskletStep step(JobCommandContext context, Resource resource) {
-		String name = resource.getDescription() + "-" + commandSpec.name();
+		String name = String.join("-", COMMAND_NAME, resource.getDescription());
 		ItemReader<DataStructure<String>> reader = reader(resource);
 		if (reader instanceof ItemStreamSupport) {
 			((ItemStreamSupport) reader).setName(name);
 		}
 		DataStructureProcessor processor = new DataStructureProcessor();
 		ProgressMonitor monitor = progressMonitor().task("Importing " + resource).build();
-		RedisItemWriter<String, String, DataStructure<String>> writer = writer(context)
-				.options(writerOptions.writerOptions()).build();
+		RedisItemWriter<String, String, DataStructure<String>> writer = context.writer()
+				.options(writerOptions.writerOptions()).dataStructure();
 		return step(step(context, name, reader, processor, writer), monitor).build();
 	}
 
@@ -79,10 +79,6 @@ public class FileDumpImportCommand extends AbstractTransferCommand {
 			return (XmlItemReader) FileUtils.xmlReader(resource, DataStructure.class);
 		}
 		return (JsonItemReader) FileUtils.jsonReader(resource, DataStructure.class);
-	}
-
-	protected WriterBuilder<String, String, DataStructure<String>> writer(JobCommandContext context) {
-		return RedisItemWriter.dataStructure(context.pool());
 	}
 
 }

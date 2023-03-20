@@ -1,4 +1,4 @@
-package com.redis.riot.file;
+package com.redis.riot;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -19,11 +19,11 @@ import com.redis.riot.file.resource.XmlResourceItemWriterBuilder;
 import com.redis.spring.batch.common.DataStructure;
 import com.redis.spring.batch.common.DataStructure.Type;
 
-class TestXmlItemWriter {
+class XmlItemWriterTests {
 
 	@Test
 	void test() throws Exception {
-		Path directory = Files.createTempDirectory(TestXmlItemWriter.class.getName());
+		Path directory = Files.createTempDirectory(XmlItemWriterTests.class.getName());
 		Path file = directory.resolve("redis.xml");
 		XmlMapper mapper = new XmlMapper();
 		mapper.setConfig(mapper.getSerializationConfig().withRootName("record"));

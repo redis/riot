@@ -1,10 +1,12 @@
 package com.redis.riot.gen;
 
+import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
+
 import com.redis.riot.ProgressMonitor.Builder;
 
 import picocli.CommandLine.Option;
 
-public class GeneratorOptions {
+public class BaseGeneratorOptions {
 
 	@Option(names = "--start", description = "Start index (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
 	protected int start = 1;
@@ -25,6 +27,11 @@ public class GeneratorOptions {
 
 	public void setCount(int count) {
 		this.count = count;
+	}
+
+	public void configure(AbstractItemCountingItemStreamItemReader<?> reader) {
+		reader.setCurrentItemCount(start - 1);
+		reader.setMaxItemCount(count);
 	}
 
 	public Builder configure(Builder monitor) {

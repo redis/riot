@@ -1,15 +1,15 @@
 package com.redis.riot.replicate;
 
-import org.apache.commons.pool2.impl.GenericObjectPool;
-
 import com.redis.riot.JobCommandContext;
 import com.redis.riot.RedisOptions;
+import com.redis.spring.batch.RedisItemReader;
+import com.redis.spring.batch.RedisItemWriter;
 import com.redis.spring.batch.common.JobRunner;
 
 import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.RedisURI;
-import io.lettuce.core.api.StatefulConnection;
 import io.lettuce.core.codec.RedisCodec;
+import io.lettuce.core.codec.StringCodec;
 
 public class TargetCommandContext extends JobCommandContext {
 
@@ -43,8 +43,20 @@ public class TargetCommandContext extends JobCommandContext {
 		return targetRedisURI;
 	}
 
-	public <K, V> GenericObjectPool<StatefulConnection<K, V>> targetPool(RedisCodec<K, V> codec) {
-		return targetRedisOptions.pool(targetRedisClient, codec);
+	public <K, V> RedisItemReader.Builder<K, V> targetReader(RedisCodec<K, V> codec) {
+		return reader(targetRedisClient, codec);
+	}
+
+	public RedisItemReader.Builder<String, String> targetReader() {
+		return targetReader(StringCodec.UTF8);
+	}
+
+	public RedisItemWriter.Builder<String, String> targetWriter() {
+		return targetWriter(StringCodec.UTF8);
+	}
+
+	public <K, V> RedisItemWriter.Builder<K, V> targetWriter(RedisCodec<K, V> codec) {
+		return writer(targetRedisClient, codec);
 	}
 
 }

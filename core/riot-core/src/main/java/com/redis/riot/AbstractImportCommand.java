@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.springframework.batch.core.Job;
 import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemWriter;
@@ -40,7 +39,6 @@ import com.redis.riot.processor.FilteringProcessor;
 import com.redis.riot.processor.MapAccessor;
 import com.redis.riot.processor.MapProcessor;
 import com.redis.riot.processor.SpelProcessor;
-import com.redis.spring.batch.RedisItemWriter;
 import com.redis.spring.batch.writer.Operation;
 
 import picocli.CommandLine.ArgGroup;
@@ -113,7 +111,7 @@ public abstract class AbstractImportCommand extends AbstractTransferCommand {
 		if (processorOptions.hasFilters()) {
 			processors.add(new FilteringProcessor(processorOptions.getFilters()));
 		}
-		return CompositeItemStreamItemProcessor.delegates(processors.toArray(ItemProcessor[]::new));
+		return CompositeItemStreamItemProcessor.delegates(processors.toArray(new ItemProcessor[0]));
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -132,12 +130,7 @@ public abstract class AbstractImportCommand extends AbstractTransferCommand {
 
 	private ItemWriter<Map<String, Object>> writer(JobCommandContext context,
 			Operation<String, String, Map<String, Object>> operation) {
-		return RedisItemWriter.operation(context.pool(), operation).options(writerOptions.writerOptions()).build();
-	}
-
-	protected Job job(JobCommandContext context, String name,
-			AbstractItemCountingItemStreamItemReader<Map<String, Object>> reader, ProgressMonitor monitor) {
-		return job(context, name, step(context, name, reader), monitor);
+		return context.writer().options(writerOptions.writerOptions()).operation(operation);
 	}
 
 	protected SimpleStepBuilder<Map<String, Object>, Map<String, Object>> step(JobCommandContext context, String name,

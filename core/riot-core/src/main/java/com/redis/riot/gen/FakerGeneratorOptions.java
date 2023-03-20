@@ -10,7 +10,7 @@ import org.springframework.util.Assert;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
-public class FakerGeneratorOptions extends GeneratorOptions {
+public class FakerGeneratorOptions extends BaseGeneratorOptions {
 
 	@Parameters(arity = "0..*", description = "SpEL expressions in the form field1=\"exp\" field2=\"exp\"...", paramLabel = "SPEL")
 	private Map<String, String> fields = new LinkedHashMap<>();

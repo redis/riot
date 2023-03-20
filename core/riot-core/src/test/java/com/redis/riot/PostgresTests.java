@@ -1,10 +1,6 @@
-package com.redis.riot.db;
+package com.redis.riot;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -15,69 +11,52 @@ import java.util.List;
 import java.util.Map;
 
 import org.awaitility.Awaitility;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.testcontainers.containers.JdbcDatabaseContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.redis.lettucemod.api.sync.RedisModulesCommands;
 import com.redis.spring.batch.common.DataStructure.Type;
-import com.redis.spring.batch.reader.DataStructureGeneratorItemReader;
-import com.redis.testcontainers.junit.RedisTestContext;
-import com.redis.testcontainers.junit.RedisTestContextsSource;
+import com.redis.spring.batch.reader.GeneratorReaderOptions;
 
-@Testcontainers
-@SuppressWarnings({ "rawtypes", "unchecked" })
-public class PostgresIntegrationTests extends AbstractDatabaseIntegrationTests {
+@SuppressWarnings("unchecked")
+class PostgresTests extends AbstractDatabaseTests {
 
-	private static final DockerImageName POSTGRE_DOCKER_IMAGE_NAME = DockerImageName.parse(PostgreSQLContainer.IMAGE)
+	private static final DockerImageName POSTGRES_IMAGE = DockerImageName.parse(PostgreSQLContainer.IMAGE)
 			.withTag(PostgreSQLContainer.DEFAULT_TAG);
 
-	@Container
-	private static final PostgreSQLContainer POSTGRESQL = new PostgreSQLContainer(POSTGRE_DOCKER_IMAGE_NAME);
-	private static Connection connection;
+	private static final PostgreSQLContainer<?> POSTGRES = new PostgreSQLContainer<>(POSTGRES_IMAGE);
+
+	@Override
+	protected JdbcDatabaseContainer<?> getJdbcDatabaseContainer() {
+		return POSTGRES;
+	}
 
 	@BeforeAll
-	public static void setupAll() throws SQLException, IOException {
-		connection = dataSource(POSTGRESQL).getConnection();
-		ScriptRunner scriptRunner = new ScriptRunner(connection);
-		scriptRunner.setAutoCommit(false);
-		scriptRunner.setStopOnError(true);
-		String file = "northwind.sql";
-		InputStream inputStream = PostgresIntegrationTests.class.getClassLoader().getResourceAsStream(file);
-		if (inputStream == null) {
-			throw new FileNotFoundException(file);
-		}
-		scriptRunner.runScript(new InputStreamReader(inputStream));
+	void setupPostgres() throws SQLException, IOException {
+		executeScript("db/northwind.sql");
 	}
 
-	@AfterAll
-	public static void teardownAll() throws SQLException {
-		connection.close();
-	}
-
-	@AfterEach
+	@BeforeEach
 	void clearTables() throws SQLException {
-		try (Statement statement = connection.createStatement()) {
+		try (Statement statement = databaseConnection.createStatement()) {
 			statement.execute("DROP TABLE IF EXISTS mytable");
 		}
 	}
 
-	@ParameterizedTest
-	@RedisTestContextsSource
-	void export(RedisTestContext redis) throws Exception {
-		try (Statement statement = connection.createStatement()) {
+	@Test
+	void export() throws Exception {
+		try (Statement statement = databaseConnection.createStatement()) {
 			statement.execute("CREATE TABLE mytable (id smallint NOT NULL, field1 bpchar, field2 bpchar)");
 			statement.execute("ALTER TABLE ONLY mytable ADD CONSTRAINT pk_mytable PRIMARY KEY (id)");
-			generate(DataStructureGeneratorItemReader.builder().types(Type.HASH).build(), redis);
-			execute("export-postgresql", redis, r -> configureExportCommand(r, POSTGRESQL));
+			generate(GeneratorReaderOptions.builder().types(Type.HASH).build());
+			execute("db-export-postgresql");
 			statement.execute("SELECT COUNT(*) AS count FROM mytable");
 			ResultSet countResultSet = statement.getResultSet();
 			countResultSet.next();
@@ -90,17 +69,16 @@ public class PostgresIntegrationTests extends AbstractDatabaseIntegrationTests {
 				Assertions.assertNotNull(resultSet.getString("field2"));
 				count++;
 			}
-			Assertions.assertEquals(redis.sync().dbsize(), count);
+			Assertions.assertEquals(connection.sync().dbsize(), count);
 		}
 	}
 
-	@ParameterizedTest
-	@RedisTestContextsSource
-	void nullValueExport(RedisTestContext redis) throws Exception {
-		try (Statement statement = connection.createStatement()) {
+	@Test
+	void nullValueExport() throws Exception {
+		try (Statement statement = databaseConnection.createStatement()) {
 			statement.execute("CREATE TABLE mytable (id smallint NOT NULL, field1 bpchar, field2 bpchar)");
 			statement.execute("ALTER TABLE ONLY mytable ADD CONSTRAINT pk_mytable PRIMARY KEY (id)");
-			RedisModulesCommands<String, String> sync = redis.sync();
+			RedisModulesCommands<String, String> sync = connection.sync();
 			Map<String, String> hash1 = new HashMap<>();
 			hash1.put("field1", "value1");
 			hash1.put("field2", "value2");
@@ -108,7 +86,7 @@ public class PostgresIntegrationTests extends AbstractDatabaseIntegrationTests {
 			Map<String, String> hash2 = new HashMap<>();
 			hash2.put("field2", "value2");
 			sync.hmset("gen:2", hash2);
-			execute("export-postgresql", redis, r -> configureExportCommand(r, POSTGRESQL));
+			execute("db-export-postgresql");
 			statement.execute("SELECT COUNT(*) AS count FROM mytable");
 			ResultSet countResultSet = statement.getResultSet();
 			countResultSet.next();
@@ -124,13 +102,12 @@ public class PostgresIntegrationTests extends AbstractDatabaseIntegrationTests {
 		}
 	}
 
-	@ParameterizedTest
-	@RedisTestContextsSource
-	void hashImport(RedisTestContext redis) throws Exception {
-		execute("import-postgresql", redis, r -> configureImportCommand(r, POSTGRESQL));
-		try (Statement statement = connection.createStatement()) {
+	@Test
+	void hashImport() throws Exception {
+		execute("db-import-postgresql");
+		try (Statement statement = databaseConnection.createStatement()) {
 			statement.execute("SELECT COUNT(*) AS count FROM orders");
-			RedisModulesCommands<String, String> sync = redis.sync();
+			RedisModulesCommands<String, String> sync = connection.sync();
 			List<String> keys = sync.keys("order:*");
 			ResultSet resultSet = statement.getResultSet();
 			resultSet.next();
@@ -141,20 +118,18 @@ public class PostgresIntegrationTests extends AbstractDatabaseIntegrationTests {
 		}
 	}
 
-	@ParameterizedTest
-	@RedisTestContextsSource
-	void noopImport(RedisTestContext redis) throws Exception {
-		execute("import-postgresql-noop", redis, r -> configureImportCommand(r, POSTGRESQL));
-		Assertions.assertEquals(0, redis.sync().dbsize());
+	@Test
+	void noopImport() throws Exception {
+		execute("db-import-postgresql-noop");
+		Assertions.assertEquals(0, connection.sync().dbsize());
 	}
 
-	@ParameterizedTest
-	@RedisTestContextsSource
-	void multiThreadedImport(RedisTestContext redis) throws Exception {
-		execute("import-postgresql-multithreaded", redis, r -> configureImportCommand(r, POSTGRESQL));
-		try (Statement statement = connection.createStatement()) {
+	@Test
+	void multiThreadedImport() throws Exception {
+		execute("db-import-postgresql-multithreaded");
+		try (Statement statement = databaseConnection.createStatement()) {
 			statement.execute("SELECT COUNT(*) AS count FROM orders");
-			RedisModulesCommands<String, String> sync = redis.sync();
+			RedisModulesCommands<String, String> sync = connection.sync();
 			List<String> keys = sync.keys("order:*");
 			ResultSet resultSet = statement.getResultSet();
 			resultSet.next();
@@ -165,14 +140,13 @@ public class PostgresIntegrationTests extends AbstractDatabaseIntegrationTests {
 		}
 	}
 
-	@ParameterizedTest
-	@RedisTestContextsSource
-	void setImport(RedisTestContext redis) throws Exception {
-		execute("import-postgresql-set", redis, r -> configureImportCommand(r, POSTGRESQL));
-		try (Statement statement = connection.createStatement()) {
+	@Test
+	void setImport() throws Exception {
+		execute("db-import-postgresql-set");
+		try (Statement statement = databaseConnection.createStatement()) {
 			statement.execute("SELECT * FROM orders");
 			ResultSet resultSet = statement.getResultSet();
-			RedisModulesCommands<String, String> sync = redis.sync();
+			RedisModulesCommands<String, String> sync = connection.sync();
 			long count = 0;
 			while (resultSet.next()) {
 				int orderId = resultSet.getInt("order_id");

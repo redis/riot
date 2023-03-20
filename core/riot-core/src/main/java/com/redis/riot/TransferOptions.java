@@ -1,9 +1,22 @@
 package com.redis.riot;
 
 import java.time.Duration;
+import java.util.Map;
+import java.util.concurrent.TimeoutException;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.springframework.batch.core.step.skip.AlwaysSkipItemSkipPolicy;
+import org.springframework.batch.core.step.skip.LimitCheckingItemSkipPolicy;
+import org.springframework.batch.core.step.skip.NeverSkipItemSkipPolicy;
+import org.springframework.batch.core.step.skip.SkipPolicy;
 
 import com.redis.riot.ProgressMonitor.Builder;
+import com.redis.spring.batch.common.FaultToleranceOptions;
 
+import io.lettuce.core.RedisCommandExecutionException;
+import io.lettuce.core.RedisCommandTimeoutException;
 import picocli.CommandLine.Option;
 
 public class TransferOptions {
@@ -72,14 +85,6 @@ public class TransferOptions {
 		return chunkSize;
 	}
 
-	public StepSkipPolicy getSkipPolicy() {
-		return skipPolicy;
-	}
-
-	public int getSkipLimit() {
-		return skipLimit;
-	}
-
 	public void setThreads(int threads) {
 		this.threads = threads;
 	}
@@ -100,6 +105,28 @@ public class TransferOptions {
 	public String toString() {
 		return "TransferOptions [threads=" + threads + ", chunkSize=" + chunkSize + ", skipPolicy=" + skipPolicy
 				+ ", skipLimit=" + skipLimit + ", sleep=" + sleep + "]";
+	}
+
+	public FaultToleranceOptions faultToleranceOptions() {
+		return FaultToleranceOptions.builder().skipPolicy(skipPolicy(skipPolicy, skipLimit)).skipLimit(skipLimit)
+				.build();
+	}
+
+	public static SkipPolicy skipPolicy(StepSkipPolicy policy, int skipLimit) {
+		switch (policy) {
+		case ALWAYS:
+			return new AlwaysSkipItemSkipPolicy();
+		case NEVER:
+			return new NeverSkipItemSkipPolicy();
+		default:
+			return new LimitCheckingItemSkipPolicy(skipLimit, skippableExceptions());
+		}
+	}
+
+	private static Map<Class<? extends Throwable>, Boolean> skippableExceptions() {
+		return Stream
+				.of(RedisCommandExecutionException.class, RedisCommandTimeoutException.class, TimeoutException.class)
+				.collect(Collectors.toMap(Function.identity(), t -> true));
 	}
 
 }

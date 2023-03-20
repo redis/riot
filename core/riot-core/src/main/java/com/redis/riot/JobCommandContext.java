@@ -1,18 +1,19 @@
 package com.redis.riot;
 
-import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.step.builder.StepBuilder;
 
 import com.redis.lettucemod.RedisModulesClient;
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
 import com.redis.lettucemod.cluster.RedisModulesClusterClient;
+import com.redis.spring.batch.RedisItemReader;
+import com.redis.spring.batch.RedisItemWriter;
 import com.redis.spring.batch.common.JobRunner;
 
 import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.RedisURI;
-import io.lettuce.core.api.StatefulConnection;
 import io.lettuce.core.codec.RedisCodec;
+import io.lettuce.core.codec.StringCodec;
 import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
 
 public class JobCommandContext implements AutoCloseable {
@@ -27,10 +28,6 @@ public class JobCommandContext implements AutoCloseable {
 		this.redisOptions = redisOptions;
 		this.redisURI = redisOptions.uri();
 		this.redisClient = redisOptions.client();
-	}
-
-	public JobRunner getJobRunner() {
-		return jobRunner;
 	}
 
 	public RedisOptions getRedisOptions() {
@@ -49,14 +46,6 @@ public class JobCommandContext implements AutoCloseable {
 	public void close() throws Exception {
 		redisClient.shutdown();
 		redisClient.getResources().shutdown();
-	}
-
-	public JobBuilder job(String name) {
-		return jobRunner.job(name);
-	}
-
-	public StepBuilder step(String name) {
-		return jobRunner.step(name);
 	}
 
 	public StatefulRedisModulesConnection<String, String> connection() {
@@ -82,12 +71,42 @@ public class JobCommandContext implements AutoCloseable {
 		return ((RedisModulesClient) client).connectPubSub(codec);
 	}
 
-	public GenericObjectPool<StatefulConnection<String, String>> pool() {
-		return redisOptions.pool(redisClient);
+	public <K, V> RedisItemReader.Builder<K, V> reader(RedisCodec<K, V> codec) {
+		return reader(redisClient, codec);
 	}
 
-	public <K, V> GenericObjectPool<StatefulConnection<K, V>> pool(RedisCodec<K, V> codec) {
-		return redisOptions.pool(redisClient, codec);
+	public RedisItemReader.Builder<String, String> reader() {
+		return reader(StringCodec.UTF8);
+	}
+
+	protected <K, V> RedisItemReader.Builder<K, V> reader(AbstractRedisClient client, RedisCodec<K, V> codec) {
+		if (client instanceof RedisModulesClusterClient) {
+			return RedisItemReader.client((RedisModulesClusterClient) client, codec).jobRunner(jobRunner);
+		}
+		return RedisItemReader.client((RedisModulesClient) client, codec).jobRunner(jobRunner);
+	}
+
+	public RedisItemWriter.Builder<String, String> writer() {
+		return writer(StringCodec.UTF8);
+	}
+
+	public <K, V> RedisItemWriter.Builder<K, V> writer(RedisCodec<K, V> codec) {
+		return writer(redisClient, codec);
+	}
+
+	protected static <K, V> RedisItemWriter.Builder<K, V> writer(AbstractRedisClient client, RedisCodec<K, V> codec) {
+		if (client instanceof RedisModulesClusterClient) {
+			return RedisItemWriter.client((RedisModulesClusterClient) client, codec);
+		}
+		return RedisItemWriter.client((RedisModulesClient) client, codec);
+	}
+
+	public StepBuilder step(String name) {
+		return jobRunner.step(name);
+	}
+
+	public JobBuilder job(String name) {
+		return jobRunner.job(name);
 	}
 
 }

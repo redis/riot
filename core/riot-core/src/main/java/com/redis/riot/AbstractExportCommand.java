@@ -19,14 +19,15 @@ public abstract class AbstractExportCommand extends AbstractTransferCommand {
 	}
 
 	protected RedisItemReader<String, DataStructure<String>> reader(JobCommandContext context) {
-		return RedisItemReader.dataStructure(context.pool(), context.getJobRunner())
-				.options(readerOptions.readerOptions()).build();
+		return context.reader().readerOptions(readerOptions.readerOptions()).scanOptions(readerOptions.scanOptions())
+				.dataStructure();
 	}
 
 	protected <I, O> Job job(JobCommandContext context, String name, SimpleStepBuilder<I, O> step, String task) {
-		ScanSizeEstimator estimator = ScanSizeEstimator.builder(context.pool())
-				.options(readerOptions.estimatorOptions()).build();
-		return super.job(context, name, step, progressMonitor().task(task).initialMax(estimator::execute).build());
+		ScanSizeEstimator estimator = ScanSizeEstimator.client(context.getRedisClient())
+				.options(readerOptions.scanSizeEstimatorOptions()).build();
+		ProgressMonitor monitor = progressMonitor().task(task).initialMax(estimator::execute).build();
+		return context.job(name).start(step(step, monitor).build()).build();
 	}
 
 }

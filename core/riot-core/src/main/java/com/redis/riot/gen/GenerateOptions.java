@@ -1,69 +1,66 @@
 package com.redis.riot.gen;
 
-import static com.redis.spring.batch.reader.DataStructureGeneratorItemReader.DEFAULT_HASH_FIELD_SIZE;
-import static com.redis.spring.batch.reader.DataStructureGeneratorItemReader.DEFAULT_HASH_SIZE;
-import static com.redis.spring.batch.reader.DataStructureGeneratorItemReader.DEFAULT_JSON_FIELD_COUNT;
-import static com.redis.spring.batch.reader.DataStructureGeneratorItemReader.DEFAULT_JSON_FIELD_SIZE;
-import static com.redis.spring.batch.reader.DataStructureGeneratorItemReader.DEFAULT_KEYSPACE;
-import static com.redis.spring.batch.reader.DataStructureGeneratorItemReader.DEFAULT_LIST_SIZE;
-import static com.redis.spring.batch.reader.DataStructureGeneratorItemReader.DEFAULT_SET_SIZE;
-import static com.redis.spring.batch.reader.DataStructureGeneratorItemReader.DEFAULT_STREAM_FIELD_COUNT;
-import static com.redis.spring.batch.reader.DataStructureGeneratorItemReader.DEFAULT_STREAM_FIELD_SIZE;
-import static com.redis.spring.batch.reader.DataStructureGeneratorItemReader.DEFAULT_STREAM_SIZE;
-import static com.redis.spring.batch.reader.DataStructureGeneratorItemReader.DEFAULT_STRING_SIZE;
-import static com.redis.spring.batch.reader.DataStructureGeneratorItemReader.DEFAULT_TIMESERIES_SIZE;
-import static com.redis.spring.batch.reader.DataStructureGeneratorItemReader.DEFAULT_ZSET_SCORE;
-import static com.redis.spring.batch.reader.DataStructureGeneratorItemReader.DEFAULT_ZSET_SIZE;
-
 import java.time.Instant;
 import java.util.Arrays;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
 import com.redis.spring.batch.common.DataStructure.Type;
 import com.redis.spring.batch.common.DoubleRange;
 import com.redis.spring.batch.common.IntRange;
-import com.redis.spring.batch.reader.DataStructureGeneratorItemReader;
-import com.redis.spring.batch.reader.DataStructureGeneratorItemReader.Builder;
+import com.redis.spring.batch.reader.GeneratorReaderOptions;
+import com.redis.spring.batch.reader.GeneratorReaderOptions.CollectionOptions;
+import com.redis.spring.batch.reader.GeneratorReaderOptions.HashOptions;
+import com.redis.spring.batch.reader.GeneratorReaderOptions.JsonOptions;
+import com.redis.spring.batch.reader.GeneratorReaderOptions.ListOptions;
+import com.redis.spring.batch.reader.GeneratorReaderOptions.MapOptions;
+import com.redis.spring.batch.reader.GeneratorReaderOptions.SetOptions;
+import com.redis.spring.batch.reader.GeneratorReaderOptions.StreamOptions;
+import com.redis.spring.batch.reader.GeneratorReaderOptions.StreamOptions.BodyOptions;
+import com.redis.spring.batch.reader.GeneratorReaderOptions.StringOptions;
+import com.redis.spring.batch.reader.GeneratorReaderOptions.TimeSeriesOptions;
+import com.redis.spring.batch.reader.GeneratorReaderOptions.TimeSeriesOptions.Builder;
+import com.redis.spring.batch.reader.GeneratorReaderOptions.ZsetOptions;
 
 import picocli.CommandLine.Option;
 
-public class GenerateOptions extends GeneratorOptions {
+public class GenerateOptions extends BaseGeneratorOptions {
 
 	@Option(names = "--keyspace", description = "Keyspace prefix for generated data structures (default: ${DEFAULT-VALUE}).", paramLabel = "<str>")
-	private String keyspace = DEFAULT_KEYSPACE;
+	private String keyspace = GeneratorReaderOptions.DEFAULT_KEYSPACE;
 	@Option(arity = "1..*", names = "--types", description = "Data structure types to generate: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<type>")
-	private List<Type> types = DataStructureGeneratorItemReader.defaultTypes();
+	private Set<Type> types = GeneratorReaderOptions.defaultTypes();
 	@Option(names = "--expiration", description = "TTL in seconds.", paramLabel = "<secs>")
 	private Optional<IntRange> expiration = Optional.empty();
-	@Option(names = "--hash-size", description = "Number of fields in hashes (default: ${DEFAULT-VALUE}).", paramLabel = "<range>")
-	private IntRange hashSize = DEFAULT_HASH_SIZE;
+	@Option(names = "--hash-fields", description = "Number of fields in hashes (default: ${DEFAULT-VALUE}).", paramLabel = "<range>")
+	private IntRange hashSize = MapOptions.DEFAULT_FIELD_COUNT;
 	@Option(names = "--hash-field-size", description = "Value size for hash fields (default: ${DEFAULT-VALUE}).", paramLabel = "<range>")
-	private IntRange hashFieldSize = DEFAULT_HASH_FIELD_SIZE;
+	private IntRange hashFieldSize = MapOptions.DEFAULT_FIELD_LENGTH;
 	@Option(names = "--json-size", description = "Number of fields in JSON docs (default: ${DEFAULT-VALUE}).", paramLabel = "<range>")
-	private IntRange jsonSize = DEFAULT_JSON_FIELD_COUNT;
+	private IntRange jsonSize = MapOptions.DEFAULT_FIELD_COUNT;
 	@Option(names = "--json-field-size", description = "Value size for JSON fields (default: ${DEFAULT-VALUE}).", paramLabel = "<range>")
-	private IntRange jsonFieldSize = DEFAULT_JSON_FIELD_SIZE;
-	@Option(names = "--list-size", description = "Number of elements in lists (default: ${DEFAULT-VALUE}).", paramLabel = "<range>")
-	private IntRange listSize = DEFAULT_LIST_SIZE;
+	private IntRange jsonFieldSize = MapOptions.DEFAULT_FIELD_LENGTH;
+	@Option(names = "--list-card", description = "Number of elements in lists (default: ${DEFAULT-VALUE}).", paramLabel = "<range>")
+	private IntRange listSize = CollectionOptions.DEFAULT_CARDINALITY;
 	@Option(names = "--set-size", description = "Number of elements in sets (default: ${DEFAULT-VALUE}).", paramLabel = "<range>")
-	private IntRange setSize = DEFAULT_SET_SIZE;
+	private IntRange setSize = CollectionOptions.DEFAULT_CARDINALITY;
 	@Option(names = "--stream-size", description = "Number of messages in streams (default: ${DEFAULT-VALUE}).", paramLabel = "<range>")
-	private IntRange streamSize = DEFAULT_STREAM_SIZE;
+	private IntRange streamSize = StreamOptions.DEFAULT_MESSAGE_COUNT;
 	@Option(names = "--stream-field-count", description = "Number of fields in stream messages (default: ${DEFAULT-VALUE}).", paramLabel = "<range>")
-	private IntRange streamFieldCount = DEFAULT_STREAM_FIELD_COUNT;
+	private IntRange streamFieldCount = MapOptions.DEFAULT_FIELD_COUNT;
 	@Option(names = "--stream-field-size", description = "Value size for fields in stream messages (default: ${DEFAULT-VALUE}).", paramLabel = "<range>")
-	private IntRange streamFieldSize = DEFAULT_STREAM_FIELD_SIZE;
+	private IntRange streamFieldSize = MapOptions.DEFAULT_FIELD_LENGTH;
 	@Option(names = "--string-size", description = "Length of strings (default: ${DEFAULT-VALUE}).", paramLabel = "<range>")
-	private IntRange stringSize = DEFAULT_STRING_SIZE;
+	private IntRange stringSize = StringOptions.DEFAULT_LENGTH;
 	@Option(names = "--ts-size", description = "Number of samples in timeseries (default: ${DEFAULT-VALUE}).", paramLabel = "<range>")
-	private IntRange timeseriesSize = DEFAULT_TIMESERIES_SIZE;
+	private IntRange timeseriesSize = TimeSeriesOptions.DEFAULT_SAMPLE_COUNT;
 	@Option(names = "--ts-time", description = "Start time for samples in timeseries, e.g. 2007-12-03T10:15:30.00Z (default: now).", paramLabel = "<epoch>")
 	private Optional<Instant> timeseriesStartTime = Optional.empty();
 	@Option(names = "--zset-size", description = "Number of elements in sorted sets (default: ${DEFAULT-VALUE}).", paramLabel = "<range>")
-	private IntRange zsetSize = DEFAULT_ZSET_SIZE;
+	private IntRange zsetSize = CollectionOptions.DEFAULT_CARDINALITY;
 	@Option(names = "--zset-score", description = "Score of sorted sets (default: ${DEFAULT-VALUE}).", paramLabel = "<range>")
-	private DoubleRange zsetScore = DEFAULT_ZSET_SCORE;
+	private DoubleRange zsetScore = ZsetOptions.DEFAULT_SCORE;
 
 	public String getKeyspace() {
 		return keyspace;
@@ -73,12 +70,12 @@ public class GenerateOptions extends GeneratorOptions {
 		this.keyspace = keyspace;
 	}
 
-	public List<Type> getTypes() {
+	public Set<Type> getTypes() {
 		return types;
 	}
 
 	public void setTypes(Type... types) {
-		this.types = Arrays.asList(types);
+		this.types = new HashSet<>(Arrays.asList(types));
 	}
 
 	public Optional<IntRange> getExpiration() {
@@ -197,7 +194,7 @@ public class GenerateOptions extends GeneratorOptions {
 		this.timeseriesStartTime = timeseriesStartTime;
 	}
 
-	public void setTypes(List<Type> types) {
+	public void setTypes(Set<Type> types) {
 		this.types = types;
 	}
 
@@ -216,10 +213,56 @@ public class GenerateOptions extends GeneratorOptions {
 				+ ", start=" + start + ", count=" + count + "]";
 	}
 
-	public Builder configureReader(Builder reader) {
-		timeseriesStartTime.ifPresent(t -> reader.timeseriesStartTime(t.toEpochMilli()));
-		expiration.ifPresent(reader::expiration);
-		return reader;
+	public GeneratorReaderOptions generatorOptions() {
+		GeneratorReaderOptions.Builder builder = GeneratorReaderOptions.builder();
+		builder.keyspace(keyspace);
+		builder.types(types.toArray(new Type[0]));
+		builder.hashOptions(hashOptions());
+		builder.jsonOptions(jsonOptions());
+		builder.listOptions(listOptions());
+		builder.streamOptions(streamOptions());
+		builder.stringOptions(stringOptions());
+		builder.timeSeriesOptions(timeSeriesOptions());
+		builder.zsetOptions(zsetOptions());
+		builder.setOptions(setOptions());
+		expiration.ifPresent(builder::expiration);
+		return builder.build();
+	}
+
+	private SetOptions setOptions() {
+		return SetOptions.builder().cardinality(setSize).build();
+	}
+
+	private ZsetOptions zsetOptions() {
+		return ZsetOptions.builder().cardinality(zsetSize).score(zsetScore).build();
+	}
+
+	private HashOptions hashOptions() {
+		return HashOptions.builder().fieldCount(hashSize).fieldLength(hashFieldSize).build();
+	}
+
+	private JsonOptions jsonOptions() {
+		return JsonOptions.builder().fieldCount(jsonSize).fieldLength(jsonFieldSize).build();
+	}
+
+	private ListOptions listOptions() {
+		return ListOptions.builder().cardinality(listSize).build();
+	}
+
+	private StreamOptions streamOptions() {
+		return StreamOptions.builder()
+				.bodyOptions(BodyOptions.builder().fieldCount(streamFieldCount).fieldLength(streamFieldSize).build())
+				.messageCount(streamSize).build();
+	}
+
+	private StringOptions stringOptions() {
+		return StringOptions.builder().length(stringSize).build();
+	}
+
+	private TimeSeriesOptions timeSeriesOptions() {
+		Builder builder = TimeSeriesOptions.builder().sampleCount(timeseriesSize);
+		timeseriesStartTime.ifPresent(t -> builder.startTime(t.toEpochMilli()));
+		return builder.build();
 	}
 
 }

@@ -1,1 +1,1 @@
-riot-gen faker id="#index" category="number.randomDigit" xadd --keyspace teststream --keys category
+riot faker-import id="#index" category="number.randomDigit" xadd --keyspace teststream --keys category

@@ -1,1 +1,1 @@
-riot-file import https://storage.googleapis.com/jrx/beers.csv --header --process ibu="ibu?:10" hset --keyspace beer --keys id
+riot file-import https://storage.googleapis.com/jrx/beers.csv --header --process ibu="ibu?:10" hset --keyspace beer --keys id

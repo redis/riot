@@ -1,6 +1,9 @@
 package com.redis.riot.file;
 
+import java.io.IOException;
+
 import org.springframework.batch.core.Job;
+import org.springframework.batch.core.job.builder.JobBuilderException;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.json.JacksonJsonObjectMarshaller;
 import org.springframework.batch.item.json.JsonObjectMarshaller;
@@ -20,6 +23,8 @@ import picocli.CommandLine.Parameters;
 
 @Command(name = "file-export", description = "Export Redis data to JSON or XML files")
 public class FileExportCommand extends AbstractExportCommand {
+
+	private static final String COMMAND_NAME = "file-export";
 
 	@Parameters(arity = "1", description = "File path or URL", paramLabel = "FILE")
 	private String file;
@@ -47,11 +52,15 @@ public class FileExportCommand extends AbstractExportCommand {
 	}
 
 	@Override
-	protected Job job(JobCommandContext context) throws Exception {
-		WritableResource resource = options.outputResource(file);
+	protected Job job(JobCommandContext context) {
+		WritableResource resource;
+		try {
+			resource = options.outputResource(file);
+		} catch (IOException e) {
+			throw new JobBuilderException(e);
+		}
 		String task = String.format("Exporting %s", resource.getFilename());
-		return job(context, commandSpec.name(),
-				step(context, commandSpec.name(), reader(context), null, writer(resource)), task);
+		return job(context, COMMAND_NAME, step(context, COMMAND_NAME, reader(context), null, writer(resource)), task);
 	}
 
 	private ItemWriter<DataStructure<String>> writer(WritableResource resource) {

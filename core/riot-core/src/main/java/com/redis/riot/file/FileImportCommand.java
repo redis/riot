@@ -48,6 +48,7 @@ public class FileImportCommand extends AbstractImportCommand {
 
 	private static final Logger log = Logger.getLogger(FileImportCommand.class.getName());
 	private static final String DELIMITER_PIPE = "|";
+	private static final String COMMAND_NAME = "file-import";
 
 	@Mixin
 	private FileImportOptions options = new FileImportOptions();
@@ -90,9 +91,9 @@ public class FileImportCommand extends AbstractImportCommand {
 	}
 
 	@Override
-	protected Job job(JobCommandContext context) throws Exception {
+	protected Job job(JobCommandContext context) {
 		Iterator<TaskletStep> stepIterator = options.getResources().map(r -> step(context, r)).iterator();
-		SimpleJobBuilder job = job(context, commandSpec.name(), stepIterator.next());
+		SimpleJobBuilder job = context.job(COMMAND_NAME).start(stepIterator.next());
 		while (stepIterator.hasNext()) {
 			job.next(stepIterator.next());
 		}
@@ -101,7 +102,7 @@ public class FileImportCommand extends AbstractImportCommand {
 
 	private TaskletStep step(JobCommandContext context, Resource resource) {
 		AbstractItemCountingItemStreamItemReader<Map<String, Object>> reader = reader(resource);
-		String name = resource.getDescription() + "-" + commandSpec.name();
+		String name = String.join("-", COMMAND_NAME, resource.getDescription());
 		if (reader instanceof ItemStreamSupport) {
 			((ItemStreamSupport) reader).setName(name);
 		}
@@ -179,7 +180,7 @@ public class FileImportCommand extends AbstractImportCommand {
 
 	private FlatFileItemReader<Map<String, Object>> flatFileReader(Resource resource, AbstractLineTokenizer tokenizer) {
 		if (!ObjectUtils.isEmpty(flatFileOptions.getNames())) {
-			tokenizer.setNames(flatFileOptions.getNames().toArray(String[]::new));
+			tokenizer.setNames(flatFileOptions.getNames().toArray(new String[0]));
 		}
 		FlatFileItemReaderBuilder<Map<String, Object>> builder = new FlatFileItemReaderBuilder<>();
 		builder.resource(resource);

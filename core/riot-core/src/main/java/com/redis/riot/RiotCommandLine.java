@@ -24,12 +24,13 @@ public class RiotCommandLine extends CommandLine {
 			if (AbstractImportCommand.class.isAssignableFrom(command.getClass())) {
 				AbstractImportCommand importCommand = (AbstractImportCommand) command;
 				List<ParseResult> parsedRedisCommands = subcommand.subcommands();
-				for (ParseResult parsedRedisCommand : parsedRedisCommands) {
-					if (parsedRedisCommand.isUsageHelpRequested()) {
-						return parsedRedisCommand;
+				for (ParseResult redisCommand : parsedRedisCommands) {
+					if (redisCommand.isUsageHelpRequested()) {
+						return redisCommand;
 					}
-					importCommand.getRedisCommands()
-							.add((OperationCommand<Map<String, Object>>) parsedRedisCommand.commandSpec().userObject());
+					OperationCommand<Map<String, Object>> opCommand = (OperationCommand<Map<String, Object>>) redisCommand
+							.commandSpec().userObject();
+					importCommand.getRedisCommands().add(opCommand);
 				}
 				setExecutionStrategy(executionStrategy);
 				return subcommand;

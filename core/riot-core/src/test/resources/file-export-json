@@ -1,1 +1,1 @@
-riot-file export /tmp/redis.json
+riot file-export /tmp/redis.json

@@ -5,14 +5,15 @@ import java.util.Optional;
 
 import org.springframework.util.Assert;
 
-import com.redis.spring.batch.step.FlushingOptions;
+import com.redis.spring.batch.common.FlushingOptions;
+import com.redis.spring.batch.step.FlushingChunkProvider;
 
 import picocli.CommandLine.Option;
 
 public class FlushingTransferOptions {
 
 	@Option(names = "--flush-interval", description = "Max duration between flushes (default: ${DEFAULT-VALUE}).", paramLabel = "<ms>")
-	private long flushInterval = FlushingOptions.DEFAULT_FLUSHING_INTERVAL.toMillis();
+	private long flushInterval = FlushingChunkProvider.DEFAULT_FLUSHING_INTERVAL.toMillis();
 	@Option(names = "--idle-timeout", description = "Min duration of inactivity to consider transfer complete.", paramLabel = "<ms>")
 	private Optional<Long> idleTimeout = Optional.empty();
 
@@ -32,8 +33,8 @@ public class FlushingTransferOptions {
 	}
 
 	public FlushingOptions flushingOptions() {
-		return FlushingOptions.builder().interval(Duration.ofMillis(flushInterval))
-				.timeout(idleTimeout.map(Duration::ofMillis)).build();
+		return FlushingOptions.builder().flushingInterval(Duration.ofMillis(flushInterval))
+				.idleTimeout(idleTimeout.map(Duration::ofMillis)).build();
 	}
 
 }
