@@ -41,7 +41,6 @@ import org.springframework.batch.item.json.JacksonJsonObjectReader;
 import org.springframework.batch.item.json.JsonItemReader;
 import org.springframework.batch.item.json.builder.JsonItemReaderBuilder;
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
-import org.springframework.batch.item.support.ListItemWriter;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.util.FileCopyUtils;
@@ -815,7 +814,7 @@ public abstract class AbstractRiotTests extends AbstractTestBase {
 				return false;
 			}
 			RedisItemReader<String, KeyComparison> reader = comparisonReader();
-			ListItemWriter<KeyComparison> writer = new ListItemWriter<>();
+			SynchronizedListItemWriter<KeyComparison> writer = new SynchronizedListItemWriter<>();
 			run("compare-" + id(), DEFAULT_BATCH_SIZE, reader, writer);
 			awaitClosed(reader);
 			if (writer.getWrittenItems().isEmpty()) {
