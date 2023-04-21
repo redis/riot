@@ -1,0 +1,182 @@
+/*
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Copyright 2022-2023 The Jarviz authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+plugins {
+    id 'application'
+    id 'org.jreleaser.jdks'
+}
+
+application {
+    mainClassName = 'com.redis.riot.cli.Main'
+}
+
+jar {
+    manifest {
+        attributes('Automatic-Module-Name': project.findProperty('automatic.module.name'))
+    }
+}
+
+startScripts {
+    classpath = files('$APP_HOME/lib/*')
+}
+
+jar {
+    manifest {
+        attributes('Main-Class': 'org.jreleaser.cli.Main')
+    }
+}
+
+config {
+    info {
+        specification { enabled = true }
+    }
+    licensing {
+        enabled = false
+    }
+}
+
+dependencies {
+    api project(':riot-core')
+    api group: 'info.picocli', name: 'picocli', version: picocliVersion
+    annotationProcessor group: 'info.picocli', name: 'picocli-codegen', version: picocliVersion
+    api 'org.apache.commons:commons-pool2'
+    implementation group: 'me.tongfei', name: 'progressbar', version: progressbarVersion
+    implementation group: 'org.codehaus.plexus', name: 'plexus-utils', version:plexusVersion
+    runtimeOnly 'org.slf4j:slf4j-jdk14'
+    implementation 'org.springframework.boot:spring-boot-autoconfigure'
+    implementation 'org.springframework:spring-jdbc'
+    implementation group: 'com.ibm.db2', name: 'jcc', version: db2Version
+    implementation group: 'com.microsoft.sqlserver', name: 'mssql-jdbc', version: mssqlVersion
+    implementation group: 'com.oracle.ojdbc', name: 'ojdbc8', version: oracleVersion
+    implementation 'com.mysql:mysql-connector-j'
+    implementation 'org.postgresql:postgresql'
+    implementation group: 'org.xerial', name: 'sqlite-jdbc', version: sqliteVersion
+    implementation 'org.springframework:spring-oxm'
+    implementation group: 'org.springframework.cloud', name: 'spring-cloud-aws-context', version: awsVersion
+    implementation group: 'org.springframework.cloud', name: 'spring-cloud-aws-autoconfigure', version: awsVersion
+    implementation (group: 'org.springframework.cloud', name: 'spring-cloud-gcp-starter-storage', version: gcpVersion) {
+        exclude group: 'javax.annotation', module: 'javax.annotation-api'
+    }
+    implementation group: 'org.latencyutils', name: 'LatencyUtils', version: latencyutilsVersion
+    testImplementation('org.springframework.boot:spring-boot-starter-test') {
+        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+    }
+    testImplementation group: 'org.testcontainers', name: 'postgresql', version: testcontVersion
+    testImplementation group: 'org.testcontainers', name: 'oracle-xe', version: testcontVersion
+}
+
+bootStartScripts.enabled = false
+
+distributions {
+    main {
+        contents {
+            from('../..') {
+                include 'LICENSE'
+                include 'VERSION'
+            }
+        }
+    }
+}
+
+jdks {
+    zulu17Linux {
+        platform = 'linux-x86_64'
+        url = 'https://cdn.azul.com/zulu/bin/zulu17.32.13-ca-jdk17.0.2-linux_x64.zip'
+        checksum = '7668ebaecc81041d8d1e79e857552887f56c445ef4c6e8d634007b7b67f5a1d3'
+    }
+    zulu17LinuxArm {
+        platform = 'linux-aarch64'
+        url = 'https://cdn.azul.com/zulu/bin/zulu17.32.13-ca-jdk17.0.2-linux_aarch64.tar.gz'
+        checksum = '2b8066bbdbc5cff422bb6b6db1b8f8d362b576340cce8492f1255502af632b06'
+    }
+    zulu17LinuxMusl {
+        platform = 'linux_musl-x86_64'
+        url = 'https://cdn.azul.com/zulu/bin/zulu17.32.13-ca-jdk17.0.2-linux_musl_x64.tar.gz'
+        checksum = 'bcc5342011bd9f3643372aadbdfa68d47463ff0d8621668a0bdf2910614d95c6'
+    }
+    zulu17LinuxMuslArm {
+        platform = 'linux_musl-aarch64'
+        url = 'https://cdn.azul.com/zulu/bin/zulu17.32.13-ca-jdk17.0.2-linux_musl_aarch64.tar.gz'
+        checksum = '6b920559abafbe9bdef386a20ecf3a2f318bc1f0d8359eb1f95aee26606bbc70'
+    }
+    zulu17Windows {
+        platform = 'windows-x86_64'
+        url = 'https://cdn.azul.com/zulu/bin/zulu17.32.13-ca-jdk17.0.2-win_x64.zip'
+        checksum = 'e965aa0ea7a0661a3446cf8f10ee00684b851f883b803315289f26b4aa907fdb'
+    }
+    zulu17WindowsArm {
+        platform = 'windows-aarch64'
+        url = 'https://cdn.azul.com/zulu/bin/zulu17.32.13-ca-jdk17.0.2-win_aarch64.zip'
+        checksum = '1a9d4ab3b52ce3db7354691163e5a36979af9c37d80c3c490c12af07de21d8f3'
+    }
+    zulu17Osx {
+        platform = 'osx-x86_64'
+        url = 'https://cdn.azul.com/zulu/bin/zulu17.32.13-ca-jdk17.0.2-macosx_x64.zip'
+        checksum = 'f75fe30aced4fbee8db108fbb123b3af328503a2af46e173cbe43613b995e492'
+    }
+    zulu17OsxArm {
+        platform = 'osx-aarch64'
+        url = 'https://cdn.azul.com/zulu/bin/zulu17.32.13-ca-jdk17.0.2-macosx_aarch64.zip'
+        checksum = '8c287018d358ec2c43995bf09a0cdaa235f0bdd434673777a564daee2c3872df'
+    }
+    graal17Osx {
+        platform = 'osx-x86_64'
+        url = 'https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-22.3.0/graalvm-ce-java17-darwin-amd64-22.3.0.tar.gz'
+        checksum = '422cd6abecfb8b40238460c09c42c5a018cb92fab4165de9691be2e3c3d0e8d1'
+    }
+    graal17Linux {
+        platform = 'linux-x86_64'
+        url = 'https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-22.3.0/graalvm-ce-java17-linux-amd64-22.3.0.tar.gz'
+        checksum = '3473d8b3b1bc682e95adfb3ac1d9a59b51b0f43e2b752f2a5b550e4ebfa2fd17'
+    }
+    //graal17LinuxArm {
+    //    platform = 'linux-aarch64'
+    //    url = 'https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-22.0.0.2/graalvm-ce-java17-linux-aarch64-22.0.0.2.tar.gz'
+    //    checksum = 'c7d78387d2a144944f26773697c1b61d3478a081a1c5e7fc20f47f1f5f3c82c7'
+    //}
+    graal17Windows {
+        platform = 'windows-x86_64'
+        url = 'https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-22.3.0/graalvm-ce-java17-windows-amd64-22.3.0.zip'
+        checksum = '5a6f1d640034166a0fefd9d8924c12b040f120cd019b46b40895ccc8e9a9fc9e'
+    }
+}
+
+copyDependencies {
+    dependsOn classes
+    inputs.files(configurations.runtimeClasspath)
+    configuration = 'runtimeClasspath'
+}
+
+assemble.dependsOn copyDependencies
+
+asciidoctor {
+    resources {
+    	from('src/docs/resources/images') {
+     		include '**/*'
+   		}
+    }
+}
+
+compileJava {
+    options.release = 8
+}
+
+eclipse {
+    project {
+        name = 'riot-cli'
+    }
+}

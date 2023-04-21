@@ -1,3 +1,11 @@
+environment:
+  properties:
+    jdkPathPrefix: 'plugins/riot/build/jdks'
+    jdkFilePrefix: 'zulu17.32.13-ca-jdk17.0.2'
+    graalFilePrefix: 'graalvm-ce-java17-22.3.0'
+    nativeImageDir: out/jreleaser/assemble/riot-native/native-image
+    jpackageDir: out/jreleaser/assemble/riot-installer/jpackage
+
 project:
   name: riot
   description: Redis Input/Output Tools
@@ -20,13 +28,17 @@ project:
     - 'export'
     - 'replication'
 
+platform:
+  replacements:
+    aarch_64: aarch64
+
 release:
   github:
     overwrite: true
+    sign: true
     changelog:
       formatted: ALWAYS
       preset: conventional-commits
-      format: '- {{commitShortHash}} {{commitTitle}}'
       contributors:
         enabled: false
       labelers:
@@ -45,7 +57,7 @@ release:
             - 'dependencies'
       hide:
         categories:
-          - 'Merge'
+          - 'merge'
       replacers:
         - search: 'deps: '
 
@@ -55,8 +67,6 @@ signing:
 
 deploy:
   maven:
-    pomchecker:
-      version: 1.7.0
     nexus2:
       maven-central:
         active: RELEASE
@@ -71,83 +81,267 @@ announce:
     active: RELEASE
     channel: '#field-engineering-announcements'
     message: '🧨 RIOT {{projectVersion}} has been released! {{releaseNotesUrl}}'
-    
-packagers:
-  brew:
-    active: RELEASE
-  scoop:
-    active: RELEASE
-    bucket:
-      name: scoop
+
+assemble:
+  jlink:
+    riot-standalone:
+      active: ALWAYS
+      java:
+        version: 11
+      imageName: '{{distributionName}}-{{projectEffectiveVersion}}'
+      executable: riot
+      fileSets:
+        - input: '.'
+          includes:
+            - NOTICE
+            - LICENSE
+        - input: licenses
+          output: licenses
+      jdeps:
+        multiRelease: base
+        ignoreMissingDeps: true
+        targets:
+          - 'plugins/riot/build/libs/riot-{{projectVersion}}.jar'
+      additionalModuleNames:
+        - 'java.security.sasl'
+        - 'java.security.jgss'
+        - 'jdk.crypto.cryptoki'
+        - 'jdk.crypto.ec'
+        - 'jdk.localedata'
+        - 'jdk.net'
+        - 'jdk.security.auth'
+        - 'jdk.security.jgss'
+      targetJdks:
+        - path: '{{jdkPathPrefix}}/zulu17Osx/{{jdkFilePrefix}}-macosx_x64/zulu-17.jdk/Contents/Home'
+          platform: 'osx-x86_64'
+        - path: '{{jdkPathPrefix}}/zulu17OsxArm/{{jdkFilePrefix}}-macosx_aarch64/zulu-17.jdk/Contents/Home'
+          platform: 'osx-aarch_64'
+        - path: '{{jdkPathPrefix}}/zulu17Linux/{{jdkFilePrefix}}-linux_x64'
+          platform: 'linux-x86_64'
+        - path: '{{jdkPathPrefix}}/zulu17LinuxArm/{{jdkFilePrefix}}-linux_aarch64'
+          platform: 'linux-aarch_64'
+        - path: '{{jdkPathPrefix}}/zulu17LinuxMusl/{{jdkFilePrefix}}-linux_musl_x64'
+          platform: 'linux_musl-x86_64'
+        - path: '{{jdkPathPrefix}}/zulu17LinuxMuslArm/{{jdkFilePrefix}}-linux_musl_aarch64'
+          platform: 'linux_musl-aarch_64'
+        - path: '{{jdkPathPrefix}}/zulu17Windows/{{jdkFilePrefix}}-win_x64'
+          platform: 'windows-x86_64'
+        - path: '{{jdkPathPrefix}}/zulu17WindowsArm/{{jdkFilePrefix}}-win_aarch64'
+          platform: 'windows-aarch_64'
+      mainJar:
+        path: 'plugins/riot/build/libs/riot-{{projectVersion}}.jar'
+      jars:
+        - pattern: 'plugins/riot/build/dependencies/flat/*.jar'
+
+  jpackage:
+    riot-installer:
+      active: ALWAYS
+      jlink: riot-standalone
+      attachPlatform: true
+      exported: false
+      applicationPackage:
+        appName: riot
+        appVersion: '{{projectVersionNumber}}'
+        vendor: Redis
+      osx:
+        types: [pkg]
+        appName: RIOT
+        packageName: RIOT
+        packageIdentifier: com.redis.riot.cli
+        icon: 'src/media/riot.icns'
+        resourceDir: 'src/jpackage/osx'
+      linux:
+        types: [deb,rpm]
+        maintainer: jruaux+riot@gmail.com
+        icon: 'src/media/icon_256x256.png'
+      windows:
+        types: [msi]
+        console: true
+        dirChooser: true
+        icon: 'src/media/riot.ico'
+        resourceDir: 'src/jpackage/windows'
+
+  nativeImage:
+    riot-native:
+      active: ALWAYS
+      java:
+        version: 17
+      imageName: '{{distributionName}}-{{projectEffectiveVersion}}'
+      executable: riot
+      fileSets:
+        - input: '.'
+          includes:
+            - LICENSE
+        - input: licenses
+          output: licenses
+      mainJar:
+        path: 'plugins/riot/build/libs/riot-{{projectVersion}}.jar'
+      jars:
+        - pattern: 'plugins/riot/build/dependencies/flat/*.jar'
+      graalJdks:
+        - path: '{{jdkPathPrefix}}/graal17Osx/{{graalFilePrefix}}/Contents/Home'
+          platform: 'osx-x86_64'
+        - path: '{{jdkPathPrefix}}/graal17Linux/{{graalFilePrefix}}'
+          platform: 'linux-x86_64'
+        - path: '{{jdkPathPrefix}}/graal17Windows/{{graalFilePrefix}}'
+          platform: 'windows-x86_64'
+      upx:
+        active: ALWAYS
+        version: '3.96'
+      args:
+        - '-Duser.language=en'
+        - '-H:IncludeLocales=en,ca,de,es,fr,hi,it,ja,nl,pt_BR,zh_TW,ru,ko'
+        - '-H:Optimize=2'
+        - '-H:+RemoveUnusedSymbols'
 
 distributions:
-  riot-db:
-    artifacts:
-      - path: 'connectors/{{distributionName}}/build/distributions/{{distributionName}}-{{projectVersion}}.zip'
-    docker:
+  riot:
+    flatpak:
+      active: ALWAYS
+      continueOnError: true
+      componentId: com.redis.riot.cli
+      developerName: Redis
+      runtime: FREEDESKTOP
+      runtimeVersion: 21.08
+      finishArgs:
+        - --share=network
+        - --filesystem=host
+      categories:
+        - Developer Tools
+      skipReleases:
+        - '.*-RC.*'
+        - '.*-M.*'
+      repository:
+        active: RELEASE
+        owner: flathub
+        name: com.redis.riot.cli
+        branch: master
+    chocolatey:
+      active: ALWAYS
+      remoteBuild: true
+      title: RIOT
+      iconUrl: 'https://raw.githubusercontent.com/redis-developer/riot/master/src/media/icon_128x128.png'
+      bucket:
+        active: RELEASE
+    jbang:
+      active: ALWAYS
+    macports:
+      active: ALWAYS
+      categories:
+        - devel
+        - java
+      maintainers:
+        - '@jruaux'
+      repository:
+        active: RELEASE
+        name: riot-macports
+    scoop:
+      active: ALWAYS
+      bucket:
+        active: RELEASE
+    sdkman:
+      active: RELEASE
+      continueOnError: true
+    snap:
+      active: ALWAYS
+      remoteBuild: true
+      base: core18
+      architectures:
+        - buildOn: [ amd64, arm64 ]
+      localPlugs:
+        - network
+    spec:
       active: ALWAYS
       repository:
-        active: NEVER
-      registries:
-        - serverName: DEFAULT
-          server: docker.io
-          repositoryName: fieldengineering
-      imageNames:
-        - 'fieldengineering/{{distributionName}}:{{tagName}}'
-        - 'fieldengineering/{{distributionName}}:latest'
-      labels:
-        'org.opencontainers.image.title': '{{distributionName}}'
+        active: RELEASE
+        name: riot-copr
+    artifacts:
+      - path: plugins/{{distributionName}}/build/distributions/{{distributionName}}-{{projectVersion}}.zip
+        transform: '{{distributionName}}/{{distributionName}}-{{projectEffectiveVersion}}.zip'
+        extraProperties:
+          skipSpec: true
+      - path: plugins/{{distributionName}}/build/distributions/{{distributionName}}-{{projectVersion}}.tar
+        transform: '{{distributionName}}/{{distributionName}}-{{projectEffectiveVersion}}.tar'
+        extraProperties:
+          skipFlatpak: true
 
-  riot-file:
-    artifacts:
-      - path: 'connectors/{{distributionName}}/build/distributions/{{distributionName}}-{{projectVersion}}.zip'
+  riot-standalone:
+    appImage:
+      active: ALWAYS
+      componentId: com.redis.riot.cli
+      developerName: Redis
+      categories:
+        - Development
+      repository:
+        active: RELEASE
+        name: riot-appimage
+        commitMessage: 'riot {{tagName}}'
+    brew:
+      active: ALWAYS
+      formulaName: riot
+      multiPlatform: true
+      tap:
+        active: RELEASE
+        commitMessage: 'riot {{tagName}}'
     docker:
       active: ALWAYS
       repository:
-        active: NEVER
+        active: ALWAYS
+        commitMessage: 'riot {{tagName}}'
       registries:
         - serverName: DEFAULT
-          server: docker.io
           repositoryName: fieldengineering
-      imageNames:
-        - 'fieldengineering/{{distributionName}}:{{tagName}}'
-        - 'fieldengineering/{{distributionName}}:latest'
       labels:
-        'org.opencontainers.image.title': '{{distributionName}}'
-      
-  riot-gen:
-    artifacts:
-      - path: 'connectors/{{distributionName}}/build/distributions/{{distributionName}}-{{projectVersion}}.zip'
-    docker:
-      active: ALWAYS
-      repository:
-        active: NEVER
-      registries:
-        - serverName: DEFAULT
-          server: docker.io
-          repositoryName: fieldengineering
-      imageNames:
-        - 'fieldengineering/{{distributionName}}:{{tagName}}'
-        - 'fieldengineering/{{distributionName}}:latest'
-      labels:
-        'org.opencontainers.image.title': '{{distributionName}}'
+        'org.opencontainers.image.title': 'riot'
+      postCommands:
+        - 'VOLUME /workspace'
+      specs:
+        slim:
+          imageNames:
+            - 'fieldengineering/riot-{{dockerSpecName}}:{{tagName}}'
+            - 'fieldengineering/riot-{{dockerSpecName}}:latest'
+          matchers:
+            platform: 'linux-x86_64'
+          preCommands:
+            - 'ARG DEBIAN_FRONTEND=noninteractive'
+            - 'ENV TZ=Europe/Zurich'
+            - 'RUN apt-get update && apt-get install -y unzip binutils fakeroot rpm'
+        alpine:
+          imageNames:
+            - 'fieldengineering/riot-{{dockerSpecName}}:{{tagName}}'
+            - 'fieldengineering/riot-{{dockerSpecName}}:latest'
+          matchers:
+            platform: 'linux_musl-x86_64'
+          preCommands:
+            - 'RUN apk add unzip binutils fakeroot rpm bash'
 
-  riot-redis:
+  riot-installer:
+    type: NATIVE_PACKAGE
+    executable:
+      name: riot
+      windowsExtension: exe
     artifacts:
-      - path: 'connectors/{{distributionName}}/build/distributions/{{distributionName}}-{{projectVersion}}.zip'
-    docker:
-      active: ALWAYS
-      repository:
-        active: NEVER
-      registries:
-        - serverName: DEFAULT
-          server: docker.io
-          repositoryName: fieldengineering
-      imageNames:
-        - 'fieldengineering/{{distributionName}}:{{tagName}}'
-        - 'fieldengineering/{{distributionName}}:latest'
-      labels:
-        'org.opencontainers.image.title': '{{distributionName}}'
+      - path: '{{jpackageDir}}/RIOT-{{projectVersionNumber}}-osx-x86_64.pkg'
+        transform: '{{distributionName}}/{{distributionName}}-{{projectEffectiveVersion}}-osx-x86_64.pkg'
+        platform: 'osx-x86_64'
+      - path: '{{jpackageDir}}/riot{{projectVersionNumber}}-1_amd64.deb'
+        transform: '{{distributionName}}/{{distributionName}}_{{projectEffectiveVersion}}-1_amd64.deb'
+        platform: 'linux-x86_64'
+      - path: '{{jpackageDir}}/riot-{{projectVersionNumber}}-1.x86_64.rpm'
+        transform: '{{distributionName}}/{{distributionName}}-{{projectEffectiveVersion}}-1.x86_64.rpm'
+        platform: 'linux-x86_64'
+      - path: '{{jpackageDir}}/riot-{{projectVersionNumber}}-windows-x86_64.msi'
+        transform: '{{distributionName}}/{{distributionName}}-{{projectEffectiveVersion}}-windows-x86_64.msi'
+        platform: 'windows-x86_64'
+
+  riot-native:
+    artifacts:
+      - path: '{{nativeImageDir}}/{{distributionName}}-{{projectEffectiveVersion}}-osx-x86_64.zip'
+        platform: 'osx-x86_64'
+      - path: '{{nativeImageDir}}/{{distributionName}}-{{projectEffectiveVersion}}-linux-x86_64.zip'
+        platform: 'linux-x86_64'
+      - path: '{{nativeImageDir}}/{{distributionName}}-{{projectEffectiveVersion}}-windows-x86_64.zip'
+        platform: 'windows-x86_64'
 
 files:
   artifacts:
@@ -155,3 +349,4 @@ files:
       extraProperties:
         skipChecksum: true
         skipSigning: true
+        skipSbom: true

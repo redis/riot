@@ -1,26 +1,44 @@
+/*
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Copyright 2022-2023 The Jarviz authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 config {
     info {
-        description = 'Redis Input/Output Tools'
+        description = 'riot'
         inceptionYear = '2020'
         vendor = 'Redis'
         tags = ['redis', 'tool', 'import', 'export', 'replication']
-        
+        bytecodeVersion = 8
+
         links {
             website      = "https://github.com/redis-developer/${project.rootProject.name}"
             issueTracker = "https://github.com/redis-developer/${project.rootProject.name}/issues"
             scm          = "https://github.com/redis-developer/${project.rootProject.name}.git"
         }
-        
+
         scm {
             url                 = "https://github.com/redis-developer/${project.rootProject.name}"
             connection          = "scm:git:https://github.com/redis-developer/${project.rootProject.name}.git"
             developerConnection = "scm:git:git@github.com:redis-developer/${project.rootProject.name}.git"
         }
-        
+
         specification {
             enabled = true
         }
-        
+
         implementation {
             enabled = true
         }
@@ -33,27 +51,15 @@ config {
             }
         }
     }
-    
+
     docs {
         javadoc {
             autoLinks {
                 enabled = false
             }
         }
-        sourceHtml {
-            enabled = false
-        }
     }
-    
-    licensing {
-        enabled = false
-        licenses {
-            license {
-                id = 'Apache-2.0'
-            }
-        }
-    }
-    
+
     coverage {
         jacoco {
             enabled = true
@@ -67,11 +73,11 @@ allprojects {
         mavenLocal()
         gradlePluginPortal()
     }
-    
+
     tasks.withType(GenerateModuleMetadata) {
         enabled = false
     }
-    
+
     tasks.withType(JavaCompile) {
         options.encoding = 'UTF-8'
     }
@@ -83,20 +89,20 @@ subprojects {
             description = project.project_description
         }
     }
-    
+
     license {
         exclude('build/**')
     }
-    
+
     dependencies {
         compileOnly group: 'com.google.code.findbugs', name: 'jsr305', version: jsr305Version
         testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
         testImplementation group: 'commons-io', name: 'commons-io', version: commonsIoVersion
-        testImplementation(group: 'com.redis.testcontainers', name: 'testcontainers-redis-junit', version: testcontRedisVersion) {
+        testImplementation(group: 'com.redis.testcontainers', name: 'testcontainers-redis-junit', version: testcontainersRedisVersion) {
             exclude group: 'com.redis', module: 'lettucemod'
         }
     }
-    
+
     test {
         useJUnitPlatform()
     }
@@ -128,7 +134,7 @@ subprojects {
 	        jvmArgs("--add-opens","java.base/sun.nio.ch=ALL-UNNAMED","--add-opens","java.base/java.io=ALL-UNNAMED")
 	    }
 	    resources {
-	    	from("$rootDir/core/riot-core/src/docs/resources/images") {
+	    	from("$rootDir/core/riot-engine/src/docs/resources/images") {
 	     		include '**/*'
 	   		}
 	    }
@@ -136,7 +142,7 @@ subprojects {
 	    attributes \
         'icons': 'font',
         'docinfo1': '',
-        'includedir': "$rootDir/core/riot-core/src/docs/asciidoc",
+        'includedir': "$rootDir/core/riot-engine/src/docs/asciidoc",
         'sectanchors': 'true',
         'source-highlighter': 'coderay',
         'coderay-linenums-mode': 'table',
@@ -148,4 +154,19 @@ subprojects {
         'project-name': project.name,
         'project-title': config.info.description
 	}
+}
+
+subprojects { p ->
+    config {
+        coverage {
+            jacoco {
+                enabled = hasTestsAt(p.file('src/test'))
+		        toolVersion = jacocoVersion
+            }
+        }
+    }
+}
+
+boolean hasTestsAt(File testDir) {
+    testDir.exists() && testDir.listFiles()?.size()
 }

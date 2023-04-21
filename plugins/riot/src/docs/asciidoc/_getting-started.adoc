@@ -1,0 +1,53 @@
+== Install
+
+{project-title} can be installed in different ways depending on your environment and preference.
+
+=== Homebrew (macOS)
+
+[subs="attributes",source,console]
+----
+brew install redis-developer/tap/{project-name}
+----
+
+=== Scoop (Windows)
+
+[subs="attributes",source,console]
+----
+scoop bucket add redis-developer https://github.com/redis-developer/scoop.git
+scoop install {project-name}
+----
+
+=== Download and run (Linux)
+
+include::{includedir}/_download-run.adoc[leveloffset=+3]
+
+=== Docker
+
+[subs="attributes",source,console]
+----
+docker run fieldengineering/{project-name} [OPTIONS] [COMMAND]
+----
+
+== Usage
+
+To display usage help, run the following command:
+
+[subs="specialcharacters,attributes,+quotes",source,console]
+----
+[green]#{project-name}# --help
+----
+
+Redis connection options are the same as `redis-cli`.
+
+For Redis URI syntax see https://github.com/lettuce-io/lettuce-core/wiki/Redis-URI-and-connection-details#uri-syntax[here].
+
+[TIP,subs="attributes"]
+====
+You can use `--help` on any subcommand:
+
+[subs="attributes,+quotes"]
+----
+[green]#{project-name}# [red]#command# --help
+[green]#{project-name}# command [red]#subcommand# --help
+----
+====
