@@ -36,7 +36,7 @@ startScripts {
 
 jar {
     manifest {
-        attributes('Main-Class': 'org.jreleaser.cli.Main')
+        attributes('Main-Class': 'com.redis.riot.cli.Main')
     }
 }
 
@@ -75,8 +75,8 @@ dependencies {
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
     }
-    testImplementation group: 'org.testcontainers', name: 'postgresql', version: testcontVersion
-    testImplementation group: 'org.testcontainers', name: 'oracle-xe', version: testcontVersion
+    testImplementation group: 'org.testcontainers', name: 'postgresql', version: testcontainersVersion
+    testImplementation group: 'org.testcontainers', name: 'oracle-xe', version: testcontainersVersion
 }
 
 bootStartScripts.enabled = false
@@ -92,6 +92,7 @@ distributions {
     }
 }
 
+/*
 jdks {
     zulu17Linux {
         platform = 'linux-x86_64'
@@ -154,6 +155,7 @@ jdks {
         checksum = '5a6f1d640034166a0fefd9d8924c12b040f120cd019b46b40895ccc8e9a9fc9e'
     }
 }
+*/
 
 copyDependencies {
     dependsOn classes

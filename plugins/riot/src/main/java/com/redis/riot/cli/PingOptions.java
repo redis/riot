@@ -22,7 +22,7 @@ public class PingOptions {
 	@Option(names = "--count", description = "Number of pings to perform per iteration (default: ${DEFAULT-VALUE}).", paramLabel = "<count>")
 	private int count = DEFAULT_COUNT;
 	@Option(names = "--sleep", description = "Sleep duration in seconds between iterations (default: ${DEFAULT-VALUE}).", paramLabel = "<sec>")
-	private long sleep = DEFAULT_SLEEP_DURATION.toSeconds();
+	private long sleep = DEFAULT_SLEEP_DURATION.getSeconds();
 	@Option(names = "--unit", description = "Time unit used to display latencies (default: ${DEFAULT-VALUE}).", paramLabel = "<unit>")
 	private TimeUnit timeUnit = DEFAULT_TIME_UNIT;
 	@Option(names = "--distribution", description = "Show latency distribution.")
@@ -44,7 +44,7 @@ public class PingOptions {
 	}
 
 	private static Set<Double> doubleSet(double... doubles) {
-		return Arrays.stream(doubles).boxed().collect(Collectors.toUnmodifiableSet());
+		return Arrays.stream(doubles).boxed().collect(Collectors.toSet());
 	}
 
 	public int getIterations() {
