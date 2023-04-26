@@ -10,9 +10,13 @@ import com.redis.spring.batch.writer.WriterBuilder;
 import com.redis.spring.batch.writer.operation.Xadd;
 
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 @Command(name = "replicate-ds", description = "Replicate a source Redis DB to a target Redis DB using type-specific commands")
 public class ReplicateDSCommand extends AbstractReplicateCommand<DataStructure<byte[]>> {
+
+	@Option(names = "--no-stream-id", description = "Don't include source IDs in replicated streams.")
+	private boolean noStreamId;
 
 	@Override
 	protected LiveReaderBuilder<byte[], byte[], DataStructure<byte[]>> liveReader(JobCommandContext context,
@@ -28,7 +32,7 @@ public class ReplicateDSCommand extends AbstractReplicateCommand<DataStructure<b
 
 	@Override
 	protected WriterBuilder<byte[], byte[], DataStructure<byte[]>> writer(TargetCommandContext context) {
-		return RedisItemWriter.dataStructure(context.targetPool(CODEC), Xadd.identity());
+		return RedisItemWriter.dataStructure(context.targetPool(CODEC), noStreamId ? m -> null : Xadd.identity());
 	}
 
 }
