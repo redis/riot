@@ -1,0 +1,100 @@
+name: X-JPackage
+
+on:
+  workflow_call:
+    inputs:
+      project-version:
+        required: true
+        type: string
+      project-effective-version:
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  jpackage:
+    name: '${{ matrix.job.os }}'
+    strategy:
+      fail-fast: false
+      matrix:
+        job:
+          - { os: ubuntu-latest,  platform: linux-x86_64 }
+          - { os: macOS-latest,   platform: osx-x86_64 }
+          - { os: windows-latest, platform: windows-x86_64 }
+    runs-on: ${{ matrix.job.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: main
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: artifacts
+          path: plugins
+
+      - name: Download jlink
+        uses: actions/download-artifact@v3
+        with:
+          name: jlink
+          path: out/jreleaser/assemble/riot-standalone/jlink
+
+      - name: Expand jlink
+        shell: bash
+        run: |
+          cd out/jreleaser/assemble/riot-standalone/jlink
+          ls -l
+          unzip -q -d work-${{ matrix.job.platform }} riot-standalone-${{ inputs.project-effective-version }}-${{ matrix.job.platform }}.zip
+
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: ${{ vars.JAVA_VERSION }}
+          distribution: ${{ vars.JAVA_DISTRO }}
+          cache: gradle
+
+      - name: Version
+        if: endsWith(${{ inputs.project-version }}, '-SNAPSHOT') != true
+        run: |
+          echo ${{ inputs.project-version }} > VERSION
+
+      - name: Jdks
+        shell: bash
+        run: ./gradlew :riot:copyJdksFromCache :riot:setupJdks
+
+      - name: Jpackage
+        uses: jreleaser/release-action@v2
+        with:
+          version: early-access
+          arguments: assemble --assembler jpackage --select-current-platform
+          setup-java: false
+        env:
+          JRELEASER_PROJECT_VERSION: ${{ inputs.project-version }}
+
+      - name: JReleaser output
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: jreleaser-jpackage-${{ runner.os }}
+          path: |
+            out/jreleaser/trace.log
+            out/jreleaser/output.properties
+
+      - name: Stop Gradle daemon
+        shell: bash
+        run: ./gradlew -stop
+
+      - name: Upload jpackage
+        uses: actions/upload-artifact@v3
+        with:
+          retention-days: 1
+          name: jpackage
+          path: |
+            out/jreleaser/assemble/riot-installer/jpackage/*.pkg
+            out/jreleaser/assemble/riot-installer/jpackage/*.msi
+            out/jreleaser/assemble/riot-installer/jpackage/*.exe
+            out/jreleaser/assemble/riot-installer/jpackage/*.deb
+            out/jreleaser/assemble/riot-installer/jpackage/*.rpm
