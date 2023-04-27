@@ -1,0 +1,865 @@
+= RIOT
+
+== Getting Started
+
+RIOT is a series of command-line utilities designed to help you get data in and out of Redis.
+It supports many different sources and targets:
+
+* Files (CSV, JSON, XML)
+* Data generators (Redis data structures, Faker)
+* Relational databases
+* Redis itself (snapshot and live and  replication).
+
+=== Install
+
+RIOT can be installed in different ways depending on your environment and preference.
+
+[[macos]]
+==== Homebrew (macOS)
+
+[source,console]
+----
+brew install redis-developer/tap/riot
+----
+
+[[windows]]
+==== Scoop (Windows)
+
+[source,console]
+----
+scoop bucket add redis-developer https://github.com/redis-developer/scoop.git
+scoop install riot
+----
+
+[[linux]]
+==== Download and run (Linux)
+
+RIOT requires Java and the easiest option is to use the version packaged with Ubuntu.
+By default Ubuntu 18.04 includes Open JDK 11.
+
+To install this version, first update the package index:
+
+[source,console]
+----
+sudo apt update
+----
+
+Next, check if Java is already installed:
+
+[source,console]
+----
+java -version
+----
+ 
+If Java is not currently installed, you’ll see the following output:
+
+[source,console]
+----
+Command 'java' not found, but can be installed with:
+
+sudo apt install default-jre
+sudo apt install openjdk-11-jre-headless
+sudo apt install openjdk-8-jre-headless
+----
+
+Execute the following command to install the default Java Runtime Environment (JRE), which will install the JRE from OpenJDK 11:
+
+[source,console]
+----
+sudo apt install default-jre
+----
+ 
+Verify the installation with:
+
+[source,console]
+----
+java -version
+----
+ 
+You should see output similar to the following:
+
+[source,console]
+----
+openjdk version "11.0.11" 2021-04-20
+OpenJDK Runtime Environment (build 11.0.11+9-Ubuntu-0ubuntu2.18.04)
+OpenJDK 64-Bit Server VM (build 11.0.11+9-Ubuntu-0ubuntu2.18.04, mixed mode, sharing))
+----
+
+Download the https://github.com/redis-developer/riot/releases/latest[latest release], unzip, and copy to the desired location.
+
+Now launch the `bin/riot` script and follow the usage information provided.
+
+==== Docker
+
+[source,console]
+----
+docker run fieldengineering/riot [OPTIONS] [COMMAND]
+----
+
+=== Run
+
+You can launch RIOT with the following command:
+
+[source,console]
+----
+riot
+----
+
+This will show usage help, which you can also get by running:
+
+[source,console]
+----
+riot --help
+----
+
+Redis connection options are the same as `redis-cli`.
+
+For Redis URI syntax see https://github.com/lettuce-io/lettuce-core/wiki/Redis-URI-and-connection-details#uri-syntax[here].
+
+[TIP]
+====
+You can use `--help` on any command and subcommand:
+
+[source,console]
+----
+riot command --help
+riot command subcommand --help
+----
+====
+
+== Files
+
+RIOT can import from and export to files in various formats:
+
+* Delimited (CSV, TSV, PSV)
+* Fixed-length (AKA fixed-width)
+* JSON
+* XML
+
+
+=== Import
+
+The `file-import` reads data from files and writes it to Redis.
+
+The basic usage for file imports is:
+[source,console]
+----
+riot -h <host> -p <port> file-import FILE... [REDIS COMMAND...]
+----
+
+To show the full usage, run:
+
+[source,console]
+----
+riot file-import --help
+----
+
+[[redis_commands]]
+==== Redis Commands
+
+You must specify at least one Redis command as a target.
+
+The keys that will be written are constructed from input records by concatenating the keyspace prefix and key fields:
+
+image::mapping.png[]
+
+.Import into hashes with keyspace `blah:<id>`
+[source,console]
+----
+riot file-import my.json hset --keyspace blah --keys id
+----
+
+.Import into hashes *and* set TTL on the key
+[source,console]
+----
+riot file-import my.json hset --keyspace blah --keys id expire --keyspace blah --keys id
+----
+
+.Import into hashes in keyspace `blah:<id>` *and* set TTL *and* add each `id` to a set named `myset`
+[source,console]
+----
+riot file-import my.json hset --keyspace blah --keys id expire --keyspace blah --keys id sadd --keyspace myset --members id
+----
+
+[IMPORTANT]
+====
+Redis connection options apply to the root command (riot) and not to subcommands.
+
+In this example the redis options will not be taken into account:
+
+[source,console]
+----
+riot file-import my.json hset -h myredis.com -p 6380
+----
+====
+
+==== Paths
+Paths can include https://man7.org/linux/man-pages/man7/glob.7.html[wildcard patterns].
+
+RIOT will try to determine the file type from its extension (e.g. `.csv` or `.json`), but you can specify it with the `--filetype` option.
+
+Gzipped files are supported and the extension before `.gz` is used (e.g. `myfile.json.gz` -> JSON type).
+
+.Examples
+* `/path/file.csv`
+* `/path/file-*.csv`
+* `/path/file.json`
+* `\http://data.com/file.csv`
+* `\http://data.com/file.json.gz`
+
+TIP: Use `-` to read from standard input.
+
+For AWS S3 buckets you can specify access and secret keys as well as the region for the bucket.
+
+[source,console]
+----
+riot import s3://my-bucket/path/file.json --s3-region us-west-1 --s3-access xxxxxx --s3-secret xxxxxx
+----
+
+For Google Cloud Storage you can specify credentials and project id for the bucket:
+
+[source,console]
+----
+riot import gs://my-bucket/path/file.json --gcs-key-file key.json --gcs-project-id my-gcp-project
+----
+
+==== Formats
+
+For flat file formats (delimited and fixed-length) you can use the `--header` option to automatically extract field names from the header.
+Otherwise specify the field names using the `--fields` option.
+
+===== Delimited
+
+The default delimiter character is comma (`,`).
+It can be changed with the `--delimiter` option.
+
+Let's consider this CSV file:
+
+.https://raw.githubusercontent.com/nickhould/craft-beers-dataset/master/data/processed/beers.csv[beers.csv]
+[format="csv", options="header",grid="none",frame="none",cols="5%,5%,5%,5%,35%,35%,8%,7%"]
+|===
+,abv,ibu,id,name,style,brewery_id,ounces
+0,0.05,,1436,Pub Beer,American Pale Lager,408,12.0
+1,0.066,,2265,Devil's Cup,American Pale Ale (APA),177,12.0
+2,0.071,,2264,Rise of the Phoenix,American IPA,177,12.0
+|===
+
+The following command imports that CSV file into Redis as hashes using `beer` as the key prefix and `id` as primary key.
+This creates hashes with keys `beer:1436`, `beer:2265`, ...
+
+[source,console]
+----
+include::{test-resources}/file-import-csv[]
+----
+
+This command imports a CSV file into a geo set named `airportgeo` with airport IDs as members:
+[source,console]
+----
+include::{test-resources}/file-import-geoadd[]
+----
+
+===== Fixed-Length
+
+Fixed-length files can be imported by specifying the width of each field using the `--ranges` option.
+
+[source,console]
+----
+include::{test-resources}/file-import-fw[]
+----
+
+===== JSON
+
+The expected format for JSON files is:
+
+[source,json]
+----
+[
+  {
+    "...": "..."
+  },
+  {
+    "...": "..."
+  }
+]
+----
+
+.JSON import example
+[source,console]
+----
+include::{test-resources}/file-import-json[]
+----
+
+JSON records are trees with potentially nested values that need to be flattened when the target is a Redis hash for example.
+
+To that end, RIOT uses a field naming convention to flatten JSON objects and arrays:
+
+.Nested object
+[cols="45%m,10%,45%m",frame="none",grid="none"]
+|=========================================================
+
+|`{ "field": { "sub": "value" } }`| -> | `field.sub=value`
+
+|=========================================================
+
+.Array
+[cols="45%m,10%,45%m",frame="none",grid="none"]
+|=========================================================
+
+|`{ "field": [1, 2, 3] }`| -> | `field[0]=1 field[1]=2 field[2]=3`
+
+|=========================================================
+
+===== XML
+
+Here is a sample XML file that can be imported by RIOT:
+
+[source,xml]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<records>
+    <trade>
+        <isin>XYZ0001</isin>
+        <quantity>5</quantity>
+        <price>11.39</price>
+        <customer>Customer1</customer>
+    </trade>
+    <trade>
+        <isin>XYZ0002</isin>
+        <quantity>2</quantity>
+        <price>72.99</price>
+        <customer>Customer2c</customer>
+    </trade>
+    <trade>
+        <isin>XYZ0003</isin>
+        <quantity>9</quantity>
+        <price>99.99</price>
+        <customer>Customer3</customer>
+    </trade>
+</records>
+----
+
+.XML Import Example
+[source,console]
+----
+include::{test-resources}/file-import-xml[]
+----
+
+===== Redis Dumps
+
+RIOT can also import Redis data structure files in JSON or XML formats (see Export -> Redis to generate such files).
+
+.Dump Import Example
+[source,console]
+----
+include::{test-resources}/file-dump-import[]
+----
+
+== Generators
+
+RIOT includes two data generators that can be used to quickly mock up a dataset in Redis.
+
+=== Data Structures
+
+The `generate` command generates random data-structures for Redis (set, list, zset, stream, string, hash), as well as RedisJSON and RedisTimeSeries.
+
+[source,console]
+----
+riot -h <host> -p <port> generate [OPTIONS]
+----
+
+=== Faker
+
+The `faker` command generates data using https://github.com/DiUS/java-faker[Faker].
+
+[source,console] 
+----
+riot -h <host> -p <port> faker SPEL... [REDIS COMMAND...]
+----
+
+where SPEL is a https://docs.spring.io/spring/docs/current/spring-framework-reference/core.html#expressions[Spring Expression Language] field in the form `field="expression"`.
+
+To show the full usage, run:
+
+[source,console]
+----
+riot faker --help
+----
+
+.Hash generator example
+[source,console]
+----
+include::{test-resources}/faker-hset[]
+----
+
+.Set generator example
+[source,console]
+----
+include::{test-resources}/faker-sadd[]
+----
+
+===== RediSearch
+
+You can infer Faker fields from a RediSearch index using the `--infer` option:
+
+[source,console]
+----
+include::{test-resources}/faker-infer[]
+----
+
+[[_faker_fields]]
+===== Faker Fields
+
+Run this command to display the list of available Faker providers:
+
+[source,console]
+----
+riot faker-help
+----
+
+Most providers don't take any arguments and can be called directly, for example:
+
+[source,console]
+----
+riot faker firstName="name.firstName"
+----
+
+Some providers take parameters, for example:
+[source,console]
+----
+riot faker lease="number.digits(2)"
+----
+
+Refer to the link specified for each provider for complete documentation.
+
+== Databases
+
+=== Import
+
+The `db-import` command imports data from a relational database into Redis.
+
+NOTE: Ensure RIOT has the relevant JDBC driver for your database. See the <<jdbc_drivers,JDBC drivers>> section below.
+
+[source,console]
+----
+riot -h <redis host> -p <redis port> db-import --url <jdbc url> SQL [REDIS COMMAND...]
+----
+
+To show the full usage, run:
+
+[source,console]
+----
+riot db-import --help
+----
+
+Refer to the <<redis_commands,Redis Commands>> section below for details on target Redis data structures.
+
+.PostgreSQL Example
+[source,console]
+----
+include::{test-resources}/db-import-postgresql[]
+----
+
+=== Export
+
+Use the `db-export` command to read from a Redis database and writes to a SQL database.
+
+The general usage is:
+[source,console]
+----
+riot -h <redis host> -p <redis port> db-export --url <jdbc url> SQL
+----
+
+To show the full usage, run:
+[source,console]
+----
+riot db-export --help
+----
+
+.Export to PostgreSQL
+[source,console]
+----
+include::{test-resources}/db-export-postgresql[]
+----
+
+.Import from PostgreSQL to JSON strings
+[source,console]
+----
+include::{test-resources}/db-import-postgresql-set[]
+----
+
+This will produce Redis strings that look like this:
+[source,json]
+----
+include::{includedir}/../resources/order.json[]
+----
+
+[[jdbc_drivers]]
+=== Drivers
+
+RIOT includes JDBC drivers for the most common RDBMSs:
+
+* https://docs.oracle.com/cd/E11882_01/appdev.112/e13995/oracle/jdbc/OracleDriver.html[Oracle]
++
+`jdbc:oracle:thin:@myhost:1521:orcl`
+
+* https://www.ibm.com/support/knowledgecenter/en/SSEPGG_11.5.0/com.ibm.db2.luw.apdv.java.doc/src/tpc/imjcc_r0052342.html[IBM Db2]
++
+`jdbc:db2://host:port/database`
+
+* https://docs.microsoft.com/en-us/sql/connect/jdbc/building-the-connection-url?view=sql-server-2017[MS SQL Server]
++
+`jdbc:sqlserver://[serverName[\instanceName][:portNumber]][;property=value[;property=value]]`
+
+* https://dev.mysql.com/doc/connector-j/8.0/en/connector-j-reference-jdbc-url-format.html[MySQL]
++
+`jdbc:mysql://[host]:[port][/database][?properties]`
+
+* https://www.postgresql.org/docs/7.4/jdbc-use.html[PostgreSQL]
++
+`jdbc:postgresql://host:port/database`
+
+* https://www.sqlitetutorial.net/sqlite-java/sqlite-jdbc-driver/[SQLite]
++
+`jdbc:sqlite:sqlite_database_file_path`
+
+[TIP]
+====
+For non-included databases you must install the corresponding JDBC driver under the `lib` directory and modify the `CLASSPATH`:
+
+* *nix: `bin/riot` -> `CLASSPATH=$APP_HOME/lib/myjdbc.jar:$APP_HOME/lib/...`
+* Windows: `bin\riot.bat` -> `set CLASSPATH=%APP_HOME%\lib\myjdbc.jar;%APP_HOME%\lib\...`
+====
+
+RIOT can export a Redis database to files and SQL databases.
+
+=== Files
+
+The `file-export` command reads data from a Redis database and writes it to a JSON or XML file, potentially gzip-compressed.
+The general usage is:
+[source,console]
+----
+riot -h <host> -p <port> file-export FILE
+----
+
+To show the full usage, run:
+[source,console]
+----
+riot file-export --help
+----
+
+.Compressed JSON export example
+[source,console]
+----
+include::{test-resources}/file-export-json-gz[]
+----
+
+.XML export example
+[source,console]
+----
+include::{test-resources}/file-export-xml[]
+----
+
+.Exported file example
+[source,json]
+----
+include::{includedir}/../resources/redis-dump.json[]
+----
+
+== Replication
+
+=== Background
+Most Redis migration tools available today are offline in nature.
+Migrating data from AWS ElastiCache to Redis Enterprise Cloud for example means backing up your Elasticache data to an AWS S3 bucket and importing it into Redis Enterprise Cloud using its UI.
+
+Redis has a replication command called https://redis.io/commands/replicaof[REPLICAOF] but it is not always available (see https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/RestrictedCommands.html[ElastiCache restrictions]).
+Instead, RIOT implements <<_architecture,client-side replication>> using *dump & restore* or *type-based read & write*. Both snapshot and live replications are supported.
+
+[[replication_usage]]
+=== Usage
+
+[source,console]
+----
+riot <source> replicate <target> --mode <snapshot|live> [OPTIONS]
+----
+
+For the full usage, run:
+[source,console]
+----
+riot replicate --help
+----
+
+.Snapshot replication example
+[source,console]
+----
+include::{test-resources}/replicate[]
+----
+
+.Live replication example
+[source,console]
+----
+include::{test-resources}/replicate-live[]
+----
+
+==== Source and target options
+`-h <host>`::
+    Redis server hostname
+`-p <port>`::
+    Redis server port 
+`--cluster`::
+    Enable cluster mode
+
+==== Replication mode
+`--mode snapshot`::
+    Initial replication using key scan
+`--mode liveonly`::
+    Continuous replication using keyspace notifications (only keys that change are replicated)
+`--mode live`::
+    Initial + continuous replication using key scan and keyspace notifications in parallel
+    
+TIP: Make sure the source database has keyspace notifications enabled using `notify-keyspace-events = KA` in `redis.conf` or via CONFIG SET.
+
+[[reader-options]]
+==== Reader options
+`--scan-count`::
+    How many keys to read at once on each call to https://redis.io/commands/scan#the-count-option[SCAN]
+`--scan-match`::
+    Pattern of keys to replicate (default: `*` i.e. all keys)
+`--scan-type`::
+    Type of keys to replicate (default: all types)  
+`--reader-threads`::
+    How many value reader threads to use in parallel
+`--reader-batch`::
+    Number of keys each reader thread should dump at once in a pipelined call
+`--reader-queue`::
+    Max number of items that reader threads can put in the shared queue.
++
+When the queue is full reader threads wait for space to become available.
++
+Queue size should be at least *#threads * batch*, for example `--reader-threads 4 --reader-batch 500` => `--reader-queue 2000`
+`--reader-pool`::
+    Size of the connection pool shared by reader threads.
++
+Can be smaller than the number of threads
+
+==== Performance Tuning
+
+Performance tuning is an art but RIOT offers some options to identify potential bottlenecks.
+In addition to the <<batch,batch>> and <<threads,threads>> options you have the `--dry-run` option which disables writing to the target Redis database so that you can tune <<reader-options,reading>> in isolation.
+Add that option to your existing `replicate` command-line to compare replication speeds with and without writing to the target Redis database:
+
+[source,console]
+----
+riot ... replicate ... --dry-run
+----
+
+==== Verification
+
+Once replication is complete RIOT will perform a verification step by iterating over keys in the source database and comparing values and TTLs between source and target databases.
+
+The verification step happens automatically after the scan is complete (snapshot replication), or for live replication when keyspace notifications have become idled (see <<replication_usage, replication usage>>).
+
+Verification can also be run on-demand using the `compare` command:
+[source,console]
+----
+riot -h <left host> -p <left port> compare -h <right host> -p <right port>
+----
+
+The output looks like this:
+
+----
+>1,234 T2,345 ≠3,456 ⧗4,567 <5,678
+----
+
+* `>`: # keys only present in source database
+* `T`: # mismatched data structure types
+* `≠`: # mismatched values
+* `⧗`: # keys with TTL delta greater than tolerance
+* `<`: # keys only present in target database
+
+To show which keys are different use the `--show-diffs` option:
+
+[source,console]
+----
+riot ... compare ... --show-diffs
+----
+
+==== Progress
+
+Each process (scan, and event listener in case of live replication) has a corresponding status bar that shows the process name and its progress:
+* Scanning: percentage of keys that have been replicated => replicated / total. The total number of keys is calculated when the process starts and it can change by the time it is finished (for example in case keys are deleted or added during the replication), so the progress bar is only a rough indicator.
+* Listening: progress is indefinite as total number of keys is unknown
+
+[[dump-and-restore]]
+=== Dump & Restore
+
+The default replication mechanism in RIOT is DUMP & RESTORE:
+
+image::dump-and-restore.svg[]
+
+
+1. Scan for keys in the source Redis database.
+If live replication is enabled the reader also subscribes to keyspace notifications to generate a continuous stream of keys.
+
+2. Reader threads iterate over the keys to read corresponding values (DUMP) and TTLs.
+
+3. Reader threads enqueue key/value/TTL tuples into the reader queue, from which the writer dequeues key/value/TTL tuples and writes them to the target Redis database by calling RESTORE and EXPIRE.
+
+
+[[live-replication]]
+=== Live Replication
+
+In live replication mode RIOT listens for changes happening on the source database using keyspace notifications.
+Each time a key is modified, RIOT reads the corresponding value and propagates that change to the target database.
+
+[WARNING]
+====
+The live replication mechanism does not guarantee data consistency.
+Redis sends keyspace notifications over pub/sub which does not provide guaranteed delivery.
+It is possible that RIOT can miss some notifications in case of network failures for example.
+
+Also, depending on the type, size, and rate of change of data structures on the source it is possible that RIOT cannot keep up with the change stream.
+For example if a big set is repeatedly updated, RIOT will need to read the whole set on each update and transfer it over to the target database.
+With a big-enough set, RIOT could fall behind and the internal queue could fill up leading up to updates being dropped.
+Some preliminary sizing using Redis statistics and big-keys is recommended for these migrations.
+If you need assistance please contact your Redis account team.
+====
+
+[[type-based-replication]]
+=== Type-Based Replication
+
+RIOT includes another replication strategy called *Type-Based Replication* in case the target Redis database does not support the RESTORE command (e.g. https://redis.com/redis-enterprise/technology/active-active-geo-distribution/[CRDB]).
+With this strategy each type of Redis data structure has a corresponding pair of read/write commands:
+
+[%header,cols="h,1,1"]
+|=========================================================
+|Type|Read|Write
+
+|Hash|HGETALL|HSET
+|List|LRANGE|RPUSH
+|Set|SMEMBERS|SADD
+|Sorted Set|ZRANGE|ZADD
+|Stream|XRANGE|XADD
+|String|GET|SET
+
+|=========================================================
+
+To select this replication mechanism use the `--type ds` option:
+
+.Type-based, live replication example
+[source,console]
+----
+include::{test-resources}/replicate-ds-live[]
+----
+
+WARNING: This replication strategy is more intensive in terms of CPU, memory, and network for the machines running RIOT.
+Adjust number of threads, batch, and queue sizes accordingly.
+
+=== Compare
+
+The `compare` command can be used to show differences between two Redis databases:
+
+[source,console]
+----
+riot -h <left host> -p <left port> compare -h <right host> -p <right port>
+----
+
+To show which keys are different use the `--show-diffs` option:
+
+[source,console]
+----
+riot ... compare ... --show-diffs
+----
+
+== Ping
+
+The `ping` command can be used to test connectivity to a Redis database.
+
+[source,console]
+----
+riot -h <host> -p <port> ping <options>
+----
+
+When the command is complete you will see statistics like these:
+
+[source,console]
+----
+[min=0, max=19, percentiles={50.0=1, 90.0=3, 95.0=6, 99.0=10, 99.9=17}]
+----
+
+
+== Architecture
+
+image::architecture.svg[]
+
+RIOT processes data in batch fashion: a fixed number of records (batch AKA chunk) is read, processed, and written at a time.
+Then the cycle is repeated until there's no more data on the source.
+
+[[batch]]
+=== Batching
+
+The default batch size is 50, which means that an execution step reads 50 items at a time from the source, processes them, and finally writes then to the target.
+If the target is Redis, writing is done in a single command https://redis.io/topics/pipelining[pipeline] to minimize the number of roundtrips to the server.
+
+You can change the batch size (and hence pipeline size) using the `--batch` option.
+The optimal batch size in terms of throughput depends on a few factors like record size and command types (see https://stackoverflow.com/a/32165090[here] for details).
+
+[[threads]]
+=== Multi-threading
+
+It is possible to parallelize processing by using multiple threads.
+In that configuration, each chunk of items is read, processed, and written in a separate thread of execution.
+This is different from partitioning where items would be read by multiple readers.
+Here, only one reader is being accessed from multiple threads.
+
+To set the number of threads use the `--threads` option.
+
+The following processors can be applied to records in that order:
+
+* Transforms
+* Regular expressions
+* Filters
+
+=== Processing
+
+==== Transforms
+
+Transforms allow you to create/update/delete fields using the https://docs.spring.io/spring/docs/current/spring-framework-reference/core.html#expressions[Spring Expression Language] (SpEL):
+
+* `field1='foo'` -> generate a field named `field1` containing the string `foo`
+* `temp=(temp-32)*5/9` -> convert temperature from Fahrenheit to Celsius
+* `name=remove(first).concat(remove(last))` -> concatenate `first` and `last` fields and delete them
+* `field2=null` -> delete `field2`
+
+Input fields are accessed by name (e.g. `field3=field1+field2`).
+
+The transform processor also exposes functions and variables that can be accessed using the `#` prefix:
+
+* `date`: Date parser/formatter (https://docs.oracle.com/javase/7/docs/api/java/text/SimpleDateFormat.html[API doc])
+* `geo`: Convenience method that takes a longitude and a latitude to produce a RediSearch geo-location string in the form `longitude,latitude`
+* `index`: Sequence number of the item being generated
+* `redis`: Handle to invoke Redis commands (https://lettuce.io/core/release/api/io/lettuce/core/api/sync/RedisCommands.html[API doc])
+
+.Processor Example
+[source,console]
+----
+riot import --process epoch="#date.parse(mydate).getTime()" location="#geo(lon,lat)" id="#index" name="#redis.hget('person1','lastName')" ...
+----
+
+==== Regular Expressions
+
+Extract patterns from source fields using regular expressions:
+[source,console]
+----
+riot import --regex name="(?<first>\w+)\/(?<last>\w+)" ...
+----
+
+==== Filters
+
+Keep records that match a SpEL boolean expression.
+
+For example this filter will only keep records where the `value` field is a series of digits:
+
+[source,console]
+----
+riot import --filter "value matches '\\d+'" ...
+----

@@ -1,5 +1,4 @@
-[[elasticache]]
-= Migrate from Elasticache
+= Migrating from Elasticache
 
 This recipe contains step-by-step instructions to migrate an Elasticache (EC) database to https://redis.com/redis-enterprise-software/overview/[Redis Enterprise] (RE).
 
@@ -10,7 +9,7 @@ The following scenarios are covered:
 
 WARNING: Please note that the tool used in this recipe ({project-title}) is NEITHER recommended NOR officially supported by Redis, Inc.
 
-IMPORTANT: It is recommended to read the https://developer.redis.com/riot/riot-redis/[{project-title} documentation] to familiarize yourself with its usage and architecture.
+IMPORTANT: It is recommended to read the https://developer.redis.com/riot/riot/[{project-title} documentation] to familiarize yourself with its usage and architecture.
 
 == Setup
 
@@ -27,7 +26,7 @@ Refer to https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/Endpoints.h
 [IMPORTANT]
 .Keyspace Notifications
 ====
-For a https://developer.redis.com/riot/riot-redis/#live-replication[live migration] you need to https://aws.amazon.com/premiumsupport/knowledge-center/elasticache-redis-keyspace-notifications/[enable keyspace notifications] on your Elasticache instance.
+For a https://developer.redis.com/riot/riot/#live-replication[live migration] you need to https://aws.amazon.com/premiumsupport/knowledge-center/elasticache-redis-keyspace-notifications/[enable keyspace notifications] on your Elasticache instance.
 ====
 
 === Migration Host
@@ -67,8 +66,7 @@ Ensure that the above command allows you to connect to the remote Elasticache da
 === Installing {project-title}
 
 Let's install {project-title} on the EC2 instance we set up previously.
-
-include::{includedir}/_download-run.adoc[leveloffset=3]
+For this we'll follow the steps from https://developer.redis.com/riot/index.html#linux
 
 == Performing Migration
 
@@ -79,13 +77,13 @@ The options you will use depend on your source and target databases, as well as 
 
 [source,console]
 ----
-riot-redis -h <source EC host> -p <source EC port> replicate -h <target RE host> -p <target RE port> --pass <RE password>
+riot -h <source EC host> -p <source EC port> replicate -h <target RE host> -p <target RE port> --pass <RE password>
 ----
 
 === Live EC Single Master -> RE
-[source,console,subs="+quotes"]
+[source,console]
 ----
-riot-redis -h <source EC host> -p <source EC port> replicate *[blue]#--mode live#* -h <target RE host> -p <target RE port> --pass <RE password>
+riot -h <source EC host> -p <source EC port> replicate *[blue]#--mode live#* -h <target RE host> -p <target RE port> --pass <RE password>
 ----
 
 [IMPORTANT]
@@ -93,15 +91,15 @@ riot-redis -h <source EC host> -p <source EC port> replicate *[blue]#--mode live
 In case ElastiCache is configured with https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/auth.html[AUTH TOKEN enabled], you need to pass `--tls` as well as `--pass` option:
 [source,console,subs="+quotes"]
 ----
-riot-redis -h <source EC host> -p <source EC port> *[blue]#--tls --pass <token>#* replicate -h <target RE host> -p <target RE port> --pass <RE password>
+riot -h <source EC host> -p <source EC port> *[blue]#--tls --pass <token>#* replicate -h <target RE host> -p <target RE port> --pass <RE password>
 ----
 ====
 
 === EC Cluster -> RE
 
-[source,console,subs="+quotes"]
+[source,console]
 ----
-riot-redis -h <source EC host> -p <source EC port> *[blue]#--cluster#* replicate -h <target RE host> -p <target RE port> --pass <RE password>
+riot -h <source EC host> -p <source EC port> *[blue]#--cluster#* replicate -h <target RE host> -p <target RE port> --pass <RE password>
 ----
 
 NOTE: `--cluster` is an important parameter used ONLY for ElastiCache whenever cluster-mode is enabled.
@@ -109,22 +107,22 @@ Do note that the source database is specified first and the target database is s
 
 === EC Single Master -> RE (with specific DB namespace)
 
-[source,console,subs="+quotes"]
+[source,console]
 ----
-riot-redis -h <source EC host> -p <source EC port> *[blue]#--db <index>#* replicate -h <target RE host> -p <target RE port> --pass <RE password>
+riot -h <source EC host> -p <source EC port> *[blue]#--db <index>#* replicate -h <target RE host> -p <target RE port> --pass <RE password>
 ----
 
 === EC Single Master -> RE with OSS Cluster
-[source,console,subs="+quotes"]
+[source,console]
 ----
-riot-redis -h <source EC host> -p <source EC port> replicate -h <target RE host> -p <target RE port> --pass <RE password> *[blue]#--cluster#*
+riot -h <source EC host> -p <source EC port> replicate -h <target RE host> -p <target RE port> --pass <RE password> *[blue]#--cluster#*
 ----
 
 === Live EC Cluster -> RE with OSS Cluster
 
-[source,console,subs="+quotes"]
+[source,console]
 ----
-riot-redis -h <source EC host> -p <source EC port> *[blue]#--cluster#* replicate *[blue]#--mode live#* -h <target RE host> -p <target RE port> --pass <RE password> *[blue]#--cluster#*
+riot -h <source EC host> -p <source EC port> *[blue]#--cluster#* replicate *[blue]#--mode live#* -h <target RE host> -p <target RE port> --pass <RE password> *[blue]#--cluster#*
 ----
 
 == Important Considerations
@@ -145,7 +143,7 @@ Could not write record: NOAUTH
 Authentication required
 ----
 
-This issue occurs when you fail to supply the `--pass <password>` parameter while running the `riot-redis replicate` command.
+This issue occurs when you fail to supply the `--pass <password>` parameter while running the `riot replicate` command.
 
 
 
