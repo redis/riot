@@ -2,8 +2,7 @@ package com.redis.riot.cli.operation;
 
 import java.util.Map;
 
-import com.redis.riot.cli.HelpOptions;
-import com.redis.riot.cli.OperationCommand;
+import com.redis.riot.cli.common.HelpOptions;
 import com.redis.spring.batch.writer.operation.Noop;
 
 import picocli.CommandLine.Command;

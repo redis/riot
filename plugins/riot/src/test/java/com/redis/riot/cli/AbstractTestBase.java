@@ -30,6 +30,9 @@ import com.redis.lettucemod.api.StatefulRedisModulesConnection;
 import com.redis.lettucemod.cluster.RedisModulesClusterClient;
 import com.redis.lettucemod.util.ClientBuilder;
 import com.redis.lettucemod.util.RedisModulesUtils;
+import com.redis.riot.cli.common.AbstractTransferCommand;
+import com.redis.riot.cli.common.ProgressStyle;
+import com.redis.riot.cli.operation.OperationCommand;
 import com.redis.spring.batch.RedisItemReader;
 import com.redis.spring.batch.RedisItemWriter;
 import com.redis.spring.batch.common.JobRunner;
@@ -41,6 +44,7 @@ import com.redis.testcontainers.RedisServer;
 import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.RedisURI;
 import io.micrometer.core.instrument.util.IOUtils;
+import picocli.CommandLine;
 import picocli.CommandLine.ParseResult;
 
 @TestInstance(Lifecycle.PER_CLASS)
@@ -133,9 +137,10 @@ public abstract class AbstractTestBase {
 
 	protected int execute(String filename, Consumer<ParseResult>... configurers) throws Exception {
 		RedisServer redis = getRedisServer();
-		Main app = new Main();
-		RiotCommandLine commandLine = app.commandLine();
-		ParseResult parseResult = parse(commandLine, filename);
+		Riot app = new Riot();
+		CommandLine commandLine = app.commandLine();
+		ParseResult parseResult = commandLine.parseArgs(args(filename));
+		configure(parseResult);
 		for (Consumer<ParseResult> configurer : configurers) {
 			configurer.accept(parseResult);
 		}
@@ -148,27 +153,27 @@ public abstract class AbstractTestBase {
 		return commandLine.getExecutionStrategy().execute(parseResult);
 	}
 
+	protected void configure(ParseResult parseResult) {
+		for (ParseResult sub : parseResult.subcommands()) {
+			Object command = sub.commandSpec().commandLine().getCommand();
+			if (command instanceof OperationCommand) {
+				command = sub.commandSpec().parent().commandLine().getCommand();
+			}
+			if (command instanceof AbstractTransferCommand) {
+				AbstractTransferCommand transferCommand = (AbstractTransferCommand) command;
+				transferCommand.getTransferOptions().setProgressStyle(ProgressStyle.NONE);
+			}
+		}
+	}
+
 	private static String[] args(String filename) throws Exception {
-		try (InputStream inputStream = Main.class.getResourceAsStream("/" + filename)) {
+		try (InputStream inputStream = Riot.class.getResourceAsStream("/" + filename)) {
 			String command = IOUtils.toString(inputStream, Charset.defaultCharset());
 			if (command.startsWith(PREFIX)) {
 				command = command.substring(PREFIX.length());
 			}
 			return CommandLineUtils.translateCommandline(command);
 		}
-	}
-
-	protected ParseResult parse(RiotCommandLine commandLine, String filename) throws Exception {
-		ParseResult parseResult = commandLine.parseArgs(args(filename));
-		Object command = parseResult.subcommand().commandSpec().commandLine().getCommand();
-		if (command instanceof OperationCommand) {
-			command = parseResult.subcommand().commandSpec().parent().commandLine().getCommand();
-		}
-		if (command instanceof AbstractTransferCommand) {
-			AbstractTransferCommand transferCommand = (AbstractTransferCommand) command;
-			transferCommand.getTransferOptions().setProgressStyle(ProgressStyle.NONE);
-		}
-		return parseResult;
 	}
 
 	protected void generate() throws JobExecutionException {

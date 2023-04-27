@@ -1,0 +1,89 @@
+package com.redis.riot.cli;
+
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.sql.DataSource;
+
+import org.springframework.batch.core.Job;
+import org.springframework.batch.core.job.builder.JobBuilderException;
+import org.springframework.batch.item.ItemProcessor;
+import org.springframework.batch.item.database.JdbcBatchItemWriter;
+import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilder;
+
+import com.redis.riot.cli.common.AbstractExportCommand;
+import com.redis.riot.cli.common.JobCommandContext;
+import com.redis.riot.cli.db.DataSourceOptions;
+import com.redis.riot.cli.db.DatabaseExportOptions;
+import com.redis.riot.cli.db.NullableSqlParameterSource;
+import com.redis.riot.core.processor.DataStructureToMapProcessor;
+import com.redis.spring.batch.common.DataStructure;
+
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Mixin;
+import picocli.CommandLine.Parameters;
+
+@Command(name = "db-export", description = "Export Redis data to a relational database")
+public class DbExport extends AbstractExportCommand {
+
+	private static final String COMMAND_NAME = "import db";
+	private static Logger log = Logger.getLogger(DbExport.class.getName());
+
+	@Parameters(arity = "1", description = "SQL INSERT statement.", paramLabel = "SQL")
+	private String sql;
+	@Mixin
+	private DataSourceOptions dataSourceOptions = new DataSourceOptions();
+	@Mixin
+	private DatabaseExportOptions options = new DatabaseExportOptions();
+
+	public DatabaseExportOptions getOptions() {
+		return options;
+	}
+
+	public void setOptions(DatabaseExportOptions exportOptions) {
+		this.options = exportOptions;
+	}
+
+	public DataSourceOptions getDataSourceOptions() {
+		return dataSourceOptions;
+	}
+
+	public void setDataSourceOptions(DataSourceOptions dataSourceOptions) {
+		this.dataSourceOptions = dataSourceOptions;
+	}
+
+	public String getSql() {
+		return sql;
+	}
+
+	public void setSql(String sql) {
+		this.sql = sql;
+	}
+
+	@Override
+	protected Job job(JobCommandContext context) {
+		log.log(Level.FINE, "Creating data source with {0}", dataSourceOptions);
+		DataSource dataSource = dataSourceOptions.dataSource();
+		try (Connection connection = dataSource.getConnection()) {
+			String dbName = connection.getMetaData().getDatabaseProductName();
+			log.log(Level.FINE, "Creating writer for database {0} with {1}", new Object[] { dbName, options });
+			JdbcBatchItemWriterBuilder<Map<String, Object>> builder = new JdbcBatchItemWriterBuilder<>();
+			builder.itemSqlParameterSourceProvider(NullableSqlParameterSource::new);
+			builder.dataSource(dataSource);
+			builder.sql(sql);
+			builder.assertUpdates(options.isAssertUpdates());
+			JdbcBatchItemWriter<Map<String, Object>> writer = builder.build();
+			writer.afterPropertiesSet();
+			ItemProcessor<DataStructure<String>, Map<String, Object>> processor = DataStructureToMapProcessor
+					.of(options.getKeyRegex());
+			String task = String.format("Exporting to %s", dbName);
+			return job(context, COMMAND_NAME, step(context, COMMAND_NAME, reader(context), processor, writer), task);
+		} catch (SQLException e) {
+			throw new JobBuilderException(e);
+		}
+	}
+
+}

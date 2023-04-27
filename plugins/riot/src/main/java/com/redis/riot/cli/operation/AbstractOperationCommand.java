@@ -5,8 +5,7 @@ import java.util.Optional;
 
 import org.springframework.core.convert.converter.Converter;
 
-import com.redis.riot.cli.HelpOptions;
-import com.redis.riot.cli.OperationCommand;
+import com.redis.riot.cli.common.HelpOptions;
 import com.redis.riot.core.convert.CompositeConverter;
 import com.redis.riot.core.convert.FieldExtractorFactory;
 import com.redis.riot.core.convert.IdConverterBuilder;

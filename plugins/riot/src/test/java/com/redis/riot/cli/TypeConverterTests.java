@@ -3,6 +3,8 @@ package com.redis.riot.cli;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import com.redis.riot.cli.common.DoubleRangeTypeConverter;
+import com.redis.riot.cli.common.IntRangeTypeConverter;
 import com.redis.spring.batch.common.DoubleRange;
 import com.redis.spring.batch.common.IntRange;
 

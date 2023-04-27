@@ -26,7 +26,7 @@ import com.redis.spring.batch.common.DataStructure.Type;
 import com.redis.spring.batch.reader.GeneratorReaderOptions;
 
 @SuppressWarnings("unchecked")
-class PostgresTests extends AbstractDatabaseTests {
+class PostgresTests extends AbstractDatabaseTestBase {
 
 	private static final DockerImageName POSTGRES_IMAGE = DockerImageName.parse(PostgreSQLContainer.IMAGE)
 			.withTag(PostgreSQLContainer.DEFAULT_TAG);

@@ -11,7 +11,7 @@ import com.redis.spring.batch.writer.operation.Sugadd;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
 
-@Command(name = "ft.sugadd", description = "Add suggestion strings to a RediSearch auto-complete suggestion dictionary")
+@Command(name = "ft.sugadd", description = "Add suggestion strings to a RediSearch auto-complete dictionary")
 public class SugaddCommand extends AbstractKeyCommand {
 
 	@Mixin

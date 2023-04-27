@@ -54,9 +54,7 @@ config {
 
     docs {
         javadoc {
-            autoLinks {
-                enabled = false
-            }
+            enabled = false
         }
     }
 
@@ -83,76 +81,52 @@ allprojects {
     }
 }
 
-subprojects {
-    config {
-        info {
-            description = project.project_description
-        }
-    }
-
-    license {
-        exclude('build/**')
-    }
-
-    dependencies {
-        compileOnly group: 'com.google.code.findbugs', name: 'jsr305', version: jsr305Version
-        testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
-        testImplementation group: 'commons-io', name: 'commons-io', version: commonsIoVersion
-        testImplementation(group: 'com.redis.testcontainers', name: 'testcontainers-redis-junit', version: testcontainersRedisVersion) {
-            exclude group: 'com.redis', module: 'lettucemod'
-        }
-    }
-
-    test {
-        useJUnitPlatform()
-    }
-
-    bootJar {
-        enabled = false
-    }
+subprojects { subproj ->
+    if (!subproj.name.contains('guide')) {
     
-    jar {
-        enabled = true
-        archiveClassifier = ''
-    }
-    
-    configurations {
-        all*.exclude module: 'spring-boot-starter-logging'
-    }
-    
-    configurations.all {
-		resolutionStrategy.eachDependency { DependencyResolveDetails details ->
-			if (details.requested.name == 'lettuce-core' ) {
-				details.useVersion lettuceVersion
+        config {
+	        info {
+	            description = project.project_description
+	        }
+	    }
+	
+	    license {
+	        exclude('build/**')
+	    }
+
+	    dependencies {
+	        compileOnly group: 'com.google.code.findbugs', name: 'jsr305', version: jsr305Version
+	        testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+	        testImplementation group: 'commons-io', name: 'commons-io', version: commonsIoVersion
+	        testImplementation(group: 'com.redis.testcontainers', name: 'testcontainers-redis-junit', version: testcontainersRedisVersion) {
+	            exclude group: 'com.redis', module: 'lettucemod'
+	        }
+	    }
+	
+	    test {
+	        useJUnitPlatform()
+	    }
+	
+	    bootJar {
+	        enabled = false
+	    }
+	    
+	    jar {
+	        enabled = true
+	        archiveClassifier = ''
+	    }
+	    
+	    configurations {
+	        all*.exclude module: 'spring-boot-starter-logging'
+	    }
+	    
+	    configurations.all {
+			resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+				if (details.requested.name == 'lettuce-core' ) {
+					details.useVersion lettuceVersion
+				}
 			}
 		}
-	}
-    
-    asciidoctor {
-	    inProcess = JAVA_EXEC
-	    forkOptions {
-	        jvmArgs("--add-opens","java.base/sun.nio.ch=ALL-UNNAMED","--add-opens","java.base/java.io=ALL-UNNAMED")
-	    }
-	    resources {
-	    	from("$rootDir/core/riot-engine/src/docs/resources/images") {
-	     		include '**/*'
-	   		}
-	    }
-	    baseDirFollowsSourceFile()
-	    attributes \
-        'icons': 'font',
-        'docinfo1': '',
-        'includedir': "$rootDir/core/riot-engine/src/docs/asciidoc",
-        'sectanchors': 'true',
-        'source-highlighter': 'coderay',
-        'coderay-linenums-mode': 'table',
-        'test-resources': "$projectDir/src/test/resources",
-        'toc': 'left',
-        'numbered': 'true',
-        'linkattrs': 'true',
-        'linkcss': 'true',
-        'project-name': project.name,
-        'project-title': config.info.description
 	}
 }
 

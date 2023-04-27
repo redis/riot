@@ -29,14 +29,6 @@ dependencies {
     api 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
 }
 
-asciidoctor {
-    resources {
-    	from('src/docs/resources/images') {
-     		include '**/*'
-   		}
-    }
-}
-
 compileJava {
     options.release = 8
     options.compilerArgs += ["-AprojectPath=${project.group}/${project.name}"]

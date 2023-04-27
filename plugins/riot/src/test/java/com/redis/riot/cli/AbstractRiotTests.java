@@ -61,7 +61,10 @@ import com.redis.lettucemod.timeseries.RangeResult;
 import com.redis.lettucemod.timeseries.Sample;
 import com.redis.lettucemod.timeseries.TimeRange;
 import com.redis.lettucemod.util.RedisModulesUtils;
-import com.redis.riot.cli.ReplicationOptions.ReplicationMode;
+import com.redis.riot.cli.common.ProgressStyle;
+import com.redis.riot.cli.common.ReplicateOptions.ReplicationMode;
+import com.redis.riot.cli.file.FileImportOptions;
+import com.redis.riot.cli.file.FlatFileOptions;
 import com.redis.riot.cli.operation.HsetCommand;
 import com.redis.riot.core.FakerItemReader;
 import com.redis.riot.core.MapGenerator;
@@ -159,21 +162,22 @@ public abstract class AbstractRiotTests extends AbstractTestBase {
 	}
 
 	@Override
-	protected ParseResult parse(RiotCommandLine commandLine, String filename) throws Exception {
-		ParseResult parseResult = super.parse(commandLine, filename);
-		Object commandObject = parseResult.subcommand().commandSpec().commandLine().getCommand();
-		if (commandObject instanceof ReplicateCommand) {
-			ReplicateCommand command = (ReplicateCommand) commandObject;
-			command.getTargetRedisOptions().setUri(RedisURI.create(getTargetRedisServer().getRedisURI()));
-			command.getTargetRedisOptions().setPort(0);
-			command.getTargetRedisOptions().setHost(Optional.empty());
-			ReplicationMode mode = command.getReplicationOptions().getMode();
-			if (mode == ReplicationMode.LIVE || mode == ReplicationMode.LIVEONLY) {
-				command.getFlushingOptions().setIdleTimeout(IDLE_TIMEOUT);
-				command.getReplicationOptions().setNotificationQueueCapacity(100000);
+	protected void configure(ParseResult parseResult) {
+		super.configure(parseResult);
+		for (ParseResult sub : parseResult.subcommands()) {
+			Object commandObject = sub.commandSpec().commandLine().getCommand();
+			if (commandObject instanceof Replicate) {
+				Replicate command = (Replicate) commandObject;
+				command.getTargetRedisOptions().setUri(RedisURI.create(getTargetRedisServer().getRedisURI()));
+				command.getTargetRedisOptions().setPort(0);
+				command.getTargetRedisOptions().setHost(Optional.empty());
+				ReplicationMode mode = command.getReplicationOptions().getMode();
+				if (mode == ReplicationMode.LIVE || mode == ReplicationMode.LIVEONLY) {
+					command.getFlushingOptions().setIdleTimeout(IDLE_TIMEOUT);
+					command.getReplicationOptions().setNotificationQueueCapacity(100000);
+				}
 			}
 		}
-		return parseResult;
 	}
 
 	@Nested
@@ -181,7 +185,7 @@ public abstract class AbstractRiotTests extends AbstractTestBase {
 
 		@Test
 		void apiImportJSON() throws UnexpectedInputException, ParseException, NonTransientResourceException, Exception {
-			FileImportCommand command = FileImportCommand.builder().build();
+			FileImport command = FileImport.builder().build();
 			Iterator<Map<String, Object>> iterator = command.read(AbstractRiotTests.BEERS_JSON_URL);
 			Assertions.assertTrue(iterator.hasNext());
 			Map<String, Object> beer1 = iterator.next();
@@ -196,8 +200,8 @@ public abstract class AbstractRiotTests extends AbstractTestBase {
 
 		@Test
 		void apiImportCSV() throws UnexpectedInputException, ParseException, NonTransientResourceException, Exception {
-			FileImportCommand command = FileImportCommand.builder()
-					.flatFileOptions(FlatFileOptions.builder().header(true).build()).build();
+			FileImport command = FileImport.builder().flatFileOptions(FlatFileOptions.builder().header(true).build())
+					.build();
 			Iterator<Map<String, Object>> iterator = command.read("https://storage.googleapis.com/jrx/beers.csv");
 			Assertions.assertTrue(iterator.hasNext());
 			Map<String, Object> beer1 = iterator.next();
@@ -215,7 +219,7 @@ public abstract class AbstractRiotTests extends AbstractTestBase {
 			Path temp = Files.createTempDirectory("fileExpansion");
 			Files.createFile(temp.resolve("file1.csv"));
 			Files.createFile(temp.resolve("file2.csv"));
-			FileImportCommand command = FileImportCommand.builder().build();
+			FileImport command = FileImport.builder().build();
 			List<ItemReader<Map<String, Object>>> readers = command.readers(temp.resolve("*.csv").toString());
 			Assertions.assertEquals(2, readers.size());
 		}
@@ -330,8 +334,8 @@ public abstract class AbstractRiotTests extends AbstractTestBase {
 			Assertions.assertEquals(BEER_CSV_COUNT, keys.size());
 		}
 
-		private void configureImportGlob(CommandLine.ParseResult parseResult) {
-			FileImportCommand command = parseResult.subcommand().commandSpec().parent().commandLine().getCommand();
+		private void configureImportGlob(ParseResult parseResult) {
+			FileImport command = parseResult.subcommand().commandSpec().commandLine().getCommand();
 			try {
 				Path dir = Files.createTempDirectory("import-glob");
 				FileCopyUtils.copy(getClass().getClassLoader().getResourceAsStream("files/beers1.csv"),
@@ -422,18 +426,18 @@ public abstract class AbstractRiotTests extends AbstractTestBase {
 			List<DataStructure> records = exportToList();
 			RedisServerCommands<String, String> sync = connection.sync();
 			sync.flushall();
-			execute("file-dump-import", this::configureDumpFileImportCommand);
+			execute("dump-import", this::configureDumpFileImportCommand);
 			Assertions.assertEquals(records.size(), sync.dbsize());
 		}
 
 		private void configureDumpFileImportCommand(CommandLine.ParseResult parseResult) {
-			FileDumpImportCommand command = parseResult.subcommand().commandSpec().commandLine().getCommand();
+			DumpImport command = parseResult.subcommand().commandSpec().commandLine().getCommand();
 			FileImportOptions options = command.getOptions();
 			options.setFiles(options.getFiles().stream().map(this::replace).collect(Collectors.toList()));
 		}
 
 		private void configureExportCommand(CommandLine.ParseResult parseResult) {
-			FileExportCommand command = parseResult.subcommand().commandSpec().commandLine().getCommand();
+			FileExport command = parseResult.subcommand().commandSpec().commandLine().getCommand();
 			command.setFile(replace(command.getFile()));
 		}
 
@@ -538,17 +542,17 @@ public abstract class AbstractRiotTests extends AbstractTestBase {
 		@Test
 		void importJsonAPI() throws Exception {
 			// riot-file import hset --keyspace beer --keys id
-			FileImportCommand command = new FileImportCommand();
+			FileImport command = new FileImport();
 			command.getTransferOptions().setProgressStyle(ProgressStyle.NONE);
 			command.getOptions().setFiles(Collections.singletonList(BEERS_JSON_URL));
 			HsetCommand hset = new HsetCommand();
 			hset.getKeyOptions().setKeyspace("beer");
 			hset.getKeyOptions().setKeys(new String[] { "id" });
 			command.setRedisCommands(Collections.singletonList(hset));
-			Main main = new Main();
+			Riot main = new Riot();
 			main.getRedisOptions().setUri(RedisURI.create(getRedisServer().getRedisURI()));
 			main.getRedisOptions().setCluster(getRedisServer().isCluster());
-			command.setApp(main);
+			command.setRiot(main);
 			command.call();
 			RedisKeyCommands<String, String> sync = connection.sync();
 			List<String> keys = sync.keys("beer:*");

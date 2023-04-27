@@ -22,14 +22,15 @@ buildscript {
         gradlePluginPortal()
     }
     dependencies {
+        classpath 'de.undercouch:gradle-download-task:4.1.1'        
+        classpath "org.ajoberstar:gradle-git-publish:$gitPluginVersion"        
+        classpath "org.jreleaser:jdks-gradle-plugin:$jdksPluginVersion"
+        classpath "org.kordamp.gradle:guide-gradle-plugin:$kordampPluginVersion"    
         classpath "org.kordamp.gradle:java-project-gradle-plugin:$kordampPluginVersion"
         classpath "org.kordamp.gradle:jacoco-gradle-plugin:$kordampPluginVersion"
         classpath "org.kordamp.gradle:kordamp-parentbuild:$kordampBuildVersion"
-        classpath "org.jreleaser:jdks-gradle-plugin:$jdksPluginVersion"
         classpath "org.kordamp.gradle:oci-gradle-build-cache-plugin:$ociBuildCacheVersion"        
         classpath "org.springframework.boot:spring-boot-gradle-plugin:$bootPluginVersion"
-        classpath "org.asciidoctor:asciidoctor-gradle-jvm:$asciidoctorVersion"
-        classpath 'de.undercouch:gradle-download-task:4.1.1'
     }
 }
 
@@ -39,12 +40,11 @@ apply plugin: 'org.kordamp.gradle.oci-build-cache'
 rootProject.name = 'riot'
 
 projects {
-    directories = ['core', 'plugins']
+    directories = ['core', 'plugins', 'docs']
 
     plugins {
         all {
             id 'eclipse'
-            id 'org.asciidoctor.jvm.convert'
         }
         path(':') {
             id 'org.kordamp.gradle.java-project'
