@@ -8,13 +8,14 @@ import java.util.Set;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.core.convert.converter.Converter;
 
+import com.redis.lettucemod.timeseries.Sample;
 import com.redis.riot.core.convert.CollectionToStringMapConverter;
 import com.redis.riot.core.convert.RegexNamedGroupsExtractor;
 import com.redis.riot.core.convert.StreamToStringMapConverter;
 import com.redis.riot.core.convert.StringToStringMapConverter;
+import com.redis.riot.core.convert.TimeSeriesToStringMapConverter;
 import com.redis.riot.core.convert.ZsetToStringMapConverter;
 import com.redis.spring.batch.common.DataStructure;
-import com.redis.spring.batch.common.DataStructure.Type;
 
 import io.lettuce.core.ScoredValue;
 import io.lettuce.core.StreamMessage;
@@ -23,10 +24,12 @@ public class DataStructureToMapProcessor implements ItemProcessor<DataStructure<
 
 	private final Converter<String, Map<String, String>> keyFieldsExtractor;
 	private Converter<Map<String, String>, Map<String, String>> hashConverter = s -> s;
+	private TimeSeriesToStringMapConverter tsConverter = new TimeSeriesToStringMapConverter();
 	private StreamToStringMapConverter streamConverter = new StreamToStringMapConverter();
 	private CollectionToStringMapConverter listConverter = new CollectionToStringMapConverter();
 	private CollectionToStringMapConverter setConverter = new CollectionToStringMapConverter();
 	private ZsetToStringMapConverter zsetConverter = new ZsetToStringMapConverter();
+	private Converter<String, Map<String, String>> jsonConverter = new StringToStringMapConverter();
 	private Converter<String, Map<String, String>> stringConverter = new StringToStringMapConverter();
 	private Converter<Object, Map<String, String>> defaultConverter = s -> null;
 
@@ -84,23 +87,23 @@ public class DataStructureToMapProcessor implements ItemProcessor<DataStructure<
 
 	@SuppressWarnings("unchecked")
 	private Map<String, String> map(DataStructure<String> item) {
-		Type type = item.getType();
-		if (type == null) {
-			return defaultConverter.convert(item.getValue());
-		}
-		switch (type) {
-		case HASH:
+		switch (item.getType()) {
+		case DataStructure.HASH:
 			return hashConverter.convert((Map<String, String>) item.getValue());
-		case LIST:
+		case DataStructure.LIST:
 			return listConverter.convert((List<String>) item.getValue());
-		case SET:
+		case DataStructure.SET:
 			return setConverter.convert((Set<String>) item.getValue());
-		case ZSET:
+		case DataStructure.ZSET:
 			return zsetConverter.convert((List<ScoredValue<String>>) item.getValue());
-		case STREAM:
+		case DataStructure.STREAM:
 			return streamConverter.convert((List<StreamMessage<String, String>>) item.getValue());
-		case STRING:
+		case DataStructure.JSON:
+			return jsonConverter.convert((String) item.getValue());
+		case DataStructure.STRING:
 			return stringConverter.convert((String) item.getValue());
+		case DataStructure.TIMESERIES:
+			return tsConverter.convert((List<Sample>) item.getValue());
 		default:
 			return defaultConverter.convert(item.getValue());
 		}

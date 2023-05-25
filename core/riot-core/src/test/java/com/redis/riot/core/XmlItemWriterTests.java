@@ -17,7 +17,6 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.redis.riot.core.resource.XmlResourceItemWriter;
 import com.redis.riot.core.resource.XmlResourceItemWriterBuilder;
 import com.redis.spring.batch.common.DataStructure;
-import com.redis.spring.batch.common.DataStructure.Type;
 
 class XmlItemWriterTests {
 
@@ -37,13 +36,13 @@ class XmlItemWriterTests {
 		DataStructure<String> item1 = new DataStructure<>();
 		item1.setKey("key1");
 		item1.setTtl(123l);
-		item1.setType(Type.HASH);
+		item1.setType(DataStructure.HASH);
 		Map<String, String> hash1 = Map.of("field1", "value1", "field2", "value2");
 		item1.setValue(hash1);
 		DataStructure<String> item2 = new DataStructure<>();
 		item2.setKey("key2");
 		item2.setTtl(456l);
-		item2.setType(Type.STREAM);
+		item2.setType(DataStructure.STREAM);
 		Map<String, String> hash2 = Map.of("field1", "value1", "field2", "value2");
 		item2.setValue(hash2);
 		writer.write(Arrays.asList(item1, item2));
@@ -55,8 +54,8 @@ class XmlItemWriterTests {
 		Assertions.assertEquals(item2.getKey(), keyValues.get(1).getKey());
 		Assertions.assertEquals(item1.getTtl(), keyValues.get(0).getTtl());
 		Assertions.assertEquals(item2.getTtl(), keyValues.get(1).getTtl());
-		Assertions.assertEquals(item1.getValue(), keyValues.get(0).getValue());
-		Assertions.assertEquals(item2.getValue(), keyValues.get(1).getValue());
+		Assertions.assertEquals((Object) item1.getValue(), keyValues.get(0).getValue());
+		Assertions.assertEquals((Object) item2.getValue(), keyValues.get(1).getValue());
 
 	}
 

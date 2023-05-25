@@ -29,13 +29,11 @@ buildscript {
         classpath "org.kordamp.gradle:java-project-gradle-plugin:$kordampPluginVersion"
         classpath "org.kordamp.gradle:jacoco-gradle-plugin:$kordampPluginVersion"
         classpath "org.kordamp.gradle:kordamp-parentbuild:$kordampBuildVersion"
-        classpath "org.kordamp.gradle:oci-gradle-build-cache-plugin:$ociBuildCacheVersion"        
         classpath "org.springframework.boot:spring-boot-gradle-plugin:$bootPluginVersion"
     }
 }
 
 apply plugin: 'org.kordamp.gradle.kordamp-parentbuild'
-apply plugin: 'org.kordamp.gradle.oci-build-cache'
 
 rootProject.name = 'riot'
 
@@ -58,20 +56,3 @@ projects {
 }
 
 enforce.enabled = false
-
-ext.isCiServer = System.getenv().containsKey('CI')
-
-println "Running on CI: ${isCiServer? 'YES' : 'NO'}"
-println "OCI compartmentId is ${System.getenv().containsKey('JRELEASER_OCI_COMPARTMENTID')? '': 'NOT '}set"
-
-buildCache {
-    local {
-        enabled = !isCiServer
-    }
-    remote(org.kordamp.gradle.plugin.buildcache.OCIBuildCache) {
-        configFile    = '.oci/config'
-        compartmentId = System.getenv().get('JRELEASER_OCI_COMPARTMENTID')
-        failOnError = false
-        push = isCiServer
-    }
-}

@@ -7,12 +7,12 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.UnaryOperator;
 
-import org.springframework.core.convert.converter.Converter;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
-public class MapFilteringConverter implements Converter<Map<String, String>, Map<String, String>> {
+public class MapFilteringConverter implements UnaryOperator<Map<String, String>> {
 
 	private final Set<String> includes;
 	private final Set<String> excludes;
@@ -23,7 +23,7 @@ public class MapFilteringConverter implements Converter<Map<String, String>, Map
 	}
 
 	@Override
-	public Map<String, String> convert(Map<String, String> source) {
+	public Map<String, String> apply(Map<String, String> source) {
 		Map<String, String> filtered = ObjectUtils.isEmpty(includes) ? source : new LinkedHashMap<>();
 		includes.forEach(f -> filtered.put(f, source.get(f)));
 		excludes.forEach(filtered::remove);

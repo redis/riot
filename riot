@@ -1,4 +1,4 @@
 #!/usr/bin/env sh
 
-./gradlew -Prelease=true -q --console plain :riot-core:installDist
-./core/riot-core/build/install/riot/bin/riot "$@"
+./gradlew -Prelease=true -q --console plain :riot-cli:installDist
+./plugins/riot-cli/build/install/riot/bin/riot "$@"

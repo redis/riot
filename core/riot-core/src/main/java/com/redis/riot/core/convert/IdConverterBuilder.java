@@ -3,15 +3,15 @@ package com.redis.riot.core.convert;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import org.springframework.core.convert.converter.Converter;
+import java.util.Optional;
+import java.util.function.Function;
 
 public class IdConverterBuilder {
 
 	public static final String DEFAULT_SEPARATOR = ":";
 
 	private String separator = DEFAULT_SEPARATOR;
-	private String prefix;
+	private Optional<String> prefix = Optional.empty();
 	private final FieldExtractorFactory extractorFactory = FieldExtractorFactory.builder().nullCheck(true).build();
 	private final List<String> fields = new ArrayList<>();
 
@@ -30,6 +30,10 @@ public class IdConverterBuilder {
 	}
 
 	public IdConverterBuilder prefix(String prefix) {
+		return prefix(Optional.of(prefix));
+	}
+
+	public IdConverterBuilder prefix(Optional<String> prefix) {
 		this.prefix = prefix;
 		return this;
 	}
@@ -39,50 +43,48 @@ public class IdConverterBuilder {
 		return this;
 	}
 
-	public Converter<Map<String, Object>, String> build() {
+	public Function<Map<String, Object>, String> build() {
 		if (fields.isEmpty()) {
-			if (prefix == null) {
-				throw new IllegalArgumentException("No prefix and no fields specified");
+			if (prefix.isPresent()) {
+				return m -> prefix.get();
 			}
-			return s -> prefix;
+			throw new IllegalArgumentException("No prefix and no fields specified");
 		}
 		if (fields.size() == 1) {
-			Converter<Map<String, Object>, String> extractor = extractorFactory.string(fields.get(0));
-			if (prefix == null) {
-				return extractor::convert;
+			Function<Map<String, Object>, String> extractor = extractorFactory.string(fields.get(0));
+			if (prefix.isPresent()) {
+				return s -> prefix.get() + separator + extractor.apply(s);
 			}
-			return s -> prefix + separator + extractor.convert(s);
+			return extractor::apply;
 		}
-		List<Converter<Map<String, Object>, String>> stringConverters = new ArrayList<>();
-		if (prefix != null) {
-			stringConverters.add(s -> prefix);
-		}
+		List<Function<Map<String, Object>, String>> stringConverters = new ArrayList<>();
+		prefix.ifPresent(p -> stringConverters.add(s -> p));
 		for (String field : fields) {
 			stringConverters.add(extractorFactory.string(field));
 		}
 		return new ConcatenatingConverter(separator, stringConverters);
 	}
 
-	public static class ConcatenatingConverter implements Converter<Map<String, Object>, String> {
+	public static class ConcatenatingConverter implements Function<Map<String, Object>, String> {
 
 		private final String separator;
-		private final List<Converter<Map<String, Object>, String>> converters;
+		private final List<Function<Map<String, Object>, String>> converters;
 
-		public ConcatenatingConverter(String separator, List<Converter<Map<String, Object>, String>> stringConverters) {
+		public ConcatenatingConverter(String separator, List<Function<Map<String, Object>, String>> stringConverters) {
 			this.separator = separator;
 			this.converters = stringConverters;
 		}
 
 		@Override
-		public String convert(Map<String, Object> source) {
+		public String apply(Map<String, Object> source) {
 			if (source == null) {
 				return null;
 			}
 			StringBuilder builder = new StringBuilder();
-			builder.append(converters.get(0).convert(source));
+			builder.append(converters.get(0).apply(source));
 			for (int index = 1; index < converters.size(); index++) {
 				builder.append(separator);
-				builder.append(converters.get(index).convert(source));
+				builder.append(converters.get(index).apply(source));
 			}
 			return builder.toString();
 		}

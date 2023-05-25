@@ -1,0 +1,6 @@
+package com.redis.riot.cli.common;
+
+public enum ReadFrom {
+
+	MASTER, MASTER_PREFERRED, UPSTREAM, UPSTREAM_PREFERRED, REPLICA_PREFERRED, REPLICA, LOWEST_LATENCY, ANY, ANY_REPLICA
+}

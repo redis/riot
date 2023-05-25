@@ -1,13 +1,14 @@
 package com.redis.riot.core.convert;
 
+import java.util.function.Function;
+
 import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.core.convert.TypeDescriptor;
-import org.springframework.core.convert.converter.Converter;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
-public class ObjectMapperConverter<T> implements Converter<T, String> {
+public class ObjectMapperConverter<T> implements Function<T, String> {
 
 	private final ObjectWriter writer;
 
@@ -16,7 +17,7 @@ public class ObjectMapperConverter<T> implements Converter<T, String> {
 	}
 
 	@Override
-	public String convert(T source) {
+	public String apply(T source) {
 		try {
 			return writer.writeValueAsString(source);
 		} catch (JsonProcessingException e) {

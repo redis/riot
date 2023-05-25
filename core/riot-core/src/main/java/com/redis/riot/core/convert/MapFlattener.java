@@ -4,8 +4,8 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.function.Function;
 
-import org.springframework.core.convert.converter.Converter;
 import org.springframework.lang.Nullable;
 import org.springframework.util.StringUtils;
 
@@ -13,16 +13,16 @@ import org.springframework.util.StringUtils;
  * Flattens a nested map using . and [] notation for key names
  *
  */
-public class MapFlattener<T> implements Converter<Map<String, Object>, Map<String, T>> {
+public class MapFlattener<T> implements Function<Map<String, Object>, Map<String, T>> {
 
-	private final Converter<Object, T> elementConverter;
+	private final Function<Object, T> elementConverter;
 
-	public MapFlattener(Converter<Object, T> elementConverter) {
+	public MapFlattener(Function<Object, T> elementConverter) {
 		this.elementConverter = elementConverter;
 	}
 
 	@Override
-	public Map<String, T> convert(Map<String, Object> source) {
+	public Map<String, T> apply(Map<String, Object> source) {
 		Map<String, T> resultMap = new LinkedHashMap<>();
 		flatten("", source.entrySet().iterator(), resultMap);
 		return resultMap;
@@ -50,7 +50,7 @@ public class MapFlattener<T> implements Converter<Map<String, Object>, Map<Strin
 		} else if (source instanceof Map) {
 			flatten(propertyPrefix, ((Map<String, Object>) source).entrySet().iterator(), flatMap);
 		} else {
-			((Map<String, Object>) flatMap).put(propertyPrefix, elementConverter.convert(source));
+			((Map<String, Object>) flatMap).put(propertyPrefix, elementConverter.apply(source));
 		}
 	}
 

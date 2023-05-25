@@ -1,24 +1,23 @@
 package com.redis.riot.core.convert;
 
 import java.util.Map;
+import java.util.function.Function;
 
-import org.springframework.core.convert.converter.Converter;
+public class MapToStringArrayConverter implements Function<Map<String, Object>, String[]> {
 
-public class MapToStringArrayConverter implements Converter<Map<String, Object>, String[]> {
+	private final Function<Map<String, Object>, String>[] fieldConverters;
 
-    private final Converter<Map<String, Object>, String>[] fieldConverters;
+	public MapToStringArrayConverter(Function<Map<String, Object>, String>[] fieldConverters) {
+		this.fieldConverters = fieldConverters;
+	}
 
-    public MapToStringArrayConverter(Converter<Map<String, Object>, String>[] fieldConverters) {
-        this.fieldConverters = fieldConverters;
-    }
-
-    @Override
-    public String[] convert(Map<String, Object> source) {
-        String[] array = new String[fieldConverters.length];
-        for (int index = 0; index < fieldConverters.length; index++) {
-            array[index] = fieldConverters[index].convert(source);
-        }
-        return array;
-    }
+	@Override
+	public String[] apply(Map<String, Object> source) {
+		String[] array = new String[fieldConverters.length];
+		for (int index = 0; index < fieldConverters.length; index++) {
+			array[index] = fieldConverters[index].apply(source);
+		}
+		return array;
+	}
 
 }

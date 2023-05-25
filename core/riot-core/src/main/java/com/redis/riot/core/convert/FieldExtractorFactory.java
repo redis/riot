@@ -1,8 +1,7 @@
 package com.redis.riot.core.convert;
 
 import java.util.Map;
-
-import org.springframework.core.convert.converter.Converter;
+import java.util.function.Function;
 
 public class FieldExtractorFactory {
 
@@ -17,26 +16,26 @@ public class FieldExtractorFactory {
 		this.nullCheck = nullCheck;
 	}
 
-	public Converter<Map<String, Object>, Object> field(String field) {
-		Converter<Map<String, Object>, Object> extractor = extractor(field);
+	public Function<Map<String, Object>, Object> field(String field) {
+		Function<Map<String, Object>, Object> extractor = extractor(field);
 		if (nullCheck) {
 			return new NullCheckExtractor(field, extractor);
 		}
 		return extractor;
 	}
 
-	private <T> Converter<Map<String, T>, T> extractor(String field) {
+	private <T> Function<Map<String, T>, T> extractor(String field) {
 		if (remove) {
 			return s -> s.remove(field);
 		}
 		return s -> s.get(field);
 	}
 
-	public Converter<Map<String, Object>, String> string(String field) {
-		return new CompositeConverter<>(field(field), new ObjectToStringConverter());
+	public Function<Map<String, Object>, String> string(String field) {
+		return field(field).andThen(new ObjectToStringConverter());
 	}
 
-	public <T> Converter<Map<String, T>, T> field(String field, T defaultValue) {
+	public <T> Function<Map<String, T>, T> field(String field, T defaultValue) {
 		return new DefaultValueExtractor<>(extractor(field), defaultValue);
 	}
 
@@ -50,19 +49,19 @@ public class FieldExtractorFactory {
 
 	}
 
-	private static class DefaultValueExtractor<T> implements Converter<Map<String, T>, T> {
+	private static class DefaultValueExtractor<T> implements Function<Map<String, T>, T> {
 
-		private final Converter<Map<String, T>, T> extractor;
+		private final Function<Map<String, T>, T> extractor;
 		private final T defaultValue;
 
-		public DefaultValueExtractor(Converter<Map<String, T>, T> extractor, T defaultValue) {
+		public DefaultValueExtractor(Function<Map<String, T>, T> extractor, T defaultValue) {
 			this.extractor = extractor;
 			this.defaultValue = defaultValue;
 		}
 
 		@Override
-		public T convert(Map<String, T> source) {
-			T value = extractor.convert(source);
+		public T apply(Map<String, T> source) {
+			T value = extractor.apply(source);
 			if (value == null) {
 				return defaultValue;
 			}
@@ -71,19 +70,19 @@ public class FieldExtractorFactory {
 		}
 	}
 
-	private static class NullCheckExtractor implements Converter<Map<String, Object>, Object> {
+	private static class NullCheckExtractor implements Function<Map<String, Object>, Object> {
 
 		private final String field;
-		private final Converter<Map<String, Object>, Object> extractor;
+		private final Function<Map<String, Object>, Object> extractor;
 
-		public NullCheckExtractor(String field, Converter<Map<String, Object>, Object> extractor) {
+		public NullCheckExtractor(String field, Function<Map<String, Object>, Object> extractor) {
 			this.field = field;
 			this.extractor = extractor;
 		}
 
 		@Override
-		public Object convert(Map<String, Object> source) {
-			Object value = extractor.convert(source);
+		public Object apply(Map<String, Object> source) {
+			Object value = extractor.apply(source);
 			if (value == null) {
 				throw new MissingFieldException("Error: Missing required field: '" + field + "'");
 			}

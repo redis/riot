@@ -1,11 +1,11 @@
 package com.redis.riot.core.convert;
 
-import org.springframework.core.convert.converter.Converter;
+import java.util.function.Function;
 
-public class ObjectToStringConverter implements Converter<Object, String> {
+public class ObjectToStringConverter implements Function<Object, String> {
 
 	@Override
-	public String convert(Object source) {
+	public String apply(Object source) {
 		if (source == null) {
 			return null;
 		}

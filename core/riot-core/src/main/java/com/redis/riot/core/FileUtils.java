@@ -7,8 +7,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -25,12 +27,18 @@ import com.redis.riot.core.resource.XmlItemReader;
 import com.redis.riot.core.resource.XmlItemReaderBuilder;
 import com.redis.riot.core.resource.XmlObjectReader;
 
-public interface FileUtils {
+public class FileUtils {
+
+	private static Logger log = Logger.getLogger(FileUtils.class.getName());
 
 	public static final String GS_URI_PREFIX = "gs://";
 	public static final String S3_URI_PREFIX = "s3://";
 
 	public static final Pattern EXTENSION_PATTERN = Pattern.compile("(?i)\\.(?<extension>\\w+)(?:\\.(?<gz>gz))?$");
+	
+	private FileUtils() {
+		
+	}
 
 	public static boolean isGzip(String file) {
 		return extensionGroup(file, "gz").isPresent();
@@ -117,7 +125,8 @@ public interface FileUtils {
 			stream.iterator().forEachRemaining(paths::add);
 			return paths;
 		} catch (IOException e) {
-			throw new RuntimeException("Could not expand file " + path, e);
+			log.severe("Could not expand path " + path);
+			return Collections.emptyList();
 		}
 	}
 

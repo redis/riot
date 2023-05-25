@@ -7,7 +7,6 @@ import java.util.Map;
 import org.springframework.batch.item.ItemProcessor;
 
 import com.redis.spring.batch.common.DataStructure;
-import com.redis.spring.batch.common.DataStructure.Type;
 
 import io.lettuce.core.ScoredValue;
 import io.lettuce.core.StreamMessage;
@@ -20,8 +19,7 @@ public class DataStructureProcessor implements ItemProcessor<DataStructure<Strin
 		if (item.getType() == null) {
 			return item;
 		}
-		Type type = item.getType();
-		if (type == Type.ZSET) {
+		if (DataStructure.ZSET.equals(item.getType())) {
 			Collection<Map<String, Object>> zset = (Collection<Map<String, Object>>) item.getValue();
 			Collection<ScoredValue<String>> values = new ArrayList<>(zset.size());
 			for (Map<String, Object> map : zset) {
@@ -32,7 +30,7 @@ public class DataStructureProcessor implements ItemProcessor<DataStructure<Strin
 			item.setValue(values);
 			return item;
 		}
-		if (type == Type.STREAM) {
+		if (DataStructure.STREAM.equals(item.getType())) {
 			Collection<Map<String, Object>> stream = (Collection<Map<String, Object>>) item.getValue();
 			Collection<StreamMessage<String, String>> messages = new ArrayList<>(stream.size());
 			for (Map<String, Object> message : stream) {

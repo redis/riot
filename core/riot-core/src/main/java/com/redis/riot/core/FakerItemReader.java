@@ -22,7 +22,7 @@ public class FakerItemReader extends AbstractItemCountingItemStreamItemReader<Ma
 	private final Generator<Map<String, Object>> generator;
 
 	public FakerItemReader(Generator<Map<String, Object>> generator) {
-		setName(ClassUtils.getShortName(FakerItemReader.class));
+		setName(ClassUtils.getShortName(getClass()));
 		Assert.notNull(generator, "A generator is required");
 		setMaxItemCount(count);
 		this.generator = generator;
