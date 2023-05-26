@@ -27,7 +27,6 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -102,12 +101,13 @@ public abstract class AbstractRiotTests extends AbstractTestBase {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
-
 	public static final String BEERS_JSON_URL = "https://storage.googleapis.com/jrx/beers.json";
 	public static final int BEER_CSV_COUNT = 2410;
 	public static final int BEER_JSON_COUNT = 216;
 	private static final Duration IDLE_TIMEOUT = Duration.ofSeconds(1);
 	private static final Duration COMPARE_TIMEOUT = Duration.ofSeconds(3);
+
+	private static Path tempDir;
 
 	protected static String name(Map<String, String> beer) {
 		return beer.get("name");
@@ -121,19 +121,17 @@ public abstract class AbstractRiotTests extends AbstractTestBase {
 		return Double.parseDouble(beer.get("abv"));
 	}
 
+	@BeforeAll
+	public void setupFiles() throws IOException {
+		tempDir = Files.createTempDirectory(getClass().getName());
+	}
+
 	protected List<String> testImport(String filename, String pattern, int count) throws Exception {
 		execute(filename);
 		RedisKeyCommands<String, String> sync = connection.sync();
 		List<String> keys = sync.keys(pattern);
 		Assertions.assertEquals(count, keys.size());
 		return keys;
-	}
-
-	private static Path tempDir;
-
-	@BeforeAll
-	public void setupFiles() throws IOException {
-		tempDir = Files.createTempDirectory(FileTests.class.getName());
 	}
 
 	private AbstractRedisClient targetClient;
@@ -181,661 +179,647 @@ public abstract class AbstractRiotTests extends AbstractTestBase {
 		}
 	}
 
-	@Nested
-	class FileTests {
+	@Test
+	void fileApiImportJSON() throws UnexpectedInputException, ParseException, NonTransientResourceException, Exception {
+		FileImport command = FileImport.builder().build();
+		Iterator<Map<String, Object>> iterator = command.read(AbstractRiotTests.BEERS_JSON_URL);
+		Assertions.assertTrue(iterator.hasNext());
+		Map<String, Object> beer1 = iterator.next();
+		Assertions.assertEquals(13, beer1.size());
+		int count = 1;
+		while (iterator.hasNext()) {
+			iterator.next();
+			count++;
+		}
+		Assertions.assertEquals(AbstractRiotTests.BEER_JSON_COUNT, count);
+	}
 
-		@Test
-		void apiImportJSON() throws UnexpectedInputException, ParseException, NonTransientResourceException, Exception {
-			FileImport command = FileImport.builder().build();
-			Iterator<Map<String, Object>> iterator = command.read(AbstractRiotTests.BEERS_JSON_URL);
-			Assertions.assertTrue(iterator.hasNext());
-			Map<String, Object> beer1 = iterator.next();
-			Assertions.assertEquals(13, beer1.size());
-			int count = 1;
-			while (iterator.hasNext()) {
-				iterator.next();
-				count++;
+	@Test
+	void fileApiImportCSV() throws UnexpectedInputException, ParseException, NonTransientResourceException, Exception {
+		FileImport command = FileImport.builder().flatFileOptions(FlatFileOptions.builder().header(true).build())
+				.build();
+		Iterator<Map<String, Object>> iterator = command.read("https://storage.googleapis.com/jrx/beers.csv");
+		Assertions.assertTrue(iterator.hasNext());
+		Map<String, Object> beer1 = iterator.next();
+		Assertions.assertEquals(7, beer1.size());
+		int count = 1;
+		while (iterator.hasNext()) {
+			iterator.next();
+			count++;
+		}
+		Assertions.assertEquals(AbstractRiotTests.BEER_CSV_COUNT, count);
+	}
+
+	@Test
+	void fileApiFileExpansion() throws IOException {
+		Path temp = Files.createTempDirectory("fileExpansion");
+		Files.createFile(temp.resolve("file1.csv"));
+		Files.createFile(temp.resolve("file2.csv"));
+		FileImport command = FileImport.builder().build();
+		List<ItemReader<Map<String, Object>>> readers = command.readers(temp.resolve("*.csv").toString());
+		Assertions.assertEquals(2, readers.size());
+	}
+
+	private String replace(String file) {
+		return file.replace("/tmp", tempDir.toString());
+	}
+
+	protected Path tempFile(String filename) throws IOException {
+		Path path = tempDir.resolve(filename);
+		if (Files.exists(path)) {
+			Files.delete(path);
+		}
+		return path;
+	}
+
+	protected <T> List<T> readAll(AbstractItemCountingItemStreamItemReader<T> reader) throws Exception {
+		reader.open(new ExecutionContext());
+		List<T> records = new ArrayList<>();
+		T record;
+		while ((record = reader.read()) != null) {
+			records.add(record);
+		}
+		reader.close();
+		return records;
+	}
+
+	@Test
+	void fileImportFW() throws Exception {
+		testImport("file-import-fw", "account:*", 5);
+		RedisHashCommands<String, String> hash = connection.sync();
+		Map<String, String> account101 = hash.hgetall("account:101");
+		// Account LastName FirstName Balance CreditLimit AccountCreated Rating
+		// 101 Reeves Keanu 9315.45 10000.00 1/17/1998 A
+		Assertions.assertEquals("Reeves", account101.get("LastName"));
+		Assertions.assertEquals("Keanu", account101.get("FirstName"));
+		Assertions.assertEquals("A", account101.get("Rating"));
+	}
+
+	@Test
+	void fileImportCSV() throws Exception {
+		testImport("file-import-csv", "beer:*", BEER_CSV_COUNT);
+	}
+
+	@Test
+	void fileImportCSVSkipLines() throws Exception {
+		testImport("file-import-csv-skiplines", "beer:*", BEER_CSV_COUNT - 10);
+	}
+
+	@Test
+	void fileImportCSVMax() throws Exception {
+		testImport("file-import-csv-max", "beer:*", 12);
+	}
+
+	@Test
+	void fileImportPSV() throws Exception {
+		testImport("file-import-psv", "sample:*", 3);
+	}
+
+	@Test
+	void fileImportTSV() throws Exception {
+		testImport("file-import-tsv", "sample:*", 4);
+	}
+
+	@Test
+	void fileImportType() throws Exception {
+		testImport("file-import-type", "sample:*", 3);
+	}
+
+	@Test
+	void fileImportExclude() throws Exception {
+		execute("file-import-exclude");
+		RedisHashCommands<String, String> sync = connection.sync();
+		Map<String, String> beer1036 = sync.hgetall("beer:1036");
+		Assertions.assertEquals("Lower De Boom", name(beer1036));
+		Assertions.assertEquals("American Barleywine", style(beer1036));
+		Assertions.assertEquals("368", beer1036.get("brewery_id"));
+		Assertions.assertFalse(beer1036.containsKey("row"));
+		Assertions.assertFalse(beer1036.containsKey("ibu"));
+	}
+
+	@Test
+	void fileImportInclude() throws Exception {
+		execute("file-import-include");
+		RedisHashCommands<String, String> sync = connection.sync();
+		Map<String, String> beer1036 = sync.hgetall("beer:1036");
+		Assertions.assertEquals(3, beer1036.size());
+		Assertions.assertEquals("Lower De Boom", name(beer1036));
+		Assertions.assertEquals("American Barleywine", style(beer1036));
+		Assertions.assertEquals(0.099, abv(beer1036));
+	}
+
+	@Test
+	void fileImportFilter() throws Exception {
+		testImport("file-import-filter", "beer:*", 424);
+	}
+
+	@Test
+	void fileImportRegex() throws Exception {
+		execute("file-import-regex");
+		RedisHashCommands<String, String> sync = connection.sync();
+		Map<String, String> airport1 = sync.hgetall("airport:1");
+		Assertions.assertEquals("Pacific", airport1.get("region"));
+		Assertions.assertEquals("Port_Moresby", airport1.get("city"));
+	}
+
+	@Test
+	void fileImportGlob() throws Exception {
+		execute("file-import-glob", this::configureImportGlob);
+		RedisKeyCommands<String, String> sync = connection.sync();
+		List<String> keys = sync.keys("beer:*");
+		Assertions.assertEquals(BEER_CSV_COUNT, keys.size());
+	}
+
+	private void configureImportGlob(ParseResult parseResult) {
+		FileImport command = parseResult.subcommand().commandSpec().commandLine().getCommand();
+		try {
+			Path dir = Files.createTempDirectory("import-glob");
+			FileCopyUtils.copy(getClass().getClassLoader().getResourceAsStream("files/beers1.csv"),
+					Files.newOutputStream(dir.resolve("beers1.csv")));
+			FileCopyUtils.copy(getClass().getClassLoader().getResourceAsStream("files/beers2.csv"),
+					Files.newOutputStream(dir.resolve("beers2.csv")));
+			File file = new File(command.getOptions().getFiles().get(0));
+			command.getOptions().setFiles(Arrays.asList(dir.resolve(file.getName()).toString()));
+		} catch (IOException e) {
+			throw new RuntimeException("Could not configure import-glob", e);
+		}
+	}
+
+	@Test
+	void fileImportGeoadd() throws Exception {
+		execute("file-import-geoadd");
+		RedisGeoCommands<String, String> sync = connection.sync();
+		Set<String> results = sync.georadius("airportgeo", -21, 64, 200, GeoArgs.Unit.mi);
+		Assertions.assertTrue(results.contains("18"));
+		Assertions.assertTrue(results.contains("19"));
+		Assertions.assertTrue(results.contains("11"));
+	}
+
+	@Test
+	void fileImportGeoProcessor() throws Exception {
+		execute("file-import-geo-processor");
+		RedisHashCommands<String, String> sync = connection.sync();
+		Map<String, String> airport3469 = sync.hgetall("airport:18");
+		Assertions.assertEquals("-21.9405994415,64.1299972534", airport3469.get("location"));
+	}
+
+	@Test
+	void fileImportProcess() throws Exception {
+		testImport("file-import-process", "event:*", 568);
+		RedisHashCommands<String, String> hash = connection.sync();
+		Map<String, String> event = hash.hgetall("event:248206");
+		Instant date = Instant.ofEpochMilli(Long.parseLong(event.get("EpochStart")));
+		Assertions.assertTrue(date.isBefore(Instant.now()));
+		long index = Long.parseLong(event.get("index"));
+		Assertions.assertTrue(index > 0);
+	}
+
+	@Test
+	void fileImportProcessElvis() throws Exception {
+		testImport("file-import-process-elvis", "beer:*", BEER_CSV_COUNT);
+		Map<String, String> beer1436 = connection.sync().hgetall("beer:1436");
+		Assertions.assertEquals("10", beer1436.get("ibu"));
+	}
+
+	@Test
+	void fileImportMultiCommands() throws Exception {
+		execute("file-import-multi-commands");
+		RedisKeyCommands<String, String> sync = connection.sync();
+		List<String> beers = sync.keys("beer:*");
+		Assertions.assertEquals(BEER_CSV_COUNT, beers.size());
+		for (String beer : beers) {
+			Map<String, String> hash = ((RedisHashCommands<String, String>) sync).hgetall(beer);
+			Assertions.assertTrue(hash.containsKey("name"));
+			Assertions.assertTrue(hash.containsKey("brewery_id"));
+		}
+		RedisSetCommands<String, String> set = connection.sync();
+		Set<String> breweries = set.smembers("breweries");
+		Assertions.assertEquals(558, breweries.size());
+	}
+
+	@Test
+	void fileImportBad() throws Exception {
+		Assertions.assertEquals(0, execute("file-import-bad"));
+	}
+
+	@Test
+	void fileImportGCS() throws Exception {
+		testImport("file-import-gcs", "beer:*", 4432);
+		Map<String, String> beer1 = connection.sync().hgetall("beer:1");
+		Assertions.assertEquals("Hocus Pocus", name(beer1));
+	}
+
+	@Test
+	void fileImportS3() throws Exception {
+		testImport("file-import-s3", "beer:*", 4432);
+		Map<String, String> beer1 = connection.sync().hgetall("beer:1");
+		Assertions.assertEquals("Hocus Pocus", name(beer1));
+	}
+
+	@SuppressWarnings("rawtypes")
+	@Test
+	void fileImportDump() throws Exception {
+		List<DataStructure> records = exportToList();
+		RedisServerCommands<String, String> sync = connection.sync();
+		sync.flushall();
+		execute("dump-import", this::configureDumpFileImportCommand);
+		Assertions.assertEquals(records.size(), sync.dbsize());
+	}
+
+	private void configureDumpFileImportCommand(CommandLine.ParseResult parseResult) {
+		DumpImport command = parseResult.subcommand().commandSpec().commandLine().getCommand();
+		FileImportOptions options = command.getOptions();
+		options.setFiles(options.getFiles().stream().map(this::replace).collect(Collectors.toList()));
+	}
+
+	private void configureExportCommand(CommandLine.ParseResult parseResult) {
+		FileExport command = parseResult.subcommand().commandSpec().commandLine().getCommand();
+		command.setFile(replace(command.getFile()));
+	}
+
+	@Test
+	void fileImportJSONElastic() throws Exception {
+		execute("file-import-json-elastic");
+		RedisKeyCommands<String, String> sync = connection.sync();
+		Assertions.assertEquals(2, sync.keys("estest:*").size());
+		Map<String, String> doc1 = ((RedisHashCommands<String, String>) sync).hgetall("estest:doc1");
+		Assertions.assertEquals("ruan", doc1.get("_source.name"));
+		Assertions.assertEquals("3", doc1.get("_source.articles[1]"));
+	}
+
+	@Test
+	void fileImportJSON() throws Exception {
+		testImport("file-import-json", "beer:*", BEER_JSON_COUNT);
+		Map<String, String> beer1 = connection.sync().hgetall("beer:1");
+		Assertions.assertEquals("Hocus Pocus", beer1.get("name"));
+	}
+
+	@Test
+	void fileImportXML() throws Exception {
+		testImport("file-import-xml", "trade:*", 3);
+		Map<String, String> trade1 = connection.sync().hgetall("trade:1");
+		Assertions.assertEquals("XYZ0001", trade1.get("isin"));
+	}
+
+	@SuppressWarnings("rawtypes")
+	@Test
+	void fileExportJSON() throws Exception {
+		List<DataStructure> records = exportToList();
+		RedisServerCommands<String, String> sync = connection.sync();
+		Assertions.assertEquals(sync.dbsize(), records.size());
+	}
+
+	@SuppressWarnings("rawtypes")
+	@Test
+	void fileExportJSONGz() throws Exception {
+		Path file = tempFile("beers.json.gz");
+		execute("file-import-json");
+		execute("file-export-json-gz", this::configureExportCommand);
+		JsonItemReaderBuilder<Map> builder = new JsonItemReaderBuilder<>();
+		builder.name("json-file-reader");
+		FileSystemResource resource = new FileSystemResource(file);
+		builder.resource(
+				new InputStreamResource(new GZIPInputStream(resource.getInputStream()), resource.getDescription()));
+		JacksonJsonObjectReader<Map> objectReader = new JacksonJsonObjectReader<>(Map.class);
+		objectReader.setMapper(new ObjectMapper());
+		builder.jsonObjectReader(objectReader);
+		JsonItemReader<Map> reader = builder.build();
+		List<Map> records = readAll(reader);
+		RedisKeyCommands<String, String> sync = connection.sync();
+		Assertions.assertEquals(sync.keys("beer:*").size(), records.size());
+	}
+
+	@SuppressWarnings("rawtypes")
+	private List<DataStructure> exportToList() throws Exception {
+		String filename = "file-export-json";
+		Path file = tempFile("redis.json");
+		generate(filename);
+		execute(filename, this::configureExportCommand);
+		JsonItemReaderBuilder<DataStructure> builder = new JsonItemReaderBuilder<>();
+		builder.name("json-data-structure-file-reader");
+		builder.resource(new FileSystemResource(file));
+		JacksonJsonObjectReader<DataStructure> objectReader = new JacksonJsonObjectReader<>(DataStructure.class);
+		objectReader.setMapper(new ObjectMapper());
+		builder.jsonObjectReader(objectReader);
+		JsonItemReader<DataStructure> reader = builder.build();
+		return readAll(reader);
+	}
+
+	@SuppressWarnings("rawtypes")
+	@Test
+	void fileExportXml() throws Exception {
+		String filename = "file-export-xml";
+		generate(filename);
+		Path file = tempFile("redis.xml");
+		execute(filename, this::configureExportCommand);
+		XmlItemReaderBuilder<DataStructure> builder = new XmlItemReaderBuilder<>();
+		builder.name("xml-file-reader");
+		builder.resource(new FileSystemResource(file));
+		XmlObjectReader<DataStructure> xmlObjectReader = new XmlObjectReader<>(DataStructure.class);
+		xmlObjectReader.setMapper(new XmlMapper());
+		builder.xmlObjectReader(xmlObjectReader);
+		XmlItemReader<DataStructure> reader = builder.build();
+		List<DataStructure> records = readAll(reader);
+		RedisModulesCommands<String, String> sync = connection.sync();
+		Assertions.assertEquals(sync.dbsize(), records.size());
+		for (DataStructure<String> record : records) {
+			String key = record.getKey();
+			switch (record.getType()) {
+			case DataStructure.HASH:
+				Assertions.assertEquals(record.getValue(), sync.hgetall(key));
+				break;
+			case DataStructure.STRING:
+				Assertions.assertEquals(record.getValue(), sync.get(key));
+				break;
+			default:
+				break;
 			}
-			Assertions.assertEquals(AbstractRiotTests.BEER_JSON_COUNT, count);
 		}
+	}
 
-		@Test
-		void apiImportCSV() throws UnexpectedInputException, ParseException, NonTransientResourceException, Exception {
-			FileImport command = FileImport.builder().flatFileOptions(FlatFileOptions.builder().header(true).build())
-					.build();
-			Iterator<Map<String, Object>> iterator = command.read("https://storage.googleapis.com/jrx/beers.csv");
-			Assertions.assertTrue(iterator.hasNext());
-			Map<String, Object> beer1 = iterator.next();
-			Assertions.assertEquals(7, beer1.size());
-			int count = 1;
-			while (iterator.hasNext()) {
-				iterator.next();
-				count++;
-			}
-			Assertions.assertEquals(AbstractRiotTests.BEER_CSV_COUNT, count);
+	@Test
+	void fileImportJsonAPI() throws Exception {
+		// riot-file import hset --keyspace beer --keys id
+		FileImport command = new FileImport();
+		command.getTransferOptions().setProgressUpdateInterval(0);
+		command.getOptions().setFiles(Collections.singletonList(BEERS_JSON_URL));
+		HsetCommand hset = new HsetCommand();
+		hset.getKeyOptions().setKeyspace(Optional.of("beer"));
+		hset.getKeyOptions().setKeys(new String[] { "id" });
+		command.setRedisCommands(Collections.singletonList(hset));
+		Main main = new Main();
+		main.getRedisOptions().setUri(RedisURI.create(getRedisServer().getRedisURI()));
+		main.getRedisOptions().setCluster(getRedisServer().isCluster());
+		command.setRiot(main);
+		command.setCommandSpec(CommandSpec.create().name("importJsonAPI"));
+		command.call();
+		RedisKeyCommands<String, String> sync = connection.sync();
+		List<String> keys = sync.keys("beer:*");
+		Assertions.assertEquals(BEER_JSON_COUNT, keys.size());
+		Map<String, String> beer1 = ((RedisHashCommands<String, String>) sync).hgetall("beer:1");
+		Assertions.assertEquals("Hocus Pocus", beer1.get("name"));
+	}
+
+	@Test
+	void fileImportJSONGzip() throws Exception {
+		testImport("file-import-json-gz", "beer:*", BEER_JSON_COUNT);
+	}
+
+	@Test
+	void fileImportSugadd() throws Exception {
+		assertExecutionSuccessful(execute("file-import-sugadd"));
+		List<Suggestion<String>> suggestions = connection.sync().ftSugget("names", "Bea",
+				SuggetOptions.builder().withPayloads(true).build());
+		Assertions.assertEquals(5, suggestions.size());
+		Assertions.assertEquals("American Blonde Ale", suggestions.get(0).getPayload());
+	}
+
+	@Test
+	void fileImportElasticJSON() throws Exception {
+		assertExecutionSuccessful(execute("file-import-json-elastic-jsonset"));
+		RedisModulesCommands<String, String> sync = connection.sync();
+		Assertions.assertEquals(2, sync.keys("elastic:*").size());
+		ObjectMapper mapper = new ObjectMapper();
+		String doc1 = sync.jsonGet("elastic:doc1");
+		String expected = "{\"_index\":\"test-index\",\"_type\":\"docs\",\"_id\":\"doc1\",\"_score\":1,\"_source\":{\"name\":\"ruan\",\"age\":30,\"articles\":[\"1\",\"3\"]}}";
+		Assertions.assertEquals(mapper.readTree(expected), mapper.readTree(doc1));
+	}
+
+	@Test
+	void fakerReader() throws Exception {
+		int count = 100;
+		Map<String, String> fields = new HashMap<>();
+		fields.put("firstName", "name.firstName");
+		fields.put("lastName", "name.lastName");
+		FakerItemReader reader = new FakerItemReader(MapGenerator.builder().fields(fields).build());
+		reader.setCount(count);
+		List<Map<String, Object>> items = new ArrayList<>();
+		String name = UUID.randomUUID().toString();
+		run(name, DEFAULT_BATCH_SIZE, reader, items::addAll);
+		Assertions.assertEquals(count, items.size());
+		Assertions.assertFalse(items.get(0).containsKey(MapGenerator.FIELD_INDEX));
+		Assertions.assertTrue(((String) items.get(0).get("firstName")).length() > 0);
+		Assertions.assertTrue(((String) items.get(0).get("lastName")).length() > 0);
+	}
+
+	@Test
+	void fakerIncludeMetadata() throws Exception {
+		int count = 100;
+		Map<String, String> fields = new HashMap<>();
+		fields.put("firstName", "name.firstName");
+		fields.put("lastName", "name.lastName");
+		FakerItemReader reader = new FakerItemReader(
+				new MapWithMetadataGenerator(MapGenerator.builder().fields(fields).build()));
+		reader.setCount(count);
+		List<Map<String, Object>> items = new ArrayList<>();
+		String name = UUID.randomUUID().toString();
+		run(name, DEFAULT_BATCH_SIZE, reader, items::addAll);
+		Assertions.assertEquals(count, items.size());
+		Assertions.assertEquals(1, items.get(0).get(MapGenerator.FIELD_INDEX));
+	}
+
+	@Test
+	void fakerHash() throws Exception {
+		List<String> keys = testImport("faker-hset", "person:*", 1000);
+		Map<String, String> person = connection.sync().hgetall(keys.get(0));
+		Assertions.assertTrue(person.containsKey("firstName"));
+		Assertions.assertTrue(person.containsKey("lastName"));
+		Assertions.assertTrue(person.containsKey("address"));
+	}
+
+	@Test
+	void fakerSet() throws Exception {
+		execute("faker-sadd");
+		RedisSetCommands<String, String> sync = connection.sync();
+		Set<String> names = sync.smembers("got:characters");
+		Assertions.assertTrue(names.size() > 10);
+		for (String name : names) {
+			Assertions.assertFalse(name.isEmpty());
 		}
+	}
 
-		@Test
-		void apiFileExpansion() throws IOException {
-			Path temp = Files.createTempDirectory("fileExpansion");
-			Files.createFile(temp.resolve("file1.csv"));
-			Files.createFile(temp.resolve("file2.csv"));
-			FileImport command = FileImport.builder().build();
-			List<ItemReader<Map<String, Object>>> readers = command.readers(temp.resolve("*.csv").toString());
-			Assertions.assertEquals(2, readers.size());
-		}
+	@Test
+	void fakerZset() throws Exception {
+		execute("faker-zadd");
+		RedisKeyCommands<String, String> sync = connection.sync();
+		List<String> keys = sync.keys("leases:*");
+		Assertions.assertTrue(keys.size() > 100);
+		String key = keys.get(0);
+		Assertions.assertTrue(((RedisSortedSetCommands<String, String>) sync).zcard(key) > 0);
+	}
 
-		private String replace(String file) {
-			return file.replace("/tmp", tempDir.toString());
-		}
+	@Test
+	void fakerStream() throws Exception {
+		execute("faker-xadd");
+		RedisStreamCommands<String, String> sync = connection.sync();
+		List<StreamMessage<String, String>> messages = sync.xrange("teststream:1", Range.unbounded());
+		Assertions.assertTrue(messages.size() > 0);
+	}
 
-		protected Path tempFile(String filename) throws IOException {
-			Path path = tempDir.resolve(filename);
-			if (Files.exists(path)) {
-				Files.delete(path);
-			}
-			return path;
-		}
+	@Test
+	void fakerInfer() throws Exception {
+		String INDEX = "beerIdx";
+		String FIELD_ID = "id";
+		String FIELD_ABV = "abv";
+		String FIELD_NAME = "name";
+		String FIELD_STYLE = "style";
+		String FIELD_OUNCES = "ounces";
+		connection.sync().ftCreate(INDEX, CreateOptions.<String, String>builder().prefix("beer:").build(),
+				Field.tag(FIELD_ID).sortable().build(), Field.text(FIELD_NAME).sortable().build(),
+				Field.text(FIELD_STYLE).matcher(PhoneticMatcher.ENGLISH).sortable().build(),
+				Field.numeric(FIELD_ABV).sortable().build(), Field.numeric(FIELD_OUNCES).sortable().build());
+		execute("faker-infer");
+		SearchResults<String, String> results = connection.sync().ftSearch(INDEX, "*");
+		Assertions.assertEquals(1000, results.getCount());
+		Document<String, String> doc1 = results.get(0);
+		Assertions.assertNotNull(doc1.get(FIELD_ABV));
+	}
 
-		protected <T> List<T> readAll(AbstractItemCountingItemStreamItemReader<T> reader) throws Exception {
-			reader.open(new ExecutionContext());
-			List<T> records = new ArrayList<>();
-			T record;
-			while ((record = reader.read()) != null) {
-				records.add(record);
-			}
-			reader.close();
-			return records;
-		}
+	@Test
+	void fakerTsAdd() throws Exception {
+		execute("faker-tsadd");
+		List<Sample> samples = connection.sync().tsRange("ts:gen", TimeRange.unbounded(), null);
+		Assertions.assertEquals(10, samples.size());
+	}
 
-		@Test
-		void importFW() throws Exception {
-			testImport("file-import-fw", "account:*", 5);
-			RedisHashCommands<String, String> hash = connection.sync();
-			Map<String, String> account101 = hash.hgetall("account:101");
-			// Account LastName FirstName Balance CreditLimit AccountCreated Rating
-			// 101 Reeves Keanu 9315.45 10000.00 1/17/1998 A
-			Assertions.assertEquals("Reeves", account101.get("LastName"));
-			Assertions.assertEquals("Keanu", account101.get("FirstName"));
-			Assertions.assertEquals("A", account101.get("Rating"));
-		}
+	@Test
+	void fakerTsAddWithOptions() throws Exception {
+		execute("faker-tsadd-options");
+		List<RangeResult<String, String>> results = connection.sync().tsMrange(TimeRange.unbounded(),
+				MRangeOptions.<String, String>filters("character1=Einstein").build());
+		Assertions.assertFalse(results.isEmpty());
+	}
 
-		@Test
-		void importCSV() throws Exception {
-			testImport("file-import-csv", "beer:*", BEER_CSV_COUNT);
-		}
+	@Test
+	void generateTypes() throws Exception {
+		execute("generate");
+		Assertions.assertEquals(100, connection.sync().dbsize());
+	}
 
-		@Test
-		void importCSVSkipLines() throws Exception {
-			testImport("file-import-csv-skiplines", "beer:*", BEER_CSV_COUNT - 10);
-		}
+	@Test
+	void replicateKeyDumps() throws Throwable {
+		String filename = "replicate";
+		generate(filename);
+		Assertions.assertTrue(connection.sync().dbsize() > 0);
+		execute(filename);
+	}
 
-		@Test
-		void importCSVMax() throws Exception {
-			testImport("file-import-csv-max", "beer:*", 12);
-		}
+	@Test
+	void replicateDryRun() throws Throwable {
+		String filename = "replicate-dry-run";
+		generate(filename);
+		Assertions.assertTrue(connection.sync().dbsize() > 0);
+		execute(filename);
+		Assertions.assertEquals(0, targetConnection.sync().dbsize());
+	}
 
-		@Test
-		void importPSV() throws Exception {
-			testImport("file-import-psv", "sample:*", 3);
-		}
+	@Test
+	void replicateHLL() throws Throwable {
+		String key = "crawled:20171124";
+		String value = "http://www.google.com/";
+		connection.sync().pfadd(key, value);
+		Assertions.assertEquals(0, execute("replicate-hll"));
+		awaitCompare();
+	}
 
-		@Test
-		void importTSV() throws Exception {
-			testImport("file-import-tsv", "sample:*", 4);
-		}
+	private void awaitCompare() {
+		Awaitility.await().timeout(COMPARE_TIMEOUT).until(this::compare);
+	}
 
-		@Test
-		void importType() throws Exception {
-			testImport("file-import-type", "sample:*", 3);
-		}
+	@Test
+	void replicateKeyProcessor() throws Throwable {
+		String filename = "replicate-key-processor";
+		generate(filename, 200);
+		Long sourceSize = connection.sync().dbsize();
+		Assertions.assertTrue(sourceSize > 0);
+		execute(filename);
+		Assertions.assertEquals(sourceSize, targetConnection.sync().dbsize());
+		Assertions.assertEquals(connection.sync().get("string:123"), targetConnection.sync().get("0:string:123"));
+	}
 
-		@Test
-		void importExclude() throws Exception {
-			execute("file-import-exclude");
-			RedisHashCommands<String, String> sync = connection.sync();
-			Map<String, String> beer1036 = sync.hgetall("beer:1036");
-			Assertions.assertEquals("Lower De Boom", name(beer1036));
-			Assertions.assertEquals("American Barleywine", style(beer1036));
-			Assertions.assertEquals("368", beer1036.get("brewery_id"));
-			Assertions.assertFalse(beer1036.containsKey("row"));
-			Assertions.assertFalse(beer1036.containsKey("ibu"));
-		}
+	@Test
+	void replicateLive() throws Exception {
+		runLiveReplication("replicate-live");
+	}
 
-		@Test
-		void importInclude() throws Exception {
-			execute("file-import-include");
-			RedisHashCommands<String, String> sync = connection.sync();
-			Map<String, String> beer1036 = sync.hgetall("beer:1036");
-			Assertions.assertEquals(3, beer1036.size());
-			Assertions.assertEquals("Lower De Boom", name(beer1036));
-			Assertions.assertEquals("American Barleywine", style(beer1036));
-			Assertions.assertEquals(0.099, abv(beer1036));
-		}
-
-		@Test
-		void importFilter() throws Exception {
-			testImport("file-import-filter", "beer:*", 424);
-		}
-
-		@Test
-		void importRegex() throws Exception {
-			execute("file-import-regex");
-			RedisHashCommands<String, String> sync = connection.sync();
-			Map<String, String> airport1 = sync.hgetall("airport:1");
-			Assertions.assertEquals("Pacific", airport1.get("region"));
-			Assertions.assertEquals("Port_Moresby", airport1.get("city"));
-		}
-
-		@Test
-		void importGlob() throws Exception {
-			execute("file-import-glob", this::configureImportGlob);
-			RedisKeyCommands<String, String> sync = connection.sync();
-			List<String> keys = sync.keys("beer:*");
-			Assertions.assertEquals(BEER_CSV_COUNT, keys.size());
-		}
-
-		private void configureImportGlob(ParseResult parseResult) {
-			FileImport command = parseResult.subcommand().commandSpec().commandLine().getCommand();
+	@Test
+	void replicateLiveKeySlot() throws Exception {
+		String filename = "replicate-live-keyslot";
+		connection.sync().configSet("notify-keyspace-events", "AK");
+		ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+		executor.schedule(() -> {
 			try {
-				Path dir = Files.createTempDirectory("import-glob");
-				FileCopyUtils.copy(getClass().getClassLoader().getResourceAsStream("files/beers1.csv"),
-						Files.newOutputStream(dir.resolve("beers1.csv")));
-				FileCopyUtils.copy(getClass().getClassLoader().getResourceAsStream("files/beers2.csv"),
-						Files.newOutputStream(dir.resolve("beers2.csv")));
-				File file = new File(command.getOptions().getFiles().get(0));
-				command.getOptions().setFiles(Arrays.asList(dir.resolve(file.getName()).toString()));
-			} catch (IOException e) {
-				throw new RuntimeException("Could not configure import-glob", e);
+				generate(filename, 1, GeneratorReaderOptions.builder().build(), 300);
+			} catch (Exception e) {
+				log.error("Could not generate data", e);
 			}
-		}
-
-		@Test
-		void importGeoadd() throws Exception {
-			execute("file-import-geoadd");
-			RedisGeoCommands<String, String> sync = connection.sync();
-			Set<String> results = sync.georadius("airportgeo", -21, 64, 200, GeoArgs.Unit.mi);
-			Assertions.assertTrue(results.contains("18"));
-			Assertions.assertTrue(results.contains("19"));
-			Assertions.assertTrue(results.contains("11"));
-		}
-
-		@Test
-		void importGeoProcessor() throws Exception {
-			execute("file-import-geo-processor");
-			RedisHashCommands<String, String> sync = connection.sync();
-			Map<String, String> airport3469 = sync.hgetall("airport:18");
-			Assertions.assertEquals("-21.9405994415,64.1299972534", airport3469.get("location"));
-		}
-
-		@Test
-		void importProcess() throws Exception {
-			testImport("file-import-process", "event:*", 568);
-			RedisHashCommands<String, String> hash = connection.sync();
-			Map<String, String> event = hash.hgetall("event:248206");
-			Instant date = Instant.ofEpochMilli(Long.parseLong(event.get("EpochStart")));
-			Assertions.assertTrue(date.isBefore(Instant.now()));
-			long index = Long.parseLong(event.get("index"));
-			Assertions.assertTrue(index > 0);
-		}
-
-		@Test
-		void importProcessElvis() throws Exception {
-			testImport("file-import-process-elvis", "beer:*", BEER_CSV_COUNT);
-			Map<String, String> beer1436 = connection.sync().hgetall("beer:1436");
-			Assertions.assertEquals("10", beer1436.get("ibu"));
-		}
-
-		@Test
-		void importMultiCommands() throws Exception {
-			execute("file-import-multi-commands");
-			RedisKeyCommands<String, String> sync = connection.sync();
-			List<String> beers = sync.keys("beer:*");
-			Assertions.assertEquals(BEER_CSV_COUNT, beers.size());
-			for (String beer : beers) {
-				Map<String, String> hash = ((RedisHashCommands<String, String>) sync).hgetall(beer);
-				Assertions.assertTrue(hash.containsKey("name"));
-				Assertions.assertTrue(hash.containsKey("brewery_id"));
-			}
-			RedisSetCommands<String, String> set = connection.sync();
-			Set<String> breweries = set.smembers("breweries");
-			Assertions.assertEquals(558, breweries.size());
-		}
-
-		@Test
-		void importBad() throws Exception {
-			Assertions.assertEquals(0, execute("file-import-bad"));
-		}
-
-		@Test
-		void importGCS() throws Exception {
-			testImport("file-import-gcs", "beer:*", 4432);
-			Map<String, String> beer1 = connection.sync().hgetall("beer:1");
-			Assertions.assertEquals("Hocus Pocus", name(beer1));
-		}
-
-		@Test
-		void importS3() throws Exception {
-			testImport("file-import-s3", "beer:*", 4432);
-			Map<String, String> beer1 = connection.sync().hgetall("beer:1");
-			Assertions.assertEquals("Hocus Pocus", name(beer1));
-		}
-
-		@SuppressWarnings("rawtypes")
-		@Test
-		void importDump() throws Exception {
-			List<DataStructure> records = exportToList();
-			RedisServerCommands<String, String> sync = connection.sync();
-			sync.flushall();
-			execute("dump-import", this::configureDumpFileImportCommand);
-			Assertions.assertEquals(records.size(), sync.dbsize());
-		}
-
-		private void configureDumpFileImportCommand(CommandLine.ParseResult parseResult) {
-			DumpImport command = parseResult.subcommand().commandSpec().commandLine().getCommand();
-			FileImportOptions options = command.getOptions();
-			options.setFiles(options.getFiles().stream().map(this::replace).collect(Collectors.toList()));
-		}
-
-		private void configureExportCommand(CommandLine.ParseResult parseResult) {
-			FileExport command = parseResult.subcommand().commandSpec().commandLine().getCommand();
-			command.setFile(replace(command.getFile()));
-		}
-
-		@Test
-		void importJSONElastic() throws Exception {
-			execute("file-import-json-elastic");
-			RedisKeyCommands<String, String> sync = connection.sync();
-			Assertions.assertEquals(2, sync.keys("estest:*").size());
-			Map<String, String> doc1 = ((RedisHashCommands<String, String>) sync).hgetall("estest:doc1");
-			Assertions.assertEquals("ruan", doc1.get("_source.name"));
-			Assertions.assertEquals("3", doc1.get("_source.articles[1]"));
-		}
-
-		@Test
-		void importJSON() throws Exception {
-			testImport("file-import-json", "beer:*", BEER_JSON_COUNT);
-			Map<String, String> beer1 = connection.sync().hgetall("beer:1");
-			Assertions.assertEquals("Hocus Pocus", beer1.get("name"));
-		}
-
-		@Test
-		void importXML() throws Exception {
-			testImport("file-import-xml", "trade:*", 3);
-			Map<String, String> trade1 = connection.sync().hgetall("trade:1");
-			Assertions.assertEquals("XYZ0001", trade1.get("isin"));
-		}
-
-		@SuppressWarnings("rawtypes")
-		@Test
-		void exportJSON() throws Exception {
-			List<DataStructure> records = exportToList();
-			RedisServerCommands<String, String> sync = connection.sync();
-			Assertions.assertEquals(sync.dbsize(), records.size());
-		}
-
-		@SuppressWarnings("rawtypes")
-		@Test
-		void exportJSONGz() throws Exception {
-			Path file = tempFile("beers.json.gz");
-			execute("file-import-json");
-			execute("file-export-json-gz", this::configureExportCommand);
-			JsonItemReaderBuilder<Map> builder = new JsonItemReaderBuilder<>();
-			builder.name("json-file-reader");
-			FileSystemResource resource = new FileSystemResource(file);
-			builder.resource(
-					new InputStreamResource(new GZIPInputStream(resource.getInputStream()), resource.getDescription()));
-			JacksonJsonObjectReader<Map> objectReader = new JacksonJsonObjectReader<>(Map.class);
-			objectReader.setMapper(new ObjectMapper());
-			builder.jsonObjectReader(objectReader);
-			JsonItemReader<Map> reader = builder.build();
-			List<Map> records = readAll(reader);
-			RedisKeyCommands<String, String> sync = connection.sync();
-			Assertions.assertEquals(sync.keys("beer:*").size(), records.size());
-		}
-
-		@SuppressWarnings("rawtypes")
-		private List<DataStructure> exportToList() throws Exception {
-			String filename = "file-export-json";
-			Path file = tempFile("redis.json");
-			generate(filename);
-			execute(filename, this::configureExportCommand);
-			JsonItemReaderBuilder<DataStructure> builder = new JsonItemReaderBuilder<>();
-			builder.name("json-data-structure-file-reader");
-			builder.resource(new FileSystemResource(file));
-			JacksonJsonObjectReader<DataStructure> objectReader = new JacksonJsonObjectReader<>(DataStructure.class);
-			objectReader.setMapper(new ObjectMapper());
-			builder.jsonObjectReader(objectReader);
-			JsonItemReader<DataStructure> reader = builder.build();
-			return readAll(reader);
-		}
-
-		@SuppressWarnings("rawtypes")
-		@Test
-		void exportXml() throws Exception {
-			String filename = "file-export-xml";
-			generate(filename);
-			Path file = tempFile("redis.xml");
-			execute(filename, this::configureExportCommand);
-			XmlItemReaderBuilder<DataStructure> builder = new XmlItemReaderBuilder<>();
-			builder.name("xml-file-reader");
-			builder.resource(new FileSystemResource(file));
-			XmlObjectReader<DataStructure> xmlObjectReader = new XmlObjectReader<>(DataStructure.class);
-			xmlObjectReader.setMapper(new XmlMapper());
-			builder.xmlObjectReader(xmlObjectReader);
-			XmlItemReader<DataStructure> reader = builder.build();
-			List<DataStructure> records = readAll(reader);
-			RedisModulesCommands<String, String> sync = connection.sync();
-			Assertions.assertEquals(sync.dbsize(), records.size());
-			for (DataStructure<String> record : records) {
-				String key = record.getKey();
-				switch (record.getType()) {
-				case DataStructure.HASH:
-					Assertions.assertEquals(record.getValue(), sync.hgetall(key));
-					break;
-				case DataStructure.STRING:
-					Assertions.assertEquals(record.getValue(), sync.get(key));
-					break;
-				default:
-					break;
-				}
-			}
-		}
-
-		@Test
-		void importJsonAPI() throws Exception {
-			// riot-file import hset --keyspace beer --keys id
-			FileImport command = new FileImport();
-			command.getTransferOptions().setProgressUpdateInterval(0);
-			command.getOptions().setFiles(Collections.singletonList(BEERS_JSON_URL));
-			HsetCommand hset = new HsetCommand();
-			hset.getKeyOptions().setKeyspace(Optional.of("beer"));
-			hset.getKeyOptions().setKeys(new String[] { "id" });
-			command.setRedisCommands(Collections.singletonList(hset));
-			Main main = new Main();
-			main.getRedisOptions().setUri(RedisURI.create(getRedisServer().getRedisURI()));
-			main.getRedisOptions().setCluster(getRedisServer().isCluster());
-			command.setRiot(main);
-			command.setCommandSpec(CommandSpec.create().name("importJsonAPI"));
-			command.call();
-			RedisKeyCommands<String, String> sync = connection.sync();
-			List<String> keys = sync.keys("beer:*");
-			Assertions.assertEquals(BEER_JSON_COUNT, keys.size());
-			Map<String, String> beer1 = ((RedisHashCommands<String, String>) sync).hgetall("beer:1");
-			Assertions.assertEquals("Hocus Pocus", beer1.get("name"));
-		}
-
-		@Test
-		void importJSONGzip() throws Exception {
-			testImport("file-import-json-gz", "beer:*", BEER_JSON_COUNT);
-		}
-
-		@Test
-		void importSugadd() throws Exception {
-			assertExecutionSuccessful(execute("file-import-sugadd"));
-			List<Suggestion<String>> suggestions = connection.sync().ftSugget("names", "Bea",
-					SuggetOptions.builder().withPayloads(true).build());
-			Assertions.assertEquals(5, suggestions.size());
-			Assertions.assertEquals("American Blonde Ale", suggestions.get(0).getPayload());
-		}
-
-		@Test
-		void importElasticJSON() throws Exception {
-			assertExecutionSuccessful(execute("file-import-json-elastic-jsonset"));
-			RedisModulesCommands<String, String> sync = connection.sync();
-			Assertions.assertEquals(2, sync.keys("elastic:*").size());
-			ObjectMapper mapper = new ObjectMapper();
-			String doc1 = sync.jsonGet("elastic:doc1");
-			String expected = "{\"_index\":\"test-index\",\"_type\":\"docs\",\"_id\":\"doc1\",\"_score\":1,\"_source\":{\"name\":\"ruan\",\"age\":30,\"articles\":[\"1\",\"3\"]}}";
-			Assertions.assertEquals(mapper.readTree(expected), mapper.readTree(doc1));
+		}, 500, TimeUnit.MILLISECONDS);
+		execute(filename);
+		List<String> keys = targetConnection.sync().keys("*");
+		for (String key : keys) {
+			int slot = SlotHash.getSlot(key);
+			Assertions.assertTrue(slot >= 0 && slot <= 8000);
 		}
 	}
 
-	@Nested
-	class GeneratorTests {
-
-		@Test
-		void testReader() throws Exception {
-			int count = 100;
-			Map<String, String> fields = new HashMap<>();
-			fields.put("firstName", "name.firstName");
-			fields.put("lastName", "name.lastName");
-			FakerItemReader reader = new FakerItemReader(MapGenerator.builder().fields(fields).build());
-			reader.setCount(count);
-			List<Map<String, Object>> items = new ArrayList<>();
-			String name = UUID.randomUUID().toString();
-			run(name, DEFAULT_BATCH_SIZE, reader, items::addAll);
-			Assertions.assertEquals(count, items.size());
-			Assertions.assertFalse(items.get(0).containsKey(MapGenerator.FIELD_INDEX));
-			Assertions.assertTrue(((String) items.get(0).get("firstName")).length() > 0);
-			Assertions.assertTrue(((String) items.get(0).get("lastName")).length() > 0);
-		}
-
-		@Test
-		void includeMetadata() throws Exception {
-			int count = 100;
-			Map<String, String> fields = new HashMap<>();
-			fields.put("firstName", "name.firstName");
-			fields.put("lastName", "name.lastName");
-			FakerItemReader reader = new FakerItemReader(
-					new MapWithMetadataGenerator(MapGenerator.builder().fields(fields).build()));
-			reader.setCount(count);
-			List<Map<String, Object>> items = new ArrayList<>();
-			String name = UUID.randomUUID().toString();
-			run(name, DEFAULT_BATCH_SIZE, reader, items::addAll);
-			Assertions.assertEquals(count, items.size());
-			Assertions.assertEquals(1, items.get(0).get(MapGenerator.FIELD_INDEX));
-		}
-
-		@Test
-		void fakerHash() throws Exception {
-			List<String> keys = testImport("faker-hset", "person:*", 1000);
-			Map<String, String> person = connection.sync().hgetall(keys.get(0));
-			Assertions.assertTrue(person.containsKey("firstName"));
-			Assertions.assertTrue(person.containsKey("lastName"));
-			Assertions.assertTrue(person.containsKey("address"));
-		}
-
-		@Test
-		void fakerSet() throws Exception {
-			execute("faker-sadd");
-			RedisSetCommands<String, String> sync = connection.sync();
-			Set<String> names = sync.smembers("got:characters");
-			Assertions.assertTrue(names.size() > 10);
-			for (String name : names) {
-				Assertions.assertFalse(name.isEmpty());
-			}
-		}
-
-		@Test
-		void fakerZset() throws Exception {
-			execute("faker-zadd");
-			RedisKeyCommands<String, String> sync = connection.sync();
-			List<String> keys = sync.keys("leases:*");
-			Assertions.assertTrue(keys.size() > 100);
-			String key = keys.get(0);
-			Assertions.assertTrue(((RedisSortedSetCommands<String, String>) sync).zcard(key) > 0);
-		}
-
-		@Test
-		void fakerStream() throws Exception {
-			execute("faker-xadd");
-			RedisStreamCommands<String, String> sync = connection.sync();
-			List<StreamMessage<String, String>> messages = sync.xrange("teststream:1", Range.unbounded());
-			Assertions.assertTrue(messages.size() > 0);
-		}
-
-		@Test
-		void fakerInfer() throws Exception {
-			String INDEX = "beerIdx";
-			String FIELD_ID = "id";
-			String FIELD_ABV = "abv";
-			String FIELD_NAME = "name";
-			String FIELD_STYLE = "style";
-			String FIELD_OUNCES = "ounces";
-			connection.sync().ftCreate(INDEX, CreateOptions.<String, String>builder().prefix("beer:").build(),
-					Field.tag(FIELD_ID).sortable().build(), Field.text(FIELD_NAME).sortable().build(),
-					Field.text(FIELD_STYLE).matcher(PhoneticMatcher.ENGLISH).sortable().build(),
-					Field.numeric(FIELD_ABV).sortable().build(), Field.numeric(FIELD_OUNCES).sortable().build());
-			execute("faker-infer");
-			SearchResults<String, String> results = connection.sync().ftSearch(INDEX, "*");
-			Assertions.assertEquals(1000, results.getCount());
-			Document<String, String> doc1 = results.get(0);
-			Assertions.assertNotNull(doc1.get(FIELD_ABV));
-		}
-
-		@Test
-		void fakerTsAdd() throws Exception {
-			execute("faker-tsadd");
-			List<Sample> samples = connection.sync().tsRange("ts:gen", TimeRange.unbounded(), null);
-			Assertions.assertEquals(10, samples.size());
-		}
-
-		@Test
-		void fakerTsAddWithOptions() throws Exception {
-			execute("faker-tsadd-options");
-			List<RangeResult<String, String>> results = connection.sync().tsMrange(TimeRange.unbounded(),
-					MRangeOptions.<String, String>filters("character1=Einstein").build());
-			Assertions.assertFalse(results.isEmpty());
-		}
-
-		@Test
-		void generateTypes() throws Exception {
-			execute("generate");
-			Assertions.assertEquals(100, connection.sync().dbsize());
-		}
-
+	@Test
+	void replicateLiveMultiThreaded() throws Exception {
+		runLiveReplication("replicate-live-threads");
 	}
 
-	@Nested
-	class ReplicationTests {
+	@Test
+	void replicateLiveDataStructures() throws Exception {
+		runLiveReplication("replicate-ds-live");
+	}
 
-		@Test
-		void keyDumps() throws Throwable {
-			String filename = "replicate";
-			generate(filename);
-			Assertions.assertTrue(connection.sync().dbsize() > 0);
-			execute(filename);
-		}
-
-		@Test
-		void dryRun() throws Throwable {
-			String filename = "replicate-dry-run";
-			generate(filename);
-			Assertions.assertTrue(connection.sync().dbsize() > 0);
-			execute(filename);
-			Assertions.assertEquals(0, targetConnection.sync().dbsize());
-		}
-
-		@Test
-		void hyperLogLog() throws Throwable {
-			String key = "crawled:20171124";
-			String value = "http://www.google.com/";
-			connection.sync().pfadd(key, value);
-			Assertions.assertEquals(0, execute("replicate-hll"));
-			awaitCompare();
-		}
-
-		private void awaitCompare() {
-			Awaitility.await().timeout(COMPARE_TIMEOUT).until(this::compare);
-		}
-
-		@Test
-		void keyProcessor() throws Throwable {
-			String filename = "replicate-key-processor";
-			generate(filename, 200);
-			Long sourceSize = connection.sync().dbsize();
-			Assertions.assertTrue(sourceSize > 0);
-			execute(filename);
-			Assertions.assertEquals(sourceSize, targetConnection.sync().dbsize());
-			Assertions.assertEquals(connection.sync().get("string:123"), targetConnection.sync().get("0:string:123"));
-		}
-
-		@Test
-		void live() throws Exception {
-			runLiveReplication("replicate-live");
-		}
-
-		@Test
-		void liveKeySlot() throws Exception {
-			String filename = "replicate-live-keyslot";
-			connection.sync().configSet("notify-keyspace-events", "AK");
-			ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-			executor.schedule(() -> {
-				try {
-					generate(filename, 1, GeneratorReaderOptions.builder().build(), 300);
-				} catch (Exception e) {
-					log.error("Could not generate data", e);
-				}
-			}, 500, TimeUnit.MILLISECONDS);
-			execute(filename);
-			List<String> keys = targetConnection.sync().keys("*");
-			for (String key : keys) {
-				int slot = SlotHash.getSlot(key);
-				Assertions.assertTrue(slot >= 0 && slot <= 8000);
+	private void runLiveReplication(String filename) throws Exception {
+		connection.sync().configSet("notify-keyspace-events", "AK");
+		generate(filename, 3000);
+		ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+		executor.schedule(() -> {
+			GeneratorItemReader generator = new GeneratorItemReader(
+					GeneratorReaderOptions.builder().keyRange(IntRange.to(10000)).build());
+			generator.setCurrentItemCount(3000);
+			generator.setMaxItemCount(3500);
+			try {
+				run(filename + "-generate-live", 1, generator, writer(client).build());
+			} catch (Exception e) {
+				log.error("Could not generate data", e);
 			}
-		}
+		}, 500, TimeUnit.MILLISECONDS);
+		execute(filename);
+		awaitCompare();
+	}
 
-		@Test
-		void liveMultiThreaded() throws Exception {
-			runLiveReplication("replicate-live-threads");
-		}
+	protected RedisItemReader<String, String, KeyComparison> comparisonReader() {
+		return RedisItemReader.compare(client, targetClient).jobRunner(jobRunner).ttlTolerance(Duration.ofMillis(100))
+				.build();
+	}
 
-		@Test
-		void liveDataStructures() throws Exception {
-			runLiveReplication("replicate-ds-live");
+	protected boolean compare() throws JobExecutionException {
+		if (connection.sync().dbsize().equals(0L)) {
+			log.info("Source database is empty");
+			return false;
 		}
-
-		private void runLiveReplication(String filename) throws Exception {
-			connection.sync().configSet("notify-keyspace-events", "AK");
-			generate(filename, 3000);
-			ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-			executor.schedule(() -> {
-				GeneratorItemReader generator = new GeneratorItemReader(
-						GeneratorReaderOptions.builder().keyRange(IntRange.to(10000)).build());
-				generator.setCurrentItemCount(3000);
-				generator.setMaxItemCount(3500);
-				try {
-					run(filename + "-generate-live", 1, generator, writer(client).build());
-				} catch (Exception e) {
-					log.error("Could not generate data", e);
-				}
-			}, 500, TimeUnit.MILLISECONDS);
-			execute(filename);
-			awaitCompare();
+		if (!connection.sync().dbsize().equals(targetConnection.sync().dbsize())) {
+			log.info("Source and target databases have different sizes");
+			return false;
 		}
-
-		protected RedisItemReader<String, String, KeyComparison> comparisonReader() {
-			return RedisItemReader.compare(client, targetClient).jobRunner(jobRunner)
-					.ttlTolerance(Duration.ofMillis(100)).build();
+		RedisItemReader<String, String, KeyComparison> reader = comparisonReader();
+		SynchronizedListItemWriter<KeyComparison> writer = new SynchronizedListItemWriter<>();
+		run("compare-" + id(), DEFAULT_BATCH_SIZE, reader, writer);
+		if (writer.getWrittenItems().isEmpty()) {
+			log.info("No comparison items were written");
+			return false;
 		}
-
-		protected boolean compare() throws JobExecutionException {
-			if (connection.sync().dbsize().equals(0L)) {
-				log.info("Source database is empty");
+		for (KeyComparison comparison : writer.getWrittenItems()) {
+			if (comparison.getStatus() != Status.OK) {
+				log.error(
+						String.format("Key %s has status %s", comparison.getSource().getKey(), comparison.getStatus()));
 				return false;
 			}
-			if (!connection.sync().dbsize().equals(targetConnection.sync().dbsize())) {
-				log.info("Source and target databases have different sizes");
-				return false;
-			}
-			RedisItemReader<String, String, KeyComparison> reader = comparisonReader();
-			SynchronizedListItemWriter<KeyComparison> writer = new SynchronizedListItemWriter<>();
-			run("compare-" + id(), DEFAULT_BATCH_SIZE, reader, writer);
-			if (writer.getWrittenItems().isEmpty()) {
-				log.info("No comparison items were written");
-				return false;
-			}
-			for (KeyComparison comparison : writer.getWrittenItems()) {
-				if (comparison.getStatus() != Status.OK) {
-					log.error(String.format("Key %s has status %s", comparison.getSource().getKey(),
-							comparison.getStatus()));
-					return false;
-				}
-			}
-			return true;
 		}
-
+		return true;
 	}
 
 }
