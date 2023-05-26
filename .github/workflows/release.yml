@@ -52,18 +52,9 @@ jobs:
       project-version: ${{ needs.precheck.outputs.version }}
       project-effective-version: ${{ needs.precheck.outputs.version }}
 
-  native-image:
-    name: Native Image
-    needs: [precheck, jlink]
-    uses: redis-developer/riot/.github/workflows/step-native-image.yml@main
-    with:
-      project-version: ${{ needs.precheck.outputs.version }}
-    secrets:
-      gh-access-token: ${{ secrets.GIT_ACCESS_TOKEN }}
-
   release:
     name: Release
-    needs: [precheck, jlink, jpackage, native-image]
+    needs: [precheck, jlink, jpackage]
     runs-on: ubuntu-latest
     outputs:
       hashes: ${{ steps.slsa.outputs.HASHES }}
@@ -92,12 +83,6 @@ jobs:
         with:
           name: jpackage
           path: out/jreleaser/assemble/riot-installer/jpackage
-
-      - name: Download native-image
-        uses: actions/download-artifact@v3
-        with:
-          name: native-image
-          path: out/jreleaser/assemble/riot-native/native-image
 
       - name: Setup Java
         uses: actions/setup-java@v3

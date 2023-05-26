@@ -69,7 +69,6 @@ jobs:
       - name: Dependencies
         run: |
           ls -l plugins/riot/build/dependencies/flat
-          ls -l plugins/riot/build/dependencies/graalvm
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
