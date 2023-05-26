@@ -110,7 +110,7 @@ signing:
 catalog:
   sbom:
     syft:
-      active: ALWAYS
+      active: NEVER
       pack:
         enabled: true
 
@@ -240,7 +240,7 @@ assemble:
 distributions:
   riot:
     flatpak:
-      active: ALWAYS
+      active: NEVER
       continueOnError: true
       componentId: com.redis.riot.cli
       developerName: Redis
@@ -261,16 +261,16 @@ distributions:
         branch: main
         branchPush: '{{projectName}}-{{tagName}}'
     chocolatey:
-      active: ALWAYS
+      active: NEVER
       remoteBuild: true
       title: RIOT
       iconUrl: 'https://raw.githubusercontent.com/redis-developer/riot/main/src/media/icon_128x128.png'
       bucket:
         active: RELEASE
     jbang:
-      active: ALWAYS
+      active: NEVER
     macports:
-      active: ALWAYS
+      active: NEVER
       categories:
         - devel
         - java
@@ -280,14 +280,14 @@ distributions:
         active: RELEASE
         name: riot-macports
     scoop:
-      active: ALWAYS
+      active: NEVER
       bucket:
         active: RELEASE
     sdkman:
-      active: RELEASE
+      active: NEVER
       continueOnError: true
     snap:
-      active: ALWAYS
+      active: NEVER
       remoteBuild: true
       base: core18
       architectures:
@@ -302,7 +302,7 @@ distributions:
         - network
         - home
     spec:
-      active: ALWAYS
+      active: NEVER
       repository:
         active: RELEASE
         name: riot-copr
@@ -318,7 +318,7 @@ distributions:
 
   riot-standalone:
     appImage:
-      active: ALWAYS
+      active: NEVER
       componentId: com.redis.riot.cli
       developerName: Redis
       categories:
@@ -369,7 +369,7 @@ distributions:
   riot-installer:
     type: NATIVE_PACKAGE
     winget:
-      active: RELEASE
+      active: NEVER
       package:
         name: riot
       repository:
