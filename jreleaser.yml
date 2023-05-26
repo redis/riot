@@ -2,8 +2,6 @@ environment:
   properties:
     jdkPathPrefix: 'plugins/riot/build/jdks'
     jdkFilePrefix: 'zulu17.32.13-ca-jdk17.0.2'
-    graalFilePrefix: 'graalvm-ce-java17-22.3.0'
-    nativeImageDir: out/riot/assemble/riot-native/native-image
     jpackageDir: out/riot/assemble/riot-installer/jpackage
 
 project:
@@ -207,36 +205,6 @@ assemble:
         icon: 'src/media/riot.ico'
         resourceDir: 'src/jpackage/windows'
 
-  nativeImage:
-    riot-native:
-      active: ALWAYS
-      java:
-        version: 17
-      imageName: '{{distributionName}}-{{projectEffectiveVersion}}'
-      executable: riot
-      fileSets:
-        - input: '.'
-          includes:
-            - LICENSE
-      mainJar:
-        path: 'plugins/riot/build/libs/riot-{{projectVersion}}.jar'
-      jars:
-        - pattern: 'plugins/riot/build/dependencies/flat/*.jar'
-        - pattern: 'plugins/riot/build/dependencies/graalvm/*.jar'
-      graalJdks:
-        - path: '{{jdkPathPrefix}}/graal17Osx/{{graalFilePrefix}}/Contents/Home'
-          platform: 'osx-x86_64'
-        - path: '{{jdkPathPrefix}}/graal17Linux/{{graalFilePrefix}}'
-          platform: 'linux-x86_64'
-      upx:
-        active: ALWAYS
-        version: '3.96'
-      args:
-        - '-Duser.language=en'
-        - '-H:IncludeLocales=en,ca,de,es,fr,hi,it,ja,nl,pt_BR,zh_TW,ru,ko'
-        - '-H:Optimize=2'
-        - '-H:+RemoveUnusedSymbols'
-
 distributions:
   riot:
     flatpak:
@@ -392,13 +360,6 @@ distributions:
       - path: '{{jpackageDir}}/riot-{{projectVersionNumber}}-windows-x86_64.msi'
         transform: '{{distributionName}}/{{distributionName}}-{{projectEffectiveVersion}}-windows-x86_64.msi'
         platform: 'windows-x86_64'
-
-  riot-native:
-    artifacts:
-      - path: '{{nativeImageDir}}/{{distributionName}}-{{projectEffectiveVersion}}-osx-x86_64.zip'
-        platform: 'osx-x86_64'
-      - path: '{{nativeImageDir}}/{{distributionName}}-{{projectEffectiveVersion}}-linux-x86_64.zip'
-        platform: 'linux-x86_64'
 
 files:
   artifacts:
