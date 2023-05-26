@@ -101,7 +101,6 @@ distributions {
     }
 }
 
-/*
 jdks {
     zulu17Linux {
         platform = 'linux-x86_64'
@@ -164,7 +163,6 @@ jdks {
         checksum = '5a6f1d640034166a0fefd9d8924c12b040f120cd019b46b40895ccc8e9a9fc9e'
     }
 }
-*/
 
 copyDependencies {
     dependsOn classes
