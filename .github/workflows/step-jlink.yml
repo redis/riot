@@ -38,7 +38,15 @@ jobs:
           echo ${{ inputs.project-version }} > VERSION
 
       - name: Build
-        run: ./gradlew -Prelease=true -PreproducibleBuild=true build -S
+        run: ./gradlew -Prelease=true -PreproducibleBuild=true build aggregateTestReports -S
+        
+      - name: Upload test reports
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-reports
+          path: |
+            build/reports/aggregate-tests/
 
       - name: Jlink
         uses: jreleaser/release-action@v2

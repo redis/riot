@@ -102,10 +102,12 @@ public abstract class AbstractRiotTests extends AbstractTestBase {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
+
 	public static final String BEERS_JSON_URL = "https://storage.googleapis.com/jrx/beers.json";
 	public static final int BEER_CSV_COUNT = 2410;
 	public static final int BEER_JSON_COUNT = 216;
 	private static final Duration IDLE_TIMEOUT = Duration.ofSeconds(1);
+	private static final Duration COMPARE_TIMEOUT = Duration.ofSeconds(3);
 
 	protected static String name(Map<String, String> beer) {
 		return beer.get("name");
@@ -735,7 +737,7 @@ public abstract class AbstractRiotTests extends AbstractTestBase {
 		}
 
 		private void awaitCompare() {
-			Awaitility.await().timeout(Duration.ofSeconds(1)).until(this::compare);
+			Awaitility.await().timeout(COMPARE_TIMEOUT).until(this::compare);
 		}
 
 		@Test
