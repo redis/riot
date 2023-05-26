@@ -26,13 +26,9 @@ image:https://github.com/{project-owner}/{project-name}/actions/workflows/early-
 image:https://img.shields.io/github/release/{project-owner}/{project-name}.svg["Latest", link="https://github.com/{project-owner}/{project-name}/releases/latest"]
 image:https://codecov.io/gh/{project-owner}/{project-name}/branch/master/graph/badge.svg?token=LDK7BAJLJI["Coverage", link="https://codecov.io/gh/{project-owner}/{project-name}"]
 
-== Install
-
-https://developer.redis.com/riot#install
-
 == Documentation
 
-{project-title} documentation is available at https://developer.redis.com/riot
+https://developer.redis.com/riot
 
 == Support
 
