@@ -5,30 +5,30 @@
 :project-version: 2.19.0
 :project-title:   RIOT
 
-++++
-<p align="center">
-  <img alt="RIOT" src="riot.svg">
+image::src/media/riot.png[RIOT]
 
-  <p align="center">
-    Get data in and out of Redis with Redis Input/Output Tools (RIOT)
-  </p>
-</p>
-++++
+---
 
-'''
-
-image:https://github.com/{project-owner}/{project-name}/actions/workflows/early-access.yml/badge.svg["Build Status", link="https://github.com/{project-owner}/{project-name}/actions/workflows/early-access.yml"]
-image:https://img.shields.io/github/release/{project-owner}/{project-name}.svg["Latest", link="https://github.com/{project-owner}/{project-name}/releases/latest"]
-image:https://codecov.io/gh/{project-owner}/{project-name}/branch/master/graph/badge.svg?token=LDK7BAJLJI["Coverage", link="https://codecov.io/gh/{project-owner}/{project-name}"]
+Get data in and out of Redis with Redis Input/Output Tools ({project-title})
 
 {project-title} is a series of command-line utilities designed to help you get data in and out of Redis.
 
 It supports many different sources and targets:
 
 * Relational databases
-* Files: CSV, JSON, XML
-* Data generators: Redis data structures, Faker
+* Files (CSV, JSON, XML)
+* Data generators (Redis data structures, Faker)
 * and Redis itself with live and/or snapshot replication.
+
+== Badges
+
+image:https://github.com/{project-owner}/{project-name}/actions/workflows/early-access.yml/badge.svg["Build Status", link="https://github.com/{project-owner}/{project-name}/actions/workflows/early-access.yml"]
+image:https://img.shields.io/github/release/{project-owner}/{project-name}.svg["Latest", link="https://github.com/{project-owner}/{project-name}/releases/latest"]
+image:https://codecov.io/gh/{project-owner}/{project-name}/branch/master/graph/badge.svg?token=LDK7BAJLJI["Coverage", link="https://codecov.io/gh/{project-owner}/{project-name}"]
+
+== Install
+
+https://developer.redis.com/riot#install
 
 == Documentation
 
