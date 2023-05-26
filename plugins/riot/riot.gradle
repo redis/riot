@@ -33,18 +33,15 @@ application {
 
 jar {
     manifest {
-        attributes('Main-Class': 'com.redis.riot.cli.Main')
+        attributes([
+            'Main-Class': 'com.redis.riot.cli.Main',
+            'Automatic-Module-Name': project.findProperty('automatic.module.name')
+        ])        
     }
 }
 
 startScripts {
     classpath = files('$APP_HOME/lib/*')
-}
-
-jar {
-    manifest {
-        attributes('Main-Class': 'com.redis.riot.cli.Riot')
-    }
 }
 
 config {
@@ -181,7 +178,3 @@ task copyGraalvmJavaSdk(type: Copy) {
 }
 
 assemble.dependsOn copyDependencies, copyGraalvmJavaSdk
-
-compileJava {
-    options.release = 8
-}

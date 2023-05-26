@@ -32,7 +32,6 @@ dependencies {
 }
 
 compileJava {
-    options.release = 8
     options.compilerArgs += ["-AprojectPath=${project.group}/${project.name}"]
 }
 
