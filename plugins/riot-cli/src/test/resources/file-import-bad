@@ -1,0 +1,1 @@
+riot file-import https://storage.googleapis.com/jrx/bad.psv --header --delimiter "|" --quote "'" hset --keyspace bad --keys id

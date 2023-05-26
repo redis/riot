@@ -1,0 +1,1 @@
+riot file-import s3://riot-bucket-jrx/beers.json --s3-region us-west-1 hset --keyspace beer --keys id

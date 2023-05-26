@@ -1,0 +1,1 @@
+riot -h source -p 6379 replicate -h target -p 6380 --mode live --threads 3

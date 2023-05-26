@@ -1,0 +1,1 @@
+riot file-import https://storage.googleapis.com/jrx/beers.json.gz hset --keyspace beer --keys id

@@ -1,0 +1,1 @@
+riot faker --infer beerIdx hset --keyspace beer --keys id

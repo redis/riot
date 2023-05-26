@@ -1,0 +1,1 @@
+riot faker value="random.nextDouble" future="backToTheFuture.character" lebowski="lebowski.character" --count 1000 --sleep 1 --skip-policy never ts.add --keyspace ts:gen --keys future lebowski --value value --labels character1=future character2=lebowski

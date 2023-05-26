@@ -1,0 +1,1 @@
+riot file-import /tmp/*.csv --header hset --keyspace beer --keys id

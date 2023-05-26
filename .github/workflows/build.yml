@@ -1,9 +1,0 @@
-name: Build
-
-on:
-  pull_request:
-
-jobs:
-  build:
-    name: 'Build'
-    uses: redis-field-engineering/redis-github-workflows/.github/workflows/build.yml@main

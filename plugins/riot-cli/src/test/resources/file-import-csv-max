@@ -1,0 +1,1 @@
+riot file-import https://storage.googleapis.com/jrx/beers.csv --max 12 --header hset --keyspace beer --keys id

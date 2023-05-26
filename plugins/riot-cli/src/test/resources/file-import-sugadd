@@ -1,0 +1,1 @@
+riot file-import https://storage.googleapis.com/jrx/beers.csv --header ft.sugadd --keyspace names --field name --payload style --ignore-missing

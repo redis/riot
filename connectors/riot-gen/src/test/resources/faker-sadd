@@ -1,1 +1,0 @@
-riot-gen faker name="gameOfThrones.character" --count 1000 sadd --keyspace got:characters --members name

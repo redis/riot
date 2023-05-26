@@ -1,0 +1,1 @@
+riot dump-import /tmp/redis.json

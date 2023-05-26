@@ -3,14 +3,14 @@
 :project-name:    riot
 :project-group:   com.redis
 :project-version: 2.19.0
-:site-url:        https://developer.redis.com/riot
+:project-title:   RIOT
 
 ++++
 <p align="center">
   <img alt="RIOT" src="riot.svg">
 
   <p align="center">
-    Redis Input/Output Tools (RIOT) is a series of utilities designed to help you get data in and out of Redis.
+    Get data in and out of Redis with Redis Input/Output Tools (RIOT)
   </p>
 </p>
 ++++
@@ -21,14 +21,19 @@ image:https://github.com/{project-owner}/{project-name}/actions/workflows/early-
 image:https://img.shields.io/github/release/{project-owner}/{project-name}.svg["Latest", link="https://github.com/{project-owner}/{project-name}/releases/latest"]
 image:https://codecov.io/gh/{project-owner}/{project-name}/branch/master/graph/badge.svg?token=LDK7BAJLJI["Coverage", link="https://codecov.io/gh/{project-owner}/{project-name}"]
 
-|===
+{project-title} is a series of command-line utilities designed to help you get data in and out of Redis.
+It supports many different sources and targets including relational databases, files (CSV, JSON, XML), data generators (Redis data structures, Faker), and Redis itself (live and snapshot replication).
 
-|*RIOT-DB*    |Database import/export|link:{site-url}/riot-db/index.html[Documentation]    |
+== Documentation
 
-|*RIOT-File*  |File import/export|link:{site-url}/riot-file/index.html[Documentation]  |
+{name} documentation is available at https://developer.redis.com/riot
 
-|*RIOT-Gen*   |Data generator|link:{site-url}/riot-gen/index.html[Documentation]   |
+== Support
 
-|*RIOT-Redis* |Redis -> Redis migration|link:{site-url}/riot-redis/index.html[Documentation] | link:{site-url}/riot-redis/cookbook.html[Cookbook]
+{name} is supported by Redis, Inc. on a good faith effort basis.
+To report bugs, request features, or receive assistance, please https://github.com/{project-owner}/{project-name}/issues[file an issue].
 
-|===
+== License
+
+{name} is licensed under the Apache 2.0 License.
+Copyright (C) 2023 Redis, Inc.

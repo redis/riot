@@ -1,0 +1,1 @@
+riot db-export "INSERT INTO mytable (id, field1, field2) VALUES (CAST(:id AS SMALLINT), :field1, :field2)" --url "jdbc:postgresql://host:port/database" --username appuser --password passwd --scan-match "gen:*" --key-regex "gen:(?<id>.*)"

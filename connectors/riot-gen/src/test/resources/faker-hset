@@ -1,1 +1,0 @@
-riot-gen faker id="#index" firstName="name.firstName" lastName="name.lastName" address="address.fullAddress" hset --keyspace person --keys id

@@ -1,0 +1,151 @@
+= Migrating from Elasticache
+
+This recipe contains step-by-step instructions to migrate an Elasticache (EC) database to https://redis.com/redis-enterprise-software/overview/[Redis Enterprise] (RE).
+
+The following scenarios are covered:
+
+* One-time (snapshot) migration
+* Online (live) migration
+
+WARNING: Please note that the tool used in this recipe ({project-title}) is NEITHER recommended NOR officially supported by Redis, Inc.
+
+IMPORTANT: It is recommended to read the https://developer.redis.com/riot/riot/[{project-title} documentation] to familiarize yourself with its usage and architecture.
+
+== Setup
+
+=== Prerequisites
+
+For this recipe you will require the following resources:
+ 
+* AWS ElastiCache: _Primary Endpoint_ in case of Single Master and _Configuration Endpoint_ in case of Clustered EC.
++
+Refer to https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/Endpoints.html[this link] to learn more
+* Redis Enterprise: hosted on Cloud or On-Prem
+* An Amazon EC2 instance
+
+[IMPORTANT]
+.Keyspace Notifications
+====
+For a https://developer.redis.com/riot/riot/#live-replication[live migration] you need to https://aws.amazon.com/premiumsupport/knowledge-center/elasticache-redis-keyspace-notifications/[enable keyspace notifications] on your Elasticache instance.
+====
+
+=== Migration Host
+
+To run the migration tool we will need an EC2 instance.
+
+You can either create a new EC2 instance or leverage an existing one if available.
+In the example below we first create an instance on AWS Cloud Platform.
+The most common scenario is to access an ElastiCache cluster from an Amazon EC2 instance in the same Amazon Virtual Private Cloud (Amazon VPC).
+We have used Ubuntu 16.04 LTS for this setup but you can choose any Ubuntu or Debian distribution of your choice.
+ 
+SSH to this EC2 instance from your laptop:
+
+[source,console]
+----
+ssh -i “public key” <AWS EC2 Instance>
+----
+
+Install `redis-cli` on this new instance by running this command:
+
+[source,console]
+----
+sudo apt update
+sudo apt install -y redis-tools
+----
+
+Use `redis-cli` to check connectivity with the Elasticache database:
+
+[source,console]
+----
+redis-cli -h <elasticache primary endpoint> -p 6379
+----
+
+Ensure that the above command allows you to connect to the remote Elasticache database successfully.
+
+
+=== Installing {project-title}
+
+Let's install {project-title} on the EC2 instance we set up previously.
+For this we'll follow the steps from https://developer.redis.com/riot/index.html#linux
+
+== Performing Migration
+
+We are now all set to begin the migration process.
+The options you will use depend on your source and target databases, as well as the replication mode (snapshot or live).
+
+=== EC Single Master -> RE
+
+[source,console]
+----
+riot -h <source EC host> -p <source EC port> replicate -h <target RE host> -p <target RE port> --pass <RE password>
+----
+
+=== Live EC Single Master -> RE
+[source,console]
+----
+riot -h <source EC host> -p <source EC port> replicate *[blue]#--mode live#* -h <target RE host> -p <target RE port> --pass <RE password>
+----
+
+[IMPORTANT]
+====
+In case ElastiCache is configured with https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/auth.html[AUTH TOKEN enabled], you need to pass `--tls` as well as `--pass` option:
+[source,console,subs="+quotes"]
+----
+riot -h <source EC host> -p <source EC port> *[blue]#--tls --pass <token>#* replicate -h <target RE host> -p <target RE port> --pass <RE password>
+----
+====
+
+=== EC Cluster -> RE
+
+[source,console]
+----
+riot -h <source EC host> -p <source EC port> *[blue]#--cluster#* replicate -h <target RE host> -p <target RE port> --pass <RE password>
+----
+
+NOTE: `--cluster` is an important parameter used ONLY for ElastiCache whenever cluster-mode is enabled.
+Do note that the source database is specified first and the target database is specified after the replicate command and it is applicable for all the scenarios.
+
+=== EC Single Master -> RE (with specific DB namespace)
+
+[source,console]
+----
+riot -h <source EC host> -p <source EC port> *[blue]#--db <index>#* replicate -h <target RE host> -p <target RE port> --pass <RE password>
+----
+
+=== EC Single Master -> RE with OSS Cluster
+[source,console]
+----
+riot -h <source EC host> -p <source EC port> replicate -h <target RE host> -p <target RE port> --pass <RE password> *[blue]#--cluster#*
+----
+
+=== Live EC Cluster -> RE with OSS Cluster
+
+[source,console]
+----
+riot -h <source EC host> -p <source EC port> *[blue]#--cluster#* replicate *[blue]#--mode live#* -h <target RE host> -p <target RE port> --pass <RE password> *[blue]#--cluster#*
+----
+
+== Important Considerations
+
+* As stated earlier, this tool is not officially supported by Redis Inc.
+* It is recommended to test migration in UAT before production use.
+* Once migration is completed, ensure that application traffic gets redirected to Redis Enterprise Endpoint successfully.
+* It is recommended to perform the migration process during low traffic so as to avoid chances of data loss.
+
+== Troubleshooting
+
+=== Authentication Required
+You might face this error message while running the migration tool:
+
+[source,console]
+----
+Could not write record: NOAUTH
+Authentication required
+----
+
+This issue occurs when you fail to supply the `--pass <password>` parameter while running the `riot replicate` command.
+
+
+
+
+

@@ -1,0 +1,1 @@
+riot file-import https://storage.googleapis.com/jrx/sample.dat --filetype delimited --delimiter "|" --header hset --keyspace sample --keys id

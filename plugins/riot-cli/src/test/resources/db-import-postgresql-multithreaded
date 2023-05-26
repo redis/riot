@@ -1,0 +1,1 @@
+riot db-import "SELECT * FROM orders" --url "jdbc:postgresql://host:port/database" --username appuser --password passwd --threads 3 hset --keyspace order --keys order_id

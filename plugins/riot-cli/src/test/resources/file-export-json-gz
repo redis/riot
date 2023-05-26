@@ -1,0 +1,1 @@
+riot file-export /tmp/beers.json.gz --scan-match beer:*
