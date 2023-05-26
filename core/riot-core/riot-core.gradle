@@ -27,6 +27,8 @@ dependencies {
     api group: 'net.datafaker', name: 'datafaker', version: datafakerVersion
     api 'org.springframework.batch:spring-batch-core'
     api 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api'
+    testImplementation 'org.junit.jupiter:junit-jupiter-params'
 }
 
 compileJava {
