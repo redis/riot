@@ -27,7 +27,7 @@ project:
   stereotype: CLI
   vendor: Redis
   icons:
-    - url: https://raw.githubusercontent.com/redis-developer/riot/master/src/media/icon_256x256.png
+    - url: https://raw.githubusercontent.com/redis-developer/riot/main/src/media/icon_256x256.png
       width: 256
       height: 256
   java:
@@ -258,13 +258,13 @@ distributions:
         active: RELEASE
         owner: flathub
         name: com.redis.riot.cli
-        branch: master
+        branch: main
         branchPush: '{{projectName}}-{{tagName}}'
     chocolatey:
       active: ALWAYS
       remoteBuild: true
       title: RIOT
-      iconUrl: 'https://raw.githubusercontent.com/redis-developer/riot/master/src/media/icon_128x128.png'
+      iconUrl: 'https://raw.githubusercontent.com/redis-developer/riot/main/src/media/icon_128x128.png'
       bucket:
         active: RELEASE
     jbang:
