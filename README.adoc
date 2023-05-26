@@ -24,6 +24,7 @@ image:https://codecov.io/gh/{project-owner}/{project-name}/branch/master/graph/b
 {project-title} is a series of command-line utilities designed to help you get data in and out of Redis.
 
 It supports many different sources and targets:
+
 * Relational databases
 * Files: CSV, JSON, XML
 * Data generators: Redis data structures, Faker
