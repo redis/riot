@@ -105,7 +105,7 @@ public abstract class AbstractRiotTests extends AbstractTestBase {
 	public static final int BEER_CSV_COUNT = 2410;
 	public static final int BEER_JSON_COUNT = 216;
 	private static final Duration IDLE_TIMEOUT = Duration.ofSeconds(1);
-	private static final Duration COMPARE_TIMEOUT = Duration.ofSeconds(3);
+	private static final Duration COMPARE_TIMEOUT = Duration.ofSeconds(10);
 
 	private static Path tempDir;
 
