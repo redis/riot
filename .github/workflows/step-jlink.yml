@@ -9,8 +9,6 @@ on:
     secrets:
       gpg-passphrase:
         required: true
-      oci-compartment-id:
-        required: true
 
 permissions:
   contents: read
@@ -27,12 +25,6 @@ jobs:
         with:
           ref: main
 
-      - name: Decrypt secrets
-        shell: bash
-        run: sh .github/scripts/decrypt-secrets.sh
-        env:
-          GPG_PASSPHRASE: ${{ secrets.gpg-passphrase }}
-
       - name: Setup Java
         uses: actions/setup-java@v3
         with:
@@ -47,8 +39,6 @@ jobs:
 
       - name: Build
         run: ./gradlew -Prelease=true -PreproducibleBuild=true build -S
-        env:
-          JRELEASER_OCI_COMPARTMENTID: ${{ secrets.oci-compartment-id }}
 
       - name: Jlink
         uses: jreleaser/release-action@v2

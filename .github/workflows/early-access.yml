@@ -24,7 +24,6 @@ jobs:
       project-version: ${{ needs.precheck.outputs.version }}
     secrets:
       gpg-passphrase: ${{ secrets.GPG_PASSPHRASE }}
-      oci-compartment-id: ${{ secrets.JRELEASER_OCI_COMPARTMENTID }}
 
   jpackage:
     name: JPackage

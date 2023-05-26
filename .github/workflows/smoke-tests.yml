@@ -7,7 +7,6 @@ on:
 env:
   CI: true
   GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
-  JRELEASER_OCI_COMPARTMENTID: ${{ secrets.JRELEASER_OCI_COMPARTMENTID }}
 
 permissions:
   contents: read
