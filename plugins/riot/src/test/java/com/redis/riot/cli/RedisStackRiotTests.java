@@ -1,5 +1,7 @@
 package com.redis.riot.cli;
 
+import org.junit.jupiter.api.Test;
+
 import com.redis.testcontainers.RedisServer;
 import com.redis.testcontainers.RedisStackContainer;
 
@@ -16,6 +18,11 @@ class RedisStackRiotTests extends AbstractRiotTests {
 	@Override
 	protected RedisServer getTargetRedisServer() {
 		return TARGET;
+	}
+
+	@Test
+	void replicateLiveMultiThreaded() throws Exception {
+		runLiveReplication("replicate-live-threads");
 	}
 
 }

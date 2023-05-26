@@ -105,7 +105,7 @@ public abstract class AbstractRiotTests extends AbstractTestBase {
 	public static final int BEER_CSV_COUNT = 2410;
 	public static final int BEER_JSON_COUNT = 216;
 	private static final Duration IDLE_TIMEOUT = Duration.ofSeconds(1);
-	private static final Duration COMPARE_TIMEOUT = Duration.ofSeconds(10);
+	private static final Duration COMPARE_TIMEOUT = Duration.ofSeconds(3);
 
 	private static Path tempDir;
 
@@ -763,16 +763,11 @@ public abstract class AbstractRiotTests extends AbstractTestBase {
 	}
 
 	@Test
-	void replicateLiveMultiThreaded() throws Exception {
-		runLiveReplication("replicate-live-threads");
-	}
-
-	@Test
 	void replicateLiveDataStructures() throws Exception {
 		runLiveReplication("replicate-ds-live");
 	}
 
-	private void runLiveReplication(String filename) throws Exception {
+	protected void runLiveReplication(String filename) throws Exception {
 		connection.sync().configSet("notify-keyspace-events", "AK");
 		generate(filename, 3000);
 		ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
