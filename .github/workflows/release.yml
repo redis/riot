@@ -38,7 +38,7 @@ jobs:
   jlink:
     name: Jlink
     needs: [precheck]
-    uses: jreleaser/jreleaser/.github/workflows/step-jlink.yml@main
+    uses: redis-developer/riot/.github/workflows/step-jlink.yml@main
     with:
       project-version: ${{ needs.precheck.outputs.version }}
     secrets:
@@ -48,7 +48,7 @@ jobs:
   jpackage:
     name: JPackage
     needs: [precheck, jlink]
-    uses: jreleaser/jreleaser/.github/workflows/step-jpackage.yml@main
+    uses: redis-developer/riot/.github/workflows/step-jpackage.yml@main
     with:
       project-version: ${{ needs.precheck.outputs.version }}
       project-effective-version: ${{ needs.precheck.outputs.version }}
@@ -56,7 +56,7 @@ jobs:
   native-image:
     name: Native Image
     needs: [precheck, jlink]
-    uses: jreleaser/jreleaser/.github/workflows/step-native-image.yml@main
+    uses: redis-developer/riot/.github/workflows/step-native-image.yml@main
     with:
       project-version: ${{ needs.precheck.outputs.version }}
     secrets:
@@ -178,7 +178,7 @@ jobs:
   update-wiki:
     name: Update Wiki
     needs: [precheck, release]
-    uses: jreleaser/jreleaser/.github/workflows/step-update-wiki.yml@main
+    uses: redis-developer/riot/.github/workflows/step-update-wiki.yml@main
     with:
       project-version: ${{ needs.precheck.outputs.version }}
       project-tag: ${{ needs.release.outputs.tagname }}
@@ -189,7 +189,7 @@ jobs:
   update-bach-info:
     name: Update Bach Info
     needs: [precheck, release]
-    uses: jreleaser/jreleaser/.github/workflows/step-update-bach-info.yml@main
+    uses: redis-developer/riot/.github/workflows/step-update-bach-info.yml@main
     with:
       project-version: ${{ needs.precheck.outputs.version }}
       project-tag: ${{ needs.release.outputs.tagname }}

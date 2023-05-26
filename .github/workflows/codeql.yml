@@ -15,7 +15,7 @@ permissions:
 jobs:
   precheck:
     name: Precheck
-    uses: jreleaser/jreleaser/.github/workflows/step-precheck.yml@main
+    uses: redis-developer/riot/.github/workflows/step-precheck.yml@main
     secrets: inherit
 
   codeql:

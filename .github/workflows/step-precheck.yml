@@ -13,7 +13,7 @@ permissions:
 jobs:
   precheck:
     name: Precheck
-    if: github.repository == 'jreleaser/jreleaser' && startsWith(github.event.head_commit.message, 'Releasing version') != true
+    if: github.repository == 'redis-developer/riot' && startsWith(github.event.head_commit.message, 'Releasing version') != true
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.vars.outputs.VERSION }}

@@ -12,14 +12,14 @@ permissions:
 jobs:
   precheck:
     name: Precheck
-    uses: jreleaser/jreleaser/.github/workflows/step-precheck.yml@main
+    uses: redis-developer/riot/.github/workflows/step-precheck.yml@main
     secrets: inherit
 
   jlink:
     name: Jlink
     needs: [precheck]
     if: endsWith(${{ needs.precheck.outputs.version }}, '-SNAPSHOT')
-    uses: jreleaser/jreleaser/.github/workflows/step-jlink.yml@main
+    uses: redis-developer/riot/.github/workflows/step-jlink.yml@main
     with:
       project-version: ${{ needs.precheck.outputs.version }}
     secrets:
@@ -29,7 +29,7 @@ jobs:
   jpackage:
     name: JPackage
     needs: [precheck, jlink]
-    uses: jreleaser/jreleaser/.github/workflows/step-jpackage.yml@main
+    uses: redis-developer/riot/.github/workflows/step-jpackage.yml@main
     with:
       project-version: ${{ needs.precheck.outputs.version }}
       project-effective-version: early-access
@@ -37,7 +37,7 @@ jobs:
   native-image:
     name: Native Image
     needs: [precheck, jlink]
-    uses: jreleaser/jreleaser/.github/workflows/step-native-image.yml@main
+    uses: redis-developer/riot/.github/workflows/step-native-image.yml@main
     with:
       project-version: ${{ needs.precheck.outputs.version }}
     secrets:
@@ -66,19 +66,19 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: jlink
-          path: out/jreleaser/assemble/jreleaser-standalone/jlink
+          path: out/jreleaser/assemble/riot-standalone/jlink
 
       - name: Download jpackage
         uses: actions/download-artifact@v3
         with:
           name: jpackage
-          path: out/jreleaser/assemble/jreleaser-installer/jpackage
+          path: out/jreleaser/assemble/riot-installer/jpackage
 
       - name: Download native-image
         uses: actions/download-artifact@v3
         with:
           name: native-image
-          path: out/jreleaser/assemble/jreleaser-native/native-image
+          path: out/jreleaser/assemble/riot-native/native-image
 
       - name: Release
         uses: jreleaser/release-action@v2
@@ -122,7 +122,7 @@ jobs:
   update-wiki:
     name: Update Wiki
     needs: [precheck, release]
-    uses: jreleaser/jreleaser/.github/workflows/step-update-wiki.yml@main
+    uses: redis-developer/riot/.github/workflows/step-update-wiki.yml@main
     with:
       project-version: ${{ needs.precheck.outputs.version }}
       project-tag: ${{ needs.release.outputs.tagname }}
@@ -132,7 +132,7 @@ jobs:
   update-bach-info:
     name: Update Bach Info
     needs: [precheck, release]
-    uses: jreleaser/jreleaser/.github/workflows/step-update-bach-info.yml@main
+    uses: redis-developer/riot/.github/workflows/step-update-bach-info.yml@main
     with:
       project-version: ${{ needs.precheck.outputs.version }}
       project-tag: ${{ needs.release.outputs.tagname }}
