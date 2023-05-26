@@ -53,15 +53,15 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: jreleaser-jlink
+          name: riot-jlink
           path: |
             out/jreleaser/trace.log
             out/jreleaser/output.properties
 
       - name: Dependencies
         run: |
-          ls -l plugins/jreleaser/build/dependencies/flat
-          ls -l plugins/jreleaser/build/dependencies/graalvm
+          ls -l plugins/riot/build/dependencies/flat
+          ls -l plugins/riot/build/dependencies/graalvm
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
@@ -69,11 +69,9 @@ jobs:
           retention-days: 1
           name: artifacts
           path: |
-            plugins/jreleaser/build/libs/
-            plugins/jreleaser/build/dependencies/
-            plugins/jreleaser/build/distributions/
-            plugins/jreleaser-tool-provider/build/libs/*.jar
-            plugins/jreleaser-ant-tasks/build/distributions/*.zip
+            plugins/riot/build/libs/
+            plugins/riot/build/dependencies/
+            plugins/riot/build/distributions/
 
       - name: Stop Gradle daemon
         shell: bash
@@ -85,4 +83,4 @@ jobs:
           retention-days: 1
           name: jlink
           path: |
-            out/jreleaser/assemble/jreleaser-standalone/jlink/*.zip
+            out/jreleaser/assemble/riot-standalone/jlink/*.zip

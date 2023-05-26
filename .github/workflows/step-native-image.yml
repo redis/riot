@@ -55,7 +55,7 @@ jobs:
 
       - name: Jdks
         shell: bash
-        run: ./gradlew :jreleaser:copyJdksFromCache :jreleaser:setupJdks
+        run: ./gradlew :riot:copyJdksFromCache :riot:setupJdks
 
       - name: Install upx
         run: brew install upx
@@ -74,7 +74,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: jreleaser-native-image-${{ runner.os }}
+          name: riot-native-image-${{ runner.os }}
           path: |
             out/jreleaser/trace.log
             out/jreleaser/output.properties
@@ -89,4 +89,4 @@ jobs:
           retention-days: 1
           name: native-image
           path: |
-            out/jreleaser/assemble/jreleaser-native/native-image/*.zip
+            out/jreleaser/assemble/riot-native/native-image/*.zip

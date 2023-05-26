@@ -26,10 +26,7 @@ jobs:
       - name: Rename artifacts
         run: |
           mkdir early-access
-          cp plugins/jreleaser-tool-provider/build/VERSION early-access/VERSION
-          cp plugins/jreleaser-tool-provider/build/libs/jreleaser-tool-provider-*-SNAPSHOT.jar early-access/jreleaser-tool-provider-early-access.jar
-          cp plugins/jreleaser/build/distributions/jreleaser-*-SNAPSHOT.zip early-access/jreleaser-early-access.zip
-          cp plugins/jreleaser-ant-tasks/build/distributions/jreleaser-ant-tasks-*-SNAPSHOT.zip early-access/jreleaser-ant-tasks-early-access.zip
+          cp plugins/riot/build/distributions/riot-*-SNAPSHOT.zip early-access/riot-early-access.zip
 
       - name: Release early-access artifacts
         uses: marvinpinto/action-automatic-releases@latest
@@ -37,6 +34,6 @@ jobs:
           automatic_release_tag: early-access
           repo_token: ${{ secrets.GIT_ACCESS_TOKEN }}
           prerelease: true
-          title: JReleaser Early-Access
+          title: RIOT Early-Access
           files: |
             early-access/*
