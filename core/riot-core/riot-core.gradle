@@ -23,7 +23,7 @@ config {
  
 dependencies {
     api group: 'com.redis', name: 'lettucemod', version: lettucemodVersion
-    api group: 'com.redis', name: 'spring-batch-redis', version: batchRedisVersion
+    api group: 'com.redis', name: 'spring-batch-redis', version: springBatchRedisVersion
     api group: 'net.datafaker', name: 'datafaker', version: datafakerVersion
     api 'org.springframework.batch:spring-batch-core'
     api 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
