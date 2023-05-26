@@ -57,8 +57,13 @@ config {
     }
 }
 
+configurations {
+    graalvm
+}
+
 dependencies {
     api project(':riot-core')
+    graalvm 'org.jreleaser:jreleaser-graalvm-sdk:1.6.0'
     api group: 'info.picocli', name: 'picocli', version: picocliVersion
     annotationProcessor group: 'info.picocli', name: 'picocli-codegen', version: picocliVersion
     api 'org.apache.commons:commons-pool2'
@@ -170,7 +175,12 @@ copyDependencies {
     configuration = 'runtimeClasspath'
 }
 
-assemble.dependsOn copyDependencies
+task copyGraalvmJavaSdk(type: Copy) {
+    from configurations.graalvm
+    into 'build/dependencies/graalvm'
+}
+
+assemble.dependsOn copyDependencies, copyGraalvmJavaSdk
 
 compileJava {
     options.release = 8
