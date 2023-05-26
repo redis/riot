@@ -27,7 +27,7 @@ import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
 
-@Command(name = "dump-import", description = "Import Redis data files into Redis")
+@Command(name = "dump-import", description = "Import Redis data files into Redis.")
 public class DumpImport extends AbstractCommand {
 
 	@Mixin

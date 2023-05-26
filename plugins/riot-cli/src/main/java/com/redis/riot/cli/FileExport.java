@@ -25,7 +25,7 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
 import picocli.CommandLine.Parameters;
 
-@Command(name = "file-export", description = "Export Redis data to JSON or XML files")
+@Command(name = "file-export", description = "Export Redis data to JSON or XML files.")
 public class FileExport extends AbstractExportCommand {
 
 	@Parameters(arity = "1", description = "File path or URL", paramLabel = "FILE")

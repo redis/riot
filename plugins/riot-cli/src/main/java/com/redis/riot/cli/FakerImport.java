@@ -26,7 +26,7 @@ import com.redis.riot.core.MapWithMetadataGenerator;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
 
-@Command(name = "faker", description = "Import from Faker")
+@Command(name = "faker", description = "Import from Faker.")
 public class FakerImport extends AbstractImportCommand {
 
 	private static final Logger log = Logger.getLogger(FakerImport.class.getName());

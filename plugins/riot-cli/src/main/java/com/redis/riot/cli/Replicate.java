@@ -63,7 +63,7 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
-@Command(name = "replicate", description = "Replicate a Redis DB into another Redis DB")
+@Command(name = "replicate", description = "Replicate a Redis database into another Redis database.")
 public class Replicate extends AbstractCommand {
 
 	private static final Logger log = Logger.getLogger(Replicate.class.getName());

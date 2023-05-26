@@ -51,7 +51,7 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
 import picocli.CommandLine.Option;
 
-@Command(name = "file-import", description = "Import from CSV/JSON/XML files")
+@Command(name = "file-import", description = "Import from CSV/JSON/XML files.")
 public class FileImport extends AbstractImportCommand {
 
 	private static final Logger log = Logger.getLogger(FileImport.class.getName());

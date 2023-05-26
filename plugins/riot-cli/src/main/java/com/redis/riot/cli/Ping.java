@@ -25,7 +25,7 @@ import io.lettuce.core.metrics.CommandMetrics;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
 
-@Command(name = "ping", description = "Test connection to a Redis database")
+@Command(name = "ping", description = "Test connectivity to a Redis database.")
 public class Ping extends AbstractCommand {
 
 	private static final PrintStream PRINT_STREAM = System.out;

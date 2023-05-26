@@ -22,7 +22,7 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
 import picocli.CommandLine.Parameters;
 
-@Command(name = "db-import", description = "Import from relational databases")
+@Command(name = "db-import", description = "Import from a relational database.")
 public class DbImport extends AbstractImportCommand {
 
 	private static final Logger log = Logger.getLogger(DbImport.class.getName());

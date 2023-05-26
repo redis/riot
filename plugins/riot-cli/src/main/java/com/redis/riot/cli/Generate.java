@@ -20,7 +20,7 @@ import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
 
-@Command(name = "generate", description = "Generate data structures")
+@Command(name = "generate", description = "Generate data structures.")
 public class Generate extends AbstractCommand {
 
 	private static final Logger log = Logger.getLogger(Generate.class.getName());

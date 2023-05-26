@@ -24,7 +24,7 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
 import picocli.CommandLine.Parameters;
 
-@Command(name = "db-export", description = "Export Redis data to a relational database")
+@Command(name = "db-export", description = "Export Redis data to a relational database.")
 public class DbExport extends AbstractExportCommand {
 
 	private static final String TASK_NAME = "Exporting to database";
