@@ -693,7 +693,7 @@ public abstract class AbstractRiotTests extends AbstractTestBase {
 	@Test
 	void generateTypes() throws Exception {
 		execute("generate");
-		Assertions.assertEquals(100, connection.sync().dbsize());
+		awaitUntil(() -> connection.sync().dbsize().equals(100L));
 	}
 
 	@Test
