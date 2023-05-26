@@ -54,13 +54,8 @@ config {
     }
 }
 
-configurations {
-    graalvm
-}
-
 dependencies {
     api project(':riot-core')
-    graalvm 'org.jreleaser:jreleaser-graalvm-sdk:1.6.0'
     api group: 'info.picocli', name: 'picocli', version: picocliVersion
     annotationProcessor group: 'info.picocli', name: 'picocli-codegen', version: picocliVersion
     api 'org.apache.commons:commons-pool2'
@@ -69,9 +64,9 @@ dependencies {
     runtimeOnly 'org.slf4j:slf4j-jdk14'
     implementation 'org.springframework.boot:spring-boot-autoconfigure'
     implementation 'org.springframework:spring-jdbc'
+    implementation 'org.springframework:spring-oxm'
     implementation 'com.mysql:mysql-connector-j'
     implementation 'org.postgresql:postgresql'
-    implementation 'org.springframework:spring-oxm'
     implementation group: 'com.ibm.db2', name: 'jcc', version: db2Version
     implementation group: 'com.microsoft.sqlserver', name: 'mssql-jdbc', version: mssqlVersion
     implementation group: 'com.oracle.ojdbc', name: 'ojdbc8', version: oracleVersion
@@ -144,26 +139,6 @@ jdks {
         url = 'https://cdn.azul.com/zulu/bin/zulu17.32.13-ca-jdk17.0.2-macosx_aarch64.zip'
         checksum = '8c287018d358ec2c43995bf09a0cdaa235f0bdd434673777a564daee2c3872df'
     }
-    graal17Osx {
-        platform = 'osx-x86_64'
-        url = 'https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-22.3.0/graalvm-ce-java17-darwin-amd64-22.3.0.tar.gz'
-        checksum = '422cd6abecfb8b40238460c09c42c5a018cb92fab4165de9691be2e3c3d0e8d1'
-    }
-    graal17Linux {
-        platform = 'linux-x86_64'
-        url = 'https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-22.3.0/graalvm-ce-java17-linux-amd64-22.3.0.tar.gz'
-        checksum = '3473d8b3b1bc682e95adfb3ac1d9a59b51b0f43e2b752f2a5b550e4ebfa2fd17'
-    }
-    //graal17LinuxArm {
-    //    platform = 'linux-aarch64'
-    //    url = 'https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-22.0.0.2/graalvm-ce-java17-linux-aarch64-22.0.0.2.tar.gz'
-    //    checksum = 'c7d78387d2a144944f26773697c1b61d3478a081a1c5e7fc20f47f1f5f3c82c7'
-    //}
-    graal17Windows {
-        platform = 'windows-x86_64'
-        url = 'https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-22.3.0/graalvm-ce-java17-windows-amd64-22.3.0.zip'
-        checksum = '5a6f1d640034166a0fefd9d8924c12b040f120cd019b46b40895ccc8e9a9fc9e'
-    }
 }
 
 copyDependencies {
@@ -172,9 +147,4 @@ copyDependencies {
     configuration = 'runtimeClasspath'
 }
 
-task copyGraalvmJavaSdk(type: Copy) {
-    from configurations.graalvm
-    into 'build/dependencies/graalvm'
-}
-
-assemble.dependsOn copyDependencies, copyGraalvmJavaSdk
+assemble.dependsOn copyDependencies
