@@ -80,6 +80,7 @@ jobs:
             plugins/riot/build/libs/
             plugins/riot/build/dependencies/
             plugins/riot/build/distributions/
+            plugins/LICENSE
 
       - name: Stop Gradle daemon
         shell: bash
