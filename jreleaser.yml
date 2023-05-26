@@ -1,0 +1,409 @@
+environment:
+  properties:
+    jdkPathPrefix: 'plugins/riot/build/jdks'
+    jdkFilePrefix: 'zulu17.32.13-ca-jdk17.0.2'
+    graalFilePrefix: 'graalvm-ce-java17-22.3.0'
+    nativeImageDir: out/riot/assemble/riot-native/native-image
+    jpackageDir: out/riot/assemble/riot-installer/jpackage
+
+project:
+  name: riot
+  description: Get data in and out of Redis with RIOT
+  longDescription: |
+    RIOT is a series of command-line utilities designed to help you get data in and out of Redis.
+
+    It supports many different sources and targets:
+     - Relational databases
+     - Files (CSV, JSON, XML)
+     - Data generators (Redis data structures, Faker)
+     - and Redis itself with live and/or snapshot replication.
+  links:
+    homepage: https://github.com/redis-developer/riot
+    documentation: https://developer.redis.com/riot
+  authors:
+    - Julien Ruaux
+  license: Apache-2.0
+  inceptionYear: 2020
+  stereotype: CLI
+  vendor: Redis
+  icons:
+    - url: https://raw.githubusercontent.com/redis-developer/riot/master/src/media/icon_256x256.png
+      width: 256
+      height: 256
+  java:
+    groupId: com.redis
+    version: 8
+    multiProject: true
+    mainClass: com.redis.riot.cli.Main
+  tags:
+    - 'riot'
+    - 'redis'
+    - 'input'
+    - 'output'
+    - 'tool'
+    - 'data'
+    - 'import'
+    - 'export'
+
+platform:
+  replacements:
+    aarch_64: aarch64
+
+release:
+  github:
+    overwrite: true
+    sign: true
+    issues:
+      enabled: true
+    changelog:
+      formatted: ALWAYS
+      preset: conventional-commits
+      contributors:
+        format: '- {{contributorName}}{{#contributorUsernameAsLink}} ({{.}}){{/contributorUsernameAsLink}}'
+      extraProperties:
+        categorizeScopes: true
+      labelers:
+        - label: 'i18n'
+          title: 'regex:^(?:i18n(?:\(.*\))?!?):\s.*'
+          order: 120
+        - label: 'dependencies'
+          title: 'regex:^(?:deps(?:\(.*\))?!?):\s.*'
+          order: 130
+        - label: 'allcontributors1'
+          title: 'regex:^docs: update .all-contributorsrc.*'
+          order: -1
+        - label: 'allcontributors2'
+          title: 'regex:^docs: update CONTRIBUTORS.md.*'
+          order: -2
+      categories:
+        - title: '🌐 Translation'
+          key: 'i18n'
+          order: 70
+          labels:
+            - 'i18n'
+        - title: '⚙️  Dependencies'
+          key: 'dependencies'
+          order: 80
+          labels:
+            - 'dependencies'
+        - title: 'allcontributors'
+          order: 59
+          labels:
+            - 'allcontributors1'
+            - 'allcontributors2'
+      hide:
+        categories:
+          - 'merge'
+          - 'allcontributors'
+        contributors:
+          - 'GitHub'
+          - 'allcontributors'
+          - 'dependabot'
+      replacers:
+        - search: 'i18n: '
+        - search: 'deps: '
+
+signing:
+  active: ALWAYS
+  armored: true
+
+catalog:
+  sbom:
+    syft:
+      active: ALWAYS
+      pack:
+        enabled: true
+
+deploy:
+  maven:
+    nexus2:
+      maven-central:
+        active: RELEASE
+        url: https://s01.oss.sonatype.org/service/local
+        closeRepository: true
+        releaseRepository: true
+        stagingRepositories:
+          - build/repos/local/release
+
+announce:
+  slack:
+    active: RELEASE
+    channel: '#field-engineering-announcements'
+    message: '🧨 RIOT {{projectVersion}} has been released! {{releaseNotesUrl}}'
+
+assemble:
+  jlink:
+    riot-standalone:
+      active: ALWAYS
+      java:
+        version: 11
+      imageName: '{{distributionName}}-{{projectEffectiveVersion}}'
+      executable: riot
+      fileSets:
+        - input: '.'
+          includes:
+            - LICENSE
+      jdeps:
+        multiRelease: base
+        ignoreMissingDeps: true
+        targets:
+          - 'plugins/riot/build/libs/riot-{{projectVersion}}.jar'
+      additionalModuleNames:
+        - 'java.security.sasl'
+        - 'java.security.jgss'
+        - 'jdk.crypto.cryptoki'
+        - 'jdk.crypto.ec'
+        - 'jdk.localedata'
+        - 'jdk.net'
+        - 'jdk.security.auth'
+        - 'jdk.security.jgss'
+      targetJdks:
+        - path: '{{jdkPathPrefix}}/zulu17Osx/{{jdkFilePrefix}}-macosx_x64/zulu-17.jdk/Contents/Home'
+          platform: 'osx-x86_64'
+        - path: '{{jdkPathPrefix}}/zulu17OsxArm/{{jdkFilePrefix}}-macosx_aarch64/zulu-17.jdk/Contents/Home'
+          platform: 'osx-aarch_64'
+        - path: '{{jdkPathPrefix}}/zulu17Linux/{{jdkFilePrefix}}-linux_x64'
+          platform: 'linux-x86_64'
+        - path: '{{jdkPathPrefix}}/zulu17LinuxArm/{{jdkFilePrefix}}-linux_aarch64'
+          platform: 'linux-aarch_64'
+        - path: '{{jdkPathPrefix}}/zulu17LinuxMusl/{{jdkFilePrefix}}-linux_musl_x64'
+          platform: 'linux_musl-x86_64'
+        - path: '{{jdkPathPrefix}}/zulu17LinuxMuslArm/{{jdkFilePrefix}}-linux_musl_aarch64'
+          platform: 'linux_musl-aarch_64'
+        - path: '{{jdkPathPrefix}}/zulu17Windows/{{jdkFilePrefix}}-win_x64'
+          platform: 'windows-x86_64'
+        - path: '{{jdkPathPrefix}}/zulu17WindowsArm/{{jdkFilePrefix}}-win_aarch64'
+          platform: 'windows-aarch_64'
+      mainJar:
+        path: 'plugins/riot/build/libs/riot-{{projectVersion}}.jar'
+      jars:
+        - pattern: 'plugins/riot/build/dependencies/flat/*.jar'
+
+  jpackage:
+    riot-installer:
+      active: ALWAYS
+      jlink: riot-standalone
+      attachPlatform: true
+      exported: false
+      applicationPackage:
+        appName: riot
+        appVersion: '{{projectVersionNumber}}'
+        vendor: Redis
+      osx:
+        types: [pkg]
+        appName: RIOT
+        packageName: RIOT
+        packageIdentifier: com.redis.riot.cli
+        icon: 'src/media/riot.icns'
+        resourceDir: 'src/jpackage/osx'
+      linux:
+        types: [deb,rpm]
+        maintainer: julien@redis.com
+        icon: 'src/media/icon_256x256.png'
+      windows:
+        types: [msi]
+        console: true
+        dirChooser: true
+        icon: 'src/media/riot.ico'
+        resourceDir: 'src/jpackage/windows'
+
+  nativeImage:
+    riot-native:
+      active: ALWAYS
+      java:
+        version: 17
+      imageName: '{{distributionName}}-{{projectEffectiveVersion}}'
+      executable: riot
+      fileSets:
+        - input: '.'
+          includes:
+            - LICENSE
+      mainJar:
+        path: 'plugins/riot/build/libs/riot-{{projectVersion}}.jar'
+      jars:
+        - pattern: 'plugins/riot/build/dependencies/flat/*.jar'
+        - pattern: 'plugins/riot/build/dependencies/graalvm/*.jar'
+      graalJdks:
+        - path: '{{jdkPathPrefix}}/graal17Osx/{{graalFilePrefix}}/Contents/Home'
+          platform: 'osx-x86_64'
+        - path: '{{jdkPathPrefix}}/graal17Linux/{{graalFilePrefix}}'
+          platform: 'linux-x86_64'
+      upx:
+        active: ALWAYS
+        version: '3.96'
+      args:
+        - '-Duser.language=en'
+        - '-H:IncludeLocales=en,ca,de,es,fr,hi,it,ja,nl,pt_BR,zh_TW,ru,ko'
+        - '-H:Optimize=2'
+        - '-H:+RemoveUnusedSymbols'
+
+distributions:
+  riot:
+    flatpak:
+      active: ALWAYS
+      continueOnError: true
+      componentId: com.redis.riot.cli
+      developerName: Redis
+      runtime: FREEDESKTOP
+      runtimeVersion: 21.08
+      finishArgs:
+        - --share=network
+        - --filesystem=host
+      categories:
+        - Developer Tools
+      skipReleases:
+        - '.*-RC.*'
+        - '.*-M.*'
+      repository:
+        active: RELEASE
+        owner: flathub
+        name: com.redis.riot.cli
+        branch: master
+        branchPush: '{{projectName}}-{{tagName}}'
+    chocolatey:
+      active: ALWAYS
+      remoteBuild: true
+      title: RIOT
+      iconUrl: 'https://raw.githubusercontent.com/redis-developer/riot/master/src/media/icon_128x128.png'
+      bucket:
+        active: RELEASE
+    jbang:
+      active: ALWAYS
+    macports:
+      active: ALWAYS
+      categories:
+        - devel
+        - java
+      maintainers:
+        - '@jruaux'
+      repository:
+        active: RELEASE
+        name: riot-macports
+    scoop:
+      active: ALWAYS
+      bucket:
+        active: RELEASE
+    sdkman:
+      active: RELEASE
+      continueOnError: true
+    snap:
+      active: ALWAYS
+      remoteBuild: true
+      base: core18
+      architectures:
+        - buildOn: [ amd64, arm64 ]
+      plugs:
+        - name: dot-config-files
+          attributes:
+            interface: personal-files
+          writes:
+            - $HOME/.riot
+      localPlugs:
+        - network
+        - home
+    spec:
+      active: ALWAYS
+      repository:
+        active: RELEASE
+        name: riot-copr
+    artifacts:
+      - path: plugins/{{distributionName}}/build/distributions/{{distributionName}}-{{projectVersion}}.zip
+        transform: '{{distributionName}}/{{distributionName}}-{{projectEffectiveVersion}}.zip'
+        extraProperties:
+          skipSpec: true
+      - path: plugins/{{distributionName}}/build/distributions/{{distributionName}}-{{projectVersion}}.tar
+        transform: '{{distributionName}}/{{distributionName}}-{{projectEffectiveVersion}}.tar'
+        extraProperties:
+          skipFlatpak: true
+
+  riot-standalone:
+    appImage:
+      active: ALWAYS
+      componentId: com.redis.riot.cli
+      developerName: Redis
+      categories:
+        - Development
+      repository:
+        active: RELEASE
+        name: riot-appimage
+        commitMessage: 'riot {{tagName}}'
+    brew:
+      active: ALWAYS
+      formulaName: riot
+      multiPlatform: true
+      tap:
+        active: RELEASE
+        commitMessage: 'riot {{tagName}}'
+    docker:
+      active: ALWAYS
+      repository:
+        active: ALWAYS
+        commitMessage: 'riot {{tagName}}'
+      registries:
+        - serverName: DEFAULT
+          username: jrdx
+      labels:
+        'org.opencontainers.image.title': 'riot'
+      postCommands:
+        - 'VOLUME /workspace'
+      specs:
+        slim:
+          imageNames:
+            - 'fieldengineering/riot-{{dockerSpecName}}:{{tagName}}'
+            - 'fieldengineering/riot-{{dockerSpecName}}:latest'
+          matchers:
+            platform: 'linux-x86_64'
+          preCommands:
+            - 'ARG DEBIAN_FRONTEND=noninteractive'
+            - 'ENV TZ=Europe/Zurich'
+            - 'RUN apt-get update && apt-get install -y unzip binutils fakeroot rpm'
+        alpine:
+          imageNames:
+            - 'fieldengineering/riot-{{dockerSpecName}}:{{tagName}}'
+            - 'fieldengineering/riot-{{dockerSpecName}}:latest'
+          matchers:
+            platform: 'linux_musl-x86_64'
+          preCommands:
+            - 'RUN apk add unzip binutils fakeroot rpm bash'
+
+  riot-installer:
+    type: NATIVE_PACKAGE
+    winget:
+      active: RELEASE
+      package:
+        name: riot
+      repository:
+        active: ALWAYS
+        name: riot-winget
+        commitMessage: 'riot {{tagName}}'
+    executable:
+      name: riot
+      windowsExtension: exe
+    artifacts:
+      - path: '{{jpackageDir}}/RIOT-{{projectVersionNumber}}-osx-x86_64.pkg'
+        transform: '{{distributionName}}/{{distributionName}}-{{projectEffectiveVersion}}-osx-x86_64.pkg'
+        platform: 'osx-x86_64'
+      - path: '{{jpackageDir}}/riot_{{projectVersionNumber}}-1_amd64.deb'
+        transform: '{{distributionName}}/{{distributionName}}_{{projectEffectiveVersion}}-1_amd64.deb'
+        platform: 'linux-x86_64'
+      - path: '{{jpackageDir}}/riot-{{projectVersionNumber}}-1.x86_64.rpm'
+        transform: '{{distributionName}}/{{distributionName}}-{{projectEffectiveVersion}}-1.x86_64.rpm'
+        platform: 'linux-x86_64'
+      - path: '{{jpackageDir}}/riot-{{projectVersionNumber}}-windows-x86_64.msi'
+        transform: '{{distributionName}}/{{distributionName}}-{{projectEffectiveVersion}}-windows-x86_64.msi'
+        platform: 'windows-x86_64'
+
+  riot-native:
+    artifacts:
+      - path: '{{nativeImageDir}}/{{distributionName}}-{{projectEffectiveVersion}}-osx-x86_64.zip'
+        platform: 'osx-x86_64'
+      - path: '{{nativeImageDir}}/{{distributionName}}-{{projectEffectiveVersion}}-linux-x86_64.zip'
+        platform: 'linux-x86_64'
+
+files:
+  artifacts:
+    - path: VERSION
+      extraProperties:
+        skipChecksum: true
+        skipSigning: true
+        skipSbom: true

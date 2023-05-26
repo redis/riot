@@ -1,0 +1,92 @@
+name: X-NativeImage
+
+on:
+  workflow_call:
+    inputs:
+      project-version:
+        required: true
+        type: string
+    secrets:
+      gh-access-token:
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  native-image:
+    name: '${{ matrix.os }}'
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macOS-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: main
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: artifacts
+          path: plugins
+
+      - name: Setup Graal
+        uses: graalvm/setup-graalvm@v1
+        with:
+          version: ${{ vars.GRAAL_VERSION }}
+          java-version: ${{ vars.GRAAL_JAVA_VERSION }}
+          components: 'native-image'
+          github-token: ${{ secrets.gh-access-token }}
+
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: ${{ vars.JAVA_VERSION }}
+          distribution: ${{ vars.JAVA_DISTRO }}
+          cache: gradle
+
+      - name: Version
+        if: endsWith(${{ inputs.project-version }}, '-SNAPSHOT') != true
+        run: |
+          echo ${{ inputs.project-version }} > VERSION
+
+      - name: Jdks
+        shell: bash
+        run: ./gradlew :jreleaser:copyJdksFromCache :jreleaser:setupJdks
+
+      - name: Install upx
+        run: brew install upx
+        if: ${{ runner.os == 'macOS' }}
+
+      - name: NativeImage
+        uses: jreleaser/release-action@v2
+        with:
+          version: early-access
+          arguments: assemble --assembler native-image --select-current-platform
+          setup-java: false
+        env:
+          JRELEASER_PROJECT_VERSION: ${{ inputs.project-version }}
+
+      - name: JReleaser output
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: jreleaser-native-image-${{ runner.os }}
+          path: |
+            out/jreleaser/trace.log
+            out/jreleaser/output.properties
+
+      - name: Stop Gradle daemon
+        shell: bash
+        run: ./gradlew -stop
+
+      - name: Upload native-image
+        uses: actions/upload-artifact@v3
+        with:
+          retention-days: 1
+          name: native-image
+          path: |
+            out/jreleaser/assemble/jreleaser-native/native-image/*.zip

@@ -1,0 +1,235 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version'
+        required: true
+
+permissions:
+  actions: write
+  id-token: write
+  contents: write
+
+jobs:
+  precheck:
+    name: Precheck
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.vars.outputs.VERSION }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Version
+        id: vars
+        shell: bash
+        run: |
+          echo "VERSION=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
+          echo ${{ github.event.inputs.version }} > VERSION
+          git add VERSION
+          sed -i -e "s/^\:project-version\:\ .*/:project-version: ${{ github.event.inputs.version }}/g" README.adoc
+          git config --global user.email "${{ secrets.COMMIT_EMAIL }}"
+          git config --global user.name "Andres Almiray"
+          git commit -a -m "Releasing version ${{ github.event.inputs.version }}"
+          git push origin main
+
+  jlink:
+    name: Jlink
+    needs: [precheck]
+    uses: jreleaser/jreleaser/.github/workflows/step-jlink.yml@main
+    with:
+      project-version: ${{ needs.precheck.outputs.version }}
+    secrets:
+      gpg-passphrase: ${{ secrets.GPG_PASSPHRASE }}
+      oci-compartment-id: ${{ secrets.JRELEASER_OCI_COMPARTMENTID }}
+
+  jpackage:
+    name: JPackage
+    needs: [precheck, jlink]
+    uses: jreleaser/jreleaser/.github/workflows/step-jpackage.yml@main
+    with:
+      project-version: ${{ needs.precheck.outputs.version }}
+      project-effective-version: ${{ needs.precheck.outputs.version }}
+
+  native-image:
+    name: Native Image
+    needs: [precheck, jlink]
+    uses: jreleaser/jreleaser/.github/workflows/step-native-image.yml@main
+    with:
+      project-version: ${{ needs.precheck.outputs.version }}
+    secrets:
+      gh-access-token: ${{ secrets.GIT_ACCESS_TOKEN }}
+
+  release:
+    name: Release
+    needs: [precheck, jlink, jpackage, native-image]
+    runs-on: ubuntu-latest
+    outputs:
+      hashes: ${{ steps.slsa.outputs.HASHES }}
+      tagname: ${{ steps.slsa.outputs.TAGNAME }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: artifacts
+          path: plugins
+
+      - name: Download jlink
+        uses: actions/download-artifact@v3
+        with:
+          name: jlink
+          path: out/jreleaser/assemble/jreleaser-standalone/jlink
+
+      - name: Download jpackage
+        uses: actions/download-artifact@v3
+        with:
+          name: jpackage
+          path: out/jreleaser/assemble/jreleaser-installer/jpackage
+
+      - name: Download native-image
+        uses: actions/download-artifact@v3
+        with:
+          name: native-image
+          path: out/jreleaser/assemble/jreleaser-native/native-image
+
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: ${{ vars.JAVA_VERSION }}
+          distribution: ${{ vars.JAVA_DISTRO }}
+          cache: gradle
+
+      - name: Deploy
+        env:
+          GRADLE_PUBLISH_KEY: ${{ secrets.GRADLE_PUBLISH_KEY }}
+          GRADLE_PUBLISH_SECRET: ${{ secrets.GRADLE_PUBLISH_SECRET }}
+        run: |
+          ./gradlew -Pprofile=sbom -PreproducibleBuild=true publishPlugins publish -S
+          ./gradlew cleanupStagedRepository
+
+      - name: Upload deploy artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          retention-days: 7
+          name: deploy
+          path: |
+            build/repos/local/release/
+
+      - name: Release
+        uses: jreleaser/release-action@v2
+        with:
+          version: early-access
+          arguments: full-release
+        env:
+          JRELEASER_PROJECT_VERSION: ${{ needs.precheck.outputs.version }}
+          JRELEASER_GITHUB_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
+          JRELEASER_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+          JRELEASER_GPG_PUBLIC_KEY: ${{ secrets.GPG_PUBLIC_KEY }}
+          JRELEASER_GPG_SECRET_KEY: ${{ secrets.GPG_SECRET_KEY }}
+          JRELEASER_DOCKER_DEFAULT_PASSWORD: ${{ secrets.JRELEASER_DOCKER_PASSWORD }}
+          JRELEASER_SDKMAN_CONSUMER_KEY: ${{ secrets.SDKMAN_CONSUMER_KEY }}
+          JRELEASER_SDKMAN_CONSUMER_TOKEN: ${{ secrets.SDKMAN_CONSUMER_TOKEN }}
+          JRELEASER_TWITTER_CONSUMER_KEY: ${{ secrets.TWITTER_CONSUMER_KEY }}
+          JRELEASER_TWITTER_CONSUMER_SECRET: ${{ secrets.TWITTER_CONSUMER_SECRET }}
+          JRELEASER_TWITTER_ACCESS_TOKEN: ${{ secrets.TWITTER_ACCESS_TOKEN }}
+          JRELEASER_TWITTER_ACCESS_TOKEN_SECRET: ${{ secrets.TWITTER_ACCESS_TOKEN_SECRET }}
+          JRELEASER_MASTODON_ACCESS_TOKEN: ${{ secrets.MASTODON_ACCESS_TOKEN }}
+          JRELEASER_NEXUS2_MAVEN_CENTRAL_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+          JRELEASER_NEXUS2_MAVEN_CENTRAL_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+          JRELEASER_HTTP_NOTICEABLE_PASSWORD: ${{ secrets.NOTICEABLE_APIKEY }}
+          JRELEASER_OPENCOLLECTIVE_TOKEN: ${{ secrets.OPENCOLLECTIVE_TOKEN }}
+          NOTICEABLE_AUTHOR_EMAIL: ${{ secrets.NOTICEABLE_AUTHOR_EMAIL }}
+          NOTICEABLE_PROJECTID: ${{ secrets.NOTICEABLE_PROJECTID }}
+
+      - name: JReleaser release output
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: jreleaser-release
+          path: |
+            out/jreleaser/trace.log
+            out/jreleaser/output.properties
+
+      - name: SLSA
+        shell: bash
+        id: slsa
+        run: |
+          echo "HASHES=$(cat out/jreleaser/checksums/checksums_sha256.txt | base64 -w0)" >> "$GITHUB_OUTPUT"
+          echo "TAGNAME=$(grep tagName out/jreleaser/output.properties | awk -F'=' '{print $2}')" >> "$GITHUB_OUTPUT"
+
+  provenance:
+    name: Provenance
+    needs: [precheck, release]
+    uses: slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v1.6.0
+    with:
+      base64-subjects: ${{ needs.release.outputs.hashes }}
+      upload-assets: true
+      upload-tag-name: ${{ needs.release.outputs.tagname }}
+      provenance-name: jreleaser-all-${{ needs.precheck.outputs.version }}.intoto.jsonl
+
+  update-wiki:
+    name: Update Wiki
+    needs: [precheck, release]
+    uses: jreleaser/jreleaser/.github/workflows/step-update-wiki.yml@main
+    with:
+      project-version: ${{ needs.precheck.outputs.version }}
+      project-tag: ${{ needs.release.outputs.tagname }}
+      template-params: '-PincludeSboms'
+    secrets:
+      gh-access-token: ${{ secrets.GIT_ACCESS_TOKEN }}
+
+  update-bach-info:
+    name: Update Bach Info
+    needs: [precheck, release]
+    uses: jreleaser/jreleaser/.github/workflows/step-update-bach-info.yml@main
+    with:
+      project-version: ${{ needs.precheck.outputs.version }}
+      project-tag: ${{ needs.release.outputs.tagname }}
+    secrets:
+      gh-access-token: ${{ secrets.GIT_ACCESS_TOKEN }}
+
+  update-website:
+    name: Update Website
+    needs: [precheck, release]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          repository: jreleaser/jreleaser.github.io
+          ref: main
+          fetch-depth: 0
+          token: ${{ secrets.GIT_ACCESS_TOKEN }}
+
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: ${{ vars.JAVA_VERSION }}
+          distribution: ${{ vars.JAVA_DISTRO }}
+
+      - name: Download assets
+        shell: bash
+        run: |
+          curl -sL https://raw.githubusercontent.com/jreleaser/jreleaser/main/.github/scripts/update-website.sh --output update-website.sh
+          curl -sL "https://github.com/jreleaser/jreleaser/releases/download/${TAG}/jreleaser-tool-provider-${VERSION}.jar" --output jreleaser-cli.jar
+        env:
+          TAG: ${{ needs.release.outputs.tagname }}
+          VERSION: ${{ needs.precheck.outputs.version }}
+
+      - name: Commit
+        shell: bash
+        env:
+          TAG: ${{ needs.release.outputs.tagname }}
+          VERSION: ${{ needs.precheck.outputs.version }}
+          GH_BOT_EMAIL: ${{ vars.GH_BOT_EMAIL }}
+        run: |
+          chmod +x update-website.sh
+          ./update-website.sh

@@ -20,6 +20,12 @@ plugins {
     id 'org.jreleaser.jdks'
 }
 
+eclipse {
+    project {
+        name = 'riot-cli'
+    }
+}
+
 application {
     applicationName = 'riot'
     mainClassName   = 'com.redis.riot.cli.Main'
