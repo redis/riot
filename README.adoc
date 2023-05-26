@@ -31,14 +31,15 @@ It supports many different sources and targets:
 
 == Documentation
 
-{name} documentation is available at https://developer.redis.com/riot
+{project-title} documentation is available at https://developer.redis.com/riot
 
 == Support
 
-{name} is supported by Redis, Inc. on a good faith effort basis.
+{project-title} is supported by Redis, Inc. on a good faith effort basis.
+
 To report bugs, request features, or receive assistance, please https://github.com/{project-owner}/{project-name}/issues[file an issue].
 
 == License
 
-{name} is licensed under the Apache 2.0 License.
+{project-title} is licensed under the Apache 2.0 License.
 Copyright (C) 2023 Redis, Inc.
