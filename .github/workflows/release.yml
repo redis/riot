@@ -44,17 +44,9 @@ jobs:
     secrets:
       gpg-passphrase: ${{ secrets.GPG_PASSPHRASE }}
 
-  jpackage:
-    name: JPackage
-    needs: [precheck, jlink]
-    uses: redis-developer/riot/.github/workflows/step-jpackage.yml@main
-    with:
-      project-version: ${{ needs.precheck.outputs.version }}
-      project-effective-version: ${{ needs.precheck.outputs.version }}
-
   release:
     name: Release
-    needs: [precheck, jlink, jpackage]
+    needs: [precheck, jlink]
     runs-on: ubuntu-latest
     outputs:
       hashes: ${{ steps.slsa.outputs.HASHES }}
@@ -77,12 +69,6 @@ jobs:
         with:
           name: jlink
           path: out/jreleaser/assemble/riot-standalone/jlink
-
-      - name: Download jpackage
-        uses: actions/download-artifact@v3
-        with:
-          name: jpackage
-          path: out/jreleaser/assemble/riot-installer/jpackage
 
       - name: Setup Java
         uses: actions/setup-java@v3
