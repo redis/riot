@@ -2,7 +2,6 @@ environment:
   properties:
     jdkPathPrefix: 'plugins/riot/build/jdks'
     jdkFilePrefix: 'zulu17.32.13-ca-jdk17.0.2'
-    jpackageDir: out/riot/assemble/riot-installer/jpackage
 
 project:
   name: riot
@@ -177,34 +176,6 @@ assemble:
       jars:
         - pattern: 'plugins/riot/build/dependencies/flat/*.jar'
 
-  jpackage:
-    riot-installer:
-      active: ALWAYS
-      jlink: riot-standalone
-      attachPlatform: true
-      exported: false
-      applicationPackage:
-        appName: riot
-        appVersion: '{{projectVersionNumber}}'
-        vendor: Redis
-      osx:
-        types: [pkg]
-        appName: RIOT
-        packageName: RIOT
-        packageIdentifier: com.redis.riot.cli
-        icon: 'src/media/riot.icns'
-        resourceDir: 'src/jpackage/osx'
-      linux:
-        types: [deb,rpm]
-        maintainer: julien@redis.com
-        icon: 'src/media/icon_256x256.png'
-      windows:
-        types: [msi]
-        console: true
-        dirChooser: true
-        icon: 'src/media/riot.ico'
-        resourceDir: 'src/jpackage/windows'
-
 distributions:
   riot:
     flatpak:
@@ -333,33 +304,6 @@ distributions:
             platform: 'linux_musl-x86_64'
           preCommands:
             - 'RUN apk add unzip binutils fakeroot rpm bash'
-
-  riot-installer:
-    type: NATIVE_PACKAGE
-    winget:
-      active: NEVER
-      package:
-        name: riot
-      repository:
-        active: ALWAYS
-        name: riot-winget
-        commitMessage: 'riot {{tagName}}'
-    executable:
-      name: riot
-      windowsExtension: exe
-    artifacts:
-      - path: '{{jpackageDir}}/RIOT-{{projectVersionNumber}}-osx-x86_64.pkg'
-        transform: '{{distributionName}}/{{distributionName}}-{{projectEffectiveVersion}}-osx-x86_64.pkg'
-        platform: 'osx-x86_64'
-      - path: '{{jpackageDir}}/riot_{{projectVersionNumber}}-1_amd64.deb'
-        transform: '{{distributionName}}/{{distributionName}}_{{projectEffectiveVersion}}-1_amd64.deb'
-        platform: 'linux-x86_64'
-      - path: '{{jpackageDir}}/riot-{{projectVersionNumber}}-1.x86_64.rpm'
-        transform: '{{distributionName}}/{{distributionName}}-{{projectEffectiveVersion}}-1.x86_64.rpm'
-        platform: 'linux-x86_64'
-      - path: '{{jpackageDir}}/riot-{{projectVersionNumber}}-windows-x86_64.msi'
-        transform: '{{distributionName}}/{{distributionName}}-{{projectEffectiveVersion}}-windows-x86_64.msi'
-        platform: 'windows-x86_64'
 
 files:
   artifacts:
