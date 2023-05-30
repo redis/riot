@@ -274,7 +274,7 @@ distributions:
         active: RELEASE
         commitMessage: 'riot {{tagName}}'
     docker:
-      active: NEVER
+      active: ALWAYS
       repository:
         active: ALWAYS
         commitMessage: 'riot {{tagName}}'
