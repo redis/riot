@@ -29,9 +29,6 @@ jobs:
     name: Release
     needs: [precheck, jlink]
     runs-on: ubuntu-latest
-    outputs:
-      hashes: ${{ steps.slsa.outputs.HASHES }}
-      tagname: ${{ steps.slsa.outputs.TAGNAME }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -71,10 +68,3 @@ jobs:
           path: |
             out/jreleaser/trace.log
             out/jreleaser/output.properties
-
-      - name: SLSA
-        shell: bash
-        id: slsa
-        run: |
-          echo "HASHES=$(cat out/jreleaser/checksums/checksums_sha256.txt | base64 -w0)" >> "$GITHUB_OUTPUT"
-          echo "TAGNAME=$(grep tagName out/jreleaser/output.properties | awk -F'=' '{print $2}')" >> "$GITHUB_OUTPUT"
