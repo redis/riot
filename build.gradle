@@ -17,7 +17,7 @@
  */
 config {
     info {
-        description = 'riot'
+        description = 'RIOT'
         inceptionYear = '2020'
         vendor = 'Redis'
         tags = ['redis', 'tool', 'import', 'export', 'replication']

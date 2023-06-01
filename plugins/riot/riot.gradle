@@ -77,9 +77,7 @@ dependencies {
         exclude group: 'javax.annotation', module: 'javax.annotation-api'
     }
     implementation group: 'org.latencyutils', name: 'LatencyUtils', version: latencyutilsVersion
-    testImplementation('org.springframework.boot:spring-boot-starter-test') {
-        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
-    }
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation group: 'org.awaitility', name: 'awaitility', version: awaitilityVersion
     testImplementation group: 'org.testcontainers', name: 'postgresql', version: testcontainersVersion
     testImplementation group: 'org.testcontainers', name: 'oracle-xe', version: testcontainersVersion
