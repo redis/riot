@@ -48,5 +48,8 @@ jobs:
           cache: gradle
 
       - name: Deploy
+        env:
+          GRGIT_USER: jruaux
+          GRGIT_PASS: ${{ secrets.GIT_ACCESS_TOKEN }}
         run: |
-          ./gradlew -Pprofile=release -PreproducibleBuild=true createGuide gitPublishPush -S
+          ./gradlew -Prelease=true -PreproducibleBuild=true gitPublishPush -S
