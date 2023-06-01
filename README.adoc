@@ -4,7 +4,6 @@
 :project-group:   com.redis
 :project-version: 3.0.0
 :project-title:   RIOT
-:site-url:        https://developer.redis.com/riot
 
 image::src/media/banner.png[RIOT]
 
@@ -23,17 +22,7 @@ It supports many different sources and targets:
 
 == Documentation
 
-|===
-
-|*RIOT-DB*    |Database import/export|link:{site-url}/riot-db/index.html[Documentation]    |
-
-|*RIOT-File*  |File import/export|link:{site-url}/riot-file/index.html[Documentation]  |
-
-|*RIOT-Gen*   |Data generator|link:{site-url}/riot-gen/index.html[Documentation]   |
-
-|*RIOT-Redis* |Redis -> Redis migration|link:{site-url}/riot-redis/index.html[Documentation] | link:{site-url}/riot-redis/cookbook.html[Cookbook]
-
-|===
+https://developer.redis.com/riot
 
 == Support
 
