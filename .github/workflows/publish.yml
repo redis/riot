@@ -1,4 +1,4 @@
-name: Release
+name: Publish
 
 on:
   workflow_dispatch:
@@ -22,8 +22,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-  release:
-    name: Release
+  publish:
+    name: Publish
     needs: [precheck, jlink]
     runs-on: ubuntu-latest
     steps:
