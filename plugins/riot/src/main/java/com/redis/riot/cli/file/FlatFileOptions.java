@@ -2,6 +2,7 @@ package com.redis.riot.cli.file;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,7 +18,7 @@ public class FlatFileOptions {
 	@Option(names = "--max", description = "Max number of lines to import.", paramLabel = "<count>")
 	private int maxItemCount;
 	@Option(names = "--fields", arity = "1..*", description = "Delimited/FW field names.", paramLabel = "<names>")
-	private List<String> names = new ArrayList<>();
+	private List<String> fields = new ArrayList<>();
 	@Option(names = { "-h", "--header" }, description = "Delimited/FW first line contains field names.")
 	private boolean header;
 	@Option(names = "--header-line", description = "Index of header line.", paramLabel = "<index>")
@@ -40,7 +41,7 @@ public class FlatFileOptions {
 
 	private FlatFileOptions(Builder builder) {
 		this.maxItemCount = builder.maxItemCount;
-		this.names = builder.names;
+		this.fields = builder.names;
 		this.header = builder.header;
 		this.headerLine = builder.headerLine;
 		this.delimiter = builder.delimiter;
@@ -59,12 +60,16 @@ public class FlatFileOptions {
 		this.maxItemCount = count;
 	}
 
-	public List<String> getNames() {
-		return names;
+	public Collection<String> getFields() {
+		return fields;
 	}
 
-	public void setNames(String... names) {
-		this.names = Arrays.asList(names);
+	public void setFields(Collection<String> names) {
+		this.fields = new ArrayList<>(names);
+	}
+
+	public void setFields(String... names) {
+		this.fields = Arrays.asList(names);
 	}
 
 	public boolean isHeader() {
@@ -215,7 +220,7 @@ public class FlatFileOptions {
 
 	@Override
 	public String toString() {
-		return "FlatFileOptions [names=" + names + ", max=" + maxItemCount + ", header=" + header + ", headerLine="
+		return "FlatFileOptions [names=" + fields + ", max=" + maxItemCount + ", header=" + header + ", headerLine="
 				+ headerLine + ", delimiter=" + delimiter + ", linesToSkip=" + linesToSkip + ", includedFields="
 				+ Arrays.toString(includedFields) + ", columnRanges=" + columnRanges + ", quoteCharacter="
 				+ quoteCharacter + ", continuationString=" + continuationString + "]";

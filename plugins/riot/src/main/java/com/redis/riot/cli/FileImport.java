@@ -192,8 +192,8 @@ public class FileImport extends AbstractImportCommand {
 	}
 
 	private FlatFileItemReader<Map<String, Object>> flatFileReader(Resource resource, AbstractLineTokenizer tokenizer) {
-		if (!ObjectUtils.isEmpty(flatFileOptions.getNames())) {
-			tokenizer.setNames(flatFileOptions.getNames().toArray(new String[0]));
+		if (!ObjectUtils.isEmpty(flatFileOptions.getFields())) {
+			tokenizer.setNames(flatFileOptions.getFields().toArray(new String[0]));
 		}
 		FlatFileItemReaderBuilder<Map<String, Object>> builder = new FlatFileItemReaderBuilder<>();
 		builder.resource(resource);

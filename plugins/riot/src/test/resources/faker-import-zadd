@@ -1,0 +1,1 @@
+riot faker-import ip="number.digits(4)" lease="number.digits(2)" time="number.digits(5)" zadd --keyspace leases --keys ip --members lease --score=time

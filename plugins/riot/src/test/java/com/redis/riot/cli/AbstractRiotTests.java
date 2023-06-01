@@ -60,7 +60,7 @@ import com.redis.lettucemod.timeseries.RangeResult;
 import com.redis.lettucemod.timeseries.Sample;
 import com.redis.lettucemod.timeseries.TimeRange;
 import com.redis.lettucemod.util.RedisModulesUtils;
-import com.redis.riot.cli.common.ReplicationOptions.ReplicationMode;
+import com.redis.riot.cli.common.ReplicateOptions.ReplicateMode;
 import com.redis.riot.cli.file.FileImportOptions;
 import com.redis.riot.cli.file.FlatFileOptions;
 import com.redis.riot.cli.operation.HsetCommand;
@@ -170,8 +170,8 @@ public abstract class AbstractRiotTests extends AbstractTestBase {
 				command.getTargetRedisOptions().setUri(RedisURI.create(getTargetRedisServer().getRedisURI()));
 				command.getTargetRedisOptions().setPort(0);
 				command.getTargetRedisOptions().setHost(Optional.empty());
-				ReplicationMode mode = command.getReplicateOptions().getMode();
-				if (mode == ReplicationMode.LIVE || mode == ReplicationMode.LIVEONLY) {
+				ReplicateMode mode = command.getReplicateOptions().getMode();
+				if (mode == ReplicateMode.LIVE || mode == ReplicateMode.LIVEONLY) {
 					command.getReplicateOptions().setIdleTimeout(IDLE_TIMEOUT.toMillis());
 					command.getReplicateOptions().setNotificationQueueCapacity(100000);
 				}

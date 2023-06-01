@@ -1,0 +1,1 @@
+riot faker-import name="gameOfThrones.character" --count 1000 sadd --keyspace got:characters --members name
