@@ -24,7 +24,7 @@ jobs:
 
   publish:
     name: Publish
-    needs: [precheck, jlink]
+    needs: [precheck]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
