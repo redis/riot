@@ -57,6 +57,7 @@ release:
       preset: conventional-commits
       contributors:
         format: '- {{contributorName}}{{#contributorUsernameAsLink}} ({{.}}){{/contributorUsernameAsLink}}'
+      contentTemplate: 'src/jreleaser/changelog.tpl'
       extraProperties:
         categorizeScopes: true
       labelers:
@@ -103,13 +104,6 @@ release:
 signing:
   active: ALWAYS
   armored: true
-
-catalog:
-  sbom:
-    syft:
-      active: NEVER
-      pack:
-        enabled: true
 
 deploy:
   maven:
@@ -178,55 +172,35 @@ assemble:
 
 distributions:
   riot:
-    flatpak:
-      active: NEVER
-      continueOnError: true
-      componentId: com.redis.riot.cli
-      developerName: Redis
-      runtime: FREEDESKTOP
-      runtimeVersion: 21.08
-      finishArgs:
-        - --share=network
-        - --filesystem=host
-      categories:
-        - Developer Tools
-      skipReleases:
-        - '.*-RC.*'
-        - '.*-M.*'
-      repository:
-        active: RELEASE
-        owner: flathub
-        name: com.redis.riot.cli
-        branch: main
-        branchPush: '{{projectName}}-{{tagName}}'
     chocolatey:
-      active: NEVER
+      active: ALWAYS
       remoteBuild: true
       title: RIOT
       iconUrl: 'https://raw.githubusercontent.com/redis-developer/riot/main/src/media/icon_128x128.png'
       bucket:
         active: RELEASE
     jbang:
-      active: NEVER
+      active: ALWAYS
+      alias: riot
+      catalog:
+        commitMessage: 'riot {{tagName}}'
     macports:
-      active: NEVER
+      active: ALWAYS
       categories:
-        - devel
-        - java
+        - redis
+        - tool
       maintainers:
         - '@jruaux'
       repository:
         active: RELEASE
         name: riot-macports
     scoop:
-      active: NEVER
+      active: ALWAYS
       bucket:
         active: RELEASE
-    sdkman:
-      active: NEVER
-      continueOnError: true
+        commitMessage: 'riot {{tagName}}'
     snap:
-      active: NEVER
+      active: RELEASE
       remoteBuild: true
       base: core18
       architectures:
@@ -240,11 +214,6 @@ distributions:
       localPlugs:
         - network
         - home
-    spec:
-      active: NEVER
-      repository:
-        active: RELEASE
-        name: riot-copr
     artifacts:
       - path: plugins/{{distributionName}}/build/distributions/{{distributionName}}-{{projectVersion}}.zip
         transform: '{{distributionName}}/{{distributionName}}-{{projectEffectiveVersion}}.zip'
