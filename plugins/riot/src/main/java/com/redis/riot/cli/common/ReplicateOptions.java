@@ -38,7 +38,7 @@ public class ReplicateOptions {
 	@Option(names = "--key-slot", description = "Key slot range filter for keyspace notifications.", paramLabel = "<range>")
 	private Optional<IntRange> keySlot = Optional.empty();
 
-	@Option(names = "--ttl-tolerance", description = "Max TTL difference to use for dataset verification (default: ${DEFAULT-VALUE}).", paramLabel = "<millis>")
+	@Option(names = "--ttl-tolerance", description = "Max TTL difference to use for dataset verification (default: ${DEFAULT-VALUE}).", paramLabel = "<ms>")
 	private long ttlTolerance = ComparatorBuilder.DEFAULT_TTL_TOLERANCE.toMillis();
 
 	@Option(names = "--show-diffs", description = "Print details of key mismatches during dataset verification.")
