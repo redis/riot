@@ -1,5 +1,5 @@
-:link_riot_doc:         link:https://developer.redis.com/riot[RIOT Documentation]
-:link_riot_release:     link:https://github.com/redis-developer/riot/releases/latest[RIOT latest release]
+:link_riot_doc:         link:https://developer.redis.com/riot[{project-title} Documentation]
+:link_riot_release:     link:https://github.com/redis-developer/riot/releases/latest[{project-title} latest release]
 :link_redis_pipeline:   link:https://redis.io/topics/pipelining[Redis Pipelining]
 :link_pipeline_tuning:  link:https://stackoverflow.com/a/32165090[Redis Pipeline Tuning]
 :link_redis_enterprise: link:https://redis.com/redis-enterprise-software/overview/[Redis Enterprise]

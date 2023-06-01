@@ -3,7 +3,7 @@
 
 The `db-import` command imports data from a relational database into Redis.
 
-NOTE: Ensure RIOT has the relevant JDBC driver for your database.
+NOTE: Ensure {project-title} has the relevant JDBC driver for your database.
 See the <<_database_drivers,Drivers>> section for more details.
 
 [source]

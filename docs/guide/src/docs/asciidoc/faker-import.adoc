@@ -1,4 +1,4 @@
-[[_faker]]
+[[_faker_import]]
 = Faker
 
 The `faker-import` command generates data using {link_datafaker}.

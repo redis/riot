@@ -1,7 +1,7 @@
 [[_dump_import]]
 = Dump Import
 
-RIOT can import Redis data structure files in JSON or XML formats. See <<_file_export, File Export>> section to generate such files.
+{project-title} can import Redis data structure files in JSON or XML formats. See <<_file_export, File Export>> section to generate such files.
 
 .Example
 [source]

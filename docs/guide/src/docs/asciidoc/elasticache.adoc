@@ -58,7 +58,7 @@ Use `redis-cli` to check connectivity with the Elasticache database:
 
 [source]
 ----
-redis-cli -h <elasticache primary endpoint> -p 6379
+redis-cli -h <ec primary endpoint> -p 6379
 ----
 
 Ensure that the above command allows you to connect to the remote Elasticache database successfully.
@@ -75,7 +75,6 @@ We are now all set to begin the migration process.
 The options you will use depend on your source and target databases, as well as the replication mode (snapshot or live).
 
 .EC Single Master -> RE
-
 [source]
 ----
 riot -h <source EC host> -p <source EC port> replicate -h <target RE host> -p <target RE port> --pass <RE password>
@@ -84,7 +83,7 @@ riot -h <source EC host> -p <source EC port> replicate -h <target RE host> -p <t
 .Live EC Single Master -> RE
 [source]
 ----
-riot -h <source EC host> -p <source EC port> replicate *[blue]#--mode live#* -h <target RE host> -p <target RE port> --pass <RE password>
+riot -h <source EC host> -p <source EC port> replicate --mode live -h <target RE host> -p <target RE port> --pass <RE password>
 ----
 
 [IMPORTANT]
@@ -92,7 +91,7 @@ riot -h <source EC host> -p <source EC port> replicate *[blue]#--mode live#* -h 
 In case ElastiCache is configured with https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/auth.html[AUTH TOKEN enabled], you need to pass `--tls` as well as `--pass` option:
 [source,console,subs="+quotes"]
 ----
-riot -h <source EC host> -p <source EC port> *[blue]#--tls --pass <token>#* replicate -h <target RE host> -p <target RE port> --pass <RE password>
+riot -h <source EC host> -p <source EC port> --tls --pass <token> replicate -h <target RE host> -p <target RE port> --pass <RE password>
 ----
 ====
 
@@ -100,7 +99,7 @@ riot -h <source EC host> -p <source EC port> *[blue]#--tls --pass <token>#* repl
 
 [source]
 ----
-riot -h <source EC host> -p <source EC port> *[blue]#--cluster#* replicate -h <target RE host> -p <target RE port> --pass <RE password>
+riot -h <source EC host> -p <source EC port> --cluster replicate -h <target RE host> -p <target RE port> --pass <RE password>
 ----
 
 NOTE: `--cluster` is an important parameter used ONLY for ElastiCache whenever cluster-mode is enabled.
@@ -110,20 +109,20 @@ Do note that the source database is specified first and the target database is s
 
 [source]
 ----
-riot -h <source EC host> -p <source EC port> *[blue]#--db <index>#* replicate -h <target RE host> -p <target RE port> --pass <RE password>
+riot -h <source EC host> -p <source EC port> --db <index> replicate -h <target RE host> -p <target RE port> --pass <RE password>
 ----
 
 .EC Single Master -> RE with OSS Cluster
 [source]
 ----
-riot -h <source EC host> -p <source EC port> replicate -h <target RE host> -p <target RE port> --pass <RE password> *[blue]#--cluster#*
+riot -h <source EC host> -p <source EC port> replicate -h <target RE host> -p <target RE port> --pass <RE password> --cluster
 ----
 
 .Live EC Cluster -> RE with OSS Cluster
 
 [source]
 ----
-riot -h <source EC host> -p <source EC port> *[blue]#--cluster#* replicate *[blue]#--mode live#* -h <target RE host> -p <target RE port> --pass <RE password> *[blue]#--cluster#*
+riot -h <source EC host> -p <source EC port> --cluster replicate --mode live -h <target RE host> -p <target RE port> --pass <RE password> --cluster
 ----
 
 == Important Considerations

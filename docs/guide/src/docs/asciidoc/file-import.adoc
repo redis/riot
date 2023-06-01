@@ -54,7 +54,7 @@ riot file-import my.json hset -h myredis.com -p 6380
 == Paths
 Paths can include https://man7.org/linux/man-pages/man7/glob.7.html[wildcard patterns].
 
-RIOT will try to determine the file type from its extension (e.g. `.csv` or `.json`), but you can specify it with the `--filetype` option.
+{project-title} will try to determine the file type from its extension (e.g. `.csv` or `.json`), but you can specify it with the `--filetype` option.
 
 Gzipped files are supported and the extension before `.gz` is used (e.g. `myfile.json.gz` -> JSON type).
 
@@ -153,7 +153,7 @@ include::{testdir}/file-import-json[]
 
 JSON records are trees with potentially nested values that need to be flattened when the target is a Redis hash for example.
 
-To that end, RIOT uses a field naming convention to flatten JSON objects and arrays:
+To that end, {project-title} uses a field naming convention to flatten JSON objects and arrays:
 
 .Nested object
 [cols="45%m,10%,45%m",frame="none",grid="none"]
@@ -174,7 +174,7 @@ To that end, RIOT uses a field naming convention to flatten JSON objects and arr
 [[_file_import_xml]]
 === XML
 
-Here is a sample XML file that can be imported by RIOT:
+Here is a sample XML file that can be imported by {project-title}:
 
 [source,xml]
 ----
