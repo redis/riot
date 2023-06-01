@@ -71,14 +71,14 @@ For AWS S3 buckets you can specify access and secret keys as well as the region 
 
 [source]
 ----
-riot import s3://my-bucket/path/file.json --s3-region us-west-1 --s3-access xxxxxx --s3-secret xxxxxx
+riot file-import s3://my-bucket/path/file.json --s3-region us-west-1 --s3-access xxxxxx --s3-secret xxxxxx
 ----
 
 For Google Cloud Storage you can specify credentials and project id for the bucket:
 
 [source]
 ----
-riot import gs://my-bucket/path/file.json --gcs-key-file key.json --gcs-project-id my-gcp-project
+riot file-import gs://my-bucket/path/file.json --gcs-key-file key.json --gcs-project-id my-gcp-project
 ----
 
 [[_file_import_formats]]
