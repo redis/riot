@@ -1,0 +1,15 @@
+[[_files]]
+= Files
+
+RIOT can import from and export to files in various formats:
+
+* Delimited (CSV, TSV, PSV)
+* Fixed-length (also known as fixed-width)
+* JSON
+* XML
+
+:leveloffset: 2
+include::{includedir}/file-import.adoc[]
+include::{includedir}/file-export.adoc[]
+include::{includedir}/dump-import.adoc[]
+:leveloffset: 1

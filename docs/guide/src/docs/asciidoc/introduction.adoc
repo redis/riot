@@ -1,0 +1,12 @@
+[[_introduction]]
+= Introduction
+
+RIOT is a series of command-line utilities designed to help you get data in and out of Redis.
+
+It supports many different sources and targets:
+
+* <<_files,Files>> (CSV, JSON, XML)
+* <<_generators,Data generators>> (Redis data structures, Faker)
+* <<_databases,Relational databases>>
+* <<_replicate,Redis itself>> (snapshot and live replication)
+

@@ -1,0 +1,9 @@
+[[_generators]]
+= Generators
+
+RIOT includes two data generators that can be used to quickly mock up a dataset in Redis.
+
+:leveloffset: 2
+include::{includedir}/faker-import.adoc[]
+include::{includedir}/generate.adoc[]
+:leveloffset: 1

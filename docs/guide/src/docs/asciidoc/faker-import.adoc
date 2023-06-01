@@ -1,0 +1,71 @@
+[[_faker]]
+= Faker
+
+The `faker-import` command generates data using {link_datafaker}.
+
+[source] 
+----
+riot -h <host> -p <port> faker-import SPEL... [REDIS COMMAND...]
+----
+
+where SPEL is a {link_spel} field in the form `field="expression"`.
+
+To show the full usage, run:
+
+[source]
+----
+riot faker-import --help
+----
+
+
+You must specify at least one Redis command as a target.
+
+The keys that will be written are constructed from input records by concatenating the keyspace prefix and key fields.
+
+[IMPORTANT]
+====
+Redis connection options apply to the root command (`riot`) and not to subcommands.
+
+In this example the redis options will not be taken into account:
+
+[source]
+----
+riot faker-import id="#index" hset -h myredis.com -p 6380
+----
+====
+
+.Hash example
+[source]
+----
+include::{testdir}/faker-import-hset[]
+----
+
+.Set example
+[source]
+----
+include::{testdir}/faker-import-sadd[]
+----
+
+Most providers don't take any arguments and can be called directly, for example:
+
+[source]
+----
+riot faker-import firstName="name.firstName"
+----
+
+Some providers take parameters, for example:
+[source]
+----
+riot faker-import lease="number.digits(2)"
+----
+
+Refer to {link_datafaker_doc} for complete documentation.
+
+.RediSearch
+
+You can infer Faker fields from a RediSearch index using the `--infer` option:
+
+[source]
+----
+include::{testdir}/faker-import-infer[]
+----

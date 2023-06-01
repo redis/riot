@@ -1,0 +1,16 @@
+[[_ping]]
+= Ping
+
+The `ping` command can be used to test connectivity to a Redis database.
+
+[source]
+----
+riot -h <host> -p <port> ping <options>
+----
+
+When the command is complete you will see statistics like these:
+
+[source]
+----
+[min=0, max=19, percentiles={50.0=1, 90.0=3, 95.0=6, 99.0=10, 99.9=17}]
+----

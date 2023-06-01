@@ -1,8 +1,3 @@
-plugins {
-    id 'org.kordamp.gradle.guide'
-    id 'org.ajoberstar.git-publish'
-}
-
 configurations {
     asciidoctorExtensions
 }
@@ -12,17 +7,19 @@ dependencies {
 }
 
 asciidoctor {
-    baseDirIsRootProjectDir()
     configurations 'asciidoctorExtensions'
     forkOptions {
       // Fix issue with JDK16+
       jvmArgs("--add-opens", "java.base/sun.nio.ch=ALL-UNNAMED", "--add-opens", "java.base/java.io=ALL-UNNAMED")
     }
-    sources {
-        include '*.adoc'
-    }
     attributes = [
         'source-highlighter': 'prettify',
-        'test-resources': 'plugins/riot/src/test/resources'
+        'testdir': '../../../../../plugins/riot/src/test/resources'
     ]
+}
+
+eclipse {
+    project {
+        name = 'riot-guide'
+    }
 }

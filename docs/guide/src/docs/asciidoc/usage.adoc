@@ -1,0 +1,119 @@
+[[_usage]]
+= Usage
+
+== Install
+
+RIOT can be installed in different ways depending on your environment and preference.
+
+[[_macos_install]]
+.Homebrew (macOS)
+
+[source]
+----
+brew install redis-developer/tap/riot
+----
+
+[[_windows_install]]
+.Scoop (Windows)
+
+[source]
+----
+scoop bucket add redis-developer https://github.com/redis-developer/scoop.git
+scoop install riot
+----
+
+[[_linux_install]]
+.Download and run (Linux)
+
+RIOT requires Java and the easiest option is to use the version packaged with Ubuntu.
+By default Ubuntu 18.04 includes Open JDK 11.
+
+To install this version, first update the package index:
+
+[source]
+----
+sudo apt update
+----
+
+Next, check if Java is already installed:
+
+[source]
+----
+java -version
+----
+ 
+If Java is not currently installed, you’ll see the following output:
+
+[source]
+----
+Command 'java' not found, but can be installed with:
+
+sudo apt install default-jre
+sudo apt install openjdk-11-jre-headless
+sudo apt install openjdk-8-jre-headless
+----
+
+Execute the following command to install the default Java Runtime Environment (JRE), which will install the JRE from OpenJDK 11:
+
+[source]
+----
+sudo apt install default-jre
+----
+ 
+Verify the installation with:
+
+[source]
+----
+java -version
+----
+ 
+You should see output similar to the following:
+
+[source]
+----
+openjdk version "11.0.11" 2021-04-20
+OpenJDK Runtime Environment (build 11.0.11+9-Ubuntu-0ubuntu2.18.04)
+OpenJDK 64-Bit Server VM (build 11.0.11+9-Ubuntu-0ubuntu2.18.04, mixed mode, sharing))
+----
+
+Download the {link_riot_release}, unzip, and copy to the desired location.
+
+Now launch the `bin/riot` script and follow the usage information provided.
+
+.Docker
+
+[source]
+----
+docker run fieldengineering/riot [OPTIONS] [COMMAND]
+----
+
+== Run
+
+You can launch RIOT with the following command:
+
+[source]
+----
+riot
+----
+
+This will show usage help, which you can also get by running:
+
+[source]
+----
+riot --help
+----
+
+Redis connection options are the same as `redis-cli`.
+
+For Redis URI syntax see {link_lettuce_uri}.
+
+[TIP]
+====
+You can use `--help` on any command and subcommand:
+
+[source]
+----
+riot command --help
+riot command subcommand --help
+----
+====

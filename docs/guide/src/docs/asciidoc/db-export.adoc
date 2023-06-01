@@ -1,0 +1,22 @@
+[[_db_export]]
+= Database Export
+
+Use the `db-export` command to read from a Redis database and writes to a SQL database.
+
+The general usage is:
+[source]
+----
+riot -h <redis host> -p <redis port> db-export --url <jdbc url> SQL
+----
+
+To show the full usage, run:
+[source]
+----
+riot db-export --help
+----
+
+.Export to PostgreSQL
+[source]
+----
+include::{testdir}/db-export-postgresql[]
+----
