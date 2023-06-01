@@ -47,6 +47,10 @@ projects {
         path(':') {
             id 'org.kordamp.gradle.java-project'
         }
+        path(':guide') {
+            id 'org.kordamp.gradle.guide'
+            id 'org.ajoberstar.git-publish'
+        }
         dirs(['core', 'plugins']) {
             id 'java-library'
             id 'org.springframework.boot'
