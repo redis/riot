@@ -2,7 +2,7 @@
 :project-owner:   redis-developer
 :project-name:    riot
 :project-group:   com.redis
-:project-version: 2.19.0
+:project-version: 3.0.0
 :project-title:   RIOT
 :site-url:        https://developer.redis.com/riot
 
