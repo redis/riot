@@ -32,8 +32,8 @@ import com.redis.riot.cli.common.RedisOptions;
 import com.redis.riot.cli.common.RedisReaderOptions;
 import com.redis.riot.cli.common.RedisWriterOptions;
 import com.redis.riot.cli.common.ReplicateCommandContext;
-import com.redis.riot.cli.common.ReplicateOptions;
-import com.redis.riot.cli.common.ReplicateOptions.ReplicateStrategy;
+import com.redis.riot.cli.common.ReplicationOptions;
+import com.redis.riot.cli.common.ReplicationOptions.ReplicationStrategy;
 import com.redis.riot.core.KeyComparisonLogger;
 import com.redis.riot.core.processor.CompositeItemStreamItemProcessor;
 import com.redis.riot.core.processor.KeyValueProcessor;
@@ -82,7 +82,7 @@ public class Replicate extends AbstractCommand {
 	private RedisWriterOptions writerOptions = new RedisWriterOptions();
 
 	@Mixin
-	private ReplicateOptions replicateOptions = new ReplicateOptions();
+	private ReplicationOptions replicateOptions = new ReplicationOptions();
 
 	public RedisOptions getTargetRedisOptions() {
 		return targetRedisOptions;
@@ -145,11 +145,11 @@ public class Replicate extends AbstractCommand {
 		}
 	}
 
-	public ReplicateOptions getReplicateOptions() {
+	public ReplicationOptions getReplicateOptions() {
 		return replicateOptions;
 	}
 
-	public void setReplicationOptions(ReplicateOptions replicationOptions) {
+	public void setReplicationOptions(ReplicationOptions replicationOptions) {
 		this.replicateOptions = replicationOptions;
 	}
 
@@ -286,7 +286,7 @@ public class Replicate extends AbstractCommand {
 	}
 
 	private boolean isDataStructure() {
-		return replicateOptions.getStrategy() == ReplicateStrategy.DS;
+		return replicateOptions.getStrategy() == ReplicationStrategy.DS;
 	}
 
 	private ItemProcessor<byte[], ?> processor(ReplicateCommandContext context) {

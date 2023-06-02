@@ -10,21 +10,21 @@ import com.redis.spring.batch.step.FlushingChunkProvider;
 
 import picocli.CommandLine.Option;
 
-public class ReplicateOptions {
+public class ReplicationOptions {
 
-	public enum ReplicateMode {
+	public enum ReplicationMode {
 		SNAPSHOT, LIVE, LIVEONLY, COMPARE
 	}
 
-	public enum ReplicateStrategy {
+	public enum ReplicationStrategy {
 		DUMP, DS
 	}
 
 	@Option(names = "--mode", description = "Replication mode: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<name>")
-	private ReplicateMode mode = ReplicateMode.SNAPSHOT;
+	private ReplicationMode mode = ReplicationMode.SNAPSHOT;
 
 	@Option(names = "--type", description = "Replication strategy: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<name>")
-	private ReplicateStrategy strategy = ReplicateStrategy.DUMP;
+	private ReplicationStrategy strategy = ReplicationStrategy.DUMP;
 
 	@Option(names = "--event-queue", description = "Capacity of the keyspace notification event queue (default: ${DEFAULT-VALUE}).", paramLabel = "<size>")
 	private int notificationQueueCapacity = QueueOptions.DEFAULT_CAPACITY;
@@ -66,19 +66,19 @@ public class ReplicateOptions {
 		this.idleTimeout = millis;
 	}
 
-	public ReplicateMode getMode() {
+	public ReplicationMode getMode() {
 		return mode;
 	}
 
-	public void setMode(ReplicateMode mode) {
+	public void setMode(ReplicationMode mode) {
 		this.mode = mode;
 	}
 
-	public ReplicateStrategy getStrategy() {
+	public ReplicationStrategy getStrategy() {
 		return strategy;
 	}
 
-	public void setStrategy(ReplicateStrategy strategy) {
+	public void setStrategy(ReplicationStrategy strategy) {
 		this.strategy = strategy;
 	}
 
