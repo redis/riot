@@ -5,7 +5,9 @@ Most Redis migration tools available today are offline in nature.
 Migrating data from AWS ElastiCache to Redis Enterprise Cloud for example means backing up your Elasticache data to an AWS S3 bucket and importing it into Redis Enterprise Cloud using its UI.
 
 Redis has a replication command called https://redis.io/commands/replicaof[REPLICAOF] but it is not always available (see https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/RestrictedCommands.html[ElastiCache restrictions]).
-Instead, {project-title} implements <<_architecture,client-side replication>> using *dump & restore* or *type-based read & write*. Both snapshot and live replications are supported.
+Instead, {project-title} implements <<_architecture,client-side replication>> using *dump & restore* or *type-based read & write*. Both snapshot and live replication modes are supported.
+
+WARNING: Please note that {project-title} is NEITHER recommended NOR officially supported by Redis, Inc.
 
 [[_replicate_usage]]
 == Usage
@@ -57,8 +59,7 @@ include::{testdir}/replicate-live[]
     <<_replicate_dump_and_restore,DUMP & RESTORE>>
 `--type ds`::
     <<_replicate_type_based,Type-based>>
-    
-TIP: Make sure the source database has keyspace notifications enabled using `notify-keyspace-events = KA` in `redis.conf` or via CONFIG SET.
+
 
 [[_replicate_reader_options]]
 === Reader options
@@ -147,6 +148,10 @@ Listening::
 
 In live replication mode {project-title} listens for changes happening on the source database using keyspace notifications.
 Each time a key is modified, {project-title} reads the corresponding value and propagates that change to the target database.
+
+Live replication relies on keyspace notifications. 
+**Make sure the source database has keyspace notifications enabled** using `notify-keyspace-events = KA` in `redis.conf` or via `CONFIG SET`.
+For more details see {link_redis_notif}.
 
 [WARNING]
 ====

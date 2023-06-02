@@ -8,9 +8,7 @@ The following scenarios are covered:
 * One-time (snapshot) migration
 * Online (live) migration
 
-WARNING: Please note that the tool used in this recipe ({project-title}) is NEITHER recommended NOR officially supported by Redis, Inc.
-
-IMPORTANT: It is recommended to read the {link_riot_doc} to familiarize yourself with its usage and architecture.
+IMPORTANT: It is recommended to read the <<_replicate,Replication>> section to familiarize yourself with its usage and architecture.
 
 == Setup
 
