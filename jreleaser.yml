@@ -109,7 +109,7 @@ deploy:
   maven:
     nexus2:
       maven-central:
-        active: RELEASE
+        active: NEVER
         url: https://s01.oss.sonatype.org/service/local
         closeRepository: true
         releaseRepository: true
