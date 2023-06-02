@@ -172,6 +172,13 @@ assemble:
 
 distributions:
   riot:
+    brew:
+      active: ALWAYS
+      formulaName: riot
+      multiPlatform: true
+      tap:
+        active: RELEASE
+        commitMessage: 'riot {{tagName}}'  
     chocolatey:
       active: ALWAYS
       remoteBuild: true
@@ -179,6 +186,25 @@ distributions:
       iconUrl: 'https://raw.githubusercontent.com/redis-developer/riot/main/src/media/icon_128x128.png'
       bucket:
         active: RELEASE
+    docker:
+      active: ALWAYS
+      repository:
+        active: ALWAYS
+        commitMessage: 'riot {{tagName}}'
+      registries:
+        - serverName: DEFAULT
+          username: jrdx
+          repositoryName: fieldengineering
+      labels:
+        'org.opencontainers.image.title': 'riot'
+      imageNames:
+        - 'fieldengineering/{{distributionName}}:{{tagName}}'
+        - 'fieldengineering/{{distributionName}}:latest'
+      buildx:
+        enabled: true
+        platforms:
+          - 'linux/amd64'
+          - 'linux/arm64'
     jbang:
       active: ALWAYS
       alias: riot
@@ -235,35 +261,6 @@ distributions:
         active: RELEASE
         name: riot-appimage
         commitMessage: 'riot {{tagName}}'
-    brew:
-      active: ALWAYS
-      formulaName: riot
-      multiPlatform: true
-      tap:
-        active: RELEASE
-        commitMessage: 'riot {{tagName}}'
-    docker:
-      active: ALWAYS
-      repository:
-        active: ALWAYS
-        commitMessage: 'riot {{tagName}}'
-      registries:
-        - serverName: DEFAULT
-          username: jrdx
-          repositoryName: fieldengineering
-      labels:
-        'org.opencontainers.image.title': 'riot'
-      postCommands:
-        - 'VOLUME /workspace'
-      specs:
-        alpine:
-          imageNames:
-            - 'fieldengineering/riot:{{tagName}}'
-            - 'fieldengineering/riot:latest'
-          matchers:
-            platform: 'linux_musl-x86_64'
-          preCommands:
-            - 'RUN apk add unzip binutils fakeroot rpm bash'
 
 files:
   artifacts:
