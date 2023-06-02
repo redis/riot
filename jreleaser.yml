@@ -29,7 +29,7 @@ project:
       height: 256
   java:
     groupId: com.redis
-    version: 8
+    version: 20
     multiProject: true
     mainClass: com.redis.riot.cli.Main
   tags:
@@ -109,7 +109,7 @@ deploy:
   maven:
     nexus2:
       maven-central:
-        active: NEVER
+        active: RELEASE
         url: https://s01.oss.sonatype.org/service/local
         closeRepository: true
         releaseRepository: true
