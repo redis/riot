@@ -92,7 +92,7 @@ $(addBlockSwitches);
 <h1>RIOT</h1>
 <div class="details">
 <span id="author" class="author">Julien Ruaux</span><br>
-<span id="revnumber">version 3.0.0</span>
+<span id="revnumber">version 3.0.1</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -100,7 +100,13 @@ $(addBlockSwitches);
 <li><a href="#_introduction">1. Introduction</a></li>
 <li><a href="#_usage">2. Usage</a>
 <ul class="sectlevel2">
-<li><a href="#_install">2.1. Install</a></li>
+<li><a href="#_install">2.1. Install</a>
+<ul class="sectlevel3">
+<li><a href="#_macos_install">2.1.1. Homebrew (macOS)</a></li>
+<li><a href="#_windows_install">2.1.2. Scoop (Windows)</a></li>
+<li><a href="#_linux_install">2.1.3. Download and run (Linux)</a></li>
+</ul>
+</li>
 <li><a href="#_run">2.2. Run</a></li>
 </ul>
 </li>
@@ -128,7 +134,11 @@ $(addBlockSwitches);
 </li>
 <li><a href="#_generators">5. Generators</a>
 <ul class="sectlevel2">
-<li><a href="#_faker">5.1. Faker</a></li>
+<li><a href="#_faker_import">5.1. Faker</a>
+<ul class="sectlevel3">
+<li><a href="#_redisearch">5.1.1. RediSearch</a></li>
+</ul>
+</li>
 <li><a href="#_generate">5.2. Data Structures</a></li>
 </ul>
 </li>
@@ -141,15 +151,32 @@ $(addBlockSwitches);
 </li>
 <li><a href="#_replicate">7. Replication</a>
 <ul class="sectlevel2">
-<li><a href="#_replicate_usage">7.1. Usage</a></li>
-<li><a href="#_replicate_options">7.2. Source/Target Options</a></li>
-<li><a href="#_replicate_mode">7.3. Replication Mode</a></li>
-<li><a href="#_replicate_performance_tuning">7.4. Performance Tuning</a></li>
-<li><a href="#_replicate_live">7.5. Live Replication</a></li>
-<li><a href="#_replicate_dump_and_restore">7.6. Dump &amp; Restore</a></li>
-<li><a href="#_replicate_type_based">7.7. Type-Based Replication</a></li>
-<li><a href="#_replicate_verification">7.8. Verification</a></li>
-<li><a href="#_replicate_progress">7.9. Progress</a></li>
+<li><a href="#_replicate_usage">7.1. Usage</a>
+<ul class="sectlevel3">
+<li><a href="#_replicate_options">7.1.1. Source/Target Options</a></li>
+<li><a href="#_replicate_mode">7.1.2. Replication Mode</a></li>
+<li><a href="#_replicate_type">7.1.3. Replication Type</a></li>
+<li><a href="#_replicate_reader_options">7.1.4. Reader options</a></li>
+<li><a href="#_replicate_performance_tuning">7.1.5. Performance Tuning</a></li>
+<li><a href="#_replicate_verification">7.1.6. Verification</a></li>
+<li><a href="#_replicate_progress">7.1.7. Progress</a></li>
+</ul>
+</li>
+<li><a href="#_replicate_architecture">7.2. Architecture</a>
+<ul class="sectlevel3">
+<li><a href="#_replicate_live">7.2.1. Live Replication</a></li>
+<li><a href="#_replicate_dump_and_restore">7.2.2. Dump &amp; Restore</a></li>
+<li><a href="#_replicate_type_based">7.2.3. Type-Based Replication</a></li>
+</ul>
+</li>
+<li><a href="#_elasticache_migration">7.3. Migrating from Elasticache</a>
+<ul class="sectlevel3">
+<li><a href="#_setup">7.3.1. Setup</a></li>
+<li><a href="#_performing_migration">7.3.2. Performing Migration</a></li>
+<li><a href="#_important_considerations">7.3.3. Important Considerations</a></li>
+<li><a href="#_troubleshooting">7.3.4. Troubleshooting</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a href="#_ping">8. Ping</a></li>
@@ -161,7 +188,7 @@ $(addBlockSwitches);
 <h2 id="_introduction"><a class="anchor" href="#_introduction"></a>1. Introduction</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>RIOT is a series of command-line utilities designed to help you get data in and out of Redis.</p>
+<p>Redis Input/Output Tools (RIOT) is a suite of command-line utilities designed to help you get data in and out of Redis.</p>
 </div>
 <div class="paragraph">
 <p>It supports many different sources and targets:</p>
@@ -192,21 +219,26 @@ $(addBlockSwitches);
 <div class="paragraph">
 <p>RIOT can be installed in different ways depending on your environment and preference.</p>
 </div>
-<div id="_macos_install" class="listingblock">
-<div class="title">Homebrew (macOS)</div>
+<div class="sect3">
+<h4 id="_macos_install"><a class="anchor" href="#_macos_install"></a>2.1.1. Homebrew (macOS)</h4>
+<div class="listingblock">
 <div class="content">
 <pre class="prettyprint highlight"><code>brew install redis-developer/tap/riot</code></pre>
 </div>
 </div>
-<div id="_windows_install" class="listingblock">
-<div class="title">Scoop (Windows)</div>
+</div>
+<div class="sect3">
+<h4 id="_windows_install"><a class="anchor" href="#_windows_install"></a>2.1.2. Scoop (Windows)</h4>
+<div class="listingblock">
 <div class="content">
 <pre class="prettyprint highlight"><code>scoop bucket add redis-developer https://github.com/redis-developer/scoop.git
 scoop install riot</code></pre>
 </div>
 </div>
-<div id="_linux_install" class="paragraph">
-<div class="title">Download and run (Linux)</div>
+</div>
+<div class="sect3">
+<h4 id="_linux_install"><a class="anchor" href="#_linux_install"></a>2.1.3. Download and run (Linux)</h4>
+<div class="paragraph">
 <p>RIOT requires Java and the easiest option is to use the version packaged with Ubuntu.
 By default Ubuntu 18.04 includes Open JDK 11.</p>
 </div>
@@ -274,6 +306,7 @@ OpenJDK 64-Bit Server VM (build 11.0.11+9-Ubuntu-0ubuntu2.18.04, mixed mode, sha
 <div class="title">Docker</div>
 <div class="content">
 <pre class="prettyprint highlight"><code>docker run fieldengineering/riot [OPTIONS] [COMMAND]</code></pre>
+</div>
 </div>
 </div>
 </div>
@@ -600,7 +633,7 @@ Use <code>-</code> to read from standard input.
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="prettyprint highlight"><code>riot import s3://my-bucket/path/file.json --s3-region us-west-1 --s3-access xxxxxx --s3-secret xxxxxx</code></pre>
+<pre class="prettyprint highlight"><code>riot file-import s3://my-bucket/path/file.json --s3-region us-west-1 --s3-access xxxxxx --s3-secret xxxxxx</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -608,7 +641,7 @@ Use <code>-</code> to read from standard input.
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="prettyprint highlight"><code>riot import gs://my-bucket/path/file.json --gcs-key-file key.json --gcs-project-id my-gcp-project</code></pre>
+<pre class="prettyprint highlight"><code>riot file-import gs://my-bucket/path/file.json --gcs-key-file key.json --gcs-project-id my-gcp-project</code></pre>
 </div>
 </div>
 </div>
@@ -933,7 +966,7 @@ This creates hashes with keys <code>beer:1436</code>, <code>beer:2265</code>, &#
 <p>RIOT includes two data generators that can be used to quickly mock up a dataset in Redis.</p>
 </div>
 <div class="sect2">
-<h3 id="_faker"><a class="anchor" href="#_faker"></a>5.1. Faker</h3>
+<h3 id="_faker_import"><a class="anchor" href="#_faker_import"></a>5.1. Faker</h3>
 <div class="paragraph">
 <p>The <code>faker-import</code> command generates data using <a href="http://www.datafaker.net">Datafaker</a>.</p>
 </div>
@@ -1012,13 +1045,15 @@ This creates hashes with keys <code>beer:1436</code>, <code>beer:2265</code>, &#
 <div class="paragraph">
 <p>Refer to <a href="http://www.datafaker.net/documentation/providers/#number-of-providers-per-datafaker-version">Datafaker Providers</a> for complete documentation.</p>
 </div>
+<div class="sect3">
+<h4 id="_redisearch"><a class="anchor" href="#_redisearch"></a>5.1.1. RediSearch</h4>
 <div class="paragraph">
-<div class="title">RediSearch</div>
 <p>You can infer Faker fields from a RediSearch index using the <code>--infer</code> option:</p>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre class="prettyprint highlight"><code>riot faker-import --infer beerIdx hset --keyspace beer --keys id</code></pre>
+</div>
 </div>
 </div>
 </div>
@@ -1125,7 +1160,7 @@ It includes JDBC drivers for the most common database systems:</p>
 </td>
 <td class="content">
 Ensure RIOT has the relevant JDBC driver for your database.
-See the <a href="#_jdbc_drivers">JDBC drivers</a> section for more details.
+See the <a href="#_database_drivers">Drivers</a> section for more details.
 </td>
 </tr>
 </table>
@@ -1245,7 +1280,19 @@ Migrating data from AWS ElastiCache to Redis Enterprise Cloud for example means 
 </div>
 <div class="paragraph">
 <p>Redis has a replication command called <a href="https://redis.io/commands/replicaof">REPLICAOF</a> but it is not always available (see <a href="https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/RestrictedCommands.html">ElastiCache restrictions</a>).
-Instead, RIOT implements <a href="#_architecture">client-side replication</a> using <strong>dump &amp; restore</strong> or <strong>type-based read &amp; write</strong>. Both snapshot and live replications are supported.</p>
+Instead, RIOT implements <a href="#_architecture">client-side replication</a> using <strong>dump &amp; restore</strong> or <strong>type-based read &amp; write</strong>. Both snapshot and live replication modes are supported.</p>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+Please note that RIOT is NEITHER recommended NOR officially supported by Redis, Inc.
+</td>
+</tr>
+</table>
 </div>
 <div class="sect2">
 <h3 id="_replicate_usage"><a class="anchor" href="#_replicate_usage"></a>7.1. Usage</h3>
@@ -1274,9 +1321,8 @@ Instead, RIOT implements <a href="#_architecture">client-side replication</a> us
 <pre class="prettyprint highlight"><code>riot -h source -p 6379 replicate -h target -p 6380 --mode live</code></pre>
 </div>
 </div>
-</div>
-<div class="sect2">
-<h3 id="_replicate_options"><a class="anchor" href="#_replicate_options"></a>7.2. Source/Target Options</h3>
+<div class="sect3">
+<h4 id="_replicate_options"><a class="anchor" href="#_replicate_options"></a>7.1.1. Source/Target Options</h4>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><code>-h &lt;host&gt;</code></dt>
@@ -1294,8 +1340,8 @@ Instead, RIOT implements <a href="#_architecture">client-side replication</a> us
 </dl>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_replicate_mode"><a class="anchor" href="#_replicate_mode"></a>7.3. Replication Mode</h3>
+<div class="sect3">
+<h4 id="_replicate_mode"><a class="anchor" href="#_replicate_mode"></a>7.1.2. Replication Mode</h4>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><code>--mode snapshot</code></dt>
@@ -1312,20 +1358,25 @@ Instead, RIOT implements <a href="#_architecture">client-side replication</a> us
 </dd>
 </dl>
 </div>
-<div class="admonitionblock tip">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-tip" title="Tip"></i>
-</td>
-<td class="content">
-Make sure the source database has keyspace notifications enabled using <code>notify-keyspace-events = KA</code> in <code>redis.conf</code> or via CONFIG SET.
-</td>
-</tr>
-</table>
 </div>
-<div id="_replicate_reader_options" class="dlist">
-<div class="title">Reader options</div>
+<div class="sect3">
+<h4 id="_replicate_type"><a class="anchor" href="#_replicate_type"></a>7.1.3. Replication Type</h4>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><code>--type dump</code></dt>
+<dd>
+<p><a href="#_replicate_dump_and_restore">DUMP &amp; RESTORE</a></p>
+</dd>
+<dt class="hdlist1"><code>--type ds</code></dt>
+<dd>
+<p><a href="#_replicate_type_based">Type-based</a></p>
+</dd>
+</dl>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_replicate_reader_options"><a class="anchor" href="#_replicate_reader_options"></a>7.1.4. Reader options</h4>
+<div class="dlist">
 <dl>
 <dt class="hdlist1"><code>--scan-count</code></dt>
 <dd>
@@ -1367,8 +1418,8 @@ Make sure the source database has keyspace notifications enabled using <code>not
 </dl>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_replicate_performance_tuning"><a class="anchor" href="#_replicate_performance_tuning"></a>7.4. Performance Tuning</h3>
+<div class="sect3">
+<h4 id="_replicate_performance_tuning"><a class="anchor" href="#_replicate_performance_tuning"></a>7.1.5. Performance Tuning</h4>
 <div class="paragraph">
 <p>Performance tuning is an art but RIOT offers some options to identify potential bottlenecks.
 In addition to the <a href="#_architecture_batch">batch</a> and <a href="#_architecture_threads">threads</a> options you have the <code>--dry-run</code> option which disables writing to the target Redis database so that you can tune the <a href="#_replicate_reader_options">reader</a> in isolation.
@@ -1380,11 +1431,91 @@ Add that option to your existing <code>replicate</code> command-line to compare 
 </div>
 </div>
 </div>
+<div class="sect3">
+<h4 id="_replicate_verification"><a class="anchor" href="#_replicate_verification"></a>7.1.6. Verification</h4>
+<div class="paragraph">
+<p>Once replication is complete RIOT will perform a verification step by iterating over keys in the source database and comparing values and TTLs between source and target databases.</p>
+</div>
+<div class="paragraph">
+<p>The verification step happens automatically after the scan is complete (snapshot replication), or for live replication when keyspace notifications have become idle (see <a href="#_replicate_usage">Usage</a> section).</p>
+</div>
+<div class="paragraph">
+<p>Verification can also be run on-demand using the <code>compare</code> mode:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code>riot &lt;source&gt; replicate --mode compare &lt;target&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The output looks like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>&gt;1,234 T2,345 ≠3,456 ⧗4,567 &lt;5,678</pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>&gt;</code>: # keys only present in source database</p>
+</li>
+<li>
+<p><code>T</code>: # mismatched data structure types</p>
+</li>
+<li>
+<p><code>≠</code>: # mismatched values</p>
+</li>
+<li>
+<p><code>⧗</code>: # keys with TTL delta greater than tolerance</p>
+</li>
+<li>
+<p><code>&lt;</code>: # keys only present in target database</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>To show which keys are different use the <code>--show-diffs</code> option:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code>riot &lt;source&gt; replicate &lt;target&gt; --show-diffs</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_replicate_progress"><a class="anchor" href="#_replicate_progress"></a>7.1.7. Progress</h4>
+<div class="paragraph">
+<p>Each process (scan iterator and/or event listener in case of live replication) has a corresponding status bar that shows the process name and its progress:</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">Scanning</dt>
+<dd>
+<p>Percentage of keys that have been replicated &#8658; replicated / total.
+The total number of keys is calculated when the process starts and it can change by the time it is finished (for example if keys are deleted or added during the replication).
+The progress bar is only a rough indicator.</p>
+</dd>
+<dt class="hdlist1">Listening</dt>
+<dd>
+<p>Progress is indefinite as total number of keys is unknown.</p>
+</dd>
+</dl>
+</div>
+</div>
+</div>
 <div class="sect2">
-<h3 id="_replicate_live"><a class="anchor" href="#_replicate_live"></a>7.5. Live Replication</h3>
+<h3 id="_replicate_architecture"><a class="anchor" href="#_replicate_architecture"></a>7.2. Architecture</h3>
+<div class="sect3">
+<h4 id="_replicate_live"><a class="anchor" href="#_replicate_live"></a>7.2.1. Live Replication</h4>
 <div class="paragraph">
 <p>In live replication mode RIOT listens for changes happening on the source database using keyspace notifications.
 Each time a key is modified, RIOT reads the corresponding value and propagates that change to the target database.</p>
+</div>
+<div class="paragraph">
+<p>Live replication relies on keyspace notifications.
+<strong>Make sure the source database has keyspace notifications enabled</strong> using <code>notify-keyspace-events = KA</code> in <code>redis.conf</code> or via <code>CONFIG SET</code>.
+For more details see <a href="https://redis.io/docs/manual/keyspace-notifications">Redis Keyspace Notifications</a>.</p>
 </div>
 <div class="admonitionblock warning">
 <table>
@@ -1410,8 +1541,8 @@ If you need assistance please contact your Redis account team.</p>
 </table>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_replicate_dump_and_restore"><a class="anchor" href="#_replicate_dump_and_restore"></a>7.6. Dump &amp; Restore</h3>
+<div class="sect3">
+<h4 id="_replicate_dump_and_restore"><a class="anchor" href="#_replicate_dump_and_restore"></a>7.2.2. Dump &amp; Restore</h4>
 <div class="paragraph">
 <p>The default replication mechanism in RIOT is DUMP &amp; RESTORE:</p>
 </div>
@@ -1435,8 +1566,8 @@ If live replication is enabled the reader also subscribes to keyspace notificati
 </ol>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_replicate_type_based"><a class="anchor" href="#_replicate_type_based"></a>7.7. Type-Based Replication</h3>
+<div class="sect3">
+<h4 id="_replicate_type_based"><a class="anchor" href="#_replicate_type_based"></a>7.2.3. Type-Based Replication</h4>
 <div class="paragraph">
 <p>RIOT includes another replication strategy called <strong>Type-Based Replication</strong> in case the target Redis database does not support the RESTORE command (for example <a href="https://redis.com/redis-enterprise/technology/active-active-geo-distribution/">Redis Enterprise CRDB</a>).
 With this strategy each type of Redis data structure has a corresponding pair of read/write commands:</p>
@@ -1510,64 +1641,247 @@ Adjust number of threads, batch, and queue sizes accordingly.
 </table>
 </div>
 </div>
+</div>
 <div class="sect2">
-<h3 id="_replicate_verification"><a class="anchor" href="#_replicate_verification"></a>7.8. Verification</h3>
+<h3 id="_elasticache_migration"><a class="anchor" href="#_elasticache_migration"></a>7.3. Migrating from Elasticache</h3>
 <div class="paragraph">
-<p>Once replication is complete RIOT will perform a verification step by iterating over keys in the source database and comparing values and TTLs between source and target databases.</p>
-</div>
-<div class="paragraph">
-<p>The verification step happens automatically after the scan is complete (snapshot replication), or for live replication when keyspace notifications have become idle (see <a href="#_replicate_usage">Usage</a> section).</p>
+<p>This recipe contains step-by-step instructions to migrate an Elasticache (EC) database to <a href="https://redis.com/redis-enterprise-software/overview/">Redis Enterprise</a> (RE).</p>
 </div>
 <div class="paragraph">
-<p>Verification can also be run on-demand using the <code>compare</code> mode:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="prettyprint highlight"><code>riot &lt;source&gt; replicate --mode compare &lt;target&gt;</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>The output looks like this:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre>&gt;1,234 T2,345 ≠3,456 ⧗4,567 &lt;5,678</pre>
-</div>
+<p>The following scenarios are covered:</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p><code>&gt;</code>: # keys only present in source database</p>
+<p>One-time (snapshot) migration</p>
 </li>
 <li>
-<p><code>T</code>: # mismatched data structure types</p>
-</li>
-<li>
-<p><code>≠</code>: # mismatched values</p>
-</li>
-<li>
-<p><code>⧗</code>: # keys with TTL delta greater than tolerance</p>
-</li>
-<li>
-<p><code>&lt;</code>: # keys only present in target database</p>
+<p>Online (live) migration</p>
 </li>
 </ul>
 </div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+It is recommended to read the <a href="#_replicate">Replication</a> section to familiarize yourself with its usage and architecture.
+</td>
+</tr>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_setup"><a class="anchor" href="#_setup"></a>7.3.1. Setup</h4>
+<div class="sect4">
+<h5 id="_prerequisites"><a class="anchor" href="#_prerequisites"></a>Prerequisites</h5>
 <div class="paragraph">
-<p>To show which keys are different use the <code>--show-diffs</code> option:</p>
+<p>For this recipe you will require the following resources:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>AWS ElastiCache: <em>Primary Endpoint</em> in case of Single Master and <em>Configuration Endpoint</em> in case of Clustered EC.</p>
+<div class="paragraph">
+<p>Refer to <a href="https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/Endpoints.html">this link</a> to learn more</p>
+</div>
+</li>
+<li>
+<p>Redis Enterprise: hosted on Cloud or On-Prem</p>
+</li>
+<li>
+<p>An Amazon EC2 instance</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="title">Keyspace Notifications</div>
+<div class="paragraph">
+<p>For a live migration you need to enable keyspace notifications on your Elasticache instance (see <a href="https://aws.amazon.com/premiumsupport/knowledge-center/elasticache-redis-keyspace-notifications">AWS Knowledge Center</a>).</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_migration_host"><a class="anchor" href="#_migration_host"></a>Migration Host</h5>
+<div class="paragraph">
+<p>To run the migration tool we will need an EC2 instance.</p>
+</div>
+<div class="paragraph">
+<p>You can either create a new EC2 instance or leverage an existing one if available.
+In the example below we first create an instance on AWS Cloud Platform.
+The most common scenario is to access an ElastiCache cluster from an Amazon EC2 instance in the same Amazon Virtual Private Cloud (Amazon VPC).
+We have used Ubuntu 16.04 LTS for this setup but you can choose any Ubuntu or Debian distribution of your choice.</p>
+</div>
+<div class="paragraph">
+<p>SSH to this EC2 instance from your laptop:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="prettyprint highlight"><code>riot &lt;source&gt; replicate &lt;target&gt; --show-diffs</code></pre>
+<pre class="prettyprint highlight"><code>ssh -i “public key” &lt;AWS EC2 Instance&gt;</code></pre>
 </div>
 </div>
-</div>
-<div class="sect2">
-<h3 id="_replicate_progress"><a class="anchor" href="#_replicate_progress"></a>7.9. Progress</h3>
 <div class="paragraph">
-<p>Each process (scan, and event listener in case of live replication) has a corresponding status bar that shows the process name and its progress:
-* Scanning: percentage of keys that have been replicated &#8658; replicated / total. The total number of keys is calculated when the process starts and it can change by the time it is finished (for example in case keys are deleted or added during the replication), so the progress bar is only a rough indicator.
-* Listening: progress is indefinite as total number of keys is unknown</p>
+<p>Install <code>redis-cli</code> on this new instance by running this command:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code>sudo apt update
+sudo apt install -y redis-tools</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Use <code>redis-cli</code> to check connectivity with the Elasticache database:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code>redis-cli -h &lt;ec primary endpoint&gt; -p 6379</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Ensure that the above command allows you to connect to the remote Elasticache database successfully.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_installing_riot"><a class="anchor" href="#_installing_riot"></a>Installing RIOT</h5>
+<div class="paragraph">
+<p>Let&#8217;s install RIOT on the EC2 instance we set up previously.
+For this we&#8217;ll follow the steps for <a href="#_linux_install">installing on Linux</a>.</p>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_performing_migration"><a class="anchor" href="#_performing_migration"></a>7.3.2. Performing Migration</h4>
+<div class="paragraph">
+<p>We are now all set to begin the migration process.
+The options you will use depend on your source and target databases, as well as the replication mode (snapshot or live).</p>
+</div>
+<div class="sect4">
+<h5 id="_ec_single_master_re"><a class="anchor" href="#_ec_single_master_re"></a>EC Single Master &#8594; RE</h5>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code>riot -h &lt;source EC host&gt; -p &lt;source EC port&gt; replicate -h &lt;target RE host&gt; -p &lt;target RE port&gt; --pass &lt;RE password&gt;</code></pre>
+</div>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_live_ec_single_master_re"><a class="anchor" href="#_live_ec_single_master_re"></a>Live EC Single Master &#8594; RE</h5>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code>riot -h &lt;source EC host&gt; -p &lt;source EC port&gt; replicate --mode live -h &lt;target RE host&gt; -p &lt;target RE port&gt; --pass &lt;RE password&gt;</code></pre>
+</div>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>In case ElastiCache is configured with <a href="https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/auth.html">AUTH TOKEN enabled</a>, you need to pass <code>--tls</code> as well as <code>--pass</code> option:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code data-lang="console">riot -h &lt;source EC host&gt; -p &lt;source EC port&gt; --tls --pass &lt;token&gt; replicate -h &lt;target RE host&gt; -p &lt;target RE port&gt; --pass &lt;RE password&gt;</code></pre>
+</div>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_ec_cluster_re"><a class="anchor" href="#_ec_cluster_re"></a>EC Cluster &#8594; RE</h5>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code>riot -h &lt;source EC host&gt; -p &lt;source EC port&gt; --cluster replicate -h &lt;target RE host&gt; -p &lt;target RE port&gt; --pass &lt;RE password&gt;</code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<code>--cluster</code> is an important parameter used ONLY for ElastiCache whenever cluster-mode is enabled.
+Do note that the source database is specified first and the target database is specified after the replicate command and it is applicable for all the scenarios.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_ec_single_master_re_with_specific_db_index"><a class="anchor" href="#_ec_single_master_re_with_specific_db_index"></a>EC Single Master &#8594; RE (with specific db index)</h5>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code>riot -h &lt;source EC host&gt; -p &lt;source EC port&gt; --db &lt;index&gt; replicate -h &lt;target RE host&gt; -p &lt;target RE port&gt; --pass &lt;RE password&gt;</code></pre>
+</div>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_ec_single_master_re_with_oss_cluster"><a class="anchor" href="#_ec_single_master_re_with_oss_cluster"></a>EC Single Master &#8594; RE with OSS Cluster</h5>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code>riot -h &lt;source EC host&gt; -p &lt;source EC port&gt; replicate -h &lt;target RE host&gt; -p &lt;target RE port&gt; --pass &lt;RE password&gt; --cluster</code></pre>
+</div>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_live_ec_cluster_re_with_oss_cluster"><a class="anchor" href="#_live_ec_cluster_re_with_oss_cluster"></a>Live EC Cluster &#8594; RE with OSS Cluster</h5>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code>riot -h &lt;source EC host&gt; -p &lt;source EC port&gt; --cluster replicate --mode live -h &lt;target RE host&gt; -p &lt;target RE port&gt; --pass &lt;RE password&gt; --cluster</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_important_considerations"><a class="anchor" href="#_important_considerations"></a>7.3.3. Important Considerations</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>As stated earlier, this tool is not officially supported by Redis Inc.</p>
+</li>
+<li>
+<p>It is recommended to test migration in UAT before production use.</p>
+</li>
+<li>
+<p>Once migration is completed, ensure that application traffic gets redirected to Redis Enterprise Endpoint successfully.</p>
+</li>
+<li>
+<p>It is recommended to perform the migration process during low traffic so as to avoid chances of data loss.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_troubleshooting"><a class="anchor" href="#_troubleshooting"></a>7.3.4. Troubleshooting</h4>
+<div class="sect4">
+<h5 id="_authentication_required"><a class="anchor" href="#_authentication_required"></a>Authentication Required</h5>
+<div class="paragraph">
+<p>You might face this error message while running the migration tool:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code>Could not write record: NOAUTH
+Authentication required</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This issue occurs when you fail to supply the <code>--pass &lt;password&gt;</code> parameter while running the <code>riot replicate</code> command.</p>
+</div>
+</div>
 </div>
 </div>
 </div>
@@ -1596,8 +1910,8 @@ Adjust number of threads, batch, and queue sizes accordingly.
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 3.0.0<br>
-Last updated 2023-05-31 19:04:36 -0700
+Version 3.0.1<br>
+Last updated 2023-06-02 05:41:11 UTC
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css">
