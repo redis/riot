@@ -12,7 +12,7 @@ IMPORTANT: It is recommended to read the <<_replicate,Replication>> section to f
 
 == Setup
 
-.Prerequisites
+=== Prerequisites
 
 For this recipe you will require the following resources:
  
@@ -28,7 +28,7 @@ Refer to https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/Endpoints.h
 For a live migration you need to enable keyspace notifications on your Elasticache instance (see {link_ec_notifications}).
 ====
 
-.Migration Host
+=== Migration Host
 
 To run the migration tool we will need an EC2 instance.
 
@@ -62,7 +62,7 @@ redis-cli -h <ec primary endpoint> -p 6379
 Ensure that the above command allows you to connect to the remote Elasticache database successfully.
 
 
-.Installing {project-title}
+=== Installing {project-title}
 
 Let's install {project-title} on the EC2 instance we set up previously.
 For this we'll follow the steps for <<_linux_install,installing on Linux>>.
@@ -72,13 +72,13 @@ For this we'll follow the steps for <<_linux_install,installing on Linux>>.
 We are now all set to begin the migration process.
 The options you will use depend on your source and target databases, as well as the replication mode (snapshot or live).
 
-.EC Single Master -> RE
+=== EC Single Master -> RE
 [source]
 ----
 riot -h <source EC host> -p <source EC port> replicate -h <target RE host> -p <target RE port> --pass <RE password>
 ----
 
-.Live EC Single Master -> RE
+=== Live EC Single Master -> RE
 [source]
 ----
 riot -h <source EC host> -p <source EC port> replicate --mode live -h <target RE host> -p <target RE port> --pass <RE password>
@@ -93,7 +93,7 @@ riot -h <source EC host> -p <source EC port> --tls --pass <token> replicate -h <
 ----
 ====
 
-.EC Cluster -> RE
+=== EC Cluster -> RE
 
 [source]
 ----
@@ -103,20 +103,20 @@ riot -h <source EC host> -p <source EC port> --cluster replicate -h <target RE h
 NOTE: `--cluster` is an important parameter used ONLY for ElastiCache whenever cluster-mode is enabled.
 Do note that the source database is specified first and the target database is specified after the replicate command and it is applicable for all the scenarios.
 
-.EC Single Master -> RE (with specific DB namespace)
+=== EC Single Master -> RE (with specific db index)
 
 [source]
 ----
 riot -h <source EC host> -p <source EC port> --db <index> replicate -h <target RE host> -p <target RE port> --pass <RE password>
 ----
 
-.EC Single Master -> RE with OSS Cluster
+=== EC Single Master -> RE with OSS Cluster
 [source]
 ----
 riot -h <source EC host> -p <source EC port> replicate -h <target RE host> -p <target RE port> --pass <RE password> --cluster
 ----
 
-.Live EC Cluster -> RE with OSS Cluster
+=== Live EC Cluster -> RE with OSS Cluster
 
 [source]
 ----
@@ -132,7 +132,7 @@ riot -h <source EC host> -p <source EC port> --cluster replicate --mode live -h 
 
 == Troubleshooting
 
-.Authentication Required
+=== Authentication Required
 You might face this error message while running the migration tool:
 
 [source]

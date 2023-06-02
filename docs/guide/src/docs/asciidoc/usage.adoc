@@ -6,7 +6,7 @@
 {project-title} can be installed in different ways depending on your environment and preference.
 
 [[_macos_install]]
-.Homebrew (macOS)
+=== Homebrew (macOS)
 
 [source]
 ----
@@ -14,7 +14,7 @@ brew install redis-developer/tap/riot
 ----
 
 [[_windows_install]]
-.Scoop (Windows)
+=== Scoop (Windows)
 
 [source]
 ----
@@ -23,7 +23,7 @@ scoop install riot
 ----
 
 [[_linux_install]]
-.Download and run (Linux)
+=== Download and run (Linux)
 
 {project-title} requires Java and the easiest option is to use the version packaged with Ubuntu.
 By default Ubuntu 18.04 includes Open JDK 11.
