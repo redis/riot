@@ -11,7 +11,7 @@ image::src/media/banner.png[RIOT]
 
 Get data in and out of Redis with link:https://developer.redis.com/riot[{project-title}]!
 
-Redis Input/Output Tools ({project-title}) is a suite of command-line utilities designed to help you get data in and out of Redis.
+Redis Input/Output Tools ({project-title}) is a command-line utility designed to help you get data in and out of Redis.
 
 It supports many different sources and targets:
 

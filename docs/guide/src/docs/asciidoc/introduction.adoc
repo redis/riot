@@ -1,7 +1,7 @@
 [[_introduction]]
 = Introduction
 
-Redis Input/Output Tools ({project-title}) is a suite of command-line utilities designed to help you get data in and out of Redis.
+Redis Input/Output Tools ({project-title}) is a command-line utility designed to help you get data in and out of Redis.
 
 It supports many different sources and targets:
 
