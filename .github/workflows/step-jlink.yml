@@ -38,7 +38,7 @@ jobs:
           echo ${{ inputs.project-version }} > VERSION
 
       - name: Build
-        run: ./gradlew -Prelease=true -PreproducibleBuild=true build aggregateTestReports -x test -S
+        run: ./gradlew -Prelease=true -PreproducibleBuild=true build aggregateTestReports aggregateJacocoReport -x test -S
         
       - name: Upload test reports
         if: failure()
@@ -47,6 +47,9 @@ jobs:
           name: test-reports
           path: |
             build/reports/aggregate-tests/
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
 
       - name: Jlink
         uses: jreleaser/release-action@v2
