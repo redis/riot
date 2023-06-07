@@ -620,7 +620,7 @@ public abstract class AbstractRiotTests extends AbstractTestBase {
 
 	@Test
 	void fakerHash() throws Exception {
-		List<String> keys = testImport("faker-hset", "person:*", 1000);
+		List<String> keys = testImport("faker-import-hset", "person:*", 1000);
 		Map<String, String> person = connection.sync().hgetall(keys.get(0));
 		Assertions.assertTrue(person.containsKey("firstName"));
 		Assertions.assertTrue(person.containsKey("lastName"));
@@ -629,7 +629,7 @@ public abstract class AbstractRiotTests extends AbstractTestBase {
 
 	@Test
 	void fakerSet() throws Exception {
-		execute("faker-sadd");
+		execute("faker-import-sadd");
 		RedisSetCommands<String, String> sync = connection.sync();
 		Set<String> names = sync.smembers("got:characters");
 		Assertions.assertTrue(names.size() > 10);
@@ -640,7 +640,7 @@ public abstract class AbstractRiotTests extends AbstractTestBase {
 
 	@Test
 	void fakerZset() throws Exception {
-		execute("faker-zadd");
+		execute("faker-import-zadd");
 		RedisKeyCommands<String, String> sync = connection.sync();
 		List<String> keys = sync.keys("leases:*");
 		Assertions.assertTrue(keys.size() > 100);
@@ -650,7 +650,7 @@ public abstract class AbstractRiotTests extends AbstractTestBase {
 
 	@Test
 	void fakerStream() throws Exception {
-		execute("faker-xadd");
+		execute("faker-import-xadd");
 		RedisStreamCommands<String, String> sync = connection.sync();
 		List<StreamMessage<String, String>> messages = sync.xrange("teststream:1", Range.unbounded());
 		Assertions.assertTrue(messages.size() > 0);
@@ -668,7 +668,7 @@ public abstract class AbstractRiotTests extends AbstractTestBase {
 				Field.tag(FIELD_ID).sortable().build(), Field.text(FIELD_NAME).sortable().build(),
 				Field.text(FIELD_STYLE).matcher(PhoneticMatcher.ENGLISH).sortable().build(),
 				Field.numeric(FIELD_ABV).sortable().build(), Field.numeric(FIELD_OUNCES).sortable().build());
-		execute("faker-infer");
+		execute("faker-import-infer");
 		SearchResults<String, String> results = connection.sync().ftSearch(INDEX, "*");
 		Assertions.assertEquals(1000, results.getCount());
 		Document<String, String> doc1 = results.get(0);
@@ -677,14 +677,14 @@ public abstract class AbstractRiotTests extends AbstractTestBase {
 
 	@Test
 	void fakerTsAdd() throws Exception {
-		execute("faker-tsadd");
+		execute("faker-import-tsadd");
 		List<Sample> samples = connection.sync().tsRange("ts:gen", TimeRange.unbounded(), null);
 		Assertions.assertEquals(10, samples.size());
 	}
 
 	@Test
 	void fakerTsAddWithOptions() throws Exception {
-		execute("faker-tsadd-options");
+		execute("faker-import-tsadd-options");
 		List<RangeResult<String, String>> results = connection.sync().tsMrange(TimeRange.unbounded(),
 				MRangeOptions.<String, String>filters("character1=Einstein").build());
 		Assertions.assertFalse(results.isEmpty());
