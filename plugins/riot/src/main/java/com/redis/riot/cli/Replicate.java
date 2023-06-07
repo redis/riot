@@ -3,6 +3,7 @@ package com.redis.riot.cli;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.logging.Level;
@@ -57,7 +58,6 @@ import com.redis.spring.batch.writer.KeyComparisonCountItemWriter.Results;
 import com.redis.spring.batch.writer.operation.Noop;
 
 import io.lettuce.core.codec.ByteArrayCodec;
-import me.tongfei.progressbar.ProgressBarStyle;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
@@ -68,8 +68,7 @@ public class Replicate extends AbstractCommand {
 
 	private static final Logger log = Logger.getLogger(Replicate.class.getName());
 
-	private static final String COMPARE_MESSAGE_ASCII = " >%,d T%,d ≠%,d ⧗%,d <%,d";
-	private static final String COMPARE_MESSAGE_COLOR = " \u001b[31m>%,d \u001b[33mT%,d \u001b[35m≠%,d \u001b[36m⧗%,d\u001b[0m";
+	private static final String COMPARE_MESSAGE = " >%,d T%,d ≠%,d ⧗%,d";
 	private static final Noop<byte[], byte[], KeyValue<byte[]>, Object> NOOP_OPERATION = new Noop<>();
 
 	@ArgGroup(exclusive = false, heading = "Target Redis connection options%n")
@@ -130,19 +129,8 @@ public class Replicate extends AbstractCommand {
 	}
 
 	private String extraMessage(Results results) {
-		return String.format(extraMessageFormat(), results.getCount(Status.MISSING), results.getCount(Status.TYPE),
-				results.getCount(Status.VALUE), results.getCount(Status.TTL));
-	}
-
-	private String extraMessageFormat() {
-		ProgressBarStyle progressStyle = getTransferOptions().getProgressBarStyle();
-		switch (progressStyle) {
-		case COLORFUL_UNICODE_BAR:
-		case COLORFUL_UNICODE_BLOCK:
-			return COMPARE_MESSAGE_COLOR;
-		default:
-			return COMPARE_MESSAGE_ASCII;
-		}
+		return String.format(Locale.US, COMPARE_MESSAGE, results.getCount(Status.MISSING),
+				results.getCount(Status.TYPE), results.getCount(Status.VALUE), results.getCount(Status.TTL));
 	}
 
 	public ReplicationOptions getReplicateOptions() {

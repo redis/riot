@@ -85,6 +85,7 @@ public class ProgressMonitor implements StepExecutionListener, ItemWriteListener
 			super.afterWrite(items);
 			progressBar.setExtraMessage(extraMessage.get());
 		}
+
 	}
 
 	public static Builder style(ProgressBarStyle style) {

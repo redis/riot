@@ -26,7 +26,7 @@ public class TransferOptions {
 	public static final int DEFAULT_CHUNK_SIZE = StepOptions.DEFAULT_CHUNK_SIZE;
 	public static final int DEFAULT_THREADS = 1;
 	public static final int DEFAULT_SKIP_LIMIT = 3;
-	public static final Duration DEFAULT_PROGRESS_UPDATE_INTERVAL = Duration.ofMillis(1000);
+	public static final Duration DEFAULT_PROGRESS_UPDATE_INTERVAL = Duration.ofMillis(300);
 
 	@Option(names = "--sleep", description = "Duration in ms to sleep before each item read (default: ${DEFAULT-VALUE}).", paramLabel = "<ms>")
 	private long sleep;
