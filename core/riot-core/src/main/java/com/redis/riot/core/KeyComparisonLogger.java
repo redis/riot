@@ -1,8 +1,10 @@
 package com.redis.riot.core;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -152,28 +154,34 @@ public class KeyComparisonLogger {
 	}
 
 	private void showListDiff(KeyComparison comparison) {
-		List<?> sourceList = (List<?>) comparison.getSource().getValue();
-		List<?> targetList = (List<?>) comparison.getTarget().getValue();
+		Collection<?> sourceList = (Collection<?>) comparison.getSource().getValue();
+		Collection<?> targetList = (Collection<?>) comparison.getTarget().getValue();
 		if (sourceList.size() != targetList.size()) {
 			log.log(Level.WARNING, "Size mismatch for {0} {1}: {2} <> {3}",
 					new Object[] { comparison.getSource().getType(), comparison.getSource().getKey(), sourceList.size(),
 							targetList.size() });
 			return;
 		}
-		List<Integer> diff = new ArrayList<>();
-		for (int index = 0; index < sourceList.size(); index++) {
-			if (!sourceList.get(index).equals(targetList.get(index))) {
+		Collection<Integer> diff = new ArrayList<>();
+		int index = 0;
+		Iterator<?> sourceIterator = sourceList.iterator();
+		Iterator<?> targetIterator = targetList.iterator();
+		while (sourceIterator.hasNext()) {
+			Object sourceValue = sourceIterator.next();
+			Object targetValue = targetIterator.next();
+			if (!sourceValue.equals(targetValue)) {
 				diff.add(index);
 			}
+			index++;
 		}
 		log.log(Level.WARNING, "Value mismatch for {0} {1} at indexes {2}",
 				new Object[] { comparison.getSource().getType(), comparison.getSource().getKey(), diff });
 	}
 
 	private void showSetDiff(KeyComparison comparison) {
-		Set<String> sourceSet = (Set<String>) comparison.getSource().getValue();
-		Set<String> targetSet = (Set<String>) comparison.getTarget().getValue();
-		Set<String> missing = new HashSet<>(sourceSet);
+		Collection<String> sourceSet = (Collection<String>) comparison.getSource().getValue();
+		Collection<String> targetSet = (Collection<String>) comparison.getTarget().getValue();
+		Collection<String> missing = new HashSet<>(sourceSet);
 		missing.removeAll(targetSet);
 		Set<String> extra = new HashSet<>(targetSet);
 		extra.removeAll(sourceSet);
@@ -182,28 +190,30 @@ public class KeyComparisonLogger {
 	}
 
 	private void showSortedSetDiff(KeyComparison comparison) {
-		List<ScoredValue<String>> sourceList = (List<ScoredValue<String>>) comparison.getSource().getValue();
-		List<ScoredValue<String>> targetList = (List<ScoredValue<String>>) comparison.getTarget().getValue();
-		List<ScoredValue<String>> missing = new ArrayList<>(sourceList);
+		Collection<ScoredValue<String>> sourceList = (Collection<ScoredValue<String>>) comparison.getSource()
+				.getValue();
+		Collection<ScoredValue<String>> targetList = (Collection<ScoredValue<String>>) comparison.getTarget()
+				.getValue();
+		Collection<ScoredValue<String>> missing = new ArrayList<>(sourceList);
 		missing.removeAll(targetList);
-		List<ScoredValue<String>> extra = new ArrayList<>(targetList);
+		Collection<ScoredValue<String>> extra = new ArrayList<>(targetList);
 		extra.removeAll(sourceList);
 		log.log(Level.WARNING, "Value mismatch for sorted set {0}: {1} <> {2}",
 				new Object[] { comparison.getSource().getKey(), print(missing), print(extra) });
 	}
 
-	private List<String> print(List<ScoredValue<String>> list) {
+	private List<String> print(Collection<ScoredValue<String>> list) {
 		return list.stream().map(v -> v.getValue() + "@" + v.getScore()).collect(Collectors.toList());
 	}
 
 	private void showStreamDiff(KeyComparison comparison) {
-		List<StreamMessage<String, String>> sourceMessages = (List<StreamMessage<String, String>>) comparison
+		Collection<StreamMessage<String, String>> sourceMessages = (Collection<StreamMessage<String, String>>) comparison
 				.getSource().getValue();
-		List<StreamMessage<String, String>> targetMessages = (List<StreamMessage<String, String>>) comparison
+		Collection<StreamMessage<String, String>> targetMessages = (Collection<StreamMessage<String, String>>) comparison
 				.getTarget().getValue();
-		List<StreamMessage<String, String>> missing = new ArrayList<>(sourceMessages);
+		Collection<StreamMessage<String, String>> missing = new ArrayList<>(sourceMessages);
 		missing.removeAll(targetMessages);
-		List<StreamMessage<String, String>> extra = new ArrayList<>(targetMessages);
+		Collection<StreamMessage<String, String>> extra = new ArrayList<>(targetMessages);
 		extra.removeAll(sourceMessages);
 		log.log(Level.WARNING, "Value mismatch for stream {0}: {1} <> {2}",
 				new Object[] { comparison.getSource().getKey(),
