@@ -4,6 +4,7 @@ import java.util.Iterator;
 
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.job.builder.SimpleJobBuilder;
+import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.core.step.tasklet.TaskletStep;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.json.JsonItemReader;
@@ -11,18 +12,16 @@ import org.springframework.core.io.Resource;
 
 import com.redis.riot.cli.common.AbstractCommand;
 import com.redis.riot.cli.common.CommandContext;
-import com.redis.riot.cli.common.ProgressMonitor;
 import com.redis.riot.cli.common.RedisWriterOptions;
+import com.redis.riot.cli.common.StepProgressMonitor;
 import com.redis.riot.cli.file.FileDumpOptions;
 import com.redis.riot.cli.file.FileImportOptions;
 import com.redis.riot.core.FileDumpType;
 import com.redis.riot.core.FileUtils;
 import com.redis.riot.core.processor.DataStructureProcessor;
 import com.redis.riot.core.resource.XmlItemReader;
-import com.redis.spring.batch.RedisItemWriter;
 import com.redis.spring.batch.common.DataStructure;
 
-import io.lettuce.core.codec.StringCodec;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
@@ -56,7 +55,7 @@ public class DumpImport extends AbstractCommand {
 	@Override
 	protected Job job(CommandContext context) {
 		Iterator<TaskletStep> stepIterator = options.getResources().map(r -> step(context, r)).iterator();
-		SimpleJobBuilder job = context.getJobRunner().job(commandName()).start(stepIterator.next());
+		SimpleJobBuilder job = job(commandName()).start(stepIterator.next());
 		while (stepIterator.hasNext()) {
 			job.next(stepIterator.next());
 		}
@@ -65,13 +64,13 @@ public class DumpImport extends AbstractCommand {
 
 	public TaskletStep step(CommandContext context, Resource resource) {
 		String name = String.join("-", commandName(), resource.getDescription());
-		ItemReader<DataStructure<String>> reader = reader(resource);
-		DataStructureProcessor processor = new DataStructureProcessor();
-		ProgressMonitor monitor = progressMonitor().task("Importing " + resource).build();
-		RedisItemWriter<String, String, DataStructure<String>> writer = context.dataStructureWriter(StringCodec.UTF8)
-				.options(writerOptions.writerOptions()).dataStructureOptions(writerOptions.dataStructureOptions())
-				.build();
-		return step(step(context, name, reader, processor, writer), monitor).build();
+		SimpleStepBuilder<DataStructure<String>, DataStructure<String>> step = step(name);
+		step.reader(reader(resource));
+		step.processor(new DataStructureProcessor());
+		step.writer(writer(context.getRedisClient(), writerOptions).dataStructure());
+		StepProgressMonitor monitor = progressMonitor("Importing " + resource);
+		monitor.register(step);
+		return step.build();
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })

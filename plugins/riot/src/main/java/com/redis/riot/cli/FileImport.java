@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.job.builder.SimpleJobBuilder;
+import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.core.step.tasklet.TaskletStep;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.file.FlatFileItemReader;
@@ -34,7 +35,7 @@ import org.springframework.util.ObjectUtils;
 
 import com.redis.riot.cli.common.AbstractImportCommand;
 import com.redis.riot.cli.common.CommandContext;
-import com.redis.riot.cli.common.ProgressMonitor;
+import com.redis.riot.cli.common.StepProgressMonitor;
 import com.redis.riot.cli.file.FileImportOptions;
 import com.redis.riot.cli.file.FlatFileOptions;
 import com.redis.riot.core.FileExtension;
@@ -44,7 +45,6 @@ import com.redis.riot.core.FileUtils.UnknownFileTypeException;
 import com.redis.riot.core.ItemReaderIterator;
 import com.redis.riot.core.MapFieldSetMapper;
 import com.redis.riot.core.resource.XmlItemReader;
-import com.redis.spring.batch.common.StepOptions;
 
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
@@ -98,16 +98,16 @@ public class FileImport extends AbstractImportCommand {
 	}
 
 	@Override
-	protected StepOptions stepOptions() {
-		StepOptions stepOptions = super.stepOptions();
-		stepOptions.getSkip().add(FlatFileParseException.class);
-		return stepOptions;
+	protected Map<Class<? extends Throwable>, Boolean> skippableExceptions() {
+		Map<Class<? extends Throwable>, Boolean> exceptions = super.skippableExceptions();
+		exceptions.put(FlatFileParseException.class, true);
+		return exceptions;
 	}
 
 	@Override
 	protected Job job(CommandContext context) {
 		Iterator<TaskletStep> stepIterator = fileImportOptions.getResources().map(r -> step(context, r)).iterator();
-		SimpleJobBuilder job = context.getJobRunner().job(commandName()).start(stepIterator.next());
+		SimpleJobBuilder job = job(commandName()).start(stepIterator.next());
 		while (stepIterator.hasNext()) {
 			job.next(stepIterator.next());
 		}
@@ -117,8 +117,10 @@ public class FileImport extends AbstractImportCommand {
 	private TaskletStep step(CommandContext context, Resource resource) {
 		AbstractItemCountingItemStreamItemReader<Map<String, Object>> reader = reader(resource);
 		String name = String.join("-", commandName(), resource.getDescription());
-		ProgressMonitor monitor = progressMonitor().task("Importing " + resource.getFilename()).build();
-		return step(step(context, name, reader), monitor).build();
+		SimpleStepBuilder<Map<String, Object>, Map<String, Object>> step = step(context.getRedisClient(), name, reader);
+		StepProgressMonitor monitor = progressMonitor("Importing " + resource.getFilename());
+		monitor.register(step);
+		return step.build();
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })

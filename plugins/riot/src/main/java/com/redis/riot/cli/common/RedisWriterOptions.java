@@ -1,14 +1,9 @@
 package com.redis.riot.cli.common;
 
-import java.time.Duration;
-import java.util.Optional;
-
 import com.redis.spring.batch.common.PoolOptions;
-import com.redis.spring.batch.writer.DataStructureWriteOptions;
-import com.redis.spring.batch.writer.DataStructureWriteOptions.MergePolicy;
-import com.redis.spring.batch.writer.DataStructureWriteOptions.StreamIdPolicy;
-import com.redis.spring.batch.writer.ReplicaOptions;
-import com.redis.spring.batch.writer.WriterOptions;
+import com.redis.spring.batch.writer.MergePolicy;
+import com.redis.spring.batch.writer.ReplicaWaitWriteOperation;
+import com.redis.spring.batch.writer.StreamIdPolicy;
 
 import picocli.CommandLine.Option;
 
@@ -24,7 +19,7 @@ public class RedisWriterOptions {
 	private int waitReplicas;
 
 	@Option(names = "--wait-timeout", description = "Timeout in millis for WAIT command (default: ${DEFAULT-VALUE}).", paramLabel = "<ms>")
-	private long waitTimeout = ReplicaOptions.DEFAULT_TIMEOUT.toMillis();
+	private long waitTimeout = ReplicaWaitWriteOperation.DEFAULT_TIMEOUT.toMillis();
 
 	@Option(names = "--write-pool", description = "Max connections for writer pool (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
 	private int poolMaxTotal = PoolOptions.DEFAULT_MAX_TOTAL;
@@ -34,6 +29,30 @@ public class RedisWriterOptions {
 
 	@Option(names = "--stream-id", description = "Policy for stream IDs: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<p>")
 	private StreamIdPolicy streamIdPolicy = StreamIdPolicy.PROPAGATE;
+
+	public int getPoolMaxTotal() {
+		return poolMaxTotal;
+	}
+
+	public void setPoolMaxTotal(int poolMaxTotal) {
+		this.poolMaxTotal = poolMaxTotal;
+	}
+
+	public MergePolicy getMergePolicy() {
+		return mergePolicy;
+	}
+
+	public void setMergePolicy(MergePolicy mergePolicy) {
+		this.mergePolicy = mergePolicy;
+	}
+
+	public StreamIdPolicy getStreamIdPolicy() {
+		return streamIdPolicy;
+	}
+
+	public void setStreamIdPolicy(StreamIdPolicy streamIdPolicy) {
+		this.streamIdPolicy = streamIdPolicy;
+	}
 
 	public boolean isDryRun() {
 		return dryRun;
@@ -65,27 +84,6 @@ public class RedisWriterOptions {
 
 	public void setWaitTimeout(long waitTimeout) {
 		this.waitTimeout = waitTimeout;
-	}
-
-	public WriterOptions writerOptions() {
-		return WriterOptions.builder().replicaOptions(replicaOptions()).multiExec(multiExec).poolOptions(poolOptions())
-				.build();
-	}
-
-	public DataStructureWriteOptions dataStructureOptions() {
-		return DataStructureWriteOptions.builder().mergePolicy(mergePolicy).streamIdPolicy(streamIdPolicy).build();
-	}
-
-	private Optional<ReplicaOptions> replicaOptions() {
-		if (waitReplicas > 0) {
-			return Optional.of(
-					ReplicaOptions.builder().replicas(waitReplicas).timeout(Duration.ofMillis(waitTimeout)).build());
-		}
-		return Optional.empty();
-	}
-
-	private PoolOptions poolOptions() {
-		return PoolOptions.builder().maxTotal(poolMaxTotal).build();
 	}
 
 }

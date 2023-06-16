@@ -8,14 +8,12 @@ import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 
 import com.redis.riot.cli.common.AbstractCommand;
 import com.redis.riot.cli.common.CommandContext;
-import com.redis.riot.cli.common.ProgressMonitor;
+import com.redis.riot.cli.common.GenerateOptions;
 import com.redis.riot.cli.common.RedisWriterOptions;
-import com.redis.riot.cli.gen.DataStructureGeneratorOptions;
-import com.redis.spring.batch.RedisItemWriter;
+import com.redis.riot.cli.common.StepProgressMonitor;
 import com.redis.spring.batch.common.DataStructure;
 import com.redis.spring.batch.reader.GeneratorItemReader;
 
-import io.lettuce.core.codec.StringCodec;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
@@ -25,17 +23,19 @@ public class Generate extends AbstractCommand {
 
 	private static final Logger log = Logger.getLogger(Generate.class.getName());
 
+	private static final String TASK_NAME = "Generating";
+
 	@Mixin
-	private DataStructureGeneratorOptions options = new DataStructureGeneratorOptions();
+	private GenerateOptions options = new GenerateOptions();
 
 	@ArgGroup(exclusive = false, heading = "Writer options%n")
 	private RedisWriterOptions writerOptions = new RedisWriterOptions();
 
-	public DataStructureGeneratorOptions getOptions() {
+	public GenerateOptions getOptions() {
 		return options;
 	}
 
-	public void setOptions(DataStructureGeneratorOptions options) {
+	public void setOptions(GenerateOptions options) {
 		this.options = options;
 	}
 
@@ -49,15 +49,28 @@ public class Generate extends AbstractCommand {
 
 	@Override
 	protected Job job(CommandContext context) {
-		RedisItemWriter<String, String, DataStructure<String>> writer = context.dataStructureWriter(StringCodec.UTF8)
-				.options(writerOptions.writerOptions()).dataStructureOptions(writerOptions.dataStructureOptions())
-				.build();
 		log.log(Level.FINE, "Creating random data structure reader with {0}", options);
-		GeneratorItemReader reader = new GeneratorItemReader(options.generatorOptions());
-		options.configure(reader);
-		SimpleStepBuilder<DataStructure<String>, DataStructure<String>> step = step(context, reader, null, writer);
-		ProgressMonitor monitor = progressMonitor().initialMax(options.getCount()).task("Generating").build();
-		return context.getJobRunner().job(commandName()).start(step(step, monitor).build()).build();
+		SimpleStepBuilder<DataStructure<String>, DataStructure<String>> step = step();
+		GeneratorItemReader reader = new GeneratorItemReader();
+		reader.setMaxItemCount(options.getCount());
+		reader.withExpiration(options.getExpiration());
+		reader.withHashOptions(options.hashOptions());
+		reader.withJsonOptions(options.jsonOptions());
+		reader.withKeyRange(options.getKeyRange());
+		reader.withKeyspace(options.getKeyspace());
+		reader.withListOptions(options.listOptions());
+		reader.withSetOptions(options.setOptions());
+		reader.withStreamOptions(options.streamOptions());
+		reader.withStringOptions(options.stringOptions());
+		reader.withTimeSeriesOptions(options.timeSeriesOptions());
+		reader.withTypes(options.getTypes());
+		reader.withZsetOptions(options.zsetOptions());
+		step.reader(reader);
+		step.writer(writer(context.getRedisClient(), writerOptions).dataStructure());
+		StepProgressMonitor monitor = progressMonitor(TASK_NAME);
+		monitor.withInitialMax(options.getCount());
+		monitor.register(step);
+		return job(commandName()).start(step.build()).build();
 	}
 
 }

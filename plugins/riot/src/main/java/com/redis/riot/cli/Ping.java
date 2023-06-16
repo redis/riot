@@ -17,6 +17,7 @@ import org.springframework.util.Assert;
 import org.threeten.bp.Duration;
 
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
+import com.redis.lettucemod.util.RedisModulesUtils;
 import com.redis.riot.cli.common.AbstractCommand;
 import com.redis.riot.cli.common.CommandContext;
 import com.redis.riot.cli.common.PingOptions;
@@ -37,8 +38,8 @@ public class Ping extends AbstractCommand {
 	protected Job job(CommandContext context) {
 		CallableTaskletAdapter tasklet = new CallableTaskletAdapter();
 		tasklet.setCallable(new PingTask(context, options));
-		TaskletStep step = context.getJobRunner().step(commandName()).tasklet(tasklet).build();
-		return context.getJobRunner().job(commandName()).start(step).build();
+		TaskletStep step = stepBuilder(commandName()).tasklet(tasklet).build();
+		return job(commandName()).start(step).build();
 	}
 
 	private class PingTask implements Callable<RepeatStatus> {
@@ -57,7 +58,8 @@ public class Ping extends AbstractCommand {
 			if (iteration.get() > 0 && getTransferOptions().getSleep() > 0) {
 				Thread.sleep(Duration.ofSeconds(getTransferOptions().getSleep()).toMillis());
 			}
-			try (StatefulRedisModulesConnection<String, String> connection = context.connection()) {
+			try (StatefulRedisModulesConnection<String, String> connection = RedisModulesUtils
+					.connection(context.getRedisClient())) {
 				execute(connection);
 			}
 			if (iteration.incrementAndGet() < options.getIterations()) {

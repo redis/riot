@@ -1,10 +1,8 @@
 package com.redis.riot.cli.db;
 
-import java.util.Map;
-
 import org.springframework.batch.item.database.AbstractCursorItemReader;
-import org.springframework.batch.item.database.builder.JdbcCursorItemReaderBuilder;
 
+import picocli.CommandLine.Mixin;
 import picocli.CommandLine.Option;
 
 public class DbImportOptions {
@@ -13,6 +11,8 @@ public class DbImportOptions {
 	public static final int DEFAULT_MAX_RESULT_SET_ROWS = AbstractCursorItemReader.VALUE_NOT_SET;
 	public static final int DEFAULT_QUERY_TIMEOUT = AbstractCursorItemReader.VALUE_NOT_SET;
 
+	@Mixin
+	private DataSourceOptions dataSourceOptions = new DataSourceOptions();
 	@Option(names = "--max", description = "Max number of rows to import.", paramLabel = "<count>")
 	private int maxItemCount;
 	@Option(names = "--fetch", description = "Number of rows to return with each fetch.", paramLabel = "<size>")
@@ -25,6 +25,38 @@ public class DbImportOptions {
 	private boolean useSharedExtendedConnection;
 	@Option(names = "--verify", description = "Verify position of result set after row mapper.", hidden = true)
 	private boolean verifyCursorPosition;
+
+	public DataSourceOptions getDataSourceOptions() {
+		return dataSourceOptions;
+	}
+
+	public int getMaxItemCount() {
+		return maxItemCount;
+	}
+
+	public int getFetchSize() {
+		return fetchSize;
+	}
+
+	public int getMaxResultSetRows() {
+		return maxResultSetRows;
+	}
+
+	public int getQueryTimeout() {
+		return queryTimeout;
+	}
+
+	public boolean isUseSharedExtendedConnection() {
+		return useSharedExtendedConnection;
+	}
+
+	public boolean isVerifyCursorPosition() {
+		return verifyCursorPosition;
+	}
+
+	public void setDataSourceOptions(DataSourceOptions dataSourceOptions) {
+		this.dataSourceOptions = dataSourceOptions;
+	}
 
 	public void setMaxItemCount(int maxItemCount) {
 		this.maxItemCount = maxItemCount;
@@ -48,17 +80,6 @@ public class DbImportOptions {
 
 	public void setVerifyCursorPosition(boolean verifyCursorPosition) {
 		this.verifyCursorPosition = verifyCursorPosition;
-	}
-
-	public void configure(JdbcCursorItemReaderBuilder<Map<String, Object>> builder) {
-		builder.fetchSize(fetchSize);
-		builder.maxRows(maxResultSetRows);
-		builder.queryTimeout(queryTimeout);
-		builder.useSharedExtendedConnection(useSharedExtendedConnection);
-		builder.verifyCursorPosition(verifyCursorPosition);
-		if (maxItemCount > 0) {
-			builder.maxItemCount(maxItemCount);
-		}
 	}
 
 	@Override

@@ -60,7 +60,8 @@ import com.redis.lettucemod.timeseries.RangeResult;
 import com.redis.lettucemod.timeseries.Sample;
 import com.redis.lettucemod.timeseries.TimeRange;
 import com.redis.lettucemod.util.RedisModulesUtils;
-import com.redis.riot.cli.common.ReplicationOptions.ReplicationMode;
+import com.redis.riot.cli.common.GenerateOptions;
+import com.redis.riot.cli.common.ReplicationMode;
 import com.redis.riot.cli.file.FileImportOptions;
 import com.redis.riot.cli.file.FlatFileOptions;
 import com.redis.riot.cli.operation.HsetCommand;
@@ -71,10 +72,9 @@ import com.redis.riot.core.resource.XmlItemReader;
 import com.redis.riot.core.resource.XmlItemReaderBuilder;
 import com.redis.riot.core.resource.XmlObjectReader;
 import com.redis.spring.batch.RedisItemReader;
+import com.redis.spring.batch.RedisItemReader.ComparatorBuilder;
 import com.redis.spring.batch.common.DataStructure;
-import com.redis.spring.batch.common.IntRange;
 import com.redis.spring.batch.reader.GeneratorItemReader;
-import com.redis.spring.batch.reader.GeneratorReaderOptions;
 import com.redis.spring.batch.reader.KeyComparison;
 import com.redis.spring.batch.reader.KeyComparison.Status;
 import com.redis.testcontainers.RedisServer;
@@ -156,8 +156,9 @@ public abstract class AbstractRiotTests extends AbstractTestBase {
 	protected abstract RedisServer getTargetRedisServer();
 
 	@BeforeEach
-	void flushAllTarget() {
+	void flushAllTarget() throws InterruptedException {
 		targetConnection.sync().flushall();
+		awaitUntil(() -> targetConnection.sync().dbsize().equals(0L));
 	}
 
 	@Override
@@ -693,7 +694,8 @@ public abstract class AbstractRiotTests extends AbstractTestBase {
 	@Test
 	void generateTypes() throws Exception {
 		execute("generate");
-		awaitUntil(() -> connection.sync().dbsize().equals(100L));
+		Assertions.assertEquals(Math.min(GenerateOptions.DEFAULT_COUNT,
+				GenerateOptions.DEFAULT_KEY_RANGE.getMax()), connection.sync().dbsize());
 	}
 
 	@Test
@@ -729,7 +731,9 @@ public abstract class AbstractRiotTests extends AbstractTestBase {
 	@Test
 	void replicateKeyProcessor() throws Throwable {
 		String filename = "replicate-key-processor";
-		generate(filename, 200);
+		GeneratorItemReader generator = generator();
+		generator.setMaxItemCount(200);
+		generate(filename, DEFAULT_BATCH_SIZE, generator);
 		Long sourceSize = connection.sync().dbsize();
 		Assertions.assertTrue(sourceSize > 0);
 		execute(filename);
@@ -747,9 +751,11 @@ public abstract class AbstractRiotTests extends AbstractTestBase {
 		String filename = "replicate-live-keyslot";
 		connection.sync().configSet("notify-keyspace-events", "AK");
 		ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+		GeneratorItemReader generator = generator();
+		generator.setMaxItemCount(300);
 		executor.schedule(() -> {
 			try {
-				generate(filename, 1, GeneratorReaderOptions.builder().build(), 300);
+				generate(filename, 1, generator);
 			} catch (Exception e) {
 				log.error("Could not generate data", e);
 			}
@@ -769,15 +775,14 @@ public abstract class AbstractRiotTests extends AbstractTestBase {
 
 	protected void runLiveReplication(String filename) throws Exception {
 		connection.sync().configSet("notify-keyspace-events", "AK");
-		generate(filename, 3000);
+		generate(filename, DEFAULT_BATCH_SIZE, generator(3000));
 		ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 		executor.schedule(() -> {
-			GeneratorItemReader generator = new GeneratorItemReader(
-					GeneratorReaderOptions.builder().keyRange(IntRange.to(10000)).build());
+			GeneratorItemReader generator = generator(3500);
 			generator.setCurrentItemCount(3000);
 			generator.setMaxItemCount(3500);
 			try {
-				run(filename + "-generate-live", 1, generator, writer(client).build());
+				run(filename + "-generate-live", 1, generator, writer(client));
 			} catch (Exception e) {
 				log.error("Could not generate data", e);
 			}
@@ -787,8 +792,8 @@ public abstract class AbstractRiotTests extends AbstractTestBase {
 	}
 
 	protected RedisItemReader<String, String, KeyComparison> comparisonReader() {
-		return RedisItemReader.compare(client, targetClient).jobRunner(jobRunner).ttlTolerance(Duration.ofMillis(100))
-				.build();
+		return new ComparatorBuilder(client, targetClient).jobRepository(jobRepository)
+				.ttlTolerance(Duration.ofMillis(100)).build();
 	}
 
 	protected boolean compare() throws JobExecutionException {

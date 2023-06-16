@@ -1,21 +1,9 @@
 package com.redis.riot.cli.common;
 
 import java.time.Duration;
-import java.util.Map;
-import java.util.concurrent.TimeoutException;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-import org.springframework.batch.core.step.skip.AlwaysSkipItemSkipPolicy;
-import org.springframework.batch.core.step.skip.LimitCheckingItemSkipPolicy;
-import org.springframework.batch.core.step.skip.NeverSkipItemSkipPolicy;
-import org.springframework.batch.core.step.skip.SkipPolicy;
+import com.redis.spring.batch.RedisItemReader;
 
-import com.redis.spring.batch.common.StepOptions;
-
-import io.lettuce.core.RedisCommandExecutionException;
-import io.lettuce.core.RedisCommandTimeoutException;
 import me.tongfei.progressbar.ProgressBarStyle;
 import picocli.CommandLine.Option;
 
@@ -23,12 +11,12 @@ public class TransferOptions {
 
 	public static final ProgressBarStyle DEFAULT_PROGRESS_BAR_STYLE = ProgressBarStyle.COLORFUL_UNICODE_BLOCK;
 	public static final StepSkipPolicy DEFAULT_SKIP_POLICY = StepSkipPolicy.LIMIT;
-	public static final int DEFAULT_CHUNK_SIZE = StepOptions.DEFAULT_CHUNK_SIZE;
+	public static final int DEFAULT_CHUNK_SIZE = RedisItemReader.DEFAULT_CHUNK_SIZE;
 	public static final int DEFAULT_THREADS = 1;
 	public static final int DEFAULT_SKIP_LIMIT = 3;
 	public static final Duration DEFAULT_PROGRESS_UPDATE_INTERVAL = Duration.ofMillis(300);
 
-	@Option(names = "--sleep", description = "Duration in ms to sleep before each item read (default: ${DEFAULT-VALUE}).", paramLabel = "<ms>")
+	@Option(names = "--sleep", description = "Duration in ms to sleep after each batch write (default: ${DEFAULT-VALUE}).", paramLabel = "<ms>")
 	private long sleep;
 
 	@Option(names = "--threads", description = "Thread count (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
@@ -66,10 +54,6 @@ public class TransferOptions {
 		this.progressUpdateInterval = millis;
 	}
 
-	public boolean isProgressEnabled() {
-		return progressUpdateInterval > 0;
-	}
-
 	public long getSleep() {
 		return sleep;
 	}
@@ -102,32 +86,22 @@ public class TransferOptions {
 		this.skipLimit = skipLimit;
 	}
 
+	public StepSkipPolicy getSkipPolicy() {
+		return skipPolicy;
+	}
+
+	public int getSkipLimit() {
+		return skipLimit;
+	}
+
+	public void setProgressBarStyle(ProgressBarStyle progressBarStyle) {
+		this.progressBarStyle = progressBarStyle;
+	}
+
 	@Override
 	public String toString() {
 		return "TransferOptions [threads=" + threads + ", chunkSize=" + chunkSize + ", skipPolicy=" + skipPolicy
 				+ ", skipLimit=" + skipLimit + ", sleep=" + sleep + "]";
-	}
-
-	public StepOptions stepOptions() {
-		return StepOptions.builder().chunkSize(chunkSize).threads(threads).skipPolicy(skipPolicy(skipPolicy, skipLimit))
-				.skipLimit(skipLimit).build();
-	}
-
-	public static SkipPolicy skipPolicy(StepSkipPolicy policy, int skipLimit) {
-		switch (policy) {
-		case ALWAYS:
-			return new AlwaysSkipItemSkipPolicy();
-		case NEVER:
-			return new NeverSkipItemSkipPolicy();
-		default:
-			return new LimitCheckingItemSkipPolicy(skipLimit, skippableExceptions());
-		}
-	}
-
-	private static Map<Class<? extends Throwable>, Boolean> skippableExceptions() {
-		return Stream
-				.of(RedisCommandExecutionException.class, RedisCommandTimeoutException.class, TimeoutException.class)
-				.collect(Collectors.toMap(Function.identity(), t -> true));
 	}
 
 }

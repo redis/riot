@@ -16,8 +16,8 @@ public class GeoaddCommand extends AbstractCollectionCommand {
 
 	@Override
 	public Geoadd<String, String, Map<String, Object>> operation() {
-		return new Geoadd<>(key(), new GeoValueConverter<>(member(), doubleFieldExtractor(options.getLongitudeField()),
-				doubleFieldExtractor(options.getLatitudeField())));
+		return new Geoadd<>(key(), new GeoValueConverter<>(member(), doubleFieldExtractor(options.getLongitude()),
+				doubleFieldExtractor(options.getLatitude())));
 	}
 
 }

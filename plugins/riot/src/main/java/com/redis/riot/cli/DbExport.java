@@ -7,17 +7,18 @@ import java.util.logging.Logger;
 import javax.sql.DataSource;
 
 import org.springframework.batch.core.Job;
+import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.database.JdbcBatchItemWriter;
 import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilder;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.lang.Nullable;
 
 import com.redis.riot.cli.common.AbstractExportCommand;
 import com.redis.riot.cli.common.CommandContext;
-import com.redis.riot.cli.db.DataSourceOptions;
+import com.redis.riot.cli.common.DatabaseHelper;
 import com.redis.riot.cli.db.DbExportOptions;
-import com.redis.riot.cli.db.NullableSqlParameterSource;
 import com.redis.riot.core.processor.DataStructureToMapProcessor;
-import com.redis.spring.batch.RedisItemReader;
 import com.redis.spring.batch.common.DataStructure;
 
 import picocli.CommandLine.Command;
@@ -33,8 +34,6 @@ public class DbExport extends AbstractExportCommand {
 	@Parameters(arity = "1", description = "SQL INSERT statement.", paramLabel = "SQL")
 	private String sql;
 	@Mixin
-	private DataSourceOptions dataSourceOptions = new DataSourceOptions();
-	@Mixin
 	private DbExportOptions options = new DbExportOptions();
 
 	public DbExportOptions getOptions() {
@@ -43,14 +42,6 @@ public class DbExport extends AbstractExportCommand {
 
 	public void setOptions(DbExportOptions exportOptions) {
 		this.options = exportOptions;
-	}
-
-	public DataSourceOptions getDataSourceOptions() {
-		return dataSourceOptions;
-	}
-
-	public void setDataSourceOptions(DataSourceOptions dataSourceOptions) {
-		this.dataSourceOptions = dataSourceOptions;
 	}
 
 	public String getSql() {
@@ -63,8 +54,8 @@ public class DbExport extends AbstractExportCommand {
 
 	@Override
 	protected Job job(CommandContext context) {
-		log.log(Level.FINE, "Creating data source with {0}", dataSourceOptions);
-		DataSource dataSource = dataSourceOptions.dataSource();
+		log.log(Level.FINE, "Creating data source with {0}", options.getDataSourceOptions());
+		DataSource dataSource = DatabaseHelper.dataSource(options.getDataSourceOptions());
 		log.log(Level.FINE, "Creating writer for database with {0}", options);
 		JdbcBatchItemWriterBuilder<Map<String, Object>> builder = new JdbcBatchItemWriterBuilder<>();
 		builder.itemSqlParameterSourceProvider(NullableSqlParameterSource::new);
@@ -73,10 +64,28 @@ public class DbExport extends AbstractExportCommand {
 		builder.assertUpdates(options.isAssertUpdates());
 		JdbcBatchItemWriter<Map<String, Object>> writer = builder.build();
 		writer.afterPropertiesSet();
+		SimpleStepBuilder<DataStructure<String>, Map<String, Object>> step = step(context, TASK_NAME, writer);
 		ItemProcessor<DataStructure<String>, Map<String, Object>> processor = DataStructureToMapProcessor
 				.of(options.getKeyRegex());
-		RedisItemReader<String, String, DataStructure<String>> reader = reader(context);
-		return job(context, step(context, reader, processor, writer), TASK_NAME);
+		step.processor(processor);
+		return job(step);
+	}
+
+	private static class NullableSqlParameterSource extends MapSqlParameterSource {
+
+		public NullableSqlParameterSource(@Nullable Map<String, ?> values) {
+			super(values);
+		}
+
+		@Override
+		@Nullable
+		public Object getValue(String paramName) {
+			if (!hasValue(paramName)) {
+				return null;
+			}
+			return super.getValue(paramName);
+		}
+
 	}
 
 }

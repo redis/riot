@@ -1,36 +1,42 @@
-package com.redis.riot.cli.gen;
+package com.redis.riot.cli.common;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.redis.spring.batch.common.DoubleRange;
 import com.redis.spring.batch.common.IntRange;
-import com.redis.spring.batch.reader.GeneratorReaderOptions;
-import com.redis.spring.batch.reader.GeneratorReaderOptions.CollectionOptions;
-import com.redis.spring.batch.reader.GeneratorReaderOptions.HashOptions;
-import com.redis.spring.batch.reader.GeneratorReaderOptions.JsonOptions;
-import com.redis.spring.batch.reader.GeneratorReaderOptions.ListOptions;
-import com.redis.spring.batch.reader.GeneratorReaderOptions.MapOptions;
-import com.redis.spring.batch.reader.GeneratorReaderOptions.SetOptions;
-import com.redis.spring.batch.reader.GeneratorReaderOptions.StreamOptions;
-import com.redis.spring.batch.reader.GeneratorReaderOptions.StreamOptions.BodyOptions;
-import com.redis.spring.batch.reader.GeneratorReaderOptions.StringOptions;
-import com.redis.spring.batch.reader.GeneratorReaderOptions.TimeSeriesOptions;
-import com.redis.spring.batch.reader.GeneratorReaderOptions.TimeSeriesOptions.Builder;
-import com.redis.spring.batch.reader.GeneratorReaderOptions.Type;
-import com.redis.spring.batch.reader.GeneratorReaderOptions.ZsetOptions;
+import com.redis.spring.batch.reader.GeneratorItemReader;
+import com.redis.spring.batch.reader.GeneratorItemReader.CollectionOptions;
+import com.redis.spring.batch.reader.GeneratorItemReader.HashOptions;
+import com.redis.spring.batch.reader.GeneratorItemReader.JsonOptions;
+import com.redis.spring.batch.reader.GeneratorItemReader.ListOptions;
+import com.redis.spring.batch.reader.GeneratorItemReader.MapOptions;
+import com.redis.spring.batch.reader.GeneratorItemReader.SetOptions;
+import com.redis.spring.batch.reader.GeneratorItemReader.StreamOptions;
+import com.redis.spring.batch.reader.GeneratorItemReader.StreamOptions.BodyOptions;
+import com.redis.spring.batch.reader.GeneratorItemReader.StringOptions;
+import com.redis.spring.batch.reader.GeneratorItemReader.TimeSeriesOptions;
+import com.redis.spring.batch.reader.GeneratorItemReader.Type;
+import com.redis.spring.batch.reader.GeneratorItemReader.ZsetOptions;
 
 import picocli.CommandLine.Option;
 
-public class DataStructureGeneratorOptions extends GeneratorOptions {
+public class GenerateOptions {
 
+	public static final int DEFAULT_COUNT = 1000;
+	public static final IntRange DEFAULT_KEY_RANGE = IntRange.between(1, 1000);
+
+	@Option(names = "--count", description = "Number of items to generate (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
+	private int count = DEFAULT_COUNT;
 	@Option(names = "--keyspace", description = "Keyspace prefix for generated data structures (default: ${DEFAULT-VALUE}).", paramLabel = "<str>")
-	private String keyspace = GeneratorReaderOptions.DEFAULT_KEYSPACE;
+	private String keyspace = GeneratorItemReader.DEFAULT_KEYSPACE;
+	@Option(names = "--keys", description = "Start and end index for keys (default: ${DEFAULT-VALUE}).", paramLabel = "<range>")
+	private IntRange keyRange = DEFAULT_KEY_RANGE;
 	@Option(arity = "1..*", names = "--types", description = "Data structure types to generate: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<type>")
-	private Set<Type> types = GeneratorReaderOptions.defaultTypes();
+	private List<Type> types = GeneratorItemReader.defaultTypes();
 	@Option(names = "--expiration", description = "TTL in seconds.", paramLabel = "<secs>")
 	private Optional<IntRange> expiration = Optional.empty();
 	@Option(names = "--hash-fields", description = "Number of fields in hashes (default: ${DEFAULT-VALUE}).", paramLabel = "<range>")
@@ -62,6 +68,22 @@ public class DataStructureGeneratorOptions extends GeneratorOptions {
 	@Option(names = "--zset-score", description = "Score of sorted sets (default: ${DEFAULT-VALUE}).", paramLabel = "<range>")
 	private DoubleRange zsetScore = ZsetOptions.DEFAULT_SCORE;
 
+	public int getCount() {
+		return count;
+	}
+
+	public void setCount(int count) {
+		this.count = count;
+	}
+
+	public IntRange getKeyRange() {
+		return keyRange;
+	}
+
+	public void setKeyRange(IntRange keyRange) {
+		this.keyRange = keyRange;
+	}
+
 	public String getKeyspace() {
 		return keyspace;
 	}
@@ -70,12 +92,12 @@ public class DataStructureGeneratorOptions extends GeneratorOptions {
 		this.keyspace = keyspace;
 	}
 
-	public Set<Type> getTypes() {
+	public List<Type> getTypes() {
 		return types;
 	}
 
 	public void setTypes(Type... types) {
-		this.types = Stream.of(types).collect(Collectors.toSet());
+		this.types = Stream.of(types).collect(Collectors.toList());
 	}
 
 	public Optional<IntRange> getExpiration() {
@@ -194,7 +216,7 @@ public class DataStructureGeneratorOptions extends GeneratorOptions {
 		this.timeseriesStartTime = timeseriesStartTime;
 	}
 
-	public void setTypes(Set<Type> types) {
+	public void setTypes(List<Type> types) {
 		this.types = types;
 	}
 
@@ -210,57 +232,41 @@ public class DataStructureGeneratorOptions extends GeneratorOptions {
 				+ ", streamSize=" + streamSize + ", streamFieldCount=" + streamFieldCount + ", streamFieldSize="
 				+ streamFieldSize + ", stringSize=" + stringSize + ", timeseriesSize=" + timeseriesSize
 				+ ", timeseriesStartTime=" + timeseriesStartTime + ", zsetSize=" + zsetSize + ", zsetScore=" + zsetScore
-				+ ", start=" + start + ", count=" + count + "]";
+				+ ", count=" + count + "]";
 	}
 
-	public GeneratorReaderOptions generatorOptions() {
-		GeneratorReaderOptions.Builder builder = GeneratorReaderOptions.builder();
-		builder.keyspace(keyspace);
-		builder.types(types.toArray(new Type[0]));
-		builder.hashOptions(hashOptions());
-		builder.jsonOptions(jsonOptions());
-		builder.listOptions(listOptions());
-		builder.streamOptions(streamOptions());
-		builder.stringOptions(stringOptions());
-		builder.timeSeriesOptions(timeSeriesOptions());
-		builder.zsetOptions(zsetOptions());
-		builder.setOptions(setOptions());
-		expiration.ifPresent(builder::expiration);
-		return builder.build();
-	}
-
-	private SetOptions setOptions() {
+	public SetOptions setOptions() {
 		return SetOptions.builder().cardinality(setSize).build();
 	}
 
-	private ZsetOptions zsetOptions() {
+	public ZsetOptions zsetOptions() {
 		return ZsetOptions.builder().cardinality(zsetSize).score(zsetScore).build();
 	}
 
-	private HashOptions hashOptions() {
+	public HashOptions hashOptions() {
 		return HashOptions.builder().fieldCount(hashSize).fieldLength(hashFieldSize).build();
 	}
 
-	private JsonOptions jsonOptions() {
+	public JsonOptions jsonOptions() {
 		return JsonOptions.builder().fieldCount(jsonSize).fieldLength(jsonFieldSize).build();
 	}
 
-	private ListOptions listOptions() {
+	public ListOptions listOptions() {
 		return ListOptions.builder().cardinality(listSize).build();
 	}
 
-	private StreamOptions streamOptions() {
+	public StreamOptions streamOptions() {
 		return StreamOptions.builder()
 				.bodyOptions(BodyOptions.builder().fieldCount(streamFieldCount).fieldLength(streamFieldSize).build())
 				.messageCount(streamSize).build();
 	}
 
-	private StringOptions stringOptions() {
+	public StringOptions stringOptions() {
 		return StringOptions.builder().length(stringSize).build();
 	}
 
-	private TimeSeriesOptions timeSeriesOptions() {
-		Builder builder = TimeSeriesOptions.builder().sampleCount(timeseriesSize);
+	public TimeSeriesOptions timeSeriesOptions() {
+		TimeSeriesOptions.Builder builder = TimeSeriesOptions.builder().sampleCount(timeseriesSize);
 		timeseriesStartTime.ifPresent(t -> builder.startTime(t.toEpochMilli()));
 		return builder.build();
 	}

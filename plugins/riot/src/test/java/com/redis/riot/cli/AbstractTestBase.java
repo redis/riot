@@ -19,29 +19,34 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobExecutionException;
+import org.springframework.batch.core.JobParameters;
+import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
+import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.launch.support.SimpleJobLauncher;
+import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.support.transaction.ResourcelessTransactionManager;
+import org.springframework.core.task.SyncTaskExecutor;
 
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
 import com.redis.lettucemod.util.ClientBuilder;
 import com.redis.lettucemod.util.RedisModulesUtils;
 import com.redis.riot.cli.common.AbstractCommand;
 import com.redis.riot.cli.operation.OperationCommand;
-import com.redis.spring.batch.RedisItemReader.ScanBuilder;
-import com.redis.spring.batch.RedisItemWriter.DataStructureWriterBuilder;
+import com.redis.spring.batch.RedisItemReader;
+import com.redis.spring.batch.RedisItemReader.ScanReaderBuilder;
+import com.redis.spring.batch.RedisItemWriter;
+import com.redis.spring.batch.RedisItemWriter.WriterBuilder;
 import com.redis.spring.batch.common.DataStructure;
 import com.redis.spring.batch.common.IntRange;
-import com.redis.spring.batch.common.JobRunner;
-import com.redis.spring.batch.common.StepOptions;
-import com.redis.spring.batch.reader.DataStructureStringReadOperation;
+import com.redis.spring.batch.common.Utils;
 import com.redis.spring.batch.reader.GeneratorItemReader;
-import com.redis.spring.batch.reader.GeneratorReaderOptions;
 import com.redis.testcontainers.RedisServer;
 
 import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.RedisURI;
-import io.lettuce.core.codec.StringCodec;
 import io.micrometer.core.instrument.util.IOUtils;
 import picocli.CommandLine;
 import picocli.CommandLine.ParseResult;
@@ -52,14 +57,14 @@ public abstract class AbstractTestBase {
 
 	private static final String PREFIX = "riot ";
 	private static final Duration DEFAULT_AWAIT_TIMEOUT = Duration.ofSeconds(1);
-	private static final GeneratorReaderOptions DEFAULT_GENERATOR_OPTIONS = GeneratorReaderOptions.builder()
-			.keyRange(IntRange.to(10000)).build();
+	private static final IntRange DEFAULT_GENERATOR_KEY_RANGE = IntRange.to(10000);
 	protected static final int DEFAULT_BATCH_SIZE = 50;
 	private static final int DEFAULT_GENERATOR_COUNT = 100;
-	private static final Duration DEFAULT_RUNNING_TIMEOUT = Duration.ofSeconds(5);
-	private static final Duration DEFAULT_TERMINATION_TIMEOUT = Duration.ofSeconds(5);
 
-	protected JobRunner jobRunner;
+	protected JobRepository jobRepository;
+	private JobBuilderFactory jobBuilderFactory;
+	private SimpleJobLauncher jobLauncher;
+	private StepBuilderFactory stepBuilderFactory;
 
 	protected AbstractRedisClient client;
 	protected StatefulRedisModulesConnection<String, String> connection;
@@ -88,9 +93,14 @@ public abstract class AbstractTestBase {
 
 	@BeforeEach
 	void setupTest() throws Exception {
-		jobRunner = JobRunner.inMemory().runningTimeout(DEFAULT_RUNNING_TIMEOUT)
-				.terminationTimeout(DEFAULT_TERMINATION_TIMEOUT);
+		jobRepository = Utils.inMemoryJobRepository();
+		jobBuilderFactory = new JobBuilderFactory(jobRepository);
+		jobLauncher = new SimpleJobLauncher();
+		jobLauncher.setJobRepository(jobRepository);
+		jobLauncher.setTaskExecutor(new SyncTaskExecutor());
+		stepBuilderFactory = new StepBuilderFactory(jobRepository, new ResourcelessTransactionManager());
 		connection.sync().flushall();
+		awaitUntil(() -> connection.sync().dbsize().equals(0L));
 	}
 
 	protected void awaitUntilFalse(Callable<Boolean> conditionEvaluator) {
@@ -105,12 +115,12 @@ public abstract class AbstractTestBase {
 		return ClientBuilder.create(RedisURI.create(server.getRedisURI())).cluster(server.isCluster()).build();
 	}
 
-	protected ScanBuilder<String, String, DataStructure<String>> reader(AbstractRedisClient client) {
-		return new ScanBuilder<>(client, StringCodec.UTF8, new DataStructureStringReadOperation(client));
+	protected RedisItemReader<String, String, DataStructure<String>> reader(AbstractRedisClient client) {
+		return new ScanReaderBuilder(client).dataStructure();
 	}
 
-	protected DataStructureWriterBuilder<String, String> writer(AbstractRedisClient client) {
-		return new DataStructureWriterBuilder<>(client, StringCodec.UTF8);
+	protected RedisItemWriter<String, String, DataStructure<String>> writer(AbstractRedisClient client) {
+		return new WriterBuilder(client).dataStructure();
 	}
 
 	protected int execute(String filename, Consumer<ParseResult>... configurers) throws Exception {
@@ -154,34 +164,30 @@ public abstract class AbstractTestBase {
 		}
 	}
 
+	protected GeneratorItemReader generator() {
+		return generator(DEFAULT_GENERATOR_COUNT);
+	}
+
+	protected GeneratorItemReader generator(int count) {
+		GeneratorItemReader generator = new GeneratorItemReader();
+		generator.withKeyRange(DEFAULT_GENERATOR_KEY_RANGE);
+		generator.setMaxItemCount(count);
+		return generator;
+	}
+
 	protected void generate(String name) throws JobExecutionException {
-		generate(name, DEFAULT_GENERATOR_OPTIONS, DEFAULT_GENERATOR_COUNT);
+		generate(name, DEFAULT_BATCH_SIZE, generator());
 	}
 
-	protected void generate(String name, int max) throws JobExecutionException {
-		generate(name, DEFAULT_GENERATOR_OPTIONS, max);
-	}
-
-	protected void generate(String name, GeneratorReaderOptions options) throws JobExecutionException {
-		generate(name, options, DEFAULT_GENERATOR_COUNT);
-	}
-
-	protected void generate(String name, GeneratorReaderOptions options, int max) throws JobExecutionException {
-		generate(name, DEFAULT_BATCH_SIZE, options, max);
-	}
-
-	protected void generate(String name, int chunkSize, GeneratorReaderOptions options, int max)
-			throws JobExecutionException {
-		GeneratorItemReader reader = new GeneratorItemReader(options);
-		reader.setMaxItemCount(max);
-		run(name + "-generate", chunkSize, reader, writer(client).build());
+	protected void generate(String name, int chunkSize, GeneratorItemReader reader) throws JobExecutionException {
+		run(name + "-generate", chunkSize, reader, writer(client));
 	}
 
 	protected <T> JobExecution run(String name, int chunkSize, ItemReader<T> reader, ItemWriter<T> writer)
 			throws JobExecutionException {
 		SimpleStepBuilder<T, T> step = step(name, chunkSize, reader, writer);
-		Job job = jobRunner.job(name).start(step.build()).build();
-		return jobRunner.run(job);
+		Job job = jobBuilderFactory.get(name).start(step.build()).build();
+		return jobLauncher.run(job, new JobParameters());
 	}
 
 	protected String id() {
@@ -189,7 +195,10 @@ public abstract class AbstractTestBase {
 	}
 
 	protected <T> SimpleStepBuilder<T, T> step(String name, int chunkSize, ItemReader<T> reader, ItemWriter<T> writer) {
-		return jobRunner.step(name, reader, null, writer, StepOptions.builder().chunkSize(chunkSize).build());
+		SimpleStepBuilder<T, T> step = stepBuilderFactory.get(name).chunk(chunkSize);
+		step.reader(reader);
+		step.writer(writer);
+		return step;
 	}
 
 }

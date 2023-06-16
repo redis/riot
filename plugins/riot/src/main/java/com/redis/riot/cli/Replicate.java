@@ -18,6 +18,7 @@ import org.springframework.batch.core.job.flow.support.SimpleFlow;
 import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.core.step.tasklet.TaskletStep;
 import org.springframework.batch.item.ItemProcessor;
+import org.springframework.batch.item.ItemWriter;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
@@ -28,35 +29,35 @@ import com.redis.riot.cli.common.AbstractCommand;
 import com.redis.riot.cli.common.CommandContext;
 import com.redis.riot.cli.common.KeyComparisonStepListener;
 import com.redis.riot.cli.common.KeyComparisonWriteListener;
-import com.redis.riot.cli.common.ProgressMonitor;
+import com.redis.riot.cli.common.NoopItemWriter;
 import com.redis.riot.cli.common.RedisOptions;
 import com.redis.riot.cli.common.RedisReaderOptions;
 import com.redis.riot.cli.common.RedisWriterOptions;
 import com.redis.riot.cli.common.ReplicateCommandContext;
 import com.redis.riot.cli.common.ReplicationOptions;
-import com.redis.riot.cli.common.ReplicationOptions.ReplicationStrategy;
+import com.redis.riot.cli.common.ReplicationStrategy;
+import com.redis.riot.cli.common.StepProgressMonitor;
 import com.redis.riot.core.KeyComparisonLogger;
 import com.redis.riot.core.processor.CompositeItemStreamItemProcessor;
 import com.redis.riot.core.processor.KeyValueProcessor;
 import com.redis.spring.batch.RedisItemReader;
+import com.redis.spring.batch.RedisItemReader.AbstractReaderBuilder;
 import com.redis.spring.batch.RedisItemReader.ComparatorBuilder;
-import com.redis.spring.batch.RedisItemReader.LiveBuilder;
-import com.redis.spring.batch.RedisItemReader.ScanBuilder;
-import com.redis.spring.batch.RedisItemWriter;
-import com.redis.spring.batch.RedisItemWriter.AbstractBuilder;
+import com.redis.spring.batch.RedisItemReader.LiveReaderBuilder;
+import com.redis.spring.batch.RedisItemWriter.WriterBuilder;
+import com.redis.spring.batch.common.FilteringItemProcessor;
 import com.redis.spring.batch.common.IntRange;
-import com.redis.spring.batch.common.JobRunner;
-import com.redis.spring.batch.common.KeyValue;
-import com.redis.spring.batch.common.StepOptions;
+import com.redis.spring.batch.common.PoolOptions;
 import com.redis.spring.batch.reader.KeyComparison;
 import com.redis.spring.batch.reader.KeyComparison.Status;
-import com.redis.spring.batch.reader.ReaderOptions;
-import com.redis.spring.batch.reader.ScanSizeEstimator;
+import com.redis.spring.batch.reader.LiveRedisItemReader;
 import com.redis.spring.batch.reader.SlotRangeFilter;
+import com.redis.spring.batch.step.FlushingStepBuilder;
 import com.redis.spring.batch.writer.KeyComparisonCountItemWriter;
 import com.redis.spring.batch.writer.KeyComparisonCountItemWriter.Results;
-import com.redis.spring.batch.writer.operation.Noop;
 
+import io.lettuce.core.AbstractRedisClient;
+import io.lettuce.core.RedisURI;
 import io.lettuce.core.codec.ByteArrayCodec;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
@@ -69,7 +70,14 @@ public class Replicate extends AbstractCommand {
 	private static final Logger log = Logger.getLogger(Replicate.class.getName());
 
 	private static final String COMPARE_MESSAGE = " >%,d T%,d ≠%,d ⧗%,d";
-	private static final Noop<byte[], byte[], KeyValue<byte[]>, Object> NOOP_OPERATION = new Noop<>();
+
+	private static final String JOB_NAME = "replicate-job";
+
+	private static final String COMPARE_STEP = "compare-step";
+
+	private static final String SCAN_STEP = "scan-step";
+
+	private static final String LIVE_STEP = "live-step";
 
 	@ArgGroup(exclusive = false, heading = "Target Redis connection options%n")
 	private RedisOptions targetRedisOptions = new RedisOptions();
@@ -81,7 +89,7 @@ public class Replicate extends AbstractCommand {
 	private RedisWriterOptions writerOptions = new RedisWriterOptions();
 
 	@Mixin
-	private ReplicationOptions replicateOptions = new ReplicationOptions();
+	private ReplicationOptions replicationOptions = new ReplicationOptions();
 
 	public RedisOptions getTargetRedisOptions() {
 		return targetRedisOptions;
@@ -100,32 +108,37 @@ public class Replicate extends AbstractCommand {
 	}
 
 	@Override
-	protected CommandContext context(JobRunner jobRunner, RedisOptions redisOptions) {
-		return new ReplicateCommandContext(jobRunner, redisOptions, targetRedisOptions);
+	protected CommandContext context(RedisURI redisURI, AbstractRedisClient redisClient) {
+		RedisURI targetRedisURI = redisURI(targetRedisOptions);
+		AbstractRedisClient targetRedisClient = client(targetRedisURI, targetRedisOptions);
+		return new ReplicateCommandContext(redisURI, redisClient, targetRedisURI, targetRedisClient);
 	}
 
-	protected ScanSizeEstimator estimator(CommandContext context) {
-		return new ScanSizeEstimator(context.getRedisClient(), readerOptions.scanSizeEstimatorOptions());
-	}
-
-	protected Step verificationStep(ReplicateCommandContext context) {
+	protected Step compareStep(ReplicateCommandContext context) {
 		log.log(Level.FINE, "Creating key comparator with TTL tolerance of {0} seconds",
-				replicateOptions.getTtlTolerance());
-		RedisItemReader<String, String, KeyComparison> reader = configure(context.comparator()).build();
+				replicationOptions.getTtlTolerance());
+		ComparatorBuilder comparator = new ComparatorBuilder(context.getRedisClient(), context.getTargetRedisClient());
+		configureReader(comparator, readerOptions);
+		comparator.scanCount(readerOptions.getScanCount());
+		comparator.scanMatch(readerOptions.getScanMatch());
+		comparator.scanType(readerOptions.getScanType());
+		comparator.ttlTolerance(Duration.ofMillis(replicationOptions.getTtlTolerance()));
+		comparator.rightPoolOptions(PoolOptions.builder().maxTotal(replicationOptions.getTargetPoolMaxTotal()).build());
 		KeyComparisonCountItemWriter writer = new KeyComparisonCountItemWriter();
-		SimpleStepBuilder<KeyComparison, KeyComparison> step = step(context, "verification", reader, null, writer);
-		if (replicateOptions.isShowDiffs()) {
+		SimpleStepBuilder<KeyComparison, KeyComparison> step = step(COMPARE_STEP);
+		RedisItemReader<String, String, KeyComparison> reader = comparator.build();
+		reader.setName(readerName(COMPARE_STEP));
+		step.reader(reader);
+		step.writer(writer);
+		if (replicationOptions.isShowDiffs()) {
 			step.listener(new KeyComparisonWriteListener(new KeyComparisonLogger(log)));
 		}
 		step.listener(new KeyComparisonStepListener(writer, getTransferOptions().getProgressUpdateInterval()));
-		ProgressMonitor monitor = progressMonitor().task("Verifying").initialMax(estimator(context))
-				.extraMessage(() -> extraMessage(writer.getResults())).build();
-		return step(step, monitor).build();
-	}
-
-	private ComparatorBuilder configure(ComparatorBuilder builder) {
-		return builder.rightPoolOptions(readerOptions.poolOptions()).scanOptions(readerOptions.scanOptions())
-				.ttlTolerance(replicateOptions.getTtlToleranceDuration());
+		StepProgressMonitor monitor = progressMonitor("Comparing")
+				.withInitialMax(estimator(context.getRedisClient(), readerOptions))
+				.withExtraMessage(() -> extraMessage(writer.getResults()));
+		monitor.register(step);
+		return step.build();
 	}
 
 	private String extraMessage(Results results) {
@@ -134,11 +147,11 @@ public class Replicate extends AbstractCommand {
 	}
 
 	public ReplicationOptions getReplicateOptions() {
-		return replicateOptions;
+		return replicationOptions;
 	}
 
 	public void setReplicationOptions(ReplicationOptions replicationOptions) {
-		this.replicateOptions = replicationOptions;
+		this.replicationOptions = replicationOptions;
 	}
 
 	public RedisWriterOptions getWriterOptions() {
@@ -152,7 +165,7 @@ public class Replicate extends AbstractCommand {
 	@Override
 	protected Job job(CommandContext jobCommandContext) {
 		ReplicateCommandContext context = (ReplicateCommandContext) jobCommandContext;
-		switch (replicateOptions.getMode()) {
+		switch (replicationOptions.getMode()) {
 		case COMPARE:
 			return compareJob(context);
 		case LIVE:
@@ -162,125 +175,130 @@ public class Replicate extends AbstractCommand {
 		case SNAPSHOT:
 			return snapshotJob(context);
 		default:
-			throw new IllegalArgumentException("Unknown replication mode: " + replicateOptions.getMode());
+			throw new IllegalArgumentException("Unknown replication mode: " + replicationOptions.getMode());
 		}
 	}
 
 	private Job liveOnlyJob(ReplicateCommandContext context) {
-		SimpleJobBuilder job = context.getJobRunner().job("liveonly-replication").start(liveStep(context));
+		SimpleJobBuilder job = job(JOB_NAME).start(liveStep(context));
 		return job.build();
 	}
 
 	private Job compareJob(ReplicateCommandContext context) {
-		SimpleJobBuilder job = context.getJobRunner().job("compare").start(verificationStep(context));
+		SimpleJobBuilder job = job("compare-job").start(compareStep(context));
 		return job.build();
 	}
 
 	private Job snapshotJob(ReplicateCommandContext context) {
-		SimpleJobBuilder snapshotJob = context.getJobRunner().job("snapshot-replication").start(scanStep(context));
-		optionalVerificationStep(context).ifPresent(snapshotJob::next);
+		SimpleJobBuilder snapshotJob = job(JOB_NAME).start(scanStep(context));
+		optionalCompareStep(context).ifPresent(snapshotJob::next);
 		return snapshotJob.build();
 	}
 
 	private Job liveJob(ReplicateCommandContext context) {
-		TaskletStep liveStep = liveStep(context);
-		SimpleFlow liveFlow = new FlowBuilder<SimpleFlow>("live-flow").start(liveStep).build();
 		TaskletStep scanStep = scanStep(context);
 		SimpleFlow scanFlow = new FlowBuilder<SimpleFlow>("scan-flow").start(scanStep).build();
-		SimpleFlow replicationFlow = new FlowBuilder<SimpleFlow>("replication-flow")
-				.split(new SimpleAsyncTaskExecutor()).add(liveFlow, scanFlow).build();
-		JobFlowBuilder liveJob = context.getJobRunner().job("live-replication").start(replicationFlow);
-		optionalVerificationStep(context).ifPresent(liveJob::next);
+		TaskletStep liveStep = liveStep(context);
+		SimpleFlow liveFlow = new FlowBuilder<SimpleFlow>("live-flow").start(liveStep).build();
+		SimpleFlow replicationFlow = new FlowBuilder<SimpleFlow>("replicate-flow").split(new SimpleAsyncTaskExecutor())
+				.add(liveFlow, scanFlow).build();
+		JobFlowBuilder liveJob = job(JOB_NAME).start(replicationFlow);
+		optionalCompareStep(context).ifPresent(liveJob::next);
 		return liveJob.build().build();
 	}
 
-	protected Optional<Step> optionalVerificationStep(ReplicateCommandContext context) {
-		if (replicateOptions.isNoVerify()) {
+	protected Optional<Step> optionalCompareStep(ReplicateCommandContext context) {
+		if (replicationOptions.isNoVerify()) {
 			return Optional.empty();
 		}
 		if (writerOptions.isDryRun()) {
 			return Optional.empty();
 		}
-		if (replicateOptions.getKeyProcessor().isPresent()) {
+		if (replicationOptions.getKeyProcessor().isPresent()) {
 			// Verification cannot be done if a processor is set
 			log.warning("Key processor enabled, verification will be skipped");
 			return Optional.empty();
 		}
-		return Optional.of(verificationStep(context));
+		return Optional.of(compareStep(context));
 	}
 
 	private TaskletStep scanStep(ReplicateCommandContext context) {
-		RedisItemReader reader = reader(context).options(readerOptions.readerOptions())
-				.scanOptions(readerOptions.scanOptions()).build();
-		RedisItemWriter writer = checkWriter(context).build();
-		ScanSizeEstimator estimator = estimator(context);
-		ProgressMonitor monitor = progressMonitor().task("Scanning").initialMax(estimator).build();
-		return step(step(context, "snapshot-replication", reader, processor(context), writer), monitor).build();
+		SimpleStepBuilder step = step(SCAN_STEP);
+		RedisItemReader reader = reader(reader(context.getRedisClient(), readerOptions));
+		reader.setName(readerName(SCAN_STEP));
+		step.reader(reader);
+		ItemWriter writer = checkWriter(context);
+		step.writer(writer);
+		ItemProcessor processor = processor(context);
+		step.processor(processor);
+		StepProgressMonitor monitor = progressMonitor("Scanning");
+		monitor.withInitialMax(estimator(context.getRedisClient(), readerOptions));
+		monitor.register(step);
+		return step.build();
 	}
 
 	private TaskletStep liveStep(ReplicateCommandContext context) {
-		RedisItemReader reader = liveReader(context).build();
-		RedisItemWriter writer = checkWriter(context).build();
-		StepOptions stepOptions = liveStepOptions(stepOptions());
+		SimpleStepBuilder step = configureStep(flushingStep());
+		LiveRedisItemReader reader = liveReader(context);
+		reader.setName(readerName(LIVE_STEP));
+		step.reader(reader);
 		ItemProcessor<byte[], ?> processor = processor(context);
-		SimpleStepBuilder<byte[], ?> step = step(context, "live-replication", reader, processor, writer, stepOptions);
-		ProgressMonitor monitor = progressMonitor().task("Listening").build();
-		return step(step, monitor).build();
+		step.processor(processor);
+		ItemWriter writer = checkWriter(context);
+		step.writer(writer);
+		StepProgressMonitor monitor = progressMonitor("Listening");
+		monitor.register(step);
+		return step.build();
 	}
 
-	private LiveBuilder<byte[], byte[], ?> liveReader(ReplicateCommandContext context) {
-		LiveBuilder<byte[], byte[], ?> builder = reader(context).scanOptions(readerOptions.scanOptions()).live();
-		ReaderOptions liveReaderOptions = readerOptions.readerOptions();
-		liveStepOptions(liveReaderOptions.getStepOptions());
-		builder.options(liveReaderOptions);
-		builder.eventQueueOptions(replicateOptions.notificationQueueOptions());
+	private SimpleStepBuilder flushingStep() {
+		FlushingStepBuilder step = new FlushingStepBuilder<>(stepBuilder(LIVE_STEP));
+		step.flushingInterval(Duration.ofMillis(replicationOptions.getFlushInterval()));
+		step.idleTimeout(Duration.ofMillis(replicationOptions.getIdleTimeout()));
+		return step;
+	}
+
+	private String readerName(String name) {
+		return name + "-reader";
+	}
+
+	private LiveRedisItemReader<byte[], byte[], ?> liveReader(CommandContext context) {
+		LiveReaderBuilder builder = reader(context.getRedisClient(), readerOptions).live();
+		builder.flushingInterval(Duration.ofMillis(replicationOptions.getFlushInterval()));
+		builder.idleTimeout(Duration.ofMillis(replicationOptions.getIdleTimeout()));
 		builder.database(context.getRedisURI().getDatabase());
-		replicateOptions.getKeySlot().map(this::keySlotFilter).ifPresent(builder::keyFilter);
-		return builder;
+		builder.notificationQueueOptions(replicationOptions.notificationQueueOptions());
+		builder.notificationOrdering(replicationOptions.getNotificationOrdering());
+		LiveRedisItemReader<byte[], byte[], ?> reader = (LiveRedisItemReader<byte[], byte[], ?>) reader(builder);
+		replicationOptions.getKeySlot().map(this::keySlotFilter)
+				.ifPresent(f -> reader.withKeyProcessor(new FilteringItemProcessor<>(f)));
+		return reader;
 	}
 
-	private StepOptions liveStepOptions(StepOptions stepOptions) {
-		stepOptions.setFlushingInterval(Duration.ofMillis(replicateOptions.getFlushInterval()));
-		if (replicateOptions.getIdleTimeout() > 0) {
-			stepOptions.setIdleTimeout(Duration.ofMillis(replicateOptions.getIdleTimeout()));
-		}
-		return stepOptions;
-	}
-
-	private AbstractBuilder<byte[], byte[], ?, ?> checkWriter(ReplicateCommandContext context) {
+	private ItemWriter checkWriter(ReplicateCommandContext context) {
 		if (writerOptions.isDryRun()) {
-			return RedisItemWriter.operation(context.getTargetRedisClient(), ByteArrayCodec.INSTANCE, NOOP_OPERATION);
+			return new NoopItemWriter<>();
 		}
-		if (isDataStructure()) {
-			return configure(context.targetDataStructureWriter(ByteArrayCodec.INSTANCE)
-					.dataStructureOptions(writerOptions.dataStructureOptions()));
-		}
-		return configure(context.targetKeyDumpWriter());
+		WriterBuilder writer = writer(context.getTargetRedisClient(), writerOptions);
+		return isKeyDump() ? writer.keyDump() : writer.dataStructure(ByteArrayCodec.INSTANCE);
 	}
 
-	private ScanBuilder<byte[], byte[], ?> reader(ReplicateCommandContext context) {
-		if (isDataStructure()) {
-			return context.dataStructureReader(ByteArrayCodec.INSTANCE);
-		}
-		return context.keyDumpReader();
+	private boolean isKeyDump() {
+		return replicationOptions.getStrategy() == ReplicationStrategy.DUMP;
+	}
+
+	private <B extends AbstractReaderBuilder<B>> RedisItemReader<byte[], byte[], ?> reader(B reader) {
+		return isKeyDump() ? reader.keyDump() : reader.dataStructure(ByteArrayCodec.INSTANCE);
 	}
 
 	private Predicate<byte[]> keySlotFilter(IntRange range) {
 		return SlotRangeFilter.of(ByteArrayCodec.INSTANCE, range.getMin(), range.getMax());
 	}
 
-	private <B extends AbstractBuilder> B configure(B writer) {
-		return (B) writer.options(writerOptions.writerOptions());
-	}
-
-	private boolean isDataStructure() {
-		return replicateOptions.getStrategy() == ReplicationStrategy.DS;
-	}
-
 	private ItemProcessor<byte[], ?> processor(ReplicateCommandContext context) {
 		SpelExpressionParser parser = new SpelExpressionParser();
 		List<ItemProcessor> processors = new ArrayList<>();
-		replicateOptions.getKeyProcessor().ifPresent(p -> {
+		replicationOptions.getKeyProcessor().ifPresent(p -> {
 			EvaluationContext evaluationContext = new StandardEvaluationContext();
 			evaluationContext.setVariable("src", context.getRedisURI());
 			evaluationContext.setVariable("dest", context.getTargetRedisURI());

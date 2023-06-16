@@ -4,16 +4,9 @@ import java.io.File;
 import java.time.Duration;
 import java.util.Optional;
 
-import com.redis.lettucemod.util.ClientBuilder;
-import com.redis.lettucemod.util.RedisURIBuilder;
-
-import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.ReadFrom;
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.SslVerifyMode;
-import io.lettuce.core.event.DefaultEventPublisherOptions;
-import io.lettuce.core.metrics.CommandLatencyCollector;
-import io.lettuce.core.metrics.DefaultCommandLatencyCollectorOptions;
 import picocli.CommandLine.Option;
 
 public class RedisOptions {
@@ -183,6 +176,30 @@ public class RedisOptions {
 		this.timeout = timeout;
 	}
 
+	public Optional<File> getKey() {
+		return key;
+	}
+
+	public void setKey(Optional<File> key) {
+		this.key = key;
+	}
+
+	public File getKeyCert() {
+		return keyCert;
+	}
+
+	public void setKeyCert(File keyCert) {
+		this.keyCert = keyCert;
+	}
+
+	public char[] getKeyPassword() {
+		return keyPassword;
+	}
+
+	public void setKeyPassword(char[] keyPassword) {
+		this.keyPassword = keyPassword;
+	}
+
 	public Optional<File> getKeystore() {
 		return keystore;
 	}
@@ -289,50 +306,6 @@ public class RedisOptions {
 
 	public void setCluster(boolean cluster) {
 		this.cluster = cluster;
-	}
-
-	public RedisURI uri() {
-		RedisURIBuilder builder = RedisURIBuilder.create();
-		if (uri != null) {
-			builder.uri(uri.toString());
-		}
-		host.ifPresent(builder::host);
-		if (database > 0) {
-			builder.database(database);
-		}
-		if (port > 0) {
-			builder.port(port);
-		}
-		builder.clientName(clientName);
-		builder.username(username);
-		builder.password(password);
-		builder.socket(socket);
-		builder.ssl(tls);
-		builder.sslVerifyMode(tlsVerifyMode);
-		timeout.ifPresent(builder::timeoutInSeconds);
-		return builder.build();
-	}
-
-	public AbstractRedisClient client() {
-		ClientBuilder builder = ClientBuilder.create(uri());
-		builder.autoReconnect(!noAutoReconnect);
-		builder.cluster(cluster);
-		if (showMetrics) {
-			builder.commandLatencyRecorder(
-					CommandLatencyCollector.create(DefaultCommandLatencyCollectorOptions.builder().enable().build()));
-			builder.commandLatencyPublisherOptions(
-					DefaultEventPublisherOptions.builder().eventEmitInterval(Duration.ofSeconds(metricsStep)).build());
-		}
-
-		builder.keystore(keystore);
-		builder.keystorePassword(keystorePassword);
-		builder.truststore(truststore);
-		builder.truststorePassword(truststorePassword);
-		builder.trustManager(trustedCerts);
-		builder.key(key);
-		builder.keyCert(keyCert);
-		builder.keyPassword(keyPassword);
-		return builder.build();
 	}
 
 }

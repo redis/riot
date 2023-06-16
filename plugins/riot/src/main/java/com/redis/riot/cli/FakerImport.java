@@ -6,8 +6,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.springframework.batch.core.Job;
-import org.springframework.batch.core.job.builder.JobBuilder;
-import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
+import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
 import com.redis.lettucemod.api.sync.RediSearchCommands;
@@ -16,8 +15,8 @@ import com.redis.lettucemod.search.IndexInfo;
 import com.redis.lettucemod.util.RedisModulesUtils;
 import com.redis.riot.cli.common.AbstractImportCommand;
 import com.redis.riot.cli.common.CommandContext;
-import com.redis.riot.cli.common.ProgressMonitor;
-import com.redis.riot.cli.gen.FakerGeneratorOptions;
+import com.redis.riot.cli.common.FakerImportOptions;
+import com.redis.riot.cli.common.StepProgressMonitor;
 import com.redis.riot.core.FakerItemReader;
 import com.redis.riot.core.Generator;
 import com.redis.riot.core.MapGenerator;
@@ -32,32 +31,32 @@ public class FakerImport extends AbstractImportCommand {
 	private static final Logger log = Logger.getLogger(FakerImport.class.getName());
 
 	@Mixin
-	private FakerGeneratorOptions options = new FakerGeneratorOptions();
+	private FakerImportOptions options = new FakerImportOptions();
 
-	public FakerGeneratorOptions getOptions() {
+	public FakerImportOptions getOptions() {
 		return options;
 	}
 
-	public void setOptions(FakerGeneratorOptions options) {
+	public void setOptions(FakerImportOptions options) {
 		this.options = options;
 	}
 
 	@Override
 	protected Job job(CommandContext context) {
-		JobBuilder job = context.getJobRunner().job(commandName());
-		ProgressMonitor monitor = progressMonitor().initialMax(options.getCount()).task("Generating").build();
-		return job.start(step(step(context, reader(context)), monitor).build()).build();
-	}
-
-	private AbstractItemCountingItemStreamItemReader<Map<String, Object>> reader(CommandContext context) {
 		log.log(Level.FINE, "Creating Faker reader with {0}", options);
 		FakerItemReader reader = new FakerItemReader(generator(context));
-		options.configure(reader);
-		return reader;
+		reader.setCurrentItemCount(options.getStart() - 1);
+		reader.setMaxItemCount(options.getCount());
+		SimpleStepBuilder<Map<String, Object>, Map<String, Object>> step = step(context.getRedisClient(), reader);
+		StepProgressMonitor monitor = progressMonitor("Generating");
+		monitor.withInitialMax(options.getCount());
+		monitor.register(step);
+		return job(commandName()).start(step.build()).build();
 	}
 
 	private void addFieldsFromIndex(CommandContext context, String index, Map<String, String> fields) {
-		try (StatefulRedisModulesConnection<String, String> connection = context.connection()) {
+		try (StatefulRedisModulesConnection<String, String> connection = RedisModulesUtils
+				.connection(context.getRedisClient())) {
 			RediSearchCommands<String, String> commands = connection.sync();
 			IndexInfo info = RedisModulesUtils.indexInfo(commands.ftInfo(index));
 			for (Field<String> field : info.getFields()) {

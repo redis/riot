@@ -17,7 +17,6 @@ import com.redis.riot.cli.file.FileExportOptions;
 import com.redis.riot.core.FileDumpType;
 import com.redis.riot.core.resource.JsonResourceItemWriterBuilder;
 import com.redis.riot.core.resource.XmlResourceItemWriterBuilder;
-import com.redis.spring.batch.RedisItemReader;
 import com.redis.spring.batch.common.DataStructure;
 
 import picocli.CommandLine.ArgGroup;
@@ -27,6 +26,8 @@ import picocli.CommandLine.Parameters;
 
 @Command(name = "file-export", description = "Export Redis data to JSON or XML files.")
 public class FileExport extends AbstractExportCommand {
+
+	private static final String TASK_NAME = "Exporting to file %s";
 
 	@Parameters(arity = "1", description = "File path or URL", paramLabel = "FILE")
 	private String file;
@@ -61,9 +62,9 @@ public class FileExport extends AbstractExportCommand {
 		} catch (IOException e) {
 			throw new JobBuilderException(e);
 		}
-		RedisItemReader<String, String, DataStructure<String>> reader = reader(context);
-		String task = String.format("Exporting %s", resource.getFilename());
-		return job(context, step(context, reader, writer(resource)), task);
+		ItemWriter<DataStructure<String>> writer = writer(resource);
+		String task = String.format(TASK_NAME, resource.getFilename());
+		return job(step(context, task, writer));
 	}
 
 	private ItemWriter<DataStructure<String>> writer(WritableResource resource) {

@@ -22,8 +22,7 @@ import org.testcontainers.utility.DockerImageName;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.redis.lettucemod.api.sync.RedisModulesCommands;
-import com.redis.spring.batch.reader.GeneratorReaderOptions;
-import com.redis.spring.batch.reader.GeneratorReaderOptions.Type;
+import com.redis.spring.batch.reader.GeneratorItemReader;
 
 @SuppressWarnings("unchecked")
 class PostgresTests extends AbstractDatabaseTestBase {
@@ -56,7 +55,7 @@ class PostgresTests extends AbstractDatabaseTestBase {
 		try (Statement statement = databaseConnection.createStatement()) {
 			statement.execute("CREATE TABLE mytable (id smallint NOT NULL, field1 bpchar, field2 bpchar)");
 			statement.execute("ALTER TABLE ONLY mytable ADD CONSTRAINT pk_mytable PRIMARY KEY (id)");
-			generate(filename, GeneratorReaderOptions.builder().types(Type.HASH).build());
+			generate(filename, DEFAULT_BATCH_SIZE, generator().withTypes(GeneratorItemReader.Type.HASH));
 			execute(filename);
 			statement.execute("SELECT COUNT(*) AS count FROM mytable");
 			ResultSet countResultSet = statement.getResultSet();

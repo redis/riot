@@ -1,27 +1,25 @@
 package com.redis.riot.core;
 
 import java.time.Duration;
-import java.util.concurrent.TimeUnit;
+import java.util.List;
 
-import org.springframework.batch.item.ItemReader;
-import org.springframework.batch.item.ItemStreamReader;
 import org.springframework.batch.item.ItemStreamSupport;
+import org.springframework.batch.item.ItemStreamWriter;
+import org.springframework.batch.item.ItemWriter;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 
 import com.redis.spring.batch.common.DelegatingItemStreamSupport;
-import com.redis.spring.batch.reader.PollableItemReader;
 
-public class ThrottledItemReader<T> extends DelegatingItemStreamSupport
-		implements ItemStreamReader<T>, PollableItemReader<T> {
+public class ThrottledItemWriter<T> extends DelegatingItemStreamSupport implements ItemStreamWriter<T> {
 
-	private final ItemReader<T> delegate;
+	private final ItemWriter<T> delegate;
 	private final long sleep;
 
-	public ThrottledItemReader(ItemReader<T> delegate, Duration sleepDuration) {
+	public ThrottledItemWriter(ItemWriter<T> delegate, Duration sleepDuration) {
 		super(delegate);
 		setName(ClassUtils.getShortName(getClass()));
-		Assert.notNull(delegate, "Reader delegate must not be null");
+		Assert.notNull(delegate, "Delegate must not be null");
 		Assert.notNull(sleepDuration, "Sleep duration must not be null");
 		Assert.isTrue(!sleepDuration.isNegative() && !sleepDuration.isZero(),
 				"Sleep duration must be strictly positive");
@@ -38,18 +36,8 @@ public class ThrottledItemReader<T> extends DelegatingItemStreamSupport
 	}
 
 	@Override
-	public T read() throws Exception {
-		sleep();
-		return delegate.read();
-	}
-
-	@Override
-	public T poll(long timeout, TimeUnit unit) throws InterruptedException, PollingException {
-		sleep();
-		return ((PollableItemReader<T>) delegate).poll(timeout, unit);
-	}
-
-	private void sleep() throws InterruptedException {
+	public void write(List<? extends T> items) throws Exception {
+		delegate.write(items);
 		Thread.sleep(sleep);
 	}
 

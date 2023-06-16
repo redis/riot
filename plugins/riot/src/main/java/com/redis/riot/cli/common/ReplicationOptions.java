@@ -1,24 +1,17 @@
 package com.redis.riot.cli.common;
 
-import java.time.Duration;
 import java.util.Optional;
 
-import com.redis.spring.batch.RedisItemReader.ComparatorBuilder;
 import com.redis.spring.batch.common.IntRange;
+import com.redis.spring.batch.common.PoolOptions;
+import com.redis.spring.batch.reader.KeyComparisonReadOperation;
+import com.redis.spring.batch.reader.KeyspaceNotificationOrderingStrategy;
 import com.redis.spring.batch.reader.QueueOptions;
 import com.redis.spring.batch.step.FlushingChunkProvider;
 
 import picocli.CommandLine.Option;
 
 public class ReplicationOptions {
-
-	public enum ReplicationMode {
-		SNAPSHOT, LIVE, LIVEONLY, COMPARE
-	}
-
-	public enum ReplicationStrategy {
-		DUMP, DS
-	}
 
 	@Option(names = "--mode", description = "Replication mode: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<name>")
 	private ReplicationMode mode = ReplicationMode.SNAPSHOT;
@@ -28,6 +21,9 @@ public class ReplicationOptions {
 
 	@Option(names = "--event-queue", description = "Capacity of the keyspace notification event queue (default: ${DEFAULT-VALUE}).", paramLabel = "<size>")
 	private int notificationQueueCapacity = QueueOptions.DEFAULT_CAPACITY;
+
+	@Option(names = "--event-order", description = "Keyspace notification ordering strategy: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<name>")
+	private KeyspaceNotificationOrderingStrategy notificationOrdering = KeyspaceNotificationOrderingStrategy.PRIORITY;
 
 	@Option(names = "--no-verify", description = "Disable verifying target against source dataset after replication.")
 	private boolean noVerify;
@@ -39,7 +35,7 @@ public class ReplicationOptions {
 	private Optional<IntRange> keySlot = Optional.empty();
 
 	@Option(names = "--ttl-tolerance", description = "Max TTL difference to use for dataset verification (default: ${DEFAULT-VALUE}).", paramLabel = "<ms>")
-	private long ttlTolerance = ComparatorBuilder.DEFAULT_TTL_TOLERANCE.toMillis();
+	private long ttlTolerance = KeyComparisonReadOperation.DEFAULT_TTL_TOLERANCE.toMillis();
 
 	@Option(names = "--show-diffs", description = "Print details of key mismatches during dataset verification.")
 	private boolean showDiffs;
@@ -47,8 +43,27 @@ public class ReplicationOptions {
 	@Option(names = "--flush-interval", description = "Max duration between flushes (default: ${DEFAULT-VALUE}).", paramLabel = "<ms>")
 	private long flushInterval = FlushingChunkProvider.DEFAULT_FLUSHING_INTERVAL.toMillis();
 
-	@Option(names = "--idle-timeout", description = "Min duration of inactivity to consider transfer complete.", paramLabel = "<ms>")
+	@Option(names = "--idle-timeout", description = "Min duration of inactivity to consider transfer complete (default: no timeout).", paramLabel = "<ms>")
 	private long idleTimeout;
+
+	@Option(names = "--target-pool", description = "Max connections for target Redis pool (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
+	private int targetPoolMaxTotal = PoolOptions.DEFAULT_MAX_TOTAL;
+
+	public KeyspaceNotificationOrderingStrategy getNotificationOrdering() {
+		return notificationOrdering;
+	}
+
+	public void setNotificationOrdering(KeyspaceNotificationOrderingStrategy notificationOrdering) {
+		this.notificationOrdering = notificationOrdering;
+	}
+
+	public int getTargetPoolMaxTotal() {
+		return targetPoolMaxTotal;
+	}
+
+	public void setTargetPoolMaxTotal(int targetPoolMaxTotal) {
+		this.targetPoolMaxTotal = targetPoolMaxTotal;
+	}
 
 	public long getFlushInterval() {
 		return flushInterval;
@@ -124,10 +139,6 @@ public class ReplicationOptions {
 
 	public void setTtlTolerance(long ttlTolerance) {
 		this.ttlTolerance = ttlTolerance;
-	}
-
-	public Duration getTtlToleranceDuration() {
-		return Duration.ofMillis(ttlTolerance);
 	}
 
 	public boolean isShowDiffs() {

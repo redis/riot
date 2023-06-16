@@ -70,10 +70,10 @@ abstract class AbstractDatabaseTestBase extends AbstractTestBase {
 		for (ParseResult sub : parseResult.subcommands()) {
 			Object command = sub.commandSpec().commandLine().getCommand();
 			if (command instanceof DbImport) {
-				configure(((DbImport) command).getDataSourceOptions());
+				configure(((DbImport) command).getOptions().getDataSourceOptions());
 			}
 			if (command instanceof DbExport) {
-				configure(((DbExport) command).getDataSourceOptions());
+				configure(((DbExport) command).getOptions().getDataSourceOptions());
 			}
 		}
 

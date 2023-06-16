@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.item.ItemProcessor;
+import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
 import org.springframework.batch.item.support.CompositeItemWriter;
@@ -19,6 +20,7 @@ import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.util.Assert;
 
 import com.redis.lettucemod.util.GeoLocation;
+import com.redis.lettucemod.util.RedisModulesUtils;
 import com.redis.riot.cli.operation.DelCommand;
 import com.redis.riot.cli.operation.EvalCommand;
 import com.redis.riot.cli.operation.ExpireCommand;
@@ -41,10 +43,8 @@ import com.redis.riot.core.processor.FilteringProcessor;
 import com.redis.riot.core.processor.MapAccessor;
 import com.redis.riot.core.processor.MapProcessor;
 import com.redis.riot.core.processor.SpelProcessor;
-import com.redis.spring.batch.RedisItemWriter;
-import com.redis.spring.batch.common.Operation;
 
-import io.lettuce.core.codec.StringCodec;
+import io.lettuce.core.AbstractRedisClient;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 
@@ -88,12 +88,12 @@ public abstract class AbstractImportCommand extends AbstractCommand {
 		this.writerOptions = writerOptions;
 	}
 
-	protected ItemProcessor<Map<String, Object>, Map<String, Object>> processor(CommandContext context) {
+	protected ItemProcessor<Map<String, Object>, Map<String, Object>> processor(AbstractRedisClient client) {
 		List<ItemProcessor<Map<String, Object>, Map<String, Object>>> processors = new ArrayList<>();
 		if (processorOptions.hasSpelFields()) {
 			StandardEvaluationContext evaluationContext = new StandardEvaluationContext();
 			evaluationContext.setVariable("date", new SimpleDateFormat(processorOptions.getDateFormat()));
-			evaluationContext.setVariable("redis", context.connection().sync());
+			evaluationContext.setVariable("redis", RedisModulesUtils.connection(client).sync());
 			if (processorOptions.hasVariables()) {
 				processorOptions.getVariables()
 						.forEach((k, v) -> evaluationContext.setVariable(k, v.getValue(evaluationContext)));
@@ -119,11 +119,11 @@ public abstract class AbstractImportCommand extends AbstractCommand {
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	protected ItemWriter<Map<String, Object>> writer(CommandContext context) {
+	protected ItemWriter<Map<String, Object>> writer(AbstractRedisClient client) {
 		Assert.notNull(redisCommands, "RedisCommands not set");
 		Assert.isTrue(!redisCommands.isEmpty(), "No Redis command specified");
-		List<ItemWriter<Map<String, Object>>> writers = redisCommands.stream().map(OperationCommand::operation)
-				.map(o -> writer(context, o)).collect(Collectors.toList());
+		List<ItemWriter<Map<String, Object>>> writers = redisCommands.stream()
+				.map(c -> writer(client, writerOptions).operation(c.operation())).collect(Collectors.toList());
 		if (writers.size() == 1) {
 			return writers.get(0);
 		}
@@ -132,20 +132,18 @@ public abstract class AbstractImportCommand extends AbstractCommand {
 		return writer;
 	}
 
-	private ItemWriter<Map<String, Object>> writer(CommandContext context,
-			Operation<String, String, Map<String, Object>, ?> operation) {
-		return RedisItemWriter.operation(context.getRedisClient(), StringCodec.UTF8, operation)
-				.options(writerOptions.writerOptions()).build();
+	protected SimpleStepBuilder<Map<String, Object>, Map<String, Object>> step(AbstractRedisClient client,
+			AbstractItemCountingItemStreamItemReader<Map<String, Object>> reader) {
+		return step(client, commandName(), reader);
 	}
 
-	protected SimpleStepBuilder<Map<String, Object>, Map<String, Object>> step(CommandContext context,
-			AbstractItemCountingItemStreamItemReader<Map<String, Object>> reader) {
-		return step(context, commandName(), reader);
-	}
-
-	protected SimpleStepBuilder<Map<String, Object>, Map<String, Object>> step(CommandContext context, String name,
-			AbstractItemCountingItemStreamItemReader<Map<String, Object>> reader) {
-		return step(context, name, reader, processor(context), writer(context));
+	protected SimpleStepBuilder<Map<String, Object>, Map<String, Object>> step(AbstractRedisClient client, String name,
+			ItemReader<Map<String, Object>> reader) {
+		SimpleStepBuilder<Map<String, Object>, Map<String, Object>> step = step(name);
+		step.reader(reader);
+		step.processor(processor(client));
+		step.writer(writer(client));
+		return step;
 	}
 
 }
