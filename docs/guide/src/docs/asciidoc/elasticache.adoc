@@ -65,7 +65,7 @@ Ensure that the above command allows you to connect to the remote Elasticache da
 === Installing {project-title}
 
 Let's install {project-title} on the EC2 instance we set up previously.
-For this we'll follow the steps for <<_linux_install,installing on Linux>>.
+For this we'll follow the steps for <<_manual_install,Manual Install>>.
 
 == Performing Migration
 

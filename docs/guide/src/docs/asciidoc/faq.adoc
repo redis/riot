@@ -1,0 +1,15 @@
+[[_faq]]
+= Frequently Asked Questions
+
+== Importing
+
+.`Unknown options: '--keyspace', '--keys'`
+
+You must specify one or more Redis commands with import commands (<<_file_import,`file-import`>>, <<_faker_import,`faker-import`>>, <<_db_import,`db-import`>>).
+
+== Replication
+
+.`ERR DUMP payload version or checksum are wrong`
+
+Redis 7 DUMP format is not backwards compatible with previous versions.
+To replicate between different Redis versions use <<_replicate_type_based,Type-Based Replication>>.
