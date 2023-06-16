@@ -57,7 +57,6 @@ import com.redis.lettucemod.search.SuggetOptions;
 import com.redis.lettucemod.search.TextField.PhoneticMatcher;
 import com.redis.lettucemod.timeseries.MRangeOptions;
 import com.redis.lettucemod.timeseries.RangeResult;
-import com.redis.lettucemod.timeseries.Sample;
 import com.redis.lettucemod.timeseries.TimeRange;
 import com.redis.lettucemod.util.RedisModulesUtils;
 import com.redis.riot.cli.common.GenerateOptions;
@@ -679,8 +678,7 @@ public abstract class AbstractRiotTests extends AbstractTestBase {
 	@Test
 	void fakerTsAdd() throws Exception {
 		execute("faker-import-tsadd");
-		List<Sample> samples = connection.sync().tsRange("ts:gen", TimeRange.unbounded(), null);
-		Assertions.assertEquals(10, samples.size());
+		awaitUntil(() -> connection.sync().tsRange("ts:gen", TimeRange.unbounded()).size() == 10);
 	}
 
 	@Test
@@ -694,8 +692,8 @@ public abstract class AbstractRiotTests extends AbstractTestBase {
 	@Test
 	void generateTypes() throws Exception {
 		execute("generate");
-		Assertions.assertEquals(Math.min(GenerateOptions.DEFAULT_COUNT,
-				GenerateOptions.DEFAULT_KEY_RANGE.getMax()), connection.sync().dbsize());
+		Assertions.assertEquals(Math.min(GenerateOptions.DEFAULT_COUNT, GenerateOptions.DEFAULT_KEY_RANGE.getMax()),
+				connection.sync().dbsize());
 	}
 
 	@Test
