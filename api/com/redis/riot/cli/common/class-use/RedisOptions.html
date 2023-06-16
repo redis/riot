@@ -154,12 +154,6 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tbody>
 <tr class="altColor">
-<td class="colFirst"><code>protected <a href="../CommandContext.html" title="class in com.redis.riot.cli.common">CommandContext</a></code></td>
-<th class="colSecond" scope="row"><span class="typeNameLabel">Replicate.</span><code><span class="memberNameLink"><a href="../../Replicate.html#context(com.redis.spring.batch.common.JobRunner,com.redis.riot.cli.common.RedisOptions)">context</a></span>&#8203;(com.redis.spring.batch.common.JobRunner&nbsp;jobRunner,
-       <a href="../RedisOptions.html" title="class in com.redis.riot.cli.common">RedisOptions</a>&nbsp;redisOptions)</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><span class="typeNameLabel">Replicate.</span><code><span class="memberNameLink"><a href="../../Replicate.html#setTargetRedisOptions(com.redis.riot.cli.common.RedisOptions)">setTargetRedisOptions</a></span>&#8203;(<a href="../RedisOptions.html" title="class in com.redis.riot.cli.common">RedisOptions</a>&nbsp;targetRedisOptions)</code></th>
 <td class="colLast">&nbsp;</td>
@@ -186,16 +180,6 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <th class="colSecond" scope="row"><span class="typeNameLabel">AbstractCommand.</span><code><span class="memberNameLink"><a href="../AbstractCommand.html#getRedisOptions()">getRedisOptions</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr class="rowColor">
-<td class="colFirst"><code><a href="../RedisOptions.html" title="class in com.redis.riot.cli.common">RedisOptions</a></code></td>
-<th class="colSecond" scope="row"><span class="typeNameLabel">CommandContext.</span><code><span class="memberNameLink"><a href="../CommandContext.html#getRedisOptions()">getRedisOptions</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><code><a href="../RedisOptions.html" title="class in com.redis.riot.cli.common">RedisOptions</a></code></td>
-<th class="colSecond" scope="row"><span class="typeNameLabel">ReplicateCommandContext.</span><code><span class="memberNameLink"><a href="../ReplicateCommandContext.html#getTargetRedisOptions()">getTargetRedisOptions</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
 </tbody>
 </table>
 <table class="useSummary">
@@ -207,29 +191,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tbody>
 <tr class="altColor">
-<td class="colFirst"><code>protected <a href="../CommandContext.html" title="class in com.redis.riot.cli.common">CommandContext</a></code></td>
-<th class="colSecond" scope="row"><span class="typeNameLabel">AbstractCommand.</span><code><span class="memberNameLink"><a href="../AbstractCommand.html#context(com.redis.spring.batch.common.JobRunner,com.redis.riot.cli.common.RedisOptions)">context</a></span>&#8203;(com.redis.spring.batch.common.JobRunner&nbsp;jobRunner,
-       <a href="../RedisOptions.html" title="class in com.redis.riot.cli.common">RedisOptions</a>&nbsp;redisOptions)</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-</tbody>
-</table>
-<table class="useSummary">
-<caption><span>Constructors in <a href="../package-summary.html">com.redis.riot.cli.common</a> with parameters of type <a href="../RedisOptions.html" title="class in com.redis.riot.cli.common">RedisOptions</a></span><span class="tabEnd">&nbsp;</span></caption>
-<tr>
-<th class="colFirst" scope="col">Constructor</th>
-<th class="colLast" scope="col">Description</th>
-</tr>
-<tbody>
-<tr class="altColor">
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../CommandContext.html#%3Cinit%3E(com.redis.spring.batch.common.JobRunner,com.redis.riot.cli.common.RedisOptions)">CommandContext</a></span>&#8203;(com.redis.spring.batch.common.JobRunner&nbsp;jobRunner,
-              <a href="../RedisOptions.html" title="class in com.redis.riot.cli.common">RedisOptions</a>&nbsp;redisOptions)</code></th>
+<td class="colFirst"><code>protected io.lettuce.core.AbstractRedisClient</code></td>
+<th class="colSecond" scope="row"><span class="typeNameLabel">AbstractCommand.</span><code><span class="memberNameLink"><a href="../AbstractCommand.html#client(io.lettuce.core.RedisURI,com.redis.riot.cli.common.RedisOptions)">client</a></span>&#8203;(io.lettuce.core.RedisURI&nbsp;redisURI,
+      <a href="../RedisOptions.html" title="class in com.redis.riot.cli.common">RedisOptions</a>&nbsp;redisOptions)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../ReplicateCommandContext.html#%3Cinit%3E(com.redis.spring.batch.common.JobRunner,com.redis.riot.cli.common.RedisOptions,com.redis.riot.cli.common.RedisOptions)">ReplicateCommandContext</a></span>&#8203;(com.redis.spring.batch.common.JobRunner&nbsp;jobRunner,
-                       <a href="../RedisOptions.html" title="class in com.redis.riot.cli.common">RedisOptions</a>&nbsp;redisOptions,
-                       <a href="../RedisOptions.html" title="class in com.redis.riot.cli.common">RedisOptions</a>&nbsp;targetRedisOptions)</code></th>
+<td class="colFirst"><code>protected io.lettuce.core.RedisURI</code></td>
+<th class="colSecond" scope="row"><span class="typeNameLabel">AbstractCommand.</span><code><span class="memberNameLink"><a href="../AbstractCommand.html#redisURI(com.redis.riot.cli.common.RedisOptions)">redisURI</a></span>&#8203;(<a href="../RedisOptions.html" title="class in com.redis.riot.cli.common">RedisOptions</a>&nbsp;redisOptions)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </tbody>

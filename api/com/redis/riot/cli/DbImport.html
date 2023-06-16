@@ -27,7 +27,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -191,13 +191,13 @@ extends <a href="common/AbstractImportCommand.html" title="class in com.redis.ri
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code><a href="db/DataSourceOptions.html" title="class in com.redis.riot.cli.db">DataSourceOptions</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getDataSourceOptions()">getDataSourceOptions</a></span>()</code></th>
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#configure(org.springframework.batch.item.database.builder.JdbcCursorItemReaderBuilder)">configure</a></span>&#8203;(org.springframework.batch.item.database.builder.JdbcCursorItemReaderBuilder&lt;java.util.Map&lt;java.lang.String,&#8203;java.lang.Object&gt;&gt;&nbsp;builder)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code><a href="db/DbImportOptions.html" title="class in com.redis.riot.cli.db">DbImportOptions</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getImportOptions()">getImportOptions</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getOptions()">getOptions</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i2" class="altColor">
@@ -207,12 +207,7 @@ extends <a href="common/AbstractImportCommand.html" title="class in com.redis.ri
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDataSourceOptions(com.redis.riot.cli.db.DataSourceOptions)">setDataSourceOptions</a></span>&#8203;(<a href="db/DataSourceOptions.html" title="class in com.redis.riot.cli.db">DataSourceOptions</a>&nbsp;dataSourceOptions)</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i4" class="altColor">
-<td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setImportOptions(com.redis.riot.cli.db.DbImportOptions)">setImportOptions</a></span>&#8203;(<a href="db/DbImportOptions.html" title="class in com.redis.riot.cli.db">DbImportOptions</a>&nbsp;importOptions)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setOptions(com.redis.riot.cli.db.DbImportOptions)">setOptions</a></span>&#8203;(<a href="db/DbImportOptions.html" title="class in com.redis.riot.cli.db">DbImportOptions</a>&nbsp;options)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
@@ -221,14 +216,14 @@ extends <a href="common/AbstractImportCommand.html" title="class in com.redis.ri
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;com.redis.riot.cli.common.<a href="common/AbstractImportCommand.html" title="class in com.redis.riot.cli.common">AbstractImportCommand</a></h3>
-<code><a href="common/AbstractImportCommand.html#getProcessorOptions()">getProcessorOptions</a>, <a href="common/AbstractImportCommand.html#getRedisCommands()">getRedisCommands</a>, <a href="common/AbstractImportCommand.html#getWriterOptions()">getWriterOptions</a>, <a href="common/AbstractImportCommand.html#processor(com.redis.riot.cli.common.CommandContext)">processor</a>, <a href="common/AbstractImportCommand.html#setProcessorOptions(com.redis.riot.cli.common.MapProcessorOptions)">setProcessorOptions</a>, <a href="common/AbstractImportCommand.html#setRedisCommands(java.util.List)">setRedisCommands</a>, <a href="common/AbstractImportCommand.html#setWriterOptions(com.redis.riot.cli.common.RedisWriterOptions)">setWriterOptions</a>, <a href="common/AbstractImportCommand.html#step(com.redis.riot.cli.common.CommandContext,java.lang.String,org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader)">step</a>, <a href="common/AbstractImportCommand.html#step(com.redis.riot.cli.common.CommandContext,org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader)">step</a>, <a href="common/AbstractImportCommand.html#writer(com.redis.riot.cli.common.CommandContext)">writer</a></code></li>
+<code><a href="common/AbstractImportCommand.html#getProcessorOptions()">getProcessorOptions</a>, <a href="common/AbstractImportCommand.html#getRedisCommands()">getRedisCommands</a>, <a href="common/AbstractImportCommand.html#getWriterOptions()">getWriterOptions</a>, <a href="common/AbstractImportCommand.html#processor(io.lettuce.core.AbstractRedisClient)">processor</a>, <a href="common/AbstractImportCommand.html#setProcessorOptions(com.redis.riot.cli.common.MapProcessorOptions)">setProcessorOptions</a>, <a href="common/AbstractImportCommand.html#setRedisCommands(java.util.List)">setRedisCommands</a>, <a href="common/AbstractImportCommand.html#setWriterOptions(com.redis.riot.cli.common.RedisWriterOptions)">setWriterOptions</a>, <a href="common/AbstractImportCommand.html#step(io.lettuce.core.AbstractRedisClient,java.lang.String,org.springframework.batch.item.ItemReader)">step</a>, <a href="common/AbstractImportCommand.html#step(io.lettuce.core.AbstractRedisClient,org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader)">step</a>, <a href="common/AbstractImportCommand.html#writer(io.lettuce.core.AbstractRedisClient)">writer</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.com.redis.riot.cli.common.AbstractCommand">
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;com.redis.riot.cli.common.<a href="common/AbstractCommand.html" title="class in com.redis.riot.cli.common">AbstractCommand</a></h3>
-<code><a href="common/AbstractCommand.html#call()">call</a>, <a href="common/AbstractCommand.html#commandName()">commandName</a>, <a href="common/AbstractCommand.html#context(com.redis.spring.batch.common.JobRunner,com.redis.riot.cli.common.RedisOptions)">context</a>, <a href="common/AbstractCommand.html#getRedisOptions()">getRedisOptions</a>, <a href="common/AbstractCommand.html#getTransferOptions()">getTransferOptions</a>, <a href="common/AbstractCommand.html#progressMonitor()">progressMonitor</a>, <a href="common/AbstractCommand.html#setCommandSpec(picocli.CommandLine.Model.CommandSpec)">setCommandSpec</a>, <a href="common/AbstractCommand.html#setRiot(com.redis.riot.cli.Main)">setRiot</a>, <a href="common/AbstractCommand.html#setTransferOptions(com.redis.riot.cli.common.TransferOptions)">setTransferOptions</a>, <a href="common/AbstractCommand.html#step(com.redis.riot.cli.common.CommandContext,java.lang.String,org.springframework.batch.item.ItemReader,org.springframework.batch.item.ItemProcessor,org.springframework.batch.item.ItemWriter)">step</a>, <a href="common/AbstractCommand.html#step(com.redis.riot.cli.common.CommandContext,java.lang.String,org.springframework.batch.item.ItemReader,org.springframework.batch.item.ItemProcessor,org.springframework.batch.item.ItemWriter,com.redis.spring.batch.common.StepOptions)">step</a>, <a href="common/AbstractCommand.html#step(com.redis.riot.cli.common.CommandContext,java.lang.String,org.springframework.batch.item.ItemReader,org.springframework.batch.item.ItemWriter)">step</a>, <a href="common/AbstractCommand.html#step(com.redis.riot.cli.common.CommandContext,org.springframework.batch.item.ItemReader,org.springframework.batch.item.ItemProcessor,org.springframework.batch.item.ItemWriter)">step</a>, <a href="common/AbstractCommand.html#step(com.redis.riot.cli.common.CommandContext,org.springframework.batch.item.ItemReader,org.springframework.batch.item.ItemWriter)">step</a>, <a href="common/AbstractCommand.html#step(org.springframework.batch.core.step.builder.SimpleStepBuilder,com.redis.riot.cli.common.ProgressMonitor)">step</a>, <a href="common/AbstractCommand.html#stepOptions()">stepOptions</a></code></li>
+<code><a href="common/AbstractCommand.html#call()">call</a>, <a href="common/AbstractCommand.html#client(io.lettuce.core.RedisURI,com.redis.riot.cli.common.RedisOptions)">client</a>, <a href="common/AbstractCommand.html#commandName()">commandName</a>, <a href="common/AbstractCommand.html#configureReader(B,com.redis.riot.cli.common.RedisReaderOptions)">configureReader</a>, <a href="common/AbstractCommand.html#configureStep(B)">configureStep</a>, <a href="common/AbstractCommand.html#context(io.lettuce.core.RedisURI,io.lettuce.core.AbstractRedisClient)">context</a>, <a href="common/AbstractCommand.html#estimator(io.lettuce.core.AbstractRedisClient,com.redis.riot.cli.common.RedisReaderOptions)">estimator</a>, <a href="common/AbstractCommand.html#getRedisOptions()">getRedisOptions</a>, <a href="common/AbstractCommand.html#getTransferOptions()">getTransferOptions</a>, <a href="common/AbstractCommand.html#job(java.lang.String)">job</a>, <a href="common/AbstractCommand.html#job(org.springframework.batch.core.step.builder.SimpleStepBuilder)">job</a>, <a href="common/AbstractCommand.html#poolOptions(com.redis.riot.cli.common.RedisReaderOptions)">poolOptions</a>, <a href="common/AbstractCommand.html#progressMonitor(java.lang.String)">progressMonitor</a>, <a href="common/AbstractCommand.html#queueOptions(com.redis.riot.cli.common.RedisReaderOptions)">queueOptions</a>, <a href="common/AbstractCommand.html#reader(io.lettuce.core.AbstractRedisClient,com.redis.riot.cli.common.RedisReaderOptions)">reader</a>, <a href="common/AbstractCommand.html#redisURI(com.redis.riot.cli.common.RedisOptions)">redisURI</a>, <a href="common/AbstractCommand.html#setCommandName(java.lang.String)">setCommandName</a>, <a href="common/AbstractCommand.html#setCommandSpec(picocli.CommandLine.Model.CommandSpec)">setCommandSpec</a>, <a href="common/AbstractCommand.html#setRiot(com.redis.riot.cli.Main)">setRiot</a>, <a href="common/AbstractCommand.html#setTransferOptions(com.redis.riot.cli.common.TransferOptions)">setTransferOptions</a>, <a href="common/AbstractCommand.html#simpleStepBuilder(java.lang.String)">simpleStepBuilder</a>, <a href="common/AbstractCommand.html#skippableExceptions()">skippableExceptions</a>, <a href="common/AbstractCommand.html#step()">step</a>, <a href="common/AbstractCommand.html#step(java.lang.String)">step</a>, <a href="common/AbstractCommand.html#stepBuilder(java.lang.String)">stepBuilder</a>, <a href="common/AbstractCommand.html#throttle(org.springframework.batch.item.ItemWriter)">throttle</a>, <a href="common/AbstractCommand.html#writer(io.lettuce.core.AbstractRedisClient,com.redis.riot.cli.common.RedisWriterOptions)">writer</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
@@ -272,46 +267,28 @@ extends <a href="common/AbstractImportCommand.html" title="class in com.redis.ri
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="getDataSourceOptions()">
+<a id="getOptions()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>getDataSourceOptions</h4>
-<pre class="methodSignature">public&nbsp;<a href="db/DataSourceOptions.html" title="class in com.redis.riot.cli.db">DataSourceOptions</a>&nbsp;getDataSourceOptions()</pre>
+<h4>getOptions</h4>
+<pre class="methodSignature">public&nbsp;<a href="db/DbImportOptions.html" title="class in com.redis.riot.cli.db">DbImportOptions</a>&nbsp;getOptions()</pre>
 </li>
 </ul>
-<a id="setDataSourceOptions(com.redis.riot.cli.db.DataSourceOptions)">
+<a id="setOptions(com.redis.riot.cli.db.DbImportOptions)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>setDataSourceOptions</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;setDataSourceOptions&#8203;(<a href="db/DataSourceOptions.html" title="class in com.redis.riot.cli.db">DataSourceOptions</a>&nbsp;dataSourceOptions)</pre>
-</li>
-</ul>
-<a id="getImportOptions()">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getImportOptions</h4>
-<pre class="methodSignature">public&nbsp;<a href="db/DbImportOptions.html" title="class in com.redis.riot.cli.db">DbImportOptions</a>&nbsp;getImportOptions()</pre>
-</li>
-</ul>
-<a id="setImportOptions(com.redis.riot.cli.db.DbImportOptions)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>setImportOptions</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;setImportOptions&#8203;(<a href="db/DbImportOptions.html" title="class in com.redis.riot.cli.db">DbImportOptions</a>&nbsp;importOptions)</pre>
+<h4>setOptions</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;setOptions&#8203;(<a href="db/DbImportOptions.html" title="class in com.redis.riot.cli.db">DbImportOptions</a>&nbsp;options)</pre>
 </li>
 </ul>
 <a id="job(com.redis.riot.cli.common.CommandContext)">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>job</h4>
 <pre class="methodSignature">protected&nbsp;org.springframework.batch.core.Job&nbsp;job&#8203;(<a href="common/CommandContext.html" title="class in com.redis.riot.cli.common">CommandContext</a>&nbsp;context)</pre>
@@ -319,6 +296,15 @@ extends <a href="common/AbstractImportCommand.html" title="class in com.redis.ri
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="common/AbstractCommand.html#job(com.redis.riot.cli.common.CommandContext)">job</a></code>&nbsp;in class&nbsp;<code><a href="common/AbstractCommand.html" title="class in com.redis.riot.cli.common">AbstractCommand</a></code></dd>
 </dl>
+</li>
+</ul>
+<a id="configure(org.springframework.batch.item.database.builder.JdbcCursorItemReaderBuilder)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>configure</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;configure&#8203;(org.springframework.batch.item.database.builder.JdbcCursorItemReaderBuilder&lt;java.util.Map&lt;java.lang.String,&#8203;java.lang.Object&gt;&gt;&nbsp;builder)</pre>
 </li>
 </ul>
 </li>

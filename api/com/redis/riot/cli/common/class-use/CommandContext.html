@@ -135,8 +135,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <tbody>
 <tr class="altColor">
 <td class="colFirst"><code>protected <a href="../CommandContext.html" title="class in com.redis.riot.cli.common">CommandContext</a></code></td>
-<th class="colSecond" scope="row"><span class="typeNameLabel">Replicate.</span><code><span class="memberNameLink"><a href="../../Replicate.html#context(com.redis.spring.batch.common.JobRunner,com.redis.riot.cli.common.RedisOptions)">context</a></span>&#8203;(com.redis.spring.batch.common.JobRunner&nbsp;jobRunner,
-       <a href="../RedisOptions.html" title="class in com.redis.riot.cli.common">RedisOptions</a>&nbsp;redisOptions)</code></th>
+<th class="colSecond" scope="row"><span class="typeNameLabel">Replicate.</span><code><span class="memberNameLink"><a href="../../Replicate.html#context(io.lettuce.core.RedisURI,io.lettuce.core.AbstractRedisClient)">context</a></span>&#8203;(io.lettuce.core.RedisURI&nbsp;redisURI,
+       io.lettuce.core.AbstractRedisClient&nbsp;redisClient)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </tbody>
@@ -150,56 +150,51 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tbody>
 <tr class="altColor">
-<td class="colFirst"><code>protected com.redis.spring.batch.reader.ScanSizeEstimator</code></td>
-<th class="colSecond" scope="row"><span class="typeNameLabel">Replicate.</span><code><span class="memberNameLink"><a href="../../Replicate.html#estimator(com.redis.riot.cli.common.CommandContext)">estimator</a></span>&#8203;(<a href="../CommandContext.html" title="class in com.redis.riot.cli.common">CommandContext</a>&nbsp;context)</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr class="rowColor">
 <td class="colFirst"><code>protected org.springframework.batch.core.Job</code></td>
 <th class="colSecond" scope="row"><span class="typeNameLabel">DbExport.</span><code><span class="memberNameLink"><a href="../../DbExport.html#job(com.redis.riot.cli.common.CommandContext)">job</a></span>&#8203;(<a href="../CommandContext.html" title="class in com.redis.riot.cli.common">CommandContext</a>&nbsp;context)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>protected org.springframework.batch.core.Job</code></td>
 <th class="colSecond" scope="row"><span class="typeNameLabel">DbImport.</span><code><span class="memberNameLink"><a href="../../DbImport.html#job(com.redis.riot.cli.common.CommandContext)">job</a></span>&#8203;(<a href="../CommandContext.html" title="class in com.redis.riot.cli.common">CommandContext</a>&nbsp;context)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>protected org.springframework.batch.core.Job</code></td>
 <th class="colSecond" scope="row"><span class="typeNameLabel">DumpImport.</span><code><span class="memberNameLink"><a href="../../DumpImport.html#job(com.redis.riot.cli.common.CommandContext)">job</a></span>&#8203;(<a href="../CommandContext.html" title="class in com.redis.riot.cli.common">CommandContext</a>&nbsp;context)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>protected org.springframework.batch.core.Job</code></td>
 <th class="colSecond" scope="row"><span class="typeNameLabel">FakerImport.</span><code><span class="memberNameLink"><a href="../../FakerImport.html#job(com.redis.riot.cli.common.CommandContext)">job</a></span>&#8203;(<a href="../CommandContext.html" title="class in com.redis.riot.cli.common">CommandContext</a>&nbsp;context)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>protected org.springframework.batch.core.Job</code></td>
 <th class="colSecond" scope="row"><span class="typeNameLabel">FileExport.</span><code><span class="memberNameLink"><a href="../../FileExport.html#job(com.redis.riot.cli.common.CommandContext)">job</a></span>&#8203;(<a href="../CommandContext.html" title="class in com.redis.riot.cli.common">CommandContext</a>&nbsp;context)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>protected org.springframework.batch.core.Job</code></td>
 <th class="colSecond" scope="row"><span class="typeNameLabel">FileImport.</span><code><span class="memberNameLink"><a href="../../FileImport.html#job(com.redis.riot.cli.common.CommandContext)">job</a></span>&#8203;(<a href="../CommandContext.html" title="class in com.redis.riot.cli.common">CommandContext</a>&nbsp;context)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>protected org.springframework.batch.core.Job</code></td>
 <th class="colSecond" scope="row"><span class="typeNameLabel">Generate.</span><code><span class="memberNameLink"><a href="../../Generate.html#job(com.redis.riot.cli.common.CommandContext)">job</a></span>&#8203;(<a href="../CommandContext.html" title="class in com.redis.riot.cli.common">CommandContext</a>&nbsp;context)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>protected org.springframework.batch.core.Job</code></td>
 <th class="colSecond" scope="row"><span class="typeNameLabel">Ping.</span><code><span class="memberNameLink"><a href="../../Ping.html#job(com.redis.riot.cli.common.CommandContext)">job</a></span>&#8203;(<a href="../CommandContext.html" title="class in com.redis.riot.cli.common">CommandContext</a>&nbsp;context)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>protected org.springframework.batch.core.Job</code></td>
 <th class="colSecond" scope="row"><span class="typeNameLabel">Replicate.</span><code><span class="memberNameLink"><a href="../../Replicate.html#job(com.redis.riot.cli.common.CommandContext)">job</a></span>&#8203;(<a href="../CommandContext.html" title="class in com.redis.riot.cli.common">CommandContext</a>&nbsp;jobCommandContext)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>org.springframework.batch.core.step.tasklet.TaskletStep</code></td>
 <th class="colSecond" scope="row"><span class="typeNameLabel">DumpImport.</span><code><span class="memberNameLink"><a href="../../DumpImport.html#step(com.redis.riot.cli.common.CommandContext,org.springframework.core.io.Resource)">step</a></span>&#8203;(<a href="../CommandContext.html" title="class in com.redis.riot.cli.common">CommandContext</a>&nbsp;context,
     org.springframework.core.io.Resource&nbsp;resource)</code></th>
@@ -239,8 +234,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <tbody>
 <tr class="altColor">
 <td class="colFirst"><code>protected <a href="../CommandContext.html" title="class in com.redis.riot.cli.common">CommandContext</a></code></td>
-<th class="colSecond" scope="row"><span class="typeNameLabel">AbstractCommand.</span><code><span class="memberNameLink"><a href="../AbstractCommand.html#context(com.redis.spring.batch.common.JobRunner,com.redis.riot.cli.common.RedisOptions)">context</a></span>&#8203;(com.redis.spring.batch.common.JobRunner&nbsp;jobRunner,
-       <a href="../RedisOptions.html" title="class in com.redis.riot.cli.common">RedisOptions</a>&nbsp;redisOptions)</code></th>
+<th class="colSecond" scope="row"><span class="typeNameLabel">AbstractCommand.</span><code><span class="memberNameLink"><a href="../AbstractCommand.html#context(io.lettuce.core.RedisURI,io.lettuce.core.AbstractRedisClient)">context</a></span>&#8203;(io.lettuce.core.RedisURI&nbsp;redisURI,
+       io.lettuce.core.AbstractRedisClient&nbsp;redisClient)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </tbody>
@@ -259,80 +254,10 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code>protected &lt;I,&#8203;O&gt;<br>org.springframework.batch.core.Job</code></td>
-<th class="colSecond" scope="row"><span class="typeNameLabel">AbstractExportCommand.</span><code><span class="memberNameLink"><a href="../AbstractExportCommand.html#job(com.redis.riot.cli.common.CommandContext,org.springframework.batch.core.step.builder.SimpleStepBuilder,java.lang.String)">job</a></span>&#8203;(<a href="../CommandContext.html" title="class in com.redis.riot.cli.common">CommandContext</a>&nbsp;context,
-   org.springframework.batch.core.step.builder.SimpleStepBuilder&lt;I,&#8203;O&gt;&nbsp;step,
-   java.lang.String&nbsp;task)</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><code>protected org.springframework.batch.item.ItemProcessor&lt;java.util.Map&lt;java.lang.String,&#8203;java.lang.Object&gt;,&#8203;java.util.Map&lt;java.lang.String,&#8203;java.lang.Object&gt;&gt;</code></td>
-<th class="colSecond" scope="row"><span class="typeNameLabel">AbstractImportCommand.</span><code><span class="memberNameLink"><a href="../AbstractImportCommand.html#processor(com.redis.riot.cli.common.CommandContext)">processor</a></span>&#8203;(<a href="../CommandContext.html" title="class in com.redis.riot.cli.common">CommandContext</a>&nbsp;context)</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr class="rowColor">
-<td class="colFirst"><code>protected com.redis.spring.batch.RedisItemReader&lt;java.lang.String,&#8203;java.lang.String,&#8203;com.redis.spring.batch.common.DataStructure&lt;java.lang.String&gt;&gt;</code></td>
-<th class="colSecond" scope="row"><span class="typeNameLabel">AbstractExportCommand.</span><code><span class="memberNameLink"><a href="../AbstractExportCommand.html#reader(com.redis.riot.cli.common.CommandContext)">reader</a></span>&#8203;(<a href="../CommandContext.html" title="class in com.redis.riot.cli.common">CommandContext</a>&nbsp;context)</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><code>protected &lt;I,&#8203;O&gt;<br>org.springframework.batch.core.step.builder.SimpleStepBuilder&lt;I,&#8203;O&gt;</code></td>
-<th class="colSecond" scope="row"><span class="typeNameLabel">AbstractCommand.</span><code><span class="memberNameLink"><a href="../AbstractCommand.html#step(com.redis.riot.cli.common.CommandContext,java.lang.String,org.springframework.batch.item.ItemReader,org.springframework.batch.item.ItemProcessor,org.springframework.batch.item.ItemWriter)">step</a></span>&#8203;(<a href="../CommandContext.html" title="class in com.redis.riot.cli.common">CommandContext</a>&nbsp;context,
-    java.lang.String&nbsp;name,
-    org.springframework.batch.item.ItemReader&lt;I&gt;&nbsp;reader,
-    org.springframework.batch.item.ItemProcessor&lt;I,&#8203;O&gt;&nbsp;processor,
+<td class="colFirst"><code>protected &lt;O&gt;&nbsp;org.springframework.batch.core.step.builder.SimpleStepBuilder&lt;com.redis.spring.batch.common.DataStructure&lt;java.lang.String&gt;,&#8203;O&gt;</code></td>
+<th class="colSecond" scope="row"><span class="typeNameLabel">AbstractExportCommand.</span><code><span class="memberNameLink"><a href="../AbstractExportCommand.html#step(com.redis.riot.cli.common.CommandContext,java.lang.String,org.springframework.batch.item.ItemWriter)">step</a></span>&#8203;(<a href="../CommandContext.html" title="class in com.redis.riot.cli.common">CommandContext</a>&nbsp;context,
+    java.lang.String&nbsp;task,
     org.springframework.batch.item.ItemWriter&lt;O&gt;&nbsp;writer)</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr class="rowColor">
-<td class="colFirst"><code>protected &lt;I,&#8203;O&gt;<br>org.springframework.batch.core.step.builder.SimpleStepBuilder&lt;I,&#8203;O&gt;</code></td>
-<th class="colSecond" scope="row"><span class="typeNameLabel">AbstractCommand.</span><code><span class="memberNameLink"><a href="../AbstractCommand.html#step(com.redis.riot.cli.common.CommandContext,java.lang.String,org.springframework.batch.item.ItemReader,org.springframework.batch.item.ItemProcessor,org.springframework.batch.item.ItemWriter,com.redis.spring.batch.common.StepOptions)">step</a></span>&#8203;(<a href="../CommandContext.html" title="class in com.redis.riot.cli.common">CommandContext</a>&nbsp;context,
-    java.lang.String&nbsp;name,
-    org.springframework.batch.item.ItemReader&lt;I&gt;&nbsp;reader,
-    org.springframework.batch.item.ItemProcessor&lt;I,&#8203;O&gt;&nbsp;processor,
-    org.springframework.batch.item.ItemWriter&lt;O&gt;&nbsp;writer,
-    com.redis.spring.batch.common.StepOptions&nbsp;stepOptions)</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><code>protected &lt;I,&#8203;O&gt;<br>org.springframework.batch.core.step.builder.SimpleStepBuilder&lt;I,&#8203;O&gt;</code></td>
-<th class="colSecond" scope="row"><span class="typeNameLabel">AbstractCommand.</span><code><span class="memberNameLink"><a href="../AbstractCommand.html#step(com.redis.riot.cli.common.CommandContext,java.lang.String,org.springframework.batch.item.ItemReader,org.springframework.batch.item.ItemWriter)">step</a></span>&#8203;(<a href="../CommandContext.html" title="class in com.redis.riot.cli.common">CommandContext</a>&nbsp;context,
-    java.lang.String&nbsp;name,
-    org.springframework.batch.item.ItemReader&lt;I&gt;&nbsp;reader,
-    org.springframework.batch.item.ItemWriter&lt;O&gt;&nbsp;writer)</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr class="rowColor">
-<td class="colFirst"><code>protected &lt;I,&#8203;O&gt;<br>org.springframework.batch.core.step.builder.SimpleStepBuilder&lt;I,&#8203;O&gt;</code></td>
-<th class="colSecond" scope="row"><span class="typeNameLabel">AbstractCommand.</span><code><span class="memberNameLink"><a href="../AbstractCommand.html#step(com.redis.riot.cli.common.CommandContext,org.springframework.batch.item.ItemReader,org.springframework.batch.item.ItemProcessor,org.springframework.batch.item.ItemWriter)">step</a></span>&#8203;(<a href="../CommandContext.html" title="class in com.redis.riot.cli.common">CommandContext</a>&nbsp;context,
-    org.springframework.batch.item.ItemReader&lt;I&gt;&nbsp;reader,
-    org.springframework.batch.item.ItemProcessor&lt;I,&#8203;O&gt;&nbsp;processor,
-    org.springframework.batch.item.ItemWriter&lt;O&gt;&nbsp;writer)</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><code>protected &lt;I,&#8203;O&gt;<br>org.springframework.batch.core.step.builder.SimpleStepBuilder&lt;I,&#8203;O&gt;</code></td>
-<th class="colSecond" scope="row"><span class="typeNameLabel">AbstractCommand.</span><code><span class="memberNameLink"><a href="../AbstractCommand.html#step(com.redis.riot.cli.common.CommandContext,org.springframework.batch.item.ItemReader,org.springframework.batch.item.ItemWriter)">step</a></span>&#8203;(<a href="../CommandContext.html" title="class in com.redis.riot.cli.common">CommandContext</a>&nbsp;context,
-    org.springframework.batch.item.ItemReader&lt;I&gt;&nbsp;reader,
-    org.springframework.batch.item.ItemWriter&lt;O&gt;&nbsp;writer)</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr class="rowColor">
-<td class="colFirst"><code>protected org.springframework.batch.core.step.builder.SimpleStepBuilder&lt;java.util.Map&lt;java.lang.String,&#8203;java.lang.Object&gt;,&#8203;java.util.Map&lt;java.lang.String,&#8203;java.lang.Object&gt;&gt;</code></td>
-<th class="colSecond" scope="row"><span class="typeNameLabel">AbstractImportCommand.</span><code><span class="memberNameLink"><a href="../AbstractImportCommand.html#step(com.redis.riot.cli.common.CommandContext,java.lang.String,org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader)">step</a></span>&#8203;(<a href="../CommandContext.html" title="class in com.redis.riot.cli.common">CommandContext</a>&nbsp;context,
-    java.lang.String&nbsp;name,
-    org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader&lt;java.util.Map&lt;java.lang.String,&#8203;java.lang.Object&gt;&gt;&nbsp;reader)</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><code>protected org.springframework.batch.core.step.builder.SimpleStepBuilder&lt;java.util.Map&lt;java.lang.String,&#8203;java.lang.Object&gt;,&#8203;java.util.Map&lt;java.lang.String,&#8203;java.lang.Object&gt;&gt;</code></td>
-<th class="colSecond" scope="row"><span class="typeNameLabel">AbstractImportCommand.</span><code><span class="memberNameLink"><a href="../AbstractImportCommand.html#step(com.redis.riot.cli.common.CommandContext,org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader)">step</a></span>&#8203;(<a href="../CommandContext.html" title="class in com.redis.riot.cli.common">CommandContext</a>&nbsp;context,
-    org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader&lt;java.util.Map&lt;java.lang.String,&#8203;java.lang.Object&gt;&gt;&nbsp;reader)</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr class="rowColor">
-<td class="colFirst"><code>protected org.springframework.batch.item.ItemWriter&lt;java.util.Map&lt;java.lang.String,&#8203;java.lang.Object&gt;&gt;</code></td>
-<th class="colSecond" scope="row"><span class="typeNameLabel">AbstractImportCommand.</span><code><span class="memberNameLink"><a href="../AbstractImportCommand.html#writer(com.redis.riot.cli.common.CommandContext)">writer</a></span>&#8203;(<a href="../CommandContext.html" title="class in com.redis.riot.cli.common">CommandContext</a>&nbsp;context)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </tbody>

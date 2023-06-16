@@ -27,8 +27,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":9,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10};
-var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":10,"i1":10,"i2":10};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -91,13 +91,13 @@ loadScripts(document, 'script');</script>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
-<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
 <li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>
@@ -150,29 +150,6 @@ implements java.lang.AutoCloseable</pre>
 <div class="summary">
 <ul class="blockList">
 <li class="blockList">
-<!-- =========== FIELD SUMMARY =========== -->
-<section>
-<ul class="blockList">
-<li class="blockList"><a id="field.summary">
-<!--   -->
-</a>
-<h3>Field Summary</h3>
-<table class="memberSummary">
-<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
-<tr>
-<th class="colFirst" scope="col">Modifier and Type</th>
-<th class="colSecond" scope="col">Field</th>
-<th class="colLast" scope="col">Description</th>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><code>protected com.redis.spring.batch.common.JobRunner</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#jobRunner">jobRunner</a></span></code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-</table>
-</li>
-</ul>
-</section>
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
 <section>
 <ul class="blockList">
@@ -187,8 +164,8 @@ implements java.lang.AutoCloseable</pre>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.redis.spring.batch.common.JobRunner,com.redis.riot.cli.common.RedisOptions)">CommandContext</a></span>&#8203;(com.redis.spring.batch.common.JobRunner&nbsp;jobRunner,
-              <a href="RedisOptions.html" title="class in com.redis.riot.cli.common">RedisOptions</a>&nbsp;redisOptions)</code></th>
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(io.lettuce.core.RedisURI,io.lettuce.core.AbstractRedisClient)">CommandContext</a></span>&#8203;(io.lettuce.core.RedisURI&nbsp;redisURI,
+              io.lettuce.core.AbstractRedisClient&nbsp;client)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
@@ -203,7 +180,7 @@ implements java.lang.AutoCloseable</pre>
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -215,76 +192,13 @@ implements java.lang.AutoCloseable</pre>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code>com.redis.lettucemod.api.StatefulRedisModulesConnection&lt;java.lang.String,&#8203;java.lang.String&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#connection()">connection</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i2" class="altColor">
-<td class="colFirst"><code>protected com.redis.lettucemod.api.StatefulRedisModulesConnection&lt;java.lang.String,&#8203;java.lang.String&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#connection(io.lettuce.core.AbstractRedisClient)">connection</a></span>&#8203;(io.lettuce.core.AbstractRedisClient&nbsp;client)</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i3" class="rowColor">
-<td class="colFirst"><code>protected &lt;K,&#8203;V&gt;<br>com.redis.spring.batch.RedisItemReader.ScanBuilder&lt;K,&#8203;V,&#8203;com.redis.spring.batch.common.DataStructure&lt;K&gt;&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#dataStructureReader(io.lettuce.core.AbstractRedisClient,io.lettuce.core.codec.RedisCodec)">dataStructureReader</a></span>&#8203;(io.lettuce.core.AbstractRedisClient&nbsp;client,
-                   io.lettuce.core.codec.RedisCodec&lt;K,&#8203;V&gt;&nbsp;codec)</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i4" class="altColor">
-<td class="colFirst"><code>&lt;K,&#8203;V&gt;<br>com.redis.spring.batch.RedisItemReader.ScanBuilder&lt;K,&#8203;V,&#8203;com.redis.spring.batch.common.DataStructure&lt;K&gt;&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#dataStructureReader(io.lettuce.core.codec.RedisCodec)">dataStructureReader</a></span>&#8203;(io.lettuce.core.codec.RedisCodec&lt;K,&#8203;V&gt;&nbsp;codec)</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i5" class="rowColor">
-<td class="colFirst"><code>protected static &lt;K,&#8203;V&gt;<br>com.redis.spring.batch.RedisItemWriter.DataStructureWriterBuilder&lt;K,&#8203;V&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#dataStructureWriter(io.lettuce.core.AbstractRedisClient,io.lettuce.core.codec.RedisCodec)">dataStructureWriter</a></span>&#8203;(io.lettuce.core.AbstractRedisClient&nbsp;client,
-                   io.lettuce.core.codec.RedisCodec&lt;K,&#8203;V&gt;&nbsp;codec)</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i6" class="altColor">
-<td class="colFirst"><code>&lt;K,&#8203;V&gt;<br>com.redis.spring.batch.RedisItemWriter.DataStructureWriterBuilder&lt;K,&#8203;V&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#dataStructureWriter(io.lettuce.core.codec.RedisCodec)">dataStructureWriter</a></span>&#8203;(io.lettuce.core.codec.RedisCodec&lt;K,&#8203;V&gt;&nbsp;codec)</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i7" class="rowColor">
-<td class="colFirst"><code>com.redis.spring.batch.common.JobRunner</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getJobRunner()">getJobRunner</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i8" class="altColor">
 <td class="colFirst"><code>io.lettuce.core.AbstractRedisClient</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getRedisClient()">getRedisClient</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i9" class="rowColor">
-<td class="colFirst"><code><a href="RedisOptions.html" title="class in com.redis.riot.cli.common">RedisOptions</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getRedisOptions()">getRedisOptions</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i10" class="altColor">
+<tr id="i2" class="altColor">
 <td class="colFirst"><code>io.lettuce.core.RedisURI</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getRedisURI()">getRedisURI</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i11" class="rowColor">
-<td class="colFirst"><code>com.redis.spring.batch.RedisItemReader.ScanBuilder&lt;byte[],&#8203;byte[],&#8203;com.redis.spring.batch.common.KeyDump&lt;byte[]&gt;&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#keyDumpReader()">keyDumpReader</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i12" class="altColor">
-<td class="colFirst"><code>protected com.redis.spring.batch.RedisItemReader.ScanBuilder&lt;byte[],&#8203;byte[],&#8203;com.redis.spring.batch.common.KeyDump&lt;byte[]&gt;&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#keyDumpReader(io.lettuce.core.AbstractRedisClient)">keyDumpReader</a></span>&#8203;(io.lettuce.core.AbstractRedisClient&nbsp;client)</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i13" class="rowColor">
-<td class="colFirst"><code>&lt;K,&#8203;V&gt;<br>io.lettuce.core.pubsub.StatefulRedisPubSubConnection&lt;K,&#8203;V&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#pubSubConnection(io.lettuce.core.AbstractRedisClient,io.lettuce.core.codec.RedisCodec)">pubSubConnection</a></span>&#8203;(io.lettuce.core.AbstractRedisClient&nbsp;client,
-                io.lettuce.core.codec.RedisCodec&lt;K,&#8203;V&gt;&nbsp;codec)</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i14" class="altColor">
-<td class="colFirst"><code>&lt;K,&#8203;V&gt;<br>io.lettuce.core.pubsub.StatefulRedisPubSubConnection&lt;K,&#8203;V&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#pubSubConnection(io.lettuce.core.codec.RedisCodec)">pubSubConnection</a></span>&#8203;(io.lettuce.core.codec.RedisCodec&lt;K,&#8203;V&gt;&nbsp;codec)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
@@ -304,25 +218,6 @@ implements java.lang.AutoCloseable</pre>
 <div class="details">
 <ul class="blockList">
 <li class="blockList">
-<!-- ============ FIELD DETAIL =========== -->
-<section>
-<ul class="blockList">
-<li class="blockList"><a id="field.detail">
-<!--   -->
-</a>
-<h3>Field Detail</h3>
-<a id="jobRunner">
-<!--   -->
-</a>
-<ul class="blockListLast">
-<li class="blockList">
-<h4>jobRunner</h4>
-<pre>protected final&nbsp;com.redis.spring.batch.common.JobRunner jobRunner</pre>
-</li>
-</ul>
-</li>
-</ul>
-</section>
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
 <section>
 <ul class="blockList">
@@ -330,14 +225,14 @@ implements java.lang.AutoCloseable</pre>
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a id="&lt;init&gt;(com.redis.spring.batch.common.JobRunner,com.redis.riot.cli.common.RedisOptions)">
+<a id="&lt;init&gt;(io.lettuce.core.RedisURI,io.lettuce.core.AbstractRedisClient)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>CommandContext</h4>
-<pre>public&nbsp;CommandContext&#8203;(com.redis.spring.batch.common.JobRunner&nbsp;jobRunner,
-                      <a href="RedisOptions.html" title="class in com.redis.riot.cli.common">RedisOptions</a>&nbsp;redisOptions)</pre>
+<pre>public&nbsp;CommandContext&#8203;(io.lettuce.core.RedisURI&nbsp;redisURI,
+                      io.lettuce.core.AbstractRedisClient&nbsp;client)</pre>
 </li>
 </ul>
 </li>
@@ -350,24 +245,6 @@ implements java.lang.AutoCloseable</pre>
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="getJobRunner()">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getJobRunner</h4>
-<pre class="methodSignature">public&nbsp;com.redis.spring.batch.common.JobRunner&nbsp;getJobRunner()</pre>
-</li>
-</ul>
-<a id="getRedisOptions()">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getRedisOptions</h4>
-<pre class="methodSignature">public&nbsp;<a href="RedisOptions.html" title="class in com.redis.riot.cli.common">RedisOptions</a>&nbsp;getRedisOptions()</pre>
-</li>
-</ul>
 <a id="getRedisClient()">
 <!--   -->
 </a>
@@ -389,7 +266,7 @@ implements java.lang.AutoCloseable</pre>
 <a id="close()">
 <!--   -->
 </a>
-<ul class="blockList">
+<ul class="blockListLast">
 <li class="blockList">
 <h4>close</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;close()
@@ -400,99 +277,6 @@ implements java.lang.AutoCloseable</pre>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code>java.lang.Exception</code></dd>
 </dl>
-</li>
-</ul>
-<a id="connection()">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>connection</h4>
-<pre class="methodSignature">public&nbsp;com.redis.lettucemod.api.StatefulRedisModulesConnection&lt;java.lang.String,&#8203;java.lang.String&gt;&nbsp;connection()</pre>
-</li>
-</ul>
-<a id="connection(io.lettuce.core.AbstractRedisClient)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>connection</h4>
-<pre class="methodSignature">protected&nbsp;com.redis.lettucemod.api.StatefulRedisModulesConnection&lt;java.lang.String,&#8203;java.lang.String&gt;&nbsp;connection&#8203;(io.lettuce.core.AbstractRedisClient&nbsp;client)</pre>
-</li>
-</ul>
-<a id="pubSubConnection(io.lettuce.core.codec.RedisCodec)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>pubSubConnection</h4>
-<pre class="methodSignature">public&nbsp;&lt;K,&#8203;V&gt;&nbsp;io.lettuce.core.pubsub.StatefulRedisPubSubConnection&lt;K,&#8203;V&gt;&nbsp;pubSubConnection&#8203;(io.lettuce.core.codec.RedisCodec&lt;K,&#8203;V&gt;&nbsp;codec)</pre>
-</li>
-</ul>
-<a id="pubSubConnection(io.lettuce.core.AbstractRedisClient,io.lettuce.core.codec.RedisCodec)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>pubSubConnection</h4>
-<pre class="methodSignature">public&nbsp;&lt;K,&#8203;V&gt;&nbsp;io.lettuce.core.pubsub.StatefulRedisPubSubConnection&lt;K,&#8203;V&gt;&nbsp;pubSubConnection&#8203;(io.lettuce.core.AbstractRedisClient&nbsp;client,
-                                                                                                    io.lettuce.core.codec.RedisCodec&lt;K,&#8203;V&gt;&nbsp;codec)</pre>
-</li>
-</ul>
-<a id="dataStructureReader(io.lettuce.core.codec.RedisCodec)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>dataStructureReader</h4>
-<pre class="methodSignature">public&nbsp;&lt;K,&#8203;V&gt;&nbsp;com.redis.spring.batch.RedisItemReader.ScanBuilder&lt;K,&#8203;V,&#8203;com.redis.spring.batch.common.DataStructure&lt;K&gt;&gt;&nbsp;dataStructureReader&#8203;(io.lettuce.core.codec.RedisCodec&lt;K,&#8203;V&gt;&nbsp;codec)</pre>
-</li>
-</ul>
-<a id="keyDumpReader()">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>keyDumpReader</h4>
-<pre class="methodSignature">public&nbsp;com.redis.spring.batch.RedisItemReader.ScanBuilder&lt;byte[],&#8203;byte[],&#8203;com.redis.spring.batch.common.KeyDump&lt;byte[]&gt;&gt;&nbsp;keyDumpReader()</pre>
-</li>
-</ul>
-<a id="keyDumpReader(io.lettuce.core.AbstractRedisClient)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>keyDumpReader</h4>
-<pre class="methodSignature">protected&nbsp;com.redis.spring.batch.RedisItemReader.ScanBuilder&lt;byte[],&#8203;byte[],&#8203;com.redis.spring.batch.common.KeyDump&lt;byte[]&gt;&gt;&nbsp;keyDumpReader&#8203;(io.lettuce.core.AbstractRedisClient&nbsp;client)</pre>
-</li>
-</ul>
-<a id="dataStructureReader(io.lettuce.core.AbstractRedisClient,io.lettuce.core.codec.RedisCodec)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>dataStructureReader</h4>
-<pre class="methodSignature">protected&nbsp;&lt;K,&#8203;V&gt;&nbsp;com.redis.spring.batch.RedisItemReader.ScanBuilder&lt;K,&#8203;V,&#8203;com.redis.spring.batch.common.DataStructure&lt;K&gt;&gt;&nbsp;dataStructureReader&#8203;(io.lettuce.core.AbstractRedisClient&nbsp;client,
-                                                                                                                                                             io.lettuce.core.codec.RedisCodec&lt;K,&#8203;V&gt;&nbsp;codec)</pre>
-</li>
-</ul>
-<a id="dataStructureWriter(io.lettuce.core.codec.RedisCodec)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>dataStructureWriter</h4>
-<pre class="methodSignature">public&nbsp;&lt;K,&#8203;V&gt;&nbsp;com.redis.spring.batch.RedisItemWriter.DataStructureWriterBuilder&lt;K,&#8203;V&gt;&nbsp;dataStructureWriter&#8203;(io.lettuce.core.codec.RedisCodec&lt;K,&#8203;V&gt;&nbsp;codec)</pre>
-</li>
-</ul>
-<a id="dataStructureWriter(io.lettuce.core.AbstractRedisClient,io.lettuce.core.codec.RedisCodec)">
-<!--   -->
-</a>
-<ul class="blockListLast">
-<li class="blockList">
-<h4>dataStructureWriter</h4>
-<pre class="methodSignature">protected static&nbsp;&lt;K,&#8203;V&gt;&nbsp;com.redis.spring.batch.RedisItemWriter.DataStructureWriterBuilder&lt;K,&#8203;V&gt;&nbsp;dataStructureWriter&#8203;(io.lettuce.core.AbstractRedisClient&nbsp;client,
-                                                                                                                              io.lettuce.core.codec.RedisCodec&lt;K,&#8203;V&gt;&nbsp;codec)</pre>
 </li>
 </ul>
 </li>
@@ -549,13 +333,13 @@ implements java.lang.AutoCloseable</pre>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
-<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
 <li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>

@@ -2,7 +2,6 @@ com.redis.riot.cli
 com.redis.riot.cli.common
 com.redis.riot.cli.db
 com.redis.riot.cli.file
-com.redis.riot.cli.gen
 com.redis.riot.cli.operation
 com.redis.riot.core
 com.redis.riot.core.convert

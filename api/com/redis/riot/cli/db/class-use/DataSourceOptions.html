@@ -108,7 +108,11 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tbody>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="#com.redis.riot.cli">com.redis.riot.cli</a></th>
+<th class="colFirst" scope="row"><a href="#com.redis.riot.cli.common">com.redis.riot.cli.common</a></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="#com.redis.riot.cli.db">com.redis.riot.cli.db</a></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </tbody>
@@ -117,12 +121,34 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <ul class="blockList">
 <li class="blockList">
-<section><a id="com.redis.riot.cli">
+<section><a id="com.redis.riot.cli.common">
 <!--   -->
 </a>
-<h3>Uses of <a href="../DataSourceOptions.html" title="class in com.redis.riot.cli.db">DataSourceOptions</a> in <a href="../../package-summary.html">com.redis.riot.cli</a></h3>
+<h3>Uses of <a href="../DataSourceOptions.html" title="class in com.redis.riot.cli.db">DataSourceOptions</a> in <a href="../../common/package-summary.html">com.redis.riot.cli.common</a></h3>
 <table class="useSummary">
-<caption><span>Methods in <a href="../../package-summary.html">com.redis.riot.cli</a> that return <a href="../DataSourceOptions.html" title="class in com.redis.riot.cli.db">DataSourceOptions</a></span><span class="tabEnd">&nbsp;</span></caption>
+<caption><span>Methods in <a href="../../common/package-summary.html">com.redis.riot.cli.common</a> with parameters of type <a href="../DataSourceOptions.html" title="class in com.redis.riot.cli.db">DataSourceOptions</a></span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Method</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<td class="colFirst"><code>static javax.sql.DataSource</code></td>
+<th class="colSecond" scope="row"><span class="typeNameLabel">DatabaseHelper.</span><code><span class="memberNameLink"><a href="../../common/DatabaseHelper.html#dataSource(com.redis.riot.cli.db.DataSourceOptions)">dataSource</a></span>&#8203;(<a href="../DataSourceOptions.html" title="class in com.redis.riot.cli.db">DataSourceOptions</a>&nbsp;options)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+</tbody>
+</table>
+</section>
+</li>
+<li class="blockList">
+<section><a id="com.redis.riot.cli.db">
+<!--   -->
+</a>
+<h3>Uses of <a href="../DataSourceOptions.html" title="class in com.redis.riot.cli.db">DataSourceOptions</a> in <a href="../package-summary.html">com.redis.riot.cli.db</a></h3>
+<table class="useSummary">
+<caption><span>Methods in <a href="../package-summary.html">com.redis.riot.cli.db</a> that return <a href="../DataSourceOptions.html" title="class in com.redis.riot.cli.db">DataSourceOptions</a></span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -131,18 +157,18 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <tbody>
 <tr class="altColor">
 <td class="colFirst"><code><a href="../DataSourceOptions.html" title="class in com.redis.riot.cli.db">DataSourceOptions</a></code></td>
-<th class="colSecond" scope="row"><span class="typeNameLabel">DbExport.</span><code><span class="memberNameLink"><a href="../../DbExport.html#getDataSourceOptions()">getDataSourceOptions</a></span>()</code></th>
+<th class="colSecond" scope="row"><span class="typeNameLabel">DbExportOptions.</span><code><span class="memberNameLink"><a href="../DbExportOptions.html#getDataSourceOptions()">getDataSourceOptions</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code><a href="../DataSourceOptions.html" title="class in com.redis.riot.cli.db">DataSourceOptions</a></code></td>
-<th class="colSecond" scope="row"><span class="typeNameLabel">DbImport.</span><code><span class="memberNameLink"><a href="../../DbImport.html#getDataSourceOptions()">getDataSourceOptions</a></span>()</code></th>
+<th class="colSecond" scope="row"><span class="typeNameLabel">DbImportOptions.</span><code><span class="memberNameLink"><a href="../DbImportOptions.html#getDataSourceOptions()">getDataSourceOptions</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </tbody>
 </table>
 <table class="useSummary">
-<caption><span>Methods in <a href="../../package-summary.html">com.redis.riot.cli</a> with parameters of type <a href="../DataSourceOptions.html" title="class in com.redis.riot.cli.db">DataSourceOptions</a></span><span class="tabEnd">&nbsp;</span></caption>
+<caption><span>Methods in <a href="../package-summary.html">com.redis.riot.cli.db</a> with parameters of type <a href="../DataSourceOptions.html" title="class in com.redis.riot.cli.db">DataSourceOptions</a></span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -151,12 +177,12 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <tbody>
 <tr class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><span class="typeNameLabel">DbExport.</span><code><span class="memberNameLink"><a href="../../DbExport.html#setDataSourceOptions(com.redis.riot.cli.db.DataSourceOptions)">setDataSourceOptions</a></span>&#8203;(<a href="../DataSourceOptions.html" title="class in com.redis.riot.cli.db">DataSourceOptions</a>&nbsp;dataSourceOptions)</code></th>
+<th class="colSecond" scope="row"><span class="typeNameLabel">DbExportOptions.</span><code><span class="memberNameLink"><a href="../DbExportOptions.html#setDataSourceOptions(com.redis.riot.cli.db.DataSourceOptions)">setDataSourceOptions</a></span>&#8203;(<a href="../DataSourceOptions.html" title="class in com.redis.riot.cli.db">DataSourceOptions</a>&nbsp;dataSourceOptions)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><span class="typeNameLabel">DbImport.</span><code><span class="memberNameLink"><a href="../../DbImport.html#setDataSourceOptions(com.redis.riot.cli.db.DataSourceOptions)">setDataSourceOptions</a></span>&#8203;(<a href="../DataSourceOptions.html" title="class in com.redis.riot.cli.db">DataSourceOptions</a>&nbsp;dataSourceOptions)</code></th>
+<th class="colSecond" scope="row"><span class="typeNameLabel">DbImportOptions.</span><code><span class="memberNameLink"><a href="../DbImportOptions.html#setDataSourceOptions(com.redis.riot.cli.db.DataSourceOptions)">setDataSourceOptions</a></span>&#8203;(<a href="../DataSourceOptions.html" title="class in com.redis.riot.cli.db">DataSourceOptions</a>&nbsp;dataSourceOptions)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </tbody>

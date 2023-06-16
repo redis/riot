@@ -27,7 +27,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":6,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":6,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -191,102 +191,144 @@ implements java.util.concurrent.Callable&lt;java.lang.Integer&gt;</pre>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i1" class="rowColor">
+<td class="colFirst"><code>protected io.lettuce.core.AbstractRedisClient</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#client(io.lettuce.core.RedisURI,com.redis.riot.cli.common.RedisOptions)">client</a></span>&#8203;(io.lettuce.core.RedisURI&nbsp;redisURI,
+      <a href="RedisOptions.html" title="class in com.redis.riot.cli.common">RedisOptions</a>&nbsp;redisOptions)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i2" class="altColor">
 <td class="colFirst"><code>protected java.lang.String</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#commandName()">commandName</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i2" class="altColor">
-<td class="colFirst"><code>protected <a href="CommandContext.html" title="class in com.redis.riot.cli.common">CommandContext</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#context(com.redis.spring.batch.common.JobRunner,com.redis.riot.cli.common.RedisOptions)">context</a></span>&#8203;(com.redis.spring.batch.common.JobRunner&nbsp;jobRunner,
-       <a href="RedisOptions.html" title="class in com.redis.riot.cli.common">RedisOptions</a>&nbsp;redisOptions)</code></th>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>protected &lt;B extends com.redis.spring.batch.RedisItemReader.BaseBuilder&lt;B&gt;&gt;<br>B</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#configureReader(B,com.redis.riot.cli.common.RedisReaderOptions)">configureReader</a></span>&#8203;(B&nbsp;reader,
+               <a href="RedisReaderOptions.html" title="class in com.redis.riot.cli.common">RedisReaderOptions</a>&nbsp;options)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>protected &lt;B extends org.springframework.batch.core.step.builder.SimpleStepBuilder&lt;?,&#8203;?&gt;&gt;<br>B</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#configureStep(B)">configureStep</a></span>&#8203;(B&nbsp;step)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>protected <a href="CommandContext.html" title="class in com.redis.riot.cli.common">CommandContext</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#context(io.lettuce.core.RedisURI,io.lettuce.core.AbstractRedisClient)">context</a></span>&#8203;(io.lettuce.core.RedisURI&nbsp;redisURI,
+       io.lettuce.core.AbstractRedisClient&nbsp;redisClient)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code>protected com.redis.spring.batch.reader.ScanSizeEstimator</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#estimator(io.lettuce.core.AbstractRedisClient,com.redis.riot.cli.common.RedisReaderOptions)">estimator</a></span>&#8203;(io.lettuce.core.AbstractRedisClient&nbsp;client,
+         <a href="RedisReaderOptions.html" title="class in com.redis.riot.cli.common">RedisReaderOptions</a>&nbsp;options)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>protected <a href="RedisOptions.html" title="class in com.redis.riot.cli.common">RedisOptions</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getRedisOptions()">getRedisOptions</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code><a href="TransferOptions.html" title="class in com.redis.riot.cli.common">TransferOptions</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getTransferOptions()">getTransferOptions</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>protected abstract org.springframework.batch.core.Job</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#job(com.redis.riot.cli.common.CommandContext)">job</a></span>&#8203;(<a href="CommandContext.html" title="class in com.redis.riot.cli.common">CommandContext</a>&nbsp;context)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i6" class="altColor">
-<td class="colFirst"><code>protected <a href="ProgressMonitor.Builder.html" title="class in com.redis.riot.cli.common">ProgressMonitor.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#progressMonitor()">progressMonitor</a></span>()</code></th>
+<tr id="i10" class="altColor">
+<td class="colFirst"><code>protected org.springframework.batch.core.job.builder.JobBuilder</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#job(java.lang.String)">job</a></span>&#8203;(java.lang.String&nbsp;name)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i11" class="rowColor">
+<td class="colFirst"><code>protected org.springframework.batch.core.Job</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#job(org.springframework.batch.core.step.builder.SimpleStepBuilder)">job</a></span>&#8203;(org.springframework.batch.core.step.builder.SimpleStepBuilder&lt;?,&#8203;?&gt;&nbsp;step)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i12" class="altColor">
+<td class="colFirst"><code>protected com.redis.spring.batch.common.PoolOptions</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#poolOptions(com.redis.riot.cli.common.RedisReaderOptions)">poolOptions</a></span>&#8203;(<a href="RedisReaderOptions.html" title="class in com.redis.riot.cli.common">RedisReaderOptions</a>&nbsp;options)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i13" class="rowColor">
+<td class="colFirst"><code>protected <a href="StepProgressMonitor.html" title="class in com.redis.riot.cli.common">StepProgressMonitor</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#progressMonitor(java.lang.String)">progressMonitor</a></span>&#8203;(java.lang.String&nbsp;task)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i14" class="altColor">
+<td class="colFirst"><code>protected com.redis.spring.batch.reader.QueueOptions</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#queueOptions(com.redis.riot.cli.common.RedisReaderOptions)">queueOptions</a></span>&#8203;(<a href="RedisReaderOptions.html" title="class in com.redis.riot.cli.common">RedisReaderOptions</a>&nbsp;options)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i15" class="rowColor">
+<td class="colFirst"><code>protected com.redis.spring.batch.RedisItemReader.ScanReaderBuilder</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#reader(io.lettuce.core.AbstractRedisClient,com.redis.riot.cli.common.RedisReaderOptions)">reader</a></span>&#8203;(io.lettuce.core.AbstractRedisClient&nbsp;client,
+      <a href="RedisReaderOptions.html" title="class in com.redis.riot.cli.common">RedisReaderOptions</a>&nbsp;options)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i16" class="altColor">
+<td class="colFirst"><code>protected io.lettuce.core.RedisURI</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#redisURI(com.redis.riot.cli.common.RedisOptions)">redisURI</a></span>&#8203;(<a href="RedisOptions.html" title="class in com.redis.riot.cli.common">RedisOptions</a>&nbsp;redisOptions)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i17" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setCommandName(java.lang.String)">setCommandName</a></span>&#8203;(java.lang.String&nbsp;commandName)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i18" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setCommandSpec(picocli.CommandLine.Model.CommandSpec)">setCommandSpec</a></span>&#8203;(picocli.CommandLine.Model.CommandSpec&nbsp;commandSpec)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i19" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setRiot(com.redis.riot.cli.Main)">setRiot</a></span>&#8203;(<a href="../Main.html" title="class in com.redis.riot.cli">Main</a>&nbsp;riot)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i20" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setTransferOptions(com.redis.riot.cli.common.TransferOptions)">setTransferOptions</a></span>&#8203;(<a href="TransferOptions.html" title="class in com.redis.riot.cli.common">TransferOptions</a>&nbsp;options)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i21" class="rowColor">
 <td class="colFirst"><code>protected &lt;I,&#8203;O&gt;<br>org.springframework.batch.core.step.builder.SimpleStepBuilder&lt;I,&#8203;O&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#step(com.redis.riot.cli.common.CommandContext,java.lang.String,org.springframework.batch.item.ItemReader,org.springframework.batch.item.ItemProcessor,org.springframework.batch.item.ItemWriter)">step</a></span>&#8203;(<a href="CommandContext.html" title="class in com.redis.riot.cli.common">CommandContext</a>&nbsp;context,
-    java.lang.String&nbsp;name,
-    org.springframework.batch.item.ItemReader&lt;I&gt;&nbsp;reader,
-    org.springframework.batch.item.ItemProcessor&lt;I,&#8203;O&gt;&nbsp;processor,
-    org.springframework.batch.item.ItemWriter&lt;O&gt;&nbsp;writer)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#simpleStepBuilder(java.lang.String)">simpleStepBuilder</a></span>&#8203;(java.lang.String&nbsp;name)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i11" class="rowColor">
-<td class="colFirst"><code>protected &lt;I,&#8203;O&gt;<br>org.springframework.batch.core.step.builder.SimpleStepBuilder&lt;I,&#8203;O&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#step(com.redis.riot.cli.common.CommandContext,java.lang.String,org.springframework.batch.item.ItemReader,org.springframework.batch.item.ItemProcessor,org.springframework.batch.item.ItemWriter,com.redis.spring.batch.common.StepOptions)">step</a></span>&#8203;(<a href="CommandContext.html" title="class in com.redis.riot.cli.common">CommandContext</a>&nbsp;context,
-    java.lang.String&nbsp;name,
-    org.springframework.batch.item.ItemReader&lt;I&gt;&nbsp;reader,
-    org.springframework.batch.item.ItemProcessor&lt;I,&#8203;O&gt;&nbsp;processor,
-    org.springframework.batch.item.ItemWriter&lt;O&gt;&nbsp;writer,
-    com.redis.spring.batch.common.StepOptions&nbsp;stepOptions)</code></th>
+<tr id="i22" class="altColor">
+<td class="colFirst"><code>protected java.util.Map&lt;java.lang.Class&lt;? extends java.lang.Throwable&gt;,&#8203;java.lang.Boolean&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#skippableExceptions()">skippableExceptions</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i23" class="rowColor">
 <td class="colFirst"><code>protected &lt;I,&#8203;O&gt;<br>org.springframework.batch.core.step.builder.SimpleStepBuilder&lt;I,&#8203;O&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#step(com.redis.riot.cli.common.CommandContext,java.lang.String,org.springframework.batch.item.ItemReader,org.springframework.batch.item.ItemWriter)">step</a></span>&#8203;(<a href="CommandContext.html" title="class in com.redis.riot.cli.common">CommandContext</a>&nbsp;context,
-    java.lang.String&nbsp;name,
-    org.springframework.batch.item.ItemReader&lt;I&gt;&nbsp;reader,
-    org.springframework.batch.item.ItemWriter&lt;O&gt;&nbsp;writer)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#step()">step</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i13" class="rowColor">
+<tr id="i24" class="altColor">
 <td class="colFirst"><code>protected &lt;I,&#8203;O&gt;<br>org.springframework.batch.core.step.builder.SimpleStepBuilder&lt;I,&#8203;O&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#step(com.redis.riot.cli.common.CommandContext,org.springframework.batch.item.ItemReader,org.springframework.batch.item.ItemProcessor,org.springframework.batch.item.ItemWriter)">step</a></span>&#8203;(<a href="CommandContext.html" title="class in com.redis.riot.cli.common">CommandContext</a>&nbsp;context,
-    org.springframework.batch.item.ItemReader&lt;I&gt;&nbsp;reader,
-    org.springframework.batch.item.ItemProcessor&lt;I,&#8203;O&gt;&nbsp;processor,
-    org.springframework.batch.item.ItemWriter&lt;O&gt;&nbsp;writer)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#step(java.lang.String)">step</a></span>&#8203;(java.lang.String&nbsp;name)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i14" class="altColor">
-<td class="colFirst"><code>protected &lt;I,&#8203;O&gt;<br>org.springframework.batch.core.step.builder.SimpleStepBuilder&lt;I,&#8203;O&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#step(com.redis.riot.cli.common.CommandContext,org.springframework.batch.item.ItemReader,org.springframework.batch.item.ItemWriter)">step</a></span>&#8203;(<a href="CommandContext.html" title="class in com.redis.riot.cli.common">CommandContext</a>&nbsp;context,
-    org.springframework.batch.item.ItemReader&lt;I&gt;&nbsp;reader,
-    org.springframework.batch.item.ItemWriter&lt;O&gt;&nbsp;writer)</code></th>
+<tr id="i25" class="rowColor">
+<td class="colFirst"><code>protected org.springframework.batch.core.step.builder.StepBuilder</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#stepBuilder(java.lang.String)">stepBuilder</a></span>&#8203;(java.lang.String&nbsp;name)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i15" class="rowColor">
-<td class="colFirst"><code>protected &lt;I,&#8203;O&gt;<br>org.springframework.batch.core.step.builder.SimpleStepBuilder&lt;I,&#8203;O&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#step(org.springframework.batch.core.step.builder.SimpleStepBuilder,com.redis.riot.cli.common.ProgressMonitor)">step</a></span>&#8203;(org.springframework.batch.core.step.builder.SimpleStepBuilder&lt;I,&#8203;O&gt;&nbsp;step,
-    <a href="ProgressMonitor.html" title="class in com.redis.riot.cli.common">ProgressMonitor</a>&nbsp;monitor)</code></th>
+<tr id="i26" class="altColor">
+<td class="colFirst"><code>protected &lt;O&gt;&nbsp;org.springframework.batch.item.ItemWriter&lt;O&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#throttle(org.springframework.batch.item.ItemWriter)">throttle</a></span>&#8203;(org.springframework.batch.item.ItemWriter&lt;O&gt;&nbsp;writer)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i16" class="altColor">
-<td class="colFirst"><code>protected com.redis.spring.batch.common.StepOptions</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#stepOptions()">stepOptions</a></span>()</code></th>
+<tr id="i27" class="rowColor">
+<td class="colFirst"><code>protected com.redis.spring.batch.RedisItemWriter.WriterBuilder</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#writer(io.lettuce.core.AbstractRedisClient,com.redis.riot.cli.common.RedisWriterOptions)">writer</a></span>&#8203;(io.lettuce.core.AbstractRedisClient&nbsp;client,
+      <a href="RedisWriterOptions.html" title="class in com.redis.riot.cli.common">RedisWriterOptions</a>&nbsp;options)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
@@ -332,6 +374,15 @@ implements java.util.concurrent.Callable&lt;java.lang.Integer&gt;</pre>
 <!--   -->
 </a>
 <h3>Method Detail</h3>
+<a id="setCommandName(java.lang.String)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setCommandName</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;setCommandName&#8203;(java.lang.String&nbsp;commandName)</pre>
+</li>
+</ul>
 <a id="commandName()">
 <!--   -->
 </a>
@@ -368,6 +419,25 @@ implements java.util.concurrent.Callable&lt;java.lang.Integer&gt;</pre>
 <pre class="methodSignature">public&nbsp;void&nbsp;setCommandSpec&#8203;(picocli.CommandLine.Model.CommandSpec&nbsp;commandSpec)</pre>
 </li>
 </ul>
+<a id="redisURI(com.redis.riot.cli.common.RedisOptions)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>redisURI</h4>
+<pre class="methodSignature">protected&nbsp;io.lettuce.core.RedisURI&nbsp;redisURI&#8203;(<a href="RedisOptions.html" title="class in com.redis.riot.cli.common">RedisOptions</a>&nbsp;redisOptions)</pre>
+</li>
+</ul>
+<a id="client(io.lettuce.core.RedisURI,com.redis.riot.cli.common.RedisOptions)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>client</h4>
+<pre class="methodSignature">protected&nbsp;io.lettuce.core.AbstractRedisClient&nbsp;client&#8203;(io.lettuce.core.RedisURI&nbsp;redisURI,
+                                                     <a href="RedisOptions.html" title="class in com.redis.riot.cli.common">RedisOptions</a>&nbsp;redisOptions)</pre>
+</li>
+</ul>
 <a id="call()">
 <!--   -->
 </a>
@@ -384,14 +454,14 @@ implements java.util.concurrent.Callable&lt;java.lang.Integer&gt;</pre>
 </dl>
 </li>
 </ul>
-<a id="context(com.redis.spring.batch.common.JobRunner,com.redis.riot.cli.common.RedisOptions)">
+<a id="context(io.lettuce.core.RedisURI,io.lettuce.core.AbstractRedisClient)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>context</h4>
-<pre class="methodSignature">protected&nbsp;<a href="CommandContext.html" title="class in com.redis.riot.cli.common">CommandContext</a>&nbsp;context&#8203;(com.redis.spring.batch.common.JobRunner&nbsp;jobRunner,
-                                 <a href="RedisOptions.html" title="class in com.redis.riot.cli.common">RedisOptions</a>&nbsp;redisOptions)</pre>
+<pre class="methodSignature">protected&nbsp;<a href="CommandContext.html" title="class in com.redis.riot.cli.common">CommandContext</a>&nbsp;context&#8203;(io.lettuce.core.RedisURI&nbsp;redisURI,
+                                 io.lettuce.core.AbstractRedisClient&nbsp;redisClient)</pre>
 </li>
 </ul>
 <a id="job(com.redis.riot.cli.common.CommandContext)">
@@ -401,6 +471,24 @@ implements java.util.concurrent.Callable&lt;java.lang.Integer&gt;</pre>
 <li class="blockList">
 <h4>job</h4>
 <pre class="methodSignature">protected abstract&nbsp;org.springframework.batch.core.Job&nbsp;job&#8203;(<a href="CommandContext.html" title="class in com.redis.riot.cli.common">CommandContext</a>&nbsp;context)</pre>
+</li>
+</ul>
+<a id="job(org.springframework.batch.core.step.builder.SimpleStepBuilder)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>job</h4>
+<pre class="methodSignature">protected&nbsp;org.springframework.batch.core.Job&nbsp;job&#8203;(org.springframework.batch.core.step.builder.SimpleStepBuilder&lt;?,&#8203;?&gt;&nbsp;step)</pre>
+</li>
+</ul>
+<a id="job(java.lang.String)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>job</h4>
+<pre class="methodSignature">protected&nbsp;org.springframework.batch.core.job.builder.JobBuilder&nbsp;job&#8203;(java.lang.String&nbsp;name)</pre>
 </li>
 </ul>
 <a id="getTransferOptions()">
@@ -421,94 +509,138 @@ implements java.util.concurrent.Callable&lt;java.lang.Integer&gt;</pre>
 <pre class="methodSignature">public&nbsp;void&nbsp;setTransferOptions&#8203;(<a href="TransferOptions.html" title="class in com.redis.riot.cli.common">TransferOptions</a>&nbsp;options)</pre>
 </li>
 </ul>
-<a id="step(com.redis.riot.cli.common.CommandContext,org.springframework.batch.item.ItemReader,org.springframework.batch.item.ItemWriter)">
+<a id="step()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>step</h4>
-<pre class="methodSignature">protected&nbsp;&lt;I,&#8203;O&gt;&nbsp;org.springframework.batch.core.step.builder.SimpleStepBuilder&lt;I,&#8203;O&gt;&nbsp;step&#8203;(<a href="CommandContext.html" title="class in com.redis.riot.cli.common">CommandContext</a>&nbsp;context,
-                                                                                                    org.springframework.batch.item.ItemReader&lt;I&gt;&nbsp;reader,
-                                                                                                    org.springframework.batch.item.ItemWriter&lt;O&gt;&nbsp;writer)</pre>
+<pre class="methodSignature">protected&nbsp;&lt;I,&#8203;O&gt;&nbsp;org.springframework.batch.core.step.builder.SimpleStepBuilder&lt;I,&#8203;O&gt;&nbsp;step()</pre>
 </li>
 </ul>
-<a id="step(com.redis.riot.cli.common.CommandContext,org.springframework.batch.item.ItemReader,org.springframework.batch.item.ItemProcessor,org.springframework.batch.item.ItemWriter)">
+<a id="step(java.lang.String)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>step</h4>
-<pre class="methodSignature">protected&nbsp;&lt;I,&#8203;O&gt;&nbsp;org.springframework.batch.core.step.builder.SimpleStepBuilder&lt;I,&#8203;O&gt;&nbsp;step&#8203;(<a href="CommandContext.html" title="class in com.redis.riot.cli.common">CommandContext</a>&nbsp;context,
-                                                                                                    org.springframework.batch.item.ItemReader&lt;I&gt;&nbsp;reader,
-                                                                                                    org.springframework.batch.item.ItemProcessor&lt;I,&#8203;O&gt;&nbsp;processor,
-                                                                                                    org.springframework.batch.item.ItemWriter&lt;O&gt;&nbsp;writer)</pre>
+<pre class="methodSignature">protected&nbsp;&lt;I,&#8203;O&gt;&nbsp;org.springframework.batch.core.step.builder.SimpleStepBuilder&lt;I,&#8203;O&gt;&nbsp;step&#8203;(java.lang.String&nbsp;name)</pre>
 </li>
 </ul>
-<a id="step(com.redis.riot.cli.common.CommandContext,java.lang.String,org.springframework.batch.item.ItemReader,org.springframework.batch.item.ItemWriter)">
+<a id="configureStep(org.springframework.batch.core.step.builder.SimpleStepBuilder)">
+<!--   -->
+</a><a id="configureStep(B)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>step</h4>
-<pre class="methodSignature">protected&nbsp;&lt;I,&#8203;O&gt;&nbsp;org.springframework.batch.core.step.builder.SimpleStepBuilder&lt;I,&#8203;O&gt;&nbsp;step&#8203;(<a href="CommandContext.html" title="class in com.redis.riot.cli.common">CommandContext</a>&nbsp;context,
-                                                                                                    java.lang.String&nbsp;name,
-                                                                                                    org.springframework.batch.item.ItemReader&lt;I&gt;&nbsp;reader,
-                                                                                                    org.springframework.batch.item.ItemWriter&lt;O&gt;&nbsp;writer)</pre>
+<h4>configureStep</h4>
+<pre class="methodSignature">protected&nbsp;&lt;B extends org.springframework.batch.core.step.builder.SimpleStepBuilder&lt;?,&#8203;?&gt;&gt;&nbsp;B&nbsp;configureStep&#8203;(B&nbsp;step)</pre>
 </li>
 </ul>
-<a id="step(com.redis.riot.cli.common.CommandContext,java.lang.String,org.springframework.batch.item.ItemReader,org.springframework.batch.item.ItemProcessor,org.springframework.batch.item.ItemWriter)">
+<a id="simpleStepBuilder(java.lang.String)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>step</h4>
-<pre class="methodSignature">protected&nbsp;&lt;I,&#8203;O&gt;&nbsp;org.springframework.batch.core.step.builder.SimpleStepBuilder&lt;I,&#8203;O&gt;&nbsp;step&#8203;(<a href="CommandContext.html" title="class in com.redis.riot.cli.common">CommandContext</a>&nbsp;context,
-                                                                                                    java.lang.String&nbsp;name,
-                                                                                                    org.springframework.batch.item.ItemReader&lt;I&gt;&nbsp;reader,
-                                                                                                    org.springframework.batch.item.ItemProcessor&lt;I,&#8203;O&gt;&nbsp;processor,
-                                                                                                    org.springframework.batch.item.ItemWriter&lt;O&gt;&nbsp;writer)</pre>
+<h4>simpleStepBuilder</h4>
+<pre class="methodSignature">protected&nbsp;&lt;I,&#8203;O&gt;&nbsp;org.springframework.batch.core.step.builder.SimpleStepBuilder&lt;I,&#8203;O&gt;&nbsp;simpleStepBuilder&#8203;(java.lang.String&nbsp;name)</pre>
 </li>
 </ul>
-<a id="step(com.redis.riot.cli.common.CommandContext,java.lang.String,org.springframework.batch.item.ItemReader,org.springframework.batch.item.ItemProcessor,org.springframework.batch.item.ItemWriter,com.redis.spring.batch.common.StepOptions)">
+<a id="stepBuilder(java.lang.String)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>step</h4>
-<pre class="methodSignature">protected&nbsp;&lt;I,&#8203;O&gt;&nbsp;org.springframework.batch.core.step.builder.SimpleStepBuilder&lt;I,&#8203;O&gt;&nbsp;step&#8203;(<a href="CommandContext.html" title="class in com.redis.riot.cli.common">CommandContext</a>&nbsp;context,
-                                                                                                    java.lang.String&nbsp;name,
-                                                                                                    org.springframework.batch.item.ItemReader&lt;I&gt;&nbsp;reader,
-                                                                                                    org.springframework.batch.item.ItemProcessor&lt;I,&#8203;O&gt;&nbsp;processor,
-                                                                                                    org.springframework.batch.item.ItemWriter&lt;O&gt;&nbsp;writer,
-                                                                                                    com.redis.spring.batch.common.StepOptions&nbsp;stepOptions)</pre>
+<h4>stepBuilder</h4>
+<pre class="methodSignature">protected&nbsp;org.springframework.batch.core.step.builder.StepBuilder&nbsp;stepBuilder&#8203;(java.lang.String&nbsp;name)</pre>
 </li>
 </ul>
-<a id="stepOptions()">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>stepOptions</h4>
-<pre class="methodSignature">protected&nbsp;com.redis.spring.batch.common.StepOptions&nbsp;stepOptions()</pre>
-</li>
-</ul>
-<a id="progressMonitor()">
+<a id="progressMonitor(java.lang.String)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>progressMonitor</h4>
-<pre class="methodSignature">protected&nbsp;<a href="ProgressMonitor.Builder.html" title="class in com.redis.riot.cli.common">ProgressMonitor.Builder</a>&nbsp;progressMonitor()</pre>
+<pre class="methodSignature">protected&nbsp;<a href="StepProgressMonitor.html" title="class in com.redis.riot.cli.common">StepProgressMonitor</a>&nbsp;progressMonitor&#8203;(java.lang.String&nbsp;task)</pre>
 </li>
 </ul>
-<a id="step(org.springframework.batch.core.step.builder.SimpleStepBuilder,com.redis.riot.cli.common.ProgressMonitor)">
+<a id="throttle(org.springframework.batch.item.ItemWriter)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>throttle</h4>
+<pre class="methodSignature">protected&nbsp;&lt;O&gt;&nbsp;org.springframework.batch.item.ItemWriter&lt;O&gt;&nbsp;throttle&#8203;(org.springframework.batch.item.ItemWriter&lt;O&gt;&nbsp;writer)</pre>
+</li>
+</ul>
+<a id="skippableExceptions()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>skippableExceptions</h4>
+<pre class="methodSignature">protected&nbsp;java.util.Map&lt;java.lang.Class&lt;? extends java.lang.Throwable&gt;,&#8203;java.lang.Boolean&gt;&nbsp;skippableExceptions()</pre>
+</li>
+</ul>
+<a id="estimator(io.lettuce.core.AbstractRedisClient,com.redis.riot.cli.common.RedisReaderOptions)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>estimator</h4>
+<pre class="methodSignature">protected&nbsp;com.redis.spring.batch.reader.ScanSizeEstimator&nbsp;estimator&#8203;(io.lettuce.core.AbstractRedisClient&nbsp;client,
+                                                                    <a href="RedisReaderOptions.html" title="class in com.redis.riot.cli.common">RedisReaderOptions</a>&nbsp;options)</pre>
+</li>
+</ul>
+<a id="reader(io.lettuce.core.AbstractRedisClient,com.redis.riot.cli.common.RedisReaderOptions)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>reader</h4>
+<pre class="methodSignature">protected&nbsp;com.redis.spring.batch.RedisItemReader.ScanReaderBuilder&nbsp;reader&#8203;(io.lettuce.core.AbstractRedisClient&nbsp;client,
+                                                                          <a href="RedisReaderOptions.html" title="class in com.redis.riot.cli.common">RedisReaderOptions</a>&nbsp;options)</pre>
+</li>
+</ul>
+<a id="configureReader(com.redis.spring.batch.RedisItemReader.BaseBuilder,com.redis.riot.cli.common.RedisReaderOptions)">
+<!--   -->
+</a><a id="configureReader(B,com.redis.riot.cli.common.RedisReaderOptions)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>configureReader</h4>
+<pre class="methodSignature">protected&nbsp;&lt;B extends com.redis.spring.batch.RedisItemReader.BaseBuilder&lt;B&gt;&gt;&nbsp;B&nbsp;configureReader&#8203;(B&nbsp;reader,
+                                                                                              <a href="RedisReaderOptions.html" title="class in com.redis.riot.cli.common">RedisReaderOptions</a>&nbsp;options)</pre>
+</li>
+</ul>
+<a id="poolOptions(com.redis.riot.cli.common.RedisReaderOptions)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>poolOptions</h4>
+<pre class="methodSignature">protected&nbsp;com.redis.spring.batch.common.PoolOptions&nbsp;poolOptions&#8203;(<a href="RedisReaderOptions.html" title="class in com.redis.riot.cli.common">RedisReaderOptions</a>&nbsp;options)</pre>
+</li>
+</ul>
+<a id="queueOptions(com.redis.riot.cli.common.RedisReaderOptions)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>queueOptions</h4>
+<pre class="methodSignature">protected&nbsp;com.redis.spring.batch.reader.QueueOptions&nbsp;queueOptions&#8203;(<a href="RedisReaderOptions.html" title="class in com.redis.riot.cli.common">RedisReaderOptions</a>&nbsp;options)</pre>
+</li>
+</ul>
+<a id="writer(io.lettuce.core.AbstractRedisClient,com.redis.riot.cli.common.RedisWriterOptions)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
-<h4>step</h4>
-<pre class="methodSignature">protected&nbsp;&lt;I,&#8203;O&gt;&nbsp;org.springframework.batch.core.step.builder.SimpleStepBuilder&lt;I,&#8203;O&gt;&nbsp;step&#8203;(org.springframework.batch.core.step.builder.SimpleStepBuilder&lt;I,&#8203;O&gt;&nbsp;step,
-                                                                                                    <a href="ProgressMonitor.html" title="class in com.redis.riot.cli.common">ProgressMonitor</a>&nbsp;monitor)</pre>
+<h4>writer</h4>
+<pre class="methodSignature">protected&nbsp;com.redis.spring.batch.RedisItemWriter.WriterBuilder&nbsp;writer&#8203;(io.lettuce.core.AbstractRedisClient&nbsp;client,
+                                                                      <a href="RedisWriterOptions.html" title="class in com.redis.riot.cli.common">RedisWriterOptions</a>&nbsp;options)</pre>
 </li>
 </ul>
 </li>

@@ -27,7 +27,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -210,41 +210,76 @@ extends java.lang.Object</pre>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#configure(org.springframework.batch.item.database.builder.JdbcCursorItemReaderBuilder)">configure</a></span>&#8203;(org.springframework.batch.item.database.builder.JdbcCursorItemReaderBuilder&lt;java.util.Map&lt;java.lang.String,&#8203;java.lang.Object&gt;&gt;&nbsp;builder)</code></th>
+<td class="colFirst"><code><a href="DataSourceOptions.html" title="class in com.redis.riot.cli.db">DataSourceOptions</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getDataSourceOptions()">getDataSourceOptions</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i1" class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getFetchSize()">getFetchSize</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMaxItemCount()">getMaxItemCount</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMaxResultSetRows()">getMaxResultSetRows</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getQueryTimeout()">getQueryTimeout</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isUseSharedExtendedConnection()">isUseSharedExtendedConnection</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isVerifyCursorPosition()">isVerifyCursorPosition</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDataSourceOptions(com.redis.riot.cli.db.DataSourceOptions)">setDataSourceOptions</a></span>&#8203;(<a href="DataSourceOptions.html" title="class in com.redis.riot.cli.db">DataSourceOptions</a>&nbsp;dataSourceOptions)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setFetchSize(int)">setFetchSize</a></span>&#8203;(int&nbsp;fetchSize)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i2" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMaxItemCount(int)">setMaxItemCount</a></span>&#8203;(int&nbsp;maxItemCount)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMaxResultSetRows(int)">setMaxResultSetRows</a></span>&#8203;(int&nbsp;rows)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setQueryTimeout(int)">setQueryTimeout</a></span>&#8203;(int&nbsp;queryTimeout)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setUseSharedExtendedConnection(boolean)">setUseSharedExtendedConnection</a></span>&#8203;(boolean&nbsp;useSharedExtendedConnection)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setVerifyCursorPosition(boolean)">setVerifyCursorPosition</a></span>&#8203;(boolean&nbsp;verifyCursorPosition)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i14" class="altColor">
 <td class="colFirst"><code>java.lang.String</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toString()">toString</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
@@ -341,6 +376,78 @@ extends java.lang.Object</pre>
 <!--   -->
 </a>
 <h3>Method Detail</h3>
+<a id="getDataSourceOptions()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getDataSourceOptions</h4>
+<pre class="methodSignature">public&nbsp;<a href="DataSourceOptions.html" title="class in com.redis.riot.cli.db">DataSourceOptions</a>&nbsp;getDataSourceOptions()</pre>
+</li>
+</ul>
+<a id="getMaxItemCount()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getMaxItemCount</h4>
+<pre class="methodSignature">public&nbsp;int&nbsp;getMaxItemCount()</pre>
+</li>
+</ul>
+<a id="getFetchSize()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getFetchSize</h4>
+<pre class="methodSignature">public&nbsp;int&nbsp;getFetchSize()</pre>
+</li>
+</ul>
+<a id="getMaxResultSetRows()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getMaxResultSetRows</h4>
+<pre class="methodSignature">public&nbsp;int&nbsp;getMaxResultSetRows()</pre>
+</li>
+</ul>
+<a id="getQueryTimeout()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getQueryTimeout</h4>
+<pre class="methodSignature">public&nbsp;int&nbsp;getQueryTimeout()</pre>
+</li>
+</ul>
+<a id="isUseSharedExtendedConnection()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isUseSharedExtendedConnection</h4>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;isUseSharedExtendedConnection()</pre>
+</li>
+</ul>
+<a id="isVerifyCursorPosition()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isVerifyCursorPosition</h4>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;isVerifyCursorPosition()</pre>
+</li>
+</ul>
+<a id="setDataSourceOptions(com.redis.riot.cli.db.DataSourceOptions)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setDataSourceOptions</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;setDataSourceOptions&#8203;(<a href="DataSourceOptions.html" title="class in com.redis.riot.cli.db">DataSourceOptions</a>&nbsp;dataSourceOptions)</pre>
+</li>
+</ul>
 <a id="setMaxItemCount(int)">
 <!--   -->
 </a>
@@ -393,15 +500,6 @@ extends java.lang.Object</pre>
 <li class="blockList">
 <h4>setVerifyCursorPosition</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setVerifyCursorPosition&#8203;(boolean&nbsp;verifyCursorPosition)</pre>
-</li>
-</ul>
-<a id="configure(org.springframework.batch.item.database.builder.JdbcCursorItemReaderBuilder)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>configure</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;configure&#8203;(org.springframework.batch.item.database.builder.JdbcCursorItemReaderBuilder&lt;java.util.Map&lt;java.lang.String,&#8203;java.lang.Object&gt;&gt;&nbsp;builder)</pre>
 </li>
 </ul>
 <a id="toString()">

@@ -27,7 +27,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10};
+var data = {"i0":10,"i1":10,"i2":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -91,7 +91,7 @@ loadScripts(document, 'script');</script>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
@@ -150,23 +150,6 @@ extends <a href="CommandContext.html" title="class in com.redis.riot.cli.common"
 <div class="summary">
 <ul class="blockList">
 <li class="blockList">
-<!-- =========== FIELD SUMMARY =========== -->
-<section>
-<ul class="blockList">
-<li class="blockList"><a id="field.summary">
-<!--   -->
-</a>
-<h3>Field Summary</h3>
-<ul class="blockList">
-<li class="blockList"><a id="fields.inherited.from.class.com.redis.riot.cli.common.CommandContext">
-<!--   -->
-</a>
-<h3>Fields inherited from class&nbsp;com.redis.riot.cli.common.<a href="CommandContext.html" title="class in com.redis.riot.cli.common">CommandContext</a></h3>
-<code><a href="CommandContext.html#jobRunner">jobRunner</a></code></li>
-</ul>
-</li>
-</ul>
-</section>
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
 <section>
 <ul class="blockList">
@@ -181,9 +164,10 @@ extends <a href="CommandContext.html" title="class in com.redis.riot.cli.common"
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.redis.spring.batch.common.JobRunner,com.redis.riot.cli.common.RedisOptions,com.redis.riot.cli.common.RedisOptions)">ReplicateCommandContext</a></span>&#8203;(com.redis.spring.batch.common.JobRunner&nbsp;jobRunner,
-                       <a href="RedisOptions.html" title="class in com.redis.riot.cli.common">RedisOptions</a>&nbsp;redisOptions,
-                       <a href="RedisOptions.html" title="class in com.redis.riot.cli.common">RedisOptions</a>&nbsp;targetRedisOptions)</code></th>
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(io.lettuce.core.RedisURI,io.lettuce.core.AbstractRedisClient,io.lettuce.core.RedisURI,io.lettuce.core.AbstractRedisClient)">ReplicateCommandContext</a></span>&#8203;(io.lettuce.core.RedisURI&nbsp;redisURI,
+                       io.lettuce.core.AbstractRedisClient&nbsp;client,
+                       io.lettuce.core.RedisURI&nbsp;targetRedisURI,
+                       io.lettuce.core.AbstractRedisClient&nbsp;targetRedisClient)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
@@ -210,48 +194,13 @@ extends <a href="CommandContext.html" title="class in com.redis.riot.cli.common"
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code>com.redis.spring.batch.RedisItemReader.ComparatorBuilder</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#comparator()">comparator</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i2" class="altColor">
 <td class="colFirst"><code>io.lettuce.core.AbstractRedisClient</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getTargetRedisClient()">getTargetRedisClient</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i3" class="rowColor">
-<td class="colFirst"><code><a href="RedisOptions.html" title="class in com.redis.riot.cli.common">RedisOptions</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getTargetRedisOptions()">getTargetRedisOptions</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i4" class="altColor">
+<tr id="i2" class="altColor">
 <td class="colFirst"><code>io.lettuce.core.RedisURI</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getTargetRedisURI()">getTargetRedisURI</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i5" class="rowColor">
-<td class="colFirst"><code>com.redis.spring.batch.RedisItemReader.ScanBuilder&lt;java.lang.String,&#8203;java.lang.String,&#8203;com.redis.spring.batch.common.DataStructure&lt;java.lang.String&gt;&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#targetDataStructureReader()">targetDataStructureReader</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i6" class="altColor">
-<td class="colFirst"><code>&lt;K,&#8203;V&gt;<br>com.redis.spring.batch.RedisItemReader.ScanBuilder&lt;K,&#8203;V,&#8203;com.redis.spring.batch.common.DataStructure&lt;K&gt;&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#targetDataStructureReader(io.lettuce.core.codec.RedisCodec)">targetDataStructureReader</a></span>&#8203;(io.lettuce.core.codec.RedisCodec&lt;K,&#8203;V&gt;&nbsp;codec)</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i7" class="rowColor">
-<td class="colFirst"><code>com.redis.spring.batch.RedisItemWriter.DataStructureWriterBuilder&lt;java.lang.String,&#8203;java.lang.String&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#targetDataStructureWriter()">targetDataStructureWriter</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i8" class="altColor">
-<td class="colFirst"><code>&lt;K,&#8203;V&gt;<br>com.redis.spring.batch.RedisItemWriter.DataStructureWriterBuilder&lt;K,&#8203;V&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#targetDataStructureWriter(io.lettuce.core.codec.RedisCodec)">targetDataStructureWriter</a></span>&#8203;(io.lettuce.core.codec.RedisCodec&lt;K,&#8203;V&gt;&nbsp;codec)</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i9" class="rowColor">
-<td class="colFirst"><code>com.redis.spring.batch.RedisItemWriter.KeyDumpWriterBuilder&lt;byte[],&#8203;byte[]&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#targetKeyDumpWriter()">targetKeyDumpWriter</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
@@ -260,7 +209,7 @@ extends <a href="CommandContext.html" title="class in com.redis.riot.cli.common"
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;com.redis.riot.cli.common.<a href="CommandContext.html" title="class in com.redis.riot.cli.common">CommandContext</a></h3>
-<code><a href="CommandContext.html#connection()">connection</a>, <a href="CommandContext.html#connection(io.lettuce.core.AbstractRedisClient)">connection</a>, <a href="CommandContext.html#dataStructureReader(io.lettuce.core.AbstractRedisClient,io.lettuce.core.codec.RedisCodec)">dataStructureReader</a>, <a href="CommandContext.html#dataStructureReader(io.lettuce.core.codec.RedisCodec)">dataStructureReader</a>, <a href="CommandContext.html#dataStructureWriter(io.lettuce.core.AbstractRedisClient,io.lettuce.core.codec.RedisCodec)">dataStructureWriter</a>, <a href="CommandContext.html#dataStructureWriter(io.lettuce.core.codec.RedisCodec)">dataStructureWriter</a>, <a href="CommandContext.html#getJobRunner()">getJobRunner</a>, <a href="CommandContext.html#getRedisClient()">getRedisClient</a>, <a href="CommandContext.html#getRedisOptions()">getRedisOptions</a>, <a href="CommandContext.html#getRedisURI()">getRedisURI</a>, <a href="CommandContext.html#keyDumpReader()">keyDumpReader</a>, <a href="CommandContext.html#keyDumpReader(io.lettuce.core.AbstractRedisClient)">keyDumpReader</a>, <a href="CommandContext.html#pubSubConnection(io.lettuce.core.AbstractRedisClient,io.lettuce.core.codec.RedisCodec)">pubSubConnection</a>, <a href="CommandContext.html#pubSubConnection(io.lettuce.core.codec.RedisCodec)">pubSubConnection</a></code></li>
+<code><a href="CommandContext.html#getRedisClient()">getRedisClient</a>, <a href="CommandContext.html#getRedisURI()">getRedisURI</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
@@ -285,15 +234,16 @@ extends <a href="CommandContext.html" title="class in com.redis.riot.cli.common"
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a id="&lt;init&gt;(com.redis.spring.batch.common.JobRunner,com.redis.riot.cli.common.RedisOptions,com.redis.riot.cli.common.RedisOptions)">
+<a id="&lt;init&gt;(io.lettuce.core.RedisURI,io.lettuce.core.AbstractRedisClient,io.lettuce.core.RedisURI,io.lettuce.core.AbstractRedisClient)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>ReplicateCommandContext</h4>
-<pre>public&nbsp;ReplicateCommandContext&#8203;(com.redis.spring.batch.common.JobRunner&nbsp;jobRunner,
-                               <a href="RedisOptions.html" title="class in com.redis.riot.cli.common">RedisOptions</a>&nbsp;redisOptions,
-                               <a href="RedisOptions.html" title="class in com.redis.riot.cli.common">RedisOptions</a>&nbsp;targetRedisOptions)</pre>
+<pre>public&nbsp;ReplicateCommandContext&#8203;(io.lettuce.core.RedisURI&nbsp;redisURI,
+                               io.lettuce.core.AbstractRedisClient&nbsp;client,
+                               io.lettuce.core.RedisURI&nbsp;targetRedisURI,
+                               io.lettuce.core.AbstractRedisClient&nbsp;targetRedisClient)</pre>
 </li>
 </ul>
 </li>
@@ -324,15 +274,6 @@ extends <a href="CommandContext.html" title="class in com.redis.riot.cli.common"
 </dl>
 </li>
 </ul>
-<a id="getTargetRedisOptions()">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getTargetRedisOptions</h4>
-<pre class="methodSignature">public&nbsp;<a href="RedisOptions.html" title="class in com.redis.riot.cli.common">RedisOptions</a>&nbsp;getTargetRedisOptions()</pre>
-</li>
-</ul>
 <a id="getTargetRedisClient()">
 <!--   -->
 </a>
@@ -345,64 +286,10 @@ extends <a href="CommandContext.html" title="class in com.redis.riot.cli.common"
 <a id="getTargetRedisURI()">
 <!--   -->
 </a>
-<ul class="blockList">
+<ul class="blockListLast">
 <li class="blockList">
 <h4>getTargetRedisURI</h4>
 <pre class="methodSignature">public&nbsp;io.lettuce.core.RedisURI&nbsp;getTargetRedisURI()</pre>
-</li>
-</ul>
-<a id="comparator()">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>comparator</h4>
-<pre class="methodSignature">public&nbsp;com.redis.spring.batch.RedisItemReader.ComparatorBuilder&nbsp;comparator()</pre>
-</li>
-</ul>
-<a id="targetDataStructureReader(io.lettuce.core.codec.RedisCodec)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>targetDataStructureReader</h4>
-<pre class="methodSignature">public&nbsp;&lt;K,&#8203;V&gt;&nbsp;com.redis.spring.batch.RedisItemReader.ScanBuilder&lt;K,&#8203;V,&#8203;com.redis.spring.batch.common.DataStructure&lt;K&gt;&gt;&nbsp;targetDataStructureReader&#8203;(io.lettuce.core.codec.RedisCodec&lt;K,&#8203;V&gt;&nbsp;codec)</pre>
-</li>
-</ul>
-<a id="targetDataStructureReader()">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>targetDataStructureReader</h4>
-<pre class="methodSignature">public&nbsp;com.redis.spring.batch.RedisItemReader.ScanBuilder&lt;java.lang.String,&#8203;java.lang.String,&#8203;com.redis.spring.batch.common.DataStructure&lt;java.lang.String&gt;&gt;&nbsp;targetDataStructureReader()</pre>
-</li>
-</ul>
-<a id="targetDataStructureWriter()">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>targetDataStructureWriter</h4>
-<pre class="methodSignature">public&nbsp;com.redis.spring.batch.RedisItemWriter.DataStructureWriterBuilder&lt;java.lang.String,&#8203;java.lang.String&gt;&nbsp;targetDataStructureWriter()</pre>
-</li>
-</ul>
-<a id="targetDataStructureWriter(io.lettuce.core.codec.RedisCodec)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>targetDataStructureWriter</h4>
-<pre class="methodSignature">public&nbsp;&lt;K,&#8203;V&gt;&nbsp;com.redis.spring.batch.RedisItemWriter.DataStructureWriterBuilder&lt;K,&#8203;V&gt;&nbsp;targetDataStructureWriter&#8203;(io.lettuce.core.codec.RedisCodec&lt;K,&#8203;V&gt;&nbsp;codec)</pre>
-</li>
-</ul>
-<a id="targetKeyDumpWriter()">
-<!--   -->
-</a>
-<ul class="blockListLast">
-<li class="blockList">
-<h4>targetKeyDumpWriter</h4>
-<pre class="methodSignature">public&nbsp;com.redis.spring.batch.RedisItemWriter.KeyDumpWriterBuilder&lt;byte[],&#8203;byte[]&gt;&nbsp;targetKeyDumpWriter()</pre>
 </li>
 </ul>
 </li>
@@ -459,7 +346,7 @@ extends <a href="CommandContext.html" title="class in com.redis.riot.cli.common"
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
