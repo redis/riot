@@ -18,9 +18,6 @@ import com.redis.riot.cli.common.CommandContext;
 import com.redis.riot.cli.common.FakerImportOptions;
 import com.redis.riot.cli.common.StepProgressMonitor;
 import com.redis.riot.core.FakerItemReader;
-import com.redis.riot.core.Generator;
-import com.redis.riot.core.MapGenerator;
-import com.redis.riot.core.MapWithMetadataGenerator;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
@@ -44,9 +41,12 @@ public class FakerImport extends AbstractImportCommand {
 	@Override
 	protected Job job(CommandContext context) {
 		log.log(Level.FINE, "Creating Faker reader with {0}", options);
-		FakerItemReader reader = new FakerItemReader(generator(context));
-		reader.setCurrentItemCount(options.getStart() - 1);
+		FakerItemReader reader = new FakerItemReader();
 		reader.setMaxItemCount(options.getCount());
+		reader.withIndexRange(options.getIndexRange());
+		fields(context).forEach(reader::withField);
+		reader.withLocale(options.getLocale());
+		reader.withIncludeMetadata(options.isIncludeMetadata());
 		SimpleStepBuilder<Map<String, Object>, Map<String, Object>> step = step(context.getRedisClient(), reader);
 		StepProgressMonitor monitor = progressMonitor("Generating");
 		monitor.withInitialMax(options.getCount());
@@ -54,25 +54,20 @@ public class FakerImport extends AbstractImportCommand {
 		return job(commandName()).start(step.build()).build();
 	}
 
-	private void addFieldsFromIndex(CommandContext context, String index, Map<String, String> fields) {
-		try (StatefulRedisModulesConnection<String, String> connection = RedisModulesUtils
-				.connection(context.getRedisClient())) {
-			RediSearchCommands<String, String> commands = connection.sync();
-			IndexInfo info = RedisModulesUtils.indexInfo(commands.ftInfo(index));
-			for (Field<String> field : info.getFields()) {
-				fields.put(field.getName(), expression(field));
+	private Map<String, String> fields(CommandContext context) {
+		Map<String, String> fields = new LinkedHashMap<>();
+		fields.putAll(options.getFields());
+		options.getRedisearchIndex().ifPresent(index -> {
+			try (StatefulRedisModulesConnection<String, String> connection = RedisModulesUtils
+					.connection(context.getRedisClient())) {
+				RediSearchCommands<String, String> commands = connection.sync();
+				IndexInfo info = RedisModulesUtils.indexInfo(commands.ftInfo(index));
+				for (Field<String> field : info.getFields()) {
+					fields.put(field.getName(), expression(field));
+				}
 			}
-		}
-	}
-
-	private Generator<Map<String, Object>> generator(CommandContext context) {
-		Map<String, String> fields = new LinkedHashMap<>(options.getFields());
-		options.getRedisearchIndex().ifPresent(index -> addFieldsFromIndex(context, index, fields));
-		MapGenerator generator = MapGenerator.builder().locale(options.getLocale()).fields(fields).build();
-		if (options.isIncludeMetadata()) {
-			return new MapWithMetadataGenerator(generator);
-		}
-		return generator;
+		});
+		return fields;
 	}
 
 	private String expression(Field<String> field) {

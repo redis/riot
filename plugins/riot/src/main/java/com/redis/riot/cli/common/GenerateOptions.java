@@ -27,7 +27,7 @@ import picocli.CommandLine.Option;
 public class GenerateOptions {
 
 	public static final int DEFAULT_COUNT = 1000;
-	public static final IntRange DEFAULT_KEY_RANGE = IntRange.between(1, 1000);
+	public static final IntRange DEFAULT_KEY_RANGE = IntRange.from(1);
 
 	@Option(names = "--count", description = "Number of items to generate (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
 	private int count = DEFAULT_COUNT;

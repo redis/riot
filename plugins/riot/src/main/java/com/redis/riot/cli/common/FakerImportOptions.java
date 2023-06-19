@@ -7,20 +7,22 @@ import java.util.Optional;
 
 import org.springframework.util.Assert;
 
+import com.redis.spring.batch.common.IntRange;
+
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
 public class FakerImportOptions {
 
-	public static final int DEFAULT_START = 1;
 	public static final int DEFAULT_COUNT = 1000;
 	public static final Locale DEFAULT_LOCALE = Locale.ENGLISH;
 	public static final boolean DEFAULT_INCLUDE_METADATA = false;
+	private static final IntRange DEFAULT_INDEX_RANGE = IntRange.from(1);
 
-	@Option(names = "--start", description = "Start index (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
-	protected int start = DEFAULT_START;
 	@Option(names = "--count", description = "Number of items to generate (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
 	private int count = DEFAULT_COUNT;
+	@Option(names = "--index", description = "Index range (default: ${DEFAULT-VALUE}).", paramLabel = "<range>")
+	private IntRange indexRange = DEFAULT_INDEX_RANGE;
 	@Parameters(arity = "0..*", description = "SpEL expressions in the form field1=\"exp\" field2=\"exp\"...", paramLabel = "SPEL")
 	private Map<String, String> fields = new LinkedHashMap<>();
 	@Option(names = "--infer", description = "Introspect given RediSearch index to infer Faker fields.", paramLabel = "<name>")
@@ -30,12 +32,12 @@ public class FakerImportOptions {
 	@Option(names = "--metadata", description = "Include metadata (index, partition).")
 	private boolean includeMetadata = DEFAULT_INCLUDE_METADATA;
 
-	public int getStart() {
-		return start;
+	public IntRange getIndexRange() {
+		return indexRange;
 	}
 
-	public void setStart(int start) {
-		this.start = start;
+	public void setIndexRange(IntRange indexRange) {
+		this.indexRange = indexRange;
 	}
 
 	public int getCount() {
@@ -59,8 +61,8 @@ public class FakerImportOptions {
 		return redisearchIndex;
 	}
 
-	public void setFakerIndex(String fakerIndex) {
-		this.redisearchIndex = Optional.of(fakerIndex);
+	public void setRedisearchIndex(Optional<String> redisearchIndex) {
+		this.redisearchIndex = redisearchIndex;
 	}
 
 	public Locale getLocale() {
@@ -82,8 +84,9 @@ public class FakerImportOptions {
 
 	@Override
 	public String toString() {
-		return "FakerGeneratorOptions [fields=" + fields + ", redisearchIndex=" + redisearchIndex + ", locale=" + locale
-				+ ", includeMetadata=" + includeMetadata + ", count=" + count + "]";
+		return "FakerImportOptions [indexRange=" + indexRange + ", count=" + count + ", fields=" + fields
+				+ ", redisearchIndex=" + redisearchIndex + ", locale=" + locale + ", includeMetadata=" + includeMetadata
+				+ "]";
 	}
 
 }
