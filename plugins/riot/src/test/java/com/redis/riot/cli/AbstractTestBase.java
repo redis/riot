@@ -114,7 +114,7 @@ public abstract class AbstractTestBase {
 		Awaitility.await().timeout(DEFAULT_AWAIT_TIMEOUT).until(conditionEvaluator);
 	}
 
-	protected void awaitEquals(Supplier<Object> expected, Supplier<Object> actual) {
+	protected <T> void awaitEquals(Supplier<T> expected, Supplier<T> actual) {
 		awaitUntil(() -> expected.get().equals(actual.get()));
 	}
 

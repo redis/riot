@@ -422,7 +422,7 @@ public abstract class AbstractRiotTests extends AbstractTestBase {
 		RedisServerCommands<String, String> sync = connection.sync();
 		sync.flushall();
 		execute("dump-import", this::configureDumpFileImportCommand);
-		awaitEquals(records::size, sync::dbsize);
+		awaitEquals(records::size, () -> Math.toIntExact(sync.dbsize()));
 	}
 
 	private void configureDumpFileImportCommand(CommandLine.ParseResult parseResult) {
