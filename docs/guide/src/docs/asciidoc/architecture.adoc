@@ -21,6 +21,12 @@ If the target is Redis, writing is done in a single command {link_redis_pipeline
 You can change the batch size (and hence pipeline size) using the `--batch` option.
 The optimal batch size in terms of throughput depends on many factors like record size and command types (see {link_pipeline_tuning} for details).
 
+.`--batch` example
+[source]
+----
+include::{testdir}/faker-import-tsadd[]
+----
+
 [[_architecture_threads]]
 == Multi-threading
 
@@ -31,6 +37,15 @@ Here, only one reader is being accessed from multiple threads.
 
 To set the number of threads use the `--threads` option.
 
+.`--threads` example
+[source]
+----
+include::{testdir}/db-import-postgresql-multithreaded
+----
+
+[[_architecture_processing]]
+== Processing
+
 Processors are applied to records in the following order:
 
 * Transforms
@@ -38,7 +53,7 @@ Processors are applied to records in the following order:
 * Filters
 
 [[_architecture_transforms]]
-== Transforms
+=== Transforms
 
 Transforms allow you to create/update/delete fields using the {link_spel} (SpEL):
 
@@ -63,7 +78,7 @@ riot file-import --process epoch="#date.parse(mydate).getTime()" location="#geo(
 ----
 
 [[_architecture_regex]]
-== Regular Expressions
+=== Regular Expressions
 
 Extract patterns from source fields using regular expressions:
 [source]
@@ -72,7 +87,7 @@ riot file-import --regex name="(?<first>\w+)\/(?<last>\w+)" ...
 ----
 
 [[_architecture_filters]]
-== Filters
+=== Filters
 
 Filters allow you to exclude records that don't match a SpEL boolean expression.
 
