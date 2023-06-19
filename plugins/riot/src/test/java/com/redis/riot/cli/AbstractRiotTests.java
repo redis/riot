@@ -9,7 +9,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -66,8 +65,6 @@ import com.redis.riot.cli.file.FileImportOptions;
 import com.redis.riot.cli.file.FlatFileOptions;
 import com.redis.riot.cli.operation.HsetCommand;
 import com.redis.riot.core.FakerItemReader;
-import com.redis.riot.core.MapGenerator;
-import com.redis.riot.core.MapWithMetadataGenerator;
 import com.redis.riot.core.resource.XmlItemReader;
 import com.redis.riot.core.resource.XmlItemReaderBuilder;
 import com.redis.riot.core.resource.XmlObjectReader;
@@ -589,16 +586,15 @@ public abstract class AbstractRiotTests extends AbstractTestBase {
 	@Test
 	void fakerReader() throws Exception {
 		int count = 100;
-		Map<String, String> fields = new HashMap<>();
-		fields.put("firstName", "name.firstName");
-		fields.put("lastName", "name.lastName");
-		FakerItemReader reader = new FakerItemReader(MapGenerator.builder().fields(fields).build());
-		reader.setCount(count);
+		FakerItemReader reader = new FakerItemReader();
+		reader.withField("firstName", "name.firstName");
+		reader.withField("lastName", "name.lastName");
+		reader.setMaxItemCount(count);
 		List<Map<String, Object>> items = new ArrayList<>();
 		String name = UUID.randomUUID().toString();
 		run(name, DEFAULT_BATCH_SIZE, reader, items::addAll);
 		Assertions.assertEquals(count, items.size());
-		Assertions.assertFalse(items.get(0).containsKey(MapGenerator.FIELD_INDEX));
+		Assertions.assertFalse(items.get(0).containsKey(FakerItemReader.FIELD_INDEX));
 		Assertions.assertTrue(((String) items.get(0).get("firstName")).length() > 0);
 		Assertions.assertTrue(((String) items.get(0).get("lastName")).length() > 0);
 	}
@@ -606,17 +602,16 @@ public abstract class AbstractRiotTests extends AbstractTestBase {
 	@Test
 	void fakerIncludeMetadata() throws Exception {
 		int count = 100;
-		Map<String, String> fields = new HashMap<>();
-		fields.put("firstName", "name.firstName");
-		fields.put("lastName", "name.lastName");
-		FakerItemReader reader = new FakerItemReader(
-				new MapWithMetadataGenerator(MapGenerator.builder().fields(fields).build()));
-		reader.setCount(count);
+		FakerItemReader reader = new FakerItemReader();
+		reader.withField("firstName", "name.firstName");
+		reader.withField("lastName", "name.lastName");
+		reader.setMaxItemCount(count);
+		reader.withIncludeMetadata(true);
 		List<Map<String, Object>> items = new ArrayList<>();
 		String name = UUID.randomUUID().toString();
 		run(name, DEFAULT_BATCH_SIZE, reader, items::addAll);
 		Assertions.assertEquals(count, items.size());
-		Assertions.assertEquals(1, items.get(0).get(MapGenerator.FIELD_INDEX));
+		Assertions.assertEquals(1, items.get(0).get(FakerItemReader.FIELD_INDEX));
 	}
 
 	@Test
