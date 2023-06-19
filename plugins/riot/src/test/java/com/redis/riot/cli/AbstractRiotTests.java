@@ -155,7 +155,8 @@ public abstract class AbstractRiotTests extends AbstractTestBase {
 	@BeforeEach
 	void flushAllTarget() throws InterruptedException {
 		targetConnection.sync().flushall();
-		awaitUntil(() -> targetConnection.sync().dbsize().equals(0L));
+		RedisModulesCommands<String, String> sync = targetConnection.sync();
+		awaitEquals(() -> 0L, sync::dbsize);
 	}
 
 	@Override
@@ -421,7 +422,7 @@ public abstract class AbstractRiotTests extends AbstractTestBase {
 		RedisServerCommands<String, String> sync = connection.sync();
 		sync.flushall();
 		execute("dump-import", this::configureDumpFileImportCommand);
-		Assertions.assertEquals(records.size(), sync.dbsize());
+		awaitEquals(records::size, sync::dbsize);
 	}
 
 	private void configureDumpFileImportCommand(CommandLine.ParseResult parseResult) {

@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import org.awaitility.Awaitility;
 import org.codehaus.plexus.util.cli.CommandLineUtils;
@@ -31,6 +32,7 @@ import org.springframework.batch.support.transaction.ResourcelessTransactionMana
 import org.springframework.core.task.SyncTaskExecutor;
 
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
+import com.redis.lettucemod.api.sync.RedisModulesCommands;
 import com.redis.lettucemod.util.ClientBuilder;
 import com.redis.lettucemod.util.RedisModulesUtils;
 import com.redis.riot.cli.common.AbstractCommand;
@@ -100,7 +102,8 @@ public abstract class AbstractTestBase {
 		jobLauncher.setTaskExecutor(new SyncTaskExecutor());
 		stepBuilderFactory = new StepBuilderFactory(jobRepository, new ResourcelessTransactionManager());
 		connection.sync().flushall();
-		awaitUntil(() -> connection.sync().dbsize().equals(0L));
+		RedisModulesCommands<String, String> sync = connection.sync();
+		awaitEquals(() -> 0l, sync::dbsize);
 	}
 
 	protected void awaitUntilFalse(Callable<Boolean> conditionEvaluator) {
@@ -109,6 +112,10 @@ public abstract class AbstractTestBase {
 
 	protected void awaitUntil(Callable<Boolean> conditionEvaluator) {
 		Awaitility.await().timeout(DEFAULT_AWAIT_TIMEOUT).until(conditionEvaluator);
+	}
+
+	protected void awaitEquals(Supplier<Object> expected, Supplier<Object> actual) {
+		awaitUntil(() -> expected.get().equals(actual.get()));
 	}
 
 	protected AbstractRedisClient client(RedisServer server) {
