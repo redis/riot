@@ -29,7 +29,7 @@ project:
       height: 256
   java:
     groupId: com.redis
-    version: 20
+    version: 17
     multiProject: true
     mainClass: com.redis.riot.cli.Main
   tags:
