@@ -8,9 +8,11 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParameters;
+import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.job.builder.JobBuilder;
@@ -24,6 +26,8 @@ import org.springframework.batch.core.step.skip.AlwaysSkipItemSkipPolicy;
 import org.springframework.batch.core.step.skip.LimitCheckingItemSkipPolicy;
 import org.springframework.batch.core.step.skip.NeverSkipItemSkipPolicy;
 import org.springframework.batch.core.step.skip.SkipPolicy;
+import org.springframework.batch.item.ItemReader;
+import org.springframework.batch.item.ItemStreamSupport;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.support.transaction.ResourcelessTransactionManager;
 import org.springframework.core.task.SyncTaskExecutor;
@@ -33,13 +37,8 @@ import com.redis.lettucemod.util.ClientBuilder;
 import com.redis.lettucemod.util.RedisURIBuilder;
 import com.redis.riot.cli.Main;
 import com.redis.riot.core.ThrottledItemWriter;
-import com.redis.spring.batch.RedisItemReader.BaseBuilder;
-import com.redis.spring.batch.RedisItemReader.ScanReaderBuilder;
 import com.redis.spring.batch.RedisItemWriter.WriterBuilder;
-import com.redis.spring.batch.common.PoolOptions;
 import com.redis.spring.batch.common.Utils;
-import com.redis.spring.batch.reader.QueueOptions;
-import com.redis.spring.batch.reader.ScanSizeEstimator;
 
 import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.RedisCommandExecutionException;
@@ -78,7 +77,7 @@ public abstract class AbstractCommand implements Callable<Integer> {
 	private StepBuilderFactory stepBuilderFactory;
 	private PlatformTransactionManager transactionManager;
 
-	private JobRepository jobRepository() {
+	protected JobRepository getJobRepository() {
 		if (jobRepository == null) {
 			try {
 				jobRepository = Utils.inMemoryJobRepository();
@@ -91,14 +90,14 @@ public abstract class AbstractCommand implements Callable<Integer> {
 
 	private JobBuilderFactory jobBuilderFactory() {
 		if (jobBuilderFactory == null) {
-			jobBuilderFactory = new JobBuilderFactory(jobRepository());
+			jobBuilderFactory = new JobBuilderFactory(getJobRepository());
 		}
 		return jobBuilderFactory;
 	}
 
 	private StepBuilderFactory stepBuilderFactory() {
 		if (stepBuilderFactory == null) {
-			stepBuilderFactory = new StepBuilderFactory(jobRepository(), transactionManager());
+			stepBuilderFactory = new StepBuilderFactory(getJobRepository(), transactionManager());
 		}
 		return stepBuilderFactory;
 	}
@@ -121,10 +120,6 @@ public abstract class AbstractCommand implements Callable<Integer> {
 			return commandSpec.qualifiedName("-");
 		}
 		return commandName;
-	}
-
-	protected RedisOptions getRedisOptions() {
-		return riot.getRedisOptions();
 	}
 
 	public void setRiot(Main riot) {
@@ -180,19 +175,29 @@ public abstract class AbstractCommand implements Callable<Integer> {
 
 	@Override
 	public Integer call() throws Exception {
-		RedisURI redisURI = redisURI(getRedisOptions());
-		AbstractRedisClient redisClient = client(redisURI, getRedisOptions());
+		RedisOptions redisOptions = riot.getRedisOptions();
+		RedisURI redisURI = redisURI(redisOptions);
+		AbstractRedisClient redisClient = client(redisURI, redisOptions);
 		try (CommandContext context = context(redisURI, redisClient)) {
 			Job job = job(context);
 			JobExecution execution = jobLauncher().run(job, new JobParameters());
-			return execution.getStatus().isUnsuccessful() ? EXIT_VALUE_FAILURE : EXIT_VALUE_SUCCESS;
+			if (isFailed(execution)) {
+				return EXIT_VALUE_FAILURE;
+			}
+			return EXIT_VALUE_SUCCESS;
 		}
+
 	}
 
-	private JobLauncher jobLauncher() throws Exception {
+	private boolean isFailed(JobExecution execution) {
+		return execution.getStepExecutions().stream().map(StepExecution::getExitStatus).map(ExitStatus::getExitCode)
+				.anyMatch(s -> s.equals(ExitStatus.FAILED.getExitCode()));
+	}
+
+	private JobLauncher jobLauncher() {
 		if (jobLauncher == null) {
 			SimpleJobLauncher launcher = new SimpleJobLauncher();
-			launcher.setJobRepository(jobRepository());
+			launcher.setJobRepository(getJobRepository());
 			launcher.setTaskExecutor(new SyncTaskExecutor());
 			jobLauncher = launcher;
 		}
@@ -221,34 +226,30 @@ public abstract class AbstractCommand implements Callable<Integer> {
 		this.transferOptions = options;
 	}
 
-	protected <I, O> SimpleStepBuilder<I, O> step() {
-		return step(commandName());
-	}
-
-	protected <I, O> SimpleStepBuilder<I, O> step(String name) {
-		return configureStep(simpleStepBuilder(name));
-	}
-
-	@SuppressWarnings("unchecked")
-	protected <B extends SimpleStepBuilder<?, ?>> B configureStep(B step) {
+	private <I, O> SimpleStepBuilder<I, O> step(String name) {
+		SimpleStepBuilder<I, O> step = stepBuilder(name).chunk(transferOptions.getChunkSize());
 		Utils.multiThread(step, transferOptions.getThreads());
 		if (transferOptions.getSkipPolicy() == StepSkipPolicy.NEVER) {
 			return step;
 		}
-		return (B) step.faultTolerant().skipPolicy(skipPolicy(transferOptions));
-	}
-
-	protected <I, O> SimpleStepBuilder<I, O> simpleStepBuilder(String name) {
-		SimpleStepBuilder<I, O> step = stepBuilder(name).chunk(transferOptions.getChunkSize());
-		Utils.multiThread(step, transferOptions.getThreads());
-		return step;
+		return step.faultTolerant().skipPolicy(skipPolicy(transferOptions));
 	}
 
 	protected StepBuilder stepBuilder(String name) {
 		return stepBuilderFactory().get(name);
 	}
 
-	protected StepProgressMonitor progressMonitor(String task) {
+	protected <I, O> SimpleStepBuilder<I, O> step(String name, ItemReader<I> reader, ItemWriter<O> writer) {
+		SimpleStepBuilder<I, O> step = step(name);
+		if (reader instanceof ItemStreamSupport) {
+			((ItemStreamSupport) reader).setName(name + "-reader");
+		}
+		step.reader(reader);
+		step.writer(throttle(writer));
+		return step;
+	}
+
+	protected StepProgressMonitor monitor(String task) {
 		StepProgressMonitor monitor = new StepProgressMonitor();
 		monitor.withTask(task);
 		monitor.withStyle(transferOptions.getProgressBarStyle());
@@ -256,7 +257,7 @@ public abstract class AbstractCommand implements Callable<Integer> {
 		return monitor;
 	}
 
-	protected <O> ItemWriter<O> throttle(ItemWriter<O> writer) {
+	private <O> ItemWriter<O> throttle(ItemWriter<O> writer) {
 		Duration sleep = Duration.ofMillis(transferOptions.getSleep());
 		if (sleep.isNegative() || sleep.isZero()) {
 			return writer;
@@ -279,36 +280,6 @@ public abstract class AbstractCommand implements Callable<Integer> {
 		return Stream
 				.of(RedisCommandExecutionException.class, RedisCommandTimeoutException.class, TimeoutException.class)
 				.collect(Collectors.toMap(Function.identity(), t -> true));
-	}
-
-	protected ScanSizeEstimator estimator(AbstractRedisClient client, RedisReaderOptions options) {
-		ScanSizeEstimator estimator = new ScanSizeEstimator(client);
-		estimator.withMatch(options.getScanMatch());
-		estimator.withType(options.getScanType());
-		estimator.withSampleSize(options.getScanSampleSize());
-		return estimator;
-	}
-
-	protected ScanReaderBuilder reader(AbstractRedisClient client, RedisReaderOptions options) {
-		ScanReaderBuilder reader = new ScanReaderBuilder(client);
-		configureReader(reader, options);
-		reader.scanMatch(options.getScanMatch());
-		reader.scanCount(options.getScanCount());
-		reader.scanType(options.getScanType());
-		return reader;
-	}
-
-	protected <B extends BaseBuilder<B>> B configureReader(B reader, RedisReaderOptions options) {
-		return reader.jobRepository(jobRepository).threads(options.getThreads()).chunkSize(options.getChunkSize())
-				.poolOptions(poolOptions(options)).queueOptions(queueOptions(options));
-	}
-
-	protected PoolOptions poolOptions(RedisReaderOptions options) {
-		return PoolOptions.builder().maxTotal(options.getPoolMaxTotal()).build();
-	}
-
-	protected QueueOptions queueOptions(RedisReaderOptions options) {
-		return QueueOptions.builder().capacity(options.getQueueCapacity()).build();
 	}
 
 	protected WriterBuilder writer(AbstractRedisClient client, RedisWriterOptions options) {
