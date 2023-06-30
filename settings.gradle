@@ -1,7 +1,7 @@
 /*
  * SPDX-License-Identifier: Apache-2.0
  *
- * Copyright 2022-2023 The Jarviz authors.
+ * Copyright 2020-2023 The RIOT authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,10 +22,9 @@ buildscript {
         gradlePluginPortal()
     }
     dependencies {
-        classpath 'de.undercouch:gradle-download-task:4.1.1'        
-        classpath "org.ajoberstar:gradle-git-publish:$gitPluginVersion"        
+        classpath "org.ajoberstar:gradle-git-publish:$gitPluginVersion"
         classpath "org.jreleaser:jdks-gradle-plugin:$jdksPluginVersion"
-        classpath "org.kordamp.gradle:guide-gradle-plugin:$kordampPluginVersion"    
+        classpath "org.kordamp.gradle:guide-gradle-plugin:$kordampPluginVersion"
         classpath "org.kordamp.gradle:java-project-gradle-plugin:$kordampPluginVersion"
         classpath "org.kordamp.gradle:jacoco-gradle-plugin:$kordampPluginVersion"
         classpath "org.kordamp.gradle:kordamp-parentbuild:$kordampBuildVersion"
