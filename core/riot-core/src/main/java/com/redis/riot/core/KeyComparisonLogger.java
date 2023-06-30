@@ -1,6 +1,7 @@
 package com.redis.riot.core;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -12,20 +13,27 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import org.springframework.batch.core.ItemWriteListener;
+
 import com.redis.spring.batch.common.DataStructure;
 import com.redis.spring.batch.reader.KeyComparison;
+import com.redis.spring.batch.reader.KeyComparison.Status;
 
 import io.lettuce.core.ScoredValue;
 import io.lettuce.core.StreamMessage;
 
 @SuppressWarnings("unchecked")
-public class KeyComparisonLogger {
+public class KeyComparisonLogger implements ItemWriteListener<KeyComparison> {
 
 	/**
 	 * Represents a failed index search.
 	 * 
 	 */
 	public static final int INDEX_NOT_FOUND = -1;
+
+	private static final String VALUE_MSG = "Value mismatch for {0} \"{1}\": ";
+
+	private static final String DIFF_MSG = "{2} <> {3}";
 
 	private final Logger log;
 
@@ -37,20 +45,33 @@ public class KeyComparisonLogger {
 		this.log = logger;
 	}
 
+	@Override
+	public void onWriteError(Exception exception, List<? extends KeyComparison> items) {
+		// do nothing
+	}
+
+	@Override
+	public void beforeWrite(List<? extends KeyComparison> items) {
+		// do nothing
+	}
+
+	@Override
+	public void afterWrite(List<? extends KeyComparison> items) {
+		items.stream().filter(c -> c.getStatus() != Status.OK).forEach(this::log);
+	}
+
 	public void log(KeyComparison comparison) {
 		switch (comparison.getStatus()) {
 		case MISSING:
-			log.log(Level.WARNING, "Missing key {0}", comparison.getSource().getKey());
+			log("Missing key \"{0}\"", comparison.getSource().getKey());
 			break;
 		case TTL:
-			log.log(Level.WARNING, "TTL mismatch for key {0}: {1} <> {2}",
-					new Object[] { comparison.getSource().getKey(), comparison.getSource().getTtl(),
-							comparison.getTarget().getTtl() });
+			log("TTL mismatch for key \"{0}\": {1} <> {2}", comparison.getSource().getKey(),
+					comparison.getSource().getTtl(), comparison.getTarget().getTtl());
 			break;
 		case TYPE:
-			log.log(Level.WARNING, "Type mismatch for key {0}: {1} <> {2}",
-					new Object[] { comparison.getSource().getKey(), comparison.getSource().getType(),
-							comparison.getTarget().getType() });
+			log("Type mismatch for key \"{0}\": {1} <> {2}", comparison.getSource().getKey(),
+					comparison.getSource().getType(), comparison.getTarget().getType());
 			break;
 		case VALUE:
 			switch (comparison.getSource().getType()) {
@@ -77,13 +98,25 @@ public class KeyComparisonLogger {
 				showListDiff(comparison);
 				break;
 			default:
-				log.log(Level.WARNING, "Value mismatch for key '{}'", comparison.getSource().getKey());
+				logValue("?", comparison);
 				break;
 			}
 			break;
 		case OK:
 			break;
 		}
+	}
+
+	private void logValue(String msg, KeyComparison comparison, Object... params) {
+		List<Object> list = new ArrayList<>();
+		list.add(comparison.getSource().getType());
+		list.add(comparison.getSource().getKey());
+		list.addAll(Arrays.asList(params));
+		log(VALUE_MSG + msg, list.toArray());
+	}
+
+	private void log(String msg, Object... params) {
+		log.log(Level.SEVERE, msg, params);
 	}
 
 	private void showHashDiff(KeyComparison comparison) {
@@ -94,16 +127,14 @@ public class KeyComparisonLogger {
 		diff.putAll(targetHash);
 		diff.entrySet()
 				.removeAll(sourceHash.size() <= targetHash.size() ? sourceHash.entrySet() : targetHash.entrySet());
-		log.log(Level.WARNING, "Value mismatch for hash {0} on fields: {1}",
-				new Object[] { comparison.getSource().getKey(), diff.keySet() });
+		logValue("on fields {2}", comparison, diff.keySet());
 	}
 
 	private void showStringDiff(KeyComparison comparison) {
 		String sourceString = (String) comparison.getSource().getValue();
 		String targetString = (String) comparison.getTarget().getValue();
 		int diffIndex = indexOfDifference(sourceString, targetString);
-		log.log(Level.WARNING, "Value mismatch for string {0} at offset {1}",
-				new Object[] { comparison.getSource().getKey(), diffIndex });
+		logValue("at offset {2}", comparison, diffIndex);
 	}
 
 	/**
@@ -157,9 +188,7 @@ public class KeyComparisonLogger {
 		Collection<?> sourceList = (Collection<?>) comparison.getSource().getValue();
 		Collection<?> targetList = (Collection<?>) comparison.getTarget().getValue();
 		if (sourceList.size() != targetList.size()) {
-			log.log(Level.WARNING, "Size mismatch for {0} {1}: {2} <> {3}",
-					new Object[] { comparison.getSource().getType(), comparison.getSource().getKey(), sourceList.size(),
-							targetList.size() });
+			logValue("size " + DIFF_MSG, comparison, sourceList.size(), targetList.size());
 			return;
 		}
 		Collection<Integer> diff = new ArrayList<>();
@@ -174,8 +203,7 @@ public class KeyComparisonLogger {
 			}
 			index++;
 		}
-		log.log(Level.WARNING, "Value mismatch for {0} {1} at indexes {2}",
-				new Object[] { comparison.getSource().getType(), comparison.getSource().getKey(), diff });
+		logValue(" indexes {2}", comparison, diff);
 	}
 
 	private void showSetDiff(KeyComparison comparison) {
@@ -185,8 +213,15 @@ public class KeyComparisonLogger {
 		missing.removeAll(targetSet);
 		Set<String> extra = new HashSet<>(targetSet);
 		extra.removeAll(sourceSet);
-		log.log(Level.WARNING, "Value mismatch for set {0}: {1} <> {2}",
-				new Object[] { comparison.getSource().getKey(), missing, extra });
+		if (missing.isEmpty()) {
+			logValue("< {2}", comparison, extra);
+		} else {
+			if (extra.isEmpty()) {
+				logValue("{2} >", comparison, missing);
+			} else {
+				logValue(DIFF_MSG, comparison, missing, extra);
+			}
+		}
 	}
 
 	private void showSortedSetDiff(KeyComparison comparison) {
@@ -198,8 +233,7 @@ public class KeyComparisonLogger {
 		missing.removeAll(targetList);
 		Collection<ScoredValue<String>> extra = new ArrayList<>(targetList);
 		extra.removeAll(sourceList);
-		log.log(Level.WARNING, "Value mismatch for sorted set {0}: {1} <> {2}",
-				new Object[] { comparison.getSource().getKey(), print(missing), print(extra) });
+		logValue(DIFF_MSG, comparison, print(missing), print(extra));
 	}
 
 	private List<String> print(Collection<ScoredValue<String>> list) {
@@ -215,10 +249,8 @@ public class KeyComparisonLogger {
 		missing.removeAll(targetMessages);
 		Collection<StreamMessage<String, String>> extra = new ArrayList<>(targetMessages);
 		extra.removeAll(sourceMessages);
-		log.log(Level.WARNING, "Value mismatch for stream {0}: {1} <> {2}",
-				new Object[] { comparison.getSource().getKey(),
-						missing.stream().map(StreamMessage::getId).collect(Collectors.toList()),
-						extra.stream().map(StreamMessage::getId).collect(Collectors.toList()) });
+		logValue(DIFF_MSG, comparison, missing.stream().map(StreamMessage::getId).collect(Collectors.toList()),
+				extra.stream().map(StreamMessage::getId).collect(Collectors.toList()));
 	}
 
 }
