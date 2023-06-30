@@ -103,8 +103,10 @@ public class LoggingOptions {
 				printStacktrace || logLevel.intValue() <= Level.INFO.intValue() ? new StackTraceOneLineLogFormat()
 						: new OneLineLogFormat());
 		activeLogger.addHandler(handler);
+		Logger.getLogger("com.redis.riot.core.KeyComparisonLogger").setLevel(Level.INFO);
 		Logger.getLogger(ROOT_LOGGER).setLevel(logLevel);
 		Logger.getLogger("com.amazonaws").setLevel(Level.SEVERE);
+		Logger.getLogger("io.lettuce").setLevel(Level.INFO);
 	}
 
 	static class OneLineLogFormat extends Formatter {

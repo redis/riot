@@ -8,7 +8,6 @@ import javax.sql.DataSource;
 
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.step.builder.SimpleStepBuilder;
-import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.database.JdbcBatchItemWriter;
 import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilder;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -17,8 +16,10 @@ import org.springframework.lang.Nullable;
 import com.redis.riot.cli.common.AbstractExportCommand;
 import com.redis.riot.cli.common.CommandContext;
 import com.redis.riot.cli.common.DatabaseHelper;
+import com.redis.riot.cli.common.StepProgressMonitor;
 import com.redis.riot.cli.db.DbExportOptions;
 import com.redis.riot.core.processor.DataStructureToMapProcessor;
+import com.redis.spring.batch.RedisItemReader;
 import com.redis.spring.batch.common.DataStructure;
 
 import picocli.CommandLine.Command;
@@ -64,10 +65,13 @@ public class DbExport extends AbstractExportCommand {
 		builder.assertUpdates(options.isAssertUpdates());
 		JdbcBatchItemWriter<Map<String, Object>> writer = builder.build();
 		writer.afterPropertiesSet();
-		SimpleStepBuilder<DataStructure<String>, Map<String, Object>> step = step(context, TASK_NAME, writer);
-		ItemProcessor<DataStructure<String>, Map<String, Object>> processor = DataStructureToMapProcessor
-				.of(options.getKeyRegex());
-		step.processor(processor);
+		String name = commandName();
+		RedisItemReader<String, String, DataStructure<String>> reader = scanBuilder(context).dataStructure();
+		reader.setKeyProcessor(keyProcessor());
+		SimpleStepBuilder<DataStructure<String>, Map<String, Object>> step = step(name, reader, writer);
+		step.processor(DataStructureToMapProcessor.of(options.getKeyRegex()));
+		StepProgressMonitor monitor = monitor(TASK_NAME, context);
+		monitor.register(step);
 		return job(step);
 	}
 

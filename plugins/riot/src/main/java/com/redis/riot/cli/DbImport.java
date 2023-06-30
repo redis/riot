@@ -61,7 +61,7 @@ public class DbImport extends AbstractImportCommand {
 			throw new JobBuilderException(e);
 		}
 		SimpleStepBuilder<Map<String, Object>, Map<String, Object>> step = step(context.getRedisClient(), reader);
-		StepProgressMonitor monitor = progressMonitor(TASK_NAME);
+		StepProgressMonitor monitor = monitor(TASK_NAME);
 		monitor.register(step);
 		return job(commandName()).start(step.build()).build();
 	}

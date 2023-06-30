@@ -2,16 +2,15 @@ package com.redis.riot.cli.common;
 
 import java.time.Duration;
 
-import com.redis.spring.batch.RedisItemReader;
+import com.redis.spring.batch.reader.ReaderOptions;
 
 import me.tongfei.progressbar.ProgressBarStyle;
 import picocli.CommandLine.Option;
 
 public class TransferOptions {
 
-	public static final ProgressBarStyle DEFAULT_PROGRESS_BAR_STYLE = ProgressBarStyle.COLORFUL_UNICODE_BLOCK;
 	public static final StepSkipPolicy DEFAULT_SKIP_POLICY = StepSkipPolicy.LIMIT;
-	public static final int DEFAULT_CHUNK_SIZE = RedisItemReader.DEFAULT_CHUNK_SIZE;
+	public static final int DEFAULT_CHUNK_SIZE = ReaderOptions.DEFAULT_CHUNK_SIZE;
 	public static final int DEFAULT_THREADS = 1;
 	public static final int DEFAULT_SKIP_LIMIT = 3;
 	public static final Duration DEFAULT_PROGRESS_UPDATE_INTERVAL = Duration.ofMillis(300);
@@ -33,7 +32,7 @@ public class TransferOptions {
 	private int skipLimit = DEFAULT_SKIP_LIMIT;
 
 	@Option(names = "--progress", description = "Style of progress bar: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}),", paramLabel = "<style>")
-	private ProgressBarStyle progressBarStyle = DEFAULT_PROGRESS_BAR_STYLE;
+	private ProgressBarStyle progressBarStyle = StepProgressMonitor.DEFAULT_STYLE;
 
 	@Option(names = "--progress-interval", description = "Progress update interval in millis (default: ${DEFAULT-VALUE}). Use 0 for no progress bar", paramLabel = "<ms>", hidden = true)
 	private long progressUpdateInterval = DEFAULT_PROGRESS_UPDATE_INTERVAL.toMillis();

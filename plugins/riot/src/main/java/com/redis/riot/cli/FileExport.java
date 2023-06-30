@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.job.builder.JobBuilderException;
+import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.json.JacksonJsonObjectMarshaller;
 import org.springframework.batch.item.json.JsonObjectMarshaller;
@@ -12,11 +13,13 @@ import org.springframework.core.io.WritableResource;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.redis.riot.cli.common.AbstractExportCommand;
 import com.redis.riot.cli.common.CommandContext;
+import com.redis.riot.cli.common.StepProgressMonitor;
 import com.redis.riot.cli.file.FileDumpOptions;
 import com.redis.riot.cli.file.FileExportOptions;
 import com.redis.riot.core.FileDumpType;
 import com.redis.riot.core.resource.JsonResourceItemWriterBuilder;
 import com.redis.riot.core.resource.XmlResourceItemWriterBuilder;
+import com.redis.spring.batch.RedisItemReader;
 import com.redis.spring.batch.common.DataStructure;
 
 import picocli.CommandLine.ArgGroup;
@@ -63,8 +66,14 @@ public class FileExport extends AbstractExportCommand {
 			throw new JobBuilderException(e);
 		}
 		ItemWriter<DataStructure<String>> writer = writer(resource);
+		String name = commandName();
+		RedisItemReader<String, String, DataStructure<String>> reader = scanBuilder(context).dataStructure();
+		reader.setKeyProcessor(keyProcessor());
+		SimpleStepBuilder<DataStructure<String>, DataStructure<String>> step = step(name, reader, writer);
 		String task = String.format(TASK_NAME, resource.getFilename());
-		return job(step(context, task, writer));
+		StepProgressMonitor monitor = monitor(task, context);
+		monitor.register(step);
+		return job(step);
 	}
 
 	private ItemWriter<DataStructure<String>> writer(WritableResource resource) {

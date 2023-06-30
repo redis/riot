@@ -4,7 +4,6 @@ import java.io.File;
 import java.time.Duration;
 import java.util.Optional;
 
-import io.lettuce.core.ReadFrom;
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.SslVerifyMode;
 import picocli.CommandLine.Option;
@@ -84,9 +83,6 @@ public class RedisOptions {
 
 	@Option(names = "--client", description = "Client name used to connect to Redis.", paramLabel = "<name>")
 	private Optional<String> clientName = Optional.empty();
-
-	@Option(names = "--read-from", description = "Which nodes to read data from: ${COMPLETION-CANDIDATES}.", paramLabel = "<name>")
-	private Optional<ReadFrom> readFrom = Optional.empty();
 
 	public boolean isCluster() {
 		return cluster;
@@ -250,14 +246,6 @@ public class RedisOptions {
 
 	public void setClientName(Optional<String> clientName) {
 		this.clientName = clientName;
-	}
-
-	public Optional<ReadFrom> getReadFrom() {
-		return readFrom;
-	}
-
-	public void setReadFrom(Optional<ReadFrom> readFrom) {
-		this.readFrom = readFrom;
 	}
 
 	public String getUsername() {

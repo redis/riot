@@ -5,6 +5,7 @@ import java.util.logging.Logger;
 
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.step.builder.SimpleStepBuilder;
+import org.springframework.batch.item.ItemWriter;
 
 import com.redis.riot.cli.common.AbstractCommand;
 import com.redis.riot.cli.common.CommandContext;
@@ -50,27 +51,34 @@ public class Generate extends AbstractCommand {
 	@Override
 	protected Job job(CommandContext context) {
 		log.log(Level.FINE, "Creating random data structure reader with {0}", options);
-		SimpleStepBuilder<DataStructure<String>, DataStructure<String>> step = step();
-		GeneratorItemReader reader = new GeneratorItemReader();
-		reader.setMaxItemCount(options.getCount());
-		reader.withExpiration(options.getExpiration());
-		reader.withHashOptions(options.hashOptions());
-		reader.withJsonOptions(options.jsonOptions());
-		reader.withKeyRange(options.getKeyRange());
-		reader.withKeyspace(options.getKeyspace());
-		reader.withListOptions(options.listOptions());
-		reader.withSetOptions(options.setOptions());
-		reader.withStreamOptions(options.streamOptions());
-		reader.withStringOptions(options.stringOptions());
-		reader.withTimeSeriesOptions(options.timeSeriesOptions());
-		reader.withTypes(options.getTypes());
-		reader.withZsetOptions(options.zsetOptions());
-		step.reader(reader);
-		step.writer(writer(context.getRedisClient(), writerOptions).dataStructure());
-		StepProgressMonitor monitor = progressMonitor(TASK_NAME);
+		SimpleStepBuilder<DataStructure<String>, DataStructure<String>> step = step(commandName(), reader(),
+				writer(context));
+		StepProgressMonitor monitor = monitor(TASK_NAME);
 		monitor.withInitialMax(options.getCount());
 		monitor.register(step);
-		return job(commandName()).start(step.build()).build();
+		return job(step);
+	}
+
+	private ItemWriter<DataStructure<String>> writer(CommandContext context) {
+		return writer(context.getRedisClient(), writerOptions).dataStructure();
+	}
+
+	private GeneratorItemReader reader() {
+		GeneratorItemReader reader = new GeneratorItemReader();
+		reader.setMaxItemCount(options.getCount());
+		reader.setExpiration(options.getExpiration());
+		reader.setHashOptions(options.hashOptions());
+		reader.setJsonOptions(options.jsonOptions());
+		reader.setKeyRange(options.getKeyRange());
+		reader.setKeyspace(options.getKeyspace());
+		reader.setListOptions(options.listOptions());
+		reader.setSetOptions(options.setOptions());
+		reader.setStreamOptions(options.streamOptions());
+		reader.setStringOptions(options.stringOptions());
+		reader.setTimeSeriesOptions(options.timeSeriesOptions());
+		reader.setTypes(options.getTypes());
+		reader.setZsetOptions(options.zsetOptions());
+		return reader;
 	}
 
 }

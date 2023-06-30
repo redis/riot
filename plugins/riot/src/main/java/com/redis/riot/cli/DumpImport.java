@@ -20,6 +20,7 @@ import com.redis.riot.core.FileDumpType;
 import com.redis.riot.core.FileUtils;
 import com.redis.riot.core.processor.DataStructureProcessor;
 import com.redis.riot.core.resource.XmlItemReader;
+import com.redis.spring.batch.RedisItemWriter;
 import com.redis.spring.batch.common.DataStructure;
 
 import picocli.CommandLine.ArgGroup;
@@ -64,11 +65,11 @@ public class DumpImport extends AbstractCommand {
 
 	public TaskletStep step(CommandContext context, Resource resource) {
 		String name = String.join("-", commandName(), resource.getDescription());
-		SimpleStepBuilder<DataStructure<String>, DataStructure<String>> step = step(name);
-		step.reader(reader(resource));
+		RedisItemWriter<String, String, DataStructure<String>> writer = writer(context.getRedisClient(), writerOptions)
+				.dataStructure();
+		SimpleStepBuilder<DataStructure<String>, DataStructure<String>> step = step(name, reader(resource), writer);
 		step.processor(new DataStructureProcessor());
-		step.writer(writer(context.getRedisClient(), writerOptions).dataStructure());
-		StepProgressMonitor monitor = progressMonitor("Importing " + resource);
+		StepProgressMonitor monitor = monitor("Importing " + resource);
 		monitor.register(step);
 		return step.build();
 	}

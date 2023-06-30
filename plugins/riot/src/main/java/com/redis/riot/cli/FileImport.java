@@ -118,7 +118,7 @@ public class FileImport extends AbstractImportCommand {
 		AbstractItemCountingItemStreamItemReader<Map<String, Object>> reader = reader(resource);
 		String name = String.join("-", commandName(), resource.getDescription());
 		SimpleStepBuilder<Map<String, Object>, Map<String, Object>> step = step(context.getRedisClient(), name, reader);
-		StepProgressMonitor monitor = progressMonitor("Importing " + resource.getFilename());
+		StepProgressMonitor monitor = monitor("Importing " + resource.getFilename());
 		monitor.register(step);
 		return step.build();
 	}

@@ -119,7 +119,7 @@ public abstract class AbstractImportCommand extends AbstractCommand {
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	protected ItemWriter<Map<String, Object>> writer(AbstractRedisClient client) {
+	private ItemWriter<Map<String, Object>> writer(AbstractRedisClient client) {
 		Assert.notNull(redisCommands, "RedisCommands not set");
 		Assert.isTrue(!redisCommands.isEmpty(), "No Redis command specified");
 		List<ItemWriter<Map<String, Object>>> writers = redisCommands.stream()
@@ -139,11 +139,7 @@ public abstract class AbstractImportCommand extends AbstractCommand {
 
 	protected SimpleStepBuilder<Map<String, Object>, Map<String, Object>> step(AbstractRedisClient client, String name,
 			ItemReader<Map<String, Object>> reader) {
-		SimpleStepBuilder<Map<String, Object>, Map<String, Object>> step = step(name);
-		step.reader(reader);
-		step.processor(processor(client));
-		step.writer(writer(client));
-		return step;
+		return step(name, reader, writer(client)).processor(processor(client));
 	}
 
 }

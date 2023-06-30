@@ -48,7 +48,7 @@ public class FakerImport extends AbstractImportCommand {
 		reader.withLocale(options.getLocale());
 		reader.withIncludeMetadata(options.isIncludeMetadata());
 		SimpleStepBuilder<Map<String, Object>, Map<String, Object>> step = step(context.getRedisClient(), reader);
-		StepProgressMonitor monitor = progressMonitor("Generating");
+		StepProgressMonitor monitor = monitor("Generating");
 		monitor.withInitialMax(options.getCount());
 		monitor.register(step);
 		return job(commandName()).start(step.build()).build();
