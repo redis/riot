@@ -17,7 +17,6 @@ IMPORTANT: It is recommended to read the <<_replicate,Replication>> section to f
 For this recipe you will require the following resources:
  
 * AWS ElastiCache: _Primary Endpoint_ in case of Single Master and _Configuration Endpoint_ in case of Clustered EC.
-+
 Refer to https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/Endpoints.html[this link] to learn more
 * Redis Enterprise: hosted on Cloud or On-Prem
 * An Amazon EC2 instance

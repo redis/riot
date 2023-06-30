@@ -51,7 +51,7 @@ include::{testdir}/replicate-live[]
 `--mode liveonly`::
     Continuous replication using keyspace notifications (only keys that change are replicated)
 `--mode live`::
-    Initial + continuous replication using key scan and keyspace notifications in parallel
+    Initial and continuous replication using key scan and keyspace notifications in parallel
     
 [[_replicate_type]]
 === Replication Type
@@ -69,20 +69,26 @@ include::{testdir}/replicate-live[]
     Pattern of keys to replicate (default: `*` i.e. all keys)
 `--scan-type`::
     Type of keys to replicate (default: all types)  
+`--key-include`::
+    Regular expressions for keys to whitelist.
+    For example `mykey:.*` will only replicate keys starting with `mykey:`.
+`--key-exclude`::
+    Regular expressions for keys to blacklist.
+    For example `mykey:.*` will not replicate keys starting with `mykey:`.
+`--key-slots`::
+    Ranges of key slots to include for replication.
+    For example `0:8000` will only transfer keys that fall within the range `0` to `8000`.
 `--reader-threads`::
     How many value reader threads to use in parallel
 `--reader-batch`::
     Number of keys each reader thread should dump at once in a pipelined call
 `--reader-queue`::
     Max number of items that reader threads can put in the shared queue.
-+
-When the queue is full reader threads wait for space to become available.
-+
-Queue size should be at least *#threads * batch*, for example `--reader-threads 4 --reader-batch 500` => `--reader-queue 2000`
+    When the queue is full reader threads wait for space to become available.
+    Queue size should be at least *#threads * batch*, e.g. `--reader-threads 4 --reader-batch 500` => `--reader-queue 2000`
 `--reader-pool`::
     Size of the connection pool shared by reader threads.
-+
-Can be smaller than the number of threads
+    Can be smaller than the number of threads
 
 [[_replicate_performance_tuning]]
 === Performance Tuning
@@ -112,14 +118,13 @@ riot <source> replicate --mode compare <target>
 The output looks like this:
 
 ----
->1,234 T2,345 ≠3,456 ⧗4,567 <5,678
+123 missing, 54 type, 7 value, 19 ttl
 ----
 
-* `>`: # keys only present in source database
-* `T`: # mismatched data structure types
-* `≠`: # mismatched values
-* `⧗`: # keys with TTL delta greater than tolerance
-* `<`: # keys only present in target database
+missing:: number of keys only present in source database
+type:: number of keys with mismatched data structure type
+value:: number of keys with mismatched value
+ttl:: number of keys with mismatched TTL i.e. difference is greater than tolerance (can be specified with `--ttl-tolerance`)
 
 To show which keys are different use the `--show-diffs` option:
 
@@ -162,7 +167,7 @@ It is possible that {project-title} can miss some notifications in case of netwo
 Also, depending on the type, size, and rate of change of data structures on the source it is possible that {project-title} cannot keep up with the change stream.
 For example if a big set is repeatedly updated, {project-title} will need to read the whole set on each update and transfer it over to the target database.
 With a big-enough set, {project-title} could fall behind and the internal queue could fill up leading up to updates being dropped.
-Some preliminary sizing using Redis statistics and big-keys is recommended for these migrations.
+Some preliminary sizing using Redis statistics and `bigkeys`/`memkeys` is recommended for these migrations.
 If you need assistance please contact your Redis account team.
 ====
 
