@@ -93,7 +93,10 @@ public class FakerItemReader extends AbstractItemCountingItemStreamItemReader<Ma
 	}
 
 	@Override
-	protected void doOpen() throws Exception {
+	protected synchronized void doOpen() throws Exception {
+		if (context != null) {
+			return;
+		}
 		Faker faker = new Faker(locale);
 		Builder contextBuilder = SimpleEvaluationContext.forPropertyAccessors(new ReflectivePropertyAccessor());
 		contextBuilder.withInstanceMethods();
@@ -102,8 +105,8 @@ public class FakerItemReader extends AbstractItemCountingItemStreamItemReader<Ma
 	}
 
 	@Override
-	protected void doClose() throws Exception {
-
+	protected synchronized void doClose() throws Exception {
+		this.context = null;
 	}
 
 }
