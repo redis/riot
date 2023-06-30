@@ -25,7 +25,7 @@ import com.redis.lettucemod.api.sync.RedisModulesCommands;
 import com.redis.spring.batch.reader.GeneratorItemReader;
 
 @SuppressWarnings("unchecked")
-class PostgresTests extends AbstractDatabaseTestBase {
+class PostgresTests extends AbstractDatabaseTests {
 
 	private static final DockerImageName POSTGRES_IMAGE = DockerImageName.parse(PostgreSQLContainer.IMAGE)
 			.withTag(PostgreSQLContainer.DEFAULT_TAG);
@@ -55,7 +55,9 @@ class PostgresTests extends AbstractDatabaseTestBase {
 		try (Statement statement = databaseConnection.createStatement()) {
 			statement.execute("CREATE TABLE mytable (id smallint NOT NULL, field1 bpchar, field2 bpchar)");
 			statement.execute("ALTER TABLE ONLY mytable ADD CONSTRAINT pk_mytable PRIMARY KEY (id)");
-			generate(filename, DEFAULT_BATCH_SIZE, generator().withTypes(GeneratorItemReader.Type.HASH));
+			GeneratorItemReader generator = generator();
+			generator.setTypes(GeneratorItemReader.Type.HASH);
+			generate(filename, DEFAULT_BATCH_SIZE, generator);
 			execute(filename);
 			statement.execute("SELECT COUNT(*) AS count FROM mytable");
 			ResultSet countResultSet = statement.getResultSet();

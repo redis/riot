@@ -68,12 +68,11 @@ import com.redis.riot.core.FakerItemReader;
 import com.redis.riot.core.resource.XmlItemReader;
 import com.redis.riot.core.resource.XmlItemReaderBuilder;
 import com.redis.riot.core.resource.XmlObjectReader;
-import com.redis.spring.batch.RedisItemReader;
-import com.redis.spring.batch.RedisItemReader.ComparatorBuilder;
 import com.redis.spring.batch.common.DataStructure;
 import com.redis.spring.batch.reader.GeneratorItemReader;
 import com.redis.spring.batch.reader.KeyComparison;
 import com.redis.spring.batch.reader.KeyComparison.Status;
+import com.redis.spring.batch.reader.KeyComparisonItemReader;
 import com.redis.testcontainers.RedisServer;
 
 import io.lettuce.core.AbstractRedisClient;
@@ -94,7 +93,7 @@ import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.ParseResult;
 
 @SuppressWarnings("unchecked")
-public abstract class AbstractRiotTests extends AbstractTestBase {
+public abstract class AbstractIntegrationTests extends AbstractTests {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -181,7 +180,7 @@ public abstract class AbstractRiotTests extends AbstractTestBase {
 	@Test
 	void fileApiImportJSON() throws UnexpectedInputException, ParseException, NonTransientResourceException, Exception {
 		FileImport command = FileImport.builder().build();
-		Iterator<Map<String, Object>> iterator = command.read(AbstractRiotTests.BEERS_JSON_URL);
+		Iterator<Map<String, Object>> iterator = command.read(AbstractIntegrationTests.BEERS_JSON_URL);
 		Assertions.assertTrue(iterator.hasNext());
 		Map<String, Object> beer1 = iterator.next();
 		Assertions.assertEquals(13, beer1.size());
@@ -190,7 +189,7 @@ public abstract class AbstractRiotTests extends AbstractTestBase {
 			iterator.next();
 			count++;
 		}
-		Assertions.assertEquals(AbstractRiotTests.BEER_JSON_COUNT, count);
+		Assertions.assertEquals(AbstractIntegrationTests.BEER_JSON_COUNT, count);
 	}
 
 	@Test
@@ -206,7 +205,7 @@ public abstract class AbstractRiotTests extends AbstractTestBase {
 			iterator.next();
 			count++;
 		}
-		Assertions.assertEquals(AbstractRiotTests.BEER_CSV_COUNT, count);
+		Assertions.assertEquals(AbstractIntegrationTests.BEER_CSV_COUNT, count);
 	}
 
 	@Test
@@ -729,12 +728,59 @@ public abstract class AbstractRiotTests extends AbstractTestBase {
 		String filename = "replicate-key-processor";
 		GeneratorItemReader generator = generator();
 		generator.setMaxItemCount(200);
+		generator.setTypes(GeneratorItemReader.Type.HASH);
 		generate(filename, DEFAULT_BATCH_SIZE, generator);
 		Long sourceSize = connection.sync().dbsize();
 		Assertions.assertTrue(sourceSize > 0);
 		execute(filename);
 		Assertions.assertEquals(sourceSize, targetConnection.sync().dbsize());
-		Assertions.assertEquals(connection.sync().get("string:123"), targetConnection.sync().get("0:string:123"));
+		Assertions.assertEquals(connection.sync().hgetall("gen:1"), targetConnection.sync().hgetall("0:gen:1"));
+	}
+
+	@Test
+	void replicateKeyExclude() throws Throwable {
+		String filename = "replicate-key-exclude";
+		int goodCount = 200;
+		GeneratorItemReader generator = generator();
+		generator.setMaxItemCount(goodCount);
+		generator.setTypes(GeneratorItemReader.Type.HASH);
+		generate(filename, generator);
+		GeneratorItemReader generator2 = generator();
+		int badCount = 100;
+		generator2.setMaxItemCount(badCount);
+		generator2.setTypes(GeneratorItemReader.Type.HASH);
+		generator2.setKeyspace("bad");
+		generate(filename + "-2", generator2);
+		Assertions.assertEquals(badCount, connection.sync().keys("bad:*").size());
+		execute(filename);
+		Assertions.assertEquals(goodCount, targetConnection.sync().keys("gen:*").size());
+	}
+
+	@Test
+	void replicateLiveKeyExclude() throws Throwable {
+		int goodCount = 200;
+		int badCount = 100;
+		String filename = "replicate-live-key-exclude";
+		connection.sync().configSet("notify-keyspace-events", "AK");
+		ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+		executor.schedule(() -> {
+			GeneratorItemReader generator = generator();
+			generator.setMaxItemCount(goodCount);
+			generator.setTypes(GeneratorItemReader.Type.HASH);
+			GeneratorItemReader generator2 = generator();
+			generator2.setMaxItemCount(badCount);
+			generator2.setTypes(GeneratorItemReader.Type.HASH);
+			generator2.setKeyspace("bad");
+			try {
+				generate(filename, generator);
+				generate(filename + "-2", generator2);
+			} catch (Exception e) {
+				log.error("Could not generate data", e);
+			}
+		}, 500, TimeUnit.MILLISECONDS);
+		execute(filename);
+		Assertions.assertEquals(badCount, connection.sync().keys("bad:*").size());
+		Assertions.assertEquals(goodCount, targetConnection.sync().keys("gen:*").size());
 	}
 
 	@Test
@@ -787,8 +833,8 @@ public abstract class AbstractRiotTests extends AbstractTestBase {
 		awaitCompare();
 	}
 
-	protected RedisItemReader<String, String, KeyComparison> comparisonReader() {
-		return new ComparatorBuilder(client, targetClient).jobRepository(jobRepository)
+	protected KeyComparisonItemReader comparisonReader() {
+		return new KeyComparisonItemReader.Builder(client, targetClient).jobRepository(jobRepository)
 				.ttlTolerance(Duration.ofMillis(100)).build();
 	}
 
@@ -801,7 +847,7 @@ public abstract class AbstractRiotTests extends AbstractTestBase {
 			log.info("Source and target databases have different sizes");
 			return false;
 		}
-		RedisItemReader<String, String, KeyComparison> reader = comparisonReader();
+		KeyComparisonItemReader reader = comparisonReader();
 		SynchronizedListItemWriter<KeyComparison> writer = new SynchronizedListItemWriter<>();
 		run("compare-" + id(), DEFAULT_BATCH_SIZE, reader, writer);
 		if (writer.getWrittenItems().isEmpty()) {

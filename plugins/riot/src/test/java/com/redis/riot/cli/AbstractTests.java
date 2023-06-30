@@ -38,7 +38,7 @@ import com.redis.lettucemod.util.RedisModulesUtils;
 import com.redis.riot.cli.common.AbstractCommand;
 import com.redis.riot.cli.operation.OperationCommand;
 import com.redis.spring.batch.RedisItemReader;
-import com.redis.spring.batch.RedisItemReader.ScanReaderBuilder;
+import com.redis.spring.batch.RedisItemReader.ScanBuilder;
 import com.redis.spring.batch.RedisItemWriter;
 import com.redis.spring.batch.RedisItemWriter.WriterBuilder;
 import com.redis.spring.batch.common.DataStructure;
@@ -49,13 +49,14 @@ import com.redis.testcontainers.RedisServer;
 
 import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.RedisURI;
+import io.lettuce.core.codec.StringCodec;
 import io.micrometer.core.instrument.util.IOUtils;
 import picocli.CommandLine;
 import picocli.CommandLine.ParseResult;
 
 @TestInstance(Lifecycle.PER_CLASS)
 @SuppressWarnings("unchecked")
-public abstract class AbstractTestBase {
+public abstract class AbstractTests {
 
 	private static final String PREFIX = "riot ";
 	private static final Duration DEFAULT_AWAIT_TIMEOUT = Duration.ofSeconds(1);
@@ -123,7 +124,7 @@ public abstract class AbstractTestBase {
 	}
 
 	protected RedisItemReader<String, String, DataStructure<String>> reader(AbstractRedisClient client) {
-		return new ScanReaderBuilder(client).dataStructure();
+		return new ScanBuilder(client).dataStructure(StringCodec.UTF8);
 	}
 
 	protected RedisItemWriter<String, String, DataStructure<String>> writer(AbstractRedisClient client) {
@@ -177,13 +178,17 @@ public abstract class AbstractTestBase {
 
 	protected GeneratorItemReader generator(int count) {
 		GeneratorItemReader generator = new GeneratorItemReader();
-		generator.withKeyRange(DEFAULT_GENERATOR_KEY_RANGE);
+		generator.setKeyRange(DEFAULT_GENERATOR_KEY_RANGE);
 		generator.setMaxItemCount(count);
 		return generator;
 	}
 
 	protected void generate(String name) throws JobExecutionException {
 		generate(name, DEFAULT_BATCH_SIZE, generator());
+	}
+
+	protected void generate(String name, GeneratorItemReader reader) throws JobExecutionException {
+		generate(name, DEFAULT_BATCH_SIZE, reader);
 	}
 
 	protected void generate(String name, int chunkSize, GeneratorItemReader reader) throws JobExecutionException {
