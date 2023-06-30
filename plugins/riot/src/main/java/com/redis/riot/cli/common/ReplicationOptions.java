@@ -1,14 +1,16 @@
 package com.redis.riot.cli.common;
 
+import java.time.Duration;
 import java.util.Optional;
 
-import com.redis.spring.batch.common.IntRange;
 import com.redis.spring.batch.common.PoolOptions;
-import com.redis.spring.batch.reader.KeyComparisonReadOperation;
+import com.redis.spring.batch.reader.KeyComparisonItemReader;
 import com.redis.spring.batch.reader.KeyspaceNotificationOrderingStrategy;
 import com.redis.spring.batch.reader.QueueOptions;
-import com.redis.spring.batch.step.FlushingChunkProvider;
+import com.redis.spring.batch.reader.ReaderOptions;
+import com.redis.spring.batch.step.FlushingStepOptions;
 
+import io.lettuce.core.ReadFrom;
 import picocli.CommandLine.Option;
 
 public class ReplicationOptions {
@@ -31,23 +33,31 @@ public class ReplicationOptions {
 	@Option(names = "--key-process", description = "SpEL expression to transform each key.", paramLabel = "<exp>")
 	private Optional<String> keyProcessor = Optional.empty();
 
-	@Option(names = "--key-slot", description = "Key slot range filter for keyspace notifications.", paramLabel = "<range>")
-	private Optional<IntRange> keySlot = Optional.empty();
-
 	@Option(names = "--ttl-tolerance", description = "Max TTL difference to use for dataset verification (default: ${DEFAULT-VALUE}).", paramLabel = "<ms>")
-	private long ttlTolerance = KeyComparisonReadOperation.DEFAULT_TTL_TOLERANCE.toMillis();
+	private long ttlTolerance = KeyComparisonItemReader.DEFAULT_TTL_TOLERANCE.toMillis();
 
 	@Option(names = "--show-diffs", description = "Print details of key mismatches during dataset verification.")
 	private boolean showDiffs;
 
 	@Option(names = "--flush-interval", description = "Max duration between flushes (default: ${DEFAULT-VALUE}).", paramLabel = "<ms>")
-	private long flushInterval = FlushingChunkProvider.DEFAULT_FLUSHING_INTERVAL.toMillis();
+	private long flushInterval = FlushingStepOptions.DEFAULT_FLUSHING_INTERVAL.toMillis();
 
 	@Option(names = "--idle-timeout", description = "Min duration of inactivity to consider transfer complete (default: no timeout).", paramLabel = "<ms>")
 	private long idleTimeout;
 
 	@Option(names = "--target-pool", description = "Max connections for target Redis pool (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
 	private int targetPoolMaxTotal = PoolOptions.DEFAULT_MAX_TOTAL;
+
+	@Option(names = "--target-read-from", description = "Which target Redis cluster nodes to read data from: ${COMPLETION-CANDIDATES}.", paramLabel = "<n>")
+	private Optional<ReadFromEnum> targetReadFrom = Optional.empty();
+
+	public Optional<ReadFromEnum> getTargetReadFrom() {
+		return targetReadFrom;
+	}
+
+	public void setTargetReadFrom(Optional<ReadFromEnum> readFrom) {
+		this.targetReadFrom = readFrom;
+	}
 
 	public KeyspaceNotificationOrderingStrategy getNotificationOrdering() {
 		return notificationOrdering;
@@ -97,14 +107,6 @@ public class ReplicationOptions {
 		this.strategy = strategy;
 	}
 
-	public Optional<IntRange> getKeySlot() {
-		return keySlot;
-	}
-
-	public void setKeySlot(Optional<IntRange> keySlot) {
-		this.keySlot = keySlot;
-	}
-
 	public int getNotificationQueueCapacity() {
 		return notificationQueueCapacity;
 	}
@@ -147,6 +149,23 @@ public class ReplicationOptions {
 
 	public void setShowDiffs(boolean showDiffs) {
 		this.showDiffs = showDiffs;
+	}
+
+	public PoolOptions targetPoolOptions() {
+		return PoolOptions.builder().maxTotal(targetPoolMaxTotal).build();
+	}
+
+	public Optional<ReadFrom> targetReadFrom() {
+		return targetReadFrom.map(ReadFromEnum::getValue);
+	}
+
+	public ReaderOptions targetReaderOptions() {
+		return ReaderOptions.builder().poolOptions(targetPoolOptions()).readFrom(targetReadFrom()).build();
+	}
+
+	public FlushingStepOptions flushingOptions() {
+		return FlushingStepOptions.builder().interval(Duration.ofMillis(flushInterval))
+				.idleTimeout(Duration.ofMillis(idleTimeout)).build();
 	}
 
 }

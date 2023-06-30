@@ -11,16 +11,14 @@ import com.redis.spring.batch.reader.KeyComparison.Status;
 import com.redis.spring.batch.writer.KeyComparisonCountItemWriter;
 import com.redis.spring.batch.writer.KeyComparisonCountItemWriter.Results;
 
-public class KeyComparisonStepListener extends StepExecutionListenerSupport {
+public class CompareStepListener extends StepExecutionListenerSupport {
 
-	private static final Logger log = Logger.getLogger(KeyComparisonStepListener.class.getName());
+	private static final Logger log = Logger.getLogger(CompareStepListener.class.getName());
 
 	private final KeyComparisonCountItemWriter writer;
-	private final long sleep;
 
-	public KeyComparisonStepListener(KeyComparisonCountItemWriter writer, long sleep) {
+	public CompareStepListener(KeyComparisonCountItemWriter writer) {
 		this.writer = writer;
-		this.sleep = sleep;
 	}
 
 	@Override
@@ -33,14 +31,7 @@ public class KeyComparisonStepListener extends StepExecutionListenerSupport {
 			log.info("Verification completed - all OK");
 			return ExitStatus.COMPLETED;
 		}
-		try {
-			Thread.sleep(sleep);
-		} catch (InterruptedException e) {
-			log.fine("Verification interrupted");
-			Thread.currentThread().interrupt();
-			return ExitStatus.STOPPED;
-		}
-		log.log(Level.WARNING, "Verification failed: OK={0} Missing={1} Values={2} TTLs={3} Types={4}",
+		log.log(Level.SEVERE, "Verification failed: {0} ok, {1} missing, {4} type, {2} value, {3} ttl",
 				new Object[] { results.getCount(Status.OK), results.getCount(Status.MISSING),
 						results.getCount(Status.VALUE), results.getCount(Status.TTL), results.getCount(Status.TYPE) });
 		return new ExitStatus(ExitStatus.FAILED.getExitCode(), "Verification failed");
