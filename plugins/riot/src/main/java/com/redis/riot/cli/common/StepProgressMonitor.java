@@ -20,7 +20,7 @@ import me.tongfei.progressbar.ProgressBarStyle;
 public class StepProgressMonitor implements StepExecutionListener, ItemWriteListener<Object> {
 
 	public static final long DEFAULT_INITIAL_MAX = -1;
-	public static final ProgressBarStyle DEFAULT_STYLE = ProgressBarStyle.COLORFUL_UNICODE_BLOCK;
+	public static final ProgressBarStyle DEFAULT_STYLE = ProgressBarStyle.ASCII;
 
 	private ProgressBarStyle style = DEFAULT_STYLE;
 	private String task;
@@ -62,12 +62,12 @@ public class StepProgressMonitor implements StepExecutionListener, ItemWriteList
 		return withExtraMessage(() -> message);
 	}
 
-	public void register(SimpleStepBuilder<?, ?> step) {
-		if (updateInterval.isNegative() || updateInterval.isZero()) {
-			return;
+	public StepProgressMonitor register(SimpleStepBuilder<?, ?> step) {
+		if (!updateInterval.isNegative() && !updateInterval.isZero()) {
+			step.listener((StepExecutionListener) this);
+			step.listener((ItemWriteListener<Object>) this);
 		}
-		step.listener((StepExecutionListener) this);
-		step.listener((ItemWriteListener<Object>) this);
+		return this;
 	}
 
 	@Override
@@ -84,6 +84,7 @@ public class StepProgressMonitor implements StepExecutionListener, ItemWriteList
 	@Override
 	public synchronized ExitStatus afterStep(StepExecution stepExecution) {
 		if (stepExecution.getStatus() != BatchStatus.FAILED) {
+			progressBar.stepTo(progressBar.getMax());
 			progressBar.close();
 		}
 		return null;
