@@ -1,14 +1,15 @@
 = {project-title}
 :author: {project-author}
 :revnumber: {project-version}
-:toclevels: 3
+:toclevels: 2
 :docinfo1:
 
 include::{includedir}/_links.adoc[]
 
 :leveloffset: 1
 include::{includedir}/introduction.adoc[]
-include::{includedir}/usage.adoc[]
+include::{includedir}/install.adoc[]
+include::{includedir}/quick-start.adoc[]
 include::{includedir}/architecture.adoc[]
 include::{includedir}/files.adoc[]
 include::{includedir}/generators.adoc[]

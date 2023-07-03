@@ -19,23 +19,8 @@ riot db-import --help
 ----
 
 [[_db_import_redis_commands]]
-== Redis commands
-
-You must specify at least one Redis command as a target.
-
-The keys that will be written are constructed from input records by concatenating the keyspace prefix and key fields.
-
-[IMPORTANT]
-====
-Redis connection options apply to the root command (`riot`) and not to subcommands.
-
-In this example the redis options will not be taken into account:
-
-[source]
-----
-riot db-import "SELECT * FROM customers" hset -h myredis.com -p 6380
-----
-====
+:redis-commands-example: riot db-import "SELECT * FROM customers" hset -h myredis.com -p 6380
+include::{includedir}/redis-commands.adoc[leveloffset=+1]
 
 [[_db_import_examples]]
 == Examples

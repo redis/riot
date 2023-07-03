@@ -21,7 +21,7 @@ If the target is Redis, writing is done in a single command {link_redis_pipeline
 You can change the batch size (and hence pipeline size) using the `--batch` option.
 The optimal batch size in terms of throughput depends on many factors like record size and command types (see {link_pipeline_tuning} for details).
 
-.`--batch` example
+.Batching example
 [source]
 ----
 include::{testdir}/faker-import-tsadd[]
@@ -37,10 +37,10 @@ Here, only one reader is being accessed from multiple threads.
 
 To set the number of threads use the `--threads` option.
 
-.`--threads` example
+.Multi-threading example
 [source]
 ----
-include::{testdir}/db-import-postgresql-multithreaded
+include::{testdir}/db-import-postgresql-multithreaded[]
 ----
 
 [[_architecture_processing]]

@@ -17,11 +17,11 @@ riot file-import --help
 ----
 
 [[_file_import_redis_commands]]
-== Redis commands
-You must specify at least one Redis command as a target.
+:redis-commands-example: riot file-import my.json hset -h myredis.com -p 6380
+include::{includedir}/redis-commands.adoc[leveloffset=+1]
 
-The keys that will be written are constructed from input records by concatenating the keyspace prefix and key fields.
-
+[[_file_import_examples]]
+== Examples
 .Import into hashes with keyspace `blah:<id>`
 [source]
 ----
@@ -39,18 +39,6 @@ riot file-import my.json hset --keyspace blah --keys id expire --keyspace blah -
 ----
 riot file-import my.json hset --keyspace blah --keys id expire --keyspace blah --keys id sadd --keyspace myset --members id
 ----
-
-[IMPORTANT]
-====
-Redis connection options apply to the root command (`riot`) and not to subcommands.
-
-In this example the redis options will not be taken into account:
-
-[source]
-----
-riot file-import my.json hset -h myredis.com -p 6380
-----
-====
 
 [[_file_import_paths]]
 == Paths

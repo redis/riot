@@ -1,0 +1,56 @@
+[[_install]]
+= Install
+
+{project-title} can be installed in different ways depending on your environment and preference.
+
+[[_macos_install]]
+== macOS
+
+=== Homebrew
+
+[source]
+----
+brew install redis-developer/tap/riot
+----
+
+=== Manually
+
+include::{includedir}/install_manually.adoc[]
+
+[[_windows_install]]
+== Windows
+
+=== Scoop
+
+[source]
+----
+scoop bucket add redis-developer https://github.com/redis-developer/scoop.git
+scoop install riot
+----
+
+=== Manually
+
+include::{includedir}/install_manually.adoc[]
+
+[[_linux_install]]
+== Linux
+
+=== Homebrew
+
+[source]
+----
+brew install redis-developer/tap/riot
+----
+
+=== Manually
+
+include::{includedir}/install_manually.adoc[]
+
+[[_docker_install]]
+== Docker
+
+[source]
+----
+docker run fieldengineering/riot [OPTIONS] [COMMAND]
+----
+
