@@ -539,7 +539,7 @@ public abstract class AbstractIntegrationTests extends AbstractTests {
 	void fileImportJsonAPI() throws Exception {
 		// riot-file import hset --keyspace beer --keys id
 		FileImport command = new FileImport();
-		command.getTransferOptions().setProgressUpdateInterval(0);
+		command.getJobOptions().setProgressUpdateInterval(0);
 		command.getOptions().setFiles(Collections.singletonList(BEERS_JSON_URL));
 		HsetCommand hset = new HsetCommand();
 		hset.getKeyOptions().setKeyspace(Optional.of("beer"));

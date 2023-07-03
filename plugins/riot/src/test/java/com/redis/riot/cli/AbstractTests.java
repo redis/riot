@@ -133,13 +133,13 @@ public abstract class AbstractTests {
 
 	protected int execute(String filename, Consumer<ParseResult>... configurers) throws Exception {
 		RedisServer redis = getRedisServer();
-		Main app = new Main();
-		CommandLine commandLine = app.commandLine();
+		CommandLine commandLine = Main.commandLine();
 		ParseResult parseResult = commandLine.parseArgs(args(filename));
 		configure(parseResult);
 		for (Consumer<ParseResult> configurer : configurers) {
 			configurer.accept(parseResult);
 		}
+		Main app = commandLine.getCommand();
 		app.getLoggingOptions().setInfo(true);
 		app.getLoggingOptions().setStacktrace(true);
 		app.getRedisOptions().setPort(0);
@@ -157,7 +157,7 @@ public abstract class AbstractTests {
 			}
 			if (command instanceof AbstractCommand) {
 				AbstractCommand transferCommand = (AbstractCommand) command;
-				transferCommand.getTransferOptions().setProgressUpdateInterval(0);
+				transferCommand.getJobOptions().setProgressUpdateInterval(0);
 			}
 		}
 	}

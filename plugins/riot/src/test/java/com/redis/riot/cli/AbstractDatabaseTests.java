@@ -14,7 +14,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.testcontainers.containers.JdbcDatabaseContainer;
 
-import com.redis.riot.cli.db.DataSourceOptions;
+import com.redis.riot.cli.common.DataSourceOptions;
 import com.redis.testcontainers.RedisServer;
 import com.redis.testcontainers.RedisStackContainer;
 
