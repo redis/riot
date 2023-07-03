@@ -92,7 +92,7 @@ $(addBlockSwitches);
 <h1>RIOT</h1>
 <div class="details">
 <span id="author" class="author">Julien Ruaux</span><br>
-<span id="revnumber">version 3.0.4</span>
+<span id="revnumber">version 3.1.0</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -109,7 +109,15 @@ $(addBlockSwitches);
 <li><a href="#_docker_install">2.1.5. Docker</a></li>
 </ul>
 </li>
-<li><a href="#_run">2.2. Run</a></li>
+<li><a href="#_run">2.2. Run</a>
+<ul class="sectlevel3">
+<li><a href="#_riot_commands">2.2.1. Commands</a></li>
+<li><a href="#_general_options">2.2.2. General options</a></li>
+<li><a href="#_redis_connection_options">2.2.3. Redis connection options</a></li>
+<li><a href="#_job_options">2.2.4. Job options</a></li>
+<li><a href="#_generate_completion">2.2.5. Generate completion</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a href="#_architecture">3. Architecture</a>
@@ -117,20 +125,30 @@ $(addBlockSwitches);
 <li><a href="#_architecture_keys">3.1. Keys</a></li>
 <li><a href="#_architecture_batch">3.2. Batching</a></li>
 <li><a href="#_architecture_threads">3.3. Multi-threading</a></li>
-<li><a href="#_architecture_transforms">3.4. Transforms</a></li>
-<li><a href="#_architecture_regex">3.5. Regular Expressions</a></li>
-<li><a href="#_architecture_filters">3.6. Filters</a></li>
+<li><a href="#_architecture_processing">3.4. Processing</a>
+<ul class="sectlevel3">
+<li><a href="#_architecture_transforms">3.4.1. Transforms</a></li>
+<li><a href="#_architecture_regex">3.4.2. Regular Expressions</a></li>
+<li><a href="#_architecture_filters">3.4.3. Filters</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a href="#_files">4. Files</a>
 <ul class="sectlevel2">
 <li><a href="#_file_import">4.1. File Import</a>
 <ul class="sectlevel3">
-<li><a href="#_file_import_paths">4.1.1. Paths</a></li>
-<li><a href="#_file_import_formats">4.1.2. Formats</a></li>
+<li><a href="#_file_import_redis_commands">4.1.1. Redis commands</a></li>
+<li><a href="#_file_import_paths">4.1.2. Paths</a></li>
+<li><a href="#_file_import_formats">4.1.3. Formats</a></li>
 </ul>
 </li>
-<li><a href="#_file_export">4.2. File Export</a></li>
+<li><a href="#_file_export">4.2. File Export</a>
+<ul class="sectlevel3">
+<li><a href="#_file_export_reader_options">4.2.1. Redis reader options</a></li>
+<li><a href="#_file_export_examples">4.2.2. Examples</a></li>
+</ul>
+</li>
 <li><a href="#_dump_import">4.3. Dump Import</a></li>
 </ul>
 </li>
@@ -138,7 +156,9 @@ $(addBlockSwitches);
 <ul class="sectlevel2">
 <li><a href="#_faker_import">5.1. Faker</a>
 <ul class="sectlevel3">
-<li><a href="#_redisearch">5.1.1. RediSearch</a></li>
+<li><a href="#_faker_import_redis_commands">5.1.1. Redis commands</a></li>
+<li><a href="#_faker_import_examples">5.1.2. Examples</a></li>
+<li><a href="#_faker_import_redisearch">5.1.3. RediSearch</a></li>
 </ul>
 </li>
 <li><a href="#_generate">5.2. Data Structures</a></li>
@@ -147,18 +167,28 @@ $(addBlockSwitches);
 <li><a href="#_databases">6. Databases</a>
 <ul class="sectlevel2">
 <li><a href="#_database_drivers">6.1. Drivers</a></li>
-<li><a href="#_db_import">6.2. Database Import</a></li>
-<li><a href="#_db_export">6.3. Database Export</a></li>
+<li><a href="#_db_import">6.2. Database Import</a>
+<ul class="sectlevel3">
+<li><a href="#_db_import_redis_commands">6.2.1. Redis commands</a></li>
+<li><a href="#_db_import_examples">6.2.2. Examples</a></li>
+</ul>
+</li>
+<li><a href="#_db_export">6.3. Database Export</a>
+<ul class="sectlevel3">
+<li><a href="#_db_export_reader_options">6.3.1. Redis reader options</a></li>
+<li><a href="#db_export_examples">6.3.2. Examples</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a href="#_replicate">7. Replication</a>
 <ul class="sectlevel2">
 <li><a href="#_replicate_usage">7.1. Usage</a>
 <ul class="sectlevel3">
-<li><a href="#_replicate_options">7.1.1. Source/Target Options</a></li>
-<li><a href="#_replicate_mode">7.1.2. Replication Mode</a></li>
+<li><a href="#_target_redis_connection_options">7.1.1. Target connection options</a></li>
+<li><a href="#_replicate_options">7.1.2. Replication Options</a></li>
 <li><a href="#_replicate_type">7.1.3. Replication Type</a></li>
-<li><a href="#_replicate_reader_options">7.1.4. Reader options</a></li>
+<li><a href="#_source_redis_reader_options">7.1.4. Source reader options</a></li>
 <li><a href="#_replicate_performance_tuning">7.1.5. Performance Tuning</a></li>
 <li><a href="#_replicate_verification">7.1.6. Verification</a></li>
 <li><a href="#_replicate_progress">7.1.7. Progress</a></li>
@@ -169,14 +199,7 @@ $(addBlockSwitches);
 <li><a href="#_replicate_live">7.2.1. Live Replication</a></li>
 <li><a href="#_replicate_dump_and_restore">7.2.2. Dump &amp; Restore</a></li>
 <li><a href="#_replicate_type_based">7.2.3. Type-Based Replication</a></li>
-</ul>
-</li>
-<li><a href="#_elasticache_migration">7.3. Migrating from Elasticache</a>
-<ul class="sectlevel3">
-<li><a href="#_setup">7.3.1. Setup</a></li>
-<li><a href="#_performing_migration">7.3.2. Performing Migration</a></li>
-<li><a href="#_important_considerations">7.3.3. Important Considerations</a></li>
-<li><a href="#_troubleshooting">7.3.4. Troubleshooting</a></li>
+<li><a href="#_elasticache_migration">7.2.4. Migrating from Elasticache</a></li>
 </ul>
 </li>
 </ul>
@@ -247,7 +270,7 @@ scoop install riot</code></pre>
 <div class="sect3">
 <h4 id="_standalone_install"><a class="anchor" href="#_standalone_install"></a>2.1.3. Standalone (Linux)</h4>
 <div class="paragraph">
-<p>Download the pre-compiled standalone binary <code>riot-standalone-3.0.4-linux-*.zip</code> from <a href="https://github.com/redis-developer/riot/releases/latest">RIOT latest release</a>, uncompress and copy to the desired location.</p>
+<p>Download the pre-compiled standalone binary <code>riot-standalone-3.1.0-linux-*.zip</code> from <a href="https://github.com/redis-developer/riot/releases/latest">RIOT latest release</a>, uncompress and copy to the desired location.</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -257,7 +280,7 @@ scoop install riot</code></pre>
 </td>
 <td class="content">
 <div class="paragraph">
-<p><code>riot-standalone-3.0.4-linux-*.zip</code> includes its own Java runtime and can be used without a previous installation of Java.</p>
+<p><code>riot-standalone-3.1.0-linux-*.zip</code> includes its own Java runtime and can be used without a previous installation of Java.</p>
 </div>
 </td>
 </tr>
@@ -280,7 +303,7 @@ scoop install riot</code></pre>
 </td>
 <td class="content">
 <div class="paragraph">
-<p><code>riot-3.0.4.zip</code> requires Java 11 or greater to be installed.</p>
+<p><code>riot-3.1.0.zip</code> requires Java 11 or greater to be installed.</p>
 </div>
 </td>
 </tr>
@@ -374,12 +397,6 @@ OpenJDK 64-Bit Server VM (build 11.0.11+9-Ubuntu-0ubuntu2.18.04, mixed mode, sha
 <pre class="prettyprint highlight"><code>riot --help</code></pre>
 </div>
 </div>
-<div class="paragraph">
-<p>Redis connection options are the same as <code>redis-cli</code>.</p>
-</div>
-<div class="paragraph">
-<p>For Redis URI syntax see <a href="https://github.com/lettuce-io/lettuce-core/wiki/Redis-URI-and-connection-details#uri-syntax">Redis URI Syntax</a>.</p>
-</div>
 <div class="admonitionblock tip">
 <table>
 <tr>
@@ -399,6 +416,233 @@ riot command subcommand --help</code></pre>
 </td>
 </tr>
 </table>
+</div>
+<div class="sect3">
+<h4 id="_riot_commands"><a class="anchor" href="#_riot_commands"></a>2.2.1. Commands</h4>
+<div class="paragraph">
+<p>RIOT includes the following commands:</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><a href="#_db_import"><code>db-import</code></a></dt>
+<dd>
+<p>Import from a relational database.</p>
+</dd>
+<dt class="hdlist1"><a href="#_db_export"><code>db-export</code></a></dt>
+<dd>
+<p>Export Redis data to a relational database.</p>
+</dd>
+<dt class="hdlist1"><a href="#_dump_import"><code>dump-import</code></a></dt>
+<dd>
+<p>Import Redis data files into Redis.</p>
+</dd>
+<dt class="hdlist1"><a href="#_file_import"><code>file-import</code></a></dt>
+<dd>
+<p>Import from CSV/JSON/XML files.</p>
+</dd>
+<dt class="hdlist1"><a href="#_file_export"><code>file-export</code></a></dt>
+<dd>
+<p>Export Redis data to JSON or XML files.</p>
+</dd>
+<dt class="hdlist1"><a href="#_faker_import"><code>faker-import</code></a></dt>
+<dd>
+<p>Import from Faker.</p>
+</dd>
+<dt class="hdlist1"><a href="#_generate"><code>generate</code></a></dt>
+<dd>
+<p>Generate data structures.</p>
+</dd>
+<dt class="hdlist1"><a href="#_replicate"><code>replicate</code></a></dt>
+<dd>
+<p>Replicate a Redis database into another Redis database.</p>
+</dd>
+<dt class="hdlist1"><a href="#_ping"><code>ping</code></a></dt>
+<dd>
+<p>Test connectivity to a Redis database.</p>
+</dd>
+<dt class="hdlist1"><code>generate-completion</code></dt>
+<dd>
+<p>Generate bash/zsh completion script for <code>riot</code>.</p>
+</dd>
+</dl>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_general_options"><a class="anchor" href="#_general_options"></a>2.2.2. General options</h4>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><code>-d, --debug</code></dt>
+<dd>
+<p>Log in debug mode (includes normal stacktrace).</p>
+</dd>
+<dt class="hdlist1"><code>-H, --help</code></dt>
+<dd>
+<p>Show this help message and exit.</p>
+</dd>
+<dt class="hdlist1"><code>-i, --info</code></dt>
+<dd>
+<p>Set log level to info.</p>
+</dd>
+<dt class="hdlist1"><code>-q, --quiet</code></dt>
+<dd>
+<p>Log errors only.</p>
+</dd>
+<dt class="hdlist1"><code>--stacktrace</code></dt>
+<dd>
+<p>Print out the stacktrace for all exceptions.</p>
+</dd>
+<dt class="hdlist1"><code>-V, --version</code></dt>
+<dd>
+<p>Print version information and exit.</p>
+</dd>
+<dt class="hdlist1"><code>-w, --warn</code></dt>
+<dd>
+<p>Set log level to warn.</p>
+</dd>
+</dl>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_redis_connection_options"><a class="anchor" href="#_redis_connection_options"></a>2.2.3. Redis connection options</h4>
+<div class="paragraph">
+<p>Use the following options to configure connections to Redis.</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><code>-h</code>, <code>--hostname</code></dt>
+<dd>
+<p>Server hostname</p>
+</dd>
+<dt class="hdlist1"><code>-p</code>, <code>--port</code></dt>
+<dd>
+<p>Server port</p>
+</dd>
+<dt class="hdlist1"><code>-u</code>, <code>--uri</code></dt>
+<dd>
+<p>Server URI. For syntax see <a href="https://github.com/lettuce-io/lettuce-core/wiki/Redis-URI-and-connection-details#uri-syntax">Redis URI Syntax</a>.</p>
+</dd>
+<dt class="hdlist1"><code>-c</code>, <code>--cluster</code></dt>
+<dd>
+<p>Enable cluster mode</p>
+</dd>
+<dt class="hdlist1"><code>-n</code>, <code>--db</code></dt>
+<dd>
+<p>Database number</p>
+</dd>
+<dt class="hdlist1"><code>--timeout</code></dt>
+<dd>
+<p>Redis command timeout</p>
+</dd>
+<dt class="hdlist1"><code>--client</code></dt>
+<dd>
+<p>Client name used to connect to Redis</p>
+</dd>
+<dt class="hdlist1"><code>--user</code></dt>
+<dd>
+<p>ACL style 'AUTH username pass'. Needs password</p>
+</dd>
+<dt class="hdlist1"><code>-a</code>, <code>--pass</code></dt>
+<dd>
+<p>Password to use when connecting to the server</p>
+</dd>
+<dt class="hdlist1"><code>--tls</code></dt>
+<dd>
+<p>Establish a secure TLS connection</p>
+</dd>
+<dt class="hdlist1"><code>--tls-verify</code></dt>
+<dd>
+<p>TLS peer-verify mode: FULL (default), NONE, CA</p>
+</dd>
+<dt class="hdlist1"><code>--cacert</code></dt>
+<dd>
+<p>X.509 CA certificate file to verify with</p>
+</dd>
+<dt class="hdlist1"><code>--cert</code></dt>
+<dd>
+<p>X.509 cert chain file to authenticate (PEM)</p>
+</dd>
+<dt class="hdlist1"><code>--key</code></dt>
+<dd>
+<p>PKCS#8 private key file to authenticate (PEM)</p>
+</dd>
+<dt class="hdlist1"><code>--key-pwd</code></dt>
+<dd>
+<p>Private key password</p>
+</dd>
+<dt class="hdlist1"><code>--no-auto-reconnect</code></dt>
+<dd>
+<p>Disable auto-reconnect on connection loss</p>
+</dd>
+</dl>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_job_options"><a class="anchor" href="#_job_options"></a>2.2.4. Job options</h4>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><code>-b, --batch</code></dt>
+<dd>
+<p>Number of items in each batch (default: 50). See <a href="#_architecture_batch">Batching</a> section for more details.</p>
+</dd>
+<dt class="hdlist1"><code>--progress</code></dt>
+<dd>
+<p>Style of progress bar: <code>colorful_unicode_block, colorful_unicode_bar, unicode_block, ascii (default: ascii)</code></p>
+</dd>
+<dt class="hdlist1"><code>--skip-policy</code></dt>
+<dd>
+<p>Policy to determine if what should be done when errors occur during processing.</p>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><code>always</code></dt>
+<dd>
+<p>ignore errors and continue with processing</p>
+</dd>
+<dt class="hdlist1"><code>never</code></dt>
+<dd>
+<p>fail as soon as an error occurs.</p>
+</dd>
+<dt class="hdlist1"><code>limit</code></dt>
+<dd>
+<p>continue with processing until number of errors reached <code>--skip-limit</code>.</p>
+</dd>
+</dl>
+</div>
+</dd>
+<dt class="hdlist1"><code>--skip-limit</code></dt>
+<dd>
+<p>Max number of failed items before considering the transfer has failed (default: 3). Only used for <code>limit</code> skip policy.</p>
+</dd>
+<dt class="hdlist1"><code>--sleep</code></dt>
+<dd>
+<p>Duration in ms to sleep after writing each batch (default: 0).</p>
+</dd>
+<dt class="hdlist1"><code>--threads</code></dt>
+<dd>
+<p>Number of concurrent threads to use for batch processing (default: 1). See <a href="#_architecture_threads">Multi-threading</a> section for more details.</p>
+</dd>
+</dl>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_generate_completion"><a class="anchor" href="#_generate_completion"></a>2.2.5. Generate completion</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code>$ riot generate-completion --help
+RIOT is a data import/export tool for Redis.
+
+Usage: riot generate-completion [-hV]
+Generate bash/zsh completion script for riot.
+Run the following command to give `riot` TAB completion in the current shell:
+
+  source &lt;(riot generate-completion)
+
+Options:
+  -h, --help      Show this help message and exit.
+  -V, --version   Print version information and exit.
+
+Documentation found at https://developer.redis.com/riot</code></pre>
+</div>
+</div>
 </div>
 </div>
 </div>
@@ -436,6 +680,12 @@ If the target is Redis, writing is done in a single command <a href="https://red
 <p>You can change the batch size (and hence pipeline size) using the <code>--batch</code> option.
 The optimal batch size in terms of throughput depends on many factors like record size and command types (see <a href="https://stackoverflow.com/a/32165090">Redis Pipeline Tuning</a> for details).</p>
 </div>
+<div class="listingblock">
+<div class="title"><code>--batch</code> example</div>
+<div class="content">
+<pre class="prettyprint highlight"><code>riot faker-import value="random.nextDouble" --count 10 --batch 1 --sleep 1 --skip-policy never ts.add --keyspace ts:gen --value value</code></pre>
+</div>
+</div>
 </div>
 <div class="sect2">
 <h3 id="_architecture_threads"><a class="anchor" href="#_architecture_threads"></a>3.3. Multi-threading</h3>
@@ -448,6 +698,15 @@ Here, only one reader is being accessed from multiple threads.</p>
 <div class="paragraph">
 <p>To set the number of threads use the <code>--threads</code> option.</p>
 </div>
+<div class="listingblock">
+<div class="title"><code>--threads</code> example</div>
+<div class="content">
+<pre class="prettyprint highlight"><code>include::{testdir}/db-import-postgresql-multithreaded</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_architecture_processing"><a class="anchor" href="#_architecture_processing"></a>3.4. Processing</h3>
 <div class="paragraph">
 <p>Processors are applied to records in the following order:</p>
 </div>
@@ -464,9 +723,8 @@ Here, only one reader is being accessed from multiple threads.</p>
 </li>
 </ul>
 </div>
-</div>
-<div class="sect2">
-<h3 id="_architecture_transforms"><a class="anchor" href="#_architecture_transforms"></a>3.4. Transforms</h3>
+<div class="sect3">
+<h4 id="_architecture_transforms"><a class="anchor" href="#_architecture_transforms"></a>3.4.1. Transforms</h4>
 <div class="paragraph">
 <p>Transforms allow you to create/update/delete fields using the <a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/core.html#expressions">Spring Expression Language</a> (SpEL):</p>
 </div>
@@ -515,8 +773,8 @@ Here, only one reader is being accessed from multiple threads.</p>
 </div>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_architecture_regex"><a class="anchor" href="#_architecture_regex"></a>3.5. Regular Expressions</h3>
+<div class="sect3">
+<h4 id="_architecture_regex"><a class="anchor" href="#_architecture_regex"></a>3.4.2. Regular Expressions</h4>
 <div class="paragraph">
 <p>Extract patterns from source fields using regular expressions:</p>
 </div>
@@ -526,8 +784,8 @@ Here, only one reader is being accessed from multiple threads.</p>
 </div>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_architecture_filters"><a class="anchor" href="#_architecture_filters"></a>3.6. Filters</h3>
+<div class="sect3">
+<h4 id="_architecture_filters"><a class="anchor" href="#_architecture_filters"></a>3.4.3. Filters</h4>
 <div class="paragraph">
 <p>Filters allow you to exclude records that don&#8217;t match a SpEL boolean expression.</p>
 </div>
@@ -537,6 +795,7 @@ Here, only one reader is being accessed from multiple threads.</p>
 <div class="listingblock">
 <div class="content">
 <pre class="prettyprint highlight"><code>riot file-import --filter "value matches '\\d+'" ...</code></pre>
+</div>
 </div>
 </div>
 </div>
@@ -585,6 +844,8 @@ Here, only one reader is being accessed from multiple threads.</p>
 <pre class="prettyprint highlight"><code>riot file-import --help</code></pre>
 </div>
 </div>
+<div class="sect3">
+<h4 id="_file_import_redis_commands"><a class="anchor" href="#_file_import_redis_commands"></a>4.1.1. Redis commands</h4>
 <div class="paragraph">
 <p>You must specify at least one Redis command as a target.</p>
 </div>
@@ -631,8 +892,9 @@ Here, only one reader is being accessed from multiple threads.</p>
 </tr>
 </table>
 </div>
+</div>
 <div class="sect3">
-<h4 id="_file_import_paths"><a class="anchor" href="#_file_import_paths"></a>4.1.1. Paths</h4>
+<h4 id="_file_import_paths"><a class="anchor" href="#_file_import_paths"></a>4.1.2. Paths</h4>
 <div class="paragraph">
 <p>Paths can include <a href="https://man7.org/linux/man-pages/man7/glob.7.html">wildcard patterns</a>.</p>
 </div>
@@ -692,7 +954,7 @@ Use <code>-</code> to read from standard input.
 </div>
 </div>
 <div class="sect3">
-<h4 id="_file_import_formats"><a class="anchor" href="#_file_import_formats"></a>4.1.2. Formats</h4>
+<h4 id="_file_import_formats"><a class="anchor" href="#_file_import_formats"></a>4.1.3. Formats</h4>
 <div class="sect4">
 <h5 id="_file_import_delimited"><a class="anchor" href="#_file_import_delimited"></a>Delimited</h5>
 <div class="paragraph">
@@ -912,6 +1174,65 @@ This creates hashes with keys <code>beer:1436</code>, <code>beer:2265</code>, &#
 <pre class="prettyprint highlight"><code>riot file-export --help</code></pre>
 </div>
 </div>
+<div class="sect3">
+<h4 id="_file_export_reader_options"><a class="anchor" href="#_file_export_reader_options"></a>4.2.1. Redis reader options</h4>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><code>--scan-count</code></dt>
+<dd>
+<p>How many keys to read at once on each call to <a href="https://redis.io/commands/scan#the-count-option">SCAN</a></p>
+</dd>
+<dt class="hdlist1"><code>--scan-match</code></dt>
+<dd>
+<p>Pattern of keys to replicate (default: <code>*</code> i.e. all keys)</p>
+</dd>
+<dt class="hdlist1"><code>--scan-type</code></dt>
+<dd>
+<p>Type of keys to replicate (default: all types)</p>
+</dd>
+<dt class="hdlist1"><code>--key-include</code></dt>
+<dd>
+<p>Regular expressions for keys to whitelist.
+For example <code>mykey:.*</code> will only replicate keys starting with <code>mykey:</code>.</p>
+</dd>
+<dt class="hdlist1"><code>--key-exclude</code></dt>
+<dd>
+<p>Regular expressions for keys to blacklist.
+For example <code>mykey:.*</code> will not replicate keys starting with <code>mykey:</code>.</p>
+</dd>
+<dt class="hdlist1"><code>--key-slots</code></dt>
+<dd>
+<p>Ranges of key slots to include for replication.
+For example <code>0:8000</code> will only transfer keys that fall within the range <code>0</code> to <code>8000</code>.</p>
+</dd>
+<dt class="hdlist1"><code>--reader-threads</code></dt>
+<dd>
+<p>How many value reader threads to use in parallel</p>
+</dd>
+<dt class="hdlist1"><code>--reader-batch</code></dt>
+<dd>
+<p>Number of keys each reader thread should dump at once in a pipelined call</p>
+</dd>
+<dt class="hdlist1"><code>--reader-queue</code></dt>
+<dd>
+<p>Max number of items that reader threads can put in the shared queue.
+When the queue is full reader threads wait for space to become available.
+Queue size should be at least <strong>#threads * batch</strong>, e.g. <code>--reader-threads 4 --reader-batch 500</code> &#8658; <code>--reader-queue 2000</code></p>
+</dd>
+<dt class="hdlist1"><code>--reader-pool</code></dt>
+<dd>
+<p>Size of the connection pool shared by reader threads.
+Can be smaller than the number of threads</p>
+</dd>
+<dt class="hdlist1"><code>--read-from</code></dt>
+<dd>
+<p>Which Redis cluster nodes to read from: <code>master</code>, <code>master_preferred</code>, <code>upstream</code>, <code>upstream_preferred</code>, <code>replica_preferred</code>, <code>replica</code>, <code>lowest_latency</code>, <code>any</code>, <code>any_replica</code>.</p>
+</dd>
+</dl>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_file_export_examples"><a class="anchor" href="#_file_export_examples"></a>4.2.2. Examples</h4>
 <div class="listingblock">
 <div class="title">Compressed JSON export example</div>
 <div class="content">
@@ -991,6 +1312,7 @@ This creates hashes with keys <code>beer:1436</code>, <code>beer:2265</code>, &#
 </div>
 </div>
 </div>
+</div>
 <div class="sect2">
 <h3 id="_dump_import"><a class="anchor" href="#_dump_import"></a>4.3. Dump Import</h3>
 <div class="paragraph">
@@ -1032,6 +1354,8 @@ This creates hashes with keys <code>beer:1436</code>, <code>beer:2265</code>, &#
 <pre class="prettyprint highlight"><code>riot faker-import --help</code></pre>
 </div>
 </div>
+<div class="sect3">
+<h4 id="_faker_import_redis_commands"><a class="anchor" href="#_faker_import_redis_commands"></a>5.1.1. Redis commands</h4>
 <div class="paragraph">
 <p>You must specify at least one Redis command as a target.</p>
 </div>
@@ -1060,6 +1384,9 @@ This creates hashes with keys <code>beer:1436</code>, <code>beer:2265</code>, &#
 </tr>
 </table>
 </div>
+</div>
+<div class="sect3">
+<h4 id="_faker_import_examples"><a class="anchor" href="#_faker_import_examples"></a>5.1.2. Examples</h4>
 <div class="listingblock">
 <div class="title">Hash example</div>
 <div class="content">
@@ -1091,8 +1418,9 @@ This creates hashes with keys <code>beer:1436</code>, <code>beer:2265</code>, &#
 <div class="paragraph">
 <p>Refer to <a href="http://www.datafaker.net/documentation/providers/#number-of-providers-per-datafaker-version">Datafaker Providers</a> for complete documentation.</p>
 </div>
+</div>
 <div class="sect3">
-<h4 id="_redisearch"><a class="anchor" href="#_redisearch"></a>5.1.1. RediSearch</h4>
+<h4 id="_faker_import_redisearch"><a class="anchor" href="#_faker_import_redisearch"></a>5.1.3. RediSearch</h4>
 <div class="paragraph">
 <p>You can infer Faker fields from a RediSearch index using the <code>--infer</code> option:</p>
 </div>
@@ -1224,6 +1552,8 @@ See the <a href="#_database_drivers">Drivers</a> section for more details.
 <pre class="prettyprint highlight"><code>riot db-import --help</code></pre>
 </div>
 </div>
+<div class="sect3">
+<h4 id="_db_import_redis_commands"><a class="anchor" href="#_db_import_redis_commands"></a>6.2.1. Redis commands</h4>
 <div class="paragraph">
 <p>You must specify at least one Redis command as a target.</p>
 </div>
@@ -1252,6 +1582,9 @@ See the <a href="#_database_drivers">Drivers</a> section for more details.
 </tr>
 </table>
 </div>
+</div>
+<div class="sect3">
+<h4 id="_db_import_examples"><a class="anchor" href="#_db_import_examples"></a>6.2.2. Examples</h4>
 <div class="listingblock">
 <div class="title">PostgreSQL Example</div>
 <div class="content">
@@ -1287,6 +1620,7 @@ See the <a href="#_database_drivers">Drivers</a> section for more details.
 </div>
 </div>
 </div>
+</div>
 <div class="sect2">
 <h3 id="_db_export"><a class="anchor" href="#_db_export"></a>6.3. Database Export</h3>
 <div class="paragraph">
@@ -1308,10 +1642,70 @@ See the <a href="#_database_drivers">Drivers</a> section for more details.
 <pre class="prettyprint highlight"><code>riot db-export --help</code></pre>
 </div>
 </div>
+<div class="sect3">
+<h4 id="_db_export_reader_options"><a class="anchor" href="#_db_export_reader_options"></a>6.3.1. Redis reader options</h4>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><code>--scan-count</code></dt>
+<dd>
+<p>How many keys to read at once on each call to <a href="https://redis.io/commands/scan#the-count-option">SCAN</a></p>
+</dd>
+<dt class="hdlist1"><code>--scan-match</code></dt>
+<dd>
+<p>Pattern of keys to replicate (default: <code>*</code> i.e. all keys)</p>
+</dd>
+<dt class="hdlist1"><code>--scan-type</code></dt>
+<dd>
+<p>Type of keys to replicate (default: all types)</p>
+</dd>
+<dt class="hdlist1"><code>--key-include</code></dt>
+<dd>
+<p>Regular expressions for keys to whitelist.
+For example <code>mykey:.*</code> will only replicate keys starting with <code>mykey:</code>.</p>
+</dd>
+<dt class="hdlist1"><code>--key-exclude</code></dt>
+<dd>
+<p>Regular expressions for keys to blacklist.
+For example <code>mykey:.*</code> will not replicate keys starting with <code>mykey:</code>.</p>
+</dd>
+<dt class="hdlist1"><code>--key-slots</code></dt>
+<dd>
+<p>Ranges of key slots to include for replication.
+For example <code>0:8000</code> will only transfer keys that fall within the range <code>0</code> to <code>8000</code>.</p>
+</dd>
+<dt class="hdlist1"><code>--reader-threads</code></dt>
+<dd>
+<p>How many value reader threads to use in parallel</p>
+</dd>
+<dt class="hdlist1"><code>--reader-batch</code></dt>
+<dd>
+<p>Number of keys each reader thread should dump at once in a pipelined call</p>
+</dd>
+<dt class="hdlist1"><code>--reader-queue</code></dt>
+<dd>
+<p>Max number of items that reader threads can put in the shared queue.
+When the queue is full reader threads wait for space to become available.
+Queue size should be at least <strong>#threads * batch</strong>, e.g. <code>--reader-threads 4 --reader-batch 500</code> &#8658; <code>--reader-queue 2000</code></p>
+</dd>
+<dt class="hdlist1"><code>--reader-pool</code></dt>
+<dd>
+<p>Size of the connection pool shared by reader threads.
+Can be smaller than the number of threads</p>
+</dd>
+<dt class="hdlist1"><code>--read-from</code></dt>
+<dd>
+<p>Which Redis cluster nodes to read from: <code>master</code>, <code>master_preferred</code>, <code>upstream</code>, <code>upstream_preferred</code>, <code>replica_preferred</code>, <code>replica</code>, <code>lowest_latency</code>, <code>any</code>, <code>any_replica</code>.</p>
+</dd>
+</dl>
+</div>
+</div>
+<div class="sect3">
+<h4 id="db_export_examples"><a class="anchor" href="#db_export_examples"></a>6.3.2. Examples</h4>
 <div class="listingblock">
 <div class="title">Export to PostgreSQL</div>
 <div class="content">
 <pre class="prettyprint highlight"><code>riot db-export "INSERT INTO mytable (id, field1, field2) VALUES (CAST(:id AS SMALLINT), :field1, :field2)" --url "jdbc:postgresql://host:port/database" --username appuser --password passwd --scan-match "gen:*" --key-regex "gen:(?&lt;id&gt;.*)"</code></pre>
+</div>
 </div>
 </div>
 </div>
@@ -1368,39 +1762,161 @@ Please note that RIOT is NEITHER recommended NOR officially supported by Redis, 
 </div>
 </div>
 <div class="sect3">
-<h4 id="_replicate_options"><a class="anchor" href="#_replicate_options"></a>7.1.1. Source/Target Options</h4>
+<h4 id="_target_redis_connection_options"><a class="anchor" href="#_target_redis_connection_options"></a>7.1.1. Target connection options</h4>
+<div class="paragraph">
+<p>Connection options for the target database are the same as the source Redis connection options:</p>
+</div>
+<div class="paragraph">
+<p>Use the following options to configure connections to Redis.</p>
+</div>
 <div class="dlist">
 <dl>
-<dt class="hdlist1"><code>-h &lt;host&gt;</code></dt>
+<dt class="hdlist1"><code>-h</code>, <code>--hostname</code></dt>
 <dd>
-<p>Redis server hostname</p>
+<p>Server hostname</p>
 </dd>
-<dt class="hdlist1"><code>-p &lt;port&gt;</code></dt>
+<dt class="hdlist1"><code>-p</code>, <code>--port</code></dt>
 <dd>
-<p>Redis server port</p>
+<p>Server port</p>
 </dd>
-<dt class="hdlist1"><code>--cluster</code></dt>
+<dt class="hdlist1"><code>-u</code>, <code>--uri</code></dt>
+<dd>
+<p>Server URI. For syntax see <a href="https://github.com/lettuce-io/lettuce-core/wiki/Redis-URI-and-connection-details#uri-syntax">Redis URI Syntax</a>.</p>
+</dd>
+<dt class="hdlist1"><code>-c</code>, <code>--cluster</code></dt>
 <dd>
 <p>Enable cluster mode</p>
+</dd>
+<dt class="hdlist1"><code>-n</code>, <code>--db</code></dt>
+<dd>
+<p>Database number</p>
+</dd>
+<dt class="hdlist1"><code>--timeout</code></dt>
+<dd>
+<p>Redis command timeout</p>
+</dd>
+<dt class="hdlist1"><code>--client</code></dt>
+<dd>
+<p>Client name used to connect to Redis</p>
+</dd>
+<dt class="hdlist1"><code>--user</code></dt>
+<dd>
+<p>ACL style 'AUTH username pass'. Needs password</p>
+</dd>
+<dt class="hdlist1"><code>-a</code>, <code>--pass</code></dt>
+<dd>
+<p>Password to use when connecting to the server</p>
+</dd>
+<dt class="hdlist1"><code>--tls</code></dt>
+<dd>
+<p>Establish a secure TLS connection</p>
+</dd>
+<dt class="hdlist1"><code>--tls-verify</code></dt>
+<dd>
+<p>TLS peer-verify mode: FULL (default), NONE, CA</p>
+</dd>
+<dt class="hdlist1"><code>--cacert</code></dt>
+<dd>
+<p>X.509 CA certificate file to verify with</p>
+</dd>
+<dt class="hdlist1"><code>--cert</code></dt>
+<dd>
+<p>X.509 cert chain file to authenticate (PEM)</p>
+</dd>
+<dt class="hdlist1"><code>--key</code></dt>
+<dd>
+<p>PKCS#8 private key file to authenticate (PEM)</p>
+</dd>
+<dt class="hdlist1"><code>--key-pwd</code></dt>
+<dd>
+<p>Private key password</p>
+</dd>
+<dt class="hdlist1"><code>--no-auto-reconnect</code></dt>
+<dd>
+<p>Disable auto-reconnect on connection loss</p>
 </dd>
 </dl>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_replicate_mode"><a class="anchor" href="#_replicate_mode"></a>7.1.2. Replication Mode</h4>
+<h4 id="_replicate_options"><a class="anchor" href="#_replicate_options"></a>7.1.2. Replication Options</h4>
 <div class="dlist">
 <dl>
-<dt class="hdlist1"><code>--mode snapshot</code></dt>
+<dt class="hdlist1"><code>--event-order</code></dt>
 <dd>
-<p>Initial replication using key scan</p>
+<p>Keyspace notification ordering strategy.</p>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><code>fifo</code></dt>
+<dd>
+<p>Keeps order of notifications as they are received.</p>
 </dd>
-<dt class="hdlist1"><code>--mode liveonly</code></dt>
+<dt class="hdlist1"><code>priority</code></dt>
 <dd>
-<p>Continuous replication using keyspace notifications (only keys that change are replicated)</p>
+<p>Orders notifications based on the underlying data-structure: <code>string</code> &gt; <code>hash</code> &gt; <code>json</code> &gt; <code>list</code> &gt; <code>set</code> &gt; <code>zset</code> &gt; <code>stream</code> &gt; <code>timeseries</code>.</p>
 </dd>
-<dt class="hdlist1"><code>--mode live</code></dt>
+</dl>
+</div>
+</dd>
+<dt class="hdlist1"><code>--event-queue</code></dt>
 <dd>
-<p>Initial + continuous replication using key scan and keyspace notifications in parallel</p>
+<p>Capacity of the keyspace notification queue (default: <code>10000</code>).</p>
+</dd>
+<dt class="hdlist1"><code>--flush-interval</code></dt>
+<dd>
+<p>Max duration between flushes (default: <code>50</code>).</p>
+</dd>
+<dt class="hdlist1"><code>--idle-timeout</code></dt>
+<dd>
+<p>Min duration of inactivity to consider transfer complete (default: no timeout).</p>
+</dd>
+<dt class="hdlist1"><code>--key-process</code></dt>
+<dd>
+<p>SpEL expression to transform each key.</p>
+</dd>
+<dt class="hdlist1"><code>--mode</code></dt>
+<dd>
+<p>Replication mode: snapshot, live, or live only.</p>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><code>snapshot</code></dt>
+<dd>
+<p>Initial replication using key scan.</p>
+</dd>
+<dt class="hdlist1"><code>liveonly</code></dt>
+<dd>
+<p>Continuous replication using keyspace notifications (only keys that change are replicated).</p>
+</dd>
+<dt class="hdlist1"><code>live</code></dt>
+<dd>
+<p>Initial and continuous replication using key scan and keyspace notifications in parallel.</p>
+</dd>
+</dl>
+</div>
+</dd>
+<dt class="hdlist1"><code>--no-verify</code></dt>
+<dd>
+<p>Disable verifying target against source dataset after replication.</p>
+</dd>
+<dt class="hdlist1"><code>--show-diffs</code></dt>
+<dd>
+<p>Print details of key mismatches during dataset verification.</p>
+</dd>
+<dt class="hdlist1"><code>--target-pool</code></dt>
+<dd>
+<p>Max connections for target Redis pool (default: <code>8</code>).</p>
+</dd>
+<dt class="hdlist1"><code>--target-read-from</code></dt>
+<dd>
+<p>Which target Redis cluster nodes to read data from.</p>
+</dd>
+<dt class="hdlist1"><code>--ttl-tolerance</code></dt>
+<dd>
+<p>Max TTL difference to use for dataset verification (default: <code>100</code>).</p>
+</dd>
+<dt class="hdlist1"><code>--type</code></dt>
+<dd>
+<p>Replication strategy: DUMP, DS (default: DUMP).</p>
 </dd>
 </dl>
 </div>
@@ -1411,7 +1927,7 @@ Please note that RIOT is NEITHER recommended NOR officially supported by Redis, 
 <dl>
 <dt class="hdlist1"><code>--type dump</code></dt>
 <dd>
-<p><a href="#_replicate_dump_and_restore">DUMP &amp; RESTORE</a></p>
+<p><a href="#_replicate_dump_and_restore">DUMP &amp; RESTORE</a>.</p>
 </dd>
 <dt class="hdlist1"><code>--type ds</code></dt>
 <dd>
@@ -1421,7 +1937,7 @@ Please note that RIOT is NEITHER recommended NOR officially supported by Redis, 
 </div>
 </div>
 <div class="sect3">
-<h4 id="_replicate_reader_options"><a class="anchor" href="#_replicate_reader_options"></a>7.1.4. Reader options</h4>
+<h4 id="_source_redis_reader_options"><a class="anchor" href="#_source_redis_reader_options"></a>7.1.4. Source reader options</h4>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><code>--scan-count</code></dt>
@@ -1436,6 +1952,21 @@ Please note that RIOT is NEITHER recommended NOR officially supported by Redis, 
 <dd>
 <p>Type of keys to replicate (default: all types)</p>
 </dd>
+<dt class="hdlist1"><code>--key-include</code></dt>
+<dd>
+<p>Regular expressions for keys to whitelist.
+For example <code>mykey:.*</code> will only replicate keys starting with <code>mykey:</code>.</p>
+</dd>
+<dt class="hdlist1"><code>--key-exclude</code></dt>
+<dd>
+<p>Regular expressions for keys to blacklist.
+For example <code>mykey:.*</code> will not replicate keys starting with <code>mykey:</code>.</p>
+</dd>
+<dt class="hdlist1"><code>--key-slots</code></dt>
+<dd>
+<p>Ranges of key slots to include for replication.
+For example <code>0:8000</code> will only transfer keys that fall within the range <code>0</code> to <code>8000</code>.</p>
+</dd>
 <dt class="hdlist1"><code>--reader-threads</code></dt>
 <dd>
 <p>How many value reader threads to use in parallel</p>
@@ -1446,20 +1977,18 @@ Please note that RIOT is NEITHER recommended NOR officially supported by Redis, 
 </dd>
 <dt class="hdlist1"><code>--reader-queue</code></dt>
 <dd>
-<p>Max number of items that reader threads can put in the shared queue.</p>
-<div class="paragraph">
-<p>When the queue is full reader threads wait for space to become available.</p>
-</div>
-<div class="paragraph">
-<p>Queue size should be at least <strong>#threads * batch</strong>, for example <code>--reader-threads 4 --reader-batch 500</code> &#8658; <code>--reader-queue 2000</code></p>
-</div>
+<p>Max number of items that reader threads can put in the shared queue.
+When the queue is full reader threads wait for space to become available.
+Queue size should be at least <strong>#threads * batch</strong>, e.g. <code>--reader-threads 4 --reader-batch 500</code> &#8658; <code>--reader-queue 2000</code></p>
 </dd>
 <dt class="hdlist1"><code>--reader-pool</code></dt>
 <dd>
-<p>Size of the connection pool shared by reader threads.</p>
-<div class="paragraph">
-<p>Can be smaller than the number of threads</p>
-</div>
+<p>Size of the connection pool shared by reader threads.
+Can be smaller than the number of threads</p>
+</dd>
+<dt class="hdlist1"><code>--read-from</code></dt>
+<dd>
+<p>Which Redis cluster nodes to read from: <code>master</code>, <code>master_preferred</code>, <code>upstream</code>, <code>upstream_preferred</code>, <code>replica_preferred</code>, <code>replica</code>, <code>lowest_latency</code>, <code>any</code>, <code>any_replica</code>.</p>
 </dd>
 </dl>
 </div>
@@ -1468,7 +1997,7 @@ Please note that RIOT is NEITHER recommended NOR officially supported by Redis, 
 <h4 id="_replicate_performance_tuning"><a class="anchor" href="#_replicate_performance_tuning"></a>7.1.5. Performance Tuning</h4>
 <div class="paragraph">
 <p>Performance tuning is an art but RIOT offers some options to identify potential bottlenecks.
-In addition to the <a href="#_architecture_batch">batch</a> and <a href="#_architecture_threads">threads</a> options you have the <code>--dry-run</code> option which disables writing to the target Redis database so that you can tune the <a href="#_replicate_reader_options">reader</a> in isolation.
+In addition to the <a href="#_architecture_batch">batch</a> and <a href="#_architecture_threads">threads</a> options you have the <code>--dry-run</code> option which disables writing to the target Redis database so that you can tune the <a href="#_source_redis_reader_options">reader</a> in isolation.
 Add that option to your existing <code>replicate</code> command-line to compare replication speeds with and without writing to the target Redis database:</p>
 </div>
 <div class="listingblock">
@@ -1498,27 +2027,28 @@ Add that option to your existing <code>replicate</code> command-line to compare 
 </div>
 <div class="listingblock">
 <div class="content">
-<pre>&gt;1,234 T2,345 ≠3,456 ⧗4,567 &lt;5,678</pre>
+<pre>123 missing, 54 type, 7 value, 19 ttl</pre>
 </div>
 </div>
-<div class="ulist">
-<ul>
-<li>
-<p><code>&gt;</code>: # keys only present in source database</p>
-</li>
-<li>
-<p><code>T</code>: # mismatched data structure types</p>
-</li>
-<li>
-<p><code>≠</code>: # mismatched values</p>
-</li>
-<li>
-<p><code>⧗</code>: # keys with TTL delta greater than tolerance</p>
-</li>
-<li>
-<p><code>&lt;</code>: # keys only present in target database</p>
-</li>
-</ul>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">missing</dt>
+<dd>
+<p>number of keys only present in source database</p>
+</dd>
+<dt class="hdlist1">type</dt>
+<dd>
+<p>number of keys with mismatched data structure type</p>
+</dd>
+<dt class="hdlist1">value</dt>
+<dd>
+<p>number of keys with mismatched value</p>
+</dd>
+<dt class="hdlist1">ttl</dt>
+<dd>
+<p>number of keys with mismatched TTL i.e. difference is greater than tolerance (can be specified with <code>--ttl-tolerance</code>)</p>
+</dd>
+</dl>
 </div>
 <div class="paragraph">
 <p>To show which keys are different use the <code>--show-diffs</code> option:</p>
@@ -1579,7 +2109,7 @@ It is possible that RIOT can miss some notifications in case of network failures
 <p>Also, depending on the type, size, and rate of change of data structures on the source it is possible that RIOT cannot keep up with the change stream.
 For example if a big set is repeatedly updated, RIOT will need to read the whole set on each update and transfer it over to the target database.
 With a big-enough set, RIOT could fall behind and the internal queue could fill up leading up to updates being dropped.
-Some preliminary sizing using Redis statistics and big-keys is recommended for these migrations.
+Some preliminary sizing using Redis statistics and <code>bigkeys</code>/<code>memkeys</code> is recommended for these migrations.
 If you need assistance please contact your Redis account team.</p>
 </div>
 </td>
@@ -1687,9 +2217,8 @@ Adjust number of threads, batch, and queue sizes accordingly.
 </table>
 </div>
 </div>
-</div>
-<div class="sect2">
-<h3 id="_elasticache_migration"><a class="anchor" href="#_elasticache_migration"></a>7.3. Migrating from Elasticache</h3>
+<div class="sect3">
+<h4 id="_elasticache_migration"><a class="anchor" href="#_elasticache_migration"></a>7.2.4. Migrating from Elasticache</h4>
 <div class="paragraph">
 <p>This recipe contains step-by-step instructions to migrate an Elasticache (EC) database to <a href="https://redis.com/redis-enterprise-software/overview/">Redis Enterprise</a> (RE).</p>
 </div>
@@ -1718,20 +2247,18 @@ It is recommended to read the <a href="#_replicate">Replication</a> section to f
 </tr>
 </table>
 </div>
-<div class="sect3">
-<h4 id="_setup"><a class="anchor" href="#_setup"></a>7.3.1. Setup</h4>
 <div class="sect4">
-<h5 id="_prerequisites"><a class="anchor" href="#_prerequisites"></a>Prerequisites</h5>
+<h5 id="_setup"><a class="anchor" href="#_setup"></a>Setup</h5>
+<div class="sect5">
+<h6 id="_prerequisites"><a class="anchor" href="#_prerequisites"></a>Prerequisites</h6>
 <div class="paragraph">
 <p>For this recipe you will require the following resources:</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p>AWS ElastiCache: <em>Primary Endpoint</em> in case of Single Master and <em>Configuration Endpoint</em> in case of Clustered EC.</p>
-<div class="paragraph">
-<p>Refer to <a href="https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/Endpoints.html">this link</a> to learn more</p>
-</div>
+<p>AWS ElastiCache: <em>Primary Endpoint</em> in case of Single Master and <em>Configuration Endpoint</em> in case of Clustered EC.
+Refer to <a href="https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/Endpoints.html">this link</a> to learn more</p>
 </li>
 <li>
 <p>Redis Enterprise: hosted on Cloud or On-Prem</p>
@@ -1757,8 +2284,8 @@ It is recommended to read the <a href="#_replicate">Replication</a> section to f
 </table>
 </div>
 </div>
-<div class="sect4">
-<h5 id="_migration_host"><a class="anchor" href="#_migration_host"></a>Migration Host</h5>
+<div class="sect5">
+<h6 id="_migration_host"><a class="anchor" href="#_migration_host"></a>Migration Host</h6>
 <div class="paragraph">
 <p>To run the migration tool we will need an EC2 instance.</p>
 </div>
@@ -1797,30 +2324,30 @@ sudo apt install -y redis-tools</code></pre>
 <p>Ensure that the above command allows you to connect to the remote Elasticache database successfully.</p>
 </div>
 </div>
-<div class="sect4">
-<h5 id="_installing_riot"><a class="anchor" href="#_installing_riot"></a>Installing RIOT</h5>
+<div class="sect5">
+<h6 id="_installing_riot"><a class="anchor" href="#_installing_riot"></a>Installing RIOT</h6>
 <div class="paragraph">
 <p>Let&#8217;s install RIOT on the EC2 instance we set up previously.
-For this we&#8217;ll follow the steps for <a href="#_manual_install">Manual Install</a>.</p>
+For this we&#8217;ll follow the steps for <a href="#_standalone_install">Standalone Installation</a>.</p>
 </div>
 </div>
 </div>
-<div class="sect3">
-<h4 id="_performing_migration"><a class="anchor" href="#_performing_migration"></a>7.3.2. Performing Migration</h4>
+<div class="sect4">
+<h5 id="_performing_migration"><a class="anchor" href="#_performing_migration"></a>Performing Migration</h5>
 <div class="paragraph">
 <p>We are now all set to begin the migration process.
 The options you will use depend on your source and target databases, as well as the replication mode (snapshot or live).</p>
 </div>
-<div class="sect4">
-<h5 id="_ec_single_master_re"><a class="anchor" href="#_ec_single_master_re"></a>EC Single Master &#8594; RE</h5>
+<div class="sect5">
+<h6 id="_ec_single_master_re"><a class="anchor" href="#_ec_single_master_re"></a>EC Single Master &#8594; RE</h6>
 <div class="listingblock">
 <div class="content">
 <pre class="prettyprint highlight"><code>riot -h &lt;source EC host&gt; -p &lt;source EC port&gt; replicate -h &lt;target RE host&gt; -p &lt;target RE port&gt; --pass &lt;RE password&gt;</code></pre>
 </div>
 </div>
 </div>
-<div class="sect4">
-<h5 id="_live_ec_single_master_re"><a class="anchor" href="#_live_ec_single_master_re"></a>Live EC Single Master &#8594; RE</h5>
+<div class="sect5">
+<h6 id="_live_ec_single_master_re"><a class="anchor" href="#_live_ec_single_master_re"></a>Live EC Single Master &#8594; RE</h6>
 <div class="listingblock">
 <div class="content">
 <pre class="prettyprint highlight"><code>riot -h &lt;source EC host&gt; -p &lt;source EC port&gt; replicate --mode live -h &lt;target RE host&gt; -p &lt;target RE port&gt; --pass &lt;RE password&gt;</code></pre>
@@ -1846,8 +2373,8 @@ The options you will use depend on your source and target databases, as well as 
 </table>
 </div>
 </div>
-<div class="sect4">
-<h5 id="_ec_cluster_re"><a class="anchor" href="#_ec_cluster_re"></a>EC Cluster &#8594; RE</h5>
+<div class="sect5">
+<h6 id="_ec_cluster_re"><a class="anchor" href="#_ec_cluster_re"></a>EC Cluster &#8594; RE</h6>
 <div class="listingblock">
 <div class="content">
 <pre class="prettyprint highlight"><code>riot -h &lt;source EC host&gt; -p &lt;source EC port&gt; --cluster replicate -h &lt;target RE host&gt; -p &lt;target RE port&gt; --pass &lt;RE password&gt;</code></pre>
@@ -1867,24 +2394,24 @@ Do note that the source database is specified first and the target database is s
 </table>
 </div>
 </div>
-<div class="sect4">
-<h5 id="_ec_single_master_re_with_specific_db_index"><a class="anchor" href="#_ec_single_master_re_with_specific_db_index"></a>EC Single Master &#8594; RE (with specific db index)</h5>
+<div class="sect5">
+<h6 id="_ec_single_master_re_with_specific_db_index"><a class="anchor" href="#_ec_single_master_re_with_specific_db_index"></a>EC Single Master &#8594; RE (with specific db index)</h6>
 <div class="listingblock">
 <div class="content">
 <pre class="prettyprint highlight"><code>riot -h &lt;source EC host&gt; -p &lt;source EC port&gt; --db &lt;index&gt; replicate -h &lt;target RE host&gt; -p &lt;target RE port&gt; --pass &lt;RE password&gt;</code></pre>
 </div>
 </div>
 </div>
-<div class="sect4">
-<h5 id="_ec_single_master_re_with_oss_cluster"><a class="anchor" href="#_ec_single_master_re_with_oss_cluster"></a>EC Single Master &#8594; RE with OSS Cluster</h5>
+<div class="sect5">
+<h6 id="_ec_single_master_re_with_oss_cluster"><a class="anchor" href="#_ec_single_master_re_with_oss_cluster"></a>EC Single Master &#8594; RE with OSS Cluster</h6>
 <div class="listingblock">
 <div class="content">
 <pre class="prettyprint highlight"><code>riot -h &lt;source EC host&gt; -p &lt;source EC port&gt; replicate -h &lt;target RE host&gt; -p &lt;target RE port&gt; --pass &lt;RE password&gt; --cluster</code></pre>
 </div>
 </div>
 </div>
-<div class="sect4">
-<h5 id="_live_ec_cluster_re_with_oss_cluster"><a class="anchor" href="#_live_ec_cluster_re_with_oss_cluster"></a>Live EC Cluster &#8594; RE with OSS Cluster</h5>
+<div class="sect5">
+<h6 id="_live_ec_cluster_re_with_oss_cluster"><a class="anchor" href="#_live_ec_cluster_re_with_oss_cluster"></a>Live EC Cluster &#8594; RE with OSS Cluster</h6>
 <div class="listingblock">
 <div class="content">
 <pre class="prettyprint highlight"><code>riot -h &lt;source EC host&gt; -p &lt;source EC port&gt; --cluster replicate --mode live -h &lt;target RE host&gt; -p &lt;target RE port&gt; --pass &lt;RE password&gt; --cluster</code></pre>
@@ -1892,8 +2419,8 @@ Do note that the source database is specified first and the target database is s
 </div>
 </div>
 </div>
-<div class="sect3">
-<h4 id="_important_considerations"><a class="anchor" href="#_important_considerations"></a>7.3.3. Important Considerations</h4>
+<div class="sect4">
+<h5 id="_important_considerations"><a class="anchor" href="#_important_considerations"></a>Important Considerations</h5>
 <div class="ulist">
 <ul>
 <li>
@@ -1911,10 +2438,10 @@ Do note that the source database is specified first and the target database is s
 </ul>
 </div>
 </div>
-<div class="sect3">
-<h4 id="_troubleshooting"><a class="anchor" href="#_troubleshooting"></a>7.3.4. Troubleshooting</h4>
 <div class="sect4">
-<h5 id="_authentication_required"><a class="anchor" href="#_authentication_required"></a>Authentication Required</h5>
+<h5 id="_troubleshooting"><a class="anchor" href="#_troubleshooting"></a>Troubleshooting</h5>
+<div class="sect5">
+<h6 id="_authentication_required"><a class="anchor" href="#_authentication_required"></a>Authentication Required</h6>
 <div class="paragraph">
 <p>You might face this error message while running the migration tool:</p>
 </div>
@@ -1926,6 +2453,7 @@ Authentication required</code></pre>
 </div>
 <div class="paragraph">
 <p>This issue occurs when you fail to supply the <code>--pass &lt;password&gt;</code> parameter while running the <code>riot replicate</code> command.</p>
+</div>
 </div>
 </div>
 </div>
@@ -1976,8 +2504,8 @@ To replicate between different Redis versions use <a href="#_replicate_type_base
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 3.0.4<br>
-Last updated 2023-06-16 20:42:14 UTC
+Version 3.1.0<br>
+Last updated 2023-07-03 06:59:02 UTC
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css">

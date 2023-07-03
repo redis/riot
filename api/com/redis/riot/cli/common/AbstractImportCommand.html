@@ -27,7 +27,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -237,18 +237,13 @@ extends <a href="AbstractCommand.html" title="class in com.redis.riot.cli.common
     org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader&lt;java.util.Map&lt;java.lang.String,&#8203;java.lang.Object&gt;&gt;&nbsp;reader)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i9" class="rowColor">
-<td class="colFirst"><code>protected org.springframework.batch.item.ItemWriter&lt;java.util.Map&lt;java.lang.String,&#8203;java.lang.Object&gt;&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#writer(io.lettuce.core.AbstractRedisClient)">writer</a></span>&#8203;(io.lettuce.core.AbstractRedisClient&nbsp;client)</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
 </table>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.com.redis.riot.cli.common.AbstractCommand">
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;com.redis.riot.cli.common.<a href="AbstractCommand.html" title="class in com.redis.riot.cli.common">AbstractCommand</a></h3>
-<code><a href="AbstractCommand.html#call()">call</a>, <a href="AbstractCommand.html#client(io.lettuce.core.RedisURI,com.redis.riot.cli.common.RedisOptions)">client</a>, <a href="AbstractCommand.html#commandName()">commandName</a>, <a href="AbstractCommand.html#configureReader(B,com.redis.riot.cli.common.RedisReaderOptions)">configureReader</a>, <a href="AbstractCommand.html#configureStep(B)">configureStep</a>, <a href="AbstractCommand.html#context(io.lettuce.core.RedisURI,io.lettuce.core.AbstractRedisClient)">context</a>, <a href="AbstractCommand.html#estimator(io.lettuce.core.AbstractRedisClient,com.redis.riot.cli.common.RedisReaderOptions)">estimator</a>, <a href="AbstractCommand.html#getRedisOptions()">getRedisOptions</a>, <a href="AbstractCommand.html#getTransferOptions()">getTransferOptions</a>, <a href="AbstractCommand.html#job(com.redis.riot.cli.common.CommandContext)">job</a>, <a href="AbstractCommand.html#job(java.lang.String)">job</a>, <a href="AbstractCommand.html#job(org.springframework.batch.core.step.builder.SimpleStepBuilder)">job</a>, <a href="AbstractCommand.html#poolOptions(com.redis.riot.cli.common.RedisReaderOptions)">poolOptions</a>, <a href="AbstractCommand.html#progressMonitor(java.lang.String)">progressMonitor</a>, <a href="AbstractCommand.html#queueOptions(com.redis.riot.cli.common.RedisReaderOptions)">queueOptions</a>, <a href="AbstractCommand.html#reader(io.lettuce.core.AbstractRedisClient,com.redis.riot.cli.common.RedisReaderOptions)">reader</a>, <a href="AbstractCommand.html#redisURI(com.redis.riot.cli.common.RedisOptions)">redisURI</a>, <a href="AbstractCommand.html#setCommandName(java.lang.String)">setCommandName</a>, <a href="AbstractCommand.html#setCommandSpec(picocli.CommandLine.Model.CommandSpec)">setCommandSpec</a>, <a href="AbstractCommand.html#setRiot(com.redis.riot.cli.Main)">setRiot</a>, <a href="AbstractCommand.html#setTransferOptions(com.redis.riot.cli.common.TransferOptions)">setTransferOptions</a>, <a href="AbstractCommand.html#simpleStepBuilder(java.lang.String)">simpleStepBuilder</a>, <a href="AbstractCommand.html#skippableExceptions()">skippableExceptions</a>, <a href="AbstractCommand.html#step()">step</a>, <a href="AbstractCommand.html#step(java.lang.String)">step</a>, <a href="AbstractCommand.html#stepBuilder(java.lang.String)">stepBuilder</a>, <a href="AbstractCommand.html#throttle(org.springframework.batch.item.ItemWriter)">throttle</a>, <a href="AbstractCommand.html#writer(io.lettuce.core.AbstractRedisClient,com.redis.riot.cli.common.RedisWriterOptions)">writer</a></code></li>
+<code><a href="AbstractCommand.html#call()">call</a>, <a href="AbstractCommand.html#client(io.lettuce.core.RedisURI,com.redis.riot.cli.common.RedisOptions)">client</a>, <a href="AbstractCommand.html#commandName()">commandName</a>, <a href="AbstractCommand.html#context(io.lettuce.core.RedisURI,io.lettuce.core.AbstractRedisClient)">context</a>, <a href="AbstractCommand.html#getJobOptions()">getJobOptions</a>, <a href="AbstractCommand.html#getJobRepository()">getJobRepository</a>, <a href="AbstractCommand.html#job(com.redis.riot.cli.common.CommandContext)">job</a>, <a href="AbstractCommand.html#job(java.lang.String)">job</a>, <a href="AbstractCommand.html#job(org.springframework.batch.core.step.builder.SimpleStepBuilder)">job</a>, <a href="AbstractCommand.html#monitor(java.lang.String)">monitor</a>, <a href="AbstractCommand.html#redisURI(com.redis.riot.cli.common.RedisOptions)">redisURI</a>, <a href="AbstractCommand.html#setCommandName(java.lang.String)">setCommandName</a>, <a href="AbstractCommand.html#setCommandSpec(picocli.CommandLine.Model.CommandSpec)">setCommandSpec</a>, <a href="AbstractCommand.html#setJobOptions(com.redis.riot.cli.common.JobOptions)">setJobOptions</a>, <a href="AbstractCommand.html#setRiot(com.redis.riot.cli.Main)">setRiot</a>, <a href="AbstractCommand.html#skippableExceptions()">skippableExceptions</a>, <a href="AbstractCommand.html#step(java.lang.String,org.springframework.batch.item.ItemReader,org.springframework.batch.item.ItemWriter)">step</a>, <a href="AbstractCommand.html#stepBuilder(java.lang.String)">stepBuilder</a>, <a href="AbstractCommand.html#writer(io.lettuce.core.AbstractRedisClient,com.redis.riot.cli.common.RedisWriterOptions)">writer</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
@@ -353,15 +348,6 @@ extends <a href="AbstractCommand.html" title="class in com.redis.riot.cli.common
 <li class="blockList">
 <h4>processor</h4>
 <pre class="methodSignature">protected&nbsp;org.springframework.batch.item.ItemProcessor&lt;java.util.Map&lt;java.lang.String,&#8203;java.lang.Object&gt;,&#8203;java.util.Map&lt;java.lang.String,&#8203;java.lang.Object&gt;&gt;&nbsp;processor&#8203;(io.lettuce.core.AbstractRedisClient&nbsp;client)</pre>
-</li>
-</ul>
-<a id="writer(io.lettuce.core.AbstractRedisClient)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>writer</h4>
-<pre class="methodSignature">protected&nbsp;org.springframework.batch.item.ItemWriter&lt;java.util.Map&lt;java.lang.String,&#8203;java.lang.Object&gt;&gt;&nbsp;writer&#8203;(io.lettuce.core.AbstractRedisClient&nbsp;client)</pre>
 </li>
 </ul>
 <a id="step(io.lettuce.core.AbstractRedisClient,org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader)">

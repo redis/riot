@@ -27,7 +27,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -132,9 +132,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="description">
 <ul class="blockList">
 <li class="blockList">
+<dl>
+<dt>All Implemented Interfaces:</dt>
+<dd><code>org.springframework.batch.core.ItemWriteListener&lt;com.redis.spring.batch.reader.KeyComparison&gt;</code>, <code>org.springframework.batch.core.StepListener</code></dd>
+</dl>
 <hr>
 <pre>public class <span class="typeNameLabel">KeyComparisonLogger</span>
-extends java.lang.Object</pre>
+extends java.lang.Object
+implements org.springframework.batch.core.ItemWriteListener&lt;com.redis.spring.batch.reader.KeyComparison&gt;</pre>
 </li>
 </ul>
 </div>
@@ -207,7 +212,23 @@ extends java.lang.Object</pre>
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#afterWrite(java.util.List)">afterWrite</a></span>&#8203;(java.util.List&lt;? extends com.redis.spring.batch.reader.KeyComparison&gt;&nbsp;items)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#beforeWrite(java.util.List)">beforeWrite</a></span>&#8203;(java.util.List&lt;? extends com.redis.spring.batch.reader.KeyComparison&gt;&nbsp;items)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#log(com.redis.spring.batch.reader.KeyComparison)">log</a></span>&#8203;(com.redis.spring.batch.reader.KeyComparison&nbsp;comparison)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onWriteError(java.lang.Exception,java.util.List)">onWriteError</a></span>&#8203;(java.lang.Exception&nbsp;exception,
+            java.util.List&lt;? extends com.redis.spring.batch.reader.KeyComparison&gt;&nbsp;items)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
@@ -286,6 +307,46 @@ extends java.lang.Object</pre>
 <!--   -->
 </a>
 <h3>Method Detail</h3>
+<a id="onWriteError(java.lang.Exception,java.util.List)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>onWriteError</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;onWriteError&#8203;(java.lang.Exception&nbsp;exception,
+                         java.util.List&lt;? extends com.redis.spring.batch.reader.KeyComparison&gt;&nbsp;items)</pre>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code>onWriteError</code>&nbsp;in interface&nbsp;<code>org.springframework.batch.core.ItemWriteListener&lt;com.redis.spring.batch.reader.KeyComparison&gt;</code></dd>
+</dl>
+</li>
+</ul>
+<a id="beforeWrite(java.util.List)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>beforeWrite</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;beforeWrite&#8203;(java.util.List&lt;? extends com.redis.spring.batch.reader.KeyComparison&gt;&nbsp;items)</pre>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code>beforeWrite</code>&nbsp;in interface&nbsp;<code>org.springframework.batch.core.ItemWriteListener&lt;com.redis.spring.batch.reader.KeyComparison&gt;</code></dd>
+</dl>
+</li>
+</ul>
+<a id="afterWrite(java.util.List)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>afterWrite</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;afterWrite&#8203;(java.util.List&lt;? extends com.redis.spring.batch.reader.KeyComparison&gt;&nbsp;items)</pre>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code>afterWrite</code>&nbsp;in interface&nbsp;<code>org.springframework.batch.core.ItemWriteListener&lt;com.redis.spring.batch.reader.KeyComparison&gt;</code></dd>
+</dl>
+</li>
+</ul>
 <a id="log(com.redis.spring.batch.reader.KeyComparison)">
 <!--   -->
 </a>

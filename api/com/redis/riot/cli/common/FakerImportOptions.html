@@ -170,16 +170,6 @@ extends java.lang.Object</pre>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_LOCALE">DEFAULT_LOCALE</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr class="rowColor">
-<td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_START">DEFAULT_START</a></span></code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><code>protected int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#start">start</a></span></code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
 </table>
 </li>
 </ul>
@@ -230,18 +220,18 @@ extends java.lang.Object</pre>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i2" class="altColor">
+<td class="colFirst"><code>com.redis.spring.batch.common.IntRange</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getIndexRange()">getIndexRange</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>java.util.Locale</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getLocale()">getLocale</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>java.util.Optional&lt;java.lang.String&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getRedisearchIndex()">getRedisearchIndex</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i4" class="altColor">
-<td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getStart()">getStart</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i5" class="rowColor">
@@ -256,17 +246,17 @@ extends java.lang.Object</pre>
 </tr>
 <tr id="i7" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setFakerIndex(java.lang.String)">setFakerIndex</a></span>&#8203;(java.lang.String&nbsp;fakerIndex)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setFields(java.util.Map)">setFields</a></span>&#8203;(java.util.Map&lt;java.lang.String,&#8203;java.lang.String&gt;&nbsp;fields)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i8" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setFields(java.util.Map)">setFields</a></span>&#8203;(java.util.Map&lt;java.lang.String,&#8203;java.lang.String&gt;&nbsp;fields)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setIncludeMetadata(boolean)">setIncludeMetadata</a></span>&#8203;(boolean&nbsp;includeMetadata)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i9" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setIncludeMetadata(boolean)">setIncludeMetadata</a></span>&#8203;(boolean&nbsp;includeMetadata)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setIndexRange(com.redis.spring.batch.common.IntRange)">setIndexRange</a></span>&#8203;(com.redis.spring.batch.common.IntRange&nbsp;indexRange)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i10" class="altColor">
@@ -276,7 +266,7 @@ extends java.lang.Object</pre>
 </tr>
 <tr id="i11" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setStart(int)">setStart</a></span>&#8203;(int&nbsp;start)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setRedisearchIndex(java.util.Optional)">setRedisearchIndex</a></span>&#8203;(java.util.Optional&lt;java.lang.String&gt;&nbsp;redisearchIndex)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i12" class="altColor">
@@ -308,19 +298,6 @@ extends java.lang.Object</pre>
 <!--   -->
 </a>
 <h3>Field Detail</h3>
-<a id="DEFAULT_START">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>DEFAULT_START</h4>
-<pre>public static final&nbsp;int DEFAULT_START</pre>
-<dl>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../../constant-values.html#com.redis.riot.cli.common.FakerImportOptions.DEFAULT_START">Constant Field Values</a></dd>
-</dl>
-</li>
-</ul>
 <a id="DEFAULT_COUNT">
 <!--   -->
 </a>
@@ -346,7 +323,7 @@ extends java.lang.Object</pre>
 <a id="DEFAULT_INCLUDE_METADATA">
 <!--   -->
 </a>
-<ul class="blockList">
+<ul class="blockListLast">
 <li class="blockList">
 <h4>DEFAULT_INCLUDE_METADATA</h4>
 <pre>public static final&nbsp;boolean DEFAULT_INCLUDE_METADATA</pre>
@@ -354,15 +331,6 @@ extends java.lang.Object</pre>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../constant-values.html#com.redis.riot.cli.common.FakerImportOptions.DEFAULT_INCLUDE_METADATA">Constant Field Values</a></dd>
 </dl>
-</li>
-</ul>
-<a id="start">
-<!--   -->
-</a>
-<ul class="blockListLast">
-<li class="blockList">
-<h4>start</h4>
-<pre>protected&nbsp;int start</pre>
 </li>
 </ul>
 </li>
@@ -394,22 +362,22 @@ extends java.lang.Object</pre>
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="getStart()">
+<a id="getIndexRange()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>getStart</h4>
-<pre class="methodSignature">public&nbsp;int&nbsp;getStart()</pre>
+<h4>getIndexRange</h4>
+<pre class="methodSignature">public&nbsp;com.redis.spring.batch.common.IntRange&nbsp;getIndexRange()</pre>
 </li>
 </ul>
-<a id="setStart(int)">
+<a id="setIndexRange(com.redis.spring.batch.common.IntRange)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>setStart</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;setStart&#8203;(int&nbsp;start)</pre>
+<h4>setIndexRange</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;setIndexRange&#8203;(com.redis.spring.batch.common.IntRange&nbsp;indexRange)</pre>
 </li>
 </ul>
 <a id="getCount()">
@@ -457,13 +425,13 @@ extends java.lang.Object</pre>
 <pre class="methodSignature">public&nbsp;java.util.Optional&lt;java.lang.String&gt;&nbsp;getRedisearchIndex()</pre>
 </li>
 </ul>
-<a id="setFakerIndex(java.lang.String)">
+<a id="setRedisearchIndex(java.util.Optional)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>setFakerIndex</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;setFakerIndex&#8203;(java.lang.String&nbsp;fakerIndex)</pre>
+<h4>setRedisearchIndex</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;setRedisearchIndex&#8203;(java.util.Optional&lt;java.lang.String&gt;&nbsp;redisearchIndex)</pre>
 </li>
 </ul>
 <a id="getLocale()">

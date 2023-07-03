@@ -100,7 +100,6 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="horizontal">
 <li><a href="com/redis/riot/cli/package-tree.html">com.redis.riot.cli</a>, </li>
 <li><a href="com/redis/riot/cli/common/package-tree.html">com.redis.riot.cli.common</a>, </li>
-<li><a href="com/redis/riot/cli/db/package-tree.html">com.redis.riot.cli.db</a>, </li>
 <li><a href="com/redis/riot/cli/file/package-tree.html">com.redis.riot.cli.file</a>, </li>
 <li><a href="com/redis/riot/cli/operation/package-tree.html">com.redis.riot.cli.operation</a>, </li>
 <li><a href="com/redis/riot/core/package-tree.html">com.redis.riot.core</a>, </li>
@@ -121,6 +120,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul>
 <li class="circle">com.redis.riot.cli.<a href="com/redis/riot/cli/DbExport.html" title="class in com.redis.riot.cli"><span class="typeNameLink">DbExport</span></a></li>
 <li class="circle">com.redis.riot.cli.<a href="com/redis/riot/cli/FileExport.html" title="class in com.redis.riot.cli"><span class="typeNameLink">FileExport</span></a></li>
+<li class="circle">com.redis.riot.cli.<a href="com/redis/riot/cli/Replicate.html" title="class in com.redis.riot.cli"><span class="typeNameLink">Replicate</span></a></li>
 </ul>
 </li>
 <li class="circle">com.redis.riot.cli.common.<a href="com/redis/riot/cli/common/AbstractImportCommand.html" title="class in com.redis.riot.cli.common"><span class="typeNameLink">AbstractImportCommand</span></a>
@@ -133,7 +133,6 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="circle">com.redis.riot.cli.<a href="com/redis/riot/cli/DumpImport.html" title="class in com.redis.riot.cli"><span class="typeNameLink">DumpImport</span></a></li>
 <li class="circle">com.redis.riot.cli.<a href="com/redis/riot/cli/Generate.html" title="class in com.redis.riot.cli"><span class="typeNameLink">Generate</span></a></li>
 <li class="circle">com.redis.riot.cli.<a href="com/redis/riot/cli/Ping.html" title="class in com.redis.riot.cli"><span class="typeNameLink">Ping</span></a></li>
-<li class="circle">com.redis.riot.cli.<a href="com/redis/riot/cli/Replicate.html" title="class in com.redis.riot.cli"><span class="typeNameLink">Replicate</span></a></li>
 </ul>
 </li>
 <li class="circle">com.redis.riot.cli.operation.<a href="com/redis/riot/cli/operation/AbstractOperationCommand.html" title="class in com.redis.riot.cli.operation"><span class="typeNameLink">AbstractOperationCommand</span></a>&lt;O&gt; (implements com.redis.riot.cli.operation.<a href="com/redis/riot/cli/operation/OperationCommand.html" title="interface in com.redis.riot.cli.operation">OperationCommand</a>&lt;T&gt;)
@@ -194,11 +193,11 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="circle">com.redis.riot.core.processor.<a href="com/redis/riot/core/processor/CompositeItemStreamItemProcessor.html" title="class in com.redis.riot.core.processor"><span class="typeNameLink">CompositeItemStreamItemProcessor</span></a>&lt;I,&#8203;O&gt; (implements org.springframework.batch.item.ItemStream)</li>
 </ul>
 </li>
-<li class="circle">com.redis.riot.cli.db.<a href="com/redis/riot/cli/db/DataSourceOptions.html" title="class in com.redis.riot.cli.db"><span class="typeNameLink">DataSourceOptions</span></a></li>
+<li class="circle">com.redis.riot.cli.common.<a href="com/redis/riot/cli/common/DataSourceOptions.html" title="class in com.redis.riot.cli.common"><span class="typeNameLink">DataSourceOptions</span></a></li>
 <li class="circle">com.redis.riot.core.processor.<a href="com/redis/riot/core/processor/DataStructureProcessor.html" title="class in com.redis.riot.core.processor"><span class="typeNameLink">DataStructureProcessor</span></a> (implements org.springframework.batch.item.ItemProcessor&lt;I,&#8203;O&gt;)</li>
 <li class="circle">com.redis.riot.core.processor.<a href="com/redis/riot/core/processor/DataStructureToMapProcessor.html" title="class in com.redis.riot.core.processor"><span class="typeNameLink">DataStructureToMapProcessor</span></a> (implements org.springframework.batch.item.ItemProcessor&lt;I,&#8203;O&gt;)</li>
-<li class="circle">com.redis.riot.cli.db.<a href="com/redis/riot/cli/db/DbExportOptions.html" title="class in com.redis.riot.cli.db"><span class="typeNameLink">DbExportOptions</span></a></li>
-<li class="circle">com.redis.riot.cli.db.<a href="com/redis/riot/cli/db/DbImportOptions.html" title="class in com.redis.riot.cli.db"><span class="typeNameLink">DbImportOptions</span></a></li>
+<li class="circle">com.redis.riot.cli.common.<a href="com/redis/riot/cli/common/DbExportOptions.html" title="class in com.redis.riot.cli.common"><span class="typeNameLink">DbExportOptions</span></a></li>
+<li class="circle">com.redis.riot.cli.common.<a href="com/redis/riot/cli/common/DbImportOptions.html" title="class in com.redis.riot.cli.common"><span class="typeNameLink">DbImportOptions</span></a></li>
 <li class="circle">com.redis.riot.cli.common.<a href="com/redis/riot/cli/common/DoubleRangeTypeConverter.html" title="class in com.redis.riot.cli.common"><span class="typeNameLink">DoubleRangeTypeConverter</span></a> (implements picocli.CommandLine.ITypeConverter&lt;K&gt;)</li>
 <li class="circle">com.redis.riot.cli.operation.<a href="com/redis/riot/cli/operation/EvalOptions.html" title="class in com.redis.riot.cli.operation"><span class="typeNameLink">EvalOptions</span></a></li>
 <li class="circle">com.redis.riot.cli.operation.<a href="com/redis/riot/cli/operation/ExpireOptions.html" title="class in com.redis.riot.cli.operation"><span class="typeNameLink">ExpireOptions</span></a></li>
@@ -256,16 +255,16 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </li>
 </ul>
 </li>
-<li class="circle">com.redis.spring.batch.common.DelegatingItemStreamSupport
+<li class="circle">com.redis.spring.batch.common.DelegatingItemStreamSupport (implements com.redis.spring.batch.common.Openable)
 <ul>
 <li class="circle">com.redis.riot.core.<a href="com/redis/riot/core/ThrottledItemWriter.html" title="class in com.redis.riot.core"><span class="typeNameLink">ThrottledItemWriter</span></a>&lt;T&gt; (implements org.springframework.batch.item.ItemStreamWriter&lt;T&gt;)</li>
 </ul>
 </li>
 </ul>
 </li>
+<li class="circle">com.redis.riot.cli.common.<a href="com/redis/riot/cli/common/JobOptions.html" title="class in com.redis.riot.cli.common"><span class="typeNameLink">JobOptions</span></a></li>
 <li class="circle">com.redis.riot.core.resource.<a href="com/redis/riot/core/resource/JsonResourceItemWriterBuilder.html" title="class in com.redis.riot.core.resource"><span class="typeNameLink">JsonResourceItemWriterBuilder</span></a>&lt;T&gt;</li>
-<li class="circle">com.redis.riot.core.<a href="com/redis/riot/core/KeyComparisonLogger.html" title="class in com.redis.riot.core"><span class="typeNameLink">KeyComparisonLogger</span></a></li>
-<li class="circle">com.redis.riot.cli.common.<a href="com/redis/riot/cli/common/KeyComparisonWriteListener.html" title="class in com.redis.riot.cli.common"><span class="typeNameLink">KeyComparisonWriteListener</span></a> (implements org.springframework.batch.core.ItemWriteListener&lt;S&gt;)</li>
+<li class="circle">com.redis.riot.core.<a href="com/redis/riot/core/KeyComparisonLogger.html" title="class in com.redis.riot.core"><span class="typeNameLink">KeyComparisonLogger</span></a> (implements org.springframework.batch.core.ItemWriteListener&lt;S&gt;)</li>
 <li class="circle">com.redis.riot.cli.operation.<a href="com/redis/riot/cli/operation/KeyOptions.html" title="class in com.redis.riot.cli.operation"><span class="typeNameLink">KeyOptions</span></a></li>
 <li class="circle">com.redis.riot.core.processor.<a href="com/redis/riot/core/processor/KeyValueProcessor.html" title="class in com.redis.riot.core.processor"><span class="typeNameLink">KeyValueProcessor</span></a>&lt;T&gt; (implements org.springframework.batch.item.ItemProcessor&lt;I,&#8203;O&gt;)</li>
 <li class="circle">com.redis.riot.cli.common.<a href="com/redis/riot/cli/common/LoggingOptions.html" title="class in com.redis.riot.cli.common"><span class="typeNameLink">LoggingOptions</span></a></li>
@@ -276,12 +275,9 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="circle">com.redis.riot.core.convert.<a href="com/redis/riot/core/convert/MapFilteringConverter.html" title="class in com.redis.riot.core.convert"><span class="typeNameLink">MapFilteringConverter</span></a> (implements java.util.function.UnaryOperator&lt;T&gt;)</li>
 <li class="circle">com.redis.riot.core.convert.<a href="com/redis/riot/core/convert/MapFilteringConverter.MapFilteringConverterBuilder.html" title="class in com.redis.riot.core.convert"><span class="typeNameLink">MapFilteringConverter.MapFilteringConverterBuilder</span></a></li>
 <li class="circle">com.redis.riot.core.convert.<a href="com/redis/riot/core/convert/MapFlattener.html" title="class in com.redis.riot.core.convert"><span class="typeNameLink">MapFlattener</span></a>&lt;T&gt; (implements java.util.function.Function&lt;T,&#8203;R&gt;)</li>
-<li class="circle">com.redis.riot.core.<a href="com/redis/riot/core/MapGenerator.html" title="class in com.redis.riot.core"><span class="typeNameLink">MapGenerator</span></a> (implements com.redis.riot.core.<a href="com/redis/riot/core/Generator.html" title="interface in com.redis.riot.core">Generator</a>&lt;T&gt;)</li>
-<li class="circle">com.redis.riot.core.<a href="com/redis/riot/core/MapGenerator.MapGeneratorBuilder.html" title="class in com.redis.riot.core"><span class="typeNameLink">MapGenerator.MapGeneratorBuilder</span></a></li>
 <li class="circle">com.redis.riot.core.processor.<a href="com/redis/riot/core/processor/MapProcessor.html" title="class in com.redis.riot.core.processor"><span class="typeNameLink">MapProcessor</span></a> (implements org.springframework.batch.item.ItemProcessor&lt;I,&#8203;O&gt;)</li>
 <li class="circle">com.redis.riot.cli.common.<a href="com/redis/riot/cli/common/MapProcessorOptions.html" title="class in com.redis.riot.cli.common"><span class="typeNameLink">MapProcessorOptions</span></a></li>
 <li class="circle">com.redis.riot.core.convert.<a href="com/redis/riot/core/convert/MapToStringArrayConverter.html" title="class in com.redis.riot.core.convert"><span class="typeNameLink">MapToStringArrayConverter</span></a> (implements java.util.function.Function&lt;T,&#8203;R&gt;)</li>
-<li class="circle">com.redis.riot.core.<a href="com/redis/riot/core/MapWithMetadataGenerator.html" title="class in com.redis.riot.core"><span class="typeNameLink">MapWithMetadataGenerator</span></a> (implements com.redis.riot.core.<a href="com/redis/riot/core/Generator.html" title="interface in com.redis.riot.core">Generator</a>&lt;T&gt;)</li>
 <li class="circle">com.redis.riot.cli.operation.<a href="com/redis/riot/cli/operation/NoopCommand.html" title="class in com.redis.riot.cli.operation"><span class="typeNameLink">NoopCommand</span></a> (implements com.redis.riot.cli.operation.<a href="com/redis/riot/cli/operation/OperationCommand.html" title="interface in com.redis.riot.cli.operation">OperationCommand</a>&lt;T&gt;)</li>
 <li class="circle">com.redis.riot.cli.common.<a href="com/redis/riot/cli/common/NoopItemWriter.html" title="class in com.redis.riot.cli.common"><span class="typeNameLink">NoopItemWriter</span></a>&lt;T&gt; (implements org.springframework.batch.item.ItemWriter&lt;T&gt;)</li>
 <li class="circle">com.redis.riot.core.convert.<a href="com/redis/riot/core/convert/ObjectMapperConverter.html" title="class in com.redis.riot.core.convert"><span class="typeNameLink">ObjectMapperConverter</span></a>&lt;T&gt; (implements java.util.function.Function&lt;T,&#8203;R&gt;)</li>
@@ -305,14 +301,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="circle">com.redis.riot.core.<a href="com/redis/riot/core/ReflectivePropertyAccessor.html" title="class in com.redis.riot.core"><span class="typeNameLink">ReflectivePropertyAccessor</span></a> (implements org.springframework.expression.PropertyAccessor)</li>
 <li class="circle">com.redis.riot.core.<a href="com/redis/riot/core/ReflectivePropertyAccessor.OptimalPropertyAccessor.html" title="class in com.redis.riot.core"><span class="typeNameLink">ReflectivePropertyAccessor.OptimalPropertyAccessor</span></a> (implements org.springframework.expression.spel.CompilablePropertyAccessor)</li>
 <li class="circle">com.redis.riot.core.convert.<a href="com/redis/riot/core/convert/RegexNamedGroupsExtractor.html" title="class in com.redis.riot.core.convert"><span class="typeNameLink">RegexNamedGroupsExtractor</span></a> (implements org.springframework.core.convert.converter.Converter&lt;S,&#8203;T&gt;)</li>
-<li class="circle">com.redis.riot.cli.common.<a href="com/redis/riot/cli/common/ReplicationOptions.html" title="class in com.redis.riot.cli.common"><span class="typeNameLink">ReplicationOptions</span></a></li>
+<li class="circle">com.redis.riot.cli.common.<a href="com/redis/riot/cli/common/ReplicateOptions.html" title="class in com.redis.riot.cli.common"><span class="typeNameLink">ReplicateOptions</span></a></li>
 <li class="circle">com.redis.riot.cli.common.<a href="com/redis/riot/cli/common/RiotExecutionStrategy.html" title="class in com.redis.riot.cli.common"><span class="typeNameLink">RiotExecutionStrategy</span></a> (implements picocli.CommandLine.IExecutionStrategy)</li>
 <li class="circle">com.redis.riot.cli.file.<a href="com/redis/riot/cli/file/S3Options.html" title="class in com.redis.riot.cli.file"><span class="typeNameLink">S3Options</span></a></li>
 <li class="circle">com.redis.riot.cli.operation.<a href="com/redis/riot/cli/operation/SetOptions.html" title="class in com.redis.riot.cli.operation"><span class="typeNameLink">SetOptions</span></a></li>
 <li class="circle">com.redis.riot.core.processor.<a href="com/redis/riot/core/processor/SpelProcessor.html" title="class in com.redis.riot.core.processor"><span class="typeNameLink">SpelProcessor</span></a> (implements org.springframework.batch.item.ItemProcessor&lt;I,&#8203;O&gt;)</li>
 <li class="circle">org.springframework.batch.core.listener.StepExecutionListenerSupport (implements org.springframework.batch.core.StepExecutionListener)
 <ul>
-<li class="circle">com.redis.riot.cli.common.<a href="com/redis/riot/cli/common/KeyComparisonStepListener.html" title="class in com.redis.riot.cli.common"><span class="typeNameLink">KeyComparisonStepListener</span></a></li>
+<li class="circle">com.redis.riot.cli.common.<a href="com/redis/riot/cli/common/CompareStepListener.html" title="class in com.redis.riot.cli.common"><span class="typeNameLink">CompareStepListener</span></a></li>
 </ul>
 </li>
 <li class="circle">com.redis.riot.cli.common.<a href="com/redis/riot/cli/common/StepProgressMonitor.html" title="class in com.redis.riot.cli.common"><span class="typeNameLink">StepProgressMonitor</span></a> (implements org.springframework.batch.core.ItemWriteListener&lt;S&gt;, org.springframework.batch.core.StepExecutionListener)</li>
@@ -335,7 +331,6 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </ul>
 </li>
 <li class="circle">com.redis.riot.core.convert.<a href="com/redis/riot/core/convert/TimeSeriesToStringMapConverter.html" title="class in com.redis.riot.core.convert"><span class="typeNameLink">TimeSeriesToStringMapConverter</span></a> (implements org.springframework.core.convert.converter.Converter&lt;S,&#8203;T&gt;)</li>
-<li class="circle">com.redis.riot.cli.common.<a href="com/redis/riot/cli/common/TransferOptions.html" title="class in com.redis.riot.cli.common"><span class="typeNameLink">TransferOptions</span></a></li>
 <li class="circle">com.redis.riot.cli.operation.<a href="com/redis/riot/cli/operation/TsAddOptions.html" title="class in com.redis.riot.cli.operation"><span class="typeNameLink">TsAddOptions</span></a></li>
 <li class="circle">java.io.Writer (implements java.lang.Appendable, java.io.Closeable, java.io.Flushable)
 <ul>
@@ -356,7 +351,6 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <h2 title="Interface Hierarchy">Interface Hierarchy</h2>
 <ul>
 <li class="circle">com.redis.riot.cli.common.<a href="com/redis/riot/cli/common/DatabaseHelper.html" title="interface in com.redis.riot.cli.common"><span class="typeNameLink">DatabaseHelper</span></a></li>
-<li class="circle">com.redis.riot.core.<a href="com/redis/riot/core/Generator.html" title="interface in com.redis.riot.core"><span class="typeNameLink">Generator</span></a>&lt;T&gt;</li>
 <li class="circle">com.redis.riot.cli.operation.<a href="com/redis/riot/cli/operation/OperationCommand.html" title="interface in com.redis.riot.cli.operation"><span class="typeNameLink">OperationCommand</span></a>&lt;T&gt;</li>
 </ul>
 </section>
@@ -370,7 +364,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="circle">com.redis.riot.core.<a href="com/redis/riot/core/FileDumpType.html" title="enum in com.redis.riot.core"><span class="typeNameLink">FileDumpType</span></a></li>
 <li class="circle">com.redis.riot.core.<a href="com/redis/riot/core/FileExtension.html" title="enum in com.redis.riot.core"><span class="typeNameLink">FileExtension</span></a></li>
 <li class="circle">com.redis.riot.core.<a href="com/redis/riot/core/FileType.html" title="enum in com.redis.riot.core"><span class="typeNameLink">FileType</span></a></li>
-<li class="circle">com.redis.riot.cli.common.<a href="com/redis/riot/cli/common/ReadFrom.html" title="enum in com.redis.riot.cli.common"><span class="typeNameLink">ReadFrom</span></a></li>
+<li class="circle">com.redis.riot.cli.common.<a href="com/redis/riot/cli/common/ReadFromEnum.html" title="enum in com.redis.riot.cli.common"><span class="typeNameLink">ReadFromEnum</span></a></li>
 <li class="circle">com.redis.riot.cli.common.<a href="com/redis/riot/cli/common/ReplicationMode.html" title="enum in com.redis.riot.cli.common"><span class="typeNameLink">ReplicationMode</span></a></li>
 <li class="circle">com.redis.riot.cli.common.<a href="com/redis/riot/cli/common/ReplicationStrategy.html" title="enum in com.redis.riot.cli.common"><span class="typeNameLink">ReplicationStrategy</span></a></li>
 <li class="circle">com.redis.riot.cli.common.<a href="com/redis/riot/cli/common/StepSkipPolicy.html" title="enum in com.redis.riot.cli.common"><span class="typeNameLink">StepSkipPolicy</span></a></li>

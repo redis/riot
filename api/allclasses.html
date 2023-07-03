@@ -32,16 +32,17 @@
 <li><a href="com/redis/riot/cli/operation/CollectionOptions.html" title="class in com.redis.riot.cli.operation">CollectionOptions</a></li>
 <li><a href="com/redis/riot/core/convert/CollectionToStringMapConverter.html" title="class in com.redis.riot.core.convert">CollectionToStringMapConverter</a></li>
 <li><a href="com/redis/riot/cli/common/CommandContext.html" title="class in com.redis.riot.cli.common">CommandContext</a></li>
+<li><a href="com/redis/riot/cli/common/CompareStepListener.html" title="class in com.redis.riot.cli.common">CompareStepListener</a></li>
 <li><a href="com/redis/riot/core/processor/CompositeItemStreamItemProcessor.html" title="class in com.redis.riot.core.processor">CompositeItemStreamItemProcessor</a></li>
 <li><a href="com/redis/riot/core/resource/CountingOutputStream.html" title="class in com.redis.riot.core.resource">CountingOutputStream</a></li>
 <li><a href="com/redis/riot/cli/common/DatabaseHelper.html" title="interface in com.redis.riot.cli.common"><span class="interfaceName">DatabaseHelper</span></a></li>
-<li><a href="com/redis/riot/cli/db/DataSourceOptions.html" title="class in com.redis.riot.cli.db">DataSourceOptions</a></li>
+<li><a href="com/redis/riot/cli/common/DataSourceOptions.html" title="class in com.redis.riot.cli.common">DataSourceOptions</a></li>
 <li><a href="com/redis/riot/core/processor/DataStructureProcessor.html" title="class in com.redis.riot.core.processor">DataStructureProcessor</a></li>
 <li><a href="com/redis/riot/core/processor/DataStructureToMapProcessor.html" title="class in com.redis.riot.core.processor">DataStructureToMapProcessor</a></li>
 <li><a href="com/redis/riot/cli/DbExport.html" title="class in com.redis.riot.cli">DbExport</a></li>
-<li><a href="com/redis/riot/cli/db/DbExportOptions.html" title="class in com.redis.riot.cli.db">DbExportOptions</a></li>
+<li><a href="com/redis/riot/cli/common/DbExportOptions.html" title="class in com.redis.riot.cli.common">DbExportOptions</a></li>
 <li><a href="com/redis/riot/cli/DbImport.html" title="class in com.redis.riot.cli">DbImport</a></li>
-<li><a href="com/redis/riot/cli/db/DbImportOptions.html" title="class in com.redis.riot.cli.db">DbImportOptions</a></li>
+<li><a href="com/redis/riot/cli/common/DbImportOptions.html" title="class in com.redis.riot.cli.common">DbImportOptions</a></li>
 <li><a href="com/redis/riot/cli/operation/DelCommand.html" title="class in com.redis.riot.cli.operation">DelCommand</a></li>
 <li><a href="com/redis/riot/cli/common/DoubleRangeTypeConverter.html" title="class in com.redis.riot.cli.common">DoubleRangeTypeConverter</a></li>
 <li><a href="com/redis/riot/cli/DumpImport.html" title="class in com.redis.riot.cli">DumpImport</a></li>
@@ -80,7 +81,6 @@
 <li><a href="com/redis/riot/cli/file/GcsOptions.html" title="class in com.redis.riot.cli.file">GcsOptions</a></li>
 <li><a href="com/redis/riot/cli/Generate.html" title="class in com.redis.riot.cli">Generate</a></li>
 <li><a href="com/redis/riot/cli/common/GenerateOptions.html" title="class in com.redis.riot.cli.common">GenerateOptions</a></li>
-<li><a href="com/redis/riot/core/Generator.html" title="interface in com.redis.riot.core"><span class="interfaceName">Generator</span></a></li>
 <li><a href="com/redis/riot/cli/operation/GeoaddCommand.html" title="class in com.redis.riot.cli.operation">GeoaddCommand</a></li>
 <li><a href="com/redis/riot/cli/operation/GeoaddOptions.html" title="class in com.redis.riot.cli.operation">GeoaddOptions</a></li>
 <li><a href="com/redis/riot/cli/common/HelpOptions.html" title="class in com.redis.riot.cli.common">HelpOptions</a></li>
@@ -89,12 +89,11 @@
 <li><a href="com/redis/riot/core/convert/IdConverterBuilder.ConcatenatingConverter.html" title="class in com.redis.riot.core.convert">IdConverterBuilder.ConcatenatingConverter</a></li>
 <li><a href="com/redis/riot/cli/common/IntRangeTypeConverter.html" title="class in com.redis.riot.cli.common">IntRangeTypeConverter</a></li>
 <li><a href="com/redis/riot/core/ItemReaderIterator.html" title="class in com.redis.riot.core">ItemReaderIterator</a></li>
+<li><a href="com/redis/riot/cli/common/JobOptions.html" title="class in com.redis.riot.cli.common">JobOptions</a></li>
 <li><a href="com/redis/riot/core/resource/JsonResourceItemWriter.html" title="class in com.redis.riot.core.resource">JsonResourceItemWriter</a></li>
 <li><a href="com/redis/riot/core/resource/JsonResourceItemWriterBuilder.html" title="class in com.redis.riot.core.resource">JsonResourceItemWriterBuilder</a></li>
 <li><a href="com/redis/riot/cli/operation/JsonSetCommand.html" title="class in com.redis.riot.cli.operation">JsonSetCommand</a></li>
 <li><a href="com/redis/riot/core/KeyComparisonLogger.html" title="class in com.redis.riot.core">KeyComparisonLogger</a></li>
-<li><a href="com/redis/riot/cli/common/KeyComparisonStepListener.html" title="class in com.redis.riot.cli.common">KeyComparisonStepListener</a></li>
-<li><a href="com/redis/riot/cli/common/KeyComparisonWriteListener.html" title="class in com.redis.riot.cli.common">KeyComparisonWriteListener</a></li>
 <li><a href="com/redis/riot/cli/operation/KeyOptions.html" title="class in com.redis.riot.cli.operation">KeyOptions</a></li>
 <li><a href="com/redis/riot/core/processor/KeyValueProcessor.html" title="class in com.redis.riot.core.processor">KeyValueProcessor</a></li>
 <li><a href="com/redis/riot/cli/common/LoggingOptions.html" title="class in com.redis.riot.cli.common">LoggingOptions</a></li>
@@ -106,12 +105,9 @@
 <li><a href="com/redis/riot/core/convert/MapFilteringConverter.html" title="class in com.redis.riot.core.convert">MapFilteringConverter</a></li>
 <li><a href="com/redis/riot/core/convert/MapFilteringConverter.MapFilteringConverterBuilder.html" title="class in com.redis.riot.core.convert">MapFilteringConverter.MapFilteringConverterBuilder</a></li>
 <li><a href="com/redis/riot/core/convert/MapFlattener.html" title="class in com.redis.riot.core.convert">MapFlattener</a></li>
-<li><a href="com/redis/riot/core/MapGenerator.html" title="class in com.redis.riot.core">MapGenerator</a></li>
-<li><a href="com/redis/riot/core/MapGenerator.MapGeneratorBuilder.html" title="class in com.redis.riot.core">MapGenerator.MapGeneratorBuilder</a></li>
 <li><a href="com/redis/riot/core/processor/MapProcessor.html" title="class in com.redis.riot.core.processor">MapProcessor</a></li>
 <li><a href="com/redis/riot/cli/common/MapProcessorOptions.html" title="class in com.redis.riot.cli.common">MapProcessorOptions</a></li>
 <li><a href="com/redis/riot/core/convert/MapToStringArrayConverter.html" title="class in com.redis.riot.core.convert">MapToStringArrayConverter</a></li>
-<li><a href="com/redis/riot/core/MapWithMetadataGenerator.html" title="class in com.redis.riot.core">MapWithMetadataGenerator</a></li>
 <li><a href="com/redis/riot/cli/operation/NoopCommand.html" title="class in com.redis.riot.cli.operation">NoopCommand</a></li>
 <li><a href="com/redis/riot/cli/common/NoopItemWriter.html" title="class in com.redis.riot.cli.common">NoopItemWriter</a></li>
 <li><a href="com/redis/riot/core/convert/ObjectMapperConverter.html" title="class in com.redis.riot.core.convert">ObjectMapperConverter</a></li>
@@ -122,7 +118,7 @@
 <li><a href="com/redis/riot/cli/Ping.html" title="class in com.redis.riot.cli">Ping</a></li>
 <li><a href="com/redis/riot/cli/common/PingOptions.html" title="class in com.redis.riot.cli.common">PingOptions</a></li>
 <li><a href="com/redis/riot/cli/common/PingOptions.Builder.html" title="class in com.redis.riot.cli.common">PingOptions.Builder</a></li>
-<li><a href="com/redis/riot/cli/common/ReadFrom.html" title="enum in com.redis.riot.cli.common">ReadFrom</a></li>
+<li><a href="com/redis/riot/cli/common/ReadFromEnum.html" title="enum in com.redis.riot.cli.common">ReadFromEnum</a></li>
 <li><a href="com/redis/riot/cli/operation/RedisCommandOptions.html" title="class in com.redis.riot.cli.operation">RedisCommandOptions</a></li>
 <li><a href="com/redis/riot/cli/common/RedisOptions.html" title="class in com.redis.riot.cli.common">RedisOptions</a></li>
 <li><a href="com/redis/riot/cli/common/RedisReaderOptions.html" title="class in com.redis.riot.cli.common">RedisReaderOptions</a></li>
@@ -132,8 +128,8 @@
 <li><a href="com/redis/riot/core/convert/RegexNamedGroupsExtractor.html" title="class in com.redis.riot.core.convert">RegexNamedGroupsExtractor</a></li>
 <li><a href="com/redis/riot/cli/Replicate.html" title="class in com.redis.riot.cli">Replicate</a></li>
 <li><a href="com/redis/riot/cli/common/ReplicateCommandContext.html" title="class in com.redis.riot.cli.common">ReplicateCommandContext</a></li>
+<li><a href="com/redis/riot/cli/common/ReplicateOptions.html" title="class in com.redis.riot.cli.common">ReplicateOptions</a></li>
 <li><a href="com/redis/riot/cli/common/ReplicationMode.html" title="enum in com.redis.riot.cli.common">ReplicationMode</a></li>
-<li><a href="com/redis/riot/cli/common/ReplicationOptions.html" title="class in com.redis.riot.cli.common">ReplicationOptions</a></li>
 <li><a href="com/redis/riot/cli/common/ReplicationStrategy.html" title="enum in com.redis.riot.cli.common">ReplicationStrategy</a></li>
 <li><a href="com/redis/riot/cli/common/RiotExecutionStrategy.html" title="class in com.redis.riot.cli.common">RiotExecutionStrategy</a></li>
 <li><a href="com/redis/riot/cli/operation/RpushCommand.html" title="class in com.redis.riot.cli.operation">RpushCommand</a></li>
@@ -153,7 +149,6 @@
 <li><a href="com/redis/riot/core/ThrottledItemWriter.html" title="class in com.redis.riot.core">ThrottledItemWriter</a></li>
 <li><a href="com/redis/riot/core/convert/TimeSeriesToStringMapConverter.html" title="class in com.redis.riot.core.convert">TimeSeriesToStringMapConverter</a></li>
 <li><a href="com/redis/riot/core/resource/TransactionAwareBufferedWriter.html" title="class in com.redis.riot.core.resource">TransactionAwareBufferedWriter</a></li>
-<li><a href="com/redis/riot/cli/common/TransferOptions.html" title="class in com.redis.riot.cli.common">TransferOptions</a></li>
 <li><a href="com/redis/riot/cli/operation/TsAddCommand.html" title="class in com.redis.riot.cli.operation">TsAddCommand</a></li>
 <li><a href="com/redis/riot/cli/operation/TsAddOptions.html" title="class in com.redis.riot.cli.operation">TsAddOptions</a></li>
 <li><a href="com/redis/riot/core/resource/UncustomizedUrlResource.html" title="class in com.redis.riot.core.resource">UncustomizedUrlResource</a></li>
