@@ -16,6 +16,8 @@ To show the full usage, run:
 riot file-import --help
 ----
 
+[[_file_import_redis_commands]]
+== Redis commands
 You must specify at least one Redis command as a target.
 
 The keys that will be written are constructed from input records by concatenating the keyspace prefix and key fields.

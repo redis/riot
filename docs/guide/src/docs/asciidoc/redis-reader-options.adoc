@@ -1,0 +1,29 @@
+`--scan-count`::
+    How many keys to read at once on each call to https://redis.io/commands/scan#the-count-option[SCAN]
+`--scan-match`::
+    Pattern of keys to replicate (default: `*` i.e. all keys)
+`--scan-type`::
+    Type of keys to replicate (default: all types)  
+`--key-include`::
+    Regular expressions for keys to whitelist.
+    For example `mykey:.*` will only replicate keys starting with `mykey:`.
+`--key-exclude`::
+    Regular expressions for keys to blacklist.
+    For example `mykey:.*` will not replicate keys starting with `mykey:`.
+`--key-slots`::
+    Ranges of key slots to include for replication.
+    For example `0:8000` will only transfer keys that fall within the range `0` to `8000`.
+`--reader-threads`::
+    How many value reader threads to use in parallel
+`--reader-batch`::
+    Number of keys each reader thread should dump at once in a pipelined call
+`--reader-queue`::
+    Max number of items that reader threads can put in the shared queue.
+    When the queue is full reader threads wait for space to become available.
+    Queue size should be at least *#threads * batch*, e.g. `--reader-threads 4 --reader-batch 500` => `--reader-queue 2000`
+`--reader-pool`::
+    Size of the connection pool shared by reader threads.
+    Can be smaller than the number of threads
+`--read-from`::
+   Which Redis cluster nodes to read from: `master`, `master_preferred`, `upstream`, `upstream_preferred`, `replica_preferred`, `replica`, `lowest_latency`, `any`, `any_replica`.
+   

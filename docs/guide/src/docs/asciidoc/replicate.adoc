@@ -35,66 +35,48 @@ include::{testdir}/replicate[]
 include::{testdir}/replicate-live[]
 ----
 
-[[_replicate_options]]
-=== Source/Target Options
-`-h <host>`::
-    Redis server hostname
-`-p <port>`::
-    Redis server port 
-`--cluster`::
-    Enable cluster mode
+[[_target_redis_connection_options]]
+=== Target connection options
+Connection options for the target database are the same as the source Redis connection options:
 
-[[_replicate_mode]]
-=== Replication Mode
-`--mode snapshot`::
-    Initial replication using key scan
-`--mode liveonly`::
-    Continuous replication using keyspace notifications (only keys that change are replicated)
-`--mode live`::
-    Initial and continuous replication using key scan and keyspace notifications in parallel
+include::{includedir}/redis-connection-options.adoc[leveloffset=+2]
+
+[[_replicate_options]]
+=== Replication Options
+
+`--event-order`:: Keyspace notification ordering strategy.
+  `fifo`::: Keeps order of notifications as they are received.
+  `priority`::: Orders notifications based on the underlying data-structure: `string` > `hash` > `json` > `list` > `set` > `zset` > `stream` > `timeseries`.
+`--event-queue`:: Capacity of the keyspace notification queue (default: `10000`).
+`--flush-interval`::  Max duration between flushes (default: `50`).
+`--idle-timeout`:: Min duration of inactivity to consider transfer complete (default: no timeout).
+`--key-process`:: SpEL expression to transform each key.
+`--mode`:: Replication mode: snapshot, live, or live only.
+  `snapshot`::: Initial replication using key scan.
+  `liveonly`::: Continuous replication using keyspace notifications (only keys that change are replicated).
+  `live`::: Initial and continuous replication using key scan and keyspace notifications in parallel.
+`--no-verify`:: Disable verifying target against source dataset after replication.
+`--show-diffs`:: Print details of key mismatches during dataset verification.
+`--target-pool`:: Max connections for target Redis pool (default: `8`).
+`--target-read-from`:: Which target Redis cluster nodes to read data from.
+`--ttl-tolerance`:: Max TTL difference to use for dataset verification (default: `100`).
+`--type`:: Replication strategy: DUMP, DS (default: DUMP).
+
     
 [[_replicate_type]]
 === Replication Type
-`--type dump`::
-    <<_replicate_dump_and_restore,DUMP & RESTORE>>
-`--type ds`::
-    <<_replicate_type_based,Type-based>>
+`--type dump`:: <<_replicate_dump_and_restore,DUMP & RESTORE>>.
+`--type ds`:: <<_replicate_type_based,Type-based>>
 
-
-[[_replicate_reader_options]]
-=== Reader options
-`--scan-count`::
-    How many keys to read at once on each call to https://redis.io/commands/scan#the-count-option[SCAN]
-`--scan-match`::
-    Pattern of keys to replicate (default: `*` i.e. all keys)
-`--scan-type`::
-    Type of keys to replicate (default: all types)  
-`--key-include`::
-    Regular expressions for keys to whitelist.
-    For example `mykey:.*` will only replicate keys starting with `mykey:`.
-`--key-exclude`::
-    Regular expressions for keys to blacklist.
-    For example `mykey:.*` will not replicate keys starting with `mykey:`.
-`--key-slots`::
-    Ranges of key slots to include for replication.
-    For example `0:8000` will only transfer keys that fall within the range `0` to `8000`.
-`--reader-threads`::
-    How many value reader threads to use in parallel
-`--reader-batch`::
-    Number of keys each reader thread should dump at once in a pipelined call
-`--reader-queue`::
-    Max number of items that reader threads can put in the shared queue.
-    When the queue is full reader threads wait for space to become available.
-    Queue size should be at least *#threads * batch*, e.g. `--reader-threads 4 --reader-batch 500` => `--reader-queue 2000`
-`--reader-pool`::
-    Size of the connection pool shared by reader threads.
-    Can be smaller than the number of threads
+[[_source_redis_reader_options]]
+=== Source reader options
+include::{includedir}/redis-reader-options.adoc[leveloffset=+2]
 
 [[_replicate_performance_tuning]]
 === Performance Tuning
 
 Performance tuning is an art but {project-title} offers some options to identify potential bottlenecks.
-In addition to the <<_architecture_batch,batch>> and <<_architecture_threads,threads>> options you have the `--dry-run` option which disables writing to the target Redis database so that you can tune the <<_replicate_reader_options,reader>> in isolation.
+In addition to the <<_architecture_batch,batch>> and <<_architecture_threads,threads>> options you have the `--dry-run` option which disables writing to the target Redis database so that you can tune the <<_source_redis_reader_options,reader>> in isolation.
 Add that option to your existing `replicate` command-line to compare replication speeds with and without writing to the target Redis database:
 
 [source]
@@ -216,6 +198,4 @@ include::{testdir}/replicate-ds-live[]
 WARNING: This replication strategy is more intensive in terms of CPU, memory, and network for the machines running {project-title}.
 Adjust number of threads, batch, and queue sizes accordingly.
 
-:leveloffset: 2
-include::{includedir}/elasticache.adoc[]
-:leveloffset: 1
+include::{includedir}/elasticache.adoc[leveloffset=+2]

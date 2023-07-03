@@ -1,0 +1,9 @@
+`-b, --batch`:: Number of items in each batch (default: 50). See <<_architecture_batch,Batching>> section for more details.
+`--progress`:: Style of progress bar: `colorful_unicode_block, colorful_unicode_bar, unicode_block, ascii (default: ascii)`
+`--skip-policy`:: Policy to determine if what should be done when errors occur during processing.
+  `always`::: ignore errors and continue with processing
+  `never`::: fail as soon as an error occurs.
+  `limit`::: continue with processing until number of errors reached `--skip-limit`.
+`--skip-limit`:: Max number of failed items before considering the transfer has failed (default: 3). Only used for `limit` skip policy.
+`--sleep`:: Duration in ms to sleep after writing each batch (default: 0).
+`--threads`:: Number of concurrent threads to use for batch processing (default: 1). See <<_architecture_threads,Multi-threading>> section for more details.

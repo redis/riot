@@ -15,6 +15,12 @@ To show the full usage, run:
 riot file-export --help
 ----
 
+[[_file_export_reader_options]]
+== Redis reader options
+include::{includedir}/redis-reader-options.adoc[leveloffset=+2]
+
+[[_file_export_examples]]
+== Examples
 .Compressed JSON export example
 [source]
 ----

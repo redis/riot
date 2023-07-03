@@ -18,6 +18,9 @@ To show the full usage, run:
 riot db-import --help
 ----
 
+[[_db_import_redis_commands]]
+== Redis commands
+
 You must specify at least one Redis command as a target.
 
 The keys that will be written are constructed from input records by concatenating the keyspace prefix and key fields.
@@ -33,6 +36,9 @@ In this example the redis options will not be taken into account:
 riot db-import "SELECT * FROM customers" hset -h myredis.com -p 6380
 ----
 ====
+
+[[_db_import_examples]]
+== Examples
 
 .PostgreSQL Example
 [source]

@@ -17,6 +17,9 @@ To show the full usage, run:
 riot faker-import --help
 ----
 
+[[_faker_import_redis_commands]]
+== Redis commands
+
 You must specify at least one Redis command as a target.
 
 The keys that will be written are constructed from input records by concatenating the keyspace prefix and key fields.
@@ -32,6 +35,9 @@ In this example the redis options will not be taken into account:
 riot faker-import id="#index" hset -h myredis.com -p 6380
 ----
 ====
+
+[[_faker_import_examples]]
+== Examples
 
 .Hash example
 [source]
@@ -60,6 +66,7 @@ riot faker-import lease="number.digits(2)"
 
 Refer to {link_datafaker_doc} for complete documentation.
 
+[[_faker_import_redisearch]]
 == RediSearch
 
 You can infer Faker fields from a RediSearch index using the `--infer` option:
