@@ -49,7 +49,7 @@ jobs:
 
       - name: Deploy
         env:
-          GRGIT_USER: jruaux
+          GRGIT_USER: ${{ secrets.GIT_USER }}
           GRGIT_PASS: ${{ secrets.GIT_ACCESS_TOKEN }}
         run: |
           ./gradlew -Prelease=true -PreproducibleBuild=true gitPublishPush -S
