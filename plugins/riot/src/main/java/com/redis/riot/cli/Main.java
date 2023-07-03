@@ -25,7 +25,8 @@ import picocli.CommandLine.ParseResult;
 
 @Command(name = "riot", usageHelpAutoWidth = true, versionProvider = ManifestVersionProvider.class, subcommands = {
 		DbImport.class, DbExport.class, DumpImport.class, FileImport.class, FileExport.class, FakerImport.class,
-		Generate.class, Replicate.class, Ping.class, GenerateCompletion.class })
+		Generate.class, Replicate.class, Ping.class,
+		GenerateCompletion.class }, resourceBundle = "com.redis.riot.Messages")
 public class Main {
 
 	@Mixin
@@ -56,17 +57,17 @@ public class Main {
 		return commandLine().execute(args);
 	}
 
-	public CommandLine commandLine() {
-		CommandLine commandLine = new CommandLine(this);
-		commandLine.setExecutionStrategy(new RiotExecutionStrategy(LoggingOptions::executionStrategy));
-		commandLine.setExecutionExceptionHandler(this::handleExecutionException);
-		registerConverters(commandLine);
-		commandLine.setCaseInsensitiveEnumValuesAllowed(true);
-		commandLine.setUnmatchedOptionsAllowedAsOptionParameters(false);
-		return commandLine;
+	public static CommandLine commandLine() {
+		CommandLine cmd = new CommandLine(new Main());
+		cmd.setExecutionStrategy(new RiotExecutionStrategy(LoggingOptions::executionStrategy));
+		cmd.setExecutionExceptionHandler(Main::handleExecutionException);
+		((Main) cmd.getCommand()).registerConverters(cmd);
+		cmd.setCaseInsensitiveEnumValuesAllowed(true);
+		cmd.setUnmatchedOptionsAllowedAsOptionParameters(false);
+		return cmd;
 	}
 
-	private int handleExecutionException(Exception ex, CommandLine cmd, ParseResult parseResult) {
+	private static int handleExecutionException(Exception ex, CommandLine cmd, ParseResult parseResult) {
 		// bold red error message
 		cmd.getErr().println(cmd.getColorScheme().errorText(ex.getMessage()));
 		return cmd.getExitCodeExceptionMapper() == null ? cmd.getCommandSpec().exitCodeOnExecutionException()

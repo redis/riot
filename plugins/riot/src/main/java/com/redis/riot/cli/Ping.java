@@ -55,8 +55,8 @@ public class Ping extends AbstractCommand {
 
 		@Override
 		public RepeatStatus call() throws Exception {
-			if (iteration.get() > 0 && getTransferOptions().getSleep() > 0) {
-				Thread.sleep(Duration.ofSeconds(getTransferOptions().getSleep()).toMillis());
+			if (iteration.get() > 0 && getJobOptions().getSleep() > 0) {
+				Thread.sleep(Duration.ofSeconds(getJobOptions().getSleep()).toMillis());
 			}
 			try (StatefulRedisModulesConnection<String, String> connection = RedisModulesUtils
 					.connection(context.getRedisClient())) {

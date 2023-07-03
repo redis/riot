@@ -7,7 +7,7 @@ import com.redis.spring.batch.reader.ReaderOptions;
 import me.tongfei.progressbar.ProgressBarStyle;
 import picocli.CommandLine.Option;
 
-public class TransferOptions {
+public class JobOptions {
 
 	public static final StepSkipPolicy DEFAULT_SKIP_POLICY = StepSkipPolicy.LIMIT;
 	public static final int DEFAULT_CHUNK_SIZE = ReaderOptions.DEFAULT_CHUNK_SIZE;

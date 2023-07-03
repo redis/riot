@@ -13,7 +13,7 @@ import com.redis.spring.batch.step.FlushingStepOptions;
 import io.lettuce.core.ReadFrom;
 import picocli.CommandLine.Option;
 
-public class ReplicationOptions {
+public class ReplicateOptions {
 
 	@Option(names = "--mode", description = "Replication mode: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<name>")
 	private ReplicationMode mode = ReplicationMode.SNAPSHOT;

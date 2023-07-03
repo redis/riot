@@ -4,8 +4,6 @@ import javax.sql.DataSource;
 
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 
-import com.redis.riot.cli.db.DataSourceOptions;
-
 public interface DatabaseHelper {
 
 	static DataSource dataSource(DataSourceOptions options) {

@@ -1,4 +1,4 @@
-package com.redis.riot.cli.db;
+package com.redis.riot.cli.common;
 
 import picocli.CommandLine.Mixin;
 import picocli.CommandLine.Option;

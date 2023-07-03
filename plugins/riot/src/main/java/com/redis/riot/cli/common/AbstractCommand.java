@@ -47,6 +47,7 @@ import io.lettuce.core.RedisURI;
 import io.lettuce.core.event.DefaultEventPublisherOptions;
 import io.lettuce.core.metrics.CommandLatencyCollector;
 import io.lettuce.core.metrics.DefaultCommandLatencyCollectorOptions;
+import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
 import picocli.CommandLine.Model.CommandSpec;
@@ -68,8 +69,8 @@ public abstract class AbstractCommand implements Callable<Integer> {
 	@Mixin
 	private HelpOptions helpOptions;
 
-	@Mixin
-	private TransferOptions transferOptions = new TransferOptions();
+	@ArgGroup(exclusive = false, heading = "Job options%n")
+	private JobOptions jobOptions = new JobOptions();
 
 	private JobRepository jobRepository;
 	private JobLauncher jobLauncher;
@@ -218,21 +219,21 @@ public abstract class AbstractCommand implements Callable<Integer> {
 		return jobBuilderFactory().get(name);
 	}
 
-	public TransferOptions getTransferOptions() {
-		return transferOptions;
+	public JobOptions getJobOptions() {
+		return jobOptions;
 	}
 
-	public void setTransferOptions(TransferOptions options) {
-		this.transferOptions = options;
+	public void setJobOptions(JobOptions options) {
+		this.jobOptions = options;
 	}
 
 	private <I, O> SimpleStepBuilder<I, O> step(String name) {
-		SimpleStepBuilder<I, O> step = stepBuilder(name).chunk(transferOptions.getChunkSize());
-		Utils.multiThread(step, transferOptions.getThreads());
-		if (transferOptions.getSkipPolicy() == StepSkipPolicy.NEVER) {
+		SimpleStepBuilder<I, O> step = stepBuilder(name).chunk(jobOptions.getChunkSize());
+		Utils.multiThread(step, jobOptions.getThreads());
+		if (jobOptions.getSkipPolicy() == StepSkipPolicy.NEVER) {
 			return step;
 		}
-		return step.faultTolerant().skipPolicy(skipPolicy(transferOptions));
+		return step.faultTolerant().skipPolicy(skipPolicy(jobOptions));
 	}
 
 	protected StepBuilder stepBuilder(String name) {
@@ -252,20 +253,20 @@ public abstract class AbstractCommand implements Callable<Integer> {
 	protected StepProgressMonitor monitor(String task) {
 		StepProgressMonitor monitor = new StepProgressMonitor();
 		monitor.withTask(task);
-		monitor.withStyle(transferOptions.getProgressBarStyle());
-		monitor.withUpdateInterval(Duration.ofMillis(transferOptions.getProgressUpdateInterval()));
+		monitor.withStyle(jobOptions.getProgressBarStyle());
+		monitor.withUpdateInterval(Duration.ofMillis(jobOptions.getProgressUpdateInterval()));
 		return monitor;
 	}
 
 	private <O> ItemWriter<O> throttle(ItemWriter<O> writer) {
-		Duration sleep = Duration.ofMillis(transferOptions.getSleep());
+		Duration sleep = Duration.ofMillis(jobOptions.getSleep());
 		if (sleep.isNegative() || sleep.isZero()) {
 			return writer;
 		}
 		return new ThrottledItemWriter<>(writer, sleep);
 	}
 
-	private SkipPolicy skipPolicy(TransferOptions options) {
+	private SkipPolicy skipPolicy(JobOptions options) {
 		switch (options.getSkipPolicy()) {
 		case ALWAYS:
 			return new AlwaysSkipItemSkipPolicy();

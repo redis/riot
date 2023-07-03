@@ -33,7 +33,7 @@ import com.redis.riot.cli.common.NoopItemWriter;
 import com.redis.riot.cli.common.RedisOptions;
 import com.redis.riot.cli.common.RedisWriterOptions;
 import com.redis.riot.cli.common.ReplicateCommandContext;
-import com.redis.riot.cli.common.ReplicationOptions;
+import com.redis.riot.cli.common.ReplicateOptions;
 import com.redis.riot.cli.common.ReplicationStrategy;
 import com.redis.riot.cli.common.StepProgressMonitor;
 import com.redis.riot.core.KeyComparisonLogger;
@@ -58,7 +58,6 @@ import io.lettuce.core.RedisURI;
 import io.lettuce.core.codec.ByteArrayCodec;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
-import picocli.CommandLine.Mixin;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
 @Command(name = "replicate", description = "Replicate a Redis database into another Redis database.")
@@ -67,7 +66,7 @@ public class Replicate extends AbstractExportCommand {
 	private static final Logger log = Logger.getLogger(Replicate.class.getName());
 
 	private static final String COMPARE_MESSAGE = " %,d missing, %,d type, %,d value, %,d ttl";
-	private static final String QUEUE_MESSAGE = " %,d queued notifications";
+	private static final String QUEUE_MESSAGE = " %,d notifications in queue";
 	private static final String JOB_NAME = "replicate-job";
 	private static final String COMPARE_STEP = "compare-step";
 	private static final String SCAN_STEP = "scan-step";
@@ -82,8 +81,8 @@ public class Replicate extends AbstractExportCommand {
 	@ArgGroup(exclusive = false, heading = "Writer options%n")
 	private RedisWriterOptions writerOptions = new RedisWriterOptions();
 
-	@Mixin
-	private ReplicationOptions replicationOptions = new ReplicationOptions();
+	@ArgGroup(exclusive = false, heading = "Replication options%n")
+	private ReplicateOptions replicationOptions = new ReplicateOptions();
 
 	public RedisOptions getTargetRedisOptions() {
 		return targetRedisOptions;
@@ -100,11 +99,11 @@ public class Replicate extends AbstractExportCommand {
 		return new ReplicateCommandContext(redisURI, redisClient, targetRedisURI, targetRedisClient);
 	}
 
-	public ReplicationOptions getReplicateOptions() {
+	public ReplicateOptions getReplicateOptions() {
 		return replicationOptions;
 	}
 
-	public void setReplicationOptions(ReplicationOptions replicationOptions) {
+	public void setReplicationOptions(ReplicateOptions replicationOptions) {
 		this.replicationOptions = replicationOptions;
 	}
 

@@ -16,8 +16,8 @@ import org.springframework.jdbc.core.ColumnMapRowMapper;
 import com.redis.riot.cli.common.AbstractImportCommand;
 import com.redis.riot.cli.common.CommandContext;
 import com.redis.riot.cli.common.DatabaseHelper;
+import com.redis.riot.cli.common.DbImportOptions;
 import com.redis.riot.cli.common.StepProgressMonitor;
-import com.redis.riot.cli.db.DbImportOptions;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
