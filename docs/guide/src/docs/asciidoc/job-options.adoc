@@ -1,5 +1,5 @@
 `-b, --batch`:: Number of items in each batch (default: 50). See <<_architecture_batch,Batching>> section for more details.
-`--progress`:: Style of progress bar: `colorful_unicode_block, colorful_unicode_bar, unicode_block, ascii (default: ascii)`
+`--progress`:: Style of progress bar: `block, bar, ascii (default: ascii)`
 `--skip-policy`:: Policy to determine what should be done when errors occur during processing.
   `always`::: ignore errors and continue with processing
   `never`::: fail as soon as an error occurs.
