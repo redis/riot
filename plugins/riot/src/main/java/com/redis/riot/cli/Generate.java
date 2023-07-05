@@ -4,7 +4,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.springframework.batch.core.Job;
-import org.springframework.batch.core.step.builder.SimpleStepBuilder;
+import org.springframework.batch.core.step.tasklet.TaskletStep;
 import org.springframework.batch.item.ItemWriter;
 
 import com.redis.riot.cli.common.AbstractCommand;
@@ -51,8 +51,7 @@ public class Generate extends AbstractCommand {
 	@Override
 	protected Job job(CommandContext context) {
 		log.log(Level.FINE, "Creating random data structure reader with {0}", options);
-		SimpleStepBuilder<DataStructure<String>, DataStructure<String>> step = step(commandName(), reader(),
-				writer(context));
+		TaskletStep step = step(commandName(), reader(), writer(context)).build();
 		StepProgressMonitor monitor = monitor(TASK_NAME);
 		monitor.withInitialMax(options.getCount());
 		monitor.register(step);

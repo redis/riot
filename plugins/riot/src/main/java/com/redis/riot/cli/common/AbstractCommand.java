@@ -12,6 +12,7 @@ import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParameters;
+import org.springframework.batch.core.Step;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
@@ -26,6 +27,7 @@ import org.springframework.batch.core.step.skip.AlwaysSkipItemSkipPolicy;
 import org.springframework.batch.core.step.skip.LimitCheckingItemSkipPolicy;
 import org.springframework.batch.core.step.skip.NeverSkipItemSkipPolicy;
 import org.springframework.batch.core.step.skip.SkipPolicy;
+import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemStreamSupport;
 import org.springframework.batch.item.ItemWriter;
@@ -211,8 +213,8 @@ public abstract class AbstractCommand implements Callable<Integer> {
 
 	protected abstract Job job(CommandContext context);
 
-	protected Job job(SimpleStepBuilder<?, ?> step) {
-		return job(commandName()).start(step.build()).build();
+	protected Job job(Step step) {
+		return job(commandName()).start(step).build();
 	}
 
 	protected JobBuilder job(String name) {
@@ -240,21 +242,29 @@ public abstract class AbstractCommand implements Callable<Integer> {
 		return stepBuilderFactory().get(name);
 	}
 
-	protected <I, O> SimpleStepBuilder<I, O> step(String name, ItemReader<I> reader, ItemWriter<O> writer) {
+	protected <I, O> SimpleStepBuilder<I, O> step(String name, ItemReader<I> reader, ItemProcessor<I, O> processor,
+			ItemWriter<O> writer) {
 		SimpleStepBuilder<I, O> step = step(name);
 		if (reader instanceof ItemStreamSupport) {
 			((ItemStreamSupport) reader).setName(name + "-reader");
 		}
 		step.reader(reader);
+		step.processor(processor);
 		step.writer(throttle(writer));
 		return step;
+	}
+
+	protected <T> SimpleStepBuilder<T, T> step(String name, ItemReader<T> reader, ItemWriter<T> writer) {
+		return step(name, reader, null, writer);
 	}
 
 	protected StepProgressMonitor monitor(String task) {
 		StepProgressMonitor monitor = new StepProgressMonitor();
 		monitor.withTask(task);
-		monitor.withStyle(jobOptions.getProgressBarStyle());
+		monitor.withChunkSize(jobOptions.getChunkSize());
+		monitor.withStyle(jobOptions.getProgressStyle());
 		monitor.withUpdateInterval(Duration.ofMillis(jobOptions.getProgressUpdateInterval()));
+		monitor.withShowSpeed(true);
 		return monitor;
 	}
 

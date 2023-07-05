@@ -61,6 +61,7 @@ import com.redis.lettucemod.timeseries.TimeRange;
 import com.redis.lettucemod.util.RedisModulesUtils;
 import com.redis.riot.cli.common.GenerateOptions;
 import com.redis.riot.cli.common.ReplicationMode;
+import com.redis.riot.cli.common.JobOptions.ProgressStyle;
 import com.redis.riot.cli.file.FileImportOptions;
 import com.redis.riot.cli.file.FlatFileOptions;
 import com.redis.riot.cli.operation.HsetCommand;
@@ -539,7 +540,7 @@ public abstract class AbstractIntegrationTests extends AbstractTests {
 	void fileImportJsonAPI() throws Exception {
 		// riot-file import hset --keyspace beer --keys id
 		FileImport command = new FileImport();
-		command.getJobOptions().setProgressUpdateInterval(0);
+		command.getJobOptions().setProgressStyle(ProgressStyle.NONE);
 		command.getOptions().setFiles(Collections.singletonList(BEERS_JSON_URL));
 		HsetCommand hset = new HsetCommand();
 		hset.getKeyOptions().setKeyspace(Optional.of("beer"));

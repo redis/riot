@@ -8,7 +8,7 @@ import javax.sql.DataSource;
 
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.job.builder.JobBuilderException;
-import org.springframework.batch.core.step.builder.SimpleStepBuilder;
+import org.springframework.batch.core.step.tasklet.TaskletStep;
 import org.springframework.batch.item.database.JdbcCursorItemReader;
 import org.springframework.batch.item.database.builder.JdbcCursorItemReaderBuilder;
 import org.springframework.jdbc.core.ColumnMapRowMapper;
@@ -60,10 +60,10 @@ public class DbImport extends AbstractImportCommand {
 		} catch (Exception e) {
 			throw new JobBuilderException(e);
 		}
-		SimpleStepBuilder<Map<String, Object>, Map<String, Object>> step = step(context.getRedisClient(), reader);
+		TaskletStep step = step(context.getRedisClient(), reader).build();
 		StepProgressMonitor monitor = monitor(TASK_NAME);
 		monitor.register(step);
-		return job(commandName()).start(step.build()).build();
+		return job(step);
 	}
 
 	public void configure(JdbcCursorItemReaderBuilder<Map<String, Object>> builder) {

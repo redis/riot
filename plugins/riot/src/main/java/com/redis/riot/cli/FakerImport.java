@@ -6,7 +6,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.springframework.batch.core.Job;
-import org.springframework.batch.core.step.builder.SimpleStepBuilder;
+import org.springframework.batch.core.step.tasklet.TaskletStep;
 
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
 import com.redis.lettucemod.api.sync.RediSearchCommands;
@@ -47,11 +47,11 @@ public class FakerImport extends AbstractImportCommand {
 		fields(context).forEach(reader::withField);
 		reader.withLocale(options.getLocale());
 		reader.withIncludeMetadata(options.isIncludeMetadata());
-		SimpleStepBuilder<Map<String, Object>, Map<String, Object>> step = step(context.getRedisClient(), reader);
+		TaskletStep step = step(context.getRedisClient(), reader).build();
 		StepProgressMonitor monitor = monitor("Generating");
 		monitor.withInitialMax(options.getCount());
 		monitor.register(step);
-		return job(commandName()).start(step.build()).build();
+		return job(step);
 	}
 
 	private Map<String, String> fields(CommandContext context) {

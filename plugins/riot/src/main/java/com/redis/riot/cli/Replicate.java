@@ -172,11 +172,12 @@ public class Replicate extends AbstractExportCommand {
 		ScanBuilder scanBuilder = scanBuilder(context);
 		RedisItemReader<byte[], byte[], ?> reader = build(scanBuilder);
 		reader.setKeyProcessor(keyProcessor(ByteArrayCodec.INSTANCE));
-		SimpleStepBuilder step = step(SCAN_STEP, reader, checkWriter(context));
-		step.processor(processor(context));
+		SimpleStepBuilder stepBuilder = step(SCAN_STEP, reader, checkWriter(context));
+		stepBuilder.processor(processor(context));
 		StepProgressMonitor monitor = monitor(TASK_SCAN, context);
+		TaskletStep step = stepBuilder.build();
 		monitor.register(step);
-		return step.build();
+		return step;
 	}
 
 	private RedisItemReader<byte[], byte[], ?> build(ScanBuilder readerBuilder) {
@@ -193,13 +194,14 @@ public class Replicate extends AbstractExportCommand {
 		LiveRedisItemReader<byte[], byte[], ?> reader = build(builder);
 		reader.setKeyProcessor(keyProcessor(ByteArrayCodec.INSTANCE));
 		ItemWriter writer = checkWriter(context);
-		FlushingStepBuilder step = new FlushingStepBuilder<>(step(LIVE_STEP, reader, writer));
-		step.processor(processor(context));
-		step.options(replicationOptions.flushingOptions());
+		FlushingStepBuilder stepBuilder = new FlushingStepBuilder<>(step(LIVE_STEP, reader, writer));
+		stepBuilder.processor(processor(context));
+		stepBuilder.options(replicationOptions.flushingOptions());
 		StepProgressMonitor monitor = monitor(TASK_LIVE);
 		monitor.withExtraMessage(notificationQueueInfo(reader.getKeyReader()));
+		TaskletStep step = stepBuilder.build();
 		monitor.register(step);
-		return step.build();
+		return step;
 	}
 
 	private Supplier<String> notificationQueueInfo(KeyspaceNotificationItemReader reader) {
@@ -237,15 +239,17 @@ public class Replicate extends AbstractExportCommand {
 		KeyComparisonItemReader reader = comparator.build();
 		reader.getLeft().setKeyProcessor(keyProcessor());
 		KeyComparisonCountItemWriter writer = new KeyComparisonCountItemWriter();
-		SimpleStepBuilder<KeyComparison, KeyComparison> step = step(COMPARE_STEP, reader, writer);
+		SimpleStepBuilder<KeyComparison, KeyComparison> stepBuilder = step(COMPARE_STEP, reader, writer);
 		StepProgressMonitor monitor = monitor(TASK_COMPARE, context);
 		monitor.withExtraMessage(() -> extraMessage(writer.getResults()));
-		monitor.register(step);
+		monitor.withShowSpeed(false);
 		if (replicationOptions.isShowDiffs()) {
-			step.listener(new KeyComparisonLogger(log));
+			stepBuilder.listener(new KeyComparisonLogger(log));
 		}
-		step.listener(new CompareStepListener(writer));
-		return step.build();
+		stepBuilder.listener(new CompareStepListener(writer));
+		TaskletStep step = stepBuilder.build();
+		monitor.register(step);
+		return step;
 	}
 
 	private String extraMessage(Results results) {

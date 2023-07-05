@@ -36,6 +36,7 @@ import com.redis.lettucemod.api.sync.RedisModulesCommands;
 import com.redis.lettucemod.util.ClientBuilder;
 import com.redis.lettucemod.util.RedisModulesUtils;
 import com.redis.riot.cli.common.AbstractCommand;
+import com.redis.riot.cli.common.JobOptions.ProgressStyle;
 import com.redis.riot.cli.operation.OperationCommand;
 import com.redis.spring.batch.RedisItemReader;
 import com.redis.spring.batch.RedisItemReader.ScanBuilder;
@@ -157,7 +158,7 @@ public abstract class AbstractTests {
 			}
 			if (command instanceof AbstractCommand) {
 				AbstractCommand transferCommand = (AbstractCommand) command;
-				transferCommand.getJobOptions().setProgressUpdateInterval(0);
+				transferCommand.getJobOptions().setProgressStyle(ProgressStyle.NONE);
 			}
 		}
 	}

@@ -4,7 +4,6 @@ import java.util.Iterator;
 
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.job.builder.SimpleJobBuilder;
-import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.core.step.tasklet.TaskletStep;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.json.JsonItemReader;
@@ -67,11 +66,14 @@ public class DumpImport extends AbstractCommand {
 		String name = String.join("-", commandName(), resource.getDescription());
 		RedisItemWriter<String, String, DataStructure<String>> writer = writer(context.getRedisClient(), writerOptions)
 				.dataStructure();
-		SimpleStepBuilder<DataStructure<String>, DataStructure<String>> step = step(name, reader(resource), writer);
-		step.processor(new DataStructureProcessor());
+		TaskletStep step = step(name, reader(resource), processor(), writer).build();
 		StepProgressMonitor monitor = monitor("Importing " + resource);
 		monitor.register(step);
-		return step.build();
+		return step;
+	}
+
+	private DataStructureProcessor processor() {
+		return new DataStructureProcessor();
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })

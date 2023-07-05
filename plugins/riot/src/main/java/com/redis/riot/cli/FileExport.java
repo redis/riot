@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.job.builder.JobBuilderException;
-import org.springframework.batch.core.step.builder.SimpleStepBuilder;
+import org.springframework.batch.core.step.tasklet.TaskletStep;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.json.JacksonJsonObjectMarshaller;
 import org.springframework.batch.item.json.JsonObjectMarshaller;
@@ -69,7 +69,7 @@ public class FileExport extends AbstractExportCommand {
 		String name = commandName();
 		RedisItemReader<String, String, DataStructure<String>> reader = scanBuilder(context).dataStructure();
 		reader.setKeyProcessor(keyProcessor());
-		SimpleStepBuilder<DataStructure<String>, DataStructure<String>> step = step(name, reader, writer);
+		TaskletStep step = step(name, reader, writer).build();
 		String task = String.format(TASK_NAME, resource.getFilename());
 		StepProgressMonitor monitor = monitor(task, context);
 		monitor.register(step);

@@ -7,7 +7,7 @@ import java.util.logging.Logger;
 import javax.sql.DataSource;
 
 import org.springframework.batch.core.Job;
-import org.springframework.batch.core.step.builder.SimpleStepBuilder;
+import org.springframework.batch.core.step.tasklet.TaskletStep;
 import org.springframework.batch.item.database.JdbcBatchItemWriter;
 import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilder;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -68,11 +68,14 @@ public class DbExport extends AbstractExportCommand {
 		String name = commandName();
 		RedisItemReader<String, String, DataStructure<String>> reader = scanBuilder(context).dataStructure();
 		reader.setKeyProcessor(keyProcessor());
-		SimpleStepBuilder<DataStructure<String>, Map<String, Object>> step = step(name, reader, writer);
-		step.processor(DataStructureToMapProcessor.of(options.getKeyRegex()));
+		TaskletStep step = step(name, reader, processor(), writer).build();
 		StepProgressMonitor monitor = monitor(TASK_NAME, context);
 		monitor.register(step);
 		return job(step);
+	}
+
+	private DataStructureToMapProcessor processor() {
+		return DataStructureToMapProcessor.of(options.getKeyRegex());
 	}
 
 	private static class NullableSqlParameterSource extends MapSqlParameterSource {

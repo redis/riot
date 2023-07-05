@@ -92,21 +92,35 @@ public class LoggingOptions {
 	}
 
 	public void configureLoggers() {
-		Level logLevel = getTopLevelCommandLoggingMixin(mixee).level;
-		boolean printStacktrace = getTopLevelCommandLoggingMixin(mixee).stacktrace;
 		InternalLoggerFactory.setDefaultFactory(JdkLoggerFactory.INSTANCE);
 		LogManager.getLogManager().reset();
 		Logger activeLogger = Logger.getLogger(ROOT_LOGGER);
 		ConsoleHandler handler = new ConsoleHandler();
 		handler.setLevel(Level.ALL);
-		handler.setFormatter(
-				printStacktrace || logLevel.intValue() <= Level.INFO.intValue() ? new StackTraceOneLineLogFormat()
-						: new OneLineLogFormat());
+		handler.setFormatter(formatter());
 		activeLogger.addHandler(handler);
-		Logger.getLogger("com.redis.riot.core.KeyComparisonLogger").setLevel(Level.INFO);
-		Logger.getLogger(ROOT_LOGGER).setLevel(logLevel);
+		Logger.getLogger(ROOT_LOGGER).setLevel(logLevel());
 		Logger.getLogger("com.amazonaws").setLevel(Level.SEVERE);
 		Logger.getLogger("io.lettuce").setLevel(Level.INFO);
+	}
+
+	private Level logLevel() {
+		return getTopLevelCommandLoggingMixin(mixee).level;
+	}
+
+	private Formatter formatter() {
+		if (isStacktraceEnabled()) {
+			return new StackTraceOneLineLogFormat();
+		}
+		return new OneLineLogFormat();
+	}
+
+	private boolean isStacktraceEnabled() {
+		return getTopLevelCommandLoggingMixin(mixee).stacktrace || isVerbose();
+	}
+
+	private boolean isVerbose() {
+		return logLevel().intValue() <= Level.INFO.intValue();
 	}
 
 	static class OneLineLogFormat extends Formatter {

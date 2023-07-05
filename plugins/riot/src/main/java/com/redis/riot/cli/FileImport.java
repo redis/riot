@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
 
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.job.builder.SimpleJobBuilder;
-import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.core.step.tasklet.TaskletStep;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.file.FlatFileItemReader;
@@ -117,10 +116,10 @@ public class FileImport extends AbstractImportCommand {
 	private TaskletStep step(CommandContext context, Resource resource) {
 		AbstractItemCountingItemStreamItemReader<Map<String, Object>> reader = reader(resource);
 		String name = String.join("-", commandName(), resource.getDescription());
-		SimpleStepBuilder<Map<String, Object>, Map<String, Object>> step = step(context.getRedisClient(), name, reader);
+		TaskletStep step = step(context.getRedisClient(), name, reader).build();
 		StepProgressMonitor monitor = monitor("Importing " + resource.getFilename());
 		monitor.register(step);
-		return step.build();
+		return step;
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
