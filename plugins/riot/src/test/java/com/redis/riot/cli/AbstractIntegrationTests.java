@@ -777,8 +777,8 @@ public abstract class AbstractIntegrationTests extends AbstractTests {
 			}
 		}, 500, TimeUnit.MILLISECONDS);
 		execute(filename);
-		Assertions.assertEquals(badCount, connection.sync().keys("bad:*").size());
-		Assertions.assertEquals(goodCount, targetConnection.sync().keys("gen:*").size());
+		awaitUntil(() -> connection.sync().keys("bad:*").size() == badCount);
+		awaitUntil(() -> targetConnection.sync().keys("gen:*").size() == goodCount);
 	}
 
 	@Test
