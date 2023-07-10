@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.job.builder.JobBuilderException;
-import org.springframework.batch.core.step.tasklet.TaskletStep;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.json.JacksonJsonObjectMarshaller;
 import org.springframework.batch.item.json.JsonObjectMarshaller;
@@ -13,15 +12,15 @@ import org.springframework.core.io.WritableResource;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.redis.riot.cli.common.AbstractExportCommand;
 import com.redis.riot.cli.common.CommandContext;
-import com.redis.riot.cli.common.StepProgressMonitor;
-import com.redis.riot.cli.file.FileDumpOptions;
+import com.redis.riot.cli.file.DumpOptions;
 import com.redis.riot.cli.file.FileExportOptions;
 import com.redis.riot.core.FileDumpType;
 import com.redis.riot.core.resource.JsonResourceItemWriterBuilder;
 import com.redis.riot.core.resource.XmlResourceItemWriterBuilder;
 import com.redis.spring.batch.RedisItemReader;
-import com.redis.spring.batch.common.DataStructure;
+import com.redis.spring.batch.common.KeyValue;
 
+import io.lettuce.core.codec.StringCodec;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
@@ -36,10 +35,10 @@ public class FileExport extends AbstractExportCommand {
 	private String file;
 
 	@Mixin
-	private FileDumpOptions dumpFileOptions = new FileDumpOptions();
+	private DumpOptions dumpFileOptions = new DumpOptions();
 
-	@ArgGroup(exclusive = false, heading = "File export options%n")
-	private FileExportOptions options = new FileExportOptions();
+	@ArgGroup(exclusive = false, heading = "File export fileExportOptions%n")
+	private FileExportOptions fileExportOptions = new FileExportOptions();
 
 	public String getFile() {
 		return file;
@@ -49,54 +48,49 @@ public class FileExport extends AbstractExportCommand {
 		this.file = file;
 	}
 
-	public FileExportOptions getOptions() {
-		return options;
+	public FileExportOptions getFileExportOptions() {
+		return fileExportOptions;
 	}
 
-	public void setOptions(FileExportOptions options) {
-		this.options = options;
+	public void setFileExportOptions(FileExportOptions options) {
+		this.fileExportOptions = options;
 	}
 
 	@Override
 	protected Job job(CommandContext context) {
 		WritableResource resource;
 		try {
-			resource = options.outputResource(file);
+			resource = fileExportOptions.outputResource(file);
 		} catch (IOException e) {
 			throw new JobBuilderException(e);
 		}
-		ItemWriter<DataStructure<String>> writer = writer(resource);
-		String name = commandName();
-		RedisItemReader<String, String, DataStructure<String>> reader = scanBuilder(context).dataStructure();
-		reader.setKeyProcessor(keyProcessor());
-		TaskletStep step = step(name, reader, writer).build();
+		ItemWriter<KeyValue<String>> writer = writer(resource);
+		RedisItemReader<String, String> reader = reader(context, StringCodec.UTF8).struct();
 		String task = String.format(TASK_NAME, resource.getFilename());
-		StepProgressMonitor monitor = monitor(task, context);
-		monitor.register(step);
-		return job(step);
+		return job(step(reader, writer).task(task));
 	}
 
-	private ItemWriter<DataStructure<String>> writer(WritableResource resource) {
+	private ItemWriter<KeyValue<String>> writer(WritableResource resource) {
 		FileDumpType type = dumpFileOptions.type(resource);
 		switch (type) {
 		case XML:
-			XmlResourceItemWriterBuilder<DataStructure<String>> xmlWriterBuilder = new XmlResourceItemWriterBuilder<>();
+			XmlResourceItemWriterBuilder<KeyValue<String>> xmlWriterBuilder = new XmlResourceItemWriterBuilder<>();
 			xmlWriterBuilder.name("xml-resource-item-writer");
-			xmlWriterBuilder.append(options.isAppend());
-			xmlWriterBuilder.encoding(options.getEncoding().name());
+			xmlWriterBuilder.append(fileExportOptions.isAppend());
+			xmlWriterBuilder.encoding(fileExportOptions.getEncoding().name());
 			xmlWriterBuilder.xmlObjectMarshaller(xmlMarshaller());
-			xmlWriterBuilder.lineSeparator(options.getLineSeparator());
-			xmlWriterBuilder.rootName(options.getRootName());
+			xmlWriterBuilder.lineSeparator(fileExportOptions.getLineSeparator());
+			xmlWriterBuilder.rootName(fileExportOptions.getRootName());
 			xmlWriterBuilder.resource(resource);
 			xmlWriterBuilder.saveState(false);
 			return xmlWriterBuilder.build();
 		case JSON:
-			JsonResourceItemWriterBuilder<DataStructure<String>> jsonWriterBuilder = new JsonResourceItemWriterBuilder<>();
+			JsonResourceItemWriterBuilder<KeyValue<String>> jsonWriterBuilder = new JsonResourceItemWriterBuilder<>();
 			jsonWriterBuilder.name("json-resource-item-writer");
-			jsonWriterBuilder.append(options.isAppend());
-			jsonWriterBuilder.encoding(options.getEncoding().name());
+			jsonWriterBuilder.append(fileExportOptions.isAppend());
+			jsonWriterBuilder.encoding(fileExportOptions.getEncoding().name());
 			jsonWriterBuilder.jsonObjectMarshaller(new JacksonJsonObjectMarshaller<>());
-			jsonWriterBuilder.lineSeparator(options.getLineSeparator());
+			jsonWriterBuilder.lineSeparator(fileExportOptions.getLineSeparator());
 			jsonWriterBuilder.resource(resource);
 			jsonWriterBuilder.saveState(false);
 			return jsonWriterBuilder.build();
@@ -105,12 +99,18 @@ public class FileExport extends AbstractExportCommand {
 		}
 	}
 
-	private JsonObjectMarshaller<DataStructure<String>> xmlMarshaller() {
+	private JsonObjectMarshaller<KeyValue<String>> xmlMarshaller() {
 		XmlMapper mapper = new XmlMapper();
-		mapper.setConfig(mapper.getSerializationConfig().withRootName(options.getElementName()));
-		JacksonJsonObjectMarshaller<DataStructure<String>> marshaller = new JacksonJsonObjectMarshaller<>();
+		mapper.setConfig(mapper.getSerializationConfig().withRootName(fileExportOptions.getElementName()));
+		JacksonJsonObjectMarshaller<KeyValue<String>> marshaller = new JacksonJsonObjectMarshaller<>();
 		marshaller.setObjectMapper(mapper);
 		return marshaller;
+	}
+
+	@Override
+	public String toString() {
+		return "FileExport [file=" + file + ", dumpFileOptions=" + dumpFileOptions + ", fileExportOptions="
+				+ fileExportOptions + ", readerOptions=" + readerOptions + ", jobOptions=" + jobOptions + "]";
 	}
 
 }

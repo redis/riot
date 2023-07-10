@@ -39,10 +39,7 @@ import com.redis.riot.cli.common.AbstractCommand;
 import com.redis.riot.cli.common.JobOptions.ProgressStyle;
 import com.redis.riot.cli.operation.OperationCommand;
 import com.redis.spring.batch.RedisItemReader;
-import com.redis.spring.batch.RedisItemReader.ScanBuilder;
 import com.redis.spring.batch.RedisItemWriter;
-import com.redis.spring.batch.RedisItemWriter.WriterBuilder;
-import com.redis.spring.batch.common.DataStructure;
 import com.redis.spring.batch.common.IntRange;
 import com.redis.spring.batch.common.Utils;
 import com.redis.spring.batch.reader.GeneratorItemReader;
@@ -50,7 +47,6 @@ import com.redis.testcontainers.RedisServer;
 
 import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.RedisURI;
-import io.lettuce.core.codec.StringCodec;
 import io.micrometer.core.instrument.util.IOUtils;
 import picocli.CommandLine;
 import picocli.CommandLine.ParseResult;
@@ -124,12 +120,12 @@ public abstract class AbstractTests {
 		return ClientBuilder.create(RedisURI.create(server.getRedisURI())).cluster(server.isCluster()).build();
 	}
 
-	protected RedisItemReader<String, String, DataStructure<String>> reader(AbstractRedisClient client) {
-		return new ScanBuilder(client).dataStructure(StringCodec.UTF8);
+	protected RedisItemReader<String, String> reader(AbstractRedisClient client) {
+		return RedisItemReader.client(client).struct();
 	}
 
-	protected RedisItemWriter<String, String, DataStructure<String>> writer(AbstractRedisClient client) {
-		return new WriterBuilder(client).dataStructure();
+	protected RedisItemWriter<String, String> writer(AbstractRedisClient client) {
+		return RedisItemWriter.client(client).struct();
 	}
 
 	protected int execute(String filename, Consumer<ParseResult>... configurers) throws Exception {
@@ -150,16 +146,20 @@ public abstract class AbstractTests {
 		return commandLine.getExecutionStrategy().execute(parseResult);
 	}
 
-	protected void configure(ParseResult parseResult) {
+	private void configure(ParseResult parseResult) {
 		for (ParseResult sub : parseResult.subcommands()) {
-			Object command = sub.commandSpec().commandLine().getCommand();
-			if (command instanceof OperationCommand) {
-				command = sub.commandSpec().parent().commandLine().getCommand();
-			}
-			if (command instanceof AbstractCommand) {
-				AbstractCommand transferCommand = (AbstractCommand) command;
-				transferCommand.getJobOptions().setProgressStyle(ProgressStyle.NONE);
-			}
+			configureSubcommand(sub);
+		}
+	}
+
+	protected void configureSubcommand(ParseResult sub) {
+		Object command = sub.commandSpec().commandLine().getCommand();
+		if (command instanceof OperationCommand) {
+			command = sub.commandSpec().parent().commandLine().getCommand();
+		}
+		if (command instanceof AbstractCommand) {
+			AbstractCommand transferCommand = (AbstractCommand) command;
+			transferCommand.getJobOptions().setProgressStyle(ProgressStyle.NONE);
 		}
 	}
 

@@ -9,22 +9,12 @@ import org.springframework.batch.core.ItemWriteListener;
 import com.redis.spring.batch.reader.KeyComparison;
 import com.redis.spring.batch.reader.KeyComparison.Status;
 
-public class KeyComparisonLogger implements ItemWriteListener<KeyComparison> {
+public class KeyComparisonDiffLogger implements ItemWriteListener<KeyComparison> {
 
 	private final Logger log;
 
-	public KeyComparisonLogger() {
-		this(Logger.getLogger(KeyComparisonLogger.class.getName()));
-	}
-
-	public KeyComparisonLogger(Logger logger) {
+	public KeyComparisonDiffLogger(Logger logger) {
 		this.log = logger;
-
-	}
-
-	@Override
-	public void onWriteError(Exception exception, List<? extends KeyComparison> items) {
-		// do nothing
 	}
 
 	@Override
@@ -35,6 +25,11 @@ public class KeyComparisonLogger implements ItemWriteListener<KeyComparison> {
 	@Override
 	public void afterWrite(List<? extends KeyComparison> items) {
 		items.stream().filter(c -> c.getStatus() != Status.OK).forEach(this::log);
+	}
+
+	@Override
+	public void onWriteError(Exception exception, List<? extends KeyComparison> items) {
+		// do nothing
 	}
 
 	public void log(KeyComparison comparison) {
@@ -59,7 +54,6 @@ public class KeyComparisonLogger implements ItemWriteListener<KeyComparison> {
 	}
 
 	private void log(String msg, Object... params) {
-		log.log(Level.SEVERE, msg + "\n", params);
+		log.log(Level.SEVERE, msg, params);
 	}
-
 }

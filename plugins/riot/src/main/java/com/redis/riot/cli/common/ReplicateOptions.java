@@ -168,4 +168,13 @@ public class ReplicateOptions {
 				.idleTimeout(Duration.ofMillis(idleTimeout)).build();
 	}
 
+	@Override
+	public String toString() {
+		return "ReplicateOptions [mode=" + mode + ", strategy=" + strategy + ", notificationQueueCapacity="
+				+ notificationQueueCapacity + ", notificationOrdering=" + notificationOrdering + ", noVerify="
+				+ noVerify + ", keyProcessor=" + keyProcessor + ", ttlTolerance=" + ttlTolerance + ", showDiffs="
+				+ showDiffs + ", flushInterval=" + flushInterval + ", idleTimeout=" + idleTimeout
+				+ ", targetPoolMaxTotal=" + targetPoolMaxTotal + ", targetReadFrom=" + targetReadFrom + "]";
+	}
+
 }

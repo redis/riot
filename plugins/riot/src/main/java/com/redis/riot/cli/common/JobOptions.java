@@ -1,7 +1,5 @@
 package com.redis.riot.cli.common;
 
-import java.time.Duration;
-
 import org.springframework.util.Assert;
 
 import com.redis.spring.batch.reader.ReaderOptions;
@@ -11,14 +9,14 @@ import picocli.CommandLine.Option;
 public class JobOptions {
 
 	public enum ProgressStyle {
-		BLOCK, BAR, ASCII, NONE
+		BLOCK, BAR, ASCII, LOG, NONE
 	}
 
 	public static final StepSkipPolicy DEFAULT_SKIP_POLICY = StepSkipPolicy.LIMIT;
 	public static final int DEFAULT_CHUNK_SIZE = ReaderOptions.DEFAULT_CHUNK_SIZE;
 	public static final int DEFAULT_THREADS = 1;
 	public static final int DEFAULT_SKIP_LIMIT = 3;
-	public static final Duration DEFAULT_PROGRESS_UPDATE_INTERVAL = Duration.ofMillis(300);
+	public static final int DEFAULT_PROGRESS_UPDATE_INTERVAL = 1000;
 	public static final ProgressStyle DEFAULT_PROGRESS_STYLE = ProgressStyle.ASCII;
 
 	@Option(names = "--sleep", description = "Duration in ms to sleep after each batch write (default: ${DEFAULT-VALUE}).", paramLabel = "<ms>")
@@ -41,13 +39,13 @@ public class JobOptions {
 	private ProgressStyle progressStyle = DEFAULT_PROGRESS_STYLE;
 
 	@Option(names = "--progress-interval", description = "Progress update interval in millis (default: ${DEFAULT-VALUE}).", paramLabel = "<ms>", hidden = true)
-	private long progressUpdateInterval = DEFAULT_PROGRESS_UPDATE_INTERVAL.toMillis();
+	private int progressUpdateInterval = DEFAULT_PROGRESS_UPDATE_INTERVAL;
 
 	public ProgressStyle getProgressStyle() {
 		return progressStyle;
 	}
 
-	public long getProgressUpdateInterval() {
+	public int getProgressUpdateInterval() {
 		return progressUpdateInterval;
 	}
 
@@ -55,7 +53,7 @@ public class JobOptions {
 		this.progressStyle = style;
 	}
 
-	public void setProgressUpdateInterval(long millis) {
+	public void setProgressUpdateInterval(int millis) {
 		Assert.isTrue(millis > 0, "Update interval must be strictly greater than zero");
 		this.progressUpdateInterval = millis;
 	}
@@ -102,8 +100,9 @@ public class JobOptions {
 
 	@Override
 	public String toString() {
-		return "TransferOptions [threads=" + threads + ", chunkSize=" + chunkSize + ", skipPolicy=" + skipPolicy
-				+ ", skipLimit=" + skipLimit + ", sleep=" + sleep + "]";
+		return "JobOptions [sleep=" + sleep + ", threads=" + threads + ", chunkSize=" + chunkSize + ", skipPolicy="
+				+ skipPolicy + ", skipLimit=" + skipLimit + ", progressStyle=" + progressStyle
+				+ ", progressUpdateInterval=" + progressUpdateInterval + "]";
 	}
 
 }

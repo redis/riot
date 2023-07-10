@@ -1,4 +1,4 @@
-package com.redis.riot.cli.common;
+package com.redis.riot.core;
 
 public class RuntimeIOException extends RuntimeException {
 

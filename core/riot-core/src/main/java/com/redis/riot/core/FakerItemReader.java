@@ -39,9 +39,23 @@ public class FakerItemReader extends AbstractItemCountingItemStreamItemReader<Ma
 	private boolean includeMetadata;
 
 	private EvaluationContext context;
+	private int maxItemCount = Integer.MAX_VALUE;
 
 	public FakerItemReader() {
 		setName(ClassUtils.getShortName(getClass()));
+	}
+
+	@Override
+	public void setMaxItemCount(int count) {
+		super.setMaxItemCount(count);
+		this.maxItemCount = count;
+	}
+
+	public int size() {
+		if (maxItemCount == Integer.MAX_VALUE) {
+			return -1;
+		}
+		return maxItemCount - getCurrentItemCount();
 	}
 
 	public FakerItemReader withIndexRange(IntRange range) {

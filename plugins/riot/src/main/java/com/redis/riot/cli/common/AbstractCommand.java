@@ -1,18 +1,13 @@
 package com.redis.riot.cli.common;
 
-import java.time.Duration;
-import java.util.Map;
 import java.util.concurrent.Callable;
-import java.util.concurrent.TimeoutException;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParameters;
-import org.springframework.batch.core.Step;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
@@ -21,34 +16,17 @@ import org.springframework.batch.core.job.builder.JobBuilderException;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.launch.support.SimpleJobLauncher;
 import org.springframework.batch.core.repository.JobRepository;
-import org.springframework.batch.core.step.builder.SimpleStepBuilder;
-import org.springframework.batch.core.step.builder.StepBuilder;
-import org.springframework.batch.core.step.skip.AlwaysSkipItemSkipPolicy;
-import org.springframework.batch.core.step.skip.LimitCheckingItemSkipPolicy;
-import org.springframework.batch.core.step.skip.NeverSkipItemSkipPolicy;
-import org.springframework.batch.core.step.skip.SkipPolicy;
-import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
-import org.springframework.batch.item.ItemStreamSupport;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.support.transaction.ResourcelessTransactionManager;
 import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.transaction.PlatformTransactionManager;
 
-import com.redis.lettucemod.util.ClientBuilder;
-import com.redis.lettucemod.util.RedisURIBuilder;
 import com.redis.riot.cli.Main;
-import com.redis.riot.core.ThrottledItemWriter;
-import com.redis.spring.batch.RedisItemWriter.WriterBuilder;
 import com.redis.spring.batch.common.Utils;
 
 import io.lettuce.core.AbstractRedisClient;
-import io.lettuce.core.RedisCommandExecutionException;
-import io.lettuce.core.RedisCommandTimeoutException;
 import io.lettuce.core.RedisURI;
-import io.lettuce.core.event.DefaultEventPublisherOptions;
-import io.lettuce.core.metrics.CommandLatencyCollector;
-import io.lettuce.core.metrics.DefaultCommandLatencyCollectorOptions;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
@@ -58,6 +36,8 @@ import picocli.CommandLine.Spec;
 
 @Command(usageHelpAutoWidth = true)
 public abstract class AbstractCommand implements Callable<Integer> {
+
+	private final Logger log = Logger.getLogger(getClass().getName());
 
 	private static final int EXIT_VALUE_FAILURE = 1;
 	private static final int EXIT_VALUE_SUCCESS = 0;
@@ -72,7 +52,7 @@ public abstract class AbstractCommand implements Callable<Integer> {
 	private HelpOptions helpOptions;
 
 	@ArgGroup(exclusive = false, heading = "Job options%n")
-	private JobOptions jobOptions = new JobOptions();
+	protected JobOptions jobOptions = new JobOptions();
 
 	private JobRepository jobRepository;
 	private JobLauncher jobLauncher;
@@ -98,7 +78,7 @@ public abstract class AbstractCommand implements Callable<Integer> {
 		return jobBuilderFactory;
 	}
 
-	private StepBuilderFactory stepBuilderFactory() {
+	protected StepBuilderFactory stepBuilderFactory() {
 		if (stepBuilderFactory == null) {
 			stepBuilderFactory = new StepBuilderFactory(getJobRepository(), transactionManager());
 		}
@@ -133,55 +113,17 @@ public abstract class AbstractCommand implements Callable<Integer> {
 		this.commandSpec = commandSpec;
 	}
 
-	protected RedisURI redisURI(RedisOptions redisOptions) {
-		RedisURIBuilder builder = RedisURIBuilder.create();
-		if (redisOptions.getUri() != null) {
-			builder.uri(redisOptions.getUri().toString());
-		}
-		redisOptions.getHost().ifPresent(builder::host);
-		if (redisOptions.getDatabase() > 0) {
-			builder.database(redisOptions.getDatabase());
-		}
-		if (redisOptions.getPort() > 0) {
-			builder.port(redisOptions.getPort());
-		}
-		builder.clientName(redisOptions.getClientName());
-		builder.username(redisOptions.getUsername());
-		builder.password(redisOptions.getPassword());
-		builder.socket(redisOptions.getSocket());
-		builder.ssl(redisOptions.isTls());
-		builder.sslVerifyMode(redisOptions.getTlsVerifyMode());
-		redisOptions.getTimeout().ifPresent(builder::timeoutInSeconds);
-		return builder.build();
-	}
-
-	protected AbstractRedisClient client(RedisURI redisURI, RedisOptions redisOptions) {
-		ClientBuilder builder = ClientBuilder.create(redisURI);
-		builder.autoReconnect(!redisOptions.isNoAutoReconnect());
-		builder.cluster(redisOptions.isCluster());
-		if (redisOptions.isShowMetrics()) {
-			builder.commandLatencyRecorder(
-					CommandLatencyCollector.create(DefaultCommandLatencyCollectorOptions.builder().enable().build()));
-			builder.commandLatencyPublisherOptions(DefaultEventPublisherOptions.builder()
-					.eventEmitInterval(Duration.ofSeconds(redisOptions.getMetricsStep())).build());
-		}
-		builder.keystore(redisOptions.getKeystore());
-		builder.keystorePassword(redisOptions.getKeystorePassword());
-		builder.truststore(redisOptions.getTruststore());
-		builder.truststorePassword(redisOptions.getTruststorePassword());
-		builder.trustManager(redisOptions.getTrustedCerts());
-		builder.key(redisOptions.getKey());
-		builder.keyCert(redisOptions.getKeyCert());
-		builder.keyPassword(redisOptions.getKeyPassword());
-		return builder.build();
+	protected RedisOptions getRedisOptions() {
+		return riot.getRedisOptions();
 	}
 
 	@Override
 	public Integer call() throws Exception {
-		RedisOptions redisOptions = riot.getRedisOptions();
-		RedisURI redisURI = redisURI(redisOptions);
-		AbstractRedisClient redisClient = client(redisURI, redisOptions);
+		RedisOptions redisOptions = getRedisOptions();
+		RedisURI redisURI = RiotUtils.redisURI(redisOptions);
+		AbstractRedisClient redisClient = RiotUtils.client(redisURI, redisOptions);
 		try (CommandContext context = context(redisURI, redisClient)) {
+			log.log(Level.INFO, "Creating job for {0}", this);
 			Job job = job(context);
 			JobExecution execution = jobLauncher().run(job, new JobParameters());
 			if (isFailed(execution)) {
@@ -213,8 +155,12 @@ public abstract class AbstractCommand implements Callable<Integer> {
 
 	protected abstract Job job(CommandContext context);
 
-	protected Job job(Step step) {
-		return job(commandName()).start(step).build();
+	protected <I, O> Job job(RiotStep<I, O> step) {
+		if (step.getName() == null) {
+			step.name(commandName());
+		}
+		log.log(Level.INFO, "Creating job using {0}", this);
+		return job(step.getName()).start(step.build().build()).build();
 	}
 
 	protected JobBuilder job(String name) {
@@ -229,74 +175,8 @@ public abstract class AbstractCommand implements Callable<Integer> {
 		this.jobOptions = options;
 	}
 
-	private <I, O> SimpleStepBuilder<I, O> step(String name) {
-		SimpleStepBuilder<I, O> step = stepBuilder(name).chunk(jobOptions.getChunkSize());
-		Utils.multiThread(step, jobOptions.getThreads());
-		if (jobOptions.getSkipPolicy() == StepSkipPolicy.NEVER) {
-			return step;
-		}
-		return step.faultTolerant().skipPolicy(skipPolicy(jobOptions));
-	}
-
-	protected StepBuilder stepBuilder(String name) {
-		return stepBuilderFactory().get(name);
-	}
-
-	protected <I, O> SimpleStepBuilder<I, O> step(String name, ItemReader<I> reader, ItemProcessor<I, O> processor,
-			ItemWriter<O> writer) {
-		SimpleStepBuilder<I, O> step = step(name);
-		if (reader instanceof ItemStreamSupport) {
-			((ItemStreamSupport) reader).setName(name + "-reader");
-		}
-		step.reader(reader);
-		step.processor(processor);
-		step.writer(throttle(writer));
-		return step;
-	}
-
-	protected <T> SimpleStepBuilder<T, T> step(String name, ItemReader<T> reader, ItemWriter<T> writer) {
-		return step(name, reader, null, writer);
-	}
-
-	protected StepProgressMonitor monitor(String task) {
-		StepProgressMonitor monitor = new StepProgressMonitor();
-		monitor.withTask(task);
-		monitor.withChunkSize(jobOptions.getChunkSize());
-		monitor.withStyle(jobOptions.getProgressStyle());
-		monitor.withUpdateInterval(Duration.ofMillis(jobOptions.getProgressUpdateInterval()));
-		monitor.withShowSpeed(true);
-		return monitor;
-	}
-
-	private <O> ItemWriter<O> throttle(ItemWriter<O> writer) {
-		Duration sleep = Duration.ofMillis(jobOptions.getSleep());
-		if (sleep.isNegative() || sleep.isZero()) {
-			return writer;
-		}
-		return new ThrottledItemWriter<>(writer, sleep);
-	}
-
-	private SkipPolicy skipPolicy(JobOptions options) {
-		switch (options.getSkipPolicy()) {
-		case ALWAYS:
-			return new AlwaysSkipItemSkipPolicy();
-		case NEVER:
-			return new NeverSkipItemSkipPolicy();
-		default:
-			return new LimitCheckingItemSkipPolicy(options.getSkipLimit(), skippableExceptions());
-		}
-	}
-
-	protected Map<Class<? extends Throwable>, Boolean> skippableExceptions() {
-		return Stream
-				.of(RedisCommandExecutionException.class, RedisCommandTimeoutException.class, TimeoutException.class)
-				.collect(Collectors.toMap(Function.identity(), t -> true));
-	}
-
-	protected WriterBuilder writer(AbstractRedisClient client, RedisWriterOptions options) {
-		return new WriterBuilder(client).waitReplicas(options.getWaitReplicas())
-				.waitTimeout(Duration.ofMillis(options.getWaitTimeout())).multiExec(options.isMultiExec())
-				.mergePolicy(options.getMergePolicy()).streamIdPolicy(options.getStreamIdPolicy());
+	protected <I, O> RiotStep<I, O> step(ItemReader<I> reader, ItemWriter<O> writer) {
+		return new RiotStep<>(stepBuilderFactory(), reader, writer).options(jobOptions);
 	}
 
 }

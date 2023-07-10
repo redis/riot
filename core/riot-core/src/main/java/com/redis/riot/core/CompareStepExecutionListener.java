@@ -1,4 +1,4 @@
-package com.redis.riot.cli.common;
+package com.redis.riot.core;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -11,14 +11,14 @@ import com.redis.spring.batch.reader.KeyComparison.Status;
 import com.redis.spring.batch.writer.KeyComparisonCountItemWriter;
 import com.redis.spring.batch.writer.KeyComparisonCountItemWriter.Results;
 
-public class CompareStepListener extends StepExecutionListenerSupport {
+public class CompareStepExecutionListener extends StepExecutionListenerSupport {
 
-	private static final Logger log = Logger.getLogger(CompareStepListener.class.getName());
-
+	private final Logger log;
 	private final KeyComparisonCountItemWriter writer;
 
-	public CompareStepListener(KeyComparisonCountItemWriter writer) {
+	public CompareStepExecutionListener(KeyComparisonCountItemWriter writer, Logger logger) {
 		this.writer = writer;
+		this.log = logger;
 	}
 
 	@Override
@@ -28,12 +28,17 @@ public class CompareStepListener extends StepExecutionListenerSupport {
 		}
 		Results results = writer.getResults();
 		if (results.getTotalCount() == results.getCount(Status.OK)) {
-			log.info("Verification completed - all OK");
+			log.info("Verification completed: all OK");
 			return ExitStatus.COMPLETED;
 		}
-		log.log(Level.SEVERE, "Verification failed: {0} ok, {1} missing, {4} type, {2} value, {3} ttl",
-				new Object[] { results.getCount(Status.OK), results.getCount(Status.MISSING),
-						results.getCount(Status.VALUE), results.getCount(Status.TTL), results.getCount(Status.TYPE) });
+		severe("Verification failed:\n    OK:      {1}\n    Missing: {2}\n    Type:    {3}\n    Value:   {4}\n    TTL:     {5}\n    Total:   {0}",
+				results.getTotalCount(), results.getCount(Status.OK), results.getCount(Status.MISSING),
+				results.getCount(Status.TYPE), results.getCount(Status.VALUE), results.getCount(Status.TTL));
 		return new ExitStatus(ExitStatus.FAILED.getExitCode(), "Verification failed");
 	}
+
+	private void severe(String msg, Object... params) {
+		log.log(Level.SEVERE, msg, params);
+	}
+
 }

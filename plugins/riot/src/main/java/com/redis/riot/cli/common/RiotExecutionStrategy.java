@@ -27,8 +27,8 @@ public class RiotExecutionStrategy implements IExecutionStrategy {
 		}
 		for (ParseResult subcommand : parseResult.subcommands()) {
 			Object command = subcommand.commandSpec().userObject();
-			if (AbstractImportCommand.class.isAssignableFrom(command.getClass())) {
-				AbstractImportCommand importCommand = (AbstractImportCommand) command;
+			if (AbstractOperationImportCommand.class.isAssignableFrom(command.getClass())) {
+				AbstractOperationImportCommand importCommand = (AbstractOperationImportCommand) command;
 				for (ParseResult redisCommand : subcommand.subcommands()) {
 					if (redisCommand.isUsageHelpRequested()) {
 						return new RunLast().execute(redisCommand);

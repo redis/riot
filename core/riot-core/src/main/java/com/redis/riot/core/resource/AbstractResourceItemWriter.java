@@ -226,15 +226,15 @@ public abstract class AbstractResourceItemWriter<T> extends AbstractItemStreamIt
 			logger.fine("Writing to file with " + items.size() + " items.");
 		}
 
-		OutputState state = getOutputState();
+		OutputState outputState = getOutputState();
 
 		String lines = doWrite(items);
 		try {
-			state.write(lines);
+			outputState.write(lines);
 		} catch (IOException e) {
 			throw new WriteFailedException("Could not write data. The file may be corrupt.", e);
 		}
-		state.setLinesWritten(state.getLinesWritten() + items.size());
+		outputState.setLinesWritten(outputState.getLinesWritten() + items.size());
 	}
 
 	/**

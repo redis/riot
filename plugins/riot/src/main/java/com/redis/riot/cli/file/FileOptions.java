@@ -12,8 +12,8 @@ import org.springframework.core.io.WritableResource;
 import org.springframework.util.Assert;
 import org.springframework.util.ResourceUtils;
 
-import com.redis.riot.cli.common.RuntimeIOException;
 import com.redis.riot.core.FileUtils;
+import com.redis.riot.core.RuntimeIOException;
 import com.redis.riot.core.resource.FilenameInputStreamResource;
 import com.redis.riot.core.resource.OutputStreamResource;
 import com.redis.riot.core.resource.UncustomizedUrlResource;

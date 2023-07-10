@@ -10,7 +10,7 @@ import com.redis.riot.core.FileUtils;
 
 import picocli.CommandLine.Option;
 
-public class FileDumpOptions {
+public class DumpOptions {
 
 	@Option(names = { "-t", "--filetype" }, description = "File type: ${COMPLETION-CANDIDATES}.", paramLabel = "<type>")
 	protected Optional<FileDumpType> type = Optional.empty();

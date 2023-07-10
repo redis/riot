@@ -32,13 +32,21 @@ public class Ping extends AbstractCommand {
 	private static final PrintStream PRINT_STREAM = System.out;
 
 	@Mixin
-	private PingOptions options = PingOptions.builder().build();
+	private PingOptions pingOptions = PingOptions.builder().build();
+
+	public PingOptions getPingOptions() {
+		return pingOptions;
+	}
+
+	public void setPingOptions(PingOptions pingOptions) {
+		this.pingOptions = pingOptions;
+	}
 
 	@Override
 	protected Job job(CommandContext context) {
 		CallableTaskletAdapter tasklet = new CallableTaskletAdapter();
-		tasklet.setCallable(new PingTask(context, options));
-		TaskletStep step = stepBuilder(commandName()).tasklet(tasklet).build();
+		tasklet.setCallable(new PingTask(context, pingOptions));
+		TaskletStep step = stepBuilderFactory().get(commandName()).tasklet(tasklet).build();
 		return job(commandName()).start(step).build();
 	}
 
@@ -55,8 +63,8 @@ public class Ping extends AbstractCommand {
 
 		@Override
 		public RepeatStatus call() throws Exception {
-			if (iteration.get() > 0 && getJobOptions().getSleep() > 0) {
-				Thread.sleep(Duration.ofSeconds(getJobOptions().getSleep()).toMillis());
+			if (iteration.get() > 0 && jobOptions.getSleep() > 0) {
+				Thread.sleep(Duration.ofSeconds(jobOptions.getSleep()).toMillis());
 			}
 			try (StatefulRedisModulesConnection<String, String> connection = RedisModulesUtils
 					.connection(context.getRedisClient())) {
@@ -94,6 +102,11 @@ public class Ping extends AbstractCommand {
 		private long convert(long value, TimeUnit unit) {
 			return options.getTimeUnit().convert(value, unit);
 		}
+	}
+
+	@Override
+	public String toString() {
+		return "Ping [pingOptions=" + pingOptions + ", jobOptions=" + jobOptions + "]";
 	}
 
 }

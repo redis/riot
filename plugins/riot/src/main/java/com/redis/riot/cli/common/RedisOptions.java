@@ -2,6 +2,7 @@ package com.redis.riot.cli.common;
 
 import java.io.File;
 import java.time.Duration;
+import java.util.Arrays;
 import java.util.Optional;
 
 import io.lettuce.core.RedisURI;
@@ -294,6 +295,18 @@ public class RedisOptions {
 
 	public void setCluster(boolean cluster) {
 		this.cluster = cluster;
+	}
+
+	@Override
+	public String toString() {
+		return "RedisOptions [host=" + host + ", port=" + port + ", socket=" + socket + ", username=" + username
+				+ ", password=" + Arrays.toString(password) + ", uri=" + uri + ", timeout=" + timeout + ", database="
+				+ database + ", cluster=" + cluster + ", tls=" + tls + ", tlsVerifyMode=" + tlsVerifyMode
+				+ ", keystore=" + keystore + ", keystorePassword=" + Arrays.toString(keystorePassword) + ", truststore="
+				+ truststore + ", truststorePassword=" + Arrays.toString(truststorePassword) + ", keyCert=" + keyCert
+				+ ", key=" + key + ", keyPassword=" + Arrays.toString(keyPassword) + ", trustedCerts=" + trustedCerts
+				+ ", showMetrics=" + showMetrics + ", metricsStep=" + metricsStep + ", noAutoReconnect="
+				+ noAutoReconnect + ", clientName=" + clientName + "]";
 	}
 
 }

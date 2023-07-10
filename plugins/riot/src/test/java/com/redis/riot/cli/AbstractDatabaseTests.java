@@ -65,18 +65,15 @@ abstract class AbstractDatabaseTests extends AbstractTests {
 	}
 
 	@Override
-	protected void configure(ParseResult parseResult) {
-		super.configure(parseResult);
-		for (ParseResult sub : parseResult.subcommands()) {
-			Object command = sub.commandSpec().commandLine().getCommand();
-			if (command instanceof DbImport) {
-				configure(((DbImport) command).getOptions().getDataSourceOptions());
-			}
-			if (command instanceof DbExport) {
-				configure(((DbExport) command).getOptions().getDataSourceOptions());
-			}
+	protected void configureSubcommand(ParseResult sub) {
+		super.configureSubcommand(sub);
+		Object command = sub.commandSpec().commandLine().getCommand();
+		if (command instanceof DbImport) {
+			configure(((DbImport) command).getDbImportOptions().getDataSourceOptions());
 		}
-
+		if (command instanceof DbExport) {
+			configure(((DbExport) command).getDbExportOptions().getDataSourceOptions());
+		}
 	}
 
 	private void configure(DataSourceOptions dataSourceOptions) {

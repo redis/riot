@@ -60,16 +60,15 @@ import com.redis.lettucemod.timeseries.RangeResult;
 import com.redis.lettucemod.timeseries.TimeRange;
 import com.redis.lettucemod.util.RedisModulesUtils;
 import com.redis.riot.cli.common.GenerateOptions;
-import com.redis.riot.cli.common.ReplicationMode;
 import com.redis.riot.cli.common.JobOptions.ProgressStyle;
-import com.redis.riot.cli.file.FileImportOptions;
+import com.redis.riot.cli.common.ReplicationMode;
 import com.redis.riot.cli.file.FlatFileOptions;
 import com.redis.riot.cli.operation.HsetCommand;
 import com.redis.riot.core.FakerItemReader;
 import com.redis.riot.core.resource.XmlItemReader;
 import com.redis.riot.core.resource.XmlItemReaderBuilder;
 import com.redis.riot.core.resource.XmlObjectReader;
-import com.redis.spring.batch.common.DataStructure;
+import com.redis.spring.batch.common.KeyValue;
 import com.redis.spring.batch.reader.GeneratorItemReader;
 import com.redis.spring.batch.reader.KeyComparison;
 import com.redis.spring.batch.reader.KeyComparison.Status;
@@ -160,20 +159,18 @@ public abstract class AbstractIntegrationTests extends AbstractTests {
 	}
 
 	@Override
-	protected void configure(ParseResult parseResult) {
-		super.configure(parseResult);
-		for (ParseResult sub : parseResult.subcommands()) {
-			Object commandObject = sub.commandSpec().commandLine().getCommand();
-			if (commandObject instanceof Replicate) {
-				Replicate command = (Replicate) commandObject;
-				command.getTargetRedisOptions().setUri(RedisURI.create(getTargetRedisServer().getRedisURI()));
-				command.getTargetRedisOptions().setPort(0);
-				command.getTargetRedisOptions().setHost(Optional.empty());
-				ReplicationMode mode = command.getReplicateOptions().getMode();
-				if (mode == ReplicationMode.LIVE || mode == ReplicationMode.LIVEONLY) {
-					command.getReplicateOptions().setIdleTimeout(IDLE_TIMEOUT.toMillis());
-					command.getReplicateOptions().setNotificationQueueCapacity(100000);
-				}
+	protected void configureSubcommand(ParseResult sub) {
+		super.configureSubcommand(sub);
+		Object commandObject = sub.commandSpec().commandLine().getCommand();
+		if (commandObject instanceof Replicate) {
+			Replicate command = (Replicate) commandObject;
+			command.getTargetRedisOptions().setUri(RedisURI.create(getTargetRedisServer().getRedisURI()));
+			command.getTargetRedisOptions().setPort(0);
+			command.getTargetRedisOptions().setHost(Optional.empty());
+			ReplicationMode mode = command.getReplicateOptions().getMode();
+			if (mode == ReplicationMode.LIVE || mode == ReplicationMode.LIVEONLY) {
+				command.getReplicateOptions().setIdleTimeout(IDLE_TIMEOUT.toMillis());
+				command.getReplicateOptions().setNotificationQueueCapacity(100000);
 			}
 		}
 	}
@@ -215,7 +212,8 @@ public abstract class AbstractIntegrationTests extends AbstractTests {
 		Files.createFile(temp.resolve("file1.csv"));
 		Files.createFile(temp.resolve("file2.csv"));
 		FileImport command = FileImport.builder().build();
-		List<ItemReader<Map<String, Object>>> readers = command.readers(temp.resolve("*.csv").toString());
+		List<ItemReader<Map<String, Object>>> readers = command.readers(temp.resolve("*.csv").toString())
+				.collect(Collectors.toList());
 		Assertions.assertEquals(2, readers.size());
 	}
 
@@ -337,8 +335,8 @@ public abstract class AbstractIntegrationTests extends AbstractTests {
 					Files.newOutputStream(dir.resolve("beers1.csv")));
 			FileCopyUtils.copy(getClass().getClassLoader().getResourceAsStream("files/beers2.csv"),
 					Files.newOutputStream(dir.resolve("beers2.csv")));
-			File file = new File(command.getOptions().getFiles().get(0));
-			command.getOptions().setFiles(Arrays.asList(dir.resolve(file.getName()).toString()));
+			File file = new File(command.getFiles().get(0));
+			command.setFiles(Arrays.asList(dir.resolve(file.getName()).toString()));
 		} catch (IOException e) {
 			throw new RuntimeException("Could not configure import-glob", e);
 		}
@@ -418,7 +416,7 @@ public abstract class AbstractIntegrationTests extends AbstractTests {
 	@SuppressWarnings("rawtypes")
 	@Test
 	void fileImportDump() throws Exception {
-		List<DataStructure> records = exportToList();
+		List<KeyValue> records = exportToList();
 		RedisServerCommands<String, String> sync = connection.sync();
 		sync.flushall();
 		execute("dump-import", this::configureDumpFileImportCommand);
@@ -427,8 +425,7 @@ public abstract class AbstractIntegrationTests extends AbstractTests {
 
 	private void configureDumpFileImportCommand(CommandLine.ParseResult parseResult) {
 		DumpImport command = parseResult.subcommand().commandSpec().commandLine().getCommand();
-		FileImportOptions options = command.getOptions();
-		options.setFiles(options.getFiles().stream().map(this::replace).collect(Collectors.toList()));
+		command.setFiles(command.getFiles().stream().map(this::replace).collect(Collectors.toList()));
 	}
 
 	private void configureExportCommand(CommandLine.ParseResult parseResult) {
@@ -463,7 +460,7 @@ public abstract class AbstractIntegrationTests extends AbstractTests {
 	@SuppressWarnings("rawtypes")
 	@Test
 	void fileExportJSON() throws Exception {
-		List<DataStructure> records = exportToList();
+		List<KeyValue> records = exportToList();
 		RedisServerCommands<String, String> sync = connection.sync();
 		Assertions.assertEquals(sync.dbsize(), records.size());
 	}
@@ -489,45 +486,45 @@ public abstract class AbstractIntegrationTests extends AbstractTests {
 	}
 
 	@SuppressWarnings("rawtypes")
-	private List<DataStructure> exportToList() throws Exception {
+	private List<KeyValue> exportToList() throws Exception {
 		String filename = "file-export-json";
 		Path file = tempFile("redis.json");
 		generate(filename);
 		execute(filename, this::configureExportCommand);
-		JsonItemReaderBuilder<DataStructure> builder = new JsonItemReaderBuilder<>();
+		JsonItemReaderBuilder<KeyValue> builder = new JsonItemReaderBuilder<>();
 		builder.name("json-data-structure-file-reader");
 		builder.resource(new FileSystemResource(file));
-		JacksonJsonObjectReader<DataStructure> objectReader = new JacksonJsonObjectReader<>(DataStructure.class);
+		JacksonJsonObjectReader<KeyValue> objectReader = new JacksonJsonObjectReader<>(KeyValue.class);
 		objectReader.setMapper(new ObjectMapper());
 		builder.jsonObjectReader(objectReader);
-		JsonItemReader<DataStructure> reader = builder.build();
+		JsonItemReader<KeyValue> reader = builder.build();
 		return readAll(reader);
 	}
 
-	@SuppressWarnings("rawtypes")
 	@Test
+	@SuppressWarnings("rawtypes")
 	void fileExportXml() throws Exception {
 		String filename = "file-export-xml";
 		generate(filename);
 		Path file = tempFile("redis.xml");
 		execute(filename, this::configureExportCommand);
-		XmlItemReaderBuilder<DataStructure> builder = new XmlItemReaderBuilder<>();
+		XmlItemReaderBuilder<KeyValue> builder = new XmlItemReaderBuilder<>();
 		builder.name("xml-file-reader");
 		builder.resource(new FileSystemResource(file));
-		XmlObjectReader<DataStructure> xmlObjectReader = new XmlObjectReader<>(DataStructure.class);
+		XmlObjectReader<KeyValue> xmlObjectReader = new XmlObjectReader<>(KeyValue.class);
 		xmlObjectReader.setMapper(new XmlMapper());
 		builder.xmlObjectReader(xmlObjectReader);
-		XmlItemReader<DataStructure> reader = builder.build();
-		List<DataStructure> records = readAll(reader);
+		XmlItemReader<KeyValue> reader = builder.build();
+		List<KeyValue> records = readAll(reader);
 		RedisModulesCommands<String, String> sync = connection.sync();
 		Assertions.assertEquals(sync.dbsize(), records.size());
-		for (DataStructure<String> record : records) {
+		for (KeyValue<String> record : records) {
 			String key = record.getKey();
 			switch (record.getType()) {
-			case DataStructure.HASH:
+			case KeyValue.HASH:
 				Assertions.assertEquals(record.getValue(), sync.hgetall(key));
 				break;
-			case DataStructure.STRING:
+			case KeyValue.STRING:
 				Assertions.assertEquals(record.getValue(), sync.get(key));
 				break;
 			default:
@@ -541,7 +538,7 @@ public abstract class AbstractIntegrationTests extends AbstractTests {
 		// riot-file import hset --keyspace beer --keys id
 		FileImport command = new FileImport();
 		command.getJobOptions().setProgressStyle(ProgressStyle.NONE);
-		command.getOptions().setFiles(Collections.singletonList(BEERS_JSON_URL));
+		command.setFiles(Collections.singletonList(BEERS_JSON_URL));
 		HsetCommand hset = new HsetCommand();
 		hset.getKeyOptions().setKeyspace(Optional.of("beer"));
 		hset.getKeyOptions().setKeys(new String[] { "id" });

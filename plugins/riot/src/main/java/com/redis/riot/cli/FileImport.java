@@ -9,10 +9,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.job.builder.SimpleJobBuilder;
+import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.core.step.tasklet.TaskletStep;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.file.FlatFileItemReader;
@@ -20,6 +21,7 @@ import org.springframework.batch.item.file.FlatFileParseException;
 import org.springframework.batch.item.file.LineCallbackHandler;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
 import org.springframework.batch.item.file.separator.DefaultRecordSeparatorPolicy;
+import org.springframework.batch.item.file.separator.RecordSeparatorPolicy;
 import org.springframework.batch.item.file.transform.AbstractLineTokenizer;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.batch.item.file.transform.FieldSet;
@@ -27,39 +29,45 @@ import org.springframework.batch.item.file.transform.FixedLengthTokenizer;
 import org.springframework.batch.item.file.transform.Range;
 import org.springframework.batch.item.file.transform.RangeArrayPropertyEditor;
 import org.springframework.batch.item.json.JsonItemReader;
-import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
 import org.springframework.core.io.Resource;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
-import com.redis.riot.cli.common.AbstractImportCommand;
+import com.redis.riot.cli.common.AbstractOperationImportCommand;
 import com.redis.riot.cli.common.CommandContext;
-import com.redis.riot.cli.common.StepProgressMonitor;
-import com.redis.riot.cli.file.FileImportOptions;
+import com.redis.riot.cli.common.RiotStep;
+import com.redis.riot.cli.file.FileOptions;
 import com.redis.riot.cli.file.FlatFileOptions;
 import com.redis.riot.core.FileExtension;
 import com.redis.riot.core.FileType;
 import com.redis.riot.core.FileUtils;
-import com.redis.riot.core.FileUtils.UnknownFileTypeException;
 import com.redis.riot.core.ItemReaderIterator;
 import com.redis.riot.core.MapFieldSetMapper;
+import com.redis.riot.core.UnknownFileTypeException;
 import com.redis.riot.core.resource.XmlItemReader;
 
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
 import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
 
 @Command(name = "file-import", description = "Import from CSV/JSON/XML files.")
-public class FileImport extends AbstractImportCommand {
+public class FileImport extends AbstractOperationImportCommand {
 
 	private static final Logger log = Logger.getLogger(FileImport.class.getName());
+
 	private static final String DELIMITER_PIPE = "|";
 
+	@Parameters(arity = "0..*", description = "One ore more files or URLs", paramLabel = "FILE")
+	protected List<String> files = new ArrayList<>();
+
 	@Mixin
-	private FileImportOptions fileImportOptions = new FileImportOptions();
+	private FileOptions fileOptions = new FileOptions();
+
 	@ArgGroup(exclusive = false, heading = "Flat file options%n")
 	private FlatFileOptions flatFileOptions = new FlatFileOptions();
+
 	@Option(names = { "-t", "--filetype" }, description = "File type: ${COMPLETION-CANDIDATES}.", paramLabel = "<type>")
 	private Optional<FileType> fileType = Optional.empty();
 
@@ -69,7 +77,15 @@ public class FileImport extends AbstractImportCommand {
 	private FileImport(Builder builder) {
 		this.flatFileOptions = builder.flatFileOptions;
 		this.fileType = builder.fileType;
-		this.fileImportOptions = builder.options;
+		this.fileOptions = builder.fileOptions;
+	}
+
+	public List<String> getFiles() {
+		return files;
+	}
+
+	public void setFiles(List<String> files) {
+		this.files = files;
 	}
 
 	public Optional<FileType> getFileType() {
@@ -80,12 +96,12 @@ public class FileImport extends AbstractImportCommand {
 		this.fileType = Optional.of(fileType);
 	}
 
-	public FileImportOptions getOptions() {
-		return fileImportOptions;
+	public FileOptions getFileOptions() {
+		return fileOptions;
 	}
 
-	public void setOptions(FileImportOptions options) {
-		this.fileImportOptions = options;
+	public void setFileOptions(FileOptions options) {
+		this.fileOptions = options;
 	}
 
 	public FlatFileOptions getFlatFileOptions() {
@@ -97,33 +113,28 @@ public class FileImport extends AbstractImportCommand {
 	}
 
 	@Override
-	protected Map<Class<? extends Throwable>, Boolean> skippableExceptions() {
-		Map<Class<? extends Throwable>, Boolean> exceptions = super.skippableExceptions();
-		exceptions.put(FlatFileParseException.class, true);
-		return exceptions;
-	}
-
-	@Override
 	protected Job job(CommandContext context) {
-		Iterator<TaskletStep> stepIterator = fileImportOptions.getResources().map(r -> step(context, r)).iterator();
-		SimpleJobBuilder job = job(commandName()).start(stepIterator.next());
-		while (stepIterator.hasNext()) {
-			job.next(stepIterator.next());
+		Iterator<TaskletStep> steps = FileUtils.expandAll(files).map(fileOptions::inputResource)
+				.map(r -> step(context, r)).map(RiotStep::build).map(SimpleStepBuilder::build).iterator();
+		if (!steps.hasNext()) {
+			throw new IllegalArgumentException("No files found");
+		}
+		SimpleJobBuilder job = job(commandName()).start(steps.next());
+		while (steps.hasNext()) {
+			job.next(steps.next());
 		}
 		return job.build();
 	}
 
-	private TaskletStep step(CommandContext context, Resource resource) {
-		AbstractItemCountingItemStreamItemReader<Map<String, Object>> reader = reader(resource);
-		String name = String.join("-", commandName(), resource.getDescription());
-		TaskletStep step = step(context.getRedisClient(), name, reader).build();
-		StepProgressMonitor monitor = monitor("Importing " + resource.getFilename());
-		monitor.register(step);
-		return step;
+	private RiotStep<Map<String, Object>, Map<String, Object>> step(CommandContext context, Resource resource) {
+		ItemReader<Map<String, Object>> reader = reader(resource);
+		String name = commandName() + "-" + resource.getDescription();
+		String task = "Importing " + resource.getFilename();
+		return step(context, reader).name(name).task(task).skippableExceptions(FlatFileParseException.class);
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private AbstractItemCountingItemStreamItemReader<Map<String, Object>> reader(Resource resource) {
+	private ItemReader<Map<String, Object>> reader(Resource resource) {
 		FileType type = getFileType().orElseGet(() -> type(resource));
 		switch (type) {
 		case DELIMITED:
@@ -134,8 +145,7 @@ public class FileImport extends AbstractImportCommand {
 			if (!ObjectUtils.isEmpty(flatFileOptions.getIncludedFields())) {
 				tokenizer.setIncludedFields(flatFileOptions.getIncludedFields());
 			}
-			log.log(Level.FINE, "Creating delimited reader with {0} for {1}",
-					new Object[] { fileImportOptions, resource });
+			log.log(Level.INFO, "Creating delimited reader for {0}", resource);
 			return flatFileReader(resource, tokenizer);
 		case FIXED:
 			FixedLengthTokenizer fixedLengthTokenizer = new FixedLengthTokenizer();
@@ -147,14 +157,13 @@ public class FileImport extends AbstractImportCommand {
 				throw new IllegalArgumentException("Invalid ranges specified: " + flatFileOptions.getColumnRanges());
 			}
 			fixedLengthTokenizer.setColumns(ranges);
-			log.log(Level.FINE, "Creating fixed-width reader with {0} for {1}",
-					new Object[] { fileImportOptions, resource });
+			log.log(Level.INFO, "Creating fixed-width reader for {0}", resource);
 			return flatFileReader(resource, fixedLengthTokenizer);
 		case XML:
-			log.log(Level.FINE, "Creating XML reader for {0}", resource);
+			log.log(Level.INFO, "Creating XML reader for {0}", resource);
 			return (XmlItemReader) FileUtils.xmlReader(resource, Map.class);
 		case JSON:
-			log.log(Level.FINE, "Creating JSON reader for {0}", resource);
+			log.log(Level.INFO, "Creating JSON reader for {0}", resource);
 			return (JsonItemReader) FileUtils.jsonReader(resource, Map.class);
 		default:
 			throw new UnsupportedOperationException("Unsupported file type: " + type);
@@ -198,10 +207,9 @@ public class FileImport extends AbstractImportCommand {
 		}
 		FlatFileItemReaderBuilder<Map<String, Object>> builder = new FlatFileItemReaderBuilder<>();
 		builder.resource(resource);
-		builder.encoding(fileImportOptions.getEncoding().name());
+		builder.encoding(fileOptions.getEncoding().name());
 		builder.lineTokenizer(tokenizer);
-		builder.recordSeparatorPolicy(new DefaultRecordSeparatorPolicy(flatFileOptions.getQuoteCharacter().toString(),
-				flatFileOptions.getContinuationString()));
+		builder.recordSeparatorPolicy(recordSeparatorPolicy());
 		builder.linesToSkip(linesToSkip());
 		builder.strict(true);
 		builder.saveState(false);
@@ -211,6 +219,11 @@ public class FileImport extends AbstractImportCommand {
 			builder.maxItemCount(flatFileOptions.getMaxItemCount());
 		}
 		return builder.build();
+	}
+
+	private RecordSeparatorPolicy recordSeparatorPolicy() {
+		return new DefaultRecordSeparatorPolicy(flatFileOptions.getQuoteCharacter().toString(),
+				flatFileOptions.getContinuationString());
 	}
 
 	private int headerIndex() {
@@ -245,7 +258,7 @@ public class FileImport extends AbstractImportCommand {
 		@Override
 		public void handleLine(String line) {
 			if (lineIndex == headerIndex) {
-				log.log(Level.FINE, "Found header: {0}", line);
+				log.log(Level.INFO, "Found header: {0}", line);
 				FieldSet fieldSet = tokenizer.tokenize(line);
 				List<String> fields = new ArrayList<>();
 				for (int index = 0; index < fieldSet.getFieldCount(); index++) {
@@ -264,7 +277,7 @@ public class FileImport extends AbstractImportCommand {
 	public static class Builder {
 
 		private FlatFileOptions flatFileOptions = new FlatFileOptions();
-		private FileImportOptions options = new FileImportOptions();
+		private FileOptions fileOptions = new FileOptions();
 		private Optional<FileType> fileType = Optional.empty();
 
 		public Builder flatFileOptions(FlatFileOptions options) {
@@ -273,9 +286,9 @@ public class FileImport extends AbstractImportCommand {
 			return this;
 		}
 
-		public Builder options(FileImportOptions options) {
+		public Builder fileOptions(FileOptions options) {
 			Assert.notNull(options, "FileImportOptions must not be null");
-			this.options = options;
+			this.fileOptions = options;
 			return this;
 		}
 
@@ -300,8 +313,8 @@ public class FileImport extends AbstractImportCommand {
 	 * @return List of readers for the given files, which might contain wildcards
 	 * @throws IOException
 	 */
-	public List<ItemReader<Map<String, Object>>> readers(String... files) {
-		return fileImportOptions.resources(Arrays.asList(files)).map(this::reader).collect(Collectors.toList());
+	public Stream<ItemReader<Map<String, Object>>> readers(String... files) {
+		return FileUtils.expandAll(Arrays.asList(files)).map(fileOptions::inputResource).map(this::reader);
 	}
 
 	/**
@@ -312,7 +325,14 @@ public class FileImport extends AbstractImportCommand {
 	 * @throws Exception
 	 */
 	public Iterator<Map<String, Object>> read(String file) throws Exception {
-		return new ItemReaderIterator<>(reader(fileImportOptions.inputResource(file)));
+		return new ItemReaderIterator<>(reader(fileOptions.inputResource(file)));
+	}
+
+	@Override
+	public String toString() {
+		return "FileImport [files=" + files + ", fileOptions=" + fileOptions + ", flatFileOptions=" + flatFileOptions
+				+ ", fileType=" + fileType + ", processorOptions=" + processorOptions + ", writerOptions="
+				+ writerOptions + ", jobOptions=" + jobOptions + "]";
 	}
 
 }

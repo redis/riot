@@ -4,12 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.util.unit.DataSize;
+
 import com.redis.spring.batch.common.IntRange;
 import com.redis.spring.batch.common.PoolOptions;
+import com.redis.spring.batch.reader.MemoryUsageOptions;
 import com.redis.spring.batch.reader.QueueOptions;
 import com.redis.spring.batch.reader.ReaderOptions;
 import com.redis.spring.batch.reader.ScanOptions;
-import com.redis.spring.batch.reader.ScanSizeEstimator;
 
 import io.lettuce.core.ReadFrom;
 import picocli.CommandLine.Option;
@@ -31,9 +33,6 @@ public class RedisReaderOptions {
 	@Option(names = "--scan-count", description = "SCAN COUNT option (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
 	private long scanCount = ScanOptions.DEFAULT_COUNT;
 
-	@Option(names = "--scan-samples", description = "Number of samples to estimate scan size (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
-	private long scanSampleSize = ScanSizeEstimator.DEFAULT_SAMPLE_SIZE;
-
 	@Option(names = "--scan-type", description = "SCAN TYPE option.", paramLabel = "<type>")
 	private Optional<String> scanType = Optional.empty();
 
@@ -51,6 +50,28 @@ public class RedisReaderOptions {
 
 	@Option(names = "--key-slots", arity = "1..*", description = "Key slot ranges to filter keyspace notifications.", paramLabel = "<range>")
 	private List<IntRange> keySlots = new ArrayList<>();
+
+	@Option(names = "--mem-limit", description = "Maximum memory usage in MB for a key to be read (default: ${DEFAULT-VALUE}). Use 0 to disable memory usage checks.", paramLabel = "<MB>")
+	private long memLimit = MemoryUsageOptions.DEFAULT_LIMIT.toMegabytes();
+
+	@Option(names = "--mem-samples", description = "Number of memory usage samples for a key (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
+	private int memSamples = MemoryUsageOptions.DEFAULT_SAMPLES;
+
+	public int getMemSamples() {
+		return memSamples;
+	}
+
+	public void setMemSamples(int memSamples) {
+		this.memSamples = memSamples;
+	}
+
+	public long getMemLimit() {
+		return memLimit;
+	}
+
+	public void setMemLimit(long memLimit) {
+		this.memLimit = memLimit;
+	}
 
 	public List<IntRange> getKeySlots() {
 		return keySlots;
@@ -82,14 +103,6 @@ public class RedisReaderOptions {
 
 	public void setReadFrom(Optional<ReadFromEnum> readFrom) {
 		this.readFrom = readFrom;
-	}
-
-	public long getScanSampleSize() {
-		return scanSampleSize;
-	}
-
-	public void setScanSampleSize(long scanSampleSize) {
-		this.scanSampleSize = scanSampleSize;
 	}
 
 	public int getChunkSize() {
@@ -152,12 +165,6 @@ public class RedisReaderOptions {
 		return ScanOptions.builder().count(scanCount).match(scanMatch).count(scanCount).build();
 	}
 
-	public ScanOptions estimatorOptions() {
-		ScanOptions scanOptions = scanOptions();
-		scanOptions.setCount(scanSampleSize);
-		return scanOptions;
-	}
-
 	public PoolOptions poolOptions() {
 		return PoolOptions.builder().maxTotal(poolMaxTotal).build();
 	}
@@ -168,11 +175,27 @@ public class RedisReaderOptions {
 
 	public ReaderOptions readerOptions() {
 		return ReaderOptions.builder().chunkSize(chunkSize).threads(threads).poolOptions(poolOptions())
-				.queueOptions(queueOptions()).readFrom(readFrom()).build();
+				.queueOptions(queueOptions()).readFrom(readFrom()).memoryUsageOptions(memoryUsageOptions()).build();
+	}
+
+	private MemoryUsageOptions memoryUsageOptions() {
+		return MemoryUsageOptions.builder().limit(DataSize.ofMegabytes(memLimit)).samples(memSamples).build();
 	}
 
 	public Optional<ReadFrom> readFrom() {
 		return readFrom.map(ReadFromEnum::getValue);
 	}
+
+	@Override
+	public String toString() {
+		return "RedisReaderOptions [queueCapacity=" + queueCapacity + ", threads=" + threads + ", chunkSize="
+				+ chunkSize + ", scanMatch=" + scanMatch + ", scanCount=" + scanCount + ", scanType=" + scanType
+				+ ", poolMaxTotal=" + poolMaxTotal + ", readFrom=" + readFrom + ", keyIncludes=" + keyIncludes
+				+ ", keyExcludes=" + keyExcludes + ", keySlots=" + keySlots
+				+ ", memLimit=" + memLimit + ", memSamples="
+				+ memSamples + "]";
+	}
+	
+	
 
 }

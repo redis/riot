@@ -2,62 +2,57 @@ package com.redis.riot.cli;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.springframework.batch.core.Job;
-import org.springframework.batch.core.step.tasklet.TaskletStep;
 
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
 import com.redis.lettucemod.api.sync.RediSearchCommands;
 import com.redis.lettucemod.search.Field;
 import com.redis.lettucemod.search.IndexInfo;
 import com.redis.lettucemod.util.RedisModulesUtils;
-import com.redis.riot.cli.common.AbstractImportCommand;
+import com.redis.riot.cli.common.AbstractOperationImportCommand;
 import com.redis.riot.cli.common.CommandContext;
 import com.redis.riot.cli.common.FakerImportOptions;
-import com.redis.riot.cli.common.StepProgressMonitor;
 import com.redis.riot.core.FakerItemReader;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
 
 @Command(name = "faker-import", description = "Import from Faker.")
-public class FakerImport extends AbstractImportCommand {
+public class FakerImport extends AbstractOperationImportCommand {
 
-	private static final Logger log = Logger.getLogger(FakerImport.class.getName());
+	private static final String TASK = "Generating";
 
 	@Mixin
-	private FakerImportOptions options = new FakerImportOptions();
+	private FakerImportOptions fakerImportOptions = new FakerImportOptions();
 
-	public FakerImportOptions getOptions() {
-		return options;
+	public FakerImportOptions getFakerImportOptions() {
+		return fakerImportOptions;
 	}
 
-	public void setOptions(FakerImportOptions options) {
-		this.options = options;
+	public void setFakerImportOptions(FakerImportOptions options) {
+		this.fakerImportOptions = options;
 	}
 
 	@Override
 	protected Job job(CommandContext context) {
-		log.log(Level.FINE, "Creating Faker reader with {0}", options);
+		return job(step(context, reader(context)).task(TASK));
+	}
+
+	private FakerItemReader reader(CommandContext context) {
 		FakerItemReader reader = new FakerItemReader();
-		reader.setMaxItemCount(options.getCount());
-		reader.withIndexRange(options.getIndexRange());
+		reader.setMaxItemCount(fakerImportOptions.getCount());
+		reader.withIndexRange(fakerImportOptions.getIndexRange());
 		fields(context).forEach(reader::withField);
-		reader.withLocale(options.getLocale());
-		reader.withIncludeMetadata(options.isIncludeMetadata());
-		TaskletStep step = step(context.getRedisClient(), reader).build();
-		StepProgressMonitor monitor = monitor("Generating");
-		monitor.withInitialMax(options.getCount());
-		monitor.register(step);
-		return job(step);
+		reader.withLocale(fakerImportOptions.getLocale());
+		reader.withIncludeMetadata(fakerImportOptions.isIncludeMetadata());
+		return reader;
 	}
 
 	private Map<String, String> fields(CommandContext context) {
 		Map<String, String> fields = new LinkedHashMap<>();
-		fields.putAll(options.getFields());
-		options.getRedisearchIndex().ifPresent(index -> {
+		fields.putAll(fakerImportOptions.getFields());
+		fakerImportOptions.getRedisearchIndex().ifPresent(index -> {
 			try (StatefulRedisModulesConnection<String, String> connection = RedisModulesUtils
 					.connection(context.getRedisClient())) {
 				RediSearchCommands<String, String> commands = connection.sync();
@@ -81,6 +76,12 @@ public class FakerImport extends AbstractImportCommand {
 		default:
 			return "number.randomDouble(3,-1000,1000)";
 		}
+	}
+
+	@Override
+	public String toString() {
+		return "FakerImport [fakerImportOptions=" + fakerImportOptions + ", processorOptions=" + processorOptions + ", writerOptions="
+				+ writerOptions + ", jobOptions=" + jobOptions + "]";
 	}
 
 }

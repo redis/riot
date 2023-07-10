@@ -4,6 +4,6 @@ import com.redis.spring.batch.common.Operation;
 
 public interface OperationCommand<T> {
 
-	Operation<String, String, T, ?> operation();
+	Operation<String, String, T, Object> operation();
 
 }
