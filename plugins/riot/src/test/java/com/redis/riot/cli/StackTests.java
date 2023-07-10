@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import com.redis.testcontainers.RedisServer;
 import com.redis.testcontainers.RedisStackContainer;
 
-class StackIntegrationTests extends AbstractIntegrationTests {
+class StackTests extends AbstractIntegrationTests {
 
 	public static final RedisStackContainer SOURCE = RedisContainerFactory.stack();
 	public static final RedisStackContainer TARGET = RedisContainerFactory.stack();

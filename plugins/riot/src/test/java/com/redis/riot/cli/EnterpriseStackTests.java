@@ -9,7 +9,7 @@ import com.redis.testcontainers.RedisServer;
 import picocli.CommandLine.ParseResult;
 
 @EnabledOnOs(OS.LINUX)
-class EnterpriseStackIntegrationTests extends AbstractIntegrationTests {
+class EnterpriseStackTests extends AbstractIntegrationTests {
 
 	private static final RedisServer SOURCE = RedisContainerFactory.enterprise();
 	private static final RedisServer TARGET = RedisContainerFactory.stack();

@@ -415,8 +415,8 @@ public abstract class AbstractIntegrationTests extends AbstractTests {
 
 	@SuppressWarnings("rawtypes")
 	@Test
-	void fileImportDump() throws Exception {
-		List<KeyValue> records = exportToList();
+	void fileDumpImport() throws Exception {
+		List<KeyValue> records = exportToJsonFile();
 		RedisServerCommands<String, String> sync = connection.sync();
 		sync.flushall();
 		execute("dump-import", this::configureDumpFileImportCommand);
@@ -460,7 +460,7 @@ public abstract class AbstractIntegrationTests extends AbstractTests {
 	@SuppressWarnings("rawtypes")
 	@Test
 	void fileExportJSON() throws Exception {
-		List<KeyValue> records = exportToList();
+		List<KeyValue> records = exportToJsonFile();
 		RedisServerCommands<String, String> sync = connection.sync();
 		Assertions.assertEquals(sync.dbsize(), records.size());
 	}
@@ -486,7 +486,7 @@ public abstract class AbstractIntegrationTests extends AbstractTests {
 	}
 
 	@SuppressWarnings("rawtypes")
-	private List<KeyValue> exportToList() throws Exception {
+	private List<KeyValue> exportToJsonFile() throws Exception {
 		String filename = "file-export-json";
 		Path file = tempFile("redis.json");
 		generate(filename);

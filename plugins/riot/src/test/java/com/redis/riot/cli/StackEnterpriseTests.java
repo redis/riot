@@ -6,7 +6,7 @@ import org.junit.jupiter.api.condition.OS;
 import com.redis.testcontainers.RedisServer;
 
 @EnabledOnOs(OS.LINUX)
-class StackEnterpriseIntegrationTests extends AbstractIntegrationTests {
+class StackEnterpriseTests extends AbstractIntegrationTests {
 
 	private static final RedisServer SOURCE = RedisContainerFactory.stack();
 	private static final RedisServer TARGET = RedisContainerFactory.enterprise();
