@@ -26,4 +26,8 @@
     Can be smaller than the number of threads
 `--read-from`::
    Which Redis cluster nodes to read from: `master`, `master_preferred`, `upstream`, `upstream_preferred`, `replica_preferred`, `replica`, `lowest_latency`, `any`, `any_replica`. See {link_lettuce_readfrom} for more details.
-   
+`--mem-limit`::
+    Maximum memory usage in megabytes for a key to be read (default: 0). Use 0 to disable memory usage checks.
+`--mem-samples`::
+    Number of memory usage samples for a key (default: 5).
+      

@@ -12,6 +12,7 @@
 :link_datafaker_doc:    link:http://www.datafaker.net/documentation/providers/#number-of-providers-per-datafaker-version[Datafaker Providers]
 :link_redis_notif:      link:https://redis.io/docs/manual/keyspace-notifications[Redis Keyspace Notifications]
 :link_ec_notifications: link:https://aws.amazon.com/premiumsupport/knowledge-center/elasticache-redis-keyspace-notifications[AWS Knowledge Center]
+:link_bigkeys:          link:https://developer.redis.com/operate/redis-at-scale/observability/identifying-issues/#scanning-keys[Big keys]
 :link_jdbc_oracle:      link:https://docs.oracle.com/cd/E11882_01/appdev.112/e13995/oracle/jdbc/OracleDriver.html[Oracle]
 :link_jdbc_db2:         link:https://www.ibm.com/support/knowledgecenter/en/SSEPGG_11.5.0/com.ibm.db2.luw.apdv.java.doc/src/tpc/imjcc_r0052342.html[IBM Db2]
 :link_jdbc_mssql:       link:https://docs.microsoft.com/en-us/sql/connect/jdbc/building-the-connection-url?view=sql-server-2017[MS SQL Server]

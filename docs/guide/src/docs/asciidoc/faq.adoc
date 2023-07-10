@@ -13,3 +13,7 @@ You must specify one or more Redis commands with import commands (<<_file_import
 
 Redis 7 DUMP format is not backwards compatible with previous versions.
 To replicate between different Redis versions use <<_replicate_type_based,Type-Based Replication>>.
+
+.Process gets stuck during replication and eventually times out
+
+This could be due to big keys clogging the replication pipes. Check the database with `redis-cli` {link_bigkeys} and/or use the <<_source_reader_options,source reader options>> to filter these keys out.

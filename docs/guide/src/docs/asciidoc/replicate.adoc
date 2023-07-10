@@ -68,15 +68,19 @@ include::{includedir}/redis-connection-options.adoc[leveloffset=+2]
 `--type dump`:: <<_replicate_dump_and_restore,DUMP & RESTORE>>.
 `--type ds`:: <<_replicate_type_based,Type-based>>
 
-[[_source_redis_reader_options]]
+[[_source_reader_options]]
 === Source reader options
 include::{includedir}/redis-reader-options.adoc[leveloffset=+2]
+
+[[_source_struct_options]]
+=== Data structure options
+include::{includedir}/struct-options.adoc[leveloffset=+2]
 
 [[_replicate_performance_tuning]]
 === Performance Tuning
 
 Performance tuning is an art but {project-title} offers some options to identify potential bottlenecks.
-In addition to the <<_architecture_batch,batch>> and <<_architecture_threads,threads>> options you have the `--dry-run` option which disables writing to the target Redis database so that you can tune the <<_source_redis_reader_options,reader>> in isolation.
+In addition to the <<_architecture_batch,batch>> and <<_architecture_threads,threads>> options you have the `--dry-run` option which disables writing to the target Redis database so that you can tune the <<_source_reader_options,reader>> in isolation.
 Add that option to your existing `replicate` command-line to compare replication speeds with and without writing to the target Redis database:
 
 [source]
@@ -149,7 +153,7 @@ It is possible that {project-title} can miss some notifications in case of netwo
 Also, depending on the type, size, and rate of change of data structures on the source it is possible that {project-title} cannot keep up with the change stream.
 For example if a big set is repeatedly updated, {project-title} will need to read the whole set on each update and transfer it over to the target database.
 With a big-enough set, {project-title} could fall behind and the internal queue could fill up leading up to updates being dropped.
-Some preliminary sizing using Redis statistics and `bigkeys`/`memkeys` is recommended for these migrations.
+Some preliminary sizing using Redis statistics and `bigkeys`/`memkeys` (or `--mem-limit` in <<_source_reader_options,source reader options>>) is recommended for these migrations.
 If you need assistance please contact your Redis account team.
 ====
 
