@@ -3,7 +3,7 @@ package com.redis.riot.cli.common;
 import org.springframework.batch.item.ItemProcessor;
 
 import com.redis.spring.batch.RedisItemReader;
-import com.redis.spring.batch.RedisItemReader.BaseScanBuilder;
+import com.redis.spring.batch.RedisItemReader.BaseBuilder;
 import com.redis.spring.batch.common.KeyPredicateFactory;
 import com.redis.spring.batch.common.PredicateItemProcessor;
 
@@ -27,10 +27,9 @@ public abstract class AbstractExportCommand extends AbstractCommand {
 		return configure(RedisItemReader.client(context.getRedisClient(), codec), codec);
 	}
 
-	protected <K, V, B extends BaseScanBuilder<K, V, B>> B configure(B builder, RedisCodec<K, V> codec) {
+	protected <K, V, B extends BaseBuilder<K, V, B>> B configure(B builder, RedisCodec<K, V> codec) {
 		builder.jobRepository(getJobRepository());
 		builder.options(readerOptions.readerOptions());
-		builder.scanOptions(readerOptions.scanOptions());
 		builder.keyProcessor(keyProcessor(codec));
 		return builder;
 	}
