@@ -32,8 +32,8 @@ public class FakerItemReader extends AbstractItemCountingItemStreamItemReader<Ma
 	public static final Locale DEFAULT_LOCALE = Locale.getDefault();
 
 	private final SpelExpressionParser parser = new SpelExpressionParser();
-
 	private final Map<String, Expression> expressions = new LinkedHashMap<>();
+
 	private IntRange indexRange = IntRange.from(1);
 	private Locale locale = DEFAULT_LOCALE;
 	private boolean includeMetadata;
@@ -107,20 +107,27 @@ public class FakerItemReader extends AbstractItemCountingItemStreamItemReader<Ma
 	}
 
 	@Override
-	protected synchronized void doOpen() throws Exception {
-		if (context != null) {
-			return;
+	protected void doOpen() throws Exception {
+		synchronized (parser) {
+			if (!isOpen()) {
+				Faker faker = new Faker(locale);
+				Builder contextBuilder = SimpleEvaluationContext.forPropertyAccessors(new ReflectivePropertyAccessor());
+				contextBuilder.withInstanceMethods();
+				contextBuilder.withRootObject(faker);
+				this.context = contextBuilder.build();
+			}
 		}
-		Faker faker = new Faker(locale);
-		Builder contextBuilder = SimpleEvaluationContext.forPropertyAccessors(new ReflectivePropertyAccessor());
-		contextBuilder.withInstanceMethods();
-		contextBuilder.withRootObject(faker);
-		this.context = contextBuilder.build();
 	}
 
 	@Override
-	protected synchronized void doClose() throws Exception {
-		this.context = null;
+	protected void doClose() throws Exception {
+		synchronized (parser) {
+			this.context = null;
+		}
+	}
+
+	public boolean isOpen() {
+		return context != null;
 	}
 
 }

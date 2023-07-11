@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -53,11 +54,17 @@ public class RiotStep<I, O> {
 	@SuppressWarnings("rawtypes")
 	private List<Class> skippableExceptions = new ArrayList<>(Arrays.asList(DEFAULT_SKIPPABLE_EXCEPTIONS));
 	private Consumer<String> logger = s -> log.log(RiotLevel.LIFECYCLE, s);
+	private Optional<ProgressStyle> progressStyle = Optional.empty();
 
 	public RiotStep(StepBuilderFactory factory, ItemReader<I> reader, ItemWriter<O> writer) {
 		this.factory = factory;
 		this.reader = reader;
 		this.writer = writer;
+	}
+
+	public RiotStep<I, O> progressStyle(ProgressStyle style) {
+		this.progressStyle = Optional.of(style);
+		return this;
 	}
 
 	public RiotStep<I, O> name(String name) {
@@ -126,7 +133,7 @@ public class RiotStep<I, O> {
 		step.processor(processor);
 		step.writer(writer());
 		Utils.multiThread(step, options.getThreads());
-		if (options.getProgressStyle() != ProgressStyle.NONE) {
+		if (progressStyle() != ProgressStyle.NONE) {
 			step.listener((StepExecutionListener) stepListener());
 		}
 		if (options.getSkipPolicy() == StepSkipPolicy.NEVER) {
@@ -142,13 +149,17 @@ public class RiotStep<I, O> {
 		pbb.setStyle(progressBarStyle());
 		pbb.setUpdateIntervalMillis(options.getProgressUpdateInterval());
 		pbb.showSpeed();
-		if (options.getProgressStyle() == ProgressStyle.LOG) {
+		if (progressStyle() == ProgressStyle.LOG) {
 			pbb.setConsumer(new DelegatingProgressBarConsumer(logger));
 		}
 		if (extraMessage == null) {
 			return new ProgressStepListener<>(pbb);
 		}
 		return new ProgressWithExtraMessageStepListener<>(pbb, extraMessage);
+	}
+
+	private ProgressStyle progressStyle() {
+		return progressStyle.orElse(options.getProgressStyle());
 	}
 
 	private long initialMax() {
@@ -159,7 +170,7 @@ public class RiotStep<I, O> {
 	}
 
 	private ProgressBarStyle progressBarStyle() {
-		switch (options.getProgressStyle()) {
+		switch (progressStyle()) {
 		case BAR:
 			return ProgressBarStyle.COLORFUL_UNICODE_BAR;
 		case BLOCK:

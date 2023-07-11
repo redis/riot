@@ -32,6 +32,7 @@ import com.redis.riot.cli.common.ReplicateOptions;
 import com.redis.riot.cli.common.ReplicationStrategy;
 import com.redis.riot.cli.common.RiotStep;
 import com.redis.riot.cli.common.RiotUtils;
+import com.redis.riot.cli.common.JobOptions.ProgressStyle;
 import com.redis.riot.core.CompareStepExecutionListener;
 import com.redis.riot.core.KeyComparisonDiffLogger;
 import com.redis.riot.core.processor.CompositeItemStreamItemProcessor;
@@ -62,10 +63,10 @@ public class Replicate extends AbstractExportCommand {
 
 	private static final String COMPARE_MESSAGE = " | {0} missing | {1} type | {2} value | {3} ttl";
 	private static final String QUEUE_MESSAGE = " | {0} queued";
-	private static final String JOB_NAME = "replicate-job";
-	private static final String COMPARE_STEP = "compare-step";
-	private static final String SCAN_STEP = "scan-step";
-	private static final String LIVE_STEP = "live-step";
+	private static final String JOB_NAME = "replicate";
+	private static final String COMPARE_STEP = "compare";
+	private static final String SCAN_STEP = "scan";
+	private static final String LIVE_STEP = "live";
 	private static final String TASK_SCAN = "Scanning";
 	private static final String TASK_COMPARE = "Comparing";
 	private static final String TASK_LIVE = "Listening";
@@ -224,6 +225,9 @@ public class Replicate extends AbstractExportCommand {
 		KeyComparisonCountItemWriter writer = new KeyComparisonCountItemWriter();
 		RiotStep<KeyComparison, KeyComparison> riotStep = step(reader, writer).name(COMPARE_STEP).task(TASK_COMPARE);
 		riotStep.extraMessage(() -> extraMessage(writer.getResults()));
+		if (replicateOptions.isShowDiffs()) {
+			riotStep.progressStyle(ProgressStyle.LOG);
+		}
 		SimpleStepBuilder<KeyComparison, KeyComparison> step = riotStep.build();
 		Logger logger = Logger.getLogger(getClass().getName());
 		if (replicateOptions.isShowDiffs()) {

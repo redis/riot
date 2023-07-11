@@ -174,8 +174,15 @@ public class RedisReaderOptions {
 	}
 
 	public ReaderOptions readerOptions() {
-		return ReaderOptions.builder().chunkSize(chunkSize).threads(threads).poolOptions(poolOptions())
-				.queueOptions(queueOptions()).readFrom(readFrom()).memoryUsageOptions(memoryUsageOptions()).build();
+		ReaderOptions.Builder builder = ReaderOptions.builder();
+		builder.chunkSize(chunkSize);
+		builder.threads(threads);
+		builder.poolOptions(poolOptions());
+		builder.queueOptions(queueOptions());
+		builder.readFrom(readFrom());
+		builder.scanOptions(scanOptions());
+		builder.memoryUsageOptions(memoryUsageOptions());
+		return builder.build();
 	}
 
 	private MemoryUsageOptions memoryUsageOptions() {
@@ -191,11 +198,8 @@ public class RedisReaderOptions {
 		return "RedisReaderOptions [queueCapacity=" + queueCapacity + ", threads=" + threads + ", chunkSize="
 				+ chunkSize + ", scanMatch=" + scanMatch + ", scanCount=" + scanCount + ", scanType=" + scanType
 				+ ", poolMaxTotal=" + poolMaxTotal + ", readFrom=" + readFrom + ", keyIncludes=" + keyIncludes
-				+ ", keyExcludes=" + keyExcludes + ", keySlots=" + keySlots
-				+ ", memLimit=" + memLimit + ", memSamples="
+				+ ", keyExcludes=" + keyExcludes + ", keySlots=" + keySlots + ", memLimit=" + memLimit + ", memSamples="
 				+ memSamples + "]";
 	}
-	
-	
 
 }
