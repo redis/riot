@@ -134,12 +134,12 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <dl>
 <dt>All Implemented Interfaces:</dt>
-<dd><code>org.springframework.batch.item.ItemProcessor&lt;com.redis.spring.batch.common.DataStructure&lt;java.lang.String&gt;,&#8203;java.util.Map&lt;java.lang.String,&#8203;java.lang.Object&gt;&gt;</code></dd>
+<dd><code>org.springframework.batch.item.ItemProcessor&lt;com.redis.spring.batch.common.KeyValue&lt;java.lang.String&gt;,&#8203;java.util.Map&lt;java.lang.String,&#8203;java.lang.Object&gt;&gt;</code></dd>
 </dl>
 <hr>
 <pre>public class <span class="typeNameLabel">DataStructureToMapProcessor</span>
 extends java.lang.Object
-implements org.springframework.batch.item.ItemProcessor&lt;com.redis.spring.batch.common.DataStructure&lt;java.lang.String&gt;,&#8203;java.util.Map&lt;java.lang.String,&#8203;java.lang.Object&gt;&gt;</pre>
+implements org.springframework.batch.item.ItemProcessor&lt;com.redis.spring.batch.common.KeyValue&lt;java.lang.String&gt;,&#8203;java.util.Map&lt;java.lang.String,&#8203;java.lang.Object&gt;&gt;</pre>
 </li>
 </ul>
 </div>
@@ -188,7 +188,7 @@ implements org.springframework.batch.item.ItemProcessor&lt;com.redis.spring.batc
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>java.util.Map&lt;java.lang.String,&#8203;java.lang.Object&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#process(com.redis.spring.batch.common.DataStructure)">process</a></span>&#8203;(com.redis.spring.batch.common.DataStructure&lt;java.lang.String&gt;&nbsp;item)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#process(com.redis.spring.batch.common.KeyValue)">process</a></span>&#8203;(com.redis.spring.batch.common.KeyValue&lt;java.lang.String&gt;&nbsp;item)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i2" class="altColor">
@@ -203,27 +203,27 @@ implements org.springframework.batch.item.ItemProcessor&lt;com.redis.spring.batc
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setListConverter(com.redis.riot.core.convert.CollectionToStringMapConverter)">setListConverter</a></span>&#8203;(<a href="../convert/CollectionToStringMapConverter.html" title="class in com.redis.riot.core.convert">CollectionToStringMapConverter</a>&nbsp;listConverter)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setList(com.redis.riot.core.convert.CollectionToStringMapConverter)">setList</a></span>&#8203;(<a href="../convert/CollectionToStringMapConverter.html" title="class in com.redis.riot.core.convert">CollectionToStringMapConverter</a>&nbsp;listConverter)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setSetConverter(com.redis.riot.core.convert.CollectionToStringMapConverter)">setSetConverter</a></span>&#8203;(<a href="../convert/CollectionToStringMapConverter.html" title="class in com.redis.riot.core.convert">CollectionToStringMapConverter</a>&nbsp;setConverter)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setSet(com.redis.riot.core.convert.CollectionToStringMapConverter)">setSet</a></span>&#8203;(<a href="../convert/CollectionToStringMapConverter.html" title="class in com.redis.riot.core.convert">CollectionToStringMapConverter</a>&nbsp;setConverter)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setStreamConverter(com.redis.riot.core.convert.StreamToStringMapConverter)">setStreamConverter</a></span>&#8203;(<a href="../convert/StreamToStringMapConverter.html" title="class in com.redis.riot.core.convert">StreamToStringMapConverter</a>&nbsp;streamConverter)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setStream(com.redis.riot.core.convert.StreamToStringMapConverter)">setStream</a></span>&#8203;(<a href="../convert/StreamToStringMapConverter.html" title="class in com.redis.riot.core.convert">StreamToStringMapConverter</a>&nbsp;streamConverter)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i7" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setStringConverter(org.springframework.core.convert.converter.Converter)">setStringConverter</a></span>&#8203;(org.springframework.core.convert.converter.Converter&lt;java.lang.String,&#8203;java.util.Map&lt;java.lang.String,&#8203;java.lang.String&gt;&gt;&nbsp;stringConverter)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setString(org.springframework.core.convert.converter.Converter)">setString</a></span>&#8203;(org.springframework.core.convert.converter.Converter&lt;java.lang.String,&#8203;java.util.Map&lt;java.lang.String,&#8203;java.lang.String&gt;&gt;&nbsp;stringConverter)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i8" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setZsetConverter(com.redis.riot.core.convert.ZsetToStringMapConverter)">setZsetConverter</a></span>&#8203;(<a href="../convert/ZsetToStringMapConverter.html" title="class in com.redis.riot.core.convert">ZsetToStringMapConverter</a>&nbsp;zsetConverter)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setZset(com.redis.riot.core.convert.ZsetToStringMapConverter)">setZset</a></span>&#8203;(<a href="../convert/ZsetToStringMapConverter.html" title="class in com.redis.riot.core.convert">ZsetToStringMapConverter</a>&nbsp;zsetConverter)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
@@ -278,49 +278,49 @@ implements org.springframework.batch.item.ItemProcessor&lt;com.redis.spring.batc
 <pre class="methodSignature">public&nbsp;void&nbsp;setHashConverter&#8203;(org.springframework.core.convert.converter.Converter&lt;java.util.Map&lt;java.lang.String,&#8203;java.lang.String&gt;,&#8203;java.util.Map&lt;java.lang.String,&#8203;java.lang.String&gt;&gt;&nbsp;hashConverter)</pre>
 </li>
 </ul>
-<a id="setStreamConverter(com.redis.riot.core.convert.StreamToStringMapConverter)">
+<a id="setStream(com.redis.riot.core.convert.StreamToStringMapConverter)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>setStreamConverter</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;setStreamConverter&#8203;(<a href="../convert/StreamToStringMapConverter.html" title="class in com.redis.riot.core.convert">StreamToStringMapConverter</a>&nbsp;streamConverter)</pre>
+<h4>setStream</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;setStream&#8203;(<a href="../convert/StreamToStringMapConverter.html" title="class in com.redis.riot.core.convert">StreamToStringMapConverter</a>&nbsp;streamConverter)</pre>
 </li>
 </ul>
-<a id="setListConverter(com.redis.riot.core.convert.CollectionToStringMapConverter)">
+<a id="setList(com.redis.riot.core.convert.CollectionToStringMapConverter)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>setListConverter</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;setListConverter&#8203;(<a href="../convert/CollectionToStringMapConverter.html" title="class in com.redis.riot.core.convert">CollectionToStringMapConverter</a>&nbsp;listConverter)</pre>
+<h4>setList</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;setList&#8203;(<a href="../convert/CollectionToStringMapConverter.html" title="class in com.redis.riot.core.convert">CollectionToStringMapConverter</a>&nbsp;listConverter)</pre>
 </li>
 </ul>
-<a id="setSetConverter(com.redis.riot.core.convert.CollectionToStringMapConverter)">
+<a id="setSet(com.redis.riot.core.convert.CollectionToStringMapConverter)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>setSetConverter</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;setSetConverter&#8203;(<a href="../convert/CollectionToStringMapConverter.html" title="class in com.redis.riot.core.convert">CollectionToStringMapConverter</a>&nbsp;setConverter)</pre>
+<h4>setSet</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;setSet&#8203;(<a href="../convert/CollectionToStringMapConverter.html" title="class in com.redis.riot.core.convert">CollectionToStringMapConverter</a>&nbsp;setConverter)</pre>
 </li>
 </ul>
-<a id="setZsetConverter(com.redis.riot.core.convert.ZsetToStringMapConverter)">
+<a id="setZset(com.redis.riot.core.convert.ZsetToStringMapConverter)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>setZsetConverter</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;setZsetConverter&#8203;(<a href="../convert/ZsetToStringMapConverter.html" title="class in com.redis.riot.core.convert">ZsetToStringMapConverter</a>&nbsp;zsetConverter)</pre>
+<h4>setZset</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;setZset&#8203;(<a href="../convert/ZsetToStringMapConverter.html" title="class in com.redis.riot.core.convert">ZsetToStringMapConverter</a>&nbsp;zsetConverter)</pre>
 </li>
 </ul>
-<a id="setStringConverter(org.springframework.core.convert.converter.Converter)">
+<a id="setString(org.springframework.core.convert.converter.Converter)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>setStringConverter</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;setStringConverter&#8203;(org.springframework.core.convert.converter.Converter&lt;java.lang.String,&#8203;java.util.Map&lt;java.lang.String,&#8203;java.lang.String&gt;&gt;&nbsp;stringConverter)</pre>
+<h4>setString</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;setString&#8203;(org.springframework.core.convert.converter.Converter&lt;java.lang.String,&#8203;java.util.Map&lt;java.lang.String,&#8203;java.lang.String&gt;&gt;&nbsp;stringConverter)</pre>
 </li>
 </ul>
 <a id="setDefaultConverter(org.springframework.core.convert.converter.Converter)">
@@ -332,17 +332,17 @@ implements org.springframework.batch.item.ItemProcessor&lt;com.redis.spring.batc
 <pre class="methodSignature">public&nbsp;void&nbsp;setDefaultConverter&#8203;(org.springframework.core.convert.converter.Converter&lt;java.lang.Object,&#8203;java.util.Map&lt;java.lang.String,&#8203;java.lang.String&gt;&gt;&nbsp;defaultConverter)</pre>
 </li>
 </ul>
-<a id="process(com.redis.spring.batch.common.DataStructure)">
+<a id="process(com.redis.spring.batch.common.KeyValue)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>process</h4>
-<pre class="methodSignature">public&nbsp;java.util.Map&lt;java.lang.String,&#8203;java.lang.Object&gt;&nbsp;process&#8203;(com.redis.spring.batch.common.DataStructure&lt;java.lang.String&gt;&nbsp;item)
+<pre class="methodSignature">public&nbsp;java.util.Map&lt;java.lang.String,&#8203;java.lang.Object&gt;&nbsp;process&#8203;(com.redis.spring.batch.common.KeyValue&lt;java.lang.String&gt;&nbsp;item)
                                                                throws java.lang.Exception</pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code>process</code>&nbsp;in interface&nbsp;<code>org.springframework.batch.item.ItemProcessor&lt;com.redis.spring.batch.common.DataStructure&lt;java.lang.String&gt;,&#8203;java.util.Map&lt;java.lang.String,&#8203;java.lang.Object&gt;&gt;</code></dd>
+<dd><code>process</code>&nbsp;in interface&nbsp;<code>org.springframework.batch.item.ItemProcessor&lt;com.redis.spring.batch.common.KeyValue&lt;java.lang.String&gt;,&#8203;java.util.Map&lt;java.lang.String,&#8203;java.lang.Object&gt;&gt;</code></dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code>java.lang.Exception</code></dd>
 </dl>

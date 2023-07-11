@@ -107,7 +107,6 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul>
 <li class="circle">java.lang.Object
 <ul>
-<li class="circle">com.redis.riot.core.<a href="FileUtils.html" title="class in com.redis.riot.core"><span class="typeNameLink">FileUtils</span></a></li>
 <li class="circle">com.redis.riot.core.<a href="ItemReaderIterator.html" title="class in com.redis.riot.core"><span class="typeNameLink">ItemReaderIterator</span></a>&lt;T&gt; (implements java.util.Iterator&lt;E&gt;)</li>
 <li class="circle">org.springframework.batch.item.ItemStreamSupport (implements org.springframework.batch.item.ItemStream)
 <ul>
@@ -120,24 +119,30 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </li>
 </ul>
 </li>
-<li class="circle">com.redis.spring.batch.common.DelegatingItemStreamSupport (implements com.redis.spring.batch.common.Openable)
+<li class="circle">org.springframework.batch.item.support.AbstractItemStreamItemWriter&lt;T&gt; (implements org.springframework.batch.item.ItemStreamWriter&lt;T&gt;)
 <ul>
-<li class="circle">com.redis.riot.core.<a href="ThrottledItemWriter.html" title="class in com.redis.riot.core"><span class="typeNameLink">ThrottledItemWriter</span></a>&lt;T&gt; (implements org.springframework.batch.item.ItemStreamWriter&lt;T&gt;)</li>
+<li class="circle">com.redis.riot.core.<a href="ThrottledItemWriter.html" title="class in com.redis.riot.core"><span class="typeNameLink">ThrottledItemWriter</span></a>&lt;T&gt;</li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="circle">com.redis.riot.core.<a href="KeyComparisonLogger.html" title="class in com.redis.riot.core"><span class="typeNameLink">KeyComparisonLogger</span></a> (implements org.springframework.batch.core.ItemWriteListener&lt;S&gt;)</li>
+<li class="circle">com.redis.riot.core.<a href="KeyComparisonDiffLogger.html" title="class in com.redis.riot.core"><span class="typeNameLink">KeyComparisonDiffLogger</span></a> (implements org.springframework.batch.core.ItemWriteListener&lt;S&gt;)</li>
 <li class="circle">com.redis.riot.core.<a href="MapFieldSetMapper.html" title="class in com.redis.riot.core"><span class="typeNameLink">MapFieldSetMapper</span></a> (implements org.springframework.batch.item.file.mapping.FieldSetMapper&lt;T&gt;)</li>
 <li class="circle">com.redis.riot.core.<a href="ReflectivePropertyAccessor.html" title="class in com.redis.riot.core"><span class="typeNameLink">ReflectivePropertyAccessor</span></a> (implements org.springframework.expression.PropertyAccessor)</li>
 <li class="circle">com.redis.riot.core.<a href="ReflectivePropertyAccessor.OptimalPropertyAccessor.html" title="class in com.redis.riot.core"><span class="typeNameLink">ReflectivePropertyAccessor.OptimalPropertyAccessor</span></a> (implements org.springframework.expression.spel.CompilablePropertyAccessor)</li>
+<li class="circle">org.springframework.batch.core.listener.StepExecutionListenerSupport (implements org.springframework.batch.core.StepExecutionListener)
+<ul>
+<li class="circle">com.redis.riot.core.<a href="CompareStepExecutionListener.html" title="class in com.redis.riot.core"><span class="typeNameLink">CompareStepExecutionListener</span></a></li>
+</ul>
+</li>
 <li class="circle">java.lang.Throwable (implements java.io.Serializable)
 <ul>
 <li class="circle">java.lang.Exception
 <ul>
 <li class="circle">java.lang.RuntimeException
 <ul>
-<li class="circle">com.redis.riot.core.<a href="FileUtils.UnknownFileTypeException.html" title="class in com.redis.riot.core"><span class="typeNameLink">FileUtils.UnknownFileTypeException</span></a></li>
+<li class="circle">com.redis.riot.core.<a href="RuntimeIOException.html" title="class in com.redis.riot.core"><span class="typeNameLink">RuntimeIOException</span></a></li>
+<li class="circle">com.redis.riot.core.<a href="UnknownFileTypeException.html" title="class in com.redis.riot.core"><span class="typeNameLink">UnknownFileTypeException</span></a></li>
 </ul>
 </li>
 </ul>
@@ -146,6 +151,12 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </li>
 </ul>
 </li>
+</ul>
+</section>
+<section>
+<h2 title="Interface Hierarchy">Interface Hierarchy</h2>
+<ul>
+<li class="circle">com.redis.riot.core.<a href="FileUtils.html" title="interface in com.redis.riot.core"><span class="typeNameLink">FileUtils</span></a></li>
 </ul>
 </section>
 <section>

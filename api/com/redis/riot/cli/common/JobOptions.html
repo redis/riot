@@ -189,7 +189,7 @@ extends java.lang.Object</pre>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>static java.time.Duration</code></td>
+<td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_PROGRESS_UPDATE_INTERVAL">DEFAULT_PROGRESS_UPDATE_INTERVAL</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
@@ -258,7 +258,7 @@ extends java.lang.Object</pre>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code>long</code></td>
+<td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getProgressUpdateInterval()">getProgressUpdateInterval</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
@@ -294,7 +294,7 @@ extends java.lang.Object</pre>
 </tr>
 <tr id="i9" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setProgressUpdateInterval(long)">setProgressUpdateInterval</a></span>&#8203;(long&nbsp;millis)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setProgressUpdateInterval(int)">setProgressUpdateInterval</a></span>&#8203;(int&nbsp;millis)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i10" class="altColor">
@@ -400,7 +400,11 @@ extends java.lang.Object</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>DEFAULT_PROGRESS_UPDATE_INTERVAL</h4>
-<pre>public static final&nbsp;java.time.Duration DEFAULT_PROGRESS_UPDATE_INTERVAL</pre>
+<pre>public static final&nbsp;int DEFAULT_PROGRESS_UPDATE_INTERVAL</pre>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.redis.riot.cli.common.JobOptions.DEFAULT_PROGRESS_UPDATE_INTERVAL">Constant Field Values</a></dd>
+</dl>
 </li>
 </ul>
 <a id="DEFAULT_PROGRESS_STYLE">
@@ -456,7 +460,7 @@ extends java.lang.Object</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>getProgressUpdateInterval</h4>
-<pre class="methodSignature">public&nbsp;long&nbsp;getProgressUpdateInterval()</pre>
+<pre class="methodSignature">public&nbsp;int&nbsp;getProgressUpdateInterval()</pre>
 </li>
 </ul>
 <a id="setProgressStyle(com.redis.riot.cli.common.JobOptions.ProgressStyle)">
@@ -468,13 +472,13 @@ extends java.lang.Object</pre>
 <pre class="methodSignature">public&nbsp;void&nbsp;setProgressStyle&#8203;(<a href="JobOptions.ProgressStyle.html" title="enum in com.redis.riot.cli.common">JobOptions.ProgressStyle</a>&nbsp;style)</pre>
 </li>
 </ul>
-<a id="setProgressUpdateInterval(long)">
+<a id="setProgressUpdateInterval(int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setProgressUpdateInterval</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;setProgressUpdateInterval&#8203;(long&nbsp;millis)</pre>
+<pre class="methodSignature">public&nbsp;void&nbsp;setProgressUpdateInterval&#8203;(int&nbsp;millis)</pre>
 </li>
 </ul>
 <a id="getSleep()">

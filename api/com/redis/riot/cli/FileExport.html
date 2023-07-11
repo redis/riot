@@ -27,7 +27,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -91,7 +91,7 @@ loadScripts(document, 'script');</script>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
@@ -155,6 +155,30 @@ extends <a href="common/AbstractExportCommand.html" title="class in com.redis.ri
 <div class="summary">
 <ul class="blockList">
 <li class="blockList">
+<!-- =========== FIELD SUMMARY =========== -->
+<section>
+<ul class="blockList">
+<li class="blockList"><a id="field.summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<ul class="blockList">
+<li class="blockList"><a id="fields.inherited.from.class.com.redis.riot.cli.common.AbstractExportCommand">
+<!--   -->
+</a>
+<h3>Fields inherited from class&nbsp;com.redis.riot.cli.common.<a href="common/AbstractExportCommand.html" title="class in com.redis.riot.cli.common">AbstractExportCommand</a></h3>
+<code><a href="common/AbstractExportCommand.html#readerOptions">readerOptions</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a id="fields.inherited.from.class.com.redis.riot.cli.common.AbstractCommand">
+<!--   -->
+</a>
+<h3>Fields inherited from class&nbsp;com.redis.riot.cli.common.<a href="common/AbstractCommand.html" title="class in com.redis.riot.cli.common">AbstractCommand</a></h3>
+<code><a href="common/AbstractCommand.html#jobOptions">jobOptions</a></code></li>
+</ul>
+</li>
+</ul>
+</section>
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
 <section>
 <ul class="blockList">
@@ -197,7 +221,7 @@ extends <a href="common/AbstractExportCommand.html" title="class in com.redis.ri
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code><a href="file/FileExportOptions.html" title="class in com.redis.riot.cli.file">FileExportOptions</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getOptions()">getOptions</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getFileExportOptions()">getFileExportOptions</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i2" class="altColor">
@@ -212,7 +236,12 @@ extends <a href="common/AbstractExportCommand.html" title="class in com.redis.ri
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setOptions(com.redis.riot.cli.file.FileExportOptions)">setOptions</a></span>&#8203;(<a href="file/FileExportOptions.html" title="class in com.redis.riot.cli.file">FileExportOptions</a>&nbsp;options)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setFileExportOptions(com.redis.riot.cli.file.FileExportOptions)">setFileExportOptions</a></span>&#8203;(<a href="file/FileExportOptions.html" title="class in com.redis.riot.cli.file">FileExportOptions</a>&nbsp;options)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>java.lang.String</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toString()">toString</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
@@ -221,21 +250,21 @@ extends <a href="common/AbstractExportCommand.html" title="class in com.redis.ri
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;com.redis.riot.cli.common.<a href="common/AbstractExportCommand.html" title="class in com.redis.riot.cli.common">AbstractExportCommand</a></h3>
-<code><a href="common/AbstractExportCommand.html#configureScanBuilder(com.redis.spring.batch.RedisItemReader.BaseScanBuilder)">configureScanBuilder</a>, <a href="common/AbstractExportCommand.html#estimator(com.redis.riot.cli.common.CommandContext)">estimator</a>, <a href="common/AbstractExportCommand.html#getReaderOptions()">getReaderOptions</a>, <a href="common/AbstractExportCommand.html#keyProcessor()">keyProcessor</a>, <a href="common/AbstractExportCommand.html#keyProcessor(io.lettuce.core.codec.RedisCodec)">keyProcessor</a>, <a href="common/AbstractExportCommand.html#monitor(java.lang.String,com.redis.riot.cli.common.CommandContext)">monitor</a>, <a href="common/AbstractExportCommand.html#poolOptions(com.redis.riot.cli.common.RedisReaderOptions)">poolOptions</a>, <a href="common/AbstractExportCommand.html#queueOptions(com.redis.riot.cli.common.RedisReaderOptions)">queueOptions</a>, <a href="common/AbstractExportCommand.html#scanBuilder(com.redis.riot.cli.common.CommandContext)">scanBuilder</a>, <a href="common/AbstractExportCommand.html#setReaderOptions(com.redis.riot.cli.common.RedisReaderOptions)">setReaderOptions</a></code></li>
+<code><a href="common/AbstractExportCommand.html#configure(B,io.lettuce.core.codec.RedisCodec)">configure</a>, <a href="common/AbstractExportCommand.html#getReaderOptions()">getReaderOptions</a>, <a href="common/AbstractExportCommand.html#reader(com.redis.riot.cli.common.CommandContext,io.lettuce.core.codec.RedisCodec)">reader</a>, <a href="common/AbstractExportCommand.html#setReaderOptions(com.redis.riot.cli.common.RedisReaderOptions)">setReaderOptions</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.com.redis.riot.cli.common.AbstractCommand">
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;com.redis.riot.cli.common.<a href="common/AbstractCommand.html" title="class in com.redis.riot.cli.common">AbstractCommand</a></h3>
-<code><a href="common/AbstractCommand.html#call()">call</a>, <a href="common/AbstractCommand.html#client(io.lettuce.core.RedisURI,com.redis.riot.cli.common.RedisOptions)">client</a>, <a href="common/AbstractCommand.html#commandName()">commandName</a>, <a href="common/AbstractCommand.html#context(io.lettuce.core.RedisURI,io.lettuce.core.AbstractRedisClient)">context</a>, <a href="common/AbstractCommand.html#getJobOptions()">getJobOptions</a>, <a href="common/AbstractCommand.html#getJobRepository()">getJobRepository</a>, <a href="common/AbstractCommand.html#job(java.lang.String)">job</a>, <a href="common/AbstractCommand.html#job(org.springframework.batch.core.Step)">job</a>, <a href="common/AbstractCommand.html#monitor(java.lang.String)">monitor</a>, <a href="common/AbstractCommand.html#redisURI(com.redis.riot.cli.common.RedisOptions)">redisURI</a>, <a href="common/AbstractCommand.html#setCommandName(java.lang.String)">setCommandName</a>, <a href="common/AbstractCommand.html#setCommandSpec(picocli.CommandLine.Model.CommandSpec)">setCommandSpec</a>, <a href="common/AbstractCommand.html#setJobOptions(com.redis.riot.cli.common.JobOptions)">setJobOptions</a>, <a href="common/AbstractCommand.html#setRiot(com.redis.riot.cli.Main)">setRiot</a>, <a href="common/AbstractCommand.html#skippableExceptions()">skippableExceptions</a>, <a href="common/AbstractCommand.html#step(java.lang.String,org.springframework.batch.item.ItemReader,org.springframework.batch.item.ItemProcessor,org.springframework.batch.item.ItemWriter)">step</a>, <a href="common/AbstractCommand.html#step(java.lang.String,org.springframework.batch.item.ItemReader,org.springframework.batch.item.ItemWriter)">step</a>, <a href="common/AbstractCommand.html#stepBuilder(java.lang.String)">stepBuilder</a>, <a href="common/AbstractCommand.html#writer(io.lettuce.core.AbstractRedisClient,com.redis.riot.cli.common.RedisWriterOptions)">writer</a></code></li>
+<code><a href="common/AbstractCommand.html#call()">call</a>, <a href="common/AbstractCommand.html#commandName()">commandName</a>, <a href="common/AbstractCommand.html#context(io.lettuce.core.RedisURI,io.lettuce.core.AbstractRedisClient)">context</a>, <a href="common/AbstractCommand.html#getJobOptions()">getJobOptions</a>, <a href="common/AbstractCommand.html#getJobRepository()">getJobRepository</a>, <a href="common/AbstractCommand.html#getRedisOptions()">getRedisOptions</a>, <a href="common/AbstractCommand.html#job(com.redis.riot.cli.common.RiotStep)">job</a>, <a href="common/AbstractCommand.html#job(java.lang.String)">job</a>, <a href="common/AbstractCommand.html#setCommandName(java.lang.String)">setCommandName</a>, <a href="common/AbstractCommand.html#setCommandSpec(picocli.CommandLine.Model.CommandSpec)">setCommandSpec</a>, <a href="common/AbstractCommand.html#setJobOptions(com.redis.riot.cli.common.JobOptions)">setJobOptions</a>, <a href="common/AbstractCommand.html#setRiot(com.redis.riot.cli.Main)">setRiot</a>, <a href="common/AbstractCommand.html#step(org.springframework.batch.item.ItemReader,org.springframework.batch.item.ItemWriter)">step</a>, <a href="common/AbstractCommand.html#stepBuilderFactory()">stepBuilderFactory</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.Object</h3>
-<code>clone, equals, finalize, getClass, hashCode, notify, notifyAll, toString, wait, wait, wait</code></li>
+<code>clone, equals, finalize, getClass, hashCode, notify, notifyAll, wait, wait, wait</code></li>
 </ul>
 </li>
 </ul>
@@ -290,34 +319,47 @@ extends <a href="common/AbstractExportCommand.html" title="class in com.redis.ri
 <pre class="methodSignature">public&nbsp;void&nbsp;setFile&#8203;(java.lang.String&nbsp;file)</pre>
 </li>
 </ul>
-<a id="getOptions()">
+<a id="getFileExportOptions()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>getOptions</h4>
-<pre class="methodSignature">public&nbsp;<a href="file/FileExportOptions.html" title="class in com.redis.riot.cli.file">FileExportOptions</a>&nbsp;getOptions()</pre>
+<h4>getFileExportOptions</h4>
+<pre class="methodSignature">public&nbsp;<a href="file/FileExportOptions.html" title="class in com.redis.riot.cli.file">FileExportOptions</a>&nbsp;getFileExportOptions()</pre>
 </li>
 </ul>
-<a id="setOptions(com.redis.riot.cli.file.FileExportOptions)">
+<a id="setFileExportOptions(com.redis.riot.cli.file.FileExportOptions)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>setOptions</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;setOptions&#8203;(<a href="file/FileExportOptions.html" title="class in com.redis.riot.cli.file">FileExportOptions</a>&nbsp;options)</pre>
+<h4>setFileExportOptions</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;setFileExportOptions&#8203;(<a href="file/FileExportOptions.html" title="class in com.redis.riot.cli.file">FileExportOptions</a>&nbsp;options)</pre>
 </li>
 </ul>
 <a id="job(com.redis.riot.cli.common.CommandContext)">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>job</h4>
 <pre class="methodSignature">protected&nbsp;org.springframework.batch.core.Job&nbsp;job&#8203;(<a href="common/CommandContext.html" title="class in com.redis.riot.cli.common">CommandContext</a>&nbsp;context)</pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="common/AbstractCommand.html#job(com.redis.riot.cli.common.CommandContext)">job</a></code>&nbsp;in class&nbsp;<code><a href="common/AbstractCommand.html" title="class in com.redis.riot.cli.common">AbstractCommand</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="toString()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>toString</h4>
+<pre class="methodSignature">public&nbsp;java.lang.String&nbsp;toString()</pre>
+<dl>
+<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
+<dd><code><a href="common/AbstractExportCommand.html#toString()">toString</a></code>&nbsp;in class&nbsp;<code><a href="common/AbstractExportCommand.html" title="class in com.redis.riot.cli.common">AbstractExportCommand</a></code></dd>
 </dl>
 </li>
 </ul>
@@ -375,7 +417,7 @@ extends <a href="common/AbstractExportCommand.html" title="class in com.redis.ri
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>

@@ -27,7 +27,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":9,"i1":9,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":9};
+var data = {"i0":9,"i1":9,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":9};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -91,13 +91,13 @@ loadScripts(document, 'script');</script>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>
@@ -131,7 +131,12 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li><a href="common/AbstractImportCommand.html" title="class in com.redis.riot.cli.common">com.redis.riot.cli.common.AbstractImportCommand</a></li>
 <li>
 <ul class="inheritance">
+<li><a href="common/AbstractOperationImportCommand.html" title="class in com.redis.riot.cli.common">com.redis.riot.cli.common.AbstractOperationImportCommand</a></li>
+<li>
+<ul class="inheritance">
 <li>com.redis.riot.cli.FileImport</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -148,7 +153,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </dl>
 <hr>
 <pre>public class <span class="typeNameLabel">FileImport</span>
-extends <a href="common/AbstractImportCommand.html" title="class in com.redis.riot.cli.common">AbstractImportCommand</a></pre>
+extends <a href="common/AbstractOperationImportCommand.html" title="class in com.redis.riot.cli.common">AbstractOperationImportCommand</a></pre>
 </li>
 </ul>
 </div>
@@ -175,6 +180,50 @@ extends <a href="common/AbstractImportCommand.html" title="class in com.redis.ri
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
+</li>
+</ul>
+</section>
+<!-- =========== FIELD SUMMARY =========== -->
+<section>
+<ul class="blockList">
+<li class="blockList"><a id="field.summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<table class="memberSummary">
+<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Field</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected java.util.List&lt;java.lang.String&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#files">files</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a id="fields.inherited.from.class.com.redis.riot.cli.common.AbstractOperationImportCommand">
+<!--   -->
+</a>
+<h3>Fields inherited from class&nbsp;com.redis.riot.cli.common.<a href="common/AbstractOperationImportCommand.html" title="class in com.redis.riot.cli.common">AbstractOperationImportCommand</a></h3>
+<code><a href="common/AbstractOperationImportCommand.html#processorOptions">processorOptions</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a id="fields.inherited.from.class.com.redis.riot.cli.common.AbstractImportCommand">
+<!--   -->
+</a>
+<h3>Fields inherited from class&nbsp;com.redis.riot.cli.common.<a href="common/AbstractImportCommand.html" title="class in com.redis.riot.cli.common">AbstractImportCommand</a></h3>
+<code><a href="common/AbstractImportCommand.html#writerOptions">writerOptions</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a id="fields.inherited.from.class.com.redis.riot.cli.common.AbstractCommand">
+<!--   -->
+</a>
+<h3>Fields inherited from class&nbsp;com.redis.riot.cli.common.<a href="common/AbstractCommand.html" title="class in com.redis.riot.cli.common">AbstractCommand</a></h3>
+<code><a href="common/AbstractCommand.html#jobOptions">jobOptions</a></code></li>
+</ul>
 </li>
 </ul>
 </section>
@@ -224,81 +273,98 @@ extends <a href="common/AbstractImportCommand.html" title="class in com.redis.ri
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i2" class="altColor">
+<td class="colFirst"><code><a href="file/FileOptions.html" title="class in com.redis.riot.cli.file">FileOptions</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getFileOptions()">getFileOptions</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>java.util.List&lt;java.lang.String&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getFiles()">getFiles</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>java.util.Optional&lt;<a href="../core/FileType.html" title="enum in com.redis.riot.core">FileType</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getFileType()">getFileType</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code><a href="file/FlatFileOptions.html" title="class in com.redis.riot.cli.file">FlatFileOptions</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getFlatFileOptions()">getFlatFileOptions</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i4" class="altColor">
-<td class="colFirst"><code><a href="file/FileImportOptions.html" title="class in com.redis.riot.cli.file">FileImportOptions</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getOptions()">getOptions</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>protected org.springframework.batch.core.Job</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#job(com.redis.riot.cli.common.CommandContext)">job</a></span>&#8203;(<a href="common/CommandContext.html" title="class in com.redis.riot.cli.common">CommandContext</a>&nbsp;context)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>java.util.Iterator&lt;java.util.Map&lt;java.lang.String,&#8203;java.lang.Object&gt;&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#read(java.lang.String)">read</a></span>&#8203;(java.lang.String&nbsp;file)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i7" class="rowColor">
-<td class="colFirst"><code>java.util.List&lt;org.springframework.batch.item.ItemReader&lt;java.util.Map&lt;java.lang.String,&#8203;java.lang.Object&gt;&gt;&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#readers(java.lang.String...)">readers</a></span>&#8203;(java.lang.String...&nbsp;files)</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
 <tr id="i8" class="altColor">
-<td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setFileType(com.redis.riot.core.FileType)">setFileType</a></span>&#8203;(<a href="../core/FileType.html" title="enum in com.redis.riot.core">FileType</a>&nbsp;fileType)</code></th>
+<td class="colFirst"><code>java.util.stream.Stream&lt;org.springframework.batch.item.ItemReader&lt;java.util.Map&lt;java.lang.String,&#8203;java.lang.Object&gt;&gt;&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#readers(java.lang.String...)">readers</a></span>&#8203;(java.lang.String...&nbsp;files)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i9" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setFlatFileOptions(com.redis.riot.cli.file.FlatFileOptions)">setFlatFileOptions</a></span>&#8203;(<a href="file/FlatFileOptions.html" title="class in com.redis.riot.cli.file">FlatFileOptions</a>&nbsp;options)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setFileOptions(com.redis.riot.cli.file.FileOptions)">setFileOptions</a></span>&#8203;(<a href="file/FileOptions.html" title="class in com.redis.riot.cli.file">FileOptions</a>&nbsp;options)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i10" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setOptions(com.redis.riot.cli.file.FileImportOptions)">setOptions</a></span>&#8203;(<a href="file/FileImportOptions.html" title="class in com.redis.riot.cli.file">FileImportOptions</a>&nbsp;options)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setFiles(java.util.List)">setFiles</a></span>&#8203;(java.util.List&lt;java.lang.String&gt;&nbsp;files)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i11" class="rowColor">
-<td class="colFirst"><code>protected java.util.Map&lt;java.lang.Class&lt;? extends java.lang.Throwable&gt;,&#8203;java.lang.Boolean&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#skippableExceptions()">skippableExceptions</a></span>()</code></th>
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setFileType(com.redis.riot.core.FileType)">setFileType</a></span>&#8203;(<a href="../core/FileType.html" title="enum in com.redis.riot.core">FileType</a>&nbsp;fileType)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i12" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setFlatFileOptions(com.redis.riot.cli.file.FlatFileOptions)">setFlatFileOptions</a></span>&#8203;(<a href="file/FlatFileOptions.html" title="class in com.redis.riot.cli.file">FlatFileOptions</a>&nbsp;options)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i13" class="rowColor">
+<td class="colFirst"><code>java.lang.String</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toString()">toString</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i14" class="altColor">
 <td class="colFirst"><code>static <a href="../core/FileType.html" title="enum in com.redis.riot.core">FileType</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#type(org.springframework.core.io.Resource)">type</a></span>&#8203;(org.springframework.core.io.Resource&nbsp;resource)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
 <ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.com.redis.riot.cli.common.AbstractOperationImportCommand">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;com.redis.riot.cli.common.<a href="common/AbstractOperationImportCommand.html" title="class in com.redis.riot.cli.common">AbstractOperationImportCommand</a></h3>
+<code><a href="common/AbstractOperationImportCommand.html#getProcessorOptions()">getProcessorOptions</a>, <a href="common/AbstractOperationImportCommand.html#getRedisCommands()">getRedisCommands</a>, <a href="common/AbstractOperationImportCommand.html#setProcessorOptions(com.redis.riot.cli.common.MapProcessorOptions)">setProcessorOptions</a>, <a href="common/AbstractOperationImportCommand.html#setRedisCommands(java.util.List)">setRedisCommands</a>, <a href="common/AbstractOperationImportCommand.html#step(com.redis.riot.cli.common.CommandContext,org.springframework.batch.item.ItemReader)">step</a></code></li>
+</ul>
+<ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.com.redis.riot.cli.common.AbstractImportCommand">
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;com.redis.riot.cli.common.<a href="common/AbstractImportCommand.html" title="class in com.redis.riot.cli.common">AbstractImportCommand</a></h3>
-<code><a href="common/AbstractImportCommand.html#getProcessorOptions()">getProcessorOptions</a>, <a href="common/AbstractImportCommand.html#getRedisCommands()">getRedisCommands</a>, <a href="common/AbstractImportCommand.html#getWriterOptions()">getWriterOptions</a>, <a href="common/AbstractImportCommand.html#processor(io.lettuce.core.AbstractRedisClient)">processor</a>, <a href="common/AbstractImportCommand.html#setProcessorOptions(com.redis.riot.cli.common.MapProcessorOptions)">setProcessorOptions</a>, <a href="common/AbstractImportCommand.html#setRedisCommands(java.util.List)">setRedisCommands</a>, <a href="common/AbstractImportCommand.html#setWriterOptions(com.redis.riot.cli.common.RedisWriterOptions)">setWriterOptions</a>, <a href="common/AbstractImportCommand.html#step(io.lettuce.core.AbstractRedisClient,java.lang.String,org.springframework.batch.item.ItemReader)">step</a>, <a href="common/AbstractImportCommand.html#step(io.lettuce.core.AbstractRedisClient,org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader)">step</a></code></li>
+<code><a href="common/AbstractImportCommand.html#configure(B)">configure</a>, <a href="common/AbstractImportCommand.html#getWriterOptions()">getWriterOptions</a>, <a href="common/AbstractImportCommand.html#setWriterOptions(com.redis.riot.cli.common.RedisWriterOptions)">setWriterOptions</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.com.redis.riot.cli.common.AbstractCommand">
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;com.redis.riot.cli.common.<a href="common/AbstractCommand.html" title="class in com.redis.riot.cli.common">AbstractCommand</a></h3>
-<code><a href="common/AbstractCommand.html#call()">call</a>, <a href="common/AbstractCommand.html#client(io.lettuce.core.RedisURI,com.redis.riot.cli.common.RedisOptions)">client</a>, <a href="common/AbstractCommand.html#commandName()">commandName</a>, <a href="common/AbstractCommand.html#context(io.lettuce.core.RedisURI,io.lettuce.core.AbstractRedisClient)">context</a>, <a href="common/AbstractCommand.html#getJobOptions()">getJobOptions</a>, <a href="common/AbstractCommand.html#getJobRepository()">getJobRepository</a>, <a href="common/AbstractCommand.html#job(java.lang.String)">job</a>, <a href="common/AbstractCommand.html#job(org.springframework.batch.core.Step)">job</a>, <a href="common/AbstractCommand.html#monitor(java.lang.String)">monitor</a>, <a href="common/AbstractCommand.html#redisURI(com.redis.riot.cli.common.RedisOptions)">redisURI</a>, <a href="common/AbstractCommand.html#setCommandName(java.lang.String)">setCommandName</a>, <a href="common/AbstractCommand.html#setCommandSpec(picocli.CommandLine.Model.CommandSpec)">setCommandSpec</a>, <a href="common/AbstractCommand.html#setJobOptions(com.redis.riot.cli.common.JobOptions)">setJobOptions</a>, <a href="common/AbstractCommand.html#setRiot(com.redis.riot.cli.Main)">setRiot</a>, <a href="common/AbstractCommand.html#step(java.lang.String,org.springframework.batch.item.ItemReader,org.springframework.batch.item.ItemProcessor,org.springframework.batch.item.ItemWriter)">step</a>, <a href="common/AbstractCommand.html#step(java.lang.String,org.springframework.batch.item.ItemReader,org.springframework.batch.item.ItemWriter)">step</a>, <a href="common/AbstractCommand.html#stepBuilder(java.lang.String)">stepBuilder</a>, <a href="common/AbstractCommand.html#writer(io.lettuce.core.AbstractRedisClient,com.redis.riot.cli.common.RedisWriterOptions)">writer</a></code></li>
+<code><a href="common/AbstractCommand.html#call()">call</a>, <a href="common/AbstractCommand.html#commandName()">commandName</a>, <a href="common/AbstractCommand.html#context(io.lettuce.core.RedisURI,io.lettuce.core.AbstractRedisClient)">context</a>, <a href="common/AbstractCommand.html#getJobOptions()">getJobOptions</a>, <a href="common/AbstractCommand.html#getJobRepository()">getJobRepository</a>, <a href="common/AbstractCommand.html#getRedisOptions()">getRedisOptions</a>, <a href="common/AbstractCommand.html#job(com.redis.riot.cli.common.RiotStep)">job</a>, <a href="common/AbstractCommand.html#job(java.lang.String)">job</a>, <a href="common/AbstractCommand.html#setCommandName(java.lang.String)">setCommandName</a>, <a href="common/AbstractCommand.html#setCommandSpec(picocli.CommandLine.Model.CommandSpec)">setCommandSpec</a>, <a href="common/AbstractCommand.html#setJobOptions(com.redis.riot.cli.common.JobOptions)">setJobOptions</a>, <a href="common/AbstractCommand.html#setRiot(com.redis.riot.cli.Main)">setRiot</a>, <a href="common/AbstractCommand.html#step(org.springframework.batch.item.ItemReader,org.springframework.batch.item.ItemWriter)">step</a>, <a href="common/AbstractCommand.html#stepBuilderFactory()">stepBuilderFactory</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.Object</h3>
-<code>clone, equals, finalize, getClass, hashCode, notify, notifyAll, toString, wait, wait, wait</code></li>
+<code>clone, equals, finalize, getClass, hashCode, notify, notifyAll, wait, wait, wait</code></li>
 </ul>
 </li>
 </ul>
@@ -309,6 +375,25 @@ extends <a href="common/AbstractImportCommand.html" title="class in com.redis.ri
 <div class="details">
 <ul class="blockList">
 <li class="blockList">
+<!-- ============ FIELD DETAIL =========== -->
+<section>
+<ul class="blockList">
+<li class="blockList"><a id="field.detail">
+<!--   -->
+</a>
+<h3>Field Detail</h3>
+<a id="files">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>files</h4>
+<pre>protected&nbsp;java.util.List&lt;java.lang.String&gt; files</pre>
+</li>
+</ul>
+</li>
+</ul>
+</section>
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
 <section>
 <ul class="blockList">
@@ -335,6 +420,24 @@ extends <a href="common/AbstractImportCommand.html" title="class in com.redis.ri
 <!--   -->
 </a>
 <h3>Method Detail</h3>
+<a id="getFiles()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getFiles</h4>
+<pre class="methodSignature">public&nbsp;java.util.List&lt;java.lang.String&gt;&nbsp;getFiles()</pre>
+</li>
+</ul>
+<a id="setFiles(java.util.List)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setFiles</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;setFiles&#8203;(java.util.List&lt;java.lang.String&gt;&nbsp;files)</pre>
+</li>
+</ul>
 <a id="getFileType()">
 <!--   -->
 </a>
@@ -353,22 +456,22 @@ extends <a href="common/AbstractImportCommand.html" title="class in com.redis.ri
 <pre class="methodSignature">public&nbsp;void&nbsp;setFileType&#8203;(<a href="../core/FileType.html" title="enum in com.redis.riot.core">FileType</a>&nbsp;fileType)</pre>
 </li>
 </ul>
-<a id="getOptions()">
+<a id="getFileOptions()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>getOptions</h4>
-<pre class="methodSignature">public&nbsp;<a href="file/FileImportOptions.html" title="class in com.redis.riot.cli.file">FileImportOptions</a>&nbsp;getOptions()</pre>
+<h4>getFileOptions</h4>
+<pre class="methodSignature">public&nbsp;<a href="file/FileOptions.html" title="class in com.redis.riot.cli.file">FileOptions</a>&nbsp;getFileOptions()</pre>
 </li>
 </ul>
-<a id="setOptions(com.redis.riot.cli.file.FileImportOptions)">
+<a id="setFileOptions(com.redis.riot.cli.file.FileOptions)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>setOptions</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;setOptions&#8203;(<a href="file/FileImportOptions.html" title="class in com.redis.riot.cli.file">FileImportOptions</a>&nbsp;options)</pre>
+<h4>setFileOptions</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;setFileOptions&#8203;(<a href="file/FileOptions.html" title="class in com.redis.riot.cli.file">FileOptions</a>&nbsp;options)</pre>
 </li>
 </ul>
 <a id="getFlatFileOptions()">
@@ -387,19 +490,6 @@ extends <a href="common/AbstractImportCommand.html" title="class in com.redis.ri
 <li class="blockList">
 <h4>setFlatFileOptions</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setFlatFileOptions&#8203;(<a href="file/FlatFileOptions.html" title="class in com.redis.riot.cli.file">FlatFileOptions</a>&nbsp;options)</pre>
-</li>
-</ul>
-<a id="skippableExceptions()">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>skippableExceptions</h4>
-<pre class="methodSignature">protected&nbsp;java.util.Map&lt;java.lang.Class&lt;? extends java.lang.Throwable&gt;,&#8203;java.lang.Boolean&gt;&nbsp;skippableExceptions()</pre>
-<dl>
-<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
-<dd><code><a href="common/AbstractCommand.html#skippableExceptions()">skippableExceptions</a></code>&nbsp;in class&nbsp;<code><a href="common/AbstractCommand.html" title="class in com.redis.riot.cli.common">AbstractCommand</a></code></dd>
-</dl>
 </li>
 </ul>
 <a id="job(com.redis.riot.cli.common.CommandContext)">
@@ -448,7 +538,7 @@ extends <a href="common/AbstractImportCommand.html" title="class in com.redis.ri
 <ul class="blockList">
 <li class="blockList">
 <h4>readers</h4>
-<pre class="methodSignature">public&nbsp;java.util.List&lt;org.springframework.batch.item.ItemReader&lt;java.util.Map&lt;java.lang.String,&#8203;java.lang.Object&gt;&gt;&gt;&nbsp;readers&#8203;(java.lang.String...&nbsp;files)</pre>
+<pre class="methodSignature">public&nbsp;java.util.stream.Stream&lt;org.springframework.batch.item.ItemReader&lt;java.util.Map&lt;java.lang.String,&#8203;java.lang.Object&gt;&gt;&gt;&nbsp;readers&#8203;(java.lang.String...&nbsp;files)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>files</code> - Files to create readers for</dd>
@@ -462,7 +552,7 @@ extends <a href="common/AbstractImportCommand.html" title="class in com.redis.ri
 <a id="read(java.lang.String)">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>read</h4>
 <pre class="methodSignature">public&nbsp;java.util.Iterator&lt;java.util.Map&lt;java.lang.String,&#8203;java.lang.Object&gt;&gt;&nbsp;read&#8203;(java.lang.String&nbsp;file)
@@ -475,6 +565,19 @@ extends <a href="common/AbstractImportCommand.html" title="class in com.redis.ri
 <dd>Reader for the given file</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code>java.lang.Exception</code></dd>
+</dl>
+</li>
+</ul>
+<a id="toString()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>toString</h4>
+<pre class="methodSignature">public&nbsp;java.lang.String&nbsp;toString()</pre>
+<dl>
+<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
+<dd><code>toString</code>&nbsp;in class&nbsp;<code>java.lang.Object</code></dd>
 </dl>
 </li>
 </ul>
@@ -532,13 +635,13 @@ extends <a href="common/AbstractImportCommand.html" title="class in com.redis.ri
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>

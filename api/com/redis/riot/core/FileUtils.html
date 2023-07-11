@@ -27,12 +27,6 @@
     catch(err) {
     }
 //-->
-var data = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9,"i5":9,"i6":9,"i7":9,"i8":9,"i9":9,"i10":9};
-var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"]};
-var altColor = "altColor";
-var rowColor = "rowColor";
-var tableTab = "tableTab";
-var activeTableTab = "activeTableTab";
 var pathtoroot = "../../../../";
 var useModuleDirectories = true;
 loadScripts(document, 'script');</script>
@@ -90,7 +84,7 @@ loadScripts(document, 'script');</script>
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
 <li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
@@ -118,52 +112,20 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <main role="main">
 <div class="header">
 <div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.redis.riot.core</a></div>
-<h2 title="Class FileUtils" class="title">Class FileUtils</h2>
+<h2 title="Interface FileUtils" class="title">Interface FileUtils</h2>
 </div>
 <div class="contentContainer">
-<ul class="inheritance">
-<li>java.lang.Object</li>
-<li>
-<ul class="inheritance">
-<li>com.redis.riot.core.FileUtils</li>
-</ul>
-</li>
-</ul>
 <div class="description">
 <ul class="blockList">
 <li class="blockList">
 <hr>
-<pre>public class <span class="typeNameLabel">FileUtils</span>
-extends java.lang.Object</pre>
+<pre>public interface <span class="typeNameLabel">FileUtils</span></pre>
 </li>
 </ul>
 </div>
 <div class="summary">
 <ul class="blockList">
 <li class="blockList">
-<!-- ======== NESTED CLASS SUMMARY ======== -->
-<section>
-<ul class="blockList">
-<li class="blockList"><a id="nested.class.summary">
-<!--   -->
-</a>
-<h3>Nested Class Summary</h3>
-<table class="memberSummary">
-<caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
-<tr>
-<th class="colFirst" scope="col">Modifier and Type</th>
-<th class="colSecond" scope="col">Class</th>
-<th class="colLast" scope="col">Description</th>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><code>static class&nbsp;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="FileUtils.UnknownFileTypeException.html" title="class in com.redis.riot.core">FileUtils.UnknownFileTypeException</a></span></code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-</table>
-</li>
-</ul>
-</section>
 <!-- =========== FIELD SUMMARY =========== -->
 <section>
 <ul class="blockList">
@@ -205,7 +167,7 @@ extends java.lang.Object</pre>
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span>Static Methods</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -222,61 +184,59 @@ extends java.lang.Object</pre>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i2" class="altColor">
+<td class="colFirst"><code>static java.util.stream.Stream&lt;java.lang.String&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#expandAll(java.lang.Iterable)">expandAll</a></span>&#8203;(java.lang.Iterable&lt;java.lang.String&gt;&nbsp;files)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>static <a href="FileExtension.html" title="enum in com.redis.riot.core">FileExtension</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#extension(org.springframework.core.io.Resource)">extension</a></span>&#8203;(org.springframework.core.io.Resource&nbsp;resource)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>static java.util.Optional&lt;<a href="FileExtension.html" title="enum in com.redis.riot.core">FileExtension</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#extensionGroup(java.lang.String,java.lang.String)">extensionGroup</a></span>&#8203;(java.lang.String&nbsp;file,
               java.lang.String&nbsp;group)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>static boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isConsole(java.lang.String)">isConsole</a></span>&#8203;(java.lang.String&nbsp;file)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>static boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isFile(java.lang.String)">isFile</a></span>&#8203;(java.lang.String&nbsp;file)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>static boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isGcs(java.lang.String)">isGcs</a></span>&#8203;(java.lang.String&nbsp;file)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>static boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isGzip(java.lang.String)">isGzip</a></span>&#8203;(java.lang.String&nbsp;file)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>static boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isS3(java.lang.String)">isS3</a></span>&#8203;(java.lang.String&nbsp;file)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>static &lt;T&gt;&nbsp;org.springframework.batch.item.json.JsonItemReader&lt;T&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#jsonReader(org.springframework.core.io.Resource,java.lang.Class)">jsonReader</a></span>&#8203;(org.springframework.core.io.Resource&nbsp;resource,
           java.lang.Class&lt;T&gt;&nbsp;clazz)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>static &lt;T&gt;&nbsp;<a href="resource/XmlItemReader.html" title="class in com.redis.riot.core.resource">XmlItemReader</a>&lt;T&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#xmlReader(org.springframework.core.io.Resource,java.lang.Class)">xmlReader</a></span>&#8203;(org.springframework.core.io.Resource&nbsp;resource,
          java.lang.Class&lt;T&gt;&nbsp;clazz)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
-<ul class="blockList">
-<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
-<!--   -->
-</a>
-<h3>Methods inherited from class&nbsp;java.lang.Object</h3>
-<code>clone, equals, finalize, getClass, hashCode, notify, notifyAll, toString, wait, wait, wait</code></li>
-</ul>
 </li>
 </ul>
 </section>
@@ -299,7 +259,7 @@ extends java.lang.Object</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>GS_URI_PREFIX</h4>
-<pre>public static final&nbsp;java.lang.String GS_URI_PREFIX</pre>
+<pre>static final&nbsp;java.lang.String GS_URI_PREFIX</pre>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../constant-values.html#com.redis.riot.core.FileUtils.GS_URI_PREFIX">Constant Field Values</a></dd>
@@ -312,7 +272,7 @@ extends java.lang.Object</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>S3_URI_PREFIX</h4>
-<pre>public static final&nbsp;java.lang.String S3_URI_PREFIX</pre>
+<pre>static final&nbsp;java.lang.String S3_URI_PREFIX</pre>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../constant-values.html#com.redis.riot.core.FileUtils.S3_URI_PREFIX">Constant Field Values</a></dd>
@@ -325,7 +285,7 @@ extends java.lang.Object</pre>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>EXTENSION_PATTERN</h4>
-<pre>public static final&nbsp;java.util.regex.Pattern EXTENSION_PATTERN</pre>
+<pre>static final&nbsp;java.util.regex.Pattern EXTENSION_PATTERN</pre>
 </li>
 </ul>
 </li>
@@ -344,7 +304,7 @@ extends java.lang.Object</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>isGzip</h4>
-<pre class="methodSignature">public static&nbsp;boolean&nbsp;isGzip&#8203;(java.lang.String&nbsp;file)</pre>
+<pre class="methodSignature">static&nbsp;boolean&nbsp;isGzip&#8203;(java.lang.String&nbsp;file)</pre>
 </li>
 </ul>
 <a id="extension(org.springframework.core.io.Resource)">
@@ -353,7 +313,7 @@ extends java.lang.Object</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>extension</h4>
-<pre class="methodSignature">public static&nbsp;<a href="FileExtension.html" title="enum in com.redis.riot.core">FileExtension</a>&nbsp;extension&#8203;(org.springframework.core.io.Resource&nbsp;resource)</pre>
+<pre class="methodSignature">static&nbsp;<a href="FileExtension.html" title="enum in com.redis.riot.core">FileExtension</a>&nbsp;extension&#8203;(org.springframework.core.io.Resource&nbsp;resource)</pre>
 </li>
 </ul>
 <a id="extensionGroup(java.lang.String,java.lang.String)">
@@ -362,8 +322,8 @@ extends java.lang.Object</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>extensionGroup</h4>
-<pre class="methodSignature">public static&nbsp;java.util.Optional&lt;<a href="FileExtension.html" title="enum in com.redis.riot.core">FileExtension</a>&gt;&nbsp;extensionGroup&#8203;(java.lang.String&nbsp;file,
-                                                               java.lang.String&nbsp;group)</pre>
+<pre class="methodSignature">static&nbsp;java.util.Optional&lt;<a href="FileExtension.html" title="enum in com.redis.riot.core">FileExtension</a>&gt;&nbsp;extensionGroup&#8203;(java.lang.String&nbsp;file,
+                                                        java.lang.String&nbsp;group)</pre>
 </li>
 </ul>
 <a id="isFile(java.lang.String)">
@@ -372,7 +332,7 @@ extends java.lang.Object</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>isFile</h4>
-<pre class="methodSignature">public static&nbsp;boolean&nbsp;isFile&#8203;(java.lang.String&nbsp;file)</pre>
+<pre class="methodSignature">static&nbsp;boolean&nbsp;isFile&#8203;(java.lang.String&nbsp;file)</pre>
 </li>
 </ul>
 <a id="isConsole(java.lang.String)">
@@ -381,7 +341,7 @@ extends java.lang.Object</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>isConsole</h4>
-<pre class="methodSignature">public static&nbsp;boolean&nbsp;isConsole&#8203;(java.lang.String&nbsp;file)</pre>
+<pre class="methodSignature">static&nbsp;boolean&nbsp;isConsole&#8203;(java.lang.String&nbsp;file)</pre>
 </li>
 </ul>
 <a id="isS3(java.lang.String)">
@@ -390,7 +350,7 @@ extends java.lang.Object</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>isS3</h4>
-<pre class="methodSignature">public static&nbsp;boolean&nbsp;isS3&#8203;(java.lang.String&nbsp;file)</pre>
+<pre class="methodSignature">static&nbsp;boolean&nbsp;isS3&#8203;(java.lang.String&nbsp;file)</pre>
 </li>
 </ul>
 <a id="isGcs(java.lang.String)">
@@ -399,7 +359,7 @@ extends java.lang.Object</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>isGcs</h4>
-<pre class="methodSignature">public static&nbsp;boolean&nbsp;isGcs&#8203;(java.lang.String&nbsp;file)</pre>
+<pre class="methodSignature">static&nbsp;boolean&nbsp;isGcs&#8203;(java.lang.String&nbsp;file)</pre>
 </li>
 </ul>
 <a id="jsonReader(org.springframework.core.io.Resource,java.lang.Class)">
@@ -408,8 +368,8 @@ extends java.lang.Object</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>jsonReader</h4>
-<pre class="methodSignature">public static&nbsp;&lt;T&gt;&nbsp;org.springframework.batch.item.json.JsonItemReader&lt;T&gt;&nbsp;jsonReader&#8203;(org.springframework.core.io.Resource&nbsp;resource,
-                                                                                   java.lang.Class&lt;T&gt;&nbsp;clazz)</pre>
+<pre class="methodSignature">static&nbsp;&lt;T&gt;&nbsp;org.springframework.batch.item.json.JsonItemReader&lt;T&gt;&nbsp;jsonReader&#8203;(org.springframework.core.io.Resource&nbsp;resource,
+                                                                            java.lang.Class&lt;T&gt;&nbsp;clazz)</pre>
 </li>
 </ul>
 <a id="xmlReader(org.springframework.core.io.Resource,java.lang.Class)">
@@ -418,8 +378,8 @@ extends java.lang.Object</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>xmlReader</h4>
-<pre class="methodSignature">public static&nbsp;&lt;T&gt;&nbsp;<a href="resource/XmlItemReader.html" title="class in com.redis.riot.core.resource">XmlItemReader</a>&lt;T&gt;&nbsp;xmlReader&#8203;(org.springframework.core.io.Resource&nbsp;resource,
-                                             java.lang.Class&lt;T&gt;&nbsp;clazz)</pre>
+<pre class="methodSignature">static&nbsp;&lt;T&gt;&nbsp;<a href="resource/XmlItemReader.html" title="class in com.redis.riot.core.resource">XmlItemReader</a>&lt;T&gt;&nbsp;xmlReader&#8203;(org.springframework.core.io.Resource&nbsp;resource,
+                                      java.lang.Class&lt;T&gt;&nbsp;clazz)</pre>
 </li>
 </ul>
 <a id="expand(java.lang.String)">
@@ -428,7 +388,8 @@ extends java.lang.Object</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>expand</h4>
-<pre class="methodSignature">public static&nbsp;java.util.stream.Stream&lt;java.lang.String&gt;&nbsp;expand&#8203;(java.lang.String&nbsp;filename)</pre>
+<pre class="methodSignature">static&nbsp;java.util.stream.Stream&lt;java.lang.String&gt;&nbsp;expand&#8203;(java.lang.String&nbsp;filename)
+                                                 throws java.io.IOException</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>filename</code> - Filename that might include a glob pattern</dd>
@@ -442,10 +403,24 @@ extends java.lang.Object</pre>
 <a id="expand(java.nio.file.Path)">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>expand</h4>
-<pre class="methodSignature">public static&nbsp;java.util.List&lt;java.nio.file.Path&gt;&nbsp;expand&#8203;(java.nio.file.Path&nbsp;path)</pre>
+<pre class="methodSignature">static&nbsp;java.util.List&lt;java.nio.file.Path&gt;&nbsp;expand&#8203;(java.nio.file.Path&nbsp;path)
+                                          throws java.io.IOException</pre>
+<dl>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code>java.io.IOException</code></dd>
+</dl>
+</li>
+</ul>
+<a id="expandAll(java.lang.Iterable)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>expandAll</h4>
+<pre class="methodSignature">static&nbsp;java.util.stream.Stream&lt;java.lang.String&gt;&nbsp;expandAll&#8203;(java.lang.Iterable&lt;java.lang.String&gt;&nbsp;files)</pre>
 </li>
 </ul>
 </li>
@@ -501,7 +476,7 @@ extends java.lang.Object</pre>
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
 <li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>

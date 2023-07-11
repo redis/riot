@@ -92,7 +92,7 @@ $(addBlockSwitches);
 <h1>RIOT</h1>
 <div class="details">
 <span id="author" class="author">Julien Ruaux</span><br>
-<span id="revnumber">version 3.1.2</span>
+<span id="revnumber">version 3.1.3</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -152,8 +152,9 @@ $(addBlockSwitches);
 <li><a href="#_ping">9. Ping</a></li>
 <li><a href="#_faq">10. Frequently Asked Questions</a>
 <ul class="sectlevel2">
-<li><a href="#_importing">10.1. Importing</a></li>
-<li><a href="#_replication">10.2. Replication</a></li>
+<li><a href="#_all">10.1. All</a></li>
+<li><a href="#_importing">10.2. Importing</a></li>
+<li><a href="#_replication">10.3. Replication</a></li>
 </ul>
 </li>
 </ul>
@@ -216,7 +217,7 @@ $(addBlockSwitches);
 </td>
 <td class="content">
 <div class="paragraph">
-<p><code>riot-3.1.2.zip</code> requires Java 11 or greater to be installed while <code>riot-standalone-3.1.2-*.zip</code> includes its own Java runtime and does not require a Java installation.</p>
+<p><code>riot-3.1.3.zip</code> requires Java 11 or greater to be installed while <code>riot-standalone-3.1.3-*.zip</code> includes its own Java runtime and does not require a Java installation.</p>
 </div>
 </td>
 </tr>
@@ -248,7 +249,7 @@ scoop install riot</code></pre>
 </td>
 <td class="content">
 <div class="paragraph">
-<p><code>riot-3.1.2.zip</code> requires Java 11 or greater to be installed while <code>riot-standalone-3.1.2-*.zip</code> includes its own Java runtime and does not require a Java installation.</p>
+<p><code>riot-3.1.3.zip</code> requires Java 11 or greater to be installed while <code>riot-standalone-3.1.3-*.zip</code> includes its own Java runtime and does not require a Java installation.</p>
 </div>
 </td>
 </tr>
@@ -279,7 +280,7 @@ scoop install riot</code></pre>
 </td>
 <td class="content">
 <div class="paragraph">
-<p><code>riot-3.1.2.zip</code> requires Java 11 or greater to be installed while <code>riot-standalone-3.1.2-*.zip</code> includes its own Java runtime and does not require a Java installation.</p>
+<p><code>riot-3.1.3.zip</code> requires Java 11 or greater to be installed while <code>riot-standalone-3.1.3-*.zip</code> includes its own Java runtime and does not require a Java installation.</p>
 </div>
 </td>
 </tr>
@@ -505,7 +506,31 @@ riot command subcommand --help</code></pre>
 </dd>
 <dt class="hdlist1"><code>--progress</code></dt>
 <dd>
-<p>Style of progress bar: <code>block, bar, ascii (default: ascii)</code></p>
+<p>Style of progress bar (default: <code>ascii</code>)</p>
+</dd>
+<dt class="hdlist1"><code>block</code></dt>
+<dd>
+<p>Color Unicode block</p>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><code>bar</code></dt>
+<dd>
+<p>Color Unicode bar</p>
+</dd>
+<dt class="hdlist1"><code>ascii</code></dt>
+<dd>
+<p>ASCII bar</p>
+</dd>
+<dt class="hdlist1"><code>log</code></dt>
+<dd>
+<p>ASCII logs</p>
+</dd>
+<dt class="hdlist1"><code>none</code></dt>
+<dd>
+<p>no progress bar</p>
+</dd>
+</dl>
+</div>
 </dd>
 <dt class="hdlist1"><code>--skip-policy</code></dt>
 <dd>
@@ -1149,6 +1174,14 @@ Can be smaller than the number of threads</p>
 <dd>
 <p>Which Redis cluster nodes to read from: <code>master</code>, <code>master_preferred</code>, <code>upstream</code>, <code>upstream_preferred</code>, <code>replica_preferred</code>, <code>replica</code>, <code>lowest_latency</code>, <code>any</code>, <code>any_replica</code>. See <a href="https://github.com/lettuce-io/lettuce-core/wiki/ReadFrom-Settings#read-from-settings">Read-From Settings</a> for more details.</p>
 </dd>
+<dt class="hdlist1"><code>--mem-limit</code></dt>
+<dd>
+<p>Maximum memory usage in megabytes for a key to be read (default: 0). Use 0 to disable memory usage checks.</p>
+</dd>
+<dt class="hdlist1"><code>--mem-samples</code></dt>
+<dd>
+<p>Number of memory usage samples for a key (default: 5).</p>
+</dd>
 </dl>
 </div>
 </div>
@@ -1617,6 +1650,14 @@ Can be smaller than the number of threads</p>
 <dd>
 <p>Which Redis cluster nodes to read from: <code>master</code>, <code>master_preferred</code>, <code>upstream</code>, <code>upstream_preferred</code>, <code>replica_preferred</code>, <code>replica</code>, <code>lowest_latency</code>, <code>any</code>, <code>any_replica</code>. See <a href="https://github.com/lettuce-io/lettuce-core/wiki/ReadFrom-Settings#read-from-settings">Read-From Settings</a> for more details.</p>
 </dd>
+<dt class="hdlist1"><code>--mem-limit</code></dt>
+<dd>
+<p>Maximum memory usage in megabytes for a key to be read (default: 0). Use 0 to disable memory usage checks.</p>
+</dd>
+<dt class="hdlist1"><code>--mem-samples</code></dt>
+<dd>
+<p>Number of memory usage samples for a key (default: 5).</p>
+</dd>
 </dl>
 </div>
 </div>
@@ -1858,7 +1899,7 @@ Please note that RIOT is NEITHER recommended NOR officially supported by Redis, 
 </div>
 </div>
 <div class="sect3">
-<h4 id="_source_redis_reader_options"><a class="anchor" href="#_source_redis_reader_options"></a>8.1.4. Source reader options</h4>
+<h4 id="_source_reader_options"><a class="anchor" href="#_source_reader_options"></a>8.1.4. Source reader options</h4>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><code>--scan-count</code></dt>
@@ -1911,14 +1952,61 @@ Can be smaller than the number of threads</p>
 <dd>
 <p>Which Redis cluster nodes to read from: <code>master</code>, <code>master_preferred</code>, <code>upstream</code>, <code>upstream_preferred</code>, <code>replica_preferred</code>, <code>replica</code>, <code>lowest_latency</code>, <code>any</code>, <code>any_replica</code>. See <a href="https://github.com/lettuce-io/lettuce-core/wiki/ReadFrom-Settings#read-from-settings">Read-From Settings</a> for more details.</p>
 </dd>
+<dt class="hdlist1"><code>--mem-limit</code></dt>
+<dd>
+<p>Maximum memory usage in megabytes for a key to be read (default: 0). Use 0 to disable memory usage checks.</p>
+</dd>
+<dt class="hdlist1"><code>--mem-samples</code></dt>
+<dd>
+<p>Number of memory usage samples for a key (default: 5).</p>
+</dd>
 </dl>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_replicate_performance_tuning"><a class="anchor" href="#_replicate_performance_tuning"></a>8.1.5. Performance Tuning</h4>
+<h4 id="_source_struct_options"><a class="anchor" href="#_source_struct_options"></a>8.1.5. Data structure options</h4>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><code>--merge-policy</code></dt>
+<dd>
+<p>Policy to merge collection data structures (default: <code>overwrite</code>).</p>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><code>merge</code></dt>
+<dd>
+<p>merge properties from collection data structures (e.g. <code>hash</code>, <code>set</code>, &#8230;&#8203;)</p>
+</dd>
+<dt class="hdlist1"><code>overwrite</code></dt>
+<dd>
+<p>delete before writing data structures</p>
+</dd>
+</dl>
+</div>
+</dd>
+<dt class="hdlist1"><code>--stream-id</code></dt>
+<dd>
+<p>Policy for stream message IDs (default: <code>propagate</code>).</p>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><code>propagate</code></dt>
+<dd>
+<p>Pass along stream message IDs from source to target</p>
+</dd>
+<dt class="hdlist1"><code>drop</code></dt>
+<dd>
+<p>Drop message IDs (target will generate its own message IDs)</p>
+</dd>
+</dl>
+</div>
+</dd>
+</dl>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_replicate_performance_tuning"><a class="anchor" href="#_replicate_performance_tuning"></a>8.1.6. Performance Tuning</h4>
 <div class="paragraph">
 <p>Performance tuning is an art but RIOT offers some options to identify potential bottlenecks.
-In addition to the <a href="#_architecture_batch">batch</a> and <a href="#_architecture_threads">threads</a> options you have the <code>--dry-run</code> option which disables writing to the target Redis database so that you can tune the <a href="#_source_redis_reader_options">reader</a> in isolation.
+In addition to the <a href="#_architecture_batch">batch</a> and <a href="#_architecture_threads">threads</a> options you have the <code>--dry-run</code> option which disables writing to the target Redis database so that you can tune the <a href="#_source_reader_options">reader</a> in isolation.
 Add that option to your existing <code>replicate</code> command-line to compare replication speeds with and without writing to the target Redis database:</p>
 </div>
 <div class="listingblock">
@@ -1928,7 +2016,7 @@ Add that option to your existing <code>replicate</code> command-line to compare 
 </div>
 </div>
 <div class="sect3">
-<h4 id="_replicate_verification"><a class="anchor" href="#_replicate_verification"></a>8.1.6. Verification</h4>
+<h4 id="_replicate_verification"><a class="anchor" href="#_replicate_verification"></a>8.1.7. Verification</h4>
 <div class="paragraph">
 <p>Once replication is complete RIOT will perform a verification step by iterating over keys in the source database and comparing values and TTLs between source and target databases.</p>
 </div>
@@ -1981,7 +2069,7 @@ Add that option to your existing <code>replicate</code> command-line to compare 
 </div>
 </div>
 <div class="sect3">
-<h4 id="_replicate_progress"><a class="anchor" href="#_replicate_progress"></a>8.1.7. Progress</h4>
+<h4 id="_replicate_progress"><a class="anchor" href="#_replicate_progress"></a>8.1.8. Progress</h4>
 <div class="paragraph">
 <p>Each process (scan iterator and/or event listener in case of live replication) has a corresponding status bar that shows the process name and its progress:</p>
 </div>
@@ -2030,7 +2118,7 @@ It is possible that RIOT can miss some notifications in case of network failures
 <p>Also, depending on the type, size, and rate of change of data structures on the source it is possible that RIOT cannot keep up with the change stream.
 For example if a big set is repeatedly updated, RIOT will need to read the whole set on each update and transfer it over to the target database.
 With a big-enough set, RIOT could fall behind and the internal queue could fill up leading up to updates being dropped.
-Some preliminary sizing using Redis statistics and <code>bigkeys</code>/<code>memkeys</code> is recommended for these migrations.
+Some preliminary sizing using Redis statistics and <code>bigkeys</code>/<code>memkeys</code> (or <code>--mem-limit</code> in <a href="#_source_reader_options">source reader options</a>) is recommended for these migrations.
 If you need assistance please contact your Redis account team.</p>
 </div>
 </td>
@@ -2406,18 +2494,31 @@ Authentication required</code></pre>
 <h2 id="_faq"><a class="anchor" href="#_faq"></a>10. Frequently Asked Questions</h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_importing"><a class="anchor" href="#_importing"></a>10.1. Importing</h3>
+<h3 id="_all"><a class="anchor" href="#_all"></a>10.1. All</h3>
+<div class="paragraph">
+<div class="title">Logs are cut off or missing</div>
+<p>This could be due to concurrency issues in the terminal when refreshing the progress bar and displaying logs.
+Try running with job options <code>--progress log</code>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_importing"><a class="anchor" href="#_importing"></a>10.2. Importing</h3>
 <div class="paragraph">
 <div class="title"><code>Unknown options: '--keyspace', '--keys'</code></div>
 <p>You must specify one or more Redis commands with import commands (<a href="#_file_import"><code>file-import</code></a>, <a href="#_faker_import"><code>faker-import</code></a>, <a href="#_db_import"><code>db-import</code></a>).</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_replication"><a class="anchor" href="#_replication"></a>10.2. Replication</h3>
+<h3 id="_replication"><a class="anchor" href="#_replication"></a>10.3. Replication</h3>
 <div class="paragraph">
 <div class="title"><code>ERR DUMP payload version or checksum are wrong</code></div>
 <p>Redis 7 DUMP format is not backwards compatible with previous versions.
 To replicate between different Redis versions use <a href="#_replicate_type_based">Type-Based Replication</a>.</p>
+</div>
+<div class="paragraph">
+<div class="title">Process gets stuck during replication and eventually times out</div>
+<p>This could be due to big keys clogging the replication pipes.
+Check the database with <code>redis-cli</code> <a href="https://developer.redis.com/operate/redis-at-scale/observability/identifying-issues/#scanning-keys">Big keys</a> and/or use the <a href="#_source_reader_options">source reader options</a> to filter these keys out.</p>
 </div>
 </div>
 </div>
@@ -2425,8 +2526,8 @@ To replicate between different Redis versions use <a href="#_replicate_type_base
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 3.1.2<br>
-Last updated 2023-07-05 23:46:59 UTC
+Version 3.1.3<br>
+Last updated 2023-07-11 08:21:56 UTC
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css">

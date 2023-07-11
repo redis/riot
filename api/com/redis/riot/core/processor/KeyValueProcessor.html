@@ -118,14 +118,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <main role="main">
 <div class="header">
 <div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.redis.riot.core.processor</a></div>
-<h2 title="Class KeyValueProcessor" class="title">Class KeyValueProcessor&lt;T extends com.redis.spring.batch.common.KeyValue&gt;</h2>
+<h2 title="Class KeyValueProcessor" class="title">Class KeyValueProcessor</h2>
 </div>
 <div class="contentContainer">
 <ul class="inheritance">
 <li>java.lang.Object</li>
 <li>
 <ul class="inheritance">
-<li>com.redis.riot.core.processor.KeyValueProcessor&lt;T&gt;</li>
+<li>com.redis.riot.core.processor.KeyValueProcessor</li>
 </ul>
 </li>
 </ul>
@@ -134,12 +134,12 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <dl>
 <dt>All Implemented Interfaces:</dt>
-<dd><code>org.springframework.batch.item.ItemProcessor&lt;T,&#8203;T&gt;</code></dd>
+<dd><code>org.springframework.batch.item.ItemProcessor&lt;com.redis.spring.batch.common.KeyValue&lt;byte[]&gt;,&#8203;com.redis.spring.batch.common.KeyValue&lt;byte[]&gt;&gt;</code></dd>
 </dl>
 <hr>
-<pre>public class <span class="typeNameLabel">KeyValueProcessor&lt;T extends com.redis.spring.batch.common.KeyValue&gt;</span>
+<pre>public class <span class="typeNameLabel">KeyValueProcessor</span>
 extends java.lang.Object
-implements org.springframework.batch.item.ItemProcessor&lt;T,&#8203;T&gt;</pre>
+implements org.springframework.batch.item.ItemProcessor&lt;com.redis.spring.batch.common.KeyValue&lt;byte[]&gt;,&#8203;com.redis.spring.batch.common.KeyValue&lt;byte[]&gt;&gt;</pre>
 </li>
 </ul>
 </div>
@@ -183,8 +183,8 @@ implements org.springframework.batch.item.ItemProcessor&lt;T,&#8203;T&gt;</pre>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code><a href="KeyValueProcessor.html" title="type parameter in KeyValueProcessor">T</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#process(T)">process</a></span>&#8203;(<a href="KeyValueProcessor.html" title="type parameter in KeyValueProcessor">T</a>&nbsp;item)</code></th>
+<td class="colFirst"><code>com.redis.spring.batch.common.KeyValue&lt;byte[]&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#process(com.redis.spring.batch.common.KeyValue)">process</a></span>&#8203;(com.redis.spring.batch.common.KeyValue&lt;byte[]&gt;&nbsp;item)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
@@ -233,17 +233,15 @@ implements org.springframework.batch.item.ItemProcessor&lt;T,&#8203;T&gt;</pre>
 <h3>Method Detail</h3>
 <a id="process(com.redis.spring.batch.common.KeyValue)">
 <!--   -->
-</a><a id="process(T)">
-<!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>process</h4>
-<pre class="methodSignature">public&nbsp;<a href="KeyValueProcessor.html" title="type parameter in KeyValueProcessor">T</a>&nbsp;process&#8203;(<a href="KeyValueProcessor.html" title="type parameter in KeyValueProcessor">T</a>&nbsp;item)
-          throws java.lang.Exception</pre>
+<pre class="methodSignature">public&nbsp;com.redis.spring.batch.common.KeyValue&lt;byte[]&gt;&nbsp;process&#8203;(com.redis.spring.batch.common.KeyValue&lt;byte[]&gt;&nbsp;item)
+                                                       throws java.lang.Exception</pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code>process</code>&nbsp;in interface&nbsp;<code>org.springframework.batch.item.ItemProcessor&lt;<a href="KeyValueProcessor.html" title="type parameter in KeyValueProcessor">T</a> extends com.redis.spring.batch.common.KeyValue,&#8203;<a href="KeyValueProcessor.html" title="type parameter in KeyValueProcessor">T</a> extends com.redis.spring.batch.common.KeyValue&gt;</code></dd>
+<dd><code>process</code>&nbsp;in interface&nbsp;<code>org.springframework.batch.item.ItemProcessor&lt;com.redis.spring.batch.common.KeyValue&lt;byte[]&gt;,&#8203;com.redis.spring.batch.common.KeyValue&lt;byte[]&gt;&gt;</code></dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code>java.lang.Exception</code></dd>
 </dl>

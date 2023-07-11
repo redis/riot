@@ -113,13 +113,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="../com/redis/riot/core/ReflectivePropertyAccessor.OptimalPropertyAccessor.html#canWrite(org.springframework.expression.EvaluationContext,java.lang.Object,java.lang.String)">canWrite(EvaluationContext, Object, String)</a></span> - Method in class com.redis.riot.core.<a href="../com/redis/riot/core/ReflectivePropertyAccessor.OptimalPropertyAccessor.html" title="class in com.redis.riot.core">ReflectivePropertyAccessor.OptimalPropertyAccessor</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="../com/redis/riot/cli/common/AbstractCommand.html#client(io.lettuce.core.RedisURI,com.redis.riot.cli.common.RedisOptions)">client(RedisURI, RedisOptions)</a></span> - Method in class com.redis.riot.cli.common.<a href="../com/redis/riot/cli/common/AbstractCommand.html" title="class in com.redis.riot.cli.common">AbstractCommand</a></dt>
+<dt><span class="memberNameLink"><a href="../com/redis/riot/cli/common/RiotUtils.html#client(com.redis.riot.cli.common.RedisOptions)">client(RedisOptions)</a></span> - Static method in interface com.redis.riot.cli.common.<a href="../com/redis/riot/cli/common/RiotUtils.html" title="interface in com.redis.riot.cli.common">RiotUtils</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="../com/redis/riot/cli/common/RiotUtils.html#client(io.lettuce.core.RedisURI,com.redis.riot.cli.common.RedisOptions)">client(RedisURI, RedisOptions)</a></span> - Static method in interface com.redis.riot.cli.common.<a href="../com/redis/riot/cli/common/RiotUtils.html" title="interface in com.redis.riot.cli.common">RiotUtils</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="../com/redis/riot/cli/common/CommandContext.html#close()">close()</a></span> - Method in class com.redis.riot.cli.common.<a href="../com/redis/riot/cli/common/CommandContext.html" title="class in com.redis.riot.cli.common">CommandContext</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="../com/redis/riot/cli/common/ReplicateCommandContext.html#close()">close()</a></span> - Method in class com.redis.riot.cli.common.<a href="../com/redis/riot/cli/common/ReplicateCommandContext.html" title="class in com.redis.riot.cli.common">ReplicateCommandContext</a></dt>
-<dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="../com/redis/riot/cli/common/StepProgressMonitor.ProgressReporter.html#close()">close()</a></span> - Method in class com.redis.riot.cli.common.<a href="../com/redis/riot/cli/common/StepProgressMonitor.ProgressReporter.html" title="class in com.redis.riot.cli.common">StepProgressMonitor.ProgressReporter</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="../com/redis/riot/core/processor/CompositeItemStreamItemProcessor.html#close()">close()</a></span> - Method in class com.redis.riot.core.processor.<a href="../com/redis/riot/core/processor/CompositeItemStreamItemProcessor.html" title="class in com.redis.riot.core.processor">CompositeItemStreamItemProcessor</a></dt>
 <dd>&nbsp;</dd>
@@ -134,6 +134,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dt><span class="memberNameLink"><a href="../com/redis/riot/core/resource/TransactionAwareBufferedWriter.html#close()">close()</a></span> - Method in class com.redis.riot.core.resource.<a href="../com/redis/riot/core/resource/TransactionAwareBufferedWriter.html" title="class in com.redis.riot.core.resource">TransactionAwareBufferedWriter</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="../com/redis/riot/core/resource/XmlObjectReader.html#close()">close()</a></span> - Method in class com.redis.riot.core.resource.<a href="../com/redis/riot/core/resource/XmlObjectReader.html" title="class in com.redis.riot.core.resource">XmlObjectReader</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="../com/redis/riot/core/ThrottledItemWriter.html#close()">close()</a></span> - Method in class com.redis.riot.core.<a href="../com/redis/riot/core/ThrottledItemWriter.html" title="class in com.redis.riot.core">ThrottledItemWriter</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/cli/operation/CollectionOptions.html" title="class in com.redis.riot.cli.operation"><span class="typeNameLink">CollectionOptions</span></a> - Class in <a href="../com/redis/riot/cli/operation/package-summary.html">com.redis.riot.cli.operation</a></dt>
 <dd>&nbsp;</dd>
@@ -157,6 +159,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/core/convert/package-summary.html">com.redis.riot.core.convert</a> - package com.redis.riot.core.convert</dt>
 <dd>&nbsp;</dd>
+<dt><a href="../com/redis/riot/core/logging/package-summary.html">com.redis.riot.core.logging</a> - package com.redis.riot.core.logging</dt>
+<dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/core/processor/package-summary.html">com.redis.riot.core.processor</a> - package com.redis.riot.core.processor</dt>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/core/resource/package-summary.html">com.redis.riot.core.resource</a> - package com.redis.riot.core.resource</dt>
@@ -171,11 +175,9 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="../com/redis/riot/cli/common/ReplicationMode.html#COMPARE">COMPARE</a></span> - com.redis.riot.cli.common.<a href="../com/redis/riot/cli/common/ReplicationMode.html" title="enum in com.redis.riot.cli.common">ReplicationMode</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="../com/redis/riot/cli/Replicate.html#compareStep(com.redis.riot.cli.common.ReplicateCommandContext)">compareStep(ReplicateCommandContext)</a></span> - Method in class com.redis.riot.cli.<a href="../com/redis/riot/cli/Replicate.html" title="class in com.redis.riot.cli">Replicate</a></dt>
+<dt><a href="../com/redis/riot/core/CompareStepExecutionListener.html" title="class in com.redis.riot.core"><span class="typeNameLink">CompareStepExecutionListener</span></a> - Class in <a href="../com/redis/riot/core/package-summary.html">com.redis.riot.core</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="../com/redis/riot/cli/common/CompareStepListener.html" title="class in com.redis.riot.cli.common"><span class="typeNameLink">CompareStepListener</span></a> - Class in <a href="../com/redis/riot/cli/common/package-summary.html">com.redis.riot.cli.common</a></dt>
-<dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="../com/redis/riot/cli/common/CompareStepListener.html#%3Cinit%3E(com.redis.spring.batch.writer.KeyComparisonCountItemWriter)">CompareStepListener(KeyComparisonCountItemWriter)</a></span> - Constructor for class com.redis.riot.cli.common.<a href="../com/redis/riot/cli/common/CompareStepListener.html" title="class in com.redis.riot.cli.common">CompareStepListener</a></dt>
+<dt><span class="memberNameLink"><a href="../com/redis/riot/core/CompareStepExecutionListener.html#%3Cinit%3E(com.redis.spring.batch.writer.KeyComparisonCountItemWriter,java.util.logging.Logger)">CompareStepExecutionListener(KeyComparisonCountItemWriter, Logger)</a></span> - Constructor for class com.redis.riot.core.<a href="../com/redis/riot/core/CompareStepExecutionListener.html" title="class in com.redis.riot.core">CompareStepExecutionListener</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/core/processor/CompositeItemStreamItemProcessor.html" title="class in com.redis.riot.core.processor"><span class="typeNameLink">CompositeItemStreamItemProcessor</span></a>&lt;<a href="../com/redis/riot/core/processor/CompositeItemStreamItemProcessor.html" title="type parameter in CompositeItemStreamItemProcessor">I</a>,&#8203;<a href="../com/redis/riot/core/processor/CompositeItemStreamItemProcessor.html" title="type parameter in CompositeItemStreamItemProcessor">O</a>&gt; - Class in <a href="../com/redis/riot/core/processor/package-summary.html">com.redis.riot.core.processor</a></dt>
 <dd>&nbsp;</dd>
@@ -183,11 +185,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="../com/redis/riot/core/convert/IdConverterBuilder.ConcatenatingConverter.html#%3Cinit%3E(java.lang.String,java.util.List)">ConcatenatingConverter(String, List&lt;Function&lt;Map&lt;String, Object&gt;, String&gt;&gt;)</a></span> - Constructor for class com.redis.riot.core.convert.<a href="../com/redis/riot/core/convert/IdConverterBuilder.ConcatenatingConverter.html" title="class in com.redis.riot.core.convert">IdConverterBuilder.ConcatenatingConverter</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="../com/redis/riot/cli/common/AbstractImportCommand.html#configure(B)">configure(B)</a></span> - Method in class com.redis.riot.cli.common.<a href="../com/redis/riot/cli/common/AbstractImportCommand.html" title="class in com.redis.riot.cli.common">AbstractImportCommand</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="../com/redis/riot/cli/common/AbstractExportCommand.html#configure(B,io.lettuce.core.codec.RedisCodec)">configure(B, RedisCodec&lt;K, V&gt;)</a></span> - Method in class com.redis.riot.cli.common.<a href="../com/redis/riot/cli/common/AbstractExportCommand.html" title="class in com.redis.riot.cli.common">AbstractExportCommand</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="../com/redis/riot/cli/DbImport.html#configure(org.springframework.batch.item.database.builder.JdbcCursorItemReaderBuilder)">configure(JdbcCursorItemReaderBuilder&lt;Map&lt;String, Object&gt;&gt;)</a></span> - Method in class com.redis.riot.cli.<a href="../com/redis/riot/cli/DbImport.html" title="class in com.redis.riot.cli">DbImport</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="../com/redis/riot/cli/common/LoggingOptions.html#configureLoggers()">configureLoggers()</a></span> - Method in class com.redis.riot.cli.common.<a href="../com/redis/riot/cli/common/LoggingOptions.html" title="class in com.redis.riot.cli.common">LoggingOptions</a></dt>
-<dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="../com/redis/riot/cli/common/AbstractExportCommand.html#configureScanBuilder(com.redis.spring.batch.RedisItemReader.BaseScanBuilder)">configureScanBuilder(RedisItemReader.BaseScanBuilder&lt;?&gt;)</a></span> - Method in class com.redis.riot.cli.common.<a href="../com/redis/riot/cli/common/AbstractExportCommand.html" title="class in com.redis.riot.cli.common">AbstractExportCommand</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="../com/redis/riot/cli/common/AbstractCommand.html#context(io.lettuce.core.RedisURI,io.lettuce.core.AbstractRedisClient)">context(RedisURI, AbstractRedisClient)</a></span> - Method in class com.redis.riot.cli.common.<a href="../com/redis/riot/cli/common/AbstractCommand.html" title="class in com.redis.riot.cli.common">AbstractCommand</a></dt>
 <dd>&nbsp;</dd>

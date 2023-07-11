@@ -27,7 +27,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10,"i28":10,"i29":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10,"i28":10,"i29":10,"i30":10,"i31":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -177,58 +177,58 @@ extends java.lang.Object</pre>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code>com.redis.spring.batch.reader.ScanOptions</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#estimatorOptions()">estimatorOptions</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i1" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getChunkSize()">getChunkSize</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i2" class="altColor">
+<tr id="i1" class="rowColor">
 <td class="colFirst"><code>java.util.List&lt;java.lang.String&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getKeyExcludes()">getKeyExcludes</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i2" class="altColor">
 <td class="colFirst"><code>java.util.List&lt;java.lang.String&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getKeyIncludes()">getKeyIncludes</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>java.util.List&lt;com.redis.spring.batch.common.IntRange&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getKeySlots()">getKeySlots</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMemLimit()">getMemLimit</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPoolMaxTotal()">getPoolMaxTotal</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMemSamples()">getMemSamples</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getQueueCapacity()">getQueueCapacity</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPoolMaxTotal()">getPoolMaxTotal</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i7" class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getQueueCapacity()">getQueueCapacity</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>java.util.Optional&lt;<a href="ReadFromEnum.html" title="enum in com.redis.riot.cli.common">ReadFromEnum</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getReadFrom()">getReadFrom</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getScanCount()">getScanCount</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>java.lang.String</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getScanMatch()">getScanMatch</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i10" class="altColor">
-<td class="colFirst"><code>long</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getScanSampleSize()">getScanSampleSize</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i11" class="rowColor">
@@ -288,42 +288,52 @@ extends java.lang.Object</pre>
 </tr>
 <tr id="i22" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPoolMaxTotal(int)">setPoolMaxTotal</a></span>&#8203;(int&nbsp;poolMaxTotal)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMemLimit(long)">setMemLimit</a></span>&#8203;(long&nbsp;memLimit)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i23" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setQueueCapacity(int)">setQueueCapacity</a></span>&#8203;(int&nbsp;queueCapacity)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMemSamples(int)">setMemSamples</a></span>&#8203;(int&nbsp;memSamples)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i24" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setReadFrom(java.util.Optional)">setReadFrom</a></span>&#8203;(java.util.Optional&lt;<a href="ReadFromEnum.html" title="enum in com.redis.riot.cli.common">ReadFromEnum</a>&gt;&nbsp;readFrom)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPoolMaxTotal(int)">setPoolMaxTotal</a></span>&#8203;(int&nbsp;poolMaxTotal)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i25" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setScanCount(long)">setScanCount</a></span>&#8203;(long&nbsp;count)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setQueueCapacity(int)">setQueueCapacity</a></span>&#8203;(int&nbsp;queueCapacity)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i26" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setScanMatch(java.lang.String)">setScanMatch</a></span>&#8203;(java.lang.String&nbsp;match)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setReadFrom(java.util.Optional)">setReadFrom</a></span>&#8203;(java.util.Optional&lt;<a href="ReadFromEnum.html" title="enum in com.redis.riot.cli.common">ReadFromEnum</a>&gt;&nbsp;readFrom)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i27" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setScanSampleSize(long)">setScanSampleSize</a></span>&#8203;(long&nbsp;scanSampleSize)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setScanCount(long)">setScanCount</a></span>&#8203;(long&nbsp;count)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i28" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setScanType(java.util.Optional)">setScanType</a></span>&#8203;(java.util.Optional&lt;java.lang.String&gt;&nbsp;type)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setScanMatch(java.lang.String)">setScanMatch</a></span>&#8203;(java.lang.String&nbsp;match)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i29" class="rowColor">
 <td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setScanType(java.util.Optional)">setScanType</a></span>&#8203;(java.util.Optional&lt;java.lang.String&gt;&nbsp;type)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i30" class="altColor">
+<td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setThreads(int)">setThreads</a></span>&#8203;(int&nbsp;threads)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i31" class="rowColor">
+<td class="colFirst"><code>java.lang.String</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toString()">toString</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
@@ -332,7 +342,7 @@ extends java.lang.Object</pre>
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.Object</h3>
-<code>clone, equals, finalize, getClass, hashCode, notify, notifyAll, toString, wait, wait, wait</code></li>
+<code>clone, equals, finalize, getClass, hashCode, notify, notifyAll, wait, wait, wait</code></li>
 </ul>
 </li>
 </ul>
@@ -369,6 +379,42 @@ extends java.lang.Object</pre>
 <!--   -->
 </a>
 <h3>Method Detail</h3>
+<a id="getMemSamples()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getMemSamples</h4>
+<pre class="methodSignature">public&nbsp;int&nbsp;getMemSamples()</pre>
+</li>
+</ul>
+<a id="setMemSamples(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setMemSamples</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;setMemSamples&#8203;(int&nbsp;memSamples)</pre>
+</li>
+</ul>
+<a id="getMemLimit()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getMemLimit</h4>
+<pre class="methodSignature">public&nbsp;long&nbsp;getMemLimit()</pre>
+</li>
+</ul>
+<a id="setMemLimit(long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setMemLimit</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;setMemLimit&#8203;(long&nbsp;memLimit)</pre>
+</li>
+</ul>
 <a id="getKeySlots()">
 <!--   -->
 </a>
@@ -439,24 +485,6 @@ extends java.lang.Object</pre>
 <li class="blockList">
 <h4>setReadFrom</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setReadFrom&#8203;(java.util.Optional&lt;<a href="ReadFromEnum.html" title="enum in com.redis.riot.cli.common">ReadFromEnum</a>&gt;&nbsp;readFrom)</pre>
-</li>
-</ul>
-<a id="getScanSampleSize()">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getScanSampleSize</h4>
-<pre class="methodSignature">public&nbsp;long&nbsp;getScanSampleSize()</pre>
-</li>
-</ul>
-<a id="setScanSampleSize(long)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>setScanSampleSize</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;setScanSampleSize&#8203;(long&nbsp;scanSampleSize)</pre>
 </li>
 </ul>
 <a id="getChunkSize()">
@@ -594,15 +622,6 @@ extends java.lang.Object</pre>
 <pre class="methodSignature">public&nbsp;com.redis.spring.batch.reader.ScanOptions&nbsp;scanOptions()</pre>
 </li>
 </ul>
-<a id="estimatorOptions()">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>estimatorOptions</h4>
-<pre class="methodSignature">public&nbsp;com.redis.spring.batch.reader.ScanOptions&nbsp;estimatorOptions()</pre>
-</li>
-</ul>
 <a id="poolOptions()">
 <!--   -->
 </a>
@@ -633,10 +652,23 @@ extends java.lang.Object</pre>
 <a id="readFrom()">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>readFrom</h4>
 <pre class="methodSignature">public&nbsp;java.util.Optional&lt;io.lettuce.core.ReadFrom&gt;&nbsp;readFrom()</pre>
+</li>
+</ul>
+<a id="toString()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>toString</h4>
+<pre class="methodSignature">public&nbsp;java.lang.String&nbsp;toString()</pre>
+<dl>
+<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
+<dd><code>toString</code>&nbsp;in class&nbsp;<code>java.lang.Object</code></dd>
+</dl>
 </li>
 </ul>
 </li>

@@ -27,7 +27,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -244,27 +244,42 @@ extends org.springframework.batch.item.support.AbstractItemCountingItemStreamIte
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i3" class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isOpen()">isOpen</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMaxItemCount(int)">setMaxItemCount</a></span>&#8203;(int&nbsp;count)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#size()">size</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i6" class="altColor">
 <td class="colFirst"><code><a href="FakerItemReader.html" title="class in com.redis.riot.core">FakerItemReader</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withField(java.lang.String,java.lang.String)">withField</a></span>&#8203;(java.lang.String&nbsp;field,
          java.lang.String&nbsp;expression)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code><a href="FakerItemReader.html" title="class in com.redis.riot.core">FakerItemReader</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withFields(java.lang.String...)">withFields</a></span>&#8203;(java.lang.String...&nbsp;fields)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code><a href="FakerItemReader.html" title="class in com.redis.riot.core">FakerItemReader</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withIncludeMetadata(boolean)">withIncludeMetadata</a></span>&#8203;(boolean&nbsp;include)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code><a href="FakerItemReader.html" title="class in com.redis.riot.core">FakerItemReader</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withIndexRange(com.redis.spring.batch.common.IntRange)">withIndexRange</a></span>&#8203;(com.redis.spring.batch.common.IntRange&nbsp;range)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code><a href="FakerItemReader.html" title="class in com.redis.riot.core">FakerItemReader</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withLocale(java.util.Locale)">withLocale</a></span>&#8203;(java.util.Locale&nbsp;locale)</code></th>
 <td class="colLast">&nbsp;</td>
@@ -275,7 +290,7 @@ extends org.springframework.batch.item.support.AbstractItemCountingItemStreamIte
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader</h3>
-<code>close, getCurrentItemCount, isSaveState, jumpToItem, open, read, setCurrentItemCount, setMaxItemCount, setSaveState, update</code></li>
+<code>close, getCurrentItemCount, isSaveState, jumpToItem, open, read, setCurrentItemCount, setSaveState, update</code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.org.springframework.batch.item.ItemStreamSupport">
@@ -358,6 +373,28 @@ extends org.springframework.batch.item.support.AbstractItemCountingItemStreamIte
 <!--   -->
 </a>
 <h3>Method Detail</h3>
+<a id="setMaxItemCount(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setMaxItemCount</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;setMaxItemCount&#8203;(int&nbsp;count)</pre>
+<dl>
+<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
+<dd><code>setMaxItemCount</code>&nbsp;in class&nbsp;<code>org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader&lt;java.util.Map&lt;java.lang.String,&#8203;java.lang.Object&gt;&gt;</code></dd>
+</dl>
+</li>
+</ul>
+<a id="size()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>size</h4>
+<pre class="methodSignature">public&nbsp;int&nbsp;size()</pre>
+</li>
+</ul>
 <a id="withIndexRange(com.redis.spring.batch.common.IntRange)">
 <!--   -->
 </a>
@@ -439,7 +476,7 @@ extends org.springframework.batch.item.support.AbstractItemCountingItemStreamIte
 <a id="doClose()">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>doClose</h4>
 <pre class="methodSignature">protected&nbsp;void&nbsp;doClose()
@@ -450,6 +487,15 @@ extends org.springframework.batch.item.support.AbstractItemCountingItemStreamIte
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code>java.lang.Exception</code></dd>
 </dl>
+</li>
+</ul>
+<a id="isOpen()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>isOpen</h4>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;isOpen()</pre>
 </li>
 </ul>
 </li>

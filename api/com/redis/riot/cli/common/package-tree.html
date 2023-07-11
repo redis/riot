@@ -110,14 +110,10 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="circle">com.redis.riot.cli.common.<a href="AbstractCommand.html" title="class in com.redis.riot.cli.common"><span class="typeNameLink">AbstractCommand</span></a> (implements java.util.concurrent.Callable&lt;V&gt;)
 <ul>
 <li class="circle">com.redis.riot.cli.common.<a href="AbstractExportCommand.html" title="class in com.redis.riot.cli.common"><span class="typeNameLink">AbstractExportCommand</span></a></li>
-<li class="circle">com.redis.riot.cli.common.<a href="AbstractImportCommand.html" title="class in com.redis.riot.cli.common"><span class="typeNameLink">AbstractImportCommand</span></a></li>
-</ul>
-</li>
-<li class="circle">org.springframework.batch.core.listener.ChunkListenerSupport (implements org.springframework.batch.core.ChunkListener)
+<li class="circle">com.redis.riot.cli.common.<a href="AbstractImportCommand.html" title="class in com.redis.riot.cli.common"><span class="typeNameLink">AbstractImportCommand</span></a>
 <ul>
-<li class="circle">com.redis.riot.cli.common.<a href="StepProgressMonitor.ProgressReporter.html" title="class in com.redis.riot.cli.common"><span class="typeNameLink">StepProgressMonitor.ProgressReporter</span></a> (implements java.lang.AutoCloseable)
-<ul>
-<li class="circle">com.redis.riot.cli.common.<a href="StepProgressMonitor.ExtraMessageProgressReporter.html" title="class in com.redis.riot.cli.common"><span class="typeNameLink">StepProgressMonitor.ExtraMessageProgressReporter</span></a></li>
+<li class="circle">com.redis.riot.cli.common.<a href="AbstractOperationImportCommand.html" title="class in com.redis.riot.cli.common"><span class="typeNameLink">AbstractOperationImportCommand</span></a></li>
+<li class="circle">com.redis.riot.cli.common.<a href="AbstractStructImportCommand.html" title="class in com.redis.riot.cli.common"><span class="typeNameLink">AbstractStructImportCommand</span></a></li>
 </ul>
 </li>
 </ul>
@@ -142,30 +138,18 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="circle">com.redis.riot.cli.common.<a href="NoopItemWriter.html" title="class in com.redis.riot.cli.common"><span class="typeNameLink">NoopItemWriter</span></a>&lt;T&gt; (implements org.springframework.batch.item.ItemWriter&lt;T&gt;)</li>
 <li class="circle">com.redis.riot.cli.common.<a href="PingOptions.html" title="class in com.redis.riot.cli.common"><span class="typeNameLink">PingOptions</span></a></li>
 <li class="circle">com.redis.riot.cli.common.<a href="PingOptions.Builder.html" title="class in com.redis.riot.cli.common"><span class="typeNameLink">PingOptions.Builder</span></a></li>
+<li class="circle">com.redis.riot.cli.common.<a href="ProgressStepListener.html" title="class in com.redis.riot.cli.common"><span class="typeNameLink">ProgressStepListener</span></a>&lt;T&gt; (implements org.springframework.batch.core.ItemWriteListener&lt;S&gt;, org.springframework.batch.core.StepExecutionListener)
+<ul>
+<li class="circle">com.redis.riot.cli.common.<a href="ProgressWithExtraMessageStepListener.html" title="class in com.redis.riot.cli.common"><span class="typeNameLink">ProgressWithExtraMessageStepListener</span></a>&lt;T&gt;</li>
+</ul>
+</li>
 <li class="circle">com.redis.riot.cli.common.<a href="RedisOptions.html" title="class in com.redis.riot.cli.common"><span class="typeNameLink">RedisOptions</span></a></li>
 <li class="circle">com.redis.riot.cli.common.<a href="RedisReaderOptions.html" title="class in com.redis.riot.cli.common"><span class="typeNameLink">RedisReaderOptions</span></a></li>
+<li class="circle">com.redis.riot.cli.common.<a href="RedisStructOptions.html" title="class in com.redis.riot.cli.common"><span class="typeNameLink">RedisStructOptions</span></a></li>
 <li class="circle">com.redis.riot.cli.common.<a href="RedisWriterOptions.html" title="class in com.redis.riot.cli.common"><span class="typeNameLink">RedisWriterOptions</span></a></li>
 <li class="circle">com.redis.riot.cli.common.<a href="ReplicateOptions.html" title="class in com.redis.riot.cli.common"><span class="typeNameLink">ReplicateOptions</span></a></li>
 <li class="circle">com.redis.riot.cli.common.<a href="RiotExecutionStrategy.html" title="class in com.redis.riot.cli.common"><span class="typeNameLink">RiotExecutionStrategy</span></a> (implements picocli.CommandLine.IExecutionStrategy)</li>
-<li class="circle">org.springframework.batch.core.listener.StepExecutionListenerSupport (implements org.springframework.batch.core.StepExecutionListener)
-<ul>
-<li class="circle">com.redis.riot.cli.common.<a href="CompareStepListener.html" title="class in com.redis.riot.cli.common"><span class="typeNameLink">CompareStepListener</span></a></li>
-</ul>
-</li>
-<li class="circle">com.redis.riot.cli.common.<a href="StepProgressMonitor.html" title="class in com.redis.riot.cli.common"><span class="typeNameLink">StepProgressMonitor</span></a></li>
-<li class="circle">java.lang.Throwable (implements java.io.Serializable)
-<ul>
-<li class="circle">java.lang.Exception
-<ul>
-<li class="circle">java.lang.RuntimeException
-<ul>
-<li class="circle">com.redis.riot.cli.common.<a href="RuntimeIOException.html" title="class in com.redis.riot.cli.common"><span class="typeNameLink">RuntimeIOException</span></a></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
+<li class="circle">com.redis.riot.cli.common.<a href="RiotStep.html" title="class in com.redis.riot.cli.common"><span class="typeNameLink">RiotStep</span></a>&lt;I,&#8203;O&gt;</li>
 </ul>
 </li>
 </ul>
@@ -174,6 +158,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <h2 title="Interface Hierarchy">Interface Hierarchy</h2>
 <ul>
 <li class="circle">com.redis.riot.cli.common.<a href="DatabaseHelper.html" title="interface in com.redis.riot.cli.common"><span class="typeNameLink">DatabaseHelper</span></a></li>
+<li class="circle">com.redis.riot.cli.common.<a href="RiotUtils.html" title="interface in com.redis.riot.cli.common"><span class="typeNameLink">RiotUtils</span></a></li>
 </ul>
 </section>
 <section>

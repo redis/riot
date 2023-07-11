@@ -4,5 +4,6 @@ com.redis.riot.cli.file
 com.redis.riot.cli.operation
 com.redis.riot.core
 com.redis.riot.core.convert
+com.redis.riot.core.logging
 com.redis.riot.core.processor
 com.redis.riot.core.resource

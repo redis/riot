@@ -27,7 +27,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -91,13 +91,13 @@ loadScripts(document, 'script');</script>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>
@@ -154,6 +154,36 @@ extends <a href="AbstractCommand.html" title="class in com.redis.riot.cli.common
 <div class="summary">
 <ul class="blockList">
 <li class="blockList">
+<!-- =========== FIELD SUMMARY =========== -->
+<section>
+<ul class="blockList">
+<li class="blockList"><a id="field.summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<table class="memberSummary">
+<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Field</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected <a href="RedisReaderOptions.html" title="class in com.redis.riot.cli.common">RedisReaderOptions</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#readerOptions">readerOptions</a></span></code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a id="fields.inherited.from.class.com.redis.riot.cli.common.AbstractCommand">
+<!--   -->
+</a>
+<h3>Fields inherited from class&nbsp;com.redis.riot.cli.common.<a href="AbstractCommand.html" title="class in com.redis.riot.cli.common">AbstractCommand</a></h3>
+<code><a href="AbstractCommand.html#jobOptions">jobOptions</a></code></li>
+</ul>
+</li>
+</ul>
+</section>
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
 <section>
 <ul class="blockList">
@@ -190,54 +220,30 @@ extends <a href="AbstractCommand.html" title="class in com.redis.riot.cli.common
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code>protected void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#configureScanBuilder(com.redis.spring.batch.RedisItemReader.BaseScanBuilder)">configureScanBuilder</a></span>&#8203;(com.redis.spring.batch.RedisItemReader.BaseScanBuilder&lt;?&gt;&nbsp;builder)</code></th>
+<td class="colFirst"><code>protected &lt;K,&#8203;V,&#8203;B extends com.redis.spring.batch.RedisItemReader.BaseBuilder&lt;K,&#8203;V,&#8203;B&gt;&gt;<br>B</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#configure(B,io.lettuce.core.codec.RedisCodec)">configure</a></span>&#8203;(B&nbsp;builder,
+         io.lettuce.core.codec.RedisCodec&lt;K,&#8203;V&gt;&nbsp;codec)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code>protected com.redis.spring.batch.reader.ScanSizeEstimator</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#estimator(com.redis.riot.cli.common.CommandContext)">estimator</a></span>&#8203;(<a href="CommandContext.html" title="class in com.redis.riot.cli.common">CommandContext</a>&nbsp;context)</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i2" class="altColor">
 <td class="colFirst"><code><a href="RedisReaderOptions.html" title="class in com.redis.riot.cli.common">RedisReaderOptions</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getReaderOptions()">getReaderOptions</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code>protected &lt;K,&#8203;V&gt;<br>com.redis.spring.batch.RedisItemReader.Builder&lt;K,&#8203;V&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#reader(com.redis.riot.cli.common.CommandContext,io.lettuce.core.codec.RedisCodec)">reader</a></span>&#8203;(<a href="CommandContext.html" title="class in com.redis.riot.cli.common">CommandContext</a>&nbsp;context,
+      io.lettuce.core.codec.RedisCodec&lt;K,&#8203;V&gt;&nbsp;codec)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
 <tr id="i3" class="rowColor">
-<td class="colFirst"><code>protected org.springframework.batch.item.ItemProcessor&lt;java.lang.String,&#8203;java.lang.String&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#keyProcessor()">keyProcessor</a></span>()</code></th>
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setReaderOptions(com.redis.riot.cli.common.RedisReaderOptions)">setReaderOptions</a></span>&#8203;(<a href="RedisReaderOptions.html" title="class in com.redis.riot.cli.common">RedisReaderOptions</a>&nbsp;readerOptions)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i4" class="altColor">
-<td class="colFirst"><code>protected &lt;K&gt;&nbsp;org.springframework.batch.item.ItemProcessor&lt;K,&#8203;K&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#keyProcessor(io.lettuce.core.codec.RedisCodec)">keyProcessor</a></span>&#8203;(io.lettuce.core.codec.RedisCodec&lt;K,&#8203;?&gt;&nbsp;codec)</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i5" class="rowColor">
-<td class="colFirst"><code>protected <a href="StepProgressMonitor.html" title="class in com.redis.riot.cli.common">StepProgressMonitor</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#monitor(java.lang.String,com.redis.riot.cli.common.CommandContext)">monitor</a></span>&#8203;(java.lang.String&nbsp;task,
-       <a href="CommandContext.html" title="class in com.redis.riot.cli.common">CommandContext</a>&nbsp;context)</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i6" class="altColor">
-<td class="colFirst"><code>protected com.redis.spring.batch.common.PoolOptions</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#poolOptions(com.redis.riot.cli.common.RedisReaderOptions)">poolOptions</a></span>&#8203;(<a href="RedisReaderOptions.html" title="class in com.redis.riot.cli.common">RedisReaderOptions</a>&nbsp;options)</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i7" class="rowColor">
-<td class="colFirst"><code>protected com.redis.spring.batch.reader.QueueOptions</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#queueOptions(com.redis.riot.cli.common.RedisReaderOptions)">queueOptions</a></span>&#8203;(<a href="RedisReaderOptions.html" title="class in com.redis.riot.cli.common">RedisReaderOptions</a>&nbsp;options)</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i8" class="altColor">
-<td class="colFirst"><code>protected com.redis.spring.batch.RedisItemReader.ScanBuilder</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#scanBuilder(com.redis.riot.cli.common.CommandContext)">scanBuilder</a></span>&#8203;(<a href="CommandContext.html" title="class in com.redis.riot.cli.common">CommandContext</a>&nbsp;context)</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i9" class="rowColor">
-<td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setReaderOptions(com.redis.riot.cli.common.RedisReaderOptions)">setReaderOptions</a></span>&#8203;(<a href="RedisReaderOptions.html" title="class in com.redis.riot.cli.common">RedisReaderOptions</a>&nbsp;readerOptions)</code></th>
+<td class="colFirst"><code>java.lang.String</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toString()">toString</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
@@ -246,14 +252,14 @@ extends <a href="AbstractCommand.html" title="class in com.redis.riot.cli.common
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;com.redis.riot.cli.common.<a href="AbstractCommand.html" title="class in com.redis.riot.cli.common">AbstractCommand</a></h3>
-<code><a href="AbstractCommand.html#call()">call</a>, <a href="AbstractCommand.html#client(io.lettuce.core.RedisURI,com.redis.riot.cli.common.RedisOptions)">client</a>, <a href="AbstractCommand.html#commandName()">commandName</a>, <a href="AbstractCommand.html#context(io.lettuce.core.RedisURI,io.lettuce.core.AbstractRedisClient)">context</a>, <a href="AbstractCommand.html#getJobOptions()">getJobOptions</a>, <a href="AbstractCommand.html#getJobRepository()">getJobRepository</a>, <a href="AbstractCommand.html#job(com.redis.riot.cli.common.CommandContext)">job</a>, <a href="AbstractCommand.html#job(java.lang.String)">job</a>, <a href="AbstractCommand.html#job(org.springframework.batch.core.Step)">job</a>, <a href="AbstractCommand.html#monitor(java.lang.String)">monitor</a>, <a href="AbstractCommand.html#redisURI(com.redis.riot.cli.common.RedisOptions)">redisURI</a>, <a href="AbstractCommand.html#setCommandName(java.lang.String)">setCommandName</a>, <a href="AbstractCommand.html#setCommandSpec(picocli.CommandLine.Model.CommandSpec)">setCommandSpec</a>, <a href="AbstractCommand.html#setJobOptions(com.redis.riot.cli.common.JobOptions)">setJobOptions</a>, <a href="AbstractCommand.html#setRiot(com.redis.riot.cli.Main)">setRiot</a>, <a href="AbstractCommand.html#skippableExceptions()">skippableExceptions</a>, <a href="AbstractCommand.html#step(java.lang.String,org.springframework.batch.item.ItemReader,org.springframework.batch.item.ItemProcessor,org.springframework.batch.item.ItemWriter)">step</a>, <a href="AbstractCommand.html#step(java.lang.String,org.springframework.batch.item.ItemReader,org.springframework.batch.item.ItemWriter)">step</a>, <a href="AbstractCommand.html#stepBuilder(java.lang.String)">stepBuilder</a>, <a href="AbstractCommand.html#writer(io.lettuce.core.AbstractRedisClient,com.redis.riot.cli.common.RedisWriterOptions)">writer</a></code></li>
+<code><a href="AbstractCommand.html#call()">call</a>, <a href="AbstractCommand.html#commandName()">commandName</a>, <a href="AbstractCommand.html#context(io.lettuce.core.RedisURI,io.lettuce.core.AbstractRedisClient)">context</a>, <a href="AbstractCommand.html#getJobOptions()">getJobOptions</a>, <a href="AbstractCommand.html#getJobRepository()">getJobRepository</a>, <a href="AbstractCommand.html#getRedisOptions()">getRedisOptions</a>, <a href="AbstractCommand.html#job(com.redis.riot.cli.common.CommandContext)">job</a>, <a href="AbstractCommand.html#job(com.redis.riot.cli.common.RiotStep)">job</a>, <a href="AbstractCommand.html#job(java.lang.String)">job</a>, <a href="AbstractCommand.html#setCommandName(java.lang.String)">setCommandName</a>, <a href="AbstractCommand.html#setCommandSpec(picocli.CommandLine.Model.CommandSpec)">setCommandSpec</a>, <a href="AbstractCommand.html#setJobOptions(com.redis.riot.cli.common.JobOptions)">setJobOptions</a>, <a href="AbstractCommand.html#setRiot(com.redis.riot.cli.Main)">setRiot</a>, <a href="AbstractCommand.html#step(org.springframework.batch.item.ItemReader,org.springframework.batch.item.ItemWriter)">step</a>, <a href="AbstractCommand.html#stepBuilderFactory()">stepBuilderFactory</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.Object</h3>
-<code>clone, equals, finalize, getClass, hashCode, notify, notifyAll, toString, wait, wait, wait</code></li>
+<code>clone, equals, finalize, getClass, hashCode, notify, notifyAll, wait, wait, wait</code></li>
 </ul>
 </li>
 </ul>
@@ -264,6 +270,25 @@ extends <a href="AbstractCommand.html" title="class in com.redis.riot.cli.common
 <div class="details">
 <ul class="blockList">
 <li class="blockList">
+<!-- ============ FIELD DETAIL =========== -->
+<section>
+<ul class="blockList">
+<li class="blockList"><a id="field.detail">
+<!--   -->
+</a>
+<h3>Field Detail</h3>
+<a id="readerOptions">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>readerOptions</h4>
+<pre>protected&nbsp;<a href="RedisReaderOptions.html" title="class in com.redis.riot.cli.common">RedisReaderOptions</a> readerOptions</pre>
+</li>
+</ul>
+</li>
+</ul>
+</section>
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
 <section>
 <ul class="blockList">
@@ -308,77 +333,39 @@ extends <a href="AbstractCommand.html" title="class in com.redis.riot.cli.common
 <pre class="methodSignature">public&nbsp;void&nbsp;setReaderOptions&#8203;(<a href="RedisReaderOptions.html" title="class in com.redis.riot.cli.common">RedisReaderOptions</a>&nbsp;readerOptions)</pre>
 </li>
 </ul>
-<a id="scanBuilder(com.redis.riot.cli.common.CommandContext)">
+<a id="reader(com.redis.riot.cli.common.CommandContext,io.lettuce.core.codec.RedisCodec)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>scanBuilder</h4>
-<pre class="methodSignature">protected&nbsp;com.redis.spring.batch.RedisItemReader.ScanBuilder&nbsp;scanBuilder&#8203;(<a href="CommandContext.html" title="class in com.redis.riot.cli.common">CommandContext</a>&nbsp;context)</pre>
+<h4>reader</h4>
+<pre class="methodSignature">protected&nbsp;&lt;K,&#8203;V&gt;&nbsp;com.redis.spring.batch.RedisItemReader.Builder&lt;K,&#8203;V&gt;&nbsp;reader&#8203;(<a href="CommandContext.html" title="class in com.redis.riot.cli.common">CommandContext</a>&nbsp;context,
+                                                                                       io.lettuce.core.codec.RedisCodec&lt;K,&#8203;V&gt;&nbsp;codec)</pre>
 </li>
 </ul>
-<a id="configureScanBuilder(com.redis.spring.batch.RedisItemReader.BaseScanBuilder)">
+<a id="configure(com.redis.spring.batch.RedisItemReader.BaseBuilder,io.lettuce.core.codec.RedisCodec)">
+<!--   -->
+</a><a id="configure(B,io.lettuce.core.codec.RedisCodec)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>configureScanBuilder</h4>
-<pre class="methodSignature">protected&nbsp;void&nbsp;configureScanBuilder&#8203;(com.redis.spring.batch.RedisItemReader.BaseScanBuilder&lt;?&gt;&nbsp;builder)</pre>
+<h4>configure</h4>
+<pre class="methodSignature">protected&nbsp;&lt;K,&#8203;V,&#8203;B extends com.redis.spring.batch.RedisItemReader.BaseBuilder&lt;K,&#8203;V,&#8203;B&gt;&gt;&nbsp;B&nbsp;configure&#8203;(B&nbsp;builder,
+                                                                                                                        io.lettuce.core.codec.RedisCodec&lt;K,&#8203;V&gt;&nbsp;codec)</pre>
 </li>
 </ul>
-<a id="monitor(java.lang.String,com.redis.riot.cli.common.CommandContext)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>monitor</h4>
-<pre class="methodSignature">protected&nbsp;<a href="StepProgressMonitor.html" title="class in com.redis.riot.cli.common">StepProgressMonitor</a>&nbsp;monitor&#8203;(java.lang.String&nbsp;task,
-                                      <a href="CommandContext.html" title="class in com.redis.riot.cli.common">CommandContext</a>&nbsp;context)</pre>
-</li>
-</ul>
-<a id="estimator(com.redis.riot.cli.common.CommandContext)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>estimator</h4>
-<pre class="methodSignature">protected&nbsp;com.redis.spring.batch.reader.ScanSizeEstimator&nbsp;estimator&#8203;(<a href="CommandContext.html" title="class in com.redis.riot.cli.common">CommandContext</a>&nbsp;context)</pre>
-</li>
-</ul>
-<a id="poolOptions(com.redis.riot.cli.common.RedisReaderOptions)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>poolOptions</h4>
-<pre class="methodSignature">protected&nbsp;com.redis.spring.batch.common.PoolOptions&nbsp;poolOptions&#8203;(<a href="RedisReaderOptions.html" title="class in com.redis.riot.cli.common">RedisReaderOptions</a>&nbsp;options)</pre>
-</li>
-</ul>
-<a id="queueOptions(com.redis.riot.cli.common.RedisReaderOptions)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>queueOptions</h4>
-<pre class="methodSignature">protected&nbsp;com.redis.spring.batch.reader.QueueOptions&nbsp;queueOptions&#8203;(<a href="RedisReaderOptions.html" title="class in com.redis.riot.cli.common">RedisReaderOptions</a>&nbsp;options)</pre>
-</li>
-</ul>
-<a id="keyProcessor()">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>keyProcessor</h4>
-<pre class="methodSignature">protected&nbsp;org.springframework.batch.item.ItemProcessor&lt;java.lang.String,&#8203;java.lang.String&gt;&nbsp;keyProcessor()</pre>
-</li>
-</ul>
-<a id="keyProcessor(io.lettuce.core.codec.RedisCodec)">
+<a id="toString()">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
-<h4>keyProcessor</h4>
-<pre class="methodSignature">protected&nbsp;&lt;K&gt;&nbsp;org.springframework.batch.item.ItemProcessor&lt;K,&#8203;K&gt;&nbsp;keyProcessor&#8203;(io.lettuce.core.codec.RedisCodec&lt;K,&#8203;?&gt;&nbsp;codec)</pre>
+<h4>toString</h4>
+<pre class="methodSignature">public&nbsp;java.lang.String&nbsp;toString()</pre>
+<dl>
+<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
+<dd><code>toString</code>&nbsp;in class&nbsp;<code>java.lang.Object</code></dd>
+</dl>
 </li>
 </ul>
 </li>
@@ -435,13 +422,13 @@ extends <a href="AbstractCommand.html" title="class in com.redis.riot.cli.common
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>

@@ -27,7 +27,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -91,7 +91,7 @@ loadScripts(document, 'script');</script>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
@@ -128,7 +128,17 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li><a href="common/AbstractCommand.html" title="class in com.redis.riot.cli.common">com.redis.riot.cli.common.AbstractCommand</a></li>
 <li>
 <ul class="inheritance">
+<li><a href="common/AbstractImportCommand.html" title="class in com.redis.riot.cli.common">com.redis.riot.cli.common.AbstractImportCommand</a></li>
+<li>
+<ul class="inheritance">
+<li><a href="common/AbstractStructImportCommand.html" title="class in com.redis.riot.cli.common">com.redis.riot.cli.common.AbstractStructImportCommand</a></li>
+<li>
+<ul class="inheritance">
 <li>com.redis.riot.cli.Generate</li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -143,13 +153,44 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </dl>
 <hr>
 <pre>public class <span class="typeNameLabel">Generate</span>
-extends <a href="common/AbstractCommand.html" title="class in com.redis.riot.cli.common">AbstractCommand</a></pre>
+extends <a href="common/AbstractStructImportCommand.html" title="class in com.redis.riot.cli.common">AbstractStructImportCommand</a></pre>
 </li>
 </ul>
 </div>
 <div class="summary">
 <ul class="blockList">
 <li class="blockList">
+<!-- =========== FIELD SUMMARY =========== -->
+<section>
+<ul class="blockList">
+<li class="blockList"><a id="field.summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<ul class="blockList">
+<li class="blockList"><a id="fields.inherited.from.class.com.redis.riot.cli.common.AbstractStructImportCommand">
+<!--   -->
+</a>
+<h3>Fields inherited from class&nbsp;com.redis.riot.cli.common.<a href="common/AbstractStructImportCommand.html" title="class in com.redis.riot.cli.common">AbstractStructImportCommand</a></h3>
+<code><a href="common/AbstractStructImportCommand.html#structOptions">structOptions</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a id="fields.inherited.from.class.com.redis.riot.cli.common.AbstractImportCommand">
+<!--   -->
+</a>
+<h3>Fields inherited from class&nbsp;com.redis.riot.cli.common.<a href="common/AbstractImportCommand.html" title="class in com.redis.riot.cli.common">AbstractImportCommand</a></h3>
+<code><a href="common/AbstractImportCommand.html#writerOptions">writerOptions</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a id="fields.inherited.from.class.com.redis.riot.cli.common.AbstractCommand">
+<!--   -->
+</a>
+<h3>Fields inherited from class&nbsp;com.redis.riot.cli.common.<a href="common/AbstractCommand.html" title="class in com.redis.riot.cli.common">AbstractCommand</a></h3>
+<code><a href="common/AbstractCommand.html#jobOptions">jobOptions</a></code></li>
+</ul>
+</li>
+</ul>
+</section>
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
 <section>
 <ul class="blockList">
@@ -187,43 +228,52 @@ extends <a href="common/AbstractCommand.html" title="class in com.redis.riot.cli
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code><a href="common/GenerateOptions.html" title="class in com.redis.riot.cli.common">GenerateOptions</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getOptions()">getOptions</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getGenerateOptions()">getGenerateOptions</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code><a href="common/RedisWriterOptions.html" title="class in com.redis.riot.cli.common">RedisWriterOptions</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getWriterOptions()">getWriterOptions</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i2" class="altColor">
 <td class="colFirst"><code>protected org.springframework.batch.core.Job</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#job(com.redis.riot.cli.common.CommandContext)">job</a></span>&#8203;(<a href="common/CommandContext.html" title="class in com.redis.riot.cli.common">CommandContext</a>&nbsp;context)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i2" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setOptions(com.redis.riot.cli.common.GenerateOptions)">setOptions</a></span>&#8203;(<a href="common/GenerateOptions.html" title="class in com.redis.riot.cli.common">GenerateOptions</a>&nbsp;options)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setGenerateOptions(com.redis.riot.cli.common.GenerateOptions)">setGenerateOptions</a></span>&#8203;(<a href="common/GenerateOptions.html" title="class in com.redis.riot.cli.common">GenerateOptions</a>&nbsp;options)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i4" class="altColor">
-<td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setWriterOptions(com.redis.riot.cli.common.RedisWriterOptions)">setWriterOptions</a></span>&#8203;(<a href="common/RedisWriterOptions.html" title="class in com.redis.riot.cli.common">RedisWriterOptions</a>&nbsp;writerOptions)</code></th>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>java.lang.String</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toString()">toString</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.com.redis.riot.cli.common.AbstractStructImportCommand">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;com.redis.riot.cli.common.<a href="common/AbstractStructImportCommand.html" title="class in com.redis.riot.cli.common">AbstractStructImportCommand</a></h3>
+<code><a href="common/AbstractStructImportCommand.html#writer(com.redis.riot.cli.common.CommandContext)">writer</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.com.redis.riot.cli.common.AbstractImportCommand">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;com.redis.riot.cli.common.<a href="common/AbstractImportCommand.html" title="class in com.redis.riot.cli.common">AbstractImportCommand</a></h3>
+<code><a href="common/AbstractImportCommand.html#configure(B)">configure</a>, <a href="common/AbstractImportCommand.html#getWriterOptions()">getWriterOptions</a>, <a href="common/AbstractImportCommand.html#setWriterOptions(com.redis.riot.cli.common.RedisWriterOptions)">setWriterOptions</a></code></li>
+</ul>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.com.redis.riot.cli.common.AbstractCommand">
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;com.redis.riot.cli.common.<a href="common/AbstractCommand.html" title="class in com.redis.riot.cli.common">AbstractCommand</a></h3>
-<code><a href="common/AbstractCommand.html#call()">call</a>, <a href="common/AbstractCommand.html#client(io.lettuce.core.RedisURI,com.redis.riot.cli.common.RedisOptions)">client</a>, <a href="common/AbstractCommand.html#commandName()">commandName</a>, <a href="common/AbstractCommand.html#context(io.lettuce.core.RedisURI,io.lettuce.core.AbstractRedisClient)">context</a>, <a href="common/AbstractCommand.html#getJobOptions()">getJobOptions</a>, <a href="common/AbstractCommand.html#getJobRepository()">getJobRepository</a>, <a href="common/AbstractCommand.html#job(java.lang.String)">job</a>, <a href="common/AbstractCommand.html#job(org.springframework.batch.core.Step)">job</a>, <a href="common/AbstractCommand.html#monitor(java.lang.String)">monitor</a>, <a href="common/AbstractCommand.html#redisURI(com.redis.riot.cli.common.RedisOptions)">redisURI</a>, <a href="common/AbstractCommand.html#setCommandName(java.lang.String)">setCommandName</a>, <a href="common/AbstractCommand.html#setCommandSpec(picocli.CommandLine.Model.CommandSpec)">setCommandSpec</a>, <a href="common/AbstractCommand.html#setJobOptions(com.redis.riot.cli.common.JobOptions)">setJobOptions</a>, <a href="common/AbstractCommand.html#setRiot(com.redis.riot.cli.Main)">setRiot</a>, <a href="common/AbstractCommand.html#skippableExceptions()">skippableExceptions</a>, <a href="common/AbstractCommand.html#step(java.lang.String,org.springframework.batch.item.ItemReader,org.springframework.batch.item.ItemProcessor,org.springframework.batch.item.ItemWriter)">step</a>, <a href="common/AbstractCommand.html#step(java.lang.String,org.springframework.batch.item.ItemReader,org.springframework.batch.item.ItemWriter)">step</a>, <a href="common/AbstractCommand.html#stepBuilder(java.lang.String)">stepBuilder</a>, <a href="common/AbstractCommand.html#writer(io.lettuce.core.AbstractRedisClient,com.redis.riot.cli.common.RedisWriterOptions)">writer</a></code></li>
+<code><a href="common/AbstractCommand.html#call()">call</a>, <a href="common/AbstractCommand.html#commandName()">commandName</a>, <a href="common/AbstractCommand.html#context(io.lettuce.core.RedisURI,io.lettuce.core.AbstractRedisClient)">context</a>, <a href="common/AbstractCommand.html#getJobOptions()">getJobOptions</a>, <a href="common/AbstractCommand.html#getJobRepository()">getJobRepository</a>, <a href="common/AbstractCommand.html#getRedisOptions()">getRedisOptions</a>, <a href="common/AbstractCommand.html#job(com.redis.riot.cli.common.RiotStep)">job</a>, <a href="common/AbstractCommand.html#job(java.lang.String)">job</a>, <a href="common/AbstractCommand.html#setCommandName(java.lang.String)">setCommandName</a>, <a href="common/AbstractCommand.html#setCommandSpec(picocli.CommandLine.Model.CommandSpec)">setCommandSpec</a>, <a href="common/AbstractCommand.html#setJobOptions(com.redis.riot.cli.common.JobOptions)">setJobOptions</a>, <a href="common/AbstractCommand.html#setRiot(com.redis.riot.cli.Main)">setRiot</a>, <a href="common/AbstractCommand.html#step(org.springframework.batch.item.ItemReader,org.springframework.batch.item.ItemWriter)">step</a>, <a href="common/AbstractCommand.html#stepBuilderFactory()">stepBuilderFactory</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.Object</h3>
-<code>clone, equals, finalize, getClass, hashCode, notify, notifyAll, toString, wait, wait, wait</code></li>
+<code>clone, equals, finalize, getClass, hashCode, notify, notifyAll, wait, wait, wait</code></li>
 </ul>
 </li>
 </ul>
@@ -260,52 +310,47 @@ extends <a href="common/AbstractCommand.html" title="class in com.redis.riot.cli
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="getOptions()">
+<a id="getGenerateOptions()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>getOptions</h4>
-<pre class="methodSignature">public&nbsp;<a href="common/GenerateOptions.html" title="class in com.redis.riot.cli.common">GenerateOptions</a>&nbsp;getOptions()</pre>
+<h4>getGenerateOptions</h4>
+<pre class="methodSignature">public&nbsp;<a href="common/GenerateOptions.html" title="class in com.redis.riot.cli.common">GenerateOptions</a>&nbsp;getGenerateOptions()</pre>
 </li>
 </ul>
-<a id="setOptions(com.redis.riot.cli.common.GenerateOptions)">
+<a id="setGenerateOptions(com.redis.riot.cli.common.GenerateOptions)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>setOptions</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;setOptions&#8203;(<a href="common/GenerateOptions.html" title="class in com.redis.riot.cli.common">GenerateOptions</a>&nbsp;options)</pre>
-</li>
-</ul>
-<a id="getWriterOptions()">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getWriterOptions</h4>
-<pre class="methodSignature">public&nbsp;<a href="common/RedisWriterOptions.html" title="class in com.redis.riot.cli.common">RedisWriterOptions</a>&nbsp;getWriterOptions()</pre>
-</li>
-</ul>
-<a id="setWriterOptions(com.redis.riot.cli.common.RedisWriterOptions)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>setWriterOptions</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;setWriterOptions&#8203;(<a href="common/RedisWriterOptions.html" title="class in com.redis.riot.cli.common">RedisWriterOptions</a>&nbsp;writerOptions)</pre>
+<h4>setGenerateOptions</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;setGenerateOptions&#8203;(<a href="common/GenerateOptions.html" title="class in com.redis.riot.cli.common">GenerateOptions</a>&nbsp;options)</pre>
 </li>
 </ul>
 <a id="job(com.redis.riot.cli.common.CommandContext)">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>job</h4>
 <pre class="methodSignature">protected&nbsp;org.springframework.batch.core.Job&nbsp;job&#8203;(<a href="common/CommandContext.html" title="class in com.redis.riot.cli.common">CommandContext</a>&nbsp;context)</pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="common/AbstractCommand.html#job(com.redis.riot.cli.common.CommandContext)">job</a></code>&nbsp;in class&nbsp;<code><a href="common/AbstractCommand.html" title="class in com.redis.riot.cli.common">AbstractCommand</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="toString()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>toString</h4>
+<pre class="methodSignature">public&nbsp;java.lang.String&nbsp;toString()</pre>
+<dl>
+<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
+<dd><code>toString</code>&nbsp;in class&nbsp;<code>java.lang.Object</code></dd>
 </dl>
 </li>
 </ul>
@@ -363,7 +408,7 @@ extends <a href="common/AbstractCommand.html" title="class in com.redis.riot.cli
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
