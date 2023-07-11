@@ -1,6 +1,13 @@
 [[_faq]]
 = Frequently Asked Questions
 
+== All
+
+.Logs are cut off or missing
+
+This could be due to concurrency issues in the terminal when refreshing the progress bar and displaying logs.
+Try running with job options `--progress log`.
+
 == Importing
 
 .`Unknown options: '--keyspace', '--keys'`
@@ -16,4 +23,5 @@ To replicate between different Redis versions use <<_replicate_type_based,Type-B
 
 .Process gets stuck during replication and eventually times out
 
-This could be due to big keys clogging the replication pipes. Check the database with `redis-cli` {link_bigkeys} and/or use the <<_source_reader_options,source reader options>> to filter these keys out.
+This could be due to big keys clogging the replication pipes.
+Check the database with `redis-cli` {link_bigkeys} and/or use the <<_source_reader_options,source reader options>> to filter these keys out.
