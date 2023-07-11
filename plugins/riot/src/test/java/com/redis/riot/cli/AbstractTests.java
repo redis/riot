@@ -200,7 +200,14 @@ public abstract class AbstractTests {
 			throws JobExecutionException {
 		SimpleStepBuilder<T, T> step = step(name, chunkSize, reader, writer);
 		Job job = jobBuilderFactory.get(name).start(step.build()).build();
-		return jobLauncher.run(job, new JobParameters());
+		JobExecution execution = jobLauncher.run(job, new JobParameters());
+		awaitClosed(reader);
+		awaitClosed(writer);
+		return execution;
+	}
+
+	private void awaitClosed(Object object) {
+		
 	}
 
 	protected String id() {
