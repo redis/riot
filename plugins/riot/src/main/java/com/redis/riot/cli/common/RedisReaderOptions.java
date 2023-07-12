@@ -18,15 +18,6 @@ import picocli.CommandLine.Option;
 
 public class RedisReaderOptions {
 
-	@Option(names = "--read-queue", description = "Capacity of the reader queue (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
-	private int queueCapacity = QueueOptions.DEFAULT_CAPACITY;
-
-	@Option(names = "--read-threads", description = "Number of reader threads (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
-	private int threads = ReaderOptions.DEFAULT_THREADS;
-
-	@Option(names = "--read-batch", description = "Number of reader values to process at once (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
-	private int chunkSize = ReaderOptions.DEFAULT_CHUNK_SIZE;
-
 	@Option(names = "--scan-match", description = "SCAN MATCH pattern (default: ${DEFAULT-VALUE}).", paramLabel = "<glob>")
 	private String scanMatch = ScanOptions.DEFAULT_MATCH;
 
@@ -35,6 +26,15 @@ public class RedisReaderOptions {
 
 	@Option(names = "--scan-type", description = "SCAN TYPE option.", paramLabel = "<type>")
 	private Optional<String> scanType = Optional.empty();
+
+	@Option(names = "--read-queue", description = "Capacity of the reader queue (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
+	private int queueCapacity = QueueOptions.DEFAULT_CAPACITY;
+
+	@Option(names = "--read-threads", description = "Number of reader threads (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
+	private int threads = ReaderOptions.DEFAULT_THREADS;
+
+	@Option(names = "--read-batch", description = "Number of reader values to process at once (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
+	private int chunkSize = ReaderOptions.DEFAULT_CHUNK_SIZE;
 
 	@Option(names = "--read-pool", description = "Max connections for reader pool (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
 	private int poolMaxTotal = PoolOptions.DEFAULT_MAX_TOTAL;

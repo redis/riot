@@ -14,7 +14,6 @@ import org.springframework.batch.core.step.tasklet.CallableTaskletAdapter;
 import org.springframework.batch.core.step.tasklet.TaskletStep;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.util.Assert;
-import org.threeten.bp.Duration;
 
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
 import com.redis.lettucemod.util.RedisModulesUtils;
@@ -64,7 +63,7 @@ public class Ping extends AbstractCommand {
 		@Override
 		public RepeatStatus call() throws Exception {
 			if (iteration.get() > 0 && jobOptions.getSleep() > 0) {
-				Thread.sleep(Duration.ofSeconds(jobOptions.getSleep()).toMillis());
+				Thread.sleep(jobOptions.getSleep());
 			}
 			try (StatefulRedisModulesConnection<String, String> connection = RedisModulesUtils
 					.connection(context.getRedisClient())) {
