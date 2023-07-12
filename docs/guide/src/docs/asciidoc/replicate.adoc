@@ -39,38 +39,62 @@ include::{testdir}/replicate-live[]
 === Target connection options
 Connection options for the target database are the same as the source Redis connection options:
 
-include::{includedir}/redis-connection-options.adoc[leveloffset=+2]
+include::{includedir}/redis-options.adoc[leveloffset=+2]
 
 [[_replicate_options]]
 === Replication Options
 
-`--event-order`:: Keyspace notification ordering strategy.
-  `fifo`::: Keeps order of notifications as they are received.
-  `priority`::: Orders notifications based on the underlying data-structure: `string` > `hash` > `json` > `list` > `set` > `zset` > `stream` > `timeseries`.
-`--event-queue`:: Capacity of the keyspace notification queue (default: `10000`).
-`--flush-interval`::  Max duration between flushes (default: `50`).
-`--idle-timeout`:: Min duration of inactivity to consider transfer complete (default: no timeout).
-`--key-process`:: SpEL expression to transform each key.
-`--mode`:: Replication mode: snapshot, live, or live only.
-  `snapshot`::: Initial replication using key scan.
-  `liveonly`::: Continuous replication using keyspace notifications (only keys that change are replicated).
-  `live`::: Initial and continuous replication using key scan and keyspace notifications in parallel.
-`--no-verify`:: Disable verifying target against source dataset after replication.
-`--show-diffs`:: Print details of key mismatches during dataset verification.
-`--target-pool`:: Max connections for target Redis pool (default: `8`).
-`--target-read-from`:: Which target Redis cluster nodes to read data from.
-`--ttl-tolerance`:: Max TTL difference to use for dataset verification (default: `100`).
-`--type`:: Replication strategy: DUMP, DS (default: DUMP).
+`--event-order`::
+Keyspace notification ordering strategy.
 
-    
+- `fifo`: Keeps order of notifications as they are received.
+- `priority`: Orders notifications based on the underlying data-structure: `string` > `hash` > `json` > `list` > `set` > `zset` > `stream` > `timeseries`.
+
+`--event-queue`::
+Capacity of the keyspace notification queue (default: `10000`).
+
+`--flush-interval`::
+Max duration between flushes (default: `50`).
+
+`--idle-timeout`::
+Min duration of inactivity to consider transfer complete (default: no timeout).
+
+`--key-process`::
+SpEL expression to transform each key.
+
+`--mode`::
+Replication mode.
+
+- `snapshot`: Initial replication using key scan.
+- `live`: Initial and continuous replication using key scan and keyspace notifications in parallel. See <<_replicate_live,Live Replication>> for details.
+- `liveonly`: Continuous replication using keyspace notifications (only changed keys are replicated).
+- `compare`: Compare source and target keys
+
+`--no-verify`::
+Disable verifying target against source dataset after replication.
+
+`--show-diffs`::
+Print details of key mismatches during dataset verification.
+
+`--target-pool`::
+Max connections for target Redis pool (default: `8`).
+
+`--target-read-from`::
+Which target Redis cluster nodes to read data from.
+
+`--ttl-tolerance`::
+Max TTL difference to use for dataset verification (default: `100`).
+
 [[_replicate_type]]
-=== Replication Type
-`--type dump`:: <<_replicate_dump_and_restore,DUMP & RESTORE>>.
-`--type ds`:: <<_replicate_type_based,Type-based>>
+`--type`::
+Replication strategy (default: `dump`).
+
+- `dump`: <<_replicate_dump_and_restore,Dump & Restore>>.
+- `ds`: <<_replicate_type_based,Type-based Replication>>.
 
 [[_source_reader_options]]
 === Source reader options
-include::{includedir}/redis-reader-options.adoc[leveloffset=+2]
+include::{includedir}/reader-options.adoc[leveloffset=+2]
 
 [[_source_struct_options]]
 === Data structure options
@@ -107,10 +131,17 @@ The output looks like this:
 123 missing, 54 type, 7 value, 19 ttl
 ----
 
-missing:: number of keys only present in source database
-type:: number of keys with mismatched data structure type
-value:: number of keys with mismatched value
-ttl:: number of keys with mismatched TTL i.e. difference is greater than tolerance (can be specified with `--ttl-tolerance`)
+missing::
+Number of keys only present in source database
+
+type::
+Number of keys with mismatched data structure type
+
+value::
+Number of keys with mismatched value
+
+ttl::
+Number of keys with mismatched TTL i.e. difference is greater than tolerance (can be specified with `--ttl-tolerance`)
 
 To show which keys are different use the `--show-diffs` option:
 
@@ -131,11 +162,8 @@ Scanning::
 Listening::
     Progress is indefinite as total number of keys is unknown.
 
-[[_replicate_architecture]]
-== Architecture
-
 [[_replicate_live]]
-=== Live Replication
+== Live Replication
 
 In live replication mode {project-title} listens for changes happening on the source database using keyspace notifications.
 Each time a key is modified, {project-title} reads the corresponding value and propagates that change to the target database.
@@ -158,7 +186,7 @@ If you need assistance please contact your Redis account team.
 ====
 
 [[_replicate_dump_and_restore]]
-=== Dump & Restore
+== Dump & Restore
 
 The default replication mechanism in {project-title} is DUMP & RESTORE:
 
@@ -173,7 +201,7 @@ If live replication is enabled the reader also subscribes to keyspace notificati
 
 
 [[_replicate_type_based]]
-=== Type-Based Replication
+== Type-Based Replication
 
 {project-title} includes another replication strategy called *Type-Based Replication* in case the target Redis database does not support the RESTORE command (for example {link_redis_crdb}).
 With this strategy each type of Redis data structure has a corresponding pair of read/write commands:
@@ -193,7 +221,7 @@ With this strategy each type of Redis data structure has a corresponding pair of
 
 To select this replication mechanism use the `--type ds` option:
 
-.Type-based, live replication example
+.Live type-based replication example
 [source]
 ----
 include::{testdir}/replicate-ds-live[]
@@ -202,4 +230,4 @@ include::{testdir}/replicate-ds-live[]
 WARNING: This replication strategy is more intensive in terms of CPU, memory, and network for the machines running {project-title}.
 Adjust number of threads, batch, and queue sizes accordingly.
 
-include::{includedir}/elasticache.adoc[leveloffset=+2]
+include::{includedir}/elasticache.adoc[leveloffset=+1]

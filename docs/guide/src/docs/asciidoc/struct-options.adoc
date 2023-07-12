@@ -1,6 +1,9 @@
-`--merge-policy`:: Policy to merge collection data structures (default: `overwrite`).
-  `merge`::: merge properties from collection data structures (e.g. `hash`, `set`, ...)
-  `overwrite`::: delete before writing data structures
-`--stream-id`:: Policy for stream message IDs (default: `propagate`).
-  `propagate`::: Pass along stream message IDs from source to target
-  `drop`::: Drop message IDs (target will generate its own message IDs)
+`--merge-policy`::
+Policy to merge collection data structures (default: `overwrite`).
+- `merge`: merge properties from collection data structures (e.g. `hash`, `set`, ...)
+- `overwrite`: delete before writing data structures
+
+`--stream-id`::
+Policy for stream message IDs (default: `propagate`).
+- `propagate`: Pass along stream message IDs from source to target
+- `drop`: Drop message IDs (target will generate its own message IDs)

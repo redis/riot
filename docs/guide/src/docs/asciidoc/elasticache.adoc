@@ -129,20 +129,6 @@ riot -h <source EC host> -p <source EC port> --cluster replicate --mode live -h 
 * Once migration is completed, ensure that application traffic gets redirected to Redis Enterprise Endpoint successfully.
 * It is recommended to perform the migration process during low traffic so as to avoid chances of data loss.
 
-== Troubleshooting
-
-=== Authentication Required
-You might face this error message while running the migration tool:
-
-[source]
-----
-Could not write record: NOAUTH
-Authentication required
-----
-
-This issue occurs when you fail to supply the `--pass <password>` parameter while running the `riot replicate` command.
-
-
 
 
 

@@ -80,7 +80,7 @@ riot file-import gs://my-bucket/path/file.json --gcs-key-file key.json --gcs-pro
 The default delimiter character is comma (`,`).
 It can be changed with the `--delimiter` option.
 
-If the file has a header use the `--header` option to automatically extract field names.
+If the file has a header, use the `--header` option to automatically extract field names.
 Otherwise specify the field names using the `--fields` option.
 
 Let's consider this CSV file:

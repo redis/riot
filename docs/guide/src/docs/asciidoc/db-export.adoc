@@ -17,7 +17,7 @@ riot db-export --help
 
 [[_db_export_reader_options]]
 == Redis reader options
-include::{includedir}/redis-reader-options.adoc[leveloffset=+2]
+include::{includedir}/reader-options.adoc[leveloffset=+2]
 
 [[db_export_examples]]
 == Examples

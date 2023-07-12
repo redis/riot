@@ -16,7 +16,7 @@ image::mapping.png[]
 == Batching
 
 The default batch size is 50, which means that an execution step reads 50 items at a time from the source, processes them, and finally writes then to the target.
-If the target is Redis, writing is done in a single command {link_redis_pipeline} to minimize the number of roundtrips to the server.
+If the target is Redis, writing is done in a single command ({link_redis_pipelining}) to minimize the number of roundtrips to the server.
 
 You can change the batch size (and hence pipeline size) using the `--batch` option.
 The optimal batch size in terms of throughput depends on many factors like record size and command types (see {link_pipeline_tuning} for details).
@@ -35,7 +35,7 @@ In that configuration, each chunk of items is read, processed, and written in a 
 This is different from partitioning where items would be read by multiple readers.
 Here, only one reader is being accessed from multiple threads.
 
-To set the number of threads use the `--threads` option.
+To set the number of threads, use the `--threads` option.
 
 .Multi-threading example
 [source]

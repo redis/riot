@@ -1,5 +1,5 @@
 :link_releases:         link:https://github.com/redis-developer/riot/releases[releases page]
-:link_redis_pipeline:   link:https://redis.io/topics/pipelining[Redis Pipelining]
+:link_redis_pipelining:   link:https://redis.io/topics/pipelining[Redis Pipelining]
 :link_pipeline_tuning:  link:https://stackoverflow.com/a/32165090[Redis Pipeline Tuning]
 :link_redis_enterprise: link:https://redis.com/redis-enterprise-software/overview/[Redis Enterprise]
 :link_redis_crdb:       link:https://redis.com/redis-enterprise/technology/active-active-geo-distribution/[Redis Enterprise CRDB]
