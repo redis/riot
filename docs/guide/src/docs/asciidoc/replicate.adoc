@@ -203,8 +203,12 @@ If live replication is enabled the reader also subscribes to keyspace notificati
 [[_replicate_type_based]]
 == Type-Based Replication
 
-{project-title} includes another replication strategy called *Type-Based Replication* in case the target Redis database does not support the RESTORE command (for example {link_redis_crdb}).
-With this strategy each type of Redis data structure has a corresponding pair of read/write commands:
+In some cases DUMP & RESTORE cannot be used. For example:
+
+- The target Redis database does not support the RESTORE command ({link_redis_crdb})
+- Incompatible DUMP formats between source and target ({link_redis_7})
+
+For these {project-title} includes another replication strategy called *Type-Based Replication* where data type has a corresponding pair of read/write commands:
 
 [%header,cols="h,1,1"]
 |=========================================================
