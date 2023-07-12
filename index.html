@@ -2144,8 +2144,20 @@ If live replication is enabled the reader also subscribes to keyspace notificati
 <div class="sect2">
 <h3 id="_replicate_type_based"><a class="anchor" href="#_replicate_type_based"></a>Type-Based Replication</h3>
 <div class="paragraph">
-<p>RIOT includes another replication strategy called <strong>Type-Based Replication</strong> in case the target Redis database does not support the RESTORE command (for example <a href="https://redis.com/redis-enterprise/technology/active-active-geo-distribution/">Redis Enterprise CRDB</a>).
-With this strategy each type of Redis data structure has a corresponding pair of read/write commands:</p>
+<p>In some cases DUMP &amp; RESTORE cannot be used. For example:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>The target Redis database does not support the RESTORE command (<a href="https://redis.com/redis-enterprise/technology/active-active-geo-distribution/">Redis Enterprise CRDB</a>)</p>
+</li>
+<li>
+<p>Incompatible DUMP formats between source and target (<a href="https://raw.githubusercontent.com/redis/redis/7.0/00-RELEASENOTES">Redis 7.0</a>)</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>For these RIOT includes another replication strategy called <strong>Type-Based Replication</strong> where data type has a corresponding pair of read/write commands:</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
@@ -2503,7 +2515,7 @@ Check the database with <code>redis-cli</code> <a href="https://developer.redis.
 <div id="footer">
 <div id="footer-text">
 Version 3.1.3<br>
-Last updated 2023-07-12 00:26:22 UTC
+Last updated 2023-07-12 00:46:09 UTC
 </div>
 </div>
 <link rel="stylesheet" href="./coderay-asciidoctor.css">
