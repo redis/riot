@@ -114,9 +114,9 @@ public abstract class AbstractOperationImportCommand extends AbstractImportComma
 	private ItemWriter<Map<String, Object>> writer(CommandContext context) {
 		Assert.notNull(redisCommands, "RedisCommands not set");
 		Assert.isTrue(!redisCommands.isEmpty(), "No Redis command specified");
-		Builder<String, String> writer = OperationItemWriter.client(context.getRedisClient());
+		Builder<String, String> writer = OperationItemWriter.builder(context.getRedisClient());
 		configure(writer);
-		return writer(redisCommands.stream().map(OperationCommand::operation).map(writer::operation)
+		return writer(redisCommands.stream().map(OperationCommand::operation).map(writer::build)
 				.collect(Collectors.toList()));
 	}
 

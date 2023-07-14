@@ -51,7 +51,7 @@ public class RedisReaderOptions {
 	@Option(names = "--key-slots", arity = "1..*", description = "Key slot ranges to filter keyspace notifications.", paramLabel = "<range>")
 	private List<IntRange> keySlots = new ArrayList<>();
 
-	@Option(names = "--mem-limit", description = "Maximum memory usage in MB for a key to be read (default: ${DEFAULT-VALUE}). Use 0 to disable memory usage checks.", paramLabel = "<MB>")
+	@Option(names = "--mem-limit", description = "Maximum memory usage in MB for a key to be read. Use 0 to disable memory usage checks (default: 0).", paramLabel = "<MB>")
 	private long memLimit = MemoryUsageOptions.DEFAULT_LIMIT.toMegabytes();
 
 	@Option(names = "--mem-samples", description = "Number of memory usage samples for a key (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")

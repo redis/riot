@@ -15,7 +15,7 @@ public class NoopCommand implements OperationCommand<Map<String, Object>> {
 	private HelpOptions helpOptions = new HelpOptions();
 
 	@Override
-	public Noop<String, String, Map<String, Object>, Object> operation() {
+	public Noop<String, String, Map<String, Object>> operation() {
 		return new Noop<>();
 	}
 

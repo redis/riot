@@ -1,9 +1,9 @@
 package com.redis.riot.cli.operation;
 
-import com.redis.spring.batch.common.Operation;
+import com.redis.spring.batch.writer.WriteOperation;
 
 public interface OperationCommand<T> {
 
-	Operation<String, String, T, Object> operation();
+	WriteOperation<String, String, T> operation();
 
 }
