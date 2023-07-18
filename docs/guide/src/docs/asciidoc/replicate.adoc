@@ -35,8 +35,8 @@ include::{testdir}/replicate[]
 include::{testdir}/replicate-live[]
 ----
 
-[[_target_redis_connection_options]]
-=== Target connection options
+[[_target_redis_options]]
+=== Target Redis options
 Connection options for the target database are the same as the source Redis connection options:
 
 include::{includedir}/redis-options.adoc[leveloffset=+2]

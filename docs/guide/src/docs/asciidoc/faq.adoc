@@ -14,6 +14,8 @@ To replicate between different Redis versions, use <<_replicate_type_based,Type-
 
 == Process gets stuck during replication and eventually times out
 This could be due to big keys clogging the replication pipes.
+In these cases it might be hard to catch the offending key(s).
+Try running the same command with `--info` (see <<_general_options,General options>>) and `--progress log` so that all errors are reported.
 Check the database with `redis-cli` {link_bigkeys} and/or use the <<_source_reader_options,source reader options>> to filter these keys out.
 
 == NOAUTH Authentication required

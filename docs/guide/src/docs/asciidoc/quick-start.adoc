@@ -84,31 +84,10 @@ Print version information and exit.
 `-w, --warn`::
 Set log level to warn.
 
-[[_redis_connection_options]]
+[[_redis_options]]
 == Redis connection options
-include::{includedir}/redis-options.adoc[leveloffset=+2]
+include::{includedir}/redis-options.adoc[leveloffset=+1]
 
 [[_job_options]]
 == Job options
-include::{includedir}/job-options.adoc[leveloffset=+2]
-
-[[_generate_completion]]
-== Generate completion
-
-[source]
-----
-$ riot generate-completion --help
-RIOT is a data import/export tool for Redis.
-
-Usage: riot generate-completion [-hV]
-Generate bash/zsh completion script for riot.
-Run the following command to give `riot` TAB completion in the current shell:
-
-  source <(riot generate-completion)
-
-Options:
-  -h, --help      Show this help message and exit.
-  -V, --version   Print version information and exit.
-
-Documentation found at https://developer.redis.com/riot
-----
+include::{includedir}/job-options.adoc[leveloffset=+1]
