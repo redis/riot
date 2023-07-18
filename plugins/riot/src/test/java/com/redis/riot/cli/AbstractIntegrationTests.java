@@ -692,7 +692,7 @@ public abstract class AbstractIntegrationTests extends AbstractTests {
 	}
 
 	@Test
-	void replicateKeyDumps() throws Throwable {
+	void replicate() throws Throwable {
 		String filename = "replicate";
 		generate(filename);
 		Assertions.assertTrue(connection.sync().dbsize() > 0);
@@ -809,8 +809,18 @@ public abstract class AbstractIntegrationTests extends AbstractTests {
 	}
 
 	@Test
-	void replicateLiveDataStructures() throws Exception {
+	void replicateDsLive() throws Exception {
 		runLiveReplication("replicate-ds-live");
+	}
+
+	@Test
+	void replicateDs() throws Throwable {
+		String filename = "replicate-ds";
+		GeneratorItemReader generator = generator();
+		generator.setMaxItemCount(100000);
+		generate(filename, DEFAULT_BATCH_SIZE, generator);
+		Assertions.assertTrue(connection.sync().dbsize() > 0);
+		execute(filename);
 	}
 
 	protected void runLiveReplication(String filename) throws Exception {
