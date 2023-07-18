@@ -809,11 +809,6 @@ public abstract class AbstractIntegrationTests extends AbstractTests {
 	}
 
 	@Test
-	void replicateDsLive() throws Exception {
-		runLiveReplication("replicate-ds-live");
-	}
-
-	@Test
 	void replicateDs() throws Throwable {
 		String filename = "replicate-ds";
 		GeneratorItemReader generator = generator();

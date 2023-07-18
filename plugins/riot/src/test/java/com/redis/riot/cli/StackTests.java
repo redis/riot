@@ -25,4 +25,9 @@ class StackTests extends AbstractIntegrationTests {
 		runLiveReplication("replicate-live-threads");
 	}
 
+	@Test
+	void replicateDsLive() throws Exception {
+		runLiveReplication("replicate-ds-live");
+	}
+
 }
