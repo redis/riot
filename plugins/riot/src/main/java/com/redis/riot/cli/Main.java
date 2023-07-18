@@ -1,5 +1,7 @@
 package com.redis.riot.cli;
 
+import java.util.logging.Level;
+
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 
@@ -81,6 +83,7 @@ public class Main {
 		SpelExpressionParser parser = new SpelExpressionParser();
 		commandLine.registerConverter(Expression.class, parser::parseExpression);
 		commandLine.registerConverter(ReadFrom.class, ReadFrom::valueOf);
+		commandLine.registerConverter(Level.class, s -> Level.parse(s.toUpperCase()));
 	}
 
 }

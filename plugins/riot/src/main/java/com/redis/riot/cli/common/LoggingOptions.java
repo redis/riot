@@ -2,6 +2,8 @@ package com.redis.riot.cli.common;
 
 import static picocli.CommandLine.Spec.Target.MIXEE;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Formatter;
 import java.util.logging.Level;
@@ -23,7 +25,6 @@ import picocli.CommandLine.Spec;
 public class LoggingOptions {
 
 	public static final Level DEFAULT_LEVEL = RiotLevel.LIFECYCLE;
-	private static final Level DEFAULT_DEPENDENCY_LEVEL = Level.SEVERE;
 	public static final boolean DEFAULT_STACKTRACE = false;
 	private static final String ROOT_LOGGER = "";
 
@@ -31,8 +32,9 @@ public class LoggingOptions {
 
 	private Level level = DEFAULT_LEVEL;
 	private boolean stacktrace = DEFAULT_STACKTRACE;
-	@Option(names = "--dep-log-level", description = "Set log level for dependencies", hidden = true)
-	private Level dependencyLevel = DEFAULT_DEPENDENCY_LEVEL;
+
+	@Option(arity = "1..*", names = "--log", description = "Log levels in the form name1=level1 name2=level2", paramLabel = "<n=lvl>")
+	private Map<String, Level> logs = new HashMap<>();
 
 	private static LoggingOptions getTopLevelCommandLoggingMixin(CommandSpec commandSpec) {
 		return ((Main) commandSpec.root().userObject()).getLoggingOptions();
@@ -95,24 +97,10 @@ public class LoggingOptions {
 		activeLogger.addHandler(handler);
 		Level logLevel = logLevel();
 		Logger.getLogger(ROOT_LOGGER).setLevel(logLevel);
-		Logger.getLogger("com.amazonaws").setLevel(dependencyLevel());
-		Logger.getLogger("io.lettuce").setLevel(dependencyLevel());
-		Logger.getLogger("org.springframework").setLevel(dependencyLevel());
-	}
-
-	private Level dependencyLevel() {
-		Level logLevel = logLevel();
-		if (logLevel == DEFAULT_LEVEL) {
-			return dependencyLevel;
-		}
-		return min(dependencyLevel, logLevel);
-	}
-
-	private Level min(Level level1, Level level2) {
-		if (level1.intValue() < level2.intValue()) {
-			return level1;
-		}
-		return level2;
+		Logger.getLogger("com.amazonaws").setLevel(Level.SEVERE);
+		Logger.getLogger("io.lettuce").setLevel(DEFAULT_LEVEL);
+		Logger.getLogger("io.netty").setLevel(DEFAULT_LEVEL);
+		logs.forEach((n, l) -> Logger.getLogger(n).setLevel(l));
 	}
 
 	private Level logLevel() {
@@ -131,11 +119,7 @@ public class LoggingOptions {
 	}
 
 	private boolean isVerbose() {
-		return !isGreaterOrEqual(Level.CONFIG);
-	}
-
-	public boolean isGreaterOrEqual(Level level) {
-		return logLevel().intValue() >= level.intValue();
+		return logLevel().intValue() < RiotLevel.LIFECYCLE.intValue();
 	}
 
 }
