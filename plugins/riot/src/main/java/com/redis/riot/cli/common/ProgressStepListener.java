@@ -32,6 +32,7 @@ public class ProgressStepListener<T> implements ItemWriteListener<T>, StepExecut
 
 	@Override
 	public ExitStatus afterStep(StepExecution stepExecution) {
+		progressBar.stepTo(progressBar.getMax());
 		progressBar.close();
 		return stepExecution.getExitStatus();
 	}
