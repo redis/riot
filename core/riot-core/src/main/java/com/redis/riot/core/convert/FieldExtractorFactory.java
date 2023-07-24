@@ -2,6 +2,8 @@ package com.redis.riot.core.convert;
 
 import java.util.Map;
 import java.util.function.Function;
+import java.util.function.ToDoubleFunction;
+import java.util.function.ToLongFunction;
 
 public class FieldExtractorFactory {
 
@@ -37,6 +39,18 @@ public class FieldExtractorFactory {
 
 	public <T> Function<Map<String, T>, T> field(String field, T defaultValue) {
 		return new DefaultValueExtractor<>(extractor(field), defaultValue);
+	}
+
+	public ToLongFunction<Map<String, Object>> longField(String field, long defaultValue) {
+		Function<Map<String, Object>, Object> extractor = extractor(field);
+		ObjectToLongConverter converter = new ObjectToLongConverter(defaultValue);
+		return m -> converter.applyAsLong(extractor.apply(m));
+	}
+
+	public ToDoubleFunction<Map<String, Object>> doubleField(String field, double defaultValue) {
+		Function<Map<String, Object>, Object> extractor = extractor(field);
+		ObjectToDoubleConverter converter = new ObjectToDoubleConverter(defaultValue);
+		return m -> converter.applyAsDouble(extractor.apply(m));
 	}
 
 	public static class MissingFieldException extends RuntimeException {
