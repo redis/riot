@@ -27,107 +27,113 @@ import net.datafaker.Faker;
  */
 public class FakerItemReader extends AbstractItemCountingItemStreamItemReader<Map<String, Object>> {
 
-	private static final String FIELD_THREAD = "thread";
-	public static final String FIELD_INDEX = "index";
-	public static final Locale DEFAULT_LOCALE = Locale.getDefault();
+    private static final String FIELD_THREAD = "thread";
 
-	private final SpelExpressionParser parser = new SpelExpressionParser();
-	private final Map<String, Expression> expressions = new LinkedHashMap<>();
+    public static final String FIELD_INDEX = "index";
 
-	private IntRange indexRange = IntRange.from(1);
-	private Locale locale = DEFAULT_LOCALE;
-	private boolean includeMetadata;
+    public static final Locale DEFAULT_LOCALE = Locale.getDefault();
 
-	private EvaluationContext context;
-	private int maxItemCount = Integer.MAX_VALUE;
+    private final SpelExpressionParser parser = new SpelExpressionParser();
 
-	public FakerItemReader() {
-		setName(ClassUtils.getShortName(getClass()));
-	}
+    private final Map<String, Expression> expressions = new LinkedHashMap<>();
 
-	@Override
-	public void setMaxItemCount(int count) {
-		super.setMaxItemCount(count);
-		this.maxItemCount = count;
-	}
+    private IntRange indexRange = IntRange.from(1);
 
-	public int size() {
-		if (maxItemCount == Integer.MAX_VALUE) {
-			return -1;
-		}
-		return maxItemCount - getCurrentItemCount();
-	}
+    private Locale locale = DEFAULT_LOCALE;
 
-	public FakerItemReader withIndexRange(IntRange range) {
-		this.indexRange = range;
-		return this;
-	}
+    private boolean includeMetadata;
 
-	public FakerItemReader withLocale(Locale locale) {
-		this.locale = locale;
-		return this;
-	}
+    private EvaluationContext context;
 
-	public FakerItemReader withIncludeMetadata(boolean include) {
-		this.includeMetadata = include;
-		return this;
-	}
+    private int maxItemCount = Integer.MAX_VALUE;
 
-	public FakerItemReader withField(String field, String expression) {
-		this.expressions.put(field, parser.parseExpression(expression));
-		return this;
-	}
+    public FakerItemReader() {
+        setName(ClassUtils.getShortName(getClass()));
+    }
 
-	public FakerItemReader withFields(String... fields) {
-		Assert.isTrue(fields.length % 2 == 0,
-				"fields.length must be a multiple of 2 and contain a sequence of field1, expression1, field2, expression2, fieldN, expressionN");
-		for (int i = 0; i < fields.length; i += 2) {
-			withField(fields[i], fields[i + 1]);
-		}
-		return this;
-	}
+    @Override
+    public void setMaxItemCount(int count) {
+        super.setMaxItemCount(count);
+        this.maxItemCount = count;
+    }
 
-	@Override
-	protected Map<String, Object> doRead() throws Exception {
-		Map<String, Object> map = new HashMap<>();
-		int index = index();
-		if (includeMetadata) {
-			map.put(FIELD_INDEX, index);
-			map.put(FIELD_THREAD, Thread.currentThread().getId());
-		}
-		context.setVariable(FIELD_INDEX, index);
-		for (Entry<String, Expression> expression : expressions.entrySet()) {
-			map.put(expression.getKey(), expression.getValue().getValue(context));
-		}
-		return map;
-	}
+    public int size() {
+        if (maxItemCount == Integer.MAX_VALUE) {
+            return -1;
+        }
+        return maxItemCount - getCurrentItemCount();
+    }
 
-	private int index() {
-		return (indexRange.getMin() + getCurrentItemCount() - 1) % indexRange.getMax();
-	}
+    public FakerItemReader withIndexRange(IntRange range) {
+        this.indexRange = range;
+        return this;
+    }
 
-	@Override
-	protected void doOpen() throws Exception {
-		synchronized (parser) {
-			if (!isOpen()) {
-				Faker faker = new Faker(locale);
-				Builder contextBuilder = SimpleEvaluationContext.forPropertyAccessors(new ReflectivePropertyAccessor());
-				contextBuilder.withInstanceMethods();
-				contextBuilder.withRootObject(faker);
-				this.context = contextBuilder.build();
-			}
-		}
-	}
+    public FakerItemReader withLocale(Locale locale) {
+        this.locale = locale;
+        return this;
+    }
 
-	@Override
-	protected void doClose() throws Exception {
-		synchronized (parser) {
-			this.context = null;
-		}
-	}
+    public FakerItemReader withIncludeMetadata(boolean include) {
+        this.includeMetadata = include;
+        return this;
+    }
 
-	public boolean isOpen() {
-		return context != null;
-	}
+    public FakerItemReader withField(String field, String expression) {
+        this.expressions.put(field, parser.parseExpression(expression));
+        return this;
+    }
+
+    public FakerItemReader withFields(String... fields) {
+        Assert.isTrue(fields.length % 2 == 0,
+                "fields.length must be a multiple of 2 and contain a sequence of field1, expression1, field2, expression2, fieldN, expressionN");
+        for (int i = 0; i < fields.length; i += 2) {
+            withField(fields[i], fields[i + 1]);
+        }
+        return this;
+    }
+
+    @Override
+    protected Map<String, Object> doRead() throws Exception {
+        Map<String, Object> map = new HashMap<>();
+        int index = index();
+        if (includeMetadata) {
+            map.put(FIELD_INDEX, index);
+            map.put(FIELD_THREAD, Thread.currentThread().getId());
+        }
+        context.setVariable(FIELD_INDEX, index);
+        for (Entry<String, Expression> expression : expressions.entrySet()) {
+            map.put(expression.getKey(), expression.getValue().getValue(context));
+        }
+        return map;
+    }
+
+    private int index() {
+        return (indexRange.getMin() + getCurrentItemCount() - 1) % indexRange.getMax();
+    }
+
+    @Override
+    protected void doOpen() throws Exception {
+        synchronized (parser) {
+            if (!isOpen()) {
+                Faker faker = new Faker(locale);
+                Builder contextBuilder = SimpleEvaluationContext.forPropertyAccessors(new ReflectivePropertyAccessor());
+                contextBuilder.withInstanceMethods();
+                contextBuilder.withRootObject(faker);
+                this.context = contextBuilder.build();
+            }
+        }
+    }
+
+    @Override
+    protected void doClose() throws Exception {
+        synchronized (parser) {
+            this.context = null;
+        }
+    }
+
+    public boolean isOpen() {
+        return context != null;
+    }
 
 }
