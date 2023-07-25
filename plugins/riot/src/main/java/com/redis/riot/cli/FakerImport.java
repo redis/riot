@@ -80,8 +80,8 @@ public class FakerImport extends AbstractOperationImportCommand {
 
 	@Override
 	public String toString() {
-		return "FakerImport [fakerImportOptions=" + fakerImportOptions + ", processorOptions=" + processorOptions + ", writerOptions="
-				+ writerOptions + ", jobOptions=" + jobOptions + "]";
+		return "FakerImport [fakerImportOptions=" + fakerImportOptions + ", processorOptions=" + processorOptions + ", operationOptions="
+				+ operationOptions + ", jobOptions=" + jobOptions + "]";
 	}
 
 }

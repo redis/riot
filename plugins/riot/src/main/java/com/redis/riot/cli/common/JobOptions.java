@@ -8,101 +8,130 @@ import picocli.CommandLine.Option;
 
 public class JobOptions {
 
-	public enum ProgressStyle {
-		BLOCK, BAR, ASCII, LOG, NONE
-	}
+    public enum ProgressStyle {
+        BLOCK, BAR, ASCII, LOG, NONE
+    }
 
-	public static final StepSkipPolicy DEFAULT_SKIP_POLICY = StepSkipPolicy.LIMIT;
-	public static final int DEFAULT_CHUNK_SIZE = ReaderOptions.DEFAULT_CHUNK_SIZE;
-	public static final int DEFAULT_THREADS = 1;
-	public static final int DEFAULT_SKIP_LIMIT = 3;
-	public static final int DEFAULT_PROGRESS_UPDATE_INTERVAL = 1000;
-	public static final ProgressStyle DEFAULT_PROGRESS_STYLE = ProgressStyle.ASCII;
+    public static final StepSkipPolicy DEFAULT_SKIP_POLICY = StepSkipPolicy.LIMIT;
 
-	@Option(names = "--sleep", description = "Duration in ms to sleep after each batch write (default: ${DEFAULT-VALUE}).", paramLabel = "<ms>")
-	private long sleep;
+    public static final int DEFAULT_CHUNK_SIZE = ReaderOptions.DEFAULT_CHUNK_SIZE;
 
-	@Option(names = "--threads", description = "Thread count (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
-	private int threads = DEFAULT_THREADS;
+    public static final int DEFAULT_THREADS = 1;
 
-	@Option(names = { "-b",
-			"--batch" }, description = "Number of items in each batch (default: ${DEFAULT-VALUE}).", paramLabel = "<size>")
-	private int chunkSize = DEFAULT_CHUNK_SIZE;
+    public static final int DEFAULT_SKIP_LIMIT = 3;
 
-	@Option(names = "--skip-policy", description = "Policy to determine if some processing should be skipped: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<name>")
-	private StepSkipPolicy skipPolicy = DEFAULT_SKIP_POLICY;
+    public static final int DEFAULT_RETRY_LIMIT = 1;
 
-	@Option(names = "--skip-limit", description = "LIMIT skip policy: max number of failed items before considering the transfer has failed (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
-	private int skipLimit = DEFAULT_SKIP_LIMIT;
+    public static final int DEFAULT_PROGRESS_UPDATE_INTERVAL = 1000;
 
-	@Option(names = "--progress", description = "Style of progress bar: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}),", paramLabel = "<style>")
-	private ProgressStyle progressStyle = DEFAULT_PROGRESS_STYLE;
+    public static final ProgressStyle DEFAULT_PROGRESS_STYLE = ProgressStyle.ASCII;
 
-	@Option(names = "--progress-interval", description = "Progress update interval in millis (default: ${DEFAULT-VALUE}).", paramLabel = "<ms>", hidden = true)
-	private int progressUpdateInterval = DEFAULT_PROGRESS_UPDATE_INTERVAL;
+    @Option(names = "--sleep", description = "Duration in ms to sleep after each batch write (default: ${DEFAULT-VALUE}).", paramLabel = "<ms>")
+    private long sleep;
 
-	public ProgressStyle getProgressStyle() {
-		return progressStyle;
-	}
+    @Option(names = "--threads", description = "Thread count (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
+    private int threads = DEFAULT_THREADS;
 
-	public int getProgressUpdateInterval() {
-		return progressUpdateInterval;
-	}
+    @Option(names = { "-b",
+            "--batch" }, description = "Number of items in each batch (default: ${DEFAULT-VALUE}).", paramLabel = "<size>")
+    private int chunkSize = DEFAULT_CHUNK_SIZE;
 
-	public void setProgressStyle(ProgressStyle style) {
-		this.progressStyle = style;
-	}
+    @Option(names = "--ft", description = "Enable step fault-tolerance. Use in conjunction with retry and skip limit/policy.")
+    private boolean faultTolerance;
 
-	public void setProgressUpdateInterval(int millis) {
-		Assert.isTrue(millis > 0, "Update interval must be strictly greater than zero");
-		this.progressUpdateInterval = millis;
-	}
+    @Option(names = "--skip-policy", description = "Policy to determine if some processing should be skipped: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<name>")
+    private StepSkipPolicy skipPolicy = DEFAULT_SKIP_POLICY;
 
-	public long getSleep() {
-		return sleep;
-	}
+    @Option(names = "--skip-limit", description = "LIMIT skip policy: max number of failed items before considering the transfer has failed (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
+    private int skipLimit = DEFAULT_SKIP_LIMIT;
 
-	public void setSleep(long sleep) {
-		this.sleep = sleep;
-	}
+    @Option(names = "--retry-limit", description = "Maximum number of times to try a failed item. 0 and 1 both translate to no retry. (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
+    private int retryLimit = DEFAULT_RETRY_LIMIT;
 
-	public int getThreads() {
-		return threads;
-	}
+    @Option(names = "--progress", description = "Style of progress bar: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}),", paramLabel = "<style>")
+    private ProgressStyle progressStyle = DEFAULT_PROGRESS_STYLE;
 
-	public int getChunkSize() {
-		return chunkSize;
-	}
+    @Option(names = "--progress-interval", description = "Progress update interval in millis (default: ${DEFAULT-VALUE}).", paramLabel = "<ms>", hidden = true)
+    private int progressUpdateInterval = DEFAULT_PROGRESS_UPDATE_INTERVAL;
 
-	public void setThreads(int threads) {
-		this.threads = threads;
-	}
+    public boolean isFaultTolerance() {
+        return faultTolerance;
+    }
 
-	public void setChunkSize(int chunkSize) {
-		this.chunkSize = chunkSize;
-	}
+    public void setFaultTolerance(boolean faultTolerance) {
+        this.faultTolerance = faultTolerance;
+    }
 
-	public void setSkipPolicy(StepSkipPolicy skipPolicy) {
-		this.skipPolicy = skipPolicy;
-	}
+    public int getRetryLimit() {
+        return retryLimit;
+    }
 
-	public void setSkipLimit(int skipLimit) {
-		this.skipLimit = skipLimit;
-	}
+    public void setRetryLimit(int retryLimit) {
+        this.retryLimit = retryLimit;
+    }
 
-	public StepSkipPolicy getSkipPolicy() {
-		return skipPolicy;
-	}
+    public ProgressStyle getProgressStyle() {
+        return progressStyle;
+    }
 
-	public int getSkipLimit() {
-		return skipLimit;
-	}
+    public int getProgressUpdateInterval() {
+        return progressUpdateInterval;
+    }
 
-	@Override
-	public String toString() {
-		return "JobOptions [sleep=" + sleep + ", threads=" + threads + ", chunkSize=" + chunkSize + ", skipPolicy="
-				+ skipPolicy + ", skipLimit=" + skipLimit + ", progressStyle=" + progressStyle
-				+ ", progressUpdateInterval=" + progressUpdateInterval + "]";
-	}
+    public void setProgressStyle(ProgressStyle style) {
+        this.progressStyle = style;
+    }
+
+    public void setProgressUpdateInterval(int millis) {
+        Assert.isTrue(millis > 0, "Update interval must be strictly greater than zero");
+        this.progressUpdateInterval = millis;
+    }
+
+    public long getSleep() {
+        return sleep;
+    }
+
+    public void setSleep(long sleep) {
+        this.sleep = sleep;
+    }
+
+    public int getThreads() {
+        return threads;
+    }
+
+    public int getChunkSize() {
+        return chunkSize;
+    }
+
+    public void setThreads(int threads) {
+        this.threads = threads;
+    }
+
+    public void setChunkSize(int chunkSize) {
+        this.chunkSize = chunkSize;
+    }
+
+    public void setSkipPolicy(StepSkipPolicy skipPolicy) {
+        this.skipPolicy = skipPolicy;
+    }
+
+    public void setSkipLimit(int skipLimit) {
+        this.skipLimit = skipLimit;
+    }
+
+    public StepSkipPolicy getSkipPolicy() {
+        return skipPolicy;
+    }
+
+    public int getSkipLimit() {
+        return skipLimit;
+    }
+
+    @Override
+    public String toString() {
+        return "JobOptions [sleep=" + sleep + ", threads=" + threads + ", chunkSize=" + chunkSize + ", faultTolerance="
+                + faultTolerance + ", skipPolicy=" + skipPolicy + ", skipLimit=" + skipLimit + ", retryLimit=" + retryLimit
+                + ", progressStyle=" + progressStyle + ", progressUpdateInterval=" + progressUpdateInterval + "]";
+    }
 
 }

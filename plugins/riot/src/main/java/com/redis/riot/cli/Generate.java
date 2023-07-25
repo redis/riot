@@ -2,7 +2,7 @@ package com.redis.riot.cli;
 
 import org.springframework.batch.core.Job;
 
-import com.redis.riot.cli.common.AbstractStructImportCommand;
+import com.redis.riot.cli.common.AbstractDataStructureImportCommand;
 import com.redis.riot.cli.common.CommandContext;
 import com.redis.riot.cli.common.GenerateOptions;
 import com.redis.spring.batch.reader.GeneratorItemReader;
@@ -11,7 +11,7 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
 
 @Command(name = "generate", description = "Generate data structures.")
-public class Generate extends AbstractStructImportCommand {
+public class Generate extends AbstractDataStructureImportCommand {
 
 	private static final String TASK_NAME = "Generating";
 
@@ -51,7 +51,7 @@ public class Generate extends AbstractStructImportCommand {
 
 	@Override
 	public String toString() {
-		return "Generate [generateOptions=" + generateOptions + ", structOptions=" + structOptions + ", writerOptions="
+		return "Generate [generateOptions=" + generateOptions + ", operationOptions=" + writerOptions + ", operationOptions="
 				+ writerOptions + ", jobOptions=" + jobOptions + "]";
 	}
 

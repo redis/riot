@@ -7,6 +7,7 @@ import java.util.Optional;
 
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.SslVerifyMode;
+import io.lettuce.core.protocol.ProtocolVersion;
 import picocli.CommandLine.Option;
 
 public class RedisOptions {
@@ -46,7 +47,7 @@ public class RedisOptions {
 	@Option(names = "--tls", description = "Establish a secure TLS connection.")
 	private boolean tls;
 
-	@Option(names = "--tls-verify", description = "TLS peer-verify mode: FULL (default), NONE, CA.", paramLabel = "<name>")
+	@Option(names = "--tls-verify", description = "TLS peer-verify mode: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<name>")
 	private SslVerifyMode tlsVerifyMode = DEFAULT_SSL_VERIFY_MODE;
 
 	@Option(names = "--ks", description = "Path to keystore.", paramLabel = "<file>", hidden = true)
@@ -85,6 +86,9 @@ public class RedisOptions {
 	@Option(names = "--client", description = "Client name used to connect to Redis.", paramLabel = "<name>")
 	private Optional<String> clientName = Optional.empty();
 
+	@Option(names = "--resp", description = "Redis protocol version used to connect to Redis: ${COMPLETION-CANDIDATES}.", paramLabel = "<ver>")
+	private Optional<ProtocolVersion> protocolVersion = Optional.empty();
+
 	public boolean isCluster() {
 		return cluster;
 	}
@@ -107,6 +111,14 @@ public class RedisOptions {
 
 	public void setPort(int port) {
 		this.port = port;
+	}
+
+	public Optional<ProtocolVersion> getProtocolVersion() {
+		return protocolVersion;
+	}
+
+	public void setProtocolVersion(Optional<ProtocolVersion> protocolVersion) {
+		this.protocolVersion = protocolVersion;
 	}
 
 	public void setSocket(String socket) {

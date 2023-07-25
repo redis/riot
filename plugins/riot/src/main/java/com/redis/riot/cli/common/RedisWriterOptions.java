@@ -1,91 +1,62 @@
 package com.redis.riot.cli.common;
 
-import java.time.Duration;
-
-import com.redis.spring.batch.common.PoolOptions;
-import com.redis.spring.batch.writer.ReplicaWaitOptions;
+import com.redis.spring.batch.writer.MergePolicy;
+import com.redis.spring.batch.writer.StreamIdPolicy;
+import com.redis.spring.batch.writer.TtlPolicy;
 import com.redis.spring.batch.writer.WriterOptions;
 
 import picocli.CommandLine.Option;
 
 public class RedisWriterOptions {
 
-	@Option(names = "--dry-run", description = "Enable dummy writes.")
-	private boolean dryRun;
+	@Option(names = "--no-ttl", description = "Disables key expiry.")
+	private boolean noTtl;
 
-	@Option(names = "--multi-exec", description = "Enable MULTI/EXEC writes.")
-	private boolean multiExec;
+	@Option(names = "--merge", description = "Merge collection data structures.")
+	private boolean merge;
 
-	@Option(names = "--wait-replicas", description = "Number of replicas for WAIT command (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
-	private int waitReplicas;
-
-	@Option(names = "--wait-timeout", description = "Timeout in millis for WAIT command (default: ${DEFAULT-VALUE}).", paramLabel = "<ms>")
-	private long waitTimeout = ReplicaWaitOptions.DEFAULT_TIMEOUT.toMillis();
-
-	@Option(names = "--write-pool", description = "Max connections for writer pool (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
-	private int poolMaxTotal = PoolOptions.DEFAULT_MAX_TOTAL;
-
-	public int getPoolMaxTotal() {
-		return poolMaxTotal;
-	}
-
-	public void setPoolMaxTotal(int poolMaxTotal) {
-		this.poolMaxTotal = poolMaxTotal;
-	}
-
-	public boolean isDryRun() {
-		return dryRun;
-	}
-
-	public void setDryRun(boolean dryRun) {
-		this.dryRun = dryRun;
-	}
-
-	public boolean isMultiExec() {
-		return multiExec;
-	}
-
-	public void setMultiExec(boolean multiExec) {
-		this.multiExec = multiExec;
-	}
-
-	public int getWaitReplicas() {
-		return waitReplicas;
-	}
-
-	public void setWaitReplicas(int waitReplicas) {
-		this.waitReplicas = waitReplicas;
-	}
-
-	public long getWaitTimeout() {
-		return waitTimeout;
-	}
-
-	public void setWaitTimeout(long waitTimeout) {
-		this.waitTimeout = waitTimeout;
-	}
+	@Option(names = "--no-id", description = "Disables propagation of stream message IDs.")
+	private boolean noStreamId;
 
 	public WriterOptions writerOptions() {
-		return WriterOptions.builder().multiExec(multiExec).poolOptions(poolOptions())
-				.replicaWaitOptions(replicaWaitOptions()).build();
+		return WriterOptions.builder().ttlPolicy(ttlPolicy()).mergePolicy(mergePolicy())
+				.streamIdPolicy(streamIdPolicy()).build();
 	}
 
-	private ReplicaWaitOptions replicaWaitOptions() {
-		return ReplicaWaitOptions.builder().replicas(waitReplicas).timeout(waitTimeoutDuration()).build();
+	private StreamIdPolicy streamIdPolicy() {
+		return noStreamId ? StreamIdPolicy.DROP : StreamIdPolicy.PROPAGATE;
 	}
 
-	private Duration waitTimeoutDuration() {
-		return Duration.ofMillis(waitTimeout);
+	private MergePolicy mergePolicy() {
+		return merge ? MergePolicy.MERGE : MergePolicy.OVERWRITE;
 	}
 
-	private PoolOptions poolOptions() {
-		return PoolOptions.builder().maxTotal(poolMaxTotal).build();
+	private TtlPolicy ttlPolicy() {
+		return noTtl ? TtlPolicy.DROP : TtlPolicy.PROPAGATE;
 	}
 
-	@Override
-	public String toString() {
-		return "RedisWriterOptions [dryRun=" + dryRun + ", multiExec=" + multiExec + ", waitReplicas=" + waitReplicas
-				+ ", waitTimeout=" + waitTimeout + ", poolMaxTotal=" + poolMaxTotal + "]";
+	public boolean isNoTtl() {
+		return noTtl;
+	}
+
+	public void setNoTtl(boolean noTtl) {
+		this.noTtl = noTtl;
+	}
+
+	public boolean isMerge() {
+		return merge;
+	}
+
+	public void setMerge(boolean merge) {
+		this.merge = merge;
+	}
+
+	public boolean isNoStreamId() {
+		return noStreamId;
+	}
+
+	public void setNoStreamId(boolean noStreamId) {
+		this.noStreamId = noStreamId;
 	}
 
 }

@@ -14,7 +14,7 @@ import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.json.JsonItemReader;
 import org.springframework.core.io.Resource;
 
-import com.redis.riot.cli.common.AbstractStructImportCommand;
+import com.redis.riot.cli.common.AbstractDataStructureImportCommand;
 import com.redis.riot.cli.common.CommandContext;
 import com.redis.riot.cli.file.DumpOptions;
 import com.redis.riot.cli.file.FileOptions;
@@ -31,7 +31,7 @@ import picocli.CommandLine.Mixin;
 import picocli.CommandLine.Parameters;
 
 @Command(name = "dump-import", description = "Import Redis data files into Redis.")
-public class DumpImport extends AbstractStructImportCommand {
+public class DumpImport extends AbstractDataStructureImportCommand {
 
 	@Parameters(arity = "0..*", description = "One ore more files or URLs", paramLabel = "FILE")
 	protected List<String> files = new ArrayList<>();
@@ -132,7 +132,7 @@ public class DumpImport extends AbstractStructImportCommand {
 	@Override
 	public String toString() {
 		return "DumpImport [files=" + files + ", fileOptions=" + fileOptions + ", dumpOptions=" + dumpOptions
-				+ ", structOptions=" + structOptions + ", writerOptions=" + writerOptions + ", jobOptions=" + jobOptions
+				+ ", operationOptions=" + writerOptions + ", operationOptions=" + writerOptions + ", jobOptions=" + jobOptions
 				+ "]";
 	}
 

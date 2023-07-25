@@ -5,6 +5,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.springframework.batch.core.Job;
@@ -13,6 +14,7 @@ import org.springframework.batch.core.job.builder.JobFlowBuilder;
 import org.springframework.batch.core.job.builder.SimpleJobBuilder;
 import org.springframework.batch.core.job.flow.support.SimpleFlow;
 import org.springframework.batch.core.step.builder.SimpleStepBuilder;
+import org.springframework.batch.core.step.tasklet.TaskletStep;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
@@ -21,18 +23,21 @@ import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
+import com.redis.lettucemod.api.StatefulRedisModulesConnection;
+import com.redis.lettucemod.util.RedisModulesUtils;
 import com.redis.riot.cli.common.AbstractExportCommand;
 import com.redis.riot.cli.common.CommandContext;
+import com.redis.riot.cli.common.JobOptions.ProgressStyle;
 import com.redis.riot.cli.common.NoopItemWriter;
+import com.redis.riot.cli.common.RedisItemWriteListener;
+import com.redis.riot.cli.common.RedisOperationOptions;
 import com.redis.riot.cli.common.RedisOptions;
-import com.redis.riot.cli.common.RedisStructOptions;
 import com.redis.riot.cli.common.RedisWriterOptions;
 import com.redis.riot.cli.common.ReplicateCommandContext;
 import com.redis.riot.cli.common.ReplicateOptions;
 import com.redis.riot.cli.common.ReplicationStrategy;
 import com.redis.riot.cli.common.RiotStep;
 import com.redis.riot.cli.common.RiotUtils;
-import com.redis.riot.cli.common.JobOptions.ProgressStyle;
 import com.redis.riot.core.CompareStepExecutionListener;
 import com.redis.riot.core.KeyComparisonDiffLogger;
 import com.redis.riot.core.processor.CompositeItemStreamItemProcessor;
@@ -52,6 +57,7 @@ import com.redis.spring.batch.writer.KeyComparisonCountItemWriter;
 import com.redis.spring.batch.writer.KeyComparisonCountItemWriter.Results;
 
 import io.lettuce.core.AbstractRedisClient;
+import io.lettuce.core.RedisException;
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.codec.ByteArrayCodec;
 import io.lettuce.core.codec.StringCodec;
@@ -60,6 +66,8 @@ import picocli.CommandLine.Command;
 
 @Command(name = "replicate", description = "Replicate a Redis database into another Redis database.")
 public class Replicate extends AbstractExportCommand {
+
+	public static final String CONFIG_NOTIFY_KEYSPACE_EVENTS = "notify-keyspace-events";
 
 	private static final String COMPARE_MESSAGE = " | {0} missing | {1} type | {2} value | {3} ttl";
 	private static final String QUEUE_MESSAGE = " | {0} queued";
@@ -76,11 +84,11 @@ public class Replicate extends AbstractExportCommand {
 	@ArgGroup(exclusive = false, heading = "Target Redis connection options%n")
 	private RedisOptions targetRedisOptions = new RedisOptions();
 
-	@ArgGroup(exclusive = false, heading = "Writer options%n")
-	private RedisWriterOptions writerOptions = new RedisWriterOptions();
+	@ArgGroup(exclusive = false, heading = "Target Redis operation options%n")
+	private RedisOperationOptions operationOptions = new RedisOperationOptions();
 
-	@ArgGroup(exclusive = false, heading = "Data structure options%n")
-	private RedisStructOptions structOptions = new RedisStructOptions();
+	@ArgGroup(exclusive = false, heading = "Write options%n")
+	private RedisWriterOptions writerOptions = new RedisWriterOptions();
 
 	@ArgGroup(exclusive = false, heading = "Replication options%n")
 	private ReplicateOptions replicateOptions = new ReplicateOptions();
@@ -108,12 +116,12 @@ public class Replicate extends AbstractExportCommand {
 		this.replicateOptions = replicationOptions;
 	}
 
-	public RedisWriterOptions getWriterOptions() {
-		return writerOptions;
+	public RedisOperationOptions getOperationOptions() {
+		return operationOptions;
 	}
 
-	public void setWriterOptions(RedisWriterOptions writerOptions) {
-		this.writerOptions = writerOptions;
+	public void setOperationOptions(RedisOperationOptions options) {
+		this.operationOptions = options;
 	}
 
 	@Override
@@ -134,17 +142,15 @@ public class Replicate extends AbstractExportCommand {
 	}
 
 	private Job liveOnlyJob(ReplicateCommandContext context) {
-		SimpleJobBuilder job = job(JOB_NAME).start(liveStep(context).build());
-		return job.build();
+		return job(JOB_NAME).start(liveStep(context)).build();
 	}
 
 	private Job compareJob(ReplicateCommandContext context) {
-		SimpleJobBuilder job = job("compare-job").start(compareStep(context).build());
-		return job.build();
+		return job("compare-job").start(compareStep(context).build()).build();
 	}
 
 	private Job snapshotJob(ReplicateCommandContext context) {
-		SimpleJobBuilder snapshotJob = job(JOB_NAME).start(scanStep(context).build());
+		SimpleJobBuilder snapshotJob = job(JOB_NAME).start(scanStep(context));
 		if (shouldCompare()) {
 			snapshotJob.next(compareStep(context).build());
 		}
@@ -152,10 +158,10 @@ public class Replicate extends AbstractExportCommand {
 	}
 
 	private Job liveJob(ReplicateCommandContext context) {
-		SimpleStepBuilder<KeyValue<byte[]>, KeyValue<byte[]>> scanStep = scanStep(context);
-		SimpleFlow scanFlow = new FlowBuilder<SimpleFlow>("scan-flow").start(scanStep.build()).build();
-		FlushingStepBuilder<KeyValue<byte[]>, KeyValue<byte[]>> liveStep = liveStep(context);
-		SimpleFlow liveFlow = new FlowBuilder<SimpleFlow>("live-flow").start(liveStep.build()).build();
+		TaskletStep scanStep = scanStep(context);
+		SimpleFlow scanFlow = new FlowBuilder<SimpleFlow>("scan-flow").start(scanStep).build();
+		TaskletStep liveStep = liveStep(context);
+		SimpleFlow liveFlow = new FlowBuilder<SimpleFlow>("live-flow").start(liveStep).build();
 		SimpleFlow replicationFlow = new FlowBuilder<SimpleFlow>("replicate-flow").split(new SimpleAsyncTaskExecutor())
 				.add(liveFlow, scanFlow).build();
 		JobFlowBuilder liveJob = job(JOB_NAME).start(replicationFlow);
@@ -166,17 +172,25 @@ public class Replicate extends AbstractExportCommand {
 	}
 
 	private boolean shouldCompare() {
-		return !replicateOptions.isNoVerify() && !writerOptions.isDryRun()
+		return !replicateOptions.isNoVerify() && !operationOptions.isDryRun()
 				&& !replicateOptions.getKeyProcessor().isPresent();
 	}
 
-	private SimpleStepBuilder<KeyValue<byte[]>, KeyValue<byte[]>> scanStep(ReplicateCommandContext context) {
+	private TaskletStep scanStep(ReplicateCommandContext context) {
 		RedisItemReader<byte[], byte[]> reader = reader(context, ByteArrayCodec.INSTANCE).build(valueType());
 		reader.setName(SCAN_STEP + READER_SUFFIX);
 		RiotStep<KeyValue<byte[]>, KeyValue<byte[]>> step = step(reader, checkWriter(context)).name(SCAN_STEP);
 		step.task(TASK_SCAN);
 		step.processor(processor(context));
+		return step(step.build());
+	}
+
+	private TaskletStep step(SimpleStepBuilder<KeyValue<byte[]>, KeyValue<byte[]>> step) {
+		if (log.isLoggable(Level.FINE)) {
+			step.listener(new RedisItemWriteListener(log));
+		}
 		return step.build();
+
 	}
 
 	private ValueType valueType() {
@@ -186,7 +200,8 @@ public class Replicate extends AbstractExportCommand {
 		return ValueType.STRUCT;
 	}
 
-	private FlushingStepBuilder<KeyValue<byte[]>, KeyValue<byte[]>> liveStep(ReplicateCommandContext context) {
+	private TaskletStep liveStep(ReplicateCommandContext context) {
+		checkKeyspaceNotificationsConfig(context);
 		LiveRedisItemReader.Builder<byte[], byte[]> readerBuilder = reader(context, ByteArrayCodec.INSTANCE).live();
 		readerBuilder.flushingOptions(replicateOptions.flushingOptions());
 		readerBuilder.keyspaceNotificationOptions(keyspaceNotificationOptions(context));
@@ -198,7 +213,23 @@ public class Replicate extends AbstractExportCommand {
 		riotStep.extraMessage(() -> MessageFormat.format(QUEUE_MESSAGE, queueSize(reader.getKeyReader().getQueue())));
 		FlushingStepBuilder<KeyValue<byte[]>, KeyValue<byte[]>> step = new FlushingStepBuilder<>(riotStep.build());
 		step.options(replicateOptions.flushingOptions());
-		return step;
+		return step(step);
+	}
+
+	private void checkKeyspaceNotificationsConfig(ReplicateCommandContext context) {
+		StatefulRedisModulesConnection<String, String> connection = RedisModulesUtils
+				.connection(context.getRedisClient());
+		try {
+			String config = connection.sync().configGet(CONFIG_NOTIFY_KEYSPACE_EVENTS)
+					.getOrDefault(CONFIG_NOTIFY_KEYSPACE_EVENTS, "");
+			if (!config.contains("K")) {
+				log.log(Level.SEVERE,
+						"Keyspace notifications not property configured ({0}={1}). Make sure it contains at least \"K\".",
+						new Object[] { CONFIG_NOTIFY_KEYSPACE_EVENTS, config });
+			}
+		} catch (RedisException e) {
+			// CONFIG command might not be available. Ignore.
+		}
 	}
 
 	private int queueSize(BlockingQueue<?> queue) {
@@ -243,13 +274,13 @@ public class Replicate extends AbstractExportCommand {
 	}
 
 	private ItemWriter<KeyValue<byte[]>> checkWriter(ReplicateCommandContext context) {
-		if (writerOptions.isDryRun()) {
+		if (operationOptions.isDryRun()) {
 			return new NoopItemWriter<>();
 		}
 		Builder<byte[], byte[]> writer = RedisItemWriter.client(context.getTargetRedisClient(),
 				ByteArrayCodec.INSTANCE);
-		writer.options(writerOptions.writerOptions());
-		writer.structOptions(structOptions.structOptions());
+		writer.operationOptions(operationOptions.writeOperationOptions());
+		writer.writerOptions(writerOptions.writerOptions());
 		return writer.build(valueType());
 	}
 
@@ -268,8 +299,8 @@ public class Replicate extends AbstractExportCommand {
 
 	@Override
 	public String toString() {
-		return "Replicate [targetRedisOptions=" + targetRedisOptions + ", writerOptions=" + writerOptions
-				+ ", structOptions=" + structOptions + ", replicateOptions=" + replicateOptions + ", readerOptions="
+		return "Replicate [targetRedisOptions=" + targetRedisOptions + ", operationOptions=" + operationOptions
+				+ ", operationOptions=" + writerOptions + ", replicateOptions=" + replicateOptions + ", readerOptions="
 				+ readerOptions + ", jobOptions=" + jobOptions + "]";
 	}
 

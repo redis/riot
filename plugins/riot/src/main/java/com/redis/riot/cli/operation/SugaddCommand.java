@@ -27,7 +27,7 @@ public class SugaddCommand extends AbstractKeyCommand {
 
 	private Function<Map<String, Object>, Suggestion<String>> suggestion() {
 		return new SuggestionConverter<>(stringFieldExtractor(options.getField()),
-				numberExtractor(options.getScore(), Double.class, options.getDefaultScore()),
+				doubleExtractor(options.getScore(), options.getDefaultScore()),
 				stringFieldExtractor(options.getPayload()));
 	}
 

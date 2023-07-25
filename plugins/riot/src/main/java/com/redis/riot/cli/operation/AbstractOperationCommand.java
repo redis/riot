@@ -3,11 +3,12 @@ package com.redis.riot.cli.operation;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.ToDoubleFunction;
+import java.util.function.ToLongFunction;
 
 import com.redis.riot.cli.common.HelpOptions;
 import com.redis.riot.core.convert.FieldExtractorFactory;
 import com.redis.riot.core.convert.IdConverterBuilder;
-import com.redis.riot.core.convert.ObjectToNumberConverter;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
@@ -28,11 +29,6 @@ public abstract class AbstractOperationCommand<O> implements OperationCommand<O>
 		this.commandOptions = commandOptions;
 	}
 
-	protected Function<Map<String, Object>, Double> doubleFieldExtractor(String field) {
-		Function<Map<String, Object>, Object> extractor = fieldExtractorFactory().field(field);
-		return extractor.andThen(new ObjectToNumberConverter<>(Double.class));
-	}
-
 	protected Function<Map<String, Object>, String> stringFieldExtractor(Optional<String> field) {
 		if (field.isPresent()) {
 			return stringFieldExtractor(field.get());
@@ -49,22 +45,18 @@ public abstract class AbstractOperationCommand<O> implements OperationCommand<O>
 				.nullCheck(!commandOptions.isIgnoreMissingFields()).build();
 	}
 
-	protected <T extends Number> Function<Map<String, Object>, T> numberExtractor(String field, Class<T> targetType) {
-		return fieldExtractorFactory().field(field).andThen(new ObjectToNumberConverter<>(targetType));
-	}
-
-	protected <T extends Number> Function<Map<String, Object>, T> numberExtractor(Optional<String> field,
-			Class<T> targetType, T defaultValue) {
+	protected ToLongFunction<Map<String, Object>> longExtractor(Optional<String> field, long defaultValue) {
 		if (field.isPresent()) {
-			return numberExtractor(field.get(), targetType, defaultValue);
+			return fieldExtractorFactory().longField(field.get(), defaultValue);
 		}
-		return s -> defaultValue;
-
+		return m -> defaultValue;
 	}
 
-	protected <T extends Number> Function<Map<String, Object>, T> numberExtractor(String field, Class<T> targetType,
-			Object defaultValue) {
-		return fieldExtractorFactory().field(field, defaultValue).andThen(new ObjectToNumberConverter<>(targetType));
+	protected ToDoubleFunction<Map<String, Object>> doubleExtractor(Optional<String> field, double defaultValue) {
+		if (field.isPresent()) {
+			return fieldExtractorFactory().doubleField(field.get(), defaultValue);
+		}
+		return m -> defaultValue;
 	}
 
 	protected Function<Map<String, Object>, String> idMaker(Optional<String> prefix, String... fields) {

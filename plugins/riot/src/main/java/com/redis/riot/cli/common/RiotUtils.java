@@ -8,7 +8,10 @@ import com.redis.lettucemod.util.RedisURIBuilder;
 import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.event.DefaultEventPublisherOptions;
+import io.lettuce.core.event.DefaultEventPublisherOptions.Builder;
+import io.lettuce.core.event.EventPublisherOptions;
 import io.lettuce.core.metrics.CommandLatencyCollector;
+import io.lettuce.core.metrics.CommandLatencyRecorder;
 import io.lettuce.core.metrics.DefaultCommandLatencyCollectorOptions;
 
 public interface RiotUtils {
@@ -39,24 +42,33 @@ public interface RiotUtils {
 		return client(redisURI(redisOptions), redisOptions);
 	}
 
-	static AbstractRedisClient client(RedisURI redisURI, RedisOptions redisOptions) {
+	static AbstractRedisClient client(RedisURI redisURI, RedisOptions options) {
 		ClientBuilder builder = ClientBuilder.create(redisURI);
-		builder.autoReconnect(!redisOptions.isNoAutoReconnect());
-		builder.cluster(redisOptions.isCluster());
-		if (redisOptions.isShowMetrics()) {
-			builder.commandLatencyRecorder(
-					CommandLatencyCollector.create(DefaultCommandLatencyCollectorOptions.builder().enable().build()));
-			builder.commandLatencyPublisherOptions(DefaultEventPublisherOptions.builder()
-					.eventEmitInterval(Duration.ofSeconds(redisOptions.getMetricsStep())).build());
+		builder.autoReconnect(!options.isNoAutoReconnect());
+		builder.cluster(options.isCluster());
+		builder.protocolVersion(options.getProtocolVersion());
+		if (options.isShowMetrics()) {
+			builder.commandLatencyRecorder(latencyRecorder());
+			builder.commandLatencyPublisherOptions(latencyPublisherOptions(options));
 		}
-		builder.keystore(redisOptions.getKeystore());
-		builder.keystorePassword(redisOptions.getKeystorePassword());
-		builder.truststore(redisOptions.getTruststore());
-		builder.truststorePassword(redisOptions.getTruststorePassword());
-		builder.trustManager(redisOptions.getTrustedCerts());
-		builder.key(redisOptions.getKey());
-		builder.keyCert(redisOptions.getKeyCert());
-		builder.keyPassword(redisOptions.getKeyPassword());
+		builder.keystore(options.getKeystore());
+		builder.keystorePassword(options.getKeystorePassword());
+		builder.truststore(options.getTruststore());
+		builder.truststorePassword(options.getTruststorePassword());
+		builder.trustManager(options.getTrustedCerts());
+		builder.key(options.getKey());
+		builder.keyCert(options.getKeyCert());
+		builder.keyPassword(options.getKeyPassword());
+		return builder.build();
+	}
+
+	static CommandLatencyRecorder latencyRecorder() {
+		return CommandLatencyCollector.create(DefaultCommandLatencyCollectorOptions.builder().enable().build());
+	}
+
+	static EventPublisherOptions latencyPublisherOptions(RedisOptions options) {
+		Builder builder = DefaultEventPublisherOptions.builder();
+		builder.eventEmitInterval(Duration.ofSeconds(options.getMetricsStep()));
 		return builder.build();
 	}
 

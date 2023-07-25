@@ -6,19 +6,19 @@ import picocli.CommandLine.ArgGroup;
 
 public abstract class AbstractImportCommand extends AbstractCommand {
 
-	@ArgGroup(exclusive = false, heading = "Writer options%n")
-	protected RedisWriterOptions writerOptions = new RedisWriterOptions();
+	@ArgGroup(exclusive = false, heading = "Redis operation options%n")
+	protected RedisOperationOptions operationOptions = new RedisOperationOptions();
 
-	public RedisWriterOptions getWriterOptions() {
-		return writerOptions;
+	public RedisOperationOptions getOperationOptions() {
+		return operationOptions;
 	}
 
-	public void setWriterOptions(RedisWriterOptions writerOptions) {
-		this.writerOptions = writerOptions;
+	public void setOperationOptions(RedisOperationOptions options) {
+		this.operationOptions = options;
 	}
 
 	protected <B extends BaseBuilder<?, ?, B>> B configure(B builder) {
-		return builder.options(writerOptions.writerOptions());
+		return builder.operationOptions(operationOptions.writeOperationOptions());
 	}
 
 }

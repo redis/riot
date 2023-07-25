@@ -16,8 +16,8 @@ import org.springframework.batch.core.job.builder.SimpleJobBuilder;
 import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.core.step.tasklet.TaskletStep;
 import org.springframework.batch.item.ItemReader;
+import org.springframework.batch.item.ParseException;
 import org.springframework.batch.item.file.FlatFileItemReader;
-import org.springframework.batch.item.file.FlatFileParseException;
 import org.springframework.batch.item.file.LineCallbackHandler;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
 import org.springframework.batch.item.file.separator.DefaultRecordSeparatorPolicy;
@@ -71,15 +71,6 @@ public class FileImport extends AbstractOperationImportCommand {
 	@Option(names = { "-t", "--filetype" }, description = "File type: ${COMPLETION-CANDIDATES}.", paramLabel = "<type>")
 	private Optional<FileType> fileType = Optional.empty();
 
-	public FileImport() {
-	}
-
-	private FileImport(Builder builder) {
-		this.flatFileOptions = builder.flatFileOptions;
-		this.fileType = builder.fileType;
-		this.fileOptions = builder.fileOptions;
-	}
-
 	public List<String> getFiles() {
 		return files;
 	}
@@ -130,7 +121,7 @@ public class FileImport extends AbstractOperationImportCommand {
 		ItemReader<Map<String, Object>> reader = reader(resource);
 		String name = commandName() + "-" + resource.getDescription();
 		String task = "Importing " + resource.getFilename();
-		return step(context, reader).name(name).task(task).skippableExceptions(FlatFileParseException.class);
+		return step(context, reader).name(name).task(task).skippableExceptions(ParseException.class);
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -270,43 +261,6 @@ public class FileImport extends AbstractOperationImportCommand {
 		}
 	}
 
-	public static Builder builder() {
-		return new Builder();
-	}
-
-	public static class Builder {
-
-		private FlatFileOptions flatFileOptions = new FlatFileOptions();
-		private FileOptions fileOptions = new FileOptions();
-		private Optional<FileType> fileType = Optional.empty();
-
-		public Builder flatFileOptions(FlatFileOptions options) {
-			Assert.notNull(options, "FlatFileOptions must not be null");
-			this.flatFileOptions = options;
-			return this;
-		}
-
-		public Builder fileOptions(FileOptions options) {
-			Assert.notNull(options, "FileImportOptions must not be null");
-			this.fileOptions = options;
-			return this;
-		}
-
-		public Builder fileType(FileType type) {
-			return fileType(Optional.of(type));
-		}
-
-		public Builder fileType(Optional<FileType> type) {
-			this.fileType = type;
-			return this;
-		}
-
-		public FileImport build() {
-			return new FileImport(this);
-		}
-
-	}
-
 	/**
 	 * 
 	 * @param files Files to create readers for
@@ -331,8 +285,8 @@ public class FileImport extends AbstractOperationImportCommand {
 	@Override
 	public String toString() {
 		return "FileImport [files=" + files + ", fileOptions=" + fileOptions + ", flatFileOptions=" + flatFileOptions
-				+ ", fileType=" + fileType + ", processorOptions=" + processorOptions + ", writerOptions="
-				+ writerOptions + ", jobOptions=" + jobOptions + "]";
+				+ ", fileType=" + fileType + ", processorOptions=" + processorOptions + ", operationOptions="
+				+ operationOptions + ", jobOptions=" + jobOptions + "]";
 	}
 
 }

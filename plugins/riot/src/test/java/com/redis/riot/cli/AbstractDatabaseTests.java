@@ -20,7 +20,7 @@ import com.redis.testcontainers.RedisStackContainer;
 
 import picocli.CommandLine.ParseResult;
 
-abstract class AbstractDatabaseTests extends AbstractTests {
+abstract class AbstractDatabaseTests extends AbstractRiotTests {
 
 	private static final RedisStackContainer REDIS = new RedisStackContainer(
 			RedisStackContainer.DEFAULT_IMAGE_NAME.withTag(RedisStackContainer.DEFAULT_TAG));

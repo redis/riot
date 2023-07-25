@@ -93,7 +93,7 @@ import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.ParseResult;
 
 @SuppressWarnings("unchecked")
-public abstract class AbstractIntegrationTests extends AbstractTests {
+public abstract class AbstractIntegrationTests extends AbstractRiotTests {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -177,7 +177,7 @@ public abstract class AbstractIntegrationTests extends AbstractTests {
 
 	@Test
 	void fileApiImportJSON() throws UnexpectedInputException, ParseException, NonTransientResourceException, Exception {
-		FileImport command = FileImport.builder().build();
+		FileImport command = new FileImport();
 		Iterator<Map<String, Object>> iterator = command.read(AbstractIntegrationTests.BEERS_JSON_URL);
 		Assertions.assertTrue(iterator.hasNext());
 		Map<String, Object> beer1 = iterator.next();
@@ -192,8 +192,8 @@ public abstract class AbstractIntegrationTests extends AbstractTests {
 
 	@Test
 	void fileApiImportCSV() throws UnexpectedInputException, ParseException, NonTransientResourceException, Exception {
-		FileImport command = FileImport.builder().flatFileOptions(FlatFileOptions.builder().header(true).build())
-				.build();
+		FileImport command = new FileImport();
+		command.setFlatFileOptions(FlatFileOptions.builder().header(true).build());
 		Iterator<Map<String, Object>> iterator = command.read("https://storage.googleapis.com/jrx/beers.csv");
 		Assertions.assertTrue(iterator.hasNext());
 		Map<String, Object> beer1 = iterator.next();
@@ -211,7 +211,7 @@ public abstract class AbstractIntegrationTests extends AbstractTests {
 		Path temp = Files.createTempDirectory("fileExpansion");
 		Files.createFile(temp.resolve("file1.csv"));
 		Files.createFile(temp.resolve("file2.csv"));
-		FileImport command = FileImport.builder().build();
+		FileImport command = new FileImport();
 		List<ItemReader<Map<String, Object>>> readers = command.readers(temp.resolve("*.csv").toString())
 				.collect(Collectors.toList());
 		Assertions.assertEquals(2, readers.size());
