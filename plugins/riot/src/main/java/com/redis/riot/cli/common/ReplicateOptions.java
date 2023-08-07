@@ -36,14 +36,6 @@ public class ReplicateOptions {
 	@Option(names = "--ttl-tolerance", description = "Max TTL difference to use for dataset verification (default: ${DEFAULT-VALUE}).", paramLabel = "<ms>")
 	private long ttlTolerance = KeyComparisonItemReader.DEFAULT_TTL_TOLERANCE.toMillis();
 
-	public boolean isIgnoreKeysWithTtl() {
-		return ignoreKeysWithTtl;
-	}
-
-	public void setIgnoreKeysWithTtl(boolean ignoreKeysWithTtl) {
-		this.ignoreKeysWithTtl = ignoreKeysWithTtl;
-	}
-
 	@Option(names = "--ignore-ttl-keys", description = "Ignore keys with TTL (default: false)", paramLabel = "<bool>")
 	private boolean ignoreKeysWithTtl = false;
 
@@ -160,6 +152,15 @@ public class ReplicateOptions {
 
 	public void setShowDiffs(boolean showDiffs) {
 		this.showDiffs = showDiffs;
+	}
+
+
+	public boolean isIgnoreKeysWithTtl() {
+		return ignoreKeysWithTtl;
+	}
+
+	public void setIgnoreKeysWithTtl(boolean ignoreKeysWithTtl) {
+		this.ignoreKeysWithTtl = ignoreKeysWithTtl;
 	}
 
 	public PoolOptions targetPoolOptions() {
