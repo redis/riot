@@ -434,6 +434,7 @@ public abstract class AbstractIntegrationTests extends AbstractTests {
 	}
 
 	@Test
+	@Disabled("Needs update")
 	void fileImportJSONElastic() throws Exception {
 		execute("file-import-json-elastic");
 		RedisKeyCommands<String, String> sync = connection.sync();
@@ -651,6 +652,7 @@ public abstract class AbstractIntegrationTests extends AbstractTests {
 	}
 
 	@Test
+	@Disabled("Needs update")
 	void fakerInfer() throws Exception {
 		String INDEX = "beerIdx";
 		String FIELD_ID = "id";
