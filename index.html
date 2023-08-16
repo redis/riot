@@ -92,7 +92,7 @@ $(addBlockSwitches);
 <h1>RIOT</h1>
 <div class="details">
 <span id="author" class="author">Julien Ruaux</span><br>
-<span id="revnumber">version 3.1.4</span>
+<span id="revnumber">version 3.1.5</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -110,9 +110,8 @@ $(addBlockSwitches);
 <ul class="sectlevel2">
 <li><a href="#_riot_commands">Commands</a></li>
 <li><a href="#_general_options">General options</a></li>
-<li><a href="#_redis_connection_options">Redis connection options</a></li>
+<li><a href="#_redis_options">Redis connection options</a></li>
 <li><a href="#_job_options">Job options</a></li>
-<li><a href="#_generate_completion">Generate completion</a></li>
 </ul>
 </li>
 <li><a href="#_architecture">Architecture</a>
@@ -153,6 +152,7 @@ $(addBlockSwitches);
 </ul>
 </li>
 <li><a href="#_ping">Ping</a></li>
+<li><a href="#_generate_completion">Generate completion</a></li>
 <li><a href="#_faq">Frequently Asked Questions</a>
 <ul class="sectlevel2">
 <li><a href="#_logs_are_cut_off_or_missing">Logs are cut off or missing</a></li>
@@ -222,7 +222,7 @@ $(addBlockSwitches);
 </td>
 <td class="content">
 <div class="paragraph">
-<p><code>riot-3.1.4.zip</code> requires Java 11 or greater to be installed while <code>riot-standalone-3.1.4-*.zip</code> includes its own Java runtime and does not require a Java installation.</p>
+<p><code>riot-3.1.5.zip</code> requires Java 11 or greater to be installed while <code>riot-standalone-3.1.5-*.zip</code> includes its own Java runtime and does not require a Java installation.</p>
 </div>
 </td>
 </tr>
@@ -254,7 +254,7 @@ scoop install riot</code></pre>
 </td>
 <td class="content">
 <div class="paragraph">
-<p><code>riot-3.1.4.zip</code> requires Java 11 or greater to be installed while <code>riot-standalone-3.1.4-*.zip</code> includes its own Java runtime and does not require a Java installation.</p>
+<p><code>riot-3.1.5.zip</code> requires Java 11 or greater to be installed while <code>riot-standalone-3.1.5-*.zip</code> includes its own Java runtime and does not require a Java installation.</p>
 </div>
 </td>
 </tr>
@@ -285,7 +285,7 @@ scoop install riot</code></pre>
 </td>
 <td class="content">
 <div class="paragraph">
-<p><code>riot-3.1.4.zip</code> requires Java 11 or greater to be installed while <code>riot-standalone-3.1.4-*.zip</code> includes its own Java runtime and does not require a Java installation.</p>
+<p><code>riot-3.1.5.zip</code> requires Java 11 or greater to be installed while <code>riot-standalone-3.1.5-*.zip</code> includes its own Java runtime and does not require a Java installation.</p>
 </div>
 </td>
 </tr>
@@ -428,7 +428,7 @@ riot command subcommand --help</code></pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_redis_connection_options"><a class="anchor" href="#_redis_connection_options"></a>Redis connection options</h3>
+<h3 id="_redis_options"><a class="anchor" href="#_redis_options"></a>Redis connection options</h3>
 <div class="paragraph">
 <p>Use the following options to configure connections to Redis.</p>
 </div>
@@ -564,27 +564,6 @@ See <a href="#_architecture_batch">Batching</a> section for more details.</p>
 See <a href="#_architecture_threads">Multi-threading</a> section for more details.</p>
 </dd>
 </dl>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_generate_completion"><a class="anchor" href="#_generate_completion"></a>Generate completion</h3>
-<div class="listingblock">
-<div class="content">
-<pre class="CodeRay highlight"><code>$ riot generate-completion --help
-RIOT is a data import/export tool for Redis.
-
-Usage: riot generate-completion [-hV]
-Generate bash/zsh completion script for riot.
-Run the following command to give `riot` TAB completion in the current shell:
-
-  source &lt;(riot generate-completion)
-
-Options:
-  -h, --help      Show this help message and exit.
-  -V, --version   Print version information and exit.
-
-Documentation found at https://developer.redis.com/riot</code></pre>
-</div>
 </div>
 </div>
 </div>
@@ -1723,7 +1702,7 @@ Please note that RIOT is NEITHER recommended NOR officially supported by Redis, 
 </div>
 </div>
 <div class="sect3">
-<h4 id="_target_redis_connection_options"><a class="anchor" href="#_target_redis_connection_options"></a>Target connection options</h4>
+<h4 id="_target_redis_options"><a class="anchor" href="#_target_redis_options"></a>Target Redis options</h4>
 <div class="paragraph">
 <p>Connection options for the target database are the same as the source Redis connection options:</p>
 </div>
@@ -2474,6 +2453,29 @@ Do note that the source database is specified first and the target database is s
 </div>
 </div>
 <div class="sect1">
+<h2 id="_generate_completion"><a class="anchor" href="#_generate_completion"></a>Generate completion</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code>$ riot generate-completion --help
+RIOT is a data import/export tool for Redis.
+
+Usage: riot generate-completion [-hV]
+Generate bash/zsh completion script for riot.
+Run the following command to give `riot` TAB completion in the current shell:
+
+  source &lt;(riot generate-completion)
+
+Options:
+  -h, --help      Show this help message and exit.
+  -V, --version   Print version information and exit.
+
+Documentation found at https://developer.redis.com/riot</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
 <h2 id="_faq"><a class="anchor" href="#_faq"></a>Frequently Asked Questions</h2>
 <div class="sectionbody">
 <div class="sect2">
@@ -2500,6 +2502,8 @@ To replicate between different Redis versions, use <a href="#_replicate_type_bas
 <h3 id="_process_gets_stuck_during_replication_and_eventually_times_out"><a class="anchor" href="#_process_gets_stuck_during_replication_and_eventually_times_out"></a>Process gets stuck during replication and eventually times out</h3>
 <div class="paragraph">
 <p>This could be due to big keys clogging the replication pipes.
+In these cases it might be hard to catch the offending key(s).
+Try running the same command with <code>--info</code> (see <a href="#_general_options">General options</a>) and <code>--progress log</code> so that all errors are reported.
 Check the database with <code>redis-cli</code> <a href="https://developer.redis.com/operate/redis-at-scale/observability/identifying-issues/#scanning-keys">Big keys</a> and/or use the <a href="#_source_reader_options">source reader options</a> to filter these keys out.</p>
 </div>
 </div>
@@ -2514,8 +2518,8 @@ Check the database with <code>redis-cli</code> <a href="https://developer.redis.
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 3.1.4<br>
-Last updated 2023-07-14 05:46:17 UTC
+Version 3.1.5<br>
+Last updated 2023-08-16 17:05:02 UTC
 </div>
 </div>
 <link rel="stylesheet" href="./coderay-asciidoctor.css">
