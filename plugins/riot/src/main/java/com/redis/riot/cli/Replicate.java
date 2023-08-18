@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.logging.Logger;
 
+import com.redis.riot.core.processor.IgnoreKeysWithTTLProcessor;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.job.builder.FlowBuilder;
 import org.springframework.batch.core.job.builder.JobFlowBuilder;
@@ -167,7 +168,8 @@ public class Replicate extends AbstractExportCommand {
 
 	private boolean shouldCompare() {
 		return !replicateOptions.isNoVerify() && !writerOptions.isDryRun()
-				&& !replicateOptions.getKeyProcessor().isPresent();
+				&& !replicateOptions.getKeyProcessor().isPresent()
+				&& !replicateOptions.isIgnoreKeysWithTtl();
 	}
 
 	private SimpleStepBuilder<KeyValue<byte[]>, KeyValue<byte[]>> scanStep(ReplicateCommandContext context) {
@@ -263,6 +265,9 @@ public class Replicate extends AbstractExportCommand {
 			Expression expression = parser.parseExpression(p);
 			processors.add(new KeyValueProcessor(expression, evaluationContext));
 		});
+		if (replicateOptions.isIgnoreKeysWithTtl()) {
+			processors.add(new IgnoreKeysWithTTLProcessor());
+		}
 		return CompositeItemStreamItemProcessor.delegates(processors.toArray(new ItemProcessor[0]));
 	}
 
