@@ -1,17 +1,15 @@
 package com.redis.riot.cli.operation;
 
-import java.util.Map;
-
-import com.redis.spring.batch.writer.operation.Rpush;
+import com.redis.riot.core.operation.RpushBuilder;
 
 import picocli.CommandLine.Command;
 
 @Command(name = "rpush", description = "Insert values at the tail of a list")
-public class RpushCommand extends AbstractCollectionCommand {
+public class RpushCommand extends AbstractCollectionOperationCommand {
 
-	@Override
-	public Rpush<String, String, Map<String, Object>> operation() {
-		return new Rpush<>(key(), member());
-	}
+    @Override
+    protected RpushBuilder collectionOperationBuilder() {
+        return new RpushBuilder();
+    }
 
 }

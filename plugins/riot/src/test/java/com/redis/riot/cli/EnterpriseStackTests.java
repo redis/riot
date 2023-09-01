@@ -3,7 +3,6 @@ package com.redis.riot.cli;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 
-import com.redis.riot.cli.common.AbstractExportCommand;
 import com.redis.testcontainers.RedisServer;
 
 import picocli.CommandLine.ParseResult;
@@ -30,7 +29,7 @@ class EnterpriseStackTests extends AbstractIntegrationTests {
 		Object commandObject = sub.commandSpec().commandLine().getCommand();
 		if (commandObject instanceof AbstractExportCommand) {
 			AbstractExportCommand command = (AbstractExportCommand) commandObject;
-			command.getReaderOptions().setMemLimit(0);
+//			command.getReaderOptions().setMemLimit(0);
 		}
 	}
 }

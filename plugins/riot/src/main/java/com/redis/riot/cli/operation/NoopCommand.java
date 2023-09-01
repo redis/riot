@@ -2,21 +2,18 @@ package com.redis.riot.cli.operation;
 
 import java.util.Map;
 
-import com.redis.riot.cli.common.HelpOptions;
+import com.redis.riot.core.operation.OperationBuilder;
+import com.redis.spring.batch.writer.Operation;
 import com.redis.spring.batch.writer.operation.Noop;
 
 import picocli.CommandLine.Command;
-import picocli.CommandLine.Mixin;
 
-@Command(name = "noop", description = "No operation: accepts input and does nothing")
-public class NoopCommand implements OperationCommand<Map<String, Object>> {
+@Command(name = "noop", description = "Do nothing")
+public class NoopCommand implements OperationBuilder {
 
-	@Mixin
-	private HelpOptions helpOptions = new HelpOptions();
-
-	@Override
-	public Noop<String, String, Map<String, Object>> operation() {
-		return new Noop<>();
-	}
+    @Override
+    public Operation<String, String, Map<String, Object>> build() {
+        return new Noop<>();
+    }
 
 }

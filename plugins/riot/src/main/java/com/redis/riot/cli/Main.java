@@ -1,89 +1,128 @@
 package com.redis.riot.cli;
 
-import java.util.logging.Level;
+import java.io.PrintWriter;
 
 import org.springframework.expression.Expression;
-import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.util.unit.DataSize;
 
-import com.redis.riot.cli.common.DoubleRangeTypeConverter;
-import com.redis.riot.cli.common.HelpOptions;
-import com.redis.riot.cli.common.IntRangeTypeConverter;
-import com.redis.riot.cli.common.LoggingOptions;
-import com.redis.riot.cli.common.ManifestVersionProvider;
-import com.redis.riot.cli.common.RedisOptions;
-import com.redis.riot.cli.common.RiotExecutionStrategy;
-import com.redis.spring.batch.common.DoubleRange;
-import com.redis.spring.batch.common.IntRange;
+import com.redis.riot.core.TemplateExpression;
+import com.redis.riot.core.operation.OperationBuilder;
+import com.redis.spring.batch.util.DoubleRange;
+import com.redis.spring.batch.util.IntRange;
 
-import io.lettuce.core.ReadFrom;
-import io.lettuce.core.RedisURI;
 import picocli.AutoComplete.GenerateCompletion;
 import picocli.CommandLine;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
-import picocli.CommandLine.Mixin;
+import picocli.CommandLine.IExecutionStrategy;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.ParseResult;
+import picocli.CommandLine.RunFirst;
+import picocli.CommandLine.RunLast;
 
-@Command(name = "riot", usageHelpAutoWidth = true, versionProvider = ManifestVersionProvider.class, subcommands = {
-		DbImport.class, DbExport.class, DumpImport.class, FileImport.class, FileExport.class, FakerImport.class,
-		Generate.class, Replicate.class, Ping.class,
-		GenerateCompletion.class }, resourceBundle = "com.redis.riot.Messages")
-public class Main {
+@Command(name = "riot", subcommands = { DatabaseImportCommand.class, DatabaseExportCommand.class, FileDumpImportCommand.class,
+        FileImportCommand.class, FileDumpExportCommand.class, FakerImportCommand.class, GeneratorImportCommand.class,
+        ReplicationCommand.class, Ping.class, GenerateCompletion.class })
+public class Main extends BaseCommand implements Runnable, IO {
 
-	@Mixin
-	private HelpOptions helpOptions = new HelpOptions();
+    private PrintWriter out;
 
-	@Option(names = { "-V", "--version" }, versionHelp = true, description = "Print version information and exit.")
-	private boolean versionRequested;
+    private PrintWriter err;
 
-	@Mixin
-	private LoggingOptions loggingOptions = new LoggingOptions();
+    @Option(names = { "-V", "--version" }, versionHelp = true, description = "Print version information and exit.")
+    private boolean versionRequested;
 
-	@ArgGroup(heading = "Redis connection options%n", exclusive = false)
-	private RedisOptions redisOptions = new RedisOptions();
+    @ArgGroup(exclusive = false, heading = "Redis connection options%n")
+    private RedisArgs redisArgs = new RedisArgs();
 
-	public static void main(String[] args) {
-		System.exit(new Main().execute(args));
-	}
+    @Override
+    public PrintWriter getOut() {
+        return out;
+    }
 
-	public RedisOptions getRedisOptions() {
-		return redisOptions;
-	}
+    @Override
+    public void setOut(PrintWriter out) {
+        this.out = out;
+    }
 
-	public LoggingOptions getLoggingOptions() {
-		return loggingOptions;
-	}
+    @Override
+    public PrintWriter getErr() {
+        return err;
+    }
 
-	public int execute(String... args) {
-		return commandLine().execute(args);
-	}
+    @Override
+    public void setErr(PrintWriter err) {
+        this.err = err;
+    }
 
-	public static CommandLine commandLine() {
-		CommandLine cmd = new CommandLine(new Main());
-		cmd.setExecutionStrategy(new RiotExecutionStrategy(LoggingOptions::executionStrategy));
-		cmd.setExecutionExceptionHandler(Main::handleExecutionException);
-		((Main) cmd.getCommand()).registerConverters(cmd);
-		cmd.setCaseInsensitiveEnumValuesAllowed(true);
-		cmd.setUnmatchedOptionsAllowedAsOptionParameters(false);
-		return cmd;
-	}
+    public RedisArgs getRedisArgs() {
+        return redisArgs;
+    }
 
-	private static int handleExecutionException(Exception ex, CommandLine cmd, ParseResult parseResult) {
-		// bold red error message
-		cmd.getErr().println(cmd.getColorScheme().errorText(ex.getMessage()));
-		return cmd.getExitCodeExceptionMapper() == null ? cmd.getCommandSpec().exitCodeOnExecutionException()
-				: cmd.getExitCodeExceptionMapper().getExitCode(ex);
-	}
+    @Override
+    public void run() {
+        spec.commandLine().usage(out);
+    }
 
-	protected void registerConverters(CommandLine commandLine) {
-		commandLine.registerConverter(RedisURI.class, RedisURI::create);
-		commandLine.registerConverter(IntRange.class, new IntRangeTypeConverter());
-		commandLine.registerConverter(DoubleRange.class, new DoubleRangeTypeConverter());
-		SpelExpressionParser parser = new SpelExpressionParser();
-		commandLine.registerConverter(Expression.class, parser::parseExpression);
-		commandLine.registerConverter(ReadFrom.class, ReadFrom::valueOf);
-		commandLine.registerConverter(Level.class, s -> Level.parse(s.toUpperCase()));
-	}
+    public static void main(String[] args) {
+        System.exit(run(args));
+    }
+
+    public static int run(String... args) {
+        Main cmd = new Main();
+        CommandLine commandLine = commandLine(cmd);
+        cmd.out = commandLine.getOut();
+        cmd.err = commandLine.getErr();
+        return execute(commandLine, args);
+    }
+
+    public static int run(PrintWriter out, PrintWriter err, String... args) {
+        Main cmd = new Main();
+        CommandLine commandLine = commandLine(cmd);
+        commandLine.setOut(out);
+        commandLine.setErr(err);
+        cmd.out = out;
+        cmd.err = err;
+        return execute(commandLine, args);
+    }
+
+    private static int execute(CommandLine commandLine, String[] args) {
+        return commandLine.execute(args);
+    }
+
+    public static CommandLine commandLine(Main cmd) {
+        CommandLine commandLine = new CommandLine(cmd);
+        commandLine.setExecutionStrategy(new ExecutionStrategy());
+        commandLine.registerConverter(IntRange.class, new IntRangeTypeConverter());
+        commandLine.registerConverter(DoubleRange.class, new DoubleRangeTypeConverter());
+        commandLine.registerConverter(DataSize.class, new DataSizeTypeConverter());
+        commandLine.registerConverter(Expression.class, new ExpressionTypeConverter());
+        commandLine.registerConverter(TemplateExpression.class, new TemplateExpressionTypeConverter());
+        commandLine.setCaseInsensitiveEnumValuesAllowed(true);
+        commandLine.setUnmatchedOptionsAllowedAsOptionParameters(false);
+        return commandLine;
+    }
+
+    private static class ExecutionStrategy implements IExecutionStrategy {
+
+        @Override
+        public int execute(ParseResult parseResult) {
+            for (ParseResult subcommand : parseResult.subcommands()) {
+                Object command = subcommand.commandSpec().userObject();
+                if (AbstractImportCommand.class.isAssignableFrom(command.getClass())) {
+                    AbstractImportCommand importCommand = (AbstractImportCommand) command;
+                    for (ParseResult redisCommand : subcommand.subcommands()) {
+                        if (redisCommand.isUsageHelpRequested()) {
+                            return new RunLast().execute(redisCommand);
+                        }
+                        importCommand.getCommands().add((OperationBuilder) redisCommand.commandSpec().userObject());
+                    }
+                    return new RunFirst().execute(subcommand);
+                }
+            }
+            return new RunLast().execute(parseResult); // default execution strategy
+        }
+
+    }
 
 }

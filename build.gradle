@@ -98,8 +98,9 @@ subprojects { subproj ->
 
 	    dependencies {
 	        compileOnly group: 'com.google.code.findbugs', name: 'jsr305', version: jsr305Version
-	        testImplementation group: 'commons-io', name: 'commons-io', version: commonsIoVersion
 	        testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+            testImplementation 'org.junit.jupiter:junit-jupiter-api'
+            testImplementation 'org.junit.jupiter:junit-jupiter-params'
             testImplementation group: 'org.testcontainers', name: 'junit-jupiter', version: testcontainersVersion
 	        testImplementation(group: 'com.redis.testcontainers', name: 'testcontainers-redis', version: testcontainersRedisVersion) {
 	            exclude group: 'com.redis', module: 'lettucemod'
