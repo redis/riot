@@ -94,11 +94,11 @@ public abstract class AbstractMapOperationBuilder<B extends AbstractMapOperation
     }
 
     public Operation<String, String, Map<String, Object>> build() {
-        AbstractOperation<String, String, Map<String, Object>, ?> operation = operation();
-        operation.key(idFunction(keyspace, keys));
+        AbstractOperation<String, String, Map<String, Object>> operation = operation();
+        operation.setKey(idFunction(keyspace, keys));
         return operation;
     }
 
-    protected abstract AbstractOperation<String, String, Map<String, Object>, ?> operation();
+    protected abstract AbstractOperation<String, String, Map<String, Object>> operation();
 
 }

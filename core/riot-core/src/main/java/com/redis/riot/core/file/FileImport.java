@@ -200,7 +200,7 @@ public class FileImport extends AbstractMapImport {
         StepBuilder<Map<String, Object>, Map<String, Object>> step = step(name).reader(reader).writer(writer());
         step.processor(processor());
         step.skippableExceptions(ParseException.class);
-        return step.build().build();
+        return build(step);
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })

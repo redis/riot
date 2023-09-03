@@ -51,7 +51,10 @@ public class SugaddBuilder extends AbstractMapOperationBuilder<SugaddBuilder> {
 
     @Override
     protected Sugadd<String, String, Map<String, Object>> operation() {
-        return new Sugadd<String, String, Map<String, Object>>().suggestion(suggestion()).incr(increment);
+        Sugadd<String, String, Map<String, Object>> operation = new Sugadd<>();
+        operation.setSuggestion(suggestion());
+        operation.setIncr(increment);
+        return operation;
     }
 
     private Function<Map<String, Object>, Suggestion<String>> suggestion() {

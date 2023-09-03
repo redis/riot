@@ -16,7 +16,9 @@ public class ZaddSupplier extends AbstractCollectionMapOperationBuilder<ZaddSupp
 
     @Override
     public Zadd<String, String, Map<String, Object>> operation() {
-        return new Zadd<String, String, Map<String, Object>>().value(value());
+        Zadd<String, String, Map<String, Object>> operation = new Zadd<>();
+        operation.setValue(value());
+        return operation;
     }
 
     private ToScoredValueFunction<String, Map<String, Object>> value() {

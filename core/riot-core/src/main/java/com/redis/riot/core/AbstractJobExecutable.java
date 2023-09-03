@@ -1,15 +1,19 @@
 package com.redis.riot.core;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobExecutionException;
 import org.springframework.batch.core.JobParameters;
+import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.job.builder.JobBuilder;
+import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.launch.support.SimpleJobLauncher;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.support.transaction.ResourcelessTransactionManager;
@@ -35,9 +39,15 @@ public abstract class AbstractJobExecutable implements Executable {
 
     private String name;
 
+    private List<Consumer<StepBuilder<?, ?>>> stepConsumers = new ArrayList<>();
+
     protected AbstractJobExecutable(AbstractRedisClient client) {
         setName(ClassUtils.getShortName(getClass()));
         this.client = client;
+    }
+
+    public void addStepConsumer(Consumer<StepBuilder<?, ?>> consumer) {
+        stepConsumers.add(consumer);
     }
 
     public String getName() {
@@ -64,17 +74,13 @@ public abstract class AbstractJobExecutable implements Executable {
             throw new RiotExecutionException("Could not initialize job repository", e);
         }
         jobFactory = new JobBuilderFactory(jobRepository);
-        stepFactory = new StepBuilderFactory(jobRepository, new ResourcelessTransactionManager());
-        Job job = job();
-        SimpleJobLauncher jobLauncher = new SimpleJobLauncher();
-        jobLauncher.setJobRepository(jobRepository);
-        jobLauncher.setTaskExecutor(new SyncTaskExecutor());
+        stepFactory = stepBuilderFactory();
         JobExecution execution;
         try {
-            execution = jobLauncher.run(job, new JobParameters());
+            execution = jobLauncher().run(job(), new JobParameters());
         } catch (JobExecutionException e) {
             // Should not happen but handle anyway
-            throw new RiotExecutionException(MessageFormat.format("Could not run job {0}", job.getName()), e);
+            throw new RiotExecutionException("Could not run job", e);
         }
         if (execution.getStatus().isUnsuccessful()) {
             List<Throwable> exceptions = execution.getAllFailureExceptions();
@@ -86,6 +92,17 @@ public abstract class AbstractJobExecutable implements Executable {
         }
     }
 
+    private StepBuilderFactory stepBuilderFactory() {
+        return new StepBuilderFactory(jobRepository, new ResourcelessTransactionManager());
+    }
+
+    private JobLauncher jobLauncher() {
+        SimpleJobLauncher launcher = new SimpleJobLauncher();
+        launcher.setJobRepository(jobRepository);
+        launcher.setTaskExecutor(new SyncTaskExecutor());
+        return launcher;
+    }
+
     protected JobBuilder jobBuilder() {
         return jobFactory.get(name);
     }
@@ -94,6 +111,11 @@ public abstract class AbstractJobExecutable implements Executable {
 
     protected ReaderStepBuilder step(String name) {
         return StepBuilder.factory(stepFactory).name(name).options(stepOptions);
+    }
+
+    protected Step build(StepBuilder<?, ?> step) {
+        stepConsumers.forEach(c -> c.accept(step));
+        return step.build().build();
     }
 
 }

@@ -8,7 +8,7 @@ import com.redis.spring.batch.writer.operation.Del;
 public class DelBuilder extends AbstractMapOperationBuilder<DelBuilder> {
 
     @Override
-    protected AbstractOperation<String, String, Map<String, Object>, ?> operation() {
+    protected AbstractOperation<String, String, Map<String, Object>> operation() {
         return new Del<>();
     }
 

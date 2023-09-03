@@ -1,68 +1,42 @@
 package com.redis.riot.cli;
 
+import com.redis.riot.cli.common.ProgressStepListener;
 import com.redis.riot.core.AbstractJobExecutable;
 import com.redis.riot.core.Executable;
+import com.redis.riot.core.StepBuilder;
 
 import io.lettuce.core.AbstractRedisClient;
+import me.tongfei.progressbar.ProgressBarBuilder;
 import picocli.CommandLine.ArgGroup;
 
 abstract class AbstractJobCommand extends AbstractCommand {
 
-    // ${DEFAULT-VALUE}),", paramLabel = "<style>")
-    // private ProgressStyle progressStyle = ProgressStyle.ASCII;
-    //
-    // @Option(names = "--progress-interval", description = "Progress update interval in millis (default: ${DEFAULT-VALUE}).",
-    // paramLabel = "<ms>", hidden = true)
-    // private int progressUpdateInterval = 300;
-
-    //
-    // private ProgressStepListener<O> progressStepListener() {
-    // ProgressBarBuilder pbb = new ProgressBarBuilder();
-    // pbb.setInitialMax(initialMax());
-    // pbb.setTaskName(task);
-    // pbb.setStyle(progressBarStyle());
-    // pbb.setUpdateIntervalMillis(options.getProgressUpdateInterval());
-    // pbb.showSpeed();
-    // if (progressStyle() == ProgressStyle.LOG) {
-    // pbb.setConsumer(new DelegatingProgressBarConsumer(logger));
-    // }
-    // if (extraMessage == null) {
-    // return new ProgressStepListener<>(pbb);
-    // }
-    // return new ProgressWithExtraMessageStepListener<>(pbb, extraMessage);
-    // }
-    //
-    // private ProgressStyle progressStyle() {
-    // return progressStyle.orElse(options.getProgressStyle());
-    // }
-    //
-    // private long initialMax() {
-    // if (reader instanceof FakerItemReader) {
-    // return ((FakerItemReader) reader).size();
-    // }
-    // return Utils.getItemReaderSize(reader);
-    // }
-    //
-    // private ProgressBarStyle progressBarStyle() {
-    // switch (progressStyle()) {
-    // case BAR:
-    // return ProgressBarStyle.COLORFUL_UNICODE_BAR;
-    // case BLOCK:
-    // return ProgressBarStyle.COLORFUL_UNICODE_BLOCK;
-    // default:
-    // return ProgressBarStyle.ASCII;
-    // }
-    // }
-
     @ArgGroup(exclusive = false, heading = "Execution options%n")
-    private StepArgs stepArgs = new StepArgs();
+    StepArgs stepArgs = new StepArgs();
+
+    @ArgGroup(exclusive = false)
+    ProgressArgs progressArgs = new ProgressArgs();
 
     @Override
     protected Executable getExecutable() {
         AbstractJobExecutable executable = getJobExecutable();
         executable.setStepOptions(stepArgs.stepOptions());
+        executable.addStepConsumer(this::configure);
         return executable;
     }
+
+    protected <I, O> void configure(StepBuilder<I, O> step) {
+        ProgressBarBuilder progressBar = progressArgs.progressBar();
+        progressBar.setInitialMax(size(step));
+        progressBar.setTaskName(taskName(step));
+        ProgressStepListener<O> listener = new ProgressStepListener<>(progressBar);
+        step.addExecutionListener(listener);
+        step.addWriteListener(listener);
+    }
+
+    protected abstract String taskName(StepBuilder<?, ?> step);
+
+    protected abstract long size(StepBuilder<?, ?> step);
 
     protected RedisArgs redisArgs() {
         return parent.getRedisArgs();

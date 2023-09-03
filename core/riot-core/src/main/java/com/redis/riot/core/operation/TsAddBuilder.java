@@ -32,7 +32,10 @@ public class TsAddBuilder extends AbstractMapOperationBuilder<TsAddBuilder> {
 
     @Override
     protected TsAdd<String, String, Map<String, Object>> operation() {
-        return new TsAdd<String, String, Map<String, Object>>().sample(sample()).options(this::addOptions);
+        TsAdd<String, String, Map<String, Object>> operation = new TsAdd<>();
+        operation.setSample(sample());
+        operation.setOptions(this::addOptions);
+        return operation;
     }
 
     private Function<Map<String, Object>, Sample> sample() {

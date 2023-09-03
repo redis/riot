@@ -12,6 +12,7 @@ import org.springframework.core.io.WritableResource;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.redis.riot.core.AbstractExport;
 import com.redis.riot.core.RiotExecutionException;
+import com.redis.riot.core.StepBuilder;
 import com.redis.riot.core.file.resource.JsonResourceItemWriter;
 import com.redis.riot.core.file.resource.JsonResourceItemWriterBuilder;
 import com.redis.riot.core.file.resource.XmlResourceItemWriter;
@@ -20,7 +21,6 @@ import com.redis.spring.batch.KeyValue;
 import com.redis.spring.batch.ValueType;
 
 import io.lettuce.core.AbstractRedisClient;
-import io.lettuce.core.codec.StringCodec;
 
 public class FileDumpExport extends AbstractExport {
 
@@ -99,7 +99,8 @@ public class FileDumpExport extends AbstractExport {
 
     @Override
     protected Job job() {
-        return jobBuilder().start(step(getName()).reader(reader(StringCodec.UTF8)).writer(writer()).build().build()).build();
+        StepBuilder<KeyValue<String>, KeyValue<String>> step = step(getName()).reader(reader()).writer(writer());
+        return jobBuilder().start(build(step)).build();
     }
 
     private ItemWriter<KeyValue<String>> writer() {

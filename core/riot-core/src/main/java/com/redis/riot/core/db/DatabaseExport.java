@@ -70,7 +70,7 @@ public class DatabaseExport extends AbstractExport {
         StepBuilder<KeyValue<String>, Map<String, Object>> step = step(getName()).reader(reader(StringCodec.UTF8))
                 .writer(writer());
         step.processor(processor());
-        return jobBuilder().start(step.build().build()).build();
+        return jobBuilder().start(build(step)).build();
     }
 
     private JdbcBatchItemWriter<Map<String, Object>> writer() {

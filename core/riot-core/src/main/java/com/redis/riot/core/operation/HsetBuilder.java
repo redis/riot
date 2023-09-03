@@ -8,7 +8,9 @@ public class HsetBuilder extends AbstractFilterMapOperationBuilder<HsetBuilder> 
 
     @Override
     protected Hset<String, String, Map<String, Object>> operation() {
-        return new Hset<String, String, Map<String, Object>>().map(map());
+        Hset<String, String, Map<String, Object>> operation = new Hset<>();
+        operation.setMap(map());
+        return operation;
     }
 
 }

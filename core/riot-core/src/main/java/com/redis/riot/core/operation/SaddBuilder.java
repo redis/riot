@@ -8,7 +8,9 @@ public class SaddBuilder extends AbstractCollectionMapOperationBuilder<SaddBuild
 
     @Override
     protected Sadd<String, String, Map<String, Object>> operation() {
-        return new Sadd<String, String, Map<String, Object>>().value(member());
+        Sadd<String, String, Map<String, Object>> operation = new Sadd<>();
+        operation.setValue(member());
+        return operation;
     }
 
 }

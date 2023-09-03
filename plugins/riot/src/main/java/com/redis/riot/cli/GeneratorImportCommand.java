@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.List;
 
 import com.redis.riot.core.GeneratorImport;
+import com.redis.riot.core.StepBuilder;
 import com.redis.spring.batch.gen.CollectionOptions;
 import com.redis.spring.batch.gen.DataType;
 import com.redis.spring.batch.gen.GeneratorItemReader;
@@ -20,8 +21,6 @@ import picocli.CommandLine.Option;
 
 @Command(name = "generate", description = "Generate data structures.")
 public class GeneratorImportCommand extends AbstractKeyValueImportCommand {
-
-    // private static final String TASK_NAME = "Generating";
 
     @Option(names = "--count", description = "Number of items to generate (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
     private int count = GeneratorImport.DEFAULT_COUNT;
@@ -88,6 +87,16 @@ public class GeneratorImportCommand extends AbstractKeyValueImportCommand {
 
     @Option(names = "--zset-score", description = "Score of sorted sets (default: ${DEFAULT-VALUE}).", paramLabel = "<range>")
     private DoubleRange zsetScore = ZsetOptions.DEFAULT_SCORE;
+
+    @Override
+    protected String taskName(StepBuilder<?, ?> step) {
+        return "Generating";
+    }
+
+    @Override
+    protected long size(StepBuilder<?, ?> step) {
+        return count;
+    }
 
     @Override
     protected GeneratorImport getKeyValueImportExecutable() {

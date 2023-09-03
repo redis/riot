@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.batch.core.Job;
 
+import com.redis.spring.batch.KeyValue;
 import com.redis.spring.batch.gen.CollectionOptions;
 import com.redis.spring.batch.gen.DataType;
 import com.redis.spring.batch.gen.GeneratorItemReader;
@@ -156,7 +157,8 @@ public class GeneratorImport extends AbstractKeyValueImport {
 
     @Override
     protected Job job() {
-        return jobBuilder().start(step(getName()).reader(reader()).writer(writer()).build().build()).build();
+        StepBuilder<KeyValue<String>, KeyValue<String>> step = step(getName()).reader(reader()).writer(writer());
+        return jobBuilder().start(build(step)).build();
     }
 
     private GeneratorItemReader reader() {

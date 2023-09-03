@@ -20,6 +20,7 @@ import com.redis.riot.cli.operation.TsAddCommand;
 import com.redis.riot.cli.operation.XaddCommand;
 import com.redis.riot.cli.operation.ZaddCommand;
 import com.redis.riot.core.AbstractMapImport;
+import com.redis.riot.core.StepBuilder;
 import com.redis.spring.batch.writer.Operation;
 
 import picocli.CommandLine.ArgGroup;
@@ -60,5 +61,10 @@ public abstract class AbstractImportCommand extends AbstractJobCommand {
     }
 
     protected abstract AbstractMapImport getMapImportExecutable();
+
+    @Override
+    protected String taskName(StepBuilder<?, ?> step) {
+        return "Importing";
+    }
 
 }

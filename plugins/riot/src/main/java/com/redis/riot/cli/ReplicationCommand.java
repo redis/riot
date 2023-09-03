@@ -7,9 +7,11 @@ import com.redis.riot.core.EvaluationContextOptions;
 import com.redis.riot.core.KeyValueOperatorOptions;
 import com.redis.riot.core.RedisOperationOptions;
 import com.redis.riot.core.RedisReaderOptions;
+import com.redis.riot.core.StepBuilder;
 import com.redis.riot.core.replicate.Replication;
 import com.redis.riot.core.replicate.ReplicationMode;
 import com.redis.spring.batch.ValueType;
+import com.redis.spring.batch.util.BatchUtils;
 import com.redis.spring.batch.util.KeyComparisonItemReader;
 
 import picocli.CommandLine.ArgGroup;
@@ -106,6 +108,30 @@ public class ReplicationCommand extends AbstractJobCommand {
             options.setReadFrom(targetReaderArgs.readFrom.getValue());
         }
         return options;
+    }
+
+    @Override
+    protected String taskName(StepBuilder<?, ?> step) {
+        switch (step.getName()) {
+            case Replication.STEP_SCAN:
+                return "Scanning";
+            case Replication.STEP_LIVE:
+                return "Listening";
+            case Replication.STEP_COMPARE:
+                return "Comparing";
+        }
+        return "???";
+    }
+
+    @Override
+    protected long size(StepBuilder<?, ?> step) {
+        switch (step.getName()) {
+            case Replication.STEP_SCAN:
+            case Replication.STEP_COMPARE:
+                return BatchUtils.size(step.getReader());
+            default:
+                return BatchUtils.SIZE_UNKNOWN;
+        }
     }
 
     private static class TargetReaderArgs {

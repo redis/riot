@@ -24,7 +24,10 @@ public class XaddSupplier extends AbstractFilterMapOperationBuilder<XaddSupplier
 
     @Override
     public Xadd<String, String, Map<String, Object>> operation() {
-        return new Xadd<String, String, Map<String, Object>>().body(map()).args(args());
+        Xadd<String, String, Map<String, Object>> operation = new Xadd<>();
+        operation.setBody(map());
+        operation.setArgs(args());
+        return operation;
     }
 
     private XAddArgs args() {

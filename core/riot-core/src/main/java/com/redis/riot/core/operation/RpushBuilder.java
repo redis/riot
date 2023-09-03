@@ -8,7 +8,9 @@ public class RpushBuilder extends AbstractCollectionMapOperationBuilder<RpushBui
 
     @Override
     protected Rpush<String, String, Map<String, Object>> operation() {
-        return new Rpush<String, String, Map<String, Object>>().value(member());
+        Rpush<String, String, Map<String, Object>> operation = new Rpush<>();
+        operation.setValue(member());
+        return operation;
     }
 
 }

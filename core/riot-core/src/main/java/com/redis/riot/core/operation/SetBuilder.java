@@ -41,7 +41,9 @@ public class SetBuilder extends AbstractMapOperationBuilder<SetBuilder> {
 
     @Override
     protected Set<String, String, Map<String, Object>> operation() {
-        return new Set<String, String, Map<String, Object>>().value(value());
+        Set<String, String, Map<String, Object>> operation = new Set<>();
+        operation.setValue(value());
+        return operation;
     }
 
     private Function<Map<String, Object>, String> value() {

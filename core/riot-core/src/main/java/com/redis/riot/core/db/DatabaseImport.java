@@ -13,6 +13,7 @@ import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.jdbc.core.ColumnMapRowMapper;
 
 import com.redis.riot.core.AbstractMapImport;
+import com.redis.riot.core.StepBuilder;
 
 import io.lettuce.core.AbstractRedisClient;
 
@@ -103,7 +104,8 @@ public class DatabaseImport extends AbstractMapImport {
 
     @Override
     protected Job job() {
-        return jobBuilder().start(step(getName()).reader(reader()).writer(writer()).build().build()).build();
+        StepBuilder<Map<String, Object>, Map<String, Object>> step = step(getName()).reader(reader()).writer(writer());
+        return jobBuilder().start(build(step)).build();
     }
 
     private ItemReader<Map<String, Object>> reader() {

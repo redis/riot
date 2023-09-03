@@ -23,7 +23,10 @@ public class JsonSetBuilder extends AbstractMapOperationBuilder<JsonSetBuilder> 
 
     @Override
     protected JsonSet<String, String, Map<String, Object>> operation() {
-        return new JsonSet<String, String, Map<String, Object>>().value(this::value).path(path());
+        JsonSet<String, String, Map<String, Object>> operation = new JsonSet<>();
+        operation.setValue(this::value);
+        operation.setPath(path());
+        return operation;
     }
 
     private Function<Map<String, Object>, String> path() {

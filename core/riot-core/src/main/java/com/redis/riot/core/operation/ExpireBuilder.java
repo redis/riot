@@ -25,7 +25,9 @@ public class ExpireBuilder extends AbstractMapOperationBuilder<ExpireBuilder> {
 
     @Override
     protected Expire<String, String, Map<String, Object>> operation() {
-        return new Expire<String, String, Map<String, Object>>().ttl(ttl());
+        Expire<String, String, Map<String, Object>> operation = new Expire<>();
+        operation.setTtl(ttl());
+        return operation;
     }
 
     private Function<Map<String, Object>, Duration> ttl() {

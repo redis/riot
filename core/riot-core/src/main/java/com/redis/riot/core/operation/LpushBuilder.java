@@ -8,7 +8,9 @@ public class LpushBuilder extends AbstractCollectionMapOperationBuilder<LpushBui
 
     @Override
     protected Lpush<String, String, Map<String, Object>> operation() {
-        return new Lpush<String, String, Map<String, Object>>().value(member());
+        Lpush<String, String, Map<String, Object>> operation = new Lpush<>();
+        operation.setValue(member());
+        return operation;
     }
 
 }

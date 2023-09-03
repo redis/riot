@@ -15,6 +15,7 @@ import com.redis.lettucemod.search.IndexInfo;
 import com.redis.lettucemod.util.RedisModulesUtils;
 import com.redis.riot.core.AbstractMapImport;
 import com.redis.riot.core.SpelUtils;
+import com.redis.riot.core.StepBuilder;
 import com.redis.spring.batch.util.IntRange;
 
 import io.lettuce.core.AbstractRedisClient;
@@ -58,7 +59,8 @@ public class FakerImport extends AbstractMapImport {
 
     @Override
     protected Job job() {
-        return jobBuilder().start(step(getName()).reader(reader()).writer(writer()).build().build()).build();
+        StepBuilder<Map<String, Object>, Map<String, Object>> step = step(getName()).reader(reader()).writer(writer());
+        return jobBuilder().start(build(step)).build();
     }
 
     private FakerItemReader reader() {

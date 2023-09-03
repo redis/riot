@@ -1,7 +1,9 @@
 package com.redis.riot.cli;
 
 import com.redis.riot.core.AbstractMapImport;
+import com.redis.riot.core.StepBuilder;
 import com.redis.riot.core.db.DatabaseImport;
+import com.redis.spring.batch.util.BatchUtils;
 
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
@@ -10,8 +12,6 @@ import picocli.CommandLine.Parameters;
 
 @Command(name = "db-import", description = "Import from a relational database.")
 public class DatabaseImportCommand extends AbstractImportCommand {
-
-    // private static final String TASK = "Importing from database";
 
     @Parameters(arity = "1", description = "SQL SELECT statement", paramLabel = "SQL")
     private String sql;
@@ -45,6 +45,11 @@ public class DatabaseImportCommand extends AbstractImportCommand {
         executable.setMaxItemCount(maxItemCount);
         executable.setMaxResultSetRows(maxResultSetRows);
         return executable;
+    }
+
+    @Override
+    protected long size(StepBuilder<?, ?> step) {
+        return BatchUtils.SIZE_UNKNOWN;
     }
 
 }

@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.springframework.expression.Expression;
 
+import com.redis.riot.core.StepBuilder;
 import com.redis.riot.core.faker.FakerImport;
 
 import picocli.CommandLine.Command;
@@ -17,7 +18,7 @@ public class FakerImportCommand extends AbstractImportCommand {
     // private static final String TASK = "Generating";
 
     @Option(names = "--count", description = "Number of items to generate (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
-    private int count = com.redis.riot.core.faker.FakerImport.DEFAULT_COUNT;
+    private int count = FakerImport.DEFAULT_COUNT;
 
     @Parameters(arity = "0..*", description = "SpEL expressions in the form field1=\"exp\" field2=\"exp\"...", paramLabel = "SPEL")
     private Map<String, Expression> fields;
@@ -26,7 +27,7 @@ public class FakerImportCommand extends AbstractImportCommand {
     private String searchIndex;
 
     @Option(names = "--locale", description = "Faker locale (default: ${DEFAULT-VALUE}).", paramLabel = "<tag>")
-    private Locale locale = com.redis.riot.core.faker.FakerImport.DEFAULT_LOCALE;
+    private Locale locale = FakerImport.DEFAULT_LOCALE;
 
     @Override
     protected FakerImport getMapImportExecutable() {
@@ -36,6 +37,11 @@ public class FakerImportCommand extends AbstractImportCommand {
         executable.setLocale(locale);
         executable.setSearchIndex(searchIndex);
         return executable;
+    }
+
+    @Override
+    protected long size(StepBuilder<?, ?> step) {
+        return count;
     }
 
 }

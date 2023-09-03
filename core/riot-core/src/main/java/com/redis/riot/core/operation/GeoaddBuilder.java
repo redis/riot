@@ -24,7 +24,9 @@ public class GeoaddBuilder extends AbstractCollectionMapOperationBuilder<GeoaddB
 
     @Override
     protected Geoadd<String, String, Map<String, Object>> operation() {
-        return new Geoadd<String, String, Map<String, Object>>().value(geoValue());
+        Geoadd<String, String, Map<String, Object>> operation = new Geoadd<>();
+        operation.setValue(geoValue());
+        return operation;
     }
 
     private ToGeoValueFunction<String, Map<String, Object>> geoValue() {

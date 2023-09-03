@@ -2,7 +2,9 @@ package com.redis.riot.cli;
 
 import java.util.List;
 
+import com.redis.riot.core.StepBuilder;
 import com.redis.riot.core.file.FileDumpImport;
+import com.redis.spring.batch.util.BatchUtils;
 
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
@@ -31,6 +33,16 @@ public class FileDumpImportCommand extends AbstractKeyValueImportCommand {
         executable.setFileOptions(fileDumpArgs.fileOptions());
         executable.setType(fileDumpArgs.getType());
         return executable;
+    }
+
+    @Override
+    protected String taskName(StepBuilder<?, ?> step) {
+        return "Importing";
+    }
+
+    @Override
+    protected long size(StepBuilder<?, ?> step) {
+        return BatchUtils.SIZE_UNKNOWN;
     }
 
 }

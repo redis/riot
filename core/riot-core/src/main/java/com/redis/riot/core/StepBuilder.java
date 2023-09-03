@@ -1,5 +1,6 @@
 package com.redis.riot.core;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -7,6 +8,8 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
+import org.springframework.batch.core.ItemWriteListener;
+import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.step.builder.FaultTolerantStepBuilder;
 import org.springframework.batch.core.step.builder.SimpleStepBuilder;
@@ -22,6 +25,7 @@ import org.springframework.batch.item.support.SynchronizedItemStreamReader;
 import org.springframework.classify.BinaryExceptionClassifier;
 
 import com.redis.spring.batch.RedisItemReader;
+import com.redis.spring.batch.step.FlushingStepBuilder;
 import com.redis.spring.batch.util.BatchUtils;
 
 import io.lettuce.core.RedisException;
@@ -38,9 +42,15 @@ public class StepBuilder<I, O> {
 
     private ItemProcessor<I, O> processor;
 
-    private List<Object> listeners = new ArrayList<>();
+    private List<StepExecutionListener> executionListeners = new ArrayList<>();
+
+    private List<ItemWriteListener<O>> writeListeners = new ArrayList<>();
 
     private StepOptions options = new StepOptions();
+
+    private Duration flushingInterval;
+
+    private Duration idleTimeout;
 
     private Collection<Class<? extends Throwable>> skippableExceptions = new ArrayList<>();
 
@@ -61,6 +71,14 @@ public class StepBuilder<I, O> {
         this.writer = writer;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public ItemReader<I> getReader() {
+        return reader;
+    }
+
     @SuppressWarnings("unchecked")
     public StepBuilder<I, O> skippableExceptions(Class<? extends Throwable>... exceptions) {
         this.skippableExceptions = Arrays.asList(exceptions);
@@ -78,13 +96,26 @@ public class StepBuilder<I, O> {
         return this;
     }
 
-    public StepBuilder<I, O> listeners(Object... listeners) {
-        this.listeners = Arrays.asList(listeners);
-        return this;
+    public void addWriteListener(ItemWriteListener<O> listener) {
+        this.writeListeners.add(listener);
+    }
+
+    public void addExecutionListener(StepExecutionListener listener) {
+        this.executionListeners.add(listener);
     }
 
     public StepBuilder<I, O> processor(ItemProcessor<I, O> processor) {
         this.processor = processor;
+        return this;
+    }
+
+    public StepBuilder<I, O> flushingInterval(Duration interval) {
+        this.flushingInterval = interval;
+        return this;
+    }
+
+    public StepBuilder<I, O> idleTimeout(Duration timeout) {
+        this.idleTimeout = timeout;
         return this;
     }
 
@@ -97,14 +128,19 @@ public class StepBuilder<I, O> {
             step.taskExecutor(BatchUtils.threadPoolTaskExecutor(options.getThreads()));
             step.throttleLimit(options.getThreads());
         }
-        listeners.forEach(step::listener);
-        if (options.isFaultTolerance()) {
-            FaultTolerantStepBuilder<I, O> ftStep = step.faultTolerant();
-            ftStep.skipPolicy(skipPolicy());
-            ftStep.retryLimit(options.getRetryLimit());
-            retriableExceptions.forEach(ftStep::retry);
-            return ftStep;
+        executionListeners.forEach(step::listener);
+        writeListeners.forEach(step::listener);
+        if (BatchUtils.isPositive(flushingInterval)) {
+            step = new FlushingStepBuilder<>(step).interval(flushingInterval).idleTimeout(idleTimeout);
         }
+        if (options.isFaultTolerance()) {
+            step = retry(step.faultTolerant().skipPolicy(skipPolicy()).retryLimit(options.getRetryLimit()));
+        }
+        return step;
+    }
+
+    private FaultTolerantStepBuilder<I, O> retry(FaultTolerantStepBuilder<I, O> step) {
+        retriableExceptions.forEach(step::retry);
         return step;
     }
 

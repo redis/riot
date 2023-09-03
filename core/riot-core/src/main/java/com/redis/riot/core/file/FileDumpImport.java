@@ -64,8 +64,8 @@ public class FileDumpImport extends AbstractKeyValueImport {
         return job.build();
     }
 
-    public Step step(Resource resource) {
-        return step(resource.getDescription()).reader(reader(resource)).writer(writer()).processor(processor()).build().build();
+    private Step step(Resource resource) {
+        return build(step(resource.getDescription()).reader(reader(resource)).writer(writer()).processor(processor()));
     }
 
     private ItemProcessor<KeyValue<String>, KeyValue<String>> processor() {

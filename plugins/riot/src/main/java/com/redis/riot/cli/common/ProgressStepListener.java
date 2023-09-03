@@ -1,6 +1,7 @@
 package com.redis.riot.cli.common;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.ItemWriteListener;
@@ -16,7 +17,7 @@ import me.tongfei.progressbar.ProgressBarBuilder;
  * @author Julien Ruaux
  * @since 3.1.2
  */
-public class ProgressStepListener<T> implements ItemWriteListener<T>, StepExecutionListener {
+public class ProgressStepListener<O> implements ItemWriteListener<O>, StepExecutionListener {
 
     private final ProgressBarBuilder progressBarBuilder;
 
@@ -24,6 +25,10 @@ public class ProgressStepListener<T> implements ItemWriteListener<T>, StepExecut
 
     public ProgressStepListener(ProgressBarBuilder progressBarBuilder) {
         this.progressBarBuilder = progressBarBuilder;
+    }
+
+    public ProgressBarBuilder getProgressBarBuilder() {
+        return progressBarBuilder;
     }
 
     @Override
@@ -41,18 +46,22 @@ public class ProgressStepListener<T> implements ItemWriteListener<T>, StepExecut
     }
 
     @Override
-    public void afterWrite(List<? extends T> items) {
+    public void beforeWrite(List<? extends O> items) {
+        // Do nothing
+    }
+
+    @Override
+    public void afterWrite(List<? extends O> items) {
         progressBar.stepBy(items.size());
     }
 
     @Override
-    public void beforeWrite(List<? extends T> items) {
-        // do nothing
+    public void onWriteError(Exception exception, List<? extends O> items) {
+        progressBar.stepBy(items.size());
     }
 
-    @Override
-    public void onWriteError(Exception exception, List<? extends T> items) {
-        progressBar.stepBy(items.size());
+    public ExtraMessageProgressStepListener extraMessage(Supplier<String> extraMessage) {
+        return new ExtraMessageProgressStepListener(progressBarBuilder, extraMessage);
     }
 
 }

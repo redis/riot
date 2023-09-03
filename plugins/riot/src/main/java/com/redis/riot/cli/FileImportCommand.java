@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.redis.riot.core.AbstractMapImport;
+import com.redis.riot.core.StepBuilder;
 import com.redis.riot.core.file.FileImport;
+import com.redis.spring.batch.util.BatchUtils;
 
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
@@ -43,6 +45,11 @@ public class FileImportCommand extends AbstractImportCommand {
         executable.setMaxItemCount(fileImportArgs.getMaxItemCount());
         executable.setQuoteCharacter(fileImportArgs.getQuoteCharacter());
         return executable;
+    }
+
+    @Override
+    protected long size(StepBuilder<?, ?> step) {
+        return BatchUtils.SIZE_UNKNOWN;
     }
 
 }

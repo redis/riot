@@ -9,6 +9,7 @@ import com.redis.spring.batch.util.PredicateItemProcessor;
 
 import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.codec.RedisCodec;
+import io.lettuce.core.codec.StringCodec;
 
 public abstract class AbstractExport extends AbstractJobExecutable {
 
@@ -24,6 +25,10 @@ public abstract class AbstractExport extends AbstractJobExecutable {
 
     public void setRedisReaderOptions(RedisReaderOptions options) {
         this.redisReaderOptions = options;
+    }
+
+    protected RedisItemReader<String, String> reader() {
+        return reader(StringCodec.UTF8);
     }
 
     protected <K, V> RedisItemReader<K, V> reader(RedisCodec<K, V> codec) {
