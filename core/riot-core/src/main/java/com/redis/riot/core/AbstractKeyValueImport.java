@@ -1,6 +1,7 @@
 package com.redis.riot.core;
 
 import com.redis.spring.batch.RedisItemWriter;
+import com.redis.spring.batch.ValueType;
 
 import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.codec.StringCodec;
@@ -19,6 +20,7 @@ public abstract class AbstractKeyValueImport extends AbstractJobExecutable {
 
     protected RedisItemWriter<String, String> writer() {
         RedisItemWriter<String, String> writer = new RedisItemWriter<>(client, StringCodec.UTF8);
+        writer.setValueType(ValueType.STRUCT);
         redisWriterOptions.configure(writer);
         return writer;
     }

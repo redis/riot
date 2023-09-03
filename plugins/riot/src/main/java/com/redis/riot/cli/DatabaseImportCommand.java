@@ -2,7 +2,7 @@ package com.redis.riot.cli;
 
 import com.redis.riot.core.AbstractMapImport;
 import com.redis.riot.core.StepBuilder;
-import com.redis.riot.core.db.DatabaseImport;
+import com.redis.riot.db.DatabaseImport;
 import com.redis.spring.batch.util.BatchUtils;
 
 import picocli.CommandLine.ArgGroup;

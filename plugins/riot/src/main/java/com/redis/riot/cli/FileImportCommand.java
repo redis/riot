@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.redis.riot.core.AbstractMapImport;
 import com.redis.riot.core.StepBuilder;
-import com.redis.riot.core.file.FileImport;
+import com.redis.riot.file.FileImport;
 import com.redis.spring.batch.util.BatchUtils;
 
 import picocli.CommandLine.ArgGroup;

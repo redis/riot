@@ -6,7 +6,7 @@ import java.util.Map;
 import org.springframework.expression.Expression;
 
 import com.redis.riot.core.StepBuilder;
-import com.redis.riot.core.faker.FakerImport;
+import com.redis.riot.faker.FakerImport;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -14,8 +14,6 @@ import picocli.CommandLine.Parameters;
 
 @Command(name = "faker-import", description = "Import from Faker.")
 public class FakerImportCommand extends AbstractImportCommand {
-
-    // private static final String TASK = "Generating";
 
     @Option(names = "--count", description = "Number of items to generate (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
     private int count = FakerImport.DEFAULT_COUNT;

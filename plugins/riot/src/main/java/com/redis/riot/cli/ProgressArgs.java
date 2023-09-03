@@ -1,12 +1,14 @@
 package com.redis.riot.cli;
 
-import com.redis.riot.cli.common.ProgressStyle;
-
 import me.tongfei.progressbar.ProgressBarBuilder;
 import me.tongfei.progressbar.ProgressBarStyle;
 import picocli.CommandLine.Option;
 
 public class ProgressArgs {
+
+    public enum ProgressStyle {
+        BLOCK, BAR, ASCII, LOG, NONE
+    }
 
     @Option(names = "--progress", description = "Progress style: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<style>")
     private ProgressStyle style = ProgressStyle.ASCII;

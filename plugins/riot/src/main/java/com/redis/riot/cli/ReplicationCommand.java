@@ -2,14 +2,15 @@ package com.redis.riot.cli;
 
 import java.time.Duration;
 
+import com.redis.riot.cli.RedisReaderArgs.ReadFromEnum;
 import com.redis.riot.core.AbstractJobExecutable;
 import com.redis.riot.core.EvaluationContextOptions;
 import com.redis.riot.core.KeyValueOperatorOptions;
 import com.redis.riot.core.RedisOperationOptions;
 import com.redis.riot.core.RedisReaderOptions;
+import com.redis.riot.core.Replication;
+import com.redis.riot.core.ReplicationMode;
 import com.redis.riot.core.StepBuilder;
-import com.redis.riot.core.replicate.Replication;
-import com.redis.riot.core.replicate.ReplicationMode;
 import com.redis.spring.batch.ValueType;
 import com.redis.spring.batch.util.BatchUtils;
 import com.redis.spring.batch.util.KeyComparisonItemReader;

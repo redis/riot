@@ -2,8 +2,8 @@ package com.redis.riot.cli;
 
 import java.util.List;
 
-import com.redis.riot.core.file.FileImport;
-import com.redis.riot.core.file.FileType;
+import com.redis.riot.file.FileImport;
+import com.redis.riot.file.FileType;
 
 import picocli.CommandLine.Option;
 

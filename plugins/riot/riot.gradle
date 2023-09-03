@@ -55,8 +55,11 @@ config {
 }
 
 dependencies {
-    api project(':riot-core')
-    api group: 'info.picocli', name: 'picocli', version: picocliVersion
+    implementation project(':riot-core')
+    implementation project(':riot-db')
+    implementation project(':riot-faker')
+    implementation project(':riot-file')
+    implementation group: 'info.picocli', name: 'picocli', version: picocliVersion
     annotationProcessor group: 'info.picocli', name: 'picocli-codegen', version: picocliVersion
     implementation group: 'me.tongfei', name: 'progressbar', version: progressbarVersion
     implementation group: 'org.codehaus.plexus', name: 'plexus-utils', version:plexusVersion

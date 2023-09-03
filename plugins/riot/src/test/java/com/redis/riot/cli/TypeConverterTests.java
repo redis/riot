@@ -8,10 +8,6 @@ import com.redis.spring.batch.util.IntRange;
 
 class TypeConverterTests {
 
-    private final IntRangeTypeConverter intRangeConverter = new IntRangeTypeConverter();
-
-    private final DoubleRangeTypeConverter doubleRangeConverter = new DoubleRangeTypeConverter();
-
     @Test
     void intRange() throws Exception {
         IntRange range = IntRange.between(1, 5);
@@ -26,7 +22,7 @@ class TypeConverterTests {
     }
 
     private IntRange intConvert(String string) {
-        return intRangeConverter.convert(string);
+        return Main.intRange(string);
     }
 
     @Test
@@ -43,7 +39,7 @@ class TypeConverterTests {
     }
 
     private DoubleRange doubleConvert(String string) {
-        return doubleRangeConverter.convert(string);
+        return Main.doubleRange(string);
     }
 
 }

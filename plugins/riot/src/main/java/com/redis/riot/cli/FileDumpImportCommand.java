@@ -3,7 +3,7 @@ package com.redis.riot.cli;
 import java.util.List;
 
 import com.redis.riot.core.StepBuilder;
-import com.redis.riot.core.file.FileDumpImport;
+import com.redis.riot.file.FileDumpImport;
 import com.redis.spring.batch.util.BatchUtils;
 
 import picocli.CommandLine.ArgGroup;

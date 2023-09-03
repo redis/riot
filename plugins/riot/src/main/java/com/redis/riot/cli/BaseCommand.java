@@ -4,8 +4,6 @@ import java.util.ResourceBundle;
 
 import org.slf4j.helpers.MessageFormatter;
 
-import com.redis.riot.cli.common.ManifestVersionProvider;
-
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Model.CommandSpec;

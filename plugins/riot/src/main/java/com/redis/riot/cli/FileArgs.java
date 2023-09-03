@@ -2,9 +2,9 @@ package com.redis.riot.cli;
 
 import java.io.File;
 
-import com.redis.riot.core.file.AmazonS3Options;
-import com.redis.riot.core.file.FileOptions;
-import com.redis.riot.core.file.GoogleStorageOptions;
+import com.redis.riot.file.AmazonS3Options;
+import com.redis.riot.file.FileOptions;
+import com.redis.riot.file.GoogleStorageOptions;
 
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Option;

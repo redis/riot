@@ -1,6 +1,6 @@
 package com.redis.riot.cli;
 
-import com.redis.riot.core.file.FileDumpExport;
+import com.redis.riot.file.FileDumpExport;
 
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
@@ -9,8 +9,6 @@ import picocli.CommandLine.Parameters;
 
 @Command(name = "file-export", description = "Export Redis data to JSON or XML files.")
 public class FileDumpExportCommand extends AbstractExportCommand {
-
-    // private static final String TASK_NAME = "Exporting to file %s";
 
     @Parameters(arity = "1", description = "File path or URL", paramLabel = "FILE")
     private String file;

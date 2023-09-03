@@ -1,6 +1,6 @@
 package com.redis.riot.cli;
 
-import com.redis.riot.core.db.DataSourceOptions;
+import com.redis.riot.db.DataSourceOptions;
 
 import picocli.CommandLine.Option;
 

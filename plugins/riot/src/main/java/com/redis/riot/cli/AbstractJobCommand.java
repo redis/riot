@@ -1,6 +1,5 @@
 package com.redis.riot.cli;
 
-import com.redis.riot.cli.common.ProgressStepListener;
 import com.redis.riot.core.AbstractJobExecutable;
 import com.redis.riot.core.Executable;
 import com.redis.riot.core.StepBuilder;

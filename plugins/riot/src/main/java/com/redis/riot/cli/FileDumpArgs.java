@@ -1,6 +1,6 @@
 package com.redis.riot.cli;
 
-import com.redis.riot.core.file.FileDumpType;
+import com.redis.riot.file.FileDumpType;
 
 import picocli.CommandLine.Option;
 

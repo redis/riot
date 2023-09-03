@@ -18,7 +18,6 @@ import org.springframework.batch.item.support.ListItemReader;
 import org.springframework.batch.item.support.ListItemWriter;
 import org.springframework.expression.Expression;
 
-import com.redis.riot.core.replicate.Replication;
 import com.redis.spring.batch.test.AbstractTargetTestBase;
 import com.redis.spring.batch.util.KeyComparisonItemReader;
 

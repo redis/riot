@@ -1,6 +1,6 @@
 package com.redis.riot.cli;
 
-import com.redis.riot.core.db.DatabaseExport;
+import com.redis.riot.db.DatabaseExport;
 
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
