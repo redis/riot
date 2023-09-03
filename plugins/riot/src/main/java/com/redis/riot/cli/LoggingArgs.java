@@ -6,64 +6,40 @@ import picocli.CommandLine.Option;
 
 public class LoggingArgs {
 
-    @Option(names = { "-d", "--debug" })
-    private boolean debug;
-
-    @Option(names = { "-i", "--info" })
-    private boolean info;
-
-    @Option(names = { "-w", "--warn" })
-    private boolean warn;
-
-    @Option(names = { "-q", "--quiet" })
-    private boolean quiet;
-
-    public boolean isDebug() {
-        return debug;
-    }
-
+    @Option(names = { "-d", "--debug" }, description = "Log in debug mode (includes normal stacktrace).")
     public void setDebug(boolean debug) {
-        this.debug = debug;
-    }
-
-    public boolean isInfo() {
-        return info;
-    }
-
-    public void setInfo(boolean info) {
-        this.info = info;
-    }
-
-    public boolean isWarn() {
-        return warn;
-    }
-
-    public void setWarn(boolean warn) {
-        this.warn = warn;
-    }
-
-    public boolean isQuiet() {
-        return quiet;
-    }
-
-    public void setQuiet(boolean quiet) {
-        this.quiet = quiet;
-    }
-
-    public Level getLevel() {
         if (debug) {
-            return Level.DEBUG;
+            setLogLevel(Level.DEBUG);
         }
+    }
+
+    @Option(names = { "-i", "--info" }, description = "Set log level to info.")
+    public void setInfo(boolean info) {
         if (info) {
-            return Level.INFO;
+            setLogLevel(Level.INFO);
         }
+    }
+
+    @Option(names = { "-w", "--warn" }, description = "Set log level to warn.")
+    public void setWarn(boolean warn) {
         if (warn) {
-            return Level.WARN;
+            setLogLevel(Level.WARN);
         }
+    }
+
+    @Option(names = { "-q", "--quiet" }, description = "Log errors only.")
+    public void setQuiet(boolean quiet) {
         if (quiet) {
-            return Level.ERROR;
+            setLogLevel(Level.ERROR);
         }
-        return null;
+    }
+
+    private void setLogLevel(Level level) {
+        setLogLevel(org.slf4j.impl.SimpleLogger.DEFAULT_LOG_LEVEL_KEY, level);
+    }
+
+    public static void setLogLevel(String key, Level level) {
+        System.setProperty(key, level.name());
     }
 
 }

@@ -63,7 +63,6 @@ public class FakerImport extends AbstractMapImport {
 
     private FakerItemReader reader() {
         FakerItemReader reader = new FakerItemReader();
-        reader.setEvaluationContext(evaluationContext());
         reader.setMaxItemCount(count);
         reader.setLocale(locale);
         reader.setFields(fields());

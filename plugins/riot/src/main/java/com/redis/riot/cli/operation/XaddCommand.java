@@ -7,7 +7,7 @@ import picocli.CommandLine.Mixin;
 import picocli.CommandLine.Option;
 
 @Command(name = "xadd", description = "Append entries to a stream")
-public class XaddCommand extends AbstractOperationCommand {
+public class XaddCommand extends OperationCommand {
 
     @Mixin
     private FieldFilteringArgs filteringOptions = new FieldFilteringArgs();

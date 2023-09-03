@@ -11,7 +11,7 @@ import com.redis.riot.core.function.MapFlatteningFunction;
 import com.redis.riot.core.function.ObjectToStringFunction;
 
 public abstract class AbstractFilterMapOperationBuilder<B extends AbstractFilterMapOperationBuilder<B>>
-        extends AbstractOperationBuilder<B> {
+        extends AbstractMapOperationBuilder<B> {
 
     private List<String> includes;
 

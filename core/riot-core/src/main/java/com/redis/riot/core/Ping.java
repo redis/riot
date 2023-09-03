@@ -1,6 +1,6 @@
 package com.redis.riot.core;
 
-import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.time.Duration;
 import java.util.Map;
 import java.util.TreeMap;
@@ -17,7 +17,7 @@ import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.metrics.CommandMetrics.CommandLatency;
 import io.lettuce.core.metrics.DefaultCommandLatencyCollectorOptions;
 
-public class PingExecutable implements Executable {
+public class Ping implements Executable {
 
     private final AbstractRedisClient client;
 
@@ -29,7 +29,7 @@ public class PingExecutable implements Executable {
 
     public static final double[] DEFAULT_PERCENTILES = DefaultCommandLatencyCollectorOptions.DEFAULT_TARGET_PERCENTILES;
 
-    private final PrintStream printStream;
+    private final PrintWriter out;
 
     private int iterations = DEFAULT_ITERATIONS;
 
@@ -43,9 +43,9 @@ public class PingExecutable implements Executable {
 
     private Duration sleep;
 
-    public PingExecutable(AbstractRedisClient client, PrintStream printStream) {
+    public Ping(AbstractRedisClient client, PrintWriter out) {
         this.client = client;
-        this.printStream = printStream;
+        this.out = out;
     }
 
     public void setSleep(Duration sleep) {
@@ -123,7 +123,7 @@ public class PingExecutable implements Executable {
         }
         Histogram histogram = stats.getIntervalHistogram();
         if (latencyDistribution) {
-            histogram.outputPercentileDistribution(printStream, (double) timeUnit.toNanos(1));
+            histogram.outputPercentileDistribution(System.out, (double) timeUnit.toNanos(1));
         }
         Map<Double, Long> percentileMap = new TreeMap<>();
         for (double targetPercentile : percentiles) {
@@ -133,7 +133,7 @@ public class PingExecutable implements Executable {
         long min = toTimeUnit(histogram.getMinValue());
         long max = toTimeUnit(histogram.getMaxValue());
         CommandLatency latency = new CommandLatency(min, max, percentileMap);
-        printStream.println(latency.toString());
+        out.println(latency.toString());
     }
 
     private long toTimeUnit(long value) {

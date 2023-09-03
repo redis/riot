@@ -2,11 +2,12 @@ package com.redis.riot.cli;
 
 import java.io.PrintWriter;
 
+import org.slf4j.event.Level;
 import org.springframework.expression.Expression;
 import org.springframework.util.unit.DataSize;
 
+import com.redis.riot.cli.operation.OperationCommand;
 import com.redis.riot.core.TemplateExpression;
-import com.redis.riot.core.operation.OperationBuilder;
 import com.redis.spring.batch.util.DoubleRange;
 import com.redis.spring.batch.util.IntRange;
 
@@ -22,8 +23,8 @@ import picocli.CommandLine.RunLast;
 
 @Command(name = "riot", subcommands = { DatabaseImportCommand.class, DatabaseExportCommand.class, FileDumpImportCommand.class,
         FileImportCommand.class, FileDumpExportCommand.class, FakerImportCommand.class, GeneratorImportCommand.class,
-        ReplicationCommand.class, Ping.class, GenerateCompletion.class })
-public class Main extends BaseCommand implements Runnable, IO {
+        ReplicationCommand.class, PingCommand.class, GenerateCompletion.class })
+public class Main extends BaseCommand implements Runnable {
 
     private PrintWriter out;
 
@@ -35,22 +36,18 @@ public class Main extends BaseCommand implements Runnable, IO {
     @ArgGroup(exclusive = false, heading = "Redis connection options%n")
     private RedisArgs redisArgs = new RedisArgs();
 
-    @Override
     public PrintWriter getOut() {
         return out;
     }
 
-    @Override
     public void setOut(PrintWriter out) {
         this.out = out;
     }
 
-    @Override
     public PrintWriter getErr() {
         return err;
     }
 
-    @Override
     public void setErr(PrintWriter err) {
         this.err = err;
     }
@@ -65,6 +62,7 @@ public class Main extends BaseCommand implements Runnable, IO {
     }
 
     public static void main(String[] args) {
+        LoggingArgs.setLogLevel(org.slf4j.impl.SimpleLogger.DEFAULT_LOG_LEVEL_KEY, Level.ERROR);
         System.exit(run(args));
     }
 
@@ -115,7 +113,7 @@ public class Main extends BaseCommand implements Runnable, IO {
                         if (redisCommand.isUsageHelpRequested()) {
                             return new RunLast().execute(redisCommand);
                         }
-                        importCommand.getCommands().add((OperationBuilder) redisCommand.commandSpec().userObject());
+                        importCommand.getCommands().add((OperationCommand) redisCommand.commandSpec().userObject());
                     }
                     return new RunFirst().execute(subcommand);
                 }

@@ -60,7 +60,9 @@ dependencies {
     annotationProcessor group: 'info.picocli', name: 'picocli-codegen', version: picocliVersion
     implementation group: 'me.tongfei', name: 'progressbar', version: progressbarVersion
     implementation group: 'org.codehaus.plexus', name: 'plexus-utils', version:plexusVersion
-    runtimeOnly 'org.slf4j:slf4j-simple'
+    implementation 'org.slf4j:slf4j-simple'
+    testImplementation group: 'com.redis', name: 'spring-batch-redis', version: springBatchRedisVersion, classifier: 'tests'
+    testImplementation group: 'org.awaitility', name: 'awaitility', version: awaitilityVersion
 }
 
 bootStartScripts.enabled = false

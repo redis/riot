@@ -4,7 +4,7 @@ import java.util.Map;
 
 import com.redis.spring.batch.writer.operation.ExpireAt;
 
-public class ExpireAtBuilder extends AbstractOperationBuilder<ExpireAtBuilder> {
+public class ExpireAtBuilder extends AbstractMapOperationBuilder<ExpireAtBuilder> {
 
     private String ttl;
 

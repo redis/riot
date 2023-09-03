@@ -22,7 +22,6 @@ public class KeyFilterOptions {
     private List<IntRange> slots;
 
     public KeyFilterOptions() {
-
     }
 
     private KeyFilterOptions(Builder builder) {

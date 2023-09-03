@@ -4,8 +4,6 @@ import java.util.Map;
 
 import com.redis.spring.batch.writer.Operation;
 
-public interface OperationBuilder {
-
-    Operation<String, String, Map<String, Object>> build();
+public interface MapOperation extends Operation<String, String, Map<String, Object>> {
 
 }

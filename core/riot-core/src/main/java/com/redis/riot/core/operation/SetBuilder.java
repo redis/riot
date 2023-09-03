@@ -10,7 +10,7 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.redis.riot.core.function.ObjectMapperFunction;
 import com.redis.spring.batch.writer.operation.Set;
 
-public class SetBuilder extends AbstractOperationBuilder<SetBuilder> {
+public class SetBuilder extends AbstractMapOperationBuilder<SetBuilder> {
 
     public enum StringFormat {
         RAW, XML, JSON

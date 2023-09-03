@@ -4,8 +4,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-public abstract class AbstractCollectionOperationBuilder<B extends AbstractCollectionOperationBuilder<B>>
-        extends AbstractOperationBuilder<B> {
+public abstract class AbstractCollectionMapOperationBuilder<B extends AbstractCollectionMapOperationBuilder<B>>
+        extends AbstractMapOperationBuilder<B> {
 
     private String memberSpace;
 

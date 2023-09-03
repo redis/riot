@@ -1,5 +1,6 @@
 package com.redis.riot.core.operation;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -11,7 +12,7 @@ import com.redis.riot.core.function.IdFunctionBuilder;
 import com.redis.spring.batch.writer.Operation;
 import com.redis.spring.batch.writer.operation.AbstractOperation;
 
-public abstract class AbstractOperationBuilder<B extends AbstractOperationBuilder<B>> implements OperationBuilder {
+public abstract class AbstractMapOperationBuilder<B extends AbstractMapOperationBuilder<B>> {
 
     public static final String DEFAULT_SEPARATOR = IdFunctionBuilder.DEFAULT_SEPARATOR;
 
@@ -33,6 +34,10 @@ public abstract class AbstractOperationBuilder<B extends AbstractOperationBuilde
     public B keyspace(String keyspace) {
         this.keyspace = keyspace;
         return (B) this;
+    }
+
+    public B keys(String... keys) {
+        return keys(Arrays.asList(keys));
     }
 
     @SuppressWarnings("unchecked")
@@ -88,7 +93,6 @@ public abstract class AbstractOperationBuilder<B extends AbstractOperationBuilde
         return new IdFunctionBuilder().separator(keySeparator).remove(removeFields).prefix(prefix).fields(fields).build();
     }
 
-    @Override
     public Operation<String, String, Map<String, Object>> build() {
         AbstractOperation<String, String, Map<String, Object>, ?> operation = operation();
         operation.key(idFunction(keyspace, keys));

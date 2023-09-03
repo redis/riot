@@ -11,6 +11,7 @@ import com.redis.riot.cli.operation.GeoaddCommand;
 import com.redis.riot.cli.operation.HsetCommand;
 import com.redis.riot.cli.operation.JsonSetCommand;
 import com.redis.riot.cli.operation.LpushCommand;
+import com.redis.riot.cli.operation.OperationCommand;
 import com.redis.riot.cli.operation.RpushCommand;
 import com.redis.riot.cli.operation.SaddCommand;
 import com.redis.riot.cli.operation.SetCommand;
@@ -19,7 +20,6 @@ import com.redis.riot.cli.operation.TsAddCommand;
 import com.redis.riot.cli.operation.XaddCommand;
 import com.redis.riot.cli.operation.ZaddCommand;
 import com.redis.riot.core.AbstractMapImport;
-import com.redis.riot.core.operation.OperationBuilder;
 import com.redis.spring.batch.writer.Operation;
 
 import picocli.CommandLine.ArgGroup;
@@ -29,7 +29,7 @@ import picocli.CommandLine.Command;
         RpushCommand.class, SaddCommand.class, SetCommand.class, XaddCommand.class, ZaddCommand.class, SugaddCommand.class,
         JsonSetCommand.class,
         TsAddCommand.class }, subcommandsRepeatable = true, synopsisSubcommandLabel = "[REDIS COMMAND...]", commandListHeading = "Redis commands:%n")
-abstract class AbstractImportCommand extends AbstractJobCommand {
+public abstract class AbstractImportCommand extends AbstractJobCommand {
 
     @ArgGroup(exclusive = false, heading = "Processor options%n")
     private MapProcessorArgs processorArgs = new MapProcessorArgs();
@@ -37,18 +37,18 @@ abstract class AbstractImportCommand extends AbstractJobCommand {
     /**
      * Initialized manually during command parsing
      */
-    private List<OperationBuilder> commands = new ArrayList<>();
+    private List<OperationCommand> commands = new ArrayList<>();
 
-    public List<OperationBuilder> getCommands() {
+    public List<OperationCommand> getCommands() {
         return commands;
     }
 
-    public void setCommands(List<OperationBuilder> commands) {
+    public void setCommands(List<OperationCommand> commands) {
         this.commands = commands;
     }
 
     protected List<Operation<String, String, Map<String, Object>>> operations() {
-        return commands.stream().map(OperationBuilder::build).collect(Collectors.toList());
+        return commands.stream().map(OperationCommand::operation).collect(Collectors.toList());
     }
 
     @Override

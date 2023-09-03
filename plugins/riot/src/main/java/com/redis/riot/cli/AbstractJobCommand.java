@@ -6,9 +6,8 @@ import com.redis.riot.core.Executable;
 import io.lettuce.core.AbstractRedisClient;
 import picocli.CommandLine.ArgGroup;
 
-abstract class AbstractJobCommand extends AbstractLoggingCommand<Main> {
+abstract class AbstractJobCommand extends AbstractCommand {
 
-    // @Option(names = "--progress", description = "Style of progress bar: ${COMPLETION-CANDIDATES} (default:
     // ${DEFAULT-VALUE}),", paramLabel = "<style>")
     // private ProgressStyle progressStyle = ProgressStyle.ASCII;
     //
@@ -58,19 +57,19 @@ abstract class AbstractJobCommand extends AbstractLoggingCommand<Main> {
     @ArgGroup(exclusive = false, heading = "Execution options%n")
     private StepArgs stepArgs = new StepArgs();
 
+    @Override
+    protected Executable getExecutable() {
+        AbstractJobExecutable executable = getJobExecutable();
+        executable.setStepOptions(stepArgs.stepOptions());
+        return executable;
+    }
+
     protected RedisArgs redisArgs() {
         return parent.getRedisArgs();
     }
 
     protected AbstractRedisClient redisClient() {
         return parent.getRedisArgs().client();
-    }
-
-    @Override
-    protected Executable getExecutable() {
-        AbstractJobExecutable executable = getJobExecutable();
-        executable.setStepOptions(stepArgs.stepOptions());
-        return executable;
     }
 
     protected abstract AbstractJobExecutable getJobExecutable();

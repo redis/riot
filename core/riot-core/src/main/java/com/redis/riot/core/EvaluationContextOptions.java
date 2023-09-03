@@ -7,7 +7,6 @@ import java.util.Map;
 
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import com.redis.lettucemod.util.GeoLocation;
@@ -53,13 +52,8 @@ public class EvaluationContextOptions {
     public StandardEvaluationContext evaluationContext() {
         StandardEvaluationContext context = new StandardEvaluationContext();
         context.registerFunction("geo", geoMethod());
-        Map<String, Object> contextVariables = variables();
-        if (!CollectionUtils.isEmpty(contextVariables)) {
-            context.setVariables(contextVariables);
-        }
-        if (!CollectionUtils.isEmpty(expressions)) {
-            expressions.forEach((k, v) -> context.setVariable(k, v.getValue(context)));
-        }
+        context.setVariables(variables());
+        expressions.forEach((k, v) -> context.setVariable(k, v.getValue(context)));
         return context;
     }
 

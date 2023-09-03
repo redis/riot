@@ -8,7 +8,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -29,10 +28,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.JobExecutionException;
 import org.springframework.batch.item.ExecutionContext;
-import org.springframework.batch.item.ItemReader;
-import org.springframework.batch.item.NonTransientResourceException;
-import org.springframework.batch.item.ParseException;
-import org.springframework.batch.item.UnexpectedInputException;
 import org.springframework.batch.item.json.JacksonJsonObjectReader;
 import org.springframework.batch.item.json.JsonItemReader;
 import org.springframework.batch.item.json.builder.JsonItemReaderBuilder;
@@ -88,8 +83,6 @@ import picocli.CommandLine.ParseResult;
 public abstract class AbstractIntegrationTests extends AbstractRiotTests {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
-
-    public static final String BEERS_JSON_URL = "https://storage.googleapis.com/jrx/beers.json";
 
     public static final int BEER_CSV_COUNT = 2410;
 
@@ -168,47 +161,6 @@ public abstract class AbstractIntegrationTests extends AbstractRiotTests {
                 command.getSourceReaderArgs().setNotificationQueueCapacity(100000);
             }
         }
-    }
-
-    @Test
-    void fileApiImportJSON() throws UnexpectedInputException, ParseException, NonTransientResourceException, Exception {
-        FileImportCommand command = null;// FileImport.builder().build();
-        Iterator<Map<String, Object>> iterator = null;// command.read(AbstractIntegrationTests.BEERS_JSON_URL);
-        Assertions.assertTrue(iterator.hasNext());
-        Map<String, Object> beer1 = iterator.next();
-        Assertions.assertEquals(13, beer1.size());
-        int count = 1;
-        while (iterator.hasNext()) {
-            iterator.next();
-            count++;
-        }
-        Assertions.assertEquals(AbstractIntegrationTests.BEER_JSON_COUNT, count);
-    }
-
-    @Test
-    void fileApiImportCSV() throws UnexpectedInputException, ParseException, NonTransientResourceException, Exception {
-        FileImportCommand command = null;// FileImport.builder().flatFileOptions(FlatFileOptions.builder().header(true).build()).build();
-        Iterator<Map<String, Object>> iterator = null;// command.read("https://storage.googleapis.com/jrx/beers.csv");
-        Assertions.assertTrue(iterator.hasNext());
-        Map<String, Object> beer1 = iterator.next();
-        Assertions.assertEquals(7, beer1.size());
-        int count = 1;
-        while (iterator.hasNext()) {
-            iterator.next();
-            count++;
-        }
-        Assertions.assertEquals(AbstractIntegrationTests.BEER_CSV_COUNT, count);
-    }
-
-    @Test
-    void fileApiFileExpansion() throws IOException {
-        Path temp = Files.createTempDirectory("fileExpansion");
-        Files.createFile(temp.resolve("file1.csv"));
-        Files.createFile(temp.resolve("file2.csv"));
-        FileImportCommand command = null;// TODO FileImport.builder().build();
-        List<ItemReader<Map<String, Object>>> readers = null;// command.readers(temp.resolve("*.csv").toString())
-        // .collect(Collectors.toList());
-        Assertions.assertEquals(2, readers.size());
     }
 
     private String replace(String file) {
@@ -527,29 +479,6 @@ public abstract class AbstractIntegrationTests extends AbstractRiotTests {
             }
         }
     }
-
-    // @Test
-    // void fileImportJsonAPI() throws Exception {
-    // // riot-file import hset --keyspace beer --keys id
-    // FileImport command = new FileImport();
-    // // command.getJobOptions().setProgressStyle(ProgressStyle.NONE);
-    // command.setFiles(Collections.singletonList(BEERS_JSON_URL));
-    // HsetCommand hset = new HsetCommand();
-    // hset.getCommandOptions().keyspace("beer");
-    // hset.getCommandOptions().keys(new String[] { "id" });
-    // command.setCommands(Collections.singletonList(hset));
-    // Main main = new Main();
-    // main.getRedisArgs().setUri(RedisURI.create(getRedisServer().getRedisURI()));
-    // main.getRedisArgs().setCluster(getRedisServer().isCluster());
-    // // command.setRiot(main);
-    // // command.setCommandSpec(CommandSpec.create().name("importJsonAPI"));
-    // command.run();
-    // RedisKeyCommands<String, String> sync = connection.sync();
-    // List<String> keys = sync.keys("beer:*");
-    // Assertions.assertEquals(BEER_JSON_COUNT, keys.size());
-    // Map<String, String> beer1 = ((RedisHashCommands<String, String>) sync).hgetall("beer:1");
-    // Assertions.assertEquals("Hocus Pocus", beer1.get("name"));
-    // }
 
     @Test
     void fileImportJSONGzip() throws Exception {

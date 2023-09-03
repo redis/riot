@@ -2,12 +2,12 @@ package com.redis.riot.cli.operation;
 
 import java.util.List;
 
-import com.redis.riot.core.operation.AbstractCollectionOperationBuilder;
-import com.redis.riot.core.operation.AbstractOperationBuilder;
+import com.redis.riot.core.operation.AbstractCollectionMapOperationBuilder;
+import com.redis.riot.core.operation.AbstractMapOperationBuilder;
 
 import picocli.CommandLine.Option;
 
-public abstract class AbstractCollectionOperationCommand extends AbstractOperationCommand {
+public abstract class AbstractCollectionOperationCommand extends OperationCommand {
 
     @Option(names = "--member-space", description = "Keyspace prefix for member IDs.", paramLabel = "<str>")
     private String memberSpace;
@@ -17,13 +17,13 @@ public abstract class AbstractCollectionOperationCommand extends AbstractOperati
     private List<String> memberFields;
 
     @Override
-    protected AbstractOperationBuilder<?> operationBuilder() {
-        AbstractCollectionOperationBuilder<?> builder = collectionOperationBuilder();
+    protected AbstractMapOperationBuilder<?> operationBuilder() {
+        AbstractCollectionMapOperationBuilder<?> builder = collectionOperationBuilder();
         builder.memberSpace(memberSpace);
         builder.members(memberFields);
         return builder;
     }
 
-    protected abstract AbstractCollectionOperationBuilder<?> collectionOperationBuilder();
+    protected abstract AbstractCollectionMapOperationBuilder<?> collectionOperationBuilder();
 
 }

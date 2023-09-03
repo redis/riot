@@ -43,7 +43,7 @@ public class Replication extends AbstractExport {
 
     public static final ValueType DEFAULT_VALUE_TYPE = ValueType.DUMP;
 
-    private static final Logger log = LoggerFactory.getLogger(Replication.class);
+    private final Logger log = LoggerFactory.getLogger(Replication.class);
 
     private final AbstractRedisClient targetClient;
 

@@ -6,7 +6,6 @@ import org.springframework.batch.core.Job;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.json.JacksonJsonObjectMarshaller;
 import org.springframework.batch.item.json.JsonObjectMarshaller;
-import org.springframework.batch.item.support.AbstractFileItemWriter;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.WritableResource;
 
@@ -29,7 +28,7 @@ public class FileDumpExport extends AbstractExport {
 
     public static final String DEFAULT_ROOT_NAME = "root";
 
-    public static final String DEFAULT_LINE_SEPARATOR = AbstractFileItemWriter.DEFAULT_LINE_SEPARATOR;
+    public static final String DEFAULT_LINE_SEPARATOR = System.getProperty("line.separator");
 
     private final String file;
 

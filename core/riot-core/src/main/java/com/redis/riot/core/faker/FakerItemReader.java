@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
+import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.support.DataBindingMethodResolver;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
@@ -26,22 +27,14 @@ public class FakerItemReader extends AbstractItemCountingItemStreamItemReader<Ma
 
     public static final Locale DEFAULT_LOCALE = Locale.getDefault();
 
-    private static final String EXECUTION_CONTEXT = "ctx";
-
-    private StandardEvaluationContext evaluationContext = new StandardEvaluationContext();
-
     private Map<String, Expression> fields = new LinkedHashMap<>();
 
     private Locale locale = DEFAULT_LOCALE;
 
-    private boolean open;
+    private EvaluationContext evaluationContext;
 
     public FakerItemReader() {
         setName(ClassUtils.getShortName(getClass()));
-    }
-
-    public void setEvaluationContext(StandardEvaluationContext context) {
-        this.evaluationContext = context;
     }
 
     public void setLocale(Locale locale) {
@@ -62,12 +55,16 @@ public class FakerItemReader extends AbstractItemCountingItemStreamItemReader<Ma
     protected synchronized void doOpen() throws Exception {
         if (!isOpen()) {
             Assert.notEmpty(fields, "No field specified");
-            evaluationContext.addPropertyAccessor(new ReflectivePropertyAccessor());
-            evaluationContext.addMethodResolver(DataBindingMethodResolver.forInstanceMethodInvocation());
-            evaluationContext.setRootObject(new Faker(locale));
-            evaluationContext.setVariable(EXECUTION_CONTEXT, new ExecutionContext());
-            open = true;
+            evaluationContext = evaluationContext();
         }
+    }
+
+    private EvaluationContext evaluationContext() {
+        StandardEvaluationContext context = new StandardEvaluationContext();
+        context.addPropertyAccessor(new ReflectivePropertyAccessor());
+        context.addMethodResolver(DataBindingMethodResolver.forInstanceMethodInvocation());
+        context.setRootObject(new AugmentedFaker(locale));
+        return context;
     }
 
     @Override
@@ -80,15 +77,19 @@ public class FakerItemReader extends AbstractItemCountingItemStreamItemReader<Ma
     @Override
     protected synchronized void doClose() throws Exception {
         if (isOpen()) {
-            open = false;
+            evaluationContext = null;
         }
     }
 
     public boolean isOpen() {
-        return open;
+        return evaluationContext != null;
     }
 
-    public class ExecutionContext {
+    public class AugmentedFaker extends Faker {
+
+        public AugmentedFaker(Locale locale) {
+            super(locale);
+        }
 
         public int getIndex() {
             return index();

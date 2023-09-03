@@ -1,16 +1,28 @@
 package com.redis.riot.core;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
+import org.springframework.batch.core.JobExecutionException;
+import org.springframework.batch.item.ItemProcessor;
+import org.springframework.batch.item.support.ListItemReader;
+import org.springframework.batch.item.support.ListItemWriter;
+import org.springframework.expression.Expression;
 
 import com.redis.riot.core.replicate.Replication;
+import com.redis.spring.batch.test.AbstractTargetTestBase;
 import com.redis.spring.batch.util.KeyComparisonItemReader;
 
-public abstract class ReplicationTests extends AbstractRiotTargetTestBase {
+public abstract class ReplicationTests extends AbstractTargetTestBase {
 
     public static final String BEERS_JSON_URL = "https://storage.googleapis.com/jrx/beers.json";
 
@@ -28,6 +40,55 @@ public abstract class ReplicationTests extends AbstractRiotTargetTestBase {
 
     protected static double abv(Map<String, String> beer) {
         return Double.parseDouble(beer.get("abv"));
+    }
+
+    protected void execute(AbstractJobExecutable executable, TestInfo info) {
+        executable.setName(name(info));
+        executable.execute();
+    }
+
+    @Test
+    void testMapProcessor(TestInfo info) throws JobExecutionException {
+        MapProcessorOptions options = new MapProcessorOptions();
+        Map<String, Expression> expressions = new LinkedHashMap<>();
+        expressions.put("field1", SpelUtils.parse("'value1'"));
+        expressions.put("field2", SpelUtils.parse("field1"));
+        expressions.put("field3", SpelUtils.parse("1"));
+        expressions.put("field4", SpelUtils.parse("2"));
+        expressions.put("field5", SpelUtils.parse("field3+field4"));
+        options.setExpressions(expressions);
+        List<Map<String, Object>> list = new ArrayList<>();
+        for (int index = 0; index < 10; index++) {
+            list.add(new HashMap<>());
+        }
+        ListItemReader<Map<String, Object>> reader = new ListItemReader<>(list);
+        ItemProcessor<Map<String, Object>, Map<String, Object>> processor = options.processor();
+        ListItemWriter<Map<String, Object>> writer = new ListItemWriter<>();
+        run(job(info).start(step(info, reader, writer).processor(processor).build()).build());
+        assertEquals(10, writer.getWrittenItems().size());
+        for (Map<String, Object> item : writer.getWrittenItems()) {
+            assertEquals(5, item.size());
+            assertEquals("value1", item.get("field1"));
+            assertEquals("value1", item.get("field2"));
+            assertEquals(3, item.get("field5"));
+        }
+    }
+
+    @Test
+    void testMapProcessorFilter(TestInfo info) throws JobExecutionException {
+        MapProcessorOptions options = new MapProcessorOptions();
+        options.setFilter(SpelUtils.parse("index<10"));
+        List<Map<String, Object>> list = new ArrayList<>();
+        for (int index = 0; index < 100; index++) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("index", index);
+            list.add(map);
+        }
+        ListItemReader<Map<String, Object>> reader = new ListItemReader<>(list);
+        ItemProcessor<Map<String, Object>, Map<String, Object>> processor = options.processor();
+        ListItemWriter<Map<String, Object>> writer = new ListItemWriter<>();
+        run(job(info).start(step(info, reader, writer).processor(processor).build()).build());
+        assertEquals(10, writer.getWrittenItems().size());
     }
 
     @Test

@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.redis.spring.batch.writer.operation.JsonSet;
 
-public class JsonSetBuilder extends AbstractOperationBuilder<JsonSetBuilder> {
+public class JsonSetBuilder extends AbstractMapOperationBuilder<JsonSetBuilder> {
 
     private final ObjectWriter jsonWriter = new ObjectMapper().writerFor(Map.class);
 

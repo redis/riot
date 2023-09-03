@@ -3,6 +3,7 @@ package com.redis.riot.cli;
 import java.util.Map;
 
 import org.springframework.expression.Expression;
+import org.springframework.util.CollectionUtils;
 
 import com.redis.riot.core.EvaluationContextOptions;
 
@@ -21,7 +22,9 @@ public class EvaluationContextArgs {
 
     public EvaluationContextOptions evaluationContextOptions() {
         EvaluationContextOptions options = new EvaluationContextOptions();
-        expressions.forEach(options::addExpression);
+        if (!CollectionUtils.isEmpty(expressions)) {
+            expressions.forEach(options::addExpression);
+        }
         options.setDateVariableName(dateVariableName);
         options.setDateFormat(dateFormat);
         return options;

@@ -8,7 +8,7 @@ import com.redis.lettucemod.search.Suggestion;
 import com.redis.spring.batch.util.ToSuggestionFunction;
 import com.redis.spring.batch.writer.operation.Sugadd;
 
-public class SugaddBuilder extends AbstractOperationBuilder<SugaddBuilder> {
+public class SugaddBuilder extends AbstractMapOperationBuilder<SugaddBuilder> {
 
     public static final double DEFAULT_SCORE = 1;
 

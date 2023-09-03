@@ -6,10 +6,10 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Stream;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.builder.SimpleJobBuilder;
@@ -37,7 +37,7 @@ import io.lettuce.core.AbstractRedisClient;
 
 public class FileImport extends AbstractMapImport {
 
-    private static final Logger log = Logger.getLogger(FileImport.class.getName());
+    private final Logger log = LoggerFactory.getLogger(FileImport.class);
 
     private static final String PIPE_DELIMITER = "|";
 
@@ -70,6 +70,10 @@ public class FileImport extends AbstractMapImport {
     private Character quoteCharacter = DEFAULT_QUOTE_CHARACTER;
 
     private String continuationString = DEFAULT_CONTINUATION_STRING;
+
+    public FileImport(AbstractRedisClient client, String... files) {
+        this(client, Arrays.asList(files));
+    }
 
     public FileImport(AbstractRedisClient client, List<String> files) {
         super(client);
@@ -210,7 +214,7 @@ public class FileImport extends AbstractMapImport {
                 if (!ObjectUtils.isEmpty(includedFields)) {
                     tokenizer.setIncludedFields(includedFields);
                 }
-                log.log(Level.INFO, "Creating delimited reader for {0}", resource);
+                log.info("Creating delimited reader for {}", resource);
                 return flatFileReader(resource, tokenizer);
             case FIXED:
                 FixedLengthTokenizer fixedLengthTokenizer = new FixedLengthTokenizer();
@@ -222,13 +226,13 @@ public class FileImport extends AbstractMapImport {
                     throw new IllegalArgumentException("Invalid ranges specified: " + columnRanges);
                 }
                 fixedLengthTokenizer.setColumns(ranges);
-                log.log(Level.INFO, "Creating fixed-width reader for {0}", resource);
+                log.info("Creating fixed-width reader for {}", resource);
                 return flatFileReader(resource, fixedLengthTokenizer);
             case XML:
-                log.log(Level.INFO, "Creating XML reader for {0}", resource);
+                log.info("Creating XML reader for {}", resource);
                 return (XmlItemReader) FileUtils.xmlReader(resource, Map.class);
             case JSON:
-                log.log(Level.INFO, "Creating JSON reader for {0}", resource);
+                log.info("Creating JSON reader for {}", resource);
                 return (JsonItemReader) FileUtils.jsonReader(resource, Map.class);
             default:
                 throw new UnsupportedOperationException("Unsupported file type: " + type);

@@ -6,7 +6,7 @@ import java.util.function.ToDoubleFunction;
 import com.redis.spring.batch.util.ToGeoValueFunction;
 import com.redis.spring.batch.writer.operation.Geoadd;
 
-public class GeoaddBuilder extends AbstractCollectionOperationBuilder<GeoaddBuilder> {
+public class GeoaddBuilder extends AbstractCollectionMapOperationBuilder<GeoaddBuilder> {
 
     private String longitude;
 

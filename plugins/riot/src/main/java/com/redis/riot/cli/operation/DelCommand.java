@@ -1,15 +1,15 @@
 package com.redis.riot.cli.operation;
 
-import com.redis.riot.core.operation.DelOperationBuilder;
+import com.redis.riot.core.operation.DelBuilder;
 
 import picocli.CommandLine.Command;
 
 @Command(name = "del", description = "Delete keys")
-public class DelCommand extends AbstractOperationCommand {
+public class DelCommand extends OperationCommand {
 
     @Override
-    protected DelOperationBuilder operationBuilder() {
-        return new DelOperationBuilder();
+    protected DelBuilder operationBuilder() {
+        return new DelBuilder();
     }
 
 }

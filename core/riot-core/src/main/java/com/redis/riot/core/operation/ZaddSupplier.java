@@ -6,7 +6,7 @@ import java.util.function.ToDoubleFunction;
 import com.redis.spring.batch.util.ToScoredValueFunction;
 import com.redis.spring.batch.writer.operation.Zadd;
 
-public class ZaddSupplier extends AbstractCollectionOperationBuilder<ZaddSupplier> {
+public class ZaddSupplier extends AbstractCollectionMapOperationBuilder<ZaddSupplier> {
 
     public static final double DEFAULT_SCORE = 1;
 

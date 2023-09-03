@@ -5,7 +5,7 @@ import java.util.Map;
 import com.redis.spring.batch.writer.operation.AbstractOperation;
 import com.redis.spring.batch.writer.operation.Del;
 
-public class DelOperationBuilder extends AbstractOperationBuilder<DelOperationBuilder> {
+public class DelBuilder extends AbstractMapOperationBuilder<DelBuilder> {
 
     @Override
     protected AbstractOperation<String, String, Map<String, Object>, ?> operation() {

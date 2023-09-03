@@ -3,15 +3,15 @@ package com.redis.riot.cli.operation;
 import java.util.List;
 import java.util.Map;
 
-import com.redis.riot.core.operation.AbstractOperationBuilder;
-import com.redis.riot.core.operation.OperationBuilder;
+import com.redis.riot.cli.BaseCommand;
+import com.redis.riot.core.operation.AbstractMapOperationBuilder;
 import com.redis.spring.batch.writer.Operation;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 @Command(mixinStandardHelpOptions = true)
-public abstract class AbstractOperationCommand implements OperationBuilder {
+public abstract class OperationCommand extends BaseCommand {
 
     @Option(names = { "-p", "--keyspace" }, description = "Keyspace prefix.", paramLabel = "<str>")
     private String keyspace;
@@ -20,17 +20,16 @@ public abstract class AbstractOperationCommand implements OperationBuilder {
     private List<String> keys;
 
     @Option(names = { "-s", "--separator" }, description = "Key separator (default: ${DEFAULT-VALUE}).", paramLabel = "<str>")
-    private String keySeparator = AbstractOperationBuilder.DEFAULT_SEPARATOR;
+    private String keySeparator = AbstractMapOperationBuilder.DEFAULT_SEPARATOR;
 
     @Option(names = { "-r", "--remove" }, description = "Remove key or member fields the first time they are used.")
-    private boolean removeFields = AbstractOperationBuilder.DEFAULT_REMOVE_FIELDS;
+    private boolean removeFields = AbstractMapOperationBuilder.DEFAULT_REMOVE_FIELDS;
 
     @Option(names = "--ignore-missing", description = "Ignore missing fields.")
-    private boolean ignoreMissingFields = AbstractOperationBuilder.DEFAULT_IGNORE_MISSING_FIELDS;
+    private boolean ignoreMissingFields = AbstractMapOperationBuilder.DEFAULT_IGNORE_MISSING_FIELDS;
 
-    @Override
-    public Operation<String, String, Map<String, Object>> build() {
-        AbstractOperationBuilder<?> builder = operationBuilder();
+    public Operation<String, String, Map<String, Object>> operation() {
+        AbstractMapOperationBuilder<?> builder = operationBuilder();
         builder.ignoreMissingFields(ignoreMissingFields);
         builder.keys(keys);
         builder.keySeparator(keySeparator);
@@ -39,6 +38,6 @@ public abstract class AbstractOperationCommand implements OperationBuilder {
         return builder.build();
     }
 
-    protected abstract AbstractOperationBuilder<?> operationBuilder();
+    protected abstract AbstractMapOperationBuilder<?> operationBuilder();
 
 }

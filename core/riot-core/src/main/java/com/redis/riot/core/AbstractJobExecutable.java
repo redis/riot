@@ -1,8 +1,6 @@
 package com.redis.riot.core;
 
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import org.springframework.batch.core.Job;
@@ -14,8 +12,6 @@ import org.springframework.batch.core.configuration.annotation.StepBuilderFactor
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.launch.support.SimpleJobLauncher;
 import org.springframework.batch.core.repository.JobRepository;
-import org.springframework.batch.item.ItemProcessor;
-import org.springframework.batch.item.support.CompositeItemProcessor;
 import org.springframework.batch.support.transaction.ResourcelessTransactionManager;
 import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.util.ClassUtils;
@@ -98,19 +94,6 @@ public abstract class AbstractJobExecutable implements Executable {
 
     protected ReaderStepBuilder step(String name) {
         return StepBuilder.factory(stepFactory).name(name).options(stepOptions);
-    }
-
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    protected <S, T> ItemProcessor<S, T> processor(Collection<? extends ItemProcessor<?, ?>> processors) {
-        if (processors.isEmpty()) {
-            return null;
-        }
-        if (processors.size() == 1) {
-            return (ItemProcessor) processors.iterator().next();
-        }
-        CompositeItemProcessor<S, T> composite = new CompositeItemProcessor<>();
-        composite.setDelegates(new ArrayList<>(processors));
-        return composite;
     }
 
 }

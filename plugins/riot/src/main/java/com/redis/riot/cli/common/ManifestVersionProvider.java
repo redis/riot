@@ -6,8 +6,9 @@ import java.util.Enumeration;
 import java.util.Optional;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import picocli.CommandLine.IVersionProvider;
 
@@ -16,8 +17,6 @@ import picocli.CommandLine.IVersionProvider;
  * {@code /META-INF/MANIFEST.MF} file.
  */
 public class ManifestVersionProvider implements IVersionProvider {
-
-    private static final Logger log = Logger.getLogger(ManifestVersionProvider.class.getName());
 
     @Override
     public String[] getVersion() throws Exception {
@@ -31,7 +30,7 @@ public class ManifestVersionProvider implements IVersionProvider {
         // @formatter:on
     }
 
-    public static String getVersionString() {
+    public String getVersionString() {
         try {
             Enumeration<URL> resources = ManifestVersionProvider.class.getClassLoader().getResources("META-INF/MANIFEST.MF");
             while (resources.hasMoreElements()) {
@@ -46,7 +45,7 @@ public class ManifestVersionProvider implements IVersionProvider {
         return "N/A";
     }
 
-    private static Optional<String> version(URL url) {
+    private Optional<String> version(URL url) {
         try {
             Manifest manifest = new Manifest(url.openStream());
             if (isApplicableManifest(manifest)) {
@@ -54,8 +53,9 @@ public class ManifestVersionProvider implements IVersionProvider {
                 return Optional.of(String.valueOf(get(attr, "Implementation-Version")));
             }
             return Optional.empty();
-        } catch (IOException ex) {
-            log.log(Level.WARNING, ex, () -> String.format("Unable to read from %s", url));
+        } catch (IOException e) {
+            Logger log = LoggerFactory.getLogger(ManifestVersionProvider.class);
+            log.warn("Unable to read from {}", url, e);
             return Optional.of("N/A");
         }
     }

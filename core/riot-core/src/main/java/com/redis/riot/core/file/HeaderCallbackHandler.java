@@ -11,7 +11,7 @@ import org.springframework.batch.item.file.transform.FieldSet;
 
 public class HeaderCallbackHandler implements LineCallbackHandler {
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private final Logger log = LoggerFactory.getLogger(HeaderCallbackHandler.class);
 
     private final AbstractLineTokenizer tokenizer;
 

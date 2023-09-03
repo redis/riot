@@ -19,10 +19,10 @@ class FakerReaderTests {
         int count = 100;
         FakerItemReader reader = new FakerItemReader();
         Map<String, String> fields = new LinkedHashMap<String, String>();
-        fields.put("index", "#ctx.index");
+        fields.put("index", "index");
         fields.put("firstName", "name.firstName");
         fields.put("lastName", "name.lastName");
-        fields.put("thread", "#ctx.thread.id");
+        fields.put("thread", "thread.id");
         reader.setStringFields(fields);
         reader.setMaxItemCount(count);
         reader.open(new ExecutionContext());

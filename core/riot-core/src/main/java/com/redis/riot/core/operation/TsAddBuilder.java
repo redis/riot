@@ -18,7 +18,7 @@ import com.redis.lettucemod.timeseries.Sample;
 import com.redis.spring.batch.util.ToSampleFunction;
 import com.redis.spring.batch.writer.operation.TsAdd;
 
-public class TsAddBuilder extends AbstractOperationBuilder<TsAddBuilder> {
+public class TsAddBuilder extends AbstractMapOperationBuilder<TsAddBuilder> {
 
     public static final DuplicatePolicy DEFAULT_DUPLICATE_POLICY = DuplicatePolicy.LAST;
 

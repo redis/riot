@@ -7,7 +7,7 @@ import java.util.function.ToLongFunction;
 
 import com.redis.spring.batch.writer.operation.Expire;
 
-public class ExpireBuilder extends AbstractOperationBuilder<ExpireBuilder> {
+public class ExpireBuilder extends AbstractMapOperationBuilder<ExpireBuilder> {
 
     private String ttl;
 

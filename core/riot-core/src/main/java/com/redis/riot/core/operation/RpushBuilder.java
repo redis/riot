@@ -4,7 +4,7 @@ import java.util.Map;
 
 import com.redis.spring.batch.writer.operation.Rpush;
 
-public class RpushBuilder extends AbstractCollectionOperationBuilder<RpushBuilder> {
+public class RpushBuilder extends AbstractCollectionMapOperationBuilder<RpushBuilder> {
 
     @Override
     protected Rpush<String, String, Map<String, Object>> operation() {
