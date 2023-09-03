@@ -37,7 +37,7 @@ apply plugin: 'org.kordamp.gradle.kordamp-parentbuild'
 rootProject.name = 'riot'
 
 projects {
-    directories = ['core', 'plugins', 'docs']
+    directories = ['core', 'connectors', 'plugins', 'docs']
 
     plugins {
         all {
@@ -50,7 +50,7 @@ projects {
             id 'org.kordamp.gradle.guide'
             id 'org.ajoberstar.git-publish'
         }
-        dirs(['core', 'plugins']) {
+        dirs(['core', 'connectors', 'plugins']) {
             id 'java-library'
             id 'org.springframework.boot'
             id 'io.spring.dependency-management'

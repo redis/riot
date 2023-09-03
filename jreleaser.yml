@@ -20,7 +20,7 @@ project:
   authors:
     - Julien Ruaux
   license: Apache-2.0
-  inceptionYear: 2020
+  inceptionYear: '2020'
   stereotype: CLI
   vendor: Redis
   icons:
@@ -29,7 +29,7 @@ project:
       height: 256
   java:
     groupId: com.redis
-    version: 17
+    version: '20'
     multiProject: true
     mainClass: com.redis.riot.cli.Main
   tags:
@@ -59,7 +59,7 @@ release:
         format: '- {{contributorName}}{{#contributorUsernameAsLink}} ({{.}}){{/contributorUsernameAsLink}}'
       contentTemplate: 'src/jreleaser/changelog.tpl'
       extraProperties:
-        categorizeScopes: true
+        categorizeScopes: 'true'
       labelers:
         - label: 'i18n'
           title: 'regex:^(?:i18n(?:\(.*\))?!?):\s.*'
@@ -127,7 +127,7 @@ assemble:
     riot-standalone:
       active: ALWAYS
       java:
-        version: 11
+        version: '20'
       imageName: '{{distributionName}}-{{projectEffectiveVersion}}'
       executable: riot
       fileSets:
@@ -245,11 +245,11 @@ distributions:
       - path: plugins/{{distributionName}}/build/distributions/{{distributionName}}-{{projectVersion}}.zip
         transform: '{{distributionName}}/{{distributionName}}-{{projectEffectiveVersion}}.zip'
         extraProperties:
-          skipSpec: true
+          skipSpec: 'true'
       - path: plugins/{{distributionName}}/build/distributions/{{distributionName}}-{{projectVersion}}.tar
         transform: '{{distributionName}}/{{distributionName}}-{{projectEffectiveVersion}}.tar'
         extraProperties:
-          skipFlatpak: true
+          skipFlatpak: 'true'
 
   riot-standalone:
     appImage:
@@ -267,6 +267,6 @@ files:
   artifacts:
     - path: VERSION
       extraProperties:
-        skipChecksum: true
-        skipSigning: true
-        skipSbom: true
+        skipChecksum: 'true'
+        skipSigning: 'true'
+        skipSbom: 'true'

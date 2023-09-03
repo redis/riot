@@ -21,7 +21,6 @@ config {
         inceptionYear = '2020'
         vendor = 'Redis'
         tags = ['redis', 'tool', 'import', 'export', 'replication']
-        bytecodeVersion = 8
 
         links {
             website      = "https://github.com/redis-developer/${project.rootProject.name}"
