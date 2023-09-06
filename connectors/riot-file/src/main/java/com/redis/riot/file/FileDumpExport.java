@@ -46,57 +46,33 @@ public class FileDumpExport extends AbstractExport {
 
     private FileDumpType type;
 
-    public FileOptions getFileOptions() {
-        return fileOptions;
+    public FileDumpExport(AbstractRedisClient client, String file) {
+        super(client);
+        this.file = file;
     }
 
     public void setFileOptions(FileOptions fileOptions) {
         this.fileOptions = fileOptions;
     }
 
-    public FileDumpType getType() {
-        return type;
-    }
-
     public void setType(FileDumpType type) {
         this.type = type;
-    }
-
-    public boolean isAppend() {
-        return append;
     }
 
     public void setAppend(boolean append) {
         this.append = append;
     }
 
-    public String getRootName() {
-        return rootName;
-    }
-
     public void setRootName(String rootName) {
         this.rootName = rootName;
-    }
-
-    public String getElementName() {
-        return elementName;
     }
 
     public void setElementName(String elementName) {
         this.elementName = elementName;
     }
 
-    public String getLineSeparator() {
-        return lineSeparator;
-    }
-
     public void setLineSeparator(String lineSeparator) {
         this.lineSeparator = lineSeparator;
-    }
-
-    public FileDumpExport(AbstractRedisClient client, String file) {
-        super(client);
-        this.file = file;
     }
 
     @Override

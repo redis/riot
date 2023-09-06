@@ -110,8 +110,8 @@ public abstract class ReplicationTests extends AbstractTargetTestBase {
         Assertions.assertEquals(value1, targetCommands.get("string:" + key1));
     }
 
-    private KeyValueOperatorOptions operatorOptions(String keyExpression) {
-        KeyValueOperatorOptions operatorOptions = new KeyValueOperatorOptions();
+    private KeyValueProcessorOptions operatorOptions(String keyExpression) {
+        KeyValueProcessorOptions operatorOptions = new KeyValueProcessorOptions();
         operatorOptions.setKeyExpression(SpelUtils.parseTemplate(keyExpression));
         return operatorOptions;
     }

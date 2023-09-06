@@ -10,13 +10,13 @@ import picocli.CommandLine.Option;
 public class KeyFilterArgs {
 
     @Option(names = "--key-include", arity = "1..*", description = "Glob pattern to match keys for inclusion.", paramLabel = "<exp>")
-    private List<String> includes;
+    List<String> includes;
 
     @Option(names = "--key-exclude", arity = "1..*", description = "Glob pattern to match keys for exclusion.", paramLabel = "<exp>")
-    private List<String> excludes;
+    List<String> excludes;
 
     @Option(names = "--key-slots", arity = "1..*", description = "Key slot ranges to filter keyspace notifications.", paramLabel = "<range>")
-    private List<IntRange> slots;
+    List<IntRange> slots;
 
     public KeyFilterOptions keyFilterOptions() {
         KeyFilterOptions options = new KeyFilterOptions();

@@ -1,5 +1,6 @@
 package com.redis.riot.core;
 
+import java.io.PrintWriter;
 import java.time.Duration;
 
 import org.slf4j.Logger;
@@ -23,6 +24,7 @@ import com.redis.spring.batch.RedisItemReader;
 import com.redis.spring.batch.RedisItemReader.Mode;
 import com.redis.spring.batch.RedisItemWriter;
 import com.redis.spring.batch.ValueType;
+import com.redis.spring.batch.util.KeyComparison;
 import com.redis.spring.batch.util.KeyComparisonItemReader;
 
 import io.lettuce.core.AbstractRedisClient;
@@ -34,17 +36,19 @@ public class Replication extends AbstractExport {
 
     public static final String CONFIG_NOTIFY_KEYSPACE_EVENTS = "notify-keyspace-events";
 
-    public static final ValueType DEFAULT_VALUE_TYPE = ValueType.DUMP;
-
     public static final String STEP_LIVE = "live";
 
     public static final String STEP_SCAN = "scan";
 
     public static final String STEP_COMPARE = "compare";
 
+    public static final ValueType DEFAULT_VALUE_TYPE = ValueType.DUMP;
+
     private final Logger log = LoggerFactory.getLogger(Replication.class);
 
     private final AbstractRedisClient targetClient;
+
+    private PrintWriter out = new PrintWriter(System.out);
 
     private ReplicationMode mode = ReplicationMode.SNAPSHOT;
 
@@ -52,20 +56,25 @@ public class Replication extends AbstractExport {
 
     private boolean noVerify;
 
+    private boolean showDiff;
+
     private Duration ttlTolerance = KeyComparisonItemReader.DEFAULT_TTL_TOLERANCE;
+
+    private KeyValueProcessorOptions processorOptions = new KeyValueProcessorOptions();
 
     private RedisReaderOptions targetReaderOptions = new RedisReaderOptions();
 
     private RedisWriterOptions targetWriterOptions = new RedisWriterOptions();
 
-    private KeyValueOperatorOptions processorOptions = new KeyValueOperatorOptions();
-
-    public Replication(AbstractRedisClient client, AbstractRedisClient targetClient) {
-        super(client);
-        this.targetClient = targetClient;
+    public void setTargetReaderOptions(RedisReaderOptions targetReaderOptions) {
+        this.targetReaderOptions = targetReaderOptions;
     }
 
-    public void setProcessorOptions(KeyValueOperatorOptions options) {
+    public void setTargetWriterOptions(RedisWriterOptions targetWriterOptions) {
+        this.targetWriterOptions = targetWriterOptions;
+    }
+
+    public void setProcessorOptions(KeyValueProcessorOptions options) {
         this.processorOptions = options;
     }
 
@@ -81,16 +90,21 @@ public class Replication extends AbstractExport {
         this.ttlTolerance = tolerance;
     }
 
-    public void setTargetReaderOptions(RedisReaderOptions options) {
-        this.targetReaderOptions = options;
-    }
-
-    public void setTargetWriterOptions(RedisWriterOptions options) {
-        this.targetWriterOptions = options;
-    }
-
     public void setValueType(ValueType type) {
         this.valueType = type;
+    }
+
+    public void setShowDiff(boolean showDiff) {
+        this.showDiff = showDiff;
+    }
+
+    public Replication(AbstractRedisClient client, AbstractRedisClient targetClient) {
+        super(client);
+        this.targetClient = targetClient;
+    }
+
+    public void setOut(PrintWriter out) {
+        this.out = out;
     }
 
     @Override
@@ -156,8 +170,8 @@ public class Replication extends AbstractExport {
         RedisItemReader<byte[], byte[]> reader = reader(ByteArrayCodec.INSTANCE);
         reader.setMode(Mode.LIVE);
         StepBuilder<KeyValue<byte[]>, KeyValue<byte[]>> step = step(STEP_LIVE, reader);
-        step.flushingInterval(getRedisReaderOptions().getFlushingInterval());
-        step.idleTimeout(getRedisReaderOptions().getIdleTimeout());
+        step.flushingInterval(getReaderOptions().getFlushingInterval());
+        step.idleTimeout(getReaderOptions().getIdleTimeout());
         return step;
     }
 
@@ -176,12 +190,31 @@ public class Replication extends AbstractExport {
     }
 
     private Step compareStep() {
-        KeyComparisonItemReader reader = new KeyComparisonItemReader(reader(StringCodec.UTF8),
-                reader(targetClient, StringCodec.UTF8, targetReaderOptions));
+        KeyComparisonItemReader reader = comparisonReader();
+        KeyComparisonStatusCountItemWriter writer = comparisonWriter();
+        StepBuilder<KeyComparison, KeyComparison> step = step(STEP_COMPARE).reader(reader).writer(writer);
+        if (showDiff) {
+            step.addWriteListener(new KeyComparisonDiffLogger(out));
+        }
+        step.addExecutionListener(new KeyComparisonSummaryLogger(writer, out));
+        return build(step);
+    }
+
+    private KeyComparisonItemReader comparisonReader() {
+        RedisItemReader<String, String> leftReader = reader(StringCodec.UTF8);
+        RedisItemReader<String, String> rightReader = targetReader();
+        KeyComparisonItemReader reader = new KeyComparisonItemReader(leftReader, rightReader);
         reader.setTtlTolerance(ttlTolerance);
         reader.setName("compare-reader");
-        KeyComparisonStatusCountItemWriter writer = new KeyComparisonStatusCountItemWriter();
-        return build(step(STEP_COMPARE).reader(reader).writer(writer));
+        return reader;
+    }
+
+    private RedisItemReader<String, String> targetReader() {
+        return reader(targetClient, StringCodec.UTF8, targetReaderOptions);
+    }
+
+    private KeyComparisonStatusCountItemWriter comparisonWriter() {
+        return new KeyComparisonStatusCountItemWriter();
     }
 
     private ItemWriter<KeyValue<byte[]>> writer() {

@@ -1,4 +1,4 @@
-package com.redis.riot.cli;
+package com.redis.riot.core;
 
 import java.io.PrintWriter;
 
@@ -6,12 +6,11 @@ import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.listener.StepExecutionListenerSupport;
 
-import com.redis.riot.core.KeyComparisonStatusCountItemWriter;
 import com.redis.spring.batch.util.KeyComparison.Status;
 
 public class KeyComparisonSummaryLogger extends StepExecutionListenerSupport {
 
-    private static final String DETAIL_MSG = "    %s:      %,d";
+    private static final String DETAIL_MSG = "  %-7s %,10d";
 
     private final PrintWriter out;
 
@@ -31,7 +30,7 @@ public class KeyComparisonSummaryLogger extends StepExecutionListenerSupport {
             out.println("Verification completed: all OK");
             return ExitStatus.COMPLETED;
         }
-        out.format("Verification failed. Total keys: %,d", writer.getTotalCount());
+        out.println("Verification failed:");
         detail(Status.MISSING);
         detail(Status.TYPE);
         detail(Status.VALUE);
@@ -41,7 +40,7 @@ public class KeyComparisonSummaryLogger extends StepExecutionListenerSupport {
     }
 
     private void detail(Status status) {
-        out.format(DETAIL_MSG, status, writer.getCount(status));
+        out.println(String.format(DETAIL_MSG, status.name().toLowerCase(), writer.getCount(status)));
     }
 
 }

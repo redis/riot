@@ -20,7 +20,13 @@ public class RedisOperationArgs {
     @Option(names = "--write-pool", description = "Max connections for writer pool (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
     private int poolSize = RedisOperationOptions.DEFAULT_POOL_SIZE;
 
-    public void configure(RedisOperationOptions options) {
+    public RedisOperationOptions operationOptions() {
+        RedisOperationOptions options = new RedisOperationOptions();
+        configure(options);
+        return options;
+    }
+
+    protected void configure(RedisOperationOptions options) {
         options.setMultiExec(multiExec);
         options.setPoolSize(poolSize);
         options.setWaitReplicas(waitReplicas);

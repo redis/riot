@@ -1,7 +1,5 @@
 package com.redis.riot.file;
 
-import com.redis.riot.file.AmazonS3Options;
-import com.redis.riot.file.GoogleStorageOptions;
 import com.redis.riot.file.resource.AbstractResourceItemWriter;
 
 public class FileOptions {

@@ -14,24 +14,16 @@ import picocli.CommandLine.Parameters;
 public class FileDumpImportCommand extends AbstractKeyValueImportCommand {
 
     @Parameters(arity = "0..*", description = "One ore more files or URLs", paramLabel = "FILE")
-    private List<String> files;
+    List<String> files;
 
-    @ArgGroup(exclusive = false, heading = "File options%n")
-    private FileDumpArgs fileDumpArgs = new FileDumpArgs();
-
-    public List<String> getFiles() {
-        return files;
-    }
-
-    public void setFiles(List<String> files) {
-        this.files = files;
-    }
+    @ArgGroup(exclusive = false)
+    FileDumpArgs args = new FileDumpArgs();
 
     @Override
     protected FileDumpImport getKeyValueImportExecutable() {
         FileDumpImport executable = new FileDumpImport(redisClient(), files);
-        executable.setFileOptions(fileDumpArgs.fileOptions());
-        executable.setType(fileDumpArgs.getType());
+        executable.setFileOptions(args.fileOptions());
+        executable.setType(args.type);
         return executable;
     }
 

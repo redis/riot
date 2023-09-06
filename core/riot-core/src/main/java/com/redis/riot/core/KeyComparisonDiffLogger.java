@@ -1,4 +1,4 @@
-package com.redis.riot.cli;
+package com.redis.riot.core;
 
 import java.io.PrintWriter;
 import java.util.List;
@@ -23,7 +23,7 @@ public class KeyComparisonDiffLogger implements ItemWriteListener<KeyComparison>
 
     @Override
     public void afterWrite(List<? extends KeyComparison> items) {
-        items.stream().filter(c -> c.getStatus() != Status.OK).forEach(this::print);
+        items.stream().filter(this::notOK).map(this::toMessage).forEach(out::println);
     }
 
     @Override
@@ -31,25 +31,29 @@ public class KeyComparisonDiffLogger implements ItemWriteListener<KeyComparison>
         // do nothing
     }
 
-    public void print(KeyComparison comparison) {
+    public String toMessage(KeyComparison comparison) {
         switch (comparison.getStatus()) {
             case MISSING:
-                out.format("Missing key '%s'", comparison.getSource().getKey());
-                break;
+                return format("Missing key '%s'", comparison.getSource().getKey());
             case TTL:
-                out.format("TTL mismatch on key '%s': %,d != %,d", comparison.getSource().getKey(),
+                return format("TTL mismatch on key '%s': %,d != %,d", comparison.getSource().getKey(),
                         comparison.getSource().getTtl(), comparison.getTarget().getTtl());
-                break;
             case TYPE:
-                out.format("Type mismatch on key '%s': %s != %s", comparison.getSource().getKey(),
+                return format("Type mismatch on key '%s': %s != %s", comparison.getSource().getKey(),
                         comparison.getSource().getType(), comparison.getTarget().getType());
-                break;
             case VALUE:
-                out.format("Value mismatch on %s '%s'", comparison.getSource().getType(), comparison.getSource().getKey());
-                break;
+                return format("Value mismatch on %s '%s'", comparison.getSource().getType(), comparison.getSource().getKey());
             default:
-                break;
+                return "Unknown";
         }
+    }
+
+    private String format(String format, Object... args) {
+        return String.format(format, args);
+    }
+
+    private boolean notOK(KeyComparison comparison) {
+        return comparison.getStatus() != Status.OK;
     }
 
 }

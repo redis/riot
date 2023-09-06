@@ -42,14 +42,6 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.ServiceOptions;
 import com.google.cloud.storage.StorageOptions;
-import com.redis.riot.file.AmazonS3Options;
-import com.redis.riot.file.AmazonS3ProtocolResolver;
-import com.redis.riot.file.FileDumpType;
-import com.redis.riot.file.FileExtension;
-import com.redis.riot.file.FileOptions;
-import com.redis.riot.file.FileUtils;
-import com.redis.riot.file.GoogleStorageOptions;
-import com.redis.riot.file.RuntimeIOException;
 import com.redis.riot.file.resource.FilenameInputStreamResource;
 import com.redis.riot.file.resource.OutputStreamResource;
 import com.redis.riot.file.resource.UncustomizedUrlResource;
@@ -66,7 +58,6 @@ public abstract class FileUtils {
     public static final Pattern EXTENSION_PATTERN = Pattern.compile("(?i)\\.(?<extension>\\w+)(?:\\.(?<gz>gz))?$");
 
     private FileUtils() {
-
     }
 
     /**

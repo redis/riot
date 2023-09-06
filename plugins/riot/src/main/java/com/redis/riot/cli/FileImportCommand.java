@@ -16,34 +16,26 @@ import picocli.CommandLine.Parameters;
 public class FileImportCommand extends AbstractImportCommand {
 
     @Parameters(arity = "0..*", description = "One ore more files or URLs", paramLabel = "FILE")
-    private List<String> files = new ArrayList<>();
+    List<String> files = new ArrayList<>();
 
     @ArgGroup(exclusive = false, heading = "File options%n")
-    private FileImportArgs fileImportArgs = new FileImportArgs();
-
-    public List<String> getFiles() {
-        return files;
-    }
-
-    public void setFiles(List<String> files) {
-        this.files = files;
-    }
+    FileImportArgs args = new FileImportArgs();
 
     @Override
     protected AbstractMapImport getMapImportExecutable() {
         FileImport executable = new FileImport(redisClient(), files);
-        executable.setColumnRanges(fileImportArgs.getColumnRanges());
-        executable.setContinuationString(fileImportArgs.getContinuationString());
-        executable.setDelimiter(fileImportArgs.getDelimiter());
-        executable.setFields(fileImportArgs.getFields());
-        executable.setFileOptions(fileImportArgs.fileOptions());
-        executable.setFileType(fileImportArgs.getFileType());
-        executable.setHeader(fileImportArgs.isHeader());
-        executable.setHeaderLine(fileImportArgs.getHeaderLine());
-        executable.setIncludedFields(fileImportArgs.getIncludedFields());
-        executable.setLinesToSkip(fileImportArgs.getLinesToSkip());
-        executable.setMaxItemCount(fileImportArgs.getMaxItemCount());
-        executable.setQuoteCharacter(fileImportArgs.getQuoteCharacter());
+        executable.setColumnRanges(args.columnRanges);
+        executable.setContinuationString(args.continuationString);
+        executable.setDelimiter(args.delimiter);
+        executable.setFields(args.fields);
+        executable.setFileOptions(args.fileOptions());
+        executable.setFileType(args.fileType);
+        executable.setHeader(args.header);
+        executable.setHeaderLine(args.headerLine);
+        executable.setIncludedFields(args.includedFields);
+        executable.setLinesToSkip(args.linesToSkip);
+        executable.setMaxItemCount(args.maxItemCount);
+        executable.setQuoteCharacter(args.quoteCharacter);
         return executable;
     }
 

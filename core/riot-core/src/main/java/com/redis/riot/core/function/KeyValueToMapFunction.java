@@ -1,5 +1,6 @@
 package com.redis.riot.core.function;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,9 +14,7 @@ import com.redis.spring.batch.KeyValue;
 import io.lettuce.core.ScoredValue;
 import io.lettuce.core.StreamMessage;
 
-public class KeyValueToMapFunction implements Function<KeyValue<String>, Map<String, Object>> {
-
-    private final Function<String, Map<String, String>> keyFieldsExtractor;
+public class KeyValueToMapFunction implements Function<KeyValue<String>, Map<String, ?>> {
 
     private UnaryOperator<Map<String, String>> hash = UnaryOperator.identity();
 
@@ -35,8 +34,14 @@ public class KeyValueToMapFunction implements Function<KeyValue<String>, Map<Str
 
     private Function<Object, Map<String, String>> defaultFunction = s -> null;
 
-    public KeyValueToMapFunction(Function<String, Map<String, String>> keyFieldsExtractor) {
-        this.keyFieldsExtractor = keyFieldsExtractor;
+    private ToMapFunction<KeyValue<String>, String, String> toMapFunction = toMapFunction(t -> new LinkedHashMap<>());
+
+    public void setKeyFields(Function<String, Map<String, String>> keyFields) {
+        this.toMapFunction = toMapFunction(keyFunction().andThen(keyFields));
+    }
+
+    private Function<KeyValue<String>, String> keyFunction() {
+        return KeyValue::getKey;
     }
 
     public void setHash(UnaryOperator<Map<String, String>> function) {
@@ -68,44 +73,41 @@ public class KeyValueToMapFunction implements Function<KeyValue<String>, Map<Str
     }
 
     @Override
-    public Map<String, Object> apply(KeyValue<String> item) {
-        Map<String, Object> map = new LinkedHashMap<>();
-        if (item.getKey() != null) {
-            Map<String, String> keyFields = keyFieldsExtractor.apply(item.getKey());
-            if (keyFields != null) {
-                map.putAll(keyFields);
-            }
-        }
-        if (item.getType() != null && item.getValue() != null) {
-            Map<String, String> valueMap = valueMap(item.getType(), item.getValue());
-            if (valueMap != null) {
-                map.putAll(valueMap);
-            }
-        }
-        return map;
+    public Map<String, ?> apply(KeyValue<String> item) {
+        return toMapFunction.apply(item);
     }
 
     @SuppressWarnings("unchecked")
-    private Map<String, String> valueMap(String type, Object value) {
-        switch (type) {
+    private ToMapFunction<KeyValue<String>, String, String> toMapFunction(
+            Function<KeyValue<String>, Map<String, String>> keyFields) {
+        Function<KeyValue<String>, Map<String, String>> valueFunction = this::valueMap;
+        return new ToMapFunction<>(keyFields, valueFunction);
+    }
+
+    @SuppressWarnings("unchecked")
+    private Map<String, String> valueMap(KeyValue<String> keyValue) {
+        if (keyValue.getType() == null || keyValue.getValue() == null) {
+            return Collections.emptyMap();
+        }
+        switch (keyValue.getType()) {
             case KeyValue.HASH:
-                return hash.apply((Map<String, String>) value);
+                return hash.apply((Map<String, String>) keyValue.getValue());
             case KeyValue.LIST:
-                return list.apply((List<String>) value);
+                return list.apply((List<String>) keyValue.getValue());
             case KeyValue.SET:
-                return set.apply((Set<String>) value);
+                return set.apply((Set<String>) keyValue.getValue());
             case KeyValue.ZSET:
-                return zset.apply((List<ScoredValue<String>>) value);
+                return zset.apply((List<ScoredValue<String>>) keyValue.getValue());
             case KeyValue.STREAM:
-                return stream.apply((List<StreamMessage<String, String>>) value);
+                return stream.apply((List<StreamMessage<String, String>>) keyValue.getValue());
             case KeyValue.JSON:
-                return json.apply((String) value);
+                return json.apply((String) keyValue.getValue());
             case KeyValue.STRING:
-                return string.apply((String) value);
+                return string.apply((String) keyValue.getValue());
             case KeyValue.TIMESERIES:
-                return timeseries.apply((List<Sample>) value);
+                return timeseries.apply((List<Sample>) keyValue.getValue());
             default:
-                return defaultFunction.apply(value);
+                return defaultFunction.apply(keyValue.getValue());
         }
     }
 

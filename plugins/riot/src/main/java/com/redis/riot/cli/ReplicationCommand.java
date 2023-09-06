@@ -2,12 +2,9 @@ package com.redis.riot.cli;
 
 import java.time.Duration;
 
-import com.redis.riot.cli.RedisReaderArgs.ReadFromEnum;
-import com.redis.riot.core.AbstractJobExecutable;
+import com.redis.riot.core.AbstractExport;
 import com.redis.riot.core.EvaluationContextOptions;
-import com.redis.riot.core.KeyValueOperatorOptions;
-import com.redis.riot.core.RedisOperationOptions;
-import com.redis.riot.core.RedisReaderOptions;
+import com.redis.riot.core.KeyValueProcessorOptions;
 import com.redis.riot.core.Replication;
 import com.redis.riot.core.ReplicationMode;
 import com.redis.riot.core.StepBuilder;
@@ -20,7 +17,7 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 @Command(name = "replicate", description = "Replicate a Redis database into another Redis database.")
-public class ReplicationCommand extends AbstractJobCommand {
+public class ReplicationCommand extends AbstractExportCommand {
 
     // private static final String COMPARE_MESSAGE = " | {0} missing | {1} type | {2} value | {3} ttl";
     //
@@ -31,83 +28,54 @@ public class ReplicationCommand extends AbstractJobCommand {
     private static final String VAR_TARGET_REDIS_URI = "tgt";
 
     @Option(names = "--mode", description = "Replication mode: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<name>")
-    private ReplicationMode mode = ReplicationMode.SNAPSHOT;
+    ReplicationMode mode = ReplicationMode.SNAPSHOT;
 
     @Option(names = "--type", description = "Replication strategy: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<name>")
-    private ValueType valueType = ValueType.DUMP;
+    ValueType valueType = ValueType.DUMP;
 
     @Option(names = "--no-verify", description = "Disable verifying target against source dataset after replication.")
-    private boolean noVerify;
+    boolean noVerify;
 
-    @Option(names = "--ttl-tolerance", description = "Max TTL difference to use for dataset verification (default: ${DEFAULT-VALUE}).", paramLabel = "<ms>")
-    private long ttlTolerance = KeyComparisonItemReader.DEFAULT_TTL_TOLERANCE.toMillis();
+    @Option(names = "--ttl-tolerance", description = "Max TTL offset in millis to use for dataset verification (default: ${DEFAULT-VALUE}).", paramLabel = "<ms>")
+    long ttlTolerance = KeyComparisonItemReader.DEFAULT_TTL_TOLERANCE.toMillis();
 
     @Option(names = "--show-diffs", description = "Print details of key mismatches during dataset verification. Disables progress reporting.")
-    private boolean showDiffs; // TODO
-
-    @ArgGroup(exclusive = false, heading = "Source Redis reader options%n")
-    private RedisReaderArgs sourceReaderArgs = new RedisReaderArgs();
+    boolean showDiffs;
 
     @ArgGroup(exclusive = false, heading = "Processor options%n")
-    private KeyValueOperatorArgs processorArgs = new KeyValueOperatorArgs();
+    KeyValueProcessorArgs processorArgs = new KeyValueProcessorArgs();
 
     @ArgGroup(exclusive = false, heading = "Target Redis connection options%n")
-    private RedisArgs targetRedisArgs = new RedisArgs();
+    RedisArgs targetRedisArgs = new RedisArgs();
 
     @ArgGroup(exclusive = false, heading = "Target Redis reader options%n")
-    private TargetReaderArgs targetReaderArgs = new TargetReaderArgs();
+    ReplicationTargetReaderArgs targetReaderArgs = new ReplicationTargetReaderArgs();
 
     @ArgGroup(exclusive = false, heading = "Target Redis writer options%n")
-    private RedisWriterArgs targetWriterArgs = new RedisWriterArgs();
-
-    public ReplicationMode getMode() {
-        return mode;
-    }
-
-    public RedisReaderArgs getSourceReaderArgs() {
-        return sourceReaderArgs;
-    }
-
-    public TargetReaderArgs getTargetReaderArgs() {
-        return targetReaderArgs;
-    }
-
-    public RedisArgs getTargetRedisArgs() {
-        return targetRedisArgs;
-    }
+    RedisWriterArgs targetWriterArgs = new RedisWriterArgs();
 
     @Override
-    protected AbstractJobExecutable getJobExecutable() {
+    protected AbstractExport getExportExecutable() {
         Replication executable = new Replication(redisClient(), targetRedisArgs.client());
         executable.setProcessorOptions(processorOptions());
         executable.setMode(mode);
         executable.setNoVerify(noVerify);
         executable.setProcessorOptions(processorOptions());
-        executable.setTargetWriterOptions(targetWriterArgs.redisWriterOptions());
-        executable.setTargetReaderOptions(targetRedisReaderOptions());
-        executable.setTargetWriterOptions(targetWriterArgs.redisWriterOptions());
+        executable.setShowDiff(showDiffs);
+        executable.setOut(parent.out);
+        executable.setTargetReaderOptions(targetReaderArgs.readerOptions());
+        executable.setTargetWriterOptions(targetWriterArgs.writerOptions());
         executable.setTtlTolerance(Duration.ofMillis(ttlTolerance));
         executable.setValueType(valueType);
-        RedisReaderOptions redisReaderOptions = sourceReaderArgs.redisReaderOptions();
-        redisReaderOptions.setDatabase(redisArgs().uri().getDatabase());
-        executable.setRedisReaderOptions(redisReaderOptions);
+        executable.setReaderOptions(readerOptions());
         return executable;
     }
 
-    private KeyValueOperatorOptions processorOptions() {
-        KeyValueOperatorOptions options = processorArgs.keyValueOperatorOptions();
+    private KeyValueProcessorOptions processorOptions() {
+        KeyValueProcessorOptions options = processorArgs.keyValueOperatorOptions();
         EvaluationContextOptions evaluationContextOptions = options.getEvaluationContextOptions();
         evaluationContextOptions.addVariable(VAR_SOURCE_REDIS_URI, redisArgs().uri());
         evaluationContextOptions.addVariable(VAR_TARGET_REDIS_URI, targetRedisArgs.uri());
-        return options;
-    }
-
-    private RedisReaderOptions targetRedisReaderOptions() {
-        RedisReaderOptions options = new RedisReaderOptions();
-        options.setPoolSize(targetReaderArgs.poolSize);
-        if (targetReaderArgs.readFrom != null) {
-            options.setReadFrom(targetReaderArgs.readFrom.getValue());
-        }
         return options;
     }
 
@@ -120,29 +88,17 @@ public class ReplicationCommand extends AbstractJobCommand {
                 return "Listening";
             case Replication.STEP_COMPARE:
                 return "Comparing";
+            default:
+                return "Unknown";
         }
-        return "???";
     }
 
     @Override
     protected long size(StepBuilder<?, ?> step) {
-        switch (step.getName()) {
-            case Replication.STEP_SCAN:
-            case Replication.STEP_COMPARE:
-                return BatchUtils.size(step.getReader());
-            default:
-                return BatchUtils.SIZE_UNKNOWN;
+        if (Replication.STEP_COMPARE.equals(step.getName())) {
+            return BatchUtils.SIZE_UNKNOWN;
         }
-    }
-
-    private static class TargetReaderArgs {
-
-        @Option(names = "--target-read-pool", description = "Max connections for target Redis pool (default: ${DEFAULT-VALUE}).", paramLabel = "<n>")
-        private int poolSize = RedisOperationOptions.DEFAULT_POOL_SIZE;
-
-        @Option(names = "--target-read-from", description = "Which target Redis cluster nodes to read data from: ${COMPLETION-CANDIDATES}.", paramLabel = "<n>")
-        private ReadFromEnum readFrom;
-
+        return super.size(step);
     }
 
 }

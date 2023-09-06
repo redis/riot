@@ -4,8 +4,8 @@ import java.util.ResourceBundle;
 
 import org.slf4j.helpers.MessageFormatter;
 
-import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Mixin;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Spec;
@@ -29,9 +29,9 @@ public class BaseCommand {
 
     @Option(names = { "-H", "--help" }, usageHelp = true, description = "Show this help message and exit.")
     boolean helpRequested;
-    
-    @ArgGroup(exclusive=false)
-    private LoggingArgs loggingArgs = new LoggingArgs();
+
+    @Mixin
+    LoggingMixin loggingMixin = new LoggingMixin();
 
     protected String $(String key, Object... args) {
         if (null == args || args.length == 0) {

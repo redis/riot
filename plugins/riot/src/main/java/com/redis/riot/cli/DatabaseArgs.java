@@ -4,19 +4,19 @@ import com.redis.riot.db.DataSourceOptions;
 
 import picocli.CommandLine.Option;
 
-public class DataSourceArgs {
+public class DatabaseArgs {
 
     @Option(names = "--driver", description = "Fully qualified name of the JDBC driver.", paramLabel = "<class>")
-    private String driver;
+    String driver;
 
     @Option(names = "--url", required = true, description = "JDBC URL to connect to the database.", paramLabel = "<string>")
-    private String url;
+    String url;
 
     @Option(names = "--username", description = "Login username of the database.", paramLabel = "<string>")
-    private String username;
+    String username;
 
     @Option(names = "--password", arity = "0..1", interactive = true, description = "Login password of the database.", paramLabel = "<pwd>")
-    private String password;
+    String password;
 
     public DataSourceOptions dataSourceOptions() {
         DataSourceOptions options = new DataSourceOptions();

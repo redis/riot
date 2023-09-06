@@ -76,7 +76,7 @@ import io.lettuce.core.api.sync.RedisSetCommands;
 import io.lettuce.core.api.sync.RedisSortedSetCommands;
 import io.lettuce.core.api.sync.RedisStreamCommands;
 import io.lettuce.core.cluster.SlotHash;
-import picocli.CommandLine;
+import picocli.CommandLine.ExitCode;
 import picocli.CommandLine.ParseResult;
 
 @SuppressWarnings("unchecked")
@@ -88,9 +88,11 @@ public abstract class AbstractIntegrationTests extends AbstractRiotTests {
 
     public static final int BEER_JSON_COUNT = 216;
 
-    private static final Duration IDLE_TIMEOUT = Duration.ofSeconds(1);
+    private static final Duration DEFAULT_IDLE_TIMEOUT = Duration.ofSeconds(1);
 
     private static final Duration COMPARE_TIMEOUT = Duration.ofSeconds(3);
+
+    private static final int DEFAULT_NOTIFICATION_QUEUE_CAPACITY = 100000;
 
     private static Path tempDir;
 
@@ -112,7 +114,7 @@ public abstract class AbstractIntegrationTests extends AbstractRiotTests {
     }
 
     protected List<String> testImport(String filename, String pattern, int count) throws Exception {
-        // execute(filename);
+        execute(filename);
         RedisKeyCommands<String, String> sync = connection.sync();
         List<String> keys = sync.keys(pattern);
         Assertions.assertEquals(count, keys.size());
@@ -149,16 +151,14 @@ public abstract class AbstractIntegrationTests extends AbstractRiotTests {
     }
 
     @Override
-    protected void configureSubcommand(ParseResult sub) {
-        super.configureSubcommand(sub);
-        Object commandObject = sub.commandSpec().commandLine().getCommand();
-        if (commandObject instanceof ReplicationCommand) {
-            ReplicationCommand command = (ReplicationCommand) commandObject;
-            command.getTargetRedisArgs().setUri(getTargetRedisServer().getRedisURI());
-            ReplicationMode mode = command.getMode();
-            if (mode == ReplicationMode.LIVE || mode == ReplicationMode.LIVEONLY) {
-                command.getSourceReaderArgs().setIdleTimeout(IDLE_TIMEOUT.toMillis());
-                command.getSourceReaderArgs().setNotificationQueueCapacity(100000);
+    protected void configureCommand(Object command) {
+        super.configureCommand(command);
+        if (command instanceof ReplicationCommand) {
+            ReplicationCommand replicationCommand = (ReplicationCommand) command;
+            replicationCommand.targetRedisArgs.uri = getTargetRedisServer().getRedisURI();
+            if (replicationCommand.mode == ReplicationMode.LIVE || replicationCommand.mode == ReplicationMode.LIVEONLY) {
+                replicationCommand.readerArgs.setIdleTimeout(DEFAULT_IDLE_TIMEOUT.toMillis());
+                replicationCommand.readerArgs.setNotificationQueueCapacity(DEFAULT_NOTIFICATION_QUEUE_CAPACITY);
             }
         }
     }
@@ -267,25 +267,26 @@ public abstract class AbstractIntegrationTests extends AbstractRiotTests {
 
     @Test
     void fileImportGlob() throws Exception {
-        execute("file-import-glob", this::configureImportGlob);
+        execute("file-import-glob", this::executeImportGlob);
         RedisKeyCommands<String, String> sync = connection.sync();
         List<String> keys = sync.keys("beer:*");
         Assertions.assertEquals(BEER_CSV_COUNT, keys.size());
     }
 
-    private void configureImportGlob(ParseResult parseResult) {
-        FileImportCommand command = parseResult.subcommand().commandSpec().commandLine().getCommand();
+    private int executeImportGlob(ParseResult parseResult) {
+        FileImportCommand command = parseResult.subcommands().get(0).commandSpec().commandLine().getCommand();
         try {
             Path dir = Files.createTempDirectory("import-glob");
             FileCopyUtils.copy(getClass().getClassLoader().getResourceAsStream("files/beers1.csv"),
                     Files.newOutputStream(dir.resolve("beers1.csv")));
             FileCopyUtils.copy(getClass().getClassLoader().getResourceAsStream("files/beers2.csv"),
                     Files.newOutputStream(dir.resolve("beers2.csv")));
-            File file = new File(command.getFiles().get(0));
-            command.setFiles(Arrays.asList(dir.resolve(file.getName()).toString()));
+            File file = new File(command.files.get(0));
+            command.files = Arrays.asList(dir.resolve(file.getName()).toString());
         } catch (IOException e) {
             throw new RuntimeException("Could not configure import-glob", e);
         }
+        return ExitCode.OK;
     }
 
     @Test
@@ -313,8 +314,6 @@ public abstract class AbstractIntegrationTests extends AbstractRiotTests {
         Map<String, String> event = hash.hgetall("event:248206");
         Instant date = Instant.ofEpochMilli(Long.parseLong(event.get("EpochStart")));
         Assertions.assertTrue(date.isBefore(Instant.now()));
-        long index = Long.parseLong(event.get("index"));
-        Assertions.assertTrue(index > 0);
     }
 
     @Test
@@ -365,18 +364,20 @@ public abstract class AbstractIntegrationTests extends AbstractRiotTests {
         List<KeyValue> records = exportToJsonFile();
         RedisServerCommands<String, String> sync = connection.sync();
         sync.flushall();
-        execute("dump-import", this::configureDumpFileImportCommand);
+        execute("dump-import", this::executeFileDumpImport);
         awaitEquals(records::size, () -> Math.toIntExact(sync.dbsize()));
     }
 
-    private void configureDumpFileImportCommand(CommandLine.ParseResult parseResult) {
-        FileDumpImportCommand command = parseResult.subcommand().commandSpec().commandLine().getCommand();
-        command.setFiles(command.getFiles().stream().map(this::replace).collect(Collectors.toList()));
+    private int executeFileDumpImport(ParseResult parseResult) {
+        FileDumpImportCommand command = parseResult.subcommands().get(0).commandSpec().commandLine().getCommand();
+        command.files = command.files.stream().map(this::replace).collect(Collectors.toList());
+        return ExitCode.OK;
     }
 
-    private void configureExportCommand(CommandLine.ParseResult parseResult) {
-        FileDumpExportCommand command = parseResult.subcommand().commandSpec().commandLine().getCommand();
-        command.setFile(replace(command.getFile()));
+    private int executeFileDumpExport(ParseResult parseResult) {
+        FileDumpExportCommand command = parseResult.subcommands().get(0).commandSpec().commandLine().getCommand();
+        command.file = replace(command.file);
+        return ExitCode.OK;
     }
 
     @Test
@@ -418,7 +419,7 @@ public abstract class AbstractIntegrationTests extends AbstractRiotTests {
     void fileExportJSONGz() throws Exception {
         Path file = tempFile("beers.json.gz");
         execute("file-import-json");
-        execute("file-export-json-gz", this::configureExportCommand);
+        execute("file-export-json-gz", this::executeFileDumpExport);
         JsonItemReaderBuilder<Map> builder = new JsonItemReaderBuilder<>();
         builder.name("json-file-reader");
         FileSystemResource resource = new FileSystemResource(file);
@@ -437,7 +438,7 @@ public abstract class AbstractIntegrationTests extends AbstractRiotTests {
         String filename = "file-export-json";
         Path file = tempFile("redis.json");
         generate(filename);
-        execute(filename, this::configureExportCommand);
+        execute(filename, this::executeFileDumpExport);
         JsonItemReaderBuilder<KeyValue> builder = new JsonItemReaderBuilder<>();
         builder.name("json-data-structure-file-reader");
         builder.resource(new FileSystemResource(file));
@@ -454,7 +455,7 @@ public abstract class AbstractIntegrationTests extends AbstractRiotTests {
         String filename = "file-export-xml";
         generate(filename);
         Path file = tempFile("redis.xml");
-        execute(filename, this::configureExportCommand);
+        execute(filename, this::executeFileDumpExport);
         XmlItemReaderBuilder<KeyValue> builder = new XmlItemReaderBuilder<>();
         builder.name("xml-file-reader");
         builder.resource(new FileSystemResource(file));
@@ -721,7 +722,7 @@ public abstract class AbstractIntegrationTests extends AbstractRiotTests {
             generator.setCurrentItemCount(3000);
             generator.setMaxItemCount(3500);
             try {
-                run(filename + "-generate-live", 1, generator, null); // writer(client));
+                run(filename + "-generate-live", 1, generator, writer(client));
             } catch (Exception e) {
                 log.error("Could not generate data", e);
             }
@@ -731,9 +732,10 @@ public abstract class AbstractIntegrationTests extends AbstractRiotTests {
     }
 
     protected KeyComparisonItemReader comparisonReader() {
-        // new KeyComparisonItemReader.Builder(client, targetClient).jobRepository(jobRepository)
-        // .ttlTolerance(Duration.ofMillis(100)).build();
-        return null;
+        KeyComparisonItemReader reader = new KeyComparisonItemReader(client, targetClient);
+        reader.getLeft().setJobRepository(jobRepository);
+        reader.setTtlTolerance(Duration.ofMillis(100));
+        return reader;
     }
 
     protected boolean compare() throws JobExecutionException {

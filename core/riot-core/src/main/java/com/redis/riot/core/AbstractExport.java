@@ -13,18 +13,18 @@ import io.lettuce.core.codec.StringCodec;
 
 public abstract class AbstractExport extends AbstractJobExecutable {
 
-    private RedisReaderOptions redisReaderOptions = new RedisReaderOptions();
+    private RedisReaderOptions readerOptions = new RedisReaderOptions();
 
     protected AbstractExport(AbstractRedisClient client) {
         super(client);
     }
 
-    public RedisReaderOptions getRedisReaderOptions() {
-        return redisReaderOptions;
+    public RedisReaderOptions getReaderOptions() {
+        return readerOptions;
     }
 
-    public void setRedisReaderOptions(RedisReaderOptions options) {
-        this.redisReaderOptions = options;
+    public void setReaderOptions(RedisReaderOptions options) {
+        this.readerOptions = options;
     }
 
     protected RedisItemReader<String, String> reader() {
@@ -32,7 +32,7 @@ public abstract class AbstractExport extends AbstractJobExecutable {
     }
 
     protected <K, V> RedisItemReader<K, V> reader(RedisCodec<K, V> codec) {
-        return reader(client, codec, redisReaderOptions);
+        return reader(client, codec, readerOptions);
     }
 
     protected <K, V> RedisItemReader<K, V> reader(AbstractRedisClient client, RedisCodec<K, V> codec,

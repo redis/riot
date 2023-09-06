@@ -14,49 +14,49 @@ import picocli.CommandLine.Option;
 public class RedisReaderArgs {
 
     @Option(names = "--scan-match", description = "SCAN MATCH pattern.", paramLabel = "<glob>")
-    private String scanMatch;
+    String scanMatch;
 
     @Option(names = "--scan-count", description = "SCAN COUNT option.", paramLabel = "<int>")
-    private long scanCount = RedisReaderOptions.DEFAULT_SCAN_COUNT;
+    long scanCount = RedisReaderOptions.DEFAULT_SCAN_COUNT;
 
     @Option(names = "--scan-type", description = "SCAN TYPE option.", paramLabel = "<type>")
-    private String scanType;
+    String scanType;
 
     @Option(names = "--read-queue", description = "Capacity of the reader queue (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
-    private int queueCapacity = RedisReaderOptions.DEFAULT_QUEUE_CAPACITY;
+    int queueCapacity = RedisReaderOptions.DEFAULT_QUEUE_CAPACITY;
 
     @Option(names = "--read-threads", description = "Number of reader threads (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
-    private int threads = RedisReaderOptions.DEFAULT_THREADS;
+    int threads = RedisReaderOptions.DEFAULT_THREADS;
 
     @Option(names = "--read-batch", description = "Number of reader values to process at once (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
-    private int chunkSize = RedisReaderOptions.DEFAULT_CHUNK_SIZE;
+    int chunkSize = RedisReaderOptions.DEFAULT_CHUNK_SIZE;
 
     @Option(names = "--read-pool", description = "Max connections for reader pool (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
-    private int poolSize = RedisReaderOptions.DEFAULT_POOL_SIZE;
+    int poolSize = RedisReaderOptions.DEFAULT_POOL_SIZE;
 
     @Option(names = "--read-from", description = "Which Redis cluster nodes to read data from: ${COMPLETION-CANDIDATES}.", paramLabel = "<name>")
-    private ReadFromEnum readFrom;
+    ReadFromEnum readFrom;
 
-    @Option(names = "--mem-limit", description = "Maximum memory usage in MB for a key to be read. Use 0 to disable checks, use -1 to disable checks but report memory usage (default: 0).", paramLabel = "<MB>")
-    private DataSize memLimit;
+    @Option(names = "--mem-limit", description = "Maximum memory usage in megabytes for a key to be read. Use 0 to disable checks, use -1 to disable checks but report memory usage (default: 0).", paramLabel = "<MB>")
+    int memLimit;
 
     @Option(names = "--mem-samples", description = "Number of memory usage samples for a key (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
-    private int memSamples = RedisReaderOptions.DEFAULT_MEMORY_USAGE_SAMPLES;
+    int memSamples = RedisReaderOptions.DEFAULT_MEMORY_USAGE_SAMPLES;
 
     @Option(names = "--flush-interval", description = "Max duration between flushes (default: ${DEFAULT-VALUE}).", paramLabel = "<ms>")
-    private long flushInterval = RedisReaderOptions.DEFAULT_FLUSHING_INTERVAL.toMillis();
+    long flushInterval = RedisReaderOptions.DEFAULT_FLUSHING_INTERVAL.toMillis();
 
     @Option(names = "--idle-timeout", description = "Min duration of inactivity to consider transfer complete (default: no timeout).", paramLabel = "<ms>")
-    private Long idleTimeout;
+    Long idleTimeout;
 
     @Option(names = "--event-queue", description = "Capacity of the keyspace notification event queue (default: ${DEFAULT-VALUE}).", paramLabel = "<size>")
-    private int notificationQueueCapacity = RedisReaderOptions.DEFAULT_NOTIFICATION_QUEUE_CAPACITY;
+    int notificationQueueCapacity = RedisReaderOptions.DEFAULT_NOTIFICATION_QUEUE_CAPACITY;
 
     @Option(names = "--event-order", description = "Keyspace notification ordering strategy: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<name>")
-    private OrderingStrategy notificationOrdering = OrderingStrategy.PRIORITY;
+    OrderingStrategy notificationOrdering = OrderingStrategy.PRIORITY;
 
     @ArgGroup(exclusive = false)
-    private KeyFilterArgs keyFilterArgs = new KeyFilterArgs();
+    KeyFilterArgs keyFilterArgs = new KeyFilterArgs();
 
     public void setIdleTimeout(Long timeout) {
         this.idleTimeout = timeout;
@@ -74,7 +74,7 @@ public class RedisReaderArgs {
         if (idleTimeout != null) {
             options.setIdleTimeout(Duration.ofMillis(idleTimeout));
         }
-        options.setMemoryUsageLimit(memLimit);
+        options.setMemoryUsageLimit(DataSize.ofMegabytes(memLimit));
         options.setMemoryUsageSamples(memSamples);
         options.setNotificationQueueCapacity(notificationQueueCapacity);
         options.setOrderingStrategy(notificationOrdering);

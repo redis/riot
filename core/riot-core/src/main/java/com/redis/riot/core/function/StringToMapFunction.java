@@ -7,7 +7,9 @@ import java.util.function.UnaryOperator;
 
 public class StringToMapFunction implements Function<String, Map<String, String>> {
 
-    public static final UnaryOperator<String> DEFAULT_KEY_EXTRACTOR = s -> "value";
+    public static final String DEFAULT_KEY = "value";
+
+    public static final UnaryOperator<String> DEFAULT_KEY_EXTRACTOR = s -> DEFAULT_KEY;
 
     private UnaryOperator<String> keyExtractor = DEFAULT_KEY_EXTRACTOR;
 

@@ -1,6 +1,7 @@
 package com.redis.riot.db;
 
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import javax.sql.DataSource;
 
@@ -15,7 +16,7 @@ import org.springframework.lang.Nullable;
 import com.redis.riot.core.AbstractExport;
 import com.redis.riot.core.StepBuilder;
 import com.redis.riot.core.function.KeyValueToMapFunction;
-import com.redis.riot.core.function.RegexNamedGroupExtractor;
+import com.redis.riot.core.function.RegexNamedGroupFunction;
 import com.redis.spring.batch.KeyValue;
 import com.redis.spring.batch.ValueType;
 
@@ -28,9 +29,9 @@ public class DatabaseExport extends AbstractExport {
 
     public static final boolean DEFAULT_ASSERT_UPDATES = true;
 
-    public static final String DEFAULT_KEY_REGEX = "\\w+:(?<id>.+)";
+    public static final Pattern DEFAULT_KEY_PATTERN = Pattern.compile("\\w+:(?<id>.+)");
 
-    private String keyRegex = DEFAULT_KEY_REGEX;
+    private Pattern keyPattern = DEFAULT_KEY_PATTERN;
 
     private boolean assertUpdates = DEFAULT_ASSERT_UPDATES;
 
@@ -57,37 +58,39 @@ public class DatabaseExport extends AbstractExport {
         this.assertUpdates = assertUpdates;
     }
 
-    public String getKeyRegex() {
-        return keyRegex;
+    public Pattern getKeyPattern() {
+        return keyPattern;
     }
 
-    public void setKeyRegex(String keyRegex) {
-        this.keyRegex = keyRegex;
+    public void setKeyPattern(Pattern pattern) {
+        this.keyPattern = pattern;
     }
 
     @Override
     protected Job job() {
-        StepBuilder<KeyValue<String>, Map<String, Object>> step = step(getName()).reader(reader(StringCodec.UTF8))
-                .writer(writer());
+        StepBuilder<KeyValue<String>, Map<String, ?>> step = step(getName()).reader(reader(StringCodec.UTF8)).writer(writer());
         step.processor(processor());
         return jobBuilder().start(build(step)).build();
     }
 
-    private JdbcBatchItemWriter<Map<String, Object>> writer() {
+    private JdbcBatchItemWriter<Map<String, ?>> writer() {
         DataSource dataSource = DatabaseUtils.dataSource(dataSourceOptions);
-        JdbcBatchItemWriterBuilder<Map<String, Object>> builder = new JdbcBatchItemWriterBuilder<>();
+        JdbcBatchItemWriterBuilder<Map<String, ?>> builder = new JdbcBatchItemWriterBuilder<>();
         builder.itemSqlParameterSourceProvider(NullableSqlParameterSource::new);
         builder.dataSource(dataSource);
         builder.sql(sql);
         builder.assertUpdates(assertUpdates);
-        JdbcBatchItemWriter<Map<String, Object>> writer = builder.build();
+        JdbcBatchItemWriter<Map<String, ?>> writer = builder.build();
         writer.afterPropertiesSet();
         return writer;
     }
 
-    private ItemProcessor<KeyValue<String>, Map<String, Object>> processor() {
-        RegexNamedGroupExtractor keyFieldExtractor = new RegexNamedGroupExtractor(keyRegex);
-        return new FunctionItemProcessor<>(new KeyValueToMapFunction(keyFieldExtractor));
+    private ItemProcessor<KeyValue<String>, Map<String, ?>> processor() {
+        KeyValueToMapFunction function = new KeyValueToMapFunction();
+        if (keyPattern != null) {
+            function.setKeyFields(new RegexNamedGroupFunction(keyPattern));
+        }
+        return new FunctionItemProcessor<>(function);
     }
 
     private static class NullableSqlParameterSource extends MapSqlParameterSource {

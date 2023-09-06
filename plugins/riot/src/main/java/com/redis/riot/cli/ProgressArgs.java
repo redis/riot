@@ -1,34 +1,21 @@
 package com.redis.riot.cli;
 
-import me.tongfei.progressbar.ProgressBarBuilder;
 import me.tongfei.progressbar.ProgressBarStyle;
 import picocli.CommandLine.Option;
 
 public class ProgressArgs {
 
-    public enum ProgressStyle {
+    public enum Style {
         BLOCK, BAR, ASCII, LOG, NONE
     }
 
     @Option(names = "--progress", description = "Progress style: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<style>")
-    private ProgressStyle style = ProgressStyle.ASCII;
+    Style style = Style.ASCII;
 
     @Option(names = "--progress-interval", description = "Progress update interval in millis (default: ${DEFAULT-VALUE}).", paramLabel = "<ms>", hidden = true)
-    private int updateInterval = 300;
+    int updateInterval = 300;
 
-    public ProgressBarBuilder progressBar() {
-        ProgressBarBuilder progressBar = new ProgressBarBuilder();
-        progressBar.setStyle(style());
-        progressBar.setUpdateIntervalMillis(updateInterval);
-        progressBar.showSpeed();
-        if (style == ProgressStyle.LOG) {
-            throw new UnsupportedOperationException();
-            // TODO pbb.setConsumer(new DelegatingProgressBarConsumer(logger));
-        }
-        return progressBar;
-    }
-
-    private ProgressBarStyle style() {
+    public ProgressBarStyle style() {
         switch (style) {
             case BAR:
                 return ProgressBarStyle.COLORFUL_UNICODE_BAR;
@@ -37,6 +24,10 @@ public class ProgressArgs {
             default:
                 return ProgressBarStyle.ASCII;
         }
+    }
+
+    public boolean isLog() {
+        return style == Style.LOG;
     }
 
 }

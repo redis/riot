@@ -1,5 +1,6 @@
 package com.redis.riot.file;
 
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -13,10 +14,6 @@ import org.springframework.batch.item.json.JsonItemReader;
 import org.springframework.core.io.Resource;
 
 import com.redis.riot.core.AbstractKeyValueImport;
-import com.redis.riot.file.FileDumpFunction;
-import com.redis.riot.file.FileDumpType;
-import com.redis.riot.file.FileOptions;
-import com.redis.riot.file.FileUtils;
 import com.redis.riot.file.resource.XmlItemReader;
 import com.redis.spring.batch.KeyValue;
 
@@ -30,29 +27,21 @@ public class FileDumpImport extends AbstractKeyValueImport {
 
     private FileDumpType type;
 
+    public FileDumpImport(AbstractRedisClient client, String... files) {
+        this(client, Arrays.asList(files));
+    }
+
     public FileDumpImport(AbstractRedisClient client, List<String> files) {
         super(client);
         this.files = files;
     }
 
-    public FileDumpType getType() {
-        return type;
+    public void setFileOptions(FileOptions fileOptions) {
+        this.fileOptions = fileOptions;
     }
 
     public void setType(FileDumpType type) {
         this.type = type;
-    }
-
-    public List<String> getFiles() {
-        return files;
-    }
-
-    public FileOptions getFileOptions() {
-        return fileOptions;
-    }
-
-    public void setFileOptions(FileOptions options) {
-        this.fileOptions = options;
     }
 
     @Override

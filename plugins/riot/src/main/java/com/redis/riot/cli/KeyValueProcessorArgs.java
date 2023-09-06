@@ -2,28 +2,28 @@ package com.redis.riot.cli;
 
 import org.springframework.expression.Expression;
 
-import com.redis.riot.core.KeyValueOperatorOptions;
+import com.redis.riot.core.KeyValueProcessorOptions;
 import com.redis.riot.core.TemplateExpression;
 
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Option;
 
-public class KeyValueOperatorArgs {
+public class KeyValueProcessorArgs {
 
     @Option(names = "--key-proc", description = "SpEL template expression to transform the name of each key.", paramLabel = "<exp>")
-    private TemplateExpression keyExpression;
+    TemplateExpression keyExpression;
 
-    @Option(names = "--type-proc", description = "SpEL template expression to transform the type of each key.", paramLabel = "<exp>")
-    private TemplateExpression typeExpression;
+    @Option(names = "--type-proc", description = "SpEL expression to transform the type of each key.", paramLabel = "<exp>")
+    Expression typeExpression;
 
     @Option(names = "--ttl-proc", description = "SpEL expression to transform the TTL of each key.", paramLabel = "<exp>")
-    private Expression ttlExpression;
+    Expression ttlExpression;
 
     @ArgGroup(exclusive = false)
-    private EvaluationContextArgs evaluationContextArgs = new EvaluationContextArgs();
+    EvaluationContextArgs evaluationContextArgs = new EvaluationContextArgs();
 
-    public KeyValueOperatorOptions keyValueOperatorOptions() {
-        KeyValueOperatorOptions options = new KeyValueOperatorOptions();
+    public KeyValueProcessorOptions keyValueOperatorOptions() {
+        KeyValueProcessorOptions options = new KeyValueProcessorOptions();
         options.setKeyExpression(keyExpression);
         options.setTtlExpression(ttlExpression);
         options.setTypeExpression(typeExpression);

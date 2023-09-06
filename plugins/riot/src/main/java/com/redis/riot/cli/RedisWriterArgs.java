@@ -5,10 +5,9 @@ import com.redis.spring.batch.RedisItemWriter.MergePolicy;
 import com.redis.spring.batch.RedisItemWriter.StreamIdPolicy;
 import com.redis.spring.batch.RedisItemWriter.TtlPolicy;
 
-import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Option;
 
-public class RedisWriterArgs {
+public class RedisWriterArgs extends RedisOperationArgs {
 
     @Option(names = "--no-ttl", description = "Disables key expiry.")
     private boolean noTtl;
@@ -19,12 +18,9 @@ public class RedisWriterArgs {
     @Option(names = "--no-stream-id", description = "Disables propagation of stream message IDs.")
     private boolean noStreamId;
 
-    @ArgGroup(exclusive = false)
-    private RedisOperationArgs operationArgs = new RedisOperationArgs();
-
-    public RedisWriterOptions redisWriterOptions() {
+    public RedisWriterOptions writerOptions() {
         RedisWriterOptions options = new RedisWriterOptions();
-        operationArgs.configure(options);
+        configure(options);
         options.setMergePolicy(mergePolicy());
         options.setStreamIdPolicy(streamPolicy());
         options.setTtlPolicy(ttlPolicy());

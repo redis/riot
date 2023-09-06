@@ -2,10 +2,7 @@ package com.redis.riot.cli;
 
 import java.io.PrintWriter;
 
-import org.slf4j.event.Level;
 import org.springframework.expression.Expression;
-import org.springframework.util.unit.DataSize;
-import org.springframework.util.unit.DataUnit;
 
 import com.redis.riot.cli.operation.OperationCommand;
 import com.redis.riot.core.SpelUtils;
@@ -17,6 +14,7 @@ import picocli.AutoComplete.GenerateCompletion;
 import picocli.CommandLine;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.IExecutionStrategy;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.ParseResult;
 import picocli.CommandLine.RunFirst;
@@ -27,35 +25,15 @@ import picocli.CommandLine.RunLast;
         ReplicationCommand.class, PingCommand.class, GenerateCompletion.class })
 public class Main extends BaseCommand implements Runnable {
 
-    private PrintWriter out;
+    PrintWriter out;
 
-    private PrintWriter err;
+    PrintWriter err;
 
     @Option(names = { "-V", "--version" }, versionHelp = true, description = "Print version information and exit.")
-    private boolean versionRequested;
+    boolean versionRequested;
 
     @ArgGroup(exclusive = false, heading = "Redis connection options%n")
-    private RedisArgs redisArgs = new RedisArgs();
-
-    public PrintWriter getOut() {
-        return out;
-    }
-
-    public void setOut(PrintWriter out) {
-        this.out = out;
-    }
-
-    public PrintWriter getErr() {
-        return err;
-    }
-
-    public void setErr(PrintWriter err) {
-        this.err = err;
-    }
-
-    public RedisArgs getRedisArgs() {
-        return redisArgs;
-    }
+    RedisArgs redisArgs = new RedisArgs();
 
     @Override
     public void run() {
@@ -63,43 +41,40 @@ public class Main extends BaseCommand implements Runnable {
     }
 
     public static void main(String[] args) {
-        LoggingArgs.setLogLevel(org.slf4j.impl.SimpleLogger.DEFAULT_LOG_LEVEL_KEY, Level.ERROR);
         System.exit(run(args));
     }
 
     public static int run(String... args) {
         Main cmd = new Main();
-        CommandLine commandLine = commandLine(cmd);
+        CommandLine commandLine = new CommandLine(cmd);
         cmd.out = commandLine.getOut();
         cmd.err = commandLine.getErr();
         return execute(commandLine, args);
     }
 
-    public static int run(PrintWriter out, PrintWriter err, String... args) {
+    public static int run(PrintWriter out, PrintWriter err, String[] args, IExecutionStrategy... executionStrategies) {
         Main cmd = new Main();
-        CommandLine commandLine = commandLine(cmd);
+        CommandLine commandLine = new CommandLine(cmd);
         commandLine.setOut(out);
         commandLine.setErr(err);
         cmd.out = out;
         cmd.err = err;
-        return execute(commandLine, args);
+        return execute(commandLine, args, executionStrategies);
     }
 
-    private static int execute(CommandLine commandLine, String[] args) {
-        return commandLine.execute(args);
-    }
-
-    public static CommandLine commandLine(Main cmd) {
-        CommandLine commandLine = new CommandLine(cmd);
-        commandLine.setExecutionStrategy(Main::executionStrategy);
+    private static int execute(CommandLine commandLine, String[] args, IExecutionStrategy... executionStrategies) {
+        CompositeExecutionStrategy executionStrategy = new CompositeExecutionStrategy();
+        executionStrategy.addDelegates(executionStrategies);
+        executionStrategy.addDelegates(LoggingMixin::executionStrategy);
+        executionStrategy.addDelegates(Main::executionStrategy);
+        commandLine.setExecutionStrategy(executionStrategy);
         commandLine.registerConverter(IntRange.class, Main::intRange);
         commandLine.registerConverter(DoubleRange.class, Main::doubleRange);
-        commandLine.registerConverter(DataSize.class, Main::dataSize);
         commandLine.registerConverter(Expression.class, SpelUtils::parse);
         commandLine.registerConverter(TemplateExpression.class, SpelUtils::parseTemplate);
         commandLine.setCaseInsensitiveEnumValuesAllowed(true);
         commandLine.setUnmatchedOptionsAllowedAsOptionParameters(false);
-        return commandLine;
+        return commandLine.execute(args);
     }
 
     private static int executionStrategy(ParseResult parseResult) {
@@ -133,10 +108,6 @@ public class Main extends BaseCommand implements Runnable {
             return defaultValue;
         }
         return Double.parseDouble(string);
-    }
-
-    public static DataSize dataSize(String value) {
-        return DataSize.parse(value, DataUnit.MEGABYTES);
     }
 
     public static IntRange intRange(String value) {

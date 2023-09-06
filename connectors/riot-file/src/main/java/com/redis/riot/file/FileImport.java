@@ -31,27 +31,19 @@ import org.springframework.util.ObjectUtils;
 
 import com.redis.riot.core.AbstractMapImport;
 import com.redis.riot.core.StepBuilder;
-import com.redis.riot.file.FileExtension;
-import com.redis.riot.file.FileImport;
-import com.redis.riot.file.FileOptions;
-import com.redis.riot.file.FileType;
-import com.redis.riot.file.FileUtils;
-import com.redis.riot.file.HeaderCallbackHandler;
-import com.redis.riot.file.MapFieldSetMapper;
-import com.redis.riot.file.UnknownFileTypeException;
 import com.redis.riot.file.resource.XmlItemReader;
 
 import io.lettuce.core.AbstractRedisClient;
 
 public class FileImport extends AbstractMapImport {
 
-    private final Logger log = LoggerFactory.getLogger(FileImport.class);
-
-    private static final String PIPE_DELIMITER = "|";
-
     public static final String DEFAULT_CONTINUATION_STRING = "\\";
 
     public static final Character DEFAULT_QUOTE_CHARACTER = DelimitedLineTokenizer.DEFAULT_QUOTE_CHARACTER;
+
+    private final Logger log = LoggerFactory.getLogger(FileImport.class);
+
+    private static final String PIPE_DELIMITER = "|";
 
     private final List<String> files;
 
@@ -89,32 +81,20 @@ public class FileImport extends AbstractMapImport {
         this.files = files;
     }
 
-    public FileType getFileType() {
-        return fileType;
+    public void setFileOptions(FileOptions fileOptions) {
+        this.fileOptions = fileOptions;
     }
 
     public void setFileType(FileType fileType) {
         this.fileType = fileType;
     }
 
-    public Integer getMaxItemCount() {
-        return maxItemCount;
-    }
-
     public void setMaxItemCount(Integer maxItemCount) {
         this.maxItemCount = maxItemCount;
     }
 
-    public List<String> getFields() {
-        return fields;
-    }
-
     public void setFields(List<String> names) {
         this.fields = names;
-    }
-
-    public boolean isHeader() {
-        return header;
     }
 
     public void setHeader(boolean header) {
@@ -125,64 +105,28 @@ public class FileImport extends AbstractMapImport {
         this.delimiter = delimiter;
     }
 
-    public Integer getHeaderLine() {
-        return headerLine;
-    }
-
     public void setHeaderLine(Integer index) {
         this.headerLine = index;
-    }
-
-    public Integer getLinesToSkip() {
-        return linesToSkip;
     }
 
     public void setLinesToSkip(Integer linesToSkip) {
         this.linesToSkip = linesToSkip;
     }
 
-    public int[] getIncludedFields() {
-        return includedFields;
-    }
-
     public void setIncludedFields(int... indexes) {
         this.includedFields = indexes;
-    }
-
-    public List<String> getColumnRanges() {
-        return columnRanges;
     }
 
     public void setColumnRanges(List<String> columnRanges) {
         this.columnRanges = columnRanges;
     }
 
-    public String getDelimiter() {
-        return delimiter;
-    }
-
-    public Character getQuoteCharacter() {
-        return quoteCharacter;
-    }
-
     public void setQuoteCharacter(Character quoteCharacter) {
         this.quoteCharacter = quoteCharacter;
     }
 
-    public String getContinuationString() {
-        return continuationString;
-    }
-
     public void setContinuationString(String continuationString) {
         this.continuationString = continuationString;
-    }
-
-    public FileOptions getFileOptions() {
-        return fileOptions;
-    }
-
-    public void setFileOptions(FileOptions options) {
-        this.fileOptions = options;
     }
 
     @Override

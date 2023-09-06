@@ -12,23 +12,23 @@ import picocli.CommandLine.Option;
 public class PingCommand extends AbstractCommand {
 
     @Option(names = "--iterations", description = "Number of test iterations. Use a negative value to test endlessly. (default: ${DEFAULT-VALUE}).", paramLabel = "<count>")
-    private int iterations = com.redis.riot.core.Ping.DEFAULT_ITERATIONS;
+    int iterations = com.redis.riot.core.Ping.DEFAULT_ITERATIONS;
 
     @Option(names = "--count", description = "Number of pings to perform per iteration (default: ${DEFAULT-VALUE}).", paramLabel = "<count>")
-    private int count = com.redis.riot.core.Ping.DEFAULT_COUNT;
+    int count = com.redis.riot.core.Ping.DEFAULT_COUNT;
 
     @Option(names = "--unit", description = "Time unit used to display latencies (default: ${DEFAULT-VALUE}).", paramLabel = "<unit>")
-    private TimeUnit timeUnit = com.redis.riot.core.Ping.DEFAULT_TIME_UNIT;
+    TimeUnit timeUnit = com.redis.riot.core.Ping.DEFAULT_TIME_UNIT;
 
     @Option(names = "--distribution", description = "Show latency distribution.")
-    private boolean latencyDistribution;
+    boolean latencyDistribution;
 
     @Option(arity = "0..*", names = "--percentiles", description = "Latency percentiles to display (default: ${DEFAULT-VALUE}).", paramLabel = "<p>")
-    private double[] percentiles = com.redis.riot.core.Ping.DEFAULT_PERCENTILES;
+    double[] percentiles = com.redis.riot.core.Ping.DEFAULT_PERCENTILES;
 
     @Override
     protected Executable getExecutable() {
-        Ping executable = new Ping(parent.getRedisArgs().client(), parent.getOut());
+        Ping executable = new Ping(parent.redisArgs.client(), parent.out);
         executable.setCount(count);
         executable.setIterations(iterations);
         executable.setLatencyDistribution(latencyDistribution);

@@ -34,6 +34,10 @@ public class ExpressionFunction<T, R> implements Function<T, R> {
         return expression.getValue(context, t, type);
     }
 
+    public static <T, R> ExpressionFunction<T, R> of(EvaluationContext context, Expression expression, Class<R> type) {
+        return new ExpressionFunction<>(context, expression, type);
+    }
+
     public static <T> ExpressionFunction<T, String> of(EvaluationContext context, TemplateExpression expression) {
         return new ExpressionFunction<>(context, expression.getExpression(), String.class);
     }

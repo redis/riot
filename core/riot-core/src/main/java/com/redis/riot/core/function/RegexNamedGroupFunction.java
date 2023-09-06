@@ -1,5 +1,6 @@
 package com.redis.riot.core.function;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -8,7 +9,7 @@ import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class RegexNamedGroupExtractor implements Function<String, Map<String, String>> {
+public class RegexNamedGroupFunction implements Function<String, Map<String, String>> {
 
     private static final String NAMED_GROUPS = "\\(\\?<([a-zA-Z][a-zA-Z0-9]*)>";
 
@@ -16,10 +17,10 @@ public class RegexNamedGroupExtractor implements Function<String, Map<String, St
 
     private final Set<String> namedGroups;
 
-    public RegexNamedGroupExtractor(String regex) {
-        this.pattern = Pattern.compile(regex);
+    public RegexNamedGroupFunction(Pattern pattern) {
+        this.pattern = pattern;
         this.namedGroups = new TreeSet<>();
-        Matcher m = Pattern.compile(NAMED_GROUPS).matcher(regex);
+        Matcher m = Pattern.compile(NAMED_GROUPS).matcher(pattern.pattern());
         while (m.find()) {
             namedGroups.add(m.group(1));
         }
@@ -27,14 +28,15 @@ public class RegexNamedGroupExtractor implements Function<String, Map<String, St
 
     @Override
     public Map<String, String> apply(String string) {
-        Map<String, String> fields = new HashMap<>();
         Matcher matcher = pattern.matcher(string);
         if (matcher.find()) {
+            Map<String, String> fields = new HashMap<>();
             for (String name : namedGroups) {
                 fields.put(name, matcher.group(name));
             }
+            return fields;
         }
-        return fields;
+        return Collections.emptyMap();
     }
 
 }

@@ -12,16 +12,16 @@ import picocli.CommandLine.Option;
 public class FileArgs {
 
     @Option(names = "--encoding", description = "File encoding (default: ${DEFAULT-VALUE}).", paramLabel = "<charset>")
-    private String encoding = FileOptions.DEFAULT_ENCODING;
+    String encoding = FileOptions.DEFAULT_ENCODING;
 
     @Option(names = { "-z", "--gzip" }, description = "File is gzip compressed.")
-    private boolean gzipped;
+    boolean gzipped;
 
     @ArgGroup(exclusive = false)
-    private S3Args s3 = new S3Args();
+    S3Args s3 = new S3Args();
 
     @ArgGroup(exclusive = false)
-    private GcsArgs gcs = new GcsArgs();
+    GcsArgs gcs = new GcsArgs();
 
     public FileOptions fileOptions() {
         FileOptions options = new FileOptions();

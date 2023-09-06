@@ -30,85 +30,77 @@ public class RedisArgs {
     public static final Duration DEFAULT_METRICS_STEP = Duration.ofSeconds(5);
 
     @Option(names = { "-u", "--uri" }, description = "Redis server URI.", paramLabel = "<uri>")
-    private String uri;
+    String uri;
 
-    @Option(names = { "-h", "--hostname" }, description = "Server hostname (default: ${DEFAULT-VALUE}).", paramLabel = "<host>")
-    private String host = DEFAULT_HOST;
+    @Option(names = { "-h", "--host" }, description = "Server hostname (default: ${DEFAULT-VALUE}).", paramLabel = "<host>")
+    String host = DEFAULT_HOST;
 
     @Option(names = { "-p", "--port" }, description = "Server port (default: ${DEFAULT-VALUE}).", paramLabel = "<port>")
-    private int port = DEFAULT_PORT;
+    int port = DEFAULT_PORT;
 
     @Option(names = { "-s", "--socket" }, description = "Server socket (overrides hostname and port).", paramLabel = "<socket>")
-    private String socket;
+    String socket;
 
     @Option(names = "--user", description = "ACL style 'AUTH username pass'. Needs password.", paramLabel = "<name>")
-    private String username;
+    String username;
 
     @Option(names = { "-a",
             "--pass" }, arity = "0..1", interactive = true, description = "Password to use when connecting to the server.", paramLabel = "<password>")
-    private char[] password;
+    char[] password;
 
     @Option(names = "--timeout", description = "Redis command timeout in seconds.", paramLabel = "<sec>")
-    private Long timeout;
+    Long timeout;
 
     @Option(names = { "-n", "--db" }, description = "Database number.", paramLabel = "<db>")
-    private int database;
+    int database;
 
     @Option(names = { "-c", "--cluster" }, description = "Enable cluster mode.")
-    private boolean cluster;
+    boolean cluster;
 
     @Option(names = "--tls", description = "Establish a secure TLS connection.")
-    private boolean tls;
+    boolean tls;
 
     @Option(names = "--insecure", description = "Allow insecure TLS connection by skipping cert validation.")
-    private boolean insecure;
+    boolean insecure;
 
     @Option(names = "--ks", description = "Path to keystore.", paramLabel = "<file>", hidden = true)
-    private File keystore;
+    File keystore;
 
     @Option(names = "--ks-pwd", arity = "0..1", interactive = true, description = "Keystore password.", paramLabel = "<pwd>", hidden = true)
-    private char[] keystorePassword;
+    char[] keystorePassword;
 
     @Option(names = "--ts", description = "Path to truststore.", paramLabel = "<file>", hidden = true)
-    private File truststore;
+    File truststore;
 
     @Option(names = "--ts-pwd", arity = "0..1", interactive = true, description = "Truststore password.", paramLabel = "<pwd>", hidden = true)
-    private char[] truststorePassword;
+    char[] truststorePassword;
 
     @Option(names = "--cert", description = "X.509 cert chain file to authenticate (PEM).", paramLabel = "<file>")
-    private File keyCert;
+    File keyCert;
 
     @Option(names = "--key", description = "PKCS#8 private key file to authenticate (PEM).", paramLabel = "<file>")
-    private File key;
+    File key;
 
     @Option(names = "--key-pwd", arity = "0..1", interactive = true, description = "Private key password.", paramLabel = "<pwd>")
-    private char[] keyPassword;
+    char[] keyPassword;
 
     @Option(names = "--cacert", description = "X.509 CA certificate file to verify with.", paramLabel = "<file>")
-    private File trustedCerts;
+    File trustedCerts;
 
     @Option(names = "--metrics", description = "Show latency metrics.")
-    private boolean showMetrics;
+    boolean showMetrics;
 
     @Option(names = "--metrics-step", description = "Metrics publish interval in seconds (default: ${DEFAULT-VALUE}).", paramLabel = "<secs>", hidden = true)
-    private long metricsStep = DEFAULT_METRICS_STEP.toSeconds();
+    long metricsStep = DEFAULT_METRICS_STEP.toSeconds();
 
     @Option(names = "--no-auto-reconnect", description = "Disable auto-reconnect on connection loss.")
-    private boolean noAutoReconnect;
+    boolean noAutoReconnect;
 
     @Option(names = "--client", description = "Client name used to connect to Redis.", paramLabel = "<name>")
-    private String clientName;
+    String clientName;
 
     @Option(names = "--resp", description = "Redis protocol version used to connect to Redis: ${COMPLETION-CANDIDATES}.", paramLabel = "<ver>")
-    private ProtocolVersion protocolVersion;
-
-    public void setUri(String uri) {
-        this.uri = uri;
-    }
-
-    public void setCluster(boolean cluster) {
-        this.cluster = cluster;
-    }
+    ProtocolVersion protocolVersion;
 
     @SuppressWarnings("deprecation")
     public RedisURI uri() {

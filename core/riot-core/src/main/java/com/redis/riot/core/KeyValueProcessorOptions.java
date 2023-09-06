@@ -9,11 +9,11 @@ import com.redis.riot.core.function.LongExpressionFunction;
 
 import io.lettuce.core.codec.RedisCodec;
 
-public class KeyValueOperatorOptions {
+public class KeyValueProcessorOptions {
 
     private TemplateExpression keyExpression;
 
-    private TemplateExpression typeExpression;
+    private Expression typeExpression;
 
     private Expression ttlExpression;
 
@@ -27,11 +27,11 @@ public class KeyValueOperatorOptions {
         this.keyExpression = expression;
     }
 
-    public TemplateExpression getTypeExpression() {
+    public Expression getTypeExpression() {
         return typeExpression;
     }
 
-    public void setTypeExpression(TemplateExpression expression) {
+    public void setTypeExpression(Expression expression) {
         this.typeExpression = expression;
     }
 
@@ -65,7 +65,7 @@ public class KeyValueOperatorOptions {
             operator.key(ExpressionFunction.of(context, keyExpression));
         }
         if (typeExpression != null) {
-            operator.type(ExpressionFunction.of(context, typeExpression));
+            operator.type(ExpressionFunction.of(context, typeExpression, String.class));
         }
         if (ttlExpression != null) {
             operator.ttl(new LongExpressionFunction<>(context, ttlExpression));

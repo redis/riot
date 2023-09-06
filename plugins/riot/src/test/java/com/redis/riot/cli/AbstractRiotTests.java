@@ -1,11 +1,11 @@
 package com.redis.riot.cli;
 
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.nio.charset.Charset;
 import java.time.Duration;
 import java.util.UUID;
 import java.util.concurrent.Callable;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import org.awaitility.Awaitility;
@@ -34,6 +34,10 @@ import com.redis.lettucemod.api.StatefulRedisModulesConnection;
 import com.redis.lettucemod.api.sync.RedisModulesCommands;
 import com.redis.lettucemod.util.ClientBuilder;
 import com.redis.lettucemod.util.RedisModulesUtils;
+import com.redis.riot.cli.ProgressArgs.Style;
+import com.redis.riot.cli.operation.OperationCommand;
+import com.redis.spring.batch.RedisItemWriter;
+import com.redis.spring.batch.ValueType;
 import com.redis.spring.batch.gen.GeneratorItemReader;
 import com.redis.spring.batch.util.BatchUtils;
 import com.redis.spring.batch.util.IntRange;
@@ -41,12 +45,13 @@ import com.redis.testcontainers.RedisServer;
 
 import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.RedisURI;
+import io.lettuce.core.codec.StringCodec;
 import io.micrometer.core.instrument.util.IOUtils;
-import picocli.CommandLine;
+import picocli.CommandLine.ExitCode;
+import picocli.CommandLine.IExecutionStrategy;
 import picocli.CommandLine.ParseResult;
 
 @TestInstance(Lifecycle.PER_CLASS)
-@SuppressWarnings("unchecked")
 public abstract class AbstractRiotTests {
 
     private static final String PREFIX = "riot ";
@@ -122,34 +127,35 @@ public abstract class AbstractRiotTests {
         return ClientBuilder.create(RedisURI.create(server.getRedisURI())).cluster(server.isCluster()).build();
     }
 
-    protected int execute(String filename, Consumer<ParseResult>... configurers) throws Exception {
-        RedisServer redis = getRedisServer();
-        CommandLine commandLine = Main.commandLine(new Main());
-        ParseResult parseResult = commandLine.parseArgs(args(filename));
-        configure(parseResult);
-        for (Consumer<ParseResult> configurer : configurers) {
-            configurer.accept(parseResult);
-        }
-        Main app = commandLine.getCommand();
-        app.getRedisArgs().setUri(redis.getRedisURI());
-        app.getRedisArgs().setCluster(redis.isCluster());
-        return commandLine.getExecutionStrategy().execute(parseResult);
+    protected int execute(String filename, IExecutionStrategy... executionStrategies) throws Exception {
+        String[] args = args(filename);
+        return Main.run(new PrintWriter(System.out), new PrintWriter(System.err), args, executionStrategy(executionStrategies));
     }
 
-    private void configure(ParseResult parseResult) {
-        for (ParseResult sub : parseResult.subcommands()) {
-            configureSubcommand(sub);
-        }
+    private IExecutionStrategy executionStrategy(IExecutionStrategy... executionStrategies) {
+        CompositeExecutionStrategy strategy = new CompositeExecutionStrategy();
+        strategy.addDelegates(this::execute);
+        strategy.addDelegates(executionStrategies);
+        return strategy;
     }
 
-    protected void configureSubcommand(ParseResult sub) {
-        Object command = sub.commandSpec().commandLine().getCommand();
-        if (command instanceof AbstractImportCommand) {
-            command = sub.commandSpec().parent().commandLine().getCommand();
+    private int execute(ParseResult parseResult) {
+        Main main = (Main) parseResult.commandSpec().commandLine().getCommand();
+        main.redisArgs.uri = getRedisServer().getRedisURI();
+        main.redisArgs.cluster = getRedisServer().isCluster();
+        for (ParseResult subParseResult : parseResult.subcommands()) {
+            Object command = subParseResult.commandSpec().commandLine().getCommand();
+            if (command instanceof OperationCommand) {
+                command = subParseResult.commandSpec().parent().commandLine().getCommand();
+            }
+            configureCommand(command);
         }
-        if (command instanceof AbstractCommand) {
-            AbstractCommand transferCommand = (AbstractCommand) command;
-            // transferCommand.getJobOptions().setProgressStyle(ProgressStyle.NONE);
+        return ExitCode.OK;
+    }
+
+    protected void configureCommand(Object command) {
+        if (command instanceof AbstractJobCommand) {
+            ((AbstractJobCommand) command).progressArgs.style = Style.NONE;
         }
     }
 
@@ -183,7 +189,13 @@ public abstract class AbstractRiotTests {
     }
 
     protected void generate(String name, int chunkSize, GeneratorItemReader reader) throws JobExecutionException {
-        run(name + "-generate", chunkSize, reader, null);// writer(client));
+        run(name + "-generate", chunkSize, reader, writer(client));
+    }
+
+    protected RedisItemWriter<String, String> writer(AbstractRedisClient client) {
+        RedisItemWriter<String, String> writer = new RedisItemWriter<>(client, StringCodec.UTF8);
+        writer.setValueType(ValueType.STRUCT);
+        return writer;
     }
 
     protected <T> JobExecution run(String name, int chunkSize, ItemReader<T> reader, ItemWriter<T> writer)
@@ -197,7 +209,7 @@ public abstract class AbstractRiotTests {
     }
 
     private void awaitClosed(Object object) {
-
+        awaitUntil(() -> BatchUtils.isClosed(object));
     }
 
     protected String id() {
