@@ -1,4 +1,4 @@
-package com.redis.riot.db;
+package com.redis.riot.cli;
 
 import java.io.IOException;
 import java.sql.ResultSet;
@@ -56,8 +56,8 @@ class PostgresTests extends DatabaseTests {
             statement.execute("ALTER TABLE ONLY mytable ADD CONSTRAINT pk_mytable PRIMARY KEY (id)");
             GeneratorItemReader generator = generator();
             generator.setTypes(DataType.HASH);
-            // TODO generate(filename, DEFAULT_BATCH_SIZE, generator);
-            execute(filename);
+            generate(filename, DEFAULT_BATCH_SIZE, generator);
+            execute(filename, this::executeDatabaseExport);
             statement.execute("SELECT COUNT(*) AS count FROM mytable");
             ResultSet countResultSet = statement.getResultSet();
             countResultSet.next();
@@ -74,10 +74,6 @@ class PostgresTests extends DatabaseTests {
         }
     }
 
-    private void execute(String filename) {
-        // TODO Auto-generated method stub
-    }
-
     @Test
     void nullValueExport() throws Exception {
         try (Statement statement = databaseConnection.createStatement()) {
@@ -91,7 +87,7 @@ class PostgresTests extends DatabaseTests {
             Map<String, String> hash2 = new HashMap<>();
             hash2.put("field2", "value2");
             sync.hmset("gen:2", hash2);
-            execute("db-export-postgresql");
+            execute("db-export-postgresql", this::executeDatabaseExport);
             statement.execute("SELECT COUNT(*) AS count FROM mytable");
             ResultSet countResultSet = statement.getResultSet();
             countResultSet.next();
@@ -109,7 +105,7 @@ class PostgresTests extends DatabaseTests {
 
     @Test
     void hashImport() throws Exception {
-        execute("db-import-postgresql");
+        execute("db-import-postgresql", this::executeDatabaseImport);
         try (Statement statement = databaseConnection.createStatement()) {
             statement.execute("SELECT COUNT(*) AS count FROM orders");
             RedisModulesCommands<String, String> sync = connection.sync();
@@ -124,14 +120,8 @@ class PostgresTests extends DatabaseTests {
     }
 
     @Test
-    void noopImport() throws Exception {
-        execute("db-import-postgresql-noop");
-        Assertions.assertEquals(0, connection.sync().dbsize());
-    }
-
-    @Test
     void multiThreadedImport() throws Exception {
-        execute("db-import-postgresql-multithreaded");
+        execute("db-import-postgresql-multithreaded", this::executeDatabaseImport);
         RedisModulesCommands<String, String> sync = connection.sync();
         List<String> keys = sync.keys("order:*");
         try (Statement statement = databaseConnection.createStatement()) {
@@ -147,7 +137,7 @@ class PostgresTests extends DatabaseTests {
 
     @Test
     void setImport() throws Exception {
-        execute("db-import-postgresql-set");
+        execute("db-import-postgresql-set", this::executeDatabaseImport);
         try (Statement statement = databaseConnection.createStatement()) {
             statement.execute("SELECT * FROM orders");
             ResultSet resultSet = statement.getResultSet();

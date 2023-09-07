@@ -1,5 +1,7 @@
 package com.redis.riot.cli;
 
+import java.util.function.Supplier;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,9 +19,6 @@ abstract class AbstractJobCommand extends AbstractCommand {
     @ArgGroup(exclusive = false, heading = "Execution options%n")
     StepArgs stepArgs = new StepArgs();
 
-    @ArgGroup(exclusive = false)
-    ProgressArgs progressArgs = new ProgressArgs();
-
     @Override
     protected Executable getExecutable() {
         AbstractJobExecutable executable = getJobExecutable();
@@ -29,25 +28,26 @@ abstract class AbstractJobCommand extends AbstractCommand {
     }
 
     protected <I, O> void configure(StepBuilder<I, O> step) {
-        ProgressBarBuilder progressBar = progressBar();
+        ProgressBarBuilder progressBar = new ProgressBarBuilder();
+        progressBar.setStyle(stepArgs.style());
+        progressBar.setUpdateIntervalMillis(stepArgs.updateInterval);
+        progressBar.showSpeed();
+        if (stepArgs.isLog()) {
+            Logger logger = LoggerFactory.getLogger(getClass());
+            progressBar.setConsumer(new DelegatingProgressBarConsumer(logger::info));
+        }
         progressBar.setInitialMax(size(step));
         progressBar.setTaskName(taskName(step));
         ProgressStepListener<O> listener = new ProgressStepListener<>(progressBar);
+        Supplier<String> extraMessage = extraMessage(step);
+        if (extraMessage != null) {
+            listener = listener.extraMessage(extraMessage);
+        }
         step.addExecutionListener(listener);
         step.addWriteListener(listener);
     }
 
-    private ProgressBarBuilder progressBar() {
-        ProgressBarBuilder progressBar = new ProgressBarBuilder();
-        progressBar.setStyle(progressArgs.style());
-        progressBar.setUpdateIntervalMillis(progressArgs.updateInterval);
-        progressBar.showSpeed();
-        if (progressArgs.isLog()) {
-            Logger logger = LoggerFactory.getLogger(getClass());
-            progressBar.setConsumer(new DelegatingProgressBarConsumer(logger::info));
-        }
-        return progressBar;
-    }
+    protected abstract Supplier<String> extraMessage(StepBuilder<?, ?> step);
 
     protected abstract String taskName(StepBuilder<?, ?> step);
 

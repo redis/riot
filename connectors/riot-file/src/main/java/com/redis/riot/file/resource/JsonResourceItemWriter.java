@@ -16,6 +16,9 @@
 
 package com.redis.riot.file.resource;
 
+import java.util.Iterator;
+import java.util.List;
+
 import org.springframework.batch.item.json.GsonJsonObjectMarshaller;
 import org.springframework.batch.item.json.JacksonJsonObjectMarshaller;
 import org.springframework.batch.item.json.JsonObjectMarshaller;
@@ -23,12 +26,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.WritableResource;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
-
-import com.redis.riot.file.resource.AbstractResourceItemWriter;
-import com.redis.riot.file.resource.JsonResourceItemWriter;
-
-import java.util.Iterator;
-import java.util.List;
 
 /**
  * Item writer that writes data in json format to an output file. The location

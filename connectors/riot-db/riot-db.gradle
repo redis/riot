@@ -31,9 +31,6 @@ dependencies {
     implementation group: 'com.microsoft.sqlserver', name: 'mssql-jdbc', version: mssqlVersion
     implementation group: 'com.oracle.ojdbc', name: 'ojdbc8', version: oracleVersion
     implementation group: 'org.xerial', name: 'sqlite-jdbc', version: sqliteVersion
-    testImplementation group: 'com.redis', name: 'spring-batch-redis', version: springBatchRedisVersion, classifier: 'tests'
-    testImplementation group: 'org.testcontainers', name: 'postgresql', version: testcontainersVersion
-    testImplementation group: 'org.testcontainers', name: 'oracle-xe', version: testcontainersVersion
 }
 
 compileJava {

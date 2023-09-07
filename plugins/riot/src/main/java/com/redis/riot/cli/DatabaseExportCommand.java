@@ -13,14 +13,14 @@ public class DatabaseExportCommand extends AbstractExportCommand {
     String sql;
 
     @ArgGroup(exclusive = false)
-    DatabaseExportArgs databaseExportArgs = new DatabaseExportArgs();
+    DatabaseExportArgs args = new DatabaseExportArgs();
 
     @Override
     protected DatabaseExport getExportExecutable() {
         DatabaseExport executable = new DatabaseExport(redisClient(), sql);
-        executable.setAssertUpdates(databaseExportArgs.assertUpdates);
-        executable.setDataSourceOptions(databaseExportArgs.dataSourceOptions());
-        executable.setKeyPattern(databaseExportArgs.keyRegex);
+        executable.setAssertUpdates(args.assertUpdates);
+        executable.setDataSourceOptions(args.dataSourceOptions());
+        executable.setKeyPattern(args.keyRegex);
         return executable;
     }
 

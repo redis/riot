@@ -48,7 +48,7 @@ public class Replication extends AbstractExport {
 
     private final AbstractRedisClient targetClient;
 
-    private PrintWriter out = new PrintWriter(System.out);
+    private final PrintWriter out;
 
     private ReplicationMode mode = ReplicationMode.SNAPSHOT;
 
@@ -65,6 +65,12 @@ public class Replication extends AbstractExport {
     private RedisReaderOptions targetReaderOptions = new RedisReaderOptions();
 
     private RedisWriterOptions targetWriterOptions = new RedisWriterOptions();
+
+    public Replication(AbstractRedisClient client, AbstractRedisClient targetClient, PrintWriter out) {
+        super(client);
+        this.targetClient = targetClient;
+        this.out = out;
+    }
 
     public void setTargetReaderOptions(RedisReaderOptions targetReaderOptions) {
         this.targetReaderOptions = targetReaderOptions;
@@ -96,15 +102,6 @@ public class Replication extends AbstractExport {
 
     public void setShowDiff(boolean showDiff) {
         this.showDiff = showDiff;
-    }
-
-    public Replication(AbstractRedisClient client, AbstractRedisClient targetClient) {
-        super(client);
-        this.targetClient = targetClient;
-    }
-
-    public void setOut(PrintWriter out) {
-        this.out = out;
     }
 
     @Override

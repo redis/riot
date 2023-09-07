@@ -40,10 +40,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.WritableResource;
 import org.springframework.util.Assert;
 
-import com.redis.riot.file.resource.AbstractResourceItemWriter;
-import com.redis.riot.file.resource.CountingOutputStream;
-import com.redis.riot.file.resource.TransactionAwareBufferedWriter;
-
 /**
  * Base class for item writers that write data to a file or stream. This class provides common features like restart, force
  * sync, append etc. The location of the output file is defined by a {@link Resource} which must represent a writable file.<br>

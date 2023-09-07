@@ -26,7 +26,7 @@ public class KeyComparisonSummaryLogger extends StepExecutionListenerSupport {
         if (stepExecution.getStatus().isUnsuccessful()) {
             return null;
         }
-        if (writer.getTotalCount() == writer.getCount(Status.OK)) {
+        if (writer.getTotal() == writer.getCount(Status.OK)) {
             out.println("Verification completed: all OK");
             return ExitStatus.COMPLETED;
         }

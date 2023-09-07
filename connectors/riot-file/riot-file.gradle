@@ -30,6 +30,7 @@ dependencies {
         exclude group: 'javax.annotation', module: 'javax.annotation-api'
     }
     testImplementation group: 'com.redis', name: 'spring-batch-redis', version: springBatchRedisVersion, classifier: 'tests'
+    testImplementation 'commons-io:commons-io:2.13.0'
 }
 
 compileJava {

@@ -23,9 +23,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.WritableResource;
 import org.springframework.util.Assert;
 
-import com.redis.riot.file.resource.XmlResourceItemWriter;
-import com.redis.riot.file.resource.XmlResourceItemWriterBuilder;
-
 /**
  * Builder for {@link XmlResourceItemWriter}.
  *

@@ -20,11 +20,27 @@ public class KeyComparisonStatusCountItemWriter extends AbstractItemStreamItemWr
         return counts.get(status).incrementAndGet();
     }
 
+    public long getMissing() {
+        return getCount(Status.MISSING);
+    }
+
+    public long getType() {
+        return getCount(Status.TYPE);
+    }
+
+    public long getTtl() {
+        return getCount(Status.TTL);
+    }
+
+    public long getValue() {
+        return getCount(Status.VALUE);
+    }
+
     public long getCount(Status status) {
         return counts.get(status).get();
     }
 
-    public long getTotalCount() {
+    public long getTotal() {
         return counts.values().stream().collect(Collectors.summingLong(AtomicLong::get));
     }
 

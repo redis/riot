@@ -5,34 +5,60 @@ import java.time.Duration;
 import com.redis.riot.core.RiotSkipPolicy;
 import com.redis.riot.core.StepOptions;
 
+import me.tongfei.progressbar.ProgressBarStyle;
 import picocli.CommandLine.Option;
 
 public class StepArgs {
 
+    public enum ProgressStyle {
+        BLOCK, BAR, ASCII, LOG, NONE
+    }
+
     @Option(names = "--sleep", description = "Duration in ms to sleep after each batch write (default: ${DEFAULT-VALUE}).", paramLabel = "<ms>")
-    private long sleep;
+    long sleep;
 
     @Option(names = "--threads", description = "Thread count (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
-    private int threads = StepOptions.DEFAULT_THREADS;
+    int threads = StepOptions.DEFAULT_THREADS;
 
     @Option(names = { "-b",
             "--batch" }, description = "Number of items in each batch (default: ${DEFAULT-VALUE}).", paramLabel = "<size>")
-    private int chunkSize = StepOptions.DEFAULT_CHUNK_SIZE;
+    int chunkSize = StepOptions.DEFAULT_CHUNK_SIZE;
 
     @Option(names = "--dry-run", description = "Enable dummy writes.")
-    private boolean dryRun;
+    boolean dryRun;
 
     @Option(names = "--ft", description = "Enable step fault-tolerance. Use in conjunction with retry and skip limit/policy.")
-    private boolean faultTolerance;
+    boolean faultTolerance;
 
     @Option(names = "--skip-policy", description = "Policy to determine if some processing should be skipped: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<name>")
-    private RiotSkipPolicy skipPolicy = StepOptions.DEFAULT_SKIP_POLICY;
+    RiotSkipPolicy skipPolicy = StepOptions.DEFAULT_SKIP_POLICY;
 
     @Option(names = "--skip-limit", description = "LIMIT skip policy: max number of failed items before considering the transfer has failed (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
-    private int skipLimit = StepOptions.DEFAULT_SKIP_LIMIT;
+    int skipLimit = StepOptions.DEFAULT_SKIP_LIMIT;
 
     @Option(names = "--retry-limit", description = "Maximum number of times to try a failed item. 0 and 1 both translate to no retry. (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
     private int retryLimit = StepOptions.DEFAULT_RETRY_LIMIT;
+
+    @Option(names = "--progress", description = "Progress style: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<style>")
+    ProgressStyle style = ProgressStyle.ASCII;
+
+    @Option(names = "--progress-interval", description = "Progress update interval in millis (default: ${DEFAULT-VALUE}).", paramLabel = "<ms>", hidden = true)
+    int updateInterval = 300;
+
+    public ProgressBarStyle style() {
+        switch (style) {
+            case BAR:
+                return ProgressBarStyle.COLORFUL_UNICODE_BAR;
+            case BLOCK:
+                return ProgressBarStyle.COLORFUL_UNICODE_BLOCK;
+            default:
+                return ProgressBarStyle.ASCII;
+        }
+    }
+
+    public boolean isLog() {
+        return style == ProgressStyle.LOG;
+    }
 
     public StepOptions stepOptions() {
         StepOptions options = new StepOptions();

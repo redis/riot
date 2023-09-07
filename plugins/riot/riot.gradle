@@ -66,6 +66,10 @@ dependencies {
     implementation 'org.slf4j:slf4j-simple'
     testImplementation group: 'com.redis', name: 'spring-batch-redis', version: springBatchRedisVersion, classifier: 'tests'
     testImplementation group: 'org.awaitility', name: 'awaitility', version: awaitilityVersion
+    testImplementation 'org.springframework.boot:spring-boot-autoconfigure'
+    testImplementation 'org.springframework:spring-jdbc'
+    testImplementation group: 'org.testcontainers', name: 'postgresql', version: testcontainersVersion
+    testImplementation group: 'org.testcontainers', name: 'oracle-xe', version: testcontainersVersion
 }
 
 bootStartScripts.enabled = false

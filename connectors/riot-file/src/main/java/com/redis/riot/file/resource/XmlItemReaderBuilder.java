@@ -4,10 +4,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
-import com.redis.riot.file.resource.XmlItemReader;
-import com.redis.riot.file.resource.XmlItemReaderBuilder;
-import com.redis.riot.file.resource.XmlObjectReader;
-
 public class XmlItemReaderBuilder<T> {
 
 	private XmlObjectReader<T> xmlObjectReader;

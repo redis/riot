@@ -9,9 +9,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
-import com.redis.riot.file.resource.XmlItemReader;
-import com.redis.riot.file.resource.XmlObjectReader;
-
 /**
  * {@link ItemStreamReader} implementation that reads XML objects from a {@link Resource} having the following format:
  * 

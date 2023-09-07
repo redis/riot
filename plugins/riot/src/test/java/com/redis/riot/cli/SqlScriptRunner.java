@@ -1,4 +1,4 @@
-package com.redis.riot.db;
+package com.redis.riot.cli;
 
 import java.io.IOException;
 import java.io.LineNumberReader;

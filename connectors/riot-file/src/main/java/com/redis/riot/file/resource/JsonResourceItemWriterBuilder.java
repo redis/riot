@@ -23,10 +23,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.WritableResource;
 import org.springframework.util.Assert;
 
-import com.redis.riot.file.resource.AbstractResourceItemWriter;
-import com.redis.riot.file.resource.JsonResourceItemWriter;
-import com.redis.riot.file.resource.JsonResourceItemWriterBuilder;
-
 /**
  * Builder for {@link JsonResourceItemWriter}.
  *

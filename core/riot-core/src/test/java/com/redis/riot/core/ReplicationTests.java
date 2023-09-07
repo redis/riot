@@ -2,6 +2,7 @@ package com.redis.riot.core;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.io.PrintWriter;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,6 +41,8 @@ public abstract class ReplicationTests extends AbstractTargetTestBase {
     protected static double abv(Map<String, String> beer) {
         return Double.parseDouble(beer.get("abv"));
     }
+
+    private PrintWriter printWriter = new PrintWriter(System.out);
 
     protected void execute(AbstractJobExecutable executable, TestInfo info) {
         executable.setName(name(info));
@@ -94,7 +97,7 @@ public abstract class ReplicationTests extends AbstractTargetTestBase {
     void replicate(TestInfo info) throws Throwable {
         generate(info);
         Assertions.assertTrue(commands.dbsize() > 0);
-        Replication replicate = new Replication(client, targetClient);
+        Replication replicate = new Replication(client, targetClient, printWriter);
         replicate.execute();
         Assertions.assertTrue(compare(info));
     }
@@ -104,7 +107,7 @@ public abstract class ReplicationTests extends AbstractTargetTestBase {
         String key1 = "key1";
         String value1 = "value1";
         commands.set(key1, value1);
-        Replication replication = new Replication(client, targetClient);
+        Replication replication = new Replication(client, targetClient, printWriter);
         replication.setProcessorOptions(operatorOptions("#{type}:#{key}"));
         execute(replication, info);
         Assertions.assertEquals(value1, targetCommands.get("string:" + key1));
@@ -121,7 +124,7 @@ public abstract class ReplicationTests extends AbstractTargetTestBase {
         String key1 = "key1";
         String value1 = "value1";
         commands.set(key1, value1);
-        Replication replication = new Replication(client, targetClient);
+        Replication replication = new Replication(client, targetClient, printWriter);
         replication.setProcessorOptions(
                 operatorOptions(String.format("#{#date.parse('%s').getTime()}:#{key}", "2010-05-10T00:00:00.000+0000")));
         execute(replication, info);

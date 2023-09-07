@@ -16,7 +16,6 @@ import org.springframework.batch.item.ParseException;
 import org.springframework.batch.item.UnexpectedInputException;
 
 import com.redis.riot.core.operation.HsetBuilder;
-import com.redis.riot.file.FileImport;
 import com.redis.spring.batch.test.AbstractTestBase;
 
 abstract class FileTests extends AbstractTestBase {
@@ -27,6 +26,7 @@ abstract class FileTests extends AbstractTestBase {
 
     private static final String keyspace = "beer";
 
+    @SuppressWarnings("unchecked")
     @Test
     void fileImportJSON() throws UnexpectedInputException, ParseException, NonTransientResourceException, Exception {
         FileImport executable = new FileImport(client, BEERS_JSON_URL);
@@ -43,6 +43,7 @@ abstract class FileTests extends AbstractTestBase {
         Assertions.assertEquals("Hocus Pocus", beer1.get("name"));
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     void fileApiImportCSV() throws UnexpectedInputException, ParseException, NonTransientResourceException, Exception {
         FileImport executable = new FileImport(client, "https://storage.googleapis.com/jrx/beers.csv");
@@ -59,6 +60,7 @@ abstract class FileTests extends AbstractTestBase {
 
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     void fileApiFileExpansion() throws IOException {
         Path temp = Files.createTempDirectory("fileExpansion");

@@ -79,6 +79,10 @@ public class StepBuilder<I, O> {
         return reader;
     }
 
+    public ItemWriter<O> getWriter() {
+        return writer;
+    }
+
     @SuppressWarnings("unchecked")
     public StepBuilder<I, O> skippableExceptions(Class<? extends Throwable>... exceptions) {
         this.skippableExceptions = Arrays.asList(exceptions);

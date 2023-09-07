@@ -1,5 +1,7 @@
 package com.redis.riot.cli;
 
+import java.util.function.Supplier;
+
 import com.redis.riot.core.AbstractExport;
 import com.redis.riot.core.AbstractJobExecutable;
 import com.redis.riot.core.RedisReaderOptions;
@@ -36,6 +38,11 @@ public abstract class AbstractExportCommand extends AbstractJobCommand {
     @Override
     protected String taskName(StepBuilder<?, ?> step) {
         return "Exporting";
+    }
+
+    @Override
+    protected Supplier<String> extraMessage(StepBuilder<?, ?> step) {
+        return null;
     }
 
 }

@@ -34,7 +34,7 @@ import com.redis.lettucemod.api.StatefulRedisModulesConnection;
 import com.redis.lettucemod.api.sync.RedisModulesCommands;
 import com.redis.lettucemod.util.ClientBuilder;
 import com.redis.lettucemod.util.RedisModulesUtils;
-import com.redis.riot.cli.ProgressArgs.Style;
+import com.redis.riot.cli.StepArgs.ProgressStyle;
 import com.redis.riot.cli.operation.OperationCommand;
 import com.redis.spring.batch.RedisItemWriter;
 import com.redis.spring.batch.ValueType;
@@ -111,6 +111,10 @@ public abstract class AbstractRiotTests {
         awaitEquals(() -> 0l, sync::dbsize);
     }
 
+    protected <T> T command(ParseResult parseResult) {
+        return parseResult.subcommands().get(0).commandSpec().commandLine().getCommand();
+    }
+
     protected void awaitUntilFalse(Callable<Boolean> conditionEvaluator) {
         awaitUntil(() -> !conditionEvaluator.call());
     }
@@ -155,7 +159,7 @@ public abstract class AbstractRiotTests {
 
     protected void configureCommand(Object command) {
         if (command instanceof AbstractJobCommand) {
-            ((AbstractJobCommand) command).progressArgs.style = Style.NONE;
+            ((AbstractJobCommand) command).stepArgs.style = ProgressStyle.NONE;
         }
     }
 
@@ -189,10 +193,10 @@ public abstract class AbstractRiotTests {
     }
 
     protected void generate(String name, int chunkSize, GeneratorItemReader reader) throws JobExecutionException {
-        run(name + "-generate", chunkSize, reader, writer(client));
+        run(name + "-generate", chunkSize, reader, structWriter(client));
     }
 
-    protected RedisItemWriter<String, String> writer(AbstractRedisClient client) {
+    protected RedisItemWriter<String, String> structWriter(AbstractRedisClient client) {
         RedisItemWriter<String, String> writer = new RedisItemWriter<>(client, StringCodec.UTF8);
         writer.setValueType(ValueType.STRUCT);
         return writer;

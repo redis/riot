@@ -1,6 +1,9 @@
 package com.redis.riot.cli;
 
+import java.util.function.Supplier;
+
 import com.redis.riot.core.AbstractKeyValueImport;
+import com.redis.riot.core.StepBuilder;
 
 import picocli.CommandLine.ArgGroup;
 
@@ -17,5 +20,10 @@ public abstract class AbstractKeyValueImportCommand extends AbstractJobCommand {
     }
 
     protected abstract AbstractKeyValueImport getKeyValueImportExecutable();
+
+    @Override
+    protected Supplier<String> extraMessage(StepBuilder<?, ?> step) {
+        return null;
+    }
 
 }

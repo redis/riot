@@ -16,15 +16,12 @@
 
 package com.redis.riot.file.resource;
 
+import java.util.List;
+
 import org.springframework.batch.item.file.transform.LineAggregator;
 import org.springframework.core.io.Resource;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
-
-import com.redis.riot.file.resource.AbstractResourceItemWriter;
-import com.redis.riot.file.resource.FlatResourceItemWriter;
-
-import java.util.List;
 
 /**
  * This class is an item writer that writes data to a file or stream. The writer

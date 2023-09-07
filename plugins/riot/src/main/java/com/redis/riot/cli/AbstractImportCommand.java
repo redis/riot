@@ -3,6 +3,7 @@ package com.redis.riot.cli;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import com.redis.riot.cli.operation.DelCommand;
@@ -65,6 +66,11 @@ public abstract class AbstractImportCommand extends AbstractJobCommand {
     @Override
     protected String taskName(StepBuilder<?, ?> step) {
         return "Importing";
+    }
+
+    @Override
+    protected Supplier<String> extraMessage(StepBuilder<?, ?> step) {
+        return null;
     }
 
 }

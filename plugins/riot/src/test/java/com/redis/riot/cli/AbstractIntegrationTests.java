@@ -274,7 +274,8 @@ public abstract class AbstractIntegrationTests extends AbstractRiotTests {
     }
 
     private int executeImportGlob(ParseResult parseResult) {
-        FileImportCommand command = parseResult.subcommands().get(0).commandSpec().commandLine().getCommand();
+
+        FileImportCommand command = command(parseResult);
         try {
             Path dir = Files.createTempDirectory("import-glob");
             FileCopyUtils.copy(getClass().getClassLoader().getResourceAsStream("files/beers1.csv"),
@@ -369,13 +370,13 @@ public abstract class AbstractIntegrationTests extends AbstractRiotTests {
     }
 
     private int executeFileDumpImport(ParseResult parseResult) {
-        FileDumpImportCommand command = parseResult.subcommands().get(0).commandSpec().commandLine().getCommand();
+        FileDumpImportCommand command = command(parseResult);
         command.files = command.files.stream().map(this::replace).collect(Collectors.toList());
         return ExitCode.OK;
     }
 
     private int executeFileDumpExport(ParseResult parseResult) {
-        FileDumpExportCommand command = parseResult.subcommands().get(0).commandSpec().commandLine().getCommand();
+        FileDumpExportCommand command = command(parseResult);
         command.file = replace(command.file);
         return ExitCode.OK;
     }
@@ -722,7 +723,7 @@ public abstract class AbstractIntegrationTests extends AbstractRiotTests {
             generator.setCurrentItemCount(3000);
             generator.setMaxItemCount(3500);
             try {
-                run(filename + "-generate-live", 1, generator, writer(client));
+                run(filename + "-generate-live", 1, generator, structWriter(client));
             } catch (Exception e) {
                 log.error("Could not generate data", e);
             }

@@ -1,4 +1,4 @@
-package com.redis.riot.db;
+package com.redis.riot.cli;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -14,11 +14,13 @@ import org.junit.jupiter.api.BeforeAll;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.testcontainers.containers.JdbcDatabaseContainer;
 
-import com.redis.spring.batch.test.AbstractTestBase;
 import com.redis.testcontainers.RedisServer;
 import com.redis.testcontainers.RedisStackContainer;
 
-abstract class DatabaseTests extends AbstractTestBase {
+import picocli.CommandLine.ExitCode;
+import picocli.CommandLine.ParseResult;
+
+abstract class DatabaseTests extends AbstractRiotTests {
 
     private static final RedisStackContainer REDIS = new RedisStackContainer(
             RedisStackContainer.DEFAULT_IMAGE_NAME.withTag(RedisStackContainer.DEFAULT_TAG));
@@ -63,11 +65,23 @@ abstract class DatabaseTests extends AbstractTestBase {
         scriptRunner.runScript(new InputStreamReader(inputStream));
     }
 
-    private void configure(DataSourceOptions dataSourceOptions) {
+    protected int executeDatabaseImport(ParseResult parseResult) {
+        DatabaseImportCommand command = command(parseResult);
+        configureDatabase(command.args);
+        return ExitCode.OK;
+    }
+    
+    protected int executeDatabaseExport(ParseResult parseResult) {
+        DatabaseExportCommand command = command(parseResult);
+        configureDatabase(command.args);
+        return ExitCode.OK;
+    }
+
+    private void configureDatabase(DatabaseArgs args) {
         JdbcDatabaseContainer<?> container = getJdbcDatabaseContainer();
-        dataSourceOptions.setUrl(container.getJdbcUrl());
-        dataSourceOptions.setUsername(container.getUsername());
-        dataSourceOptions.setPassword(container.getPassword());
+        args.url = container.getJdbcUrl();
+        args.username = container.getUsername();
+        args.password = container.getPassword();
     }
 
 }

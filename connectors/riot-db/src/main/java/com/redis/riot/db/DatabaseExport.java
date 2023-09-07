@@ -25,17 +25,17 @@ import io.lettuce.core.codec.StringCodec;
 
 public class DatabaseExport extends AbstractExport {
 
-    private final String sql;
-
     public static final boolean DEFAULT_ASSERT_UPDATES = true;
 
     public static final Pattern DEFAULT_KEY_PATTERN = Pattern.compile("\\w+:(?<id>.+)");
 
+    private final String sql;
+
+    private DataSourceOptions dataSourceOptions = new DataSourceOptions();
+
     private Pattern keyPattern = DEFAULT_KEY_PATTERN;
 
     private boolean assertUpdates = DEFAULT_ASSERT_UPDATES;
-
-    private DataSourceOptions dataSourceOptions = new DataSourceOptions();
 
     public DatabaseExport(AbstractRedisClient client, String sql) {
         super(client);
