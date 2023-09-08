@@ -8,7 +8,7 @@ import com.redis.spring.batch.gen.StreamOptions;
 import com.redis.spring.batch.gen.StringOptions;
 import com.redis.spring.batch.gen.TimeSeriesOptions;
 import com.redis.spring.batch.gen.ZsetOptions;
-import com.redis.spring.batch.util.IntRange;
+import com.redis.spring.batch.util.LongRange;
 
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
@@ -51,7 +51,7 @@ public class GeneratorImportCommand extends AbstractKeyValueImportCommand {
     private ZsetOptions zsetOptions() {
         ZsetOptions options = new ZsetOptions();
         options.setMemberCount(args.zsetMemberCount);
-        options.setMemberRange(args.zsetMemberRange);
+        options.setMemberRange(args.zsetMemberLength);
         options.setScore(args.zsetScore);
         return options;
     }
@@ -77,14 +77,14 @@ public class GeneratorImportCommand extends AbstractKeyValueImportCommand {
     }
 
     private CollectionOptions setOptions() {
-        return collectionOptions(args.setMemberCount, args.setMemberRange);
+        return collectionOptions(args.setMemberCount, args.setMemberLength);
     }
 
     private CollectionOptions listOptions() {
         return collectionOptions(args.listMemberCount, args.listMemberRange);
     }
 
-    private CollectionOptions collectionOptions(IntRange memberCount, IntRange memberRange) {
+    private CollectionOptions collectionOptions(LongRange memberCount, LongRange memberRange) {
         CollectionOptions options = new CollectionOptions();
         options.setMemberCount(memberCount);
         options.setMemberRange(memberRange);
@@ -99,7 +99,7 @@ public class GeneratorImportCommand extends AbstractKeyValueImportCommand {
         return mapOptions(args.hashFieldCount, args.hashFieldLength);
     }
 
-    private MapOptions mapOptions(IntRange fieldCount, IntRange fieldLength) {
+    private MapOptions mapOptions(LongRange fieldCount, LongRange fieldLength) {
         MapOptions options = new MapOptions();
         options.setFieldCount(fieldCount);
         options.setFieldLength(fieldLength);

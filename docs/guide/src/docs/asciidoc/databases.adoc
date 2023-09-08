@@ -12,10 +12,6 @@ It includes JDBC drivers for the most common database systems:
 +
 `jdbc:oracle:thin:@myhost:1521:orcl`
 
-* {link_jdbc_db2}
-+
-`jdbc:db2://host:port/database`
-
 * {link_jdbc_mssql}
 +
 `jdbc:sqlserver://[serverName[\instanceName][:portNumber]][;property=value[;property=value]]`
@@ -27,10 +23,6 @@ It includes JDBC drivers for the most common database systems:
 * {link_jdbc_postgres}
 +
 `jdbc:postgresql://host:port/database`
-
-* {link_jdbc_sqlite}
-+
-`jdbc:sqlite:sqlite_database_file_path`
 
 [TIP]
 ====
@@ -44,3 +36,13 @@ For non-included databases you must install the corresponding JDBC driver under 
 include::{includedir}/db-import.adoc[]
 include::{includedir}/db-export.adoc[]
 :leveloffset: 1
+
+////
+* {link_jdbc_db2}
++
+`jdbc:db2://host:port/database`
+
+* {link_jdbc_sqlite}
++
+`jdbc:sqlite:sqlite_database_file_path`
+////

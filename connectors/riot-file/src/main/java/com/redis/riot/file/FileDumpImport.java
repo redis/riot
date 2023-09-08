@@ -14,6 +14,7 @@ import org.springframework.batch.item.json.JsonItemReader;
 import org.springframework.core.io.Resource;
 
 import com.redis.riot.core.AbstractKeyValueImport;
+import com.redis.riot.core.StepBuilder;
 import com.redis.riot.file.resource.XmlItemReader;
 import com.redis.spring.batch.KeyValue;
 
@@ -46,7 +47,8 @@ public class FileDumpImport extends AbstractKeyValueImport {
 
     @Override
     protected Job job() {
-        Iterator<Step> steps = FileUtils.inputResources(files, fileOptions).stream().map(this::step).iterator();
+        Iterator<Step> steps = FileUtils.inputResources(files, fileOptions).stream().map(this::step).map(StepBuilder::build)
+                .iterator();
         if (!steps.hasNext()) {
             throw new IllegalArgumentException("No file found");
         }
@@ -57,8 +59,13 @@ public class FileDumpImport extends AbstractKeyValueImport {
         return job.build();
     }
 
-    private Step step(Resource resource) {
-        return build(step(resource.getDescription()).reader(reader(resource)).writer(writer()).processor(processor()));
+    private StepBuilder<KeyValue<String>, KeyValue<String>> step(Resource resource) {
+        StepBuilder<KeyValue<String>, KeyValue<String>> step = createStep();
+        step.name(resource.getDescription());
+        step.reader(reader(resource));
+        step.writer(writer());
+        step.processor(processor());
+        return step;
     }
 
     private ItemProcessor<KeyValue<String>, KeyValue<String>> processor() {

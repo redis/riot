@@ -23,8 +23,9 @@ import com.redis.spring.batch.KeyValue;
 import com.redis.spring.batch.ValueType;
 
 import io.lettuce.core.AbstractRedisClient;
+import io.lettuce.core.codec.StringCodec;
 
-public class FileDumpExport extends AbstractExport {
+public class FileDumpExport extends AbstractExport<String, String> {
 
     public static final String DEFAULT_ELEMENT_NAME = "record";
 
@@ -47,7 +48,7 @@ public class FileDumpExport extends AbstractExport {
     private FileDumpType type;
 
     public FileDumpExport(AbstractRedisClient client, String file) {
-        super(client);
+        super(client, StringCodec.UTF8);
         this.file = file;
     }
 
@@ -77,8 +78,11 @@ public class FileDumpExport extends AbstractExport {
 
     @Override
     protected Job job() {
-        StepBuilder<KeyValue<String>, KeyValue<String>> step = step(getName()).reader(reader()).writer(writer());
-        return jobBuilder().start(build(step)).build();
+        StepBuilder<KeyValue<String>, KeyValue<String>> step = createStep();
+        step.name(getName());
+        step.reader(reader());
+        step.writer(writer());
+        return jobBuilder().start(step.build()).build();
     }
 
     private ItemWriter<KeyValue<String>> writer() {

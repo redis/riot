@@ -1,10 +1,10 @@
 package com.redis.riot.core.function;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
@@ -14,7 +14,9 @@ import com.redis.spring.batch.KeyValue;
 import io.lettuce.core.ScoredValue;
 import io.lettuce.core.StreamMessage;
 
-public class KeyValueToMapFunction implements Function<KeyValue<String>, Map<String, ?>> {
+public class KeyValueToMapFunction implements Function<KeyValue<String>, Map<String, Object>> {
+
+    private Function<String, Map<String, String>> key = t -> Collections.emptyMap();
 
     private UnaryOperator<Map<String, String>> hash = UnaryOperator.identity();
 
@@ -22,9 +24,9 @@ public class KeyValueToMapFunction implements Function<KeyValue<String>, Map<Str
 
     private StreamToMapFunction stream = new StreamToMapFunction();
 
-    private CollectionToStringMapFunction list = new CollectionToStringMapFunction();
+    private CollectionToMapFunction list = new CollectionToMapFunction();
 
-    private CollectionToStringMapFunction set = new CollectionToStringMapFunction();
+    private CollectionToMapFunction set = new CollectionToMapFunction();
 
     private ZsetToMapFunction zset = new ZsetToMapFunction();
 
@@ -34,14 +36,8 @@ public class KeyValueToMapFunction implements Function<KeyValue<String>, Map<Str
 
     private Function<Object, Map<String, String>> defaultFunction = s -> null;
 
-    private ToMapFunction<KeyValue<String>, String, String> toMapFunction = toMapFunction(t -> new LinkedHashMap<>());
-
-    public void setKeyFields(Function<String, Map<String, String>> keyFields) {
-        this.toMapFunction = toMapFunction(keyFunction().andThen(keyFields));
-    }
-
-    private Function<KeyValue<String>, String> keyFunction() {
-        return KeyValue::getKey;
+    public void setKey(Function<String, Map<String, String>> key) {
+        this.key = key;
     }
 
     public void setHash(UnaryOperator<Map<String, String>> function) {
@@ -52,11 +48,11 @@ public class KeyValueToMapFunction implements Function<KeyValue<String>, Map<Str
         this.stream = function;
     }
 
-    public void setList(CollectionToStringMapFunction function) {
+    public void setList(CollectionToMapFunction function) {
         this.list = function;
     }
 
-    public void setSet(CollectionToStringMapFunction function) {
+    public void setSet(CollectionToMapFunction function) {
         this.set = function;
     }
 
@@ -73,41 +69,37 @@ public class KeyValueToMapFunction implements Function<KeyValue<String>, Map<Str
     }
 
     @Override
-    public Map<String, ?> apply(KeyValue<String> item) {
-        return toMapFunction.apply(item);
+    public Map<String, Object> apply(KeyValue<String> t) {
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.putAll(key.apply(t.getKey()));
+        map.putAll(value(t.getType(), t.getValue()));
+        return map;
     }
 
     @SuppressWarnings("unchecked")
-    private ToMapFunction<KeyValue<String>, String, String> toMapFunction(
-            Function<KeyValue<String>, Map<String, String>> keyFields) {
-        Function<KeyValue<String>, Map<String, String>> valueFunction = this::valueMap;
-        return new ToMapFunction<>(keyFields, valueFunction);
-    }
-
-    @SuppressWarnings("unchecked")
-    private Map<String, String> valueMap(KeyValue<String> keyValue) {
-        if (keyValue.getType() == null || keyValue.getValue() == null) {
+    private Map<String, String> value(String type, Object value) {
+        if (type == null || value == null) {
             return Collections.emptyMap();
         }
-        switch (keyValue.getType()) {
+        switch (type) {
             case KeyValue.HASH:
-                return hash.apply((Map<String, String>) keyValue.getValue());
+                return hash.apply((Map<String, String>) value);
             case KeyValue.LIST:
-                return list.apply((List<String>) keyValue.getValue());
+                return list.apply((List<String>) value);
             case KeyValue.SET:
-                return set.apply((Set<String>) keyValue.getValue());
+                return set.apply((Collection<String>) value);
             case KeyValue.ZSET:
-                return zset.apply((List<ScoredValue<String>>) keyValue.getValue());
+                return zset.apply((List<ScoredValue<String>>) value);
             case KeyValue.STREAM:
-                return stream.apply((List<StreamMessage<String, String>>) keyValue.getValue());
+                return stream.apply((List<StreamMessage<String, String>>) value);
             case KeyValue.JSON:
-                return json.apply((String) keyValue.getValue());
+                return json.apply((String) value);
             case KeyValue.STRING:
-                return string.apply((String) keyValue.getValue());
+                return string.apply((String) value);
             case KeyValue.TIMESERIES:
-                return timeseries.apply((List<Sample>) keyValue.getValue());
+                return timeseries.apply((List<Sample>) value);
             default:
-                return defaultFunction.apply(keyValue.getValue());
+                return defaultFunction.apply(value);
         }
     }
 

@@ -1,37 +1,19 @@
 package com.redis.riot.core;
 
-import java.lang.reflect.Method;
-import java.text.SimpleDateFormat;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.springframework.expression.Expression;
-import org.springframework.expression.spel.support.StandardEvaluationContext;
-import org.springframework.util.StringUtils;
-
-import com.redis.lettucemod.util.GeoLocation;
 
 public class EvaluationContextOptions {
 
-    public static final String DEFAULT_DATE_VARIABLE_NAME = "date";
-
     public static final String DEFAULT_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
-
-    private Map<String, Object> variables = new LinkedHashMap<>();
-
-    private Map<String, Expression> expressions = new LinkedHashMap<>();
-
-    private String dateVariableName = DEFAULT_DATE_VARIABLE_NAME;
 
     private String dateFormat = DEFAULT_DATE_FORMAT;
 
-    public String getDateVariableName() {
-        return dateVariableName;
-    }
+    private Map<String, Expression> expressions = new LinkedHashMap<>();
 
-    public void setDateVariableName(String name) {
-        this.dateVariableName = name;
-    }
+    private Map<String, Object> variables = new LinkedHashMap<>();
 
     public String getDateFormat() {
         return dateFormat;
@@ -41,36 +23,20 @@ public class EvaluationContextOptions {
         this.dateFormat = format;
     }
 
-    public void addVariable(String field, Object value) {
-        variables.put(field, value);
+    public Map<String, Expression> getExpressions() {
+        return expressions;
     }
 
-    public void addExpression(String field, Expression expression) {
-        expressions.put(field, expression);
+    public void setExpressions(Map<String, Expression> expressions) {
+        this.expressions = expressions;
     }
 
-    public StandardEvaluationContext evaluationContext() {
-        StandardEvaluationContext context = new StandardEvaluationContext();
-        context.registerFunction("geo", geoMethod());
-        context.setVariables(variables());
-        expressions.forEach((k, v) -> context.setVariable(k, v.getValue(context)));
-        return context;
+    public Map<String, Object> getVariables() {
+        return variables;
     }
 
-    private Map<String, Object> variables() {
-        Map<String, Object> contextVariables = new LinkedHashMap<>(variables);
-        if (StringUtils.hasLength(dateVariableName) && StringUtils.hasLength(dateFormat)) {
-            contextVariables.put(dateVariableName, new SimpleDateFormat(dateFormat));
-        }
-        return contextVariables;
-    }
-
-    private Method geoMethod() {
-        try {
-            return GeoLocation.class.getDeclaredMethod("toString", String.class, String.class);
-        } catch (Exception e) {
-            throw new UnsupportedOperationException("Could not retrieve toString method in GeoLocation class");
-        }
+    public void setVariables(Map<String, Object> variables) {
+        this.variables = variables;
     }
 
 }

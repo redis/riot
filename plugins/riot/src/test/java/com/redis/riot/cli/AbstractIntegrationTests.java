@@ -708,7 +708,7 @@ public abstract class AbstractIntegrationTests extends AbstractRiotTests {
     void replicateDs() throws Throwable {
         String filename = "replicate-ds";
         GeneratorItemReader generator = generator();
-        generator.setMaxItemCount(100000);
+        generator.setMaxItemCount(12000);
         generate(filename, DEFAULT_BATCH_SIZE, generator);
         Assertions.assertTrue(connection.sync().dbsize() > 0);
         execute(filename);

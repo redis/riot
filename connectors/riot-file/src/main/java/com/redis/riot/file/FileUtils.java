@@ -131,21 +131,23 @@ public abstract class FileUtils {
         return file.startsWith(GS_URI_PREFIX);
     }
 
-    public static <T> JsonItemReader<T> jsonReader(Resource resource, Class<T> clazz) {
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public static <T> JsonItemReader<T> jsonReader(Resource resource, Class<? super T> clazz) {
         JsonItemReaderBuilder<T> jsonReaderBuilder = new JsonItemReaderBuilder<>();
         jsonReaderBuilder.name(resource.getFilename() + "-json-file-reader");
         jsonReaderBuilder.resource(resource);
-        JacksonJsonObjectReader<T> jsonObjectReader = new JacksonJsonObjectReader<>(clazz);
+        JacksonJsonObjectReader<T> jsonObjectReader = new JacksonJsonObjectReader(clazz);
         jsonObjectReader.setMapper(new ObjectMapper());
         jsonReaderBuilder.jsonObjectReader(jsonObjectReader);
         return jsonReaderBuilder.build();
     }
 
-    public static <T> XmlItemReader<T> xmlReader(Resource resource, Class<T> clazz) {
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public static <T> XmlItemReader<T> xmlReader(Resource resource, Class<? super T> clazz) {
         XmlItemReaderBuilder<T> xmlReaderBuilder = new XmlItemReaderBuilder<>();
         xmlReaderBuilder.name(resource.getFilename() + "-xml-file-reader");
         xmlReaderBuilder.resource(resource);
-        XmlObjectReader<T> xmlObjectReader = new XmlObjectReader<>(clazz);
+        XmlObjectReader<T> xmlObjectReader = new XmlObjectReader(clazz);
         xmlObjectReader.setMapper(new XmlMapper());
         xmlReaderBuilder.xmlObjectReader(xmlObjectReader);
         return xmlReaderBuilder.build();

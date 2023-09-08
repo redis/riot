@@ -1,11 +1,16 @@
 package com.redis.riot.core;
 
+import java.util.function.Function;
+
+import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
-import org.springframework.expression.spel.support.StandardEvaluationContext;
 
 import com.redis.riot.core.function.ExpressionFunction;
 import com.redis.riot.core.function.KeyValueOperator;
 import com.redis.riot.core.function.LongExpressionFunction;
+import com.redis.riot.core.function.StringKeyValueFunction;
+import com.redis.riot.core.function.ToStringKeyValueFunction;
+import com.redis.spring.batch.KeyValue;
 
 import io.lettuce.core.codec.RedisCodec;
 
@@ -16,8 +21,6 @@ public class KeyValueProcessorOptions {
     private Expression typeExpression;
 
     private Expression ttlExpression;
-
-    private EvaluationContextOptions evaluationContextOptions = new EvaluationContextOptions();
 
     public TemplateExpression getKeyExpression() {
         return keyExpression;
@@ -47,20 +50,8 @@ public class KeyValueProcessorOptions {
         return keyExpression == null && typeExpression == null && ttlExpression == null;
     }
 
-    public EvaluationContextOptions getEvaluationContextOptions() {
-        return evaluationContextOptions;
-    }
-
-    public void setEvaluationContextOptions(EvaluationContextOptions evaluationContextOptions) {
-        this.evaluationContextOptions = evaluationContextOptions;
-    }
-
-    public <K> KeyValueOperator<K> operator(RedisCodec<K, ?> codec) {
-        if (isEmpty()) {
-            return null;
-        }
-        StandardEvaluationContext context = evaluationContextOptions.evaluationContext();
-        KeyValueOperator<K> operator = new KeyValueOperator<>(codec);
+    public <K> Function<KeyValue<K>, KeyValue<K>> processor(EvaluationContext context, RedisCodec<K, ?> codec) {
+        KeyValueOperator operator = new KeyValueOperator();
         if (keyExpression != null) {
             operator.key(ExpressionFunction.of(context, keyExpression));
         }
@@ -70,7 +61,7 @@ public class KeyValueProcessorOptions {
         if (ttlExpression != null) {
             operator.ttl(new LongExpressionFunction<>(context, ttlExpression));
         }
-        return operator;
+        return new ToStringKeyValueFunction<>(codec).andThen(operator).andThen(new StringKeyValueFunction<>(codec));
     }
 
 }

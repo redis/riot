@@ -4,25 +4,25 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import com.redis.spring.batch.util.DoubleRange;
-import com.redis.spring.batch.util.IntRange;
+import com.redis.spring.batch.util.LongRange;
 
 class TypeConverterTests {
 
     @Test
     void intRange() throws Exception {
-        IntRange range = IntRange.between(1, 5);
+        LongRange range = LongRange.between(1, 5);
         Assertions.assertEquals(range, intRange(range));
-        range = IntRange.is(3123123);
+        range = LongRange.is(3123123);
         Assertions.assertEquals(range, intRange(range));
-        Assertions.assertEquals(IntRange.between(0, 5), intConvert(":5"));
+        Assertions.assertEquals(LongRange.between(0, 5), intConvert(":5"));
     }
 
-    private IntRange intRange(IntRange range) {
+    private LongRange intRange(LongRange range) {
         return intConvert(range.toString());
     }
 
-    private IntRange intConvert(String string) {
-        return Main.intRange(string);
+    private LongRange intConvert(String string) {
+        return Main.longRange(string);
     }
 
     @Test

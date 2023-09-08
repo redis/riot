@@ -1,8 +1,12 @@
 package com.redis.riot.core;
 
+import java.util.function.Function;
+
 import org.springframework.batch.item.ItemProcessor;
+import org.springframework.batch.item.function.FunctionItemProcessor;
 import org.springframework.util.CollectionUtils;
 
+import com.redis.spring.batch.KeyValue;
 import com.redis.spring.batch.RedisItemReader;
 import com.redis.spring.batch.ValueType;
 import com.redis.spring.batch.util.PredicateItemProcessor;
@@ -11,39 +15,55 @@ import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.codec.RedisCodec;
 import io.lettuce.core.codec.StringCodec;
 
-public abstract class AbstractExport extends AbstractJobExecutable {
+public abstract class AbstractExport<K, V> extends AbstractJobExecutable {
 
-    private RedisReaderOptions readerOptions = new RedisReaderOptions();
+    protected final RedisCodec<K, V> codec;
 
-    protected AbstractExport(AbstractRedisClient client) {
+    protected RedisReaderOptions readerOptions = new RedisReaderOptions();
+
+    protected KeyValueProcessorOptions processorOptions = new KeyValueProcessorOptions();
+
+    protected AbstractExport(AbstractRedisClient client, RedisCodec<K, V> codec) {
         super(client);
+        this.codec = codec;
     }
 
-    public RedisReaderOptions getReaderOptions() {
-        return readerOptions;
+    public void setProcessorOptions(KeyValueProcessorOptions options) {
+        this.processorOptions = options;
     }
 
     public void setReaderOptions(RedisReaderOptions options) {
         this.readerOptions = options;
     }
 
+    protected ItemProcessor<KeyValue<K>, KeyValue<K>> keyValueProcessor() {
+        if (processorOptions.isEmpty()) {
+            return null;
+        }
+        return new FunctionItemProcessor<>(processorFunction());
+    }
+
+    private Function<KeyValue<K>, KeyValue<K>> processorFunction() {
+        return processorOptions.processor(evaluationContext(), codec);
+    }
+
     protected RedisItemReader<String, String> reader() {
         return reader(StringCodec.UTF8);
     }
 
-    protected <K, V> RedisItemReader<K, V> reader(RedisCodec<K, V> codec) {
+    protected <K1, V1> RedisItemReader<K1, V1> reader(RedisCodec<K1, V1> codec) {
         return reader(client, codec, readerOptions);
     }
 
-    protected <K, V> RedisItemReader<K, V> reader(AbstractRedisClient client, RedisCodec<K, V> codec,
+    protected <K1, V1> RedisItemReader<K1, V1> reader(AbstractRedisClient client, RedisCodec<K1, V1> codec,
             RedisReaderOptions options) {
-        RedisItemReader<K, V> reader = new RedisItemReader<>(client, codec);
+        RedisItemReader<K1, V1> reader = new RedisItemReader<>(client, codec);
         configure(reader, options);
         reader.setKeyProcessor(keyProcessor(codec, options.getKeyFilterOptions()));
         return reader;
     }
 
-    private <K> ItemProcessor<K, K> keyProcessor(RedisCodec<K, ?> codec, KeyFilterOptions options) {
+    private <K1> ItemProcessor<K1, K1> keyProcessor(RedisCodec<K1, ?> codec, KeyFilterOptions options) {
         if (options == null || isEmpty(options)) {
             return null;
         }

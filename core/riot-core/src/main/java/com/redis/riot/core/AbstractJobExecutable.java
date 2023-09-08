@@ -1,31 +1,37 @@
 package com.redis.riot.core;
 
 import java.text.MessageFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobExecutionException;
 import org.springframework.batch.core.JobParameters;
-import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.launch.support.SimpleJobLauncher;
 import org.springframework.batch.core.repository.JobRepository;
+import org.springframework.batch.core.repository.support.MapJobRepositoryFactoryBean;
 import org.springframework.batch.support.transaction.ResourcelessTransactionManager;
 import org.springframework.core.task.SyncTaskExecutor;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.util.ClassUtils;
+import org.springframework.util.CollectionUtils;
 
-import com.redis.riot.core.StepBuilder.ReaderStepBuilder;
-import com.redis.spring.batch.util.BatchUtils;
+import com.redis.lettucemod.util.RedisModulesUtils;
 
 import io.lettuce.core.AbstractRedisClient;
 
+@SuppressWarnings("deprecation")
 public abstract class AbstractJobExecutable implements Executable {
+
+    public static final String DATE_VARIABLE_NAME = "date";
+
+    public static final String REDIS_VARIABLE_NAME = "redis";
 
     protected final AbstractRedisClient client;
 
@@ -39,15 +45,17 @@ public abstract class AbstractJobExecutable implements Executable {
 
     private String name;
 
-    private List<Consumer<StepBuilder<?, ?>>> stepConsumers = new ArrayList<>();
+    private EvaluationContextOptions evaluationContextOptions = new EvaluationContextOptions();
+
+    private List<StepConfigurationStrategy> stepConfigurationStrategies = new ArrayList<>();
 
     protected AbstractJobExecutable(AbstractRedisClient client) {
         setName(ClassUtils.getShortName(getClass()));
         this.client = client;
     }
 
-    public void addStepConsumer(Consumer<StepBuilder<?, ?>> consumer) {
-        stepConsumers.add(consumer);
+    public void addStepConfigurationStrategy(StepConfigurationStrategy strategy) {
+        stepConfigurationStrategies.add(strategy);
     }
 
     public String getName() {
@@ -66,20 +74,24 @@ public abstract class AbstractJobExecutable implements Executable {
         this.stepOptions = stepOptions;
     }
 
+    public EvaluationContextOptions getEvaluationContextOptions() {
+        return evaluationContextOptions;
+    }
+
+    public void setEvaluationContextOptions(EvaluationContextOptions evaluationContextOptions) {
+        this.evaluationContextOptions = evaluationContextOptions;
+    }
+
     @Override
     public void execute() {
-        try {
-            jobRepository = BatchUtils.inMemoryJobRepository();
-        } catch (Exception e) {
-            throw new RiotExecutionException("Could not initialize job repository", e);
-        }
+        checkJobRepository();
         jobFactory = new JobBuilderFactory(jobRepository);
         stepFactory = stepBuilderFactory();
+        Job job = job();
         JobExecution execution;
         try {
-            execution = jobLauncher().run(job(), new JobParameters());
+            execution = jobLauncher().run(job, new JobParameters());
         } catch (JobExecutionException e) {
-            // Should not happen but handle anyway
             throw new RiotExecutionException("Could not run job", e);
         }
         if (execution.getStatus().isUnsuccessful()) {
@@ -89,6 +101,18 @@ public abstract class AbstractJobExecutable implements Executable {
                 throw new RiotExecutionException(msg);
             }
             throw new RiotExecutionException(msg, exceptions.get(0));
+        }
+    }
+
+    private void checkJobRepository() {
+        if (jobRepository == null) {
+            MapJobRepositoryFactoryBean bean = new MapJobRepositoryFactoryBean();
+            try {
+                bean.afterPropertiesSet();
+                jobRepository = bean.getObject();
+            } catch (Exception e) {
+                throw new RiotExecutionException("Could not initialize job repository", e);
+            }
         }
     }
 
@@ -109,13 +133,25 @@ public abstract class AbstractJobExecutable implements Executable {
 
     protected abstract Job job();
 
-    protected ReaderStepBuilder step(String name) {
-        return StepBuilder.factory(stepFactory).name(name).options(stepOptions);
+    protected StandardEvaluationContext evaluationContext() {
+        StandardEvaluationContext context = new StandardEvaluationContext();
+        context.setVariable(DATE_VARIABLE_NAME, new SimpleDateFormat(evaluationContextOptions.getDateFormat()));
+        context.setVariable(REDIS_VARIABLE_NAME, RedisModulesUtils.connection(client).sync());
+        if (!CollectionUtils.isEmpty(evaluationContextOptions.getVariables())) {
+            evaluationContextOptions.getVariables().forEach(context::setVariable);
+        }
+        if (!CollectionUtils.isEmpty(evaluationContextOptions.getExpressions())) {
+            evaluationContextOptions.getExpressions().forEach((k, v) -> context.setVariable(k, v.getValue(context)));
+        }
+        return context;
     }
 
-    protected Step build(StepBuilder<?, ?> step) {
-        stepConsumers.forEach(c -> c.accept(step));
-        return step.build().build();
+    protected <I, O> StepBuilder<I, O> createStep() {
+        StepBuilder<I, O> step = new StepBuilder<>(stepFactory);
+        step.name(getName());
+        step.options(stepOptions);
+        step.configurationStrategies(stepConfigurationStrategies);
+        return step;
     }
 
 }

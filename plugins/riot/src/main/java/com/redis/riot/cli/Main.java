@@ -8,7 +8,7 @@ import com.redis.riot.cli.operation.OperationCommand;
 import com.redis.riot.core.SpelUtils;
 import com.redis.riot.core.TemplateExpression;
 import com.redis.spring.batch.util.DoubleRange;
-import com.redis.spring.batch.util.IntRange;
+import com.redis.spring.batch.util.LongRange;
 
 import picocli.AutoComplete.GenerateCompletion;
 import picocli.CommandLine;
@@ -68,7 +68,7 @@ public class Main extends BaseCommand implements Runnable {
         executionStrategy.addDelegates(LoggingMixin::executionStrategy);
         executionStrategy.addDelegates(Main::executionStrategy);
         commandLine.setExecutionStrategy(executionStrategy);
-        commandLine.registerConverter(IntRange.class, Main::intRange);
+        commandLine.registerConverter(LongRange.class, Main::longRange);
         commandLine.registerConverter(DoubleRange.class, Main::doubleRange);
         commandLine.registerConverter(Expression.class, SpelUtils::parse);
         commandLine.registerConverter(TemplateExpression.class, SpelUtils::parseTemplate);
@@ -110,13 +110,13 @@ public class Main extends BaseCommand implements Runnable {
         return Double.parseDouble(string);
     }
 
-    public static IntRange intRange(String value) {
+    public static LongRange longRange(String value) {
         int separator;
-        if ((separator = value.indexOf(IntRange.SEPARATOR)) >= 0) {
-            return IntRange.between(parseInt(value.substring(0, separator), 0),
-                    parseInt(value.substring(separator + IntRange.SEPARATOR.length()), Integer.MAX_VALUE));
+        if ((separator = value.indexOf(LongRange.SEPARATOR)) >= 0) {
+            return LongRange.between(parseInt(value.substring(0, separator), 0),
+                    parseInt(value.substring(separator + LongRange.SEPARATOR.length()), Integer.MAX_VALUE));
         }
-        return IntRange.is(parseInt(value, Integer.MAX_VALUE));
+        return LongRange.is(parseInt(value, Integer.MAX_VALUE));
     }
 
     private static int parseInt(String string, int defaultValue) {

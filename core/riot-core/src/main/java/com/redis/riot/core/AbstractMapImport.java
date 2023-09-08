@@ -5,8 +5,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.batch.item.ItemProcessor;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.util.Assert;
 
+import com.redis.lettucemod.util.GeoLocation;
 import com.redis.spring.batch.writer.Operation;
 import com.redis.spring.batch.writer.OperationItemWriter;
 import com.redis.spring.batch.writer.operation.CompositeOperation;
@@ -16,7 +18,7 @@ import io.lettuce.core.codec.StringCodec;
 
 public abstract class AbstractMapImport extends AbstractJobExecutable {
 
-    private MapProcessorOptions processorOptions = new MapProcessorOptions();
+    private ProcessorOptions processorOptions = new ProcessorOptions();
 
     private RedisOperationOptions operationOptions = new RedisOperationOptions();
 
@@ -27,10 +29,22 @@ public abstract class AbstractMapImport extends AbstractJobExecutable {
     }
 
     protected ItemProcessor<Map<String, Object>, Map<String, Object>> processor() {
-        return processorOptions.processor();
+        return processorOptions.processor(evaluationContext());
     }
 
-    public void setProcessorOptions(MapProcessorOptions options) {
+    @Override
+    protected StandardEvaluationContext evaluationContext() {
+        StandardEvaluationContext context = super.evaluationContext();
+        context.addPropertyAccessor(new QuietMapAccessor());
+        try {
+            context.registerFunction("geo", GeoLocation.class.getDeclaredMethod("toString", String.class, String.class));
+        } catch (NoSuchMethodException e) {
+            // ignore
+        }
+        return context;
+    }
+
+    public void setProcessorOptions(ProcessorOptions options) {
         this.processorOptions = options;
     }
 

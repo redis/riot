@@ -9,13 +9,13 @@ import picocli.CommandLine.Option;
 
 public class RedisWriterArgs extends RedisOperationArgs {
 
-    @Option(names = "--no-ttl", description = "Disables key expiry.")
+    @Option(names = "--no-ttl", description = "Do not set key expiry.")
     private boolean noTtl;
 
     @Option(names = "--merge", description = "Merge collection data structures.")
     private boolean merge;
 
-    @Option(names = "--no-stream-id", description = "Disables propagation of stream message IDs.")
+    @Option(names = "--no-stream-id", description = "Do not propagate stream message IDs.")
     private boolean noStreamId;
 
     public RedisWriterOptions writerOptions() {

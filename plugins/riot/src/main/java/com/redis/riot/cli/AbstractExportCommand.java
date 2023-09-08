@@ -15,10 +15,14 @@ public abstract class AbstractExportCommand extends AbstractJobCommand {
     @ArgGroup(exclusive = false, heading = "Redis reader options%n")
     RedisReaderArgs readerArgs = new RedisReaderArgs();
 
+    @ArgGroup(exclusive = false, heading = "Processor options%n")
+    KeyValueProcessorArgs processorArgs = new KeyValueProcessorArgs();
+
     @Override
     protected AbstractJobExecutable getJobExecutable() {
-        AbstractExport executable = getExportExecutable();
+        AbstractExport<?, ?> executable = getExportExecutable();
         executable.setReaderOptions(readerOptions());
+        executable.setProcessorOptions(processorArgs.processorOptions());
         return executable;
     }
 
@@ -28,7 +32,7 @@ public abstract class AbstractExportCommand extends AbstractJobCommand {
         return options;
     }
 
-    protected abstract AbstractExport getExportExecutable();
+    protected abstract AbstractExport<?, ?> getExportExecutable();
 
     @Override
     protected long size(StepBuilder<?, ?> step) {

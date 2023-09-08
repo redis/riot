@@ -13,7 +13,7 @@ import com.redis.spring.batch.gen.StreamOptions;
 import com.redis.spring.batch.gen.StringOptions;
 import com.redis.spring.batch.gen.TimeSeriesOptions;
 import com.redis.spring.batch.gen.ZsetOptions;
-import com.redis.spring.batch.util.IntRange;
+import com.redis.spring.batch.util.LongRange;
 
 import io.lettuce.core.AbstractRedisClient;
 
@@ -23,9 +23,9 @@ public class GeneratorImport extends AbstractKeyValueImport {
 
     private int count = DEFAULT_COUNT;
 
-    private IntRange keyRange = GeneratorItemReader.DEFAULT_KEY_RANGE;
+    private LongRange keyRange = GeneratorItemReader.DEFAULT_KEY_RANGE;
 
-    private IntRange expiration;
+    private LongRange expiration;
 
     private MapOptions hashOptions = new MapOptions();
 
@@ -59,19 +59,19 @@ public class GeneratorImport extends AbstractKeyValueImport {
         this.count = count;
     }
 
-    public IntRange getKeyRange() {
+    public LongRange getKeyRange() {
         return keyRange;
     }
 
-    public void setKeyRange(IntRange keyRange) {
+    public void setKeyRange(LongRange keyRange) {
         this.keyRange = keyRange;
     }
 
-    public IntRange getExpiration() {
+    public LongRange getExpiration() {
         return expiration;
     }
 
-    public void setExpiration(IntRange expiration) {
+    public void setExpiration(LongRange expiration) {
         this.expiration = expiration;
     }
 
@@ -157,8 +157,10 @@ public class GeneratorImport extends AbstractKeyValueImport {
 
     @Override
     protected Job job() {
-        StepBuilder<KeyValue<String>, KeyValue<String>> step = step(getName()).reader(reader()).writer(writer());
-        return jobBuilder().start(build(step)).build();
+        StepBuilder<KeyValue<String>, KeyValue<String>> step = createStep();
+        step.reader(reader());
+        step.writer(writer());
+        return jobBuilder().start(step.build()).build();
     }
 
     private GeneratorItemReader reader() {

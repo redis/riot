@@ -4,7 +4,10 @@ import javax.sql.DataSource;
 
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 
-public interface DatabaseUtils {
+public abstract class DatabaseUtils {
+
+    private DatabaseUtils() {
+    }
 
     static DataSource dataSource(DataSourceOptions options) {
         DataSourceProperties properties = new DataSourceProperties();

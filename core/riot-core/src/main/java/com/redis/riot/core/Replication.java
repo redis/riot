@@ -1,7 +1,6 @@
 package com.redis.riot.core;
 
 import java.io.PrintWriter;
-import java.time.Duration;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,9 +10,7 @@ import org.springframework.batch.core.job.builder.FlowBuilder;
 import org.springframework.batch.core.job.builder.JobFlowBuilder;
 import org.springframework.batch.core.job.builder.SimpleJobBuilder;
 import org.springframework.batch.core.job.flow.support.SimpleFlow;
-import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.batch.item.function.FunctionItemProcessor;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
 
@@ -24,15 +21,17 @@ import com.redis.spring.batch.RedisItemReader;
 import com.redis.spring.batch.RedisItemReader.Mode;
 import com.redis.spring.batch.RedisItemWriter;
 import com.redis.spring.batch.ValueType;
+import com.redis.spring.batch.reader.KeyValueItemProcessor;
 import com.redis.spring.batch.util.KeyComparison;
 import com.redis.spring.batch.util.KeyComparisonItemReader;
 
 import io.lettuce.core.AbstractRedisClient;
+import io.lettuce.core.ReadFrom;
 import io.lettuce.core.RedisException;
 import io.lettuce.core.codec.ByteArrayCodec;
 import io.lettuce.core.codec.StringCodec;
 
-public class Replication extends AbstractExport {
+public class Replication extends AbstractExport<byte[], byte[]> {
 
     public static final String CONFIG_NOTIFY_KEYSPACE_EVENTS = "notify-keyspace-events";
 
@@ -54,54 +53,36 @@ public class Replication extends AbstractExport {
 
     private ValueType valueType = DEFAULT_VALUE_TYPE;
 
-    private boolean noVerify;
+    private KeyComparisonOptions comparisonOptions = new KeyComparisonOptions();
 
-    private boolean showDiff;
-
-    private Duration ttlTolerance = KeyComparisonItemReader.DEFAULT_TTL_TOLERANCE;
-
-    private KeyValueProcessorOptions processorOptions = new KeyValueProcessorOptions();
-
-    private RedisReaderOptions targetReaderOptions = new RedisReaderOptions();
+    private ReadFrom targetReadFrom;
 
     private RedisWriterOptions targetWriterOptions = new RedisWriterOptions();
 
     public Replication(AbstractRedisClient client, AbstractRedisClient targetClient, PrintWriter out) {
-        super(client);
+        super(client, ByteArrayCodec.INSTANCE);
         this.targetClient = targetClient;
         this.out = out;
     }
 
-    public void setTargetReaderOptions(RedisReaderOptions targetReaderOptions) {
-        this.targetReaderOptions = targetReaderOptions;
+    public void setTargetReadFrom(ReadFrom readFrom) {
+        this.targetReadFrom = readFrom;
     }
 
-    public void setTargetWriterOptions(RedisWriterOptions targetWriterOptions) {
-        this.targetWriterOptions = targetWriterOptions;
+    public void setTargetWriterOptions(RedisWriterOptions options) {
+        this.targetWriterOptions = options;
     }
 
-    public void setProcessorOptions(KeyValueProcessorOptions options) {
-        this.processorOptions = options;
+    public void setComparisonOptions(KeyComparisonOptions options) {
+        this.comparisonOptions = options;
     }
 
     public void setMode(ReplicationMode mode) {
         this.mode = mode;
     }
 
-    public void setNoVerify(boolean noVerify) {
-        this.noVerify = noVerify;
-    }
-
-    public void setTtlTolerance(Duration tolerance) {
-        this.ttlTolerance = tolerance;
-    }
-
     public void setValueType(ValueType type) {
         this.valueType = type;
-    }
-
-    public void setShowDiff(boolean showDiff) {
-        this.showDiff = showDiff;
     }
 
     @Override
@@ -115,8 +96,8 @@ public class Replication extends AbstractExport {
             case COMPARE:
                 return jobBuilder().start(compareStep()).build();
             case LIVE:
-                SimpleFlow scanFlow = flow("scan").start(build(scanStep())).build();
-                SimpleFlow liveFlow = flow("live").start(build(liveStep())).build();
+                SimpleFlow scanFlow = flow("scan").start(scanStep().build()).build();
+                SimpleFlow liveFlow = flow("live").start(liveStep().build()).build();
                 SimpleFlow replicateFlow = flow("replicate").split(asyncTaskExecutor()).add(liveFlow, scanFlow).build();
                 JobFlowBuilder live = jobBuilder().start(replicateFlow);
                 if (shouldCompare()) {
@@ -124,9 +105,9 @@ public class Replication extends AbstractExport {
                 }
                 return live.build().build();
             case LIVEONLY:
-                return jobBuilder().start(build(liveStep())).build();
+                return jobBuilder().start(liveStep().build()).build();
             case SNAPSHOT:
-                SimpleJobBuilder snapshot = jobBuilder().start(build(scanStep()));
+                SimpleJobBuilder snapshot = jobBuilder().start(scanStep().build());
                 if (shouldCompare()) {
                     snapshot.next(compareStep());
                 }
@@ -145,17 +126,20 @@ public class Replication extends AbstractExport {
     }
 
     private boolean shouldCompare() {
-        return !noVerify && !getStepOptions().isDryRun() && processorOptions.isEmpty();
+        return !comparisonOptions.isNoVerify() && !getStepOptions().isDryRun() && processorOptions.isEmpty();
     }
 
     private StepBuilder<KeyValue<byte[]>, KeyValue<byte[]>> scanStep() {
-        return step(STEP_SCAN, reader(ByteArrayCodec.INSTANCE));
+        return step(STEP_SCAN, reader(codec));
     }
 
     private StepBuilder<KeyValue<byte[]>, KeyValue<byte[]>> step(String name, RedisItemReader<byte[], byte[]> reader) {
         reader.setName(name + "-reader");
-        StepBuilder<KeyValue<byte[]>, KeyValue<byte[]>> step = step(name).reader(reader).writer(writer());
-        step.processor(processor());
+        StepBuilder<KeyValue<byte[]>, KeyValue<byte[]>> step = createStep();
+        step.name(name);
+        step.reader(reader);
+        step.writer(writer());
+        step.processor(keyValueProcessor());
         if (log.isDebugEnabled()) {
             step.addWriteListener(new KeyValueWriteListener(log));
         }
@@ -164,11 +148,11 @@ public class Replication extends AbstractExport {
 
     private StepBuilder<KeyValue<byte[]>, KeyValue<byte[]>> liveStep() {
         checkKeyspaceNotificationsConfig();
-        RedisItemReader<byte[], byte[]> reader = reader(ByteArrayCodec.INSTANCE);
+        RedisItemReader<byte[], byte[]> reader = reader(codec);
         reader.setMode(Mode.LIVE);
         StepBuilder<KeyValue<byte[]>, KeyValue<byte[]>> step = step(STEP_LIVE, reader);
-        step.flushingInterval(getReaderOptions().getFlushingInterval());
-        step.idleTimeout(getReaderOptions().getIdleTimeout());
+        step.flushingInterval(readerOptions.getFlushingInterval());
+        step.idleTimeout(readerOptions.getIdleTimeout());
         return step;
     }
 
@@ -189,25 +173,28 @@ public class Replication extends AbstractExport {
     private Step compareStep() {
         KeyComparisonItemReader reader = comparisonReader();
         KeyComparisonStatusCountItemWriter writer = comparisonWriter();
-        StepBuilder<KeyComparison, KeyComparison> step = step(STEP_COMPARE).reader(reader).writer(writer);
-        if (showDiff) {
+        StepBuilder<KeyComparison, KeyComparison> step = createStep();
+        step.name(STEP_COMPARE);
+        step.reader(reader);
+        step.writer(writer);
+        if (comparisonOptions.isShowDiff()) {
             step.addWriteListener(new KeyComparisonDiffLogger(out));
         }
         step.addExecutionListener(new KeyComparisonSummaryLogger(writer, out));
-        return build(step);
+        return step.build();
     }
 
     private KeyComparisonItemReader comparisonReader() {
         RedisItemReader<String, String> leftReader = reader(StringCodec.UTF8);
-        RedisItemReader<String, String> rightReader = targetReader();
+        KeyValueItemProcessor<String, String> rightReader = new KeyValueItemProcessor<>(targetClient, StringCodec.UTF8);
+        rightReader.setPoolSize(targetWriterOptions.getPoolSize());
+        rightReader.setReadFrom(targetReadFrom);
+        rightReader.setMemoryUsageLimit(readerOptions.getMemoryUsageLimit());
+        rightReader.setMemoryUsageSamples(readerOptions.getMemoryUsageSamples());
         KeyComparisonItemReader reader = new KeyComparisonItemReader(leftReader, rightReader);
-        reader.setTtlTolerance(ttlTolerance);
+        reader.setTtlTolerance(comparisonOptions.getTtlTolerance());
         reader.setName("compare-reader");
         return reader;
-    }
-
-    private RedisItemReader<String, String> targetReader() {
-        return reader(targetClient, StringCodec.UTF8, targetReaderOptions);
     }
 
     private KeyComparisonStatusCountItemWriter comparisonWriter() {
@@ -215,17 +202,10 @@ public class Replication extends AbstractExport {
     }
 
     private ItemWriter<KeyValue<byte[]>> writer() {
-        RedisItemWriter<byte[], byte[]> writer = new RedisItemWriter<>(targetClient, ByteArrayCodec.INSTANCE);
+        RedisItemWriter<byte[], byte[]> writer = new RedisItemWriter<>(targetClient, codec);
         targetWriterOptions.configure(writer);
         writer.setValueType(valueType);
         return writer;
-    }
-
-    private ItemProcessor<KeyValue<byte[]>, KeyValue<byte[]>> processor() {
-        if (processorOptions.isEmpty()) {
-            return null;
-        }
-        return new FunctionItemProcessor<>(processorOptions.operator(ByteArrayCodec.INSTANCE));
     }
 
 }

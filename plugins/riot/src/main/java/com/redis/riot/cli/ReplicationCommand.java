@@ -3,10 +3,11 @@ package com.redis.riot.cli;
 import java.time.Duration;
 import java.util.function.Supplier;
 
+import com.redis.riot.cli.RedisReaderArgs.ReadFromEnum;
 import com.redis.riot.core.AbstractExport;
 import com.redis.riot.core.EvaluationContextOptions;
+import com.redis.riot.core.KeyComparisonOptions;
 import com.redis.riot.core.KeyComparisonStatusCountItemWriter;
-import com.redis.riot.core.KeyValueProcessorOptions;
 import com.redis.riot.core.Replication;
 import com.redis.riot.core.ReplicationMode;
 import com.redis.riot.core.StepBuilder;
@@ -14,8 +15,10 @@ import com.redis.spring.batch.RedisItemReader;
 import com.redis.spring.batch.ValueType;
 import com.redis.spring.batch.reader.KeyspaceNotificationItemReader;
 import com.redis.spring.batch.util.BatchUtils;
+import com.redis.spring.batch.util.KeyComparison.Status;
 import com.redis.spring.batch.util.KeyComparisonItemReader;
 
+import io.lettuce.core.ReadFrom;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -23,13 +26,17 @@ import picocli.CommandLine.Option;
 @Command(name = "replicate", description = "Replicate a Redis database into another Redis database.")
 public class ReplicationCommand extends AbstractExportCommand {
 
-    private static final String COMPARE_MESSAGE = " | %,d missing | %,d type | %,d value | %,d ttl";
+    private static final Status[] STATUSES = { Status.OK, Status.MISSING, Status.TYPE, Status.VALUE, Status.TTL };
 
     private static final String QUEUE_MESSAGE = " | %,d queue capacity";
 
-    private static final String VAR_SOURCE_REDIS_URI = "src";
+    private static final String NUMBER_FORMAT = "%,d";
 
-    private static final String VAR_TARGET_REDIS_URI = "tgt";
+    private static final String COMPARE_MESSAGE = " | %s: %s";
+
+    private static final String VARIABLE_SOURCE = "source";
+
+    private static final String VARIABLE_TARGET = "target";
 
     @Option(names = "--mode", description = "Replication mode: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<name>")
     ReplicationMode mode = ReplicationMode.SNAPSHOT;
@@ -37,48 +44,70 @@ public class ReplicationCommand extends AbstractExportCommand {
     @Option(names = "--type", description = "Replication strategy: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<name>")
     ValueType valueType = ValueType.DUMP;
 
-    @Option(names = "--no-verify", description = "Disable verifying target against source dataset after replication.")
-    boolean noVerify;
-
-    @Option(names = "--ttl-tolerance", description = "Max TTL offset in millis to use for dataset verification (default: ${DEFAULT-VALUE}).", paramLabel = "<ms>")
-    long ttlTolerance = KeyComparisonItemReader.DEFAULT_TTL_TOLERANCE.toMillis();
-
-    @Option(names = "--show-diffs", description = "Print details of key mismatches during dataset verification. Disables progress reporting.")
-    boolean showDiffs;
-
-    @ArgGroup(exclusive = false, heading = "Processor options%n")
-    KeyValueProcessorArgs processorArgs = new KeyValueProcessorArgs();
-
     @ArgGroup(exclusive = false, heading = "Target Redis connection options%n")
     RedisArgs targetRedisArgs = new RedisArgs();
 
-    @ArgGroup(exclusive = false, heading = "Target Redis reader options%n")
-    ReplicationTargetReaderArgs targetReaderArgs = new ReplicationTargetReaderArgs();
+    @ArgGroup(exclusive = false, heading = "Target Redis options%n")
+    TargetArgs targetArgs = new TargetArgs();
 
-    @ArgGroup(exclusive = false, heading = "Target Redis writer options%n")
-    RedisWriterArgs targetWriterArgs = new RedisWriterArgs();
+    @ArgGroup(exclusive = false, heading = "Compare options%n")
+    ComparisonArgs compareArgs = new ComparisonArgs();
+
+    private static class ComparisonArgs {
+
+        @Option(names = "--no-verify", description = "Disable comparing target against source after replication.")
+        boolean noVerify;
+
+        @Option(names = "--ttl-tolerance", description = "Max TTL offset in millis to use for dataset verification (default: ${DEFAULT-VALUE}).", paramLabel = "<ms>")
+        long ttlTolerance = KeyComparisonItemReader.DEFAULT_TTL_TOLERANCE.toMillis();
+
+        @Option(names = "--show-diffs", description = "Print details of key mismatches during dataset verification. Disables progress reporting.")
+        boolean showDiffs;
+
+        public KeyComparisonOptions comparisonOptions() {
+            KeyComparisonOptions options = new KeyComparisonOptions();
+            options.setNoVerify(noVerify);
+            options.setShowDiff(showDiffs);
+            options.setTtlTolerance(Duration.ofMillis(ttlTolerance));
+            return options;
+        }
+
+    }
+
+    private static class TargetArgs {
+
+        @Option(names = "--target-read-from", description = "Which target Redis cluster nodes to read data from: ${COMPLETION-CANDIDATES}.", paramLabel = "<n>")
+        ReadFromEnum readFrom;
+
+        @ArgGroup(exclusive = false)
+        RedisWriterArgs writerArgs = new RedisWriterArgs();
+
+        public ReadFrom readFrom() {
+            if (readFrom == null) {
+                return null;
+            }
+            return readFrom.getReadFrom();
+        }
+
+    }
 
     @Override
-    protected AbstractExport getExportExecutable() {
+    protected AbstractExport<byte[], byte[]> getExportExecutable() {
         Replication executable = new Replication(redisClient(), targetRedisArgs.client(), parent.out);
-        executable.setProcessorOptions(processorOptions());
+        executable.setComparisonOptions(compareArgs.comparisonOptions());
         executable.setMode(mode);
-        executable.setNoVerify(noVerify);
-        executable.setProcessorOptions(processorOptions());
-        executable.setShowDiff(showDiffs);
-        executable.setTargetReaderOptions(targetReaderArgs.readerOptions());
-        executable.setTargetWriterOptions(targetWriterArgs.writerOptions());
-        executable.setTtlTolerance(Duration.ofMillis(ttlTolerance));
-        executable.setValueType(valueType);
         executable.setReaderOptions(readerOptions());
+        executable.setTargetReadFrom(targetArgs.readFrom());
+        executable.setTargetWriterOptions(targetArgs.writerArgs.writerOptions());
+        executable.setValueType(valueType);
         return executable;
     }
 
-    private KeyValueProcessorOptions processorOptions() {
-        KeyValueProcessorOptions options = processorArgs.keyValueOperatorOptions();
-        EvaluationContextOptions evaluationContextOptions = options.getEvaluationContextOptions();
-        evaluationContextOptions.addVariable(VAR_SOURCE_REDIS_URI, redisArgs().uri());
-        evaluationContextOptions.addVariable(VAR_TARGET_REDIS_URI, targetRedisArgs.uri());
+    @Override
+    protected EvaluationContextOptions evaluationContextOptions() {
+        EvaluationContextOptions options = super.evaluationContextOptions();
+        options.getVariables().put(VARIABLE_SOURCE, redisArgs().uri());
+        options.getVariables().put(VARIABLE_TARGET, targetRedisArgs.uri());
         return options;
     }
 
@@ -131,8 +160,20 @@ public class ReplicationCommand extends AbstractExportCommand {
     }
 
     private Supplier<String> compareMessage(StepBuilder<?, ?> step) {
-        KeyComparisonStatusCountItemWriter writer = (KeyComparisonStatusCountItemWriter) step.getWriter();
-        return () -> String.format(COMPARE_MESSAGE, writer.getMissing(), writer.getType(), writer.getValue(), writer.getTtl());
+        String format = compareFormat();
+        return () -> String.format(format, counts(step));
+    }
+
+    private String compareFormat() {
+        StringBuilder builder = new StringBuilder();
+        for (Status status : STATUSES) {
+            builder.append(String.format(COMPARE_MESSAGE, status.name().toLowerCase(), NUMBER_FORMAT));
+        }
+        return builder.toString();
+    }
+
+    private Object[] counts(StepBuilder<?, ?> step) {
+        return ((KeyComparisonStatusCountItemWriter) step.getWriter()).getCounts(STATUSES);
     }
 
 }

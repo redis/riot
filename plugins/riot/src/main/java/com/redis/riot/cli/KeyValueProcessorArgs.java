@@ -5,7 +5,6 @@ import org.springframework.expression.Expression;
 import com.redis.riot.core.KeyValueProcessorOptions;
 import com.redis.riot.core.TemplateExpression;
 
-import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Option;
 
 public class KeyValueProcessorArgs {
@@ -19,15 +18,11 @@ public class KeyValueProcessorArgs {
     @Option(names = "--ttl-proc", description = "SpEL expression to transform the TTL of each key.", paramLabel = "<exp>")
     Expression ttlExpression;
 
-    @ArgGroup(exclusive = false)
-    EvaluationContextArgs evaluationContextArgs = new EvaluationContextArgs();
-
-    public KeyValueProcessorOptions keyValueOperatorOptions() {
+    public KeyValueProcessorOptions processorOptions() {
         KeyValueProcessorOptions options = new KeyValueProcessorOptions();
         options.setKeyExpression(keyExpression);
         options.setTtlExpression(ttlExpression);
         options.setTypeExpression(typeExpression);
-        options.setEvaluationContextOptions(evaluationContextArgs.evaluationContextOptions());
         return options;
     }
 

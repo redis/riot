@@ -34,7 +34,7 @@ import picocli.CommandLine.Command;
 public abstract class AbstractImportCommand extends AbstractJobCommand {
 
     @ArgGroup(exclusive = false, heading = "Processor options%n")
-    MapProcessorArgs processorArgs = new MapProcessorArgs();
+    ProcessorArgs processorArgs = new ProcessorArgs();
 
     /**
      * Initialized manually during command parsing

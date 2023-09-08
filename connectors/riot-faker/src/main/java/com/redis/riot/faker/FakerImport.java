@@ -16,7 +16,7 @@ import com.redis.lettucemod.util.RedisModulesUtils;
 import com.redis.riot.core.AbstractMapImport;
 import com.redis.riot.core.SpelUtils;
 import com.redis.riot.core.StepBuilder;
-import com.redis.spring.batch.util.IntRange;
+import com.redis.spring.batch.util.LongRange;
 
 import io.lettuce.core.AbstractRedisClient;
 
@@ -26,7 +26,7 @@ public class FakerImport extends AbstractMapImport {
 
     public static final Locale DEFAULT_LOCALE = Locale.ENGLISH;
 
-    public static final IntRange DEFAULT_INDEX_RANGE = IntRange.from(1);
+    public static final LongRange DEFAULT_INDEX_RANGE = LongRange.from(1);
 
     private Map<String, Expression> fields = new LinkedHashMap<>();
 
@@ -59,8 +59,11 @@ public class FakerImport extends AbstractMapImport {
 
     @Override
     protected Job job() {
-        StepBuilder<Map<String, Object>, Map<String, Object>> step = step(getName()).reader(reader()).writer(writer());
-        return jobBuilder().start(build(step)).build();
+        StepBuilder<Map<String, Object>, Map<String, Object>> step = createStep();
+        step.name(getName());
+        step.reader(reader());
+        step.writer(writer());
+        return jobBuilder().start(step.build()).build();
     }
 
     private FakerItemReader reader() {

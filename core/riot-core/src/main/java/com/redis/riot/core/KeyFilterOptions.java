@@ -8,7 +8,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 import com.redis.spring.batch.util.CodecUtils;
-import com.redis.spring.batch.util.IntRange;
+import com.redis.spring.batch.util.LongRange;
 import com.redis.spring.batch.util.Predicates;
 
 import io.lettuce.core.codec.RedisCodec;
@@ -19,7 +19,7 @@ public class KeyFilterOptions {
 
     private List<String> excludes;
 
-    private List<IntRange> slots;
+    private List<LongRange> slots;
 
     public KeyFilterOptions() {
     }
@@ -46,11 +46,11 @@ public class KeyFilterOptions {
         this.excludes = keyExcludes;
     }
 
-    public List<IntRange> getSlots() {
+    public List<LongRange> getSlots() {
         return slots;
     }
 
-    public void setSlots(List<IntRange> keySlots) {
+    public void setSlots(List<LongRange> keySlots) {
         this.slots = keySlots;
     }
 
@@ -64,7 +64,7 @@ public class KeyFilterOptions {
 
         private List<String> excludes;
 
-        private List<IntRange> slots;
+        private List<LongRange> slots;
 
         private Builder() {
         }
@@ -87,11 +87,11 @@ public class KeyFilterOptions {
             return this;
         }
 
-        public Builder slots(IntRange... slots) {
+        public Builder slots(LongRange... slots) {
             return slots(Arrays.asList(slots));
         }
 
-        public Builder slots(List<IntRange> slots) {
+        public Builder slots(List<LongRange> slots) {
             this.slots = slots;
             return this;
         }

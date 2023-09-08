@@ -9,6 +9,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
 import org.springframework.batch.core.ItemWriteListener;
+import org.springframework.batch.core.Step;
 import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.step.builder.FaultTolerantStepBuilder;
@@ -22,6 +23,7 @@ import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemStreamReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.support.SynchronizedItemStreamReader;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.classify.BinaryExceptionClassifier;
 
 import com.redis.spring.batch.RedisItemReader;
@@ -34,11 +36,11 @@ public class StepBuilder<I, O> {
 
     private final StepBuilderFactory factory;
 
-    private final String name;
+    private String name;
 
-    private final ItemReader<I> reader;
+    private ItemReader<I> reader;
 
-    private final ItemWriter<O> writer;
+    private ItemWriter<O> writer;
 
     private ItemProcessor<I, O> processor;
 
@@ -56,6 +58,8 @@ public class StepBuilder<I, O> {
 
     private Collection<Class<? extends Throwable>> retriableExceptions = defaultRetriableExceptions();
 
+    private List<StepConfigurationStrategy> configurationStrategies = new ArrayList<>();
+
     public static Collection<Class<? extends Throwable>> defaultRetriableExceptions() {
         Collection<Class<? extends Throwable>> exceptions = new ArrayList<>();
         exceptions.add(RedisException.class);
@@ -64,11 +68,8 @@ public class StepBuilder<I, O> {
         return exceptions;
     }
 
-    private StepBuilder(StepBuilderFactory factory, String name, ItemReader<I> reader, ItemWriter<O> writer) {
+    public StepBuilder(StepBuilderFactory factory) {
         this.factory = factory;
-        this.name = name;
-        this.reader = reader;
-        this.writer = writer;
     }
 
     public String getName() {
@@ -81,6 +82,21 @@ public class StepBuilder<I, O> {
 
     public ItemWriter<O> getWriter() {
         return writer;
+    }
+
+    public StepBuilder<I, O> reader(ItemReader<I> reader) {
+        this.reader = reader;
+        return this;
+    }
+
+    public StepBuilder<I, O> writer(ItemWriter<O> writer) {
+        this.writer = writer;
+        return this;
+    }
+
+    public StepBuilder<I, O> name(String name) {
+        this.name = name;
+        return this;
     }
 
     @SuppressWarnings("unchecked")
@@ -98,6 +114,10 @@ public class StepBuilder<I, O> {
     public StepBuilder<I, O> options(StepOptions options) {
         this.options = options;
         return this;
+    }
+
+    public void accept(StepConfigurationStrategy strategy) {
+        strategy.configure(this);
     }
 
     public void addWriteListener(ItemWriteListener<O> listener) {
@@ -123,7 +143,11 @@ public class StepBuilder<I, O> {
         return this;
     }
 
-    public SimpleStepBuilder<I, O> build() {
+    public Step build() {
+        configurationStrategies.forEach(s -> s.configure(this));
+        initialize(reader);
+        initialize(processor);
+        initialize(writer);
         SimpleStepBuilder<I, O> step = factory.get(name).chunk(options.getChunkSize());
         step.reader(reader());
         step.processor(processor);
@@ -140,7 +164,17 @@ public class StepBuilder<I, O> {
         if (options.isFaultTolerance()) {
             step = retry(step.faultTolerant().skipPolicy(skipPolicy()).retryLimit(options.getRetryLimit()));
         }
-        return step;
+        return step.build();
+    }
+
+    private void initialize(Object object) {
+        if (object instanceof InitializingBean) {
+            try {
+                ((InitializingBean) object).afterPropertiesSet();
+            } catch (Exception e) {
+                throw new RiotExecutionException("Could not initialize " + object, e);
+            }
+        }
     }
 
     private FaultTolerantStepBuilder<I, O> retry(FaultTolerantStepBuilder<I, O> step) {
@@ -191,73 +225,9 @@ public class StepBuilder<I, O> {
         }
     }
 
-    public static NameBuilder factory(StepBuilderFactory factory) {
-        return new NameBuilder(factory);
-    }
-
-    public static class NameBuilder {
-
-        private final StepBuilderFactory factory;
-
-        public NameBuilder(StepBuilderFactory factory) {
-            this.factory = factory;
-        }
-
-        public ReaderStepBuilder name(String name) {
-            return new ReaderStepBuilder(factory, name);
-        }
-
-    }
-
-    public static class ReaderStepBuilder {
-
-        private final StepBuilderFactory factory;
-
-        private final String name;
-
-        private StepOptions options = new StepOptions();
-
-        public ReaderStepBuilder(StepBuilderFactory factory, String name) {
-            this.factory = factory;
-            this.name = name;
-        }
-
-        public ReaderStepBuilder options(StepOptions options) {
-            this.options = options;
-            return this;
-        }
-
-        public <I> Builder<I> reader(ItemReader<I> reader) {
-            return new Builder<>(factory, name, reader).options(options);
-        }
-
-    }
-
-    public static class Builder<I> {
-
-        private final StepBuilderFactory factory;
-
-        private final String name;
-
-        private final ItemReader<I> reader;
-
-        private StepOptions options = new StepOptions();
-
-        public Builder(StepBuilderFactory factory, String name, ItemReader<I> reader) {
-            this.factory = factory;
-            this.name = name;
-            this.reader = reader;
-        }
-
-        public Builder<I> options(StepOptions options) {
-            this.options = options;
-            return this;
-        }
-
-        public <O> StepBuilder<I, O> writer(ItemWriter<O> writer) {
-            return new StepBuilder<>(factory, name, reader, writer).options(options);
-        }
-
+    public StepBuilder<I, O> configurationStrategies(List<StepConfigurationStrategy> strategies) {
+        this.configurationStrategies = strategies;
+        return this;
     }
 
 }

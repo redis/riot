@@ -7,9 +7,7 @@ import javax.sql.DataSource;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.database.AbstractCursorItemReader;
-import org.springframework.batch.item.database.JdbcCursorItemReader;
 import org.springframework.batch.item.database.builder.JdbcCursorItemReaderBuilder;
-import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.jdbc.core.ColumnMapRowMapper;
 
 import com.redis.riot.core.AbstractMapImport;
@@ -104,8 +102,11 @@ public class DatabaseImport extends AbstractMapImport {
 
     @Override
     protected Job job() {
-        StepBuilder<Map<String, Object>, Map<String, Object>> step = step(getName()).reader(reader()).writer(writer());
-        return jobBuilder().start(build(step)).build();
+        StepBuilder<Map<String, Object>, Map<String, Object>> step = createStep();
+        step.name(getName());
+        step.reader(reader());
+        step.writer(writer());
+        return jobBuilder().start(step.build()).build();
     }
 
     private ItemReader<Map<String, Object>> reader() {
@@ -124,13 +125,7 @@ public class DatabaseImport extends AbstractMapImport {
         if (maxItemCount > 0) {
             builder.maxItemCount(maxItemCount);
         }
-        JdbcCursorItemReader<Map<String, Object>> reader = builder.build();
-        try {
-            reader.afterPropertiesSet();
-        } catch (Exception e) {
-            throw new BeanInitializationException("Could not initialize JDBC reader", e);
-        }
-        return reader;
+        return builder.build();
     }
 
 }

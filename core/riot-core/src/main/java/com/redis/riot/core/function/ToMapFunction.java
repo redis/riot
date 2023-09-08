@@ -9,7 +9,7 @@ import java.util.function.Function;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
-public class ToMapFunction<T, K, V> implements Function<T, Map<K, ? extends V>> {
+public class ToMapFunction<T, K, V> implements Function<T, Map<K, V>> {
 
     private final List<? extends Function<T, Map<K, V>>> functions;
 
@@ -25,7 +25,7 @@ public class ToMapFunction<T, K, V> implements Function<T, Map<K, ? extends V>> 
     }
 
     @Override
-    public Map<K, ? extends V> apply(T t) {
+    public Map<K, V> apply(T t) {
         Iterator<? extends Function<T, Map<K, V>>> iterator = functions.iterator();
         Map<K, V> map = iterator.next().apply(t);
         while (iterator.hasNext()) {

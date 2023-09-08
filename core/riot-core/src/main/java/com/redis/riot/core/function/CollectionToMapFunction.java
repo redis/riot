@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-public class CollectionToStringMapFunction implements Function<Collection<String>, Map<String, String>> {
+public class CollectionToMapFunction implements Function<Collection<String>, Map<String, String>> {
 
     public static final String DEFAULT_KEY_FORMAT = "[%s]";
 

@@ -4,9 +4,8 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import org.springframework.batch.core.ExitStatus;
-import org.springframework.batch.core.ItemWriteListener;
 import org.springframework.batch.core.StepExecution;
-import org.springframework.batch.core.StepExecutionListener;
+import org.springframework.batch.core.listener.StepListenerSupport;
 
 import me.tongfei.progressbar.ProgressBar;
 import me.tongfei.progressbar.ProgressBarBuilder;
@@ -17,7 +16,8 @@ import me.tongfei.progressbar.ProgressBarBuilder;
  * @author Julien Ruaux
  * @since 3.1.2
  */
-public class ProgressStepListener<O> implements ItemWriteListener<O>, StepExecutionListener {
+@SuppressWarnings("rawtypes")
+public class ProgressStepListener extends StepListenerSupport {
 
     private final ProgressBarBuilder progressBarBuilder;
 
@@ -46,25 +46,25 @@ public class ProgressStepListener<O> implements ItemWriteListener<O>, StepExecut
     }
 
     @Override
-    public void beforeWrite(List<? extends O> items) {
+    public void beforeWrite(List items) {
         // Do nothing
     }
 
     @Override
-    public void afterWrite(List<? extends O> items) {
+    public void afterWrite(List items) {
         progressBar.stepBy(items.size());
     }
 
     @Override
-    public void onWriteError(Exception exception, List<? extends O> items) {
+    public void onWriteError(Exception exception, List items) {
         progressBar.stepBy(items.size());
     }
 
-    public ExtraMessageProgressStepListener<O> extraMessage(Supplier<String> extraMessage) {
-        return new ExtraMessageProgressStepListener<>(progressBarBuilder, extraMessage);
+    public ExtraMessageProgressStepListener extraMessage(Supplier<String> extraMessage) {
+        return new ExtraMessageProgressStepListener(progressBarBuilder, extraMessage);
     }
 
-    private static class ExtraMessageProgressStepListener<O> extends ProgressStepListener<O> {
+    private static class ExtraMessageProgressStepListener extends ProgressStepListener {
 
         private final Supplier<String> extraMessage;
 
@@ -74,7 +74,7 @@ public class ProgressStepListener<O> implements ItemWriteListener<O>, StepExecut
         }
 
         @Override
-        public void afterWrite(List<? extends O> items) {
+        public void afterWrite(List items) {
             progressBar.setExtraMessage(extraMessage.get());
             super.afterWrite(items);
         }

@@ -81,7 +81,7 @@ public class RedisReaderArgs {
         options.setPoolSize(poolSize);
         options.setQueueCapacity(queueCapacity);
         if (readFrom != null) {
-            options.setReadFrom(readFrom.getValue());
+            options.setReadFrom(readFrom.getReadFrom());
         }
         options.setScanCount(scanCount);
         options.setScanMatch(scanMatch);
@@ -107,14 +107,14 @@ public class RedisReaderArgs {
         ANY(ReadFrom.ANY),
         ANY_REPLICA(ReadFrom.ANY_REPLICA);
 
-        private final ReadFrom value;
+        private final ReadFrom readFrom;
 
-        private ReadFromEnum(ReadFrom value) {
-            this.value = value;
+        private ReadFromEnum(ReadFrom readFrom) {
+            this.readFrom = readFrom;
         }
 
-        public ReadFrom getValue() {
-            return value;
+        public ReadFrom getReadFrom() {
+            return readFrom;
         }
 
     }

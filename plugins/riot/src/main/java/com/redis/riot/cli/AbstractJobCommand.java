@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.redis.riot.core.AbstractJobExecutable;
+import com.redis.riot.core.EvaluationContextOptions;
 import com.redis.riot.core.Executable;
 import com.redis.riot.core.StepBuilder;
 
@@ -19,15 +20,24 @@ abstract class AbstractJobCommand extends AbstractCommand {
     @ArgGroup(exclusive = false, heading = "Execution options%n")
     StepArgs stepArgs = new StepArgs();
 
+    @ArgGroup(exclusive = false)
+    EvaluationContextArgs evaluationContextArgs = new EvaluationContextArgs();
+
     @Override
     protected Executable getExecutable() {
         AbstractJobExecutable executable = getJobExecutable();
         executable.setStepOptions(stepArgs.stepOptions());
-        executable.addStepConsumer(this::configure);
+        executable.setEvaluationContextOptions(evaluationContextOptions());
+        executable.addStepConfigurationStrategy(this::configure);
         return executable;
     }
 
-    protected <I, O> void configure(StepBuilder<I, O> step) {
+    protected EvaluationContextOptions evaluationContextOptions() {
+        return evaluationContextArgs.evaluationContextOptions();
+    }
+
+    @SuppressWarnings("unchecked")
+    protected void configure(StepBuilder<?, ?> step) {
         ProgressBarBuilder progressBar = new ProgressBarBuilder();
         progressBar.setStyle(stepArgs.style());
         progressBar.setUpdateIntervalMillis(stepArgs.updateInterval);
@@ -38,7 +48,7 @@ abstract class AbstractJobCommand extends AbstractCommand {
         }
         progressBar.setInitialMax(size(step));
         progressBar.setTaskName(taskName(step));
-        ProgressStepListener<O> listener = new ProgressStepListener<>(progressBar);
+        ProgressStepListener listener = new ProgressStepListener(progressBar);
         Supplier<String> extraMessage = extraMessage(step);
         if (extraMessage != null) {
             listener = listener.extraMessage(extraMessage);

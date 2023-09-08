@@ -2,10 +2,13 @@ package com.redis.riot.file;
 
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import org.slf4j.Logger;
@@ -13,9 +16,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.builder.SimpleJobBuilder;
-import org.springframework.batch.item.ItemStreamReader;
+import org.springframework.batch.item.ItemProcessor;
+import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
+import org.springframework.batch.item.file.mapping.FieldSetMapper;
 import org.springframework.batch.item.file.separator.DefaultRecordSeparatorPolicy;
 import org.springframework.batch.item.file.separator.RecordSeparatorPolicy;
 import org.springframework.batch.item.file.transform.AbstractLineTokenizer;
@@ -23,15 +28,19 @@ import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.batch.item.file.transform.FixedLengthTokenizer;
 import org.springframework.batch.item.file.transform.Range;
 import org.springframework.batch.item.file.transform.RangeArrayPropertyEditor;
-import org.springframework.batch.item.json.JsonItemReader;
+import org.springframework.batch.item.function.FunctionItemProcessor;
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
 import org.springframework.core.io.Resource;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
 import com.redis.riot.core.AbstractMapImport;
 import com.redis.riot.core.StepBuilder;
-import com.redis.riot.file.resource.XmlItemReader;
+import com.redis.riot.core.function.MapToFieldFunction;
+import com.redis.riot.core.function.RegexNamedGroupFunction;
+import com.redis.riot.core.function.ToMapFunction;
+import com.redis.spring.batch.util.BatchUtils;
 
 import io.lettuce.core.AbstractRedisClient;
 
@@ -71,6 +80,8 @@ public class FileImport extends AbstractMapImport {
 
     private String continuationString = DEFAULT_CONTINUATION_STRING;
 
+    private Map<String, Pattern> regexes;
+
     public FileImport(AbstractRedisClient client, String... files) {
         this(client, Arrays.asList(files));
     }
@@ -79,6 +90,10 @@ public class FileImport extends AbstractMapImport {
         super(client);
         Assert.notEmpty(files, "No file specified");
         this.files = files;
+    }
+
+    public void setRegexes(Map<String, Pattern> regexes) {
+        this.regexes = regexes;
     }
 
     public void setFileOptions(FileOptions fileOptions) {
@@ -144,19 +159,21 @@ public class FileImport extends AbstractMapImport {
 
     @SuppressWarnings("unchecked")
     private Step step(Resource resource) {
-        AbstractItemCountingItemStreamItemReader<Map<String, Object>> reader = reader(resource);
-        if (maxItemCount != null) {
-            reader.setMaxItemCount(maxItemCount);
+        ItemReader<Map<String, Object>> reader = reader(resource);
+        if (maxItemCount != null && reader instanceof AbstractItemCountingItemStreamItemReader) {
+            ((AbstractItemCountingItemStreamItemReader<Map<String, Object>>) reader).setMaxItemCount(maxItemCount);
         }
         String name = resource.getDescription();
-        StepBuilder<Map<String, Object>, Map<String, Object>> step = step(name).reader(reader).writer(writer());
+        StepBuilder<Map<String, Object>, Map<String, Object>> step = createStep();
+        step.name(name);
+        step.reader(reader);
+        step.writer(writer());
         step.processor(processor());
         step.skippableExceptions(ParseException.class);
-        return build(step);
+        return step.build();
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    private AbstractItemCountingItemStreamItemReader<Map<String, Object>> reader(Resource resource) {
+    private ItemReader<Map<String, Object>> reader(Resource resource) {
         FileType type = type(resource);
         switch (type) {
             case DELIMITED:
@@ -182,10 +199,10 @@ public class FileImport extends AbstractMapImport {
                 return flatFileReader(resource, fixedLengthTokenizer);
             case XML:
                 log.info("Creating XML reader for {}", resource);
-                return (XmlItemReader) FileUtils.xmlReader(resource, Map.class);
+                return FileUtils.xmlReader(resource, Map.class);
             case JSON:
                 log.info("Creating JSON reader for {}", resource);
-                return (JsonItemReader) FileUtils.jsonReader(resource, Map.class);
+                return FileUtils.jsonReader(resource, Map.class);
             default:
                 throw new UnsupportedOperationException("Unsupported file type: " + type);
         }
@@ -228,11 +245,13 @@ public class FileImport extends AbstractMapImport {
         }
     }
 
-    private FlatFileItemReader<Map<String, Object>> flatFileReader(Resource resource, AbstractLineTokenizer tokenizer) {
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    private <T extends Map<String, Object>> FlatFileItemReader<T> flatFileReader(Resource resource,
+            AbstractLineTokenizer tokenizer) {
         if (!ObjectUtils.isEmpty(fields)) {
             tokenizer.setNames(fields.toArray(new String[0]));
         }
-        FlatFileItemReaderBuilder<Map<String, Object>> builder = new FlatFileItemReaderBuilder<>();
+        FlatFileItemReaderBuilder<T> builder = new FlatFileItemReaderBuilder<>();
         builder.resource(resource);
         if (fileOptions.getEncoding() != null) {
             builder.encoding(fileOptions.getEncoding());
@@ -242,7 +261,7 @@ public class FileImport extends AbstractMapImport {
         builder.linesToSkip(linesToSkip());
         builder.strict(true);
         builder.saveState(false);
-        builder.fieldSetMapper(new MapFieldSetMapper());
+        builder.fieldSetMapper((FieldSetMapper) new MapFieldSetMapper());
         builder.skippedLinesCallback(new HeaderCallbackHandler(tokenizer, headerIndex()));
         return builder.build();
     }
@@ -274,7 +293,7 @@ public class FileImport extends AbstractMapImport {
      * @return List of readers for the given files, which might contain wildcards
      * @throws IOException
      */
-    public Stream<ItemStreamReader<Map<String, Object>>> readers(String... files) {
+    public Stream<ItemReader<Map<String, Object>>> readers(String... files) {
         return FileUtils.expandAll(Arrays.asList(files)).map(f -> FileUtils.inputResource(f, fileOptions)).map(this::reader);
     }
 
@@ -284,8 +303,31 @@ public class FileImport extends AbstractMapImport {
      * @return Reader for the given file
      * @throws Exception
      */
-    public ItemStreamReader<Map<String, Object>> reader(String file) {
+    public ItemReader<Map<String, Object>> reader(String file) {
         return reader(FileUtils.inputResource(file, fileOptions));
+    }
+
+    @Override
+    protected ItemProcessor<Map<String, Object>, Map<String, Object>> processor() {
+        ItemProcessor<Map<String, Object>, Map<String, Object>> processor = super.processor();
+        if (CollectionUtils.isEmpty(regexes)) {
+            return processor;
+        }
+        List<Function<Map<String, Object>, Map<String, Object>>> regexFunctions = new ArrayList<>();
+        regexFunctions.add(Function.identity());
+        regexes.entrySet().stream().map(e -> toFieldFunction(e.getKey(), e.getValue())).forEach(regexFunctions::add);
+        ToMapFunction<Map<String, Object>, String, Object> function = new ToMapFunction<>(regexFunctions);
+        ItemProcessor<Map<String, Object>, Map<String, Object>> regexProcessor = new FunctionItemProcessor<>(function);
+        if (processor == null) {
+            return regexProcessor;
+        }
+        return BatchUtils.processor(processor, regexProcessor);
+
+    }
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    private Function<Map<String, Object>, Map<String, Object>> toFieldFunction(String key, Pattern pattern) {
+        return new MapToFieldFunction(key).andThen((Function) new RegexNamedGroupFunction(pattern));
     }
 
 }

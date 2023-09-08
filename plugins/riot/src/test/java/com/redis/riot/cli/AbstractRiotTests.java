@@ -24,6 +24,7 @@ import org.springframework.batch.core.configuration.annotation.JobBuilderFactory
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.launch.support.SimpleJobLauncher;
 import org.springframework.batch.core.repository.JobRepository;
+import org.springframework.batch.core.repository.support.MapJobRepositoryFactoryBean;
 import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
@@ -40,7 +41,7 @@ import com.redis.spring.batch.RedisItemWriter;
 import com.redis.spring.batch.ValueType;
 import com.redis.spring.batch.gen.GeneratorItemReader;
 import com.redis.spring.batch.util.BatchUtils;
-import com.redis.spring.batch.util.IntRange;
+import com.redis.spring.batch.util.LongRange;
 import com.redis.testcontainers.RedisServer;
 
 import io.lettuce.core.AbstractRedisClient;
@@ -51,6 +52,7 @@ import picocli.CommandLine.ExitCode;
 import picocli.CommandLine.IExecutionStrategy;
 import picocli.CommandLine.ParseResult;
 
+@SuppressWarnings("deprecation")
 @TestInstance(Lifecycle.PER_CLASS)
 public abstract class AbstractRiotTests {
 
@@ -58,7 +60,7 @@ public abstract class AbstractRiotTests {
 
     private static final Duration DEFAULT_AWAIT_TIMEOUT = Duration.ofSeconds(1);
 
-    private static final IntRange DEFAULT_GENERATOR_KEY_RANGE = IntRange.to(10000);
+    private static final LongRange DEFAULT_GENERATOR_KEY_RANGE = LongRange.to(10000);
 
     protected static final int DEFAULT_BATCH_SIZE = 50;
 
@@ -100,7 +102,9 @@ public abstract class AbstractRiotTests {
 
     @BeforeEach
     void setupTest() throws Exception {
-        jobRepository = BatchUtils.inMemoryJobRepository();
+        MapJobRepositoryFactoryBean bean = new MapJobRepositoryFactoryBean();
+        bean.afterPropertiesSet();
+        jobRepository = bean.getObject();
         jobBuilderFactory = new JobBuilderFactory(jobRepository);
         jobLauncher = new SimpleJobLauncher();
         jobLauncher.setJobRepository(jobRepository);
