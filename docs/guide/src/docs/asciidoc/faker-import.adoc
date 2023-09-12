@@ -60,3 +60,6 @@ You can infer Faker fields from a RediSearch index using the `--infer` option:
 ----
 include::{testdir}/faker-import-infer[]
 ----
+
+[[_faker_import_processing]]
+include::{includedir}/processing.adoc[leveloffset=+2]

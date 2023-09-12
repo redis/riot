@@ -1,0 +1,17 @@
+[[_overview]]
+= Overview
+
+Redis Input/Output Tools ({project-title}) is a command-line utility to get data in and out of any Redis-compatible database like Redis OSS, Redis Cluster, Redis Enterprise, or <<_elasticache, Amazon ElastiCache>>.
+
+{project-title} allows you to:
+
+* Import data into a Redis database
+* Export data from a Redis database
+* Replicate (migrate) data between two Redis databases
+
+{project-title} supports many different sources and targets:
+
+* Files (CSV, JSON, XML)
+* Data generators (data structures, Faker)
+* Relational databases
+* Redis itself (snapshot and live replication)

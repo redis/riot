@@ -1,5 +1,5 @@
-[[_run]]
-= Quick Start
+[[_getting_started]]
+= Getting Started
 
 You can launch {project-title} with the following command:
 

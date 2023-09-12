@@ -4,7 +4,6 @@
 {project-title} lets you process incoming records in different ways:
 
 * SpEL processors (`--proc`)
-* Regex field extraction (`--regex`)
 * SpEL filtering (`--filter`)
 
 [[_spel_proc]]
@@ -29,17 +28,8 @@ Processors have access to the SpEL evaluation context and also this function:
 riot file-import --proc epoch="#date.parse(mydate).getTime()" location="#geo(lon,lat)" name="#redis.hget('person1','lastName')" ...
 ----
 
-[[_architecture_regex]]
-=== Regular Expressions
-
-Extract patterns from source fields using regular expressions:
-[source]
-----
-riot file-import --regex name="(?<first>\w+)\/(?<last>\w+)" ...
-----
-
 [[_architecture_filters]]
-=== Filters
+== Filters
 
 Filters allow you to exclude records that don't match a SpEL boolean expression.
 
