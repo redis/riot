@@ -15,6 +15,8 @@ import org.springframework.batch.item.NonTransientResourceException;
 import org.springframework.batch.item.ParseException;
 import org.springframework.batch.item.UnexpectedInputException;
 
+import com.redis.riot.core.RedisOptions;
+import com.redis.riot.core.RedisUriOptions;
 import com.redis.riot.core.operation.HsetBuilder;
 import com.redis.spring.batch.test.AbstractTestBase;
 
@@ -29,7 +31,9 @@ abstract class FileTests extends AbstractTestBase {
     @SuppressWarnings("unchecked")
     @Test
     void fileImportJSON() throws UnexpectedInputException, ParseException, NonTransientResourceException, Exception {
-        FileImport executable = new FileImport(client, BEERS_JSON_URL);
+        FileImport executable = new FileImport();
+        executable.setRedisClientOptions(redisClientOptions());
+        executable.setFiles(BEERS_JSON_URL);
         executable.setOperations(new HsetBuilder().keyspace(keyspace).keys(ID).build());
         executable.execute();
         List<String> keys = commands.keys("*");
@@ -43,10 +47,21 @@ abstract class FileTests extends AbstractTestBase {
         Assertions.assertEquals("Hocus Pocus", beer1.get("name"));
     }
 
+    private RedisOptions redisClientOptions() {
+        RedisOptions options = new RedisOptions();
+        options.setCluster(getRedisServer().isCluster());
+        RedisUriOptions uriOptions = new RedisUriOptions();
+        uriOptions.setUri(getRedisServer().getRedisURI());
+        options.setUriOptions(uriOptions);
+        return options;
+    }
+
     @SuppressWarnings("unchecked")
     @Test
     void fileApiImportCSV() throws UnexpectedInputException, ParseException, NonTransientResourceException, Exception {
-        FileImport executable = new FileImport(client, "https://storage.googleapis.com/jrx/beers.csv");
+        FileImport executable = new FileImport();
+        executable.setRedisClientOptions(redisClientOptions());
+        executable.setFiles("https://storage.googleapis.com/jrx/beers.csv");
         executable.setHeader(true);
         executable.setOperations(new HsetBuilder().keyspace(keyspace).keys(ID).build());
         executable.execute();
@@ -70,7 +85,9 @@ abstract class FileTests extends AbstractTestBase {
         File file2 = temp.resolve("beers2.csv").toFile();
         org.apache.commons.io.FileUtils.copyInputStreamToFile(getClass().getClassLoader().getResourceAsStream("beers2.csv"),
                 file2);
-        FileImport executable = new FileImport(client, temp.resolve("*.csv").toFile().getPath());
+        FileImport executable = new FileImport();
+        executable.setRedisClientOptions(redisClientOptions());
+        executable.setFiles(temp.resolve("*.csv").toFile().getPath());
         executable.setHeader(true);
         executable.setOperations(new HsetBuilder().keyspace(keyspace).keys(ID).build());
         executable.execute();

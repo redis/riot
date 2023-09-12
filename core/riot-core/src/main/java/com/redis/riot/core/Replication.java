@@ -2,8 +2,6 @@ package com.redis.riot.core;
 
 import java.io.PrintWriter;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.builder.FlowBuilder;
@@ -13,9 +11,9 @@ import org.springframework.batch.core.job.flow.support.SimpleFlow;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
+import org.springframework.util.Assert;
 
-import com.redis.lettucemod.api.StatefulRedisModulesConnection;
-import com.redis.lettucemod.util.RedisModulesUtils;
 import com.redis.spring.batch.KeyValue;
 import com.redis.spring.batch.RedisItemReader;
 import com.redis.spring.batch.RedisItemReader.Mode;
@@ -43,11 +41,17 @@ public class Replication extends AbstractExport<byte[], byte[]> {
 
     public static final ValueType DEFAULT_VALUE_TYPE = ValueType.DUMP;
 
-    private final Logger log = LoggerFactory.getLogger(Replication.class);
+    private static final String VARIABLE_SOURCE = "source";
 
-    private final AbstractRedisClient targetClient;
+    private static final String VARIABLE_TARGET = "target";
 
     private final PrintWriter out;
+
+    private RedisOptions targetRedisClientOptions = new RedisOptions();
+
+    private ReadFrom targetReadFrom;
+
+    private RedisWriterOptions targetWriterOptions = new RedisWriterOptions();
 
     private ReplicationMode mode = ReplicationMode.SNAPSHOT;
 
@@ -55,14 +59,13 @@ public class Replication extends AbstractExport<byte[], byte[]> {
 
     private KeyComparisonOptions comparisonOptions = new KeyComparisonOptions();
 
-    private ReadFrom targetReadFrom;
-
-    private RedisWriterOptions targetWriterOptions = new RedisWriterOptions();
-
-    public Replication(AbstractRedisClient client, AbstractRedisClient targetClient, PrintWriter out) {
-        super(client, ByteArrayCodec.INSTANCE);
-        this.targetClient = targetClient;
+    public Replication(PrintWriter out) {
+        super(ByteArrayCodec.INSTANCE);
         this.out = out;
+    }
+
+    public void setTargetRedisClientOptions(RedisOptions targetRedisClientOptions) {
+        this.targetRedisClientOptions = targetRedisClientOptions;
     }
 
     public void setTargetReadFrom(ReadFrom readFrom) {
@@ -91,30 +94,46 @@ public class Replication extends AbstractExport<byte[], byte[]> {
     }
 
     @Override
-    protected Job job() {
+    protected RiotExecutionContext executionContext(RedisOptions redisClientOptions) {
+        return new ReplicationExecutionContext(redisClientOptions, targetRedisClientOptions);
+    }
+
+    @Override
+    protected Job job(RiotExecutionContext context) {
+        Assert.isInstanceOf(ReplicationExecutionContext.class, context, "Execution context is not a replication context");
+        ReplicationExecutionContext replicationContext = (ReplicationExecutionContext) context;
         switch (mode) {
             case COMPARE:
-                return jobBuilder().start(compareStep()).build();
+                return jobBuilder().start(compareStep(replicationContext)).build();
             case LIVE:
-                SimpleFlow scanFlow = flow("scan").start(scanStep().build()).build();
-                SimpleFlow liveFlow = flow("live").start(liveStep().build()).build();
+                SimpleFlow scanFlow = flow("scan").start(scanStep(replicationContext).build()).build();
+                SimpleFlow liveFlow = flow("live").start(liveStep(replicationContext).build()).build();
                 SimpleFlow replicateFlow = flow("replicate").split(asyncTaskExecutor()).add(liveFlow, scanFlow).build();
                 JobFlowBuilder live = jobBuilder().start(replicateFlow);
                 if (shouldCompare()) {
-                    live.next(compareStep());
+                    live.next(compareStep(replicationContext));
                 }
                 return live.build().build();
             case LIVEONLY:
-                return jobBuilder().start(liveStep().build()).build();
+                return jobBuilder().start(liveStep(replicationContext).build()).build();
             case SNAPSHOT:
-                SimpleJobBuilder snapshot = jobBuilder().start(scanStep().build());
+                SimpleJobBuilder snapshot = jobBuilder().start(scanStep(replicationContext).build());
                 if (shouldCompare()) {
-                    snapshot.next(compareStep());
+                    snapshot.next(compareStep(replicationContext));
                 }
                 return snapshot.build();
             default:
                 throw new IllegalArgumentException("Unknown replication mode: " + mode);
         }
+    }
+
+    @Override
+    protected StandardEvaluationContext evaluationContext(RiotExecutionContext executionContext) {
+        ReplicationExecutionContext replicationExecutionContext = (ReplicationExecutionContext) executionContext;
+        StandardEvaluationContext evaluationContext = super.evaluationContext(executionContext);
+        evaluationContext.setVariable(VARIABLE_SOURCE, replicationExecutionContext.getRedisURI());
+        evaluationContext.setVariable(VARIABLE_TARGET, replicationExecutionContext.getTargetExecutionContext().getRedisURI());
+        return evaluationContext;
     }
 
     private TaskExecutor asyncTaskExecutor() {
@@ -129,37 +148,37 @@ public class Replication extends AbstractExport<byte[], byte[]> {
         return !comparisonOptions.isNoVerify() && !getStepOptions().isDryRun() && processorOptions.isEmpty();
     }
 
-    private StepBuilder<KeyValue<byte[]>, KeyValue<byte[]>> scanStep() {
-        return step(STEP_SCAN, reader(codec));
+    private StepBuilder<KeyValue<byte[]>, KeyValue<byte[]>> scanStep(ReplicationExecutionContext context) {
+        return step(context, STEP_SCAN, reader(context, codec));
     }
 
-    private StepBuilder<KeyValue<byte[]>, KeyValue<byte[]>> step(String name, RedisItemReader<byte[], byte[]> reader) {
+    private StepBuilder<KeyValue<byte[]>, KeyValue<byte[]>> step(ReplicationExecutionContext context, String name,
+            RedisItemReader<byte[], byte[]> reader) {
         reader.setName(name + "-reader");
         StepBuilder<KeyValue<byte[]>, KeyValue<byte[]>> step = createStep();
         step.name(name);
         step.reader(reader);
-        step.writer(writer());
-        step.processor(keyValueProcessor());
+        step.writer(writer(context));
+        step.processor(keyValueProcessor(context));
         if (log.isDebugEnabled()) {
             step.addWriteListener(new KeyValueWriteListener(log));
         }
         return step;
     }
 
-    private StepBuilder<KeyValue<byte[]>, KeyValue<byte[]>> liveStep() {
-        checkKeyspaceNotificationsConfig();
-        RedisItemReader<byte[], byte[]> reader = reader(codec);
+    private StepBuilder<KeyValue<byte[]>, KeyValue<byte[]>> liveStep(ReplicationExecutionContext context) {
+        checkKeyspaceNotificationsConfig(context);
+        RedisItemReader<byte[], byte[]> reader = reader(context, codec);
         reader.setMode(Mode.LIVE);
-        StepBuilder<KeyValue<byte[]>, KeyValue<byte[]>> step = step(STEP_LIVE, reader);
+        StepBuilder<KeyValue<byte[]>, KeyValue<byte[]>> step = step(context, STEP_LIVE, reader);
         step.flushingInterval(readerOptions.getFlushingInterval());
         step.idleTimeout(readerOptions.getIdleTimeout());
         return step;
     }
 
-    private void checkKeyspaceNotificationsConfig() {
-        StatefulRedisModulesConnection<String, String> connection = RedisModulesUtils.connection(client);
+    private void checkKeyspaceNotificationsConfig(ReplicationExecutionContext context) {
         try {
-            String config = connection.sync().configGet(CONFIG_NOTIFY_KEYSPACE_EVENTS)
+            String config = context.getRedisConnection().sync().configGet(CONFIG_NOTIFY_KEYSPACE_EVENTS)
                     .getOrDefault(CONFIG_NOTIFY_KEYSPACE_EVENTS, "");
             if (!config.contains("K")) {
                 log.error("Keyspace notifications not property configured ({}={}). Make sure it contains at least \"K\".",
@@ -170,8 +189,8 @@ public class Replication extends AbstractExport<byte[], byte[]> {
         }
     }
 
-    private Step compareStep() {
-        KeyComparisonItemReader reader = comparisonReader();
+    private Step compareStep(ReplicationExecutionContext context) {
+        KeyComparisonItemReader reader = comparisonReader(context);
         KeyComparisonStatusCountItemWriter writer = comparisonWriter();
         StepBuilder<KeyComparison, KeyComparison> step = createStep();
         step.name(STEP_COMPARE);
@@ -184,9 +203,10 @@ public class Replication extends AbstractExport<byte[], byte[]> {
         return step.build();
     }
 
-    private KeyComparisonItemReader comparisonReader() {
-        RedisItemReader<String, String> leftReader = reader(StringCodec.UTF8);
-        KeyValueItemProcessor<String, String> rightReader = new KeyValueItemProcessor<>(targetClient, StringCodec.UTF8);
+    private KeyComparisonItemReader comparisonReader(ReplicationExecutionContext context) {
+        RedisItemReader<String, String> leftReader = reader(context, StringCodec.UTF8);
+        AbstractRedisClient targetRedisClient = context.getTargetExecutionContext().getRedisClient();
+        KeyValueItemProcessor<String, String> rightReader = new KeyValueItemProcessor<>(targetRedisClient, StringCodec.UTF8);
         rightReader.setPoolSize(targetWriterOptions.getPoolSize());
         rightReader.setReadFrom(targetReadFrom);
         rightReader.setMemoryUsageLimit(readerOptions.getMemoryUsageLimit());
@@ -201,8 +221,9 @@ public class Replication extends AbstractExport<byte[], byte[]> {
         return new KeyComparisonStatusCountItemWriter();
     }
 
-    private ItemWriter<KeyValue<byte[]>> writer() {
-        RedisItemWriter<byte[], byte[]> writer = new RedisItemWriter<>(targetClient, codec);
+    private ItemWriter<KeyValue<byte[]>> writer(ReplicationExecutionContext context) {
+        AbstractRedisClient targetRedisClient = context.getTargetExecutionContext().getRedisClient();
+        RedisItemWriter<byte[], byte[]> writer = new RedisItemWriter<>(targetRedisClient, codec);
         targetWriterOptions.configure(writer);
         writer.setValueType(valueType);
         return writer;

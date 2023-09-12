@@ -36,13 +36,12 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
 import com.redis.riot.core.AbstractMapImport;
+import com.redis.riot.core.RiotExecutionContext;
 import com.redis.riot.core.StepBuilder;
 import com.redis.riot.core.function.MapToFieldFunction;
 import com.redis.riot.core.function.RegexNamedGroupFunction;
 import com.redis.riot.core.function.ToMapFunction;
 import com.redis.spring.batch.util.BatchUtils;
-
-import io.lettuce.core.AbstractRedisClient;
 
 public class FileImport extends AbstractMapImport {
 
@@ -54,7 +53,7 @@ public class FileImport extends AbstractMapImport {
 
     private static final String PIPE_DELIMITER = "|";
 
-    private final List<String> files;
+    private List<String> files;
 
     private FileOptions fileOptions = new FileOptions();
 
@@ -82,12 +81,11 @@ public class FileImport extends AbstractMapImport {
 
     private Map<String, Pattern> regexes;
 
-    public FileImport(AbstractRedisClient client, String... files) {
-        this(client, Arrays.asList(files));
+    public void setFiles(String... files) {
+        setFiles(Arrays.asList(files));
     }
 
-    public FileImport(AbstractRedisClient client, List<String> files) {
-        super(client);
+    public void setFiles(List<String> files) {
         Assert.notEmpty(files, "No file specified");
         this.files = files;
     }
@@ -145,8 +143,9 @@ public class FileImport extends AbstractMapImport {
     }
 
     @Override
-    protected Job job() {
-        Iterator<Step> steps = FileUtils.inputResources(files, fileOptions).stream().map(this::step).iterator();
+    protected Job job(RiotExecutionContext executionContext) {
+        Iterator<Step> steps = FileUtils.inputResources(files, fileOptions).stream().map(r -> step(executionContext, r))
+                .iterator();
         if (!steps.hasNext()) {
             throw new IllegalArgumentException("No file found");
         }
@@ -158,7 +157,7 @@ public class FileImport extends AbstractMapImport {
     }
 
     @SuppressWarnings("unchecked")
-    private Step step(Resource resource) {
+    private Step step(RiotExecutionContext executionContext, Resource resource) {
         ItemReader<Map<String, Object>> reader = reader(resource);
         if (maxItemCount != null && reader instanceof AbstractItemCountingItemStreamItemReader) {
             ((AbstractItemCountingItemStreamItemReader<Map<String, Object>>) reader).setMaxItemCount(maxItemCount);
@@ -167,8 +166,8 @@ public class FileImport extends AbstractMapImport {
         StepBuilder<Map<String, Object>, Map<String, Object>> step = createStep();
         step.name(name);
         step.reader(reader);
-        step.writer(writer());
-        step.processor(processor());
+        step.writer(writer(executionContext));
+        step.processor(processor(executionContext));
         step.skippableExceptions(ParseException.class);
         return step.build();
     }
@@ -308,8 +307,8 @@ public class FileImport extends AbstractMapImport {
     }
 
     @Override
-    protected ItemProcessor<Map<String, Object>, Map<String, Object>> processor() {
-        ItemProcessor<Map<String, Object>, Map<String, Object>> processor = super.processor();
+    protected ItemProcessor<Map<String, Object>, Map<String, Object>> processor(RiotExecutionContext executionContext) {
+        ItemProcessor<Map<String, Object>, Map<String, Object>> processor = super.processor(executionContext);
         if (CollectionUtils.isEmpty(regexes)) {
             return processor;
         }

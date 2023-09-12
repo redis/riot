@@ -11,7 +11,6 @@ import com.redis.spring.batch.RedisItemReader;
 import com.redis.spring.batch.ValueType;
 import com.redis.spring.batch.util.PredicateItemProcessor;
 
-import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.codec.RedisCodec;
 import io.lettuce.core.codec.StringCodec;
 
@@ -23,8 +22,7 @@ public abstract class AbstractExport<K, V> extends AbstractJobExecutable {
 
     protected KeyValueProcessorOptions processorOptions = new KeyValueProcessorOptions();
 
-    protected AbstractExport(AbstractRedisClient client, RedisCodec<K, V> codec) {
-        super(client);
+    protected AbstractExport(RedisCodec<K, V> codec) {
         this.codec = codec;
     }
 
@@ -36,28 +34,28 @@ public abstract class AbstractExport<K, V> extends AbstractJobExecutable {
         this.readerOptions = options;
     }
 
-    protected ItemProcessor<KeyValue<K>, KeyValue<K>> keyValueProcessor() {
+    protected ItemProcessor<KeyValue<K>, KeyValue<K>> keyValueProcessor(RiotExecutionContext context) {
         if (processorOptions.isEmpty()) {
             return null;
         }
-        return new FunctionItemProcessor<>(processorFunction());
+        return new FunctionItemProcessor<>(processorFunction(context));
     }
 
-    private Function<KeyValue<K>, KeyValue<K>> processorFunction() {
-        return processorOptions.processor(evaluationContext(), codec);
+    private Function<KeyValue<K>, KeyValue<K>> processorFunction(RiotExecutionContext context) {
+        return processorOptions.processor(evaluationContext(context), codec);
     }
 
-    protected RedisItemReader<String, String> reader() {
-        return reader(StringCodec.UTF8);
+    protected RedisItemReader<String, String> reader(RiotExecutionContext context) {
+        return reader(context, StringCodec.UTF8);
     }
 
-    protected <K1, V1> RedisItemReader<K1, V1> reader(RedisCodec<K1, V1> codec) {
-        return reader(client, codec, readerOptions);
+    protected <K1, V1> RedisItemReader<K1, V1> reader(RiotExecutionContext context, RedisCodec<K1, V1> codec) {
+        return reader(context, codec, readerOptions);
     }
 
-    protected <K1, V1> RedisItemReader<K1, V1> reader(AbstractRedisClient client, RedisCodec<K1, V1> codec,
+    protected <K1, V1> RedisItemReader<K1, V1> reader(RiotExecutionContext context, RedisCodec<K1, V1> codec,
             RedisReaderOptions options) {
-        RedisItemReader<K1, V1> reader = new RedisItemReader<>(client, codec);
+        RedisItemReader<K1, V1> reader = new RedisItemReader<>(context.getRedisClient(), codec);
         configure(reader, options);
         reader.setKeyProcessor(keyProcessor(codec, options.getKeyFilterOptions()));
         return reader;

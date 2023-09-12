@@ -5,12 +5,11 @@ import java.util.function.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.redis.riot.cli.ProgressArgs.ProgressStyle;
 import com.redis.riot.core.AbstractJobExecutable;
 import com.redis.riot.core.EvaluationContextOptions;
-import com.redis.riot.core.Executable;
 import com.redis.riot.core.StepBuilder;
 
-import io.lettuce.core.AbstractRedisClient;
 import me.tongfei.progressbar.DelegatingProgressBarConsumer;
 import me.tongfei.progressbar.ProgressBarBuilder;
 import picocli.CommandLine.ArgGroup;
@@ -21,10 +20,13 @@ abstract class AbstractJobCommand extends AbstractCommand {
     StepArgs stepArgs = new StepArgs();
 
     @ArgGroup(exclusive = false)
+    ProgressArgs progressArgs = new ProgressArgs();
+
+    @ArgGroup(exclusive = false)
     EvaluationContextArgs evaluationContextArgs = new EvaluationContextArgs();
 
     @Override
-    protected Executable getExecutable() {
+    protected AbstractJobExecutable executable() {
         AbstractJobExecutable executable = getJobExecutable();
         executable.setStepOptions(stepArgs.stepOptions());
         executable.setEvaluationContextOptions(evaluationContextOptions());
@@ -38,11 +40,14 @@ abstract class AbstractJobCommand extends AbstractCommand {
 
     @SuppressWarnings("unchecked")
     protected void configure(StepBuilder<?, ?> step) {
+        if (progressArgs.style == ProgressStyle.NONE) {
+            return;
+        }
         ProgressBarBuilder progressBar = new ProgressBarBuilder();
-        progressBar.setStyle(stepArgs.style());
-        progressBar.setUpdateIntervalMillis(stepArgs.updateInterval);
+        progressBar.setStyle(progressArgs.progressBarStyle());
+        progressBar.setUpdateIntervalMillis(progressArgs.updateInterval);
         progressBar.showSpeed();
-        if (stepArgs.isLog()) {
+        if (progressArgs.style == ProgressStyle.LOG) {
             Logger logger = LoggerFactory.getLogger(getClass());
             progressBar.setConsumer(new DelegatingProgressBarConsumer(logger::info));
         }
@@ -62,14 +67,6 @@ abstract class AbstractJobCommand extends AbstractCommand {
     protected abstract String taskName(StepBuilder<?, ?> step);
 
     protected abstract long size(StepBuilder<?, ?> step);
-
-    protected RedisArgs redisArgs() {
-        return parent.redisArgs;
-    }
-
-    protected AbstractRedisClient redisClient() {
-        return parent.redisArgs.client();
-    }
 
     protected abstract AbstractJobExecutable getJobExecutable();
 

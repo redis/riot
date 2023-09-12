@@ -31,7 +31,7 @@ public class GeneratorImportCommand extends AbstractKeyValueImportCommand {
 
     @Override
     protected GeneratorImport getKeyValueImportExecutable() {
-        GeneratorImport executable = new GeneratorImport(redisClient());
+        GeneratorImport executable = new GeneratorImport();
         executable.setCount(args.count);
         executable.setExpiration(args.expiration);
         executable.setHashOptions(hashOptions());

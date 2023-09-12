@@ -16,6 +16,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
+import org.slf4j.event.Level;
+import org.slf4j.impl.SimpleLogger;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobExecutionException;
@@ -35,7 +37,7 @@ import com.redis.lettucemod.api.StatefulRedisModulesConnection;
 import com.redis.lettucemod.api.sync.RedisModulesCommands;
 import com.redis.lettucemod.util.ClientBuilder;
 import com.redis.lettucemod.util.RedisModulesUtils;
-import com.redis.riot.cli.StepArgs.ProgressStyle;
+import com.redis.riot.cli.ProgressArgs.ProgressStyle;
 import com.redis.riot.cli.operation.OperationCommand;
 import com.redis.spring.batch.RedisItemWriter;
 import com.redis.spring.batch.ValueType;
@@ -86,6 +88,7 @@ public abstract class AbstractRiotTests {
 
     @BeforeAll
     void setup() {
+        System.setProperty(SimpleLogger.DEFAULT_LOG_LEVEL_KEY, Level.DEBUG.name());
         RedisServer redis = getRedisServer();
         redis.start();
         client = client(redis);
@@ -132,7 +135,8 @@ public abstract class AbstractRiotTests {
     }
 
     protected AbstractRedisClient client(RedisServer server) {
-        return ClientBuilder.create(RedisURI.create(server.getRedisURI())).cluster(server.isCluster()).build();
+        RedisURI uri = RedisURI.create(server.getRedisURI());
+        return ClientBuilder.create(uri).cluster(server.isCluster()).build();
     }
 
     protected int execute(String filename, IExecutionStrategy... executionStrategies) throws Exception {
@@ -149,7 +153,7 @@ public abstract class AbstractRiotTests {
 
     private int execute(ParseResult parseResult) {
         Main main = (Main) parseResult.commandSpec().commandLine().getCommand();
-        main.redisArgs.uri = getRedisServer().getRedisURI();
+        main.redisArgs.uriArgs.uri = getRedisServer().getRedisURI();
         main.redisArgs.cluster = getRedisServer().isCluster();
         for (ParseResult subParseResult : parseResult.subcommands()) {
             Object command = subParseResult.commandSpec().commandLine().getCommand();
@@ -163,7 +167,8 @@ public abstract class AbstractRiotTests {
 
     protected void configureCommand(Object command) {
         if (command instanceof AbstractJobCommand) {
-            ((AbstractJobCommand) command).stepArgs.style = ProgressStyle.NONE;
+            AbstractJobCommand jobCommand = ((AbstractJobCommand) command);
+            jobCommand.progressArgs.style = ProgressStyle.NONE;
         }
     }
 

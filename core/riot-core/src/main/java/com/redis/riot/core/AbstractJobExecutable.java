@@ -5,6 +5,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobExecutionException;
@@ -22,18 +24,14 @@ import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.CollectionUtils;
 
-import com.redis.lettucemod.util.RedisModulesUtils;
-
-import io.lettuce.core.AbstractRedisClient;
-
 @SuppressWarnings("deprecation")
-public abstract class AbstractJobExecutable implements Executable {
+public abstract class AbstractJobExecutable extends AbstractRedisExecutable {
 
-    public static final String DATE_VARIABLE_NAME = "date";
+    private static final String DATE_VARIABLE_NAME = "date";
 
-    public static final String REDIS_VARIABLE_NAME = "redis";
+    private static final String REDIS_VARIABLE_NAME = "redis";
 
-    protected final AbstractRedisClient client;
+    protected final Logger log = LoggerFactory.getLogger(getClass());
 
     protected JobRepository jobRepository;
 
@@ -49,9 +47,8 @@ public abstract class AbstractJobExecutable implements Executable {
 
     private List<StepConfigurationStrategy> stepConfigurationStrategies = new ArrayList<>();
 
-    protected AbstractJobExecutable(AbstractRedisClient client) {
+    protected AbstractJobExecutable() {
         setName(ClassUtils.getShortName(getClass()));
-        this.client = client;
     }
 
     public void addStepConfigurationStrategy(StepConfigurationStrategy strategy) {
@@ -83,11 +80,11 @@ public abstract class AbstractJobExecutable implements Executable {
     }
 
     @Override
-    public void execute() {
+    protected void execute(RiotExecutionContext executionContext) {
         checkJobRepository();
         jobFactory = new JobBuilderFactory(jobRepository);
         stepFactory = stepBuilderFactory();
-        Job job = job();
+        Job job = job(executionContext);
         JobExecution execution;
         try {
             execution = jobLauncher().run(job, new JobParameters());
@@ -131,20 +128,7 @@ public abstract class AbstractJobExecutable implements Executable {
         return jobFactory.get(name);
     }
 
-    protected abstract Job job();
-
-    protected StandardEvaluationContext evaluationContext() {
-        StandardEvaluationContext context = new StandardEvaluationContext();
-        context.setVariable(DATE_VARIABLE_NAME, new SimpleDateFormat(evaluationContextOptions.getDateFormat()));
-        context.setVariable(REDIS_VARIABLE_NAME, RedisModulesUtils.connection(client).sync());
-        if (!CollectionUtils.isEmpty(evaluationContextOptions.getVariables())) {
-            evaluationContextOptions.getVariables().forEach(context::setVariable);
-        }
-        if (!CollectionUtils.isEmpty(evaluationContextOptions.getExpressions())) {
-            evaluationContextOptions.getExpressions().forEach((k, v) -> context.setVariable(k, v.getValue(context)));
-        }
-        return context;
-    }
+    protected abstract Job job(RiotExecutionContext executionContext);
 
     protected <I, O> StepBuilder<I, O> createStep() {
         StepBuilder<I, O> step = new StepBuilder<>(stepFactory);
@@ -152,6 +136,19 @@ public abstract class AbstractJobExecutable implements Executable {
         step.options(stepOptions);
         step.configurationStrategies(stepConfigurationStrategies);
         return step;
+    }
+
+    protected StandardEvaluationContext evaluationContext(RiotExecutionContext executionContext) {
+        StandardEvaluationContext context = new StandardEvaluationContext();
+        context.setVariable(DATE_VARIABLE_NAME, new SimpleDateFormat(evaluationContextOptions.getDateFormat()));
+        context.setVariable(REDIS_VARIABLE_NAME, executionContext.getRedisConnection().sync());
+        if (!CollectionUtils.isEmpty(evaluationContextOptions.getVariables())) {
+            evaluationContextOptions.getVariables().forEach(context::setVariable);
+        }
+        if (!CollectionUtils.isEmpty(evaluationContextOptions.getExpressions())) {
+            evaluationContextOptions.getExpressions().forEach((k, v) -> context.setVariable(k, v.getValue(context)));
+        }
+        return context;
     }
 
 }

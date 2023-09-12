@@ -20,7 +20,8 @@ public class DatabaseImportCommand extends AbstractImportCommand {
 
     @Override
     protected AbstractMapImport getMapImportExecutable() {
-        DatabaseImport executable = new DatabaseImport(redisClient(), sql);
+        DatabaseImport executable = new DatabaseImport();
+        executable.setSql(sql);
         executable.setDataSourceOptions(args.dataSourceOptions());
         executable.setFetchSize(args.fetchSize);
         executable.setMaxItemCount(args.maxItemCount);

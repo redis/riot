@@ -2,7 +2,6 @@ package com.redis.riot.cli;
 
 import java.util.concurrent.TimeUnit;
 
-import com.redis.riot.core.Executable;
 import com.redis.riot.core.Ping;
 
 import picocli.CommandLine.Command;
@@ -24,11 +23,12 @@ public class PingCommand extends AbstractCommand {
     boolean latencyDistribution;
 
     @Option(arity = "0..*", names = "--percentiles", description = "Latency percentiles to display (default: ${DEFAULT-VALUE}).", paramLabel = "<p>")
-    double[] percentiles = com.redis.riot.core.Ping.DEFAULT_PERCENTILES;
+    double[] percentiles = Ping.defaultPercentiles();
 
     @Override
-    protected Executable getExecutable() {
-        Ping executable = new Ping(parent.redisArgs.client(), parent.out);
+    protected Ping executable() {
+        Ping executable = new Ping();
+        executable.setOut(parent.out);
         executable.setCount(count);
         executable.setIterations(iterations);
         executable.setLatencyDistribution(latencyDistribution);

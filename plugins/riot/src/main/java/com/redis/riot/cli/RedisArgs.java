@@ -3,176 +3,99 @@ package com.redis.riot.cli;
 import java.io.File;
 import java.time.Duration;
 
-import com.redis.lettucemod.RedisModulesClient;
-import com.redis.lettucemod.cluster.RedisModulesClusterClient;
+import com.redis.riot.core.RedisClientOptions;
+import com.redis.riot.core.RedisOptions;
+import com.redis.riot.core.RedisSslOptions;
 
-import io.lettuce.core.AbstractRedisClient;
-import io.lettuce.core.ClientOptions;
-import io.lettuce.core.RedisURI;
-import io.lettuce.core.SslOptions;
-import io.lettuce.core.SslOptions.Builder;
-import io.lettuce.core.SslOptions.Resource;
-import io.lettuce.core.cluster.ClusterClientOptions;
-import io.lettuce.core.event.DefaultEventPublisherOptions;
-import io.lettuce.core.metrics.CommandLatencyCollector;
-import io.lettuce.core.metrics.DefaultCommandLatencyCollectorOptions;
 import io.lettuce.core.protocol.ProtocolVersion;
-import io.lettuce.core.resource.ClientResources;
-import io.lettuce.core.resource.DefaultClientResources;
+import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Option;
 
 public class RedisArgs {
 
-    public static final String DEFAULT_HOST = "127.0.0.1";
+    @ArgGroup(exclusive = false)
+    RedisUriArgs uriArgs = new RedisUriArgs();
 
-    public static final int DEFAULT_PORT = 6379;
-
-    public static final Duration DEFAULT_METRICS_STEP = Duration.ofSeconds(5);
-
-    @Option(names = { "-u", "--uri" }, description = "Redis server URI.", paramLabel = "<uri>")
-    String uri;
-
-    @Option(names = { "-h", "--host" }, description = "Server hostname (default: ${DEFAULT-VALUE}).", paramLabel = "<host>")
-    String host = DEFAULT_HOST;
-
-    @Option(names = { "-p", "--port" }, description = "Server port (default: ${DEFAULT-VALUE}).", paramLabel = "<port>")
-    int port = DEFAULT_PORT;
-
-    @Option(names = { "-s", "--socket" }, description = "Server socket (overrides hostname and port).", paramLabel = "<socket>")
-    String socket;
-
-    @Option(names = "--user", description = "ACL style 'AUTH username pass'. Needs password.", paramLabel = "<name>")
-    String username;
-
-    @Option(names = { "-a",
-            "--pass" }, arity = "0..1", interactive = true, description = "Password to use when connecting to the server.", paramLabel = "<password>")
-    char[] password;
-
-    @Option(names = "--timeout", description = "Redis command timeout in seconds.", paramLabel = "<sec>")
-    Long timeout;
-
-    @Option(names = { "-n", "--db" }, description = "Database number.", paramLabel = "<db>")
-    int database;
+    @ArgGroup(exclusive = false)
+    ClientArgs clientArgs = new ClientArgs();
 
     @Option(names = { "-c", "--cluster" }, description = "Enable cluster mode.")
     boolean cluster;
 
-    @Option(names = "--tls", description = "Establish a secure TLS connection.")
-    boolean tls;
+    @Option(names = "--metrics-step", description = "Metrics publish interval in seconds. Use 0 to disable metrics publishing. (default: 0).", paramLabel = "<secs>", hidden = true)
+    long metricsStep;
 
-    @Option(names = "--insecure", description = "Allow insecure TLS connection by skipping cert validation.")
-    boolean insecure;
+    public static class ClientArgs {
 
-    @Option(names = "--ks", description = "Path to keystore.", paramLabel = "<file>", hidden = true)
-    File keystore;
+        @Option(names = "--no-auto-reconnect", description = "Disable auto-reconnect on connection loss.")
+        boolean noAutoReconnect;
 
-    @Option(names = "--ks-pwd", arity = "0..1", interactive = true, description = "Keystore password.", paramLabel = "<pwd>", hidden = true)
-    char[] keystorePassword;
+        @Option(names = "--resp", description = "Redis protocol version used to connect to Redis: ${COMPLETION-CANDIDATES}.", paramLabel = "<ver>")
+        ProtocolVersion protocolVersion;
 
-    @Option(names = "--ts", description = "Path to truststore.", paramLabel = "<file>", hidden = true)
-    File truststore;
+        @ArgGroup(exclusive = false)
+        SslArgs sslArgs = new SslArgs();
 
-    @Option(names = "--ts-pwd", arity = "0..1", interactive = true, description = "Truststore password.", paramLabel = "<pwd>", hidden = true)
-    char[] truststorePassword;
-
-    @Option(names = "--cert", description = "X.509 cert chain file to authenticate (PEM).", paramLabel = "<file>")
-    File keyCert;
-
-    @Option(names = "--key", description = "PKCS#8 private key file to authenticate (PEM).", paramLabel = "<file>")
-    File key;
-
-    @Option(names = "--key-pwd", arity = "0..1", interactive = true, description = "Private key password.", paramLabel = "<pwd>")
-    char[] keyPassword;
-
-    @Option(names = "--cacert", description = "X.509 CA certificate file to verify with.", paramLabel = "<file>")
-    File trustedCerts;
-
-    @Option(names = "--metrics", description = "Show latency metrics.")
-    boolean showMetrics;
-
-    @Option(names = "--metrics-step", description = "Metrics publish interval in seconds (default: ${DEFAULT-VALUE}).", paramLabel = "<secs>", hidden = true)
-    long metricsStep = DEFAULT_METRICS_STEP.toSeconds();
-
-    @Option(names = "--no-auto-reconnect", description = "Disable auto-reconnect on connection loss.")
-    boolean noAutoReconnect;
-
-    @Option(names = "--client", description = "Client name used to connect to Redis.", paramLabel = "<name>")
-    String clientName;
-
-    @Option(names = "--resp", description = "Redis protocol version used to connect to Redis: ${COMPLETION-CANDIDATES}.", paramLabel = "<ver>")
-    ProtocolVersion protocolVersion;
-
-    @SuppressWarnings("deprecation")
-    public RedisURI uri() {
-        RedisURI redisURI = uri == null ? RedisURI.create(host, port) : RedisURI.create(uri);
-        if (database > 0) {
-            redisURI.setDatabase(database);
+        public RedisClientOptions clientOptions() {
+            RedisClientOptions options = new RedisClientOptions();
+            options.setAutoReconnect(!noAutoReconnect);
+            options.setSslOptions(sslArgs.sslOptions());
+            options.setProtocolVersion(protocolVersion);
+            return options;
         }
-        redisURI.setClientName(clientName);
-        redisURI.setUsername(username);
-        redisURI.setPassword(password);
-        redisURI.setSocket(socket);
-        redisURI.setSsl(tls);
-        redisURI.setVerifyPeer(!insecure);
-        if (timeout != null) {
-            redisURI.setTimeout(Duration.ofSeconds(timeout));
-        }
-        return redisURI;
+
     }
 
-    public AbstractRedisClient client() {
-        return client(uri());
+    public static class SslArgs {
+
+        @Option(names = "--ks", description = "Path to keystore.", paramLabel = "<file>", hidden = true)
+        File keystore;
+
+        @Option(names = "--ks-pwd", arity = "0..1", interactive = true, description = "Keystore password.", paramLabel = "<pwd>", hidden = true)
+        char[] keystorePassword;
+
+        @Option(names = "--ts", description = "Path to truststore.", paramLabel = "<file>", hidden = true)
+        File truststore;
+
+        @Option(names = "--ts-pwd", arity = "0..1", interactive = true, description = "Truststore password.", paramLabel = "<pwd>", hidden = true)
+        char[] truststorePassword;
+
+        @Option(names = "--cert", description = "X.509 cert chain file to authenticate (PEM).", paramLabel = "<file>")
+        File keyCert;
+
+        @Option(names = "--key", description = "PKCS#8 private key file to authenticate (PEM).", paramLabel = "<file>")
+        File key;
+
+        @Option(names = "--key-pwd", arity = "0..1", interactive = true, description = "Private key password.", paramLabel = "<pwd>")
+        char[] keyPassword;
+
+        @Option(names = "--cacert", description = "X.509 CA certificate file to verify with.", paramLabel = "<file>")
+        File trustedCerts;
+
+        public RedisSslOptions sslOptions() {
+            RedisSslOptions options = new RedisSslOptions();
+            options.setKey(key);
+            options.setKeyCert(keyCert);
+            options.setKeyPassword(keyPassword);
+            options.setKeystore(keystore);
+            options.setKeystorePassword(keystorePassword);
+            options.setTrustedCerts(trustedCerts);
+            options.setTruststore(truststore);
+            options.setTruststorePassword(truststorePassword);
+            return options;
+        }
+
     }
 
-    public AbstractRedisClient client(RedisURI redisURI) {
-        ClientResources resources = clientResources();
-        if (cluster) {
-            RedisModulesClusterClient client = RedisModulesClusterClient.create(resources, redisURI);
-            ClusterClientOptions.Builder options = ClusterClientOptions.builder();
-            configure(options);
-            client.setOptions(options.build());
-            return client;
+    public RedisOptions redisClientOptions() {
+        RedisOptions options = new RedisOptions();
+        options.setClientOptions(clientArgs.clientOptions());
+        options.setCluster(cluster);
+        if (metricsStep > 0) {
+            options.setMetricsStep(Duration.ofSeconds(metricsStep));
         }
-        RedisModulesClient client = RedisModulesClient.create(resources, redisURI);
-        ClientOptions.Builder options = ClientOptions.builder();
-        configure(options);
-        client.setOptions(options.build());
-        return client;
-    }
-
-    public ClientResources clientResources() {
-        DefaultClientResources.Builder builder = DefaultClientResources.builder();
-        if (showMetrics) {
-            builder.commandLatencyRecorder(
-                    CommandLatencyCollector.create(DefaultCommandLatencyCollectorOptions.builder().enable().build()));
-            builder.commandLatencyPublisherOptions(
-                    DefaultEventPublisherOptions.builder().eventEmitInterval(Duration.ofSeconds(metricsStep)).build());
-
-        }
-        return builder.build();
-    }
-
-    private void configure(ClientOptions.Builder builder) {
-        builder.autoReconnect(!noAutoReconnect);
-        builder.sslOptions(sslOptions());
-        builder.protocolVersion(protocolVersion);
-    }
-
-    private SslOptions sslOptions() {
-        Builder ssl = SslOptions.builder();
-        if (key != null) {
-            ssl.keyManager(keyCert, key, keyPassword);
-        }
-        if (keystore != null) {
-            ssl.keystore(keystore, keystorePassword);
-        }
-        if (truststore != null) {
-            ssl.truststore(Resource.from(truststore), truststorePassword);
-        }
-        if (trustedCerts != null) {
-            ssl.trustManager(trustedCerts);
-        }
-        return ssl.build();
+        options.setUriOptions(uriArgs.redisUriOptions());
+        return options;
     }
 
 }

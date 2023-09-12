@@ -11,9 +11,8 @@ import org.springframework.batch.item.database.builder.JdbcCursorItemReaderBuild
 import org.springframework.jdbc.core.ColumnMapRowMapper;
 
 import com.redis.riot.core.AbstractMapImport;
+import com.redis.riot.core.RiotExecutionContext;
 import com.redis.riot.core.StepBuilder;
-
-import io.lettuce.core.AbstractRedisClient;
 
 public class DatabaseImport extends AbstractMapImport {
 
@@ -23,7 +22,7 @@ public class DatabaseImport extends AbstractMapImport {
 
     public static final int DEFAULT_QUERY_TIMEOUT = AbstractCursorItemReader.VALUE_NOT_SET;
 
-    private final String sql;
+    private String sql;
 
     private DataSourceOptions dataSourceOptions = new DataSourceOptions();
 
@@ -39,8 +38,11 @@ public class DatabaseImport extends AbstractMapImport {
 
     private boolean verifyCursorPosition;
 
-    public DatabaseImport(AbstractRedisClient client, String sql) {
-        super(client);
+    public String getSql() {
+        return sql;
+    }
+
+    public void setSql(String sql) {
         this.sql = sql;
     }
 
@@ -101,11 +103,11 @@ public class DatabaseImport extends AbstractMapImport {
     }
 
     @Override
-    protected Job job() {
+    protected Job job(RiotExecutionContext executionContext) {
         StepBuilder<Map<String, Object>, Map<String, Object>> step = createStep();
         step.name(getName());
         step.reader(reader());
-        step.writer(writer());
+        step.writer(writer(executionContext));
         return jobBuilder().start(step.build()).build();
     }
 

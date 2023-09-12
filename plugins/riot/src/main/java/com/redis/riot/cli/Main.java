@@ -22,7 +22,7 @@ import picocli.CommandLine.RunLast;
 
 @Command(name = "riot", subcommands = { DatabaseImportCommand.class, DatabaseExportCommand.class, FileDumpImportCommand.class,
         FileImportCommand.class, FileDumpExportCommand.class, FakerImportCommand.class, GeneratorImportCommand.class,
-        ReplicationCommand.class, PingCommand.class, GenerateCompletion.class })
+        ReplicateCommand.class, PingCommand.class, GenerateCompletion.class })
 public class Main extends BaseCommand implements Runnable {
 
     PrintWriter out;

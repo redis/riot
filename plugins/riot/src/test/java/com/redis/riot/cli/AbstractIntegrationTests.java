@@ -153,9 +153,9 @@ public abstract class AbstractIntegrationTests extends AbstractRiotTests {
     @Override
     protected void configureCommand(Object command) {
         super.configureCommand(command);
-        if (command instanceof ReplicationCommand) {
-            ReplicationCommand replicationCommand = (ReplicationCommand) command;
-            replicationCommand.targetRedisArgs.uri = getTargetRedisServer().getRedisURI();
+        if (command instanceof ReplicateCommand) {
+            ReplicateCommand replicationCommand = (ReplicateCommand) command;
+            replicationCommand.targetRedisClientArgs.uriArgs.uri = getTargetRedisServer().getRedisURI();
             if (replicationCommand.mode == ReplicationMode.LIVE || replicationCommand.mode == ReplicationMode.LIVEONLY) {
                 replicationCommand.readerArgs.setIdleTimeout(DEFAULT_IDLE_TIMEOUT.toMillis());
                 replicationCommand.readerArgs.setNotificationQueueCapacity(DEFAULT_NOTIFICATION_QUEUE_CAPACITY);

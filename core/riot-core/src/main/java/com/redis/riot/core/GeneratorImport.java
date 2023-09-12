@@ -15,8 +15,6 @@ import com.redis.spring.batch.gen.TimeSeriesOptions;
 import com.redis.spring.batch.gen.ZsetOptions;
 import com.redis.spring.batch.util.LongRange;
 
-import io.lettuce.core.AbstractRedisClient;
-
 public class GeneratorImport extends AbstractKeyValueImport {
 
     public static final int DEFAULT_COUNT = 1000;
@@ -46,10 +44,6 @@ public class GeneratorImport extends AbstractKeyValueImport {
     private String keyspace = GeneratorItemReader.DEFAULT_KEYSPACE;
 
     private List<DataType> types = GeneratorItemReader.defaultTypes();
-
-    public GeneratorImport(AbstractRedisClient client) {
-        super(client);
-    }
 
     public int getCount() {
         return count;
@@ -156,10 +150,10 @@ public class GeneratorImport extends AbstractKeyValueImport {
     }
 
     @Override
-    protected Job job() {
+    protected Job job(RiotExecutionContext context) {
         StepBuilder<KeyValue<String>, KeyValue<String>> step = createStep();
         step.reader(reader());
-        step.writer(writer());
+        step.writer(writer(context));
         return jobBuilder().start(step.build()).build();
     }
 

@@ -13,7 +13,7 @@ import picocli.CommandLine.Spec;
 /**
  * @author Julien Ruaux
  */
-@Command(versionProvider = ManifestVersionProvider.class, resourceBundle = "com.redis.riot.Messages", usageHelpAutoWidth = true)
+@Command(versionProvider = ManifestVersionProvider.class, resourceBundle = "com.redis.riot.Messages", usageHelpAutoWidth = true, abbreviateSynopsis = true)
 public class BaseCommand {
 
     static {
@@ -33,7 +33,7 @@ public class BaseCommand {
     @Mixin
     LoggingMixin loggingMixin = new LoggingMixin();
 
-    protected String $(String key, Object... args) {
+    protected String getString(String key, Object... args) {
         if (null == args || args.length == 0) {
             return bundle.getString(key);
         }

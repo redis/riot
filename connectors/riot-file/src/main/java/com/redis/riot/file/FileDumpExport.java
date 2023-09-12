@@ -13,6 +13,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.redis.riot.core.AbstractExport;
+import com.redis.riot.core.RiotExecutionContext;
 import com.redis.riot.core.RiotExecutionException;
 import com.redis.riot.core.StepBuilder;
 import com.redis.riot.file.resource.JsonResourceItemWriter;
@@ -22,7 +23,6 @@ import com.redis.riot.file.resource.XmlResourceItemWriterBuilder;
 import com.redis.spring.batch.KeyValue;
 import com.redis.spring.batch.ValueType;
 
-import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.codec.StringCodec;
 
 public class FileDumpExport extends AbstractExport<String, String> {
@@ -33,7 +33,7 @@ public class FileDumpExport extends AbstractExport<String, String> {
 
     public static final String DEFAULT_LINE_SEPARATOR = System.getProperty("line.separator");
 
-    private final String file;
+    private String file;
 
     private FileOptions fileOptions = new FileOptions();
 
@@ -47,8 +47,11 @@ public class FileDumpExport extends AbstractExport<String, String> {
 
     private FileDumpType type;
 
-    public FileDumpExport(AbstractRedisClient client, String file) {
-        super(client, StringCodec.UTF8);
+    public FileDumpExport() {
+        super(StringCodec.UTF8);
+    }
+
+    public void setFile(String file) {
         this.file = file;
     }
 
@@ -77,10 +80,10 @@ public class FileDumpExport extends AbstractExport<String, String> {
     }
 
     @Override
-    protected Job job() {
+    protected Job job(RiotExecutionContext executionContext) {
         StepBuilder<KeyValue<String>, KeyValue<String>> step = createStep();
         step.name(getName());
-        step.reader(reader());
+        step.reader(reader(executionContext));
         step.writer(writer());
         return jobBuilder().start(step.build()).build();
     }

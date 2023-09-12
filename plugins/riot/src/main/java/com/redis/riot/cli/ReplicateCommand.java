@@ -5,7 +5,6 @@ import java.util.function.Supplier;
 
 import com.redis.riot.cli.RedisReaderArgs.ReadFromEnum;
 import com.redis.riot.core.AbstractExport;
-import com.redis.riot.core.EvaluationContextOptions;
 import com.redis.riot.core.KeyComparisonOptions;
 import com.redis.riot.core.KeyComparisonStatusCountItemWriter;
 import com.redis.riot.core.Replication;
@@ -18,13 +17,12 @@ import com.redis.spring.batch.util.BatchUtils;
 import com.redis.spring.batch.util.KeyComparison.Status;
 import com.redis.spring.batch.util.KeyComparisonItemReader;
 
-import io.lettuce.core.ReadFrom;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 @Command(name = "replicate", description = "Replicate a Redis database into another Redis database.")
-public class ReplicationCommand extends AbstractExportCommand {
+public class ReplicateCommand extends AbstractExportCommand<byte[], byte[]> {
 
     private static final Status[] STATUSES = { Status.OK, Status.MISSING, Status.TYPE, Status.VALUE, Status.TTL };
 
@@ -34,10 +32,6 @@ public class ReplicationCommand extends AbstractExportCommand {
 
     private static final String COMPARE_MESSAGE = " | %s: %s";
 
-    private static final String VARIABLE_SOURCE = "source";
-
-    private static final String VARIABLE_TARGET = "target";
-
     @Option(names = "--mode", description = "Replication mode: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<name>")
     ReplicationMode mode = ReplicationMode.SNAPSHOT;
 
@@ -45,10 +39,13 @@ public class ReplicationCommand extends AbstractExportCommand {
     ValueType valueType = ValueType.DUMP;
 
     @ArgGroup(exclusive = false, heading = "Target Redis connection options%n")
-    RedisArgs targetRedisArgs = new RedisArgs();
+    RedisArgs targetRedisClientArgs = new RedisArgs();
 
-    @ArgGroup(exclusive = false, heading = "Target Redis options%n")
-    TargetArgs targetArgs = new TargetArgs();
+    @Option(names = "--target-read-from", description = "Which target Redis cluster nodes to read data from: ${COMPLETION-CANDIDATES}.", paramLabel = "<n>")
+    ReadFromEnum targetReadFrom;
+
+    @ArgGroup(exclusive = false, heading = "Target writer options%n")
+    RedisWriterArgs targetWriterArgs = new RedisWriterArgs();
 
     @ArgGroup(exclusive = false, heading = "Compare options%n")
     ComparisonArgs compareArgs = new ComparisonArgs();
@@ -74,41 +71,19 @@ public class ReplicationCommand extends AbstractExportCommand {
 
     }
 
-    private static class TargetArgs {
-
-        @Option(names = "--target-read-from", description = "Which target Redis cluster nodes to read data from: ${COMPLETION-CANDIDATES}.", paramLabel = "<n>")
-        ReadFromEnum readFrom;
-
-        @ArgGroup(exclusive = false)
-        RedisWriterArgs writerArgs = new RedisWriterArgs();
-
-        public ReadFrom readFrom() {
-            if (readFrom == null) {
-                return null;
-            }
-            return readFrom.getReadFrom();
-        }
-
-    }
-
     @Override
     protected AbstractExport<byte[], byte[]> getExportExecutable() {
-        Replication executable = new Replication(redisClient(), targetRedisArgs.client(), parent.out);
+        Replication executable = new Replication(parent.out);
         executable.setComparisonOptions(compareArgs.comparisonOptions());
         executable.setMode(mode);
         executable.setReaderOptions(readerOptions());
-        executable.setTargetReadFrom(targetArgs.readFrom());
-        executable.setTargetWriterOptions(targetArgs.writerArgs.writerOptions());
+        executable.setTargetRedisClientOptions(targetRedisClientArgs.redisClientOptions());
+        if (targetReadFrom != null) {
+            executable.setTargetReadFrom(targetReadFrom.getReadFrom());
+        }
+        executable.setTargetWriterOptions(targetWriterArgs.writerOptions());
         executable.setValueType(valueType);
         return executable;
-    }
-
-    @Override
-    protected EvaluationContextOptions evaluationContextOptions() {
-        EvaluationContextOptions options = super.evaluationContextOptions();
-        options.getVariables().put(VARIABLE_SOURCE, redisArgs().uri());
-        options.getVariables().put(VARIABLE_TARGET, targetRedisArgs.uri());
-        return options;
     }
 
     @Override

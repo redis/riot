@@ -10,16 +10,10 @@ import org.HdrHistogram.Histogram;
 import org.LatencyUtils.LatencyStats;
 import org.springframework.util.Assert;
 
-import com.redis.lettucemod.api.StatefulRedisModulesConnection;
-import com.redis.lettucemod.util.RedisModulesUtils;
-
-import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.metrics.CommandMetrics.CommandLatency;
 import io.lettuce.core.metrics.DefaultCommandLatencyCollectorOptions;
 
-public class Ping implements Executable {
-
-    private final AbstractRedisClient client;
+public class Ping extends AbstractRedisExecutable {
 
     public static final int DEFAULT_ITERATIONS = 1;
 
@@ -27,9 +21,9 @@ public class Ping implements Executable {
 
     public static final TimeUnit DEFAULT_TIME_UNIT = TimeUnit.MILLISECONDS;
 
-    public static final double[] DEFAULT_PERCENTILES = DefaultCommandLatencyCollectorOptions.DEFAULT_TARGET_PERCENTILES;
+    private static final double[] DEFAULT_PERCENTILES = DefaultCommandLatencyCollectorOptions.DEFAULT_TARGET_PERCENTILES;
 
-    private final PrintWriter out;
+    private PrintWriter out;
 
     private int iterations = DEFAULT_ITERATIONS;
 
@@ -43,8 +37,7 @@ public class Ping implements Executable {
 
     private Duration sleep;
 
-    public Ping(AbstractRedisClient client, PrintWriter out) {
-        this.client = client;
+    public void setOut(PrintWriter out) {
         this.out = out;
     }
 
@@ -97,47 +90,45 @@ public class Ping implements Executable {
     }
 
     @Override
-    public void execute() {
-        try (StatefulRedisModulesConnection<String, String> connection = RedisModulesUtils.connection(client)) {
-            for (int iteration = 0; iteration < iterations; iteration++) {
-                execute(connection);
-                if (sleep != null) {
-                    try {
-                        Thread.sleep(sleep.toMillis());
-                    } catch (InterruptedException e) {
-                        // Restore interrupted state...
-                        Thread.currentThread().interrupt();
-                    }
+    protected void execute(RiotExecutionContext executionContext) {
+        for (int iteration = 0; iteration < iterations; iteration++) {
+            LatencyStats stats = new LatencyStats();
+            for (int index = 0; index < count; index++) {
+                long startTime = System.nanoTime();
+                String reply = executionContext.getRedisConnection().sync().ping();
+                Assert.isTrue("pong".equalsIgnoreCase(reply), "Invalid PING reply received: " + reply);
+                stats.recordLatency(System.nanoTime() - startTime);
+            }
+            Histogram histogram = stats.getIntervalHistogram();
+            if (latencyDistribution) {
+                histogram.outputPercentileDistribution(System.out, (double) timeUnit.toNanos(1));
+            }
+            Map<Double, Long> percentileMap = new TreeMap<>();
+            for (double targetPercentile : percentiles) {
+                long percentile = toTimeUnit(histogram.getValueAtPercentile(targetPercentile));
+                percentileMap.put(targetPercentile, percentile);
+            }
+            long min = toTimeUnit(histogram.getMinValue());
+            long max = toTimeUnit(histogram.getMaxValue());
+            CommandLatency latency = new CommandLatency(min, max, percentileMap);
+            out.println(latency.toString());
+            if (sleep != null) {
+                try {
+                    Thread.sleep(sleep.toMillis());
+                } catch (InterruptedException e) {
+                    // Restore interrupted state...
+                    Thread.currentThread().interrupt();
                 }
             }
         }
     }
 
-    private void execute(StatefulRedisModulesConnection<String, String> connection) {
-        LatencyStats stats = new LatencyStats();
-        for (int index = 0; index < count; index++) {
-            long startTime = System.nanoTime();
-            String reply = connection.sync().ping();
-            Assert.isTrue("pong".equalsIgnoreCase(reply), "Invalid PING reply received: " + reply);
-            stats.recordLatency(System.nanoTime() - startTime);
-        }
-        Histogram histogram = stats.getIntervalHistogram();
-        if (latencyDistribution) {
-            histogram.outputPercentileDistribution(System.out, (double) timeUnit.toNanos(1));
-        }
-        Map<Double, Long> percentileMap = new TreeMap<>();
-        for (double targetPercentile : percentiles) {
-            long percentile = toTimeUnit(histogram.getValueAtPercentile(targetPercentile));
-            percentileMap.put(targetPercentile, percentile);
-        }
-        long min = toTimeUnit(histogram.getMinValue());
-        long max = toTimeUnit(histogram.getMaxValue());
-        CommandLatency latency = new CommandLatency(min, max, percentileMap);
-        out.println(latency.toString());
-    }
-
     private long toTimeUnit(long value) {
         return timeUnit.convert(value, TimeUnit.NANOSECONDS);
+    }
+
+    public static double[] defaultPercentiles() {
+        return DEFAULT_PERCENTILES;
     }
 
 }

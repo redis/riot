@@ -13,7 +13,6 @@ import com.redis.riot.core.function.RegexNamedGroupFunction;
 import com.redis.spring.batch.KeyValue;
 import com.redis.spring.batch.util.BatchUtils;
 
-import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.codec.StringCodec;
 
 public abstract class AbstractMapExport extends AbstractExport<String, String> {
@@ -22,8 +21,8 @@ public abstract class AbstractMapExport extends AbstractExport<String, String> {
 
     private Pattern keyPattern = DEFAULT_KEY_PATTERN;
 
-    protected AbstractMapExport(AbstractRedisClient client) {
-        super(client, StringCodec.UTF8);
+    protected AbstractMapExport() {
+        super(StringCodec.UTF8);
     }
 
     public void setKeyPattern(Pattern pattern) {
@@ -31,22 +30,22 @@ public abstract class AbstractMapExport extends AbstractExport<String, String> {
     }
 
     @Override
-    protected Job job() {
+    protected Job job(RiotExecutionContext context) {
         StepBuilder<KeyValue<String>, Map<String, Object>> step = createStep();
         step.name(getName());
-        step.reader(reader(StringCodec.UTF8));
+        step.reader(reader(context, StringCodec.UTF8));
         step.writer(writer());
-        step.processor(processor());
+        step.processor(processor(context));
         return jobBuilder().start(step.build()).build();
     }
 
-    private ItemProcessor<KeyValue<String>, Map<String, Object>> processor() {
+    private ItemProcessor<KeyValue<String>, Map<String, Object>> processor(RiotExecutionContext context) {
         KeyValueToMapFunction function = new KeyValueToMapFunction();
         if (keyPattern != null) {
             function.setKey(new RegexNamedGroupFunction(keyPattern));
         }
         FunctionItemProcessor<KeyValue<String>, Map<String, Object>> toMapProcessor = new FunctionItemProcessor<>(function);
-        ItemProcessor<KeyValue<String>, KeyValue<String>> keyValueProcessor = keyValueProcessor();
+        ItemProcessor<KeyValue<String>, KeyValue<String>> keyValueProcessor = keyValueProcessor(context);
         if (keyValueProcessor == null) {
             return toMapProcessor;
         }

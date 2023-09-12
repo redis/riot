@@ -5,15 +5,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.batch.item.ItemProcessor;
-import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.util.Assert;
 
-import com.redis.lettucemod.util.GeoLocation;
 import com.redis.spring.batch.writer.Operation;
 import com.redis.spring.batch.writer.OperationItemWriter;
 import com.redis.spring.batch.writer.operation.CompositeOperation;
 
-import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.codec.StringCodec;
 
 public abstract class AbstractMapImport extends AbstractJobExecutable {
@@ -24,24 +21,8 @@ public abstract class AbstractMapImport extends AbstractJobExecutable {
 
     private List<Operation<String, String, Map<String, Object>>> operations;
 
-    protected AbstractMapImport(AbstractRedisClient client) {
-        super(client);
-    }
-
-    protected ItemProcessor<Map<String, Object>, Map<String, Object>> processor() {
-        return processorOptions.processor(evaluationContext());
-    }
-
-    @Override
-    protected StandardEvaluationContext evaluationContext() {
-        StandardEvaluationContext context = super.evaluationContext();
-        context.addPropertyAccessor(new QuietMapAccessor());
-        try {
-            context.registerFunction("geo", GeoLocation.class.getDeclaredMethod("toString", String.class, String.class));
-        } catch (NoSuchMethodException e) {
-            // ignore
-        }
-        return context;
+    protected ItemProcessor<Map<String, Object>, Map<String, Object>> processor(RiotExecutionContext context) {
+        return processorOptions.processor(evaluationContext(context));
     }
 
     public void setProcessorOptions(ProcessorOptions options) {
@@ -61,8 +42,9 @@ public abstract class AbstractMapImport extends AbstractJobExecutable {
         this.operationOptions = operationOptions;
     }
 
-    protected OperationItemWriter<String, String, Map<String, Object>> writer() {
-        OperationItemWriter<String, String, Map<String, Object>> writer = new OperationItemWriter<>(client, StringCodec.UTF8);
+    protected OperationItemWriter<String, String, Map<String, Object>> writer(RiotExecutionContext context) {
+        OperationItemWriter<String, String, Map<String, Object>> writer = new OperationItemWriter<>(context.getRedisClient(),
+                StringCodec.UTF8);
         writer.setOperation(operation());
         operationOptions.configure(writer);
         return writer;

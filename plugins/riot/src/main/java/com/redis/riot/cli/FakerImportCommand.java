@@ -29,7 +29,7 @@ public class FakerImportCommand extends AbstractImportCommand {
 
     @Override
     protected FakerImport getMapImportExecutable() {
-        FakerImport executable = new FakerImport(redisClient());
+        FakerImport executable = new FakerImport();
         executable.setFields(fields);
         executable.setCount(count);
         executable.setLocale(locale);

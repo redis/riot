@@ -63,7 +63,8 @@ public class FileImportCommand extends AbstractImportCommand {
 
     @Override
     protected AbstractMapImport getMapImportExecutable() {
-        FileImport executable = new FileImport(redisClient(), files);
+        FileImport executable = new FileImport();
+        executable.setFiles(files);
         executable.setColumnRanges(columnRanges);
         executable.setContinuationString(continuationString);
         executable.setDelimiter(delimiter);

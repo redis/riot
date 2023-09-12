@@ -9,7 +9,7 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
 @Command(name = "file-export", description = "Export Redis data to JSON or XML files.")
-public class FileDumpExportCommand extends AbstractExportCommand {
+public class FileDumpExportCommand extends AbstractExportCommand<String, String> {
 
     @Parameters(arity = "1", description = "File path or URL", paramLabel = "FILE")
     String file;
@@ -34,7 +34,8 @@ public class FileDumpExportCommand extends AbstractExportCommand {
 
     @Override
     protected FileDumpExport getExportExecutable() {
-        FileDumpExport executable = new FileDumpExport(redisClient(), file);
+        FileDumpExport executable = new FileDumpExport();
+        executable.setFile(file);
         executable.setAppend(append);
         executable.setElementName(elementName);
         executable.setLineSeparator(lineSeparator);

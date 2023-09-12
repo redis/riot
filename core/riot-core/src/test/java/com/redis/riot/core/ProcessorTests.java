@@ -10,7 +10,6 @@ import java.util.function.Predicate;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.batch.item.ItemProcessor;
-import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
@@ -36,7 +35,7 @@ class ProcessorTests {
         expressions.put("field4", SpelUtils.parse("2"));
         expressions.put("field5", SpelUtils.parse("field3+field4"));
         options.setExpressions(expressions);
-        ItemProcessor<Map<String, Object>, Map<String, Object>> processor = options.processor(mapEvaluationContext());
+        ItemProcessor<Map<String, Object>, Map<String, Object>> processor = options.processor(new StandardEvaluationContext());
         for (int index = 0; index < 10; index++) {
             Map<String, Object> result = processor.process(new HashMap<>());
             assertEquals(5, result.size());
@@ -46,17 +45,11 @@ class ProcessorTests {
         }
     }
 
-    private EvaluationContext mapEvaluationContext() {
-        StandardEvaluationContext context = new StandardEvaluationContext();
-        context.addPropertyAccessor(new QuietMapAccessor());
-        return context;
-    }
-
     @Test
     void testMapProcessorFilter() throws Exception {
         ProcessorOptions options = new ProcessorOptions();
         options.setFilter(SpelUtils.parse("index<10"));
-        ItemProcessor<Map<String, Object>, Map<String, Object>> processor = options.processor(mapEvaluationContext());
+        ItemProcessor<Map<String, Object>, Map<String, Object>> processor = options.processor(new StandardEvaluationContext());
         for (int index = 0; index < 100; index++) {
             Map<String, Object> map = new HashMap<>();
             map.put("index", index);

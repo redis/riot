@@ -10,7 +10,7 @@ import com.redis.spring.batch.util.BatchUtils;
 
 import picocli.CommandLine.ArgGroup;
 
-public abstract class AbstractExportCommand extends AbstractJobCommand {
+public abstract class AbstractExportCommand<K, V> extends AbstractJobCommand {
 
     @ArgGroup(exclusive = false, heading = "Redis reader options%n")
     RedisReaderArgs readerArgs = new RedisReaderArgs();
@@ -20,19 +20,20 @@ public abstract class AbstractExportCommand extends AbstractJobCommand {
 
     @Override
     protected AbstractJobExecutable getJobExecutable() {
-        AbstractExport<?, ?> executable = getExportExecutable();
+        AbstractExport<K, V> executable = getExportExecutable();
         executable.setReaderOptions(readerOptions());
+        executable.setEvaluationContextOptions(evaluationContextOptions());
         executable.setProcessorOptions(processorArgs.processorOptions());
         return executable;
     }
 
     protected RedisReaderOptions readerOptions() {
         RedisReaderOptions options = readerArgs.redisReaderOptions();
-        options.setDatabase(redisArgs().uri().getDatabase());
+        options.setDatabase(parent.redisArgs.redisClientOptions().getUriOptions().redisURI().getDatabase());
         return options;
     }
 
-    protected abstract AbstractExport<?, ?> getExportExecutable();
+    protected abstract AbstractExport<K, V> getExportExecutable();
 
     @Override
     protected long size(StepBuilder<?, ?> step) {

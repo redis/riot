@@ -1,6 +1,6 @@
 package com.redis.riot.core;
 
-public interface Executable {
+public interface RiotExecutable {
 
     void execute();
 

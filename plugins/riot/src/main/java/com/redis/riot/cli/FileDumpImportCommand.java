@@ -26,7 +26,8 @@ public class FileDumpImportCommand extends AbstractKeyValueImportCommand {
 
     @Override
     protected FileDumpImport getKeyValueImportExecutable() {
-        FileDumpImport executable = new FileDumpImport(redisClient(), files);
+        FileDumpImport executable = new FileDumpImport();
+        executable.setFiles(files);
         executable.setFileOptions(args.fileOptions());
         executable.setType(type);
         return executable;
