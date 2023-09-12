@@ -7,9 +7,9 @@
 include::{includedir}/_links.adoc[]
 
 :leveloffset: 1
-include::{includedir}/introduction.adoc[]
+include::{includedir}/overview.adoc[]
 include::{includedir}/install.adoc[]
-include::{includedir}/quick-start.adoc[]
+include::{includedir}/getting-started.adoc[]
 include::{includedir}/architecture.adoc[]
 include::{includedir}/files.adoc[]
 include::{includedir}/generators.adoc[]

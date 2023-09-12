@@ -1,17 +1,15 @@
 package com.redis.riot.cli.operation;
 
-import java.util.Map;
-
-import com.redis.spring.batch.writer.operation.Sadd;
+import com.redis.riot.core.operation.SaddBuilder;
 
 import picocli.CommandLine.Command;
 
 @Command(name = "sadd", description = "Add members to a set")
-public class SaddCommand extends AbstractCollectionCommand {
+public class SaddCommand extends AbstractCollectionOperationCommand {
 
-	@Override
-	public Sadd<String, String, Map<String, Object>> operation() {
-		return new Sadd<>(key(), member());
-	}
+    @Override
+    protected SaddBuilder collectionOperationBuilder() {
+        return new SaddBuilder();
+    }
 
 }

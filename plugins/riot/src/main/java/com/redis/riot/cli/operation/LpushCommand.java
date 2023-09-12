@@ -1,17 +1,15 @@
 package com.redis.riot.cli.operation;
 
-import java.util.Map;
-
-import com.redis.spring.batch.writer.operation.Lpush;
+import com.redis.riot.core.operation.LpushBuilder;
 
 import picocli.CommandLine.Command;
 
 @Command(name = "lpush", description = "Insert values at the head of a list")
-public class LpushCommand extends AbstractCollectionCommand {
+public class LpushCommand extends AbstractCollectionOperationCommand {
 
-	@Override
-	public Lpush<String, String, Map<String, Object>> operation() {
-		return new Lpush<>(key(), member());
-	}
+    @Override
+    protected LpushBuilder collectionOperationBuilder() {
+        return new LpushBuilder();
+    }
 
 }

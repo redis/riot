@@ -1,23 +1,25 @@
 package com.redis.riot.cli.operation;
 
-import java.util.Map;
-
-import com.redis.spring.batch.convert.GeoValueConverter;
-import com.redis.spring.batch.writer.operation.Geoadd;
+import com.redis.riot.core.operation.GeoaddBuilder;
 
 import picocli.CommandLine.Command;
-import picocli.CommandLine.Mixin;
+import picocli.CommandLine.Option;
 
 @Command(name = "geoadd", description = "Add members to a geo set")
-public class GeoaddCommand extends AbstractCollectionCommand {
+public class GeoaddCommand extends AbstractCollectionOperationCommand {
 
-	@Mixin
-	private GeoaddOptions options = new GeoaddOptions();
+    @Option(names = "--lon", required = true, description = "Longitude field.", paramLabel = "<field>")
+    private String longitude;
 
-	@Override
-	public Geoadd<String, String, Map<String, Object>> operation() {
-		return new Geoadd<>(key(), new GeoValueConverter<>(member(), doubleFieldExtractor(options.getLongitude()),
-				doubleFieldExtractor(options.getLatitude())));
-	}
+    @Option(names = "--lat", required = true, description = "Latitude field.", paramLabel = "<field>")
+    private String latitude;
+
+    @Override
+    protected GeoaddBuilder collectionOperationBuilder() {
+        GeoaddBuilder builder = new GeoaddBuilder();
+        builder.latitude(latitude);
+        builder.longitude(longitude);
+        return builder;
+    }
 
 }

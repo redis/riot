@@ -11,6 +11,13 @@ Style of progress bar (default: `ascii`)
 - `log`: ASCII logs
 - `none`: no progress bar
 
+`--ft`::
+Enable step fault-tolerance.
+Use in conjunction with retry and skip limit/policy.
+
+`--retry-limit`::
+Maximum number of times to try a failed item. Both 0 and 1 mean no retry (default: 1).
+
 `--skip-policy`::
 Policy to determine what should be done when errors occur during processing.
 

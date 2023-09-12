@@ -1,21 +1,29 @@
 package com.redis.riot.cli.operation;
 
-import java.util.Map;
+import java.time.Duration;
 
-import com.redis.spring.batch.writer.operation.Expire;
+import com.redis.riot.core.operation.ExpireBuilder;
 
 import picocli.CommandLine.Command;
-import picocli.CommandLine.Mixin;
+import picocli.CommandLine.Option;
 
 @Command(name = "expire", description = "Set timeouts on keys")
-public class ExpireCommand extends AbstractKeyCommand {
+public class ExpireCommand extends OperationCommand {
 
-	@Mixin
-	private ExpireOptions options = new ExpireOptions();
+    public static final long DEFAULT_TTL = 60;
 
-	@Override
-	public Expire<String, String, Map<String, Object>> operation() {
-		return new Expire<>(key(), numberExtractor(options.getTtlField(), Long.class, options.getDefaultTtl()));
-	}
+    @Option(names = "--ttl", description = "EXPIRE timeout field.", paramLabel = "<field>")
+    private String ttlField;
+
+    @Option(names = "--ttl-default", description = "EXPIRE default timeout (default: ${DEFAULT-VALUE}).", paramLabel = "<sec>")
+    private long defaultTtl = DEFAULT_TTL;
+
+    @Override
+    protected ExpireBuilder operationBuilder() {
+        ExpireBuilder builder = new ExpireBuilder();
+        builder.ttl(ttlField);
+        builder.defaultTtl(Duration.ofSeconds(defaultTtl));
+        return builder;
+    }
 
 }

@@ -1,34 +1,81 @@
 package com.redis.riot.cli.operation;
 
-import java.util.Map;
-import java.util.function.Function;
-
-import com.redis.lettucemod.search.Suggestion;
-import com.redis.spring.batch.convert.SuggestionConverter;
-import com.redis.spring.batch.writer.operation.Sugadd;
-import com.redis.spring.batch.writer.operation.SugaddIncr;
+import com.redis.riot.core.operation.SugaddBuilder;
 
 import picocli.CommandLine.Command;
-import picocli.CommandLine.Mixin;
+import picocli.CommandLine.Option;
 
 @Command(name = "ft.sugadd", description = "Add suggestion strings to a RediSearch auto-complete dictionary")
-public class SugaddCommand extends AbstractKeyCommand {
+public class SugaddCommand extends OperationCommand {
 
-	@Mixin
-	private SugaddOptions options = new SugaddOptions();
+    public static final double DEFAULT_SCORE = 1;
 
-	@Override
-	public Sugadd<String, String, Map<String, Object>> operation() {
-		if (options.isIncrement()) {
-			return new SugaddIncr<>(key(), suggestion());
-		}
-		return new Sugadd<>(key(), suggestion());
-	}
+    public static final boolean DEFAULT_INCREMENT = false;
 
-	private Function<Map<String, Object>, Suggestion<String>> suggestion() {
-		return new SuggestionConverter<>(stringFieldExtractor(options.getField()),
-				numberExtractor(options.getScore(), Double.class, options.getDefaultScore()),
-				stringFieldExtractor(options.getPayload()));
-	}
+    @Option(names = "--field", required = true, description = "Field containing the strings to add.", paramLabel = "<field>")
+    private String stringField;
+
+    @Option(names = "--score", description = "Name of the field to use for scores.", paramLabel = "<field>")
+    private String scoreField;
+
+    @Option(names = "--score-default", description = "Score when field not present (default: ${DEFAULT-VALUE}).", paramLabel = "<num>")
+    private double defaultScore = DEFAULT_SCORE;
+
+    @Option(names = "--payload", description = "Field containing the payload.", paramLabel = "<field>")
+    private String payloadField;
+
+    @Option(names = "--increment", description = "Increment the existing suggestion by the score instead of replacing the score.")
+    private boolean increment = DEFAULT_INCREMENT;
+
+    public String getStringField() {
+        return stringField;
+    }
+
+    public void setStringField(String field) {
+        this.stringField = field;
+    }
+
+    public String getScoreField() {
+        return scoreField;
+    }
+
+    public void setScore(String field) {
+        this.scoreField = field;
+    }
+
+    public double getDefaultScore() {
+        return defaultScore;
+    }
+
+    public void setDefaultScore(double scoreDefault) {
+        this.defaultScore = scoreDefault;
+    }
+
+    public String getPayloadField() {
+        return payloadField;
+    }
+
+    public void setPayload(String field) {
+        this.payloadField = field;
+    }
+
+    public boolean isIncrement() {
+        return increment;
+    }
+
+    public void setIncrement(boolean increment) {
+        this.increment = increment;
+    }
+
+    @Override
+    protected SugaddBuilder operationBuilder() {
+        SugaddBuilder supplier = new SugaddBuilder();
+        supplier.defaultScore(defaultScore);
+        supplier.increment(increment);
+        supplier.string(stringField);
+        supplier.payload(payloadField);
+        supplier.score(scoreField);
+        return supplier;
+    }
 
 }

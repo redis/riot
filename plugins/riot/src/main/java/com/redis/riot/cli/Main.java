@@ -1,89 +1,129 @@
 package com.redis.riot.cli;
 
-import java.util.logging.Level;
+import java.io.PrintWriter;
 
 import org.springframework.expression.Expression;
-import org.springframework.expression.spel.standard.SpelExpressionParser;
 
-import com.redis.riot.cli.common.DoubleRangeTypeConverter;
-import com.redis.riot.cli.common.HelpOptions;
-import com.redis.riot.cli.common.IntRangeTypeConverter;
-import com.redis.riot.cli.common.LoggingOptions;
-import com.redis.riot.cli.common.ManifestVersionProvider;
-import com.redis.riot.cli.common.RedisOptions;
-import com.redis.riot.cli.common.RiotExecutionStrategy;
-import com.redis.spring.batch.common.DoubleRange;
-import com.redis.spring.batch.common.IntRange;
+import com.redis.riot.cli.operation.OperationCommand;
+import com.redis.riot.core.SpelUtils;
+import com.redis.riot.core.TemplateExpression;
+import com.redis.spring.batch.util.DoubleRange;
+import com.redis.spring.batch.util.LongRange;
 
-import io.lettuce.core.ReadFrom;
-import io.lettuce.core.RedisURI;
 import picocli.AutoComplete.GenerateCompletion;
 import picocli.CommandLine;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
-import picocli.CommandLine.Mixin;
+import picocli.CommandLine.IExecutionStrategy;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.ParseResult;
+import picocli.CommandLine.RunFirst;
+import picocli.CommandLine.RunLast;
 
-@Command(name = "riot", usageHelpAutoWidth = true, versionProvider = ManifestVersionProvider.class, subcommands = {
-		DbImport.class, DbExport.class, DumpImport.class, FileImport.class, FileExport.class, FakerImport.class,
-		Generate.class, Replicate.class, Ping.class,
-		GenerateCompletion.class }, resourceBundle = "com.redis.riot.Messages")
-public class Main {
+@Command(name = "riot", subcommands = { DatabaseImportCommand.class, DatabaseExportCommand.class, FileDumpImportCommand.class,
+        FileImportCommand.class, FileDumpExportCommand.class, FakerImportCommand.class, GeneratorImportCommand.class,
+        ReplicateCommand.class, PingCommand.class, GenerateCompletion.class })
+public class Main extends BaseCommand implements Runnable {
 
-	@Mixin
-	private HelpOptions helpOptions = new HelpOptions();
+    PrintWriter out;
 
-	@Option(names = { "-V", "--version" }, versionHelp = true, description = "Print version information and exit.")
-	private boolean versionRequested;
+    PrintWriter err;
 
-	@Mixin
-	private LoggingOptions loggingOptions = new LoggingOptions();
+    @Option(names = { "-V", "--version" }, versionHelp = true, description = "Print version information and exit.")
+    boolean versionRequested;
 
-	@ArgGroup(heading = "Redis connection options%n", exclusive = false)
-	private RedisOptions redisOptions = new RedisOptions();
+    @ArgGroup(exclusive = false, heading = "Redis connection options%n")
+    RedisArgs redisArgs = new RedisArgs();
 
-	public static void main(String[] args) {
-		System.exit(new Main().execute(args));
-	}
+    @Override
+    public void run() {
+        spec.commandLine().usage(out);
+    }
 
-	public RedisOptions getRedisOptions() {
-		return redisOptions;
-	}
+    public static void main(String[] args) {
+        System.exit(run(args));
+    }
 
-	public LoggingOptions getLoggingOptions() {
-		return loggingOptions;
-	}
+    public static int run(String... args) {
+        Main cmd = new Main();
+        CommandLine commandLine = new CommandLine(cmd);
+        cmd.out = commandLine.getOut();
+        cmd.err = commandLine.getErr();
+        return execute(commandLine, args);
+    }
 
-	public int execute(String... args) {
-		return commandLine().execute(args);
-	}
+    public static int run(PrintWriter out, PrintWriter err, String[] args, IExecutionStrategy... executionStrategies) {
+        Main cmd = new Main();
+        CommandLine commandLine = new CommandLine(cmd);
+        commandLine.setOut(out);
+        commandLine.setErr(err);
+        cmd.out = out;
+        cmd.err = err;
+        return execute(commandLine, args, executionStrategies);
+    }
 
-	public static CommandLine commandLine() {
-		CommandLine cmd = new CommandLine(new Main());
-		cmd.setExecutionStrategy(new RiotExecutionStrategy(LoggingOptions::executionStrategy));
-		cmd.setExecutionExceptionHandler(Main::handleExecutionException);
-		((Main) cmd.getCommand()).registerConverters(cmd);
-		cmd.setCaseInsensitiveEnumValuesAllowed(true);
-		cmd.setUnmatchedOptionsAllowedAsOptionParameters(false);
-		return cmd;
-	}
+    private static int execute(CommandLine commandLine, String[] args, IExecutionStrategy... executionStrategies) {
+        CompositeExecutionStrategy executionStrategy = new CompositeExecutionStrategy();
+        executionStrategy.addDelegates(executionStrategies);
+        executionStrategy.addDelegates(LoggingMixin::executionStrategy);
+        executionStrategy.addDelegates(Main::executionStrategy);
+        commandLine.setExecutionStrategy(executionStrategy);
+        commandLine.registerConverter(LongRange.class, Main::longRange);
+        commandLine.registerConverter(DoubleRange.class, Main::doubleRange);
+        commandLine.registerConverter(Expression.class, SpelUtils::parse);
+        commandLine.registerConverter(TemplateExpression.class, SpelUtils::parseTemplate);
+        commandLine.setCaseInsensitiveEnumValuesAllowed(true);
+        commandLine.setUnmatchedOptionsAllowedAsOptionParameters(false);
+        return commandLine.execute(args);
+    }
 
-	private static int handleExecutionException(Exception ex, CommandLine cmd, ParseResult parseResult) {
-		// bold red error message
-		cmd.getErr().println(cmd.getColorScheme().errorText(ex.getMessage()));
-		return cmd.getExitCodeExceptionMapper() == null ? cmd.getCommandSpec().exitCodeOnExecutionException()
-				: cmd.getExitCodeExceptionMapper().getExitCode(ex);
-	}
+    private static int executionStrategy(ParseResult parseResult) {
+        for (ParseResult subcommand : parseResult.subcommands()) {
+            Object command = subcommand.commandSpec().userObject();
+            if (AbstractImportCommand.class.isAssignableFrom(command.getClass())) {
+                AbstractImportCommand importCommand = (AbstractImportCommand) command;
+                for (ParseResult redisCommand : subcommand.subcommands()) {
+                    if (redisCommand.isUsageHelpRequested()) {
+                        return new RunLast().execute(redisCommand);
+                    }
+                    importCommand.getCommands().add((OperationCommand) redisCommand.commandSpec().userObject());
+                }
+                return new RunFirst().execute(subcommand);
+            }
+        }
+        return new RunLast().execute(parseResult); // default execution strategy
+    }
 
-	protected void registerConverters(CommandLine commandLine) {
-		commandLine.registerConverter(RedisURI.class, RedisURI::create);
-		commandLine.registerConverter(IntRange.class, new IntRangeTypeConverter());
-		commandLine.registerConverter(DoubleRange.class, new DoubleRangeTypeConverter());
-		SpelExpressionParser parser = new SpelExpressionParser();
-		commandLine.registerConverter(Expression.class, parser::parseExpression);
-		commandLine.registerConverter(ReadFrom.class, ReadFrom::valueOf);
-		commandLine.registerConverter(Level.class, s -> Level.parse(s.toUpperCase()));
-	}
+    public static DoubleRange doubleRange(String value) {
+        int pos = value.indexOf(DoubleRange.SEPARATOR);
+        if (pos >= 0) {
+            return DoubleRange.between(parseDouble(value.substring(0, pos), 0),
+                    parseDouble(value.substring(pos + DoubleRange.SEPARATOR.length()), Double.MAX_VALUE));
+        }
+        return DoubleRange.is(parseDouble(value, Double.MAX_VALUE));
+    }
+
+    private static double parseDouble(String string, double defaultValue) {
+        if (string.isEmpty()) {
+            return defaultValue;
+        }
+        return Double.parseDouble(string);
+    }
+
+    public static LongRange longRange(String value) {
+        int separator;
+        if ((separator = value.indexOf(LongRange.SEPARATOR)) >= 0) {
+            return LongRange.between(parseInt(value.substring(0, separator), 0),
+                    parseInt(value.substring(separator + LongRange.SEPARATOR.length()), Integer.MAX_VALUE));
+        }
+        return LongRange.is(parseInt(value, Integer.MAX_VALUE));
+    }
+
+    private static int parseInt(String string, int defaultValue) {
+        if (string.isEmpty()) {
+            return defaultValue;
+        }
+        return Integer.parseInt(string);
+    }
 
 }

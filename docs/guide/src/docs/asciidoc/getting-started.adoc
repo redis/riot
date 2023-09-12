@@ -1,0 +1,93 @@
+[[_getting_started]]
+= Getting Started
+
+You can launch {project-title} with the following command:
+
+[source]
+----
+riot
+----
+
+This will show usage help, which you can also get by running:
+
+[source]
+----
+riot --help
+----
+
+[TIP]
+====
+You can use `--help` on any command and subcommand:
+
+[source]
+----
+riot command --help
+riot command subcommand --help
+----
+====
+
+[[_riot_commands]]
+== Commands
+{project-title} includes the following commands:
+
+<<_db_import,`db-import`>>::
+Import from a relational database.
+
+<<_db_export,`db-export`>>::
+Export Redis data to a relational database.
+
+<<_dump_import,`dump-import`>>::
+Import Redis data files into Redis.
+
+<<_file_import,`file-import`>>::
+Import from CSV/JSON/XML files.
+
+<<_file_export,`file-export`>>::
+Export Redis data to JSON or XML files.
+
+<<_faker_import,`faker-import`>>::
+Import from Faker.
+
+<<_generate,`generate`>>::
+Generate data structures.
+
+<<_replicate,`replicate`>>::
+Replicate a Redis database into another Redis database.
+
+<<_ping,`ping`>>::
+Test connectivity to a Redis database.
+
+<<_generate_completion,`generate-completion`>>::
+Generate bash/zsh completion script for `riot`.
+
+[[_general_options]]
+== General options
+
+`-d, --debug`::
+Log in debug mode (includes normal stacktrace).
+
+`-H, --help`::
+Show this help message and exit.
+
+`-i, --info`::
+Set log level to info.
+
+`-q, --quiet`::
+Log errors only.
+
+`--stacktrace`::
+Print out the stacktrace for all exceptions.
+
+`-V, --version`::
+Print version information and exit.
+
+`-w, --warn`::
+Set log level to warn.
+
+[[_redis_options]]
+== Redis connection options
+include::{includedir}/redis-options.adoc[leveloffset=+1]
+
+[[_job_options]]
+== Job options
+include::{includedir}/job-options.adoc[leveloffset=+1]

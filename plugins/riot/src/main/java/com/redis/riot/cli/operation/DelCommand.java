@@ -1,17 +1,15 @@
 package com.redis.riot.cli.operation;
 
-import java.util.Map;
-
-import com.redis.spring.batch.writer.operation.Del;
+import com.redis.riot.core.operation.DelBuilder;
 
 import picocli.CommandLine.Command;
 
 @Command(name = "del", description = "Delete keys")
-public class DelCommand extends AbstractKeyCommand {
+public class DelCommand extends OperationCommand {
 
-	@Override
-	public Del<String, String, Map<String, Object>> operation() {
-		return new Del<>(key());
-	}
+    @Override
+    protected DelBuilder operationBuilder() {
+        return new DelBuilder();
+    }
 
 }
