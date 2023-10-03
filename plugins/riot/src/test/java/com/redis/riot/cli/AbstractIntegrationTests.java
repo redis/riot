@@ -56,12 +56,12 @@ import com.redis.riot.core.ReplicationMode;
 import com.redis.riot.file.resource.XmlItemReader;
 import com.redis.riot.file.resource.XmlItemReaderBuilder;
 import com.redis.riot.file.resource.XmlObjectReader;
-import com.redis.spring.batch.KeyValue;
-import com.redis.spring.batch.gen.DataType;
+import com.redis.spring.batch.common.DataType;
+import com.redis.spring.batch.common.KeyComparison;
+import com.redis.spring.batch.common.KeyComparison.Status;
+import com.redis.spring.batch.common.KeyComparisonItemReader;
+import com.redis.spring.batch.common.KeyValue;
 import com.redis.spring.batch.gen.GeneratorItemReader;
-import com.redis.spring.batch.util.KeyComparison;
-import com.redis.spring.batch.util.KeyComparison.Status;
-import com.redis.spring.batch.util.KeyComparisonItemReader;
 import com.redis.testcontainers.RedisServer;
 
 import io.lettuce.core.AbstractRedisClient;
@@ -450,8 +450,8 @@ public abstract class AbstractIntegrationTests extends AbstractRiotTests {
         return readAll(reader);
     }
 
-    @Test
     @SuppressWarnings("rawtypes")
+    @Test
     void fileExportXml() throws Exception {
         String filename = "file-export-xml";
         generate(filename);
@@ -470,10 +470,10 @@ public abstract class AbstractIntegrationTests extends AbstractRiotTests {
         for (KeyValue<String> record : records) {
             String key = record.getKey();
             switch (record.getType()) {
-                case KeyValue.HASH:
+                case HASH:
                     Assertions.assertEquals(record.getValue(), sync.hgetall(key));
                     break;
-                case KeyValue.STRING:
+                case STRING:
                     Assertions.assertEquals(record.getValue(), sync.get(key));
                     break;
                 default:
@@ -503,7 +503,7 @@ public abstract class AbstractIntegrationTests extends AbstractRiotTests {
         Assertions.assertEquals(2, sync.keys("elastic:*").size());
         ObjectMapper mapper = new ObjectMapper();
         String doc1 = sync.jsonGet("elastic:doc1");
-        String expected = "[{\"_index\":\"test-index\",\"_type\":\"docs\",\"_id\":\"doc1\",\"_score\":1,\"_source\":{\"name\":\"ruan\",\"age\":30,\"articles\":[\"1\",\"3\"]}}]";
+        String expected = "{\"_index\":\"test-index\",\"_type\":\"docs\",\"_id\":\"doc1\",\"_score\":1,\"_source\":{\"name\":\"ruan\",\"age\":30,\"articles\":[\"1\",\"3\"]}}";
         Assertions.assertEquals(mapper.readTree(expected), mapper.readTree(doc1));
     }
 
@@ -727,14 +727,14 @@ public abstract class AbstractIntegrationTests extends AbstractRiotTests {
             } catch (Exception e) {
                 log.error("Could not generate data", e);
             }
+            awaitUntilFalse(generator::isOpen);
         }, 500, TimeUnit.MILLISECONDS);
         execute(filename);
         awaitCompare();
     }
 
     protected KeyComparisonItemReader comparisonReader() {
-        KeyComparisonItemReader reader = new KeyComparisonItemReader(client, targetClient);
-        reader.getLeft().setJobRepository(jobRepository);
+        KeyComparisonItemReader reader = new KeyComparisonItemReader(structReader(client), structReader(targetClient));
         reader.setTtlTolerance(Duration.ofMillis(100));
         return reader;
     }
@@ -751,6 +751,7 @@ public abstract class AbstractIntegrationTests extends AbstractRiotTests {
         KeyComparisonItemReader reader = comparisonReader();
         SynchronizedListItemWriter<KeyComparison> writer = new SynchronizedListItemWriter<>();
         run("compare-" + id(), DEFAULT_BATCH_SIZE, reader, writer);
+        awaitUntilFalse(reader::isOpen);
         if (writer.getWrittenItems().isEmpty()) {
             log.info("No comparison items were written");
             return false;

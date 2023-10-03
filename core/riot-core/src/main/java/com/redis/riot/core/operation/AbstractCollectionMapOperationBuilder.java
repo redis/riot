@@ -4,23 +4,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-public abstract class AbstractCollectionMapOperationBuilder<B extends AbstractCollectionMapOperationBuilder<B>>
-        extends AbstractMapOperationBuilder<B> {
+public abstract class AbstractCollectionMapOperationBuilder extends AbstractMapOperationBuilder {
 
     private String memberSpace;
 
     private List<String> memberFields;
 
-    @SuppressWarnings("unchecked")
-    public B members(List<String> fields) {
-        this.memberFields = fields;
-        return (B) this;
+    public void setMemberSpace(String memberSpace) {
+        this.memberSpace = memberSpace;
     }
 
-    @SuppressWarnings("unchecked")
-    public B memberSpace(String memberSpace) {
-        this.memberSpace = memberSpace;
-        return (B) this;
+    public void setMemberFields(List<String> memberFields) {
+        this.memberFields = memberFields;
     }
 
     protected Function<Map<String, Object>, String> member() {

@@ -17,13 +17,13 @@ public abstract class AbstractCollectionOperationCommand extends OperationComman
     private List<String> memberFields;
 
     @Override
-    protected AbstractMapOperationBuilder<?> operationBuilder() {
-        AbstractCollectionMapOperationBuilder<?> builder = collectionOperationBuilder();
-        builder.memberSpace(memberSpace);
-        builder.members(memberFields);
+    protected AbstractMapOperationBuilder operationBuilder() {
+        AbstractCollectionMapOperationBuilder builder = collectionOperationBuilder();
+        builder.setMemberSpace(memberSpace);
+        builder.setMemberFields(memberFields);
         return builder;
     }
 
-    protected abstract AbstractCollectionMapOperationBuilder<?> collectionOperationBuilder();
+    protected abstract AbstractCollectionMapOperationBuilder collectionOperationBuilder();
 
 }

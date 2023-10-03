@@ -10,28 +10,27 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.redis.spring.batch.writer.operation.JsonSet;
 
-public class JsonSetBuilder extends AbstractMapOperationBuilder<JsonSetBuilder> {
+public class JsonSetBuilder extends AbstractMapOperationBuilder {
 
     private final ObjectWriter jsonWriter = new ObjectMapper().writerFor(Map.class);
 
     private String path;
 
-    public JsonSetBuilder path(String path) {
+    public void setPath(String path) {
         this.path = path;
-        return this;
     }
 
     @Override
     protected JsonSet<String, String, Map<String, Object>> operation() {
         JsonSet<String, String, Map<String, Object>> operation = new JsonSet<>();
-        operation.setValue(this::value);
-        operation.setPath(path());
+        operation.setValueFunction(this::value);
+        operation.setPathFunction(path());
         return operation;
     }
 
     private Function<Map<String, Object>, String> path() {
         if (path == null) {
-            return JsonSet.rootPath();
+            return t -> JsonSet.ROOT_PATH;
         }
         return toString(path);
     }

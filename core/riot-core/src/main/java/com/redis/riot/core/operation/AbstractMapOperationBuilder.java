@@ -9,10 +9,10 @@ import java.util.function.ToLongFunction;
 
 import com.redis.riot.core.function.FieldExtractorFactory;
 import com.redis.riot.core.function.IdFunctionBuilder;
-import com.redis.spring.batch.writer.Operation;
-import com.redis.spring.batch.writer.operation.AbstractOperation;
+import com.redis.spring.batch.writer.WriteOperation;
+import com.redis.spring.batch.writer.operation.AbstractKeyWriteOperation;
 
-public abstract class AbstractMapOperationBuilder<B extends AbstractMapOperationBuilder<B>> {
+public abstract class AbstractMapOperationBuilder {
 
     public static final String DEFAULT_SEPARATOR = IdFunctionBuilder.DEFAULT_SEPARATOR;
 
@@ -24,45 +24,11 @@ public abstract class AbstractMapOperationBuilder<B extends AbstractMapOperation
 
     private String keyspace;
 
-    private List<String> keys;
+    private List<String> keyFields;
 
     private boolean removeFields = DEFAULT_REMOVE_FIELDS;
 
     private boolean ignoreMissingFields = DEFAULT_IGNORE_MISSING_FIELDS;
-
-    @SuppressWarnings("unchecked")
-    public B keyspace(String keyspace) {
-        this.keyspace = keyspace;
-        return (B) this;
-    }
-
-    public B keys(String... keys) {
-        return keys(Arrays.asList(keys));
-    }
-
-    @SuppressWarnings("unchecked")
-    public B keys(List<String> keys) {
-        this.keys = keys;
-        return (B) this;
-    }
-
-    @SuppressWarnings("unchecked")
-    public B keySeparator(String separator) {
-        this.keySeparator = separator;
-        return (B) this;
-    }
-
-    @SuppressWarnings("unchecked")
-    public B removeFields(boolean remove) {
-        this.removeFields = remove;
-        return (B) this;
-    }
-
-    @SuppressWarnings("unchecked")
-    public B ignoreMissingFields(boolean ignore) {
-        this.ignoreMissingFields = ignore;
-        return (B) this;
-    }
 
     protected Function<Map<String, Object>, String> toString(String field) {
         if (field == null) {
@@ -93,12 +59,36 @@ public abstract class AbstractMapOperationBuilder<B extends AbstractMapOperation
         return new IdFunctionBuilder().separator(keySeparator).remove(removeFields).prefix(prefix).fields(fields).build();
     }
 
-    public Operation<String, String, Map<String, Object>> build() {
-        AbstractOperation<String, String, Map<String, Object>> operation = operation();
-        operation.setKey(idFunction(keyspace, keys));
+    public WriteOperation<String, String, Map<String, Object>> build() {
+        AbstractKeyWriteOperation<String, String, Map<String, Object>> operation = operation();
+        operation.setKeyFunction(idFunction(keyspace, keyFields));
         return operation;
     }
 
-    protected abstract AbstractOperation<String, String, Map<String, Object>> operation();
+    protected abstract AbstractKeyWriteOperation<String, String, Map<String, Object>> operation();
+
+    public void setKeySeparator(String keySeparator) {
+        this.keySeparator = keySeparator;
+    }
+
+    public void setKeyspace(String keyspace) {
+        this.keyspace = keyspace;
+    }
+
+    public void setKeyFields(String... keys) {
+        setKeyFields(Arrays.asList(keys));
+    }
+
+    public void setKeyFields(List<String> keys) {
+        this.keyFields = keys;
+    }
+
+    public void setRemoveFields(boolean removeFields) {
+        this.removeFields = removeFields;
+    }
+
+    public void setIgnoreMissingFields(boolean ignoreMissingFields) {
+        this.ignoreMissingFields = ignoreMissingFields;
+    }
 
 }

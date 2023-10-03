@@ -45,8 +45,8 @@ public class XaddCommand extends OperationCommand {
     @Override
     protected XaddSupplier operationBuilder() {
         XaddSupplier supplier = new XaddSupplier();
-        supplier.approximateTrimming(approximateTrimming);
-        supplier.maxlen(maxlen);
+        supplier.setApproximateTrimming(approximateTrimming);
+        supplier.setMaxlen(maxlen);
         return supplier;
     }
 

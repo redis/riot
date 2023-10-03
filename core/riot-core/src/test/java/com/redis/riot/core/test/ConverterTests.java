@@ -1,4 +1,4 @@
-package com.redis.riot.core;
+package com.redis.riot.core.test;
 
 import java.util.HashMap;
 import java.util.Map;

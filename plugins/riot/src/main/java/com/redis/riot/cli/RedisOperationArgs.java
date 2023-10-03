@@ -2,7 +2,7 @@ package com.redis.riot.cli;
 
 import java.time.Duration;
 
-import com.redis.riot.core.RedisOperationOptions;
+import com.redis.riot.core.RedisWriterOptions;
 
 import picocli.CommandLine.Option;
 
@@ -15,22 +15,22 @@ public class RedisOperationArgs {
     private int waitReplicas;
 
     @Option(names = "--wait-timeout", description = "Timeout in millis for WAIT command (default: ${DEFAULT-VALUE}).", paramLabel = "<ms>")
-    private long waitTimeout = RedisOperationOptions.DEFAULT_WAIT_TIMEOUT.toMillis();
+    private long waitTimeout = RedisWriterOptions.DEFAULT_WAIT_TIMEOUT.toMillis();
 
     @Option(names = "--write-pool", description = "Max connections for writer pool (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
-    private int poolSize = RedisOperationOptions.DEFAULT_POOL_SIZE;
+    private int poolSize = RedisWriterOptions.DEFAULT_POOL_SIZE;
 
-    public RedisOperationOptions operationOptions() {
-        RedisOperationOptions options = new RedisOperationOptions();
-        configure(options);
-        return options;
-    }
+    @Option(names = "--merge", description = "Merge data structures instead of overwriting.")
+    private boolean merge;
 
-    protected void configure(RedisOperationOptions options) {
+    public RedisWriterOptions writerOptions() {
+        RedisWriterOptions options = new RedisWriterOptions();
         options.setMultiExec(multiExec);
         options.setPoolSize(poolSize);
         options.setWaitReplicas(waitReplicas);
         options.setWaitTimeout(Duration.ofMillis(waitTimeout));
+        options.setMerge(merge);
+        return options;
     }
 
 }

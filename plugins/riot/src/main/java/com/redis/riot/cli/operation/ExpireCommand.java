@@ -21,8 +21,8 @@ public class ExpireCommand extends OperationCommand {
     @Override
     protected ExpireBuilder operationBuilder() {
         ExpireBuilder builder = new ExpireBuilder();
-        builder.ttl(ttlField);
-        builder.defaultTtl(Duration.ofSeconds(defaultTtl));
+        builder.setTtlField(ttlField);
+        builder.setDefaultTtl(Duration.ofSeconds(defaultTtl));
         return builder;
     }
 

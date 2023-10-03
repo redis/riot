@@ -1,5 +1,7 @@
-package com.redis.riot.core;
+package com.redis.riot.core.test;
 
+import com.redis.spring.batch.common.DataType;
+import com.redis.spring.batch.test.AbstractTestBase;
 import com.redis.testcontainers.RedisServer;
 import com.redis.testcontainers.RedisStackContainer;
 
@@ -17,6 +19,11 @@ class StackTests extends ReplicationTests {
     @Override
     protected RedisServer getTargetRedisServer() {
         return TARGET;
+    }
+
+    @Override
+    protected DataType[] generatorDataTypes() {
+        return AbstractTestBase.REDIS_MODULES_GENERATOR_TYPES;
     }
 
 }

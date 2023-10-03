@@ -11,7 +11,7 @@ import org.springframework.batch.item.database.builder.JdbcCursorItemReaderBuild
 import org.springframework.jdbc.core.ColumnMapRowMapper;
 
 import com.redis.riot.core.AbstractMapImport;
-import com.redis.riot.core.RiotExecutionContext;
+import com.redis.riot.core.RiotContext;
 import com.redis.riot.core.StepBuilder;
 
 public class DatabaseImport extends AbstractMapImport {
@@ -103,7 +103,7 @@ public class DatabaseImport extends AbstractMapImport {
     }
 
     @Override
-    protected Job job(RiotExecutionContext executionContext) {
+    protected Job job(RiotContext executionContext) {
         StepBuilder<Map<String, Object>, Map<String, Object>> step = createStep();
         step.name(getName());
         step.reader(reader());

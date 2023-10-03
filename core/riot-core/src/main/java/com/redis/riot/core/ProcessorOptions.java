@@ -23,7 +23,6 @@ import com.redis.lettucemod.util.GeoLocation;
 import com.redis.riot.core.function.ExpressionFunction;
 import com.redis.riot.core.function.MapFunction;
 import com.redis.spring.batch.util.BatchUtils;
-import com.redis.spring.batch.util.PredicateItemProcessor;
 
 public class ProcessorOptions {
 
@@ -63,7 +62,7 @@ public class ProcessorOptions {
             processors.add(new FunctionItemProcessor<>(new MapFunction(functions)));
         }
         if (filter != null) {
-            Predicate<Map<String, Object>> predicate = SpelUtils.predicate(context, filter);
+            Predicate<Map<String, Object>> predicate = RiotUtils.predicate(context, filter);
             processors.add(new PredicateItemProcessor<>(predicate));
         }
         return BatchUtils.processor(processors);

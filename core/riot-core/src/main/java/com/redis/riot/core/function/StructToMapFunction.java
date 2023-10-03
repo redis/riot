@@ -9,12 +9,13 @@ import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
 import com.redis.lettucemod.timeseries.Sample;
-import com.redis.spring.batch.KeyValue;
+import com.redis.spring.batch.common.DataType;
+import com.redis.spring.batch.common.KeyValue;
 
 import io.lettuce.core.ScoredValue;
 import io.lettuce.core.StreamMessage;
 
-public class KeyValueToMapFunction implements Function<KeyValue<String>, Map<String, Object>> {
+public class StructToMapFunction implements Function<KeyValue<String>, Map<String, Object>> {
 
     private Function<String, Map<String, String>> key = t -> Collections.emptyMap();
 
@@ -77,26 +78,26 @@ public class KeyValueToMapFunction implements Function<KeyValue<String>, Map<Str
     }
 
     @SuppressWarnings("unchecked")
-    private Map<String, String> value(String type, Object value) {
+    private Map<String, String> value(DataType type, Object value) {
         if (type == null || value == null) {
             return Collections.emptyMap();
         }
         switch (type) {
-            case KeyValue.HASH:
+            case HASH:
                 return hash.apply((Map<String, String>) value);
-            case KeyValue.LIST:
+            case LIST:
                 return list.apply((List<String>) value);
-            case KeyValue.SET:
+            case SET:
                 return set.apply((Collection<String>) value);
-            case KeyValue.ZSET:
+            case ZSET:
                 return zset.apply((List<ScoredValue<String>>) value);
-            case KeyValue.STREAM:
+            case STREAM:
                 return stream.apply((List<StreamMessage<String, String>>) value);
-            case KeyValue.JSON:
+            case JSON:
                 return json.apply((String) value);
-            case KeyValue.STRING:
+            case STRING:
                 return string.apply((String) value);
-            case KeyValue.TIMESERIES:
+            case TIMESERIES:
                 return timeseries.apply((List<Sample>) value);
             default:
                 return defaultFunction.apply(value);

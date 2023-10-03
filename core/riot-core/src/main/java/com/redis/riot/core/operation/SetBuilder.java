@@ -10,7 +10,7 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.redis.riot.core.function.ObjectMapperFunction;
 import com.redis.spring.batch.writer.operation.Set;
 
-public class SetBuilder extends AbstractMapOperationBuilder<SetBuilder> {
+public class SetBuilder extends AbstractMapOperationBuilder {
 
     public enum StringFormat {
         RAW, XML, JSON
@@ -24,25 +24,22 @@ public class SetBuilder extends AbstractMapOperationBuilder<SetBuilder> {
 
     private String root;
 
-    public SetBuilder format(StringFormat format) {
+    public void setFormat(StringFormat format) {
         this.format = format;
-        return this;
     }
 
-    public SetBuilder field(String field) {
+    public void setField(String field) {
         this.field = field;
-        return this;
     }
 
-    public SetBuilder root(String root) {
+    public void setRoot(String root) {
         this.root = root;
-        return this;
     }
 
     @Override
     protected Set<String, String, Map<String, Object>> operation() {
         Set<String, String, Map<String, Object>> operation = new Set<>();
-        operation.setValue(value());
+        operation.setValueFunction(value());
         return operation;
     }
 

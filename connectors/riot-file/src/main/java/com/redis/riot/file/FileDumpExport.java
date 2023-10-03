@@ -9,23 +9,22 @@ import org.springframework.batch.item.json.JsonObjectMarshaller;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.WritableResource;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.redis.riot.core.AbstractExport;
-import com.redis.riot.core.RiotExecutionContext;
+import com.redis.riot.core.RedisContext;
+import com.redis.riot.core.RiotContext;
 import com.redis.riot.core.RiotExecutionException;
 import com.redis.riot.core.StepBuilder;
 import com.redis.riot.file.resource.JsonResourceItemWriter;
 import com.redis.riot.file.resource.JsonResourceItemWriterBuilder;
 import com.redis.riot.file.resource.XmlResourceItemWriter;
 import com.redis.riot.file.resource.XmlResourceItemWriterBuilder;
-import com.redis.spring.batch.KeyValue;
-import com.redis.spring.batch.ValueType;
+import com.redis.spring.batch.common.KeyValue;
+import com.redis.spring.batch.reader.StructItemReader;
 
 import io.lettuce.core.codec.StringCodec;
 
-public class FileDumpExport extends AbstractExport<String, String> {
+public class FileDumpExport extends AbstractExport {
 
     public static final String DEFAULT_ELEMENT_NAME = "record";
 
@@ -46,10 +45,6 @@ public class FileDumpExport extends AbstractExport<String, String> {
     private String lineSeparator = DEFAULT_LINE_SEPARATOR;
 
     private FileDumpType type;
-
-    public FileDumpExport() {
-        super(StringCodec.UTF8);
-    }
 
     public void setFile(String file) {
         this.file = file;
@@ -79,15 +74,6 @@ public class FileDumpExport extends AbstractExport<String, String> {
         this.lineSeparator = lineSeparator;
     }
 
-    @Override
-    protected Job job(RiotExecutionContext executionContext) {
-        StepBuilder<KeyValue<String>, KeyValue<String>> step = createStep();
-        step.name(getName());
-        step.reader(reader(executionContext));
-        step.writer(writer());
-        return jobBuilder().start(step.build()).build();
-    }
-
     private ItemWriter<KeyValue<String>> writer() {
         WritableResource resource;
         try {
@@ -113,17 +99,11 @@ public class FileDumpExport extends AbstractExport<String, String> {
         jsonWriterBuilder.name("json-resource-item-writer");
         jsonWriterBuilder.append(append);
         jsonWriterBuilder.encoding(fileOptions.getEncoding());
-        jsonWriterBuilder.jsonObjectMarshaller(new JacksonJsonObjectMarshaller<>(objectMapper()));
+        jsonWriterBuilder.jsonObjectMarshaller(new JacksonJsonObjectMarshaller<>(FileUtils.objectMapper()));
         jsonWriterBuilder.lineSeparator(lineSeparator);
         jsonWriterBuilder.resource(resource);
         jsonWriterBuilder.saveState(false);
         return jsonWriterBuilder.build();
-    }
-
-    private ObjectMapper objectMapper() {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        return mapper;
     }
 
     private XmlResourceItemWriter<KeyValue<String>> xmlWriter(Resource resource) {
@@ -140,7 +120,7 @@ public class FileDumpExport extends AbstractExport<String, String> {
     }
 
     private JsonObjectMarshaller<KeyValue<String>> xmlMarshaller() {
-        XmlMapper mapper = new XmlMapper();
+        XmlMapper mapper = FileUtils.xmlMapper();
         mapper.setConfig(mapper.getSerializationConfig().withRootName(elementName));
         JacksonJsonObjectMarshaller<KeyValue<String>> marshaller = new JacksonJsonObjectMarshaller<>();
         marshaller.setObjectMapper(mapper);
@@ -148,8 +128,19 @@ public class FileDumpExport extends AbstractExport<String, String> {
     }
 
     @Override
-    protected ValueType getValueType() {
-        return ValueType.STRUCT;
+    protected Job job(RiotContext context) {
+        StepBuilder<KeyValue<String>, KeyValue<String>> step = createStep();
+        step.name(getName());
+        step.reader(reader(context.getRedisContext()));
+        step.writer(writer());
+        step.processor(processor(StringCodec.UTF8, context));
+        return jobBuilder().start(step.build()).build();
+    }
+
+    private StructItemReader<String, String> reader(RedisContext context) {
+        StructItemReader<String, String> reader = new StructItemReader<>(context.getClient(), StringCodec.UTF8);
+        configureReader(reader, context);
+        return reader;
     }
 
 }

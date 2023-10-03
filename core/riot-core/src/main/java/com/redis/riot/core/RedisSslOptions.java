@@ -2,10 +2,6 @@ package com.redis.riot.core;
 
 import java.io.File;
 
-import io.lettuce.core.SslOptions;
-import io.lettuce.core.SslOptions.Builder;
-import io.lettuce.core.SslOptions.Resource;
-
 public class RedisSslOptions {
 
     private File keystore;
@@ -86,23 +82,6 @@ public class RedisSslOptions {
 
     public void setTrustedCerts(File trustedCerts) {
         this.trustedCerts = trustedCerts;
-    }
-
-    public SslOptions sslOptions() {
-        Builder ssl = SslOptions.builder();
-        if (key != null) {
-            ssl.keyManager(keyCert, key, keyPassword);
-        }
-        if (keystore != null) {
-            ssl.keystore(keystore, keystorePassword);
-        }
-        if (truststore != null) {
-            ssl.truststore(Resource.from(truststore), truststorePassword);
-        }
-        if (trustedCerts != null) {
-            ssl.trustManager(trustedCerts);
-        }
-        return ssl.build();
     }
 
 }

@@ -70,11 +70,11 @@ public class SugaddCommand extends OperationCommand {
     @Override
     protected SugaddBuilder operationBuilder() {
         SugaddBuilder supplier = new SugaddBuilder();
-        supplier.defaultScore(defaultScore);
-        supplier.increment(increment);
-        supplier.string(stringField);
-        supplier.payload(payloadField);
-        supplier.score(scoreField);
+        supplier.setDefaultScore(defaultScore);
+        supplier.setIncrement(increment);
+        supplier.setStringField(stringField);
+        supplier.setPayloadField(payloadField);
+        supplier.setScoreField(scoreField);
         return supplier;
     }
 

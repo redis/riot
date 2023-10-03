@@ -23,9 +23,9 @@ public class SetCommand extends OperationCommand {
     @Override
     protected SetBuilder operationBuilder() {
         SetBuilder supplier = new SetBuilder();
-        supplier.field(field);
-        supplier.format(format);
-        supplier.root(root);
+        supplier.setField(field);
+        supplier.setFormat(format);
+        supplier.setRoot(root);
         return supplier;
     }
 

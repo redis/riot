@@ -4,49 +4,42 @@ import java.util.function.Function;
 import java.util.function.ToLongFunction;
 import java.util.function.UnaryOperator;
 
-import com.redis.spring.batch.KeyValue;
+import com.redis.spring.batch.common.DataType;
+import com.redis.spring.batch.common.KeyValue;
 
 public class KeyValueOperator implements UnaryOperator<KeyValue<String>> {
 
     private Function<KeyValue<String>, String> keyFunction = KeyValue::getKey;
 
-    private Function<KeyValue<String>, String> typeFunction = KeyValue::getType;
-
     private ToLongFunction<KeyValue<String>> ttlFunction = KeyValue::getTtl;
+
+    private Function<KeyValue<String>, DataType> typeFunction = KeyValue::getType;
 
     private Function<KeyValue<String>, Object> valueFunction = KeyValue::getValue;
 
-    public KeyValueOperator key(Function<KeyValue<String>, String> keyFunction) {
-        this.keyFunction = keyFunction;
-        return this;
+    public void setKeyFunction(Function<KeyValue<String>, String> key) {
+        this.keyFunction = key;
     }
 
-    public KeyValueOperator ttl(ToLongFunction<KeyValue<String>> ttlFunction) {
-        this.ttlFunction = ttlFunction;
-        return this;
+    public void setTtlFunction(ToLongFunction<KeyValue<String>> ttl) {
+        this.ttlFunction = ttl;
     }
 
-    public KeyValueOperator type(Function<KeyValue<String>, String> typeFunction) {
+    public void setTypeFunction(Function<KeyValue<String>, DataType> typeFunction) {
         this.typeFunction = typeFunction;
-        return this;
     }
 
-    public KeyValueOperator value(Function<KeyValue<String>, Object> valueFunction) {
-        this.valueFunction = valueFunction;
-        return this;
+    public void setValueFunction(Function<KeyValue<String>, Object> value) {
+        this.valueFunction = value;
     }
 
     @Override
-    public KeyValue<String> apply(KeyValue<String> keyValue) {
-        String key = keyFunction.apply(keyValue);
-        String type = typeFunction.apply(keyValue);
-        long ttl = ttlFunction.applyAsLong(keyValue);
-        Object value = valueFunction.apply(keyValue);
-        keyValue.setKey(key);
-        keyValue.setType(type);
-        keyValue.setTtl(ttl);
-        keyValue.setValue(value);
-        return keyValue;
+    public KeyValue<String> apply(KeyValue<String> t) {
+        t.setKey(keyFunction.apply(t));
+        t.setTtl(ttlFunction.applyAsLong(t));
+        t.setType(typeFunction.apply(t));
+        t.setValue(valueFunction.apply(t));
+        return t;
     }
 
 }

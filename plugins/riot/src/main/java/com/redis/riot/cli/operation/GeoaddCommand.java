@@ -17,8 +17,8 @@ public class GeoaddCommand extends AbstractCollectionOperationCommand {
     @Override
     protected GeoaddBuilder collectionOperationBuilder() {
         GeoaddBuilder builder = new GeoaddBuilder();
-        builder.latitude(latitude);
-        builder.longitude(longitude);
+        builder.setLatitude(latitude);
+        builder.setLongitude(longitude);
         return builder;
     }
 

@@ -13,10 +13,10 @@ import com.redis.lettucemod.search.Field;
 import com.redis.lettucemod.search.IndexInfo;
 import com.redis.lettucemod.util.RedisModulesUtils;
 import com.redis.riot.core.AbstractMapImport;
-import com.redis.riot.core.RiotExecutionContext;
-import com.redis.riot.core.SpelUtils;
+import com.redis.riot.core.RiotContext;
+import com.redis.riot.core.RiotUtils;
 import com.redis.riot.core.StepBuilder;
-import com.redis.spring.batch.util.LongRange;
+import com.redis.spring.batch.common.Range;
 
 public class FakerImport extends AbstractMapImport {
 
@@ -24,7 +24,7 @@ public class FakerImport extends AbstractMapImport {
 
     public static final Locale DEFAULT_LOCALE = Locale.ENGLISH;
 
-    public static final LongRange DEFAULT_INDEX_RANGE = LongRange.from(1);
+    public static final Range DEFAULT_INDEX_RANGE = Range.from(1);
 
     private Map<String, Expression> fields = new LinkedHashMap<>();
 
@@ -68,7 +68,7 @@ public class FakerImport extends AbstractMapImport {
     }
 
     @Override
-    protected Job job(RiotExecutionContext executionContext) {
+    protected Job job(RiotContext executionContext) {
         StepBuilder<Map<String, Object>, Map<String, Object>> step = createStep();
         step.name(getName());
         step.reader(reader(executionContext));
@@ -76,7 +76,7 @@ public class FakerImport extends AbstractMapImport {
         return jobBuilder().start(step.build()).build();
     }
 
-    private FakerItemReader reader(RiotExecutionContext executionContext) {
+    private FakerItemReader reader(RiotContext executionContext) {
         FakerItemReader reader = new FakerItemReader();
         reader.setMaxItemCount(count);
         reader.setLocale(locale);
@@ -84,7 +84,7 @@ public class FakerImport extends AbstractMapImport {
         return reader;
     }
 
-    private Map<String, Expression> fields(RiotExecutionContext executionContext) {
+    private Map<String, Expression> fields(RiotContext executionContext) {
         Map<String, Expression> allFields = new LinkedHashMap<>(fields);
         if (searchIndex != null) {
             allFields.putAll(searchIndexFields(executionContext));
@@ -92,12 +92,12 @@ public class FakerImport extends AbstractMapImport {
         return allFields;
     }
 
-    private Map<String, Expression> searchIndexFields(RiotExecutionContext executionContext) {
+    private Map<String, Expression> searchIndexFields(RiotContext executionContext) {
         Map<String, Expression> searchFields = new LinkedHashMap<>();
-        RediSearchCommands<String, String> commands = executionContext.getRedisConnection().sync();
+        RediSearchCommands<String, String> commands = executionContext.getRedisContext().getConnection().sync();
         IndexInfo info = RedisModulesUtils.indexInfo(commands.ftInfo(searchIndex));
         for (Field<String> field : info.getFields()) {
-            searchFields.put(field.getName(), SpelUtils.parse(expression(field)));
+            searchFields.put(field.getName(), RiotUtils.parse(expression(field)));
         }
         return searchFields;
     }

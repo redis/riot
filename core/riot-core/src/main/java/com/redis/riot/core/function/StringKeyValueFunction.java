@@ -2,7 +2,7 @@ package com.redis.riot.core.function;
 
 import java.util.function.Function;
 
-import com.redis.spring.batch.KeyValue;
+import com.redis.spring.batch.common.KeyValue;
 import com.redis.spring.batch.util.CodecUtils;
 
 import io.lettuce.core.codec.RedisCodec;
@@ -16,14 +16,14 @@ public class StringKeyValueFunction<K> implements Function<KeyValue<String>, Key
     }
 
     @Override
-    public KeyValue<K> apply(KeyValue<String> item) {
-        KeyValue<K> keyValue = new KeyValue<>();
-        keyValue.setKey(stringKeyFunction.apply(item.getKey()));
-        keyValue.setMemoryUsage(item.getMemoryUsage());
-        keyValue.setTtl(item.getTtl());
-        keyValue.setType(item.getType());
-        keyValue.setValue(item.getValue());
-        return keyValue;
+    public KeyValue<K> apply(KeyValue<String> t) {
+        KeyValue<K> result = new KeyValue<>();
+        result.setKey(stringKeyFunction.apply(t.getKey()));
+        result.setMemoryUsage(t.getMemoryUsage());
+        result.setTtl(t.getTtl());
+        result.setType(t.getType());
+        result.setValue(t.getValue());
+        return result;
     }
 
 }

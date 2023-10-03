@@ -5,10 +5,10 @@ import java.util.function.Function;
 import java.util.function.ToDoubleFunction;
 
 import com.redis.lettucemod.search.Suggestion;
-import com.redis.spring.batch.util.ToSuggestionFunction;
+import com.redis.spring.batch.common.ToSuggestionFunction;
 import com.redis.spring.batch.writer.operation.Sugadd;
 
-public class SugaddBuilder extends AbstractMapOperationBuilder<SugaddBuilder> {
+public class SugaddBuilder extends AbstractMapOperationBuilder {
 
     public static final double DEFAULT_SCORE = 1;
 
@@ -24,35 +24,30 @@ public class SugaddBuilder extends AbstractMapOperationBuilder<SugaddBuilder> {
 
     private boolean increment = DEFAULT_INCREMENT;
 
-    public SugaddBuilder string(String field) {
-        this.stringField = field;
-        return this;
+    public void setStringField(String stringField) {
+        this.stringField = stringField;
     }
 
-    public SugaddBuilder score(String field) {
-        this.scoreField = field;
-        return this;
+    public void setScoreField(String scoreField) {
+        this.scoreField = scoreField;
     }
 
-    public SugaddBuilder defaultScore(double score) {
-        this.defaultScore = score;
-        return this;
+    public void setDefaultScore(double defaultScore) {
+        this.defaultScore = defaultScore;
     }
 
-    public SugaddBuilder payload(String field) {
-        this.payloadField = field;
-        return this;
+    public void setPayloadField(String payloadField) {
+        this.payloadField = payloadField;
     }
 
-    public SugaddBuilder increment(boolean increment) {
+    public void setIncrement(boolean increment) {
         this.increment = increment;
-        return this;
     }
 
     @Override
     protected Sugadd<String, String, Map<String, Object>> operation() {
         Sugadd<String, String, Map<String, Object>> operation = new Sugadd<>();
-        operation.setSuggestion(suggestion());
+        operation.setSuggestionFunction(suggestion());
         operation.setIncr(increment);
         return operation;
     }

@@ -1,6 +1,14 @@
 [[_getting_started]]
 = Getting Started
 
+This section helps you get started with the main features of {project-title}.
+
+== Prerequisites
+
+<<_install,Download and install>> {project-title}.
+
+== Basic Usage
+
 You can launch {project-title} with the following command:
 
 [source]
@@ -25,6 +33,18 @@ riot command --help
 riot command subcommand --help
 ----
 ====
+
+== Importing Data
+
+{project-title} can import data from files, SQL databases, and generators.
+
+include::{includedir}/file-import.adoc[leveloffset=+2]
+
+include::{includedir}/db-import.adoc[leveloffset=+2]
+
+include::{includedir}/faker-import.adoc[leveloffset=+2]
+
+include::{includedir}/generate.adoc[leveloffset=+2]
 
 [[_riot_commands]]
 == Commands

@@ -22,7 +22,7 @@ import com.redis.riot.cli.operation.XaddCommand;
 import com.redis.riot.cli.operation.ZaddCommand;
 import com.redis.riot.core.AbstractMapImport;
 import com.redis.riot.core.StepBuilder;
-import com.redis.spring.batch.writer.Operation;
+import com.redis.spring.batch.writer.WriteOperation;
 
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
@@ -49,7 +49,7 @@ public abstract class AbstractImportCommand extends AbstractJobCommand {
         this.commands = commands;
     }
 
-    protected List<Operation<String, String, Map<String, Object>>> operations() {
+    protected List<WriteOperation<String, String, Map<String, Object>>> operations() {
         return commands.stream().map(OperationCommand::operation).collect(Collectors.toList());
     }
 

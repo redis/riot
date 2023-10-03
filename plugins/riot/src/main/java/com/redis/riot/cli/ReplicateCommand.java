@@ -1,28 +1,25 @@
 package com.redis.riot.cli;
 
-import java.time.Duration;
 import java.util.function.Supplier;
 
 import com.redis.riot.cli.RedisReaderArgs.ReadFromEnum;
 import com.redis.riot.core.AbstractExport;
-import com.redis.riot.core.KeyComparisonOptions;
 import com.redis.riot.core.KeyComparisonStatusCountItemWriter;
 import com.redis.riot.core.Replication;
 import com.redis.riot.core.ReplicationMode;
+import com.redis.riot.core.ReplicationType;
 import com.redis.riot.core.StepBuilder;
 import com.redis.spring.batch.RedisItemReader;
-import com.redis.spring.batch.ValueType;
+import com.redis.spring.batch.common.KeyComparison.Status;
 import com.redis.spring.batch.reader.KeyspaceNotificationItemReader;
 import com.redis.spring.batch.util.BatchUtils;
-import com.redis.spring.batch.util.KeyComparison.Status;
-import com.redis.spring.batch.util.KeyComparisonItemReader;
 
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 @Command(name = "replicate", description = "Replicate a Redis database into another Redis database.")
-public class ReplicateCommand extends AbstractExportCommand<byte[], byte[]> {
+public class ReplicateCommand extends AbstractExportCommand {
 
     private static final Status[] STATUSES = { Status.OK, Status.MISSING, Status.TYPE, Status.VALUE, Status.TTL };
 
@@ -36,7 +33,7 @@ public class ReplicateCommand extends AbstractExportCommand<byte[], byte[]> {
     ReplicationMode mode = ReplicationMode.SNAPSHOT;
 
     @Option(names = "--type", description = "Replication strategy: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<name>")
-    ValueType valueType = ValueType.DUMP;
+    ReplicationType type = ReplicationType.DUMP;
 
     @ArgGroup(exclusive = false, heading = "Target Redis connection options%n")
     RedisArgs targetRedisClientArgs = new RedisArgs();
@@ -45,45 +42,23 @@ public class ReplicateCommand extends AbstractExportCommand<byte[], byte[]> {
     ReadFromEnum targetReadFrom;
 
     @ArgGroup(exclusive = false, heading = "Target writer options%n")
-    RedisWriterArgs targetWriterArgs = new RedisWriterArgs();
+    RedisOperationArgs targetWriterArgs = new RedisOperationArgs();
 
     @ArgGroup(exclusive = false, heading = "Compare options%n")
-    ComparisonArgs compareArgs = new ComparisonArgs();
-
-    private static class ComparisonArgs {
-
-        @Option(names = "--no-verify", description = "Disable comparing target against source after replication.")
-        boolean noVerify;
-
-        @Option(names = "--ttl-tolerance", description = "Max TTL offset in millis to use for dataset verification (default: ${DEFAULT-VALUE}).", paramLabel = "<ms>")
-        long ttlTolerance = KeyComparisonItemReader.DEFAULT_TTL_TOLERANCE.toMillis();
-
-        @Option(names = "--show-diffs", description = "Print details of key mismatches during dataset verification. Disables progress reporting.")
-        boolean showDiffs;
-
-        public KeyComparisonOptions comparisonOptions() {
-            KeyComparisonOptions options = new KeyComparisonOptions();
-            options.setNoVerify(noVerify);
-            options.setShowDiff(showDiffs);
-            options.setTtlTolerance(Duration.ofMillis(ttlTolerance));
-            return options;
-        }
-
-    }
+    ReplicationCompareArgs compareArgs = new ReplicationCompareArgs();
 
     @Override
-    protected AbstractExport<byte[], byte[]> getExportExecutable() {
-        Replication executable = new Replication(parent.out);
-        executable.setComparisonOptions(compareArgs.comparisonOptions());
-        executable.setMode(mode);
-        executable.setReaderOptions(readerOptions());
-        executable.setTargetRedisClientOptions(targetRedisClientArgs.redisClientOptions());
+    protected AbstractExport getExport() {
+        Replication replication = new Replication(parent.out);
+        replication.setComparisonOptions(compareArgs.comparisonOptions());
+        replication.setMode(mode);
+        replication.setTargetRedisOptions(targetRedisClientArgs.redisClientOptions());
         if (targetReadFrom != null) {
-            executable.setTargetReadFrom(targetReadFrom.getReadFrom());
+            replication.setTargetReadFrom(targetReadFrom.getReadFrom());
         }
-        executable.setTargetWriterOptions(targetWriterArgs.writerOptions());
-        executable.setValueType(valueType);
-        return executable;
+        replication.setTargetWriterOptions(targetWriterArgs.writerOptions());
+        replication.setType(type);
+        return replication;
     }
 
     @Override
@@ -121,12 +96,12 @@ public class ReplicateCommand extends AbstractExportCommand<byte[], byte[]> {
     }
 
     private Supplier<String> liveMessage(StepBuilder<?, ?> step) {
-        RedisItemReader<?, ?> reader = (RedisItemReader<?, ?>) step.getReader();
+        RedisItemReader<?, ?, ?> reader = (RedisItemReader<?, ?, ?>) step.getReader();
         return () -> liveMessage(reader);
     }
 
-    private String liveMessage(RedisItemReader<?, ?> reader) {
-        KeyspaceNotificationItemReader<?, ?> keyReader = (KeyspaceNotificationItemReader<?, ?>) reader.getKeyReader();
+    private String liveMessage(RedisItemReader<?, ?, ?> reader) {
+        KeyspaceNotificationItemReader<?> keyReader = (KeyspaceNotificationItemReader<?>) reader.getKeyReader();
         if (keyReader == null) {
             return "";
         }

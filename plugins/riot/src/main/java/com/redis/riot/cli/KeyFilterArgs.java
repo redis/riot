@@ -3,7 +3,7 @@ package com.redis.riot.cli;
 import java.util.List;
 
 import com.redis.riot.core.KeyFilterOptions;
-import com.redis.spring.batch.util.LongRange;
+import com.redis.spring.batch.common.Range;
 
 import picocli.CommandLine.Option;
 
@@ -16,7 +16,7 @@ public class KeyFilterArgs {
     List<String> excludes;
 
     @Option(names = "--key-slots", arity = "1..*", description = "Key slot ranges to filter keyspace notifications.", paramLabel = "<range>")
-    List<LongRange> slots;
+    List<Range> slots;
 
     public KeyFilterOptions keyFilterOptions() {
         KeyFilterOptions options = new KeyFilterOptions();

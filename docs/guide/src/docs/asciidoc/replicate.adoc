@@ -98,7 +98,7 @@ include::{includedir}/reader-options.adoc[leveloffset=+2]
 
 [[_source_struct_options]]
 === Data structure options
-include::{includedir}/struct-options.adoc[leveloffset=+2]
+include::{includedir}/keyvalue-options.adoc[leveloffset=+2]
 
 [[_replicate_performance_tuning]]
 === Performance Tuning

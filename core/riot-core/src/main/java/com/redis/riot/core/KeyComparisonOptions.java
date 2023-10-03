@@ -2,30 +2,42 @@ package com.redis.riot.core;
 
 import java.time.Duration;
 
-import com.redis.spring.batch.util.KeyComparisonItemReader;
+import com.redis.spring.batch.common.KeyComparisonItemReader;
 
 public class KeyComparisonOptions {
 
-    private boolean noVerify;
+    public static final KeyComparisonMode DEFAULT_MODE = KeyComparisonMode.QUICK;
 
-    private boolean showDiff;
+    private boolean skip;
+
+    private boolean showDiffs;
+
+    private KeyComparisonMode mode = DEFAULT_MODE;
 
     private Duration ttlTolerance = KeyComparisonItemReader.DEFAULT_TTL_TOLERANCE;
 
-    public boolean isNoVerify() {
-        return noVerify;
+    public KeyComparisonMode getMode() {
+        return mode;
     }
 
-    public void setNoVerify(boolean noVerify) {
-        this.noVerify = noVerify;
+    public void setMode(KeyComparisonMode mode) {
+        this.mode = mode;
     }
 
-    public boolean isShowDiff() {
-        return showDiff;
+    public boolean isSkip() {
+        return skip;
     }
 
-    public void setShowDiff(boolean showDiff) {
-        this.showDiff = showDiff;
+    public void setSkip(boolean skip) {
+        this.skip = skip;
+    }
+
+    public boolean isShowDiffs() {
+        return showDiffs;
+    }
+
+    public void setShowDiffs(boolean showDiff) {
+        this.showDiffs = showDiff;
     }
 
     public Duration getTtlTolerance() {

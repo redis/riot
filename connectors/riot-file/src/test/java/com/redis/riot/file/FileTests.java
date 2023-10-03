@@ -32,10 +32,13 @@ abstract class FileTests extends AbstractTestBase {
     @Test
     void fileImportJSON() throws UnexpectedInputException, ParseException, NonTransientResourceException, Exception {
         FileImport executable = new FileImport();
-        executable.setRedisClientOptions(redisClientOptions());
+        executable.setRedisOptions(redisClientOptions());
         executable.setFiles(BEERS_JSON_URL);
-        executable.setOperations(new HsetBuilder().keyspace(keyspace).keys(ID).build());
-        executable.execute();
+        HsetBuilder hsetBuilder = new HsetBuilder();
+        hsetBuilder.setKeyspace(keyspace);
+        hsetBuilder.setKeyFields(ID);
+        executable.setOperations(hsetBuilder.build());
+        executable.run();
         List<String> keys = commands.keys("*");
         assertEquals(216, keys.size());
         for (String key : keys) {
@@ -60,11 +63,14 @@ abstract class FileTests extends AbstractTestBase {
     @Test
     void fileApiImportCSV() throws UnexpectedInputException, ParseException, NonTransientResourceException, Exception {
         FileImport executable = new FileImport();
-        executable.setRedisClientOptions(redisClientOptions());
+        executable.setRedisOptions(redisClientOptions());
         executable.setFiles("https://storage.googleapis.com/jrx/beers.csv");
         executable.setHeader(true);
-        executable.setOperations(new HsetBuilder().keyspace(keyspace).keys(ID).build());
-        executable.execute();
+        HsetBuilder hsetBuilder = new HsetBuilder();
+        hsetBuilder.setKeyspace(keyspace);
+        hsetBuilder.setKeyFields(ID);
+        executable.setOperations(hsetBuilder.build());
+        executable.run();
         List<String> keys = commands.keys("*");
         assertEquals(2410, keys.size());
         for (String key : keys) {
@@ -86,11 +92,14 @@ abstract class FileTests extends AbstractTestBase {
         org.apache.commons.io.FileUtils.copyInputStreamToFile(getClass().getClassLoader().getResourceAsStream("beers2.csv"),
                 file2);
         FileImport executable = new FileImport();
-        executable.setRedisClientOptions(redisClientOptions());
+        executable.setRedisOptions(redisClientOptions());
         executable.setFiles(temp.resolve("*.csv").toFile().getPath());
         executable.setHeader(true);
-        executable.setOperations(new HsetBuilder().keyspace(keyspace).keys(ID).build());
-        executable.execute();
+        HsetBuilder hsetBuilder = new HsetBuilder();
+        hsetBuilder.setKeyspace(keyspace);
+        hsetBuilder.setKeyFields(ID);
+        executable.setOperations(hsetBuilder.build());
+        executable.run();
         List<String> keys = commands.keys("*");
         assertEquals(2410, keys.size());
         for (String key : keys) {

@@ -6,7 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.redis.riot.cli.ProgressArgs.ProgressStyle;
-import com.redis.riot.core.AbstractJobExecutable;
+import com.redis.riot.core.AbstractJobRunnable;
 import com.redis.riot.core.EvaluationContextOptions;
 import com.redis.riot.core.StepBuilder;
 
@@ -26,8 +26,8 @@ abstract class AbstractJobCommand extends AbstractCommand {
     EvaluationContextArgs evaluationContextArgs = new EvaluationContextArgs();
 
     @Override
-    protected AbstractJobExecutable executable() {
-        AbstractJobExecutable executable = getJobExecutable();
+    protected AbstractJobRunnable executable() {
+        AbstractJobRunnable executable = getJobExecutable();
         executable.setStepOptions(stepArgs.stepOptions());
         executable.setEvaluationContextOptions(evaluationContextOptions());
         executable.addStepConfigurationStrategy(this::configure);
@@ -68,6 +68,6 @@ abstract class AbstractJobCommand extends AbstractCommand {
 
     protected abstract long size(StepBuilder<?, ?> step);
 
-    protected abstract AbstractJobExecutable getJobExecutable();
+    protected abstract AbstractJobRunnable getJobExecutable();
 
 }

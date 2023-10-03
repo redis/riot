@@ -27,10 +27,10 @@ public class TsAddCommand extends OperationCommand {
     @Override
     protected TsAddBuilder operationBuilder() {
         TsAddBuilder supplier = new TsAddBuilder();
-        supplier.duplicatePolicy(duplicatePolicy);
-        supplier.timestamp(timestampField);
-        supplier.value(valueField);
-        supplier.labels(labels);
+        supplier.setDuplicatePolicy(duplicatePolicy);
+        supplier.setTimestampField(timestampField);
+        supplier.setValueField(valueField);
+        supplier.setLabels(labels);
         return supplier;
     }
 

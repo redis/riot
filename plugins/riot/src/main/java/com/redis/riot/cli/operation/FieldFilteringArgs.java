@@ -9,14 +9,14 @@ import picocli.CommandLine.Option;
 public class FieldFilteringArgs {
 
     @Option(arity = "1..*", names = "--include", description = "Fields to include.", paramLabel = "<field>")
-    private List<String> includes;
+    List<String> includes;
 
     @Option(arity = "1..*", names = "--exclude", description = "Fields to exclude.", paramLabel = "<field>")
-    private List<String> excludes;
+    List<String> excludes;
 
-    public void configure(AbstractFilterMapOperationBuilder<?> builder) {
-        builder.includes(includes);
-        builder.excludes(excludes);
+    public void configure(AbstractFilterMapOperationBuilder builder) {
+        builder.setIncludes(includes);
+        builder.setExcludes(excludes);
     }
 
 }

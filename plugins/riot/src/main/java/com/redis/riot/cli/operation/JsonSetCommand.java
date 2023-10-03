@@ -14,7 +14,7 @@ public class JsonSetCommand extends OperationCommand {
     @Override
     protected JsonSetBuilder operationBuilder() {
         JsonSetBuilder supplier = new JsonSetBuilder();
-        supplier.path(path);
+        supplier.setPath(path);
         return supplier;
     }
 

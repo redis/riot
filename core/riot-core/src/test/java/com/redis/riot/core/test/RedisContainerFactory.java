@@ -1,4 +1,4 @@
-package com.redis.riot.core;
+package com.redis.riot.core.test;
 
 import org.springframework.util.unit.DataSize;
 

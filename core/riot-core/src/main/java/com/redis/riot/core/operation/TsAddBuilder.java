@@ -15,10 +15,10 @@ import com.redis.lettucemod.timeseries.AddOptions.Builder;
 import com.redis.lettucemod.timeseries.DuplicatePolicy;
 import com.redis.lettucemod.timeseries.Label;
 import com.redis.lettucemod.timeseries.Sample;
-import com.redis.spring.batch.util.ToSampleFunction;
+import com.redis.spring.batch.common.ToSampleFunction;
 import com.redis.spring.batch.writer.operation.TsAdd;
 
-public class TsAddBuilder extends AbstractMapOperationBuilder<TsAddBuilder> {
+public class TsAddBuilder extends AbstractMapOperationBuilder {
 
     public static final DuplicatePolicy DEFAULT_DUPLICATE_POLICY = DuplicatePolicy.LAST;
 
@@ -33,8 +33,8 @@ public class TsAddBuilder extends AbstractMapOperationBuilder<TsAddBuilder> {
     @Override
     protected TsAdd<String, String, Map<String, Object>> operation() {
         TsAdd<String, String, Map<String, Object>> operation = new TsAdd<>();
-        operation.setSample(sample());
-        operation.setOptions(this::addOptions);
+        operation.setSampleFunction(sample());
+        operation.setOptionsFunction(this::addOptions);
         return operation;
     }
 
@@ -59,24 +59,20 @@ public class TsAddBuilder extends AbstractMapOperationBuilder<TsAddBuilder> {
         return builder.build();
     }
 
-    public TsAddBuilder timestamp(String field) {
+    public void setTimestampField(String field) {
         this.timestampField = field;
-        return this;
     }
 
-    public TsAddBuilder value(String field) {
+    public void setValueField(String field) {
         this.valueField = field;
-        return this;
     }
 
-    public TsAddBuilder duplicatePolicy(DuplicatePolicy policy) {
+    public void setDuplicatePolicy(DuplicatePolicy policy) {
         this.duplicatePolicy = policy;
-        return this;
     }
 
-    public TsAddBuilder labels(Map<String, String> labels) {
+    public void setLabels(Map<String, String> labels) {
         this.labels = labels;
-        return this;
     }
 
 }

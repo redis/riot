@@ -2,11 +2,6 @@ package com.redis.riot.core;
 
 import java.time.Duration;
 
-import org.springframework.util.ObjectUtils;
-import org.springframework.util.StringUtils;
-
-import com.redis.spring.batch.util.BatchUtils;
-
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.SslVerifyMode;
 
@@ -126,41 +121,6 @@ public class RedisUriOptions {
 
     public void setVerifyPeer(SslVerifyMode mode) {
         this.verifyPeer = mode;
-    }
-
-    public RedisURI redisURI() {
-        RedisURI.Builder builder = redisURIBuilder();
-        if (database > 0) {
-            builder.withDatabase(database);
-        }
-        if (StringUtils.hasLength(clientName)) {
-            builder.withClientName(clientName);
-        }
-        if (!ObjectUtils.isEmpty(password)) {
-            if (StringUtils.hasLength(username)) {
-                builder.withAuthentication(username, password);
-            } else {
-                builder.withPassword(password);
-            }
-        }
-        if (tls) {
-            builder.withSsl(tls);
-            builder.withVerifyPeer(verifyPeer);
-        }
-        if (BatchUtils.isPositive(timeout)) {
-            builder.withTimeout(timeout);
-        }
-        return builder.build();
-    }
-
-    private RedisURI.Builder redisURIBuilder() {
-        if (StringUtils.hasLength(uri)) {
-            return RedisURI.builder(RedisURI.create(uri));
-        }
-        if (StringUtils.hasLength(socket)) {
-            return RedisURI.Builder.socket(socket);
-        }
-        return RedisURI.Builder.redis(host, port);
     }
 
 }

@@ -4,26 +4,30 @@ import java.util.List;
 
 import org.springframework.batch.core.Job;
 
-import com.redis.spring.batch.KeyValue;
+import com.redis.spring.batch.common.DataType;
+import com.redis.spring.batch.common.KeyValue;
+import com.redis.spring.batch.common.Range;
 import com.redis.spring.batch.gen.CollectionOptions;
-import com.redis.spring.batch.gen.DataType;
 import com.redis.spring.batch.gen.GeneratorItemReader;
 import com.redis.spring.batch.gen.MapOptions;
 import com.redis.spring.batch.gen.StreamOptions;
 import com.redis.spring.batch.gen.StringOptions;
 import com.redis.spring.batch.gen.TimeSeriesOptions;
 import com.redis.spring.batch.gen.ZsetOptions;
-import com.redis.spring.batch.util.LongRange;
 
-public class GeneratorImport extends AbstractKeyValueImport {
+public class GeneratorImport extends AbstractStructImport {
 
     public static final int DEFAULT_COUNT = 1000;
 
     private int count = DEFAULT_COUNT;
 
-    private LongRange keyRange = GeneratorItemReader.DEFAULT_KEY_RANGE;
+    private String keyspace = GeneratorItemReader.DEFAULT_KEYSPACE;
 
-    private LongRange expiration;
+    private Range keyRange = GeneratorItemReader.DEFAULT_KEY_RANGE;
+
+    private List<DataType> types = GeneratorItemReader.defaultTypes();
+
+    private Range expiration;
 
     private MapOptions hashOptions = new MapOptions();
 
@@ -41,10 +45,6 @@ public class GeneratorImport extends AbstractKeyValueImport {
 
     private ZsetOptions zsetOptions = new ZsetOptions();
 
-    private String keyspace = GeneratorItemReader.DEFAULT_KEYSPACE;
-
-    private List<DataType> types = GeneratorItemReader.defaultTypes();
-
     public int getCount() {
         return count;
     }
@@ -53,19 +53,19 @@ public class GeneratorImport extends AbstractKeyValueImport {
         this.count = count;
     }
 
-    public LongRange getKeyRange() {
+    public Range getKeyRange() {
         return keyRange;
     }
 
-    public void setKeyRange(LongRange keyRange) {
+    public void setKeyRange(Range keyRange) {
         this.keyRange = keyRange;
     }
 
-    public LongRange getExpiration() {
+    public Range getExpiration() {
         return expiration;
     }
 
-    public void setExpiration(LongRange expiration) {
+    public void setExpiration(Range expiration) {
         this.expiration = expiration;
     }
 
@@ -150,7 +150,7 @@ public class GeneratorImport extends AbstractKeyValueImport {
     }
 
     @Override
-    protected Job job(RiotExecutionContext context) {
+    protected Job job(RiotContext context) {
         StepBuilder<KeyValue<String>, KeyValue<String>> step = createStep();
         step.reader(reader());
         step.writer(writer(context));

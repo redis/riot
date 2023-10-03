@@ -7,7 +7,7 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Parameters;
 
 @Command(name = "db-export", description = "Export Redis data to a relational database.")
-public class DatabaseExportCommand extends AbstractExportCommand<String, String> {
+public class DatabaseExportCommand extends AbstractExportCommand {
 
     @Parameters(arity = "1", description = "SQL INSERT statement.", paramLabel = "SQL")
     String sql;
@@ -16,7 +16,7 @@ public class DatabaseExportCommand extends AbstractExportCommand<String, String>
     DatabaseExportArgs args = new DatabaseExportArgs();
 
     @Override
-    protected DatabaseExport getExportExecutable() {
+    protected DatabaseExport getExport() {
         DatabaseExport executable = new DatabaseExport();
         executable.setSql(sql);
         executable.setAssertUpdates(args.assertUpdates);

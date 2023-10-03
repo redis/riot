@@ -3,26 +3,29 @@ package com.redis.riot.core;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.batch.item.ItemProcessor;
+import org.springframework.batch.item.ItemWriter;
 import org.springframework.util.Assert;
 
-import com.redis.spring.batch.writer.Operation;
+import com.redis.spring.batch.RedisItemWriter;
+import com.redis.spring.batch.util.BatchUtils;
 import com.redis.spring.batch.writer.OperationItemWriter;
-import com.redis.spring.batch.writer.operation.CompositeOperation;
+import com.redis.spring.batch.writer.WriteOperation;
 
-import io.lettuce.core.codec.StringCodec;
+import io.lettuce.core.AbstractRedisClient;
 
-public abstract class AbstractMapImport extends AbstractJobExecutable {
+public abstract class AbstractMapImport extends AbstractJobRunnable {
 
     private ProcessorOptions processorOptions = new ProcessorOptions();
 
-    private RedisOperationOptions operationOptions = new RedisOperationOptions();
+    private RedisWriterOptions writerOptions = new RedisWriterOptions();
 
-    private List<Operation<String, String, Map<String, Object>>> operations;
+    private List<WriteOperation<String, String, Map<String, Object>>> operations;
 
-    protected ItemProcessor<Map<String, Object>, Map<String, Object>> processor(RiotExecutionContext context) {
-        return processorOptions.processor(evaluationContext(context));
+    protected ItemProcessor<Map<String, Object>, Map<String, Object>> processor(RiotContext context) {
+        return processorOptions.processor(context.getEvaluationContext());
     }
 
     public void setProcessorOptions(ProcessorOptions options) {
@@ -30,34 +33,27 @@ public abstract class AbstractMapImport extends AbstractJobExecutable {
     }
 
     @SuppressWarnings("unchecked")
-    public void setOperations(Operation<String, String, Map<String, Object>>... operations) {
+    public void setOperations(WriteOperation<String, String, Map<String, Object>>... operations) {
         setOperations(Arrays.asList(operations));
     }
 
-    public void setOperations(List<Operation<String, String, Map<String, Object>>> operations) {
+    public void setOperations(List<WriteOperation<String, String, Map<String, Object>>> operations) {
         this.operations = operations;
     }
 
-    public void setOperationOptions(RedisOperationOptions operationOptions) {
-        this.operationOptions = operationOptions;
+    public void setWriterOptions(RedisWriterOptions operationOptions) {
+        this.writerOptions = operationOptions;
     }
 
-    protected OperationItemWriter<String, String, Map<String, Object>> writer(RiotExecutionContext context) {
-        OperationItemWriter<String, String, Map<String, Object>> writer = new OperationItemWriter<>(context.getRedisClient(),
-                StringCodec.UTF8);
-        writer.setOperation(operation());
-        operationOptions.configure(writer);
-        return writer;
-    }
-
-    private Operation<String, String, Map<String, Object>> operation() {
+    protected ItemWriter<Map<String, Object>> writer(RiotContext context) {
         Assert.notEmpty(operations, "No operation specified");
-        if (operations.size() == 1) {
-            return operations.get(0);
-        }
-        CompositeOperation<String, String, Map<String, Object>> operation = new CompositeOperation<>();
-        operation.delegates(operations);
-        return operation;
+        AbstractRedisClient client = context.getRedisContext().getClient();
+        return BatchUtils.writer(operations.stream().map(o -> writer(client, o)).collect(Collectors.toList()));
+    }
+
+    private <T> ItemWriter<T> writer(AbstractRedisClient client, WriteOperation<String, String, T> operation) {
+        OperationItemWriter<String, String, T> writer = RedisItemWriter.operation(client, operation);
+        return writer(writer, writerOptions);
     }
 
 }

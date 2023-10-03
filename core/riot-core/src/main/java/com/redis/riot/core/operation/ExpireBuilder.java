@@ -7,31 +7,29 @@ import java.util.function.ToLongFunction;
 
 import com.redis.spring.batch.writer.operation.Expire;
 
-public class ExpireBuilder extends AbstractMapOperationBuilder<ExpireBuilder> {
+public class ExpireBuilder extends AbstractMapOperationBuilder {
 
-    private String ttl;
+    private String ttlField;
 
     private Duration defaultTtl;
 
-    public ExpireBuilder ttl(String field) {
-        this.ttl = field;
-        return this;
+    public void setTtlField(String ttl) {
+        this.ttlField = ttl;
     }
 
-    public ExpireBuilder defaultTtl(Duration duration) {
-        this.defaultTtl = duration;
-        return this;
+    public void setDefaultTtl(Duration defaultTtl) {
+        this.defaultTtl = defaultTtl;
     }
 
     @Override
     protected Expire<String, String, Map<String, Object>> operation() {
         Expire<String, String, Map<String, Object>> operation = new Expire<>();
-        operation.setTtl(ttl());
+        operation.setTtlFunction(ttl());
         return operation;
     }
 
     private Function<Map<String, Object>, Duration> ttl() {
-        ToLongFunction<Map<String, Object>> toLong = toLong(ttl, defaultTtlMillis());
+        ToLongFunction<Map<String, Object>> toLong = toLong(ttlField, defaultTtlMillis());
         return t -> Duration.ofMillis(toLong.applyAsLong(t));
     }
 

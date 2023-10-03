@@ -8,8 +8,8 @@ import java.util.stream.Stream;
 
 import org.springframework.batch.item.support.AbstractItemStreamItemWriter;
 
-import com.redis.spring.batch.util.KeyComparison;
-import com.redis.spring.batch.util.KeyComparison.Status;
+import com.redis.spring.batch.common.KeyComparison;
+import com.redis.spring.batch.common.KeyComparison.Status;
 
 public class KeyComparisonStatusCountItemWriter extends AbstractItemStreamItemWriter<KeyComparison> {
 

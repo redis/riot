@@ -13,7 +13,7 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
 @Command(name = "dump-import", description = "Import Redis data files into Redis.")
-public class FileDumpImportCommand extends AbstractKeyValueImportCommand {
+public class FileDumpImportCommand extends AbstractStructImportCommand {
 
     @Parameters(arity = "0..*", description = "One ore more files or URLs", paramLabel = "FILE")
     List<String> files;

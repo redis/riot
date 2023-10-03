@@ -4,12 +4,12 @@ import java.util.Map;
 
 import com.redis.spring.batch.writer.operation.Lpush;
 
-public class LpushBuilder extends AbstractCollectionMapOperationBuilder<LpushBuilder> {
+public class LpushBuilder extends AbstractCollectionMapOperationBuilder {
 
     @Override
     protected Lpush<String, String, Map<String, Object>> operation() {
         Lpush<String, String, Map<String, Object>> operation = new Lpush<>();
-        operation.setValue(member());
+        operation.setValueFunction(member());
         return operation;
     }
 

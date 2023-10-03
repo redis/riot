@@ -37,17 +37,22 @@ import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.ServiceOptions;
 import com.google.cloud.storage.StorageOptions;
+import com.redis.riot.core.KeyValueDeserializer;
 import com.redis.riot.file.resource.FilenameInputStreamResource;
 import com.redis.riot.file.resource.OutputStreamResource;
 import com.redis.riot.file.resource.UncustomizedUrlResource;
 import com.redis.riot.file.resource.XmlItemReader;
 import com.redis.riot.file.resource.XmlItemReaderBuilder;
 import com.redis.riot.file.resource.XmlObjectReader;
+import com.redis.spring.batch.common.KeyValue;
 
 public abstract class FileUtils {
 
@@ -137,9 +142,15 @@ public abstract class FileUtils {
         jsonReaderBuilder.name(resource.getFilename() + "-json-file-reader");
         jsonReaderBuilder.resource(resource);
         JacksonJsonObjectReader<T> jsonObjectReader = new JacksonJsonObjectReader(clazz);
-        jsonObjectReader.setMapper(new ObjectMapper());
+        jsonObjectReader.setMapper(objectMapper());
         jsonReaderBuilder.jsonObjectReader(jsonObjectReader);
         return jsonReaderBuilder.build();
+    }
+
+    public static ObjectMapper objectMapper() {
+        ObjectMapper mapper = new ObjectMapper();
+        configureMapper(mapper);
+        return mapper;
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -148,9 +159,23 @@ public abstract class FileUtils {
         xmlReaderBuilder.name(resource.getFilename() + "-xml-file-reader");
         xmlReaderBuilder.resource(resource);
         XmlObjectReader<T> xmlObjectReader = new XmlObjectReader(clazz);
-        xmlObjectReader.setMapper(new XmlMapper());
+        xmlObjectReader.setMapper(xmlMapper());
         xmlReaderBuilder.xmlObjectReader(xmlObjectReader);
         return xmlReaderBuilder.build();
+    }
+
+    public static XmlMapper xmlMapper() {
+        XmlMapper mapper = new XmlMapper();
+        configureMapper(mapper);
+        return mapper;
+    }
+
+    private static void configureMapper(ObjectMapper mapper) {
+        mapper.configure(DeserializationFeature.USE_LONG_FOR_INTS, true);
+        SimpleModule module = new SimpleModule();
+        module.addDeserializer(KeyValue.class, new KeyValueDeserializer());
+        mapper.registerModule(module);
+        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
     }
 
     public static FileDumpType dumpType(Resource resource) {

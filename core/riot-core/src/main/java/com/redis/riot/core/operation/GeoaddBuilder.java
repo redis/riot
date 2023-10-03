@@ -3,29 +3,27 @@ package com.redis.riot.core.operation;
 import java.util.Map;
 import java.util.function.ToDoubleFunction;
 
-import com.redis.spring.batch.util.ToGeoValueFunction;
+import com.redis.spring.batch.common.ToGeoValueFunction;
 import com.redis.spring.batch.writer.operation.Geoadd;
 
-public class GeoaddBuilder extends AbstractCollectionMapOperationBuilder<GeoaddBuilder> {
+public class GeoaddBuilder extends AbstractCollectionMapOperationBuilder {
 
     private String longitude;
 
     private String latitude;
 
-    public GeoaddBuilder latitude(String field) {
-        this.latitude = field;
-        return this;
+    public void setLongitude(String longitude) {
+        this.longitude = longitude;
     }
 
-    public GeoaddBuilder longitude(String field) {
-        this.longitude = field;
-        return this;
+    public void setLatitude(String latitude) {
+        this.latitude = latitude;
     }
 
     @Override
     protected Geoadd<String, String, Map<String, Object>> operation() {
         Geoadd<String, String, Map<String, Object>> operation = new Geoadd<>();
-        operation.setValue(geoValue());
+        operation.setValueFunction(geoValue());
         return operation;
     }
 

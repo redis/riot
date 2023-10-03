@@ -18,7 +18,6 @@ import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.slf4j.event.Level;
 import org.slf4j.impl.SimpleLogger;
-import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobExecutionException;
 import org.springframework.batch.core.JobParameters;
@@ -32,18 +31,20 @@ import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.support.transaction.ResourcelessTransactionManager;
 import org.springframework.core.task.SyncTaskExecutor;
+import org.springframework.transaction.PlatformTransactionManager;
 
+import com.redis.lettucemod.RedisModulesClient;
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
 import com.redis.lettucemod.api.sync.RedisModulesCommands;
-import com.redis.lettucemod.util.ClientBuilder;
+import com.redis.lettucemod.cluster.RedisModulesClusterClient;
 import com.redis.lettucemod.util.RedisModulesUtils;
 import com.redis.riot.cli.ProgressArgs.ProgressStyle;
 import com.redis.riot.cli.operation.OperationCommand;
-import com.redis.spring.batch.RedisItemWriter;
-import com.redis.spring.batch.ValueType;
+import com.redis.spring.batch.common.DataType;
+import com.redis.spring.batch.common.Range;
 import com.redis.spring.batch.gen.GeneratorItemReader;
-import com.redis.spring.batch.util.BatchUtils;
-import com.redis.spring.batch.util.LongRange;
+import com.redis.spring.batch.reader.StructItemReader;
+import com.redis.spring.batch.writer.StructItemWriter;
 import com.redis.testcontainers.RedisServer;
 
 import io.lettuce.core.AbstractRedisClient;
@@ -62,7 +63,7 @@ public abstract class AbstractRiotTests {
 
     private static final Duration DEFAULT_AWAIT_TIMEOUT = Duration.ofSeconds(1);
 
-    private static final LongRange DEFAULT_GENERATOR_KEY_RANGE = LongRange.to(10000);
+    private static final Range DEFAULT_GENERATOR_KEY_RANGE = Range.to(10000);
 
     protected static final int DEFAULT_BATCH_SIZE = 50;
 
@@ -79,6 +80,8 @@ public abstract class AbstractRiotTests {
     protected AbstractRedisClient client;
 
     protected StatefulRedisModulesConnection<String, String> connection;
+
+    private PlatformTransactionManager transactionManager;
 
     protected abstract RedisServer getRedisServer();
 
@@ -108,6 +111,7 @@ public abstract class AbstractRiotTests {
         MapJobRepositoryFactoryBean bean = new MapJobRepositoryFactoryBean();
         bean.afterPropertiesSet();
         jobRepository = bean.getObject();
+        transactionManager = bean.getTransactionManager();
         jobBuilderFactory = new JobBuilderFactory(jobRepository);
         jobLauncher = new SimpleJobLauncher();
         jobLauncher.setJobRepository(jobRepository);
@@ -136,7 +140,10 @@ public abstract class AbstractRiotTests {
 
     protected AbstractRedisClient client(RedisServer server) {
         RedisURI uri = RedisURI.create(server.getRedisURI());
-        return ClientBuilder.create(uri).cluster(server.isCluster()).build();
+        if (server.isCluster()) {
+            return RedisModulesClusterClient.create(uri);
+        }
+        return RedisModulesClient.create(uri);
     }
 
     protected int execute(String filename, IExecutionStrategy... executionStrategies) throws Exception {
@@ -189,6 +196,7 @@ public abstract class AbstractRiotTests {
     protected GeneratorItemReader generator(int count) {
         GeneratorItemReader generator = new GeneratorItemReader();
         generator.setKeyRange(DEFAULT_GENERATOR_KEY_RANGE);
+        generator.setTypes(DataType.ZSET);
         generator.setMaxItemCount(count);
         return generator;
     }
@@ -203,26 +211,24 @@ public abstract class AbstractRiotTests {
 
     protected void generate(String name, int chunkSize, GeneratorItemReader reader) throws JobExecutionException {
         run(name + "-generate", chunkSize, reader, structWriter(client));
+        awaitUntilFalse(reader::isOpen);
     }
 
-    protected RedisItemWriter<String, String> structWriter(AbstractRedisClient client) {
-        RedisItemWriter<String, String> writer = new RedisItemWriter<>(client, StringCodec.UTF8);
-        writer.setValueType(ValueType.STRUCT);
-        return writer;
+    protected StructItemWriter<String, String> structWriter(AbstractRedisClient client) {
+        return new StructItemWriter<>(client, StringCodec.UTF8);
+    }
+
+    protected StructItemReader<String, String> structReader(AbstractRedisClient client) {
+        StructItemReader<String, String> reader = new StructItemReader<>(client, StringCodec.UTF8);
+        reader.setJobRepository(jobRepository);
+        reader.setTransactionManager(transactionManager);
+        return reader;
     }
 
     protected <T> JobExecution run(String name, int chunkSize, ItemReader<T> reader, ItemWriter<T> writer)
             throws JobExecutionException {
         SimpleStepBuilder<T, T> step = step(name, chunkSize, reader, writer);
-        Job job = jobBuilderFactory.get(name).start(step.build()).build();
-        JobExecution execution = jobLauncher.run(job, new JobParameters());
-        awaitClosed(reader);
-        awaitClosed(writer);
-        return execution;
-    }
-
-    private void awaitClosed(Object object) {
-        awaitUntil(() -> BatchUtils.isClosed(object));
+        return jobLauncher.run(jobBuilderFactory.get(name).start(step.build()).build(), new JobParameters());
     }
 
     protected String id() {

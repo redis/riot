@@ -36,7 +36,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
 import com.redis.riot.core.AbstractMapImport;
-import com.redis.riot.core.RiotExecutionContext;
+import com.redis.riot.core.RiotContext;
 import com.redis.riot.core.StepBuilder;
 import com.redis.riot.core.function.MapToFieldFunction;
 import com.redis.riot.core.function.RegexNamedGroupFunction;
@@ -143,7 +143,7 @@ public class FileImport extends AbstractMapImport {
     }
 
     @Override
-    protected Job job(RiotExecutionContext executionContext) {
+    protected Job job(RiotContext executionContext) {
         Iterator<Step> steps = FileUtils.inputResources(files, fileOptions).stream().map(r -> step(executionContext, r))
                 .iterator();
         if (!steps.hasNext()) {
@@ -157,7 +157,7 @@ public class FileImport extends AbstractMapImport {
     }
 
     @SuppressWarnings("unchecked")
-    private Step step(RiotExecutionContext executionContext, Resource resource) {
+    private Step step(RiotContext executionContext, Resource resource) {
         ItemReader<Map<String, Object>> reader = reader(resource);
         if (maxItemCount != null && reader instanceof AbstractItemCountingItemStreamItemReader) {
             ((AbstractItemCountingItemStreamItemReader<Map<String, Object>>) reader).setMaxItemCount(maxItemCount);
@@ -307,7 +307,7 @@ public class FileImport extends AbstractMapImport {
     }
 
     @Override
-    protected ItemProcessor<Map<String, Object>, Map<String, Object>> processor(RiotExecutionContext executionContext) {
+    protected ItemProcessor<Map<String, Object>, Map<String, Object>> processor(RiotContext executionContext) {
         ItemProcessor<Map<String, Object>, Map<String, Object>> processor = super.processor(executionContext);
         if (CollectionUtils.isEmpty(regexes)) {
             return processor;

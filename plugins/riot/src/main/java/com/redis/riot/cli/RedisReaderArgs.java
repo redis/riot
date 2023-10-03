@@ -5,10 +5,10 @@ import java.time.Duration;
 import org.springframework.util.unit.DataSize;
 
 import com.redis.riot.core.RedisReaderOptions;
+import com.redis.spring.batch.common.DataType;
 import com.redis.spring.batch.reader.KeyspaceNotificationItemReader.OrderingStrategy;
 
 import io.lettuce.core.ReadFrom;
-import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Option;
 
 public class RedisReaderArgs {
@@ -19,8 +19,8 @@ public class RedisReaderArgs {
     @Option(names = "--scan-count", description = "SCAN COUNT option.", paramLabel = "<int>")
     long scanCount = RedisReaderOptions.DEFAULT_SCAN_COUNT;
 
-    @Option(names = "--scan-type", description = "SCAN TYPE option.", paramLabel = "<type>")
-    String scanType;
+    @Option(names = "--scan-type", description = "SCAN TYPE option: ${COMPLETION-CANDIDATES}.", paramLabel = "<type>")
+    DataType scanType;
 
     @Option(names = "--read-queue", description = "Capacity of the reader queue (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
     int queueCapacity = RedisReaderOptions.DEFAULT_QUEUE_CAPACITY;
@@ -44,7 +44,7 @@ public class RedisReaderArgs {
     int memSamples = RedisReaderOptions.DEFAULT_MEMORY_USAGE_SAMPLES;
 
     @Option(names = "--flush-interval", description = "Max duration between flushes (default: ${DEFAULT-VALUE}).", paramLabel = "<ms>")
-    long flushInterval = RedisReaderOptions.DEFAULT_FLUSHING_INTERVAL.toMillis();
+    long flushInterval = RedisReaderOptions.DEFAULT_FLUSH_INTERVAL.toMillis();
 
     @Option(names = "--idle-timeout", description = "Min duration of inactivity to consider transfer complete (default: no timeout).", paramLabel = "<ms>")
     Long idleTimeout;
@@ -55,9 +55,6 @@ public class RedisReaderArgs {
     @Option(names = "--event-order", description = "Keyspace notification ordering strategy: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<name>")
     OrderingStrategy notificationOrdering = OrderingStrategy.PRIORITY;
 
-    @ArgGroup(exclusive = false)
-    KeyFilterArgs keyFilterArgs = new KeyFilterArgs();
-
     public void setIdleTimeout(Long timeout) {
         this.idleTimeout = timeout;
     }
@@ -66,11 +63,10 @@ public class RedisReaderArgs {
         this.notificationQueueCapacity = capacity;
     }
 
-    public RedisReaderOptions redisReaderOptions() {
+    public RedisReaderOptions readerOptions() {
         RedisReaderOptions options = new RedisReaderOptions();
         options.setChunkSize(chunkSize);
-        options.setFlushingInterval(Duration.ofMillis(flushInterval));
-        options.setKeyFilterOptions(keyFilterArgs.keyFilterOptions());
+        options.setFlushInterval(Duration.ofMillis(flushInterval));
         if (idleTimeout != null) {
             options.setIdleTimeout(Duration.ofMillis(idleTimeout));
         }
@@ -84,8 +80,8 @@ public class RedisReaderArgs {
             options.setReadFrom(readFrom.getReadFrom());
         }
         options.setScanCount(scanCount);
-        options.setScanMatch(scanMatch);
-        options.setScanType(scanType);
+        options.setKeyPattern(scanMatch);
+        options.setKeyType(scanType);
         options.setThreads(threads);
         return options;
 
@@ -93,19 +89,15 @@ public class RedisReaderArgs {
 
     public enum ReadFromEnum {
 
-        MASTER(ReadFrom.MASTER),
-        MASTER_PREFERRED(ReadFrom.MASTER_PREFERRED),
+        MASTER(ReadFrom.MASTER), MASTER_PREFERRED(ReadFrom.MASTER_PREFERRED),
 
-        UPSTREAM(ReadFrom.UPSTREAM),
-        UPSTREAM_PREFERRED(ReadFrom.UPSTREAM_PREFERRED),
+        UPSTREAM(ReadFrom.UPSTREAM), UPSTREAM_PREFERRED(ReadFrom.UPSTREAM_PREFERRED),
 
-        REPLICA_PREFERRED(ReadFrom.REPLICA_PREFERRED),
-        REPLICA(ReadFrom.REPLICA),
+        REPLICA_PREFERRED(ReadFrom.REPLICA_PREFERRED), REPLICA(ReadFrom.REPLICA),
 
         LOWEST_LATENCY(ReadFrom.LOWEST_LATENCY),
 
-        ANY(ReadFrom.ANY),
-        ANY_REPLICA(ReadFrom.ANY_REPLICA);
+        ANY(ReadFrom.ANY), ANY_REPLICA(ReadFrom.ANY_REPLICA);
 
         private final ReadFrom readFrom;
 

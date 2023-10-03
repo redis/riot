@@ -5,6 +5,8 @@ import java.time.Duration;
 import org.springframework.util.unit.DataSize;
 
 import com.redis.spring.batch.RedisItemReader;
+import com.redis.spring.batch.common.DataType;
+import com.redis.spring.batch.reader.KeyValueItemReader;
 import com.redis.spring.batch.reader.KeyspaceNotificationItemReader.OrderingStrategy;
 
 import io.lettuce.core.ReadFrom;
@@ -19,25 +21,25 @@ public class RedisReaderOptions {
 
     public static final int DEFAULT_CHUNK_SIZE = RedisItemReader.DEFAULT_CHUNK_SIZE;
 
-    public static final int DEFAULT_SCAN_COUNT = RedisItemReader.DEFAULT_SCAN_COUNT;
+    public static final int DEFAULT_POOL_SIZE = KeyValueItemReader.DEFAULT_POOL_SIZE;
 
-    public static final int DEFAULT_POOL_SIZE = RedisItemReader.DEFAULT_POOL_SIZE;
+    public static final DataSize DEFAULT_MEMORY_USAGE_LIMIT = KeyValueItemReader.DEFAULT_MEMORY_USAGE_LIMIT;
 
-    public static final int DEFAULT_MEMORY_USAGE_SAMPLES = RedisItemReader.DEFAULT_MEMORY_USAGE_SAMPLES;
+    public static final int DEFAULT_MEMORY_USAGE_SAMPLES = KeyValueItemReader.DEFAULT_MEMORY_USAGE_SAMPLES;
 
     public static final OrderingStrategy DEFAULT_ORDERING = RedisItemReader.DEFAULT_ORDERING;
 
     public static final int DEFAULT_NOTIFICATION_QUEUE_CAPACITY = RedisItemReader.DEFAULT_NOTIFICATION_QUEUE_CAPACITY;
 
-    public static final Duration DEFAULT_FLUSHING_INTERVAL = RedisItemReader.DEFAULT_FLUSHING_INTERVAL;
+    public static final long DEFAULT_SCAN_COUNT = 1000;
 
-    private String scanMatch;
+    public static final Duration DEFAULT_FLUSH_INTERVAL = RedisItemReader.DEFAULT_FLUSH_INTERVAL;
+
+    private String keyPattern;
+
+    private DataType keyType;
 
     private long scanCount = DEFAULT_SCAN_COUNT;
-
-    private String scanType;
-
-    private int database;
 
     private int queueCapacity = DEFAULT_QUEUE_CAPACITY;
 
@@ -51,7 +53,7 @@ public class RedisReaderOptions {
 
     private ReadFrom readFrom;
 
-    private DataSize memoryUsageLimit;
+    private DataSize memoryUsageLimit = DEFAULT_MEMORY_USAGE_LIMIT;
 
     private int memoryUsageSamples = DEFAULT_MEMORY_USAGE_SAMPLES;
 
@@ -59,34 +61,48 @@ public class RedisReaderOptions {
 
     private int notificationQueueCapacity = DEFAULT_NOTIFICATION_QUEUE_CAPACITY;
 
-    private Duration flushingInterval = DEFAULT_FLUSHING_INTERVAL;
+    private Duration flushInterval = DEFAULT_FLUSH_INTERVAL;
 
     private Duration idleTimeout;
 
-    private KeyFilterOptions keyFilterOptions;
-
-    public KeyFilterOptions getKeyFilterOptions() {
-        return keyFilterOptions;
+    public OrderingStrategy getOrderingStrategy() {
+        return orderingStrategy;
     }
 
-    public void setKeyFilterOptions(KeyFilterOptions keyFilterOptions) {
-        this.keyFilterOptions = keyFilterOptions;
+    public void setOrderingStrategy(OrderingStrategy orderingStrategy) {
+        this.orderingStrategy = orderingStrategy;
     }
 
-    public int getDatabase() {
-        return database;
+    public int getNotificationQueueCapacity() {
+        return notificationQueueCapacity;
     }
 
-    public void setDatabase(int database) {
-        this.database = database;
+    public void setNotificationQueueCapacity(int notificationQueueCapacity) {
+        this.notificationQueueCapacity = notificationQueueCapacity;
     }
 
-    public String getScanMatch() {
-        return scanMatch;
+    public Duration getFlushInterval() {
+        return flushInterval;
     }
 
-    public void setScanMatch(String scanMatch) {
-        this.scanMatch = scanMatch;
+    public void setFlushInterval(Duration flushingInterval) {
+        this.flushInterval = flushingInterval;
+    }
+
+    public Duration getIdleTimeout() {
+        return idleTimeout;
+    }
+
+    public void setIdleTimeout(Duration idleTimeout) {
+        this.idleTimeout = idleTimeout;
+    }
+
+    public String getKeyPattern() {
+        return keyPattern;
+    }
+
+    public void setKeyPattern(String scanMatch) {
+        this.keyPattern = scanMatch;
     }
 
     public long getScanCount() {
@@ -97,12 +113,12 @@ public class RedisReaderOptions {
         this.scanCount = count;
     }
 
-    public String getScanType() {
-        return scanType;
+    public DataType getKeyType() {
+        return keyType;
     }
 
-    public void setScanType(String scanType) {
-        this.scanType = scanType;
+    public void setKeyType(DataType type) {
+        this.keyType = type;
     }
 
     public int getQueueCapacity() {
@@ -167,38 +183,6 @@ public class RedisReaderOptions {
 
     public void setMemoryUsageSamples(int memoryUsageSamples) {
         this.memoryUsageSamples = memoryUsageSamples;
-    }
-
-    public OrderingStrategy getOrderingStrategy() {
-        return orderingStrategy;
-    }
-
-    public void setOrderingStrategy(OrderingStrategy orderingStrategy) {
-        this.orderingStrategy = orderingStrategy;
-    }
-
-    public int getNotificationQueueCapacity() {
-        return notificationQueueCapacity;
-    }
-
-    public void setNotificationQueueCapacity(int notificationQueueCapacity) {
-        this.notificationQueueCapacity = notificationQueueCapacity;
-    }
-
-    public Duration getFlushingInterval() {
-        return flushingInterval;
-    }
-
-    public void setFlushingInterval(Duration flushingInterval) {
-        this.flushingInterval = flushingInterval;
-    }
-
-    public Duration getIdleTimeout() {
-        return idleTimeout;
-    }
-
-    public void setIdleTimeout(Duration idleTimeout) {
-        this.idleTimeout = idleTimeout;
     }
 
 }

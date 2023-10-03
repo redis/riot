@@ -14,7 +14,7 @@ import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 
-import com.redis.riot.core.SpelUtils;
+import com.redis.riot.core.RiotUtils;
 
 import net.datafaker.Faker;
 
@@ -47,7 +47,7 @@ public class FakerItemReader extends AbstractItemCountingItemStreamItemReader<Ma
 
     public void setStringFields(Map<String, String> stringFields) {
         Map<String, Expression> expressions = new LinkedHashMap<>();
-        stringFields.forEach((k, v) -> expressions.put(k, SpelUtils.parse(v)));
+        stringFields.forEach((k, v) -> expressions.put(k, RiotUtils.parse(v)));
         this.fields = expressions;
     }
 

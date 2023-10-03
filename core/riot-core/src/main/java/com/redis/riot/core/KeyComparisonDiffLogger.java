@@ -5,8 +5,8 @@ import java.util.List;
 
 import org.springframework.batch.core.ItemWriteListener;
 
-import com.redis.spring.batch.util.KeyComparison;
-import com.redis.spring.batch.util.KeyComparison.Status;
+import com.redis.spring.batch.common.KeyComparison;
+import com.redis.spring.batch.common.KeyComparison.Status;
 
 public class KeyComparisonDiffLogger implements ItemWriteListener<KeyComparison> {
 
@@ -35,14 +35,9 @@ public class KeyComparisonDiffLogger implements ItemWriteListener<KeyComparison>
         switch (comparison.getStatus()) {
             case MISSING:
                 return format("Missing key '%s'", comparison.getSource().getKey());
-            case TTL:
-                return format("TTL mismatch on key '%s': %,d != %,d", comparison.getSource().getKey(),
-                        comparison.getSource().getTtl(), comparison.getTarget().getTtl());
             case TYPE:
                 return format("Type mismatch on key '%s': %s != %s", comparison.getSource().getKey(),
                         comparison.getSource().getType(), comparison.getTarget().getType());
-            case VALUE:
-                return format("Value mismatch on %s '%s'", comparison.getSource().getType(), comparison.getSource().getKey());
             default:
                 return "Unknown";
         }

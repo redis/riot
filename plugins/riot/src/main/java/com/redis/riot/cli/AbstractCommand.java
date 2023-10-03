@@ -1,6 +1,6 @@
 package com.redis.riot.cli;
 
-import com.redis.riot.core.AbstractRedisExecutable;
+import com.redis.riot.core.AbstractRiotRunnable;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.ParentCommand;
@@ -13,11 +13,11 @@ public abstract class AbstractCommand extends BaseCommand implements Runnable {
 
     @Override
     public void run() {
-        AbstractRedisExecutable executable = executable();
-        executable.setRedisClientOptions(parent.redisArgs.redisClientOptions());
-        executable.execute();
+        AbstractRiotRunnable executable = executable();
+        executable.setRedisOptions(parent.redisArgs.redisClientOptions());
+        executable.run();
     }
 
-    protected abstract AbstractRedisExecutable executable();
+    protected abstract AbstractRiotRunnable executable();
 
 }

@@ -6,26 +6,24 @@ import com.redis.spring.batch.writer.operation.Xadd;
 
 import io.lettuce.core.XAddArgs;
 
-public class XaddSupplier extends AbstractFilterMapOperationBuilder<XaddSupplier> {
+public class XaddSupplier extends AbstractFilterMapOperationBuilder {
 
     private long maxlen;
 
     private boolean approximateTrimming;
 
-    public XaddSupplier maxlen(long maxlen) {
+    public void setMaxlen(long maxlen) {
         this.maxlen = maxlen;
-        return this;
     }
 
-    public XaddSupplier approximateTrimming(boolean approximateTrimming) {
+    public void setApproximateTrimming(boolean approximateTrimming) {
         this.approximateTrimming = approximateTrimming;
-        return this;
     }
 
     @Override
     public Xadd<String, String, Map<String, Object>> operation() {
         Xadd<String, String, Map<String, Object>> operation = new Xadd<>();
-        operation.setBody(map());
+        operation.setBodyFunction(map());
         operation.setArgs(args());
         return operation;
     }

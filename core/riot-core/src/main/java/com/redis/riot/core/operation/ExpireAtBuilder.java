@@ -4,7 +4,7 @@ import java.util.Map;
 
 import com.redis.spring.batch.writer.operation.ExpireAt;
 
-public class ExpireAtBuilder extends AbstractMapOperationBuilder<ExpireAtBuilder> {
+public class ExpireAtBuilder extends AbstractMapOperationBuilder {
 
     private String ttl;
 
@@ -16,7 +16,7 @@ public class ExpireAtBuilder extends AbstractMapOperationBuilder<ExpireAtBuilder
     @Override
     protected ExpireAt<String, String, Map<String, Object>> operation() {
         ExpireAt<String, String, Map<String, Object>> operation = new ExpireAt<>();
-        operation.setEpoch(toLong(ttl, 0));
+        operation.setEpochFunction(toLong(ttl, 0));
         return operation;
     }
 

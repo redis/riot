@@ -197,12 +197,9 @@ Here is a sample XML file that can be imported by {project-title}:
 include::{testdir}/file-import-xml[]
 ----
 
-[[_file_import_processing]]
-include::{includedir}/processing.adoc[leveloffset=+2]
-
 === Regular Expressions
 
-In addition to the <<import processors>> you can perform field extraction using regular expressions.
+In addition to general <<_import_processing,import processing>> you can perform field extraction using regular expressions.
 
 .Regex example
 [source]

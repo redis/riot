@@ -10,23 +10,18 @@ import com.redis.riot.core.function.MapFilteringFunction;
 import com.redis.riot.core.function.MapFlatteningFunction;
 import com.redis.riot.core.function.ObjectToStringFunction;
 
-public abstract class AbstractFilterMapOperationBuilder<B extends AbstractFilterMapOperationBuilder<B>>
-        extends AbstractMapOperationBuilder<B> {
+public abstract class AbstractFilterMapOperationBuilder extends AbstractMapOperationBuilder {
 
     private List<String> includes;
 
     private List<String> excludes;
 
-    @SuppressWarnings("unchecked")
-    public B includes(List<String> fields) {
-        this.includes = fields;
-        return (B) this;
+    public void setIncludes(List<String> includes) {
+        this.includes = includes;
     }
 
-    @SuppressWarnings("unchecked")
-    public B excludes(List<String> fields) {
-        this.excludes = fields;
-        return (B) this;
+    public void setExcludes(List<String> excludes) {
+        this.excludes = excludes;
     }
 
     protected Function<Map<String, Object>, Map<String, String>> map() {

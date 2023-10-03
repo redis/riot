@@ -79,7 +79,7 @@ public class LoggingMixin {
         }
     }
 
-    @Option(arity = "1..*", names = "--log-levels", description = "Min log levels (default: com.amazonaws=ERROR io.lettuce=INFO org.jline=INFO io.netty=INFO).", paramLabel = "<lvl>")
+    @Option(arity = "1..*", names = "--log-levels", description = "Min log levels (default: com.amazonaws=ERROR io.lettuce=INFO org.jline=INFO io.netty=INFO).", paramLabel = "<lvl>", hidden = true)
     public void setLogLevels(Map<String, Level> levels) {
         getTopLevelCommandLoggingMixin(mixee).minLogLevels = levels;
     }
@@ -89,12 +89,12 @@ public class LoggingMixin {
         getTopLevelCommandLoggingMixin(mixee).logFile = file;
     }
 
-    @Option(names = "--log-dt", description = "Include current date and time in log messages.")
+    @Option(names = "--log-time", description = "Include current date and time in log messages.")
     public void setShowDateTime(boolean show) {
         getTopLevelCommandLoggingMixin(mixee).showDateTime = show;
     }
 
-    @Option(names = "--log-dt-format", description = "Date and time format to be used in log messages (default: milliseconds since startup).", paramLabel = "<fmt>")
+    @Option(names = "--log-time-format", description = "Date and time format to be used in log messages (default: milliseconds since startup).", hideParamSyntax = true, paramLabel = "<f>", hidden = true)
     public void setDateTimeFormat(String format) {
         getTopLevelCommandLoggingMixin(mixee).dateTimeFormat = format;
     }

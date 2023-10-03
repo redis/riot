@@ -1,7 +1,6 @@
 package com.redis.riot.core;
 
 import java.text.MessageFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,16 +19,13 @@ import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.repository.support.MapJobRepositoryFactoryBean;
 import org.springframework.batch.support.transaction.ResourcelessTransactionManager;
 import org.springframework.core.task.SyncTaskExecutor;
-import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.util.ClassUtils;
-import org.springframework.util.CollectionUtils;
+
+import com.redis.spring.batch.writer.AbstractOperationItemWriter;
+import com.redis.spring.batch.writer.StructItemWriter;
 
 @SuppressWarnings("deprecation")
-public abstract class AbstractJobExecutable extends AbstractRedisExecutable {
-
-    private static final String DATE_VARIABLE_NAME = "date";
-
-    private static final String REDIS_VARIABLE_NAME = "redis";
+public abstract class AbstractJobRunnable extends AbstractRiotRunnable {
 
     protected final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -43,11 +39,9 @@ public abstract class AbstractJobExecutable extends AbstractRedisExecutable {
 
     private String name;
 
-    private EvaluationContextOptions evaluationContextOptions = new EvaluationContextOptions();
-
     private List<StepConfigurationStrategy> stepConfigurationStrategies = new ArrayList<>();
 
-    protected AbstractJobExecutable() {
+    protected AbstractJobRunnable() {
         setName(ClassUtils.getShortName(getClass()));
     }
 
@@ -71,16 +65,8 @@ public abstract class AbstractJobExecutable extends AbstractRedisExecutable {
         this.stepOptions = stepOptions;
     }
 
-    public EvaluationContextOptions getEvaluationContextOptions() {
-        return evaluationContextOptions;
-    }
-
-    public void setEvaluationContextOptions(EvaluationContextOptions evaluationContextOptions) {
-        this.evaluationContextOptions = evaluationContextOptions;
-    }
-
     @Override
-    protected void execute(RiotExecutionContext executionContext) {
+    protected void execute(RiotContext executionContext) {
         checkJobRepository();
         jobFactory = new JobBuilderFactory(jobRepository);
         stepFactory = stepBuilderFactory();
@@ -128,7 +114,7 @@ public abstract class AbstractJobExecutable extends AbstractRedisExecutable {
         return jobFactory.get(name);
     }
 
-    protected abstract Job job(RiotExecutionContext executionContext);
+    protected abstract Job job(RiotContext executionContext);
 
     protected <I, O> StepBuilder<I, O> createStep() {
         StepBuilder<I, O> step = new StepBuilder<>(stepFactory);
@@ -138,17 +124,15 @@ public abstract class AbstractJobExecutable extends AbstractRedisExecutable {
         return step;
     }
 
-    protected StandardEvaluationContext evaluationContext(RiotExecutionContext executionContext) {
-        StandardEvaluationContext context = new StandardEvaluationContext();
-        context.setVariable(DATE_VARIABLE_NAME, new SimpleDateFormat(evaluationContextOptions.getDateFormat()));
-        context.setVariable(REDIS_VARIABLE_NAME, executionContext.getRedisConnection().sync());
-        if (!CollectionUtils.isEmpty(evaluationContextOptions.getVariables())) {
-            evaluationContextOptions.getVariables().forEach(context::setVariable);
+    protected <W extends AbstractOperationItemWriter<?, ?, ?>> W writer(W writer, RedisWriterOptions options) {
+        writer.setMultiExec(options.isMultiExec());
+        writer.setPoolSize(options.getPoolSize());
+        writer.setWaitReplicas(options.getWaitReplicas());
+        writer.setWaitTimeout(options.getWaitTimeout());
+        if (writer instanceof StructItemWriter) {
+            ((StructItemWriter<?, ?>) writer).setMerge(options.isMerge());
         }
-        if (!CollectionUtils.isEmpty(evaluationContextOptions.getExpressions())) {
-            evaluationContextOptions.getExpressions().forEach((k, v) -> context.setVariable(k, v.getValue(context)));
-        }
-        return context;
+        return writer;
     }
 
 }

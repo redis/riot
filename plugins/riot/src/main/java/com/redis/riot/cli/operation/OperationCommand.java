@@ -5,7 +5,7 @@ import java.util.Map;
 
 import com.redis.riot.cli.BaseCommand;
 import com.redis.riot.core.operation.AbstractMapOperationBuilder;
-import com.redis.spring.batch.writer.Operation;
+import com.redis.spring.batch.writer.WriteOperation;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -28,16 +28,16 @@ public abstract class OperationCommand extends BaseCommand {
     @Option(names = "--ignore-missing", description = "Ignore missing fields.")
     private boolean ignoreMissingFields = AbstractMapOperationBuilder.DEFAULT_IGNORE_MISSING_FIELDS;
 
-    public Operation<String, String, Map<String, Object>> operation() {
-        AbstractMapOperationBuilder<?> builder = operationBuilder();
-        builder.ignoreMissingFields(ignoreMissingFields);
-        builder.keys(keys);
-        builder.keySeparator(keySeparator);
-        builder.keyspace(keyspace);
-        builder.removeFields(removeFields);
+    public WriteOperation<String, String, Map<String, Object>> operation() {
+        AbstractMapOperationBuilder builder = operationBuilder();
+        builder.setIgnoreMissingFields(ignoreMissingFields);
+        builder.setKeyFields(keys);
+        builder.setKeySeparator(keySeparator);
+        builder.setKeyspace(keyspace);
+        builder.setRemoveFields(removeFields);
         return builder.build();
     }
 
-    protected abstract AbstractMapOperationBuilder<?> operationBuilder();
+    protected abstract AbstractMapOperationBuilder operationBuilder();
 
 }

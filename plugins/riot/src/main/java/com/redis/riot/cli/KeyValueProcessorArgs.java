@@ -18,11 +18,19 @@ public class KeyValueProcessorArgs {
     @Option(names = "--ttl-proc", description = "SpEL expression to transform the TTL of each key.", paramLabel = "<exp>")
     Expression ttlExpression;
 
+    @Option(names = "--no-ttl", description = "Do not propagate key TTLs.")
+    boolean dropTtl;
+
+    @Option(names = "--no-stream-id", description = "Do not propagate stream message IDs.")
+    boolean dropStreamMessageId;
+
     public KeyValueProcessorOptions processorOptions() {
         KeyValueProcessorOptions options = new KeyValueProcessorOptions();
         options.setKeyExpression(keyExpression);
         options.setTtlExpression(ttlExpression);
         options.setTypeExpression(typeExpression);
+        options.setDropTtl(dropTtl);
+        options.setDropStreamMessageId(dropStreamMessageId);
         return options;
     }
 

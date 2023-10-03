@@ -1,53 +1,64 @@
 package com.redis.riot.core;
 
-import com.redis.spring.batch.RedisItemWriter;
-import com.redis.spring.batch.RedisItemWriter.MergePolicy;
-import com.redis.spring.batch.RedisItemWriter.StreamIdPolicy;
-import com.redis.spring.batch.RedisItemWriter.TtlPolicy;
+import java.time.Duration;
 
-public class RedisWriterOptions extends RedisOperationOptions {
+import com.redis.spring.batch.common.AbstractOperationExecutor;
+import com.redis.spring.batch.writer.AbstractOperationItemWriter;
 
-    public static final TtlPolicy DEFAULT_TTL_POLICY = RedisItemWriter.DEFAULT_TTL_POLICY;
+public class RedisWriterOptions {
 
-    public static final MergePolicy DEFAULT_MERGE_POLICY = RedisItemWriter.DEFAULT_MERGE_POLICY;
+    public static final Duration DEFAULT_WAIT_TIMEOUT = AbstractOperationItemWriter.DEFAULT_WAIT_TIMEOUT;
 
-    public static final StreamIdPolicy DEFAULT_STREAM_ID_POLICY = RedisItemWriter.DEFAULT_STREAM_ID_POLICY;
+    public static final int DEFAULT_POOL_SIZE = AbstractOperationExecutor.DEFAULT_POOL_SIZE;
 
-    private TtlPolicy ttlPolicy = DEFAULT_TTL_POLICY;
+    private boolean multiExec;
 
-    private MergePolicy mergePolicy = DEFAULT_MERGE_POLICY;
+    private int waitReplicas;
 
-    private StreamIdPolicy streamIdPolicy = DEFAULT_STREAM_ID_POLICY;
+    private Duration waitTimeout = DEFAULT_WAIT_TIMEOUT;
 
-    public TtlPolicy getTtlPolicy() {
-        return ttlPolicy;
+    private int poolSize = DEFAULT_POOL_SIZE;
+
+    private boolean merge;
+
+    public boolean isMerge() {
+        return merge;
     }
 
-    public void setTtlPolicy(TtlPolicy ttlPolicy) {
-        this.ttlPolicy = ttlPolicy;
+    public void setMerge(boolean merge) {
+        this.merge = merge;
     }
 
-    public MergePolicy getMergePolicy() {
-        return mergePolicy;
+    public int getPoolSize() {
+        return poolSize;
     }
 
-    public void setMergePolicy(MergePolicy mergePolicy) {
-        this.mergePolicy = mergePolicy;
+    public void setPoolSize(int size) {
+        this.poolSize = size;
     }
 
-    public StreamIdPolicy getStreamIdPolicy() {
-        return streamIdPolicy;
+    public boolean isMultiExec() {
+        return multiExec;
     }
 
-    public void setStreamIdPolicy(StreamIdPolicy streamIdPolicy) {
-        this.streamIdPolicy = streamIdPolicy;
+    public void setMultiExec(boolean enable) {
+        this.multiExec = enable;
     }
 
-    public void configure(RedisItemWriter<?, ?> writer) {
-        super.configure(writer);
-        writer.setMergePolicy(mergePolicy);
-        writer.setStreamIdPolicy(streamIdPolicy);
-        writer.setTtlPolicy(ttlPolicy);
+    public int getWaitReplicas() {
+        return waitReplicas;
+    }
+
+    public void setWaitReplicas(int replicas) {
+        this.waitReplicas = replicas;
+    }
+
+    public Duration getWaitTimeout() {
+        return waitTimeout;
+    }
+
+    public void setWaitTimeout(Duration timeout) {
+        this.waitTimeout = timeout;
     }
 
 }

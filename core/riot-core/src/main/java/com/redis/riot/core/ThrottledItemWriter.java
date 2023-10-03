@@ -52,10 +52,6 @@ public class ThrottledItemWriter<T> extends AbstractItemStreamItemWriter<T> {
         }
     }
 
-    public boolean isOpen() {
-        return BatchUtils.isOpen(delegate);
-    }
-
     @Override
     public void setName(String name) {
         super.setName(name);

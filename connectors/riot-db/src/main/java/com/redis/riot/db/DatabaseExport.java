@@ -10,7 +10,6 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.lang.Nullable;
 
 import com.redis.riot.core.AbstractMapExport;
-import com.redis.spring.batch.ValueType;
 
 public class DatabaseExport extends AbstractMapExport {
 
@@ -22,24 +21,12 @@ public class DatabaseExport extends AbstractMapExport {
 
     private boolean assertUpdates = DEFAULT_ASSERT_UPDATES;
 
-    public String getSql() {
-        return sql;
-    }
-
     public void setSql(String sql) {
         this.sql = sql;
     }
 
-    public DataSourceOptions getDataSourceOptions() {
-        return dataSourceOptions;
-    }
-
     public void setDataSourceOptions(DataSourceOptions dataSourceOptions) {
         this.dataSourceOptions = dataSourceOptions;
-    }
-
-    public boolean isAssertUpdates() {
-        return assertUpdates;
     }
 
     public void setAssertUpdates(boolean assertUpdates) {
@@ -75,11 +62,6 @@ public class DatabaseExport extends AbstractMapExport {
             return super.getValue(paramName);
         }
 
-    }
-
-    @Override
-    protected ValueType getValueType() {
-        return ValueType.STRUCT;
     }
 
 }

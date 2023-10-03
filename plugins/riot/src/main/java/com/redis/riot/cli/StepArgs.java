@@ -31,7 +31,7 @@ public class StepArgs {
     @Option(names = "--skip-limit", description = "LIMIT skip policy: max number of failed items before considering the transfer has failed (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
     int skipLimit = StepOptions.DEFAULT_SKIP_LIMIT;
 
-    @Option(names = "--retry-limit", description = "Maximum number of times to try a failed item. 0 and 1 both translate to no retry. (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
+    @Option(names = "--retry-limit", description = "Maximum number of times to try failed items. 0 and 1 both translate to no retry. (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
     private int retryLimit = StepOptions.DEFAULT_RETRY_LIMIT;
 
     public StepOptions stepOptions() {

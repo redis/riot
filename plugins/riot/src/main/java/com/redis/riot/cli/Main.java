@@ -5,10 +5,9 @@ import java.io.PrintWriter;
 import org.springframework.expression.Expression;
 
 import com.redis.riot.cli.operation.OperationCommand;
-import com.redis.riot.core.SpelUtils;
+import com.redis.riot.core.RiotUtils;
 import com.redis.riot.core.TemplateExpression;
-import com.redis.spring.batch.util.DoubleRange;
-import com.redis.spring.batch.util.LongRange;
+import com.redis.spring.batch.common.Range;
 
 import picocli.AutoComplete.GenerateCompletion;
 import picocli.CommandLine;
@@ -21,7 +20,7 @@ import picocli.CommandLine.RunFirst;
 import picocli.CommandLine.RunLast;
 
 @Command(name = "riot", subcommands = { DatabaseImportCommand.class, DatabaseExportCommand.class, FileDumpImportCommand.class,
-        FileImportCommand.class, FileDumpExportCommand.class, FakerImportCommand.class, GeneratorImportCommand.class,
+        FileImportCommand.class, FileDumpExportCommand.class, FakerImportCommand.class, GenerateCommand.class,
         ReplicateCommand.class, PingCommand.class, GenerateCompletion.class })
 public class Main extends BaseCommand implements Runnable {
 
@@ -68,10 +67,9 @@ public class Main extends BaseCommand implements Runnable {
         executionStrategy.addDelegates(LoggingMixin::executionStrategy);
         executionStrategy.addDelegates(Main::executionStrategy);
         commandLine.setExecutionStrategy(executionStrategy);
-        commandLine.registerConverter(LongRange.class, Main::longRange);
-        commandLine.registerConverter(DoubleRange.class, Main::doubleRange);
-        commandLine.registerConverter(Expression.class, SpelUtils::parse);
-        commandLine.registerConverter(TemplateExpression.class, SpelUtils::parseTemplate);
+        commandLine.registerConverter(Range.class, Range::of);
+        commandLine.registerConverter(Expression.class, RiotUtils::parse);
+        commandLine.registerConverter(TemplateExpression.class, RiotUtils::parseTemplate);
         commandLine.setCaseInsensitiveEnumValuesAllowed(true);
         commandLine.setUnmatchedOptionsAllowedAsOptionParameters(false);
         return commandLine.execute(args);
@@ -92,38 +90,6 @@ public class Main extends BaseCommand implements Runnable {
             }
         }
         return new RunLast().execute(parseResult); // default execution strategy
-    }
-
-    public static DoubleRange doubleRange(String value) {
-        int pos = value.indexOf(DoubleRange.SEPARATOR);
-        if (pos >= 0) {
-            return DoubleRange.between(parseDouble(value.substring(0, pos), 0),
-                    parseDouble(value.substring(pos + DoubleRange.SEPARATOR.length()), Double.MAX_VALUE));
-        }
-        return DoubleRange.is(parseDouble(value, Double.MAX_VALUE));
-    }
-
-    private static double parseDouble(String string, double defaultValue) {
-        if (string.isEmpty()) {
-            return defaultValue;
-        }
-        return Double.parseDouble(string);
-    }
-
-    public static LongRange longRange(String value) {
-        int separator;
-        if ((separator = value.indexOf(LongRange.SEPARATOR)) >= 0) {
-            return LongRange.between(parseInt(value.substring(0, separator), 0),
-                    parseInt(value.substring(separator + LongRange.SEPARATOR.length()), Integer.MAX_VALUE));
-        }
-        return LongRange.is(parseInt(value, Integer.MAX_VALUE));
-    }
-
-    private static int parseInt(String string, int defaultValue) {
-        if (string.isEmpty()) {
-            return defaultValue;
-        }
-        return Integer.parseInt(string);
     }
 
 }

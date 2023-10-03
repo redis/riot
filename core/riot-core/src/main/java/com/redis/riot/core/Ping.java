@@ -13,7 +13,7 @@ import org.springframework.util.Assert;
 import io.lettuce.core.metrics.CommandMetrics.CommandLatency;
 import io.lettuce.core.metrics.DefaultCommandLatencyCollectorOptions;
 
-public class Ping extends AbstractRedisExecutable {
+public class Ping extends AbstractRiotRunnable {
 
     public static final int DEFAULT_ITERATIONS = 1;
 
@@ -90,12 +90,12 @@ public class Ping extends AbstractRedisExecutable {
     }
 
     @Override
-    protected void execute(RiotExecutionContext executionContext) {
+    protected void execute(RiotContext executionContext) {
         for (int iteration = 0; iteration < iterations; iteration++) {
             LatencyStats stats = new LatencyStats();
             for (int index = 0; index < count; index++) {
                 long startTime = System.nanoTime();
-                String reply = executionContext.getRedisConnection().sync().ping();
+                String reply = executionContext.getRedisContext().getConnection().sync().ping();
                 Assert.isTrue("pong".equalsIgnoreCase(reply), "Invalid PING reply received: " + reply);
                 stats.recordLatency(System.nanoTime() - startTime);
             }
