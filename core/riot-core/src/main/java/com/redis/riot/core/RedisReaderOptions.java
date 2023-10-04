@@ -8,6 +8,7 @@ import com.redis.spring.batch.RedisItemReader;
 import com.redis.spring.batch.common.DataType;
 import com.redis.spring.batch.reader.KeyValueItemReader;
 import com.redis.spring.batch.reader.KeyspaceNotificationItemReader.OrderingStrategy;
+import com.redis.spring.batch.step.FlushingChunkProvider;
 
 import io.lettuce.core.ReadFrom;
 
@@ -33,7 +34,9 @@ public class RedisReaderOptions {
 
     public static final long DEFAULT_SCAN_COUNT = 1000;
 
-    public static final Duration DEFAULT_FLUSH_INTERVAL = RedisItemReader.DEFAULT_FLUSH_INTERVAL;
+    public static final Duration DEFAULT_FLUSH_INTERVAL = FlushingChunkProvider.DEFAULT_FLUSH_INTERVAL;
+
+    public static final Duration DEFAULT_IDLE_TIMEOUT = FlushingChunkProvider.DEFAULT_IDLE_TIMEOUT;
 
     private String keyPattern;
 
@@ -63,7 +66,23 @@ public class RedisReaderOptions {
 
     private Duration flushInterval = DEFAULT_FLUSH_INTERVAL;
 
-    private Duration idleTimeout;
+    private Duration idleTimeout = DEFAULT_IDLE_TIMEOUT;
+
+    public Duration getFlushInterval() {
+        return flushInterval;
+    }
+
+    public void setFlushInterval(Duration flushInterval) {
+        this.flushInterval = flushInterval;
+    }
+
+    public Duration getIdleTimeout() {
+        return idleTimeout;
+    }
+
+    public void setIdleTimeout(Duration idleTimeout) {
+        this.idleTimeout = idleTimeout;
+    }
 
     public OrderingStrategy getOrderingStrategy() {
         return orderingStrategy;
@@ -79,22 +98,6 @@ public class RedisReaderOptions {
 
     public void setNotificationQueueCapacity(int notificationQueueCapacity) {
         this.notificationQueueCapacity = notificationQueueCapacity;
-    }
-
-    public Duration getFlushInterval() {
-        return flushInterval;
-    }
-
-    public void setFlushInterval(Duration flushingInterval) {
-        this.flushInterval = flushingInterval;
-    }
-
-    public Duration getIdleTimeout() {
-        return idleTimeout;
-    }
-
-    public void setIdleTimeout(Duration idleTimeout) {
-        this.idleTimeout = idleTimeout;
     }
 
     public String getKeyPattern() {

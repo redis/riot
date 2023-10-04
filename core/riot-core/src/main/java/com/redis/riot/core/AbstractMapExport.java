@@ -33,7 +33,7 @@ public abstract class AbstractMapExport extends AbstractExport {
         step.reader(reader(context.getRedisContext()));
         step.writer(writer());
         step.processor(processor(context));
-        return jobBuilder().start(step.build()).build();
+        return jobBuilder().start(step.build().build()).build();
     }
 
     protected StructItemReader<String, String> reader(RedisContext context) {

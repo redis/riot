@@ -73,7 +73,7 @@ public class FakerImport extends AbstractMapImport {
         step.name(getName());
         step.reader(reader(executionContext));
         step.writer(writer(executionContext));
-        return jobBuilder().start(step.build()).build();
+        return jobBuilder().start(step.build().build()).build();
     }
 
     private FakerItemReader reader(RiotContext executionContext) {

@@ -1,36 +1,27 @@
 package com.redis.riot.core;
 
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeoutException;
 
 import org.springframework.batch.core.ItemWriteListener;
-import org.springframework.batch.core.Step;
 import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.step.builder.FaultTolerantStepBuilder;
 import org.springframework.batch.core.step.builder.SimpleStepBuilder;
-import org.springframework.batch.core.step.skip.AlwaysSkipItemSkipPolicy;
-import org.springframework.batch.core.step.skip.LimitCheckingItemSkipPolicy;
-import org.springframework.batch.core.step.skip.NeverSkipItemSkipPolicy;
-import org.springframework.batch.core.step.skip.SkipPolicy;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemStreamReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.support.SynchronizedItemStreamReader;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.classify.BinaryExceptionClassifier;
 
 import com.redis.spring.batch.RedisItemReader;
 import com.redis.spring.batch.step.FlushingStepBuilder;
 import com.redis.spring.batch.util.BatchUtils;
 
-import io.lettuce.core.RedisException;
+import io.lettuce.core.RedisCommandExecutionException;
+import io.lettuce.core.RedisCommandTimeoutException;
 
 public class StepBuilder<I, O> {
 
@@ -50,26 +41,49 @@ public class StepBuilder<I, O> {
 
     private StepOptions options = new StepOptions();
 
-    private Duration flushingInterval;
-
-    private Duration idleTimeout;
-
-    private Collection<Class<? extends Throwable>> skippableExceptions = new ArrayList<>();
-
-    private Collection<Class<? extends Throwable>> retriableExceptions = defaultRetriableExceptions();
-
     private List<StepConfigurationStrategy> configurationStrategies = new ArrayList<>();
 
-    public static Collection<Class<? extends Throwable>> defaultRetriableExceptions() {
-        Collection<Class<? extends Throwable>> exceptions = new ArrayList<>();
-        exceptions.add(RedisException.class);
-        exceptions.add(TimeoutException.class);
-        exceptions.add(ExecutionException.class);
-        return exceptions;
+    private List<Class<? extends Throwable>> skippableExceptions = defaultNonRetriableExceptions();
+
+    private List<Class<? extends Throwable>> nonSkippableExceptions = defaultRetriableExceptions();
+
+    private List<Class<? extends Throwable>> retriableExceptions = defaultRetriableExceptions();
+
+    private List<Class<? extends Throwable>> nonRetriableExceptions = defaultNonRetriableExceptions();
+
+    @SuppressWarnings("unchecked")
+    public static List<Class<? extends Throwable>> defaultRetriableExceptions() {
+        return modifiableList(RedisCommandTimeoutException.class);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static List<Class<? extends Throwable>> defaultNonRetriableExceptions() {
+        return modifiableList(RedisCommandExecutionException.class);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> List<T> modifiableList(T... elements) {
+        return new ArrayList<>(Arrays.asList(elements));
     }
 
     public StepBuilder(StepBuilderFactory factory) {
         this.factory = factory;
+    }
+
+    public void addSkippableException(Class<? extends Throwable> exception) {
+        skippableExceptions.add(exception);
+    }
+
+    public void addNonSkippableException(Class<? extends Throwable> exception) {
+        nonSkippableExceptions.add(exception);
+    }
+
+    public void addRetriableException(Class<? extends Throwable> exception) {
+        retriableExceptions.add(exception);
+    }
+
+    public void addNonRetriableException(Class<? extends Throwable> exception) {
+        nonRetriableExceptions.add(exception);
     }
 
     public String getName() {
@@ -99,18 +113,6 @@ public class StepBuilder<I, O> {
         return this;
     }
 
-    @SuppressWarnings("unchecked")
-    public StepBuilder<I, O> skippableExceptions(Class<? extends Throwable>... exceptions) {
-        this.skippableExceptions = Arrays.asList(exceptions);
-        return this;
-    }
-
-    @SuppressWarnings("unchecked")
-    public StepBuilder<I, O> retriableExceptions(Class<? extends Throwable>... exceptions) {
-        this.retriableExceptions = Arrays.asList(exceptions);
-        return this;
-    }
-
     public StepBuilder<I, O> options(StepOptions options) {
         this.options = options;
         return this;
@@ -133,24 +135,11 @@ public class StepBuilder<I, O> {
         return this;
     }
 
-    public StepBuilder<I, O> flushingInterval(Duration interval) {
-        this.flushingInterval = interval;
-        return this;
-    }
-
-    public StepBuilder<I, O> idleTimeout(Duration timeout) {
-        this.idleTimeout = timeout;
-        return this;
-    }
-
-    public Step build() {
+    public FaultTolerantStepBuilder<I, O> build() {
         configurationStrategies.forEach(s -> s.configure(this));
-        initialize(reader);
-        initialize(processor);
-        initialize(writer);
-        SimpleStepBuilder<I, O> step = factory.get(name).chunk(options.getChunkSize());
+        FaultTolerantStepBuilder<I, O> step = simpleStep().faultTolerant();
         step.reader(reader());
-        step.processor(processor);
+        step.processor(processor());
         step.writer(writer());
         if (options.getThreads() > 1) {
             step.taskExecutor(BatchUtils.threadPoolTaskExecutor(options.getThreads()));
@@ -158,13 +147,32 @@ public class StepBuilder<I, O> {
         }
         executionListeners.forEach(step::listener);
         writeListeners.forEach(step::listener);
-        if (BatchUtils.isPositive(flushingInterval)) {
-            step = new FlushingStepBuilder<>(step).interval(flushingInterval).idleTimeout(idleTimeout);
+        step.skipLimit(options.getSkipLimit());
+        step.retryLimit(options.getRetryLimit());
+        skippableExceptions.forEach(step::skip);
+        nonSkippableExceptions.forEach(step::noSkip);
+        retriableExceptions.forEach(step::retry);
+        nonRetriableExceptions.forEach(step::noRetry);
+        return step;
+    }
+
+    private SimpleStepBuilder<I, O> simpleStep() {
+        SimpleStepBuilder<I, O> step = factory.get(name).chunk(options.getChunkSize());
+        if (reader instanceof RedisItemReader) {
+            RedisItemReader<?, ?, ?> redisReader = (RedisItemReader<?, ?, ?>) reader;
+            if (redisReader.isLive()) {
+                FlushingStepBuilder<I, O> flushingStep = new FlushingStepBuilder<>(step);
+                flushingStep.interval(redisReader.getFlushInterval());
+                flushingStep.idleTimeout(redisReader.getIdleTimeout());
+                return flushingStep;
+            }
         }
-        if (options.isFaultTolerance()) {
-            step = retry(step.faultTolerant().skipPolicy(skipPolicy()).retryLimit(options.getRetryLimit()));
-        }
-        return step.build();
+        return step;
+    }
+
+    private ItemProcessor<? super I, ? extends O> processor() {
+        initialize(processor);
+        return processor;
     }
 
     private void initialize(Object object) {
@@ -177,12 +185,8 @@ public class StepBuilder<I, O> {
         }
     }
 
-    private FaultTolerantStepBuilder<I, O> retry(FaultTolerantStepBuilder<I, O> step) {
-        retriableExceptions.forEach(step::retry);
-        return step;
-    }
-
     private ItemReader<I> reader() {
+        initialize(reader);
         if (reader instanceof RedisItemReader) {
             return reader;
         }
@@ -195,13 +199,14 @@ public class StepBuilder<I, O> {
     }
 
     private ItemWriter<O> writer() {
+        initialize(writer);
         if (options.isDryRun()) {
             return new NoopItemWriter<>();
         }
-        if (BatchUtils.isPositive(options.getSleep())) {
-            return new ThrottledItemWriter<>(writer, options.getSleep());
+        if (options.getSleep() == null || options.getSleep().isNegative() || options.getSleep().isZero()) {
+            return writer;
         }
-        return writer;
+        return new ThrottledItemWriter<>(writer, options.getSleep());
     }
 
     private static class NoopItemWriter<T> implements ItemWriter<T> {
@@ -211,18 +216,6 @@ public class StepBuilder<I, O> {
             // Do nothing
         }
 
-    }
-
-    private SkipPolicy skipPolicy() {
-        switch (options.getSkipPolicy()) {
-            case ALWAYS:
-                return new AlwaysSkipItemSkipPolicy();
-            case NEVER:
-                return new NeverSkipItemSkipPolicy();
-            default:
-                return new LimitCheckingItemSkipPolicy(options.getSkipLimit(),
-                        new BinaryExceptionClassifier(skippableExceptions));
-        }
     }
 
     public StepBuilder<I, O> configurationStrategies(List<StepConfigurationStrategy> strategies) {

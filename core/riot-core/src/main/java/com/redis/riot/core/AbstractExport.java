@@ -72,11 +72,11 @@ public abstract class AbstractExport extends AbstractJobRunnable {
     protected <K, V> void configureReader(RedisItemReader<K, V, ?> reader, RedisContext context) {
         reader.setChunkSize(readerOptions.getChunkSize());
         reader.setDatabase(context.getUri().getDatabase());
-        reader.setFlushInterval(readerOptions.getFlushInterval());
-        reader.setIdleTimeout(readerOptions.getIdleTimeout());
         reader.setKeyProcessor(keyFilteringProcessor(reader.getCodec()));
         reader.setKeyPattern(readerOptions.getKeyPattern());
         reader.setKeyType(readerOptions.getKeyType());
+        reader.setFlushInterval(readerOptions.getFlushInterval());
+        reader.setIdleTimeout(readerOptions.getIdleTimeout());
         if (reader instanceof KeyValueItemReader) {
             KeyValueItemReader<?, ?> keyValueReader = (KeyValueItemReader<?, ?>) reader;
             keyValueReader.setMemoryUsageLimit(readerOptions.getMemoryUsageLimit());

@@ -2,7 +2,6 @@ package com.redis.riot.cli;
 
 import java.time.Duration;
 
-import com.redis.riot.core.RiotSkipPolicy;
 import com.redis.riot.core.StepOptions;
 
 import picocli.CommandLine.Option;
@@ -25,9 +24,6 @@ public class StepArgs {
     @Option(names = "--ft", description = "Enable step fault-tolerance. Use in conjunction with retry and skip limit/policy.")
     boolean faultTolerance;
 
-    @Option(names = "--skip-policy", description = "Policy to determine if some processing should be skipped: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<name>")
-    RiotSkipPolicy skipPolicy = StepOptions.DEFAULT_SKIP_POLICY;
-
     @Option(names = "--skip-limit", description = "LIMIT skip policy: max number of failed items before considering the transfer has failed (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
     int skipLimit = StepOptions.DEFAULT_SKIP_LIMIT;
 
@@ -38,10 +34,8 @@ public class StepArgs {
         StepOptions options = new StepOptions();
         options.setChunkSize(chunkSize);
         options.setDryRun(dryRun);
-        options.setFaultTolerance(faultTolerance);
         options.setRetryLimit(retryLimit);
         options.setSkipLimit(skipLimit);
-        options.setSkipPolicy(skipPolicy);
         options.setSleep(Duration.ofMillis(sleep));
         options.setThreads(threads);
         return options;

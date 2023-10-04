@@ -28,6 +28,8 @@ public class LoggingMixin {
 
     private static final String NETTY = "io.netty";
 
+    private static final String CHUNK_MONITOR = "org.springframework.batch.core.step.item.ChunkMonitor";
+
     @Spec(Target.MIXEE)
     private CommandSpec mixee;
 
@@ -139,6 +141,7 @@ public class LoggingMixin {
         logs.put(AWS, Level.ERROR);
         logs.put(LETTUCE, Level.INFO);
         logs.put(NETTY, Level.INFO);
+        logs.put(CHUNK_MONITOR, Level.ERROR);
         return logs;
     }
 

@@ -143,9 +143,8 @@ public class FileImport extends AbstractMapImport {
     }
 
     @Override
-    protected Job job(RiotContext executionContext) {
-        Iterator<Step> steps = FileUtils.inputResources(files, fileOptions).stream().map(r -> step(executionContext, r))
-                .iterator();
+    protected Job job(RiotContext context) {
+        Iterator<Step> steps = FileUtils.inputResources(files, fileOptions).stream().map(r -> step(context, r)).iterator();
         if (!steps.hasNext()) {
             throw new IllegalArgumentException("No file found");
         }
@@ -156,8 +155,7 @@ public class FileImport extends AbstractMapImport {
         return job.build();
     }
 
-    @SuppressWarnings("unchecked")
-    private Step step(RiotContext executionContext, Resource resource) {
+    private Step step(RiotContext context, Resource resource) {
         ItemReader<Map<String, Object>> reader = reader(resource);
         if (maxItemCount != null && reader instanceof AbstractItemCountingItemStreamItemReader) {
             ((AbstractItemCountingItemStreamItemReader<Map<String, Object>>) reader).setMaxItemCount(maxItemCount);
@@ -166,10 +164,11 @@ public class FileImport extends AbstractMapImport {
         StepBuilder<Map<String, Object>, Map<String, Object>> step = createStep();
         step.name(name);
         step.reader(reader);
-        step.writer(writer(executionContext));
-        step.processor(processor(executionContext));
-        step.skippableExceptions(ParseException.class);
-        return step.build();
+        step.writer(writer(context));
+        step.processor(processor(context));
+        step.addSkippableException(ParseException.class);
+        step.addNonRetriableException(ParseException.class);
+        return step.build().build();
     }
 
     private ItemReader<Map<String, Object>> reader(Resource resource) {

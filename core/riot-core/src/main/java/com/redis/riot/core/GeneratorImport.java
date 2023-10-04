@@ -154,7 +154,7 @@ public class GeneratorImport extends AbstractStructImport {
         StepBuilder<KeyValue<String>, KeyValue<String>> step = createStep();
         step.reader(reader());
         step.writer(writer(context));
-        return jobBuilder().start(step.build()).build();
+        return jobBuilder().start(step.build().build()).build();
     }
 
     private GeneratorItemReader reader() {

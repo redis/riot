@@ -11,8 +11,6 @@ import org.springframework.batch.item.support.AbstractItemStreamItemWriter;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 
-import com.redis.spring.batch.util.BatchUtils;
-
 public class ThrottledItemWriter<T> extends AbstractItemStreamItemWriter<T> {
 
     private final ItemWriter<T> delegate;
@@ -23,7 +21,7 @@ public class ThrottledItemWriter<T> extends AbstractItemStreamItemWriter<T> {
         setName(ClassUtils.getShortName(getClass()));
         Assert.notNull(delegate, "Delegate must not be null");
         Assert.notNull(sleepDuration, "Sleep duration must not be null");
-        Assert.isTrue(BatchUtils.isPositive(sleepDuration), "Sleep duration must be strictly positive");
+        Assert.isTrue(!sleepDuration.isNegative() && !sleepDuration.isZero(), "Sleep duration must be strictly positive");
         this.delegate = delegate;
         this.sleep = sleepDuration.toMillis();
     }

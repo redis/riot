@@ -2,31 +2,31 @@ package com.redis.riot.core;
 
 import java.time.Duration;
 
+import org.springframework.batch.core.step.skip.NeverSkipItemSkipPolicy;
+import org.springframework.batch.core.step.skip.SkipPolicy;
+import org.springframework.retry.policy.MaxAttemptsRetryPolicy;
+
 public class StepOptions {
 
-    public static final RiotSkipPolicy DEFAULT_SKIP_POLICY = RiotSkipPolicy.LIMIT;
+    public static final SkipPolicy DEFAULT_SKIP_POLICY = new NeverSkipItemSkipPolicy();
+
+    public static final int DEFAULT_SKIP_LIMIT = 0;
+
+    public static final int DEFAULT_RETRY_LIMIT = MaxAttemptsRetryPolicy.DEFAULT_MAX_ATTEMPTS;
+
+    public static final Duration DEFAULT_SLEEP = Duration.ZERO;
 
     public static final int DEFAULT_CHUNK_SIZE = 50;
 
     public static final int DEFAULT_THREADS = 1;
 
-    public static final int DEFAULT_SKIP_LIMIT = 3;
-
-    public static final int DEFAULT_RETRY_LIMIT = 1;
-
-    public static final int DEFAULT_PROGRESS_UPDATE_INTERVAL = 1000;
-
     private int threads = DEFAULT_THREADS;
 
     private int chunkSize = DEFAULT_CHUNK_SIZE;
 
-    private Duration sleep;
+    private Duration sleep = DEFAULT_SLEEP;
 
     private boolean dryRun;
-
-    private boolean faultTolerance;
-
-    private RiotSkipPolicy skipPolicy = DEFAULT_SKIP_POLICY;
 
     private int skipLimit = DEFAULT_SKIP_LIMIT;
 
@@ -62,22 +62,6 @@ public class StepOptions {
 
     public void setSleep(Duration sleep) {
         this.sleep = sleep;
-    }
-
-    public boolean isFaultTolerance() {
-        return faultTolerance;
-    }
-
-    public void setFaultTolerance(boolean faultTolerance) {
-        this.faultTolerance = faultTolerance;
-    }
-
-    public RiotSkipPolicy getSkipPolicy() {
-        return skipPolicy;
-    }
-
-    public void setSkipPolicy(RiotSkipPolicy skipPolicy) {
-        this.skipPolicy = skipPolicy;
     }
 
     public int getSkipLimit() {

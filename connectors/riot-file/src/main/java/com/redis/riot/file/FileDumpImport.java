@@ -5,8 +5,9 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.springframework.batch.core.Job;
-import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.builder.SimpleJobBuilder;
+import org.springframework.batch.core.step.builder.FaultTolerantStepBuilder;
+import org.springframework.batch.core.step.tasklet.TaskletStep;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.core.io.Resource;
 
@@ -41,8 +42,8 @@ public class FileDumpImport extends AbstractStructImport {
 
     @Override
     protected Job job(RiotContext executionContext) {
-        Iterator<Step> steps = FileUtils.inputResources(files, fileOptions).stream().map(r -> step(executionContext, r))
-                .map(StepBuilder::build).iterator();
+        Iterator<TaskletStep> steps = FileUtils.inputResources(files, fileOptions).stream().map(r -> step(executionContext, r))
+                .map(StepBuilder::build).map(FaultTolerantStepBuilder::build).iterator();
         if (!steps.hasNext()) {
             throw new IllegalArgumentException("No file found");
         }

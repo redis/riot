@@ -134,7 +134,7 @@ public class FileDumpExport extends AbstractExport {
         step.reader(reader(context.getRedisContext()));
         step.writer(writer());
         step.processor(processor(StringCodec.UTF8, context));
-        return jobBuilder().start(step.build()).build();
+        return jobBuilder().start(step.build().build()).build();
     }
 
     private StructItemReader<String, String> reader(RedisContext context) {

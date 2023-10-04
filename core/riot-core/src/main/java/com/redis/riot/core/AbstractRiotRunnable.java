@@ -10,7 +10,6 @@ import org.springframework.util.StringUtils;
 
 import com.redis.lettucemod.RedisModulesClient;
 import com.redis.lettucemod.cluster.RedisModulesClusterClient;
-import com.redis.spring.batch.util.BatchUtils;
 
 import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.ClientOptions;
@@ -98,7 +97,7 @@ public abstract class AbstractRiotRunnable implements Runnable {
             builder.withSsl(options.isTls());
             builder.withVerifyPeer(options.getVerifyPeer());
         }
-        if (BatchUtils.isPositive(options.getTimeout())) {
+        if (options.getTimeout() != null) {
             builder.withTimeout(options.getTimeout());
         }
         return builder.build();
@@ -152,7 +151,7 @@ public abstract class AbstractRiotRunnable implements Runnable {
 
     private ClientResources clientResources(RedisOptions options) {
         DefaultClientResources.Builder builder = DefaultClientResources.builder();
-        if (BatchUtils.isPositive(options.getMetricsStep())) {
+        if (options.getMetricsStep() != null) {
             builder.commandLatencyRecorder(commandLatencyRecorder());
             builder.commandLatencyPublisherOptions(commandLatencyPublisherOptions(options.getMetricsStep()));
         }

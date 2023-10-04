@@ -111,8 +111,8 @@ public class Replication extends AbstractExport {
             case COMPARE:
                 return jobBuilder().start(compareStep(replicationContext)).build();
             case LIVE:
-                SimpleFlow scanFlow = flow("scan").start(scanStep(replicationContext).build()).build();
-                SimpleFlow liveFlow = flow("live").start(liveStep(replicationContext).build()).build();
+                SimpleFlow scanFlow = flow("scan").start(scanStep(replicationContext).build().build()).build();
+                SimpleFlow liveFlow = flow("live").start(liveStep(replicationContext).build().build()).build();
                 SimpleFlow replicateFlow = flow("replicate").split(asyncTaskExecutor()).add(liveFlow, scanFlow).build();
                 JobFlowBuilder live = jobBuilder().start(replicateFlow);
                 if (shouldCompare()) {
@@ -120,9 +120,9 @@ public class Replication extends AbstractExport {
                 }
                 return live.build().build();
             case LIVEONLY:
-                return jobBuilder().start(liveStep(replicationContext).build()).build();
+                return jobBuilder().start(liveStep(replicationContext).build().build()).build();
             case SNAPSHOT:
-                SimpleJobBuilder snapshot = jobBuilder().start(scanStep(replicationContext).build());
+                SimpleJobBuilder snapshot = jobBuilder().start(scanStep(replicationContext).build().build());
                 if (shouldCompare()) {
                     snapshot.next(compareStep(replicationContext));
                 }
@@ -206,7 +206,7 @@ public class Replication extends AbstractExport {
             step.addWriteListener(new KeyComparisonDiffLogger(out));
         }
         step.addExecutionListener(new KeyComparisonSummaryLogger(writer, out));
-        return step.build();
+        return step.build().build();
     }
 
     private KeyComparisonItemReader comparisonReader(ReplicationContext context) {
