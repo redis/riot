@@ -179,14 +179,6 @@ distributions:
       tap:
         active: RELEASE
         commitMessage: 'riot {{tagName}}'  
-    chocolatey:
-      active: ALWAYS
-      remoteBuild: true
-      title: Redis Input/Output Tools (RIOT)
-      iconUrl: 'https://raw.githubusercontent.com/redis-developer/riot/main/src/media/icon_128x128.png'
-      bucket:
-        active: RELEASE
-      packageName: redis-riot
     docker:
       active: ALWAYS
       repository:
