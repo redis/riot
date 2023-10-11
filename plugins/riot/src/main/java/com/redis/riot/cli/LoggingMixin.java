@@ -33,7 +33,7 @@ public class LoggingMixin {
     @Spec(Target.MIXEE)
     private CommandSpec mixee;
 
-    Level level;
+    Level level = Level.WARN;
 
     String logFile;
 

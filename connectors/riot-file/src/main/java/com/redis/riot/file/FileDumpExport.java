@@ -3,6 +3,7 @@ package com.redis.riot.file;
 import java.io.IOException;
 
 import org.springframework.batch.core.Job;
+import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.json.JacksonJsonObjectMarshaller;
 import org.springframework.batch.item.json.JsonObjectMarshaller;
@@ -14,7 +15,6 @@ import com.redis.riot.core.AbstractExport;
 import com.redis.riot.core.RedisContext;
 import com.redis.riot.core.RiotContext;
 import com.redis.riot.core.RiotExecutionException;
-import com.redis.riot.core.StepBuilder;
 import com.redis.riot.file.resource.JsonResourceItemWriter;
 import com.redis.riot.file.resource.JsonResourceItemWriterBuilder;
 import com.redis.riot.file.resource.XmlResourceItemWriter;
@@ -129,12 +129,10 @@ public class FileDumpExport extends AbstractExport {
 
     @Override
     protected Job job(RiotContext context) {
-        StepBuilder<KeyValue<String>, KeyValue<String>> step = createStep();
-        step.name(getName());
-        step.reader(reader(context.getRedisContext()));
-        step.writer(writer());
-        step.processor(processor(StringCodec.UTF8, context));
-        return jobBuilder().start(step.build().build()).build();
+        StructItemReader<String, String> reader = reader(context.getRedisContext());
+        ItemWriter<KeyValue<String>> writer = writer();
+        ItemProcessor<KeyValue<String>, KeyValue<String>> processor = processor(StringCodec.UTF8, context);
+        return jobBuilder().start(step(getName(), reader, processor, writer).build()).build();
     }
 
     private StructItemReader<String, String> reader(RedisContext context) {

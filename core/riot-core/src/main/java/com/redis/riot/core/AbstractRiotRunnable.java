@@ -28,9 +28,9 @@ import io.lettuce.core.resource.DefaultClientResources;
 
 public abstract class AbstractRiotRunnable implements Runnable {
 
-    public static final String DATE_VARIABLE_NAME = "date";
+    private static final String DATE_VARIABLE_NAME = "date";
 
-    public static final String REDIS_VARIABLE_NAME = "redis";
+    private static final String REDIS_VARIABLE_NAME = "redis";
 
     private RedisOptions redisOptions = new RedisOptions();
 

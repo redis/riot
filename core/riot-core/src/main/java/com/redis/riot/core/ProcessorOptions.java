@@ -22,7 +22,6 @@ import org.springframework.util.CollectionUtils;
 import com.redis.lettucemod.util.GeoLocation;
 import com.redis.riot.core.function.ExpressionFunction;
 import com.redis.riot.core.function.MapFunction;
-import com.redis.spring.batch.util.BatchUtils;
 
 public class ProcessorOptions {
 
@@ -65,7 +64,7 @@ public class ProcessorOptions {
             Predicate<Map<String, Object>> predicate = RiotUtils.predicate(context, filter);
             processors.add(new PredicateItemProcessor<>(predicate));
         }
-        return BatchUtils.processor(processors);
+        return RiotUtils.processor(processors);
     }
 
     /**

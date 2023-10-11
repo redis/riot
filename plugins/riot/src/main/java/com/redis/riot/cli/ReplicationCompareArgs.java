@@ -4,7 +4,7 @@ import java.time.Duration;
 
 import com.redis.riot.core.KeyComparisonMode;
 import com.redis.riot.core.KeyComparisonOptions;
-import com.redis.spring.batch.common.KeyComparisonItemReader;
+import com.redis.spring.batch.reader.KeyComparisonValueReader;
 
 import picocli.CommandLine.Option;
 
@@ -14,7 +14,7 @@ public class ReplicationCompareArgs {
     boolean noVerify;
 
     @Option(names = "--ttl-tolerance", description = "Max TTL offset in millis to use for dataset verification (default: ${DEFAULT-VALUE}).", paramLabel = "<ms>")
-    long ttlTolerance = KeyComparisonItemReader.DEFAULT_TTL_TOLERANCE.toMillis();
+    long ttlTolerance = KeyComparisonValueReader.DEFAULT_TTL_TOLERANCE.toMillis();
 
     @Option(names = "--show-diffs", description = "Print details of key mismatches during dataset verification. Disables progress reporting.")
     boolean showDiffs;

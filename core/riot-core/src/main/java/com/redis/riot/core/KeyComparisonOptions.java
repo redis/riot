@@ -2,7 +2,7 @@ package com.redis.riot.core;
 
 import java.time.Duration;
 
-import com.redis.spring.batch.common.KeyComparisonItemReader;
+import com.redis.spring.batch.reader.KeyComparisonValueReader;
 
 public class KeyComparisonOptions {
 
@@ -14,7 +14,7 @@ public class KeyComparisonOptions {
 
     private KeyComparisonMode mode = DEFAULT_MODE;
 
-    private Duration ttlTolerance = KeyComparisonItemReader.DEFAULT_TTL_TOLERANCE;
+    private Duration ttlTolerance = KeyComparisonValueReader.DEFAULT_TTL_TOLERANCE;
 
     public KeyComparisonMode getMode() {
         return mode;

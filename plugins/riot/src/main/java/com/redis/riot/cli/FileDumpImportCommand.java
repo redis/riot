@@ -2,10 +2,9 @@ package com.redis.riot.cli;
 
 import java.util.List;
 
-import com.redis.riot.core.StepBuilder;
+import com.redis.riot.core.RiotStep;
 import com.redis.riot.file.FileDumpImport;
 import com.redis.riot.file.FileDumpType;
-import com.redis.spring.batch.util.BatchUtils;
 
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
@@ -34,13 +33,8 @@ public class FileDumpImportCommand extends AbstractStructImportCommand {
     }
 
     @Override
-    protected String taskName(StepBuilder<?, ?> step) {
+    protected String taskName(RiotStep<?, ?> step) {
         return "Importing";
-    }
-
-    @Override
-    protected long size(StepBuilder<?, ?> step) {
-        return BatchUtils.SIZE_UNKNOWN;
     }
 
 }

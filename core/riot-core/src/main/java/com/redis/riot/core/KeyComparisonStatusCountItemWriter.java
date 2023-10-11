@@ -40,12 +40,8 @@ public class KeyComparisonStatusCountItemWriter extends AbstractItemStreamItemWr
         return counts.get(status).get();
     }
 
-    public Long[] getCounts(Status... statuses) {
-        Long[] array = new Long[statuses.length];
-        for (int index = 0; index < statuses.length; index++) {
-            array[index] = getCount(statuses[index]);
-        }
-        return array;
+    public List<Long> getCounts(Status... statuses) {
+        return Stream.of(statuses).map(this::getCount).collect(Collectors.toList());
     }
 
     public long getTotal() {

@@ -25,7 +25,7 @@ import com.redis.riot.core.KeyValueDeserializer;
 import com.redis.spring.batch.common.DataType;
 import com.redis.spring.batch.common.KeyValue;
 import com.redis.spring.batch.gen.GeneratorItemReader;
-import com.redis.spring.batch.util.BatchUtils;
+import com.redis.spring.batch.test.AbstractTestBase;
 
 @TestInstance(Lifecycle.PER_CLASS)
 class JsonSerdeTests {
@@ -76,7 +76,7 @@ class JsonSerdeTests {
         GeneratorItemReader reader = new GeneratorItemReader();
         reader.setMaxItemCount(17);
         reader.open(new ExecutionContext());
-        List<KeyValue<String>> items = BatchUtils.readAll(reader);
+        List<KeyValue<String>> items = AbstractTestBase.readAll(reader);
         for (KeyValue<String> item : items) {
             String json = mapper.writeValueAsString(item);
             KeyValue<String> result = mapper.readValue(json, KeyValue.class);

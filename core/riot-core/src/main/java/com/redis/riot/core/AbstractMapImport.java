@@ -10,7 +10,6 @@ import org.springframework.batch.item.ItemWriter;
 import org.springframework.util.Assert;
 
 import com.redis.spring.batch.RedisItemWriter;
-import com.redis.spring.batch.util.BatchUtils;
 import com.redis.spring.batch.writer.OperationItemWriter;
 import com.redis.spring.batch.writer.WriteOperation;
 
@@ -48,7 +47,7 @@ public abstract class AbstractMapImport extends AbstractJobRunnable {
     protected ItemWriter<Map<String, Object>> writer(RiotContext context) {
         Assert.notEmpty(operations, "No operation specified");
         AbstractRedisClient client = context.getRedisContext().getClient();
-        return BatchUtils.writer(operations.stream().map(o -> writer(client, o)).collect(Collectors.toList()));
+        return RiotUtils.writer(operations.stream().map(o -> writer(client, o)).collect(Collectors.toList()));
     }
 
     private <T> ItemWriter<T> writer(AbstractRedisClient client, WriteOperation<String, String, T> operation) {

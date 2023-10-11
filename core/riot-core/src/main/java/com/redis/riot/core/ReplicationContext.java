@@ -1,13 +1,11 @@
 package com.redis.riot.core;
 
-import org.springframework.expression.spel.support.StandardEvaluationContext;
-
 public class ReplicationContext extends RiotContext {
 
     private final RedisContext targetRedisContext;
 
-    public ReplicationContext(RedisContext source, StandardEvaluationContext evaluationContext, RedisContext target) {
-        super(source, evaluationContext);
+    public ReplicationContext(RiotContext context, RedisContext target) {
+        super(context.getRedisContext(), context.getEvaluationContext());
         this.targetRedisContext = target;
     }
 

@@ -1,5 +1,6 @@
 package com.redis.riot.faker;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -7,12 +8,19 @@ import java.util.Map;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.batch.item.ExecutionContext;
-
-import com.redis.spring.batch.util.BatchUtils;
+import org.springframework.batch.item.ItemReader;
 
 class FakerReaderTests {
 
-    @SuppressWarnings("deprecation")
+    public static <T> List<T> readAll(ItemReader<T> reader) throws Exception {
+        List<T> list = new ArrayList<>();
+        T element;
+        while ((element = reader.read()) != null) {
+            list.add(element);
+        }
+        return list;
+    }
+
     @Test
     void fakerReader() throws Exception {
         int count = 100;
@@ -25,7 +33,7 @@ class FakerReaderTests {
         reader.setStringFields(fields);
         reader.setMaxItemCount(count);
         reader.open(new ExecutionContext());
-        List<Map<String, Object>> items = BatchUtils.readAll(reader);
+        List<Map<String, Object>> items = readAll(reader);
         reader.close();
         Assertions.assertEquals(count, items.size());
         Assertions.assertEquals(1, items.get(0).get("index"));

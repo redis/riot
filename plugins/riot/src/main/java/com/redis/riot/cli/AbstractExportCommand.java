@@ -1,12 +1,12 @@
 package com.redis.riot.cli;
 
-import java.util.function.Supplier;
+import java.util.function.LongSupplier;
 
 import com.redis.riot.core.AbstractExport;
 import com.redis.riot.core.AbstractJobRunnable;
-import com.redis.riot.core.StepBuilder;
+import com.redis.riot.core.RiotStep;
+import com.redis.spring.batch.RedisItemReader;
 import com.redis.spring.batch.reader.ScanSizeEstimator;
-import com.redis.spring.batch.reader.StructItemReader;
 
 import picocli.CommandLine.ArgGroup;
 
@@ -33,26 +33,18 @@ public abstract class AbstractExportCommand extends AbstractJobCommand {
 
     protected abstract AbstractExport getExport();
 
-    @SuppressWarnings("unchecked")
     @Override
-    protected long size(StepBuilder<?, ?> step) {
-        StructItemReader<String, String> reader = (StructItemReader<String, String>) step.getReader();
+    protected LongSupplier initialMaxSupplier(RiotStep<?, ?> step) {
+        RedisItemReader<?, ?, ?> reader = (RedisItemReader<?, ?, ?>) step.getReader();
+        if (reader.isLive()) {
+            return () -> ProgressStepExecutionListener.UNKNOWN_SIZE;
+        }
         ScanSizeEstimator estimator = new ScanSizeEstimator(reader.getClient());
         estimator.setScanMatch(readerArgs.scanMatch);
         if (readerArgs.scanType != null) {
             estimator.setScanType(readerArgs.scanType.getString());
         }
-        return estimator.getAsLong();
-    }
-
-    @Override
-    protected String taskName(StepBuilder<?, ?> step) {
-        return "Exporting";
-    }
-
-    @Override
-    protected Supplier<String> extraMessage(StepBuilder<?, ?> step) {
-        return null;
+        return estimator;
     }
 
 }

@@ -6,13 +6,14 @@ import javax.sql.DataSource;
 
 import org.springframework.batch.core.Job;
 import org.springframework.batch.item.ItemReader;
+import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.database.AbstractCursorItemReader;
 import org.springframework.batch.item.database.builder.JdbcCursorItemReaderBuilder;
 import org.springframework.jdbc.core.ColumnMapRowMapper;
+import org.springframework.util.ClassUtils;
 
 import com.redis.riot.core.AbstractMapImport;
 import com.redis.riot.core.RiotContext;
-import com.redis.riot.core.StepBuilder;
 
 public class DatabaseImport extends AbstractMapImport {
 
@@ -104,11 +105,10 @@ public class DatabaseImport extends AbstractMapImport {
 
     @Override
     protected Job job(RiotContext executionContext) {
-        StepBuilder<Map<String, Object>, Map<String, Object>> step = createStep();
-        step.name(getName());
-        step.reader(reader());
-        step.writer(writer(executionContext));
-        return jobBuilder().start(step.build().build()).build();
+        String name = ClassUtils.getShortName(getClass());
+        ItemReader<Map<String, Object>> reader = reader();
+        ItemWriter<Map<String, Object>> writer = writer(executionContext);
+        return jobBuilder().start(step(name, reader, writer).build()).build();
     }
 
     private ItemReader<Map<String, Object>> reader() {

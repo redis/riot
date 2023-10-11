@@ -3,11 +3,13 @@ package com.redis.riot.core;
 import java.io.PrintWriter;
 
 import org.springframework.batch.core.Job;
-import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.builder.FlowBuilder;
 import org.springframework.batch.core.job.builder.JobFlowBuilder;
 import org.springframework.batch.core.job.builder.SimpleJobBuilder;
 import org.springframework.batch.core.job.flow.support.SimpleFlow;
+import org.springframework.batch.core.step.builder.FaultTolerantStepBuilder;
+import org.springframework.batch.core.step.tasklet.TaskletStep;
+import org.springframework.batch.item.ItemProcessor;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
@@ -94,13 +96,17 @@ public class Replication extends AbstractExport {
     }
 
     @Override
+    protected boolean isStruct() {
+        return type == ReplicationType.STRUCT;
+    }
+
+    @Override
     protected RiotContext createExecutionContext() {
-        RiotContext baseContext = super.createExecutionContext();
-        RedisContext targetRedisContext = redisContext(targetRedisOptions);
-        StandardEvaluationContext evaluationContext = baseContext.getEvaluationContext();
-        evaluationContext.setVariable(VARIABLE_SOURCE, baseContext.getRedisContext().getUri());
-        evaluationContext.setVariable(VARIABLE_TARGET, targetRedisContext.getUri());
-        return new ReplicationContext(baseContext.getRedisContext(), evaluationContext, targetRedisContext);
+        ReplicationContext context = new ReplicationContext(super.createExecutionContext(), redisContext(targetRedisOptions));
+        StandardEvaluationContext evaluationContext = context.getEvaluationContext();
+        evaluationContext.setVariable(VARIABLE_SOURCE, context.getRedisContext().getUri());
+        evaluationContext.setVariable(VARIABLE_TARGET, context.getTargetRedisContext().getUri());
+        return context;
     }
 
     @Override
@@ -111,8 +117,8 @@ public class Replication extends AbstractExport {
             case COMPARE:
                 return jobBuilder().start(compareStep(replicationContext)).build();
             case LIVE:
-                SimpleFlow scanFlow = flow("scan").start(scanStep(replicationContext).build().build()).build();
-                SimpleFlow liveFlow = flow("live").start(liveStep(replicationContext).build().build()).build();
+                SimpleFlow scanFlow = flow("scan").start(scanStep(replicationContext).build()).build();
+                SimpleFlow liveFlow = flow("live").start(liveStep(replicationContext).build()).build();
                 SimpleFlow replicateFlow = flow("replicate").split(asyncTaskExecutor()).add(liveFlow, scanFlow).build();
                 JobFlowBuilder live = jobBuilder().start(replicateFlow);
                 if (shouldCompare()) {
@@ -120,9 +126,9 @@ public class Replication extends AbstractExport {
                 }
                 return live.build().build();
             case LIVEONLY:
-                return jobBuilder().start(liveStep(replicationContext).build().build()).build();
+                return jobBuilder().start(liveStep(replicationContext).build()).build();
             case SNAPSHOT:
-                SimpleJobBuilder snapshot = jobBuilder().start(scanStep(replicationContext).build().build());
+                SimpleJobBuilder snapshot = jobBuilder().start(scanStep(replicationContext).build());
                 if (shouldCompare()) {
                     snapshot.next(compareStep(replicationContext));
                 }
@@ -144,25 +150,24 @@ public class Replication extends AbstractExport {
         return !comparisonOptions.isSkip() && !getStepOptions().isDryRun();
     }
 
-    private StepBuilder<KeyValue<byte[]>, KeyValue<byte[]>> scanStep(ReplicationContext context) {
+    private FaultTolerantStepBuilder<KeyValue<byte[]>, KeyValue<byte[]>> scanStep(ReplicationContext context) {
         return step(context, STEP_SCAN, reader(context.getRedisContext()));
     }
 
-    private StepBuilder<KeyValue<byte[]>, KeyValue<byte[]>> step(ReplicationContext context, String name,
+    private FaultTolerantStepBuilder<KeyValue<byte[]>, KeyValue<byte[]>> step(ReplicationContext context, String name,
             RedisItemReader<byte[], byte[], KeyValue<byte[]>> reader) {
         reader.setName(name + "-reader");
-        StepBuilder<KeyValue<byte[]>, KeyValue<byte[]>> step = createStep();
-        step.name(name);
-        step.reader(reader);
-        step.processor(processor(ByteArrayCodec.INSTANCE, context));
-        step.writer(writer(context));
+        RedisItemWriter<byte[], byte[], KeyValue<byte[]>> writer = writer(context);
+        writer.setName(name + "-writer");
+        ItemProcessor<KeyValue<byte[]>, KeyValue<byte[]>> processor = processor(ByteArrayCodec.INSTANCE, context);
+        FaultTolerantStepBuilder<KeyValue<byte[]>, KeyValue<byte[]>> step = step(name, reader, processor, writer);
         if (log.isDebugEnabled()) {
-            step.addWriteListener(new KeyValueWriteListener<>(reader.getCodec(), log));
+            step.listener(new KeyValueWriteListener<>(reader.getCodec(), log));
         }
         return step;
     }
 
-    private StepBuilder<KeyValue<byte[]>, KeyValue<byte[]>> liveStep(ReplicationContext context) {
+    private FaultTolerantStepBuilder<KeyValue<byte[]>, KeyValue<byte[]>> liveStep(ReplicationContext context) {
         validateRedisConfig(context);
         RedisItemReader<byte[], byte[], KeyValue<byte[]>> reader = reader(context.getRedisContext());
         reader.setMode(ReaderMode.LIVE);
@@ -176,7 +181,7 @@ public class Replication extends AbstractExport {
     }
 
     private KeyValueItemReader<byte[], byte[]> reader(AbstractRedisClient client) {
-        if (type == ReplicationType.STRUCT) {
+        if (isStruct()) {
             return new StructItemReader<>(client, ByteArrayCodec.INSTANCE);
         }
         return new DumpItemReader(client);
@@ -195,34 +200,39 @@ public class Replication extends AbstractExport {
         }
     }
 
-    private Step compareStep(ReplicationContext context) {
+    private TaskletStep compareStep(ReplicationContext context) {
         KeyComparisonItemReader reader = comparisonReader(context);
         KeyComparisonStatusCountItemWriter writer = new KeyComparisonStatusCountItemWriter();
-        StepBuilder<KeyComparison, KeyComparison> step = createStep();
-        step.name(STEP_COMPARE);
-        step.reader(reader);
-        step.writer(writer);
+        FaultTolerantStepBuilder<KeyComparison, KeyComparison> step = step(STEP_COMPARE, reader, writer);
         if (comparisonOptions.isShowDiffs()) {
-            step.addWriteListener(new KeyComparisonDiffLogger(out));
+            step.listener(new KeyComparisonDiffLogger(out));
         }
-        step.addExecutionListener(new KeyComparisonSummaryLogger(writer, out));
-        return step.build().build();
+        step.listener(new KeyComparisonSummaryLogger(writer, out));
+        return step.build();
     }
 
     private KeyComparisonItemReader comparisonReader(ReplicationContext context) {
-        KeyValueItemReader<String, String> sourceReader = compareReader(context.getRedisContext());
+        KeyValueItemReader<String, String> sourceReader = comparisonKeyValueReader(context.getRedisContext().getClient());
         configureReader(sourceReader, context.getRedisContext());
-        KeyValueItemReader<String, String> targetReader = compareReader(context.getTargetRedisContext());
+        KeyValueItemReader<String, String> targetReader = comparisonKeyValueReader(context.getTargetRedisContext().getClient());
         targetReader.setReadFrom(targetReadFrom);
         targetReader.setPoolSize(targetWriterOptions.getPoolSize());
-        return new KeyComparisonItemReader(sourceReader, targetReader);
+        KeyComparisonItemReader comparisonReader = new KeyComparisonItemReader(sourceReader, targetReader);
+        comparisonReader.setProcessor(processor(StringCodec.UTF8, context));
+        comparisonReader.setTtlTolerance(comparisonOptions.getTtlTolerance());
+        comparisonReader.setCompareStreamMessageIds(!processorOptions.isDropStreamMessageId());
+        return comparisonReader;
     }
 
-    private KeyValueItemReader<String, String> compareReader(RedisContext context) {
-        if (comparisonOptions.getMode() == KeyComparisonMode.FULL) {
-            return new StructItemReader<>(context.getClient(), StringCodec.UTF8);
+    private KeyValueItemReader<String, String> comparisonKeyValueReader(AbstractRedisClient client) {
+        if (isFullComparison()) {
+            return new StructItemReader<>(client, StringCodec.UTF8);
         }
-        return new KeyTypeItemReader<>(context.getClient(), StringCodec.UTF8);
+        return new KeyTypeItemReader<>(client, StringCodec.UTF8);
+    }
+
+    private boolean isFullComparison() {
+        return comparisonOptions.getMode() == KeyComparisonMode.FULL;
     }
 
     private RedisItemWriter<byte[], byte[], KeyValue<byte[]>> writer(ReplicationContext context) {
@@ -232,7 +242,7 @@ public class Replication extends AbstractExport {
     }
 
     private KeyValueItemWriter<byte[], byte[]> writer(AbstractRedisClient client) {
-        if (type == ReplicationType.STRUCT) {
+        if (isStruct()) {
             return new StructItemWriter<>(client, ByteArrayCodec.INSTANCE);
         }
         return new DumpItemWriter(client);

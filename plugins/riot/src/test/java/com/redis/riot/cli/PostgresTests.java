@@ -14,13 +14,13 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 import org.testcontainers.containers.JdbcDatabaseContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.utility.DockerImageName;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
-import com.redis.lettucemod.api.sync.RedisModulesCommands;
 import com.redis.spring.batch.common.DataType;
 import com.redis.spring.batch.gen.GeneratorItemReader;
 
@@ -49,14 +49,14 @@ class PostgresTests extends DatabaseTests {
     }
 
     @Test
-    void export() throws Exception {
+    void export(TestInfo info) throws Exception {
         String filename = "db-export-postgresql";
         try (Statement statement = databaseConnection.createStatement()) {
             statement.execute("CREATE TABLE mytable (id smallint NOT NULL, field1 bpchar, field2 bpchar)");
             statement.execute("ALTER TABLE ONLY mytable ADD CONSTRAINT pk_mytable PRIMARY KEY (id)");
             GeneratorItemReader generator = generator();
             generator.setTypes(DataType.HASH);
-            generate(filename, DEFAULT_BATCH_SIZE, generator);
+            generate(testInfo(info, "gen"), generator);
             execute(filename, this::executeDatabaseExport);
             statement.execute("SELECT COUNT(*) AS count FROM mytable");
             ResultSet countResultSet = statement.getResultSet();
@@ -70,7 +70,7 @@ class PostgresTests extends DatabaseTests {
                 Assertions.assertNotNull(resultSet.getString("field2"));
                 count++;
             }
-            Assertions.assertEquals(connection.sync().dbsize(), count);
+            Assertions.assertEquals(commands.dbsize(), count);
         }
     }
 
@@ -79,14 +79,13 @@ class PostgresTests extends DatabaseTests {
         try (Statement statement = databaseConnection.createStatement()) {
             statement.execute("CREATE TABLE mytable (id smallint NOT NULL, field1 bpchar, field2 bpchar)");
             statement.execute("ALTER TABLE ONLY mytable ADD CONSTRAINT pk_mytable PRIMARY KEY (id)");
-            RedisModulesCommands<String, String> sync = connection.sync();
             Map<String, String> hash1 = new HashMap<>();
             hash1.put("field1", "value1");
             hash1.put("field2", "value2");
-            sync.hmset("gen:1", hash1);
+            commands.hmset("gen:1", hash1);
             Map<String, String> hash2 = new HashMap<>();
             hash2.put("field2", "value2");
-            sync.hmset("gen:2", hash2);
+            commands.hmset("gen:2", hash2);
             execute("db-export-postgresql", this::executeDatabaseExport);
             statement.execute("SELECT COUNT(*) AS count FROM mytable");
             ResultSet countResultSet = statement.getResultSet();
@@ -99,7 +98,7 @@ class PostgresTests extends DatabaseTests {
                 Assertions.assertEquals(index + 1, resultSet.getInt("id"));
                 index++;
             }
-            Assertions.assertEquals(sync.dbsize().longValue(), index);
+            Assertions.assertEquals(commands.dbsize().longValue(), index);
         }
     }
 
@@ -108,12 +107,11 @@ class PostgresTests extends DatabaseTests {
         execute("db-import-postgresql", this::executeDatabaseImport);
         try (Statement statement = databaseConnection.createStatement()) {
             statement.execute("SELECT COUNT(*) AS count FROM orders");
-            RedisModulesCommands<String, String> sync = connection.sync();
-            List<String> keys = sync.keys("order:*");
+            List<String> keys = commands.keys("order:*");
             ResultSet resultSet = statement.getResultSet();
             resultSet.next();
             Assertions.assertEquals(resultSet.getLong("count"), keys.size());
-            Map<String, String> order = sync.hgetall("order:10248");
+            Map<String, String> order = commands.hgetall("order:10248");
             Assertions.assertEquals("10248", order.get("order_id"));
             Assertions.assertEquals("VINET", order.get("customer_id"));
         }
@@ -122,14 +120,13 @@ class PostgresTests extends DatabaseTests {
     @Test
     void multiThreadedImport() throws Exception {
         execute("db-import-postgresql-multithreaded", this::executeDatabaseImport);
-        RedisModulesCommands<String, String> sync = connection.sync();
-        List<String> keys = sync.keys("order:*");
+        List<String> keys = commands.keys("order:*");
         try (Statement statement = databaseConnection.createStatement()) {
             try (ResultSet resultSet = statement.executeQuery("SELECT COUNT(*) AS count FROM orders")) {
                 Assertions.assertTrue(resultSet.next());
                 Assertions.assertEquals(resultSet.getLong("count"), keys.size());
             }
-            Map<String, String> order = sync.hgetall("order:10248");
+            Map<String, String> order = commands.hgetall("order:10248");
             Assertions.assertEquals("10248", order.get("order_id"));
             Assertions.assertEquals("VINET", order.get("customer_id"));
         }
@@ -141,11 +138,10 @@ class PostgresTests extends DatabaseTests {
         try (Statement statement = databaseConnection.createStatement()) {
             statement.execute("SELECT * FROM orders");
             ResultSet resultSet = statement.getResultSet();
-            RedisModulesCommands<String, String> sync = connection.sync();
             long count = 0;
             while (resultSet.next()) {
                 int orderId = resultSet.getInt("order_id");
-                String order = sync.get("order:" + orderId);
+                String order = commands.get("order:" + orderId);
                 ObjectMapper mapper = new ObjectMapper();
                 ObjectReader reader = mapper.readerFor(Map.class);
                 Map<String, Object> orderMap = reader.readValue(order);
@@ -157,7 +153,7 @@ class PostgresTests extends DatabaseTests {
                 Assertions.assertEquals(resultSet.getFloat("freight"), ((Double) orderMap.get("freight")).floatValue(), 0);
                 count++;
             }
-            List<String> keys = sync.keys("order:*");
+            List<String> keys = commands.keys("order:*");
             Assertions.assertEquals(count, keys.size());
         }
     }

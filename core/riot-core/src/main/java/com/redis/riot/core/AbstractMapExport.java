@@ -12,7 +12,6 @@ import com.redis.riot.core.function.RegexNamedGroupFunction;
 import com.redis.riot.core.function.StructToMapFunction;
 import com.redis.spring.batch.common.KeyValue;
 import com.redis.spring.batch.reader.StructItemReader;
-import com.redis.spring.batch.util.BatchUtils;
 
 import io.lettuce.core.codec.StringCodec;
 
@@ -28,12 +27,10 @@ public abstract class AbstractMapExport extends AbstractExport {
 
     @Override
     protected Job job(RiotContext context) {
-        StepBuilder<KeyValue<String>, Map<String, Object>> step = createStep();
-        step.name(getName());
-        step.reader(reader(context.getRedisContext()));
-        step.writer(writer());
-        step.processor(processor(context));
-        return jobBuilder().start(step.build().build()).build();
+        StructItemReader<String, String> reader = reader(context.getRedisContext());
+        ItemProcessor<KeyValue<String>, Map<String, Object>> processor = processor(context);
+        ItemWriter<Map<String, Object>> writer = writer();
+        return jobBuilder().start(step(getName(), reader, processor, writer).build()).build();
     }
 
     protected StructItemReader<String, String> reader(RedisContext context) {
@@ -42,13 +39,13 @@ public abstract class AbstractMapExport extends AbstractExport {
         return reader;
     }
 
-    private ItemProcessor<KeyValue<String>, Map<String, Object>> processor(RiotContext context) {
+    protected ItemProcessor<KeyValue<String>, Map<String, Object>> processor(RiotContext context) {
         ItemProcessor<KeyValue<String>, KeyValue<String>> processor = processor(StringCodec.UTF8, context);
         StructToMapFunction toMapFunction = new StructToMapFunction();
         if (keyPattern != null) {
             toMapFunction.setKey(new RegexNamedGroupFunction(keyPattern));
         }
-        return BatchUtils.processor(processor, new FunctionItemProcessor<>(toMapFunction));
+        return RiotUtils.processor(processor, new FunctionItemProcessor<>(toMapFunction));
     }
 
     protected abstract ItemWriter<Map<String, Object>> writer();

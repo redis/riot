@@ -7,10 +7,10 @@ import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.function.FunctionItemProcessor;
 import org.springframework.expression.EvaluationContext;
 
+import com.redis.riot.core.function.DropStreamMessageIdFunction;
 import com.redis.riot.core.function.ExpressionFunction;
 import com.redis.riot.core.function.KeyValueOperator;
 import com.redis.riot.core.function.LongExpressionFunction;
-import com.redis.riot.core.function.StreamMessageIdDropOperator;
 import com.redis.riot.core.function.StringKeyValueFunction;
 import com.redis.riot.core.function.ToStringKeyValueFunction;
 import com.redis.spring.batch.RedisItemReader;
@@ -26,7 +26,7 @@ public abstract class AbstractExport extends AbstractJobRunnable {
 
     private KeyFilterOptions keyFilterOptions = new KeyFilterOptions();
 
-    private KeyValueProcessorOptions processorOptions = new KeyValueProcessorOptions();
+    protected KeyValueProcessorOptions processorOptions = new KeyValueProcessorOptions();
 
     public void setKeyFilterOptions(KeyFilterOptions keyFilterOptions) {
         this.keyFilterOptions = keyFilterOptions;
@@ -46,7 +46,6 @@ public abstract class AbstractExport extends AbstractJobRunnable {
         return new FunctionItemProcessor<>(code.andThen(function(context.getEvaluationContext())).andThen(decode));
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     private Function<KeyValue<String>, KeyValue<String>> function(EvaluationContext context) {
         KeyValueOperator operator = new KeyValueOperator();
         if (processorOptions.getKeyExpression() != null) {
@@ -59,14 +58,18 @@ public abstract class AbstractExport extends AbstractJobRunnable {
                 operator.setTtlFunction(new LongExpressionFunction<>(context, processorOptions.getTtlExpression()));
             }
         }
-        if (processorOptions.isDropStreamMessageId()) {
-            operator.setValueFunction((Function) new StreamMessageIdDropOperator());
+        if (processorOptions.isDropStreamMessageId() && isStruct()) {
+            operator.setValueFunction(new DropStreamMessageIdFunction());
         }
         if (processorOptions.getTypeExpression() != null) {
             Function<KeyValue<String>, String> function = ExpressionFunction.of(context, processorOptions.getTypeExpression());
             operator.setTypeFunction(function.andThen(DataType::of));
         }
         return operator;
+    }
+
+    protected boolean isStruct() {
+        return true;
     }
 
     protected <K, V> void configureReader(RedisItemReader<K, V, ?> reader, RedisContext context) {

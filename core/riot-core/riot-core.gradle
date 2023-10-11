@@ -32,7 +32,7 @@ dependencies {
     implementation 'org.apache.commons:commons-pool2'    
     testImplementation 'org.slf4j:slf4j-simple'
     testImplementation group: 'com.redis', name: 'spring-batch-redis', version: springBatchRedisVersion, classifier: 'tests'
-    testImplementation group: 'org.awaitility', name: 'awaitility', version: awaitilityVersion
+    testImplementation 'org.awaitility:awaitility'
 }
 
 compileJava {

@@ -11,7 +11,6 @@ import org.junit.jupiter.api.TestInfo;
 import org.springframework.batch.core.JobExecutionException;
 import org.springframework.batch.item.support.ListItemWriter;
 
-import com.redis.lettucemod.util.RedisModulesUtils;
 import com.redis.riot.core.KeyValueProcessorOptions;
 import com.redis.riot.core.PredicateItemProcessor;
 import com.redis.riot.core.RedisOptions;
@@ -111,9 +110,9 @@ public abstract class ReplicationTests extends AbstractTargetTestBase {
 
     protected KeyComparisonItemReader comparisonReader(TestInfo info) {
         StructItemReader<String, String> sourceReader = RedisItemReader.struct(client);
-        configureReader(new SimpleTestInfo(info, "source"), sourceReader);
+        configureReader(testInfo(info, "source"), sourceReader);
         StructItemReader<String, String> targetReader = RedisItemReader.struct(targetClient);
-        configureReader(new SimpleTestInfo(info, "target"), targetReader);
+        configureReader(testInfo(info, "target"), targetReader);
         KeyComparisonItemReader comparator = new KeyComparisonItemReader(sourceReader, targetReader);
         comparator.setTtlTolerance(Duration.ofMillis(100));
         return comparator;
@@ -121,7 +120,7 @@ public abstract class ReplicationTests extends AbstractTargetTestBase {
 
     @Test
     void filterKeySlot(TestInfo info) throws Exception {
-        RedisModulesUtils.connection(client).sync().configSet("notify-keyspace-events", "AK");
+        enableKeyspaceNotifications(client);
         RedisItemReader<String, String, KeyValue<String>> reader = RedisItemReader.struct(client);
         configureReader(info, reader);
         reader.setMode(ReaderMode.LIVE);
@@ -132,8 +131,7 @@ public abstract class ReplicationTests extends AbstractTargetTestBase {
         Executors.newSingleThreadScheduledExecutor().execute(() -> {
             awaitUntil(reader::isOpen);
             int count = 100;
-            GeneratorItemReader gen = new GeneratorItemReader();
-            gen.setMaxItemCount(count);
+            GeneratorItemReader gen = generator(count);
             try {
                 generate(info, gen);
             } catch (JobExecutionException e) {

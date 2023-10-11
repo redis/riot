@@ -21,8 +21,8 @@ public class KeyValueProcessorArgs {
     @Option(names = "--no-ttl", description = "Do not propagate key TTLs.")
     boolean dropTtl;
 
-    @Option(names = "--no-stream-id", description = "Do not propagate stream message IDs.")
-    boolean dropStreamMessageId;
+    @Option(names = "--stream-ids", description = "Propagate stream message IDs from source to target.")
+    boolean streamMessageIds;
 
     public KeyValueProcessorOptions processorOptions() {
         KeyValueProcessorOptions options = new KeyValueProcessorOptions();
@@ -30,7 +30,7 @@ public class KeyValueProcessorArgs {
         options.setTtlExpression(ttlExpression);
         options.setTypeExpression(typeExpression);
         options.setDropTtl(dropTtl);
-        options.setDropStreamMessageId(dropStreamMessageId);
+        options.setDropStreamMessageId(!streamMessageIds);
         return options;
     }
 

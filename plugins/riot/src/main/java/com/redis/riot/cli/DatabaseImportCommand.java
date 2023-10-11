@@ -1,9 +1,7 @@
 package com.redis.riot.cli;
 
 import com.redis.riot.core.AbstractMapImport;
-import com.redis.riot.core.StepBuilder;
 import com.redis.riot.db.DatabaseImport;
-import com.redis.spring.batch.util.BatchUtils;
 
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
@@ -27,11 +25,6 @@ public class DatabaseImportCommand extends AbstractImportCommand {
         executable.setMaxItemCount(args.maxItemCount);
         executable.setMaxResultSetRows(args.maxResultSetRows);
         return executable;
-    }
-
-    @Override
-    protected long size(StepBuilder<?, ?> step) {
-        return BatchUtils.SIZE_UNKNOWN;
     }
 
 }

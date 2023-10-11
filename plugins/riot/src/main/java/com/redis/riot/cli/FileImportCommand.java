@@ -6,10 +6,8 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 import com.redis.riot.core.AbstractMapImport;
-import com.redis.riot.core.StepBuilder;
 import com.redis.riot.file.FileImport;
 import com.redis.riot.file.FileType;
-import com.redis.spring.batch.util.BatchUtils;
 
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
@@ -79,11 +77,6 @@ public class FileImportCommand extends AbstractImportCommand {
         executable.setQuoteCharacter(quoteCharacter);
         executable.setRegexes(regexes);
         return executable;
-    }
-
-    @Override
-    protected long size(StepBuilder<?, ?> step) {
-        return BatchUtils.SIZE_UNKNOWN;
     }
 
 }

@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.batch.core.Job;
 
+import com.redis.spring.batch.RedisItemWriter;
 import com.redis.spring.batch.common.DataType;
 import com.redis.spring.batch.common.KeyValue;
 import com.redis.spring.batch.common.Range;
@@ -151,10 +152,9 @@ public class GeneratorImport extends AbstractStructImport {
 
     @Override
     protected Job job(RiotContext context) {
-        StepBuilder<KeyValue<String>, KeyValue<String>> step = createStep();
-        step.reader(reader());
-        step.writer(writer(context));
-        return jobBuilder().start(step.build().build()).build();
+        GeneratorItemReader reader = reader();
+        RedisItemWriter<String, String, KeyValue<String>> writer = writer(context);
+        return jobBuilder().start(step(getName(), reader, writer).build()).build();
     }
 
     private GeneratorItemReader reader() {

@@ -1,14 +1,18 @@
 package com.redis.riot.cli;
 
+import java.util.function.LongSupplier;
 import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.ItemWriteListener;
+import org.springframework.batch.core.StepExecutionListener;
+import org.springframework.util.ClassUtils;
 
 import com.redis.riot.cli.ProgressArgs.ProgressStyle;
 import com.redis.riot.core.AbstractJobRunnable;
 import com.redis.riot.core.EvaluationContextOptions;
-import com.redis.riot.core.StepBuilder;
+import com.redis.riot.core.RiotStep;
 
 import me.tongfei.progressbar.DelegatingProgressBarConsumer;
 import me.tongfei.progressbar.ProgressBarBuilder;
@@ -30,7 +34,7 @@ abstract class AbstractJobCommand extends AbstractCommand {
         AbstractJobRunnable executable = getJobExecutable();
         executable.setStepOptions(stepArgs.stepOptions());
         executable.setEvaluationContextOptions(evaluationContextOptions());
-        executable.addStepConfigurationStrategy(this::configure);
+        executable.setStepConfigurer(this::configureStep);
         return executable;
     }
 
@@ -38,12 +42,12 @@ abstract class AbstractJobCommand extends AbstractCommand {
         return evaluationContextArgs.evaluationContextOptions();
     }
 
-    @SuppressWarnings("unchecked")
-    protected void configure(StepBuilder<?, ?> step) {
+    private void configureStep(RiotStep<?, ?> step) {
         if (progressArgs.style == ProgressStyle.NONE) {
             return;
         }
         ProgressBarBuilder progressBar = new ProgressBarBuilder();
+        progressBar.setTaskName(taskName(step));
         progressBar.setStyle(progressArgs.progressBarStyle());
         progressBar.setUpdateIntervalMillis(progressArgs.updateInterval);
         progressBar.showSpeed();
@@ -51,22 +55,26 @@ abstract class AbstractJobCommand extends AbstractCommand {
             Logger logger = LoggerFactory.getLogger(getClass());
             progressBar.setConsumer(new DelegatingProgressBarConsumer(logger::info));
         }
-        progressBar.setInitialMax(size(step));
-        progressBar.setTaskName(taskName(step));
-        ProgressStepListener listener = new ProgressStepListener(progressBar);
-        Supplier<String> extraMessage = extraMessage(step);
-        if (extraMessage != null) {
-            listener = listener.extraMessage(extraMessage);
-        }
-        step.addExecutionListener(listener);
-        step.addWriteListener(listener);
+        ProgressStepExecutionListener listener = new ProgressStepExecutionListener(progressBar);
+        listener.setExtraMessageSupplier(extraMessageSupplier(step));
+        listener.setInitialMaxSupplier(initialMaxSupplier(step));
+        step.setConfigurer(s -> {
+            s.listener((StepExecutionListener) listener);
+            s.listener((ItemWriteListener<?>) listener);
+        });
     }
 
-    protected abstract Supplier<String> extraMessage(StepBuilder<?, ?> step);
+    protected String taskName(RiotStep<?, ?> step) {
+        return ClassUtils.getShortName(getClass());
+    }
 
-    protected abstract String taskName(StepBuilder<?, ?> step);
+    protected Supplier<String> extraMessageSupplier(RiotStep<?, ?> step) {
+        return () -> ProgressStepExecutionListener.EMPTY_STRING;
+    }
 
-    protected abstract long size(StepBuilder<?, ?> step);
+    protected LongSupplier initialMaxSupplier(RiotStep<?, ?> step) {
+        return () -> ProgressStepExecutionListener.UNKNOWN_SIZE;
+    }
 
     protected abstract AbstractJobRunnable getJobExecutable();
 

@@ -2,10 +2,11 @@ package com.redis.riot.cli;
 
 import java.util.Locale;
 import java.util.Map;
+import java.util.function.LongSupplier;
 
 import org.springframework.expression.Expression;
 
-import com.redis.riot.core.StepBuilder;
+import com.redis.riot.core.RiotStep;
 import com.redis.riot.faker.FakerImport;
 
 import picocli.CommandLine.Command;
@@ -38,8 +39,8 @@ public class FakerImportCommand extends AbstractImportCommand {
     }
 
     @Override
-    protected long size(StepBuilder<?, ?> step) {
-        return count;
+    protected LongSupplier initialMaxSupplier(RiotStep<?, ?> step) {
+        return () -> count;
     }
 
 }

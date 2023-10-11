@@ -17,7 +17,7 @@ public class CompositeBatchWriteOperation<K, V, T> implements BatchWriteOperatio
     }
 
     @Override
-    public List<RedisFuture<Object>> execute(BaseRedisAsyncCommands<K, V> commands, List<? extends T> items) {
+    public List<RedisFuture<Object>> execute(BaseRedisAsyncCommands<K, V> commands, List<T> items) {
         List<RedisFuture<Object>> futures = new ArrayList<>();
         for (BatchWriteOperation<K, V, T> delegate : delegates) {
             futures.addAll(delegate.execute(commands, items));

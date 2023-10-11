@@ -2,9 +2,10 @@ package com.redis.riot.cli;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.function.LongSupplier;
 
 import com.redis.riot.core.GeneratorImport;
-import com.redis.riot.core.StepBuilder;
+import com.redis.riot.core.RiotStep;
 import com.redis.spring.batch.common.DataType;
 import com.redis.spring.batch.common.Range;
 import com.redis.spring.batch.gen.CollectionOptions;
@@ -20,6 +21,8 @@ import picocli.CommandLine.Option;
 
 @Command(name = "generate", description = "Generate data structures.")
 public class GenerateCommand extends AbstractStructImportCommand {
+
+    private static final String TASK_NAME = "Generating";
 
     @Option(names = "--count", description = "Number of items to generate (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
     int count = GeneratorImport.DEFAULT_COUNT;
@@ -88,13 +91,13 @@ public class GenerateCommand extends AbstractStructImportCommand {
     Range zsetScore = ZsetOptions.DEFAULT_SCORE;
 
     @Override
-    protected String taskName(StepBuilder<?, ?> step) {
-        return "Generating";
+    protected String taskName(RiotStep<?, ?> step) {
+        return TASK_NAME;
     }
 
     @Override
-    protected long size(StepBuilder<?, ?> step) {
-        return count;
+    protected LongSupplier initialMaxSupplier(RiotStep<?, ?> step) {
+        return () -> count;
     }
 
     @Override
@@ -127,7 +130,9 @@ public class GenerateCommand extends AbstractStructImportCommand {
     private TimeSeriesOptions timeseriesOptions() {
         TimeSeriesOptions options = new TimeSeriesOptions();
         options.setSampleCount(timeseriesSampleCount);
-        options.setStartTime(timeseriesStartTime);
+        if (timeseriesStartTime != null) {
+            options.setStartTime(timeseriesStartTime);
+        }
         return options;
     }
 

@@ -16,8 +16,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.builder.SimpleJobBuilder;
+import org.springframework.batch.core.step.builder.FaultTolerantStepBuilder;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
+import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
 import org.springframework.batch.item.file.mapping.FieldSetMapper;
@@ -37,11 +39,10 @@ import org.springframework.util.ObjectUtils;
 
 import com.redis.riot.core.AbstractMapImport;
 import com.redis.riot.core.RiotContext;
-import com.redis.riot.core.StepBuilder;
+import com.redis.riot.core.RiotUtils;
 import com.redis.riot.core.function.MapToFieldFunction;
 import com.redis.riot.core.function.RegexNamedGroupFunction;
 import com.redis.riot.core.function.ToMapFunction;
-import com.redis.spring.batch.util.BatchUtils;
 
 public class FileImport extends AbstractMapImport {
 
@@ -160,15 +161,13 @@ public class FileImport extends AbstractMapImport {
         if (maxItemCount != null && reader instanceof AbstractItemCountingItemStreamItemReader) {
             ((AbstractItemCountingItemStreamItemReader<Map<String, Object>>) reader).setMaxItemCount(maxItemCount);
         }
-        String name = resource.getDescription();
-        StepBuilder<Map<String, Object>, Map<String, Object>> step = createStep();
-        step.name(name);
-        step.reader(reader);
-        step.writer(writer(context));
-        step.processor(processor(context));
-        step.addSkippableException(ParseException.class);
-        step.addNonRetriableException(ParseException.class);
-        return step.build().build();
+        ItemProcessor<Map<String, Object>, Map<String, Object>> processor = processor(context);
+        ItemWriter<Map<String, Object>> writer = writer(context);
+        FaultTolerantStepBuilder<Map<String, Object>, Map<String, Object>> step = step(resource.getDescription(), reader,
+                processor, writer);
+        step.skip(ParseException.class);
+        step.noRetry(ParseException.class);
+        return step.build();
     }
 
     private ItemReader<Map<String, Object>> reader(Resource resource) {
@@ -319,7 +318,7 @@ public class FileImport extends AbstractMapImport {
         if (processor == null) {
             return regexProcessor;
         }
-        return BatchUtils.processor(processor, regexProcessor);
+        return RiotUtils.processor(processor, regexProcessor);
 
     }
 

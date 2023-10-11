@@ -5,8 +5,10 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.springframework.batch.core.Job;
+import org.springframework.batch.item.ItemWriter;
 import org.springframework.expression.Expression;
 import org.springframework.util.Assert;
+import org.springframework.util.ClassUtils;
 
 import com.redis.lettucemod.api.sync.RediSearchCommands;
 import com.redis.lettucemod.search.Field;
@@ -15,7 +17,6 @@ import com.redis.lettucemod.util.RedisModulesUtils;
 import com.redis.riot.core.AbstractMapImport;
 import com.redis.riot.core.RiotContext;
 import com.redis.riot.core.RiotUtils;
-import com.redis.riot.core.StepBuilder;
 import com.redis.spring.batch.common.Range;
 
 public class FakerImport extends AbstractMapImport {
@@ -69,11 +70,10 @@ public class FakerImport extends AbstractMapImport {
 
     @Override
     protected Job job(RiotContext executionContext) {
-        StepBuilder<Map<String, Object>, Map<String, Object>> step = createStep();
-        step.name(getName());
-        step.reader(reader(executionContext));
-        step.writer(writer(executionContext));
-        return jobBuilder().start(step.build().build()).build();
+        String name = ClassUtils.getShortName(getClass());
+        FakerItemReader reader = reader(executionContext);
+        ItemWriter<Map<String, Object>> writer = writer(executionContext);
+        return jobBuilder().start(step(name, reader, writer).build()).build();
     }
 
     private FakerItemReader reader(RiotContext executionContext) {

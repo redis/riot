@@ -14,13 +14,15 @@ import org.junit.jupiter.api.BeforeAll;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.testcontainers.containers.JdbcDatabaseContainer;
 
+import com.redis.spring.batch.common.DataType;
+import com.redis.spring.batch.test.AbstractTestBase;
 import com.redis.testcontainers.RedisServer;
 import com.redis.testcontainers.RedisStackContainer;
 
 import picocli.CommandLine.ExitCode;
 import picocli.CommandLine.ParseResult;
 
-abstract class DatabaseTests extends AbstractRiotTests {
+abstract class DatabaseTests extends RiotTests {
 
     private static final RedisStackContainer REDIS = new RedisStackContainer(
             RedisStackContainer.DEFAULT_IMAGE_NAME.withTag(RedisStackContainer.DEFAULT_TAG));
@@ -30,6 +32,11 @@ abstract class DatabaseTests extends AbstractRiotTests {
     protected Connection databaseConnection;
 
     protected DataSource dataSource;
+
+    @Override
+    protected DataType[] generatorDataTypes() {
+        return AbstractTestBase.REDIS_MODULES_GENERATOR_TYPES;
+    }
 
     @BeforeAll
     public void setupContainers() throws SQLException {
@@ -54,6 +61,11 @@ abstract class DatabaseTests extends AbstractRiotTests {
         return REDIS;
     }
 
+    @Override
+    protected RedisServer getTargetRedisServer() {
+        return REDIS;
+    }
+
     protected void executeScript(String file) throws IOException, SQLException {
         SqlScriptRunner scriptRunner = new SqlScriptRunner(databaseConnection);
         scriptRunner.setAutoCommit(false);
@@ -70,7 +82,7 @@ abstract class DatabaseTests extends AbstractRiotTests {
         configureDatabase(command.args);
         return ExitCode.OK;
     }
-    
+
     protected int executeDatabaseExport(ParseResult parseResult) {
         DatabaseExportCommand command = command(parseResult);
         configureDatabase(command.args);

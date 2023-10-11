@@ -13,7 +13,7 @@ import org.springframework.core.io.Resource;
 
 import com.redis.riot.core.AbstractStructImport;
 import com.redis.riot.core.RiotContext;
-import com.redis.riot.core.StepBuilder;
+import com.redis.spring.batch.RedisItemWriter;
 import com.redis.spring.batch.common.KeyValue;
 
 public class FileDumpImport extends AbstractStructImport {
@@ -43,7 +43,7 @@ public class FileDumpImport extends AbstractStructImport {
     @Override
     protected Job job(RiotContext executionContext) {
         Iterator<TaskletStep> steps = FileUtils.inputResources(files, fileOptions).stream().map(r -> step(executionContext, r))
-                .map(StepBuilder::build).map(FaultTolerantStepBuilder::build).iterator();
+                .map(FaultTolerantStepBuilder::build).iterator();
         if (!steps.hasNext()) {
             throw new IllegalArgumentException("No file found");
         }
@@ -54,17 +54,13 @@ public class FileDumpImport extends AbstractStructImport {
         return job.build();
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    private StepBuilder<KeyValue<String>, KeyValue<String>> step(RiotContext executionContext, Resource resource) {
-        StepBuilder<KeyValue<String>, KeyValue<String>> step = createStep();
-        step.name(resource.getDescription());
-        step.reader((ItemReader) reader(resource));
-        step.writer(writer(executionContext));
-        return step;
+    private FaultTolerantStepBuilder<KeyValue<String>, KeyValue<String>> step(RiotContext executionContext, Resource resource) {
+        ItemReader<KeyValue<String>> reader = reader(resource);
+        RedisItemWriter<String, String, KeyValue<String>> writer = writer(executionContext);
+        return step(resource.getDescription(), reader, writer);
     }
 
-    @SuppressWarnings("rawtypes")
-    private ItemReader<KeyValue> reader(Resource resource) {
+    private ItemReader<KeyValue<String>> reader(Resource resource) {
         if (type == FileDumpType.XML) {
             return FileUtils.xmlReader(resource, KeyValue.class);
         }
