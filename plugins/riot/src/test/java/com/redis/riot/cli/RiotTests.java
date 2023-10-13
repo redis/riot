@@ -23,6 +23,10 @@ public abstract class RiotTests extends AbstractTargetTestBase {
 
     private static final String PREFIX = "riot ";
 
+    private PrintWriter out = new PrintWriter(System.out);
+
+    private PrintWriter err = new PrintWriter(System.err);
+
     protected static void assertExecutionSuccessful(int exitCode) {
         Assertions.assertEquals(0, exitCode);
     }
@@ -33,17 +37,18 @@ public abstract class RiotTests extends AbstractTargetTestBase {
 
     protected int execute(String filename, IExecutionStrategy... executionStrategies) throws Exception {
         String[] args = args(filename);
-        return Main.run(new PrintWriter(System.out), new PrintWriter(System.err), args, executionStrategy(executionStrategies));
+        IExecutionStrategy executionStrategy = executionStrategy(filename, executionStrategies);
+        return Main.run(out, err, args, executionStrategy);
     }
 
-    private IExecutionStrategy executionStrategy(IExecutionStrategy... executionStrategies) {
+    private IExecutionStrategy executionStrategy(String name, IExecutionStrategy... executionStrategies) {
         CompositeExecutionStrategy strategy = new CompositeExecutionStrategy();
-        strategy.addDelegates(this::execute);
+        strategy.addDelegates(r -> execute(name, r));
         strategy.addDelegates(executionStrategies);
         return strategy;
     }
 
-    private int execute(ParseResult parseResult) {
+    private int execute(String name, ParseResult parseResult) {
         Main main = (Main) parseResult.commandSpec().commandLine().getCommand();
         main.redisArgs.uriArgs.uri = getRedisServer().getRedisURI();
         main.redisArgs.cluster = getRedisServer().isCluster();
@@ -52,15 +57,16 @@ public abstract class RiotTests extends AbstractTargetTestBase {
             if (command instanceof OperationCommand) {
                 command = subParseResult.commandSpec().parent().commandLine().getCommand();
             }
-            configureCommand(command);
+            configureCommand(name, command);
         }
         return ExitCode.OK;
     }
 
-    protected void configureCommand(Object command) {
+    protected void configureCommand(String name, Object command) {
         if (command instanceof AbstractJobCommand) {
             AbstractJobCommand jobCommand = ((AbstractJobCommand) command);
             jobCommand.progressArgs.style = ProgressStyle.NONE;
+            jobCommand.name = name;
         }
         if (command instanceof ReplicateCommand) {
             ReplicateCommand replicationCommand = (ReplicateCommand) command;

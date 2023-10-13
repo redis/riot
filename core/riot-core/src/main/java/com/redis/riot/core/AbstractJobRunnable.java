@@ -1,10 +1,13 @@
 package com.redis.riot.core;
 
-import java.util.Optional;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.function.Consumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobExecutionException;
@@ -39,6 +42,8 @@ import io.lettuce.core.RedisCommandTimeoutException;
 
 public abstract class AbstractJobRunnable extends AbstractRiotRunnable {
 
+    private static final String FAILED_JOB_MESSAGE = "Error executing job %s";
+
     protected final Logger log = LoggerFactory.getLogger(getClass());
 
     private String name = ClassUtils.getShortName(getClass());
@@ -66,6 +71,13 @@ public abstract class AbstractJobRunnable extends AbstractRiotRunnable {
         this.name = name;
     }
 
+    protected String name(String... suffixes) {
+        List<String> elements = new ArrayList<>();
+        elements.add(name);
+        elements.addAll(Arrays.asList(suffixes));
+        return String.join("-", elements);
+    }
+
     public StepOptions getStepOptions() {
         return stepOptions;
     }
@@ -90,17 +102,28 @@ public abstract class AbstractJobRunnable extends AbstractRiotRunnable {
     protected void execute(RiotContext executionContext) {
         initialize();
         Job job = job(executionContext);
-        JobExecution execution;
+        JobExecution jobExecution;
         try {
-            execution = jobLauncher.run(job, new JobParameters());
-            if (execution.getStatus().isUnsuccessful()) {
-                Optional<StepExecution> failedStepExecution = execution.getStepExecutions().stream()
-                        .filter(e -> e.getStatus().isUnsuccessful()).findFirst();
-                failedStepExecution.ifPresent(this::handleFailedStepExecution);
-                throw new RiotExecutionException("Error during job execution: " + execution.getStatus());
-            }
+            jobExecution = jobLauncher.run(job, new JobParameters());
         } catch (JobExecutionException e) {
-            throw new RiotExecutionException("Could not run job", e);
+            throw new RiotExecutionException(String.format(FAILED_JOB_MESSAGE, job.getName()), e);
+        }
+        if (jobExecution.getExitStatus().getExitCode().equals(ExitStatus.FAILED.getExitCode())) {
+            for (StepExecution stepExecution : jobExecution.getStepExecutions()) {
+                ExitStatus exitStatus = stepExecution.getExitStatus();
+                if (exitStatus.getExitCode().equals(ExitStatus.FAILED.getExitCode())) {
+                    String message = String.format("Error executing step %s in job %s: %s", stepExecution.getStepName(),
+                            job.getName(), exitStatus.getExitDescription());
+                    if (stepExecution.getFailureExceptions().isEmpty()) {
+                        throw new RiotExecutionException(message);
+                    }
+                    throw new RiotExecutionException(message, stepExecution.getFailureExceptions().get(0));
+                }
+            }
+            if (jobExecution.getAllFailureExceptions().isEmpty()) {
+                throw new RiotExecutionException(String.format("Error executing job %s: %s", job.getName(),
+                        jobExecution.getExitStatus().getExitDescription()));
+            }
         }
     }
 
@@ -108,7 +131,7 @@ public abstract class AbstractJobRunnable extends AbstractRiotRunnable {
         return jobBuilderFactory.get(name);
     }
 
-    private void initialize() {
+    protected void initialize() {
         if (jobRepository == null || transactionManager == null) {
             @SuppressWarnings("deprecation")
             AbstractJobRepositoryFactoryBean bean = new org.springframework.batch.core.repository.support.MapJobRepositoryFactoryBean();
@@ -141,14 +164,6 @@ public abstract class AbstractJobRunnable extends AbstractRiotRunnable {
             ((StructItemWriter<?, ?>) writer).setMerge(options.isMerge());
         }
         return writer;
-    }
-
-    private void handleFailedStepExecution(StepExecution stepExecution) {
-        String msg = String.format("Error executing step %s", stepExecution.getStepName());
-        if (stepExecution.getFailureExceptions().isEmpty()) {
-            throw new RiotExecutionException(msg);
-        }
-        throw new RiotExecutionException(msg, stepExecution.getFailureExceptions().get(0));
     }
 
     protected <I, O> FaultTolerantStepBuilder<I, O> step(String name, ItemReader<I> reader, ItemWriter<O> writer) {
@@ -199,11 +214,11 @@ public abstract class AbstractJobRunnable extends AbstractRiotRunnable {
     }
 
     private <I, O> ItemProcessor<I, O> processor(ItemProcessor<I, O> processor) {
-        initialize(processor);
+        initializeBean(processor);
         return processor;
     }
 
-    private void initialize(Object object) {
+    private void initializeBean(Object object) {
         if (object instanceof InitializingBean) {
             try {
                 ((InitializingBean) object).afterPropertiesSet();
@@ -214,7 +229,7 @@ public abstract class AbstractJobRunnable extends AbstractRiotRunnable {
     }
 
     private <T> ItemReader<T> reader(ItemReader<T> reader) {
-        initialize(reader);
+        initializeBean(reader);
         if (reader instanceof RedisItemReader) {
             return reader;
         }
@@ -230,7 +245,7 @@ public abstract class AbstractJobRunnable extends AbstractRiotRunnable {
         if (stepOptions.isDryRun()) {
             return new NoopItemWriter<>();
         }
-        initialize(writer);
+        initializeBean(writer);
         if (stepOptions.getSleep() == null || stepOptions.getSleep().isNegative() || stepOptions.getSleep().isZero()) {
             return writer;
         }

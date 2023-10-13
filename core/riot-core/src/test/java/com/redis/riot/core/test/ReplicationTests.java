@@ -1,6 +1,5 @@
 package com.redis.riot.core.test;
 
-import java.io.PrintWriter;
 import java.time.Duration;
 import java.util.Map;
 import java.util.concurrent.Executors;
@@ -51,8 +50,6 @@ public abstract class ReplicationTests extends AbstractTargetTestBase {
         return Double.parseDouble(beer.get("abv"));
     }
 
-    private PrintWriter printWriter = new PrintWriter(System.out);
-
     protected void execute(Replication replication, TestInfo info) {
         replication.setName(name(info));
         replication.setRedisOptions(redisOptions(getRedisServer()));
@@ -73,7 +70,7 @@ public abstract class ReplicationTests extends AbstractTargetTestBase {
     void replicate(TestInfo info) throws Throwable {
         generate(info);
         Assertions.assertTrue(commands.dbsize() > 0);
-        Replication replication = new Replication(printWriter);
+        Replication replication = new Replication();
         execute(replication, info);
         Assertions.assertTrue(compare(info).isEmpty());
     }
@@ -83,7 +80,7 @@ public abstract class ReplicationTests extends AbstractTargetTestBase {
         String key1 = "key1";
         String value1 = "value1";
         commands.set(key1, value1);
-        Replication replication = new Replication(printWriter);
+        Replication replication = new Replication();
         replication.setType(ReplicationType.STRUCT);
         replication.setProcessorOptions(processorOptions("#{type.getString()}:#{key}"));
         execute(replication, info);
@@ -101,7 +98,7 @@ public abstract class ReplicationTests extends AbstractTargetTestBase {
         String key1 = "key1";
         String value1 = "value1";
         commands.set(key1, value1);
-        Replication replication = new Replication(printWriter);
+        Replication replication = new Replication();
         replication.setProcessorOptions(
                 processorOptions(String.format("#{#date.parse('%s').getTime()}:#{key}", "2010-05-10T00:00:00.000+0000")));
         execute(replication, info);

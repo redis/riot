@@ -68,9 +68,7 @@ public abstract class AbstractExport extends AbstractJobRunnable {
         return operator;
     }
 
-    protected boolean isStruct() {
-        return true;
-    }
+    protected abstract boolean isStruct();
 
     protected <K, V> void configureReader(RedisItemReader<K, V, ?> reader, RedisContext context) {
         reader.setChunkSize(readerOptions.getChunkSize());

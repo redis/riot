@@ -47,6 +47,11 @@ public abstract class AbstractMapExport extends AbstractExport {
         }
         return RiotUtils.processor(processor, new FunctionItemProcessor<>(toMapFunction));
     }
+    
+    @Override
+    protected boolean isStruct() {
+        return true;
+    }
 
     protected abstract ItemWriter<Map<String, Object>> writer();
 

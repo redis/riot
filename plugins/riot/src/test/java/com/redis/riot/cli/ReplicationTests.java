@@ -8,8 +8,6 @@ import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
-import org.slf4j.event.Level;
-import org.slf4j.impl.SimpleLogger;
 import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 
 import com.redis.spring.batch.RedisItemWriter;
@@ -22,10 +20,6 @@ import com.redis.spring.batch.writer.StructItemWriter;
 import io.lettuce.core.cluster.SlotHash;
 
 abstract class ReplicationTests extends RiotTests {
-
-    static {
-        System.setProperty(SimpleLogger.LOG_KEY_PREFIX + "com.redis.spring", Level.DEBUG.name());
-    }
 
     @Test
     void replicate(TestInfo info) throws Throwable {
@@ -107,6 +101,7 @@ abstract class ReplicationTests extends RiotTests {
     void replicateLive(TestInfo info) throws Exception {
         runLiveReplication(info, "replicate-live");
         List<KeyComparison> diffs = compare(info);
+        logDiffs(diffs);
         Assertions.assertTrue(diffs.isEmpty());
     }
 
@@ -120,6 +115,7 @@ abstract class ReplicationTests extends RiotTests {
     void replicateLiveStruct(TestInfo info) throws Exception {
         runLiveReplication(info, "replicate-live-struct");
         List<KeyComparison> diffs = compare(info);
+        logDiffs(diffs);
         Assertions.assertTrue(diffs.isEmpty());
     }
 
@@ -170,10 +166,8 @@ abstract class ReplicationTests extends RiotTests {
             } catch (Exception e) {
                 log.error("Could not generate data", e);
             }
-            awaitUntilFalse(generator::isOpen);
         }, 500, TimeUnit.MILLISECONDS);
         execute(filename);
-        Thread.sleep(300);
     }
 
 }

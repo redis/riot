@@ -3,6 +3,7 @@ package com.redis.riot.core;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -14,10 +15,14 @@ import com.redis.spring.batch.common.KeyComparison.Status;
 public class KeyComparisonStatusCountItemWriter extends AbstractItemStreamItemWriter<KeyComparison> {
 
     private final Map<Status, AtomicLong> counts = Stream.of(Status.values())
-            .collect(Collectors.toMap(s -> s, s -> new AtomicLong()));
+            .collect(Collectors.toMap(Function.identity(), s -> new AtomicLong()));
 
     private long incrementAndGet(Status status) {
         return counts.get(status).incrementAndGet();
+    }
+
+    public long getOK() {
+        return getCount(Status.OK);
     }
 
     public long getMissing() {

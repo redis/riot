@@ -29,9 +29,18 @@ abstract class AbstractJobCommand extends AbstractCommand {
     @ArgGroup(exclusive = false)
     EvaluationContextArgs evaluationContextArgs = new EvaluationContextArgs();
 
+    String name;
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     @Override
     protected AbstractJobRunnable executable() {
         AbstractJobRunnable executable = getJobExecutable();
+        if (name != null) {
+            executable.setName(name);
+        }
         executable.setStepOptions(stepArgs.stepOptions());
         executable.setEvaluationContextOptions(evaluationContextOptions());
         executable.setStepConfigurer(this::configureStep);

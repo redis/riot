@@ -1,8 +1,9 @@
 package com.redis.riot.core;
 
-import java.io.PrintWriter;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.ItemWriteListener;
 
 import com.redis.spring.batch.common.KeyComparison;
@@ -10,11 +11,7 @@ import com.redis.spring.batch.common.KeyComparison.Status;
 
 public class KeyComparisonDiffLogger implements ItemWriteListener<KeyComparison> {
 
-    private final PrintWriter out;
-
-    public KeyComparisonDiffLogger(PrintWriter out) {
-        this.out = out;
-    }
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     @Override
     public void beforeWrite(List<? extends KeyComparison> items) {
@@ -23,7 +20,7 @@ public class KeyComparisonDiffLogger implements ItemWriteListener<KeyComparison>
 
     @Override
     public void afterWrite(List<? extends KeyComparison> items) {
-        items.stream().filter(this::notOK).map(this::toMessage).forEach(out::println);
+        items.stream().filter(c -> c.getStatus() != Status.OK).forEach(this::log);
     }
 
     @Override
@@ -31,24 +28,25 @@ public class KeyComparisonDiffLogger implements ItemWriteListener<KeyComparison>
         // do nothing
     }
 
-    public String toMessage(KeyComparison comparison) {
+    public void log(KeyComparison comparison) {
         switch (comparison.getStatus()) {
             case MISSING:
-                return format("Missing key '%s'", comparison.getSource().getKey());
+                log.error("Missing key {}", comparison.getSource().getKey());
+                break;
             case TYPE:
-                return format("Type mismatch on key '%s': %s != %s", comparison.getSource().getKey(),
+                log.error("Type mismatch on key {}. Expected {} but was {}", comparison.getSource().getKey(),
                         comparison.getSource().getType(), comparison.getTarget().getType());
+                break;
+            case VALUE:
+                log.error("Value mismatch on key {}", comparison.getSource().getKey());
+                break;
+            case TTL:
+                log.error("TTL mismatch on key {}. Expected {} but was {}", comparison.getSource().getKey(),
+                        comparison.getSource().getTtl(), comparison.getTarget().getTtl());
+                break;
             default:
-                return "Unknown";
+                break;
         }
-    }
-
-    private String format(String format, Object... args) {
-        return String.format(format, args);
-    }
-
-    private boolean notOK(KeyComparison comparison) {
-        return comparison.getStatus() != Status.OK;
     }
 
 }

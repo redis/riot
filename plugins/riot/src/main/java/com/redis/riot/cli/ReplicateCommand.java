@@ -60,7 +60,7 @@ public class ReplicateCommand extends AbstractExportCommand {
 
     @Override
     protected AbstractExport getExport() {
-        Replication replication = new Replication(parent.out);
+        Replication replication = new Replication();
         replication.setComparisonOptions(compareArgs.comparisonOptions());
         replication.setMode(mode);
         replication.setTargetRedisOptions(targetRedisClientArgs.redisClientOptions());

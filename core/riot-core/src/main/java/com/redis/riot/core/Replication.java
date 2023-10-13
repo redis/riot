@@ -1,7 +1,5 @@
 package com.redis.riot.core;
 
-import java.io.PrintWriter;
-
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.job.builder.FlowBuilder;
 import org.springframework.batch.core.job.builder.JobFlowBuilder;
@@ -53,8 +51,6 @@ public class Replication extends AbstractExport {
 
     private static final String VARIABLE_TARGET = "target";
 
-    private final PrintWriter out;
-
     private ReplicationMode mode = DEFAULT_MODE;
 
     private ReplicationType type = DEFAULT_TYPE;
@@ -66,10 +62,6 @@ public class Replication extends AbstractExport {
     private RedisWriterOptions targetWriterOptions = new RedisWriterOptions();
 
     private KeyComparisonOptions comparisonOptions = new KeyComparisonOptions();
-
-    public Replication(PrintWriter out) {
-        this.out = out;
-    }
 
     public void setTargetRedisOptions(RedisOptions options) {
         this.targetRedisOptions = options;
@@ -142,8 +134,8 @@ public class Replication extends AbstractExport {
         return new SimpleAsyncTaskExecutor();
     }
 
-    private static FlowBuilder<SimpleFlow> flow(String name) {
-        return new FlowBuilder<>(name);
+    private FlowBuilder<SimpleFlow> flow(String name) {
+        return new FlowBuilder<>(name(name));
     }
 
     private boolean shouldCompare() {
@@ -156,11 +148,11 @@ public class Replication extends AbstractExport {
 
     private FaultTolerantStepBuilder<KeyValue<byte[]>, KeyValue<byte[]>> step(ReplicationContext context, String name,
             RedisItemReader<byte[], byte[], KeyValue<byte[]>> reader) {
-        reader.setName(name + "-reader");
+        reader.setName(name(name, "reader"));
         RedisItemWriter<byte[], byte[], KeyValue<byte[]>> writer = writer(context);
-        writer.setName(name + "-writer");
+        writer.setName(name(name, "writer"));
         ItemProcessor<KeyValue<byte[]>, KeyValue<byte[]>> processor = processor(ByteArrayCodec.INSTANCE, context);
-        FaultTolerantStepBuilder<KeyValue<byte[]>, KeyValue<byte[]>> step = step(name, reader, processor, writer);
+        FaultTolerantStepBuilder<KeyValue<byte[]>, KeyValue<byte[]>> step = step(name(name), reader, processor, writer);
         if (log.isDebugEnabled()) {
             step.listener(new KeyValueWriteListener<>(reader.getCodec(), log));
         }
@@ -168,10 +160,23 @@ public class Replication extends AbstractExport {
     }
 
     private FaultTolerantStepBuilder<KeyValue<byte[]>, KeyValue<byte[]>> liveStep(ReplicationContext context) {
-        validateRedisConfig(context);
+        checkKeyspaceNotificationEnabled(context);
         RedisItemReader<byte[], byte[], KeyValue<byte[]>> reader = reader(context.getRedisContext());
         reader.setMode(ReaderMode.LIVE);
         return step(context, STEP_LIVE, reader);
+    }
+
+    private void checkKeyspaceNotificationEnabled(ReplicationContext context) {
+        try {
+            String config = context.getRedisContext().getConnection().sync().configGet(CONFIG_NOTIFY_KEYSPACE_EVENTS)
+                    .getOrDefault(CONFIG_NOTIFY_KEYSPACE_EVENTS, "");
+            if (!config.contains("K")) {
+                log.error("Keyspace notifications not property configured ({}={}). Make sure it contains at least \"K\".",
+                        CONFIG_NOTIFY_KEYSPACE_EVENTS, config);
+            }
+        } catch (RedisException e) {
+            // CONFIG command might not be available. Ignore.
+        }
     }
 
     private RedisItemReader<byte[], byte[], KeyValue<byte[]>> reader(RedisContext context) {
@@ -187,27 +192,15 @@ public class Replication extends AbstractExport {
         return new DumpItemReader(client);
     }
 
-    private void validateRedisConfig(ReplicationContext context) {
-        try {
-            String config = context.getRedisContext().getConnection().sync().configGet(CONFIG_NOTIFY_KEYSPACE_EVENTS)
-                    .getOrDefault(CONFIG_NOTIFY_KEYSPACE_EVENTS, "");
-            if (!config.contains("K")) {
-                log.error("Keyspace notifications not property configured ({}={}). Make sure it contains at least \"K\".",
-                        CONFIG_NOTIFY_KEYSPACE_EVENTS, config);
-            }
-        } catch (RedisException e) {
-            // CONFIG command might not be available. Ignore.
-        }
-    }
-
     private TaskletStep compareStep(ReplicationContext context) {
         KeyComparisonItemReader reader = comparisonReader(context);
+        reader.setName(name(STEP_COMPARE, "reader"));
         KeyComparisonStatusCountItemWriter writer = new KeyComparisonStatusCountItemWriter();
-        FaultTolerantStepBuilder<KeyComparison, KeyComparison> step = step(STEP_COMPARE, reader, writer);
+        FaultTolerantStepBuilder<KeyComparison, KeyComparison> step = step(name(STEP_COMPARE), reader, writer);
         if (comparisonOptions.isShowDiffs()) {
-            step.listener(new KeyComparisonDiffLogger(out));
+            step.listener(new KeyComparisonDiffLogger());
         }
-        step.listener(new KeyComparisonSummaryLogger(writer, out));
+        step.listener(new KeyComparisonSummaryLogger(writer));
         return step.build();
     }
 
@@ -218,6 +211,7 @@ public class Replication extends AbstractExport {
         targetReader.setReadFrom(targetReadFrom);
         targetReader.setPoolSize(targetWriterOptions.getPoolSize());
         KeyComparisonItemReader comparisonReader = new KeyComparisonItemReader(sourceReader, targetReader);
+        configureReader(comparisonReader, context.getRedisContext());
         comparisonReader.setProcessor(processor(StringCodec.UTF8, context));
         comparisonReader.setTtlTolerance(comparisonOptions.getTtlTolerance());
         comparisonReader.setCompareStreamMessageIds(!processorOptions.isDropStreamMessageId());

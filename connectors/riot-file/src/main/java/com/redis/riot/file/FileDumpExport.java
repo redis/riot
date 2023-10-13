@@ -74,6 +74,11 @@ public class FileDumpExport extends AbstractExport {
         this.lineSeparator = lineSeparator;
     }
 
+    @Override
+    protected boolean isStruct() {
+        return true;
+    }
+
     private ItemWriter<KeyValue<String>> writer() {
         WritableResource resource;
         try {
