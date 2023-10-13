@@ -15,3 +15,15 @@ Redis Input/Output Tools ({project-title}) is a command-line utility to get data
 * Data generators (data structures, Faker)
 * Relational databases
 * Redis itself (snapshot and live replication)
+
+[[_architecture]]
+== Architecture
+
+image::architecture.svg[]
+
+{project-title} processes data in batch fashion: a fixed number of records (batch AKA chunk) is read, processed, and written at a time.
+Then the cycle is repeated until there's no more data on the source.
+
+Import commands (<<_file_import,`file-import`>>, <<_db_import,`db-import`>>, <<_faker_import,`faker-import`>>) construct keys from input records by concatenating a keyspace prefix and fields.
+
+image::mapping.png[]

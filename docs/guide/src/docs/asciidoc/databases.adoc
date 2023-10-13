@@ -1,10 +1,85 @@
 [[_databases]]
-= Databases
+= Database Import/Export
 
 {project-title} can import from and export to databases.
 
+[[_db_import]]
+== Import from a SQL Database
+
+The `db-import` command imports data from a relational database into Redis.
+
+NOTE: Ensure {project-title} has the relevant JDBC driver for your database.
+See the <<_database_drivers,Drivers>> section for more details.
+
+[source]
+----
+riot -h <redis host> -p <redis port> db-import --url <jdbc url> SQL [REDIS COMMAND...]
+----
+
+To show the full usage, run:
+
+[source]
+----
+riot db-import --help
+----
+
+[[_db_import_redis_commands]]
+:redis-commands-example: riot db-import "SELECT * FROM customers" hset -h myredis.com -p 6380
+include::{includedir}/redis-commands.adoc[leveloffset=+1]
+
+[[_db_import_examples]]
+=== Examples
+
+.PostgreSQL Example
+[source]
+----
+include::{testdir}/db-import-postgresql[]
+----
+
+.Import from PostgreSQL to JSON strings
+[source]
+----
+include::{testdir}/db-import-postgresql-set[]
+----
+
+This will produce Redis strings that look like this:
+[source,json]
+----
+include::{includedir}/../resources/order.json[]
+----
+
+[[_db_export]]
+== Export to a SQK Database
+
+Use the `db-export` command to read from a Redis database and writes to a SQL database.
+
+The general usage is:
+[source]
+----
+riot -h <redis host> -p <redis port> db-export --url <jdbc url> SQL
+----
+
+To show the full usage, run:
+[source]
+----
+riot db-export --help
+----
+
+[[_db_export_reader_options]]
+=== Redis reader options
+include::{includedir}/reader-options.adoc[leveloffset=+2]
+
+[[db_export_examples]]
+=== Examples
+.Export to PostgreSQL
+[source]
+----
+include::{testdir}/db-export-postgresql[]
+----
+
 [[_database_drivers]]
-== Drivers
+== Database Drivers
+
 {project-title} relies on JDBC to interact with databases.
 It includes JDBC drivers for the most common database systems:
 
@@ -31,18 +106,3 @@ For non-included databases you must install the corresponding JDBC driver under 
 * *nix: `bin/riot` -> `CLASSPATH=$APP_HOME/lib/myjdbc.jar:$APP_HOME/lib/...`
 * Windows: `bin\riot.bat` -> `set CLASSPATH=%APP_HOME%\lib\myjdbc.jar;%APP_HOME%\lib\...`
 ====
-
-:leveloffset: 2
-include::{includedir}/db-import.adoc[]
-include::{includedir}/db-export.adoc[]
-:leveloffset: 1
-
-////
-* {link_jdbc_db2}
-+
-`jdbc:db2://host:port/database`
-
-* {link_jdbc_sqlite}
-+
-`jdbc:sqlite:sqlite_database_file_path`
-////

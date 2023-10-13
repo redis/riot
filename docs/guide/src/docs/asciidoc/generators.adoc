@@ -1,9 +1,93 @@
 [[_generators]]
-= Generators
+= Data Generators
 
 {project-title} includes two data generators that can be used to quickly mock up a dataset in Redis.
 
-:leveloffset: 2
-include::{includedir}/faker-import.adoc[]
-include::{includedir}/generate.adoc[]
-:leveloffset: 1
+[[_faker_import]]
+== Faker
+
+The `faker-import` command generates data using {link_datafaker}.
+
+[source] 
+----
+riot -h <host> -p <port> faker-import SPEL... [REDIS COMMAND...]
+----
+
+where SPEL is a {link_spel} field in the form `field="expression"`.
+
+To show the full usage, run:
+
+[source]
+----
+riot faker-import --help
+----
+
+[[_faker_import_redis_commands]]
+:redis-commands-example: riot faker-import id="#index" hset -h myredis.com -p 6380
+include::{includedir}/redis-commands.adoc[leveloffset=+1]
+
+[[_faker_import_examples]]
+=== Examples
+
+.Hash example
+[source]
+----
+include::{testdir}/faker-import-hset[]
+----
+
+.Set example
+[source]
+----
+include::{testdir}/faker-import-sadd[]
+----
+
+Most providers don't take any arguments and can be called directly, for example:
+
+[source]
+----
+riot faker-import firstName="name.firstName"
+----
+
+Some providers take parameters, for example:
+[source]
+----
+riot faker-import lease="number.digits(2)"
+----
+
+Refer to {link_datafaker_doc} for complete documentation.
+
+[[_faker_import_redisearch]]
+=== RediSearch
+
+You can infer Faker fields from a RediSearch index using the `--infer` option:
+
+[source]
+----
+include::{testdir}/faker-import-infer[]
+----
+
+[[_generate]]
+== Data Structure Generator
+
+The `generate` command generates random data-structures for Redis (set, list, zset, stream, string, hash), as well as RedisJSON and RedisTimeSeries.
+
+=== Synopsis
+
+[source]
+----
+riot -h <host> -p <port> generate [OPTIONS]
+----
+
+=== Options
+
+`--count`::
+Controls how many items to generate.
+
+`--keys`::
+Range of keys to generate in the form `start:end`. Default
+For example `
+
+`--types`::
+Types of data structures to generate: `hash`, `string`, `list`, `set`, `zset`, `json`, `stream`, `timeseries`.
+Default: `hash`, `string`, `list`, `set`, `zset`, `stream`
+

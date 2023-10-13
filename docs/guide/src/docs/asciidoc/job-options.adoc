@@ -1,6 +1,6 @@
 `-b, --batch`::
 Number of items in each batch (default: 50).
-See <<_architecture_batch,Batching>> section for more details.
+See <<_batching,Batching>> section for more details.
 
 `--progress`::
 Style of progress bar (default: `ascii`)
@@ -33,4 +33,4 @@ Duration in ms to sleep after writing each batch (default: 0).
 
 `--threads`::
 Number of concurrent threads to use for batch processing (default: 1).
-See <<_architecture_threads,Multi-threading>> section for more details.
+See <<_threads,Multi-threading>> section for more details.

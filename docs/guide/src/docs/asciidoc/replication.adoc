@@ -96,15 +96,11 @@ Replication strategy (default: `dump`).
 === Source reader options
 include::{includedir}/reader-options.adoc[leveloffset=+2]
 
-[[_source_struct_options]]
-=== Data structure options
-include::{includedir}/keyvalue-options.adoc[leveloffset=+2]
-
 [[_replicate_performance_tuning]]
 === Performance Tuning
 
 Performance tuning is an art but {project-title} offers some options to identify potential bottlenecks.
-In addition to the <<_architecture_batch,batch>> and <<_architecture_threads,threads>> options you have the `--dry-run` option which disables writing to the target Redis database so that you can tune the <<_source_reader_options,reader>> in isolation.
+In addition to <<_batching,batch>> and <<_threads,threads>> options you have the `--dry-run` option which disables writing to the target Redis database so that you can tune the <<_source_reader_options,reader>> in isolation.
 Add that option to your existing `replicate` command-line to compare replication speeds with and without writing to the target Redis database:
 
 [source]
@@ -228,7 +224,7 @@ To select this replication mechanism use the `--type ds` option:
 .Live type-based replication example
 [source]
 ----
-include::{testdir}/replicate-ds-live[]
+include::{testdir}/replicate-live-struct[]
 ----
 
 WARNING: This replication strategy is more intensive in terms of CPU, memory, and network for the machines running {project-title}.

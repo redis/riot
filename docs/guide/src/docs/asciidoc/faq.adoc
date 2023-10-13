@@ -1,22 +1,22 @@
 [[_faq]]
 = Frequently Asked Questions
 
-== Logs are cut off or missing
+Logs are cut off or missing::
 This could be due to concurrency issues in the terminal when refreshing the progress bar and displaying logs.
 Try running with job options `--progress log`.
 
-== Unknown options: '--keyspace', '--keys'
+`Unknown options: '--keyspace', '--keys'`::
 You must specify one or more Redis commands with import commands (<<_file_import,`file-import`>>, <<_faker_import,`faker-import`>>, <<_db_import,`db-import`>>).
 
-== ERR DUMP payload version or checksum are wrong
+`ERR DUMP payload version or checksum are wrong`::
 Redis 7 DUMP format is not backwards compatible with previous versions.
 To replicate between different Redis versions, use <<_replicate_type_based,Type-Based Replication>>.
 
-== Process gets stuck during replication and eventually times out
+Process gets stuck during replication and eventually times out::
 This could be due to big keys clogging the replication pipes.
 In these cases it might be hard to catch the offending key(s).
-Try running the same command with `--info` (see <<_general_options,General options>>) and `--progress log` so that all errors are reported.
+Try running the same command with `--info` (see <<_logging_options,Logging options>>) and `--progress log` so that all errors are reported.
 Check the database with `redis-cli` {link_bigkeys} and/or use the <<_source_reader_options,source reader options>> to filter these keys out.
 
-== NOAUTH Authentication required
+`NOAUTH Authentication required`::
 This issue occurs when you fail to supply the `--pass <password>` parameter.
