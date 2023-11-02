@@ -10,12 +10,14 @@ import java.util.function.Predicate;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.springframework.batch.core.Job;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
+import com.redis.riot.core.AbstractMapImport;
 import com.redis.riot.core.KeyFilterOptions;
-import com.redis.riot.core.ProcessorOptions;
+import com.redis.riot.core.RiotContext;
 import com.redis.riot.core.RiotUtils;
 
 class ProcessorTests {
@@ -31,16 +33,39 @@ class ProcessorTests {
     }
 
     @Test
+    void testMapProcessor() throws Exception {
+        DummyMapImport mapImport = new DummyMapImport();
+        Map<String, Expression> expressions = new LinkedHashMap<>();
+        expressions.put("field1", RiotUtils.parse("'test:1'"));
+        mapImport.setProcessorExpressions(expressions);
+        StandardEvaluationContext evaluationContext = new StandardEvaluationContext();
+        ItemProcessor<Map<String, Object>, Map<String, Object>> processor = mapImport.processor(evaluationContext);
+        Map<String, Object> map = processor.process(new HashMap<>());
+        Assertions.assertEquals("test:1", map.get("field1"));
+        // Assertions.assertEquals("1", map.get("id"));
+    }
+
+    private static class DummyMapImport extends AbstractMapImport {
+
+        @Override
+        protected Job job(RiotContext executionContext) {
+            return null;
+        }
+
+    }
+
+    @Test
     void processor() throws Exception {
-        ProcessorOptions options = new ProcessorOptions();
+        DummyMapImport mapImport = new DummyMapImport();
         Map<String, Expression> expressions = new LinkedHashMap<>();
         expressions.put("field1", RiotUtils.parse("'value1'"));
         expressions.put("field2", RiotUtils.parse("field1"));
         expressions.put("field3", RiotUtils.parse("1"));
         expressions.put("field4", RiotUtils.parse("2"));
         expressions.put("field5", RiotUtils.parse("field3+field4"));
-        options.setExpressions(expressions);
-        ItemProcessor<Map<String, Object>, Map<String, Object>> processor = options.processor(new StandardEvaluationContext());
+        mapImport.setProcessorExpressions(expressions);
+        ItemProcessor<Map<String, Object>, Map<String, Object>> processor = mapImport
+                .processor(new StandardEvaluationContext());
         for (int index = 0; index < 10; index++) {
             Map<String, Object> result = processor.process(new HashMap<>());
             assertEquals(5, result.size());
@@ -52,9 +77,10 @@ class ProcessorTests {
 
     @Test
     void processorFilter() throws Exception {
-        ProcessorOptions options = new ProcessorOptions();
-        options.setFilter(RiotUtils.parse("index<10"));
-        ItemProcessor<Map<String, Object>, Map<String, Object>> processor = options.processor(new StandardEvaluationContext());
+        DummyMapImport mapImport = new DummyMapImport();
+        mapImport.setFilterExpression(RiotUtils.parse("index<10"));
+        ItemProcessor<Map<String, Object>, Map<String, Object>> processor = mapImport
+                .processor(new StandardEvaluationContext());
         for (int index = 0; index < 100; index++) {
             Map<String, Object> map = new HashMap<>();
             map.put("index", index);

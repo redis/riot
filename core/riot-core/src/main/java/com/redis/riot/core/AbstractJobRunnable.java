@@ -1,5 +1,6 @@
 package com.redis.riot.core;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -21,6 +22,8 @@ import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.repository.support.AbstractJobRepositoryFactoryBean;
 import org.springframework.batch.core.step.builder.FaultTolerantStepBuilder;
 import org.springframework.batch.core.step.builder.SimpleStepBuilder;
+import org.springframework.batch.core.step.skip.NeverSkipItemSkipPolicy;
+import org.springframework.batch.core.step.skip.SkipPolicy;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemStreamReader;
@@ -28,6 +31,7 @@ import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.support.SynchronizedItemStreamReader;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.task.SyncTaskExecutor;
+import org.springframework.retry.policy.MaxAttemptsRetryPolicy;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.util.ClassUtils;
@@ -42,6 +46,18 @@ import io.lettuce.core.RedisCommandTimeoutException;
 
 public abstract class AbstractJobRunnable extends AbstractRiotRunnable {
 
+    public static final SkipPolicy DEFAULT_SKIP_POLICY = new NeverSkipItemSkipPolicy();
+
+    public static final int DEFAULT_SKIP_LIMIT = 0;
+
+    public static final int DEFAULT_RETRY_LIMIT = MaxAttemptsRetryPolicy.DEFAULT_MAX_ATTEMPTS;
+
+    public static final Duration DEFAULT_SLEEP = Duration.ZERO;
+
+    public static final int DEFAULT_CHUNK_SIZE = 50;
+
+    public static final int DEFAULT_THREADS = 1;
+
     private static final String FAILED_JOB_MESSAGE = "Error executing job %s";
 
     protected final Logger log = LoggerFactory.getLogger(getClass());
@@ -52,8 +68,6 @@ public abstract class AbstractJobRunnable extends AbstractRiotRunnable {
 
     private PlatformTransactionManager transactionManager;
 
-    private StepOptions stepOptions = new StepOptions();
-
     private JobBuilderFactory jobBuilderFactory;
 
     private StepBuilderFactory stepBuilderFactory;
@@ -62,6 +76,66 @@ public abstract class AbstractJobRunnable extends AbstractRiotRunnable {
 
     private Consumer<RiotStep<?, ?>> stepConfigurer = s -> {
     };
+
+    private int threads = DEFAULT_THREADS;
+
+    private int chunkSize = DEFAULT_CHUNK_SIZE;
+
+    private Duration sleep = DEFAULT_SLEEP;
+
+    private boolean dryRun;
+
+    private int skipLimit = DEFAULT_SKIP_LIMIT;
+
+    private int retryLimit = DEFAULT_RETRY_LIMIT;
+
+    public boolean isDryRun() {
+        return dryRun;
+    }
+
+    public void setDryRun(boolean dryRun) {
+        this.dryRun = dryRun;
+    }
+
+    public int getThreads() {
+        return threads;
+    }
+
+    public void setThreads(int threads) {
+        this.threads = threads;
+    }
+
+    public int getChunkSize() {
+        return chunkSize;
+    }
+
+    public void setChunkSize(int chunkSize) {
+        this.chunkSize = chunkSize;
+    }
+
+    public Duration getSleep() {
+        return sleep;
+    }
+
+    public void setSleep(Duration sleep) {
+        this.sleep = sleep;
+    }
+
+    public int getSkipLimit() {
+        return skipLimit;
+    }
+
+    public void setSkipLimit(int skipLimit) {
+        this.skipLimit = skipLimit;
+    }
+
+    public int getRetryLimit() {
+        return retryLimit;
+    }
+
+    public void setRetryLimit(int retryLimit) {
+        this.retryLimit = retryLimit;
+    }
 
     public String getName() {
         return name;
@@ -76,14 +150,6 @@ public abstract class AbstractJobRunnable extends AbstractRiotRunnable {
         elements.add(name);
         elements.addAll(Arrays.asList(suffixes));
         return String.join("-", elements);
-    }
-
-    public StepOptions getStepOptions() {
-        return stepOptions;
-    }
-
-    public void setStepOptions(StepOptions stepOptions) {
-        this.stepOptions = stepOptions;
     }
 
     public void setJobRepository(JobRepository jobRepository) {
@@ -182,18 +248,18 @@ public abstract class AbstractJobRunnable extends AbstractRiotRunnable {
     }
 
     protected <I, O> FaultTolerantStepBuilder<I, O> step(RiotStep<I, O> riotStep) {
-        SimpleStepBuilder<I, O> step = stepBuilderFactory.get(riotStep.getName()).chunk(stepOptions.getChunkSize());
+        SimpleStepBuilder<I, O> step = stepBuilderFactory.get(riotStep.getName()).chunk(chunkSize);
         step.reader(reader(riotStep.getReader()));
         step.processor(processor(riotStep.getProcessor()));
         step.writer(writer(riotStep.getWriter()));
-        if (stepOptions.getThreads() > 1) {
+        if (threads > 1) {
             ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
-            taskExecutor.setMaxPoolSize(stepOptions.getThreads());
-            taskExecutor.setCorePoolSize(stepOptions.getThreads());
-            taskExecutor.setQueueCapacity(stepOptions.getThreads());
+            taskExecutor.setMaxPoolSize(threads);
+            taskExecutor.setCorePoolSize(threads);
+            taskExecutor.setQueueCapacity(threads);
             taskExecutor.afterPropertiesSet();
             step.taskExecutor(taskExecutor);
-            step.throttleLimit(stepOptions.getThreads());
+            step.throttleLimit(threads);
         }
         riotStep.getConfigurer().accept(step);
         if (riotStep.getReader() instanceof RedisItemReader) {
@@ -206,8 +272,8 @@ public abstract class AbstractJobRunnable extends AbstractRiotRunnable {
             }
         }
         FaultTolerantStepBuilder<I, O> ftStep = step.faultTolerant();
-        ftStep.skipLimit(stepOptions.getSkipLimit());
-        ftStep.retryLimit(stepOptions.getRetryLimit());
+        ftStep.skipLimit(skipLimit);
+        ftStep.retryLimit(retryLimit);
         ftStep.retry(RedisCommandTimeoutException.class);
         ftStep.noRetry(RedisCommandExecutionException.class);
         return ftStep;
@@ -233,7 +299,7 @@ public abstract class AbstractJobRunnable extends AbstractRiotRunnable {
         if (reader instanceof RedisItemReader) {
             return reader;
         }
-        if (stepOptions.getThreads() > 1 && reader instanceof ItemStreamReader) {
+        if (threads > 1 && reader instanceof ItemStreamReader) {
             SynchronizedItemStreamReader<T> synchronizedReader = new SynchronizedItemStreamReader<>();
             synchronizedReader.setDelegate((ItemStreamReader<T>) reader);
             return synchronizedReader;
@@ -242,14 +308,14 @@ public abstract class AbstractJobRunnable extends AbstractRiotRunnable {
     }
 
     private <T> ItemWriter<T> writer(ItemWriter<T> writer) {
-        if (stepOptions.isDryRun()) {
+        if (dryRun) {
             return new NoopItemWriter<>();
         }
         initializeBean(writer);
-        if (stepOptions.getSleep() == null || stepOptions.getSleep().isNegative() || stepOptions.getSleep().isZero()) {
-            return writer;
+        if (RiotUtils.isPositive(sleep)) {
+            return new ThrottledItemWriter<>(writer, sleep);
         }
-        return new ThrottledItemWriter<>(writer, stepOptions.getSleep());
+        return writer;
     }
 
 }

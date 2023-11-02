@@ -6,7 +6,7 @@ import com.redis.riot.core.RedisWriterOptions;
 
 import picocli.CommandLine.Option;
 
-public class RedisOperationArgs {
+public class RedisWriterArgs {
 
     @Option(names = "--multi-exec", description = "Enable MULTI/EXEC writes.")
     private boolean multiExec;

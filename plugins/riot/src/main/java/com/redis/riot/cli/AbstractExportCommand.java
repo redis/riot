@@ -12,11 +12,8 @@ import picocli.CommandLine.ArgGroup;
 
 public abstract class AbstractExportCommand extends AbstractJobCommand {
 
-    @ArgGroup(exclusive = false, heading = "Redis reader options%n")
+    @ArgGroup(exclusive = false, heading = "Reader options%n")
     RedisReaderArgs readerArgs = new RedisReaderArgs();
-
-    @ArgGroup(exclusive = false)
-    KeyFilterArgs keyFilterArgs = new KeyFilterArgs();
 
     @ArgGroup(exclusive = false, heading = "Processor options%n")
     KeyValueProcessorArgs processorArgs = new KeyValueProcessorArgs();
@@ -25,8 +22,6 @@ public abstract class AbstractExportCommand extends AbstractJobCommand {
     protected AbstractJobRunnable getJobExecutable() {
         AbstractExport export = getExport();
         export.setReaderOptions(readerArgs.readerOptions());
-        export.setKeyFilterOptions(keyFilterArgs.keyFilterOptions());
-        export.setEvaluationContextOptions(evaluationContextOptions());
         export.setProcessorOptions(processorArgs.processorOptions());
         return export;
     }

@@ -1,5 +1,7 @@
 package com.redis.riot.core;
 
+import java.time.Duration;
+
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.job.builder.FlowBuilder;
 import org.springframework.batch.core.job.builder.JobFlowBuilder;
@@ -20,6 +22,7 @@ import com.redis.spring.batch.common.KeyComparison;
 import com.redis.spring.batch.common.KeyComparisonItemReader;
 import com.redis.spring.batch.common.KeyValue;
 import com.redis.spring.batch.reader.DumpItemReader;
+import com.redis.spring.batch.reader.KeyComparisonValueReader;
 import com.redis.spring.batch.reader.KeyTypeItemReader;
 import com.redis.spring.batch.reader.KeyValueItemReader;
 import com.redis.spring.batch.reader.StructItemReader;
@@ -55,28 +58,74 @@ public class Replication extends AbstractExport {
 
     private ReplicationType type = DEFAULT_TYPE;
 
+    public static final CompareMode DEFAULT_COMPARE_MODE = CompareMode.QUICK;
+
+    private boolean showDiffs;
+
+    private CompareMode compareMode = DEFAULT_COMPARE_MODE;
+
+    private Duration ttlTolerance = KeyComparisonValueReader.DEFAULT_TTL_TOLERANCE;
+
     private RedisOptions targetRedisOptions = new RedisOptions();
 
     private ReadFrom targetReadFrom;
 
-    private RedisWriterOptions targetWriterOptions = new RedisWriterOptions();
+    private RedisWriterOptions writerOptions = new RedisWriterOptions();
 
-    private KeyComparisonOptions comparisonOptions = new KeyComparisonOptions();
-
-    public void setTargetRedisOptions(RedisOptions options) {
-        this.targetRedisOptions = options;
+    public CompareMode getCompareMode() {
+        return compareMode;
     }
 
-    public void setTargetReadFrom(ReadFrom readFrom) {
-        this.targetReadFrom = readFrom;
+    public void setCompareMode(CompareMode mode) {
+        this.compareMode = mode;
     }
 
-    public void setTargetWriterOptions(RedisWriterOptions options) {
-        this.targetWriterOptions = options;
+    public boolean isShowDiffs() {
+        return showDiffs;
     }
 
-    public void setComparisonOptions(KeyComparisonOptions options) {
-        this.comparisonOptions = options;
+    public void setShowDiffs(boolean showDiff) {
+        this.showDiffs = showDiff;
+    }
+
+    public Duration getTtlTolerance() {
+        return ttlTolerance;
+    }
+
+    public void setTtlTolerance(Duration ttlTolerance) {
+        this.ttlTolerance = ttlTolerance;
+    }
+
+    public RedisOptions getTargetRedisOptions() {
+        return targetRedisOptions;
+    }
+
+    public void setTargetRedisOptions(RedisOptions targetRedisOptions) {
+        this.targetRedisOptions = targetRedisOptions;
+    }
+
+    public ReadFrom getTargetReadFrom() {
+        return targetReadFrom;
+    }
+
+    public void setTargetReadFrom(ReadFrom targetReadFrom) {
+        this.targetReadFrom = targetReadFrom;
+    }
+
+    public RedisWriterOptions getWriterOptions() {
+        return writerOptions;
+    }
+
+    public void setWriterOptions(RedisWriterOptions writerOptions) {
+        this.writerOptions = writerOptions;
+    }
+
+    public ReplicationMode getMode() {
+        return mode;
+    }
+
+    public ReplicationType getType() {
+        return type;
     }
 
     public void setMode(ReplicationMode mode) {
@@ -139,7 +188,7 @@ public class Replication extends AbstractExport {
     }
 
     private boolean shouldCompare() {
-        return !comparisonOptions.isSkip() && !getStepOptions().isDryRun();
+        return compareMode != CompareMode.NONE && !isDryRun();
     }
 
     private FaultTolerantStepBuilder<KeyValue<byte[]>, KeyValue<byte[]>> scanStep(ReplicationContext context) {
@@ -197,7 +246,7 @@ public class Replication extends AbstractExport {
         reader.setName(name(STEP_COMPARE, "reader"));
         KeyComparisonStatusCountItemWriter writer = new KeyComparisonStatusCountItemWriter();
         FaultTolerantStepBuilder<KeyComparison, KeyComparison> step = step(name(STEP_COMPARE), reader, writer);
-        if (comparisonOptions.isShowDiffs()) {
+        if (showDiffs) {
             step.listener(new KeyComparisonDiffLogger());
         }
         step.listener(new KeyComparisonSummaryLogger(writer));
@@ -209,30 +258,26 @@ public class Replication extends AbstractExport {
         configureReader(sourceReader, context.getRedisContext());
         KeyValueItemReader<String, String> targetReader = comparisonKeyValueReader(context.getTargetRedisContext().getClient());
         targetReader.setReadFrom(targetReadFrom);
-        targetReader.setPoolSize(targetWriterOptions.getPoolSize());
+        targetReader.setPoolSize(writerOptions.getPoolSize());
         KeyComparisonItemReader comparisonReader = new KeyComparisonItemReader(sourceReader, targetReader);
         configureReader(comparisonReader, context.getRedisContext());
         comparisonReader.setProcessor(processor(StringCodec.UTF8, context));
-        comparisonReader.setTtlTolerance(comparisonOptions.getTtlTolerance());
+        comparisonReader.setTtlTolerance(ttlTolerance);
         comparisonReader.setCompareStreamMessageIds(!processorOptions.isDropStreamMessageId());
         return comparisonReader;
     }
 
     private KeyValueItemReader<String, String> comparisonKeyValueReader(AbstractRedisClient client) {
-        if (isFullComparison()) {
+        if (compareMode == CompareMode.FULL) {
             return new StructItemReader<>(client, StringCodec.UTF8);
         }
         return new KeyTypeItemReader<>(client, StringCodec.UTF8);
     }
 
-    private boolean isFullComparison() {
-        return comparisonOptions.getMode() == KeyComparisonMode.FULL;
-    }
-
     private RedisItemWriter<byte[], byte[], KeyValue<byte[]>> writer(ReplicationContext context) {
         AbstractRedisClient targetRedisClient = context.getTargetRedisContext().getClient();
         KeyValueItemWriter<byte[], byte[]> writer = writer(targetRedisClient);
-        return writer(writer, targetWriterOptions);
+        return writer(writer, writerOptions);
     }
 
     private KeyValueItemWriter<byte[], byte[]> writer(AbstractRedisClient client) {

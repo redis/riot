@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.springframework.expression.Expression;
+
 import com.redis.riot.cli.operation.DelCommand;
 import com.redis.riot.cli.operation.ExpireCommand;
 import com.redis.riot.cli.operation.GeoaddCommand;
@@ -23,8 +25,8 @@ import com.redis.riot.core.AbstractMapImport;
 import com.redis.riot.core.RiotStep;
 import com.redis.spring.batch.writer.WriteOperation;
 
-import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 @Command(subcommands = { ExpireCommand.class, DelCommand.class, GeoaddCommand.class, HsetCommand.class, LpushCommand.class,
         RpushCommand.class, SaddCommand.class, SetCommand.class, XaddCommand.class, ZaddCommand.class, SugaddCommand.class,
@@ -32,8 +34,11 @@ import picocli.CommandLine.Command;
         TsAddCommand.class }, subcommandsRepeatable = true, synopsisSubcommandLabel = "[REDIS COMMAND...]", commandListHeading = "Redis commands:%n")
 public abstract class AbstractImportCommand extends AbstractJobCommand {
 
-    @ArgGroup(exclusive = false, heading = "Processor options%n")
-    ProcessorArgs processorArgs = new ProcessorArgs();
+    @Option(arity = "1..*", names = "--proc", description = "SpEL expressions in the form field1=\"exp\" field2=\"exp\"...", paramLabel = "<f=exp>")
+    Map<String, Expression> processorExpressions;
+
+    @Option(names = "--filter", description = "Discard records using a SpEL expression.", paramLabel = "<exp>")
+    Expression filter;
 
     /**
      * Initialized manually during command parsing
@@ -56,7 +61,8 @@ public abstract class AbstractImportCommand extends AbstractJobCommand {
     protected AbstractMapImport getJobExecutable() {
         AbstractMapImport executable = getMapImportExecutable();
         executable.setOperations(operations());
-        executable.setProcessorOptions(processorArgs.processorOptions());
+        executable.setProcessorExpressions(processorExpressions);
+        executable.setFilterExpression(filter);
         return executable;
     }
 

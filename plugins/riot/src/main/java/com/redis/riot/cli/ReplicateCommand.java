@@ -1,11 +1,13 @@
 package com.redis.riot.cli;
 
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
 import com.redis.riot.cli.RedisReaderArgs.ReadFromEnum;
 import com.redis.riot.core.AbstractExport;
+import com.redis.riot.core.CompareMode;
 import com.redis.riot.core.KeyComparisonStatusCountItemWriter;
 import com.redis.riot.core.Replication;
 import com.redis.riot.core.ReplicationMode;
@@ -13,6 +15,7 @@ import com.redis.riot.core.ReplicationType;
 import com.redis.riot.core.RiotStep;
 import com.redis.spring.batch.RedisItemReader;
 import com.redis.spring.batch.common.KeyComparison.Status;
+import com.redis.spring.batch.reader.KeyComparisonValueReader;
 import com.redis.spring.batch.reader.KeyspaceNotificationItemReader;
 
 import picocli.CommandLine.ArgGroup;
@@ -38,17 +41,23 @@ public class ReplicateCommand extends AbstractExportCommand {
     @Option(names = "--type", description = "Replication strategy: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<name>")
     ReplicationType type = ReplicationType.DUMP;
 
+    @Option(names = "--ttl-tolerance", description = "Max TTL offset in millis to use for dataset verification (default: ${DEFAULT-VALUE}).", paramLabel = "<ms>")
+    long ttlTolerance = KeyComparisonValueReader.DEFAULT_TTL_TOLERANCE.toMillis();
+
+    @Option(names = "--show-diffs", description = "Print details of key mismatches during dataset verification. Disables progress reporting.")
+    boolean showDiffs;
+
+    @Option(names = "--compare-mode", description = "Comparison mode: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<mode>")
+    CompareMode compareMode = Replication.DEFAULT_COMPARE_MODE;
+
     @ArgGroup(exclusive = false, heading = "Target Redis connection options%n")
-    RedisArgs targetRedisClientArgs = new RedisArgs();
+    RedisArgs targetRedisArgs = new RedisArgs();
 
     @Option(names = "--target-read-from", description = "Which target Redis cluster nodes to read data from: ${COMPLETION-CANDIDATES}.", paramLabel = "<n>")
     ReadFromEnum targetReadFrom;
 
-    @ArgGroup(exclusive = false, heading = "Target writer options%n")
-    RedisOperationArgs targetWriterArgs = new RedisOperationArgs();
-
-    @ArgGroup(exclusive = false, heading = "Compare options%n")
-    ReplicationCompareArgs compareArgs = new ReplicationCompareArgs();
+    @ArgGroup(exclusive = false, heading = "Writer options%n")
+    RedisWriterArgs writerArgs = new RedisWriterArgs();
 
     private static Map<String, String> taskNames() {
         Map<String, String> map = new HashMap<>();
@@ -61,14 +70,16 @@ public class ReplicateCommand extends AbstractExportCommand {
     @Override
     protected AbstractExport getExport() {
         Replication replication = new Replication();
-        replication.setComparisonOptions(compareArgs.comparisonOptions());
+        replication.setCompareMode(compareMode);
         replication.setMode(mode);
-        replication.setTargetRedisOptions(targetRedisClientArgs.redisClientOptions());
+        replication.setShowDiffs(showDiffs);
         if (targetReadFrom != null) {
             replication.setTargetReadFrom(targetReadFrom.getReadFrom());
         }
-        replication.setTargetWriterOptions(targetWriterArgs.writerOptions());
+        replication.setTargetRedisOptions(targetRedisArgs.redisOptions());
+        replication.setTtlTolerance(Duration.ofMillis(ttlTolerance));
         replication.setType(type);
+        replication.setWriterOptions(writerArgs.writerOptions());
         return replication;
     }
 

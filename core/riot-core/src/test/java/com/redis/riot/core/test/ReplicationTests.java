@@ -13,7 +13,6 @@ import org.springframework.batch.item.support.ListItemWriter;
 import com.redis.riot.core.KeyValueProcessorOptions;
 import com.redis.riot.core.PredicateItemProcessor;
 import com.redis.riot.core.RedisOptions;
-import com.redis.riot.core.RedisUriOptions;
 import com.redis.riot.core.Replication;
 import com.redis.riot.core.ReplicationType;
 import com.redis.riot.core.RiotUtils;
@@ -59,9 +58,7 @@ public abstract class ReplicationTests extends AbstractTargetTestBase {
 
     private RedisOptions redisOptions(RedisServer redis) {
         RedisOptions options = new RedisOptions();
-        RedisUriOptions uriOptions = new RedisUriOptions();
-        uriOptions.setUri(redis.getRedisURI());
-        options.setUriOptions(uriOptions);
+        options.setUri(redis.getRedisURI());
         options.setCluster(redis.isCluster());
         return options;
     }

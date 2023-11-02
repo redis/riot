@@ -22,83 +22,79 @@ import io.lettuce.core.codec.RedisCodec;
 
 public abstract class AbstractExport extends AbstractJobRunnable {
 
-    private RedisReaderOptions readerOptions = new RedisReaderOptions();
+	private RedisReaderOptions readerOptions = new RedisReaderOptions();
 
-    private KeyFilterOptions keyFilterOptions = new KeyFilterOptions();
+	protected KeyValueProcessorOptions processorOptions = new KeyValueProcessorOptions();
 
-    protected KeyValueProcessorOptions processorOptions = new KeyValueProcessorOptions();
+	public void setReaderOptions(RedisReaderOptions readerOptions) {
+		this.readerOptions = readerOptions;
+	}
 
-    public void setKeyFilterOptions(KeyFilterOptions keyFilterOptions) {
-        this.keyFilterOptions = keyFilterOptions;
-    }
+	public void setProcessorOptions(KeyValueProcessorOptions options) {
+		this.processorOptions = options;
+	}
 
-    public void setReaderOptions(RedisReaderOptions readerOptions) {
-        this.readerOptions = readerOptions;
-    }
+	protected <K> ItemProcessor<KeyValue<K>, KeyValue<K>> processor(RedisCodec<K, ?> codec, RiotContext context) {
+		ToStringKeyValueFunction<K> code = new ToStringKeyValueFunction<>(codec);
+		StringKeyValueFunction<K> decode = new StringKeyValueFunction<>(codec);
+		Function<KeyValue<String>, KeyValue<String>> function = processorFunction(context.getEvaluationContext());
+		return new FunctionItemProcessor<>(code.andThen(function).andThen(decode));
+	}
 
-    public void setProcessorOptions(KeyValueProcessorOptions options) {
-        this.processorOptions = options;
-    }
+	private Function<KeyValue<String>, KeyValue<String>> processorFunction(EvaluationContext context) {
+		KeyValueOperator operator = new KeyValueOperator();
+		if (processorOptions.getKeyExpression() != null) {
+			operator.setKeyFunction(ExpressionFunction.of(context, processorOptions.getKeyExpression()));
+		}
+		if (processorOptions.isDropTtl()) {
+			operator.setTtlFunction(t -> 0);
+		} else {
+			if (processorOptions.getTtlExpression() != null) {
+				operator.setTtlFunction(new LongExpressionFunction<>(context, processorOptions.getTtlExpression()));
+			}
+		}
+		if (processorOptions.isDropStreamMessageId() && isStruct()) {
+			operator.setValueFunction(new DropStreamMessageIdFunction());
+		}
+		if (processorOptions.getTypeExpression() != null) {
+			Function<KeyValue<String>, String> function = ExpressionFunction.of(context,
+					processorOptions.getTypeExpression());
+			operator.setTypeFunction(function.andThen(DataType::of));
+		}
+		return operator;
+	}
 
-    protected <K> ItemProcessor<KeyValue<K>, KeyValue<K>> processor(RedisCodec<K, ?> codec, RiotContext context) {
-        ToStringKeyValueFunction<K> code = new ToStringKeyValueFunction<>(codec);
-        StringKeyValueFunction<K> decode = new StringKeyValueFunction<>(codec);
-        return new FunctionItemProcessor<>(code.andThen(function(context.getEvaluationContext())).andThen(decode));
-    }
+	protected abstract boolean isStruct();
 
-    private Function<KeyValue<String>, KeyValue<String>> function(EvaluationContext context) {
-        KeyValueOperator operator = new KeyValueOperator();
-        if (processorOptions.getKeyExpression() != null) {
-            operator.setKeyFunction(ExpressionFunction.of(context, processorOptions.getKeyExpression()));
-        }
-        if (processorOptions.isDropTtl()) {
-            operator.setTtlFunction(t -> 0);
-        } else {
-            if (processorOptions.getTtlExpression() != null) {
-                operator.setTtlFunction(new LongExpressionFunction<>(context, processorOptions.getTtlExpression()));
-            }
-        }
-        if (processorOptions.isDropStreamMessageId() && isStruct()) {
-            operator.setValueFunction(new DropStreamMessageIdFunction());
-        }
-        if (processorOptions.getTypeExpression() != null) {
-            Function<KeyValue<String>, String> function = ExpressionFunction.of(context, processorOptions.getTypeExpression());
-            operator.setTypeFunction(function.andThen(DataType::of));
-        }
-        return operator;
-    }
+	protected <K, V> void configureReader(RedisItemReader<K, V, ?> reader, RedisContext context) {
+		reader.setChunkSize(readerOptions.getChunkSize());
+		reader.setDatabase(context.getUri().getDatabase());
+		reader.setKeyProcessor(keyFilteringProcessor(reader.getCodec()));
+		reader.setKeyPattern(readerOptions.getKeyPattern());
+		reader.setKeyType(readerOptions.getKeyType());
+		reader.setFlushInterval(readerOptions.getFlushInterval());
+		reader.setIdleTimeout(readerOptions.getIdleTimeout());
+		if (reader instanceof KeyValueItemReader) {
+			KeyValueItemReader<?, ?> keyValueReader = (KeyValueItemReader<?, ?>) reader;
+			keyValueReader.setMemoryUsageLimit(readerOptions.getMemoryUsageLimit());
+			keyValueReader.setMemoryUsageSamples(readerOptions.getMemoryUsageSamples());
+			keyValueReader.setPoolSize(readerOptions.getPoolSize());
+		}
+		reader.setNotificationQueueCapacity(readerOptions.getNotificationQueueCapacity());
+		reader.setOrderingStrategy(readerOptions.getOrderingStrategy());
+		reader.setPollTimeout(readerOptions.getPollTimeout());
+		reader.setQueueCapacity(readerOptions.getQueueCapacity());
+		reader.setReadFrom(readerOptions.getReadFrom());
+		reader.setScanCount(readerOptions.getScanCount());
+		reader.setThreads(readerOptions.getThreads());
+	}
 
-    protected abstract boolean isStruct();
-
-    protected <K, V> void configureReader(RedisItemReader<K, V, ?> reader, RedisContext context) {
-        reader.setChunkSize(readerOptions.getChunkSize());
-        reader.setDatabase(context.getUri().getDatabase());
-        reader.setKeyProcessor(keyFilteringProcessor(reader.getCodec()));
-        reader.setKeyPattern(readerOptions.getKeyPattern());
-        reader.setKeyType(readerOptions.getKeyType());
-        reader.setFlushInterval(readerOptions.getFlushInterval());
-        reader.setIdleTimeout(readerOptions.getIdleTimeout());
-        if (reader instanceof KeyValueItemReader) {
-            KeyValueItemReader<?, ?> keyValueReader = (KeyValueItemReader<?, ?>) reader;
-            keyValueReader.setMemoryUsageLimit(readerOptions.getMemoryUsageLimit());
-            keyValueReader.setMemoryUsageSamples(readerOptions.getMemoryUsageSamples());
-            keyValueReader.setPoolSize(readerOptions.getPoolSize());
-        }
-        reader.setNotificationQueueCapacity(readerOptions.getNotificationQueueCapacity());
-        reader.setOrderingStrategy(readerOptions.getOrderingStrategy());
-        reader.setPollTimeout(readerOptions.getPollTimeout());
-        reader.setQueueCapacity(readerOptions.getQueueCapacity());
-        reader.setReadFrom(readerOptions.getReadFrom());
-        reader.setScanCount(readerOptions.getScanCount());
-        reader.setThreads(readerOptions.getThreads());
-    }
-
-    public <K> ItemProcessor<K, K> keyFilteringProcessor(RedisCodec<K, ?> codec) {
-        Predicate<K> predicate = RiotUtils.keyFilterPredicate(codec, keyFilterOptions);
-        if (predicate == null) {
-            return null;
-        }
-        return new PredicateItemProcessor<>(predicate);
-    }
+	public <K> ItemProcessor<K, K> keyFilteringProcessor(RedisCodec<K, ?> codec) {
+		Predicate<K> predicate = RiotUtils.keyFilterPredicate(codec, readerOptions.getKeyFilterOptions());
+		if (predicate == null) {
+			return null;
+		}
+		return new PredicateItemProcessor<>(predicate);
+	}
 
 }

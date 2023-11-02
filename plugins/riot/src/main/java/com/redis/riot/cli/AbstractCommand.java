@@ -14,7 +14,7 @@ public abstract class AbstractCommand extends BaseCommand implements Runnable {
     @Override
     public void run() {
         AbstractRiotRunnable executable = executable();
-        executable.setRedisOptions(parent.redisArgs.redisClientOptions());
+        executable.setRedisOptions(parent.redisArgs.redisOptions());
         executable.run();
     }
 

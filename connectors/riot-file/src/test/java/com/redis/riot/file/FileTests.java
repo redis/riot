@@ -16,7 +16,6 @@ import org.springframework.batch.item.ParseException;
 import org.springframework.batch.item.UnexpectedInputException;
 
 import com.redis.riot.core.RedisOptions;
-import com.redis.riot.core.RedisUriOptions;
 import com.redis.riot.core.operation.HsetBuilder;
 import com.redis.spring.batch.test.AbstractTestBase;
 
@@ -53,9 +52,7 @@ abstract class FileTests extends AbstractTestBase {
     private RedisOptions redisClientOptions() {
         RedisOptions options = new RedisOptions();
         options.setCluster(getRedisServer().isCluster());
-        RedisUriOptions uriOptions = new RedisUriOptions();
-        uriOptions.setUri(getRedisServer().getRedisURI());
-        options.setUriOptions(uriOptions);
+        options.setUri(getRedisServer().getRedisURI());
         return options;
     }
 

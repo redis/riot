@@ -2,7 +2,10 @@ package com.redis.riot.core;
 
 import java.text.SimpleDateFormat;
 import java.time.Duration;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
+import org.springframework.expression.Expression;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
@@ -34,10 +37,40 @@ public abstract class AbstractRiotRunnable implements Runnable {
 
     private RedisOptions redisOptions = new RedisOptions();
 
-    private EvaluationContextOptions evaluationContextOptions = new EvaluationContextOptions();
+    public static final String DEFAULT_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
 
-    public void setEvaluationContextOptions(EvaluationContextOptions options) {
-        this.evaluationContextOptions = options;
+    private String dateFormat = DEFAULT_DATE_FORMAT;
+
+    private Map<String, Expression> expressions = new LinkedHashMap<>();
+
+    private Map<String, Object> variables = new LinkedHashMap<>();
+
+    public String getDateFormat() {
+        return dateFormat;
+    }
+
+    public void setDateFormat(String format) {
+        this.dateFormat = format;
+    }
+
+    public Map<String, Expression> getExpressions() {
+        return expressions;
+    }
+
+    public void setExpressions(Map<String, Expression> expressions) {
+        this.expressions = expressions;
+    }
+
+    public Map<String, Object> getVariables() {
+        return variables;
+    }
+
+    public void setVariables(Map<String, Object> variables) {
+        this.variables = variables;
+    }
+
+    public RedisOptions getRedisOptions() {
+        return redisOptions;
     }
 
     public void setRedisOptions(RedisOptions options) {
@@ -58,27 +91,27 @@ public abstract class AbstractRiotRunnable implements Runnable {
     }
 
     protected RedisContext redisContext(RedisOptions options) {
-        RedisURI redisURI = redisURI(options.getUriOptions());
+        RedisURI redisURI = redisURI(options);
         AbstractRedisClient client = client(redisURI, options);
         return new RedisContext(redisURI, client);
     }
 
     private StandardEvaluationContext evaluationContext(RedisContext redisContext) {
         StandardEvaluationContext context = new StandardEvaluationContext();
-        context.setVariable(DATE_VARIABLE_NAME, new SimpleDateFormat(evaluationContextOptions.getDateFormat()));
+        context.setVariable(DATE_VARIABLE_NAME, new SimpleDateFormat(dateFormat));
         context.setVariable(REDIS_VARIABLE_NAME, redisContext.getConnection().sync());
-        if (!CollectionUtils.isEmpty(evaluationContextOptions.getVariables())) {
-            evaluationContextOptions.getVariables().forEach(context::setVariable);
+        if (!CollectionUtils.isEmpty(variables)) {
+            variables.forEach(context::setVariable);
         }
-        if (!CollectionUtils.isEmpty(evaluationContextOptions.getExpressions())) {
-            evaluationContextOptions.getExpressions().forEach((k, v) -> context.setVariable(k, v.getValue(context)));
+        if (!CollectionUtils.isEmpty(expressions)) {
+            expressions.forEach((k, v) -> context.setVariable(k, v.getValue(context)));
         }
         return context;
     }
 
     protected abstract void execute(RiotContext executionContext);
 
-    public RedisURI redisURI(RedisUriOptions options) {
+    public RedisURI redisURI(RedisOptions options) {
         RedisURI.Builder builder = redisURIBuilder(options);
         if (options.getDatabase() > 0) {
             builder.withDatabase(options.getDatabase());
@@ -103,7 +136,7 @@ public abstract class AbstractRiotRunnable implements Runnable {
         return builder.build();
     }
 
-    private RedisURI.Builder redisURIBuilder(RedisUriOptions options) {
+    private RedisURI.Builder redisURIBuilder(RedisOptions options) {
         if (StringUtils.hasLength(options.getUri())) {
             return RedisURI.builder(RedisURI.create(options.getUri()));
         }
@@ -117,22 +150,22 @@ public abstract class AbstractRiotRunnable implements Runnable {
         ClientResources resources = clientResources(options);
         if (options.isCluster()) {
             RedisModulesClusterClient client = RedisModulesClusterClient.create(resources, redisURI);
-            client.setOptions(clientOptions(ClusterClientOptions.builder(), options.getClientOptions()).build());
+            client.setOptions(clientOptions(ClusterClientOptions.builder(), options).build());
             return client;
         }
         RedisModulesClient client = RedisModulesClient.create(resources, redisURI);
-        client.setOptions(clientOptions(ClientOptions.builder(), options.getClientOptions()).build());
+        client.setOptions(clientOptions(ClientOptions.builder(), options).build());
         return client;
     }
 
-    private <B extends ClientOptions.Builder> B clientOptions(B builder, RedisClientOptions options) {
+    private <B extends ClientOptions.Builder> B clientOptions(B builder, RedisOptions options) {
         builder.autoReconnect(options.isAutoReconnect());
-        builder.sslOptions(sslOptions(options.getSslOptions()));
+        builder.sslOptions(sslOptions(options));
         builder.protocolVersion(options.getProtocolVersion());
         return builder;
     }
 
-    public SslOptions sslOptions(RedisSslOptions options) {
+    public SslOptions sslOptions(RedisOptions options) {
         Builder ssl = SslOptions.builder();
         if (options.getKey() != null) {
             ssl.keyManager(options.getKeyCert(), options.getKey(), options.getKeyPassword());

@@ -17,13 +17,12 @@ public class ThrottledItemWriter<T> extends AbstractItemStreamItemWriter<T> {
 
     private final long sleep;
 
-    public ThrottledItemWriter(ItemWriter<T> delegate, Duration sleepDuration) {
+    public ThrottledItemWriter(ItemWriter<T> delegate, Duration sleep) {
         setName(ClassUtils.getShortName(getClass()));
         Assert.notNull(delegate, "Delegate must not be null");
-        Assert.notNull(sleepDuration, "Sleep duration must not be null");
-        Assert.isTrue(!sleepDuration.isNegative() && !sleepDuration.isZero(), "Sleep duration must be strictly positive");
+        Assert.isTrue(RiotUtils.isPositive(sleep), "Sleep duration must be strictly positive");
         this.delegate = delegate;
-        this.sleep = sleepDuration.toMillis();
+        this.sleep = sleep.toMillis();
     }
 
     @Override

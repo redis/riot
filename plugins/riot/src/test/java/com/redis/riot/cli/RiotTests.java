@@ -7,7 +7,7 @@ import java.nio.charset.Charset;
 import org.codehaus.plexus.util.cli.CommandLineUtils;
 import org.junit.jupiter.api.Assertions;
 
-import com.redis.riot.cli.ProgressArgs.ProgressStyle;
+import com.redis.riot.cli.AbstractJobCommand.ProgressStyle;
 import com.redis.riot.cli.operation.OperationCommand;
 import com.redis.riot.core.ReplicationMode;
 import com.redis.spring.batch.test.AbstractTargetTestBase;
@@ -50,7 +50,7 @@ public abstract class RiotTests extends AbstractTargetTestBase {
 
     private int execute(String name, ParseResult parseResult) {
         Main main = (Main) parseResult.commandSpec().commandLine().getCommand();
-        main.redisArgs.uriArgs.uri = getRedisServer().getRedisURI();
+        main.redisArgs.uri = getRedisServer().getRedisURI();
         main.redisArgs.cluster = getRedisServer().isCluster();
         for (ParseResult subParseResult : parseResult.subcommands()) {
             Object command = subParseResult.commandSpec().commandLine().getCommand();
@@ -65,12 +65,12 @@ public abstract class RiotTests extends AbstractTargetTestBase {
     protected void configureCommand(String name, Object command) {
         if (command instanceof AbstractJobCommand) {
             AbstractJobCommand jobCommand = ((AbstractJobCommand) command);
-            jobCommand.progressArgs.style = ProgressStyle.NONE;
+            jobCommand.progressStyle = ProgressStyle.NONE;
             jobCommand.name = name;
         }
         if (command instanceof ReplicateCommand) {
             ReplicateCommand replicationCommand = (ReplicateCommand) command;
-            replicationCommand.targetRedisClientArgs.uriArgs.uri = getTargetRedisServer().getRedisURI();
+            replicationCommand.targetRedisArgs.uri = getTargetRedisServer().getRedisURI();
             if (replicationCommand.mode == ReplicationMode.LIVE || replicationCommand.mode == ReplicationMode.LIVEONLY) {
                 replicationCommand.readerArgs.setIdleTimeout(DEFAULT_IDLE_TIMEOUT.toMillis());
                 replicationCommand.readerArgs.setNotificationQueueCapacity(DEFAULT_NOTIFICATION_QUEUE_CAPACITY);

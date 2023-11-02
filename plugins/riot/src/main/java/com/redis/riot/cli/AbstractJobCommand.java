@@ -1,5 +1,7 @@
 package com.redis.riot.cli;
 
+import java.time.Duration;
+import java.util.Map;
 import java.util.function.LongSupplier;
 import java.util.function.Supplier;
 
@@ -7,32 +9,72 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.ItemWriteListener;
 import org.springframework.batch.core.StepExecutionListener;
+import org.springframework.expression.Expression;
 import org.springframework.util.ClassUtils;
 
-import com.redis.riot.cli.ProgressArgs.ProgressStyle;
 import com.redis.riot.core.AbstractJobRunnable;
-import com.redis.riot.core.EvaluationContextOptions;
 import com.redis.riot.core.RiotStep;
 
 import me.tongfei.progressbar.DelegatingProgressBarConsumer;
 import me.tongfei.progressbar.ProgressBarBuilder;
-import picocli.CommandLine.ArgGroup;
+import me.tongfei.progressbar.ProgressBarStyle;
+import picocli.CommandLine.Option;
 
 abstract class AbstractJobCommand extends AbstractCommand {
 
-    @ArgGroup(exclusive = false, heading = "Execution options%n")
-    StepArgs stepArgs = new StepArgs();
+    public enum ProgressStyle {
+        BLOCK, BAR, ASCII, LOG, NONE
+    }
 
-    @ArgGroup(exclusive = false)
-    ProgressArgs progressArgs = new ProgressArgs();
+    @Option(names = "--sleep", description = "Duration in ms to sleep after each batch write (default: ${DEFAULT-VALUE}).", paramLabel = "<ms>")
+    long sleep;
 
-    @ArgGroup(exclusive = false)
-    EvaluationContextArgs evaluationContextArgs = new EvaluationContextArgs();
+    @Option(names = "--threads", description = "Thread count (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
+    int threads = AbstractJobRunnable.DEFAULT_THREADS;
+
+    @Option(names = { "-b",
+            "--batch" }, description = "Number of items in each batch (default: ${DEFAULT-VALUE}).", paramLabel = "<size>")
+    int chunkSize = AbstractJobRunnable.DEFAULT_CHUNK_SIZE;
+
+    @Option(names = "--dry-run", description = "Enable dummy writes.")
+    boolean dryRun;
+
+    @Option(names = "--ft", description = "Enable step fault-tolerance. Use in conjunction with retry and skip limit/policy.")
+    boolean faultTolerance;
+
+    @Option(names = "--skip-limit", description = "LIMIT skip policy: max number of failed items before considering the transfer has failed (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
+    int skipLimit = AbstractJobRunnable.DEFAULT_SKIP_LIMIT;
+
+    @Option(names = "--retry-limit", description = "Maximum number of times to try failed items. 0 and 1 both translate to no retry. (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
+    private int retryLimit = AbstractJobRunnable.DEFAULT_RETRY_LIMIT;
+
+    @Option(names = "--progress", description = "Progress style: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<style>")
+    ProgressStyle progressStyle = ProgressStyle.ASCII;
+
+    @Option(names = "--progress-interval", description = "Progress update interval in millis (default: ${DEFAULT-VALUE}).", paramLabel = "<ms>", hidden = true)
+    int progressUpdateInterval = 300;
+
+    @Option(arity = "1..*", names = "--var", description = "Context variable SpEL expressions in the form field1=\"exp\" field2=\"exp\"...", paramLabel = "<f=exp>")
+    Map<String, Expression> expressions;
+
+    @Option(names = "--date-format", description = "Date-format pattern (default: ${DEFAULT-VALUE}). For details see https://bit.ly/javasdf", paramLabel = "<str>")
+    String dateFormat = AbstractJobRunnable.DEFAULT_DATE_FORMAT;
 
     String name;
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    private ProgressBarStyle progressBarStyle() {
+        switch (progressStyle) {
+            case BAR:
+                return ProgressBarStyle.COLORFUL_UNICODE_BAR;
+            case BLOCK:
+                return ProgressBarStyle.COLORFUL_UNICODE_BLOCK;
+            default:
+                return ProgressBarStyle.ASCII;
+        }
     }
 
     @Override
@@ -41,26 +83,28 @@ abstract class AbstractJobCommand extends AbstractCommand {
         if (name != null) {
             executable.setName(name);
         }
-        executable.setStepOptions(stepArgs.stepOptions());
-        executable.setEvaluationContextOptions(evaluationContextOptions());
+        executable.setChunkSize(chunkSize);
+        executable.setDryRun(dryRun);
+        executable.setRetryLimit(retryLimit);
+        executable.setSkipLimit(skipLimit);
+        executable.setSleep(Duration.ofMillis(sleep));
+        executable.setThreads(threads);
+        executable.setExpressions(expressions);
+        executable.setDateFormat(dateFormat);
         executable.setStepConfigurer(this::configureStep);
         return executable;
     }
 
-    protected EvaluationContextOptions evaluationContextOptions() {
-        return evaluationContextArgs.evaluationContextOptions();
-    }
-
     private void configureStep(RiotStep<?, ?> step) {
-        if (progressArgs.style == ProgressStyle.NONE) {
+        if (progressStyle == ProgressStyle.NONE) {
             return;
         }
         ProgressBarBuilder progressBar = new ProgressBarBuilder();
         progressBar.setTaskName(taskName(step));
-        progressBar.setStyle(progressArgs.progressBarStyle());
-        progressBar.setUpdateIntervalMillis(progressArgs.updateInterval);
+        progressBar.setStyle(progressBarStyle());
+        progressBar.setUpdateIntervalMillis(progressUpdateInterval);
         progressBar.showSpeed();
-        if (progressArgs.style == ProgressStyle.LOG) {
+        if (progressStyle == ProgressStyle.LOG) {
             Logger logger = LoggerFactory.getLogger(getClass());
             progressBar.setConsumer(new DelegatingProgressBarConsumer(logger::info));
         }

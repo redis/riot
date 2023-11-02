@@ -1,5 +1,6 @@
 package com.redis.riot.core;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -129,6 +130,10 @@ public abstract class RiotUtils {
         CompositeItemWriter<T> composite = new CompositeItemWriter<>();
         composite.setDelegates(new ArrayList<>(writers));
         return composite;
+    }
+
+    public static boolean isPositive(Duration duration) {
+        return duration != null && !duration.isNegative() && !duration.isZero();
     }
 
 }

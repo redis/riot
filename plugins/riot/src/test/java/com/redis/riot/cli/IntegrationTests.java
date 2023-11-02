@@ -186,8 +186,8 @@ public abstract class IntegrationTests extends RiotTests {
                     Files.newOutputStream(dir.resolve("beers1.csv")));
             FileCopyUtils.copy(getClass().getClassLoader().getResourceAsStream("files/beers2.csv"),
                     Files.newOutputStream(dir.resolve("beers2.csv")));
-            File file = new File(command.files.get(0));
-            command.files = Arrays.asList(dir.resolve(file.getName()).toString());
+            File file = new File(command.args.files.get(0));
+            command.args.files = Arrays.asList(dir.resolve(file.getName()).toString());
         } catch (IOException e) {
             throw new RuntimeException("Could not configure import-glob", e);
         }
@@ -269,13 +269,13 @@ public abstract class IntegrationTests extends RiotTests {
 
     private int executeFileDumpImport(ParseResult parseResult) {
         FileDumpImportCommand command = command(parseResult);
-        command.files = command.files.stream().map(this::replace).collect(Collectors.toList());
+        command.args.files = command.args.files.stream().map(this::replace).collect(Collectors.toList());
         return ExitCode.OK;
     }
 
     private int executeFileDumpExport(ParseResult parseResult) {
         FileDumpExportCommand command = command(parseResult);
-        command.file = replace(command.file);
+        command.args.file = replace(command.args.file);
         return ExitCode.OK;
     }
 
