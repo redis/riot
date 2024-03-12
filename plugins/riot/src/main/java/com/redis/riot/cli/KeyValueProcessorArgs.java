@@ -9,7 +9,7 @@ import picocli.CommandLine.Option;
 
 public class KeyValueProcessorArgs {
 
-    @Option(names = "--key-proc", description = "SpEL template expression to transform the name of each key.", paramLabel = "<exp>")
+    @Option(names = "--key-proc", description = "SpEL template expression to transform the name of each key. E.g. --key-proc=\"#{#source.database}:#{key}\" transform key 'test:1' into '0:test:1'", paramLabel = "<exp>")
     TemplateExpression keyExpression;
 
     @Option(names = "--type-proc", description = "SpEL expression to transform the type of each key.", paramLabel = "<exp>")
@@ -18,10 +18,10 @@ public class KeyValueProcessorArgs {
     @Option(names = "--ttl-proc", description = "SpEL expression to transform the TTL of each key.", paramLabel = "<exp>")
     Expression ttlExpression;
 
-    @Option(names = "--no-ttl", description = "Do not propagate key TTLs.")
+    @Option(names = "--no-ttl", description = "Ignore key expiration TTLs from source instead of passing them along to the target.")
     boolean dropTtl;
 
-    @Option(names = "--no-stream-id", description = "Do not propagate stream message IDs.")
+    @Option(names = "--no-stream-id", description = "Drop IDs from source stream messages instead of passing them along to the target.")
     boolean dropStreamMessageIds;
 
     public KeyValueProcessorOptions processorOptions() {

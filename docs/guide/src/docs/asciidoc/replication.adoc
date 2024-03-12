@@ -1,4 +1,4 @@
-[[_replicate]]
+[[_replication]]
 = Replication
 
 Most Redis migration tools available today are offline in nature.
@@ -9,12 +9,26 @@ Instead, {project-title} implements <<_architecture,client-side replication>> us
 
 WARNING: Please note that {project-title} is NEITHER recommended NOR officially supported by Redis, Inc.
 
-[[_replicate_usage]]
+[[_replication_architecture]]
+== Replication Architecture
+
+image::replication-architecture.svg[]
+
+The basic replication mechanism is as follows:
+
+<1> Identify source keys to be replicated using scan and/or keyspace notifications depending on the <<_replication_mode,replication mode>>.
+
+<2> Read data associated with each key using <<_replication_dump_restore,dump>> or <<_replication_type_based,type-specific commands>>.
+
+<3> Write each key to the target using <<_replication_dump_restore,restore>> or <<_replication_type_based,type-specific commands>>.
+
+
+[[_replication_usage]]
 == Usage
 
 [source]
 ----
-riot <source> replicate <target> --mode <snapshot|live|compare> [OPTIONS]
+riot <source> replicate <target> --mode <snapshot|live|compare> --type <dump|struct> [OPTIONS]
 ----
 
 For the full usage, run:
@@ -22,6 +36,85 @@ For the full usage, run:
 ----
 riot replicate --help
 ----
+
+[[_replication_mode]]
+== Replication Mode
+
+=== Snapshot
+
+This mode iterates over the keys in the source Redis database using scan.
+
+=== Live
+This mode builds upon snapshot replication by listening for changes on the source Redis database.
+Whenever a key is modified its corresponding value is read and propagated to the target Redis database.
+
+Live replication relies on keyspace notifications for capturing these changes.
+
+**Make sure the source database has keyspace notifications enabled** using:
+
+* `redis.conf`: `notify-keyspace-events = KA`
+* `CONFIG SET notify-keyspace-events KA`
+
+For more details see {link_redis_notif}.
+
+[WARNING]
+====
+The live replication mechanism does not guarantee data consistency.
+Redis sends keyspace notifications over pub/sub which does not provide guaranteed delivery.
+It is possible that {project-title} can miss some notifications in case of network failures for example.
+
+Also, depending on the type, size, and rate of change of data structures on the source it is possible that {project-title} cannot keep up with the change stream.
+For example if a big set is repeatedly updated, {project-title} will need to read the whole set on each update and transfer it over to the target database.
+With a big-enough set, {project-title} could fall behind and the internal queue could fill up leading up to updates being dropped.
+
+For those potentially problematic migrations it is recommend to perform some preliminary sizing using Redis statistics and `bigkeys`/`memkeys` in tandem with `--mem-limit`.
+If you need assistance please contact your Redis account team.
+====
+
+[[_replication_type]]
+== Replication Type
+
+[[_replication_dump_restore]]
+=== Dump & Restore
+
+The default replication mechanism is Dump & Restore:
+
+image::dump-and-restore.svg[]
+
+1. Scan for keys in the source Redis database.
+If live replication is enabled the reader also subscribes to keyspace notifications to generate a continuous stream of keys.
+
+2. Reader threads iterate over the keys to read corresponding values (DUMP) and TTLs.
+
+3. Reader threads enqueue key/value/TTL tuples into the reader queue, from which the writer dequeues key/value/TTL tuples and writes them to the target Redis database by calling RESTORE and EXPIRE.
+
+[[_replication_type_based]]
+=== Type-Based Replication
+
+There are situations where Dump & Restore cannot be used, for example:
+
+* The target Redis database does not support the RESTORE command ({link_redis_crdb})
+* Incompatible DUMP formats between source and target ({link_redis_7})
+
+In those cases you can use another replication strategy called *Type-Based Replication* where each key is introspected to determine the type of data structure and which read/write commands to use:
+
+[%header,cols="h,1,1"]
+|=========================================================
+|Type|Read|Write
+
+|Hash|`HGETALL`|`HSET`
+|JSON|`JSON.GET`|`JSON.SET`
+|List|`LRANGE`|`RPUSH`
+|Set|`SMEMBERS`|`SADD`
+|Sorted Set|`ZRANGE`|`ZADD`
+|Stream|`XRANGE`|`XADD`
+|String|`GET`|`SET`
+|TimeSeries|`TS.RANGE`|`TS.ADD`
+
+|=========================================================
+
+WARNING: This replication strategy is more intensive in terms of CPU, memory, and network for the machines running {project-title} as well as the source and target Redis databases.
+Adjust number of threads, batch and queue sizes accordingly.
 
 .Snapshot replication example
 [source]
@@ -35,85 +128,36 @@ include::{testdir}/replicate[]
 include::{testdir}/replicate-live[]
 ----
 
-[[_target_redis_options]]
-=== Target Redis options
-Connection options for the target database are the same as the source Redis connection options:
-
-include::{includedir}/redis-options.adoc[leveloffset=+2]
-
-[[_replicate_options]]
-=== Replication Options
-
-`--event-order`::
-Keyspace notification ordering strategy.
-
-- `fifo`: Keeps order of notifications as they are received.
-- `priority`: Orders notifications based on the underlying data-structure: `string` > `hash` > `json` > `list` > `set` > `zset` > `stream` > `timeseries`.
-
-`--event-queue`::
-Capacity of the keyspace notification queue (default: `10000`).
-
-`--flush-interval`::
-Max duration between flushes (default: `50`).
-
-`--idle-timeout`::
-Min duration of inactivity to consider transfer complete (default: no timeout).
-
-`--key-process`::
-SpEL expression to transform each key.
-
-`--mode`::
-Replication mode.
-
-- `snapshot`: Initial replication using key scan.
-- `live`: Initial and continuous replication using key scan and keyspace notifications in parallel. See <<_replicate_live,Live Replication>> for details.
-- `liveonly`: Continuous replication using keyspace notifications (only changed keys are replicated).
-- `compare`: Compare source and target keys
-
-`--no-verify`::
-Disable verifying target against source dataset after replication.
-
-`--show-diffs`::
-Print details of key mismatches during dataset verification.
-
-`--target-pool`::
-Max connections for target Redis pool (default: `8`).
-
-`--target-read-from`::
-Which target Redis cluster nodes to read data from.
-
-`--ttl-tolerance`::
-Max TTL difference to use for dataset verification (default: `100`).
-
-[[_replicate_type]]
-`--type`::
-Replication strategy (default: `dump`).
-
-- `dump`: <<_replicate_dump_and_restore,Dump & Restore>>.
-- `ds`: <<_replicate_type_based,Type-based Replication>>.
-
-[[_source_reader_options]]
-=== Source reader options
-include::{includedir}/reader-options.adoc[leveloffset=+2]
-
-[[_replicate_performance_tuning]]
-=== Performance Tuning
-
-Performance tuning is an art but {project-title} offers some options to identify potential bottlenecks.
-In addition to <<_batching,batch>> and <<_threads,threads>> options you have the `--dry-run` option which disables writing to the target Redis database so that you can tune the <<_source_reader_options,reader>> in isolation.
-Add that option to your existing `replicate` command-line to compare replication speeds with and without writing to the target Redis database:
-
+.Type-based replication example
 [source]
 ----
-riot <source> replicate <target> --dry-run
+include::{testdir}/replicate-struct[]
 ----
 
-[[_replicate_verification]]
-=== Verification
+.Live type-based replication example
+[source]
+----
+include::{testdir}/replicate-live-struct[]
+----
 
-Once replication is complete {project-title} will perform a verification step by iterating over keys in the source database and comparing values and TTLs between source and target databases.
+[[_replication_progress]]
+== Progress Reporting
+Each process (scan iterator and/or event listener in case of live replication) has a corresponding status bar that shows the process name and its progress:
 
-The verification step happens automatically after the scan is complete (snapshot replication), or for live replication when keyspace notifications have become idle (see <<_replicate_usage, Usage>> section).
+Scanning::
+    Percentage of keys that have been replicated => replicated / total.
+    The total number of keys is calculated when the process starts and it can change by the time it is finished (for example if keys are deleted or added during the replication).
+    The progress bar is only a rough indicator.
+Listening::
+    Progress is indefinite as total number of keys is unknown.
+
+
+[[_replication_compare]]
+== Compare
+
+Once replication is complete, {project-title} performs a verification step by iterating over keys in the source database and comparing values and TTLs between source and target databases.
+
+The verification step happens automatically after the scan is complete (snapshot replication), or for live replication when keyspace notifications have become idle (see <<_replication_usage, Usage>> section).
 
 Verification can also be run on-demand using the `compare` mode:
 [source]
@@ -124,7 +168,7 @@ riot <source> replicate --mode compare <target>
 The output looks like this:
 
 ----
-123 missing, 54 type, 7 value, 19 ttl
+missing: 123, type: 54, value: 7, TTL: 19
 ----
 
 missing::
@@ -136,8 +180,13 @@ Number of keys with mismatched data structure type
 value::
 Number of keys with mismatched value
 
-ttl::
+TTL::
 Number of keys with mismatched TTL i.e. difference is greater than tolerance (can be specified with `--ttl-tolerance`)
+
+There are 2 comparison modes available through `--compare-mode`:
+
+* Quick (default): compares key types
+* Full: compares key types, values, and TTLs
 
 To show which keys are different use the `--show-diffs` option:
 
@@ -146,88 +195,15 @@ To show which keys are different use the `--show-diffs` option:
 riot <source> replicate <target> --show-diffs
 ----
 
-[[_replicate_progress]]
-=== Progress
+[[_replication_performance_tuning]]
+== Performance Tuning
 
-Each process (scan iterator and/or event listener in case of live replication) has a corresponding status bar that shows the process name and its progress:
+Performance tuning is an art but {project-title} offers some options to identify potential bottlenecks.
+In addition to <<_batching,batch>> and <<_threads,threads>> options you have the `--dry-run` option which disables writing to the target Redis database so that you can tune the reader in isolation.
+Add that option to your existing `replicate` command-line to compare replication speeds with and without writing to the target Redis database:
 
-Scanning::
-    Percentage of keys that have been replicated => replicated / total.
-    The total number of keys is calculated when the process starts and it can change by the time it is finished (for example if keys are deleted or added during the replication).
-    The progress bar is only a rough indicator.
-Listening::
-    Progress is indefinite as total number of keys is unknown.
-
-[[_replicate_live]]
-== Live Replication
-
-In live replication mode {project-title} listens for changes happening on the source database using keyspace notifications.
-Each time a key is modified, {project-title} reads the corresponding value and propagates that change to the target database.
-
-Live replication relies on keyspace notifications. 
-**Make sure the source database has keyspace notifications enabled** using `notify-keyspace-events = KA` in `redis.conf` or via `CONFIG SET`.
-For more details see {link_redis_notif}.
-
-[WARNING]
-====
-The live replication mechanism does not guarantee data consistency.
-Redis sends keyspace notifications over pub/sub which does not provide guaranteed delivery.
-It is possible that {project-title} can miss some notifications in case of network failures for example.
-
-Also, depending on the type, size, and rate of change of data structures on the source it is possible that {project-title} cannot keep up with the change stream.
-For example if a big set is repeatedly updated, {project-title} will need to read the whole set on each update and transfer it over to the target database.
-With a big-enough set, {project-title} could fall behind and the internal queue could fill up leading up to updates being dropped.
-Some preliminary sizing using Redis statistics and `bigkeys`/`memkeys` (or `--mem-limit` in <<_source_reader_options,source reader options>>) is recommended for these migrations.
-If you need assistance please contact your Redis account team.
-====
-
-[[_replicate_dump_and_restore]]
-== Dump & Restore
-
-The default replication mechanism in {project-title} is DUMP & RESTORE:
-
-image::dump-and-restore.svg[]
-
-1. Scan for keys in the source Redis database.
-If live replication is enabled the reader also subscribes to keyspace notifications to generate a continuous stream of keys.
-
-2. Reader threads iterate over the keys to read corresponding values (DUMP) and TTLs.
-
-3. Reader threads enqueue key/value/TTL tuples into the reader queue, from which the writer dequeues key/value/TTL tuples and writes them to the target Redis database by calling RESTORE and EXPIRE.
-
-
-[[_replicate_type_based]]
-== Type-Based Replication
-
-In some cases DUMP & RESTORE cannot be used. For example:
-
-- The target Redis database does not support the RESTORE command ({link_redis_crdb})
-- Incompatible DUMP formats between source and target ({link_redis_7})
-
-For these {project-title} includes another replication strategy called *Type-Based Replication* where data type has a corresponding pair of read/write commands:
-
-[%header,cols="h,1,1"]
-|=========================================================
-|Type|Read|Write
-
-|Hash|HGETALL|HSET
-|List|LRANGE|RPUSH
-|Set|SMEMBERS|SADD
-|Sorted Set|ZRANGE|ZADD
-|Stream|XRANGE|XADD
-|String|GET|SET
-
-|=========================================================
-
-To select this replication mechanism use the `--type ds` option:
-
-.Live type-based replication example
 [source]
 ----
-include::{testdir}/replicate-live-struct[]
+riot <source> replicate <target> --dry-run
 ----
 
-WARNING: This replication strategy is more intensive in terms of CPU, memory, and network for the machines running {project-title}.
-Adjust number of threads, batch, and queue sizes accordingly.
-
-include::{includedir}/elasticache.adoc[leveloffset=+1]

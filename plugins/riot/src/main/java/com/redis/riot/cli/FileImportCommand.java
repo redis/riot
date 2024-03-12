@@ -1,6 +1,6 @@
 package com.redis.riot.cli;
 
-import com.redis.riot.core.AbstractMapImport;
+import com.redis.riot.core.AbstractImport;
 import com.redis.riot.file.FileImport;
 
 import picocli.CommandLine.ArgGroup;
@@ -13,7 +13,7 @@ public class FileImportCommand extends AbstractImportCommand {
     FileImportArgs args = new FileImportArgs();
 
     @Override
-    protected AbstractMapImport getMapImportExecutable() {
+    protected AbstractImport importExecutable() {
         FileImport executable = new FileImport();
         executable.setFiles(args.files);
         executable.setColumnRanges(args.columnRanges);

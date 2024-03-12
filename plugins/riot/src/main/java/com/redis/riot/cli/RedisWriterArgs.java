@@ -20,7 +20,7 @@ public class RedisWriterArgs {
     @Option(names = "--write-pool", description = "Max connections for writer pool (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
     private int poolSize = RedisWriterOptions.DEFAULT_POOL_SIZE;
 
-    @Option(names = "--merge", description = "Merge data structures instead of overwriting.")
+    @Option(names = "--merge", description = "Merge properties from collection data structures (`hash`, `set`, ...) instead of overwriting them.")
     private boolean merge;
 
     public RedisWriterOptions writerOptions() {

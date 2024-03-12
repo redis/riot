@@ -1,13 +1,15 @@
 package com.redis.riot.cli;
 
-import java.util.List;
-import java.util.function.LongSupplier;
+import java.util.concurrent.Callable;
 import java.util.function.Supplier;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.listener.ItemListenerSupport;
+import org.springframework.batch.item.Chunk;
 
 import me.tongfei.progressbar.ProgressBar;
 import me.tongfei.progressbar.ProgressBarBuilder;
@@ -21,55 +23,58 @@ import me.tongfei.progressbar.ProgressBarBuilder;
 @SuppressWarnings("rawtypes")
 public class ProgressStepExecutionListener extends ItemListenerSupport implements StepExecutionListener {
 
-    public static final long UNKNOWN_SIZE = -1;
+	public static final long UNKNOWN_SIZE = -1;
+	public static final String EMPTY_STRING = "";
 
-    public static final String EMPTY_STRING = "";
+	private final Logger log = LoggerFactory.getLogger(ProgressStepExecutionListener.class);
 
-    private final ProgressBarBuilder builder;
+	private final ProgressBarBuilder builder;
 
-    private LongSupplier initialMaxSupplier = () -> UNKNOWN_SIZE;
+	private Callable<Long> initialMaxSupplier = () -> UNKNOWN_SIZE;
+	private Supplier<String> extraMessageSupplier = () -> EMPTY_STRING;
+	private ProgressBar progressBar;
 
-    private Supplier<String> extraMessageSupplier = () -> EMPTY_STRING;
+	public ProgressStepExecutionListener(ProgressBarBuilder builder) {
+		this.builder = builder;
+	}
 
-    private ProgressBar progressBar;
+	public void setInitialMaxSupplier(Callable<Long> supplier) {
+		this.initialMaxSupplier = supplier;
+	}
 
-    public ProgressStepExecutionListener(ProgressBarBuilder builder) {
-        this.builder = builder;
-    }
+	public void setExtraMessageSupplier(Supplier<String> supplier) {
+		this.extraMessageSupplier = supplier;
+	}
 
-    public void setInitialMaxSupplier(LongSupplier supplier) {
-        this.initialMaxSupplier = supplier;
-    }
+	@Override
+	public void beforeStep(StepExecution stepExecution) {
+		progressBar = builder.build();
+		try {
+			progressBar.maxHint(initialMaxSupplier.call());
+		} catch (Exception e) {
+			log.error("Could not estimate size", e);
+		}
+	}
 
-    public void setExtraMessageSupplier(Supplier<String> supplier) {
-        this.extraMessageSupplier = supplier;
-    }
+	@Override
+	public ExitStatus afterStep(StepExecution stepExecution) {
+		if (!stepExecution.getStatus().isUnsuccessful()) {
+			progressBar.stepTo(progressBar.getMax());
+		}
+		progressBar.close();
+		return stepExecution.getExitStatus();
+	}
 
-    @Override
-    public void beforeStep(StepExecution stepExecution) {
-        progressBar = builder.build();
-        progressBar.maxHint(initialMaxSupplier.getAsLong());
-    }
+	@Override
+	public void afterWrite(Chunk items) {
+		progressBar.stepBy(items.size());
+		progressBar.setExtraMessage(extraMessageSupplier.get());
+	}
 
-    @Override
-    public ExitStatus afterStep(StepExecution stepExecution) {
-        if (!stepExecution.getStatus().isUnsuccessful()) {
-            progressBar.stepTo(progressBar.getMax());
-        }
-        progressBar.close();
-        return stepExecution.getExitStatus();
-    }
+	@Override
+	public void onWriteError(Exception exception, Chunk items) {
+		progressBar.stepBy(items.size());
 
-    @Override
-    public void afterWrite(List items) {
-        progressBar.stepBy(items.size());
-        progressBar.setExtraMessage(extraMessageSupplier.get());
-    }
-
-    @Override
-    public void onWriteError(Exception exception, List items) {
-        progressBar.stepBy(items.size());
-
-    }
+	}
 
 }

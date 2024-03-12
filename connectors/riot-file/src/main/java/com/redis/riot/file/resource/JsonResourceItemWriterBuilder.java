@@ -108,7 +108,6 @@ public class JsonResourceItemWriterBuilder<T> {
 	 *
 	 * @param resource the output of the writer.
 	 * @return The current instance of the builder.
-	 * @see JsonResourceItemWriter#setResource(Resource)
 	 */
 	public JsonResourceItemWriterBuilder<T> resource(Resource resource) {
 		Assert.isInstanceOf(WritableResource.class, resource);

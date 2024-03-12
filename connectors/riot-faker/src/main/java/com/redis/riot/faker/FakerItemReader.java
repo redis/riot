@@ -7,7 +7,6 @@ import java.util.Map;
 
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
-import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.support.DataBindingMethodResolver;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
@@ -25,88 +24,76 @@ import net.datafaker.Faker;
  */
 public class FakerItemReader extends AbstractItemCountingItemStreamItemReader<Map<String, Object>> {
 
-    public static final Locale DEFAULT_LOCALE = Locale.getDefault();
+	public static final Locale DEFAULT_LOCALE = Locale.getDefault();
 
-    private Map<String, Expression> fields = new LinkedHashMap<>();
+	private Map<String, Expression> fields = new LinkedHashMap<>();
+	private Locale locale = DEFAULT_LOCALE;
+	private StandardEvaluationContext evaluationContext;
 
-    private Locale locale = DEFAULT_LOCALE;
+	public FakerItemReader() {
+		setName(ClassUtils.getShortName(getClass()));
+	}
 
-    private EvaluationContext evaluationContext;
+	public void setLocale(Locale locale) {
+		this.locale = locale;
+	}
 
-    public FakerItemReader() {
-        setName(ClassUtils.getShortName(getClass()));
-    }
+	public void setFields(Map<String, Expression> fields) {
+		this.fields = fields;
+	}
 
-    public void setLocale(Locale locale) {
-        this.locale = locale;
-    }
+	public void setStringFields(Map<String, String> stringFields) {
+		Map<String, Expression> expressions = new LinkedHashMap<>();
+		stringFields.forEach((k, v) -> expressions.put(k, RiotUtils.parse(v)));
+		this.fields = expressions;
+	}
 
-    public void setFields(Map<String, Expression> fields) {
-        this.fields = fields;
-    }
+	@Override
+	protected synchronized void doOpen() throws Exception {
+		if (evaluationContext == null) {
+			Assert.notEmpty(fields, "No field specified");
+			evaluationContext = new StandardEvaluationContext();
+			evaluationContext.addPropertyAccessor(new ReflectivePropertyAccessor());
+			evaluationContext.addMethodResolver(DataBindingMethodResolver.forInstanceMethodInvocation());
+			evaluationContext.setRootObject(new AugmentedFaker(locale));
+		}
+	}
 
-    public void setStringFields(Map<String, String> stringFields) {
-        Map<String, Expression> expressions = new LinkedHashMap<>();
-        stringFields.forEach((k, v) -> expressions.put(k, RiotUtils.parse(v)));
-        this.fields = expressions;
-    }
+	@Override
+	protected Map<String, Object> doRead() throws Exception {
+		Map<String, Object> map = new HashMap<>();
+		fields.forEach((k, v) -> map.put(k, v.getValue(evaluationContext)));
+		return map;
+	}
 
-    @Override
-    protected synchronized void doOpen() throws Exception {
-        if (!isOpen()) {
-            Assert.notEmpty(fields, "No field specified");
-            evaluationContext = evaluationContext();
-        }
-    }
+	@Override
+	protected synchronized void doClose() {
+		evaluationContext = null;
+	}
 
-    private EvaluationContext evaluationContext() {
-        StandardEvaluationContext context = new StandardEvaluationContext();
-        context.addPropertyAccessor(new ReflectivePropertyAccessor());
-        context.addMethodResolver(DataBindingMethodResolver.forInstanceMethodInvocation());
-        context.setRootObject(new AugmentedFaker(locale));
-        return context;
-    }
+	public class AugmentedFaker extends Faker {
 
-    @Override
-    protected Map<String, Object> doRead() throws Exception {
-        Map<String, Object> map = new HashMap<>();
-        fields.forEach((k, v) -> map.put(k, v.getValue(evaluationContext)));
-        return map;
-    }
+		public AugmentedFaker(Locale locale) {
+			super(locale);
+		}
 
-    @Override
-    protected synchronized void doClose() throws Exception {
-        if (isOpen()) {
-            evaluationContext = null;
-        }
-    }
+		public int getIndex() {
+			return index();
+		}
 
-    public boolean isOpen() {
-        return evaluationContext != null;
-    }
+		public int index() {
+			return getCurrentItemCount();
+		}
 
-    public class AugmentedFaker extends Faker {
+		public long getThread() {
+			return thread();
+		}
 
-        public AugmentedFaker(Locale locale) {
-            super(locale);
-        }
+		@SuppressWarnings("deprecation")
+		public long thread() {
+			return Thread.currentThread().getId();
+		}
 
-        public int getIndex() {
-            return index();
-        }
-
-        public int index() {
-            return getCurrentItemCount();
-        }
-
-        public Thread getThread() {
-            return thread();
-        }
-
-        public Thread thread() {
-            return Thread.currentThread();
-        }
-
-    }
+	}
 
 }

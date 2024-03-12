@@ -80,7 +80,6 @@ public class FlatResourceItemWriterBuilder<T> {
 	 *
 	 * @param resource the output of the writer.
 	 * @return The current instance of the builder.
-	 * @see FlatResourceItemWriter#setResource(Resource)
 	 */
 	public FlatResourceItemWriterBuilder<T> resource(Resource resource) {
 		Assert.isInstanceOf(WritableResource.class, resource);

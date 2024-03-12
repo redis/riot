@@ -1,0 +1,1 @@
+riot faker-import --count 8000 --threads 8 id="thread*10000+index" firstName="name.firstName" lastName="name.lastName" address="address.fullAddress" hset --keyspace person --keys id

@@ -46,6 +46,7 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.ServiceOptions;
 import com.google.cloud.storage.StorageOptions;
 import com.redis.riot.core.KeyValueDeserializer;
+import com.redis.riot.core.RuntimeRiotException;
 import com.redis.riot.file.resource.FilenameInputStreamResource;
 import com.redis.riot.file.resource.OutputStreamResource;
 import com.redis.riot.file.resource.UncustomizedUrlResource;
@@ -95,7 +96,7 @@ public abstract class FileUtils {
             try {
                 return FileUtils.expand(f);
             } catch (IOException e) {
-                throw new RuntimeIOException(e);
+                throw new RuntimeRiotException(e);
             }
         });
     }
@@ -138,13 +139,13 @@ public abstract class FileUtils {
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public static <T> JsonItemReader<T> jsonReader(Resource resource, Class<? super T> type) {
-        JsonItemReaderBuilder<T> jsonReaderBuilder = new JsonItemReaderBuilder<>();
-        jsonReaderBuilder.name(resource.getFilename() + "-json-file-reader");
-        jsonReaderBuilder.resource(resource);
-        JacksonJsonObjectReader<T> jsonObjectReader = new JacksonJsonObjectReader(type);
-        jsonObjectReader.setMapper(objectMapper());
-        jsonReaderBuilder.jsonObjectReader(jsonObjectReader);
-        return jsonReaderBuilder.build();
+        JsonItemReaderBuilder<T> builder = new JsonItemReaderBuilder<>();
+        builder.name(resource.getFilename() + "-json-file-reader");
+        builder.resource(resource);
+        JacksonJsonObjectReader<T> jsonReader = new JacksonJsonObjectReader(type);
+        jsonReader.setMapper(objectMapper());
+        builder.jsonObjectReader(jsonReader);
+        return builder.build();
     }
 
     public static ObjectMapper objectMapper() {
@@ -155,13 +156,13 @@ public abstract class FileUtils {
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public static <T> XmlItemReader<T> xmlReader(Resource resource, Class<? super T> type) {
-        XmlItemReaderBuilder<T> xmlReaderBuilder = new XmlItemReaderBuilder<>();
-        xmlReaderBuilder.name(resource.getFilename() + "-xml-file-reader");
-        xmlReaderBuilder.resource(resource);
-        XmlObjectReader<T> xmlObjectReader = new XmlObjectReader(type);
-        xmlObjectReader.setMapper(xmlMapper());
-        xmlReaderBuilder.xmlObjectReader(xmlObjectReader);
-        return xmlReaderBuilder.build();
+        XmlItemReaderBuilder<T> builder = new XmlItemReaderBuilder<>();
+        builder.name(resource.getFilename() + "-xml-file-reader");
+        builder.resource(resource);
+        XmlObjectReader<T> xmlReader = new XmlObjectReader(type);
+        xmlReader.setMapper(xmlMapper());
+        builder.xmlObjectReader(xmlReader);
+        return builder.build();
     }
 
     public static XmlMapper xmlMapper() {
@@ -189,7 +190,15 @@ public abstract class FileUtils {
         throw new UnsupportedOperationException("Unsupported file extension: " + extension);
     }
 
-    public static Resource inputResource(String file, FileOptions options) {
+    public static Resource safeInputResource(String file, FileOptions options) {
+        try {
+            return inputResource(file, options);
+        } catch (IOException e) {
+            throw new RuntimeRiotException("Could not open file " + file, e);
+        }
+    }
+
+    public static Resource inputResource(String file, FileOptions options) throws IOException {
         if (FileUtils.isConsole(file)) {
             return new FilenameInputStreamResource(System.in, "stdin", "Standard Input");
         }
@@ -197,15 +206,15 @@ public abstract class FileUtils {
         try {
             resource = resource(file, true, options);
         } catch (IOException e) {
-            throw new RuntimeIOException("Could not read file " + file, e);
+            throw new RuntimeRiotException("Could not read file " + file, e);
         }
-        Assert.isTrue(resource != null && resource.exists(), "Input resource must exist: " + file);
+        resource.getInputStream();
         if (options.isGzipped() || FileUtils.isGzip(file)) {
             GZIPInputStream gzipInputStream;
             try {
                 gzipInputStream = new GZIPInputStream(resource.getInputStream());
             } catch (IOException e) {
-                throw new RuntimeIOException("Could not open input stream", e);
+                throw new RuntimeRiotException("Could not open input stream", e);
             }
             return new FilenameInputStreamResource(gzipInputStream, resource.getFilename(), resource.getDescription());
         }
@@ -284,7 +293,7 @@ public abstract class FileUtils {
     }
 
     public static List<Resource> inputResources(List<String> files, FileOptions fileOptions) {
-        return expandAll(files).map(f -> inputResource(f, fileOptions)).collect(Collectors.toList());
+        return expandAll(files).map(f -> safeInputResource(f, fileOptions)).collect(Collectors.toList());
     }
 
 }

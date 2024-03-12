@@ -1,29 +1,101 @@
 [[_overview]]
 = Overview
 
-Redis Input/Output Tools ({project-title}) is a command-line utility to get data in and out of any Redis-compatible database like Redis OSS, Redis Cluster, Redis Enterprise, or <<_elasticache, Amazon ElastiCache>>.
+Redis Input/Output Tools ({project-title}) is a command-line utility to get data in and out of any Redis-compatible database like Redis OSS, Redis Cluster, Redis Enterprise, Redis Cloud, or <<_elasticache, Amazon ElastiCache>>.
 
 {project-title} allows you to:
 
-* Import data into a Redis database
-* Export data from a Redis database
+* Import/export data between a Redis database and
+** Files (CSV, JSON, XML)
+** Data generators (data structures, Faker)
+** Relational databases
 * Replicate (migrate) data between two Redis databases
-
-{project-title} supports many different sources and targets:
-
-* Files (CSV, JSON, XML)
-* Data generators (data structures, Faker)
-* Relational databases
-* Redis itself (snapshot and live replication)
 
 [[_architecture]]
 == Architecture
 
+{project-title} is essentially an {link_etl} tool where data is extracted from the source system, transformed (see <<_processing,Processing>>), and loaded into the target system.
+
 image::architecture.svg[]
 
-{project-title} processes data in batch fashion: a fixed number of records (batch AKA chunk) is read, processed, and written at a time.
-Then the cycle is repeated until there's no more data on the source.
+[[_batching]]
+=== Batching
 
-Import commands (<<_file_import,`file-import`>>, <<_db_import,`db-import`>>, <<_faker_import,`faker-import`>>) construct keys from input records by concatenating a keyspace prefix and fields.
+Processing in {project-title} is done in batches: a fixed number of records is read from the source, processed, and written to the target.
+The default batch size is `50`, which means that an execution step reads 50 items at a time from the source, processes them, and finally writes then to the target.
+If the target is Redis, writing is done in a single command ({link_redis_pipelining}) to minimize the number of roundtrips to the server.
 
-image::mapping.png[]
+You can change the batch size (and hence pipeline size) using the `--batch` option.
+The optimal batch size in terms of throughput depends on many factors like record size and command types (see {link_pipeline_tuning} for details).
+
+.Batching example
+[source]
+----
+include::{testdir}/faker-import-tsadd[]
+----
+
+[[_threads]]
+=== Multi-threading
+
+It is possible to parallelize processing by using multiple threads.
+In that configuration, each chunk of items is read, processed, and written in a separate thread of execution.
+This is different from partitioning where items would be read by multiple readers.
+Here, only one reader is being accessed from multiple threads.
+
+To set the number of threads, use the `--threads` option.
+
+.Multi-threading example
+[source]
+----
+include::{testdir}/db-import-postgresql-multithreaded[]
+----
+
+[[_processing]]
+=== Processing
+
+{project-title} lets you transform incoming records using processors.
+These processors allow you to create/update/delete fields using the {link_spel} (SpEL).
+For example, import commands like `file-import`, `database-import`, and `faker-import` have a `--proc` option that allow for field-level processing:
+
+* `field1='foo'` -> generate a field named `field1` containing the string `foo`
+* `temp=(temp-32)*5/9` -> convert from Fahrenheit to Celsius
+* `name=remove(first).concat(remove(last))` -> concatenate `first` and `last` fields and delete them
+* `field2=null` -> delete `field2`
+
+Input fields are accessed by name (e.g. `field3=field1+field2`).
+
+Processors have access to the following context variables and functions:
+
+`date`:: Date parsing and formatting object.
+Instance of Java https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html[SimpleDateFormat].
+
+`redis`:: Redis commands object.
+Instance of Lettuce https://www.lettuce.io/core/release/api/io/lettuce/core/api/sync/RedisCommands.html[RedisCommands].
+
+`geo`:: Convenience function that takes a longitude and a latitude to produce a RediSearch geo-location string in the form `longitude,latitude` (e.g. `location=#geo(lon,lat)`)
+
+.Processor example
+[source]
+----
+riot file-import --proc epoch="#date.parse(mydate).getTime()" location="#geo(lon,lat)" name="#redis.hget('person1','lastName')" ...
+----
+
+You can register your own variables using `--var`.
+
+.Custom variable example
+[source]
+----
+include::{testdir}/file-import-process-var[]
+----
+
+[[_filters]]
+=== Filtering
+
+Filters allow you to exclude records that don't match a SpEL boolean expression.
+
+For example this filter will only keep records where the `value` field is a series of digits:
+
+[source]
+----
+riot file-import --filter "value matches '\\d+'" ...
+----

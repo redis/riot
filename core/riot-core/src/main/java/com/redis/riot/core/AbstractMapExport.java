@@ -17,42 +17,43 @@ import io.lettuce.core.codec.StringCodec;
 
 public abstract class AbstractMapExport extends AbstractExport {
 
-    public static final Pattern DEFAULT_KEY_PATTERN = Pattern.compile("\\w+:(?<id>.+)");
+	public static final Pattern DEFAULT_KEY_REGEX = Pattern.compile("\\w+:(?<id>.+)");
 
-    private Pattern keyPattern = DEFAULT_KEY_PATTERN;
+	private Pattern keyRegex = DEFAULT_KEY_REGEX;
 
-    public void setKeyPattern(Pattern pattern) {
-        this.keyPattern = pattern;
-    }
+	public void setKeyRegex(Pattern pattern) {
+		this.keyRegex = pattern;
+	}
 
-    @Override
-    protected Job job(RiotContext context) {
-        StructItemReader<String, String> reader = reader(context.getRedisContext());
-        ItemProcessor<KeyValue<String>, Map<String, Object>> processor = processor(context);
-        ItemWriter<Map<String, Object>> writer = writer();
-        return jobBuilder().start(step(getName(), reader, processor, writer).build()).build();
-    }
+	@Override
+	protected Job job(RiotContext context) throws Exception {
+		StructItemReader<String, String> reader = reader(context.getRedisContext());
+		ItemProcessor<KeyValue<String>, Map<String, Object>> processor = processor(context);
+		ItemWriter<Map<String, Object>> writer = writer();
+		return jobBuilder().start(step(getName(), reader, processor, writer).build()).build();
+	}
 
-    protected StructItemReader<String, String> reader(RedisContext context) {
-        StructItemReader<String, String> reader = new StructItemReader<>(context.getClient(), StringCodec.UTF8);
-        configureReader(reader, context);
-        return reader;
-    }
+	protected StructItemReader<String, String> reader(RedisContext context) throws Exception {
+		StructItemReader<String, String> reader = new StructItemReader<>(context.getClient(), StringCodec.UTF8);
+		configureReader("export-reader", reader, context);
+		return reader;
+	}
 
-    protected ItemProcessor<KeyValue<String>, Map<String, Object>> processor(RiotContext context) {
-        ItemProcessor<KeyValue<String>, KeyValue<String>> processor = processor(StringCodec.UTF8, context);
-        StructToMapFunction toMapFunction = new StructToMapFunction();
-        if (keyPattern != null) {
-            toMapFunction.setKey(new RegexNamedGroupFunction(keyPattern));
-        }
-        return RiotUtils.processor(processor, new FunctionItemProcessor<>(toMapFunction));
-    }
-    
-    @Override
-    protected boolean isStruct() {
-        return true;
-    }
+	protected ItemProcessor<KeyValue<String>, Map<String, Object>> processor(RiotContext context) {
+		ItemProcessor<KeyValue<String>, KeyValue<String>> processor = new FunctionItemProcessor<>(
+				processor(StringCodec.UTF8, context));
+		StructToMapFunction toMapFunction = new StructToMapFunction();
+		if (keyRegex != null) {
+			toMapFunction.setKey(new RegexNamedGroupFunction(keyRegex));
+		}
+		return RiotUtils.processor(processor, new FunctionItemProcessor<>(toMapFunction));
+	}
 
-    protected abstract ItemWriter<Map<String, Object>> writer();
+	@Override
+	protected boolean isStruct() {
+		return true;
+	}
+
+	protected abstract ItemWriter<Map<String, Object>> writer();
 
 }

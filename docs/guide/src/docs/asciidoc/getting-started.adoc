@@ -1,13 +1,13 @@
 [[_getting_started]]
 = Getting Started
 
-This section helps you get started with the main features of {project-title}.
+This section helps you get started with {project-title}.
 
 :leveloffset: +1
+include::{includedir}/install.adoc[]
 include::{includedir}/usage.adoc[]
 include::{includedir}/files.adoc[]
 include::{includedir}/generators.adoc[]
 include::{includedir}/databases.adoc[]
 include::{includedir}/replication.adoc[]
-include::{includedir}/ping.adoc[]
 :leveloffset: -1

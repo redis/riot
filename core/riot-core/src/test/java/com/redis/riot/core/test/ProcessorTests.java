@@ -15,7 +15,7 @@ import org.springframework.batch.item.ItemProcessor;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
-import com.redis.riot.core.AbstractMapImport;
+import com.redis.riot.core.AbstractImport;
 import com.redis.riot.core.KeyFilterOptions;
 import com.redis.riot.core.RiotContext;
 import com.redis.riot.core.RiotUtils;
@@ -45,7 +45,7 @@ class ProcessorTests {
         // Assertions.assertEquals("1", map.get("id"));
     }
 
-    private static class DummyMapImport extends AbstractMapImport {
+    private static class DummyMapImport extends AbstractImport {
 
         @Override
         protected Job job(RiotContext executionContext) {

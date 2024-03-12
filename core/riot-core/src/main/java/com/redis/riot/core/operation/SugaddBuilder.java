@@ -6,57 +6,58 @@ import java.util.function.ToDoubleFunction;
 
 import com.redis.lettucemod.search.Suggestion;
 import com.redis.spring.batch.common.ToSuggestionFunction;
+import com.redis.spring.batch.writer.operation.AbstractKeyWriteOperation;
 import com.redis.spring.batch.writer.operation.Sugadd;
 
 public class SugaddBuilder extends AbstractMapOperationBuilder {
 
-    public static final double DEFAULT_SCORE = 1;
+	public static final double DEFAULT_SCORE = 1;
 
-    public static final boolean DEFAULT_INCREMENT = false;
+	public static final boolean DEFAULT_INCREMENT = false;
 
-    private String stringField;
+	private String stringField;
 
-    private String scoreField;
+	private String scoreField;
 
-    private double defaultScore = DEFAULT_SCORE;
+	private double defaultScore = DEFAULT_SCORE;
 
-    private String payloadField;
+	private String payloadField;
 
-    private boolean increment = DEFAULT_INCREMENT;
+	private boolean increment = DEFAULT_INCREMENT;
 
-    public void setStringField(String stringField) {
-        this.stringField = stringField;
-    }
+	public void setStringField(String stringField) {
+		this.stringField = stringField;
+	}
 
-    public void setScoreField(String scoreField) {
-        this.scoreField = scoreField;
-    }
+	public void setScoreField(String scoreField) {
+		this.scoreField = scoreField;
+	}
 
-    public void setDefaultScore(double defaultScore) {
-        this.defaultScore = defaultScore;
-    }
+	public void setDefaultScore(double defaultScore) {
+		this.defaultScore = defaultScore;
+	}
 
-    public void setPayloadField(String payloadField) {
-        this.payloadField = payloadField;
-    }
+	public void setPayloadField(String payloadField) {
+		this.payloadField = payloadField;
+	}
 
-    public void setIncrement(boolean increment) {
-        this.increment = increment;
-    }
+	public void setIncrement(boolean increment) {
+		this.increment = increment;
+	}
 
-    @Override
-    protected Sugadd<String, String, Map<String, Object>> operation() {
-        Sugadd<String, String, Map<String, Object>> operation = new Sugadd<>();
-        operation.setSuggestionFunction(suggestion());
-        operation.setIncr(increment);
-        return operation;
-    }
+	@Override
+	protected AbstractKeyWriteOperation<String, String, Map<String, Object>> operation(
+			Function<Map<String, Object>, String> keyFunction) {
+		Sugadd<String, String, Map<String, Object>> operation = new Sugadd<>(keyFunction, suggestion());
+		operation.setIncr(increment);
+		return operation;
+	}
 
-    private Function<Map<String, Object>, Suggestion<String>> suggestion() {
-        Function<Map<String, Object>, String> string = toString(stringField);
-        ToDoubleFunction<Map<String, Object>> score = toDouble(scoreField, defaultScore);
-        Function<Map<String, Object>, String> payload = toString(payloadField);
-        return new ToSuggestionFunction<>(string, score, payload);
-    }
+	private Function<Map<String, Object>, Suggestion<String>> suggestion() {
+		Function<Map<String, Object>, String> string = toString(stringField);
+		ToDoubleFunction<Map<String, Object>> score = toDouble(scoreField, defaultScore);
+		Function<Map<String, Object>, String> payload = toString(payloadField);
+		return new ToSuggestionFunction<>(string, score, payload);
+	}
 
 }

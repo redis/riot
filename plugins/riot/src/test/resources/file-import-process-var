@@ -1,0 +1,1 @@
+riot file-import https://storage.googleapis.com/jrx/lacity.csv --var rnd="new java.util.Random()" --proc randomInt="#rnd.nextInt(100)" --header hset --keyspace event --keys Id

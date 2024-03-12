@@ -8,7 +8,7 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 @Command(name = "ping", description = "Test connectivity to a Redis server.")
-public class PingCommand extends AbstractCommand {
+public class PingCommand extends AbstractRiotCommand {
 
     @Option(names = "--iterations", description = "Number of test iterations. Use a negative value to test endlessly. (default: ${DEFAULT-VALUE}).", paramLabel = "<count>")
     int iterations = com.redis.riot.core.Ping.DEFAULT_ITERATIONS;

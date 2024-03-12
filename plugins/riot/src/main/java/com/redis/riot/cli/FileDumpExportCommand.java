@@ -12,7 +12,7 @@ public class FileDumpExportCommand extends AbstractExportCommand {
     FileDumpExportArgs args = new FileDumpExportArgs();
 
     @Override
-    protected FileDumpExport getExport() {
+    protected FileDumpExport exportExecutable() {
         FileDumpExport executable = new FileDumpExport();
         executable.setFile(args.file);
         executable.setAppend(args.append);

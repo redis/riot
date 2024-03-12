@@ -21,7 +21,8 @@ class FakerReaderTests {
         return list;
     }
 
-    @Test
+    @SuppressWarnings("deprecation")
+	@Test
     void fakerReader() throws Exception {
         int count = 100;
         FakerItemReader reader = new FakerItemReader();
@@ -29,7 +30,7 @@ class FakerReaderTests {
         fields.put("index", "index");
         fields.put("firstName", "name.firstName");
         fields.put("lastName", "name.lastName");
-        fields.put("thread", "thread.id");
+        fields.put("thread", "thread");
         reader.setStringFields(fields);
         reader.setMaxItemCount(count);
         reader.open(new ExecutionContext());

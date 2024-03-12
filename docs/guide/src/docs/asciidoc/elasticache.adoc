@@ -8,7 +8,7 @@ The following scenarios are covered:
 * One-time (snapshot) migration
 * Online (live) migration
 
-IMPORTANT: It is recommended to read the <<_replicate,Replication>> section to familiarize yourself with its usage and architecture.
+IMPORTANT: It is recommended to read the <<_replication,Replication>> section to familiarize yourself with its usage and architecture.
 
 == Setup
 

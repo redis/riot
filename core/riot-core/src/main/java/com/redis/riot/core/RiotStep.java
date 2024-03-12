@@ -17,7 +17,7 @@ public class RiotStep<I, O> {
 
     private ItemWriter<O> writer;
 
-    private Consumer<SimpleStepBuilder<I, O>> configurer = b -> {
+	private Consumer<SimpleStepBuilder<I, O>> configurer = b -> {
     };
 
     public String getName() {

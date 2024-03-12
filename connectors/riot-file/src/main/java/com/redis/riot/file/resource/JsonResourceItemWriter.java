@@ -17,8 +17,8 @@
 package com.redis.riot.file.resource;
 
 import java.util.Iterator;
-import java.util.List;
 
+import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.json.GsonJsonObjectMarshaller;
 import org.springframework.batch.item.json.JacksonJsonObjectMarshaller;
 import org.springframework.batch.item.json.JsonObjectMarshaller;
@@ -98,7 +98,7 @@ public class JsonResourceItemWriter<T> extends AbstractResourceItemWriter<T> {
 	}
 
 	@Override
-	public String doWrite(List<? extends T> items) {
+	public String doWrite(Chunk<? extends T> items) {
 		StringBuilder lines = new StringBuilder();
 		Iterator<? extends T> iterator = items.iterator();
 		if (!items.isEmpty() && state.getLinesWritten() > 0) {

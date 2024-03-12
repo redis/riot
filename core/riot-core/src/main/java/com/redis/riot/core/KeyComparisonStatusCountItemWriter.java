@@ -7,6 +7,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.support.AbstractItemStreamItemWriter;
 
 import com.redis.spring.batch.common.KeyComparison;
@@ -54,7 +55,7 @@ public class KeyComparisonStatusCountItemWriter extends AbstractItemStreamItemWr
     }
 
     @Override
-    public void write(List<? extends KeyComparison> items) {
+    public void write(Chunk<? extends KeyComparison> items) {
         for (KeyComparison comparison : items) {
             incrementAndGet(comparison.getStatus());
         }

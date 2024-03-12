@@ -17,7 +17,7 @@ riot --help
 
 [TIP]
 ====
-You can use `--help` on any command and subcommand:
+`--help` is available on any command and subcommand:
 
 [source]
 ----
@@ -36,98 +36,7 @@ Run the following command to give `riot` TAB completion in the current shell:
 $ source <(riot generate-completion)
 ----
 
-[[_logging_options]]
-== Logging options
+[[_manpage]]
+== Manual
+The manual is available link:manpage/riot.html[here]
 
-`-d, --debug`::
-Log in debug mode (includes normal stacktrace).
-
-`-i, --info`::
-Set log level to info.
-
-`-q, --quiet`::
-Log errors only.
-
-`-w, --warn`::
-Set log level to warn.
-
-[[_redis_options]]
-== Redis connection options
-include::{includedir}/redis-options.adoc[leveloffset=+1]
-
-[[_job_options]]
-== Job options
-include::{includedir}/job-options.adoc[leveloffset=+1]
-
-[[_batching]]
-== Batching
-
-The default batch size is `50`, which means that an execution step reads 50 items at a time from the source, processes them, and finally writes then to the target.
-If the target is Redis, writing is done in a single command ({link_redis_pipelining}) to minimize the number of roundtrips to the server.
-
-You can change the batch size (and hence pipeline size) using the `--batch` option.
-The optimal batch size in terms of throughput depends on many factors like record size and command types (see {link_pipeline_tuning} for details).
-
-.Batching example
-[source]
-----
-include::{testdir}/faker-import-tsadd[]
-----
-
-[[_threads]]
-== Multi-threading
-
-It is possible to parallelize processing by using multiple threads.
-In that configuration, each chunk of items is read, processed, and written in a separate thread of execution.
-This is different from partitioning where items would be read by multiple readers.
-Here, only one reader is being accessed from multiple threads.
-
-To set the number of threads, use the `--threads` option.
-
-.Multi-threading example
-[source]
-----
-include::{testdir}/db-import-postgresql-multithreaded[]
-----
-
-[[_import_processing]]
-== Processing
-
-{project-title} lets you process incoming records in different ways:
-
-* SpEL processors (`--proc`)
-* SpEL filtering (`--filter`)
-
-[[_spel_proc]]
-=== SpEL Processors
-
-These processors allow you to create/update/delete fields using the {link_spel} (SpEL):
-
-* `field1='foo'` -> generate a field named `field1` containing the string `foo`
-* `temp=(temp-32)*5/9` -> convert from Fahrenheit to Celsius
-* `name=remove(first).concat(remove(last))` -> concatenate `first` and `last` fields and delete them
-* `field2=null` -> delete `field2`
-
-Input fields are accessed by name (e.g. `field3=field1+field2`).
-
-Processors have access to the SpEL evaluation context and also this function:
-
-* `geo`: Convenience method that takes a longitude and a latitude to produce a RediSearch geo-location string in the form `longitude,latitude` (e.g. `location=#geo(lon,lat)`)
-
-.Processor example
-[source]
-----
-riot file-import --proc epoch="#date.parse(mydate).getTime()" location="#geo(lon,lat)" name="#redis.hget('person1','lastName')" ...
-----
-
-[[_filters]]
-=== Filters
-
-Filters allow you to exclude records that don't match a SpEL boolean expression.
-
-For example this filter will only keep records where the `value` field is a series of digits:
-
-[source]
-----
-riot file-import --filter "value matches '\\d+'" ...
-----

@@ -1,5 +1,5 @@
-[[_ping]]
-= Connectivity Testing
+[[_connectivity_test]]
+= Connectivity Test
 
 The `ping` command can be used to test connectivity to a Redis database.
 

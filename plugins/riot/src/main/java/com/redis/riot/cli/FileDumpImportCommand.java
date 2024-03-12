@@ -13,7 +13,7 @@ public class FileDumpImportCommand extends AbstractStructImportCommand {
     FileDumpImportArgs args = new FileDumpImportArgs();
 
     @Override
-    protected FileDumpImport getKeyValueImportExecutable() {
+    protected FileDumpImport importExecutable() {
         FileDumpImport executable = new FileDumpImport();
         executable.setFiles(args.files);
         executable.setFileOptions(args.fileOptions());

@@ -1,10 +1,10 @@
 [[_databases]]
-= Database Import/Export
+= Databases
 
 {project-title} can import from and export to databases.
 
 [[_db_import]]
-== Import from a SQL Database
+== Database Import
 
 The `db-import` command imports data from a relational database into Redis.
 
@@ -23,14 +23,26 @@ To show the full usage, run:
 riot db-import --help
 ----
 
-[[_db_import_redis_commands]]
-:redis-commands-example: riot db-import "SELECT * FROM customers" hset -h myredis.com -p 6380
-include::{includedir}/redis-commands.adoc[leveloffset=+1]
+You must specify at least one Redis command as a target.
 
-[[_db_import_examples]]
-=== Examples
+[IMPORTANT]
+====
+Redis connection options apply to the root command (`riot`) and not to subcommands.
 
-.PostgreSQL Example
+In this example the Redis options will not be taken into account:
+
+[source,subs="verbatim,attributes"]
+----
+riot db-import "SELECT * FROM customers" hset -h myredis.com -p 6380
+----
+====
+
+
+The keys that will be written are constructed from input records by concatenating the keyspace prefix and key fields.
+
+image::mapping.png[]
+
+.PostgreSQL Import Example
 [source]
 ----
 include::{testdir}/db-import-postgresql[]
@@ -49,7 +61,7 @@ include::{includedir}/../resources/order.json[]
 ----
 
 [[_db_export]]
-== Export to a SQK Database
+== Database Export
 
 Use the `db-export` command to read from a Redis database and writes to a SQL database.
 
@@ -64,10 +76,6 @@ To show the full usage, run:
 ----
 riot db-export --help
 ----
-
-[[_db_export_reader_options]]
-=== Redis reader options
-include::{includedir}/reader-options.adoc[leveloffset=+2]
 
 [[db_export_examples]]
 === Examples

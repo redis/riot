@@ -4,24 +4,24 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 import java.util.function.Consumer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import javax.sql.DataSource;
+
+import org.hsqldb.jdbc.JDBCDataSource;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
-import org.springframework.batch.core.JobExecutionException;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.StepExecution;
-import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
-import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.job.builder.JobBuilder;
-import org.springframework.batch.core.launch.support.SimpleJobLauncher;
+import org.springframework.batch.core.launch.support.TaskExecutorJobLauncher;
 import org.springframework.batch.core.repository.JobRepository;
-import org.springframework.batch.core.repository.support.AbstractJobRepositoryFactoryBean;
+import org.springframework.batch.core.repository.support.JobRepositoryFactoryBean;
 import org.springframework.batch.core.step.builder.FaultTolerantStepBuilder;
 import org.springframework.batch.core.step.builder.SimpleStepBuilder;
+import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.core.step.skip.NeverSkipItemSkipPolicy;
 import org.springframework.batch.core.step.skip.SkipPolicy;
 import org.springframework.batch.item.ItemProcessor;
@@ -29,8 +29,13 @@ import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemStreamReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.support.SynchronizedItemStreamReader;
+import org.springframework.batch.support.transaction.ResourcelessTransactionManager;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.boot.autoconfigure.batch.BatchDataSourceScriptDatabaseInitializer;
+import org.springframework.boot.autoconfigure.batch.BatchProperties;
+import org.springframework.boot.sql.init.DatabaseInitializationMode;
 import org.springframework.core.task.SyncTaskExecutor;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.retry.policy.MaxAttemptsRetryPolicy;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -46,276 +51,278 @@ import io.lettuce.core.RedisCommandTimeoutException;
 
 public abstract class AbstractJobRunnable extends AbstractRiotRunnable {
 
-    public static final SkipPolicy DEFAULT_SKIP_POLICY = new NeverSkipItemSkipPolicy();
+	public static final SkipPolicy DEFAULT_SKIP_POLICY = new NeverSkipItemSkipPolicy();
+	public static final int DEFAULT_SKIP_LIMIT = 0;
+	public static final int DEFAULT_RETRY_LIMIT = MaxAttemptsRetryPolicy.DEFAULT_MAX_ATTEMPTS;
+	public static final Duration DEFAULT_SLEEP = Duration.ZERO;
+	public static final int DEFAULT_CHUNK_SIZE = 50;
+	public static final int DEFAULT_THREADS = 1;
 
-    public static final int DEFAULT_SKIP_LIMIT = 0;
+	private static final String FAILED_JOB_MESSAGE = "Error executing job %s";
 
-    public static final int DEFAULT_RETRY_LIMIT = MaxAttemptsRetryPolicy.DEFAULT_MAX_ATTEMPTS;
+	private String name = String.format("%s-%s", ClassUtils.getShortName(getClass()), UUID.randomUUID().toString());
+	private Consumer<RiotStep<?, ?>> stepConfigurer;
+	private int threads = DEFAULT_THREADS;
+	private int chunkSize = DEFAULT_CHUNK_SIZE;
+	private Duration sleep = DEFAULT_SLEEP;
+	private boolean dryRun;
+	private int skipLimit = DEFAULT_SKIP_LIMIT;
+	private int retryLimit = DEFAULT_RETRY_LIMIT;
 
-    public static final Duration DEFAULT_SLEEP = Duration.ZERO;
+	private JobRepository jobRepository;
+	private PlatformTransactionManager transactionManager;
+	private TaskExecutorJobLauncher jobLauncher;
 
-    public static final int DEFAULT_CHUNK_SIZE = 50;
+	protected String name(String... suffixes) {
+		List<String> elements = new ArrayList<>();
+		elements.add(name);
+		elements.addAll(Arrays.asList(suffixes));
+		return String.join("-", elements);
+	}
 
-    public static final int DEFAULT_THREADS = 1;
+	public void setJobRepository(JobRepository jobRepository) {
+		this.jobRepository = jobRepository;
+	}
 
-    private static final String FAILED_JOB_MESSAGE = "Error executing job %s";
+	public void setTransactionManager(PlatformTransactionManager transactionManager) {
+		this.transactionManager = transactionManager;
+	}
 
-    protected final Logger log = LoggerFactory.getLogger(getClass());
+	public void setStepConfigurer(Consumer<RiotStep<?, ?>> stepConfigurer) {
+		this.stepConfigurer = stepConfigurer;
+	}
 
-    private String name = ClassUtils.getShortName(getClass());
+	@Override
+	protected void execute(RiotContext executionContext) {
+		Job job;
+		try {
+			job = job(executionContext);
+		} catch (Exception e) {
+			throw new RiotException("Could not create job", e);
+		}
+		JobExecution jobExecution;
+		try {
+			jobExecution = jobLauncher().run(job, new JobParameters());
+		} catch (Exception e) {
+			throw new RiotException(String.format(FAILED_JOB_MESSAGE, job.getName()), e);
+		}
+		if (jobExecution.getExitStatus().getExitCode().equals(ExitStatus.FAILED.getExitCode())) {
+			for (StepExecution stepExecution : jobExecution.getStepExecutions()) {
+				ExitStatus exitStatus = stepExecution.getExitStatus();
+				if (exitStatus.getExitCode().equals(ExitStatus.FAILED.getExitCode())) {
+					String message = String.format("Error executing step %s in job %s: %s", stepExecution.getStepName(),
+							job.getName(), exitStatus.getExitDescription());
+					if (stepExecution.getFailureExceptions().isEmpty()) {
+						throw new RiotException(message);
+					}
+					throw new RiotException(message, stepExecution.getFailureExceptions().get(0));
+				}
+			}
+			if (jobExecution.getAllFailureExceptions().isEmpty()) {
+				throw new RiotException(String.format("Error executing job %s: %s", job.getName(),
+						jobExecution.getExitStatus().getExitDescription()));
+			}
+		}
+	}
 
-    protected JobRepository jobRepository;
+	protected JobBuilder jobBuilder() throws Exception {
+		return new JobBuilder(name, jobRepository());
+	}
 
-    private PlatformTransactionManager transactionManager;
+	private TaskExecutorJobLauncher jobLauncher() throws Exception {
+		if (jobLauncher == null) {
+			jobLauncher = new TaskExecutorJobLauncher();
+			jobLauncher.setJobRepository(jobRepository());
+			jobLauncher.setTaskExecutor(new SyncTaskExecutor());
+		}
+		return jobLauncher;
+	}
 
-    private JobBuilderFactory jobBuilderFactory;
+	protected PlatformTransactionManager transactionManager() {
+		if (transactionManager == null) {
+			transactionManager = new ResourcelessTransactionManager();
+		}
+		return transactionManager;
+	}
 
-    private StepBuilderFactory stepBuilderFactory;
+	protected JobRepository jobRepository() throws Exception {
+		if (jobRepository == null) {
+			JobRepositoryFactoryBean bean = new JobRepositoryFactoryBean();
+			bean.setDataSource(dataSource());
+			bean.setDatabaseType("HSQL");
+			bean.setTransactionManager(transactionManager());
+			bean.afterPropertiesSet();
+			jobRepository = bean.getObject();
+		}
+		return jobRepository;
+	}
 
-    private SimpleJobLauncher jobLauncher;
+	private DataSource dataSource() throws Exception {
+		JDBCDataSource dataSource = new JDBCDataSource();
+		dataSource.setURL("jdbc:hsqldb:mem:" + name);
+		BatchProperties.Jdbc jdbc = new BatchProperties.Jdbc();
+		jdbc.setInitializeSchema(DatabaseInitializationMode.ALWAYS);
+		BatchDataSourceScriptDatabaseInitializer initializer = new BatchDataSourceScriptDatabaseInitializer(dataSource,
+				jdbc);
+		initializer.afterPropertiesSet();
+		initializer.initializeDatabase();
+		return dataSource;
+	}
 
-    private Consumer<RiotStep<?, ?>> stepConfigurer = s -> {
-    };
+	protected abstract Job job(RiotContext executionContext) throws Exception;
 
-    private int threads = DEFAULT_THREADS;
+	protected <W extends AbstractOperationItemWriter<?, ?, ?>> W writer(W writer, RedisWriterOptions options) {
+		writer.setMultiExec(options.isMultiExec());
+		writer.setPoolSize(options.getPoolSize());
+		writer.setWaitReplicas(options.getWaitReplicas());
+		writer.setWaitTimeout(options.getWaitTimeout());
+		if (writer instanceof StructItemWriter) {
+			((StructItemWriter<?, ?>) writer).setMerge(options.isMerge());
+		}
+		return writer;
+	}
 
-    private int chunkSize = DEFAULT_CHUNK_SIZE;
+	protected <I, O> FaultTolerantStepBuilder<I, O> step(String name, ItemReader<I> reader,
+			ItemProcessor<I, O> processor, ItemWriter<O> writer) throws Exception {
+		RiotStep<I, O> riotStep = new RiotStep<>();
+		riotStep.setName(name);
+		riotStep.setReader(reader);
+		riotStep.setProcessor(processor);
+		riotStep.setWriter(writer);
+		if (stepConfigurer != null) {
+			stepConfigurer.accept(riotStep);
+		}
+		SimpleStepBuilder<I, O> step = new StepBuilder(riotStep.getName(), jobRepository()).chunk(chunkSize,
+				transactionManager);
+		step.reader(reader(riotStep.getReader()));
+		step.processor(processor(riotStep.getProcessor()));
+		step.writer(writer(riotStep.getWriter()));
+		step.taskExecutor(taskExecutor());
+		riotStep.getConfigurer().accept(step);
+		if (riotStep.getReader() instanceof RedisItemReader) {
+			RedisItemReader<?, ?, ?> redisReader = (RedisItemReader<?, ?, ?>) riotStep.getReader();
+			if (redisReader.isLive()) {
+				step = new FlushingStepBuilder<>(step).interval(redisReader.getFlushInterval())
+						.idleTimeout(redisReader.getIdleTimeout());
+			}
+		}
+		return faultTolerant(step);
+	}
 
-    private Duration sleep = DEFAULT_SLEEP;
+	private <I, O> FaultTolerantStepBuilder<I, O> faultTolerant(SimpleStepBuilder<I, O> step) {
+		FaultTolerantStepBuilder<I, O> ftStep = step.faultTolerant();
+		ftStep.skipLimit(skipLimit);
+		ftStep.retryLimit(retryLimit);
+		ftStep.retry(RedisCommandTimeoutException.class);
+		ftStep.noRetry(RedisCommandExecutionException.class);
+		return ftStep;
+	}
 
-    private boolean dryRun;
+	private TaskExecutor taskExecutor() {
+		if (threads > 1) {
+			ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
+			taskExecutor.setMaxPoolSize(threads);
+			taskExecutor.setCorePoolSize(threads);
+			taskExecutor.setQueueCapacity(threads);
+			taskExecutor.afterPropertiesSet();
+			return taskExecutor;
+		}
+		return new SyncTaskExecutor();
+	}
 
-    private int skipLimit = DEFAULT_SKIP_LIMIT;
+	private <I, O> ItemProcessor<I, O> processor(ItemProcessor<I, O> processor) {
+		initializeBean(processor);
+		return processor;
+	}
 
-    private int retryLimit = DEFAULT_RETRY_LIMIT;
+	private void initializeBean(Object object) {
+		if (object instanceof InitializingBean) {
+			try {
+				((InitializingBean) object).afterPropertiesSet();
+			} catch (Exception e) {
+				throw new RiotException("Could not initialize " + object, e);
+			}
+		}
+	}
 
-    public boolean isDryRun() {
-        return dryRun;
-    }
+	private <T> ItemReader<T> reader(ItemReader<T> reader) {
+		initializeBean(reader);
+		if (reader instanceof RedisItemReader) {
+			return reader;
+		}
+		if (threads > 1 && reader instanceof ItemStreamReader) {
+			SynchronizedItemStreamReader<T> synchronizedReader = new SynchronizedItemStreamReader<>();
+			synchronizedReader.setDelegate((ItemStreamReader<T>) reader);
+			return synchronizedReader;
+		}
+		return reader;
+	}
 
-    public void setDryRun(boolean dryRun) {
-        this.dryRun = dryRun;
-    }
+	private <T> ItemWriter<T> writer(ItemWriter<T> writer) {
+		if (dryRun) {
+			return new NoopItemWriter<>();
+		}
+		initializeBean(writer);
+		if (RiotUtils.isPositive(sleep)) {
+			return new ThrottledItemWriter<>(writer, sleep);
+		}
+		return writer;
+	}
 
-    public int getThreads() {
-        return threads;
-    }
+	public boolean isDryRun() {
+		return dryRun;
+	}
 
-    public void setThreads(int threads) {
-        this.threads = threads;
-    }
+	public void setDryRun(boolean dryRun) {
+		this.dryRun = dryRun;
+	}
 
-    public int getChunkSize() {
-        return chunkSize;
-    }
+	public int getThreads() {
+		return threads;
+	}
 
-    public void setChunkSize(int chunkSize) {
-        this.chunkSize = chunkSize;
-    }
+	public void setThreads(int threads) {
+		this.threads = threads;
+	}
 
-    public Duration getSleep() {
-        return sleep;
-    }
+	public int getChunkSize() {
+		return chunkSize;
+	}
 
-    public void setSleep(Duration sleep) {
-        this.sleep = sleep;
-    }
+	public void setChunkSize(int chunkSize) {
+		this.chunkSize = chunkSize;
+	}
 
-    public int getSkipLimit() {
-        return skipLimit;
-    }
+	public Duration getSleep() {
+		return sleep;
+	}
 
-    public void setSkipLimit(int skipLimit) {
-        this.skipLimit = skipLimit;
-    }
+	public void setSleep(Duration sleep) {
+		this.sleep = sleep;
+	}
 
-    public int getRetryLimit() {
-        return retryLimit;
-    }
+	public int getSkipLimit() {
+		return skipLimit;
+	}
 
-    public void setRetryLimit(int retryLimit) {
-        this.retryLimit = retryLimit;
-    }
+	public void setSkipLimit(int skipLimit) {
+		this.skipLimit = skipLimit;
+	}
 
-    public String getName() {
-        return name;
-    }
+	public int getRetryLimit() {
+		return retryLimit;
+	}
 
-    public void setName(String name) {
-        this.name = name;
-    }
+	public void setRetryLimit(int retryLimit) {
+		this.retryLimit = retryLimit;
+	}
 
-    protected String name(String... suffixes) {
-        List<String> elements = new ArrayList<>();
-        elements.add(name);
-        elements.addAll(Arrays.asList(suffixes));
-        return String.join("-", elements);
-    }
+	public String getName() {
+		return name;
+	}
 
-    public void setJobRepository(JobRepository jobRepository) {
-        this.jobRepository = jobRepository;
-    }
-
-    public void setTransactionManager(PlatformTransactionManager transactionManager) {
-        this.transactionManager = transactionManager;
-    }
-
-    public void setStepConfigurer(Consumer<RiotStep<?, ?>> stepConfigurer) {
-        this.stepConfigurer = stepConfigurer;
-    }
-
-    @Override
-    protected void execute(RiotContext executionContext) {
-        initialize();
-        Job job = job(executionContext);
-        JobExecution jobExecution;
-        try {
-            jobExecution = jobLauncher.run(job, new JobParameters());
-        } catch (JobExecutionException e) {
-            throw new RiotExecutionException(String.format(FAILED_JOB_MESSAGE, job.getName()), e);
-        }
-        if (jobExecution.getExitStatus().getExitCode().equals(ExitStatus.FAILED.getExitCode())) {
-            for (StepExecution stepExecution : jobExecution.getStepExecutions()) {
-                ExitStatus exitStatus = stepExecution.getExitStatus();
-                if (exitStatus.getExitCode().equals(ExitStatus.FAILED.getExitCode())) {
-                    String message = String.format("Error executing step %s in job %s: %s", stepExecution.getStepName(),
-                            job.getName(), exitStatus.getExitDescription());
-                    if (stepExecution.getFailureExceptions().isEmpty()) {
-                        throw new RiotExecutionException(message);
-                    }
-                    throw new RiotExecutionException(message, stepExecution.getFailureExceptions().get(0));
-                }
-            }
-            if (jobExecution.getAllFailureExceptions().isEmpty()) {
-                throw new RiotExecutionException(String.format("Error executing job %s: %s", job.getName(),
-                        jobExecution.getExitStatus().getExitDescription()));
-            }
-        }
-    }
-
-    protected JobBuilder jobBuilder() {
-        return jobBuilderFactory.get(name);
-    }
-
-    protected void initialize() {
-        if (jobRepository == null || transactionManager == null) {
-            @SuppressWarnings("deprecation")
-            AbstractJobRepositoryFactoryBean bean = new org.springframework.batch.core.repository.support.MapJobRepositoryFactoryBean();
-            if (jobRepository == null) {
-                try {
-                    jobRepository = bean.getObject();
-                } catch (Exception e) {
-                    throw new RiotExecutionException("Could not initialize job repository", e);
-                }
-            }
-            if (transactionManager == null) {
-                transactionManager = bean.getTransactionManager();
-            }
-        }
-        jobBuilderFactory = new JobBuilderFactory(jobRepository);
-        stepBuilderFactory = new StepBuilderFactory(jobRepository, transactionManager);
-        jobLauncher = new SimpleJobLauncher();
-        jobLauncher.setJobRepository(jobRepository);
-        jobLauncher.setTaskExecutor(new SyncTaskExecutor());
-    }
-
-    protected abstract Job job(RiotContext executionContext);
-
-    protected <W extends AbstractOperationItemWriter<?, ?, ?>> W writer(W writer, RedisWriterOptions options) {
-        writer.setMultiExec(options.isMultiExec());
-        writer.setPoolSize(options.getPoolSize());
-        writer.setWaitReplicas(options.getWaitReplicas());
-        writer.setWaitTimeout(options.getWaitTimeout());
-        if (writer instanceof StructItemWriter) {
-            ((StructItemWriter<?, ?>) writer).setMerge(options.isMerge());
-        }
-        return writer;
-    }
-
-    protected <I, O> FaultTolerantStepBuilder<I, O> step(String name, ItemReader<I> reader, ItemWriter<O> writer) {
-        return step(name, reader, null, writer);
-    }
-
-    protected <I, O> FaultTolerantStepBuilder<I, O> step(String name, ItemReader<I> reader, ItemProcessor<I, O> processor,
-            ItemWriter<O> writer) {
-        RiotStep<I, O> step = new RiotStep<>();
-        step.setName(name);
-        step.setReader(reader);
-        step.setProcessor(processor);
-        step.setWriter(writer);
-        stepConfigurer.accept(step);
-        return step(step);
-    }
-
-    protected <I, O> FaultTolerantStepBuilder<I, O> step(RiotStep<I, O> riotStep) {
-        SimpleStepBuilder<I, O> step = stepBuilderFactory.get(riotStep.getName()).chunk(chunkSize);
-        step.reader(reader(riotStep.getReader()));
-        step.processor(processor(riotStep.getProcessor()));
-        step.writer(writer(riotStep.getWriter()));
-        if (threads > 1) {
-            ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
-            taskExecutor.setMaxPoolSize(threads);
-            taskExecutor.setCorePoolSize(threads);
-            taskExecutor.setQueueCapacity(threads);
-            taskExecutor.afterPropertiesSet();
-            step.taskExecutor(taskExecutor);
-            step.throttleLimit(threads);
-        }
-        riotStep.getConfigurer().accept(step);
-        if (riotStep.getReader() instanceof RedisItemReader) {
-            RedisItemReader<?, ?, ?> redisReader = (RedisItemReader<?, ?, ?>) riotStep.getReader();
-            if (redisReader.isLive()) {
-                FlushingStepBuilder<I, O> flushingStep = new FlushingStepBuilder<>(step);
-                flushingStep.interval(redisReader.getFlushInterval());
-                flushingStep.idleTimeout(redisReader.getIdleTimeout());
-                step = flushingStep;
-            }
-        }
-        FaultTolerantStepBuilder<I, O> ftStep = step.faultTolerant();
-        ftStep.skipLimit(skipLimit);
-        ftStep.retryLimit(retryLimit);
-        ftStep.retry(RedisCommandTimeoutException.class);
-        ftStep.noRetry(RedisCommandExecutionException.class);
-        return ftStep;
-    }
-
-    private <I, O> ItemProcessor<I, O> processor(ItemProcessor<I, O> processor) {
-        initializeBean(processor);
-        return processor;
-    }
-
-    private void initializeBean(Object object) {
-        if (object instanceof InitializingBean) {
-            try {
-                ((InitializingBean) object).afterPropertiesSet();
-            } catch (Exception e) {
-                throw new RiotExecutionException("Could not initialize " + object, e);
-            }
-        }
-    }
-
-    private <T> ItemReader<T> reader(ItemReader<T> reader) {
-        initializeBean(reader);
-        if (reader instanceof RedisItemReader) {
-            return reader;
-        }
-        if (threads > 1 && reader instanceof ItemStreamReader) {
-            SynchronizedItemStreamReader<T> synchronizedReader = new SynchronizedItemStreamReader<>();
-            synchronizedReader.setDelegate((ItemStreamReader<T>) reader);
-            return synchronizedReader;
-        }
-        return reader;
-    }
-
-    private <T> ItemWriter<T> writer(ItemWriter<T> writer) {
-        if (dryRun) {
-            return new NoopItemWriter<>();
-        }
-        initializeBean(writer);
-        if (RiotUtils.isPositive(sleep)) {
-            return new ThrottledItemWriter<>(writer, sleep);
-        }
-        return writer;
-    }
+	public void setName(String name) {
+		this.name = name;
+	}
 
 }

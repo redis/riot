@@ -2,28 +2,27 @@ package com.redis.riot.cli;
 
 import com.redis.spring.batch.common.DataType;
 import com.redis.spring.batch.test.AbstractTestBase;
-import com.redis.testcontainers.RedisServer;
 import com.redis.testcontainers.RedisStackContainer;
 
-class StackToStackReplicationTests extends ReplicationTests {
+class StackToStackReplicationTests extends AbstractReplicationTests {
 
-    public static final RedisStackContainer SOURCE = RedisContainerFactory.stack();
+	private static final RedisStackContainer source = RedisContainerFactory.stack();
 
-    public static final RedisStackContainer TARGET = RedisContainerFactory.stack();
+	private static final RedisStackContainer target = RedisContainerFactory.stack();
 
-    @Override
-    protected RedisServer getRedisServer() {
-        return SOURCE;
-    }
+	@Override
+	protected RedisStackContainer getRedisServer() {
+		return source;
+	}
 
-    @Override
-    protected RedisServer getTargetRedisServer() {
-        return TARGET;
-    }
+	@Override
+	protected RedisStackContainer getTargetRedisServer() {
+		return target;
+	}
 
-    @Override
-    protected DataType[] generatorDataTypes() {
-        return AbstractTestBase.REDIS_MODULES_GENERATOR_TYPES;
-    }
+	@Override
+	protected DataType[] generatorDataTypes() {
+		return AbstractTestBase.REDIS_MODULES_GENERATOR_TYPES;
+	}
 
 }

@@ -6,16 +6,14 @@ It is not required to run locally on a Redis server.
 
 
 [[_homebrew_install]]
-== Homebrew (macOS & Linux)
-
+.Homebrew (macOS & Linux)
 [source]
 ----
 brew install redis-developer/tap/riot
 ----
 
 [[_scoop_install]]
-== Scoop (Windows)
-
+.Scoop (Windows)
 [source]
 ----
 scoop bucket add redis-developer https://github.com/redis-developer/scoop.git
@@ -23,19 +21,17 @@ scoop install riot
 ----
 
 [[_manual_install]]
-== Manual Installation (All Platforms)
-
-Download the pre-compiled binary from the {link_releases}, uncompress and copy to the desired location.
+.Manual installation (all platforms)
+Download the pre-compiled binary from the link:{project-url}/releases[releases page], uncompress and copy to the desired location.
 
 [NOTE]
 ====
-`riot-{project-version}.zip` requires Java 11 or greater to be installed while `riot-standalone-{project-version}-*.zip` includes its own Java runtime and does not require a Java installation.
+`riot-{project-version}.zip` requires Java 11 or greater to be installed.
+`riot-standalone-{project-version}-*.zip` includes its own Java runtime and does not require a Java installation.
 ====
 
-
 [[_docker_install]]
-== Docker
-
+.Docker
 [source]
 ----
 docker run fieldengineering/riot [OPTIONS] [COMMAND]

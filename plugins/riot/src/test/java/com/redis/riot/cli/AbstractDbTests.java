@@ -11,6 +11,7 @@ import javax.sql.DataSource;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.TestInfo;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.testcontainers.containers.JdbcDatabaseContainer;
 
@@ -22,7 +23,7 @@ import com.redis.testcontainers.RedisStackContainer;
 import picocli.CommandLine.ExitCode;
 import picocli.CommandLine.ParseResult;
 
-abstract class DatabaseTests extends RiotTests {
+abstract class AbstractDbTests extends AbstractRiotTestBase {
 
     private static final RedisStackContainer REDIS = new RedisStackContainer(
             RedisStackContainer.DEFAULT_IMAGE_NAME.withTag(RedisStackContainer.DEFAULT_TAG));
@@ -55,14 +56,14 @@ abstract class DatabaseTests extends RiotTests {
         databaseConnection.close();
         getJdbcDatabaseContainer().stop();
     }
-
+    
     @Override
     protected RedisServer getRedisServer() {
         return REDIS;
     }
 
     @Override
-    protected RedisServer getTargetRedisServer() {
+    protected RedisStackContainer getTargetRedisServer() {
         return REDIS;
     }
 
@@ -83,8 +84,9 @@ abstract class DatabaseTests extends RiotTests {
         return ExitCode.OK;
     }
 
-    protected int executeDatabaseExport(ParseResult parseResult) {
+    protected int executeDatabaseExport(ParseResult parseResult, TestInfo info) {
         DatabaseExportCommand command = command(parseResult);
+        command.setName(name(info));
         configureDatabase(command.args);
         return ExitCode.OK;
     }

@@ -18,23 +18,14 @@ import io.lettuce.core.StreamMessage;
 public class StructToMapFunction implements Function<KeyValue<String>, Map<String, Object>> {
 
     private Function<String, Map<String, String>> key = t -> Collections.emptyMap();
-
     private UnaryOperator<Map<String, String>> hash = UnaryOperator.identity();
-
     private SampleToMapFunction timeseries = new SampleToMapFunction();
-
     private StreamToMapFunction stream = new StreamToMapFunction();
-
     private CollectionToMapFunction list = new CollectionToMapFunction();
-
     private CollectionToMapFunction set = new CollectionToMapFunction();
-
     private ZsetToMapFunction zset = new ZsetToMapFunction();
-
     private Function<String, Map<String, String>> json = new StringToMapFunction();
-
     private Function<String, Map<String, String>> string = new StringToMapFunction();
-
     private Function<Object, Map<String, String>> defaultFunction = s -> null;
 
     public void setKey(Function<String, Map<String, String>> key) {

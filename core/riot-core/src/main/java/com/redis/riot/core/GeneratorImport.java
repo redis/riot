@@ -18,161 +18,149 @@ import com.redis.spring.batch.gen.ZsetOptions;
 
 public class GeneratorImport extends AbstractStructImport {
 
-    public static final int DEFAULT_COUNT = 1000;
+	public static final int DEFAULT_COUNT = 1000;
 
-    private int count = DEFAULT_COUNT;
+	private int count = DEFAULT_COUNT;
+	private String keyspace = GeneratorItemReader.DEFAULT_KEYSPACE;
+	private Range keyRange = GeneratorItemReader.DEFAULT_KEY_RANGE;
+	private List<DataType> types = GeneratorItemReader.defaultTypes();
+	private Range expiration;
+	private MapOptions hashOptions = new MapOptions();
+	private StreamOptions streamOptions = new StreamOptions();
+	private TimeSeriesOptions timeSeriesOptions = new TimeSeriesOptions();
+	private MapOptions jsonOptions = new MapOptions();
+	private CollectionOptions listOptions = new CollectionOptions();
+	private CollectionOptions setOptions = new CollectionOptions();
+	private StringOptions stringOptions = new StringOptions();
+	private ZsetOptions zsetOptions = new ZsetOptions();
 
-    private String keyspace = GeneratorItemReader.DEFAULT_KEYSPACE;
+	@Override
+	protected Job job(RiotContext context) throws Exception {
+		GeneratorItemReader reader = reader();
+		RedisItemWriter<String, String, KeyValue<String>> writer = writer(context);
+		return jobBuilder().start(step(getName(), reader, null, writer).build()).build();
+	}
 
-    private Range keyRange = GeneratorItemReader.DEFAULT_KEY_RANGE;
+	private GeneratorItemReader reader() {
+		GeneratorItemReader reader = new GeneratorItemReader();
+		reader.setExpiration(expiration);
+		reader.setHashOptions(hashOptions);
+		reader.setJsonOptions(jsonOptions);
+		reader.setKeyRange(keyRange);
+		reader.setKeyspace(keyspace);
+		reader.setListOptions(listOptions);
+		reader.setMaxItemCount(count);
+		reader.setSetOptions(setOptions);
+		reader.setStreamOptions(streamOptions);
+		reader.setStringOptions(stringOptions);
+		reader.setTimeSeriesOptions(timeSeriesOptions);
+		reader.setTypes(types);
+		reader.setZsetOptions(zsetOptions);
+		return reader;
+	}
 
-    private List<DataType> types = GeneratorItemReader.defaultTypes();
+	public int getCount() {
+		return count;
+	}
 
-    private Range expiration;
+	public void setCount(int count) {
+		this.count = count;
+	}
 
-    private MapOptions hashOptions = new MapOptions();
+	public Range getKeyRange() {
+		return keyRange;
+	}
 
-    private StreamOptions streamOptions = new StreamOptions();
+	public void setKeyRange(Range keyRange) {
+		this.keyRange = keyRange;
+	}
 
-    private TimeSeriesOptions timeSeriesOptions = new TimeSeriesOptions();
+	public Range getExpiration() {
+		return expiration;
+	}
 
-    private MapOptions jsonOptions = new MapOptions();
+	public void setExpiration(Range expiration) {
+		this.expiration = expiration;
+	}
 
-    private CollectionOptions listOptions = new CollectionOptions();
+	public MapOptions getHashOptions() {
+		return hashOptions;
+	}
 
-    private CollectionOptions setOptions = new CollectionOptions();
+	public void setHashOptions(MapOptions hashOptions) {
+		this.hashOptions = hashOptions;
+	}
 
-    private StringOptions stringOptions = new StringOptions();
+	public StreamOptions getStreamOptions() {
+		return streamOptions;
+	}
 
-    private ZsetOptions zsetOptions = new ZsetOptions();
+	public void setStreamOptions(StreamOptions streamOptions) {
+		this.streamOptions = streamOptions;
+	}
 
-    public int getCount() {
-        return count;
-    }
+	public TimeSeriesOptions getTimeSeriesOptions() {
+		return timeSeriesOptions;
+	}
 
-    public void setCount(int count) {
-        this.count = count;
-    }
+	public void setTimeSeriesOptions(TimeSeriesOptions timeSeriesOptions) {
+		this.timeSeriesOptions = timeSeriesOptions;
+	}
 
-    public Range getKeyRange() {
-        return keyRange;
-    }
+	public MapOptions getJsonOptions() {
+		return jsonOptions;
+	}
 
-    public void setKeyRange(Range keyRange) {
-        this.keyRange = keyRange;
-    }
+	public void setJsonOptions(MapOptions jsonOptions) {
+		this.jsonOptions = jsonOptions;
+	}
 
-    public Range getExpiration() {
-        return expiration;
-    }
+	public CollectionOptions getListOptions() {
+		return listOptions;
+	}
 
-    public void setExpiration(Range expiration) {
-        this.expiration = expiration;
-    }
+	public void setListOptions(CollectionOptions listOptions) {
+		this.listOptions = listOptions;
+	}
 
-    public MapOptions getHashOptions() {
-        return hashOptions;
-    }
+	public CollectionOptions getSetOptions() {
+		return setOptions;
+	}
 
-    public void setHashOptions(MapOptions hashOptions) {
-        this.hashOptions = hashOptions;
-    }
+	public void setSetOptions(CollectionOptions setOptions) {
+		this.setOptions = setOptions;
+	}
 
-    public StreamOptions getStreamOptions() {
-        return streamOptions;
-    }
+	public StringOptions getStringOptions() {
+		return stringOptions;
+	}
 
-    public void setStreamOptions(StreamOptions streamOptions) {
-        this.streamOptions = streamOptions;
-    }
+	public void setStringOptions(StringOptions stringOptions) {
+		this.stringOptions = stringOptions;
+	}
 
-    public TimeSeriesOptions getTimeSeriesOptions() {
-        return timeSeriesOptions;
-    }
+	public ZsetOptions getZsetOptions() {
+		return zsetOptions;
+	}
 
-    public void setTimeSeriesOptions(TimeSeriesOptions timeSeriesOptions) {
-        this.timeSeriesOptions = timeSeriesOptions;
-    }
+	public void setZsetOptions(ZsetOptions zsetOptions) {
+		this.zsetOptions = zsetOptions;
+	}
 
-    public MapOptions getJsonOptions() {
-        return jsonOptions;
-    }
+	public String getKeyspace() {
+		return keyspace;
+	}
 
-    public void setJsonOptions(MapOptions jsonOptions) {
-        this.jsonOptions = jsonOptions;
-    }
+	public void setKeyspace(String keyspace) {
+		this.keyspace = keyspace;
+	}
 
-    public CollectionOptions getListOptions() {
-        return listOptions;
-    }
+	public List<DataType> getTypes() {
+		return types;
+	}
 
-    public void setListOptions(CollectionOptions listOptions) {
-        this.listOptions = listOptions;
-    }
-
-    public CollectionOptions getSetOptions() {
-        return setOptions;
-    }
-
-    public void setSetOptions(CollectionOptions setOptions) {
-        this.setOptions = setOptions;
-    }
-
-    public StringOptions getStringOptions() {
-        return stringOptions;
-    }
-
-    public void setStringOptions(StringOptions stringOptions) {
-        this.stringOptions = stringOptions;
-    }
-
-    public ZsetOptions getZsetOptions() {
-        return zsetOptions;
-    }
-
-    public void setZsetOptions(ZsetOptions zsetOptions) {
-        this.zsetOptions = zsetOptions;
-    }
-
-    public String getKeyspace() {
-        return keyspace;
-    }
-
-    public void setKeyspace(String keyspace) {
-        this.keyspace = keyspace;
-    }
-
-    public List<DataType> getTypes() {
-        return types;
-    }
-
-    public void setTypes(List<DataType> types) {
-        this.types = types;
-    }
-
-    @Override
-    protected Job job(RiotContext context) {
-        GeneratorItemReader reader = reader();
-        RedisItemWriter<String, String, KeyValue<String>> writer = writer(context);
-        return jobBuilder().start(step(getName(), reader, writer).build()).build();
-    }
-
-    private GeneratorItemReader reader() {
-        GeneratorItemReader reader = new GeneratorItemReader();
-        reader.setExpiration(expiration);
-        reader.setHashOptions(hashOptions);
-        reader.setJsonOptions(jsonOptions);
-        reader.setKeyRange(keyRange);
-        reader.setKeyspace(keyspace);
-        reader.setListOptions(listOptions);
-        reader.setMaxItemCount(count);
-        reader.setSetOptions(setOptions);
-        reader.setStreamOptions(streamOptions);
-        reader.setStringOptions(stringOptions);
-        reader.setTimeSeriesOptions(timeSeriesOptions);
-        reader.setTypes(types);
-        reader.setZsetOptions(zsetOptions);
-        return reader;
-    }
+	public void setTypes(List<DataType> types) {
+		this.types = types;
+	}
 
 }

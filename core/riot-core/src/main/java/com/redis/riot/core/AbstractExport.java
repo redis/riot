@@ -2,9 +2,10 @@ package com.redis.riot.core;
 
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.UnaryOperator;
 
 import org.springframework.batch.item.ItemProcessor;
-import org.springframework.batch.item.function.FunctionItemProcessor;
+import org.springframework.batch.item.support.PassThroughItemProcessor;
 import org.springframework.expression.EvaluationContext;
 
 import com.redis.riot.core.function.DropStreamMessageIdFunction;
@@ -16,7 +17,7 @@ import com.redis.riot.core.function.ToStringKeyValueFunction;
 import com.redis.spring.batch.RedisItemReader;
 import com.redis.spring.batch.common.DataType;
 import com.redis.spring.batch.common.KeyValue;
-import com.redis.spring.batch.reader.KeyValueItemReader;
+import com.redis.spring.batch.reader.AbstractKeyValueItemReader;
 
 import io.lettuce.core.codec.RedisCodec;
 
@@ -34,14 +35,15 @@ public abstract class AbstractExport extends AbstractJobRunnable {
 		this.processorOptions = options;
 	}
 
-	protected <K> ItemProcessor<KeyValue<K>, KeyValue<K>> processor(RedisCodec<K, ?> codec, RiotContext context) {
+	protected <K> Function<KeyValue<K>, KeyValue<K>> processor(RedisCodec<K, ?> codec, RiotContext context) {
 		ToStringKeyValueFunction<K> code = new ToStringKeyValueFunction<>(codec);
 		StringKeyValueFunction<K> decode = new StringKeyValueFunction<>(codec);
-		Function<KeyValue<String>, KeyValue<String>> function = processorFunction(context.getEvaluationContext());
-		return new FunctionItemProcessor<>(code.andThen(function).andThen(decode));
+		UnaryOperator<KeyValue<String>> function = keyValueOperator(context.getEvaluationContext());
+		return code.andThen(function).andThen(decode);
+
 	}
 
-	private Function<KeyValue<String>, KeyValue<String>> processorFunction(EvaluationContext context) {
+	private UnaryOperator<KeyValue<String>> keyValueOperator(EvaluationContext context) {
 		KeyValueOperator operator = new KeyValueOperator();
 		if (processorOptions.getKeyExpression() != null) {
 			operator.setKeyFunction(ExpressionFunction.of(context, processorOptions.getKeyExpression()));
@@ -66,7 +68,11 @@ public abstract class AbstractExport extends AbstractJobRunnable {
 
 	protected abstract boolean isStruct();
 
-	protected <K, V> void configureReader(RedisItemReader<K, V, ?> reader, RedisContext context) {
+	protected <K, V, R extends RedisItemReader<K, V, ?>> R configureReader(String name, R reader, RedisContext context)
+			throws Exception {
+		reader.setName(name);
+		reader.setJobRepository(jobRepository());
+		reader.setTransactionManager(transactionManager());
 		reader.setChunkSize(readerOptions.getChunkSize());
 		reader.setDatabase(context.getUri().getDatabase());
 		reader.setKeyProcessor(keyFilteringProcessor(reader.getCodec()));
@@ -74,25 +80,25 @@ public abstract class AbstractExport extends AbstractJobRunnable {
 		reader.setKeyType(readerOptions.getKeyType());
 		reader.setFlushInterval(readerOptions.getFlushInterval());
 		reader.setIdleTimeout(readerOptions.getIdleTimeout());
-		if (reader instanceof KeyValueItemReader) {
-			KeyValueItemReader<?, ?> keyValueReader = (KeyValueItemReader<?, ?>) reader;
+		if (reader instanceof AbstractKeyValueItemReader) {
+			AbstractKeyValueItemReader<?, ?> keyValueReader = (AbstractKeyValueItemReader<?, ?>) reader;
 			keyValueReader.setMemoryUsageLimit(readerOptions.getMemoryUsageLimit());
 			keyValueReader.setMemoryUsageSamples(readerOptions.getMemoryUsageSamples());
 			keyValueReader.setPoolSize(readerOptions.getPoolSize());
 		}
-		reader.setNotificationQueueCapacity(readerOptions.getNotificationQueueCapacity());
-		reader.setOrderingStrategy(readerOptions.getOrderingStrategy());
+		reader.setKeyspaceNotificationQueueCapacity(readerOptions.getNotificationQueueCapacity());
 		reader.setPollTimeout(readerOptions.getPollTimeout());
 		reader.setQueueCapacity(readerOptions.getQueueCapacity());
 		reader.setReadFrom(readerOptions.getReadFrom());
 		reader.setScanCount(readerOptions.getScanCount());
 		reader.setThreads(readerOptions.getThreads());
+		return reader;
 	}
 
 	public <K> ItemProcessor<K, K> keyFilteringProcessor(RedisCodec<K, ?> codec) {
 		Predicate<K> predicate = RiotUtils.keyFilterPredicate(codec, readerOptions.getKeyFilterOptions());
 		if (predicate == null) {
-			return null;
+			return new PassThroughItemProcessor<>();
 		}
 		return new PredicateItemProcessor<>(predicate);
 	}

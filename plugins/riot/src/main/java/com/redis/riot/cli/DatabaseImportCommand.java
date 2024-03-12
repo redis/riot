@@ -1,6 +1,6 @@
 package com.redis.riot.cli;
 
-import com.redis.riot.core.AbstractMapImport;
+import com.redis.riot.core.AbstractImport;
 import com.redis.riot.db.DatabaseImport;
 
 import picocli.CommandLine.ArgGroup;
@@ -17,7 +17,7 @@ public class DatabaseImportCommand extends AbstractImportCommand {
     DatabaseImportArgs args = new DatabaseImportArgs();
 
     @Override
-    protected AbstractMapImport getMapImportExecutable() {
+    protected AbstractImport importExecutable() {
         DatabaseImport executable = new DatabaseImport();
         executable.setSql(sql);
         executable.setDataSourceOptions(args.dataSourceOptions());

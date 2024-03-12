@@ -16,8 +16,7 @@
 
 package com.redis.riot.file.resource;
 
-import java.util.List;
-
+import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.file.transform.LineAggregator;
 import org.springframework.core.io.Resource;
 import org.springframework.util.Assert;
@@ -71,7 +70,7 @@ public class FlatResourceItemWriter<T> extends AbstractResourceItemWriter<T> {
 	}
 
 	@Override
-	public String doWrite(List<? extends T> items) {
+	public String doWrite(Chunk<? extends T> items) {
 		StringBuilder lines = new StringBuilder();
 		for (T item : items) {
 			lines.append(this.lineAggregator.aggregate(item)).append(this.lineSeparator);

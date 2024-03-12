@@ -1,10 +1,10 @@
 [[_generators]]
-= Data Generators
+= Generators
 
 {project-title} includes two data generators that can be used to quickly mock up a dataset in Redis.
 
 [[_faker_import]]
-== Faker
+== Faker Import
 
 The `faker-import` command generates data using {link_datafaker}.
 
@@ -22,39 +22,76 @@ To show the full usage, run:
 riot faker-import --help
 ----
 
-[[_faker_import_redis_commands]]
-:redis-commands-example: riot faker-import id="#index" hset -h myredis.com -p 6380
-include::{includedir}/redis-commands.adoc[leveloffset=+1]
+You must specify at least one Redis command as a target.
 
-[[_faker_import_examples]]
-=== Examples
+[IMPORTANT]
+====
+Redis connection options apply to the root command (`riot`) and not to subcommands.
 
-.Hash example
+In this example the Redis options will not be taken into account:
+
+[source,subs="verbatim,attributes"]
+----
+riot faker-import id="index" hset -h myredis.com -p 6380
+----
+====
+
+[[_faker_import_keys]]
+=== Keys
+
+Keys are constructed from input records by concatenating the keyspace prefix and key fields.
+
+image::mapping.png[]
+
+.HSET example
 [source]
 ----
 include::{testdir}/faker-import-hset[]
 ----
 
-.Set example
+.SADD example
 [source]
 ----
 include::{testdir}/faker-import-sadd[]
 ----
 
-Most providers don't take any arguments and can be called directly, for example:
+[[_faker_import_providers]]
+=== Data Providers
 
+Faker offers many data providers.
+Most providers don't take any arguments and can be called directly:
+
+.Simple Faker example
 [source]
 ----
 riot faker-import firstName="name.firstName"
 ----
 
-Some providers take parameters, for example:
+Some providers take parameters:
+
+.Parameter Faker example
 [source]
 ----
 riot faker-import lease="number.digits(2)"
 ----
 
 Refer to {link_datafaker_doc} for complete documentation.
+
+[[_faker_import_builtin_fields]]
+=== Built-in Fields
+
+In addition to the Faker fields specified with `field="expression"` you can use these built-in fields:
+
+`index`:: current iteration number.
+
+`thread`:: current thread id.
+Useful for multithreaded data generation.
+
+.Multithreaded data generator
+[source]
+----
+include::{testdir}/faker-import-threads[]
+----
 
 [[_faker_import_redisearch]]
 === RediSearch
@@ -71,23 +108,8 @@ include::{testdir}/faker-import-infer[]
 
 The `generate` command generates random data-structures for Redis (set, list, zset, stream, string, hash), as well as RedisJSON and RedisTimeSeries.
 
-=== Synopsis
-
 [source]
 ----
 riot -h <host> -p <port> generate [OPTIONS]
 ----
-
-=== Options
-
-`--count`::
-Controls how many items to generate.
-
-`--keys`::
-Range of keys to generate in the form `start:end`. Default
-For example `
-
-`--types`::
-Types of data structures to generate: `hash`, `string`, `list`, `set`, `zset`, `json`, `stream`, `timeseries`.
-Default: `hash`, `string`, `list`, `set`, `zset`, `stream`
 

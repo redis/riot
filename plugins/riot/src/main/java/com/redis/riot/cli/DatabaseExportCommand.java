@@ -16,12 +16,12 @@ public class DatabaseExportCommand extends AbstractExportCommand {
     DatabaseExportArgs args = new DatabaseExportArgs();
 
     @Override
-    protected DatabaseExport getExport() {
+    protected DatabaseExport exportExecutable() {
         DatabaseExport executable = new DatabaseExport();
         executable.setSql(sql);
         executable.setAssertUpdates(args.assertUpdates);
         executable.setDataSourceOptions(args.dataSourceOptions());
-        executable.setKeyPattern(args.keyRegex);
+        executable.setKeyRegex(args.keyRegex);
         return executable;
     }
 

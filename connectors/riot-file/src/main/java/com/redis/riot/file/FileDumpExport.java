@@ -5,6 +5,7 @@ import java.io.IOException;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.item.function.FunctionItemProcessor;
 import org.springframework.batch.item.json.JacksonJsonObjectMarshaller;
 import org.springframework.batch.item.json.JsonObjectMarshaller;
 import org.springframework.core.io.Resource;
@@ -12,9 +13,8 @@ import org.springframework.core.io.WritableResource;
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.redis.riot.core.AbstractExport;
-import com.redis.riot.core.RedisContext;
 import com.redis.riot.core.RiotContext;
-import com.redis.riot.core.RiotExecutionException;
+import com.redis.riot.core.RiotException;
 import com.redis.riot.file.resource.JsonResourceItemWriter;
 import com.redis.riot.file.resource.JsonResourceItemWriterBuilder;
 import com.redis.riot.file.resource.XmlResourceItemWriter;
@@ -26,124 +26,121 @@ import io.lettuce.core.codec.StringCodec;
 
 public class FileDumpExport extends AbstractExport {
 
-    public static final String DEFAULT_ELEMENT_NAME = "record";
+	public static final String DEFAULT_ELEMENT_NAME = "record";
 
-    public static final String DEFAULT_ROOT_NAME = "root";
+	public static final String DEFAULT_ROOT_NAME = "root";
 
-    public static final String DEFAULT_LINE_SEPARATOR = System.getProperty("line.separator");
+	public static final String DEFAULT_LINE_SEPARATOR = System.getProperty("line.separator");
 
-    private String file;
+	private String file;
 
-    private FileOptions fileOptions = new FileOptions();
+	private FileOptions fileOptions = new FileOptions();
 
-    private boolean append;
+	private boolean append;
 
-    private String rootName = DEFAULT_ROOT_NAME;
+	private String rootName = DEFAULT_ROOT_NAME;
 
-    private String elementName = DEFAULT_ELEMENT_NAME;
+	private String elementName = DEFAULT_ELEMENT_NAME;
 
-    private String lineSeparator = DEFAULT_LINE_SEPARATOR;
+	private String lineSeparator = DEFAULT_LINE_SEPARATOR;
 
-    private FileDumpType type;
+	private FileDumpType type;
 
-    public void setFile(String file) {
-        this.file = file;
-    }
+	public void setFile(String file) {
+		this.file = file;
+	}
 
-    public void setFileOptions(FileOptions fileOptions) {
-        this.fileOptions = fileOptions;
-    }
+	public void setFileOptions(FileOptions fileOptions) {
+		this.fileOptions = fileOptions;
+	}
 
-    public void setType(FileDumpType type) {
-        this.type = type;
-    }
+	public void setType(FileDumpType type) {
+		this.type = type;
+	}
 
-    public void setAppend(boolean append) {
-        this.append = append;
-    }
+	public void setAppend(boolean append) {
+		this.append = append;
+	}
 
-    public void setRootName(String rootName) {
-        this.rootName = rootName;
-    }
+	public void setRootName(String rootName) {
+		this.rootName = rootName;
+	}
 
-    public void setElementName(String elementName) {
-        this.elementName = elementName;
-    }
+	public void setElementName(String elementName) {
+		this.elementName = elementName;
+	}
 
-    public void setLineSeparator(String lineSeparator) {
-        this.lineSeparator = lineSeparator;
-    }
+	public void setLineSeparator(String lineSeparator) {
+		this.lineSeparator = lineSeparator;
+	}
 
-    @Override
-    protected boolean isStruct() {
-        return true;
-    }
+	@Override
+	protected boolean isStruct() {
+		return true;
+	}
 
-    private ItemWriter<KeyValue<String>> writer() {
-        WritableResource resource;
-        try {
-            resource = FileUtils.outputResource(file, fileOptions);
-        } catch (IOException e) {
-            throw new RiotExecutionException("Could not open file for writing: " + file, e);
-        }
-        if (dumpType(resource) == FileDumpType.XML) {
-            return xmlWriter(resource);
-        }
-        return jsonWriter(resource);
-    }
+	private ItemWriter<KeyValue<String>> writer() {
+		WritableResource resource;
+		try {
+			resource = FileUtils.outputResource(file, fileOptions);
+		} catch (IOException e) {
+			throw new RiotException("Could not open file for writing: " + file, e);
+		}
+		if (dumpType(resource) == FileDumpType.XML) {
+			return xmlWriter(resource);
+		}
+		return jsonWriter(resource);
+	}
 
-    private FileDumpType dumpType(WritableResource resource) {
-        if (type == null) {
-            return FileUtils.dumpType(resource);
-        }
-        return type;
-    }
+	private FileDumpType dumpType(WritableResource resource) {
+		if (type == null) {
+			return FileUtils.dumpType(resource);
+		}
+		return type;
+	}
 
-    private JsonResourceItemWriter<KeyValue<String>> jsonWriter(Resource resource) {
-        JsonResourceItemWriterBuilder<KeyValue<String>> jsonWriterBuilder = new JsonResourceItemWriterBuilder<>();
-        jsonWriterBuilder.name("json-resource-item-writer");
-        jsonWriterBuilder.append(append);
-        jsonWriterBuilder.encoding(fileOptions.getEncoding());
-        jsonWriterBuilder.jsonObjectMarshaller(new JacksonJsonObjectMarshaller<>(FileUtils.objectMapper()));
-        jsonWriterBuilder.lineSeparator(lineSeparator);
-        jsonWriterBuilder.resource(resource);
-        jsonWriterBuilder.saveState(false);
-        return jsonWriterBuilder.build();
-    }
+	private JsonResourceItemWriter<KeyValue<String>> jsonWriter(Resource resource) {
+		JsonResourceItemWriterBuilder<KeyValue<String>> jsonWriterBuilder = new JsonResourceItemWriterBuilder<>();
+		jsonWriterBuilder.name("json-resource-item-writer");
+		jsonWriterBuilder.append(append);
+		jsonWriterBuilder.encoding(fileOptions.getEncoding());
+		jsonWriterBuilder.jsonObjectMarshaller(new JacksonJsonObjectMarshaller<>(FileUtils.objectMapper()));
+		jsonWriterBuilder.lineSeparator(lineSeparator);
+		jsonWriterBuilder.resource(resource);
+		jsonWriterBuilder.saveState(false);
+		return jsonWriterBuilder.build();
+	}
 
-    private XmlResourceItemWriter<KeyValue<String>> xmlWriter(Resource resource) {
-        XmlResourceItemWriterBuilder<KeyValue<String>> xmlWriterBuilder = new XmlResourceItemWriterBuilder<>();
-        xmlWriterBuilder.name("xml-resource-item-writer");
-        xmlWriterBuilder.append(append);
-        xmlWriterBuilder.encoding(fileOptions.getEncoding());
-        xmlWriterBuilder.xmlObjectMarshaller(xmlMarshaller());
-        xmlWriterBuilder.lineSeparator(lineSeparator);
-        xmlWriterBuilder.rootName(rootName);
-        xmlWriterBuilder.resource(resource);
-        xmlWriterBuilder.saveState(false);
-        return xmlWriterBuilder.build();
-    }
+	private XmlResourceItemWriter<KeyValue<String>> xmlWriter(Resource resource) {
+		XmlResourceItemWriterBuilder<KeyValue<String>> xmlWriterBuilder = new XmlResourceItemWriterBuilder<>();
+		xmlWriterBuilder.name("xml-resource-item-writer");
+		xmlWriterBuilder.append(append);
+		xmlWriterBuilder.encoding(fileOptions.getEncoding());
+		xmlWriterBuilder.xmlObjectMarshaller(xmlMarshaller());
+		xmlWriterBuilder.lineSeparator(lineSeparator);
+		xmlWriterBuilder.rootName(rootName);
+		xmlWriterBuilder.resource(resource);
+		xmlWriterBuilder.saveState(false);
+		return xmlWriterBuilder.build();
+	}
 
-    private JsonObjectMarshaller<KeyValue<String>> xmlMarshaller() {
-        XmlMapper mapper = FileUtils.xmlMapper();
-        mapper.setConfig(mapper.getSerializationConfig().withRootName(elementName));
-        JacksonJsonObjectMarshaller<KeyValue<String>> marshaller = new JacksonJsonObjectMarshaller<>();
-        marshaller.setObjectMapper(mapper);
-        return marshaller;
-    }
+	private JsonObjectMarshaller<KeyValue<String>> xmlMarshaller() {
+		XmlMapper mapper = FileUtils.xmlMapper();
+		mapper.setConfig(mapper.getSerializationConfig().withRootName(elementName));
+		JacksonJsonObjectMarshaller<KeyValue<String>> marshaller = new JacksonJsonObjectMarshaller<>();
+		marshaller.setObjectMapper(mapper);
+		return marshaller;
+	}
 
-    @Override
-    protected Job job(RiotContext context) {
-        StructItemReader<String, String> reader = reader(context.getRedisContext());
-        ItemWriter<KeyValue<String>> writer = writer();
-        ItemProcessor<KeyValue<String>, KeyValue<String>> processor = processor(StringCodec.UTF8, context);
-        return jobBuilder().start(step(getName(), reader, processor, writer).build()).build();
-    }
-
-    private StructItemReader<String, String> reader(RedisContext context) {
-        StructItemReader<String, String> reader = new StructItemReader<>(context.getClient(), StringCodec.UTF8);
-        configureReader(reader, context);
-        return reader;
-    }
+	@Override
+	protected Job job(RiotContext context) throws Exception {
+		StructItemReader<String, String> reader = new StructItemReader<>(context.getRedisContext().getClient(),
+				StringCodec.UTF8);
+		configureReader("export-reader", reader, context.getRedisContext());
+		ItemWriter<KeyValue<String>> writer = writer();
+		ItemProcessor<KeyValue<String>, KeyValue<String>> processor = new FunctionItemProcessor<>(
+				processor(StringCodec.UTF8, context));
+		return jobBuilder().start(step(getName(), reader, processor, writer).build()).build();
+	}
 
 }

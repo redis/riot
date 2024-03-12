@@ -1,0 +1,9 @@
+[[_cookbook]]
+= Cookbook
+
+Here are various recipes using {project-title}.
+
+:leveloffset: +1
+include::{includedir}/connectivity-test.adoc[]
+include::{includedir}/elasticache.adoc[]
+:leveloffset: -1
