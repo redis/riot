@@ -29,8 +29,6 @@ dependencies {
     implementation 'org.postgresql:postgresql'
     implementation group: 'com.microsoft.sqlserver', name: 'mssql-jdbc', version: mssqlVersion
     implementation group: 'com.oracle.ojdbc', name: 'ojdbc8', version: oracleVersion
-    // implementation group: 'com.ibm.db2', name: 'jcc', version: db2Version
-    // implementation group: 'org.xerial', name: 'sqlite-jdbc', version: sqliteVersion
 }
 
 compileJava {
@@ -43,4 +41,13 @@ if (!(project.findProperty('automatic.module.name.skip') ?: false).toBoolean()) 
             attributes('Automatic-Module-Name': project.findProperty('automatic.module.name'))
         }
     }
+}
+
+bootJar {
+    enabled = false
+}
+
+jar {
+    enabled = true
+    archiveClassifier = ''
 }

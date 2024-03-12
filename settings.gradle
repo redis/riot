@@ -29,6 +29,7 @@ buildscript {
         classpath "org.kordamp.gradle:jacoco-gradle-plugin:$kordampPluginVersion"
         classpath "org.kordamp.gradle:kordamp-parentbuild:$kordampBuildVersion"
         classpath "org.springframework.boot:spring-boot-gradle-plugin:$bootPluginVersion"
+        classpath "io.spring.gradle:dependency-management-plugin:$dependencyPluginVersion"
     }
 }
 
@@ -46,16 +47,27 @@ projects {
         path(':') {
             id 'org.kordamp.gradle.java-project'
         }
-        path(':guide') {
-            id 'org.kordamp.gradle.guide'
-            id 'org.ajoberstar.git-publish'
-        }
         dirs(['core', 'connectors', 'plugins']) {
             id 'java-library'
+        }
+        dirs(['core', 'connectors']) {
             id 'org.springframework.boot'
             id 'io.spring.dependency-management'
         }
     }
 }
 
-enforce.enabled = false
+enforce {
+    rule(enforcer.rules.RequireJavaVersion) { r ->
+        r.version.set('17')
+    }
+    rule(enforcer.rules.EnforceBytecodeVersion) { r ->
+        r.enabled = false
+    }
+    rule(enforcer.rules.BanDuplicateClasses) { r ->
+        r.enabled = false
+    }
+    rule(enforcer.rules.DependencyConvergence) { r ->
+        r.enabled = false
+    }
+}

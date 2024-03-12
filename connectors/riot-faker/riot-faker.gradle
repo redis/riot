@@ -37,3 +37,12 @@ if (!(project.findProperty('automatic.module.name.skip') ?: false).toBoolean()) 
         }
     }
 }
+
+bootJar {
+    enabled = false
+}
+
+jar {
+    enabled = true
+    archiveClassifier = ''
+}

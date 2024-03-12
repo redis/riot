@@ -18,12 +18,7 @@
 plugins {
     id 'application'
     id 'org.jreleaser.jdks'
-}
-
-eclipse {
-    project {
-        name = 'riot-cli'
-    }
+    id 'org.ajoberstar.git-publish'
 }
 
 application {
@@ -36,7 +31,7 @@ jar {
         attributes([
             'Main-Class': 'com.redis.riot.cli.Main',
             'Automatic-Module-Name': project.findProperty('automatic.module.name')
-        ])        
+        ])
     }
 }
 
@@ -55,24 +50,28 @@ config {
 }
 
 dependencies {
-    implementation project(':riot-core')
-    implementation project(':riot-db')
-    implementation project(':riot-faker')
-    implementation project(':riot-file')
-    implementation group: 'info.picocli', name: 'picocli', version: picocliVersion
+    api project(':riot-core')
+    api project(':riot-db')
+    api project(':riot-faker')
+    api(project(':riot-file')) {
+        exclude group: 'commons-logging', module: 'commons-logging'
+    }
+    api group: 'info.picocli', name: 'picocli', version: picocliVersion
     annotationProcessor group: 'info.picocli', name: 'picocli-codegen', version: picocliVersion
     implementation group: 'me.tongfei', name: 'progressbar', version: progressbarVersion
-    implementation group: 'org.codehaus.plexus', name: 'plexus-utils', version:plexusVersion
-    implementation 'org.slf4j:slf4j-simple'
+    implementation group: 'org.codehaus.plexus', name: 'plexus-utils', version: plexusVersion
+    implementation group: 'org.slf4j', name: 'slf4j-simple', version: slf4jVersion
+    implementation group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-xml', version: jacksonVersion
+    implementation group: 'com.mysql', name: 'mysql-connector-j', version: mysqlVersion
+    implementation group: 'org.postgresql', name: 'postgresql', version: postgresqlVersion
+    implementation group: 'org.springframework', name: 'spring-oxm', version: springVersion
     testImplementation group: 'com.redis', name: 'spring-batch-redis', version: springBatchRedisVersion, classifier: 'tests'
-    testImplementation 'org.awaitility:awaitility'
-    testImplementation 'org.springframework.boot:spring-boot-autoconfigure'
-    testImplementation 'org.springframework:spring-jdbc'
+    testImplementation group: 'org.awaitility', name: 'awaitility', version: awaitilityVersion
     testImplementation group: 'org.testcontainers', name: 'postgresql', version: testcontainersVersion
     testImplementation group: 'org.testcontainers', name: 'oracle-xe', version: testcontainersVersion
+    testImplementation group: 'org.springframework.boot', name: 'spring-boot-autoconfigure', version: springBootVersion
+    testImplementation group: 'org.hsqldb', name: 'hsqldb', version: hsqldbVersion    
 }
-
-bootStartScripts.enabled = false
 
 distributions {
     main {
@@ -135,3 +134,44 @@ copyDependencies {
 }
 
 assemble.dependsOn copyDependencies
+
+mainClassName = "com.redis.riot.cli.Main"
+
+task generateManpageAsciiDoc(type: JavaExec) {
+    dependsOn(classes)
+    group = "Documentation"
+    description = "Generate AsciiDoc manpage"
+    classpath(configurations.compileClasspath, configurations.annotationProcessor, sourceSets.main.runtimeClasspath)
+    main 'picocli.codegen.docgen.manpage.ManPageGenerator'
+    args mainClassName, "--outdir=${project.buildDir}/generated-picocli-docs", "-v" //, "--template-dir=src/docs/mantemplates"
+}
+
+apply plugin: 'org.asciidoctor.jvm.convert'
+
+asciidoctor {
+    dependsOn(generateManpageAsciiDoc)
+    sourceDir = file("${project.buildDir}/generated-picocli-docs")
+    outputDir = file("${project.buildDir}/docs")
+    logDocuments = true
+    outputOptions {
+        backends = ['manpage', 'html5']
+    }
+}
+
+gitPublish {
+    repoUri = "https://github.com/redis-developer/${project.rootProject.name}"
+    branch = "gh-pages"
+    contents {
+        from ("${project.buildDir}/docs/html5") {
+            into 'manpage'
+        }
+    }
+}
+
+gitPublishCopy.dependsOn asciidoctor
+
+eclipse {
+    project {
+        name = 'riot-cli'
+    }
+}

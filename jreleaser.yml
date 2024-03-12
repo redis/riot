@@ -29,7 +29,7 @@ project:
       height: 256
   java:
     groupId: com.redis
-    version: '8'
+    version: '21'
     multiProject: true
     mainClass: com.redis.riot.cli.Main
   tags:
@@ -127,7 +127,7 @@ assemble:
     riot-standalone:
       active: ALWAYS
       java:
-        version: '11'
+        version: '21'
       imageName: '{{distributionName}}-{{projectEffectiveVersion}}'
       executable: riot
       fileSets:

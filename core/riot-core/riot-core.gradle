@@ -23,12 +23,13 @@ config {
  
 dependencies {
     api 'org.slf4j:slf4j-api'
-    api 'org.slf4j:jcl-over-slf4j'
     api group: 'com.redis', name: 'lettucemod', version: lettucemodVersion
     api group: 'com.redis', name: 'spring-batch-redis', version: springBatchRedisVersion
     api 'org.springframework.batch:spring-batch-core'
     api 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
-    implementation group: 'org.latencyutils', name: 'LatencyUtils', version: latencyutilsVersion    
+    implementation 'org.springframework.boot:spring-boot-autoconfigure'
+    implementation 'org.hsqldb:hsqldb'
+    implementation group: 'org.latencyutils', name: 'LatencyUtils', version: latencyutilsVersion
     implementation 'org.apache.commons:commons-pool2'    
     testImplementation 'org.slf4j:slf4j-simple'
     testImplementation group: 'com.redis', name: 'spring-batch-redis', version: springBatchRedisVersion, classifier: 'tests'
@@ -45,4 +46,13 @@ if (!(project.findProperty('automatic.module.name.skip') ?: false).toBoolean()) 
             attributes('Automatic-Module-Name': project.findProperty('automatic.module.name'))
         }
     }
+}
+
+bootJar {
+    enabled = false
+}
+
+jar {
+    enabled = true
+    archiveClassifier = ''
 }

@@ -50,7 +50,7 @@ config {
             }
         }
     }
-    
+
     docs {
         javadoc {
             enabled = false
@@ -95,29 +95,18 @@ subprojects { subproj ->
 
 	    dependencies {
 	        compileOnly group: 'com.google.code.findbugs', name: 'jsr305', version: jsr305Version
-            testImplementation 'org.junit.jupiter:junit-jupiter-api'
-            testImplementation 'org.junit.jupiter:junit-jupiter-params'
-            testImplementation 'org.junit.jupiter:junit-jupiter-engine'
-            testImplementation 'org.junit.platform:junit-platform-launcher'
+            testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: junitVersion
+            testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-params', version: junitVersion
+            testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: junitVersion
+            testImplementation group: 'org.junit.platform', name: 'junit-platform-launcher', version: junitPlatformVersion
             testImplementation group: 'org.testcontainers', name: 'junit-jupiter', version: testcontainersVersion
-	        testImplementation(group: 'com.redis.testcontainers', name: 'testcontainers-redis', version: testcontainersRedisVersion) {
-	            exclude group: 'com.redis', module: 'lettucemod'
-	        }
+	        testImplementation group: 'com.redis', name: 'testcontainers-redis', version: testcontainersRedisVersion
 	    }
 	
 	    test {
 	        useJUnitPlatform()
 	    }
-	
-	    bootJar {
-	        enabled = false
-	    }
-	    
-	    jar {
-	        enabled = true
-	        archiveClassifier = ''
-	    }
-	    
+
 	    configurations {
 	        all*.exclude module: 'spring-boot-starter-logging'
 	    }
