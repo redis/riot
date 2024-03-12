@@ -62,7 +62,9 @@ enforce {
         r.version.set('17')
     }
     rule(enforcer.rules.EnforceBytecodeVersion) { r ->
-        r.enabled = false
+        // search only on compile and runtime classpaths
+        r.configurations.addAll(['compileClasspath', 'runtimeClasspath'])
+        r.maxJdkVersion = '17'
     }
     rule(enforcer.rules.BanDuplicateClasses) { r ->
         r.enabled = false
