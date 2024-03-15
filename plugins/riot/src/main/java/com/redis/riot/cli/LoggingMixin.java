@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.slf4j.event.Level;
+import org.slf4j.simple.SimpleLogger;
 
 import picocli.CommandLine.ExecutionException;
 import picocli.CommandLine.ExitCode;
@@ -33,7 +34,7 @@ public class LoggingMixin {
 	boolean levelInBrackets;
 	Map<String, Level> logLevels = new LinkedHashMap<>();
 
-	@Option(names = { "-d", "--debug" }, description = "Log in debug mode (includes normal stacktrace).")
+	@Option(names = { "-d", "--debug" }, description = "Log in debug mode.")
 	public void setDebug(boolean debug) {
 		if (debug) {
 			getTopLevelCommandLoggingMixin(mixee).level = Level.DEBUG;
@@ -61,12 +62,12 @@ public class LoggingMixin {
 		}
 	}
 
-	@Option(arity = "1..*", names = "--log-levels", description = "Custom log levels (e.g.: com.amazonaws=ERROR io.lettuce=INFO io.netty=INFO).", paramLabel = "<lvl>")
+	@Option(arity = "1..*", names = "--log", description = "Custom log levels (e.g.: io.lettuce=INFO).", paramLabel = "<lvl>")
 	public void setLogLevels(Map<String, Level> levels) {
 		getTopLevelCommandLoggingMixin(mixee).logLevels = levels;
 	}
 
-	@Option(names = "--log-file", description = "Log output target which can be a file path or special values System.out and System.err (default: System.err).", paramLabel = "<file>")
+	@Option(names = "--log-file", description = "Log output target. Can be a path or special values System.out and System.err (default: System.err).", paramLabel = "<file>")
 	public void setLogFile(String file) {
 		getTopLevelCommandLoggingMixin(mixee).logFile = file;
 	}
@@ -101,7 +102,7 @@ public class LoggingMixin {
 		getTopLevelCommandLoggingMixin(mixee).showShortLogName = show;
 	}
 
-	@Option(names = "--log-level-brackets", description = "Output log level string in brackets.", hidden = true)
+	@Option(names = "--log-level", description = "Output log level string in brackets.", hidden = true)
 	public void setLevelInBrackets(boolean enable) {
 		getTopLevelCommandLoggingMixin(mixee).levelInBrackets = enable;
 	}
@@ -112,7 +113,7 @@ public class LoggingMixin {
 	}
 
 	private static LoggingMixin getTopLevelCommandLoggingMixin(CommandSpec commandSpec) {
-		return ((Main) commandSpec.root().userObject()).loggingMixin;
+		return ((AbstractMainCommand) commandSpec.root().userObject()).loggingMixin;
 	}
 
 	public void configureLogging() {
@@ -120,22 +121,28 @@ public class LoggingMixin {
 	}
 
 	private static void configureLogging(LoggingMixin mixin) {
-		setProperty(org.slf4j.simple.SimpleLogger.DEFAULT_LOG_LEVEL_KEY, mixin.level.name());
+		setProperty(SimpleLogger.DEFAULT_LOG_LEVEL_KEY, mixin.level.name());
 		if (mixin.logFile != null) {
-			setProperty(org.slf4j.simple.SimpleLogger.LOG_FILE_KEY, mixin.logFile);
+			setProperty(SimpleLogger.LOG_FILE_KEY, mixin.logFile);
 		}
-		setBoolean(org.slf4j.simple.SimpleLogger.SHOW_DATE_TIME_KEY, mixin.showDateTime);
+		setBoolean(SimpleLogger.SHOW_DATE_TIME_KEY, mixin.showDateTime);
 		if (mixin.dateTimeFormat != null) {
-			setProperty(org.slf4j.simple.SimpleLogger.DATE_TIME_FORMAT_KEY, mixin.dateTimeFormat);
+			setProperty(SimpleLogger.DATE_TIME_FORMAT_KEY, mixin.dateTimeFormat);
 		}
-		setBoolean(org.slf4j.simple.SimpleLogger.SHOW_THREAD_ID_KEY, mixin.showThreadId);
-		setBoolean(org.slf4j.simple.SimpleLogger.SHOW_THREAD_NAME_KEY, mixin.showThreadName);
-		setBoolean(org.slf4j.simple.SimpleLogger.SHOW_LOG_NAME_KEY, mixin.showLogName);
-		setBoolean(org.slf4j.simple.SimpleLogger.SHOW_SHORT_LOG_NAME_KEY, mixin.showShortLogName);
-		setBoolean(org.slf4j.simple.SimpleLogger.LEVEL_IN_BRACKETS_KEY, mixin.levelInBrackets);
+		setBoolean(SimpleLogger.SHOW_THREAD_ID_KEY, mixin.showThreadId);
+		setBoolean(SimpleLogger.SHOW_THREAD_NAME_KEY, mixin.showThreadName);
+		setBoolean(SimpleLogger.SHOW_LOG_NAME_KEY, mixin.showLogName);
+		setBoolean(SimpleLogger.SHOW_SHORT_LOG_NAME_KEY, mixin.showShortLogName);
+		setBoolean(SimpleLogger.LEVEL_IN_BRACKETS_KEY, mixin.levelInBrackets);
+		setLogLevel("org.springframework.batch.core.step.builder.FaultTolerantStepBuilder", Level.ERROR);
+		setLogLevel("org.springframework.batch.core.step.item.ChunkMonitor", Level.ERROR);
 		for (Entry<String, Level> entry : mixin.logLevels.entrySet()) {
-			System.setProperty(org.slf4j.simple.SimpleLogger.LOG_KEY_PREFIX + entry.getKey(), entry.getValue().name());
+			setLogLevel(entry.getKey(), entry.getValue());
 		}
+	}
+
+	private static void setLogLevel(String key, Level level) {
+		System.setProperty(SimpleLogger.LOG_KEY_PREFIX + key, level.name());
 	}
 
 	private static void setBoolean(String property, boolean value) {

@@ -6,34 +6,32 @@ import com.redis.spring.batch.common.Range;
 
 public class KeyFilterOptions {
 
-    private List<String> includes;
+	private List<String> includes;
+	private List<String> excludes;
+	private List<Range> slots;
 
-    private List<String> excludes;
+	public List<String> getIncludes() {
+		return includes;
+	}
 
-    private List<Range> slots;
+	public void setIncludes(List<String> patterns) {
+		this.includes = patterns;
+	}
 
-    public List<String> getIncludes() {
-        return includes;
-    }
+	public List<String> getExcludes() {
+		return excludes;
+	}
 
-    public void setIncludes(List<String> patterns) {
-        this.includes = patterns;
-    }
+	public void setExcludes(List<String> patterns) {
+		this.excludes = patterns;
+	}
 
-    public List<String> getExcludes() {
-        return excludes;
-    }
+	public List<Range> getSlots() {
+		return slots;
+	}
 
-    public void setExcludes(List<String> patterns) {
-        this.excludes = patterns;
-    }
-
-    public List<Range> getSlots() {
-        return slots;
-    }
-
-    public void setSlots(List<Range> ranges) {
-        this.slots = ranges;
-    }
+	public void setSlots(List<Range> ranges) {
+		this.slots = ranges;
+	}
 
 }

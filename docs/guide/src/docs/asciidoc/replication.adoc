@@ -28,7 +28,7 @@ The basic replication mechanism is as follows:
 
 [source]
 ----
-riot <source> replicate <target> --mode <snapshot|live|compare> --type <dump|struct> [OPTIONS]
+riot <source> replicate <target> --mode <snapshot|live|compare> [--type] [OPTIONS]
 ----
 
 For the full usage, run:

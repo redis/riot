@@ -6,16 +6,16 @@ import picocli.CommandLine.ArgGroup;
 
 public abstract class AbstractStructImportCommand extends AbstractJobCommand {
 
-    @ArgGroup(exclusive = false, heading = "Writer options%n")
-    RedisWriterArgs writerArgs = new RedisWriterArgs();
+	@ArgGroup(exclusive = false, heading = "Writer options%n")
+	RedisWriterArgs writerArgs = new RedisWriterArgs();
 
-    @Override
-    protected AbstractStructImport jobExecutable() {
-        AbstractStructImport executable = importExecutable();
-        executable.setWriterOptions(writerArgs.writerOptions());
-        return executable;
-    }
+	@Override
+	protected AbstractStructImport jobRunnable() {
+		AbstractStructImport runnable = importRunnable();
+		runnable.setWriterOptions(writerArgs.writerOptions());
+		return runnable;
+	}
 
-    protected abstract AbstractStructImport importExecutable();
+	protected abstract AbstractStructImport importRunnable();
 
 }

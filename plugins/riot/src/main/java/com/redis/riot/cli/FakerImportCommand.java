@@ -29,13 +29,13 @@ public class FakerImportCommand extends AbstractImportCommand {
 	Locale locale = FakerImport.DEFAULT_LOCALE;
 
 	@Override
-	protected FakerImport importExecutable() {
-		FakerImport executable = new FakerImport();
-		executable.setFields(fields);
-		executable.setCount(count);
-		executable.setLocale(locale);
-		executable.setSearchIndex(searchIndex);
-		return executable;
+	protected FakerImport importRunnable() {
+		FakerImport runnable = new FakerImport();
+		runnable.setFields(fields);
+		runnable.setCount(count);
+		runnable.setLocale(locale);
+		runnable.setSearchIndex(searchIndex);
+		return runnable;
 	}
 
 	@Override

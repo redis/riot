@@ -25,14 +25,13 @@ import com.redis.spring.batch.gen.GeneratorItemReader;
 
 class PostgresTests extends AbstractDbTests {
 
-	private static final DockerImageName POSTGRES_IMAGE = DockerImageName.parse(PostgreSQLContainer.IMAGE)
+	private static final DockerImageName postgresImage = DockerImageName.parse(PostgreSQLContainer.IMAGE)
 			.withTag(PostgreSQLContainer.DEFAULT_TAG);
-
-	private static final PostgreSQLContainer<?> POSTGRES = new PostgreSQLContainer<>(POSTGRES_IMAGE);
+	private static final PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>(postgresImage);
 
 	@Override
 	protected JdbcDatabaseContainer<?> getJdbcDatabaseContainer() {
-		return POSTGRES;
+		return postgres;
 	}
 
 	@BeforeAll
@@ -42,7 +41,7 @@ class PostgresTests extends AbstractDbTests {
 
 	@BeforeEach
 	void clearTables() throws SQLException {
-		try (Statement statement = databaseConnection.createStatement()) {
+		try (Statement statement = dbConnection.createStatement()) {
 			statement.execute("DROP TABLE IF EXISTS mytable");
 		}
 	}
@@ -50,11 +49,10 @@ class PostgresTests extends AbstractDbTests {
 	@Test
 	void export(TestInfo info) throws Exception {
 		String filename = "db-export-postgresql";
-		try (Statement statement = databaseConnection.createStatement()) {
+		try (Statement statement = dbConnection.createStatement()) {
 			statement.execute("CREATE TABLE mytable (id smallint NOT NULL, field1 bpchar, field2 bpchar)");
 			statement.execute("ALTER TABLE ONLY mytable ADD CONSTRAINT pk_mytable PRIMARY KEY (id)");
-			GeneratorItemReader generator = generator();
-			generator.setTypes(DataType.HASH);
+			GeneratorItemReader generator = generator(73, DataType.HASH);
 			generate(info, generator);
 			execute(info, filename, r -> executeDatabaseExport(r, info));
 			statement.execute("SELECT COUNT(*) AS count FROM mytable");
@@ -75,7 +73,7 @@ class PostgresTests extends AbstractDbTests {
 
 	@Test
 	void nullValueExport(TestInfo info) throws Exception {
-		try (Statement statement = databaseConnection.createStatement()) {
+		try (Statement statement = dbConnection.createStatement()) {
 			statement.execute("CREATE TABLE mytable (id smallint NOT NULL, field1 bpchar, field2 bpchar)");
 			statement.execute("ALTER TABLE ONLY mytable ADD CONSTRAINT pk_mytable PRIMARY KEY (id)");
 			Map<String, String> hash1 = new HashMap<>();
@@ -104,7 +102,7 @@ class PostgresTests extends AbstractDbTests {
 	@Test
 	void hashImport(TestInfo info) throws Exception {
 		execute(info, "db-import-postgresql", this::executeDatabaseImport);
-		try (Statement statement = databaseConnection.createStatement()) {
+		try (Statement statement = dbConnection.createStatement()) {
 			statement.execute("SELECT COUNT(*) AS count FROM orders");
 			ResultSet resultSet = statement.getResultSet();
 			resultSet.next();
@@ -119,7 +117,7 @@ class PostgresTests extends AbstractDbTests {
 	void multiThreadedImport(TestInfo info) throws Exception {
 		execute(info, "db-import-postgresql-multithreaded", this::executeDatabaseImport);
 		int count = keyCount("order:*");
-		try (Statement statement = databaseConnection.createStatement()) {
+		try (Statement statement = dbConnection.createStatement()) {
 			try (ResultSet resultSet = statement.executeQuery("SELECT COUNT(*) AS count FROM orders")) {
 				Assertions.assertTrue(resultSet.next());
 				Assertions.assertEquals(resultSet.getLong("count"), count);
@@ -133,7 +131,7 @@ class PostgresTests extends AbstractDbTests {
 	@Test
 	void setImport(TestInfo info) throws Exception {
 		execute(info, "db-import-postgresql-set", this::executeDatabaseImport);
-		try (Statement statement = databaseConnection.createStatement()) {
+		try (Statement statement = dbConnection.createStatement()) {
 			statement.execute("SELECT * FROM orders");
 			ResultSet resultSet = statement.getResultSet();
 			long count = 0;

@@ -26,22 +26,22 @@ public abstract class AbstractMapExport extends AbstractExport {
 	}
 
 	@Override
-	protected Job job(RiotContext context) throws Exception {
-		StructItemReader<String, String> reader = reader(context.getRedisContext());
-		ItemProcessor<KeyValue<String>, Map<String, Object>> processor = processor(context);
+	protected Job job() {
+		StructItemReader<String, String> reader = reader();
+		ItemProcessor<KeyValue<String>, Map<String, Object>> processor = processor();
 		ItemWriter<Map<String, Object>> writer = writer();
 		return jobBuilder().start(step(getName(), reader, processor, writer).build()).build();
 	}
 
-	protected StructItemReader<String, String> reader(RedisContext context) throws Exception {
-		StructItemReader<String, String> reader = new StructItemReader<>(context.getClient(), StringCodec.UTF8);
-		configureReader("export-reader", reader, context);
+	protected StructItemReader<String, String> reader() {
+		StructItemReader<String, String> reader = new StructItemReader<>(getRedisClient(), StringCodec.UTF8);
+		configureReader("export-reader", reader);
 		return reader;
 	}
 
-	protected ItemProcessor<KeyValue<String>, Map<String, Object>> processor(RiotContext context) {
+	protected ItemProcessor<KeyValue<String>, Map<String, Object>> processor() {
 		ItemProcessor<KeyValue<String>, KeyValue<String>> processor = new FunctionItemProcessor<>(
-				processor(StringCodec.UTF8, context));
+				processor(StringCodec.UTF8));
 		StructToMapFunction toMapFunction = new StructToMapFunction();
 		if (keyRegex != null) {
 			toMapFunction.setKey(new RegexNamedGroupFunction(keyRegex));

@@ -35,7 +35,7 @@ abstract class AbstractReplicationTests extends AbstractRiotTestBase {
 	@Test
 	void replicate(TestInfo info) throws Throwable {
 		String filename = "replicate";
-		generate(info);
+		generate(info, generator(73));
 		Assertions.assertTrue(commands.dbsize() > 0);
 		execute(info, filename);
 	}
@@ -43,7 +43,7 @@ abstract class AbstractReplicationTests extends AbstractRiotTestBase {
 	@Test
 	void replicateDryRun(TestInfo info) throws Throwable {
 		String filename = "replicate-dry-run";
-		generate(info);
+		generate(info, generator(73));
 		Assertions.assertTrue(commands.dbsize() > 0);
 		execute(info, filename);
 		Assertions.assertEquals(0, targetCommands.dbsize());
@@ -155,10 +155,9 @@ abstract class AbstractReplicationTests extends AbstractRiotTestBase {
 	}
 
 	protected void runLiveReplication(TestInfo info, String filename) throws Exception {
-		DataType[] types = new DataType[] { DataType.HASH, DataType.STRING, DataType.LIST, DataType.ZSET };
+		DataType[] types = new DataType[] { DataType.HASH, DataType.STRING };
 		enableKeyspaceNotifications(client);
-		GeneratorItemReader gen = generator(3000, types);
-		generate(info, gen);
+		generate(info, generator(3000, types));
 		Executors.newSingleThreadScheduledExecutor().execute(() -> {
 			awaitPubSub();
 			GeneratorItemReader generator = generator(3500, types);

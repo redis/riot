@@ -5,8 +5,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-import com.redis.riot.core.GeneratorImport;
 import com.redis.riot.core.RiotStep;
+import com.redis.riot.redis.GeneratorImport;
 import com.redis.spring.batch.common.DataType;
 import com.redis.spring.batch.common.Range;
 import com.redis.spring.batch.gen.CollectionOptions;
@@ -102,22 +102,22 @@ public class GenerateCommand extends AbstractStructImportCommand {
 	}
 
 	@Override
-	protected GeneratorImport importExecutable() {
-		GeneratorImport executable = new GeneratorImport();
-		executable.setCount(count);
-		executable.setExpiration(expiration);
-		executable.setHashOptions(hashOptions());
-		executable.setJsonOptions(jsonOptions());
-		executable.setKeyRange(keyRange);
-		executable.setKeyspace(keyspace);
-		executable.setListOptions(listOptions());
-		executable.setSetOptions(setOptions());
-		executable.setStreamOptions(streamOptions());
-		executable.setStringOptions(stringOptions());
-		executable.setTimeSeriesOptions(timeseriesOptions());
-		executable.setTypes(types);
-		executable.setZsetOptions(zsetOptions());
-		return executable;
+	protected GeneratorImport importRunnable() {
+		GeneratorImport runnable = new GeneratorImport();
+		runnable.setCount(count);
+		runnable.setExpiration(expiration);
+		runnable.setHashOptions(hashOptions());
+		runnable.setJsonOptions(jsonOptions());
+		runnable.setKeyRange(keyRange);
+		runnable.setKeyspace(keyspace);
+		runnable.setListOptions(listOptions());
+		runnable.setSetOptions(setOptions());
+		runnable.setStreamOptions(streamOptions());
+		runnable.setStringOptions(stringOptions());
+		runnable.setTimeSeriesOptions(timeseriesOptions());
+		runnable.setTypes(types);
+		runnable.setZsetOptions(zsetOptions());
+		return runnable;
 	}
 
 	private ZsetOptions zsetOptions() {

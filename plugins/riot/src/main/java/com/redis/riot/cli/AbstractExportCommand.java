@@ -19,14 +19,14 @@ public abstract class AbstractExportCommand extends AbstractJobCommand {
 	KeyValueProcessorArgs processorArgs = new KeyValueProcessorArgs();
 
 	@Override
-	protected AbstractJobRunnable jobExecutable() {
-		AbstractExport export = exportExecutable();
+	protected AbstractJobRunnable jobRunnable() {
+		AbstractExport export = exportRunnable();
 		export.setReaderOptions(readerArgs.readerOptions());
 		export.setProcessorOptions(processorArgs.processorOptions());
 		return export;
 	}
 
-	protected abstract AbstractExport exportExecutable();
+	protected abstract AbstractExport exportRunnable();
 
 	@Override
 	protected Callable<Long> initialMaxSupplier(RiotStep<?, ?> step) {

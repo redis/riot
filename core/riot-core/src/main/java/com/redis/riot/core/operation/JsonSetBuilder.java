@@ -8,7 +8,6 @@ import org.springframework.batch.item.ItemStreamException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import com.redis.spring.batch.writer.operation.AbstractKeyWriteOperation;
 import com.redis.spring.batch.writer.operation.JsonSet;
 
 public class JsonSetBuilder extends AbstractMapOperationBuilder {
@@ -22,7 +21,7 @@ public class JsonSetBuilder extends AbstractMapOperationBuilder {
 	}
 
 	@Override
-	protected AbstractKeyWriteOperation<String, String, Map<String, Object>> operation(
+	protected JsonSet<String, String, Map<String, Object>> operation(
 			Function<Map<String, Object>, String> keyFunction) {
 		JsonSet<String, String, Map<String, Object>> operation = new JsonSet<>(keyFunction, this::value);
 		operation.setPathFunction(path());

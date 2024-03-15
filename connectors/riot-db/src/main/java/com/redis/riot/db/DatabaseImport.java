@@ -2,41 +2,28 @@ package com.redis.riot.db;
 
 import java.util.Map;
 
-import javax.sql.DataSource;
-
 import org.springframework.batch.core.Job;
 import org.springframework.batch.item.ItemReader;
-import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.database.AbstractCursorItemReader;
 import org.springframework.batch.item.database.builder.JdbcCursorItemReaderBuilder;
 import org.springframework.jdbc.core.ColumnMapRowMapper;
 import org.springframework.util.ClassUtils;
 
 import com.redis.riot.core.AbstractImport;
-import com.redis.riot.core.RiotContext;
 
 public class DatabaseImport extends AbstractImport {
 
 	public static final int DEFAULT_FETCH_SIZE = AbstractCursorItemReader.VALUE_NOT_SET;
-
 	public static final int DEFAULT_MAX_RESULT_SET_ROWS = AbstractCursorItemReader.VALUE_NOT_SET;
-
 	public static final int DEFAULT_QUERY_TIMEOUT = AbstractCursorItemReader.VALUE_NOT_SET;
 
 	private String sql;
-
 	private DataSourceOptions dataSourceOptions = new DataSourceOptions();
-
 	private int maxItemCount;
-
 	private int fetchSize = DEFAULT_FETCH_SIZE;
-
 	private int maxResultSetRows = DEFAULT_MAX_RESULT_SET_ROWS;
-
 	private int queryTimeout = DEFAULT_QUERY_TIMEOUT;
-
 	private boolean useSharedExtendedConnection;
-
 	private boolean verifyCursorPosition;
 
 	public String getSql() {
@@ -104,18 +91,15 @@ public class DatabaseImport extends AbstractImport {
 	}
 
 	@Override
-	protected Job job(RiotContext executionContext) throws Exception {
+	protected Job job() {
 		String name = ClassUtils.getShortName(getClass());
-		ItemReader<Map<String, Object>> reader = reader();
-		ItemWriter<Map<String, Object>> writer = writer(executionContext);
-		return jobBuilder().start(step(name, reader, null, writer).build()).build();
+		return jobBuilder().start(step(name, reader(), null, writer()).build()).build();
 	}
 
 	private ItemReader<Map<String, Object>> reader() {
-		DataSource dataSource = DatabaseUtils.dataSource(dataSourceOptions);
 		JdbcCursorItemReaderBuilder<Map<String, Object>> builder = new JdbcCursorItemReaderBuilder<>();
 		builder.saveState(false);
-		builder.dataSource(dataSource);
+		builder.dataSource(dataSourceOptions.dataSource());
 		builder.name("database-reader");
 		builder.rowMapper(new ColumnMapRowMapper());
 		builder.sql(sql);

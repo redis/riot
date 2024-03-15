@@ -12,7 +12,6 @@ import org.springframework.util.Assert;
 public class ThrottledItemWriter<T> implements ItemStreamWriter<T> {
 
 	private final ItemWriter<T> delegate;
-
 	private final long sleep;
 
 	public ThrottledItemWriter(ItemWriter<T> delegate, Duration sleep) {

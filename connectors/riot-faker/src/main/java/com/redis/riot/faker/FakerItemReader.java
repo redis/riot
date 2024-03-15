@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
@@ -73,8 +74,19 @@ public class FakerItemReader extends AbstractItemCountingItemStreamItemReader<Ma
 
 	public class AugmentedFaker extends Faker {
 
+		private final AtomicInteger threadCount = new AtomicInteger();
+		private final ThreadLocal<Integer> threadId = ThreadLocal.withInitial(threadCount::incrementAndGet);
+
 		public AugmentedFaker(Locale locale) {
 			super(locale);
+		}
+
+		public void setThread(int id) {
+			threadId.set(id);
+		}
+
+		public void removeThread() {
+			threadId.remove();
 		}
 
 		public int getIndex() {
@@ -85,13 +97,12 @@ public class FakerItemReader extends AbstractItemCountingItemStreamItemReader<Ma
 			return getCurrentItemCount();
 		}
 
-		public long getThread() {
+		public int getThread() {
 			return thread();
 		}
 
-		@SuppressWarnings("deprecation")
-		public long thread() {
-			return Thread.currentThread().getId();
+		public int thread() {
+			return threadId.get();
 		}
 
 	}

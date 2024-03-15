@@ -3,7 +3,7 @@ package com.redis.riot.cli;
 import java.io.File;
 import java.time.Duration;
 
-import com.redis.riot.core.RedisOptions;
+import com.redis.riot.core.RedisClientOptions;
 
 import io.lettuce.core.SslVerifyMode;
 import io.lettuce.core.protocol.ProtocolVersion;
@@ -15,10 +15,10 @@ public class RedisArgs {
     String uri;
 
     @Option(names = { "-h", "--host" }, description = "Server hostname (default: ${DEFAULT-VALUE}).", paramLabel = "<host>")
-    String host = RedisOptions.DEFAULT_HOST;
+    String host = RedisClientOptions.DEFAULT_HOST;
 
     @Option(names = { "-p", "--port" }, description = "Server port (default: ${DEFAULT-VALUE}).", paramLabel = "<port>")
-    int port = RedisOptions.DEFAULT_PORT;
+    int port = RedisClientOptions.DEFAULT_PORT;
 
     @Option(names = { "-s", "--socket" }, description = "Server socket (overrides hostname and port).", paramLabel = "<socket>")
     String socket;
@@ -81,8 +81,8 @@ public class RedisArgs {
     @Option(names = "--cacert", description = "X.509 CA certificate file to verify with.", paramLabel = "<file>")
     File trustedCerts;
 
-    public RedisOptions redisOptions() {
-        RedisOptions options = new RedisOptions();
+    public RedisClientOptions redisOptions() {
+        RedisClientOptions options = new RedisClientOptions();
         options.setAutoReconnect(!noAutoReconnect);
         options.setCluster(cluster);
         options.setKey(key);

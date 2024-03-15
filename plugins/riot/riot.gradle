@@ -23,10 +23,16 @@ plugins {
 
 application {
     applicationName = 'riot'
-    mainClassName   = 'com.redis.riot.cli.Main'
+    mainClass   = 'com.redis.riot.cli.Main'
+}
+
+bootJar {
+    enabled = false
 }
 
 jar {
+    enabled = true
+    archiveClassifier = ''
     manifest {
         attributes([
             'Main-Class': 'com.redis.riot.cli.Main',
@@ -41,7 +47,6 @@ startScripts {
 
 config {
     info {
-        bytecodeVersion = 8
         specification { enabled = true }
     }
     licensing {
@@ -56,21 +61,22 @@ dependencies {
     api(project(':riot-file')) {
         exclude group: 'commons-logging', module: 'commons-logging'
     }
+    api project(':riot-redis')
     api group: 'info.picocli', name: 'picocli', version: picocliVersion
     annotationProcessor group: 'info.picocli', name: 'picocli-codegen', version: picocliVersion
     implementation group: 'me.tongfei', name: 'progressbar', version: progressbarVersion
-    implementation group: 'org.codehaus.plexus', name: 'plexus-utils', version: plexusVersion
-    implementation group: 'org.slf4j', name: 'slf4j-simple', version: slf4jVersion
-    implementation group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-xml', version: jacksonVersion
-    implementation group: 'com.mysql', name: 'mysql-connector-j', version: mysqlVersion
-    implementation group: 'org.postgresql', name: 'postgresql', version: postgresqlVersion
-    implementation group: 'org.springframework', name: 'spring-oxm', version: springVersion
+    implementation 'org.slf4j:slf4j-simple'
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
+    implementation 'com.mysql:mysql-connector-j'
+    implementation 'org.postgresql:postgresql'
+    implementation 'org.springframework:spring-oxm'
+    testImplementation 'org.springframework.boot:spring-boot-starter-jdbc'
     testImplementation group: 'com.redis', name: 'spring-batch-redis', version: springBatchRedisVersion, classifier: 'tests'
-    testImplementation group: 'org.awaitility', name: 'awaitility', version: awaitilityVersion
-    testImplementation group: 'org.testcontainers', name: 'postgresql', version: testcontainersVersion
-    testImplementation group: 'org.testcontainers', name: 'oracle-xe', version: testcontainersVersion
-    testImplementation group: 'org.springframework.boot', name: 'spring-boot-autoconfigure', version: springBootVersion
-    testImplementation group: 'org.hsqldb', name: 'hsqldb', version: hsqldbVersion    
+    testImplementation 'org.awaitility:awaitility'
+    testImplementation 'org.testcontainers:postgresql'
+    testImplementation 'org.testcontainers:oracle-xe'
+    testImplementation 'org.springframework.boot:spring-boot-autoconfigure'
+    testImplementation 'org.hsqldb:hsqldb'
 }
 
 distributions {
@@ -127,13 +133,16 @@ jdks {
     }
 }
 
-copyDependencies {
-    dependsOn classes
-    inputs.files(configurations.runtimeClasspath)
-    configuration = 'runtimeClasspath'
-}
+bootStartScripts.dependsOn jar
 
-assemble.dependsOn copyDependencies
+afterEvaluate {
+    def copyJdksToCache = project.tasks.findByName('copyJdksToCache')
+    ['zulu17Linux', 'zulu17LinuxArm', 'zulu17LinuxMusl', 'zulu17LinuxMuslArm',
+     'zulu17Windows', 'zulu17WindowsArm', 'zulu17Osx', 'zulu17OsxArm'].each { jdk ->
+        def copyTask = project.tasks.findByName('copyJdkFromCache' + jdk.capitalize())
+        if (copyJdksToCache && copyTask) copyTask.dependsOn(copyJdksToCache)
+    }
+}
 
 mainClassName = "com.redis.riot.cli.Main"
 

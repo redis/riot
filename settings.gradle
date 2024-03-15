@@ -49,8 +49,6 @@ projects {
         }
         dirs(['core', 'connectors', 'plugins']) {
             id 'java-library'
-        }
-        dirs(['core', 'connectors']) {
             id 'org.springframework.boot'
             id 'io.spring.dependency-management'
         }

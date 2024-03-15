@@ -2,7 +2,7 @@ package com.redis.riot.cli;
 
 import org.springframework.expression.Expression;
 
-import com.redis.riot.core.KeyValueProcessorOptions;
+import com.redis.riot.core.ExportProcessorOptions;
 import com.redis.riot.core.TemplateExpression;
 
 import picocli.CommandLine.Option;
@@ -24,8 +24,8 @@ public class KeyValueProcessorArgs {
     @Option(names = "--no-stream-id", description = "Drop IDs from source stream messages instead of passing them along to the target.")
     boolean dropStreamMessageIds;
 
-    public KeyValueProcessorOptions processorOptions() {
-        KeyValueProcessorOptions options = new KeyValueProcessorOptions();
+    public ExportProcessorOptions processorOptions() {
+        ExportProcessorOptions options = new ExportProcessorOptions();
         options.setKeyExpression(keyExpression);
         options.setTtlExpression(ttlExpression);
         options.setTypeExpression(typeExpression);

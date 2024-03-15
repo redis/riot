@@ -36,11 +36,8 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
 import com.redis.riot.core.AbstractImport;
-import com.redis.riot.core.RiotContext;
 import com.redis.riot.core.RiotUtils;
-import com.redis.riot.core.function.MapToFieldFunction;
 import com.redis.riot.core.function.RegexNamedGroupFunction;
-import com.redis.riot.core.function.ToMapFunction;
 
 public class FileImport extends AbstractImport {
 
@@ -125,14 +122,14 @@ public class FileImport extends AbstractImport {
 	}
 
 	@Override
-	protected Job job(RiotContext context) throws Exception {
+	protected Job job() {
 		List<Resource> resources = FileUtils.inputResources(files, fileOptions);
 		if (resources.isEmpty()) {
 			throw new IllegalArgumentException("No file found");
 		}
 		List<TaskletStep> steps = new ArrayList<>();
 		for (Resource resource : resources) {
-			steps.add(step(context, resource));
+			steps.add(step(resource));
 		}
 		Iterator<TaskletStep> iterator = steps.iterator();
 		SimpleJobBuilder job = jobBuilder().start(iterator.next());
@@ -142,13 +139,13 @@ public class FileImport extends AbstractImport {
 		return job.build();
 	}
 
-	private TaskletStep step(RiotContext context, Resource resource) throws Exception {
+	private TaskletStep step(Resource resource) {
 		ItemReader<Map<String, Object>> reader = reader(resource);
 		if (maxItemCount != null && reader instanceof AbstractItemCountingItemStreamItemReader) {
 			((AbstractItemCountingItemStreamItemReader<Map<String, Object>>) reader).setMaxItemCount(maxItemCount);
 		}
-		ItemProcessor<Map<String, Object>, Map<String, Object>> processor = processor(context);
-		ItemWriter<Map<String, Object>> writer = writer(context);
+		ItemProcessor<Map<String, Object>, Map<String, Object>> processor = processor();
+		ItemWriter<Map<String, Object>> writer = writer();
 		FaultTolerantStepBuilder<Map<String, Object>, Map<String, Object>> step = step(resource.getFilename(), reader,
 				processor, writer);
 		step.skip(ParseException.class);
@@ -289,8 +286,8 @@ public class FileImport extends AbstractImport {
 	}
 
 	@Override
-	protected ItemProcessor<Map<String, Object>, Map<String, Object>> processor(RiotContext executionContext) {
-		ItemProcessor<Map<String, Object>, Map<String, Object>> processor = super.processor(executionContext);
+	protected ItemProcessor<Map<String, Object>, Map<String, Object>> processor() {
+		ItemProcessor<Map<String, Object>, Map<String, Object>> processor = super.processor();
 		if (CollectionUtils.isEmpty(regexes)) {
 			return processor;
 		}

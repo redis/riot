@@ -3,7 +3,6 @@ package com.redis.riot.core.operation;
 import java.util.Map;
 import java.util.function.Function;
 
-import com.redis.spring.batch.writer.operation.AbstractKeyWriteOperation;
 import com.redis.spring.batch.writer.operation.Xadd;
 
 import io.lettuce.core.XAddArgs;
@@ -11,7 +10,6 @@ import io.lettuce.core.XAddArgs;
 public class XaddSupplier extends AbstractFilterMapOperationBuilder {
 
 	private long maxlen;
-
 	private boolean approximateTrimming;
 
 	public void setMaxlen(long maxlen) {
@@ -23,8 +21,7 @@ public class XaddSupplier extends AbstractFilterMapOperationBuilder {
 	}
 
 	@Override
-	protected AbstractKeyWriteOperation<String, String, Map<String, Object>> operation(
-			Function<Map<String, Object>, String> keyFunction) {
+	protected Xadd<String, String, Map<String, Object>> operation(Function<Map<String, Object>, String> keyFunction) {
 		Xadd<String, String, Map<String, Object>> operation = new Xadd<>(keyFunction, map());
 		operation.setArgs(args());
 		return operation;

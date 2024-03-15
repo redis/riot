@@ -10,21 +10,21 @@ import picocli.CommandLine.Parameters;
 @Command(name = "db-import", description = "Import from a relational database.")
 public class DatabaseImportCommand extends AbstractImportCommand {
 
-    @Parameters(arity = "1", description = "SQL SELECT statement", paramLabel = "SQL")
-    String sql;
+	@Parameters(arity = "1", description = "SQL SELECT statement", paramLabel = "SQL")
+	String sql;
 
-    @ArgGroup(exclusive = false)
-    DatabaseImportArgs args = new DatabaseImportArgs();
+	@ArgGroup(exclusive = false)
+	DatabaseImportArgs args = new DatabaseImportArgs();
 
-    @Override
-    protected AbstractImport importExecutable() {
-        DatabaseImport executable = new DatabaseImport();
-        executable.setSql(sql);
-        executable.setDataSourceOptions(args.dataSourceOptions());
-        executable.setFetchSize(args.fetchSize);
-        executable.setMaxItemCount(args.maxItemCount);
-        executable.setMaxResultSetRows(args.maxResultSetRows);
-        return executable;
-    }
+	@Override
+	protected AbstractImport importRunnable() {
+		DatabaseImport runnable = new DatabaseImport();
+		runnable.setSql(sql);
+		runnable.setDataSourceOptions(args.dataSourceOptions());
+		runnable.setFetchSize(args.fetchSize);
+		runnable.setMaxItemCount(args.maxItemCount);
+		runnable.setMaxResultSetRows(args.maxResultSetRows);
+		return runnable;
+	}
 
 }

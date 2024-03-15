@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.function.ToLongFunction;
 
-import com.redis.spring.batch.writer.operation.AbstractKeyWriteOperation;
 import com.redis.spring.batch.writer.operation.Expire;
 
 public class ExpireBuilder extends AbstractMapOperationBuilder {
@@ -23,8 +22,7 @@ public class ExpireBuilder extends AbstractMapOperationBuilder {
 	}
 
 	@Override
-	protected AbstractKeyWriteOperation<String, String, Map<String, Object>> operation(
-			Function<Map<String, Object>, String> keyFunction) {
+	protected Expire<String, String, Map<String, Object>> operation(Function<Map<String, Object>, String> keyFunction) {
 		Expire<String, String, Map<String, Object>> operation = new Expire<>(keyFunction);
 		operation.setTtlFunction(ttl());
 		return operation;

@@ -5,7 +5,6 @@ import java.util.function.Function;
 import java.util.function.ToDoubleFunction;
 
 import com.redis.spring.batch.common.ToGeoValueFunction;
-import com.redis.spring.batch.writer.operation.AbstractKeyWriteOperation;
 import com.redis.spring.batch.writer.operation.Geoadd;
 
 public class GeoaddBuilder extends AbstractCollectionMapOperationBuilder {
@@ -23,8 +22,7 @@ public class GeoaddBuilder extends AbstractCollectionMapOperationBuilder {
 	}
 
 	@Override
-	protected AbstractKeyWriteOperation<String, String, Map<String, Object>> operation(
-			Function<Map<String, Object>, String> keyFunction) {
+	protected Geoadd<String, String, Map<String, Object>> operation(Function<Map<String, Object>, String> keyFunction) {
 		ToDoubleFunction<Map<String, Object>> lon = toDouble(longitude, 0);
 		ToDoubleFunction<Map<String, Object>> lat = toDouble(latitude, 0);
 		ToGeoValueFunction<String, Map<String, Object>> valueFunction = new ToGeoValueFunction<>(member(), lon, lat);

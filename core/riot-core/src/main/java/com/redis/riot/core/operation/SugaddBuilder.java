@@ -6,23 +6,17 @@ import java.util.function.ToDoubleFunction;
 
 import com.redis.lettucemod.search.Suggestion;
 import com.redis.spring.batch.common.ToSuggestionFunction;
-import com.redis.spring.batch.writer.operation.AbstractKeyWriteOperation;
 import com.redis.spring.batch.writer.operation.Sugadd;
 
 public class SugaddBuilder extends AbstractMapOperationBuilder {
 
 	public static final double DEFAULT_SCORE = 1;
-
 	public static final boolean DEFAULT_INCREMENT = false;
 
 	private String stringField;
-
 	private String scoreField;
-
 	private double defaultScore = DEFAULT_SCORE;
-
 	private String payloadField;
-
 	private boolean increment = DEFAULT_INCREMENT;
 
 	public void setStringField(String stringField) {
@@ -46,8 +40,7 @@ public class SugaddBuilder extends AbstractMapOperationBuilder {
 	}
 
 	@Override
-	protected AbstractKeyWriteOperation<String, String, Map<String, Object>> operation(
-			Function<Map<String, Object>, String> keyFunction) {
+	protected Sugadd<String, String, Map<String, Object>> operation(Function<Map<String, Object>, String> keyFunction) {
 		Sugadd<String, String, Map<String, Object>> operation = new Sugadd<>(keyFunction, suggestion());
 		operation.setIncr(increment);
 		return operation;

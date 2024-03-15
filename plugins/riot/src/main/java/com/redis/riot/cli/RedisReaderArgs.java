@@ -55,7 +55,7 @@ public class RedisReaderArgs {
 	@ArgGroup(exclusive = false)
 	KeyFilterArgs keyFilterArgs = new KeyFilterArgs();
 
-	public void setIdleTimeout(Long timeout) {
+	public void setIdleTimeout(long timeout) {
 		this.idleTimeout = timeout;
 	}
 

@@ -37,10 +37,10 @@ import com.redis.lettucemod.search.TextField.PhoneticMatcher;
 import com.redis.lettucemod.timeseries.MRangeOptions;
 import com.redis.lettucemod.timeseries.RangeResult;
 import com.redis.lettucemod.timeseries.TimeRange;
-import com.redis.riot.core.GeneratorImport;
 import com.redis.riot.file.resource.XmlItemReader;
 import com.redis.riot.file.resource.XmlItemReaderBuilder;
 import com.redis.riot.file.resource.XmlObjectReader;
+import com.redis.riot.redis.GeneratorImport;
 import com.redis.spring.batch.common.KeyValue;
 import com.redis.spring.batch.gen.GeneratorItemReader;
 
@@ -344,7 +344,7 @@ abstract class AbstractIntegrationTests extends AbstractRiotTestBase {
 	private List<KeyValue> exportToJsonFile(TestInfo info) throws Exception {
 		String filename = "file-export-json";
 		Path file = tempFile("redis.json");
-		generate(info);
+		generate(info, generator(73));
 		execute(info, filename, r -> executeFileDumpExport(r, info));
 		JsonItemReaderBuilder<KeyValue> builder = new JsonItemReaderBuilder<>();
 		builder.name("json-data-structure-file-reader");
@@ -365,7 +365,7 @@ abstract class AbstractIntegrationTests extends AbstractRiotTestBase {
 	@Test
 	void fileExportXml(TestInfo info) throws Exception {
 		String filename = "file-export-xml";
-		generate(info);
+		generate(info, generator(73));
 		Path file = tempFile("redis.xml");
 		execute(info, filename, r -> executeFileDumpExport(r, info));
 		XmlItemReaderBuilder<KeyValue> builder = new XmlItemReaderBuilder<>();

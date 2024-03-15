@@ -13,23 +13,23 @@ public class FileImportCommand extends AbstractImportCommand {
     FileImportArgs args = new FileImportArgs();
 
     @Override
-    protected AbstractImport importExecutable() {
-        FileImport executable = new FileImport();
-        executable.setFiles(args.files);
-        executable.setColumnRanges(args.columnRanges);
-        executable.setContinuationString(args.continuationString);
-        executable.setDelimiter(args.delimiter);
-        executable.setFields(args.fields);
-        executable.setFileOptions(args.fileOptions());
-        executable.setFileType(args.fileType);
-        executable.setHeader(args.header);
-        executable.setHeaderLine(args.headerLine);
-        executable.setIncludedFields(args.includedFields);
-        executable.setLinesToSkip(args.linesToSkip);
-        executable.setMaxItemCount(args.maxItemCount);
-        executable.setQuoteCharacter(args.quoteCharacter);
-        executable.setRegexes(args.regexes);
-        return executable;
+    protected AbstractImport importRunnable() {
+        FileImport runnable = new FileImport();
+        runnable.setFiles(args.files);
+        runnable.setColumnRanges(args.columnRanges);
+        runnable.setContinuationString(args.continuationString);
+        runnable.setDelimiter(args.delimiter);
+        runnable.setFields(args.fields);
+        runnable.setFileOptions(args.fileOptions());
+        runnable.setFileType(args.fileType);
+        runnable.setHeader(args.header);
+        runnable.setHeaderLine(args.headerLine);
+        runnable.setIncludedFields(args.includedFields);
+        runnable.setLinesToSkip(args.linesToSkip);
+        runnable.setMaxItemCount(args.maxItemCount);
+        runnable.setQuoteCharacter(args.quoteCharacter);
+        runnable.setRegexes(args.regexes);
+        return runnable;
     }
 
 }

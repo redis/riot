@@ -15,19 +15,13 @@ import com.redis.spring.batch.writer.operation.AbstractKeyWriteOperation;
 public abstract class AbstractMapOperationBuilder {
 
 	public static final String DEFAULT_SEPARATOR = IdFunctionBuilder.DEFAULT_SEPARATOR;
-
 	public static final boolean DEFAULT_REMOVE_FIELDS = false;
-
 	public static final boolean DEFAULT_IGNORE_MISSING_FIELDS = false;
 
 	private String keySeparator = DEFAULT_SEPARATOR;
-
 	private String keyspace;
-
 	private List<String> keyFields;
-
 	private boolean removeFields = DEFAULT_REMOVE_FIELDS;
-
 	private boolean ignoreMissingFields = DEFAULT_IGNORE_MISSING_FIELDS;
 
 	protected Function<Map<String, Object>, String> toString(String field) {

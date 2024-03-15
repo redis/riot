@@ -7,12 +7,12 @@ import java.util.function.Supplier;
 
 import com.redis.riot.cli.RedisReaderArgs.ReadFromEnum;
 import com.redis.riot.core.AbstractExport;
-import com.redis.riot.core.CompareMode;
-import com.redis.riot.core.KeyComparisonStatusCountItemWriter;
-import com.redis.riot.core.Replication;
-import com.redis.riot.core.ReplicationMode;
-import com.redis.riot.core.ReplicationType;
 import com.redis.riot.core.RiotStep;
+import com.redis.riot.redis.CompareMode;
+import com.redis.riot.redis.KeyComparisonStatusCountItemWriter;
+import com.redis.riot.redis.Replication;
+import com.redis.riot.redis.ReplicationMode;
+import com.redis.riot.redis.ReplicationType;
 import com.redis.spring.batch.RedisItemReader;
 import com.redis.spring.batch.common.KeyComparison.Status;
 import com.redis.spring.batch.common.KeyComparisonItemReader;
@@ -26,7 +26,7 @@ import picocli.CommandLine.Option;
 public class ReplicateCommand extends AbstractExportCommand {
 
 	private static final Status[] STATUSES = { Status.OK, Status.MISSING, Status.TYPE, Status.VALUE, Status.TTL };
-	private static final String QUEUE_MESSAGE = " | %,d queue space";
+	private static final String QUEUE_MESSAGE = " | queue capacity: %,d";
 	private static final String NUMBER_FORMAT = "%,d";
 	private static final String COMPARE_MESSAGE = compareMessageFormat();
 	private static final Map<String, String> taskNames = taskNames();
@@ -34,8 +34,8 @@ public class ReplicateCommand extends AbstractExportCommand {
 	@Option(names = "--mode", description = "Replication mode (default: ${DEFAULT-VALUE}):%n  SNAPSHOT: initial replication using key scan.%n  LIVE: initial and continuous replication using key scan and keyspace notifications in parallel.%n  LIVEONLY: continuous replication using keyspace notifications (only changed keys are replicated).%n  COMPARE: compare source and target database.", paramLabel = "<name>")
 	ReplicationMode mode = ReplicationMode.SNAPSHOT;
 
-	@Option(names = "--type", description = "Replication strategy (default: ${DEFAULT-VALUE}):%n  DUMP: dump & restore.%n  STRUCT: type-based replication.", paramLabel = "<name>")
-	ReplicationType type = ReplicationType.DUMP;
+	@Option(names = "--type", description = "Enable type-based replication")
+	boolean type;
 
 	@Option(names = "--ttl-tolerance", description = "Max TTL offset in millis to use for dataset verification (default: ${DEFAULT-VALUE}).", paramLabel = "<ms>")
 	long ttlTolerance = KeyComparisonItemReader.DEFAULT_TTL_TOLERANCE.toMillis();
@@ -64,7 +64,7 @@ public class ReplicateCommand extends AbstractExportCommand {
 	}
 
 	@Override
-	protected AbstractExport exportExecutable() {
+	protected AbstractExport exportRunnable() {
 		Replication replication = new Replication();
 		replication.setCompareMode(compareMode);
 		replication.setMode(mode);
@@ -72,9 +72,9 @@ public class ReplicateCommand extends AbstractExportCommand {
 		if (targetReadFrom != null) {
 			replication.setTargetReadFrom(targetReadFrom.getReadFrom());
 		}
-		replication.setTargetRedisOptions(targetRedisArgs.redisOptions());
+		replication.setTargetRedisClientOptions(targetRedisArgs.redisOptions());
 		replication.setTtlTolerance(Duration.ofMillis(ttlTolerance));
-		replication.setType(type);
+		replication.setType(type ? ReplicationType.STRUCT : ReplicationType.DUMP);
 		replication.setWriterOptions(writerArgs.writerOptions());
 		return replication;
 	}

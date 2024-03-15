@@ -8,20 +8,20 @@ import picocli.CommandLine.Command;
 @Command(name = "file-export", description = "Export Redis data to JSON or XML files.")
 public class FileDumpExportCommand extends AbstractExportCommand {
 
-    @ArgGroup(exclusive = false)
-    FileDumpExportArgs args = new FileDumpExportArgs();
+	@ArgGroup(exclusive = false)
+	FileDumpExportArgs args = new FileDumpExportArgs();
 
-    @Override
-    protected FileDumpExport exportExecutable() {
-        FileDumpExport executable = new FileDumpExport();
-        executable.setFile(args.file);
-        executable.setAppend(args.append);
-        executable.setElementName(args.elementName);
-        executable.setLineSeparator(args.lineSeparator);
-        executable.setRootName(args.rootName);
-        executable.setFileOptions(args.fileOptions());
-        executable.setType(args.type);
-        return executable;
-    }
+	@Override
+	protected FileDumpExport exportRunnable() {
+		FileDumpExport runnable = new FileDumpExport();
+		runnable.setFile(args.file);
+		runnable.setAppend(args.append);
+		runnable.setElementName(args.elementName);
+		runnable.setLineSeparator(args.lineSeparator);
+		runnable.setRootName(args.rootName);
+		runnable.setFileOptions(args.fileOptions());
+		runnable.setType(args.type);
+		return runnable;
+	}
 
 }

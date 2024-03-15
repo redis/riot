@@ -6,7 +6,7 @@ import java.util.function.UnaryOperator;
 
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.support.PassThroughItemProcessor;
-import org.springframework.expression.EvaluationContext;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
 
 import com.redis.riot.core.function.DropStreamMessageIdFunction;
 import com.redis.riot.core.function.ExpressionFunction;
@@ -23,43 +23,44 @@ import io.lettuce.core.codec.RedisCodec;
 
 public abstract class AbstractExport extends AbstractJobRunnable {
 
+	private static final String REDIS_VAR = "redis";
+
+	private EvaluationContextOptions evaluationContextOptions = new EvaluationContextOptions();
 	private RedisReaderOptions readerOptions = new RedisReaderOptions();
+	private ExportProcessorOptions processorOptions = new ExportProcessorOptions();
 
-	protected KeyValueProcessorOptions processorOptions = new KeyValueProcessorOptions();
-
-	public void setReaderOptions(RedisReaderOptions readerOptions) {
-		this.readerOptions = readerOptions;
-	}
-
-	public void setProcessorOptions(KeyValueProcessorOptions options) {
-		this.processorOptions = options;
-	}
-
-	protected <K> Function<KeyValue<K>, KeyValue<K>> processor(RedisCodec<K, ?> codec, RiotContext context) {
+	protected <K> Function<KeyValue<K>, KeyValue<K>> processor(RedisCodec<K, ?> codec) {
 		ToStringKeyValueFunction<K> code = new ToStringKeyValueFunction<>(codec);
 		StringKeyValueFunction<K> decode = new StringKeyValueFunction<>(codec);
-		UnaryOperator<KeyValue<String>> function = keyValueOperator(context.getEvaluationContext());
+		UnaryOperator<KeyValue<String>> function = keyValueOperator();
 		return code.andThen(function).andThen(decode);
-
 	}
 
-	private UnaryOperator<KeyValue<String>> keyValueOperator(EvaluationContext context) {
+	protected StandardEvaluationContext evaluationContext() {
+		StandardEvaluationContext evaluationContext = evaluationContextOptions.evaluationContext();
+		evaluationContext.setVariable(REDIS_VAR, getRedisConnection().sync());
+		return evaluationContext;
+	}
+
+	private UnaryOperator<KeyValue<String>> keyValueOperator() {
 		KeyValueOperator operator = new KeyValueOperator();
+		StandardEvaluationContext evaluationContext = evaluationContext();
 		if (processorOptions.getKeyExpression() != null) {
-			operator.setKeyFunction(ExpressionFunction.of(context, processorOptions.getKeyExpression()));
+			operator.setKeyFunction(ExpressionFunction.of(evaluationContext, processorOptions.getKeyExpression()));
 		}
 		if (processorOptions.isDropTtl()) {
 			operator.setTtlFunction(t -> 0);
 		} else {
 			if (processorOptions.getTtlExpression() != null) {
-				operator.setTtlFunction(new LongExpressionFunction<>(context, processorOptions.getTtlExpression()));
+				operator.setTtlFunction(
+						new LongExpressionFunction<>(evaluationContext, processorOptions.getTtlExpression()));
 			}
 		}
 		if (processorOptions.isDropStreamMessageId() && isStruct()) {
 			operator.setValueFunction(new DropStreamMessageIdFunction());
 		}
 		if (processorOptions.getTypeExpression() != null) {
-			Function<KeyValue<String>, String> function = ExpressionFunction.of(context,
+			Function<KeyValue<String>, String> function = ExpressionFunction.of(evaluationContext,
 					processorOptions.getTypeExpression());
 			operator.setTypeFunction(function.andThen(DataType::of));
 		}
@@ -68,13 +69,12 @@ public abstract class AbstractExport extends AbstractJobRunnable {
 
 	protected abstract boolean isStruct();
 
-	protected <K, V, R extends RedisItemReader<K, V, ?>> R configureReader(String name, R reader, RedisContext context)
-			throws Exception {
+	protected <K, V, R extends RedisItemReader<K, V, ?>> R configureReader(String name, R reader) {
 		reader.setName(name);
-		reader.setJobRepository(jobRepository());
-		reader.setTransactionManager(transactionManager());
+		reader.setJobRepository(getJobRepository());
+		reader.setTransactionManager(getTransactionManager());
 		reader.setChunkSize(readerOptions.getChunkSize());
-		reader.setDatabase(context.getUri().getDatabase());
+		reader.setDatabase(getRedisURI().getDatabase());
 		reader.setKeyProcessor(keyFilteringProcessor(reader.getCodec()));
 		reader.setKeyPattern(readerOptions.getKeyPattern());
 		reader.setKeyType(readerOptions.getKeyType());
@@ -101,6 +101,26 @@ public abstract class AbstractExport extends AbstractJobRunnable {
 			return new PassThroughItemProcessor<>();
 		}
 		return new PredicateItemProcessor<>(predicate);
+	}
+
+	public RedisReaderOptions getReaderOptions() {
+		return readerOptions;
+	}
+
+	public void setReaderOptions(RedisReaderOptions readerOptions) {
+		this.readerOptions = readerOptions;
+	}
+
+	public ExportProcessorOptions getProcessorOptions() {
+		return processorOptions;
+	}
+
+	public void setProcessorOptions(ExportProcessorOptions options) {
+		this.processorOptions = options;
+	}
+
+	public void setEvaluationContextOptions(EvaluationContextOptions spelProcessorOptions) {
+		this.evaluationContextOptions = spelProcessorOptions;
 	}
 
 }

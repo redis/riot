@@ -16,7 +16,6 @@ import com.redis.lettucemod.timeseries.DuplicatePolicy;
 import com.redis.lettucemod.timeseries.Label;
 import com.redis.lettucemod.timeseries.Sample;
 import com.redis.spring.batch.common.ToSampleFunction;
-import com.redis.spring.batch.writer.operation.AbstractKeyWriteOperation;
 import com.redis.spring.batch.writer.operation.TsAdd;
 
 public class TsAddBuilder extends AbstractMapOperationBuilder {
@@ -32,8 +31,7 @@ public class TsAddBuilder extends AbstractMapOperationBuilder {
 	private Map<String, String> labels;
 
 	@Override
-	protected AbstractKeyWriteOperation<String, String, Map<String, Object>> operation(
-			Function<Map<String, Object>, String> keyFunction) {
+	protected TsAdd<String, String, Map<String, Object>> operation(Function<Map<String, Object>, String> keyFunction) {
 		TsAdd<String, String, Map<String, Object>> operation = new TsAdd<>(keyFunction, sample());
 		operation.setOptionsFunction(this::addOptions);
 		return operation;

@@ -5,7 +5,6 @@ import java.util.function.Function;
 import java.util.function.ToDoubleFunction;
 
 import com.redis.spring.batch.common.ToScoredValueFunction;
-import com.redis.spring.batch.writer.operation.AbstractKeyWriteOperation;
 import com.redis.spring.batch.writer.operation.Zadd;
 
 public class ZaddSupplier extends AbstractCollectionMapOperationBuilder {
@@ -17,8 +16,7 @@ public class ZaddSupplier extends AbstractCollectionMapOperationBuilder {
 	private double defaultScore = DEFAULT_SCORE;
 
 	@Override
-	protected AbstractKeyWriteOperation<String, String, Map<String, Object>> operation(
-			Function<Map<String, Object>, String> keyFunction) {
+	protected Zadd<String, String, Map<String, Object>> operation(Function<Map<String, Object>, String> keyFunction) {
 		return new Zadd<>(keyFunction, value());
 	}
 

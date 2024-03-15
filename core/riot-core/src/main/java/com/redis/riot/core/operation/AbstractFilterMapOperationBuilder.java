@@ -12,32 +12,31 @@ import com.redis.riot.core.function.ObjectToStringFunction;
 
 public abstract class AbstractFilterMapOperationBuilder extends AbstractMapOperationBuilder {
 
-    private List<String> includes;
+	private List<String> includes;
+	private List<String> excludes;
 
-    private List<String> excludes;
+	public void setIncludes(List<String> includes) {
+		this.includes = includes;
+	}
 
-    public void setIncludes(List<String> includes) {
-        this.includes = includes;
-    }
+	public void setExcludes(List<String> excludes) {
+		this.excludes = excludes;
+	}
 
-    public void setExcludes(List<String> excludes) {
-        this.excludes = excludes;
-    }
-
-    protected Function<Map<String, Object>, Map<String, String>> map() {
-        Function<Map<String, Object>, Map<String, String>> mapFlattener = new MapFlatteningFunction<>(
-                new ObjectToStringFunction());
-        if (ObjectUtils.isEmpty(includes) && ObjectUtils.isEmpty(excludes)) {
-            return mapFlattener;
-        }
-        MapFilteringFunction filtering = new MapFilteringFunction();
-        if (!ObjectUtils.isEmpty(includes)) {
-            filtering.includes(includes);
-        }
-        if (!ObjectUtils.isEmpty(excludes)) {
-            filtering.excludes(excludes);
-        }
-        return mapFlattener.andThen(filtering);
-    }
+	protected Function<Map<String, Object>, Map<String, String>> map() {
+		Function<Map<String, Object>, Map<String, String>> mapFlattener = new MapFlatteningFunction<>(
+				new ObjectToStringFunction());
+		if (ObjectUtils.isEmpty(includes) && ObjectUtils.isEmpty(excludes)) {
+			return mapFlattener;
+		}
+		MapFilteringFunction filtering = new MapFilteringFunction();
+		if (!ObjectUtils.isEmpty(includes)) {
+			filtering.includes(includes);
+		}
+		if (!ObjectUtils.isEmpty(excludes)) {
+			filtering.excludes(excludes);
+		}
+		return mapFlattener.andThen(filtering);
+	}
 
 }

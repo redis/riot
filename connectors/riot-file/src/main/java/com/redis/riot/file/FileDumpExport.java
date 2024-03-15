@@ -13,8 +13,7 @@ import org.springframework.core.io.WritableResource;
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.redis.riot.core.AbstractExport;
-import com.redis.riot.core.RiotContext;
-import com.redis.riot.core.RiotException;
+import com.redis.riot.core.ExecutionException;
 import com.redis.riot.file.resource.JsonResourceItemWriter;
 import com.redis.riot.file.resource.JsonResourceItemWriterBuilder;
 import com.redis.riot.file.resource.XmlResourceItemWriter;
@@ -27,23 +26,15 @@ import io.lettuce.core.codec.StringCodec;
 public class FileDumpExport extends AbstractExport {
 
 	public static final String DEFAULT_ELEMENT_NAME = "record";
-
 	public static final String DEFAULT_ROOT_NAME = "root";
-
 	public static final String DEFAULT_LINE_SEPARATOR = System.getProperty("line.separator");
 
 	private String file;
-
 	private FileOptions fileOptions = new FileOptions();
-
 	private boolean append;
-
 	private String rootName = DEFAULT_ROOT_NAME;
-
 	private String elementName = DEFAULT_ELEMENT_NAME;
-
 	private String lineSeparator = DEFAULT_LINE_SEPARATOR;
-
 	private FileDumpType type;
 
 	public void setFile(String file) {
@@ -84,7 +75,7 @@ public class FileDumpExport extends AbstractExport {
 		try {
 			resource = FileUtils.outputResource(file, fileOptions);
 		} catch (IOException e) {
-			throw new RiotException("Could not open file for writing: " + file, e);
+			throw new ExecutionException("Could not open file for writing: " + file, e);
 		}
 		if (dumpType(resource) == FileDumpType.XML) {
 			return xmlWriter(resource);
@@ -133,13 +124,12 @@ public class FileDumpExport extends AbstractExport {
 	}
 
 	@Override
-	protected Job job(RiotContext context) throws Exception {
-		StructItemReader<String, String> reader = new StructItemReader<>(context.getRedisContext().getClient(),
-				StringCodec.UTF8);
-		configureReader("export-reader", reader, context.getRedisContext());
+	protected Job job() {
+		StructItemReader<String, String> reader = new StructItemReader<>(getRedisClient(), StringCodec.UTF8);
+		configureReader("export-reader", reader);
 		ItemWriter<KeyValue<String>> writer = writer();
 		ItemProcessor<KeyValue<String>, KeyValue<String>> processor = new FunctionItemProcessor<>(
-				processor(StringCodec.UTF8, context));
+				processor(StringCodec.UTF8));
 		return jobBuilder().start(step(getName(), reader, processor, writer).build()).build();
 	}
 

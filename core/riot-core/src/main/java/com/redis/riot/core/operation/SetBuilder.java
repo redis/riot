@@ -8,7 +8,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.redis.riot.core.function.ObjectMapperFunction;
-import com.redis.spring.batch.writer.operation.AbstractKeyWriteOperation;
 import com.redis.spring.batch.writer.operation.Set;
 
 public class SetBuilder extends AbstractMapOperationBuilder {
@@ -20,9 +19,7 @@ public class SetBuilder extends AbstractMapOperationBuilder {
 	public static final StringFormat DEFAULT_FORMAT = StringFormat.JSON;
 
 	private StringFormat format = DEFAULT_FORMAT;
-
 	private String field;
-
 	private String root;
 
 	public void setFormat(StringFormat format) {
@@ -38,8 +35,7 @@ public class SetBuilder extends AbstractMapOperationBuilder {
 	}
 
 	@Override
-	protected AbstractKeyWriteOperation<String, String, Map<String, Object>> operation(
-			Function<Map<String, Object>, String> keyFunction) {
+	protected Set<String, String, Map<String, Object>> operation(Function<Map<String, Object>, String> keyFunction) {
 		return new Set<>(keyFunction, value());
 	}
 

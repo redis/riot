@@ -7,6 +7,7 @@ import org.springframework.util.unit.DataSize;
 import com.redis.spring.batch.RedisItemReader;
 import com.redis.spring.batch.common.DataType;
 import com.redis.spring.batch.reader.AbstractKeyValueItemReader;
+import com.redis.spring.batch.reader.AbstractPollableItemReader;
 import com.redis.spring.batch.step.FlushingChunkProvider;
 
 import io.lettuce.core.ReadFrom;
@@ -14,7 +15,7 @@ import io.lettuce.core.ReadFrom;
 public class RedisReaderOptions {
 
 	public static final int DEFAULT_QUEUE_CAPACITY = RedisItemReader.DEFAULT_QUEUE_CAPACITY;
-	public static final Duration DEFAULT_POLL_TIMEOUT = RedisItemReader.DEFAULT_POLL_TIMEOUT;
+	public static final Duration DEFAULT_POLL_TIMEOUT = AbstractPollableItemReader.DEFAULT_POLL_TIMEOUT;
 	public static final int DEFAULT_THREADS = RedisItemReader.DEFAULT_THREADS;
 	public static final int DEFAULT_CHUNK_SIZE = RedisItemReader.DEFAULT_CHUNK_SIZE;
 	public static final int DEFAULT_POOL_SIZE = AbstractKeyValueItemReader.DEFAULT_POOL_SIZE;
@@ -23,6 +24,7 @@ public class RedisReaderOptions {
 	public static final int DEFAULT_NOTIFICATION_QUEUE_CAPACITY = RedisItemReader.DEFAULT_NOTIFICATION_QUEUE_CAPACITY;
 	public static final long DEFAULT_SCAN_COUNT = 1000;
 	public static final Duration DEFAULT_FLUSH_INTERVAL = FlushingChunkProvider.DEFAULT_FLUSH_INTERVAL;
+	public static final Duration DEFAULT_IDLE_TIMEOUT = FlushingChunkProvider.DEFAULT_IDLE_TIMEOUT;
 	public static final String DEFAULT_KEY_PATTERN = RedisItemReader.DEFAULT_KEY_PATTERN;
 
 	private String keyPattern = DEFAULT_KEY_PATTERN;
@@ -38,7 +40,7 @@ public class RedisReaderOptions {
 	private int memoryUsageSamples = DEFAULT_MEMORY_USAGE_SAMPLES;
 	private int notificationQueueCapacity = DEFAULT_NOTIFICATION_QUEUE_CAPACITY;
 	private Duration flushInterval = DEFAULT_FLUSH_INTERVAL;
-	private Duration idleTimeout;
+	private Duration idleTimeout = DEFAULT_IDLE_TIMEOUT;
 	private KeyFilterOptions keyFilterOptions = new KeyFilterOptions();
 
 	public KeyFilterOptions getKeyFilterOptions() {

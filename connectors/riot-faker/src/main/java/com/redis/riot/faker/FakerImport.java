@@ -15,24 +15,18 @@ import com.redis.lettucemod.search.Field;
 import com.redis.lettucemod.search.IndexInfo;
 import com.redis.lettucemod.util.RedisModulesUtils;
 import com.redis.riot.core.AbstractImport;
-import com.redis.riot.core.RiotContext;
 import com.redis.riot.core.RiotUtils;
 import com.redis.spring.batch.common.Range;
 
 public class FakerImport extends AbstractImport {
 
 	public static final int DEFAULT_COUNT = 1000;
-
 	public static final Locale DEFAULT_LOCALE = Locale.ENGLISH;
-
 	public static final Range DEFAULT_INDEX_RANGE = Range.from(1);
 
 	private Map<String, Expression> fields = new LinkedHashMap<>();
-
 	private int count = DEFAULT_COUNT;
-
 	private String searchIndex;
-
 	private Locale locale = DEFAULT_LOCALE;
 
 	public Map<String, Expression> getFields() {
@@ -69,32 +63,32 @@ public class FakerImport extends AbstractImport {
 	}
 
 	@Override
-	protected Job job(RiotContext executionContext) throws Exception {
+	protected Job job() {
 		String name = ClassUtils.getShortName(getClass());
-		FakerItemReader reader = reader(executionContext);
-		ItemWriter<Map<String, Object>> writer = writer(executionContext);
+		FakerItemReader reader = reader();
+		ItemWriter<Map<String, Object>> writer = writer();
 		return jobBuilder().start(step(name, reader, null, writer).build()).build();
 	}
 
-	private FakerItemReader reader(RiotContext executionContext) {
+	private FakerItemReader reader() {
 		FakerItemReader reader = new FakerItemReader();
 		reader.setMaxItemCount(count);
 		reader.setLocale(locale);
-		reader.setFields(fields(executionContext));
+		reader.setFields(fields());
 		return reader;
 	}
 
-	private Map<String, Expression> fields(RiotContext executionContext) {
+	private Map<String, Expression> fields() {
 		Map<String, Expression> allFields = new LinkedHashMap<>(fields);
 		if (searchIndex != null) {
-			allFields.putAll(searchIndexFields(executionContext));
+			allFields.putAll(searchIndexFields());
 		}
 		return allFields;
 	}
 
-	private Map<String, Expression> searchIndexFields(RiotContext executionContext) {
+	private Map<String, Expression> searchIndexFields() {
 		Map<String, Expression> searchFields = new LinkedHashMap<>();
-		RediSearchCommands<String, String> commands = executionContext.getRedisContext().getConnection().sync();
+		RediSearchCommands<String, String> commands = getRedisConnection().sync();
 		IndexInfo info = RedisModulesUtils.indexInfo(commands.ftInfo(searchIndex));
 		for (Field<String> field : info.getFields()) {
 			searchFields.put(field.getName(), RiotUtils.parse(expression(field)));

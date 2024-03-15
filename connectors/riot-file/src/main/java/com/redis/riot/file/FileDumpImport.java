@@ -12,7 +12,6 @@ import org.springframework.batch.item.ItemReader;
 import org.springframework.core.io.Resource;
 
 import com.redis.riot.core.AbstractStructImport;
-import com.redis.riot.core.RiotContext;
 import com.redis.spring.batch.RedisItemWriter;
 import com.redis.spring.batch.common.KeyValue;
 
@@ -41,7 +40,7 @@ public class FileDumpImport extends AbstractStructImport {
 	}
 
 	@Override
-	protected Job job(RiotContext executionContext) throws Exception {
+	protected Job job() {
 		List<Resource> resources = FileUtils.inputResources(files, fileOptions);
 		if (resources.isEmpty()) {
 			throw new IllegalArgumentException("No file found");
@@ -49,7 +48,7 @@ public class FileDumpImport extends AbstractStructImport {
 		List<TaskletStep> steps = new ArrayList<>();
 		for (Resource resource : resources) {
 			ItemReader<KeyValue<String>> reader = reader(resource);
-			RedisItemWriter<String, String, KeyValue<String>> writer = writer(executionContext);
+			RedisItemWriter<String, String, KeyValue<String>> writer = writer();
 			steps.add(step(resource.getFilename(), reader, null, writer).build());
 		}
 		Iterator<TaskletStep> iterator = steps.iterator();

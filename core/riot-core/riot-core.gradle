@@ -29,10 +29,7 @@ dependencies {
     api 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
     implementation 'org.springframework.boot:spring-boot-autoconfigure'
     implementation 'org.hsqldb:hsqldb'
-    implementation group: 'org.latencyutils', name: 'LatencyUtils', version: latencyutilsVersion
     implementation 'org.apache.commons:commons-pool2'    
-    testImplementation 'org.slf4j:slf4j-simple'
-    testImplementation group: 'com.redis', name: 'spring-batch-redis', version: springBatchRedisVersion, classifier: 'tests'
     testImplementation 'org.awaitility:awaitility'
 }
 

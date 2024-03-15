@@ -18,7 +18,7 @@ import me.tongfei.progressbar.ProgressBarBuilder;
 import me.tongfei.progressbar.ProgressBarStyle;
 import picocli.CommandLine.Option;
 
-abstract class AbstractJobCommand extends AbstractRiotCommand {
+abstract class AbstractJobCommand extends AbstractSubCommand {
 
 	public enum ProgressStyle {
 		BLOCK, BAR, ASCII, LOG, NONE
@@ -71,19 +71,19 @@ abstract class AbstractJobCommand extends AbstractRiotCommand {
 	}
 
 	@Override
-	protected AbstractJobRunnable executable() {
-		AbstractJobRunnable executable = jobExecutable();
+	protected AbstractJobRunnable runnable() {
+		AbstractJobRunnable runnable = jobRunnable();
 		if (name != null) {
-			executable.setName(name);
+			runnable.setName(name);
 		}
-		executable.setChunkSize(chunkSize);
-		executable.setDryRun(dryRun);
-		executable.setRetryLimit(retryLimit);
-		executable.setSkipLimit(skipLimit);
-		executable.setSleep(Duration.ofMillis(sleep));
-		executable.setThreads(threads);
-		executable.setStepConfigurer(this::configureStep);
-		return executable;
+		runnable.setChunkSize(chunkSize);
+		runnable.setDryRun(dryRun);
+		runnable.setRetryLimit(retryLimit);
+		runnable.setSkipLimit(skipLimit);
+		runnable.setSleep(Duration.ofMillis(sleep));
+		runnable.setThreads(threads);
+		runnable.setStepConfigurer(this::configureStep);
+		return runnable;
 	}
 
 	private void configureStep(RiotStep<?, ?> step) {
@@ -120,6 +120,6 @@ abstract class AbstractJobCommand extends AbstractRiotCommand {
 		return () -> ProgressStepExecutionListener.UNKNOWN_SIZE;
 	}
 
-	protected abstract AbstractJobRunnable jobExecutable();
+	protected abstract AbstractJobRunnable jobRunnable();
 
 }
