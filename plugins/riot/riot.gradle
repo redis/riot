@@ -23,7 +23,7 @@ plugins {
 
 application {
     applicationName = 'riot'
-    mainClass   = 'com.redis.riot.cli.Main'
+    mainClass       = 'com.redis.riot.cli.Main'
 }
 
 bootJar {
