@@ -6,7 +6,7 @@ This could be due to concurrency issues in the terminal when refreshing the prog
 Try running with job options `--progress log`.
 
 Unknown options: '--keyspace', '--keys'::
-You must specify one or more Redis commands with import commands (<<_file_import,`file-import`>>, <<_faker_import,`faker-import`>>, <<_db_import,`db-import`>>).
+You must specify one or more Redis commands with import commands (<<_file_import,`file-import`>>, <<_faker,`faker-import`>>, <<_db_import,`db-import`>>).
 
 ERR DUMP payload version or checksum are wrong::
 Redis 7 DUMP format is not backwards compatible with previous versions.

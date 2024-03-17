@@ -1,14 +1,20 @@
-= {project-title}
+= Redis Input/Output Tools ({project-title})
+Julien Ruaux
+:title-logo-image: image:riot.svg[]
 :author: {project-author}
 :revnumber: {project-version}
-:toclevels: 3
+:toclevels: 2
 :docinfo1:
 
-include::_links.adoc[]
+include::{includedir}/_links.adoc[]
 
-:leveloffset: +1
-include::overview.adoc[]
-include::getting-started.adoc[]
-include::cookbook.adoc[]
-include::faq.adoc[]
-:leveloffset: -1
+:leveloffset: 1
+include::{includedir}/introduction.adoc[]
+include::{includedir}/quickstart.adoc[]
+include::{includedir}/files.adoc[]
+include::{includedir}/generators.adoc[]
+include::{includedir}/databases.adoc[]
+include::{includedir}/replication.adoc[]
+include::{includedir}/architecture.adoc[]
+include::{includedir}/cookbook.adoc[]
+include::{includedir}/faq.adoc[]

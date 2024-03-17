@@ -3,8 +3,8 @@
 
 {project-title} includes two data generators that can be used to quickly mock up a dataset in Redis.
 
-[[_faker_import]]
-== Faker Import
+[[_faker]]
+== Faker
 
 The `faker-import` command generates data using {link_datafaker}.
 
@@ -36,12 +36,12 @@ riot faker-import id="index" hset -h myredis.com -p 6380
 ----
 ====
 
-[[_faker_import_keys]]
+[[_faker_keys]]
 === Keys
 
 Keys are constructed from input records by concatenating the keyspace prefix and key fields.
 
-image::mapping.png[]
+image::mapping.svg[]
 
 .HSET example
 [source]
@@ -55,7 +55,7 @@ include::{testdir}/faker-import-hset[]
 include::{testdir}/faker-import-sadd[]
 ----
 
-[[_faker_import_providers]]
+[[_faker_providers]]
 === Data Providers
 
 Faker offers many data providers.
@@ -77,7 +77,7 @@ riot faker-import lease="number.digits(2)"
 
 Refer to {link_datafaker_doc} for complete documentation.
 
-[[_faker_import_builtin_fields]]
+[[_faker_builtin_fields]]
 === Built-in Fields
 
 In addition to the Faker fields specified with `field="expression"` you can use these built-in fields:
@@ -93,7 +93,7 @@ Useful for multithreaded data generation.
 include::{testdir}/faker-import-threads[]
 ----
 
-[[_faker_import_redisearch]]
+[[_faker_redisearch]]
 === RediSearch
 
 You can infer Faker fields from a RediSearch index using the `--infer` option:
@@ -104,9 +104,9 @@ include::{testdir}/faker-import-infer[]
 ----
 
 [[_generate]]
-== Data Structure Generator
+== Data Structures
 
-The `generate` command generates random data-structures for Redis (set, list, zset, stream, string, hash), as well as RedisJSON and RedisTimeSeries.
+The `generate` command generates data-structures for Redis, RedisJSON and RedisTimeSeries.
 
 [source]
 ----

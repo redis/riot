@@ -9,20 +9,6 @@ Instead, {project-title} implements <<_architecture,client-side replication>> us
 
 WARNING: Please note that {project-title} is NEITHER recommended NOR officially supported by Redis, Inc.
 
-[[_replication_architecture]]
-== Replication Architecture
-
-image::replication-architecture.svg[]
-
-The basic replication mechanism is as follows:
-
-<1> Identify source keys to be replicated using scan and/or keyspace notifications depending on the <<_replication_mode,replication mode>>.
-
-<2> Read data associated with each key using <<_replication_dump_restore,dump>> or <<_replication_type_based,type-specific commands>>.
-
-<3> Write each key to the target using <<_replication_dump_restore,restore>> or <<_replication_type_based,type-specific commands>>.
-
-
 [[_replication_usage]]
 == Usage
 
@@ -78,8 +64,6 @@ If you need assistance please contact your Redis account team.
 === Dump & Restore
 
 The default replication mechanism is Dump & Restore:
-
-image::dump-and-restore.svg[]
 
 1. Scan for keys in the source Redis database.
 If live replication is enabled the reader also subscribes to keyspace notifications to generate a continuous stream of keys.
@@ -206,4 +190,5 @@ Add that option to your existing `replicate` command-line to compare replication
 ----
 riot <source> replicate <target> --dry-run
 ----
+
 

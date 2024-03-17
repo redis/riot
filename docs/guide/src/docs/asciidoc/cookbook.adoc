@@ -3,7 +3,7 @@
 
 Here are various recipes using {project-title}.
 
-:leveloffset: +1
-include::{includedir}/connectivity-test.adoc[]
+:leveloffset: 2
+include::{includedir}/ping.adoc[]
 include::{includedir}/elasticache.adoc[]
-:leveloffset: -1
+:leveloffset: 1
