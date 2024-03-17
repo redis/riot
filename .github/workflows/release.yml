@@ -68,7 +68,7 @@ jobs:
           path: out/jreleaser/assemble/riot-standalone/jlink
 
       - name: Setup Java
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           java-version: ${{ vars.JAVA_VERSION }}
           distribution: ${{ vars.JAVA_DISTRO }}
@@ -82,7 +82,7 @@ jobs:
           ./gradlew -Prelease=true -PreproducibleBuild=true publish gitPublishPush -S
 
       - name: Upload deploy artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           retention-days: 7
           name: deploy
@@ -109,7 +109,7 @@ jobs:
 
       - name: JReleaser release output
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: jreleaser-release
           path: |
