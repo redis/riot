@@ -174,13 +174,15 @@ distributions:
   riot:
     brew:
       active: ALWAYS
+      continueOnError: true
       formulaName: riot
       multiPlatform: true
-      tap:
+      repository:
         active: RELEASE
         commitMessage: 'riot {{tagName}}'  
     docker:
       active: ALWAYS
+      continueOnError: true
       repository:
         active: ALWAYS
         commitMessage: 'riot {{tagName}}'
@@ -200,11 +202,11 @@ distributions:
           - 'linux/arm64'
     jbang:
       active: ALWAYS
+      continueOnError: true
       alias: riot
-      catalog:
-        commitMessage: 'riot {{tagName}}'
     macports:
       active: ALWAYS
+      continueOnError: true
       categories:
         - redis
         - tool
@@ -215,11 +217,13 @@ distributions:
         name: riot-macports
     scoop:
       active: ALWAYS
-      bucket:
+      continueOnError: true
+      repository:
         active: RELEASE
         commitMessage: 'riot {{tagName}}'
     snap:
       active: RELEASE
+      continueOnError: true
       remoteBuild: true
       base: core18
       architectures:
