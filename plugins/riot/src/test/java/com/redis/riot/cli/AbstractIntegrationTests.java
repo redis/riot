@@ -54,7 +54,6 @@ import picocli.CommandLine.ParseResult;
 abstract class AbstractIntegrationTests extends AbstractRiotTestBase {
 
 	public static final int BEER_CSV_COUNT = 2410;
-
 	public static final int BEER_JSON_COUNT = 216;
 
 	private static Path tempDir;

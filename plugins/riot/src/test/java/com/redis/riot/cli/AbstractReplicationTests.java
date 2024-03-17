@@ -11,15 +11,10 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
-import org.springframework.batch.core.JobExecutionException;
-import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 
-import com.redis.spring.batch.RedisItemWriter;
 import com.redis.spring.batch.common.DataType;
-import com.redis.spring.batch.common.KeyValue;
 import com.redis.spring.batch.gen.GeneratorItemReader;
 import com.redis.spring.batch.test.KeyspaceComparison;
-import com.redis.spring.batch.writer.StructItemWriter;
 
 import io.lettuce.core.cluster.SlotHash;
 
@@ -128,15 +123,7 @@ abstract class AbstractReplicationTests extends AbstractRiotTestBase {
 		String filename = "replicate-live-keyslot";
 		enableKeyspaceNotifications(client);
 		GeneratorItemReader generator = generator(300);
-		Executors.newSingleThreadScheduledExecutor().execute(() -> {
-			awaitPubSub();
-			TestInfo genInfo = testInfo(info, filename, "gen-live");
-			try {
-				run(genInfo, step(genInfo, 1, generator, null, RedisItemWriter.struct(client)));
-			} catch (JobExecutionException e) {
-				log.error("Could not generate data", e);
-			}
-		});
+		generateAsync(info, generator);
 		execute(info, filename);
 		List<String> keys = targetCommands.keys("*");
 		for (String key : keys) {
@@ -158,20 +145,9 @@ abstract class AbstractReplicationTests extends AbstractRiotTestBase {
 		DataType[] types = new DataType[] { DataType.HASH, DataType.STRING };
 		enableKeyspaceNotifications(client);
 		generate(info, generator(3000, types));
-		Executors.newSingleThreadScheduledExecutor().execute(() -> {
-			awaitPubSub();
-			GeneratorItemReader generator = generator(3500, types);
-			generator.setCurrentItemCount(3001);
-			StructItemWriter<String, String> writer = RedisItemWriter.struct(client);
-			TestInfo stepInfo = testInfo(info, filename, "gen-live");
-			SimpleStepBuilder<KeyValue<String>, KeyValue<String>> step = step(stepInfo, 1, generator, null, writer);
-			try {
-				run(testInfo(info, filename, "gen-live"), step);
-				log.info("Generated data");
-			} catch (Exception e) {
-				log.error("Could not generate data", e);
-			}
-		});
+		GeneratorItemReader generator = generator(3500, types);
+		generator.setCurrentItemCount(3001);
+		generateAsync(testInfo(info, "async"), generator);
 		execute(info, filename);
 		KeyspaceComparison comparison = compare(info);
 		Assertions.assertEquals(Collections.emptyList(), comparison.mismatches());
