@@ -5,7 +5,7 @@
 :project-version: 3.1.5
 :project-title:   RIOT
 
-image::src/media/banner.png[RIOT]
+image::docs/guide/images/riot.svg[RIOT]
 
 ---
 
