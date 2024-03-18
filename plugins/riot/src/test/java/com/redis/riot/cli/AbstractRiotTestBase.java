@@ -11,6 +11,7 @@ import org.junit.jupiter.api.TestInfo;
 import org.slf4j.simple.SimpleLogger;
 
 import com.redis.riot.cli.AbstractJobCommand.ProgressStyle;
+import com.redis.riot.redis.CompareMode;
 import com.redis.riot.redis.ReplicationMode;
 import com.redis.spring.batch.test.AbstractTargetTestBase;
 import com.redis.testcontainers.RedisServer;
@@ -71,6 +72,7 @@ abstract class AbstractRiotTestBase extends AbstractTargetTestBase {
 			}
 			if (command instanceof ReplicateCommand) {
 				ReplicateCommand replicationCommand = (ReplicateCommand) command;
+				replicationCommand.compareMode = CompareMode.NONE;
 				replicationCommand.targetRedisArgs.uri = getTargetRedisServer().getRedisURI();
 				if (replicationCommand.mode == ReplicationMode.LIVE
 						|| replicationCommand.mode == ReplicationMode.LIVEONLY) {
