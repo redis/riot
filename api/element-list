@@ -1,9 +1,10 @@
 com.redis.riot.cli
-com.redis.riot.cli.common
-com.redis.riot.cli.file
-com.redis.riot.cli.operation
+com.redis.riot.cli.redis
 com.redis.riot.core
-com.redis.riot.core.convert
-com.redis.riot.core.logging
-com.redis.riot.core.processor
-com.redis.riot.core.resource
+com.redis.riot.core.function
+com.redis.riot.core.operation
+com.redis.riot.db
+com.redis.riot.faker
+com.redis.riot.file
+com.redis.riot.file.resource
+com.redis.riot.redis
