@@ -60,6 +60,12 @@ jobs:
         with:
           name: artifacts
           path: plugins
+          
+      - name: Download docs
+        uses: actions/download-artifact@v4
+        with:
+          name: docs
+          path: docs
 
       - name: Download jlink
         uses: actions/download-artifact@v4

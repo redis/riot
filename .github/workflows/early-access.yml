@@ -70,7 +70,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: jreleaser-release
+          name: riot-release
           path: |
             out/jreleaser/trace.log
             out/jreleaser/output.properties
