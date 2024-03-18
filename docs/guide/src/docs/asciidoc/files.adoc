@@ -5,7 +5,7 @@
 
 * Delimited (CSV, TSV, PSV)
 * Fixed-length (also known as fixed-width)
-* JSON
+* JSON and JSONL (https://jsonlines.org[JSON Lines])
 * XML
 
 [[_file_import]]
@@ -110,22 +110,22 @@ Otherwise specify the field names using the `--fields` option.
 
 Let's consider this CSV file:
 
-.https://storage.googleapis.com/jrx/beers.csv[beers.csv]
-[format="csv", options="header",grid="none",frame="none",cols="5%,5%,5%,5%,35%,35%,8%,7%"]
+.beers.csv
+[format="csv",options="header",cols="5,5,5,5,20,20,8,8"]
 |===
-,abv,ibu,id,name,style,brewery_id,ounces
-0,0.05,,1436,Pub Beer,American Pale Lager,408,12.0
-1,0.066,,2265,Devil's Cup,American Pale Ale (APA),177,12.0
-2,0.071,,2264,Rise of the Phoenix,American IPA,177,12.0
+row,abv,ibu,id,name,style,brewery,ounces
+1,0.079,45,321,Fireside Chat (2010),Winter Warmer,368,12.0
+2,0.068,65,173,Back in Black,American Black Ale,368,12.0
+3,0.083,35,11,Monk's Blood,Belgian Dark Ale,368,12.0
 |===
 
-The following command imports that CSV file into Redis as hashes using `beer` as the key prefix and `id` as primary key.
-This creates hashes with keys `beer:1436`, `beer:2265`, ...
-
+The following command imports this CSV into Redis as hashes using `beer` as the key prefix and `id` as primary key.
 [source]
 ----
 include::{testdir}/file-import-csv[]
 ----
+
+This creates hashes with keys `beer:321`, `beer:173`, ...
 
 This command imports a CSV file into a geo set named `airportgeo` with airport IDs as members:
 [source]
