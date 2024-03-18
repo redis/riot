@@ -21,7 +21,9 @@ import com.redis.spring.batch.test.AbstractTestBase;
 
 abstract class AbstractFileTests extends AbstractTestBase {
 
-	public static final String BEERS_JSON_URL = "https://storage.googleapis.com/jrx/beers.json";
+	public static final String BUCKET_URL = "https://storage.googleapis.com/jrx/";
+	public static final String BEERS_JSON_URL = BUCKET_URL + "beers.json";
+	public static final String BEERS_JSONL_URL = BUCKET_URL + "beers.jsonl";
 
 	private static final String ID = "id";
 	private static final String KEYSPACE = "beer";
@@ -126,6 +128,29 @@ abstract class AbstractFileTests extends AbstractTestBase {
 			String id = map.get(ID);
 			assertEquals(key, KEYSPACE + ":" + id);
 		}
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	void fileImportJSONL(TestInfo info) throws Exception {
+		FileImport executable = new FileImport();
+		executable.setRedisClientOptions(redisClientOptions());
+		executable.setFiles(BEERS_JSONL_URL);
+		HsetBuilder hsetBuilder = new HsetBuilder();
+		hsetBuilder.setKeyspace(KEYSPACE);
+		hsetBuilder.setKeyFields(ID);
+		executable.setOperations(hsetBuilder.build());
+		executable.setName(name(info));
+		executable.run();
+		List<String> keys = commands.keys("*");
+		assertEquals(6, keys.size());
+		for (String key : keys) {
+			Map<String, String> map = commands.hgetall(key);
+			String id = map.get(ID);
+			assertEquals(key, KEYSPACE + ":" + id);
+		}
+		Map<String, String> beer1 = commands.hgetall(KEYSPACE + ":1");
+		Assertions.assertEquals("Hocus Pocus", beer1.get("name"));
 	}
 
 }

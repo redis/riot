@@ -179,6 +179,8 @@ public class FileImport extends AbstractImport {
 			return FileUtils.xmlReader(resource, Map.class);
 		case JSON:
 			return FileUtils.jsonReader(resource, Map.class);
+		case JSONL:
+			return FileUtils.jsonlReader(resource);
 		default:
 			throw new UnsupportedOperationException("Unsupported file type: " + type);
 		}
@@ -188,16 +190,20 @@ public class FileImport extends AbstractImport {
 		if (delimiter != null) {
 			return delimiter;
 		}
-		switch (FileUtils.extension(resource)) {
-		case CSV:
-			return DelimitedLineTokenizer.DELIMITER_COMMA;
-		case PSV:
-			return PIPE_DELIMITER;
-		case TSV:
-			return DelimitedLineTokenizer.DELIMITER_TAB;
-		default:
-			throw new IllegalArgumentException("Unknown file extension for " + resource);
+		FileExtension extension = FileUtils.extension(resource);
+		if (extension != null) {
+			switch (extension) {
+			case CSV:
+				return DelimitedLineTokenizer.DELIMITER_COMMA;
+			case PSV:
+				return PIPE_DELIMITER;
+			case TSV:
+				return DelimitedLineTokenizer.DELIMITER_TAB;
+			default:
+				throw new UnsupportedOperationException("Unsupported file extension: " + extension);
+			}
 		}
+		throw new IllegalArgumentException("Unknown file extension for " + resource);
 	}
 
 	private FileType type(Resource resource) {
@@ -205,29 +211,31 @@ public class FileImport extends AbstractImport {
 			return fileType;
 		}
 		FileExtension extension = FileUtils.extension(resource);
-		switch (extension) {
-		case FW:
-			return FileType.FIXED;
-		case JSON:
-			return FileType.JSON;
-		case XML:
-			return FileType.XML;
-		case CSV:
-		case PSV:
-		case TSV:
-			return FileType.DELIMITED;
-		default:
-			throw new UnknownFileTypeException("Unknown file extension: " + extension);
+		if (extension != null) {
+			switch (extension) {
+			case FW:
+				return FileType.FIXED;
+			case JSON:
+				return FileType.JSON;
+			case JSONL:
+				return FileType.JSONL;
+			case XML:
+				return FileType.XML;
+			case CSV:
+			case PSV:
+			case TSV:
+				return FileType.DELIMITED;
+			}
 		}
+		throw new UnknownFileTypeException("Unknown file extension: " + extension);
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private <T extends Map<String, Object>> FlatFileItemReader<T> flatFileReader(Resource resource,
-			AbstractLineTokenizer tokenizer) {
+	private FlatFileItemReader<Map<String, Object>> flatFileReader(Resource resource, AbstractLineTokenizer tokenizer) {
 		if (!ObjectUtils.isEmpty(fields)) {
 			tokenizer.setNames(fields.toArray(new String[0]));
 		}
-		FlatFileItemReaderBuilder<T> builder = new FlatFileItemReaderBuilder<>();
+		FlatFileItemReaderBuilder<Map<String, Object>> builder = new FlatFileItemReaderBuilder<>();
 		builder.resource(resource);
 		if (fileOptions.getEncoding() != null) {
 			builder.encoding(fileOptions.getEncoding());

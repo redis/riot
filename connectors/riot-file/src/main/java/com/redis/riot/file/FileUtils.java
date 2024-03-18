@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -19,6 +20,8 @@ import java.util.stream.StreamSupport;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
+import org.springframework.batch.item.file.FlatFileItemReader;
+import org.springframework.batch.item.file.mapping.JsonLineMapper;
 import org.springframework.batch.item.json.JacksonJsonObjectReader;
 import org.springframework.batch.item.json.JsonItemReader;
 import org.springframework.batch.item.json.builder.JsonItemReaderBuilder;
@@ -108,7 +111,11 @@ public abstract class FileUtils {
 		if (extension == null) {
 			return null;
 		}
-		return FileExtension.valueOf(extension.toUpperCase());
+		try {
+			return FileExtension.valueOf(extension.toUpperCase());
+		} catch (Exception e) {
+			return null;
+		}
 	}
 
 	private static String extensionGroup(String file, String group) {
@@ -145,6 +152,13 @@ public abstract class FileUtils {
 		jsonReader.setMapper(objectMapper());
 		builder.jsonObjectReader(jsonReader);
 		return builder.build();
+	}
+
+	public static FlatFileItemReader<Map<String, Object>> jsonlReader(Resource resource) {
+		FlatFileItemReader<Map<String, Object>> reader = new FlatFileItemReader<>();
+		reader.setLineMapper(new JsonLineMapper());
+		reader.setResource(resource);
+		return reader;
 	}
 
 	public static ObjectMapper objectMapper() {
