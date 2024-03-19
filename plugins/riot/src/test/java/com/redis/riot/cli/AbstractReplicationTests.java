@@ -3,14 +3,13 @@ package com.redis.riot.cli;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.Executors;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.redis.spring.batch.common.DataType;
 import com.redis.spring.batch.gen.GeneratorItemReader;
@@ -20,7 +19,7 @@ import io.lettuce.core.cluster.SlotHash;
 
 abstract class AbstractReplicationTests extends AbstractRiotTestBase {
 
-	private final Log log = LogFactory.getLog(getClass());
+	private final Logger log = LoggerFactory.getLogger(AbstractReplicationTests.class);
 
 	@BeforeAll
 	void setDefaults() {
@@ -36,7 +35,7 @@ abstract class AbstractReplicationTests extends AbstractRiotTestBase {
 	}
 
 	@Test
-	void replicateDryRun(TestInfo info) throws Throwable {
+	void dryRun(TestInfo info) throws Throwable {
 		String filename = "replicate-dry-run";
 		generate(info, generator(73));
 		Assertions.assertTrue(commands.dbsize() > 0);
@@ -45,7 +44,7 @@ abstract class AbstractReplicationTests extends AbstractRiotTestBase {
 	}
 
 	@Test
-	void replicateHLL(TestInfo info) throws Throwable {
+	void hll(TestInfo info) throws Throwable {
 		String key = "crawled:20171124";
 		String value = "http://www.google.com/";
 		commands.pfadd(key, value);
@@ -54,7 +53,7 @@ abstract class AbstractReplicationTests extends AbstractRiotTestBase {
 	}
 
 	@Test
-	void replicateKeyProcessor(TestInfo info) throws Throwable {
+	void keyProcessor(TestInfo info) throws Throwable {
 		String filename = "replicate-key-processor";
 		GeneratorItemReader gen = generator(1, DataType.HASH);
 		generate(info, gen);
@@ -66,7 +65,7 @@ abstract class AbstractReplicationTests extends AbstractRiotTestBase {
 	}
 
 	@Test
-	void replicateKeyExclude(TestInfo info) throws Throwable {
+	void keyExclude(TestInfo info) throws Throwable {
 		String filename = "replicate-key-exclude";
 		int goodCount = 200;
 		GeneratorItemReader gen = generator(goodCount, DataType.HASH);
@@ -81,50 +80,44 @@ abstract class AbstractReplicationTests extends AbstractRiotTestBase {
 	}
 
 	@Test
-	void replicateLiveKeyExclude(TestInfo info) throws Throwable {
+	void liveKeyExclude(TestInfo info) throws Throwable {
 		int goodCount = 200;
 		int badCount = 100;
-		String filename = "replicate-live-key-exclude";
 		enableKeyspaceNotifications(client);
-		Executors.newSingleThreadScheduledExecutor().execute(() -> {
-			awaitPubSub();
-			GeneratorItemReader generator = generator(goodCount, DataType.HASH);
-			GeneratorItemReader generator2 = generator(badCount, DataType.HASH);
-			generator2.setKeyspace("bad");
-			try {
-				generate(testInfo(info, "1"), generator);
-				generate(testInfo(info, "2"), generator2);
-			} catch (Exception e) {
-				log.error("Could not generate data", e);
-			}
-		});
-		execute(info, filename);
+		generateAsync(testInfo(info, "gen-1"), generator(goodCount, DataType.HASH));
+		GeneratorItemReader generator2 = generator(badCount, DataType.HASH);
+		generator2.setKeyspace("bad");
+		generateAsync(testInfo(info, "gen-2"), generator2);
+		execute(info, "replicate-live-key-exclude");
 		Assertions.assertEquals(badCount, keyCount("bad:*"));
+		Assertions.assertEquals(0, targetCommands.keys("bad:*").size());
 		Assertions.assertEquals(goodCount, targetCommands.keys("gen:*").size());
 	}
 
 	@Test
-	void replicateLive(TestInfo info) throws Exception {
+	void live(TestInfo info) throws Exception {
 		runLiveReplication(info, "replicate-live");
 	}
 
 	@Test
-	void replicateLiveMultiThreaded(TestInfo info) throws Exception {
+	void threads(TestInfo info) throws Exception {
 		runLiveReplication(info, "replicate-live-threads");
 	}
 
 	@Test
-	void replicateLiveStruct(TestInfo info) throws Exception {
+	void liveStruct(TestInfo info) throws Exception {
 		runLiveReplication(info, "replicate-live-struct");
 	}
 
 	@Test
-	void replicateLiveKeySlot(TestInfo info) throws Exception {
+	void liveKeySlot(TestInfo info) throws Exception {
 		String filename = "replicate-live-keyslot";
 		enableKeyspaceNotifications(client);
 		GeneratorItemReader generator = generator(300);
 		generateAsync(info, generator);
+		log.info("Executing");
 		execute(info, filename);
+		log.info("Executed");
 		List<String> keys = targetCommands.keys("*");
 		for (String key : keys) {
 			int slot = SlotHash.getSlot(key);
@@ -133,7 +126,7 @@ abstract class AbstractReplicationTests extends AbstractRiotTestBase {
 	}
 
 	@Test
-	void replicateStruct(TestInfo info) throws Throwable {
+	void struct(TestInfo info) throws Throwable {
 		String filename = "replicate-struct";
 		GeneratorItemReader generator = generator(12000);
 		generate(info, generator);

@@ -130,7 +130,7 @@ public class FileDumpExport extends AbstractExport {
 		ItemWriter<KeyValue<String>> writer = writer();
 		ItemProcessor<KeyValue<String>, KeyValue<String>> processor = new FunctionItemProcessor<>(
 				processor(StringCodec.UTF8));
-		return jobBuilder().start(step(getName(), reader, processor, writer).build()).build();
+		return jobBuilder().start(step(reader, processor, writer)).build();
 	}
 
 }

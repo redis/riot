@@ -49,7 +49,7 @@ public class FileDumpImport extends AbstractStructImport {
 		for (Resource resource : resources) {
 			ItemReader<KeyValue<String>> reader = reader(resource);
 			RedisItemWriter<String, String, KeyValue<String>> writer = writer();
-			steps.add(step(resource.getFilename(), reader, null, writer).build());
+			steps.add(step(resource.getFilename(), reader, writer));
 		}
 		Iterator<TaskletStep> iterator = steps.iterator();
 		SimpleJobBuilder job = jobBuilder().start(iterator.next());

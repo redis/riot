@@ -4,7 +4,6 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Consumer;
 
 import javax.sql.DataSource;
 
@@ -24,6 +23,7 @@ import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.core.step.skip.NeverSkipItemSkipPolicy;
 import org.springframework.batch.core.step.skip.SkipPolicy;
+import org.springframework.batch.core.step.tasklet.TaskletStep;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemStreamReader;
@@ -43,7 +43,6 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.util.ClassUtils;
 
 import com.redis.spring.batch.RedisItemReader;
-import com.redis.spring.batch.step.FlushingStepBuilder;
 import com.redis.spring.batch.writer.AbstractOperationItemWriter;
 import com.redis.spring.batch.writer.StructItemWriter;
 
@@ -62,7 +61,7 @@ public abstract class AbstractJobRunnable extends AbstractRunnable {
 	private static final String FAILED_JOB_MESSAGE = "Error executing job %s";
 
 	private String name;
-	private Consumer<RiotStep<?, ?>> stepConfigurer;
+	private List<StepConfigurator> stepConfigurators = new ArrayList<>();
 	private int threads = DEFAULT_THREADS;
 	private int chunkSize = DEFAULT_CHUNK_SIZE;
 	private Duration sleep = DEFAULT_SLEEP;
@@ -83,8 +82,8 @@ public abstract class AbstractJobRunnable extends AbstractRunnable {
 		return String.join("-", elements);
 	}
 
-	public void setStepConfigurer(Consumer<RiotStep<?, ?>> stepConfigurer) {
-		this.stepConfigurer = stepConfigurer;
+	public void addStepConfigurator(StepConfigurator configurator) {
+		stepConfigurators.add(configurator);
 	}
 
 	public void setJobRepository(JobRepository jobRepository) {
@@ -173,34 +172,44 @@ public abstract class AbstractJobRunnable extends AbstractRunnable {
 		return writer;
 	}
 
-	protected <I, O> FaultTolerantStepBuilder<I, O> step(String name, ItemReader<I> reader,
-			ItemProcessor<I, O> processor, ItemWriter<O> writer) {
-		RiotStep<I, O> riotStep = new RiotStep<>();
-		riotStep.setName(name);
-		riotStep.setReader(reader);
-		riotStep.setProcessor(processor);
-		riotStep.setWriter(writer);
-		if (stepConfigurer != null) {
-			stepConfigurer.accept(riotStep);
-		}
-		SimpleStepBuilder<I, O> step = new StepBuilder(riotStep.getName(), jobRepository).chunk(chunkSize,
-				transactionManager);
-		step.reader(reader(riotStep.getReader()));
-		step.processor(riotStep.getProcessor());
-		step.writer(writer(riotStep.getWriter()));
-		step.taskExecutor(taskExecutor());
-		riotStep.getConfigurer().accept(step);
-		if (riotStep.getReader() instanceof RedisItemReader) {
-			RedisItemReader<?, ?, ?> redisReader = (RedisItemReader<?, ?, ?>) riotStep.getReader();
-			if (redisReader.isLive()) {
-				step = new FlushingStepBuilder<>(step).interval(redisReader.getFlushInterval())
-						.idleTimeout(redisReader.getIdleTimeout());
-			}
-		}
-		return faultTolerant(step);
+	protected <I, O> TaskletStep step(ItemReader<I> reader, ItemWriter<O> writer) {
+		return step(getName(), reader, null, writer);
 	}
 
-	private <I, O> FaultTolerantStepBuilder<I, O> faultTolerant(SimpleStepBuilder<I, O> step) {
+	protected <I, O> TaskletStep step(ItemReader<I> reader, ItemProcessor<I, O> processor, ItemWriter<O> writer) {
+		return step(getName(), reader, processor, writer);
+	}
+
+	protected <I, O> TaskletStep step(String name, ItemReader<I> reader, ItemWriter<O> writer) {
+		return step(name, reader, null, writer);
+	}
+
+	protected <I, O> TaskletStep step(String name, ItemReader<I> reader, ItemProcessor<I, O> processor,
+			ItemWriter<O> writer) {
+		return faultTolerant(stepBuilder(name, reader, processor, writer)).build();
+	}
+
+	protected <I, O> SimpleStepBuilder<I, O> stepBuilder(String name, ItemReader<I> reader,
+			ItemProcessor<I, O> processor, ItemWriter<O> writer) {
+		SimpleStepBuilder<I, O> builder = new StepBuilder(name, jobRepository).chunk(chunkSize, transactionManager);
+		builder.reader(reader(reader));
+		builder.processor(processor);
+		builder.writer(writer(writer));
+		builder.taskExecutor(taskExecutor());
+		configureStep(builder, name, reader, writer);
+		stepConfigurators.forEach(s -> s.configure(builder, name, reader, writer));
+		return builder;
+	}
+
+	protected void configureStep(SimpleStepBuilder<?, ?> step, String name, ItemReader<?> reader,
+			ItemWriter<?> writer) {
+	}
+
+	protected <I, O> TaskletStep build(SimpleStepBuilder<I, O> step) {
+		return faultTolerant(step).build();
+	}
+
+	protected <I, O> FaultTolerantStepBuilder<I, O> faultTolerant(SimpleStepBuilder<I, O> step) {
 		FaultTolerantStepBuilder<I, O> ftStep = step.faultTolerant();
 		ftStep.skipLimit(skipLimit);
 		ftStep.retryLimit(retryLimit);

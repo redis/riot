@@ -8,10 +8,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.ItemWriteListener;
 import org.springframework.batch.core.StepExecutionListener;
+import org.springframework.batch.core.step.builder.SimpleStepBuilder;
+import org.springframework.batch.item.ItemReader;
+import org.springframework.batch.item.ItemWriter;
 import org.springframework.util.ClassUtils;
 
 import com.redis.riot.core.AbstractJobRunnable;
-import com.redis.riot.core.RiotStep;
 
 import me.tongfei.progressbar.DelegatingProgressBarConsumer;
 import me.tongfei.progressbar.ProgressBarBuilder;
@@ -82,16 +84,16 @@ abstract class AbstractJobCommand extends AbstractSubCommand {
 		runnable.setSkipLimit(skipLimit);
 		runnable.setSleep(Duration.ofMillis(sleep));
 		runnable.setThreads(threads);
-		runnable.setStepConfigurer(this::configureStep);
+		if (progressStyle != ProgressStyle.NONE) {
+			runnable.addStepConfigurator(this::configureProgress);
+		}
 		return runnable;
 	}
 
-	private void configureStep(RiotStep<?, ?> step) {
-		if (progressStyle == ProgressStyle.NONE) {
-			return;
-		}
+	private void configureProgress(SimpleStepBuilder<?, ?> step, String stepName, ItemReader<?> reader,
+			ItemWriter<?> writer) {
 		ProgressBarBuilder progressBar = new ProgressBarBuilder();
-		progressBar.setTaskName(taskName(step));
+		progressBar.setTaskName(taskName(stepName));
 		progressBar.setStyle(progressBarStyle());
 		progressBar.setUpdateIntervalMillis(progressUpdateInterval);
 		progressBar.showSpeed();
@@ -100,23 +102,21 @@ abstract class AbstractJobCommand extends AbstractSubCommand {
 			progressBar.setConsumer(new DelegatingProgressBarConsumer(logger::info));
 		}
 		ProgressStepExecutionListener listener = new ProgressStepExecutionListener(progressBar);
-		listener.setExtraMessageSupplier(extraMessageSupplier(step));
-		listener.setInitialMaxSupplier(initialMaxSupplier(step));
-		step.setConfigurer(s -> {
-			s.listener((StepExecutionListener) listener);
-			s.listener((ItemWriteListener<?>) listener);
-		});
+		listener.setExtraMessageSupplier(extraMessageSupplier(stepName, reader, writer));
+		listener.setInitialMaxSupplier(initialMaxSupplier(stepName, reader));
+		step.listener((StepExecutionListener) listener);
+		step.listener((ItemWriteListener<?>) listener);
 	}
 
-	protected String taskName(RiotStep<?, ?> step) {
+	protected String taskName(String stepName) {
 		return ClassUtils.getShortName(getClass());
 	}
 
-	protected Supplier<String> extraMessageSupplier(RiotStep<?, ?> step) {
+	protected Supplier<String> extraMessageSupplier(String stepName, ItemReader<?> reader, ItemWriter<?> writer) {
 		return () -> ProgressStepExecutionListener.EMPTY_STRING;
 	}
 
-	protected Callable<Long> initialMaxSupplier(RiotStep<?, ?> step) {
+	protected Callable<Long> initialMaxSupplier(String stepName, ItemReader<?> reader) {
 		return () -> ProgressStepExecutionListener.UNKNOWN_SIZE;
 	}
 

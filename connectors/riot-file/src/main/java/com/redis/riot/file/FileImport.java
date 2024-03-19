@@ -14,6 +14,7 @@ import java.util.stream.Stream;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.job.builder.SimpleJobBuilder;
 import org.springframework.batch.core.step.builder.FaultTolerantStepBuilder;
+import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.core.step.tasklet.TaskletStep;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
@@ -127,16 +128,17 @@ public class FileImport extends AbstractImport {
 		if (resources.isEmpty()) {
 			throw new IllegalArgumentException("No file found");
 		}
-		List<TaskletStep> steps = new ArrayList<>();
-		for (Resource resource : resources) {
-			steps.add(step(resource));
-		}
-		Iterator<TaskletStep> iterator = steps.iterator();
+		Iterator<TaskletStep> iterator = resources.stream().map(this::step).iterator();
 		SimpleJobBuilder job = jobBuilder().start(iterator.next());
 		while (iterator.hasNext()) {
 			job.next(iterator.next());
 		}
 		return job.build();
+	}
+
+	@Override
+	protected <I, O> FaultTolerantStepBuilder<I, O> faultTolerant(SimpleStepBuilder<I, O> step) {
+		return super.faultTolerant(step).skip(ParseException.class).noRetry(ParseException.class);
 	}
 
 	private TaskletStep step(Resource resource) {
@@ -146,11 +148,7 @@ public class FileImport extends AbstractImport {
 		}
 		ItemProcessor<Map<String, Object>, Map<String, Object>> processor = processor();
 		ItemWriter<Map<String, Object>> writer = writer();
-		FaultTolerantStepBuilder<Map<String, Object>, Map<String, Object>> step = step(resource.getFilename(), reader,
-				processor, writer);
-		step.skip(ParseException.class);
-		step.noRetry(ParseException.class);
-		return step.build();
+		return step(resource.getFilename(), reader, processor, writer);
 	}
 
 	private ItemReader<Map<String, Object>> reader(Resource resource) {

@@ -1,6 +1,5 @@
 package com.redis.riot.redis;
 
-import java.time.Duration;
 import java.util.Map;
 import java.util.function.Predicate;
 
@@ -14,10 +13,8 @@ import com.redis.riot.core.PredicateItemProcessor;
 import com.redis.riot.core.RedisClientOptions;
 import com.redis.riot.core.RiotUtils;
 import com.redis.spring.batch.RedisItemReader;
-import com.redis.spring.batch.common.KeyComparisonItemReader;
 import com.redis.spring.batch.common.KeyValue;
 import com.redis.spring.batch.common.Range;
-import com.redis.spring.batch.reader.StructItemReader;
 import com.redis.spring.batch.step.FlushingStepBuilder;
 import com.redis.spring.batch.test.AbstractTargetTestBase;
 import com.redis.testcontainers.RedisServer;
@@ -95,15 +92,6 @@ public abstract class AbstractReplicationTests extends AbstractTargetTestBase {
 				String.format("#{#date.parse('%s').getTime()}:#{key}", "2010-05-10T00:00:00.000+0000")));
 		execute(replication, info);
 		Assertions.assertEquals(value1, targetCommands.get("1273449600000:" + key1));
-	}
-
-	protected KeyComparisonItemReader comparisonReader(TestInfo info) {
-		StructItemReader<String, String> sourceReader = RedisItemReader.struct(client);
-		StructItemReader<String, String> targetReader = RedisItemReader.struct(targetClient);
-		KeyComparisonItemReader comparator = new KeyComparisonItemReader(sourceReader, targetReader);
-		comparator.setName(name(testInfo(info, "comparison-reader")));
-		comparator.setTtlTolerance(Duration.ofMillis(100));
-		return comparator;
 	}
 
 	@Test

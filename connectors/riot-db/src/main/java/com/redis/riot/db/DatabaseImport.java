@@ -93,7 +93,7 @@ public class DatabaseImport extends AbstractImport {
 	@Override
 	protected Job job() {
 		String name = ClassUtils.getShortName(getClass());
-		return jobBuilder().start(step(name, reader(), null, writer()).build()).build();
+		return jobBuilder().start(step(name, reader(), writer())).build();
 	}
 
 	private ItemReader<Map<String, Object>> reader() {

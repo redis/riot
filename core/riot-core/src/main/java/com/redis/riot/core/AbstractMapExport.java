@@ -30,7 +30,7 @@ public abstract class AbstractMapExport extends AbstractExport {
 		StructItemReader<String, String> reader = reader();
 		ItemProcessor<KeyValue<String>, Map<String, Object>> processor = processor();
 		ItemWriter<Map<String, Object>> writer = writer();
-		return jobBuilder().start(step(getName(), reader, processor, writer).build()).build();
+		return jobBuilder().start(step(reader, processor, writer)).build();
 	}
 
 	protected StructItemReader<String, String> reader() {

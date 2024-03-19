@@ -22,7 +22,6 @@ import com.redis.riot.cli.redis.XaddCommand;
 import com.redis.riot.cli.redis.ZaddCommand;
 import com.redis.riot.core.AbstractImport;
 import com.redis.riot.core.ImportProcessorOptions;
-import com.redis.riot.core.RiotStep;
 import com.redis.spring.batch.common.Operation;
 
 import picocli.CommandLine.ArgGroup;
@@ -80,7 +79,7 @@ public abstract class AbstractImportCommand extends AbstractJobCommand {
 	protected abstract AbstractImport importRunnable();
 
 	@Override
-	protected String taskName(RiotStep<?, ?> step) {
+	protected String taskName(String stepName) {
 		return "Importing";
 	}
 

@@ -9,8 +9,11 @@ import org.springframework.batch.core.job.builder.FlowBuilder;
 import org.springframework.batch.core.job.builder.JobFlowBuilder;
 import org.springframework.batch.core.job.builder.SimpleJobBuilder;
 import org.springframework.batch.core.job.flow.support.SimpleFlow;
-import org.springframework.batch.core.step.builder.FaultTolerantStepBuilder;
+import org.springframework.batch.core.step.builder.SimpleStepBuilder;
+import org.springframework.batch.core.step.tasklet.TaskletStep;
 import org.springframework.batch.item.ItemProcessor;
+import org.springframework.batch.item.ItemReader;
+import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.function.FunctionItemProcessor;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
@@ -21,14 +24,15 @@ import com.redis.riot.core.AbstractExport;
 import com.redis.riot.core.RedisClientOptions;
 import com.redis.riot.core.RedisWriterOptions;
 import com.redis.spring.batch.RedisItemReader;
+import com.redis.spring.batch.RedisItemReader.Mode;
 import com.redis.spring.batch.RedisItemWriter;
-import com.redis.spring.batch.common.KeyComparison;
 import com.redis.spring.batch.common.KeyComparisonItemReader;
 import com.redis.spring.batch.common.KeyValue;
 import com.redis.spring.batch.reader.AbstractKeyValueItemReader;
 import com.redis.spring.batch.reader.DumpItemReader;
 import com.redis.spring.batch.reader.KeyTypeItemReader;
 import com.redis.spring.batch.reader.StructItemReader;
+import com.redis.spring.batch.step.FlushingStepBuilder;
 import com.redis.spring.batch.writer.DumpItemWriter;
 import com.redis.spring.batch.writer.KeyValueItemWriter;
 import com.redis.spring.batch.writer.StructItemWriter;
@@ -102,29 +106,26 @@ public class Replication extends AbstractExport {
 
 	@Override
 	protected Job job() {
-		FaultTolerantStepBuilder<KeyValue<byte[]>, KeyValue<byte[]>> scanStep = step(STEP_SCAN, reader("scan-reader"));
-		RedisItemReader<byte[], byte[], KeyValue<byte[]>> reader = reader("live-reader");
-		reader.setMode(RedisItemReader.Mode.LIVE);
-		FaultTolerantStepBuilder<KeyValue<byte[]>, KeyValue<byte[]>> liveStep = step(STEP_LIVE, reader);
-		KeyComparisonStatusCountItemWriter comparisonWriter = new KeyComparisonStatusCountItemWriter();
-		FaultTolerantStepBuilder<KeyComparison, KeyComparison> compareStep = step(STEP_COMPARE, comparisonReader(),
-				null, comparisonWriter);
-		if (showDiffs) {
-			compareStep.listener(new KeyComparisonDiffLogger());
-		}
-		compareStep.listener(new KeyComparisonSummaryLogger(comparisonWriter));
+		RedisItemReader<byte[], byte[], KeyValue<byte[]>> reader = reader("scan-reader");
+		SimpleStepBuilder<KeyValue<byte[]>, KeyValue<byte[]>> scanStep = replicationStep(STEP_SCAN, reader);
+		RedisItemReader<byte[], byte[], KeyValue<byte[]>> liveReader = reader("live-reader");
+		liveReader.setMode(Mode.LIVE);
+		FlushingStepBuilder<KeyValue<byte[]>, KeyValue<byte[]>> liveStep = flushingStep(
+				replicationStep(STEP_LIVE, liveReader));
+		KeyComparisonStatusCountItemWriter compareWriter = new KeyComparisonStatusCountItemWriter();
+		TaskletStep compareStep = step(STEP_COMPARE, comparisonReader(), compareWriter);
 		switch (mode) {
 		case COMPARE:
-			return jobBuilder().start(compareStep.build()).build();
+			return jobBuilder().start(compareStep).build();
 		case LIVE:
 			checkKeyspaceNotificationEnabled();
-			SimpleFlow scanFlow = flow("scan").start(scanStep.build()).build();
-			SimpleFlow liveFlow = flow("live").start(liveStep.build()).build();
+			SimpleFlow scanFlow = flow("scan").start(build(scanStep)).build();
+			SimpleFlow liveFlow = flow("live").start(build(liveStep)).build();
 			SimpleFlow replicateFlow = flow("replicate").split(new SimpleAsyncTaskExecutor()).add(liveFlow, scanFlow)
 					.build();
 			JobFlowBuilder live = jobBuilder().start(replicateFlow);
 			if (shouldCompare()) {
-				live.next(compareStep.build());
+				live.next(compareStep);
 			}
 			return live.build().build();
 		case LIVEONLY:
@@ -133,7 +134,7 @@ public class Replication extends AbstractExport {
 		case SNAPSHOT:
 			SimpleJobBuilder snapshot = jobBuilder().start(scanStep.build());
 			if (shouldCompare()) {
-				snapshot.next(compareStep.build());
+				snapshot.next(compareStep);
 			}
 			return snapshot.build();
 		default:
@@ -149,16 +150,34 @@ public class Replication extends AbstractExport {
 		return compareMode != CompareMode.NONE && !isDryRun();
 	}
 
-	private FaultTolerantStepBuilder<KeyValue<byte[]>, KeyValue<byte[]>> step(String name,
+	private SimpleStepBuilder<KeyValue<byte[]>, KeyValue<byte[]>> replicationStep(String name,
 			RedisItemReader<byte[], byte[], KeyValue<byte[]>> reader) {
 		RedisItemWriter<byte[], byte[], KeyValue<byte[]>> writer = writer();
 		ItemProcessor<KeyValue<byte[]>, KeyValue<byte[]>> processor = new FunctionItemProcessor<>(
 				processor(ByteArrayCodec.INSTANCE));
-		FaultTolerantStepBuilder<KeyValue<byte[]>, KeyValue<byte[]>> step = step(name, reader, processor, writer);
-		if (log.isDebugEnabled()) {
-			step.listener(new KeyValueWriteListener<>(reader.getCodec(), log));
+		return stepBuilder(name, reader, processor, writer);
+	}
+
+	@Override
+	protected void configureStep(SimpleStepBuilder<?, ?> step, String name, ItemReader<?> reader,
+			ItemWriter<?> writer) {
+		super.configureStep(step, name, reader, writer);
+		switch (name) {
+		case STEP_COMPARE:
+			if (showDiffs) {
+				step.listener(new KeyComparisonDiffLogger());
+			}
+			step.listener(new KeyComparisonSummaryLogger((KeyComparisonStatusCountItemWriter) writer));
+			break;
+		case STEP_LIVE:
+		case STEP_SCAN:
+			if (log.isDebugEnabled()) {
+				step.listener(new KeyValueWriteListener<>(ByteArrayCodec.INSTANCE, log));
+			}
+			break;
+		default:
+			break;
 		}
-		return step;
 	}
 
 	private void checkKeyspaceNotificationEnabled() {

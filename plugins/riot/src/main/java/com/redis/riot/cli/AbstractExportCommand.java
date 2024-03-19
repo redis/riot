@@ -2,9 +2,10 @@ package com.redis.riot.cli;
 
 import java.util.concurrent.Callable;
 
+import org.springframework.batch.item.ItemReader;
+
 import com.redis.riot.core.AbstractExport;
 import com.redis.riot.core.AbstractJobRunnable;
-import com.redis.riot.core.RiotStep;
 import com.redis.spring.batch.RedisItemReader;
 import com.redis.spring.batch.reader.ScanSizeEstimator;
 
@@ -29,12 +30,11 @@ public abstract class AbstractExportCommand extends AbstractJobCommand {
 	protected abstract AbstractExport exportRunnable();
 
 	@Override
-	protected Callable<Long> initialMaxSupplier(RiotStep<?, ?> step) {
-		RedisItemReader<?, ?, ?> reader = (RedisItemReader<?, ?, ?>) step.getReader();
-		if (reader.isLive()) {
+	protected Callable<Long> initialMaxSupplier(String stepName, ItemReader<?> reader) {
+		if (((RedisItemReader<?, ?, ?>) reader).isLive()) {
 			return () -> ProgressStepExecutionListener.UNKNOWN_SIZE;
 		}
-		ScanSizeEstimator estimator = new ScanSizeEstimator(reader.getClient());
+		ScanSizeEstimator estimator = new ScanSizeEstimator(((RedisItemReader<?, ?, ?>) reader).getClient());
 		estimator.setScanMatch(readerArgs.scanMatch);
 		if (readerArgs.scanType != null) {
 			estimator.setScanType(readerArgs.scanType.getString());

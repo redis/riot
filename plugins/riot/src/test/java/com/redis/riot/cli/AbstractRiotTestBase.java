@@ -43,19 +43,18 @@ abstract class AbstractRiotTestBase extends AbstractTargetTestBase {
 
 	protected int execute(TestInfo info, String filename, IExecutionStrategy... executionStrategies) throws Exception {
 		String[] args = args(filename);
-		IExecutionStrategy executionStrategy = executionStrategy(info, filename, executionStrategies);
+		IExecutionStrategy executionStrategy = executionStrategy(info, executionStrategies);
 		return AbstractMainCommand.run(new Main(), out, err, args, executionStrategy);
 	}
 
-	private IExecutionStrategy executionStrategy(TestInfo info, String name,
-			IExecutionStrategy... executionStrategies) {
+	private IExecutionStrategy executionStrategy(TestInfo info, IExecutionStrategy... executionStrategies) {
 		CompositeExecutionStrategy strategy = new CompositeExecutionStrategy();
-		strategy.addDelegates(r -> execute(info, name, r));
+		strategy.addDelegates(r -> execute(info, r));
 		strategy.addDelegates(executionStrategies);
 		return strategy;
 	}
 
-	private int execute(TestInfo info, String name, ParseResult parseResult) {
+	private int execute(TestInfo info, ParseResult parseResult) {
 		RedisServer server = getRedisServer();
 		AbstractMainCommand main = (AbstractMainCommand) parseResult.commandSpec().commandLine().getCommand();
 		main.redisArgs.uri = server.getRedisURI();
@@ -68,7 +67,7 @@ abstract class AbstractRiotTestBase extends AbstractTargetTestBase {
 			if (command instanceof AbstractJobCommand) {
 				AbstractJobCommand jobCommand = ((AbstractJobCommand) command);
 				jobCommand.setProgressStyle(ProgressStyle.NONE);
-				jobCommand.setName(name(testInfo(info, name)));
+				jobCommand.setName(name(info));
 			}
 			if (command instanceof ReplicateCommand) {
 				ReplicateCommand replicationCommand = (ReplicateCommand) command;

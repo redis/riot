@@ -4,9 +4,9 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
+import org.springframework.batch.item.ItemReader;
 import org.springframework.expression.Expression;
 
-import com.redis.riot.core.RiotStep;
 import com.redis.riot.faker.FakerImport;
 
 import picocli.CommandLine.Command;
@@ -39,7 +39,7 @@ public class FakerImportCommand extends AbstractImportCommand {
 	}
 
 	@Override
-	protected Callable<Long> initialMaxSupplier(RiotStep<?, ?> step) {
+	protected Callable<Long> initialMaxSupplier(String stepName, ItemReader<?> reader) {
 		return () -> (long) count;
 	}
 

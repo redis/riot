@@ -39,7 +39,7 @@ public class GeneratorImport extends AbstractStructImport {
 	protected Job job() {
 		GeneratorItemReader reader = reader();
 		RedisItemWriter<String, String, KeyValue<String>> writer = writer();
-		return jobBuilder().start(step(getName(), reader, null, writer).build()).build();
+		return jobBuilder().start(step(reader, writer)).build();
 	}
 
 	private GeneratorItemReader reader() {

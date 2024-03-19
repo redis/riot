@@ -119,7 +119,7 @@ class StackToStackIntegrationTests extends AbstractRiotTestBase {
 		generate(info, generator(73));
 		execute(info, filename, r -> executeFileDumpExport(r, info));
 		JsonItemReaderBuilder<KeyValue> builder = new JsonItemReaderBuilder<>();
-		builder.name("json-data-structure-file-reader");
+		builder.name("json-reader");
 		builder.resource(new FileSystemResource(file));
 		JacksonJsonObjectReader<KeyValue> objectReader = new JacksonJsonObjectReader<>(KeyValue.class);
 		objectReader.setMapper(new ObjectMapper());
@@ -158,7 +158,7 @@ class StackToStackIntegrationTests extends AbstractRiotTestBase {
 		execute(info, "file-import-json");
 		execute(info, "file-export-json-gz", r -> executeFileDumpExport(r, info));
 		JsonItemReaderBuilder<Map> builder = new JsonItemReaderBuilder<>();
-		builder.name("json-file-reader");
+		builder.name("json-reader");
 		FileSystemResource resource = new FileSystemResource(file);
 		builder.resource(
 				new InputStreamResource(new GZIPInputStream(resource.getInputStream()), resource.getDescription()));
@@ -182,7 +182,7 @@ class StackToStackIntegrationTests extends AbstractRiotTestBase {
 		Path file = tempFile("redis.xml");
 		execute(info, filename, r -> executeFileDumpExport(r, info));
 		XmlItemReaderBuilder<KeyValue> builder = new XmlItemReaderBuilder<>();
-		builder.name("xml-file-reader");
+		builder.name("xml-reader");
 		builder.resource(new FileSystemResource(file));
 		XmlObjectReader<KeyValue> xmlObjectReader = new XmlObjectReader<>(KeyValue.class);
 		xmlObjectReader.setMapper(new XmlMapper());

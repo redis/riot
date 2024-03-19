@@ -4,6 +4,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 
+import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.support.PassThroughItemProcessor;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
@@ -18,6 +19,7 @@ import com.redis.spring.batch.RedisItemReader;
 import com.redis.spring.batch.common.DataType;
 import com.redis.spring.batch.common.KeyValue;
 import com.redis.spring.batch.reader.AbstractKeyValueItemReader;
+import com.redis.spring.batch.step.FlushingStepBuilder;
 
 import io.lettuce.core.codec.RedisCodec;
 
@@ -101,6 +103,11 @@ public abstract class AbstractExport extends AbstractJobRunnable {
 			return new PassThroughItemProcessor<>();
 		}
 		return new PredicateItemProcessor<>(predicate);
+	}
+
+	protected <I, O> FlushingStepBuilder<I, O> flushingStep(SimpleStepBuilder<I, O> step) {
+		return new FlushingStepBuilder<>(step).interval(readerOptions.getFlushInterval())
+				.idleTimeout(readerOptions.getIdleTimeout());
 	}
 
 	public RedisReaderOptions getReaderOptions() {

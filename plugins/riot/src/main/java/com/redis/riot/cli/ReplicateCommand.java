@@ -5,9 +5,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import org.springframework.batch.item.ItemReader;
+import org.springframework.batch.item.ItemWriter;
+
 import com.redis.riot.cli.RedisReaderArgs.ReadFromEnum;
 import com.redis.riot.core.AbstractExport;
-import com.redis.riot.core.RiotStep;
 import com.redis.riot.redis.CompareMode;
 import com.redis.riot.redis.KeyComparisonStatusCountItemWriter;
 import com.redis.riot.redis.Replication;
@@ -80,8 +82,8 @@ public class ReplicateCommand extends AbstractExportCommand {
 	}
 
 	@Override
-	protected String taskName(RiotStep<?, ?> step) {
-		return taskNames.getOrDefault(step.getName(), "Unknown");
+	protected String taskName(String stepName) {
+		return taskNames.getOrDefault(stepName, "Unknown");
 	}
 
 	private static String compareMessageFormat() {
@@ -93,21 +95,20 @@ public class ReplicateCommand extends AbstractExportCommand {
 	}
 
 	@Override
-	protected Supplier<String> extraMessageSupplier(RiotStep<?, ?> step) {
-		switch (step.getName()) {
+	protected Supplier<String> extraMessageSupplier(String stepName, ItemReader<?> reader, ItemWriter<?> writer) {
+		switch (stepName) {
 		case Replication.STEP_COMPARE:
-			return () -> compareExtraMessage(step);
+			return () -> compareExtraMessage(writer);
 		case Replication.STEP_LIVE:
-			RedisItemReader<?, ?, ?> reader = (RedisItemReader<?, ?, ?>) step.getReader();
-			return () -> liveExtraMessage(reader);
+			return () -> liveExtraMessage((RedisItemReader<?, ?, ?>) reader);
 		default:
-			return super.extraMessageSupplier(step);
+			return super.extraMessageSupplier(stepName, reader, writer);
 		}
 	}
 
-	private String compareExtraMessage(RiotStep<?, ?> step) {
-		KeyComparisonStatusCountItemWriter writer = (KeyComparisonStatusCountItemWriter) step.getWriter();
-		return String.format(COMPARE_MESSAGE, writer.getCounts(STATUSES).toArray());
+	private String compareExtraMessage(ItemWriter<?> writer) {
+		return String.format(COMPARE_MESSAGE,
+				((KeyComparisonStatusCountItemWriter) writer).getCounts(STATUSES).toArray());
 	}
 
 	private String liveExtraMessage(RedisItemReader<?, ?, ?> reader) {

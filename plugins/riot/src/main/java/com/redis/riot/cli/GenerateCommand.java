@@ -5,7 +5,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-import com.redis.riot.core.RiotStep;
+import org.springframework.batch.item.ItemReader;
+
 import com.redis.riot.redis.GeneratorImport;
 import com.redis.spring.batch.common.DataType;
 import com.redis.spring.batch.common.Range;
@@ -92,12 +93,12 @@ public class GenerateCommand extends AbstractStructImportCommand {
 	Range zsetScore = ZsetOptions.DEFAULT_SCORE;
 
 	@Override
-	protected String taskName(RiotStep<?, ?> step) {
+	protected String taskName(String stepName) {
 		return TASK_NAME;
 	}
 
 	@Override
-	protected Callable<Long> initialMaxSupplier(RiotStep<?, ?> step) {
+	protected Callable<Long> initialMaxSupplier(String stepName, ItemReader<?> reader) {
 		return () -> (long) count;
 	}
 

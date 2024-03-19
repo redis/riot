@@ -67,7 +67,7 @@ public class FakerImport extends AbstractImport {
 		String name = ClassUtils.getShortName(getClass());
 		FakerItemReader reader = reader();
 		ItemWriter<Map<String, Object>> writer = writer();
-		return jobBuilder().start(step(name, reader, null, writer).build()).build();
+		return jobBuilder().start(step(name, reader, writer)).build();
 	}
 
 	private FakerItemReader reader() {

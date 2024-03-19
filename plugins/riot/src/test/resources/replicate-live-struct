@@ -1,1 +1,1 @@
-riot -h source -p 6379 replicate -h target -p 6380 --type --mode live --compare none
+riot -h source -p 6379 replicate -h target -p 6380 --type --mode live
