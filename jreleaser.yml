@@ -266,5 +266,5 @@ files:
         skipChecksum: 'true'
         skipSigning: 'true'
         skipSbom: 'true'
-    - path: docs/guide/build/guide/pdf/{{projectName}}-{{projectVersion}}.pdf
+    - path: docs/guide/build/guide/{{projectName}}-{{projectVersion}}.pdf
       transform: '{{projectName}}-{{projectEffectiveVersion}}.pdf'
