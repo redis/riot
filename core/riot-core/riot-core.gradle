@@ -15,12 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-config {
-    licensing {
-        enabled = false
-    }
-}
- 
 dependencies {
     api 'org.slf4j:slf4j-api'
     api group: 'com.redis', name: 'lettucemod', version: lettucemodVersion
@@ -43,13 +37,4 @@ if (!(project.findProperty('automatic.module.name.skip') ?: false).toBoolean()) 
             attributes('Automatic-Module-Name': project.findProperty('automatic.module.name'))
         }
     }
-}
-
-bootJar {
-    enabled = false
-}
-
-jar {
-    enabled = true
-    archiveClassifier = ''
 }

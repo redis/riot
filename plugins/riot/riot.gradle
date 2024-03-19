@@ -25,13 +25,7 @@ application {
     mainClass       = 'com.redis.riot.cli.Main'
 }
 
-bootJar {
-    enabled = false
-}
-
 jar {
-    enabled = true
-    archiveClassifier = ''
     manifest {
         attributes([
             'Main-Class': 'com.redis.riot.cli.Main',
@@ -42,15 +36,6 @@ jar {
 
 startScripts {
     classpath = files('$APP_HOME/lib/*')
-}
-
-config {
-    info {
-        specification { enabled = true }
-    }
-    licensing {
-        enabled = false
-    }
 }
 
 dependencies {

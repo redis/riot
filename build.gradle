@@ -58,6 +58,15 @@ config {
             }
         }
     }
+    
+    licensing {
+        enabled = false
+        licenses {
+            license {
+                id = 'Apache-2.0'
+            }
+        }
+    }
 
     coverage {
         jacoco {
@@ -89,8 +98,13 @@ subprojects { subproj ->
 	        info {
 	            description = project.project_description
 	        }
+            coverage {
+                jacoco {
+		            toolVersion = jacocoVersion
+                }
+            }
 	    }
-	
+
 	    license {
 	        exclude('build/**')
 	    }
@@ -104,7 +118,7 @@ subprojects { subproj ->
             testImplementation 'org.slf4j:slf4j-simple'
 	        testImplementation group: 'com.redis', name: 'testcontainers-redis', version: testcontainersRedisVersion
 	    }
-	
+
 	    test {
 	        useJUnitPlatform()
 	    }
@@ -113,6 +127,15 @@ subprojects { subproj ->
 	        all*.exclude module: 'spring-boot-starter-logging'
 	    }
 	    
+	    bootJar {
+            enabled = false
+        }
+
+        jar {
+            enabled = true
+            archiveClassifier = ''
+        }
+
 	}
 }
 

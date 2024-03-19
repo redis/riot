@@ -15,12 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-config {
-    licensing {
-        enabled = false
-    }
-}
- 
 dependencies {
     implementation project(':riot-core')
     implementation 'org.springframework:spring-oxm'
@@ -43,13 +37,3 @@ if (!(project.findProperty('automatic.module.name.skip') ?: false).toBoolean()) 
         }
     }
 }
-
-bootJar {
-    enabled = false
-}
-
-jar {
-    enabled = true
-    archiveClassifier = ''
-}
-

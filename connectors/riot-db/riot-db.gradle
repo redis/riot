@@ -15,12 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-config {
-    licensing {
-        enabled = false
-    }
-}
- 
 dependencies {
     implementation project(':riot-core')
     implementation 'org.springframework.boot:spring-boot-autoconfigure'
@@ -41,13 +35,4 @@ if (!(project.findProperty('automatic.module.name.skip') ?: false).toBoolean()) 
             attributes('Automatic-Module-Name': project.findProperty('automatic.module.name'))
         }
     }
-}
-
-bootJar {
-    enabled = false
-}
-
-jar {
-    enabled = true
-    archiveClassifier = ''
 }
