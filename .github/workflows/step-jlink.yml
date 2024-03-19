@@ -76,6 +76,14 @@ jobs:
       - name: Dependencies
         run: |
           ls -l plugins/riot/build/dependencies/flat
+          
+      - name: Upload repos
+        uses: actions/upload-artifact@v4
+        with:
+          retention-days: 1
+          name: repos
+          path: |
+            build/repos/local/release
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -86,7 +94,6 @@ jobs:
             plugins/riot/build/libs/
             plugins/riot/build/dependencies/
             plugins/riot/build/distributions/
-            plugins/LICENSE
             
       - name: Upload docs
         uses: actions/upload-artifact@v4
@@ -95,7 +102,6 @@ jobs:
           name: docs
           path: |
             docs/guide/build/guide/
-            docs/LICENSE
 
       - name: Stop Gradle daemon
         shell: bash

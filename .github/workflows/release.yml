@@ -59,13 +59,19 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: artifacts
-          path: plugins
-          
+          path: plugins/riot/build
+
+      - name: Download repos
+        uses: actions/download-artifact@v4
+        with:
+          name: repos
+          path: build/repos/local/release
+
       - name: Download docs
         uses: actions/download-artifact@v4
         with:
           name: docs
-          path: docs
+          path: docs/guide/build/guide
 
       - name: Download jlink
         uses: actions/download-artifact@v4
