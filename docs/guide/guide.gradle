@@ -16,6 +16,7 @@ asciidoctor {
     configurations 'asciidoctorExtensions'
     outputOptions {
         backends = ['pdf', 'html5']
+        separateOutputDirs = false
     }
     forkOptions {
       // Fix issue with JDK16+
@@ -29,8 +30,8 @@ asciidoctor {
         'testdir'               : '../../../../../plugins/riot/src/test/resources'
     ]
     doLast {
-      file("$outputDir/pdf/index.pdf").
-              renameTo("$outputDir/pdf/riot-${project.version}.pdf")
+      file("$outputDir/index.pdf").
+              renameTo("$outputDir/riot-${project.version}.pdf")
     }
 }
 
