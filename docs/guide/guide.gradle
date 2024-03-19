@@ -25,7 +25,6 @@ asciidoctor {
     attributes = [
         numbered                : false,
         'source-highlighter'    : 'coderay',
-        'imagesdir'             : 'images/',
         'coderay-linenums-mode' : 'table',
         'testdir'               : '../../../../../plugins/riot/src/test/resources'
     ]
