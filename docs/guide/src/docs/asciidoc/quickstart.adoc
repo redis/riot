@@ -71,15 +71,11 @@ riot command subcommand --help
 ====
 
 [[_shell_completion]]
-=== Shell Completion
+== Shell Completion
 Run the following command to give `riot` TAB completion in the current shell:
 
 [source]
 ----
 $ source <(riot generate-completion)
 ----
-
-[[_manpage]]
-=== Manual
-The manual is available link:manpage/riot.html[here]
 
