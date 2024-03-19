@@ -32,6 +32,7 @@ asciidoctor {
       file("$outputDir/index.pdf").
               renameTo("$outputDir/riot-${project.version}.pdf")
     }
+    dependsOn ':aggregateCopyDocFiles'
 }
 
 eclipse {
@@ -39,3 +40,4 @@ eclipse {
         name = 'riot-guide'
     }
 }
+
