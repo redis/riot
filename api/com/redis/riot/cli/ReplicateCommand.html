@@ -129,7 +129,9 @@ loadScripts(document, 'script');</script>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#exportRunnable()" class="member-name-link">exportRunnable</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Supplier.html" title="class or interface in java.util.function" class="external-link">Supplier</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#extraMessageSupplier(com.redis.riot.core.RiotStep)" class="member-name-link">extraMessageSupplier</a><wbr>(<a href="../core/RiotStep.html" title="class in com.redis.riot.core">RiotStep</a>&lt;?,<wbr>?&gt;&nbsp;step)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#extraMessageSupplier(java.lang.String,org.springframework.batch.item.ItemReader,org.springframework.batch.item.ItemWriter)" class="member-name-link">extraMessageSupplier</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;stepName,
+ org.springframework.batch.item.ItemReader&lt;?&gt;&nbsp;reader,
+ org.springframework.batch.item.ItemWriter&lt;?&gt;&nbsp;writer)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected <a href="../core/AbstractJobRunnable.html" title="class in com.redis.riot.core">AbstractJobRunnable</a></code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#runnable()" class="member-name-link">runnable</a>()</code></div>
@@ -141,14 +143,14 @@ loadScripts(document, 'script');</script>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setProgressStyle(com.redis.riot.cli.AbstractJobCommand.ProgressStyle)" class="member-name-link">setProgressStyle</a><wbr>(com.redis.riot.cli.AbstractJobCommand.ProgressStyle&nbsp;style)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#taskName(com.redis.riot.core.RiotStep)" class="member-name-link">taskName</a><wbr>(<a href="../core/RiotStep.html" title="class in com.redis.riot.core">RiotStep</a>&lt;?,<wbr>?&gt;&nbsp;step)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#taskName(java.lang.String)" class="member-name-link">taskName</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;stepName)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 </div>
 </div>
 </div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-com.redis.riot.cli.AbstractExportCommand">Methods inherited from class&nbsp;com.redis.riot.cli.<a href="AbstractExportCommand.html" title="class in com.redis.riot.cli">AbstractExportCommand</a></h3>
-<code><a href="AbstractExportCommand.html#initialMaxSupplier(com.redis.riot.core.RiotStep)">initialMaxSupplier</a>, <a href="AbstractExportCommand.html#jobRunnable()">jobRunnable</a></code></div>
+<code><a href="AbstractExportCommand.html#initialMaxSupplier(java.lang.String,org.springframework.batch.item.ItemReader)">initialMaxSupplier</a>, <a href="AbstractExportCommand.html#jobRunnable()">jobRunnable</a></code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-com.redis.riot.cli.AbstractSubCommand">Methods inherited from class&nbsp;com.redis.riot.cli.<a href="AbstractSubCommand.html" title="class in com.redis.riot.cli">AbstractSubCommand</a></h3>
 <code><a href="AbstractSubCommand.html#run()">run</a></code></div>
@@ -191,15 +193,17 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="taskName(com.redis.riot.core.RiotStep)">
+<section class="detail" id="taskName(java.lang.String)">
 <h3>taskName</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">taskName</span><wbr><span class="parameters">(<a href="../core/RiotStep.html" title="class in com.redis.riot.core">RiotStep</a>&lt;?,<wbr>?&gt;&nbsp;step)</span></div>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">taskName</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;stepName)</span></div>
 </section>
 </li>
 <li>
-<section class="detail" id="extraMessageSupplier(com.redis.riot.core.RiotStep)">
+<section class="detail" id="extraMessageSupplier(java.lang.String,org.springframework.batch.item.ItemReader,org.springframework.batch.item.ItemWriter)">
 <h3>extraMessageSupplier</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Supplier.html" title="class or interface in java.util.function" class="external-link">Supplier</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;</span>&nbsp;<span class="element-name">extraMessageSupplier</span><wbr><span class="parameters">(<a href="../core/RiotStep.html" title="class in com.redis.riot.core">RiotStep</a>&lt;?,<wbr>?&gt;&nbsp;step)</span></div>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Supplier.html" title="class or interface in java.util.function" class="external-link">Supplier</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;</span>&nbsp;<span class="element-name">extraMessageSupplier</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;stepName,
+ org.springframework.batch.item.ItemReader&lt;?&gt;&nbsp;reader,
+ org.springframework.batch.item.ItemWriter&lt;?&gt;&nbsp;writer)</span></div>
 </section>
 </li>
 <li>

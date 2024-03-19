@@ -148,8 +148,25 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#addStepConfigurator(com.redis.riot.core.StepConfigurator)" class="member-name-link">addStepConfigurator</a><wbr>(<a href="StepConfigurator.html" title="interface in com.redis.riot.core">StepConfigurator</a>&nbsp;configurator)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected &lt;I,<wbr>
+O&gt;&nbsp;org.springframework.batch.core.step.tasklet.TaskletStep</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#build(org.springframework.batch.core.step.builder.SimpleStepBuilder)" class="member-name-link">build</a><wbr>(org.springframework.batch.core.step.builder.SimpleStepBuilder&lt;I,<wbr>O&gt;&nbsp;step)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#doRun()" class="member-name-link">doRun</a>()</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#configureStep(org.springframework.batch.core.step.builder.SimpleStepBuilder,java.lang.String,org.springframework.batch.item.ItemReader,org.springframework.batch.item.ItemWriter)" class="member-name-link">configureStep</a><wbr>(org.springframework.batch.core.step.builder.SimpleStepBuilder&lt;?,<wbr>?&gt;&nbsp;step,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;name,
+ org.springframework.batch.item.ItemReader&lt;?&gt;&nbsp;reader,
+ org.springframework.batch.item.ItemWriter&lt;?&gt;&nbsp;writer)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#doRun()" class="member-name-link">doRun</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected &lt;I,<wbr>
+O&gt;&nbsp;org.springframework.batch.core.step.builder.FaultTolerantStepBuilder&lt;I,<wbr>O&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#faultTolerant(org.springframework.batch.core.step.builder.SimpleStepBuilder)" class="member-name-link">faultTolerant</a><wbr>(org.springframework.batch.core.step.builder.SimpleStepBuilder&lt;I,<wbr>O&gt;&nbsp;step)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getChunkSize()" class="member-name-link">getChunkSize</a>()</code></div>
@@ -212,27 +229,48 @@ loadScripts(document, 'script');</script>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setSleep(java.time.Duration)" class="member-name-link">setSleep</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/Duration.html" title="class or interface in java.time" class="external-link">Duration</a>&nbsp;sleep)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setStepConfigurer(java.util.function.Consumer)" class="member-name-link">setStepConfigurer</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Consumer.html" title="class or interface in java.util.function" class="external-link">Consumer</a>&lt;<a href="RiotStep.html" title="class in com.redis.riot.core">RiotStep</a>&lt;?,<wbr>?&gt;&gt;&nbsp;stepConfigurer)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setThreads(int)" class="member-name-link">setThreads</a><wbr>(int&nbsp;threads)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setThreads(int)" class="member-name-link">setThreads</a><wbr>(int&nbsp;threads)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setTransactionManager(org.springframework.transaction.PlatformTransactionManager)" class="member-name-link">setTransactionManager</a><wbr>(org.springframework.transaction.PlatformTransactionManager&nbsp;platformTransactionManager)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setTransactionManager(org.springframework.transaction.PlatformTransactionManager)" class="member-name-link">setTransactionManager</a><wbr>(org.springframework.transaction.PlatformTransactionManager&nbsp;platformTransactionManager)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected &lt;I,<wbr>
-O&gt;&nbsp;org.springframework.batch.core.step.builder.FaultTolerantStepBuilder&lt;I,<wbr>O&gt;</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#step(java.lang.String,org.springframework.batch.item.ItemReader,org.springframework.batch.item.ItemProcessor,org.springframework.batch.item.ItemWriter)" class="member-name-link">step</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;name,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected &lt;I,<wbr>
+O&gt;&nbsp;org.springframework.batch.core.step.tasklet.TaskletStep</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#step(java.lang.String,org.springframework.batch.item.ItemReader,org.springframework.batch.item.ItemProcessor,org.springframework.batch.item.ItemWriter)" class="member-name-link">step</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;name,
  org.springframework.batch.item.ItemReader&lt;I&gt;&nbsp;reader,
  org.springframework.batch.item.ItemProcessor&lt;I,<wbr>O&gt;&nbsp;processor,
  org.springframework.batch.item.ItemWriter&lt;O&gt;&nbsp;writer)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected &lt;I,<wbr>
+O&gt;&nbsp;org.springframework.batch.core.step.tasklet.TaskletStep</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#step(java.lang.String,org.springframework.batch.item.ItemReader,org.springframework.batch.item.ItemWriter)" class="member-name-link">step</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;name,
+ org.springframework.batch.item.ItemReader&lt;I&gt;&nbsp;reader,
+ org.springframework.batch.item.ItemWriter&lt;O&gt;&nbsp;writer)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected &lt;W extends com.redis.spring.batch.writer.AbstractOperationItemWriter&lt;?,<wbr>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected &lt;I,<wbr>
+O&gt;&nbsp;org.springframework.batch.core.step.tasklet.TaskletStep</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#step(org.springframework.batch.item.ItemReader,org.springframework.batch.item.ItemProcessor,org.springframework.batch.item.ItemWriter)" class="member-name-link">step</a><wbr>(org.springframework.batch.item.ItemReader&lt;I&gt;&nbsp;reader,
+ org.springframework.batch.item.ItemProcessor&lt;I,<wbr>O&gt;&nbsp;processor,
+ org.springframework.batch.item.ItemWriter&lt;O&gt;&nbsp;writer)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected &lt;I,<wbr>
+O&gt;&nbsp;org.springframework.batch.core.step.tasklet.TaskletStep</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#step(org.springframework.batch.item.ItemReader,org.springframework.batch.item.ItemWriter)" class="member-name-link">step</a><wbr>(org.springframework.batch.item.ItemReader&lt;I&gt;&nbsp;reader,
+ org.springframework.batch.item.ItemWriter&lt;O&gt;&nbsp;writer)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected &lt;I,<wbr>
+O&gt;&nbsp;org.springframework.batch.core.step.builder.SimpleStepBuilder&lt;I,<wbr>O&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#stepBuilder(java.lang.String,org.springframework.batch.item.ItemReader,org.springframework.batch.item.ItemProcessor,org.springframework.batch.item.ItemWriter)" class="member-name-link">stepBuilder</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;name,
+ org.springframework.batch.item.ItemReader&lt;I&gt;&nbsp;reader,
+ org.springframework.batch.item.ItemProcessor&lt;I,<wbr>O&gt;&nbsp;processor,
+ org.springframework.batch.item.ItemWriter&lt;O&gt;&nbsp;writer)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected &lt;W extends com.redis.spring.batch.writer.AbstractOperationItemWriter&lt;?,<wbr>
 ?,<wbr>
 ?&gt;&gt;<br>W</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#writer(W,com.redis.riot.core.RedisWriterOptions)" class="member-name-link">writer</a><wbr>(W&nbsp;writer,
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#writer(W,com.redis.riot.core.RedisWriterOptions)" class="member-name-link">writer</a><wbr>(W&nbsp;writer,
  <a href="RedisWriterOptions.html" title="class in com.redis.riot.core">RedisWriterOptions</a>&nbsp;options)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 </div>
 </div>
 </div>
@@ -350,9 +388,9 @@ O&gt;&nbsp;org.springframework.batch.core.step.builder.FaultTolerantStepBuilder&
 </section>
 </li>
 <li>
-<section class="detail" id="setStepConfigurer(java.util.function.Consumer)">
-<h3>setStepConfigurer</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setStepConfigurer</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Consumer.html" title="class or interface in java.util.function" class="external-link">Consumer</a>&lt;<a href="RiotStep.html" title="class in com.redis.riot.core">RiotStep</a>&lt;?,<wbr>?&gt;&gt;&nbsp;stepConfigurer)</span></div>
+<section class="detail" id="addStepConfigurator(com.redis.riot.core.StepConfigurator)">
+<h3>addStepConfigurator</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">addStepConfigurator</span><wbr><span class="parameters">(<a href="StepConfigurator.html" title="interface in com.redis.riot.core">StepConfigurator</a>&nbsp;configurator)</span></div>
 </section>
 </li>
 <li>
@@ -410,14 +448,79 @@ O&gt;&nbsp;org.springframework.batch.core.step.builder.FaultTolerantStepBuilder&
 </section>
 </li>
 <li>
+<section class="detail" id="step(org.springframework.batch.item.ItemReader,org.springframework.batch.item.ItemWriter)">
+<h3>step</h3>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="type-parameters">&lt;I,<wbr>
+O&gt;</span>
+<span class="return-type">org.springframework.batch.core.step.tasklet.TaskletStep</span>&nbsp;<span class="element-name">step</span><wbr><span class="parameters">(org.springframework.batch.item.ItemReader&lt;I&gt;&nbsp;reader,
+ org.springframework.batch.item.ItemWriter&lt;O&gt;&nbsp;writer)</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="step(org.springframework.batch.item.ItemReader,org.springframework.batch.item.ItemProcessor,org.springframework.batch.item.ItemWriter)">
+<h3>step</h3>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="type-parameters">&lt;I,<wbr>
+O&gt;</span>
+<span class="return-type">org.springframework.batch.core.step.tasklet.TaskletStep</span>&nbsp;<span class="element-name">step</span><wbr><span class="parameters">(org.springframework.batch.item.ItemReader&lt;I&gt;&nbsp;reader,
+ org.springframework.batch.item.ItemProcessor&lt;I,<wbr>O&gt;&nbsp;processor,
+ org.springframework.batch.item.ItemWriter&lt;O&gt;&nbsp;writer)</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="step(java.lang.String,org.springframework.batch.item.ItemReader,org.springframework.batch.item.ItemWriter)">
+<h3>step</h3>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="type-parameters">&lt;I,<wbr>
+O&gt;</span>
+<span class="return-type">org.springframework.batch.core.step.tasklet.TaskletStep</span>&nbsp;<span class="element-name">step</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;name,
+ org.springframework.batch.item.ItemReader&lt;I&gt;&nbsp;reader,
+ org.springframework.batch.item.ItemWriter&lt;O&gt;&nbsp;writer)</span></div>
+</section>
+</li>
+<li>
 <section class="detail" id="step(java.lang.String,org.springframework.batch.item.ItemReader,org.springframework.batch.item.ItemProcessor,org.springframework.batch.item.ItemWriter)">
 <h3>step</h3>
 <div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="type-parameters">&lt;I,<wbr>
 O&gt;</span>
-<span class="return-type">org.springframework.batch.core.step.builder.FaultTolerantStepBuilder&lt;I,<wbr>O&gt;</span>&nbsp;<span class="element-name">step</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;name,
+<span class="return-type">org.springframework.batch.core.step.tasklet.TaskletStep</span>&nbsp;<span class="element-name">step</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;name,
  org.springframework.batch.item.ItemReader&lt;I&gt;&nbsp;reader,
  org.springframework.batch.item.ItemProcessor&lt;I,<wbr>O&gt;&nbsp;processor,
  org.springframework.batch.item.ItemWriter&lt;O&gt;&nbsp;writer)</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="stepBuilder(java.lang.String,org.springframework.batch.item.ItemReader,org.springframework.batch.item.ItemProcessor,org.springframework.batch.item.ItemWriter)">
+<h3>stepBuilder</h3>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="type-parameters">&lt;I,<wbr>
+O&gt;</span>
+<span class="return-type">org.springframework.batch.core.step.builder.SimpleStepBuilder&lt;I,<wbr>O&gt;</span>&nbsp;<span class="element-name">stepBuilder</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;name,
+ org.springframework.batch.item.ItemReader&lt;I&gt;&nbsp;reader,
+ org.springframework.batch.item.ItemProcessor&lt;I,<wbr>O&gt;&nbsp;processor,
+ org.springframework.batch.item.ItemWriter&lt;O&gt;&nbsp;writer)</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="configureStep(org.springframework.batch.core.step.builder.SimpleStepBuilder,java.lang.String,org.springframework.batch.item.ItemReader,org.springframework.batch.item.ItemWriter)">
+<h3>configureStep</h3>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">configureStep</span><wbr><span class="parameters">(org.springframework.batch.core.step.builder.SimpleStepBuilder&lt;?,<wbr>?&gt;&nbsp;step,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;name,
+ org.springframework.batch.item.ItemReader&lt;?&gt;&nbsp;reader,
+ org.springframework.batch.item.ItemWriter&lt;?&gt;&nbsp;writer)</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="build(org.springframework.batch.core.step.builder.SimpleStepBuilder)">
+<h3>build</h3>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="type-parameters">&lt;I,<wbr>
+O&gt;</span>
+<span class="return-type">org.springframework.batch.core.step.tasklet.TaskletStep</span>&nbsp;<span class="element-name">build</span><wbr><span class="parameters">(org.springframework.batch.core.step.builder.SimpleStepBuilder&lt;I,<wbr>O&gt;&nbsp;step)</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="faultTolerant(org.springframework.batch.core.step.builder.SimpleStepBuilder)">
+<h3>faultTolerant</h3>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="type-parameters">&lt;I,<wbr>
+O&gt;</span>
+<span class="return-type">org.springframework.batch.core.step.builder.FaultTolerantStepBuilder&lt;I,<wbr>O&gt;</span>&nbsp;<span class="element-name">faultTolerant</span><wbr><span class="parameters">(org.springframework.batch.core.step.builder.SimpleStepBuilder&lt;I,<wbr>O&gt;&nbsp;step)</span></div>
 </section>
 </li>
 <li>
