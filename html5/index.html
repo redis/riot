@@ -1,0 +1,1889 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 2.0.10">
+<meta name="author" content="Julien Ruaux">
+<title>Redis Input/Output Tools (RIOT)</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
+<link rel="stylesheet" href="./asciidoctor.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>
+.hidden {
+    display: none;
+}
+
+.switch {
+    border-width: 1px 1px 0 1px;
+    border-style: solid;
+    border-color: #7a2518;
+    display: inline-block;
+}
+
+.switch--item {
+    padding: 10px;
+    background-color: #ffffff;
+    color: #7a2518;
+    display: inline-block;
+    cursor: pointer;
+}
+
+.switch--item.selected {
+    background-color: #7a2519;
+    color: #ffffff;
+}
+
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/zepto/1.2.0/zepto.min.js"></script>
+<script type="text/javascript">
+function addBlockSwitches() {
+    $('.primary').each(function() {
+        primary = $(this);
+        createSwitchItem(primary, createBlockSwitch(primary)).item.addClass("selected");
+        primary.children('.title').remove();
+    });
+    $('.secondary').each(function(idx, node) {
+        secondary = $(node);
+        primary = findPrimary(secondary);
+        switchItem = createSwitchItem(secondary, primary.children('.switch'));
+        switchItem.content.addClass('hidden');
+        findPrimary(secondary).append(switchItem.content);
+        secondary.remove();
+    });
+}
+
+function createBlockSwitch(primary) {
+    blockSwitch = $('<div class="switch"></div>');
+    primary.prepend(blockSwitch);
+    return blockSwitch;
+}
+
+function findPrimary(secondary) {
+    candidate = secondary.prev();
+    while (!candidate.is('.primary')) {
+        candidate = candidate.prev();
+    }
+    return candidate;
+}
+
+function createSwitchItem(block, blockSwitch) {
+    blockName = block.children('.title').text();
+    content = block.children('.content').first().append(block.next('.colist'));
+    item = $('<div class="switch--item">' + blockName + '</div>');
+    item.on('click', '', content, function(e) {
+        $(this).addClass('selected');
+        $(this).siblings().removeClass('selected');
+        e.data.siblings('.content').addClass('hidden');
+        e.data.removeClass('hidden');
+    });
+    blockSwitch.append(item);
+    return {'item': item, 'content': content};
+}
+
+$(addBlockSwitches);
+
+</script>
+
+</head>
+<body class="book toc2 toc-left">
+<div id="header">
+<h1>Redis Input/Output Tools (RIOT)</h1>
+<div class="details">
+<span id="author" class="author">Julien Ruaux</span><br>
+<span id="revnumber">version 3.2.0</span>
+</div>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_introduction">Introduction</a></li>
+<li><a href="#_quickstart">Quick Start</a>
+<ul class="sectlevel2">
+<li><a href="#_install">Install</a></li>
+<li><a href="#_usage">Usage</a></li>
+<li><a href="#_shell_completion">Shell Completion</a></li>
+</ul>
+</li>
+<li><a href="#_files">Files</a>
+<ul class="sectlevel2">
+<li><a href="#_file_import">File Import</a></li>
+<li><a href="#_file_export">File Export</a></li>
+<li><a href="#_dump_import">Dump Import</a></li>
+</ul>
+</li>
+<li><a href="#_generators">Generators</a>
+<ul class="sectlevel2">
+<li><a href="#_faker">Faker</a></li>
+<li><a href="#_generate">Data Structures</a></li>
+</ul>
+</li>
+<li><a href="#_databases">Databases</a>
+<ul class="sectlevel2">
+<li><a href="#_db_import">Database Import</a></li>
+<li><a href="#_db_export">Database Export</a></li>
+<li><a href="#_database_drivers">Database Drivers</a></li>
+</ul>
+</li>
+<li><a href="#_replication">Replication</a>
+<ul class="sectlevel2">
+<li><a href="#_replication_usage">Usage</a></li>
+<li><a href="#_replication_mode">Replication Mode</a></li>
+<li><a href="#_replication_type">Replication Type</a></li>
+<li><a href="#_replication_progress">Progress Reporting</a></li>
+<li><a href="#_replication_compare">Compare</a></li>
+<li><a href="#_replication_performance_tuning">Performance Tuning</a></li>
+</ul>
+</li>
+<li><a href="#_architecture">Architecture</a>
+<ul class="sectlevel2">
+<li><a href="#_batching">Batching</a></li>
+<li><a href="#_threads">Multi-threading</a></li>
+<li><a href="#_processing">Processing</a></li>
+<li><a href="#_filters">Filtering</a></li>
+<li><a href="#_replication_architecture">Replication</a></li>
+<li><a href="#_ping">Ping</a></li>
+<li><a href="#_elasticache">Migrating from Elasticache</a></li>
+</ul>
+</li>
+<li><a href="#_faq">Frequently Asked Questions</a></li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div class="sect1">
+<h2 id="_introduction"><a class="anchor" href="#_introduction"></a>Introduction</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Redis Input/Output Tools (RIOT) is a command-line utility to get data in and out of any Redis-compatible database like Redis OSS, Redis Cluster, Redis Enterprise, Redis Cloud, or <a href="#_elasticache">Amazon ElastiCache</a>.</p>
+</div>
+<div class="paragraph">
+<p>RIOT includes the following features:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>File import/export (CSV, JSON, XML)</p>
+</li>
+<li>
+<p>Relational database import/export</p>
+</li>
+<li>
+<p>Data generation using Faker or random data structures</p>
+</li>
+<li>
+<p>Data migration from a Redis database to another</p>
+</li>
+<li>
+<p>Live replication between two Redis databases</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_quickstart"><a class="anchor" href="#_quickstart"></a>Quick Start</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This section helps you get started with RIOT.</p>
+</div>
+<div class="sect2">
+<h3 id="_install"><a class="anchor" href="#_install"></a>Install</h3>
+<div class="paragraph">
+<p>RIOT can be installed on Linux, macOS, and Windows platforms and can be used as a standalone tool that connects remotely to a Redis database.
+It is not required to run locally on a Redis server.</p>
+</div>
+<div id="_homebrew_install" class="listingblock">
+<div class="title">Homebrew (macOS &amp; Linux)</div>
+<div class="content">
+<pre class="CodeRay highlight"><code>brew install redis-developer/tap/riot</code></pre>
+</div>
+</div>
+<div id="_scoop_install" class="listingblock">
+<div class="title">Scoop (Windows)</div>
+<div class="content">
+<pre class="CodeRay highlight"><code>scoop bucket add redis-developer https://github.com/redis-developer/scoop.git
+scoop install riot</code></pre>
+</div>
+</div>
+<div id="_manual_install" class="paragraph">
+<div class="title">Manual installation (all platforms)</div>
+<p>Download the pre-compiled binary from the <a href="https://github.com/redis-developer/riot/releases">releases page</a>, uncompress and copy to the desired location.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p><code>riot-3.2.0.zip</code> requires Java 11 or greater to be installed.
+<code>riot-standalone-3.2.0-*.zip</code> includes its own Java runtime and does not require a Java installation.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div id="_docker_install" class="listingblock">
+<div class="title">Docker</div>
+<div class="content">
+<pre class="CodeRay highlight"><code>docker run fieldengineering/riot [OPTIONS] [COMMAND]</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_usage"><a class="anchor" href="#_usage"></a>Usage</h3>
+<div class="paragraph">
+<p>You can launch RIOT with the following command:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code>riot</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This will show usage help, which you can also get by running:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code>riot --help</code></pre>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p><code>--help</code> is available on any command and subcommand:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code>riot command --help
+riot command subcommand --help</code></pre>
+</div>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_shell_completion"><a class="anchor" href="#_shell_completion"></a>Shell Completion</h3>
+<div class="paragraph">
+<p>Run the following command to give <code>riot</code> TAB completion in the current shell:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code>$ source &lt;(riot generate-completion)</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_files"><a class="anchor" href="#_files"></a>Files</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>RIOT can import from and export to files in various formats:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Delimited (CSV, TSV, PSV)</p>
+</li>
+<li>
+<p>Fixed-length (also known as fixed-width)</p>
+</li>
+<li>
+<p>JSON and JSONL (<a href="https://jsonlines.org">JSON Lines</a>)</p>
+</li>
+<li>
+<p>XML</p>
+</li>
+</ul>
+</div>
+<div class="sect2">
+<h3 id="_file_import"><a class="anchor" href="#_file_import"></a>File Import</h3>
+<div class="paragraph">
+<p>The <code>file-import</code> command reads data from files and writes it to Redis.</p>
+</div>
+<div class="paragraph">
+<p>The basic usage for file imports is:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code>riot -h &lt;host&gt; -p &lt;port&gt; file-import FILE... [REDIS COMMAND...]</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>To show the full usage, run:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code>riot file-import --help</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You must specify at least one Redis command as a target.</p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Redis connection options apply to the root command (<code>riot</code>) and not to subcommands.</p>
+</div>
+<div class="paragraph">
+<p>In this example the Redis options will not be taken into account:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code>riot file-import my.json hset -h myredis.com -p 6380</code></pre>
+</div>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>The keys that will be written are constructed from input records by concatenating the keyspace prefix and key fields.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/mapping.svg" alt="mapping">
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Import into hashes with keyspace <code>blah:&lt;id&gt;</code></div>
+<div class="content">
+<pre class="CodeRay highlight"><code>riot file-import my.json hset --keyspace blah --keys id</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Import into JSON</div>
+<div class="content">
+<pre class="CodeRay highlight"><code>riot file-import https://storage.googleapis.com/jrx/es_test-index.json json.set --keyspace elastic --keys _id</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Import into hashes <strong>and</strong> set TTL on the key</div>
+<div class="content">
+<pre class="CodeRay highlight"><code>riot file-import my.json hset --keyspace blah --keys id expire --keyspace blah --keys id</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Import into hashes in keyspace <code>blah:&lt;id&gt;</code> <strong>and</strong> set TTL <strong>and</strong> add each <code>id</code> to a set named <code>myset</code></div>
+<div class="content">
+<pre class="CodeRay highlight"><code>riot file-import my.json hset --keyspace blah --keys id expire --keyspace blah --keys id sadd --keyspace myset --members id</code></pre>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_file_import_paths"><a class="anchor" href="#_file_import_paths"></a>Paths</h4>
+<div class="paragraph">
+<p>Paths can include <a href="https://man7.org/linux/man-pages/man7/glob.7.html">wildcard patterns</a>.</p>
+</div>
+<div class="paragraph">
+<p>RIOT will try to determine the file type from its extension (e.g. <code>.csv</code> or <code>.json</code>), but you can specify it with the <code>--filetype</code> option.</p>
+</div>
+<div class="paragraph">
+<p>Gzipped files are supported and the extension before <code>.gz</code> is used (e.g. <code>myfile.json.gz</code> &#8594; JSON type).</p>
+</div>
+<div class="ulist">
+<div class="title">Examples</div>
+<ul>
+<li>
+<p><code>/path/file.csv</code></p>
+</li>
+<li>
+<p><code>/path/file-*.csv</code></p>
+</li>
+<li>
+<p><code>/path/file.json</code></p>
+</li>
+<li>
+<p><code>http://data.com/file.csv</code></p>
+</li>
+<li>
+<p><code>http://data.com/file.json.gz</code></p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+Use <code>-</code> to read from standard input.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>For AWS S3 buckets you can specify access and secret keys as well as the region for the bucket.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code>riot file-import s3://my-bucket/path/file.json --s3-region us-west-1 --s3-access xxxxxx --s3-secret xxxxxx</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>For Google Cloud Storage you can specify credentials and project id for the bucket:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code>riot file-import gs://my-bucket/path/file.json --gcs-key-file key.json --gcs-project-id my-gcp-project</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_file_import_delimited"><a class="anchor" href="#_file_import_delimited"></a>Delimited</h4>
+<div class="paragraph">
+<p>The default delimiter character is comma (<code>,</code>).
+It can be changed with the <code>--delimiter</code> option.</p>
+</div>
+<div class="paragraph">
+<p>If the file has a header, use the <code>--header</code> option to automatically extract field names.
+Otherwise specify the field names using the <code>--fields</code> option.</p>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s consider this CSV file:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 1. beers.csv</caption>
+<colgroup>
+<col style="width: 6.5789%;">
+<col style="width: 6.5789%;">
+<col style="width: 6.5789%;">
+<col style="width: 6.5789%;">
+<col style="width: 26.3157%;">
+<col style="width: 26.3157%;">
+<col style="width: 10.5263%;">
+<col style="width: 10.5267%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">row</th>
+<th class="tableblock halign-left valign-top">abv</th>
+<th class="tableblock halign-left valign-top">ibu</th>
+<th class="tableblock halign-left valign-top">id</th>
+<th class="tableblock halign-left valign-top">name</th>
+<th class="tableblock halign-left valign-top">style</th>
+<th class="tableblock halign-left valign-top">brewery</th>
+<th class="tableblock halign-left valign-top">ounces</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0.079</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">45</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">321</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Fireside Chat (2010)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Winter Warmer</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">368</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">12.0</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0.068</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">65</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">173</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Back in Black</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">American Black Ale</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">368</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">12.0</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">3</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0.083</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">35</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">11</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Monk&#8217;s Blood</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Belgian Dark Ale</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">368</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">12.0</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>The following command imports this CSV into Redis as hashes using <code>beer</code> as the key prefix and <code>id</code> as primary key.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code>riot file-import https://storage.googleapis.com/jrx/beers.csv --header hset --keyspace beer --keys id</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This creates hashes with keys <code>beer:321</code>, <code>beer:173</code>, &#8230;&#8203;</p>
+</div>
+<div class="paragraph">
+<p>This command imports a CSV file into a geo set named <code>airportgeo</code> with airport IDs as members:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code>riot file-import https://storage.googleapis.com/jrx/airports.csv --header --skip-limit 3 geoadd --keyspace airportgeo --members AirportID --lon Longitude --lat Latitude</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_file_import_fixed_length"><a class="anchor" href="#_file_import_fixed_length"></a>Fixed-Length</h4>
+<div class="paragraph">
+<p>Fixed-length files can be imported by specifying the width of each field using the <code>--ranges</code> option.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code>riot file-import https://storage.googleapis.com/jrx/accounts.fw --ranges 1 9 25 41 53 67 83 --header hset --keyspace account --keys Account</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_file_import_json"><a class="anchor" href="#_file_import_json"></a>JSON</h4>
+<div class="paragraph">
+<p>The expected format for JSON files is:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="json">[
+  {
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">...</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">...</span><span class="delimiter">&quot;</span></span>
+  },
+  {
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">...</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">...</span><span class="delimiter">&quot;</span></span>
+  }
+]</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">JSON import example</div>
+<div class="content">
+<pre class="CodeRay highlight"><code>riot file-import https://storage.googleapis.com/jrx/beers.json hset --keyspace beer --keys id</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>JSON records are trees with potentially nested values that need to be flattened when the target is a Redis hash for example.</p>
+</div>
+<div class="paragraph">
+<p>To that end, RIOT uses a field naming convention to flatten JSON objects and arrays:</p>
+</div>
+<table class="tableblock frame-none grid-none stretch">
+<caption class="title">Table 2. Nested object</caption>
+<colgroup>
+<col style="width: 45%;">
+<col style="width: 10%;">
+<col style="width: 45%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code><code>{ "field": { "sub": "value" } }</code></code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&#8594;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code><code>field.sub=value</code></code></p></td>
+</tr>
+</tbody>
+</table>
+<table class="tableblock frame-none grid-none stretch">
+<caption class="title">Table 3. Array</caption>
+<colgroup>
+<col style="width: 45%;">
+<col style="width: 10%;">
+<col style="width: 45%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code><code>{ "field": [1, 2, 3] }</code></code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&#8594;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code><code>field[0]=1 field[1]=2 field[2]=3</code></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_file_import_xml"><a class="anchor" href="#_file_import_xml"></a>XML</h4>
+<div class="paragraph">
+<p>Here is a sample XML file that can be imported by RIOT:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span class="preprocessor">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<span class="tag">&lt;records&gt;</span>
+    <span class="tag">&lt;trade&gt;</span>
+        <span class="tag">&lt;isin&gt;</span>XYZ0001<span class="tag">&lt;/isin&gt;</span>
+        <span class="tag">&lt;quantity&gt;</span>5<span class="tag">&lt;/quantity&gt;</span>
+        <span class="tag">&lt;price&gt;</span>11.39<span class="tag">&lt;/price&gt;</span>
+        <span class="tag">&lt;customer&gt;</span>Customer1<span class="tag">&lt;/customer&gt;</span>
+    <span class="tag">&lt;/trade&gt;</span>
+    <span class="tag">&lt;trade&gt;</span>
+        <span class="tag">&lt;isin&gt;</span>XYZ0002<span class="tag">&lt;/isin&gt;</span>
+        <span class="tag">&lt;quantity&gt;</span>2<span class="tag">&lt;/quantity&gt;</span>
+        <span class="tag">&lt;price&gt;</span>72.99<span class="tag">&lt;/price&gt;</span>
+        <span class="tag">&lt;customer&gt;</span>Customer2c<span class="tag">&lt;/customer&gt;</span>
+    <span class="tag">&lt;/trade&gt;</span>
+    <span class="tag">&lt;trade&gt;</span>
+        <span class="tag">&lt;isin&gt;</span>XYZ0003<span class="tag">&lt;/isin&gt;</span>
+        <span class="tag">&lt;quantity&gt;</span>9<span class="tag">&lt;/quantity&gt;</span>
+        <span class="tag">&lt;price&gt;</span>99.99<span class="tag">&lt;/price&gt;</span>
+        <span class="tag">&lt;customer&gt;</span>Customer3<span class="tag">&lt;/customer&gt;</span>
+    <span class="tag">&lt;/trade&gt;</span>
+<span class="tag">&lt;/records&gt;</span></code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">XML Import Example</div>
+<div class="content">
+<pre class="CodeRay highlight"><code>riot file-import https://storage.googleapis.com/jrx/trades.xml hset --keyspace trade --keys id</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_regular_expressions"><a class="anchor" href="#_regular_expressions"></a>Regular Expressions</h4>
+<div class="paragraph">
+<p>In addition to general <a href="#_processing">processing</a> you can perform field extraction using regular expressions.</p>
+</div>
+<div class="listingblock">
+<div class="title">Regex example</div>
+<div class="content">
+<pre class="CodeRay highlight"><code>riot file-import --regex name=&quot;(?&lt;first&gt;\w+)\/(?&lt;last&gt;\w+)&quot; ...</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_file_export"><a class="anchor" href="#_file_export"></a>File Export</h3>
+<div class="paragraph">
+<p>The <code>file-export</code> command reads data from a Redis database and writes it to a JSON or XML file, potentially gzip-compressed.</p>
+</div>
+<div class="paragraph">
+<p>The general usage is:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code>riot -h &lt;host&gt; -p &lt;port&gt; file-export FILE</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>To show the full usage, run:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code>riot file-export --help</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Export to JSON</div>
+<div class="content">
+<pre class="CodeRay highlight"><code>riot file-export /tmp/redis.json</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Sample JSON-export file</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="json">[
+  {
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">key</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">string:615</span><span class="delimiter">&quot;</span></span>,
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">ttl</span><span class="delimiter">&quot;</span></span>: <span class="integer">-1</span>,
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">value</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">value:615</span><span class="delimiter">&quot;</span></span>,
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">type</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">STRING</span><span class="delimiter">&quot;</span></span>
+  },
+  {
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">key</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">hash:511</span><span class="delimiter">&quot;</span></span>,
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">ttl</span><span class="delimiter">&quot;</span></span>: <span class="integer">-1</span>,
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">value</span><span class="delimiter">&quot;</span></span>: {
+      <span class="key"><span class="delimiter">&quot;</span><span class="content">field1</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">value511</span><span class="delimiter">&quot;</span></span>,
+      <span class="key"><span class="delimiter">&quot;</span><span class="content">field2</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">value511</span><span class="delimiter">&quot;</span></span>
+    },
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">type</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">HASH</span><span class="delimiter">&quot;</span></span>
+  },
+  {
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">key</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">list:1</span><span class="delimiter">&quot;</span></span>,
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">ttl</span><span class="delimiter">&quot;</span></span>: <span class="integer">-1</span>,
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">value</span><span class="delimiter">&quot;</span></span>: [
+      <span class="string"><span class="delimiter">&quot;</span><span class="content">member:991</span><span class="delimiter">&quot;</span></span>,
+      <span class="string"><span class="delimiter">&quot;</span><span class="content">member:981</span><span class="delimiter">&quot;</span></span>
+    ],
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">type</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">LIST</span><span class="delimiter">&quot;</span></span>
+  },
+  {
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">key</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">set:2</span><span class="delimiter">&quot;</span></span>,
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">ttl</span><span class="delimiter">&quot;</span></span>: <span class="integer">-1</span>,
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">value</span><span class="delimiter">&quot;</span></span>: [
+      <span class="string"><span class="delimiter">&quot;</span><span class="content">member:2</span><span class="delimiter">&quot;</span></span>,
+      <span class="string"><span class="delimiter">&quot;</span><span class="content">member:3</span><span class="delimiter">&quot;</span></span>
+    ],
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">type</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">SET</span><span class="delimiter">&quot;</span></span>
+  },
+  {
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">key</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">zset:0</span><span class="delimiter">&quot;</span></span>,
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">ttl</span><span class="delimiter">&quot;</span></span>: <span class="integer">-1</span>,
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">value</span><span class="delimiter">&quot;</span></span>: [
+      {
+        <span class="key"><span class="delimiter">&quot;</span><span class="content">value</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">member:1</span><span class="delimiter">&quot;</span></span>,
+        <span class="key"><span class="delimiter">&quot;</span><span class="content">score</span><span class="delimiter">&quot;</span></span>: <span class="float">1.0</span>
+      }
+    ],
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">type</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">ZSET</span><span class="delimiter">&quot;</span></span>
+  },
+  {
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">key</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">stream:0</span><span class="delimiter">&quot;</span></span>,
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">ttl</span><span class="delimiter">&quot;</span></span>: <span class="integer">-1</span>,
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">value</span><span class="delimiter">&quot;</span></span>: [
+      {
+        <span class="key"><span class="delimiter">&quot;</span><span class="content">stream</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">stream:0</span><span class="delimiter">&quot;</span></span>,
+        <span class="key"><span class="delimiter">&quot;</span><span class="content">id</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">1602190921109-0</span><span class="delimiter">&quot;</span></span>,
+        <span class="key"><span class="delimiter">&quot;</span><span class="content">body</span><span class="delimiter">&quot;</span></span>: {
+          <span class="key"><span class="delimiter">&quot;</span><span class="content">field1</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">value0</span><span class="delimiter">&quot;</span></span>,
+          <span class="key"><span class="delimiter">&quot;</span><span class="content">field2</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">value0</span><span class="delimiter">&quot;</span></span>
+        }
+      }
+    ],
+    <span class="key"><span class="delimiter">&quot;</span><span class="content">type</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">STREAM</span><span class="delimiter">&quot;</span></span>
+  }
+]</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Export to compressed JSON</div>
+<div class="content">
+<pre class="CodeRay highlight"><code>riot file-export /tmp/beers.json.gz --scan-match beer:*</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Export to XML</div>
+<div class="content">
+<pre class="CodeRay highlight"><code>riot file-export /tmp/redis.xml</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_dump_import"><a class="anchor" href="#_dump_import"></a>Dump Import</h3>
+<div class="paragraph">
+<p>RIOT can import Redis data structure files in JSON or XML formats. See <a href="#_file_export">File Export</a> section to generate such files.</p>
+</div>
+<div class="listingblock">
+<div class="title">Example</div>
+<div class="content">
+<pre class="CodeRay highlight"><code>riot dump-import /tmp/redis.json</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_generators"><a class="anchor" href="#_generators"></a>Generators</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>RIOT includes two data generators that can be used to quickly mock up a dataset in Redis.</p>
+</div>
+<div class="sect2">
+<h3 id="_faker"><a class="anchor" href="#_faker"></a>Faker</h3>
+<div class="paragraph">
+<p>The <code>faker-import</code> command generates data using <a href="http://www.datafaker.net">Datafaker</a>.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code>riot -h &lt;host&gt; -p &lt;port&gt; faker-import SPEL... [REDIS COMMAND...]</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>where SPEL is a <a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/core.html#expressions">Spring Expression Language</a> field in the form <code>field="expression"</code>.</p>
+</div>
+<div class="paragraph">
+<p>To show the full usage, run:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code>riot faker-import --help</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You must specify at least one Redis command as a target.</p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Redis connection options apply to the root command (<code>riot</code>) and not to subcommands.</p>
+</div>
+<div class="paragraph">
+<p>In this example the Redis options will not be taken into account:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code>riot faker-import id=&quot;index&quot; hset -h myredis.com -p 6380</code></pre>
+</div>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_faker_keys"><a class="anchor" href="#_faker_keys"></a>Keys</h4>
+<div class="paragraph">
+<p>Keys are constructed from input records by concatenating the keyspace prefix and key fields.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/mapping.svg" alt="mapping">
+</div>
+</div>
+<div class="listingblock">
+<div class="title">HSET example</div>
+<div class="content">
+<pre class="CodeRay highlight"><code>riot faker-import id=&quot;index&quot; firstName=&quot;name.firstName&quot; lastName=&quot;name.lastName&quot; address=&quot;address.fullAddress&quot; hset --keyspace person --keys id</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">SADD example</div>
+<div class="content">
+<pre class="CodeRay highlight"><code>riot faker-import name=&quot;gameOfThrones.character&quot; --count 1000 sadd --keyspace got:characters --members name</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_faker_providers"><a class="anchor" href="#_faker_providers"></a>Data Providers</h4>
+<div class="paragraph">
+<p>Faker offers many data providers.
+Most providers don&#8217;t take any arguments and can be called directly:</p>
+</div>
+<div class="listingblock">
+<div class="title">Simple Faker example</div>
+<div class="content">
+<pre class="CodeRay highlight"><code>riot faker-import firstName=&quot;name.firstName&quot;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Some providers take parameters:</p>
+</div>
+<div class="listingblock">
+<div class="title">Parameter Faker example</div>
+<div class="content">
+<pre class="CodeRay highlight"><code>riot faker-import lease=&quot;number.digits(2)&quot;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Refer to <a href="http://www.datafaker.net/documentation/providers/#number-of-providers-per-datafaker-version">Datafaker Providers</a> for complete documentation.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_faker_builtin_fields"><a class="anchor" href="#_faker_builtin_fields"></a>Built-in Fields</h4>
+<div class="paragraph">
+<p>In addition to the Faker fields specified with <code>field="expression"</code> you can use these built-in fields:</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><code>index</code></dt>
+<dd>
+<p>current iteration number.</p>
+</dd>
+<dt class="hdlist1"><code>thread</code></dt>
+<dd>
+<p>current thread id.
+Useful for multithreaded data generation.</p>
+</dd>
+</dl>
+</div>
+<div class="listingblock">
+<div class="title">Multithreaded data generator</div>
+<div class="content">
+<pre class="CodeRay highlight"><code>riot faker-import --count 8000 --threads 8 id=&quot;thread*10000+index&quot; firstName=&quot;name.firstName&quot; lastName=&quot;name.lastName&quot; address=&quot;address.fullAddress&quot; hset --keyspace person --keys id</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_faker_redisearch"><a class="anchor" href="#_faker_redisearch"></a>RediSearch</h4>
+<div class="paragraph">
+<p>You can infer Faker fields from a RediSearch index using the <code>--infer</code> option:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code>riot faker-import --infer beerIdx hset --keyspace beer --keys id</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_generate"><a class="anchor" href="#_generate"></a>Data Structures</h3>
+<div class="paragraph">
+<p>The <code>generate</code> command generates data-structures for Redis, RedisJSON and RedisTimeSeries.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code>riot -h &lt;host&gt; -p &lt;port&gt; generate [OPTIONS]</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_databases"><a class="anchor" href="#_databases"></a>Databases</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>RIOT can import from and export to databases.</p>
+</div>
+<div class="sect2">
+<h3 id="_db_import"><a class="anchor" href="#_db_import"></a>Database Import</h3>
+<div class="paragraph">
+<p>The <code>db-import</code> command imports data from a relational database into Redis.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Ensure RIOT has the relevant JDBC driver for your database.
+See the <a href="#_database_drivers">Drivers</a> section for more details.
+</td>
+</tr>
+</table>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code>riot -h &lt;redis host&gt; -p &lt;redis port&gt; db-import --url &lt;jdbc url&gt; SQL [REDIS COMMAND...]</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>To show the full usage, run:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code>riot db-import --help</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You must specify at least one Redis command as a target.</p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Redis connection options apply to the root command (<code>riot</code>) and not to subcommands.</p>
+</div>
+<div class="paragraph">
+<p>In this example the Redis options will not be taken into account:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code>riot db-import &quot;SELECT * FROM customers&quot; hset -h myredis.com -p 6380</code></pre>
+</div>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>The keys that will be written are constructed from input records by concatenating the keyspace prefix and key fields.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/mapping.svg" alt="mapping">
+</div>
+</div>
+<div class="listingblock">
+<div class="title">PostgreSQL Import Example</div>
+<div class="content">
+<pre class="CodeRay highlight"><code>riot db-import &quot;SELECT * FROM orders&quot; --url &quot;jdbc:postgresql://host:port/database&quot; --username appuser --password passwd hset --keyspace order --keys order_id</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Import from PostgreSQL to JSON strings</div>
+<div class="content">
+<pre class="CodeRay highlight"><code>riot db-import &quot;SELECT * FROM orders&quot; --url &quot;jdbc:postgresql://host:port/database&quot; --username appuser --password passwd set --keyspace order --keys order_id</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This will produce Redis strings that look like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="json">{
+  <span class="key"><span class="delimiter">&quot;</span><span class="content">order_id</span><span class="delimiter">&quot;</span></span>: <span class="integer">10248</span>,
+  <span class="key"><span class="delimiter">&quot;</span><span class="content">customer_id</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">VINET</span><span class="delimiter">&quot;</span></span>,
+  <span class="key"><span class="delimiter">&quot;</span><span class="content">employee_id</span><span class="delimiter">&quot;</span></span>: <span class="integer">5</span>,
+  <span class="key"><span class="delimiter">&quot;</span><span class="content">order_date</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">1996-07-04</span><span class="delimiter">&quot;</span></span>,
+  <span class="key"><span class="delimiter">&quot;</span><span class="content">required_date</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">1996-08-01</span><span class="delimiter">&quot;</span></span>,
+  <span class="key"><span class="delimiter">&quot;</span><span class="content">shipped_date</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">1996-07-16</span><span class="delimiter">&quot;</span></span>,
+  <span class="key"><span class="delimiter">&quot;</span><span class="content">ship_via</span><span class="delimiter">&quot;</span></span>: <span class="integer">3</span>,
+  <span class="key"><span class="delimiter">&quot;</span><span class="content">freight</span><span class="delimiter">&quot;</span></span>: <span class="float">32.38</span>,
+  <span class="key"><span class="delimiter">&quot;</span><span class="content">ship_name</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">Vins et alcools Chevalier</span><span class="delimiter">&quot;</span></span>,
+  <span class="key"><span class="delimiter">&quot;</span><span class="content">ship_address</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">59 rue de l'Abbaye</span><span class="delimiter">&quot;</span></span>,
+  <span class="key"><span class="delimiter">&quot;</span><span class="content">ship_city</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">Reims</span><span class="delimiter">&quot;</span></span>,
+  <span class="key"><span class="delimiter">&quot;</span><span class="content">ship_postal_code</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">51100</span><span class="delimiter">&quot;</span></span>,
+  <span class="key"><span class="delimiter">&quot;</span><span class="content">ship_country</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">France</span><span class="delimiter">&quot;</span></span>
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_db_export"><a class="anchor" href="#_db_export"></a>Database Export</h3>
+<div class="paragraph">
+<p>Use the <code>db-export</code> command to read from a Redis database and writes to a SQL database.</p>
+</div>
+<div class="paragraph">
+<p>The general usage is:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code>riot -h &lt;redis host&gt; -p &lt;redis port&gt; db-export --url &lt;jdbc url&gt; SQL</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>To show the full usage, run:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code>riot db-export --help</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Example: export to PostgreSQL</div>
+<div class="content">
+<pre class="CodeRay highlight"><code>riot db-export &quot;INSERT INTO mytable (id, field1, field2) VALUES (CAST(:id AS SMALLINT), :field1, :field2)&quot; --url &quot;jdbc:postgresql://host:port/database&quot; --username appuser --password passwd --scan-match &quot;gen:*&quot; --key-regex &quot;gen:(?&lt;id&gt;.*)&quot;</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_database_drivers"><a class="anchor" href="#_database_drivers"></a>Database Drivers</h3>
+<div class="paragraph">
+<p>RIOT relies on JDBC to interact with databases.
+It includes JDBC drivers for the most common database systems:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://docs.oracle.com/cd/E11882_01/appdev.112/e13995/oracle/jdbc/OracleDriver.html">Oracle</a></p>
+<div class="paragraph">
+<p><code>jdbc:oracle:thin:@myhost:1521:orcl</code></p>
+</div>
+</li>
+<li>
+<p><a href="https://docs.microsoft.com/en-us/sql/connect/jdbc/building-the-connection-url?view=sql-server-2017">MS SQL Server</a></p>
+<div class="paragraph">
+<p><code>jdbc:sqlserver://[serverName[\instanceName][:portNumber]][;property=value[;property=value]]</code></p>
+</div>
+</li>
+<li>
+<p><a href="https://dev.mysql.com/doc/connector-j/8.0/en/connector-j-reference-jdbc-url-format.html">MySQL</a></p>
+<div class="paragraph">
+<p><code>jdbc:mysql://[host]:[port][/database][?properties]</code></p>
+</div>
+</li>
+<li>
+<p><a href="https://www.postgresql.org/docs/7.4/jdbc-use.html">PostgreSQL</a></p>
+<div class="paragraph">
+<p><code>jdbc:postgresql://host:port/database</code></p>
+</div>
+</li>
+</ul>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>For non-included databases you must install the corresponding JDBC driver under the <code>lib</code> directory and modify the <code>CLASSPATH</code>:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>*nix: <code>bin/riot</code> &#8594; <code>CLASSPATH=$APP_HOME/lib/myjdbc.jar:$APP_HOME/lib/&#8230;&#8203;</code></p>
+</li>
+<li>
+<p>Windows: <code>bin\riot.bat</code> &#8594; <code>set CLASSPATH=%APP_HOME%\lib\myjdbc.jar;%APP_HOME%\lib...</code></p>
+</li>
+</ul>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_replication"><a class="anchor" href="#_replication"></a>Replication</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Most Redis migration tools available today are offline in nature.
+Migrating data from AWS ElastiCache to Redis Enterprise Cloud for example means backing up your Elasticache data to an AWS S3 bucket and importing it into Redis Enterprise Cloud using its UI.</p>
+</div>
+<div class="paragraph">
+<p>Redis has a replication command called <a href="https://redis.io/commands/replicaof">REPLICAOF</a> but it is not always available (see <a href="https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/RestrictedCommands.html">ElastiCache restrictions</a>).
+Instead, RIOT implements <a href="#_architecture">client-side replication</a> using <strong>dump &amp; restore</strong> or <strong>type-based read &amp; write</strong>. Both snapshot and live replication modes are supported.</p>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+Please note that RIOT is NEITHER recommended NOR officially supported by Redis, Inc.
+</td>
+</tr>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_replication_usage"><a class="anchor" href="#_replication_usage"></a>Usage</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code>riot &lt;source&gt; replicate &lt;target&gt; --mode &lt;snapshot|live|compare&gt; [--type] [OPTIONS]</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>For the full usage, run:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code>riot replicate --help</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_replication_mode"><a class="anchor" href="#_replication_mode"></a>Replication Mode</h3>
+<div class="sect3">
+<h4 id="_snapshot"><a class="anchor" href="#_snapshot"></a>Snapshot</h4>
+<div class="paragraph">
+<p>This mode iterates over the keys in the source Redis database using scan.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_live"><a class="anchor" href="#_live"></a>Live</h4>
+<div class="paragraph">
+<p>This mode builds upon snapshot replication by listening for changes on the source Redis database.
+Whenever a key is modified its corresponding value is read and propagated to the target Redis database.</p>
+</div>
+<div class="paragraph">
+<p>Live replication relies on keyspace notifications for capturing these changes.</p>
+</div>
+<div class="paragraph">
+<p><strong>Make sure the source database has keyspace notifications enabled</strong> using:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>redis.conf</code>: <code>notify-keyspace-events = KA</code></p>
+</li>
+<li>
+<p><code>CONFIG SET notify-keyspace-events KA</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>For more details see <a href="https://redis.io/docs/manual/keyspace-notifications">Redis Keyspace Notifications</a>.</p>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The live replication mechanism does not guarantee data consistency.
+Redis sends keyspace notifications over pub/sub which does not provide guaranteed delivery.
+It is possible that RIOT can miss some notifications in case of network failures for example.</p>
+</div>
+<div class="paragraph">
+<p>Also, depending on the type, size, and rate of change of data structures on the source it is possible that RIOT cannot keep up with the change stream.
+For example if a big set is repeatedly updated, RIOT will need to read the whole set on each update and transfer it over to the target database.
+With a big-enough set, RIOT could fall behind and the internal queue could fill up leading up to updates being dropped.</p>
+</div>
+<div class="paragraph">
+<p>For those potentially problematic migrations it is recommend to perform some preliminary sizing using Redis statistics and <code>bigkeys</code>/<code>memkeys</code> in tandem with <code>--mem-limit</code>.
+If you need assistance please contact your Redis account team.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_replication_type"><a class="anchor" href="#_replication_type"></a>Replication Type</h3>
+<div class="sect3">
+<h4 id="_replication_dump_restore"><a class="anchor" href="#_replication_dump_restore"></a>Dump &amp; Restore</h4>
+<div class="paragraph">
+<p>The default replication mechanism is Dump &amp; Restore:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Scan for keys in the source Redis database.
+If live replication is enabled the reader also subscribes to keyspace notifications to generate a continuous stream of keys.</p>
+</li>
+<li>
+<p>Reader threads iterate over the keys to read corresponding values (DUMP) and TTLs.</p>
+</li>
+<li>
+<p>Reader threads enqueue key/value/TTL tuples into the reader queue, from which the writer dequeues key/value/TTL tuples and writes them to the target Redis database by calling RESTORE and EXPIRE.</p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_replication_type_based"><a class="anchor" href="#_replication_type_based"></a>Type-Based Replication</h4>
+<div class="paragraph">
+<p>There are situations where Dump &amp; Restore cannot be used, for example:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>The target Redis database does not support the RESTORE command (<a href="https://redis.com/redis-enterprise/technology/active-active-geo-distribution/">Redis Enterprise CRDB</a>)</p>
+</li>
+<li>
+<p>Incompatible DUMP formats between source and target (<a href="https://raw.githubusercontent.com/redis/redis/7.0/00-RELEASENOTES">Redis 7.0</a>)</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>In those cases you can use another replication strategy called <strong>Type-Based Replication</strong> where each key is introspected to determine the type of data structure and which read/write commands to use:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Read</th>
+<th class="tableblock halign-left valign-top">Write</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th class="tableblock halign-left valign-top"><p class="tableblock">Hash</p></th>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>HGETALL</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>HSET</code></p></td>
+</tr>
+<tr>
+<th class="tableblock halign-left valign-top"><p class="tableblock">JSON</p></th>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>JSON.GET</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>JSON.SET</code></p></td>
+</tr>
+<tr>
+<th class="tableblock halign-left valign-top"><p class="tableblock">List</p></th>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>LRANGE</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>RPUSH</code></p></td>
+</tr>
+<tr>
+<th class="tableblock halign-left valign-top"><p class="tableblock">Set</p></th>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>SMEMBERS</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>SADD</code></p></td>
+</tr>
+<tr>
+<th class="tableblock halign-left valign-top"><p class="tableblock">Sorted Set</p></th>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>ZRANGE</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>ZADD</code></p></td>
+</tr>
+<tr>
+<th class="tableblock halign-left valign-top"><p class="tableblock">Stream</p></th>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>XRANGE</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>XADD</code></p></td>
+</tr>
+<tr>
+<th class="tableblock halign-left valign-top"><p class="tableblock">String</p></th>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>GET</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>SET</code></p></td>
+</tr>
+<tr>
+<th class="tableblock halign-left valign-top"><p class="tableblock">TimeSeries</p></th>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>TS.RANGE</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>TS.ADD</code></p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+This replication strategy is more intensive in terms of CPU, memory, and network for the machines running RIOT as well as the source and target Redis databases.
+Adjust number of threads, batch and queue sizes accordingly.
+</td>
+</tr>
+</table>
+</div>
+<div class="listingblock">
+<div class="title">Snapshot replication example</div>
+<div class="content">
+<pre class="CodeRay highlight"><code>riot -h source -p 6379 replicate -h target -p 6380 --batch 10</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Live replication example</div>
+<div class="content">
+<pre class="CodeRay highlight"><code>riot -h source -p 6379 replicate -h target -p 6380 --mode live</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Type-based replication example</div>
+<div class="content">
+<pre class="CodeRay highlight"><code>riot -h source -p 6379 replicate -h target -p 6380 --type</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Live type-based replication example</div>
+<div class="content">
+<pre class="CodeRay highlight"><code>riot -h source -p 6379 replicate -h target -p 6380 --type --mode live --compare none</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_replication_progress"><a class="anchor" href="#_replication_progress"></a>Progress Reporting</h3>
+<div class="paragraph">
+<p>Each process (scan iterator and/or event listener in case of live replication) has a corresponding status bar that shows the process name and its progress:</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">Scanning</dt>
+<dd>
+<p>Percentage of keys that have been replicated &#8658; replicated / total.
+The total number of keys is calculated when the process starts and it can change by the time it is finished (for example if keys are deleted or added during the replication).
+The progress bar is only a rough indicator.</p>
+</dd>
+<dt class="hdlist1">Listening</dt>
+<dd>
+<p>Progress is indefinite as total number of keys is unknown.</p>
+</dd>
+</dl>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_replication_compare"><a class="anchor" href="#_replication_compare"></a>Compare</h3>
+<div class="paragraph">
+<p>Once replication is complete, RIOT performs a verification step by iterating over keys in the source database and comparing values and TTLs between source and target databases.</p>
+</div>
+<div class="paragraph">
+<p>The verification step happens automatically after the scan is complete (snapshot replication), or for live replication when keyspace notifications have become idle (see <a href="#_replication_usage">Usage</a> section).</p>
+</div>
+<div class="paragraph">
+<p>Verification can also be run on-demand using the <code>compare</code> mode:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code>riot &lt;source&gt; replicate --mode compare &lt;target&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The output looks like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>missing: 123, type: 54, value: 7, TTL: 19</pre>
+</div>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">missing</dt>
+<dd>
+<p>Number of keys only present in source database</p>
+</dd>
+<dt class="hdlist1">type</dt>
+<dd>
+<p>Number of keys with mismatched data structure type</p>
+</dd>
+<dt class="hdlist1">value</dt>
+<dd>
+<p>Number of keys with mismatched value</p>
+</dd>
+<dt class="hdlist1">TTL</dt>
+<dd>
+<p>Number of keys with mismatched TTL i.e. difference is greater than tolerance (can be specified with <code>--ttl-tolerance</code>)</p>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
+<p>There are 2 comparison modes available through <code>--compare-mode</code>:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Quick (default): compares key types</p>
+</li>
+<li>
+<p>Full: compares key types, values, and TTLs</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>To show which keys are different use the <code>--show-diffs</code> option:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code>riot &lt;source&gt; replicate &lt;target&gt; --show-diffs</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_replication_performance_tuning"><a class="anchor" href="#_replication_performance_tuning"></a>Performance Tuning</h3>
+<div class="paragraph">
+<p>Performance tuning is an art but RIOT offers some options to identify potential bottlenecks.
+In addition to <a href="#_batching">batch</a> and <a href="#_threads">threads</a> options you have the <code>--dry-run</code> option which disables writing to the target Redis database so that you can tune the reader in isolation.
+Add that option to your existing <code>replicate</code> command-line to compare replication speeds with and without writing to the target Redis database:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code>riot &lt;source&gt; replicate &lt;target&gt; --dry-run</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_architecture"><a class="anchor" href="#_architecture"></a>Architecture</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>RIOT is essentially an <a href="https://en.wikipedia.org/wiki/Extract,_transform,_load">ETL</a> tool where data is extracted from the source system, transformed (see <a href="#_processing">Processing</a>), and loaded into the target system.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/architecture.svg" alt="architecture">
+</div>
+</div>
+<div class="sect2">
+<h3 id="_batching"><a class="anchor" href="#_batching"></a>Batching</h3>
+<div class="paragraph">
+<p>Processing in RIOT is done in batches: a fixed number of records is read from the source, processed, and written to the target.
+The default batch size is <code>50</code>, which means that an execution step reads 50 items at a time from the source, processes them, and finally writes then to the target.
+If the target is Redis, writing is done in a single command (<a href="https://redis.io/topics/pipelining">Redis Pipelining</a>) to minimize the number of roundtrips to the server.</p>
+</div>
+<div class="paragraph">
+<p>You can change the batch size (and hence pipeline size) using the <code>--batch</code> option.
+The optimal batch size in terms of throughput depends on many factors like record size and command types (see <a href="https://stackoverflow.com/a/32165090">Redis Pipeline Tuning</a> for details).</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_threads"><a class="anchor" href="#_threads"></a>Multi-threading</h3>
+<div class="paragraph">
+<p>It is possible to parallelize processing by using multiple threads.
+In that configuration, each chunk of items is read, processed, and written in a separate thread of execution.
+This is different from partitioning where items would be read by multiple readers.
+Here, only one reader is being accessed from multiple threads.</p>
+</div>
+<div class="paragraph">
+<p>To set the number of threads, use the <code>--threads</code> option.</p>
+</div>
+<div class="listingblock">
+<div class="title">Multi-threading example</div>
+<div class="content">
+<pre class="CodeRay highlight"><code>riot db-import &quot;SELECT * FROM orders&quot; --url &quot;jdbc:postgresql://host:port/database&quot; --username appuser --password passwd --threads 3 hset --keyspace order --keys order_id</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_processing"><a class="anchor" href="#_processing"></a>Processing</h3>
+<div class="paragraph">
+<p>RIOT lets you transform incoming records using processors.
+These processors allow you to create/update/delete fields using the <a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/core.html#expressions">Spring Expression Language</a> (SpEL).
+For example, import commands like <code>file-import</code>, <code>database-import</code>, and <code>faker-import</code> have a <code>--proc</code> option that allow for field-level processing:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>field1='foo'</code> &#8594; generate a field named <code>field1</code> containing the string <code>foo</code></p>
+</li>
+<li>
+<p><code>temp=(temp-32)*5/9</code> &#8594; convert from Fahrenheit to Celsius</p>
+</li>
+<li>
+<p><code>name=remove(first).concat(remove(last))</code> &#8594; concatenate <code>first</code> and <code>last</code> fields and delete them</p>
+</li>
+<li>
+<p><code>field2=null</code> &#8594; delete <code>field2</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Input fields are accessed by name (e.g. <code>field3=field1+field2</code>).</p>
+</div>
+<div class="paragraph">
+<p>Processors have access to the following context variables and functions:</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><code>date</code></dt>
+<dd>
+<p>Date parsing and formatting object.
+Instance of Java <a href="https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html">SimpleDateFormat</a>.</p>
+</dd>
+<dt class="hdlist1"><code>redis</code></dt>
+<dd>
+<p>Redis commands object.
+Instance of Lettuce <a href="https://www.lettuce.io/core/release/api/io/lettuce/core/api/sync/RedisCommands.html">RedisCommands</a>.</p>
+</dd>
+<dt class="hdlist1"><code>geo</code></dt>
+<dd>
+<p>Convenience function that takes a longitude and a latitude to produce a RediSearch geo-location string in the form <code>longitude,latitude</code> (e.g. <code>location=#geo(lon,lat)</code>)</p>
+</dd>
+</dl>
+</div>
+<div class="listingblock">
+<div class="title">Processor example</div>
+<div class="content">
+<pre class="CodeRay highlight"><code>riot file-import --proc epoch=&quot;#date.parse(mydate).getTime()&quot; location=&quot;#geo(lon,lat)&quot; name=&quot;#redis.hget('person1','lastName')&quot; ...</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You can register your own variables using <code>--var</code>.</p>
+</div>
+<div class="listingblock">
+<div class="title">Custom variable example</div>
+<div class="content">
+<pre class="CodeRay highlight"><code>riot file-import https://storage.googleapis.com/jrx/lacity.csv --var rnd=&quot;new java.util.Random()&quot; --proc randomInt=&quot;#rnd.nextInt(100)&quot; --header hset --keyspace event --keys Id</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_filters"><a class="anchor" href="#_filters"></a>Filtering</h3>
+<div class="paragraph">
+<p>Filters allow you to exclude records that don&#8217;t match a SpEL boolean expression.</p>
+</div>
+<div class="paragraph">
+<p>For example this filter will only keep records where the <code>value</code> field is a series of digits:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code>riot file-import --filter &quot;value matches '\\d+'&quot; ...</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_replication_architecture"><a class="anchor" href="#_replication_architecture"></a>Replication</h3>
+<div class="imageblock">
+<div class="content">
+<img src="images/replication-architecture.svg" alt="replication architecture">
+</div>
+</div>
+<div class="paragraph">
+<p>The basic replication mechanism is as follows:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Identify source keys to be replicated using scan and/or keyspace notifications depending on the <a href="#_replication_mode">replication mode</a>.</p>
+</li>
+<li>
+<p>Read data associated with each key using <a href="#_replication_dump_restore">dump</a> or <a href="#_replication_type_based">type-specific commands</a>.</p>
+</li>
+<li>
+<p>Write each key to the target using <a href="#_replication_dump_restore">restore</a> or <a href="#_replication_type_based">type-specific commands</a>.
+= Cookbook</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>Here are various recipes using RIOT.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_ping"><a class="anchor" href="#_ping"></a>Ping</h3>
+<div class="paragraph">
+<p>The <code>ping</code> command can be used to test connectivity to a Redis database.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code>riot -h &lt;host&gt; -p &lt;port&gt; ping &lt;options&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>When the command is complete you will see statistics like these:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code>[min=0, max=19, percentiles={50.0=1, 90.0=3, 95.0=6, 99.0=10, 99.9=17}]</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_elasticache"><a class="anchor" href="#_elasticache"></a>Migrating from Elasticache</h3>
+<div class="paragraph">
+<p>This recipe contains step-by-step instructions to migrate an Elasticache (EC) database to <a href="https://redis.com/redis-enterprise-software/overview/">Redis Enterprise</a> (RE).</p>
+</div>
+<div class="paragraph">
+<p>The following scenarios are covered:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>One-time (snapshot) migration</p>
+</li>
+<li>
+<p>Online (live) migration</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+It is recommended to read the <a href="#_replication">Replication</a> section to familiarize yourself with its usage and architecture.
+</td>
+</tr>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_setup"><a class="anchor" href="#_setup"></a>Setup</h4>
+<div class="sect4">
+<h5 id="_prerequisites"><a class="anchor" href="#_prerequisites"></a>Prerequisites</h5>
+<div class="paragraph">
+<p>For this recipe you will require the following resources:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>AWS ElastiCache: <em>Primary Endpoint</em> in case of Single Master and <em>Configuration Endpoint</em> in case of Clustered EC.
+Refer to <a href="https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/Endpoints.html">this link</a> to learn more</p>
+</li>
+<li>
+<p>Redis Enterprise: hosted on Cloud or On-Prem</p>
+</li>
+<li>
+<p>An Amazon EC2 instance</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="title">Keyspace Notifications</div>
+<div class="paragraph">
+<p>For a live migration you need to enable keyspace notifications on your Elasticache instance (see <a href="https://aws.amazon.com/premiumsupport/knowledge-center/elasticache-redis-keyspace-notifications">AWS Knowledge Center</a>).</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_migration_host"><a class="anchor" href="#_migration_host"></a>Migration Host</h5>
+<div class="paragraph">
+<p>To run the migration tool we will need an EC2 instance.</p>
+</div>
+<div class="paragraph">
+<p>You can either create a new EC2 instance or leverage an existing one if available.
+In the example below we first create an instance on AWS Cloud Platform.
+The most common scenario is to access an ElastiCache cluster from an Amazon EC2 instance in the same Amazon Virtual Private Cloud (Amazon VPC).
+We have used Ubuntu 16.04 LTS for this setup but you can choose any Ubuntu or Debian distribution of your choice.</p>
+</div>
+<div class="paragraph">
+<p>SSH to this EC2 instance from your laptop:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code>ssh -i “public key” &lt;AWS EC2 Instance&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Install <code>redis-cli</code> on this new instance by running this command:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code>sudo apt update
+sudo apt install -y redis-tools</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Use <code>redis-cli</code> to check connectivity with the Elasticache database:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code>redis-cli -h &lt;ec primary endpoint&gt; -p 6379</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Ensure that the above command allows you to connect to the remote Elasticache database successfully.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_installing_riot"><a class="anchor" href="#_installing_riot"></a>Installing RIOT</h5>
+<div class="paragraph">
+<p>Let&#8217;s install RIOT on the EC2 instance we set up previously.
+For this we&#8217;ll follow the steps in <a href="#_manual_install">Manual Installation</a>.</p>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_performing_migration"><a class="anchor" href="#_performing_migration"></a>Performing Migration</h4>
+<div class="paragraph">
+<p>We are now all set to begin the migration process.
+The options you will use depend on your source and target databases, as well as the replication mode (snapshot or live).</p>
+</div>
+<div class="sect4">
+<h5 id="_ec_single_master_re"><a class="anchor" href="#_ec_single_master_re"></a>EC Single Master &#8594; RE</h5>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code>riot -h &lt;source EC host&gt; -p &lt;source EC port&gt; replicate -h &lt;target RE host&gt; -p &lt;target RE port&gt; --pass &lt;RE password&gt;</code></pre>
+</div>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_live_ec_single_master_re"><a class="anchor" href="#_live_ec_single_master_re"></a>Live EC Single Master &#8594; RE</h5>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code>riot -h &lt;source EC host&gt; -p &lt;source EC port&gt; replicate --mode live -h &lt;target RE host&gt; -p &lt;target RE port&gt; --pass &lt;RE password&gt;</code></pre>
+</div>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>In case ElastiCache is configured with <a href="https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/auth.html">AUTH TOKEN enabled</a>, you need to pass <code>--tls</code> as well as <code>--pass</code> option:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="console">riot -h &lt;source EC host&gt; -p &lt;source EC port&gt; --tls --pass &lt;token&gt; replicate -h &lt;target RE host&gt; -p &lt;target RE port&gt; --pass &lt;RE password&gt;</code></pre>
+</div>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_ec_cluster_re"><a class="anchor" href="#_ec_cluster_re"></a>EC Cluster &#8594; RE</h5>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code>riot -h &lt;source EC host&gt; -p &lt;source EC port&gt; --cluster replicate -h &lt;target RE host&gt; -p &lt;target RE port&gt; --pass &lt;RE password&gt;</code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<code>--cluster</code> is an important parameter used ONLY for ElastiCache whenever cluster-mode is enabled.
+Do note that the source database is specified first and the target database is specified after the replicate command and it is applicable for all the scenarios.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_ec_single_master_re_with_specific_db_index"><a class="anchor" href="#_ec_single_master_re_with_specific_db_index"></a>EC Single Master &#8594; RE (with specific db index)</h5>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code>riot -h &lt;source EC host&gt; -p &lt;source EC port&gt; --db &lt;index&gt; replicate -h &lt;target RE host&gt; -p &lt;target RE port&gt; --pass &lt;RE password&gt;</code></pre>
+</div>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_ec_single_master_re_with_oss_cluster"><a class="anchor" href="#_ec_single_master_re_with_oss_cluster"></a>EC Single Master &#8594; RE with OSS Cluster</h5>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code>riot -h &lt;source EC host&gt; -p &lt;source EC port&gt; replicate -h &lt;target RE host&gt; -p &lt;target RE port&gt; --pass &lt;RE password&gt; --cluster</code></pre>
+</div>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_live_ec_cluster_re_with_oss_cluster"><a class="anchor" href="#_live_ec_cluster_re_with_oss_cluster"></a>Live EC Cluster &#8594; RE with OSS Cluster</h5>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code>riot -h &lt;source EC host&gt; -p &lt;source EC port&gt; --cluster replicate --mode live -h &lt;target RE host&gt; -p &lt;target RE port&gt; --pass &lt;RE password&gt; --cluster</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_important_considerations"><a class="anchor" href="#_important_considerations"></a>Important Considerations</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>As stated earlier, this tool is not officially supported by Redis Inc.</p>
+</li>
+<li>
+<p>It is recommended to test migration in UAT before production use.</p>
+</li>
+<li>
+<p>Once migration is completed, ensure that application traffic gets redirected to Redis Enterprise Endpoint successfully.</p>
+</li>
+<li>
+<p>It is recommended to perform the migration process during low traffic so as to avoid chances of data loss.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_faq"><a class="anchor" href="#_faq"></a>Frequently Asked Questions</h2>
+<div class="sectionbody">
+<div class="dlist">
+<dl>
+<dt class="hdlist1">Logs are cut off or missing</dt>
+<dd>
+<p>This could be due to concurrency issues in the terminal when refreshing the progress bar and displaying logs.
+Try running with job options <code>--progress log</code>.</p>
+</dd>
+<dt class="hdlist1">Unknown options: '--keyspace', '--keys'</dt>
+<dd>
+<p>You must specify one or more Redis commands with import commands (<a href="#_file_import"><code>file-import</code></a>, <a href="#_faker"><code>faker-import</code></a>, <a href="#_db_import"><code>db-import</code></a>).</p>
+</dd>
+<dt class="hdlist1">ERR DUMP payload version or checksum are wrong</dt>
+<dd>
+<p>Redis 7 DUMP format is not backwards compatible with previous versions.
+To replicate between different Redis versions, use <a href="#_replication_type_based">Type-Based Replication</a>.</p>
+</dd>
+<dt class="hdlist1">Process gets stuck during replication and eventually times out</dt>
+<dd>
+<p>This could be due to big keys clogging the replication pipes.
+In these cases it might be hard to catch the offending key(s).
+Try running the same command with <code>--info</code> and <code>--progress log</code> so that all errors are reported.
+Check the database with <code>redis-cli</code> <a href="https://developer.redis.com/operate/redis-at-scale/observability/identifying-issues/#scanning-keys">Big keys</a> and/or use reader options to filter these keys out.</p>
+</dd>
+<dt class="hdlist1">NOAUTH Authentication required</dt>
+<dd>
+<p>This issue occurs when you fail to supply the <code>--pass &lt;password&gt;</code> parameter.</p>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+Version 3.2.0<br>
+Last updated 2024-03-19 00:04:43 UTC
+</div>
+</div>
+<link rel="stylesheet" href="./coderay-asciidoctor.css">
+</body>
+</html>
