@@ -38,7 +38,7 @@ jobs:
           echo ${{ inputs.project-version }} > VERSION
 
       - name: Build
-        run: ./gradlew -Prelease=true -PreproducibleBuild=true build aggregateTestReports aggregateJacocoReport :guide:createGuide -S
+        run: ./gradlew -Prelease=true -PreproducibleBuild=true build aggregateTestReports aggregateJacocoReport publish :guide:createGuide -S
         
       - name: Upload test reports
         if: failure()
