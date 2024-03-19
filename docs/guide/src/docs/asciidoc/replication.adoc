@@ -141,7 +141,7 @@ Listening::
 
 Once replication is complete, {project-title} performs a verification step by iterating over keys in the source database and comparing values and TTLs between source and target databases.
 
-The verification step happens automatically after the scan is complete (snapshot replication), or for live replication when keyspace notifications have become idle (see <<_replication_usage, Usage>> section).
+The verification step happens automatically after the scan is complete (snapshot replication), or for live replication when keyspace notifications have become idle.
 
 Verification can also be run on-demand using the `compare` mode:
 [source]
