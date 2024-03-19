@@ -6,7 +6,7 @@ import com.redis.testcontainers.RedisEnterpriseServer;
 import com.redis.testcontainers.RedisStackContainer;
 
 @EnabledIfEnvironmentVariable(named = RedisEnterpriseServer.ENV_HOST, matches = ".*")
-class StackToEnterpriseServerTests extends AbstractIntegrationTests {
+public class StackToEnterpriseServerReplicationTests extends AbstractReplicationTests {
 
 	private static final RedisStackContainer source = RedisContainerFactory.stack();
 	private static final RedisEnterpriseServer target = RedisContainerFactory.enterpriseServer();
