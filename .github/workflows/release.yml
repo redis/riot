@@ -104,7 +104,7 @@ jobs:
       - name: Release
         uses: jreleaser/release-action@v2
         with:
-          version: latest
+          version: early-access
           arguments: full-release
         env:
           JRELEASER_PROJECT_VERSION: ${{ needs.precheck.outputs.version }}
