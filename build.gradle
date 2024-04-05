@@ -15,6 +15,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+plugins {
+    id 'org.cyclonedx.bom' version '1.8.2'
+}
+
 config {
     info {
         description = 'RIOT'
@@ -41,7 +45,7 @@ config {
         implementation {
             enabled = true
         }
-        
+
         people {
             person {
                 id    = 'jruaux'
@@ -58,7 +62,7 @@ config {
             }
         }
     }
-    
+
     licensing {
         enabled = false
         licenses {
@@ -93,7 +97,7 @@ allprojects {
 
 subprojects { subproj ->
     if (!subproj.name.contains('guide')) {
-    
+
         config {
 	        info {
 	            description = project.project_description
@@ -126,7 +130,7 @@ subprojects { subproj ->
 	    configurations {
 	        all*.exclude module: 'spring-boot-starter-logging'
 	    }
-	    
+
 	    bootJar {
             enabled = false
         }
@@ -152,4 +156,8 @@ subprojects { p ->
 
 boolean hasTestsAt(File testDir) {
     testDir.exists() && testDir.listFiles()?.size()
+}
+
+cyclonedxBom {
+    skipProjects = ["guide"]
 }
