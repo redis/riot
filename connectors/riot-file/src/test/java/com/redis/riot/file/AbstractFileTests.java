@@ -40,14 +40,14 @@ abstract class AbstractFileTests extends AbstractTestBase {
 		executable.setOperations(hsetBuilder.build());
 		executable.setName(name(info));
 		executable.run();
-		List<String> keys = commands.keys("*");
+		List<String> keys = redisCommands.keys("*");
 		assertEquals(216, keys.size());
 		for (String key : keys) {
-			Map<String, String> map = commands.hgetall(key);
+			Map<String, String> map = redisCommands.hgetall(key);
 			String id = map.get(ID);
 			assertEquals(key, KEYSPACE + ":" + id);
 		}
-		Map<String, String> beer1 = commands.hgetall(KEYSPACE + ":1");
+		Map<String, String> beer1 = redisCommands.hgetall(KEYSPACE + ":1");
 		Assertions.assertEquals("Hocus Pocus", beer1.get("name"));
 	}
 
@@ -71,10 +71,10 @@ abstract class AbstractFileTests extends AbstractTestBase {
 		hsetBuilder.setKeyFields(ID);
 		executable.setOperations(hsetBuilder.build());
 		executable.run();
-		List<String> keys = commands.keys("*");
+		List<String> keys = redisCommands.keys("*");
 		assertEquals(2410, keys.size());
 		for (String key : keys) {
-			Map<String, String> map = commands.hgetall(key);
+			Map<String, String> map = redisCommands.hgetall(key);
 			String id = map.get(ID);
 			assertEquals(key, KEYSPACE + ":" + id);
 		}
@@ -98,10 +98,10 @@ abstract class AbstractFileTests extends AbstractTestBase {
 		hsetBuilder.setKeyFields(ID);
 		executable.setOperations(hsetBuilder.build());
 		executable.run();
-		List<String> keys = commands.keys("*");
+		List<String> keys = redisCommands.keys("*");
 		assertEquals(2410, keys.size());
 		for (String key : keys) {
-			Map<String, String> map = commands.hgetall(key);
+			Map<String, String> map = redisCommands.hgetall(key);
 			String id = map.get(ID);
 			assertEquals(key, KEYSPACE + ":" + id);
 		}
@@ -121,10 +121,10 @@ abstract class AbstractFileTests extends AbstractTestBase {
 		hset.setKeyFields(ID);
 		executable.setOperations(hset.build());
 		executable.run();
-		List<String> keys = commands.keys("*");
+		List<String> keys = redisCommands.keys("*");
 		assertEquals(2410, keys.size());
 		for (String key : keys) {
-			Map<String, String> map = commands.hgetall(key);
+			Map<String, String> map = redisCommands.hgetall(key);
 			String id = map.get(ID);
 			assertEquals(key, KEYSPACE + ":" + id);
 		}
@@ -142,14 +142,14 @@ abstract class AbstractFileTests extends AbstractTestBase {
 		executable.setOperations(hsetBuilder.build());
 		executable.setName(name(info));
 		executable.run();
-		List<String> keys = commands.keys("*");
+		List<String> keys = redisCommands.keys("*");
 		assertEquals(6, keys.size());
 		for (String key : keys) {
-			Map<String, String> map = commands.hgetall(key);
+			Map<String, String> map = redisCommands.hgetall(key);
 			String id = map.get(ID);
 			assertEquals(key, KEYSPACE + ":" + id);
 		}
-		Map<String, String> beer1 = commands.hgetall(KEYSPACE + ":1");
+		Map<String, String> beer1 = redisCommands.hgetall(KEYSPACE + ":1");
 		Assertions.assertEquals("Hocus Pocus", beer1.get("name"));
 	}
 

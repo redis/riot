@@ -12,8 +12,8 @@ import org.springframework.batch.item.ItemReader;
 import org.springframework.core.io.Resource;
 
 import com.redis.riot.core.AbstractStructImport;
+import com.redis.spring.batch.KeyValue;
 import com.redis.spring.batch.RedisItemWriter;
-import com.redis.spring.batch.common.KeyValue;
 
 public class FileDumpImport extends AbstractStructImport {
 
@@ -47,8 +47,8 @@ public class FileDumpImport extends AbstractStructImport {
 		}
 		List<TaskletStep> steps = new ArrayList<>();
 		for (Resource resource : resources) {
-			ItemReader<KeyValue<String>> reader = reader(resource);
-			RedisItemWriter<String, String, KeyValue<String>> writer = writer();
+			ItemReader<KeyValue<String, Object>> reader = reader(resource);
+			RedisItemWriter<String, String, KeyValue<String, Object>> writer = writer();
 			steps.add(step(resource.getFilename(), reader, writer));
 		}
 		Iterator<TaskletStep> iterator = steps.iterator();
@@ -59,7 +59,7 @@ public class FileDumpImport extends AbstractStructImport {
 		return job.build();
 	}
 
-	private ItemReader<KeyValue<String>> reader(Resource resource) {
+	private ItemReader<KeyValue<String, Object>> reader(Resource resource) {
 		if (type == FileDumpType.XML) {
 			return FileUtils.xmlReader(resource, KeyValue.class);
 		}

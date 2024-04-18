@@ -5,7 +5,7 @@ import java.time.Duration;
 import org.springframework.util.unit.DataSize;
 
 import com.redis.riot.core.RedisReaderOptions;
-import com.redis.spring.batch.common.DataType;
+import com.redis.spring.batch.KeyValue.Type;
 
 import io.lettuce.core.ReadFrom;
 import picocli.CommandLine.ArgGroup;
@@ -13,14 +13,14 @@ import picocli.CommandLine.Option;
 
 public class RedisReaderArgs {
 
-	@Option(names = "--scan-match", description = "Pattern of keys to scan for (default: ${DEFAULT-VALUE}).", paramLabel = "<glob>")
-	String scanMatch = RedisReaderOptions.DEFAULT_KEY_PATTERN;
+	@Option(names = "--scan-match", description = "Pattern of keys to scan for (default: *).", paramLabel = "<glob>")
+	String scanMatch;
 
 	@Option(names = "--scan-count", description = "How many keys to read at once on each SCAN call (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
 	long scanCount = RedisReaderOptions.DEFAULT_SCAN_COUNT;
 
 	@Option(names = "--scan-type", description = "Type of keys to scan for: ${COMPLETION-CANDIDATES} (default: all types).", paramLabel = "<type>")
-	DataType scanType;
+	Type scanType;
 
 	@Option(names = "--read-queue", description = "Max number of items that reader threads can put in the shared queue (default: ${DEFAULT-VALUE}). When the queue is full, reader threads wait for space to become available. Queue size should be at least 'threads * batch', e.g. '--read-threads 4 --read-batch 500' => '--read-queue 2000'.", paramLabel = "<int>")
 	int queueCapacity = RedisReaderOptions.DEFAULT_QUEUE_CAPACITY;

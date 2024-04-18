@@ -15,8 +15,8 @@ import com.redis.lettucemod.timeseries.AddOptions.Builder;
 import com.redis.lettucemod.timeseries.DuplicatePolicy;
 import com.redis.lettucemod.timeseries.Label;
 import com.redis.lettucemod.timeseries.Sample;
-import com.redis.spring.batch.common.ToSampleFunction;
-import com.redis.spring.batch.writer.operation.TsAdd;
+import com.redis.spring.batch.operation.TsAdd;
+import com.redis.spring.batch.util.ToSampleFunction;
 
 public class TsAddBuilder extends AbstractMapOperationBuilder {
 

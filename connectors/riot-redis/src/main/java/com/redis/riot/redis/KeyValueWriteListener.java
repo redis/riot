@@ -9,18 +9,18 @@ import org.slf4j.Logger;
 import org.springframework.batch.core.ItemWriteListener;
 import org.springframework.batch.item.Chunk;
 
-import com.redis.spring.batch.common.KeyValue;
-import com.redis.spring.batch.util.CodecUtils;
+import com.redis.spring.batch.KeyValue;
+import com.redis.spring.batch.util.BatchUtils;
 
 import io.lettuce.core.codec.RedisCodec;
 
-public class KeyValueWriteListener<K, T extends KeyValue<K>> implements ItemWriteListener<T> {
+public class KeyValueWriteListener<K, T extends KeyValue<K, ?>> implements ItemWriteListener<T> {
 
 	private final Logger log;
 	private final Function<K, String> toStringKeyFunction;
 
 	public KeyValueWriteListener(RedisCodec<K, ?> codec, Logger log) {
-		this.toStringKeyFunction = CodecUtils.toStringKeyFunction(codec);
+		this.toStringKeyFunction = BatchUtils.toStringKeyFunction(codec);
 		this.log = log;
 	}
 

@@ -6,7 +6,7 @@ import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
 
-import com.redis.spring.batch.common.KeyComparison.Status;
+import com.redis.spring.batch.reader.KeyComparison.Status;
 
 public class KeyComparisonSummaryLogger implements StepExecutionListener {
 

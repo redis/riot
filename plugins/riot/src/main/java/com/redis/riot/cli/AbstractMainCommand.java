@@ -5,8 +5,9 @@ import java.io.PrintWriter;
 import org.springframework.expression.Expression;
 
 import com.redis.riot.core.RiotUtils;
+import com.redis.riot.core.SlotRange;
 import com.redis.riot.core.TemplateExpression;
-import com.redis.spring.batch.common.Range;
+import com.redis.spring.batch.gen.Range;
 
 import picocli.AutoComplete.GenerateCompletion;
 import picocli.CommandLine;
@@ -66,7 +67,8 @@ public abstract class AbstractMainCommand extends BaseCommand implements Runnabl
 		executionStrategy.addDelegates(LoggingMixin::executionStrategy);
 		executionStrategy.addDelegates(AbstractMainCommand::executionStrategy);
 		commandLine.setExecutionStrategy(executionStrategy);
-		commandLine.registerConverter(Range.class, Range::of);
+		commandLine.registerConverter(Range.class, new RangeTypeConverter<>(Range::of));
+		commandLine.registerConverter(SlotRange.class, new RangeTypeConverter<>(SlotRange::of));
 		commandLine.registerConverter(Expression.class, RiotUtils::parse);
 		commandLine.registerConverter(TemplateExpression.class, RiotUtils::parseTemplate);
 		commandLine.setCaseInsensitiveEnumValuesAllowed(true);

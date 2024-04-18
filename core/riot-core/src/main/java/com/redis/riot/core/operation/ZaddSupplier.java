@@ -4,8 +4,8 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.function.ToDoubleFunction;
 
-import com.redis.spring.batch.common.ToScoredValueFunction;
-import com.redis.spring.batch.writer.operation.Zadd;
+import com.redis.spring.batch.operation.Zadd;
+import com.redis.spring.batch.util.ToScoredValueFunction;
 
 public class ZaddSupplier extends AbstractCollectionMapOperationBuilder {
 

@@ -3,16 +3,16 @@ package com.redis.riot.cli;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.Callable;
+import java.util.function.LongSupplier;
 
 import org.springframework.batch.item.ItemReader;
 
 import com.redis.riot.redis.GeneratorImport;
-import com.redis.spring.batch.common.DataType;
-import com.redis.spring.batch.common.Range;
 import com.redis.spring.batch.gen.CollectionOptions;
 import com.redis.spring.batch.gen.GeneratorItemReader;
+import com.redis.spring.batch.gen.Item.Type;
 import com.redis.spring.batch.gen.MapOptions;
+import com.redis.spring.batch.gen.Range;
 import com.redis.spring.batch.gen.StreamOptions;
 import com.redis.spring.batch.gen.StringOptions;
 import com.redis.spring.batch.gen.TimeSeriesOptions;
@@ -36,7 +36,7 @@ public class GenerateCommand extends AbstractStructImportCommand {
 	Range keyRange = GeneratorItemReader.DEFAULT_KEY_RANGE;
 
 	@Option(arity = "1..*", names = "--types", description = "Types of data structures to generate: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<type>")
-	List<DataType> types = Arrays.asList(DataType.HASH, DataType.SET, DataType.STRING, DataType.ZSET);
+	List<Type> types = Arrays.asList(Type.HASH, Type.SET, Type.STRING, Type.ZSET);
 
 	@Option(names = "--expiration", description = "TTL in seconds.", paramLabel = "<secs>")
 	Range expiration;
@@ -98,8 +98,8 @@ public class GenerateCommand extends AbstractStructImportCommand {
 	}
 
 	@Override
-	protected Callable<Long> initialMaxSupplier(String stepName, ItemReader<?> reader) {
-		return () -> (long) count;
+	protected LongSupplier initialMaxSupplier(String stepName, ItemReader<?> reader) {
+		return () -> count;
 	}
 
 	@Override

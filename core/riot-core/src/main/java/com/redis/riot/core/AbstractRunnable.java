@@ -27,7 +27,7 @@ public abstract class AbstractRunnable implements Runnable {
 
 	protected abstract void doRun();
 
-	protected void open() {
+	protected void open() throws Exception {
 		redisURI = redisClientOptions.redisURI();
 		redisClient = redisClientOptions.client(redisURI);
 		redisConnection = RedisModulesUtils.connection(redisClient);

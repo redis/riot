@@ -1,10 +1,7 @@
 package com.redis.riot.core;
 
+import com.redis.spring.batch.KeyValue;
 import com.redis.spring.batch.RedisItemWriter;
-import com.redis.spring.batch.common.KeyValue;
-import com.redis.spring.batch.writer.StructItemWriter;
-
-import io.lettuce.core.codec.StringCodec;
 
 public abstract class AbstractStructImport extends AbstractJobRunnable {
 
@@ -14,9 +11,11 @@ public abstract class AbstractStructImport extends AbstractJobRunnable {
 		this.writerOptions = options;
 	}
 
-	protected RedisItemWriter<String, String, KeyValue<String>> writer() {
-		StructItemWriter<String, String> writer = new StructItemWriter<>(getRedisClient(), StringCodec.UTF8);
-		return writer(writer, writerOptions);
+	protected RedisItemWriter<String, String, KeyValue<String, Object>> writer() {
+		RedisItemWriter<String, String, KeyValue<String, Object>> writer = RedisItemWriter.struct();
+		writer.setClient(getRedisClient());
+		writer(writer, writerOptions);
+		return writer;
 	}
 
 }

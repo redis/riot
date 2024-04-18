@@ -18,7 +18,7 @@
 dependencies {
     implementation project(':riot-core')
     implementation group: 'org.latencyutils', name: 'LatencyUtils', version: latencyutilsVersion
-    testImplementation group: 'com.redis', name: 'spring-batch-redis', version: springBatchRedisVersion, classifier: 'tests'
+    testImplementation group: 'com.redis', name: 'spring-batch-redis-test', version: springBatchRedisVersion
 }
 
 compileJava {

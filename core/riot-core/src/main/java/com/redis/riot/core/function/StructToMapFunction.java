@@ -10,13 +10,13 @@ import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
 import com.redis.lettucemod.timeseries.Sample;
-import com.redis.spring.batch.common.DataType;
-import com.redis.spring.batch.common.KeyValue;
+import com.redis.spring.batch.KeyValue;
+import com.redis.spring.batch.KeyValue.Type;
 
 import io.lettuce.core.ScoredValue;
 import io.lettuce.core.StreamMessage;
 
-public class StructToMapFunction implements Function<KeyValue<String>, Map<String, Object>> {
+public class StructToMapFunction implements Function<KeyValue<String, Object>, Map<String, Object>> {
 
 	private Function<String, Map<String, String>> key = t -> Collections.emptyMap();
 	private UnaryOperator<Map<String, String>> hash = UnaryOperator.identity();
@@ -62,7 +62,7 @@ public class StructToMapFunction implements Function<KeyValue<String>, Map<Strin
 	}
 
 	@Override
-	public Map<String, Object> apply(KeyValue<String> t) {
+	public Map<String, Object> apply(KeyValue<String, Object> t) {
 		Map<String, Object> map = new LinkedHashMap<>();
 		map.putAll(key.apply(t.getKey()));
 		map.putAll(value(t.getType(), t.getValue()));
@@ -70,7 +70,7 @@ public class StructToMapFunction implements Function<KeyValue<String>, Map<Strin
 	}
 
 	@SuppressWarnings("unchecked")
-	private Map<String, String> value(DataType type, Object value) {
+	private Map<String, String> value(Type type, Object value) {
 		if (type == null || value == null) {
 			return Collections.emptyMap();
 		}

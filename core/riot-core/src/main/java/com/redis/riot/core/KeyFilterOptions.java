@@ -2,13 +2,11 @@ package com.redis.riot.core;
 
 import java.util.List;
 
-import com.redis.spring.batch.common.Range;
-
 public class KeyFilterOptions {
 
 	private List<String> includes;
 	private List<String> excludes;
-	private List<Range> slots;
+	private List<SlotRange> slots;
 
 	public List<String> getIncludes() {
 		return includes;
@@ -26,11 +24,11 @@ public class KeyFilterOptions {
 		this.excludes = patterns;
 	}
 
-	public List<Range> getSlots() {
+	public List<SlotRange> getSlots() {
 		return slots;
 	}
 
-	public void setSlots(List<Range> ranges) {
+	public void setSlots(List<SlotRange> ranges) {
 		this.slots = ranges;
 	}
 

@@ -2,7 +2,7 @@ package com.redis.riot.cli;
 
 import java.util.Map;
 
-import com.redis.spring.batch.common.Operation;
+import com.redis.spring.batch.operation.Operation;
 
 public interface RedisCommand {
 

@@ -4,11 +4,10 @@ import java.time.Duration;
 
 import org.springframework.util.unit.DataSize;
 
+import com.redis.spring.batch.KeyValue.Type;
 import com.redis.spring.batch.RedisItemReader;
-import com.redis.spring.batch.common.DataType;
-import com.redis.spring.batch.reader.AbstractKeyValueItemReader;
+import com.redis.spring.batch.operation.KeyValueRead;
 import com.redis.spring.batch.reader.AbstractPollableItemReader;
-import com.redis.spring.batch.step.FlushingChunkProvider;
 
 import io.lettuce.core.ReadFrom;
 
@@ -18,17 +17,16 @@ public class RedisReaderOptions {
 	public static final Duration DEFAULT_POLL_TIMEOUT = AbstractPollableItemReader.DEFAULT_POLL_TIMEOUT;
 	public static final int DEFAULT_THREADS = RedisItemReader.DEFAULT_THREADS;
 	public static final int DEFAULT_CHUNK_SIZE = RedisItemReader.DEFAULT_CHUNK_SIZE;
-	public static final int DEFAULT_POOL_SIZE = AbstractKeyValueItemReader.DEFAULT_POOL_SIZE;
-	public static final DataSize DEFAULT_MEMORY_USAGE_LIMIT = AbstractKeyValueItemReader.DEFAULT_MEMORY_USAGE_LIMIT;
-	public static final int DEFAULT_MEMORY_USAGE_SAMPLES = AbstractKeyValueItemReader.DEFAULT_MEMORY_USAGE_SAMPLES;
+	public static final int DEFAULT_POOL_SIZE = RedisItemReader.DEFAULT_POOL_SIZE;
+	public static final DataSize DEFAULT_MEMORY_USAGE_LIMIT = KeyValueRead.DEFAULT_MEM_USAGE_LIMIT;
+	public static final int DEFAULT_MEMORY_USAGE_SAMPLES = KeyValueRead.DEFAULT_MEM_USAGE_SAMPLES;
 	public static final int DEFAULT_NOTIFICATION_QUEUE_CAPACITY = RedisItemReader.DEFAULT_NOTIFICATION_QUEUE_CAPACITY;
 	public static final long DEFAULT_SCAN_COUNT = 1000;
-	public static final Duration DEFAULT_FLUSH_INTERVAL = FlushingChunkProvider.DEFAULT_FLUSH_INTERVAL;
-	public static final Duration DEFAULT_IDLE_TIMEOUT = FlushingChunkProvider.DEFAULT_IDLE_TIMEOUT;
-	public static final String DEFAULT_KEY_PATTERN = RedisItemReader.DEFAULT_KEY_PATTERN;
+	public static final Duration DEFAULT_FLUSH_INTERVAL = RedisItemReader.DEFAULT_FLUSH_INTERVAL;
+	public static final Duration DEFAULT_IDLE_TIMEOUT = RedisItemReader.DEFAULT_IDLE_TIMEOUT;
 
-	private String keyPattern = DEFAULT_KEY_PATTERN;
-	private DataType keyType;
+	private String keyPattern;
+	private Type keyType;
 	private long scanCount = DEFAULT_SCAN_COUNT;
 	private int queueCapacity = DEFAULT_QUEUE_CAPACITY;
 	private Duration pollTimeout = DEFAULT_POLL_TIMEOUT;
@@ -47,40 +45,40 @@ public class RedisReaderOptions {
 		return keyFilterOptions;
 	}
 
-	public void setKeyFilterOptions(KeyFilterOptions keyFilterOptions) {
-		this.keyFilterOptions = keyFilterOptions;
+	public void setKeyFilterOptions(KeyFilterOptions options) {
+		this.keyFilterOptions = options;
 	}
 
 	public Duration getFlushInterval() {
 		return flushInterval;
 	}
 
-	public void setFlushInterval(Duration flushInterval) {
-		this.flushInterval = flushInterval;
+	public void setFlushInterval(Duration interval) {
+		this.flushInterval = interval;
 	}
 
 	public Duration getIdleTimeout() {
 		return idleTimeout;
 	}
 
-	public void setIdleTimeout(Duration idleTimeout) {
-		this.idleTimeout = idleTimeout;
+	public void setIdleTimeout(Duration timeout) {
+		this.idleTimeout = timeout;
 	}
 
 	public int getNotificationQueueCapacity() {
 		return notificationQueueCapacity;
 	}
 
-	public void setNotificationQueueCapacity(int notificationQueueCapacity) {
-		this.notificationQueueCapacity = notificationQueueCapacity;
+	public void setNotificationQueueCapacity(int capacity) {
+		this.notificationQueueCapacity = capacity;
 	}
 
 	public String getKeyPattern() {
 		return keyPattern;
 	}
 
-	public void setKeyPattern(String scanMatch) {
-		this.keyPattern = scanMatch;
+	public void setKeyPattern(String pattern) {
+		this.keyPattern = pattern;
 	}
 
 	public long getScanCount() {
@@ -91,11 +89,11 @@ public class RedisReaderOptions {
 		this.scanCount = count;
 	}
 
-	public DataType getKeyType() {
+	public Type getKeyType() {
 		return keyType;
 	}
 
-	public void setKeyType(DataType type) {
+	public void setKeyType(Type type) {
 		this.keyType = type;
 	}
 
@@ -103,8 +101,8 @@ public class RedisReaderOptions {
 		return queueCapacity;
 	}
 
-	public void setQueueCapacity(int queueCapacity) {
-		this.queueCapacity = queueCapacity;
+	public void setQueueCapacity(int capacity) {
+		this.queueCapacity = capacity;
 	}
 
 	public Duration getPollTimeout() {
@@ -162,5 +160,4 @@ public class RedisReaderOptions {
 	public void setMemoryUsageSamples(int memoryUsageSamples) {
 		this.memoryUsageSamples = memoryUsageSamples;
 	}
-
 }

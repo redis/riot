@@ -1,6 +1,6 @@
 package com.redis.riot.cli;
 
-import java.util.concurrent.Callable;
+import java.util.function.LongSupplier;
 import java.util.function.Supplier;
 
 import org.slf4j.Logger;
@@ -30,7 +30,7 @@ public class ProgressStepExecutionListener extends ItemListenerSupport implement
 
 	private final ProgressBarBuilder builder;
 
-	private Callable<Long> initialMaxSupplier = () -> UNKNOWN_SIZE;
+	private LongSupplier initialMaxSupplier = () -> UNKNOWN_SIZE;
 	private Supplier<String> extraMessageSupplier = () -> EMPTY_STRING;
 	private ProgressBar progressBar;
 
@@ -38,7 +38,7 @@ public class ProgressStepExecutionListener extends ItemListenerSupport implement
 		this.builder = builder;
 	}
 
-	public void setInitialMaxSupplier(Callable<Long> supplier) {
+	public void setInitialMaxSupplier(LongSupplier supplier) {
 		this.initialMaxSupplier = supplier;
 	}
 
@@ -50,7 +50,7 @@ public class ProgressStepExecutionListener extends ItemListenerSupport implement
 	public void beforeStep(StepExecution stepExecution) {
 		progressBar = builder.build();
 		try {
-			progressBar.maxHint(initialMaxSupplier.call());
+			progressBar.maxHint(initialMaxSupplier.getAsLong());
 		} catch (Exception e) {
 			log.error("Could not estimate size", e);
 		}

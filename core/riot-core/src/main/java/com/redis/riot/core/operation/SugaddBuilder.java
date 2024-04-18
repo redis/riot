@@ -5,8 +5,8 @@ import java.util.function.Function;
 import java.util.function.ToDoubleFunction;
 
 import com.redis.lettucemod.search.Suggestion;
-import com.redis.spring.batch.common.ToSuggestionFunction;
-import com.redis.spring.batch.writer.operation.Sugadd;
+import com.redis.spring.batch.operation.Sugadd;
+import com.redis.spring.batch.util.ToSuggestionFunction;
 
 public class SugaddBuilder extends AbstractMapOperationBuilder {
 

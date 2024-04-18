@@ -18,7 +18,7 @@
 dependencies {
     api 'org.slf4j:slf4j-api'
     api group: 'com.redis', name: 'lettucemod', version: lettucemodVersion
-    api group: 'com.redis', name: 'spring-batch-redis', version: springBatchRedisVersion
+    api group: 'com.redis', name: 'spring-batch-redis-core', version: springBatchRedisVersion
     api 'org.springframework.batch:spring-batch-core'
     api 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
     implementation 'org.springframework.boot:spring-boot-autoconfigure'

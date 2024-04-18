@@ -18,8 +18,8 @@ import com.redis.riot.file.resource.JsonResourceItemWriter;
 import com.redis.riot.file.resource.JsonResourceItemWriterBuilder;
 import com.redis.riot.file.resource.XmlResourceItemWriter;
 import com.redis.riot.file.resource.XmlResourceItemWriterBuilder;
-import com.redis.spring.batch.common.KeyValue;
-import com.redis.spring.batch.reader.StructItemReader;
+import com.redis.spring.batch.KeyValue;
+import com.redis.spring.batch.RedisItemReader;
 
 import io.lettuce.core.codec.StringCodec;
 
@@ -70,7 +70,7 @@ public class FileDumpExport extends AbstractExport {
 		return true;
 	}
 
-	private ItemWriter<KeyValue<String>> writer() {
+	private ItemWriter<KeyValue<String, Object>> writer() {
 		WritableResource resource;
 		try {
 			resource = FileUtils.outputResource(file, fileOptions);
@@ -90,8 +90,8 @@ public class FileDumpExport extends AbstractExport {
 		return type;
 	}
 
-	private JsonResourceItemWriter<KeyValue<String>> jsonWriter(Resource resource) {
-		JsonResourceItemWriterBuilder<KeyValue<String>> jsonWriterBuilder = new JsonResourceItemWriterBuilder<>();
+	private JsonResourceItemWriter<KeyValue<String, Object>> jsonWriter(Resource resource) {
+		JsonResourceItemWriterBuilder<KeyValue<String, Object>> jsonWriterBuilder = new JsonResourceItemWriterBuilder<>();
 		jsonWriterBuilder.name("json-resource-item-writer");
 		jsonWriterBuilder.append(append);
 		jsonWriterBuilder.encoding(fileOptions.getEncoding());
@@ -102,8 +102,8 @@ public class FileDumpExport extends AbstractExport {
 		return jsonWriterBuilder.build();
 	}
 
-	private XmlResourceItemWriter<KeyValue<String>> xmlWriter(Resource resource) {
-		XmlResourceItemWriterBuilder<KeyValue<String>> xmlWriterBuilder = new XmlResourceItemWriterBuilder<>();
+	private XmlResourceItemWriter<KeyValue<String, Object>> xmlWriter(Resource resource) {
+		XmlResourceItemWriterBuilder<KeyValue<String, Object>> xmlWriterBuilder = new XmlResourceItemWriterBuilder<>();
 		xmlWriterBuilder.name("xml-resource-item-writer");
 		xmlWriterBuilder.append(append);
 		xmlWriterBuilder.encoding(fileOptions.getEncoding());
@@ -115,20 +115,21 @@ public class FileDumpExport extends AbstractExport {
 		return xmlWriterBuilder.build();
 	}
 
-	private JsonObjectMarshaller<KeyValue<String>> xmlMarshaller() {
+	private JsonObjectMarshaller<KeyValue<String, Object>> xmlMarshaller() {
 		XmlMapper mapper = FileUtils.xmlMapper();
 		mapper.setConfig(mapper.getSerializationConfig().withRootName(elementName));
-		JacksonJsonObjectMarshaller<KeyValue<String>> marshaller = new JacksonJsonObjectMarshaller<>();
+		JacksonJsonObjectMarshaller<KeyValue<String, Object>> marshaller = new JacksonJsonObjectMarshaller<>();
 		marshaller.setObjectMapper(mapper);
 		return marshaller;
 	}
 
 	@Override
 	protected Job job() {
-		StructItemReader<String, String> reader = new StructItemReader<>(getRedisClient(), StringCodec.UTF8);
-		configureReader("export-reader", reader);
-		ItemWriter<KeyValue<String>> writer = writer();
-		ItemProcessor<KeyValue<String>, KeyValue<String>> processor = new FunctionItemProcessor<>(
+		RedisItemReader<String, String, KeyValue<String, Object>> reader = RedisItemReader.struct();
+		reader.setClient(getRedisClient());
+		configureReader(name(getName(), "reader"), reader);
+		ItemWriter<KeyValue<String, Object>> writer = writer();
+		ItemProcessor<KeyValue<String, Object>, KeyValue<String, Object>> processor = new FunctionItemProcessor<>(
 				processor(StringCodec.UTF8));
 		return jobBuilder().start(step(reader, processor, writer)).build();
 	}

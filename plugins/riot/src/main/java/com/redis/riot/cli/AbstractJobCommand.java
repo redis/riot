@@ -1,7 +1,7 @@
 package com.redis.riot.cli;
 
 import java.time.Duration;
-import java.util.concurrent.Callable;
+import java.util.function.LongSupplier;
 import java.util.function.Supplier;
 
 import org.slf4j.Logger;
@@ -116,7 +116,7 @@ abstract class AbstractJobCommand extends AbstractSubCommand {
 		return () -> ProgressStepExecutionListener.EMPTY_STRING;
 	}
 
-	protected Callable<Long> initialMaxSupplier(String stepName, ItemReader<?> reader) {
+	protected LongSupplier initialMaxSupplier(String stepName, ItemReader<?> reader) {
 		return () -> ProgressStepExecutionListener.UNKNOWN_SIZE;
 	}
 

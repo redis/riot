@@ -2,28 +2,25 @@ package com.redis.riot.core.function;
 
 import java.util.function.Function;
 
-import com.redis.spring.batch.common.KeyValue;
-import com.redis.spring.batch.util.CodecUtils;
+import com.redis.spring.batch.KeyValue;
+import com.redis.spring.batch.util.BatchUtils;
 
 import io.lettuce.core.codec.RedisCodec;
 
-public class ToStringKeyValueFunction<K> implements Function<KeyValue<K>, KeyValue<String>> {
+public class ToStringKeyValueFunction<K, T> implements Function<KeyValue<K, T>, KeyValue<String, T>> {
 
-    private final Function<K, String> toStringKeyFunction;
+	private final Function<K, String> toStringKeyFunction;
 
-    public ToStringKeyValueFunction(RedisCodec<K, ?> codec) {
-        this.toStringKeyFunction = CodecUtils.toStringKeyFunction(codec);
-    }
+	public ToStringKeyValueFunction(RedisCodec<K, ?> codec) {
+		this.toStringKeyFunction = BatchUtils.toStringKeyFunction(codec);
+	}
 
-    @Override
-    public KeyValue<String> apply(KeyValue<K> t) {
-        KeyValue<String> result = new KeyValue<>();
-        result.setKey(toStringKeyFunction.apply(t.getKey()));
-        result.setMemoryUsage(t.getMemoryUsage());
-        result.setTtl(t.getTtl());
-        result.setType(t.getType());
-        result.setValue(t.getValue());
-        return result;
-    }
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@Override
+	public KeyValue<String, T> apply(KeyValue<K, T> t) {
+		KeyValue<String, T> result = new KeyValue<>((KeyValue) t);
+		result.setKey(toStringKeyFunction.apply(t.getKey()));
+		return result;
+	}
 
 }

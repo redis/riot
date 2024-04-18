@@ -55,7 +55,7 @@ dependencies {
     implementation 'org.postgresql:postgresql'
     implementation 'org.springframework:spring-oxm'
     testImplementation 'org.springframework.boot:spring-boot-starter-jdbc'
-    testImplementation group: 'com.redis', name: 'spring-batch-redis', version: springBatchRedisVersion, classifier: 'tests'
+    testImplementation group: 'com.redis', name: 'spring-batch-redis-test', version: springBatchRedisVersion
     testImplementation 'org.awaitility:awaitility'
     testImplementation 'org.testcontainers:postgresql'
     testImplementation 'org.testcontainers:oracle-xe'

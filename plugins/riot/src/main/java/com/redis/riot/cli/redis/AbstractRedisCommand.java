@@ -6,7 +6,7 @@ import java.util.Map;
 import com.redis.riot.cli.BaseCommand;
 import com.redis.riot.cli.RedisCommand;
 import com.redis.riot.core.operation.AbstractMapOperationBuilder;
-import com.redis.spring.batch.common.Operation;
+import com.redis.spring.batch.operation.Operation;
 
 import picocli.CommandLine.Option;
 

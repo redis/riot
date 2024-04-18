@@ -20,8 +20,8 @@ import org.testcontainers.utility.DockerImageName;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
-import com.redis.spring.batch.common.DataType;
 import com.redis.spring.batch.gen.GeneratorItemReader;
+import com.redis.spring.batch.gen.Item.Type;
 
 class PostgresTests extends AbstractDbTests {
 
@@ -52,7 +52,7 @@ class PostgresTests extends AbstractDbTests {
 		try (Statement statement = dbConnection.createStatement()) {
 			statement.execute("CREATE TABLE mytable (id smallint NOT NULL, field1 bpchar, field2 bpchar)");
 			statement.execute("ALTER TABLE ONLY mytable ADD CONSTRAINT pk_mytable PRIMARY KEY (id)");
-			GeneratorItemReader generator = generator(73, DataType.HASH);
+			GeneratorItemReader generator = generator(73, Type.HASH);
 			generate(info, generator);
 			execute(info, filename, r -> executeDatabaseExport(r, info));
 			statement.execute("SELECT COUNT(*) AS count FROM mytable");
@@ -67,7 +67,7 @@ class PostgresTests extends AbstractDbTests {
 				Assertions.assertNotNull(resultSet.getString("field2"));
 				count++;
 			}
-			Assertions.assertEquals(commands.dbsize(), count);
+			Assertions.assertEquals(redisCommands.dbsize(), count);
 		}
 	}
 
@@ -79,10 +79,10 @@ class PostgresTests extends AbstractDbTests {
 			Map<String, String> hash1 = new HashMap<>();
 			hash1.put("field1", "value1");
 			hash1.put("field2", "value2");
-			commands.hmset("gen:1", hash1);
+			redisCommands.hmset("gen:1", hash1);
 			Map<String, String> hash2 = new HashMap<>();
 			hash2.put("field2", "value2");
-			commands.hmset("gen:2", hash2);
+			redisCommands.hmset("gen:2", hash2);
 			execute(info, "db-export-postgresql", r -> executeDatabaseExport(r, info));
 			statement.execute("SELECT COUNT(*) AS count FROM mytable");
 			ResultSet countResultSet = statement.getResultSet();
@@ -95,7 +95,7 @@ class PostgresTests extends AbstractDbTests {
 				Assertions.assertEquals(index + 1, resultSet.getInt("id"));
 				index++;
 			}
-			Assertions.assertEquals(commands.dbsize().longValue(), index);
+			Assertions.assertEquals(redisCommands.dbsize().longValue(), index);
 		}
 	}
 
@@ -107,7 +107,7 @@ class PostgresTests extends AbstractDbTests {
 			ResultSet resultSet = statement.getResultSet();
 			resultSet.next();
 			Assertions.assertEquals(resultSet.getLong("count"), keyCount("order:*"));
-			Map<String, String> order = commands.hgetall("order:10248");
+			Map<String, String> order = redisCommands.hgetall("order:10248");
 			Assertions.assertEquals("10248", order.get("order_id"));
 			Assertions.assertEquals("VINET", order.get("customer_id"));
 		}
@@ -122,7 +122,7 @@ class PostgresTests extends AbstractDbTests {
 				Assertions.assertTrue(resultSet.next());
 				Assertions.assertEquals(resultSet.getLong("count"), count);
 			}
-			Map<String, String> order = commands.hgetall("order:10248");
+			Map<String, String> order = redisCommands.hgetall("order:10248");
 			Assertions.assertEquals("10248", order.get("order_id"));
 			Assertions.assertEquals("VINET", order.get("customer_id"));
 		}
@@ -137,7 +137,7 @@ class PostgresTests extends AbstractDbTests {
 			long count = 0;
 			while (resultSet.next()) {
 				int orderId = resultSet.getInt("order_id");
-				String order = commands.get("order:" + orderId);
+				String order = redisCommands.get("order:" + orderId);
 				ObjectMapper mapper = new ObjectMapper();
 				ObjectReader reader = mapper.readerFor(Map.class);
 				Map<String, Object> orderMap = reader.readValue(order);
@@ -146,7 +146,8 @@ class PostgresTests extends AbstractDbTests {
 				Assertions.assertEquals(resultSet.getInt("employee_id"), orderMap.get("employee_id"));
 				Assertions.assertEquals(resultSet.getDate("order_date"), java.sql.Date.valueOf(
 						LocalDate.from(DateTimeFormatter.ISO_DATE.parse((String) orderMap.get("order_date")))));
-				Assertions.assertEquals(resultSet.getFloat("freight"), ((Double) orderMap.get("freight")).floatValue(),
+				Assertions.assertEquals(resultSet.getFloat("freight"),
+						((Double) orderMap.get("freight")).floatValue(),
 						0);
 				count++;
 			}

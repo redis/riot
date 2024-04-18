@@ -5,13 +5,14 @@ import java.util.List;
 import org.springframework.batch.core.Job;
 
 import com.redis.riot.core.AbstractStructImport;
+import com.redis.spring.batch.KeyValue;
 import com.redis.spring.batch.RedisItemWriter;
-import com.redis.spring.batch.common.DataType;
-import com.redis.spring.batch.common.KeyValue;
-import com.redis.spring.batch.common.Range;
 import com.redis.spring.batch.gen.CollectionOptions;
+import com.redis.spring.batch.gen.GeneratorItemProcessor;
 import com.redis.spring.batch.gen.GeneratorItemReader;
+import com.redis.spring.batch.gen.Item.Type;
 import com.redis.spring.batch.gen.MapOptions;
+import com.redis.spring.batch.gen.Range;
 import com.redis.spring.batch.gen.StreamOptions;
 import com.redis.spring.batch.gen.StringOptions;
 import com.redis.spring.batch.gen.TimeSeriesOptions;
@@ -24,7 +25,7 @@ public class GeneratorImport extends AbstractStructImport {
 	private int count = DEFAULT_COUNT;
 	private String keyspace = GeneratorItemReader.DEFAULT_KEYSPACE;
 	private Range keyRange = GeneratorItemReader.DEFAULT_KEY_RANGE;
-	private List<DataType> types = GeneratorItemReader.defaultTypes();
+	private List<Type> types = GeneratorItemReader.defaultTypes();
 	private Range expiration;
 	private MapOptions hashOptions = new MapOptions();
 	private StreamOptions streamOptions = new StreamOptions();
@@ -38,8 +39,9 @@ public class GeneratorImport extends AbstractStructImport {
 	@Override
 	protected Job job() {
 		GeneratorItemReader reader = reader();
-		RedisItemWriter<String, String, KeyValue<String>> writer = writer();
-		return jobBuilder().start(step(reader, writer)).build();
+		GeneratorItemProcessor processor = new GeneratorItemProcessor();
+		RedisItemWriter<String, String, KeyValue<String, Object>> writer = writer();
+		return jobBuilder().start(step(reader, processor, writer)).build();
 	}
 
 	private GeneratorItemReader reader() {
@@ -156,11 +158,11 @@ public class GeneratorImport extends AbstractStructImport {
 		this.keyspace = keyspace;
 	}
 
-	public List<DataType> getTypes() {
+	public List<Type> getTypes() {
 		return types;
 	}
 
-	public void setTypes(List<DataType> types) {
+	public void setTypes(List<Type> types) {
 		this.types = types;
 	}
 

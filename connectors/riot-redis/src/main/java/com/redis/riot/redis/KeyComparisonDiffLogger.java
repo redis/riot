@@ -7,8 +7,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.ItemWriteListener;
 import org.springframework.batch.item.Chunk;
 
-import com.redis.spring.batch.common.KeyComparison;
-import com.redis.spring.batch.common.KeyComparison.Status;
+import com.redis.spring.batch.reader.KeyComparison;
+import com.redis.spring.batch.reader.KeyComparison.Status;
 
 public class KeyComparisonDiffLogger implements ItemWriteListener<KeyComparison> {
 

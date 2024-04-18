@@ -17,13 +17,13 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.DoubleNode;
 import com.fasterxml.jackson.databind.node.LongNode;
 import com.redis.lettucemod.timeseries.Sample;
-import com.redis.spring.batch.common.DataType;
-import com.redis.spring.batch.common.KeyValue;
+import com.redis.spring.batch.KeyValue;
+import com.redis.spring.batch.KeyValue.Type;
 
 import io.lettuce.core.ScoredValue;
 import io.lettuce.core.StreamMessage;
 
-public class KeyValueDeserializer extends StdDeserializer<KeyValue<String>> {
+public class KeyValueDeserializer extends StdDeserializer<KeyValue<String, Object>> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -42,15 +42,15 @@ public class KeyValueDeserializer extends StdDeserializer<KeyValue<String>> {
 		this(null);
 	}
 
-	public KeyValueDeserializer(Class<KeyValue<String>> t) {
+	public KeyValueDeserializer(Class<KeyValue<String, Object>> t) {
 		super(t);
 	}
 
 	@Override
-	public KeyValue<String> deserialize(JsonParser p, DeserializationContext ctxt)
+	public KeyValue<String, Object> deserialize(JsonParser p, DeserializationContext ctxt)
 			throws IOException, JacksonException {
 		JsonNode node = p.getCodec().readTree(p);
-		KeyValue<String> keyValue = new KeyValue<>();
+		KeyValue<String, Object> keyValue = new KeyValue<>();
 		JsonNode keyNode = node.get(KEY);
 		if (keyNode != null) {
 			keyValue.setKey(node.get(KEY).asText());
@@ -59,7 +59,7 @@ public class KeyValueDeserializer extends StdDeserializer<KeyValue<String>> {
 		if (typeNode != null) {
 			String typeString = typeNode.asText();
 			if (StringUtils.hasLength(typeString)) {
-				keyValue.setType(DataType.valueOf(typeString.toUpperCase()));
+				keyValue.setType(Type.valueOf(typeString.toUpperCase()));
 			}
 		}
 		LongNode ttlNode = (LongNode) node.get(TTL);
@@ -68,13 +68,13 @@ public class KeyValueDeserializer extends StdDeserializer<KeyValue<String>> {
 		}
 		LongNode memUsageNode = (LongNode) node.get(MEMORY_USAGE);
 		if (memUsageNode != null) {
-			keyValue.setMemoryUsage(memUsageNode.asLong());
+			keyValue.setMem(memUsageNode.asLong());
 		}
 		keyValue.setValue(value(keyValue.getType(), node.get(VALUE), ctxt));
 		return keyValue;
 	}
 
-	private Object value(DataType type, JsonNode node, DeserializationContext ctxt) throws IOException {
+	private Object value(Type type, JsonNode node, DeserializationContext ctxt) throws IOException {
 		switch (type) {
 		case STREAM:
 			return streamMessages((ArrayNode) node, ctxt);

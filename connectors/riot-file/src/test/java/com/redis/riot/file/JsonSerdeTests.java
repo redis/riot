@@ -21,9 +21,10 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.DoubleNode;
 import com.redis.lettucemod.timeseries.Sample;
-import com.redis.spring.batch.common.DataType;
-import com.redis.spring.batch.common.KeyValue;
+import com.redis.spring.batch.KeyValue;
+import com.redis.spring.batch.KeyValue.Type;
 import com.redis.spring.batch.gen.GeneratorItemReader;
+import com.redis.spring.batch.gen.Item;
 import com.redis.spring.batch.test.AbstractTestBase;
 
 @TestInstance(Lifecycle.PER_CLASS)
@@ -44,7 +45,7 @@ class JsonSerdeTests {
 	@SuppressWarnings("unchecked")
 	@Test
 	void deserialize() throws JsonMappingException, JsonProcessingException {
-		KeyValue<String> keyValue = mapper.readValue(timeseries, KeyValue.class);
+		KeyValue<String, Object> keyValue = mapper.readValue(timeseries, KeyValue.class);
 		Assertions.assertEquals("gen:97", keyValue.getKey());
 	}
 
@@ -53,11 +54,11 @@ class JsonSerdeTests {
 		String key = "ts:1";
 		long memoryUsage = DataSize.ofGigabytes(1).toBytes();
 		long ttl = Instant.now().toEpochMilli();
-		KeyValue<String> ts = new KeyValue<>();
+		KeyValue<String, Object> ts = new KeyValue<>();
 		ts.setKey(key);
-		ts.setMemoryUsage(memoryUsage);
+		ts.setMem(memoryUsage);
 		ts.setTtl(ttl);
-		ts.setType(DataType.TIMESERIES);
+		ts.setType(Type.TIMESERIES);
 		Sample sample1 = Sample.of(Instant.now().toEpochMilli(), 123.456);
 		Sample sample2 = Sample.of(Instant.now().toEpochMilli() + 1000, 456.123);
 		ts.setValue(Arrays.asList(sample1, sample2));
@@ -69,16 +70,15 @@ class JsonSerdeTests {
 		Assertions.assertEquals(sample2.getValue(), ((DoubleNode) valueNode.get(1).get("value")).asDouble());
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	void serde() throws Exception {
 		GeneratorItemReader reader = new GeneratorItemReader();
 		reader.setMaxItemCount(17);
 		reader.open(new ExecutionContext());
-		List<KeyValue<String>> items = AbstractTestBase.readAll(reader);
-		for (KeyValue<String> item : items) {
+		List<Item> items = AbstractTestBase.readAll(reader);
+		for (Item item : items) {
 			String json = mapper.writeValueAsString(item);
-			KeyValue<String> result = mapper.readValue(json, KeyValue.class);
+			Item result = mapper.readValue(json, Item.class);
 			Assertions.assertEquals(item, result);
 		}
 	}

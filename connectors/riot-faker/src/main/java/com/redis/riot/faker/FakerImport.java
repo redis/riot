@@ -16,7 +16,7 @@ import com.redis.lettucemod.search.IndexInfo;
 import com.redis.lettucemod.util.RedisModulesUtils;
 import com.redis.riot.core.AbstractImport;
 import com.redis.riot.core.RiotUtils;
-import com.redis.spring.batch.common.Range;
+import com.redis.spring.batch.gen.Range;
 
 public class FakerImport extends AbstractImport {
 

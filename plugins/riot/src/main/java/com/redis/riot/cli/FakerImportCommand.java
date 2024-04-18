@@ -2,7 +2,7 @@ package com.redis.riot.cli;
 
 import java.util.Locale;
 import java.util.Map;
-import java.util.concurrent.Callable;
+import java.util.function.LongSupplier;
 
 import org.springframework.batch.item.ItemReader;
 import org.springframework.expression.Expression;
@@ -39,8 +39,8 @@ public class FakerImportCommand extends AbstractImportCommand {
 	}
 
 	@Override
-	protected Callable<Long> initialMaxSupplier(String stepName, ItemReader<?> reader) {
-		return () -> (long) count;
+	protected LongSupplier initialMaxSupplier(String stepName, ItemReader<?> reader) {
+		return () -> count;
 	}
 
 }

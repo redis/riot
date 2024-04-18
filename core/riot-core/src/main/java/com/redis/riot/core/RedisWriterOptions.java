@@ -2,13 +2,12 @@ package com.redis.riot.core;
 
 import java.time.Duration;
 
-import com.redis.spring.batch.common.AbstractOperationExecutor;
-import com.redis.spring.batch.writer.AbstractOperationItemWriter;
+import com.redis.spring.batch.RedisItemWriter;
 
 public class RedisWriterOptions {
 
-	public static final Duration DEFAULT_WAIT_TIMEOUT = AbstractOperationItemWriter.DEFAULT_WAIT_TIMEOUT;
-	public static final int DEFAULT_POOL_SIZE = AbstractOperationExecutor.DEFAULT_POOL_SIZE;
+	public static final Duration DEFAULT_WAIT_TIMEOUT = RedisItemWriter.DEFAULT_WAIT_TIMEOUT;
+	public static final int DEFAULT_POOL_SIZE = RedisItemWriter.DEFAULT_POOL_SIZE;
 
 	private boolean multiExec;
 	private int waitReplicas;

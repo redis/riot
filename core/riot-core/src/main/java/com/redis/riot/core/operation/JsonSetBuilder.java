@@ -8,7 +8,7 @@ import org.springframework.batch.item.ItemStreamException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import com.redis.spring.batch.writer.operation.JsonSet;
+import com.redis.spring.batch.operation.JsonSet;
 
 public class JsonSetBuilder extends AbstractMapOperationBuilder {
 

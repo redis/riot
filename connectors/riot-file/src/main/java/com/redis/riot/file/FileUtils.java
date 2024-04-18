@@ -54,7 +54,7 @@ import com.redis.riot.file.resource.UncustomizedUrlResource;
 import com.redis.riot.file.resource.XmlItemReader;
 import com.redis.riot.file.resource.XmlItemReaderBuilder;
 import com.redis.riot.file.resource.XmlObjectReader;
-import com.redis.spring.batch.common.KeyValue;
+import com.redis.spring.batch.KeyValue;
 
 public abstract class FileUtils {
 

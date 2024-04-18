@@ -5,22 +5,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.sql.DataSource;
-
-import org.hsqldb.jdbc.JDBCDataSource;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobExecutionException;
-import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.job.builder.JobBuilder;
-import org.springframework.batch.core.launch.support.TaskExecutorJobLauncher;
-import org.springframework.batch.core.repository.JobRepository;
-import org.springframework.batch.core.repository.support.JobRepositoryFactoryBean;
 import org.springframework.batch.core.step.builder.FaultTolerantStepBuilder;
 import org.springframework.batch.core.step.builder.SimpleStepBuilder;
-import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.core.step.skip.NeverSkipItemSkipPolicy;
 import org.springframework.batch.core.step.skip.SkipPolicy;
 import org.springframework.batch.core.step.tasklet.TaskletStep;
@@ -30,21 +22,17 @@ import org.springframework.batch.item.ItemStreamReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.support.SynchronizedItemReader;
 import org.springframework.batch.item.support.SynchronizedItemStreamReader;
-import org.springframework.batch.support.transaction.ResourcelessTransactionManager;
-import org.springframework.boot.autoconfigure.batch.BatchDataSourceScriptDatabaseInitializer;
-import org.springframework.boot.autoconfigure.batch.BatchProperties.Jdbc;
-import org.springframework.boot.sql.init.AbstractScriptDatabaseInitializer;
-import org.springframework.boot.sql.init.DatabaseInitializationMode;
 import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.retry.policy.MaxAttemptsRetryPolicy;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.util.ClassUtils;
 
 import com.redis.spring.batch.RedisItemReader;
-import com.redis.spring.batch.writer.AbstractOperationItemWriter;
-import com.redis.spring.batch.writer.StructItemWriter;
+import com.redis.spring.batch.RedisItemWriter;
+import com.redis.spring.batch.common.JobFactory;
+import com.redis.spring.batch.operation.KeyValueWrite;
+import com.redis.spring.batch.operation.KeyValueWrite.WriteMode;
 
 import io.lettuce.core.RedisCommandExecutionException;
 import io.lettuce.core.RedisCommandTimeoutException;
@@ -68,11 +56,14 @@ public abstract class AbstractJobRunnable extends AbstractRunnable {
 	private boolean dryRun;
 	private int skipLimit = DEFAULT_SKIP_LIMIT;
 	private int retryLimit = DEFAULT_RETRY_LIMIT;
-	private JobRepository jobRepository;
-	private PlatformTransactionManager transactionManager;
+	private JobFactory jobFactory;
 
 	protected AbstractJobRunnable() {
 		setName(ClassUtils.getShortName(getClass()));
+	}
+
+	public JobFactory getJobFactory() {
+		return jobFactory;
 	}
 
 	protected String name(String... suffixes) {
@@ -86,53 +77,25 @@ public abstract class AbstractJobRunnable extends AbstractRunnable {
 		stepConfigurators.add(configurator);
 	}
 
-	public void setJobRepository(JobRepository jobRepository) {
-		this.jobRepository = jobRepository;
-	}
-
-	public void setTransactionManager(PlatformTransactionManager platformTransactionManager) {
-		this.transactionManager = platformTransactionManager;
+	public void setJobFactory(JobFactory jobFactory) {
+		this.jobFactory = jobFactory;
 	}
 
 	@Override
-	protected void open() {
+	protected void open() throws Exception {
 		super.open();
-		if (transactionManager == null) {
-			transactionManager = new ResourcelessTransactionManager();
+		if (jobFactory == null) {
+			jobFactory = new JobFactory();
+			jobFactory.afterPropertiesSet();
 		}
-		if (jobRepository == null) {
-			JobRepositoryFactoryBean bean = new JobRepositoryFactoryBean();
-			bean.setDataSource(dataSource());
-			bean.setDatabaseType("HSQL");
-			bean.setTransactionManager(transactionManager);
-			try {
-				bean.afterPropertiesSet();
-				jobRepository = bean.getObject();
-			} catch (Exception e) {
-				throw new ExecutionException("Could not initialize job repository", e);
-			}
-		}
-	}
-
-	private DataSource dataSource() {
-		JDBCDataSource source = new JDBCDataSource();
-		source.setURL("jdbc:hsqldb:mem:" + name);
-		Jdbc jdbc = new Jdbc();
-		jdbc.setInitializeSchema(DatabaseInitializationMode.ALWAYS);
-		AbstractScriptDatabaseInitializer initializer = new BatchDataSourceScriptDatabaseInitializer(source, jdbc);
-		initializer.initializeDatabase();
-		return source;
 	}
 
 	@Override
 	protected void doRun() {
 		Job job = job();
-		TaskExecutorJobLauncher jobLauncher = new TaskExecutorJobLauncher();
-		jobLauncher.setJobRepository(jobRepository);
-		jobLauncher.setTaskExecutor(new SyncTaskExecutor());
 		JobExecution jobExecution;
 		try {
-			jobExecution = jobLauncher.run(job, new JobParameters());
+			jobExecution = jobFactory.run(job);
 		} catch (JobExecutionException e) {
 			throw new ExecutionException(String.format(FAILED_JOB_MESSAGE, job.getName()), e);
 		}
@@ -156,23 +119,23 @@ public abstract class AbstractJobRunnable extends AbstractRunnable {
 	}
 
 	protected JobBuilder jobBuilder() {
-		return new JobBuilder(getName(), jobRepository);
+		return jobFactory.jobBuilder(getName());
 	}
 
 	protected abstract Job job();
 
-	protected <W extends AbstractOperationItemWriter<?, ?, ?>> W writer(W writer, RedisWriterOptions options) {
+	protected void writer(RedisItemWriter<?, ?, ?> writer, RedisWriterOptions options) {
 		writer.setMultiExec(options.isMultiExec());
 		writer.setPoolSize(options.getPoolSize());
 		writer.setWaitReplicas(options.getWaitReplicas());
 		writer.setWaitTimeout(options.getWaitTimeout());
-		if (writer instanceof StructItemWriter) {
-			((StructItemWriter<?, ?>) writer).setMerge(options.isMerge());
+		if (writer.getOperation() instanceof KeyValueWrite) {
+			KeyValueWrite<?, ?> operation = (KeyValueWrite<?, ?>) writer.getOperation();
+			operation.setMode(options.isMerge() ? WriteMode.MERGE : WriteMode.OVERWRITE);
 		}
-		return writer;
 	}
 
-	protected <I, O> TaskletStep step(ItemReader<I> reader, ItemWriter<O> writer) {
+	protected <T> TaskletStep step(ItemReader<T> reader, ItemWriter<T> writer) {
 		return step(getName(), reader, null, writer);
 	}
 
@@ -191,8 +154,8 @@ public abstract class AbstractJobRunnable extends AbstractRunnable {
 
 	protected <I, O> SimpleStepBuilder<I, O> stepBuilder(String name, ItemReader<I> reader,
 			ItemProcessor<I, O> processor, ItemWriter<O> writer) {
-		SimpleStepBuilder<I, O> builder = new StepBuilder(name, jobRepository).chunk(chunkSize, transactionManager);
-		builder.reader(reader(reader));
+		SimpleStepBuilder<I, O> builder = jobFactory.step(name, chunkSize);
+		builder.reader(synchronize(reader));
 		builder.processor(processor);
 		builder.writer(writer(writer));
 		builder.taskExecutor(taskExecutor());
@@ -230,7 +193,7 @@ public abstract class AbstractJobRunnable extends AbstractRunnable {
 		return new SyncTaskExecutor();
 	}
 
-	private <T> ItemReader<T> reader(ItemReader<T> reader) {
+	private <T> ItemReader<T> synchronize(ItemReader<T> reader) {
 		if (reader instanceof RedisItemReader) {
 			return reader;
 		}
@@ -313,14 +276,6 @@ public abstract class AbstractJobRunnable extends AbstractRunnable {
 
 	public void setName(String name) {
 		this.name = name;
-	}
-
-	protected JobRepository getJobRepository() {
-		return jobRepository;
-	}
-
-	protected PlatformTransactionManager getTransactionManager() {
-		return transactionManager;
 	}
 
 }

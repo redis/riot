@@ -16,9 +16,9 @@ import com.redis.riot.redis.Replication;
 import com.redis.riot.redis.ReplicationMode;
 import com.redis.riot.redis.ReplicationType;
 import com.redis.spring.batch.RedisItemReader;
-import com.redis.spring.batch.common.KeyComparison.Status;
-import com.redis.spring.batch.common.KeyComparisonItemReader;
-import com.redis.spring.batch.reader.KeyspaceNotificationItemReader;
+import com.redis.spring.batch.reader.KeyComparison.Status;
+import com.redis.spring.batch.reader.KeyComparisonItemReader;
+import com.redis.spring.batch.reader.KeyNotificationItemReader;
 
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
@@ -112,12 +112,11 @@ public class ReplicateCommand extends AbstractExportCommand {
 	}
 
 	private String liveExtraMessage(RedisItemReader<?, ?, ?> reader) {
-		KeyspaceNotificationItemReader<?> keyReader = (KeyspaceNotificationItemReader<?>) reader.getKeyReader();
-		if (keyReader == null) {
+		KeyNotificationItemReader<?, ?> keyReader = (KeyNotificationItemReader<?, ?>) reader.getReader();
+		if (keyReader == null || keyReader.getQueue() == null) {
 			return ProgressStepExecutionListener.EMPTY_STRING;
 		}
 		return String.format(QUEUE_MESSAGE, keyReader.getQueue().remainingCapacity());
-
 	}
 
 }

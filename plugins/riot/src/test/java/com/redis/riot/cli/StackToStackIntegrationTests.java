@@ -36,7 +36,7 @@ import com.redis.riot.file.resource.XmlItemReader;
 import com.redis.riot.file.resource.XmlItemReaderBuilder;
 import com.redis.riot.file.resource.XmlObjectReader;
 import com.redis.riot.redis.GeneratorImport;
-import com.redis.spring.batch.common.KeyValue;
+import com.redis.spring.batch.KeyValue;
 import com.redis.spring.batch.gen.GeneratorItemReader;
 import com.redis.testcontainers.RedisStackContainer;
 
@@ -100,16 +100,16 @@ class StackToStackIntegrationTests extends AbstractRiotTestBase {
 	@Test
 	void fileDumpImport(TestInfo info) throws Exception {
 		List<KeyValue> records = exportToJsonFile(info);
-		commands.flushall();
+		redisCommands.flushall();
 		execute(info, "dump-import", this::executeFileDumpImport);
-		awaitUntil(() -> records.size() == Math.toIntExact(commands.dbsize()));
+		awaitUntil(() -> records.size() == Math.toIntExact(redisCommands.dbsize()));
 	}
 
 	@SuppressWarnings("rawtypes")
 	@Test
 	void fileExportJSON(TestInfo info) throws Exception {
 		List<KeyValue> records = exportToJsonFile(info);
-		Assertions.assertEquals(commands.dbsize(), records.size());
+		Assertions.assertEquals(redisCommands.dbsize(), records.size());
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -187,19 +187,19 @@ class StackToStackIntegrationTests extends AbstractRiotTestBase {
 		XmlObjectReader<KeyValue> xmlObjectReader = new XmlObjectReader<>(KeyValue.class);
 		xmlObjectReader.setMapper(new XmlMapper());
 		builder.xmlObjectReader(xmlObjectReader);
-		XmlItemReader<KeyValue<String>> reader = (XmlItemReader) builder.build();
+		XmlItemReader<KeyValue<String, Object>> reader = (XmlItemReader) builder.build();
 		reader.open(new ExecutionContext());
-		List<KeyValue<String>> records = readAll(reader);
+		List<KeyValue<String, Object>> records = readAll(reader);
 		reader.close();
-		Assertions.assertEquals(commands.dbsize(), records.size());
-		for (KeyValue<String> record : records) {
+		Assertions.assertEquals(redisCommands.dbsize(), records.size());
+		for (KeyValue<String, Object> record : records) {
 			String key = record.getKey();
 			switch (record.getType()) {
 			case HASH:
-				Assertions.assertEquals(record.getValue(), commands.hgetall(key));
+				Assertions.assertEquals(record.getValue(), redisCommands.hgetall(key));
 				break;
 			case STRING:
-				Assertions.assertEquals(record.getValue(), commands.get(key));
+				Assertions.assertEquals(record.getValue(), redisCommands.get(key));
 				break;
 			default:
 				break;
@@ -210,7 +210,7 @@ class StackToStackIntegrationTests extends AbstractRiotTestBase {
 	@Test
 	void fileImportFW(TestInfo info) throws Exception {
 		testImport(info, "file-import-fw", "account:*", 5);
-		Map<String, String> account101 = commands.hgetall("account:101");
+		Map<String, String> account101 = redisCommands.hgetall("account:101");
 		// Account LastName FirstName Balance CreditLimit AccountCreated Rating
 		// 101 Reeves Keanu 9315.45 10000.00 1/17/1998 A
 		Assertions.assertEquals("Reeves", account101.get("LastName"));
@@ -251,7 +251,7 @@ class StackToStackIntegrationTests extends AbstractRiotTestBase {
 	@Test
 	void fileImportExclude(TestInfo info) throws Exception {
 		execute(info, "file-import-exclude");
-		Map<String, String> beer1036 = commands.hgetall("beer:1036");
+		Map<String, String> beer1036 = redisCommands.hgetall("beer:1036");
 		Assertions.assertEquals("Lower De Boom", name(beer1036));
 		Assertions.assertEquals("American Barleywine", style(beer1036));
 		Assertions.assertEquals("368", beer1036.get("brewery_id"));
@@ -262,7 +262,7 @@ class StackToStackIntegrationTests extends AbstractRiotTestBase {
 	@Test
 	void fileImportInclude(TestInfo info) throws Exception {
 		execute(info, "file-import-include");
-		Map<String, String> beer1036 = commands.hgetall("beer:1036");
+		Map<String, String> beer1036 = redisCommands.hgetall("beer:1036");
 		Assertions.assertEquals(3, beer1036.size());
 		Assertions.assertEquals("Lower De Boom", name(beer1036));
 		Assertions.assertEquals("American Barleywine", style(beer1036));
@@ -277,7 +277,7 @@ class StackToStackIntegrationTests extends AbstractRiotTestBase {
 	@Test
 	void fileImportRegex(TestInfo info) throws Exception {
 		execute(info, "file-import-regex");
-		Map<String, String> airport1 = commands.hgetall("airport:1");
+		Map<String, String> airport1 = redisCommands.hgetall("airport:1");
 		Assertions.assertEquals("Pacific", airport1.get("region"));
 		Assertions.assertEquals("Port_Moresby", airport1.get("city"));
 	}
@@ -308,7 +308,7 @@ class StackToStackIntegrationTests extends AbstractRiotTestBase {
 	@Test
 	void fileImportGeoadd(TestInfo info) throws Exception {
 		execute(info, "file-import-geoadd");
-		Set<String> results = commands.georadius("airportgeo", -21, 64, 200, GeoArgs.Unit.mi);
+		Set<String> results = redisCommands.georadius("airportgeo", -21, 64, 200, GeoArgs.Unit.mi);
 		Assertions.assertTrue(results.contains("18"));
 		Assertions.assertTrue(results.contains("19"));
 		Assertions.assertTrue(results.contains("11"));
@@ -317,14 +317,14 @@ class StackToStackIntegrationTests extends AbstractRiotTestBase {
 	@Test
 	void fileImportGeoProcessor(TestInfo info) throws Exception {
 		execute(info, "file-import-geo-processor");
-		Map<String, String> airport3469 = commands.hgetall("airport:18");
+		Map<String, String> airport3469 = redisCommands.hgetall("airport:18");
 		Assertions.assertEquals("-21.9405994415,64.1299972534", airport3469.get("location"));
 	}
 
 	@Test
 	void fileImportProcess(TestInfo info) throws Exception {
 		testImport(info, "file-import-process", "event:*", 568);
-		Map<String, String> event = commands.hgetall("event:248206");
+		Map<String, String> event = redisCommands.hgetall("event:248206");
 		Instant date = Instant.ofEpochMilli(Long.parseLong(event.get("EpochStart")));
 		Assertions.assertTrue(date.isBefore(Instant.now()));
 	}
@@ -332,7 +332,7 @@ class StackToStackIntegrationTests extends AbstractRiotTestBase {
 	@Test
 	void fileImportProcessVar(TestInfo info) throws Exception {
 		testImport(info, "file-import-process-var", "event:*", 568);
-		Map<String, String> event = commands.hgetall("event:248206");
+		Map<String, String> event = redisCommands.hgetall("event:248206");
 		int randomInt = Integer.parseInt(event.get("randomInt"));
 		Assertions.assertTrue(randomInt >= 0 && randomInt < 100);
 	}
@@ -340,21 +340,21 @@ class StackToStackIntegrationTests extends AbstractRiotTestBase {
 	@Test
 	void fileImportProcessElvis(TestInfo info) throws Exception {
 		testImport(info, "file-import-process-elvis", "beer:*", BEER_CSV_COUNT);
-		Map<String, String> beer1436 = commands.hgetall("beer:1436");
+		Map<String, String> beer1436 = redisCommands.hgetall("beer:1436");
 		Assertions.assertEquals("10", beer1436.get("ibu"));
 	}
 
 	@Test
-	void fileImportMultiCommands(TestInfo info) throws Exception {
+	void fileImportMultiredisCommands(TestInfo info) throws Exception {
 		execute(info, "file-import-multi-commands");
-		List<String> beers = commands.keys("beer:*");
+		List<String> beers = redisCommands.keys("beer:*");
 		Assertions.assertEquals(BEER_CSV_COUNT, beers.size());
 		for (String beer : beers) {
-			Map<String, String> hash = commands.hgetall(beer);
+			Map<String, String> hash = redisCommands.hgetall(beer);
 			Assertions.assertTrue(hash.containsKey("name"));
 			Assertions.assertTrue(hash.containsKey("brewery_id"));
 		}
-		Set<String> breweries = commands.smembers("breweries");
+		Set<String> breweries = redisCommands.smembers("breweries");
 		Assertions.assertEquals(558, breweries.size());
 	}
 
@@ -366,14 +366,14 @@ class StackToStackIntegrationTests extends AbstractRiotTestBase {
 	@Test
 	void fileImportGCS(TestInfo info) throws Exception {
 		testImport(info, "file-import-gcs", "beer:*", 4432);
-		Map<String, String> beer1 = commands.hgetall("beer:1");
+		Map<String, String> beer1 = redisCommands.hgetall("beer:1");
 		Assertions.assertEquals("Hocus Pocus", name(beer1));
 	}
 
 	@Test
 	void fileImportS3(TestInfo info) throws Exception {
 		testImport(info, "file-import-s3", "beer:*", 4432);
-		Map<String, String> beer1 = commands.hgetall("beer:1");
+		Map<String, String> beer1 = redisCommands.hgetall("beer:1");
 		Assertions.assertEquals("Hocus Pocus", name(beer1));
 	}
 
@@ -382,7 +382,7 @@ class StackToStackIntegrationTests extends AbstractRiotTestBase {
 	void fileImportJSONElastic(TestInfo info) throws Exception {
 		execute(info, "file-import-json-elastic");
 		Assertions.assertEquals(2, keyCount("estest:*"));
-		Map<String, String> doc1 = commands.hgetall("estest:doc1");
+		Map<String, String> doc1 = redisCommands.hgetall("estest:doc1");
 		Assertions.assertEquals("ruan", doc1.get("_source.name"));
 		Assertions.assertEquals("3", doc1.get("_source.articles[1]"));
 	}
@@ -390,14 +390,14 @@ class StackToStackIntegrationTests extends AbstractRiotTestBase {
 	@Test
 	void fileImportJSON(TestInfo info) throws Exception {
 		testImport(info, "file-import-json", "beer:*", BEER_JSON_COUNT);
-		Map<String, String> beer1 = commands.hgetall("beer:1");
+		Map<String, String> beer1 = redisCommands.hgetall("beer:1");
 		Assertions.assertEquals("Hocus Pocus", beer1.get("name"));
 	}
 
 	@Test
 	void fileImportXML(TestInfo info) throws Exception {
 		testImport(info, "file-import-xml", "trade:*", 3);
-		Map<String, String> trade1 = commands.hgetall("trade:1");
+		Map<String, String> trade1 = redisCommands.hgetall("trade:1");
 		Assertions.assertEquals("XYZ0001", trade1.get("isin"));
 	}
 
@@ -409,7 +409,7 @@ class StackToStackIntegrationTests extends AbstractRiotTestBase {
 	@Test
 	void fileImportSugadd(TestInfo info) throws Exception {
 		assertExecutionSuccessful(execute(info, "file-import-sugadd"));
-		List<Suggestion<String>> suggestions = commands.ftSugget("names", "Bea",
+		List<Suggestion<String>> suggestions = redisCommands.ftSugget("names", "Bea",
 				SuggetOptions.builder().withPayloads(true).build());
 		Assertions.assertEquals(5, suggestions.size());
 		Assertions.assertEquals("American Blonde Ale", suggestions.get(0).getPayload());
@@ -420,7 +420,7 @@ class StackToStackIntegrationTests extends AbstractRiotTestBase {
 		assertExecutionSuccessful(execute(info, "file-import-json-elastic-jsonset"));
 		Assertions.assertEquals(2, keyCount("elastic:*"));
 		ObjectMapper mapper = new ObjectMapper();
-		String doc1 = commands.jsonGet("elastic:doc1");
+		String doc1 = redisCommands.jsonGet("elastic:doc1");
 		String expected = "{\"_index\":\"test-index\",\"_type\":\"docs\",\"_id\":\"doc1\",\"_score\":1,\"_source\":{\"name\":\"ruan\",\"age\":30,\"articles\":[\"1\",\"3\"]}}";
 		Assertions.assertEquals(mapper.readTree(expected), mapper.readTree(doc1));
 	}
@@ -428,7 +428,7 @@ class StackToStackIntegrationTests extends AbstractRiotTestBase {
 	@Test
 	void fakerImportHset(TestInfo info) throws Exception {
 		testImport(info, "faker-import-hset", "person:*", 1000);
-		Map<String, String> person = commands.hgetall("person:123");
+		Map<String, String> person = redisCommands.hgetall("person:123");
 		Assertions.assertTrue(person.containsKey("firstName"));
 		Assertions.assertTrue(person.containsKey("lastName"));
 		Assertions.assertTrue(person.containsKey("address"));
@@ -439,9 +439,9 @@ class StackToStackIntegrationTests extends AbstractRiotTestBase {
 		testImport(info, "faker-import-threads", "person:*", 8000);
 		String key;
 		do {
-			key = commands.randomkey();
+			key = redisCommands.randomkey();
 		} while (key == null);
-		Map<String, String> person = commands.hgetall(key);
+		Map<String, String> person = redisCommands.hgetall(key);
 		Assertions.assertTrue(person.containsKey("firstName"));
 		Assertions.assertTrue(person.containsKey("lastName"));
 		Assertions.assertTrue(person.containsKey("address"));
@@ -450,7 +450,7 @@ class StackToStackIntegrationTests extends AbstractRiotTestBase {
 	@Test
 	void fakerImportSadd(TestInfo info) throws Exception {
 		execute(info, "faker-import-sadd");
-		Set<String> names = commands.smembers("got:characters");
+		Set<String> names = redisCommands.smembers("got:characters");
 		Assertions.assertTrue(names.size() > 10);
 		for (String name : names) {
 			Assertions.assertFalse(name.isEmpty());
@@ -463,22 +463,22 @@ class StackToStackIntegrationTests extends AbstractRiotTestBase {
 		Assertions.assertTrue(keyCount("leases:*") > 100);
 		String key;
 		do {
-			key = commands.randomkey();
+			key = redisCommands.randomkey();
 		} while (key == null);
-		Assertions.assertTrue(commands.zcard(key) > 0);
+		Assertions.assertTrue(redisCommands.zcard(key) > 0);
 	}
 
 	@Test
 	void fakerImportXadd(TestInfo info) throws Exception {
 		execute(info, "faker-import-xadd");
-		List<StreamMessage<String, String>> messages = commands.xrange("teststream:1", Range.unbounded());
+		List<StreamMessage<String, String>> messages = redisCommands.xrange("teststream:1", Range.unbounded());
 		Assertions.assertTrue(messages.size() > 0);
 	}
 
 	@Test
 	void fakerImportTsAddWithOptions(TestInfo info) throws Exception {
 		execute(info, "faker-import-tsadd-options");
-		List<RangeResult<String, String>> results = commands.tsMrange(TimeRange.unbounded(),
+		List<RangeResult<String, String>> results = redisCommands.tsMrange(TimeRange.unbounded(),
 				MRangeOptions.<String, String>filters("character1=Einstein").build());
 		Assertions.assertFalse(results.isEmpty());
 	}
@@ -487,7 +487,7 @@ class StackToStackIntegrationTests extends AbstractRiotTestBase {
 	void generateTypes(TestInfo info) throws Exception {
 		execute(info, "generate");
 		Assertions.assertEquals(Math.min(GeneratorImport.DEFAULT_COUNT, GeneratorItemReader.DEFAULT_KEY_RANGE.getMax()),
-				commands.dbsize());
+				redisCommands.dbsize());
 	}
 
 }

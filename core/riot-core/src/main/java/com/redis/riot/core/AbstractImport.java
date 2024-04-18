@@ -11,8 +11,7 @@ import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.util.Assert;
 
 import com.redis.spring.batch.RedisItemWriter;
-import com.redis.spring.batch.common.Operation;
-import com.redis.spring.batch.writer.OperationItemWriter;
+import com.redis.spring.batch.operation.Operation;
 
 import io.lettuce.core.AbstractRedisClient;
 
@@ -66,8 +65,10 @@ public abstract class AbstractImport extends AbstractJobRunnable {
 	}
 
 	private <T> ItemWriter<T> writer(AbstractRedisClient client, Operation<String, String, T, Object> operation) {
-		OperationItemWriter<String, String, T> writer = RedisItemWriter.operation(client, operation);
-		return writer(writer, writerOptions);
+		RedisItemWriter<String, String, T> writer = RedisItemWriter.operation(operation);
+		writer.setClient(client);
+		writer(writer, writerOptions);
+		return writer;
 	}
 
 	protected ItemProcessor<Map<String, Object>, Map<String, Object>> processor() {

@@ -22,7 +22,7 @@ import com.redis.riot.cli.redis.XaddCommand;
 import com.redis.riot.cli.redis.ZaddCommand;
 import com.redis.riot.core.AbstractImport;
 import com.redis.riot.core.ImportProcessorOptions;
-import com.redis.spring.batch.common.Operation;
+import com.redis.spring.batch.operation.Operation;
 
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
