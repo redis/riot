@@ -11,7 +11,6 @@ import org.springframework.batch.core.job.builder.SimpleJobBuilder;
 import org.springframework.batch.core.job.flow.support.SimpleFlow;
 import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.core.step.tasklet.TaskletStep;
-import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.function.FunctionItemProcessor;
@@ -99,13 +98,14 @@ public class Replication extends AbstractExport {
 
 	@Override
 	protected Job job() {
-		RedisItemReader<byte[], byte[], KeyValue<byte[], Object>> reader = reader("scan-reader");
-		SimpleStepBuilder<KeyValue<byte[], Object>, KeyValue<byte[], Object>> scanStep = replicationStep(STEP_SCAN,
-				reader);
-		RedisItemReader<byte[], byte[], KeyValue<byte[], Object>> liveReader = reader("live-reader");
+		FunctionItemProcessor<KeyValue<byte[], Object>, KeyValue<byte[], Object>> processor = new FunctionItemProcessor<>(
+				processor(ByteArrayCodec.INSTANCE));
+		SimpleStepBuilder<KeyValue<byte[], Object>, KeyValue<byte[], Object>> scanStep = stepBuilder(STEP_SCAN,
+				reader(), processor, writer());
+		RedisItemReader<byte[], byte[], KeyValue<byte[], Object>> liveReader = reader();
 		liveReader.setMode(ReaderMode.LIVE);
 		FlushingStepBuilder<KeyValue<byte[], Object>, KeyValue<byte[], Object>> liveStep = flushingStep(
-				replicationStep(STEP_LIVE, liveReader));
+				stepBuilder(STEP_LIVE, liveReader, processor, writer()));
 		KeyComparisonStatusCountItemWriter compareWriter = new KeyComparisonStatusCountItemWriter();
 		TaskletStep compareStep = step(STEP_COMPARE, comparisonReader(), compareWriter);
 		switch (mode) {
@@ -141,15 +141,7 @@ public class Replication extends AbstractExport {
 	}
 
 	private boolean shouldCompare() {
-		return compareMode != CompareMode.NONE && !isDryRun();
-	}
-
-	private SimpleStepBuilder<KeyValue<byte[], Object>, KeyValue<byte[], Object>> replicationStep(String name,
-			RedisItemReader<byte[], byte[], KeyValue<byte[], Object>> reader) {
-		RedisItemWriter<byte[], byte[], KeyValue<byte[], Object>> writer = writer();
-		ItemProcessor<KeyValue<byte[], Object>, KeyValue<byte[], Object>> processor = new FunctionItemProcessor<>(
-				processor(ByteArrayCodec.INSTANCE));
-		return stepBuilder(name, reader, processor, writer);
+		return compareMode != CompareMode.NONE && !isDryRun() && getProcessorOptions().isEmpty();
 	}
 
 	@Override
@@ -188,15 +180,15 @@ public class Replication extends AbstractExport {
 		}
 	}
 
-	private RedisItemReader<byte[], byte[], KeyValue<byte[], Object>> reader(String name) {
-		RedisItemReader<byte[], byte[], KeyValue<byte[], Object>> reader = reader();
+	private RedisItemReader<byte[], byte[], KeyValue<byte[], Object>> reader() {
+		RedisItemReader<byte[], byte[], KeyValue<byte[], Object>> reader = createReader();
 		reader.setClient(getRedisClient());
-		configureReader(name(name), reader);
+		configureReader(reader);
 		return reader;
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private RedisItemReader<byte[], byte[], KeyValue<byte[], Object>> reader() {
+	private RedisItemReader<byte[], byte[], KeyValue<byte[], Object>> createReader() {
 		if (isStruct()) {
 			return RedisItemReader.struct(ByteArrayCodec.INSTANCE);
 		}
@@ -206,6 +198,7 @@ public class Replication extends AbstractExport {
 	private KeyComparisonItemReader comparisonReader() {
 		KeyComparisonItemReader reader = compareMode == CompareMode.FULL ? RedisItemReader.compare()
 				: RedisItemReader.compareQuick();
+		configureReader(reader);
 		reader.setClient(getRedisClient());
 		reader.setTargetClient(targetRedisClient);
 		reader.setTargetPoolSize(writerOptions.getPoolSize());

@@ -8,7 +8,6 @@ import java.util.Set;
 
 import org.springframework.util.StringUtils;
 
-import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -47,8 +46,7 @@ public class KeyValueDeserializer extends StdDeserializer<KeyValue<String, Objec
 	}
 
 	@Override
-	public KeyValue<String, Object> deserialize(JsonParser p, DeserializationContext ctxt)
-			throws IOException, JacksonException {
+	public KeyValue<String, Object> deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
 		JsonNode node = p.getCodec().readTree(p);
 		KeyValue<String, Object> keyValue = new KeyValue<>();
 		JsonNode keyNode = node.get(KEY);

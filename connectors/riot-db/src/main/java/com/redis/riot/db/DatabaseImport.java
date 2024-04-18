@@ -100,7 +100,6 @@ public class DatabaseImport extends AbstractImport {
 		JdbcCursorItemReaderBuilder<Map<String, Object>> builder = new JdbcCursorItemReaderBuilder<>();
 		builder.saveState(false);
 		builder.dataSource(dataSourceOptions.dataSource());
-		builder.name("database-reader");
 		builder.rowMapper(new ColumnMapRowMapper());
 		builder.sql(sql);
 		builder.fetchSize(fetchSize);

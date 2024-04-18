@@ -40,7 +40,7 @@ import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
@@ -189,7 +189,7 @@ public abstract class FileUtils {
 		SimpleModule module = new SimpleModule();
 		module.addDeserializer(KeyValue.class, new KeyValueDeserializer());
 		mapper.registerModule(module);
-		mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+		mapper.setSerializationInclusion(Include.NON_NULL);
 	}
 
 	public static FileDumpType dumpType(Resource resource) {
@@ -215,20 +215,10 @@ public abstract class FileUtils {
 		if (FileUtils.isConsole(file)) {
 			return new FilenameInputStreamResource(System.in, "stdin", "Standard Input");
 		}
-		Resource resource;
-		try {
-			resource = resource(file, true, options);
-		} catch (IOException e) {
-			throw new RuntimeException("Could not read file " + file, e);
-		}
+		Resource resource = resource(file, true, options);
 		resource.getInputStream();
 		if (options.isGzipped() || FileUtils.isGzip(file)) {
-			GZIPInputStream gzipInputStream;
-			try {
-				gzipInputStream = new GZIPInputStream(resource.getInputStream());
-			} catch (IOException e) {
-				throw new RuntimeException("Could not open input stream", e);
-			}
+			GZIPInputStream gzipInputStream = new GZIPInputStream(resource.getInputStream());
 			return new FilenameInputStreamResource(gzipInputStream, resource.getFilename(), resource.getDescription());
 		}
 		return resource;

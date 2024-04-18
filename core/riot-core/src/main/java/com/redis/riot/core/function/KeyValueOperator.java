@@ -10,11 +10,8 @@ import com.redis.spring.batch.KeyValue.Type;
 public class KeyValueOperator implements UnaryOperator<KeyValue<String, Object>> {
 
 	private Function<KeyValue<String, Object>, String> keyFunction = KeyValue::getKey;
-
 	private ToLongFunction<KeyValue<String, Object>> ttlFunction = KeyValue::getTtl;
-
 	private Function<KeyValue<String, Object>, Type> typeFunction = KeyValue::getType;
-
 	private Function<KeyValue<String, Object>, ?> valueFunction = KeyValue::getValue;
 
 	public void setKeyFunction(Function<KeyValue<String, Object>, String> key) {
@@ -25,8 +22,8 @@ public class KeyValueOperator implements UnaryOperator<KeyValue<String, Object>>
 		this.ttlFunction = ttl;
 	}
 
-	public void setTypeFunction(Function<KeyValue<String, Object>, Type> typeFunction) {
-		this.typeFunction = typeFunction;
+	public void setTypeFunction(Function<KeyValue<String, Object>, Type> function) {
+		this.typeFunction = function;
 	}
 
 	public void setValueFunction(Function<KeyValue<String, Object>, ?> value) {

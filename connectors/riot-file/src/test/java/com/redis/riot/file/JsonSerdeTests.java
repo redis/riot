@@ -3,6 +3,7 @@ package com.redis.riot.file;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -24,7 +25,7 @@ import com.redis.lettucemod.timeseries.Sample;
 import com.redis.spring.batch.KeyValue;
 import com.redis.spring.batch.KeyValue.Type;
 import com.redis.spring.batch.gen.GeneratorItemReader;
-import com.redis.spring.batch.gen.Item;
+import com.redis.spring.batch.gen.ItemToKeyValueFunction;
 import com.redis.spring.batch.test.AbstractTestBase;
 
 @TestInstance(Lifecycle.PER_CLASS)
@@ -70,15 +71,17 @@ class JsonSerdeTests {
 		Assertions.assertEquals(sample2.getValue(), ((DoubleNode) valueNode.get(1).get("value")).asDouble());
 	}
 
+	@SuppressWarnings("unchecked")
 	@Test
 	void serde() throws Exception {
 		GeneratorItemReader reader = new GeneratorItemReader();
 		reader.setMaxItemCount(17);
 		reader.open(new ExecutionContext());
-		List<Item> items = AbstractTestBase.readAll(reader);
-		for (Item item : items) {
+		List<KeyValue<String, Object>> items = AbstractTestBase.readAll(reader).stream()
+				.map(new ItemToKeyValueFunction()).collect(Collectors.toList());
+		for (KeyValue<String, Object> item : items) {
 			String json = mapper.writeValueAsString(item);
-			Item result = mapper.readValue(json, Item.class);
+			KeyValue<String, Object> result = mapper.readValue(json, KeyValue.class);
 			Assertions.assertEquals(item, result);
 		}
 	}

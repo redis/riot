@@ -36,7 +36,7 @@ public abstract class AbstractMapExport extends AbstractExport {
 	protected RedisItemReader<String, String, KeyValue<String, Object>> reader() {
 		RedisItemReader<String, String, KeyValue<String, Object>> reader = RedisItemReader.struct();
 		reader.setClient(getRedisClient());
-		configureReader("export-reader", reader);
+		configureReader(reader);
 		return reader;
 	}
 

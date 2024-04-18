@@ -19,6 +19,7 @@ import org.springframework.batch.core.step.tasklet.TaskletStep;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemStreamReader;
+import org.springframework.batch.item.ItemStreamSupport;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.support.SynchronizedItemReader;
 import org.springframework.batch.item.support.SynchronizedItemStreamReader;
@@ -155,6 +156,9 @@ public abstract class AbstractJobRunnable extends AbstractRunnable {
 	protected <I, O> SimpleStepBuilder<I, O> stepBuilder(String name, ItemReader<I> reader,
 			ItemProcessor<I, O> processor, ItemWriter<O> writer) {
 		SimpleStepBuilder<I, O> builder = jobFactory.step(name, chunkSize);
+		if (reader instanceof ItemStreamSupport) {
+			((ItemStreamSupport) reader).setName(name(name, "reader"));
+		}
 		builder.reader(synchronize(reader));
 		builder.processor(processor);
 		builder.writer(writer(writer));

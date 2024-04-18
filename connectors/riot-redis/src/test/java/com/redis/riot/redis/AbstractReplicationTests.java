@@ -70,7 +70,7 @@ public abstract class AbstractReplicationTests extends AbstractTargetTestBase {
 		redisCommands.set(key1, value1);
 		Replication replication = new Replication();
 		replication.setType(ReplicationType.STRUCT);
-		replication.setProcessorOptions(processorOptions("#{type.getString()}:#{key}"));
+		replication.setProcessorOptions(processorOptions("#{type.getCode()}:#{key}"));
 		execute(replication, info);
 		Assertions.assertEquals(value1, targetRedisCommands.get("string:" + key1));
 	}

@@ -2,7 +2,6 @@ package com.redis.riot.core;
 
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.function.UnaryOperator;
 
 import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.item.ItemProcessor;
@@ -34,8 +33,8 @@ public abstract class AbstractExport extends AbstractJobRunnable {
 	protected <K> Function<KeyValue<K, Object>, KeyValue<K, Object>> processor(RedisCodec<K, ?> codec) {
 		ToStringKeyValueFunction<K, Object> code = new ToStringKeyValueFunction<>(codec);
 		StringKeyValueFunction<K, Object> decode = new StringKeyValueFunction<>(codec);
-		UnaryOperator<KeyValue<String, Object>> function = keyValueOperator();
-		return code.andThen(function).andThen(decode);
+		KeyValueOperator operator = keyValueOperator();
+		return code.andThen(operator).andThen(decode);
 	}
 
 	protected StandardEvaluationContext evaluationContext() {
@@ -44,7 +43,7 @@ public abstract class AbstractExport extends AbstractJobRunnable {
 		return evaluationContext;
 	}
 
-	private UnaryOperator<KeyValue<String, Object>> keyValueOperator() {
+	private KeyValueOperator keyValueOperator() {
 		KeyValueOperator operator = new KeyValueOperator();
 		StandardEvaluationContext evaluationContext = evaluationContext();
 		if (processorOptions.getKeyExpression() != null) {
@@ -71,8 +70,7 @@ public abstract class AbstractExport extends AbstractJobRunnable {
 
 	protected abstract boolean isStruct();
 
-	protected <K> void configureReader(String name, RedisItemReader<K, ?, ?> reader) {
-		reader.setName(name);
+	protected <K> void configureReader(RedisItemReader<K, ?, ?> reader) {
 		reader.setJobFactory(getJobFactory());
 		reader.setChunkSize(readerOptions.getChunkSize());
 		reader.setDatabase(getRedisURI().getDatabase());

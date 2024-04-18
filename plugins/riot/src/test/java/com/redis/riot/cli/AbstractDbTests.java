@@ -12,6 +12,8 @@ import javax.sql.DataSource;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.TestInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.testcontainers.containers.JdbcDatabaseContainer;
 
@@ -22,6 +24,8 @@ import picocli.CommandLine.ExitCode;
 import picocli.CommandLine.ParseResult;
 
 abstract class AbstractDbTests extends AbstractRiotTestBase {
+
+	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	private static final RedisStackContainer redis = new RedisStackContainer(
 			RedisStackContainer.DEFAULT_IMAGE_NAME.withTag(RedisStackContainer.DEFAULT_TAG));
