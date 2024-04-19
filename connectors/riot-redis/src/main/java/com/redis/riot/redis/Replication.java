@@ -18,6 +18,8 @@ import org.springframework.batch.item.ItemWriter;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
+import com.redis.lettucemod.api.StatefulRedisModulesConnection;
+import com.redis.lettucemod.util.RedisModulesUtils;
 import com.redis.riot.core.AbstractExport;
 import com.redis.riot.core.RedisClientOptions;
 import com.redis.riot.core.RedisWriterOptions;
@@ -159,8 +161,9 @@ public class Replication extends AbstractExport {
 	}
 
 	private void checkKeyspaceNotificationEnabled() {
-		try {
-			String config = getRedisConnection().sync().configGet(CONFIG_NOTIFY_KEYSPACE_EVENTS)
+		try (StatefulRedisModulesConnection<String, String> connection = RedisModulesUtils
+				.connection(getRedisClient())) {
+			String config = connection.sync().configGet(CONFIG_NOTIFY_KEYSPACE_EVENTS)
 					.getOrDefault(CONFIG_NOTIFY_KEYSPACE_EVENTS, "");
 			if (!config.contains("K")) {
 				log.error(

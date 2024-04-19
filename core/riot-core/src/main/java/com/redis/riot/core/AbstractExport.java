@@ -9,6 +9,8 @@ import org.springframework.batch.item.function.FunctionItemProcessor;
 import org.springframework.batch.item.support.PassThroughItemProcessor;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
+import com.redis.lettucemod.api.StatefulRedisModulesConnection;
+import com.redis.lettucemod.util.RedisModulesUtils;
 import com.redis.riot.core.function.DropStreamMessageIdFunction;
 import com.redis.riot.core.function.ExpressionFunction;
 import com.redis.riot.core.function.KeyValueOperator;
@@ -43,7 +45,8 @@ public abstract class AbstractExport extends AbstractRunnable {
 
 	protected StandardEvaluationContext evaluationContext() {
 		StandardEvaluationContext evaluationContext = evaluationContextOptions.evaluationContext();
-		evaluationContext.setVariable(REDIS_VAR, getRedisConnection().sync());
+		StatefulRedisModulesConnection<String, String> connection = RedisModulesUtils.connection(getRedisClient());
+		evaluationContext.setVariable(REDIS_VAR, connection.sync());
 		return evaluationContext;
 	}
 

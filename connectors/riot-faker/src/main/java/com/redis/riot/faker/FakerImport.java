@@ -8,6 +8,7 @@ import org.springframework.batch.core.Job;
 import org.springframework.expression.Expression;
 import org.springframework.util.Assert;
 
+import com.redis.lettucemod.api.StatefulRedisModulesConnection;
 import com.redis.lettucemod.api.sync.RediSearchCommands;
 import com.redis.lettucemod.search.Field;
 import com.redis.lettucemod.search.IndexInfo;
@@ -83,10 +84,13 @@ public class FakerImport extends AbstractImport {
 
 	private Map<String, Expression> searchIndexFields() {
 		Map<String, Expression> searchFields = new LinkedHashMap<>();
-		RediSearchCommands<String, String> commands = getRedisConnection().sync();
-		IndexInfo info = RedisModulesUtils.indexInfo(commands.ftInfo(searchIndex));
-		for (Field<String> field : info.getFields()) {
-			searchFields.put(field.getName(), RiotUtils.parse(expression(field)));
+		try (StatefulRedisModulesConnection<String, String> connection = RedisModulesUtils
+				.connection(getRedisClient())) {
+			RediSearchCommands<String, String> commands = connection.sync();
+			IndexInfo info = RedisModulesUtils.indexInfo(commands.ftInfo(searchIndex));
+			for (Field<String> field : info.getFields()) {
+				searchFields.put(field.getName(), RiotUtils.parse(expression(field)));
+			}
 		}
 		return searchFields;
 	}
