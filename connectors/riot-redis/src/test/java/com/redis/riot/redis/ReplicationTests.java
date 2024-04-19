@@ -45,13 +45,13 @@ public abstract class ReplicationTests extends AbstractTargetTestBase {
 		return Double.parseDouble(beer.get("abv"));
 	}
 
-	protected void execute(Replication replication, TestInfo info) {
+	protected void execute(Replication replication, TestInfo info) throws Exception {
 		replication.setName(name(info));
 		replication.setJobFactory(jobFactory);
 		replication.setRedisClientOptions(redisOptions(getRedisServer()));
 		replication.setTargetRedisClientOptions(redisOptions(getTargetRedisServer()));
 		replication.getReaderOptions().setIdleTimeout(getIdleTimeout());
-		replication.run();
+		replication.execute();
 	}
 
 	private RedisClientOptions redisOptions(RedisServer redis) {

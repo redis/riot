@@ -3,7 +3,7 @@ package com.redis.riot.core;
 import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.RedisURI;
 
-public abstract class AbstractRedisRunnable extends AbstractJobRunnable {
+public abstract class AbstractRedisRunnable extends AbstractExecutable {
 
 	private RedisClientOptions redisClientOptions = new RedisClientOptions();
 
@@ -11,11 +11,11 @@ public abstract class AbstractRedisRunnable extends AbstractJobRunnable {
 	private AbstractRedisClient redisClient;
 
 	@Override
-	public void run() {
+	public void execute() throws Exception {
 		redisURI = redisClientOptions.redisURI();
 		try {
 			redisClient = redisClientOptions.client(redisURI);
-			super.run();
+			super.execute();
 		} finally {
 			redisClient.close();
 			redisClient.getResources().shutdown();

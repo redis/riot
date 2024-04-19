@@ -1,6 +1,7 @@
 package com.redis.riot.cli;
 
 import java.time.Duration;
+import java.util.concurrent.Callable;
 import java.util.function.LongSupplier;
 import java.util.function.Supplier;
 
@@ -13,7 +14,7 @@ import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.util.ClassUtils;
 
-import com.redis.riot.core.AbstractJobRunnable;
+import com.redis.riot.core.AbstractExecutable;
 import com.redis.riot.core.AbstractRedisRunnable;
 
 import me.tongfei.progressbar.DelegatingProgressBarConsumer;
@@ -24,7 +25,7 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.ParentCommand;
 
 @Command
-abstract class AbstractJobCommand extends BaseCommand implements Runnable {
+abstract class AbstractJobCommand extends BaseCommand implements Callable<Integer> {
 
 	public enum ProgressStyle {
 		BLOCK, BAR, ASCII, LOG, NONE
@@ -37,20 +38,20 @@ abstract class AbstractJobCommand extends BaseCommand implements Runnable {
 	long sleep;
 
 	@Option(names = "--threads", description = "Number of concurrent threads to use for batch processing (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
-	int threads = AbstractJobRunnable.DEFAULT_THREADS;
+	int threads = AbstractExecutable.DEFAULT_THREADS;
 
 	@Option(names = { "-b",
 			"--batch" }, description = "Number of items in each batch (default: ${DEFAULT-VALUE}).", paramLabel = "<size>")
-	int chunkSize = AbstractJobRunnable.DEFAULT_CHUNK_SIZE;
+	int chunkSize = AbstractExecutable.DEFAULT_CHUNK_SIZE;
 
 	@Option(names = "--dry-run", description = "Enable dummy writes.")
 	boolean dryRun;
 
 	@Option(names = "--skip-limit", description = "Max number of failed items before considering the transfer has failed (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
-	int skipLimit = AbstractJobRunnable.DEFAULT_SKIP_LIMIT;
+	int skipLimit = AbstractExecutable.DEFAULT_SKIP_LIMIT;
 
 	@Option(names = "--retry-limit", description = "Maximum number of times to try failed items. 0 and 1 both mean no retry. (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
-	private int retryLimit = AbstractJobRunnable.DEFAULT_RETRY_LIMIT;
+	private int retryLimit = AbstractExecutable.DEFAULT_RETRY_LIMIT;
 
 	@Option(names = "--progress", description = "Progress style: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<style>")
 	ProgressStyle progressStyle = ProgressStyle.ASCII;
@@ -80,7 +81,7 @@ abstract class AbstractJobCommand extends BaseCommand implements Runnable {
 	}
 
 	@Override
-	public void run() {
+	public Integer call() throws Exception {
 		AbstractRedisRunnable runnable = runnable();
 		if (name != null) {
 			runnable.setName(name);
@@ -95,7 +96,8 @@ abstract class AbstractJobCommand extends BaseCommand implements Runnable {
 			runnable.addStepConfiguration(this::configureProgress);
 		}
 		runnable.setRedisClientOptions(parent.redisArgs.redisOptions());
-		runnable.run();
+		runnable.execute();
+		return 0;
 	}
 
 	private void configureProgress(SimpleStepBuilder<?, ?> step, String stepName, ItemReader<?> reader,

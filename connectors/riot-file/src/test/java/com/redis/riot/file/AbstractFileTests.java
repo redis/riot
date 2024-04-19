@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -39,7 +38,7 @@ abstract class AbstractFileTests extends AbstractTestBase {
 		hsetBuilder.setKeyFields(ID);
 		executable.setOperations(hsetBuilder.build());
 		executable.setName(name(info));
-		executable.run();
+		executable.execute();
 		List<String> keys = redisCommands.keys("*");
 		assertEquals(216, keys.size());
 		for (String key : keys) {
@@ -70,7 +69,7 @@ abstract class AbstractFileTests extends AbstractTestBase {
 		hsetBuilder.setKeyspace(KEYSPACE);
 		hsetBuilder.setKeyFields(ID);
 		executable.setOperations(hsetBuilder.build());
-		executable.run();
+		executable.execute();
 		List<String> keys = redisCommands.keys("*");
 		assertEquals(2410, keys.size());
 		for (String key : keys) {
@@ -82,7 +81,7 @@ abstract class AbstractFileTests extends AbstractTestBase {
 
 	@SuppressWarnings("unchecked")
 	@Test
-	void fileApiFileExpansion(TestInfo info) throws IOException {
+	void fileApiFileExpansion(TestInfo info) throws Exception {
 		Path temp = Files.createTempDirectory("fileExpansion");
 		File file1 = temp.resolve("beers1.csv").toFile();
 		IOUtils.copy(getClass().getClassLoader().getResourceAsStream("beers1.csv"), new FileOutputStream(file1));
@@ -97,7 +96,7 @@ abstract class AbstractFileTests extends AbstractTestBase {
 		hsetBuilder.setKeyspace(KEYSPACE);
 		hsetBuilder.setKeyFields(ID);
 		executable.setOperations(hsetBuilder.build());
-		executable.run();
+		executable.execute();
 		List<String> keys = redisCommands.keys("*");
 		assertEquals(2410, keys.size());
 		for (String key : keys) {
@@ -120,7 +119,7 @@ abstract class AbstractFileTests extends AbstractTestBase {
 		hset.setKeyspace(KEYSPACE);
 		hset.setKeyFields(ID);
 		executable.setOperations(hset.build());
-		executable.run();
+		executable.execute();
 		List<String> keys = redisCommands.keys("*");
 		assertEquals(2410, keys.size());
 		for (String key : keys) {
@@ -141,7 +140,7 @@ abstract class AbstractFileTests extends AbstractTestBase {
 		hsetBuilder.setKeyFields(ID);
 		executable.setOperations(hsetBuilder.build());
 		executable.setName(name(info));
-		executable.run();
+		executable.execute();
 		List<String> keys = redisCommands.keys("*");
 		assertEquals(6, keys.size());
 		for (String key : keys) {

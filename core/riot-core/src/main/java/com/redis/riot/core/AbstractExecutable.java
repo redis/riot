@@ -7,7 +7,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.batch.core.Job;
-import org.springframework.batch.core.JobExecutionException;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.step.builder.FaultTolerantStepBuilder;
 import org.springframework.batch.core.step.builder.SimpleStepBuilder;
@@ -31,7 +30,7 @@ import com.redis.spring.batch.operation.KeyValueWrite.WriteMode;
 import io.lettuce.core.RedisCommandExecutionException;
 import io.lettuce.core.RedisCommandTimeoutException;
 
-public abstract class AbstractJobRunnable implements Runnable {
+public abstract class AbstractExecutable {
 
 	public static final SkipPolicy DEFAULT_SKIP_POLICY = new NeverSkipItemSkipPolicy();
 	public static final int DEFAULT_SKIP_LIMIT = 0;
@@ -39,8 +38,6 @@ public abstract class AbstractJobRunnable implements Runnable {
 	public static final Duration DEFAULT_SLEEP = Duration.ZERO;
 	public static final int DEFAULT_CHUNK_SIZE = 50;
 	public static final int DEFAULT_THREADS = 1;
-
-	private static final String FAILED_JOB_MESSAGE = "Error executing job %s";
 
 	private String name;
 	private List<StepConfiguration> stepConfigurations = new ArrayList<>();
@@ -52,7 +49,7 @@ public abstract class AbstractJobRunnable implements Runnable {
 	private int retryLimit = DEFAULT_RETRY_LIMIT;
 	private JobFactory jobFactory;
 
-	protected AbstractJobRunnable() {
+	protected AbstractExecutable() {
 		setName(ClassUtils.getShortName(getClass()));
 	}
 
@@ -75,21 +72,12 @@ public abstract class AbstractJobRunnable implements Runnable {
 		this.jobFactory = jobFactory;
 	}
 
-	@Override
-	public void run() {
+	public void execute() throws Exception {
 		if (jobFactory == null) {
 			jobFactory = new JobFactory();
-			try {
-				jobFactory.afterPropertiesSet();
-			} catch (Exception e) {
-				throw new ExecutionException("Could not initialize job infrastructure", e);
-			}
+			jobFactory.afterPropertiesSet();
 		}
-		try {
-			JobFactory.checkJobExecution(jobFactory.run(job()));
-		} catch (JobExecutionException e) {
-			throw new ExecutionException(String.format(FAILED_JOB_MESSAGE, name), e);
-		}
+		JobFactory.checkJobExecution(jobFactory.run(job()));
 	}
 
 	protected JobBuilder jobBuilder() {

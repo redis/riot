@@ -69,13 +69,13 @@ public class Replication extends AbstractExport {
 	protected boolean isStruct() {
 		return type == ReplicationType.STRUCT;
 	}
-
+	
 	@Override
-	public void run() {
+	public void execute() throws Exception {
 		try {
 			targetRedisURI = targetRedisClientOptions.redisURI();
 			targetRedisClient = targetRedisClientOptions.client(targetRedisURI);
-			super.run();
+			super.execute();
 		} finally {
 			targetRedisClient.close();
 			targetRedisClient.getResources().shutdown();
