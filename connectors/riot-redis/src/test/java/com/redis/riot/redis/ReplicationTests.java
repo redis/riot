@@ -1,6 +1,5 @@
 package com.redis.riot.redis;
 
-import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.function.Predicate;
@@ -101,20 +100,38 @@ public abstract class ReplicationTests extends AbstractTargetTestBase {
 	}
 
 	@Test
+	void binaryKeySnapshotReplication(TestInfo info) throws Exception {
+		byte[] key = Hex.decode("aced0005");
+		byte[] value = "value".getBytes();
+		StatefulRedisModulesConnection<byte[], byte[]> connection = RedisModulesUtils.connection(redisClient,
+				ByteArrayCodec.INSTANCE);
+		StatefulRedisModulesConnection<byte[], byte[]> targetConnection = RedisModulesUtils
+				.connection(targetRedisClient, ByteArrayCodec.INSTANCE);
+		connection.sync().set(key, value);
+		Replication replication = new Replication();
+		replication.setCompareMode(CompareMode.NONE);
+		execute(replication, info);
+		Assertions.assertArrayEquals(connection.sync().get(key), targetConnection.sync().get(key));
+	}
+
+	@Test
 	void binaryKeyLiveReplication(TestInfo info) throws Exception {
+		byte[] key = Hex.decode("aced0005");
+		byte[] value = "value".getBytes();
+		StatefulRedisModulesConnection<byte[], byte[]> connection = RedisModulesUtils.connection(redisClient,
+				ByteArrayCodec.INSTANCE);
+		StatefulRedisModulesConnection<byte[], byte[]> targetConnection = RedisModulesUtils
+				.connection(targetRedisClient, ByteArrayCodec.INSTANCE);
 		enableKeyspaceNotifications();
 		Executors.newSingleThreadExecutor().execute(() -> {
 			awaitPubSub();
-			byte[] key = Hex.decode("aced0005");
-			StatefulRedisModulesConnection<byte[], byte[]> connection = RedisModulesUtils.connection(redisClient,
-					ByteArrayCodec.INSTANCE);
-			connection.sync().set(key, "value".getBytes());
+			connection.sync().set(key, value);
 		});
 		Replication replication = new Replication();
 		replication.setMode(ReplicationMode.LIVE);
 		replication.setCompareMode(CompareMode.NONE);
 		execute(replication, info);
-		Assertions.assertEquals(Collections.emptyList(), compare(info).mismatches());
+		Assertions.assertArrayEquals(connection.sync().get(key), targetConnection.sync().get(key));
 	}
 
 	@Test
