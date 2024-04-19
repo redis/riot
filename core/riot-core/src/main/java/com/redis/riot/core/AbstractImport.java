@@ -15,7 +15,7 @@ import com.redis.spring.batch.operation.Operation;
 
 import io.lettuce.core.AbstractRedisClient;
 
-public abstract class AbstractImport extends AbstractRunnable {
+public abstract class AbstractImport extends AbstractRedisRunnable {
 
 	private RedisWriterOptions writerOptions = new RedisWriterOptions();
 	private EvaluationContextOptions evaluationContextOptions = new EvaluationContextOptions();

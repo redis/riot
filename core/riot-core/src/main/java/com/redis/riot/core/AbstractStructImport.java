@@ -3,7 +3,7 @@ package com.redis.riot.core;
 import com.redis.spring.batch.KeyValue;
 import com.redis.spring.batch.RedisItemWriter;
 
-public abstract class AbstractStructImport extends AbstractRunnable {
+public abstract class AbstractStructImport extends AbstractRedisRunnable {
 
 	private RedisWriterOptions writerOptions = new RedisWriterOptions();
 

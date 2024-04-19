@@ -16,12 +16,12 @@ import org.springframework.util.Assert;
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
 import com.redis.lettucemod.api.sync.RedisModulesCommands;
 import com.redis.lettucemod.util.RedisModulesUtils;
-import com.redis.riot.core.AbstractRunnable;
+import com.redis.riot.core.AbstractRedisRunnable;
 
 import io.lettuce.core.metrics.CommandMetrics.CommandLatency;
 import io.lettuce.core.metrics.DefaultCommandLatencyCollectorOptions;
 
-public class Ping extends AbstractRunnable {
+public class Ping extends AbstractRedisRunnable {
 
 	public static final int DEFAULT_ITERATIONS = 1;
 	public static final int DEFAULT_COUNT = 10;

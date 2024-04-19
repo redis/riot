@@ -5,7 +5,7 @@ import java.util.function.LongSupplier;
 import org.springframework.batch.item.ItemReader;
 
 import com.redis.riot.core.AbstractExport;
-import com.redis.riot.core.AbstractRunnable;
+import com.redis.riot.core.AbstractRedisRunnable;
 import com.redis.spring.batch.RedisItemReader;
 import com.redis.spring.batch.RedisItemReader.ReaderMode;
 import com.redis.spring.batch.reader.ScanSizeEstimator;
@@ -21,7 +21,7 @@ public abstract class AbstractExportCommand extends AbstractJobCommand {
 	KeyValueProcessorArgs processorArgs = new KeyValueProcessorArgs();
 
 	@Override
-	protected AbstractRunnable runnable() {
+	protected AbstractRedisRunnable runnable() {
 		AbstractExport export = exportRunnable();
 		export.setReaderOptions(readerArgs.readerOptions());
 		export.setProcessorOptions(processorArgs.processorOptions());

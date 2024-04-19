@@ -3,7 +3,7 @@ package com.redis.riot.core;
 import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.RedisURI;
 
-public abstract class AbstractRunnable extends AbstractJobRunnable {
+public abstract class AbstractRedisRunnable extends AbstractJobRunnable {
 
 	private RedisClientOptions redisClientOptions = new RedisClientOptions();
 

@@ -14,7 +14,7 @@ import org.springframework.batch.item.ItemWriter;
 import org.springframework.util.ClassUtils;
 
 import com.redis.riot.core.AbstractJobRunnable;
-import com.redis.riot.core.AbstractRunnable;
+import com.redis.riot.core.AbstractRedisRunnable;
 
 import me.tongfei.progressbar.DelegatingProgressBarConsumer;
 import me.tongfei.progressbar.ProgressBarBuilder;
@@ -81,7 +81,7 @@ abstract class AbstractJobCommand extends BaseCommand implements Runnable {
 
 	@Override
 	public void run() {
-		AbstractRunnable runnable = runnable();
+		AbstractRedisRunnable runnable = runnable();
 		if (name != null) {
 			runnable.setName(name);
 		}
@@ -128,6 +128,6 @@ abstract class AbstractJobCommand extends BaseCommand implements Runnable {
 		return () -> ProgressStepExecutionListener.UNKNOWN_SIZE;
 	}
 
-	protected abstract AbstractRunnable runnable();
+	protected abstract AbstractRedisRunnable runnable();
 
 }
