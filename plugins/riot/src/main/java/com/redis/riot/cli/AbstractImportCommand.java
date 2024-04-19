@@ -61,7 +61,7 @@ public abstract class AbstractImportCommand extends AbstractJobCommand {
 	}
 
 	@Override
-	protected AbstractImport jobRunnable() {
+	protected AbstractImport runnable() {
 		AbstractImport runnable = importRunnable();
 		runnable.setOperations(operations());
 		runnable.setEvaluationContextOptions(evaluationContextArgs.evaluationContextOptions());

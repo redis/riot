@@ -14,17 +14,24 @@ import org.springframework.batch.item.ItemWriter;
 import org.springframework.util.ClassUtils;
 
 import com.redis.riot.core.AbstractJobRunnable;
+import com.redis.riot.core.AbstractRunnable;
 
 import me.tongfei.progressbar.DelegatingProgressBarConsumer;
 import me.tongfei.progressbar.ProgressBarBuilder;
 import me.tongfei.progressbar.ProgressBarStyle;
+import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
+import picocli.CommandLine.ParentCommand;
 
-abstract class AbstractJobCommand extends AbstractSubCommand {
+@Command
+abstract class AbstractJobCommand extends BaseCommand implements Runnable {
 
 	public enum ProgressStyle {
 		BLOCK, BAR, ASCII, LOG, NONE
 	}
+
+	@ParentCommand
+	protected AbstractMainCommand parent;
 
 	@Option(names = "--sleep", description = "Duration in ms to sleep after each batch write (default: ${DEFAULT-VALUE}).", paramLabel = "<ms>")
 	long sleep;
@@ -73,8 +80,8 @@ abstract class AbstractJobCommand extends AbstractSubCommand {
 	}
 
 	@Override
-	protected AbstractJobRunnable runnable() {
-		AbstractJobRunnable runnable = jobRunnable();
+	public void run() {
+		AbstractRunnable runnable = runnable();
 		if (name != null) {
 			runnable.setName(name);
 		}
@@ -87,7 +94,8 @@ abstract class AbstractJobCommand extends AbstractSubCommand {
 		if (progressStyle != ProgressStyle.NONE) {
 			runnable.addStepConfiguration(this::configureProgress);
 		}
-		return runnable;
+		runnable.setRedisClientOptions(parent.redisArgs.redisOptions());
+		runnable.run();
 	}
 
 	private void configureProgress(SimpleStepBuilder<?, ?> step, String stepName, ItemReader<?> reader,
@@ -120,6 +128,6 @@ abstract class AbstractJobCommand extends AbstractSubCommand {
 		return () -> ProgressStepExecutionListener.UNKNOWN_SIZE;
 	}
 
-	protected abstract AbstractJobRunnable jobRunnable();
+	protected abstract AbstractRunnable runnable();
 
 }

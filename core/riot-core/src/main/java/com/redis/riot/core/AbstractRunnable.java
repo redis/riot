@@ -6,7 +6,7 @@ import com.redis.lettucemod.util.RedisModulesUtils;
 import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.RedisURI;
 
-public abstract class AbstractRunnable implements Runnable {
+public abstract class AbstractRunnable extends AbstractJobRunnable {
 
 	private RedisClientOptions redisClientOptions = new RedisClientOptions();
 
@@ -16,25 +16,11 @@ public abstract class AbstractRunnable implements Runnable {
 
 	@Override
 	public void run() {
-		try {
-			open();
-		} catch (Exception e) {
-			throw new ExecutionException("Could not initialize RIOT", e);
-		}
-		doRun();
-		close();
-	}
-
-	protected abstract void doRun();
-
-	protected void open() throws Exception {
 		redisURI = redisClientOptions.redisURI();
-		redisClient = redisClientOptions.client(redisURI);
-		redisConnection = RedisModulesUtils.connection(redisClient);
-	}
-
-	protected void close() {
 		try {
+			redisClient = redisClientOptions.client(redisURI);
+			redisConnection = RedisModulesUtils.connection(redisClient);
+			super.run();
 			redisConnection.close();
 		} finally {
 			redisClient.close();

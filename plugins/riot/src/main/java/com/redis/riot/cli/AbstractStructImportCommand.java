@@ -10,7 +10,7 @@ public abstract class AbstractStructImportCommand extends AbstractJobCommand {
 	RedisWriterArgs writerArgs = new RedisWriterArgs();
 
 	@Override
-	protected AbstractStructImport jobRunnable() {
+	protected AbstractStructImport runnable() {
 		AbstractStructImport runnable = importRunnable();
 		runnable.setWriterOptions(writerArgs.writerOptions());
 		return runnable;

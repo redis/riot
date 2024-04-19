@@ -18,8 +18,6 @@ import org.springframework.batch.item.ItemWriter;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
-import com.redis.lettucemod.api.StatefulRedisModulesConnection;
-import com.redis.lettucemod.util.RedisModulesUtils;
 import com.redis.riot.core.AbstractExport;
 import com.redis.riot.core.RedisClientOptions;
 import com.redis.riot.core.RedisWriterOptions;
@@ -64,7 +62,6 @@ public class Replication extends AbstractExport {
 
 	private RedisURI targetRedisURI;
 	private AbstractRedisClient targetRedisClient;
-	private StatefulRedisModulesConnection<String, String> targetRedisConnection;
 
 	@Override
 	protected boolean isStruct() {
@@ -72,11 +69,15 @@ public class Replication extends AbstractExport {
 	}
 
 	@Override
-	protected void open() throws Exception {
-		targetRedisURI = targetRedisClientOptions.redisURI();
-		targetRedisClient = targetRedisClientOptions.client(targetRedisURI);
-		targetRedisConnection = RedisModulesUtils.connection(targetRedisClient);
-		super.open();
+	public void run() {
+		try {
+			targetRedisURI = targetRedisClientOptions.redisURI();
+			targetRedisClient = targetRedisClientOptions.client(targetRedisURI);
+			super.run();
+		} finally {
+			targetRedisClient.close();
+			targetRedisClient.getResources().shutdown();
+		}
 	}
 
 	@Override
@@ -85,17 +86,6 @@ public class Replication extends AbstractExport {
 		evaluationContext.setVariable(SOURCE_VAR, getRedisURI());
 		evaluationContext.setVariable(TARGET_VAR, targetRedisURI);
 		return evaluationContext;
-	}
-
-	@Override
-	protected void close() {
-		super.close();
-		try {
-			targetRedisConnection.close();
-		} finally {
-			targetRedisClient.close();
-			targetRedisClient.getResources().shutdown();
-		}
 	}
 
 	@Override

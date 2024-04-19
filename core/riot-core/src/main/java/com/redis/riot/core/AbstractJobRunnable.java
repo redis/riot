@@ -6,11 +6,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.Job;
-import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobExecutionException;
-import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.step.builder.FaultTolerantStepBuilder;
 import org.springframework.batch.core.step.builder.SimpleStepBuilder;
@@ -34,7 +31,7 @@ import com.redis.spring.batch.operation.KeyValueWrite.WriteMode;
 import io.lettuce.core.RedisCommandExecutionException;
 import io.lettuce.core.RedisCommandTimeoutException;
 
-public abstract class AbstractJobRunnable extends AbstractRunnable {
+public abstract class AbstractJobRunnable implements Runnable {
 
 	public static final SkipPolicy DEFAULT_SKIP_POLICY = new NeverSkipItemSkipPolicy();
 	public static final int DEFAULT_SKIP_LIMIT = 0;
@@ -79,44 +76,24 @@ public abstract class AbstractJobRunnable extends AbstractRunnable {
 	}
 
 	@Override
-	protected void open() throws Exception {
-		super.open();
+	public void run() {
 		if (jobFactory == null) {
 			jobFactory = new JobFactory();
-			jobFactory.afterPropertiesSet();
+			try {
+				jobFactory.afterPropertiesSet();
+			} catch (Exception e) {
+				throw new ExecutionException("Could not initialize job infrastructure", e);
+			}
 		}
-	}
-
-	@Override
-	protected void doRun() {
-		Job job = job();
-		JobExecution jobExecution;
 		try {
-			jobExecution = jobFactory.run(job);
+			JobFactory.checkJobExecution(jobFactory.run(job()));
 		} catch (JobExecutionException e) {
-			throw new ExecutionException(String.format(FAILED_JOB_MESSAGE, job.getName()), e);
-		}
-		if (jobExecution.getExitStatus().getExitCode().equals(ExitStatus.FAILED.getExitCode())) {
-			for (StepExecution stepExecution : jobExecution.getStepExecutions()) {
-				ExitStatus exitStatus = stepExecution.getExitStatus();
-				if (exitStatus.getExitCode().equals(ExitStatus.FAILED.getExitCode())) {
-					String message = String.format("Error executing step %s in job %s: %s", stepExecution.getStepName(),
-							job.getName(), exitStatus.getExitDescription());
-					if (stepExecution.getFailureExceptions().isEmpty()) {
-						throw new ExecutionException(message);
-					}
-					throw new ExecutionException(message, stepExecution.getFailureExceptions().get(0));
-				}
-			}
-			if (jobExecution.getAllFailureExceptions().isEmpty()) {
-				throw new ExecutionException(String.format("Error executing job %s: %s", job.getName(),
-						jobExecution.getExitStatus().getExitDescription()));
-			}
+			throw new ExecutionException(String.format(FAILED_JOB_MESSAGE, name), e);
 		}
 	}
 
 	protected JobBuilder jobBuilder() {
-		return jobFactory.jobBuilder(getName());
+		return jobFactory.jobBuilder(name);
 	}
 
 	protected abstract Job job();

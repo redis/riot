@@ -8,6 +8,10 @@ import java.util.concurrent.TimeUnit;
 
 import org.HdrHistogram.Histogram;
 import org.LatencyUtils.LatencyStats;
+import org.springframework.batch.core.Job;
+import org.springframework.batch.core.step.tasklet.CallableTaskletAdapter;
+import org.springframework.batch.core.step.tasklet.TaskletStep;
+import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.util.Assert;
 
 import com.redis.riot.core.AbstractRunnable;
@@ -83,7 +87,17 @@ public class Ping extends AbstractRunnable {
 	}
 
 	@Override
-	protected void doRun() {
+	protected Job job() {
+		TaskletStep step = new TaskletStep();
+		CallableTaskletAdapter tasklet = new CallableTaskletAdapter();
+		tasklet.setCallable(this::call);
+		step.setName(getName());
+		step.setJobRepository(getJobFactory().getJobRepository());
+		step.setTasklet(tasklet);
+		return jobBuilder().start(step).build();
+	}
+
+	private RepeatStatus call() {
 		for (int iteration = 0; iteration < iterations; iteration++) {
 			LatencyStats stats = new LatencyStats();
 			for (int index = 0; index < count; index++) {
@@ -114,6 +128,7 @@ public class Ping extends AbstractRunnable {
 				}
 			}
 		}
+		return RepeatStatus.FINISHED;
 	}
 
 	private long toTimeUnit(long value) {

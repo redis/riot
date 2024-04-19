@@ -23,7 +23,7 @@ import com.redis.spring.batch.operation.KeyValueRead;
 
 import io.lettuce.core.codec.RedisCodec;
 
-public abstract class AbstractExport extends AbstractJobRunnable {
+public abstract class AbstractExport extends AbstractRunnable {
 
 	private static final String REDIS_VAR = "redis";
 
