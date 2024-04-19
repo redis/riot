@@ -5,6 +5,7 @@ import java.util.function.Predicate;
 
 import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.item.ItemProcessor;
+import org.springframework.batch.item.function.FunctionItemProcessor;
 import org.springframework.batch.item.support.PassThroughItemProcessor;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
@@ -30,11 +31,14 @@ public abstract class AbstractExport extends AbstractJobRunnable {
 	private RedisReaderOptions readerOptions = new RedisReaderOptions();
 	private ExportProcessorOptions processorOptions = new ExportProcessorOptions();
 
-	protected <K> Function<KeyValue<K, Object>, KeyValue<K, Object>> processor(RedisCodec<K, ?> codec) {
+	protected <K> ItemProcessor<KeyValue<K, Object>, KeyValue<K, Object>> processor(RedisCodec<K, ?> codec) {
+		if (processorOptions.isEmpty()) {
+			return null;
+		}
 		ToStringKeyValueFunction<K, Object> code = new ToStringKeyValueFunction<>(codec);
 		StringKeyValueFunction<K, Object> decode = new StringKeyValueFunction<>(codec);
 		KeyValueOperator operator = keyValueOperator();
-		return code.andThen(operator).andThen(decode);
+		return new FunctionItemProcessor<>(code.andThen(operator).andThen(decode));
 	}
 
 	protected StandardEvaluationContext evaluationContext() {

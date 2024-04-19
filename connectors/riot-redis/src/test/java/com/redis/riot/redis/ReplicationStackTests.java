@@ -2,7 +2,7 @@ package com.redis.riot.redis;
 
 import com.redis.testcontainers.RedisStackContainer;
 
-class StackTests extends AbstractReplicationTests {
+class ReplicationStackTests extends ReplicationTests {
 
 	private static final RedisStackContainer source = RedisContainerFactory.stack();
 	private static final RedisStackContainer target = RedisContainerFactory.stack();

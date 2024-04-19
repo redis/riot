@@ -1,13 +1,18 @@
 package com.redis.riot.redis;
 
+import java.util.Collections;
 import java.util.Map;
+import java.util.concurrent.Executors;
 import java.util.function.Predicate;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 import org.springframework.batch.item.support.ListItemWriter;
+import org.testcontainers.shaded.org.bouncycastle.util.encoders.Hex;
 
+import com.redis.lettucemod.api.StatefulRedisModulesConnection;
+import com.redis.lettucemod.util.RedisModulesUtils;
 import com.redis.riot.core.ExportProcessorOptions;
 import com.redis.riot.core.PredicateItemProcessor;
 import com.redis.riot.core.RedisClientOptions;
@@ -20,8 +25,9 @@ import com.redis.spring.batch.util.Predicates;
 import com.redis.testcontainers.RedisServer;
 
 import io.lettuce.core.cluster.SlotHash;
+import io.lettuce.core.codec.ByteArrayCodec;
 
-public abstract class AbstractReplicationTests extends AbstractTargetTestBase {
+public abstract class ReplicationTests extends AbstractTargetTestBase {
 
 	public static final String BEERS_JSON_URL = "https://storage.googleapis.com/jrx/beers.json";
 	public static final int BEER_CSV_COUNT = 2410;
@@ -44,6 +50,7 @@ public abstract class AbstractReplicationTests extends AbstractTargetTestBase {
 		replication.setJobFactory(jobFactory);
 		replication.setRedisClientOptions(redisOptions(getRedisServer()));
 		replication.setTargetRedisClientOptions(redisOptions(getTargetRedisServer()));
+		replication.getReaderOptions().setIdleTimeout(getIdleTimeout());
 		replication.run();
 	}
 
@@ -91,6 +98,23 @@ public abstract class AbstractReplicationTests extends AbstractTargetTestBase {
 				String.format("#{#date.parse('%s').getTime()}:#{key}", "2010-05-10T00:00:00.000+0000")));
 		execute(replication, info);
 		Assertions.assertEquals(value1, targetRedisCommands.get("1273449600000:" + key1));
+	}
+
+	@Test
+	void binaryKeyLiveReplication(TestInfo info) throws Exception {
+		enableKeyspaceNotifications();
+		Executors.newSingleThreadExecutor().execute(() -> {
+			awaitPubSub();
+			byte[] key = Hex.decode("aced0005");
+			StatefulRedisModulesConnection<byte[], byte[]> connection = RedisModulesUtils.connection(redisClient,
+					ByteArrayCodec.INSTANCE);
+			connection.sync().set(key, "value".getBytes());
+		});
+		Replication replication = new Replication();
+		replication.setMode(ReplicationMode.LIVE);
+		replication.setCompareMode(CompareMode.NONE);
+		execute(replication, info);
+		Assertions.assertEquals(Collections.emptyList(), compare(info).mismatches());
 	}
 
 	@Test

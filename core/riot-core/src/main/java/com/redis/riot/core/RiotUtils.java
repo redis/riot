@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -102,11 +103,12 @@ public abstract class RiotUtils {
 	}
 
 	public static <S, T> ItemProcessor<S, T> processor(ItemProcessor<?, ?>... processors) {
-		return processor(Arrays.asList(processors));
+		return processor(new ArrayList<>(Arrays.asList(processors)));
 	}
 
 	@SuppressWarnings("unchecked")
 	public static <S, T> ItemProcessor<S, T> processor(Collection<? extends ItemProcessor<?, ?>> processors) {
+		processors.removeIf(Objects::isNull);
 		if (processors.isEmpty()) {
 			return null;
 		}

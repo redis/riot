@@ -11,9 +11,9 @@ import org.springframework.batch.core.job.builder.SimpleJobBuilder;
 import org.springframework.batch.core.job.flow.support.SimpleFlow;
 import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.core.step.tasklet.TaskletStep;
+import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.batch.item.function.FunctionItemProcessor;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
@@ -27,8 +27,9 @@ import com.redis.spring.batch.RedisItemReader;
 import com.redis.spring.batch.RedisItemReader.ReaderMode;
 import com.redis.spring.batch.RedisItemWriter;
 import com.redis.spring.batch.common.FlushingStepBuilder;
+import com.redis.spring.batch.reader.KeyComparatorOptions;
+import com.redis.spring.batch.reader.KeyComparatorOptions.StreamMessageIdPolicy;
 import com.redis.spring.batch.reader.KeyComparisonItemReader;
-import com.redis.spring.batch.reader.KeyComparisonItemReader.StreamMessageIdPolicy;
 
 import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.ReadFrom;
@@ -55,7 +56,7 @@ public class Replication extends AbstractExport {
 	private ReplicationType type = DEFAULT_TYPE;
 	private boolean showDiffs;
 	private CompareMode compareMode = DEFAULT_COMPARE_MODE;
-	private Duration ttlTolerance = KeyComparisonItemReader.DEFAULT_TTL_TOLERANCE;
+	private Duration ttlTolerance = KeyComparatorOptions.DEFAULT_TTL_TOLERANCE;
 	private RedisClientOptions targetRedisClientOptions = new RedisClientOptions();
 	private ReadFrom targetReadFrom;
 	private RedisWriterOptions writerOptions = new RedisWriterOptions();
@@ -98,8 +99,8 @@ public class Replication extends AbstractExport {
 
 	@Override
 	protected Job job() {
-		FunctionItemProcessor<KeyValue<byte[], Object>, KeyValue<byte[], Object>> processor = new FunctionItemProcessor<>(
-				processor(ByteArrayCodec.INSTANCE));
+		ItemProcessor<KeyValue<byte[], Object>, KeyValue<byte[], Object>> processor = processor(
+				ByteArrayCodec.INSTANCE);
 		SimpleStepBuilder<KeyValue<byte[], Object>, KeyValue<byte[], Object>> scanStep = stepBuilder(STEP_SCAN,
 				reader(), processor, writer());
 		RedisItemReader<byte[], byte[], KeyValue<byte[], Object>> liveReader = reader();
@@ -203,9 +204,15 @@ public class Replication extends AbstractExport {
 		reader.setTargetClient(targetRedisClient);
 		reader.setTargetPoolSize(writerOptions.getPoolSize());
 		reader.setTargetReadFrom(targetReadFrom);
-		reader.setTtlTolerance(ttlTolerance);
-		reader.setStreamMessageIdPolicy(streamMessageIdPolicy());
+		reader.setComparatorOptions(comparatorOptions());
 		return reader;
+	}
+
+	private KeyComparatorOptions comparatorOptions() {
+		KeyComparatorOptions options = new KeyComparatorOptions();
+		options.setTtlTolerance(ttlTolerance);
+		options.setStreamMessageIdPolicy(streamMessageIdPolicy());
+		return options;
 	}
 
 	private StreamMessageIdPolicy streamMessageIdPolicy() {

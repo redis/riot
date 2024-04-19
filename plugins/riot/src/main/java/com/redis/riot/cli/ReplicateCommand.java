@@ -16,8 +16,8 @@ import com.redis.riot.redis.Replication;
 import com.redis.riot.redis.ReplicationMode;
 import com.redis.riot.redis.ReplicationType;
 import com.redis.spring.batch.RedisItemReader;
+import com.redis.spring.batch.reader.KeyComparatorOptions;
 import com.redis.spring.batch.reader.KeyComparison.Status;
-import com.redis.spring.batch.reader.KeyComparisonItemReader;
 import com.redis.spring.batch.reader.KeyNotificationItemReader;
 
 import picocli.CommandLine.ArgGroup;
@@ -40,7 +40,7 @@ public class ReplicateCommand extends AbstractExportCommand {
 	boolean type;
 
 	@Option(names = "--ttl-tolerance", description = "Max TTL offset in millis to use for dataset verification (default: ${DEFAULT-VALUE}).", paramLabel = "<ms>")
-	long ttlTolerance = KeyComparisonItemReader.DEFAULT_TTL_TOLERANCE.toMillis();
+	long ttlTolerance = KeyComparatorOptions.DEFAULT_TTL_TOLERANCE.toMillis();
 
 	@Option(names = "--show-diffs", description = "Print details of key mismatches during dataset verification. Disables progress reporting.")
 	boolean showDiffs;

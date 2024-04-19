@@ -41,8 +41,7 @@ public abstract class AbstractMapExport extends AbstractExport {
 	}
 
 	protected ItemProcessor<KeyValue<String, Object>, Map<String, Object>> processor() {
-		ItemProcessor<KeyValue<String, Object>, KeyValue<String, Object>> processor = new FunctionItemProcessor<>(
-				processor(StringCodec.UTF8));
+		ItemProcessor<KeyValue<String, Object>, KeyValue<String, Object>> processor = processor(StringCodec.UTF8);
 		StructToMapFunction toMapFunction = new StructToMapFunction();
 		if (keyRegex != null) {
 			toMapFunction.setKey(new RegexNamedGroupFunction(keyRegex));
