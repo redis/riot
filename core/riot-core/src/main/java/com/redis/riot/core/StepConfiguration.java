@@ -4,8 +4,8 @@ import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 
-public interface StepConfigurator {
+public interface StepConfiguration {
 
-	void configure(SimpleStepBuilder<?, ?> step, String stepName, ItemReader<?> reader, ItemWriter<?> writer);
+	<I, O> void configure(SimpleStepBuilder<I, O> step, String name, ItemReader<I> reader, ItemWriter<O> writer);
 
 }

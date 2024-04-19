@@ -43,11 +43,7 @@ public class GeneratorImport extends AbstractStructImport {
 
 	@Override
 	protected Job job() {
-		return jobBuilder().start(step(reader(), processor(), writer())).build();
-	}
-
-	private ItemProcessor<Item, KeyValue<String, Object>> processor() {
-		return PROCESSOR;
+		return jobBuilder().start(step(getName(), reader(), writer()).processor(PROCESSOR).build()).build();
 	}
 
 	private GeneratorItemReader reader() {

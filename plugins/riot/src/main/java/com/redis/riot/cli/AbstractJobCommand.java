@@ -85,7 +85,7 @@ abstract class AbstractJobCommand extends AbstractSubCommand {
 		runnable.setSleep(Duration.ofMillis(sleep));
 		runnable.setThreads(threads);
 		if (progressStyle != ProgressStyle.NONE) {
-			runnable.addStepConfigurator(this::configureProgress);
+			runnable.addStepConfiguration(this::configureProgress);
 		}
 		return runnable;
 	}

@@ -5,10 +5,8 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.springframework.batch.core.Job;
-import org.springframework.batch.item.ItemWriter;
 import org.springframework.expression.Expression;
 import org.springframework.util.Assert;
-import org.springframework.util.ClassUtils;
 
 import com.redis.lettucemod.api.sync.RediSearchCommands;
 import com.redis.lettucemod.search.Field;
@@ -64,10 +62,7 @@ public class FakerImport extends AbstractImport {
 
 	@Override
 	protected Job job() {
-		String name = ClassUtils.getShortName(getClass());
-		FakerItemReader reader = reader();
-		ItemWriter<Map<String, Object>> writer = writer();
-		return jobBuilder().start(step(name, reader, writer)).build();
+		return jobBuilder().start(step(getName(), reader(), writer()).build()).build();
 	}
 
 	private FakerItemReader reader() {

@@ -7,7 +7,6 @@ import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.database.AbstractCursorItemReader;
 import org.springframework.batch.item.database.builder.JdbcCursorItemReaderBuilder;
 import org.springframework.jdbc.core.ColumnMapRowMapper;
-import org.springframework.util.ClassUtils;
 
 import com.redis.riot.core.AbstractImport;
 
@@ -92,8 +91,7 @@ public class DatabaseImport extends AbstractImport {
 
 	@Override
 	protected Job job() {
-		String name = ClassUtils.getShortName(getClass());
-		return jobBuilder().start(step(name, reader(), writer())).build();
+		return jobBuilder().start(step(getName(), reader(), writer()).build()).build();
 	}
 
 	private ItemReader<Map<String, Object>> reader() {

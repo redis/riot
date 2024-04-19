@@ -27,10 +27,7 @@ public abstract class AbstractMapExport extends AbstractExport {
 
 	@Override
 	protected Job job() {
-		RedisItemReader<String, String, KeyValue<String, Object>> reader = reader();
-		ItemProcessor<KeyValue<String, Object>, Map<String, Object>> processor = processor();
-		ItemWriter<Map<String, Object>> writer = writer();
-		return jobBuilder().start(step(reader, processor, writer)).build();
+		return jobBuilder().start(step(getName(), reader(), writer()).processor(processor()).build()).build();
 	}
 
 	protected RedisItemReader<String, String, KeyValue<String, Object>> reader() {

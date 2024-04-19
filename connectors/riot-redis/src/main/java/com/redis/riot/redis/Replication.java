@@ -9,6 +9,7 @@ import org.springframework.batch.core.job.builder.FlowBuilder;
 import org.springframework.batch.core.job.builder.JobFlowBuilder;
 import org.springframework.batch.core.job.builder.SimpleJobBuilder;
 import org.springframework.batch.core.job.flow.support.SimpleFlow;
+import org.springframework.batch.core.step.builder.FaultTolerantStepBuilder;
 import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.core.step.tasklet.TaskletStep;
 import org.springframework.batch.item.ItemProcessor;
@@ -101,21 +102,21 @@ public class Replication extends AbstractExport {
 	protected Job job() {
 		ItemProcessor<KeyValue<byte[], Object>, KeyValue<byte[], Object>> processor = processor(
 				ByteArrayCodec.INSTANCE);
-		SimpleStepBuilder<KeyValue<byte[], Object>, KeyValue<byte[], Object>> scanStep = stepBuilder(STEP_SCAN,
-				reader(), processor, writer());
+		SimpleStepBuilder<KeyValue<byte[], Object>, KeyValue<byte[], Object>> scanStep = step(STEP_SCAN, reader(),
+				writer()).processor(processor);
 		RedisItemReader<byte[], byte[], KeyValue<byte[], Object>> liveReader = reader();
 		liveReader.setMode(ReaderMode.LIVE);
 		FlushingStepBuilder<KeyValue<byte[], Object>, KeyValue<byte[], Object>> liveStep = flushingStep(
-				stepBuilder(STEP_LIVE, liveReader, processor, writer()));
+				step(STEP_LIVE, liveReader, writer()).processor(processor));
 		KeyComparisonStatusCountItemWriter compareWriter = new KeyComparisonStatusCountItemWriter();
-		TaskletStep compareStep = step(STEP_COMPARE, comparisonReader(), compareWriter);
+		TaskletStep compareStep = step(STEP_COMPARE, comparisonReader(), compareWriter).build();
 		switch (mode) {
 		case COMPARE:
 			return jobBuilder().start(compareStep).build();
 		case LIVE:
 			checkKeyspaceNotificationEnabled();
-			SimpleFlow scanFlow = flow("scan").start(build(scanStep)).build();
-			SimpleFlow liveFlow = flow("live").start(build(liveStep)).build();
+			SimpleFlow scanFlow = flow("scan").start(scanStep.build()).build();
+			SimpleFlow liveFlow = flow("live").start(liveStep.build()).build();
 			SimpleFlow replicateFlow = flow("replicate").split(new SimpleAsyncTaskExecutor()).add(liveFlow, scanFlow)
 					.build();
 			JobFlowBuilder live = jobBuilder().start(replicateFlow);
@@ -146,9 +147,8 @@ public class Replication extends AbstractExport {
 	}
 
 	@Override
-	protected void configureStep(SimpleStepBuilder<?, ?> step, String name, ItemReader<?> reader,
-			ItemWriter<?> writer) {
-		super.configureStep(step, name, reader, writer);
+	protected <I, O> FaultTolerantStepBuilder<I, O> step(String name, ItemReader<I> reader, ItemWriter<O> writer) {
+		FaultTolerantStepBuilder<I, O> step = super.step(name, reader, writer);
 		switch (name) {
 		case STEP_COMPARE:
 			if (showDiffs) {
@@ -165,6 +165,7 @@ public class Replication extends AbstractExport {
 		default:
 			break;
 		}
+		return step;
 	}
 
 	private void checkKeyspaceNotificationEnabled() {

@@ -18,7 +18,6 @@ import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.core.step.tasklet.TaskletStep;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
-import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
 import org.springframework.batch.item.file.mapping.FieldSetMapper;
@@ -146,9 +145,7 @@ public class FileImport extends AbstractImport {
 		if (maxItemCount != null && reader instanceof AbstractItemCountingItemStreamItemReader) {
 			((AbstractItemCountingItemStreamItemReader<Map<String, Object>>) reader).setMaxItemCount(maxItemCount);
 		}
-		ItemProcessor<Map<String, Object>, Map<String, Object>> processor = processor();
-		ItemWriter<Map<String, Object>> writer = writer();
-		return step(resource.getFilename(), reader, processor, writer);
+		return step(resource.getFilename(), reader, writer()).processor(processor()).build();
 	}
 
 	private ItemReader<Map<String, Object>> reader(Resource resource) {

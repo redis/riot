@@ -13,7 +13,6 @@ import org.springframework.core.io.Resource;
 
 import com.redis.riot.core.AbstractStructImport;
 import com.redis.spring.batch.KeyValue;
-import com.redis.spring.batch.RedisItemWriter;
 
 public class FileDumpImport extends AbstractStructImport {
 
@@ -47,9 +46,7 @@ public class FileDumpImport extends AbstractStructImport {
 		}
 		List<TaskletStep> steps = new ArrayList<>();
 		for (Resource resource : resources) {
-			ItemReader<KeyValue<String, Object>> reader = reader(resource);
-			RedisItemWriter<String, String, KeyValue<String, Object>> writer = writer();
-			steps.add(step(resource.getFilename(), reader, writer));
+			steps.add(step(resource.getFilename(), reader(resource), writer()).build());
 		}
 		Iterator<TaskletStep> iterator = steps.iterator();
 		SimpleJobBuilder job = jobBuilder().start(iterator.next());

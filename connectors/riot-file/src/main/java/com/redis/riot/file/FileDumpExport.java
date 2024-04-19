@@ -3,6 +3,7 @@ package com.redis.riot.file;
 import java.io.IOException;
 
 import org.springframework.batch.core.Job;
+import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.json.JacksonJsonObjectMarshaller;
 import org.springframework.batch.item.json.JsonObjectMarshaller;
@@ -126,7 +127,8 @@ public class FileDumpExport extends AbstractExport {
 		RedisItemReader<String, String, KeyValue<String, Object>> reader = RedisItemReader.struct();
 		reader.setClient(getRedisClient());
 		configureReader(reader);
-		return jobBuilder().start(step(reader, processor(StringCodec.UTF8), writer())).build();
+		ItemProcessor<KeyValue<String, Object>, KeyValue<String, Object>> processor = processor(StringCodec.UTF8);
+		return jobBuilder().start(step(getName(), reader, writer()).processor(processor).build()).build();
 	}
 
 }
