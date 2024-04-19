@@ -130,12 +130,6 @@ afterEvaluate {
 
 mainClassName = "com.redis.riot.cli.Main"
 
-eclipse {
-    project {
-        name = 'riot-cli'
-    }
-}
-
 task copyRuntimeDependencies(type: Copy) {
     into "$buildDir/dependencies/flat"
     from configurations.runtimeClasspath
