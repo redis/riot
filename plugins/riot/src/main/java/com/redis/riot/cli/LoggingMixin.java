@@ -77,7 +77,7 @@ public class LoggingMixin {
 		getTopLevelCommandLoggingMixin(mixee).showDateTime = show;
 	}
 
-	@Option(names = "--log-time-format", description = "Date and time format to be used in log messages (default: milliseconds since startup).", hideParamSyntax = true, paramLabel = "<f>", hidden = true)
+	@Option(names = "--log-time-format", description = "Date and time format to be used in log messages (default: milliseconds since startup).", paramLabel = "<f>")
 	public void setDateTimeFormat(String format) {
 		getTopLevelCommandLoggingMixin(mixee).dateTimeFormat = format;
 	}
