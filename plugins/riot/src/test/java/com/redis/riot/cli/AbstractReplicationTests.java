@@ -142,7 +142,7 @@ abstract class AbstractReplicationTests extends AbstractRiotTestBase {
 		generator.setCurrentItemCount(3001);
 		generateAsync(testInfo(info, "async"), generator);
 		execute(info, filename);
-		KeyspaceComparison comparison = compare(info);
+		KeyspaceComparison<String> comparison = compare(info);
 		Assertions.assertEquals(Collections.emptyList(), comparison.mismatches());
 	}
 
