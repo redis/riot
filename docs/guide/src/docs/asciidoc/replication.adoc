@@ -38,8 +38,8 @@ Live replication relies on keyspace notifications for capturing these changes.
 
 **Make sure the source database has keyspace notifications enabled** using:
 
-* `redis.conf`: `notify-keyspace-events = KA`
-* `CONFIG SET notify-keyspace-events KA`
+* `redis.conf`: `notify-keyspace-events = KEA`
+* `CONFIG SET notify-keyspace-events KEA`
 
 For more details see {link_redis_notif}.
 
