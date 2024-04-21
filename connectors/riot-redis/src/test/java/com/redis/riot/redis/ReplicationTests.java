@@ -1,5 +1,6 @@
 package com.redis.riot.redis;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.function.Predicate;
@@ -100,9 +101,27 @@ public abstract class ReplicationTests extends AbstractTargetTestBase {
 	}
 
 	@Test
-	void binaryKeySnapshotReplication(TestInfo info) throws Exception {
+	void binaryKeyValueSnapshotReplicationType(TestInfo info) throws Exception {
 		byte[] key = Hex.decode("aced0005");
-		byte[] value = "value".getBytes();
+		byte[] value = Hex.decode("aced0004");
+		Map<byte[], byte[]> hash = new HashMap<>();
+		hash.put(key, value);
+		StatefulRedisModulesConnection<byte[], byte[]> connection = RedisModulesUtils.connection(redisClient,
+				ByteArrayCodec.INSTANCE);
+		StatefulRedisModulesConnection<byte[], byte[]> targetConnection = RedisModulesUtils
+				.connection(targetRedisClient, ByteArrayCodec.INSTANCE);
+		connection.sync().hset(key, hash);
+		Replication replication = new Replication();
+		replication.setCompareMode(CompareMode.NONE);
+		replication.setType(ReplicationType.STRUCT);
+		execute(replication, info);
+		Assertions.assertArrayEquals(connection.sync().hget(key, key), targetConnection.sync().hget(key, key));
+	}
+
+	@Test
+	void binaryKeyValueSnapshotReplication(TestInfo info) throws Exception {
+		byte[] key = Hex.decode("aced0005");
+		byte[] value = Hex.decode("aced0004");
 		StatefulRedisModulesConnection<byte[], byte[]> connection = RedisModulesUtils.connection(redisClient,
 				ByteArrayCodec.INSTANCE);
 		StatefulRedisModulesConnection<byte[], byte[]> targetConnection = RedisModulesUtils
@@ -117,7 +136,7 @@ public abstract class ReplicationTests extends AbstractTargetTestBase {
 	@Test
 	void binaryKeyLiveReplication(TestInfo info) throws Exception {
 		byte[] key = Hex.decode("aced0005");
-		byte[] value = "value".getBytes();
+		byte[] value = Hex.decode("aced0004");
 		StatefulRedisModulesConnection<byte[], byte[]> connection = RedisModulesUtils.connection(redisClient,
 				ByteArrayCodec.INSTANCE);
 		StatefulRedisModulesConnection<byte[], byte[]> targetConnection = RedisModulesUtils

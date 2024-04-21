@@ -1,6 +1,7 @@
 package com.redis.riot.redis;
 
 import java.time.Duration;
+import java.util.function.Function;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +13,7 @@ import org.springframework.batch.core.job.flow.support.SimpleFlow;
 import org.springframework.batch.core.step.builder.FaultTolerantStepBuilder;
 import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.core.step.tasklet.TaskletStep;
+import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
@@ -21,6 +23,7 @@ import org.springframework.expression.spel.support.StandardEvaluationContext;
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
 import com.redis.lettucemod.util.RedisModulesUtils;
 import com.redis.riot.core.AbstractExport;
+import com.redis.riot.core.LoggingWriteListener;
 import com.redis.riot.core.RedisClientOptions;
 import com.redis.riot.core.RedisWriterOptions;
 import com.redis.spring.batch.KeyValue;
@@ -31,6 +34,7 @@ import com.redis.spring.batch.common.FlushingStepBuilder;
 import com.redis.spring.batch.reader.KeyComparatorOptions;
 import com.redis.spring.batch.reader.KeyComparatorOptions.StreamMessageIdPolicy;
 import com.redis.spring.batch.reader.KeyComparisonItemReader;
+import com.redis.spring.batch.util.BatchUtils;
 
 import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.ReadFrom;
@@ -69,7 +73,7 @@ public class Replication extends AbstractExport {
 	protected boolean isStruct() {
 		return type == ReplicationType.STRUCT;
 	}
-	
+
 	@Override
 	public void execute() throws Exception {
 		try {
@@ -100,6 +104,10 @@ public class Replication extends AbstractExport {
 		liveReader.setMode(ReaderMode.LIVE);
 		FlushingStepBuilder<KeyValue<byte[], Object>, KeyValue<byte[], Object>> liveStep = flushingStep(
 				step(STEP_LIVE, liveReader, writer()).processor(processor));
+		if (log.isInfoEnabled()) {
+			addLoggingWriteListener(scanStep);
+			addLoggingWriteListener(liveStep);
+		}
 		KeyComparisonStatusCountItemWriter compareWriter = new KeyComparisonStatusCountItemWriter();
 		TaskletStep compareStep = step(STEP_COMPARE, comparisonReader(), compareWriter).build();
 		switch (mode) {
@@ -130,6 +138,20 @@ public class Replication extends AbstractExport {
 		}
 	}
 
+	private static final Function<byte[], String> toString = BatchUtils.toStringKeyFunction(ByteArrayCodec.INSTANCE);
+
+	private void addLoggingWriteListener(SimpleStepBuilder<KeyValue<byte[], Object>, KeyValue<byte[], Object>> step) {
+		step.listener(new LoggingWriteListener<>(this::log));
+	}
+
+	private void log(Chunk<? extends KeyValue<byte[], Object>> chunk) {
+		chunk.getItems().stream().forEach(this::log);
+	}
+
+	private void log(KeyValue<byte[], Object> keyValue) {
+		log.info("Wrote {} {}", keyValue.getType().getCode(), toString.apply(keyValue.getKey()));
+	}
+
 	private FlowBuilder<SimpleFlow> flow(String name) {
 		return new FlowBuilder<>(name(name));
 	}
@@ -141,21 +163,11 @@ public class Replication extends AbstractExport {
 	@Override
 	protected <I, O> FaultTolerantStepBuilder<I, O> step(String name, ItemReader<I> reader, ItemWriter<O> writer) {
 		FaultTolerantStepBuilder<I, O> step = super.step(name, reader, writer);
-		switch (name) {
-		case STEP_COMPARE:
+		if (STEP_COMPARE.equals(name)) {
 			if (showDiffs) {
-				step.listener(new KeyComparisonDiffLogger());
+				step.listener(new KeyComparisonDiffLogger<>(ByteArrayCodec.INSTANCE));
 			}
 			step.listener(new KeyComparisonSummaryLogger((KeyComparisonStatusCountItemWriter) writer));
-			break;
-		case STEP_LIVE:
-		case STEP_SCAN:
-			if (log.isDebugEnabled()) {
-				step.listener(new KeyValueWriteListener<>(ByteArrayCodec.INSTANCE, log));
-			}
-			break;
-		default:
-			break;
 		}
 		return step;
 	}
@@ -166,8 +178,7 @@ public class Replication extends AbstractExport {
 			String config = connection.sync().configGet(CONFIG_NOTIFY_KEYSPACE_EVENTS)
 					.getOrDefault(CONFIG_NOTIFY_KEYSPACE_EVENTS, "");
 			if (!config.contains("K")) {
-				log.error(
-						"Keyspace notifications not property configured ({}={}). Make sure it contains at least \"K\".",
+				log.error("Keyspace notifications not property configured ({}={}). Use the string KEA to enable them.",
 						CONFIG_NOTIFY_KEYSPACE_EVENTS, config);
 			}
 		} catch (RedisException e) {
@@ -190,9 +201,10 @@ public class Replication extends AbstractExport {
 		return (RedisItemReader) RedisItemReader.dump();
 	}
 
-	private KeyComparisonItemReader comparisonReader() {
-		KeyComparisonItemReader reader = compareMode == CompareMode.FULL ? RedisItemReader.compare()
-				: RedisItemReader.compareQuick();
+	private KeyComparisonItemReader<byte[], byte[]> comparisonReader() {
+		KeyComparisonItemReader<byte[], byte[]> reader = compareMode == CompareMode.FULL
+				? RedisItemReader.compare(ByteArrayCodec.INSTANCE)
+				: RedisItemReader.compareQuick(ByteArrayCodec.INSTANCE);
 		configureReader(reader);
 		reader.setClient(getRedisClient());
 		reader.setTargetClient(targetRedisClient);
