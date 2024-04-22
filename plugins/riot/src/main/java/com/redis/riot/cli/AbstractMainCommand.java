@@ -14,14 +14,11 @@ import picocli.CommandLine;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.IExecutionStrategy;
-import picocli.CommandLine.Model.CommandSpec;
-import picocli.CommandLine.Option;
 import picocli.CommandLine.ParseResult;
 import picocli.CommandLine.RunFirst;
 import picocli.CommandLine.RunLast;
-import picocli.CommandLine.Spec;
 
-@Command(subcommands = { DatabaseImportCommand.class, DatabaseExportCommand.class, FileDumpImportCommand.class,
+@Command(subcommands = { DbImportCommand.class, DbExportCommand.class, FileDumpImportCommand.class,
 		FileImportCommand.class, FileDumpExportCommand.class, FakerImportCommand.class, GenerateCommand.class,
 		ReplicateCommand.class, PingCommand.class, GenerateCompletion.class })
 public abstract class AbstractMainCommand extends BaseCommand implements Runnable {
@@ -30,14 +27,8 @@ public abstract class AbstractMainCommand extends BaseCommand implements Runnabl
 
 	PrintWriter err;
 
-	@Spec
-	CommandSpec spec;
-
 	@ArgGroup(exclusive = false, heading = "Redis connection options%n")
 	RedisArgs redisArgs = new RedisArgs();
-
-	@Option(names = { "-V", "--version" }, versionHelp = true, description = "Print version information and exit.")
-	boolean versionRequested;
 
 	@Override
 	public void run() {
@@ -64,7 +55,6 @@ public abstract class AbstractMainCommand extends BaseCommand implements Runnabl
 	private static int execute(CommandLine commandLine, String[] args, IExecutionStrategy... executionStrategies) {
 		CompositeExecutionStrategy executionStrategy = new CompositeExecutionStrategy();
 		executionStrategy.addDelegates(executionStrategies);
-		executionStrategy.addDelegates(LoggingMixin::executionStrategy);
 		executionStrategy.addDelegates(AbstractMainCommand::executionStrategy);
 		commandLine.setExecutionStrategy(executionStrategy);
 		commandLine.registerConverter(Range.class, new RangeTypeConverter<>(Range::of));

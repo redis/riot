@@ -3,14 +3,15 @@ package com.redis.riot.cli.redis;
 import java.util.List;
 import java.util.Map;
 
-import com.redis.riot.cli.BaseCommand;
 import com.redis.riot.cli.RedisCommand;
 import com.redis.riot.core.operation.AbstractMapOperationBuilder;
 import com.redis.spring.batch.operation.Operation;
 
+import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
-abstract class AbstractRedisCommand extends BaseCommand implements RedisCommand {
+@Command(usageHelpAutoWidth = true, abbreviateSynopsis = true, mixinStandardHelpOptions = true)
+abstract class AbstractRedisCommand implements RedisCommand {
 
 	@Option(names = { "-p", "--keyspace" }, description = "Keyspace prefix.", paramLabel = "<str>")
 	private String keyspace;

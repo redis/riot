@@ -4,7 +4,7 @@ import com.redis.riot.db.DataSourceOptions;
 
 import picocli.CommandLine.Option;
 
-public class DatabaseArgs {
+public class DbArgs {
 
     @Option(names = "--driver", description = "Fully qualified name of the JDBC driver.", paramLabel = "<class>")
     String driver;

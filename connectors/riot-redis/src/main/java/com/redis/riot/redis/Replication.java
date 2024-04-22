@@ -56,6 +56,7 @@ public class Replication extends AbstractExport {
 	private static final String TARGET_VAR = "target";
 
 	private final Logger log = LoggerFactory.getLogger(Replication.class);
+	private final Function<byte[], String> toString = BatchUtils.toStringKeyFunction(ByteArrayCodec.INSTANCE);
 
 	private ReplicationMode mode = DEFAULT_MODE;
 	private ReplicationType type = DEFAULT_TYPE;
@@ -138,8 +139,6 @@ public class Replication extends AbstractExport {
 		}
 	}
 
-	private static final Function<byte[], String> toString = BatchUtils.toStringKeyFunction(ByteArrayCodec.INSTANCE);
-
 	private void addLoggingWriteListener(SimpleStepBuilder<KeyValue<byte[], Object>, KeyValue<byte[], Object>> step) {
 		step.listener(new LoggingWriteListener<>(this::log));
 	}
@@ -149,7 +148,7 @@ public class Replication extends AbstractExport {
 	}
 
 	private void log(KeyValue<byte[], Object> keyValue) {
-		log.info("Wrote {} {}", keyValue.getType().getCode(), toString.apply(keyValue.getKey()));
+		log.info("Wrote {}", toString.apply(keyValue.getKey()));
 	}
 
 	private FlowBuilder<SimpleFlow> flow(String name) {

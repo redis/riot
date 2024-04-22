@@ -32,7 +32,7 @@ import picocli.CommandLine.Option;
 		LpushCommand.class, RpushCommand.class, SaddCommand.class, SetCommand.class, XaddCommand.class,
 		ZaddCommand.class, SugaddCommand.class, JsonSetCommand.class,
 		TsAddCommand.class }, subcommandsRepeatable = true, synopsisSubcommandLabel = "[REDIS COMMAND...]", commandListHeading = "Redis commands:%n")
-public abstract class AbstractImportCommand extends AbstractJobCommand {
+public abstract class AbstractImportCommand extends AbstractRiotCommand {
 
 	@Option(arity = "1..*", names = "--proc", description = "SpEL expressions in the form field1=\"exp\" field2=\"exp\"...", paramLabel = "<f=exp>")
 	Map<String, Expression> processorExpressions;

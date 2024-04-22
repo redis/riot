@@ -21,11 +21,12 @@ import me.tongfei.progressbar.DelegatingProgressBarConsumer;
 import me.tongfei.progressbar.ProgressBarBuilder;
 import me.tongfei.progressbar.ProgressBarStyle;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Mixin;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.ParentCommand;
 
 @Command
-abstract class AbstractJobCommand extends BaseCommand implements Callable<Integer> {
+abstract class AbstractRiotCommand extends BaseCommand implements Callable<Integer> {
 
 	public enum ProgressStyle {
 		BLOCK, BAR, ASCII, LOG, NONE
@@ -33,6 +34,9 @@ abstract class AbstractJobCommand extends BaseCommand implements Callable<Intege
 
 	@ParentCommand
 	protected AbstractMainCommand parent;
+
+	@Mixin
+	LoggingMixin loggingMixin = new LoggingMixin();
 
 	@Option(names = "--sleep", description = "Duration in ms to sleep after each batch write (default: ${DEFAULT-VALUE}).", paramLabel = "<ms>")
 	long sleep;
@@ -82,6 +86,7 @@ abstract class AbstractJobCommand extends BaseCommand implements Callable<Intege
 
 	@Override
 	public Integer call() throws Exception {
+		loggingMixin.configureLogging();
 		AbstractRedisRunnable runnable = runnable();
 		if (name != null) {
 			runnable.setName(name);

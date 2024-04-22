@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.TestInfo;
 import org.slf4j.simple.SimpleLogger;
 
-import com.redis.riot.cli.AbstractJobCommand.ProgressStyle;
+import com.redis.riot.cli.AbstractRiotCommand.ProgressStyle;
 import com.redis.riot.redis.CompareMode;
 import com.redis.riot.redis.ReplicationMode;
 import com.redis.spring.batch.test.AbstractTargetTestBase;
@@ -64,8 +64,8 @@ abstract class AbstractRiotTestBase extends AbstractTargetTestBase {
 			if (command instanceof RedisCommand) {
 				command = subParseResult.commandSpec().parent().commandLine().getCommand();
 			}
-			if (command instanceof AbstractJobCommand) {
-				AbstractJobCommand jobCommand = ((AbstractJobCommand) command);
+			if (command instanceof AbstractRiotCommand) {
+				AbstractRiotCommand jobCommand = ((AbstractRiotCommand) command);
 				jobCommand.setProgressStyle(ProgressStyle.NONE);
 				jobCommand.setName(name(info));
 			}

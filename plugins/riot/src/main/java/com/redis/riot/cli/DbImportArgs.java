@@ -4,7 +4,7 @@ import com.redis.riot.db.DatabaseImport;
 
 import picocli.CommandLine.Option;
 
-public class DatabaseImportArgs extends DatabaseArgs {
+public class DbImportArgs extends DbArgs {
 
     @Option(names = "--max", description = "Max number of rows to import.", paramLabel = "<count>")
     int maxItemCount;

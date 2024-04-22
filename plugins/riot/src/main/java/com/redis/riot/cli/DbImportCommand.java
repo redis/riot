@@ -8,13 +8,13 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Parameters;
 
 @Command(name = "db-import", description = "Import from a relational database.")
-public class DatabaseImportCommand extends AbstractImportCommand {
+public class DbImportCommand extends AbstractImportCommand {
 
 	@Parameters(arity = "1", description = "SQL SELECT statement", paramLabel = "SQL")
 	String sql;
 
 	@ArgGroup(exclusive = false)
-	DatabaseImportArgs args = new DatabaseImportArgs();
+	DbImportArgs args = new DbImportArgs();
 
 	@Override
 	protected AbstractImport importRunnable() {

@@ -12,7 +12,7 @@ import com.redis.spring.batch.reader.ScanSizeEstimator;
 
 import picocli.CommandLine.ArgGroup;
 
-public abstract class AbstractExportCommand extends AbstractJobCommand {
+public abstract class AbstractExportCommand extends AbstractRiotCommand {
 
 	@ArgGroup(exclusive = false, heading = "Reader options%n")
 	RedisReaderArgs readerArgs = new RedisReaderArgs();
