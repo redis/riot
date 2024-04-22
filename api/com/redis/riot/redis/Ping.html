@@ -73,18 +73,16 @@ loadScripts(document, 'script');</script>
 <h1 title="Class Ping" class="title">Class Ping</h1>
 </div>
 <div class="inheritance" title="Inheritance Tree"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">java.lang.Object</a>
-<div class="inheritance"><a href="../core/AbstractRunnable.html" title="class in com.redis.riot.core">com.redis.riot.core.AbstractRunnable</a>
+<div class="inheritance"><a href="../core/AbstractExecutable.html" title="class in com.redis.riot.core">com.redis.riot.core.AbstractExecutable</a>
+<div class="inheritance"><a href="../core/AbstractRedisRunnable.html" title="class in com.redis.riot.core">com.redis.riot.core.AbstractRedisRunnable</a>
 <div class="inheritance">com.redis.riot.redis.Ping</div>
 </div>
 </div>
+</div>
 <section class="class-description" id="class-description">
-<dl class="notes">
-<dt>All Implemented Interfaces:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Runnable.html" title="class or interface in java.lang" class="external-link">Runnable</a></code></dd>
-</dl>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">Ping</span>
-<span class="extends-implements">extends <a href="../core/AbstractRunnable.html" title="class in com.redis.riot.core">AbstractRunnable</a></span></div>
+<span class="extends-implements">extends <a href="../core/AbstractRedisRunnable.html" title="class in com.redis.riot.core">AbstractRedisRunnable</a></span></div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -107,6 +105,9 @@ loadScripts(document, 'script');</script>
 <div class="col-second even-row-color"><code><a href="#DEFAULT_TIME_UNIT" class="member-name-link">DEFAULT_TIME_UNIT</a></code></div>
 <div class="col-last even-row-color">&nbsp;</div>
 </div>
+<div class="inherited-list">
+<h3 id="fields-inherited-from-class-com.redis.riot.core.AbstractExecutable">Fields inherited from class&nbsp;com.redis.riot.core.<a href="../core/AbstractExecutable.html" title="class in com.redis.riot.core">AbstractExecutable</a></h3>
+<code><a href="../core/AbstractExecutable.html#DEFAULT_CHUNK_SIZE">DEFAULT_CHUNK_SIZE</a>, <a href="../core/AbstractExecutable.html#DEFAULT_RETRY_LIMIT">DEFAULT_RETRY_LIMIT</a>, <a href="../core/AbstractExecutable.html#DEFAULT_SKIP_LIMIT">DEFAULT_SKIP_LIMIT</a>, <a href="../core/AbstractExecutable.html#DEFAULT_SKIP_POLICY">DEFAULT_SKIP_POLICY</a>, <a href="../core/AbstractExecutable.html#DEFAULT_SLEEP">DEFAULT_SLEEP</a>, <a href="../core/AbstractExecutable.html#DEFAULT_THREADS">DEFAULT_THREADS</a></code></div>
 </section>
 </li>
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
@@ -136,20 +137,14 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static double[]</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#defaultPercentiles()" class="member-name-link">defaultPercentiles</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#doRun()" class="member-name-link">doRun</a>()</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getCount()" class="member-name-link">getCount</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getCount()" class="member-name-link">getCount</a>()</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getIterations()" class="member-name-link">getIterations</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getIterations()" class="member-name-link">getIterations</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>double[]</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getPercentiles()" class="member-name-link">getPercentiles</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/Duration.html" title="class or interface in java.time" class="external-link">Duration</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getSleep()" class="member-name-link">getSleep</a>()</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>double[]</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getPercentiles()" class="member-name-link">getPercentiles</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/concurrent/TimeUnit.html" title="class or interface in java.util.concurrent" class="external-link">TimeUnit</a></code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getTimeUnit()" class="member-name-link">getTimeUnit</a>()</code></div>
@@ -157,23 +152,23 @@ loadScripts(document, 'script');</script>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isLatencyDistribution()" class="member-name-link">isLatencyDistribution</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setCount(int)" class="member-name-link">setCount</a><wbr>(int&nbsp;count)</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected org.springframework.batch.core.Job</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#job()" class="member-name-link">job</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setIterations(int)" class="member-name-link">setIterations</a><wbr>(int&nbsp;iterations)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setCount(int)" class="member-name-link">setCount</a><wbr>(int&nbsp;count)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setLatencyDistribution(boolean)" class="member-name-link">setLatencyDistribution</a><wbr>(boolean&nbsp;latencyDistribution)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setIterations(int)" class="member-name-link">setIterations</a><wbr>(int&nbsp;iterations)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setOut(java.io.PrintWriter)" class="member-name-link">setOut</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/PrintWriter.html" title="class or interface in java.io" class="external-link">PrintWriter</a>&nbsp;out)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setLatencyDistribution(boolean)" class="member-name-link">setLatencyDistribution</a><wbr>(boolean&nbsp;latencyDistribution)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setPercentiles(double%5B%5D)" class="member-name-link">setPercentiles</a><wbr>(double[]&nbsp;percentiles)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setOut(java.io.PrintWriter)" class="member-name-link">setOut</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/PrintWriter.html" title="class or interface in java.io" class="external-link">PrintWriter</a>&nbsp;out)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setSleep(java.time.Duration)" class="member-name-link">setSleep</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/Duration.html" title="class or interface in java.time" class="external-link">Duration</a>&nbsp;sleep)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setPercentiles(double%5B%5D)" class="member-name-link">setPercentiles</a><wbr>(double[]&nbsp;percentiles)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setTimeUnit(java.util.concurrent.TimeUnit)" class="member-name-link">setTimeUnit</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/concurrent/TimeUnit.html" title="class or interface in java.util.concurrent" class="external-link">TimeUnit</a>&nbsp;unit)</code></div>
@@ -182,8 +177,11 @@ loadScripts(document, 'script');</script>
 </div>
 </div>
 <div class="inherited-list">
-<h3 id="methods-inherited-from-class-com.redis.riot.core.AbstractRunnable">Methods inherited from class&nbsp;com.redis.riot.core.<a href="../core/AbstractRunnable.html" title="class in com.redis.riot.core">AbstractRunnable</a></h3>
-<code><a href="../core/AbstractRunnable.html#close()">close</a>, <a href="../core/AbstractRunnable.html#getRedisClient()">getRedisClient</a>, <a href="../core/AbstractRunnable.html#getRedisClientOptions()">getRedisClientOptions</a>, <a href="../core/AbstractRunnable.html#getRedisConnection()">getRedisConnection</a>, <a href="../core/AbstractRunnable.html#getRedisURI()">getRedisURI</a>, <a href="../core/AbstractRunnable.html#open()">open</a>, <a href="../core/AbstractRunnable.html#run()">run</a>, <a href="../core/AbstractRunnable.html#setRedisClientOptions(com.redis.riot.core.RedisClientOptions)">setRedisClientOptions</a></code></div>
+<h3 id="methods-inherited-from-class-com.redis.riot.core.AbstractRedisRunnable">Methods inherited from class&nbsp;com.redis.riot.core.<a href="../core/AbstractRedisRunnable.html" title="class in com.redis.riot.core">AbstractRedisRunnable</a></h3>
+<code><a href="../core/AbstractRedisRunnable.html#execute()">execute</a>, <a href="../core/AbstractRedisRunnable.html#getRedisClient()">getRedisClient</a>, <a href="../core/AbstractRedisRunnable.html#getRedisClientOptions()">getRedisClientOptions</a>, <a href="../core/AbstractRedisRunnable.html#getRedisURI()">getRedisURI</a>, <a href="../core/AbstractRedisRunnable.html#setRedisClientOptions(com.redis.riot.core.RedisClientOptions)">setRedisClientOptions</a></code></div>
+<div class="inherited-list">
+<h3 id="methods-inherited-from-class-com.redis.riot.core.AbstractExecutable">Methods inherited from class&nbsp;com.redis.riot.core.<a href="../core/AbstractExecutable.html" title="class in com.redis.riot.core">AbstractExecutable</a></h3>
+<code><a href="../core/AbstractExecutable.html#addStepConfiguration(com.redis.riot.core.StepConfiguration)">addStepConfiguration</a>, <a href="../core/AbstractExecutable.html#faultTolerant(org.springframework.batch.core.step.builder.SimpleStepBuilder)">faultTolerant</a>, <a href="../core/AbstractExecutable.html#getChunkSize()">getChunkSize</a>, <a href="../core/AbstractExecutable.html#getJobFactory()">getJobFactory</a>, <a href="../core/AbstractExecutable.html#getName()">getName</a>, <a href="../core/AbstractExecutable.html#getRetryLimit()">getRetryLimit</a>, <a href="../core/AbstractExecutable.html#getSkipLimit()">getSkipLimit</a>, <a href="../core/AbstractExecutable.html#getSleep()">getSleep</a>, <a href="../core/AbstractExecutable.html#getThreads()">getThreads</a>, <a href="../core/AbstractExecutable.html#isDryRun()">isDryRun</a>, <a href="../core/AbstractExecutable.html#jobBuilder()">jobBuilder</a>, <a href="../core/AbstractExecutable.html#name(java.lang.String...)">name</a>, <a href="../core/AbstractExecutable.html#setChunkSize(int)">setChunkSize</a>, <a href="../core/AbstractExecutable.html#setDryRun(boolean)">setDryRun</a>, <a href="../core/AbstractExecutable.html#setJobFactory(com.redis.spring.batch.common.JobFactory)">setJobFactory</a>, <a href="../core/AbstractExecutable.html#setName(java.lang.String)">setName</a>, <a href="../core/AbstractExecutable.html#setRetryLimit(int)">setRetryLimit</a>, <a href="../core/AbstractExecutable.html#setSkipLimit(int)">setSkipLimit</a>, <a href="../core/AbstractExecutable.html#setSleep(java.time.Duration)">setSleep</a>, <a href="../core/AbstractExecutable.html#setThreads(int)">setThreads</a>, <a href="../core/AbstractExecutable.html#step(java.lang.String,org.springframework.batch.item.ItemReader,org.springframework.batch.item.ItemWriter)">step</a>, <a href="../core/AbstractExecutable.html#writer(com.redis.spring.batch.RedisItemWriter,com.redis.riot.core.RedisWriterOptions)">writer</a></code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-java.lang.Object">Methods inherited from class&nbsp;java.lang.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></h3>
 <code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#clone()" title="class or interface in java.lang" class="external-link">clone</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#equals(java.lang.Object)" title="class or interface in java.lang" class="external-link">equals</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#finalize()" title="class or interface in java.lang" class="external-link">finalize</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#getClass()" title="class or interface in java.lang" class="external-link">getClass</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#hashCode()" title="class or interface in java.lang" class="external-link">hashCode</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#notify()" title="class or interface in java.lang" class="external-link">notify</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#notifyAll()" title="class or interface in java.lang" class="external-link">notifyAll</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#toString()" title="class or interface in java.lang" class="external-link">toString</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#wait()" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#wait(long)" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#wait(long,int)" title="class or interface in java.lang" class="external-link">wait</a></code></div>
@@ -261,18 +259,6 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="setSleep(java.time.Duration)">
-<h3>setSleep</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setSleep</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/Duration.html" title="class or interface in java.time" class="external-link">Duration</a>&nbsp;sleep)</span></div>
-</section>
-</li>
-<li>
-<section class="detail" id="getSleep()">
-<h3>getSleep</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/Duration.html" title="class or interface in java.time" class="external-link">Duration</a></span>&nbsp;<span class="element-name">getSleep</span>()</div>
-</section>
-</li>
-<li>
 <section class="detail" id="getIterations()">
 <h3>getIterations</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">getIterations</span>()</div>
@@ -333,12 +319,12 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="doRun()">
-<h3>doRun</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">doRun</span>()</div>
+<section class="detail" id="job()">
+<h3>job</h3>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">org.springframework.batch.core.Job</span>&nbsp;<span class="element-name">job</span>()</div>
 <dl class="notes">
 <dt>Specified by:</dt>
-<dd><code><a href="../core/AbstractRunnable.html#doRun()">doRun</a></code>&nbsp;in class&nbsp;<code><a href="../core/AbstractRunnable.html" title="class in com.redis.riot.core">AbstractRunnable</a></code></dd>
+<dd><code><a href="../core/AbstractExecutable.html#job()">job</a></code>&nbsp;in class&nbsp;<code><a href="../core/AbstractExecutable.html" title="class in com.redis.riot.core">AbstractExecutable</a></code></dd>
 </dl>
 </section>
 </li>

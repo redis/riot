@@ -90,7 +90,13 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/core/function/MapFilteringFunction.html#excludes(java.util.Collection)" class="member-name-link">excludes(Collection&lt;String&gt;)</a> - Method in class com.redis.riot.core.function.<a href="../com/redis/riot/core/function/MapFilteringFunction.html" title="class in com.redis.riot.core.function">MapFilteringFunction</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="../com/redis/riot/core/operation/CompositeBatchWriteOperation.html#execute(io.lettuce.core.api.async.BaseRedisAsyncCommands,org.springframework.batch.item.Chunk,org.springframework.batch.item.Chunk)" class="member-name-link">execute(BaseRedisAsyncCommands&lt;K, V&gt;, Chunk&lt;? extends T&gt;, Chunk&lt;RedisFuture&lt;Object&gt;&gt;)</a> - Method in class com.redis.riot.core.operation.<a href="../com/redis/riot/core/operation/CompositeBatchWriteOperation.html" title="class in com.redis.riot.core.operation">CompositeBatchWriteOperation</a></dt>
+<dt><a href="../com/redis/riot/core/AbstractExecutable.html#execute()" class="member-name-link">execute()</a> - Method in class com.redis.riot.core.<a href="../com/redis/riot/core/AbstractExecutable.html" title="class in com.redis.riot.core">AbstractExecutable</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="../com/redis/riot/core/AbstractRedisRunnable.html#execute()" class="member-name-link">execute()</a> - Method in class com.redis.riot.core.<a href="../com/redis/riot/core/AbstractRedisRunnable.html" title="class in com.redis.riot.core">AbstractRedisRunnable</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="../com/redis/riot/redis/Replication.html#execute()" class="member-name-link">execute()</a> - Method in class com.redis.riot.redis.<a href="../com/redis/riot/redis/Replication.html" title="class in com.redis.riot.redis">Replication</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="../com/redis/riot/core/operation/CompositeBatchWriteOperation.html#execute(io.lettuce.core.api.async.BaseRedisAsyncCommands,java.lang.Iterable,java.util.List)" class="member-name-link">execute(BaseRedisAsyncCommands&lt;K, V&gt;, Iterable&lt;? extends T&gt;, List&lt;RedisFuture&lt;Object&gt;&gt;)</a> - Method in class com.redis.riot.core.operation.<a href="../com/redis/riot/core/operation/CompositeBatchWriteOperation.html" title="class in com.redis.riot.core.operation">CompositeBatchWriteOperation</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/cli/CompositeExecutionStrategy.html#execute(picocli.CommandLine.ParseResult)" class="member-name-link">execute(CommandLine.ParseResult)</a> - Method in class com.redis.riot.cli.<a href="../com/redis/riot/cli/CompositeExecutionStrategy.html" title="class in com.redis.riot.cli">CompositeExecutionStrategy</a></dt>
 <dd>&nbsp;</dd>
@@ -101,8 +107,6 @@ loadScripts(document, 'script');</script>
 <dt><a href="../com/redis/riot/core/ExecutionException.html#%3Cinit%3E(java.lang.String,java.lang.Throwable)" class="member-name-link">ExecutionException(String, Throwable)</a> - Constructor for exception com.redis.riot.core.<a href="../com/redis/riot/core/ExecutionException.html" title="class in com.redis.riot.core">ExecutionException</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/core/ExecutionException.html#%3Cinit%3E(java.lang.Throwable)" class="member-name-link">ExecutionException(Throwable)</a> - Constructor for exception com.redis.riot.core.<a href="../com/redis/riot/core/ExecutionException.html" title="class in com.redis.riot.core">ExecutionException</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="../com/redis/riot/cli/LoggingMixin.html#executionStrategy(picocli.CommandLine.ParseResult)" class="member-name-link">executionStrategy(CommandLine.ParseResult)</a> - Static method in class com.redis.riot.cli.<a href="../com/redis/riot/cli/LoggingMixin.html" title="class in com.redis.riot.cli">LoggingMixin</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/file/FileUtils.html#expand(java.lang.String)" class="member-name-link">expand(String)</a> - Static method in class com.redis.riot.file.<a href="../com/redis/riot/file/FileUtils.html" title="class in com.redis.riot.file">FileUtils</a></dt>
 <dd>&nbsp;</dd>
@@ -128,7 +132,7 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/cli/AbstractExportCommand.html#exportRunnable()" class="member-name-link">exportRunnable()</a> - Method in class com.redis.riot.cli.<a href="../com/redis/riot/cli/AbstractExportCommand.html" title="class in com.redis.riot.cli">AbstractExportCommand</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="../com/redis/riot/cli/DatabaseExportCommand.html#exportRunnable()" class="member-name-link">exportRunnable()</a> - Method in class com.redis.riot.cli.<a href="../com/redis/riot/cli/DatabaseExportCommand.html" title="class in com.redis.riot.cli">DatabaseExportCommand</a></dt>
+<dt><a href="../com/redis/riot/cli/DbExportCommand.html#exportRunnable()" class="member-name-link">exportRunnable()</a> - Method in class com.redis.riot.cli.<a href="../com/redis/riot/cli/DbExportCommand.html" title="class in com.redis.riot.cli">DbExportCommand</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/cli/FileDumpExportCommand.html#exportRunnable()" class="member-name-link">exportRunnable()</a> - Method in class com.redis.riot.cli.<a href="../com/redis/riot/cli/FileDumpExportCommand.html" title="class in com.redis.riot.cli">FileDumpExportCommand</a></dt>
 <dd>&nbsp;</dd>
@@ -142,7 +146,7 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/file/FileUtils.html#EXTENSION_PATTERN" class="member-name-link">EXTENSION_PATTERN</a> - Static variable in class com.redis.riot.file.<a href="../com/redis/riot/file/FileUtils.html" title="class in com.redis.riot.file">FileUtils</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="../com/redis/riot/cli/AbstractImportCommand.html#extraMessageSupplier(java.lang.String,org.springframework.batch.item.ItemReader,org.springframework.batch.item.ItemWriter)" class="member-name-link">extraMessageSupplier(String, ItemReader&lt;?&gt;, ItemWriter&lt;?&gt;)</a> - Method in class com.redis.riot.cli.<a href="../com/redis/riot/cli/AbstractImportCommand.html" title="class in com.redis.riot.cli">AbstractImportCommand</a></dt>
+<dt><a href="../com/redis/riot/cli/FileImportCommand.html#extraMessageSupplier(java.lang.String,org.springframework.batch.item.ItemReader,org.springframework.batch.item.ItemWriter)" class="member-name-link">extraMessageSupplier(String, ItemReader&lt;?&gt;, ItemWriter&lt;?&gt;)</a> - Method in class com.redis.riot.cli.<a href="../com/redis/riot/cli/FileImportCommand.html" title="class in com.redis.riot.cli">FileImportCommand</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/cli/ReplicateCommand.html#extraMessageSupplier(java.lang.String,org.springframework.batch.item.ItemReader,org.springframework.batch.item.ItemWriter)" class="member-name-link">extraMessageSupplier(String, ItemReader&lt;?&gt;, ItemWriter&lt;?&gt;)</a> - Method in class com.redis.riot.cli.<a href="../com/redis/riot/cli/ReplicateCommand.html" title="class in com.redis.riot.cli">ReplicateCommand</a></dt>
 <dd>&nbsp;</dd>

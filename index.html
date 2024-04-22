@@ -92,7 +92,7 @@ $(addBlockSwitches);
 <h1>Redis Input/Output Tools (RIOT)</h1>
 <div class="details">
 <span id="author" class="author">Julien Ruaux</span><br>
-<span id="revnumber">version 3.2.0</span>
+<span id="revnumber">version 3.2.2</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -218,8 +218,8 @@ scoop install riot</code></pre>
 </td>
 <td class="content">
 <div class="paragraph">
-<p><code>riot-3.2.0.zip</code> requires Java 11 or greater to be installed.
-<code>riot-standalone-3.2.0-*.zip</code> includes its own Java runtime and does not require a Java installation.</p>
+<p><code>riot-3.2.2.zip</code> requires Java 11 or greater to be installed.
+<code>riot-standalone-3.2.2-*.zip</code> includes its own Java runtime and does not require a Java installation.</p>
 </div>
 </td>
 </tr>
@@ -1181,10 +1181,10 @@ Whenever a key is modified its corresponding value is read and propagated to the
 <div class="ulist">
 <ul>
 <li>
-<p><code>redis.conf</code>: <code>notify-keyspace-events = KA</code></p>
+<p><code>redis.conf</code>: <code>notify-keyspace-events = KEA</code></p>
 </li>
 <li>
-<p><code>CONFIG SET notify-keyspace-events KA</code></p>
+<p><code>CONFIG SET notify-keyspace-events KEA</code></p>
 </li>
 </ul>
 </div>
@@ -1379,7 +1379,7 @@ The progress bar is only a rough indicator.</p>
 <p>Once replication is complete, RIOT performs a verification step by iterating over keys in the source database and comparing values and TTLs between source and target databases.</p>
 </div>
 <div class="paragraph">
-<p>The verification step happens automatically after the scan is complete (snapshot replication), or for live replication when keyspace notifications have become idle (see <a href="#_replication_usage">Usage</a> section).</p>
+<p>The verification step happens automatically after the scan is complete (snapshot replication), or for live replication when keyspace notifications have become idle.</p>
 </div>
 <div class="paragraph">
 <p>Verification can also be run on-demand using the <code>compare</code> mode:</p>
@@ -1880,8 +1880,8 @@ Check the database with <code>redis-cli</code> <a href="https://developer.redis.
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 3.2.0<br>
-Last updated 2024-03-19 06:58:16 UTC
+Version 3.2.2<br>
+Last updated 2024-04-22 21:44:42 UTC
 </div>
 </div>
 <link rel="stylesheet" href="./coderay-asciidoctor.css">

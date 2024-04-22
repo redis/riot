@@ -73,8 +73,8 @@ loadScripts(document, 'script');</script>
 <h1 title="Class Replication" class="title">Class Replication</h1>
 </div>
 <div class="inheritance" title="Inheritance Tree"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">java.lang.Object</a>
-<div class="inheritance"><a href="../core/AbstractRunnable.html" title="class in com.redis.riot.core">com.redis.riot.core.AbstractRunnable</a>
-<div class="inheritance"><a href="../core/AbstractJobRunnable.html" title="class in com.redis.riot.core">com.redis.riot.core.AbstractJobRunnable</a>
+<div class="inheritance"><a href="../core/AbstractExecutable.html" title="class in com.redis.riot.core">com.redis.riot.core.AbstractExecutable</a>
+<div class="inheritance"><a href="../core/AbstractRedisRunnable.html" title="class in com.redis.riot.core">com.redis.riot.core.AbstractRedisRunnable</a>
 <div class="inheritance"><a href="../core/AbstractExport.html" title="class in com.redis.riot.core">com.redis.riot.core.AbstractExport</a>
 <div class="inheritance">com.redis.riot.redis.Replication</div>
 </div>
@@ -82,10 +82,6 @@ loadScripts(document, 'script');</script>
 </div>
 </div>
 <section class="class-description" id="class-description">
-<dl class="notes">
-<dt>All Implemented Interfaces:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Runnable.html" title="class or interface in java.lang" class="external-link">Runnable</a></code></dd>
-</dl>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">Replication</span>
 <span class="extends-implements">extends <a href="../core/AbstractExport.html" title="class in com.redis.riot.core">AbstractExport</a></span></div>
@@ -124,8 +120,8 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color">&nbsp;</div>
 </div>
 <div class="inherited-list">
-<h3 id="fields-inherited-from-class-com.redis.riot.core.AbstractJobRunnable">Fields inherited from class&nbsp;com.redis.riot.core.<a href="../core/AbstractJobRunnable.html" title="class in com.redis.riot.core">AbstractJobRunnable</a></h3>
-<code><a href="../core/AbstractJobRunnable.html#DEFAULT_CHUNK_SIZE">DEFAULT_CHUNK_SIZE</a>, <a href="../core/AbstractJobRunnable.html#DEFAULT_RETRY_LIMIT">DEFAULT_RETRY_LIMIT</a>, <a href="../core/AbstractJobRunnable.html#DEFAULT_SKIP_LIMIT">DEFAULT_SKIP_LIMIT</a>, <a href="../core/AbstractJobRunnable.html#DEFAULT_SKIP_POLICY">DEFAULT_SKIP_POLICY</a>, <a href="../core/AbstractJobRunnable.html#DEFAULT_SLEEP">DEFAULT_SLEEP</a>, <a href="../core/AbstractJobRunnable.html#DEFAULT_THREADS">DEFAULT_THREADS</a></code></div>
+<h3 id="fields-inherited-from-class-com.redis.riot.core.AbstractExecutable">Fields inherited from class&nbsp;com.redis.riot.core.<a href="../core/AbstractExecutable.html" title="class in com.redis.riot.core">AbstractExecutable</a></h3>
+<code><a href="../core/AbstractExecutable.html#DEFAULT_CHUNK_SIZE">DEFAULT_CHUNK_SIZE</a>, <a href="../core/AbstractExecutable.html#DEFAULT_RETRY_LIMIT">DEFAULT_RETRY_LIMIT</a>, <a href="../core/AbstractExecutable.html#DEFAULT_SKIP_LIMIT">DEFAULT_SKIP_LIMIT</a>, <a href="../core/AbstractExecutable.html#DEFAULT_SKIP_POLICY">DEFAULT_SKIP_POLICY</a>, <a href="../core/AbstractExecutable.html#DEFAULT_SLEEP">DEFAULT_SLEEP</a>, <a href="../core/AbstractExecutable.html#DEFAULT_THREADS">DEFAULT_THREADS</a></code></div>
 </section>
 </li>
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
@@ -152,50 +148,41 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#close()" class="member-name-link">close</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#configureStep(org.springframework.batch.core.step.builder.SimpleStepBuilder,java.lang.String,org.springframework.batch.item.ItemReader,org.springframework.batch.item.ItemWriter)" class="member-name-link">configureStep</a><wbr>(org.springframework.batch.core.step.builder.SimpleStepBuilder&lt;?,<wbr>?&gt;&nbsp;step,
- <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;name,
- org.springframework.batch.item.ItemReader&lt;?&gt;&nbsp;reader,
- org.springframework.batch.item.ItemWriter&lt;?&gt;&nbsp;writer)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected org.springframework.expression.spel.support.StandardEvaluationContext</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#evaluationContext()" class="member-name-link">evaluationContext</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="CompareMode.html" title="enum class in com.redis.riot.redis">CompareMode</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getCompareMode()" class="member-name-link">getCompareMode</a>()</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#execute()" class="member-name-link">execute</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="ReplicationMode.html" title="enum class in com.redis.riot.redis">ReplicationMode</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getMode()" class="member-name-link">getMode</a>()</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="CompareMode.html" title="enum class in com.redis.riot.redis">CompareMode</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getCompareMode()" class="member-name-link">getCompareMode</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>io.lettuce.core.ReadFrom</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getTargetReadFrom()" class="member-name-link">getTargetReadFrom</a>()</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="ReplicationMode.html" title="enum class in com.redis.riot.redis">ReplicationMode</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getMode()" class="member-name-link">getMode</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="../core/RedisClientOptions.html" title="class in com.redis.riot.core">RedisClientOptions</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getTargetRedisClientOptions()" class="member-name-link">getTargetRedisClientOptions</a>()</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>io.lettuce.core.ReadFrom</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getTargetReadFrom()" class="member-name-link">getTargetReadFrom</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/Duration.html" title="class or interface in java.time" class="external-link">Duration</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getTtlTolerance()" class="member-name-link">getTtlTolerance</a>()</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="../core/RedisClientOptions.html" title="class in com.redis.riot.core">RedisClientOptions</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getTargetRedisClientOptions()" class="member-name-link">getTargetRedisClientOptions</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="ReplicationType.html" title="enum class in com.redis.riot.redis">ReplicationType</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getType()" class="member-name-link">getType</a>()</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/Duration.html" title="class or interface in java.time" class="external-link">Duration</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getTtlTolerance()" class="member-name-link">getTtlTolerance</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="../core/RedisWriterOptions.html" title="class in com.redis.riot.core">RedisWriterOptions</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getWriterOptions()" class="member-name-link">getWriterOptions</a>()</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="ReplicationType.html" title="enum class in com.redis.riot.redis">ReplicationType</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getType()" class="member-name-link">getType</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isShowDiffs()" class="member-name-link">isShowDiffs</a>()</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="../core/RedisWriterOptions.html" title="class in com.redis.riot.core">RedisWriterOptions</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getWriterOptions()" class="member-name-link">getWriterOptions</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isStruct()" class="member-name-link">isStruct</a>()</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isShowDiffs()" class="member-name-link">isShowDiffs</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected org.springframework.batch.core.Job</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#job()" class="member-name-link">job</a>()</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isStruct()" class="member-name-link">isStruct</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#open()" class="member-name-link">open</a>()</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected org.springframework.batch.core.Job</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#job()" class="member-name-link">job</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setCompareMode(com.redis.riot.redis.CompareMode)" class="member-name-link">setCompareMode</a><wbr>(<a href="CompareMode.html" title="enum class in com.redis.riot.redis">CompareMode</a>&nbsp;mode)</code></div>
@@ -221,18 +208,24 @@ loadScripts(document, 'script');</script>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setWriterOptions(com.redis.riot.core.RedisWriterOptions)" class="member-name-link">setWriterOptions</a><wbr>(<a href="../core/RedisWriterOptions.html" title="class in com.redis.riot.core">RedisWriterOptions</a>&nbsp;writerOptions)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected &lt;I,<wbr>
+O&gt;&nbsp;org.springframework.batch.core.step.builder.FaultTolerantStepBuilder&lt;I,<wbr>O&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#step(java.lang.String,org.springframework.batch.item.ItemReader,org.springframework.batch.item.ItemWriter)" class="member-name-link">step</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;name,
+ org.springframework.batch.item.ItemReader&lt;I&gt;&nbsp;reader,
+ org.springframework.batch.item.ItemWriter&lt;O&gt;&nbsp;writer)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 </div>
 </div>
 </div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-com.redis.riot.core.AbstractExport">Methods inherited from class&nbsp;com.redis.riot.core.<a href="../core/AbstractExport.html" title="class in com.redis.riot.core">AbstractExport</a></h3>
-<code><a href="../core/AbstractExport.html#configureReader(java.lang.String,R)">configureReader</a>, <a href="../core/AbstractExport.html#flushingStep(org.springframework.batch.core.step.builder.SimpleStepBuilder)">flushingStep</a>, <a href="../core/AbstractExport.html#getProcessorOptions()">getProcessorOptions</a>, <a href="../core/AbstractExport.html#getReaderOptions()">getReaderOptions</a>, <a href="../core/AbstractExport.html#keyFilteringProcessor(io.lettuce.core.codec.RedisCodec)">keyFilteringProcessor</a>, <a href="../core/AbstractExport.html#processor(io.lettuce.core.codec.RedisCodec)">processor</a>, <a href="../core/AbstractExport.html#setEvaluationContextOptions(com.redis.riot.core.EvaluationContextOptions)">setEvaluationContextOptions</a>, <a href="../core/AbstractExport.html#setProcessorOptions(com.redis.riot.core.ExportProcessorOptions)">setProcessorOptions</a>, <a href="../core/AbstractExport.html#setReaderOptions(com.redis.riot.core.RedisReaderOptions)">setReaderOptions</a></code></div>
+<code><a href="../core/AbstractExport.html#configureReader(com.redis.spring.batch.RedisItemReader)">configureReader</a>, <a href="../core/AbstractExport.html#flushingStep(org.springframework.batch.core.step.builder.SimpleStepBuilder)">flushingStep</a>, <a href="../core/AbstractExport.html#getProcessorOptions()">getProcessorOptions</a>, <a href="../core/AbstractExport.html#getReaderOptions()">getReaderOptions</a>, <a href="../core/AbstractExport.html#keyFilteringProcessor(io.lettuce.core.codec.RedisCodec)">keyFilteringProcessor</a>, <a href="../core/AbstractExport.html#processor(io.lettuce.core.codec.RedisCodec)">processor</a>, <a href="../core/AbstractExport.html#setEvaluationContextOptions(com.redis.riot.core.EvaluationContextOptions)">setEvaluationContextOptions</a>, <a href="../core/AbstractExport.html#setProcessorOptions(com.redis.riot.core.ExportProcessorOptions)">setProcessorOptions</a>, <a href="../core/AbstractExport.html#setReaderOptions(com.redis.riot.core.RedisReaderOptions)">setReaderOptions</a></code></div>
 <div class="inherited-list">
-<h3 id="methods-inherited-from-class-com.redis.riot.core.AbstractJobRunnable">Methods inherited from class&nbsp;com.redis.riot.core.<a href="../core/AbstractJobRunnable.html" title="class in com.redis.riot.core">AbstractJobRunnable</a></h3>
-<code><a href="../core/AbstractJobRunnable.html#addStepConfigurator(com.redis.riot.core.StepConfigurator)">addStepConfigurator</a>, <a href="../core/AbstractJobRunnable.html#build(org.springframework.batch.core.step.builder.SimpleStepBuilder)">build</a>, <a href="../core/AbstractJobRunnable.html#doRun()">doRun</a>, <a href="../core/AbstractJobRunnable.html#faultTolerant(org.springframework.batch.core.step.builder.SimpleStepBuilder)">faultTolerant</a>, <a href="../core/AbstractJobRunnable.html#getChunkSize()">getChunkSize</a>, <a href="../core/AbstractJobRunnable.html#getJobRepository()">getJobRepository</a>, <a href="../core/AbstractJobRunnable.html#getName()">getName</a>, <a href="../core/AbstractJobRunnable.html#getRetryLimit()">getRetryLimit</a>, <a href="../core/AbstractJobRunnable.html#getSkipLimit()">getSkipLimit</a>, <a href="../core/AbstractJobRunnable.html#getSleep()">getSleep</a>, <a href="../core/AbstractJobRunnable.html#getThreads()">getThreads</a>, <a href="../core/AbstractJobRunnable.html#getTransactionManager()">getTransactionManager</a>, <a href="../core/AbstractJobRunnable.html#isDryRun()">isDryRun</a>, <a href="../core/AbstractJobRunnable.html#jobBuilder()">jobBuilder</a>, <a href="../core/AbstractJobRunnable.html#name(java.lang.String...)">name</a>, <a href="../core/AbstractJobRunnable.html#setChunkSize(int)">setChunkSize</a>, <a href="../core/AbstractJobRunnable.html#setDryRun(boolean)">setDryRun</a>, <a href="../core/AbstractJobRunnable.html#setJobRepository(org.springframework.batch.core.repository.JobRepository)">setJobRepository</a>, <a href="../core/AbstractJobRunnable.html#setName(java.lang.String)">setName</a>, <a href="../core/AbstractJobRunnable.html#setRetryLimit(int)">setRetryLimit</a>, <a href="../core/AbstractJobRunnable.html#setSkipLimit(int)">setSkipLimit</a>, <a href="../core/AbstractJobRunnable.html#setSleep(java.time.Duration)">setSleep</a>, <a href="../core/AbstractJobRunnable.html#setThreads(int)">setThreads</a>, <a href="../core/AbstractJobRunnable.html#setTransactionManager(org.springframework.transaction.PlatformTransactionManager)">setTransactionManager</a>, <a href="../core/AbstractJobRunnable.html#step(java.lang.String,org.springframework.batch.item.ItemReader,org.springframework.batch.item.ItemProcessor,org.springframework.batch.item.ItemWriter)">step</a>, <a href="../core/AbstractJobRunnable.html#step(java.lang.String,org.springframework.batch.item.ItemReader,org.springframework.batch.item.ItemWriter)">step</a>, <a href="../core/AbstractJobRunnable.html#step(org.springframework.batch.item.ItemReader,org.springframework.batch.item.ItemProcessor,org.springframework.batch.item.ItemWriter)">step</a>, <a href="../core/AbstractJobRunnable.html#step(org.springframework.batch.item.ItemReader,org.springframework.batch.item.ItemWriter)">step</a>, <a href="../core/AbstractJobRunnable.html#stepBuilder(java.lang.String,org.springframework.batch.item.ItemReader,org.springframework.batch.item.ItemProcessor,org.springframework.batch.item.ItemWriter)">stepBuilder</a>, <a href="../core/AbstractJobRunnable.html#writer(W,com.redis.riot.core.RedisWriterOptions)">writer</a></code></div>
+<h3 id="methods-inherited-from-class-com.redis.riot.core.AbstractRedisRunnable">Methods inherited from class&nbsp;com.redis.riot.core.<a href="../core/AbstractRedisRunnable.html" title="class in com.redis.riot.core">AbstractRedisRunnable</a></h3>
+<code><a href="../core/AbstractRedisRunnable.html#getRedisClient()">getRedisClient</a>, <a href="../core/AbstractRedisRunnable.html#getRedisClientOptions()">getRedisClientOptions</a>, <a href="../core/AbstractRedisRunnable.html#getRedisURI()">getRedisURI</a>, <a href="../core/AbstractRedisRunnable.html#setRedisClientOptions(com.redis.riot.core.RedisClientOptions)">setRedisClientOptions</a></code></div>
 <div class="inherited-list">
-<h3 id="methods-inherited-from-class-com.redis.riot.core.AbstractRunnable">Methods inherited from class&nbsp;com.redis.riot.core.<a href="../core/AbstractRunnable.html" title="class in com.redis.riot.core">AbstractRunnable</a></h3>
-<code><a href="../core/AbstractRunnable.html#getRedisClient()">getRedisClient</a>, <a href="../core/AbstractRunnable.html#getRedisClientOptions()">getRedisClientOptions</a>, <a href="../core/AbstractRunnable.html#getRedisConnection()">getRedisConnection</a>, <a href="../core/AbstractRunnable.html#getRedisURI()">getRedisURI</a>, <a href="../core/AbstractRunnable.html#run()">run</a>, <a href="../core/AbstractRunnable.html#setRedisClientOptions(com.redis.riot.core.RedisClientOptions)">setRedisClientOptions</a></code></div>
+<h3 id="methods-inherited-from-class-com.redis.riot.core.AbstractExecutable">Methods inherited from class&nbsp;com.redis.riot.core.<a href="../core/AbstractExecutable.html" title="class in com.redis.riot.core">AbstractExecutable</a></h3>
+<code><a href="../core/AbstractExecutable.html#addStepConfiguration(com.redis.riot.core.StepConfiguration)">addStepConfiguration</a>, <a href="../core/AbstractExecutable.html#faultTolerant(org.springframework.batch.core.step.builder.SimpleStepBuilder)">faultTolerant</a>, <a href="../core/AbstractExecutable.html#getChunkSize()">getChunkSize</a>, <a href="../core/AbstractExecutable.html#getJobFactory()">getJobFactory</a>, <a href="../core/AbstractExecutable.html#getName()">getName</a>, <a href="../core/AbstractExecutable.html#getRetryLimit()">getRetryLimit</a>, <a href="../core/AbstractExecutable.html#getSkipLimit()">getSkipLimit</a>, <a href="../core/AbstractExecutable.html#getSleep()">getSleep</a>, <a href="../core/AbstractExecutable.html#getThreads()">getThreads</a>, <a href="../core/AbstractExecutable.html#isDryRun()">isDryRun</a>, <a href="../core/AbstractExecutable.html#jobBuilder()">jobBuilder</a>, <a href="../core/AbstractExecutable.html#name(java.lang.String...)">name</a>, <a href="../core/AbstractExecutable.html#setChunkSize(int)">setChunkSize</a>, <a href="../core/AbstractExecutable.html#setDryRun(boolean)">setDryRun</a>, <a href="../core/AbstractExecutable.html#setJobFactory(com.redis.spring.batch.common.JobFactory)">setJobFactory</a>, <a href="../core/AbstractExecutable.html#setName(java.lang.String)">setName</a>, <a href="../core/AbstractExecutable.html#setRetryLimit(int)">setRetryLimit</a>, <a href="../core/AbstractExecutable.html#setSkipLimit(int)">setSkipLimit</a>, <a href="../core/AbstractExecutable.html#setSleep(java.time.Duration)">setSleep</a>, <a href="../core/AbstractExecutable.html#setThreads(int)">setThreads</a>, <a href="../core/AbstractExecutable.html#writer(com.redis.spring.batch.RedisItemWriter,com.redis.riot.core.RedisWriterOptions)">writer</a></code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-java.lang.Object">Methods inherited from class&nbsp;java.lang.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></h3>
 <code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#clone()" title="class or interface in java.lang" class="external-link">clone</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#equals(java.lang.Object)" title="class or interface in java.lang" class="external-link">equals</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#finalize()" title="class or interface in java.lang" class="external-link">finalize</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#getClass()" title="class or interface in java.lang" class="external-link">getClass</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#hashCode()" title="class or interface in java.lang" class="external-link">hashCode</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#notify()" title="class or interface in java.lang" class="external-link">notify</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#notifyAll()" title="class or interface in java.lang" class="external-link">notifyAll</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#toString()" title="class or interface in java.lang" class="external-link">toString</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#wait()" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#wait(long)" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#wait(long,int)" title="class or interface in java.lang" class="external-link">wait</a></code></div>
@@ -354,12 +347,15 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="open()">
-<h3>open</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">open</span>()</div>
+<section class="detail" id="execute()">
+<h3>execute</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">execute</span>()
+             throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Exception.html" title="class or interface in java.lang" class="external-link">Exception</a></span></div>
 <dl class="notes">
 <dt>Overrides:</dt>
-<dd><code><a href="../core/AbstractJobRunnable.html#open()">open</a></code>&nbsp;in class&nbsp;<code><a href="../core/AbstractJobRunnable.html" title="class in com.redis.riot.core">AbstractJobRunnable</a></code></dd>
+<dd><code><a href="../core/AbstractRedisRunnable.html#execute()">execute</a></code>&nbsp;in class&nbsp;<code><a href="../core/AbstractRedisRunnable.html" title="class in com.redis.riot.core">AbstractRedisRunnable</a></code></dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Exception.html" title="class or interface in java.lang" class="external-link">Exception</a></code></dd>
 </dl>
 </section>
 </li>
@@ -374,35 +370,26 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="close()">
-<h3>close</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">close</span>()</div>
-<dl class="notes">
-<dt>Overrides:</dt>
-<dd><code><a href="../core/AbstractRunnable.html#close()">close</a></code>&nbsp;in class&nbsp;<code><a href="../core/AbstractRunnable.html" title="class in com.redis.riot.core">AbstractRunnable</a></code></dd>
-</dl>
-</section>
-</li>
-<li>
 <section class="detail" id="job()">
 <h3>job</h3>
 <div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">org.springframework.batch.core.Job</span>&nbsp;<span class="element-name">job</span>()</div>
 <dl class="notes">
 <dt>Specified by:</dt>
-<dd><code><a href="../core/AbstractJobRunnable.html#job()">job</a></code>&nbsp;in class&nbsp;<code><a href="../core/AbstractJobRunnable.html" title="class in com.redis.riot.core">AbstractJobRunnable</a></code></dd>
+<dd><code><a href="../core/AbstractExecutable.html#job()">job</a></code>&nbsp;in class&nbsp;<code><a href="../core/AbstractExecutable.html" title="class in com.redis.riot.core">AbstractExecutable</a></code></dd>
 </dl>
 </section>
 </li>
 <li>
-<section class="detail" id="configureStep(org.springframework.batch.core.step.builder.SimpleStepBuilder,java.lang.String,org.springframework.batch.item.ItemReader,org.springframework.batch.item.ItemWriter)">
-<h3>configureStep</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">configureStep</span><wbr><span class="parameters">(org.springframework.batch.core.step.builder.SimpleStepBuilder&lt;?,<wbr>?&gt;&nbsp;step,
- <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;name,
- org.springframework.batch.item.ItemReader&lt;?&gt;&nbsp;reader,
- org.springframework.batch.item.ItemWriter&lt;?&gt;&nbsp;writer)</span></div>
+<section class="detail" id="step(java.lang.String,org.springframework.batch.item.ItemReader,org.springframework.batch.item.ItemWriter)">
+<h3>step</h3>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="type-parameters">&lt;I,<wbr>
+O&gt;</span>
+<span class="return-type">org.springframework.batch.core.step.builder.FaultTolerantStepBuilder&lt;I,<wbr>O&gt;</span>&nbsp;<span class="element-name">step</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;name,
+ org.springframework.batch.item.ItemReader&lt;I&gt;&nbsp;reader,
+ org.springframework.batch.item.ItemWriter&lt;O&gt;&nbsp;writer)</span></div>
 <dl class="notes">
 <dt>Overrides:</dt>
-<dd><code><a href="../core/AbstractJobRunnable.html#configureStep(org.springframework.batch.core.step.builder.SimpleStepBuilder,java.lang.String,org.springframework.batch.item.ItemReader,org.springframework.batch.item.ItemWriter)">configureStep</a></code>&nbsp;in class&nbsp;<code><a href="../core/AbstractJobRunnable.html" title="class in com.redis.riot.core">AbstractJobRunnable</a></code></dd>
+<dd><code><a href="../core/AbstractExecutable.html#step(java.lang.String,org.springframework.batch.item.ItemReader,org.springframework.batch.item.ItemWriter)">step</a></code>&nbsp;in class&nbsp;<code><a href="../core/AbstractExecutable.html" title="class in com.redis.riot.core">AbstractExecutable</a></code></dd>
 </dl>
 </section>
 </li>
