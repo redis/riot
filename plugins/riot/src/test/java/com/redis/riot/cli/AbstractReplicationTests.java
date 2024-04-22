@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import com.redis.spring.batch.gen.GeneratorItemReader;
 import com.redis.spring.batch.gen.Item.Type;
 import com.redis.spring.batch.test.KeyspaceComparison;
+import com.redis.spring.batch.util.Await;
 
 import io.lettuce.core.cluster.SlotHash;
 
@@ -89,6 +90,7 @@ abstract class AbstractReplicationTests extends AbstractRiotTestBase {
 		generator2.setKeyspace("bad");
 		generateAsync(testInfo(info, "gen-2"), generator2);
 		execute(info, "replicate-live-key-exclude");
+		Await.await().until(() -> redisCommands.pubsubNumpat() == 0);
 		Assertions.assertEquals(badCount, keyCount("bad:*"));
 		Assertions.assertEquals(0, targetRedisCommands.keys("bad:*").size());
 		Assertions.assertEquals(goodCount, targetRedisCommands.keys("gen:*").size());
