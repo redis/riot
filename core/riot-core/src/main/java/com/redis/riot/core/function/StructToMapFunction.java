@@ -11,7 +11,7 @@ import java.util.function.UnaryOperator;
 
 import com.redis.lettucemod.timeseries.Sample;
 import com.redis.spring.batch.KeyValue;
-import com.redis.spring.batch.KeyValue.Type;
+import com.redis.spring.batch.KeyValue.DataType;
 
 import io.lettuce.core.ScoredValue;
 import io.lettuce.core.StreamMessage;
@@ -27,7 +27,7 @@ public class StructToMapFunction implements Function<KeyValue<String, Object>, M
 	private ZsetToMapFunction zset = new ZsetToMapFunction();
 	private Function<String, Map<String, String>> json = new StringToMapFunction();
 	private Function<String, Map<String, String>> string = new StringToMapFunction();
-	private Function<Object, Map<String, String>> defaultFunction = s -> null;
+	private Function<Object, Map<String, String>> defaultFunction = s -> Collections.emptyMap();
 
 	public void setKey(Function<String, Map<String, String>> key) {
 		this.key = key;
@@ -65,34 +65,38 @@ public class StructToMapFunction implements Function<KeyValue<String, Object>, M
 	public Map<String, Object> apply(KeyValue<String, Object> t) {
 		Map<String, Object> map = new LinkedHashMap<>();
 		map.putAll(key.apply(t.getKey()));
-		map.putAll(value(t.getType(), t.getValue()));
+		map.putAll(value(t));
 		return map;
 	}
 
 	@SuppressWarnings("unchecked")
-	private Map<String, String> value(Type type, Object value) {
-		if (type == null || value == null) {
+	private Map<String, String> value(KeyValue<String, Object> t) {
+		if (!KeyValue.hasType(t) || !KeyValue.hasValue(t)) {
+			return Collections.emptyMap();
+		}
+		DataType type = KeyValue.type(t);
+		if (type == null) {
 			return Collections.emptyMap();
 		}
 		switch (type) {
 		case HASH:
-			return hash.apply((Map<String, String>) value);
+			return hash.apply((Map<String, String>) t.getValue());
 		case LIST:
-			return list.apply((List<String>) value);
+			return list.apply((List<String>) t.getValue());
 		case SET:
-			return set.apply((Collection<String>) value);
+			return set.apply((Collection<String>) t.getValue());
 		case ZSET:
-			return zset.apply((List<ScoredValue<String>>) value);
+			return zset.apply((List<ScoredValue<String>>) t.getValue());
 		case STREAM:
-			return stream.apply((List<StreamMessage<String, String>>) value);
+			return stream.apply((List<StreamMessage<String, String>>) t.getValue());
 		case JSON:
-			return json.apply((String) value);
+			return json.apply((String) t.getValue());
 		case STRING:
-			return string.apply((String) value);
+			return string.apply((String) t.getValue());
 		case TIMESERIES:
-			return timeseries.apply((List<Sample>) value);
+			return timeseries.apply((List<Sample>) t.getValue());
 		default:
-			return defaultFunction.apply(value);
+			return defaultFunction.apply(t.getValue());
 		}
 	}
 

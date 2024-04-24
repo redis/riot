@@ -8,9 +8,9 @@ import org.springframework.batch.item.database.AbstractCursorItemReader;
 import org.springframework.batch.item.database.builder.JdbcCursorItemReaderBuilder;
 import org.springframework.jdbc.core.ColumnMapRowMapper;
 
-import com.redis.riot.core.AbstractImport;
+import com.redis.riot.core.AbstractMapImport;
 
-public class DatabaseImport extends AbstractImport {
+public class DatabaseImport extends AbstractMapImport {
 
 	public static final int DEFAULT_FETCH_SIZE = AbstractCursorItemReader.VALUE_NOT_SET;
 	public static final int DEFAULT_MAX_RESULT_SET_ROWS = AbstractCursorItemReader.VALUE_NOT_SET;

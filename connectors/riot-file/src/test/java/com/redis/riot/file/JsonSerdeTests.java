@@ -23,7 +23,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.DoubleNode;
 import com.redis.lettucemod.timeseries.Sample;
 import com.redis.spring.batch.KeyValue;
-import com.redis.spring.batch.KeyValue.Type;
+import com.redis.spring.batch.KeyValue.DataType;
 import com.redis.spring.batch.gen.GeneratorItemReader;
 import com.redis.spring.batch.gen.ItemToKeyValueFunction;
 import com.redis.spring.batch.test.AbstractTestBase;
@@ -59,7 +59,7 @@ class JsonSerdeTests {
 		ts.setKey(key);
 		ts.setMem(memoryUsage);
 		ts.setTtl(ttl);
-		ts.setType(Type.TIMESERIES);
+		ts.setType(DataType.TIMESERIES.getString());
 		Sample sample1 = Sample.of(Instant.now().toEpochMilli(), 123.456);
 		Sample sample2 = Sample.of(Instant.now().toEpochMilli() + 1000, 456.123);
 		ts.setValue(Arrays.asList(sample1, sample2));

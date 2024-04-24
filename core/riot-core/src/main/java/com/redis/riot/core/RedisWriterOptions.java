@@ -3,6 +3,8 @@ package com.redis.riot.core;
 import java.time.Duration;
 
 import com.redis.spring.batch.RedisItemWriter;
+import com.redis.spring.batch.operation.KeyValueWrite;
+import com.redis.spring.batch.operation.KeyValueWrite.WriteMode;
 
 public class RedisWriterOptions {
 
@@ -53,6 +55,24 @@ public class RedisWriterOptions {
 
 	public void setWaitTimeout(Duration timeout) {
 		this.waitTimeout = timeout;
+	}
+
+	public void configure(RedisItemWriter<?, ?, ?> writer) {
+		writer.setMultiExec(multiExec);
+		writer.setPoolSize(poolSize);
+		writer.setWaitReplicas(waitReplicas);
+		writer.setWaitTimeout(waitTimeout);
+		if (writer.getOperation() instanceof KeyValueWrite) {
+			((KeyValueWrite<?, ?>) writer.getOperation()).setMode(writeMode());
+		}
+
+	}
+
+	private WriteMode writeMode() {
+		if (merge) {
+			return WriteMode.MERGE;
+		}
+		return WriteMode.OVERWRITE;
 	}
 
 }

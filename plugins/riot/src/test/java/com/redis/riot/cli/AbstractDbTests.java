@@ -75,22 +75,22 @@ abstract class AbstractDbTests extends AbstractRiotTestBase {
 
 	protected int executeDatabaseImport(ParseResult parseResult) {
 		DbImportCommand command = command(parseResult);
-		configureDatabase(command.args);
+		configureDatabase(command.getDbArgs());
 		return ExitCode.OK;
 	}
 
 	protected int executeDatabaseExport(ParseResult parseResult, TestInfo info) {
 		DbExportCommand command = command(parseResult);
 		command.setName(name(info));
-		configureDatabase(command.args);
+		configureDatabase(command.getDbArgs());
 		return ExitCode.OK;
 	}
 
 	private void configureDatabase(DbArgs args) {
 		JdbcDatabaseContainer<?> container = getJdbcDatabaseContainer();
-		args.url = container.getJdbcUrl();
-		args.username = container.getUsername();
-		args.password = container.getPassword();
+		args.setUrl(container.getJdbcUrl());
+		args.setUsername(container.getUsername());
+		args.setPassword(container.getPassword());
 	}
 
 }

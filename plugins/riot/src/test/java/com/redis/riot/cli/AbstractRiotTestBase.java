@@ -12,6 +12,7 @@ import org.slf4j.simple.SimpleLogger;
 
 import com.redis.riot.cli.AbstractRiotCommand.ProgressStyle;
 import com.redis.riot.redis.CompareMode;
+import com.redis.riot.redis.Replication.LoggingWriteListener;
 import com.redis.riot.redis.ReplicationMode;
 import com.redis.spring.batch.test.AbstractTargetTestBase;
 import com.redis.testcontainers.RedisServer;
@@ -31,6 +32,7 @@ abstract class AbstractRiotTestBase extends AbstractTargetTestBase {
 
 	static {
 		System.setProperty(SimpleLogger.SHOW_DATE_TIME_KEY, "true");
+		System.setProperty(SimpleLogger.LOG_KEY_PREFIX + LoggingWriteListener.class.getName(), "error");
 	}
 
 	protected static void assertExecutionSuccessful(int exitCode) {
@@ -57,8 +59,8 @@ abstract class AbstractRiotTestBase extends AbstractTargetTestBase {
 	private int execute(TestInfo info, ParseResult parseResult) {
 		RedisServer server = getRedisServer();
 		AbstractMainCommand main = (AbstractMainCommand) parseResult.commandSpec().commandLine().getCommand();
-		main.redisArgs.uri = server.getRedisURI();
-		main.redisArgs.cluster = server.isRedisCluster();
+		main.getRedisArgs().setUri(server.getRedisURI());
+		main.getRedisArgs().setCluster(server.isRedisCluster());
 		for (ParseResult subParseResult : parseResult.subcommands()) {
 			Object command = subParseResult.commandSpec().commandLine().getCommand();
 			if (command instanceof RedisCommand) {
@@ -70,13 +72,13 @@ abstract class AbstractRiotTestBase extends AbstractTargetTestBase {
 				jobCommand.setName(name(info));
 			}
 			if (command instanceof ReplicateCommand) {
-				ReplicateCommand replicationCommand = (ReplicateCommand) command;
-				replicationCommand.compareMode = CompareMode.NONE;
-				replicationCommand.targetRedisArgs.uri = getTargetRedisServer().getRedisURI();
-				if (replicationCommand.mode == ReplicationMode.LIVE
-						|| replicationCommand.mode == ReplicationMode.LIVEONLY) {
-					replicationCommand.readerArgs.setIdleTimeout(getIdleTimeout().toMillis());
-					replicationCommand.readerArgs.setNotificationQueueCapacity(DEFAULT_NOTIFICATION_QUEUE_CAPACITY);
+				ReplicateCommand replicateCommand = (ReplicateCommand) command;
+				replicateCommand.setCompareMode(CompareMode.NONE);
+				replicateCommand.getTargetRedisArgs().setUri(getTargetRedisServer().getRedisURI());
+				if (replicateCommand.getMode() == ReplicationMode.LIVE
+						|| replicateCommand.getMode() == ReplicationMode.LIVEONLY) {
+					replicateCommand.setIdleTimeout(getIdleTimeout().toMillis());
+					replicateCommand.setNotificationQueueCapacity(DEFAULT_NOTIFICATION_QUEUE_CAPACITY);
 				}
 			}
 		}

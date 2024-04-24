@@ -20,7 +20,7 @@ import com.redis.riot.cli.redis.SugaddCommand;
 import com.redis.riot.cli.redis.TsAddCommand;
 import com.redis.riot.cli.redis.XaddCommand;
 import com.redis.riot.cli.redis.ZaddCommand;
-import com.redis.riot.core.AbstractImport;
+import com.redis.riot.core.AbstractMapImport;
 import com.redis.riot.core.ImportProcessorOptions;
 import com.redis.spring.batch.operation.Operation;
 
@@ -35,13 +35,13 @@ import picocli.CommandLine.Option;
 public abstract class AbstractImportCommand extends AbstractRiotCommand {
 
 	@Option(arity = "1..*", names = "--proc", description = "SpEL expressions in the form field1=\"exp\" field2=\"exp\"...", paramLabel = "<f=exp>")
-	Map<String, Expression> processorExpressions;
+	private Map<String, Expression> processorExpressions;
 
 	@Option(names = "--filter", description = "Discard records using a SpEL expression.", paramLabel = "<exp>")
-	Expression filter;
+	private Expression filter;
 
 	@ArgGroup(exclusive = false)
-	EvaluationContextArgs evaluationContextArgs = new EvaluationContextArgs();
+	private EvaluationContextArgs evaluationContextArgs = new EvaluationContextArgs();
 
 	/**
 	 * Initialized manually during command parsing
@@ -61,8 +61,8 @@ public abstract class AbstractImportCommand extends AbstractRiotCommand {
 	}
 
 	@Override
-	protected AbstractImport runnable() {
-		AbstractImport runnable = importRunnable();
+	protected AbstractMapImport runnable() {
+		AbstractMapImport runnable = importRunnable();
 		runnable.setOperations(operations());
 		runnable.setEvaluationContextOptions(evaluationContextArgs.evaluationContextOptions());
 		runnable.setProcessorOptions(processorOptions());
@@ -76,7 +76,7 @@ public abstract class AbstractImportCommand extends AbstractRiotCommand {
 		return options;
 	}
 
-	protected abstract AbstractImport importRunnable();
+	protected abstract AbstractMapImport importRunnable();
 
 	@Override
 	protected String taskName(String stepName) {

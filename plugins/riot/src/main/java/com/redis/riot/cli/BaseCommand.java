@@ -21,7 +21,7 @@ abstract class BaseCommand {
 	CommandSpec spec;
 
 	@Option(names = "--help", usageHelp = true, description = "Show this help message and exit.")
-	boolean helpRequested;
+	private boolean helpRequested;
 
 	@CommandLine.Option(names = "-D", paramLabel = "<key=value>", descriptionKey = "system-property", mapFallbackValue = "", hidden = true)
 	void setProperty(Map<String, String> props) {

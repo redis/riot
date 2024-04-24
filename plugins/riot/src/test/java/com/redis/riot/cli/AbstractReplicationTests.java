@@ -1,15 +1,12 @@
 package com.redis.riot.cli;
 
 import java.time.Duration;
-import java.util.Collections;
 import java.util.List;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.redis.spring.batch.gen.GeneratorItemReader;
 import com.redis.spring.batch.gen.Item.Type;
@@ -19,8 +16,6 @@ import com.redis.spring.batch.util.Await;
 import io.lettuce.core.cluster.SlotHash;
 
 abstract class AbstractReplicationTests extends AbstractRiotTestBase {
-
-	private final Logger log = LoggerFactory.getLogger(AbstractReplicationTests.class);
 
 	@BeforeAll
 	void setDefaults() {
@@ -112,14 +107,24 @@ abstract class AbstractReplicationTests extends AbstractRiotTestBase {
 	}
 
 	@Test
+	void liveOnlyStruct(TestInfo info) throws Exception {
+		Type[] types = new Type[] { Type.HASH, Type.STRING };
+		enableKeyspaceNotifications();
+		GeneratorItemReader generator = generator(3500, types);
+		generator.setCurrentItemCount(3001);
+		generateAsync(testInfo(info, "async"), generator);
+		execute(info, "replicate-live-only-struct");
+		KeyspaceComparison<String> comparison = compare(info);
+		Assertions.assertTrue(comparison.isOk());
+	}
+
+	@Test
 	void liveKeySlot(TestInfo info) throws Exception {
 		String filename = "replicate-live-keyslot";
 		enableKeyspaceNotifications();
 		GeneratorItemReader generator = generator(300);
 		generateAsync(info, generator);
-		log.info("Executing");
 		execute(info, filename);
-		log.info("Executed");
 		List<String> keys = targetRedisCommands.keys("*");
 		for (String key : keys) {
 			int slot = SlotHash.getSlot(key);
@@ -145,7 +150,7 @@ abstract class AbstractReplicationTests extends AbstractRiotTestBase {
 		generateAsync(testInfo(info, "async"), generator);
 		execute(info, filename);
 		KeyspaceComparison<String> comparison = compare(info);
-		Assertions.assertEquals(Collections.emptyList(), comparison.mismatches());
+		Assertions.assertTrue(comparison.isOk());
 	}
 
 }

@@ -27,8 +27,8 @@ public abstract class AbstractMainCommand extends BaseCommand implements Runnabl
 
 	PrintWriter err;
 
-	@ArgGroup(exclusive = false, heading = "Redis connection options%n")
-	RedisArgs redisArgs = new RedisArgs();
+	@ArgGroup(exclusive = false)
+	private RedisArgs redisArgs = new RedisArgs();
 
 	@Override
 	public void run() {
@@ -81,6 +81,14 @@ public abstract class AbstractMainCommand extends BaseCommand implements Runnabl
 			}
 		}
 		return new RunLast().execute(parseResult); // default execution strategy
+	}
+
+	public RedisArgs getRedisArgs() {
+		return redisArgs;
+	}
+
+	public void setRedisArgs(RedisArgs redisArgs) {
+		this.redisArgs = redisArgs;
 	}
 
 }

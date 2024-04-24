@@ -33,29 +33,43 @@ public class ReplicateCommand extends AbstractExportCommand {
 	private static final String COMPARE_MESSAGE = compareMessageFormat();
 	private static final Map<String, String> taskNames = taskNames();
 
-	@Option(names = "--mode", description = "Replication mode (default: ${DEFAULT-VALUE}):%n  SNAPSHOT: initial replication using key scan.%n  LIVE: initial and continuous replication using key scan and keyspace notifications in parallel.%n  LIVEONLY: continuous replication using keyspace notifications (only changed keys are replicated).%n  COMPARE: compare source and target database.", paramLabel = "<name>")
-	ReplicationMode mode = ReplicationMode.SNAPSHOT;
+	@Option(names = "--mode", description = { "Replication mode: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).",
+			"snapshot: initial replication using key scan.",
+			"live: initial and continuous replication using key scan and keyspace notifications in parallel.",
+			"liveonly: continuous replication using keyspace notifications (only changed keys are replicated).",
+			"compare: compare source and target database." }, paramLabel = "<name>")
+	private ReplicationMode mode = ReplicationMode.SNAPSHOT;
 
 	@Option(names = "--type", description = "Enable type-based replication")
-	boolean type;
+	private boolean type;
 
 	@Option(names = "--ttl-tolerance", description = "Max TTL offset in millis to use for dataset verification (default: ${DEFAULT-VALUE}).", paramLabel = "<ms>")
-	long ttlTolerance = KeyComparatorOptions.DEFAULT_TTL_TOLERANCE.toMillis();
+	private long ttlTolerance = KeyComparatorOptions.DEFAULT_TTL_TOLERANCE.toMillis();
 
-	@Option(names = "--show-diffs", description = "Print details of key mismatches during dataset verification. Disables progress reporting.")
-	boolean showDiffs;
+	@Option(names = "--show-diffs", description = { "Print details of key mismatches during dataset verification.",
+			"Disables progress reporting." })
+	private boolean showDiffs;
 
 	@Option(names = "--compare", description = "Comparison mode: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<mode>")
-	CompareMode compareMode = Replication.DEFAULT_COMPARE_MODE;
+	private CompareMode compareMode = Replication.DEFAULT_COMPARE_MODE;
 
-	@ArgGroup(exclusive = false, heading = "Target Redis connection options%n")
-	RedisArgs targetRedisArgs = new RedisArgs();
+	@ArgGroup(exclusive = false)
+	private RedisArgs targetRedisArgs = new RedisArgs();
 
 	@Option(names = "--target-read-from", description = "Which target Redis cluster nodes to read data from: ${COMPLETION-CANDIDATES}.", paramLabel = "<n>")
-	ReadFromEnum targetReadFrom;
+	private ReadFromEnum targetReadFrom;
 
-	@ArgGroup(exclusive = false, heading = "Writer options%n")
-	RedisWriterArgs writerArgs = new RedisWriterArgs();
+	@Option(names = "--flush-interval", description = "Max duration in millis between flushes (default: ${DEFAULT-VALUE}).", paramLabel = "<ms>")
+	private long flushInterval = Replication.DEFAULT_FLUSH_INTERVAL.toMillis();
+
+	@Option(names = "--idle-timeout", description = "Min number of millis to consider transfer complete (default: no timeout).", paramLabel = "<ms>")
+	private long idleTimeout = Replication.DEFAULT_IDLE_TIMEOUT.toMillis();
+
+	@Option(names = "--event-queue", description = "Capacity of the keyspace notification event queue (default: ${DEFAULT-VALUE}).", paramLabel = "<size>")
+	private int notificationQueueCapacity = Replication.DEFAULT_NOTIFICATION_QUEUE_CAPACITY;
+
+	@ArgGroup(exclusive = false)
+	private RedisWriterArgs writerArgs = new RedisWriterArgs();
 
 	private static Map<String, String> taskNames() {
 		Map<String, String> map = new HashMap<>();
@@ -78,6 +92,9 @@ public class ReplicateCommand extends AbstractExportCommand {
 		replication.setTtlTolerance(Duration.ofMillis(ttlTolerance));
 		replication.setType(type ? ReplicationType.STRUCT : ReplicationType.DUMP);
 		replication.setWriterOptions(writerArgs.writerOptions());
+		replication.setFlushInterval(Duration.ofMillis(flushInterval));
+		replication.setIdleTimeout(Duration.ofMillis(idleTimeout));
+		replication.setNotificationQueueCapacity(notificationQueueCapacity);
 		return replication;
 	}
 
@@ -117,6 +134,94 @@ public class ReplicateCommand extends AbstractExportCommand {
 			return ProgressStepExecutionListener.EMPTY_STRING;
 		}
 		return String.format(QUEUE_MESSAGE, keyReader.getQueue().remainingCapacity());
+	}
+
+	public void setIdleTimeout(long timeout) {
+		this.idleTimeout = timeout;
+	}
+
+	public void setNotificationQueueCapacity(int capacity) {
+		this.notificationQueueCapacity = capacity;
+	}
+
+	public ReplicationMode getMode() {
+		return mode;
+	}
+
+	public void setMode(ReplicationMode mode) {
+		this.mode = mode;
+	}
+
+	public boolean isType() {
+		return type;
+	}
+
+	public void setType(boolean type) {
+		this.type = type;
+	}
+
+	public long getTtlTolerance() {
+		return ttlTolerance;
+	}
+
+	public void setTtlTolerance(long ttlTolerance) {
+		this.ttlTolerance = ttlTolerance;
+	}
+
+	public boolean isShowDiffs() {
+		return showDiffs;
+	}
+
+	public void setShowDiffs(boolean showDiffs) {
+		this.showDiffs = showDiffs;
+	}
+
+	public CompareMode getCompareMode() {
+		return compareMode;
+	}
+
+	public void setCompareMode(CompareMode compareMode) {
+		this.compareMode = compareMode;
+	}
+
+	public RedisArgs getTargetRedisArgs() {
+		return targetRedisArgs;
+	}
+
+	public void setTargetRedisArgs(RedisArgs targetRedisArgs) {
+		this.targetRedisArgs = targetRedisArgs;
+	}
+
+	public ReadFromEnum getTargetReadFrom() {
+		return targetReadFrom;
+	}
+
+	public void setTargetReadFrom(ReadFromEnum targetReadFrom) {
+		this.targetReadFrom = targetReadFrom;
+	}
+
+	public long getFlushInterval() {
+		return flushInterval;
+	}
+
+	public void setFlushInterval(long flushInterval) {
+		this.flushInterval = flushInterval;
+	}
+
+	public RedisWriterArgs getWriterArgs() {
+		return writerArgs;
+	}
+
+	public void setWriterArgs(RedisWriterArgs writerArgs) {
+		this.writerArgs = writerArgs;
+	}
+
+	public long getIdleTimeout() {
+		return idleTimeout;
+	}
+
+	public int getNotificationQueueCapacity() {
+		return notificationQueueCapacity;
 	}
 
 }

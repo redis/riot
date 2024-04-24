@@ -8,6 +8,7 @@ import java.util.function.Predicate;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
+import org.slf4j.simple.SimpleLogger;
 import org.springframework.batch.item.support.ListItemWriter;
 import org.testcontainers.shaded.org.bouncycastle.util.encoders.Hex;
 
@@ -17,6 +18,7 @@ import com.redis.riot.core.ExportProcessorOptions;
 import com.redis.riot.core.PredicateItemProcessor;
 import com.redis.riot.core.RedisClientOptions;
 import com.redis.riot.core.RiotUtils;
+import com.redis.riot.redis.Replication.LoggingWriteListener;
 import com.redis.spring.batch.KeyValue;
 import com.redis.spring.batch.RedisItemReader;
 import com.redis.spring.batch.common.FlushingStepBuilder;
@@ -46,12 +48,16 @@ public abstract class ReplicationTests extends AbstractTargetTestBase {
 	}
 
 	protected void execute(Replication replication, TestInfo info) throws Exception {
-		replication.setName(name(info));
-		replication.setJobFactory(jobFactory);
-		replication.setRedisClientOptions(redisOptions(getRedisServer()));
-		replication.setTargetRedisClientOptions(redisOptions(getTargetRedisServer()));
-		replication.getReaderOptions().setIdleTimeout(getIdleTimeout());
-		replication.execute();
+		try (replication) {
+			System.setProperty(SimpleLogger.LOG_KEY_PREFIX + LoggingWriteListener.class.getName(), "error");
+			replication.setName(name(info));
+			replication.setJobFactory(jobFactory);
+			replication.setRedisClientOptions(redisOptions(getRedisServer()));
+			replication.setTargetRedisClientOptions(redisOptions(getTargetRedisServer()));
+			replication.setIdleTimeout(getIdleTimeout());
+			replication.afterPropertiesSet();
+			replication.call();
+		}
 	}
 
 	private RedisClientOptions redisOptions(RedisServer redis) {
@@ -77,7 +83,7 @@ public abstract class ReplicationTests extends AbstractTargetTestBase {
 		redisCommands.set(key1, value1);
 		Replication replication = new Replication();
 		replication.setType(ReplicationType.STRUCT);
-		replication.setProcessorOptions(processorOptions("#{type.getCode()}:#{key}"));
+		replication.setProcessorOptions(processorOptions("#{type}:#{key}"));
 		execute(replication, info);
 		Assertions.assertEquals(value1, targetRedisCommands.get("string:" + key1));
 	}

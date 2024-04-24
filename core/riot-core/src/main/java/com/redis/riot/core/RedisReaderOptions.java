@@ -4,7 +4,6 @@ import java.time.Duration;
 
 import org.springframework.util.unit.DataSize;
 
-import com.redis.spring.batch.KeyValue.Type;
 import com.redis.spring.batch.RedisItemReader;
 import com.redis.spring.batch.operation.KeyValueRead;
 import com.redis.spring.batch.reader.AbstractPollableItemReader;
@@ -20,13 +19,10 @@ public class RedisReaderOptions {
 	public static final int DEFAULT_POOL_SIZE = RedisItemReader.DEFAULT_POOL_SIZE;
 	public static final DataSize DEFAULT_MEMORY_USAGE_LIMIT = KeyValueRead.DEFAULT_MEM_USAGE_LIMIT;
 	public static final int DEFAULT_MEMORY_USAGE_SAMPLES = KeyValueRead.DEFAULT_MEM_USAGE_SAMPLES;
-	public static final int DEFAULT_NOTIFICATION_QUEUE_CAPACITY = RedisItemReader.DEFAULT_NOTIFICATION_QUEUE_CAPACITY;
 	public static final long DEFAULT_SCAN_COUNT = 1000;
-	public static final Duration DEFAULT_FLUSH_INTERVAL = RedisItemReader.DEFAULT_FLUSH_INTERVAL;
-	public static final Duration DEFAULT_IDLE_TIMEOUT = RedisItemReader.DEFAULT_IDLE_TIMEOUT;
 
 	private String keyPattern;
-	private Type keyType;
+	private String keyType;
 	private long scanCount = DEFAULT_SCAN_COUNT;
 	private int queueCapacity = DEFAULT_QUEUE_CAPACITY;
 	private Duration pollTimeout = DEFAULT_POLL_TIMEOUT;
@@ -36,42 +32,6 @@ public class RedisReaderOptions {
 	private ReadFrom readFrom;
 	private DataSize memoryUsageLimit = DEFAULT_MEMORY_USAGE_LIMIT;
 	private int memoryUsageSamples = DEFAULT_MEMORY_USAGE_SAMPLES;
-	private int notificationQueueCapacity = DEFAULT_NOTIFICATION_QUEUE_CAPACITY;
-	private Duration flushInterval = DEFAULT_FLUSH_INTERVAL;
-	private Duration idleTimeout = DEFAULT_IDLE_TIMEOUT;
-	private KeyFilterOptions keyFilterOptions = new KeyFilterOptions();
-
-	public KeyFilterOptions getKeyFilterOptions() {
-		return keyFilterOptions;
-	}
-
-	public void setKeyFilterOptions(KeyFilterOptions options) {
-		this.keyFilterOptions = options;
-	}
-
-	public Duration getFlushInterval() {
-		return flushInterval;
-	}
-
-	public void setFlushInterval(Duration interval) {
-		this.flushInterval = interval;
-	}
-
-	public Duration getIdleTimeout() {
-		return idleTimeout;
-	}
-
-	public void setIdleTimeout(Duration timeout) {
-		this.idleTimeout = timeout;
-	}
-
-	public int getNotificationQueueCapacity() {
-		return notificationQueueCapacity;
-	}
-
-	public void setNotificationQueueCapacity(int capacity) {
-		this.notificationQueueCapacity = capacity;
-	}
 
 	public String getKeyPattern() {
 		return keyPattern;
@@ -89,11 +49,11 @@ public class RedisReaderOptions {
 		this.scanCount = count;
 	}
 
-	public Type getKeyType() {
+	public String getKeyType() {
 		return keyType;
 	}
 
-	public void setKeyType(Type type) {
+	public void setKeyType(String type) {
 		this.keyType = type;
 	}
 
@@ -159,5 +119,23 @@ public class RedisReaderOptions {
 
 	public void setMemoryUsageSamples(int memoryUsageSamples) {
 		this.memoryUsageSamples = memoryUsageSamples;
+	}
+
+	public void configure(RedisItemReader<?, ?, ?> reader) {
+		reader.setChunkSize(chunkSize);
+		reader.setKeyPattern(keyPattern);
+		reader.setKeyType(keyType);
+		reader.setPollTimeout(pollTimeout);
+		reader.setQueueCapacity(queueCapacity);
+		reader.setReadFrom(readFrom);
+		reader.setScanCount(scanCount);
+		reader.setThreads(threads);
+		if (reader.getOperation() instanceof KeyValueRead) {
+			KeyValueRead<?, ?, ?> operation = (KeyValueRead<?, ?, ?>) reader.getOperation();
+			operation.setMemUsageLimit(memoryUsageLimit);
+			operation.setMemUsageSamples(memoryUsageSamples);
+		}
+		reader.setPoolSize(poolSize);
+
 	}
 }

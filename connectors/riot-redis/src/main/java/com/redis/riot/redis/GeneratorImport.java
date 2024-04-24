@@ -6,8 +6,9 @@ import org.springframework.batch.core.Job;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.function.FunctionItemProcessor;
 
-import com.redis.riot.core.AbstractStructImport;
+import com.redis.riot.core.AbstractImport;
 import com.redis.spring.batch.KeyValue;
+import com.redis.spring.batch.RedisItemWriter;
 import com.redis.spring.batch.gen.CollectionOptions;
 import com.redis.spring.batch.gen.GeneratorItemReader;
 import com.redis.spring.batch.gen.Item;
@@ -20,12 +21,9 @@ import com.redis.spring.batch.gen.StringOptions;
 import com.redis.spring.batch.gen.TimeSeriesOptions;
 import com.redis.spring.batch.gen.ZsetOptions;
 
-public class GeneratorImport extends AbstractStructImport {
+public class GeneratorImport extends AbstractImport {
 
 	public static final int DEFAULT_COUNT = 1000;
-
-	private static final ItemProcessor<Item, KeyValue<String, Object>> PROCESSOR = new FunctionItemProcessor<>(
-			new ItemToKeyValueFunction());
 
 	private int count = DEFAULT_COUNT;
 	private String keyspace = GeneratorItemReader.DEFAULT_KEYSPACE;
@@ -43,7 +41,13 @@ public class GeneratorImport extends AbstractStructImport {
 
 	@Override
 	protected Job job() {
-		return jobBuilder().start(step(getName(), reader(), writer()).processor(PROCESSOR).build()).build();
+		RedisItemWriter<String, String, KeyValue<String, Object>> writer = RedisItemWriter.struct();
+		configure(writer);
+		return jobBuilder().start(step(getName(), reader(), writer).processor(processor()).build()).build();
+	}
+
+	private ItemProcessor<? super Item, ? extends KeyValue<String, Object>> processor() {
+		return new FunctionItemProcessor<>(new ItemToKeyValueFunction());
 	}
 
 	private GeneratorItemReader reader() {

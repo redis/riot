@@ -1,21 +1,21 @@
 package com.redis.riot.cli;
 
-import com.redis.riot.core.AbstractStructImport;
+import com.redis.riot.core.AbstractImport;
 
 import picocli.CommandLine.ArgGroup;
 
 public abstract class AbstractStructImportCommand extends AbstractRiotCommand {
 
-	@ArgGroup(exclusive = false, heading = "Writer options%n")
+	@ArgGroup(exclusive = false)
 	RedisWriterArgs writerArgs = new RedisWriterArgs();
 
 	@Override
-	protected AbstractStructImport runnable() {
-		AbstractStructImport runnable = importRunnable();
+	protected AbstractImport runnable() {
+		AbstractImport runnable = importRunnable();
 		runnable.setWriterOptions(writerArgs.writerOptions());
 		return runnable;
 	}
 
-	protected abstract AbstractStructImport importRunnable();
+	protected abstract AbstractImport importRunnable();
 
 }

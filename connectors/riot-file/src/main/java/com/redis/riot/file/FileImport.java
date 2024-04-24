@@ -35,11 +35,11 @@ import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
-import com.redis.riot.core.AbstractImport;
+import com.redis.riot.core.AbstractMapImport;
 import com.redis.riot.core.RiotUtils;
 import com.redis.riot.core.function.RegexNamedGroupFunction;
 
-public class FileImport extends AbstractImport {
+public class FileImport extends AbstractMapImport {
 
 	public static final String DEFAULT_CONTINUATION_STRING = "\\";
 	public static final Character DEFAULT_QUOTE_CHARACTER = DelimitedLineTokenizer.DEFAULT_QUOTE_CHARACTER;

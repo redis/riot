@@ -125,8 +125,7 @@ public class FileDumpExport extends AbstractExport {
 	@Override
 	protected Job job() {
 		RedisItemReader<String, String, KeyValue<String, Object>> reader = RedisItemReader.struct();
-		reader.setClient(getRedisClient());
-		configureReader(reader);
+		configure(reader);
 		ItemProcessor<KeyValue<String, Object>, KeyValue<String, Object>> processor = processor(StringCodec.UTF8);
 		return jobBuilder().start(step(getName(), reader, writer()).processor(processor).build()).build();
 	}

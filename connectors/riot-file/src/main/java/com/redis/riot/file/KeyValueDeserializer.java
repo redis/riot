@@ -6,8 +6,6 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
-import org.springframework.util.StringUtils;
-
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -17,7 +15,7 @@ import com.fasterxml.jackson.databind.node.DoubleNode;
 import com.fasterxml.jackson.databind.node.LongNode;
 import com.redis.lettucemod.timeseries.Sample;
 import com.redis.spring.batch.KeyValue;
-import com.redis.spring.batch.KeyValue.Type;
+import com.redis.spring.batch.KeyValue.DataType;
 
 import io.lettuce.core.ScoredValue;
 import io.lettuce.core.StreamMessage;
@@ -55,10 +53,7 @@ public class KeyValueDeserializer extends StdDeserializer<KeyValue<String, Objec
 		}
 		JsonNode typeNode = node.get(TYPE);
 		if (typeNode != null) {
-			String typeString = typeNode.asText();
-			if (StringUtils.hasLength(typeString)) {
-				keyValue.setType(Type.valueOf(typeString.toUpperCase()));
-			}
+			keyValue.setType(typeNode.asText());
 		}
 		LongNode ttlNode = (LongNode) node.get(TTL);
 		if (ttlNode != null) {
@@ -68,11 +63,17 @@ public class KeyValueDeserializer extends StdDeserializer<KeyValue<String, Objec
 		if (memUsageNode != null) {
 			keyValue.setMem(memUsageNode.asLong());
 		}
-		keyValue.setValue(value(keyValue.getType(), node.get(VALUE), ctxt));
+		JsonNode valueNode = node.get(VALUE);
+		if (valueNode != null) {
+			DataType type = KeyValue.type(keyValue);
+			if (type != null) {
+				keyValue.setValue(value(type, valueNode, ctxt));
+			}
+		}
 		return keyValue;
 	}
 
-	private Object value(Type type, JsonNode node, DeserializationContext ctxt) throws IOException {
+	private Object value(DataType type, JsonNode node, DeserializationContext ctxt) throws IOException {
 		switch (type) {
 		case STREAM:
 			return streamMessages((ArrayNode) node, ctxt);

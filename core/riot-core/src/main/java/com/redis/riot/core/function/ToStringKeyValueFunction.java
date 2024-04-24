@@ -7,7 +7,7 @@ import com.redis.spring.batch.util.BatchUtils;
 
 import io.lettuce.core.codec.RedisCodec;
 
-public class ToStringKeyValueFunction<K, T> implements Function<KeyValue<K, T>, KeyValue<String, T>> {
+public class ToStringKeyValueFunction<K> implements Function<KeyValue<K, Object>, KeyValue<String, Object>> {
 
 	private final Function<K, String> toStringKeyFunction;
 
@@ -17,8 +17,8 @@ public class ToStringKeyValueFunction<K, T> implements Function<KeyValue<K, T>, 
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
-	public KeyValue<String, T> apply(KeyValue<K, T> t) {
-		KeyValue<String, T> result = new KeyValue<>((KeyValue) t);
+	public KeyValue<String, Object> apply(KeyValue<K, Object> t) {
+		KeyValue<String, Object> result = new KeyValue<>((KeyValue) t);
 		result.setKey(toStringKeyFunction.apply(t.getKey()));
 		return result;
 	}

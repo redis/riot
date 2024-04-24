@@ -13,15 +13,12 @@ import org.springframework.batch.core.step.tasklet.TaskletStep;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.util.Assert;
 
-import com.redis.lettucemod.api.StatefulRedisModulesConnection;
-import com.redis.lettucemod.api.sync.RedisModulesCommands;
-import com.redis.lettucemod.util.RedisModulesUtils;
-import com.redis.riot.core.AbstractRedisRunnable;
+import com.redis.riot.core.AbstractRedisCallable;
 
 import io.lettuce.core.metrics.CommandMetrics.CommandLatency;
 import io.lettuce.core.metrics.DefaultCommandLatencyCollectorOptions;
 
-public class Ping extends AbstractRedisRunnable {
+public class Ping extends AbstractRedisCallable {
 
 	public static final int DEFAULT_ITERATIONS = 1;
 	public static final int DEFAULT_COUNT = 10;
@@ -83,7 +80,7 @@ public class Ping extends AbstractRedisRunnable {
 	protected Job job() {
 		TaskletStep step = new TaskletStep();
 		CallableTaskletAdapter tasklet = new CallableTaskletAdapter();
-		tasklet.setCallable(this::call);
+		tasklet.setCallable(this::execute);
 		step.setName(getName());
 		step.setTransactionManager(getJobFactory().getPlatformTransactionManager());
 		step.setJobRepository(getJobFactory().getJobRepository());
@@ -91,38 +88,34 @@ public class Ping extends AbstractRedisRunnable {
 		return jobBuilder().start(step).build();
 	}
 
-	private RepeatStatus call() {
-		try (StatefulRedisModulesConnection<String, String> connection = RedisModulesUtils
-				.connection(getRedisClient())) {
-			RedisModulesCommands<String, String> commands = connection.sync();
-			for (int iteration = 0; iteration < iterations; iteration++) {
-				LatencyStats stats = new LatencyStats();
-				for (int index = 0; index < count; index++) {
-					long startTime = System.nanoTime();
-					String reply = commands.ping();
-					Assert.isTrue("pong".equalsIgnoreCase(reply), "Invalid PING reply received: " + reply);
-					stats.recordLatency(System.nanoTime() - startTime);
-				}
-				Histogram histogram = stats.getIntervalHistogram();
-				if (latencyDistribution) {
-					histogram.outputPercentileDistribution(System.out, (double) timeUnit.toNanos(1));
-				}
-				Map<Double, Long> percentileMap = new TreeMap<>();
-				for (double targetPercentile : percentiles) {
-					long percentile = toTimeUnit(histogram.getValueAtPercentile(targetPercentile));
-					percentileMap.put(targetPercentile, percentile);
-				}
-				long min = toTimeUnit(histogram.getMinValue());
-				long max = toTimeUnit(histogram.getMaxValue());
-				CommandLatency latency = new CommandLatency(min, max, percentileMap);
-				out.println(latency.toString());
-				if (getSleep() != null) {
-					try {
-						Thread.sleep(getSleep().toMillis());
-					} catch (InterruptedException e) {
-						// Restore interrupted state...
-						Thread.currentThread().interrupt();
-					}
+	private RepeatStatus execute() {
+		for (int iteration = 0; iteration < iterations; iteration++) {
+			LatencyStats stats = new LatencyStats();
+			for (int index = 0; index < count; index++) {
+				long startTime = System.nanoTime();
+				String reply = redisCommands.ping();
+				Assert.isTrue("pong".equalsIgnoreCase(reply), "Invalid PING reply received: " + reply);
+				stats.recordLatency(System.nanoTime() - startTime);
+			}
+			Histogram histogram = stats.getIntervalHistogram();
+			if (latencyDistribution) {
+				histogram.outputPercentileDistribution(System.out, (double) timeUnit.toNanos(1));
+			}
+			Map<Double, Long> percentileMap = new TreeMap<>();
+			for (double targetPercentile : percentiles) {
+				long percentile = toTimeUnit(histogram.getValueAtPercentile(targetPercentile));
+				percentileMap.put(targetPercentile, percentile);
+			}
+			long min = toTimeUnit(histogram.getMinValue());
+			long max = toTimeUnit(histogram.getMaxValue());
+			CommandLatency latency = new CommandLatency(min, max, percentileMap);
+			out.println(latency.toString());
+			if (getSleep() != null) {
+				try {
+					Thread.sleep(getSleep().toMillis());
+				} catch (InterruptedException e) {
+					// Restore interrupted state...
+					Thread.currentThread().interrupt();
 				}
 			}
 		}

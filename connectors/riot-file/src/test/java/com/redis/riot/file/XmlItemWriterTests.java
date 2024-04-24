@@ -17,7 +17,7 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.redis.riot.file.resource.XmlResourceItemWriter;
 import com.redis.riot.file.resource.XmlResourceItemWriterBuilder;
 import com.redis.spring.batch.KeyValue;
-import com.redis.spring.batch.KeyValue.Type;
+import com.redis.spring.batch.KeyValue.DataType;
 
 class XmlItemWriterTests {
 
@@ -37,13 +37,13 @@ class XmlItemWriterTests {
 		KeyValue<String, Object> item1 = new KeyValue<>();
 		item1.setKey("key1");
 		item1.setTtl(123l);
-		item1.setType(Type.HASH);
+		item1.setType(DataType.HASH.getString());
 		Map<String, String> hash1 = Map.of("field1", "value1", "field2", "value2");
 		item1.setValue(hash1);
 		KeyValue<String, Object> item2 = new KeyValue<>();
 		item2.setKey("key2");
 		item2.setTtl(456l);
-		item2.setType(Type.STREAM);
+		item2.setType(DataType.STREAM.getString());
 		Map<String, String> hash2 = Map.of("field1", "value1", "field2", "value2");
 		item2.setValue(hash2);
 		writer.write(Chunk.of(item1, item2));

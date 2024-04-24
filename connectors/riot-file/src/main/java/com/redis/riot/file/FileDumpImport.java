@@ -11,10 +11,11 @@ import org.springframework.batch.core.step.tasklet.TaskletStep;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.core.io.Resource;
 
-import com.redis.riot.core.AbstractStructImport;
+import com.redis.riot.core.AbstractImport;
 import com.redis.spring.batch.KeyValue;
+import com.redis.spring.batch.RedisItemWriter;
 
-public class FileDumpImport extends AbstractStructImport {
+public class FileDumpImport extends AbstractImport {
 
 	private List<String> files;
 
@@ -46,7 +47,9 @@ public class FileDumpImport extends AbstractStructImport {
 		}
 		List<TaskletStep> steps = new ArrayList<>();
 		for (Resource resource : resources) {
-			steps.add(step(resource.getFilename(), reader(resource), writer()).build());
+			RedisItemWriter<String, String, KeyValue<String, Object>> writer = RedisItemWriter.struct();
+			configure(writer);
+			steps.add(step(resource.getFilename(), reader(resource), writer).build());
 		}
 		Iterator<TaskletStep> iterator = steps.iterator();
 		SimpleJobBuilder job = jobBuilder().start(iterator.next());

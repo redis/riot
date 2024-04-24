@@ -2,6 +2,8 @@ package com.redis.riot.core;
 
 import java.util.List;
 
+import org.springframework.util.CollectionUtils;
+
 public class KeyFilterOptions {
 
 	private List<String> includes;
@@ -30,6 +32,10 @@ public class KeyFilterOptions {
 
 	public void setSlots(List<SlotRange> ranges) {
 		this.slots = ranges;
+	}
+
+	public boolean isEmpty() {
+		return CollectionUtils.isEmpty(includes) && CollectionUtils.isEmpty(excludes) && CollectionUtils.isEmpty(slots);
 	}
 
 }

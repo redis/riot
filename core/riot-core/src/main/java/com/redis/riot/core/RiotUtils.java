@@ -7,7 +7,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemWriter;
@@ -19,11 +18,7 @@ import org.springframework.expression.common.TemplateParserContext;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.util.CollectionUtils;
 
-import com.redis.spring.batch.util.BatchUtils;
 import com.redis.spring.batch.util.Predicates;
-
-import io.lettuce.core.codec.RedisCodec;
-import io.lettuce.core.codec.StringCodec;
 
 public abstract class RiotUtils {
 
@@ -44,55 +39,6 @@ public abstract class RiotUtils {
 
 	public static <T> Predicate<T> predicate(EvaluationContext context, Expression expression) {
 		return t -> expression.getValue(context, t, Boolean.class);
-	}
-
-	public static Predicate<String> keyFilterPredicate(KeyFilterOptions options) {
-		return keyFilterPredicate(StringCodec.UTF8, options);
-	}
-
-	public static <K> Predicate<K> keyFilterPredicate(RedisCodec<K, ?> codec, KeyFilterOptions options) {
-		Predicate<K> globPredicate = globPredicate(codec, options);
-		Predicate<K> slotsPredicate = slotsPredicate(codec, options);
-		if (globPredicate == null) {
-			if (slotsPredicate == null) {
-				return null;
-			}
-			return slotsPredicate;
-		}
-		if (slotsPredicate == null) {
-			return globPredicate;
-		}
-		return slotsPredicate.and(globPredicate);
-	}
-
-	public static <K> Predicate<K> slotsPredicate(RedisCodec<K, ?> codec, KeyFilterOptions options) {
-		if (CollectionUtils.isEmpty(options.getSlots())) {
-			return null;
-		}
-		List<Predicate<K>> predicates = options.getSlots().stream()
-				.map(r -> Predicates.slotRange(codec, r.getStart(), r.getEnd())).collect(Collectors.toList());
-		return Predicates.or(predicates);
-	}
-
-	public static <K> Predicate<K> globPredicate(RedisCodec<K, ?> codec, KeyFilterOptions options) {
-		Predicate<String> predicate = globPredicate(options);
-		if (predicate == null) {
-			return null;
-		}
-		return Predicates.map(BatchUtils.toStringKeyFunction(codec), predicate);
-	}
-
-	public static Predicate<String> globPredicate(KeyFilterOptions options) {
-		if (CollectionUtils.isEmpty(options.getIncludes())) {
-			if (CollectionUtils.isEmpty(options.getExcludes())) {
-				return null;
-			}
-			return globPredicate(options.getExcludes()).negate();
-		}
-		if (CollectionUtils.isEmpty(options.getExcludes())) {
-			return globPredicate(options.getIncludes());
-		}
-		return globPredicate(options.getIncludes()).and(globPredicate(options.getExcludes()).negate());
 	}
 
 	public static Predicate<String> globPredicate(List<String> patterns) {

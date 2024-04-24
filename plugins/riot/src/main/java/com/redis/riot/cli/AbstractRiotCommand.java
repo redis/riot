@@ -14,8 +14,8 @@ import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.util.ClassUtils;
 
-import com.redis.riot.core.AbstractExecutable;
-import com.redis.riot.core.AbstractRedisRunnable;
+import com.redis.riot.core.AbstractRiotCallable;
+import com.redis.riot.core.AbstractRedisCallable;
 
 import me.tongfei.progressbar.DelegatingProgressBarConsumer;
 import me.tongfei.progressbar.ProgressBarBuilder;
@@ -42,20 +42,20 @@ abstract class AbstractRiotCommand extends BaseCommand implements Callable<Integ
 	long sleep;
 
 	@Option(names = "--threads", description = "Number of concurrent threads to use for batch processing (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
-	int threads = AbstractExecutable.DEFAULT_THREADS;
+	int threads = AbstractRiotCallable.DEFAULT_THREADS;
 
 	@Option(names = { "-b",
 			"--batch" }, description = "Number of items in each batch (default: ${DEFAULT-VALUE}).", paramLabel = "<size>")
-	int chunkSize = AbstractExecutable.DEFAULT_CHUNK_SIZE;
+	int chunkSize = AbstractRiotCallable.DEFAULT_CHUNK_SIZE;
 
 	@Option(names = "--dry-run", description = "Enable dummy writes.")
 	boolean dryRun;
 
 	@Option(names = "--skip-limit", description = "Max number of failed items before considering the transfer has failed (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
-	int skipLimit = AbstractExecutable.DEFAULT_SKIP_LIMIT;
+	int skipLimit = AbstractRiotCallable.DEFAULT_SKIP_LIMIT;
 
 	@Option(names = "--retry-limit", description = "Maximum number of times to try failed items. 0 and 1 both mean no retry. (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
-	private int retryLimit = AbstractExecutable.DEFAULT_RETRY_LIMIT;
+	private int retryLimit = AbstractRiotCallable.DEFAULT_RETRY_LIMIT;
 
 	@Option(names = "--progress", description = "Progress style: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<style>")
 	ProgressStyle progressStyle = ProgressStyle.ASCII;
@@ -87,21 +87,23 @@ abstract class AbstractRiotCommand extends BaseCommand implements Callable<Integ
 	@Override
 	public Integer call() throws Exception {
 		loggingMixin.configureLogging();
-		AbstractRedisRunnable runnable = runnable();
-		if (name != null) {
-			runnable.setName(name);
+		try (AbstractRedisCallable runnable = runnable()) {
+			if (name != null) {
+				runnable.setName(name);
+			}
+			runnable.setChunkSize(chunkSize);
+			runnable.setDryRun(dryRun);
+			runnable.setRetryLimit(retryLimit);
+			runnable.setSkipLimit(skipLimit);
+			runnable.setSleep(Duration.ofMillis(sleep));
+			runnable.setThreads(threads);
+			if (progressStyle != ProgressStyle.NONE) {
+				runnable.addStepConfiguration(this::configureProgress);
+			}
+			runnable.setRedisClientOptions(parent.getRedisArgs().redisOptions());
+			runnable.afterPropertiesSet();
+			runnable.call();
 		}
-		runnable.setChunkSize(chunkSize);
-		runnable.setDryRun(dryRun);
-		runnable.setRetryLimit(retryLimit);
-		runnable.setSkipLimit(skipLimit);
-		runnable.setSleep(Duration.ofMillis(sleep));
-		runnable.setThreads(threads);
-		if (progressStyle != ProgressStyle.NONE) {
-			runnable.addStepConfiguration(this::configureProgress);
-		}
-		runnable.setRedisClientOptions(parent.redisArgs.redisOptions());
-		runnable.execute();
 		return 0;
 	}
 
@@ -135,6 +137,6 @@ abstract class AbstractRiotCommand extends BaseCommand implements Callable<Integ
 		return () -> ProgressStepExecutionListener.UNKNOWN_SIZE;
 	}
 
-	protected abstract AbstractRedisRunnable runnable();
+	protected abstract AbstractRedisCallable runnable();
 
 }

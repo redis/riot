@@ -30,15 +30,17 @@ abstract class AbstractFileTests extends AbstractTestBase {
 	@SuppressWarnings("unchecked")
 	@Test
 	void fileImportJSON(TestInfo info) throws Exception {
-		FileImport executable = new FileImport();
-		executable.setRedisClientOptions(redisClientOptions());
-		executable.setFiles(BEERS_JSON_URL);
-		HsetBuilder hsetBuilder = new HsetBuilder();
-		hsetBuilder.setKeyspace(KEYSPACE);
-		hsetBuilder.setKeyFields(ID);
-		executable.setOperations(hsetBuilder.build());
-		executable.setName(name(info));
-		executable.execute();
+		try (FileImport executable = new FileImport()) {
+			executable.setRedisClientOptions(redisClientOptions());
+			executable.setFiles(BEERS_JSON_URL);
+			HsetBuilder hsetBuilder = new HsetBuilder();
+			hsetBuilder.setKeyspace(KEYSPACE);
+			hsetBuilder.setKeyFields(ID);
+			executable.setOperations(hsetBuilder.build());
+			executable.setName(name(info));
+			executable.afterPropertiesSet();
+			executable.call();
+		}
 		List<String> keys = redisCommands.keys("*");
 		assertEquals(216, keys.size());
 		for (String key : keys) {
@@ -60,16 +62,18 @@ abstract class AbstractFileTests extends AbstractTestBase {
 	@SuppressWarnings("unchecked")
 	@Test
 	void fileApiImportCSV(TestInfo info) throws Exception {
-		FileImport executable = new FileImport();
-		executable.setRedisClientOptions(redisClientOptions());
-		executable.setFiles("https://storage.googleapis.com/jrx/beers.csv");
-		executable.setHeader(true);
-		executable.setName(name(info));
-		HsetBuilder hsetBuilder = new HsetBuilder();
-		hsetBuilder.setKeyspace(KEYSPACE);
-		hsetBuilder.setKeyFields(ID);
-		executable.setOperations(hsetBuilder.build());
-		executable.execute();
+		try (FileImport executable = new FileImport()) {
+			executable.setRedisClientOptions(redisClientOptions());
+			executable.setFiles("https://storage.googleapis.com/jrx/beers.csv");
+			executable.setHeader(true);
+			executable.setName(name(info));
+			HsetBuilder hsetBuilder = new HsetBuilder();
+			hsetBuilder.setKeyspace(KEYSPACE);
+			hsetBuilder.setKeyFields(ID);
+			executable.setOperations(hsetBuilder.build());
+			executable.afterPropertiesSet();
+			executable.call();
+		}
 		List<String> keys = redisCommands.keys("*");
 		assertEquals(2410, keys.size());
 		for (String key : keys) {
@@ -87,16 +91,18 @@ abstract class AbstractFileTests extends AbstractTestBase {
 		IOUtils.copy(getClass().getClassLoader().getResourceAsStream("beers1.csv"), new FileOutputStream(file1));
 		File file2 = temp.resolve("beers2.csv").toFile();
 		IOUtils.copy(getClass().getClassLoader().getResourceAsStream("beers2.csv"), new FileOutputStream(file2));
-		FileImport executable = new FileImport();
-		executable.setRedisClientOptions(redisClientOptions());
-		executable.setFiles(temp.resolve("*.csv").toFile().getPath());
-		executable.setHeader(true);
-		executable.setName(name(info));
-		HsetBuilder hsetBuilder = new HsetBuilder();
-		hsetBuilder.setKeyspace(KEYSPACE);
-		hsetBuilder.setKeyFields(ID);
-		executable.setOperations(hsetBuilder.build());
-		executable.execute();
+		try (FileImport executable = new FileImport()) {
+			executable.setRedisClientOptions(redisClientOptions());
+			executable.setFiles(temp.resolve("*.csv").toFile().getPath());
+			executable.setHeader(true);
+			executable.setName(name(info));
+			HsetBuilder hsetBuilder = new HsetBuilder();
+			hsetBuilder.setKeyspace(KEYSPACE);
+			hsetBuilder.setKeyFields(ID);
+			executable.setOperations(hsetBuilder.build());
+			executable.afterPropertiesSet();
+			executable.call();
+		}
 		List<String> keys = redisCommands.keys("*");
 		assertEquals(2410, keys.size());
 		for (String key : keys) {
@@ -109,17 +115,19 @@ abstract class AbstractFileTests extends AbstractTestBase {
 	@SuppressWarnings("unchecked")
 	@Test
 	void fileImportCSVMultiThreaded(TestInfo info) throws Exception {
-		FileImport executable = new FileImport();
-		executable.setRedisClientOptions(redisClientOptions());
-		executable.setFiles("https://storage.googleapis.com/jrx/beers.csv");
-		executable.setHeader(true);
-		executable.setThreads(3);
-		executable.setName(name(info));
-		HsetBuilder hset = new HsetBuilder();
-		hset.setKeyspace(KEYSPACE);
-		hset.setKeyFields(ID);
-		executable.setOperations(hset.build());
-		executable.execute();
+		try (FileImport executable = new FileImport()) {
+			executable.setRedisClientOptions(redisClientOptions());
+			executable.setFiles("https://storage.googleapis.com/jrx/beers.csv");
+			executable.setHeader(true);
+			executable.setThreads(3);
+			executable.setName(name(info));
+			HsetBuilder hset = new HsetBuilder();
+			hset.setKeyspace(KEYSPACE);
+			hset.setKeyFields(ID);
+			executable.setOperations(hset.build());
+			executable.afterPropertiesSet();
+			executable.call();
+		}
 		List<String> keys = redisCommands.keys("*");
 		assertEquals(2410, keys.size());
 		for (String key : keys) {
@@ -132,15 +140,17 @@ abstract class AbstractFileTests extends AbstractTestBase {
 	@SuppressWarnings("unchecked")
 	@Test
 	void fileImportJSONL(TestInfo info) throws Exception {
-		FileImport executable = new FileImport();
-		executable.setRedisClientOptions(redisClientOptions());
-		executable.setFiles(BEERS_JSONL_URL);
-		HsetBuilder hsetBuilder = new HsetBuilder();
-		hsetBuilder.setKeyspace(KEYSPACE);
-		hsetBuilder.setKeyFields(ID);
-		executable.setOperations(hsetBuilder.build());
-		executable.setName(name(info));
-		executable.execute();
+		try (FileImport executable = new FileImport()) {
+			executable.setRedisClientOptions(redisClientOptions());
+			executable.setFiles(BEERS_JSONL_URL);
+			HsetBuilder hsetBuilder = new HsetBuilder();
+			hsetBuilder.setKeyspace(KEYSPACE);
+			hsetBuilder.setKeyFields(ID);
+			executable.setOperations(hsetBuilder.build());
+			executable.setName(name(info));
+			executable.afterPropertiesSet();
+			executable.call();
+		}
 		List<String> keys = redisCommands.keys("*");
 		assertEquals(6, keys.size());
 		for (String key : keys) {

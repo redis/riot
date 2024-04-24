@@ -1,127 +1,114 @@
 package com.redis.riot.core;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
-import org.springframework.batch.core.step.builder.SimpleStepBuilder;
-import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.function.FunctionItemProcessor;
-import org.springframework.batch.item.support.PassThroughItemProcessor;
-import org.springframework.expression.spel.support.StandardEvaluationContext;
+import org.springframework.util.CollectionUtils;
 
-import com.redis.lettucemod.api.StatefulRedisModulesConnection;
-import com.redis.lettucemod.util.RedisModulesUtils;
-import com.redis.riot.core.function.DropStreamMessageIdFunction;
+import com.redis.riot.core.function.CompositeOperator;
+import com.redis.riot.core.function.DropStreamMessageId;
 import com.redis.riot.core.function.ExpressionFunction;
-import com.redis.riot.core.function.KeyValueOperator;
 import com.redis.riot.core.function.LongExpressionFunction;
 import com.redis.riot.core.function.StringKeyValueFunction;
 import com.redis.riot.core.function.ToStringKeyValueFunction;
 import com.redis.spring.batch.KeyValue;
-import com.redis.spring.batch.KeyValue.Type;
 import com.redis.spring.batch.RedisItemReader;
-import com.redis.spring.batch.common.FlushingStepBuilder;
-import com.redis.spring.batch.operation.KeyValueRead;
+import com.redis.spring.batch.util.BatchUtils;
+import com.redis.spring.batch.util.Predicates;
 
 import io.lettuce.core.codec.RedisCodec;
 
-public abstract class AbstractExport extends AbstractRedisRunnable {
+public abstract class AbstractExport extends AbstractRedisCallable {
 
-	private static final String REDIS_VAR = "redis";
-
-	private EvaluationContextOptions evaluationContextOptions = new EvaluationContextOptions();
 	private RedisReaderOptions readerOptions = new RedisReaderOptions();
+	private KeyFilterOptions keyFilterOptions = new KeyFilterOptions();
 	private ExportProcessorOptions processorOptions = new ExportProcessorOptions();
 
-	protected <K> ItemProcessor<KeyValue<K, Object>, KeyValue<K, Object>> processor(RedisCodec<K, ?> codec) {
+	protected <K> FunctionItemProcessor<KeyValue<K, Object>, KeyValue<K, Object>> processor(RedisCodec<K, ?> codec) {
 		if (processorOptions.isEmpty()) {
 			return null;
 		}
-		ToStringKeyValueFunction<K, Object> code = new ToStringKeyValueFunction<>(codec);
-		StringKeyValueFunction<K, Object> decode = new StringKeyValueFunction<>(codec);
-		KeyValueOperator operator = keyValueOperator();
+		Function<KeyValue<K, Object>, KeyValue<String, Object>> code = new ToStringKeyValueFunction<>(codec);
+		Function<KeyValue<String, Object>, KeyValue<K, Object>> decode = new StringKeyValueFunction<>(codec);
+		CompositeOperator<KeyValue<String, Object>> operator = new CompositeOperator<>(processorConsumers());
 		return new FunctionItemProcessor<>(code.andThen(operator).andThen(decode));
 	}
 
-	protected StandardEvaluationContext evaluationContext() {
-		StandardEvaluationContext evaluationContext = evaluationContextOptions.evaluationContext();
-		StatefulRedisModulesConnection<String, String> connection = RedisModulesUtils.connection(getRedisClient());
-		evaluationContext.setVariable(REDIS_VAR, connection.sync());
-		return evaluationContext;
-	}
-
-	private KeyValueOperator keyValueOperator() {
-		KeyValueOperator operator = new KeyValueOperator();
-		StandardEvaluationContext evaluationContext = evaluationContext();
+	private List<Consumer<KeyValue<String, Object>>> processorConsumers() {
+		List<Consumer<KeyValue<String, Object>>> consumers = new ArrayList<>();
 		if (processorOptions.getKeyExpression() != null) {
-			operator.setKeyFunction(ExpressionFunction.of(evaluationContext, processorOptions.getKeyExpression()));
+			ExpressionFunction<Object, String> function = expressionFunction(
+					processorOptions.getKeyExpression().getExpression());
+			consumers.add(t -> t.setKey(function.apply(t)));
 		}
 		if (processorOptions.isDropTtl()) {
-			operator.setTtlFunction(t -> 0);
-		} else {
-			if (processorOptions.getTtlExpression() != null) {
-				operator.setTtlFunction(
-						new LongExpressionFunction<>(evaluationContext, processorOptions.getTtlExpression()));
-			}
+			consumers.add(t -> t.setTtl(0));
+		}
+		if (processorOptions.getTtlExpression() != null) {
+			LongExpressionFunction<Object> function = longExpressionFunction(processorOptions.getTtlExpression());
+			consumers.add(t -> t.setTtl(function.applyAsLong(t)));
 		}
 		if (processorOptions.isDropStreamMessageId() && isStruct()) {
-			operator.setValueFunction(new DropStreamMessageIdFunction());
+			consumers.add(new DropStreamMessageId());
 		}
 		if (processorOptions.getTypeExpression() != null) {
-			Function<KeyValue<String, Object>, String> function = ExpressionFunction.of(evaluationContext,
+			ExpressionFunction<KeyValue<String, Object>, String> function = expressionFunction(
 					processorOptions.getTypeExpression());
-			operator.setTypeFunction(function.andThen(Type::of));
+			consumers.add(t -> t.setType(function.apply(t)));
 		}
-		return operator;
+		return consumers;
 	}
 
 	protected abstract boolean isStruct();
 
-	protected <K> void configureReader(RedisItemReader<K, ?, ?> reader) {
+	@Override
+	protected <K, V, T> void configure(RedisItemReader<K, V, T> reader) {
 		reader.setJobFactory(getJobFactory());
-		reader.setChunkSize(readerOptions.getChunkSize());
-		reader.setDatabase(getRedisURI().getDatabase());
-		reader.setKeyProcessor(keyFilteringProcessor(reader.getCodec()));
-		reader.setKeyPattern(readerOptions.getKeyPattern());
-		if (readerOptions.getKeyType() != null) {
-			reader.setKeyType(readerOptions.getKeyType().name());
+		reader.setDatabase(redisURI.getDatabase());
+		if (!keyFilterOptions.isEmpty()) {
+			Predicate<K> predicate = keyFilterPredicate(reader.getCodec());
+			reader.setKeyProcessor(new PredicateItemProcessor<>(predicate));
 		}
-		reader.setFlushInterval(readerOptions.getFlushInterval());
-		reader.setIdleTimeout(readerOptions.getIdleTimeout());
-		reader.setNotificationQueueCapacity(readerOptions.getNotificationQueueCapacity());
-		reader.setPollTimeout(readerOptions.getPollTimeout());
-		reader.setQueueCapacity(readerOptions.getQueueCapacity());
-		reader.setReadFrom(readerOptions.getReadFrom());
-		reader.setScanCount(readerOptions.getScanCount());
-		reader.setThreads(readerOptions.getThreads());
-		if (reader.getOperation() instanceof KeyValueRead) {
-			KeyValueRead<?, ?, ?> operation = (KeyValueRead<?, ?, ?>) reader.getOperation();
-			operation.setMemUsageLimit(readerOptions.getMemoryUsageLimit());
-			operation.setMemUsageSamples(readerOptions.getMemoryUsageSamples());
-		}
-		reader.setPoolSize(readerOptions.getPoolSize());
-
+		readerOptions.configure(reader);
+		super.configure(reader);
 	}
 
-	public <K> ItemProcessor<K, K> keyFilteringProcessor(RedisCodec<K, ?> codec) {
-		Predicate<K> predicate = RiotUtils.keyFilterPredicate(codec, readerOptions.getKeyFilterOptions());
-		if (predicate == null) {
-			return new PassThroughItemProcessor<>();
-		}
-		return new PredicateItemProcessor<>(predicate);
+	public <K> Predicate<K> keyFilterPredicate(RedisCodec<K, ?> codec) {
+		return slotsPredicate(codec).and(globPredicate(codec));
 	}
 
-	protected <I, O> FlushingStepBuilder<I, O> flushingStep(SimpleStepBuilder<I, O> step) {
-		return new FlushingStepBuilder<>(step).flushInterval(readerOptions.getFlushInterval())
-				.idleTimeout(readerOptions.getIdleTimeout());
+	private <K> Predicate<K> slotsPredicate(RedisCodec<K, ?> codec) {
+		if (CollectionUtils.isEmpty(keyFilterOptions.getSlots())) {
+			return Predicates.isTrue();
+		}
+		Stream<Predicate<K>> predicates = keyFilterOptions.getSlots().stream()
+				.map(r -> Predicates.slotRange(codec, r.getStart(), r.getEnd()));
+		return Predicates.or(predicates);
+	}
+
+	private <K> Predicate<K> globPredicate(RedisCodec<K, ?> codec) {
+		return Predicates.map(BatchUtils.toStringKeyFunction(codec), globPredicate());
+	}
+
+	private Predicate<String> globPredicate() {
+		Predicate<String> include = RiotUtils.globPredicate(keyFilterOptions.getIncludes());
+		if (CollectionUtils.isEmpty(keyFilterOptions.getExcludes())) {
+			return include;
+		}
+		return include.and(RiotUtils.globPredicate(keyFilterOptions.getExcludes()).negate());
 	}
 
 	public RedisReaderOptions getReaderOptions() {
 		return readerOptions;
 	}
 
-	public void setReaderOptions(RedisReaderOptions readerOptions) {
-		this.readerOptions = readerOptions;
+	public void setReaderOptions(RedisReaderOptions options) {
+		this.readerOptions = options;
 	}
 
 	public ExportProcessorOptions getProcessorOptions() {
@@ -132,8 +119,12 @@ public abstract class AbstractExport extends AbstractRedisRunnable {
 		this.processorOptions = options;
 	}
 
-	public void setEvaluationContextOptions(EvaluationContextOptions spelProcessorOptions) {
-		this.evaluationContextOptions = spelProcessorOptions;
+	public KeyFilterOptions getKeyFilterOptions() {
+		return keyFilterOptions;
+	}
+
+	public void setKeyFilterOptions(KeyFilterOptions options) {
+		this.keyFilterOptions = options;
 	}
 
 }

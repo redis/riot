@@ -10,20 +10,40 @@ import java.util.function.Predicate;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.springframework.batch.core.Job;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
+import io.lettuce.core.codec.StringCodec;
+
 class ProcessorTests {
+
+	private static class TestExport extends AbstractExport {
+
+		@Override
+		protected boolean isStruct() {
+			return false;
+		}
+
+		@Override
+		protected Job job() {
+			return null;
+		}
+
+	}
 
 	@Test
 	void keyFilter() {
 		KeyFilterOptions options = new KeyFilterOptions();
 		options.setIncludes(Arrays.asList("foo*", "bar*"));
-		Predicate<String> predicate = RiotUtils.keyFilterPredicate(options);
-		Assertions.assertTrue(predicate.test("foobar"));
-		Assertions.assertTrue(predicate.test("barfoo"));
-		Assertions.assertFalse(predicate.test("key"));
+		try (TestExport export = new TestExport()) {
+			export.setKeyFilterOptions(options);
+			Predicate<String> predicate = export.keyFilterPredicate(StringCodec.UTF8);
+			Assertions.assertTrue(predicate.test("foobar"));
+			Assertions.assertTrue(predicate.test("barfoo"));
+			Assertions.assertFalse(predicate.test("key"));
+		}
 	}
 
 	@Test

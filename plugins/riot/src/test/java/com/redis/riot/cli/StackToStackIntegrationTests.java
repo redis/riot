@@ -37,6 +37,7 @@ import com.redis.riot.file.resource.XmlItemReaderBuilder;
 import com.redis.riot.file.resource.XmlObjectReader;
 import com.redis.riot.redis.GeneratorImport;
 import com.redis.spring.batch.KeyValue;
+import com.redis.spring.batch.KeyValue.DataType;
 import com.redis.spring.batch.gen.GeneratorItemReader;
 import com.redis.testcontainers.RedisStackContainer;
 
@@ -135,14 +136,14 @@ class StackToStackIntegrationTests extends AbstractRiotTestBase {
 
 	private int executeFileDumpImport(ParseResult parseResult) {
 		FileDumpImportCommand command = command(parseResult);
-		command.args.files = command.args.files.stream().map(this::replace).collect(Collectors.toList());
+		command.setFiles(command.getFiles().stream().map(this::replace).collect(Collectors.toList()));
 		return ExitCode.OK;
 	}
 
 	private int executeFileDumpExport(ParseResult parseResult, TestInfo info) {
 		FileDumpExportCommand command = command(parseResult);
 		command.setName(name(info));
-		command.args.file = replace(command.args.file);
+		command.setFile(replace(command.getFile()));
 		return ExitCode.OK;
 	}
 
@@ -193,13 +194,16 @@ class StackToStackIntegrationTests extends AbstractRiotTestBase {
 		reader.close();
 		Assertions.assertEquals(redisCommands.dbsize(), records.size());
 		for (KeyValue<String, Object> record : records) {
-			String key = record.getKey();
-			switch (record.getType()) {
+			DataType type = KeyValue.type(record);
+			if (type == null) {
+				continue;
+			}
+			switch (type) {
 			case HASH:
-				Assertions.assertEquals(record.getValue(), redisCommands.hgetall(key));
+				Assertions.assertEquals(record.getValue(), redisCommands.hgetall(record.getKey()));
 				break;
 			case STRING:
-				Assertions.assertEquals(record.getValue(), redisCommands.get(key));
+				Assertions.assertEquals(record.getValue(), redisCommands.get(record.getKey()));
 				break;
 			default:
 				break;
@@ -297,8 +301,8 @@ class StackToStackIntegrationTests extends AbstractRiotTestBase {
 					Files.newOutputStream(dir.resolve("beers1.csv")));
 			FileCopyUtils.copy(getClass().getClassLoader().getResourceAsStream("files/beers2.csv"),
 					Files.newOutputStream(dir.resolve("beers2.csv")));
-			File file = new File(command.args.files.get(0));
-			command.args.files = Arrays.asList(dir.resolve(file.getName()).toString());
+			File file = new File(command.getFiles().get(0));
+			command.setFiles(Arrays.asList(dir.resolve(file.getName()).toString()));
 		} catch (IOException e) {
 			throw new RuntimeException("Could not configure import-glob", e);
 		}

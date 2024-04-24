@@ -8,16 +8,14 @@ import org.springframework.batch.core.Job;
 import org.springframework.expression.Expression;
 import org.springframework.util.Assert;
 
-import com.redis.lettucemod.api.StatefulRedisModulesConnection;
-import com.redis.lettucemod.api.sync.RediSearchCommands;
 import com.redis.lettucemod.search.Field;
 import com.redis.lettucemod.search.IndexInfo;
 import com.redis.lettucemod.util.RedisModulesUtils;
-import com.redis.riot.core.AbstractImport;
+import com.redis.riot.core.AbstractMapImport;
 import com.redis.riot.core.RiotUtils;
 import com.redis.spring.batch.gen.Range;
 
-public class FakerImport extends AbstractImport {
+public class FakerImport extends AbstractMapImport {
 
 	public static final int DEFAULT_COUNT = 1000;
 	public static final Locale DEFAULT_LOCALE = Locale.ENGLISH;
@@ -84,13 +82,9 @@ public class FakerImport extends AbstractImport {
 
 	private Map<String, Expression> searchIndexFields() {
 		Map<String, Expression> searchFields = new LinkedHashMap<>();
-		try (StatefulRedisModulesConnection<String, String> connection = RedisModulesUtils
-				.connection(getRedisClient())) {
-			RediSearchCommands<String, String> commands = connection.sync();
-			IndexInfo info = RedisModulesUtils.indexInfo(commands.ftInfo(searchIndex));
-			for (Field<String> field : info.getFields()) {
-				searchFields.put(field.getName(), RiotUtils.parse(expression(field)));
-			}
+		IndexInfo info = RedisModulesUtils.indexInfo(redisCommands.ftInfo(searchIndex));
+		for (Field<String> field : info.getFields()) {
+			searchFields.put(field.getName(), RiotUtils.parse(expression(field)));
 		}
 		return searchFields;
 	}
