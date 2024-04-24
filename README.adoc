@@ -1,5 +1,5 @@
 :linkattrs:
-:project-owner:   redis-developer
+:project-owner:   redis
 :project-name:    riot
 :project-group:   com.redis
 :project-version: 3.2.3
@@ -9,7 +9,7 @@ image::docs/guide/images/riot.svg[RIOT]
 
 ---
 
-Get data in and out of Redis with link:https://developer.redis.com/riot[{project-title}]!
+Get data in and out of Redis with link:http://redis.github.io/riot/[{project-title}]!
 
 Redis Input/Output Tools ({project-title}) is a command-line utility designed to help you get data in and out of Redis.
 
@@ -22,7 +22,7 @@ It supports many different sources and targets:
 
 == Documentation
 
-link:https://developer.redis.com/riot[https://developer.redis.com/riot]
+link:http://redis.github.io/riot/[http://redis.github.io/riot/]
 
 == Support
 
