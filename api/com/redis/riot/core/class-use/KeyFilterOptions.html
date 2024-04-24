@@ -85,7 +85,7 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color"><code><a href="../KeyFilterOptions.html" title="class in com.redis.riot.core">KeyFilterOptions</a></code></div>
-<div class="col-second even-row-color"><span class="type-name-label">RedisReaderOptions.</span><code><a href="../RedisReaderOptions.html#getKeyFilterOptions()" class="member-name-link">getKeyFilterOptions</a>()</code></div>
+<div class="col-second even-row-color"><span class="type-name-label">AbstractExport.</span><code><a href="../AbstractExport.html#getKeyFilterOptions()" class="member-name-link">getKeyFilterOptions</a>()</code></div>
 <div class="col-last even-row-color">&nbsp;</div>
 </div>
 <div class="caption"><span>Methods in <a href="../package-summary.html">com.redis.riot.core</a> with parameters of type <a href="../KeyFilterOptions.html" title="class in com.redis.riot.core">KeyFilterOptions</a></span></div>
@@ -93,27 +93,9 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color"><code>static <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Predicate.html" title="class or interface in java.util.function" class="external-link">Predicate</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;</code></div>
-<div class="col-second even-row-color"><span class="type-name-label">RiotUtils.</span><code><a href="../RiotUtils.html#globPredicate(com.redis.riot.core.KeyFilterOptions)" class="member-name-link">globPredicate</a><wbr>(<a href="../KeyFilterOptions.html" title="class in com.redis.riot.core">KeyFilterOptions</a>&nbsp;options)</code></div>
-<div class="col-last even-row-color">&nbsp;</div>
-<div class="col-first odd-row-color"><code>static &lt;K&gt;&nbsp;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Predicate.html" title="class or interface in java.util.function" class="external-link">Predicate</a>&lt;K&gt;</code></div>
-<div class="col-second odd-row-color"><span class="type-name-label">RiotUtils.</span><code><a href="../RiotUtils.html#globPredicate(io.lettuce.core.codec.RedisCodec,com.redis.riot.core.KeyFilterOptions)" class="member-name-link">globPredicate</a><wbr>(io.lettuce.core.codec.RedisCodec&lt;K,<wbr>?&gt;&nbsp;codec,
- <a href="../KeyFilterOptions.html" title="class in com.redis.riot.core">KeyFilterOptions</a>&nbsp;options)</code></div>
-<div class="col-last odd-row-color">&nbsp;</div>
-<div class="col-first even-row-color"><code>static <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Predicate.html" title="class or interface in java.util.function" class="external-link">Predicate</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;</code></div>
-<div class="col-second even-row-color"><span class="type-name-label">RiotUtils.</span><code><a href="../RiotUtils.html#keyFilterPredicate(com.redis.riot.core.KeyFilterOptions)" class="member-name-link">keyFilterPredicate</a><wbr>(<a href="../KeyFilterOptions.html" title="class in com.redis.riot.core">KeyFilterOptions</a>&nbsp;options)</code></div>
-<div class="col-last even-row-color">&nbsp;</div>
-<div class="col-first odd-row-color"><code>static &lt;K&gt;&nbsp;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Predicate.html" title="class or interface in java.util.function" class="external-link">Predicate</a>&lt;K&gt;</code></div>
-<div class="col-second odd-row-color"><span class="type-name-label">RiotUtils.</span><code><a href="../RiotUtils.html#keyFilterPredicate(io.lettuce.core.codec.RedisCodec,com.redis.riot.core.KeyFilterOptions)" class="member-name-link">keyFilterPredicate</a><wbr>(io.lettuce.core.codec.RedisCodec&lt;K,<wbr>?&gt;&nbsp;codec,
- <a href="../KeyFilterOptions.html" title="class in com.redis.riot.core">KeyFilterOptions</a>&nbsp;options)</code></div>
-<div class="col-last odd-row-color">&nbsp;</div>
 <div class="col-first even-row-color"><code>void</code></div>
-<div class="col-second even-row-color"><span class="type-name-label">RedisReaderOptions.</span><code><a href="../RedisReaderOptions.html#setKeyFilterOptions(com.redis.riot.core.KeyFilterOptions)" class="member-name-link">setKeyFilterOptions</a><wbr>(<a href="../KeyFilterOptions.html" title="class in com.redis.riot.core">KeyFilterOptions</a>&nbsp;options)</code></div>
+<div class="col-second even-row-color"><span class="type-name-label">AbstractExport.</span><code><a href="../AbstractExport.html#setKeyFilterOptions(com.redis.riot.core.KeyFilterOptions)" class="member-name-link">setKeyFilterOptions</a><wbr>(<a href="../KeyFilterOptions.html" title="class in com.redis.riot.core">KeyFilterOptions</a>&nbsp;options)</code></div>
 <div class="col-last even-row-color">&nbsp;</div>
-<div class="col-first odd-row-color"><code>static &lt;K&gt;&nbsp;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Predicate.html" title="class or interface in java.util.function" class="external-link">Predicate</a>&lt;K&gt;</code></div>
-<div class="col-second odd-row-color"><span class="type-name-label">RiotUtils.</span><code><a href="../RiotUtils.html#slotsPredicate(io.lettuce.core.codec.RedisCodec,com.redis.riot.core.KeyFilterOptions)" class="member-name-link">slotsPredicate</a><wbr>(io.lettuce.core.codec.RedisCodec&lt;K,<wbr>?&gt;&nbsp;codec,
- <a href="../KeyFilterOptions.html" title="class in com.redis.riot.core">KeyFilterOptions</a>&nbsp;options)</code></div>
-<div class="col-last odd-row-color">&nbsp;</div>
 </div>
 </section>
 </li>

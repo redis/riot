@@ -106,6 +106,36 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getPoolSize()" class="member-name-link">getPoolSize</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getWaitReplicas()" class="member-name-link">getWaitReplicas</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>long</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getWaitTimeout()" class="member-name-link">getWaitTimeout</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isMerge()" class="member-name-link">isMerge</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isMultiExec()" class="member-name-link">isMultiExec</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setMerge(boolean)" class="member-name-link">setMerge</a><wbr>(boolean&nbsp;merge)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setMultiExec(boolean)" class="member-name-link">setMultiExec</a><wbr>(boolean&nbsp;multiExec)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setPoolSize(int)" class="member-name-link">setPoolSize</a><wbr>(int&nbsp;poolSize)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setWaitReplicas(int)" class="member-name-link">setWaitReplicas</a><wbr>(int&nbsp;waitReplicas)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setWaitTimeout(long)" class="member-name-link">setWaitTimeout</a><wbr>(long&nbsp;waitTimeout)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="../core/RedisWriterOptions.html" title="class in com.redis.riot.core">RedisWriterOptions</a></code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#writerOptions()" class="member-name-link">writerOptions</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
@@ -144,6 +174,66 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="writerOptions()">
 <h3>writerOptions</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="../core/RedisWriterOptions.html" title="class in com.redis.riot.core">RedisWriterOptions</a></span>&nbsp;<span class="element-name">writerOptions</span>()</div>
+</section>
+</li>
+<li>
+<section class="detail" id="isMultiExec()">
+<h3>isMultiExec</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isMultiExec</span>()</div>
+</section>
+</li>
+<li>
+<section class="detail" id="setMultiExec(boolean)">
+<h3>setMultiExec</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setMultiExec</span><wbr><span class="parameters">(boolean&nbsp;multiExec)</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="getWaitReplicas()">
+<h3>getWaitReplicas</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">getWaitReplicas</span>()</div>
+</section>
+</li>
+<li>
+<section class="detail" id="setWaitReplicas(int)">
+<h3>setWaitReplicas</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setWaitReplicas</span><wbr><span class="parameters">(int&nbsp;waitReplicas)</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="getWaitTimeout()">
+<h3>getWaitTimeout</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">long</span>&nbsp;<span class="element-name">getWaitTimeout</span>()</div>
+</section>
+</li>
+<li>
+<section class="detail" id="setWaitTimeout(long)">
+<h3>setWaitTimeout</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setWaitTimeout</span><wbr><span class="parameters">(long&nbsp;waitTimeout)</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="getPoolSize()">
+<h3>getPoolSize</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">getPoolSize</span>()</div>
+</section>
+</li>
+<li>
+<section class="detail" id="setPoolSize(int)">
+<h3>setPoolSize</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setPoolSize</span><wbr><span class="parameters">(int&nbsp;poolSize)</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="isMerge()">
+<h3>isMerge</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isMerge</span>()</div>
+</section>
+</li>
+<li>
+<section class="detail" id="setMerge(boolean)">
+<h3>setMerge</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setMerge</span><wbr><span class="parameters">(boolean&nbsp;merge)</span></div>
 </section>
 </li>
 </ul>

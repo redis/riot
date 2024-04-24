@@ -56,6 +56,8 @@ loadScripts(document, 'script');</script>
 <dl class="index">
 <dt><a href="../com/redis/riot/cli/FileImportCommand.html#call()" class="member-name-link">call()</a> - Method in class com.redis.riot.cli.<a href="../com/redis/riot/cli/FileImportCommand.html" title="class in com.redis.riot.cli">FileImportCommand</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="../com/redis/riot/core/AbstractRiotCallable.html#call()" class="member-name-link">call()</a> - Method in class com.redis.riot.core.<a href="../com/redis/riot/core/AbstractRiotCallable.html" title="class in com.redis.riot.core">AbstractRiotCallable</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/faker/ReflectivePropertyAccessor.html#canRead(org.springframework.expression.EvaluationContext,java.lang.Object,java.lang.String)" class="member-name-link">canRead(EvaluationContext, Object, String)</a> - Method in class com.redis.riot.faker.<a href="../com/redis/riot/faker/ReflectivePropertyAccessor.html" title="class in com.redis.riot.faker">ReflectivePropertyAccessor</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/faker/ReflectivePropertyAccessor.OptimalPropertyAccessor.html#canRead(org.springframework.expression.EvaluationContext,java.lang.Object,java.lang.String)" class="member-name-link">canRead(EvaluationContext, Object, String)</a> - Method in class com.redis.riot.faker.<a href="../com/redis/riot/faker/ReflectivePropertyAccessor.OptimalPropertyAccessor.html" title="class in com.redis.riot.faker">ReflectivePropertyAccessor.OptimalPropertyAccessor</a></dt>
@@ -65,6 +67,8 @@ loadScripts(document, 'script');</script>
 <dt><a href="../com/redis/riot/faker/ReflectivePropertyAccessor.OptimalPropertyAccessor.html#canWrite(org.springframework.expression.EvaluationContext,java.lang.Object,java.lang.String)" class="member-name-link">canWrite(EvaluationContext, Object, String)</a> - Method in class com.redis.riot.faker.<a href="../com/redis/riot/faker/ReflectivePropertyAccessor.OptimalPropertyAccessor.html" title="class in com.redis.riot.faker">ReflectivePropertyAccessor.OptimalPropertyAccessor</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/core/RedisClientOptions.html#client(io.lettuce.core.RedisURI)" class="member-name-link">client(RedisURI)</a> - Method in class com.redis.riot.core.<a href="../com/redis/riot/core/RedisClientOptions.html" title="class in com.redis.riot.core">RedisClientOptions</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="../com/redis/riot/core/AbstractRedisCallable.html#close()" class="member-name-link">close()</a> - Method in class com.redis.riot.core.<a href="../com/redis/riot/core/AbstractRedisCallable.html" title="class in com.redis.riot.core">AbstractRedisCallable</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/core/ThrottledItemWriter.html#close()" class="member-name-link">close()</a> - Method in class com.redis.riot.core.<a href="../com/redis/riot/core/ThrottledItemWriter.html" title="class in com.redis.riot.core">ThrottledItemWriter</a></dt>
 <dd>&nbsp;</dd>
@@ -79,6 +83,8 @@ loadScripts(document, 'script');</script>
 <dt><a href="../com/redis/riot/file/resource/TransactionAwareBufferedWriter.html#close()" class="member-name-link">close()</a> - Method in class com.redis.riot.file.resource.<a href="../com/redis/riot/file/resource/TransactionAwareBufferedWriter.html" title="class in com.redis.riot.file.resource">TransactionAwareBufferedWriter</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/file/resource/XmlObjectReader.html#close()" class="member-name-link">close()</a> - Method in class com.redis.riot.file.resource.<a href="../com/redis/riot/file/resource/XmlObjectReader.html" title="class in com.redis.riot.file.resource">XmlObjectReader</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="../com/redis/riot/redis/Replication.html#close()" class="member-name-link">close()</a> - Method in class com.redis.riot.redis.<a href="../com/redis/riot/redis/Replication.html" title="class in com.redis.riot.redis">Replication</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/cli/redis/GeoaddCommand.html#collectionOperationBuilder()" class="member-name-link">collectionOperationBuilder()</a> - Method in class com.redis.riot.cli.redis.<a href="../com/redis/riot/cli/redis/GeoaddCommand.html" title="class in com.redis.riot.cli.redis">GeoaddCommand</a></dt>
 <dd>&nbsp;</dd>
@@ -126,17 +132,37 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/cli/CompositeExecutionStrategy.html#%3Cinit%3E()" class="member-name-link">CompositeExecutionStrategy()</a> - Constructor for class com.redis.riot.cli.<a href="../com/redis/riot/cli/CompositeExecutionStrategy.html" title="class in com.redis.riot.cli">CompositeExecutionStrategy</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="../com/redis/riot/core/function/CompositeOperator.html" class="type-name-link" title="class in com.redis.riot.core.function">CompositeOperator</a>&lt;<a href="../com/redis/riot/core/function/CompositeOperator.html" title="type parameter in CompositeOperator">T</a>&gt; - Class in <a href="../com/redis/riot/core/function/package-summary.html">com.redis.riot.core.function</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="../com/redis/riot/core/function/CompositeOperator.html#%3Cinit%3E(java.util.function.Consumer...)" class="member-name-link">CompositeOperator(Consumer&lt;T&gt;...)</a> - Constructor for class com.redis.riot.core.function.<a href="../com/redis/riot/core/function/CompositeOperator.html" title="class in com.redis.riot.core.function">CompositeOperator</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="../com/redis/riot/core/function/CompositeOperator.html#%3Cinit%3E(java.util.List)" class="member-name-link">CompositeOperator(List&lt;Consumer&lt;T&gt;&gt;)</a> - Constructor for class com.redis.riot.core.function.<a href="../com/redis/riot/core/function/CompositeOperator.html" title="class in com.redis.riot.core.function">CompositeOperator</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/core/function/IdFunctionBuilder.ConcatenatingFunction.html#%3Cinit%3E(java.lang.String,java.util.List)" class="member-name-link">ConcatenatingFunction(String, List&lt;Function&lt;Map&lt;String, Object&gt;, String&gt;&gt;)</a> - Constructor for class com.redis.riot.core.function.<a href="../com/redis/riot/core/function/IdFunctionBuilder.ConcatenatingFunction.html" title="class in com.redis.riot.core.function">IdFunctionBuilder.ConcatenatingFunction</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/redis/Replication.html#CONFIG_NOTIFY_KEYSPACE_EVENTS" class="member-name-link">CONFIG_NOTIFY_KEYSPACE_EVENTS</a> - Static variable in class com.redis.riot.redis.<a href="../com/redis/riot/redis/Replication.html" title="class in com.redis.riot.redis">Replication</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/cli/redis/FieldFilteringArgs.html#configure(com.redis.riot.core.operation.AbstractFilterMapOperationBuilder)" class="member-name-link">configure(AbstractFilterMapOperationBuilder)</a> - Method in class com.redis.riot.cli.redis.<a href="../com/redis/riot/cli/redis/FieldFilteringArgs.html" title="class in com.redis.riot.cli.redis">FieldFilteringArgs</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="../com/redis/riot/core/RedisReaderOptions.html#configure(com.redis.spring.batch.RedisItemReader)" class="member-name-link">configure(RedisItemReader&lt;?, ?, ?&gt;)</a> - Method in class com.redis.riot.core.<a href="../com/redis/riot/core/RedisReaderOptions.html" title="class in com.redis.riot.core">RedisReaderOptions</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="../com/redis/riot/core/AbstractExport.html#configure(com.redis.spring.batch.RedisItemReader)" class="member-name-link">configure(RedisItemReader&lt;K, V, T&gt;)</a> - Method in class com.redis.riot.core.<a href="../com/redis/riot/core/AbstractExport.html" title="class in com.redis.riot.core">AbstractExport</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="../com/redis/riot/core/AbstractRedisCallable.html#configure(com.redis.spring.batch.RedisItemReader)" class="member-name-link">configure(RedisItemReader&lt;K, V, T&gt;)</a> - Method in class com.redis.riot.core.<a href="../com/redis/riot/core/AbstractRedisCallable.html" title="class in com.redis.riot.core">AbstractRedisCallable</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="../com/redis/riot/redis/Replication.html#configure(com.redis.spring.batch.RedisItemReader)" class="member-name-link">configure(RedisItemReader&lt;K, V, T&gt;)</a> - Method in class com.redis.riot.redis.<a href="../com/redis/riot/redis/Replication.html" title="class in com.redis.riot.redis">Replication</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="../com/redis/riot/core/RedisWriterOptions.html#configure(com.redis.spring.batch.RedisItemWriter)" class="member-name-link">configure(RedisItemWriter&lt;?, ?, ?&gt;)</a> - Method in class com.redis.riot.core.<a href="../com/redis/riot/core/RedisWriterOptions.html" title="class in com.redis.riot.core">RedisWriterOptions</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="../com/redis/riot/core/AbstractImport.html#configure(com.redis.spring.batch.RedisItemWriter)" class="member-name-link">configure(RedisItemWriter&lt;K, V, T&gt;)</a> - Method in class com.redis.riot.core.<a href="../com/redis/riot/core/AbstractImport.html" title="class in com.redis.riot.core">AbstractImport</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="../com/redis/riot/core/AbstractRedisCallable.html#configure(com.redis.spring.batch.RedisItemWriter)" class="member-name-link">configure(RedisItemWriter&lt;K, V, T&gt;)</a> - Method in class com.redis.riot.core.<a href="../com/redis/riot/core/AbstractRedisCallable.html" title="class in com.redis.riot.core">AbstractRedisCallable</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="../com/redis/riot/redis/Replication.html#configure(com.redis.spring.batch.RedisItemWriter)" class="member-name-link">configure(RedisItemWriter&lt;K, V, T&gt;)</a> - Method in class com.redis.riot.redis.<a href="../com/redis/riot/redis/Replication.html" title="class in com.redis.riot.redis">Replication</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/core/StepConfiguration.html#configure(org.springframework.batch.core.step.builder.SimpleStepBuilder,java.lang.String,org.springframework.batch.item.ItemReader,org.springframework.batch.item.ItemWriter)" class="member-name-link">configure(SimpleStepBuilder&lt;I, O&gt;, String, ItemReader&lt;I&gt;, ItemWriter&lt;O&gt;)</a> - Method in interface com.redis.riot.core.<a href="../com/redis/riot/core/StepConfiguration.html" title="interface in com.redis.riot.core">StepConfiguration</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/cli/LoggingMixin.html#configureLogging()" class="member-name-link">configureLogging()</a> - Method in class com.redis.riot.cli.<a href="../com/redis/riot/cli/LoggingMixin.html" title="class in com.redis.riot.cli">LoggingMixin</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="../com/redis/riot/core/AbstractExport.html#configureReader(com.redis.spring.batch.RedisItemReader)" class="member-name-link">configureReader(RedisItemReader&lt;K, ?, ?&gt;)</a> - Method in class com.redis.riot.core.<a href="../com/redis/riot/core/AbstractExport.html" title="class in com.redis.riot.core">AbstractExport</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/cli/RangeTypeConverter.html#convert(java.lang.String)" class="member-name-link">convert(String)</a> - Method in class com.redis.riot.cli.<a href="../com/redis/riot/cli/RangeTypeConverter.html" title="class in com.redis.riot.cli">RangeTypeConverter</a></dt>
 <dd>&nbsp;</dd>

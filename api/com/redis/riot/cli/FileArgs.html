@@ -76,10 +76,6 @@ loadScripts(document, 'script');</script>
 <div class="inheritance">com.redis.riot.cli.FileArgs</div>
 </div>
 <section class="class-description" id="class-description">
-<dl class="notes">
-<dt>Direct Known Subclasses:</dt>
-<dd><code><a href="FileDumpExportArgs.html" title="class in com.redis.riot.cli">FileDumpExportArgs</a></code>, <code><a href="FileDumpImportArgs.html" title="class in com.redis.riot.cli">FileDumpImportArgs</a></code>, <code><a href="FileImportArgs.html" title="class in com.redis.riot.cli">FileImportArgs</a></code></dd>
-</dl>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">FileArgs</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
@@ -112,6 +108,30 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="../file/FileOptions.html" title="class in com.redis.riot.file">FileOptions</a></code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#fileOptions()" class="member-name-link">fileOptions</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getEncoding()" class="member-name-link">getEncoding</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>com.redis.riot.cli.FileArgs.GcsArgs</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getGcs()" class="member-name-link">getGcs</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>com.redis.riot.cli.FileArgs.S3Args</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getS3()" class="member-name-link">getS3</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isGzipped()" class="member-name-link">isGzipped</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setEncoding(java.lang.String)" class="member-name-link">setEncoding</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;encoding)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setGcs(com.redis.riot.cli.FileArgs.GcsArgs)" class="member-name-link">setGcs</a><wbr>(com.redis.riot.cli.FileArgs.GcsArgs&nbsp;gcs)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setGzipped(boolean)" class="member-name-link">setGzipped</a><wbr>(boolean&nbsp;gzipped)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setS3(com.redis.riot.cli.FileArgs.S3Args)" class="member-name-link">setS3</a><wbr>(com.redis.riot.cli.FileArgs.S3Args&nbsp;s3)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 </div>
 </div>
@@ -148,6 +168,54 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="fileOptions()">
 <h3>fileOptions</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="../file/FileOptions.html" title="class in com.redis.riot.file">FileOptions</a></span>&nbsp;<span class="element-name">fileOptions</span>()</div>
+</section>
+</li>
+<li>
+<section class="detail" id="getEncoding()">
+<h3>getEncoding</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">getEncoding</span>()</div>
+</section>
+</li>
+<li>
+<section class="detail" id="setEncoding(java.lang.String)">
+<h3>setEncoding</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setEncoding</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;encoding)</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="isGzipped()">
+<h3>isGzipped</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isGzipped</span>()</div>
+</section>
+</li>
+<li>
+<section class="detail" id="setGzipped(boolean)">
+<h3>setGzipped</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setGzipped</span><wbr><span class="parameters">(boolean&nbsp;gzipped)</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="getS3()">
+<h3>getS3</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">com.redis.riot.cli.FileArgs.S3Args</span>&nbsp;<span class="element-name">getS3</span>()</div>
+</section>
+</li>
+<li>
+<section class="detail" id="setS3(com.redis.riot.cli.FileArgs.S3Args)">
+<h3>setS3</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setS3</span><wbr><span class="parameters">(com.redis.riot.cli.FileArgs.S3Args&nbsp;s3)</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="getGcs()">
+<h3>getGcs</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">com.redis.riot.cli.FileArgs.GcsArgs</span>&nbsp;<span class="element-name">getGcs</span>()</div>
+</section>
+</li>
+<li>
+<section class="detail" id="setGcs(com.redis.riot.cli.FileArgs.GcsArgs)">
+<h3>setGcs</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setGcs</span><wbr><span class="parameters">(com.redis.riot.cli.FileArgs.GcsArgs&nbsp;gcs)</span></div>
 </section>
 </li>
 </ul>

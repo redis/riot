@@ -57,11 +57,15 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color"><a href="#com.redis.riot.cli">com.redis.riot.cli</a></div>
 <div class="col-last even-row-color">&nbsp;</div>
-<div class="col-first odd-row-color"><a href="#com.redis.riot.db">com.redis.riot.db</a></div>
+<div class="col-first odd-row-color"><a href="#com.redis.riot.core">com.redis.riot.core</a></div>
 <div class="col-last odd-row-color">&nbsp;</div>
-<div class="col-first even-row-color"><a href="#com.redis.riot.faker">com.redis.riot.faker</a></div>
+<div class="col-first even-row-color"><a href="#com.redis.riot.db">com.redis.riot.db</a></div>
 <div class="col-last even-row-color">&nbsp;</div>
-<div class="col-first odd-row-color"><a href="#com.redis.riot.file">com.redis.riot.file</a></div>
+<div class="col-first odd-row-color"><a href="#com.redis.riot.faker">com.redis.riot.faker</a></div>
+<div class="col-last odd-row-color">&nbsp;</div>
+<div class="col-first even-row-color"><a href="#com.redis.riot.file">com.redis.riot.file</a></div>
+<div class="col-last even-row-color">&nbsp;</div>
+<div class="col-first odd-row-color"><a href="#com.redis.riot.redis">com.redis.riot.redis</a></div>
 <div class="col-last odd-row-color">&nbsp;</div>
 </div>
 <section class="class-uses">
@@ -75,17 +79,25 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color"><code>protected abstract <a href="../AbstractImport.html" title="class in com.redis.riot.core">AbstractImport</a></code></div>
-<div class="col-second even-row-color"><span class="type-name-label">AbstractImportCommand.</span><code><a href="../../cli/AbstractImportCommand.html#importRunnable()" class="member-name-link">importRunnable</a>()</code></div>
+<div class="col-second even-row-color"><span class="type-name-label">AbstractStructImportCommand.</span><code><a href="../../cli/AbstractStructImportCommand.html#importRunnable()" class="member-name-link">importRunnable</a>()</code></div>
 <div class="col-last even-row-color">&nbsp;</div>
 <div class="col-first odd-row-color"><code>protected <a href="../AbstractImport.html" title="class in com.redis.riot.core">AbstractImport</a></code></div>
-<div class="col-second odd-row-color"><span class="type-name-label">DbImportCommand.</span><code><a href="../../cli/DbImportCommand.html#importRunnable()" class="member-name-link">importRunnable</a>()</code></div>
+<div class="col-second odd-row-color"><span class="type-name-label">AbstractStructImportCommand.</span><code><a href="../../cli/AbstractStructImportCommand.html#runnable()" class="member-name-link">runnable</a>()</code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
-<div class="col-first even-row-color"><code>protected <a href="../AbstractImport.html" title="class in com.redis.riot.core">AbstractImport</a></code></div>
-<div class="col-second even-row-color"><span class="type-name-label">FileImportCommand.</span><code><a href="../../cli/FileImportCommand.html#importRunnable()" class="member-name-link">importRunnable</a>()</code></div>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="com.redis.riot.core">
+<h2>Uses of <a href="../AbstractImport.html" title="class in com.redis.riot.core">AbstractImport</a> in <a href="../package-summary.html">com.redis.riot.core</a></h2>
+<div class="caption"><span>Subclasses of <a href="../AbstractImport.html" title="class in com.redis.riot.core">AbstractImport</a> in <a href="../package-summary.html">com.redis.riot.core</a></span></div>
+<div class="summary-table three-column-summary">
+<div class="table-header col-first">Modifier and Type</div>
+<div class="table-header col-second">Class</div>
+<div class="table-header col-last">Description</div>
+<div class="col-first even-row-color"><code>class&nbsp;</code></div>
+<div class="col-second even-row-color"><code><a href="../AbstractMapImport.html" class="type-name-link" title="class in com.redis.riot.core">AbstractMapImport</a></code></div>
 <div class="col-last even-row-color">&nbsp;</div>
-<div class="col-first odd-row-color"><code>protected <a href="../AbstractImport.html" title="class in com.redis.riot.core">AbstractImport</a></code></div>
-<div class="col-second odd-row-color"><span class="type-name-label">AbstractImportCommand.</span><code><a href="../../cli/AbstractImportCommand.html#runnable()" class="member-name-link">runnable</a>()</code></div>
-<div class="col-last odd-row-color">&nbsp;</div>
 </div>
 </section>
 </li>
@@ -126,7 +138,24 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Class</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color"><code>class&nbsp;</code></div>
-<div class="col-second even-row-color"><code><a href="../../file/FileImport.html" class="type-name-link" title="class in com.redis.riot.file">FileImport</a></code></div>
+<div class="col-second even-row-color"><code><a href="../../file/FileDumpImport.html" class="type-name-link" title="class in com.redis.riot.file">FileDumpImport</a></code></div>
+<div class="col-last even-row-color">&nbsp;</div>
+<div class="col-first odd-row-color"><code>class&nbsp;</code></div>
+<div class="col-second odd-row-color"><code><a href="../../file/FileImport.html" class="type-name-link" title="class in com.redis.riot.file">FileImport</a></code></div>
+<div class="col-last odd-row-color">&nbsp;</div>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="com.redis.riot.redis">
+<h2>Uses of <a href="../AbstractImport.html" title="class in com.redis.riot.core">AbstractImport</a> in <a href="../../redis/package-summary.html">com.redis.riot.redis</a></h2>
+<div class="caption"><span>Subclasses of <a href="../AbstractImport.html" title="class in com.redis.riot.core">AbstractImport</a> in <a href="../../redis/package-summary.html">com.redis.riot.redis</a></span></div>
+<div class="summary-table three-column-summary">
+<div class="table-header col-first">Modifier and Type</div>
+<div class="table-header col-second">Class</div>
+<div class="table-header col-last">Description</div>
+<div class="col-first even-row-color"><code>class&nbsp;</code></div>
+<div class="col-second even-row-color"><code><a href="../../redis/GeneratorImport.html" class="type-name-link" title="class in com.redis.riot.redis">GeneratorImport</a></code></div>
 <div class="col-last even-row-color">&nbsp;</div>
 </div>
 </section>

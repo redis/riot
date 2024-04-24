@@ -140,18 +140,36 @@ loadScripts(document, 'script');</script>
  org.springframework.batch.item.ItemReader&lt;?&gt;&nbsp;reader,
  org.springframework.batch.item.ItemWriter&lt;?&gt;&nbsp;writer)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/LongSupplier.html" title="class or interface in java.util.function" class="external-link">LongSupplier</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#initialMaxSupplier(java.lang.String,org.springframework.batch.item.ItemReader)" class="member-name-link">initialMaxSupplier</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;stepName,
- org.springframework.batch.item.ItemReader&lt;?&gt;&nbsp;reader)</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="KeyFilterArgs.html" title="class in com.redis.riot.cli">KeyFilterArgs</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getKeyFilterArgs()" class="member-name-link">getKeyFilterArgs</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected <a href="../core/AbstractRedisRunnable.html" title="class in com.redis.riot.core">AbstractRedisRunnable</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#runnable()" class="member-name-link">runnable</a>()</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="KeyValueProcessorArgs.html" title="class in com.redis.riot.cli">KeyValueProcessorArgs</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getProcessorArgs()" class="member-name-link">getProcessorArgs</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="RedisReaderArgs.html" title="class in com.redis.riot.cli">RedisReaderArgs</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getReaderArgs()" class="member-name-link">getReaderArgs</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/LongSupplier.html" title="class or interface in java.util.function" class="external-link">LongSupplier</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#initialMaxSupplier(java.lang.String,org.springframework.batch.item.ItemReader)" class="member-name-link">initialMaxSupplier</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;stepName,
+ org.springframework.batch.item.ItemReader&lt;?&gt;&nbsp;reader)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected <a href="../core/AbstractRedisCallable.html" title="class in com.redis.riot.core">AbstractRedisCallable</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#runnable()" class="member-name-link">runnable</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setKeyFilterArgs(com.redis.riot.cli.KeyFilterArgs)" class="member-name-link">setKeyFilterArgs</a><wbr>(<a href="KeyFilterArgs.html" title="class in com.redis.riot.cli">KeyFilterArgs</a>&nbsp;keyFilterArgs)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setName(java.lang.String)" class="member-name-link">setName</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;name)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setProgressStyle(com.redis.riot.cli.AbstractRiotCommand.ProgressStyle)" class="member-name-link">setProgressStyle</a><wbr>(com.redis.riot.cli.AbstractRiotCommand.ProgressStyle&nbsp;style)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setProcessorArgs(com.redis.riot.cli.KeyValueProcessorArgs)" class="member-name-link">setProcessorArgs</a><wbr>(<a href="KeyValueProcessorArgs.html" title="class in com.redis.riot.cli">KeyValueProcessorArgs</a>&nbsp;processorArgs)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setProgressStyle(com.redis.riot.cli.AbstractRiotCommand.ProgressStyle)" class="member-name-link">setProgressStyle</a><wbr>(com.redis.riot.cli.AbstractRiotCommand.ProgressStyle&nbsp;style)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setReaderArgs(com.redis.riot.cli.RedisReaderArgs)" class="member-name-link">setReaderArgs</a><wbr>(<a href="RedisReaderArgs.html" title="class in com.redis.riot.cli">RedisReaderArgs</a>&nbsp;readerArgs)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#taskName(java.lang.String)" class="member-name-link">taskName</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;stepName)</code></div>
@@ -204,7 +222,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="runnable()">
 <h3>runnable</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type"><a href="../core/AbstractRedisRunnable.html" title="class in com.redis.riot.core">AbstractRedisRunnable</a></span>&nbsp;<span class="element-name">runnable</span>()</div>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type"><a href="../core/AbstractRedisCallable.html" title="class in com.redis.riot.core">AbstractRedisCallable</a></span>&nbsp;<span class="element-name">runnable</span>()</div>
 </section>
 </li>
 <li>
@@ -218,6 +236,42 @@ loadScripts(document, 'script');</script>
 <h3>initialMaxSupplier</h3>
 <div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/LongSupplier.html" title="class or interface in java.util.function" class="external-link">LongSupplier</a></span>&nbsp;<span class="element-name">initialMaxSupplier</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;stepName,
  org.springframework.batch.item.ItemReader&lt;?&gt;&nbsp;reader)</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="getReaderArgs()">
+<h3>getReaderArgs</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="RedisReaderArgs.html" title="class in com.redis.riot.cli">RedisReaderArgs</a></span>&nbsp;<span class="element-name">getReaderArgs</span>()</div>
+</section>
+</li>
+<li>
+<section class="detail" id="setReaderArgs(com.redis.riot.cli.RedisReaderArgs)">
+<h3>setReaderArgs</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setReaderArgs</span><wbr><span class="parameters">(<a href="RedisReaderArgs.html" title="class in com.redis.riot.cli">RedisReaderArgs</a>&nbsp;readerArgs)</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="getProcessorArgs()">
+<h3>getProcessorArgs</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="KeyValueProcessorArgs.html" title="class in com.redis.riot.cli">KeyValueProcessorArgs</a></span>&nbsp;<span class="element-name">getProcessorArgs</span>()</div>
+</section>
+</li>
+<li>
+<section class="detail" id="setProcessorArgs(com.redis.riot.cli.KeyValueProcessorArgs)">
+<h3>setProcessorArgs</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setProcessorArgs</span><wbr><span class="parameters">(<a href="KeyValueProcessorArgs.html" title="class in com.redis.riot.cli">KeyValueProcessorArgs</a>&nbsp;processorArgs)</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="getKeyFilterArgs()">
+<h3>getKeyFilterArgs</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="KeyFilterArgs.html" title="class in com.redis.riot.cli">KeyFilterArgs</a></span>&nbsp;<span class="element-name">getKeyFilterArgs</span>()</div>
+</section>
+</li>
+<li>
+<section class="detail" id="setKeyFilterArgs(com.redis.riot.cli.KeyFilterArgs)">
+<h3>setKeyFilterArgs</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setKeyFilterArgs</span><wbr><span class="parameters">(<a href="KeyFilterArgs.html" title="class in com.redis.riot.cli">KeyFilterArgs</a>&nbsp;keyFilterArgs)</span></div>
 </section>
 </li>
 <li>
