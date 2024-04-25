@@ -32,6 +32,25 @@ public class RedisReaderOptions {
 	private ReadFrom readFrom;
 	private DataSize memoryUsageLimit = DEFAULT_MEMORY_USAGE_LIMIT;
 	private int memoryUsageSamples = DEFAULT_MEMORY_USAGE_SAMPLES;
+	private KeyFilterOptions keyFilterOptions = new KeyFilterOptions();
+
+	public <K> void configure(RedisItemReader<K, ?, ?> reader) {
+		reader.setChunkSize(chunkSize);
+		reader.setKeyPattern(keyPattern);
+		reader.setKeyType(keyType);
+		reader.setPollTimeout(pollTimeout);
+		reader.setQueueCapacity(queueCapacity);
+		reader.setReadFrom(readFrom);
+		reader.setScanCount(scanCount);
+		reader.setThreads(threads);
+		if (reader.getOperation() instanceof KeyValueRead) {
+			KeyValueRead<?, ?, ?> operation = (KeyValueRead<?, ?, ?>) reader.getOperation();
+			operation.setMemUsageLimit(memoryUsageLimit);
+			operation.setMemUsageSamples(memoryUsageSamples);
+		}
+		reader.setPoolSize(poolSize);
+		reader.setKeyProcessor(keyFilterOptions.processor(reader.getCodec()));
+	}
 
 	public String getKeyPattern() {
 		return keyPattern;
@@ -121,21 +140,12 @@ public class RedisReaderOptions {
 		this.memoryUsageSamples = memoryUsageSamples;
 	}
 
-	public void configure(RedisItemReader<?, ?, ?> reader) {
-		reader.setChunkSize(chunkSize);
-		reader.setKeyPattern(keyPattern);
-		reader.setKeyType(keyType);
-		reader.setPollTimeout(pollTimeout);
-		reader.setQueueCapacity(queueCapacity);
-		reader.setReadFrom(readFrom);
-		reader.setScanCount(scanCount);
-		reader.setThreads(threads);
-		if (reader.getOperation() instanceof KeyValueRead) {
-			KeyValueRead<?, ?, ?> operation = (KeyValueRead<?, ?, ?>) reader.getOperation();
-			operation.setMemUsageLimit(memoryUsageLimit);
-			operation.setMemUsageSamples(memoryUsageSamples);
-		}
-		reader.setPoolSize(poolSize);
-
+	public KeyFilterOptions getKeyFilterOptions() {
+		return keyFilterOptions;
 	}
+
+	public void setKeyFilterOptions(KeyFilterOptions options) {
+		this.keyFilterOptions = options;
+	}
+
 }

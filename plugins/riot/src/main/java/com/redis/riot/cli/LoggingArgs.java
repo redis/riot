@@ -11,15 +11,15 @@ import org.slf4j.simple.SimpleLogger;
 
 import picocli.CommandLine.Option;
 
-public class LoggingMixin {
+public class LoggingArgs {
 
 	private Level level = Level.WARN;
 	@Option(names = "--log-file", description = "Log output target. Can be a path or special values System.out and System.err (default: System.err).", paramLabel = "<file>")
 	private String logFile;
 	@Option(names = "--log-time", description = "Include current date and time in log messages.")
 	private boolean showDateTime;
-	@Option(names = "--log-time-format", description = "Date and time format to be used in log messages (default: millis since startup). Use with --log-time.", paramLabel = "<f>")
-	private String dateTimeFormat;
+	@Option(names = "--log-time-format", description = "Date and time format to be used in log messages (default: ${DEFAULT-VALUE}). Use with --log-time.", paramLabel = "<f>")
+	private String dateTimeFormat = "yyyy-MM-dd HH:mm:ss.SSS";
 	@Option(names = "--log-thread-id", description = "Include current thread ID in log messages.", hidden = true)
 	private boolean showThreadId;
 	@Option(names = "--log-thread-name", description = "Include current thread name in log messages.", hidden = true)

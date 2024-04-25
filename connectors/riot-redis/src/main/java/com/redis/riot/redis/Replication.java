@@ -37,7 +37,6 @@ import com.redis.spring.batch.util.BatchUtils;
 import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.ReadFrom;
 import io.lettuce.core.RedisException;
-import io.lettuce.core.RedisURI;
 import io.lettuce.core.codec.ByteArrayCodec;
 
 public class Replication extends AbstractExport {
@@ -74,26 +73,19 @@ public class Replication extends AbstractExport {
 	private Duration idleTimeout = DEFAULT_IDLE_TIMEOUT;
 	private int notificationQueueCapacity = DEFAULT_NOTIFICATION_QUEUE_CAPACITY;
 
-	private RedisURI targetRedisURI;
 	private AbstractRedisClient targetRedisClient;
 
 	@Override
-	protected boolean isStruct() {
-		return type == ReplicationType.STRUCT;
-	}
-
-	@Override
 	public void afterPropertiesSet() throws Exception {
-		targetRedisURI = targetRedisClientOptions.redisURI();
-		targetRedisClient = targetRedisClientOptions.client(targetRedisURI);
+		targetRedisClient = targetRedisClientOptions.redisClient();
 		super.afterPropertiesSet();
 	}
 
 	@Override
 	protected StandardEvaluationContext evaluationContext() {
 		StandardEvaluationContext context = super.evaluationContext();
-		context.setVariable(SOURCE_VAR, redisURI);
-		context.setVariable(TARGET_VAR, targetRedisURI);
+		context.setVariable(SOURCE_VAR, getRedisClientOptions().getRedisURI());
+		context.setVariable(TARGET_VAR, targetRedisClientOptions.getRedisURI());
 		return context;
 	}
 
@@ -139,7 +131,7 @@ public class Replication extends AbstractExport {
 			SimpleFlow replicateFlow = flow(FLOW_REPLICATE).split(new SimpleAsyncTaskExecutor()).add(liveFlow, scanFlow)
 					.build();
 			JobFlowBuilder live = jobBuilder().start(replicateFlow);
-			if (shouldCompare()) {
+			if (shouldCompare() && processor == null) {
 				live.next(compareStep);
 			}
 			return live.build().build();
@@ -148,7 +140,7 @@ public class Replication extends AbstractExport {
 			return jobBuilder().start(liveStep.build()).build();
 		case SNAPSHOT:
 			SimpleJobBuilder snapshot = jobBuilder().start(scanStep.build());
-			if (shouldCompare()) {
+			if (shouldCompare() && processor == null) {
 				snapshot.next(compareStep);
 			}
 			return snapshot.build();
@@ -174,7 +166,7 @@ public class Replication extends AbstractExport {
 	}
 
 	private boolean shouldCompare() {
-		return compareMode != CompareMode.NONE && !isDryRun() && getProcessorOptions().isEmpty();
+		return compareMode != CompareMode.NONE && !isDryRun();
 	}
 
 	@Override
@@ -212,7 +204,7 @@ public class Replication extends AbstractExport {
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private RedisItemReader<byte[], byte[], KeyValue<byte[], Object>> reader() {
-		if (isStruct()) {
+		if (type == ReplicationType.STRUCT) {
 			return RedisItemReader.struct(ByteArrayCodec.INSTANCE);
 		}
 		return (RedisItemReader) RedisItemReader.dump();
@@ -252,7 +244,7 @@ public class Replication extends AbstractExport {
 	}
 
 	private RedisItemWriter<byte[], byte[], ? extends KeyValue<byte[], ?>> writer() {
-		if (isStruct()) {
+		if (type == ReplicationType.STRUCT) {
 			return RedisItemWriter.struct(ByteArrayCodec.INSTANCE);
 		}
 		return RedisItemWriter.dump();

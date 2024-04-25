@@ -9,7 +9,7 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
 @Command(name = "db-import", description = "Import from a relational database.")
-public class DbImportCommand extends AbstractImportCommand {
+public class DbImportCommand extends AbstractMapImportCommand {
 
 	@Parameters(arity = "1", description = "SQL SELECT statement", paramLabel = "SQL")
 	private String sql;
@@ -36,14 +36,14 @@ public class DbImportCommand extends AbstractImportCommand {
 	private boolean verifyCursorPosition;
 
 	@Override
-	protected AbstractMapImport importRunnable() {
-		DatabaseImport runnable = new DatabaseImport();
-		runnable.setSql(sql);
-		runnable.setDataSourceOptions(dbArgs.dataSourceOptions());
-		runnable.setFetchSize(fetchSize);
-		runnable.setMaxItemCount(maxItemCount);
-		runnable.setMaxResultSetRows(maxResultSetRows);
-		return runnable;
+	protected AbstractMapImport mapImportCallable() {
+		DatabaseImport callable = new DatabaseImport();
+		callable.setSql(sql);
+		callable.setDataSourceOptions(dbArgs.dataSourceOptions());
+		callable.setFetchSize(fetchSize);
+		callable.setMaxItemCount(maxItemCount);
+		callable.setMaxResultSetRows(maxResultSetRows);
+		return callable;
 	}
 
 	public String getSql() {

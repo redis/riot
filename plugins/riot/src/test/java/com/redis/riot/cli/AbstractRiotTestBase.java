@@ -57,28 +57,39 @@ abstract class AbstractRiotTestBase extends AbstractTargetTestBase {
 	}
 
 	private int execute(TestInfo info, ParseResult parseResult) {
-		RedisServer server = getRedisServer();
-		AbstractMainCommand main = (AbstractMainCommand) parseResult.commandSpec().commandLine().getCommand();
-		main.getRedisArgs().setUri(server.getRedisURI());
-		main.getRedisArgs().setCluster(server.isRedisCluster());
 		for (ParseResult subParseResult : parseResult.subcommands()) {
 			Object command = subParseResult.commandSpec().commandLine().getCommand();
-			if (command instanceof RedisCommand) {
+			if (command instanceof RedisOperationCommand) {
 				command = subParseResult.commandSpec().parent().commandLine().getCommand();
 			}
 			if (command instanceof AbstractRiotCommand) {
-				AbstractRiotCommand jobCommand = ((AbstractRiotCommand) command);
-				jobCommand.setProgressStyle(ProgressStyle.NONE);
-				jobCommand.setName(name(info));
+				AbstractRiotCommand riotCommand = ((AbstractRiotCommand) command);
+				riotCommand.getJobArgs().setProgressStyle(ProgressStyle.NONE);
+				riotCommand.setName(name(info));
+			}
+			if (command instanceof AbstractImportCommand) {
+				AbstractImportCommand importCommand = ((AbstractImportCommand) command);
+				RedisServer server = getRedisServer();
+				importCommand.getImportArgs().getRedisClientArgs().getUriArgs().setUri(server.getRedisURI());
+				importCommand.getImportArgs().getRedisClientArgs().setCluster(server.isRedisCluster());
+			}
+			if (command instanceof AbstractExportCommand) {
+				AbstractExportCommand exportCommand = ((AbstractExportCommand) command);
+				exportCommand.getExportArgs().getRedisClientArgs().getUriArgs().setUri(getRedisServer().getRedisURI());
+				exportCommand.getExportArgs().getRedisClientArgs().setCluster(getRedisServer().isRedisCluster());
 			}
 			if (command instanceof ReplicateCommand) {
 				ReplicateCommand replicateCommand = (ReplicateCommand) command;
 				replicateCommand.setCompareMode(CompareMode.NONE);
-				replicateCommand.getTargetRedisArgs().setUri(getTargetRedisServer().getRedisURI());
+				replicateCommand.getSourceArgs().getRedisClientArgs().getUriArgs()
+						.setUri(getRedisServer().getRedisURI());
+				replicateCommand.getSourceArgs().getRedisClientArgs().setCluster(getRedisServer().isRedisCluster());
+				replicateCommand.getTargetArgs().setUri(getTargetRedisServer().getRedisURI());
+				replicateCommand.getTargetArgs().setCluster(getTargetRedisServer().isRedisCluster());
 				if (replicateCommand.getMode() == ReplicationMode.LIVE
 						|| replicateCommand.getMode() == ReplicationMode.LIVEONLY) {
 					replicateCommand.setIdleTimeout(getIdleTimeout().toMillis());
-					replicateCommand.setNotificationQueueCapacity(DEFAULT_NOTIFICATION_QUEUE_CAPACITY);
+					replicateCommand.getSourceArgs().setNotificationQueueCapacity(DEFAULT_NOTIFICATION_QUEUE_CAPACITY);
 				}
 			}
 		}

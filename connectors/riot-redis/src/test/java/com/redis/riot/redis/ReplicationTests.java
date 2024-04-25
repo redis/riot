@@ -14,7 +14,7 @@ import org.testcontainers.shaded.org.bouncycastle.util.encoders.Hex;
 
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
 import com.redis.lettucemod.util.RedisModulesUtils;
-import com.redis.riot.core.ExportProcessorOptions;
+import com.redis.riot.core.KeyValueProcessorOptions;
 import com.redis.riot.core.PredicateItemProcessor;
 import com.redis.riot.core.RedisClientOptions;
 import com.redis.riot.core.RiotUtils;
@@ -26,6 +26,7 @@ import com.redis.spring.batch.test.AbstractTargetTestBase;
 import com.redis.spring.batch.util.Predicates;
 import com.redis.testcontainers.RedisServer;
 
+import io.lettuce.core.RedisURI;
 import io.lettuce.core.cluster.SlotHash;
 import io.lettuce.core.codec.ByteArrayCodec;
 
@@ -62,7 +63,7 @@ public abstract class ReplicationTests extends AbstractTargetTestBase {
 
 	private RedisClientOptions redisOptions(RedisServer redis) {
 		RedisClientOptions options = new RedisClientOptions();
-		options.setUri(redis.getRedisURI());
+		options.setRedisURI(RedisURI.create(redis.getRedisURI()));
 		options.setCluster(redis.isRedisCluster());
 		return options;
 	}
@@ -88,8 +89,8 @@ public abstract class ReplicationTests extends AbstractTargetTestBase {
 		Assertions.assertEquals(value1, targetRedisCommands.get("string:" + key1));
 	}
 
-	private ExportProcessorOptions processorOptions(String keyExpression) {
-		ExportProcessorOptions options = new ExportProcessorOptions();
+	private KeyValueProcessorOptions processorOptions(String keyExpression) {
+		KeyValueProcessorOptions options = new KeyValueProcessorOptions();
 		options.setKeyExpression(RiotUtils.parseTemplate(keyExpression));
 		return options;
 	}

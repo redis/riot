@@ -141,7 +141,7 @@ class StackToStackIntegrationTests extends AbstractRiotTestBase {
 	}
 
 	private int executeFileDumpExport(ParseResult parseResult, TestInfo info) {
-		FileDumpExportCommand command = command(parseResult);
+		FileExportCommand command = command(parseResult);
 		command.setName(name(info));
 		command.setFile(replace(command.getFile()));
 		return ExitCode.OK;

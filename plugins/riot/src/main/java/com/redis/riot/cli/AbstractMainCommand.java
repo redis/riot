@@ -1,6 +1,7 @@
 package com.redis.riot.cli;
 
 import java.io.PrintWriter;
+import java.util.Map;
 
 import org.springframework.expression.Expression;
 
@@ -11,24 +12,38 @@ import com.redis.spring.batch.gen.Range;
 
 import picocli.AutoComplete.GenerateCompletion;
 import picocli.CommandLine;
-import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.IExecutionStrategy;
+import picocli.CommandLine.Model.CommandSpec;
+import picocli.CommandLine.Option;
 import picocli.CommandLine.ParseResult;
 import picocli.CommandLine.RunFirst;
 import picocli.CommandLine.RunLast;
+import picocli.CommandLine.Spec;
 
-@Command(subcommands = { DbImportCommand.class, DbExportCommand.class, FileDumpImportCommand.class,
-		FileImportCommand.class, FileDumpExportCommand.class, FakerImportCommand.class, GenerateCommand.class,
-		ReplicateCommand.class, PingCommand.class, GenerateCompletion.class })
-public abstract class AbstractMainCommand extends BaseCommand implements Runnable {
+@Command(usageHelpAutoWidth = true, abbreviateSynopsis = true, subcommands = { DbImportCommand.class,
+		DbExportCommand.class, FileDumpImportCommand.class, FileImportCommand.class, FileExportCommand.class,
+		FakerImportCommand.class, GenerateCommand.class, ReplicateCommand.class, PingCommand.class,
+		GenerateCompletion.class })
+public abstract class AbstractMainCommand implements Runnable {
+
+	static {
+		if (System.getenv().containsKey("RIOT_NO_COLOR")) {
+			System.setProperty("picocli.ansi", "false");
+		}
+	}
 
 	PrintWriter out;
 
 	PrintWriter err;
 
-	@ArgGroup(exclusive = false)
-	private RedisArgs redisArgs = new RedisArgs();
+	@Spec
+	CommandSpec spec;
+
+	@Option(names = "-D", paramLabel = "<key=value>", description = "Sets a System property.")
+	void setProperty(Map<String, String> props) {
+		props.forEach(System::setProperty);
+	}
 
 	@Override
 	public void run() {
@@ -69,26 +84,18 @@ public abstract class AbstractMainCommand extends BaseCommand implements Runnabl
 	private static int executionStrategy(ParseResult parseResult) {
 		for (ParseResult subcommand : parseResult.subcommands()) {
 			Object command = subcommand.commandSpec().userObject();
-			if (AbstractImportCommand.class.isAssignableFrom(command.getClass())) {
-				AbstractImportCommand importCommand = (AbstractImportCommand) command;
+			if (AbstractMapImportCommand.class.isAssignableFrom(command.getClass())) {
+				AbstractMapImportCommand importCommand = (AbstractMapImportCommand) command;
 				for (ParseResult redisCommand : subcommand.subcommands()) {
 					if (redisCommand.isUsageHelpRequested()) {
 						return new RunLast().execute(redisCommand);
 					}
-					importCommand.getCommands().add((RedisCommand) redisCommand.commandSpec().userObject());
+					importCommand.getCommands().add((RedisOperationCommand) redisCommand.commandSpec().userObject());
 				}
 				return new RunFirst().execute(subcommand);
 			}
 		}
 		return new RunLast().execute(parseResult); // default execution strategy
-	}
-
-	public RedisArgs getRedisArgs() {
-		return redisArgs;
-	}
-
-	public void setRedisArgs(RedisArgs redisArgs) {
-		this.redisArgs = redisArgs;
 	}
 
 }

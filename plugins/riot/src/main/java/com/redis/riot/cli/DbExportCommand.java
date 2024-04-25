@@ -22,17 +22,17 @@ public class DbExportCommand extends AbstractExportCommand {
 	@Option(names = "--key-regex", description = "Regex for key-field extraction (default: ${DEFAULT-VALUE}).", paramLabel = "<str>")
 	private Pattern keyRegex = AbstractMapExport.DEFAULT_KEY_REGEX;
 
-	@Option(names = "--no-assert-updates", description = "Confirm every insert results in update of at least one row. True by default.", negatable = true)
+	@Option(names = "--assert-updates", defaultValue = "true", fallbackValue = "true", description = "Confirm every insert results in update of at least one row. True by default.", negatable = true)
 	private boolean assertUpdates = DatabaseExport.DEFAULT_ASSERT_UPDATES;
 
 	@Override
-	protected DatabaseExport exportRunnable() {
-		DatabaseExport runnable = new DatabaseExport();
-		runnable.setSql(sql);
-		runnable.setAssertUpdates(assertUpdates);
-		runnable.setDataSourceOptions(dbArgs.dataSourceOptions());
-		runnable.setKeyRegex(keyRegex);
-		return runnable;
+	protected DatabaseExport exportCallable() {
+		DatabaseExport callable = new DatabaseExport();
+		callable.setSql(sql);
+		callable.setAssertUpdates(assertUpdates);
+		callable.setDataSourceOptions(dbArgs.dataSourceOptions());
+		callable.setKeyRegex(keyRegex);
+		return callable;
 	}
 
 	public String getSql() {

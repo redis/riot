@@ -2,9 +2,7 @@ package com.redis.riot.cli;
 
 import java.util.Locale;
 import java.util.Map;
-import java.util.function.LongSupplier;
 
-import org.springframework.batch.item.ItemReader;
 import org.springframework.expression.Expression;
 
 import com.redis.riot.faker.FakerImport;
@@ -14,7 +12,7 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
 @Command(name = "faker-import", description = "Import from Faker.")
-public class FakerImportCommand extends AbstractImportCommand {
+public class FakerImportCommand extends AbstractMapImportCommand {
 
 	@Option(names = "--count", description = "Number of items to generate (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
 	int count = FakerImport.DEFAULT_COUNT;
@@ -29,18 +27,13 @@ public class FakerImportCommand extends AbstractImportCommand {
 	Locale locale = FakerImport.DEFAULT_LOCALE;
 
 	@Override
-	protected FakerImport importRunnable() {
-		FakerImport runnable = new FakerImport();
-		runnable.setFields(fields);
-		runnable.setCount(count);
-		runnable.setLocale(locale);
-		runnable.setSearchIndex(searchIndex);
-		return runnable;
-	}
-
-	@Override
-	protected LongSupplier initialMaxSupplier(String stepName, ItemReader<?> reader) {
-		return () -> count;
+	protected FakerImport mapImportCallable() {
+		FakerImport callable = new FakerImport();
+		callable.setFields(fields);
+		callable.setCount(count);
+		callable.setLocale(locale);
+		callable.setSearchIndex(searchIndex);
+		return callable;
 	}
 
 }

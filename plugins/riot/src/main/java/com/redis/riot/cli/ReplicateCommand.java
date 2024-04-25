@@ -8,8 +8,7 @@ import java.util.function.Supplier;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 
-import com.redis.riot.cli.RedisReaderArgs.ReadFromEnum;
-import com.redis.riot.core.AbstractExport;
+import com.redis.riot.core.RedisClientOptions;
 import com.redis.riot.redis.CompareMode;
 import com.redis.riot.redis.KeyComparisonStatusCountItemWriter;
 import com.redis.riot.redis.Replication;
@@ -20,12 +19,14 @@ import com.redis.spring.batch.reader.KeyComparatorOptions;
 import com.redis.spring.batch.reader.KeyComparison.Status;
 import com.redis.spring.batch.reader.KeyNotificationItemReader;
 
+import io.lettuce.core.ClientOptions;
+import io.lettuce.core.cluster.ClusterClientOptions;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 @Command(name = "replicate", description = "Replicate a Redis database into another Redis database.")
-public class ReplicateCommand extends AbstractExportCommand {
+public class ReplicateCommand extends AbstractRiotCommand {
 
 	private static final Status[] STATUSES = { Status.OK, Status.MISSING, Status.TYPE, Status.VALUE, Status.TTL };
 	private static final String QUEUE_MESSAGE = " | queue capacity: %,d";
@@ -34,10 +35,10 @@ public class ReplicateCommand extends AbstractExportCommand {
 	private static final Map<String, String> taskNames = taskNames();
 
 	@Option(names = "--mode", description = { "Replication mode: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).",
-			"snapshot: initial replication using key scan.",
-			"live: initial and continuous replication using key scan and keyspace notifications in parallel.",
-			"liveonly: continuous replication using keyspace notifications (only changed keys are replicated).",
-			"compare: compare source and target database." }, paramLabel = "<name>")
+			"SNAPSHOT: initial replication using key scan.",
+			"LIVE: initial and continuous replication using key scan and keyspace notifications in parallel.",
+			"LIVEONLY: continuous replication using keyspace notifications (only changed keys are replicated).",
+			"COMPARE: compare source and target database." }, paramLabel = "<name>")
 	private ReplicationMode mode = ReplicationMode.SNAPSHOT;
 
 	@Option(names = "--type", description = "Enable type-based replication")
@@ -46,18 +47,11 @@ public class ReplicateCommand extends AbstractExportCommand {
 	@Option(names = "--ttl-tolerance", description = "Max TTL offset in millis to use for dataset verification (default: ${DEFAULT-VALUE}).", paramLabel = "<ms>")
 	private long ttlTolerance = KeyComparatorOptions.DEFAULT_TTL_TOLERANCE.toMillis();
 
-	@Option(names = "--show-diffs", description = { "Print details of key mismatches during dataset verification.",
-			"Disables progress reporting." })
+	@Option(names = "--show-diffs", description = "Print details of key mismatches during dataset verification. Disables progress reporting.")
 	private boolean showDiffs;
 
 	@Option(names = "--compare", description = "Comparison mode: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<mode>")
 	private CompareMode compareMode = Replication.DEFAULT_COMPARE_MODE;
-
-	@ArgGroup(exclusive = false)
-	private RedisArgs targetRedisArgs = new RedisArgs();
-
-	@Option(names = "--target-read-from", description = "Which target Redis cluster nodes to read data from: ${COMPLETION-CANDIDATES}.", paramLabel = "<n>")
-	private ReadFromEnum targetReadFrom;
 
 	@Option(names = "--flush-interval", description = "Max duration in millis between flushes (default: ${DEFAULT-VALUE}).", paramLabel = "<ms>")
 	private long flushInterval = Replication.DEFAULT_FLUSH_INTERVAL.toMillis();
@@ -65,11 +59,14 @@ public class ReplicateCommand extends AbstractExportCommand {
 	@Option(names = "--idle-timeout", description = "Min number of millis to consider transfer complete (default: no timeout).", paramLabel = "<ms>")
 	private long idleTimeout = Replication.DEFAULT_IDLE_TIMEOUT.toMillis();
 
-	@Option(names = "--event-queue", description = "Capacity of the keyspace notification event queue (default: ${DEFAULT-VALUE}).", paramLabel = "<size>")
-	private int notificationQueueCapacity = Replication.DEFAULT_NOTIFICATION_QUEUE_CAPACITY;
+	@ArgGroup(exclusive = false, heading = "Source Redis options%n")
+	private ReplicateSourceArgs sourceArgs = new ReplicateSourceArgs();
 
-	@ArgGroup(exclusive = false)
-	private RedisWriterArgs writerArgs = new RedisWriterArgs();
+	@ArgGroup(exclusive = false, heading = "Target Redis options%n")
+	private ReplicateTargetArgs targetArgs = new ReplicateTargetArgs();
+
+	@ArgGroup(exclusive = false, heading = "Processor options%n")
+	private KeyValueProcessorArgs processorArgs = new KeyValueProcessorArgs();
 
 	private static Map<String, String> taskNames() {
 		Map<String, String> map = new HashMap<>();
@@ -80,22 +77,50 @@ public class ReplicateCommand extends AbstractExportCommand {
 	}
 
 	@Override
-	protected AbstractExport exportRunnable() {
+	protected Replication callable() {
 		Replication replication = new Replication();
 		replication.setCompareMode(compareMode);
 		replication.setMode(mode);
 		replication.setShowDiffs(showDiffs);
-		if (targetReadFrom != null) {
-			replication.setTargetReadFrom(targetReadFrom.getReadFrom());
+		if (targetArgs.getReadFrom() != null) {
+			replication.setTargetReadFrom(targetArgs.getReadFrom().getReadFrom());
 		}
-		replication.setTargetRedisClientOptions(targetRedisArgs.redisOptions());
+		replication.setTargetRedisClientOptions(targetRedisClientOptions());
 		replication.setTtlTolerance(Duration.ofMillis(ttlTolerance));
 		replication.setType(type ? ReplicationType.STRUCT : ReplicationType.DUMP);
-		replication.setWriterOptions(writerArgs.writerOptions());
+		replication.setWriterOptions(targetArgs.getWriterArgs().writerOptions());
 		replication.setFlushInterval(Duration.ofMillis(flushInterval));
 		replication.setIdleTimeout(Duration.ofMillis(idleTimeout));
-		replication.setNotificationQueueCapacity(notificationQueueCapacity);
+		replication.setNotificationQueueCapacity(sourceArgs.getNotificationQueueCapacity());
+		replication.setRedisClientOptions(sourceArgs.getRedisClientArgs().redisClientOptions());
+		replication.setReaderOptions(sourceArgs.getRedisReaderArgs().redisReaderOptions());
+		replication.setProcessorOptions(processorArgs.processorOptions());
 		return replication;
+	}
+
+	private RedisClientOptions targetRedisClientOptions() {
+		RedisClientOptions options = new RedisClientOptions();
+		options.setRedisURI(targetArgs.redisURI());
+		options.setCluster(targetArgs.isCluster());
+		options.setOptions(targetClientOptions());
+		return options;
+	}
+
+	private ClientOptions targetClientOptions() {
+		if (targetArgs.isCluster()) {
+			ClusterClientOptions.Builder options = ClusterClientOptions.builder();
+			configure(options);
+			return options.build();
+		}
+		ClientOptions.Builder options = ClientOptions.builder();
+		configure(options);
+		return options.build();
+	}
+
+	private void configure(ClientOptions.Builder builder) {
+		builder.autoReconnect(targetArgs.isAutoReconnect());
+		builder.protocolVersion(targetArgs.getProtocolVersion());
+		builder.sslOptions(sourceArgs.getRedisClientArgs().getSslArgs().sslOptions());
 	}
 
 	@Override
@@ -112,14 +137,14 @@ public class ReplicateCommand extends AbstractExportCommand {
 	}
 
 	@Override
-	protected Supplier<String> extraMessageSupplier(String stepName, ItemReader<?> reader, ItemWriter<?> writer) {
+	protected Supplier<String> extraMessage(String stepName, ItemReader<?> reader, ItemWriter<?> writer) {
 		switch (stepName) {
 		case Replication.STEP_COMPARE:
 			return () -> compareExtraMessage(writer);
 		case Replication.STEP_LIVE:
 			return () -> liveExtraMessage((RedisItemReader<?, ?, ?>) reader);
 		default:
-			return super.extraMessageSupplier(stepName, reader, writer);
+			return super.extraMessage(stepName, reader, writer);
 		}
 	}
 
@@ -131,17 +156,13 @@ public class ReplicateCommand extends AbstractExportCommand {
 	private String liveExtraMessage(RedisItemReader<?, ?, ?> reader) {
 		KeyNotificationItemReader<?, ?> keyReader = (KeyNotificationItemReader<?, ?>) reader.getReader();
 		if (keyReader == null || keyReader.getQueue() == null) {
-			return ProgressStepExecutionListener.EMPTY_STRING;
+			return "";
 		}
 		return String.format(QUEUE_MESSAGE, keyReader.getQueue().remainingCapacity());
 	}
 
 	public void setIdleTimeout(long timeout) {
 		this.idleTimeout = timeout;
-	}
-
-	public void setNotificationQueueCapacity(int capacity) {
-		this.notificationQueueCapacity = capacity;
 	}
 
 	public ReplicationMode getMode() {
@@ -184,22 +205,6 @@ public class ReplicateCommand extends AbstractExportCommand {
 		this.compareMode = compareMode;
 	}
 
-	public RedisArgs getTargetRedisArgs() {
-		return targetRedisArgs;
-	}
-
-	public void setTargetRedisArgs(RedisArgs targetRedisArgs) {
-		this.targetRedisArgs = targetRedisArgs;
-	}
-
-	public ReadFromEnum getTargetReadFrom() {
-		return targetReadFrom;
-	}
-
-	public void setTargetReadFrom(ReadFromEnum targetReadFrom) {
-		this.targetReadFrom = targetReadFrom;
-	}
-
 	public long getFlushInterval() {
 		return flushInterval;
 	}
@@ -208,20 +213,32 @@ public class ReplicateCommand extends AbstractExportCommand {
 		this.flushInterval = flushInterval;
 	}
 
-	public RedisWriterArgs getWriterArgs() {
-		return writerArgs;
-	}
-
-	public void setWriterArgs(RedisWriterArgs writerArgs) {
-		this.writerArgs = writerArgs;
-	}
-
 	public long getIdleTimeout() {
 		return idleTimeout;
 	}
 
-	public int getNotificationQueueCapacity() {
-		return notificationQueueCapacity;
+	public ReplicateSourceArgs getSourceArgs() {
+		return sourceArgs;
+	}
+
+	public void setSourceArgs(ReplicateSourceArgs sourceArgs) {
+		this.sourceArgs = sourceArgs;
+	}
+
+	public ReplicateTargetArgs getTargetArgs() {
+		return targetArgs;
+	}
+
+	public void setTargetArgs(ReplicateTargetArgs targetArgs) {
+		this.targetArgs = targetArgs;
+	}
+
+	public KeyValueProcessorArgs getProcessorArgs() {
+		return processorArgs;
+	}
+
+	public void setProcessorArgs(KeyValueProcessorArgs processorArgs) {
+		this.processorArgs = processorArgs;
 	}
 
 }

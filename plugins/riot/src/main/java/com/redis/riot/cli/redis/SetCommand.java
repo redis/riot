@@ -7,7 +7,7 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 @Command(name = "set", description = "Set strings from input")
-public class SetCommand extends AbstractRedisCommand {
+public class SetCommand extends AbstractRedisOperationCommand {
 
 	public static final StringFormat DEFAULT_FORMAT = StringFormat.JSON;
 

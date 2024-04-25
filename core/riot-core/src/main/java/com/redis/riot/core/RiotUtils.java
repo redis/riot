@@ -1,5 +1,14 @@
 package com.redis.riot.core;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
+import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -85,6 +94,34 @@ public abstract class RiotUtils {
 
 	public static boolean isPositive(Duration duration) {
 		return duration != null && !duration.isNegative() && !duration.isZero();
+	}
+
+	public static PrintStream newPrintStream(OutputStream out) {
+		return newPrintStream(out, true);
+	}
+
+	public static PrintStream newPrintStream(OutputStream out, boolean autoFlush) {
+		try {
+			return new PrintStream(out, autoFlush, UTF_8.name());
+		} catch (UnsupportedEncodingException e) {
+			throw new IllegalArgumentException(e);
+		}
+	}
+
+	public static PrintWriter newPrintWriter(OutputStream out) {
+		return newPrintWriter(out, true);
+	}
+
+	public static PrintWriter newPrintWriter(OutputStream out, boolean autoFlush) {
+		return new PrintWriter(new BufferedWriter(new OutputStreamWriter(out, UTF_8)), autoFlush);
+	}
+
+	public static String toString(ByteArrayOutputStream out) {
+		try {
+			return out.toString(UTF_8.name());
+		} catch (UnsupportedEncodingException e) {
+			throw new IllegalArgumentException(e);
+		}
 	}
 
 }

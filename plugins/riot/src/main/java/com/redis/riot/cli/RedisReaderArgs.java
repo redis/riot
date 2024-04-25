@@ -5,6 +5,7 @@ import org.springframework.util.unit.DataSize;
 import com.redis.riot.core.RedisReaderOptions;
 
 import io.lettuce.core.ReadFrom;
+import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Option;
 
 public class RedisReaderArgs {
@@ -42,7 +43,10 @@ public class RedisReaderArgs {
 	@Option(names = "--scan-type", description = "Type of keys to scan for (default: all types).", paramLabel = "<type>")
 	private String scanType;
 
-	@Option(names = "--read-queue", description = "Max number of items that reader threads can put in the shared queue (default: ${DEFAULT-VALUE}). When the queue is full, reader threads wait for space to become available. Queue size should be at least 'threads * batch', e.g. '--read-threads 4 --read-batch 500' => '--read-queue 2000'.", paramLabel = "<int>")
+	@Option(names = "--read-queue", description = {
+			"Max number of items that reader threads can put in the shared queue (default: ${DEFAULT-VALUE}).",
+			"When the queue is full, reader threads wait for space to become available.",
+			"Queue size should be at least 'threads * batch', e.g. '--read-threads 4 --read-batch 500' => '--read-queue 2000'." }, paramLabel = "<int>")
 	private int queueCapacity = RedisReaderOptions.DEFAULT_QUEUE_CAPACITY;
 
 	@Option(names = "--read-threads", description = "How many value reader threads to use in parallel (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
@@ -63,7 +67,10 @@ public class RedisReaderArgs {
 	@Option(names = "--mem-samples", description = "Number of memory usage samples for a key (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
 	private int memSamples = RedisReaderOptions.DEFAULT_MEMORY_USAGE_SAMPLES;
 
-	public RedisReaderOptions readerOptions() {
+	@ArgGroup(exclusive = false)
+	private KeyFilterArgs keyFilterArgs = new KeyFilterArgs();
+
+	public RedisReaderOptions redisReaderOptions() {
 		RedisReaderOptions options = new RedisReaderOptions();
 		options.setChunkSize(chunkSize);
 		options.setMemoryUsageLimit(DataSize.ofMegabytes(memLimit));
@@ -77,6 +84,7 @@ public class RedisReaderArgs {
 		options.setKeyPattern(scanMatch);
 		options.setKeyType(scanType);
 		options.setThreads(threads);
+		options.setKeyFilterOptions(keyFilterArgs.keyFilterOptions());
 		return options;
 	}
 
@@ -158,6 +166,14 @@ public class RedisReaderArgs {
 
 	public void setMemSamples(int memSamples) {
 		this.memSamples = memSamples;
+	}
+
+	public KeyFilterArgs getKeyFilterArgs() {
+		return keyFilterArgs;
+	}
+
+	public void setKeyFilterArgs(KeyFilterArgs keyFilterArgs) {
+		this.keyFilterArgs = keyFilterArgs;
 	}
 
 }

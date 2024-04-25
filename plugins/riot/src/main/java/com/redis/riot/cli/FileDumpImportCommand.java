@@ -11,7 +11,7 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
 @Command(name = "dump-import", description = "Import Redis data files into Redis.")
-public class FileDumpImportCommand extends AbstractStructImportCommand {
+public class FileDumpImportCommand extends AbstractImportCommand {
 
 	@ArgGroup(exclusive = false)
 	private FileArgs fileArgs = new FileArgs();
@@ -23,12 +23,12 @@ public class FileDumpImportCommand extends AbstractStructImportCommand {
 	private FileDumpType type;
 
 	@Override
-	protected FileDumpImport importRunnable() {
-		FileDumpImport runnable = new FileDumpImport();
-		runnable.setFiles(files);
-		runnable.setFileOptions(fileArgs.fileOptions());
-		runnable.setType(type);
-		return runnable;
+	protected FileDumpImport importCallable() {
+		FileDumpImport callable = new FileDumpImport();
+		callable.setFiles(files);
+		callable.setFileOptions(fileArgs.fileOptions());
+		callable.setType(type);
+		return callable;
 	}
 
 	@Override

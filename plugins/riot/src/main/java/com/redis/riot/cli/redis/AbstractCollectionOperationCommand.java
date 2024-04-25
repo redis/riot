@@ -7,7 +7,7 @@ import com.redis.riot.core.operation.AbstractMapOperationBuilder;
 
 import picocli.CommandLine.Option;
 
-abstract class AbstractRedisCollectionCommand extends AbstractRedisCommand {
+abstract class AbstractCollectionOperationCommand extends AbstractRedisOperationCommand {
 
 	@Option(names = "--member-space", description = "Keyspace prefix for member IDs.", paramLabel = "<str>")
 	private String memberSpace;

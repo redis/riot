@@ -15,7 +15,7 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
 @Command(name = "file-import", description = "Import from CSV/JSON/XML files.")
-public class FileImportCommand extends AbstractImportCommand {
+public class FileImportCommand extends AbstractMapImportCommand {
 
 	@ArgGroup(exclusive = false)
 	private FileArgs fileArgs = new FileArgs();
@@ -32,7 +32,7 @@ public class FileImportCommand extends AbstractImportCommand {
 	@Option(names = "--fields", arity = "1..*", description = "Delimited/FW field names.", paramLabel = "<names>")
 	private List<String> fields;
 
-	@Option(names = { "-h", "--header" }, description = "Delimited/FW first line contains field names.")
+	@Option(names = "--header", description = "Delimited/FW first line contains field names.")
 	private boolean header;
 
 	@Option(names = "--header-line", description = "Index of header line.", paramLabel = "<index>")
@@ -60,23 +60,23 @@ public class FileImportCommand extends AbstractImportCommand {
 	private Map<String, Pattern> regexes;
 
 	@Override
-	protected AbstractMapImport importRunnable() {
-		FileImport runnable = new FileImport();
-		runnable.setFiles(files);
-		runnable.setColumnRanges(columnRanges);
-		runnable.setContinuationString(continuationString);
-		runnable.setDelimiter(delimiter);
-		runnable.setFields(fields);
-		runnable.setFileOptions(fileArgs.fileOptions());
-		runnable.setFileType(fileType);
-		runnable.setHeader(header);
-		runnable.setHeaderLine(headerLine);
-		runnable.setIncludedFields(includedFields);
-		runnable.setLinesToSkip(linesToSkip);
-		runnable.setMaxItemCount(maxItemCount);
-		runnable.setQuoteCharacter(quoteCharacter);
-		runnable.setRegexes(regexes);
-		return runnable;
+	protected AbstractMapImport mapImportCallable() {
+		FileImport callable = new FileImport();
+		callable.setFiles(files);
+		callable.setColumnRanges(columnRanges);
+		callable.setContinuationString(continuationString);
+		callable.setDelimiter(delimiter);
+		callable.setFields(fields);
+		callable.setFileOptions(fileArgs.fileOptions());
+		callable.setFileType(fileType);
+		callable.setHeader(header);
+		callable.setHeaderLine(headerLine);
+		callable.setIncludedFields(includedFields);
+		callable.setLinesToSkip(linesToSkip);
+		callable.setMaxItemCount(maxItemCount);
+		callable.setQuoteCharacter(quoteCharacter);
+		callable.setRegexes(regexes);
+		return callable;
 	}
 
 	public FileArgs getFileArgs() {

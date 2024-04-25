@@ -8,7 +8,7 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 @Command(name = "expire", description = "Set timeouts on keys")
-public class ExpireCommand extends AbstractRedisCommand {
+public class ExpireCommand extends AbstractRedisOperationCommand {
 
 	public static final long DEFAULT_TTL = 60;
 

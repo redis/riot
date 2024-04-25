@@ -1,6 +1,5 @@
 package com.redis.riot.cli;
 
-import java.time.Duration;
 import java.util.concurrent.Callable;
 import java.util.function.LongSupplier;
 import java.util.function.Supplier;
@@ -15,94 +14,53 @@ import org.springframework.batch.item.ItemWriter;
 import org.springframework.util.ClassUtils;
 
 import com.redis.riot.core.AbstractRiotCallable;
-import com.redis.riot.core.AbstractRedisCallable;
+import com.redis.riot.faker.FakerItemReader;
+import com.redis.spring.batch.RedisItemReader;
+import com.redis.spring.batch.RedisItemReader.ReaderMode;
+import com.redis.spring.batch.gen.GeneratorItemReader;
+import com.redis.spring.batch.reader.ScanSizeEstimator;
 
 import me.tongfei.progressbar.DelegatingProgressBarConsumer;
 import me.tongfei.progressbar.ProgressBarBuilder;
-import me.tongfei.progressbar.ProgressBarStyle;
+import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
-import picocli.CommandLine.Mixin;
 import picocli.CommandLine.Option;
-import picocli.CommandLine.ParentCommand;
 
-@Command
-abstract class AbstractRiotCommand extends BaseCommand implements Callable<Integer> {
+@Command(usageHelpAutoWidth = true, abbreviateSynopsis = true)
+abstract class AbstractRiotCommand implements Callable<Integer> {
 
 	public enum ProgressStyle {
 		BLOCK, BAR, ASCII, LOG, NONE
 	}
 
-	@ParentCommand
-	protected AbstractMainCommand parent;
+	@Option(names = "--help", usageHelp = true, description = "Show this help message and exit.")
+	private boolean helpRequested;
 
-	@Mixin
-	LoggingMixin loggingMixin = new LoggingMixin();
+	@ArgGroup(exclusive = false, heading = "Logging options%n")
+	private LoggingArgs loggingArgs = new LoggingArgs();
 
-	@Option(names = "--sleep", description = "Duration in ms to sleep after each batch write (default: ${DEFAULT-VALUE}).", paramLabel = "<ms>")
-	long sleep;
+	@ArgGroup(exclusive = false, heading = "Job options%n")
+	private JobArgs jobArgs = new JobArgs();
 
-	@Option(names = "--threads", description = "Number of concurrent threads to use for batch processing (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
-	int threads = AbstractRiotCallable.DEFAULT_THREADS;
-
-	@Option(names = { "-b",
-			"--batch" }, description = "Number of items in each batch (default: ${DEFAULT-VALUE}).", paramLabel = "<size>")
-	int chunkSize = AbstractRiotCallable.DEFAULT_CHUNK_SIZE;
-
-	@Option(names = "--dry-run", description = "Enable dummy writes.")
-	boolean dryRun;
-
-	@Option(names = "--skip-limit", description = "Max number of failed items before considering the transfer has failed (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
-	int skipLimit = AbstractRiotCallable.DEFAULT_SKIP_LIMIT;
-
-	@Option(names = "--retry-limit", description = "Maximum number of times to try failed items. 0 and 1 both mean no retry. (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
-	private int retryLimit = AbstractRiotCallable.DEFAULT_RETRY_LIMIT;
-
-	@Option(names = "--progress", description = "Progress style: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<style>")
-	ProgressStyle progressStyle = ProgressStyle.ASCII;
-
-	@Option(names = "--progress-interval", description = "Progress update interval in millis (default: ${DEFAULT-VALUE}).", paramLabel = "<ms>", hidden = true)
-	int progressUpdateInterval = 300;
-
-	String name;
+	private String name;
 
 	public void setName(String name) {
 		this.name = name;
 	}
 
-	public void setProgressStyle(ProgressStyle style) {
-		this.progressStyle = style;
-	}
-
-	private ProgressBarStyle progressBarStyle() {
-		switch (progressStyle) {
-		case BAR:
-			return ProgressBarStyle.COLORFUL_UNICODE_BAR;
-		case BLOCK:
-			return ProgressBarStyle.COLORFUL_UNICODE_BLOCK;
-		default:
-			return ProgressBarStyle.ASCII;
-		}
-	}
-
 	@Override
 	public Integer call() throws Exception {
-		loggingMixin.configureLogging();
-		try (AbstractRedisCallable runnable = runnable()) {
+		loggingArgs.configureLogging();
+		try (AbstractRiotCallable callable = callable()) {
 			if (name != null) {
-				runnable.setName(name);
+				callable.setName(name);
 			}
-			runnable.setChunkSize(chunkSize);
-			runnable.setDryRun(dryRun);
-			runnable.setRetryLimit(retryLimit);
-			runnable.setSkipLimit(skipLimit);
-			runnable.setSleep(Duration.ofMillis(sleep));
-			runnable.setThreads(threads);
-			if (progressStyle != ProgressStyle.NONE) {
-				runnable.addStepConfiguration(this::configureProgress);
+			jobArgs.configure(callable);
+			if (jobArgs.getProgressStyle() != ProgressStyle.NONE) {
+				callable.addStepConfiguration(this::configureProgress);
 			}
-			runnable.setRedisClientOptions(parent.getRedisArgs().redisOptions());
-			runnable.afterPropertiesSet();
-			runnable.call();
+			callable.afterPropertiesSet();
+			callable.call();
 		}
 		return 0;
 	}
@@ -111,32 +69,66 @@ abstract class AbstractRiotCommand extends BaseCommand implements Callable<Integ
 			ItemWriter<?> writer) {
 		ProgressBarBuilder progressBar = new ProgressBarBuilder();
 		progressBar.setTaskName(taskName(stepName));
-		progressBar.setStyle(progressBarStyle());
-		progressBar.setUpdateIntervalMillis(progressUpdateInterval);
+		progressBar.setStyle(jobArgs.progressBarStyle());
+		progressBar.setUpdateIntervalMillis(jobArgs.getProgressUpdateInterval());
 		progressBar.showSpeed();
-		if (progressStyle == ProgressStyle.LOG) {
+		if (jobArgs.getProgressStyle() == ProgressStyle.LOG) {
 			Logger logger = LoggerFactory.getLogger(getClass());
 			progressBar.setConsumer(new DelegatingProgressBarConsumer(logger::info));
 		}
 		ProgressStepExecutionListener listener = new ProgressStepExecutionListener(progressBar);
-		listener.setExtraMessageSupplier(extraMessageSupplier(stepName, reader, writer));
-		listener.setInitialMaxSupplier(initialMaxSupplier(stepName, reader));
+		listener.setExtraMessage(extraMessage(stepName, reader, writer));
+		listener.setInitialMax(initialMax(reader));
 		step.listener((StepExecutionListener) listener);
 		step.listener((ItemWriteListener<?>) listener);
+	}
+
+	@SuppressWarnings("rawtypes")
+	private LongSupplier initialMax(ItemReader<?> reader) {
+		if (reader instanceof RedisItemReader) {
+			RedisItemReader redisReader = (RedisItemReader) reader;
+			if (redisReader.getMode() == ReaderMode.SNAPSHOT) {
+				ScanSizeEstimator estimator = new ScanSizeEstimator(redisReader.getClient());
+				estimator.setKeyPattern(redisReader.getKeyPattern());
+				estimator.setKeyType(redisReader.getKeyType());
+				return estimator;
+			}
+		}
+		if (reader instanceof GeneratorItemReader) {
+			GeneratorItemReader generatorReader = (GeneratorItemReader) reader;
+			return () -> generatorReader.getMaxItemCount() - generatorReader.getCurrentItemCount();
+		}
+		if (reader instanceof FakerItemReader) {
+			FakerItemReader fakerReader = (FakerItemReader) reader;
+			return () -> fakerReader.getMaxItemCount() - fakerReader.getCurrentItemCount();
+		}
+		return null;
 	}
 
 	protected String taskName(String stepName) {
 		return ClassUtils.getShortName(getClass());
 	}
 
-	protected Supplier<String> extraMessageSupplier(String stepName, ItemReader<?> reader, ItemWriter<?> writer) {
-		return () -> ProgressStepExecutionListener.EMPTY_STRING;
+	protected Supplier<String> extraMessage(String stepName, ItemReader<?> reader, ItemWriter<?> writer) {
+		return null;
 	}
 
-	protected LongSupplier initialMaxSupplier(String stepName, ItemReader<?> reader) {
-		return () -> ProgressStepExecutionListener.UNKNOWN_SIZE;
+	protected abstract AbstractRiotCallable callable();
+
+	public LoggingArgs getLoggingArgs() {
+		return loggingArgs;
 	}
 
-	protected abstract AbstractRedisCallable runnable();
+	public void setLoggingArgs(LoggingArgs loggingMixin) {
+		this.loggingArgs = loggingMixin;
+	}
+
+	public JobArgs getJobArgs() {
+		return jobArgs;
+	}
+
+	public void setJobArgs(JobArgs jobArgs) {
+		this.jobArgs = jobArgs;
+	}
 
 }
