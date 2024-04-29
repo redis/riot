@@ -14,11 +14,11 @@ import org.springframework.batch.item.ItemWriter;
 import org.springframework.util.ClassUtils;
 
 import com.redis.riot.core.AbstractRiotCallable;
+import com.redis.riot.core.ScanSizeEstimator;
 import com.redis.riot.faker.FakerItemReader;
 import com.redis.spring.batch.RedisItemReader;
 import com.redis.spring.batch.RedisItemReader.ReaderMode;
 import com.redis.spring.batch.gen.GeneratorItemReader;
-import com.redis.spring.batch.reader.ScanSizeEstimator;
 
 import me.tongfei.progressbar.DelegatingProgressBarConsumer;
 import me.tongfei.progressbar.ProgressBarBuilder;

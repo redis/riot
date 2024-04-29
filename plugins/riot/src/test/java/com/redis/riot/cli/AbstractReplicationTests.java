@@ -1,6 +1,7 @@
 package com.redis.riot.cli;
 
 import java.time.Duration;
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.jupiter.api.Assertions;
@@ -45,7 +46,9 @@ abstract class AbstractReplicationTests extends AbstractRiotTestBase {
 		String value = "http://www.google.com/";
 		redisCommands.pfadd(key, value);
 		Assertions.assertEquals(0, execute(info, "replicate-hll"));
-		Assertions.assertTrue(compare(info).isOk());
+		KeyspaceComparison<String> comparison = compare(info);
+		Assertions.assertFalse(comparison.getAll().isEmpty());
+		Assertions.assertEquals(Collections.emptyList(), comparison.mismatches());
 	}
 
 	@Test
@@ -115,7 +118,8 @@ abstract class AbstractReplicationTests extends AbstractRiotTestBase {
 		generateAsync(testInfo(info, "async"), generator);
 		execute(info, "replicate-live-only-struct");
 		KeyspaceComparison<String> comparison = compare(info);
-		Assertions.assertTrue(comparison.isOk());
+		Assertions.assertFalse(comparison.getAll().isEmpty());
+		Assertions.assertEquals(Collections.emptyList(), comparison.mismatches());
 	}
 
 	@Test
@@ -150,7 +154,8 @@ abstract class AbstractReplicationTests extends AbstractRiotTestBase {
 		generateAsync(testInfo(info, "async"), generator);
 		execute(info, filename);
 		KeyspaceComparison<String> comparison = compare(info);
-		Assertions.assertTrue(comparison.isOk());
+		Assertions.assertFalse(comparison.getAll().isEmpty());
+		Assertions.assertEquals(Collections.emptyList(), comparison.mismatches());
 	}
 
 }

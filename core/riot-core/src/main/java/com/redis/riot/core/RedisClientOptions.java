@@ -6,55 +6,52 @@ import com.redis.lettucemod.cluster.RedisModulesClusterClient;
 import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.ClientOptions;
 import io.lettuce.core.RedisURI;
+import io.lettuce.core.SslOptions;
 import io.lettuce.core.cluster.ClusterClientOptions;
-import io.lettuce.core.resource.ClientResources;
+import io.lettuce.core.protocol.ProtocolVersion;
 
 public class RedisClientOptions {
 
-	public static final String DEFAULT_REDIS_HOST = "127.0.0.1";
-	public static final int DEFAULT_REDIS_PORT = RedisURI.DEFAULT_REDIS_PORT;
-	public static final RedisURI DEFAULT_REDIS_URI = RedisURI.create(DEFAULT_REDIS_HOST, DEFAULT_REDIS_PORT);
+	public static final ProtocolVersion DEFAULT_PROTOCOL_VERSION = ClientOptions.DEFAULT_PROTOCOL_VERSION;
+	public static final boolean DEFAULT_AUTO_RECONNECT = ClientOptions.DEFAULT_AUTO_RECONNECT;
 
-	private RedisURI redisURI = DEFAULT_REDIS_URI;
+	private RedisUriOptions uriOptions = new RedisUriOptions();
 	private boolean cluster;
-	private ClientOptions options;
-	private ClientResources resources;
+	private boolean autoReconnect = DEFAULT_AUTO_RECONNECT;
+	private ProtocolVersion protocolVersion = DEFAULT_PROTOCOL_VERSION;
+	private SslOptions sslOptions = SslOptions.builder().build();
 
-	public AbstractRedisClient redisClient() {
+	public RedisURI redisURI() {
+		return uriOptions.redisURI();
+	}
+
+	public AbstractRedisClient redisClient(RedisURI redisURI) {
 		if (cluster) {
-			RedisModulesClusterClient client = clusterClient();
-			if (options != null) {
-				client.setOptions((ClusterClientOptions) options);
-			}
+			RedisModulesClusterClient client = RedisModulesClusterClient.create(redisURI);
+			ClusterClientOptions.Builder options = ClusterClientOptions.builder();
+			configure(options);
+			client.setOptions(options.build());
 			return client;
 		}
-		RedisModulesClient client = client();
-		if (options != null) {
-			client.setOptions(options);
-		}
+		RedisModulesClient client = RedisModulesClient.create(redisURI);
+		ClientOptions.Builder options = ClientOptions.builder();
+		configure(options);
+		client.setOptions(options.build());
 		return client;
 	}
 
-	private RedisModulesClient client() {
-		if (resources == null) {
-			return RedisModulesClient.create(redisURI);
-		}
-		return RedisModulesClient.create(resources, redisURI);
+	private void configure(ClientOptions.Builder builder) {
+		builder.autoReconnect(autoReconnect);
+		builder.protocolVersion(protocolVersion);
+		builder.sslOptions(sslOptions);
 	}
 
-	private RedisModulesClusterClient clusterClient() {
-		if (resources == null) {
-			return RedisModulesClusterClient.create(redisURI);
-		}
-		return RedisModulesClusterClient.create(resources, redisURI);
+	public RedisUriOptions getUriOptions() {
+		return uriOptions;
 	}
 
-	public RedisURI getRedisURI() {
-		return redisURI;
-	}
-
-	public void setRedisURI(RedisURI uri) {
-		this.redisURI = uri;
+	public void setUriOptions(RedisUriOptions uriOptions) {
+		this.uriOptions = uriOptions;
 	}
 
 	public boolean isCluster() {
@@ -65,20 +62,28 @@ public class RedisClientOptions {
 		this.cluster = cluster;
 	}
 
-	public ClientOptions getOptions() {
-		return options;
+	public boolean isAutoReconnect() {
+		return autoReconnect;
 	}
 
-	public void setOptions(ClientOptions options) {
-		this.options = options;
+	public void setAutoReconnect(boolean autoReconnect) {
+		this.autoReconnect = autoReconnect;
 	}
 
-	public ClientResources getResources() {
-		return resources;
+	public ProtocolVersion getProtocolVersion() {
+		return protocolVersion;
 	}
 
-	public void setResources(ClientResources resources) {
-		this.resources = resources;
+	public void setProtocolVersion(ProtocolVersion protocolVersion) {
+		this.protocolVersion = protocolVersion;
+	}
+
+	public SslOptions getSslOptions() {
+		return sslOptions;
+	}
+
+	public void setSslOptions(SslOptions options) {
+		this.sslOptions = options;
 	}
 
 }

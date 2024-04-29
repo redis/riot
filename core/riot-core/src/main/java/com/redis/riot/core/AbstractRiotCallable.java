@@ -22,6 +22,7 @@ import org.springframework.batch.item.support.SynchronizedItemReader;
 import org.springframework.batch.item.support.SynchronizedItemStreamReader;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.retry.policy.MaxAttemptsRetryPolicy;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.util.ClassUtils;
 
 import com.redis.spring.batch.RedisItemReader;
@@ -98,7 +99,12 @@ public abstract class AbstractRiotCallable implements InitializingBean, Callable
 		}
 		if (isMultiThreaded()) {
 			builder.reader(synchronize(reader));
-			builder.taskExecutor(JobFactory.threadPoolTaskExecutor(threads));
+			ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
+			taskExecutor.setMaxPoolSize(threads);
+			taskExecutor.setCorePoolSize(threads);
+			taskExecutor.setQueueCapacity(threads);
+			taskExecutor.initialize();
+			builder.taskExecutor(taskExecutor);
 		} else {
 			builder.reader(reader);
 		}

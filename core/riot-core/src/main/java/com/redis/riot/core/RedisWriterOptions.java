@@ -3,8 +3,8 @@ package com.redis.riot.core;
 import java.time.Duration;
 
 import com.redis.spring.batch.RedisItemWriter;
-import com.redis.spring.batch.operation.KeyValueWrite;
-import com.redis.spring.batch.operation.KeyValueWrite.WriteMode;
+import com.redis.spring.batch.writer.KeyValueWrite;
+import com.redis.spring.batch.writer.KeyValueWrite.WriteMode;
 
 public class RedisWriterOptions {
 

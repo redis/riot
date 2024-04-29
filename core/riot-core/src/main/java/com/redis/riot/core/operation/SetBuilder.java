@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.redis.riot.core.function.ObjectMapperFunction;
-import com.redis.spring.batch.operation.Set;
+import com.redis.spring.batch.writer.Set;
 
 public class SetBuilder extends AbstractMapOperationBuilder {
 

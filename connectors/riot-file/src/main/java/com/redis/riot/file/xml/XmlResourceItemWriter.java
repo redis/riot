@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package com.redis.riot.file.resource;
+package com.redis.riot.file.xml;
 
 import java.util.Iterator;
 
 import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.json.JsonObjectMarshaller;
+import org.springframework.batch.item.support.AbstractFileItemWriter;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.WritableResource;
 import org.springframework.util.Assert;
@@ -46,7 +47,7 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
  * The implementation is <b>not</b> thread-safe.
  *
  */
-public class XmlResourceItemWriter<T> extends AbstractResourceItemWriter<T> {
+public class XmlResourceItemWriter<T> extends AbstractFileItemWriter<T> {
 
 	private JsonObjectMarshaller<T> xmlObjectMarshaller;
 

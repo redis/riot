@@ -26,11 +26,10 @@ abstract class AbstractDbTests extends AbstractRiotTestBase {
 	private static final RedisStackContainer redis = new RedisStackContainer(
 			RedisStackContainer.DEFAULT_IMAGE_NAME.withTag(RedisStackContainer.DEFAULT_TAG));
 
-	protected abstract JdbcDatabaseContainer<?> getJdbcDatabaseContainer();
-
 	protected Connection dbConnection;
-
 	protected DataSource dataSource;
+
+	protected abstract JdbcDatabaseContainer<?> getJdbcDatabaseContainer();
 
 	@BeforeAll
 	public void setupContainers() throws SQLException {

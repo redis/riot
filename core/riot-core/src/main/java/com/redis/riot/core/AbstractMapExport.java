@@ -12,6 +12,7 @@ import com.redis.riot.core.function.RegexNamedGroupFunction;
 import com.redis.riot.core.function.StructToMapFunction;
 import com.redis.spring.batch.KeyValue;
 import com.redis.spring.batch.RedisItemReader;
+import com.redis.spring.batch.reader.MemKeyValue;
 
 import io.lettuce.core.codec.StringCodec;
 
@@ -30,8 +31,8 @@ public abstract class AbstractMapExport extends AbstractExport {
 		return jobBuilder().start(step(getName(), reader(), writer()).processor(processor()).build()).build();
 	}
 
-	protected RedisItemReader<String, String, KeyValue<String, Object>> reader() {
-		RedisItemReader<String, String, KeyValue<String, Object>> reader = RedisItemReader.struct();
+	protected RedisItemReader<String, String, MemKeyValue<String, Object>> reader() {
+		RedisItemReader<String, String, MemKeyValue<String, Object>> reader = RedisItemReader.struct();
 		configure(reader);
 		return reader;
 	}

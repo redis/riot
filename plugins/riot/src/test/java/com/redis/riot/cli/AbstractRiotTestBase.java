@@ -15,7 +15,6 @@ import com.redis.riot.redis.CompareMode;
 import com.redis.riot.redis.Replication.LoggingWriteListener;
 import com.redis.riot.redis.ReplicationMode;
 import com.redis.spring.batch.test.AbstractTargetTestBase;
-import com.redis.testcontainers.RedisServer;
 
 import io.micrometer.core.instrument.util.IOUtils;
 import picocli.CommandLine.ExitCode;
@@ -59,7 +58,7 @@ abstract class AbstractRiotTestBase extends AbstractTargetTestBase {
 	private int execute(TestInfo info, ParseResult parseResult) {
 		for (ParseResult subParseResult : parseResult.subcommands()) {
 			Object command = subParseResult.commandSpec().commandLine().getCommand();
-			if (command instanceof RedisOperationCommand) {
+			if (command instanceof WriteOperationCommand) {
 				command = subParseResult.commandSpec().parent().commandLine().getCommand();
 			}
 			if (command instanceof AbstractRiotCommand) {
@@ -68,32 +67,31 @@ abstract class AbstractRiotTestBase extends AbstractTargetTestBase {
 				riotCommand.setName(name(info));
 			}
 			if (command instanceof AbstractImportCommand) {
-				AbstractImportCommand importCommand = ((AbstractImportCommand) command);
-				RedisServer server = getRedisServer();
-				importCommand.getImportArgs().getRedisClientArgs().getUriArgs().setUri(server.getRedisURI());
-				importCommand.getImportArgs().getRedisClientArgs().setCluster(server.isRedisCluster());
+				configure(((AbstractImportCommand) command).getRedisClientArgs());
 			}
 			if (command instanceof AbstractExportCommand) {
-				AbstractExportCommand exportCommand = ((AbstractExportCommand) command);
-				exportCommand.getExportArgs().getRedisClientArgs().getUriArgs().setUri(getRedisServer().getRedisURI());
-				exportCommand.getExportArgs().getRedisClientArgs().setCluster(getRedisServer().isRedisCluster());
+				configure(((AbstractExportCommand) command).getRedisClientArgs());
 			}
 			if (command instanceof ReplicateCommand) {
 				ReplicateCommand replicateCommand = (ReplicateCommand) command;
 				replicateCommand.setCompareMode(CompareMode.NONE);
-				replicateCommand.getSourceArgs().getRedisClientArgs().getUriArgs()
-						.setUri(getRedisServer().getRedisURI());
-				replicateCommand.getSourceArgs().getRedisClientArgs().setCluster(getRedisServer().isRedisCluster());
-				replicateCommand.getTargetArgs().setUri(getTargetRedisServer().getRedisURI());
-				replicateCommand.getTargetArgs().setCluster(getTargetRedisServer().isRedisCluster());
+				configure(replicateCommand.getSourceRedisClientArgs());
+				replicateCommand.getTargetRedisClientArgs().getUriArgs().setUri(getTargetRedisServer().getRedisURI());
+				replicateCommand.getTargetRedisClientArgs().setCluster(getTargetRedisServer().isRedisCluster());
 				if (replicateCommand.getMode() == ReplicationMode.LIVE
 						|| replicateCommand.getMode() == ReplicationMode.LIVEONLY) {
 					replicateCommand.setIdleTimeout(getIdleTimeout().toMillis());
-					replicateCommand.getSourceArgs().setNotificationQueueCapacity(DEFAULT_NOTIFICATION_QUEUE_CAPACITY);
+					replicateCommand.getSourceRedisReaderArgs()
+							.setNotificationQueueCapacity(DEFAULT_NOTIFICATION_QUEUE_CAPACITY);
 				}
 			}
 		}
 		return ExitCode.OK;
+	}
+
+	private void configure(RedisClientArgs redisClientArgs) {
+		redisClientArgs.getUriArgs().setUri(getRedisServer().getRedisURI());
+		redisClientArgs.setCluster(getRedisServer().isRedisCluster());
 	}
 
 	private static String[] args(String filename) throws Exception {

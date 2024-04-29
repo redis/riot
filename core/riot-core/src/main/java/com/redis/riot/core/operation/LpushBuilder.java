@@ -3,7 +3,7 @@ package com.redis.riot.core.operation;
 import java.util.Map;
 import java.util.function.Function;
 
-import com.redis.spring.batch.operation.Lpush;
+import com.redis.spring.batch.writer.Lpush;
 
 public class LpushBuilder extends AbstractCollectionMapOperationBuilder {
 

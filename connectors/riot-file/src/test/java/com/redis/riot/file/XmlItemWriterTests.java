@@ -14,8 +14,8 @@ import org.springframework.core.io.FileSystemResource;
 
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.redis.riot.file.resource.XmlResourceItemWriter;
-import com.redis.riot.file.resource.XmlResourceItemWriterBuilder;
+import com.redis.riot.file.xml.XmlResourceItemWriter;
+import com.redis.riot.file.xml.XmlResourceItemWriterBuilder;
 import com.redis.spring.batch.KeyValue;
 import com.redis.spring.batch.KeyValue.DataType;
 

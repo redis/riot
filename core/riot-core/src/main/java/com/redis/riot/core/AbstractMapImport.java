@@ -11,24 +11,24 @@ import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.util.Assert;
 
 import com.redis.spring.batch.RedisItemWriter;
-import com.redis.spring.batch.operation.Operation;
+import com.redis.spring.batch.writer.WriteOperation;
 
 public abstract class AbstractMapImport extends AbstractImport {
 
 	private EvaluationContextOptions evaluationContextOptions = new EvaluationContextOptions();
 	private ImportProcessorOptions processorOptions = new ImportProcessorOptions();
-	private List<Operation<String, String, Map<String, Object>, Object>> operations;
+	private List<WriteOperation<String, String, Map<String, Object>>> operations;
 
 	@SuppressWarnings("unchecked")
-	public void setOperations(Operation<String, String, Map<String, Object>, Object>... operations) {
+	public void setOperations(WriteOperation<String, String, Map<String, Object>>... operations) {
 		setOperations(Arrays.asList(operations));
 	}
 
-	public List<Operation<String, String, Map<String, Object>, Object>> getOperations() {
+	public List<WriteOperation<String, String, Map<String, Object>>> getOperations() {
 		return operations;
 	}
 
-	public void setOperations(List<Operation<String, String, Map<String, Object>, Object>> operations) {
+	public void setOperations(List<WriteOperation<String, String, Map<String, Object>>> operations) {
 		this.operations = operations;
 	}
 
@@ -53,7 +53,7 @@ public abstract class AbstractMapImport extends AbstractImport {
 		return RiotUtils.writer(operations.stream().map(this::writer).collect(Collectors.toList()));
 	}
 
-	private <T> ItemWriter<T> writer(Operation<String, String, T, Object> operation) {
+	private <T> ItemWriter<T> writer(WriteOperation<String, String, T> operation) {
 		RedisItemWriter<String, String, T> writer = RedisItemWriter.operation(operation);
 		configure(writer);
 		return writer;

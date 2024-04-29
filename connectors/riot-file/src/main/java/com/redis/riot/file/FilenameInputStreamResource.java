@@ -1,11 +1,11 @@
-package com.redis.riot.file.resource;
+package com.redis.riot.file;
 
 import java.io.InputStream;
 import java.util.Objects;
 
 import org.springframework.core.io.InputStreamResource;
 
-import com.redis.riot.file.resource.FilenameInputStreamResource;
+import com.redis.riot.file.FilenameInputStreamResource;
 
 public class FilenameInputStreamResource extends InputStreamResource {
 

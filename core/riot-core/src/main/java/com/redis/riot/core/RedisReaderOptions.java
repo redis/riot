@@ -2,13 +2,15 @@ package com.redis.riot.core;
 
 import java.time.Duration;
 
+import org.springframework.batch.item.ItemProcessor;
 import org.springframework.util.unit.DataSize;
 
 import com.redis.spring.batch.RedisItemReader;
-import com.redis.spring.batch.operation.KeyValueRead;
 import com.redis.spring.batch.reader.AbstractPollableItemReader;
+import com.redis.spring.batch.reader.MemKeyValueRead;
 
 import io.lettuce.core.ReadFrom;
+import io.lettuce.core.codec.RedisCodec;
 
 public class RedisReaderOptions {
 
@@ -17,8 +19,8 @@ public class RedisReaderOptions {
 	public static final int DEFAULT_THREADS = RedisItemReader.DEFAULT_THREADS;
 	public static final int DEFAULT_CHUNK_SIZE = RedisItemReader.DEFAULT_CHUNK_SIZE;
 	public static final int DEFAULT_POOL_SIZE = RedisItemReader.DEFAULT_POOL_SIZE;
-	public static final DataSize DEFAULT_MEMORY_USAGE_LIMIT = KeyValueRead.DEFAULT_MEM_USAGE_LIMIT;
-	public static final int DEFAULT_MEMORY_USAGE_SAMPLES = KeyValueRead.DEFAULT_MEM_USAGE_SAMPLES;
+	public static final DataSize DEFAULT_MEMORY_USAGE_LIMIT = MemKeyValueRead.DEFAULT_MEM_USAGE_LIMIT;
+	public static final int DEFAULT_MEMORY_USAGE_SAMPLES = MemKeyValueRead.DEFAULT_MEM_USAGE_SAMPLES;
 	public static final long DEFAULT_SCAN_COUNT = 1000;
 
 	private String keyPattern;
@@ -43,13 +45,24 @@ public class RedisReaderOptions {
 		reader.setReadFrom(readFrom);
 		reader.setScanCount(scanCount);
 		reader.setThreads(threads);
-		if (reader.getOperation() instanceof KeyValueRead) {
-			KeyValueRead<?, ?, ?> operation = (KeyValueRead<?, ?, ?>) reader.getOperation();
+		if (reader.getOperation() instanceof MemKeyValueRead) {
+			MemKeyValueRead<?, ?, ?> operation = (MemKeyValueRead<?, ?, ?>) reader.getOperation();
 			operation.setMemUsageLimit(memoryUsageLimit);
 			operation.setMemUsageSamples(memoryUsageSamples);
 		}
 		reader.setPoolSize(poolSize);
-		reader.setKeyProcessor(keyFilterOptions.processor(reader.getCodec()));
+		reader.setKeyProcessor(keyProcessor(reader.getCodec()));
+	}
+
+	private <K> ItemProcessor<K, K> keyProcessor(RedisCodec<K, ?> codec) {
+		if (keyFilterOptions.isEmpty()) {
+			return null;
+		}
+		KeyFilter<K> filter = new KeyFilter<>(codec);
+		filter.setOptions(keyFilterOptions);
+		filter.afterPropertiesSet();
+		return new PredicateItemProcessor<>(filter);
+
 	}
 
 	public String getKeyPattern() {

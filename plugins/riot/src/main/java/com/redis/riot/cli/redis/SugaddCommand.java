@@ -6,7 +6,7 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 @Command(name = "ft.sugadd", description = "Add suggestion strings to a RediSearch auto-complete dictionary")
-public class SugaddCommand extends AbstractRedisOperationCommand {
+public class SugaddCommand extends AbstractWriteOperationCommand {
 
 	public static final double DEFAULT_SCORE = 1;
 

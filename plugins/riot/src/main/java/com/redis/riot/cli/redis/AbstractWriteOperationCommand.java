@@ -3,15 +3,15 @@ package com.redis.riot.cli.redis;
 import java.util.List;
 import java.util.Map;
 
-import com.redis.riot.cli.RedisOperationCommand;
+import com.redis.riot.cli.WriteOperationCommand;
 import com.redis.riot.core.operation.AbstractMapOperationBuilder;
-import com.redis.spring.batch.operation.Operation;
+import com.redis.spring.batch.writer.WriteOperation;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 @Command(usageHelpAutoWidth = true, abbreviateSynopsis = true, mixinStandardHelpOptions = true)
-abstract class AbstractRedisOperationCommand implements RedisOperationCommand {
+abstract class AbstractWriteOperationCommand implements WriteOperationCommand {
 
 	@Option(names = { "-p", "--keyspace" }, description = "Keyspace prefix.", paramLabel = "<str>")
 	private String keyspace;
@@ -30,7 +30,7 @@ abstract class AbstractRedisOperationCommand implements RedisOperationCommand {
 	private boolean ignoreMissingFields = AbstractMapOperationBuilder.DEFAULT_IGNORE_MISSING_FIELDS;
 
 	@Override
-	public Operation<String, String, Map<String, Object>, Object> operation() {
+	public WriteOperation<String, String, Map<String, Object>> operation() {
 		AbstractMapOperationBuilder builder = operationBuilder();
 		builder.setIgnoreMissingFields(ignoreMissingFields);
 		builder.setKeyFields(keys);

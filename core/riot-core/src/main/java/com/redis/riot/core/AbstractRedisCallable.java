@@ -9,15 +9,16 @@ import com.redis.spring.batch.RedisItemReader;
 import com.redis.spring.batch.RedisItemWriter;
 
 import io.lettuce.core.AbstractRedisClient;
+import io.lettuce.core.RedisURI;
 
 public abstract class AbstractRedisCallable extends AbstractRiotCallable {
 
 	private static final String CONTEXT_VAR_REDIS = "redis";
 
 	private EvaluationContextOptions evaluationContextOptions = new EvaluationContextOptions();
-
 	private RedisClientOptions redisClientOptions = new RedisClientOptions();
 
+	protected RedisURI redisURI;
 	private AbstractRedisClient redisClient;
 	private StatefulRedisModulesConnection<String, String> redisConnection;
 	protected RedisModulesCommands<String, String> redisCommands;
@@ -25,7 +26,8 @@ public abstract class AbstractRedisCallable extends AbstractRiotCallable {
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		redisClient = redisClientOptions.redisClient();
+		redisURI = redisClientOptions.redisURI();
+		redisClient = redisClientOptions.redisClient(redisURI);
 		redisConnection = RedisModulesUtils.connection(redisClient);
 		redisCommands = redisConnection.sync();
 		evaluationContext = evaluationContext();
@@ -62,7 +64,7 @@ public abstract class AbstractRedisCallable extends AbstractRiotCallable {
 
 	protected <K, V, T> void configure(RedisItemReader<K, V, T> reader) {
 		reader.setClient(redisClient);
-		reader.setDatabase(redisClientOptions.getRedisURI().getDatabase());
+		reader.setDatabase(redisURI.getDatabase());
 	}
 
 	protected <K, V, T> void configure(RedisItemWriter<K, V, T> writer) {

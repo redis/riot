@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 
 import com.amazonaws.util.IOUtils;
+import com.redis.riot.core.AbstractRedisCallable;
 import com.redis.riot.core.operation.HsetBuilder;
 import com.redis.spring.batch.test.AbstractTestBase;
 
@@ -30,8 +31,7 @@ abstract class AbstractFileTests extends AbstractTestBase {
 	@Test
 	void fileImportJSON(TestInfo info) throws Exception {
 		try (FileImport executable = new FileImport()) {
-			executable.getRedisClientOptions().setRedisURI(redisURI);
-			executable.getRedisClientOptions().setCluster(getRedisServer().isRedisCluster());
+			configure(executable);
 			executable.setFiles(BEERS_JSON_URL);
 			HsetBuilder hsetBuilder = new HsetBuilder();
 			hsetBuilder.setKeyspace(KEYSPACE);
@@ -56,8 +56,7 @@ abstract class AbstractFileTests extends AbstractTestBase {
 	@Test
 	void fileApiImportCSV(TestInfo info) throws Exception {
 		try (FileImport executable = new FileImport()) {
-			executable.getRedisClientOptions().setRedisURI(redisURI);
-			executable.getRedisClientOptions().setCluster(getRedisServer().isRedisCluster());
+			configure(executable);
 			executable.setFiles("https://storage.googleapis.com/jrx/beers.csv");
 			executable.setHeader(true);
 			executable.setName(name(info));
@@ -77,6 +76,11 @@ abstract class AbstractFileTests extends AbstractTestBase {
 		}
 	}
 
+	private void configure(AbstractRedisCallable callable) {
+		callable.getRedisClientOptions().getUriOptions().setUri(getRedisServer().getRedisURI());
+		callable.getRedisClientOptions().setCluster(getRedisServer().isRedisCluster());
+	}
+
 	@SuppressWarnings("unchecked")
 	@Test
 	void fileApiFileExpansion(TestInfo info) throws Exception {
@@ -86,8 +90,7 @@ abstract class AbstractFileTests extends AbstractTestBase {
 		File file2 = temp.resolve("beers2.csv").toFile();
 		IOUtils.copy(getClass().getClassLoader().getResourceAsStream("beers2.csv"), new FileOutputStream(file2));
 		try (FileImport executable = new FileImport()) {
-			executable.getRedisClientOptions().setRedisURI(redisURI);
-			executable.getRedisClientOptions().setCluster(getRedisServer().isRedisCluster());
+			configure(executable);
 			executable.setFiles(temp.resolve("*.csv").toFile().getPath());
 			executable.setHeader(true);
 			executable.setName(name(info));
@@ -111,8 +114,7 @@ abstract class AbstractFileTests extends AbstractTestBase {
 	@Test
 	void fileImportCSVMultiThreaded(TestInfo info) throws Exception {
 		try (FileImport executable = new FileImport()) {
-			executable.getRedisClientOptions().setRedisURI(redisURI);
-			executable.getRedisClientOptions().setCluster(getRedisServer().isRedisCluster());
+			configure(executable);
 			executable.setFiles("https://storage.googleapis.com/jrx/beers.csv");
 			executable.setHeader(true);
 			executable.setThreads(3);
@@ -137,8 +139,7 @@ abstract class AbstractFileTests extends AbstractTestBase {
 	@Test
 	void fileImportJSONL(TestInfo info) throws Exception {
 		try (FileImport executable = new FileImport()) {
-			executable.getRedisClientOptions().setRedisURI(redisURI);
-			executable.getRedisClientOptions().setCluster(getRedisServer().isRedisCluster());
+			configure(executable);
 			executable.setFiles(BEERS_JSONL_URL);
 			HsetBuilder hsetBuilder = new HsetBuilder();
 			hsetBuilder.setKeyspace(KEYSPACE);

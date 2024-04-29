@@ -37,6 +37,7 @@ import com.redis.spring.batch.util.BatchUtils;
 import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.ReadFrom;
 import io.lettuce.core.RedisException;
+import io.lettuce.core.RedisURI;
 import io.lettuce.core.codec.ByteArrayCodec;
 
 public class Replication extends AbstractExport {
@@ -73,19 +74,21 @@ public class Replication extends AbstractExport {
 	private Duration idleTimeout = DEFAULT_IDLE_TIMEOUT;
 	private int notificationQueueCapacity = DEFAULT_NOTIFICATION_QUEUE_CAPACITY;
 
+	private RedisURI targetRedisURI;
 	private AbstractRedisClient targetRedisClient;
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		targetRedisClient = targetRedisClientOptions.redisClient();
+		targetRedisURI = targetRedisClientOptions.redisURI();
+		targetRedisClient = targetRedisClientOptions.redisClient(targetRedisURI);
 		super.afterPropertiesSet();
 	}
 
 	@Override
 	protected StandardEvaluationContext evaluationContext() {
 		StandardEvaluationContext context = super.evaluationContext();
-		context.setVariable(SOURCE_VAR, getRedisClientOptions().getRedisURI());
-		context.setVariable(TARGET_VAR, targetRedisClientOptions.getRedisURI());
+		context.setVariable(SOURCE_VAR, redisURI);
+		context.setVariable(TARGET_VAR, targetRedisURI);
 		return context;
 	}
 
@@ -203,7 +206,7 @@ public class Replication extends AbstractExport {
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private RedisItemReader<byte[], byte[], KeyValue<byte[], Object>> reader() {
+	private RedisItemReader<byte[], byte[], ? extends KeyValue<byte[], Object>> reader() {
 		if (type == ReplicationType.STRUCT) {
 			return RedisItemReader.struct(ByteArrayCodec.INSTANCE);
 		}

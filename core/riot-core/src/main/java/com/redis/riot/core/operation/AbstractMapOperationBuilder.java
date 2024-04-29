@@ -9,8 +9,8 @@ import java.util.function.ToLongFunction;
 
 import com.redis.riot.core.function.FieldExtractorFactory;
 import com.redis.riot.core.function.IdFunctionBuilder;
-import com.redis.spring.batch.operation.AbstractKeyOperation;
-import com.redis.spring.batch.operation.Operation;
+import com.redis.spring.batch.writer.AbstractKeyOperation;
+import com.redis.spring.batch.writer.WriteOperation;
 
 public abstract class AbstractMapOperationBuilder {
 
@@ -54,7 +54,7 @@ public abstract class AbstractMapOperationBuilder {
 				.build();
 	}
 
-	public Operation<String, String, Map<String, Object>, Object> build() {
+	public WriteOperation<String, String, Map<String, Object>> build() {
 		Function<Map<String, Object>, String> keyFunction = idFunction(keyspace, keyFields);
 		return operation(keyFunction);
 	}

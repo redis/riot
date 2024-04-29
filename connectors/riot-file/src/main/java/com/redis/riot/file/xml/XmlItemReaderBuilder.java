@@ -1,4 +1,4 @@
-package com.redis.riot.file.resource;
+package com.redis.riot.file.xml;
 
 import org.springframework.core.io.Resource;
 import org.springframework.util.Assert;

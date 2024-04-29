@@ -1,8 +1,8 @@
-package com.redis.riot.file.resource;
+package com.redis.riot.file.xml;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.redis.riot.file.resource.XmlObjectReader;
+import com.redis.riot.file.xml.XmlObjectReader;
 
 import org.springframework.core.io.Resource;
 import org.springframework.lang.Nullable;

@@ -15,7 +15,7 @@ public class PingCommand extends AbstractRiotCommand {
 	@ParentCommand
 	private AbstractMainCommand parent;
 
-	@ArgGroup(exclusive = false)
+	@ArgGroup(exclusive = false, heading = "Redis client options%n")
 	private RedisClientArgs redisClientArgs = new RedisClientArgs();
 
 	@Option(names = "--iterations", description = "Number of test iterations. Use a negative value to test endlessly. (default: ${DEFAULT-VALUE}).", paramLabel = "<count>")

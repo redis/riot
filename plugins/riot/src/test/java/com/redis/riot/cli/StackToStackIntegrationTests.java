@@ -32,13 +32,14 @@ import com.redis.lettucemod.search.SuggetOptions;
 import com.redis.lettucemod.timeseries.MRangeOptions;
 import com.redis.lettucemod.timeseries.RangeResult;
 import com.redis.lettucemod.timeseries.TimeRange;
-import com.redis.riot.file.resource.XmlItemReader;
-import com.redis.riot.file.resource.XmlItemReaderBuilder;
-import com.redis.riot.file.resource.XmlObjectReader;
+import com.redis.riot.file.xml.XmlItemReader;
+import com.redis.riot.file.xml.XmlItemReaderBuilder;
+import com.redis.riot.file.xml.XmlObjectReader;
 import com.redis.riot.redis.GeneratorImport;
 import com.redis.spring.batch.KeyValue;
 import com.redis.spring.batch.KeyValue.DataType;
 import com.redis.spring.batch.gen.GeneratorItemReader;
+import com.redis.spring.batch.reader.MemKeyValue;
 import com.redis.testcontainers.RedisStackContainer;
 
 import io.lettuce.core.GeoArgs;
@@ -100,7 +101,7 @@ class StackToStackIntegrationTests extends AbstractRiotTestBase {
 	@SuppressWarnings("rawtypes")
 	@Test
 	void fileDumpImport(TestInfo info) throws Exception {
-		List<KeyValue> records = exportToJsonFile(info);
+		List<MemKeyValue> records = exportToJsonFile(info);
 		redisCommands.flushall();
 		execute(info, "dump-import", this::executeFileDumpImport);
 		awaitUntil(() -> records.size() == Math.toIntExact(redisCommands.dbsize()));
@@ -109,23 +110,23 @@ class StackToStackIntegrationTests extends AbstractRiotTestBase {
 	@SuppressWarnings("rawtypes")
 	@Test
 	void fileExportJSON(TestInfo info) throws Exception {
-		List<KeyValue> records = exportToJsonFile(info);
+		List<MemKeyValue> records = exportToJsonFile(info);
 		Assertions.assertEquals(redisCommands.dbsize(), records.size());
 	}
 
 	@SuppressWarnings("rawtypes")
-	private List<KeyValue> exportToJsonFile(TestInfo info) throws Exception {
+	private List<MemKeyValue> exportToJsonFile(TestInfo info) throws Exception {
 		String filename = "file-export-json";
 		Path file = tempFile("redis.json");
 		generate(info, generator(73));
 		execute(info, filename, r -> executeFileDumpExport(r, info));
-		JsonItemReaderBuilder<KeyValue> builder = new JsonItemReaderBuilder<>();
+		JsonItemReaderBuilder<MemKeyValue> builder = new JsonItemReaderBuilder<>();
 		builder.name("json-reader");
 		builder.resource(new FileSystemResource(file));
-		JacksonJsonObjectReader<KeyValue> objectReader = new JacksonJsonObjectReader<>(KeyValue.class);
+		JacksonJsonObjectReader<MemKeyValue> objectReader = new JacksonJsonObjectReader<>(MemKeyValue.class);
 		objectReader.setMapper(new ObjectMapper());
 		builder.jsonObjectReader(objectReader);
-		JsonItemReader<KeyValue> reader = builder.build();
+		JsonItemReader<MemKeyValue> reader = builder.build();
 		reader.open(new ExecutionContext());
 		try {
 			return readAll(reader);
@@ -182,10 +183,10 @@ class StackToStackIntegrationTests extends AbstractRiotTestBase {
 		generate(info, generator(73));
 		Path file = tempFile("redis.xml");
 		execute(info, filename, r -> executeFileDumpExport(r, info));
-		XmlItemReaderBuilder<KeyValue> builder = new XmlItemReaderBuilder<>();
+		XmlItemReaderBuilder<MemKeyValue> builder = new XmlItemReaderBuilder<>();
 		builder.name("xml-reader");
 		builder.resource(new FileSystemResource(file));
-		XmlObjectReader<KeyValue> xmlObjectReader = new XmlObjectReader<>(KeyValue.class);
+		XmlObjectReader<MemKeyValue> xmlObjectReader = new XmlObjectReader<>(MemKeyValue.class);
 		xmlObjectReader.setMapper(new XmlMapper());
 		builder.xmlObjectReader(xmlObjectReader);
 		XmlItemReader<KeyValue<String, Object>> reader = (XmlItemReader) builder.build();

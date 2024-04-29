@@ -6,7 +6,7 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
 
 @Command(name = "hset", aliases = "hmset", description = "Set hashes from input")
-public class HsetCommand extends AbstractRedisOperationCommand {
+public class HsetCommand extends AbstractWriteOperationCommand {
 
 	@Mixin
 	private FieldFilteringArgs filteringArgs = new FieldFilteringArgs();

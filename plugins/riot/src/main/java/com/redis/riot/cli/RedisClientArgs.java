@@ -1,60 +1,48 @@
 package com.redis.riot.cli;
 
 import com.redis.riot.core.RedisClientOptions;
+import com.redis.riot.core.RedisUriOptions;
 
-import io.lettuce.core.ClientOptions;
-import io.lettuce.core.cluster.ClusterClientOptions;
 import io.lettuce.core.protocol.ProtocolVersion;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Option;
 
 public class RedisClientArgs {
 
-	@ArgGroup(exclusive = false)
-	private RedisURIArgs uriArgs = new RedisURIArgs();
+	@ArgGroup
+	private RedisUriArgs uriArgs = new RedisUriArgs();
 
 	@Option(names = { "-c", "--cluster" }, description = "Enable cluster mode.")
 	private boolean cluster;
 
 	@Option(names = "--auto-reconnect", defaultValue = "true", fallbackValue = "true", negatable = true, description = "Automatically reconnect on connection loss. True by default.", hidden = true)
-	private boolean autoReconnect = true;
+	private boolean autoReconnect = RedisClientOptions.DEFAULT_AUTO_RECONNECT;
 
 	@Option(names = "--resp", description = "Redis protocol version used to connect to Redis: ${COMPLETION-CANDIDATES}.", paramLabel = "<ver>")
-	private ProtocolVersion protocolVersion;
+	private ProtocolVersion protocolVersion = RedisClientOptions.DEFAULT_PROTOCOL_VERSION;
 
 	@ArgGroup(exclusive = false)
 	private SslArgs sslArgs = new SslArgs();
 
+	public RedisUriOptions redisUriOptions() {
+		return uriArgs.redisUriOptions();
+	}
+
 	public RedisClientOptions redisClientOptions() {
 		RedisClientOptions options = new RedisClientOptions();
-		options.setRedisURI(uriArgs.redisURI());
+		options.setUriOptions(uriArgs.redisUriOptions());
 		options.setCluster(cluster);
-		options.setOptions(clientOptions());
+		options.setAutoReconnect(autoReconnect);
+		options.setProtocolVersion(protocolVersion);
+		options.setSslOptions(sslArgs.sslOptions());
 		return options;
 	}
 
-	private ClientOptions clientOptions() {
-		if (cluster) {
-			ClusterClientOptions.Builder options = ClusterClientOptions.builder();
-			configure(options);
-			return options.build();
-		}
-		ClientOptions.Builder options = ClientOptions.builder();
-		configure(options);
-		return options.build();
-	}
-
-	private void configure(ClientOptions.Builder builder) {
-		builder.autoReconnect(autoReconnect);
-		builder.protocolVersion(protocolVersion);
-		builder.sslOptions(sslArgs.sslOptions());
-	}
-
-	public RedisURIArgs getUriArgs() {
+	public RedisUriArgs getUriArgs() {
 		return uriArgs;
 	}
 
-	public void setUriArgs(RedisURIArgs args) {
+	public void setUriArgs(RedisUriArgs args) {
 		this.uriArgs = args;
 	}
 
@@ -78,16 +66,16 @@ public class RedisClientArgs {
 		return protocolVersion;
 	}
 
-	public void setProtocolVersion(ProtocolVersion version) {
-		this.protocolVersion = version;
+	public void setProtocolVersion(ProtocolVersion protocolVersion) {
+		this.protocolVersion = protocolVersion;
 	}
 
 	public SslArgs getSslArgs() {
 		return sslArgs;
 	}
 
-	public void setSslArgs(SslArgs args) {
-		this.sslArgs = args;
+	public void setSslArgs(SslArgs sslArgs) {
+		this.sslArgs = sslArgs;
 	}
 
 }

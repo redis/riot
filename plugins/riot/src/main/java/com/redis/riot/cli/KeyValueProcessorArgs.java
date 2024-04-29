@@ -9,7 +9,7 @@ import picocli.CommandLine.Option;
 
 public class KeyValueProcessorArgs {
 
-	@Option(names = "--key-proc", description = "SpEL template expression to transform the name of each key. E.g. \"#{#source.database}:#{key}\" with 'abc' returns '0:abc'", paramLabel = "<exp>")
+	@Option(names = "--key-proc", description = "SpEL template expression for key names, e.g. \"#{#source.database}:#{key}\" for 'abc' returns '0:abc'", paramLabel = "<exp>")
 	private TemplateExpression keyExpression;
 
 	@Option(names = "--type-proc", description = "SpEL expression to transform the type of each key.", paramLabel = "<exp>")

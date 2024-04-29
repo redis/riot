@@ -16,11 +16,12 @@ import com.fasterxml.jackson.databind.node.LongNode;
 import com.redis.lettucemod.timeseries.Sample;
 import com.redis.spring.batch.KeyValue;
 import com.redis.spring.batch.KeyValue.DataType;
+import com.redis.spring.batch.reader.MemKeyValue;
 
 import io.lettuce.core.ScoredValue;
 import io.lettuce.core.StreamMessage;
 
-public class KeyValueDeserializer extends StdDeserializer<KeyValue<String, Object>> {
+public class MemKeyValueDeserializer extends StdDeserializer<MemKeyValue<String, Object>> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -35,18 +36,18 @@ public class KeyValueDeserializer extends StdDeserializer<KeyValue<String, Objec
 	public static final String BODY = "body";
 	public static final String TIMESTAMP = "timestamp";
 
-	public KeyValueDeserializer() {
+	public MemKeyValueDeserializer() {
 		this(null);
 	}
 
-	public KeyValueDeserializer(Class<KeyValue<String, Object>> t) {
+	public MemKeyValueDeserializer(Class<MemKeyValue<String, Object>> t) {
 		super(t);
 	}
 
 	@Override
-	public KeyValue<String, Object> deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+	public MemKeyValue<String, Object> deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
 		JsonNode node = p.getCodec().readTree(p);
-		KeyValue<String, Object> keyValue = new KeyValue<>();
+		MemKeyValue<String, Object> keyValue = new MemKeyValue<>();
 		JsonNode keyNode = node.get(KEY);
 		if (keyNode != null) {
 			keyValue.setKey(node.get(KEY).asText());

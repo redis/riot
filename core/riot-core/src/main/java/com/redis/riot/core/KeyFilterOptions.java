@@ -1,16 +1,8 @@
 package com.redis.riot.core;
 
 import java.util.List;
-import java.util.function.Predicate;
-import java.util.stream.Stream;
 
-import org.springframework.batch.item.ItemProcessor;
 import org.springframework.util.CollectionUtils;
-
-import com.redis.spring.batch.util.BatchUtils;
-import com.redis.spring.batch.util.Predicates;
-
-import io.lettuce.core.codec.RedisCodec;
 
 public class KeyFilterOptions {
 
@@ -43,39 +35,19 @@ public class KeyFilterOptions {
 	}
 
 	public boolean isEmpty() {
-		return CollectionUtils.isEmpty(includes) && CollectionUtils.isEmpty(excludes) && CollectionUtils.isEmpty(slots);
+		return isEmptyIncludes() && isEmptyExcludes() && isEmptySlots();
 	}
 
-	public <K> Predicate<K> predicate(RedisCodec<K, ?> codec) {
-		return slotsPredicate(codec).and(globPredicate(codec));
+	public boolean isEmptySlots() {
+		return CollectionUtils.isEmpty(slots);
 	}
 
-	private <K> Predicate<K> slotsPredicate(RedisCodec<K, ?> codec) {
-		if (CollectionUtils.isEmpty(slots)) {
-			return Predicates.isTrue();
-		}
-		Stream<Predicate<K>> predicates = slots.stream()
-				.map(r -> Predicates.slotRange(codec, r.getStart(), r.getEnd()));
-		return Predicates.or(predicates);
+	public boolean isEmptyIncludes() {
+		return CollectionUtils.isEmpty(includes);
 	}
 
-	private <K> Predicate<K> globPredicate(RedisCodec<K, ?> codec) {
-		return Predicates.map(BatchUtils.toStringKeyFunction(codec), globPredicate());
-	}
-
-	private Predicate<String> globPredicate() {
-		Predicate<String> include = RiotUtils.globPredicate(includes);
-		if (CollectionUtils.isEmpty(excludes)) {
-			return include;
-		}
-		return include.and(RiotUtils.globPredicate(excludes).negate());
-	}
-
-	public <K> ItemProcessor<K, K> processor(RedisCodec<K, ?> codec) {
-		if (isEmpty()) {
-			return null;
-		}
-		return new PredicateItemProcessor<>(predicate(codec));
+	public boolean isEmptyExcludes() {
+		return CollectionUtils.isEmpty(excludes);
 	}
 
 }

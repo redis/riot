@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.redis.riot.file.resource;
+package com.redis.riot.file.xml;
 
 import org.springframework.batch.item.file.FlatFileFooterCallback;
 import org.springframework.batch.item.file.FlatFileHeaderCallback;
@@ -24,22 +24,21 @@ import org.springframework.core.io.WritableResource;
 import org.springframework.util.Assert;
 
 /**
- * Builder for {@link JsonResourceItemWriter}.
+ * Builder for {@link XmlResourceItemWriter}.
  *
- * @param <T> type of objects to write as Json output.
- * @author Mahmoud Ben Hassine
- * @since 4.1
+ * @param <T> type of objects to write as XML output.
  */
-public class JsonResourceItemWriterBuilder<T> {
+public class XmlResourceItemWriterBuilder<T> {
 
 	private WritableResource resource;
-	private JsonObjectMarshaller<T> jsonObjectMarshaller;
+	private String rootName;
+	private JsonObjectMarshaller<T> xmlObjectMarshaller;
 	private FlatFileHeaderCallback headerCallback;
 	private FlatFileFooterCallback footerCallback;
 
 	private String name;
-	private String encoding = AbstractResourceItemWriter.DEFAULT_CHARSET;
-	private String lineSeparator = AbstractResourceItemWriter.DEFAULT_LINE_SEPARATOR;
+	private String encoding = XmlResourceItemWriter.DEFAULT_CHARSET;
+	private String lineSeparator = XmlResourceItemWriter.DEFAULT_LINE_SEPARATOR;
 
 	private boolean append = false;
 	private boolean saveState = true;
@@ -55,7 +54,7 @@ public class JsonResourceItemWriterBuilder<T> {
 	 * @param saveState defaults to true
 	 * @return The current instance of the builder.
 	 */
-	public JsonResourceItemWriterBuilder<T> saveState(boolean saveState) {
+	public XmlResourceItemWriterBuilder<T> saveState(boolean saveState) {
 		this.saveState = saveState;
 
 		return this;
@@ -70,7 +69,7 @@ public class JsonResourceItemWriterBuilder<T> {
 	 * @return The current instance of the builder.
 	 * @see org.springframework.batch.item.ItemStreamSupport#setName(String)
 	 */
-	public JsonResourceItemWriterBuilder<T> name(String name) {
+	public XmlResourceItemWriterBuilder<T> name(String name) {
 		this.name = name;
 
 		return this;
@@ -82,23 +81,23 @@ public class JsonResourceItemWriterBuilder<T> {
 	 *
 	 * @param lineSeparator value to use for a line separator
 	 * @return The current instance of the builder.
-	 * @see JsonResourceItemWriter#setLineSeparator(String)
+	 * @see XmlResourceItemWriter#setLineSeparator(String)
 	 */
-	public JsonResourceItemWriterBuilder<T> lineSeparator(String lineSeparator) {
+	public XmlResourceItemWriterBuilder<T> lineSeparator(String lineSeparator) {
 		this.lineSeparator = lineSeparator;
 
 		return this;
 	}
 
 	/**
-	 * Set the {@link JsonObjectMarshaller} to use to marshal objects to json.
+	 * Set the {@link JsonObjectMarshaller} to use to marshal objects to XML.
 	 *
-	 * @param jsonObjectMarshaller to use
+	 * @param xmlObjectMarshaller to use
 	 * @return The current instance of the builder.
-	 * @see JsonResourceItemWriter#setJsonObjectMarshaller(JsonObjectMarshaller)
+	 * @see XmlResourceItemWriter#setXmlObjectMarshaller(JsonObjectMarshaller)
 	 */
-	public JsonResourceItemWriterBuilder<T> jsonObjectMarshaller(JsonObjectMarshaller<T> jsonObjectMarshaller) {
-		this.jsonObjectMarshaller = jsonObjectMarshaller;
+	public XmlResourceItemWriterBuilder<T> xmlObjectMarshaller(JsonObjectMarshaller<T> xmlObjectMarshaller) {
+		this.xmlObjectMarshaller = xmlObjectMarshaller;
 
 		return this;
 	}
@@ -109,10 +108,15 @@ public class JsonResourceItemWriterBuilder<T> {
 	 * @param resource the output of the writer.
 	 * @return The current instance of the builder.
 	 */
-	public JsonResourceItemWriterBuilder<T> resource(Resource resource) {
+	public XmlResourceItemWriterBuilder<T> resource(Resource resource) {
 		Assert.isInstanceOf(WritableResource.class, resource);
 		this.resource = (WritableResource) resource;
 
+		return this;
+	}
+
+	public XmlResourceItemWriterBuilder<T> rootName(String rootName) {
+		this.rootName = rootName;
 		return this;
 	}
 
@@ -121,9 +125,9 @@ public class JsonResourceItemWriterBuilder<T> {
 	 *
 	 * @param encoding encoding type.
 	 * @return The current instance of the builder.
-	 * @see JsonResourceItemWriter#setEncoding(String)
+	 * @see XmlResourceItemWriter#setEncoding(String)
 	 */
-	public JsonResourceItemWriterBuilder<T> encoding(String encoding) {
+	public XmlResourceItemWriterBuilder<T> encoding(String encoding) {
 		this.encoding = encoding;
 
 		return this;
@@ -135,9 +139,9 @@ public class JsonResourceItemWriterBuilder<T> {
 	 *
 	 * @param shouldDelete defaults to false
 	 * @return The current instance of the builder
-	 * @see JsonResourceItemWriter#setShouldDeleteIfEmpty(boolean)
+	 * @see XmlResourceItemWriter#setShouldDeleteIfEmpty(boolean)
 	 */
-	public JsonResourceItemWriterBuilder<T> shouldDeleteIfEmpty(boolean shouldDelete) {
+	public XmlResourceItemWriterBuilder<T> shouldDeleteIfEmpty(boolean shouldDelete) {
 		this.shouldDeleteIfEmpty = shouldDelete;
 
 		return this;
@@ -149,9 +153,9 @@ public class JsonResourceItemWriterBuilder<T> {
 	 *
 	 * @param shouldDelete defaults to true
 	 * @return The current instance of the builder
-	 * @see JsonResourceItemWriter#setShouldDeleteIfExists(boolean)
+	 * @see XmlResourceItemWriter#setShouldDeleteIfExists(boolean)
 	 */
-	public JsonResourceItemWriterBuilder<T> shouldDeleteIfExists(boolean shouldDelete) {
+	public XmlResourceItemWriterBuilder<T> shouldDeleteIfExists(boolean shouldDelete) {
 		this.shouldDeleteIfExists = shouldDelete;
 
 		return this;
@@ -163,9 +167,9 @@ public class JsonResourceItemWriterBuilder<T> {
 	 *
 	 * @param append defaults to false
 	 * @return The current instance of the builder
-	 * @see JsonResourceItemWriter#setAppendAllowed(boolean)
+	 * @see XmlResourceItemWriter#setAppendAllowed(boolean)
 	 */
-	public JsonResourceItemWriterBuilder<T> append(boolean append) {
+	public XmlResourceItemWriterBuilder<T> append(boolean append) {
 		this.append = append;
 
 		return this;
@@ -176,9 +180,9 @@ public class JsonResourceItemWriterBuilder<T> {
 	 *
 	 * @param callback {@link FlatFileHeaderCallback} implementation
 	 * @return The current instance of the builder
-	 * @see JsonResourceItemWriter#setHeaderCallback(FlatFileHeaderCallback)
+	 * @see XmlResourceItemWriter#setHeaderCallback(FlatFileHeaderCallback)
 	 */
-	public JsonResourceItemWriterBuilder<T> headerCallback(FlatFileHeaderCallback callback) {
+	public XmlResourceItemWriterBuilder<T> headerCallback(FlatFileHeaderCallback callback) {
 		this.headerCallback = callback;
 
 		return this;
@@ -189,43 +193,44 @@ public class JsonResourceItemWriterBuilder<T> {
 	 *
 	 * @param callback {@link FlatFileFooterCallback} implementation
 	 * @return The current instance of the builder
-	 * @see JsonResourceItemWriter#setFooterCallback(FlatFileFooterCallback)
+	 * @see XmlResourceItemWriter#setFooterCallback(FlatFileFooterCallback)
 	 */
-	public JsonResourceItemWriterBuilder<T> footerCallback(FlatFileFooterCallback callback) {
+	public XmlResourceItemWriterBuilder<T> footerCallback(FlatFileFooterCallback callback) {
 		this.footerCallback = callback;
 
 		return this;
 	}
 
 	/**
-	 * Validate the configuration and build a new {@link JsonResourceItemWriter}.
+	 * Validate the configuration and build a new {@link XmlResourceItemWriter}.
 	 *
-	 * @return a new instance of the {@link JsonResourceItemWriter}
+	 * @return a new instance of the {@link XmlResourceItemWriter}
 	 */
-	public JsonResourceItemWriter<T> build() {
+	public XmlResourceItemWriter<T> build() {
 		Assert.notNull(this.resource, "A resource is required.");
-		Assert.notNull(this.jsonObjectMarshaller, "A json object marshaller is required.");
+		Assert.notNull(this.rootName, "A root name is required.");
+		Assert.notNull(this.xmlObjectMarshaller, "An xml object marshaller is required.");
 
 		if (this.saveState) {
 			Assert.hasText(this.name, "A name is required when saveState is true");
 		}
 
-		JsonResourceItemWriter<T> jsonResourceItemWriter = new JsonResourceItemWriter<>(this.resource,
-				this.jsonObjectMarshaller);
+		XmlResourceItemWriter<T> xmlResourceItemWriter = new XmlResourceItemWriter<>(this.resource, this.rootName,
+				this.xmlObjectMarshaller);
 
-		jsonResourceItemWriter.setName(this.name);
-		jsonResourceItemWriter.setAppendAllowed(this.append);
-		jsonResourceItemWriter.setEncoding(this.encoding);
+		xmlResourceItemWriter.setName(this.name);
+		xmlResourceItemWriter.setAppendAllowed(this.append);
+		xmlResourceItemWriter.setEncoding(this.encoding);
 		if (this.headerCallback != null) {
-			jsonResourceItemWriter.setHeaderCallback(this.headerCallback);
+			xmlResourceItemWriter.setHeaderCallback(this.headerCallback);
 		}
 		if (this.footerCallback != null) {
-			jsonResourceItemWriter.setFooterCallback(this.footerCallback);
+			xmlResourceItemWriter.setFooterCallback(this.footerCallback);
 		}
-		jsonResourceItemWriter.setLineSeparator(this.lineSeparator);
-		jsonResourceItemWriter.setSaveState(this.saveState);
-		jsonResourceItemWriter.setShouldDeleteIfEmpty(this.shouldDeleteIfEmpty);
-		jsonResourceItemWriter.setShouldDeleteIfExists(this.shouldDeleteIfExists);
-		return jsonResourceItemWriter;
+		xmlResourceItemWriter.setLineSeparator(this.lineSeparator);
+		xmlResourceItemWriter.setSaveState(this.saveState);
+		xmlResourceItemWriter.setShouldDeleteIfEmpty(this.shouldDeleteIfEmpty);
+		xmlResourceItemWriter.setShouldDeleteIfExists(this.shouldDeleteIfExists);
+		return xmlResourceItemWriter;
 	}
 }

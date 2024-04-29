@@ -9,28 +9,28 @@ import picocli.CommandLine.Option;
 
 public class SslArgs {
 
-	@Option(names = "--ks", description = "Path to keystore.", paramLabel = "<file>", hidden = true)
+	@Option(names = "--keystore", description = "Path to keystore.", paramLabel = "<file>", hidden = true)
 	private File keystore;
 
-	@Option(names = "--ks-pwd", arity = "0..1", interactive = true, description = "Keystore password.", paramLabel = "<pwd>", hidden = true)
+	@Option(names = "--keystore-pass", arity = "0..1", interactive = true, description = "Keystore password.", paramLabel = "<password>", hidden = true)
 	private char[] keystorePassword;
 
-	@Option(names = "--ts", description = "Path to truststore.", paramLabel = "<file>", hidden = true)
+	@Option(names = "--trust", description = "Path to truststore.", paramLabel = "<file>", hidden = true)
 	private File truststore;
 
-	@Option(names = "--ts-pwd", arity = "0..1", interactive = true, description = "Truststore password.", paramLabel = "<pwd>", hidden = true)
+	@Option(names = "--trust-pass", arity = "0..1", interactive = true, description = "Truststore password.", paramLabel = "<password>", hidden = true)
 	private char[] truststorePassword;
 
-	@Option(names = "--cert", description = "X.509 cert chain file to authenticate (PEM).", paramLabel = "<file>")
+	@Option(names = "--cert", description = "Client certificate to authenticate with (X.509 PEM).", paramLabel = "<file>")
 	private File keyCert;
 
-	@Option(names = "--key", description = "PKCS#8 private key file to authenticate (PEM).", paramLabel = "<file>")
+	@Option(names = "--key", description = "Private key file to authenticate with (PKCS#8 PEM).", paramLabel = "<file>")
 	private File key;
 
-	@Option(names = "--key-pwd", arity = "0..1", interactive = true, description = "Private key password.", paramLabel = "<pwd>")
+	@Option(names = "--key-pass", arity = "0..1", interactive = true, description = "Private key password.", paramLabel = "<pwd>")
 	private char[] keyPassword;
 
-	@Option(names = "--cacert", description = "X.509 CA certificate file to verify with.", paramLabel = "<file>")
+	@Option(names = "--cacert", description = "CA Certificate file to verify with (X.509).", paramLabel = "<file>")
 	private File trustedCerts;
 
 	public SslOptions sslOptions() {

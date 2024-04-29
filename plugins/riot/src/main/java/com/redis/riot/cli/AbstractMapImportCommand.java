@@ -22,7 +22,7 @@ import com.redis.riot.cli.redis.XaddCommand;
 import com.redis.riot.cli.redis.ZaddCommand;
 import com.redis.riot.core.AbstractMapImport;
 import com.redis.riot.core.ImportProcessorOptions;
-import com.redis.spring.batch.operation.Operation;
+import com.redis.spring.batch.writer.WriteOperation;
 
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
@@ -46,18 +46,18 @@ public abstract class AbstractMapImportCommand extends AbstractImportCommand {
 	/**
 	 * Initialized manually during command parsing
 	 */
-	private List<RedisOperationCommand> commands = new ArrayList<>();
+	private List<WriteOperationCommand> commands = new ArrayList<>();
 
-	public List<RedisOperationCommand> getCommands() {
+	public List<WriteOperationCommand> getCommands() {
 		return commands;
 	}
 
-	public void setCommands(List<RedisOperationCommand> commands) {
+	public void setCommands(List<WriteOperationCommand> commands) {
 		this.commands = commands;
 	}
 
-	protected List<Operation<String, String, Map<String, Object>, Object>> operations() {
-		return commands.stream().map(RedisOperationCommand::operation).collect(Collectors.toList());
+	protected List<WriteOperation<String, String, Map<String, Object>>> operations() {
+		return commands.stream().map(WriteOperationCommand::operation).collect(Collectors.toList());
 	}
 
 	@Override

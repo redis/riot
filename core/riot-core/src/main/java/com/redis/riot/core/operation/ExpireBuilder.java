@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.function.ToLongFunction;
 
-import com.redis.spring.batch.operation.Expire;
+import com.redis.spring.batch.writer.Expire;
 
 public class ExpireBuilder extends AbstractMapOperationBuilder {
 

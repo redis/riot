@@ -46,8 +46,8 @@ public class GeneratorImport extends AbstractImport {
 		return jobBuilder().start(step(getName(), reader(), writer).processor(processor()).build()).build();
 	}
 
-	private ItemProcessor<? super Item, ? extends KeyValue<String, Object>> processor() {
-		return new FunctionItemProcessor<>(new ItemToKeyValueFunction());
+	private ItemProcessor<? super Item, KeyValue<String, Object>> processor() {
+		return new FunctionItemProcessor<>(new ItemToKeyValueFunction<>(KeyValue::new));
 	}
 
 	private GeneratorItemReader reader() {

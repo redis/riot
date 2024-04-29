@@ -6,7 +6,7 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 @Command(name = "json.set", description = "Add JSON documents to RedisJSON")
-public class JsonSetCommand extends AbstractRedisOperationCommand {
+public class JsonSetCommand extends AbstractWriteOperationCommand {
 
 	@Option(names = "--path", description = "Path field.", paramLabel = "<field>")
 	private String path;

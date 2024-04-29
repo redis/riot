@@ -14,6 +14,7 @@ import org.springframework.core.io.Resource;
 import com.redis.riot.core.AbstractImport;
 import com.redis.spring.batch.KeyValue;
 import com.redis.spring.batch.RedisItemWriter;
+import com.redis.spring.batch.reader.MemKeyValue;
 
 public class FileDumpImport extends AbstractImport {
 
@@ -59,11 +60,11 @@ public class FileDumpImport extends AbstractImport {
 		return job.build();
 	}
 
-	private ItemReader<KeyValue<String, Object>> reader(Resource resource) {
+	private ItemReader<MemKeyValue<String, Object>> reader(Resource resource) {
 		if (type == FileDumpType.XML) {
-			return FileUtils.xmlReader(resource, KeyValue.class);
+			return FileUtils.xmlReader(resource, MemKeyValue.class);
 		}
-		return FileUtils.jsonReader(resource, KeyValue.class);
+		return FileUtils.jsonReader(resource, MemKeyValue.class);
 	}
 
 }

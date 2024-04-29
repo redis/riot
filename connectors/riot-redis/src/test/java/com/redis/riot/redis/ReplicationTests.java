@@ -1,5 +1,9 @@
 package com.redis.riot.redis;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executors;
@@ -9,24 +13,23 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 import org.slf4j.simple.SimpleLogger;
-import org.springframework.batch.item.support.ListItemWriter;
 import org.testcontainers.shaded.org.bouncycastle.util.encoders.Hex;
 
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
 import com.redis.lettucemod.util.RedisModulesUtils;
 import com.redis.riot.core.KeyValueProcessorOptions;
-import com.redis.riot.core.PredicateItemProcessor;
 import com.redis.riot.core.RedisClientOptions;
 import com.redis.riot.core.RiotUtils;
+import com.redis.riot.core.ScanSizeEstimator;
+import com.redis.riot.core.SlotRange;
 import com.redis.riot.redis.Replication.LoggingWriteListener;
-import com.redis.spring.batch.KeyValue;
-import com.redis.spring.batch.RedisItemReader;
-import com.redis.spring.batch.common.FlushingStepBuilder;
+import com.redis.spring.batch.KeyValue.DataType;
+import com.redis.spring.batch.gen.GeneratorItemReader;
+import com.redis.spring.batch.gen.Item;
 import com.redis.spring.batch.test.AbstractTargetTestBase;
-import com.redis.spring.batch.util.Predicates;
+import com.redis.spring.batch.test.KeyspaceComparison;
 import com.redis.testcontainers.RedisServer;
 
-import io.lettuce.core.RedisURI;
 import io.lettuce.core.cluster.SlotHash;
 import io.lettuce.core.codec.ByteArrayCodec;
 
@@ -63,7 +66,7 @@ public abstract class ReplicationTests extends AbstractTargetTestBase {
 
 	private RedisClientOptions redisOptions(RedisServer redis) {
 		RedisClientOptions options = new RedisClientOptions();
-		options.setRedisURI(RedisURI.create(redis.getRedisURI()));
+		options.getUriOptions().setUri(redis.getRedisURI());
 		options.setCluster(redis.isRedisCluster());
 		return options;
 	}
@@ -74,7 +77,9 @@ public abstract class ReplicationTests extends AbstractTargetTestBase {
 		Assertions.assertTrue(redisCommands.dbsize() > 0);
 		Replication replication = new Replication();
 		execute(replication, info);
-		Assertions.assertTrue(compare(info).isOk());
+		KeyspaceComparison<String> comparison = compare(info);
+		Assertions.assertFalse(comparison.getAll().isEmpty());
+		Assertions.assertEquals(Collections.emptyList(), comparison.mismatches());
 	}
 
 	@Test
@@ -150,7 +155,7 @@ public abstract class ReplicationTests extends AbstractTargetTestBase {
 				.connection(targetRedisClient, ByteArrayCodec.INSTANCE);
 		enableKeyspaceNotifications();
 		Executors.newSingleThreadExecutor().execute(() -> {
-			awaitPubSub();
+			awaitUntilSubscribers();
 			connection.sync().set(key, value);
 		});
 		Replication replication = new Replication();
@@ -161,18 +166,29 @@ public abstract class ReplicationTests extends AbstractTargetTestBase {
 	}
 
 	@Test
+	void estimateScanSize(TestInfo info) throws Exception {
+		GeneratorItemReader gen = generator(3000, Item.Type.HASH, Item.Type.STRING);
+		generate(info, gen);
+		long expectedCount = redisCommands.dbsize();
+		ScanSizeEstimator estimator = new ScanSizeEstimator(redisClient);
+		estimator.setKeyPattern(GeneratorItemReader.DEFAULT_KEYSPACE + ":*");
+		estimator.setSamples(300);
+		assertEquals(expectedCount, estimator.getAsLong(), expectedCount / 10);
+		estimator.setKeyType(DataType.HASH.getString());
+		assertEquals(expectedCount / 2, estimator.getAsLong(), expectedCount / 10);
+	}
+
+	@Test
 	void filterKeySlot(TestInfo info) throws Exception {
 		enableKeyspaceNotifications();
-		RedisItemReader<String, String, KeyValue<String, Object>> reader = structReader(info);
-		live(reader);
-		reader.setKeyProcessor(new PredicateItemProcessor<>(Predicates.slotRange(0, 8000)));
-		ListItemWriter<KeyValue<String, Object>> writer = new ListItemWriter<>();
+		Replication replication = new Replication();
+		replication.setMode(ReplicationMode.LIVE);
+		replication.setCompareMode(CompareMode.NONE);
+		replication.getReaderOptions().getKeyFilterOptions().setSlots(Arrays.asList(new SlotRange(0, 8000)));
 		generateAsync(info, generator(100));
-		FlushingStepBuilder<KeyValue<String, Object>, KeyValue<String, Object>> step = flushingStep(info, reader,
-				writer);
-		run(job(info).start(step.build()).build());
-		Assertions.assertTrue(writer.getWrittenItems().stream().map(KeyValue::getKey).map(SlotHash::getSlot)
-				.allMatch(between(0, 8000)));
+		execute(replication, info);
+		awaitUntilNoSubscribers();
+		Assertions.assertTrue(targetRedisCommands.keys("*").stream().map(SlotHash::getSlot).allMatch(between(0, 8000)));
 	}
 
 	private Predicate<Integer> between(int start, int end) {

@@ -1,4 +1,4 @@
-package com.redis.riot.file.resource;
+package com.redis.riot.file.xml;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

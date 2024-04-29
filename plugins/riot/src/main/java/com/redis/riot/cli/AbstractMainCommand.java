@@ -90,7 +90,7 @@ public abstract class AbstractMainCommand implements Runnable {
 					if (redisCommand.isUsageHelpRequested()) {
 						return new RunLast().execute(redisCommand);
 					}
-					importCommand.getCommands().add((RedisOperationCommand) redisCommand.commandSpec().userObject());
+					importCommand.getCommands().add((WriteOperationCommand) redisCommand.commandSpec().userObject());
 				}
 				return new RunFirst().execute(subcommand);
 			}

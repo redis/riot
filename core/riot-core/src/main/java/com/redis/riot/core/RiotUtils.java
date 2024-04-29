@@ -13,7 +13,6 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
 
@@ -25,9 +24,6 @@ import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.expression.common.TemplateParserContext;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
-import org.springframework.util.CollectionUtils;
-
-import com.redis.spring.batch.util.Predicates;
 
 public abstract class RiotUtils {
 
@@ -48,13 +44,6 @@ public abstract class RiotUtils {
 
 	public static <T> Predicate<T> predicate(EvaluationContext context, Expression expression) {
 		return t -> expression.getValue(context, t, Boolean.class);
-	}
-
-	public static Predicate<String> globPredicate(List<String> patterns) {
-		if (CollectionUtils.isEmpty(patterns)) {
-			return Predicates.isTrue();
-		}
-		return Predicates.or(patterns.stream().map(Predicates::glob));
 	}
 
 	public static <S, T> ItemProcessor<S, T> processor(ItemProcessor<?, ?>... processors) {

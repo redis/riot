@@ -48,13 +48,10 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.ServiceOptions;
 import com.google.cloud.storage.StorageOptions;
-import com.redis.riot.file.resource.FilenameInputStreamResource;
-import com.redis.riot.file.resource.OutputStreamResource;
-import com.redis.riot.file.resource.UncustomizedUrlResource;
-import com.redis.riot.file.resource.XmlItemReader;
-import com.redis.riot.file.resource.XmlItemReaderBuilder;
-import com.redis.riot.file.resource.XmlObjectReader;
-import com.redis.spring.batch.KeyValue;
+import com.redis.riot.file.xml.XmlItemReader;
+import com.redis.riot.file.xml.XmlItemReaderBuilder;
+import com.redis.riot.file.xml.XmlObjectReader;
+import com.redis.spring.batch.reader.MemKeyValue;
 
 public abstract class FileUtils {
 
@@ -187,7 +184,7 @@ public abstract class FileUtils {
 	private static void configureMapper(ObjectMapper mapper) {
 		mapper.configure(DeserializationFeature.USE_LONG_FOR_INTS, true);
 		SimpleModule module = new SimpleModule();
-		module.addDeserializer(KeyValue.class, new KeyValueDeserializer());
+		module.addDeserializer(MemKeyValue.class, new MemKeyValueDeserializer());
 		mapper.registerModule(module);
 		mapper.setSerializationInclusion(Include.NON_NULL);
 	}

@@ -1,10 +1,13 @@
 package com.redis.riot.core;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
@@ -14,15 +17,25 @@ import org.springframework.batch.item.ItemProcessor;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
+import com.hrakaroo.glob.GlobPattern;
+
+import io.lettuce.core.cluster.SlotHash;
 import io.lettuce.core.codec.StringCodec;
 
 class ProcessorTests {
+
+	private KeyFilter<String> keyFilter(KeyFilterOptions options) {
+		KeyFilter<String> filter = new KeyFilter<>(StringCodec.UTF8);
+		filter.setOptions(options);
+		filter.afterPropertiesSet();
+		return filter;
+	}
 
 	@Test
 	void keyFilter() {
 		KeyFilterOptions options = new KeyFilterOptions();
 		options.setIncludes(Arrays.asList("foo*", "bar*"));
-		Predicate<String> predicate = options.predicate(StringCodec.UTF8);
+		KeyFilter<String> predicate = keyFilter(options);
 		Assertions.assertTrue(predicate.test("foobar"));
 		Assertions.assertTrue(predicate.test("barfoo"));
 		Assertions.assertFalse(predicate.test("key"));
@@ -78,6 +91,79 @@ class ProcessorTests {
 				Assertions.assertNull(result);
 			}
 		}
+	}
+
+	@Test
+	void slotExact() {
+		KeyFilterOptions options = new KeyFilterOptions();
+		options.setSlots(Arrays.asList(new SlotRange(7638, 7638)));
+		KeyFilter<String> predicate = keyFilter(options);
+		assertTrue(predicate.test("abc"));
+		assertFalse(predicate.test("abcd"));
+	}
+
+	@Test
+	void slotRange() {
+		KeyFilterOptions options = new KeyFilterOptions();
+		options.setSlots(slotRangeList(0, SlotHash.SLOT_COUNT));
+		KeyFilter<String> unbounded = keyFilter(options);
+		assertTrue(unbounded.test("foo"));
+		assertTrue(unbounded.test("foo1"));
+		options.setSlots(slotRangeList(999999, 99999));
+		Predicate<String> is999999 = keyFilter(options);
+		assertFalse(is999999.test("foo"));
+	}
+
+	private List<SlotRange> slotRangeList(int start, int end) {
+		return Arrays.asList(new SlotRange(start, end));
+	}
+
+	@Test
+	void kitchenSink() {
+		KeyFilterOptions options = new KeyFilterOptions();
+		options.setExcludes(Arrays.asList("foo"));
+		options.setIncludes(Arrays.asList("foo1"));
+		options.setSlots(Arrays.asList(new SlotRange(0, SlotHash.SLOT_COUNT)));
+		Predicate<String> predicate = keyFilter(options);
+		assertFalse(predicate.test("foo"));
+		assertFalse(predicate.test("bar"));
+		assertTrue(predicate.test("foo1"));
+	}
+
+	private Predicate<String> globPredicate(String match) {
+		return GlobPattern.compile(match)::matches;
+	}
+
+	@Test
+	void include() {
+		Predicate<String> foo = globPredicate("foo");
+		assertTrue(foo.test("foo"));
+		assertFalse(foo.test("bar"));
+		Predicate<String> fooStar = globPredicate("foo*");
+		assertTrue(fooStar.test("foobar"));
+		assertFalse(fooStar.test("barfoo"));
+	}
+
+	@Test
+	void exclude() {
+		Predicate<String> foo = globPredicate("foo").negate();
+		assertFalse(foo.test("foo"));
+		assertTrue(foo.test("foa"));
+		Predicate<String> fooStar = globPredicate("foo*").negate();
+		assertFalse(fooStar.test("foobar"));
+		assertTrue(fooStar.test("barfoo"));
+	}
+
+	@Test
+	void includeAndExclude() {
+		Predicate<String> foo1 = globPredicate("foo1").and(globPredicate("foo").negate());
+		assertFalse(foo1.test("foo"));
+		assertFalse(foo1.test("bar"));
+		assertTrue(foo1.test("foo1"));
+		Predicate<String> foo1Star = globPredicate("foo").and(globPredicate("foo1*").negate());
+		assertTrue(foo1Star.test("foo"));
+		assertFalse(foo1Star.test("bar"));
+		assertFalse(foo1Star.test("foo1"));
 	}
 
 }
