@@ -23,7 +23,7 @@ import com.fasterxml.jackson.databind.ObjectReader;
 import com.redis.spring.batch.gen.GeneratorItemReader;
 import com.redis.spring.batch.gen.Item.Type;
 
-class PostgresTests extends AbstractDbTests {
+class PostgresTests extends RiotDbTests {
 
 	private static final DockerImageName postgresImage = DockerImageName.parse(PostgreSQLContainer.IMAGE)
 			.withTag(PostgreSQLContainer.DEFAULT_TAG);

@@ -16,7 +16,7 @@ import com.redis.spring.batch.util.Await;
 
 import io.lettuce.core.cluster.SlotHash;
 
-abstract class AbstractReplicationTests extends AbstractRiotTestBase {
+abstract class ReplicationTests extends AbstractRiotTestBase {
 
 	@BeforeAll
 	void setDefaults() {
@@ -32,7 +32,7 @@ abstract class AbstractReplicationTests extends AbstractRiotTestBase {
 	}
 
 	@Test
-	void dryRun(TestInfo info) throws Throwable {
+	void replicateDryRun(TestInfo info) throws Throwable {
 		String filename = "replicate-dry-run";
 		generate(info, generator(73));
 		Assertions.assertTrue(redisCommands.dbsize() > 0);
@@ -41,7 +41,7 @@ abstract class AbstractReplicationTests extends AbstractRiotTestBase {
 	}
 
 	@Test
-	void hll(TestInfo info) throws Throwable {
+	void replicateHyperloglog(TestInfo info) throws Throwable {
 		String key = "crawled:20171124";
 		String value = "http://www.google.com/";
 		redisCommands.pfadd(key, value);
@@ -52,7 +52,7 @@ abstract class AbstractReplicationTests extends AbstractRiotTestBase {
 	}
 
 	@Test
-	void keyProcessor(TestInfo info) throws Throwable {
+	void replicateKeyProcessor(TestInfo info) throws Throwable {
 		String filename = "replicate-key-processor";
 		GeneratorItemReader gen = generator(1, Type.HASH);
 		generate(info, gen);
@@ -64,22 +64,7 @@ abstract class AbstractReplicationTests extends AbstractRiotTestBase {
 	}
 
 	@Test
-	void keyExclude(TestInfo info) throws Throwable {
-		String filename = "replicate-key-exclude";
-		int goodCount = 200;
-		GeneratorItemReader gen = generator(goodCount, Type.HASH);
-		generate(info, gen);
-		int badCount = 100;
-		GeneratorItemReader generator2 = generator(badCount, Type.HASH);
-		generator2.setKeyspace("bad");
-		generate(testInfo(info, "2"), generator2);
-		Assertions.assertEquals(badCount, keyCount("bad:*"));
-		execute(info, filename);
-		Assertions.assertEquals(goodCount, targetRedisCommands.keys("gen:*").size());
-	}
-
-	@Test
-	void liveKeyExclude(TestInfo info) throws Throwable {
+	void replicateLiveKeyExclude(TestInfo info) throws Throwable {
 		int goodCount = 200;
 		int badCount = 100;
 		enableKeyspaceNotifications();
@@ -95,22 +80,22 @@ abstract class AbstractReplicationTests extends AbstractRiotTestBase {
 	}
 
 	@Test
-	void live(TestInfo info) throws Exception {
+	void replicateLive(TestInfo info) throws Exception {
 		runLiveReplication(info, "replicate-live");
 	}
 
 	@Test
-	void threads(TestInfo info) throws Exception {
+	void replicateLiveThreads(TestInfo info) throws Exception {
 		runLiveReplication(info, "replicate-live-threads");
 	}
 
 	@Test
-	void liveStruct(TestInfo info) throws Exception {
+	void replicateLiveStruct(TestInfo info) throws Exception {
 		runLiveReplication(info, "replicate-live-struct");
 	}
 
 	@Test
-	void liveOnlyStruct(TestInfo info) throws Exception {
+	void replicateLiveOnlyStruct(TestInfo info) throws Exception {
 		Type[] types = new Type[] { Type.HASH, Type.STRING };
 		enableKeyspaceNotifications();
 		GeneratorItemReader generator = generator(3500, types);
@@ -123,7 +108,7 @@ abstract class AbstractReplicationTests extends AbstractRiotTestBase {
 	}
 
 	@Test
-	void liveKeySlot(TestInfo info) throws Exception {
+	void replicateLiveKeySlot(TestInfo info) throws Exception {
 		String filename = "replicate-live-keyslot";
 		enableKeyspaceNotifications();
 		GeneratorItemReader generator = generator(300);
@@ -137,7 +122,7 @@ abstract class AbstractReplicationTests extends AbstractRiotTestBase {
 	}
 
 	@Test
-	void struct(TestInfo info) throws Throwable {
+	void replicateStruct(TestInfo info) throws Throwable {
 		String filename = "replicate-struct";
 		GeneratorItemReader generator = generator(12000);
 		generate(info, generator);

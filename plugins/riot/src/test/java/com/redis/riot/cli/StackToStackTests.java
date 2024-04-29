@@ -39,6 +39,7 @@ import com.redis.riot.redis.GeneratorImport;
 import com.redis.spring.batch.KeyValue;
 import com.redis.spring.batch.KeyValue.DataType;
 import com.redis.spring.batch.gen.GeneratorItemReader;
+import com.redis.spring.batch.gen.Item.Type;
 import com.redis.spring.batch.reader.MemKeyValue;
 import com.redis.testcontainers.RedisStackContainer;
 
@@ -48,10 +49,7 @@ import io.lettuce.core.StreamMessage;
 import picocli.CommandLine.ExitCode;
 import picocli.CommandLine.ParseResult;
 
-class StackToStackIntegrationTests extends AbstractRiotTestBase {
-
-	public static final int BEER_CSV_COUNT = 2410;
-	public static final int BEER_JSON_COUNT = 216;
+class StackToStackTests extends ReplicationTests {
 
 	private static final RedisStackContainer source = RedisContainerFactory.stack();
 	private static final RedisStackContainer target = RedisContainerFactory.stack();
@@ -65,6 +63,9 @@ class StackToStackIntegrationTests extends AbstractRiotTestBase {
 	protected RedisStackContainer getTargetRedisServer() {
 		return target;
 	}
+
+	public static final int BEER_CSV_COUNT = 2410;
+	public static final int BEER_JSON_COUNT = 216;
 
 	private static Path tempDir;
 
@@ -495,4 +496,18 @@ class StackToStackIntegrationTests extends AbstractRiotTestBase {
 				redisCommands.dbsize());
 	}
 
+	@Test
+	void replicateKeyExclude(TestInfo info) throws Throwable {
+		String filename = "replicate-key-exclude";
+		int goodCount = 200;
+		GeneratorItemReader gen = generator(goodCount, Type.HASH);
+		generate(info, gen);
+		int badCount = 100;
+		GeneratorItemReader generator2 = generator(badCount, Type.HASH);
+		generator2.setKeyspace("bad");
+		generate(testInfo(info, "2"), generator2);
+		Assertions.assertEquals(badCount, keyCount("bad:*"));
+		execute(info, filename);
+		Assertions.assertEquals(goodCount, targetRedisCommands.keys("gen:*").size());
+	}
 }
