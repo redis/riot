@@ -24,6 +24,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-autoconfigure'
     implementation 'org.hsqldb:hsqldb'
     implementation 'org.apache.commons:commons-pool2'
+    implementation group: 'com.hrakaroo', name: 'glob', version: globVersion
     testImplementation 'org.awaitility:awaitility'
 }
 
