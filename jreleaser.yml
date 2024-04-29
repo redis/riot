@@ -15,8 +15,8 @@ project:
      - Data generators (Redis data structures, Faker)
      - and Redis itself with live and/or snapshot replication.
   links:
-    homepage: https://github.com/redis-developer/riot
-    documentation: https://developer.redis.com/riot
+    homepage: https://github.com/redis/riot
+    documentation: https://redis.github.io/riot
   authors:
     - Julien Ruaux
   license: Apache-2.0
@@ -24,7 +24,7 @@ project:
   stereotype: CLI
   vendor: Redis
   icons:
-    - url: https://raw.githubusercontent.com/redis-developer/riot/main/src/media/icon_256x256.png
+    - url: https://raw.githubusercontent.com/redis/riot/main/src/media/icon_256x256.png
       width: 256
       height: 256
   java:
@@ -189,7 +189,6 @@ distributions:
         commitMessage: 'riot {{tagName}}'
       registries:
         - serverName: DEFAULT
-          username: jrdx
           repositoryName: fieldengineering
       labels:
         'org.opencontainers.image.title': 'riot'
