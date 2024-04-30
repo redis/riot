@@ -24,6 +24,7 @@ jobs:
       project-version: ${{ needs.precheck.outputs.version }}
     secrets:
       gpg-passphrase: ${{ secrets.GPG_PASSPHRASE }}
+      codecov-token: ${{ secrets.CODECOV_TOKEN }}
 
   release:
     name: Release
