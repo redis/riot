@@ -71,7 +71,7 @@ config {
     coverage {
         jacoco {
             enabled = true
-            toolVersion = jacocoVersion
+            toolVersion = jacocoPluginVersion
         }
     }
 }
@@ -100,7 +100,7 @@ subprojects { subproj ->
 	        }
             coverage {
                 jacoco {
-		            toolVersion = jacocoVersion
+		            toolVersion = jacocoPluginVersion
                 }
             }
 	    }
@@ -144,7 +144,7 @@ subprojects { p ->
         coverage {
             jacoco {
                 enabled = hasTestsAt(p.file('src/test'))
-		        toolVersion = jacocoVersion
+		        toolVersion = jacocoPluginVersion
             }
         }
     }
