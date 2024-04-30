@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import org.springframework.batch.core.Job;
 import org.springframework.batch.item.ItemProcessor;
+import org.springframework.batch.item.ItemStreamException;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.json.JacksonJsonObjectMarshaller;
 import org.springframework.batch.item.json.JsonFileItemWriter;
@@ -14,7 +15,6 @@ import org.springframework.core.io.WritableResource;
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.redis.riot.core.AbstractExport;
-import com.redis.riot.core.ExecutionException;
 import com.redis.riot.file.xml.XmlResourceItemWriter;
 import com.redis.riot.file.xml.XmlResourceItemWriterBuilder;
 import com.redis.spring.batch.RedisItemReader;
@@ -41,7 +41,7 @@ public class FileDumpExport extends AbstractExport {
 		try {
 			resource = FileUtils.outputResource(file, fileOptions);
 		} catch (IOException e) {
-			throw new ExecutionException("Could not open file for writing: " + file, e);
+			throw new ItemStreamException("Could not open file for writing: " + file, e);
 		}
 		if (dumpType(resource) == FileDumpType.XML) {
 			return xmlWriter(resource);

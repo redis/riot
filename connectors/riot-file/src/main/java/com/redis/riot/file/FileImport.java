@@ -222,7 +222,7 @@ public class FileImport extends AbstractMapImport {
 				return FileType.DELIMITED;
 			}
 		}
-		throw new UnknownFileTypeException("Unknown file extension: " + extension);
+		throw new IllegalArgumentException("Unknown file extension: " + extension);
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })

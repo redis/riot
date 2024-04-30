@@ -1,6 +1,7 @@
 package com.redis.riot.cli;
 
-import java.util.concurrent.TimeUnit;
+import java.time.Duration;
+import java.util.concurrent.Callable;
 
 import com.redis.riot.redis.Ping;
 
@@ -9,8 +10,8 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.ParentCommand;
 
-@Command(name = "ping", description = "Test connectivity to a Redis server.")
-public class PingCommand extends AbstractRiotCommand {
+@Command(name = "ping", description = "Test connectivity to a Redis server.", usageHelpAutoWidth = true, abbreviateSynopsis = true)
+public class PingCommand implements Callable<Integer> {
 
 	@ParentCommand
 	private AbstractMainCommand parent;
@@ -18,32 +19,22 @@ public class PingCommand extends AbstractRiotCommand {
 	@ArgGroup(exclusive = false, heading = "Redis client options%n")
 	private RedisClientArgs redisClientArgs = new RedisClientArgs();
 
-	@Option(names = "--iterations", description = "Number of test iterations. Use a negative value to test endlessly. (default: ${DEFAULT-VALUE}).", paramLabel = "<count>")
-	private int iterations = Ping.DEFAULT_ITERATIONS;
+	@Option(names = "--count", description = "Limits the number of ping requests sent to the target.", paramLabel = "<count>")
+	private long count = Ping.DEFAULT_COUNT;
 
-	@Option(names = "--count", description = "Number of pings to perform per iteration (default: ${DEFAULT-VALUE}).", paramLabel = "<count>")
-	private int count = Ping.DEFAULT_COUNT;
-
-	@Option(names = "--unit", description = "Time unit used to display latencies (default: ${DEFAULT-VALUE}).", paramLabel = "<unit>")
-	private TimeUnit timeUnit = Ping.DEFAULT_TIME_UNIT;
-
-	@Option(names = "--distribution", description = "Show latency distribution.")
-	private boolean latencyDistribution;
-
-	@Option(arity = "0..*", names = "--percentiles", description = "Latency percentiles to display (default: ${DEFAULT-VALUE}).", paramLabel = "<p>")
-	private double[] percentiles = Ping.defaultPercentiles();
+	@Option(names = { "-i",
+			"--interval" }, description = "Sets the time (in seconds) to wait between sending ping requests (default: ${DEFAULT-VALUE}).", paramLabel = "<sec>")
+	private long interval = Ping.DEFAULT_INTERVAL.toSeconds();
 
 	@Override
-	protected Ping callable() {
+	public Integer call() throws Exception {
 		Ping ping = new Ping();
 		ping.setRedisClientOptions(redisClientArgs.redisClientOptions());
 		ping.setOut(parent.out);
 		ping.setCount(count);
-		ping.setIterations(iterations);
-		ping.setLatencyDistribution(latencyDistribution);
-		ping.setTimeUnit(timeUnit);
-		ping.setPercentiles(percentiles);
-		return ping;
+		ping.setInterval(Duration.ofSeconds(interval));
+		ping.call();
+		return 0;
 	}
 
 	public RedisClientArgs getRedisClientArgs() {
@@ -54,44 +45,12 @@ public class PingCommand extends AbstractRiotCommand {
 		this.redisClientArgs = args;
 	}
 
-	public int getIterations() {
-		return iterations;
-	}
-
-	public void setIterations(int iterations) {
-		this.iterations = iterations;
-	}
-
-	public int getCount() {
+	public long getCount() {
 		return count;
 	}
 
-	public void setCount(int count) {
+	public void setCount(long count) {
 		this.count = count;
-	}
-
-	public TimeUnit getTimeUnit() {
-		return timeUnit;
-	}
-
-	public void setTimeUnit(TimeUnit timeUnit) {
-		this.timeUnit = timeUnit;
-	}
-
-	public boolean isLatencyDistribution() {
-		return latencyDistribution;
-	}
-
-	public void setLatencyDistribution(boolean latencyDistribution) {
-		this.latencyDistribution = latencyDistribution;
-	}
-
-	public double[] getPercentiles() {
-		return percentiles;
-	}
-
-	public void setPercentiles(double[] percentiles) {
-		this.percentiles = percentiles;
 	}
 
 }
