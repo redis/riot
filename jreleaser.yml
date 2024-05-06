@@ -200,43 +200,12 @@ distributions:
         platforms:
           - 'linux/amd64'
           - 'linux/arm64'
-    jbang:
-      active: ALWAYS
-      continueOnError: true
-      alias: riot
-    macports:
-      active: ALWAYS
-      continueOnError: true
-      categories:
-        - redis
-        - tool
-      maintainers:
-        - '@jruaux'
-      repository:
-        active: RELEASE
-        name: riot-macports
     scoop:
       active: ALWAYS
       continueOnError: true
       repository:
         active: RELEASE
         commitMessage: 'riot {{tagName}}'
-    snap:
-      active: RELEASE
-      continueOnError: true
-      remoteBuild: true
-      base: core18
-      architectures:
-        - buildOn: [ amd64, arm64 ]
-      plugs:
-        - name: dot-config-files
-          attributes:
-            interface: personal-files
-          writes:
-            - $HOME/.riot
-      localPlugs:
-        - network
-        - home
     artifacts:
       - path: plugins/{{distributionName}}/build/distributions/{{distributionName}}-{{projectVersion}}.zip
         transform: '{{distributionName}}/{{distributionName}}-{{projectEffectiveVersion}}.zip'
@@ -266,5 +235,3 @@ files:
         skipChecksum: 'true'
         skipSigning: 'true'
         skipSbom: 'true'
-    - path: docs/guide/build/guide/{{projectName}}-{{projectVersion}}.pdf
-      transform: '{{projectName}}-{{projectEffectiveVersion}}.pdf'

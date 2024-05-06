@@ -5,7 +5,7 @@
 :project-version: 3.2.3
 :project-title:   RIOT
 
-image::docs/guide/images/riot.svg[RIOT]
+image::docs/guide/src/resources/images/riot.svg[RIOT]
 
 ---
 

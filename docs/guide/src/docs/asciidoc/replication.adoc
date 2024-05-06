@@ -12,13 +12,13 @@ WARNING: Please note that {project-title} is NEITHER recommended NOR officially 
 [[_replication_usage]]
 == Usage
 
-[source]
+[source,console]
 ----
 riot <source> replicate <target> --mode <snapshot|live|compare> [--type] [OPTIONS]
 ----
 
 For the full usage, run:
-[source]
+[source,console]
 ----
 riot replicate --help
 ----
@@ -101,25 +101,25 @@ WARNING: This replication strategy is more intensive in terms of CPU, memory, an
 Adjust number of threads, batch and queue sizes accordingly.
 
 .Snapshot replication example
-[source]
+[source,console]
 ----
 include::{testdir}/replicate[]
 ----
 
 .Live replication example
-[source]
+[source,console]
 ----
 include::{testdir}/replicate-live[]
 ----
 
 .Type-based replication example
-[source]
+[source,console]
 ----
 include::{testdir}/replicate-struct[]
 ----
 
 .Live type-based replication example
-[source]
+[source,console]
 ----
 include::{testdir}/replicate-live-struct[]
 ----
@@ -144,7 +144,7 @@ Once replication is complete, {project-title} performs a verification step by it
 The verification step happens automatically after the scan is complete (snapshot replication), or for live replication when keyspace notifications have become idle.
 
 Verification can also be run on-demand using the `compare` mode:
-[source]
+[source,console]
 ----
 riot <source> replicate --mode compare <target>
 ----
@@ -174,7 +174,7 @@ There are 2 comparison modes available through `--compare-mode`:
 
 To show which keys are different use the `--show-diffs` option:
 
-[source]
+[source,console]
 ----
 riot <source> replicate <target> --show-diffs
 ----
@@ -186,7 +186,7 @@ Performance tuning is an art but {project-title} offers some options to identify
 In addition to <<_batching,batch>> and <<_threads,threads>> options you have the `--dry-run` option which disables writing to the target Redis database so that you can tune the reader in isolation.
 Add that option to your existing `replicate` command-line to compare replication speeds with and without writing to the target Redis database:
 
-[source]
+[source,console]
 ----
 riot <source> replicate <target> --dry-run
 ----
