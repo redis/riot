@@ -2,8 +2,8 @@ package com.redis.riot.core;
 
 import org.springframework.batch.item.ItemProcessor;
 
-import com.redis.spring.batch.KeyValue;
 import com.redis.spring.batch.RedisItemReader;
+import com.redis.spring.batch.common.KeyValue;
 
 import io.lettuce.core.codec.RedisCodec;
 
@@ -35,8 +35,8 @@ public abstract class AbstractExport extends AbstractRedisCallable {
 		this.processorOptions = options;
 	}
 
-	public <K> ItemProcessor<KeyValue<K, Object>, KeyValue<K, Object>> processor(RedisCodec<K, ?> codec) {
-		return processorOptions.processor(getEvaluationContext(), codec);
+	protected <K> ItemProcessor<KeyValue<K, Object>, KeyValue<K, Object>> processor(RedisCodec<K, ?> codec) {
+		return processorOptions.processor(evaluationContext, codec);
 	}
 
 }

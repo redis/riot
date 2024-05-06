@@ -66,32 +66,27 @@ abstract class AbstractRiotTestBase extends AbstractTargetTestBase {
 				riotCommand.getJobArgs().setProgressStyle(ProgressStyle.NONE);
 				riotCommand.setName(name(info));
 			}
-			if (command instanceof AbstractImportCommand) {
-				configure(((AbstractImportCommand) command).getRedisClientArgs());
-			}
-			if (command instanceof AbstractExportCommand) {
-				configure(((AbstractExportCommand) command).getRedisClientArgs());
+			if (command instanceof AbstractRedisCommand) {
+				RedisArgs redisArgs = ((AbstractRedisCommand) command).getRedisArgs();
+				redisArgs.setUri(redisURI);
+				redisArgs.getClientArgs().setCluster(getRedisServer().isRedisCluster());
 			}
 			if (command instanceof ReplicateCommand) {
 				ReplicateCommand replicateCommand = (ReplicateCommand) command;
 				replicateCommand.setCompareMode(CompareMode.NONE);
-				configure(replicateCommand.getSourceRedisClientArgs());
-				replicateCommand.getTargetRedisClientArgs().getUriArgs().setUri(getTargetRedisServer().getRedisURI());
-				replicateCommand.getTargetRedisClientArgs().setCluster(getTargetRedisServer().isRedisCluster());
+				replicateCommand.setSourceRedisURI(redisURI);
+				replicateCommand.getSourceRedisArgs().setCluster(getRedisServer().isRedisCluster());
+				replicateCommand.setTargetRedisURI(targetRedisURI);
+				replicateCommand.getTargetRedisArgs().setCluster(getTargetRedisServer().isRedisCluster());
 				if (replicateCommand.getMode() == ReplicationMode.LIVE
 						|| replicateCommand.getMode() == ReplicationMode.LIVEONLY) {
 					replicateCommand.setIdleTimeout(getIdleTimeout().toMillis());
-					replicateCommand.getSourceRedisReaderArgs()
+					replicateCommand.getSourceRedisArgs().getReaderArgs()
 							.setNotificationQueueCapacity(DEFAULT_NOTIFICATION_QUEUE_CAPACITY);
 				}
 			}
 		}
 		return ExitCode.OK;
-	}
-
-	private void configure(RedisClientArgs redisClientArgs) {
-		redisClientArgs.getUriArgs().setUri(getRedisServer().getRedisURI());
-		redisClientArgs.setCluster(getRedisServer().isRedisCluster());
 	}
 
 	private static String[] args(String filename) throws Exception {

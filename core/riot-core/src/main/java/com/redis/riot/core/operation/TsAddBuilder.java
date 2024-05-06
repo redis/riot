@@ -13,10 +13,11 @@ import org.springframework.util.CollectionUtils;
 import com.redis.lettucemod.timeseries.AddOptions;
 import com.redis.lettucemod.timeseries.AddOptions.Builder;
 import com.redis.lettucemod.timeseries.DuplicatePolicy;
-import com.redis.lettucemod.timeseries.Label;
 import com.redis.lettucemod.timeseries.Sample;
-import com.redis.spring.batch.util.ToSampleFunction;
+import com.redis.riot.core.function.ToSampleFunction;
 import com.redis.spring.batch.writer.TsAdd;
+
+import io.lettuce.core.KeyValue;
 
 public class TsAddBuilder extends AbstractMapOperationBuilder {
 
@@ -38,7 +39,7 @@ public class TsAddBuilder extends AbstractMapOperationBuilder {
 	}
 
 	private Function<Map<String, Object>, Sample> sample() {
-		ToLongFunction<Map<String, Object>> timestamp = toLong(timestampField, 0);
+		ToLongFunction<Map<String, Object>> timestamp = toLong(timestampField);
 		ToDoubleFunction<Map<String, Object>> value = toDouble(valueField, 0);
 		return new ToSampleFunction<>(timestamp, value);
 	}
@@ -47,13 +48,13 @@ public class TsAddBuilder extends AbstractMapOperationBuilder {
 	private AddOptions<String, String> addOptions(Map<String, Object> source) {
 		Builder<String, String> builder = AddOptions.<String, String>builder().policy(duplicatePolicy);
 		if (!CollectionUtils.isEmpty(labels)) {
-			List<Label<String, String>> labelList = new ArrayList<>();
+			List<KeyValue<String, String>> labelList = new ArrayList<>();
 			for (Entry<String, String> label : labels.entrySet()) {
 				if (source.containsKey(label.getValue())) {
-					labelList.add(Label.of(label.getKey(), String.valueOf(source.get(label.getValue()))));
+					labelList.add(KeyValue.just(label.getKey(), String.valueOf(source.get(label.getValue()))));
 				}
 			}
-			builder.labels(labelList.toArray(new Label[0]));
+			builder.labels(labelList.toArray(new KeyValue[0]));
 		}
 		return builder.build();
 	}

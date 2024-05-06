@@ -5,7 +5,7 @@ import java.util.function.Function;
 import java.util.function.ToDoubleFunction;
 
 import com.redis.lettucemod.search.Suggestion;
-import com.redis.spring.batch.util.ToSuggestionFunction;
+import com.redis.riot.core.function.ToSuggestionFunction;
 import com.redis.spring.batch.writer.Sugadd;
 
 public class SugaddBuilder extends AbstractMapOperationBuilder {

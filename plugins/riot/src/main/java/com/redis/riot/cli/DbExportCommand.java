@@ -1,8 +1,5 @@
 package com.redis.riot.cli;
 
-import java.util.regex.Pattern;
-
-import com.redis.riot.core.AbstractMapExport;
 import com.redis.riot.db.DatabaseExport;
 
 import picocli.CommandLine.ArgGroup;
@@ -19,8 +16,8 @@ public class DbExportCommand extends AbstractExportCommand {
 	@ArgGroup(exclusive = false)
 	private DbArgs dbArgs = new DbArgs();
 
-	@Option(names = "--key-regex", description = "Regex for key-field extraction (default: ${DEFAULT-VALUE}).", paramLabel = "<str>")
-	private Pattern keyRegex = AbstractMapExport.DEFAULT_KEY_REGEX;
+	@ArgGroup(exclusive = false)
+	private KeyValueMapProcessorArgs mapProcessorArgs = new KeyValueMapProcessorArgs();
 
 	@Option(names = "--assert-updates", defaultValue = "true", fallbackValue = "true", description = "Confirm every insert results in update of at least one row. True by default.", negatable = true)
 	private boolean assertUpdates = DatabaseExport.DEFAULT_ASSERT_UPDATES;
@@ -31,7 +28,7 @@ public class DbExportCommand extends AbstractExportCommand {
 		callable.setSql(sql);
 		callable.setAssertUpdates(assertUpdates);
 		callable.setDataSourceOptions(dbArgs.dataSourceOptions());
-		callable.setKeyRegex(keyRegex);
+		callable.setMapProcessorOptions(mapProcessorArgs.keyValueMapProcessorOptions());
 		return callable;
 	}
 
@@ -51,20 +48,20 @@ public class DbExportCommand extends AbstractExportCommand {
 		this.dbArgs = dbArgs;
 	}
 
-	public Pattern getKeyRegex() {
-		return keyRegex;
-	}
-
-	public void setKeyRegex(Pattern keyRegex) {
-		this.keyRegex = keyRegex;
-	}
-
 	public boolean isAssertUpdates() {
 		return assertUpdates;
 	}
 
 	public void setAssertUpdates(boolean assertUpdates) {
 		this.assertUpdates = assertUpdates;
+	}
+
+	public KeyValueMapProcessorArgs getMapProcessorArgs() {
+		return mapProcessorArgs;
+	}
+
+	public void setMapProcessorArgs(KeyValueMapProcessorArgs args) {
+		this.mapProcessorArgs = args;
 	}
 
 }

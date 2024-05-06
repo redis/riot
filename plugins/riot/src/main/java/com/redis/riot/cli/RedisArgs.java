@@ -1,21 +1,33 @@
 package com.redis.riot.cli;
 
-import com.redis.riot.core.RedisUriOptions;
+import java.time.Duration;
+
+import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
+
+import com.redis.riot.core.RedisClientOptions;
 import com.redis.riot.core.RiotVersion;
 
+import io.lettuce.core.RedisURI;
+import io.lettuce.core.RedisURI.Builder;
+import io.lettuce.core.SslVerifyMode;
+import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Option;
 
-public class RedisUriArgs {
+public class RedisArgs {
+
+	public static final String DEFAULT_HOST = "127.0.0.1";
+	public static final int DEFAULT_PORT = RedisURI.DEFAULT_REDIS_PORT;
 
 	@Option(names = { "-u", "--uri" }, description = "Server URI.", paramLabel = "<uri>")
-	private String uri;
+	private RedisURI uri;
 
 	@Option(names = { "-h",
 			"--host" }, description = "Server hostname (default: ${DEFAULT-VALUE}).", paramLabel = "<host>")
-	private String host = RedisUriOptions.DEFAULT_HOST;
+	private String host = DEFAULT_HOST;
 
 	@Option(names = { "-p", "--port" }, description = "Server port (default: ${DEFAULT-VALUE}).", paramLabel = "<port>")
-	private int port = RedisUriOptions.DEFAULT_PORT;
+	private int port = DEFAULT_PORT;
 
 	@Option(names = { "-s",
 			"--socket" }, description = "Server socket (overrides hostname and port).", paramLabel = "<socket>")
@@ -42,6 +54,76 @@ public class RedisUriArgs {
 
 	@Option(names = "--insecure", description = "Allow insecure TLS connection by skipping cert validation.")
 	private boolean insecure;
+
+	@ArgGroup(exclusive = false)
+	private RedisClientArgs clientArgs = new RedisClientArgs();
+
+	@ArgGroup(exclusive = false)
+	private SslArgs sslArgs = new SslArgs();
+
+	public SslArgs getSslArgs() {
+		return sslArgs;
+	}
+
+	public void setSslArgs(SslArgs sslArgs) {
+		this.sslArgs = sslArgs;
+	}
+
+	private RedisURI.Builder builder() {
+		if (uri != null) {
+			return RedisURI.builder(uri);
+		}
+		if (StringUtils.hasLength(socket)) {
+			return RedisURI.Builder.socket(socket);
+		}
+		return RedisURI.Builder.redis(host, port);
+	}
+
+	public RedisURI redisURI() {
+		RedisURI.Builder builder = builder();
+		configure(builder, username, password);
+		if (database > 0) {
+			builder.withDatabase(database);
+		}
+		if (tls) {
+			builder.withSsl(tls);
+		}
+		if (insecure) {
+			builder.withVerifyPeer(SslVerifyMode.NONE);
+		}
+		if (timeout > 0) {
+			builder.withTimeout(Duration.ofSeconds(timeout));
+		}
+		RedisURI redisURI = builder.build();
+		if (!StringUtils.hasLength(redisURI.getClientName())) {
+			redisURI.setClientName(clientName);
+		}
+		return redisURI;
+	}
+
+	public static void configure(Builder builder, String username, char[] password) {
+		if (!ObjectUtils.isEmpty(password)) {
+			if (StringUtils.hasLength(username)) {
+				builder.withAuthentication(username, password);
+			} else {
+				builder.withPassword(password);
+			}
+		}
+	}
+
+	public RedisClientOptions clientOptions() {
+		RedisClientOptions options = clientArgs.clientOptions();
+		options.setSslOptions(sslArgs.sslOptions());
+		return options;
+	}
+
+	public RedisURI getUri() {
+		return uri;
+	}
+
+	public void setUri(RedisURI uri) {
+		this.uri = uri;
+	}
 
 	public String getHost() {
 		return host;
@@ -123,28 +205,12 @@ public class RedisUriArgs {
 		this.insecure = insecure;
 	}
 
-	public String getUri() {
-		return uri;
+	public RedisClientArgs getClientArgs() {
+		return clientArgs;
 	}
 
-	public void setUri(String uri) {
-		this.uri = uri;
-	}
-
-	public RedisUriOptions redisUriOptions() {
-		RedisUriOptions options = new RedisUriOptions();
-		options.setClientName(clientName);
-		options.setDatabase(database);
-		options.setHost(host);
-		options.setInsecure(insecure);
-		options.setPassword(password);
-		options.setPort(port);
-		options.setSocket(socket);
-		options.setTimeout(timeout);
-		options.setTls(tls);
-		options.setUri(uri);
-		options.setUsername(username);
-		return options;
+	public void setClientArgs(RedisClientArgs clientArgs) {
+		this.clientArgs = clientArgs;
 	}
 
 }

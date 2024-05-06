@@ -1,6 +1,6 @@
 package com.redis.riot.cli;
 
-import com.redis.riot.core.AbstractMapImport;
+import com.redis.riot.core.AbstractImport;
 import com.redis.riot.db.DatabaseImport;
 
 import picocli.CommandLine.ArgGroup;
@@ -9,7 +9,7 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
 @Command(name = "db-import", description = "Import from a relational database.")
-public class DbImportCommand extends AbstractMapImportCommand {
+public class DbImportCommand extends AbstractImportCommand {
 
 	@Parameters(arity = "1", description = "SQL SELECT statement", paramLabel = "SQL")
 	private String sql;
@@ -36,7 +36,7 @@ public class DbImportCommand extends AbstractMapImportCommand {
 	private boolean verifyCursorPosition;
 
 	@Override
-	protected AbstractMapImport mapImportCallable() {
+	protected AbstractImport importCallable() {
 		DatabaseImport callable = new DatabaseImport();
 		callable.setSql(sql);
 		callable.setDataSourceOptions(dbArgs.dataSourceOptions());

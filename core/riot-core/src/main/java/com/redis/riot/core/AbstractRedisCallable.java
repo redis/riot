@@ -1,6 +1,7 @@
 package com.redis.riot.core;
 
 import org.springframework.expression.spel.support.StandardEvaluationContext;
+import org.springframework.util.Assert;
 
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
 import com.redis.lettucemod.api.sync.RedisModulesCommands;
@@ -18,23 +19,23 @@ public abstract class AbstractRedisCallable extends AbstractRiotCallable {
 	private EvaluationContextOptions evaluationContextOptions = new EvaluationContextOptions();
 	private RedisClientOptions redisClientOptions = new RedisClientOptions();
 
-	protected RedisURI redisURI;
+	private RedisURI redisURI;
 	private AbstractRedisClient redisClient;
 	private StatefulRedisModulesConnection<String, String> redisConnection;
 	protected RedisModulesCommands<String, String> redisCommands;
-	private StandardEvaluationContext evaluationContext;
+	protected StandardEvaluationContext evaluationContext;
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		redisURI = redisClientOptions.redisURI();
+		Assert.notNull(redisURI, "RedisURI not set");
 		redisClient = redisClientOptions.redisClient(redisURI);
 		redisConnection = RedisModulesUtils.connection(redisClient);
 		redisCommands = redisConnection.sync();
-		evaluationContext = evaluationContext();
+		evaluationContext = createEvaluationContext();
 		super.afterPropertiesSet();
 	}
 
-	protected StandardEvaluationContext evaluationContext() {
+	protected StandardEvaluationContext createEvaluationContext() throws NoSuchMethodException, SecurityException {
 		StandardEvaluationContext context = evaluationContextOptions.evaluationContext();
 		context.setVariable(CONTEXT_VAR_REDIS, redisCommands);
 		return context;
@@ -54,8 +55,8 @@ public abstract class AbstractRedisCallable extends AbstractRiotCallable {
 		}
 	}
 
-	public StandardEvaluationContext getEvaluationContext() {
-		return evaluationContext;
+	public EvaluationContextOptions getEvaluationContextOptions() {
+		return evaluationContextOptions;
 	}
 
 	public void setEvaluationContextOptions(EvaluationContextOptions spelProcessorOptions) {
@@ -69,6 +70,14 @@ public abstract class AbstractRedisCallable extends AbstractRiotCallable {
 
 	protected <K, V, T> void configure(RedisItemWriter<K, V, T> writer) {
 		writer.setClient(redisClient);
+	}
+
+	public RedisURI getRedisURI() {
+		return redisURI;
+	}
+
+	public void setRedisURI(RedisURI redisURI) {
+		this.redisURI = redisURI;
 	}
 
 	public RedisClientOptions getRedisClientOptions() {

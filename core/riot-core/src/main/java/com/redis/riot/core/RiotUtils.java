@@ -13,8 +13,10 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemWriter;
@@ -47,21 +49,21 @@ public abstract class RiotUtils {
 	}
 
 	public static <S, T> ItemProcessor<S, T> processor(ItemProcessor<?, ?>... processors) {
-		return processor(new ArrayList<>(Arrays.asList(processors)));
+		return processor(Arrays.asList(processors));
 	}
 
 	@SuppressWarnings("unchecked")
 	public static <S, T> ItemProcessor<S, T> processor(Collection<? extends ItemProcessor<?, ?>> processors) {
-		processors.removeIf(Objects::isNull);
-		if (processors.isEmpty()) {
+		List<ItemProcessor<?, ?>> list = processors.stream().filter(Objects::nonNull).collect(Collectors.toList());
+		if (list.isEmpty()) {
 			return null;
 		}
-		if (processors.size() == 1) {
-			return (ItemProcessor<S, T>) processors.iterator().next();
+		if (list.size() > 1) {
+			CompositeItemProcessor<S, T> composite = new CompositeItemProcessor<>();
+			composite.setDelegates(list);
+			return composite;
 		}
-		CompositeItemProcessor<S, T> composite = new CompositeItemProcessor<>();
-		composite.setDelegates(new ArrayList<>(processors));
-		return composite;
+		return (ItemProcessor<S, T>) list.get(0);
 	}
 
 	@SuppressWarnings("unchecked")

@@ -18,6 +18,10 @@ import org.springframework.expression.Expression;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
 import com.hrakaroo.glob.GlobPattern;
+import com.redis.riot.core.function.KeyValueMapProcessor;
+import com.redis.riot.core.function.StringToMapFunction;
+import com.redis.spring.batch.common.DataType;
+import com.redis.spring.batch.common.KeyValue;
 
 import io.lettuce.core.cluster.SlotHash;
 import io.lettuce.core.codec.StringCodec;
@@ -45,8 +49,8 @@ class ProcessorTests {
 	void testMapProcessor() throws Exception {
 		Map<String, Expression> expressions = new LinkedHashMap<>();
 		expressions.put("field1", RiotUtils.parse("'test:1'"));
-		ImportProcessorOptions options = new ImportProcessorOptions();
-		options.setProcessorExpressions(expressions);
+		MapProcessorOptions options = new MapProcessorOptions();
+		options.setExpressions(expressions);
 		StandardEvaluationContext evaluationContext = new StandardEvaluationContext();
 		ItemProcessor<Map<String, Object>, Map<String, Object>> processor = options.processor(evaluationContext);
 		Map<String, Object> map = processor.process(new HashMap<>());
@@ -62,8 +66,8 @@ class ProcessorTests {
 		expressions.put("field3", RiotUtils.parse("1"));
 		expressions.put("field4", RiotUtils.parse("2"));
 		expressions.put("field5", RiotUtils.parse("field3+field4"));
-		ImportProcessorOptions options = new ImportProcessorOptions();
-		options.setProcessorExpressions(expressions);
+		MapProcessorOptions options = new MapProcessorOptions();
+		options.setExpressions(expressions);
 		ItemProcessor<Map<String, Object>, Map<String, Object>> processor = options
 				.processor(new StandardEvaluationContext());
 		for (int index = 0; index < 10; index++) {
@@ -77,8 +81,8 @@ class ProcessorTests {
 
 	@Test
 	void processorFilter() throws Exception {
-		ImportProcessorOptions options = new ImportProcessorOptions();
-		options.setFilterExpression(RiotUtils.parse("index<10"));
+		MapProcessorOptions options = new MapProcessorOptions();
+		options.setFilter(RiotUtils.parse("index<10"));
 		ItemProcessor<Map<String, Object>, Map<String, Object>> processor = options
 				.processor(new StandardEvaluationContext());
 		for (int index = 0; index < 100; index++) {
@@ -164,6 +168,26 @@ class ProcessorTests {
 		assertTrue(foo1Star.test("foo"));
 		assertFalse(foo1Star.test("bar"));
 		assertFalse(foo1Star.test("foo1"));
+	}
+
+	@Test
+	void keyValueToMap() {
+		KeyValueMapProcessor processor = new KeyValueMapProcessor();
+		KeyValue<String, Object> string = new KeyValue<>();
+		string.setKey("beer:1");
+		string.setType(DataType.STRING.getString());
+		String value = "sdfsdf";
+		string.setValue(value);
+		Map<String, ?> stringMap = processor.process(string);
+		Assertions.assertEquals(value, stringMap.get(StringToMapFunction.DEFAULT_KEY));
+		KeyValue<String, Object> hash = new KeyValue<>();
+		hash.setKey("beer:2");
+		hash.setType(DataType.HASH.getString());
+		Map<String, String> map = new HashMap<>();
+		map.put("field1", "value1");
+		hash.setValue(map);
+		Map<String, ?> hashMap = processor.process(hash);
+		Assertions.assertEquals("value1", hashMap.get("field1"));
 	}
 
 }

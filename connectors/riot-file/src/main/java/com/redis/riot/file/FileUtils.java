@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -20,11 +19,6 @@ import java.util.stream.StreamSupport;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import org.springframework.batch.item.file.FlatFileItemReader;
-import org.springframework.batch.item.file.mapping.JsonLineMapper;
-import org.springframework.batch.item.json.JacksonJsonObjectReader;
-import org.springframework.batch.item.json.JsonItemReader;
-import org.springframework.batch.item.json.builder.JsonItemReaderBuilder;
 import org.springframework.cloud.gcp.autoconfigure.storage.GcpStorageAutoConfiguration;
 import org.springframework.cloud.gcp.core.GcpScope;
 import org.springframework.cloud.gcp.core.UserAgentHeaderProvider;
@@ -40,26 +34,23 @@ import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.ServiceOptions;
 import com.google.cloud.storage.StorageOptions;
-import com.redis.riot.file.xml.XmlItemReader;
-import com.redis.riot.file.xml.XmlItemReaderBuilder;
-import com.redis.riot.file.xml.XmlObjectReader;
-import com.redis.spring.batch.reader.MemKeyValue;
 
 public abstract class FileUtils {
 
 	public static final String GS_URI_PREFIX = "gs://";
-
 	public static final String S3_URI_PREFIX = "s3://";
-
 	public static final Pattern EXTENSION_PATTERN = Pattern.compile("(?i)\\.(?<extension>\\w+)(?:\\.(?<gz>gz))?$");
+
+	public static final String CSV = "csv";
+	public static final String TSV = "tsv";
+	public static final String PSV = "psv";
+	public static final String FW = "fw";
+	public static final String JSON = "json";
+	public static final String JSONL = "jsonl";
+	public static final String XML = "xml";
 
 	private FileUtils() {
 	}
@@ -103,18 +94,6 @@ public abstract class FileUtils {
 		return extensionGroup(file, "gz") != null;
 	}
 
-	public static FileExtension extension(Resource resource) {
-		String extension = extensionGroup(resource.getFilename(), "extension");
-		if (extension == null) {
-			return null;
-		}
-		try {
-			return FileExtension.valueOf(extension.toUpperCase());
-		} catch (Exception e) {
-			return null;
-		}
-	}
-
 	private static String extensionGroup(String file, String group) {
 		Matcher matcher = EXTENSION_PATTERN.matcher(file);
 		if (matcher.find()) {
@@ -138,66 +117,6 @@ public abstract class FileUtils {
 
 	public static boolean isGoogleStorageResource(String file) {
 		return file.startsWith(GS_URI_PREFIX);
-	}
-
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public static <T> JsonItemReader<T> jsonReader(Resource resource, Class<? super T> type) {
-		JsonItemReaderBuilder<T> builder = new JsonItemReaderBuilder<>();
-		builder.name(resource.getFilename() + "-json-file-reader");
-		builder.resource(resource);
-		JacksonJsonObjectReader<T> jsonReader = new JacksonJsonObjectReader(type);
-		jsonReader.setMapper(objectMapper());
-		builder.jsonObjectReader(jsonReader);
-		return builder.build();
-	}
-
-	public static FlatFileItemReader<Map<String, Object>> jsonlReader(Resource resource) {
-		FlatFileItemReader<Map<String, Object>> reader = new FlatFileItemReader<>();
-		reader.setLineMapper(new JsonLineMapper());
-		reader.setResource(resource);
-		return reader;
-	}
-
-	public static ObjectMapper objectMapper() {
-		ObjectMapper mapper = new ObjectMapper();
-		configureMapper(mapper);
-		return mapper;
-	}
-
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public static <T> XmlItemReader<T> xmlReader(Resource resource, Class<? super T> type) {
-		XmlItemReaderBuilder<T> builder = new XmlItemReaderBuilder<>();
-		builder.name(resource.getFilename() + "-xml-file-reader");
-		builder.resource(resource);
-		XmlObjectReader<T> xmlReader = new XmlObjectReader(type);
-		xmlReader.setMapper(xmlMapper());
-		builder.xmlObjectReader(xmlReader);
-		return builder.build();
-	}
-
-	public static XmlMapper xmlMapper() {
-		XmlMapper mapper = new XmlMapper();
-		configureMapper(mapper);
-		return mapper;
-	}
-
-	private static void configureMapper(ObjectMapper mapper) {
-		mapper.configure(DeserializationFeature.USE_LONG_FOR_INTS, true);
-		SimpleModule module = new SimpleModule();
-		module.addDeserializer(MemKeyValue.class, new MemKeyValueDeserializer());
-		mapper.registerModule(module);
-		mapper.setSerializationInclusion(Include.NON_NULL);
-	}
-
-	public static FileDumpType dumpType(Resource resource) {
-		FileExtension extension = extension(resource);
-		if (extension == FileExtension.XML) {
-			return FileDumpType.XML;
-		}
-		if (extension == FileExtension.JSON) {
-			return FileDumpType.JSON;
-		}
-		throw new UnsupportedOperationException("Unsupported file extension: " + extension);
 	}
 
 	public static Resource safeInputResource(String file, FileOptions options) {
@@ -294,6 +213,33 @@ public abstract class FileUtils {
 
 	public static List<Resource> inputResources(List<String> files, FileOptions fileOptions) {
 		return expandAll(files).map(f -> safeInputResource(f, fileOptions)).collect(Collectors.toList());
+	}
+
+	public static FileType fileType(Resource resource) {
+		String extension = fileExtension(resource);
+		if (extension == null) {
+			return null;
+		}
+		switch (extension.toLowerCase()) {
+		case FW:
+			return FileType.FIXED_LENGTH;
+		case JSON:
+			return FileType.JSON;
+		case JSONL:
+			return FileType.JSONL;
+		case XML:
+			return FileType.XML;
+		case CSV:
+		case PSV:
+		case TSV:
+			return FileType.DELIMITED;
+		default:
+			return null;
+		}
+	}
+
+	public static String fileExtension(Resource resource) {
+		return extensionGroup(resource.getFilename(), "extension");
 	}
 
 }

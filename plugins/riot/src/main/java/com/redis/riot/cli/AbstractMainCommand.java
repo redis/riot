@@ -10,6 +10,7 @@ import com.redis.riot.core.SlotRange;
 import com.redis.riot.core.TemplateExpression;
 import com.redis.spring.batch.gen.Range;
 
+import io.lettuce.core.RedisURI;
 import picocli.AutoComplete.GenerateCompletion;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -22,9 +23,8 @@ import picocli.CommandLine.RunLast;
 import picocli.CommandLine.Spec;
 
 @Command(usageHelpAutoWidth = true, abbreviateSynopsis = true, subcommands = { DbImportCommand.class,
-		DbExportCommand.class, FileDumpImportCommand.class, FileImportCommand.class, FileExportCommand.class,
-		FakerImportCommand.class, GenerateCommand.class, ReplicateCommand.class, PingCommand.class,
-		GenerateCompletion.class })
+		DbExportCommand.class, FileImportCommand.class, FileExportCommand.class, FakerImportCommand.class,
+		GenerateCommand.class, ReplicateCommand.class, PingCommand.class, GenerateCompletion.class })
 public abstract class AbstractMainCommand implements Runnable {
 
 	static {
@@ -72,6 +72,7 @@ public abstract class AbstractMainCommand implements Runnable {
 		executionStrategy.addDelegates(executionStrategies);
 		executionStrategy.addDelegates(AbstractMainCommand::executionStrategy);
 		commandLine.setExecutionStrategy(executionStrategy);
+		commandLine.registerConverter(RedisURI.class, RedisURI::create);
 		commandLine.registerConverter(Range.class, new RangeTypeConverter<>(Range::of));
 		commandLine.registerConverter(SlotRange.class, new RangeTypeConverter<>(SlotRange::of));
 		commandLine.registerConverter(Expression.class, RiotUtils::parse);
@@ -84,8 +85,8 @@ public abstract class AbstractMainCommand implements Runnable {
 	private static int executionStrategy(ParseResult parseResult) {
 		for (ParseResult subcommand : parseResult.subcommands()) {
 			Object command = subcommand.commandSpec().userObject();
-			if (AbstractMapImportCommand.class.isAssignableFrom(command.getClass())) {
-				AbstractMapImportCommand importCommand = (AbstractMapImportCommand) command;
+			if (AbstractImportCommand.class.isAssignableFrom(command.getClass())) {
+				AbstractImportCommand importCommand = (AbstractImportCommand) command;
 				for (ParseResult redisCommand : subcommand.subcommands()) {
 					if (redisCommand.isUsageHelpRequested()) {
 						return new RunLast().execute(redisCommand);

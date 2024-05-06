@@ -26,9 +26,18 @@ public class Ping implements Callable<Long> {
 
 	private PrintWriter out;
 
+	private RedisURI redisURI;
 	private RedisClientOptions redisClientOptions = new RedisClientOptions();
 	private Duration interval = DEFAULT_INTERVAL;
 	private long count = DEFAULT_COUNT;
+
+	public RedisURI getRedisURI() {
+		return redisURI;
+	}
+
+	public void setRedisURI(RedisURI redisURI) {
+		this.redisURI = redisURI;
+	}
 
 	public Duration getInterval() {
 		return interval;
@@ -60,7 +69,7 @@ public class Ping implements Callable<Long> {
 
 	@Override
 	public Long call() throws Exception {
-		RedisURI redisURI = redisClientOptions.redisURI();
+		Assert.notNull(redisURI, "RedisURI not set");
 		out.println(MessageFormat.format(REQUEST_MESSAGE, redisURI));
 		try (AbstractRedisClient redisClient = redisClientOptions.redisClient(redisURI);
 				StatefulRedisModulesConnection<String, String> connection = RedisModulesUtils.connection(redisClient)) {

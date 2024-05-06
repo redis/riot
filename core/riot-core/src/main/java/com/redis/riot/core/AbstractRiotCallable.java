@@ -90,7 +90,7 @@ public abstract class AbstractRiotCallable implements InitializingBean, Callable
 		return jobFactory.jobBuilder(name);
 	}
 
-	protected abstract Job job();
+	protected abstract Job job() throws Exception;
 
 	protected <I, O> FaultTolerantStepBuilder<I, O> step(String name, ItemReader<I> reader, ItemWriter<O> writer) {
 		SimpleStepBuilder<I, O> builder = jobFactory.step(name, chunkSize);

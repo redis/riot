@@ -3,14 +3,16 @@ package com.redis.riot.db;
 import java.util.Map;
 
 import org.springframework.batch.core.Job;
-import org.springframework.batch.item.ItemReader;
+import org.springframework.batch.item.ItemProcessor;
+import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.database.AbstractCursorItemReader;
+import org.springframework.batch.item.database.JdbcCursorItemReader;
 import org.springframework.batch.item.database.builder.JdbcCursorItemReaderBuilder;
 import org.springframework.jdbc.core.ColumnMapRowMapper;
 
-import com.redis.riot.core.AbstractMapImport;
+import com.redis.riot.core.AbstractImport;
 
-public class DatabaseImport extends AbstractMapImport {
+public class DatabaseImport extends AbstractImport {
 
 	public static final int DEFAULT_FETCH_SIZE = AbstractCursorItemReader.VALUE_NOT_SET;
 	public static final int DEFAULT_MAX_RESULT_SET_ROWS = AbstractCursorItemReader.VALUE_NOT_SET;
@@ -24,6 +26,28 @@ public class DatabaseImport extends AbstractMapImport {
 	private int queryTimeout = DEFAULT_QUERY_TIMEOUT;
 	private boolean useSharedExtendedConnection;
 	private boolean verifyCursorPosition;
+
+	@Override
+	protected Job job() {
+		JdbcCursorItemReaderBuilder<Map<String, Object>> builder = new JdbcCursorItemReaderBuilder<>();
+		builder.name(sql);
+		builder.saveState(false);
+		builder.dataSource(dataSourceOptions.dataSource());
+		builder.rowMapper(new ColumnMapRowMapper());
+		builder.sql(sql);
+		builder.fetchSize(fetchSize);
+		builder.maxRows(maxResultSetRows);
+		builder.queryTimeout(queryTimeout);
+		builder.useSharedExtendedConnection(useSharedExtendedConnection);
+		builder.verifyCursorPosition(verifyCursorPosition);
+		if (maxItemCount > 0) {
+			builder.maxItemCount(maxItemCount);
+		}
+		JdbcCursorItemReader<Map<String, Object>> reader = builder.build();
+		ItemProcessor<Map<String, Object>, Map<String, Object>> processor = mapProcessor();
+		ItemWriter<Map<String, Object>> writer = mapWriter();
+		return jobBuilder().start(step(getName(), reader, writer).processor(processor).build()).build();
+	}
 
 	public String getSql() {
 		return sql;
@@ -87,28 +111,6 @@ public class DatabaseImport extends AbstractMapImport {
 
 	public void setVerifyCursorPosition(boolean verifyCursorPosition) {
 		this.verifyCursorPosition = verifyCursorPosition;
-	}
-
-	@Override
-	protected Job job() {
-		return jobBuilder().start(step(getName(), reader(), writer()).build()).build();
-	}
-
-	private ItemReader<Map<String, Object>> reader() {
-		JdbcCursorItemReaderBuilder<Map<String, Object>> builder = new JdbcCursorItemReaderBuilder<>();
-		builder.saveState(false);
-		builder.dataSource(dataSourceOptions.dataSource());
-		builder.rowMapper(new ColumnMapRowMapper());
-		builder.sql(sql);
-		builder.fetchSize(fetchSize);
-		builder.maxRows(maxResultSetRows);
-		builder.queryTimeout(queryTimeout);
-		builder.useSharedExtendedConnection(useSharedExtendedConnection);
-		builder.verifyCursorPosition(verifyCursorPosition);
-		if (maxItemCount > 0) {
-			builder.maxItemCount(maxItemCount);
-		}
-		return builder.build();
 	}
 
 }

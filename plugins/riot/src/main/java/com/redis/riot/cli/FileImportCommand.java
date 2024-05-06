@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import com.redis.riot.core.AbstractMapImport;
+import com.redis.riot.core.AbstractImport;
 import com.redis.riot.file.FileImport;
 import com.redis.riot.file.FileType;
 
@@ -14,13 +14,13 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
-@Command(name = "file-import", description = "Import from CSV/JSON/XML files.")
-public class FileImportCommand extends AbstractMapImportCommand {
+@Command(name = "file-import", description = "Import data from CSV/JSON/XML files.")
+public class FileImportCommand extends AbstractImportCommand {
 
 	@ArgGroup(exclusive = false)
 	private FileArgs fileArgs = new FileArgs();
 
-	@Parameters(arity = "0..*", description = "One ore more files or URLs", paramLabel = "FILE")
+	@Parameters(arity = "1..*", description = "One ore more files or URLs", paramLabel = "FILE")
 	private List<String> files = new ArrayList<>();
 
 	@Option(names = { "-t", "--filetype" }, description = "File type: ${COMPLETION-CANDIDATES}.", paramLabel = "<type>")
@@ -60,14 +60,14 @@ public class FileImportCommand extends AbstractMapImportCommand {
 	private Map<String, Pattern> regexes;
 
 	@Override
-	protected AbstractMapImport mapImportCallable() {
+	protected AbstractImport importCallable() {
 		FileImport callable = new FileImport();
-		callable.setFiles(files);
 		callable.setColumnRanges(columnRanges);
 		callable.setContinuationString(continuationString);
 		callable.setDelimiter(delimiter);
 		callable.setFields(fields);
 		callable.setFileOptions(fileArgs.fileOptions());
+		callable.setFiles(files);
 		callable.setFileType(fileType);
 		callable.setHeader(header);
 		callable.setHeaderLine(headerLine);

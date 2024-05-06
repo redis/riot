@@ -16,8 +16,11 @@ public class PingCommand implements Callable<Integer> {
 	@ParentCommand
 	private AbstractMainCommand parent;
 
+	@Option(names = "--help", usageHelp = true, description = "Show this help message and exit.")
+	private boolean helpRequested;
+
 	@ArgGroup(exclusive = false, heading = "Redis client options%n")
-	private RedisClientArgs redisClientArgs = new RedisClientArgs();
+	private RedisArgs redisArgs = new RedisArgs();
 
 	@Option(names = "--count", description = "Limits the number of ping requests sent to the target.", paramLabel = "<count>")
 	private long count = Ping.DEFAULT_COUNT;
@@ -29,7 +32,8 @@ public class PingCommand implements Callable<Integer> {
 	@Override
 	public Integer call() throws Exception {
 		Ping ping = new Ping();
-		ping.setRedisClientOptions(redisClientArgs.redisClientOptions());
+		ping.setRedisURI(redisArgs.redisURI());
+		ping.setRedisClientOptions(redisArgs.clientOptions());
 		ping.setOut(parent.out);
 		ping.setCount(count);
 		ping.setInterval(Duration.ofSeconds(interval));
@@ -37,12 +41,12 @@ public class PingCommand implements Callable<Integer> {
 		return 0;
 	}
 
-	public RedisClientArgs getRedisClientArgs() {
-		return redisClientArgs;
+	public RedisArgs getRedisArgs() {
+		return redisArgs;
 	}
 
-	public void setRedisClientArgs(RedisClientArgs args) {
-		this.redisClientArgs = args;
+	public void setRedisArgs(RedisArgs args) {
+		this.redisArgs = args;
 	}
 
 	public long getCount() {

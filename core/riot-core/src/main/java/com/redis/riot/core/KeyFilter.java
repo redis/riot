@@ -8,7 +8,7 @@ import java.util.function.Predicate;
 import org.springframework.beans.factory.InitializingBean;
 
 import com.hrakaroo.glob.GlobPattern;
-import com.redis.spring.batch.util.BatchUtils;
+import com.redis.spring.batch.common.BatchUtils;
 
 import io.lettuce.core.cluster.SlotHash;
 import io.lettuce.core.codec.RedisCodec;

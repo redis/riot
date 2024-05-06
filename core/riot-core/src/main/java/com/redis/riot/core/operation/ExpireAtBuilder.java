@@ -18,7 +18,7 @@ public class ExpireAtBuilder extends AbstractMapOperationBuilder {
 	protected ExpireAt<String, String, Map<String, Object>> operation(
 			Function<Map<String, Object>, String> keyFunction) {
 		ExpireAt<String, String, Map<String, Object>> operation = new ExpireAt<>(keyFunction);
-		operation.epoch(toLong(ttl, 0));
+		operation.epoch(toLong(ttl));
 		return operation;
 	}
 

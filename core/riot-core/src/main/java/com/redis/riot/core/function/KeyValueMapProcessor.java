@@ -9,14 +9,16 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
+import org.springframework.batch.item.ItemProcessor;
+
 import com.redis.lettucemod.timeseries.Sample;
-import com.redis.spring.batch.KeyValue;
-import com.redis.spring.batch.KeyValue.DataType;
+import com.redis.spring.batch.common.DataType;
+import com.redis.spring.batch.common.KeyValue;
 
 import io.lettuce.core.ScoredValue;
 import io.lettuce.core.StreamMessage;
 
-public class StructToMapFunction implements Function<KeyValue<String, Object>, Map<String, Object>> {
+public class KeyValueMapProcessor implements ItemProcessor<KeyValue<String, Object>, Map<String, Object>> {
 
 	private Function<String, Map<String, String>> key = t -> Collections.emptyMap();
 	private UnaryOperator<Map<String, String>> hash = UnaryOperator.identity();
@@ -28,6 +30,54 @@ public class StructToMapFunction implements Function<KeyValue<String, Object>, M
 	private Function<String, Map<String, String>> json = new StringToMapFunction();
 	private Function<String, Map<String, String>> string = new StringToMapFunction();
 	private Function<Object, Map<String, String>> defaultFunction = s -> Collections.emptyMap();
+
+	@Override
+	public Map<String, Object> process(KeyValue<String, Object> item) {
+		Map<String, Object> map = new LinkedHashMap<>();
+		map.putAll(key.apply(item.getKey()));
+		map.putAll(value(item));
+		return map;
+	}
+
+	@SuppressWarnings("unchecked")
+	private Map<String, String> value(KeyValue<String, Object> item) {
+		if (!KeyValue.hasType(item) || !KeyValue.hasValue(item)) {
+			return Collections.emptyMap();
+		}
+		DataType type = KeyValue.type(item);
+		if (type == null) {
+			return Collections.emptyMap();
+		}
+		switch (type) {
+		case HASH:
+			return hash.apply((Map<String, String>) item.getValue());
+		case LIST:
+			return list.apply((List<String>) item.getValue());
+		case SET:
+			return set.apply((Collection<String>) item.getValue());
+		case ZSET:
+			return zset.apply((List<ScoredValue<String>>) item.getValue());
+		case STREAM:
+			return stream.apply((List<StreamMessage<String, String>>) item.getValue());
+		case JSON:
+			return json.apply((String) item.getValue());
+		case STRING:
+			return string.apply((String) item.getValue());
+		case TIMESERIES:
+			return timeseries.apply((List<Sample>) item.getValue());
+		default:
+			return defaultFunction.apply(item.getValue());
+		}
+	}
+
+	private Map<String, String> timeseriesToMap(List<Sample> source) {
+		Map<String, String> result = new HashMap<>();
+		for (int index = 0; index < source.size(); index++) {
+			Sample sample = source.get(index);
+			result.put(String.valueOf(index), sample.getTimestamp() + ":" + sample.getValue());
+		}
+		return result;
+	}
 
 	public void setKey(Function<String, Map<String, String>> key) {
 		this.key = key;
@@ -59,54 +109,6 @@ public class StructToMapFunction implements Function<KeyValue<String, Object>, M
 
 	public void setDefaultFunction(Function<Object, Map<String, String>> function) {
 		this.defaultFunction = function;
-	}
-
-	@Override
-	public Map<String, Object> apply(KeyValue<String, Object> t) {
-		Map<String, Object> map = new LinkedHashMap<>();
-		map.putAll(key.apply(t.getKey()));
-		map.putAll(value(t));
-		return map;
-	}
-
-	@SuppressWarnings("unchecked")
-	private Map<String, String> value(KeyValue<String, Object> t) {
-		if (!KeyValue.hasType(t) || !KeyValue.hasValue(t)) {
-			return Collections.emptyMap();
-		}
-		DataType type = KeyValue.type(t);
-		if (type == null) {
-			return Collections.emptyMap();
-		}
-		switch (type) {
-		case HASH:
-			return hash.apply((Map<String, String>) t.getValue());
-		case LIST:
-			return list.apply((List<String>) t.getValue());
-		case SET:
-			return set.apply((Collection<String>) t.getValue());
-		case ZSET:
-			return zset.apply((List<ScoredValue<String>>) t.getValue());
-		case STREAM:
-			return stream.apply((List<StreamMessage<String, String>>) t.getValue());
-		case JSON:
-			return json.apply((String) t.getValue());
-		case STRING:
-			return string.apply((String) t.getValue());
-		case TIMESERIES:
-			return timeseries.apply((List<Sample>) t.getValue());
-		default:
-			return defaultFunction.apply(t.getValue());
-		}
-	}
-
-	private Map<String, String> timeseriesToMap(List<Sample> source) {
-		Map<String, String> result = new HashMap<>();
-		for (int index = 0; index < source.size(); index++) {
-			Sample sample = source.get(index);
-			result.put(String.valueOf(index), sample.getTimestamp() + ":" + sample.getValue());
-		}
-		return result;
 	}
 
 }

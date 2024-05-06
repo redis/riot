@@ -1,7 +1,8 @@
 package com.redis.riot.cli;
 
-import com.redis.riot.file.FileDumpExport;
-import com.redis.riot.file.FileDumpType;
+import com.redis.riot.file.ContentType;
+import com.redis.riot.file.FileExport;
+import com.redis.riot.file.FileType;
 
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
@@ -11,38 +12,52 @@ import picocli.CommandLine.Parameters;
 @Command(name = "file-export", description = "Export Redis data to JSON or XML files.")
 public class FileExportCommand extends AbstractExportCommand {
 
-	@ArgGroup(exclusive = false)
-	private FileArgs fileArgs = new FileArgs();
-
 	@Parameters(arity = "1", description = "File path or URL", paramLabel = "FILE")
 	private String file;
 
+	@ArgGroup(exclusive = false)
+	private FileArgs fileArgs = new FileArgs();
+
 	@Option(names = { "-t", "--filetype" }, description = "File type: ${COMPLETION-CANDIDATES}.", paramLabel = "<type>")
-	private FileDumpType type;
+	private FileType fileType;
+
+	@Option(names = "--dump", description = "Sets the exported content type to Redis (key, ttl, type, value).")
+	private boolean dump;
 
 	@Option(names = "--append", description = "Append to file if it exists.")
 	private boolean append;
 
 	@Option(names = "--root", description = "XML root element tag name (default: ${DEFAULT-VALUE}).", paramLabel = "<string>")
-	private String rootName = FileDumpExport.DEFAULT_ROOT_NAME;
+	private String rootName = FileExport.DEFAULT_ROOT_NAME;
 
 	@Option(names = "--element", description = "XML element tag name (default: ${DEFAULT-VALUE}).", paramLabel = "<string>")
-	private String elementName = FileDumpExport.DEFAULT_ELEMENT_NAME;
+	private String elementName = FileExport.DEFAULT_ELEMENT_NAME;
 
 	@Option(names = "--line-sep", description = "String to separate lines (default: system default).", paramLabel = "<string>")
-	private String lineSeparator = FileDumpExport.DEFAULT_LINE_SEPARATOR;
+	private String lineSeparator = FileExport.DEFAULT_LINE_SEPARATOR;
+
+	@ArgGroup(exclusive = false)
+	private KeyValueMapProcessorArgs mapProcessorArgs = new KeyValueMapProcessorArgs();
 
 	@Override
-	protected FileDumpExport exportCallable() {
-		FileDumpExport callable = new FileDumpExport();
-		callable.setFile(file);
+	protected FileExport exportCallable() {
+		FileExport callable = new FileExport();
 		callable.setAppend(append);
+		callable.setContentType(contentType());
 		callable.setElementName(elementName);
+		callable.setFile(file);
+		callable.setFileType(fileType);
 		callable.setLineSeparator(lineSeparator);
 		callable.setRootName(rootName);
 		callable.setFileOptions(fileArgs.fileOptions());
-		callable.setType(type);
 		return callable;
+	}
+
+	private ContentType contentType() {
+		if (dump) {
+			return ContentType.REDIS;
+		}
+		return ContentType.MAP;
 	}
 
 	public FileArgs getFileArgs() {
@@ -61,12 +76,12 @@ public class FileExportCommand extends AbstractExportCommand {
 		this.file = file;
 	}
 
-	public FileDumpType getType() {
-		return type;
+	public FileType getFileType() {
+		return fileType;
 	}
 
-	public void setType(FileDumpType type) {
-		this.type = type;
+	public void setFileType(FileType type) {
+		this.fileType = type;
 	}
 
 	public boolean isAppend() {
@@ -81,24 +96,24 @@ public class FileExportCommand extends AbstractExportCommand {
 		return rootName;
 	}
 
-	public void setRootName(String rootName) {
-		this.rootName = rootName;
+	public void setRootName(String name) {
+		this.rootName = name;
 	}
 
 	public String getElementName() {
 		return elementName;
 	}
 
-	public void setElementName(String elementName) {
-		this.elementName = elementName;
+	public void setElementName(String name) {
+		this.elementName = name;
 	}
 
 	public String getLineSeparator() {
 		return lineSeparator;
 	}
 
-	public void setLineSeparator(String lineSeparator) {
-		this.lineSeparator = lineSeparator;
+	public void setLineSeparator(String separator) {
+		this.lineSeparator = separator;
 	}
 
 }

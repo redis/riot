@@ -36,10 +36,9 @@ import com.redis.riot.file.xml.XmlItemReader;
 import com.redis.riot.file.xml.XmlItemReaderBuilder;
 import com.redis.riot.file.xml.XmlObjectReader;
 import com.redis.riot.redis.GeneratorImport;
-import com.redis.spring.batch.KeyValue;
-import com.redis.spring.batch.KeyValue.DataType;
+import com.redis.spring.batch.common.DataType;
+import com.redis.spring.batch.common.KeyValue;
 import com.redis.spring.batch.gen.GeneratorItemReader;
-import com.redis.spring.batch.gen.Item.Type;
 import com.redis.spring.batch.reader.MemKeyValue;
 import com.redis.testcontainers.RedisStackContainer;
 
@@ -101,10 +100,10 @@ class StackToStackTests extends ReplicationTests {
 
 	@SuppressWarnings("rawtypes")
 	@Test
-	void fileDumpImport(TestInfo info) throws Exception {
+	void fileImportJsonDump(TestInfo info) throws Exception {
 		List<MemKeyValue> records = exportToJsonFile(info);
 		redisCommands.flushall();
-		execute(info, "dump-import", this::executeFileDumpImport);
+		execute(info, "file-import-json-dump", this::executeFileDumpImport);
 		awaitUntil(() -> records.size() == Math.toIntExact(redisCommands.dbsize()));
 	}
 
@@ -137,7 +136,7 @@ class StackToStackTests extends ReplicationTests {
 	}
 
 	private int executeFileDumpImport(ParseResult parseResult) {
-		FileDumpImportCommand command = command(parseResult);
+		FileImportCommand command = command(parseResult);
 		command.setFiles(command.getFiles().stream().map(this::replace).collect(Collectors.toList()));
 		return ExitCode.OK;
 	}
@@ -500,10 +499,10 @@ class StackToStackTests extends ReplicationTests {
 	void replicateKeyExclude(TestInfo info) throws Throwable {
 		String filename = "replicate-key-exclude";
 		int goodCount = 200;
-		GeneratorItemReader gen = generator(goodCount, Type.HASH);
+		GeneratorItemReader gen = generator(goodCount, DataType.HASH);
 		generate(info, gen);
 		int badCount = 100;
-		GeneratorItemReader generator2 = generator(badCount, Type.HASH);
+		GeneratorItemReader generator2 = generator(badCount, DataType.HASH);
 		generator2.setKeyspace("bad");
 		generate(testInfo(info, "2"), generator2);
 		Assertions.assertEquals(badCount, keyCount("bad:*"));

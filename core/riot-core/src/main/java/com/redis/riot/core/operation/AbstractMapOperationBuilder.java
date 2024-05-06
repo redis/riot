@@ -35,11 +35,11 @@ public abstract class AbstractMapOperationBuilder {
 		return FieldExtractorFactory.builder().remove(removeFields).nullCheck(!ignoreMissingFields).build();
 	}
 
-	protected ToLongFunction<Map<String, Object>> toLong(String field, long defaultValue) {
+	protected ToLongFunction<Map<String, Object>> toLong(String field) {
 		if (field == null) {
-			return m -> defaultValue;
+			return m -> 0;
 		}
-		return fieldExtractorFactory().longField(field, defaultValue);
+		return fieldExtractorFactory().longField(field);
 	}
 
 	protected ToDoubleFunction<Map<String, Object>> toDouble(String field, double defaultValue) {

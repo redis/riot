@@ -22,10 +22,8 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.DoubleNode;
 import com.redis.lettucemod.timeseries.Sample;
-import com.redis.spring.batch.KeyValue;
-import com.redis.spring.batch.KeyValue.DataType;
+import com.redis.spring.batch.common.DataType;
 import com.redis.spring.batch.gen.GeneratorItemReader;
-import com.redis.spring.batch.gen.ItemToKeyValueFunction;
 import com.redis.spring.batch.reader.MemKeyValue;
 import com.redis.spring.batch.test.AbstractTestBase;
 
@@ -78,13 +76,21 @@ class JsonSerdeTests {
 		GeneratorItemReader reader = new GeneratorItemReader();
 		reader.setMaxItemCount(17);
 		reader.open(new ExecutionContext());
-		List<MemKeyValue<String, Object>> items = AbstractTestBase.readAll(reader).stream()
-				.map(new ItemToKeyValueFunction<>(MemKeyValue::new)).collect(Collectors.toList());
-		for (KeyValue<String, Object> item : items) {
+		List<MemKeyValue<String, Object>> items = AbstractTestBase.readAll(reader).stream().map(MemKeyValue::new)
+				.collect(Collectors.toList());
+		for (MemKeyValue<String, Object> item : items) {
 			String json = mapper.writeValueAsString(item);
 			MemKeyValue<String, Object> result = mapper.readValue(json, MemKeyValue.class);
-			Assertions.assertEquals(item, result);
+			assertEquals(item, result);
 		}
+	}
+
+	private <K, T> void assertEquals(MemKeyValue<K, T> source, MemKeyValue<K, T> target) {
+		Assertions.assertEquals(source.getMem(), target.getMem());
+		Assertions.assertEquals(source.getTtl(), target.getTtl());
+		Assertions.assertEquals(source.getType(), target.getType());
+		Assertions.assertEquals(source.getKey(), target.getKey());
+		Assertions.assertEquals(source.getValue(), target.getValue());
 	}
 
 }

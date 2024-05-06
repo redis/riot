@@ -4,7 +4,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.function.ToDoubleFunction;
 
-import com.redis.spring.batch.util.ToGeoValueFunction;
+import com.redis.riot.core.function.ToGeoValueFunction;
 import com.redis.spring.batch.writer.Geoadd;
 
 public class GeoaddBuilder extends AbstractCollectionMapOperationBuilder {

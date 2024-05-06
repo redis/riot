@@ -5,7 +5,7 @@ import com.redis.riot.core.operation.HsetBuilder;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
 
-@Command(name = "hset", aliases = "hmset", description = "Set hashes from input")
+@Command(name = "hset", description = "Set hashes from input")
 public class HsetCommand extends AbstractWriteOperationCommand {
 
 	@Mixin

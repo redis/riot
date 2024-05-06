@@ -9,10 +9,10 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 
+import com.redis.spring.batch.common.Await;
+import com.redis.spring.batch.common.DataType;
 import com.redis.spring.batch.gen.GeneratorItemReader;
-import com.redis.spring.batch.gen.Item.Type;
 import com.redis.spring.batch.test.KeyspaceComparison;
-import com.redis.spring.batch.util.Await;
 
 import io.lettuce.core.cluster.SlotHash;
 
@@ -54,7 +54,7 @@ abstract class ReplicationTests extends AbstractRiotTestBase {
 	@Test
 	void replicateKeyProcessor(TestInfo info) throws Throwable {
 		String filename = "replicate-key-processor";
-		GeneratorItemReader gen = generator(1, Type.HASH);
+		GeneratorItemReader gen = generator(1, DataType.HASH);
 		generate(info, gen);
 		Long sourceSize = redisCommands.dbsize();
 		Assertions.assertTrue(sourceSize > 0);
@@ -68,8 +68,8 @@ abstract class ReplicationTests extends AbstractRiotTestBase {
 		int goodCount = 200;
 		int badCount = 100;
 		enableKeyspaceNotifications();
-		generateAsync(testInfo(info, "gen-1"), generator(goodCount, Type.HASH));
-		GeneratorItemReader generator2 = generator(badCount, Type.HASH);
+		generateAsync(testInfo(info, "gen-1"), generator(goodCount, DataType.HASH));
+		GeneratorItemReader generator2 = generator(badCount, DataType.HASH);
 		generator2.setKeyspace("bad");
 		generateAsync(testInfo(info, "gen-2"), generator2);
 		execute(info, "replicate-live-key-exclude");
@@ -96,7 +96,7 @@ abstract class ReplicationTests extends AbstractRiotTestBase {
 
 	@Test
 	void replicateLiveOnlyStruct(TestInfo info) throws Exception {
-		Type[] types = new Type[] { Type.HASH, Type.STRING };
+		DataType[] types = new DataType[] { DataType.HASH, DataType.STRING };
 		enableKeyspaceNotifications();
 		GeneratorItemReader generator = generator(3500, types);
 		generator.setCurrentItemCount(3001);
@@ -131,7 +131,7 @@ abstract class ReplicationTests extends AbstractRiotTestBase {
 	}
 
 	protected void runLiveReplication(TestInfo info, String filename) throws Exception {
-		Type[] types = new Type[] { Type.HASH, Type.STRING };
+		DataType[] types = new DataType[] { DataType.HASH, DataType.STRING };
 		enableKeyspaceNotifications();
 		generate(info, generator(3000, types));
 		GeneratorItemReader generator = generator(3500, types);

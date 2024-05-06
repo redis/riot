@@ -19,9 +19,11 @@ import com.redis.spring.batch.reader.KeyComparatorOptions;
 import com.redis.spring.batch.reader.KeyComparison.Status;
 import com.redis.spring.batch.reader.KeyNotificationItemReader;
 
+import io.lettuce.core.RedisURI;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
 
 @Command(name = "replicate", description = "Replicate a Redis database into another Redis database.")
 public class ReplicateCommand extends AbstractRiotCommand {
@@ -57,20 +59,23 @@ public class ReplicateCommand extends AbstractRiotCommand {
 	@Option(names = "--idle-timeout", description = "Min number of millis to consider transfer complete (default: no timeout).", paramLabel = "<ms>")
 	private long idleTimeout = Replication.DEFAULT_IDLE_TIMEOUT.toMillis();
 
-	@ArgGroup(exclusive = false, heading = "Source Redis client options%n")
-	private RedisClientArgs sourceRedisClientArgs = new RedisClientArgs();
+	@ArgGroup(exclusive = false, heading = "Redis TLS options%n")
+	private SslArgs sslArgs = new SslArgs();
 
-	@ArgGroup(exclusive = false, heading = "Source Redis reader options%n")
-	private ReplicateRedisReaderArgs sourceRedisReaderArgs = new ReplicateRedisReaderArgs();
+	@Parameters(arity = "1", description = "Source Redis server URI.", paramLabel = "SOURCE")
+	private RedisURI sourceRedisURI;
+
+	@ArgGroup(exclusive = false, heading = "Source Redis options%n")
+	private ReplicateSourceRedisArgs sourceRedisArgs = new ReplicateSourceRedisArgs();
 
 	@ArgGroup(exclusive = false, heading = "Processor options%n")
 	private KeyValueProcessorArgs processorArgs = new KeyValueProcessorArgs();
 
-	@ArgGroup(exclusive = false, heading = "Target Redis client options%n")
-	private ReplicateTargetRedisClientArgs targetRedisClientArgs = new ReplicateTargetRedisClientArgs();
+	@Parameters(arity = "1", description = "Target Redis server URI.", paramLabel = "TARGET")
+	private RedisURI targetRedisURI;
 
-	@ArgGroup(exclusive = false, heading = "Target Redis writer options%n")
-	private RedisWriterArgs targetRedisWriterArgs = new RedisWriterArgs();
+	@ArgGroup(exclusive = false, heading = "Target Redis options%n")
+	private ReplicateTargetRedisArgs targetRedisArgs = new ReplicateTargetRedisArgs();
 
 	private static Map<String, String> taskNames() {
 		Map<String, String> map = new HashMap<>();
@@ -84,27 +89,35 @@ public class ReplicateCommand extends AbstractRiotCommand {
 	protected Replication callable() {
 		Replication replication = new Replication();
 		replication.setCompareMode(compareMode);
+		replication.setFlushInterval(Duration.ofMillis(flushInterval));
+		replication.setIdleTimeout(Duration.ofMillis(idleTimeout));
 		replication.setMode(mode);
+		replication.setNotificationQueueCapacity(sourceRedisArgs.getReaderArgs().getNotificationQueueCapacity());
+		replication.setRedisURI(sourceRedisArgs.redisURI(sourceRedisURI));
+		replication.setRedisClientOptions(sourceRedisClientOptions());
+		replication.setReaderOptions(sourceRedisArgs.getReaderArgs().redisReaderOptions());
+		replication.setProcessorOptions(processorArgs.processorOptions());
 		replication.setShowDiffs(showDiffs);
-		if (targetRedisClientArgs.getReadFrom() != null) {
-			replication.setTargetReadFrom(targetRedisClientArgs.getReadFrom().getReadFrom());
+		if (targetRedisArgs.getReadFrom() != null) {
+			replication.setTargetReadFrom(targetRedisArgs.getReadFrom().getReadFrom());
 		}
+		replication.setTargetRedisURI(targetRedisArgs.redisURI(targetRedisURI));
 		replication.setTargetRedisClientOptions(targetRedisClientOptions());
 		replication.setTtlTolerance(Duration.ofMillis(ttlTolerance));
 		replication.setType(type ? ReplicationType.STRUCT : ReplicationType.DUMP);
-		replication.setWriterOptions(targetRedisWriterArgs.writerOptions());
-		replication.setFlushInterval(Duration.ofMillis(flushInterval));
-		replication.setIdleTimeout(Duration.ofMillis(idleTimeout));
-		replication.setNotificationQueueCapacity(sourceRedisReaderArgs.getNotificationQueueCapacity());
-		replication.setRedisClientOptions(sourceRedisClientArgs.redisClientOptions());
-		replication.setReaderOptions(sourceRedisReaderArgs.redisReaderOptions());
-		replication.setProcessorOptions(processorArgs.processorOptions());
+		replication.setWriterOptions(targetRedisArgs.getWriterArgs().writerOptions());
 		return replication;
 	}
 
+	private RedisClientOptions sourceRedisClientOptions() {
+		RedisClientOptions options = sourceRedisArgs.redisClientOptions();
+		options.setSslOptions(sslArgs.sslOptions());
+		return options;
+	}
+
 	private RedisClientOptions targetRedisClientOptions() {
-		RedisClientOptions options = targetRedisClientArgs.redisClientOptions();
-		options.setSslOptions(sourceRedisClientArgs.getSslArgs().sslOptions());
+		RedisClientOptions options = targetRedisArgs.redisClientOptions();
+		options.setSslOptions(sslArgs.sslOptions());
 		return options;
 	}
 
@@ -210,36 +223,44 @@ public class ReplicateCommand extends AbstractRiotCommand {
 		this.processorArgs = args;
 	}
 
-	public RedisWriterArgs getTargetRedisWriterArgs() {
-		return targetRedisWriterArgs;
+	public ReplicateSourceRedisArgs getSourceRedisArgs() {
+		return sourceRedisArgs;
 	}
 
-	public void setTargetRedisWriterArgs(RedisWriterArgs args) {
-		this.targetRedisWriterArgs = args;
+	public void setSourceRedisArgs(ReplicateSourceRedisArgs args) {
+		this.sourceRedisArgs = args;
 	}
 
-	public RedisClientArgs getSourceRedisClientArgs() {
-		return sourceRedisClientArgs;
+	public RedisURI getTargetRedisURI() {
+		return targetRedisURI;
 	}
 
-	public void setSourceRedisClientArgs(RedisClientArgs args) {
-		this.sourceRedisClientArgs = args;
+	public void setTargetRedisURI(RedisURI targetRedisURI) {
+		this.targetRedisURI = targetRedisURI;
 	}
 
-	public ReplicateRedisReaderArgs getSourceRedisReaderArgs() {
-		return sourceRedisReaderArgs;
+	public ReplicateTargetRedisArgs getTargetRedisArgs() {
+		return targetRedisArgs;
 	}
 
-	public void setSourceRedisReaderArgs(ReplicateRedisReaderArgs args) {
-		this.sourceRedisReaderArgs = args;
+	public void setTargetRedisArgs(ReplicateTargetRedisArgs args) {
+		this.targetRedisArgs = args;
 	}
 
-	public ReplicateTargetRedisClientArgs getTargetRedisClientArgs() {
-		return targetRedisClientArgs;
+	public RedisURI getSourceRedisURI() {
+		return sourceRedisURI;
 	}
 
-	public void setTargetRedisClientArgs(ReplicateTargetRedisClientArgs args) {
-		this.targetRedisClientArgs = args;
+	public void setSourceRedisURI(RedisURI sourceRedisURI) {
+		this.sourceRedisURI = sourceRedisURI;
+	}
+
+	public SslArgs getSslArgs() {
+		return sslArgs;
+	}
+
+	public void setSslArgs(SslArgs sslArgs) {
+		this.sslArgs = sslArgs;
 	}
 
 }

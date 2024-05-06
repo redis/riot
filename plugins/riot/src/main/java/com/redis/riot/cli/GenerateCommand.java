@@ -4,10 +4,11 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 
+import com.redis.riot.core.AbstractRedisCallable;
 import com.redis.riot.redis.GeneratorImport;
+import com.redis.spring.batch.common.DataType;
 import com.redis.spring.batch.gen.CollectionOptions;
 import com.redis.spring.batch.gen.GeneratorItemReader;
-import com.redis.spring.batch.gen.Item.Type;
 import com.redis.spring.batch.gen.MapOptions;
 import com.redis.spring.batch.gen.Range;
 import com.redis.spring.batch.gen.StreamOptions;
@@ -15,11 +16,12 @@ import com.redis.spring.batch.gen.StringOptions;
 import com.redis.spring.batch.gen.TimeSeriesOptions;
 import com.redis.spring.batch.gen.ZsetOptions;
 
+import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 @Command(name = "generate", description = "Generate data structures.")
-public class GenerateCommand extends AbstractImportCommand {
+public class GenerateCommand extends AbstractRedisCommand {
 
 	private static final String TASK_NAME = "Generating";
 
@@ -33,7 +35,7 @@ public class GenerateCommand extends AbstractImportCommand {
 	Range keyRange = GeneratorItemReader.DEFAULT_KEY_RANGE;
 
 	@Option(arity = "1..*", names = "--types", description = "Types of data structures to generate: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<type>")
-	List<Type> types = Arrays.asList(Type.HASH, Type.SET, Type.STRING, Type.ZSET);
+	List<DataType> types = Arrays.asList(DataType.HASH, DataType.SET, DataType.STRING, DataType.ZSET);
 
 	@Option(names = "--expiration", description = "TTL in seconds.", paramLabel = "<secs>")
 	Range expiration;
@@ -89,13 +91,16 @@ public class GenerateCommand extends AbstractImportCommand {
 	@Option(names = "--zset-score", description = "Score of sorted sets (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
 	Range zsetScore = ZsetOptions.DEFAULT_SCORE;
 
+	@ArgGroup(exclusive = false, heading = "Redis writer options%n")
+	private RedisWriterArgs redisWriterArgs = new RedisWriterArgs();
+
 	@Override
 	protected String taskName(String stepName) {
 		return TASK_NAME;
 	}
 
 	@Override
-	protected GeneratorImport importCallable() {
+	protected AbstractRedisCallable redisCallable() {
 		GeneratorImport callable = new GeneratorImport();
 		callable.setCount(count);
 		callable.setExpiration(expiration);
@@ -110,6 +115,7 @@ public class GenerateCommand extends AbstractImportCommand {
 		callable.setTimeSeriesOptions(timeseriesOptions());
 		callable.setTypes(types);
 		callable.setZsetOptions(zsetOptions());
+		callable.setWriterOptions(redisWriterArgs.writerOptions());
 		return callable;
 	}
 
@@ -171,6 +177,14 @@ public class GenerateCommand extends AbstractImportCommand {
 		options.setFieldCount(fieldCount);
 		options.setFieldLength(fieldLength);
 		return options;
+	}
+
+	public RedisWriterArgs getRedisWriterArgs() {
+		return redisWriterArgs;
+	}
+
+	public void setRedisWriterArgs(RedisWriterArgs args) {
+		this.redisWriterArgs = args;
 	}
 
 }

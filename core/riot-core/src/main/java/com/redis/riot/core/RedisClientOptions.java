@@ -15,15 +15,10 @@ public class RedisClientOptions {
 	public static final ProtocolVersion DEFAULT_PROTOCOL_VERSION = ClientOptions.DEFAULT_PROTOCOL_VERSION;
 	public static final boolean DEFAULT_AUTO_RECONNECT = ClientOptions.DEFAULT_AUTO_RECONNECT;
 
-	private RedisUriOptions uriOptions = new RedisUriOptions();
 	private boolean cluster;
 	private boolean autoReconnect = DEFAULT_AUTO_RECONNECT;
 	private ProtocolVersion protocolVersion = DEFAULT_PROTOCOL_VERSION;
 	private SslOptions sslOptions = SslOptions.builder().build();
-
-	public RedisURI redisURI() {
-		return uriOptions.redisURI();
-	}
 
 	public AbstractRedisClient redisClient(RedisURI redisURI) {
 		if (cluster) {
@@ -44,14 +39,6 @@ public class RedisClientOptions {
 		builder.autoReconnect(autoReconnect);
 		builder.protocolVersion(protocolVersion);
 		builder.sslOptions(sslOptions);
-	}
-
-	public RedisUriOptions getUriOptions() {
-		return uriOptions;
-	}
-
-	public void setUriOptions(RedisUriOptions uriOptions) {
-		this.uriOptions = uriOptions;
 	}
 
 	public boolean isCluster() {

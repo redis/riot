@@ -15,7 +15,7 @@ import com.hrakaroo.glob.MatchingEngine;
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
 import com.redis.lettucemod.api.async.RedisModulesAsyncCommands;
 import com.redis.lettucemod.util.RedisModulesUtils;
-import com.redis.spring.batch.OperationExecutor;
+import com.redis.spring.batch.common.BatchUtils;
 
 import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.RedisFuture;
@@ -84,10 +84,10 @@ public class ScanSizeEstimator implements LongSupplier {
 					keyFutures.add(commands.randomkey());
 				}
 				connection.flushCommands();
-				List<String> keys = OperationExecutor.getAll(connection.getTimeout(), keyFutures);
+				List<String> keys = BatchUtils.getAll(connection.getTimeout(), keyFutures);
 				List<RedisFuture<String>> typeFutures = keys.stream().map(commands::type).collect(Collectors.toList());
 				connection.flushCommands();
-				List<String> types = OperationExecutor.getAll(connection.getTimeout(), typeFutures);
+				List<String> types = BatchUtils.getAll(connection.getTimeout(), typeFutures);
 				Predicate<String> matchPredicate = matchPredicate();
 				Predicate<String> typePredicate = typePredicate();
 				int total = 0;

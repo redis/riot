@@ -9,9 +9,9 @@ import org.springframework.batch.core.ItemWriteListener;
 import org.springframework.batch.item.Chunk;
 import org.springframework.util.ObjectUtils;
 
+import com.redis.spring.batch.common.BatchUtils;
 import com.redis.spring.batch.reader.KeyComparison;
 import com.redis.spring.batch.reader.KeyComparison.Status;
-import com.redis.spring.batch.util.BatchUtils;
 
 import io.lettuce.core.codec.RedisCodec;
 

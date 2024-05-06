@@ -23,13 +23,13 @@ import com.redis.riot.core.RiotUtils;
 import com.redis.riot.core.ScanSizeEstimator;
 import com.redis.riot.core.SlotRange;
 import com.redis.riot.redis.Replication.LoggingWriteListener;
-import com.redis.spring.batch.KeyValue.DataType;
+import com.redis.spring.batch.common.DataType;
 import com.redis.spring.batch.gen.GeneratorItemReader;
-import com.redis.spring.batch.gen.Item;
 import com.redis.spring.batch.test.AbstractTargetTestBase;
 import com.redis.spring.batch.test.KeyspaceComparison;
 import com.redis.testcontainers.RedisServer;
 
+import io.lettuce.core.RedisURI;
 import io.lettuce.core.cluster.SlotHash;
 import io.lettuce.core.codec.ByteArrayCodec;
 
@@ -56,7 +56,9 @@ public abstract class ReplicationTests extends AbstractTargetTestBase {
 			System.setProperty(SimpleLogger.LOG_KEY_PREFIX + LoggingWriteListener.class.getName(), "error");
 			replication.setName(name(info));
 			replication.setJobFactory(jobFactory);
+			replication.setRedisURI(RedisURI.create(getRedisServer().getRedisURI()));
 			replication.setRedisClientOptions(redisOptions(getRedisServer()));
+			replication.setTargetRedisURI(RedisURI.create(getTargetRedisServer().getRedisURI()));
 			replication.setTargetRedisClientOptions(redisOptions(getTargetRedisServer()));
 			replication.setIdleTimeout(getIdleTimeout());
 			replication.afterPropertiesSet();
@@ -66,7 +68,6 @@ public abstract class ReplicationTests extends AbstractTargetTestBase {
 
 	private RedisClientOptions redisOptions(RedisServer redis) {
 		RedisClientOptions options = new RedisClientOptions();
-		options.getUriOptions().setUri(redis.getRedisURI());
 		options.setCluster(redis.isRedisCluster());
 		return options;
 	}
@@ -167,7 +168,7 @@ public abstract class ReplicationTests extends AbstractTargetTestBase {
 
 	@Test
 	void estimateScanSize(TestInfo info) throws Exception {
-		GeneratorItemReader gen = generator(3000, Item.Type.HASH, Item.Type.STRING);
+		GeneratorItemReader gen = generator(3000, DataType.HASH, DataType.STRING);
 		generate(info, gen);
 		long expectedCount = redisCommands.dbsize();
 		ScanSizeEstimator estimator = new ScanSizeEstimator(redisClient);

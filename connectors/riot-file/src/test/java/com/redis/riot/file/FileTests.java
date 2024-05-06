@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -16,9 +17,12 @@ import org.junit.jupiter.api.TestInfo;
 import com.amazonaws.util.IOUtils;
 import com.redis.riot.core.AbstractRedisCallable;
 import com.redis.riot.core.operation.HsetBuilder;
-import com.redis.spring.batch.test.AbstractTestBase;
+import com.redis.spring.batch.test.AbstractTargetTestBase;
+import com.redis.spring.batch.test.KeyspaceComparison;
 
-abstract class AbstractFileTests extends AbstractTestBase {
+import io.lettuce.core.RedisURI;
+
+abstract class FileTests extends AbstractTargetTestBase {
 
 	public static final String BUCKET_URL = "https://storage.googleapis.com/jrx/";
 	public static final String BEERS_JSON_URL = BUCKET_URL + "beers.json";
@@ -30,8 +34,7 @@ abstract class AbstractFileTests extends AbstractTestBase {
 	@SuppressWarnings("unchecked")
 	@Test
 	void fileImportJSON(TestInfo info) throws Exception {
-		try (FileImport executable = new FileImport()) {
-			configure(executable);
+		try (FileImport executable = configure(info, new FileImport())) {
 			executable.setFiles(BEERS_JSON_URL);
 			HsetBuilder hsetBuilder = new HsetBuilder();
 			hsetBuilder.setKeyspace(KEYSPACE);
@@ -55,8 +58,7 @@ abstract class AbstractFileTests extends AbstractTestBase {
 	@SuppressWarnings("unchecked")
 	@Test
 	void fileApiImportCSV(TestInfo info) throws Exception {
-		try (FileImport executable = new FileImport()) {
-			configure(executable);
+		try (FileImport executable = configure(info, new FileImport())) {
 			executable.setFiles("https://storage.googleapis.com/jrx/beers.csv");
 			executable.setHeader(true);
 			executable.setName(name(info));
@@ -76,9 +78,11 @@ abstract class AbstractFileTests extends AbstractTestBase {
 		}
 	}
 
-	private void configure(AbstractRedisCallable callable) {
-		callable.getRedisClientOptions().getUriOptions().setUri(getRedisServer().getRedisURI());
+	private <T extends AbstractRedisCallable> T configure(TestInfo info, T callable) {
+		callable.setRedisURI(RedisURI.create(getRedisServer().getRedisURI()));
 		callable.getRedisClientOptions().setCluster(getRedisServer().isRedisCluster());
+		callable.setName(name(info));
+		return callable;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -89,8 +93,7 @@ abstract class AbstractFileTests extends AbstractTestBase {
 		IOUtils.copy(getClass().getClassLoader().getResourceAsStream("beers1.csv"), new FileOutputStream(file1));
 		File file2 = temp.resolve("beers2.csv").toFile();
 		IOUtils.copy(getClass().getClassLoader().getResourceAsStream("beers2.csv"), new FileOutputStream(file2));
-		try (FileImport executable = new FileImport()) {
-			configure(executable);
+		try (FileImport executable = configure(info, new FileImport())) {
 			executable.setFiles(temp.resolve("*.csv").toFile().getPath());
 			executable.setHeader(true);
 			executable.setName(name(info));
@@ -113,8 +116,7 @@ abstract class AbstractFileTests extends AbstractTestBase {
 	@SuppressWarnings("unchecked")
 	@Test
 	void fileImportCSVMultiThreaded(TestInfo info) throws Exception {
-		try (FileImport executable = new FileImport()) {
-			configure(executable);
+		try (FileImport executable = configure(info, new FileImport())) {
 			executable.setFiles("https://storage.googleapis.com/jrx/beers.csv");
 			executable.setHeader(true);
 			executable.setThreads(3);
@@ -138,8 +140,7 @@ abstract class AbstractFileTests extends AbstractTestBase {
 	@SuppressWarnings("unchecked")
 	@Test
 	void fileImportJSONL(TestInfo info) throws Exception {
-		try (FileImport executable = new FileImport()) {
-			configure(executable);
+		try (FileImport executable = configure(info, new FileImport())) {
 			executable.setFiles(BEERS_JSONL_URL);
 			HsetBuilder hsetBuilder = new HsetBuilder();
 			hsetBuilder.setKeyspace(KEYSPACE);
@@ -158,6 +159,44 @@ abstract class AbstractFileTests extends AbstractTestBase {
 		}
 		Map<String, String> beer1 = redisCommands.hgetall(KEYSPACE + ":1");
 		Assertions.assertEquals("Hocus Pocus", beer1.get("name"));
+	}
+
+	@Test
+	void fileExportImportJson(TestInfo info) throws Exception {
+		fileExportImport(info, "export.json");
+	}
+
+	@Test
+	void fileExportImportJsonl(TestInfo info) throws Exception {
+		fileExportImport(info, "export.jsonl");
+	}
+
+//	@Test
+	void fileExportImportXml(TestInfo info) throws Exception {
+		fileExportImport(info, "export.xml");
+	}
+
+	private void fileExportImport(TestInfo info, String filename) throws Exception {
+		generate(info, generator(100));
+		String dirName = name(info);
+		Path dir = Files.createTempDirectory(dirName);
+		String file = dir.resolve(filename).toFile().getPath();
+		try (FileExport fileExport = configure(info, new FileExport())) {
+			fileExport.setContentType(ContentType.REDIS);
+			fileExport.setFile(file);
+			fileExport.afterPropertiesSet();
+			fileExport.call();
+		}
+		try (FileImport fileImport = configure(info, new FileImport())) {
+			fileImport.setFiles(file);
+			fileImport.setRedisURI(RedisURI.create(getTargetRedisServer().getRedisURI()));
+			fileImport.getRedisClientOptions().setCluster(getTargetRedisServer().isRedisCluster());
+			fileImport.afterPropertiesSet();
+			fileImport.call();
+		}
+		KeyspaceComparison<String> comparison = compare(info);
+		Assertions.assertFalse(comparison.getAll().isEmpty());
+		Assertions.assertEquals(Collections.emptyList(), comparison.mismatches());
 	}
 
 }

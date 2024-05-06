@@ -3,17 +3,14 @@ package com.redis.riot.redis;
 import java.util.List;
 
 import org.springframework.batch.core.Job;
-import org.springframework.batch.item.ItemProcessor;
-import org.springframework.batch.item.function.FunctionItemProcessor;
 
-import com.redis.riot.core.AbstractImport;
-import com.redis.spring.batch.KeyValue;
+import com.redis.riot.core.AbstractRedisCallable;
+import com.redis.riot.core.RedisWriterOptions;
 import com.redis.spring.batch.RedisItemWriter;
+import com.redis.spring.batch.common.DataType;
+import com.redis.spring.batch.common.KeyValue;
 import com.redis.spring.batch.gen.CollectionOptions;
 import com.redis.spring.batch.gen.GeneratorItemReader;
-import com.redis.spring.batch.gen.Item;
-import com.redis.spring.batch.gen.Item.Type;
-import com.redis.spring.batch.gen.ItemToKeyValueFunction;
 import com.redis.spring.batch.gen.MapOptions;
 import com.redis.spring.batch.gen.Range;
 import com.redis.spring.batch.gen.StreamOptions;
@@ -21,14 +18,14 @@ import com.redis.spring.batch.gen.StringOptions;
 import com.redis.spring.batch.gen.TimeSeriesOptions;
 import com.redis.spring.batch.gen.ZsetOptions;
 
-public class GeneratorImport extends AbstractImport {
+public class GeneratorImport extends AbstractRedisCallable {
 
 	public static final int DEFAULT_COUNT = 1000;
 
 	private int count = DEFAULT_COUNT;
 	private String keyspace = GeneratorItemReader.DEFAULT_KEYSPACE;
 	private Range keyRange = GeneratorItemReader.DEFAULT_KEY_RANGE;
-	private List<Type> types = GeneratorItemReader.defaultTypes();
+	private List<DataType> types = GeneratorItemReader.defaultTypes();
 	private Range expiration;
 	private MapOptions hashOptions = new MapOptions();
 	private StreamOptions streamOptions = new StreamOptions();
@@ -38,19 +35,10 @@ public class GeneratorImport extends AbstractImport {
 	private CollectionOptions setOptions = new CollectionOptions();
 	private StringOptions stringOptions = new StringOptions();
 	private ZsetOptions zsetOptions = new ZsetOptions();
+	private RedisWriterOptions writerOptions = new RedisWriterOptions();
 
 	@Override
 	protected Job job() {
-		RedisItemWriter<String, String, KeyValue<String, Object>> writer = RedisItemWriter.struct();
-		configure(writer);
-		return jobBuilder().start(step(getName(), reader(), writer).processor(processor()).build()).build();
-	}
-
-	private ItemProcessor<? super Item, KeyValue<String, Object>> processor() {
-		return new FunctionItemProcessor<>(new ItemToKeyValueFunction<>(KeyValue::new));
-	}
-
-	private GeneratorItemReader reader() {
 		GeneratorItemReader reader = new GeneratorItemReader();
 		reader.setExpiration(expiration);
 		reader.setHashOptions(hashOptions);
@@ -65,7 +53,10 @@ public class GeneratorImport extends AbstractImport {
 		reader.setTimeSeriesOptions(timeSeriesOptions);
 		reader.setTypes(types);
 		reader.setZsetOptions(zsetOptions);
-		return reader;
+		RedisItemWriter<String, String, KeyValue<String, Object>> writer = RedisItemWriter.struct();
+		writerOptions.configure(writer);
+		configure(writer);
+		return jobBuilder().start(step(getName(), reader, writer).build()).build();
 	}
 
 	public int getCount() {
@@ -164,12 +155,19 @@ public class GeneratorImport extends AbstractImport {
 		this.keyspace = keyspace;
 	}
 
-	public List<Type> getTypes() {
+	public List<DataType> getTypes() {
 		return types;
 	}
 
-	public void setTypes(List<Type> types) {
+	public void setTypes(List<DataType> types) {
 		this.types = types;
 	}
 
+	public RedisWriterOptions getWriterOptions() {
+		return writerOptions;
+	}
+
+	public void setWriterOptions(RedisWriterOptions writerOptions) {
+		this.writerOptions = writerOptions;
+	}
 }

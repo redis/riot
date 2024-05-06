@@ -20,19 +20,20 @@ import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
+import org.springframework.util.Assert;
 
 import com.redis.riot.core.AbstractExport;
 import com.redis.riot.core.RedisClientOptions;
 import com.redis.riot.core.RedisWriterOptions;
-import com.redis.spring.batch.KeyValue;
 import com.redis.spring.batch.RedisItemReader;
 import com.redis.spring.batch.RedisItemReader.ReaderMode;
 import com.redis.spring.batch.RedisItemWriter;
+import com.redis.spring.batch.common.BatchUtils;
 import com.redis.spring.batch.common.FlushingStepBuilder;
+import com.redis.spring.batch.common.KeyValue;
 import com.redis.spring.batch.reader.KeyComparatorOptions;
 import com.redis.spring.batch.reader.KeyComparatorOptions.StreamMessageIdPolicy;
 import com.redis.spring.batch.reader.KeyComparisonItemReader;
-import com.redis.spring.batch.util.BatchUtils;
 
 import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.ReadFrom;
@@ -66,6 +67,7 @@ public class Replication extends AbstractExport {
 	private boolean showDiffs;
 	private CompareMode compareMode = DEFAULT_COMPARE_MODE;
 	private Duration ttlTolerance = KeyComparatorOptions.DEFAULT_TTL_TOLERANCE;
+	private RedisURI targetRedisURI;
 	private RedisClientOptions targetRedisClientOptions = new RedisClientOptions();
 	private ReadFrom targetReadFrom;
 	private RedisWriterOptions writerOptions = new RedisWriterOptions();
@@ -74,20 +76,19 @@ public class Replication extends AbstractExport {
 	private Duration idleTimeout = DEFAULT_IDLE_TIMEOUT;
 	private int notificationQueueCapacity = DEFAULT_NOTIFICATION_QUEUE_CAPACITY;
 
-	private RedisURI targetRedisURI;
 	private AbstractRedisClient targetRedisClient;
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		targetRedisURI = targetRedisClientOptions.redisURI();
+		Assert.notNull(targetRedisURI, "Target Redis URI not set");
 		targetRedisClient = targetRedisClientOptions.redisClient(targetRedisURI);
 		super.afterPropertiesSet();
 	}
 
 	@Override
-	protected StandardEvaluationContext evaluationContext() {
-		StandardEvaluationContext context = super.evaluationContext();
-		context.setVariable(SOURCE_VAR, redisURI);
+	protected StandardEvaluationContext createEvaluationContext() throws NoSuchMethodException, SecurityException {
+		StandardEvaluationContext context = super.createEvaluationContext();
+		context.setVariable(SOURCE_VAR, getRedisURI());
 		context.setVariable(TARGET_VAR, targetRedisURI);
 		return context;
 	}
@@ -275,6 +276,14 @@ public class Replication extends AbstractExport {
 
 	public void setTtlTolerance(Duration ttlTolerance) {
 		this.ttlTolerance = ttlTolerance;
+	}
+
+	public RedisURI getTargetRedisURI() {
+		return targetRedisURI;
+	}
+
+	public void setTargetRedisURI(RedisURI targetRedisURI) {
+		this.targetRedisURI = targetRedisURI;
 	}
 
 	public RedisClientOptions getTargetRedisClientOptions() {

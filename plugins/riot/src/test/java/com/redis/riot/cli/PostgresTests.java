@@ -20,8 +20,8 @@ import org.testcontainers.utility.DockerImageName;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
+import com.redis.spring.batch.common.DataType;
 import com.redis.spring.batch.gen.GeneratorItemReader;
-import com.redis.spring.batch.gen.Item.Type;
 
 class PostgresTests extends RiotDbTests {
 
@@ -52,7 +52,7 @@ class PostgresTests extends RiotDbTests {
 		try (Statement statement = dbConnection.createStatement()) {
 			statement.execute("CREATE TABLE mytable (id smallint NOT NULL, field1 bpchar, field2 bpchar)");
 			statement.execute("ALTER TABLE ONLY mytable ADD CONSTRAINT pk_mytable PRIMARY KEY (id)");
-			GeneratorItemReader generator = generator(73, Type.HASH);
+			GeneratorItemReader generator = generator(73, DataType.HASH);
 			generate(info, generator);
 			execute(info, filename, r -> executeDatabaseExport(r, info));
 			statement.execute("SELECT COUNT(*) AS count FROM mytable");

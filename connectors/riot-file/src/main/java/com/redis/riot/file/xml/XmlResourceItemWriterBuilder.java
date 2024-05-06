@@ -19,6 +19,7 @@ package com.redis.riot.file.xml;
 import org.springframework.batch.item.file.FlatFileFooterCallback;
 import org.springframework.batch.item.file.FlatFileHeaderCallback;
 import org.springframework.batch.item.json.JsonObjectMarshaller;
+import org.springframework.batch.item.support.AbstractFileItemWriter;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.WritableResource;
 import org.springframework.util.Assert;
@@ -37,8 +38,8 @@ public class XmlResourceItemWriterBuilder<T> {
 	private FlatFileFooterCallback footerCallback;
 
 	private String name;
-	private String encoding = XmlResourceItemWriter.DEFAULT_CHARSET;
-	private String lineSeparator = XmlResourceItemWriter.DEFAULT_LINE_SEPARATOR;
+	private String encoding = AbstractFileItemWriter.DEFAULT_CHARSET;
+	private String lineSeparator = AbstractFileItemWriter.DEFAULT_LINE_SEPARATOR;
 
 	private boolean append = false;
 	private boolean saveState = true;
@@ -108,9 +109,8 @@ public class XmlResourceItemWriterBuilder<T> {
 	 * @param resource the output of the writer.
 	 * @return The current instance of the builder.
 	 */
-	public XmlResourceItemWriterBuilder<T> resource(Resource resource) {
-		Assert.isInstanceOf(WritableResource.class, resource);
-		this.resource = (WritableResource) resource;
+	public XmlResourceItemWriterBuilder<T> resource(WritableResource resource) {
+		this.resource = resource;
 
 		return this;
 	}

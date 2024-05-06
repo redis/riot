@@ -1,1 +1,1 @@
-riot replicate --target-uri redis://target:6380 --batch 1 --key-proc="#{#source.database}:#{key}"
+riot replicate redis://source redis://target --batch 1 --key-proc="#{#source.database}:#{key}"
