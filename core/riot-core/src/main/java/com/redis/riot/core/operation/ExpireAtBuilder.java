@@ -3,7 +3,7 @@ package com.redis.riot.core.operation;
 import java.util.Map;
 import java.util.function.Function;
 
-import com.redis.spring.batch.writer.operation.ExpireAt;
+import com.redis.spring.batch.writer.ExpireAt;
 
 public class ExpireAtBuilder extends AbstractMapOperationBuilder {
 
@@ -18,7 +18,7 @@ public class ExpireAtBuilder extends AbstractMapOperationBuilder {
 	protected ExpireAt<String, String, Map<String, Object>> operation(
 			Function<Map<String, Object>, String> keyFunction) {
 		ExpireAt<String, String, Map<String, Object>> operation = new ExpireAt<>(keyFunction);
-		operation.setEpochFunction(toLong(ttl, 0));
+		operation.epoch(toLong(ttl));
 		return operation;
 	}
 

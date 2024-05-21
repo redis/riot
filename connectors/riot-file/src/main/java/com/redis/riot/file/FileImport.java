@@ -20,8 +20,10 @@ import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.file.FlatFileItemReader;
+import org.springframework.batch.item.file.LineMapper;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
 import org.springframework.batch.item.file.mapping.FieldSetMapper;
+import org.springframework.batch.item.file.mapping.JsonLineMapper;
 import org.springframework.batch.item.file.separator.DefaultRecordSeparatorPolicy;
 import org.springframework.batch.item.file.separator.RecordSeparatorPolicy;
 import org.springframework.batch.item.file.transform.AbstractLineTokenizer;
@@ -30,21 +32,34 @@ import org.springframework.batch.item.file.transform.FixedLengthTokenizer;
 import org.springframework.batch.item.file.transform.Range;
 import org.springframework.batch.item.file.transform.RangeArrayPropertyEditor;
 import org.springframework.batch.item.function.FunctionItemProcessor;
+import org.springframework.batch.item.json.JacksonJsonObjectReader;
+import org.springframework.batch.item.json.builder.JsonItemReaderBuilder;
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
 import org.springframework.core.io.Resource;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.redis.riot.core.AbstractImport;
+import com.redis.riot.core.KeyValueProcessorOptions;
 import com.redis.riot.core.RiotUtils;
 import com.redis.riot.core.function.RegexNamedGroupFunction;
+import com.redis.riot.file.xml.XmlItemReader;
+import com.redis.riot.file.xml.XmlItemReaderBuilder;
+import com.redis.riot.file.xml.XmlObjectReader;
+import com.redis.spring.batch.RedisItemWriter;
+import com.redis.spring.batch.common.KeyValue;
+import com.redis.spring.batch.reader.MemKeyValue;
 
 public class FileImport extends AbstractImport {
 
 	public static final String DEFAULT_CONTINUATION_STRING = "\\";
 	public static final Character DEFAULT_QUOTE_CHARACTER = DelimitedLineTokenizer.DEFAULT_QUOTE_CHARACTER;
-	private static final String PIPE_DELIMITER = "|";
+	public static final String PIPE_DELIMITER = "|";
 
 	private List<String> files;
 	private FileOptions fileOptions = new FileOptions();
@@ -60,67 +75,7 @@ public class FileImport extends AbstractImport {
 	private Character quoteCharacter = DEFAULT_QUOTE_CHARACTER;
 	private String continuationString = DEFAULT_CONTINUATION_STRING;
 	private Map<String, Pattern> regexes;
-
-	public void setFiles(String... files) {
-		setFiles(Arrays.asList(files));
-	}
-
-	public void setFiles(List<String> files) {
-		Assert.notEmpty(files, "No file specified");
-		this.files = files;
-	}
-
-	public void setRegexes(Map<String, Pattern> regexes) {
-		this.regexes = regexes;
-	}
-
-	public void setFileOptions(FileOptions fileOptions) {
-		this.fileOptions = fileOptions;
-	}
-
-	public void setFileType(FileType fileType) {
-		this.fileType = fileType;
-	}
-
-	public void setMaxItemCount(Integer maxItemCount) {
-		this.maxItemCount = maxItemCount;
-	}
-
-	public void setFields(List<String> names) {
-		this.fields = names;
-	}
-
-	public void setHeader(boolean header) {
-		this.header = header;
-	}
-
-	public void setDelimiter(String delimiter) {
-		this.delimiter = delimiter;
-	}
-
-	public void setHeaderLine(Integer index) {
-		this.headerLine = index;
-	}
-
-	public void setLinesToSkip(Integer linesToSkip) {
-		this.linesToSkip = linesToSkip;
-	}
-
-	public void setIncludedFields(int... indexes) {
-		this.includedFields = indexes;
-	}
-
-	public void setColumnRanges(List<String> columnRanges) {
-		this.columnRanges = columnRanges;
-	}
-
-	public void setQuoteCharacter(Character quoteCharacter) {
-		this.quoteCharacter = quoteCharacter;
-	}
-
-	public void setContinuationString(String continuationString) {
-		this.continuationString = continuationString;
-	}
+	private KeyValueProcessorOptions keyValueProcessorOptions = new KeyValueProcessorOptions();
 
 	@Override
 	protected Job job() {
@@ -141,91 +96,155 @@ public class FileImport extends AbstractImport {
 		return super.faultTolerant(step).skip(ParseException.class).noRetry(ParseException.class);
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private TaskletStep step(Resource resource) {
-		ItemReader<Map<String, Object>> reader = reader(resource);
+		ItemReader reader = reader(resource);
 		if (maxItemCount != null && reader instanceof AbstractItemCountingItemStreamItemReader) {
-			((AbstractItemCountingItemStreamItemReader<Map<String, Object>>) reader).setMaxItemCount(maxItemCount);
+			((AbstractItemCountingItemStreamItemReader) reader).setMaxItemCount(maxItemCount);
 		}
-		ItemProcessor<Map<String, Object>, Map<String, Object>> processor = processor();
-		ItemWriter<Map<String, Object>> writer = writer();
-		return step(resource.getFilename(), reader, processor, writer);
+		return step(resource.getFilename(), reader, writer()).processor(processor()).build();
 	}
 
-	private ItemReader<Map<String, Object>> reader(Resource resource) {
-		FileType type = type(resource);
+	@SuppressWarnings("rawtypes")
+	private ItemProcessor processor() {
+		if (hasOperations()) {
+			return mapProcessor();
+		}
+		return keyValueProcessor();
+	}
+
+	private ItemProcessor<KeyValue<String, Object>, KeyValue<String, Object>> keyValueProcessor() {
+		return keyValueProcessorOptions.processor(evaluationContext);
+	}
+
+	@SuppressWarnings("rawtypes")
+	private ItemReader reader(Resource resource) {
+		FileType type = fileType(resource);
 		switch (type) {
 		case DELIMITED:
-			DelimitedLineTokenizer tokenizer = new DelimitedLineTokenizer();
-			tokenizer.setDelimiter(delimiter(resource));
-			tokenizer.setQuoteCharacter(quoteCharacter);
-			if (!ObjectUtils.isEmpty(includedFields)) {
-				tokenizer.setIncludedFields(includedFields);
-			}
-			return flatFileReader(resource, tokenizer);
-		case FIXED:
-			FixedLengthTokenizer fixedLengthTokenizer = new FixedLengthTokenizer();
-			RangeArrayPropertyEditor editor = new RangeArrayPropertyEditor();
-			Assert.notEmpty(columnRanges, "Column ranges are required");
-			editor.setAsText(String.join(",", columnRanges));
-			Range[] ranges = (Range[]) editor.getValue();
-			if (ranges.length == 0) {
-				throw new IllegalArgumentException("Invalid ranges specified: " + columnRanges);
-			}
-			fixedLengthTokenizer.setColumns(ranges);
-			return flatFileReader(resource, fixedLengthTokenizer);
+			assertHasOperations();
+			return delimitedReader(resource);
+		case FIXED_LENGTH:
+			assertHasOperations();
+			return fixedLengthReader(resource);
 		case XML:
-			return FileUtils.xmlReader(resource, Map.class);
+			return xmlReader(resource);
 		case JSON:
-			return FileUtils.jsonReader(resource, Map.class);
+			return jsonReader(resource);
 		case JSONL:
-			return FileUtils.jsonlReader(resource);
+			return jsonlReader(resource);
 		default:
 			throw new UnsupportedOperationException("Unsupported file type: " + type);
 		}
+	}
+
+	private FlatFileItemReader<Map<String, Object>> delimitedReader(Resource resource) {
+		DelimitedLineTokenizer tokenizer = new DelimitedLineTokenizer();
+		tokenizer.setDelimiter(delimiter(resource));
+		tokenizer.setQuoteCharacter(quoteCharacter);
+		if (!ObjectUtils.isEmpty(includedFields)) {
+			tokenizer.setIncludedFields(includedFields);
+		}
+		return flatFileReader(resource, tokenizer);
+	}
+
+	private FlatFileItemReader<Map<String, Object>> fixedLengthReader(Resource resource) {
+		FixedLengthTokenizer fixedLengthTokenizer = new FixedLengthTokenizer();
+		RangeArrayPropertyEditor editor = new RangeArrayPropertyEditor();
+		Assert.notEmpty(columnRanges, "Column ranges are required");
+		editor.setAsText(String.join(",", columnRanges));
+		Range[] ranges = (Range[]) editor.getValue();
+		if (ranges.length == 0) {
+			throw new IllegalArgumentException("Invalid ranges specified: " + columnRanges);
+		}
+		fixedLengthTokenizer.setColumns(ranges);
+		return flatFileReader(resource, fixedLengthTokenizer);
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private FlatFileItemReader jsonlReader(Resource resource) {
+		FlatFileItemReader reader = new FlatFileItemReader();
+		reader.setLineMapper(jsonLineMapper());
+		reader.setResource(resource);
+		return reader;
+	}
+
+	@SuppressWarnings("rawtypes")
+	private LineMapper jsonLineMapper() {
+		if (hasOperations()) {
+			return new JsonLineMapper();
+		}
+		return new MemKeyValueJsonLineMapper(jsonObjectMapper());
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private XmlItemReader xmlReader(Resource resource) {
+		XmlItemReaderBuilder builder = new XmlItemReaderBuilder<>();
+		builder.name(resource.getFilename() + "-xml-file-reader");
+		builder.resource(resource);
+		XmlObjectReader objectReader = new XmlObjectReader<>(itemType());
+		objectReader.setMapper(objectMapper(new XmlMapper()));
+		builder.xmlObjectReader(objectReader);
+		return builder.build();
+	}
+
+	private Class<?> itemType() {
+		if (hasOperations()) {
+			return Map.class;
+		}
+		return MemKeyValue.class;
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private ItemReader jsonReader(Resource resource) {
+		JsonItemReaderBuilder builder = new JsonItemReaderBuilder<>();
+		builder.name(resource.getFilename() + "-json-file-reader");
+		builder.resource(resource);
+		JacksonJsonObjectReader objectReader = new JacksonJsonObjectReader<>(itemType());
+		objectReader.setMapper(jsonObjectMapper());
+		builder.jsonObjectReader(objectReader);
+		return builder.build();
+	}
+
+	private ObjectMapper jsonObjectMapper() {
+		return objectMapper(new ObjectMapper());
+	}
+
+	private <T extends ObjectMapper> T objectMapper(T objectMapper) {
+		objectMapper.configure(DeserializationFeature.USE_LONG_FOR_INTS, true);
+		if (!hasOperations()) {
+			SimpleModule module = new SimpleModule();
+			module.addDeserializer(MemKeyValue.class, new MemKeyValueDeserializer());
+			objectMapper.registerModule(module);
+		}
+		return objectMapper;
 	}
 
 	private String delimiter(Resource resource) {
 		if (delimiter != null) {
 			return delimiter;
 		}
-		FileExtension extension = FileUtils.extension(resource);
-		if (extension != null) {
-			switch (extension) {
-			case CSV:
-				return DelimitedLineTokenizer.DELIMITER_COMMA;
-			case PSV:
-				return PIPE_DELIMITER;
-			case TSV:
-				return DelimitedLineTokenizer.DELIMITER_TAB;
-			default:
-				throw new UnsupportedOperationException("Unsupported file extension: " + extension);
-			}
+		String extension = FileUtils.fileExtension(resource);
+		if (extension == null) {
+			throw new IllegalArgumentException("Unknown file extension for " + resource);
 		}
-		throw new IllegalArgumentException("Unknown file extension for " + resource);
+		switch (extension) {
+		case FileUtils.CSV:
+			return DelimitedLineTokenizer.DELIMITER_COMMA;
+		case FileUtils.PSV:
+			return PIPE_DELIMITER;
+		case FileUtils.TSV:
+			return DelimitedLineTokenizer.DELIMITER_TAB;
+		default:
+			throw new UnsupportedOperationException("Unsupported file extension: " + extension);
+		}
 	}
 
-	private FileType type(Resource resource) {
-		if (fileType != null) {
-			return fileType;
+	private FileType fileType(Resource resource) {
+		if (fileType == null) {
+			return FileUtils.fileType(resource);
 		}
-		FileExtension extension = FileUtils.extension(resource);
-		if (extension != null) {
-			switch (extension) {
-			case FW:
-				return FileType.FIXED;
-			case JSON:
-				return FileType.JSON;
-			case JSONL:
-				return FileType.JSONL;
-			case XML:
-				return FileType.XML;
-			case CSV:
-			case PSV:
-			case TSV:
-				return FileType.DELIMITED;
-			}
-		}
-		throw new UnknownFileTypeException("Unknown file extension: " + extension);
+		return fileType;
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -274,9 +293,9 @@ public class FileImport extends AbstractImport {
 	 * @return List of readers for the given files, which might contain wildcards
 	 * @throws IOException
 	 */
-	public Stream<ItemReader<Map<String, Object>>> readers(String... files) {
-		return FileUtils.expandAll(Arrays.asList(files)).map(f -> FileUtils.safeInputResource(f, fileOptions))
-				.map(this::reader);
+	@SuppressWarnings("rawtypes")
+	public Stream<ItemReader> readers(String... files) {
+		return FileUtils.expandAll(Arrays.asList(files)).map(this::safeInputResource).map(this::reader);
 	}
 
 	/**
@@ -287,13 +306,14 @@ public class FileImport extends AbstractImport {
 	 * @throws IOException
 	 * @throws Exception
 	 */
-	public ItemReader<Map<String, Object>> reader(String file) throws IOException {
+	@SuppressWarnings("unchecked")
+	public <T> ItemReader<T> reader(String file) throws IOException {
 		return reader(FileUtils.inputResource(file, fileOptions));
 	}
 
 	@Override
-	protected ItemProcessor<Map<String, Object>, Map<String, Object>> processor() {
-		ItemProcessor<Map<String, Object>, Map<String, Object>> processor = super.processor();
+	protected ItemProcessor<Map<String, Object>, Map<String, Object>> mapProcessor() {
+		ItemProcessor<Map<String, Object>, Map<String, Object>> processor = super.mapProcessor();
 		if (CollectionUtils.isEmpty(regexes)) {
 			return processor;
 		}
@@ -302,9 +322,6 @@ public class FileImport extends AbstractImport {
 		regexes.entrySet().stream().map(e -> toFieldFunction(e.getKey(), e.getValue())).forEach(regexFunctions::add);
 		ToMapFunction<Map<String, Object>, String, Object> function = new ToMapFunction<>(regexFunctions);
 		ItemProcessor<Map<String, Object>, Map<String, Object>> regexProcessor = new FunctionItemProcessor<>(function);
-		if (processor == null) {
-			return regexProcessor;
-		}
 		return RiotUtils.processor(processor, regexProcessor);
 
 	}
@@ -312,6 +329,89 @@ public class FileImport extends AbstractImport {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private Function<Map<String, Object>, Map<String, Object>> toFieldFunction(String key, Pattern pattern) {
 		return new MapToFieldFunction(key).andThen((Function) new RegexNamedGroupFunction(pattern));
+	}
+
+	@SuppressWarnings("rawtypes")
+	private ItemWriter writer() {
+		if (hasOperations()) {
+			return mapWriter();
+		}
+		RedisItemWriter<String, String, KeyValue<String, Object>> writer = RedisItemWriter.struct();
+		configure(writer);
+		return writer;
+	}
+
+	public void setFiles(String... files) {
+		setFiles(Arrays.asList(files));
+	}
+
+	public void setFiles(List<String> files) {
+		Assert.notEmpty(files, "No file specified");
+		this.files = files;
+	}
+
+	public void setRegexes(Map<String, Pattern> regexes) {
+		this.regexes = regexes;
+	}
+
+	public void setFileOptions(FileOptions fileOptions) {
+		this.fileOptions = fileOptions;
+	}
+
+	public void setFileType(FileType format) {
+		this.fileType = format;
+	}
+
+	public void setMaxItemCount(Integer maxItemCount) {
+		this.maxItemCount = maxItemCount;
+	}
+
+	public void setFields(List<String> names) {
+		this.fields = names;
+	}
+
+	public void setHeader(boolean header) {
+		this.header = header;
+	}
+
+	public void setDelimiter(String delimiter) {
+		this.delimiter = delimiter;
+	}
+
+	public void setHeaderLine(Integer index) {
+		this.headerLine = index;
+	}
+
+	public void setLinesToSkip(Integer linesToSkip) {
+		this.linesToSkip = linesToSkip;
+	}
+
+	public void setIncludedFields(int... indexes) {
+		this.includedFields = indexes;
+	}
+
+	public void setColumnRanges(List<String> columnRanges) {
+		this.columnRanges = columnRanges;
+	}
+
+	public void setQuoteCharacter(Character quoteCharacter) {
+		this.quoteCharacter = quoteCharacter;
+	}
+
+	public void setContinuationString(String continuationString) {
+		this.continuationString = continuationString;
+	}
+
+	public KeyValueProcessorOptions getKeyValueProcessorOptions() {
+		return keyValueProcessorOptions;
+	}
+
+	public void setKeyValueProcessorOptions(KeyValueProcessorOptions keyValueProcessorOptions) {
+		this.keyValueProcessorOptions = keyValueProcessorOptions;
+	}
+
+	private Resource safeInputResource(String file) {
+		return FileUtils.safeInputResource(file, fileOptions);
 	}
 
 }

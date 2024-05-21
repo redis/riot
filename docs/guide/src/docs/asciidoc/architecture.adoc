@@ -26,7 +26,7 @@ Here, only one reader is being accessed from multiple threads.
 To set the number of threads, use the `--threads` option.
 
 .Multi-threading example
-[source]
+[source,console]
 ----
 include::{testdir}/db-import-postgresql-multithreaded[]
 ----
@@ -56,7 +56,7 @@ Instance of Lettuce https://www.lettuce.io/core/release/api/io/lettuce/core/api/
 `geo`:: Convenience function that takes a longitude and a latitude to produce a RediSearch geo-location string in the form `longitude,latitude` (e.g. `location=#geo(lon,lat)`)
 
 .Processor example
-[source]
+[source,console]
 ----
 riot file-import --proc epoch="#date.parse(mydate).getTime()" location="#geo(lon,lat)" name="#redis.hget('person1','lastName')" ...
 ----
@@ -64,7 +64,7 @@ riot file-import --proc epoch="#date.parse(mydate).getTime()" location="#geo(lon
 You can register your own variables using `--var`.
 
 .Custom variable example
-[source]
+[source,console]
 ----
 include::{testdir}/file-import-process-var[]
 ----
@@ -76,7 +76,7 @@ Filters allow you to exclude records that don't match a SpEL boolean expression.
 
 For example this filter will only keep records where the `value` field is a series of digits:
 
-[source]
+[source,console]
 ----
 riot file-import --filter "value matches '\\d+'" ...
 ----

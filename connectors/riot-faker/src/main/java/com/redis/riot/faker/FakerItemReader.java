@@ -31,8 +31,20 @@ public class FakerItemReader extends AbstractItemCountingItemStreamItemReader<Ma
 	private Locale locale = DEFAULT_LOCALE;
 	private StandardEvaluationContext evaluationContext;
 
+	private int maxItemCount;
+
 	public FakerItemReader() {
 		setName(ClassUtils.getShortName(getClass()));
+	}
+
+	public int getMaxItemCount() {
+		return maxItemCount;
+	}
+
+	@Override
+	public void setMaxItemCount(int count) {
+		super.setMaxItemCount(count);
+		this.maxItemCount = count;
 	}
 
 	public void setLocale(Locale locale) {

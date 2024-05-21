@@ -5,18 +5,17 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.springframework.batch.core.Job;
+import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.expression.Expression;
 import org.springframework.util.Assert;
-import org.springframework.util.ClassUtils;
 
-import com.redis.lettucemod.api.sync.RediSearchCommands;
 import com.redis.lettucemod.search.Field;
 import com.redis.lettucemod.search.IndexInfo;
 import com.redis.lettucemod.util.RedisModulesUtils;
 import com.redis.riot.core.AbstractImport;
 import com.redis.riot.core.RiotUtils;
-import com.redis.spring.batch.common.Range;
+import com.redis.spring.batch.gen.Range;
 
 public class FakerImport extends AbstractImport {
 
@@ -64,10 +63,9 @@ public class FakerImport extends AbstractImport {
 
 	@Override
 	protected Job job() {
-		String name = ClassUtils.getShortName(getClass());
-		FakerItemReader reader = reader();
-		ItemWriter<Map<String, Object>> writer = writer();
-		return jobBuilder().start(step(name, reader, writer)).build();
+		ItemProcessor<Map<String, Object>, Map<String, Object>> processor = mapProcessor();
+		ItemWriter<Map<String, Object>> writer = mapWriter();
+		return jobBuilder().start(step(getName(), reader(), writer).processor(processor).build()).build();
 	}
 
 	private FakerItemReader reader() {
@@ -88,8 +86,7 @@ public class FakerImport extends AbstractImport {
 
 	private Map<String, Expression> searchIndexFields() {
 		Map<String, Expression> searchFields = new LinkedHashMap<>();
-		RediSearchCommands<String, String> commands = getRedisConnection().sync();
-		IndexInfo info = RedisModulesUtils.indexInfo(commands.ftInfo(searchIndex));
+		IndexInfo info = RedisModulesUtils.indexInfo(redisCommands.ftInfo(searchIndex));
 		for (Field<String> field : info.getFields()) {
 			searchFields.put(field.getName(), RiotUtils.parse(expression(field)));
 		}

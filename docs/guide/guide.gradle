@@ -1,7 +1,6 @@
 plugins {
     id 'org.kordamp.gradle.guide'
     id 'org.ajoberstar.git-publish'
-    id 'org.asciidoctor.jvm.pdf'
 }
 
 configurations {
@@ -14,10 +13,6 @@ dependencies {
 
 asciidoctor {
     configurations 'asciidoctorExtensions'
-    outputOptions {
-        backends = ['pdf', 'html5']
-        separateOutputDirs = false
-    }
     forkOptions {
       // Fix issue with JDK16+
       jvmArgs("--add-opens", "java.base/sun.nio.ch=ALL-UNNAMED", "--add-opens", "java.base/java.io=ALL-UNNAMED")
@@ -28,11 +23,6 @@ asciidoctor {
         'coderay-linenums-mode' : 'table',
         'testdir'               : '../../../../../plugins/riot/src/test/resources'
     ]
-    doLast {
-      file("$outputDir/index.pdf").
-              renameTo("$outputDir/riot-${project.version}.pdf")
-    }
-    dependsOn ':aggregateCopyDocFiles'
 }
 
 eclipse {
@@ -40,4 +30,3 @@ eclipse {
         name = 'riot-guide'
     }
 }
-

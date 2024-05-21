@@ -14,14 +14,14 @@
 The `file-import` command reads data from files and writes it to Redis.
 
 The basic usage for file imports is:
-[source]
+[source,console]
 ----
-riot -h <host> -p <port> file-import FILE... [REDIS COMMAND...]
+riot file-import [OPTIONS] FILE... [REDIS COMMAND...]
 ----
 
 To show the full usage, run:
 
-[source]
+[source,console]
 ----
 riot file-import --help
 ----
@@ -45,25 +45,25 @@ The keys that will be written are constructed from input records by concatenatin
 image::mapping.svg[]
 
 .Import into hashes with keyspace `blah:<id>`
-[source]
+[source,console]
 ----
 riot file-import my.json hset --keyspace blah --keys id
 ----
 
 .Import into JSON
-[source]
+[source,console]
 ----
 include::{testdir}/file-import-json-elastic-jsonset[]
 ----
 
 .Import into hashes *and* set TTL on the key
-[source]
+[source,console]
 ----
 riot file-import my.json hset --keyspace blah --keys id expire --keyspace blah --keys id
 ----
 
 .Import into hashes in keyspace `blah:<id>` *and* set TTL *and* add each `id` to a set named `myset`
-[source]
+[source,console]
 ----
 riot file-import my.json hset --keyspace blah --keys id expire --keyspace blah --keys id sadd --keyspace myset --members id
 ----
@@ -87,14 +87,14 @@ TIP: Use `-` to read from standard input.
 
 For AWS S3 buckets you can specify access and secret keys as well as the region for the bucket.
 
-[source]
+[source,console]
 ----
 riot file-import s3://my-bucket/path/file.json --s3-region us-west-1 --s3-access xxxxxx --s3-secret xxxxxx
 ----
 
 For Google Cloud Storage you can specify credentials and project id for the bucket:
 
-[source]
+[source,console]
 ----
 riot file-import gs://my-bucket/path/file.json --gcs-key-file key.json --gcs-project-id my-gcp-project
 ----
@@ -120,7 +120,7 @@ row,abv,ibu,id,name,style,brewery,ounces
 |===
 
 The following command imports this CSV into Redis as hashes using `beer` as the key prefix and `id` as primary key.
-[source]
+[source,console]
 ----
 include::{testdir}/file-import-csv[]
 ----
@@ -128,7 +128,7 @@ include::{testdir}/file-import-csv[]
 This creates hashes with keys `beer:321`, `beer:173`, ...
 
 This command imports a CSV file into a geo set named `airportgeo` with airport IDs as members:
-[source]
+[source,console]
 ----
 include::{testdir}/file-import-geoadd[]
 ----
@@ -138,7 +138,7 @@ include::{testdir}/file-import-geoadd[]
 
 Fixed-length files can be imported by specifying the width of each field using the `--ranges` option.
 
-[source]
+[source,console]
 ----
 include::{testdir}/file-import-fw[]
 ----
@@ -161,7 +161,7 @@ The expected format for JSON files is:
 ----
 
 .JSON import example
-[source]
+[source,console]
 ----
 include::{testdir}/file-import-json[]
 ----
@@ -217,7 +217,7 @@ Here is a sample XML file that can be imported by {project-title}:
 ----
 
 .XML Import Example
-[source]
+[source,console]
 ----
 include::{testdir}/file-import-xml[]
 ----
@@ -227,7 +227,7 @@ include::{testdir}/file-import-xml[]
 In addition to general <<_processing,processing>> you can perform field extraction using regular expressions.
 
 .Regex example
-[source]
+[source,console]
 ----
 riot file-import --regex name="(?<first>\w+)\/(?<last>\w+)" ...
 ----
@@ -240,19 +240,19 @@ riot file-import --regex name="(?<first>\w+)\/(?<last>\w+)" ...
 The `file-export` command reads data from a Redis database and writes it to a JSON or XML file, potentially gzip-compressed.
 
 The general usage is:
-[source]
+[source,console]
 ----
-riot -h <host> -p <port> file-export FILE
+riot file-export [OPTIONS] FILE
 ----
 
 To show the full usage, run:
-[source]
+[source,console]
 ----
 riot file-export --help
 ----
 
 .Export to JSON
-[source]
+[source,console]
 ----
 include::{testdir}/file-export-json[]
 ----
@@ -264,13 +264,13 @@ include::{includedir}/../resources/redis-dump.json[]
 ----
 
 .Export to compressed JSON
-[source]
+[source,console]
 ----
 include::{testdir}/file-export-json-gz[]
 ----
 
 .Export to XML
-[source]
+[source,console]
 ----
 include::{testdir}/file-export-xml[]
 ----
@@ -283,7 +283,7 @@ include::{testdir}/file-export-xml[]
 {project-title} can import Redis data structure files in JSON or XML formats. See <<_file_export, File Export>> section to generate such files.
 
 .Example
-[source]
+[source,console]
 ----
-include::{testdir}/dump-import[]
+include::{testdir}/file-import-json-dump[]
 ----

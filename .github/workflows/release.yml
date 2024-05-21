@@ -38,7 +38,7 @@ jobs:
   jlink:
     name: Jlink
     needs: [precheck]
-    uses: redis-developer/riot/.github/workflows/step-jlink.yml@main
+    uses: redis/riot/.github/workflows/step-jlink.yml@main
     with:
       project-version: ${{ needs.precheck.outputs.version }}
     secrets:

@@ -7,41 +7,54 @@ import java.util.stream.Collectors;
 
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 
 import com.redis.spring.batch.RedisItemWriter;
-import com.redis.spring.batch.common.Operation;
-import com.redis.spring.batch.writer.OperationItemWriter;
+import com.redis.spring.batch.writer.WriteOperation;
 
-import io.lettuce.core.AbstractRedisClient;
-
-public abstract class AbstractImport extends AbstractJobRunnable {
+public abstract class AbstractImport extends AbstractRedisCallable {
 
 	private RedisWriterOptions writerOptions = new RedisWriterOptions();
-	private EvaluationContextOptions evaluationContextOptions = new EvaluationContextOptions();
-	private ImportProcessorOptions processorOptions = new ImportProcessorOptions();
-	private List<Operation<String, String, Map<String, Object>, Object>> operations;
+	private List<WriteOperation<String, String, Map<String, Object>>> operations;
+	private MapProcessorOptions mapProcessorOptions = new MapProcessorOptions();
 
-	@SuppressWarnings("unchecked")
-	public void setOperations(Operation<String, String, Map<String, Object>, Object>... operations) {
-		setOperations(Arrays.asList(operations));
+	protected ItemProcessor<Map<String, Object>, Map<String, Object>> mapProcessor() {
+		return mapProcessorOptions.processor(evaluationContext);
 	}
 
-	public List<Operation<String, String, Map<String, Object>, Object>> getOperations() {
+	protected boolean hasOperations() {
+		return !CollectionUtils.isEmpty(operations);
+	}
+
+	protected void assertHasOperations() {
+		Assert.isTrue(hasOperations(), "No Redis command specified");
+	}
+
+	protected ItemWriter<Map<String, Object>> mapWriter() {
+		assertHasOperations();
+		return RiotUtils.writer(operations.stream().map(this::writer).collect(Collectors.toList()));
+	}
+
+	public List<WriteOperation<String, String, Map<String, Object>>> getOperations() {
 		return operations;
 	}
 
-	public void setOperations(List<Operation<String, String, Map<String, Object>, Object>> operations) {
+	@SuppressWarnings("unchecked")
+	public void setOperations(WriteOperation<String, String, Map<String, Object>>... operations) {
+		setOperations(Arrays.asList(operations));
+	}
+
+	public void setOperations(List<WriteOperation<String, String, Map<String, Object>>> operations) {
 		this.operations = operations;
 	}
 
-	public EvaluationContextOptions getEvaluationContextOptions() {
-		return evaluationContextOptions;
+	public MapProcessorOptions getMapProcessorOptions() {
+		return mapProcessorOptions;
 	}
 
-	public void setEvaluationContextOptions(EvaluationContextOptions evaluationContextOptions) {
-		this.evaluationContextOptions = evaluationContextOptions;
+	public void setMapProcessorOptions(MapProcessorOptions mapProcessorOptions) {
+		this.mapProcessorOptions = mapProcessorOptions;
 	}
 
 	public RedisWriterOptions getWriterOptions() {
@@ -52,30 +65,16 @@ public abstract class AbstractImport extends AbstractJobRunnable {
 		this.writerOptions = options;
 	}
 
-	public ImportProcessorOptions getProcessorOptions() {
-		return processorOptions;
+	@Override
+	protected <K, V, T> void configure(RedisItemWriter<K, V, T> writer) {
+		writerOptions.configure(writer);
+		super.configure(writer);
 	}
 
-	public void setProcessorOptions(ImportProcessorOptions options) {
-		this.processorOptions = options;
-	}
-
-	protected ItemWriter<Map<String, Object>> writer() {
-		Assert.notEmpty(operations, "No operation specified");
-		return RiotUtils.writer(operations.stream().map(o -> writer(getRedisClient(), o)).collect(Collectors.toList()));
-	}
-
-	private <T> ItemWriter<T> writer(AbstractRedisClient client, Operation<String, String, T, Object> operation) {
-		OperationItemWriter<String, String, T> writer = RedisItemWriter.operation(client, operation);
-		return writer(writer, writerOptions);
-	}
-
-	protected ItemProcessor<Map<String, Object>, Map<String, Object>> processor() {
-		return processorOptions.processor(evaluationContext());
-	}
-
-	protected StandardEvaluationContext evaluationContext() {
-		return evaluationContextOptions.evaluationContext();
+	protected <T> ItemWriter<T> writer(WriteOperation<String, String, T> operation) {
+		RedisItemWriter<String, String, T> writer = RedisItemWriter.operation(operation);
+		configure(writer);
+		return writer;
 	}
 
 }

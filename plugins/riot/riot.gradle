@@ -57,7 +57,7 @@ dependencies {
     implementation platform('com.amazonaws:aws-java-sdk-bom:1.12.693')
     implementation 'com.amazonaws:aws-java-sdk-s3'
     testImplementation 'org.springframework.boot:spring-boot-starter-jdbc'
-    testImplementation group: 'com.redis', name: 'spring-batch-redis', version: springBatchRedisVersion, classifier: 'tests'
+    testImplementation group: 'com.redis', name: 'spring-batch-redis-test', version: springBatchRedisVersion
     testImplementation 'org.awaitility:awaitility'
     testImplementation 'org.testcontainers:postgresql'
     testImplementation 'org.testcontainers:oracle-xe'
@@ -131,12 +131,6 @@ afterEvaluate {
 }
 
 mainClassName = "com.redis.riot.cli.Main"
-
-eclipse {
-    project {
-        name = 'riot-cli'
-    }
-}
 
 task copyRuntimeDependencies(type: Copy) {
     into "$buildDir/dependencies/flat"

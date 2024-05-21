@@ -12,18 +12,18 @@ permissions:
 jobs:
   precheck:
     name: Precheck
-    uses: redis-developer/riot/.github/workflows/step-precheck.yml@main
+    uses: redis/riot/.github/workflows/step-precheck.yml@main
     secrets: inherit
 
   jlink:
     name: Jlink
     needs: [precheck]
     if: endsWith(${{ needs.precheck.outputs.version }}, '-SNAPSHOT')
-    uses: redis-developer/riot/.github/workflows/step-jlink.yml@main
+    uses: redis/riot/.github/workflows/step-jlink.yml@main
     with:
       project-version: ${{ needs.precheck.outputs.version }}
     secrets:
-      gpg-passphrase: ${{ secrets.GPG_PASSPHRASE }}
+      codecov-token: ${{ secrets.CODECOV_TOKEN }}
 
   release:
     name: Release

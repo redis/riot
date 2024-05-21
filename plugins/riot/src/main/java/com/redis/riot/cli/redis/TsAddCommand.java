@@ -10,7 +10,7 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 @Command(name = "ts.add", description = "Add samples to RedisTimeSeries")
-public class TsAddCommand extends AbstractRedisCommand {
+public class TsAddCommand extends AbstractWriteOperationCommand {
 
 	@Option(names = "--timestamp", description = "Name of the field to use for timestamps. If unset, uses auto-timestamping.", paramLabel = "<field>")
 	private String timestampField;

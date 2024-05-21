@@ -2,13 +2,14 @@ package com.redis.riot.core;
 
 import java.time.Duration;
 
-import com.redis.spring.batch.common.AbstractOperationExecutor;
-import com.redis.spring.batch.writer.AbstractOperationItemWriter;
+import com.redis.spring.batch.RedisItemWriter;
+import com.redis.spring.batch.writer.KeyValueWrite;
+import com.redis.spring.batch.writer.KeyValueWrite.WriteMode;
 
 public class RedisWriterOptions {
 
-	public static final Duration DEFAULT_WAIT_TIMEOUT = AbstractOperationItemWriter.DEFAULT_WAIT_TIMEOUT;
-	public static final int DEFAULT_POOL_SIZE = AbstractOperationExecutor.DEFAULT_POOL_SIZE;
+	public static final Duration DEFAULT_WAIT_TIMEOUT = RedisItemWriter.DEFAULT_WAIT_TIMEOUT;
+	public static final int DEFAULT_POOL_SIZE = RedisItemWriter.DEFAULT_POOL_SIZE;
 
 	private boolean multiExec;
 	private int waitReplicas;
@@ -54,6 +55,24 @@ public class RedisWriterOptions {
 
 	public void setWaitTimeout(Duration timeout) {
 		this.waitTimeout = timeout;
+	}
+
+	public void configure(RedisItemWriter<?, ?, ?> writer) {
+		writer.setMultiExec(multiExec);
+		writer.setPoolSize(poolSize);
+		writer.setWaitReplicas(waitReplicas);
+		writer.setWaitTimeout(waitTimeout);
+		if (writer.getOperation() instanceof KeyValueWrite) {
+			((KeyValueWrite<?, ?>) writer.getOperation()).setMode(writeMode());
+		}
+
+	}
+
+	private WriteMode writeMode() {
+		if (merge) {
+			return WriteMode.MERGE;
+		}
+		return WriteMode.OVERWRITE;
 	}
 
 }

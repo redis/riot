@@ -21,8 +21,8 @@ import com.redis.riot.cli.redis.TsAddCommand;
 import com.redis.riot.cli.redis.XaddCommand;
 import com.redis.riot.cli.redis.ZaddCommand;
 import com.redis.riot.core.AbstractImport;
-import com.redis.riot.core.ImportProcessorOptions;
-import com.redis.spring.batch.common.Operation;
+import com.redis.riot.core.MapProcessorOptions;
+import com.redis.spring.batch.writer.WriteOperation;
 
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
@@ -32,55 +32,67 @@ import picocli.CommandLine.Option;
 		LpushCommand.class, RpushCommand.class, SaddCommand.class, SetCommand.class, XaddCommand.class,
 		ZaddCommand.class, SugaddCommand.class, JsonSetCommand.class,
 		TsAddCommand.class }, subcommandsRepeatable = true, synopsisSubcommandLabel = "[REDIS COMMAND...]", commandListHeading = "Redis commands:%n")
-public abstract class AbstractImportCommand extends AbstractJobCommand {
+public abstract class AbstractImportCommand extends AbstractRedisCommand {
+
+	@ArgGroup(exclusive = false, heading = "Redis writer options%n")
+	private RedisWriterArgs redisWriterArgs = new RedisWriterArgs();
 
 	@Option(arity = "1..*", names = "--proc", description = "SpEL expressions in the form field1=\"exp\" field2=\"exp\"...", paramLabel = "<f=exp>")
-	Map<String, Expression> processorExpressions;
+	private Map<String, Expression> processorExpressions;
 
 	@Option(names = "--filter", description = "Discard records using a SpEL expression.", paramLabel = "<exp>")
-	Expression filter;
+	private Expression filter;
 
 	@ArgGroup(exclusive = false)
-	EvaluationContextArgs evaluationContextArgs = new EvaluationContextArgs();
+	private EvaluationContextArgs evaluationContextArgs = new EvaluationContextArgs();
 
 	/**
 	 * Initialized manually during command parsing
 	 */
-	private List<RedisCommand> commands = new ArrayList<>();
+	private List<WriteOperationCommand> commands = new ArrayList<>();
 
-	public List<RedisCommand> getCommands() {
+	public List<WriteOperationCommand> getCommands() {
 		return commands;
 	}
 
-	public void setCommands(List<RedisCommand> commands) {
+	public void setCommands(List<WriteOperationCommand> commands) {
 		this.commands = commands;
 	}
 
-	protected List<Operation<String, String, Map<String, Object>, Object>> operations() {
-		return commands.stream().map(RedisCommand::operation).collect(Collectors.toList());
+	protected List<WriteOperation<String, String, Map<String, Object>>> operations() {
+		return commands.stream().map(WriteOperationCommand::operation).collect(Collectors.toList());
 	}
 
 	@Override
-	protected AbstractImport jobRunnable() {
-		AbstractImport runnable = importRunnable();
-		runnable.setOperations(operations());
-		runnable.setEvaluationContextOptions(evaluationContextArgs.evaluationContextOptions());
-		runnable.setProcessorOptions(processorOptions());
-		return runnable;
+	protected AbstractImport redisCallable() {
+		AbstractImport callable = importCallable();
+		callable.setWriterOptions(redisWriterArgs.writerOptions());
+		callable.setOperations(operations());
+		callable.setEvaluationContextOptions(evaluationContextArgs.evaluationContextOptions());
+		callable.setMapProcessorOptions(mapProcessorOptions());
+		return callable;
 	}
 
-	private ImportProcessorOptions processorOptions() {
-		ImportProcessorOptions options = new ImportProcessorOptions();
-		options.setProcessorExpressions(processorExpressions);
-		options.setFilterExpression(filter);
+	protected abstract AbstractImport importCallable();
+
+	private MapProcessorOptions mapProcessorOptions() {
+		MapProcessorOptions options = new MapProcessorOptions();
+		options.setExpressions(processorExpressions);
+		options.setFilter(filter);
 		return options;
 	}
-
-	protected abstract AbstractImport importRunnable();
 
 	@Override
 	protected String taskName(String stepName) {
 		return "Importing";
+	}
+
+	public RedisWriterArgs getRedisWriterArgs() {
+		return redisWriterArgs;
+	}
+
+	public void setRedisWriterArgs(RedisWriterArgs redisWriterArgs) {
+		this.redisWriterArgs = redisWriterArgs;
 	}
 
 }

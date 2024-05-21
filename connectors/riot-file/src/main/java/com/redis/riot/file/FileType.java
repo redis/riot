@@ -2,6 +2,6 @@ package com.redis.riot.file;
 
 public enum FileType {
 
-	DELIMITED, FIXED, JSON, JSONL, XML
+	DELIMITED, FIXED_LENGTH, JSON, JSONL, XML
 
 }

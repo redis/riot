@@ -9,19 +9,18 @@ This section helps you get started with {project-title}.
 {project-title} can be installed on Linux, macOS, and Windows platforms and can be used as a standalone tool that connects remotely to a Redis database.
 It is not required to run locally on a Redis server.
 
-
 [[_homebrew_install]]
 .Homebrew (macOS & Linux)
-[source]
+[source,console]
 ----
-brew install redis-developer/tap/riot
+brew install redis/tap/riot
 ----
 
 [[_scoop_install]]
 .Scoop (Windows)
-[source]
+[source,console]
 ----
-scoop bucket add redis-developer https://github.com/redis-developer/scoop.git
+scoop bucket add redis https://github.com/redis/scoop.git
 scoop install riot
 ----
 
@@ -37,7 +36,7 @@ Download the pre-compiled binary from the link:{project-url}/releases[releases p
 
 [[_docker_install]]
 .Docker
-[source]
+[source,console]
 ----
 docker run fieldengineering/riot [OPTIONS] [COMMAND]
 ----
@@ -47,14 +46,14 @@ docker run fieldengineering/riot [OPTIONS] [COMMAND]
 
 You can launch {project-title} with the following command:
 
-[source]
+[source,console]
 ----
 riot
 ----
 
 This will show usage help, which you can also get by running:
 
-[source]
+[source,console]
 ----
 riot --help
 ----
@@ -63,7 +62,7 @@ riot --help
 ====
 `--help` is available on any command and subcommand:
 
-[source]
+[source,console]
 ----
 riot command --help
 riot command subcommand --help
@@ -74,7 +73,7 @@ riot command subcommand --help
 == Shell Completion
 Run the following command to give `riot` TAB completion in the current shell:
 
-[source]
+[source,console]
 ----
 $ source <(riot generate-completion)
 ----
