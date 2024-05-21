@@ -3,26 +3,25 @@ package com.redis.riot.cli;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.Callable;
 
-import org.springframework.batch.item.ItemReader;
-
+import com.redis.riot.core.AbstractRedisCallable;
 import com.redis.riot.redis.GeneratorImport;
 import com.redis.spring.batch.common.DataType;
-import com.redis.spring.batch.common.Range;
 import com.redis.spring.batch.gen.CollectionOptions;
 import com.redis.spring.batch.gen.GeneratorItemReader;
 import com.redis.spring.batch.gen.MapOptions;
+import com.redis.spring.batch.gen.Range;
 import com.redis.spring.batch.gen.StreamOptions;
 import com.redis.spring.batch.gen.StringOptions;
 import com.redis.spring.batch.gen.TimeSeriesOptions;
 import com.redis.spring.batch.gen.ZsetOptions;
 
+import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 @Command(name = "generate", description = "Generate data structures.")
-public class GenerateCommand extends AbstractStructImportCommand {
+public class GenerateCommand extends AbstractRedisCommand {
 
 	private static final String TASK_NAME = "Generating";
 
@@ -32,7 +31,7 @@ public class GenerateCommand extends AbstractStructImportCommand {
 	@Option(names = "--keyspace", description = "Keyspace prefix for generated data structures (default: ${DEFAULT-VALUE}).", paramLabel = "<str>")
 	String keyspace = GeneratorItemReader.DEFAULT_KEYSPACE;
 
-	@Option(names = "--keys", description = "Range of keys to generate in the form '<start>:<end>' (default: ${DEFAULT-VALUE}).", paramLabel = "<range>")
+	@Option(names = "--keys", description = "Range of keys to generate in the form '<start>:<end>' (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
 	Range keyRange = GeneratorItemReader.DEFAULT_KEY_RANGE;
 
 	@Option(arity = "1..*", names = "--types", description = "Types of data structures to generate: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<type>")
@@ -41,56 +40,59 @@ public class GenerateCommand extends AbstractStructImportCommand {
 	@Option(names = "--expiration", description = "TTL in seconds.", paramLabel = "<secs>")
 	Range expiration;
 
-	@Option(names = "--hash-fields", description = "Number of fields in hashes (default: ${DEFAULT-VALUE}).", paramLabel = "<range>")
+	@Option(names = "--hash-size", description = "Number of fields in hashes (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
 	Range hashFieldCount = MapOptions.DEFAULT_FIELD_COUNT;
 
-	@Option(names = "--hash-field-len", description = "Value size for hash fields (default: ${DEFAULT-VALUE}).", paramLabel = "<range>")
+	@Option(names = "--hash-value", description = "Value size for hash fields (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
 	Range hashFieldLength = MapOptions.DEFAULT_FIELD_LENGTH;
 
-	@Option(names = "--json-fields", description = "Number of fields in JSON docs (default: ${DEFAULT-VALUE}).", paramLabel = "<range>")
+	@Option(names = "--json-size", description = "Number of fields in JSON docs (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
 	Range jsonFieldCount = MapOptions.DEFAULT_FIELD_COUNT;
 
-	@Option(names = "--json-field-len", description = "Value size for JSON fields (default: ${DEFAULT-VALUE}).", paramLabel = "<range>")
+	@Option(names = "--json-value", description = "Value size for JSON fields (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
 	Range jsonFieldLength = MapOptions.DEFAULT_FIELD_LENGTH;
 
-	@Option(names = "--list-members", description = "Number of elements in lists (default: ${DEFAULT-VALUE}).", paramLabel = "<range>")
+	@Option(names = "--list-size", description = "Number of elements in lists (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
 	Range listMemberCount = CollectionOptions.DEFAULT_MEMBER_COUNT;
 
-	@Option(names = "--list-member-len", description = "Value size for list elements (default: ${DEFAULT-VALUE}).", paramLabel = "<range>")
+	@Option(names = "--list-value", description = "Value size for list elements (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
 	Range listMemberRange = CollectionOptions.DEFAULT_MEMBER_RANGE;
 
-	@Option(names = "--set-members", description = "Number of elements in sets (default: ${DEFAULT-VALUE}).", paramLabel = "<range>")
+	@Option(names = "--set-size", description = "Number of elements in sets (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
 	Range setMemberCount = CollectionOptions.DEFAULT_MEMBER_COUNT;
 
-	@Option(names = "--set-member-len", description = "Value size for set elements (default: ${DEFAULT-VALUE}).", paramLabel = "<range>")
+	@Option(names = "--set-value", description = "Value size for set elements (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
 	Range setMemberLength = CollectionOptions.DEFAULT_MEMBER_RANGE;
 
-	@Option(names = "--stream-messages", description = "Number of messages in streams (default: ${DEFAULT-VALUE}).", paramLabel = "<range>")
+	@Option(names = "--stream-size", description = "Number of messages in streams (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
 	Range streamMessageCount = StreamOptions.DEFAULT_MESSAGE_COUNT;
 
-	@Option(names = "--stream-fields", description = "Number of fields in stream messages (default: ${DEFAULT-VALUE}).", paramLabel = "<range>")
+	@Option(names = "--stream-fields", description = "Number of fields in stream messages (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
 	Range streamFieldCount = MapOptions.DEFAULT_FIELD_COUNT;
 
-	@Option(names = "--stream-field-len", description = "Value size for fields in stream messages (default: ${DEFAULT-VALUE}).", paramLabel = "<range>")
+	@Option(names = "--stream-value", description = "Value size for fields in stream messages (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
 	Range streamFieldLength = MapOptions.DEFAULT_FIELD_LENGTH;
 
-	@Option(names = "--string-len", description = "Length of strings (default: ${DEFAULT-VALUE}).", paramLabel = "<range>")
+	@Option(names = "--string-value", description = "Length of strings (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
 	Range stringLength = StringOptions.DEFAULT_LENGTH;
 
-	@Option(names = "--ts-samples", description = "Number of samples in timeseries (default: ${DEFAULT-VALUE}).", paramLabel = "<range>")
+	@Option(names = "--ts-size", description = "Number of samples in timeseries (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
 	Range timeseriesSampleCount = TimeSeriesOptions.DEFAULT_SAMPLE_COUNT;
 
 	@Option(names = "--ts-time", description = "Start time for samples in timeseries, e.g. 2007-12-03T10:15:30.00Z (default: now).", paramLabel = "<epoch>")
 	Instant timeseriesStartTime;
 
-	@Option(names = "--zset-members", description = "Number of elements in sorted sets (default: ${DEFAULT-VALUE}).", paramLabel = "<range>")
+	@Option(names = "--zset-size", description = "Number of elements in sorted sets (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
 	Range zsetMemberCount = CollectionOptions.DEFAULT_MEMBER_COUNT;
 
-	@Option(names = "--zset-member-len", description = "Value size for sorted-set elements (default: ${DEFAULT-VALUE}).", paramLabel = "<range>")
+	@Option(names = "--zset-value", description = "Value size for sorted-set elements (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
 	Range zsetMemberLength = CollectionOptions.DEFAULT_MEMBER_RANGE;
 
-	@Option(names = "--zset-score", description = "Score of sorted sets (default: ${DEFAULT-VALUE}).", paramLabel = "<range>")
+	@Option(names = "--zset-score", description = "Score of sorted sets (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
 	Range zsetScore = ZsetOptions.DEFAULT_SCORE;
+
+	@ArgGroup(exclusive = false, heading = "Redis writer options%n")
+	private RedisWriterArgs redisWriterArgs = new RedisWriterArgs();
 
 	@Override
 	protected String taskName(String stepName) {
@@ -98,27 +100,23 @@ public class GenerateCommand extends AbstractStructImportCommand {
 	}
 
 	@Override
-	protected Callable<Long> initialMaxSupplier(String stepName, ItemReader<?> reader) {
-		return () -> (long) count;
-	}
-
-	@Override
-	protected GeneratorImport importRunnable() {
-		GeneratorImport runnable = new GeneratorImport();
-		runnable.setCount(count);
-		runnable.setExpiration(expiration);
-		runnable.setHashOptions(hashOptions());
-		runnable.setJsonOptions(jsonOptions());
-		runnable.setKeyRange(keyRange);
-		runnable.setKeyspace(keyspace);
-		runnable.setListOptions(listOptions());
-		runnable.setSetOptions(setOptions());
-		runnable.setStreamOptions(streamOptions());
-		runnable.setStringOptions(stringOptions());
-		runnable.setTimeSeriesOptions(timeseriesOptions());
-		runnable.setTypes(types);
-		runnable.setZsetOptions(zsetOptions());
-		return runnable;
+	protected AbstractRedisCallable redisCallable() {
+		GeneratorImport callable = new GeneratorImport();
+		callable.setCount(count);
+		callable.setExpiration(expiration);
+		callable.setHashOptions(hashOptions());
+		callable.setJsonOptions(jsonOptions());
+		callable.setKeyRange(keyRange);
+		callable.setKeyspace(keyspace);
+		callable.setListOptions(listOptions());
+		callable.setSetOptions(setOptions());
+		callable.setStreamOptions(streamOptions());
+		callable.setStringOptions(stringOptions());
+		callable.setTimeSeriesOptions(timeseriesOptions());
+		callable.setTypes(types);
+		callable.setZsetOptions(zsetOptions());
+		callable.setWriterOptions(redisWriterArgs.writerOptions());
+		return callable;
 	}
 
 	private ZsetOptions zsetOptions() {
@@ -179,6 +177,14 @@ public class GenerateCommand extends AbstractStructImportCommand {
 		options.setFieldCount(fieldCount);
 		options.setFieldLength(fieldLength);
 		return options;
+	}
+
+	public RedisWriterArgs getRedisWriterArgs() {
+		return redisWriterArgs;
+	}
+
+	public void setRedisWriterArgs(RedisWriterArgs args) {
+		this.redisWriterArgs = args;
 	}
 
 }

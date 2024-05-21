@@ -11,14 +11,14 @@ The `db-import` command imports data from a relational database into Redis.
 NOTE: Ensure {project-title} has the relevant JDBC driver for your database.
 See the <<_database_drivers,Drivers>> section for more details.
 
-[source]
+[source,console]
 ----
-riot -h <redis host> -p <redis port> db-import --url <jdbc url> SQL [REDIS COMMAND...]
+riot db-import -h <redis host> -p <redis port> --url <jdbc url> SQL [REDIS COMMAND...]
 ----
 
 To show the full usage, run:
 
-[source]
+[source,console]
 ----
 riot db-import --help
 ----
@@ -43,13 +43,13 @@ The keys that will be written are constructed from input records by concatenatin
 image::mapping.svg[]
 
 .PostgreSQL Import Example
-[source]
+[source,console]
 ----
 include::{testdir}/db-import-postgresql[]
 ----
 
 .Import from PostgreSQL to JSON strings
-[source]
+[source,console]
 ----
 include::{testdir}/db-import-postgresql-set[]
 ----
@@ -66,19 +66,19 @@ include::{includedir}/../resources/order.json[]
 Use the `db-export` command to read from a Redis database and writes to a SQL database.
 
 The general usage is:
-[source]
+[source,console]
 ----
-riot -h <redis host> -p <redis port> db-export --url <jdbc url> SQL
+riot db-export -h <redis host> -p <redis port> --url <jdbc url> SQL
 ----
 
 To show the full usage, run:
-[source]
+[source,console]
 ----
 riot db-export --help
 ----
 
 .Example: export to PostgreSQL
-[source]
+[source,console]
 ----
 include::{testdir}/db-export-postgresql[]
 ----

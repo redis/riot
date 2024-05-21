@@ -6,7 +6,7 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 @Command(name = "zadd", description = "Add members with scores to a sorted set")
-public class ZaddCommand extends AbstractRedisCollectionCommand {
+public class ZaddCommand extends AbstractCollectionOperationCommand {
 
 	@Option(names = "--score", description = "Name of the field to use for scores.", paramLabel = "<field>")
 	private String scoreField;

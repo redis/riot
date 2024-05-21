@@ -1,127 +1,90 @@
 package com.redis.riot.redis;
 
 import java.io.PrintWriter;
+import java.net.SocketAddress;
+import java.text.MessageFormat;
 import java.time.Duration;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.Callable;
 
-import org.HdrHistogram.Histogram;
-import org.LatencyUtils.LatencyStats;
 import org.springframework.util.Assert;
 
-import com.redis.riot.core.AbstractRunnable;
+import com.redis.lettucemod.api.StatefulRedisModulesConnection;
+import com.redis.lettucemod.api.sync.RedisModulesCommands;
+import com.redis.lettucemod.util.RedisModulesUtils;
+import com.redis.riot.core.RedisClientOptions;
 
-import io.lettuce.core.metrics.CommandMetrics.CommandLatency;
-import io.lettuce.core.metrics.DefaultCommandLatencyCollectorOptions;
+import io.lettuce.core.AbstractRedisClient;
+import io.lettuce.core.RedisURI;
 
-public class Ping extends AbstractRunnable {
+public class Ping implements Callable<Long> {
 
-	public static final int DEFAULT_ITERATIONS = 1;
-	public static final int DEFAULT_COUNT = 10;
-	public static final TimeUnit DEFAULT_TIME_UNIT = TimeUnit.MILLISECONDS;
-	private static final double[] DEFAULT_PERCENTILES = DefaultCommandLatencyCollectorOptions.DEFAULT_TARGET_PERCENTILES;
+	public static final Duration DEFAULT_INTERVAL = Duration.ofSeconds(1);
+	public static final long DEFAULT_COUNT = Long.MAX_VALUE;
+
+	private static final String REQUEST_MESSAGE = "PING {0}";
+	private static final String REPLY_MESSAGE = "{0} from {1}: time={2} ms";
 
 	private PrintWriter out;
-	private int iterations = DEFAULT_ITERATIONS;
-	private int count = DEFAULT_COUNT;
-	private TimeUnit timeUnit = DEFAULT_TIME_UNIT;
-	private boolean latencyDistribution;
-	private double[] percentiles = DEFAULT_PERCENTILES;
-	private Duration sleep;
+
+	private RedisURI redisURI;
+	private RedisClientOptions redisClientOptions = new RedisClientOptions();
+	private Duration interval = DEFAULT_INTERVAL;
+	private long count = DEFAULT_COUNT;
+
+	public RedisURI getRedisURI() {
+		return redisURI;
+	}
+
+	public void setRedisURI(RedisURI redisURI) {
+		this.redisURI = redisURI;
+	}
+
+	public Duration getInterval() {
+		return interval;
+	}
+
+	public void setInterval(Duration interval) {
+		this.interval = interval;
+	}
 
 	public void setOut(PrintWriter out) {
 		this.out = out;
 	}
 
-	public void setSleep(Duration sleep) {
-		this.sleep = sleep;
-	}
-
-	public Duration getSleep() {
-		return sleep;
-	}
-
-	public int getIterations() {
-		return iterations;
-	}
-
-	public void setIterations(int iterations) {
-		this.iterations = iterations;
-	}
-
-	public int getCount() {
+	public long getCount() {
 		return count;
 	}
 
-	public void setCount(int count) {
+	public void setCount(long count) {
 		this.count = count;
 	}
 
-	public TimeUnit getTimeUnit() {
-		return timeUnit;
+	public RedisClientOptions getRedisClientOptions() {
+		return redisClientOptions;
 	}
 
-	public void setTimeUnit(TimeUnit unit) {
-		this.timeUnit = unit;
-	}
-
-	public boolean isLatencyDistribution() {
-		return latencyDistribution;
-	}
-
-	public void setLatencyDistribution(boolean latencyDistribution) {
-		this.latencyDistribution = latencyDistribution;
-	}
-
-	public double[] getPercentiles() {
-		return percentiles;
-	}
-
-	public void setPercentiles(double[] percentiles) {
-		this.percentiles = percentiles;
+	public void setRedisClientOptions(RedisClientOptions redisClientOptions) {
+		this.redisClientOptions = redisClientOptions;
 	}
 
 	@Override
-	protected void doRun() {
-		for (int iteration = 0; iteration < iterations; iteration++) {
-			LatencyStats stats = new LatencyStats();
+	public Long call() throws Exception {
+		Assert.notNull(redisURI, "RedisURI not set");
+		out.println(MessageFormat.format(REQUEST_MESSAGE, redisURI));
+		try (AbstractRedisClient redisClient = redisClientOptions.redisClient(redisURI);
+				StatefulRedisModulesConnection<String, String> connection = RedisModulesUtils.connection(redisClient)) {
+			SocketAddress socketAddress = connection.getResources().socketAddressResolver().resolve(redisURI);
+			RedisModulesCommands<String, String> redisCommands = connection.sync();
 			for (int index = 0; index < count; index++) {
 				long startTime = System.nanoTime();
-				String reply = getRedisConnection().sync().ping();
+				String reply = redisCommands.ping();
 				Assert.isTrue("pong".equalsIgnoreCase(reply), "Invalid PING reply received: " + reply);
-				stats.recordLatency(System.nanoTime() - startTime);
-			}
-			Histogram histogram = stats.getIntervalHistogram();
-			if (latencyDistribution) {
-				histogram.outputPercentileDistribution(System.out, (double) timeUnit.toNanos(1));
-			}
-			Map<Double, Long> percentileMap = new TreeMap<>();
-			for (double targetPercentile : percentiles) {
-				long percentile = toTimeUnit(histogram.getValueAtPercentile(targetPercentile));
-				percentileMap.put(targetPercentile, percentile);
-			}
-			long min = toTimeUnit(histogram.getMinValue());
-			long max = toTimeUnit(histogram.getMaxValue());
-			CommandLatency latency = new CommandLatency(min, max, percentileMap);
-			out.println(latency.toString());
-			if (sleep != null) {
-				try {
-					Thread.sleep(sleep.toMillis());
-				} catch (InterruptedException e) {
-					// Restore interrupted state...
-					Thread.currentThread().interrupt();
-				}
+				Duration duration = Duration.ofNanos(System.nanoTime() - startTime);
+				out.println(MessageFormat.format(REPLY_MESSAGE, reply, socketAddress, duration.toMillis()));
+				Thread.sleep(interval.toMillis());
 			}
 		}
-	}
-
-	private long toTimeUnit(long value) {
-		return timeUnit.convert(value, TimeUnit.NANOSECONDS);
-	}
-
-	public static double[] defaultPercentiles() {
-		return DEFAULT_PERCENTILES;
+		return count;
 	}
 
 }

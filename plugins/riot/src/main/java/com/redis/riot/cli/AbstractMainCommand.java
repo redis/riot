@@ -1,16 +1,18 @@
 package com.redis.riot.cli;
 
 import java.io.PrintWriter;
+import java.util.Map;
 
 import org.springframework.expression.Expression;
 
 import com.redis.riot.core.RiotUtils;
+import com.redis.riot.core.SlotRange;
 import com.redis.riot.core.TemplateExpression;
-import com.redis.spring.batch.common.Range;
+import com.redis.spring.batch.gen.Range;
 
+import io.lettuce.core.RedisURI;
 import picocli.AutoComplete.GenerateCompletion;
 import picocli.CommandLine;
-import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.IExecutionStrategy;
 import picocli.CommandLine.Model.CommandSpec;
@@ -20,10 +22,16 @@ import picocli.CommandLine.RunFirst;
 import picocli.CommandLine.RunLast;
 import picocli.CommandLine.Spec;
 
-@Command(subcommands = { DatabaseImportCommand.class, DatabaseExportCommand.class, FileDumpImportCommand.class,
-		FileImportCommand.class, FileDumpExportCommand.class, FakerImportCommand.class, GenerateCommand.class,
-		ReplicateCommand.class, PingCommand.class, GenerateCompletion.class })
-public abstract class AbstractMainCommand extends BaseCommand implements Runnable {
+@Command(usageHelpAutoWidth = true, abbreviateSynopsis = true, subcommands = { DbImportCommand.class,
+		DbExportCommand.class, FileImportCommand.class, FileExportCommand.class, FakerImportCommand.class,
+		GenerateCommand.class, ReplicateCommand.class, PingCommand.class, GenerateCompletion.class })
+public abstract class AbstractMainCommand implements Runnable {
+
+	static {
+		if (System.getenv().containsKey("RIOT_NO_COLOR")) {
+			System.setProperty("picocli.ansi", "false");
+		}
+	}
 
 	PrintWriter out;
 
@@ -32,11 +40,10 @@ public abstract class AbstractMainCommand extends BaseCommand implements Runnabl
 	@Spec
 	CommandSpec spec;
 
-	@ArgGroup(exclusive = false, heading = "Redis connection options%n")
-	RedisArgs redisArgs = new RedisArgs();
-
-	@Option(names = { "-V", "--version" }, versionHelp = true, description = "Print version information and exit.")
-	boolean versionRequested;
+	@Option(names = "-D", paramLabel = "<key=value>", description = "Sets a System property.")
+	void setProperty(Map<String, String> props) {
+		props.forEach(System::setProperty);
+	}
 
 	@Override
 	public void run() {
@@ -63,10 +70,11 @@ public abstract class AbstractMainCommand extends BaseCommand implements Runnabl
 	private static int execute(CommandLine commandLine, String[] args, IExecutionStrategy... executionStrategies) {
 		CompositeExecutionStrategy executionStrategy = new CompositeExecutionStrategy();
 		executionStrategy.addDelegates(executionStrategies);
-		executionStrategy.addDelegates(LoggingMixin::executionStrategy);
 		executionStrategy.addDelegates(AbstractMainCommand::executionStrategy);
 		commandLine.setExecutionStrategy(executionStrategy);
-		commandLine.registerConverter(Range.class, Range::of);
+		commandLine.registerConverter(RedisURI.class, RedisURI::create);
+		commandLine.registerConverter(Range.class, new RangeTypeConverter<>(Range::of));
+		commandLine.registerConverter(SlotRange.class, new RangeTypeConverter<>(SlotRange::of));
 		commandLine.registerConverter(Expression.class, RiotUtils::parse);
 		commandLine.registerConverter(TemplateExpression.class, RiotUtils::parseTemplate);
 		commandLine.setCaseInsensitiveEnumValuesAllowed(true);
@@ -83,7 +91,7 @@ public abstract class AbstractMainCommand extends BaseCommand implements Runnabl
 					if (redisCommand.isUsageHelpRequested()) {
 						return new RunLast().execute(redisCommand);
 					}
-					importCommand.getCommands().add((RedisCommand) redisCommand.commandSpec().userObject());
+					importCommand.getCommands().add((WriteOperationCommand) redisCommand.commandSpec().userObject());
 				}
 				return new RunFirst().execute(subcommand);
 			}

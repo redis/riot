@@ -27,15 +27,15 @@ config {
         tags = ['redis', 'tool', 'import', 'export', 'replication']
 
         links {
-            website      = "https://github.com/redis-developer/${project.rootProject.name}"
-            issueTracker = "https://github.com/redis-developer/${project.rootProject.name}/issues"
-            scm          = "https://github.com/redis-developer/${project.rootProject.name}.git"
+            website      = "https://github.com/redis/${project.rootProject.name}"
+            issueTracker = "https://github.com/redis/${project.rootProject.name}/issues"
+            scm          = "https://github.com/redis/${project.rootProject.name}.git"
         }
 
         scm {
-            url                 = "https://github.com/redis-developer/${project.rootProject.name}"
-            connection          = "scm:git:https://github.com/redis-developer/${project.rootProject.name}.git"
-            developerConnection = "scm:git:git@github.com:redis-developer/${project.rootProject.name}.git"
+            url                 = "https://github.com/redis/${project.rootProject.name}"
+            connection          = "scm:git:https://github.com/redis/${project.rootProject.name}.git"
+            developerConnection = "scm:git:git@github.com:redis/${project.rootProject.name}.git"
         }
 
         specification {
@@ -57,9 +57,7 @@ config {
 
     docs {
         javadoc {
-            autoLinks {
-                enabled = false
-            }
+            enabled = false
         }
     }
 
@@ -75,7 +73,7 @@ config {
     coverage {
         jacoco {
             enabled = true
-            toolVersion = jacocoVersion
+            toolVersion = jacocoPluginVersion
         }
     }
 }
@@ -104,7 +102,7 @@ subprojects { subproj ->
 	        }
             coverage {
                 jacoco {
-		            toolVersion = jacocoVersion
+		            toolVersion = jacocoPluginVersion
                 }
             }
 	    }
@@ -148,7 +146,7 @@ subprojects { p ->
         coverage {
             jacoco {
                 enabled = hasTestsAt(p.file('src/test'))
-		        toolVersion = jacocoVersion
+		        toolVersion = jacocoPluginVersion
             }
         }
     }

@@ -19,6 +19,7 @@ dependencies {
     implementation project(':riot-core')
     implementation 'org.springframework.boot:spring-boot-autoconfigure'
     implementation 'org.springframework:spring-jdbc'
+    implementation 'com.zaxxer:HikariCP'
     implementation 'com.mysql:mysql-connector-j'
     implementation 'org.postgresql:postgresql'
     implementation 'com.microsoft.sqlserver:mssql-jdbc'

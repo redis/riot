@@ -6,7 +6,7 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 @Command(name = "geoadd", description = "Add members to a geo set")
-public class GeoaddCommand extends AbstractRedisCollectionCommand {
+public class GeoaddCommand extends AbstractCollectionOperationCommand {
 
 	@Option(names = "--lon", required = true, description = "Longitude field.", paramLabel = "<field>")
 	private String longitude;

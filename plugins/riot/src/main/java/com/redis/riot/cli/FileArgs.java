@@ -11,67 +11,99 @@ import picocli.CommandLine.Option;
 
 public class FileArgs {
 
-    @Option(names = "--encoding", description = "File encoding (default: ${DEFAULT-VALUE}).", paramLabel = "<charset>")
-    String encoding = FileOptions.DEFAULT_ENCODING;
+	@Option(names = "--encoding", description = "File encoding (default: ${DEFAULT-VALUE}).", paramLabel = "<charset>")
+	private String encoding = FileOptions.DEFAULT_ENCODING;
 
-    @Option(names = { "-z", "--gzip" }, description = "File is gzip compressed.")
-    boolean gzipped;
+	@Option(names = { "-z", "--gzip" }, description = "File is gzip compressed.")
+	private boolean gzipped;
 
-    @ArgGroup(exclusive = false)
-    S3Args s3 = new S3Args();
+	@ArgGroup(exclusive = false)
+	private S3Args s3 = new S3Args();
 
-    @ArgGroup(exclusive = false)
-    GcsArgs gcs = new GcsArgs();
+	@ArgGroup(exclusive = false)
+	private GcsArgs gcs = new GcsArgs();
 
-    public FileOptions fileOptions() {
-        FileOptions options = new FileOptions();
-        options.setAmazonS3Options(s3.amazonS3Options());
-        options.setEncoding(encoding);
-        options.setGoogleStorageOptions(gcs.googleStorageOptions());
-        options.setGzipped(gzipped);
-        return options;
-    }
+	public FileOptions fileOptions() {
+		FileOptions options = new FileOptions();
+		options.setAmazonS3Options(s3.amazonS3Options());
+		options.setEncoding(encoding);
+		options.setGoogleStorageOptions(gcs.googleStorageOptions());
+		options.setGzipped(gzipped);
+		return options;
+	}
 
-    private static class S3Args {
+	public String getEncoding() {
+		return encoding;
+	}
 
-        @Option(names = "--s3-access", description = "Access key.", paramLabel = "<key>")
-        private String accessKey;
+	public void setEncoding(String encoding) {
+		this.encoding = encoding;
+	}
 
-        @Option(names = "--s3-secret", arity = "0..1", interactive = true, description = "Secret key.", paramLabel = "<key>")
-        private String secretKey;
+	public boolean isGzipped() {
+		return gzipped;
+	}
 
-        @Option(names = "--s3-region", description = "AWS region.", paramLabel = "<name>")
-        private String region;
+	public void setGzipped(boolean gzipped) {
+		this.gzipped = gzipped;
+	}
 
-        public AmazonS3Options amazonS3Options() {
-            AmazonS3Options options = new AmazonS3Options();
-            options.setAccessKey(accessKey);
-            options.setSecretKey(secretKey);
-            options.setRegion(region);
-            return options;
-        }
+	public S3Args getS3() {
+		return s3;
+	}
 
-    }
+	public void setS3(S3Args s3) {
+		this.s3 = s3;
+	}
 
-    private static class GcsArgs {
+	public GcsArgs getGcs() {
+		return gcs;
+	}
 
-        @Option(names = "--gcs-key-file", description = "GCS private key (e.g. /usr/local/key.json).", paramLabel = "<file>")
-        private File keyFile;
+	public void setGcs(GcsArgs gcs) {
+		this.gcs = gcs;
+	}
 
-        @Option(names = "--gcs-project", description = "GCP project id.", paramLabel = "<id>")
-        private String projectId;
+	private static class S3Args {
 
-        @Option(names = "--gcs-key", arity = "0..1", interactive = true, description = "GCS Base64 encoded key.", paramLabel = "<key>")
-        private String encodedKey;
+		@Option(names = "--s3-access", description = "Access key.", paramLabel = "<key>")
+		private String accessKey;
 
-        public GoogleStorageOptions googleStorageOptions() {
-            GoogleStorageOptions options = new GoogleStorageOptions();
-            options.setKeyFile(keyFile);
-            options.setProjectId(projectId);
-            options.setEncodedKey(encodedKey);
-            return options;
-        }
+		@Option(names = "--s3-secret", arity = "0..1", interactive = true, description = "Secret key.", paramLabel = "<key>")
+		private String secretKey;
 
-    }
+		@Option(names = "--s3-region", description = "AWS region.", paramLabel = "<name>")
+		private String region;
+
+		public AmazonS3Options amazonS3Options() {
+			AmazonS3Options options = new AmazonS3Options();
+			options.setAccessKey(accessKey);
+			options.setSecretKey(secretKey);
+			options.setRegion(region);
+			return options;
+		}
+
+	}
+
+	private static class GcsArgs {
+
+		@Option(names = "--gcs-key-file", description = "GCS private key (e.g. /usr/local/key.json).", paramLabel = "<file>")
+		private File keyFile;
+
+		@Option(names = "--gcs-project", description = "GCP project id.", paramLabel = "<id>")
+		private String projectId;
+
+		@Option(names = "--gcs-key", arity = "0..1", interactive = true, description = "GCS Base64 encoded key.", paramLabel = "<key>")
+		private String encodedKey;
+
+		public GoogleStorageOptions googleStorageOptions() {
+			GoogleStorageOptions options = new GoogleStorageOptions();
+			options.setKeyFile(keyFile);
+			options.setProjectId(projectId);
+			options.setEncodedKey(encodedKey);
+			return options;
+		}
+
+	}
 
 }

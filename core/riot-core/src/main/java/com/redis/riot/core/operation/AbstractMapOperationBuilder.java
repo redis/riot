@@ -9,8 +9,8 @@ import java.util.function.ToLongFunction;
 
 import com.redis.riot.core.function.FieldExtractorFactory;
 import com.redis.riot.core.function.IdFunctionBuilder;
-import com.redis.spring.batch.common.Operation;
-import com.redis.spring.batch.writer.operation.AbstractKeyWriteOperation;
+import com.redis.spring.batch.writer.AbstractKeyOperation;
+import com.redis.spring.batch.writer.WriteOperation;
 
 public abstract class AbstractMapOperationBuilder {
 
@@ -35,11 +35,11 @@ public abstract class AbstractMapOperationBuilder {
 		return FieldExtractorFactory.builder().remove(removeFields).nullCheck(!ignoreMissingFields).build();
 	}
 
-	protected ToLongFunction<Map<String, Object>> toLong(String field, long defaultValue) {
+	protected ToLongFunction<Map<String, Object>> toLong(String field) {
 		if (field == null) {
-			return m -> defaultValue;
+			return m -> 0;
 		}
-		return fieldExtractorFactory().longField(field, defaultValue);
+		return fieldExtractorFactory().longField(field);
 	}
 
 	protected ToDoubleFunction<Map<String, Object>> toDouble(String field, double defaultValue) {
@@ -54,12 +54,12 @@ public abstract class AbstractMapOperationBuilder {
 				.build();
 	}
 
-	public Operation<String, String, Map<String, Object>, Object> build() {
+	public WriteOperation<String, String, Map<String, Object>> build() {
 		Function<Map<String, Object>, String> keyFunction = idFunction(keyspace, keyFields);
 		return operation(keyFunction);
 	}
 
-	protected abstract AbstractKeyWriteOperation<String, String, Map<String, Object>> operation(
+	protected abstract AbstractKeyOperation<String, String, Map<String, Object>> operation(
 			Function<Map<String, Object>, String> keyFunction);
 
 	public void setKeySeparator(String keySeparator) {

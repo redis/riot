@@ -2,8 +2,8 @@ package com.redis.riot.cli;
 
 import com.redis.enterprise.Database;
 import com.redis.enterprise.RedisModule;
-import com.redis.testcontainers.RedisEnterpriseContainer;
-import com.redis.testcontainers.RedisEnterpriseServer;
+import com.redis.enterprise.testcontainers.RedisEnterpriseContainer;
+import com.redis.enterprise.testcontainers.RedisEnterpriseServer;
 import com.redis.testcontainers.RedisStackContainer;
 
 public class RedisContainerFactory {

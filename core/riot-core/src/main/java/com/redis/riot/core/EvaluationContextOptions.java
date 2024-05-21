@@ -8,6 +8,8 @@ import org.springframework.expression.Expression;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.util.CollectionUtils;
 
+import com.redis.lettucemod.util.GeoLocation;
+
 public class EvaluationContextOptions {
 
 	public static final String DEFAULT_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
@@ -51,8 +53,10 @@ public class EvaluationContextOptions {
 		this.vars = variables;
 	}
 
-	public StandardEvaluationContext evaluationContext() {
+	public StandardEvaluationContext evaluationContext() throws NoSuchMethodException, SecurityException {
 		StandardEvaluationContext evaluationContext = new StandardEvaluationContext();
+		evaluationContext.registerFunction("geo",
+				GeoLocation.class.getDeclaredMethod("toString", String.class, String.class));
 		evaluationContext.setVariable(dateVar, new SimpleDateFormat(dateFormat));
 		if (!CollectionUtils.isEmpty(vars)) {
 			vars.forEach(evaluationContext::setVariable);

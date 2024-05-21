@@ -8,16 +8,16 @@
 
 The `faker-import` command generates data using {link_datafaker}.
 
-[source] 
+[source,console]
 ----
-riot -h <host> -p <port> faker-import SPEL... [REDIS COMMAND...]
+riot faker-import [OPTIONS] SPEL... [REDIS COMMAND...]
 ----
 
 where SPEL is a {link_spel} field in the form `field="expression"`.
 
 To show the full usage, run:
 
-[source]
+[source,console]
 ----
 riot faker-import --help
 ----
@@ -44,13 +44,13 @@ Keys are constructed from input records by concatenating the keyspace prefix and
 image::mapping.svg[]
 
 .HSET example
-[source]
+[source,console]
 ----
 include::{testdir}/faker-import-hset[]
 ----
 
 .SADD example
-[source]
+[source,console]
 ----
 include::{testdir}/faker-import-sadd[]
 ----
@@ -62,7 +62,7 @@ Faker offers many data providers.
 Most providers don't take any arguments and can be called directly:
 
 .Simple Faker example
-[source]
+[source,console]
 ----
 riot faker-import firstName="name.firstName"
 ----
@@ -70,7 +70,7 @@ riot faker-import firstName="name.firstName"
 Some providers take parameters:
 
 .Parameter Faker example
-[source]
+[source,console]
 ----
 riot faker-import lease="number.digits(2)"
 ----
@@ -88,7 +88,7 @@ In addition to the Faker fields specified with `field="expression"` you can use 
 Useful for multithreaded data generation.
 
 .Multithreaded data generator
-[source]
+[source,console]
 ----
 include::{testdir}/faker-import-threads[]
 ----
@@ -98,7 +98,7 @@ include::{testdir}/faker-import-threads[]
 
 You can infer Faker fields from a RediSearch index using the `--infer` option:
 
-[source]
+[source,console]
 ----
 include::{testdir}/faker-import-infer[]
 ----
@@ -108,8 +108,8 @@ include::{testdir}/faker-import-infer[]
 
 The `generate` command generates data-structures for Redis, RedisJSON and RedisTimeSeries.
 
-[source]
+[source,console]
 ----
-riot -h <host> -p <port> generate [OPTIONS]
+riot generate [OPTIONS]
 ----
 

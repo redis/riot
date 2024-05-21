@@ -2,13 +2,9 @@ package com.redis.riot.core.function;
 
 import java.util.function.ToLongFunction;
 
+import org.springframework.util.StringUtils;
+
 public class ObjectToLongFunction implements ToLongFunction<Object> {
-
-	private final long defaultValue;
-
-	public ObjectToLongFunction(long defaultValue) {
-		this.defaultValue = defaultValue;
-	}
 
 	@Override
 	public long applyAsLong(Object source) {
@@ -18,12 +14,12 @@ public class ObjectToLongFunction implements ToLongFunction<Object> {
 			}
 			if (source instanceof String) {
 				String string = (String) source;
-				if (!string.isEmpty()) {
+				if (StringUtils.hasLength(string)) {
 					return Long.parseLong(string);
 				}
 			}
 		}
-		return defaultValue;
+		return 0;
 	}
 
 }

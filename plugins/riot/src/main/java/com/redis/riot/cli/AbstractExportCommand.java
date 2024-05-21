@@ -1,45 +1,41 @@
 package com.redis.riot.cli;
 
-import java.util.concurrent.Callable;
-
-import org.springframework.batch.item.ItemReader;
-
 import com.redis.riot.core.AbstractExport;
-import com.redis.riot.core.AbstractJobRunnable;
-import com.redis.spring.batch.RedisItemReader;
-import com.redis.spring.batch.reader.ScanSizeEstimator;
 
 import picocli.CommandLine.ArgGroup;
 
-public abstract class AbstractExportCommand extends AbstractJobCommand {
+public abstract class AbstractExportCommand extends AbstractRedisCommand {
 
-	@ArgGroup(exclusive = false, heading = "Reader options%n")
-	RedisReaderArgs readerArgs = new RedisReaderArgs();
+	@ArgGroup(exclusive = false, heading = "Redis reader options%n")
+	private RedisReaderArgs redisReaderArgs = new RedisReaderArgs();
 
 	@ArgGroup(exclusive = false, heading = "Processor options%n")
-	KeyValueProcessorArgs processorArgs = new KeyValueProcessorArgs();
+	private KeyValueProcessorArgs processorArgs = new KeyValueProcessorArgs();
 
 	@Override
-	protected AbstractJobRunnable jobRunnable() {
-		AbstractExport export = exportRunnable();
-		export.setReaderOptions(readerArgs.readerOptions());
+	protected AbstractExport redisCallable() {
+		AbstractExport export = exportCallable();
+		export.setReaderOptions(redisReaderArgs.redisReaderOptions());
 		export.setProcessorOptions(processorArgs.processorOptions());
 		return export;
 	}
 
-	protected abstract AbstractExport exportRunnable();
+	protected abstract AbstractExport exportCallable();
 
-	@Override
-	protected Callable<Long> initialMaxSupplier(String stepName, ItemReader<?> reader) {
-		if (((RedisItemReader<?, ?, ?>) reader).isLive()) {
-			return () -> ProgressStepExecutionListener.UNKNOWN_SIZE;
-		}
-		ScanSizeEstimator estimator = new ScanSizeEstimator(((RedisItemReader<?, ?, ?>) reader).getClient());
-		estimator.setScanMatch(readerArgs.scanMatch);
-		if (readerArgs.scanType != null) {
-			estimator.setScanType(readerArgs.scanType.getString());
-		}
-		return estimator;
+	public RedisReaderArgs getRedisReaderArgs() {
+		return redisReaderArgs;
+	}
+
+	public void setRedisReaderArgs(RedisReaderArgs redisReaderArgs) {
+		this.redisReaderArgs = redisReaderArgs;
+	}
+
+	public KeyValueProcessorArgs getProcessorArgs() {
+		return processorArgs;
+	}
+
+	public void setProcessorArgs(KeyValueProcessorArgs args) {
+		this.processorArgs = args;
 	}
 
 }

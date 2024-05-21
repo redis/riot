@@ -3,6 +3,7 @@ package com.redis.riot.file;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -22,8 +23,8 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.DoubleNode;
 import com.redis.lettucemod.timeseries.Sample;
 import com.redis.spring.batch.common.DataType;
-import com.redis.spring.batch.common.KeyValue;
 import com.redis.spring.batch.gen.GeneratorItemReader;
+import com.redis.spring.batch.reader.MemKeyValue;
 import com.redis.spring.batch.test.AbstractTestBase;
 
 @TestInstance(Lifecycle.PER_CLASS)
@@ -37,14 +38,14 @@ class JsonSerdeTests {
 	void setup() {
 		mapper.configure(DeserializationFeature.USE_LONG_FOR_INTS, true);
 		SimpleModule module = new SimpleModule();
-		module.addDeserializer(KeyValue.class, new KeyValueDeserializer());
+		module.addDeserializer(MemKeyValue.class, new MemKeyValueDeserializer());
 		mapper.registerModule(module);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Test
 	void deserialize() throws JsonMappingException, JsonProcessingException {
-		KeyValue<String> keyValue = mapper.readValue(timeseries, KeyValue.class);
+		MemKeyValue<String, Object> keyValue = mapper.readValue(timeseries, MemKeyValue.class);
 		Assertions.assertEquals("gen:97", keyValue.getKey());
 	}
 
@@ -53,11 +54,11 @@ class JsonSerdeTests {
 		String key = "ts:1";
 		long memoryUsage = DataSize.ofGigabytes(1).toBytes();
 		long ttl = Instant.now().toEpochMilli();
-		KeyValue<String> ts = new KeyValue<>();
+		MemKeyValue<String, Object> ts = new MemKeyValue<>();
 		ts.setKey(key);
-		ts.setMemoryUsage(memoryUsage);
+		ts.setMem(memoryUsage);
 		ts.setTtl(ttl);
-		ts.setType(DataType.TIMESERIES);
+		ts.setType(DataType.TIMESERIES.getString());
 		Sample sample1 = Sample.of(Instant.now().toEpochMilli(), 123.456);
 		Sample sample2 = Sample.of(Instant.now().toEpochMilli() + 1000, 456.123);
 		ts.setValue(Arrays.asList(sample1, sample2));
@@ -75,12 +76,21 @@ class JsonSerdeTests {
 		GeneratorItemReader reader = new GeneratorItemReader();
 		reader.setMaxItemCount(17);
 		reader.open(new ExecutionContext());
-		List<KeyValue<String>> items = AbstractTestBase.readAll(reader);
-		for (KeyValue<String> item : items) {
+		List<MemKeyValue<String, Object>> items = AbstractTestBase.readAll(reader).stream().map(MemKeyValue::new)
+				.collect(Collectors.toList());
+		for (MemKeyValue<String, Object> item : items) {
 			String json = mapper.writeValueAsString(item);
-			KeyValue<String> result = mapper.readValue(json, KeyValue.class);
-			Assertions.assertEquals(item, result);
+			MemKeyValue<String, Object> result = mapper.readValue(json, MemKeyValue.class);
+			assertEquals(item, result);
 		}
+	}
+
+	private <K, T> void assertEquals(MemKeyValue<K, T> source, MemKeyValue<K, T> target) {
+		Assertions.assertEquals(source.getMem(), target.getMem());
+		Assertions.assertEquals(source.getTtl(), target.getTtl());
+		Assertions.assertEquals(source.getType(), target.getType());
+		Assertions.assertEquals(source.getKey(), target.getKey());
+		Assertions.assertEquals(source.getValue(), target.getValue());
 	}
 
 }

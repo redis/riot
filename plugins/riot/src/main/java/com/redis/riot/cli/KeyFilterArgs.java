@@ -3,7 +3,7 @@ package com.redis.riot.cli;
 import java.util.List;
 
 import com.redis.riot.core.KeyFilterOptions;
-import com.redis.spring.batch.common.Range;
+import com.redis.riot.core.SlotRange;
 
 import picocli.CommandLine.Option;
 
@@ -16,7 +16,7 @@ public class KeyFilterArgs {
 	List<String> excludes;
 
 	@Option(names = "--key-slots", arity = "1..*", description = "Ranges of key slots to consider for processing. For example '0:8000' will only consider keys that fall within the range 0 to 8000.", paramLabel = "<range>")
-	List<Range> slots;
+	List<SlotRange> slots;
 
 	public KeyFilterOptions keyFilterOptions() {
 		KeyFilterOptions options = new KeyFilterOptions();

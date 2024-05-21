@@ -3,14 +3,14 @@
 
 The `ping` command can be used to test connectivity to a Redis database.
 
-[source]
+[source,console]
 ----
-riot -h <host> -p <port> ping <options>
+riot ping [OPTIONS]
 ----
 
 When the command is complete you will see statistics like these:
 
-[source]
+[source,console]
 ----
 [min=0, max=19, percentiles={50.0=1, 90.0=3, 95.0=6, 99.0=10, 99.9=17}]
 ----
