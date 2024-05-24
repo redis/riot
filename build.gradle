@@ -158,4 +158,5 @@ boolean hasTestsAt(File testDir) {
 
 cyclonedxBom {
     skipProjects = ["guide"]
+    includeConfigs = ["runtimeClasspath", "productionRuntimeClasspath"]
 }
