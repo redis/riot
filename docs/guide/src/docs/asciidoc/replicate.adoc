@@ -14,7 +14,7 @@ WARNING: Please note that {project-title} is NEITHER recommended NOR officially 
 
 [source,console]
 ----
-riot <source> replicate <target> --mode <snapshot|live|compare> [--type] [OPTIONS]
+riot <source> replicate <target> --mode <snapshot|live|compare> [--struct] [OPTIONS]
 ----
 
 For the full usage, run:
