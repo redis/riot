@@ -22,13 +22,13 @@ plugins {
 
 application {
     applicationName = 'riot'
-    mainClass       = 'com.redis.riot.cli.Main'
+    mainClass       = 'com.redis.riot.Main'
 }
 
 jar {
     manifest {
         attributes([
-            'Main-Class': 'com.redis.riot.cli.Main',
+            'Main-Class': 'com.redis.riot.Main',
             'Automatic-Module-Name': project.findProperty('automatic.module.name')
         ])
     }
@@ -39,21 +39,23 @@ startScripts {
 }
 
 dependencies {
-    api project(':riot-core')
-    api project(':riot-db')
-    api project(':riot-faker')
-    api(project(':riot-file')) {
+    api(project(':riot-core')) {
         exclude group: 'commons-logging', module: 'commons-logging'
     }
-    api project(':riot-redis')
-    api group: 'info.picocli', name: 'picocli', version: picocliVersion
-    annotationProcessor group: 'info.picocli', name: 'picocli-codegen', version: picocliVersion
-    implementation group: 'me.tongfei', name: 'progressbar', version: progressbarVersion
-    implementation 'org.slf4j:slf4j-simple'
+    api project(':riot-file')
+    api project(':riot-db')
+    api project(':riot-faker')
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
+    api group: 'com.redis', name: 'spring-batch-redis-core', version: springBatchRedisVersion
+    implementation group: 'com.redis', name: 'lettucemod', version: lettucemodVersion
+    implementation 'org.apache.commons:commons-pool2'
+    implementation group: 'com.hrakaroo', name: 'glob', version: globVersion
+    testImplementation group: 'com.redis', name: 'spring-batch-redis-test', version: springBatchRedisVersion
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
     implementation 'com.mysql:mysql-connector-j'
     implementation 'org.postgresql:postgresql'
     implementation 'org.springframework:spring-oxm'
+    implementation group: 'org.latencyutils', name: 'LatencyUtils', version: latencyUtilsVersion
     testImplementation 'org.springframework.boot:spring-boot-starter-jdbc'
     testImplementation group: 'com.redis', name: 'spring-batch-redis-test', version: springBatchRedisVersion
     testImplementation 'org.awaitility:awaitility'
@@ -128,7 +130,7 @@ afterEvaluate {
     }
 }
 
-mainClassName = "com.redis.riot.cli.Main"
+mainClassName = "com.redis.riot.Main"
 
 task copyRuntimeDependencies(type: Copy) {
     into "$buildDir/dependencies/flat"
