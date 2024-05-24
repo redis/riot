@@ -31,7 +31,7 @@ project:
     groupId: com.redis
     version: '21'
     multiProject: true
-    mainClass: com.redis.riot.cli.Main
+    mainClass: com.redis.riot.Main
   tags:
     - 'riot'
     - 'redis'
@@ -219,7 +219,7 @@ distributions:
   riot-standalone:
     appImage:
       active: NEVER
-      componentId: com.redis.riot.cli
+      componentId: com.redis.riot
       developerName: Redis
       categories:
         - Development

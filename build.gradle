@@ -59,11 +59,6 @@ config {
     
     licensing {
         enabled = false
-        licenses {
-            license {
-                id = 'Apache-2.0'
-            }
-        }
     }
 
     coverage {
@@ -124,7 +119,7 @@ subprojects { subproj ->
 	    configurations {
 	        all*.exclude module: 'spring-boot-starter-logging'
 	    }
-	    
+
 	    bootJar {
             enabled = false
         }
