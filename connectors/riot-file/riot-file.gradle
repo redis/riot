@@ -16,7 +16,11 @@
  * limitations under the License.
  */
 dependencies {
-    implementation project(':riot-core')
+    api group: 'info.picocli', name: 'picocli', version: picocliVersion
+    annotationProcessor group: 'info.picocli', name: 'picocli-codegen', version: picocliVersion
+    implementation 'org.springframework.batch:spring-batch-infrastructure'
+    implementation group: 'com.redis', name: 'spring-batch-resource', version: springBatchRedisVersion
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'    
     implementation 'org.springframework:spring-oxm'
     implementation group: 'org.springframework.cloud', name: 'spring-cloud-aws-context', version: awsVersion
     implementation group: 'org.springframework.cloud', name: 'spring-cloud-aws-autoconfigure', version: awsVersion

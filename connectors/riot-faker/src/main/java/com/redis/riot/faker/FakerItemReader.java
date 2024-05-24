@@ -14,8 +14,6 @@ import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 
-import com.redis.riot.core.RiotUtils;
-
 import net.datafaker.Faker;
 
 /**
@@ -31,20 +29,8 @@ public class FakerItemReader extends AbstractItemCountingItemStreamItemReader<Ma
 	private Locale locale = DEFAULT_LOCALE;
 	private StandardEvaluationContext evaluationContext;
 
-	private int maxItemCount;
-
 	public FakerItemReader() {
 		setName(ClassUtils.getShortName(getClass()));
-	}
-
-	public int getMaxItemCount() {
-		return maxItemCount;
-	}
-
-	@Override
-	public void setMaxItemCount(int count) {
-		super.setMaxItemCount(count);
-		this.maxItemCount = count;
 	}
 
 	public void setLocale(Locale locale) {
@@ -53,12 +39,6 @@ public class FakerItemReader extends AbstractItemCountingItemStreamItemReader<Ma
 
 	public void setFields(Map<String, Expression> fields) {
 		this.fields = fields;
-	}
-
-	public void setStringFields(Map<String, String> stringFields) {
-		Map<String, Expression> expressions = new LinkedHashMap<>();
-		stringFields.forEach((k, v) -> expressions.put(k, RiotUtils.parse(v)));
-		this.fields = expressions;
 	}
 
 	@Override

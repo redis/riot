@@ -7,11 +7,11 @@ import org.springframework.batch.item.file.mapping.FieldSetMapper;
 import org.springframework.batch.item.file.transform.FieldSet;
 import org.springframework.util.StringUtils;
 
-public class MapFieldSetMapper implements FieldSetMapper<Map<String, String>> {
+public class MapFieldSetMapper implements FieldSetMapper<Map<String, Object>> {
 
 	@Override
-	public Map<String, String> mapFieldSet(FieldSet fieldSet) {
-		Map<String, String> fields = new HashMap<>();
+	public Map<String, Object> mapFieldSet(FieldSet fieldSet) {
+		Map<String, Object> fields = new HashMap<>();
 		String[] names = fieldSet.getNames();
 		for (int index = 0; index < names.length; index++) {
 			String value = fieldSet.readString(index);

@@ -1,7 +1,5 @@
 package com.redis.riot.core;
 
-import java.time.Duration;
-
 import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemStream;
@@ -14,11 +12,11 @@ public class ThrottledItemWriter<T> implements ItemStreamWriter<T> {
 	private final ItemWriter<T> delegate;
 	private final long sleep;
 
-	public ThrottledItemWriter(ItemWriter<T> delegate, Duration sleep) {
+	public ThrottledItemWriter(ItemWriter<T> delegate, long sleep) {
 		Assert.notNull(delegate, "Delegate must not be null");
-		Assert.isTrue(RiotUtils.isPositive(sleep), "Sleep duration must be strictly positive");
+		Assert.isTrue(sleep > 0, "Sleep duration must be strictly positive");
 		this.delegate = delegate;
-		this.sleep = sleep.toMillis();
+		this.sleep = sleep;
 	}
 
 	@Override
