@@ -42,9 +42,12 @@ import picocli.CommandLine.Command;
 @Command
 public abstract class AbstractJobCommand extends AbstractCommand {
 
+	public static final String DEFAULT_JOB_REPOSITORY_NAME = "riot";
+
 	@ArgGroup(exclusive = false, heading = "Job options%n")
 	private JobArgs jobArgs = new JobArgs();
 
+	private String jobRepositoryName = DEFAULT_JOB_REPOSITORY_NAME;
 	protected JobRepository jobRepository;
 	protected PlatformTransactionManager transactionManager;
 	protected JobLauncher jobLauncher;
@@ -88,7 +91,7 @@ public abstract class AbstractJobCommand extends AbstractCommand {
 		}
 		if (jobRepository == null) {
 			try {
-				jobRepository = JobUtils.jobRepositoryFactoryBean().getObject();
+				jobRepository = JobUtils.jobRepositoryFactoryBean(jobRepositoryName).getObject();
 			} catch (Exception e) {
 				throw new BeanInitializationException("Could not initialize job repository", e);
 			}
@@ -226,6 +229,14 @@ public abstract class AbstractJobCommand extends AbstractCommand {
 
 	public void setJobArgs(JobArgs args) {
 		this.jobArgs = args;
+	}
+
+	public String getJobRepositoryName() {
+		return jobRepositoryName;
+	}
+
+	public void setJobRepositoryName(String jobRepositoryName) {
+		this.jobRepositoryName = jobRepositoryName;
 	}
 
 	public JobRepository getJobRepository() {
