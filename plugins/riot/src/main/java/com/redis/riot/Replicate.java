@@ -63,7 +63,7 @@ public class Replicate extends AbstractTargetExport {
 	@Override
 	protected Job job() {
 		List<Step<?, ?>> steps = new ArrayList<>();
-		Step<KeyValue<byte[], ?>, KeyValue<byte[], ?>> replicateStep = step();
+		Step<KeyValue<byte[], ?>, KeyValue<byte[], ?>> replicateStep = replicateStep();
 		ItemProcessor<KeyValue<byte[], ?>, KeyValue<byte[], ?>> processor = processor();
 		replicateStep.processor(processor);
 		steps.add(replicateStep);
@@ -92,7 +92,7 @@ public class Replicate extends AbstractTargetExport {
 		return RiotUtils.processor(code, processor, decode);
 	}
 
-	private Step<KeyValue<byte[], ?>, KeyValue<byte[], ?>> step() {
+	private Step<KeyValue<byte[], ?>, KeyValue<byte[], ?>> replicateStep() {
 		RedisItemReader<byte[], byte[], KeyValue<byte[], ?>> reader = reader();
 		configure(reader);
 		RedisItemWriter<byte[], byte[], KeyValue<byte[], ?>> writer = writer();
