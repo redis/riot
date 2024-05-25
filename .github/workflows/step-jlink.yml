@@ -93,14 +93,6 @@ jobs:
             plugins/riot/build/dependencies/
             plugins/riot/build/distributions/
             
-      - name: Upload docs
-        uses: actions/upload-artifact@v4
-        with:
-          retention-days: 1
-          name: docs
-          path: |
-            docs/guide/build/guide/
-
       - name: Stop Gradle daemon
         shell: bash
         run: ./gradlew -stop
