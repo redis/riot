@@ -6,18 +6,18 @@ import com.redis.enterprise.testcontainers.RedisEnterpriseServer;
 import com.redis.testcontainers.RedisStackContainer;
 
 @EnabledIfEnvironmentVariable(named = RedisEnterpriseServer.ENV_HOST, matches = ".*")
-public class StackRESrvTests extends ReplicationTests {
+class REServerStack extends ReplicationTests {
 
-	private static final RedisStackContainer source = RedisContainerFactory.stack();
-	private static final RedisEnterpriseServer target = RedisContainerFactory.enterpriseServer();
+	private static final RedisEnterpriseServer source = RedisContainerFactory.enterpriseServer();
+	private static final RedisStackContainer target = RedisContainerFactory.stack();
 
 	@Override
-	protected RedisStackContainer getRedisServer() {
+	protected RedisEnterpriseServer getRedisServer() {
 		return source;
 	}
 
 	@Override
-	protected RedisEnterpriseServer getTargetRedisServer() {
+	protected RedisStackContainer getTargetRedisServer() {
 		return target;
 	}
 

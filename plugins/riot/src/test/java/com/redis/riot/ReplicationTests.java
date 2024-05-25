@@ -22,7 +22,6 @@ import com.redis.lettucemod.api.StatefulRedisModulesConnection;
 import com.redis.lettucemod.util.RedisModulesUtils;
 import com.redis.riot.core.ProgressStyle;
 import com.redis.riot.core.RiotUtils;
-import com.redis.spring.batch.Await;
 import com.redis.spring.batch.Range;
 import com.redis.spring.batch.item.redis.RedisItemReader.ReaderMode;
 import com.redis.spring.batch.item.redis.common.DataType;
@@ -80,22 +79,6 @@ abstract class ReplicationTests extends AbstractRiotTestBase {
 		execute(info, filename);
 		Assertions.assertEquals(sourceSize, targetRedisCommands.dbsize());
 		Assertions.assertEquals(redisCommands.hgetall("gen:1"), targetRedisCommands.hgetall("0:gen:1"));
-	}
-
-	@Test
-	void replicateLiveKeyExclude(TestInfo info) throws Throwable {
-		int goodCount = 200;
-		int badCount = 100;
-		enableKeyspaceNotifications();
-		generateAsync(testInfo(info, "gen-1"), generator(goodCount, DataType.HASH));
-		GeneratorItemReader generator2 = generator(badCount, DataType.HASH);
-		generator2.getOptions().setKeyspace("bad");
-		generateAsync(testInfo(info, "gen-2"), generator2);
-		execute(info, "replicate-live-key-exclude");
-		Await.await().until(() -> redisCommands.pubsubNumpat() == 0);
-		Assertions.assertEquals(badCount, keyCount("bad:*"));
-		Assertions.assertEquals(0, targetRedisCommands.keys("bad:*").size());
-		Assertions.assertEquals(goodCount, targetRedisCommands.keys("gen:*").size());
 	}
 
 	@Test

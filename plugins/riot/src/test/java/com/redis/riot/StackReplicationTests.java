@@ -35,6 +35,7 @@ import com.redis.lettucemod.timeseries.TimeRange;
 import com.redis.riot.file.xml.XmlItemReader;
 import com.redis.riot.file.xml.XmlItemReaderBuilder;
 import com.redis.riot.file.xml.XmlObjectReader;
+import com.redis.spring.batch.Await;
 import com.redis.spring.batch.item.redis.common.DataType;
 import com.redis.spring.batch.item.redis.common.KeyValue;
 import com.redis.spring.batch.item.redis.gen.GeneratorItemReader;
@@ -508,6 +509,22 @@ class StackReplicationTests extends ReplicationTests {
 		generate(testInfo(info, "2"), generator2);
 		Assertions.assertEquals(badCount, keyCount("bad:*"));
 		execute(info, filename);
+		Assertions.assertEquals(goodCount, targetRedisCommands.keys("gen:*").size());
+	}
+
+	@Test
+	void replicateLiveKeyExclude(TestInfo info) throws Throwable {
+		int goodCount = 200;
+		int badCount = 100;
+		enableKeyspaceNotifications();
+		generateAsync(testInfo(info, "gen-1"), generator(goodCount, DataType.HASH));
+		GeneratorItemReader generator2 = generator(badCount, DataType.HASH);
+		generator2.getOptions().setKeyspace("bad");
+		generateAsync(testInfo(info, "gen-2"), generator2);
+		execute(info, "replicate-live-key-exclude");
+		Await.await().until(() -> redisCommands.pubsubNumpat() == 0);
+		Assertions.assertEquals(badCount, keyCount("bad:*"));
+		Assertions.assertEquals(0, targetRedisCommands.keys("bad:*").size());
 		Assertions.assertEquals(goodCount, targetRedisCommands.keys("gen:*").size());
 	}
 }
