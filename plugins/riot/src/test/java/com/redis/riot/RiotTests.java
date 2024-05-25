@@ -34,7 +34,7 @@ import io.lettuce.core.RedisURI;
 import io.lettuce.core.cluster.SlotHash;
 import io.lettuce.core.codec.ByteArrayCodec;
 
-abstract class ReplicationTests extends AbstractRiotTestBase {
+abstract class RiotTests extends AbstractRiotTestBase {
 
 	@BeforeAll
 	void setDefaults() {
@@ -166,17 +166,6 @@ abstract class ReplicationTests extends AbstractRiotTestBase {
 		args.setUri(RedisURI.create(redis.getRedisURI()));
 		args.setCluster(redis.isRedisCluster());
 		return args;
-	}
-
-	@Test
-	void replication(TestInfo info) throws Throwable {
-		generate(info, generator(73));
-		Assertions.assertTrue(redisCommands.dbsize() > 0);
-		Replicate replication = new Replicate();
-		execute(replication, info);
-		KeyspaceComparison<String> comparison = compare(info);
-		Assertions.assertFalse(comparison.getAll().isEmpty());
-		Assertions.assertEquals(Collections.emptyList(), comparison.mismatches());
 	}
 
 	@Test

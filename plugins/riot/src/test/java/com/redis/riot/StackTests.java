@@ -51,7 +51,7 @@ import io.lettuce.core.StreamMessage;
 import picocli.CommandLine.ExitCode;
 import picocli.CommandLine.ParseResult;
 
-class StackReplicationTests extends ReplicationTests {
+class StackTests extends RiotTests {
 
 	private static final RedisStackContainer source = RedisContainerFactory.stack();
 	private static final RedisStackContainer target = RedisContainerFactory.stack();
@@ -538,6 +538,17 @@ class StackReplicationTests extends ReplicationTests {
 		generator.setCurrentItemCount(3001);
 		generateAsync(testInfo(info, "async"), generator);
 		execute(info, "replicate-live-only-struct");
+		KeyspaceComparison<String> comparison = compare(info);
+		Assertions.assertFalse(comparison.getAll().isEmpty());
+		Assertions.assertEquals(Collections.emptyList(), comparison.mismatches());
+	}
+
+	@Test
+	void replication(TestInfo info) throws Throwable {
+		generate(info, generator(73));
+		Assertions.assertTrue(redisCommands.dbsize() > 0);
+		Replicate replication = new Replicate();
+		execute(replication, info);
 		KeyspaceComparison<String> comparison = compare(info);
 		Assertions.assertFalse(comparison.getAll().isEmpty());
 		Assertions.assertEquals(Collections.emptyList(), comparison.mismatches());
