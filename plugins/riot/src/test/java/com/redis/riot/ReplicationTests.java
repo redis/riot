@@ -97,19 +97,6 @@ abstract class ReplicationTests extends AbstractRiotTestBase {
 	}
 
 	@Test
-	void replicateLiveOnlyStruct(TestInfo info) throws Exception {
-		DataType[] types = new DataType[] { DataType.HASH, DataType.STRING };
-		enableKeyspaceNotifications();
-		GeneratorItemReader generator = generator(3500, types);
-		generator.setCurrentItemCount(3001);
-		generateAsync(testInfo(info, "async"), generator);
-		execute(info, "replicate-live-only-struct");
-		KeyspaceComparison<String> comparison = compare(info);
-		Assertions.assertFalse(comparison.getAll().isEmpty());
-		Assertions.assertEquals(Collections.emptyList(), comparison.mismatches());
-	}
-
-	@Test
 	void replicateLiveKeySlot(TestInfo info) throws Exception {
 		String filename = "replicate-live-keyslot";
 		enableKeyspaceNotifications();

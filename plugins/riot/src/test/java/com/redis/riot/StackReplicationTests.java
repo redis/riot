@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -41,6 +42,7 @@ import com.redis.spring.batch.item.redis.common.KeyValue;
 import com.redis.spring.batch.item.redis.gen.GeneratorItemReader;
 import com.redis.spring.batch.item.redis.gen.GeneratorOptions;
 import com.redis.spring.batch.item.redis.reader.MemKeyValue;
+import com.redis.spring.batch.test.KeyspaceComparison;
 import com.redis.testcontainers.RedisStackContainer;
 
 import io.lettuce.core.GeoArgs;
@@ -526,5 +528,18 @@ class StackReplicationTests extends ReplicationTests {
 		Assertions.assertEquals(badCount, keyCount("bad:*"));
 		Assertions.assertEquals(0, targetRedisCommands.keys("bad:*").size());
 		Assertions.assertEquals(goodCount, targetRedisCommands.keys("gen:*").size());
+	}
+
+	@Test
+	void replicateLiveOnlyStruct(TestInfo info) throws Exception {
+		DataType[] types = new DataType[] { DataType.HASH, DataType.STRING };
+		enableKeyspaceNotifications();
+		GeneratorItemReader generator = generator(3500, types);
+		generator.setCurrentItemCount(3001);
+		generateAsync(testInfo(info, "async"), generator);
+		execute(info, "replicate-live-only-struct");
+		KeyspaceComparison<String> comparison = compare(info);
+		Assertions.assertFalse(comparison.getAll().isEmpty());
+		Assertions.assertEquals(Collections.emptyList(), comparison.mismatches());
 	}
 }
