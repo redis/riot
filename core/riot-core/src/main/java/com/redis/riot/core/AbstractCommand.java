@@ -14,10 +14,14 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.ParentCommand;
 
 @Command
-public abstract class AbstractCommand extends BaseCommand implements Callable<Integer> {
+public abstract class AbstractCommand<C extends IO> extends BaseCommand implements Callable<Integer> {
 
 	@ParentCommand
-	protected AbstractMain parent;
+	private C parent;
+	
+	protected C parent() {
+		return parent;
+	}
 
 	@Option(names = "--help", usageHelp = true, description = "Show this help message and exit.")
 	private boolean helpRequested;
@@ -27,10 +31,17 @@ public abstract class AbstractCommand extends BaseCommand implements Callable<In
 
 	protected Logger log;
 
-	public void copyTo(AbstractCommand target) {
+	public void copyTo(AbstractCommand<C> target) {
 		target.helpRequested = helpRequested;
 		target.loggingArgs = loggingArgs;
 		target.log = log;
+	}
+	
+	@Override
+	public Integer call() throws Exception {
+		setup();
+		execute();
+		return 0;
 	}
 
 	protected void setup() {
@@ -69,12 +80,7 @@ public abstract class AbstractCommand extends BaseCommand implements Callable<In
 		System.setProperty(property, String.valueOf(value));
 	}
 
-	@Override
-	public Integer call() throws Exception {
-		setup();
-		execute();
-		return 0;
-	}
+
 
 	protected abstract void execute() throws Exception;
 

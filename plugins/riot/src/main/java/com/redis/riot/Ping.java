@@ -22,7 +22,7 @@ public class Ping extends AbstractRedisCommand {
 	protected Job job() {
 		PingExecutionItemReader reader = new PingExecutionItemReader(redisCommands);
 		reader.setMaxItemCount(pingArgs.getCount());
-		PingLatencyItemWriter writer = new PingLatencyItemWriter(parent.getOut());
+		PingLatencyItemWriter writer = new PingLatencyItemWriter(parent().getOut());
 		writer.setLatencyArgs(pingArgs.getLatencyArgs());
 		Step<PingExecution, PingExecution> step = new Step<>(reader, writer);
 		step.taskName("Pinging");

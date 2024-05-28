@@ -40,7 +40,7 @@ import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 
 @Command
-public abstract class AbstractJobCommand extends AbstractCommand {
+public abstract class AbstractJobCommand<C extends IO> extends AbstractCommand<C> {
 
 	public static final String DEFAULT_JOB_REPOSITORY_NAME = "riot";
 
@@ -52,7 +52,7 @@ public abstract class AbstractJobCommand extends AbstractCommand {
 	protected PlatformTransactionManager transactionManager;
 	protected JobLauncher jobLauncher;
 
-	public void copyTo(AbstractJobCommand target) {
+	public void copyTo(AbstractJobCommand<C> target) {
 		super.copyTo(target);
 		target.jobArgs = jobArgs;
 		target.jobRepository = jobRepository;

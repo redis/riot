@@ -8,7 +8,7 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.Spec;
 
 @Command(usageHelpAutoWidth = true)
-abstract class BaseCommand {
+public abstract class BaseCommand {
 
 	static {
 		if (System.getenv().containsKey("RIOT_NO_COLOR")) {
@@ -17,7 +17,7 @@ abstract class BaseCommand {
 	}
 
 	@Spec
-	CommandSpec commandSpec;
+	protected CommandSpec commandSpec;
 
 	@Option(names = "-D", paramLabel = "<key=value>", description = "Sets a System property.", mapFallbackValue = "")
 	void setProperty(Map<String, String> props) {

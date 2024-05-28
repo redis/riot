@@ -20,7 +20,7 @@ import io.lettuce.core.RedisCommandExecutionException;
 import io.lettuce.core.RedisCommandTimeoutException;
 import picocli.CommandLine.ArgGroup;
 
-abstract class AbstractRedisCommand extends AbstractJobCommand {
+abstract class AbstractRedisCommand extends AbstractJobCommand<Main> {
 
 	private static final String CONTEXT_VAR_REDIS = "redis";
 

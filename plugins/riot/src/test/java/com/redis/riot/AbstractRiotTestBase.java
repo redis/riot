@@ -5,24 +5,26 @@ import java.io.PrintWriter;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.StringTokenizer;
 import java.util.Vector;
+import java.util.function.Consumer;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.TestInfo;
 import org.slf4j.simple.SimpleLogger;
 
 import com.redis.riot.core.AbstractJobCommand;
-import com.redis.riot.core.AbstractMain;
-import com.redis.riot.core.CompositeExecutionStrategy;
 import com.redis.riot.core.ProgressStyle;
 import com.redis.riot.operation.OperationCommand;
 import com.redis.spring.batch.test.AbstractTargetTestBase;
 
 import io.lettuce.core.RedisURI;
 import io.micrometer.core.instrument.util.IOUtils;
-import picocli.CommandLine.ExitCode;
+import picocli.CommandLine;
+import picocli.CommandLine.ExecutionException;
 import picocli.CommandLine.IExecutionStrategy;
+import picocli.CommandLine.ParameterException;
 import picocli.CommandLine.ParseResult;
 
 abstract class AbstractRiotTestBase extends AbstractTargetTestBase {
@@ -47,27 +49,49 @@ abstract class AbstractRiotTestBase extends AbstractTargetTestBase {
 		return parseResult.subcommands().get(0).commandSpec().commandLine().getCommand();
 	}
 
-	protected int execute(TestInfo info, String filename, IExecutionStrategy... executionStrategies) throws Exception {
+	@SuppressWarnings("unchecked")
+	protected int execute(TestInfo info, String filename, Consumer<ParseResult>... configs) throws Exception {
 		String[] args = args(filename);
-		IExecutionStrategy executionStrategy = executionStrategy(info, executionStrategies);
-		return AbstractMain.run(new Main(), out, err, args, executionStrategy);
+		Main main = new Main();
+		main.setOut(out);
+		main.setErr(err);
+		CommandLine commandLine = new CommandLine(main);
+		commandLine.setOut(out);
+		commandLine.setErr(err);
+		ExecutionStrategy executionStrategy = new ExecutionStrategy();
+		executionStrategy.add(r -> configure(info, r));
+		executionStrategy.add(configs);
+		commandLine.setExecutionStrategy(executionStrategy);
+		return Main.run(commandLine, args);
 	}
 
-	private IExecutionStrategy executionStrategy(TestInfo info, IExecutionStrategy... executionStrategies) {
-		ArrayList<IExecutionStrategy> strategies = new ArrayList<>();
-		strategies.add(r -> execute(info, r));
-		strategies.addAll(Arrays.asList(executionStrategies));
-		return new CompositeExecutionStrategy(strategies);
+	private class ExecutionStrategy implements IExecutionStrategy {
+
+		private final IExecutionStrategy delegate = Main::executionStrategy;
+
+		private final List<Consumer<ParseResult>> configs = new ArrayList<>();
+
+		@SuppressWarnings("unchecked")
+		public void add(Consumer<ParseResult>... configs) {
+			this.configs.addAll(Arrays.asList(configs));
+		}
+
+		@Override
+		public int execute(ParseResult parseResult) throws ExecutionException, ParameterException {
+			configs.forEach(c -> c.accept(parseResult));
+			return delegate.execute(parseResult);
+		}
+
 	}
 
-	private int execute(TestInfo info, ParseResult parseResult) {
+	private void configure(TestInfo info, ParseResult parseResult) {
 		for (ParseResult subParseResult : parseResult.subcommands()) {
 			Object command = subParseResult.commandSpec().commandLine().getCommand();
 			if (command instanceof OperationCommand) {
 				command = subParseResult.commandSpec().parent().commandLine().getCommand();
 			}
 			if (command instanceof AbstractJobCommand) {
-				AbstractJobCommand riotCommand = ((AbstractJobCommand) command);
+				AbstractJobCommand<?> riotCommand = ((AbstractJobCommand<?>) command);
 				riotCommand.getJobArgs().getProgressArgs().setStyle(ProgressStyle.NONE);
 				riotCommand.getJobArgs().setName(name(info));
 			}
@@ -90,7 +114,6 @@ abstract class AbstractRiotTestBase extends AbstractTargetTestBase {
 				replicateCommand.getCompareArgs().setMode(CompareMode.NONE);
 			}
 		}
-		return ExitCode.OK;
 	}
 
 	private void configure(RedisReaderArgs redisReaderArgs) {
@@ -105,7 +128,7 @@ abstract class AbstractRiotTestBase extends AbstractTargetTestBase {
 	}
 
 	private static String[] args(String filename) throws Exception {
-		try (InputStream inputStream = AbstractMain.class.getResourceAsStream("/" + filename)) {
+		try (InputStream inputStream = Main.class.getResourceAsStream("/" + filename)) {
 			String command = IOUtils.toString(inputStream, Charset.defaultCharset());
 			if (command.startsWith(PREFIX)) {
 				command = command.substring(PREFIX.length());
