@@ -23,6 +23,7 @@ asciidoctor {
         'coderay-linenums-mode' : 'table',
         'testdir'               : '../../../../../plugins/riot/src/test/resources'
     ]
+    dependsOn ':aggregateCopyDocFiles'
 }
 
 eclipse {

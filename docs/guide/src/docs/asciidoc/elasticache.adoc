@@ -8,7 +8,7 @@ The following scenarios are covered:
 * One-time (snapshot) migration
 * Online (live) migration
 
-IMPORTANT: It is recommended to read the <<_replication,Replication>> section to familiarize yourself with its usage and architecture.
+IMPORTANT: It is recommended to read the <<_replicate,Replication>> section to familiarize yourself with its usage and architecture.
 
 == Setup
 
@@ -64,7 +64,7 @@ Ensure that the above command allows you to connect to the remote Elasticache da
 === Installing {project-title}
 
 Let's install {project-title} on the EC2 instance we set up previously.
-For this we'll follow the steps in <<_manual_install,Manual Installation>>.
+For this we'll follow the steps in <<_install_manual,Manual Installation>>.
 
 == Performing Migration
 
@@ -129,7 +129,5 @@ riot replicate -h <source EC host> -p <source EC port> --cluster --target-host <
 * It is recommended to test migration in UAT before production use.
 * Once migration is completed, ensure that application traffic gets redirected to Redis Enterprise Endpoint successfully.
 * It is recommended to perform the migration process during low traffic so as to avoid chances of data loss.
-
-
 
 

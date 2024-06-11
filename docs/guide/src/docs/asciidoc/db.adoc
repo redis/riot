@@ -1,0 +1,36 @@
+[[_db]]
+= Database
+
+[[_db_drivers]]
+[discrete]
+== Drivers
+
+{project-title} relies on JDBC to interact with databases.
+It includes JDBC drivers for the most common database systems:
+
+* {link_jdbc_oracle}
++
+`jdbc:oracle:thin:@myhost:1521:orcl`
+
+* {link_jdbc_mssql}
++
+`jdbc:sqlserver://[serverName[\instanceName][:portNumber]][;property=value[;property=value]]`
+
+* {link_jdbc_mysql}
++
+`jdbc:mysql://[host]:[port][/database][?properties]`
+
+* {link_jdbc_postgres}
++
+`jdbc:postgresql://host:port/database`
+
+[TIP]
+====
+For non-included databases you must install the corresponding JDBC driver under the `lib` directory and modify the `CLASSPATH`:
+
+* *nix: `bin/riot` -> `CLASSPATH=$APP_HOME/lib/myjdbc.jar:$APP_HOME/lib/...`
+* Windows: `bin\riot.bat` -> `set CLASSPATH=%APP_HOME%\lib\myjdbc.jar;%APP_HOME%\lib\...`
+====
+
+include::{includedir}/db-export.adoc[leveloffset=+1]
+include::{includedir}/db-import.adoc[leveloffset=+1]

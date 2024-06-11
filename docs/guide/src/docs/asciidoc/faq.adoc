@@ -3,14 +3,14 @@
 
 Logs are cut off or missing::
 This could be due to concurrency issues in the terminal when refreshing the progress bar and displaying logs.
-Try running with job options `--progress log`.
+Try running with job option `--progress log`.
 
-Unknown options: '--keyspace', '--keys'::
-You must specify one or more Redis commands with import commands (<<_file_import,`file-import`>>, <<_faker,`faker-import`>>, <<_db_import,`db-import`>>).
+Unknown options: '--keyspace', '--key'::
+You must specify one or more Redis commands with import commands (<<_file_import,`file-import`>>, <<_faker,`faker`>>, <<_db_import,`db-import`>>).
 
 ERR DUMP payload version or checksum are wrong::
 Redis 7 DUMP format is not backwards compatible with previous versions.
-To replicate between different Redis versions, use <<_replication_type_based,Type-Based Replication>>.
+To replicate between different Redis versions, use <<_replicate_struct,Type-Based Replication>>.
 
 Process gets stuck during replication and eventually times out::
 This could be due to big keys clogging the replication pipes.

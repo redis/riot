@@ -3,18 +3,15 @@ Julien Ruaux
 :title-logo-image: image:riot.svg[]
 :author: {project-author}
 :revnumber: {project-version}
-:toclevels: 2
 :docinfo1:
 
 include::{includedir}/_links.adoc[]
 
 :leveloffset: 1
 include::{includedir}/introduction.adoc[]
+include::{includedir}/install.adoc[]
 include::{includedir}/quickstart.adoc[]
-include::{includedir}/files.adoc[]
-include::{includedir}/generators.adoc[]
-include::{includedir}/databases.adoc[]
-include::{includedir}/replicate.adoc[]
+include::{includedir}/commands.adoc[]
 include::{includedir}/architecture.adoc[]
 include::{includedir}/cookbook.adoc[]
 include::{includedir}/faq.adoc[]

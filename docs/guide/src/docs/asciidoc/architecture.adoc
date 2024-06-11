@@ -35,8 +35,8 @@ include::{testdir}/db-import-postgresql-multithreaded[]
 == Processing
 
 {project-title} lets you transform incoming records using processors.
-These processors allow you to create/update/delete fields using the {link_spel} (SpEL).
-For example, import commands like `file-import`, `database-import`, and `faker-import` have a `--proc` option that allow for field-level processing:
+These processors allow you to create/update/delete fields using the Spring Expression Language ({link_spel}).
+For example, import commands like `file-import`, `db-import`, and `faker` have a `--proc` option that allow for field-level processing:
 
 * `field1='foo'` -> generate a field named `field1` containing the string `foo`
 * `temp=(temp-32)*5/9` -> convert from Fahrenheit to Celsius
@@ -72,7 +72,7 @@ include::{testdir}/file-import-process-var[]
 [[_filters]]
 == Filtering
 
-Filters allow you to exclude records that don't match a SpEL boolean expression.
+Filters allow you to exclude records that don't match a {_link_spel} boolean expression.
 
 For example this filter will only keep records where the `value` field is a series of digits:
 
@@ -80,16 +80,3 @@ For example this filter will only keep records where the `value` field is a seri
 ----
 riot file-import --filter "value matches '\\d+'" ...
 ----
-
-[[_replication_architecture]]
-== Replication
-
-image::replication-architecture.svg[]
-
-The basic replication mechanism is as follows:
-
-1. Identify source keys to be replicated using scan and/or keyspace notifications depending on the <<_replication_mode,replication mode>>.
-
-2. Read data associated with each key using <<_replication_dump_restore,dump>> or <<_replication_type_based,type-specific commands>>.
-
-3. Write each key to the target using <<_replication_dump_restore,restore>> or <<_replication_type_based,type-specific commands>>.

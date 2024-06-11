@@ -1,25 +1,20 @@
-[[_generators]]
-= Generators
-
-{project-title} includes two data generators that can be used to quickly mock up a dataset in Redis.
-
 [[_faker]]
-== Faker
+= Faker
 
-The `faker-import` command generates data using {link_datafaker}.
+The `faker` command generates data using {link_datafaker}.
 
 [source,console]
 ----
-riot faker-import [OPTIONS] SPEL... [REDIS COMMAND...]
+riot faker [OPTIONS] EXPRESSION... [REDIS COMMAND...]
 ----
 
-where SPEL is a {link_spel} field in the form `field="expression"`.
+where `EXPRESSION` is a {link_spel} field in the form `field="expression"`.
 
 To show the full usage, run:
 
 [source,console]
 ----
-riot faker-import --help
+riot faker --help
 ----
 
 You must specify at least one Redis command as a target.
@@ -32,31 +27,33 @@ In this example the Redis options will not be taken into account:
 
 [source,subs="verbatim,attributes"]
 ----
-riot faker-import id="index" hset -h myredis.com -p 6380
+riot faker id="index" hset -h myredis.com -p 6380
 ----
 ====
 
 [[_faker_keys]]
-=== Keys
+[discrete]
+== Keys
 
 Keys are constructed from input records by concatenating the keyspace prefix and key fields.
 
 image::mapping.svg[]
 
-.HSET example
+.Import into hashes
 [source,console]
 ----
-include::{testdir}/faker-import-hset[]
+include::{testdir}/faker-hset[]
 ----
 
-.SADD example
+.Import into sets
 [source,console]
 ----
-include::{testdir}/faker-import-sadd[]
+include::{testdir}/faker-sadd[]
 ----
 
 [[_faker_providers]]
-=== Data Providers
+[discrete]
+== Data Providers
 
 Faker offers many data providers.
 Most providers don't take any arguments and can be called directly:
@@ -64,7 +61,7 @@ Most providers don't take any arguments and can be called directly:
 .Simple Faker example
 [source,console]
 ----
-riot faker-import firstName="name.firstName"
+riot faker firstName="name.firstName"
 ----
 
 Some providers take parameters:
@@ -72,13 +69,14 @@ Some providers take parameters:
 .Parameter Faker example
 [source,console]
 ----
-riot faker-import lease="number.digits(2)"
+riot faker lease="number.digits(2)"
 ----
 
 Refer to {link_datafaker_doc} for complete documentation.
 
 [[_faker_builtin_fields]]
-=== Built-in Fields
+[discrete]
+== Built-in Fields
 
 In addition to the Faker fields specified with `field="expression"` you can use these built-in fields:
 
@@ -90,26 +88,16 @@ Useful for multithreaded data generation.
 .Multithreaded data generator
 [source,console]
 ----
-include::{testdir}/faker-import-threads[]
+include::{testdir}/faker-threads[]
 ----
 
 [[_faker_redisearch]]
-=== RediSearch
+[discrete]
+== RediSearch
 
 You can infer Faker fields from a RediSearch index using the `--infer` option:
 
 [source,console]
 ----
-include::{testdir}/faker-import-infer[]
+include::{testdir}/faker-infer[]
 ----
-
-[[_generate]]
-== Data Structures
-
-The `generate` command generates data-structures for Redis, RedisJSON and RedisTimeSeries.
-
-[source,console]
-----
-riot generate [OPTIONS]
-----
-

@@ -1,0 +1,40 @@
+[[_file_export]]
+= Export
+
+The `file-export` command reads data from a Redis database and writes it to a JSON or XML file, potentially gzip-compressed.
+
+The general usage is:
+[source,console]
+----
+riot file-export [OPTIONS] FILE
+----
+
+To show the full usage, run:
+[source,console]
+----
+riot file-export --help
+----
+
+.Export to JSON
+[source,console]
+----
+include::{testdir}/file-export-json[]
+----
+
+.Sample JSON-export file
+[source,json]
+----
+include::{includedir}/../resources/redis-dump.json[]
+----
+
+.Export to compressed JSON
+[source,console]
+----
+include::{testdir}/file-export-json-gz[]
+----
+
+.Export to XML
+[source,console]
+----
+include::{testdir}/file-export-xml[]
+----

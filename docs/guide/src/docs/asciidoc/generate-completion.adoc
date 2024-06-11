@@ -1,0 +1,8 @@
+[[_generate_completion]]
+= Shell Completion
+Run the following command to give `riot` TAB completion in the current shell:
+
+[source,console]
+----
+$ source <(riot generate-completion)
+----

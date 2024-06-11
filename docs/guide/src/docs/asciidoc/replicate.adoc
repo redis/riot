@@ -1,5 +1,5 @@
-[[_replication]]
-= Replication
+[[_replicate]]
+= Replicate
 
 Most Redis migration tools available today are offline in nature.
 Migrating data from AWS ElastiCache to Redis Enterprise Cloud for example means backing up your Elasticache data to an AWS S3 bucket and importing it into Redis Enterprise Cloud using its UI.
@@ -9,12 +9,19 @@ Instead, {project-title} implements <<_architecture,client-side replication>> us
 
 WARNING: Please note that {project-title} is NEITHER recommended NOR officially supported by Redis, Inc.
 
-[[_replication_usage]]
-== Usage
+image::replication-architecture.svg[]
+
+The basic replication mechanism is as follows:
+
+1. Identify source keys to be replicated using scan and/or keyspace notifications depending on the <<_replicate_mode,replication mode>>.
+
+2. Read data associated with each key using <<_replicate_dump,dump>> or <<_replicate_struct,type-specific commands>>.
+
+3. Write each key to the target using <<_replicate_dump,restore>> or <<_replicate_struct,type-specific commands>>.
 
 [source,console]
 ----
-riot <source> replicate <target> --mode <snapshot|live|compare> [--struct] [OPTIONS]
+riot replicate SOURCE TARGET [--mode <scan|live|liveonly>] [--struct] [OPTIONS]
 ----
 
 For the full usage, run:
@@ -23,15 +30,20 @@ For the full usage, run:
 riot replicate --help
 ----
 
-[[_replication_mode]]
-== Replication Mode
+A status bar shows progress with a percentage of keys that have been replicated.
+The total number of keys is estimated when the process starts and it can change by the time it is finished, for example if keys are deleted or added during replication.
 
-=== Snapshot
+[[_replicate_mode]]
+[discrete]
+== Mode
 
-This mode iterates over the keys in the source Redis database using scan.
+[discrete]
+=== Scan
+This mode uses the `SCAN` command to identify keys to propagate to the target Redis database.
 
+[discrete]
 === Live
-This mode builds upon snapshot replication by listening for changes on the source Redis database.
+This mode builds upon scan replication by also listening for changes on the source Redis database.
 Whenever a key is modified its corresponding value is read and propagated to the target Redis database.
 
 Live replication relies on keyspace notifications for capturing these changes.
@@ -57,11 +69,13 @@ For those potentially problematic migrations it is recommend to perform some pre
 If you need assistance please contact your Redis account team.
 ====
 
-[[_replication_type]]
-== Replication Type
+[discrete]
+=== Live Only
+In this mode only keyspace notifications are used.
 
-[[_replication_dump_restore]]
-=== Dump & Restore
+[[_replicate_dump]]
+[discrete]
+== Dump & Restore
 
 The default replication mechanism is Dump & Restore:
 
@@ -72,15 +86,16 @@ If live replication is enabled the reader also subscribes to keyspace notificati
 
 3. Reader threads enqueue key/value/TTL tuples into the reader queue, from which the writer dequeues key/value/TTL tuples and writes them to the target Redis database by calling RESTORE and EXPIRE.
 
-[[_replication_type_based]]
-=== Type-Based Replication
+[[_replicate_struct]]
+[discrete]
+== Data Structure
 
 There are situations where Dump & Restore cannot be used, for example:
 
 * The target Redis database does not support the RESTORE command ({link_redis_crdb})
 * Incompatible DUMP formats between source and target ({link_redis_7})
 
-In those cases you can use another replication strategy called *Type-Based Replication* where each key is introspected to determine the type of data structure and which read/write commands to use:
+In those cases you can use another replication strategy that is data structure-specific: each key is introspected to determine its type and then use the corresponding read/write commands:
 
 [%header,cols="h,1,1"]
 |=========================================================
@@ -97,7 +112,7 @@ In those cases you can use another replication strategy called *Type-Based Repli
 
 |=========================================================
 
-WARNING: This replication strategy is more intensive in terms of CPU, memory, and network for the machines running {project-title} as well as the source and target Redis databases.
+WARNING: This replication strategy is more intensive in terms of CPU, memory, and network for all the machines involved (source Redis, target Redis, and {project-title} machines).
 Adjust number of threads, batch and queue sizes accordingly.
 
 .Snapshot replication example
@@ -124,71 +139,22 @@ include::{testdir}/replicate-struct[]
 include::{testdir}/replicate-live-struct[]
 ----
 
-[[_replication_progress]]
-== Progress Reporting
-Each process (scan iterator and/or event listener in case of live replication) has a corresponding status bar that shows the process name and its progress:
-
-Scanning::
-    Percentage of keys that have been replicated => replicated / total.
-    The total number of keys is calculated when the process starts and it can change by the time it is finished (for example if keys are deleted or added during the replication).
-    The progress bar is only a rough indicator.
-Listening::
-    Progress is indefinite as total number of keys is unknown.
-
-
-[[_replication_compare]]
+[[_replicate_compare]]
+[discrete]
 == Compare
 
-Once replication is complete, {project-title} performs a verification step by iterating over keys in the source database and comparing values and TTLs between source and target databases.
+Once replication is complete, {project-title} performs a verification step by reading keys in the source database and comparing them against the target database.
 
 The verification step happens automatically after the scan is complete (snapshot replication), or for live replication when keyspace notifications have become idle.
 
-Verification can also be run on-demand using the `compare` mode:
-[source,console]
-----
-riot <source> replicate --mode compare <target>
-----
+Verification can also be run on-demand using the <<_compare,`compare`> command.
 
-The output looks like this:
-
-----
-missing: 123, type: 54, value: 7, TTL: 19
-----
-
-missing::
-Number of keys only present in source database
-
-type::
-Number of keys with mismatched data structure type
-
-value::
-Number of keys with mismatched value
-
-TTL::
-Number of keys with mismatched TTL i.e. difference is greater than tolerance (can be specified with `--ttl-tolerance`)
-
-There are 2 comparison modes available through `--compare-mode`:
-
-* Quick (default): compares key types
-* Full: compares key types, values, and TTLs
-
-To show which keys are different use the `--show-diffs` option:
-
-[source,console]
-----
-riot <source> replicate <target> --show-diffs
-----
-
-[[_replication_performance_tuning]]
-== Performance Tuning
+[[_replicate_performance]]
+[discrete]
+== Performance
 
 Performance tuning is an art but {project-title} offers some options to identify potential bottlenecks.
 In addition to <<_batching,batch>> and <<_threads,threads>> options you have the `--dry-run` option which disables writing to the target Redis database so that you can tune the reader in isolation.
-Add that option to your existing `replicate` command-line to compare replication speeds with and without writing to the target Redis database:
-
-[source,console]
-----
-riot <source> replicate <target> --dry-run
-----
+Add that option to your existing `replicate` command-line to compare replication speeds with and without writing to the target Redis database.
 
 

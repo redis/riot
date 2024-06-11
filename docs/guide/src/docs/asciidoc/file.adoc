@@ -1,0 +1,13 @@
+[[_file]]
+= File
+
+{project-title} can import from and export to files in various formats:
+
+* Delimited (CSV, TSV, PSV)
+* Fixed-length (also known as fixed-width)
+* JSON and JSONL (https://jsonlines.org[JSON Lines])
+* XML
+
+include::{includedir}/file-export.adoc[leveloffset=+1]
+include::{includedir}/file-import.adoc[leveloffset=+1]
+
