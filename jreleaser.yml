@@ -189,12 +189,12 @@ distributions:
         commitMessage: 'riot {{tagName}}'
       registries:
         - serverName: DEFAULT
-          repositoryName: fieldengineering
+          repositoryName: riotx
       labels:
         'org.opencontainers.image.title': 'riot'
       imageNames:
-        - 'fieldengineering/{{distributionName}}:{{tagName}}'
-        - 'fieldengineering/{{distributionName}}:latest'
+        - 'riotx/{{distributionName}}:{{tagName}}'
+        - 'riotx/{{distributionName}}:latest'
       buildx:
         enabled: true
         platforms:
