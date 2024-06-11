@@ -1,1 +1,1 @@
-riot replicate --struct
+riot replicate --struct redis://source redis://target

@@ -4,7 +4,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 import com.redis.lettucemod.search.Suggestion;
-import com.redis.riot.function.ToSuggestionFunction;
+import com.redis.riot.function.ToSuggestion;
 import com.redis.spring.batch.item.redis.writer.operation.Sugadd;
 
 import picocli.CommandLine.ArgGroup;
@@ -34,7 +34,7 @@ public class SugaddCommand extends AbstractOperationCommand {
 	}
 
 	private Function<Map<String, Object>, Suggestion<String>> suggestion() {
-		return new ToSuggestionFunction<>(toString(stringField), score(scoreArgs), toString(payloadField));
+		return new ToSuggestion<>(toString(stringField), score(scoreArgs), toString(payloadField));
 	}
 
 	public String getStringField() {

@@ -1,6 +1,7 @@
 package com.redis.riot;
 
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import org.springframework.batch.core.Job;
@@ -11,49 +12,48 @@ import com.redis.lettucemod.search.Field;
 import com.redis.lettucemod.search.IndexInfo;
 import com.redis.lettucemod.util.RedisModulesUtils;
 import com.redis.riot.core.RiotUtils;
-import com.redis.riot.core.Step;
 import com.redis.riot.faker.FakerItemReader;
 
-import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
 
-@Command(name = "faker-import", description = "Import from Faker.")
-public class FakerImport extends AbstractImport {
+@Command(name = "faker", description = "Import Faker data.")
+public class FakerImport extends AbstractImportCommand {
 
-	@ArgGroup(exclusive = false)
-	private FakerArgs fakerArgs = new FakerArgs();
+	public static final int DEFAULT_COUNT = 1000;
+	public static final Locale DEFAULT_LOCALE = Locale.ENGLISH;
 
-	@ArgGroup(exclusive = false, heading = "Processor options%n")
-	private ImportProcessorArgs processorArgs = new ImportProcessorArgs();
+	@Parameters(arity = "1..*", description = "SpEL expressions in the form field1=\"exp\" field2=\"exp\"...", paramLabel = "EXPRESSION")
+	private Map<String, Expression> fields = new LinkedHashMap<>();
 
-	public void copyTo(FakerImport target) {
-		super.copyTo(target);
-		target.fakerArgs = fakerArgs;
-		target.processorArgs = processorArgs;
-	}
+	@Option(names = "--count", description = "Number of items to generate (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
+	private int count = DEFAULT_COUNT;
+
+	@Option(names = "--infer", description = "Introspect given RediSearch index to infer Faker fields.", paramLabel = "<name>")
+	private String searchIndex;
+
+	@Option(names = "--locale", description = "Faker locale (default: ${DEFAULT-VALUE}).", paramLabel = "<tag>")
+	private Locale locale = DEFAULT_LOCALE;
 
 	@Override
 	protected Job job() {
-		Step<Map<String, Object>, Map<String, Object>> step = new Step<>(reader(), mapWriter());
-		step.processor(mapProcessor(processorArgs));
-		step.maxItemCount(fakerArgs.getCount());
-		step.taskName("Importing");
-		return job(step);
+		return job(step(reader()).processor(mapProcessor()).maxItemCount(count));
 	}
 
 	private FakerItemReader reader() {
 		FakerItemReader reader = new FakerItemReader();
-		reader.setMaxItemCount(fakerArgs.getCount());
-		reader.setLocale(fakerArgs.getLocale());
+		reader.setMaxItemCount(count);
+		reader.setLocale(locale);
 		reader.setFields(fields());
 		return reader;
 	}
 
 	private Map<String, Expression> fields() {
-		Map<String, Expression> allFields = new LinkedHashMap<>(fakerArgs.getFields());
-		if (StringUtils.hasLength(fakerArgs.getSearchIndex())) {
+		Map<String, Expression> allFields = new LinkedHashMap<>(fields);
+		if (StringUtils.hasLength(searchIndex)) {
 			Map<String, Expression> searchFields = new LinkedHashMap<>();
-			IndexInfo info = RedisModulesUtils.indexInfo(redisCommands.ftInfo(fakerArgs.getSearchIndex()));
+			IndexInfo info = RedisModulesUtils.indexInfo(connection.sync().ftInfo(searchIndex));
 			for (Field<String> field : info.getFields()) {
 				searchFields.put(field.getName(), RiotUtils.parse(expression(field)));
 			}
@@ -75,12 +75,36 @@ public class FakerImport extends AbstractImport {
 		}
 	}
 
-	public FakerArgs getFakerArgs() {
-		return fakerArgs;
+	public String getSearchIndex() {
+		return searchIndex;
 	}
 
-	public void setFakerArgs(FakerArgs args) {
-		this.fakerArgs = args;
+	public void setSearchIndex(String index) {
+		this.searchIndex = index;
+	}
+
+	public Locale getLocale() {
+		return locale;
+	}
+
+	public void setLocale(Locale locale) {
+		this.locale = locale;
+	}
+
+	public Map<String, Expression> getFields() {
+		return fields;
+	}
+
+	public void setFields(Map<String, Expression> fields) {
+		this.fields = fields;
+	}
+
+	public int getCount() {
+		return count;
+	}
+
+	public void setCount(int count) {
+		this.count = count;
 	}
 
 }

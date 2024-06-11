@@ -13,6 +13,7 @@ import com.redis.riot.core.TemplateExpression;
 import com.redis.riot.operation.OperationCommand;
 import com.redis.spring.batch.Range;
 
+import io.lettuce.core.RedisURI;
 import picocli.AutoComplete.GenerateCompletion;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -20,9 +21,9 @@ import picocli.CommandLine.ParseResult;
 import picocli.CommandLine.RunFirst;
 import picocli.CommandLine.RunLast;
 
-@Command(name = "riot", versionProvider = Versions.class, headerHeading = "RIOT is a data import/export tool for Redis.%n%n", footerHeading = "%nDocumentation found at http://redis.github.io/riot%n", mixinStandardHelpOptions = true, subcommands = {
-		DatabaseImport.class, DatabaseExport.class, FileImport.class, FileExport.class, FakerImport.class,
-		Generate.class, Replicate.class, Compare.class, Ping.class, GenerateCompletion.class })
+@Command(name = "riot", versionProvider = Versions.class, headerHeading = "A data import/export tool for Redis.%n%n", footerHeading = "%nRun 'riot COMMAND --help' for more information on a command.%n%nFor more help on how to use RIOT, head to http://redis.github.io/riot%n", subcommands = {
+		DatabaseExport.class, DatabaseImport.class, FakerImport.class, FileExport.class, FileImport.class,
+		Generate.class, Ping.class, Replicate.class, Compare.class, GenerateCompletion.class })
 public class Main extends BaseCommand implements Runnable, IO {
 
 	private PrintWriter out;
@@ -64,8 +65,7 @@ public class Main extends BaseCommand implements Runnable, IO {
 		commandLine.setCaseInsensitiveEnumValuesAllowed(true);
 		commandLine.setUnmatchedOptionsAllowedAsOptionParameters(false);
 		commandLine.setExecutionExceptionHandler(new PrintExceptionMessageHandler());
-		commandLine.setUsageHelpWidth(110);
-		commandLine.setUsageHelpLongOptionsMaxWidth(42);
+		commandLine.registerConverter(RedisURI.class, RedisURI::create);
 		commandLine.registerConverter(DataSize.class, DataSize::parse);
 		commandLine.registerConverter(Range.class, Range::parse);
 		commandLine.registerConverter(Expression.class, RiotUtils::parse);
@@ -82,8 +82,8 @@ public class Main extends BaseCommand implements Runnable, IO {
 	public static int executionStrategy(ParseResult parseResult) {
 		for (ParseResult subcommand : parseResult.subcommands()) {
 			Object command = subcommand.commandSpec().userObject();
-			if (AbstractImport.class.isAssignableFrom(command.getClass())) {
-				AbstractImport importCommand = (AbstractImport) command;
+			if (AbstractImportCommand.class.isAssignableFrom(command.getClass())) {
+				AbstractImportCommand importCommand = (AbstractImportCommand) command;
 				for (ParseResult redisCommand : subcommand.subcommands()) {
 					if (redisCommand.isUsageHelpRequested()) {
 						return new RunLast().execute(redisCommand);

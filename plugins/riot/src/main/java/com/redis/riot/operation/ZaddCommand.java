@@ -3,7 +3,7 @@ package com.redis.riot.operation;
 import java.util.Arrays;
 import java.util.Map;
 
-import com.redis.riot.function.ToScoredValueFunction;
+import com.redis.riot.function.ToScoredValue;
 import com.redis.spring.batch.item.redis.writer.operation.Zadd;
 
 import picocli.CommandLine.ArgGroup;
@@ -20,8 +20,8 @@ public class ZaddCommand extends AbstractMemberOperationCommand {
 		return new Zadd<>(keyFunction(), scoredValueFunction().andThen(Arrays::asList));
 	}
 
-	private ToScoredValueFunction<String, Map<String, Object>> scoredValueFunction() {
-		return new ToScoredValueFunction<>(memberFunction(), score(scoreArgs));
+	private ToScoredValue<String, Map<String, Object>> scoredValueFunction() {
+		return new ToScoredValue<>(memberFunction(), score(scoreArgs));
 	}
 
 	public ScoreArgs getScoreArgs() {

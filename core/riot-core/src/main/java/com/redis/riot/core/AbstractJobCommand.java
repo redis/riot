@@ -7,7 +7,9 @@ import java.util.stream.StreamSupport;
 import org.springframework.batch.core.ItemWriteListener;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
+import org.springframework.batch.core.JobExecutionException;
 import org.springframework.batch.core.JobParameters;
+import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.job.builder.SimpleJobBuilder;
@@ -24,7 +26,6 @@ import org.springframework.batch.item.ItemStreamSupport;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.support.SynchronizedItemReader;
 import org.springframework.batch.item.support.SynchronizedItemStreamReader;
-import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -38,27 +39,23 @@ import com.redis.spring.batch.step.FlushingStepBuilder;
 
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 @Command
-public abstract class AbstractJobCommand<C extends IO> extends AbstractCommand<C> {
+public abstract class AbstractJobCommand extends AbstractCommand {
 
 	public static final String DEFAULT_JOB_REPOSITORY_NAME = "riot";
 
+	@Option(names = "--job-name", description = "Job name.", paramLabel = "<string>", hidden = true)
+	protected String jobName;
+
 	@ArgGroup(exclusive = false, heading = "Job options%n")
-	private JobArgs jobArgs = new JobArgs();
+	private StepArgs stepArgs = new StepArgs();
 
 	private String jobRepositoryName = DEFAULT_JOB_REPOSITORY_NAME;
 	protected JobRepository jobRepository;
 	protected PlatformTransactionManager transactionManager;
 	protected JobLauncher jobLauncher;
-
-	public void copyTo(AbstractJobCommand<C> target) {
-		super.copyTo(target);
-		target.jobArgs = jobArgs;
-		target.jobRepository = jobRepository;
-		target.transactionManager = transactionManager;
-		target.jobLauncher = jobLauncher;
-	}
 
 	protected Job job(Step<?, ?>... steps) {
 		return job(Stream.of(steps));
@@ -78,23 +75,19 @@ public abstract class AbstractJobCommand<C extends IO> extends AbstractCommand<C
 	}
 
 	private JobBuilder jobBuilder() {
-		log.info("Creating job {}", jobArgs.getName());
-		return new JobBuilder(jobArgs.getName(), jobRepository);
+		log.info("Creating job {}", jobName);
+		return new JobBuilder(jobName, jobRepository);
 	}
 
 	@Override
-	protected void setup() {
-		super.setup();
-		if (jobArgs.getName() == null) {
+	public void afterPropertiesSet() throws Exception {
+		super.afterPropertiesSet();
+		if (jobName == null) {
 			Assert.notNull(commandSpec, "Command spec not set");
-			jobArgs.setName(commandSpec.name());
+			jobName = commandSpec.name();
 		}
 		if (jobRepository == null) {
-			try {
-				jobRepository = JobUtils.jobRepositoryFactoryBean(jobRepositoryName).getObject();
-			} catch (Exception e) {
-				throw new BeanInitializationException("Could not initialize job repository", e);
-			}
+			jobRepository = JobUtils.jobRepositoryFactoryBean(jobRepositoryName).getObject();
 			Assert.notNull(jobRepository, "Could not create job repository");
 		}
 		if (transactionManager == null) {
@@ -105,45 +98,80 @@ public abstract class AbstractJobCommand<C extends IO> extends AbstractCommand<C
 		}
 	}
 
-	private TaskExecutorJobLauncher taskExecutorJobLauncher() {
+	private TaskExecutorJobLauncher taskExecutorJobLauncher() throws Exception {
 		TaskExecutorJobLauncher launcher = new TaskExecutorJobLauncher();
 		launcher.setJobRepository(jobRepository);
 		launcher.setTaskExecutor(new SyncTaskExecutor());
-		try {
-			launcher.afterPropertiesSet();
-		} catch (Exception e) {
-			throw new BeanInitializationException("Could not initialize job launcher", e);
-		}
+		launcher.afterPropertiesSet();
 		return launcher;
 	}
 
 	@Override
-	protected void execute() throws Exception {
-		JobExecution jobExecution = jobLauncher.run(job(), new JobParameters());
-		JobUtils.checkJobExecution(jobExecution);
+	protected void execute() {
+		Job job = job();
+		JobExecution jobExecution;
+		try {
+			jobExecution = jobLauncher.run(job, new JobParameters());
+		} catch (JobExecutionException e) {
+			throw new RiotException("Could not run job " + job.getName(), e);
+		} finally {
+			shutdown();
+		}
+		if (JobUtils.isFailed(jobExecution.getExitStatus())) {
+			for (StepExecution stepExecution : jobExecution.getStepExecutions()) {
+				if (JobUtils.isFailed(stepExecution.getExitStatus())) {
+					throw new RiotException(stepExecution.getExitStatus().getExitDescription());
+				}
+			}
+			throw new RiotException(jobExecution.getExitStatus().getExitDescription());
+		}
 	}
 
+	protected abstract void shutdown();
+
 	protected boolean shouldShowProgress() {
-		return jobArgs.getProgressArgs().getStyle() != ProgressStyle.NONE;
+		return stepArgs.getProgressArgs().getStyle() != ProgressStyle.NONE;
 	}
 
 	protected abstract Job job();
 
 	private <I, O> TaskletStep step(Step<I, O> step) {
-		return faultTolerant(simpleStepBuilder(step)).build();
+		SimpleStepBuilder<I, O> builder = simpleStepBuilder(step);
+		if (stepArgs.getRetryPolicy() == RetryPolicy.NEVER && stepArgs.getSkipPolicy() == SkipPolicy.NEVER) {
+			return builder.build();
+		}
+		FaultTolerantStepBuilder<I, O> ftStep = JobUtils.faultTolerant(builder);
+		if (stepArgs.getSkipPolicy() == SkipPolicy.LIMIT) {
+			ftStep.skipLimit(stepArgs.getSkipLimit());
+			step.getSkip().forEach(ftStep::skip);
+			step.getNoSkip().forEach(ftStep::noSkip);
+		} else {
+			ftStep.skipPolicy(stepArgs.skipPolicy());
+		}
+		if (stepArgs.getRetryPolicy() == RetryPolicy.LIMIT) {
+			ftStep.retryLimit(stepArgs.getRetryLimit());
+			step.getRetry().forEach(ftStep::retry);
+			step.getNoRetry().forEach(ftStep::noRetry);
+		} else {
+			ftStep.retryPolicy(stepArgs.retryPolicy());
+		}
+		return ftStep.build();
 	}
 
-	protected <I, O> SimpleStepBuilder<I, O> simpleStepBuilder(Step<I, O> step) {
+	private <I, O> SimpleStepBuilder<I, O> simpleStepBuilder(Step<I, O> step) {
 		if (step.getName() == null) {
-			step.name("step");
+			step.name(jobName);
+		} else {
+			step.name(jobName + "-" + step.getName());
 		}
-		step.name(jobArgs.getName() + "-" + step.getName());
 		if (step.getReader() instanceof ItemStreamSupport) {
 			ItemStreamSupport support = (ItemStreamSupport) step.getReader();
 			Assert.notNull(support.getName(), "No name specified for reader in step " + step.getName());
 			support.setName(step.getName() + "-" + support.getName());
 		}
-		SimpleStepBuilder<I, O> builder = simpleStepBuilder(step.getName());
+		log.info("Creating step {} with chunk size {}", step.getName(), stepArgs.getChunkSize());
+		SimpleStepBuilder<I, O> builder = new StepBuilder(step.getName(), jobRepository).chunk(stepArgs.getChunkSize(),
+				transactionManager);
 		builder.reader(reader(step));
 		builder.writer(writer(step));
 		builder.processor(step.getProcessor());
@@ -155,33 +183,32 @@ public abstract class AbstractJobCommand<C extends IO> extends AbstractCommand<C
 			builder.listener((StepExecutionListener) listener);
 			builder.listener((ItemWriteListener<?>) listener);
 		}
-		if (step.getFlushInterval() == null) {
-			return builder;
+		if (step.isLive()) {
+			log.info("Creating flushing step with flush interval {} and idle timeout {}", step.getFlushInterval(),
+					step.getIdleTimeout());
+			FlushingStepBuilder<I, O> flushingStepBuilder = new FlushingStepBuilder<>(builder);
+			flushingStepBuilder.flushInterval(step.getFlushInterval());
+			flushingStepBuilder.idleTimeout(step.getIdleTimeout());
+			return flushingStepBuilder;
 		}
-		log.info("Creating flushing step with flush interval {} and idle timeout {}", step.getFlushInterval(),
-				step.getIdleTimeout());
-		FlushingStepBuilder<I, O> flushingStepBuilder = new FlushingStepBuilder<>(builder);
-		flushingStepBuilder.flushInterval(step.getFlushInterval());
-		flushingStepBuilder.idleTimeout(step.getIdleTimeout());
-		return flushingStepBuilder;
+		return builder;
 	}
 
 	private TaskExecutor taskExecutor() {
-		if (jobArgs.getThreads() == 1) {
+		if (stepArgs.getThreads() == 1) {
 			return new SyncTaskExecutor();
 		}
-		log.info("Creating thread-pool task executor of size {}", jobArgs.getThreads());
+		log.info("Creating thread-pool task executor of size {}", stepArgs.getThreads());
 		ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
-		taskExecutor.setMaxPoolSize(jobArgs.getThreads());
-		taskExecutor.setCorePoolSize(jobArgs.getThreads());
-		taskExecutor.setQueueCapacity(jobArgs.getThreads());
+		taskExecutor.setMaxPoolSize(stepArgs.getThreads());
+		taskExecutor.setCorePoolSize(stepArgs.getThreads());
+		taskExecutor.setQueueCapacity(stepArgs.getThreads());
 		taskExecutor.initialize();
 		return taskExecutor;
 	}
 
-	@SuppressWarnings("unchecked")
 	private <I, O> ItemReader<? extends I> reader(Step<I, O> step) {
-		if (jobArgs.getThreads() == 1 || step.getReader() instanceof AbstractPollableItemReader) {
+		if (stepArgs.getThreads() == 1 || step.getReader() instanceof AbstractPollableItemReader) {
 			return step.getReader();
 		}
 		log.info("Synchronizing reader in step {}", step.getName());
@@ -194,41 +221,35 @@ public abstract class AbstractJobCommand<C extends IO> extends AbstractCommand<C
 	}
 
 	private <I, O> ItemWriter<? super O> writer(Step<I, O> step) {
-		if (jobArgs.isDryRun()) {
+		if (stepArgs.isDryRun()) {
 			log.info("Using no-op writer");
 			return new NoopItemWriter<>();
 		}
-		if (jobArgs.getSleep() > 0) {
-			log.info("Throttling writer with sleep {}", jobArgs.getSleep());
-			return new ThrottledItemWriter<>(step.getWriter(), jobArgs.getSleep());
+		if (stepArgs.getSleep() > 0) {
+			log.info("Throttling writer with sleep {}", stepArgs.getSleep());
+			return new ThrottledItemWriter<>(step.getWriter(), stepArgs.getSleep());
 		}
 		return step.getWriter();
-	}
-
-	private <I, O> SimpleStepBuilder<I, O> simpleStepBuilder(String name) {
-		log.info("Creating step {} with chunk size {}", name, jobArgs.getChunkSize());
-		return new StepBuilder(name, jobRepository).chunk(jobArgs.getChunkSize(), transactionManager);
-	}
-
-	protected <I, O> FaultTolerantStepBuilder<I, O> faultTolerant(SimpleStepBuilder<I, O> step) {
-		log.info("Creating fault-tolerant step with skip limit {} and retry limit {}", jobArgs.getSkipLimit(),
-				jobArgs.getRetryLimit());
-		FaultTolerantStepBuilder<I, O> ftStep = step.faultTolerant();
-		ftStep.skipLimit(jobArgs.getSkipLimit());
-		ftStep.retryLimit(jobArgs.getRetryLimit());
-		return ftStep;
 	}
 
 	protected void configure(AbstractAsyncItemReader<?, ?> reader) {
 		reader.setJobRepository(jobRepository);
 	}
 
-	public JobArgs getJobArgs() {
-		return jobArgs;
+	public String getJobName() {
+		return jobName;
 	}
 
-	public void setJobArgs(JobArgs args) {
-		this.jobArgs = args;
+	public void setJobName(String name) {
+		this.jobName = name;
+	}
+
+	public StepArgs getJobArgs() {
+		return stepArgs;
+	}
+
+	public void setJobArgs(StepArgs args) {
+		this.stepArgs = args;
 	}
 
 	public String getJobRepositoryName() {

@@ -8,21 +8,18 @@ import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemStreamException;
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.expression.spel.support.StandardEvaluationContext;
 
-import com.redis.riot.core.EvaluationContextArgs;
 import com.redis.riot.file.FileWriterArgs;
 import com.redis.riot.file.FileWriterFactory;
 import com.redis.spring.batch.item.redis.RedisItemReader;
 import com.redis.spring.batch.item.redis.common.KeyValue;
-import com.redis.spring.batch.item.redis.reader.MemKeyValue;
 
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 @Command(name = "file-export", description = "Export Redis data to files.")
-public class FileExport extends AbstractExport {
+public class FileExport extends AbstractExportCommand {
 
 	@ArgGroup(exclusive = false)
 	private FileWriterArgs fileWriterArgs = new FileWriterArgs();
@@ -30,29 +27,10 @@ public class FileExport extends AbstractExport {
 	@Option(names = "--content-type", description = "Type of exported content: ${COMPLETION-CANDIDATES}.", paramLabel = "<type>")
 	private ContentType contentType;
 
-	@ArgGroup(exclusive = false)
-	private EvaluationContextArgs evaluationContextArgs = new EvaluationContextArgs();
-
-	@ArgGroup(exclusive = false)
-	private KeyValueMapProcessorArgs processorArgs = new KeyValueMapProcessorArgs();
-
-	public void copyTo(FileExport target) {
-		super.copyTo(target);
-		target.fileWriterArgs = fileWriterArgs;
-		target.contentType = contentType;
-		target.processorArgs = processorArgs;
-	}
-
 	@SuppressWarnings("unchecked")
 	@Override
 	protected Job job() {
-		return job(exportStep(reader(), writer()).processor(processor()).taskName("Exporting"));
-	}
-
-	private RedisItemReader<String, String, MemKeyValue<String, Object>> reader() {
-		RedisItemReader<String, String, MemKeyValue<String, Object>> reader = RedisItemReader.struct();
-		configure(reader);
-		return reader;
+		return job(step(writer()).processor(processor()));
 	}
 
 	@Override
@@ -61,33 +39,33 @@ public class FileExport extends AbstractExport {
 	}
 
 	public ContentType contentType() {
-		if (contentType == null) {
-			switch (fileWriterArgs.fileType()) {
-			case CSV:
-			case FIXED:
-				return ContentType.FLAT;
-			default:
-				return ContentType.REDIS;
+		switch (fileWriterArgs.fileType()) {
+		case CSV:
+		case FIXED:
+			return ContentType.MAP;
+		default:
+			if (contentType == null) {
+				return ContentType.STRUCT;
 			}
+			return contentType;
 		}
-		return contentType;
 	}
 
 	private ItemProcessor<KeyValue<String, Object>, ?> processor() {
-		StandardEvaluationContext evaluationContext = evaluationContext(evaluationContextArgs);
-		if (contentType() == ContentType.REDIS) {
-			return processorArgs.getKeyValueProcessorArgs().processor(evaluationContext);
+		if (contentType() == ContentType.STRUCT) {
+			return keyValueProcessor();
 		}
-		return processorArgs.processor(evaluationContext);
+		return mapProcessor();
 	}
 
 	@SuppressWarnings("unchecked")
 	private Map<String, Object> headerRecord() {
-		RedisItemReader<String, String, MemKeyValue<String, Object>> reader = reader();
+		RedisItemReader<String, String, Object> reader = RedisItemReader.struct();
+		configure(reader);
 		try {
 			reader.open(new ExecutionContext());
 			try {
-				MemKeyValue<String, Object> keyValue = reader.read();
+				KeyValue<String, Object> keyValue = reader.read();
 				if (keyValue == null) {
 					return Collections.emptyMap();
 				}
@@ -122,14 +100,6 @@ public class FileExport extends AbstractExport {
 
 	public void setContentType(ContentType contentType) {
 		this.contentType = contentType;
-	}
-
-	public KeyValueMapProcessorArgs getProcessorArgs() {
-		return processorArgs;
-	}
-
-	public void setProcessorArgs(KeyValueMapProcessorArgs mapProcessorArgs) {
-		this.processorArgs = mapProcessorArgs;
 	}
 
 }

@@ -1,1 +1,1 @@
-riot file-import https://storage.googleapis.com/jrx/beers.csv --header --skip-lines 11 --header-line 0 hset --keyspace beer --keys id
+riot file-import https://storage.googleapis.com/jrx/beers.csv --header --skip-lines 11 --header-line 0 hset --keyspace beer --key id

@@ -14,10 +14,10 @@ import java.util.function.ToLongFunction;
 import org.springframework.util.CollectionUtils;
 
 import com.redis.lettucemod.timeseries.AddOptions;
+import com.redis.lettucemod.timeseries.AddOptions.Builder;
 import com.redis.lettucemod.timeseries.DuplicatePolicy;
 import com.redis.lettucemod.timeseries.Sample;
-import com.redis.lettucemod.timeseries.AddOptions.Builder;
-import com.redis.riot.function.ToSampleFunction;
+import com.redis.riot.function.ToSample;
 import com.redis.spring.batch.item.redis.writer.operation.TsAdd;
 
 import io.lettuce.core.KeyValue;
@@ -29,11 +29,11 @@ public class TsAddCommand extends AbstractOperationCommand {
 
 	public static final DuplicatePolicy DEFAULT_DUPLICATE_POLICY = DuplicatePolicy.LAST;
 
-	@Option(names = "--timestamp", description = "Name of the field to use for timestamps. If unset, uses auto-timestamping.", paramLabel = "<field>")
-	private String timestampField;
-
 	@Option(names = "--value", required = true, description = "Name of the field to use for values.", paramLabel = "<field>")
 	private String valueField;
+
+	@Option(names = "--timestamp", description = "Name of the field to use for timestamps. If unset, uses auto-timestamping.", paramLabel = "<field>")
+	private String timestampField;
 
 	@Option(names = "--on-duplicate", description = "Duplicate policy: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<name>")
 	private DuplicatePolicy duplicatePolicy = DEFAULT_DUPLICATE_POLICY;
@@ -66,7 +66,7 @@ public class TsAddCommand extends AbstractOperationCommand {
 	private Function<Map<String, Object>, Collection<Sample>> valueFunction() {
 		ToLongFunction<Map<String, Object>> timestamp = toLong(timestampField);
 		ToDoubleFunction<Map<String, Object>> value = toDouble(valueField, 0);
-		return new ToSampleFunction<>(timestamp, value).andThen(Arrays::asList);
+		return new ToSample<>(timestamp, value).andThen(Arrays::asList);
 	}
 
 	public String getTimestampField() {

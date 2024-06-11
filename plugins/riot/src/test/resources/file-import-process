@@ -1,1 +1,1 @@
-riot file-import https://storage.googleapis.com/jrx/lacity.csv --date-format "MM/dd/yyyy HH:mm:ss a" --proc EventStartDate="remove('Event Start Date')" EpochStart="#date.parse(EventStartDate).getTime()" --header hset --keyspace event --keys Id
+riot file-import https://storage.googleapis.com/jrx/lacity.csv --date-format "MM/dd/yyyy HH:mm:ss a" --proc EventStartDate="remove('Event Start Date')" EpochStart="#date.parse(EventStartDate).getTime()" --header hset --keyspace event --key Id

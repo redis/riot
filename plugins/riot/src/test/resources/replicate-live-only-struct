@@ -1,1 +1,1 @@
-riot replicate --struct --mode liveonly
+riot replicate --struct --mode liveonly redis://source redis://target

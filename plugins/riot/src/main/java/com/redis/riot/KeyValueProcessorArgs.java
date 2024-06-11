@@ -2,17 +2,16 @@ package com.redis.riot;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
+import java.util.function.Consumer;
 
 import org.springframework.batch.item.ItemProcessor;
+import org.springframework.batch.item.function.FunctionItemProcessor;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 
-import com.redis.riot.core.RiotUtils;
 import com.redis.riot.core.TemplateExpression;
-import com.redis.riot.core.function.ExpressionFunction;
-import com.redis.riot.function.StreamMessageIdDropFunction;
+import com.redis.riot.function.ConsumerUnaryOperator;
+import com.redis.riot.function.DropStreamMessageId;
 import com.redis.spring.batch.item.redis.common.KeyValue;
 
 import picocli.CommandLine.Option;
@@ -29,70 +28,32 @@ public class KeyValueProcessorArgs {
 	private Expression ttlExpression;
 
 	@Option(names = "--ttls", description = "Propagate key expiration times. True by default.", negatable = true, defaultValue = "true", fallbackValue = "true")
-	private boolean propagateTtls = true;
+	private boolean propagateTtl = true;
 
 	@Option(names = "--stream-ids", description = "Propagate stream message IDs. True by default.", negatable = true, defaultValue = "true", fallbackValue = "true")
-	private boolean propagateStreamMessageIds = true;
+	private boolean propagateStreamMessageId = true;
 
 	public ItemProcessor<KeyValue<String, Object>, KeyValue<String, Object>> processor(EvaluationContext context) {
-		List<ItemProcessor<KeyValue<String, Object>, KeyValue<String, Object>>> processors = new ArrayList<>();
+		List<Consumer<KeyValue<String, Object>>> consumers = new ArrayList<>();
 		if (keyExpression != null) {
-			Function<KeyValue<String, Object>, String> function = expressionFunction(context, keyExpression);
-			processors.add(processor(function, KeyValue::setKey));
+			consumers.add(t -> t.setKey(keyExpression.getExpression().getValue(context, t, String.class)));
 		}
-		if (!propagateTtls) {
-			processors.add(processor(t -> 0, KeyValue::setTtl));
+		if (!propagateTtl) {
+			consumers.add(t -> t.setTtl(0));
 		}
 		if (ttlExpression != null) {
-			Function<KeyValue<String, Object>, Long> function = longExpressionFunction(context, ttlExpression);
-			processors.add(processor(function, KeyValue::setTtl));
+			consumers.add(t -> t.setTtl(ttlExpression.getValue(context, t, Long.class)));
 		}
-		if (!propagateStreamMessageIds) {
-			StreamMessageIdDropFunction function = new StreamMessageIdDropFunction();
-			processors.add(processor(function, KeyValue::setValue));
+		if (!propagateStreamMessageId) {
+			consumers.add(new DropStreamMessageId());
 		}
 		if (typeExpression != null) {
-			Function<KeyValue<String, Object>, String> function = expressionFunction(context, typeExpression);
-			processors.add(processor(function, KeyValue::setType));
+			consumers.add(t -> t.setType(typeExpression.getValue(context, t, String.class)));
 		}
-		return RiotUtils.processor(processors);
-	}
-
-	private <T, U> ItemProcessor<T, T> processor(Function<T, U> function, BiConsumer<T, U> consumer) {
-		return new ConsumerFunctionItemProcessor<>(function, consumer);
-	}
-
-	private Function<KeyValue<String, Object>, String> expressionFunction(EvaluationContext context,
-			TemplateExpression expression) {
-		return expressionFunction(context, expression.getExpression());
-	}
-
-	private Function<KeyValue<String, Object>, String> expressionFunction(EvaluationContext context,
-			Expression expression) {
-		return new ExpressionFunction<>(context, expression, String.class);
-	}
-
-	private Function<KeyValue<String, Object>, Long> longExpressionFunction(EvaluationContext context,
-			Expression expression) {
-		return new ExpressionFunction<>(context, expression, Long.class);
-	}
-
-	private static class ConsumerFunctionItemProcessor<T, U> implements ItemProcessor<T, T> {
-
-		private final BiConsumer<T, U> consumer;
-		private final Function<T, U> function;
-
-		public ConsumerFunctionItemProcessor(Function<T, U> function, BiConsumer<T, U> consumer) {
-			this.function = function;
-			this.consumer = consumer;
+		if (consumers.isEmpty()) {
+			return null;
 		}
-
-		@Override
-		public T process(T item) throws Exception {
-			consumer.accept(item, function.apply(item));
-			return item;
-		}
-
+		return new FunctionItemProcessor<>(new ConsumerUnaryOperator<>(consumers));
 	}
 
 	public TemplateExpression getKeyExpression() {
@@ -119,27 +80,27 @@ public class KeyValueProcessorArgs {
 		this.ttlExpression = ttlExpression;
 	}
 
-	public boolean isPropagateTtls() {
-		return propagateTtls;
+	public boolean isPropagateTtl() {
+		return propagateTtl;
 	}
 
-	public void setPropagateTtls(boolean propagateTtls) {
-		this.propagateTtls = propagateTtls;
+	public void setPropagateTtl(boolean propagateTtls) {
+		this.propagateTtl = propagateTtls;
 	}
 
-	public boolean isPropagateStreamMessageIds() {
-		return propagateStreamMessageIds;
+	public boolean isPropagateStreamMessageId() {
+		return propagateStreamMessageId;
 	}
 
-	public void setPropagateStreamMessageIds(boolean propagateStreamMessageIds) {
-		this.propagateStreamMessageIds = propagateStreamMessageIds;
+	public void setPropagateStreamMessageId(boolean propagateStreamMessageIds) {
+		this.propagateStreamMessageId = propagateStreamMessageIds;
 	}
 
 	@Override
 	public String toString() {
 		return "KeyValueProcessorArgs [keyExpression=" + keyExpression + ", typeExpression=" + typeExpression
-				+ ", ttlExpression=" + ttlExpression + ", propagateTtls=" + propagateTtls
-				+ ", propagateStreamMessageIds=" + propagateStreamMessageIds + "]";
+				+ ", ttlExpression=" + ttlExpression + ", propagateTtl=" + propagateTtl + ", propagateStreamMessageId="
+				+ propagateStreamMessageId + "]";
 	}
 
 }

@@ -1,6 +1,7 @@
 package com.redis.riot;
 
 import java.time.Duration;
+import java.util.Arrays;
 
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
@@ -201,6 +202,15 @@ public class RedisClientBuilder {
 	public RedisClientBuilder sslOptions(SslOptions sslOptions) {
 		this.sslOptions = sslOptions;
 		return this;
+	}
+
+	@Override
+	public String toString() {
+		return "RedisClientBuilder [uri=" + uri + ", host=" + host + ", port=" + port + ", socket=" + socket
+				+ ", username=" + username + ", password=" + Arrays.toString(password) + ", timeout=" + timeout
+				+ ", database=" + database + ", clientName=" + clientName + ", tls=" + tls + ", verifyMode="
+				+ verifyMode + ", cluster=" + cluster + ", autoReconnect=" + autoReconnect + ", protocolVersion="
+				+ protocolVersion + "]";
 	}
 
 }

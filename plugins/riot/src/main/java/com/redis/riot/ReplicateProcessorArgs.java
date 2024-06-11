@@ -24,8 +24,7 @@ public class ReplicateProcessorArgs {
 		return keyValueProcessorArgs;
 	}
 
-	public void setKeyValueProcessorArgs(KeyValueProcessorArgs args) {
-		this.keyValueProcessorArgs = args;
+	public void setKeyValueProcessorArgs(KeyValueProcessorArgs keyValueProcessorArgs) {
+		this.keyValueProcessorArgs = keyValueProcessorArgs;
 	}
-
 }

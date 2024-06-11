@@ -7,21 +7,22 @@ import java.util.function.Function;
 import java.util.function.ToDoubleFunction;
 import java.util.function.ToLongFunction;
 
+import com.redis.riot.core.BaseCommand;
 import com.redis.riot.core.function.FieldExtractorFactory;
 import com.redis.riot.core.function.IdFunctionBuilder;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
-@Command(mixinStandardHelpOptions = true)
-public abstract class AbstractOperationCommand implements OperationCommand {
+@Command
+public abstract class AbstractOperationCommand extends BaseCommand implements OperationCommand {
 
 	public static final String DEFAULT_SEPARATOR = IdFunctionBuilder.DEFAULT_SEPARATOR;
 
 	@Option(names = "--keyspace", description = "Keyspace prefix.", paramLabel = "<str>")
 	private String keyspace;
 
-	@Option(names = { "-k", "--keys" }, arity = "1..*", description = "Key fields.", paramLabel = "<fields>")
+	@Option(names = { "-k", "--key" }, arity = "1..*", description = "Key fields.", paramLabel = "<fields>")
 	private List<String> keyFields;
 
 	@Option(names = "--separator", description = "Key separator (default: ${DEFAULT-VALUE}).", paramLabel = "<str>")

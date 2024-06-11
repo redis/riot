@@ -10,22 +10,16 @@ import com.redis.spring.batch.item.redis.gen.GeneratorItemReader;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 
-@Command(name = "generate", description = "Generate data structures.")
-public class Generate extends AbstractRedisCommand {
+@Command(name = "generate", description = "Generate Redis data structures.")
+public class Generate extends AbstractRedisArgsCommand {
 
 	private static final String TASK_NAME = "Generating";
 
 	@ArgGroup(exclusive = false)
-	private GeneratorArgs generatorArgs = new GeneratorArgs();
+	private GenerateArgs generatorArgs = new GenerateArgs();
 
 	@ArgGroup(exclusive = false, heading = "Redis writer options%n")
 	private RedisWriterArgs redisWriterArgs = new RedisWriterArgs();
-
-	public void copyTo(Generate target) {
-		super.copyTo(target);
-		target.generatorArgs = generatorArgs;
-		target.redisWriterArgs = redisWriterArgs;
-	}
 
 	@Override
 	protected Job job() {
@@ -41,8 +35,8 @@ public class Generate extends AbstractRedisCommand {
 
 	private RedisItemWriter<String, String, KeyValue<String, Object>> writer() {
 		RedisItemWriter<String, String, KeyValue<String, Object>> writer = RedisItemWriter.struct();
+		writer.setClient(client.getClient());
 		redisWriterArgs.configure(writer);
-		configure(writer);
 		return writer;
 	}
 

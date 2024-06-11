@@ -44,6 +44,7 @@ public class FileReaderArgs extends FileArgs {
 
 	@Override
 	public Resource resource(String location) {
+
 		if (FileUtils.isStdin(location)) {
 			return new FilenameInputStreamResource(System.in, "stdin", "Standard Input");
 		}

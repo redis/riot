@@ -7,46 +7,32 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
 import org.slf4j.simple.SimpleLogger;
+import org.springframework.beans.factory.InitializingBean;
 
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
-import picocli.CommandLine.Option;
-import picocli.CommandLine.ParentCommand;
 
 @Command
-public abstract class AbstractCommand<C extends IO> extends BaseCommand implements Callable<Integer> {
-
-	@ParentCommand
-	private C parent;
-	
-	protected C parent() {
-		return parent;
-	}
-
-	@Option(names = "--help", usageHelp = true, description = "Show this help message and exit.")
-	private boolean helpRequested;
+public abstract class AbstractCommand extends BaseCommand implements InitializingBean, Callable<Integer> {
 
 	@ArgGroup(exclusive = false, heading = "Logging options%n")
 	private LoggingArgs loggingArgs = new LoggingArgs();
 
 	protected Logger log;
 
-	public void copyTo(AbstractCommand<C> target) {
-		target.helpRequested = helpRequested;
-		target.loggingArgs = loggingArgs;
-		target.log = log;
-	}
-	
 	@Override
 	public Integer call() throws Exception {
-		setup();
+		afterPropertiesSet();
 		execute();
 		return 0;
 	}
 
-	protected void setup() {
-		setupLogging();
-		log = LoggerFactory.getLogger(getClass());
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		if (log == null) {
+			setupLogging();
+			log = LoggerFactory.getLogger(getClass());
+		}
 	}
 
 	private void setupLogging() {
@@ -80,8 +66,22 @@ public abstract class AbstractCommand<C extends IO> extends BaseCommand implemen
 		System.setProperty(property, String.valueOf(value));
 	}
 
+	protected abstract void execute();
 
+	public LoggingArgs getLoggingArgs() {
+		return loggingArgs;
+	}
 
-	protected abstract void execute() throws Exception;
+	public void setLoggingArgs(LoggingArgs args) {
+		this.loggingArgs = args;
+	}
+
+	public Logger getLog() {
+		return log;
+	}
+
+	public void setLog(Logger log) {
+		this.log = log;
+	}
 
 }

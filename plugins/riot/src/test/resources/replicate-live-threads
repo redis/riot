@@ -1,1 +1,1 @@
-riot replicate --mode live --threads 3
+riot replicate --mode live --threads 3 redis://source redis://target

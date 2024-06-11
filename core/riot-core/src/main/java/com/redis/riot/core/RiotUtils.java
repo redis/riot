@@ -15,11 +15,14 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.item.function.FunctionItemProcessor;
 import org.springframework.batch.item.support.CompositeItemProcessor;
 import org.springframework.batch.item.support.CompositeItemWriter;
 import org.springframework.expression.EvaluationContext;
@@ -48,13 +51,20 @@ public abstract class RiotUtils {
 		return t -> expression.getValue(context, t, Boolean.class);
 	}
 
-	public static <S, T> ItemProcessor<S, T> processor(ItemProcessor<?, ?>... processors) {
-		return processor(Arrays.asList(processors));
+	public static <S, T> ItemProcessor<S, T> processor(Collection<? extends Function<?, ?>> functions) {
+		return processor(functions.toArray(new Function[0]));
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <S, T> ItemProcessor<S, T> processor(Collection<? extends ItemProcessor<?, ?>> processors) {
-		List<ItemProcessor<?, ?>> list = processors.stream().filter(Objects::nonNull).collect(Collectors.toList());
+	public static <S, T> ItemProcessor<S, T> processor(Function<?, ?>... functions) {
+		return processor(Stream.of(functions).filter(Objects::nonNull).map(FunctionItemProcessor::new)
+				.toArray(ItemProcessor[]::new));
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <S, T> ItemProcessor<S, T> processor(ItemProcessor<?, ?>... processors) {
+		List<? extends ItemProcessor<?, ?>> list = Stream.of(processors).filter(Objects::nonNull)
+				.collect(Collectors.toList());
 		if (list.isEmpty()) {
 			return null;
 		}
@@ -113,6 +123,13 @@ public abstract class RiotUtils {
 		} catch (UnsupportedEncodingException e) {
 			throw new IllegalArgumentException(e);
 		}
+	}
+
+	public static String toString(Expression expression) {
+		if (expression == null) {
+			return String.valueOf(expression);
+		}
+		return expression.getExpressionString();
 	}
 
 }

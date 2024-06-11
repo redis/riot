@@ -3,7 +3,7 @@ package com.redis.riot.operation;
 import java.util.Map;
 import java.util.function.ToDoubleFunction;
 
-import com.redis.riot.function.ToGeoValueFunction;
+import com.redis.riot.function.ToGeoValue;
 import com.redis.spring.batch.item.redis.writer.operation.Geoadd;
 
 import picocli.CommandLine.Command;
@@ -39,10 +39,10 @@ public class GeoaddCommand extends AbstractMemberOperationCommand {
 		return new Geoadd<>(keyFunction(), geoValueFunction());
 	}
 
-	private ToGeoValueFunction<String, Map<String, Object>> geoValueFunction() {
+	private ToGeoValue<String, Map<String, Object>> geoValueFunction() {
 		ToDoubleFunction<Map<String, Object>> lon = toDouble(longitude, 0);
 		ToDoubleFunction<Map<String, Object>> lat = toDouble(latitude, 0);
-		return new ToGeoValueFunction<>(memberFunction(), lon, lat);
+		return new ToGeoValue<>(memberFunction(), lon, lat);
 	}
 
 }

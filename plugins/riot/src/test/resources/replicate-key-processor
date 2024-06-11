@@ -1,1 +1,1 @@
-riot replicate --batch 1 --key-proc="#{#source.database}:#{key}"
+riot replicate --batch 1 --key-proc="#{#source.database}:#{key}" redis://source redis://target

@@ -3,15 +3,15 @@ package com.redis.riot;
 import java.time.Duration;
 
 import org.springframework.batch.item.ItemProcessor;
+import org.springframework.batch.item.function.FunctionItemProcessor;
 import org.springframework.util.unit.DataSize;
 
-import com.redis.riot.core.PredicateItemProcessor;
+import com.redis.riot.core.FilterFunction;
 import com.redis.spring.batch.item.AbstractAsyncItemReader;
 import com.redis.spring.batch.item.AbstractPollableItemReader;
-import com.redis.spring.batch.item.AbstractQueuePollableItemReader;
 import com.redis.spring.batch.item.redis.RedisItemReader;
 import com.redis.spring.batch.item.redis.RedisItemReader.ReaderMode;
-import com.redis.spring.batch.item.redis.reader.MemKeyValueRead;
+import com.redis.spring.batch.item.redis.reader.KeyValueRead;
 
 import io.lettuce.core.codec.RedisCodec;
 import picocli.CommandLine.ArgGroup;
@@ -19,20 +19,18 @@ import picocli.CommandLine.Option;
 
 public class RedisReaderArgs {
 
-	public static final int DEFAULT_QUEUE_CAPACITY = AbstractQueuePollableItemReader.DEFAULT_QUEUE_CAPACITY;
+	public static final int DEFAULT_QUEUE_CAPACITY = RedisItemReader.DEFAULT_QUEUE_CAPACITY;
 	public static final Duration DEFAULT_POLL_TIMEOUT = AbstractPollableItemReader.DEFAULT_POLL_TIMEOUT;
 	public static final int DEFAULT_THREADS = AbstractAsyncItemReader.DEFAULT_THREADS;
 	public static final int DEFAULT_CHUNK_SIZE = AbstractAsyncItemReader.DEFAULT_CHUNK_SIZE;
 	public static final int DEFAULT_POOL_SIZE = RedisItemReader.DEFAULT_POOL_SIZE;
-	public static final DataSize DEFAULT_MEMORY_USAGE_LIMIT = MemKeyValueRead.DEFAULT_MEM_USAGE_LIMIT;
-	public static final int DEFAULT_MEMORY_USAGE_SAMPLES = MemKeyValueRead.DEFAULT_MEM_USAGE_SAMPLES;
+	public static final DataSize DEFAULT_MEMORY_USAGE_LIMIT = KeyValueRead.DEFAULT_MEM_USAGE_LIMIT;
+	public static final int DEFAULT_MEMORY_USAGE_SAMPLES = KeyValueRead.DEFAULT_MEM_USAGE_SAMPLES;
 	public static final long DEFAULT_SCAN_COUNT = 1000;
-	public static final Duration DEFAULT_FLUSH_INTERVAL = AbstractAsyncItemReader.DEFAULT_FLUSH_INTERVAL;
+	public static final Duration DEFAULT_FLUSH_INTERVAL = RedisItemReader.DEFAULT_FLUSH_INTERVAL;
 	public static final int DEFAULT_NOTIFICATION_QUEUE_CAPACITY = RedisItemReader.DEFAULT_NOTIFICATION_QUEUE_CAPACITY;
-	public static final int DEFAULT_RETRY_LIMIT = RedisItemReader.DEFAULT_RETRY_LIMIT;
-	public static final int DEFAULT_SKIP_LIMIT = 0;
 
-	@Option(names = "--mode", description = "Source for keys (SCAN: key scan, LIVE: scan + keyspace notifications, LIVEONLY: keyspace notifications) (default: ${DEFAULT-VALUE})", paramLabel = "<name>")
+	@Option(names = "--mode", description = "Source for keys: scan (key scan), live (scan + keyspace notifications), liveonly (keyspace notifications) (default: ${DEFAULT-VALUE})", paramLabel = "<name>")
 	private ReaderMode mode = RedisItemReader.DEFAULT_MODE;
 
 	@Option(names = "--key-pattern", description = "Pattern of keys to read (default: *).", paramLabel = "<glob>")
@@ -72,10 +70,13 @@ public class RedisReaderArgs {
 	private int notificationQueueCapacity = DEFAULT_NOTIFICATION_QUEUE_CAPACITY;
 
 	@Option(names = "--read-retry", description = "Max number of times to try failed reads. 0 and 1 both mean no retry (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
-	private int retryLimit = DEFAULT_RETRY_LIMIT;
+	private int retryLimit;
 
 	@Option(names = "--read-skip", description = "Max number of failed reads before considering the reader has failed (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
-	private int skipLimit = DEFAULT_SKIP_LIMIT;
+	private int skipLimit;
+
+	@Option(names = "--read-pool", description = "Max pool connections used by Redis reader (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
+	private int poolSize = DEFAULT_POOL_SIZE;
 
 	@ArgGroup(exclusive = false)
 	private KeyFilterArgs keyFilterArgs = new KeyFilterArgs();
@@ -83,7 +84,7 @@ public class RedisReaderArgs {
 	@Option(names = "--read-poll", description = "Interval in millis between queue polls (default: ${DEFAULT-VALUE}).", paramLabel = "<ms>", hidden = true)
 	private long pollTimeout = DEFAULT_POLL_TIMEOUT.toMillis();
 
-	public <K> void configure(RedisItemReader<K, ?, ?> reader) {
+	public <K, V, T> void configure(RedisItemReader<K, V, T> reader) {
 		reader.setChunkSize(chunkSize);
 		reader.setFlushInterval(Duration.ofMillis(flushInterval));
 		if (idleTimeout > 0) {
@@ -94,6 +95,7 @@ public class RedisReaderArgs {
 		reader.setMode(mode);
 		reader.setNotificationQueueCapacity(notificationQueueCapacity);
 		reader.setPollTimeout(Duration.ofMillis(pollTimeout));
+		reader.setPoolSize(poolSize);
 		reader.setProcessor(keyProcessor(reader.getCodec()));
 		reader.setQueueCapacity(queueCapacity);
 		if (readFrom != null) {
@@ -103,15 +105,16 @@ public class RedisReaderArgs {
 		reader.setScanCount(scanCount);
 		reader.setSkipLimit(skipLimit);
 		reader.setThreads(threads);
-		if (reader.getOperation() instanceof MemKeyValueRead) {
-			MemKeyValueRead<?, ?, ?> operation = (MemKeyValueRead<?, ?, ?>) reader.getOperation();
+		if (reader.getOperation() instanceof KeyValueRead) {
+			@SuppressWarnings("rawtypes")
+			KeyValueRead operation = (KeyValueRead) reader.getOperation();
 			operation.setMemUsageLimit(memUsageLimit);
 			operation.setMemUsageSamples(memUsageSamples);
 		}
 	}
 
 	private <K> ItemProcessor<K, K> keyProcessor(RedisCodec<K, ?> codec) {
-		return keyFilterArgs.predicate(codec).map(PredicateItemProcessor::new).orElse(null);
+		return keyFilterArgs.predicate(codec).map(FilterFunction::new).map(FunctionItemProcessor::new).orElse(null);
 	}
 
 	public String getKeyPattern() {
@@ -226,15 +229,22 @@ public class RedisReaderArgs {
 		this.mode = mode;
 	}
 
+	public int getPoolSize() {
+		return poolSize;
+	}
+
+	public void setPoolSize(int size) {
+		this.poolSize = size;
+	}
+
 	@Override
 	public String toString() {
 		return "RedisReaderArgs [mode=" + mode + ", keyPattern=" + keyPattern + ", keyType=" + keyType + ", scanCount="
 				+ scanCount + ", queueCapacity=" + queueCapacity + ", threads=" + threads + ", chunkSize=" + chunkSize
-				+ ", readFrom=" + readFrom + ", memoryUsageLimit=" + memUsageLimit + ", memoryUsageSamples="
-				+ memUsageSamples + ", flushInterval=" + flushInterval + ", idleTimeout=" + idleTimeout
-				+ ", notificationQueueCapacity=" + notificationQueueCapacity + ", retryLimit=" + retryLimit
-				+ ", skipLimit=" + skipLimit + ", keyFilterArgs=" + keyFilterArgs + ", pollTimeout=" + pollTimeout
-				+ "]";
+				+ ", readFrom=" + readFrom + ", memUsageLimit=" + memUsageLimit + ", memUsageSamples=" + memUsageSamples
+				+ ", flushInterval=" + flushInterval + ", idleTimeout=" + idleTimeout + ", notificationQueueCapacity="
+				+ notificationQueueCapacity + ", retryLimit=" + retryLimit + ", skipLimit=" + skipLimit + ", poolSize="
+				+ poolSize + ", keyFilterArgs=" + keyFilterArgs + ", pollTimeout=" + pollTimeout + "]";
 	}
 
 }

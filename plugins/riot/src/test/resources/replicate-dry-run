@@ -1,1 +1,1 @@
-riot replicate --batch 10 --dry-run
+riot replicate --batch 10 --dry-run redis://source redis://target

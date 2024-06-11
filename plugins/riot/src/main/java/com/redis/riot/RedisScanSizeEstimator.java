@@ -15,6 +15,7 @@ import com.hrakaroo.glob.MatchingEngine;
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
 import com.redis.lettucemod.api.async.RedisModulesAsyncCommands;
 import com.redis.lettucemod.util.RedisModulesUtils;
+import com.redis.spring.batch.item.redis.RedisItemReader;
 import com.redis.spring.batch.item.redis.common.BatchUtils;
 
 import io.lettuce.core.AbstractRedisClient;
@@ -131,6 +132,13 @@ public class RedisScanSizeEstimator implements LongSupplier {
 			return keyType::equalsIgnoreCase;
 		}
 		return s -> true;
+	}
+
+	public static RedisScanSizeEstimator from(RedisItemReader<?, ?, ?> reader) {
+		RedisScanSizeEstimator estimator = new RedisScanSizeEstimator(reader.getClient());
+		estimator.setKeyPattern(reader.getKeyPattern());
+		estimator.setKeyType(reader.getKeyType());
+		return estimator;
 	}
 
 }

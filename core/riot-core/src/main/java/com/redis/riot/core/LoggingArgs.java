@@ -15,7 +15,7 @@ public class LoggingArgs {
 	@Option(names = "--log-time", description = "Include current date and time in log messages.")
 	private boolean showDateTime;
 
-	@Option(names = "--log-time-format", description = "Date and time format to be used in log messages (default: ${DEFAULT-VALUE}). Use with --log-time.", paramLabel = "<f>")
+	@Option(names = "--log-time-fmt", description = "Date and time format to be used in log messages (default: ${DEFAULT-VALUE}). Use with --log-time.", paramLabel = "<f>")
 	private String dateTimeFormat = "yyyy-MM-dd HH:mm:ss.SSS";
 
 	@Option(names = "--log-thread-id", description = "Include current thread ID in log messages.", hidden = true)
@@ -30,7 +30,7 @@ public class LoggingArgs {
 	@Option(names = "--log-short", description = "Include last component of logger instance name in log messages.", hidden = true)
 	private boolean showShortLogName;
 
-	@Option(names = "--log-level-bkt", description = "Output log level string in brackets.", hidden = true)
+	@Option(names = "--log-level-brck", description = "Output log level string in brackets.", hidden = true)
 	private boolean levelInBrackets;
 
 	@Option(arity = "1..*", names = "--log", description = "Custom log levels (e.g.: io.lettuce=INFO).", paramLabel = "<lvl>")

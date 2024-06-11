@@ -14,12 +14,12 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.TestInfo;
 import org.slf4j.simple.SimpleLogger;
 
+import com.redis.riot.Replicate.CompareMode;
 import com.redis.riot.core.AbstractJobCommand;
 import com.redis.riot.core.ProgressStyle;
 import com.redis.riot.operation.OperationCommand;
 import com.redis.spring.batch.test.AbstractTargetTestBase;
 
-import io.lettuce.core.RedisURI;
 import io.micrometer.core.instrument.util.IOUtils;
 import picocli.CommandLine;
 import picocli.CommandLine.ExecutionException;
@@ -38,7 +38,7 @@ abstract class AbstractRiotTestBase extends AbstractTargetTestBase {
 
 	static {
 		System.setProperty(SimpleLogger.SHOW_DATE_TIME_KEY, "true");
-		System.setProperty(SimpleLogger.LOG_KEY_PREFIX + LoggingKeyValueWriteListener.class.getName(), "error");
+		System.setProperty(SimpleLogger.LOG_KEY_PREFIX + ReplicateWriteLogger.class.getName(), "error");
 	}
 
 	protected static void assertExecutionSuccessful(int exitCode) {
@@ -50,7 +50,17 @@ abstract class AbstractRiotTestBase extends AbstractTargetTestBase {
 	}
 
 	@SuppressWarnings("unchecked")
-	protected int execute(TestInfo info, String filename, Consumer<ParseResult>... configs) throws Exception {
+	protected int execute(TestInfo info, String filename) throws Exception {
+		return doExecute(info, filename);
+	}
+
+	@SuppressWarnings("unchecked")
+	protected int execute(TestInfo info, String filename, Consumer<ParseResult> config) throws Exception {
+		return doExecute(info, filename, config);
+	}
+
+	@SuppressWarnings("unchecked")
+	private int doExecute(TestInfo info, String filename, Consumer<ParseResult>... configs) throws Exception {
 		String[] args = args(filename);
 		Main main = new Main();
 		main.setOut(out);
@@ -91,27 +101,29 @@ abstract class AbstractRiotTestBase extends AbstractTargetTestBase {
 				command = subParseResult.commandSpec().parent().commandLine().getCommand();
 			}
 			if (command instanceof AbstractJobCommand) {
-				AbstractJobCommand<?> riotCommand = ((AbstractJobCommand<?>) command);
-				riotCommand.getJobArgs().getProgressArgs().setStyle(ProgressStyle.NONE);
-				riotCommand.getJobArgs().setName(name(info));
+				AbstractJobCommand jobCommand = ((AbstractJobCommand) command);
+				jobCommand.getJobArgs().getProgressArgs().setStyle(ProgressStyle.NONE);
+				jobCommand.setJobName(name(info));
 			}
-			if (command instanceof AbstractRedisCommand) {
-				AbstractRedisCommand redisCommand = (AbstractRedisCommand) command;
-				redisCommand.getRedisArgs().setUri(RedisURI.create(getRedisServer().getRedisURI()));
+			if (command instanceof AbstractRedisArgsCommand) {
+				AbstractRedisArgsCommand redisCommand = (AbstractRedisArgsCommand) command;
+				configure(redisCommand.getRedisArgs());
 			}
-			if (command instanceof AbstractExport) {
-				AbstractExport exportCommand = (AbstractExport) command;
-				configure(exportCommand.getRedisArgs());
+			if (command instanceof AbstractExportCommand) {
+				AbstractExportCommand exportCommand = (AbstractExportCommand) command;
 				configure(exportCommand.getRedisReaderArgs());
 			}
-			if (command instanceof AbstractTargetExport) {
-				AbstractTargetExport redisExportCommand = (AbstractTargetExport) command;
-				redisExportCommand.getTargetRedisArgs().setUri(targetRedisURI);
-				redisExportCommand.getTargetRedisArgs().setCluster(getTargetRedisServer().isRedisCluster());
+			if (command instanceof AbstractTargetCommand) {
+				AbstractTargetCommand targetCommand = (AbstractTargetCommand) command;
+				configure(targetCommand.getRedisReaderArgs());
+				targetCommand.setSourceRedisURI(redisURI);
+				targetCommand.getSourceRedisArgs().setCluster(getRedisServer().isRedisCluster());
+				targetCommand.setTargetRedisURI(targetRedisURI);
+				targetCommand.getTargetRedisArgs().setCluster(getTargetRedisServer().isRedisCluster());
 			}
 			if (command instanceof Replicate) {
 				Replicate replicateCommand = (Replicate) command;
-				replicateCommand.getCompareArgs().setMode(CompareMode.NONE);
+				replicateCommand.setCompareMode(CompareMode.NONE);
 			}
 		}
 	}

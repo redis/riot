@@ -18,8 +18,6 @@ import org.springframework.util.ResourceUtils;
 
 public abstract class FileUtils {
 
-	public static final String GS_URI_PREFIX = "gs://";
-	public static final String S3_URI_PREFIX = "s3://";
 	public static final Pattern EXTENSION_PATTERN = Pattern.compile("(?i)\\.(?<extension>\\w+)(?:\\.(?<gz>gz))?$");
 
 	public static final String CSV = "csv";
@@ -43,14 +41,6 @@ public abstract class FileUtils {
 			return matcher.group(group);
 		}
 		return null;
-	}
-
-	public static boolean isAmazonS3(String file) {
-		return file.startsWith(S3_URI_PREFIX);
-	}
-
-	public static boolean isGoogleStorage(String file) {
-		return file.startsWith(GS_URI_PREFIX);
 	}
 
 	public static FileType fileType(Resource resource) {
@@ -98,8 +88,8 @@ public abstract class FileUtils {
 	}
 
 	public static boolean isFile(String file) {
-		return !(FileUtils.isGoogleStorage(file) || FileUtils.isAmazonS3(file) || ResourceUtils.isUrl(file)
-				|| isStdin(file));
+		return !AmazonS3Args.isSimpleStorageResource(file) && !GoogleStorageArgs.isGoogleStorageResource(file)
+				&& !ResourceUtils.isUrl(file) && !isStdin(file);
 	}
 
 	public static List<Path> expand(Path path) {

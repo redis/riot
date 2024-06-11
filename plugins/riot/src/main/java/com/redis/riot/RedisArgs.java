@@ -3,18 +3,12 @@ package com.redis.riot;
 import java.time.Duration;
 import java.util.Arrays;
 
-import com.redis.riot.RedisClientBuilder.RedisURIClient;
-import com.redis.spring.batch.item.redis.common.OperationExecutor;
-
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.SslVerifyMode;
 import io.lettuce.core.protocol.ProtocolVersion;
-import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Option;
 
 public class RedisArgs {
-
-	public static final int DEFAULT_POOL_SIZE = OperationExecutor.DEFAULT_POOL_SIZE;
 
 	@Option(names = { "-u", "--uri" }, description = "Server URI.", paramLabel = "<uri>")
 	private RedisURI uri;
@@ -43,9 +37,6 @@ public class RedisArgs {
 	@Option(names = { "-n", "--db" }, description = "Database number.", paramLabel = "<db>")
 	private int database;
 
-	@Option(names = "--client", description = "Client name used to connect to Redis (default: ${DEFAULT-VALUE}).", paramLabel = "<name>")
-	private String clientName = RedisClientBuilder.DEFAULT_CLIENT_NAME;
-
 	@Option(names = "--tls", description = "Establish a secure TLS connection.")
 	private boolean tls;
 
@@ -61,16 +52,8 @@ public class RedisArgs {
 	@Option(names = "--resp", description = "Redis protocol version used to connect to Redis: ${COMPLETION-CANDIDATES}.", paramLabel = "<ver>")
 	private ProtocolVersion protocolVersion = RedisClientBuilder.DEFAULT_PROTOCOL_VERSION;
 
-	@ArgGroup(exclusive = false)
-	private SslArgs sslArgs = new SslArgs();
-
-	@Option(names = "--pool", description = "Max connections for Redis pool (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
-	private int poolSize = DEFAULT_POOL_SIZE;
-
-	public RedisURIClient redisURIClient() {
-		RedisClientBuilder builder = new RedisClientBuilder();
+	public RedisClientBuilder configure(RedisClientBuilder builder) {
 		builder.autoReconnect(autoReconnect);
-		builder.clientName(clientName);
 		builder.cluster(cluster);
 		builder.database(database);
 		builder.host(host);
@@ -78,7 +61,6 @@ public class RedisArgs {
 		builder.port(port);
 		builder.protocolVersion(protocolVersion);
 		builder.socket(socket);
-		builder.sslOptions(sslArgs.sslOptions());
 		builder.timeout(Duration.ofSeconds(timeout));
 		builder.tls(tls);
 		builder.uri(uri);
@@ -86,7 +68,7 @@ public class RedisArgs {
 		if (insecure) {
 			builder.verifyMode(SslVerifyMode.NONE);
 		}
-		return builder.build();
+		return builder;
 	}
 
 	public RedisURI getUri() {
@@ -153,14 +135,6 @@ public class RedisArgs {
 		this.database = database;
 	}
 
-	public String getClientName() {
-		return clientName;
-	}
-
-	public void setClientName(String clientName) {
-		this.clientName = clientName;
-	}
-
 	public boolean isTls() {
 		return tls;
 	}
@@ -201,29 +175,12 @@ public class RedisArgs {
 		this.protocolVersion = protocolVersion;
 	}
 
-	public SslArgs getSslArgs() {
-		return sslArgs;
-	}
-
-	public void setSslArgs(SslArgs sslArgs) {
-		this.sslArgs = sslArgs;
-	}
-
-	public int getPoolSize() {
-		return poolSize;
-	}
-
-	public void setPoolSize(int poolSize) {
-		this.poolSize = poolSize;
-	}
-
 	@Override
 	public String toString() {
 		return "RedisArgs [uri=" + uri + ", host=" + host + ", port=" + port + ", socket=" + socket + ", username="
 				+ username + ", password=" + Arrays.toString(password) + ", timeout=" + timeout + ", database="
-				+ database + ", clientName=" + clientName + ", tls=" + tls + ", insecure=" + insecure + ", cluster="
-				+ cluster + ", autoReconnect=" + autoReconnect + ", protocolVersion=" + protocolVersion + ", sslArgs="
-				+ sslArgs + ", poolSize=" + poolSize + "]";
+				+ database + ", tls=" + tls + ", insecure=" + insecure + ", cluster=" + cluster + ", autoReconnect="
+				+ autoReconnect + ", protocolVersion=" + protocolVersion + "]";
 	}
 
 }

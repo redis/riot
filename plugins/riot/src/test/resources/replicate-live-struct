@@ -1,1 +1,1 @@
-riot replicate --struct --mode live
+riot replicate --struct --mode live redis://source redis://target

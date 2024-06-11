@@ -1,8 +1,8 @@
 package com.redis.riot;
 
-import java.text.MessageFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -10,15 +10,15 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.springframework.batch.core.Job;
-import org.springframework.batch.core.step.builder.FaultTolerantStepBuilder;
-import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.item.ItemProcessor;
+import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.function.FunctionItemProcessor;
 import org.springframework.core.io.Resource;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
+import com.redis.riot.core.RiotException;
 import com.redis.riot.core.RiotUtils;
 import com.redis.riot.core.Step;
 import com.redis.riot.core.function.RegexNamedGroupFunction;
@@ -28,36 +28,28 @@ import com.redis.riot.file.MapToFieldFunction;
 import com.redis.riot.file.ToMapFunction;
 import com.redis.spring.batch.item.redis.RedisItemWriter;
 import com.redis.spring.batch.item.redis.common.KeyValue;
-import com.redis.spring.batch.item.redis.reader.MemKeyValue;
 
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 @Command(name = "file-import", description = "Import data from files.")
-public class FileImport extends AbstractImport {
-
-	private static final String TASK_NAME_FORMAT = "Importing {0}";
+public class FileImport extends AbstractImportCommand {
 
 	private final FileReaderFactory factory = new FileReaderFactory();
 
 	@ArgGroup(exclusive = false)
 	private FileReaderArgs fileReaderArgs = new FileReaderArgs();
 
-	@ArgGroup(exclusive = false, heading = "Processor options%n")
-	private FileImportProcessorArgs processorArgs = new FileImportProcessorArgs();
-
-	public void copyTo(FileImport target) {
-		super.copyTo(target);
-		target.fileReaderArgs = fileReaderArgs;
-		target.processorArgs = processorArgs;
-	}
+	@Option(arity = "1..*", names = "--regex", description = "Regular expressions used to extract values from fields in the form field1=\"regex\" field2=\"regex\"...", paramLabel = "<f=rex>")
+	private Map<String, Pattern> regexes = new LinkedHashMap<>();
 
 	@Override
-	protected void setup() {
-		factory.addDeserializer(MemKeyValue.class, new MemKeyValueDeserializer());
+	public void afterPropertiesSet() throws Exception {
+		factory.addDeserializer(KeyValue.class, new KeyValueDeserializer());
 		factory.setArgs(fileReaderArgs);
 		factory.setItemType(itemType());
-		super.setup();
+		super.afterPropertiesSet();
 	}
 
 	@Override
@@ -68,38 +60,34 @@ public class FileImport extends AbstractImport {
 
 	@SuppressWarnings("unchecked")
 	private Step<?, ?> step(Resource resource) {
-		Step<?, ?> step = new Step<>(factory.create(resource), writer());
+		ItemReader<?> reader;
+		try {
+			reader = factory.create(resource);
+		} catch (Exception e) {
+			throw new RiotException("Could not create reader for file " + resource, e);
+		}
+		Step<?, ?> step = new Step<>(reader, writer());
+		step.skip(ParseException.class);
+		step.skip(org.springframework.batch.item.ParseException.class);
+		step.noRetry(ParseException.class);
+		step.noRetry(org.springframework.batch.item.ParseException.class);
 		step.processor(processor());
 		step.name(resource.getFilename());
-		step.taskName(MessageFormat.format(TASK_NAME_FORMAT, resource.getFilename()));
+		step.taskName(taskName(resource));
 		return step;
 	}
 
+	private String taskName(Resource resource) {
+		return String.format("Importing %s", resource.getFilename());
+	}
+
 	@Override
-	protected <I, O> FaultTolerantStepBuilder<I, O> faultTolerant(SimpleStepBuilder<I, O> step) {
-		FaultTolerantStepBuilder<I, O> faultTolerantStep = super.faultTolerant(step);
-		faultTolerantStep.skip(ParseException.class);
-		faultTolerantStep.noRetry(ParseException.class);
-		return faultTolerantStep;
-	}
-
-	@SuppressWarnings("rawtypes")
-	private ItemProcessor processor() {
-		if (hasOperations()) {
-			return mapProcessor();
-		}
-		return processorArgs.getKeyValueProcessorArgs()
-				.processor(evaluationContext(processorArgs.getEvaluationContextArgs()));
-	}
-
 	protected ItemProcessor<Map<String, Object>, Map<String, Object>> mapProcessor() {
-		ItemProcessor<Map<String, Object>, Map<String, Object>> processor = mapProcessor(processorArgs);
-		return RiotUtils.processor(processor, regexProcessor());
+		return RiotUtils.processor(super.mapProcessor(), regexProcessor());
 
 	}
 
 	private ItemProcessor<Map<String, Object>, Map<String, Object>> regexProcessor() {
-		Map<String, Pattern> regexes = processorArgs.getRegexes();
 		if (CollectionUtils.isEmpty(regexes)) {
 			return null;
 		}
@@ -119,16 +107,16 @@ public class FileImport extends AbstractImport {
 		if (hasOperations()) {
 			return mapWriter();
 		}
-		RedisItemWriter<String, String, KeyValue<String, Object>> writer = RedisItemWriter.struct();
-		configure(writer);
-		return writer;
+		RedisItemWriter<String, String, KeyValue<String, Object>> structWriter = RedisItemWriter.struct();
+		configure(structWriter);
+		return structWriter;
 	}
 
 	private Class<?> itemType() {
 		if (hasOperations()) {
 			return Map.class;
 		}
-		return MemKeyValue.class;
+		return KeyValue.class;
 	}
 
 	public FileReaderArgs getFileReaderArgs() {
@@ -139,12 +127,12 @@ public class FileImport extends AbstractImport {
 		this.fileReaderArgs = args;
 	}
 
-	public FileImportProcessorArgs getProcessorArgs() {
-		return processorArgs;
+	public Map<String, Pattern> getRegexes() {
+		return regexes;
 	}
 
-	public void setProcessorArgs(FileImportProcessorArgs args) {
-		this.processorArgs = args;
+	public void setRegexes(Map<String, Pattern> regexes) {
+		this.regexes = regexes;
 	}
 
 }

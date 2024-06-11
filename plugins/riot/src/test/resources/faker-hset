@@ -1,0 +1,1 @@
+riot faker id="index" firstName="name.firstName" lastName="name.lastName" address="address.fullAddress" hset --keyspace person --key id

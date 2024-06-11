@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.Duration;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +19,7 @@ import org.testcontainers.shaded.org.bouncycastle.util.encoders.Hex;
 
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
 import com.redis.lettucemod.util.RedisModulesUtils;
+import com.redis.riot.Replicate.CompareMode;
 import com.redis.riot.core.ProgressStyle;
 import com.redis.riot.core.RiotUtils;
 import com.redis.spring.batch.Range;
@@ -27,10 +27,7 @@ import com.redis.spring.batch.item.redis.RedisItemReader.ReaderMode;
 import com.redis.spring.batch.item.redis.common.DataType;
 import com.redis.spring.batch.item.redis.gen.GeneratorItemReader;
 import com.redis.spring.batch.item.redis.gen.GeneratorOptions;
-import com.redis.spring.batch.test.KeyspaceComparison;
-import com.redis.testcontainers.RedisServer;
 
-import io.lettuce.core.RedisURI;
 import io.lettuce.core.cluster.SlotHash;
 import io.lettuce.core.codec.ByteArrayCodec;
 
@@ -47,6 +44,7 @@ abstract class RiotTests extends AbstractRiotTestBase {
 		generate(info, generator(73));
 		Assertions.assertTrue(redisCommands.dbsize() > 0);
 		execute(info, filename);
+		assertCompare(info);
 	}
 
 	@Test
@@ -64,9 +62,7 @@ abstract class RiotTests extends AbstractRiotTestBase {
 		String value = "http://www.google.com/";
 		redisCommands.pfadd(key, value);
 		Assertions.assertEquals(0, execute(info, "replicate-hll"));
-		KeyspaceComparison<String> comparison = compare(info);
-		Assertions.assertFalse(comparison.getAll().isEmpty());
-		Assertions.assertEquals(Collections.emptyList(), comparison.mismatches());
+		assertCompare(info);
 	}
 
 	@Test
@@ -127,9 +123,7 @@ abstract class RiotTests extends AbstractRiotTestBase {
 		generator.setCurrentItemCount(3001);
 		generateAsync(testInfo(info, "async"), generator);
 		execute(info, filename);
-		KeyspaceComparison<String> comparison = compare(info);
-		Assertions.assertFalse(comparison.getAll().isEmpty());
-		Assertions.assertEquals(Collections.emptyList(), comparison.mismatches());
+		assertCompare(info);
 	}
 
 	public static final String BEERS_JSON_URL = "https://storage.googleapis.com/jrx/beers.json";
@@ -149,23 +143,16 @@ abstract class RiotTests extends AbstractRiotTestBase {
 	}
 
 	protected void execute(Replicate replication, TestInfo info) throws Exception {
-		System.setProperty(SimpleLogger.LOG_KEY_PREFIX + LoggingKeyValueWriteListener.class.getName(), "error");
+		System.setProperty(SimpleLogger.LOG_KEY_PREFIX + ReplicateWriteLogger.class.getName(), "error");
 		replication.getJobArgs().getProgressArgs().setStyle(ProgressStyle.NONE);
-		replication.getJobArgs().setName(name(info));
+		replication.setJobName(name(info));
 		replication.setJobRepository(jobRepository);
-		replication.setRedisArgs(redisArgs(getRedisServer()));
-		RedisArgs targetRedisArgs = redisArgs(getTargetRedisServer());
-		replication.getTargetRedisArgs().setUri(targetRedisArgs.getUri());
-		replication.getTargetRedisArgs().setCluster(targetRedisArgs.isCluster());
+		replication.setSourceRedisURI(redisURI);
+		replication.getSourceRedisArgs().setCluster(getRedisServer().isRedisCluster());
+		replication.setTargetRedisURI(targetRedisURI);
+		replication.getTargetRedisArgs().setCluster(getTargetRedisServer().isRedisCluster());
 		replication.getRedisReaderArgs().setIdleTimeout(DEFAULT_IDLE_TIMEOUT_SECONDS);
 		replication.call();
-	}
-
-	private RedisArgs redisArgs(RedisServer redis) {
-		RedisArgs args = new RedisArgs();
-		args.setUri(RedisURI.create(redis.getRedisURI()));
-		args.setCluster(redis.isRedisCluster());
-		return args;
 	}
 
 	@Test
@@ -175,15 +162,10 @@ abstract class RiotTests extends AbstractRiotTestBase {
 		redisCommands.set(key1, value1);
 		Replicate command = new Replicate();
 		command.setStruct(true);
-		command.getProcessorArgs().setKeyValueProcessorArgs(keyValueProcessorArgs("#{type}:#{key}"));
+		command.getProcessorArgs().getKeyValueProcessorArgs()
+				.setKeyExpression(RiotUtils.parseTemplate("#{type}:#{key}"));
 		execute(command, info);
 		Assertions.assertEquals(value1, targetRedisCommands.get("string:" + key1));
-	}
-
-	private KeyValueProcessorArgs keyValueProcessorArgs(String keyExpression) {
-		KeyValueProcessorArgs options = new KeyValueProcessorArgs();
-		options.setKeyExpression(RiotUtils.parseTemplate(keyExpression));
-		return options;
 	}
 
 	@Test
@@ -192,8 +174,8 @@ abstract class RiotTests extends AbstractRiotTestBase {
 		String value1 = "value1";
 		redisCommands.set(key1, value1);
 		Replicate replication = new Replicate();
-		replication.getProcessorArgs().setKeyValueProcessorArgs(keyValueProcessorArgs(
-				String.format("#{#date.parse('%s').getTime()}:#{key}", "2010-05-10T00:00:00.000+0000")));
+		replication.getProcessorArgs().getKeyValueProcessorArgs().setKeyExpression(RiotUtils
+				.parseTemplate(String.format("#{#date.parse('%s').getTime()}:#{key}", "2010-05-10T00:00:00.000+0000")));
 		execute(replication, info);
 		Assertions.assertEquals(value1, targetRedisCommands.get("1273449600000:" + key1));
 	}
@@ -210,7 +192,7 @@ abstract class RiotTests extends AbstractRiotTestBase {
 				.connection(targetRedisClient, ByteArrayCodec.INSTANCE);
 		connection.sync().hset(key, hash);
 		Replicate replication = new Replicate();
-		replication.getCompareArgs().setMode(CompareMode.NONE);
+		replication.setCompareMode(CompareMode.NONE);
 		replication.setStruct(true);
 		execute(replication, info);
 		Assertions.assertArrayEquals(connection.sync().hget(key, key), targetConnection.sync().hget(key, key));
@@ -226,7 +208,7 @@ abstract class RiotTests extends AbstractRiotTestBase {
 				.connection(targetRedisClient, ByteArrayCodec.INSTANCE);
 		connection.sync().set(key, value);
 		Replicate replication = new Replicate();
-		replication.getCompareArgs().setMode(CompareMode.NONE);
+		replication.setCompareMode(CompareMode.NONE);
 		execute(replication, info);
 		Assertions.assertArrayEquals(connection.sync().get(key), targetConnection.sync().get(key));
 	}
@@ -246,7 +228,7 @@ abstract class RiotTests extends AbstractRiotTestBase {
 		});
 		Replicate replication = new Replicate();
 		replication.getRedisReaderArgs().setMode(ReaderMode.LIVE);
-		replication.getCompareArgs().setMode(CompareMode.NONE);
+		replication.setCompareMode(CompareMode.NONE);
 		execute(replication, info);
 		Assertions.assertArrayEquals(connection.sync().get(key), targetConnection.sync().get(key));
 	}
@@ -269,7 +251,7 @@ abstract class RiotTests extends AbstractRiotTestBase {
 		enableKeyspaceNotifications();
 		Replicate replication = new Replicate();
 		replication.getRedisReaderArgs().setMode(ReaderMode.LIVE);
-		replication.getCompareArgs().setMode(CompareMode.NONE);
+		replication.setCompareMode(CompareMode.NONE);
 		replication.getRedisReaderArgs().getKeyFilterArgs().setSlots(Arrays.asList(Range.of(0, 8000)));
 		generateAsync(info, generator(100));
 		execute(replication, info);

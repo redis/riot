@@ -1,72 +1,79 @@
 package com.redis.riot;
 
 import java.lang.reflect.Method;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
-import org.springframework.batch.core.step.builder.FaultTolerantStepBuilder;
-import org.springframework.batch.core.step.builder.SimpleStepBuilder;
+import org.springframework.batch.item.ItemWriter;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
+import org.springframework.util.Assert;
 
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
-import com.redis.lettucemod.api.sync.RedisModulesCommands;
 import com.redis.lettucemod.util.GeoLocation;
 import com.redis.lettucemod.util.RedisModulesUtils;
 import com.redis.riot.RedisClientBuilder.RedisURIClient;
 import com.redis.riot.core.AbstractJobCommand;
 import com.redis.riot.core.EvaluationContextArgs;
+import com.redis.riot.core.Step;
 import com.redis.spring.batch.item.redis.RedisItemReader;
-import com.redis.spring.batch.item.redis.RedisItemWriter;
+import com.redis.spring.batch.item.redis.common.KeyValue;
 
-import io.lettuce.core.RedisCommandExecutionException;
-import io.lettuce.core.RedisCommandTimeoutException;
+import io.lettuce.core.AbstractRedisClient;
+import io.lettuce.core.RedisException;
 import picocli.CommandLine.ArgGroup;
+import picocli.CommandLine.Option;
 
-abstract class AbstractRedisCommand extends AbstractJobCommand<Main> {
+abstract class AbstractRedisCommand extends AbstractJobCommand {
 
+	private static final String NOTIFY_CONFIG = "notify-keyspace-events";
+	private static final String NOTIFY_CONFIG_VALUE = "KEA";
 	private static final String CONTEXT_VAR_REDIS = "redis";
 
-	@ArgGroup(exclusive = false, heading = "Redis options%n")
-	private RedisArgs redisArgs = new RedisArgs();
+	@ArgGroup(exclusive = false, heading = "TLS options%n")
+	private SslArgs sslArgs = new SslArgs();
 
-	protected RedisURIClient redisURIClient;
-	protected StatefulRedisModulesConnection<String, String> redisConnection;
-	protected RedisModulesCommands<String, String> redisCommands;
+	@Option(names = "--client", description = "Client name used to connect to Redis (default: ${DEFAULT-VALUE}).", paramLabel = "<name>")
+	private String clientName = RedisClientBuilder.DEFAULT_CLIENT_NAME;
 
-	public void copyTo(AbstractRedisCommand target) {
-		super.copyTo(target);
-		target.redisArgs = redisArgs;
-		target.redisURIClient = redisURIClient;
-		target.redisConnection = redisConnection;
-		target.redisCommands = redisCommands;
-	}
+	protected RedisURIClient client;
+	protected StatefulRedisModulesConnection<String, String> connection;
 
 	@Override
-	protected void setup() {
-		super.setup();
-		if (redisURIClient == null) {
-			redisURIClient = redisArgs.redisURIClient();
+	public void afterPropertiesSet() throws Exception {
+		super.afterPropertiesSet();
+		if (client == null) {
+			client = redisURIClient();
 		}
-		redisConnection = RedisModulesUtils.connection(redisURIClient.getClient());
-		redisCommands = redisConnection.sync();
+		if (connection == null) {
+			connection = RedisModulesUtils.connection(client.getClient());
+		}
 	}
 
+	protected <K, V, T> RedisItemReader<K, V, T> configure(RedisItemReader<K, V, T> reader) {
+		super.configure(reader);
+		reader.setClient(client.getClient());
+		reader.setDatabase(client.getUri().getDatabase());
+		return reader;
+	}
+
+	protected abstract RedisURIClient redisURIClient();
+
 	@Override
-	protected void execute() throws Exception {
-		super.execute();
-		redisCommands = null;
-		redisConnection.close();
-		redisConnection = null;
-		redisURIClient.close();
-		redisURIClient = null;
+	protected void shutdown() {
+		if (connection != null) {
+			connection.close();
+			connection = null;
+		}
+		if (client != null) {
+			client.close();
+			client = null;
+		}
 	}
 
 	protected StandardEvaluationContext evaluationContext(EvaluationContextArgs args) {
-		StandardEvaluationContext evaluationContext = args.evaluationContext();
-		configure(evaluationContext);
-		return evaluationContext;
-	}
-
-	protected void configure(StandardEvaluationContext context) {
-		context.setVariable(CONTEXT_VAR_REDIS, redisCommands);
+		StandardEvaluationContext context = args.evaluationContext();
+		context.setVariable(CONTEXT_VAR_REDIS, connection.sync());
 		Method method;
 		try {
 			method = GeoLocation.class.getDeclaredMethod("toString", String.class, String.class);
@@ -74,59 +81,72 @@ abstract class AbstractRedisCommand extends AbstractJobCommand<Main> {
 			throw new UnsupportedOperationException("Could not get GeoLocation method", e);
 		}
 		context.registerFunction("geo", method);
+		return context;
 	}
 
-	@Override
-	protected <I, O> FaultTolerantStepBuilder<I, O> faultTolerant(SimpleStepBuilder<I, O> step) {
-		FaultTolerantStepBuilder<I, O> ftStep = super.faultTolerant(step);
-		ftStep.skip(RedisCommandExecutionException.class);
-		ftStep.noRetry(RedisCommandExecutionException.class);
-		ftStep.noSkip(RedisCommandTimeoutException.class);
-		ftStep.retry(RedisCommandTimeoutException.class);
-		return ftStep;
+	protected <K, V, T, O> Step<KeyValue<K, T>, O> step(RedisItemReader<K, V, T> reader, ItemWriter<O> writer) {
+		Step<KeyValue<K, T>, O> step = new Step<>(reader, writer);
+		if (shouldEstimate(reader)) {
+			log.info("Creating scan size estimator for step {} with {} and {}", step.getName(), reader.getKeyPattern(),
+					reader.getKeyType());
+			step.maxItemCountSupplier(RedisScanSizeEstimator.from(reader));
+		}
+		if (isLive(reader)) {
+			checkNotifyConfig(reader.getClient());
+			log.info("Configuring step {} as live with {} and {}", step.getName(), reader.getFlushInterval(),
+					reader.getIdleTimeout());
+			step.live(true);
+			step.flushInterval(reader.getFlushInterval());
+			step.idleTimeout(reader.getIdleTimeout());
+		}
+		return step;
 	}
 
-	protected void configure(RedisItemReader<?, ?, ?> reader) {
-		super.configure(reader);
-		reader.setClient(redisURIClient.getClient());
-		reader.setDatabase(redisURIClient.getUri().getDatabase());
-		reader.setPoolSize(redisArgs.getPoolSize());
+	private void checkNotifyConfig(AbstractRedisClient client) {
+		Map<String, String> valueMap;
+		try (StatefulRedisModulesConnection<String, String> conn = RedisModulesUtils.connection(client)) {
+			try {
+				valueMap = conn.sync().configGet(NOTIFY_CONFIG);
+			} catch (RedisException e) {
+				return;
+			}
+		}
+		String actual = valueMap.getOrDefault(NOTIFY_CONFIG, "");
+		Set<Character> expected = characterSet(NOTIFY_CONFIG_VALUE);
+		Assert.isTrue(characterSet(actual).containsAll(expected),
+				String.format("Keyspace notifications not property configured: expected '%s' but was '%s'.",
+						NOTIFY_CONFIG_VALUE, actual));
 	}
 
-	protected void configure(RedisItemWriter<?, ?, ?> writer) {
-		writer.setClient(redisURIClient.getClient());
+	private static Set<Character> characterSet(String string) {
+		return string.codePoints().mapToObj(c -> (char) c).collect(Collectors.toSet());
 	}
 
-	public RedisURIClient getRedisURIClient() {
-		return redisURIClient;
+	private boolean shouldEstimate(RedisItemReader<?, ?, ?> reader) {
+		switch (reader.getMode()) {
+		case LIVE:
+		case SCAN:
+			return true;
+		default:
+			return false;
+		}
 	}
 
-	public void setRedisURIClient(RedisURIClient redisURIClient) {
-		this.redisURIClient = redisURIClient;
+	private boolean isLive(RedisItemReader<?, ?, ?> reader) {
+		switch (reader.getMode()) {
+		case LIVE:
+		case LIVEONLY:
+			return true;
+		default:
+			return false;
+		}
 	}
 
-	public StatefulRedisModulesConnection<String, String> getRedisConnection() {
-		return redisConnection;
-	}
-
-	public void setRedisConnection(StatefulRedisModulesConnection<String, String> redisConnection) {
-		this.redisConnection = redisConnection;
-	}
-
-	public RedisModulesCommands<String, String> getRedisCommands() {
-		return redisCommands;
-	}
-
-	public void setRedisCommands(RedisModulesCommands<String, String> redisCommands) {
-		this.redisCommands = redisCommands;
-	}
-
-	public RedisArgs getRedisArgs() {
-		return redisArgs;
-	}
-
-	public void setRedisArgs(RedisArgs args) {
-		this.redisArgs = args;
+	protected RedisClientBuilder redisClientBuilder() {
+		RedisClientBuilder builder = new RedisClientBuilder();
+		builder.clientName(clientName);
+		builder.sslOptions(sslArgs.sslOptions());
+		return builder;
 	}
 
 }

@@ -7,7 +7,7 @@ import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Spec;
 
-@Command(usageHelpAutoWidth = true)
+@Command(usageHelpAutoWidth = true, abbreviateSynopsis = true)
 public abstract class BaseCommand {
 
 	static {
@@ -19,7 +19,10 @@ public abstract class BaseCommand {
 	@Spec
 	protected CommandSpec commandSpec;
 
-	@Option(names = "-D", paramLabel = "<key=value>", description = "Sets a System property.", mapFallbackValue = "")
+	@Option(names = "--help", usageHelp = true, description = "Show this help message and exit.")
+	private boolean helpRequested;
+
+	@Option(names = "-D", paramLabel = "<key=value>", description = "Sets a System property.", mapFallbackValue = "", hidden = true)
 	void setProperty(Map<String, String> props) {
 		props.forEach(System::setProperty);
 	}

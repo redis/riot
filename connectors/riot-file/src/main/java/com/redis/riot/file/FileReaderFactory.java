@@ -40,7 +40,7 @@ public class FileReaderFactory {
 	private Map<Class<?>, JsonDeserializer<?>> deserializers = new HashMap<>();
 	private Class<?> itemType = Map.class;
 
-	public ItemReader<?> create(Resource resource) {
+	public ItemReader<?> create(Resource resource) throws Exception {
 		FileType type = args.fileType(resource);
 		switch (type) {
 		case CSV:
@@ -58,18 +58,14 @@ public class FileReaderFactory {
 		}
 	}
 
-	private DelimitedLineTokenizer delimitedLineTokenizer(Resource resource) {
+	private DelimitedLineTokenizer delimitedLineTokenizer(Resource resource) throws Exception {
 		DelimitedLineTokenizer tokenizer = new DelimitedLineTokenizer();
 		tokenizer.setDelimiter(delimiter(resource));
 		tokenizer.setQuoteCharacter(args.getQuoteCharacter());
 		if (!ObjectUtils.isEmpty(args.getIncludedFields())) {
 			tokenizer.setIncludedFields(args.getIncludedFields().stream().mapToInt(Integer::intValue).toArray());
 		}
-		try {
-			tokenizer.afterPropertiesSet();
-		} catch (Exception e) {
-			throw new IllegalStateException("Unable to initialize DelimitedLineTokenizer", e);
-		}
+		tokenizer.afterPropertiesSet();
 		return tokenizer;
 	}
 

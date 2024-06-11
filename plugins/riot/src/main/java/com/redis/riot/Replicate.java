@@ -1,22 +1,23 @@
 package com.redis.riot;
 
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.batch.core.Job;
 import org.springframework.batch.item.ItemProcessor;
-import org.springframework.expression.spel.support.StandardEvaluationContext;
+import org.springframework.batch.item.function.FunctionItemProcessor;
 
 import com.redis.riot.core.RiotUtils;
 import com.redis.riot.core.Step;
-import com.redis.riot.function.StringKeyValueFunction;
+import com.redis.riot.function.StringKeyValue;
+import com.redis.riot.function.ToStringKeyValue;
 import com.redis.spring.batch.item.redis.RedisItemReader;
 import com.redis.spring.batch.item.redis.RedisItemReader.ReaderMode;
 import com.redis.spring.batch.item.redis.RedisItemWriter;
 import com.redis.spring.batch.item.redis.common.KeyValue;
-import com.redis.spring.batch.item.redis.reader.DefaultKeyComparator;
+import com.redis.spring.batch.item.redis.reader.KeyComparisonItemReader;
 import com.redis.spring.batch.item.redis.reader.KeyNotificationItemReader;
+import com.redis.spring.batch.item.redis.reader.KeyNotificationStatus;
 
 import io.lettuce.core.codec.ByteArrayCodec;
 import picocli.CommandLine.ArgGroup;
@@ -24,122 +25,130 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 @Command(name = "replicate", description = "Replicate a Redis database into another Redis database.")
-public class Replicate extends AbstractTargetExport {
+public class Replicate extends AbstractTargetCommand {
 
+	public enum CompareMode {
+		FULL, QUICK, NONE
+	}
+
+	public static final String REPLICATE_STEP_NAME = "replicate";
 	public static final CompareMode DEFAULT_COMPARE_MODE = CompareMode.QUICK;
-	public static final Duration DEFAULT_TTL_TOLERANCE = DefaultKeyComparator.DEFAULT_TTL_TOLERANCE;
-	public static final String STEP_REPLICATE = "replicate-step";
-	public static final String STEP_COMPARE = "compare-step";
 
-	private static final String QUEUE_MESSAGE = " | queue capacity: %,d";
-	private static final String TASK_SCAN = "Scanning";
-	private static final String TASK_LIVEONLY = "Listening";
-	private static final String TASK_LIVE = "Scanning & listening";
+	private static final String QUEUE_MESSAGE = " | capacity: %,d | dropped: %,d";
+	private static final String SCAN_TASK_NAME = "Scanning";
+	private static final String LIVEONLY_TASK_NAME = "Listening";
+	private static final String LIVE_TASK_NAME = "Scanning/Listening";
 
-	@Option(names = "--struct", description = "Enable data-structure type-based replication")
+	@Option(names = "--struct", description = "Enable data structure-specific replication")
 	private boolean struct;
 
 	@ArgGroup(exclusive = false, heading = "Processor options%n")
 	private ReplicateProcessorArgs processorArgs = new ReplicateProcessorArgs();
 
-	@ArgGroup(exclusive = false, heading = "Redis writer options%n")
-	private RedisWriterArgs redisWriterArgs = new RedisWriterArgs();
-
-	@Option(names = "--log-writes", description = "Log written keys.")
-	private boolean logWrittenKeys;
-
 	@ArgGroup(exclusive = false)
-	private CompareArgs compareArgs = new CompareArgs();
+	private RedisWriterArgs targetRedisWriterArgs = new RedisWriterArgs();
 
-	public void copyTo(Replicate target) {
-		super.copyTo(target);
-		target.struct = struct;
-		target.processorArgs = processorArgs;
-		target.redisWriterArgs = redisWriterArgs;
-		target.logWrittenKeys = logWrittenKeys;
-		target.compareArgs = compareArgs;
+	@Option(names = "--log-keys", description = "Log keys being read and written.")
+	private boolean logKeys;
+
+	@Option(names = "--compare", description = "Compare mode: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<mode>")
+	private CompareMode compareMode = DEFAULT_COMPARE_MODE;
+
+	@Override
+	protected boolean isQuickCompare() {
+		return compareMode == CompareMode.QUICK;
 	}
 
 	@Override
 	protected Job job() {
 		List<Step<?, ?>> steps = new ArrayList<>();
-		Step<KeyValue<byte[], ?>, KeyValue<byte[], ?>> replicateStep = replicateStep();
-		ItemProcessor<KeyValue<byte[], ?>, KeyValue<byte[], ?>> processor = processor();
-		replicateStep.processor(processor);
+		Step<KeyValue<byte[], Object>, KeyValue<byte[], Object>> replicateStep = replicateStep();
 		steps.add(replicateStep);
-		if (shouldCompare() && processor == null) {
-			Compare compareCommand = new Compare();
-			compareCommand
-					.setCompareStreamMessageId(processorArgs.getKeyValueProcessorArgs().isPropagateStreamMessageIds());
-			copyTo(compareCommand);
-			steps.add(compareCommand.compareStep());
+		if (shouldCompare()) {
+			steps.add(compareStep());
 		}
 		return job(steps);
 	}
 
-	protected ItemProcessor<KeyValue<byte[], ?>, KeyValue<byte[], ?>> processor() {
-		StandardEvaluationContext evaluationContext = processorArgs.getEvaluationContextArgs().evaluationContext();
-		configure(evaluationContext);
+	@Override
+	protected boolean isIgnoreStreamMessageId() {
+		return !processorArgs.getKeyValueProcessorArgs().isPropagateStreamMessageId();
+	}
+
+	private ItemProcessor<KeyValue<byte[], Object>, KeyValue<byte[], Object>> processor() {
+		return RiotUtils.processor(new MemKeyValueFilter<>(ByteArrayCodec.INSTANCE, log), keyValueProcessor());
+	}
+
+	private ItemProcessor<KeyValue<byte[], Object>, KeyValue<byte[], Object>> keyValueProcessor() {
 		ItemProcessor<KeyValue<String, Object>, KeyValue<String, Object>> processor = processorArgs
-				.getKeyValueProcessorArgs().processor(evaluationContext);
+				.getKeyValueProcessorArgs().processor(evaluationContext(processorArgs.getEvaluationContextArgs()));
 		if (processor == null) {
 			return null;
 		}
-		ItemProcessor<KeyValue<byte[], Object>, KeyValue<String, Object>> code = new ToStringKeyValueProcessor<>(
-				ByteArrayCodec.INSTANCE);
-		ItemProcessor<KeyValue<String, Object>, KeyValue<byte[], Object>> decode = new StringKeyValueFunction<>(
-				ByteArrayCodec.INSTANCE);
-		return RiotUtils.processor(code, processor, decode);
+		ToStringKeyValue<byte[]> code = new ToStringKeyValue<>(ByteArrayCodec.INSTANCE);
+		StringKeyValue<byte[]> decode = new StringKeyValue<>(ByteArrayCodec.INSTANCE);
+		return RiotUtils.processor(new FunctionItemProcessor<>(code), processor, new FunctionItemProcessor<>(decode));
 	}
 
-	private Step<KeyValue<byte[], ?>, KeyValue<byte[], ?>> replicateStep() {
-		RedisItemReader<byte[], byte[], KeyValue<byte[], ?>> reader = reader();
-		configure(reader);
-		RedisItemWriter<byte[], byte[], KeyValue<byte[], ?>> writer = writer();
-		configure(writer);
-		Step<KeyValue<byte[], ?>, KeyValue<byte[], ?>> step = exportStep(reader, writer).name(STEP_REPLICATE);
-		step.taskName(taskName(reader.getMode()));
+	@Override
+	protected <T extends RedisItemWriter<?, ?, ?>> T configure(T writer) {
+		log.info("Configuring target Redis writer with {}", targetRedisWriterArgs);
+		targetRedisWriterArgs.configure(writer);
+		return super.configure(writer);
+	}
+
+	private Step<KeyValue<byte[], Object>, KeyValue<byte[], Object>> replicateStep() {
+		RedisItemReader<byte[], byte[], Object> reader = configure(sourceReader());
+		RedisItemWriter<byte[], byte[], KeyValue<byte[], Object>> writer = configure(writer());
+		Step<KeyValue<byte[], Object>, KeyValue<byte[], Object>> step = step(reader, writer);
+		step.processor(processor());
+		step.name(REPLICATE_STEP_NAME);
+		step.taskName(taskName(reader));
 		if (reader.getMode() != ReaderMode.SCAN) {
 			step.statusMessageSupplier(() -> liveExtraMessage(reader));
 		}
-		step.maxItemCountSupplier(scanSizeEstimator(reader));
-		if (logWrittenKeys) {
-			log.info("Adding key-write logger");
-			step.writeListener(new LoggingKeyValueWriteListener());
+		step.maxItemCountSupplier(RedisScanSizeEstimator.from(reader));
+		if (logKeys) {
+			log.info("Adding key logger");
+			ReplicateWriteLogger<byte[], Object> writeLogger = new ReplicateWriteLogger<>(log, reader.getCodec());
+			step.writeListener(writeLogger);
+			ReplicateReadLogger<byte[]> readLogger = new ReplicateReadLogger<>(log, reader.getCodec());
+			reader.addItemReadListener(readLogger);
+			reader.addItemWriteListener(readLogger);
 		}
 		return step;
 	}
 
 	private boolean shouldCompare() {
-		return compareArgs.getMode() != CompareMode.NONE && !getJobArgs().isDryRun();
+		return compareMode != CompareMode.NONE && !getJobArgs().isDryRun();
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private RedisItemReader<byte[], byte[], KeyValue<byte[], ?>> reader() {
+	private RedisItemReader<byte[], byte[], Object> sourceReader() {
 		if (struct) {
 			log.info("Creating data-structure type Redis reader");
-			return (RedisItemReader) RedisItemReader.struct(ByteArrayCodec.INSTANCE);
+			return RedisItemReader.struct(ByteArrayCodec.INSTANCE);
 		}
 		log.info("Creating dump Redis reader");
 		return (RedisItemReader) RedisItemReader.dump();
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private RedisItemWriter<byte[], byte[], KeyValue<byte[], ?>> writer() {
+	private RedisItemWriter<byte[], byte[], KeyValue<byte[], Object>> writer() {
 		if (struct) {
-			return (RedisItemWriter) RedisItemWriter.struct(ByteArrayCodec.INSTANCE);
+			return RedisItemWriter.struct(ByteArrayCodec.INSTANCE);
 		}
 		return (RedisItemWriter) RedisItemWriter.dump();
 	}
 
-	private String taskName(ReaderMode mode) {
-		switch (mode) {
+	private String taskName(RedisItemReader<?, ?, ?> reader) {
+		switch (reader.getMode()) {
 		case SCAN:
-			return TASK_SCAN;
+			return SCAN_TASK_NAME;
 		case LIVEONLY:
-			return TASK_LIVEONLY;
+			return LIVEONLY_TASK_NAME;
 		default:
-			return TASK_LIVE;
+			return LIVE_TASK_NAME;
 		}
 	}
 
@@ -148,22 +157,23 @@ public class Replicate extends AbstractTargetExport {
 		if (keyReader == null || keyReader.getQueue() == null) {
 			return "";
 		}
-		return String.format(QUEUE_MESSAGE, keyReader.getQueue().remainingCapacity());
+		return String.format(QUEUE_MESSAGE, keyReader.getQueue().remainingCapacity(),
+				keyReader.count(KeyNotificationStatus.DROPPED));
 	}
 
 	@Override
-	protected void configure(RedisItemWriter<?, ?, ?> writer) {
-		configureTarget(writer);
-		log.info("Configuring target Redis writer with {}", redisWriterArgs);
-		redisWriterArgs.configure(writer);
+	protected KeyComparisonItemReader<byte[], byte[]> compareReader() {
+		KeyComparisonItemReader<byte[], byte[]> reader = super.compareReader();
+		reader.setProcessor(processor());
+		return reader;
 	}
 
-	public RedisWriterArgs getRedisWriterArgs() {
-		return redisWriterArgs;
+	public RedisWriterArgs getTargetRedisWriterArgs() {
+		return targetRedisWriterArgs;
 	}
 
-	public void setRedisWriterArgs(RedisWriterArgs redisWriterArgs) {
-		this.redisWriterArgs = redisWriterArgs;
+	public void setTargetRedisWriterArgs(RedisWriterArgs redisWriterArgs) {
+		this.targetRedisWriterArgs = redisWriterArgs;
 	}
 
 	public boolean isStruct() {
@@ -174,20 +184,28 @@ public class Replicate extends AbstractTargetExport {
 		this.struct = type;
 	}
 
-	public CompareArgs getCompareArgs() {
-		return compareArgs;
-	}
-
-	public void setCompareArgs(CompareArgs args) {
-		this.compareArgs = args;
-	}
-
 	public ReplicateProcessorArgs getProcessorArgs() {
 		return processorArgs;
 	}
 
-	public void setProcessorArgs(ReplicateProcessorArgs processorArgs) {
-		this.processorArgs = processorArgs;
+	public void setProcessorArgs(ReplicateProcessorArgs args) {
+		this.processorArgs = args;
+	}
+
+	public boolean isLogKeys() {
+		return logKeys;
+	}
+
+	public void setLogKeys(boolean enable) {
+		this.logKeys = enable;
+	}
+
+	public CompareMode getCompareMode() {
+		return compareMode;
+	}
+
+	public void setCompareMode(CompareMode compareMode) {
+		this.compareMode = compareMode;
 	}
 
 }

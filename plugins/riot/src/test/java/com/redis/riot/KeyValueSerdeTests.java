@@ -35,7 +35,6 @@ import com.redis.riot.file.xml.XmlResourceItemWriterBuilder;
 import com.redis.spring.batch.item.redis.common.DataType;
 import com.redis.spring.batch.item.redis.common.KeyValue;
 import com.redis.spring.batch.item.redis.gen.GeneratorItemReader;
-import com.redis.spring.batch.item.redis.reader.MemKeyValue;
 import com.redis.spring.batch.test.AbstractTestBase;
 
 @TestInstance(Lifecycle.PER_CLASS)
@@ -49,14 +48,14 @@ class KeyValueSerdeTests {
 	void setup() {
 		mapper.configure(DeserializationFeature.USE_LONG_FOR_INTS, true);
 		SimpleModule module = new SimpleModule();
-		module.addDeserializer(MemKeyValue.class, new MemKeyValueDeserializer());
+		module.addDeserializer(KeyValue.class, new KeyValueDeserializer());
 		mapper.registerModule(module);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Test
 	void deserialize() throws JsonMappingException, JsonProcessingException {
-		MemKeyValue<String, Object> keyValue = mapper.readValue(timeseries, MemKeyValue.class);
+		KeyValue<String, Object> keyValue = mapper.readValue(timeseries, KeyValue.class);
 		Assertions.assertEquals("gen:97", keyValue.getKey());
 	}
 
@@ -65,9 +64,9 @@ class KeyValueSerdeTests {
 		String key = "ts:1";
 		long memoryUsage = DataSize.ofGigabytes(1).toBytes();
 		long ttl = Instant.now().toEpochMilli();
-		MemKeyValue<String, Object> ts = new MemKeyValue<>();
+		KeyValue<String, Object> ts = new KeyValue<>();
 		ts.setKey(key);
-		ts.setMem(memoryUsage);
+		ts.setMemoryUsage(memoryUsage);
 		ts.setTtl(ttl);
 		ts.setType(DataType.TIMESERIES.getString());
 		Sample sample1 = Sample.of(Instant.now().toEpochMilli(), 123.456);
@@ -87,17 +86,17 @@ class KeyValueSerdeTests {
 		GeneratorItemReader reader = new GeneratorItemReader();
 		reader.setMaxItemCount(17);
 		reader.open(new ExecutionContext());
-		List<MemKeyValue<String, Object>> items = AbstractTestBase.readAll(reader).stream().map(MemKeyValue::new)
+		List<KeyValue<String, Object>> items = AbstractTestBase.readAll(reader).stream().map(KeyValue::new)
 				.collect(Collectors.toList());
-		for (MemKeyValue<String, Object> item : items) {
+		for (KeyValue<String, Object> item : items) {
 			String json = mapper.writeValueAsString(item);
-			MemKeyValue<String, Object> result = mapper.readValue(json, MemKeyValue.class);
+			KeyValue<String, Object> result = mapper.readValue(json, KeyValue.class);
 			assertEquals(item, result);
 		}
 	}
 
-	private <K, T> void assertEquals(MemKeyValue<K, T> source, MemKeyValue<K, T> target) {
-		Assertions.assertEquals(source.getMem(), target.getMem());
+	private <K, T> void assertEquals(KeyValue<K, T> source, KeyValue<K, T> target) {
+		Assertions.assertEquals(source.getMemoryUsage(), target.getMemoryUsage());
 		Assertions.assertEquals(source.getTtl(), target.getTtl());
 		Assertions.assertEquals(source.getType(), target.getType());
 		Assertions.assertEquals(source.getKey(), target.getKey());

@@ -3,16 +3,26 @@ package com.redis.riot.db;
 import java.util.Map;
 
 import org.springframework.batch.item.database.AbstractCursorItemReader;
+import org.springframework.batch.item.database.JdbcCursorItemReader;
 import org.springframework.batch.item.database.builder.JdbcCursorItemReaderBuilder;
 import org.springframework.jdbc.core.ColumnMapRowMapper;
+import org.springframework.util.Assert;
 
+import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
 
-public class DatabaseReaderArgs extends DatabaseArgs {
+public class DatabaseReaderArgs {
 
 	public static final int DEFAULT_FETCH_SIZE = AbstractCursorItemReader.VALUE_NOT_SET;
 	public static final int DEFAULT_MAX_RESULT_SET_ROWS = AbstractCursorItemReader.VALUE_NOT_SET;
 	public static final int DEFAULT_QUERY_TIMEOUT = AbstractCursorItemReader.VALUE_NOT_SET;
+
+	@ArgGroup(exclusive = false)
+	private DataSourceArgs dataSourceArgs = new DataSourceArgs();
+
+	@Parameters(arity = "1", description = "SQL SELECT statement", paramLabel = "SQL")
+	private String sql;
 
 	@Option(names = "--max", description = "Max number of rows to import.", paramLabel = "<count>")
 	private int maxItemCount;
@@ -32,10 +42,11 @@ public class DatabaseReaderArgs extends DatabaseArgs {
 	@Option(names = "--verify", description = "Verify position of result set after row mapper.", hidden = true)
 	private boolean verifyCursorPosition;
 
-	public JdbcCursorItemReaderBuilder<Map<String, Object>> reader() {
+	public JdbcCursorItemReader<Map<String, Object>> reader() {
+		Assert.notNull(sql, "No SQL statement specified");
 		JdbcCursorItemReaderBuilder<Map<String, Object>> builder = new JdbcCursorItemReaderBuilder<>();
 		builder.saveState(false);
-		builder.dataSource(dataSource());
+		builder.dataSource(dataSourceArgs.dataSource());
 		builder.rowMapper(new ColumnMapRowMapper());
 		builder.fetchSize(fetchSize);
 		builder.maxRows(maxRows);
@@ -45,7 +56,9 @@ public class DatabaseReaderArgs extends DatabaseArgs {
 		if (maxItemCount > 0) {
 			builder.maxItemCount(maxItemCount);
 		}
-		return builder;
+		builder.name(sql);
+		builder.sql(sql);
+		return builder.build();
 	}
 
 	public int getMaxItemCount() {
@@ -99,6 +112,22 @@ public class DatabaseReaderArgs extends DatabaseArgs {
 
 	public void setVerifyCursorPosition(boolean verifyCursorPosition) {
 		this.verifyCursorPosition = verifyCursorPosition;
+	}
+
+	public DataSourceArgs getDataSourceArgs() {
+		return dataSourceArgs;
+	}
+
+	public void setDataSourceArgs(DataSourceArgs dataSourceArgs) {
+		this.dataSourceArgs = dataSourceArgs;
+	}
+
+	public String getSql() {
+		return sql;
+	}
+
+	public void setSql(String sql) {
+		this.sql = sql;
 	}
 
 }

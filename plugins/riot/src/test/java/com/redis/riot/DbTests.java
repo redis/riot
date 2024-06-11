@@ -15,7 +15,7 @@ import org.junit.jupiter.api.TestInfo;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.testcontainers.containers.JdbcDatabaseContainer;
 
-import com.redis.riot.db.DatabaseArgs;
+import com.redis.riot.db.DataSourceArgs;
 import com.redis.testcontainers.RedisServer;
 import com.redis.testcontainers.RedisStackContainer;
 
@@ -75,18 +75,18 @@ abstract class DbTests extends AbstractRiotTestBase {
 
 	protected int executeDatabaseImport(ParseResult parseResult) {
 		DatabaseImport command = command(parseResult);
-		configureDatabase(command.getDatabaseReaderArgs());
+		configureDatabase(command.getDatabaseReaderArgs().getDataSourceArgs());
 		return ExitCode.OK;
 	}
 
 	protected int executeDatabaseExport(ParseResult parseResult, TestInfo info) {
 		DatabaseExport command = command(parseResult);
-		command.getJobArgs().setName(name(info));
-		configureDatabase(command.getDatabaseWriterArgs());
+		command.setJobName(name(info));
+		configureDatabase(command.getDatabaseWriterArgs().getDataSourceArgs());
 		return ExitCode.OK;
 	}
 
-	private void configureDatabase(DatabaseArgs args) {
+	private void configureDatabase(DataSourceArgs args) {
 		JdbcDatabaseContainer<?> container = getJdbcDatabaseContainer();
 		args.setUrl(container.getJdbcUrl());
 		args.setUsername(container.getUsername());

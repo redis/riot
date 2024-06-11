@@ -24,7 +24,7 @@ public class ProgressStepExecutionListener<I, O> implements StepExecutionListene
 
 	private final Step<I, O> step;
 
-	private ProgressArgs progressOptions = new ProgressArgs();
+	private ProgressArgs progressArgs = new ProgressArgs();
 
 	private ProgressBar progressBar;
 
@@ -37,9 +37,9 @@ public class ProgressStepExecutionListener<I, O> implements StepExecutionListene
 		ProgressBarBuilder progressBarBuilder = new ProgressBarBuilder();
 		progressBarBuilder.setTaskName(step.getTaskName());
 		progressBarBuilder.setStyle(progressBarStyle());
-		progressBarBuilder.setUpdateIntervalMillis(Math.toIntExact(progressOptions.getUpdateInterval()));
+		progressBarBuilder.setUpdateIntervalMillis(Math.toIntExact(progressArgs.getUpdateInterval()));
 		progressBarBuilder.showSpeed();
-		if (progressOptions.getStyle() == ProgressStyle.LOG) {
+		if (progressArgs.getStyle() == ProgressStyle.LOG) {
 			Logger logger = LoggerFactory.getLogger(getClass());
 			progressBarBuilder.setConsumer(new DelegatingProgressBarConsumer(logger::info));
 		}
@@ -48,7 +48,7 @@ public class ProgressStepExecutionListener<I, O> implements StepExecutionListene
 	}
 
 	private ProgressBarStyle progressBarStyle() {
-		switch (progressOptions.getStyle()) {
+		switch (progressArgs.getStyle()) {
 		case BAR:
 			return ProgressBarStyle.COLORFUL_UNICODE_BAR;
 		case BLOCK:
@@ -78,12 +78,12 @@ public class ProgressStepExecutionListener<I, O> implements StepExecutionListene
 		return stepExecution.getExitStatus();
 	}
 
-	public ProgressArgs getProgressOptions() {
-		return progressOptions;
+	public ProgressArgs getProgressArgs() {
+		return progressArgs;
 	}
 
-	public void setProgressOptions(ProgressArgs progressOptions) {
-		this.progressOptions = progressOptions;
+	public void setProgressArgs(ProgressArgs args) {
+		this.progressArgs = args;
 	}
 
 }
