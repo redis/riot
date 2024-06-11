@@ -21,7 +21,7 @@ import com.redis.lettucemod.api.StatefulRedisModulesConnection;
 import com.redis.lettucemod.util.RedisModulesUtils;
 import com.redis.riot.Replicate.CompareMode;
 import com.redis.riot.core.ProgressStyle;
-import com.redis.riot.core.RiotUtils;
+import com.redis.riot.core.Expression;
 import com.redis.spring.batch.Range;
 import com.redis.spring.batch.item.redis.RedisItemReader.ReaderMode;
 import com.redis.spring.batch.item.redis.common.DataType;
@@ -162,8 +162,7 @@ abstract class RiotTests extends AbstractRiotTestBase {
 		redisCommands.set(key1, value1);
 		Replicate command = new Replicate();
 		command.setStruct(true);
-		command.getProcessorArgs().getKeyValueProcessorArgs()
-				.setKeyExpression(RiotUtils.parseTemplate("#{type}:#{key}"));
+		command.getProcessorArgs().setKeyExpression(Expression.parseTemplate("#{type}:#{key}"));
 		execute(command, info);
 		Assertions.assertEquals(value1, targetRedisCommands.get("string:" + key1));
 	}
@@ -174,14 +173,14 @@ abstract class RiotTests extends AbstractRiotTestBase {
 		String value1 = "value1";
 		redisCommands.set(key1, value1);
 		Replicate replication = new Replicate();
-		replication.getProcessorArgs().getKeyValueProcessorArgs().setKeyExpression(RiotUtils
+		replication.getProcessorArgs().setKeyExpression(Expression
 				.parseTemplate(String.format("#{#date.parse('%s').getTime()}:#{key}", "2010-05-10T00:00:00.000+0000")));
 		execute(replication, info);
 		Assertions.assertEquals(value1, targetRedisCommands.get("1273449600000:" + key1));
 	}
 
 	@Test
-	void binaryKeyValueSnapshotReplicationType(TestInfo info) throws Exception {
+	void replicateBinaryStruct(TestInfo info) throws Exception {
 		byte[] key = Hex.decode("aced0005");
 		byte[] value = Hex.decode("aced0004");
 		Map<byte[], byte[]> hash = new HashMap<>();
@@ -199,7 +198,7 @@ abstract class RiotTests extends AbstractRiotTestBase {
 	}
 
 	@Test
-	void binaryKeyValueSnapshotReplication(TestInfo info) throws Exception {
+	void replicateBinaryKeyValueScan(TestInfo info) throws Exception {
 		byte[] key = Hex.decode("aced0005");
 		byte[] value = Hex.decode("aced0004");
 		StatefulRedisModulesConnection<byte[], byte[]> connection = RedisModulesUtils.connection(redisClient,
@@ -214,7 +213,7 @@ abstract class RiotTests extends AbstractRiotTestBase {
 	}
 
 	@Test
-	void binaryKeyLiveReplication(TestInfo info) throws Exception {
+	void replicateBinaryKeyLive(TestInfo info) throws Exception {
 		byte[] key = Hex.decode("aced0005");
 		byte[] value = Hex.decode("aced0004");
 		StatefulRedisModulesConnection<byte[], byte[]> connection = RedisModulesUtils.connection(redisClient,

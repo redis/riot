@@ -7,7 +7,6 @@ import org.springframework.expression.spel.support.StandardEvaluationContext;
 
 import com.redis.riot.CompareStatusItemWriter.StatusCount;
 import com.redis.riot.RedisClientBuilder.RedisURIClient;
-import com.redis.riot.core.EvaluationContextArgs;
 import com.redis.riot.core.Step;
 import com.redis.spring.batch.item.redis.RedisItemReader;
 import com.redis.spring.batch.item.redis.RedisItemWriter;
@@ -98,7 +97,7 @@ public abstract class AbstractTargetCommand extends AbstractRedisCommand {
 	}
 
 	@Override
-	protected StandardEvaluationContext evaluationContext(EvaluationContextArgs args) {
+	protected StandardEvaluationContext evaluationContext(ProcessorArgs args) {
 		StandardEvaluationContext context = super.evaluationContext(args);
 		log.info("Setting evaluation context variable {} = {}", SOURCE_VAR, client.getUri());
 		context.setVariable(SOURCE_VAR, client.getUri());
@@ -110,7 +109,7 @@ public abstract class AbstractTargetCommand extends AbstractRedisCommand {
 	protected Step<KeyComparison<byte[]>, KeyComparison<byte[]>> compareStep() {
 		KeyComparisonItemReader<byte[], byte[]> reader = compareReader();
 		CompareStatusItemWriter<byte[]> writer = new CompareStatusItemWriter<>();
-		Step<KeyComparison<byte[]>, KeyComparison<byte[]>> step = new Step<>(reader, writer).name(COMPARE_STEP_NAME);
+		Step<KeyComparison<byte[]>, KeyComparison<byte[]>> step = new Step<>(COMPARE_STEP_NAME, reader, writer);
 		step.taskName(COMPARE_TASK_NAME);
 		step.statusMessageSupplier(() -> compareMessage(writer.getMismatches()));
 		step.maxItemCountSupplier(RedisScanSizeEstimator.from(reader.getSourceReader()));

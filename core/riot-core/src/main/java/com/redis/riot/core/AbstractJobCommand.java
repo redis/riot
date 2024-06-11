@@ -159,18 +159,14 @@ public abstract class AbstractJobCommand extends AbstractCommand {
 	}
 
 	private <I, O> SimpleStepBuilder<I, O> simpleStepBuilder(Step<I, O> step) {
-		if (step.getName() == null) {
-			step.name(jobName);
-		} else {
-			step.name(jobName + "-" + step.getName());
-		}
+		String stepName = jobName + "-" + step.getName();
 		if (step.getReader() instanceof ItemStreamSupport) {
 			ItemStreamSupport support = (ItemStreamSupport) step.getReader();
-			Assert.notNull(support.getName(), "No name specified for reader in step " + step.getName());
-			support.setName(step.getName() + "-" + support.getName());
+			Assert.notNull(support.getName(), "No name specified for reader in step " + stepName);
+			support.setName(stepName + "-" + support.getName());
 		}
-		log.info("Creating step {} with chunk size {}", step.getName(), stepArgs.getChunkSize());
-		SimpleStepBuilder<I, O> builder = new StepBuilder(step.getName(), jobRepository).chunk(stepArgs.getChunkSize(),
+		log.info("Creating step {} with chunk size {}", stepName, stepArgs.getChunkSize());
+		SimpleStepBuilder<I, O> builder = new StepBuilder(stepName, jobRepository).chunk(stepArgs.getChunkSize(),
 				transactionManager);
 		builder.reader(reader(step));
 		builder.writer(writer(step));

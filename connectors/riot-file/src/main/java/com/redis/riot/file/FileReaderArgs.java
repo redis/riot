@@ -44,7 +44,6 @@ public class FileReaderArgs extends FileArgs {
 
 	@Override
 	public Resource resource(String location) {
-
 		if (FileUtils.isStdin(location)) {
 			return new FilenameInputStreamResource(System.in, "stdin", "Standard Input");
 		}
@@ -70,6 +69,10 @@ public class FileReaderArgs extends FileArgs {
 			return new FilenameInputStreamResource(gzipInputStream, resource.getFilename(), resource.getDescription());
 		}
 		return resource;
+	}
+
+	public List<Resource> resources() {
+		return files.stream().flatMap(FileUtils::expand).map(this::resource).collect(Collectors.toList());
 	}
 
 	public List<String> getFiles() {
@@ -140,8 +143,12 @@ public class FileReaderArgs extends FileArgs {
 		this.maxItemCount = maxItemCount;
 	}
 
-	public List<Resource> resources() {
-		return files.stream().flatMap(FileUtils::expand).map(this::resource).collect(Collectors.toList());
+	@Override
+	public String toString() {
+		return "FileReaderArgs [files=" + files + ", " + super.toString() + ", columnRanges=" + columnRanges
+				+ ", continuationString=" + continuationString + ", fields=" + fields + ", headerLine=" + headerLine
+				+ ", includedFields=" + includedFields + ", linesToSkip=" + linesToSkip + ", maxItemCount="
+				+ maxItemCount + "]";
 	}
 
 }

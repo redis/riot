@@ -131,4 +131,11 @@ public class FileArgs {
 		this.header = header;
 	}
 
+	@Override
+	public String toString() {
+		return "amazonS3Args=" + amazonS3Args + ", googleStorageArgs=" + googleStorageArgs + ", delimiter=" + delimiter
+				+ ", encoding=" + encoding + ", fileType=" + fileType + ", gzipped=" + gzipped + ", header=" + header
+				+ ", quoteCharacter=" + quoteCharacter;
+	}
+
 }

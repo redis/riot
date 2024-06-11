@@ -7,16 +7,21 @@ import java.util.function.Consumer;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.function.FunctionItemProcessor;
 import org.springframework.expression.EvaluationContext;
-import org.springframework.expression.Expression;
 
+import com.redis.riot.core.EvaluationContextArgs;
+import com.redis.riot.core.Expression;
 import com.redis.riot.core.TemplateExpression;
 import com.redis.riot.function.ConsumerUnaryOperator;
 import com.redis.riot.function.DropStreamMessageId;
 import com.redis.spring.batch.item.redis.common.KeyValue;
 
+import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Option;
 
-public class KeyValueProcessorArgs {
+public class ProcessorArgs {
+
+	@ArgGroup(exclusive = false)
+	private EvaluationContextArgs evaluationContextArgs = new EvaluationContextArgs();
 
 	@Option(names = "--key-proc", description = "SpEL template expression to transform key names, e.g. \"#{#source.database}:#{key}\" for 'abc' returns '0:abc'", paramLabel = "<exp>")
 	private TemplateExpression keyExpression;
@@ -33,22 +38,23 @@ public class KeyValueProcessorArgs {
 	@Option(names = "--stream-ids", description = "Propagate stream message IDs. True by default.", negatable = true, defaultValue = "true", fallbackValue = "true")
 	private boolean propagateStreamMessageId = true;
 
-	public ItemProcessor<KeyValue<String, Object>, KeyValue<String, Object>> processor(EvaluationContext context) {
+	public ItemProcessor<KeyValue<String, Object>, KeyValue<String, Object>> keyValueProcessor(
+			EvaluationContext context) {
 		List<Consumer<KeyValue<String, Object>>> consumers = new ArrayList<>();
 		if (keyExpression != null) {
-			consumers.add(t -> t.setKey(keyExpression.getExpression().getValue(context, t, String.class)));
+			consumers.add(t -> t.setKey(keyExpression.getValue(context, t)));
 		}
 		if (!propagateTtl) {
 			consumers.add(t -> t.setTtl(0));
 		}
 		if (ttlExpression != null) {
-			consumers.add(t -> t.setTtl(ttlExpression.getValue(context, t, Long.class)));
+			consumers.add(t -> t.setTtl(ttlExpression.getLong(context, t)));
 		}
 		if (!propagateStreamMessageId) {
 			consumers.add(new DropStreamMessageId());
 		}
 		if (typeExpression != null) {
-			consumers.add(t -> t.setType(typeExpression.getValue(context, t, String.class)));
+			consumers.add(t -> t.setType(typeExpression.getString(context, t)));
 		}
 		if (consumers.isEmpty()) {
 			return null;
@@ -96,11 +102,19 @@ public class KeyValueProcessorArgs {
 		this.propagateStreamMessageId = propagateStreamMessageIds;
 	}
 
+	public EvaluationContextArgs getEvaluationContextArgs() {
+		return evaluationContextArgs;
+	}
+
+	public void setEvaluationContextArgs(EvaluationContextArgs args) {
+		this.evaluationContextArgs = args;
+	}
+
 	@Override
 	public String toString() {
-		return "KeyValueProcessorArgs [keyExpression=" + keyExpression + ", typeExpression=" + typeExpression
-				+ ", ttlExpression=" + ttlExpression + ", propagateTtl=" + propagateTtl + ", propagateStreamMessageId="
-				+ propagateStreamMessageId + "]";
+		return "ProcessorArgs [evaluationContextArgs=" + evaluationContextArgs + ", keyExpression=" + keyExpression
+				+ ", typeExpression=" + typeExpression + ", ttlExpression=" + ttlExpression + ", propagateTtl="
+				+ propagateTtl + ", propagateStreamMessageId=" + propagateStreamMessageId + "]";
 	}
 
 }

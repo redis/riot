@@ -66,13 +66,12 @@ public class FileImport extends AbstractImportCommand {
 		} catch (Exception e) {
 			throw new RiotException("Could not create reader for file " + resource, e);
 		}
-		Step<?, ?> step = new Step<>(reader, writer());
+		Step<?, ?> step = new Step<>(resource.getFilename(), reader, writer());
 		step.skip(ParseException.class);
 		step.skip(org.springframework.batch.item.ParseException.class);
 		step.noRetry(ParseException.class);
 		step.noRetry(org.springframework.batch.item.ParseException.class);
 		step.processor(processor());
-		step.name(resource.getFilename());
 		step.taskName(taskName(resource));
 		return step;
 	}

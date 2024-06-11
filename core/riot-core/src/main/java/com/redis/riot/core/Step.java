@@ -22,13 +22,13 @@ public class Step<I, O> {
 	private static final long NO_MAX_ITEM_COUNT = -1;
 	private static final String EMPTY_STRING = "";
 
-	private String name;
+	private final String name;
+	private final ItemReader<I> reader;
+	private final ItemWriter<O> writer;
 	private String taskName;
 	private Supplier<String> statusMessageSupplier = () -> EMPTY_STRING;
 	private LongSupplier maxItemCountSupplier = () -> NO_MAX_ITEM_COUNT;
-	private ItemReader<I> reader;
 	private ItemProcessor<I, O> processor;
-	private ItemWriter<O> writer;
 	private Set<StepExecutionListener> executionListeners = new LinkedHashSet<>();
 	private Set<ItemReadListener<I>> readListeners = new LinkedHashSet<>();
 	private Set<ItemWriteListener<O>> writeListeners = new LinkedHashSet<>();
@@ -40,18 +40,14 @@ public class Step<I, O> {
 	private Collection<Class<? extends Throwable>> retry = new HashSet<>();
 	private Collection<Class<? extends Throwable>> noRetry = new HashSet<>();
 
-	public Step(ItemReader<I> reader, ItemWriter<O> writer) {
+	public Step(String name, ItemReader<I> reader, ItemWriter<O> writer) {
+		this.name = name;
 		this.reader = reader;
 		this.writer = writer;
 	}
 
 	public String getName() {
 		return name;
-	}
-
-	public Step<I, O> name(String name) {
-		this.name = name;
-		return this;
 	}
 
 	public String getTaskName() {
@@ -98,16 +94,6 @@ public class Step<I, O> {
 
 	public Step<I, O> maxItemCountSupplier(LongSupplier supplier) {
 		this.maxItemCountSupplier = supplier;
-		return this;
-	}
-
-	public Step<I, O> reader(ItemReader<I> reader) {
-		this.reader = reader;
-		return this;
-	}
-
-	public Step<I, O> writer(ItemWriter<O> writer) {
-		this.writer = writer;
 		return this;
 	}
 

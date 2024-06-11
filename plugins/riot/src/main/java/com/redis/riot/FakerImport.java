@@ -5,13 +5,12 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.springframework.batch.core.Job;
-import org.springframework.expression.Expression;
 import org.springframework.util.StringUtils;
 
 import com.redis.lettucemod.search.Field;
 import com.redis.lettucemod.search.IndexInfo;
 import com.redis.lettucemod.util.RedisModulesUtils;
-import com.redis.riot.core.RiotUtils;
+import com.redis.riot.core.Expression;
 import com.redis.riot.faker.FakerItemReader;
 
 import picocli.CommandLine.Command;
@@ -55,7 +54,7 @@ public class FakerImport extends AbstractImportCommand {
 			Map<String, Expression> searchFields = new LinkedHashMap<>();
 			IndexInfo info = RedisModulesUtils.indexInfo(connection.sync().ftInfo(searchIndex));
 			for (Field<String> field : info.getFields()) {
-				searchFields.put(field.getName(), RiotUtils.parse(expression(field)));
+				searchFields.put(field.getName(), Expression.parse(expression(field)));
 			}
 			allFields.putAll(searchFields);
 		}

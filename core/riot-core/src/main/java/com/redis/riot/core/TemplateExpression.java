@@ -1,22 +1,21 @@
 package com.redis.riot.core;
 
-import org.springframework.expression.Expression;
+import org.springframework.expression.EvaluationContext;
 
-public class TemplateExpression {
+public class TemplateExpression extends Expression {
 
-	private Expression expression;
-
-	public Expression getExpression() {
-		return expression;
-	}
-
-	public void setExpression(Expression expression) {
-		this.expression = expression;
+	public TemplateExpression(org.springframework.expression.Expression expression) {
+		super(expression);
 	}
 
 	@Override
-	public String toString() {
-		return "TemplateExpression [expression=" + RiotUtils.toString(expression) + "]";
+	public String getValue(EvaluationContext context) {
+		return spelExpression.getValue(context, String.class);
+	}
+
+	@Override
+	public String getValue(EvaluationContext context, Object rootObject) {
+		return spelExpression.getValue(context, rootObject, String.class);
 	}
 
 }

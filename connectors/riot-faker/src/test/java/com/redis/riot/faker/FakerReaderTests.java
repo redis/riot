@@ -9,8 +9,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemReader;
-import org.springframework.expression.Expression;
-import org.springframework.expression.spel.standard.SpelExpressionParser;
+
+import com.redis.riot.core.Expression;
 
 class FakerReaderTests {
 
@@ -25,14 +25,13 @@ class FakerReaderTests {
 
 	@Test
 	void fakerReader() throws Exception {
-		SpelExpressionParser parser = new SpelExpressionParser();
 		int count = 100;
 		FakerItemReader reader = new FakerItemReader();
 		Map<String, Expression> fields = new LinkedHashMap<>();
-		fields.put("index", parser.parseExpression("index"));
-		fields.put("firstName", parser.parseExpression("name.firstName"));
-		fields.put("lastName", parser.parseExpression("name.lastName"));
-		fields.put("thread", parser.parseExpression("thread"));
+		fields.put("index", Expression.parse("index"));
+		fields.put("firstName", Expression.parse("name.firstName"));
+		fields.put("lastName", Expression.parse("name.lastName"));
+		fields.put("thread", Expression.parse("thread"));
 		reader.setFields(fields);
 		reader.setMaxItemCount(count);
 		reader.open(new ExecutionContext());

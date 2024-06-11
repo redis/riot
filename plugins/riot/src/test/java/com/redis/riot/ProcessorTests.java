@@ -14,12 +14,11 @@ import java.util.function.Predicate;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.batch.item.ItemProcessor;
-import org.springframework.expression.Expression;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
 import com.hrakaroo.glob.GlobPattern;
 import com.redis.riot.core.QuietMapAccessor;
-import com.redis.riot.core.RiotUtils;
+import com.redis.riot.core.Expression;
 import com.redis.riot.core.function.StringToMapFunction;
 import com.redis.riot.function.KeyValueMap;
 import com.redis.spring.batch.Range;
@@ -34,7 +33,7 @@ class ProcessorTests {
 	@Test
 	void testMapProcessor() throws Exception {
 		Map<String, Expression> expressions = new LinkedHashMap<>();
-		expressions.put("field1", RiotUtils.parse("'test:1'"));
+		expressions.put("field1", Expression.parse("'test:1'"));
 		ImportProcessorArgs processorArgs = new ImportProcessorArgs();
 		processorArgs.setExpressions(expressions);
 		ItemProcessor<Map<String, Object>, Map<String, Object>> processor = processorArgs
@@ -51,11 +50,11 @@ class ProcessorTests {
 	@Test
 	void processor() throws Exception {
 		Map<String, Expression> expressions = new LinkedHashMap<>();
-		expressions.put("field1", RiotUtils.parse("'value1'"));
-		expressions.put("field2", RiotUtils.parse("field1"));
-		expressions.put("field3", RiotUtils.parse("1"));
-		expressions.put("field4", RiotUtils.parse("2"));
-		expressions.put("field5", RiotUtils.parse("field3+field4"));
+		expressions.put("field1", Expression.parse("'value1'"));
+		expressions.put("field2", Expression.parse("field1"));
+		expressions.put("field3", Expression.parse("1"));
+		expressions.put("field4", Expression.parse("2"));
+		expressions.put("field5", Expression.parse("field3+field4"));
 		ImportProcessorArgs options = new ImportProcessorArgs();
 		options.setExpressions(expressions);
 		StandardEvaluationContext evaluationContext = evaluationContext();
@@ -73,7 +72,7 @@ class ProcessorTests {
 	@Test
 	void processorFilter() throws Exception {
 		ImportProcessorArgs options = new ImportProcessorArgs();
-		options.setFilter(RiotUtils.parse("index<10"));
+		options.setFilter(Expression.parse("index<10"));
 		StandardEvaluationContext evaluationContext = evaluationContext();
 		evaluationContext.addPropertyAccessor(new QuietMapAccessor());
 		ItemProcessor<Map<String, Object>, Map<String, Object>> processor = options.mapProcessor(evaluationContext);

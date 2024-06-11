@@ -43,7 +43,7 @@ public class Replicate extends AbstractTargetCommand {
 	private boolean struct;
 
 	@ArgGroup(exclusive = false, heading = "Processor options%n")
-	private ReplicateProcessorArgs processorArgs = new ReplicateProcessorArgs();
+	private ProcessorArgs processorArgs = new ProcessorArgs();
 
 	@ArgGroup(exclusive = false)
 	private RedisWriterArgs targetRedisWriterArgs = new RedisWriterArgs();
@@ -72,7 +72,7 @@ public class Replicate extends AbstractTargetCommand {
 
 	@Override
 	protected boolean isIgnoreStreamMessageId() {
-		return !processorArgs.getKeyValueProcessorArgs().isPropagateStreamMessageId();
+		return !processorArgs.isPropagateStreamMessageId();
 	}
 
 	private ItemProcessor<KeyValue<byte[], Object>, KeyValue<byte[], Object>> processor() {
@@ -81,7 +81,7 @@ public class Replicate extends AbstractTargetCommand {
 
 	private ItemProcessor<KeyValue<byte[], Object>, KeyValue<byte[], Object>> keyValueProcessor() {
 		ItemProcessor<KeyValue<String, Object>, KeyValue<String, Object>> processor = processorArgs
-				.getKeyValueProcessorArgs().processor(evaluationContext(processorArgs.getEvaluationContextArgs()));
+				.keyValueProcessor(evaluationContext(processorArgs));
 		if (processor == null) {
 			return null;
 		}
@@ -100,10 +100,10 @@ public class Replicate extends AbstractTargetCommand {
 	private Step<KeyValue<byte[], Object>, KeyValue<byte[], Object>> replicateStep() {
 		RedisItemReader<byte[], byte[], Object> reader = configure(sourceReader());
 		RedisItemWriter<byte[], byte[], KeyValue<byte[], Object>> writer = configure(writer());
-		Step<KeyValue<byte[], Object>, KeyValue<byte[], Object>> step = step(reader, writer);
+		Step<KeyValue<byte[], Object>, KeyValue<byte[], Object>> step = new Step<>(REPLICATE_STEP_NAME, reader, writer);
 		step.processor(processor());
-		step.name(REPLICATE_STEP_NAME);
 		step.taskName(taskName(reader));
+		configureExportStep(step);
 		if (reader.getMode() != ReaderMode.SCAN) {
 			step.statusMessageSupplier(() -> liveExtraMessage(reader));
 		}
@@ -184,11 +184,11 @@ public class Replicate extends AbstractTargetCommand {
 		this.struct = type;
 	}
 
-	public ReplicateProcessorArgs getProcessorArgs() {
+	public ProcessorArgs getProcessorArgs() {
 		return processorArgs;
 	}
 
-	public void setProcessorArgs(ReplicateProcessorArgs args) {
+	public void setProcessorArgs(ProcessorArgs args) {
 		this.processorArgs = args;
 	}
 

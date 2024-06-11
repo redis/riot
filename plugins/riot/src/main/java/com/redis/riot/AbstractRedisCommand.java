@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.springframework.batch.item.ItemWriter;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.util.Assert;
 
@@ -14,10 +13,9 @@ import com.redis.lettucemod.util.GeoLocation;
 import com.redis.lettucemod.util.RedisModulesUtils;
 import com.redis.riot.RedisClientBuilder.RedisURIClient;
 import com.redis.riot.core.AbstractJobCommand;
-import com.redis.riot.core.EvaluationContextArgs;
 import com.redis.riot.core.Step;
 import com.redis.spring.batch.item.redis.RedisItemReader;
-import com.redis.spring.batch.item.redis.common.KeyValue;
+import com.redis.spring.batch.item.redis.RedisItemReader.ReaderMode;
 
 import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.RedisException;
@@ -71,8 +69,8 @@ abstract class AbstractRedisCommand extends AbstractJobCommand {
 		}
 	}
 
-	protected StandardEvaluationContext evaluationContext(EvaluationContextArgs args) {
-		StandardEvaluationContext context = args.evaluationContext();
+	protected StandardEvaluationContext evaluationContext(ProcessorArgs args) {
+		StandardEvaluationContext context = args.getEvaluationContextArgs().evaluationContext();
 		context.setVariable(CONTEXT_VAR_REDIS, connection.sync());
 		Method method;
 		try {
@@ -84,14 +82,24 @@ abstract class AbstractRedisCommand extends AbstractJobCommand {
 		return context;
 	}
 
-	protected <K, V, T, O> Step<KeyValue<K, T>, O> step(RedisItemReader<K, V, T> reader, ItemWriter<O> writer) {
-		Step<KeyValue<K, T>, O> step = new Step<>(reader, writer);
-		if (shouldEstimate(reader)) {
-			log.info("Creating scan size estimator for step {} with {} and {}", step.getName(), reader.getKeyPattern(),
-					reader.getKeyType());
-			step.maxItemCountSupplier(RedisScanSizeEstimator.from(reader));
+	protected RedisClientBuilder redisClientBuilder() {
+		RedisClientBuilder builder = new RedisClientBuilder();
+		builder.clientName(clientName);
+		builder.sslOptions(sslArgs.sslOptions());
+		return builder;
+	}
+
+	protected void configureExportStep(Step<?, ?> step) {
+		RedisItemReader<?, ?, ?> reader = (RedisItemReader<?, ?, ?>) step.getReader();
+		if (reader.getMode() != ReaderMode.LIVEONLY) {
+			log.info("Creating scan size estimator for step {} with pattern {} and type {}", step.getName(),
+					reader.getKeyPattern(), reader.getKeyType());
+			RedisScanSizeEstimator estimator = new RedisScanSizeEstimator(reader.getClient());
+			estimator.setKeyPattern(reader.getKeyPattern());
+			estimator.setKeyType(reader.getKeyType());
+			step.maxItemCountSupplier(estimator);
 		}
-		if (isLive(reader)) {
+		if (reader.getMode() != ReaderMode.SCAN) {
 			checkNotifyConfig(reader.getClient());
 			log.info("Configuring step {} as live with {} and {}", step.getName(), reader.getFlushInterval(),
 					reader.getIdleTimeout());
@@ -99,7 +107,6 @@ abstract class AbstractRedisCommand extends AbstractJobCommand {
 			step.flushInterval(reader.getFlushInterval());
 			step.idleTimeout(reader.getIdleTimeout());
 		}
-		return step;
 	}
 
 	private void checkNotifyConfig(AbstractRedisClient client) {
@@ -120,33 +127,6 @@ abstract class AbstractRedisCommand extends AbstractJobCommand {
 
 	private static Set<Character> characterSet(String string) {
 		return string.codePoints().mapToObj(c -> (char) c).collect(Collectors.toSet());
-	}
-
-	private boolean shouldEstimate(RedisItemReader<?, ?, ?> reader) {
-		switch (reader.getMode()) {
-		case LIVE:
-		case SCAN:
-			return true;
-		default:
-			return false;
-		}
-	}
-
-	private boolean isLive(RedisItemReader<?, ?, ?> reader) {
-		switch (reader.getMode()) {
-		case LIVE:
-		case LIVEONLY:
-			return true;
-		default:
-			return false;
-		}
-	}
-
-	protected RedisClientBuilder redisClientBuilder() {
-		RedisClientBuilder builder = new RedisClientBuilder();
-		builder.clientName(clientName);
-		builder.sslOptions(sslArgs.sslOptions());
-		return builder;
 	}
 
 }

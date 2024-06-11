@@ -4,7 +4,6 @@ import java.text.SimpleDateFormat;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.springframework.expression.Expression;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.util.CollectionUtils;
 
@@ -16,10 +15,10 @@ public class EvaluationContextArgs {
 	public static final String DATE_VAR = "date";
 
 	@Option(arity = "1..*", names = "--var", description = "SpEL expressions for context variables, in the form var=\"exp\"", paramLabel = "<v=exp>")
-	Map<String, Expression> varExpressions = new LinkedHashMap<>();
+	private Map<String, Expression> varExpressions = new LinkedHashMap<>();
 
 	@Option(names = "--date-format", description = "Date/time format (default: ${DEFAULT-VALUE}). For details see https://www.baeldung.com/java-simple-date-format#date_time_patterns", paramLabel = "<fmt>")
-	String dateFormat = DEFAULT_DATE_FORMAT;
+	private String dateFormat = DEFAULT_DATE_FORMAT;
 
 	private Map<String, Object> vars = new LinkedHashMap<>();
 

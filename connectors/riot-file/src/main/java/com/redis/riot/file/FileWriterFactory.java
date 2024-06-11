@@ -29,13 +29,13 @@ public class FileWriterFactory {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
-	private FileWriterArgs options = new FileWriterArgs();
+	private FileWriterArgs args = new FileWriterArgs();
 	private Supplier<Map<String, Object>> headerSupplier = () -> null;
 
 	@SuppressWarnings("unchecked")
 	public <T> ItemWriter<T> create(String file) {
-		WritableResource resource = options.resource(file);
-		FileType type = options.fileType(resource);
+		WritableResource resource = args.resource(file);
+		FileType type = args.fileType(resource);
 		switch (type) {
 		case CSV:
 			return (ItemWriter<T>) delimitedWriter(resource);
@@ -67,9 +67,9 @@ public class FileWriterFactory {
 	private <T> JsonFileItemWriter<T> jsonWriter(WritableResource resource) {
 		JsonFileItemWriterBuilder<T> writer = new JsonFileItemWriterBuilder<>();
 		writer.name(resource.getFilename());
-		writer.append(options.isAppend());
-		writer.encoding(options.getEncoding());
-		writer.lineSeparator(options.getLineSeparator());
+		writer.append(args.isAppend());
+		writer.encoding(args.getEncoding());
+		writer.lineSeparator(args.getLineSeparator());
 		writer.resource(resource);
 		writer.saveState(false);
 		ObjectMapper mapper = objectMapper(new ObjectMapper());
@@ -80,14 +80,14 @@ public class FileWriterFactory {
 	private <T> XmlResourceItemWriter<T> xmlWriter(WritableResource resource) {
 		XmlResourceItemWriterBuilder<T> writer = new XmlResourceItemWriterBuilder<>();
 		writer.name(resource.getFilename());
-		writer.append(options.isAppend());
-		writer.encoding(options.getEncoding());
-		writer.lineSeparator(options.getLineSeparator());
-		writer.rootName(options.getRootName());
+		writer.append(args.isAppend());
+		writer.encoding(args.getEncoding());
+		writer.lineSeparator(args.getLineSeparator());
+		writer.rootName(args.getRootName());
 		writer.resource(resource);
 		writer.saveState(false);
 		XmlMapper mapper = objectMapper(new XmlMapper());
-		mapper.setConfig(mapper.getSerializationConfig().withRootName(options.getElementName()));
+		mapper.setConfig(mapper.getSerializationConfig().withRootName(args.getElementName()));
 		writer.xmlObjectMarshaller(new JacksonJsonObjectMarshaller<>(mapper));
 		return writer.build();
 	}
@@ -95,16 +95,16 @@ public class FileWriterFactory {
 	private ItemWriter<Map<String, Object>> delimitedWriter(WritableResource resource) {
 		FlatFileItemWriterBuilder<Map<String, Object>> writer = flatFileWriter(resource);
 		DelimitedBuilder<Map<String, Object>> delimitedBuilder = writer.delimited();
-		delimitedBuilder.delimiter(options.getDelimiter());
+		delimitedBuilder.delimiter(args.getDelimiter());
 		delimitedBuilder.fieldExtractor(new PassThroughFieldExtractor<>());
-		delimitedBuilder.quoteCharacter(String.valueOf(options.getQuoteCharacter()));
+		delimitedBuilder.quoteCharacter(String.valueOf(args.getQuoteCharacter()));
 		return writer(writer, delimitedBuilder.build());
 	}
 
 	private FlatFileItemWriter<Map<String, Object>> writer(FlatFileItemWriterBuilder<Map<String, Object>> writer,
 			LineAggregator<Map<String, Object>> lineAggregator) {
 		writer.lineAggregator(lineAggregator);
-		if (options.isHeader()) {
+		if (args.isHeader()) {
 			Map<String, Object> headerRecord = headerSupplier.get();
 			if (CollectionUtils.isEmpty(headerRecord)) {
 				log.warn("Could not determine header");
@@ -122,7 +122,7 @@ public class FileWriterFactory {
 	private ItemWriter<Map<String, Object>> fixedLengthWriter(WritableResource resource) {
 		FlatFileItemWriterBuilder<Map<String, Object>> writer = flatFileWriter(resource);
 		FormattedBuilder<Map<String, Object>> formattedBuilder = writer.formatted();
-		formattedBuilder.format(options.getFormatterString());
+		formattedBuilder.format(args.getFormatterString());
 		formattedBuilder.fieldExtractor(new PassThroughFieldExtractor<>());
 		return writer(writer, formattedBuilder.build());
 	}
@@ -131,23 +131,23 @@ public class FileWriterFactory {
 		FlatFileItemWriterBuilder<T> builder = new FlatFileItemWriterBuilder<>();
 		builder.name(resource.getFilename());
 		builder.resource(resource);
-		builder.append(options.isAppend());
-		builder.encoding(options.getEncoding());
-		builder.forceSync(options.isForceSync());
-		builder.lineSeparator(options.getLineSeparator());
+		builder.append(args.isAppend());
+		builder.encoding(args.getEncoding());
+		builder.forceSync(args.isForceSync());
+		builder.lineSeparator(args.getLineSeparator());
 		builder.saveState(false);
-		builder.shouldDeleteIfEmpty(options.isShouldDeleteIfEmpty());
-		builder.shouldDeleteIfExists(options.isShouldDeleteIfExists());
-		builder.transactional(options.isTransactional());
+		builder.shouldDeleteIfEmpty(args.isShouldDeleteIfEmpty());
+		builder.shouldDeleteIfExists(args.isShouldDeleteIfExists());
+		builder.transactional(args.isTransactional());
 		return builder;
 	}
 
-	public FileWriterArgs getOptions() {
-		return options;
+	public FileWriterArgs getArgs() {
+		return args;
 	}
 
-	public void setOptions(FileWriterArgs options) {
-		this.options = options;
+	public void setArgs(FileWriterArgs options) {
+		this.args = options;
 	}
 
 	public Supplier<Map<String, Object>> getHeaderSupplier() {

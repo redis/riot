@@ -15,6 +15,7 @@ import picocli.CommandLine.ArgGroup;
 public abstract class AbstractExportCommand extends AbstractRedisArgsCommand {
 
 	private static final String TASK_NAME = "Exporting";
+	private static final String STEP_NAME = "export";
 
 	@ArgGroup(exclusive = false)
 	private RedisReaderArgs redisReaderArgs = new RedisReaderArgs();
@@ -23,7 +24,9 @@ public abstract class AbstractExportCommand extends AbstractRedisArgsCommand {
 	private ExportProcessorArgs processorArgs = new ExportProcessorArgs();
 
 	protected <T> Step<KeyValue<String, Object>, T> step(ItemWriter<T> writer) {
-		return step(reader(), writer).taskName(TASK_NAME);
+		Step<KeyValue<String, Object>, T> step = new Step<>(STEP_NAME, reader(), writer).taskName(TASK_NAME);
+		configureExportStep(step);
+		return step;
 	}
 
 	private RedisItemReader<String, String, Object> reader() {
@@ -39,11 +42,11 @@ public abstract class AbstractExportCommand extends AbstractRedisArgsCommand {
 	}
 
 	private EvaluationContext evaluationContext() {
-		return evaluationContext(processorArgs.getEvaluationContextArgs());
+		return evaluationContext(processorArgs);
 	}
 
 	protected ItemProcessor<KeyValue<String, Object>, KeyValue<String, Object>> keyValueProcessor() {
-		return processorArgs.getKeyValueProcessorArgs().processor(evaluationContext());
+		return processorArgs.keyValueProcessor(evaluationContext());
 	}
 
 	public RedisReaderArgs getRedisReaderArgs() {

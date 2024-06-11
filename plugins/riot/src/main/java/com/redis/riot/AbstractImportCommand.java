@@ -43,6 +43,7 @@ import picocli.CommandLine.Command;
 public abstract class AbstractImportCommand extends AbstractRedisArgsCommand {
 
 	private static final String TASK_NAME = "Importing";
+	private static final String STEP_NAME = "import";
 
 	@ArgGroup(exclusive = false)
 	private RedisWriterArgs redisWriterArgs = new RedisWriterArgs();
@@ -64,7 +65,7 @@ public abstract class AbstractImportCommand extends AbstractRedisArgsCommand {
 	}
 
 	protected Step<Map<String, Object>, Map<String, Object>> step(ItemReader<Map<String, Object>> reader) {
-		return new Step<>(reader, mapWriter()).taskName(TASK_NAME);
+		return new Step<>(STEP_NAME, reader, mapWriter()).taskName(TASK_NAME);
 	}
 
 	protected ItemWriter<Map<String, Object>> mapWriter() {
@@ -89,16 +90,12 @@ public abstract class AbstractImportCommand extends AbstractRedisArgsCommand {
 		if (hasOperations()) {
 			return mapProcessor();
 		}
-		return processorArgs.getKeyValueProcessorArgs().processor(evaluationContext());
-	}
-
-	private StandardEvaluationContext evaluationContext() {
-		return evaluationContext(processorArgs.getEvaluationContextArgs());
+		return processorArgs.keyValueProcessor(evaluationContext(processorArgs));
 	}
 
 	protected ItemProcessor<Map<String, Object>, Map<String, Object>> mapProcessor() {
 		log.info("Creating map processor with {}", processorArgs);
-		StandardEvaluationContext evaluationContext = evaluationContext(processorArgs.getEvaluationContextArgs());
+		StandardEvaluationContext evaluationContext = evaluationContext(processorArgs);
 		evaluationContext.addPropertyAccessor(new QuietMapAccessor());
 		return processorArgs.mapProcessor(evaluationContext);
 	}

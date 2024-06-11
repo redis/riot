@@ -81,7 +81,7 @@ public class FileExport extends AbstractExportCommand {
 	@SuppressWarnings("rawtypes")
 	private ItemWriter writer() {
 		FileWriterFactory factory = new FileWriterFactory();
-		factory.setOptions(fileWriterArgs);
+		factory.setArgs(fileWriterArgs);
 		factory.setHeaderSupplier(this::headerRecord);
 		return factory.create(fileWriterArgs.getFile());
 	}

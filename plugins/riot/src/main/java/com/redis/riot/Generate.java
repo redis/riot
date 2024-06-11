@@ -14,6 +14,7 @@ import picocli.CommandLine.Command;
 public class Generate extends AbstractRedisArgsCommand {
 
 	private static final String TASK_NAME = "Generating";
+	private static final String STEP_NAME = "generate";
 
 	@ArgGroup(exclusive = false)
 	private GenerateArgs generatorArgs = new GenerateArgs();
@@ -23,7 +24,10 @@ public class Generate extends AbstractRedisArgsCommand {
 
 	@Override
 	protected Job job() {
-		return job(new Step<>(reader(), writer()).taskName(TASK_NAME).maxItemCount(generatorArgs.getCount()));
+		Step<KeyValue<String, Object>, KeyValue<String, Object>> step = new Step<>(STEP_NAME, reader(), writer());
+		step.taskName(TASK_NAME);
+		step.maxItemCount(generatorArgs.getCount());
+		return job(step);
 	}
 
 	private GeneratorItemReader reader() {

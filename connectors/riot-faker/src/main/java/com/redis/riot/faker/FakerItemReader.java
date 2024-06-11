@@ -8,11 +8,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
-import org.springframework.expression.Expression;
 import org.springframework.expression.spel.support.DataBindingMethodResolver;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
+
+import com.redis.riot.core.Expression;
 
 import net.datafaker.Faker;
 

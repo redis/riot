@@ -86,6 +86,22 @@ public class FileWriterArgs extends FileArgs {
 		return writableResource;
 	}
 
+	public FileType fileType() {
+		try {
+			return fileType(file);
+		} catch (IOException e) {
+			throw new IllegalArgumentException("Could not determine type of file " + file, e);
+		}
+	}
+
+	@Override
+	public String toString() {
+		return "FileWriterArgs [file=" + file + ", " + super.toString() + ", formatterString=" + formatterString
+				+ ", append=" + append + ", forceSync=" + forceSync + ", rootName=" + rootName + ", elementName="
+				+ elementName + ", lineSeparator=" + lineSeparator + ", shouldDeleteIfEmpty=" + shouldDeleteIfEmpty
+				+ ", shouldDeleteIfExists=" + shouldDeleteIfExists + ", transactional=" + transactional + "]";
+	}
+
 	public String getFile() {
 		return file;
 	}
@@ -164,14 +180,6 @@ public class FileWriterArgs extends FileArgs {
 
 	public void setTransactional(boolean transactional) {
 		this.transactional = transactional;
-	}
-
-	public FileType fileType() {
-		try {
-			return fileType(file);
-		} catch (IOException e) {
-			throw new IllegalArgumentException("Could not determine type of file " + file, e);
-		}
 	}
 
 }

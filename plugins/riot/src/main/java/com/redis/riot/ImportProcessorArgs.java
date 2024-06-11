@@ -7,24 +7,16 @@ import java.util.function.UnaryOperator;
 
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.expression.EvaluationContext;
-import org.springframework.expression.Expression;
 import org.springframework.util.CollectionUtils;
 
-import com.redis.riot.core.EvaluationContextArgs;
 import com.redis.riot.core.FilterFunction;
 import com.redis.riot.core.RiotUtils;
+import com.redis.riot.core.Expression;
 import com.redis.riot.function.ConsumerUnaryOperator;
 
-import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Option;
 
-public class ImportProcessorArgs {
-
-	@ArgGroup(exclusive = false)
-	private EvaluationContextArgs evaluationContextArgs = new EvaluationContextArgs();
-
-	@ArgGroup(exclusive = false)
-	private KeyValueProcessorArgs keyValueProcessorArgs = new KeyValueProcessorArgs();
+public class ImportProcessorArgs extends ProcessorArgs {
 
 	@Option(arity = "1..*", names = "--proc", description = "SpEL expressions in the form field1=\"exp\" field2=\"exp\"...", paramLabel = "<f=exp>")
 	private Map<String, Expression> expressions;
@@ -39,29 +31,13 @@ public class ImportProcessorArgs {
 			functions.add(new ConsumerUnaryOperator<>(t -> putAll(t, context)));
 		}
 		if (filter != null) {
-			functions.add(new FilterFunction<>(RiotUtils.predicate(context, filter)));
+			functions.add(new FilterFunction<>(filter.predicate(context)));
 		}
 		return RiotUtils.processor(functions);
 	}
 
 	private void putAll(Map<String, Object> map, EvaluationContext context) {
-		expressions.forEach((k, v) -> map.put(k, v.getValue(context, map, Object.class)));
-	}
-
-	public EvaluationContextArgs getEvaluationContextArgs() {
-		return evaluationContextArgs;
-	}
-
-	public void setEvaluationContextArgs(EvaluationContextArgs args) {
-		this.evaluationContextArgs = args;
-	}
-
-	public KeyValueProcessorArgs getKeyValueProcessorArgs() {
-		return keyValueProcessorArgs;
-	}
-
-	public void setKeyValueProcessorArgs(KeyValueProcessorArgs args) {
-		this.keyValueProcessorArgs = args;
+		expressions.forEach((k, v) -> map.put(k, v.getValue(context, map)));
 	}
 
 	public Map<String, Expression> getExpressions() {
@@ -82,8 +58,7 @@ public class ImportProcessorArgs {
 
 	@Override
 	public String toString() {
-		return "ImportProcessorArgs [evaluationContextArgs=" + evaluationContextArgs + ", keyValueProcessorArgs="
-				+ keyValueProcessorArgs + ", expressions=" + expressions + ", filter=" + filter + "]";
+		return "ImportProcessorArgs [" + super.toString() + ", expressions=" + expressions + ", filter=" + filter + "]";
 	}
 
 }
