@@ -11,9 +11,13 @@ import org.springframework.beans.factory.InitializingBean;
 
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 @Command
 public abstract class AbstractCommand extends BaseCommand implements InitializingBean, Callable<Integer> {
+
+	@Option(names = "--help", usageHelp = true, description = "Show this help message and exit.")
+	private boolean helpRequested;
 
 	@ArgGroup(exclusive = false, heading = "Logging options%n")
 	private LoggingArgs loggingArgs = new LoggingArgs();

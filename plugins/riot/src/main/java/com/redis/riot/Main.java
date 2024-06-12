@@ -5,9 +5,9 @@ import java.io.PrintWriter;
 import org.springframework.util.unit.DataSize;
 
 import com.redis.riot.core.BaseCommand;
+import com.redis.riot.core.Expression;
 import com.redis.riot.core.IO;
 import com.redis.riot.core.PrintExceptionMessageHandler;
-import com.redis.riot.core.Expression;
 import com.redis.riot.core.TemplateExpression;
 import com.redis.riot.operation.OperationCommand;
 import com.redis.spring.batch.Range;
