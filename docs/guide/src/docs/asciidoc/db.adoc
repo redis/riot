@@ -1,8 +1,7 @@
 [[_db]]
-= Database
+= Databases
 
 [[_db_drivers]]
-[discrete]
 == Drivers
 
 {project-title} relies on JDBC to interact with databases.

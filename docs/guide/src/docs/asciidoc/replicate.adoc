@@ -1,11 +1,11 @@
 [[_replicate]]
-= Replicate
+= Replication
 
 Most Redis migration tools available today are offline in nature.
 Migrating data from AWS ElastiCache to Redis Enterprise Cloud for example means backing up your Elasticache data to an AWS S3 bucket and importing it into Redis Enterprise Cloud using its UI.
 
 Redis has a replication command called https://redis.io/commands/replicaof[REPLICAOF] but it is not always available (see https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/RestrictedCommands.html[ElastiCache restrictions]).
-Instead, {project-title} implements <<_architecture,client-side replication>> using *dump & restore* or *type-based read & write*. Both snapshot and live replication modes are supported.
+Instead, {project-title} implements using *dump & restore* or *type-based read & write*. Both snapshot and live replication modes are supported.
 
 WARNING: Please note that {project-title} is NEITHER recommended NOR officially supported by Redis, Inc.
 
@@ -34,14 +34,11 @@ A status bar shows progress with a percentage of keys that have been replicated.
 The total number of keys is estimated when the process starts and it can change by the time it is finished, for example if keys are deleted or added during replication.
 
 [[_replicate_mode]]
-[discrete]
 == Mode
 
-[discrete]
 === Scan
 This mode uses the `SCAN` command to identify keys to propagate to the target Redis database.
 
-[discrete]
 === Live
 This mode builds upon scan replication by also listening for changes on the source Redis database.
 Whenever a key is modified its corresponding value is read and propagated to the target Redis database.
@@ -69,12 +66,10 @@ For those potentially problematic migrations it is recommend to perform some pre
 If you need assistance please contact your Redis account team.
 ====
 
-[discrete]
 === Live Only
 In this mode only keyspace notifications are used.
 
 [[_replicate_dump]]
-[discrete]
 == Dump & Restore
 
 The default replication mechanism is Dump & Restore:
@@ -87,7 +82,6 @@ If live replication is enabled the reader also subscribes to keyspace notificati
 3. Reader threads enqueue key/value/TTL tuples into the reader queue, from which the writer dequeues key/value/TTL tuples and writes them to the target Redis database by calling RESTORE and EXPIRE.
 
 [[_replicate_struct]]
-[discrete]
 == Data Structure
 
 There are situations where Dump & Restore cannot be used, for example:
@@ -140,17 +134,41 @@ include::{testdir}/replicate-live-struct[]
 ----
 
 [[_replicate_compare]]
-[discrete]
 == Compare
 
 Once replication is complete, {project-title} performs a verification step by reading keys in the source database and comparing them against the target database.
 
 The verification step happens automatically after the scan is complete (snapshot replication), or for live replication when keyspace notifications have become idle.
 
-Verification can also be run on-demand using the <<_compare,`compare`> command.
+Verification can also be run on-demand using the `compare` command.
+
+The output looks like this:
+
+----
+Verification failed (type: 225,062, missing: 485,450)
+----
+
+missing::
+Number of keys in source but not in target
+
+type::
+Number of keys with mismatched types (e.g. hash vs string)
+
+value::
+Number of keys with mismatched values
+
+ttl::
+Number of keys with mismatched TTL i.e. difference is greater than tolerance (can be specified with `--ttl-tolerance`)
+
+There are 2 comparison modes available through `--compare` (`--quick` for `compare` command):
+
+* Quick (default): compares key types and TTLs
+* Full: compares key types, TTLs, and values
+
+To show which keys differ, use the `--show-diffs` option.
+
 
 [[_replicate_performance]]
-[discrete]
 == Performance
 
 Performance tuning is an art but {project-title} offers some options to identify potential bottlenecks.

@@ -1,5 +1,5 @@
 [[_faker]]
-= Faker
+= Faker Generator
 
 The `faker` command generates data using {link_datafaker}.
 
@@ -32,7 +32,6 @@ riot faker id="index" hset -h myredis.com -p 6380
 ====
 
 [[_faker_keys]]
-[discrete]
 == Keys
 
 Keys are constructed from input records by concatenating the keyspace prefix and key fields.
@@ -52,7 +51,6 @@ include::{testdir}/faker-sadd[]
 ----
 
 [[_faker_providers]]
-[discrete]
 == Data Providers
 
 Faker offers many data providers.
@@ -75,7 +73,6 @@ riot faker lease="number.digits(2)"
 Refer to {link_datafaker_doc} for complete documentation.
 
 [[_faker_builtin_fields]]
-[discrete]
 == Built-in Fields
 
 In addition to the Faker fields specified with `field="expression"` you can use these built-in fields:
@@ -92,7 +89,6 @@ include::{testdir}/faker-threads[]
 ----
 
 [[_faker_redisearch]]
-[discrete]
 == RediSearch
 
 You can infer Faker fields from a RediSearch index using the `--infer` option:

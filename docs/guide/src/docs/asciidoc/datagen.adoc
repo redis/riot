@@ -1,0 +1,7 @@
+[[_datagen]]
+= Data Generators
+
+{project-title} includes 2 commands for data generation.
+
+include::{includedir}/faker.adoc[leveloffset=+1]
+include::{includedir}/generate.adoc[leveloffset=+1]

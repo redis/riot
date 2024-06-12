@@ -1,7 +1,7 @@
 [[_ping]]
 = Ping
 
-The `ping` command calls the Redis `PING` command.
+The `ping` command can be used to test connectivity to a Redis database.
 
 [source,console]
 ----
@@ -14,3 +14,15 @@ To show the full usage, run:
 ----
 riot ping --help
 ----
+
+The command prints statistics like these:
+
+[source,console]
+----
+riot ping -h localhost --unit microseconds
+[min=491, max=14811, percentiles={99.9=14811, 90.0=1376, 95.0=2179, 99.0=14811, 50.0=741}]
+[min=417, max=1286, percentiles={99.9=1286, 90.0=880, 95.0=1097, 99.0=1286, 50.0=606}]
+[min=382, max=2244, percentiles={99.9=2244, 90.0=811, 95.0=1036, 99.0=2244, 50.0=518}]
+...
+----
+

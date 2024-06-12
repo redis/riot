@@ -1,5 +1,5 @@
 [[_file]]
-= File
+= Files
 
 {project-title} can import from and export to files in various formats:
 

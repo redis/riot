@@ -1,5 +1,5 @@
 [[_db_export]]
-= Export
+= Database Export
 
 Use the `db-export` command to read from a Redis database and writes to a SQL database.
 

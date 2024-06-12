@@ -1,5 +1,5 @@
-[[_architecture]]
-= Architecture
+[[_concepts]]
+= Concepts
 
 {project-title} is essentially an {link_etl} tool where data is extracted from the source system, transformed (see <<_processing,Processing>>), and loaded into the target system.
 

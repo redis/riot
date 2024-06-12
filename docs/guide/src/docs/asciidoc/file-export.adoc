@@ -1,5 +1,5 @@
 [[_file_export]]
-= Export
+= File Export
 
 The `file-export` command reads data from a Redis database and writes it to a JSON or XML file, potentially gzip-compressed.
 

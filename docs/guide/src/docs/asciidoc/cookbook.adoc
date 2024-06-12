@@ -6,5 +6,5 @@ Here are various recipes using {project-title}.
 :leveloffset: +1
 include::{includedir}/elasticache.adoc[]
 include::{includedir}/changelog.adoc[]
-include::{includedir}/connectivity.adoc[]
+include::{includedir}/ping.adoc[]
 :leveloffset: -1

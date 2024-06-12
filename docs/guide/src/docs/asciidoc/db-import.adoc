@@ -1,5 +1,5 @@
 [[_db_import]]
-= Import
+= Database Import
 
 The `db-import` command imports data from a relational database into Redis.
 

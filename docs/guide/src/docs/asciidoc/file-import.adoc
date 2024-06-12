@@ -1,5 +1,5 @@
 [[_file_import]]
-= Import
+= File Import
 
 The `import` command reads data from files and writes it to Redis.
 
