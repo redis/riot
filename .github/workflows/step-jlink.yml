@@ -56,7 +56,6 @@ jobs:
       - name: Jlink
         uses: jreleaser/release-action@v2
         with:
-          version: early-access
           arguments: assemble --assembler jlink
           setup-java: false
         env:
