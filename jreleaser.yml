@@ -32,15 +32,7 @@ project:
     version: '21'
     multiProject: true
     mainClass: com.redis.riot.Main
-  tags:
-    - 'riot'
-    - 'redis'
-    - 'input'
-    - 'output'
-    - 'tool'
-    - 'data'
-    - 'import'
-    - 'export'
+  tags: ['riot', 'redis', 'input', 'output', 'tool', 'data', 'import', 'export']
 
 platform:
   replacements:
@@ -107,7 +99,6 @@ signing:
 
 deploy:
   maven:
-    active: NEVER
     nexus2:
       maven-central:
         active: ALWAYS
