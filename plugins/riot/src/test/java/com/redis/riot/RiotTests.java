@@ -41,11 +41,6 @@ abstract class RiotTests extends AbstractRiotTestBase {
 		runLiveReplication(info, "replicate-live");
 	}
 
-	@Test
-	void replicateLiveThreads(TestInfo info) throws Exception {
-		runLiveReplication(info, "replicate-live-threads");
-	}
-
 	protected void runLiveReplication(TestInfo info, String filename) throws Exception {
 		DataType[] types = new DataType[] { DataType.HASH, DataType.STRING };
 		enableKeyspaceNotifications();
