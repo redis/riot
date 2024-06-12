@@ -33,8 +33,8 @@ $ source <(riot generate-completion)
 ====
 
 :leveloffset: +1
-include::{includedir}/db.adoc[]
-include::{includedir}/file.adoc[]
 include::{includedir}/datagen.adoc[]
-include::{includedir}/replicate.adoc[]
+include::{includedir}/databases.adoc[]
+include::{includedir}/files.adoc[]
+include::{includedir}/replication.adoc[]
 :leveloffset: -1

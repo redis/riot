@@ -1,5 +1,5 @@
 [[_elasticache]]
-= Migrating from Elasticache
+= Elasticache Migration
 
 This recipe contains step-by-step instructions to migrate an Elasticache (EC) database to {link_redis_enterprise} (RE).
 
@@ -8,7 +8,7 @@ The following scenarios are covered:
 * One-time (snapshot) migration
 * Online (live) migration
 
-IMPORTANT: It is recommended to read the <<_replicate,Replication>> section to familiarize yourself with its usage and architecture.
+IMPORTANT: It is recommended to read the <<_replication,Replication>> section to familiarize yourself with its usage and architecture.
 
 == Setup
 

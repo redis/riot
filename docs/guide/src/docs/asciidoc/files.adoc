@@ -1,5 +1,14 @@
+[[_file]]
+= Files
+
+{project-title} includes two commands to work with files in various formats:
+
+* <<_file_import,`file-import`>>: Import data from files
+* <<_file_export,`file-export`>>: Export Redis data structures to files
+
+
 [[_file_import]]
-= File Import
+== File Import
 
 The `import` command reads data from files and writes it to Redis.
 
@@ -47,7 +56,7 @@ include::{testdir}/file-import-gcs[]
 
 
 [[_file_import_struct]]
-== Data Structures
+=== Data Structures
 
 If no `REDIS COMMAND` is specified, it is assumed that the input file(s) contain Redis data structures serialized as JSON or XML. See the <<_file_export, File Export>> section to learn about the expected format and how to generate such files.
 
@@ -58,7 +67,7 @@ include::{testdir}/file-import-json[]
 ----
 
 [[_file_import_commands]]
-== Redis Commands
+=== Redis Commands
 
 When one or more `REDIS COMMAND`s are specified, these commands are called for each input record.
 
@@ -102,8 +111,8 @@ riot file-import my.json hset --keyspace blah --key id expire --keyspace blah --
 riot file-import my.json hset --keyspace blah --key id expire --keyspace blah --key id sadd --keyspace myset --members id
 ----
 
-[[_file_import_commands_delimited]]
-=== Delimited (CSV)
+[[_file_import_delimited]]
+== Delimited (CSV)
 
 The default delimiter character is comma (`,`).
 It can be changed with the `--delimiter` option.
@@ -136,7 +145,7 @@ This command imports a CSV file into a geo set named `airportgeo` with airport I
 include::{testdir}/file-import-geoadd[]
 ----
 
-[[_file_import_commands_fixed_length]]
+[[_file_import_fixed_length]]
 === Fixed-Length (Fixed-Width)
 
 Fixed-length files can be imported by specifying the width of each field using the `--ranges` option.
@@ -146,7 +155,7 @@ Fixed-length files can be imported by specifying the width of each field using t
 include::{testdir}/file-import-fw[]
 ----
 
-[[_file_import_commands_json]]
+[[_file_import_json]]
 === JSON
 
 The expected format for JSON files is:
@@ -189,7 +198,7 @@ To that end, {project-title} uses a field naming convention to flatten JSON obje
 
 |=========================================================
 
-[[_file_import_commands_xml]]
+[[_file_import_xml]]
 === XML
 
 Here is a sample XML file that can be imported by {project-title}:
@@ -224,3 +233,46 @@ Here is a sample XML file that can be imported by {project-title}:
 ----
 include::{testdir}/file-import-xml[]
 ----
+
+
+[[_file_export]]
+== File Export
+
+The `file-export` command reads data from a Redis database and writes it to a JSON or XML file, potentially gzip-compressed.
+
+The general usage is:
+[source,console]
+----
+riot file-export [OPTIONS] FILE
+----
+
+To show the full usage, run:
+[source,console]
+----
+riot file-export --help
+----
+
+.Export to JSON
+[source,console]
+----
+include::{testdir}/file-export-json[]
+----
+
+.Sample JSON-export file
+[source,json]
+----
+include::{includedir}/../resources/redis-dump.json[]
+----
+
+.Export to compressed JSON
+[source,console]
+----
+include::{testdir}/file-export-json-gz[]
+----
+
+.Export to XML
+[source,console]
+----
+include::{testdir}/file-export-xml[]
+----
+

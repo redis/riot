@@ -1,24 +1,24 @@
 [[_concepts]]
 = Concepts
 
-{project-title} is essentially an {link_etl} tool where data is extracted from the source system, transformed (see <<_processing,Processing>>), and loaded into the target system.
+{project-title} is essentially an {link_etl} tool where data is extracted from the source system, transformed (see <<_concepts_processing,Processing>>), and loaded into the target system.
 
 image::architecture.svg[]
 
-[[_batching]]
+[[_concepts_batching]]
 == Batching
 
 Processing in {project-title} is done in batches: a fixed number of records is read from the source, processed, and written to the target.
 The default batch size is `50`, which means that an execution step reads 50 items at a time from the source, processes them, and finally writes then to the target.
-If the target is Redis, writing is done in a single command ({link_redis_pipelining}) to minimize the number of roundtrips to the server.
+If the source/target is Redis, reading/writing of a batch is done in a single https://redis.io/topics/pipelining[command pipeline] to minimize the number of roundtrips to the server.
 
 You can change the batch size (and hence pipeline size) using the `--batch` option.
-The optimal batch size in terms of throughput depends on many factors like record size and command types (see {link_pipeline_tuning} for details).
+The optimal batch size in terms of throughput depends on many factors like record size and command types (see https://stackoverflow.com/a/32165090[Redis Pipeline Tuning] for details).
 
-[[_threads]]
+[[_concepts_threads]]
 == Multi-threading
 
-It is possible to parallelize processing by using multiple threads.
+By default processing happens in a single thread, but it is possible to parallelize processing by using multiple threads.
 In that configuration, each chunk of items is read, processed, and written in a separate thread of execution.
 This is different from partitioning where items would be read by multiple readers.
 Here, only one reader is being accessed from multiple threads.
@@ -31,7 +31,7 @@ To set the number of threads, use the `--threads` option.
 include::{testdir}/db-import-postgresql-multithreaded[]
 ----
 
-[[_processing]]
+[[_concepts_processing]]
 == Processing
 
 {project-title} lets you transform incoming records using processors.
@@ -69,7 +69,7 @@ You can register your own variables using `--var`.
 include::{testdir}/file-import-process-var[]
 ----
 
-[[_filters]]
+[[_concepts_filtering]]
 == Filtering
 
 Filters allow you to exclude records that don't match a {_link_spel} boolean expression.
@@ -80,3 +80,25 @@ For example this filter will only keep records where the `value` field is a seri
 ----
 riot file-import --filter "value matches '\\d+'" ...
 ----
+
+[[_concepts_replication]]
+== Replication
+Most Redis migration tools available today are offline in nature.
+Migrating data from AWS ElastiCache to Redis Enterprise Cloud for example means backing up your Elasticache data to an AWS S3 bucket and importing it into Redis Enterprise Cloud using its UI.
+Redis has a replication command called https://redis.io/commands/replicaof[REPLICAOF] but it is not always available (see https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/RestrictedCommands.html[ElastiCache restrictions]).
+
+Instead, {project-title} implements using *dump & restore* or *type-based read & write*.
+Both snapshot and live replication modes are supported.
+
+image::replication-architecture.svg[]
+
+WARNING: Please note that {project-title} replication is NEITHER recommended NOR officially supported by Redis, Inc.
+
+The basic replication mechanism is as follows:
+
+1. Identify source keys to be replicated using scan and/or keyspace notifications depending on the <<_replication_mode,replication mode>>.
+
+2. Read data associated with each key using <<_replication_type_dump,dump>> or <<_replication_type_struct,type-specific commands>>.
+
+3. Write each key to the target using <<_replication_type_dump,restore>> or <<_replication_type_struct,type-specific commands>>.
+

@@ -1,0 +1,122 @@
+[[_db]]
+= Databases
+
+{project-title} includes two commands for interaction with relational databases:
+
+* <<_db_import, `db-import`>>: Import database tables into Redis
+* <<_db_export, `db-export`>>: Export Redis data structures to a database
+
+[[_db_drivers]]
+== Drivers
+
+{project-title} relies on JDBC to interact with databases.
+It includes JDBC drivers for the most common database systems:
+
+* {link_jdbc_oracle}
++
+`jdbc:oracle:thin:@myhost:1521:orcl`
+
+* {link_jdbc_mssql}
++
+`jdbc:sqlserver://[serverName[\instanceName][:portNumber]][;property=value[;property=value]]`
+
+* {link_jdbc_mysql}
++
+`jdbc:mysql://[host]:[port][/database][?properties]`
+
+* {link_jdbc_postgres}
++
+`jdbc:postgresql://host:port/database`
+
+[TIP]
+====
+For non-included databases you must install the corresponding JDBC driver under the `lib` directory and modify the `CLASSPATH`:
+
+* *nix: `bin/riot` -> `CLASSPATH=$APP_HOME/lib/myjdbc.jar:$APP_HOME/lib/...`
+* Windows: `bin\riot.bat` -> `set CLASSPATH=%APP_HOME%\lib\myjdbc.jar;%APP_HOME%\lib\...`
+====
+
+[[_db_import]]
+== Database Import
+
+The `db-import` command imports data from a relational database into Redis.
+
+NOTE: Ensure {project-title} has the relevant JDBC driver for your database.
+See the <<_db_drivers,Drivers>> section for more details.
+
+[source,console]
+----
+riot db-import -h <redis host> -p <redis port> --url <jdbc url> SQL [REDIS COMMAND...]
+----
+
+To show the full usage, run:
+
+[source,console]
+----
+riot db-import --help
+----
+
+You must specify at least one Redis command as a target.
+
+[IMPORTANT]
+====
+Redis connection options apply to the root command (`riot`) and not to subcommands.
+
+In this example the Redis options will not be taken into account:
+
+[source,subs="verbatim,attributes"]
+----
+riot db-import "SELECT * FROM customers" hset -h myredis.com -p 6380
+----
+====
+
+
+The keys that will be written are constructed from input records by concatenating the keyspace prefix and key fields.
+
+image::mapping.svg[]
+
+.PostgreSQL Import Example
+[source,console]
+----
+include::{testdir}/db-import-postgresql[]
+----
+
+.Import from PostgreSQL to JSON strings
+[source,console]
+----
+include::{testdir}/db-import-postgresql-set[]
+----
+
+This will produce Redis strings that look like this:
+[source,json]
+----
+include::{includedir}/../resources/order.json[]
+----
+
+[[_db_export]]
+== Database Export
+
+Use the `db-export` command to read from a Redis database and writes to a SQL database.
+
+NOTE: Ensure {project-title} has the relevant JDBC driver for your database.
+See the <<_db_drivers,Drivers>> section for more details.
+
+The general usage is:
+[source,console]
+----
+riot db-export -h <redis host> -p <redis port> --url <jdbc url> SQL
+----
+
+To show the full usage, run:
+[source,console]
+----
+riot db-export --help
+----
+
+.Example: export to PostgreSQL
+[source,console]
+----
+include::{testdir}/db-export-postgresql[]
+----
+
+
