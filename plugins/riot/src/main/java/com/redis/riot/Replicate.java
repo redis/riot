@@ -31,7 +31,7 @@ public class Replicate extends AbstractTargetCommand {
 		FULL, QUICK, NONE
 	}
 
-	public static final String REPLICATE_STEP_NAME = "replicate";
+	public static final String STEP_NAME = "replicate";
 	public static final CompareMode DEFAULT_COMPARE_MODE = CompareMode.QUICK;
 
 	private static final String QUEUE_MESSAGE = " | capacity: %,d | dropped: %,d";
@@ -100,7 +100,7 @@ public class Replicate extends AbstractTargetCommand {
 	private Step<KeyValue<byte[], Object>, KeyValue<byte[], Object>> replicateStep() {
 		RedisItemReader<byte[], byte[], Object> reader = configure(sourceReader());
 		RedisItemWriter<byte[], byte[], KeyValue<byte[], Object>> writer = configure(writer());
-		Step<KeyValue<byte[], Object>, KeyValue<byte[], Object>> step = new Step<>(REPLICATE_STEP_NAME, reader, writer);
+		Step<KeyValue<byte[], Object>, KeyValue<byte[], Object>> step = new Step<>(STEP_NAME, reader, writer);
 		step.processor(processor());
 		step.taskName(taskName(reader));
 		configureExportStep(step);
