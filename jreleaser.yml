@@ -49,6 +49,7 @@ release:
       preset: conventional-commits
       contributors:
         format: '- {{contributorName}}{{#contributorUsernameAsLink}} ({{.}}){{/contributorUsernameAsLink}}'
+        enabled: false
       contentTemplate: 'src/jreleaser/changelog.tpl'
       extraProperties:
         categorizeScopes: 'true'
