@@ -76,7 +76,7 @@ public class Replicate extends AbstractTargetCommand {
 	}
 
 	private ItemProcessor<KeyValue<byte[], Object>, KeyValue<byte[], Object>> processor() {
-		return RiotUtils.processor(new MemKeyValueFilter<>(ByteArrayCodec.INSTANCE, log), keyValueProcessor());
+		return RiotUtils.processor(new KeyValueFilter<>(ByteArrayCodec.INSTANCE, log), keyValueProcessor());
 	}
 
 	private ItemProcessor<KeyValue<byte[], Object>, KeyValue<byte[], Object>> keyValueProcessor() {
