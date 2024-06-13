@@ -36,11 +36,6 @@ abstract class RiotTests extends AbstractRiotTestBase {
 		setIdleTimeout(Duration.ofSeconds(1));
 	}
 
-	@Test
-	void replicateLive(TestInfo info) throws Exception {
-		runLiveReplication(info, "replicate-live");
-	}
-
 	protected void runLiveReplication(TestInfo info, String filename) throws Exception {
 		DataType[] types = new DataType[] { DataType.HASH, DataType.STRING };
 		enableKeyspaceNotifications();

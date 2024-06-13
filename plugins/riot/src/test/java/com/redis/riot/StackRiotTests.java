@@ -598,10 +598,15 @@ class StackRiotTests extends RiotTests {
 	void replicateLiveStruct(TestInfo info) throws Exception {
 		runLiveReplication(info, "replicate-live-struct");
 	}
-	
+
 	@Test
 	void replicateLiveThreads(TestInfo info) throws Exception {
 		runLiveReplication(info, "replicate-live-threads");
+	}
+
+	@Test
+	void replicateLive(TestInfo info) throws Exception {
+		runLiveReplication(info, "replicate-live");
 	}
 
 	@Test
