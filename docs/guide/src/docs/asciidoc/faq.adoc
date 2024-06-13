@@ -20,3 +20,7 @@ Check the database with `redis-cli` {link_redis_bigkeys} and/or use reader optio
 
 NOAUTH Authentication required::
 This issue occurs when you fail to supply the `--pass <password>` parameter.
+
+ERR The ID argument cannot be a complete ID because xadd-id-uniqueness-mode is strict::
+This usually happens in Active/Active (CRDB) setups where stream message IDs cannot be copied over to the target database.
+Use the `--no-stream-ids` option to disable ID propagation.
