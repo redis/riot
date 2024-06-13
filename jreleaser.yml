@@ -197,6 +197,7 @@ distributions:
       continueOnError: true
       repository:
         active: RELEASE
+        name: 'scoop'
         commitMessage: 'riot {{tagName}}'
     artifacts:
       - path: plugins/{{distributionName}}/build/distributions/{{distributionName}}-{{projectVersion}}.zip
