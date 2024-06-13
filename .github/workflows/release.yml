@@ -6,6 +6,11 @@ on:
       version:
         description: 'Release version'
         required: true
+      build-tasks:
+        description: 'Build tasks'
+        default: 'build aggregateTestReports aggregateJacocoReport publish'
+        required: false
+        type: string
 
 permissions:
   actions: write
@@ -41,6 +46,7 @@ jobs:
     uses: redis/riot/.github/workflows/step-jlink.yml@main
     with:
       project-version: ${{ needs.precheck.outputs.version }}
+      tasks: ${{ github.event.inputs.build-tasks }}
 
   release:
     name: Release

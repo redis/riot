@@ -6,6 +6,10 @@ on:
       project-version:
         required: true
         type: string
+      tasks:
+        default: 'build aggregateTestReports aggregateJacocoReport publish'
+        required: false
+        type: string
     secrets:
       codecov-token:
         required: false
@@ -38,7 +42,7 @@ jobs:
           echo ${{ inputs.project-version }} > VERSION
 
       - name: Build
-        run: ./gradlew -Prelease=true -PreproducibleBuild=true build aggregateTestReports aggregateJacocoReport publish -S
+        run: ./gradlew -Prelease=true -PreproducibleBuild=true ${{ inputs.tasks }} -S
         
       - name: Upload test reports
         if: failure()
