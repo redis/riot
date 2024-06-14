@@ -36,7 +36,7 @@ public class XaddCommand extends AbstractOperationCommand {
 
 	@Override
 	public Xadd<String, String, Map<String, Object>> operation() {
-		Xadd<String, String, Map<String, Object>> operation = new Xadd<>(messageFunction());
+		Xadd<String, String, Map<String, Object>> operation = new Xadd<>(keyFunction(), messageFunction());
 		operation.setArgs(xAddArgs());
 		return operation;
 	}

@@ -25,7 +25,7 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 @Command(name = "replicate", description = "Replicate a Redis database into another Redis database.")
-public class Replicate extends AbstractTargetCommand {
+public class Replicate extends AbstractCompareCommand {
 
 	public enum CompareMode {
 		FULL, QUICK, NONE
