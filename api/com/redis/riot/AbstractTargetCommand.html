@@ -88,7 +88,7 @@ loadScripts(document, 'script');</script>
 </dl>
 <dl class="notes">
 <dt>Direct Known Subclasses:</dt>
-<dd><code><a href="Compare.html" title="class in com.redis.riot">Compare</a></code>, <code><a href="Replicate.html" title="class in com.redis.riot">Replicate</a></code></dd>
+<dd><code><a href="AbstractCompareCommand.html" title="class in com.redis.riot">AbstractCompareCommand</a></code></dd>
 </dl>
 <hr>
 <div class="type-signature"><span class="modifiers">public abstract class </span><span class="element-name type-name-label">AbstractTargetCommand</span>
@@ -108,20 +108,14 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color"><code>protected <a href="RedisClientBuilder.RedisURIClient.html" title="class in com.redis.riot">RedisClientBuilder.RedisURIClient</a></code></div>
 <div class="col-second even-row-color"><code><a href="#client" class="member-name-link">client</a></code></div>
 <div class="col-last even-row-color">&nbsp;</div>
-<div class="col-first odd-row-color"><code>static final <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second odd-row-color"><code><a href="#COMPARE_STEP_NAME" class="member-name-link">COMPARE_STEP_NAME</a></code></div>
-<div class="col-last odd-row-color">&nbsp;</div>
-<div class="col-first even-row-color"><code>protected com.redis.lettucemod.api.StatefulRedisModulesConnection&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;</code></div>
-<div class="col-second even-row-color"><code><a href="#connection" class="member-name-link">connection</a></code></div>
-<div class="col-last even-row-color">&nbsp;</div>
-<div class="col-first odd-row-color"><code>static final boolean</code></div>
-<div class="col-second odd-row-color"><code><a href="#DEFAULT_COMPARE_STREAM_MESSAGE_ID" class="member-name-link">DEFAULT_COMPARE_STREAM_MESSAGE_ID</a></code></div>
+<div class="col-first odd-row-color"><code>protected com.redis.lettucemod.api.StatefulRedisModulesConnection&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;</code></div>
+<div class="col-second odd-row-color"><code><a href="#connection" class="member-name-link">connection</a></code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
 <div class="col-first even-row-color"><code>static final int</code></div>
 <div class="col-second even-row-color"><code><a href="#DEFAULT_TARGET_POOL_SIZE" class="member-name-link">DEFAULT_TARGET_POOL_SIZE</a></code></div>
 <div class="col-last even-row-color">&nbsp;</div>
-<div class="col-first odd-row-color"><code>static final <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/Duration.html" title="class or interface in java.time" class="external-link">Duration</a></code></div>
-<div class="col-second odd-row-color"><code><a href="#DEFAULT_TTL_TOLERANCE" class="member-name-link">DEFAULT_TTL_TOLERANCE</a></code></div>
+<div class="col-first odd-row-color"><code>protected <a href="RedisClientBuilder.RedisURIClient.html" title="class in com.redis.riot">RedisClientBuilder.RedisURIClient</a></code></div>
+<div class="col-second odd-row-color"><code><a href="#targetRedisURIClient" class="member-name-link">targetRedisURIClient</a></code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
 </div>
 <div class="inherited-list">
@@ -153,7 +147,7 @@ loadScripts(document, 'script');</script>
 <section class="method-summary" id="method-summary">
 <h2>Method Summary</h2>
 <div id="method-summary-table">
-<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="method-summary-table-tab0" role="tab" aria-selected="true" aria-controls="method-summary-table.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table', 3)" class="active-table-tab">All Methods</button><button id="method-summary-table-tab2" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab2', 3)" class="table-tab">Instance Methods</button><button id="method-summary-table-tab3" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab3', 3)" class="table-tab">Abstract Methods</button><button id="method-summary-table-tab4" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab4', 3)" class="table-tab">Concrete Methods</button></div>
+<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="method-summary-table-tab0" role="tab" aria-selected="true" aria-controls="method-summary-table.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table', 3)" class="active-table-tab">All Methods</button><button id="method-summary-table-tab2" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab2', 3)" class="table-tab">Instance Methods</button><button id="method-summary-table-tab4" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab4', 3)" class="table-tab">Concrete Methods</button></div>
 <div id="method-summary-table.tabpanel" role="tabpanel">
 <div class="summary-table three-column-summary" aria-labelledby="method-summary-table-tab0">
 <div class="table-header col-first">Modifier and Type</div>
@@ -161,12 +155,6 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#afterPropertiesSet()" class="member-name-link">afterPropertiesSet</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected com.redis.spring.batch.item.redis.reader.KeyComparisonItemReader&lt;byte[],<wbr>byte[]&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#compareReader()" class="member-name-link">compareReader</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected <a href="core/Step.html" title="class in com.redis.riot.core">Step</a>&lt;com.redis.spring.batch.item.redis.reader.KeyComparison&lt;byte[]&gt;,<wbr>com.redis.spring.batch.item.redis.reader.KeyComparison&lt;byte[]&gt;&gt;</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#compareStep()" class="member-name-link">compareStep</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected &lt;K,<wbr>
 V,<wbr>
@@ -199,18 +187,6 @@ T&gt;&nbsp;com.redis.spring.batch.item.redis.RedisItemReader&lt;K,<wbr>V,<wbr>T&
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>io.lettuce.core.RedisURI</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getTargetRedisURI()" class="member-name-link">getTargetRedisURI</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>long</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getTtlToleranceMillis()" class="member-name-link">getTtlToleranceMillis</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>protected abstract boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#isIgnoreStreamMessageId()" class="member-name-link">isIgnoreStreamMessageId</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>protected abstract boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#isQuickCompare()" class="member-name-link">isQuickCompare</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isShowDiffs()" class="member-name-link">isShowDiffs</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected <a href="RedisClientBuilder.html" title="class in com.redis.riot">RedisClientBuilder</a></code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#redisClientBuilder()" class="member-name-link">redisClientBuilder</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
@@ -221,22 +197,16 @@ T&gt;&nbsp;com.redis.spring.batch.item.redis.RedisItemReader&lt;K,<wbr>V,<wbr>T&
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setRedisReaderArgs(com.redis.riot.RedisReaderArgs)" class="member-name-link">setRedisReaderArgs</a><wbr>(<a href="RedisReaderArgs.html" title="class in com.redis.riot">RedisReaderArgs</a>&nbsp;args)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setShowDiffs(boolean)" class="member-name-link">setShowDiffs</a><wbr>(boolean&nbsp;showDiffs)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setSourceRedisArgs(com.redis.riot.SourceRedisArgs)" class="member-name-link">setSourceRedisArgs</a><wbr>(<a href="SourceRedisArgs.html" title="class in com.redis.riot">SourceRedisArgs</a>&nbsp;sourceRedisArgs)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setSourceRedisArgs(com.redis.riot.SourceRedisArgs)" class="member-name-link">setSourceRedisArgs</a><wbr>(<a href="SourceRedisArgs.html" title="class in com.redis.riot">SourceRedisArgs</a>&nbsp;sourceRedisArgs)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setSourceRedisURI(io.lettuce.core.RedisURI)" class="member-name-link">setSourceRedisURI</a><wbr>(io.lettuce.core.RedisURI&nbsp;sourceRedisURI)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setSourceRedisURI(io.lettuce.core.RedisURI)" class="member-name-link">setSourceRedisURI</a><wbr>(io.lettuce.core.RedisURI&nbsp;sourceRedisURI)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setTargetRedisArgs(com.redis.riot.TargetRedisArgs)" class="member-name-link">setTargetRedisArgs</a><wbr>(<a href="TargetRedisArgs.html" title="class in com.redis.riot">TargetRedisArgs</a>&nbsp;args)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setTargetRedisArgs(com.redis.riot.TargetRedisArgs)" class="member-name-link">setTargetRedisArgs</a><wbr>(<a href="TargetRedisArgs.html" title="class in com.redis.riot">TargetRedisArgs</a>&nbsp;args)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setTargetRedisURI(io.lettuce.core.RedisURI)" class="member-name-link">setTargetRedisURI</a><wbr>(io.lettuce.core.RedisURI&nbsp;targetRedisURI)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setTtlToleranceMillis(long)" class="member-name-link">setTtlToleranceMillis</a><wbr>(long&nbsp;tolerance)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setTargetRedisURI(io.lettuce.core.RedisURI)" class="member-name-link">setTargetRedisURI</a><wbr>(io.lettuce.core.RedisURI&nbsp;targetRedisURI)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#shutdown()" class="member-name-link">shutdown</a>()</code></div>
@@ -265,12 +235,6 @@ T&gt;&nbsp;com.redis.spring.batch.item.redis.RedisItemReader&lt;K,<wbr>V,<wbr>T&
 <h2>Field Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="DEFAULT_TTL_TOLERANCE">
-<h3>DEFAULT_TTL_TOLERANCE</h3>
-<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/Duration.html" title="class or interface in java.time" class="external-link">Duration</a></span>&nbsp;<span class="element-name">DEFAULT_TTL_TOLERANCE</span></div>
-</section>
-</li>
-<li>
 <section class="detail" id="DEFAULT_TARGET_POOL_SIZE">
 <h3>DEFAULT_TARGET_POOL_SIZE</h3>
 <div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">DEFAULT_TARGET_POOL_SIZE</span></div>
@@ -285,31 +249,9 @@ T&gt;&nbsp;com.redis.spring.batch.item.redis.RedisItemReader&lt;K,<wbr>V,<wbr>T&
 </section>
 </li>
 <li>
-<section class="detail" id="COMPARE_STEP_NAME">
-<h3>COMPARE_STEP_NAME</h3>
-<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">COMPARE_STEP_NAME</span></div>
-<dl class="notes">
-<dt>See Also:</dt>
-<dd>
-<ul class="see-list">
-<li><a href="../../../constant-values.html#com.redis.riot.AbstractTargetCommand.COMPARE_STEP_NAME">Constant Field Values</a></li>
-</ul>
-</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="DEFAULT_COMPARE_STREAM_MESSAGE_ID">
-<h3>DEFAULT_COMPARE_STREAM_MESSAGE_ID</h3>
-<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">DEFAULT_COMPARE_STREAM_MESSAGE_ID</span></div>
-<dl class="notes">
-<dt>See Also:</dt>
-<dd>
-<ul class="see-list">
-<li><a href="../../../constant-values.html#com.redis.riot.AbstractTargetCommand.DEFAULT_COMPARE_STREAM_MESSAGE_ID">Constant Field Values</a></li>
-</ul>
-</dd>
-</dl>
+<section class="detail" id="targetRedisURIClient">
+<h3>targetRedisURIClient</h3>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type"><a href="RedisClientBuilder.RedisURIClient.html" title="class in com.redis.riot">RedisClientBuilder.RedisURIClient</a></span>&nbsp;<span class="element-name">targetRedisURIClient</span></div>
 </section>
 </li>
 <li>
@@ -387,36 +329,12 @@ T&gt;&nbsp;com.redis.spring.batch.item.redis.RedisItemReader&lt;K,<wbr>V,<wbr>T&
 </section>
 </li>
 <li>
-<section class="detail" id="compareStep()">
-<h3>compareStep</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type"><a href="core/Step.html" title="class in com.redis.riot.core">Step</a>&lt;com.redis.spring.batch.item.redis.reader.KeyComparison&lt;byte[]&gt;,<wbr>com.redis.spring.batch.item.redis.reader.KeyComparison&lt;byte[]&gt;&gt;</span>&nbsp;<span class="element-name">compareStep</span>()</div>
-</section>
-</li>
-<li>
-<section class="detail" id="isQuickCompare()">
-<h3>isQuickCompare</h3>
-<div class="member-signature"><span class="modifiers">protected abstract</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isQuickCompare</span>()</div>
-</section>
-</li>
-<li>
 <section class="detail" id="configure(com.redis.spring.batch.item.redis.RedisItemReader)">
 <h3>configure</h3>
 <div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="type-parameters">&lt;K,<wbr>
 V,<wbr>
 T&gt;</span>
 <span class="return-type">com.redis.spring.batch.item.redis.RedisItemReader&lt;K,<wbr>V,<wbr>T&gt;</span>&nbsp;<span class="element-name">configure</span><wbr><span class="parameters">(com.redis.spring.batch.item.redis.RedisItemReader&lt;K,<wbr>V,<wbr>T&gt;&nbsp;reader)</span></div>
-</section>
-</li>
-<li>
-<section class="detail" id="compareReader()">
-<h3>compareReader</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">com.redis.spring.batch.item.redis.reader.KeyComparisonItemReader&lt;byte[],<wbr>byte[]&gt;</span>&nbsp;<span class="element-name">compareReader</span>()</div>
-</section>
-</li>
-<li>
-<section class="detail" id="isIgnoreStreamMessageId()">
-<h3>isIgnoreStreamMessageId</h3>
-<div class="member-signature"><span class="modifiers">protected abstract</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isIgnoreStreamMessageId</span>()</div>
 </section>
 </li>
 <li>
@@ -477,30 +395,6 @@ T&gt;</span>
 <section class="detail" id="setTargetRedisURI(io.lettuce.core.RedisURI)">
 <h3>setTargetRedisURI</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setTargetRedisURI</span><wbr><span class="parameters">(io.lettuce.core.RedisURI&nbsp;targetRedisURI)</span></div>
-</section>
-</li>
-<li>
-<section class="detail" id="isShowDiffs()">
-<h3>isShowDiffs</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isShowDiffs</span>()</div>
-</section>
-</li>
-<li>
-<section class="detail" id="setShowDiffs(boolean)">
-<h3>setShowDiffs</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setShowDiffs</span><wbr><span class="parameters">(boolean&nbsp;showDiffs)</span></div>
-</section>
-</li>
-<li>
-<section class="detail" id="getTtlToleranceMillis()">
-<h3>getTtlToleranceMillis</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">long</span>&nbsp;<span class="element-name">getTtlToleranceMillis</span>()</div>
-</section>
-</li>
-<li>
-<section class="detail" id="setTtlToleranceMillis(long)">
-<h3>setTtlToleranceMillis</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setTtlToleranceMillis</span><wbr><span class="parameters">(long&nbsp;tolerance)</span></div>
 </section>
 </li>
 <li>

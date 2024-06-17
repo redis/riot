@@ -92,7 +92,7 @@ $(addBlockSwitches);
 <h1>Redis Input/Output Tools (RIOT)</h1>
 <div class="details">
 <span id="author" class="author">Julien Ruaux</span><br>
-<span id="revnumber">version 4.0.1</span>
+<span id="revnumber">version 4.0.2</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -190,8 +190,8 @@ scoop install riot</code></pre>
 </td>
 <td class="content">
 <div class="paragraph">
-<p><code>riot-4.0.1.zip</code> requires Java 11 or greater to be installed.
-<code>riot-standalone-4.0.1-*.zip</code> includes its own Java runtime and does not require a Java installation.</p>
+<p><code>riot-4.0.2.zip</code> requires Java 11 or greater to be installed.
+<code>riot-standalone-4.0.2-*.zip</code> includes its own Java runtime and does not require a Java installation.</p>
 </div>
 </td>
 </tr>
@@ -1876,6 +1876,11 @@ Check the database with <code>redis-cli</code> <a href="https://developer.redis.
 <dd>
 <p>This issue occurs when you fail to supply the <code>--pass &lt;password&gt;</code> parameter.</p>
 </dd>
+<dt class="hdlist1">ERR The ID argument cannot be a complete ID because xadd-id-uniqueness-mode is strict</dt>
+<dd>
+<p>This usually happens in Active/Active (CRDB) setups where stream message IDs cannot be copied over to the target database.
+Use the <code>--no-stream-ids</code> option to disable ID propagation.</p>
+</dd>
 </dl>
 </div>
 </div>
@@ -1883,8 +1888,8 @@ Check the database with <code>redis-cli</code> <a href="https://developer.redis.
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 4.0.1<br>
-Last updated 2024-06-13 03:54:42 UTC
+Version 4.0.2<br>
+Last updated 2024-06-17 19:16:34 UTC
 </div>
 </div>
 <link rel="stylesheet" href="./coderay-asciidoctor.css">

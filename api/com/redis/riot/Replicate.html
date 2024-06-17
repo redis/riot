@@ -77,7 +77,9 @@ loadScripts(document, 'script');</script>
 <div class="inheritance"><a href="core/AbstractCommand.html" title="class in com.redis.riot.core">com.redis.riot.core.AbstractCommand</a>
 <div class="inheritance"><a href="core/AbstractJobCommand.html" title="class in com.redis.riot.core">com.redis.riot.core.AbstractJobCommand</a>
 <div class="inheritance"><a href="AbstractTargetCommand.html" title="class in com.redis.riot">com.redis.riot.AbstractTargetCommand</a>
+<div class="inheritance"><a href="AbstractCompareCommand.html" title="class in com.redis.riot">com.redis.riot.AbstractCompareCommand</a>
 <div class="inheritance">com.redis.riot.Replicate</div>
+</div>
 </div>
 </div>
 </div>
@@ -90,7 +92,7 @@ loadScripts(document, 'script');</script>
 </dl>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">Replicate</span>
-<span class="extends-implements">extends <a href="AbstractTargetCommand.html" title="class in com.redis.riot">AbstractTargetCommand</a></span></div>
+<span class="extends-implements">extends <a href="AbstractCompareCommand.html" title="class in com.redis.riot">AbstractCompareCommand</a></span></div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -132,8 +134,11 @@ loadScripts(document, 'script');</script>
 <div class="col-last odd-row-color">&nbsp;</div>
 </div>
 <div class="inherited-list">
+<h3 id="fields-inherited-from-class-com.redis.riot.AbstractCompareCommand">Fields inherited from class&nbsp;com.redis.riot.<a href="AbstractCompareCommand.html" title="class in com.redis.riot">AbstractCompareCommand</a></h3>
+<code><a href="AbstractCompareCommand.html#COMPARE_STEP_NAME">COMPARE_STEP_NAME</a>, <a href="AbstractCompareCommand.html#DEFAULT_COMPARE_STREAM_MESSAGE_ID">DEFAULT_COMPARE_STREAM_MESSAGE_ID</a>, <a href="AbstractCompareCommand.html#DEFAULT_TTL_TOLERANCE">DEFAULT_TTL_TOLERANCE</a></code></div>
+<div class="inherited-list">
 <h3 id="fields-inherited-from-class-com.redis.riot.AbstractTargetCommand">Fields inherited from class&nbsp;com.redis.riot.<a href="AbstractTargetCommand.html" title="class in com.redis.riot">AbstractTargetCommand</a></h3>
-<code><a href="AbstractTargetCommand.html#COMPARE_STEP_NAME">COMPARE_STEP_NAME</a>, <a href="AbstractTargetCommand.html#DEFAULT_COMPARE_STREAM_MESSAGE_ID">DEFAULT_COMPARE_STREAM_MESSAGE_ID</a>, <a href="AbstractTargetCommand.html#DEFAULT_TARGET_POOL_SIZE">DEFAULT_TARGET_POOL_SIZE</a>, <a href="AbstractTargetCommand.html#DEFAULT_TTL_TOLERANCE">DEFAULT_TTL_TOLERANCE</a></code></div>
+<code><a href="AbstractTargetCommand.html#DEFAULT_TARGET_POOL_SIZE">DEFAULT_TARGET_POOL_SIZE</a>, <a href="AbstractTargetCommand.html#targetRedisURIClient">targetRedisURIClient</a></code></div>
 <div class="inherited-list">
 <h3 id="fields-inherited-from-class-com.redis.riot.core.AbstractJobCommand">Fields inherited from class&nbsp;com.redis.riot.core.<a href="core/AbstractJobCommand.html" title="class in com.redis.riot.core">AbstractJobCommand</a></h3>
 <code><a href="core/AbstractJobCommand.html#DEFAULT_JOB_REPOSITORY_NAME">DEFAULT_JOB_REPOSITORY_NAME</a>, <a href="core/AbstractJobCommand.html#jobLauncher">jobLauncher</a>, <a href="core/AbstractJobCommand.html#jobName">jobName</a>, <a href="core/AbstractJobCommand.html#jobRepository">jobRepository</a>, <a href="core/AbstractJobCommand.html#transactionManager">transactionManager</a></code></div>
@@ -226,8 +231,11 @@ loadScripts(document, 'script');</script>
 </div>
 </div>
 <div class="inherited-list">
+<h3 id="methods-inherited-from-class-com.redis.riot.AbstractCompareCommand">Methods inherited from class&nbsp;com.redis.riot.<a href="AbstractCompareCommand.html" title="class in com.redis.riot">AbstractCompareCommand</a></h3>
+<code><a href="AbstractCompareCommand.html#compareStep()">compareStep</a>, <a href="AbstractCompareCommand.html#getTtlToleranceMillis()">getTtlToleranceMillis</a>, <a href="AbstractCompareCommand.html#isShowDiffs()">isShowDiffs</a>, <a href="AbstractCompareCommand.html#setShowDiffs(boolean)">setShowDiffs</a>, <a href="AbstractCompareCommand.html#setTtlToleranceMillis(long)">setTtlToleranceMillis</a></code></div>
+<div class="inherited-list">
 <h3 id="methods-inherited-from-class-com.redis.riot.AbstractTargetCommand">Methods inherited from class&nbsp;com.redis.riot.<a href="AbstractTargetCommand.html" title="class in com.redis.riot">AbstractTargetCommand</a></h3>
-<code><a href="AbstractTargetCommand.html#afterPropertiesSet()">afterPropertiesSet</a>, <a href="AbstractTargetCommand.html#compareStep()">compareStep</a>, <a href="AbstractTargetCommand.html#configure(com.redis.spring.batch.item.redis.RedisItemReader)">configure</a>, <a href="AbstractTargetCommand.html#evaluationContext(com.redis.riot.ProcessorArgs)">evaluationContext</a>, <a href="AbstractTargetCommand.html#getRedisReaderArgs()">getRedisReaderArgs</a>, <a href="AbstractTargetCommand.html#getSourceRedisArgs()">getSourceRedisArgs</a>, <a href="AbstractTargetCommand.html#getSourceRedisURI()">getSourceRedisURI</a>, <a href="AbstractTargetCommand.html#getTargetRedisArgs()">getTargetRedisArgs</a>, <a href="AbstractTargetCommand.html#getTargetRedisURI()">getTargetRedisURI</a>, <a href="AbstractTargetCommand.html#getTtlToleranceMillis()">getTtlToleranceMillis</a>, <a href="AbstractTargetCommand.html#isShowDiffs()">isShowDiffs</a>, <a href="AbstractTargetCommand.html#redisURIClient()">redisURIClient</a>, <a href="AbstractTargetCommand.html#setRedisReaderArgs(com.redis.riot.RedisReaderArgs)">setRedisReaderArgs</a>, <a href="AbstractTargetCommand.html#setShowDiffs(boolean)">setShowDiffs</a>, <a href="AbstractTargetCommand.html#setSourceRedisArgs(com.redis.riot.SourceRedisArgs)">setSourceRedisArgs</a>, <a href="AbstractTargetCommand.html#setSourceRedisURI(io.lettuce.core.RedisURI)">setSourceRedisURI</a>, <a href="AbstractTargetCommand.html#setTargetRedisArgs(com.redis.riot.TargetRedisArgs)">setTargetRedisArgs</a>, <a href="AbstractTargetCommand.html#setTargetRedisURI(io.lettuce.core.RedisURI)">setTargetRedisURI</a>, <a href="AbstractTargetCommand.html#setTtlToleranceMillis(long)">setTtlToleranceMillis</a>, <a href="AbstractTargetCommand.html#shutdown()">shutdown</a></code></div>
+<code><a href="AbstractTargetCommand.html#afterPropertiesSet()">afterPropertiesSet</a>, <a href="AbstractTargetCommand.html#configure(com.redis.spring.batch.item.redis.RedisItemReader)">configure</a>, <a href="AbstractTargetCommand.html#evaluationContext(com.redis.riot.ProcessorArgs)">evaluationContext</a>, <a href="AbstractTargetCommand.html#getRedisReaderArgs()">getRedisReaderArgs</a>, <a href="AbstractTargetCommand.html#getSourceRedisArgs()">getSourceRedisArgs</a>, <a href="AbstractTargetCommand.html#getSourceRedisURI()">getSourceRedisURI</a>, <a href="AbstractTargetCommand.html#getTargetRedisArgs()">getTargetRedisArgs</a>, <a href="AbstractTargetCommand.html#getTargetRedisURI()">getTargetRedisURI</a>, <a href="AbstractTargetCommand.html#redisURIClient()">redisURIClient</a>, <a href="AbstractTargetCommand.html#setRedisReaderArgs(com.redis.riot.RedisReaderArgs)">setRedisReaderArgs</a>, <a href="AbstractTargetCommand.html#setSourceRedisArgs(com.redis.riot.SourceRedisArgs)">setSourceRedisArgs</a>, <a href="AbstractTargetCommand.html#setSourceRedisURI(io.lettuce.core.RedisURI)">setSourceRedisURI</a>, <a href="AbstractTargetCommand.html#setTargetRedisArgs(com.redis.riot.TargetRedisArgs)">setTargetRedisArgs</a>, <a href="AbstractTargetCommand.html#setTargetRedisURI(io.lettuce.core.RedisURI)">setTargetRedisURI</a>, <a href="AbstractTargetCommand.html#shutdown()">shutdown</a></code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-com.redis.riot.core.AbstractJobCommand">Methods inherited from class&nbsp;com.redis.riot.core.<a href="core/AbstractJobCommand.html" title="class in com.redis.riot.core">AbstractJobCommand</a></h3>
 <code><a href="core/AbstractJobCommand.html#configure(com.redis.spring.batch.item.AbstractAsyncItemReader)">configure</a>, <a href="core/AbstractJobCommand.html#execute()">execute</a>, <a href="core/AbstractJobCommand.html#getJobArgs()">getJobArgs</a>, <a href="core/AbstractJobCommand.html#getJobLauncher()">getJobLauncher</a>, <a href="core/AbstractJobCommand.html#getJobName()">getJobName</a>, <a href="core/AbstractJobCommand.html#getJobRepository()">getJobRepository</a>, <a href="core/AbstractJobCommand.html#getJobRepositoryName()">getJobRepositoryName</a>, <a href="core/AbstractJobCommand.html#getTransactionManager()">getTransactionManager</a>, <a href="core/AbstractJobCommand.html#job(com.redis.riot.core.Step...)">job</a>, <a href="core/AbstractJobCommand.html#job(java.lang.Iterable)">job</a>, <a href="core/AbstractJobCommand.html#setJobArgs(com.redis.riot.core.StepArgs)">setJobArgs</a>, <a href="core/AbstractJobCommand.html#setJobLauncher(org.springframework.batch.core.launch.JobLauncher)">setJobLauncher</a>, <a href="core/AbstractJobCommand.html#setJobName(java.lang.String)">setJobName</a>, <a href="core/AbstractJobCommand.html#setJobRepository(org.springframework.batch.core.repository.JobRepository)">setJobRepository</a>, <a href="core/AbstractJobCommand.html#setJobRepositoryName(java.lang.String)">setJobRepositoryName</a>, <a href="core/AbstractJobCommand.html#setTransactionManager(org.springframework.transaction.PlatformTransactionManager)">setTransactionManager</a>, <a href="core/AbstractJobCommand.html#shouldShowProgress()">shouldShowProgress</a></code></div>
@@ -308,7 +316,7 @@ loadScripts(document, 'script');</script>
 <div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isQuickCompare</span>()</div>
 <dl class="notes">
 <dt>Specified by:</dt>
-<dd><code><a href="AbstractTargetCommand.html#isQuickCompare()">isQuickCompare</a></code>&nbsp;in class&nbsp;<code><a href="AbstractTargetCommand.html" title="class in com.redis.riot">AbstractTargetCommand</a></code></dd>
+<dd><code><a href="AbstractCompareCommand.html#isQuickCompare()">isQuickCompare</a></code>&nbsp;in class&nbsp;<code><a href="AbstractCompareCommand.html" title="class in com.redis.riot">AbstractCompareCommand</a></code></dd>
 </dl>
 </section>
 </li>
@@ -328,7 +336,7 @@ loadScripts(document, 'script');</script>
 <div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isIgnoreStreamMessageId</span>()</div>
 <dl class="notes">
 <dt>Specified by:</dt>
-<dd><code><a href="AbstractTargetCommand.html#isIgnoreStreamMessageId()">isIgnoreStreamMessageId</a></code>&nbsp;in class&nbsp;<code><a href="AbstractTargetCommand.html" title="class in com.redis.riot">AbstractTargetCommand</a></code></dd>
+<dd><code><a href="AbstractCompareCommand.html#isIgnoreStreamMessageId()">isIgnoreStreamMessageId</a></code>&nbsp;in class&nbsp;<code><a href="AbstractCompareCommand.html" title="class in com.redis.riot">AbstractCompareCommand</a></code></dd>
 </dl>
 </section>
 </li>
@@ -351,7 +359,7 @@ loadScripts(document, 'script');</script>
 <div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">com.redis.spring.batch.item.redis.reader.KeyComparisonItemReader&lt;byte[],<wbr>byte[]&gt;</span>&nbsp;<span class="element-name">compareReader</span>()</div>
 <dl class="notes">
 <dt>Overrides:</dt>
-<dd><code><a href="AbstractTargetCommand.html#compareReader()">compareReader</a></code>&nbsp;in class&nbsp;<code><a href="AbstractTargetCommand.html" title="class in com.redis.riot">AbstractTargetCommand</a></code></dd>
+<dd><code><a href="AbstractCompareCommand.html#compareReader()">compareReader</a></code>&nbsp;in class&nbsp;<code><a href="AbstractCompareCommand.html" title="class in com.redis.riot">AbstractCompareCommand</a></code></dd>
 </dl>
 </section>
 </li>
