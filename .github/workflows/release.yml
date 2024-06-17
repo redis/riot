@@ -47,8 +47,8 @@ jobs:
     with:
       project-version: ${{ needs.precheck.outputs.version }}
       tasks: ${{ github.event.inputs.build-tasks }}
-	secrets:
-	  codecov-token: ${{ secrets.CODECOV_TOKEN }}
+    secrets:
+      codecov-token: ${{ secrets.CODECOV_TOKEN }}
 
   release:
     name: Release
