@@ -22,7 +22,7 @@ It supports many different sources and targets:
 
 == Documentation
 
-link:http://redis.github.io/riot/[http://redis.github.io/riot]
+link:http://redis.github.io/riot/[redis.github.io/riot]
 
 == Support
 
