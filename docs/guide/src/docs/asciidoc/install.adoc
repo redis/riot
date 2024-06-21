@@ -31,6 +31,7 @@ Download the pre-compiled binary from {link_releases}, uncompress and copy to th
 [NOTE]
 ====
 `riot-{project-version}.zip` requires Java 11 or greater to be installed.
+
 `riot-standalone-{project-version}-*.zip` includes its own Java runtime and does not require a Java installation.
 ====
 
