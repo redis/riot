@@ -92,7 +92,7 @@ $(addBlockSwitches);
 <h1>Redis Input/Output Tools (RIOT)</h1>
 <div class="details">
 <span id="author" class="author">Julien Ruaux</span><br>
-<span id="revnumber">version 4.0.2</span>
+<span id="revnumber">version 4.0.3</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -190,8 +190,8 @@ scoop install riot</code></pre>
 </td>
 <td class="content">
 <div class="paragraph">
-<p><code>riot-4.0.2.zip</code> requires Java 11 or greater to be installed.
-<code>riot-standalone-4.0.2-*.zip</code> includes its own Java runtime and does not require a Java installation.</p>
+<p><code>riot-4.0.3.zip</code> requires Java 11 or greater to be installed.
+<code>riot-standalone-4.0.3-*.zip</code> includes its own Java runtime and does not require a Java installation.</p>
 </div>
 </td>
 </tr>
@@ -1881,6 +1881,11 @@ Check the database with <code>redis-cli</code> <a href="https://developer.redis.
 <p>This usually happens in Active/Active (CRDB) setups where stream message IDs cannot be copied over to the target database.
 Use the <code>--no-stream-ids</code> option to disable ID propagation.</p>
 </dd>
+<dt class="hdlist1">ERR Error running script&#8230;&#8203; This Redis command is not allowed from scripts</dt>
+<dd>
+<p>This can happen with Active/Active (CRDB) databases because the <code>MEMORY USAGE</code> command is not allowed to be run from a LUA script.
+Use the <code>--mem-limit -1</code> option to disable memory usage.</p>
+</dd>
 </dl>
 </div>
 </div>
@@ -1888,8 +1893,8 @@ Use the <code>--no-stream-ids</code> option to disable ID propagation.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 4.0.2<br>
-Last updated 2024-06-17 19:16:34 UTC
+Version 4.0.3<br>
+Last updated 2024-06-21 22:48:23 UTC
 </div>
 </div>
 <link rel="stylesheet" href="./coderay-asciidoctor.css">
