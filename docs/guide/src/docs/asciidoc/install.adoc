@@ -26,7 +26,7 @@ scoop install riot
 [[_install_manual]]
 [discrete]
 == Manual Installation (All Platforms)
-Download the pre-compiled binary from {_link_releases}, uncompress and copy to the desired location.
+Download the pre-compiled binary from {link_releases}, uncompress and copy to the desired location.
 
 [NOTE]
 ====

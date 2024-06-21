@@ -72,7 +72,7 @@ include::{testdir}/file-import-process-var[]
 [[_concepts_filtering]]
 == Filtering
 
-Filters allow you to exclude records that don't match a {_link_spel} boolean expression.
+Filters allow you to exclude records that don't match a {link_spel} boolean expression.
 
 For example this filter will only keep records where the `value` field is a series of digits:
 
