@@ -54,7 +54,7 @@ public class RedisReaderArgs {
 	@Option(names = "--read-from", description = "Which Redis cluster nodes to read from: ${COMPLETION-CANDIDATES}.", paramLabel = "<name>")
 	private RedisReadFrom readFrom;
 
-	@Option(names = "--mem-limit", description = "Max mem usage for a key to be read (default: ${DEFAULT-VALUE}). Use 0 to disable checks. Examples: 12KB, 5MB", paramLabel = "<size>")
+	@Option(names = "--mem-limit", description = "Max mem usage for a key to be read (default: ${DEFAULT-VALUE}). Use 0 for no limit, -1 to disable. Examples: 12KB, 5MB", paramLabel = "<size>")
 	private DataSize memUsageLimit = DEFAULT_MEMORY_USAGE_LIMIT;
 
 	@Option(names = "--mem-samples", description = "Number of memory usage samples for a key (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
