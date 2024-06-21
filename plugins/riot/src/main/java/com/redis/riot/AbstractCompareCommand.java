@@ -87,6 +87,7 @@ public abstract class AbstractCompareCommand extends AbstractTargetCommand {
 
 	private RedisItemReader<byte[], byte[], Object> compareTargetReader() {
 		RedisItemReader<byte[], byte[], Object> reader = compareRedisReader();
+		configure(reader);
 		reader.setClient(targetRedisURIClient.getClient());
 		reader.setDatabase(targetRedisURIClient.getUri().getDatabase());
 		return reader;
