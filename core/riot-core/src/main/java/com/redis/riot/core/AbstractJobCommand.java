@@ -57,6 +57,46 @@ public abstract class AbstractJobCommand extends AbstractCommand {
 	protected PlatformTransactionManager transactionManager;
 	protected JobLauncher jobLauncher;
 
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		super.afterPropertiesSet();
+		if (jobName == null) {
+			Assert.notNull(commandSpec, "Command spec not set");
+			jobName = commandSpec.name();
+		}
+		if (jobRepository == null) {
+			jobRepository = JobUtils.jobRepositoryFactoryBean(jobRepositoryName).getObject();
+			Assert.notNull(jobRepository, "Could not create job repository");
+		}
+		if (transactionManager == null) {
+			transactionManager = JobUtils.resourcelessTransactionManager();
+		}
+		if (jobLauncher == null) {
+			jobLauncher = taskExecutorJobLauncher();
+		}
+	}
+
+	@Override
+	protected void execute() {
+		JobExecution jobExecution;
+		try {
+			Job job = job();
+			jobExecution = jobLauncher.run(job, new JobParameters());
+		} catch (JobExecutionException e) {
+			throw new RiotException("Could not run job " + jobName, e);
+		} finally {
+			shutdown();
+		}
+		if (JobUtils.isFailed(jobExecution.getExitStatus())) {
+			for (StepExecution stepExecution : jobExecution.getStepExecutions()) {
+				if (JobUtils.isFailed(stepExecution.getExitStatus())) {
+					throw new RiotException(stepExecution.getExitStatus().getExitDescription());
+				}
+			}
+			throw new RiotException(jobExecution.getExitStatus().getExitDescription());
+		}
+	}
+
 	protected Job job(Step<?, ?>... steps) {
 		return job(Stream.of(steps));
 	}
@@ -79,52 +119,12 @@ public abstract class AbstractJobCommand extends AbstractCommand {
 		return new JobBuilder(jobName, jobRepository);
 	}
 
-	@Override
-	public void afterPropertiesSet() throws Exception {
-		super.afterPropertiesSet();
-		if (jobName == null) {
-			Assert.notNull(commandSpec, "Command spec not set");
-			jobName = commandSpec.name();
-		}
-		if (jobRepository == null) {
-			jobRepository = JobUtils.jobRepositoryFactoryBean(jobRepositoryName).getObject();
-			Assert.notNull(jobRepository, "Could not create job repository");
-		}
-		if (transactionManager == null) {
-			transactionManager = JobUtils.resourcelessTransactionManager();
-		}
-		if (jobLauncher == null) {
-			jobLauncher = taskExecutorJobLauncher();
-		}
-	}
-
 	private TaskExecutorJobLauncher taskExecutorJobLauncher() throws Exception {
 		TaskExecutorJobLauncher launcher = new TaskExecutorJobLauncher();
 		launcher.setJobRepository(jobRepository);
 		launcher.setTaskExecutor(new SyncTaskExecutor());
 		launcher.afterPropertiesSet();
 		return launcher;
-	}
-
-	@Override
-	protected void execute() {
-		Job job = job();
-		JobExecution jobExecution;
-		try {
-			jobExecution = jobLauncher.run(job, new JobParameters());
-		} catch (JobExecutionException e) {
-			throw new RiotException("Could not run job " + job.getName(), e);
-		} finally {
-			shutdown();
-		}
-		if (JobUtils.isFailed(jobExecution.getExitStatus())) {
-			for (StepExecution stepExecution : jobExecution.getStepExecutions()) {
-				if (JobUtils.isFailed(stepExecution.getExitStatus())) {
-					throw new RiotException(stepExecution.getExitStatus().getExitDescription());
-				}
-			}
-			throw new RiotException(jobExecution.getExitStatus().getExitDescription());
-		}
 	}
 
 	protected abstract void shutdown();

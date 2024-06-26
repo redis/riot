@@ -16,6 +16,9 @@ import java.util.stream.Stream;
 import org.springframework.core.io.Resource;
 import org.springframework.util.ResourceUtils;
 
+import picocli.CommandLine;
+import software.amazon.awssdk.regions.Region;
+
 public abstract class FileUtils {
 
 	public static final Pattern EXTENSION_PATTERN = Pattern.compile("(?i)\\.(?<extension>\\w+)(?:\\.(?<gz>gz))?$");
@@ -88,7 +91,7 @@ public abstract class FileUtils {
 	}
 
 	public static boolean isFile(String file) {
-		return !AmazonS3Args.isSimpleStorageResource(file) && !GoogleStorageArgs.isGoogleStorageResource(file)
+		return !AwsArgs.isSimpleStorageResource(file) && !GoogleStorageArgs.isGoogleStorageResource(file)
 				&& !ResourceUtils.isUrl(file) && !isStdin(file);
 	}
 
@@ -107,6 +110,10 @@ public abstract class FileUtils {
 			throw new RuntimeIOException(
 					MessageFormat.format("Could not list files in directory {0} with glob pattern {1}", dir, glob), e);
 		}
+	}
+
+	public static void registerConverters(CommandLine commandLine) {
+		commandLine.registerConverter(Region.class, Region::of);
 	}
 
 }

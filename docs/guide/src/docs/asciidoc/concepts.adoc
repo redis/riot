@@ -92,8 +92,6 @@ Both snapshot and live replication modes are supported.
 
 image::replication-architecture.svg[]
 
-WARNING: Please note that {project-title} replication is NEITHER recommended NOR officially supported by Redis, Inc.
-
 The basic replication mechanism is as follows:
 
 1. Identify source keys to be replicated using scan and/or keyspace notifications depending on the <<_replication_mode,replication mode>>.

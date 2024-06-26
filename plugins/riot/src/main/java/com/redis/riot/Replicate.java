@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.function.FunctionItemProcessor;
+import org.springframework.util.Assert;
 
 import com.redis.riot.core.RiotUtils;
 import com.redis.riot.core.Step;
@@ -72,7 +73,7 @@ public class Replicate extends AbstractCompareCommand {
 
 	@Override
 	protected boolean isIgnoreStreamMessageId() {
-		return !processorArgs.isPropagateStreamMessageId();
+		return !processorArgs.getStreamProcessorArgs().isPropagateIds();
 	}
 
 	private ItemProcessor<KeyValue<byte[], Object>, KeyValue<byte[], Object>> processor() {
@@ -80,6 +81,9 @@ public class Replicate extends AbstractCompareCommand {
 	}
 
 	private ItemProcessor<KeyValue<byte[], Object>, KeyValue<byte[], Object>> keyValueProcessor() {
+		if (isIgnoreStreamMessageId()) {
+			Assert.isTrue(isStruct(), "'--no-stream-ids' can only be used with '--struct'");
+		}
 		ItemProcessor<KeyValue<String, Object>, KeyValue<String, Object>> processor = processorArgs
 				.keyValueProcessor(evaluationContext(processorArgs));
 		if (processor == null) {

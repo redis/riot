@@ -16,7 +16,7 @@ public class FileArgs {
 	public static final char DEFAULT_QUOTE_CHARACTER = '"';
 
 	@ArgGroup(exclusive = false)
-	private AmazonS3Args amazonS3Args = new AmazonS3Args();
+	private AwsArgs amazonS3Args = new AwsArgs();
 
 	@ArgGroup(exclusive = false)
 	private GoogleStorageArgs googleStorageArgs = new GoogleStorageArgs();
@@ -51,7 +51,7 @@ public class FileArgs {
 	}
 
 	public Resource resource(String location) throws IOException {
-		if (AmazonS3Args.isSimpleStorageResource(location)) {
+		if (AwsArgs.isSimpleStorageResource(location)) {
 			return amazonS3Args.resource(location);
 		}
 		if (GoogleStorageArgs.isGoogleStorageResource(location)) {
@@ -91,11 +91,11 @@ public class FileArgs {
 		this.googleStorageArgs = args;
 	}
 
-	public AmazonS3Args getAmazonS3Args() {
+	public AwsArgs getAmazonS3Args() {
 		return amazonS3Args;
 	}
 
-	public void setAmazonS3Args(AmazonS3Args args) {
+	public void setAmazonS3Args(AwsArgs args) {
 		this.amazonS3Args = args;
 	}
 

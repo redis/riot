@@ -41,6 +41,10 @@ import com.redis.spring.batch.item.redis.common.DataType;
 import com.redis.spring.batch.item.redis.common.KeyValue;
 import com.redis.spring.batch.item.redis.gen.GeneratorItemReader;
 import com.redis.spring.batch.item.redis.gen.GeneratorOptions;
+import com.redis.spring.batch.item.redis.reader.DefaultKeyComparator;
+import com.redis.spring.batch.item.redis.reader.KeyComparison;
+import com.redis.spring.batch.item.redis.reader.KeyComparison.Status;
+import com.redis.spring.batch.item.redis.reader.KeyComparisonItemReader;
 import com.redis.spring.batch.test.KeyspaceComparison;
 import com.redis.testcontainers.RedisStackContainer;
 
@@ -562,6 +566,45 @@ class StackRiotTests extends RiotTests {
 		Assertions.assertTrue(redisCommands.dbsize() > 0);
 		execute(info, filename);
 		assertCompare(info);
+	}
+
+	@Test
+	void replicateNoStreamIds(TestInfo info) throws Throwable {
+		String filename = "replicate-no-stream-ids";
+		generate(info, generator(73));
+		Assertions.assertTrue(redisCommands.dbsize() > 0);
+		execute(info, filename);
+		assertDbNotEmpty(redisCommands);
+		KeyComparisonItemReader<String, String> reader = comparisonReader(info);
+		((DefaultKeyComparator<String, String>) reader.getComparator()).setIgnoreStreamMessageId(true);
+		reader.open(new ExecutionContext());
+		List<KeyComparison<String>> comparisons = readAll(reader);
+		reader.close();
+		KeyspaceComparison<String> comparison = new KeyspaceComparison<>(comparisons);
+		Assertions.assertFalse(comparison.getAll().isEmpty());
+		Assertions.assertEquals(Collections.emptyList(), comparison.mismatches());
+	}
+	
+	@Test
+	void replicateNoStreamIdsPrune(TestInfo info) throws Throwable {
+		String filename = "replicate-no-stream-ids-prune";
+		generate(info, generator(73));
+		String emptyStream = "stream:empty";
+		redisCommands.xadd(emptyStream, Map.of("field", "value"));
+		redisCommands.xtrim(emptyStream, 0);
+		Assertions.assertTrue(redisCommands.dbsize() > 0);
+		execute(info, filename);
+		assertDbNotEmpty(redisCommands);
+		KeyComparisonItemReader<String, String> reader = comparisonReader(info);
+		((DefaultKeyComparator<String, String>) reader.getComparator()).setIgnoreStreamMessageId(true);
+		reader.open(new ExecutionContext());
+		List<KeyComparison<String>> comparisons = readAll(reader);
+		reader.close();
+		KeyspaceComparison<String> comparison = new KeyspaceComparison<>(comparisons);
+		Assertions.assertFalse(comparison.getAll().isEmpty());
+		KeyComparison<String> missing = comparison.mismatches().get(0);
+		Assertions.assertEquals(Status.MISSING, missing.getStatus());
+		Assertions.assertEquals(emptyStream, missing.getSource().getKey());
 	}
 
 	@Test

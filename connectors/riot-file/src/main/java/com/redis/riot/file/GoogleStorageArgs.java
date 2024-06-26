@@ -7,15 +7,15 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.Base64;
 
-import org.springframework.cloud.gcp.autoconfigure.storage.GcpStorageAutoConfiguration;
-import org.springframework.cloud.gcp.core.GcpScope;
-import org.springframework.cloud.gcp.core.UserAgentHeaderProvider;
-import org.springframework.cloud.gcp.storage.GoogleStorageResource;
 import org.springframework.core.io.Resource;
 import org.springframework.util.Assert;
 
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.ServiceOptions;
+import com.google.cloud.spring.autoconfigure.storage.GcpStorageAutoConfiguration;
+import com.google.cloud.spring.core.GcpScope;
+import com.google.cloud.spring.core.UserAgentHeaderProvider;
+import com.google.cloud.spring.storage.GoogleStorageResource;
 import com.google.cloud.storage.StorageOptions;
 
 import picocli.CommandLine.Option;

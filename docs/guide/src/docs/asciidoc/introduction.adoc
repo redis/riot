@@ -11,3 +11,4 @@
 * Data migration from a Redis database to another
 * Live replication between two Redis databases
 
+{project-title} is supported by Redis, Inc. on a good faith effort basis. To report bugs, request features, or receive assistance, please https://github.com/redis/riot/issues[file an issue] or contact your Redis account team.

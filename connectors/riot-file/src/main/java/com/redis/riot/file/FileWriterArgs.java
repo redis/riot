@@ -4,10 +4,11 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.zip.GZIPOutputStream;
 
-import org.springframework.cloud.gcp.core.GcpScope;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.WritableResource;
 import org.springframework.util.Assert;
+
+import com.google.cloud.spring.core.GcpScope;
 
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;

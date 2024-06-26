@@ -120,6 +120,7 @@ subprojects { subproj ->
 
 	    configurations {
 	        all*.exclude module: 'spring-boot-starter-logging'
+	        all*.exclude module: 'commons-logging'
 	    }
 
 	    bootJar {

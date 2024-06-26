@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.ItemWriteListener;
 import org.springframework.batch.item.Chunk;
-import org.springframework.util.ObjectUtils;
 
 import com.redis.spring.batch.item.redis.common.BatchUtils;
 import com.redis.spring.batch.item.redis.reader.KeyComparison;
@@ -33,28 +32,21 @@ public class CompareLoggingWriteListener<K> implements ItemWriteListener<KeyComp
 	public void log(KeyComparison<K> comparison) {
 		switch (comparison.getStatus()) {
 		case MISSING:
-			log("Missing key {}", comparison);
+			log.error("Missing {} {}", comparison.getSource().getType(), key(comparison));
 			break;
 		case TYPE:
-			log("Type mismatch on key {}. Expected {} but was {}", comparison, comparison.getSource().getType(),
-					comparison.getTarget().getType());
+			log.error("Type mismatch on key {}. Expected {} but was {}", key(comparison),
+					comparison.getSource().getType(), comparison.getTarget().getType());
 			break;
 		case VALUE:
-			log("Value mismatch on key {}", comparison);
+			log.error("Value mismatch on {} {}", comparison.getSource().getType(), key(comparison));
 			break;
 		case TTL:
-			log("TTL mismatch on key {}. Expected {} but was {}", comparison, comparison.getSource().getTtl(),
-					comparison.getTarget().getTtl());
+			log.error("TTL mismatch on key {}. Expected {} but was {}", key(comparison),
+					comparison.getSource().getTtl(), comparison.getTarget().getTtl());
 			break;
 		default:
 			break;
-		}
-	}
-
-	private void log(String msg, KeyComparison<K> comparison, Object... args) {
-		if (log.isErrorEnabled()) {
-			String key = key(comparison);
-			log.error(msg, ObjectUtils.addObjectToArray(args, key, 0));
 		}
 	}
 

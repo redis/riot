@@ -9,6 +9,7 @@ import com.redis.riot.core.Expression;
 import com.redis.riot.core.IO;
 import com.redis.riot.core.PrintExceptionMessageHandler;
 import com.redis.riot.core.TemplateExpression;
+import com.redis.riot.file.FileUtils;
 import com.redis.riot.operation.OperationCommand;
 import com.redis.spring.batch.Range;
 
@@ -69,6 +70,7 @@ public class Main extends BaseCommand implements Runnable, IO {
 		commandLine.registerConverter(Range.class, Range::parse);
 		commandLine.registerConverter(Expression.class, Expression::parse);
 		commandLine.registerConverter(TemplateExpression.class, Expression::parseTemplate);
+		FileUtils.registerConverters(commandLine);
 		return commandLine.execute(args);
 	}
 
