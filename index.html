@@ -92,7 +92,7 @@ $(addBlockSwitches);
 <h1>Redis Input/Output Tools (RIOT)</h1>
 <div class="details">
 <span id="author" class="author">Julien Ruaux</span><br>
-<span id="revnumber">version 4.0.3</span>
+<span id="revnumber">version 4.0.4</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -156,6 +156,9 @@ $(addBlockSwitches);
 </li>
 </ul>
 </div>
+<div class="paragraph">
+<p>RIOT is supported by Redis, Inc. on a good faith effort basis. To report bugs, request features, or receive assistance, please <a href="https://github.com/redis/riot/issues">file an issue</a> or contact your Redis account team.</p>
+</div>
 </div>
 </div>
 <div class="sect1">
@@ -190,8 +193,10 @@ scoop install riot</code></pre>
 </td>
 <td class="content">
 <div class="paragraph">
-<p><code>riot-4.0.3.zip</code> requires Java 11 or greater to be installed.
-<code>riot-standalone-4.0.3-*.zip</code> includes its own Java runtime and does not require a Java installation.</p>
+<p><code>riot-4.0.4.zip</code> requires Java 11 or greater to be installed.</p>
+</div>
+<div class="paragraph">
+<p><code>riot-standalone-4.0.4-*.zip</code> includes its own Java runtime and does not require a Java installation.</p>
 </div>
 </td>
 </tr>
@@ -341,18 +346,6 @@ Both snapshot and live replication modes are supported.</p>
 <div class="content">
 <img src="images/replication-architecture.svg" alt="replication architecture">
 </div>
-</div>
-<div class="admonitionblock warning">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-warning" title="Warning"></i>
-</td>
-<td class="content">
-Please note that RIOT replication is NEITHER recommended NOR officially supported by Redis, Inc.
-</td>
-</tr>
-</table>
 </div>
 <div class="paragraph">
 <p>The basic replication mechanism is as follows:</p>
@@ -1893,8 +1886,8 @@ Use the <code>--mem-limit -1</code> option to disable memory usage.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 4.0.3<br>
-Last updated 2024-06-21 23:00:35 UTC
+Version 4.0.4<br>
+Last updated 2024-06-26 14:19:15 UTC
 </div>
 </div>
 <link rel="stylesheet" href="./coderay-asciidoctor.css">
