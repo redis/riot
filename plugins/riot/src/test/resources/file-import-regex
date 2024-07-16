@@ -1,1 +1,1 @@
-riot file-import https://storage.googleapis.com/jrx/airports.csv --regex Tz="(?<region>\w+)\/(?<city>\w+)" --header hset --keyspace airport --key AirportID
+riot file-import http://storage.googleapis.com/jrx/airports.csv --regex Tz="(?<region>\w+)\/(?<city>\w+)" --header hset --keyspace airport --key AirportID

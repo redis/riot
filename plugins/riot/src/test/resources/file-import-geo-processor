@@ -1,1 +1,1 @@
-riot file-import https://storage.googleapis.com/jrx/airports.csv --header --skip-limit 1 --proc location="#geo(Longitude,Latitude)" hset --keyspace airport --key AirportID
+riot file-import http://storage.googleapis.com/jrx/airports.csv --header --skip-limit 1 --proc location="#geo(Longitude,Latitude)" hset --keyspace airport --key AirportID

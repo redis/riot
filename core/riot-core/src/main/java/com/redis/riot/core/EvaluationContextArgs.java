@@ -1,5 +1,6 @@
 package com.redis.riot.core;
 
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -13,6 +14,7 @@ public class EvaluationContextArgs {
 
 	public static final String DEFAULT_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
 	public static final String DATE_VAR = "date";
+	public static final String NUMBER_VAR = "number";
 
 	@Option(arity = "1..*", names = "--var", description = "SpEL expressions for context variables, in the form var=\"exp\"", paramLabel = "<v=exp>")
 	private Map<String, Expression> varExpressions = new LinkedHashMap<>();
@@ -20,18 +22,22 @@ public class EvaluationContextArgs {
 	@Option(names = "--date-format", description = "Date/time format (default: ${DEFAULT-VALUE}). For details see https://www.baeldung.com/java-simple-date-format#date_time_patterns", paramLabel = "<fmt>")
 	private String dateFormat = DEFAULT_DATE_FORMAT;
 
+	@Option(names = "--number-format", description = "Number format (default: ${DEFAULT-VALUE}). For details see https://www.baeldung.com/java-decimalformat", paramLabel = "<fmt>")
+	private String numberFormat = "#,###.##";
+
 	private Map<String, Object> vars = new LinkedHashMap<>();
 
 	public StandardEvaluationContext evaluationContext() {
-		StandardEvaluationContext evaluationContext = new StandardEvaluationContext();
-		evaluationContext.setVariable(DATE_VAR, new SimpleDateFormat(dateFormat));
+		StandardEvaluationContext context = new StandardEvaluationContext();
+		context.setVariable(DATE_VAR, new SimpleDateFormat(dateFormat));
+		context.setVariable(NUMBER_VAR, new DecimalFormat(numberFormat));
 		if (!CollectionUtils.isEmpty(vars)) {
-			vars.forEach(evaluationContext::setVariable);
+			vars.forEach(context::setVariable);
 		}
 		if (!CollectionUtils.isEmpty(varExpressions)) {
-			varExpressions.forEach((k, v) -> evaluationContext.setVariable(k, v.getValue(evaluationContext)));
+			varExpressions.forEach((k, v) -> context.setVariable(k, v.getValue(context)));
 		}
-		return evaluationContext;
+		return context;
 	}
 
 	public String getDateFormat() {

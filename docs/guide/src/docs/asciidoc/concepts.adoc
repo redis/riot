@@ -50,6 +50,9 @@ Processors have access to the following context variables and functions:
 `date`:: Date parsing and formatting object.
 Instance of Java https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html[SimpleDateFormat].
 
+`number`:: Number parsing and formatting object.
+Instance of Java https://docs.oracle.com/javase/8/docs/api/java/text/DecimalFormat.html[DecimalFormat].
+
 `redis`:: Redis commands object.
 Instance of Lettuce https://www.lettuce.io/core/release/api/io/lettuce/core/api/sync/RedisCommands.html[RedisCommands].
 

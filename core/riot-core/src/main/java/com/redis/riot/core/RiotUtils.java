@@ -24,6 +24,8 @@ import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.function.FunctionItemProcessor;
 import org.springframework.batch.item.support.CompositeItemProcessor;
 import org.springframework.batch.item.support.CompositeItemWriter;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
+import org.springframework.util.ClassUtils;
 
 public abstract class RiotUtils {
 
@@ -101,6 +103,16 @@ public abstract class RiotUtils {
 			return out.toString(UTF_8.name());
 		} catch (UnsupportedEncodingException e) {
 			throw new IllegalArgumentException(e);
+		}
+	}
+
+	public static void registerFunction(StandardEvaluationContext context, String functionName, Class<?> clazz,
+			String methodName, Class<?>... parameterTypes) {
+		try {
+			context.registerFunction(functionName, clazz.getDeclaredMethod(methodName, parameterTypes));
+		} catch (Exception e) {
+			throw new UnsupportedOperationException(
+					String.format("Could not get method %s.%s", ClassUtils.getQualifiedName(clazz), methodName), e);
 		}
 	}
 

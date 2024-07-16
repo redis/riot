@@ -1,6 +1,5 @@
 package com.redis.riot;
 
-import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -13,6 +12,7 @@ import com.redis.lettucemod.util.GeoLocation;
 import com.redis.lettucemod.util.RedisModulesUtils;
 import com.redis.riot.RedisClientBuilder.RedisURIClient;
 import com.redis.riot.core.AbstractJobCommand;
+import com.redis.riot.core.RiotUtils;
 import com.redis.riot.core.Step;
 import com.redis.spring.batch.item.redis.RedisItemReader;
 import com.redis.spring.batch.item.redis.RedisItemReader.ReaderMode;
@@ -72,13 +72,7 @@ abstract class AbstractRedisCommand extends AbstractJobCommand {
 	protected StandardEvaluationContext evaluationContext(ProcessorArgs args) {
 		StandardEvaluationContext context = args.getEvaluationContextArgs().evaluationContext();
 		context.setVariable(CONTEXT_VAR_REDIS, connection.sync());
-		Method method;
-		try {
-			method = GeoLocation.class.getDeclaredMethod("toString", String.class, String.class);
-		} catch (Exception e) {
-			throw new UnsupportedOperationException("Could not get GeoLocation method", e);
-		}
-		context.registerFunction("geo", method);
+		RiotUtils.registerFunction(context, "geo", GeoLocation.class, "toString", String.class, String.class);
 		return context;
 	}
 

@@ -1,1 +1,1 @@
-riot file-import https://storage.googleapis.com/jrx/beers.json hset --keyspace beer --key id
+riot file-import http://storage.googleapis.com/jrx/beers.json hset --keyspace beer --key id

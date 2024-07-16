@@ -1,1 +1,1 @@
-riot file-import https://storage.googleapis.com/jrx/es_test-index.json json.set --keyspace elastic --key _id
+riot file-import http://storage.googleapis.com/jrx/es_test-index.json json.set --keyspace elastic --key _id
