@@ -37,30 +37,12 @@ public class FileReaderArgs extends FileArgs {
 	private int maxItemCount = DEFAULT_MAX_ITEM_COUNT;
 
 	@Override
-	public Resource resource(String location) {
-		if (FileUtils.isStdin(location)) {
-			return new FilenameInputStreamResource(System.in, "stdin", "Standard Input");
-		}
-		Resource resource;
-		try {
-			resource = super.resource(location);
-		} catch (IOException e) {
-			throw new RuntimeIOException("Could not create resource for file " + location, e);
-		}
-		InputStream inputStream;
-		try {
-			inputStream = resource.getInputStream();
-		} catch (IOException e) {
-			throw new RuntimeIOException("Could not open input stream for resource " + resource, e);
-		}
+	public Resource resource(String location) throws IOException {
+		Resource resource = super.resource(location);
+		InputStream inputStream = resource.getInputStream();
 		if (isGzipped() || FileUtils.isGzip(location)) {
-			GZIPInputStream gzipInputStream;
-			try {
-				gzipInputStream = new GZIPInputStream(inputStream);
-			} catch (IOException e) {
-				throw new RuntimeIOException("Could not create gzip input stream for resource " + resource, e);
-			}
-			return new FilenameInputStreamResource(gzipInputStream, resource.getFilename(), resource.getDescription());
+			return new FilenameInputStreamResource(new GZIPInputStream(inputStream), resource.getFilename(),
+					resource.getDescription());
 		}
 		return resource;
 	}

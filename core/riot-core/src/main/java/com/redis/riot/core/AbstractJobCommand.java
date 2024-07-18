@@ -77,23 +77,21 @@ public abstract class AbstractJobCommand extends AbstractCommand {
 	}
 
 	@Override
-	protected void execute() throws RiotException {
+	protected void execute() throws Exception {
 		JobExecution jobExecution;
 		Job job = job();
 		try {
 			jobExecution = jobLauncher.run(job, new JobParameters());
-		} catch (JobExecutionException e) {
-			throw new RiotException("Could not run job " + job.getName(), e);
 		} finally {
 			shutdown();
 		}
 		if (JobUtils.isFailed(jobExecution.getExitStatus())) {
 			for (StepExecution stepExecution : jobExecution.getStepExecutions()) {
 				if (JobUtils.isFailed(stepExecution.getExitStatus())) {
-					throw new RiotException(stepExecution.getExitStatus().getExitDescription());
+					throw new JobExecutionException(stepExecution.getExitStatus().getExitDescription());
 				}
 			}
-			throw new RiotException(jobExecution.getExitStatus().getExitDescription());
+			throw new JobExecutionException(jobExecution.getExitStatus().getExitDescription());
 		}
 	}
 
@@ -133,7 +131,7 @@ public abstract class AbstractJobCommand extends AbstractCommand {
 		return stepArgs.getProgressArgs().getStyle() != ProgressStyle.NONE;
 	}
 
-	protected abstract Job job() throws RiotException;
+	protected abstract Job job() throws Exception;
 
 	private <I, O> TaskletStep step(Step<I, O> step) {
 		SimpleStepBuilder<I, O> builder = simpleStepBuilder(step);

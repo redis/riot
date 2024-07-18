@@ -1,5 +1,6 @@
 package com.redis.riot;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
@@ -50,7 +51,7 @@ public class FileExport extends AbstractExportCommand {
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
-	protected Job job() {
+	protected Job job() throws IOException {
 		WritableResource resource = fileWriterArgs.resource(file);
 		FileType fileType = fileType(resource);
 		ItemWriter writer = factory.create(resource, fileType, () -> headerRecord(fileType));

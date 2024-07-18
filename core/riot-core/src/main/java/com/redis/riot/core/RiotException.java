@@ -1,23 +1,18 @@
 package com.redis.riot.core;
 
 @SuppressWarnings("serial")
-public class RiotException extends Exception {
+public class RiotException extends RuntimeException {
 
-	public RiotException(String message, Exception cause) {
-		super(message, cause);
+	public RiotException(Throwable e) {
+		super(e);
 	}
 
 	public RiotException(String message) {
 		super(message);
 	}
 
-	public RiotException(Exception cause) {
-		super(cause);
-	}
-
-	@Override
-	public synchronized Exception getCause() {
-		return (Exception) super.getCause();
+	public RiotException(String message, Throwable e) {
+		super(message, e);
 	}
 
 }

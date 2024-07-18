@@ -23,7 +23,7 @@ public class FakerImport extends AbstractImportCommand {
 	public static final int DEFAULT_COUNT = 1000;
 	public static final Locale DEFAULT_LOCALE = Locale.ENGLISH;
 
-	@Parameters(arity = "1..*", description = "SpEL expressions in the form field1=\"exp\" field2=\"exp\"...", paramLabel = "EXPRESSION")
+	@Parameters(arity = "1..*", description = "SpEL expressions in the form field1=\"exp\" field2=\"exp\" etc. For details see https://docs.spring.io/spring-framework/reference/core/expressions.html", paramLabel = "EXPRESSION")
 	private Map<String, Expression> fields = new LinkedHashMap<>();
 
 	@Option(names = "--count", description = "Number of items to generate (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")

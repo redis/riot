@@ -74,7 +74,7 @@ public abstract class AbstractCommand extends BaseCommand implements Initializin
 		System.setProperty(property, String.valueOf(value));
 	}
 
-	protected abstract void execute() throws RiotException;
+	protected abstract void execute() throws Exception;
 
 	public LoggingArgs getLoggingArgs() {
 		return loggingArgs;

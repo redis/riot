@@ -8,7 +8,6 @@ import java.nio.file.Files;
 import java.util.Base64;
 
 import org.springframework.core.io.Resource;
-import org.springframework.util.Assert;
 
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.ServiceOptions;
@@ -22,20 +21,18 @@ import picocli.CommandLine.Option;
 
 public class GoogleStorageArgs {
 
-	public static final String GOOGLE_STORAGE_PROTOCOL_PREFIX = "gs://";
-
 	public static final GcpScope DEFAULT_SCOPE = GcpScope.STORAGE_READ_ONLY;
 
-	@Option(names = "--gcs-key-file", description = "GCS private key (e.g. /usr/local/key.json).", paramLabel = "<file>")
+	@Option(names = "--gcs-key-file", description = "Google Cloud Storage private key (e.g. /usr/local/key.json).", paramLabel = "<file>")
 	private File keyFile;
 
-	@Option(names = "--gcs-project", description = "GCP project id.", paramLabel = "<id>")
+	@Option(names = "--gcs-project", description = "Google Cloud Storage project id.", paramLabel = "<id>")
 	private String projectId;
 
-	@Option(names = "--gcs-key", arity = "0..1", interactive = true, description = "GCS Base64 encoded key.", paramLabel = "<key>")
+	@Option(names = "--gcs-key", arity = "0..1", interactive = true, description = "Google Cloud Storage Base64 encoded key.", paramLabel = "<key>")
 	private String encodedKey;
 
-	@Option(names = "--gcs-scope", description = "GCP scope (default: ${DEFAULT-VALUE}).", paramLabel = "<scope>", hidden = true)
+	@Option(names = "--gcs-scope", description = "Google Cloud Storage scope (default: ${DEFAULT-VALUE}).", paramLabel = "<scope>", hidden = true)
 	private GcpScope scope = DEFAULT_SCOPE;
 
 	public GcpScope getScope() {
@@ -85,11 +82,6 @@ public class GoogleStorageArgs {
 			builder.setProjectId(projectId);
 		}
 		return new GoogleStorageResource(builder.build().getService(), location);
-	}
-
-	public static boolean isGoogleStorageResource(String location) {
-		Assert.notNull(location, "Location must not be null");
-		return location.toLowerCase().startsWith(GOOGLE_STORAGE_PROTOCOL_PREFIX);
 	}
 
 }

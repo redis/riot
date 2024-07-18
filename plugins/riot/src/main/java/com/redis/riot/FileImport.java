@@ -1,5 +1,6 @@
 package com.redis.riot;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -17,6 +18,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
+import com.redis.riot.core.RiotException;
 import com.redis.riot.core.RiotUtils;
 import com.redis.riot.core.Step;
 import com.redis.riot.core.processor.RegexNamedGroupFunction;
@@ -122,7 +124,15 @@ public class FileImport extends AbstractImportCommand {
 	}
 
 	public List<Resource> resources() {
-		return files.stream().flatMap(FileUtils::expand).map(fileReaderArgs::resource).collect(Collectors.toList());
+		return files.stream().flatMap(FileUtils::expand).map(this::resource).collect(Collectors.toList());
+	}
+
+	private Resource resource(String location) {
+		try {
+			return fileReaderArgs.resource(location);
+		} catch (IOException e) {
+			throw new RiotException("Could not create resource from location " + location, e);
+		}
 	}
 
 	public List<String> getFiles() {

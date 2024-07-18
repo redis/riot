@@ -52,33 +52,18 @@ public class FileWriterArgs extends FileArgs {
 	}
 
 	@Override
-	public WritableResource resource(String location) {
+	public WritableResource resource(String location) throws IOException {
 		if (location == null) {
 			return new SystemOutResource();
 		}
-		Resource resource;
-		try {
-			resource = super.resource(location);
-		} catch (IOException e) {
-			throw new RuntimeIOException("Could not get resource " + location, e);
-		}
+		Resource resource = super.resource(location);
 		Assert.notNull(resource, "Could not resolve file " + location);
 		Assert.isInstanceOf(WritableResource.class, resource);
 		WritableResource writableResource = (WritableResource) resource;
 		if (isGzipped() || FileUtils.isGzip(location)) {
-			OutputStream outputStream;
-			try {
-				outputStream = writableResource.getOutputStream();
-			} catch (IOException e) {
-				throw new RuntimeIOException("Could not open output stream on resource " + writableResource, e);
-			}
-			GZIPOutputStream gzipOutputStream;
-			try {
-				gzipOutputStream = new GZIPOutputStream(outputStream);
-			} catch (IOException e) {
-				throw new RuntimeIOException("Could not open gzip output stream on resource " + writableResource, e);
-			}
-			return new OutputStreamResource(gzipOutputStream, resource.getFilename(), resource.getDescription());
+			OutputStream outputStream = writableResource.getOutputStream();
+			return new OutputStreamResource(new GZIPOutputStream(outputStream), resource.getFilename(),
+					resource.getDescription());
 		}
 		return writableResource;
 	}

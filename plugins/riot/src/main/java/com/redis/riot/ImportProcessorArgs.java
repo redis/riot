@@ -23,7 +23,7 @@ public class ImportProcessorArgs {
 	@ArgGroup(exclusive = false)
 	private EvaluationContextArgs evaluationContextArgs = new EvaluationContextArgs();
 
-	@Option(arity = "1..*", names = "--proc", description = "SpEL expressions in the form field1=\"exp\" field2=\"exp\"...", paramLabel = "<f=exp>")
+	@Option(arity = "1..*", names = "--proc", description = "SpEL expressions in the form field1=\"exp\" field2=\"exp\" etc. For details see https://docs.spring.io/spring-framework/reference/core/expressions.html", paramLabel = "<f=exp>")
 	private Map<String, Expression> expressions;
 
 	@Option(names = "--filter", description = "Discard records using a SpEL expression.", paramLabel = "<exp>")

@@ -1,13 +1,13 @@
 package com.redis.riot.file;
 
+import java.net.MalformedURLException;
 import java.net.URI;
 
 import org.springframework.core.io.Resource;
-import org.springframework.util.Assert;
+import org.springframework.core.io.UrlResource;
 import org.springframework.util.StringUtils;
 
 import io.awspring.cloud.s3.InMemoryBufferingS3OutputStreamProvider;
-import io.awspring.cloud.s3.Location;
 import io.awspring.cloud.s3.PropertiesS3ObjectContentTypeResolver;
 import io.awspring.cloud.s3.S3Resource;
 import picocli.CommandLine.ArgGroup;
@@ -30,11 +30,6 @@ public class AwsArgs {
 
 	@Option(names = "--s3-endpoint", description = "Service endpoint with which the AWS client should communicate (e.g. https://sns.us-west-1.amazonaws.com).", paramLabel = "<url>")
 	private URI endpoint;
-
-	public static boolean isSimpleStorageResource(String location) {
-		Assert.notNull(location, "Location must not be null");
-		return location.toLowerCase().startsWith(Location.S3_PROTOCOL_PREFIX);
-	}
 
 	public Resource resource(String location) {
 		S3ClientBuilder clientBuilder = S3Client.builder();
@@ -83,5 +78,9 @@ public class AwsArgs {
 
 	public void setEndpoint(URI endpoint) {
 		this.endpoint = endpoint;
+	}
+
+	public static void main(String[] args) throws MalformedURLException {
+		new UrlResource("s3://riot-bucket-jrx/beers.json");
 	}
 }

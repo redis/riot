@@ -37,14 +37,17 @@ public class FileArgs {
 	private char quoteCharacter = DEFAULT_QUOTE_CHARACTER;
 
 	public Resource resource(String location) throws IOException {
-		if (AwsArgs.isSimpleStorageResource(location)) {
-			return amazonS3Args.resource(location);
-		}
-		if (GoogleStorageArgs.isGoogleStorageResource(location)) {
-			return googleStorageArgs.resource(location);
+		if (FileUtils.isStdin(location)) {
+			return new FilenameInputStreamResource(System.in, "stdin", "Standard Input");
 		}
 		if (ResourceUtils.isUrl(location)) {
 			return new UncustomizedUrlResource(location);
+		}
+		if (FileUtils.isAwsStorage(location)) {
+			return amazonS3Args.resource(location);
+		}
+		if (FileUtils.isGoogleStorage(location)) {
+			return googleStorageArgs.resource(location);
 		}
 		return new FileSystemResource(location);
 	}

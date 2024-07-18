@@ -5,7 +5,6 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -15,12 +14,17 @@ import java.util.stream.Stream;
 
 import org.springframework.core.io.Resource;
 import org.springframework.util.ResourceUtils;
+import org.springframework.util.StringUtils;
 
+import com.redis.riot.core.RiotException;
+
+import io.awspring.cloud.s3.Location;
 import picocli.CommandLine;
 import software.amazon.awssdk.regions.Region;
 
 public abstract class FileUtils {
 
+	public static final String GOOGLE_STORAGE_PROTOCOL_PREFIX = "gs://";
 	public static final Pattern EXTENSION_PATTERN = Pattern.compile("(?i)\\.(?<extension>\\w+)(?:\\.(?<gz>gz))?$");
 
 	public static final String CSV = "csv";
@@ -32,10 +36,6 @@ public abstract class FileUtils {
 	public static final String XML = "xml";
 
 	private FileUtils() {
-	}
-
-	public static boolean isGzip(String file) {
-		return extensionGroup(file, "gz") != null;
 	}
 
 	private static String extensionGroup(String file, String group) {
@@ -75,7 +75,7 @@ public abstract class FileUtils {
 
 	/**
 	 * 
-	 * @param file Filename that might include a glob pattern
+	 * @param file File path that might include a glob pattern
 	 * @return List of file
 	 * @throws IOException
 	 */
@@ -86,13 +86,8 @@ public abstract class FileUtils {
 		return Stream.of(file);
 	}
 
-	public static boolean isStdin(String file) {
-		return "-".equals(file);
-	}
-
 	public static boolean isFile(String file) {
-		return !AwsArgs.isSimpleStorageResource(file) && !GoogleStorageArgs.isGoogleStorageResource(file)
-				&& !ResourceUtils.isUrl(file) && !isStdin(file);
+		return !isAwsStorage(file) && !isGoogleStorage(file) && !ResourceUtils.isUrl(file) && !isStdin(file);
 	}
 
 	public static List<Path> expand(Path path) {
@@ -107,13 +102,29 @@ public abstract class FileUtils {
 			stream.iterator().forEachRemaining(paths::add);
 			return paths;
 		} catch (IOException e) {
-			throw new RuntimeIOException(
-					MessageFormat.format("Could not list files in directory {0} with glob pattern {1}", dir, glob), e);
+			throw new RiotException(
+					String.format("Could not list files in directory %s with glob pattern %s", dir, glob), e);
 		}
 	}
 
 	public static void registerConverters(CommandLine commandLine) {
 		commandLine.registerConverter(Region.class, Region::of);
+	}
+
+	public static boolean isGzip(String file) {
+		return extensionGroup(file, "gz") != null;
+	}
+
+	public static boolean isStdin(String file) {
+		return "-".equals(file);
+	}
+
+	public static boolean isGoogleStorage(String location) {
+		return StringUtils.hasLength(location) && location.toLowerCase().startsWith(GOOGLE_STORAGE_PROTOCOL_PREFIX);
+	}
+
+	public static boolean isAwsStorage(String location) {
+		return StringUtils.hasLength(location) && location.toLowerCase().startsWith(Location.S3_PROTOCOL_PREFIX);
 	}
 
 }

@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -39,6 +38,7 @@ import com.redis.lettucemod.timeseries.MRangeOptions;
 import com.redis.lettucemod.timeseries.RangeResult;
 import com.redis.lettucemod.timeseries.TimeRange;
 import com.redis.riot.core.Expression;
+import com.redis.riot.core.RiotException;
 import com.redis.riot.file.xml.XmlItemReader;
 import com.redis.riot.file.xml.XmlItemReaderBuilder;
 import com.redis.riot.file.xml.XmlObjectReader;
@@ -153,7 +153,7 @@ class StackRiotTests extends RiotTests {
 		return ExitCode.OK;
 	}
 
-	private int executeFileDumpExport(ParseResult parseResult, TestInfo info) {
+	private int executeFileDumpExport(ParseResult parseResult, TestInfo info) throws RiotException {
 		FileExport command = command(parseResult);
 		command.setJobName(name(info));
 		command.setFile(replace(command.getFile()));
@@ -306,7 +306,6 @@ class StackRiotTests extends RiotTests {
 	}
 
 	private int executeImportGlob(ParseResult parseResult) {
-
 		FileImport command = command(parseResult);
 		try {
 			Path dir = Files.createTempDirectory("import-glob");
@@ -315,7 +314,7 @@ class StackRiotTests extends RiotTests {
 			FileCopyUtils.copy(getClass().getClassLoader().getResourceAsStream("files/beers2.csv"),
 					Files.newOutputStream(dir.resolve("beers2.csv")));
 			File file = new File(command.getFiles().get(0));
-			command.setFiles(Arrays.asList(dir.resolve(file.getName()).toString()));
+			command.setFiles(dir.resolve(file.getName()).toString());
 		} catch (IOException e) {
 			throw new RuntimeException("Could not configure import-glob", e);
 		}

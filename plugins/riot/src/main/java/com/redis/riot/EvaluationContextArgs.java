@@ -22,7 +22,7 @@ public class EvaluationContextArgs {
 	public static final String NUMBER_VAR = "number";
 	public static final String REDIS_VAR = "redis";
 
-	@Option(arity = "1..*", names = "--var", description = "SpEL expressions for context variables, in the form var=\"exp\"", paramLabel = "<v=exp>")
+	@Option(arity = "1..*", names = "--var", description = "SpEL expressions for context variables, in the form var=\"exp\". For details see https://docs.spring.io/spring-framework/reference/core/expressions.html", paramLabel = "<v=exp>")
 	private Map<String, Expression> varExpressions = new LinkedHashMap<>();
 
 	@Option(names = "--date-format", description = "Date/time format (default: ${DEFAULT-VALUE}). For details see https://www.baeldung.com/java-simple-date-format#date_time_patterns", paramLabel = "<fmt>")

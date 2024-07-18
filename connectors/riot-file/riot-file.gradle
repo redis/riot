@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 dependencies {
+    implementation project(':riot-core')
     implementation group: 'info.picocli', name: 'picocli', version: picocliVersion
     annotationProcessor group: 'info.picocli', name: 'picocli-codegen', version: picocliVersion
     implementation 'org.springframework.batch:spring-batch-infrastructure'
