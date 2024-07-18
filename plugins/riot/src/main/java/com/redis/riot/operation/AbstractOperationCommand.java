@@ -8,8 +8,8 @@ import java.util.function.ToDoubleFunction;
 import java.util.function.ToLongFunction;
 
 import com.redis.riot.core.BaseCommand;
-import com.redis.riot.core.function.FieldExtractorFactory;
-import com.redis.riot.core.function.IdFunctionBuilder;
+import com.redis.riot.core.processor.FieldExtractorFactory;
+import com.redis.riot.core.processor.IdFunctionBuilder;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;

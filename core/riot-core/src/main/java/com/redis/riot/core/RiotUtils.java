@@ -18,6 +18,7 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemWriter;
@@ -42,10 +43,17 @@ public abstract class RiotUtils {
 				.toArray(ItemProcessor[]::new));
 	}
 
-	@SuppressWarnings("unchecked")
 	public static <S, T> ItemProcessor<S, T> processor(ItemProcessor<?, ?>... processors) {
-		List<? extends ItemProcessor<?, ?>> list = Stream.of(processors).filter(Objects::nonNull)
-				.collect(Collectors.toList());
+		return processor(Stream.of(processors));
+	}
+
+	public static <S, T> ItemProcessor<S, T> processor(Iterable<? extends ItemProcessor<?, ?>> processors) {
+		return processor(StreamSupport.stream(processors.spliterator(), false));
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <S, T> ItemProcessor<S, T> processor(Stream<? extends ItemProcessor<?, ?>> processors) {
+		List<? extends ItemProcessor<?, ?>> list = processors.filter(Objects::nonNull).collect(Collectors.toList());
 		if (list.isEmpty()) {
 			return null;
 		}
@@ -60,6 +68,10 @@ public abstract class RiotUtils {
 	@SuppressWarnings("unchecked")
 	public static <T> ItemWriter<T> writer(ItemWriter<T>... writers) {
 		return writer(Arrays.asList(writers));
+	}
+
+	public static <T> ItemWriter<T> writer(Stream<? extends ItemWriter<T>> writers) {
+		return writer(writers.collect(Collectors.toList()));
 	}
 
 	public static <T> ItemWriter<T> writer(Collection<? extends ItemWriter<T>> writers) {

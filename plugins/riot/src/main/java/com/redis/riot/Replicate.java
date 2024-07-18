@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.function.FunctionItemProcessor;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.util.Assert;
 
 import com.redis.riot.core.RiotUtils;
@@ -40,11 +41,17 @@ public class Replicate extends AbstractCompareCommand {
 	private static final String LIVEONLY_TASK_NAME = "Listening";
 	private static final String LIVE_TASK_NAME = "Scanning/Listening";
 
+	private static final String SOURCE_VAR = "source";
+	private static final String TARGET_VAR = "target";
+
 	@Option(names = "--struct", description = "Enable data structure-specific replication")
 	private boolean struct;
 
+	@ArgGroup(exclusive = false)
+	private EvaluationContextArgs evaluationContextArgs = new EvaluationContextArgs();
+
 	@ArgGroup(exclusive = false, heading = "Processor options%n")
-	private ProcessorArgs processorArgs = new ProcessorArgs();
+	private KeyValueProcessorArgs processorArgs = new KeyValueProcessorArgs();
 
 	@ArgGroup(exclusive = false)
 	private RedisWriterArgs targetRedisWriterArgs = new RedisWriterArgs();
@@ -73,7 +80,7 @@ public class Replicate extends AbstractCompareCommand {
 
 	@Override
 	protected boolean isIgnoreStreamMessageId() {
-		return !processorArgs.getStreamProcessorArgs().isPropagateIds();
+		return !processorArgs.isPropagateIds();
 	}
 
 	private ItemProcessor<KeyValue<byte[], Object>, KeyValue<byte[], Object>> processor() {
@@ -85,13 +92,22 @@ public class Replicate extends AbstractCompareCommand {
 			Assert.isTrue(isStruct(), "'--no-stream-ids' can only be used with '--struct'");
 		}
 		ItemProcessor<KeyValue<String, Object>, KeyValue<String, Object>> processor = processorArgs
-				.keyValueProcessor(evaluationContext(processorArgs));
+				.processor(evaluationContext());
 		if (processor == null) {
 			return null;
 		}
 		ToStringKeyValue<byte[]> code = new ToStringKeyValue<>(ByteArrayCodec.INSTANCE);
 		StringKeyValue<byte[]> decode = new StringKeyValue<>(ByteArrayCodec.INSTANCE);
 		return RiotUtils.processor(new FunctionItemProcessor<>(code), processor, new FunctionItemProcessor<>(decode));
+	}
+
+	private StandardEvaluationContext evaluationContext() {
+		StandardEvaluationContext context = evaluationContextArgs.evaluationContext(connection);
+		log.info("Setting evaluation context variable {} = {}", SOURCE_VAR, client.getUri());
+		context.setVariable(SOURCE_VAR, client.getUri());
+		log.info("Setting evaluation context variable {} = {}", TARGET_VAR, targetRedisURIClient.getUri());
+		context.setVariable(TARGET_VAR, targetRedisURIClient.getUri());
+		return context;
 	}
 
 	@Override
@@ -188,11 +204,11 @@ public class Replicate extends AbstractCompareCommand {
 		this.struct = type;
 	}
 
-	public ProcessorArgs getProcessorArgs() {
+	public KeyValueProcessorArgs getProcessorArgs() {
 		return processorArgs;
 	}
 
-	public void setProcessorArgs(ProcessorArgs args) {
+	public void setProcessorArgs(KeyValueProcessorArgs args) {
 		this.processorArgs = args;
 	}
 

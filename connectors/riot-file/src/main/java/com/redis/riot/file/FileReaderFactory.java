@@ -17,6 +17,7 @@ import org.springframework.batch.item.file.transform.FixedLengthTokenizer;
 import org.springframework.batch.item.file.transform.Range;
 import org.springframework.batch.item.file.transform.RangeArrayPropertyEditor;
 import org.springframework.batch.item.json.JacksonJsonObjectReader;
+import org.springframework.batch.item.json.JsonItemReader;
 import org.springframework.batch.item.json.builder.JsonItemReaderBuilder;
 import org.springframework.core.io.Resource;
 import org.springframework.util.Assert;
@@ -38,51 +39,67 @@ public class FileReaderFactory {
 
 	private FileReaderArgs args = new FileReaderArgs();
 	private Map<Class<?>, JsonDeserializer<?>> deserializers = new HashMap<>();
-	private Class<?> itemType = Map.class;
 
-	public ItemReader<?> create(Resource resource) throws Exception {
-		FileType type = args.fileType(resource);
-		switch (type) {
-		case CSV:
-			return flatFileReader(resource, delimitedLineTokenizer(resource));
-		case FIXED:
-			return flatFileReader(resource, fixedLengthTokenizer());
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public <T> ItemReader<T> createReader(Resource resource, FileType fileType, Class<T> itemType) {
+		switch (fileType) {
 		case XML:
-			return xmlReader(resource);
+			return xmlReader(resource, itemType);
 		case JSON:
-			return jsonReader(resource);
+			return jsonReader(resource, itemType);
 		case JSONL:
-			return jsonlReader(resource);
+			return jsonlReader(resource, itemType);
+		case CSV:
+			return (FlatFileItemReader) flatFileReader(resource, delimitedLineTokenizer(delimiter(resource)));
+		case FIXED:
+			return (FlatFileItemReader) flatFileReader(resource, fixedLengthTokenizer());
 		default:
-			throw new UnsupportedOperationException("Unsupported file type: " + type);
+			throw new UnsupportedOperationException("Unsupported file type: " + fileType);
 		}
 	}
 
-	private DelimitedLineTokenizer delimitedLineTokenizer(Resource resource) throws Exception {
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private <T> FlatFileItemReader<T> jsonlReader(Resource resource, Class<T> itemType) {
+		if (Map.class.isAssignableFrom(itemType)) {
+			FlatFileItemReaderBuilder<Map<String, Object>> reader = flatFileReader(resource);
+			return (FlatFileItemReader) reader.fieldSetMapper(new MapFieldSetMapper()).lineMapper(new JsonLineMapper())
+					.build();
+		}
+		FlatFileItemReaderBuilder<T> reader = flatFileReader(resource);
+		return reader.lineMapper(lineMapper(itemType)).build();
+	}
+
+	private <T> LineMapper<T> lineMapper(Class<T> itemType) {
+		return new ObjectMapperLineMapper<>(objectMapper(new ObjectMapper()), itemType);
+	}
+
+	private DelimitedLineTokenizer delimitedLineTokenizer(String delimiter) {
 		DelimitedLineTokenizer tokenizer = new DelimitedLineTokenizer();
-		tokenizer.setDelimiter(delimiter(resource));
+		tokenizer.setDelimiter(delimiter);
 		tokenizer.setQuoteCharacter(args.getQuoteCharacter());
 		if (!ObjectUtils.isEmpty(args.getIncludedFields())) {
 			tokenizer.setIncludedFields(args.getIncludedFields().stream().mapToInt(Integer::intValue).toArray());
 		}
-		tokenizer.afterPropertiesSet();
 		return tokenizer;
 	}
 
 	private FlatFileItemReader<Map<String, Object>> flatFileReader(Resource resource, AbstractLineTokenizer tokenizer) {
 		if (ObjectUtils.isEmpty(args.getFields())) {
-			Assert.isTrue(args.isHeader(), "No field names specified and header not enabled");
+			Assert.isTrue(args.isHeader(),
+					String.format("Could not create reader for file '%s': no header or field names specified",
+							resource.getFilename()));
 		} else {
 			tokenizer.setNames(args.getFields().toArray(new String[0]));
 		}
 		FlatFileItemReaderBuilder<Map<String, Object>> builder = flatFileReader(resource);
+		builder.fieldSetMapper(new MapFieldSetMapper());
 		builder.lineTokenizer(tokenizer);
 		builder.skippedLinesCallback(new HeaderCallbackHandler(tokenizer, headerIndex()));
 		return builder.build();
 	}
 
-	private FlatFileItemReaderBuilder<Map<String, Object>> flatFileReader(Resource resource) {
-		FlatFileItemReaderBuilder<Map<String, Object>> builder = new FlatFileItemReaderBuilder<>();
+	private <T> FlatFileItemReaderBuilder<T> flatFileReader(Resource resource) {
+		FlatFileItemReaderBuilder<T> builder = new FlatFileItemReaderBuilder<>();
 		builder.resource(resource);
 		builder.maxItemCount(args.getMaxItemCount());
 		if (args.getEncoding() != null) {
@@ -92,7 +109,6 @@ public class FileReaderFactory {
 		builder.linesToSkip(linesToSkip());
 		builder.strict(true);
 		builder.saveState(false);
-		builder.fieldSetMapper(new MapFieldSetMapper());
 		return builder;
 	}
 
@@ -120,47 +136,26 @@ public class FileReaderFactory {
 		return objectMapper;
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private FlatFileItemReader jsonlReader(Resource resource) {
-		FlatFileItemReaderBuilder reader = flatFileReader(resource);
-		reader.lineMapper(jsonLineMapper());
-		return reader.build();
-	}
-
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private XmlItemReader xmlReader(Resource resource) {
-		XmlItemReaderBuilder builder = new XmlItemReaderBuilder<>();
+	private <T> XmlItemReader<T> xmlReader(Resource resource, Class<T> itemType) {
+		XmlItemReaderBuilder<T> builder = new XmlItemReaderBuilder<>();
 		builder.name(resource.getFilename() + "-xml-file-reader");
 		builder.resource(resource);
-		XmlObjectReader objectReader = new XmlObjectReader<>(itemType);
+		XmlObjectReader<T> objectReader = new XmlObjectReader<>(itemType);
 		objectReader.setMapper(objectMapper(new XmlMapper()));
 		builder.xmlObjectReader(objectReader);
 		builder.maxItemCount(args.getMaxItemCount());
 		return builder.build();
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private ItemReader jsonReader(Resource resource) {
-		JsonItemReaderBuilder builder = new JsonItemReaderBuilder<>();
+	private <T> JsonItemReader<T> jsonReader(Resource resource, Class<T> itemType) {
+		JsonItemReaderBuilder<T> builder = new JsonItemReaderBuilder<>();
 		builder.name(resource.getFilename() + "-json-file-reader");
 		builder.resource(resource);
-		JacksonJsonObjectReader objectReader = new JacksonJsonObjectReader<>(itemType);
+		JacksonJsonObjectReader<T> objectReader = new JacksonJsonObjectReader<>(itemType);
 		objectReader.setMapper(objectMapper(new ObjectMapper()));
 		builder.jsonObjectReader(objectReader);
 		builder.maxItemCount(args.getMaxItemCount());
 		return builder.build();
-	}
-
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private LineMapper jsonLineMapper() {
-		if (isTypeMap()) {
-			return new JsonLineMapper();
-		}
-		return new ObjectMapperLineMapper(objectMapper(new ObjectMapper()), itemType);
-	}
-
-	private boolean isTypeMap() {
-		return Map.class.isAssignableFrom(itemType);
 	}
 
 	private String delimiter(Resource resource) {
@@ -212,14 +207,6 @@ public class FileReaderFactory {
 
 	public <T> void addDeserializer(Class<T> type, JsonDeserializer<T> deserializer) {
 		deserializers.put(type, deserializer);
-	}
-
-	public Class<?> getItemType() {
-		return itemType;
-	}
-
-	public void setItemType(Class<?> itemType) {
-		this.itemType = itemType;
 	}
 
 	public FileReaderArgs getArgs() {

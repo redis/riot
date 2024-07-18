@@ -2,24 +2,18 @@ package com.redis.riot.file;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
 import org.springframework.core.io.Resource;
 
 import picocli.CommandLine.Option;
-import picocli.CommandLine.Parameters;
 
 public class FileReaderArgs extends FileArgs {
 
 	public static final String DEFAULT_CONTINUATION_STRING = "\\";
 	public static final int DEFAULT_MAX_ITEM_COUNT = Integer.MAX_VALUE;
-
-	@Parameters(arity = "1..*", description = "Files or URLs to import. Use '-' to read from stdin.", paramLabel = "FILE")
-	private List<String> files;
 
 	@Option(names = "--ranges", arity = "1..*", description = "Column ranges for fixed-length files.", paramLabel = "<string>")
 	private List<String> columnRanges;
@@ -69,22 +63,6 @@ public class FileReaderArgs extends FileArgs {
 			return new FilenameInputStreamResource(gzipInputStream, resource.getFilename(), resource.getDescription());
 		}
 		return resource;
-	}
-
-	public List<Resource> resources() {
-		return files.stream().flatMap(FileUtils::expand).map(this::resource).collect(Collectors.toList());
-	}
-
-	public List<String> getFiles() {
-		return files;
-	}
-
-	public void setFiles(String... files) {
-		setFiles(Arrays.asList(files));
-	}
-
-	public void setFiles(List<String> files) {
-		this.files = files;
 	}
 
 	public List<String> getColumnRanges() {
@@ -141,14 +119,6 @@ public class FileReaderArgs extends FileArgs {
 
 	public void setMaxItemCount(int maxItemCount) {
 		this.maxItemCount = maxItemCount;
-	}
-
-	@Override
-	public String toString() {
-		return "FileReaderArgs [files=" + files + ", " + super.toString() + ", columnRanges=" + columnRanges
-				+ ", continuationString=" + continuationString + ", fields=" + fields + ", headerLine=" + headerLine
-				+ ", includedFields=" + includedFields + ", linesToSkip=" + linesToSkip + ", maxItemCount="
-				+ maxItemCount + "]";
 	}
 
 }

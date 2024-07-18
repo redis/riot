@@ -30,17 +30,15 @@ public class FileWriterFactory {
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	private FileWriterArgs args = new FileWriterArgs();
-	private Supplier<Map<String, Object>> headerSupplier = () -> null;
 
 	@SuppressWarnings("unchecked")
-	public <T> ItemWriter<T> create(String file) {
-		WritableResource resource = args.resource(file);
-		FileType type = args.fileType(resource);
-		switch (type) {
+	public <T> ItemWriter<T> create(WritableResource resource, FileType fileType,
+			Supplier<Map<String, Object>> headerSupplier) {
+		switch (fileType) {
 		case CSV:
-			return (ItemWriter<T>) delimitedWriter(resource);
+			return (ItemWriter<T>) delimitedWriter(resource, headerSupplier);
 		case FIXED:
-			return (ItemWriter<T>) fixedLengthWriter(resource);
+			return (ItemWriter<T>) fixedLengthWriter(resource, headerSupplier);
 		case JSON:
 			return jsonWriter(resource);
 		case JSONL:
@@ -48,7 +46,7 @@ public class FileWriterFactory {
 		case XML:
 			return xmlWriter(resource);
 		default:
-			throw new UnsupportedOperationException("Unsupported file type: " + type);
+			throw new UnsupportedOperationException("Unsupported file type: " + fileType);
 		}
 	}
 
@@ -92,17 +90,18 @@ public class FileWriterFactory {
 		return writer.build();
 	}
 
-	private ItemWriter<Map<String, Object>> delimitedWriter(WritableResource resource) {
+	private ItemWriter<Map<String, Object>> delimitedWriter(WritableResource resource,
+			Supplier<Map<String, Object>> headerSupplier) {
 		FlatFileItemWriterBuilder<Map<String, Object>> writer = flatFileWriter(resource);
 		DelimitedBuilder<Map<String, Object>> delimitedBuilder = writer.delimited();
 		delimitedBuilder.delimiter(args.getDelimiter());
 		delimitedBuilder.fieldExtractor(new PassThroughFieldExtractor<>());
 		delimitedBuilder.quoteCharacter(String.valueOf(args.getQuoteCharacter()));
-		return writer(writer, delimitedBuilder.build());
+		return writer(writer, delimitedBuilder.build(), headerSupplier);
 	}
 
 	private FlatFileItemWriter<Map<String, Object>> writer(FlatFileItemWriterBuilder<Map<String, Object>> writer,
-			LineAggregator<Map<String, Object>> lineAggregator) {
+			LineAggregator<Map<String, Object>> lineAggregator, Supplier<Map<String, Object>> headerSupplier) {
 		writer.lineAggregator(lineAggregator);
 		if (args.isHeader()) {
 			Map<String, Object> headerRecord = headerSupplier.get();
@@ -119,12 +118,13 @@ public class FileWriterFactory {
 		return writer.build();
 	}
 
-	private ItemWriter<Map<String, Object>> fixedLengthWriter(WritableResource resource) {
+	private ItemWriter<Map<String, Object>> fixedLengthWriter(WritableResource resource,
+			Supplier<Map<String, Object>> headerSupplier) {
 		FlatFileItemWriterBuilder<Map<String, Object>> writer = flatFileWriter(resource);
 		FormattedBuilder<Map<String, Object>> formattedBuilder = writer.formatted();
 		formattedBuilder.format(args.getFormatterString());
 		formattedBuilder.fieldExtractor(new PassThroughFieldExtractor<>());
-		return writer(writer, formattedBuilder.build());
+		return writer(writer, formattedBuilder.build(), headerSupplier);
 	}
 
 	private <T> FlatFileItemWriterBuilder<T> flatFileWriter(WritableResource resource) {
@@ -148,14 +148,6 @@ public class FileWriterFactory {
 
 	public void setArgs(FileWriterArgs options) {
 		this.args = options;
-	}
-
-	public Supplier<Map<String, Object>> getHeaderSupplier() {
-		return headerSupplier;
-	}
-
-	public void setHeaderSupplier(Supplier<Map<String, Object>> supplier) {
-		this.headerSupplier = supplier;
 	}
 
 }

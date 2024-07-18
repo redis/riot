@@ -3,6 +3,8 @@ package com.redis.riot.operation;
 import java.util.Map;
 import java.util.function.Function;
 
+import org.springframework.util.StringUtils;
+
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -17,7 +19,7 @@ import picocli.CommandLine.Option;
 public class SetCommand extends AbstractOperationCommand {
 
 	public enum StringFormat {
-		RAW, XML, JSON
+		XML, JSON
 	}
 
 	public static final StringFormat DEFAULT_FORMAT = StringFormat.JSON;
@@ -25,8 +27,8 @@ public class SetCommand extends AbstractOperationCommand {
 	@Option(names = "--format", description = "Serialization: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<fmt>")
 	private StringFormat format = DEFAULT_FORMAT;
 
-	@Option(names = "--field", description = "Raw value field.", paramLabel = "<field>")
-	private String field;
+	@Option(names = "--value", description = "Raw value field. Disables serialization.", paramLabel = "<field>")
+	private String value;
 
 	@Option(names = "--root", description = "XML root element name.", paramLabel = "<name>")
 	private String root;
@@ -37,20 +39,16 @@ public class SetCommand extends AbstractOperationCommand {
 	}
 
 	private Function<Map<String, Object>, String> value() {
-		switch (format) {
-		case RAW:
-			if (field == null) {
-				throw new IllegalArgumentException("Raw value field name not set");
-			}
-			return toString(field);
-		case XML:
-			return new ObjectMapperFunction<>(new XmlMapper().writer().withRootName(root));
-		default:
-			ObjectMapper jsonMapper = new ObjectMapper();
-			jsonMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-			jsonMapper.setSerializationInclusion(Include.NON_NULL);
-			return new ObjectMapperFunction<>(jsonMapper.writer().withRootName(root));
+		if (StringUtils.hasLength(value)) {
+			return toString(value);
 		}
+		if (format == StringFormat.XML) {
+			return new ObjectMapperFunction<>(new XmlMapper().writer().withRootName(root));
+		}
+		ObjectMapper jsonMapper = new ObjectMapper();
+		jsonMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+		jsonMapper.setSerializationInclusion(Include.NON_NULL);
+		return new ObjectMapperFunction<>(jsonMapper.writer().withRootName(root));
 	}
 
 }

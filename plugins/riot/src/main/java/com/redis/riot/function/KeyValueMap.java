@@ -10,8 +10,8 @@ import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
 import com.redis.lettucemod.timeseries.Sample;
-import com.redis.riot.core.function.CollectionToMapFunction;
-import com.redis.riot.core.function.StringToMapFunction;
+import com.redis.riot.core.processor.CollectionToMapFunction;
+import com.redis.riot.core.processor.StringToMapFunction;
 import com.redis.spring.batch.item.redis.common.DataType;
 import com.redis.spring.batch.item.redis.common.KeyValue;
 

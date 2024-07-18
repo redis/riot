@@ -4,15 +4,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.util.Assert;
 
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
-import com.redis.lettucemod.util.GeoLocation;
 import com.redis.lettucemod.util.RedisModulesUtils;
 import com.redis.riot.RedisClientBuilder.RedisURIClient;
 import com.redis.riot.core.AbstractJobCommand;
-import com.redis.riot.core.RiotUtils;
 import com.redis.riot.core.Step;
 import com.redis.spring.batch.item.redis.RedisItemReader;
 import com.redis.spring.batch.item.redis.RedisItemReader.ReaderMode;
@@ -26,7 +23,6 @@ abstract class AbstractRedisCommand extends AbstractJobCommand {
 
 	private static final String NOTIFY_CONFIG = "notify-keyspace-events";
 	private static final String NOTIFY_CONFIG_VALUE = "KEA";
-	private static final String CONTEXT_VAR_REDIS = "redis";
 
 	@ArgGroup(exclusive = false, heading = "TLS options%n")
 	private SslArgs sslArgs = new SslArgs();
@@ -67,13 +63,6 @@ abstract class AbstractRedisCommand extends AbstractJobCommand {
 			client.close();
 			client = null;
 		}
-	}
-
-	protected StandardEvaluationContext evaluationContext(ProcessorArgs args) {
-		StandardEvaluationContext context = args.getEvaluationContextArgs().evaluationContext();
-		context.setVariable(CONTEXT_VAR_REDIS, connection.sync());
-		RiotUtils.registerFunction(context, "geo", GeoLocation.class, "toString", String.class, String.class);
-		return context;
 	}
 
 	protected RedisClientBuilder redisClientBuilder() {

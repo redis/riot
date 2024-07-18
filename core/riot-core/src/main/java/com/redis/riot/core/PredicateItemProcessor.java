@@ -1,7 +1,8 @@
 package com.redis.riot.core;
 
 import java.util.function.Predicate;
-import java.util.function.UnaryOperator;
+
+import org.springframework.batch.item.ItemProcessor;
 
 /**
  * Function that only keeps items that match the given predicate., i.e. a given
@@ -9,16 +10,16 @@ import java.util.function.UnaryOperator;
  * 
  * @param <T>
  */
-public class FilterFunction<T> implements UnaryOperator<T> {
+public class PredicateItemProcessor<T> implements ItemProcessor<T, T> {
 
 	private final Predicate<T> predicate;
 
-	public FilterFunction(Predicate<T> predicate) {
+	public PredicateItemProcessor(Predicate<T> predicate) {
 		this.predicate = predicate;
 	}
 
 	@Override
-	public T apply(T item) {
+	public T process(T item) {
 		if (predicate.test(item)) {
 			return item;
 		}

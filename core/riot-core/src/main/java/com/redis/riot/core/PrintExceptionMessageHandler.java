@@ -8,6 +8,16 @@ public class PrintExceptionMessageHandler implements IExecutionExceptionHandler 
 
 	public int handleExecutionException(Exception ex, CommandLine cmd, ParseResult parseResult) {
 
+		boolean stacktrace = false;
+
+		if (cmd.getCommand() instanceof AbstractCommand) {
+			stacktrace = ((AbstractCommand) cmd.getCommand()).getLoggingArgs().isStacktrace();
+		}
+
+		if (stacktrace) {
+			ex.printStackTrace(cmd.getErr());
+		}
+
 		// bold red error message
 		cmd.getErr().println(cmd.getColorScheme().errorText(ex.getMessage()));
 

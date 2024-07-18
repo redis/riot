@@ -3,25 +3,21 @@ package com.redis.riot;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.function.UnaryOperator;
 
 import org.springframework.batch.item.ItemProcessor;
+import org.springframework.batch.item.function.FunctionItemProcessor;
 import org.springframework.expression.EvaluationContext;
 
-import com.redis.riot.core.EvaluationContextArgs;
 import com.redis.riot.core.Expression;
 import com.redis.riot.core.RiotUtils;
 import com.redis.riot.core.TemplateExpression;
-import com.redis.riot.function.ConsumerUnaryOperator;
+import com.redis.riot.core.processor.ConsumerUnaryOperator;
+import com.redis.riot.function.StreamItemProcessor;
 import com.redis.spring.batch.item.redis.common.KeyValue;
 
-import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Option;
 
-public class ProcessorArgs {
-
-	@ArgGroup(exclusive = false)
-	private EvaluationContextArgs evaluationContextArgs = new EvaluationContextArgs();
+public class KeyValueProcessorArgs {
 
 	@Option(names = "--key-proc", description = "SpEL template expression to transform key names, e.g. \"#{#source.database}:#{key}\" for 'abc' returns '0:abc'", paramLabel = "<exp>")
 	private TemplateExpression keyExpression;
@@ -35,33 +31,37 @@ public class ProcessorArgs {
 	@Option(names = "--ttls", description = "Propagate key expiration times. True by default.", negatable = true, defaultValue = "true", fallbackValue = "true")
 	private boolean propagateTtl = true;
 
-	@ArgGroup(exclusive = false)
-	private StreamProcessorArgs streamProcessorArgs = new StreamProcessorArgs();
+	@Option(names = "--stream-ids", description = "Propagate stream message IDs. True by default.", negatable = true, defaultValue = "true", fallbackValue = "true")
+	private boolean propagateIds = true;
 
-	public ItemProcessor<KeyValue<String, Object>, KeyValue<String, Object>> keyValueProcessor(
-			EvaluationContext context) {
-		UnaryOperator<KeyValue<String, Object>> transform = transform(context);
-		return RiotUtils.processor(streamProcessorArgs.operator(), transform);
-	}
+	@Option(names = "--stream-prune", description = "Drop empty streams.")
+	private boolean prune;
 
-	private UnaryOperator<KeyValue<String, Object>> transform(EvaluationContext context) {
-		List<Consumer<KeyValue<String, Object>>> consumers = new ArrayList<>();
+	public ItemProcessor<KeyValue<String, Object>, KeyValue<String, Object>> processor(EvaluationContext context) {
+		List<ItemProcessor<KeyValue<String, Object>, KeyValue<String, Object>>> processors = new ArrayList<>();
 		if (keyExpression != null) {
-			consumers.add(t -> t.setKey(keyExpression.getValue(context, t)));
+			processors.add(processor(t -> t.setKey(keyExpression.getValue(context, t))));
 		}
 		if (!propagateTtl) {
-			consumers.add(t -> t.setTtl(0));
+			processors.add(processor(t -> t.setTtl(0)));
 		}
 		if (ttlExpression != null) {
-			consumers.add(t -> t.setTtl(ttlExpression.getLong(context, t)));
+			processors.add(processor(t -> t.setTtl(ttlExpression.getLong(context, t))));
 		}
 		if (typeExpression != null) {
-			consumers.add(t -> t.setType(typeExpression.getString(context, t)));
+			processors.add(processor(t -> t.setType(typeExpression.getString(context, t))));
 		}
-		if (consumers.isEmpty()) {
-			return null;
+		if (!propagateIds || prune) {
+			StreamItemProcessor streamProcessor = new StreamItemProcessor();
+			streamProcessor.setDropMessageIds(!propagateIds);
+			streamProcessor.setPrune(prune);
+			processors.add(streamProcessor);
 		}
-		return new ConsumerUnaryOperator<>(consumers);
+		return RiotUtils.processor(processors);
+	}
+
+	private <T> ItemProcessor<T, T> processor(Consumer<T> consumer) {
+		return new FunctionItemProcessor<>(new ConsumerUnaryOperator<>(consumer));
 	}
 
 	public TemplateExpression getKeyExpression() {
@@ -96,27 +96,20 @@ public class ProcessorArgs {
 		this.propagateTtl = propagate;
 	}
 
-	public StreamProcessorArgs getStreamProcessorArgs() {
-		return streamProcessorArgs;
+	public boolean isPropagateIds() {
+		return propagateIds;
 	}
 
-	public void setStreamProcessorArgs(StreamProcessorArgs args) {
-		this.streamProcessorArgs = args;
+	public void setPropagateIds(boolean propagateIds) {
+		this.propagateIds = propagateIds;
 	}
 
-	public EvaluationContextArgs getEvaluationContextArgs() {
-		return evaluationContextArgs;
+	public boolean isPrune() {
+		return prune;
 	}
 
-	public void setEvaluationContextArgs(EvaluationContextArgs args) {
-		this.evaluationContextArgs = args;
-	}
-
-	@Override
-	public String toString() {
-		return "ProcessorArgs [evaluationContextArgs=" + evaluationContextArgs + ", keyExpression=" + keyExpression
-				+ ", typeExpression=" + typeExpression + ", ttlExpression=" + ttlExpression + ", propagateTtl="
-				+ propagateTtl + ", streamProcessorArgs=" + streamProcessorArgs + "]";
+	public void setPrune(boolean prune) {
+		this.prune = prune;
 	}
 
 }

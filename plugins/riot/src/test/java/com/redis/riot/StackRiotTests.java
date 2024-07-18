@@ -1,5 +1,7 @@
 package com.redis.riot;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -7,6 +9,8 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -19,6 +23,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 import org.springframework.batch.item.ExecutionContext;
+import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.json.JacksonJsonObjectReader;
 import org.springframework.batch.item.json.JsonItemReader;
 import org.springframework.batch.item.json.builder.JsonItemReaderBuilder;
@@ -144,15 +149,14 @@ class StackRiotTests extends RiotTests {
 
 	private int executeFileDumpImport(ParseResult parseResult) {
 		FileImport command = command(parseResult);
-		command.getFileReaderArgs().setFiles(
-				command.getFileReaderArgs().getFiles().stream().map(this::replace).collect(Collectors.toList()));
+		command.setFiles(command.getFiles().stream().map(this::replace).collect(Collectors.toList()));
 		return ExitCode.OK;
 	}
 
 	private int executeFileDumpExport(ParseResult parseResult, TestInfo info) {
 		FileExport command = command(parseResult);
 		command.setJobName(name(info));
-		command.getFileWriterArgs().setFile(replace(command.getFileWriterArgs().getFile()));
+		command.setFile(replace(command.getFile()));
 		return ExitCode.OK;
 	}
 
@@ -310,8 +314,8 @@ class StackRiotTests extends RiotTests {
 					Files.newOutputStream(dir.resolve("beers1.csv")));
 			FileCopyUtils.copy(getClass().getClassLoader().getResourceAsStream("files/beers2.csv"),
 					Files.newOutputStream(dir.resolve("beers2.csv")));
-			File file = new File(command.getFileReaderArgs().getFiles().get(0));
-			command.getFileReaderArgs().setFiles(Arrays.asList(dir.resolve(file.getName()).toString()));
+			File file = new File(command.getFiles().get(0));
+			command.setFiles(Arrays.asList(dir.resolve(file.getName()).toString()));
 		} catch (IOException e) {
 			throw new RuntimeException("Could not configure import-glob", e);
 		}
@@ -584,7 +588,7 @@ class StackRiotTests extends RiotTests {
 		Assertions.assertFalse(comparison.getAll().isEmpty());
 		Assertions.assertEquals(Collections.emptyList(), comparison.mismatches());
 	}
-	
+
 	@Test
 	void replicateNoStreamIdsPrune(TestInfo info) throws Throwable {
 		String filename = "replicate-no-stream-ids-prune";
@@ -697,6 +701,55 @@ class StackRiotTests extends RiotTests {
 				.parseTemplate(String.format("#{#date.parse('%s').getTime()}:#{key}", "2010-05-10T00:00:00.000+0000")));
 		execute(replication, info);
 		Assertions.assertEquals(value1, targetRedisCommands.get("1273449600000:" + key1));
+	}
+
+	@Test
+	void testMapProcessor() throws Exception {
+		Map<String, Expression> expressions = new LinkedHashMap<>();
+		expressions.put("field1", Expression.parse("'test:1'"));
+		ImportProcessorArgs processorArgs = new ImportProcessorArgs();
+		processorArgs.setExpressions(expressions);
+		ItemProcessor<Map<String, Object>, Map<String, Object>> processor = processorArgs.processor(redisConnection);
+		Map<String, Object> map = processor.process(new HashMap<>());
+		Assertions.assertEquals("test:1", map.get("field1"));
+		// Assertions.assertEquals("1", map.get("id"));
+	}
+
+	@Test
+	void processor() throws Exception {
+		Map<String, Expression> expressions = new LinkedHashMap<>();
+		expressions.put("field1", Expression.parse("'value1'"));
+		expressions.put("field2", Expression.parse("field1"));
+		expressions.put("field3", Expression.parse("1"));
+		expressions.put("field4", Expression.parse("2"));
+		expressions.put("field5", Expression.parse("field3+field4"));
+		ImportProcessorArgs options = new ImportProcessorArgs();
+		options.setExpressions(expressions);
+		ItemProcessor<Map<String, Object>, Map<String, Object>> processor = options.processor(redisConnection);
+		for (int index = 0; index < 10; index++) {
+			Map<String, Object> result = processor.process(new HashMap<>());
+			assertEquals(5, result.size());
+			assertEquals("value1", result.get("field1"));
+			assertEquals("value1", result.get("field2"));
+			assertEquals(3, result.get("field5"));
+		}
+	}
+
+	@Test
+	void processorFilter() throws Exception {
+		ImportProcessorArgs options = new ImportProcessorArgs();
+		options.setFilter(Expression.parse("index<10"));
+		ItemProcessor<Map<String, Object>, Map<String, Object>> processor = options.processor(redisConnection);
+		for (int index = 0; index < 100; index++) {
+			Map<String, Object> map = new HashMap<>();
+			map.put("index", index);
+			Map<String, Object> result = processor.process(map);
+			if (index < 10) {
+				Assertions.assertNotNull(result);
+			} else {
+				Assertions.assertNull(result);
+			}
+		}
 	}
 
 }

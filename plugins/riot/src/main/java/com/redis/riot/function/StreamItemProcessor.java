@@ -1,9 +1,9 @@
 package com.redis.riot.function;
 
 import java.util.Collection;
-import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
+import org.springframework.batch.item.ItemProcessor;
 import org.springframework.util.CollectionUtils;
 
 import com.redis.spring.batch.item.redis.common.DataType;
@@ -11,14 +11,14 @@ import com.redis.spring.batch.item.redis.common.KeyValue;
 
 import io.lettuce.core.StreamMessage;
 
-public class StreamOperator implements UnaryOperator<KeyValue<String, Object>> {
+public class StreamItemProcessor implements ItemProcessor<KeyValue<String, Object>, KeyValue<String, Object>> {
 
 	private boolean prune;
 	private boolean dropMessageIds;
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public KeyValue<String, Object> apply(KeyValue<String, Object> t) {
+	public KeyValue<String, Object> process(KeyValue<String, Object> t) {
 		if (KeyValue.hasValue(t) && KeyValue.type(t) == DataType.STREAM) {
 			Collection<StreamMessage<?, ?>> messages = (Collection<StreamMessage<?, ?>>) t.getValue();
 			if (CollectionUtils.isEmpty(messages)) {

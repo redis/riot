@@ -3,10 +3,9 @@ package com.redis.riot;
 import java.time.Duration;
 
 import org.springframework.batch.item.ItemProcessor;
-import org.springframework.batch.item.function.FunctionItemProcessor;
 import org.springframework.util.unit.DataSize;
 
-import com.redis.riot.core.FilterFunction;
+import com.redis.riot.core.PredicateItemProcessor;
 import com.redis.spring.batch.item.AbstractAsyncItemReader;
 import com.redis.spring.batch.item.AbstractPollableItemReader;
 import com.redis.spring.batch.item.redis.RedisItemReader;
@@ -114,7 +113,7 @@ public class RedisReaderArgs {
 	}
 
 	private <K> ItemProcessor<K, K> keyProcessor(RedisCodec<K, ?> codec) {
-		return keyFilterArgs.predicate(codec).map(FilterFunction::new).map(FunctionItemProcessor::new).orElse(null);
+		return keyFilterArgs.predicate(codec).map(PredicateItemProcessor::new).orElse(null);
 	}
 
 	public String getKeyPattern() {

@@ -11,7 +11,6 @@ import org.springframework.util.Assert;
 import com.google.cloud.spring.core.GcpScope;
 
 import picocli.CommandLine.Option;
-import picocli.CommandLine.Parameters;
 
 public class FileWriterArgs extends FileArgs {
 
@@ -20,9 +19,6 @@ public class FileWriterArgs extends FileArgs {
 	public static final String DEFAULT_ROOT_NAME = "root";
 	public static final boolean DEFAULT_SHOULD_DELETE_IF_EXISTS = true;
 	public static final boolean DEFAULT_TRANSACTIONAL = true;
-
-	@Parameters(arity = "0..1", description = "File path or URL. If omitted, export is written to stdout.", paramLabel = "FILE")
-	private String file;
 
 	@Option(names = "--format", description = "Format string used to aggregate items.", hidden = true)
 	private String formatterString;
@@ -85,30 +81,6 @@ public class FileWriterArgs extends FileArgs {
 			return new OutputStreamResource(gzipOutputStream, resource.getFilename(), resource.getDescription());
 		}
 		return writableResource;
-	}
-
-	public FileType fileType() {
-		try {
-			return fileType(file);
-		} catch (IOException e) {
-			throw new IllegalArgumentException("Could not determine type of file " + file, e);
-		}
-	}
-
-	@Override
-	public String toString() {
-		return "FileWriterArgs [file=" + file + ", " + super.toString() + ", formatterString=" + formatterString
-				+ ", append=" + append + ", forceSync=" + forceSync + ", rootName=" + rootName + ", elementName="
-				+ elementName + ", lineSeparator=" + lineSeparator + ", shouldDeleteIfEmpty=" + shouldDeleteIfEmpty
-				+ ", shouldDeleteIfExists=" + shouldDeleteIfExists + ", transactional=" + transactional + "]";
-	}
-
-	public String getFile() {
-		return file;
-	}
-
-	public void setFile(String file) {
-		this.file = file;
 	}
 
 	public String getRootName() {

@@ -14,7 +14,7 @@ import picocli.CommandLine.Option;
 @Command(name = "ft.sugadd", description = "Add suggestion strings to a RediSearch auto-complete dictionary")
 public class SugaddCommand extends AbstractOperationCommand {
 
-	@Option(names = "--field", required = true, description = "Field containing the strings to add.", paramLabel = "<field>")
+	@Option(names = "--value", required = true, description = "Field containing the suggestion to add.", paramLabel = "<field>")
 	private String stringField;
 
 	@Option(names = "--payload", description = "Field containing the payload.", paramLabel = "<field>")

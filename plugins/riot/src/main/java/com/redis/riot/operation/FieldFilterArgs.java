@@ -6,9 +6,9 @@ import java.util.function.Function;
 
 import org.springframework.util.ObjectUtils;
 
-import com.redis.riot.core.function.MapFilteringFunction;
-import com.redis.riot.core.function.MapFlatteningFunction;
-import com.redis.riot.core.function.ObjectToStringFunction;
+import com.redis.riot.core.processor.MapFilteringFunction;
+import com.redis.riot.core.processor.MapFlatteningFunction;
+import com.redis.riot.core.processor.ObjectToStringFunction;
 
 import picocli.CommandLine.Option;
 

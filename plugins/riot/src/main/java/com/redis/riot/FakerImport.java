@@ -37,7 +37,7 @@ public class FakerImport extends AbstractImportCommand {
 
 	@Override
 	protected Job job() {
-		return job(step(reader()).processor(mapProcessor()).maxItemCount(count));
+		return job(step(reader()).maxItemCount(count));
 	}
 
 	private FakerItemReader reader() {

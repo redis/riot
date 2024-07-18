@@ -1,4 +1,4 @@
-package com.redis.riot.core.function;
+package com.redis.riot.core.processor;
 
 import java.util.function.ToLongFunction;
 

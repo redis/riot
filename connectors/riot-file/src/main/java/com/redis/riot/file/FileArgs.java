@@ -27,9 +27,6 @@ public class FileArgs {
 	@Option(names = "--encoding", description = "File encoding (default: ${DEFAULT-VALUE}).", paramLabel = "<charset>")
 	private String encoding = DEFAULT_ENCODING;
 
-	@Option(names = { "-t", "--filetype" }, description = "File type: ${COMPLETION-CANDIDATES}.", paramLabel = "<type>")
-	private FileType fileType;
-
 	@Option(names = { "-z", "--gzip" }, description = "File is gzip compressed.")
 	private boolean gzipped;
 
@@ -38,17 +35,6 @@ public class FileArgs {
 
 	@Option(names = "--quote", description = "Escape character for CSV files (default: ${DEFAULT-VALUE}).", paramLabel = "<char>")
 	private char quoteCharacter = DEFAULT_QUOTE_CHARACTER;
-
-	public FileType fileType(Resource resource) {
-		if (fileType == null) {
-			FileType type = FileUtils.fileType(resource);
-			if (type == null) {
-				return FileType.JSONL;
-			}
-			return type;
-		}
-		return fileType;
-	}
 
 	public Resource resource(String location) throws IOException {
 		if (AwsArgs.isSimpleStorageResource(location)) {
@@ -61,10 +47,6 @@ public class FileArgs {
 			return new UncustomizedUrlResource(location);
 		}
 		return new FileSystemResource(location);
-	}
-
-	public FileType fileType(String file) throws IOException {
-		return fileType(resource(file));
 	}
 
 	public String getEncoding() {
@@ -99,14 +81,6 @@ public class FileArgs {
 		this.amazonS3Args = args;
 	}
 
-	public FileType getFileType() {
-		return fileType;
-	}
-
-	public void setFileType(FileType type) {
-		this.fileType = type;
-	}
-
 	public char getQuoteCharacter() {
 		return quoteCharacter;
 	}
@@ -134,8 +108,8 @@ public class FileArgs {
 	@Override
 	public String toString() {
 		return "amazonS3Args=" + amazonS3Args + ", googleStorageArgs=" + googleStorageArgs + ", delimiter=" + delimiter
-				+ ", encoding=" + encoding + ", fileType=" + fileType + ", gzipped=" + gzipped + ", header=" + header
-				+ ", quoteCharacter=" + quoteCharacter;
+				+ ", encoding=" + encoding + ", gzipped=" + gzipped + ", header=" + header + ", quoteCharacter="
+				+ quoteCharacter;
 	}
 
 }

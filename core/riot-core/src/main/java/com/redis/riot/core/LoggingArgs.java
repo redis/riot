@@ -42,26 +42,20 @@ public class LoggingArgs {
 	@Option(names = { "-i", "--info" }, description = "Set log level to info.")
 	private boolean info;
 
-	@Option(names = { "-w", "--warn" }, description = "Set log level to warn.")
-	private boolean warn;
-
 	@Option(names = { "-q", "--quiet" }, description = "Log errors only.")
 	private boolean quiet;
 
-	public Level level(Level defaultLevel) {
+	public Level level() {
 		if (debug) {
 			return Level.DEBUG;
 		}
 		if (info) {
 			return Level.INFO;
 		}
-		if (warn) {
-			return Level.WARN;
-		}
 		if (quiet) {
 			return Level.ERROR;
 		}
-		return defaultLevel;
+		return Level.WARN;
 	}
 
 	public String getFile() {
@@ -152,20 +146,16 @@ public class LoggingArgs {
 		this.info = info;
 	}
 
-	public boolean isWarn() {
-		return warn;
-	}
-
-	public void setWarn(boolean warn) {
-		this.warn = warn;
-	}
-
 	public boolean isQuiet() {
 		return quiet;
 	}
 
 	public void setQuiet(boolean quiet) {
 		this.quiet = quiet;
+	}
+
+	public boolean isStacktrace() {
+		return level().toInt() <= Level.INFO.toInt();
 	}
 
 }

@@ -1,16 +1,20 @@
 package com.redis.riot;
 
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.expression.EvaluationContext;
+import org.springframework.batch.item.function.FunctionItemProcessor;
 
 import com.redis.riot.core.Step;
+import com.redis.riot.core.processor.RegexNamedGroupFunction;
+import com.redis.riot.function.KeyValueMap;
 import com.redis.spring.batch.item.redis.RedisItemReader;
 import com.redis.spring.batch.item.redis.common.KeyValue;
 
 import picocli.CommandLine.ArgGroup;
+import picocli.CommandLine.Option;
 
 public abstract class AbstractExportCommand extends AbstractRedisArgsCommand {
 
@@ -20,8 +24,16 @@ public abstract class AbstractExportCommand extends AbstractRedisArgsCommand {
 	@ArgGroup(exclusive = false)
 	private RedisReaderArgs redisReaderArgs = new RedisReaderArgs();
 
-	@ArgGroup(exclusive = false)
-	private ExportProcessorArgs processorArgs = new ExportProcessorArgs();
+	@Option(names = "--key-regex", description = "Regex for key-field extraction, e.g. '\\w+:(?<id>.+)' extracts an id field from the key", paramLabel = "<rex>")
+	private Pattern keyRegex;
+
+	protected ItemProcessor<KeyValue<String, Object>, Map<String, Object>> mapProcessor() {
+		KeyValueMap mapFunction = new KeyValueMap();
+		if (keyRegex != null) {
+			mapFunction.setKey(new RegexNamedGroupFunction(keyRegex));
+		}
+		return new FunctionItemProcessor<>(mapFunction);
+	}
 
 	protected <T> Step<KeyValue<String, Object>, T> step(ItemWriter<T> writer) {
 		Step<KeyValue<String, Object>, T> step = new Step<>(STEP_NAME, reader(), writer).taskName(TASK_NAME);
@@ -37,18 +49,6 @@ public abstract class AbstractExportCommand extends AbstractRedisArgsCommand {
 		return reader;
 	}
 
-	protected ItemProcessor<KeyValue<String, Object>, Map<String, Object>> mapProcessor() {
-		return processorArgs.mapProcessor(evaluationContext());
-	}
-
-	private EvaluationContext evaluationContext() {
-		return evaluationContext(processorArgs);
-	}
-
-	protected ItemProcessor<KeyValue<String, Object>, KeyValue<String, Object>> keyValueProcessor() {
-		return processorArgs.keyValueProcessor(evaluationContext());
-	}
-
 	public RedisReaderArgs getRedisReaderArgs() {
 		return redisReaderArgs;
 	}
@@ -57,11 +57,11 @@ public abstract class AbstractExportCommand extends AbstractRedisArgsCommand {
 		this.redisReaderArgs = args;
 	}
 
-	public ExportProcessorArgs getProcessorArgs() {
-		return processorArgs;
+	public Pattern getKeyRegex() {
+		return keyRegex;
 	}
 
-	public void setProcessorArgs(ExportProcessorArgs args) {
-		this.processorArgs = args;
+	public void setKeyRegex(Pattern regex) {
+		this.keyRegex = regex;
 	}
 }

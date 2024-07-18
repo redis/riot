@@ -35,7 +35,7 @@ abstract class FileTests extends AbstractTargetTestBase {
 	void fileImportJSON(TestInfo info) throws Exception {
 		FileImport executable = new FileImport();
 		configure(info, executable);
-		executable.getFileReaderArgs().setFiles(BEERS_JSON_URL);
+		executable.setFiles(BEERS_JSON_URL);
 		HsetCommand hset = new HsetCommand();
 		hset.setKeyspace(KEYSPACE);
 		hset.setKeyFields(ID);
@@ -59,7 +59,7 @@ abstract class FileTests extends AbstractTargetTestBase {
 	void fileApiImportCSV(TestInfo info) throws Exception {
 		FileImport executable = new FileImport();
 		configure(info, executable);
-		executable.getFileReaderArgs().setFiles("https://storage.googleapis.com/jrx/beers.csv");
+		executable.setFiles("https://storage.googleapis.com/jrx/beers.csv");
 		executable.getFileReaderArgs().setHeader(true);
 		executable.setJobName(name(info));
 		HsetCommand hset = new HsetCommand();
@@ -92,7 +92,7 @@ abstract class FileTests extends AbstractTargetTestBase {
 		IOUtils.copy(getClass().getClassLoader().getResourceAsStream("files/beers2.csv"), new FileOutputStream(file2));
 		FileImport executable = new FileImport();
 		configure(info, executable);
-		executable.getFileReaderArgs().setFiles(temp.resolve("*.csv").toFile().getPath());
+		executable.setFiles(temp.resolve("*.csv").toFile().getPath());
 		executable.getFileReaderArgs().setHeader(true);
 		executable.setJobName(name(info));
 		HsetCommand operationBuilder = new HsetCommand();
@@ -113,7 +113,7 @@ abstract class FileTests extends AbstractTargetTestBase {
 	void fileImportCSVMultiThreaded(TestInfo info) throws Exception {
 		FileImport executable = new FileImport();
 		configure(info, executable);
-		executable.getFileReaderArgs().setFiles("https://storage.googleapis.com/jrx/beers.csv");
+		executable.setFiles("https://storage.googleapis.com/jrx/beers.csv");
 		executable.getFileReaderArgs().setHeader(true);
 		executable.getJobArgs().setThreads(3);
 		executable.setJobName(name(info));
@@ -135,7 +135,7 @@ abstract class FileTests extends AbstractTargetTestBase {
 	void fileImportJSONL(TestInfo info) throws Exception {
 		FileImport executable = new FileImport();
 		configure(info, executable);
-		executable.getFileReaderArgs().setFiles(BEERS_JSONL_URL);
+		executable.setFiles(BEERS_JSONL_URL);
 		HsetCommand hset = new HsetCommand();
 		hset.setKeyspace(KEYSPACE);
 		hset.setKeyFields(ID);
@@ -176,11 +176,11 @@ abstract class FileTests extends AbstractTargetTestBase {
 		FileExport fileExport = new FileExport();
 		configure(info, fileExport);
 		fileExport.setContentType(ContentType.STRUCT);
-		fileExport.getFileWriterArgs().setFile(file);
+		fileExport.setFile(file);
 		fileExport.call();
 		FileImport fileImport = new FileImport();
 		configure(info, fileImport);
-		fileImport.getFileReaderArgs().setFiles(file);
+		fileImport.setFiles(file);
 		fileImport.getRedisArgs().setUri(RedisURI.create(getTargetRedisServer().getRedisURI()));
 		fileImport.getRedisArgs().setCluster(getTargetRedisServer().isRedisCluster());
 		fileImport.call();

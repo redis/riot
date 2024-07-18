@@ -1,7 +1,5 @@
 package com.redis.riot;
 
-import org.springframework.expression.spel.support.StandardEvaluationContext;
-
 import com.redis.riot.RedisClientBuilder.RedisURIClient;
 import com.redis.spring.batch.item.redis.RedisItemReader;
 import com.redis.spring.batch.item.redis.RedisItemWriter;
@@ -13,9 +11,6 @@ import picocli.CommandLine.Parameters;
 public abstract class AbstractTargetCommand extends AbstractRedisCommand {
 
 	public static final int DEFAULT_TARGET_POOL_SIZE = RedisItemReader.DEFAULT_POOL_SIZE;
-
-	private static final String SOURCE_VAR = "source";
-	private static final String TARGET_VAR = "target";
 
 	@Parameters(arity = "1", index = "0", description = "Source server URI.", paramLabel = "SOURCE")
 	private RedisURI sourceRedisURI;
@@ -66,16 +61,6 @@ public abstract class AbstractTargetCommand extends AbstractRedisCommand {
 			targetRedisURIClient = null;
 		}
 		super.shutdown();
-	}
-
-	@Override
-	protected StandardEvaluationContext evaluationContext(ProcessorArgs args) {
-		StandardEvaluationContext context = super.evaluationContext(args);
-		log.info("Setting evaluation context variable {} = {}", SOURCE_VAR, client.getUri());
-		context.setVariable(SOURCE_VAR, client.getUri());
-		log.info("Setting evaluation context variable {} = {}", TARGET_VAR, targetRedisURIClient.getUri());
-		context.setVariable(TARGET_VAR, targetRedisURIClient.getUri());
-		return context;
 	}
 
 	@Override

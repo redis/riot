@@ -40,7 +40,7 @@ public abstract class AbstractCommand extends BaseCommand implements Initializin
 	}
 
 	private void setupLogging() {
-		Level level = loggingArgs.level(Level.WARN);
+		Level level = logLevel();
 		System.setProperty(SimpleLogger.DEFAULT_LOG_LEVEL_KEY, level.name());
 		if (loggingArgs.getFile() != null) {
 			System.setProperty(SimpleLogger.LOG_FILE_KEY, loggingArgs.getFile());
@@ -62,6 +62,10 @@ public abstract class AbstractCommand extends BaseCommand implements Initializin
 		}
 	}
 
+	public Level logLevel() {
+		return loggingArgs.level();
+	}
+
 	private static void setLogLevel(String key, Level level) {
 		System.setProperty(SimpleLogger.LOG_KEY_PREFIX + key, level.name());
 	}
@@ -70,7 +74,7 @@ public abstract class AbstractCommand extends BaseCommand implements Initializin
 		System.setProperty(property, String.valueOf(value));
 	}
 
-	protected abstract void execute();
+	protected abstract void execute() throws RiotException;
 
 	public LoggingArgs getLoggingArgs() {
 		return loggingArgs;

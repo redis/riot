@@ -3,20 +3,25 @@ package com.redis.riot;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.function.UnaryOperator;
 
 import org.springframework.batch.item.ItemProcessor;
-import org.springframework.expression.EvaluationContext;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.util.CollectionUtils;
 
-import com.redis.riot.core.FilterFunction;
-import com.redis.riot.core.RiotUtils;
+import com.redis.lettucemod.api.StatefulRedisModulesConnection;
+import com.redis.riot.AbstractImportCommand.ExpressionProcessor;
 import com.redis.riot.core.Expression;
-import com.redis.riot.function.ConsumerUnaryOperator;
+import com.redis.riot.core.PredicateItemProcessor;
+import com.redis.riot.core.QuietMapAccessor;
+import com.redis.riot.core.RiotUtils;
 
+import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Option;
 
-public class ImportProcessorArgs extends ProcessorArgs {
+public class ImportProcessorArgs {
+
+	@ArgGroup(exclusive = false)
+	private EvaluationContextArgs evaluationContextArgs = new EvaluationContextArgs();
 
 	@Option(arity = "1..*", names = "--proc", description = "SpEL expressions in the form field1=\"exp\" field2=\"exp\"...", paramLabel = "<f=exp>")
 	private Map<String, Expression> expressions;
@@ -24,20 +29,18 @@ public class ImportProcessorArgs extends ProcessorArgs {
 	@Option(names = "--filter", description = "Discard records using a SpEL expression.", paramLabel = "<exp>")
 	private Expression filter;
 
-	@SuppressWarnings("unchecked")
-	public ItemProcessor<Map<String, Object>, Map<String, Object>> mapProcessor(EvaluationContext context) {
-		List<UnaryOperator<Map<String, Object>>> functions = new ArrayList<>();
-		if (!CollectionUtils.isEmpty(expressions)) {
-			functions.add(new ConsumerUnaryOperator<>(t -> putAll(t, context)));
-		}
+	public ItemProcessor<Map<String, Object>, Map<String, Object>> processor(
+			StatefulRedisModulesConnection<String, String> connection) {
+		StandardEvaluationContext context = evaluationContextArgs.evaluationContext(connection);
+		context.addPropertyAccessor(new QuietMapAccessor());
+		List<ItemProcessor<Map<String, Object>, Map<String, Object>>> processors = new ArrayList<>();
 		if (filter != null) {
-			functions.add(new FilterFunction<>(filter.predicate(context)));
+			processors.add(new PredicateItemProcessor<>(filter.predicate(context)));
 		}
-		return RiotUtils.processor(functions);
-	}
-
-	private void putAll(Map<String, Object> map, EvaluationContext context) {
-		expressions.forEach((k, v) -> map.put(k, v.getValue(context, map)));
+		if (!CollectionUtils.isEmpty(expressions)) {
+			processors.add(new ExpressionProcessor(context, expressions));
+		}
+		return RiotUtils.processor(processors);
 	}
 
 	public Map<String, Expression> getExpressions() {
@@ -56,9 +59,18 @@ public class ImportProcessorArgs extends ProcessorArgs {
 		this.filter = filter;
 	}
 
+	public EvaluationContextArgs getEvaluationContextArgs() {
+		return evaluationContextArgs;
+	}
+
+	public void setEvaluationContextArgs(EvaluationContextArgs evaluationContextArgs) {
+		this.evaluationContextArgs = evaluationContextArgs;
+	}
+
 	@Override
 	public String toString() {
-		return "ImportProcessorArgs [" + super.toString() + ", expressions=" + expressions + ", filter=" + filter + "]";
+		return "ImportProcessorArgs [evaluationContextArgs=" + evaluationContextArgs + ", expressions=" + expressions
+				+ ", filter=" + filter + "]";
 	}
 
 }

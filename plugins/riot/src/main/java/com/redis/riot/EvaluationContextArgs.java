@@ -1,4 +1,4 @@
-package com.redis.riot.core;
+package com.redis.riot;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -8,6 +8,11 @@ import java.util.Map;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.util.CollectionUtils;
 
+import com.redis.lettucemod.api.StatefulRedisModulesConnection;
+import com.redis.lettucemod.util.GeoLocation;
+import com.redis.riot.core.Expression;
+import com.redis.riot.core.RiotUtils;
+
 import picocli.CommandLine.Option;
 
 public class EvaluationContextArgs {
@@ -15,6 +20,7 @@ public class EvaluationContextArgs {
 	public static final String DEFAULT_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
 	public static final String DATE_VAR = "date";
 	public static final String NUMBER_VAR = "number";
+	public static final String REDIS_VAR = "redis";
 
 	@Option(arity = "1..*", names = "--var", description = "SpEL expressions for context variables, in the form var=\"exp\"", paramLabel = "<v=exp>")
 	private Map<String, Expression> varExpressions = new LinkedHashMap<>();
@@ -27,10 +33,12 @@ public class EvaluationContextArgs {
 
 	private Map<String, Object> vars = new LinkedHashMap<>();
 
-	public StandardEvaluationContext evaluationContext() {
+	public StandardEvaluationContext evaluationContext(StatefulRedisModulesConnection<String, String> connection) {
 		StandardEvaluationContext context = new StandardEvaluationContext();
+		RiotUtils.registerFunction(context, "geo", GeoLocation.class, "toString", String.class, String.class);
 		context.setVariable(DATE_VAR, new SimpleDateFormat(dateFormat));
 		context.setVariable(NUMBER_VAR, new DecimalFormat(numberFormat));
+		context.setVariable(REDIS_VAR, connection.sync());
 		if (!CollectionUtils.isEmpty(vars)) {
 			vars.forEach(context::setVariable);
 		}

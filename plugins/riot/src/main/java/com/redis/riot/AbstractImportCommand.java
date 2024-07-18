@@ -9,11 +9,11 @@ import java.util.stream.Collectors;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.expression.spel.support.StandardEvaluationContext;
+import org.springframework.expression.EvaluationContext;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
-import com.redis.riot.core.QuietMapAccessor;
+import com.redis.riot.core.Expression;
 import com.redis.riot.core.RiotUtils;
 import com.redis.riot.core.Step;
 import com.redis.riot.operation.DelCommand;
@@ -65,39 +65,41 @@ public abstract class AbstractImportCommand extends AbstractRedisArgsCommand {
 	}
 
 	protected Step<Map<String, Object>, Map<String, Object>> step(ItemReader<Map<String, Object>> reader) {
-		return new Step<>(STEP_NAME, reader, mapWriter()).taskName(TASK_NAME);
-	}
-
-	protected ItemWriter<Map<String, Object>> mapWriter() {
 		Assert.isTrue(hasOperations(), "No Redis command specified");
-		return RiotUtils.writer(operations().stream().map(this::writer).collect(Collectors.toList()));
-	}
-
-	protected void configure(RedisItemWriter<?, ?, ?> writer) {
-		writer.setClient(client.getClient());
-		log.info("Configuring Redis writer with {}", redisWriterArgs);
-		redisWriterArgs.configure(writer);
-	}
-
-	protected <T> RedisItemWriter<String, String, T> writer(Operation<String, String, T, Object> operation) {
-		RedisItemWriter<String, String, T> writer = RedisItemWriter.operation(operation);
-		configure(writer);
-		return writer;
-	}
-
-	@SuppressWarnings("rawtypes")
-	protected ItemProcessor processor() {
-		if (hasOperations()) {
-			return mapProcessor();
-		}
-		return processorArgs.keyValueProcessor(evaluationContext(processorArgs));
+		return new Step<>(STEP_NAME, reader, mapWriter()).processor(mapProcessor()).taskName(TASK_NAME);
 	}
 
 	protected ItemProcessor<Map<String, Object>, Map<String, Object>> mapProcessor() {
-		log.info("Creating map processor with {}", processorArgs);
-		StandardEvaluationContext evaluationContext = evaluationContext(processorArgs);
-		evaluationContext.addPropertyAccessor(new QuietMapAccessor());
-		return processorArgs.mapProcessor(evaluationContext);
+		return processorArgs.processor(connection);
+	}
+
+	protected ItemWriter<Map<String, Object>> mapWriter() {
+		return RiotUtils.writer(operations().stream().map(RedisItemWriter::operation).map(this::configure));
+	}
+
+	protected <T extends RedisItemWriter<?, ?, ?>> T configure(T writer) {
+		writer.setClient(client.getClient());
+		log.info("Configuring Redis writer with {}", redisWriterArgs);
+		redisWriterArgs.configure(writer);
+		return writer;
+	}
+
+	static class ExpressionProcessor implements ItemProcessor<Map<String, Object>, Map<String, Object>> {
+
+		private final EvaluationContext context;
+		private final Map<String, Expression> expressions;
+
+		public ExpressionProcessor(EvaluationContext context, Map<String, Expression> expressions) {
+			this.context = context;
+			this.expressions = expressions;
+		}
+
+		@Override
+		public Map<String, Object> process(Map<String, Object> item) throws Exception {
+			expressions.forEach((k, v) -> item.put(k, v.getValue(context, item)));
+			return item;
+		}
+
 	}
 
 	public RedisWriterArgs getRedisWriterArgs() {

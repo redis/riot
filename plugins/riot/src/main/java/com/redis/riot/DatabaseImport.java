@@ -15,7 +15,7 @@ public class DatabaseImport extends AbstractImportCommand {
 
 	@Override
 	protected Job job() {
-		return job(step(databaseReaderArgs.reader()).processor(mapProcessor()));
+		return job(step(databaseReaderArgs.reader()));
 	}
 
 	public DatabaseReaderArgs getDatabaseReaderArgs() {

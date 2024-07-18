@@ -7,8 +7,8 @@ import java.util.function.Function;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import com.redis.riot.core.function.IdFunctionBuilder;
-import com.redis.riot.core.function.FieldExtractorFactory.MissingFieldException;
+import com.redis.riot.core.processor.IdFunctionBuilder;
+import com.redis.riot.core.processor.FieldExtractorFactory.MissingFieldException;
 
 class ConverterTests {
 
