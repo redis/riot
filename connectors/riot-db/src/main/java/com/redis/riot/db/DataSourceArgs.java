@@ -61,4 +61,10 @@ public class DataSourceArgs {
 		return properties.initializeDataSourceBuilder().build();
 	}
 
+	@Override
+	public String toString() {
+		return "DataSourceArgs [driver=" + driver + ", url=" + url + ", username=" + username + ", password=" + password
+				+ "]";
+	}
+
 }

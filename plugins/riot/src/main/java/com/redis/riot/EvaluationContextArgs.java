@@ -74,8 +74,8 @@ public class EvaluationContextArgs {
 
 	@Override
 	public String toString() {
-		return "EvaluationContextArgs [varExpressions=" + varExpressions + ", dateFormat=" + dateFormat + ", vars="
-				+ vars + "]";
+		return "EvaluationContextArgs [varExpressions=" + varExpressions + ", dateFormat=" + dateFormat
+				+ ", numberFormat=" + numberFormat + ", vars=" + vars + "]";
 	}
 
 }

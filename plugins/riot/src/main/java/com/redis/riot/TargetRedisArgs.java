@@ -26,6 +26,18 @@ public class TargetRedisArgs {
 	@Option(names = "--target-resp", description = "Redis protocol version used to connect to target: ${COMPLETION-CANDIDATES}.", paramLabel = "<ver>")
 	private ProtocolVersion protocolVersion;
 
+	public RedisClientBuilder configure(RedisClientBuilder builder) {
+		builder.autoReconnect(autoReconnect);
+		builder.cluster(cluster);
+		builder.password(password);
+		builder.protocolVersion(protocolVersion);
+		builder.username(username);
+		if (insecure) {
+			builder.verifyMode(SslVerifyMode.NONE);
+		}
+		return builder;
+	}
+
 	public boolean isCluster() {
 		return cluster;
 	}
@@ -79,20 +91,6 @@ public class TargetRedisArgs {
 		return "TargetRedisArgs [username=" + username + ", password=" + Arrays.toString(password) + ", insecure="
 				+ insecure + ", cluster=" + cluster + ", autoReconnect=" + autoReconnect + ", protocolVersion="
 				+ protocolVersion + "]";
-	}
-
-	public RedisClientBuilder configure(RedisClientBuilder builder) {
-		builder.autoReconnect(autoReconnect);
-		builder.cluster(cluster);
-		builder.password(password);
-		builder.protocolVersion(protocolVersion);
-		builder.username(username);
-		if (insecure) {
-			builder.verifyMode(SslVerifyMode.NONE);
-		}
-		return builder;
-
-		
 	}
 
 }

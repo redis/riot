@@ -52,4 +52,9 @@ public class FieldFilterArgs {
 		this.includeFields = includes;
 	}
 
+	@Override
+	public String toString() {
+		return "FieldFilterArgs [includeFields=" + includeFields + ", excludeFields=" + excludeFields + "]";
+	}
+
 }

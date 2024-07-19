@@ -28,4 +28,9 @@ public class ScoreArgs {
 		this.defaultValue = defaultValue;
 	}
 
+	@Override
+	public String toString() {
+		return "ScoreArgs [field=" + field + ", defaultValue=" + defaultValue + "]";
+	}
+
 }

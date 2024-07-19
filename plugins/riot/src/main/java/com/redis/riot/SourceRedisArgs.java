@@ -26,6 +26,18 @@ public class SourceRedisArgs {
 	@Option(names = "--source-resp", description = "Redis protocol version used to connect to Redis: ${COMPLETION-CANDIDATES}.", paramLabel = "<ver>")
 	private ProtocolVersion protocolVersion = RedisClientBuilder.DEFAULT_PROTOCOL_VERSION;
 
+	public RedisClientBuilder configure(RedisClientBuilder builder) {
+		builder.autoReconnect(autoReconnect);
+		builder.cluster(cluster);
+		builder.password(password);
+		builder.protocolVersion(protocolVersion);
+		builder.username(username);
+		if (insecure) {
+			builder.verifyMode(SslVerifyMode.NONE);
+		}
+		return builder;
+	}
+
 	public String getUsername() {
 		return username;
 	}
@@ -80,17 +92,4 @@ public class SourceRedisArgs {
 				+ insecure + ", cluster=" + cluster + ", autoReconnect=" + autoReconnect + ", protocolVersion="
 				+ protocolVersion + "]";
 	}
-
-	public RedisClientBuilder configure(RedisClientBuilder builder) {
-		builder.autoReconnect(autoReconnect);
-		builder.cluster(cluster);
-		builder.password(password);
-		builder.protocolVersion(protocolVersion);
-		builder.username(username);
-		if (insecure) {
-			builder.verifyMode(SslVerifyMode.NONE);
-		}
-		return builder;
-	}
-
 }

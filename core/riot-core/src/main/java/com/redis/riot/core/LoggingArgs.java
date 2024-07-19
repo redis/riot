@@ -158,4 +158,12 @@ public class LoggingArgs {
 		return level().toInt() <= Level.INFO.toInt();
 	}
 
+	@Override
+	public String toString() {
+		return "LoggingArgs [file=" + file + ", showDateTime=" + showDateTime + ", dateTimeFormat=" + dateTimeFormat
+				+ ", showThreadId=" + showThreadId + ", showThreadName=" + showThreadName + ", showLogName="
+				+ showLogName + ", showShortLogName=" + showShortLogName + ", levelInBrackets=" + levelInBrackets
+				+ ", levels=" + levels + ", debug=" + debug + ", info=" + info + ", quiet=" + quiet + "]";
+	}
+
 }

@@ -66,7 +66,7 @@ public class FileWriterFactory {
 		JsonFileItemWriterBuilder<T> writer = new JsonFileItemWriterBuilder<>();
 		writer.name(resource.getFilename());
 		writer.append(args.isAppend());
-		writer.encoding(args.getEncoding());
+		writer.encoding(args.getFileArgs().getEncoding());
 		writer.lineSeparator(args.getLineSeparator());
 		writer.resource(resource);
 		writer.saveState(false);
@@ -79,7 +79,7 @@ public class FileWriterFactory {
 		XmlResourceItemWriterBuilder<T> writer = new XmlResourceItemWriterBuilder<>();
 		writer.name(resource.getFilename());
 		writer.append(args.isAppend());
-		writer.encoding(args.getEncoding());
+		writer.encoding(args.getFileArgs().getEncoding());
 		writer.lineSeparator(args.getLineSeparator());
 		writer.rootName(args.getRootName());
 		writer.resource(resource);
@@ -94,16 +94,16 @@ public class FileWriterFactory {
 			Supplier<Map<String, Object>> headerSupplier) {
 		FlatFileItemWriterBuilder<Map<String, Object>> writer = flatFileWriter(resource);
 		DelimitedBuilder<Map<String, Object>> delimitedBuilder = writer.delimited();
-		delimitedBuilder.delimiter(args.getDelimiter());
+		delimitedBuilder.delimiter(args.getFileArgs().getDelimiter());
 		delimitedBuilder.fieldExtractor(new PassThroughFieldExtractor<>());
-		delimitedBuilder.quoteCharacter(String.valueOf(args.getQuoteCharacter()));
+		delimitedBuilder.quoteCharacter(String.valueOf(args.getFileArgs().getQuoteCharacter()));
 		return writer(writer, delimitedBuilder.build(), headerSupplier);
 	}
 
 	private FlatFileItemWriter<Map<String, Object>> writer(FlatFileItemWriterBuilder<Map<String, Object>> writer,
 			LineAggregator<Map<String, Object>> lineAggregator, Supplier<Map<String, Object>> headerSupplier) {
 		writer.lineAggregator(lineAggregator);
-		if (args.isHeader()) {
+		if (args.getFileArgs().isHeader()) {
 			Map<String, Object> headerRecord = headerSupplier.get();
 			if (CollectionUtils.isEmpty(headerRecord)) {
 				log.warn("Could not determine header");
@@ -132,7 +132,7 @@ public class FileWriterFactory {
 		builder.name(resource.getFilename());
 		builder.resource(resource);
 		builder.append(args.isAppend());
-		builder.encoding(args.getEncoding());
+		builder.encoding(args.getFileArgs().getEncoding());
 		builder.forceSync(args.isForceSync());
 		builder.lineSeparator(args.getLineSeparator());
 		builder.saveState(false);

@@ -26,4 +26,9 @@ public class AwsCredentialsArgs {
 		this.secretKey = secretKey;
 	}
 
+	@Override
+	public String toString() {
+		return "AwsCredentialsArgs [accessKey=" + accessKey + ", secretKey=" + secretKey + "]";
+	}
+
 }

@@ -112,4 +112,11 @@ public class KeyValueProcessorArgs {
 		this.prune = prune;
 	}
 
+	@Override
+	public String toString() {
+		return "KeyValueProcessorArgs [keyExpression=" + keyExpression + ", typeExpression=" + typeExpression
+				+ ", ttlExpression=" + ttlExpression + ", propagateTtl=" + propagateTtl + ", propagateIds="
+				+ propagateIds + ", prune=" + prune + "]";
+	}
+
 }

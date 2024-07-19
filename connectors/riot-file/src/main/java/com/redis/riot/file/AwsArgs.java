@@ -1,10 +1,8 @@
 package com.redis.riot.file;
 
-import java.net.MalformedURLException;
 import java.net.URI;
 
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.util.StringUtils;
 
 import io.awspring.cloud.s3.InMemoryBufferingS3OutputStreamProvider;
@@ -23,7 +21,7 @@ import software.amazon.awssdk.services.s3.S3ClientBuilder;
 public class AwsArgs {
 
 	@ArgGroup(exclusive = false)
-	private AwsCredentialsArgs credentialsArgs;
+	private AwsCredentialsArgs credentialsArgs = new AwsCredentialsArgs();
 
 	@Option(names = "--s3-region", description = "Region to use for the AWS client (e.g. us-west-1).", paramLabel = "<name>")
 	private Region region;
@@ -80,7 +78,9 @@ public class AwsArgs {
 		this.endpoint = endpoint;
 	}
 
-	public static void main(String[] args) throws MalformedURLException {
-		new UrlResource("s3://riot-bucket-jrx/beers.json");
+	@Override
+	public String toString() {
+		return "AwsArgs [credentialsArgs=" + credentialsArgs + ", region=" + region + ", endpoint=" + endpoint + "]";
 	}
+
 }

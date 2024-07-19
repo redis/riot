@@ -130,4 +130,12 @@ public class DatabaseReaderArgs {
 		this.sql = sql;
 	}
 
+	@Override
+	public String toString() {
+		return "DatabaseReaderArgs [dataSourceArgs=" + dataSourceArgs + ", sql=" + sql + ", maxItemCount="
+				+ maxItemCount + ", fetchSize=" + fetchSize + ", maxRows=" + maxRows + ", queryTimeout=" + queryTimeout
+				+ ", useSharedExtendedConnection=" + useSharedExtendedConnection + ", verifyCursorPosition="
+				+ verifyCursorPosition + "]";
+	}
+
 }

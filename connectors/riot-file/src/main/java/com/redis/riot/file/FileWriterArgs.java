@@ -10,9 +10,10 @@ import org.springframework.util.Assert;
 
 import com.google.cloud.spring.core.GcpScope;
 
+import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Option;
 
-public class FileWriterArgs extends FileArgs {
+public class FileWriterArgs {
 
 	public static final String DEFAULT_LINE_SEPARATOR = System.getProperty("line.separator");
 	public static final String DEFAULT_ELEMENT_NAME = "record";
@@ -47,20 +48,24 @@ public class FileWriterArgs extends FileArgs {
 	@Option(names = "--transactional", description = "Delay writing to the buffer if a transaction is active.", negatable = true, defaultValue = "true", fallbackValue = "true")
 	private boolean transactional = DEFAULT_TRANSACTIONAL;
 
-	public FileWriterArgs() {
-		getGoogleStorageArgs().setScope(GcpScope.STORAGE_READ_WRITE);
+	@ArgGroup(exclusive = false)
+	private FileArgs fileArgs = defaultFileArgs();
+
+	public static FileArgs defaultFileArgs() {
+		FileArgs fileArgs = new FileArgs();
+		fileArgs.getGoogleStorageArgs().setScope(GcpScope.STORAGE_READ_WRITE);
+		return fileArgs;
 	}
 
-	@Override
 	public WritableResource resource(String location) throws IOException {
 		if (location == null) {
 			return new SystemOutResource();
 		}
-		Resource resource = super.resource(location);
+		Resource resource = fileArgs.resource(location);
 		Assert.notNull(resource, "Could not resolve file " + location);
 		Assert.isInstanceOf(WritableResource.class, resource);
 		WritableResource writableResource = (WritableResource) resource;
-		if (isGzipped() || FileUtils.isGzip(location)) {
+		if (fileArgs.isGzipped() || FileUtils.isGzip(location)) {
 			OutputStream outputStream = writableResource.getOutputStream();
 			return new OutputStreamResource(new GZIPOutputStream(outputStream), resource.getFilename(),
 					resource.getDescription());
@@ -138,6 +143,22 @@ public class FileWriterArgs extends FileArgs {
 
 	public void setTransactional(boolean transactional) {
 		this.transactional = transactional;
+	}
+
+	public FileArgs getFileArgs() {
+		return fileArgs;
+	}
+
+	public void setFileArgs(FileArgs fileArgs) {
+		this.fileArgs = fileArgs;
+	}
+
+	@Override
+	public String toString() {
+		return "FileWriterArgs [formatterString=" + formatterString + ", append=" + append + ", forceSync=" + forceSync
+				+ ", rootName=" + rootName + ", elementName=" + elementName + ", lineSeparator=" + lineSeparator
+				+ ", shouldDeleteIfEmpty=" + shouldDeleteIfEmpty + ", shouldDeleteIfExists=" + shouldDeleteIfExists
+				+ ", transactional=" + transactional + ", fileArgs=" + fileArgs + "]";
 	}
 
 }

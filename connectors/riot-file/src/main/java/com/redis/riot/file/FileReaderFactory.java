@@ -76,7 +76,7 @@ public class FileReaderFactory {
 	private DelimitedLineTokenizer delimitedLineTokenizer(String delimiter) {
 		DelimitedLineTokenizer tokenizer = new DelimitedLineTokenizer();
 		tokenizer.setDelimiter(delimiter);
-		tokenizer.setQuoteCharacter(args.getQuoteCharacter());
+		tokenizer.setQuoteCharacter(args.getFileArgs().getQuoteCharacter());
 		if (!ObjectUtils.isEmpty(args.getIncludedFields())) {
 			tokenizer.setIncludedFields(args.getIncludedFields().stream().mapToInt(Integer::intValue).toArray());
 		}
@@ -85,7 +85,7 @@ public class FileReaderFactory {
 
 	private FlatFileItemReader<Map<String, Object>> flatFileReader(Resource resource, AbstractLineTokenizer tokenizer) {
 		if (ObjectUtils.isEmpty(args.getFields())) {
-			Assert.isTrue(args.isHeader(),
+			Assert.isTrue(args.getFileArgs().isHeader(),
 					String.format("Could not create reader for file '%s': no header or field names specified",
 							resource.getFilename()));
 		} else {
@@ -102,8 +102,8 @@ public class FileReaderFactory {
 		FlatFileItemReaderBuilder<T> builder = new FlatFileItemReaderBuilder<>();
 		builder.resource(resource);
 		builder.maxItemCount(args.getMaxItemCount());
-		if (args.getEncoding() != null) {
-			builder.encoding(args.getEncoding());
+		if (args.getFileArgs().getEncoding() != null) {
+			builder.encoding(args.getFileArgs().getEncoding());
 		}
 		builder.recordSeparatorPolicy(recordSeparatorPolicy());
 		builder.linesToSkip(linesToSkip());
@@ -159,8 +159,8 @@ public class FileReaderFactory {
 	}
 
 	private String delimiter(Resource resource) {
-		if (args.getDelimiter() != null) {
-			return args.getDelimiter();
+		if (args.getFileArgs().getDelimiter() != null) {
+			return args.getFileArgs().getDelimiter();
 		}
 		String extension = FileUtils.fileExtension(resource);
 		if (extension == null) {
@@ -177,7 +177,8 @@ public class FileReaderFactory {
 	}
 
 	private RecordSeparatorPolicy recordSeparatorPolicy() {
-		return new DefaultRecordSeparatorPolicy(String.valueOf(args.getQuoteCharacter()), args.getContinuationString());
+		return new DefaultRecordSeparatorPolicy(String.valueOf(args.getFileArgs().getQuoteCharacter()),
+				args.getContinuationString());
 	}
 
 	private int headerIndex() {
@@ -191,7 +192,7 @@ public class FileReaderFactory {
 		if (args.getLinesToSkip() != null) {
 			return args.getLinesToSkip();
 		}
-		if (args.isHeader()) {
+		if (args.getFileArgs().isHeader()) {
 			return 1;
 		}
 		return 0;

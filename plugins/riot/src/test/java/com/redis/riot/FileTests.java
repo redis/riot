@@ -60,7 +60,7 @@ abstract class FileTests extends AbstractTargetTestBase {
 		FileImport executable = new FileImport();
 		configure(info, executable);
 		executable.setFiles("https://storage.googleapis.com/jrx/beers.csv");
-		executable.getFileReaderArgs().setHeader(true);
+		executable.getFileReaderArgs().getFileArgs().setHeader(true);
 		executable.setJobName(name(info));
 		HsetCommand hset = new HsetCommand();
 		hset.setKeyspace(KEYSPACE);
@@ -93,7 +93,7 @@ abstract class FileTests extends AbstractTargetTestBase {
 		FileImport executable = new FileImport();
 		configure(info, executable);
 		executable.setFiles(temp.resolve("*.csv").toFile().getPath());
-		executable.getFileReaderArgs().setHeader(true);
+		executable.getFileReaderArgs().getFileArgs().setHeader(true);
 		executable.setJobName(name(info));
 		HsetCommand operationBuilder = new HsetCommand();
 		operationBuilder.setKeyspace(KEYSPACE);
@@ -114,7 +114,7 @@ abstract class FileTests extends AbstractTargetTestBase {
 		FileImport executable = new FileImport();
 		configure(info, executable);
 		executable.setFiles("https://storage.googleapis.com/jrx/beers.csv");
-		executable.getFileReaderArgs().setHeader(true);
+		executable.getFileReaderArgs().getFileArgs().setHeader(true);
 		executable.getJobArgs().setThreads(3);
 		executable.setJobName(name(info));
 		HsetCommand operationBuilder = new HsetCommand();

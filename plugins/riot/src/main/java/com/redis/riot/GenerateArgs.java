@@ -337,4 +337,19 @@ public class GenerateArgs {
 		options.setFieldLength(fieldLength);
 		return options;
 	}
+
+	@Override
+	public String toString() {
+		return "GenerateArgs [count=" + count + ", keyspace=" + keyspace + ", keyRange=" + keyRange + ", types=" + types
+				+ ", expiration=" + expiration + ", hashFieldCount=" + hashFieldCount + ", hashFieldLength="
+				+ hashFieldLength + ", jsonFieldCount=" + jsonFieldCount + ", jsonFieldLength=" + jsonFieldLength
+				+ ", listMemberCount=" + listMemberCount + ", listMemberRange=" + listMemberRange + ", setMemberCount="
+				+ setMemberCount + ", setMemberLength=" + setMemberLength + ", streamMessageCount=" + streamMessageCount
+				+ ", streamFieldCount=" + streamFieldCount + ", streamFieldLength=" + streamFieldLength
+				+ ", stringLength=" + stringLength + ", timeseriesSampleCount=" + timeseriesSampleCount
+				+ ", timeseriesStartTime=" + timeseriesStartTime + ", zsetMemberCount=" + zsetMemberCount
+				+ ", zsetMemberLength=" + zsetMemberLength + ", zsetScore=" + zsetScore + "]";
+	}
+	
+	
 }

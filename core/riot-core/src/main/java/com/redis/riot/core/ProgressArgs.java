@@ -29,4 +29,9 @@ public class ProgressArgs {
 		this.updateInterval = interval;
 	}
 
+	@Override
+	public String toString() {
+		return "ProgressArgs [style=" + style + ", updateInterval=" + updateInterval + "]";
+	}
+
 }

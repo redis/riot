@@ -84,4 +84,10 @@ public class GoogleStorageArgs {
 		return new GoogleStorageResource(builder.build().getService(), location);
 	}
 
+	@Override
+	public String toString() {
+		return "GoogleStorageArgs [keyFile=" + keyFile + ", projectId=" + projectId + ", encodedKey=" + encodedKey
+				+ ", scope=" + scope + "]";
+	}
+
 }

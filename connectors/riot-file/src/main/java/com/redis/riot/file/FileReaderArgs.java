@@ -8,9 +8,10 @@ import java.util.zip.GZIPInputStream;
 
 import org.springframework.core.io.Resource;
 
+import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Option;
 
-public class FileReaderArgs extends FileArgs {
+public class FileReaderArgs {
 
 	public static final String DEFAULT_CONTINUATION_STRING = "\\";
 	public static final int DEFAULT_MAX_ITEM_COUNT = Integer.MAX_VALUE;
@@ -36,11 +37,13 @@ public class FileReaderArgs extends FileArgs {
 	@Option(names = "--max", description = "Max number of lines to import.", paramLabel = "<count>")
 	private int maxItemCount = DEFAULT_MAX_ITEM_COUNT;
 
-	@Override
+	@ArgGroup(exclusive = false)
+	private FileArgs fileArgs = new FileArgs();
+
 	public Resource resource(String location) throws IOException {
-		Resource resource = super.resource(location);
+		Resource resource = fileArgs.resource(location);
 		InputStream inputStream = resource.getInputStream();
-		if (isGzipped() || FileUtils.isGzip(location)) {
+		if (fileArgs.isGzipped() || FileUtils.isGzip(location)) {
 			return new FilenameInputStreamResource(new GZIPInputStream(inputStream), resource.getFilename(),
 					resource.getDescription());
 		}
@@ -101,6 +104,21 @@ public class FileReaderArgs extends FileArgs {
 
 	public void setMaxItemCount(int maxItemCount) {
 		this.maxItemCount = maxItemCount;
+	}
+
+	public FileArgs getFileArgs() {
+		return fileArgs;
+	}
+
+	public void setFileArgs(FileArgs fileArgs) {
+		this.fileArgs = fileArgs;
+	}
+
+	@Override
+	public String toString() {
+		return "FileReaderArgs [columnRanges=" + columnRanges + ", continuationString=" + continuationString
+				+ ", fields=" + fields + ", headerLine=" + headerLine + ", includedFields=" + includedFields
+				+ ", linesToSkip=" + linesToSkip + ", maxItemCount=" + maxItemCount + ", fileArgs=" + fileArgs + "]";
 	}
 
 }

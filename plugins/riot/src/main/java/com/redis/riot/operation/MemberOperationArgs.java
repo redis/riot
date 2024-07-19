@@ -28,4 +28,9 @@ public class MemberOperationArgs {
 		this.memberFields = fields;
 	}
 
+	@Override
+	public String toString() {
+		return "MemberOperationArgs [memberSpace=" + memberSpace + ", memberFields=" + memberFields + "]";
+	}
+
 }

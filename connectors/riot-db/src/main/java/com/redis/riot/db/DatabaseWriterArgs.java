@@ -57,4 +57,10 @@ public class DatabaseWriterArgs {
 		this.dataSourceArgs = dataSourceArgs;
 	}
 
+	@Override
+	public String toString() {
+		return "DatabaseWriterArgs [dataSourceArgs=" + dataSourceArgs + ", sql=" + sql + ", assertUpdates="
+				+ assertUpdates + "]";
+	}
+
 }
