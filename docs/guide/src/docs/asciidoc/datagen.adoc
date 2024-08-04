@@ -32,7 +32,7 @@ The `faker` command generates data using {link_datafaker}.
 riot faker [OPTIONS] EXPRESSION... [REDIS COMMAND...]
 ----
 
-where `EXPRESSION` is a {link_spel} field in the form `field="expression"`.
+where `EXPRESSION` is a https://www.datafaker.net/documentation/expressions/[Faker expression] field in the form `field="expression"`.
 
 To show the full usage, run:
 
@@ -51,7 +51,7 @@ In this example the Redis options will not be taken into account:
 
 [source,subs="verbatim,attributes"]
 ----
-riot faker id="index" hset -h myredis.com -p 6380
+riot faker id="numerify '####'" hset -h myredis.com -p 6380
 ----
 ====
 
@@ -83,7 +83,7 @@ Most providers don't take any arguments and can be called directly:
 .Simple Faker example
 [source,console]
 ----
-riot faker firstName="name.firstName"
+riot faker firstName="name.first_name"
 ----
 
 Some providers take parameters:
@@ -91,34 +91,17 @@ Some providers take parameters:
 .Parameter Faker example
 [source,console]
 ----
-riot faker lease="number.digits(2)"
+riot faker lease="number.digits '2'"
 ----
 
-Refer to {link_datafaker_doc} for complete documentation.
+Here are a few sample Faker expressions:
 
-[[_datagen_faker_fields]]
-=== Built-in Fields
+* `regexify '(a|b){2,3}'`
+* `regexify '\\.\\*\\?\\+'`
+* `bothify '????','false'`
+* `name.first_name`
+* `name.last_name`
+* `number.number_between '1','10'`
 
-In addition to the Faker fields specified with `field="expression"` you can use these built-in fields:
-
-`index`:: current iteration number.
-
-`thread`:: current thread id.
-Useful for multithreaded data generation.
-
-.Multithreaded data generator
-[source,console]
-----
-include::{testdir}/faker-threads[]
-----
-
-[[_datagen_faker_search]]
-=== Redis Search
-
-You can infer Faker fields from a Redis Search index using the `--infer` option:
-
-[source,console]
-----
-include::{testdir}/faker-infer[]
-----
+Refer to {link_datafaker_doc} for a list of providers and their corresponding documentation.
 

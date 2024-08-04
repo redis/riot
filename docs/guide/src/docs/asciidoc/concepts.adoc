@@ -53,7 +53,15 @@ Instance of Java https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateF
 `number`:: Number parsing and formatting object.
 Instance of Java https://docs.oracle.com/javase/8/docs/api/java/text/DecimalFormat.html[DecimalFormat].
 
-`redis`:: Redis commands object.
+`faker`:: https://s01.oss.sonatype.org/service/local/repositories/releases/archive/net/datafaker/datafaker/2.3.1/datafaker-2.3.1-javadoc.jar/!/net/datafaker/Faker.html[Faker] object.
+
+`redis`:: Redis commands object (`*-import` commands only).
+Instance of Lettuce https://www.lettuce.io/core/release/api/io/lettuce/core/api/sync/RedisCommands.html[RedisCommands].
+
+`source`:: Source Redis commands object (`replicate` command only).
+Instance of Lettuce https://www.lettuce.io/core/release/api/io/lettuce/core/api/sync/RedisCommands.html[RedisCommands].
+
+`target`:: Target Redis commands object (`replicate` command only).
 Instance of Lettuce https://www.lettuce.io/core/release/api/io/lettuce/core/api/sync/RedisCommands.html[RedisCommands].
 
 `geo`:: Convenience function that takes a longitude and a latitude to produce a RediSearch geo-location string in the form `longitude,latitude` (e.g. `location=#geo(lon,lat)`)
