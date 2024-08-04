@@ -8,19 +8,19 @@ import java.util.Map;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.util.CollectionUtils;
 
-import com.redis.lettucemod.api.StatefulRedisModulesConnection;
-import com.redis.lettucemod.util.GeoLocation;
+import com.redis.lettucemod.search.GeoLocation;
 import com.redis.riot.core.Expression;
 import com.redis.riot.core.RiotUtils;
 
+import net.datafaker.Faker;
 import picocli.CommandLine.Option;
 
 public class EvaluationContextArgs {
 
 	public static final String DEFAULT_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
-	public static final String DATE_VAR = "date";
-	public static final String NUMBER_VAR = "number";
-	public static final String REDIS_VAR = "redis";
+	public static final String VAR_DATE = "date";
+	public static final String VAR_NUMBER = "number";
+	public static final String VAR_FAKER = "faker";
 
 	@Option(arity = "1..*", names = "--var", description = "SpEL expressions for context variables, in the form var=\"exp\". For details see https://docs.spring.io/spring-framework/reference/core/expressions.html", paramLabel = "<v=exp>")
 	private Map<String, Expression> varExpressions = new LinkedHashMap<>();
@@ -33,12 +33,12 @@ public class EvaluationContextArgs {
 
 	private Map<String, Object> vars = new LinkedHashMap<>();
 
-	public StandardEvaluationContext evaluationContext(StatefulRedisModulesConnection<String, String> connection) {
+	public StandardEvaluationContext evaluationContext() {
 		StandardEvaluationContext context = new StandardEvaluationContext();
 		RiotUtils.registerFunction(context, "geo", GeoLocation.class, "toString", String.class, String.class);
-		context.setVariable(DATE_VAR, new SimpleDateFormat(dateFormat));
-		context.setVariable(NUMBER_VAR, new DecimalFormat(numberFormat));
-		context.setVariable(REDIS_VAR, connection.sync());
+		context.setVariable(VAR_DATE, new SimpleDateFormat(dateFormat));
+		context.setVariable(VAR_NUMBER, new DecimalFormat(numberFormat));
+		context.setVariable(VAR_FAKER, new Faker());
 		if (!CollectionUtils.isEmpty(vars)) {
 			vars.forEach(context::setVariable);
 		}

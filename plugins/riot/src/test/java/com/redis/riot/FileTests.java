@@ -76,9 +76,9 @@ abstract class FileTests extends AbstractTargetTestBase {
 		}
 	}
 
-	private void configure(TestInfo info, AbstractRedisArgsCommand callable) {
-		callable.getRedisArgs().setUri(RedisURI.create(getRedisServer().getRedisURI()));
-		callable.getRedisArgs().setCluster(getRedisServer().isRedisCluster());
+	private void configure(TestInfo info, AbstractRedisCommand callable) {
+		callable.getRedisURIArgs().setUri(RedisURI.create(getRedisServer().getRedisURI()));
+		callable.getRedisClientArgs().setCluster(getRedisServer().isRedisCluster());
 		callable.setJobName(name(info));
 		callable.getJobArgs().getProgressArgs().setStyle(ProgressStyle.NONE);
 	}
@@ -181,8 +181,8 @@ abstract class FileTests extends AbstractTargetTestBase {
 		FileImport fileImport = new FileImport();
 		configure(info, fileImport);
 		fileImport.setFiles(file);
-		fileImport.getRedisArgs().setUri(RedisURI.create(getTargetRedisServer().getRedisURI()));
-		fileImport.getRedisArgs().setCluster(getTargetRedisServer().isRedisCluster());
+		fileImport.getRedisURIArgs().setUri(RedisURI.create(getTargetRedisServer().getRedisURI()));
+		fileImport.getRedisClientArgs().setCluster(getTargetRedisServer().isRedisCluster());
 		fileImport.call();
 		KeyspaceComparison<String> comparison = compare(info);
 		Assertions.assertFalse(comparison.getAll().isEmpty());

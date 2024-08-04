@@ -1,1 +1,0 @@
-riot faker id="thread*10000+index" firstName="name.firstName" lastName="name.lastName" address="address.fullAddress" --count 8000 --threads 8 hset --keyspace person --key id

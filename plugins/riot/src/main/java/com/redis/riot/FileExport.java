@@ -1,6 +1,5 @@
 package com.redis.riot;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
@@ -25,7 +24,7 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
 @Command(name = "file-export", description = "Export Redis data to files.")
-public class FileExport extends AbstractExportCommand {
+public class FileExport extends AbstractExportCommand<FileExportExecutionContext> {
 
 	public static final FileType DEFAULT_FILE_TYPE = FileType.JSONL;
 
@@ -41,21 +40,28 @@ public class FileExport extends AbstractExportCommand {
 	@Option(names = "--content-type", description = "Type of exported content: ${COMPLETION-CANDIDATES}.", paramLabel = "<type>")
 	private ContentType contentType;
 
-	private final FileWriterFactory factory = new FileWriterFactory();
+	@Override
+	protected FileExportExecutionContext newExecutionContext() {
+		return new FileExportExecutionContext();
+	}
 
 	@Override
-	public void afterPropertiesSet() throws Exception {
+	protected FileExportExecutionContext executionContext() throws Exception {
+		FileExportExecutionContext context = super.executionContext();
+		FileWriterFactory factory = new FileWriterFactory();
 		factory.setArgs(fileWriterArgs);
-		super.afterPropertiesSet();
+		context.setFileWriterFactory(factory);
+		return context;
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
-	protected Job job() throws IOException {
+	protected Job job(FileExportExecutionContext context) throws Exception {
 		WritableResource resource = fileWriterArgs.resource(file);
 		FileType fileType = fileType(resource);
-		ItemWriter writer = factory.create(resource, fileType, () -> headerRecord(fileType));
-		return job(step(writer).processor(processor(fileType)));
+		ItemWriter writer = context.getFileWriterFactory().create(resource, fileType,
+				() -> headerRecord(context, fileType));
+		return job(context, step(context, writer).processor(processor(fileType)));
 	}
 
 	private FileType fileType(WritableResource resource) {
@@ -91,9 +97,9 @@ public class FileExport extends AbstractExportCommand {
 	}
 
 	@SuppressWarnings("unchecked")
-	private Map<String, Object> headerRecord(FileType fileType) {
+	private Map<String, Object> headerRecord(FileExportExecutionContext context, FileType fileType) {
 		RedisItemReader<String, String, Object> reader = RedisItemReader.struct();
-		configure(reader);
+		configure(context, reader);
 		try {
 			reader.open(new ExecutionContext());
 			try {

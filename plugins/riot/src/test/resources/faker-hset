@@ -1,1 +1,1 @@
-riot faker id="index" firstName="name.firstName" lastName="name.lastName" address="address.fullAddress" hset --keyspace person --key id
+riot faker id="numerify '##########'" firstName="name.first_name" lastName="name.last_name" address="address.full_address" hset --keyspace person --key id

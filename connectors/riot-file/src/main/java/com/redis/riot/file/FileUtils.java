@@ -10,13 +10,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Stream;
+import java.util.stream.Collectors;
 
 import org.springframework.core.io.Resource;
 import org.springframework.util.ResourceUtils;
 import org.springframework.util.StringUtils;
-
-import com.redis.riot.core.RiotException;
 
 import io.awspring.cloud.s3.Location;
 import picocli.CommandLine;
@@ -79,18 +77,18 @@ public abstract class FileUtils {
 	 * @return List of file
 	 * @throws IOException
 	 */
-	public static Stream<String> expand(String file) {
-		if (isFile(file)) {
-			return expand(Paths.get(file)).stream().map(Path::toString);
+	public static List<String> expand(String file) throws IOException {
+		if (isFileSystem(file)) {
+			return expand(Paths.get(file)).stream().map(Path::toString).collect(Collectors.toList());
 		}
-		return Stream.of(file);
+		return Arrays.asList(file);
 	}
 
-	public static boolean isFile(String file) {
+	public static boolean isFileSystem(String file) {
 		return !isAwsStorage(file) && !isGoogleStorage(file) && !ResourceUtils.isUrl(file) && !isStdin(file);
 	}
 
-	public static List<Path> expand(Path path) {
+	public static List<Path> expand(Path path) throws IOException {
 		if (Files.exists(path) || path.getParent() == null || !Files.exists(path.getParent())) {
 			return Arrays.asList(path);
 		}
@@ -101,9 +99,6 @@ public abstract class FileUtils {
 			List<Path> paths = new ArrayList<>();
 			stream.iterator().forEachRemaining(paths::add);
 			return paths;
-		} catch (IOException e) {
-			throw new RiotException(
-					String.format("Could not list files in directory %s with glob pattern %s", dir, glob), e);
 		}
 	}
 

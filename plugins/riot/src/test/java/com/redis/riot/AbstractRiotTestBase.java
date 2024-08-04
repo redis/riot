@@ -38,6 +38,7 @@ abstract class AbstractRiotTestBase extends AbstractTargetTestBase {
 
 	static {
 		System.setProperty(SimpleLogger.SHOW_DATE_TIME_KEY, "true");
+		System.setProperty(SimpleLogger.DEFAULT_LOG_LEVEL_KEY, "info");
 		System.setProperty(SimpleLogger.LOG_KEY_PREFIX + ReplicateWriteLogger.class.getName(), "error");
 	}
 
@@ -101,13 +102,14 @@ abstract class AbstractRiotTestBase extends AbstractTargetTestBase {
 				command = subParseResult.commandSpec().parent().commandLine().getCommand();
 			}
 			if (command instanceof AbstractJobCommand) {
-				AbstractJobCommand jobCommand = ((AbstractJobCommand) command);
+				AbstractJobCommand<?> jobCommand = ((AbstractJobCommand<?>) command);
 				jobCommand.getJobArgs().getProgressArgs().setStyle(ProgressStyle.NONE);
 				jobCommand.setJobName(name(info));
 			}
-			if (command instanceof AbstractRedisArgsCommand) {
-				AbstractRedisArgsCommand redisCommand = (AbstractRedisArgsCommand) command;
-				configure(redisCommand.getRedisArgs());
+			if (command instanceof AbstractRedisCommand) {
+				AbstractRedisCommand redisCommand = (AbstractRedisCommand) command;
+				redisCommand.getRedisURIArgs().setUri(redisURI);
+				redisCommand.getRedisClientArgs().setCluster(getRedisServer().isRedisCluster());
 			}
 			if (command instanceof AbstractExportCommand) {
 				AbstractExportCommand exportCommand = (AbstractExportCommand) command;
@@ -115,11 +117,11 @@ abstract class AbstractRiotTestBase extends AbstractTargetTestBase {
 			}
 			if (command instanceof AbstractTargetCommand) {
 				AbstractTargetCommand targetCommand = (AbstractTargetCommand) command;
-				configure(targetCommand.getRedisReaderArgs());
+				configure(targetCommand.getSourceRedisReaderArgs());
 				targetCommand.setSourceRedisURI(redisURI);
-				targetCommand.getSourceRedisArgs().setCluster(getRedisServer().isRedisCluster());
+				targetCommand.getSourceRedisClientArgs().setCluster(getRedisServer().isRedisCluster());
 				targetCommand.setTargetRedisURI(targetRedisURI);
-				targetCommand.getTargetRedisArgs().setCluster(getTargetRedisServer().isRedisCluster());
+				targetCommand.getTargetRedisClientArgs().setCluster(getTargetRedisServer().isRedisCluster());
 			}
 			if (command instanceof Replicate) {
 				Replicate replicateCommand = (Replicate) command;
@@ -131,12 +133,6 @@ abstract class AbstractRiotTestBase extends AbstractTargetTestBase {
 	private void configure(RedisReaderArgs redisReaderArgs) {
 		redisReaderArgs.setIdleTimeout(DEFAULT_IDLE_TIMEOUT_SECONDS);
 		redisReaderArgs.setNotificationQueueCapacity(DEFAULT_NOTIFICATION_QUEUE_CAPACITY);
-	}
-
-	private void configure(RedisArgs redisArgs) {
-		redisArgs.setUri(redisURI);
-		redisArgs.setCluster(getRedisServer().isRedisCluster());
-
 	}
 
 	private static String[] args(String filename) throws Exception {

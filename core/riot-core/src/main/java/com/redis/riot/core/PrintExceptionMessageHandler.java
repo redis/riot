@@ -11,7 +11,7 @@ public class PrintExceptionMessageHandler implements IExecutionExceptionHandler 
 		boolean stacktrace = false;
 
 		if (cmd.getCommand() instanceof AbstractCommand) {
-			stacktrace = ((AbstractCommand) cmd.getCommand()).getLoggingArgs().isStacktrace();
+			stacktrace = ((AbstractCommand<?>) cmd.getCommand()).getLoggingArgs().isStacktrace();
 		}
 
 		if (stacktrace) {

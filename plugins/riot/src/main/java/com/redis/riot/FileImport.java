@@ -9,16 +9,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import org.springframework.batch.core.Job;
 import org.springframework.batch.item.ItemProcessor;
+import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.function.FunctionItemProcessor;
 import org.springframework.core.io.Resource;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
-import com.redis.riot.core.RiotException;
 import com.redis.riot.core.RiotUtils;
 import com.redis.riot.core.Step;
 import com.redis.riot.core.processor.RegexNamedGroupFunction;
@@ -37,7 +36,7 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
 @Command(name = "file-import", description = "Import data from files.")
-public class FileImport extends AbstractImportCommand {
+public class FileImport extends AbstractImportCommand<FileImportExecutionContext> {
 
 	@Parameters(arity = "1..*", description = "Files or URLs to import. Use '-' to read from stdin.", paramLabel = "FILE")
 	private List<String> files;
@@ -51,48 +50,59 @@ public class FileImport extends AbstractImportCommand {
 	@Option(arity = "1..*", names = "--regex", description = "Regular expressions used to extract values from fields in the form field1=\"regex\" field2=\"regex\"...", paramLabel = "<f=rex>")
 	private Map<String, Pattern> regexes = new LinkedHashMap<>();
 
-	private final FileReaderFactory factory = new FileReaderFactory();
+	@Override
+	protected FileImportExecutionContext newExecutionContext() {
+		return new FileImportExecutionContext();
+	}
 
 	@Override
-	public void afterPropertiesSet() throws Exception {
+	protected FileImportExecutionContext executionContext() throws Exception {
+		FileImportExecutionContext context = super.executionContext();
+		FileReaderFactory factory = new FileReaderFactory();
 		factory.addDeserializer(KeyValue.class, new KeyValueDeserializer());
 		factory.setArgs(fileReaderArgs);
-		super.afterPropertiesSet();
+		context.setFileReaderFactory(factory);
+		return context;
 	}
 
 	@Override
-	protected Job job() {
+	protected Job job(FileImportExecutionContext context) throws IOException {
 		Assert.notEmpty(files, "No file specified");
-		return job(resources().stream().map(this::step).collect(Collectors.toList()));
-	}
-
-	private Step<?, ?> step(Resource resource) {
-		Step<?, ?> step = createStep(resource);
-		step.skip(ParseException.class);
-		step.skip(org.springframework.batch.item.ParseException.class);
-		step.noRetry(ParseException.class);
-		step.noRetry(org.springframework.batch.item.ParseException.class);
-		step.taskName(taskName(resource));
-		return step;
+		List<Step<?, ?>> steps = new ArrayList<>();
+		for (Resource resource : resources()) {
+			Step<?, ?> step = step(context, resource);
+			step.skip(ParseException.class);
+			step.skip(org.springframework.batch.item.ParseException.class);
+			step.noRetry(ParseException.class);
+			step.noRetry(org.springframework.batch.item.ParseException.class);
+			step.taskName(taskName(resource));
+			steps.add(step);
+		}
+		return job(context, steps);
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private Step createStep(Resource resource) {
+	private Step<?, ?> step(FileImportExecutionContext context, Resource resource) {
 		String name = resource.getFilename();
 		FileType type = fileType(resource);
 		if (hasOperations()) {
-			return new Step(name, factory.createReader(resource, type, Map.class), mapWriter())
-					.processor(mapProcessor());
+			ItemReader<Map<String, Object>> reader = (ItemReader) context.getFileReaderFactory().createReader(resource,
+					type, Map.class);
+			RedisItemWriter<String, String, Map<String, Object>> writer = operationWriter();
+			configure(context, writer);
+			return new Step<>(name, reader, writer).processor(processor(context));
 		}
 		Assert.isTrue(type != FileType.CSV, "CSV file import requires a Redis command");
 		Assert.isTrue(type != FileType.FIXED, "Fixed-length file import requires a Redis command");
-		return new Step(name, factory.createReader(resource, type, KeyValue.class),
-				configure(RedisItemWriter.struct()));
+		ItemReader<KeyValue> reader = context.getFileReaderFactory().createReader(resource, type, KeyValue.class);
+		RedisItemWriter<String, String, KeyValue<String, Object>> writer = RedisItemWriter.struct();
+		configure(context, writer);
+		return new Step<>(name, reader, writer);
 	}
 
 	@Override
-	protected ItemProcessor<Map<String, Object>, Map<String, Object>> mapProcessor() {
-		return RiotUtils.processor(super.mapProcessor(), regexProcessor());
+	protected ItemProcessor<Map<String, Object>, Map<String, Object>> processor(FileImportExecutionContext context) {
+		return RiotUtils.processor(super.processor(context), regexProcessor());
 	}
 
 	private FileType fileType(Resource resource) {
@@ -123,16 +133,14 @@ public class FileImport extends AbstractImportCommand {
 		return new MapToFieldFunction(key).andThen((Function) new RegexNamedGroupFunction(regex));
 	}
 
-	public List<Resource> resources() {
-		return files.stream().flatMap(FileUtils::expand).map(this::resource).collect(Collectors.toList());
-	}
-
-	private Resource resource(String location) {
-		try {
-			return fileReaderArgs.resource(location);
-		} catch (IOException e) {
-			throw new RiotException("Could not create resource from location " + location, e);
+	public List<Resource> resources() throws IOException {
+		List<Resource> resources = new ArrayList<>();
+		for (String file : files) {
+			for (String expanded : FileUtils.expand(file)) {
+				resources.add(fileReaderArgs.resource(expanded));
+			}
 		}
+		return resources;
 	}
 
 	public List<String> getFiles() {

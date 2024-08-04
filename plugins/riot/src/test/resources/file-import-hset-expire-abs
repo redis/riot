@@ -1,0 +1,1 @@
+riot file-import http://storage.googleapis.com/jrx/beers.csv --proc exp="T(java.lang.System).currentTimeMillis()+10000" --header hset --keyspace beer --key id expire --keyspace beer --key id --ttl-field exp --abs

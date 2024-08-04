@@ -6,7 +6,6 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -86,8 +85,7 @@ class KeyValueSerdeTests {
 		GeneratorItemReader reader = new GeneratorItemReader();
 		reader.setMaxItemCount(17);
 		reader.open(new ExecutionContext());
-		List<KeyValue<String, Object>> items = AbstractTestBase.readAll(reader).stream().map(KeyValue::new)
-				.collect(Collectors.toList());
+		List<KeyValue<String, Object>> items = AbstractTestBase.readAll(reader);
 		for (KeyValue<String, Object> item : items) {
 			String json = mapper.writeValueAsString(item);
 			KeyValue<String, Object> result = mapper.readValue(json, KeyValue.class);

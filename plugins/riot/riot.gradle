@@ -45,8 +45,8 @@ dependencies {
     api project(':riot-file')
     api project(':riot-db')
     api project(':riot-faker')
-    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
     api group: 'com.redis', name: 'spring-batch-redis-core', version: springBatchRedisVersion
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
     implementation group: 'com.redis', name: 'lettucemod', version: lettucemodVersion
     implementation 'org.apache.commons:commons-pool2'
     implementation group: 'com.hrakaroo', name: 'glob', version: globVersion
@@ -79,43 +79,43 @@ distributions {
 jdks {
     zulu17Linux {
         platform = 'linux-x86_64'
-        url = 'https://cdn.azul.com/zulu/bin/zulu17.32.13-ca-jdk17.0.2-linux_x64.zip'
-        checksum = '7668ebaecc81041d8d1e79e857552887f56c445ef4c6e8d634007b7b67f5a1d3'
+        url = 'https://cdn.azul.com/zulu/bin/zulu17.50.19-ca-jdk17.0.11-linux_x64.zip'
+        checksum = 'c89977771091eb7d53e0f244a722076e88d968966b75aba2a65a1b31105d68bb'
     }
     zulu17LinuxArm {
         platform = 'linux-aarch64'
-        url = 'https://cdn.azul.com/zulu/bin/zulu17.32.13-ca-jdk17.0.2-linux_aarch64.tar.gz'
-        checksum = '2b8066bbdbc5cff422bb6b6db1b8f8d362b576340cce8492f1255502af632b06'
+        url = 'https://cdn.azul.com/zulu/bin/zulu17.50.19-ca-jdk17.0.11-linux_aarch64.tar.gz'
+        checksum = '518cc455c0c7b49c0ae7d809c0bb87ab371bb850d46abb8efad5010c6a06faec'
     }
     zulu17LinuxMusl {
         platform = 'linux_musl-x86_64'
-        url = 'https://cdn.azul.com/zulu/bin/zulu17.32.13-ca-jdk17.0.2-linux_musl_x64.tar.gz'
-        checksum = 'bcc5342011bd9f3643372aadbdfa68d47463ff0d8621668a0bdf2910614d95c6'
+        url = 'https://cdn.azul.com/zulu/bin/zulu17.50.19-ca-jdk17.0.11-linux_musl_x64.tar.gz'
+        checksum = '22bbde6e05ced1238b302e2b44d3f9785c23e4115618eea83786b6b4a1828f9f'
     }
     zulu17LinuxMuslArm {
         platform = 'linux_musl-aarch64'
-        url = 'https://cdn.azul.com/zulu/bin/zulu17.32.13-ca-jdk17.0.2-linux_musl_aarch64.tar.gz'
-        checksum = '6b920559abafbe9bdef386a20ecf3a2f318bc1f0d8359eb1f95aee26606bbc70'
+        url = 'https://cdn.azul.com/zulu/bin/zulu17.50.19-ca-jdk17.0.11-linux_musl_aarch64.tar.gz'
+        checksum = 'fc6645aa46736e6100302c109127ea31a1d1192599b7140dd94f81eaeebfe293'
     }
     zulu17Windows {
         platform = 'windows-x86_64'
-        url = 'https://cdn.azul.com/zulu/bin/zulu17.32.13-ca-jdk17.0.2-win_x64.zip'
-        checksum = 'e965aa0ea7a0661a3446cf8f10ee00684b851f883b803315289f26b4aa907fdb'
+        url = 'https://cdn.azul.com/zulu/bin/zulu17.50.19-ca-jdk17.0.11-win_x64.zip'
+        checksum = '43f0f1bdecf48ba9763d46ee7784554c95b442ffdd39ebd62dc8b297cc82e116'
     }
     zulu17WindowsArm {
         platform = 'windows-aarch64'
-        url = 'https://cdn.azul.com/zulu/bin/zulu17.32.13-ca-jdk17.0.2-win_aarch64.zip'
-        checksum = '1a9d4ab3b52ce3db7354691163e5a36979af9c37d80c3c490c12af07de21d8f3'
+        url = 'https://cdn.azul.com/zulu/bin/zulu17.50.19-ca-jdk17.0.11-win_aarch64.zip'
+        checksum = 'b8833d272eb31f54f8c881139807a28a74de9deae07d2cc37688ff72043e32c9'
     }
     zulu17Osx {
         platform = 'osx-x86_64'
-        url = 'https://cdn.azul.com/zulu/bin/zulu17.32.13-ca-jdk17.0.2-macosx_x64.zip'
-        checksum = 'f75fe30aced4fbee8db108fbb123b3af328503a2af46e173cbe43613b995e492'
+        url = 'https://cdn.azul.com/zulu/bin/zulu17.50.19-ca-jdk17.0.11-macosx_x64.zip'
+        checksum = '3f653ad00a29b3ae2abebcfc598225f674d3289e52497b310441f3fb5d785f8a'
     }
     zulu17OsxArm {
         platform = 'osx-aarch64'
-        url = 'https://cdn.azul.com/zulu/bin/zulu17.32.13-ca-jdk17.0.2-macosx_aarch64.zip'
-        checksum = '8c287018d358ec2c43995bf09a0cdaa235f0bdd434673777a564daee2c3872df'
+        url = 'https://cdn.azul.com/zulu/bin/zulu17.50.19-ca-jdk17.0.11-macosx_aarch64.zip'
+        checksum = '5aec103fc90131dc34cb1be6290dd61c426a74f1bf7e8b4895049cd27fee70a8'
     }
 }
 

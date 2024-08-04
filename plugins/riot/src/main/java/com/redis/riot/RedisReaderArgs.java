@@ -3,13 +3,16 @@ package com.redis.riot;
 import java.time.Duration;
 
 import org.springframework.batch.item.ItemProcessor;
+import org.springframework.batch.item.function.FunctionItemProcessor;
 import org.springframework.util.unit.DataSize;
 
-import com.redis.riot.core.PredicateItemProcessor;
+import com.redis.riot.core.processor.FunctionPredicate;
+import com.redis.riot.core.processor.PredicateOperator;
 import com.redis.spring.batch.item.AbstractAsyncItemReader;
 import com.redis.spring.batch.item.AbstractPollableItemReader;
 import com.redis.spring.batch.item.redis.RedisItemReader;
 import com.redis.spring.batch.item.redis.RedisItemReader.ReaderMode;
+import com.redis.spring.batch.item.redis.common.KeyEvent;
 import com.redis.spring.batch.item.redis.reader.KeyValueRead;
 
 import io.lettuce.core.codec.RedisCodec;
@@ -22,7 +25,6 @@ public class RedisReaderArgs {
 	public static final Duration DEFAULT_POLL_TIMEOUT = AbstractPollableItemReader.DEFAULT_POLL_TIMEOUT;
 	public static final int DEFAULT_THREADS = AbstractAsyncItemReader.DEFAULT_THREADS;
 	public static final int DEFAULT_CHUNK_SIZE = AbstractAsyncItemReader.DEFAULT_CHUNK_SIZE;
-	public static final int DEFAULT_POOL_SIZE = RedisItemReader.DEFAULT_POOL_SIZE;
 	public static final DataSize DEFAULT_MEMORY_USAGE_LIMIT = KeyValueRead.DEFAULT_MEM_USAGE_LIMIT;
 	public static final int DEFAULT_MEMORY_USAGE_SAMPLES = KeyValueRead.DEFAULT_MEM_USAGE_SAMPLES;
 	public static final long DEFAULT_SCAN_COUNT = 1000;
@@ -74,9 +76,6 @@ public class RedisReaderArgs {
 	@Option(names = "--read-skip", description = "Max number of failed reads before considering the reader has failed (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
 	private int skipLimit;
 
-	@Option(names = "--read-pool", description = "Max pool connections used by Redis reader (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
-	private int poolSize = DEFAULT_POOL_SIZE;
-
 	@ArgGroup(exclusive = false)
 	private KeyFilterArgs keyFilterArgs = new KeyFilterArgs();
 
@@ -94,7 +93,6 @@ public class RedisReaderArgs {
 		reader.setMode(mode);
 		reader.setNotificationQueueCapacity(notificationQueueCapacity);
 		reader.setPollTimeout(Duration.ofMillis(pollTimeout));
-		reader.setPoolSize(poolSize);
 		reader.setProcessor(keyProcessor(reader.getCodec()));
 		reader.setQueueCapacity(queueCapacity);
 		if (readFrom != null) {
@@ -112,8 +110,9 @@ public class RedisReaderArgs {
 		}
 	}
 
-	private <K> ItemProcessor<K, K> keyProcessor(RedisCodec<K, ?> codec) {
-		return keyFilterArgs.predicate(codec).map(PredicateItemProcessor::new).orElse(null);
+	private <K> ItemProcessor<KeyEvent<K>, KeyEvent<K>> keyProcessor(RedisCodec<K, ?> codec) {
+		return keyFilterArgs.predicate(codec).map(p -> new FunctionPredicate<KeyEvent<K>, K>(KeyEvent::getKey, p))
+				.map(PredicateOperator::new).map(FunctionItemProcessor::new).orElse(null);
 	}
 
 	public String getKeyPattern() {
@@ -228,22 +227,14 @@ public class RedisReaderArgs {
 		this.mode = mode;
 	}
 
-	public int getPoolSize() {
-		return poolSize;
-	}
-
-	public void setPoolSize(int size) {
-		this.poolSize = size;
-	}
-
 	@Override
 	public String toString() {
 		return "RedisReaderArgs [mode=" + mode + ", keyPattern=" + keyPattern + ", keyType=" + keyType + ", scanCount="
 				+ scanCount + ", queueCapacity=" + queueCapacity + ", threads=" + threads + ", chunkSize=" + chunkSize
 				+ ", readFrom=" + readFrom + ", memUsageLimit=" + memUsageLimit + ", memUsageSamples=" + memUsageSamples
 				+ ", flushInterval=" + flushInterval + ", idleTimeout=" + idleTimeout + ", notificationQueueCapacity="
-				+ notificationQueueCapacity + ", retryLimit=" + retryLimit + ", skipLimit=" + skipLimit + ", poolSize="
-				+ poolSize + ", keyFilterArgs=" + keyFilterArgs + ", pollTimeout=" + pollTimeout + "]";
+				+ notificationQueueCapacity + ", retryLimit=" + retryLimit + ", skipLimit=" + skipLimit
+				+ ", keyFilterArgs=" + keyFilterArgs + ", pollTimeout=" + pollTimeout + "]";
 	}
 
 }

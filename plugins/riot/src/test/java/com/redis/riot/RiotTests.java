@@ -16,8 +16,8 @@ import org.junit.jupiter.api.TestInfo;
 import org.slf4j.simple.SimpleLogger;
 import org.testcontainers.shaded.org.bouncycastle.util.encoders.Hex;
 
+import com.redis.lettucemod.RedisModulesUtils;
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
-import com.redis.lettucemod.util.RedisModulesUtils;
 import com.redis.riot.Replicate.CompareMode;
 import com.redis.riot.core.ProgressStyle;
 import com.redis.spring.batch.Range;
@@ -69,10 +69,10 @@ abstract class RiotTests extends AbstractRiotTestBase {
 		replication.setJobName(name(info));
 		replication.setJobRepository(jobRepository);
 		replication.setSourceRedisURI(redisURI);
-		replication.getSourceRedisArgs().setCluster(getRedisServer().isRedisCluster());
+		replication.getSourceRedisClientArgs().setCluster(getRedisServer().isRedisCluster());
 		replication.setTargetRedisURI(targetRedisURI);
-		replication.getTargetRedisArgs().setCluster(getTargetRedisServer().isRedisCluster());
-		replication.getRedisReaderArgs().setIdleTimeout(DEFAULT_IDLE_TIMEOUT_SECONDS);
+		replication.getTargetRedisClientArgs().setCluster(getTargetRedisServer().isRedisCluster());
+		replication.getSourceRedisReaderArgs().setIdleTimeout(DEFAULT_IDLE_TIMEOUT_SECONDS);
 		replication.call();
 	}
 
@@ -123,7 +123,7 @@ abstract class RiotTests extends AbstractRiotTestBase {
 			connection.sync().set(key, value);
 		});
 		Replicate replication = new Replicate();
-		replication.getRedisReaderArgs().setMode(ReaderMode.LIVE);
+		replication.getSourceRedisReaderArgs().setMode(ReaderMode.LIVE);
 		replication.setCompareMode(CompareMode.NONE);
 		execute(replication, info);
 		Assertions.assertArrayEquals(connection.sync().get(key), targetConnection.sync().get(key));
@@ -146,9 +146,9 @@ abstract class RiotTests extends AbstractRiotTestBase {
 	void filterKeySlot(TestInfo info) throws Exception {
 		enableKeyspaceNotifications();
 		Replicate replication = new Replicate();
-		replication.getRedisReaderArgs().setMode(ReaderMode.LIVE);
+		replication.getSourceRedisReaderArgs().setMode(ReaderMode.LIVE);
 		replication.setCompareMode(CompareMode.NONE);
-		replication.getRedisReaderArgs().getKeyFilterArgs().setSlots(Arrays.asList(Range.of(0, 8000)));
+		replication.getSourceRedisReaderArgs().getKeyFilterArgs().setSlots(Arrays.asList(Range.of(0, 8000)));
 		generateAsync(info, generator(100));
 		execute(replication, info);
 		awaitUntilNoSubscribers();

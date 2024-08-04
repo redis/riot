@@ -8,10 +8,11 @@ import org.springframework.batch.core.ItemWriteListener;
 import org.springframework.batch.item.Chunk;
 
 import com.redis.spring.batch.item.redis.common.BatchUtils;
+import com.redis.spring.batch.item.redis.common.KeyEvent;
 
 import io.lettuce.core.codec.RedisCodec;
 
-public class ReplicateReadLogger<K> implements ItemReadListener<K>, ItemWriteListener<K> {
+public class ReplicateReadLogger<K> implements ItemReadListener<KeyEvent<K>>, ItemWriteListener<KeyEvent<K>> {
 
 	private final Logger logger;
 	private final Function<K, String> toString;
@@ -21,39 +22,41 @@ public class ReplicateReadLogger<K> implements ItemReadListener<K>, ItemWriteLis
 		this.toString = BatchUtils.toStringKeyFunction(codec);
 	}
 
-	private void log(String message, Chunk<? extends K> keys) {
+	private void log(String format, Iterable<? extends KeyEvent<K>> keys) {
 		if (logger.isInfoEnabled()) {
-			for (K item : keys) {
-				logger.info(message, string(item));
-			}
+			keys.forEach(k -> log(format, k));
 		}
 	}
 
-	protected String string(K key) {
-		return toString.apply(key);
+	private void log(String format, KeyEvent<K> keyEvent) {
+		logger.info(format, string(keyEvent));
+	}
+
+	protected String string(KeyEvent<K> key) {
+		return toString.apply(key.getKey());
 	}
 
 	@Override
-	public void afterRead(K item) {
+	public void afterRead(KeyEvent<K> item) {
 		if (logger.isInfoEnabled()) {
-			logger.info("Key {}", string(item));
+			log("Key {}", item);
 		}
 	}
 
 	@Override
-	public void beforeWrite(Chunk<? extends K> items) {
+	public void beforeWrite(Chunk<? extends KeyEvent<K>> items) {
 		log("Fetching {}", items);
 	}
 
 	@Override
-	public void afterWrite(Chunk<? extends K> items) {
+	public void afterWrite(Chunk<? extends KeyEvent<K>> items) {
 		log("Fetched {}", items);
 	}
 
 	@Override
-	public void onWriteError(Exception exception, Chunk<? extends K> items) {
+	public void onWriteError(Exception exception, Chunk<? extends KeyEvent<K>> items) {
 		if (logger.isErrorEnabled()) {
-			for (K item : items) {
+			for (KeyEvent<K> item : items) {
 				logger.error("Could not fetch {}", string(item), exception);
 			}
 		}

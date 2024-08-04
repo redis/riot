@@ -11,10 +11,10 @@ import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 
 @Command(name = "generate", description = "Generate Redis data structures.")
-public class Generate extends AbstractRedisArgsCommand {
+public class Generate extends AbstractRedisCommand<RedisExecutionContext> {
 
 	private static final String TASK_NAME = "Generating";
-	private static final String STEP_NAME = "generate";
+	private static final String STEP_NAME = "step";
 
 	@ArgGroup(exclusive = false)
 	private GenerateArgs generatorArgs = new GenerateArgs();
@@ -23,11 +23,20 @@ public class Generate extends AbstractRedisArgsCommand {
 	private RedisWriterArgs redisWriterArgs = new RedisWriterArgs();
 
 	@Override
-	protected Job job() {
-		Step<KeyValue<String, Object>, KeyValue<String, Object>> step = new Step<>(STEP_NAME, reader(), writer());
+	protected RedisExecutionContext newExecutionContext() {
+		return new RedisExecutionContext();
+	}
+
+	@Override
+	protected Job job(RedisExecutionContext context) {
+		RedisItemWriter<String, String, KeyValue<String, Object>> writer = RedisItemWriter.struct();
+		log.info("Configuring Redis writer with {}", redisWriterArgs);
+		redisWriterArgs.configure(writer);
+		context.configure(writer);
+		Step<KeyValue<String, Object>, KeyValue<String, Object>> step = new Step<>(STEP_NAME, reader(), writer);
 		step.taskName(TASK_NAME);
 		step.maxItemCount(generatorArgs.getCount());
-		return job(step);
+		return job(context, step);
 	}
 
 	private GeneratorItemReader reader() {
@@ -35,13 +44,6 @@ public class Generate extends AbstractRedisArgsCommand {
 		reader.setMaxItemCount(generatorArgs.getCount());
 		reader.setOptions(generatorArgs.generatorOptions());
 		return reader;
-	}
-
-	private RedisItemWriter<String, String, KeyValue<String, Object>> writer() {
-		RedisItemWriter<String, String, KeyValue<String, Object>> writer = RedisItemWriter.struct();
-		writer.setClient(client.getClient());
-		redisWriterArgs.configure(writer);
-		return writer;
 	}
 
 	public RedisWriterArgs getRedisWriterArgs() {

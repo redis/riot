@@ -25,10 +25,10 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.ParentCommand;
 
 @Command(name = "ping", description = "Test connectivity to a Redis server.")
-public class Ping extends AbstractRedisArgsCommand {
+public class Ping extends AbstractRedisCommand<RedisExecutionContext> {
 
 	private static final String TASK_NAME = "Pinging";
-	private static final String STEP_NAME = "ping";
+	private static final String STEP_NAME = "step";
 
 	public static final int DEFAULT_COUNT = 1000;
 	public static final TimeUnit DEFAULT_TIME_UNIT = TimeUnit.MILLISECONDS;
@@ -48,14 +48,19 @@ public class Ping extends AbstractRedisArgsCommand {
 	private int count = DEFAULT_COUNT;
 
 	@Override
-	protected Job job() {
-		PingExecutionItemReader reader = new PingExecutionItemReader(connection.sync());
+	protected RedisExecutionContext newExecutionContext() {
+		return new RedisExecutionContext();
+	}
+
+	@Override
+	protected Job job(RedisExecutionContext context) {
+		PingExecutionItemReader reader = new PingExecutionItemReader(context.getRedisContext().getConnection().sync());
 		reader.setMaxItemCount(count);
 		PingLatencyItemWriter writer = new PingLatencyItemWriter();
 		Step<PingExecution, PingExecution> step = new Step<>(STEP_NAME, reader, writer);
 		step.taskName(TASK_NAME);
 		step.maxItemCount(count);
-		return job(step);
+		return job(context, step);
 	}
 
 	public static Set<Double> defaultPercentiles() {

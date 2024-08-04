@@ -6,7 +6,6 @@ import java.util.Map.Entry;
 
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.file.FlatFileItemReader;
-import org.springframework.batch.item.file.LineMapper;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
 import org.springframework.batch.item.file.mapping.JsonLineMapper;
 import org.springframework.batch.item.file.separator.DefaultRecordSeparatorPolicy;
@@ -66,11 +65,8 @@ public class FileReaderFactory {
 					.build();
 		}
 		FlatFileItemReaderBuilder<T> reader = flatFileReader(resource);
-		return reader.lineMapper(lineMapper(itemType)).build();
-	}
-
-	private <T> LineMapper<T> lineMapper(Class<T> itemType) {
-		return new ObjectMapperLineMapper<>(objectMapper(new ObjectMapper()), itemType);
+		reader.lineMapper(new ObjectMapperLineMapper<>(objectMapper(new ObjectMapper()), itemType));
+		return reader.build();
 	}
 
 	private DelimitedLineTokenizer delimitedLineTokenizer(String delimiter) {

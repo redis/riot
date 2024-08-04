@@ -18,8 +18,8 @@ import com.redis.spring.batch.item.redis.RedisItemReader.ReaderMode;
 import com.redis.spring.batch.item.redis.RedisItemWriter;
 import com.redis.spring.batch.item.redis.common.KeyValue;
 import com.redis.spring.batch.item.redis.reader.KeyComparisonItemReader;
+import com.redis.spring.batch.item.redis.reader.KeyEventStatus;
 import com.redis.spring.batch.item.redis.reader.KeyNotificationItemReader;
-import com.redis.spring.batch.item.redis.reader.KeyNotificationStatus;
 
 import io.lettuce.core.codec.ByteArrayCodec;
 import picocli.CommandLine.ArgGroup;
@@ -41,8 +41,8 @@ public class Replicate extends AbstractCompareCommand {
 	private static final String LIVEONLY_TASK_NAME = "Listening";
 	private static final String LIVE_TASK_NAME = "Scanning/Listening";
 
-	private static final String SOURCE_VAR = "source";
-	private static final String TARGET_VAR = "target";
+	private static final String VAR_SOURCE = "source";
+	private static final String VAR_TARGET = "target";
 
 	@Option(names = "--struct", description = "Enable data structure-specific replication")
 	private boolean struct;
@@ -68,14 +68,14 @@ public class Replicate extends AbstractCompareCommand {
 	}
 
 	@Override
-	protected Job job() {
+	protected Job job(TargetRedisExecutionContext context) throws Exception {
 		List<Step<?, ?>> steps = new ArrayList<>();
-		Step<KeyValue<byte[], Object>, KeyValue<byte[], Object>> replicateStep = replicateStep();
+		Step<KeyValue<byte[], Object>, KeyValue<byte[], Object>> replicateStep = replicateStep(context);
 		steps.add(replicateStep);
 		if (shouldCompare()) {
-			steps.add(compareStep());
+			steps.add(compareStep(context));
 		}
-		return job(steps);
+		return job(context, steps);
 	}
 
 	@Override
@@ -83,16 +83,18 @@ public class Replicate extends AbstractCompareCommand {
 		return !processorArgs.isPropagateIds();
 	}
 
-	private ItemProcessor<KeyValue<byte[], Object>, KeyValue<byte[], Object>> processor() {
-		return RiotUtils.processor(new KeyValueFilter<>(ByteArrayCodec.INSTANCE, log), keyValueProcessor());
+	private ItemProcessor<KeyValue<byte[], Object>, KeyValue<byte[], Object>> processor(
+			TargetRedisExecutionContext context) {
+		return RiotUtils.processor(new KeyValueFilter<>(ByteArrayCodec.INSTANCE, log), keyValueProcessor(context));
 	}
 
-	private ItemProcessor<KeyValue<byte[], Object>, KeyValue<byte[], Object>> keyValueProcessor() {
+	private ItemProcessor<KeyValue<byte[], Object>, KeyValue<byte[], Object>> keyValueProcessor(
+			TargetRedisExecutionContext context) {
 		if (isIgnoreStreamMessageId()) {
 			Assert.isTrue(isStruct(), "'--no-stream-ids' can only be used with '--struct'");
 		}
 		ItemProcessor<KeyValue<String, Object>, KeyValue<String, Object>> processor = processorArgs
-				.processor(evaluationContext());
+				.processor(evaluationContext(context));
 		if (processor == null) {
 			return null;
 		}
@@ -101,29 +103,29 @@ public class Replicate extends AbstractCompareCommand {
 		return RiotUtils.processor(new FunctionItemProcessor<>(code), processor, new FunctionItemProcessor<>(decode));
 	}
 
-	private StandardEvaluationContext evaluationContext() {
-		StandardEvaluationContext context = evaluationContextArgs.evaluationContext(connection);
-		log.info("Setting evaluation context variable {} = {}", SOURCE_VAR, client.getUri());
-		context.setVariable(SOURCE_VAR, client.getUri());
-		log.info("Setting evaluation context variable {} = {}", TARGET_VAR, targetRedisURIClient.getUri());
-		context.setVariable(TARGET_VAR, targetRedisURIClient.getUri());
-		return context;
+	private StandardEvaluationContext evaluationContext(TargetRedisExecutionContext context) {
+		StandardEvaluationContext evaluationContext = evaluationContextArgs.evaluationContext();
+		evaluationContext.setVariable(VAR_SOURCE, context.getSourceRedisContext().getConnection().sync());
+		evaluationContext.setVariable(VAR_TARGET, context.getTargetRedisContext().getConnection().sync());
+		return evaluationContext;
 	}
 
-	@Override
-	protected <T extends RedisItemWriter<?, ?, ?>> T configure(T writer) {
+	protected void configureTargetWriter(TargetRedisExecutionContext context, RedisItemWriter<?, ?, ?> writer) {
 		log.info("Configuring target Redis writer with {}", targetRedisWriterArgs);
 		targetRedisWriterArgs.configure(writer);
-		return super.configure(writer);
+		context.configureTargetWriter(writer);
 	}
 
-	private Step<KeyValue<byte[], Object>, KeyValue<byte[], Object>> replicateStep() {
-		RedisItemReader<byte[], byte[], Object> reader = configure(sourceReader());
-		RedisItemWriter<byte[], byte[], KeyValue<byte[], Object>> writer = configure(writer());
+	private Step<KeyValue<byte[], Object>, KeyValue<byte[], Object>> replicateStep(TargetRedisExecutionContext context)
+			throws Exception {
+		RedisItemReader<byte[], byte[], Object> reader = reader();
+		configureSourceReader(context, reader);
+		RedisItemWriter<byte[], byte[], KeyValue<byte[], Object>> writer = writer();
+		configureTargetWriter(context, writer);
 		Step<KeyValue<byte[], Object>, KeyValue<byte[], Object>> step = new Step<>(STEP_NAME, reader, writer);
-		step.processor(processor());
+		step.processor(processor(context));
 		step.taskName(taskName(reader));
-		configureExportStep(step);
+		AbstractExportCommand.configure(step);
 		if (reader.getMode() != ReaderMode.SCAN) {
 			step.statusMessageSupplier(() -> liveExtraMessage(reader));
 		}
@@ -144,7 +146,7 @@ public class Replicate extends AbstractCompareCommand {
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private RedisItemReader<byte[], byte[], Object> sourceReader() {
+	private RedisItemReader<byte[], byte[], Object> reader() {
 		if (struct) {
 			log.info("Creating data-structure type Redis reader");
 			return RedisItemReader.struct(ByteArrayCodec.INSTANCE);
@@ -172,19 +174,20 @@ public class Replicate extends AbstractCompareCommand {
 		}
 	}
 
+	@SuppressWarnings("rawtypes")
 	private String liveExtraMessage(RedisItemReader<?, ?, ?> reader) {
-		KeyNotificationItemReader<?, ?> keyReader = (KeyNotificationItemReader<?, ?>) reader.getReader();
+		KeyNotificationItemReader keyReader = (KeyNotificationItemReader) reader.getReader();
 		if (keyReader == null || keyReader.getQueue() == null) {
 			return "";
 		}
 		return String.format(QUEUE_MESSAGE, keyReader.getQueue().remainingCapacity(),
-				keyReader.count(KeyNotificationStatus.DROPPED));
+				keyReader.count(KeyEventStatus.DROPPED));
 	}
 
 	@Override
-	protected KeyComparisonItemReader<byte[], byte[]> compareReader() {
-		KeyComparisonItemReader<byte[], byte[]> reader = super.compareReader();
-		reader.setProcessor(processor());
+	protected KeyComparisonItemReader<byte[], byte[]> compareReader(TargetRedisExecutionContext context) {
+		KeyComparisonItemReader<byte[], byte[]> reader = super.compareReader(context);
+		reader.setProcessor(processor(context));
 		return reader;
 	}
 

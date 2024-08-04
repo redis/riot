@@ -33,13 +33,13 @@ public class StepArgs {
 	@Option(names = "--skip", description = "Skip policy: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<name>")
 	private SkipPolicy skipPolicy = DEFAULT_SKIP_POLICY;
 
-	@Option(names = "--skip-limit", description = "Number of skips tolerated before failing.", paramLabel = "<int>")
+	@Option(names = "--skip-limit", description = "Number of skips tolerated before failing. Use with limit skip policy.", paramLabel = "<int>")
 	private int skipLimit;
 
 	@Option(names = "--retry", description = "Retry policy: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<name>")
 	private RetryPolicy retryPolicy = DEFAULT_RETRY_POLICY;
 
-	@Option(names = "--retry-limit", description = "Number of times to try failed items (default: ${DEFAULT-VALUE}). 0 and 1 both mean no retry.", paramLabel = "<int>")
+	@Option(names = "--retry-limit", description = "Number of times to try failed items (default: ${DEFAULT-VALUE}). 0 and 1 both mean no retry. Use with limit retry policy", paramLabel = "<int>")
 	private int retryLimit = DEFAULT_RETRY_LIMIT;
 
 	@ArgGroup(exclusive = false)

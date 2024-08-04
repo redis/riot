@@ -35,8 +35,8 @@ public abstract class AbstractCompareCommand extends AbstractTargetCommand {
 		return builder.toString();
 	}
 
-	protected Step<KeyComparison<byte[]>, KeyComparison<byte[]>> compareStep() {
-		KeyComparisonItemReader<byte[], byte[]> reader = compareReader();
+	protected Step<KeyComparison<byte[]>, KeyComparison<byte[]>> compareStep(TargetRedisExecutionContext context) {
+		KeyComparisonItemReader<byte[], byte[]> reader = compareReader(context);
 		CompareStatusItemWriter<byte[]> writer = new CompareStatusItemWriter<>();
 		Step<KeyComparison<byte[]>, KeyComparison<byte[]>> step = new Step<>(COMPARE_STEP_NAME, reader, writer);
 		step.taskName(COMPARE_TASK_NAME);
@@ -59,9 +59,9 @@ public abstract class AbstractCompareCommand extends AbstractTargetCommand {
 
 	protected abstract boolean isQuickCompare();
 
-	protected KeyComparisonItemReader<byte[], byte[]> compareReader() {
-		RedisItemReader<byte[], byte[], Object> source = compareSourceReader();
-		RedisItemReader<byte[], byte[], Object> target = compareTargetReader();
+	protected KeyComparisonItemReader<byte[], byte[]> compareReader(TargetRedisExecutionContext context) {
+		RedisItemReader<byte[], byte[], Object> source = compareSourceReader(context);
+		RedisItemReader<byte[], byte[], Object> target = compareTargetReader(context);
 		KeyComparisonItemReader<byte[], byte[]> reader = new KeyComparisonItemReader<>(source, target);
 		reader.setComparator(keyComparator());
 		return reader;
@@ -79,17 +79,15 @@ public abstract class AbstractCompareCommand extends AbstractTargetCommand {
 
 	protected abstract boolean isIgnoreStreamMessageId();
 
-	private RedisItemReader<byte[], byte[], Object> compareSourceReader() {
+	private RedisItemReader<byte[], byte[], Object> compareSourceReader(TargetRedisExecutionContext context) {
 		RedisItemReader<byte[], byte[], Object> reader = compareRedisReader();
-		configure(reader);
+		configureSourceReader(context, reader);
 		return reader;
 	}
 
-	private RedisItemReader<byte[], byte[], Object> compareTargetReader() {
+	private RedisItemReader<byte[], byte[], Object> compareTargetReader(TargetRedisExecutionContext context) {
 		RedisItemReader<byte[], byte[], Object> reader = compareRedisReader();
-		configure(reader);
-		reader.setClient(targetRedisURIClient.getClient());
-		reader.setDatabase(targetRedisURIClient.getUri().getDatabase());
+		configureTargetReader(context, reader);
 		return reader;
 	}
 

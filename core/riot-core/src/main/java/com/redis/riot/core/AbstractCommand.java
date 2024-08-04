@@ -7,14 +7,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
 import org.slf4j.simple.SimpleLogger;
-import org.springframework.beans.factory.InitializingBean;
 
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 @Command
-public abstract class AbstractCommand extends BaseCommand implements InitializingBean, Callable<Integer> {
+public abstract class AbstractCommand<C extends ExecutionContext> extends BaseCommand implements Callable<Integer> {
 
 	@Option(names = "--help", usageHelp = true, description = "Show this help message and exit.")
 	private boolean helpRequested;
@@ -26,18 +25,18 @@ public abstract class AbstractCommand extends BaseCommand implements Initializin
 
 	@Override
 	public Integer call() throws Exception {
-		afterPropertiesSet();
-		execute();
-		return 0;
-	}
-
-	@Override
-	public void afterPropertiesSet() throws Exception {
 		if (log == null) {
 			setupLogging();
 			log = LoggerFactory.getLogger(getClass());
 		}
+		try (C context = executionContext()) {
+			context.afterPropertiesSet();
+			execute(context);
+		}
+		return 0;
 	}
+
+	protected abstract C executionContext() throws Exception;
 
 	private void setupLogging() {
 		Level level = logLevel();
@@ -74,7 +73,7 @@ public abstract class AbstractCommand extends BaseCommand implements Initializin
 		System.setProperty(property, String.valueOf(value));
 	}
 
-	protected abstract void execute() throws Exception;
+	protected abstract void execute(C context) throws Exception;
 
 	public LoggingArgs getLoggingArgs() {
 		return loggingArgs;

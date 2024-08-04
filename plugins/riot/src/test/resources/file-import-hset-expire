@@ -1,0 +1,1 @@
+riot file-import http://storage.googleapis.com/jrx/beers.csv --header hset --keyspace beer --key id expire --keyspace beer --key id --ttl 3600000

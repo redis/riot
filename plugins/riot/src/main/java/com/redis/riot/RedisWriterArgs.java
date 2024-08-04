@@ -25,14 +25,10 @@ public class RedisWriterArgs {
 	@Option(names = "--merge", description = "Merge properties from collection data structures (`hash`, `set`, ...) instead of overwriting them.")
 	private boolean merge;
 
-	@Option(names = "--write-pool", description = "Max pool connections used by Redis writer (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
-	private int poolSize = DEFAULT_POOL_SIZE;
-
 	public void configure(RedisItemWriter<?, ?, ?> writer) {
 		writer.setMultiExec(multiExec);
 		writer.setWaitReplicas(waitReplicas);
 		writer.setWaitTimeout(waitTimeout);
-		writer.setPoolSize(poolSize);
 		if (writer.getOperation() instanceof KeyValueWrite) {
 			((KeyValueWrite<?, ?>) writer.getOperation()).setMode(writeMode());
 		}
@@ -69,14 +65,6 @@ public class RedisWriterArgs {
 		this.waitTimeout = waitTimeout;
 	}
 
-	public int getPoolSize() {
-		return poolSize;
-	}
-
-	public void setPoolSize(int poolSize) {
-		this.poolSize = poolSize;
-	}
-
 	public boolean isMerge() {
 		return merge;
 	}
@@ -88,7 +76,7 @@ public class RedisWriterArgs {
 	@Override
 	public String toString() {
 		return "RedisWriterArgs [multiExec=" + multiExec + ", waitReplicas=" + waitReplicas + ", waitTimeout="
-				+ waitTimeout + ", merge=" + merge + ", poolSize=" + poolSize + "]";
+				+ waitTimeout + ", merge=" + merge + "]";
 	}
 
 }

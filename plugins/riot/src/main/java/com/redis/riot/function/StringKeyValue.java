@@ -17,10 +17,9 @@ public class StringKeyValue<K> implements Function<KeyValue<String, Object>, Key
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
-	public KeyValue<K, Object> apply(KeyValue<String, Object> item) {
-		KeyValue<K, Object> result = new KeyValue<>((KeyValue) item);
-		result.setKey(stringKeyFunction.apply(item.getKey()));
-		return result;
+	public KeyValue apply(KeyValue item) {
+		item.setKey(stringKeyFunction.apply((String) item.getKey()));
+		return item;
 	}
 
 }

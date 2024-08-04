@@ -1,1 +1,1 @@
-riot faker id="#index" category="number.randomDigit" xadd --keyspace teststream --key category
+riot faker category="Number.random_digit" xadd --keyspace teststream --key category

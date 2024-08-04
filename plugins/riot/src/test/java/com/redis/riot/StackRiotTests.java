@@ -28,6 +28,8 @@ import org.springframework.batch.item.json.JsonItemReader;
 import org.springframework.batch.item.json.builder.JsonItemReaderBuilder;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.expression.EvaluationContext;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.util.FileCopyUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -38,7 +40,7 @@ import com.redis.lettucemod.timeseries.MRangeOptions;
 import com.redis.lettucemod.timeseries.RangeResult;
 import com.redis.lettucemod.timeseries.TimeRange;
 import com.redis.riot.core.Expression;
-import com.redis.riot.core.RiotException;
+import com.redis.riot.core.QuietMapAccessor;
 import com.redis.riot.file.xml.XmlItemReader;
 import com.redis.riot.file.xml.XmlItemReaderBuilder;
 import com.redis.riot.file.xml.XmlObjectReader;
@@ -153,7 +155,7 @@ class StackRiotTests extends RiotTests {
 		return ExitCode.OK;
 	}
 
-	private int executeFileDumpExport(ParseResult parseResult, TestInfo info) throws RiotException {
+	private int executeFileDumpExport(ParseResult parseResult, TestInfo info) {
 		FileExport command = command(parseResult);
 		command.setJobName(name(info));
 		command.setFile(replace(command.getFile()));
@@ -361,8 +363,8 @@ class StackRiotTests extends RiotTests {
 	}
 
 	@Test
-	void fileImportMultiredisCommands(TestInfo info) throws Exception {
-		execute(info, "file-import-multi-commands");
+	void fileImportHsetSadd(TestInfo info) throws Exception {
+		execute(info, "file-import-hset-sadd");
 		List<String> beers = redisCommands.keys("beer:*");
 		Assertions.assertEquals(BEER_CSV_COUNT, beers.size());
 		for (String beer : beers) {
@@ -372,6 +374,32 @@ class StackRiotTests extends RiotTests {
 		}
 		Set<String> breweries = redisCommands.smembers("breweries");
 		Assertions.assertEquals(558, breweries.size());
+	}
+
+	@Test
+	void fileImportHsetExpire(TestInfo info) throws Exception {
+		execute(info, "file-import-hset-expire");
+		List<String> beers = redisCommands.keys("beer:*");
+		Assertions.assertEquals(BEER_CSV_COUNT, beers.size());
+		for (String beer : beers) {
+			Map<String, String> hash = redisCommands.hgetall(beer);
+			Assertions.assertTrue(hash.containsKey("name"));
+			Assertions.assertTrue(hash.containsKey("brewery_id"));
+			Assertions.assertEquals(3600, redisCommands.ttl(beer), 3);
+		}
+	}
+
+	@Test
+	void fileImportHsetExpireField(TestInfo info) throws Exception {
+		execute(info, "file-import-hset-expire-abs");
+		List<String> beers = redisCommands.keys("beer:*");
+		Assertions.assertEquals(BEER_CSV_COUNT, beers.size());
+		for (String beer : beers) {
+			Map<String, String> hash = redisCommands.hgetall(beer);
+			Assertions.assertTrue(hash.containsKey("name"));
+			Assertions.assertTrue(hash.containsKey("brewery_id"));
+			Assertions.assertEquals(10, redisCommands.ttl(beer), 5);
+		}
 	}
 
 	@Test
@@ -444,20 +472,7 @@ class StackRiotTests extends RiotTests {
 	@Test
 	void fakerImportHset(TestInfo info) throws Exception {
 		testImport(info, "faker-hset", "person:*", 1000);
-		Map<String, String> person = redisCommands.hgetall("person:123");
-		Assertions.assertTrue(person.containsKey("firstName"));
-		Assertions.assertTrue(person.containsKey("lastName"));
-		Assertions.assertTrue(person.containsKey("address"));
-	}
-
-	@Test
-	void fakerImportThreads(TestInfo info) throws Exception {
-		testImport(info, "faker-threads", "person:*", 8000);
-		String key;
-		do {
-			key = redisCommands.randomkey();
-		} while (key == null);
-		Map<String, String> person = redisCommands.hgetall(key);
+		Map<String, String> person = redisCommands.hgetall(redisCommands.randomkey());
 		Assertions.assertTrue(person.containsKey("firstName"));
 		Assertions.assertTrue(person.containsKey("lastName"));
 		Assertions.assertTrue(person.containsKey("address"));
@@ -637,7 +652,7 @@ class StackRiotTests extends RiotTests {
 		Assertions.assertTrue(sourceSize > 0);
 		execute(info, filename);
 		Assertions.assertEquals(sourceSize, targetRedisCommands.dbsize());
-		Assertions.assertEquals(redisCommands.hgetall("gen:1"), targetRedisCommands.hgetall("0:gen:1"));
+		Assertions.assertEquals(redisCommands.hgetall("gen:1"), targetRedisCommands.hgetall("prefix:gen:1"));
 	}
 
 	@Test
@@ -708,7 +723,8 @@ class StackRiotTests extends RiotTests {
 		expressions.put("field1", Expression.parse("'test:1'"));
 		ImportProcessorArgs processorArgs = new ImportProcessorArgs();
 		processorArgs.setExpressions(expressions);
-		ItemProcessor<Map<String, Object>, Map<String, Object>> processor = processorArgs.processor(redisConnection);
+		ItemProcessor<Map<String, Object>, Map<String, Object>> processor = processorArgs
+				.processor(evaluationContext());
 		Map<String, Object> map = processor.process(new HashMap<>());
 		Assertions.assertEquals("test:1", map.get("field1"));
 		// Assertions.assertEquals("1", map.get("id"));
@@ -724,7 +740,7 @@ class StackRiotTests extends RiotTests {
 		expressions.put("field5", Expression.parse("field3+field4"));
 		ImportProcessorArgs options = new ImportProcessorArgs();
 		options.setExpressions(expressions);
-		ItemProcessor<Map<String, Object>, Map<String, Object>> processor = options.processor(redisConnection);
+		ItemProcessor<Map<String, Object>, Map<String, Object>> processor = options.processor(evaluationContext());
 		for (int index = 0; index < 10; index++) {
 			Map<String, Object> result = processor.process(new HashMap<>());
 			assertEquals(5, result.size());
@@ -734,11 +750,17 @@ class StackRiotTests extends RiotTests {
 		}
 	}
 
+	private EvaluationContext evaluationContext() {
+		StandardEvaluationContext context = new StandardEvaluationContext();
+		context.addPropertyAccessor(new QuietMapAccessor());
+		return context;
+	}
+
 	@Test
 	void processorFilter() throws Exception {
 		ImportProcessorArgs options = new ImportProcessorArgs();
 		options.setFilter(Expression.parse("index<10"));
-		ItemProcessor<Map<String, Object>, Map<String, Object>> processor = options.processor(redisConnection);
+		ItemProcessor<Map<String, Object>, Map<String, Object>> processor = options.processor(evaluationContext());
 		for (int index = 0; index < 100; index++) {
 			Map<String, Object> map = new HashMap<>();
 			map.put("index", index);
