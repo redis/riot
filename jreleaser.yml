@@ -1,7 +1,7 @@
 environment:
   properties:
     jdkPathPrefix: 'plugins/riot/build/jdks'
-    jdkFilePrefix: 'zulu17.32.13-ca-jdk17.0.2'
+    jdkFilePrefix: 'zulu17.50.19-ca-jdk17.0.11'
 
 project:
   name: riot
