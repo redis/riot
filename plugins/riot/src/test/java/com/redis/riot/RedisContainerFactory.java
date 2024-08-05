@@ -12,12 +12,13 @@ public class RedisContainerFactory {
 	}
 
 	public static RedisStackContainer stack() {
-		return new RedisStackContainer(RedisStackContainer.DEFAULT_IMAGE_NAME.withTag(RedisStackContainer.DEFAULT_TAG));
+		return new RedisStackContainer(RedisStackContainer.DEFAULT_IMAGE_NAME.withTag("7.2.0-v11"));
 	}
 
 	@SuppressWarnings("resource")
 	public static RedisEnterpriseContainer enterprise() {
-		return new RedisEnterpriseContainer(RedisEnterpriseContainer.DEFAULT_IMAGE_NAME.withTag("latest"))
+		return new RedisEnterpriseContainer(
+				RedisEnterpriseContainer.DEFAULT_IMAGE_NAME.withTag(RedisEnterpriseContainer.DEFAULT_TAG))
 				.withDatabase(Database.builder().name("BatchTests").memoryMB(50).ossCluster(true)
 						.modules(RedisModule.TIMESERIES, RedisModule.JSON, RedisModule.SEARCH).build());
 	}

@@ -3,6 +3,7 @@ package com.redis.riot.core;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 import org.springframework.batch.core.ItemWriteListener;
 import org.springframework.batch.core.Job;
@@ -77,15 +78,30 @@ public abstract class AbstractJobCommand<C extends JobExecutionContext> extends 
 	@Override
 	protected void execute(C context) throws Exception {
 		Job job = job(context);
-		context.getJobLauncher().run(job, new JobParameters());
-//		if (JobUtils.isFailed(jobExecution.getExitStatus())) {
-//			for (StepExecution stepExecution : jobExecution.getStepExecutions()) {
-//				if (JobUtils.isFailed(stepExecution.getExitStatus())) {
-//					throw new JobExecutionException(stepExecution.getExitStatus().getExitDescription());
-//				}
-//			}
-//			throw new JobExecutionException(jobExecution.getExitStatus().getExitDescription());
-//		}
+		JobExecution jobExecution = context.getJobLauncher().run(job, new JobParameters());
+		if (JobUtils.isFailed(jobExecution.getExitStatus())) {
+			throw jobExecutionException(jobExecution);
+		}
+	}
+
+	private Exception jobExecutionException(JobExecution jobExecution) {
+		for (StepExecution stepExecution : jobExecution.getStepExecutions()) {
+			if (JobUtils.isFailed(stepExecution.getExitStatus())) {
+				return wrapException(stepExecution.getFailureExceptions());
+			}
+		}
+		return wrapException(jobExecution.getFailureExceptions());
+	}
+
+	private Exception wrapException(List<Throwable> throwables) {
+		if (throwables.isEmpty()) {
+			return new JobExecutionException("Job failed");
+		}
+		Throwable throwable = throwables.get(0);
+		if (throwable instanceof Exception) {
+			return (Exception) throwable;
+		}
+		return new JobExecutionException("Job failed", throwable);
 	}
 
 	protected Job job(C context, Step<?, ?>... steps) {
