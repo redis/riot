@@ -10,8 +10,6 @@ import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -21,10 +19,8 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import org.springframework.batch.item.ItemProcessor;
-import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.function.FunctionItemProcessor;
 import org.springframework.batch.item.support.CompositeItemProcessor;
-import org.springframework.batch.item.support.CompositeItemWriter;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.util.ClassUtils;
 
@@ -63,27 +59,6 @@ public abstract class RiotUtils {
 			return composite;
 		}
 		return (ItemProcessor<S, T>) list.get(0);
-	}
-
-	@SuppressWarnings("unchecked")
-	public static <T> ItemWriter<T> writer(ItemWriter<T>... writers) {
-		return writer(Arrays.asList(writers));
-	}
-
-	public static <T> ItemWriter<T> writer(Stream<? extends ItemWriter<T>> writers) {
-		return writer(writers.collect(Collectors.toList()));
-	}
-
-	public static <T> ItemWriter<T> writer(Collection<? extends ItemWriter<T>> writers) {
-		if (writers.isEmpty()) {
-			throw new IllegalArgumentException("At least one writer must be specified");
-		}
-		if (writers.size() == 1) {
-			return writers.iterator().next();
-		}
-		CompositeItemWriter<T> composite = new CompositeItemWriter<>();
-		composite.setDelegates(new ArrayList<>(writers));
-		return composite;
 	}
 
 	public static boolean isPositive(Duration duration) {

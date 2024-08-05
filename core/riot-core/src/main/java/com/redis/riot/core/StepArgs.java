@@ -14,7 +14,7 @@ public class StepArgs {
 
 	public static final int DEFAULT_CHUNK_SIZE = 50;
 	public static final int DEFAULT_THREADS = 1;
-	public static final RetryPolicy DEFAULT_RETRY_POLICY = RetryPolicy.LIMIT;
+	public static final RetryPolicy DEFAULT_RETRY_POLICY = RetryPolicy.NEVER;
 	public static final SkipPolicy DEFAULT_SKIP_POLICY = SkipPolicy.NEVER;
 	public static final int DEFAULT_RETRY_LIMIT = MaxAttemptsRetryPolicy.DEFAULT_MAX_ATTEMPTS;
 

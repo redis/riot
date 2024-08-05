@@ -18,6 +18,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
+import com.redis.riot.core.RiotException;
 import com.redis.riot.core.RiotUtils;
 import com.redis.riot.core.Step;
 import com.redis.riot.core.processor.RegexNamedGroupFunction;
@@ -133,11 +134,23 @@ public class FileImport extends AbstractImportCommand<FileImportExecutionContext
 		return new MapToFieldFunction(key).andThen((Function) new RegexNamedGroupFunction(regex));
 	}
 
-	public List<Resource> resources() throws IOException {
+	public List<Resource> resources() {
 		List<Resource> resources = new ArrayList<>();
 		for (String file : files) {
-			for (String expanded : FileUtils.expand(file)) {
-				resources.add(fileReaderArgs.resource(expanded));
+			List<String> expandedFiles;
+			try {
+				expandedFiles = FileUtils.expand(file);
+			} catch (IOException e) {
+				throw new RiotException(String.format("Could not expand file %s", file), e);
+			}
+			for (String expandedFile : expandedFiles) {
+				Resource resource;
+				try {
+					resource = fileReaderArgs.resource(expandedFile);
+				} catch (IOException e) {
+					throw new RiotException(String.format("Could not create resource from file %s", expandedFile), e);
+				}
+				resources.add(resource);
 			}
 		}
 		return resources;

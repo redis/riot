@@ -27,7 +27,7 @@ public class RedisClientArgs {
 	@Option(names = "--resp", description = "Redis protocol version used to connect to Redis: ${COMPLETION-CANDIDATES}.", paramLabel = "<ver>")
 	private ProtocolVersion protocolVersion = DEFAULT_PROTOCOL_VERSION;
 
-	@Option(names = "--pool", description = "Max pool connections used by Redis reader (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
+	@Option(names = "--pool", description = "Max number of Redis connections in pool (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
 	private int poolSize = DEFAULT_POOL_SIZE;
 
 	public ClientOptions clientOptions() {
