@@ -5,7 +5,7 @@ import java.util.function.Function;
 
 import com.redis.lettucemod.search.Suggestion;
 import com.redis.riot.function.ToSuggestion;
-import com.redis.spring.batch.item.redis.writer.operation.Sugadd;
+import com.redis.spring.batch.item.redis.writer.impl.Sugadd;
 
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;

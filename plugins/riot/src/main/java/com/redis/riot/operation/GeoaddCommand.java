@@ -4,7 +4,7 @@ import java.util.Map;
 import java.util.function.ToDoubleFunction;
 
 import com.redis.riot.function.ToGeoValue;
-import com.redis.spring.batch.item.redis.writer.operation.Geoadd;
+import com.redis.spring.batch.item.redis.writer.impl.Geoadd;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;

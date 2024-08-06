@@ -3,9 +3,9 @@ package com.redis.riot.operation;
 import java.util.Map;
 import java.util.function.ToLongFunction;
 
-import com.redis.spring.batch.item.redis.writer.AbstractWriteOperation;
-import com.redis.spring.batch.item.redis.writer.operation.Expire;
-import com.redis.spring.batch.item.redis.writer.operation.ExpireAt;
+import com.redis.spring.batch.item.redis.writer.impl.AbstractWriteOperation;
+import com.redis.spring.batch.item.redis.writer.impl.Expire;
+import com.redis.spring.batch.item.redis.writer.impl.ExpireAt;
 
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;

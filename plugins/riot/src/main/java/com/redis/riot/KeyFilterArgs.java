@@ -8,9 +8,9 @@ import java.util.function.Predicate;
 
 import org.springframework.util.CollectionUtils;
 
-import com.hrakaroo.glob.GlobPattern;
 import com.redis.spring.batch.Range;
 import com.redis.spring.batch.item.redis.common.BatchUtils;
+import com.redis.spring.batch.item.redis.common.GlobPredicate;
 
 import io.lettuce.core.cluster.SlotHash;
 import io.lettuce.core.codec.RedisCodec;
@@ -61,13 +61,6 @@ public class KeyFilterArgs {
 		return excludePredicate;
 	}
 
-	private <K> Optional<Predicate<K>> slotsPredicate(RedisCodec<K, ?> codec) {
-		if (CollectionUtils.isEmpty(slots)) {
-			return Optional.empty();
-		}
-		return Optional.of(slots.stream().map(r -> slotRangePredicate(codec, r)).reduce(k -> false, Predicate::or));
-	}
-
 	private Optional<Predicate<String>> globPredicate(List<String> patterns) {
 		if (CollectionUtils.isEmpty(patterns)) {
 			return Optional.empty();
@@ -75,8 +68,15 @@ public class KeyFilterArgs {
 		return Optional.of(patterns.stream().map(this::globPredicate).reduce(k -> false, Predicate::or));
 	}
 
-	private Predicate<String> globPredicate(String glob) {
-		return GlobPattern.compile(glob)::matches;
+	private Predicate<String> globPredicate(String pattern) {
+		return new GlobPredicate(pattern);
+	}
+
+	private <K> Optional<Predicate<K>> slotsPredicate(RedisCodec<K, ?> codec) {
+		if (CollectionUtils.isEmpty(slots)) {
+			return Optional.empty();
+		}
+		return Optional.of(slots.stream().map(r -> slotRangePredicate(codec, r)).reduce(k -> false, Predicate::or));
 	}
 
 	public static IntPredicate between(int start, int end) {

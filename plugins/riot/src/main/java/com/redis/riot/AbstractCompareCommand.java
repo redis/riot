@@ -10,6 +10,7 @@ import com.redis.spring.batch.item.redis.reader.DefaultKeyComparator;
 import com.redis.spring.batch.item.redis.reader.KeyComparator;
 import com.redis.spring.batch.item.redis.reader.KeyComparison;
 import com.redis.spring.batch.item.redis.reader.KeyComparisonItemReader;
+import com.redis.spring.batch.item.redis.reader.RedisScanSizeEstimator;
 
 import io.lettuce.core.codec.ByteArrayCodec;
 import picocli.CommandLine.Option;

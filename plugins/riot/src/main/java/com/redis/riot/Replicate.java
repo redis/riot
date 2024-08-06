@@ -20,6 +20,7 @@ import com.redis.spring.batch.item.redis.common.KeyValue;
 import com.redis.spring.batch.item.redis.reader.KeyComparisonItemReader;
 import com.redis.spring.batch.item.redis.reader.KeyEventStatus;
 import com.redis.spring.batch.item.redis.reader.KeyNotificationItemReader;
+import com.redis.spring.batch.item.redis.reader.RedisScanSizeEstimator;
 
 import io.lettuce.core.codec.ByteArrayCodec;
 import picocli.CommandLine.ArgGroup;

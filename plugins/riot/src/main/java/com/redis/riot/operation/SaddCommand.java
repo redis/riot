@@ -3,7 +3,7 @@ package com.redis.riot.operation;
 import java.util.Arrays;
 import java.util.Map;
 
-import com.redis.spring.batch.item.redis.writer.operation.Sadd;
+import com.redis.spring.batch.item.redis.writer.impl.Sadd;
 
 import picocli.CommandLine.Command;
 

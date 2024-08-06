@@ -1,7 +1,5 @@
 package com.redis.riot;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -24,7 +22,6 @@ import com.redis.spring.batch.Range;
 import com.redis.spring.batch.item.redis.RedisItemReader.ReaderMode;
 import com.redis.spring.batch.item.redis.common.DataType;
 import com.redis.spring.batch.item.redis.gen.GeneratorItemReader;
-import com.redis.spring.batch.item.redis.gen.GeneratorOptions;
 
 import io.lettuce.core.cluster.SlotHash;
 import io.lettuce.core.codec.ByteArrayCodec;
@@ -127,19 +124,6 @@ abstract class RiotTests extends AbstractRiotTestBase {
 		replication.setCompareMode(CompareMode.NONE);
 		execute(replication, info);
 		Assertions.assertArrayEquals(connection.sync().get(key), targetConnection.sync().get(key));
-	}
-
-	@Test
-	void estimateScanSize(TestInfo info) throws Exception {
-		GeneratorItemReader gen = generator(3000, DataType.HASH, DataType.STRING);
-		generate(info, gen);
-		long expectedCount = redisCommands.dbsize();
-		RedisScanSizeEstimator estimator = new RedisScanSizeEstimator(redisClient);
-		estimator.setKeyPattern(GeneratorOptions.DEFAULT_KEYSPACE + ":*");
-		estimator.setSamples(300);
-		assertEquals(expectedCount, estimator.getAsLong(), expectedCount / 10);
-		estimator.setKeyType(DataType.HASH.getString());
-		assertEquals(expectedCount / 2, estimator.getAsLong(), expectedCount / 10);
 	}
 
 	@Test

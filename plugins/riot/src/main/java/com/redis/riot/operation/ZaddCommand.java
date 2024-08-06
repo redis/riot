@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.Map;
 
 import com.redis.riot.function.ToScoredValue;
-import com.redis.spring.batch.item.redis.writer.operation.Zadd;
+import com.redis.spring.batch.item.redis.writer.impl.Zadd;
 
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;

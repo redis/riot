@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.redis.riot.function.ObjectMapperFunction;
-import com.redis.spring.batch.item.redis.writer.operation.Set;
+import com.redis.spring.batch.item.redis.writer.impl.Set;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;

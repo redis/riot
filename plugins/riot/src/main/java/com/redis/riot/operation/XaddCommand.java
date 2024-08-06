@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.function.Function;
 
-import com.redis.spring.batch.item.redis.writer.operation.Xadd;
+import com.redis.spring.batch.item.redis.writer.impl.Xadd;
 
 import io.lettuce.core.StreamMessage;
 import io.lettuce.core.XAddArgs;

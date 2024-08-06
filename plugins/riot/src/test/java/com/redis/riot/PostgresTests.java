@@ -14,6 +14,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.testcontainers.containers.JdbcDatabaseContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.utility.DockerImageName;
@@ -23,6 +25,7 @@ import com.fasterxml.jackson.databind.ObjectReader;
 import com.redis.spring.batch.item.redis.common.DataType;
 import com.redis.spring.batch.item.redis.gen.GeneratorItemReader;
 
+@EnabledOnOs(value = OS.LINUX)
 class PostgresTests extends DbTests {
 
 	private static final DockerImageName postgresImage = DockerImageName.parse(PostgreSQLContainer.IMAGE)

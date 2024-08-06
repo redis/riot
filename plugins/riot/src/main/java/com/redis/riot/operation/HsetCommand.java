@@ -2,7 +2,7 @@ package com.redis.riot.operation;
 
 import java.util.Map;
 
-import com.redis.spring.batch.item.redis.writer.operation.Hset;
+import com.redis.spring.batch.item.redis.writer.impl.Hset;
 
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;

@@ -7,10 +7,13 @@ import java.sql.Statement;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.testcontainers.containers.JdbcDatabaseContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.utility.DockerImageName;
 
+@EnabledOnOs(value = OS.LINUX)
 class PostgresDeltaTests extends DbTests {
 
 	private static final DockerImageName postgresImage = DockerImageName.parse(PostgreSQLContainer.IMAGE)

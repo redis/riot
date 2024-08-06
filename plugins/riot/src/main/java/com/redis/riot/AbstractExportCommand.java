@@ -65,10 +65,7 @@ public abstract class AbstractExportCommand<C extends RedisExecutionContext> ext
 				"Step reader must be an instance of RedisItemReader");
 		RedisItemReader<?, ?, ?> reader = (RedisItemReader<?, ?, ?>) step.getReader();
 		if (reader.getMode() != ReaderMode.LIVEONLY) {
-			RedisScanSizeEstimator estimator = new RedisScanSizeEstimator(reader.getClient());
-			estimator.setKeyPattern(reader.getKeyPattern());
-			estimator.setKeyType(reader.getKeyType());
-			step.maxItemCountSupplier(estimator);
+			step.maxItemCountSupplier(reader.scanSizeEstimator());
 		}
 		if (reader.getMode() != ReaderMode.SCAN) {
 			checkNotifyConfig(reader.getClient());

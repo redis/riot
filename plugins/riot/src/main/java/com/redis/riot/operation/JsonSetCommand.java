@@ -7,7 +7,7 @@ import org.springframework.batch.item.ItemStreamException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import com.redis.spring.batch.item.redis.writer.operation.JsonSet;
+import com.redis.spring.batch.item.redis.writer.impl.JsonSet;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
