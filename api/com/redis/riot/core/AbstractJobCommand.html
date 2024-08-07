@@ -70,27 +70,27 @@ loadScripts(document, 'script');</script>
 <!-- ======== START OF CLASS DATA ======== -->
 <div class="header">
 <div class="sub-title"><span class="package-label-in-type">Package</span>&nbsp;<a href="package-summary.html">com.redis.riot.core</a></div>
-<h1 title="Class AbstractJobCommand" class="title">Class AbstractJobCommand</h1>
+<h1 title="Class AbstractJobCommand" class="title">Class AbstractJobCommand&lt;C extends <a href="JobExecutionContext.html" title="class in com.redis.riot.core">JobExecutionContext</a>&gt;</h1>
 </div>
 <div class="inheritance" title="Inheritance Tree"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">java.lang.Object</a>
 <div class="inheritance"><a href="BaseCommand.html" title="class in com.redis.riot.core">com.redis.riot.core.BaseCommand</a>
-<div class="inheritance"><a href="AbstractCommand.html" title="class in com.redis.riot.core">com.redis.riot.core.AbstractCommand</a>
-<div class="inheritance">com.redis.riot.core.AbstractJobCommand</div>
+<div class="inheritance"><a href="AbstractCommand.html" title="class in com.redis.riot.core">com.redis.riot.core.AbstractCommand</a>&lt;C&gt;
+<div class="inheritance">com.redis.riot.core.AbstractJobCommand&lt;C&gt;</div>
 </div>
 </div>
 </div>
 <section class="class-description" id="class-description">
 <dl class="notes">
 <dt>All Implemented Interfaces:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/concurrent/Callable.html" title="class or interface in java.util.concurrent" class="external-link">Callable</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>&gt;</code>, <code>org.springframework.beans.factory.InitializingBean</code></dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/concurrent/Callable.html" title="class or interface in java.util.concurrent" class="external-link">Callable</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>&gt;</code></dd>
 </dl>
 <dl class="notes">
 <dt>Direct Known Subclasses:</dt>
-<dd><code><a href="../AbstractRedisArgsCommand.html" title="class in com.redis.riot">AbstractRedisArgsCommand</a></code>, <code><a href="../AbstractTargetCommand.html" title="class in com.redis.riot">AbstractTargetCommand</a></code></dd>
+<dd><code><a href="../AbstractRedisCommand.html" title="class in com.redis.riot">AbstractRedisCommand</a></code>, <code><a href="../AbstractTargetCommand.html" title="class in com.redis.riot">AbstractTargetCommand</a></code></dd>
 </dl>
 <hr>
-<div class="type-signature"><span class="modifiers">public abstract class </span><span class="element-name type-name-label">AbstractJobCommand</span>
-<span class="extends-implements">extends <a href="AbstractCommand.html" title="class in com.redis.riot.core">AbstractCommand</a></span></div>
+<div class="type-signature"><span class="modifiers">public abstract class </span><span class="element-name type-name-label">AbstractJobCommand&lt;C extends <a href="JobExecutionContext.html" title="class in com.redis.riot.core">JobExecutionContext</a>&gt;</span>
+<span class="extends-implements">extends <a href="AbstractCommand.html" title="class in com.redis.riot.core">AbstractCommand</a>&lt;C&gt;</span></div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -105,18 +105,6 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color"><code>static final <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
 <div class="col-second even-row-color"><code><a href="#DEFAULT_JOB_REPOSITORY_NAME" class="member-name-link">DEFAULT_JOB_REPOSITORY_NAME</a></code></div>
-<div class="col-last even-row-color">&nbsp;</div>
-<div class="col-first odd-row-color"><code>protected org.springframework.batch.core.launch.JobLauncher</code></div>
-<div class="col-second odd-row-color"><code><a href="#jobLauncher" class="member-name-link">jobLauncher</a></code></div>
-<div class="col-last odd-row-color">&nbsp;</div>
-<div class="col-first even-row-color"><code>protected <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second even-row-color"><code><a href="#jobName" class="member-name-link">jobName</a></code></div>
-<div class="col-last even-row-color">&nbsp;</div>
-<div class="col-first odd-row-color"><code>protected org.springframework.batch.core.repository.JobRepository</code></div>
-<div class="col-second odd-row-color"><code><a href="#jobRepository" class="member-name-link">jobRepository</a></code></div>
-<div class="col-last odd-row-color">&nbsp;</div>
-<div class="col-first even-row-color"><code>protected org.springframework.transaction.PlatformTransactionManager</code></div>
-<div class="col-second even-row-color"><code><a href="#transactionManager" class="member-name-link">transactionManager</a></code></div>
 <div class="col-last even-row-color">&nbsp;</div>
 </div>
 <div class="inherited-list">
@@ -146,47 +134,49 @@ loadScripts(document, 'script');</script>
 <h2>Method Summary</h2>
 <div id="method-summary-table">
 <div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="method-summary-table-tab0" role="tab" aria-selected="true" aria-controls="method-summary-table.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table', 3)" class="active-table-tab">All Methods</button><button id="method-summary-table-tab2" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab2', 3)" class="table-tab">Instance Methods</button><button id="method-summary-table-tab3" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab3', 3)" class="table-tab">Abstract Methods</button><button id="method-summary-table-tab4" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab4', 3)" class="table-tab">Concrete Methods</button></div>
-<div id="method-summary-table.tabpanel" role="tabpanel">
-<div class="summary-table three-column-summary" aria-labelledby="method-summary-table-tab0">
+<div id="method-summary-table.tabpanel" role="tabpanel" aria-labelledby="method-summary-table-tab0">
+<div class="summary-table three-column-summary">
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#afterPropertiesSet()" class="member-name-link">afterPropertiesSet</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#configure(com.redis.spring.batch.item.AbstractAsyncItemReader)" class="member-name-link">configure</a><wbr>(com.redis.spring.batch.item.AbstractAsyncItemReader&lt;?,<wbr>?&gt;&nbsp;reader)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#execute()" class="member-name-link">execute</a>()</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#execute(C)" class="member-name-link">execute</a><wbr>(<a href="AbstractJobCommand.html" title="type parameter in AbstractJobCommand">C</a>&nbsp;context)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="StepArgs.html" title="class in com.redis.riot.core">StepArgs</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getJobArgs()" class="member-name-link">getJobArgs</a>()</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected <a href="AbstractJobCommand.html" title="type parameter in AbstractJobCommand">C</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#executionContext()" class="member-name-link">executionContext</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>org.springframework.batch.core.launch.JobLauncher</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getJobLauncher()" class="member-name-link">getJobLauncher</a>()</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="StepArgs.html" title="class in com.redis.riot.core">StepArgs</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getJobArgs()" class="member-name-link">getJobArgs</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getJobName()" class="member-name-link">getJobName</a>()</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>org.springframework.batch.core.launch.JobLauncher</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getJobLauncher()" class="member-name-link">getJobLauncher</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>org.springframework.batch.core.repository.JobRepository</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getJobRepository()" class="member-name-link">getJobRepository</a>()</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getJobName()" class="member-name-link">getJobName</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getJobRepositoryName()" class="member-name-link">getJobRepositoryName</a>()</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>org.springframework.batch.core.repository.JobRepository</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getJobRepository()" class="member-name-link">getJobRepository</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>org.springframework.transaction.PlatformTransactionManager</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getTransactionManager()" class="member-name-link">getTransactionManager</a>()</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getJobRepositoryName()" class="member-name-link">getJobRepositoryName</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>protected abstract org.springframework.batch.core.Job</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#job()" class="member-name-link">job</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected org.springframework.batch.core.Job</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#job(com.redis.riot.core.Step...)" class="member-name-link">job</a><wbr>(<a href="Step.html" title="class in com.redis.riot.core">Step</a>&lt;?,<wbr>?&gt;...&nbsp;steps)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>org.springframework.transaction.PlatformTransactionManager</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getTransactionManager()" class="member-name-link">getTransactionManager</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>protected abstract org.springframework.batch.core.Job</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#job(C)" class="member-name-link">job</a><wbr>(<a href="AbstractJobCommand.html" title="type parameter in AbstractJobCommand">C</a>&nbsp;context)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected org.springframework.batch.core.Job</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#job(java.lang.Iterable)" class="member-name-link">job</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Iterable.html" title="class or interface in java.lang" class="external-link">Iterable</a>&lt;<a href="Step.html" title="class in com.redis.riot.core">Step</a>&lt;?,<wbr>?&gt;&gt;&nbsp;steps)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#job(C,com.redis.riot.core.Step...)" class="member-name-link">job</a><wbr>(<a href="AbstractJobCommand.html" title="type parameter in AbstractJobCommand">C</a>&nbsp;context,
+ <a href="Step.html" title="class in com.redis.riot.core">Step</a>&lt;?,<wbr>?&gt;...&nbsp;steps)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected org.springframework.batch.core.Job</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#job(C,java.util.Collection)" class="member-name-link">job</a><wbr>(<a href="AbstractJobCommand.html" title="type parameter in AbstractJobCommand">C</a>&nbsp;context,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Collection.html" title="class or interface in java.util" class="external-link">Collection</a>&lt;<a href="Step.html" title="class in com.redis.riot.core">Step</a>&lt;?,<wbr>?&gt;&gt;&nbsp;steps)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>protected abstract <a href="AbstractJobCommand.html" title="type parameter in AbstractJobCommand">C</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#newExecutionContext()" class="member-name-link">newExecutionContext</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setJobArgs(com.redis.riot.core.StepArgs)" class="member-name-link">setJobArgs</a><wbr>(<a href="StepArgs.html" title="class in com.redis.riot.core">StepArgs</a>&nbsp;args)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
@@ -208,15 +198,12 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected boolean</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#shouldShowProgress()" class="member-name-link">shouldShowProgress</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>protected abstract void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#shutdown()" class="member-name-link">shutdown</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">&nbsp;</div>
 </div>
 </div>
 </div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-com.redis.riot.core.AbstractCommand">Methods inherited from class&nbsp;com.redis.riot.core.<a href="AbstractCommand.html" title="class in com.redis.riot.core">AbstractCommand</a></h3>
-<code><a href="AbstractCommand.html#call()">call</a>, <a href="AbstractCommand.html#getLog()">getLog</a>, <a href="AbstractCommand.html#getLoggingArgs()">getLoggingArgs</a>, <a href="AbstractCommand.html#setLog(org.slf4j.Logger)">setLog</a>, <a href="AbstractCommand.html#setLoggingArgs(com.redis.riot.core.LoggingArgs)">setLoggingArgs</a></code></div>
+<code><a href="AbstractCommand.html#call()">call</a>, <a href="AbstractCommand.html#getLog()">getLog</a>, <a href="AbstractCommand.html#getLoggingArgs()">getLoggingArgs</a>, <a href="AbstractCommand.html#logLevel()">logLevel</a>, <a href="AbstractCommand.html#setLog(org.slf4j.Logger)">setLog</a>, <a href="AbstractCommand.html#setLoggingArgs(com.redis.riot.core.LoggingArgs)">setLoggingArgs</a></code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-java.lang.Object">Methods inherited from class&nbsp;java.lang.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></h3>
 <code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#clone()" title="class or interface in java.lang" class="external-link">clone</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#equals(java.lang.Object)" title="class or interface in java.lang" class="external-link">equals</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#finalize()" title="class or interface in java.lang" class="external-link">finalize</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#getClass()" title="class or interface in java.lang" class="external-link">getClass</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#hashCode()" title="class or interface in java.lang" class="external-link">hashCode</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#notify()" title="class or interface in java.lang" class="external-link">notify</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#notifyAll()" title="class or interface in java.lang" class="external-link">notifyAll</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#toString()" title="class or interface in java.lang" class="external-link">toString</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#wait()" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#wait(long)" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#wait(long,int)" title="class or interface in java.lang" class="external-link">wait</a></code></div>
@@ -245,30 +232,6 @@ loadScripts(document, 'script');</script>
 </dl>
 </section>
 </li>
-<li>
-<section class="detail" id="jobName">
-<h3>jobName</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">jobName</span></div>
-</section>
-</li>
-<li>
-<section class="detail" id="jobRepository">
-<h3>jobRepository</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">org.springframework.batch.core.repository.JobRepository</span>&nbsp;<span class="element-name">jobRepository</span></div>
-</section>
-</li>
-<li>
-<section class="detail" id="transactionManager">
-<h3>transactionManager</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">org.springframework.transaction.PlatformTransactionManager</span>&nbsp;<span class="element-name">transactionManager</span></div>
-</section>
-</li>
-<li>
-<section class="detail" id="jobLauncher">
-<h3>jobLauncher</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">org.springframework.batch.core.launch.JobLauncher</span>&nbsp;<span class="element-name">jobLauncher</span></div>
-</section>
-</li>
 </ul>
 </section>
 </li>
@@ -292,46 +255,43 @@ loadScripts(document, 'script');</script>
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="afterPropertiesSet()">
-<h3>afterPropertiesSet</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">afterPropertiesSet</span>()
-                        throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Exception.html" title="class or interface in java.lang" class="external-link">Exception</a></span></div>
+<section class="detail" id="executionContext()">
+<h3>executionContext</h3>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type"><a href="AbstractJobCommand.html" title="type parameter in AbstractJobCommand">C</a></span>&nbsp;<span class="element-name">executionContext</span>()</div>
 <dl class="notes">
 <dt>Specified by:</dt>
-<dd><code>afterPropertiesSet</code>&nbsp;in interface&nbsp;<code>org.springframework.beans.factory.InitializingBean</code></dd>
-<dt>Overrides:</dt>
-<dd><code><a href="AbstractCommand.html#afterPropertiesSet()">afterPropertiesSet</a></code>&nbsp;in class&nbsp;<code><a href="AbstractCommand.html" title="class in com.redis.riot.core">AbstractCommand</a></code></dd>
-<dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Exception.html" title="class or interface in java.lang" class="external-link">Exception</a></code></dd>
+<dd><code><a href="AbstractCommand.html#executionContext()">executionContext</a></code>&nbsp;in class&nbsp;<code><a href="AbstractCommand.html" title="class in com.redis.riot.core">AbstractCommand</a>&lt;<a href="AbstractJobCommand.html" title="type parameter in AbstractJobCommand">C</a> extends <a href="JobExecutionContext.html" title="class in com.redis.riot.core">JobExecutionContext</a>&gt;</code></dd>
 </dl>
 </section>
 </li>
 <li>
-<section class="detail" id="execute()">
-<h3>execute</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">execute</span>()</div>
+<section class="detail" id="newExecutionContext()">
+<h3>newExecutionContext</h3>
+<div class="member-signature"><span class="modifiers">protected abstract</span>&nbsp;<span class="return-type"><a href="AbstractJobCommand.html" title="type parameter in AbstractJobCommand">C</a></span>&nbsp;<span class="element-name">newExecutionContext</span>()</div>
+</section>
+</li>
+<li>
+<section class="detail" id="execute(C)">
+<h3 id="execute(com.redis.riot.core.JobExecutionContext)">execute</h3>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">execute</span><wbr><span class="parameters">(<a href="AbstractJobCommand.html" title="type parameter in AbstractJobCommand">C</a>&nbsp;context)</span></div>
 <dl class="notes">
 <dt>Specified by:</dt>
-<dd><code><a href="AbstractCommand.html#execute()">execute</a></code>&nbsp;in class&nbsp;<code><a href="AbstractCommand.html" title="class in com.redis.riot.core">AbstractCommand</a></code></dd>
+<dd><code><a href="AbstractCommand.html#execute(C)">execute</a></code>&nbsp;in class&nbsp;<code><a href="AbstractCommand.html" title="class in com.redis.riot.core">AbstractCommand</a>&lt;<a href="AbstractJobCommand.html" title="type parameter in AbstractJobCommand">C</a> extends <a href="JobExecutionContext.html" title="class in com.redis.riot.core">JobExecutionContext</a>&gt;</code></dd>
 </dl>
 </section>
 </li>
 <li>
-<section class="detail" id="job(com.redis.riot.core.Step...)">
-<h3>job</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">org.springframework.batch.core.Job</span>&nbsp;<span class="element-name">job</span><wbr><span class="parameters">(<a href="Step.html" title="class in com.redis.riot.core">Step</a>&lt;?,<wbr>?&gt;...&nbsp;steps)</span></div>
+<section class="detail" id="job(C,com.redis.riot.core.Step...)">
+<h3 id="job(com.redis.riot.core.JobExecutionContext,com.redis.riot.core.Step[])">job</h3>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">org.springframework.batch.core.Job</span>&nbsp;<span class="element-name">job</span><wbr><span class="parameters">(<a href="AbstractJobCommand.html" title="type parameter in AbstractJobCommand">C</a>&nbsp;context,
+ <a href="Step.html" title="class in com.redis.riot.core">Step</a>&lt;?,<wbr>?&gt;...&nbsp;steps)</span></div>
 </section>
 </li>
 <li>
-<section class="detail" id="job(java.lang.Iterable)">
-<h3>job</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">org.springframework.batch.core.Job</span>&nbsp;<span class="element-name">job</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Iterable.html" title="class or interface in java.lang" class="external-link">Iterable</a>&lt;<a href="Step.html" title="class in com.redis.riot.core">Step</a>&lt;?,<wbr>?&gt;&gt;&nbsp;steps)</span></div>
-</section>
-</li>
-<li>
-<section class="detail" id="shutdown()">
-<h3>shutdown</h3>
-<div class="member-signature"><span class="modifiers">protected abstract</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">shutdown</span>()</div>
+<section class="detail" id="job(C,java.util.Collection)">
+<h3 id="job(com.redis.riot.core.JobExecutionContext,java.util.Collection)">job</h3>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">org.springframework.batch.core.Job</span>&nbsp;<span class="element-name">job</span><wbr><span class="parameters">(<a href="AbstractJobCommand.html" title="type parameter in AbstractJobCommand">C</a>&nbsp;context,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Collection.html" title="class or interface in java.util" class="external-link">Collection</a>&lt;<a href="Step.html" title="class in com.redis.riot.core">Step</a>&lt;?,<wbr>?&gt;&gt;&nbsp;steps)</span></div>
 </section>
 </li>
 <li>
@@ -341,15 +301,9 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="job()">
-<h3>job</h3>
-<div class="member-signature"><span class="modifiers">protected abstract</span>&nbsp;<span class="return-type">org.springframework.batch.core.Job</span>&nbsp;<span class="element-name">job</span>()</div>
-</section>
-</li>
-<li>
-<section class="detail" id="configure(com.redis.spring.batch.item.AbstractAsyncItemReader)">
-<h3>configure</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">configure</span><wbr><span class="parameters">(com.redis.spring.batch.item.AbstractAsyncItemReader&lt;?,<wbr>?&gt;&nbsp;reader)</span></div>
+<section class="detail" id="job(C)">
+<h3 id="job(com.redis.riot.core.JobExecutionContext)">job</h3>
+<div class="member-signature"><span class="modifiers">protected abstract</span>&nbsp;<span class="return-type">org.springframework.batch.core.Job</span>&nbsp;<span class="element-name">job</span><wbr><span class="parameters">(<a href="AbstractJobCommand.html" title="type parameter in AbstractJobCommand">C</a>&nbsp;context)</span></div>
 </section>
 </li>
 <li>

@@ -58,11 +58,11 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/operation/AbstractOperationCommand.html#idFunction(java.lang.String,java.util.List)" class="member-name-link">idFunction(String, List&lt;String&gt;)</a> - Method in class com.redis.riot.operation.<a href="../com/redis/riot/operation/AbstractOperationCommand.html" title="class in com.redis.riot.operation">AbstractOperationCommand</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="../com/redis/riot/core/function/IdFunctionBuilder.html" class="type-name-link" title="class in com.redis.riot.core.function">IdFunctionBuilder</a> - Class in <a href="../com/redis/riot/core/function/package-summary.html">com.redis.riot.core.function</a></dt>
+<dt><a href="../com/redis/riot/core/processor/IdFunctionBuilder.html" class="type-name-link" title="class in com.redis.riot.core.processor">IdFunctionBuilder</a> - Class in <a href="../com/redis/riot/core/processor/package-summary.html">com.redis.riot.core.processor</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="../com/redis/riot/core/function/IdFunctionBuilder.html#%3Cinit%3E()" class="member-name-link">IdFunctionBuilder()</a> - Constructor for class com.redis.riot.core.function.<a href="../com/redis/riot/core/function/IdFunctionBuilder.html" title="class in com.redis.riot.core.function">IdFunctionBuilder</a></dt>
+<dt><a href="../com/redis/riot/core/processor/IdFunctionBuilder.html#%3Cinit%3E()" class="member-name-link">IdFunctionBuilder()</a> - Constructor for class com.redis.riot.core.processor.<a href="../com/redis/riot/core/processor/IdFunctionBuilder.html" title="class in com.redis.riot.core.processor">IdFunctionBuilder</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="../com/redis/riot/core/function/IdFunctionBuilder.ConcatenatingFunction.html" class="type-name-link" title="class in com.redis.riot.core.function">IdFunctionBuilder.ConcatenatingFunction</a> - Class in <a href="../com/redis/riot/core/function/package-summary.html">com.redis.riot.core.function</a></dt>
+<dt><a href="../com/redis/riot/core/processor/IdFunctionBuilder.ConcatenatingFunction.html" class="type-name-link" title="class in com.redis.riot.core.processor">IdFunctionBuilder.ConcatenatingFunction</a> - Class in <a href="../com/redis/riot/core/processor/package-summary.html">com.redis.riot.core.processor</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/core/Step.html#idleTimeout(java.time.Duration)" class="member-name-link">idleTimeout(Duration)</a> - Method in class com.redis.riot.core.<a href="../com/redis/riot/core/Step.html" title="class in com.redis.riot.core">Step</a></dt>
 <dd>&nbsp;</dd>
@@ -70,11 +70,11 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/ImportProcessorArgs.html#%3Cinit%3E()" class="member-name-link">ImportProcessorArgs()</a> - Constructor for class com.redis.riot.<a href="../com/redis/riot/ImportProcessorArgs.html" title="class in com.redis.riot">ImportProcessorArgs</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="../com/redis/riot/core/function/MapFilteringFunction.html#includes(java.util.Collection)" class="member-name-link">includes(Collection&lt;String&gt;)</a> - Method in class com.redis.riot.core.function.<a href="../com/redis/riot/core/function/MapFilteringFunction.html" title="class in com.redis.riot.core.function">MapFilteringFunction</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="../com/redis/riot/faker/FakerItemReader.AugmentedFaker.html#index()" class="member-name-link">index()</a> - Method in class com.redis.riot.faker.<a href="../com/redis/riot/faker/FakerItemReader.AugmentedFaker.html" title="class in com.redis.riot.faker">FakerItemReader.AugmentedFaker</a></dt>
+<dt><a href="../com/redis/riot/core/processor/MapFilteringFunction.html#includes(java.util.Collection)" class="member-name-link">includes(Collection&lt;String&gt;)</a> - Method in class com.redis.riot.core.processor.<a href="../com/redis/riot/core/processor/MapFilteringFunction.html" title="class in com.redis.riot.core.processor">MapFilteringFunction</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/core/IO.html" class="type-name-link" title="interface in com.redis.riot.core">IO</a> - Interface in <a href="../com/redis/riot/core/package-summary.html">com.redis.riot.core</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="../com/redis/riot/operation/ExpireCommand.html#isAbsolute()" class="member-name-link">isAbsolute()</a> - Method in class com.redis.riot.operation.<a href="../com/redis/riot/operation/ExpireCommand.html" title="class in com.redis.riot.operation">ExpireCommand</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/file/FileWriterArgs.html#isAppend()" class="member-name-link">isAppend()</a> - Method in class com.redis.riot.file.<a href="../com/redis/riot/file/FileWriterArgs.html" title="class in com.redis.riot.file">FileWriterArgs</a></dt>
 <dd>&nbsp;</dd>
@@ -82,21 +82,25 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/db/DatabaseWriterArgs.html#isAssertUpdates()" class="member-name-link">isAssertUpdates()</a> - Method in class com.redis.riot.db.<a href="../com/redis/riot/db/DatabaseWriterArgs.html" title="class in com.redis.riot.db">DatabaseWriterArgs</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="../com/redis/riot/RedisArgs.html#isAutoReconnect()" class="member-name-link">isAutoReconnect()</a> - Method in class com.redis.riot.<a href="../com/redis/riot/RedisArgs.html" title="class in com.redis.riot">RedisArgs</a></dt>
+<dt><a href="../com/redis/riot/RedisClientArgs.html#isAutoReconnect()" class="member-name-link">isAutoReconnect()</a> - Method in class com.redis.riot.<a href="../com/redis/riot/RedisClientArgs.html" title="class in com.redis.riot">RedisClientArgs</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="../com/redis/riot/SourceRedisArgs.html#isAutoReconnect()" class="member-name-link">isAutoReconnect()</a> - Method in class com.redis.riot.<a href="../com/redis/riot/SourceRedisArgs.html" title="class in com.redis.riot">SourceRedisArgs</a></dt>
+<dt><a href="../com/redis/riot/SourceRedisClientArgs.html#isAutoReconnect()" class="member-name-link">isAutoReconnect()</a> - Method in class com.redis.riot.<a href="../com/redis/riot/SourceRedisClientArgs.html" title="class in com.redis.riot">SourceRedisClientArgs</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="../com/redis/riot/TargetRedisArgs.html#isAutoReconnect()" class="member-name-link">isAutoReconnect()</a> - Method in class com.redis.riot.<a href="../com/redis/riot/TargetRedisArgs.html" title="class in com.redis.riot">TargetRedisArgs</a></dt>
+<dt><a href="../com/redis/riot/TargetRedisClientArgs.html#isAutoReconnect()" class="member-name-link">isAutoReconnect()</a> - Method in class com.redis.riot.<a href="../com/redis/riot/TargetRedisClientArgs.html" title="class in com.redis.riot">TargetRedisClientArgs</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="../com/redis/riot/file/FileUtils.html#isAwsStorage(java.lang.String)" class="member-name-link">isAwsStorage(String)</a> - Static method in class com.redis.riot.file.<a href="../com/redis/riot/file/FileUtils.html" title="class in com.redis.riot.file">FileUtils</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/faker/ReflectivePropertyAccessor.html#isCandidateForProperty(java.lang.reflect.Method,java.lang.Class)" class="member-name-link">isCandidateForProperty(Method, Class&lt;?&gt;)</a> - Method in class com.redis.riot.faker.<a href="../com/redis/riot/faker/ReflectivePropertyAccessor.html" title="class in com.redis.riot.faker">ReflectivePropertyAccessor</a></dt>
 <dd>
 <div class="block">Determine whether the given <code>Method</code> is a candidate for property access on an instance of the given target class.</div>
 </dd>
-<dt><a href="../com/redis/riot/RedisArgs.html#isCluster()" class="member-name-link">isCluster()</a> - Method in class com.redis.riot.<a href="../com/redis/riot/RedisArgs.html" title="class in com.redis.riot">RedisArgs</a></dt>
+<dt><a href="../com/redis/riot/RedisClientArgs.html#isCluster()" class="member-name-link">isCluster()</a> - Method in class com.redis.riot.<a href="../com/redis/riot/RedisClientArgs.html" title="class in com.redis.riot">RedisClientArgs</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="../com/redis/riot/SourceRedisArgs.html#isCluster()" class="member-name-link">isCluster()</a> - Method in class com.redis.riot.<a href="../com/redis/riot/SourceRedisArgs.html" title="class in com.redis.riot">SourceRedisArgs</a></dt>
+<dt><a href="../com/redis/riot/RedisContext.html#isCluster()" class="member-name-link">isCluster()</a> - Method in class com.redis.riot.<a href="../com/redis/riot/RedisContext.html" title="class in com.redis.riot">RedisContext</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="../com/redis/riot/TargetRedisArgs.html#isCluster()" class="member-name-link">isCluster()</a> - Method in class com.redis.riot.<a href="../com/redis/riot/TargetRedisArgs.html" title="class in com.redis.riot">TargetRedisArgs</a></dt>
+<dt><a href="../com/redis/riot/SourceRedisClientArgs.html#isCluster()" class="member-name-link">isCluster()</a> - Method in class com.redis.riot.<a href="../com/redis/riot/SourceRedisClientArgs.html" title="class in com.redis.riot">SourceRedisClientArgs</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="../com/redis/riot/TargetRedisClientArgs.html#isCluster()" class="member-name-link">isCluster()</a> - Method in class com.redis.riot.<a href="../com/redis/riot/TargetRedisClientArgs.html" title="class in com.redis.riot">TargetRedisClientArgs</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/Compare.html#isCompareStreamMessageId()" class="member-name-link">isCompareStreamMessageId()</a> - Method in class com.redis.riot.<a href="../com/redis/riot/Compare.html" title="class in com.redis.riot">Compare</a></dt>
 <dd>&nbsp;</dd>
@@ -104,15 +108,15 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/core/LoggingArgs.html#isDebug()" class="member-name-link">isDebug()</a> - Method in class com.redis.riot.core.<a href="../com/redis/riot/core/LoggingArgs.html" title="class in com.redis.riot.core">LoggingArgs</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="../com/redis/riot/function/StreamOperator.html#isDropMessageIds()" class="member-name-link">isDropMessageIds()</a> - Method in class com.redis.riot.function.<a href="../com/redis/riot/function/StreamOperator.html" title="class in com.redis.riot.function">StreamOperator</a></dt>
+<dt><a href="../com/redis/riot/function/StreamItemProcessor.html#isDropMessageIds()" class="member-name-link">isDropMessageIds()</a> - Method in class com.redis.riot.function.<a href="../com/redis/riot/function/StreamItemProcessor.html" title="class in com.redis.riot.function">StreamItemProcessor</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/core/StepArgs.html#isDryRun()" class="member-name-link">isDryRun()</a> - Method in class com.redis.riot.core.<a href="../com/redis/riot/core/StepArgs.html" title="class in com.redis.riot.core">StepArgs</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="../com/redis/riot/file/FileUtils.html#isFile(java.lang.String)" class="member-name-link">isFile(String)</a> - Static method in class com.redis.riot.file.<a href="../com/redis/riot/file/FileUtils.html" title="class in com.redis.riot.file">FileUtils</a></dt>
+<dt><a href="../com/redis/riot/file/FileUtils.html#isFileSystem(java.lang.String)" class="member-name-link">isFileSystem(String)</a> - Static method in class com.redis.riot.file.<a href="../com/redis/riot/file/FileUtils.html" title="class in com.redis.riot.file">FileUtils</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/file/FileWriterArgs.html#isForceSync()" class="member-name-link">isForceSync()</a> - Method in class com.redis.riot.file.<a href="../com/redis/riot/file/FileWriterArgs.html" title="class in com.redis.riot.file">FileWriterArgs</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="../com/redis/riot/file/GoogleStorageArgs.html#isGoogleStorageResource(java.lang.String)" class="member-name-link">isGoogleStorageResource(String)</a> - Static method in class com.redis.riot.file.<a href="../com/redis/riot/file/GoogleStorageArgs.html" title="class in com.redis.riot.file">GoogleStorageArgs</a></dt>
+<dt><a href="../com/redis/riot/file/FileUtils.html#isGoogleStorage(java.lang.String)" class="member-name-link">isGoogleStorage(String)</a> - Static method in class com.redis.riot.file.<a href="../com/redis/riot/file/FileUtils.html" title="class in com.redis.riot.file">FileUtils</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/file/FileUtils.html#isGzip(java.lang.String)" class="member-name-link">isGzip(String)</a> - Static method in class com.redis.riot.file.<a href="../com/redis/riot/file/FileUtils.html" title="class in com.redis.riot.file">FileUtils</a></dt>
 <dd>&nbsp;</dd>
@@ -132,11 +136,11 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/core/LoggingArgs.html#isInfo()" class="member-name-link">isInfo()</a> - Method in class com.redis.riot.core.<a href="../com/redis/riot/core/LoggingArgs.html" title="class in com.redis.riot.core">LoggingArgs</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="../com/redis/riot/RedisArgs.html#isInsecure()" class="member-name-link">isInsecure()</a> - Method in class com.redis.riot.<a href="../com/redis/riot/RedisArgs.html" title="class in com.redis.riot">RedisArgs</a></dt>
+<dt><a href="../com/redis/riot/RedisURIArgs.html#isInsecure()" class="member-name-link">isInsecure()</a> - Method in class com.redis.riot.<a href="../com/redis/riot/RedisURIArgs.html" title="class in com.redis.riot">RedisURIArgs</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="../com/redis/riot/SourceRedisArgs.html#isInsecure()" class="member-name-link">isInsecure()</a> - Method in class com.redis.riot.<a href="../com/redis/riot/SourceRedisArgs.html" title="class in com.redis.riot">SourceRedisArgs</a></dt>
+<dt><a href="../com/redis/riot/SourceRedisURIArgs.html#isInsecure()" class="member-name-link">isInsecure()</a> - Method in class com.redis.riot.<a href="../com/redis/riot/SourceRedisURIArgs.html" title="class in com.redis.riot">SourceRedisURIArgs</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="../com/redis/riot/TargetRedisArgs.html#isInsecure()" class="member-name-link">isInsecure()</a> - Method in class com.redis.riot.<a href="../com/redis/riot/TargetRedisArgs.html" title="class in com.redis.riot">TargetRedisArgs</a></dt>
+<dt><a href="../com/redis/riot/TargetRedisURIArgs.html#isInsecure()" class="member-name-link">isInsecure()</a> - Method in class com.redis.riot.<a href="../com/redis/riot/TargetRedisURIArgs.html" title="class in com.redis.riot">TargetRedisURIArgs</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/core/LoggingArgs.html#isLevelInBrackets()" class="member-name-link">isLevelInBrackets()</a> - Method in class com.redis.riot.core.<a href="../com/redis/riot/core/LoggingArgs.html" title="class in com.redis.riot.core">LoggingArgs</a></dt>
 <dd>&nbsp;</dd>
@@ -150,13 +154,13 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/core/RiotUtils.html#isPositive(java.time.Duration)" class="member-name-link">isPositive(Duration)</a> - Static method in class com.redis.riot.core.<a href="../com/redis/riot/core/RiotUtils.html" title="class in com.redis.riot.core">RiotUtils</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="../com/redis/riot/StreamProcessorArgs.html#isPropagateIds()" class="member-name-link">isPropagateIds()</a> - Method in class com.redis.riot.<a href="../com/redis/riot/StreamProcessorArgs.html" title="class in com.redis.riot">StreamProcessorArgs</a></dt>
+<dt><a href="../com/redis/riot/KeyValueProcessorArgs.html#isPropagateIds()" class="member-name-link">isPropagateIds()</a> - Method in class com.redis.riot.<a href="../com/redis/riot/KeyValueProcessorArgs.html" title="class in com.redis.riot">KeyValueProcessorArgs</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="../com/redis/riot/ProcessorArgs.html#isPropagateTtl()" class="member-name-link">isPropagateTtl()</a> - Method in class com.redis.riot.<a href="../com/redis/riot/ProcessorArgs.html" title="class in com.redis.riot">ProcessorArgs</a></dt>
+<dt><a href="../com/redis/riot/KeyValueProcessorArgs.html#isPropagateTtl()" class="member-name-link">isPropagateTtl()</a> - Method in class com.redis.riot.<a href="../com/redis/riot/KeyValueProcessorArgs.html" title="class in com.redis.riot">KeyValueProcessorArgs</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="../com/redis/riot/function/StreamOperator.html#isPrune()" class="member-name-link">isPrune()</a> - Method in class com.redis.riot.function.<a href="../com/redis/riot/function/StreamOperator.html" title="class in com.redis.riot.function">StreamOperator</a></dt>
+<dt><a href="../com/redis/riot/function/StreamItemProcessor.html#isPrune()" class="member-name-link">isPrune()</a> - Method in class com.redis.riot.function.<a href="../com/redis/riot/function/StreamItemProcessor.html" title="class in com.redis.riot.function">StreamItemProcessor</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="../com/redis/riot/StreamProcessorArgs.html#isPrune()" class="member-name-link">isPrune()</a> - Method in class com.redis.riot.<a href="../com/redis/riot/StreamProcessorArgs.html" title="class in com.redis.riot">StreamProcessorArgs</a></dt>
+<dt><a href="../com/redis/riot/KeyValueProcessorArgs.html#isPrune()" class="member-name-link">isPrune()</a> - Method in class com.redis.riot.<a href="../com/redis/riot/KeyValueProcessorArgs.html" title="class in com.redis.riot">KeyValueProcessorArgs</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/AbstractCompareCommand.html#isQuickCompare()" class="member-name-link">isQuickCompare()</a> - Method in class com.redis.riot.<a href="../com/redis/riot/AbstractCompareCommand.html" title="class in com.redis.riot">AbstractCompareCommand</a></dt>
 <dd>&nbsp;</dd>
@@ -184,7 +188,7 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/core/LoggingArgs.html#isShowThreadName()" class="member-name-link">isShowThreadName()</a> - Method in class com.redis.riot.core.<a href="../com/redis/riot/core/LoggingArgs.html" title="class in com.redis.riot.core">LoggingArgs</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="../com/redis/riot/file/AwsArgs.html#isSimpleStorageResource(java.lang.String)" class="member-name-link">isSimpleStorageResource(String)</a> - Static method in class com.redis.riot.file.<a href="../com/redis/riot/file/AwsArgs.html" title="class in com.redis.riot.file">AwsArgs</a></dt>
+<dt><a href="../com/redis/riot/core/LoggingArgs.html#isStacktrace()" class="member-name-link">isStacktrace()</a> - Method in class com.redis.riot.core.<a href="../com/redis/riot/core/LoggingArgs.html" title="class in com.redis.riot.core">LoggingArgs</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/file/FileUtils.html#isStdin(java.lang.String)" class="member-name-link">isStdin(String)</a> - Static method in class com.redis.riot.file.<a href="../com/redis/riot/file/FileUtils.html" title="class in com.redis.riot.file">FileUtils</a></dt>
 <dd>&nbsp;</dd>
@@ -192,15 +196,13 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/PingExecution.html#isSuccess()" class="member-name-link">isSuccess()</a> - Method in class com.redis.riot.<a href="../com/redis/riot/PingExecution.html" title="class in com.redis.riot">PingExecution</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="../com/redis/riot/RedisArgs.html#isTls()" class="member-name-link">isTls()</a> - Method in class com.redis.riot.<a href="../com/redis/riot/RedisArgs.html" title="class in com.redis.riot">RedisArgs</a></dt>
+<dt><a href="../com/redis/riot/RedisURIArgs.html#isTls()" class="member-name-link">isTls()</a> - Method in class com.redis.riot.<a href="../com/redis/riot/RedisURIArgs.html" title="class in com.redis.riot">RedisURIArgs</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/file/FileWriterArgs.html#isTransactional()" class="member-name-link">isTransactional()</a> - Method in class com.redis.riot.file.<a href="../com/redis/riot/file/FileWriterArgs.html" title="class in com.redis.riot.file">FileWriterArgs</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/db/DatabaseReaderArgs.html#isUseSharedExtendedConnection()" class="member-name-link">isUseSharedExtendedConnection()</a> - Method in class com.redis.riot.db.<a href="../com/redis/riot/db/DatabaseReaderArgs.html" title="class in com.redis.riot.db">DatabaseReaderArgs</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/db/DatabaseReaderArgs.html#isVerifyCursorPosition()" class="member-name-link">isVerifyCursorPosition()</a> - Method in class com.redis.riot.db.<a href="../com/redis/riot/db/DatabaseReaderArgs.html" title="class in com.redis.riot.db">DatabaseReaderArgs</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="../com/redis/riot/core/LoggingArgs.html#isWarn()" class="member-name-link">isWarn()</a> - Method in class com.redis.riot.core.<a href="../com/redis/riot/core/LoggingArgs.html" title="class in com.redis.riot.core">LoggingArgs</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/file/OutputStreamResource.html#isWritable()" class="member-name-link">isWritable()</a> - Method in class com.redis.riot.file.<a href="../com/redis/riot/file/OutputStreamResource.html" title="class in com.redis.riot.file">OutputStreamResource</a></dt>
 <dd>&nbsp;</dd>

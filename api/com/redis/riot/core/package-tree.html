@@ -62,20 +62,19 @@ loadScripts(document, 'script');</script>
 <ul>
 <li class="circle">com.redis.riot.core.<a href="BaseCommand.html" class="type-name-link" title="class in com.redis.riot.core">BaseCommand</a>
 <ul>
-<li class="circle">com.redis.riot.core.<a href="AbstractCommand.html" class="type-name-link" title="class in com.redis.riot.core">AbstractCommand</a> (implements java.util.concurrent.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/concurrent/Callable.html" title="class or interface in java.util.concurrent" class="external-link">Callable</a>&lt;V&gt;, org.springframework.beans.factory.InitializingBean)
+<li class="circle">com.redis.riot.core.<a href="AbstractCommand.html" class="type-name-link" title="class in com.redis.riot.core">AbstractCommand</a>&lt;C&gt; (implements java.util.concurrent.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/concurrent/Callable.html" title="class or interface in java.util.concurrent" class="external-link">Callable</a>&lt;V&gt;)
 <ul>
-<li class="circle">com.redis.riot.core.<a href="AbstractJobCommand.html" class="type-name-link" title="class in com.redis.riot.core">AbstractJobCommand</a></li>
+<li class="circle">com.redis.riot.core.<a href="AbstractJobCommand.html" class="type-name-link" title="class in com.redis.riot.core">AbstractJobCommand</a>&lt;C&gt;</li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="circle">com.redis.riot.core.<a href="EvaluationContextArgs.html" class="type-name-link" title="class in com.redis.riot.core">EvaluationContextArgs</a></li>
 <li class="circle">com.redis.riot.core.<a href="Expression.html" class="type-name-link" title="class in com.redis.riot.core">Expression</a>
 <ul>
 <li class="circle">com.redis.riot.core.<a href="TemplateExpression.html" class="type-name-link" title="class in com.redis.riot.core">TemplateExpression</a></li>
 </ul>
 </li>
-<li class="circle">com.redis.riot.core.<a href="FilterFunction.html" class="type-name-link" title="class in com.redis.riot.core">FilterFunction</a>&lt;T&gt; (implements java.util.function.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/UnaryOperator.html" title="class or interface in java.util.function" class="external-link">UnaryOperator</a>&lt;T&gt;)</li>
+<li class="circle">com.redis.riot.core.<a href="JobExecutionContext.html" class="type-name-link" title="class in com.redis.riot.core">JobExecutionContext</a> (implements com.redis.riot.core.<a href="ExecutionContext.html" title="interface in com.redis.riot.core">ExecutionContext</a>)</li>
 <li class="circle">com.redis.riot.core.<a href="LoggingArgs.html" class="type-name-link" title="class in com.redis.riot.core">LoggingArgs</a></li>
 <li class="circle">org.springframework.context.expression.MapAccessor (implements org.springframework.expression.spel.CompilablePropertyAccessor)
 <ul>
@@ -111,6 +110,16 @@ loadScripts(document, 'script');</script>
 <section class="hierarchy">
 <h2 title="Interface Hierarchy">Interface Hierarchy</h2>
 <ul>
+<li class="circle">java.lang.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/AutoCloseable.html" class="type-name-link external-link" title="class or interface in java.lang">AutoCloseable</a>
+<ul>
+<li class="circle">com.redis.riot.core.<a href="ExecutionContext.html" class="type-name-link" title="interface in com.redis.riot.core">ExecutionContext</a> (also extends org.springframework.beans.factory.InitializingBean)</li>
+</ul>
+</li>
+<li class="circle">org.springframework.beans.factory.InitializingBean
+<ul>
+<li class="circle">com.redis.riot.core.<a href="ExecutionContext.html" class="type-name-link" title="interface in com.redis.riot.core">ExecutionContext</a> (also extends java.lang.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/AutoCloseable.html" title="class or interface in java.lang" class="external-link">AutoCloseable</a>)</li>
+</ul>
+</li>
 <li class="circle">com.redis.riot.core.<a href="IO.html" class="type-name-link" title="interface in com.redis.riot.core">IO</a></li>
 <li class="circle">com.redis.riot.core.<a href="StepConfiguration.html" class="type-name-link" title="interface in com.redis.riot.core">StepConfiguration</a></li>
 </ul>

@@ -71,13 +71,24 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color"><code>protected <a href="../Step.html" title="class in com.redis.riot.core">Step</a>&lt;com.redis.spring.batch.item.redis.reader.KeyComparison&lt;byte[]&gt;,<wbr>com.redis.spring.batch.item.redis.reader.KeyComparison&lt;byte[]&gt;&gt;</code></div>
-<div class="col-second even-row-color"><span class="type-name-label">AbstractCompareCommand.</span><code><a href="../../AbstractCompareCommand.html#compareStep()" class="member-name-link">compareStep</a>()</code></div>
+<div class="col-second even-row-color"><span class="type-name-label">AbstractCompareCommand.</span><code><a href="../../AbstractCompareCommand.html#compareStep(com.redis.riot.TargetRedisExecutionContext)" class="member-name-link">compareStep</a><wbr>(<a href="../../TargetRedisExecutionContext.html" title="class in com.redis.riot">TargetRedisExecutionContext</a>&nbsp;context)</code></div>
 <div class="col-last even-row-color">&nbsp;</div>
 <div class="col-first odd-row-color"><code>protected &lt;T&gt;&nbsp;<a href="../Step.html" title="class in com.redis.riot.core">Step</a>&lt;com.redis.spring.batch.item.redis.common.KeyValue&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&gt;,<wbr>T&gt;</code></div>
-<div class="col-second odd-row-color"><span class="type-name-label">AbstractExportCommand.</span><code><a href="../../AbstractExportCommand.html#step(org.springframework.batch.item.ItemWriter)" class="member-name-link">step</a><wbr>(org.springframework.batch.item.ItemWriter&lt;T&gt;&nbsp;writer)</code></div>
+<div class="col-second odd-row-color"><span class="type-name-label">AbstractExportCommand.</span><code><a href="../../AbstractExportCommand.html#step(C,org.springframework.batch.item.ItemWriter)" class="member-name-link">step</a><wbr>(<a href="../../AbstractExportCommand.html" title="type parameter in AbstractExportCommand">C</a>&nbsp;context,
+ org.springframework.batch.item.ItemWriter&lt;T&gt;&nbsp;writer)</code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
 <div class="col-first even-row-color"><code>protected <a href="../Step.html" title="class in com.redis.riot.core">Step</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&gt;,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&gt;&gt;</code></div>
-<div class="col-second even-row-color"><span class="type-name-label">AbstractImportCommand.</span><code><a href="../../AbstractImportCommand.html#step(org.springframework.batch.item.ItemReader)" class="member-name-link">step</a><wbr>(org.springframework.batch.item.ItemReader&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&gt;&gt;&nbsp;reader)</code></div>
+<div class="col-second even-row-color"><span class="type-name-label">AbstractImportCommand.</span><code><a href="../../AbstractImportCommand.html#step(C,org.springframework.batch.item.ItemReader)" class="member-name-link">step</a><wbr>(<a href="../../AbstractImportCommand.html" title="type parameter in AbstractImportCommand">C</a>&nbsp;context,
+ org.springframework.batch.item.ItemReader&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&gt;&gt;&nbsp;reader)</code></div>
+<div class="col-last even-row-color">&nbsp;</div>
+</div>
+<div class="caption"><span>Methods in <a href="../../package-summary.html">com.redis.riot</a> with parameters of type <a href="../Step.html" title="class in com.redis.riot.core">Step</a></span></div>
+<div class="summary-table three-column-summary">
+<div class="table-header col-first">Modifier and Type</div>
+<div class="table-header col-second">Method</div>
+<div class="table-header col-last">Description</div>
+<div class="col-first even-row-color"><code>static void</code></div>
+<div class="col-second even-row-color"><span class="type-name-label">AbstractExportCommand.</span><code><a href="../../AbstractExportCommand.html#configure(com.redis.riot.core.Step)" class="member-name-link">configure</a><wbr>(<a href="../Step.html" title="class in com.redis.riot.core">Step</a>&lt;?,<wbr>?&gt;&nbsp;step)</code></div>
 <div class="col-last even-row-color">&nbsp;</div>
 </div>
 </section>
@@ -142,7 +153,8 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color"><code>protected org.springframework.batch.core.Job</code></div>
-<div class="col-second even-row-color"><span class="type-name-label">AbstractJobCommand.</span><code><a href="../AbstractJobCommand.html#job(com.redis.riot.core.Step...)" class="member-name-link">job</a><wbr>(<a href="../Step.html" title="class in com.redis.riot.core">Step</a>&lt;?,<wbr>?&gt;...&nbsp;steps)</code></div>
+<div class="col-second even-row-color"><span class="type-name-label">AbstractJobCommand.</span><code><a href="../AbstractJobCommand.html#job(C,com.redis.riot.core.Step...)" class="member-name-link">job</a><wbr>(<a href="../AbstractJobCommand.html" title="type parameter in AbstractJobCommand">C</a>&nbsp;context,
+ <a href="../Step.html" title="class in com.redis.riot.core">Step</a>&lt;?,<wbr>?&gt;...&nbsp;steps)</code></div>
 <div class="col-last even-row-color">&nbsp;</div>
 </div>
 <div class="caption"><span>Method parameters in <a href="../package-summary.html">com.redis.riot.core</a> with type arguments of type <a href="../Step.html" title="class in com.redis.riot.core">Step</a></span></div>
@@ -151,7 +163,8 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color"><code>protected org.springframework.batch.core.Job</code></div>
-<div class="col-second even-row-color"><span class="type-name-label">AbstractJobCommand.</span><code><a href="../AbstractJobCommand.html#job(java.lang.Iterable)" class="member-name-link">job</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Iterable.html" title="class or interface in java.lang" class="external-link">Iterable</a>&lt;<a href="../Step.html" title="class in com.redis.riot.core">Step</a>&lt;?,<wbr>?&gt;&gt;&nbsp;steps)</code></div>
+<div class="col-second even-row-color"><span class="type-name-label">AbstractJobCommand.</span><code><a href="../AbstractJobCommand.html#job(C,java.util.Collection)" class="member-name-link">job</a><wbr>(<a href="../AbstractJobCommand.html" title="type parameter in AbstractJobCommand">C</a>&nbsp;context,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Collection.html" title="class or interface in java.util" class="external-link">Collection</a>&lt;<a href="../Step.html" title="class in com.redis.riot.core">Step</a>&lt;?,<wbr>?&gt;&gt;&nbsp;steps)</code></div>
 <div class="col-last even-row-color">&nbsp;</div>
 </div>
 <div class="caption"><span>Constructors in <a href="../package-summary.html">com.redis.riot.core</a> with parameters of type <a href="../Step.html" title="class in com.redis.riot.core">Step</a></span></div>

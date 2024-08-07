@@ -92,7 +92,7 @@ $(addBlockSwitches);
 <h1>Redis Input/Output Tools (RIOT)</h1>
 <div class="details">
 <span id="author" class="author">Julien Ruaux</span><br>
-<span id="revnumber">version 4.0.4</span>
+<span id="revnumber">version 4.1.0</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -132,7 +132,7 @@ $(addBlockSwitches);
 <h2 id="_introduction"><a class="anchor" href="#_introduction"></a>Introduction</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>RIOT is a command-line utility to get data in and out of Redis. It supports any Redis-compatible database like Redis Stack, Redis Cloud, Redis Software, or <a href="#_elasticache">Amazon ElastiCache</a>.</p>
+<p>RIOT is a command-line utility to get data in and out of Redis. It supports any Redis-compatible database like <a href="https://redis.io/docs/latest/operate/rc/">Redis Cloud</a>, <a href="https://redis.io/docs/latest/operate/oss_and_stack/">Redis Community Edition</a>, <a href="https://redis.io/docs/latest/operate/rs/">Redis Software</a>, or <a href="#_elasticache">ElastiCache</a>.</p>
 </div>
 <div class="paragraph">
 <p>RIOT includes the following features:</p>
@@ -193,10 +193,10 @@ scoop install riot</code></pre>
 </td>
 <td class="content">
 <div class="paragraph">
-<p><code>riot-4.0.4.zip</code> requires Java 11 or greater to be installed.</p>
+<p><code>riot-4.1.0.zip</code> requires Java 11 or greater to be installed.</p>
 </div>
 <div class="paragraph">
-<p><code>riot-standalone-4.0.4-*.zip</code> includes its own Java runtime and does not require a Java installation.</p>
+<p><code>riot-standalone-4.1.0-*.zip</code> includes its own Java runtime and does not require a Java installation.</p>
 </div>
 </td>
 </tr>
@@ -290,10 +290,20 @@ For example, import commands like <code>file-import</code>, <code>db-import</cod
 <p>Date parsing and formatting object.
 Instance of Java <a href="https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html">SimpleDateFormat</a>.</p>
 </dd>
+<dt class="hdlist1"><code>number</code></dt>
+<dd>
+<p>Number parsing and formatting object.
+Instance of Java <a href="https://docs.oracle.com/javase/8/docs/api/java/text/DecimalFormat.html">DecimalFormat</a>.</p>
+</dd>
+<dt class="hdlist1"><code>faker</code></dt>
+<dd>
+<p><a href="https://s01.oss.sonatype.org/service/local/repositories/releases/archive/net/datafaker/datafaker/2.3.1/datafaker-2.3.1-javadoc.jar/!/net/datafaker/Faker.html">Faker</a> object.</p>
+</dd>
 <dt class="hdlist1"><code>redis</code></dt>
 <dd>
 <p>Redis commands object.
-Instance of Lettuce <a href="https://www.lettuce.io/core/release/api/io/lettuce/core/api/sync/RedisCommands.html">RedisCommands</a>.</p>
+Instance of Lettuce <a href="https://www.lettuce.io/core/release/api/io/lettuce/core/api/sync/RedisCommands.html">RedisCommands</a>.
+The <code>replicate</code> command exposes 2 command objects named <code>source</code> and <code>target</code>.</p>
 </dd>
 <dt class="hdlist1"><code>geo</code></dt>
 <dd>
@@ -307,13 +317,19 @@ Instance of Lettuce <a href="https://www.lettuce.io/core/release/api/io/lettuce/
 <pre class="CodeRay highlight"><code data-lang="console">riot file-import --proc epoch=&quot;#date.parse(mydate).getTime()&quot; location=&quot;#geo(lon,lat)&quot; name=&quot;#redis.hget('person1','lastName')&quot; ...</code></pre>
 </div>
 </div>
+<div class="listingblock">
+<div class="title">Faker processor example</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="console">riot file-import http://storage.googleapis.com/jrx/beers.csv --header --proc fakeid=&quot;#faker.numerify('########')&quot; hset --keyspace beer --key fakeid</code></pre>
+</div>
+</div>
 <div class="paragraph">
 <p>You can register your own variables using <code>--var</code>.</p>
 </div>
 <div class="listingblock">
 <div class="title">Custom variable example</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="console">riot file-import https://storage.googleapis.com/jrx/lacity.csv --var rnd=&quot;new java.util.Random()&quot; --proc randomInt=&quot;#rnd.nextInt(100)&quot; --header hset --keyspace event --key Id</code></pre>
+<pre class="CodeRay highlight"><code data-lang="console">riot file-import http://storage.googleapis.com/jrx/lacity.csv --var rnd=&quot;new java.util.Random()&quot; --proc randomInt=&quot;#rnd.nextInt(100)&quot; --header hset --keyspace event --key Id</code></pre>
 </div>
 </div>
 </div>
@@ -455,7 +471,7 @@ Both snapshot and live replication modes are supported.</p>
 </div>
 </div>
 <div class="paragraph">
-<p>where <code>EXPRESSION</code> is a <a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/core.html#expressions">SpEL</a> field in the form <code>field="expression"</code>.</p>
+<p>where <code>EXPRESSION</code> is a <a href="https://www.datafaker.net/documentation/expressions/">Faker expression</a> field in the form <code>field="expression"</code>.</p>
 </div>
 <div class="paragraph">
 <p>To show the full usage, run:</p>
@@ -483,7 +499,7 @@ Both snapshot and live replication modes are supported.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code>riot faker id=&quot;index&quot; hset -h myredis.com -p 6380</code></pre>
+<pre class="CodeRay highlight"><code>riot faker id=&quot;numerify '####'&quot; hset -h myredis.com -p 6380</code></pre>
 </div>
 </div>
 </td>
@@ -503,13 +519,13 @@ Both snapshot and live replication modes are supported.</p>
 <div class="listingblock">
 <div class="title">Import into hashes</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="console">riot faker id=&quot;index&quot; firstName=&quot;name.firstName&quot; lastName=&quot;name.lastName&quot; address=&quot;address.fullAddress&quot; hset --keyspace person --key id</code></pre>
+<pre class="CodeRay highlight"><code data-lang="console">riot faker id=&quot;numerify '##########'&quot; firstName=&quot;name.first_name&quot; lastName=&quot;name.last_name&quot; address=&quot;address.full_address&quot; hset --keyspace person --key id</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="title">Import into sets</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="console">riot faker name=&quot;gameOfThrones.character&quot; --count 1000 sadd --keyspace got:characters --members name</code></pre>
+<pre class="CodeRay highlight"><code data-lang="console">riot faker name=&quot;GameOfThrones.character&quot; --count 1000 sadd --keyspace got:characters --members name</code></pre>
 </div>
 </div>
 </div>
@@ -522,7 +538,7 @@ Most providers don&#8217;t take any arguments and can be called directly:</p>
 <div class="listingblock">
 <div class="title">Simple Faker example</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="console">riot faker firstName=&quot;name.firstName&quot;</code></pre>
+<pre class="CodeRay highlight"><code data-lang="console">riot faker firstName=&quot;name.first_name&quot;</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -531,47 +547,36 @@ Most providers don&#8217;t take any arguments and can be called directly:</p>
 <div class="listingblock">
 <div class="title">Parameter Faker example</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="console">riot faker lease=&quot;number.digits(2)&quot;</code></pre>
+<pre class="CodeRay highlight"><code data-lang="console">riot faker lease=&quot;number.digits '2'&quot;</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Refer to <a href="http://www.datafaker.net/documentation/providers/#number-of-providers-per-datafaker-version">Datafaker Providers</a> for complete documentation.</p>
+<p>Here are a few sample Faker expressions:</p>
 </div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>regexify '(a|b){2,3}'</code></p>
+</li>
+<li>
+<p><code>regexify '\\.\\*\\?\\+'</code></p>
+</li>
+<li>
+<p><code>bothify '????','false'</code></p>
+</li>
+<li>
+<p><code>name.first_name</code></p>
+</li>
+<li>
+<p><code>name.last_name</code></p>
+</li>
+<li>
+<p><code>number.number_between '1','10'</code></p>
+</li>
+</ul>
 </div>
-<div class="sect4">
-<h5 id="_datagen_faker_fields"><a class="anchor" href="#_datagen_faker_fields"></a>Built-in Fields</h5>
 <div class="paragraph">
-<p>In addition to the Faker fields specified with <code>field="expression"</code> you can use these built-in fields:</p>
-</div>
-<div class="dlist">
-<dl>
-<dt class="hdlist1"><code>index</code></dt>
-<dd>
-<p>current iteration number.</p>
-</dd>
-<dt class="hdlist1"><code>thread</code></dt>
-<dd>
-<p>current thread id.
-Useful for multithreaded data generation.</p>
-</dd>
-</dl>
-</div>
-<div class="listingblock">
-<div class="title">Multithreaded data generator</div>
-<div class="content">
-<pre class="CodeRay highlight"><code data-lang="console">riot faker id=&quot;thread*10000+index&quot; firstName=&quot;name.firstName&quot; lastName=&quot;name.lastName&quot; address=&quot;address.fullAddress&quot; --count 8000 --threads 8 hset --keyspace person --key id</code></pre>
-</div>
-</div>
-</div>
-<div class="sect4">
-<h5 id="_datagen_faker_search"><a class="anchor" href="#_datagen_faker_search"></a>Redis Search</h5>
-<div class="paragraph">
-<p>You can infer Faker fields from a Redis Search index using the <code>--infer</code> option:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="CodeRay highlight"><code data-lang="console">riot faker --infer beerIdx hset --keyspace beer --key id</code></pre>
-</div>
+<p>Refer to <a href="http://www.datafaker.net/documentation/providers/#number-of-providers-per-datafaker-version">Datafaker Providers</a> for a list of providers and their corresponding documentation.</p>
 </div>
 </div>
 </div>
@@ -939,7 +944,7 @@ Use <code>-</code> to read from standard input.
 <div class="listingblock">
 <div class="title">Import into JSON</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="console">riot file-import https://storage.googleapis.com/jrx/es_test-index.json json.set --keyspace elastic --key _id</code></pre>
+<pre class="CodeRay highlight"><code data-lang="console">riot file-import http://storage.googleapis.com/jrx/es_test-index.json json.set --keyspace elastic --key _id</code></pre>
 </div>
 </div>
 <div class="listingblock">
@@ -1031,7 +1036,7 @@ Otherwise specify the field names using the <code>--fields</code> option.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="console">riot file-import https://storage.googleapis.com/jrx/beers.csv --header hset --keyspace beer --key id</code></pre>
+<pre class="CodeRay highlight"><code data-lang="console">riot file-import http://storage.googleapis.com/jrx/beers.csv --header hset --keyspace beer --key id</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1042,7 +1047,7 @@ Otherwise specify the field names using the <code>--fields</code> option.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="console">riot file-import https://storage.googleapis.com/jrx/airports.csv --header --skip-limit 3 geoadd --keyspace airportgeo --members AirportID --lon Longitude --lat Latitude</code></pre>
+<pre class="CodeRay highlight"><code data-lang="console">riot file-import http://storage.googleapis.com/jrx/airports.csv --header --skip-limit 3 geoadd --keyspace airportgeo --members AirportID --lon Longitude --lat Latitude</code></pre>
 </div>
 </div>
 <div class="sect4">
@@ -1052,7 +1057,7 @@ Otherwise specify the field names using the <code>--fields</code> option.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="console">riot file-import https://storage.googleapis.com/jrx/accounts.fw --ranges 1 9 25 41 53 67 83 --header hset --keyspace account --key Account</code></pre>
+<pre class="CodeRay highlight"><code data-lang="console">riot file-import http://storage.googleapis.com/jrx/accounts.fw --ranges 1 9 25 41 53 67 83 --header hset --keyspace account --key Account</code></pre>
 </div>
 </div>
 </div>
@@ -1149,7 +1154,7 @@ Otherwise specify the field names using the <code>--fields</code> option.</p>
 <div class="listingblock">
 <div class="title">XML Import Example</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="console">riot file-import https://storage.googleapis.com/jrx/trades.xml hset --keyspace trade --key id</code></pre>
+<pre class="CodeRay highlight"><code data-lang="console">riot file-import http://storage.googleapis.com/jrx/trades.xml hset --keyspace trade --key id</code></pre>
 </div>
 </div>
 </div>
@@ -1587,7 +1592,7 @@ Add that option to your existing <code>replicate</code> command-line to compare 
 <div class="sect2">
 <h3 id="_elasticache"><a class="anchor" href="#_elasticache"></a>Elasticache Migration</h3>
 <div class="paragraph">
-<p>This recipe contains step-by-step instructions to migrate an Elasticache (EC) database to <a href="https://redis.com/redis-enterprise-software/overview/">Redis Enterprise</a> (RE).</p>
+<p>This recipe contains step-by-step instructions to migrate an Elasticache (EC) database to {link_redis_enterprise} (RE).</p>
 </div>
 <div class="paragraph">
 <p>The following scenarios are covered:</p>
@@ -1886,8 +1891,8 @@ Use the <code>--mem-limit -1</code> option to disable memory usage.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 4.0.4<br>
-Last updated 2024-06-26 14:19:15 UTC
+Version 4.1.0<br>
+Last updated 2024-08-07 06:47:19 UTC
 </div>
 </div>
 <link rel="stylesheet" href="./coderay-asciidoctor.css">
