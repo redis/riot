@@ -55,14 +55,9 @@ Instance of Java https://docs.oracle.com/javase/8/docs/api/java/text/DecimalForm
 
 `faker`:: https://s01.oss.sonatype.org/service/local/repositories/releases/archive/net/datafaker/datafaker/2.3.1/datafaker-2.3.1-javadoc.jar/!/net/datafaker/Faker.html[Faker] object.
 
-`redis`:: Redis commands object (`*-import` commands only).
+`redis`:: Redis commands object.
 Instance of Lettuce https://www.lettuce.io/core/release/api/io/lettuce/core/api/sync/RedisCommands.html[RedisCommands].
-
-`source`:: Source Redis commands object (`replicate` command only).
-Instance of Lettuce https://www.lettuce.io/core/release/api/io/lettuce/core/api/sync/RedisCommands.html[RedisCommands].
-
-`target`:: Target Redis commands object (`replicate` command only).
-Instance of Lettuce https://www.lettuce.io/core/release/api/io/lettuce/core/api/sync/RedisCommands.html[RedisCommands].
+The `replicate` command exposes 2 command objects named `source` and `target`.
 
 `geo`:: Convenience function that takes a longitude and a latitude to produce a RediSearch geo-location string in the form `longitude,latitude` (e.g. `location=#geo(lon,lat)`)
 
@@ -70,6 +65,12 @@ Instance of Lettuce https://www.lettuce.io/core/release/api/io/lettuce/core/api/
 [source,console]
 ----
 riot file-import --proc epoch="#date.parse(mydate).getTime()" location="#geo(lon,lat)" name="#redis.hget('person1','lastName')" ...
+----
+
+.Faker processor example
+[source,console]
+----
+include::{testdir}/file-import-process-faker[]
 ----
 
 You can register your own variables using `--var`.

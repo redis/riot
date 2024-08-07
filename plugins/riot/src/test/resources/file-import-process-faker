@@ -1,0 +1,1 @@
+riot file-import http://storage.googleapis.com/jrx/beers.csv --header --proc fakeid="#faker.numerify('########')" hset --keyspace beer --key fakeid

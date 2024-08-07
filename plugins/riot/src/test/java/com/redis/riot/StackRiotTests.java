@@ -31,6 +31,7 @@ import org.springframework.core.io.InputStreamResource;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.util.FileCopyUtils;
+import org.springframework.util.StringUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
@@ -345,6 +346,13 @@ class StackRiotTests extends RiotTests {
 		Map<String, String> event = redisCommands.hgetall("event:248206");
 		Instant date = Instant.ofEpochMilli(Long.parseLong(event.get("EpochStart")));
 		Assertions.assertTrue(date.isBefore(Instant.now()));
+	}
+
+	@Test
+	void fileImportProcessFaker(TestInfo info) throws Exception {
+		testImport(info, "file-import-process-faker", "beer:*", BEER_CSV_COUNT);
+		Map<String, String> beer = redisCommands.hgetall(redisCommands.randomkey());
+		Assertions.assertTrue(StringUtils.hasLength(beer.get("fakeid")));
 	}
 
 	@Test
