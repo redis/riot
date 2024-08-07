@@ -19,7 +19,7 @@ public class DatabaseExport extends AbstractExportCommand<RedisExecutionContext>
 	}
 
 	@Override
-	protected Job job(RedisExecutionContext context) throws Exception {
+	protected Job job(RedisExecutionContext context) {
 		return job(context, step(context, databaseWriterArgs.writer()).processor(mapProcessor()));
 	}
 

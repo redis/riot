@@ -36,7 +36,7 @@ public abstract class AbstractCommand<C extends ExecutionContext> extends BaseCo
 		return 0;
 	}
 
-	protected abstract C executionContext() throws Exception;
+	protected abstract C executionContext();
 
 	private void setupLogging() {
 		Level level = logLevel();
@@ -73,7 +73,7 @@ public abstract class AbstractCommand<C extends ExecutionContext> extends BaseCo
 		System.setProperty(property, String.valueOf(value));
 	}
 
-	protected abstract void execute(C context) throws Exception;
+	protected abstract void execute(C context);
 
 	public LoggingArgs getLoggingArgs() {
 		return loggingArgs;

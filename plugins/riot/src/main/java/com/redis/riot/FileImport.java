@@ -1,5 +1,6 @@
 package com.redis.riot;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -57,7 +58,7 @@ public class FileImport extends AbstractImportCommand<FileImportExecutionContext
 	}
 
 	@Override
-	protected FileImportExecutionContext executionContext() throws Exception {
+	protected FileImportExecutionContext executionContext() {
 		FileImportExecutionContext context = super.executionContext();
 		FileReaderFactory factory = new FileReaderFactory();
 		factory.addDeserializer(KeyValue.class, new KeyValueDeserializer());
@@ -67,10 +68,22 @@ public class FileImport extends AbstractImportCommand<FileImportExecutionContext
 	}
 
 	@Override
-	protected Job job(FileImportExecutionContext context) throws IOException {
+	protected Job job(FileImportExecutionContext context) {
 		Assert.notEmpty(files, "No file specified");
 		List<Step<?, ?>> steps = new ArrayList<>();
-		for (Resource resource : resources()) {
+		List<Resource> resources = new ArrayList<>();
+		for (String file : files) {
+			try {
+				for (String expandedFile : FileUtils.expand(file)) {
+					resources.add(fileReaderArgs.resource(expandedFile));
+				}
+			} catch (FileNotFoundException e) {
+				throw new RiotException("File not found: " + file);
+			} catch (IOException e) {
+				throw new RiotException("Could not read file " + file, e);
+			}
+		}
+		for (Resource resource : resources) {
 			Step<?, ?> step = step(context, resource);
 			step.skip(ParseException.class);
 			step.skip(org.springframework.batch.item.ParseException.class);
@@ -132,28 +145,6 @@ public class FileImport extends AbstractImportCommand<FileImportExecutionContext
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private Function<Map<String, Object>, Map<String, Object>> toFieldFunction(String key, Pattern regex) {
 		return new MapToFieldFunction(key).andThen((Function) new RegexNamedGroupFunction(regex));
-	}
-
-	public List<Resource> resources() {
-		List<Resource> resources = new ArrayList<>();
-		for (String file : files) {
-			List<String> expandedFiles;
-			try {
-				expandedFiles = FileUtils.expand(file);
-			} catch (IOException e) {
-				throw new RiotException(String.format("Could not expand file %s", file), e);
-			}
-			for (String expandedFile : expandedFiles) {
-				Resource resource;
-				try {
-					resource = fileReaderArgs.resource(expandedFile);
-				} catch (IOException e) {
-					throw new RiotException(String.format("Could not create resource from file %s", expandedFile), e);
-				}
-				resources.add(resource);
-			}
-		}
-		return resources;
 	}
 
 	public List<String> getFiles() {

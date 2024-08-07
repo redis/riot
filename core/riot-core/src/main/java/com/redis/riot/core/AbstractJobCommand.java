@@ -55,7 +55,7 @@ public abstract class AbstractJobCommand<C extends JobExecutionContext> extends 
 	private JobLauncher jobLauncher;
 
 	@Override
-	protected C executionContext() throws Exception {
+	protected C executionContext() {
 		C context = newExecutionContext();
 		context.setJobName(jobName());
 		context.setJobRepositoryName(jobRepositoryName);
@@ -76,32 +76,29 @@ public abstract class AbstractJobCommand<C extends JobExecutionContext> extends 
 	}
 
 	@Override
-	protected void execute(C context) throws Exception {
+	protected void execute(C context) {
 		Job job = job(context);
-		JobExecution jobExecution = context.getJobLauncher().run(job, new JobParameters());
+		JobExecution jobExecution;
+		try {
+			jobExecution = context.getJobLauncher().run(job, new JobParameters());
+		} catch (JobExecutionException e) {
+			throw new RiotException("Job failed", e);
+		}
 		if (JobUtils.isFailed(jobExecution.getExitStatus())) {
-			throw jobExecutionException(jobExecution);
-		}
-	}
-
-	private Exception jobExecutionException(JobExecution jobExecution) {
-		for (StepExecution stepExecution : jobExecution.getStepExecutions()) {
-			if (JobUtils.isFailed(stepExecution.getExitStatus())) {
-				return wrapException(stepExecution.getFailureExceptions());
+			for (StepExecution stepExecution : jobExecution.getStepExecutions()) {
+				if (JobUtils.isFailed(stepExecution.getExitStatus())) {
+					throw wrapException(stepExecution.getFailureExceptions());
+				}
 			}
+			throw wrapException(jobExecution.getFailureExceptions());
 		}
-		return wrapException(jobExecution.getFailureExceptions());
 	}
 
-	private Exception wrapException(List<Throwable> throwables) {
+	private RiotException wrapException(List<Throwable> throwables) {
 		if (throwables.isEmpty()) {
-			return new JobExecutionException("Job failed");
+			return new RiotException("Job failed");
 		}
-		Throwable throwable = throwables.get(0);
-		if (throwable instanceof Exception) {
-			return (Exception) throwable;
-		}
-		return new JobExecutionException("Job failed", throwable);
+		return new RiotException("Job failed", throwables.get(0));
 	}
 
 	protected Job job(C context, Step<?, ?>... steps) {
@@ -122,7 +119,7 @@ public abstract class AbstractJobCommand<C extends JobExecutionContext> extends 
 		return stepArgs.getProgressArgs().getStyle() != ProgressStyle.NONE;
 	}
 
-	protected abstract Job job(C context) throws Exception;
+	protected abstract Job job(C context);
 
 	private <I, O> TaskletStep step(C context, Step<I, O> step) {
 		SimpleStepBuilder<I, O> builder = simpleStep(context, step);
@@ -147,6 +144,7 @@ public abstract class AbstractJobCommand<C extends JobExecutionContext> extends 
 		return ftStep.build();
 	}
 
+	@SuppressWarnings("removal")
 	private <I, O> SimpleStepBuilder<I, O> simpleStep(C context, Step<I, O> step) {
 		String stepName = context.getJobName() + "-" + step.getName();
 		if (step.getReader() instanceof ItemStreamSupport) {

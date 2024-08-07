@@ -14,7 +14,7 @@ public abstract class AbstractRedisCommand<C extends RedisExecutionContext> exte
 	private RedisClientArgs redisClientArgs = new RedisClientArgs();
 
 	@Override
-	protected C executionContext() throws Exception {
+	protected C executionContext() {
 		C context = super.executionContext();
 		context.setRedisContext(redisContext());
 		return context;

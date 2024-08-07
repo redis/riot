@@ -69,9 +69,9 @@ public class Replicate extends AbstractCompareCommand {
 	}
 
 	@Override
-	protected Job job(TargetRedisExecutionContext context) throws Exception {
+	protected Job job(TargetRedisExecutionContext context) {
 		List<Step<?, ?>> steps = new ArrayList<>();
-		Step<KeyValue<byte[], Object>, KeyValue<byte[], Object>> replicateStep = replicateStep(context);
+		Step<KeyValue<byte[], Object>, KeyValue<byte[], Object>> replicateStep = step(context);
 		steps.add(replicateStep);
 		if (shouldCompare()) {
 			steps.add(compareStep(context));
@@ -117,8 +117,7 @@ public class Replicate extends AbstractCompareCommand {
 		context.configureTargetWriter(writer);
 	}
 
-	private Step<KeyValue<byte[], Object>, KeyValue<byte[], Object>> replicateStep(TargetRedisExecutionContext context)
-			throws Exception {
+	private Step<KeyValue<byte[], Object>, KeyValue<byte[], Object>> step(TargetRedisExecutionContext context) {
 		RedisItemReader<byte[], byte[], Object> reader = reader();
 		configureSourceReader(context, reader);
 		RedisItemWriter<byte[], byte[], KeyValue<byte[], Object>> writer = writer();

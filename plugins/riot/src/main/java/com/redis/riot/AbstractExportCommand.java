@@ -45,7 +45,7 @@ public abstract class AbstractExportCommand<C extends RedisExecutionContext> ext
 		return new FunctionItemProcessor<>(mapFunction);
 	}
 
-	protected <T> Step<KeyValue<String, Object>, T> step(C context, ItemWriter<T> writer) throws Exception {
+	protected <T> Step<KeyValue<String, Object>, T> step(C context, ItemWriter<T> writer) {
 		RedisItemReader<String, String, Object> reader = RedisItemReader.struct();
 		configure(context, reader);
 		Step<KeyValue<String, Object>, T> step = new Step<>(STEP_NAME, reader, writer);
@@ -60,7 +60,7 @@ public abstract class AbstractExportCommand<C extends RedisExecutionContext> ext
 		redisReaderArgs.configure(reader);
 	}
 
-	public static void configure(Step<?, ?> step) throws Exception {
+	public static void configure(Step<?, ?> step) {
 		Assert.isInstanceOf(RedisItemReader.class, step.getReader(),
 				"Step reader must be an instance of RedisItemReader");
 		RedisItemReader<?, ?, ?> reader = (RedisItemReader<?, ?, ?>) step.getReader();

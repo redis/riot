@@ -1,5 +1,6 @@
 package com.redis.riot;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
@@ -11,6 +12,7 @@ import org.springframework.batch.item.ItemStreamException;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.core.io.WritableResource;
 
+import com.redis.riot.core.RiotException;
 import com.redis.riot.file.FileType;
 import com.redis.riot.file.FileUtils;
 import com.redis.riot.file.FileWriterArgs;
@@ -46,7 +48,7 @@ public class FileExport extends AbstractExportCommand<FileExportExecutionContext
 	}
 
 	@Override
-	protected FileExportExecutionContext executionContext() throws Exception {
+	protected FileExportExecutionContext executionContext() {
 		FileExportExecutionContext context = super.executionContext();
 		FileWriterFactory factory = new FileWriterFactory();
 		factory.setArgs(fileWriterArgs);
@@ -56,8 +58,13 @@ public class FileExport extends AbstractExportCommand<FileExportExecutionContext
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
-	protected Job job(FileExportExecutionContext context) throws Exception {
-		WritableResource resource = fileWriterArgs.resource(file);
+	protected Job job(FileExportExecutionContext context) {
+		WritableResource resource;
+		try {
+			resource = fileWriterArgs.resource(file);
+		} catch (IOException e) {
+			throw new RiotException("Could not open file " + file, e);
+		}
 		FileType fileType = fileType(resource);
 		ItemWriter writer = context.getFileWriterFactory().create(resource, fileType,
 				() -> headerRecord(context, fileType));
