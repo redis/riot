@@ -1,9 +1,17 @@
 package com.redis.riot;
 
-import org.springframework.batch.core.Job;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.springframework.batch.core.Job;
+import org.springframework.util.StringUtils;
+
+import com.redis.lettucemod.api.StatefulRedisModulesConnection;
+import com.redis.lettucemod.search.CreateOptions;
+import com.redis.lettucemod.search.Field;
 import com.redis.riot.core.Step;
 import com.redis.spring.batch.item.redis.RedisItemWriter;
+import com.redis.spring.batch.item.redis.common.DataType;
 import com.redis.spring.batch.item.redis.common.KeyValue;
 import com.redis.spring.batch.item.redis.gen.GeneratorItemReader;
 
@@ -17,7 +25,7 @@ public class Generate extends AbstractRedisCommand<RedisExecutionContext> {
 	private static final String STEP_NAME = "step";
 
 	@ArgGroup(exclusive = false)
-	private GenerateArgs generatorArgs = new GenerateArgs();
+	private GenerateArgs generateArgs = new GenerateArgs();
 
 	@ArgGroup(exclusive = false, heading = "Redis writer options%n")
 	private RedisWriterArgs redisWriterArgs = new RedisWriterArgs();
@@ -29,20 +37,67 @@ public class Generate extends AbstractRedisCommand<RedisExecutionContext> {
 
 	@Override
 	protected Job job(RedisExecutionContext context) {
+		if (StringUtils.hasLength(generateArgs.getIndex())) {
+			StatefulRedisModulesConnection<String, String> connection = context.getRedisContext().getConnection();
+			connection.sync().ftCreate(generateArgs.getIndex(), indexCreateOptions(), indexFields());
+		}
 		RedisItemWriter<String, String, KeyValue<String, Object>> writer = RedisItemWriter.struct();
 		log.info("Configuring Redis writer with {}", redisWriterArgs);
 		redisWriterArgs.configure(writer);
 		context.configure(writer);
 		Step<KeyValue<String, Object>, KeyValue<String, Object>> step = new Step<>(STEP_NAME, reader(), writer);
 		step.taskName(TASK_NAME);
-		step.maxItemCount(generatorArgs.getCount());
+		step.maxItemCount(generateArgs.getCount());
 		return job(context, step);
+	}
+
+	private CreateOptions<String, String> indexCreateOptions() {
+		CreateOptions.Builder<String, String> options = CreateOptions.builder();
+		options.on(indexOn());
+		options.prefix(generateArgs.getKeyspace() + generateArgs.getKeySepataror());
+		return options.build();
+	}
+
+	private CreateOptions.DataType indexOn() {
+		if (isJson()) {
+			return CreateOptions.DataType.JSON;
+		}
+		return CreateOptions.DataType.HASH;
+	}
+
+	private boolean isJson() {
+		return generateArgs.getTypes().contains(DataType.JSON);
+	}
+
+	@SuppressWarnings("unchecked")
+	private Field<String>[] indexFields() {
+		int fieldCount = indexFieldCount();
+		List<Field<String>> fields = new ArrayList<>();
+		for (int index = 1; index <= fieldCount; index++) {
+			fields.add(indexField(index));
+		}
+		return fields.toArray(new Field[0]);
+	}
+
+	private Field<String> indexField(int index) {
+		String name = "field" + index;
+		if (isJson()) {
+			return Field.tag("$." + name).as(name).build();
+		}
+		return Field.tag(name).build();
+	}
+
+	private int indexFieldCount() {
+		if (isJson()) {
+			return generateArgs.getJsonFieldCount().getMax();
+		}
+		return generateArgs.getHashFieldCount().getMax();
 	}
 
 	private GeneratorItemReader reader() {
 		GeneratorItemReader reader = new GeneratorItemReader();
-		reader.setMaxItemCount(generatorArgs.getCount());
-		reader.setOptions(generatorArgs.generatorOptions());
+		reader.setMaxItemCount(generateArgs.getCount());
+		reader.setOptions(generateArgs.generatorOptions());
 		return reader;
 	}
 
@@ -52,6 +107,14 @@ public class Generate extends AbstractRedisCommand<RedisExecutionContext> {
 
 	public void setRedisWriterArgs(RedisWriterArgs args) {
 		this.redisWriterArgs = args;
+	}
+
+	public GenerateArgs getGenerateArgs() {
+		return generateArgs;
+	}
+
+	public void setGenerateArgs(GenerateArgs args) {
+		this.generateArgs = args;
 	}
 
 }

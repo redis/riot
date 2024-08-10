@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -35,6 +36,9 @@ import org.springframework.util.StringUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import com.redis.lettucemod.RedisModulesUtils;
+import com.redis.lettucemod.search.Field;
+import com.redis.lettucemod.search.IndexInfo;
 import com.redis.lettucemod.search.Suggestion;
 import com.redis.lettucemod.search.SuggetOptions;
 import com.redis.lettucemod.timeseries.MRangeOptions;
@@ -49,6 +53,7 @@ import com.redis.spring.batch.item.redis.common.DataType;
 import com.redis.spring.batch.item.redis.common.KeyValue;
 import com.redis.spring.batch.item.redis.gen.GeneratorItemReader;
 import com.redis.spring.batch.item.redis.gen.GeneratorOptions;
+import com.redis.spring.batch.item.redis.gen.MapOptions;
 import com.redis.spring.batch.item.redis.reader.DefaultKeyComparator;
 import com.redis.spring.batch.item.redis.reader.KeyComparison;
 import com.redis.spring.batch.item.redis.reader.KeyComparison.Status;
@@ -527,6 +532,34 @@ class StackRiotTests extends RiotTests {
 		execute(info, "generate");
 		Assertions.assertEquals(Math.min(GenerateArgs.DEFAULT_COUNT, GeneratorOptions.DEFAULT_KEY_RANGE.getMax()),
 				redisCommands.dbsize());
+	}
+
+	@Test
+	void generateJsonIndex(TestInfo info) throws Exception {
+		execute(info, "generate-json-index");
+		int keyCount = Math.min(GenerateArgs.DEFAULT_COUNT, GeneratorOptions.DEFAULT_KEY_RANGE.getMax());
+		Assertions.assertEquals(keyCount, redisCommands.dbsize());
+		IndexInfo indexInfo = RedisModulesUtils.indexInfo(redisCommands.ftInfo("jsonIdx"));
+		List<Field<String>> expectedFields = new ArrayList<>();
+		for (int index = 1; index <= MapOptions.DEFAULT_FIELD_COUNT.getMax(); index++) {
+			expectedFields.add(Field.tag("$.field" + index).as("field" + index).build());
+		}
+		Assertions.assertEquals(expectedFields, indexInfo.getFields());
+		Assertions.assertEquals(keyCount, indexInfo.getNumDocs());
+	}
+
+	@Test
+	void generateHashIndex(TestInfo info) throws Exception {
+		execute(info, "generate-hash-index");
+		int keyCount = Math.min(GenerateArgs.DEFAULT_COUNT, GeneratorOptions.DEFAULT_KEY_RANGE.getMax());
+		Assertions.assertEquals(keyCount, redisCommands.dbsize());
+		IndexInfo indexInfo = RedisModulesUtils.indexInfo(redisCommands.ftInfo("hashIdx"));
+		List<Field<String>> expectedFields = new ArrayList<>();
+		for (int index = 1; index <= MapOptions.DEFAULT_FIELD_COUNT.getMax(); index++) {
+			expectedFields.add(Field.tag("field" + index).as("field" + index).separator(',').build());
+		}
+		Assertions.assertEquals(expectedFields, indexInfo.getFields());
+		Assertions.assertEquals(keyCount, indexInfo.getNumDocs());
 	}
 
 	@Test

@@ -22,6 +22,9 @@ public class GenerateArgs {
 	@Option(names = "--count", description = "Number of items to generate (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
 	private int count = DEFAULT_COUNT;
 
+	@Option(names = "--key-separator", description = "Key separator (default: ${DEFAULT-VALUE}).", paramLabel = "<str>", hidden = true)
+	private String keySepataror = GeneratorOptions.DEFAULT_KEY_SEPARATOR;
+
 	@Option(names = "--keyspace", description = "Keyspace prefix for generated data structures (default: ${DEFAULT-VALUE}).", paramLabel = "<str>")
 	private String keyspace = GeneratorOptions.DEFAULT_KEYSPACE;
 
@@ -30,6 +33,9 @@ public class GenerateArgs {
 
 	@Option(arity = "1..*", names = "--types", description = "Types of data structures to generate: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<type>")
 	private List<DataType> types = GeneratorOptions.defaultTypes();
+
+	@Option(names = "--index", description = "Name of index to create that matches JSON or hash type.", paramLabel = "<name>")
+	private String index;
 
 	@Option(names = "--expiration", description = "TTL in seconds.", paramLabel = "<secs>")
 	private Range expiration;
@@ -84,6 +90,84 @@ public class GenerateArgs {
 
 	@Option(names = "--zset-score", description = "Score of sorted sets (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
 	private Range zsetScore = ZsetOptions.DEFAULT_SCORE;
+
+	public GeneratorOptions generatorOptions() {
+		GeneratorOptions options = new GeneratorOptions();
+		options.setKeySeparator(keySepataror);
+		options.setExpiration(expiration);
+		options.setHashOptions(hashOptions());
+		options.setJsonOptions(jsonOptions());
+		options.setKeyRange(keyRange);
+		options.setKeyspace(keyspace);
+		options.setListOptions(listOptions());
+		options.setSetOptions(setOptions());
+		options.setStreamOptions(streamOptions());
+		options.setStringOptions(stringOptions());
+		options.setTimeSeriesOptions(timeseriesOptions());
+		options.setTypes(types);
+		options.setZsetOptions(zsetOptions());
+		return options;
+	}
+
+	private ZsetOptions zsetOptions() {
+		ZsetOptions options = new ZsetOptions();
+		options.setMemberCount(zsetMemberCount);
+		options.setMemberRange(zsetMemberLength);
+		options.setScore(zsetScore);
+		return options;
+	}
+
+	private TimeSeriesOptions timeseriesOptions() {
+		TimeSeriesOptions options = new TimeSeriesOptions();
+		options.setSampleCount(timeseriesSampleCount);
+		if (timeseriesStartTime != null) {
+			options.setStartTime(timeseriesStartTime);
+		}
+		return options;
+	}
+
+	private StringOptions stringOptions() {
+		StringOptions options = new StringOptions();
+		options.setLength(stringLength);
+		return options;
+	}
+
+	private StreamOptions streamOptions() {
+		StreamOptions options = new StreamOptions();
+		options.setBodyOptions(mapOptions(streamFieldCount, streamFieldLength));
+		options.setMessageCount(streamMessageCount);
+		return options;
+	}
+
+	private CollectionOptions setOptions() {
+		return collectionOptions(setMemberCount, setMemberLength);
+	}
+
+	private CollectionOptions listOptions() {
+		return collectionOptions(listMemberCount, listMemberRange);
+	}
+
+	private CollectionOptions collectionOptions(Range memberCount, Range memberRange) {
+		CollectionOptions options = new CollectionOptions();
+		options.setMemberCount(memberCount);
+		options.setMemberRange(memberRange);
+		return options;
+	}
+
+	private MapOptions jsonOptions() {
+		return mapOptions(jsonFieldCount, jsonFieldLength);
+	}
+
+	private MapOptions hashOptions() {
+		return mapOptions(hashFieldCount, hashFieldLength);
+	}
+
+	private MapOptions mapOptions(Range fieldCount, Range fieldLength) {
+		MapOptions options = new MapOptions();
+		options.setFieldCount(fieldCount);
+		options.setFieldLength(fieldLength);
+		return options;
+	}
 
 	public int getCount() {
 		return count;
@@ -261,95 +345,34 @@ public class GenerateArgs {
 		this.zsetScore = zsetScore;
 	}
 
-	public GeneratorOptions generatorOptions() {
-		GeneratorOptions options = new GeneratorOptions();
-		options.setExpiration(expiration);
-		options.setHashOptions(hashOptions());
-		options.setJsonOptions(jsonOptions());
-		options.setKeyRange(keyRange);
-		options.setKeyspace(keyspace);
-		options.setListOptions(listOptions());
-		options.setSetOptions(setOptions());
-		options.setStreamOptions(streamOptions());
-		options.setStringOptions(stringOptions());
-		options.setTimeSeriesOptions(timeseriesOptions());
-		options.setTypes(types);
-		options.setZsetOptions(zsetOptions());
-		return options;
+	public String getIndex() {
+		return index;
 	}
 
-	private ZsetOptions zsetOptions() {
-		ZsetOptions options = new ZsetOptions();
-		options.setMemberCount(zsetMemberCount);
-		options.setMemberRange(zsetMemberLength);
-		options.setScore(zsetScore);
-		return options;
+	public void setIndex(String index) {
+		this.index = index;
 	}
 
-	private TimeSeriesOptions timeseriesOptions() {
-		TimeSeriesOptions options = new TimeSeriesOptions();
-		options.setSampleCount(timeseriesSampleCount);
-		if (timeseriesStartTime != null) {
-			options.setStartTime(timeseriesStartTime);
-		}
-		return options;
+	public String getKeySepataror() {
+		return keySepataror;
 	}
 
-	private StringOptions stringOptions() {
-		StringOptions options = new StringOptions();
-		options.setLength(stringLength);
-		return options;
-	}
-
-	private StreamOptions streamOptions() {
-		StreamOptions options = new StreamOptions();
-		options.setBodyOptions(mapOptions(streamFieldCount, streamFieldLength));
-		options.setMessageCount(streamMessageCount);
-		return options;
-	}
-
-	private CollectionOptions setOptions() {
-		return collectionOptions(setMemberCount, setMemberLength);
-	}
-
-	private CollectionOptions listOptions() {
-		return collectionOptions(listMemberCount, listMemberRange);
-	}
-
-	private CollectionOptions collectionOptions(Range memberCount, Range memberRange) {
-		CollectionOptions options = new CollectionOptions();
-		options.setMemberCount(memberCount);
-		options.setMemberRange(memberRange);
-		return options;
-	}
-
-	private MapOptions jsonOptions() {
-		return mapOptions(jsonFieldCount, jsonFieldLength);
-	}
-
-	private MapOptions hashOptions() {
-		return mapOptions(hashFieldCount, hashFieldLength);
-	}
-
-	private MapOptions mapOptions(Range fieldCount, Range fieldLength) {
-		MapOptions options = new MapOptions();
-		options.setFieldCount(fieldCount);
-		options.setFieldLength(fieldLength);
-		return options;
+	public void setKeySepataror(String keySepataror) {
+		this.keySepataror = keySepataror;
 	}
 
 	@Override
 	public String toString() {
-		return "GenerateArgs [count=" + count + ", keyspace=" + keyspace + ", keyRange=" + keyRange + ", types=" + types
-				+ ", expiration=" + expiration + ", hashFieldCount=" + hashFieldCount + ", hashFieldLength="
-				+ hashFieldLength + ", jsonFieldCount=" + jsonFieldCount + ", jsonFieldLength=" + jsonFieldLength
-				+ ", listMemberCount=" + listMemberCount + ", listMemberRange=" + listMemberRange + ", setMemberCount="
-				+ setMemberCount + ", setMemberLength=" + setMemberLength + ", streamMessageCount=" + streamMessageCount
-				+ ", streamFieldCount=" + streamFieldCount + ", streamFieldLength=" + streamFieldLength
-				+ ", stringLength=" + stringLength + ", timeseriesSampleCount=" + timeseriesSampleCount
-				+ ", timeseriesStartTime=" + timeseriesStartTime + ", zsetMemberCount=" + zsetMemberCount
-				+ ", zsetMemberLength=" + zsetMemberLength + ", zsetScore=" + zsetScore + "]";
+		return "GenerateArgs [count=" + count + ", keySepataror=" + keySepataror + ", keyspace=" + keyspace
+				+ ", keyRange=" + keyRange + ", types=" + types + ", index=" + index + ", expiration=" + expiration
+				+ ", hashFieldCount=" + hashFieldCount + ", hashFieldLength=" + hashFieldLength + ", jsonFieldCount="
+				+ jsonFieldCount + ", jsonFieldLength=" + jsonFieldLength + ", listMemberCount=" + listMemberCount
+				+ ", listMemberRange=" + listMemberRange + ", setMemberCount=" + setMemberCount + ", setMemberLength="
+				+ setMemberLength + ", streamMessageCount=" + streamMessageCount + ", streamFieldCount="
+				+ streamFieldCount + ", streamFieldLength=" + streamFieldLength + ", stringLength=" + stringLength
+				+ ", timeseriesSampleCount=" + timeseriesSampleCount + ", timeseriesStartTime=" + timeseriesStartTime
+				+ ", zsetMemberCount=" + zsetMemberCount + ", zsetMemberLength=" + zsetMemberLength + ", zsetScore="
+				+ zsetScore + "]";
 	}
-	
-	
+
 }
