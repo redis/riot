@@ -1,7 +1,5 @@
 package com.redis.riot;
 
-import com.redis.riot.file.FileReaderFactory;
-
 public class FileImportExecutionContext extends RedisExecutionContext {
 
 	private FileReaderFactory fileReaderFactory;

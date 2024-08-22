@@ -23,8 +23,6 @@ import com.redis.riot.core.RiotException;
 import com.redis.riot.core.RiotUtils;
 import com.redis.riot.core.Step;
 import com.redis.riot.core.processor.RegexNamedGroupFunction;
-import com.redis.riot.file.FileReaderArgs;
-import com.redis.riot.file.FileReaderFactory;
 import com.redis.riot.file.FileType;
 import com.redis.riot.file.FileUtils;
 import com.redis.riot.file.MapToFieldFunction;

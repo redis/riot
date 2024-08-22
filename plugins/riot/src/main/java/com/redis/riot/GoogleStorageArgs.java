@@ -1,4 +1,4 @@
-package com.redis.riot.file;
+package com.redis.riot;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;

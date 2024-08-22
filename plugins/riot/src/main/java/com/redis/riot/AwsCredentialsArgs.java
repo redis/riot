@@ -1,4 +1,4 @@
-package com.redis.riot.file;
+package com.redis.riot;
 
 import picocli.CommandLine.Option;
 

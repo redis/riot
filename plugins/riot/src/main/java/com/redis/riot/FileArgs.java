@@ -1,4 +1,4 @@
-package com.redis.riot.file;
+package com.redis.riot;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -6,6 +6,10 @@ import java.nio.charset.StandardCharsets;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.util.ResourceUtils;
+
+import com.redis.riot.file.FileUtils;
+import com.redis.riot.file.FilenameInputStreamResource;
+import com.redis.riot.file.UncustomizedUrlResource;
 
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Option;

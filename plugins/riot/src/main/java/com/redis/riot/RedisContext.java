@@ -10,26 +10,51 @@ import com.redis.spring.batch.item.redis.RedisItemWriter;
 
 import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.ClientOptions;
+import io.lettuce.core.ClientOptions.Builder;
 import io.lettuce.core.RedisURI;
+import io.lettuce.core.SslOptions;
+import io.lettuce.core.cluster.ClusterClientOptions;
+import io.lettuce.core.protocol.ProtocolVersion;
 
 public class RedisContext implements InitializingBean, AutoCloseable {
 
+	public static final boolean DEFAULT_AUTO_RECONNECT = ClientOptions.DEFAULT_AUTO_RECONNECT;
+	public static final ProtocolVersion DEFAULT_PROTOCOL_VERSION = ClientOptions.DEFAULT_PROTOCOL_VERSION;
+	public static final int DEFAULT_POOL_SIZE = RedisItemReader.DEFAULT_POOL_SIZE;
+
 	private RedisURI uri;
 	private boolean cluster;
-	private ClientOptions clientOptions;
-	private int poolSize = RedisClientArgs.DEFAULT_POOL_SIZE;
+	private boolean autoReconnect = DEFAULT_AUTO_RECONNECT;
+	private ProtocolVersion protocolVersion = DEFAULT_PROTOCOL_VERSION;
+	private int poolSize = DEFAULT_POOL_SIZE;
+	private SslOptions sslOptions;
 
 	private AbstractRedisClient client;
 	private StatefulRedisModulesConnection<String, String> connection;
 
 	@Override
-	public void afterPropertiesSet() throws Exception {
+	public void afterPropertiesSet() {
 		RedisModulesClientBuilder clientBuilder = new RedisModulesClientBuilder();
 		clientBuilder.cluster(cluster);
-		clientBuilder.clientOptions(clientOptions);
+		clientBuilder.clientOptions(clientOptions());
 		clientBuilder.uri(uri);
 		client = clientBuilder.build();
 		connection = RedisModulesUtils.connection(client);
+	}
+
+	private ClientOptions clientOptions() {
+		Builder options = clientOptionsBuilder().autoReconnect(autoReconnect).protocolVersion(protocolVersion);
+		if (sslOptions != null) {
+			options.sslOptions(sslOptions);
+		}
+		return options.build();
+	}
+
+	private ClientOptions.Builder clientOptionsBuilder() {
+		if (cluster) {
+			return ClusterClientOptions.builder();
+		}
+		return ClientOptions.builder();
 	}
 
 	public void configure(RedisItemWriter<?, ?, ?> writer) {
@@ -59,14 +84,6 @@ public class RedisContext implements InitializingBean, AutoCloseable {
 		this.cluster = cluster;
 	}
 
-	public ClientOptions getClientOptions() {
-		return clientOptions;
-	}
-
-	public void setClientOptions(ClientOptions options) {
-		this.clientOptions = options;
-	}
-
 	public int getPoolSize() {
 		return poolSize;
 	}
@@ -81,6 +98,30 @@ public class RedisContext implements InitializingBean, AutoCloseable {
 
 	public StatefulRedisModulesConnection<String, String> getConnection() {
 		return connection;
+	}
+
+	public boolean isAutoReconnect() {
+		return autoReconnect;
+	}
+
+	public void setAutoReconnect(boolean autoReconnect) {
+		this.autoReconnect = autoReconnect;
+	}
+
+	public ProtocolVersion getProtocolVersion() {
+		return protocolVersion;
+	}
+
+	public void setProtocolVersion(ProtocolVersion protocolVersion) {
+		this.protocolVersion = protocolVersion;
+	}
+
+	public SslOptions getSslOptions() {
+		return sslOptions;
+	}
+
+	public void setSslOptions(SslOptions sslOptions) {
+		this.sslOptions = sslOptions;
 	}
 
 	@Override

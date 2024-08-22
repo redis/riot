@@ -17,43 +17,17 @@ public class ExpireCommand extends AbstractOperationCommand {
 	public static final long DEFAULT_TTL = 60;
 
 	@ArgGroup(exclusive = true)
-	private TtlArgs expireArgs = new TtlArgs();
+	private ExpireTtlArgs ttlArgs = new ExpireTtlArgs();
 
 	@Option(names = "--abs", description = "Timeout is POSIX time in milliseconds.")
 	private boolean absolute;
-
-	public static class TtlArgs {
-
-		@Option(names = "--ttl-field", required = true, description = "Expire timeout field.", paramLabel = "<field>")
-		private String ttlField;
-
-		@Option(names = "--ttl", required = true, description = "Expire timeout duration in milliseconds.", paramLabel = "<ms>")
-		private long ttlValue;
-
-		public String getTtlField() {
-			return ttlField;
-		}
-
-		public void setTtlField(String ttlField) {
-			this.ttlField = ttlField;
-		}
-
-		public long getTtlValue() {
-			return ttlValue;
-		}
-
-		public void setTtlValue(long ttlValue) {
-			this.ttlValue = ttlValue;
-		}
-
-	}
 
 	@Override
 	public AbstractWriteOperation<String, String, Map<String, Object>> operation() {
 		if (absolute) {
 			ExpireAt<String, String, Map<String, Object>> operation = new ExpireAt<>(keyFunction());
 			if (isTtlValue()) {
-				operation.setTimestamp(expireArgs.getTtlValue());
+				operation.setTimestamp(ttlArgs.getTtlValue());
 			} else {
 				operation.setTimestampFunction(fieldTtl());
 			}
@@ -61,7 +35,7 @@ public class ExpireCommand extends AbstractOperationCommand {
 		}
 		Expire<String, String, Map<String, Object>> operation = new Expire<>(keyFunction());
 		if (isTtlValue()) {
-			operation.setTtl(expireArgs.getTtlValue());
+			operation.setTtl(ttlArgs.getTtlValue());
 		} else {
 			operation.setTtlFunction(fieldTtl());
 		}
@@ -69,19 +43,19 @@ public class ExpireCommand extends AbstractOperationCommand {
 	}
 
 	private ToLongFunction<Map<String, Object>> fieldTtl() {
-		return toLong(expireArgs.getTtlField());
+		return toLong(ttlArgs.getTtlField());
 	}
 
 	private boolean isTtlValue() {
-		return expireArgs.getTtlValue() > 0;
+		return ttlArgs.getTtlValue() > 0;
 	}
 
-	public TtlArgs getExpireArgs() {
-		return expireArgs;
+	public ExpireTtlArgs getTtlArgs() {
+		return ttlArgs;
 	}
 
-	public void setExpireArgs(TtlArgs expireArgs) {
-		this.expireArgs = expireArgs;
+	public void setTtlArgs(ExpireTtlArgs expireArgs) {
+		this.ttlArgs = expireArgs;
 	}
 
 	public boolean isAbsolute() {

@@ -1,4 +1,4 @@
-package com.redis.riot.file;
+package com.redis.riot;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,6 +28,11 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import com.redis.riot.file.FileType;
+import com.redis.riot.file.FileUtils;
+import com.redis.riot.file.HeaderCallbackHandler;
+import com.redis.riot.file.MapFieldSetMapper;
+import com.redis.riot.file.ObjectMapperLineMapper;
 import com.redis.riot.file.xml.XmlItemReader;
 import com.redis.riot.file.xml.XmlItemReaderBuilder;
 import com.redis.riot.file.xml.XmlObjectReader;

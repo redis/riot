@@ -1,6 +1,5 @@
 package com.redis.riot;
 
-import io.lettuce.core.ClientOptions;
 import io.lettuce.core.protocol.ProtocolVersion;
 import picocli.CommandLine.Option;
 
@@ -10,18 +9,13 @@ public class SourceRedisClientArgs {
 	private boolean cluster;
 
 	@Option(names = "--source-auto-reconnect", description = "Automatically reconnect on connection loss. True by default.", negatable = true, defaultValue = "true", fallbackValue = "true", hidden = true)
-	private boolean autoReconnect = RedisClientArgs.DEFAULT_AUTO_RECONNECT;
+	private boolean autoReconnect = RedisContext.DEFAULT_AUTO_RECONNECT;
 
 	@Option(names = "--source-resp", description = "Redis protocol version used to connect to Redis: ${COMPLETION-CANDIDATES}.", paramLabel = "<ver>")
-	private ProtocolVersion protocolVersion = RedisClientArgs.DEFAULT_PROTOCOL_VERSION;
+	private ProtocolVersion protocolVersion = RedisContext.DEFAULT_PROTOCOL_VERSION;
 
 	@Option(names = "--source-pool", description = "Max pool connections used for source Redis (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
-	private int poolSize = RedisClientArgs.DEFAULT_POOL_SIZE;
-
-	public ClientOptions.Builder clientOptions() {
-		return RedisClientArgs.clientOptionsBuilder(cluster).autoReconnect(autoReconnect)
-				.protocolVersion(protocolVersion);
-	}
+	private int poolSize = RedisContext.DEFAULT_POOL_SIZE;
 
 	public boolean isCluster() {
 		return cluster;

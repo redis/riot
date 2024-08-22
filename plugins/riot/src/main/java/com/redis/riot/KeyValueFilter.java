@@ -26,7 +26,7 @@ public class KeyValueFilter<K, T extends KeyValue<K, ?>> implements ItemProcesso
 		if (KeyValue.exists(item) && !KeyValue.hasValue(item) && item.getMemoryUsage() > 0) {
 			if (log.isInfoEnabled()) {
 				DataSize memUsage = DataSize.ofBytes(item.getMemoryUsage());
-				log.info("Skipping {} {} ({} MB)", item.getType(), string(item.getKey()), memUsage.toMegabytes());
+				log.info("Skipping {} {} ({})", item.getType(), string(item.getKey()), memUsage);
 			}
 			return null;
 		}

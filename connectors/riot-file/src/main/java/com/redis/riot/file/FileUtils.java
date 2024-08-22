@@ -17,8 +17,6 @@ import org.springframework.util.ResourceUtils;
 import org.springframework.util.StringUtils;
 
 import io.awspring.cloud.s3.Location;
-import picocli.CommandLine;
-import software.amazon.awssdk.regions.Region;
 
 public abstract class FileUtils {
 
@@ -100,10 +98,6 @@ public abstract class FileUtils {
 			stream.iterator().forEachRemaining(paths::add);
 			return paths;
 		}
-	}
-
-	public static void registerConverters(CommandLine commandLine) {
-		commandLine.registerConverter(Region.class, Region::of);
 	}
 
 	public static boolean isGzip(String file) {

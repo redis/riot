@@ -9,7 +9,6 @@ import com.redis.riot.core.Expression;
 import com.redis.riot.core.IO;
 import com.redis.riot.core.PrintExceptionMessageHandler;
 import com.redis.riot.core.TemplateExpression;
-import com.redis.riot.file.FileUtils;
 import com.redis.riot.operation.OperationCommand;
 import com.redis.spring.batch.Range;
 
@@ -20,6 +19,7 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.ParseResult;
 import picocli.CommandLine.RunFirst;
 import picocli.CommandLine.RunLast;
+import software.amazon.awssdk.regions.Region;
 
 @Command(name = "riot", versionProvider = Versions.class, headerHeading = "A data import/export tool for Redis.%n%n", footerHeading = "%nRun 'riot COMMAND --help' for more information on a command.%n%nFor more help on how to use RIOT, head to http://redis.github.io/riot%n", subcommands = {
 		DatabaseExport.class, DatabaseImport.class, FakerImport.class, FileExport.class, FileImport.class,
@@ -70,7 +70,7 @@ public class Main extends BaseCommand implements Runnable, IO {
 		commandLine.registerConverter(Range.class, Range::parse);
 		commandLine.registerConverter(Expression.class, Expression::parse);
 		commandLine.registerConverter(TemplateExpression.class, Expression::parseTemplate);
-		FileUtils.registerConverters(commandLine);
+		commandLine.registerConverter(Region.class, Region::of);
 		return commandLine.execute(args);
 	}
 

@@ -1,17 +1,32 @@
 package com.redis.riot;
 
-import org.springframework.batch.core.Job;
+import java.util.Map;
 
-import com.redis.riot.db.DatabaseWriterArgs;
+import javax.sql.DataSource;
+
+import org.springframework.batch.core.Job;
+import org.springframework.batch.item.database.JdbcBatchItemWriter;
+import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilder;
+import org.springframework.util.Assert;
 
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
 
 @Command(name = "db-export", description = "Export Redis data to a relational database.")
 public class DatabaseExport extends AbstractExportCommand<RedisExecutionContext> {
 
+	public static final boolean DEFAULT_ASSERT_UPDATES = true;
+
 	@ArgGroup(exclusive = false)
-	private DatabaseWriterArgs databaseWriterArgs = new DatabaseWriterArgs();
+	private DataSourceArgs dataSourceArgs = new DataSourceArgs();
+
+	@Parameters(arity = "1", description = "SQL INSERT statement.", paramLabel = "SQL")
+	private String sql;
+
+	@Option(names = "--assert-updates", description = "Confirm every insert results in update of at least one row. True by default.", negatable = true, defaultValue = "true", fallbackValue = "true")
+	private boolean assertUpdates = DEFAULT_ASSERT_UPDATES;
 
 	@Override
 	protected RedisExecutionContext newExecutionContext() {
@@ -20,15 +35,46 @@ public class DatabaseExport extends AbstractExportCommand<RedisExecutionContext>
 
 	@Override
 	protected Job job(RedisExecutionContext context) {
-		return job(context, step(context, databaseWriterArgs.writer()).processor(mapProcessor()));
+		return job(context, step(context, writer()).processor(mapProcessor()));
 	}
 
-	public DatabaseWriterArgs getDatabaseWriterArgs() {
-		return databaseWriterArgs;
+	private JdbcBatchItemWriter<Map<String, Object>> writer() {
+		Assert.hasLength(sql, "No SQL statement specified");
+		log.info("Creating data source with {}", dataSourceArgs);
+		DataSource dataSource = DatabaseHelper.dataSource(dataSourceArgs);
+		log.info("Creating JDBC writer with sql=\"{}\" assertUpdates={}", sql, assertUpdates);
+		JdbcBatchItemWriterBuilder<Map<String, Object>> builder = new JdbcBatchItemWriterBuilder<>();
+		builder.itemSqlParameterSourceProvider(NullableSqlParameterSource::new);
+		builder.dataSource(dataSource);
+		builder.sql(sql);
+		builder.assertUpdates(assertUpdates);
+		JdbcBatchItemWriter<Map<String, Object>> writer = builder.build();
+		writer.afterPropertiesSet();
+		return writer;
 	}
 
-	public void setDatabaseWriterArgs(DatabaseWriterArgs args) {
-		this.databaseWriterArgs = args;
+	public String getSql() {
+		return sql;
+	}
+
+	public void setSql(String sql) {
+		this.sql = sql;
+	}
+
+	public boolean isAssertUpdates() {
+		return assertUpdates;
+	}
+
+	public void setAssertUpdates(boolean assertUpdates) {
+		this.assertUpdates = assertUpdates;
+	}
+
+	public DataSourceArgs getDataSourceArgs() {
+		return dataSourceArgs;
+	}
+
+	public void setDataSourceArgs(DataSourceArgs dataSourceArgs) {
+		this.dataSourceArgs = dataSourceArgs;
 	}
 
 }

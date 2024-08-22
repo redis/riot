@@ -22,13 +22,15 @@ public abstract class AbstractRedisCommand<C extends RedisExecutionContext> exte
 
 	private RedisContext redisContext() {
 		RedisURI redisURI = redisURIArgs.redisURI();
-		log.info("Creating Redis context with URI {}, cluster {} and {}", redisURI, redisClientArgs);
-		RedisContext redisContext = new RedisContext();
-		redisContext.setUri(redisURI);
-		redisContext.setCluster(redisClientArgs.isCluster());
-		redisContext.setClientOptions(redisClientArgs.clientOptions());
-		redisContext.setPoolSize(redisClientArgs.getPoolSize());
-		return redisContext;
+		log.info("Creating Redis context with URI {} and {}", redisURI, redisClientArgs);
+		RedisContext context = new RedisContext();
+		context.setAutoReconnect(redisClientArgs.isAutoReconnect());
+		context.setCluster(redisClientArgs.isCluster());
+		context.setPoolSize(redisClientArgs.getPoolSize());
+		context.setProtocolVersion(redisClientArgs.getProtocolVersion());
+		context.setSslOptions(redisClientArgs.getSslArgs().sslOptions());
+		context.setUri(redisURI);
+		return context;
 	}
 
 	public RedisURIArgs getRedisURIArgs() {

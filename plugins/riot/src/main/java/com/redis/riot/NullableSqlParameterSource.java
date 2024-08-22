@@ -1,4 +1,4 @@
-package com.redis.riot.db;
+package com.redis.riot;
 
 import java.util.Map;
 

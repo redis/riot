@@ -16,8 +16,7 @@
  * limitations under the License.
  */
 dependencies {
-    implementation project(':riot-core')
-    implementation 'org.springframework.batch:spring-batch-core'
+    implementation 'org.springframework.batch:spring-batch-infrastructure'
     api group: 'net.datafaker', name: 'datafaker', version: datafakerVersion
 }
 

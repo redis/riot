@@ -15,8 +15,6 @@ import org.springframework.core.io.WritableResource;
 import com.redis.riot.core.RiotException;
 import com.redis.riot.file.FileType;
 import com.redis.riot.file.FileUtils;
-import com.redis.riot.file.FileWriterArgs;
-import com.redis.riot.file.FileWriterFactory;
 import com.redis.spring.batch.item.redis.RedisItemReader;
 import com.redis.spring.batch.item.redis.common.KeyValue;
 

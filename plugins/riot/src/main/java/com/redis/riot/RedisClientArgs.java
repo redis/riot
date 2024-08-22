@@ -1,19 +1,10 @@
 package com.redis.riot;
 
-import com.redis.spring.batch.item.redis.RedisItemReader;
-
-import io.lettuce.core.ClientOptions;
-import io.lettuce.core.SslOptions;
-import io.lettuce.core.cluster.ClusterClientOptions;
 import io.lettuce.core.protocol.ProtocolVersion;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Option;
 
 public class RedisClientArgs {
-
-	public static final boolean DEFAULT_AUTO_RECONNECT = ClientOptions.DEFAULT_AUTO_RECONNECT;
-	public static final ProtocolVersion DEFAULT_PROTOCOL_VERSION = ClientOptions.DEFAULT_PROTOCOL_VERSION;
-	public static final int DEFAULT_POOL_SIZE = RedisItemReader.DEFAULT_POOL_SIZE;
 
 	@ArgGroup(exclusive = false, heading = "TLS options%n")
 	private SslArgs sslArgs = new SslArgs();
@@ -22,29 +13,13 @@ public class RedisClientArgs {
 	private boolean cluster;
 
 	@Option(names = "--auto-reconnect", description = "Automatically reconnect on connection loss. True by default.", negatable = true, defaultValue = "true", fallbackValue = "true", hidden = true)
-	private boolean autoReconnect = DEFAULT_AUTO_RECONNECT;
+	private boolean autoReconnect = RedisContext.DEFAULT_AUTO_RECONNECT;
 
 	@Option(names = "--resp", description = "Redis protocol version used to connect to Redis: ${COMPLETION-CANDIDATES}.", paramLabel = "<ver>")
-	private ProtocolVersion protocolVersion = DEFAULT_PROTOCOL_VERSION;
+	private ProtocolVersion protocolVersion = RedisContext.DEFAULT_PROTOCOL_VERSION;
 
 	@Option(names = "--pool", description = "Max number of Redis connections in pool (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
-	private int poolSize = DEFAULT_POOL_SIZE;
-
-	public ClientOptions clientOptions() {
-		return clientOptionsBuilder(cluster).autoReconnect(autoReconnect).protocolVersion(protocolVersion)
-				.sslOptions(sslOptions()).build();
-	}
-
-	private SslOptions sslOptions() {
-		return sslArgs.sslOptions();
-	}
-
-	public static ClientOptions.Builder clientOptionsBuilder(boolean cluster) {
-		if (cluster) {
-			return ClusterClientOptions.builder();
-		}
-		return ClientOptions.builder();
-	}
+	private int poolSize = RedisContext.DEFAULT_POOL_SIZE;
 
 	public boolean isCluster() {
 		return cluster;
@@ -66,8 +41,8 @@ public class RedisClientArgs {
 		return protocolVersion;
 	}
 
-	public void setProtocolVersion(ProtocolVersion protocolVersion) {
-		this.protocolVersion = protocolVersion;
+	public void setProtocolVersion(ProtocolVersion version) {
+		this.protocolVersion = version;
 	}
 
 	public int getPoolSize() {
@@ -76,6 +51,20 @@ public class RedisClientArgs {
 
 	public void setPoolSize(int poolSize) {
 		this.poolSize = poolSize;
+	}
+
+	public SslArgs getSslArgs() {
+		return sslArgs;
+	}
+
+	public void setSslArgs(SslArgs sslArgs) {
+		this.sslArgs = sslArgs;
+	}
+
+	@Override
+	public String toString() {
+		return "RedisClientArgs [sslArgs=" + sslArgs + ", cluster=" + cluster + ", autoReconnect=" + autoReconnect
+				+ ", protocolVersion=" + protocolVersion + ", poolSize=" + poolSize + "]";
 	}
 
 }

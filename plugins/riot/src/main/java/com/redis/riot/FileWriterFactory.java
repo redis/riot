@@ -1,4 +1,4 @@
-package com.redis.riot.file;
+package com.redis.riot;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,6 +16,8 @@ import org.springframework.util.CollectionUtils;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import com.redis.riot.file.FileType;
+import com.redis.riot.file.JsonLineAggregator;
 import com.redis.riot.file.xml.XmlResourceItemWriter;
 import com.redis.riot.file.xml.XmlResourceItemWriterBuilder;
 import com.redis.riot.resource.FlatFileItemWriter;

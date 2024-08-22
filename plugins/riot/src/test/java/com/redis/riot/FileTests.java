@@ -76,7 +76,7 @@ abstract class FileTests extends AbstractTargetTestBase {
 		}
 	}
 
-	private void configure(TestInfo info, AbstractRedisCommand callable) {
+	private void configure(TestInfo info, AbstractRedisCommand<?> callable) {
 		callable.getRedisURIArgs().setUri(RedisURI.create(getRedisServer().getRedisURI()));
 		callable.getRedisClientArgs().setCluster(getRedisServer().isRedisCluster());
 		callable.setJobName(name(info));

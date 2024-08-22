@@ -1,7 +1,5 @@
 package com.redis.riot;
 
-import com.redis.riot.file.FileWriterFactory;
-
 public class FileExportExecutionContext extends RedisExecutionContext {
 
 	private FileWriterFactory fileWriterFactory;

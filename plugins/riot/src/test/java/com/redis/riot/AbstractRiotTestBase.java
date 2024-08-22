@@ -107,12 +107,12 @@ abstract class AbstractRiotTestBase extends AbstractTargetTestBase {
 				jobCommand.setJobName(name(info));
 			}
 			if (command instanceof AbstractRedisCommand) {
-				AbstractRedisCommand redisCommand = (AbstractRedisCommand) command;
+				AbstractRedisCommand<?> redisCommand = (AbstractRedisCommand<?>) command;
 				redisCommand.getRedisURIArgs().setUri(redisURI);
 				redisCommand.getRedisClientArgs().setCluster(getRedisServer().isRedisCluster());
 			}
 			if (command instanceof AbstractExportCommand) {
-				AbstractExportCommand exportCommand = (AbstractExportCommand) command;
+				AbstractExportCommand<?> exportCommand = (AbstractExportCommand<?>) command;
 				configure(exportCommand.getRedisReaderArgs());
 			}
 			if (command instanceof AbstractTargetCommand) {

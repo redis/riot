@@ -22,9 +22,6 @@ dependencies {
     annotationProcessor group: 'info.picocli', name: 'picocli-codegen', version: picocliVersion
     implementation group: 'me.tongfei', name: 'progressbar', version: progressbarVersion
     api group: 'com.redis', name: 'spring-batch-redis-infrastructure', version: springBatchRedisVersion
-    api 'org.springframework.batch:spring-batch-core'
-    implementation 'org.springframework.boot:spring-boot-autoconfigure'
-    implementation 'org.hsqldb:hsqldb'
     testImplementation 'org.awaitility:awaitility'
 }
 

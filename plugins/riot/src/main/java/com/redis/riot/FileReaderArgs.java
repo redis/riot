@@ -1,4 +1,4 @@
-package com.redis.riot.file;
+package com.redis.riot;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -7,6 +7,9 @@ import java.util.Set;
 import java.util.zip.GZIPInputStream;
 
 import org.springframework.core.io.Resource;
+
+import com.redis.riot.file.FileUtils;
+import com.redis.riot.file.FilenameInputStreamResource;
 
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Option;

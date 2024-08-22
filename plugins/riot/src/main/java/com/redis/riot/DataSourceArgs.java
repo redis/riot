@@ -1,8 +1,4 @@
-package com.redis.riot.db;
-
-import javax.sql.DataSource;
-
-import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
+package com.redis.riot;
 
 import picocli.CommandLine.Option;
 
@@ -50,15 +46,6 @@ public class DataSourceArgs {
 
 	public void setPassword(String password) {
 		this.password = password;
-	}
-
-	public DataSource dataSource() {
-		DataSourceProperties properties = new DataSourceProperties();
-		properties.setUrl(url);
-		properties.setDriverClassName(driver);
-		properties.setUsername(username);
-		properties.setPassword(password);
-		return properties.initializeDataSourceBuilder().build();
 	}
 
 	@Override

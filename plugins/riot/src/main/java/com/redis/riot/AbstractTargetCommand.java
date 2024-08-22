@@ -36,7 +36,7 @@ public abstract class AbstractTargetCommand extends AbstractJobCommand<TargetRed
 	@ArgGroup(exclusive = false)
 	private RedisReaderArgs sourceRedisReaderArgs = new RedisReaderArgs();
 
-	@Option(names = "--target-read-from", description = "Which target Redis cluster nodes to read from: ${COMPLETION-CANDIDATES}.", paramLabel = "<name>")
+	@Option(names = "--target-read-from", description = "Which target Redis cluster nodes to read from: ${COMPLETION-CANDIDATES}.", paramLabel = "<n>")
 	private RedisReadFrom targetReadFrom;
 
 	@Override
@@ -48,21 +48,37 @@ public abstract class AbstractTargetCommand extends AbstractJobCommand<TargetRed
 	}
 
 	private RedisContext sourceRedisContext() {
-		RedisContext redisContext = new RedisContext();
-		redisContext.setUri(sourceRedisURIArgs.redisURI(sourceRedisURI));
-		redisContext.setCluster(sourceRedisClientArgs.isCluster());
-		redisContext.setClientOptions(sourceRedisClientArgs.clientOptions().sslOptions(sslArgs.sslOptions()).build());
-		redisContext.setPoolSize(sourceRedisClientArgs.getPoolSize());
-		return redisContext;
+		RedisURI redisURI = sourceRedisURI();
+		log.info("Creating source Redis context with uri={} {} {}", redisURI, sslArgs, sourceRedisClientArgs);
+		RedisContext context = new RedisContext();
+		context.setAutoReconnect(sourceRedisClientArgs.isAutoReconnect());
+		context.setCluster(sourceRedisClientArgs.isCluster());
+		context.setPoolSize(sourceRedisClientArgs.getPoolSize());
+		context.setProtocolVersion(sourceRedisClientArgs.getProtocolVersion());
+		context.setSslOptions(sslArgs.sslOptions());
+		context.setUri(redisURI);
+		return context;
+	}
+
+	private RedisURI sourceRedisURI() {
+		return sourceRedisURIArgs.redisURI(sourceRedisURI);
 	}
 
 	private RedisContext targetRedisContext() {
-		RedisContext redisContext = new RedisContext();
-		redisContext.setUri(targetRedisURIArgs.redisURI(targetRedisURI));
-		redisContext.setCluster(targetRedisClientArgs.isCluster());
-		redisContext.setClientOptions(targetRedisClientArgs.clientOptions().sslOptions(sslArgs.sslOptions()).build());
-		redisContext.setPoolSize(targetRedisClientArgs.getPoolSize());
-		return redisContext;
+		RedisURI redisURI = targetRedisURI();
+		log.info("Creating target Redis context with uri={} {} {}", redisURI, sslArgs, targetRedisClientArgs);
+		RedisContext context = new RedisContext();
+		context.setAutoReconnect(targetRedisClientArgs.isAutoReconnect());
+		context.setCluster(targetRedisClientArgs.isCluster());
+		context.setPoolSize(targetRedisClientArgs.getPoolSize());
+		context.setProtocolVersion(targetRedisClientArgs.getProtocolVersion());
+		context.setSslOptions(sslArgs.sslOptions());
+		context.setUri(redisURI);
+		return context;
+	}
+
+	private RedisURI targetRedisURI() {
+		return targetRedisURIArgs.redisURI(targetRedisURI);
 	}
 
 	protected void configureSourceReader(TargetRedisExecutionContext context, RedisItemReader<?, ?, ?> reader) {

@@ -16,16 +16,11 @@
  * limitations under the License.
  */
 dependencies {
-    implementation project(':riot-core')
-    implementation group: 'info.picocli', name: 'picocli', version: picocliVersion
-    annotationProcessor group: 'info.picocli', name: 'picocli-codegen', version: picocliVersion
     implementation 'org.springframework.batch:spring-batch-infrastructure'
-    implementation group: 'com.redis', name: 'spring-batch-resource', version: springBatchRedisVersion
-    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'    
-    implementation 'org.springframework:spring-oxm'
-    implementation group: 'io.awspring.cloud', name: 'spring-cloud-aws-starter-s3', version: awsVersion
-    implementation group: 'com.google.cloud', name: 'spring-cloud-gcp-starter-storage', version: gcpVersion
-    testImplementation group: 'com.redis', name: 'spring-batch-redis-test', version: springBatchRedisVersion
+    api 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'    
+    api 'org.springframework:spring-oxm'
+    api group: 'io.awspring.cloud', name: 'spring-cloud-aws-starter-s3', version: awsVersion
+    api group: 'com.google.cloud', name: 'spring-cloud-gcp-starter-storage', version: gcpVersion
 }
 
 compileJava {

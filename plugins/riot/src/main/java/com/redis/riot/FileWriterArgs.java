@@ -1,4 +1,4 @@
-package com.redis.riot.file;
+package com.redis.riot;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -9,6 +9,9 @@ import org.springframework.core.io.WritableResource;
 import org.springframework.util.Assert;
 
 import com.google.cloud.spring.core.GcpScope;
+import com.redis.riot.file.FileUtils;
+import com.redis.riot.file.OutputStreamResource;
+import com.redis.riot.file.SystemOutResource;
 
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Option;

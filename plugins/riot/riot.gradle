@@ -43,24 +43,24 @@ dependencies {
         exclude group: 'commons-logging', module: 'commons-logging'
     }
     api project(':riot-file')
-    api project(':riot-db')
     api project(':riot-faker')
     api group: 'com.redis', name: 'spring-batch-redis-core', version: springBatchRedisVersion
-    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
+    api group: 'com.redis', name: 'spring-batch-resource', version: springBatchRedisVersion
     implementation group: 'com.redis', name: 'lettucemod', version: lettucemodVersion
-    implementation 'org.apache.commons:commons-pool2'
-    testImplementation group: 'com.redis', name: 'spring-batch-redis-test', version: springBatchRedisVersion
-    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
-    implementation 'com.mysql:mysql-connector-j'
-    implementation 'org.postgresql:postgresql'
-    implementation 'org.springframework:spring-oxm'
     implementation group: 'org.latencyutils', name: 'LatencyUtils', version: latencyUtilsVersion
-    testImplementation 'org.springframework.boot:spring-boot-starter-jdbc'
+    implementation 'org.springframework.batch:spring-batch-infrastructure'
+    implementation 'org.springframework.boot:spring-boot-autoconfigure'
+    implementation 'org.springframework:spring-jdbc'
+    implementation 'com.zaxxer:HikariCP'
+    implementation 'com.microsoft.sqlserver:mssql-jdbc'
+    implementation 'com.mysql:mysql-connector-j'
+    implementation 'com.oracle.database.jdbc:ojdbc11'
+    implementation 'org.postgresql:postgresql'
     testImplementation group: 'com.redis', name: 'spring-batch-redis-test', version: springBatchRedisVersion
+    testImplementation 'org.springframework.boot:spring-boot-starter-jdbc'
     testImplementation 'org.awaitility:awaitility'
     testImplementation 'org.testcontainers:postgresql'
     testImplementation 'org.testcontainers:oracle-xe'
-    testImplementation 'org.springframework.boot:spring-boot-autoconfigure'
     testImplementation 'org.hsqldb:hsqldb'
 }
 
