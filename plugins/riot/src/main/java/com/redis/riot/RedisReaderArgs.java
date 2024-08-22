@@ -25,7 +25,7 @@ public class RedisReaderArgs {
 	public static final Duration DEFAULT_POLL_TIMEOUT = AbstractPollableItemReader.DEFAULT_POLL_TIMEOUT;
 	public static final int DEFAULT_THREADS = AbstractAsyncItemReader.DEFAULT_THREADS;
 	public static final int DEFAULT_CHUNK_SIZE = AbstractAsyncItemReader.DEFAULT_CHUNK_SIZE;
-	public static final DataSize DEFAULT_MEMORY_USAGE_LIMIT = KeyValueRead.DEFAULT_MEM_USAGE_LIMIT;
+	public static final DataSize DEFAULT_MEMORY_USAGE_LIMIT = DataSize.ofBytes(-1);
 	public static final int DEFAULT_MEMORY_USAGE_SAMPLES = KeyValueRead.DEFAULT_MEM_USAGE_SAMPLES;
 	public static final long DEFAULT_SCAN_COUNT = 1000;
 	public static final Duration DEFAULT_FLUSH_INTERVAL = RedisItemReader.DEFAULT_FLUSH_INTERVAL;
@@ -55,7 +55,7 @@ public class RedisReaderArgs {
 	@Option(names = "--read-from", description = "Which Redis cluster nodes to read from: ${COMPLETION-CANDIDATES}.", paramLabel = "<name>")
 	private RedisReadFrom readFrom;
 
-	@Option(names = "--mem-limit", description = "Max mem usage for a key to be read (default: ${DEFAULT-VALUE}). Use 0 for no limit, -1 to disable. Examples: 12KB, 5MB", paramLabel = "<size>")
+	@Option(names = "--mem-limit", description = "Max mem usage for a key to be read. Use 0 for no limit, -1 to disable (default). Examples: 12KB, 5MB", paramLabel = "<size>")
 	private DataSize memUsageLimit = DEFAULT_MEMORY_USAGE_LIMIT;
 
 	@Option(names = "--mem-samples", description = "Number of memory usage samples for a key (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
